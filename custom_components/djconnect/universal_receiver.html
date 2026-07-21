@@ -11,6 +11,10 @@
     section { border-top: 1px solid #bbb; margin-top: 1rem; padding-top: .75rem; }
     h1 { font-size: 1.5rem; margin: 0; } h2 { font-size: 1rem; }
     pre { margin: 0; overflow-wrap: anywhere; white-space: pre-wrap; }
+    ol { margin: 0; padding-left: 1.5rem; }
+    .flow-item { margin: .35rem 0; }
+    .flow-item[data-position="now"] { font-weight: 700; }
+    .flow-item[data-position="completed"] { color: #555; }
   </style>
 </head>
 <body>
@@ -19,15 +23,15 @@
   <section><h2 id="session-label">Session</h2><pre id="session" data-testid="session"></pre></section>
   <section><h2 id="playback-label">Current playback</h2><pre id="playback" data-testid="playback"></pre></section>
   <section><h2 id="moment-label">Current DJ Moment</h2><pre id="moment" data-testid="moment"></pre></section>
-  <section><h2 id="flow-label">Session Flow</h2><pre id="flow" data-testid="flow"></pre></section>
+  <section><h2 id="flow-label">Session Flow</h2><ol id="flow" data-testid="flow"></ol></section>
   <script>
     (() => {
       const copy = {
-        en: { title: "DJConnect Receiver", disconnected: "Disconnected", connecting: "Connecting", connected: "Connected", snapshot: "Snapshot received", live: "Live updates", reconnecting: "Reconnecting", unavailable: "No active session", ended: "Session ended", interrupted: "Transport interrupted", session: "Session", playback: "Current playback", moment: "Current DJ Moment", flow: "Session Flow", missing: "A session ID and Broadcast Token are required." },
-        nl: { title: "DJConnect Receiver", disconnected: "Niet verbonden", connecting: "Verbinden", connected: "Verbonden", snapshot: "Snapshot ontvangen", live: "Live updates", reconnecting: "Opnieuw verbinden", unavailable: "Geen actieve sessie", ended: "Sessie beëindigd", interrupted: "Transport onderbroken", session: "Sessie", playback: "Huidige weergave", moment: "Huidig DJ-moment", flow: "Sessieflow", missing: "Een sessie-ID en Broadcast Token zijn vereist." },
-        de: { title: "DJConnect Receiver", disconnected: "Getrennt", connecting: "Verbinden", connected: "Verbunden", snapshot: "Snapshot empfangen", live: "Live-Updates", reconnecting: "Erneut verbinden", unavailable: "Keine aktive Sitzung", ended: "Sitzung beendet", interrupted: "Transport unterbrochen", session: "Sitzung", playback: "Aktuelle Wiedergabe", moment: "Aktueller DJ-Moment", flow: "Sitzungsablauf", missing: "Eine Sitzungs-ID und ein Broadcast-Token sind erforderlich." },
-        fr: { title: "DJConnect Receiver", disconnected: "Déconnecté", connecting: "Connexion", connected: "Connecté", snapshot: "Instantané reçu", live: "Mises à jour en direct", reconnecting: "Reconnexion", unavailable: "Aucune session active", ended: "Session terminée", interrupted: "Transport interrompu", session: "Session", playback: "Lecture en cours", moment: "Moment DJ actuel", flow: "Flux de session", missing: "Un identifiant de session et un jeton Broadcast sont requis." },
-        es: { title: "DJConnect Receiver", disconnected: "Desconectado", connecting: "Conectando", connected: "Conectado", snapshot: "Instantánea recibida", live: "Actualizaciones en directo", reconnecting: "Reconectando", unavailable: "No hay sesión activa", ended: "Sesión finalizada", interrupted: "Transporte interrumpido", session: "Sesión", playback: "Reproducción actual", moment: "Momento DJ actual", flow: "Flujo de sesión", missing: "Se requieren un ID de sesión y un token de Broadcast." }
+        en: { title: "DJConnect Receiver", disconnected: "Disconnected", connecting: "Connecting", connected: "Connected", snapshot: "Snapshot received", live: "Live updates", reconnecting: "Reconnecting", unavailable: "No active session", ended: "Session ended", interrupted: "Transport interrupted", session: "Session", playback: "Current playback", moment: "Current DJ Moment", flow: "Session Flow", emptyFlow: "No Session Flow items", missing: "A session ID and Broadcast Token are required." },
+        nl: { title: "DJConnect Receiver", disconnected: "Niet verbonden", connecting: "Verbinden", connected: "Verbonden", snapshot: "Snapshot ontvangen", live: "Live updates", reconnecting: "Opnieuw verbinden", unavailable: "Geen actieve sessie", ended: "Sessie beëindigd", interrupted: "Transport onderbroken", session: "Sessie", playback: "Huidige weergave", moment: "Huidig DJ-moment", flow: "Sessieflow", emptyFlow: "Geen sessieflow-items", missing: "Een sessie-ID en Broadcast Token zijn vereist." },
+        de: { title: "DJConnect Receiver", disconnected: "Getrennt", connecting: "Verbinden", connected: "Verbunden", snapshot: "Snapshot empfangen", live: "Live-Updates", reconnecting: "Erneut verbinden", unavailable: "Keine aktive Sitzung", ended: "Sitzung beendet", interrupted: "Transport unterbrochen", session: "Sitzung", playback: "Aktuelle Wiedergabe", moment: "Aktueller DJ-Moment", flow: "Sitzungsablauf", emptyFlow: "Keine Sitzungsablauf-Einträge", missing: "Eine Sitzungs-ID und ein Broadcast-Token sind erforderlich." },
+        fr: { title: "DJConnect Receiver", disconnected: "Déconnecté", connecting: "Connexion", connected: "Connecté", snapshot: "Instantané reçu", live: "Mises à jour en direct", reconnecting: "Reconnexion", unavailable: "Aucune session active", ended: "Session terminée", interrupted: "Transport interrompu", session: "Session", playback: "Lecture en cours", moment: "Moment DJ actuel", flow: "Flux de session", emptyFlow: "Aucun élément de flux de session", missing: "Un identifiant de session et un jeton Broadcast sont requis." },
+        es: { title: "DJConnect Receiver", disconnected: "Desconectado", connecting: "Conectando", connected: "Conectado", snapshot: "Instantánea recibida", live: "Actualizaciones en directo", reconnecting: "Reconectando", unavailable: "No hay sesión activa", ended: "Sesión finalizada", interrupted: "Transporte interrumpido", session: "Sesión", playback: "Reproducción actual", moment: "Momento DJ actual", flow: "Flujo de sesión", emptyFlow: "No hay elementos de flujo de sesión", missing: "Se requieren un ID de sesión y un token de Broadcast." }
       };
       const language = (navigator.language || "en").slice(0, 2);
       const text = copy[language] || copy.en;
@@ -45,12 +49,37 @@
       const display = value => value === undefined || value === null ? "—" : JSON.stringify(value, null, 2);
       const setConnection = value => { element("connection-state").textContent = value; };
       const clearProjection = () => { projection = {}; render(); };
-      const currentMoment = () => Array.isArray(projection.dj_moments) && projection.dj_moments.length ? projection.dj_moments.at(-1) : null;
+      const flowItems = () => Array.isArray(projection.session_flow && projection.session_flow.items) ? projection.session_flow.items : [];
+      const currentMoment = () => {
+        const moments = Array.isArray(projection.dj_moments) ? projection.dj_moments : [];
+        const activeFlowItem = flowItems().find(item => item && item.position === "now" && item.moment_id);
+        return moments.find(moment => activeFlowItem && moment && moment.moment_id === activeFlowItem.moment_id) || moments.at(-1) || null;
+      };
+      const renderFlow = () => {
+        const timeline = element("flow");
+        timeline.replaceChildren();
+        const items = flowItems();
+        if (!items.length) {
+          const empty = document.createElement("li");
+          empty.textContent = text.emptyFlow;
+          timeline.append(empty);
+          return;
+        }
+        for (const item of items) {
+          const entry = document.createElement("li");
+          entry.className = "flow-item";
+          entry.dataset.position = String(item && item.position || "");
+          entry.textContent = [item && item.position, item && item.item_type, item && item.label, item && item.moment_type]
+            .filter(Boolean)
+            .join(" · ");
+          timeline.append(entry);
+        }
+      };
       const render = () => {
         element("session").textContent = display(projection.session);
         element("playback").textContent = display(projection.playback && projection.playback.current_track);
         element("moment").textContent = display(currentMoment());
-        element("flow").textContent = display(projection.session_flow);
+        renderFlow();
       };
       const translate = () => {
         document.documentElement.lang = language in copy ? language : "en";

@@ -50,7 +50,12 @@ class UniversalReceiverTest(unittest.TestCase):
             const page = fs.readFileSync({json.dumps(str(RECEIVER_PAGE))}, "utf8");
             const script = page.match(/<script>([\\s\\S]*?)<\\/script>/)[1];
             const elements = new Map();
-            for (const id of ["title", "connection-state", "message", "session-label", "session", "playback-label", "playback", "moment-label", "moment", "flow-label", "flow"]) elements.set(id, {{ textContent: "" }});
+            const makeElement = () => ({{
+              textContent: "", children: [], dataset: {{}}, className: "",
+              replaceChildren() {{ this.children = []; this.textContent = ""; }},
+              append(child) {{ this.children.push(child); this.textContent = this.children.map(entry => entry.textContent).join("\\n"); }},
+            }});
+            for (const id of ["title", "connection-state", "message", "session-label", "session", "playback-label", "playback", "moment-label", "moment", "flow-label", "flow"]) elements.set(id, makeElement());
             const timers = [];
             const sockets = [];
             class FakeWebSocket {{
@@ -60,7 +65,7 @@ class UniversalReceiverTest(unittest.TestCase):
             const context = {{
               URLSearchParams, JSON, Set, Map, Array, Object, Math, encodeURIComponent,
               navigator: {{ language: "en-US" }},
-              document: {{ documentElement: {{}}, title: "", getElementById: id => elements.get(id) }},
+              document: {{ documentElement: {{}}, title: "", getElementById: id => elements.get(id), createElement: () => makeElement() }},
               window: {{
                 location: {{ protocol: "https:", host: "example.test", search: "?session_id=session-1&broadcast_token=token-1" }},
                 setTimeout: callback => {{ timers.push(callback); return timers.length; }},
@@ -75,26 +80,43 @@ class UniversalReceiverTest(unittest.TestCase):
             sockets[0].onmessage({{ data: JSON.stringify({{ type: "snapshot", snapshot: {{
               session: {{ session_id: "session-1", runtime_state: "active" }},
               playback: {{ current_track: {{ title: "Track One" }} }},
-              session_flow: {{ items: [{{ flow_id: "flow-1" }}] }},
+              session_flow: {{ items: [
+                {{ item_id: "completed-1", position: "completed", item_type: "dj_moment", label: "First moment", moment_id: "moment-1", moment_type: "artist_story" }},
+                {{ item_id: "now-1", position: "now", item_type: "current_track", label: "Track One" }},
+                {{ item_id: "next-1", position: "next", item_type: "dj_moment", label: "Next moment", moment_id: "moment-2", moment_type: "transition" }},
+              ] }},
               dj_moments: [{{ moment_id: "moment-1", title: "First moment" }}],
               planner: {{ hidden: true }},
             }} }}) }});
             assert.match(elements.get("session").textContent, /session-1/);
             assert.match(elements.get("playback").textContent, /Track One/);
             assert.match(elements.get("moment").textContent, /First moment/);
-            assert.match(elements.get("flow").textContent, /flow-1/);
-            const flowUpdate = {{ event_type: "session_flow_updated", payload: {{ session_flow: {{ items: [{{ flow_id: "flow-2" }}] }} }} }};
+            assert.equal(elements.get("flow").textContent, "completed · dj_moment · First moment · artist_story\\nnow · current_track · Track One\\nnext · dj_moment · Next moment · transition");
+            const flowUpdate = {{ event_type: "session_flow_updated", payload: {{ session_flow: {{ items: [
+              {{ item_id: "now-2", position: "now", item_type: "current_track", label: "Track Two" }},
+              {{ item_id: "next-2", position: "next", item_type: "dj_moment", label: "Second moment", moment_id: "moment-2", moment_type: "session_update" }},
+              {{ item_id: "later-2", position: "later", item_type: "future_placeholder", label: "Later" }},
+            ] }} }} }};
             const momentUpdate = {{ event_type: "dj_moment_published", payload: {{ dj_moment: {{ moment_id: "moment-2", title: "Second moment" }} }} }};
             sockets[0].onmessage({{ data: JSON.stringify({{ type: "event", data: flowUpdate }}) }});
             sockets[0].onmessage({{ data: JSON.stringify({{ type: "event", data: momentUpdate }}) }});
-            assert.match(elements.get("flow").textContent, /flow-2/);
+            const liveTimeline = elements.get("flow").textContent;
+            assert.ok(liveTimeline.indexOf("Track Two") < liveTimeline.indexOf("Second moment"));
+            assert.ok(liveTimeline.indexOf("Second moment") < liveTimeline.indexOf("Later"));
             assert.match(elements.get("moment").textContent, /Second moment/);
+            sockets[0].onmessage({{ data: JSON.stringify({{ type: "snapshot", snapshot: {{
+              session: {{ session_id: "session-1", runtime_state: "active" }},
+              session_flow: {{ items: [{{ item_id: "reset-1", position: "now", item_type: "current_track", label: "Reset flow" }}] }},
+              dj_moments: [],
+            }} }}) }});
+            assert.equal(elements.get("flow").textContent, "now · current_track · Reset flow");
             sockets[0].onclose();
             assert.equal(timers.length, 1);
             timers.shift()();
             assert.equal(sockets.length, 2);
-            sockets[1].onmessage({{ data: JSON.stringify({{ type: "snapshot", snapshot: {{ session: {{ session_id: "session-1", runtime_state: "active" }}, playback: {{ current_track: {{ title: "Restored" }} }}, session_flow: {{ items: [] }}, dj_moments: [] }} }}) }});
+            sockets[1].onmessage({{ data: JSON.stringify({{ type: "snapshot", snapshot: {{ session: {{ session_id: "session-1", runtime_state: "active" }}, playback: {{ current_track: {{ title: "Restored" }} }}, session_flow: {{ items: [{{ item_id: "restored-1", position: "now", item_type: "current_track", label: "Restored flow" }}] }}, dj_moments: [] }} }}) }});
             assert.match(elements.get("playback").textContent, /Restored/);
+            assert.equal(elements.get("flow").textContent, "now · current_track · Restored flow");
             const endedEvent = {{ event_type: "runtime_ended", payload: {{ session: {{ runtime_state: "ended" }} }} }};
             sockets[1].onmessage({{ data: JSON.stringify({{ type: "event", data: endedEvent }}) }});
             assert.equal(elements.get("session").textContent, "—");
@@ -103,6 +125,7 @@ class UniversalReceiverTest(unittest.TestCase):
             assert.equal(timers.length, 0);
             assert.equal(page.includes("localStorage"), false);
             assert.equal(page.includes("fetch("), false);
+            assert.equal(page.includes(".sort("), false);
             """
         )
         completed = subprocess.run(

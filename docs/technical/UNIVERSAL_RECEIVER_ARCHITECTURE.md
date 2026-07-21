@@ -103,6 +103,23 @@ the current DJMoment, Session Flow and connection state. It has no controls,
 Planner or Knowledge view, artwork, queue, diagnostics, Session chooser or
 client-derived Runtime state.
 
+## Capability 2 — Session Flow Timeline Rendering
+
+The Receiver renders `session_flow.items` as the complete current semantic
+timeline exactly in the order supplied by the Broadcast snapshot or
+`session_flow_updated` event. Each renderer-safe item displays its published
+relative position, item type and label; a DJ Moment item also displays its
+published Moment type. The browser never sorts, synthesizes, filters or keeps
+a separate timeline history.
+
+An incoming snapshot replaces the complete in-memory timeline, including after
+a reconnect or Session reset. A `session_flow_updated` event likewise replaces
+the current timeline with the Runtime-published projection. A
+`dj_moment_published` event updates the existing current-Moment presentation;
+it does not append an inferred timeline entry. Runtime termination clears the
+timeline. Consequently, completed, active and future semantics remain defined
+solely by the server-published Flow item attributes.
+
 ## Multi-renderer model
 
 Multiple Renderer Hosts may consume one active Broadcast concurrently. Apple,
