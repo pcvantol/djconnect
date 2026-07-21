@@ -2308,6 +2308,180 @@ class SessionRuntimeManagerTest(unittest.TestCase):
         self.assertNotIn("session_mood", context.as_insight())
         self.assertEqual(moment.source_references, ("track_insight",))
 
+    def test_knowledge_engine_consumes_matching_prepared_knowledge(self) -> None:
+        planned, prefetch, prepared = self._approved_artist_prefetch()
+        engine = self.runtime.DJKnowledgeEngine()
+
+        context = asyncio.run(
+            engine.async_resolve_approved_planned_intent(
+                approved_intent=planned.as_planner_intent(),
+                planned_intent=planned,
+                knowledge_intent=self.runtime.KnowledgeIntent(
+                    self.runtime.KnowledgeIntentType.ARTIST_STORY, "Share artist context."
+                ),
+                prefetch=prefetch,
+                prepared_knowledge=(prepared,),
+                invalidation_generation=4,
+                raw_insight={"track": {"producer": "Fallback producer"}},
+            )
+        )
+
+        self.assertEqual(context.sources, ("prepared_knowledge",))
+        self.assertEqual(context.track, (("artist", "Prepared Artist"),))
+        self.assertEqual(prepared.projection, (("artist", "Prepared Artist"),))
+
+    def test_knowledge_engine_falls_back_when_prepared_knowledge_is_not_usable(self) -> None:
+        unusable_statuses = (
+            self.runtime.PreparedKnowledgeStatus.UNAVAILABLE,
+            self.runtime.PreparedKnowledgeStatus.INVALID,
+            self.runtime.PreparedKnowledgeStatus.STALE,
+            self.runtime.PreparedKnowledgeStatus.UNSUPPORTED,
+            self.runtime.PreparedKnowledgeStatus.CANCELLED,
+            self.runtime.PreparedKnowledgeStatus.SUPERSEDED,
+        )
+        for status in unusable_statuses:
+            with self.subTest(status=status):
+                planned, prefetch, prepared = self._approved_artist_prefetch(status=status)
+                context = asyncio.run(
+                    self.runtime.DJKnowledgeEngine().async_resolve_approved_planned_intent(
+                        approved_intent=planned.as_planner_intent(),
+                        planned_intent=planned,
+                        knowledge_intent=self.runtime.KnowledgeIntent(
+                            self.runtime.KnowledgeIntentType.ARTIST_STORY,
+                            "Share artist context.",
+                        ),
+                        prefetch=prefetch,
+                        prepared_knowledge=(prepared,),
+                        invalidation_generation=4,
+                        raw_insight={"track": {"producer": "Fallback producer"}},
+                    )
+                )
+
+                self.assertEqual(context.sources, ("track_insight",))
+                self.assertEqual(dict(context.track)["producer"], "Fallback producer")
+
+    def test_knowledge_engine_rejects_stale_and_superseded_prepared_knowledge(self) -> None:
+        planned, prefetch, stale = self._approved_artist_prefetch(
+            status=self.runtime.PreparedKnowledgeStatus.STALE
+        )
+        _, _, superseded_generation = self._approved_artist_prefetch(planning_generation=1)
+        engine = self.runtime.DJKnowledgeEngine()
+        arguments = dict(
+            approved_intent=planned.as_planner_intent(),
+            planned_intent=planned,
+            knowledge_intent=self.runtime.KnowledgeIntent(
+                self.runtime.KnowledgeIntentType.ARTIST_STORY, "Share artist context."
+            ),
+            prefetch=prefetch,
+            invalidation_generation=4,
+            raw_insight={"track": {"producer": "Fallback producer"}},
+        )
+
+        stale_context = asyncio.run(
+            engine.async_resolve_approved_planned_intent(
+                **arguments, prepared_knowledge=(stale,)
+            )
+        )
+        superseded_context = asyncio.run(
+            engine.async_resolve_approved_planned_intent(
+                **arguments, prepared_knowledge=(superseded_generation,)
+            )
+        )
+
+        self.assertEqual(stale_context.sources, ("track_insight",))
+        self.assertEqual(superseded_context.sources, ("track_insight",))
+
+    def test_knowledge_engine_rejects_invalid_prepared_subject_deterministically(self) -> None:
+        planned, prefetch, prepared = self._approved_artist_prefetch()
+        invalid_subject = self.runtime.PreparedKnowledge(
+            prepared.request_id,
+            prepared.planning_generation,
+            prepared.knowledge_category,
+            self.runtime.PreparedKnowledgeStatus.PREPARED,
+            projection=(("album", "Wrong subject"),),
+            confidence=prepared.confidence,
+            freshness=prepared.freshness,
+            is_valid=True,
+        )
+        engine = self.runtime.DJKnowledgeEngine()
+        arguments = dict(
+            approved_intent=planned.as_planner_intent(),
+            planned_intent=planned,
+            knowledge_intent=self.runtime.KnowledgeIntent(
+                self.runtime.KnowledgeIntentType.ARTIST_STORY, "Share artist context."
+            ),
+            prefetch=prefetch,
+            prepared_knowledge=(invalid_subject,),
+            invalidation_generation=4,
+            raw_insight={"track": {"producer": "Fallback producer"}},
+        )
+
+        first = asyncio.run(engine.async_resolve_approved_planned_intent(**arguments))
+        second = asyncio.run(engine.async_resolve_approved_planned_intent(**arguments))
+
+        self.assertEqual(first, second)
+        self.assertEqual(first.sources, ("track_insight",))
+
+    def test_prepared_knowledge_consumption_is_runtime_scoped(self) -> None:
+        manager = self.runtime.SessionRuntimeManager()
+        created = asyncio.run(manager.async_start(owner_profile_id="profile-prepared-consumption"))
+        planned, prefetch, prepared = self._approved_artist_prefetch()
+        asyncio.run(
+            created.knowledge_engine.async_resolve_approved_planned_intent(
+                approved_intent=planned.as_planner_intent(),
+                planned_intent=planned,
+                knowledge_intent=self.runtime.KnowledgeIntent(
+                    self.runtime.KnowledgeIntentType.ARTIST_STORY, "Share artist context."
+                ),
+                prefetch=prefetch,
+                prepared_knowledge=(prepared,),
+                invalidation_generation=4,
+                raw_insight={},
+            )
+        )
+
+        self.assertNotIn("prepared_knowledge", created.as_dict())
+        asyncio.run(
+            manager.async_end(
+                owner_profile_id="profile-prepared-consumption", session_id=created.session_id
+            )
+        )
+        self.assertIsNone(asyncio.run(manager.async_get_active("profile-prepared-consumption")))
+
+    def _approved_artist_prefetch(self, *, status=None, planning_generation: int = 2):
+        status = status or self.runtime.PreparedKnowledgeStatus.PREPARED
+        slot = self.runtime.CandidatePlanningSlot("artist_story", 0, 60)
+        planned = self.runtime.PlannedIntent(
+            "artist_story",
+            slot,
+            2,
+            0.8,
+            self.runtime.PlannedIntentStatus.APPROVED,
+        )
+        prefetch = self.runtime.KnowledgePrefetch(
+            self.runtime.PlannedIntent("artist_story", slot, 2, 0.8),
+            "artist",
+            2,
+            self.runtime.KnowledgePrefetchStatus.PLANNED,
+            0.7,
+            0.9,
+            4,
+        )
+        request_id = self.runtime.KnowledgePrefetchRequest.from_prefetch(
+            prefetch, subject_projection=()
+        ).request_id
+        prepared = self.runtime.PreparedKnowledge(
+            request_id,
+            planning_generation,
+            "artist",
+            status,
+            projection=(("artist", "Prepared Artist"),),
+            confidence=0.7,
+            freshness=0.9,
+            is_valid=status is self.runtime.PreparedKnowledgeStatus.PREPARED,
+        )
+        return planned, prefetch, prepared
+
     def test_knowledge_engine_selects_metadata_by_planner_intent(self) -> None:
         engine = self.runtime.DJKnowledgeEngine()
         raw_insight = {
