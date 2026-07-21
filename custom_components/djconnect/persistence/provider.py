@@ -31,6 +31,12 @@ class PersistenceProvider(Protocol):
     async def async_read_schema_version(self) -> int:
         """Return the installed schema version, or zero for a new database."""
 
+    async def async_read_migration_history(self) -> list[tuple[int, str, str, bool]]:
+        """Return ordered, system-owned migration history."""
+
+    async def async_validate_schema(self, required_tables: dict[str, set[str]]) -> None:
+        """Validate required tables, columns and provider invariants."""
+
     async def async_run_transaction(
         self,
         operation: Callable[[ProviderTransaction], ResultT],

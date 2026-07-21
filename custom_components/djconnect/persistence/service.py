@@ -9,7 +9,7 @@ from typing import TypeVar
 import uuid
 
 from .provider import PersistenceProvider, ProviderTransaction
-from .schema import CURRENT_SCHEMA_VERSION, apply_migration
+from .schema import CURRENT_SCHEMA_VERSION, MIGRATIONS, REQUIRED_TABLES, apply_migration
 
 
 ResultT = TypeVar("ResultT")
@@ -33,6 +33,7 @@ class PersistenceReadiness:
 
     ready: bool
     schema_version: int = 0
+    last_migration_id: str = ""
 
 
 class PersistenceTransaction:
@@ -95,10 +96,17 @@ class PersistenceService:
             resolved_version = await self._provider.async_read_schema_version()
             if resolved_version != CURRENT_SCHEMA_VERSION:
                 raise PersistenceSchemaError("DJConnect persistence schema migration did not complete")
+            history = await self._provider.async_read_migration_history()
+            expected = [(item.version, item.migration_id, item.checksum, True) for item in MIGRATIONS]
+            if history != expected:
+                raise PersistenceSchemaError("DJConnect persistence migration history is inconsistent")
+            await self._provider.async_validate_schema(REQUIRED_TABLES)
         except Exception:
             await self._provider.async_close()
             raise
-        self._readiness = PersistenceReadiness(ready=True, schema_version=resolved_version)
+        self._readiness = PersistenceReadiness(
+            ready=True, schema_version=resolved_version, last_migration_id=MIGRATIONS[-1].migration_id
+        )
         return self._readiness
 
     async def async_close(self) -> None:

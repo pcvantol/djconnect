@@ -42,7 +42,8 @@ class PersistenceFoundationTest(unittest.TestCase):
             readiness = asyncio.run(service.async_initialize())
 
             self.assertTrue(readiness.ready)
-            self.assertEqual(readiness.schema_version, 1)
+            self.assertEqual(readiness.schema_version, 2)
+            self.assertEqual(readiness.last_migration_id, "0002_migration_identity")
             self.assertTrue((Path(directory) / "djconnect.sqlite3").exists())
             asyncio.run(service.async_close())
             self.assertFalse(service.readiness.ready)
@@ -55,7 +56,7 @@ class PersistenceFoundationTest(unittest.TestCase):
 
             readiness = asyncio.run(service.async_initialize())
 
-            self.assertEqual(readiness.schema_version, 1)
+            self.assertEqual(readiness.schema_version, 2)
             connection = sqlite3.connect(path)
             try:
                 applied = connection.execute(
@@ -63,7 +64,7 @@ class PersistenceFoundationTest(unittest.TestCase):
                 ).fetchall()
             finally:
                 connection.close()
-            self.assertEqual(applied, [(1,)])
+            self.assertEqual(applied, [(1,), (2,)])
             asyncio.run(service.async_close())
 
     def test_future_schema_is_rejected_without_becoming_ready(self) -> None:
@@ -87,6 +88,50 @@ class PersistenceFoundationTest(unittest.TestCase):
                 asyncio.run(service.async_initialize())
 
             self.assertFalse(service.readiness.ready)
+
+    def test_released_v1_database_upgrades_through_the_canonical_chain(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "djconnect.sqlite3"
+            connection = sqlite3.connect(path)
+            try:
+                connection.execute(
+                    "CREATE TABLE djconnect_schema_metadata "
+                    "(singleton INTEGER PRIMARY KEY, schema_version INTEGER, updated_at TEXT)"
+                )
+                connection.execute(
+                    "CREATE TABLE djconnect_schema_migrations "
+                    "(schema_version INTEGER PRIMARY KEY, applied_at TEXT)"
+                )
+                connection.execute("INSERT INTO djconnect_schema_metadata VALUES (1, 1, 'old')")
+                connection.execute("INSERT INTO djconnect_schema_migrations VALUES (1, 'old')")
+                connection.commit()
+            finally:
+                connection.close()
+
+            readiness = asyncio.run(self._service(directory).async_initialize())
+
+            self.assertEqual(readiness.schema_version, 2)
+            self.assertEqual(readiness.last_migration_id, "0002_migration_identity")
+
+    def test_inconsistent_migration_history_fails_without_readiness(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            service = self._service(directory)
+            asyncio.run(service.async_initialize())
+            asyncio.run(service.async_close())
+            path = Path(directory) / "djconnect.sqlite3"
+            connection = sqlite3.connect(path)
+            try:
+                connection.execute(
+                    "UPDATE djconnect_schema_migrations SET checksum='wrong' WHERE schema_version=2"
+                )
+                connection.commit()
+            finally:
+                connection.close()
+
+            restarted = self._service(directory)
+            with self.assertRaises(PersistenceSchemaError):
+                asyncio.run(restarted.async_initialize())
+            self.assertFalse(restarted.readiness.ready)
 
     def test_transaction_is_unavailable_before_bootstrap_and_has_no_connection_handle(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
