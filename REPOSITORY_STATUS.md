@@ -28,18 +28,17 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-Current main contains PR [#348](https://github.com/pcvantol/djconnect/pull/348),
-**Canonical Non-Knowledge Track Started Projection**, merged as
-`326947222b70338785d446c518b5e8fc55c74654`. Silence and Session Update now use
-the same bounded current-track Planning Window, Planned Intent, readiness and
-approval lifecycle as knowledge-driven decisions. Silence realizes without
-knowledge preparation; Session Runtime applies the Planner-approved Session
-Direction before the existing Session Update realization. Existing Flow and
-Broadcast publication remain authoritative, and planned state is consumed only
-after publication. The legacy Track Started route is bounded to lifecycle
-failure. No new intelligence, provider, persistence, transport or renderer
-capability was added. This completed implementation is in its dedicated
-governance-only Finalization.
+Current main contains PR [#350](https://github.com/pcvantol/djconnect/pull/350),
+**Universal Receiver V1 — Server Architecture**, merged as
+`03cd470fc11d7f36c78434b0ea8cd4199a4bd1fc`. It defines the Universal Receiver
+as a disposable, stateless Web Renderer Host for one server-owned active
+Session. It consumes only existing renderer-safe Broadcast snapshots and
+incremental updates, including reconnect semantics; the existing
+runtime/session-bound receiver token stays read-only. Session Runtime, Planner,
+Knowledge, DJ Moment Engine, Session Flow and Broadcast ownership remain inside
+Home Assistant. No browser UI, browser persistence, browser authority,
+authentication redesign or second transport model was added. This completed
+architecture increment is in its dedicated governance-only Finalization.
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`.
 
 The preceding PR #313,

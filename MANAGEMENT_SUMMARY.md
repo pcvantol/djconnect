@@ -15,14 +15,14 @@
 
 ## Current position
 
-PR [#348](https://github.com/pcvantol/djconnect/pull/348) merged as
-`326947222b70338785d446c518b5e8fc55c74654`. It completes the Session
-Intelligence Runtime Integration Epic: Silence and Session Update now use the
-same bounded Planner candidate, Planned Intent, readiness, approval,
-realization, Flow and Broadcast lifecycle as normal knowledge-driven Track
-Started decisions. Session Direction remains Runtime-owned and the legacy
-route is only lifecycle-failure protection. No intelligence, provider,
-persistence, transport or renderer scope was added. This is its dedicated
+PR [#350](https://github.com/pcvantol/djconnect/pull/350) merged as
+`03cd470fc11d7f36c78434b0ea8cd4199a4bd1fc`. It formally establishes the
+Universal Receiver as a browser-based, stateless Web Renderer Host. It consumes
+the existing renderer-safe Broadcast projections while Home Assistant keeps
+all Runtime, Planner, Knowledge, DJ Moment Engine, Session Flow and Broadcast
+ownership. Existing receiver-token, initial-snapshot, incremental-update and
+reconnect semantics remain authoritative. No browser UI, browser authority,
+authentication redesign or new transport was introduced. This is its dedicated
 governance-only Finalization.
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`.
 
