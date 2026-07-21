@@ -571,8 +571,20 @@ class PlannerIntentSelector:
     _SUPPORTED = ("silence", "artist_story", "album_story", "genre_story", "recommendation")
 
     @classmethod
-    def select(cls, window: "PlanningWindow") -> PlannerIntent | None:
-        for category in cls._SUPPORTED:
+    def select(
+        cls,
+        window: "PlanningWindow",
+        *,
+        mood: str = "",
+        direction: SessionDirectionType | None = None,
+    ) -> PlannerIntent | None:
+        """Use bounded Runtime context only to rank one future candidate."""
+        priorities = cls._SUPPORTED
+        if mood == "chill" or direction is SessionDirectionType.COOLING_DOWN:
+            priorities = ("silence", "genre_story", "artist_story", "album_story", "recommendation")
+        elif direction is SessionDirectionType.EXPLORING:
+            priorities = ("recommendation", "artist_story", "album_story", "genre_story", "silence")
+        for category in priorities:
             if any(slot.category == category for slot in window.candidate_slots):
                 return PlannerIntent(category, window.generation)
         return None
