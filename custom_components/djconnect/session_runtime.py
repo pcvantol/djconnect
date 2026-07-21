@@ -758,12 +758,22 @@ class TrackStartedPlanningInput:
     effective_direction: SessionDirectionType
     performance_memory: PerformanceMemory
     planning_generation: int
+    session_update_direction: SessionDirectionType | None = None
+    planner_decision: PlannerDecision | None = None
 
 
 class PlannerIntentSelector:
     """Select at most one supported candidate deterministically."""
 
-    _SUPPORTED = ("silence", "track_context", "artist_story", "album_story", "genre_story", "recommendation")
+    _SUPPORTED = (
+        "silence",
+        "session_update",
+        "track_context",
+        "artist_story",
+        "album_story",
+        "genre_story",
+        "recommendation",
+    )
 
     @classmethod
     def select(
@@ -1458,10 +1468,17 @@ class DJSessionPlanner:
             record_track_available=False,
         )
         self.last_decision = previous_decision
-        category = decision.knowledge_intent.intent_type.value if decision.knowledge_intent else ""
+        category = {
+            PlannerDecisionType.SILENCE: "silence",
+            PlannerDecisionType.CREATE_SESSION_UPDATE: "session_update",
+        }.get(
+            decision.decision_type,
+            decision.knowledge_intent.intent_type.value if decision.knowledge_intent else "",
+        )
+        has_future_playback = bool(upcoming_playback and upcoming_playback.entries)
         candidate = (
             CandidatePlanningSlot(category, 0, 0, is_current_track=True)
-            if upcoming_playback is None and category in PlannerIntentSelector._SUPPORTED
+            if not has_future_playback and category in PlannerIntentSelector._SUPPORTED
             else None
         )
         return TrackStartedPlanningInput(
@@ -1472,6 +1489,8 @@ class DJSessionPlanner:
             effective_direction=session_direction.direction,
             performance_memory=performance_memory,
             planning_generation=self.horizon.invalidation_generation if self.horizon else 0,
+            session_update_direction=decision.proposed_session_direction,
+            planner_decision=decision,
         )
 
     def append_moment(
@@ -2158,6 +2177,7 @@ class PlanningRuntimeCoordinator:
     last_fallback_reason: str | None = None
     last_approval_source: str | None = None
     last_realized_intent: PlannedIntent | None = None
+    last_session_direction: SessionDirection | None = None
     disposed: bool = False
 
     async def async_coordinate_track_started(
@@ -2182,6 +2202,7 @@ class PlanningRuntimeCoordinator:
         self.last_fallback_reason = None
         self.last_approval_source = None
         self.last_realized_intent = None
+        self.last_session_direction = None
         horizon = planner.horizon
         if self.disposed or horizon is None:
             return self._fallback("planning_runtime_unavailable")
@@ -2240,6 +2261,34 @@ class PlanningRuntimeCoordinator:
                 locale=locale,
                 reason="planned_silence",
             )
+            self.last_realized_intent = planned
+            self.last_lifecycle_state = "completed"
+            return moment
+        if planned.category == "session_update":
+            direction = planning_input.session_update_direction
+            if direction is None:
+                return self._fallback("session_update_direction_unavailable")
+            updated_direction = SessionDirection(
+                direction=direction,
+                initialized_at=session_direction.initialized_at,
+                updated_at=_timestamp(),
+                start_strategy=session_direction.start_strategy,
+            )
+            knowledge = knowledge_engine.assemble_session_direction_context(
+                updated_direction,
+                session_start_strategy,
+                selected_mood,
+                performance_memory,
+            )
+            moment = moment_engine.create_session_update(
+                session_id=session_id,
+                selected_mood=selected_mood,
+                persona=persona,
+                locale=locale,
+                session_direction=updated_direction,
+                knowledge_context=knowledge,
+            )
+            self.last_session_direction = updated_direction
             self.last_realized_intent = planned
             self.last_lifecycle_state = "completed"
             return moment
@@ -2316,6 +2365,7 @@ class PlanningRuntimeCoordinator:
         self.last_fallback_reason = None
         self.last_approval_source = None
         self.last_realized_intent = None
+        self.last_session_direction = None
         self.disposed = True
 
 
@@ -3085,9 +3135,19 @@ class SessionRuntimeManager:
                 active = self._active_by_profile.get(owner_profile_id)
                 if active is None or active.session_id != session_id:
                     return None
+                is_session_update = active.planning_coordinator.last_session_direction is not None
+                if is_session_update:
+                    updated_direction = active.planning_coordinator.last_session_direction
+                    assert updated_direction is not None
+                    active = DJSessionRuntime(
+                        **{**active.__dict__, "session_direction": updated_direction}
+                    )
+                    self._active_by_profile[owner_profile_id] = active
+                    active.broadcast.update_session_direction(updated_direction)
+                    active.planner.last_decision = planning_input.planner_decision
                 active.publish_moment(coordinated)
                 active.planning_coordinator.confirm_published(active.planner)
-                if coordinated.moment_type is not DJMomentType.SILENCE:
+                if coordinated.moment_type is not DJMomentType.SILENCE and not is_session_update:
                     active.planner.record_spoken_moment()
                     active = self._record_performance_memory(owner_profile_id, active)
                     transition_decision = active.planner.evaluate_transition_after_moment(

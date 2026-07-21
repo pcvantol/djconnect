@@ -141,6 +141,41 @@ class SessionRuntimeManagerTest(unittest.TestCase):
         self.assertEqual(created.planner.output.session_flow.items[-1].moment_id, moment.moment_id)
         self.assertEqual(created.broadcast.state.dj_moments[-1], moment)
 
+    def test_current_track_silence_uses_the_canonical_planning_lifecycle(self) -> None:
+        manager = self.runtime.SessionRuntimeManager()
+        created = asyncio.run(
+            manager.async_start(
+                owner_profile_id="profile-current-silence",
+                selected_mood="groove",
+                dj_persona=self.runtime.DJPersona.CLUB_DJ,
+            )
+        )
+
+        async def insight() -> dict:
+            return {}
+
+        moment = asyncio.run(
+            manager.async_process_track_started(
+                owner_profile_id=created.owner_profile_id,
+                session_id=created.session_id,
+                insight_provider=insight,
+            )
+        )
+
+        horizon = created.planner.horizon
+        assert moment is not None and horizon is not None and horizon.planning_window is not None
+        planned = horizon.planning_window.planned_intents
+        self.assertEqual(moment.moment_type, self.runtime.DJMomentType.SILENCE)
+        self.assertEqual(created.planning_coordinator.last_lifecycle_state, "completed")
+        self.assertEqual(created.planning_coordinator.last_approval_source, "planned_intent")
+        self.assertIsNone(created.planning_coordinator.last_fallback_reason)
+        self.assertEqual(horizon.planning_window.planning_coverage_seconds, 0)
+        self.assertEqual(planned[0].category, "silence")
+        self.assertTrue(planned[0].slot.is_current_track)
+        self.assertEqual(planned[0].status, self.runtime.PlannedIntentStatus.DISCARDED)
+        self.assertEqual(horizon.consumed_slot_keys, (("silence", 0, 0),))
+        self.assertEqual(created.broadcast.state.dj_moments[-1], moment)
+
     def test_planning_runtime_coordinator_primary_path_consumes_prepared_knowledge(self) -> None:
         manager = self.runtime.SessionRuntimeManager()
         created = asyncio.run(
@@ -188,6 +223,7 @@ class SessionRuntimeManagerTest(unittest.TestCase):
         created = asyncio.run(
             manager.async_start(owner_profile_id="profile-coordinator-fallback", selected_mood="groove")
         )
+        created.planning_coordinator.disposed = True
 
         async def insight() -> dict:
             return {
@@ -200,16 +236,14 @@ class SessionRuntimeManagerTest(unittest.TestCase):
                 owner_profile_id="profile-coordinator-fallback",
                 session_id=created.session_id,
                 insight_provider=insight,
-                upcoming_playback=self.runtime.UpcomingPlaybackProjection(),
             )
         )
 
         assert moment is not None
         self.assertEqual(moment.moment_type, self.runtime.DJMomentType.ARTIST)
         self.assertEqual(moment.source_references, ("track_insight",))
-        self.assertEqual(created.planner.horizon.planning_window.planned_intents, ())
         self.assertEqual(created.planning_coordinator.last_lifecycle_state, "fallback")
-        self.assertEqual(created.planning_coordinator.last_fallback_reason, "no_ready_planned_intent")
+        self.assertEqual(created.planning_coordinator.last_fallback_reason, "planning_runtime_unavailable")
 
     def test_runtime_disposal_releases_planning_runtime_coordinator(self) -> None:
         manager = self.runtime.SessionRuntimeManager()
@@ -3038,6 +3072,18 @@ class SessionRuntimeManagerTest(unittest.TestCase):
             active.planner.output.session_flow.items[-1].moment_id, moment.moment_id
         )
         self.assertEqual(active.broadcast.as_dict()["dj_moments"][-1]["moment_id"], moment.moment_id)
+        horizon = active.planner.horizon
+        assert horizon is not None and horizon.planning_window is not None
+        self.assertEqual(active.planning_coordinator.last_lifecycle_state, "completed")
+        self.assertEqual(active.planning_coordinator.last_approval_source, "planned_intent")
+        self.assertIsNone(active.planning_coordinator.last_fallback_reason)
+        self.assertEqual(horizon.planning_window.planned_intents[0].category, "session_update")
+        self.assertTrue(horizon.planning_window.planned_intents[0].slot.is_current_track)
+        self.assertEqual(
+            horizon.planning_window.planned_intents[0].status,
+            self.runtime.PlannedIntentStatus.DISCARDED,
+        )
+        self.assertEqual(horizon.consumed_slot_keys, (("session_update", 0, 0),))
         self.assertEqual(
             [
                 event["event_type"]
