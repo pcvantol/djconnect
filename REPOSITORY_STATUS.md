@@ -28,20 +28,23 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-Current `main` is `3c636fe0d67af62eccf63d518167774cee9f85f6`, the merge commit
-for PR [#270](https://github.com/pcvantol/djconnect/pull/270), **Ensure
-snapshot-first WebSocket delivery**, merged on 2026-07-21. The worktree was
-clean and synchronized when this baseline was reconciled; PR #270 validation
-passed focused transport tests, full pytest, Ruff and diff checks.
+Current `main` is `97b748b6858b021b08423e6d661e02904e55a4b1`, the merge commit
+for PR [#272](https://github.com/pcvantol/djconnect/pull/272), **Add HTTP
+transport capability discovery**, merged on 2026-07-21. The worktree was clean
+and synchronized when this baseline was reconciled; PR #272 validation passed
+focused transport tests, full pytest, Ruff and diff checks.
 
 Transport Cell 1 is current: an owner-authorized HTTP snapshot is a
 side-effect-free renderer-safe fallback. Transport Cell 2 is current: its pure
 owner snapshot query is the sole initial WebSocket snapshot source and live
 callback registration creates no redundant snapshot. Transport Cell 3 is
 current: setup-time events are buffered until after the successful initial
-snapshot result. Existing snapshot-returning subscriptions, HTTP behaviour and
-WebSocket command/response/event schemas are unchanged. No delta, sequence,
-replay, cursor or Universal Receiver HTTP behaviour exists.
+snapshot result. Transport Cell 4 is current: HTTP capability discovery and
+WebSocket fallback metadata use the same declarative Broadcast transport source.
+It reports snapshot recovery only; replay, cursor, Flow delta and sequence are
+explicitly unavailable. Existing snapshot-returning subscriptions, authorization
+and transport behaviour are unchanged. No delta, sequence, replay, cursor or
+Universal Receiver HTTP behaviour exists.
 
 PR #267 reconciled PRs #260 through #266. Those intermediate records cover external
 dependency documentation (#260), validation-only baseline correction (#261),

@@ -234,7 +234,7 @@ class PlaybackObservationTest(unittest.TestCase):
         asyncio.run(poll_while_locked())
         self.assertEqual(self.spotify.SpotifyBackend.calls, 1)
 
-    def test_rolling_records_reconcile_pr_270_before_next_production_slice(self) -> None:
+    def test_rolling_records_reconcile_pr_272_before_next_production_slice(self) -> None:
         for name in (
             "ENGINEERING_STATUS.md",
             "REPOSITORY_STATUS.md",
@@ -242,8 +242,8 @@ class PlaybackObservationTest(unittest.TestCase):
             "PROMPT_INDEX.md",
         ):
             contents = (ROOT / name).read_text()
-            self.assertIn("PR [#270]", contents)
-            self.assertIn("3c636fe0d67af62eccf63d518167774cee9f85f6", contents)
+            self.assertIn("PR [#272]", contents)
+            self.assertIn("97b748b6858b021b08423e6d661e02904e55a4b1", contents)
 
     def test_media_identity_never_enters_public_runtime_representation(self) -> None:
         session = self._start()

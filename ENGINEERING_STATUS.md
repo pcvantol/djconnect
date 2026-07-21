@@ -5,14 +5,15 @@
 
 ## Current engineering increment
 
-The reconciled baseline is PR [#270](https://github.com/pcvantol/djconnect/pull/270),
-**Ensure snapshot-first WebSocket delivery**, merged on 2026-07-21 as
-`3c636fe0d67af62eccf63d518167774cee9f85f6`. Transport Cells 1 and 2 remain
-current. Transport Cell 3 is current: owner WebSocket setup registers its
-callback pending, builds one canonical snapshot, sends that snapshot first and
-only then delivers buffered setup-time events. No setup event is lost; this
-adds no replay, cursor, sequence, delta or client-visible protocol change. No
-Runtime, DJ Intelligence, Session Flow, playback or renderer behaviour changed.
+The reconciled baseline is PR [#272](https://github.com/pcvantol/djconnect/pull/272),
+**Add HTTP transport capability discovery**, merged on 2026-07-21 as
+`97b748b6858b021b08423e6d661e02904e55a4b1`. Transport Cells 1–4 are current.
+Cell 4 exposes the existing Broadcast transport truth over HTTP from the same
+transport-independent declaration used by WebSocket fallback metadata: owner
+HTTP snapshot and WebSocket subscription are available, snapshot recovery is
+supported, and replay, cursor, Flow delta and sequence are explicitly
+unsupported. It adds no Runtime, DJ Intelligence, Session Flow, Broadcast,
+playback or renderer behaviour.
 
 The preceding reconciled increments are: PR #260 external dependency
 documentation; PR #261 rolling-status validation only; PR #262 maturity-cell
