@@ -177,7 +177,7 @@ class PlaybackObservationTest(unittest.TestCase):
                     integration_runtime=object(), session=session, insight_provider=self._insight
                 )
             )
-            self.assertEqual(len(self.scheduled), 1)
+            self.assertEqual(len(self.scheduled), 2)
 
     def test_observation_publishes_only_an_existing_ha_proxy_artwork_url(self) -> None:
         session = self._start()
@@ -234,6 +234,7 @@ class PlaybackObservationTest(unittest.TestCase):
         asyncio.run(self.manager.async_end(owner_profile_id="profile-a", session_id=session.session_id))
         asyncio.run(self.scheduled[0]["callback"](None))
         self.assertTrue(self.scheduled[0]["removed"])
+        self.assertTrue(self.scheduled[1]["removed"])
         self.assertIsNone(asyncio.run(self.manager.async_get_active("profile-a")))
 
     def test_overlapping_poll_is_suppressed(self) -> None:

@@ -82,7 +82,9 @@ class SpotifyBackendTest(unittest.TestCase):
                     "uri": "spotify:track:observed",
                     "name": "Never enters Runtime",
                     "artists": [{"name": "Hidden metadata"}],
+                    "duration_ms": 180000,
                 },
+                "progress_ms": 12000,
             }
 
         backend._request = request
@@ -95,6 +97,8 @@ class SpotifyBackendTest(unittest.TestCase):
         self.assertEqual(observed.artist, "Hidden metadata")
         self.assertEqual(observed.state, "playing")
         self.assertEqual(observed.artwork_url, "")
+        self.assertEqual(observed.duration_ms, 180000)
+        self.assertEqual(observed.position_ms, 12000)
         self.assertFalse(hasattr(runtime, "last_playback"))
 
     def test_playback_observation_rejects_non_track_or_inactive_media(self) -> None:

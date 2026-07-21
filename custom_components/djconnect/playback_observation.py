@@ -19,6 +19,7 @@ from .spotify_backend import SpotifyBackend, SpotifyBackendError
 
 _LOGGER = logging.getLogger(__name__)
 SPOTIFY_OBSERVATION_INTERVAL = timedelta(seconds=15)
+PLAYBACK_PROGRESS_INTERVAL = timedelta(seconds=1)
 
 InsightProvider = Callable[[], Awaitable[dict[str, Any]]]
 
@@ -32,6 +33,7 @@ class _SpotifyObservationSession:
     session_id: str
     insight_provider: InsightProvider
     remove_listener: Callable[[], None] | None = None
+    remove_progress_listener: Callable[[], None] | None = None
     poll_lock: asyncio.Lock = field(default_factory=asyncio.Lock)
     unavailable: bool = False
 
@@ -65,6 +67,14 @@ class PlaybackObservationManager:
         async def poll(_now: Any = None) -> None:
             await self._async_poll_spotify(observed)
 
+        async def advance_progress(_now: Any = None) -> None:
+            if self._spotify_sessions.get(observed.owner_profile_id) is not observed:
+                return
+            await session_runtime_manager(self._hass).async_advance_playback_progress(
+                owner_profile_id=observed.owner_profile_id,
+                session_id=observed.session_id,
+            )
+
         # The first successful state is a Runtime baseline, never a second
         # Session-start contribution. The Runtime owns this identity-only rule.
         await poll()
@@ -73,6 +83,9 @@ class PlaybackObservationManager:
         if async_track_time_interval is not None:
             observed.remove_listener = async_track_time_interval(
                 self._hass, poll, SPOTIFY_OBSERVATION_INTERVAL
+            )
+            observed.remove_progress_listener = async_track_time_interval(
+                self._hass, advance_progress, PLAYBACK_PROGRESS_INTERVAL
             )
 
     async def async_stop(self, owner_profile_id: str, session_id: str = "") -> None:
@@ -84,6 +97,9 @@ class PlaybackObservationManager:
         if observed.remove_listener is not None:
             observed.remove_listener()
             observed.remove_listener = None
+        if observed.remove_progress_listener is not None:
+            observed.remove_progress_listener()
+            observed.remove_progress_listener = None
 
     async def async_stop_runtime(self, integration_runtime: Any) -> None:
         """Release observers owned by an unloading integration Runtime."""
@@ -142,6 +158,7 @@ class PlaybackObservationManager:
                 ),
                 target_name=getattr(result, "target_name", ""),
                 duration_ms=getattr(result, "duration_ms", None),
+                position_ms=getattr(result, "position_ms", None),
             )
             if not result.is_playing or not result.media_identity:
                 return

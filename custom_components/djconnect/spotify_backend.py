@@ -64,6 +64,7 @@ class SpotifyPlaybackObservation:
     artwork_url: str = ""
     target_name: str = ""
     duration_ms: int | None = None
+    position_ms: int | None = None
 
 
 async def handle_spotify_command(
@@ -515,6 +516,7 @@ class SpotifyBackend:
             artwork_url=str(playback.get("album_image_url") or ""),
             target_name=str(device.get("name") or ""),
             duration_ms=_int_or_none(playback.get("duration_ms")),
+            position_ms=_int_or_none(playback.get("progress_ms")),
         )
 
     async def _enrich_playback_artist_genres(self, playback: dict[str, Any]) -> None:

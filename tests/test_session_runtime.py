@@ -8,6 +8,7 @@ import sys
 import types
 import unittest
 from dataclasses import FrozenInstanceError
+from unittest.mock import patch
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -1512,12 +1513,14 @@ class SessionRuntimeManagerTest(unittest.TestCase):
             state="playing", media_identity="provider-internal-track-1",
             title="Track", artist="Artist", album="Album", target_name="Living Room",
             artwork_url="/api/djconnect/v1/image_proxy/artwork-token", duration_ms=180000,
+            position_ms=12000,
         ))
         duplicate = asyncio.run(manager.async_update_playback_projection(
             owner_profile_id="profile-playback", session_id=created.session_id,
             state="playing", media_identity="provider-internal-track-1",
             title="Track", artist="Artist", album="Album", target_name="Living Room",
             artwork_url="/api/djconnect/v1/image_proxy/artwork-token", duration_ms=180000,
+            position_ms=12000,
         ))
         playback = created.broadcast.as_dict()["playback"]
 
@@ -1526,15 +1529,106 @@ class SessionRuntimeManagerTest(unittest.TestCase):
         self.assertEqual(playback["state"], "playing")
         self.assertEqual(playback["title"], "Track")
         self.assertEqual(playback["artwork_url"], "/api/djconnect/v1/image_proxy/artwork-token")
+        self.assertEqual(playback["position_ms"], 12000)
         self.assertNotIn("provider-internal-track-1", str(playback))
         self.assertNotIn("https://", str(playback))
-        self.assertNotIn("position_ms", playback)
         self.assertEqual([event["event_type"] for event in events], ["playback_changed"])
 
         self.assertTrue(asyncio.run(manager.async_update_playback_projection(
             owner_profile_id="profile-playback", session_id=created.session_id, state="idle"
         )))
         self.assertEqual(created.broadcast.as_dict()["playback"], {"state": "idle"})
+
+    def test_runtime_owned_progress_clock_broadcasts_and_corrects_position(self) -> None:
+        manager = self.runtime.SessionRuntimeManager()
+        created = asyncio.run(manager.async_start(owner_profile_id="profile-progress"))
+        events: list[dict] = []
+        created.broadcast.register_subscription(events.append)
+
+        with patch.object(self.runtime.time, "monotonic", return_value=100.0):
+            self.assertTrue(asyncio.run(manager.async_update_playback_projection(
+                owner_profile_id="profile-progress", session_id=created.session_id,
+                state="playing", media_identity="provider-track-progress", duration_ms=180000,
+                position_ms=12000,
+            )))
+        with patch.object(self.runtime.time, "monotonic", return_value=101.0):
+            self.assertTrue(asyncio.run(manager.async_advance_playback_progress(
+                owner_profile_id="profile-progress", session_id=created.session_id,
+            )))
+
+        playback = created.broadcast.as_dict()["playback"]
+        self.assertEqual(playback["position_ms"], 13000)
+        self.assertEqual(
+            [event["event_type"] for event in events],
+            ["playback_changed", "playback_progress"],
+        )
+
+        with patch.object(self.runtime.time, "monotonic", return_value=115.0):
+            self.assertTrue(asyncio.run(manager.async_update_playback_projection(
+                owner_profile_id="profile-progress", session_id=created.session_id,
+                state="playing", media_identity="provider-track-progress", duration_ms=180000,
+                position_ms=26500,
+            )))
+        self.assertEqual(created.broadcast.as_dict()["playback"]["position_ms"], 26500)
+
+        self.assertTrue(asyncio.run(manager.async_update_playback_projection(
+            owner_profile_id="profile-progress", session_id=created.session_id,
+            state="paused", media_identity="provider-track-progress", duration_ms=180000,
+            position_ms=26500,
+        )))
+        self.assertFalse(asyncio.run(manager.async_advance_playback_progress(
+            owner_profile_id="profile-progress", session_id=created.session_id,
+        )))
+
+    def test_progress_clock_is_bounded_and_disposed_with_runtime(self) -> None:
+        manager = self.runtime.SessionRuntimeManager()
+        created = asyncio.run(manager.async_start(owner_profile_id="profile-progress-end"))
+
+        with patch.object(self.runtime.time, "monotonic", return_value=100.0):
+            asyncio.run(manager.async_update_playback_projection(
+                owner_profile_id="profile-progress-end", session_id=created.session_id,
+                state="playing", media_identity="provider-track-end", duration_ms=180000,
+                position_ms=179500,
+            ))
+        with patch.object(self.runtime.time, "monotonic", return_value=101.0):
+            self.assertTrue(asyncio.run(manager.async_advance_playback_progress(
+                owner_profile_id="profile-progress-end", session_id=created.session_id,
+            )))
+        self.assertEqual(created.broadcast.as_dict()["playback"]["position_ms"], 180000)
+        self.assertNotIn("profile-progress-end", manager._playback_progress_clocks)
+
+        disposal = asyncio.run(manager.async_start(owner_profile_id="profile-progress-disposal"))
+        with patch.object(self.runtime.time, "monotonic", return_value=200.0):
+            asyncio.run(manager.async_update_playback_projection(
+                owner_profile_id="profile-progress-disposal", session_id=disposal.session_id,
+                state="playing", media_identity="provider-track-disposal", duration_ms=180000,
+                position_ms=12000,
+            ))
+        self.assertIn("profile-progress-disposal", manager._playback_progress_clocks)
+        asyncio.run(manager.async_end(
+            owner_profile_id="profile-progress-disposal", session_id=disposal.session_id
+        ))
+        self.assertNotIn("profile-progress-disposal", manager._playback_progress_clocks)
+
+    def test_progress_remains_absent_without_a_complete_backend_observation(self) -> None:
+        manager = self.runtime.SessionRuntimeManager()
+        created = asyncio.run(manager.async_start(owner_profile_id="profile-progress-missing"))
+
+        asyncio.run(manager.async_update_playback_projection(
+            owner_profile_id="profile-progress-missing", session_id=created.session_id,
+            state="playing", media_identity="provider-track-missing", duration_ms=180000,
+        ))
+        self.assertNotIn("position_ms", created.broadcast.as_dict()["playback"])
+        self.assertNotIn("profile-progress-missing", manager._playback_progress_clocks)
+
+        asyncio.run(manager.async_update_playback_projection(
+            owner_profile_id="profile-progress-missing", session_id=created.session_id,
+            state="playing", media_identity="provider-track-missing", position_ms=12000,
+        ))
+        self.assertNotIn("position_ms", created.broadcast.as_dict()["playback"])
+        self.assertFalse(asyncio.run(manager.async_advance_playback_progress(
+            owner_profile_id="profile-progress-missing", session_id=created.session_id,
+        )))
 
     def test_planner_creates_and_republishes_its_canonical_session_flow(self) -> None:
         manager = self.runtime.SessionRuntimeManager()
