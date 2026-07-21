@@ -35,7 +35,10 @@ Every completed phase should leave the platform in a better state than before.
 
 Every canonical prompt represents exactly one engineering increment. Every
 engineering increment terminates with exactly one reviewable pull request.
-Merge is a separate, explicit governance decision.
+Merge is a separate, explicit governance decision. The canonical Capability
+Completion Lifecycle, its `GO`/`NO-GO` Pre-Flight and post-merge Finalization
+are defined in `ENGINEERING_METHOD.md`; this playbook does not duplicate that
+operational contract.
 
 Before this workflow begins, synchronize and verify current main, read the
 canonical repository state and perform the implementation-reality check. The
@@ -59,31 +62,23 @@ Validation
 
 ↓
 
-Documentation Update
+Exactly One Reviewable Implementation Pull Request
 
 ↓
 
-Repository Status Update
+Merge
 
 ↓
 
-Management Summary Update
+Dedicated Finalization
 
 ↓
 
-Prompt Index Update
+`MERGED_RECONCILED`
 
 ↓
 
-Commit(s)
-
-↓
-
-Exactly One Reviewable Pull Request
-
-↓
-
-Stop
+Next Capability
 ```
 
 ## Mandatory Rules
@@ -95,8 +90,8 @@ Stop
 4. Every increment leaves the repository in a valid state.
 5. Merge remains an explicit governance decision; opening a pull request does
    not authorize its merge.
-6. The next canonical prompt must not begin until the preceding prompt has a
-   reviewable pull request.
+6. The next production capability must not begin until its predecessor's
+   Finalization has merged and restored `MERGED_RECONCILED`.
 7. Canonical prompts must not compete for, or overlap on, implementation
    scope.
 

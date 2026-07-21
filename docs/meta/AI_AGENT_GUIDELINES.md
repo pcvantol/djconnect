@@ -118,25 +118,26 @@ Validation
 
 ↓
 
-Documentation, Repository Status, Management Summary and Prompt Index Updates
+Exactly One Reviewable Implementation Pull Request
 
 ↓
 
-Commit(s)
+Merge
 
 ↓
 
-Exactly One Reviewable Pull Request
+Dedicated Finalization
 
 ↓
 
-Stop
+`MERGED_RECONCILED`
 ```
 
 Treat one canonical prompt as one engineering increment and deliver it through
 one independently reviewable pull request. Work on a dedicated branch; merge
-is a separate explicit decision. Do not begin a subsequent canonical prompt
-until the preceding increment has its reviewable pull request.
+is a separate explicit decision. Do not begin a subsequent production
+capability until the preceding implementation's Finalization has restored
+`MERGED_RECONCILED`.
 
 ---
 

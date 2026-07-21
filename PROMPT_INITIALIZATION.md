@@ -2,7 +2,8 @@
 
 **Status:** Canonical operational contract
 
-Every engineering prompt must begin with this sequence, in order:
+Every engineering prompt must begin with this mandatory `PRE-FLIGHT` sequence,
+in order:
 
 ```text
 Repository Synchronization
@@ -13,7 +14,7 @@ Repository Synchronization
   -> Rolling State Reconciliation
   -> Canonical Repository Read
   -> Implementation Reality Check
-  -> Engineering Planning
+  -> GO / NO-GO Decision
 ```
 
 ## Repository Synchronization
@@ -55,10 +56,11 @@ whose rolling records still show its freeze point is the expected
 
 ## Rolling State Reconciliation
 
-For `MERGED_UNRECONCILED`, reconcile `ENGINEERING_STATUS.md`,
+For `MERGED_UNRECONCILED`, do not begin production implementation. Only the
+dedicated Finalization increment may reconcile `ENGINEERING_STATUS.md`,
 `REPOSITORY_STATUS.md`, `MANAGEMENT_SUMMARY.md` and `PROMPT_INDEX.md` with
-current main before substantive engineering. Prompt History is immutable;
-continue only after the state is `MERGED_RECONCILED`.
+current main. Prompt History is immutable; the next implementation capability
+continues only after Finalization restores `MERGED_RECONCILED`.
 
 ## Canonical Repository Read
 
@@ -72,9 +74,20 @@ After synchronization, inspect the requested functionality, its validation,
 qualification, documentation and implementation. Do not reimplement an
 existing outcome; close only remaining evidence-backed gaps.
 
-## Engineering Planning
+## GO / NO-GO Decision
 
 Use synchronized current main to determine the current engineering increment,
 program, repository truth, backlog, deferred work and recommended next prompt.
-No prompt may assume those facts from its text, conversation context or
+Verify that the requested capability remains pending, no equivalent outcome is
+already merged, and no superseding architecture amendment exists. Confirm that
+the required validation baseline, current roadmap, architecture and maturity
+records are applicable and current.
+
+End Pre-Flight with exactly one explicit decision:
+
+- `GO`: only from `MERGED_RECONCILED`, authorizing the bounded implementation.
+- `NO-GO`: production changes are prohibited; report and resolve the evidence
+  that prevents the capability from starting.
+
+No prompt may assume these facts from its text, conversation context or
 historical planning.
