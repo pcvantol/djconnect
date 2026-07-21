@@ -32,6 +32,10 @@ The endpoint is snapshot-only. Flow delta, sequence, cursor, replay,
 deduplication and ordering recovery remain unavailable. `GET /session/active`
 remains a broader owner Runtime resource, not the renderer snapshot contract.
 
+`GET /api/djconnect/v1/capabilities` is the transport discovery surface for
+HTTP clients. Its Broadcast declaration is shared with the WebSocket capability
+response and reports only this implemented snapshot-recovery contract.
+
 The server remains authoritative:
 
 ```text

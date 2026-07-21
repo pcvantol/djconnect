@@ -15,6 +15,7 @@ from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .const import (
     API_ASK_DJ,
+    API_CAPABILITIES,
     API_ASK_DJ_CLEAR,
     API_ASK_DJ_HISTORY,
     API_ASK_DJ_HISTORY_CLEAR,
@@ -120,6 +121,7 @@ from .use_cases import (
 )
 from .voice_profiles import normalize_voice_profile, voice_profile_for_mood_or_config
 from .spotify_oauth import exchange_code_for_refresh_token
+from .transport_capabilities import session_broadcast_transport_capabilities
 
 _LOGGER = logging.getLogger(__name__)
 __all__ = ["_last_stale_auth_log", "async_send_push_event"]
@@ -2750,6 +2752,25 @@ class DJConnectActiveSessionView(_DJConnectSessionView):
             request.app["hass"], dict(request.query), headers=request.headers, user_id=_request_user_id(request)
         )
         return self.json(result, status_code=status)
+
+
+class DJConnectTransportCapabilitiesView(HomeAssistantView):
+    """Expose the implemented Broadcast transport contract over HTTP."""
+
+    url = API_CAPABILITIES
+    name = "api:djconnect:capabilities"
+    requires_auth = False
+
+    async def get(self, request):
+        return self.json(
+            {
+                "success": True,
+                "domain": DOMAIN,
+                "ha_version": VERSION,
+                "transports": {"http": True, "websocket": True},
+                "session_broadcast": session_broadcast_transport_capabilities(),
+            }
+        )
 
 
 class DJConnectSessionBroadcastSnapshotView(_DJConnectSessionView):

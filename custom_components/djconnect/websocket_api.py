@@ -10,6 +10,7 @@ except ImportError:  # pragma: no cover - only used by lightweight unit-test stu
     websocket_api = None
 
 from .const import DOMAIN, VERSION
+from .transport_capabilities import session_broadcast_transport_capabilities
 
 WS_TYPE_CAPABILITIES = "djconnect/capabilities"
 WS_TYPE_ASK_DJ_MESSAGE = "djconnect/ask_dj/message"
@@ -314,6 +315,7 @@ def _feature_capabilities(commands: list[str]) -> dict[str, bool]:
 def _capability_fallbacks(commands: list[str]) -> dict[str, dict[str, Any]]:
     """Return client fallback hints for each backend-facing feature."""
     features = _feature_capabilities(commands)
+    session_broadcast = session_broadcast_transport_capabilities()
     return {
         "ask_dj_chat": {
             "available": features["ask_dj_chat"],
@@ -373,11 +375,12 @@ def _capability_fallbacks(commands: list[str]) -> dict[str, dict[str, Any]]:
         "session_broadcast_transport": {
             "available": features["session_broadcast_transport"],
             "preferred_transport": "websocket" if features["session_broadcast_transport"] else "http",
-            "http_snapshot_path": HTTP_FALLBACK_PATHS["session_broadcast_snapshot"],
-            "snapshot_only": True,
-            "flow_delta": False,
-            "replay": False,
-            "cursor": False,
+            "http_snapshot_path": session_broadcast["http_snapshot"]["path"],
+            "snapshot_only": session_broadcast["snapshot_recovery"],
+            "flow_delta": session_broadcast["flow_delta"],
+            "replay": session_broadcast["replay"],
+            "cursor": session_broadcast["cursor"],
+            "sequence": session_broadcast["sequence"],
             "missing_behavior": "replace_with_http_snapshot",
         },
     }

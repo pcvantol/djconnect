@@ -37,6 +37,7 @@ class DJConnectWebsocketApiTest(unittest.TestCase):
         const = types.ModuleType("custom_components.djconnect.const")
         const.DOMAIN = "djconnect"
         const.VERSION = "3.2.1"
+        const.API_SESSION_BROADCAST = "/api/djconnect/v1/session/broadcast/{session_id}"
         sys.modules.setdefault("custom_components.djconnect.const", const)
         http = types.ModuleType("custom_components.djconnect.http")
 
@@ -57,12 +58,14 @@ class DJConnectWebsocketApiTest(unittest.TestCase):
         http.async_handle_music_dna_export_payload = async_handle_command_payload
         sys.modules.setdefault("custom_components.djconnect.http", http)
         cls.websocket_api = importlib.import_module("custom_components.djconnect.websocket_api")
+        cls.transport_capabilities = importlib.import_module("custom_components.djconnect.transport_capabilities")
         cls.websocket_api.websocket_api = websocket_api
 
     @classmethod
     def tearDownClass(cls) -> None:
         for module_name in (
             "custom_components.djconnect.websocket_api",
+            "custom_components.djconnect.transport_capabilities",
             "custom_components.djconnect.http",
             "custom_components.djconnect.const",
             "homeassistant.components.websocket_api",
@@ -169,10 +172,11 @@ class DJConnectWebsocketApiTest(unittest.TestCase):
         self.assertEqual(result["transports"], {"http": True, "websocket": True})
         self.assertEqual(
             result["fallbacks"]["session_broadcast_transport"]["http_snapshot_path"],
-            "/api/djconnect/v1/session/broadcast/{session_id}",
+            self.transport_capabilities.session_broadcast_transport_capabilities()["http_snapshot"]["path"],
         )
         self.assertTrue(result["fallbacks"]["session_broadcast_transport"]["snapshot_only"])
         self.assertFalse(result["fallbacks"]["session_broadcast_transport"]["flow_delta"])
+        self.assertFalse(result["fallbacks"]["session_broadcast_transport"]["sequence"])
 
     def test_session_broadcast_subscription_sends_snapshot_then_incremental_events(self) -> None:
         calls = []

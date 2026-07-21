@@ -10,6 +10,7 @@
     "/Users/pcvantol/Documents/GitHub/djconnect-api/src/index.ts"
   ],
   "home_assistant": [
+    {"method": "GET", "path": "/api/djconnect/v1/capabilities", "purpose": "DJ Session Broadcast transport capability discovery", "auth": "none; discovery only", "owner": "djconnect", "consumers": ["HTTP renderers", "clients"], "deprecated": false},
     {"method": "POST", "path": "/api/djconnect/v1/pair", "purpose": "Client/device pairing", "auth": "pair_code; no HA auth; no bearer before pair", "owner": "djconnect", "consumers": ["Apple", "Windows", "Pi", "ESP32"], "deprecated": false},
     {"method": "POST", "path": "/api/djconnect/v1/status", "purpose": "Runtime status and capability refresh", "auth": "DJConnect bearer after pairing", "owner": "djconnect", "consumers": ["Apple", "Windows", "Pi", "ESP32"], "deprecated": false},
     {"method": "POST", "path": "/api/djconnect/v1/command", "purpose": "Playback/control/Ask DJ follow-up commands", "auth": "DJConnect bearer", "owner": "djconnect", "consumers": ["Apple", "Windows", "Pi", "ESP32"], "deprecated": false},
