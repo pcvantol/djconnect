@@ -15,9 +15,9 @@
 
 ## Current position
 
-PR [#323](https://github.com/pcvantol/djconnect/pull/323) merged as
-`a2e394bc92beb42de596eb613327678615d5abbf`. It adds bounded internal Mood
-and Direction influence to Planner Intent Selection. This is its dedicated
+PR [#325](https://github.com/pcvantol/djconnect/pull/325) merged as
+`1d71c34d14773e3a0abdc467034dc06ac713c009`. It adds bounded, ephemeral
+Performance Memory influence to Planner Intent Selection. This is its dedicated
 governance-only Finalization.
 
 PR #315 merged as

@@ -28,10 +28,10 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-Current main contains PR [#323](https://github.com/pcvantol/djconnect/pull/323),
-**Mood and Direction Intent Selection**, merged as
-`a2e394bc92beb42de596eb613327678615d5abbf`. This bounded internal Planner
-selection capability is in its dedicated Finalization.
+Current main contains PR [#325](https://github.com/pcvantol/djconnect/pull/325),
+**Performance Memory Intent Selection**, merged as
+`1d71c34d14773e3a0abdc467034dc06ac713c009`. This bounded internal Planner
+selection influence is in its dedicated Finalization.
 
 The preceding PR #313,
 **Localization and Narrative Architecture**, merged as

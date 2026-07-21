@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import re
 import importlib.util
 from pathlib import Path
 import sys
@@ -234,16 +235,26 @@ class PlaybackObservationTest(unittest.TestCase):
         asyncio.run(poll_while_locked())
         self.assertEqual(self.spotify.SpotifyBackend.calls, 1)
 
-    def test_rolling_records_reconcile_historical_projection_query_service(self) -> None:
+    def test_rolling_records_reconcile_current_merged_implementation(self) -> None:
+        engineering_status = (ROOT / "ENGINEERING_STATUS.md").read_text()
+        current_increment = re.search(
+            r"PR \[#(?P<number>\d+)\].*?merged as `(?P<commit>[0-9a-f]{40})`",
+            engineering_status,
+            re.DOTALL,
+        )
+        self.assertIsNotNone(current_increment)
+        assert current_increment is not None
+
+        current_pr = current_increment.group("number")
+        current_commit = current_increment.group("commit")
         for name in (
-            "ENGINEERING_STATUS.md",
             "REPOSITORY_STATUS.md",
             "MANAGEMENT_SUMMARY.md",
             "PROMPT_INDEX.md",
         ):
             contents = (ROOT / name).read_text()
-            self.assertIn("PR [#323]", contents)
-            self.assertIn("a2e394bc92beb42de596eb613327678615d5abbf", contents)
+            self.assertIn(f"PR [#{current_pr}]", contents)
+            self.assertIn(current_commit, contents)
             self.assertIn("MERGED_UNRECONCILED", contents)
 
     def test_media_identity_never_enters_public_runtime_representation(self) -> None:
