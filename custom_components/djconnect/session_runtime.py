@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import json
 import logging
 import secrets
 import time
@@ -20,6 +21,7 @@ from .persistence.sessions import (
     INTERRUPTED as PERSISTENT_SESSION_INTERRUPTED,
     PersistentSessionRepository,
 )
+from .persistence.history import HistoricalProjectionRepository
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -1678,10 +1680,11 @@ class DJSessionRuntime:
 class SessionRuntimeManager:
     """Own active DJ Session Runtimes for this Home Assistant instance."""
 
-    def __init__(self, persistent_sessions: PersistentSessionRepository | None = None) -> None:
+    def __init__(self, persistent_sessions: PersistentSessionRepository | None = None, historical_projections: HistoricalProjectionRepository | None = None) -> None:
         self._active_by_profile: dict[str, DJSessionRuntime] = {}
         self._lock = asyncio.Lock()
         self._persistent_sessions = persistent_sessions
+        self._historical_projections = historical_projections
 
     async def async_start(
         self,
@@ -2145,9 +2148,23 @@ class SessionRuntimeManager:
             if session_id and active.session_id != session_id:
                 return None
             if self._persistent_sessions is not None:
-                await self._persistent_sessions.async_transition(
+                persistent = await self._persistent_sessions.async_transition(
                     owner_profile_id, active.session_id, PERSISTENT_SESSION_ENDED
                 )
+                if self._historical_projections is not None:
+                    await self._historical_projections.async_project_session(persistent)
+                    for ordering, moment in enumerate(active.moment_engine.moments):
+                        await self._historical_projections.async_project_moment(
+                            session_id=active.session_id,
+                            moment_id=moment.moment_id,
+                            owner_profile_id=owner_profile_id,
+                            moment_type=moment.moment_type.value,
+                            rendered_text=moment.content,
+                            presentation_metadata=json.dumps(moment.presentation_intent.as_dict(), sort_keys=True),
+                            visibility=moment.presentation_intent.visibility.value,
+                            ordering=ordering,
+                            created_at=moment.created_at,
+                        )
             active.broadcast.update_runtime_state(SessionRuntimeState.ENDING)
             ending = DJSessionRuntime(
                 **{**active.__dict__, "runtime_state": SessionRuntimeState.ENDING}
@@ -2177,7 +2194,10 @@ def session_runtime_manager(hass: Any) -> SessionRuntimeManager:
             sessions = PersistentSessionRepository(persistence_service(hass))
         except RuntimeError:
             sessions = None
-        manager = SessionRuntimeManager(sessions)
+        manager = SessionRuntimeManager(
+            sessions,
+            HistoricalProjectionRepository(persistence_service(hass)) if sessions is not None else None,
+        )
         domain_data["session_runtime_manager"] = manager
     return manager
 
