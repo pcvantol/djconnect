@@ -64,6 +64,13 @@ Intent**: a semantic statement of what the DJ may want to communicate and why.
 It may intentionally choose Silence. Silence is a successful performance
 decision, never an error.
 
+The accepted Rolling Session Horizon plans approximately twenty minutes of
+experience around only safely observable playback context. It is ephemeral,
+provider-neutral and degrades to a shorter or current-track plan when future
+context is absent. It never controls a provider queue or exposes speculative
+plans to Renderers. See
+[`../../ROLLING_SESSION_HORIZON_ARCHITECTURE.md`](../../ROLLING_SESSION_HORIZON_ARCHITECTURE.md).
+
 ## Context-aware Transition contract
 
 A Transition is one intentional DJ performance act that connects two existing,

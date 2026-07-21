@@ -54,8 +54,9 @@ or other Runtime internals directly.
 
 ## Session Planner and Session Flow
 
-The **Session Planner** is the central AI orchestration engine. It continuously
-plans roughly the next fifteen minutes and replans as playback, listener
+The **Session Planner** is the central AI orchestration engine. Its accepted
+Rolling Session Horizon target is roughly the next twenty minutes and it
+replans as playback, listener
 interaction, audience signals, conversation, mood, backend availability or
 permitted Music DNA changes.
 
@@ -72,6 +73,9 @@ Moment Engine combines the Knowledge Intent with Runtime context, current
 Session Mood and DJ Persona, then creates one immutable **DJ Moment** with its
 resolved Presentation Intent. The Planner remains responsible for timing; the
 Moment Engine is responsible for creative execution.
+The Horizon is internal Runtime-scoped Planner state; it never becomes a
+provider queue, Session history or renderer projection. Its detailed contract
+is [`ROLLING_SESSION_HORIZON_ARCHITECTURE.md`](ROLLING_SESSION_HORIZON_ARCHITECTURE.md).
 
 ## Broadcast and rendering
 

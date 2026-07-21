@@ -29,7 +29,7 @@ DJMoment type, provider, API, persistence or renderer responsibility.
 | 1 — current | Track Started trigger, Track Context, Silence and Runtime heuristics. |
 | 2 — partial | Deterministic Artist, Album, Genre and Recommendation intent selection from available knowledge hints. Discover has selected Stage 2 behaviour; Transition and broader Session Update refinement remain deferred. |
 | 3 — current | The live Track Started Runtime path resolves one safe Track Insight projection and deterministically combines its bounded knowledge hints with Session Start Strategy, Session Mood, DJ Persona, Session Direction and Runtime-scoped Performance Memory when selecting its initial semantic intent. Direction and Mood guide trajectory, pacing and silence; Persona influences the performance profile; Discover favours exploration; Performance Memory prevents immediate repetition. Audience-driven adaptation, additional context-aware Transition policies, continuous replanning and multi-track planning remain deferred. |
-| 4 | Persistent cross-session performance learning, multi-track planning, narrative sequencing, dynamic replanning and pacing. |
+| 4 | Persistent cross-session performance learning, multi-track planning, narrative sequencing, dynamic replanning and pacing. `ROLLING_SESSION_HORIZON_ARCHITECTURE.md` defines their prerequisite architecture and bounded implementation order; no Stage 4 behaviour is current. |
 | 5 | Autonomous session strategy and long-term performance optimisation. |
 
 ## Knowledge Engine
