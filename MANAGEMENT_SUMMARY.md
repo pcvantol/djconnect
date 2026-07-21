@@ -15,14 +15,15 @@
 
 ## Current position
 
-PR [#278](https://github.com/pcvantol/djconnect/pull/278) merged as
-`fe36439bad56792e520fb21df706bd64028c065e`. Transport Cells 1–4 and Recovery
-Cells 1–2 are current. Session Flow semantic identity is Planner-owned: Flow
+PR [#280](https://github.com/pcvantol/djconnect/pull/280) merged as
+`ccddf5eb72becde8e7de662446e487c43d70b7f3`. Transport Cells 1–4 and Recovery
+Cells 1–3 are current. Session Flow semantic identity is Planner-owned: Flow
 Revision starts at zero and its immutable Runtime-scoped Change Journal records
 semantic commits. Broadcast delivery identity is independently current: every
 publication receives one Delivery Sequence, snapshots carry a watermark and a
-bounded immutable Replay Log remains internal infrastructure. Snapshots remain
-the only public recovery fallback.
+bounded immutable Replay Log remains internal infrastructure. Broadcast may
+then issue an immutable owner-scoped Recovery Cursor, which is still internal
+and ephemeral. Snapshots remain the only public recovery fallback.
 
 The reconciled chain also records PR #260 external dependency evidence, #261
 validation-only baseline correction, #262 maturity-cell documentation, #263
@@ -32,9 +33,10 @@ Stage 1, Knowledge Engine Stage 2 and Performance Memory remain current within
 their documented scopes. Continue Stage 2 and Music Assistant observation
 remain deferred by their external conditions.
 
-The next recovery cell is authorized WebSocket recovery using an opaque
-Broadcast cursor, subject to a separately bounded cursor and authorization
-contract. Public replay, replay query, HTTP Flow delta, reconnect continuation,
+The next recovery capability may be authorized WebSocket recovery using the
+existing opaque Broadcast cursor, subject to a separately bounded validation
+and authorization contract. Public cursor transport, replay, replay query,
+HTTP Flow delta, reconnect continuation,
 acknowledgements, duplicate/out-of-order handling, persistence, cross-Session
 replay, Universal Receiver recovery and granular Session resources remain
 deferred. No Runtime, Intelligence, Flow-policy, playback or renderer

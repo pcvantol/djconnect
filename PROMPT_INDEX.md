@@ -4,12 +4,13 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#278](https://github.com/pcvantol/djconnect/pull/278), merged as
-`fe36439bad56792e520fb21df706bd64028c065e`, completes Recovery Cell 2.
+PR [#280](https://github.com/pcvantol/djconnect/pull/280), merged as
+`ccddf5eb72becde8e7de662446e487c43d70b7f3`, completes Recovery Cell 3.
 Planner-owned Flow Revision/Change Journal and Broadcast-owned Delivery
-Sequence, snapshot watermark and bounded internal Replay Log are current. The
-next recovery cell is authorized WebSocket recovery using an opaque Broadcast
-cursor; no public recovery transport exists today.
+Sequence, snapshot watermark, bounded internal Replay Log and immutable
+owner-scoped Recovery Cursor are current. The next recovery capability may be
+authorized WebSocket recovery using that opaque Broadcast cursor; no public
+recovery transport exists today.
 
 Spotify Direct Live Playback Observation Stage 1, Knowledge Engine `KE-2.2`
 and Planner `PL-4.1` are current. Music Assistant Stage 1, Continue Stage 2,
@@ -105,17 +106,19 @@ planning is read.
 | Session Flow Recovery Architecture | Completed / merged reconciled / archived | Define canonical ownership and lifetime for Flow revision/delta and Broadcast delivery recovery identity without implementation. | `codex/session-flow-recovery-architecture` | `docs/history/prompts/2026-07-21-session-flow-recovery-architecture.md`; PR [#274](https://github.com/pcvantol/djconnect/pull/274), merged as `2e359f218dc590fa418224dec78d201a2941f158`. |
 | Session Flow Revision Journal | Completed / merged reconciled / archived | Complete Recovery Cell 1 with Planner-owned Flow revision and an immutable Runtime-scoped semantic change journal; no delivery or recovery transport. | `codex/session-flow-revision-journal` | `docs/history/prompts/2026-07-21-session-flow-revision-journal.md`; PR [#276](https://github.com/pcvantol/djconnect/pull/276), merged as `222e3871b0d5e504077802308e0a4e7d568cd752`. |
 | Broadcast Delivery Identity | Completed / merged reconciled / archived | Complete Recovery Cell 2 with Broadcast-owned runtime-scoped Delivery Sequence, snapshot watermark and bounded internal Replay Log; no cursor or public recovery transport. | `codex/broadcast-delivery-identity` | `docs/history/prompts/2026-07-21-broadcast-delivery-identity.md`; PR [#278](https://github.com/pcvantol/djconnect/pull/278), merged as `fe36439bad56792e520fb21df706bd64028c065e`. |
+| Broadcast Recovery Cursor | Completed / merged reconciled / archived | Complete Recovery Cell 3 with one immutable Broadcast-owned, owner-scoped internal Recovery Cursor after a retained publication; no replay or recovery transport. | `codex/broadcast-recovery-cursor` | `docs/history/prompts/2026-07-21-broadcast-recovery-cursor.md`; PR [#280](https://github.com/pcvantol/djconnect/pull/280), merged as `ccddf5eb72becde8e7de662446e487c43d70b7f3`. |
 
 All governance rollout work is completed, merged, reconciled and archived.
 No `RG-*` adoption prompt remains active.
 
 ## Current post-merge reconciliation
 
-PR #278 is merged and reconciled through current `main`
-`fe36439bad56792e520fb21df706bd64028c065e`. Its immutable Prompt History
-record preserves the Recovery Cell 2 scope without retroactively changing its
-intent. Transport Cells 1–4 and Recovery Cells 1–2 are current; authorized
-WebSocket recovery using an opaque Broadcast cursor is the next recovery cell.
+PR #280 is merged and reconciled through current `main`
+`ccddf5eb72becde8e7de662446e487c43d70b7f3`. Its immutable Prompt History
+record preserves the Recovery Cell 3 scope without retroactively changing its
+intent. Transport Cells 1–4 and Recovery Cells 1–3 are current; authorized
+WebSocket recovery using the existing opaque Broadcast cursor remains a
+separately bounded next recovery capability.
 Platform Release 3.3 remains in Maintenance.
 
 ## Next Engineering Increment
