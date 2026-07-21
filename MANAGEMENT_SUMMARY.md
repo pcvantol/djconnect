@@ -15,13 +15,13 @@
 
 ## Current position
 
-PR [#266](https://github.com/pcvantol/djconnect/pull/266) merged as
-`610be0ba7c776b9c581e7be90237ca6addfe5266`. Transport Cell 1 is complete:
-authorized owner renderers can retrieve the canonical Broadcast snapshot by
-HTTP as a renderer-safe fallback, with the same initial projection as owner
-WebSocket. WebSocket remains the preferred live transport. No Runtime,
-DJ Intelligence, Session Flow, Receiver interaction, delta, replay or cursor
-capability changed.
+PR [#268](https://github.com/pcvantol/djconnect/pull/268) merged as
+`00f71025bbbea5ca9171bb70f65b54c3ed894ce5`. Transport Cells 1 and 2 are
+current. Authorized owners have a renderer-safe HTTP Broadcast snapshot
+fallback; WebSocket uses that same pure query for exactly one initial snapshot,
+then registers live delivery without creating a redundant snapshot. Existing
+subscriptions, HTTP behaviour, client-visible schemas and events are unchanged;
+a failed initial response releases its callback.
 
 The reconciled chain also records PR #260 external dependency evidence, #261
 validation-only baseline correction, #262 maturity-cell documentation, #263
@@ -31,9 +31,11 @@ Stage 1, Knowledge Engine Stage 2 and Performance Memory remain current within
 their documented scopes. Continue Stage 2 and Music Assistant observation
 remain deferred by their external conditions.
 
-Transport Cell 2 is the next separate implementation cell: remove the unused
-second initial WebSocket snapshot while preserving all client-visible transport
-semantics. It is not completed by PR #266 or this reconciliation.
+No additional transport cell is selected. Sequence/cursor/watermark, HTTP
+delta, replay, ordering, duplicate/out-of-order handling, reconnect, Universal
+Receiver HTTP, receiver audience signals and granular Session resources remain
+deferred. No Intelligence, Runtime, Flow, renderer or maturity capability
+changed.
 
 | Area | Objectively supported status | Evidence |
 | --- | --- | --- |

@@ -28,20 +28,22 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-Current `main` is `610be0ba7c776b9c581e7be90237ca6addfe5266`, the merge commit
-for PR [#266](https://github.com/pcvantol/djconnect/pull/266), **Add owner HTTP
-Broadcast snapshot**, merged on 2026-07-21. The worktree was clean and
-synchronized when this baseline was reconciled; PR #266 validation passed the
-focused Broadcast/HTTP/WebSocket suite, full pytest, Ruff and diff checks.
+Current `main` is `00f71025bbbea5ca9171bb70f65b54c3ed894ce5`, the merge commit
+for PR [#268](https://github.com/pcvantol/djconnect/pull/268), **Align owner
+WebSocket snapshot registration**, merged on 2026-07-21. The worktree was
+clean and synchronized when this baseline was reconciled; PR #268 validation
+passed focused transport tests, full pytest, Ruff and diff checks.
 
 Transport Cell 1 is current: an owner-authorized HTTP snapshot is a
 side-effect-free renderer-safe fallback and is equivalent to the canonical
-initial owner WebSocket projection. It does not provide delta, sequence,
-replay, cursor or Universal Receiver HTTP behaviour. Transport Cell 2 remains
-pending: eliminate the unused duplicate snapshot constructed during owner
-WebSocket subscription setup.
+initial owner WebSocket projection. Transport Cell 2 is current: its pure
+owner snapshot query is the sole initial WebSocket snapshot source and live
+callback registration creates no redundant snapshot. Existing snapshot-returning
+subscriptions, HTTP behaviour and WebSocket command/response/event schemas are
+unchanged; a failed initial response releases its callback. No delta, sequence,
+replay, cursor or Universal Receiver HTTP behaviour exists.
 
-PRs #260 through #265 are reconciled as intermediate evidence: external
+PR #267 reconciled PRs #260 through #266. Those intermediate records cover external
 dependency documentation (#260), validation-only baseline correction (#261),
 maturity-cell documentation (#262), Knowledge Engine `KE-2.2` (#263),
 transport architecture documentation (#264), and Planner `PL-4.1` (#265).
@@ -49,6 +51,11 @@ Spotify Direct Live Playback Observation Stage 1 is current. Music Assistant
 Stage 1, Continue Stage 2, Playback Instance Identity and occurrence-correct
 observation remain intentionally blocked by the external capability conditions
 in `docs/product/DJ_INTELLIGENCE_MATURITY.md`.
+
+No next transport cell is selected. Session Flow sequence/cursor/watermark,
+HTTP delta, replay, ordering, duplicate handling, reconnect, Universal Receiver
+HTTP, receiver audience-signal resolution and standalone Session resources
+remain separately deferred.
 
 Engineering Platform operational after Platform Baseline v1.0 certification
 and Software Assurance Generation 1 closure. DJConnect Product Development is

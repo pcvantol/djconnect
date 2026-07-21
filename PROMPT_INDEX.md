@@ -4,12 +4,12 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#266](https://github.com/pcvantol/djconnect/pull/266), merged as
-`610be0ba7c776b9c581e7be90237ca6addfe5266`, completes Transport Cell 1 with
-an owner-authorized, renderer-safe HTTP Broadcast snapshot fallback equivalent
-to the initial owner WebSocket projection. Transport Cell 2 remains pending:
-register owner WebSocket live delivery without constructing a second unused
-initial snapshot. It must remain a separate increment.
+PR [#268](https://github.com/pcvantol/djconnect/pull/268), merged as
+`00f71025bbbea5ca9171bb70f65b54c3ed894ce5`, completes Transport Cell 2:
+owner WebSocket subscriptions use the same pure query as HTTP for their one
+initial snapshot, then register live delivery without another snapshot. This
+does not change client-visible HTTP/WebSocket schemas, events or behaviour.
+No next transport cell is automatically selected.
 
 Spotify Direct Live Playback Observation Stage 1, Knowledge Engine `KE-2.2`
 and Planner `PL-4.1` are current. Music Assistant Stage 1, Continue Stage 2,
@@ -98,26 +98,27 @@ planning is read.
 | DJ Session Transport Architecture | Completed / merged reconciled / archived | Establish transport-independent HTTP/WebSocket architecture documentation only. | `codex/session-transport-architecture` | `docs/history/prompts/2026-07-21-document-dj-session-transport-architecture.md`; PR [#264](https://github.com/pcvantol/djconnect/pull/264), merged as `f741cc30f3aa6189de3d236d2ac034d9ec7069e5`. |
 | Planner Recommendation Spacing | Completed / merged reconciled / archived | Advance `PL-4.1` by spacing consecutive Recommendation intents. | `codex/space-recommendation-intents` | `docs/history/prompts/2026-07-21-space-consecutive-recommendation-intents.md`; PR [#265](https://github.com/pcvantol/djconnect/pull/265), merged as `c4d848f81dd1167e39c0f8576ad8c6f0d285c42f`. |
 | Owner HTTP Broadcast Snapshot | Completed / merged reconciled / archived | Complete Transport Cell 1 with an owner-authorized, renderer-safe HTTP snapshot fallback; no live transport redesign. | `codex/http-broadcast-snapshot` | `docs/history/prompts/2026-07-21-owner-http-broadcast-snapshot.md`; PR [#266](https://github.com/pcvantol/djconnect/pull/266), merged as `610be0ba7c776b9c581e7be90237ca6addfe5266`. |
+| Merged Session Baseline Reconciliation | Completed / merged reconciled / archived | Reconcile rolling records through PR #266 and archive repository-evidenced Prompt History. | `codex/reconcile-merged-session-baseline` | `docs/history/prompts/2026-07-21-reconcile-merged-session-baseline.md`; PR [#267](https://github.com/pcvantol/djconnect/pull/267), merged as `58cdb37c6ad32bae16e000e67481b75c0731806b`. |
+| Owner WebSocket Snapshot Registration | Completed / merged reconciled / archived | Complete Transport Cell 2 internal alignment: one initial snapshot query, registration without snapshot construction and response-failure cleanup. | `codex/align-owner-websocket-snapshot` | `docs/history/prompts/2026-07-21-align-owner-websocket-snapshot-registration.md`; PR [#268](https://github.com/pcvantol/djconnect/pull/268), merged as `00f71025bbbea5ca9171bb70f65b54c3ed894ce5`. |
 
 All governance rollout work is completed, merged, reconciled and archived.
 No `RG-*` adoption prompt remains active.
 
 ## Current post-merge reconciliation
 
-PRs #260 through #266 are merged and reconciled through current `main`
-`610be0ba7c776b9c581e7be90237ca6addfe5266`. Their immutable Prompt History
-records preserve the external dependency, validation-only, maturity-document,
-Knowledge Engine, transport architecture, Planner spacing and owner HTTP
-snapshot scopes without retroactively changing their intent. Transport Cell 1
-is current; Transport Cell 2 is the next separate transport-internal work.
+PRs #267 and #268 are merged and reconciled through current `main`
+`00f71025bbbea5ca9171bb70f65b54c3ed894ce5`. Their immutable Prompt History
+records preserve the reconciliation and Transport Cell 2 scopes without
+retroactively changing their intent. Transport Cells 1 and 2 are current; no
+further transport cell is selected.
 Platform Release 3.3 remains in Maintenance.
 
 ## Next Engineering Increment
 
-No Platform Release 3.3 execution is active. The next separately authorized
-Product Engineering increment is Transport Cell 2: register an owner WebSocket
-callback without a second initial snapshot construction. Platform Release 3.3
-remains in Maintenance unless its completion record is formally reopened.
+No Platform Release 3.3 execution is active. Synchronize current main and
+select one explicitly bounded transport or maturity cell before starting a new
+Product Engineering increment. Platform Release 3.3 remains in Maintenance
+unless its completion record is formally reopened.
 
 ## Active Next Phase
 
