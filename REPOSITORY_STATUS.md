@@ -28,13 +28,14 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-Current main contains PR [#340](https://github.com/pcvantol/djconnect/pull/340),
-**Prepared Knowledge Consumption**, merged as
-`4c2ad40141a9a094c68d8c955837f0371a0135be`. This bounded Knowledge Engine
-path consumes only exact, current and valid Prepared Knowledge for an Approved
-Planner Intent, otherwise retaining existing resolution. It adds no provider,
-cache, persistence, transport or narrative scope. Its dedicated Finalization is
-current. Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`.
+Current main contains PR [#342](https://github.com/pcvantol/djconnect/pull/342),
+**Planning Runtime Coordinator**, merged as
+`dac3ab0abf5b0d7cd047c035619fb72fc462861b`. This bounded runtime-only
+coordinator invokes the existing planning, prefetch, readiness and approval
+lifecycle while preserving the established Track Started path as fallback. It
+adds no Planner, Knowledge, Moment, provider, persistence, transport or
+renderer capability. Its dedicated Finalization is current. Repository State:
+`MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`.
 
 The preceding PR #313,
 **Localization and Narrative Architecture**, merged as
