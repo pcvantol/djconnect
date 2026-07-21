@@ -727,6 +727,68 @@ class SessionRuntimeManagerTest(unittest.TestCase):
         self.assertEqual(created.broadcast.as_dict()["session_flow"], republished.as_dict())
         self.assertTrue(created.planner.last_replan_at)
 
+    def test_flow_revision_and_journal_record_only_semantic_flow_changes(self) -> None:
+        manager = self.runtime.SessionRuntimeManager()
+        created = asyncio.run(manager.async_start(owner_profile_id="profile-peter"))
+        planner = created.planner
+
+        self.assertEqual(planner.output.session_flow.flow_revision, 0)
+        self.assertEqual(
+            [(entry.revision, entry.change_type.value) for entry in planner.flow_change_journal],
+            [(0, "initialized")],
+        )
+        with self.assertRaises(FrozenInstanceError):
+            planner.output.session_flow.flow_revision = 1  # type: ignore[misc]
+
+        created.submit_audience_signal(self.runtime.AudienceSignalType.MORE_ENERGY)
+        self.assertEqual(planner.output.session_flow.flow_revision, 0)
+        self.assertEqual(len(planner.flow_change_journal), 1)
+
+        republished = created.republish_session_flow()
+        moment = created.moment_engine.create_silence(
+            session_id=created.session_id,
+            selected_mood=created.selected_mood,
+            persona=created.dj_persona,
+            locale=created.locale,
+            reason="flow_revision_test",
+        )
+        created.publish_moment(moment)
+
+        self.assertEqual(republished.flow_revision, 1)
+        self.assertEqual(planner.output.session_flow.flow_revision, 2)
+        self.assertEqual(
+            [(entry.revision, entry.change_type.value) for entry in planner.flow_change_journal],
+            [(0, "initialized"), (1, "republished"), (2, "moment_appended")],
+        )
+        self.assertEqual(
+            [entry.flow.flow_revision for entry in planner.flow_change_journal], [0, 1, 2]
+        )
+
+    def test_flow_journal_is_runtime_scoped_and_broadcast_never_mutates_it(self) -> None:
+        manager = self.runtime.SessionRuntimeManager()
+        first = asyncio.run(manager.async_start(owner_profile_id="profile-peter"))
+        first.republish_session_flow()
+        planner = first.planner
+        flow = planner.output.session_flow
+        journal = planner.flow_change_journal
+
+        first.broadcast.publish_session_flow(flow)
+        self.assertEqual(planner.output.session_flow.flow_revision, 1)
+        self.assertEqual(planner.flow_change_journal, journal)
+        self.assertEqual(first.broadcast.as_dict()["session_flow"]["flow_revision"], 1)
+
+        ended = asyncio.run(manager.async_end(owner_profile_id="profile-peter", session_id=first.session_id))
+        assert ended is not None
+        self.assertEqual(ended.planner.flow_change_journal, ())
+        self.assertIsNone(asyncio.run(manager.async_get_active("profile-peter")))
+
+        second = asyncio.run(manager.async_start(owner_profile_id="profile-peter"))
+        self.assertNotEqual(second.session_id, first.session_id)
+        self.assertEqual(second.planner.output.session_flow.flow_revision, 0)
+        self.assertEqual(
+            [entry.revision for entry in second.planner.flow_change_journal], [0]
+        )
+
     def test_session_flow_is_not_shared_and_is_removed_with_runtime(self) -> None:
         manager = self.runtime.SessionRuntimeManager()
         first = asyncio.run(manager.async_start(owner_profile_id="profile-peter"))
