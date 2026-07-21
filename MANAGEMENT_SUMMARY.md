@@ -15,11 +15,11 @@
 
 ## Current position
 
-PR [#325](https://github.com/pcvantol/djconnect/pull/325) merged as
-`1d71c34d14773e3a0abdc467034dc06ac713c009`. It adds bounded, ephemeral
-Performance Memory influence to Planner Intent Selection. This is its dedicated
-governance-only Finalization, merged as PR #326. Repository State:
-`MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`.
+PR [#328](https://github.com/pcvantol/djconnect/pull/328) merged as
+`6542feddf2be00c12eb89b968d7721ed6f81f412`. It adds bounded, ephemeral
+Planner-owned Planned Intents over observable playback slots. This is its
+dedicated governance-only Finalization. Repository State: `MERGED_RECONCILED`;
+Workspace State: `WORKSPACE_READY`.
 
 PR #315 merged as
 `6a22b0814fcfcd277a9a854fc78b5a28ed04eadd`. It adds only the ephemeral,

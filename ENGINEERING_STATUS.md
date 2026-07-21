@@ -5,11 +5,10 @@
 
 ## Current engineering increment
 
-PR [#325](https://github.com/pcvantol/djconnect/pull/325), **Performance Memory
-Intent Selection**, merged as `1d71c34d14773e3a0abdc467034dc06ac713c009`.
-Its dedicated Finalization, PR [#326](https://github.com/pcvantol/djconnect/pull/326),
-is merged. Repository State: `MERGED_RECONCILED`; Workspace State:
-`WORKSPACE_READY`.
+PR [#328](https://github.com/pcvantol/djconnect/pull/328), **Planning Horizon
+Expansion**, merged as `6542feddf2be00c12eb89b968d7721ed6f81f412`. Its dedicated
+Finalization reconciles the bounded Planner-owned Planned Intent collection.
+Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`.
 
 PR #323, **Mood and Direction
 Intent Selection**, merged as `a2e394bc92beb42de596eb613327678615d5abbf`.
