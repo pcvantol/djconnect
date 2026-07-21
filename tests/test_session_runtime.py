@@ -91,6 +91,106 @@ class SessionRuntimeManagerTest(unittest.TestCase):
             f"flow-{created.session_id}",
         )
 
+    def test_planning_horizon_with_no_observable_playback_has_no_planned_intents(self) -> None:
+        horizon = self.runtime.RollingSessionHorizon(window_minutes=15, created_at="now")
+
+        window = horizon.build_planning_window()
+
+        self.assertEqual(window.planned_intents, ())
+        self.assertIsNone(window.approve_earliest_planned_intent())
+
+    def test_planning_horizon_creates_bounded_multiple_planned_intents(self) -> None:
+        horizon = self.runtime.RollingSessionHorizon(
+            window_minutes=2,
+            created_at="now",
+            upcoming_playback=self.runtime.UpcomingPlaybackProjection.from_entries(
+                (
+                    self.runtime.UpcomingPlaybackEntry("track-a", duration_seconds=60),
+                    self.runtime.UpcomingPlaybackEntry("track-b", duration_seconds=60),
+                    self.runtime.UpcomingPlaybackEntry("track-c", duration_seconds=60),
+                ),
+                confidence=0.8,
+            ),
+        )
+
+        window = horizon.build_planning_window()
+
+        self.assertEqual(window.planning_coverage_seconds, 120)
+        self.assertEqual(
+            [(intent.slot.starts_at_seconds, intent.slot.ends_at_seconds) for intent in window.planned_intents],
+            [(0, 60), (60, 120)],
+        )
+        self.assertTrue(
+            all(intent.status is self.runtime.PlannedIntentStatus.PLANNED for intent in window.planned_intents)
+        )
+        self.assertTrue(all(intent.confidence == 0.8 for intent in window.planned_intents))
+
+    def test_planned_intents_have_deterministic_slot_order(self) -> None:
+        window = self.runtime.PlanningWindow(
+            starts_at="now",
+            ends_at="later",
+            planning_coverage_seconds=180,
+            generation=4,
+            confidence=1.0,
+            candidate_slots=(
+                self.runtime.CandidatePlanningSlot("recommendation", 120, 180),
+                self.runtime.CandidatePlanningSlot("artist_story", 0, 60),
+                self.runtime.CandidatePlanningSlot("genre_story", 60, 120),
+                self.runtime.CandidatePlanningSlot("lyrics_story", 30, 45),
+            ),
+        )
+
+        planned = window.plan_intents()
+
+        self.assertEqual(
+            [intent.category for intent in planned],
+            ["artist_story", "genre_story", "recommendation"],
+        )
+        self.assertEqual([intent.generation for intent in planned], [4, 4, 4])
+
+    def test_only_earliest_planned_intent_becomes_approved(self) -> None:
+        window = self.runtime.PlanningWindow(
+            starts_at="now",
+            ends_at="later",
+            planning_coverage_seconds=120,
+            candidate_slots=(
+                self.runtime.CandidatePlanningSlot("artist_story", 0, 60),
+                self.runtime.CandidatePlanningSlot("genre_story", 60, 120),
+            ),
+        )
+
+        first = window.select_intent()
+        second = window.select_intent()
+
+        self.assertEqual(first, self.runtime.PlannerIntent("artist_story", 0))
+        self.assertEqual(second, first)
+        self.assertEqual(
+            [intent.status for intent in window.planned_intents],
+            [
+                self.runtime.PlannedIntentStatus.APPROVED,
+                self.runtime.PlannedIntentStatus.PLANNED,
+            ],
+        )
+
+    def test_planned_intents_remain_runtime_internal_and_are_disposed_with_runtime(self) -> None:
+        manager = self.runtime.SessionRuntimeManager()
+        created = asyncio.run(manager.async_start(owner_profile_id="profile-planning"))
+        assert created.planner.horizon is not None
+        created.planner.horizon.upcoming_playback = self.runtime.UpcomingPlaybackProjection.from_entries(
+            (self.runtime.UpcomingPlaybackEntry("track-a", duration_seconds=60),)
+        )
+        window = created.planner.horizon.build_planning_window()
+
+        self.assertNotIn("horizon", created.planner.as_dict())
+        self.assertNotIn("planned_intents", created.as_dict())
+        self.assertTrue(window.planned_intents)
+
+        asyncio.run(
+            manager.async_end(owner_profile_id="profile-planning", session_id=created.session_id)
+        )
+
+        self.assertIsNone(asyncio.run(manager.async_get_active("profile-planning")))
+
     def test_session_start_strategies_initialize_runtime_owned_direction(self) -> None:
         expected = {
             self.runtime.SessionStartStrategy.CONTINUE: "maintaining_energy",
