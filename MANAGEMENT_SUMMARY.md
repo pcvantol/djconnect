@@ -15,8 +15,8 @@
 
 ## Current position
 
-PR [#290](https://github.com/pcvantol/djconnect/pull/290) merged as
-`f2fbd26819c53286afec1453cca34ce28e7bc126`. It is
+PR [#292](https://github.com/pcvantol/djconnect/pull/292) merged as
+`3abc24e4b2f77f160b4b8adbc47e14e48dbc9c78`. It is
 `MERGED_UNRECONCILED` pending this dedicated governance-only Finalization:
 every implementation capability must pass
 Pre-Flight, Implementation, Validation, Merge and Finalization. Only `GO`
@@ -43,13 +43,13 @@ their documented scopes. Continue Stage 2 and Music Assistant observation
 remain deferred by their external conditions.
 
 Public replay/query APIs, HTTP Flow delta, reconnect continuation,
-acknowledgements, duplicate/out-of-order handling, persistence, cross-Session
-replay, Universal Receiver recovery and granular Session resources remain
-deferred. No Runtime, Intelligence, Flow-policy, playback or renderer
-capability expanded. PR #286 established Persistent Session Architecture; no
-storage, Runtime, recovery or renderer behaviour is authorized. Its first
-production capability requires a new Pre-Flight only after this Finalization
-has merged.
+acknowledgements, duplicate/out-of-order handling, cross-Session replay,
+Universal Receiver recovery and granular Session resources remain deferred.
+PR #292 supplies the first Persistence Foundation: provider-neutral bootstrap,
+schema metadata, forward-only migration, integrity validation and readiness.
+No Session, Runtime, recovery, renderer or API behaviour expanded. The next
+Persistent Session lifecycle capability requires a new Pre-Flight only after
+this Finalization has merged.
 
 | Area | Objectively supported status | Evidence |
 | --- | --- | --- |

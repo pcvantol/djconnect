@@ -28,12 +28,13 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-Current main contains PR [#290](https://github.com/pcvantol/djconnect/pull/290),
-**Add DJConnect V4 Completion Roadmap**, merged on 2026-07-21 as
-`f2fbd26819c53286afec1453cca34ce28e7bc126`. It is
+Current main contains PR [#292](https://github.com/pcvantol/djconnect/pull/292),
+**Add DJConnect Persistence Foundation**, merged on 2026-07-21 as
+`3abc24e4b2f77f160b4b8adbc47e14e48dbc9c78`. It is
 `MERGED_UNRECONCILED` pending this governance-only Finalization. The amendment
-passed host qualification, 1240 local unit tests (7 skipped), Ruff and diff
-validation; it adds no production behaviour, architecture or maturity change.
+passed host qualification, 1246 local unit tests (7 skipped), Ruff and diff
+validation; it adds one DJConnect-owned persistence platform only, without
+Session writes, Runtime persistence or recovery behaviour.
 
 The preceding Broadcast baseline remains PR [#280](https://github.com/pcvantol/djconnect/pull/280),
 **Add Broadcast recovery cursor**, merged as
@@ -71,9 +72,10 @@ HTTP Flow delta, public replay/query APIs, reconnect continuation,
 acknowledgements, duplicate/out-of-order correction, persistence,
 cross-Session replay, Universal Receiver recovery and standalone Session
 resources remain separately deferred. PR #286 established the persistent
-Session architecture only; it did not authorize a storage or Runtime change.
-Any future production capability requires a new Pre-Flight from the reconciled
-Persistent Session baseline.
+Session architecture only; PR #292 now supplies its first implementation
+foundation: provider-neutral persistence bootstrap, schema metadata,
+forward-only migration and integrity validation. The next production capability
+still requires a new Pre-Flight from the reconciled Persistent Session baseline.
 
 Engineering Platform operational after Platform Baseline v1.0 certification
 and Software Assurance Generation 1 closure. DJConnect Product Development is
