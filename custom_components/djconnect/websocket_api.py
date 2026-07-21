@@ -462,7 +462,7 @@ async def websocket_session_broadcast_subscribe(
     def publish(event: dict[str, Any]) -> None:
         connection.send_event(WS_EVENT_SESSION_BROADCAST, event)
 
-    result, status_code, cleanup = await async_handle_session_broadcast_subscribe_payload(
+    result, status_code, activate, cleanup = await async_handle_session_broadcast_subscribe_payload(
         hass,
         payload,
         callback=publish,
@@ -488,6 +488,8 @@ async def websocket_session_broadcast_subscribe(
     on_close = getattr(connection, "async_on_close", None)
     if callable(on_close):
         on_close(unsubscribe_on_close)
+    if activate is not None:
+        await activate()
 
 
 @_websocket_command(

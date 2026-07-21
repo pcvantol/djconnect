@@ -38,13 +38,19 @@ class OwnerBroadcastSnapshotTest(unittest.TestCase):
             async_get_active=self._active,
             async_subscribe=self._subscribe,
             async_register_subscription=self._register_subscription,
+            async_register_pending_subscription=self._register_pending_subscription,
+            async_activate_subscription=self._activate_subscription,
             async_unsubscribe=self._unsubscribe,
         )
         self.get_active_calls = 0
         self.subscribe_calls = 0
         self.register_calls = 0
+        self.pending_register_calls = 0
+        self.activate_calls = 0
         self.unsubscribe_calls = 0
         self.registered_callback = None
+        self.pending_events = []
+        self.emit_during_snapshot = None
         self.registration_result = "subscription-1"
         self.originals = {
             "resolve_runtime": api_handlers.resolve_runtime,
@@ -78,12 +84,30 @@ class OwnerBroadcastSnapshotTest(unittest.TestCase):
         self.registered_callback = callback
         return self.registration_result
 
+    async def _register_pending_subscription(self, *, callback, **kwargs):
+        self.pending_register_calls += 1
+        if self.registration_result is None:
+            return None
+        self.registered_callback = callback
+        return self.registration_result
+
+    async def _activate_subscription(self, **kwargs):
+        self.activate_calls += 1
+        assert self.registered_callback is not None
+        for event in self.pending_events:
+            self.registered_callback(event)
+        self.pending_events.clear()
+
     async def _unsubscribe(self, **kwargs):
         self.unsubscribe_calls += 1
+        self.registered_callback = None
+        self.pending_events.clear()
         return None
 
     def _snapshot(self):
         self.snapshot_calls += 1
+        if self.emit_during_snapshot is not None:
+            self.pending_events.append(self.emit_during_snapshot)
         return self.snapshot
 
     async def _context(self, *args, **kwargs):
@@ -108,7 +132,7 @@ class OwnerBroadcastSnapshotTest(unittest.TestCase):
         self.assertEqual(result, {"success": True, "session_id": "session-1", "snapshot": self.snapshot})
         self.assertEqual(self.subscribe_calls, 0)
         self.assertEqual(self.register_calls, 0)
-        self.assertEqual(self.get_active_calls, 1)
+        self.assertEqual(self.get_active_calls, 2)
         self.assertNotIn("owner_profile_id", result["snapshot"])
         self.assertNotIn("performance_memory", result["snapshot"])
 
@@ -139,7 +163,7 @@ class OwnerBroadcastSnapshotTest(unittest.TestCase):
         )
 
         received = []
-        websocket_result, websocket_status, cleanup = asyncio.run(
+        websocket_result, websocket_status, activate, cleanup = asyncio.run(
             api_handlers.async_handle_session_broadcast_subscribe_payload(
                 object(), self._payload(), callback=received.append
             )
@@ -149,15 +173,22 @@ class OwnerBroadcastSnapshotTest(unittest.TestCase):
         self.assertEqual(websocket_status, 200)
         self.assertEqual(http_result["snapshot"], websocket_result["snapshot"])
         self.assertEqual(self.subscribe_calls, 0)
-        self.assertEqual(self.register_calls, 1)
+        self.assertEqual(self.pending_register_calls, 1)
         self.assertEqual(received, [])
+        assert activate is not None
+        asyncio.run(activate())
+        self.assertEqual(self.activate_calls, 1)
         assert cleanup is not None
         asyncio.run(cleanup())
         self.assertEqual(self.unsubscribe_calls, 1)
 
     def test_websocket_constructs_one_snapshot_and_registers_live_delivery_once(self) -> None:
         received = []
-        result, status, cleanup = asyncio.run(
+        self.emit_during_snapshot = {
+            "event_type": "session_flow_updated",
+            "session_id": "session-1",
+        }
+        result, status, activate, cleanup = asyncio.run(
             api_handlers.async_handle_session_broadcast_subscribe_payload(
                 object(), self._payload(), callback=received.append
             )
@@ -167,10 +198,12 @@ class OwnerBroadcastSnapshotTest(unittest.TestCase):
         self.assertEqual(result["snapshot"], self.snapshot)
         self.assertEqual(self.snapshot_calls, 1)
         self.assertEqual(self.subscribe_calls, 0)
-        self.assertEqual(self.register_calls, 1)
+        self.assertEqual(self.pending_register_calls, 1)
         assert self.registered_callback is not None
-        self.registered_callback({"event_type": "session_flow_updated", "session_id": "session-1"})
-        self.assertEqual(received, [{"event_type": "session_flow_updated", "session_id": "session-1"}])
+        self.assertEqual(received, [])
+        assert activate is not None
+        asyncio.run(activate())
+        self.assertEqual(received, [self.emit_during_snapshot])
         assert cleanup is not None
         asyncio.run(cleanup())
         asyncio.run(cleanup())
@@ -198,46 +231,47 @@ class OwnerBroadcastSnapshotTest(unittest.TestCase):
         )
         self.assertEqual((result["error"], status), ("active_session_not_found", 404))
 
-        result, status, cleanup = asyncio.run(
+        result, status, activate, cleanup = asyncio.run(
             api_handlers.async_handle_session_broadcast_subscribe_payload(
                 object(), self._payload("other-session"), callback=lambda event: None
             )
         )
-        self.assertEqual((result["error"], status, cleanup), ("active_session_not_found", 404, None))
-        self.assertEqual(self.register_calls, 0)
+        self.assertEqual((result["error"], status, activate, cleanup), ("active_session_not_found", 404, None, None))
+        self.assertEqual(self.pending_register_calls, 0)
 
         api_handlers.authorize_runtime_device_request = lambda *args, **kwargs: False
-        result, status, cleanup = asyncio.run(
+        result, status, activate, cleanup = asyncio.run(
             api_handlers.async_handle_session_broadcast_subscribe_payload(
                 object(), self._payload(), callback=lambda event: None
             )
         )
-        self.assertEqual((result["error"], status, cleanup), ("unauthorized", 401, None))
-        self.assertEqual(self.register_calls, 0)
+        self.assertEqual((result["error"], status, activate, cleanup), ("unauthorized", 401, None, None))
+        self.assertEqual(self.pending_register_calls, 0)
 
     def test_snapshot_query_or_registration_failure_never_retains_a_callback(self) -> None:
         def unavailable_snapshot():
             raise RuntimeError("unavailable")
 
         self.active.broadcast.as_dict = unavailable_snapshot
-        result, status, cleanup = asyncio.run(
+        result, status, activate, cleanup = asyncio.run(
             api_handlers.async_handle_session_broadcast_subscribe_payload(
                 object(), self._payload(), callback=lambda event: None
             )
         )
-        self.assertEqual((result["error"], status, cleanup), ("broadcast_snapshot_unavailable", 500, None))
-        self.assertEqual(self.register_calls, 0)
+        self.assertEqual((result["error"], status, activate, cleanup), ("broadcast_snapshot_unavailable", 500, None, None))
+        self.assertEqual(self.pending_register_calls, 1)
+        self.assertEqual(self.unsubscribe_calls, 1)
         self.assertIsNone(self.registered_callback)
 
         self.active.broadcast.as_dict = self._snapshot
         self.registration_result = None
-        result, status, cleanup = asyncio.run(
+        result, status, activate, cleanup = asyncio.run(
             api_handlers.async_handle_session_broadcast_subscribe_payload(
                 object(), self._payload(), callback=lambda event: None
             )
         )
-        self.assertEqual((result["error"], status, cleanup), ("active_session_not_found", 404, None))
-        self.assertEqual(self.register_calls, 1)
+        self.assertEqual((result["error"], status, activate, cleanup), ("active_session_not_found", 404, None, None))
+        self.assertEqual(self.pending_register_calls, 2)
         self.assertIsNone(self.registered_callback)
 
     def test_repeated_http_snapshot_requests_are_side_effect_free(self) -> None:
