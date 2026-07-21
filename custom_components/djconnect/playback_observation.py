@@ -128,6 +128,17 @@ class PlaybackObservationManager:
             observed.unavailable = False
             if self._spotify_sessions.get(observed.owner_profile_id) is not observed:
                 return
+            await session_runtime_manager(self._hass).async_update_playback_projection(
+                owner_profile_id=observed.owner_profile_id,
+                session_id=observed.session_id,
+                state=getattr(result, "state", "playing" if result.is_playing else "idle"),
+                media_identity=getattr(result, "media_identity", ""),
+                title=getattr(result, "title", ""),
+                artist=getattr(result, "artist", ""),
+                album=getattr(result, "album", ""),
+                target_name=getattr(result, "target_name", ""),
+                duration_ms=getattr(result, "duration_ms", None),
+            )
             if not result.is_playing or not result.media_identity:
                 return
             await session_runtime_manager(self._hass).async_process_track_started(

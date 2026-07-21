@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import hashlib
 import json
 import logging
 import secrets
@@ -2563,6 +2564,66 @@ def _thaw_broadcast_payload(value: Any) -> Any:
 
 
 @dataclass(frozen=True)
+class RendererSafePlaybackProjection:
+    """Backend-neutral, ephemeral playback data safe for Renderer Hosts."""
+
+    state: str = "idle"
+    item_id: str = ""
+    title: str = ""
+    artist: str = ""
+    album: str = ""
+    target_name: str = ""
+    duration_ms: int | None = None
+    updated_at: str = ""
+
+    @classmethod
+    def from_observation(
+        cls,
+        *,
+        state: str,
+        media_identity: str = "",
+        title: str = "",
+        artist: str = "",
+        album: str = "",
+        target_name: str = "",
+        duration_ms: int | None = None,
+    ) -> "RendererSafePlaybackProjection":
+        """Normalize only already-observed, renderer-safe metadata."""
+        normalized_state = str(state or "idle").strip().lower()
+        if normalized_state not in {"playing", "paused", "stopped", "idle"}:
+            normalized_state = "idle"
+        if normalized_state in {"idle", "stopped"}:
+            return cls(state=normalized_state)
+        identity = str(media_identity or "").strip()
+        item_id = hashlib.sha256(identity.encode()).hexdigest()[:24] if identity else ""
+        safe_duration = duration_ms if isinstance(duration_ms, int) and duration_ms >= 0 else None
+        return cls(
+            state=normalized_state,
+            item_id=item_id,
+            title=_bounded_text(title, 256),
+            artist=_bounded_text(artist, 256),
+            album=_bounded_text(album, 256),
+            target_name=_bounded_text(target_name, 256),
+            duration_ms=safe_duration,
+            updated_at=_timestamp(),
+        )
+
+    def same_content(self, other: "RendererSafePlaybackProjection") -> bool:
+        return self.__dict__ | {"updated_at": ""} == other.__dict__ | {"updated_at": ""}
+
+    def as_dict(self) -> dict[str, Any]:
+        """Expose only presentation fields; unsafe artwork and progress are omitted."""
+        result: dict[str, Any] = {"state": self.state}
+        for key in ("item_id", "title", "artist", "album", "target_name", "updated_at"):
+            value = getattr(self, key)
+            if value:
+                result[key] = value
+        if self.duration_ms is not None:
+            result["duration_ms"] = self.duration_ms
+        return result
+
+
+@dataclass(frozen=True)
 class DJBroadcastState:
     """Canonical, renderer-safe representation of the current DJ Session."""
 
@@ -2577,6 +2638,7 @@ class DJBroadcastState:
     audience_totals: dict[str, int] = field(default_factory=dict)
     recent_audience_activity: tuple[str, ...] = ()
     dj_moments: tuple[DJMoment, ...] = ()
+    playback: "RendererSafePlaybackProjection" = field(default_factory=lambda: RendererSafePlaybackProjection())
 
     def as_dict(self, *, include_owner_only: bool = True) -> dict[str, Any]:
         """Return canonical state with its Planner-produced Session Flow."""
@@ -2586,7 +2648,7 @@ class DJBroadcastState:
                 "runtime_state": str(self.runtime_state),
                 "selected_mood": self.selected_mood,
             },
-            "playback": {"current_track": None, "playback_progress": None},
+            "playback": self.playback.as_dict(),
             "planner": {
                 "planning_state": str(self.planning_state),
                 "planning_horizon_minutes": self.planning_horizon_minutes,
@@ -2740,6 +2802,14 @@ class DJSessionBroadcastEngine:
             **{**self.state.__dict__, "session_direction": session_direction}
         )
         self._publish(BroadcastEventType.PLANNER_UPDATED, {"planner": self.as_dict()["planner"]})
+
+    def update_playback(self, playback: RendererSafePlaybackProjection) -> bool:
+        """Publish one replacement projection only when its safe content changes."""
+        if self.state.playback.same_content(playback):
+            return False
+        self.state = DJBroadcastState(**{**self.state.__dict__, "playback": playback})
+        self._publish(BroadcastEventType.PLAYBACK_CHANGED, {"playback": self.as_dict()["playback"]})
+        return True
 
     def publish_audience_state(self, totals: dict[str, int], recent_activity: tuple[str, ...]) -> None:
         self.state = DJBroadcastState(**{**self.state.__dict__, "audience_totals": dict(totals), "recent_audience_activity": recent_activity})
@@ -3062,6 +3132,33 @@ class SessionRuntimeManager:
                     raise
             self._active_by_profile[owner_profile_id] = active
             return active
+
+    async def async_update_playback_projection(
+        self,
+        *,
+        owner_profile_id: str,
+        session_id: str,
+        state: str,
+        media_identity: str = "",
+        title: str = "",
+        artist: str = "",
+        album: str = "",
+        target_name: str = "",
+        duration_ms: int | None = None,
+    ) -> bool:
+        """Apply one normalized observation to its active Runtime only."""
+        projection = RendererSafePlaybackProjection.from_observation(
+            state=state, media_identity=media_identity, title=title, artist=artist,
+            album=album, target_name=target_name, duration_ms=duration_ms,
+        )
+        async with self._lock:
+            active = self._active_by_profile.get(owner_profile_id)
+            if active is None or active.session_id != session_id:
+                return False
+            changed = active.broadcast.update_playback(projection)
+            if changed:
+                _LOGGER.debug("DJConnect renderer-safe playback projection changed")
+            return changed
 
     async def async_process_track_started(
         self,

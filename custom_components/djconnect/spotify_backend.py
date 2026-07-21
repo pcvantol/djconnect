@@ -57,6 +57,12 @@ class SpotifyPlaybackObservation:
 
     is_playing: bool = False
     media_identity: str = ""
+    state: str = "idle"
+    title: str = ""
+    artist: str = ""
+    album: str = ""
+    target_name: str = ""
+    duration_ms: int | None = None
 
 
 async def handle_spotify_command(
@@ -495,9 +501,19 @@ class SpotifyBackend:
         """
         playback = _normalize_playback(await self._request("GET", "/me/player"))
         media_identity = str(playback.get("uri") or "").strip()
-        if not playback.get("is_playing") or not media_identity.startswith("spotify:track:"):
-            return SpotifyPlaybackObservation()
-        return SpotifyPlaybackObservation(is_playing=True, media_identity=media_identity)
+        has_track = media_identity.startswith("spotify:track:")
+        state = "playing" if playback.get("is_playing") else ("paused" if has_track else "idle")
+        device = playback.get("device") if isinstance(playback.get("device"), dict) else {}
+        return SpotifyPlaybackObservation(
+            is_playing=bool(playback.get("is_playing") and has_track),
+            media_identity=media_identity if has_track else "",
+            state=state,
+            title=str(playback.get("track_name") or ""),
+            artist=str(playback.get("artist_name") or ""),
+            album=str(playback.get("album_name") or ""),
+            target_name=str(device.get("name") or ""),
+            duration_ms=_int_or_none(playback.get("duration_ms")),
+        )
 
     async def _enrich_playback_artist_genres(self, playback: dict[str, Any]) -> None:
         artist_ids = [

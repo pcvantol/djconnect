@@ -1484,10 +1484,7 @@ class SessionRuntimeManagerTest(unittest.TestCase):
         )
         self.assertEqual(
             state["playback"],
-            {
-                "current_track": None,
-                "playback_progress": None,
-            },
+            {"state": "idle"},
         )
         self.assertEqual(state["planner"]["planning_horizon_minutes"], 15)
         self.assertEqual(state["planner"]["current_direction"], "maintaining_energy")
@@ -1502,6 +1499,40 @@ class SessionRuntimeManagerTest(unittest.TestCase):
         self.assertTrue(state["broadcast"]["started_at"])
         self.assertEqual(state["broadcast"]["snapshot_watermark"], 2)
         self.assertEqual(created.as_dict()["broadcast"], state)
+
+    def test_renderer_safe_playback_projection_replaces_only_changed_observations(self) -> None:
+        manager = self.runtime.SessionRuntimeManager()
+        created = asyncio.run(manager.async_start(owner_profile_id="profile-playback"))
+        events: list[dict] = []
+        created.broadcast.register_subscription(events.append)
+
+        changed = asyncio.run(manager.async_update_playback_projection(
+            owner_profile_id="profile-playback", session_id=created.session_id,
+            state="playing", media_identity="provider-internal-track-1",
+            title="Track", artist="Artist", album="Album", target_name="Living Room",
+            duration_ms=180000,
+        ))
+        duplicate = asyncio.run(manager.async_update_playback_projection(
+            owner_profile_id="profile-playback", session_id=created.session_id,
+            state="playing", media_identity="provider-internal-track-1",
+            title="Track", artist="Artist", album="Album", target_name="Living Room",
+            duration_ms=180000,
+        ))
+        playback = created.broadcast.as_dict()["playback"]
+
+        self.assertTrue(changed)
+        self.assertFalse(duplicate)
+        self.assertEqual(playback["state"], "playing")
+        self.assertEqual(playback["title"], "Track")
+        self.assertNotIn("provider-internal-track-1", str(playback))
+        self.assertNotIn("artwork", playback)
+        self.assertNotIn("position_ms", playback)
+        self.assertEqual([event["event_type"] for event in events], ["playback_changed"])
+
+        self.assertTrue(asyncio.run(manager.async_update_playback_projection(
+            owner_profile_id="profile-playback", session_id=created.session_id, state="idle"
+        )))
+        self.assertEqual(created.broadcast.as_dict()["playback"], {"state": "idle"})
 
     def test_planner_creates_and_republishes_its_canonical_session_flow(self) -> None:
         manager = self.runtime.SessionRuntimeManager()
