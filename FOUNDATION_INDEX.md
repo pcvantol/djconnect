@@ -76,6 +76,12 @@ The files below define Platform Strategy, then the platform foundation itself.
 59. `MANAGEMENT_SUMMARY.md`
 60. `ENGINEERING_PLATFORM_GENERATION_1_COMPLETION_REPORT.md`
 
+## Canonical architecture references
+
+- `DJCONNECT_V4_ARCHITECTURE.md` defines the accepted V4 architecture.
+- `DJ_SESSION_RUNTIME_CONTRACTS.md` defines Runtime lifecycle, ownership and capability contracts.
+- `DJ_SESSION_TRANSPORT_ARCHITECTURE.md` defines transport independence, HTTP recovery and transport-neutral Broadcast delivery.
+
 ## Conflict-resolution order
 
 When documents appear to conflict, resolve them in this order:

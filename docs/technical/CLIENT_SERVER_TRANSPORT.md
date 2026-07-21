@@ -27,9 +27,11 @@ URLs for WAV/MP3 TTS audio. HA posts `text` plus optional `audio_url` to ESP32
 ## Polling / Realtime
 
 `CONFIRMED_CODE` ESP32 and Pi periodically post status to HA. Rich clients use
-explicit refresh/status calls and optional websocket command fast paths. No
-dedicated DJConnect event subscription stream was confirmed in HA websocket
-code during this pass.
+explicit refresh/status calls and optional websocket command fast paths. The
+active Runtime additionally exposes one authenticated, Runtime-scoped Broadcast
+subscription with an initial snapshot and incremental events; its current
+implementation contract is
+[`BROADCAST_TRANSPORT.md`](BROADCAST_TRANSPORT.md).
 
 ```mermaid
 flowchart LR
