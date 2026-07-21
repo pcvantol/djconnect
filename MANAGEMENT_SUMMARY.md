@@ -15,13 +15,14 @@
 
 ## Current position
 
-PR [#276](https://github.com/pcvantol/djconnect/pull/276) merged as
-`222e3871b0d5e504077802308e0a4e7d568cd752`. Transport Cells 1–4 and Recovery
-Cell 1 are current. The Planner now owns a revision-zero Session Flow, advances
-its revision on every committed semantic Flow change and retains the immutable,
-Runtime-scoped change journal. Broadcast consumes the existing Flow projection;
-it neither owns nor mutates the revision. Snapshots remain the mandatory
-fallback, and subscriptions, authorization, schemas and events are unchanged.
+PR [#278](https://github.com/pcvantol/djconnect/pull/278) merged as
+`fe36439bad56792e520fb21df706bd64028c065e`. Transport Cells 1–4 and Recovery
+Cells 1–2 are current. Session Flow semantic identity is Planner-owned: Flow
+Revision starts at zero and its immutable Runtime-scoped Change Journal records
+semantic commits. Broadcast delivery identity is independently current: every
+publication receives one Delivery Sequence, snapshots carry a watermark and a
+bounded immutable Replay Log remains internal infrastructure. Snapshots remain
+the only public recovery fallback.
 
 The reconciled chain also records PR #260 external dependency evidence, #261
 validation-only baseline correction, #262 maturity-cell documentation, #263
@@ -31,12 +32,13 @@ Stage 1, Knowledge Engine Stage 2 and Performance Memory remain current within
 their documented scopes. Continue Stage 2 and Music Assistant observation
 remain deferred by their external conditions.
 
-Recovery Cell 2—scoped Broadcast delivery sequence, snapshot watermark and a
-bounded replay log—is the next bounded candidate. Cursor, replay transport,
-HTTP Flow delta, ordering, duplicate/out-of-order handling, reconnect,
-Universal Receiver HTTP, receiver audience signals and granular Session
-resources remain deferred. No playback, provider, renderer or client recovery
-capability changed.
+The next recovery cell is authorized WebSocket recovery using an opaque
+Broadcast cursor, subject to a separately bounded cursor and authorization
+contract. Public replay, replay query, HTTP Flow delta, reconnect continuation,
+acknowledgements, duplicate/out-of-order handling, persistence, cross-Session
+replay, Universal Receiver recovery and granular Session resources remain
+deferred. No Runtime, Intelligence, Flow-policy, playback or renderer
+capability expanded.
 
 | Area | Objectively supported status | Evidence |
 | --- | --- | --- |

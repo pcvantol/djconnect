@@ -28,8 +28,10 @@ the HTTP recovery fallback for a disconnected owner renderer and is equivalent
 to the initial owner WebSocket snapshot. It creates no subscription, callback,
 Session, Flow entry or playback action.
 
-The endpoint is snapshot-only. Flow delta, sequence, cursor, replay,
-deduplication and ordering recovery remain unavailable. `GET /session/active`
+The endpoint is snapshot-only. Its snapshot includes the Broadcast-owned
+watermark for its current delivery boundary, but it exposes no sequence query,
+cursor, replay, Flow delta, deduplication or ordering-recovery protocol. The
+bounded Replay Log remains internal infrastructure. `GET /session/active`
 remains a broader owner Runtime resource, not the renderer snapshot contract.
 
 `GET /api/djconnect/v1/capabilities` is the transport discovery surface for

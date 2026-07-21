@@ -5,15 +5,15 @@
 
 ## Current engineering increment
 
-The reconciled baseline is PR [#276](https://github.com/pcvantol/djconnect/pull/276),
-**Add Session Flow revision journal**, merged on 2026-07-21 as
-`222e3871b0d5e504077802308e0a4e7d568cd752`. Transport Cells 1–4 remain
-current. Recovery Cell 1 is current: the Planner creates revision zero with its
-Flow, advances the revision exactly once for each committed semantic Flow
-change, and retains an immutable Runtime-scoped journal for initialization,
-republishing and appended Moments. Broadcast consumes the existing Flow
-projection without owning or mutating the revision. The journal is released
-when the Runtime ends; fresh snapshots remain mandatory fallback.
+The reconciled baseline is PR [#278](https://github.com/pcvantol/djconnect/pull/278),
+**Add Broadcast delivery identity**, merged on 2026-07-21 as
+`fe36439bad56792e520fb21df706bd64028c065e`. Transport Cells 1–4 and Recovery
+Cells 1–2 are current. The Planner owns semantic Flow Revision and its
+immutable Runtime-scoped Change Journal. Broadcast independently owns a
+strictly monotonic Delivery Sequence, snapshot watermark and bounded immutable
+Replay Log; each publication receives one sequence and delivery state is
+released when the Runtime ends. Fresh snapshots remain the only public recovery
+fallback.
 
 The preceding reconciled increments are: PR #260 external dependency
 documentation; PR #261 rolling-status validation only; PR #262 maturity-cell
@@ -26,9 +26,11 @@ observation, Continue Stage 2, Playback Instance Identity and
 occurrence-correct observation remain deferred under their recorded external
 backend conditions.
 
-Recovery Cell 2 is the next bounded candidate: a scoped Broadcast delivery
-sequence, snapshot watermark and bounded replay log. It must not implement a
-cursor, replay transport, Flow delta, client recovery state or Renderer work.
+The next recovery cell is authorized WebSocket recovery using an opaque
+Broadcast cursor. Its exact cursor, authorization, replay-window and
+snapshot-required contract must remain separately bounded before implementation.
+There is no public replay, cursor, HTTP Flow delta, reconnect continuation or
+Renderer recovery behaviour today.
 
 Platform Release 3.3 is operationally complete and in Maintenance. PR
 [#202](https://github.com/pcvantol/djconnect/pull/202), **Platform Release 3.3

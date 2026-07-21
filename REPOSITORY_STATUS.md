@@ -28,11 +28,12 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-Current `main` is `222e3871b0d5e504077802308e0a4e7d568cd752`, the merge commit
-for PR [#276](https://github.com/pcvantol/djconnect/pull/276), **Add Session
-Flow revision journal**, merged on 2026-07-21. The worktree was clean and
-synchronized when this baseline was reconciled; PR #276 validation passed host
-qualification, focused and full regression, Ruff and diff checks.
+Current `main` is `fe36439bad56792e520fb21df706bd64028c065e`, the merge commit
+for PR [#278](https://github.com/pcvantol/djconnect/pull/278), **Add Broadcast
+delivery identity**, merged on 2026-07-21. The worktree was clean and
+synchronized when this baseline was reconciled; PR #278 validation passed host
+qualification, focused Broadcast/Runtime/transport regression, full CI, Ruff
+and diff checks.
 
 Transport Cell 1 is current: an owner-authorized HTTP snapshot is a
 side-effect-free renderer-safe fallback. Transport Cell 2 is current: its pure
@@ -41,11 +42,12 @@ callback registration creates no redundant snapshot. Transport Cell 3 is
 current: setup-time events are buffered until after the successful initial
 snapshot result. Transport Cell 4 is current: HTTP capability discovery and
 WebSocket fallback metadata use the same declarative Broadcast transport source.
-The approved recovery architecture now has its first implementation cell:
-Planner-owned Flow revision and a semantic Runtime-scoped change journal.
-Existing snapshot-returning subscriptions, authorization and transport behaviour
-are unchanged. No Broadcast delivery sequence, watermark, replay log, cursor,
-Flow delta or Universal Receiver HTTP behaviour exists.
+The approved recovery architecture now has two current implementation cells.
+Planner-owned Flow Revision and semantic Runtime-scoped Change Journal remain
+separate from Broadcast-owned, runtime-scoped Delivery Sequence, snapshot
+watermark and bounded immutable Replay Log. Existing snapshot-returning
+subscriptions and authorization remain unchanged. No cursor, public replay,
+Flow delta or Universal Receiver HTTP recovery behaviour exists.
 
 PR #267 reconciled PRs #260 through #266. Those intermediate records cover external
 dependency documentation (#260), validation-only baseline correction (#261),
@@ -56,11 +58,11 @@ Stage 1, Continue Stage 2, Playback Instance Identity and occurrence-correct
 observation remain intentionally blocked by the external capability conditions
 in `docs/product/DJ_INTELLIGENCE_MATURITY.md`.
 
-Recovery Cell 2—scoped Broadcast delivery sequence, snapshot watermark and
-bounded replay log—is the next bounded candidate. Cursor, replay transport,
-Flow delta, HTTP delta, reconnect, Universal Receiver HTTP, receiver
-audience-signal resolution and standalone Session resources remain separately
-deferred.
+The next recovery cell is authorized WebSocket recovery using an opaque
+Broadcast cursor. Cursor validation, replay transport/query, HTTP Flow delta,
+reconnect continuation, acknowledgements, duplicate/out-of-order correction,
+persistence, cross-Session replay, Universal Receiver recovery and standalone
+Session resources remain separately deferred.
 
 Engineering Platform operational after Platform Baseline v1.0 certification
 and Software Assurance Generation 1 closure. DJConnect Product Development is
