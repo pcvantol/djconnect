@@ -19,14 +19,14 @@ schemas, serialization or implementation.
 
 | Concept | Product meaning | Responsibility |
 | --- | --- | --- |
-| DJ Session | One coherent listening experience orchestrated by the AI DJ. | Brings relevant DJConnect capabilities together for a listening moment without owning playback. |
+| DJ Session | One coherent listening experience orchestrated by the AI DJ. | A Profile-owned durable lifecycle aggregate that brings relevant DJConnect capabilities together without owning playback. |
 | Playback Context | The current playback situation available to the DJ. | Is owned by the configured Music Backend; DJConnect consumes it to enrich the session. |
 | Media Identity | One safe, adapter-normalized reference for a playable media entity. | Is owned and normalized by the Music Backend Observation Boundary, compared ephemerally by Runtime for Stage 1 observation and never identifies a playback occurrence. |
 | Current Playback Projection | One immutable, safe observation of an active current item for Continue startup. | Is resolved by the Music Backend Observation Boundary and consumed ephemerally by Session Start orchestration; it is not a queue, control contract or playback authority. |
 | Playback Instance Identity | One opaque identifier for one concrete playback occurrence. | Is generated and owned by the Music Backend Observation Boundary, passed unchanged through Current Playback Projection and Track Started, and consumed only for Runtime-scoped deduplication. |
 | Track Started Observation | One normalized Stage 2 live observation that a playback occurrence has started. | Is produced by the Music Backend Observation Boundary with the matching opaque Playback Instance Identity and consumed by Runtime; it is not a provider callback or renderer event. |
-| Session Memory | The objective chronological memory of one DJ Session. | Records what happened as events only; it performs no interpretation. |
-| Session Timeline | The user-facing chronological presentation of Session Memory. | Tells the story of one completed DJ Session; it is not a chat history. |
+| Session Memory | The objective chronological memory of one live DJ Session Runtime. | Records what happened as events only; it performs no interpretation and remains ephemeral unless an authorized historical projection is persisted. |
+| Session Timeline | The user-facing chronological presentation of one completed DJ Session. | Tells the story through authorized immutable historical projections; it is not a chat history. |
 | Music DNA | The evolving, opt-in understanding of a person's musical identity across many DJ Sessions. | Interprets patterns in Session Memory; it never replaces Session Memory. |
 | Session Start Strategy | The listener's objective for starting a Session. | Continue, Manual and Discover define why the Session exists; it is independent from Mood and Persona. |
 | DJ Persona | A behavioural DJ identity for a session. | Shapes how future contributions are presented; it is not a voice or mood. |
@@ -68,7 +68,9 @@ underlying session state.
 
 This document defines product vocabulary only. The canonical architecture and
 future implementation boundary are in
-[`DJ_PRESENTATION_ARCHITECTURE.md`](DJ_PRESENTATION_ARCHITECTURE.md).
+[`DJ_PRESENTATION_ARCHITECTURE.md`](DJ_PRESENTATION_ARCHITECTURE.md). The
+durable lifecycle, historical projection and storage boundary are in
+[`../../PERSISTENT_SESSION_ARCHITECTURE.md`](../../PERSISTENT_SESSION_ARCHITECTURE.md).
 
 ## Playback Context
 

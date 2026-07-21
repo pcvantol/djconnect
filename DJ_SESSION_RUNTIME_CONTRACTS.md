@@ -41,7 +41,8 @@ Profile
 
 | Owner | Owns | Never owns |
 | --- | --- | --- |
-| Profile | Identity, exactly one Music Backend binding, settings, preferences, Music DNA, Session History and Conversation History. | Active runtime state, planner state or renderer state. |
+| Profile | Identity, exactly one Music Backend binding, settings, preferences, Music DNA, persistent Session ownership and Conversation History. | Active runtime state, planner state or renderer state. |
+| Persistent DJ Session | Durable lifecycle, authorized historical projections and retention state. | Runtime object restoration, provider playback state or Broadcast recovery infrastructure. |
 | DJ Session Runtime | Active listening experience, effective Session Capabilities and orchestration of Planner, Moment Engine and Broadcast. | Persistent Profile identity, backend credentials, durable playback state, Playback Instance Identity derivation or Playback Control. |
 | Session Planner | The future: rolling planning horizon and Session Flow. | Direct provider playback execution or Profile persistence. |
 | DJ Moment Engine | Creative execution from Knowledge Intent to immutable DJ Moment. | Planner timing, direct playback execution or renderer-specific business logic. |
@@ -53,9 +54,10 @@ Profile
 ## Profile contract
 
 A Profile is persistent and server-owned. It contains Profile Identity, exactly
-one Music Backend binding, Settings, Preferences, Music DNA, Session History
-and Conversation History. A Profile may start or join a DJ Session, but never
-owns its active Runtime state.
+one Music Backend binding, Settings, Preferences, Music DNA, persistent Session
+ownership and Conversation History. A Profile may start or join a DJ Session,
+but never owns its active Runtime state. The durable Session boundary is
+defined by [`PERSISTENT_SESSION_ARCHITECTURE.md`](PERSISTENT_SESSION_ARCHITECTURE.md).
 
 ## DJ Session Runtime contract
 
