@@ -279,6 +279,59 @@ async def async_handle_active_session_payload(
     return {"success": True, "session": session.as_dict() if session else None}, 200
 
 
+async def _async_owner_broadcast_snapshot_query(
+    hass: Any,
+    data: dict[str, Any],
+    *,
+    headers: Any | None = None,
+    user_id: str | None = None,
+    source: str = "session_broadcast_snapshot",
+) -> tuple[dict[str, Any], int, Any | None, str | None]:
+    """Resolve one owner-authorized, side-effect-free Broadcast snapshot."""
+    headers = headers or {}
+    runtime = resolve_runtime(
+        hass, data.get("device_id") or headers.get("X-DJConnect-Device-ID"), headers
+    )
+    if runtime is None:
+        return _error_payload("not_configured"), 503, None, None
+    if not authorize_runtime_device_request(
+        runtime, headers, data.get("device_id"), payload_client_type(data)
+    ):
+        return _error_payload("unauthorized"), 401, None, None
+    if validate_required_client_type(data) is None:
+        return _error_payload("invalid_client_type"), 400, None, None
+    try:
+        context = await async_resolve_device_bound_request_context(
+            hass, runtime, data, request_source=source
+        )
+    except Exception as exc:  # noqa: BLE001
+        result, resolved_status = profile_error_payload(exc)
+        return result, resolved_status, None, None
+    session_id = str(data.get("session_id") or "").strip()
+    if not session_id:
+        return _error_payload("session_id_required"), 400, None, None
+    manager = session_runtime_manager(hass)
+    active = await manager.async_get_active(context.profile_id)
+    if active is None or active.session_id != session_id:
+        return _error_payload("active_session_not_found"), 404, None, None
+    try:
+        snapshot = active.broadcast.as_dict()
+    except Exception as exc:  # noqa: BLE001
+        _LOGGER.debug("DJConnect Broadcast snapshot unavailable: %s", exc.__class__.__name__)
+        return _error_payload("broadcast_snapshot_unavailable"), 500, None, None
+    return {"success": True, "session_id": session_id, "snapshot": snapshot}, 200, manager, context.profile_id
+
+
+async def async_handle_session_broadcast_snapshot_payload(
+    hass: Any, data: dict[str, Any], *, headers: Any | None = None, user_id: str | None = None
+) -> tuple[dict[str, Any], int]:
+    """Return the canonical owner Broadcast projection without subscribing."""
+    result, status, _manager, _profile_id = await _async_owner_broadcast_snapshot_query(
+        hass, data, headers=headers, user_id=user_id
+    )
+    return result, status
+
+
 async def async_handle_session_broadcast_subscribe_payload(
     hass: Any,
     data: dict[str, Any],
@@ -293,50 +346,31 @@ async def async_handle_session_broadcast_subscribe_payload(
     events. The cleanup callback is deliberately transport-owned so a closed
     websocket cannot retain a Runtime subscription.
     """
-    headers = headers or {}
-    runtime = resolve_runtime(
-        hass, data.get("device_id") or headers.get("X-DJConnect-Device-ID"), headers
+    result, status, manager, profile_id = await _async_owner_broadcast_snapshot_query(
+        hass, data, headers=headers, user_id=user_id, source="session_broadcast_subscribe"
     )
-    if runtime is None:
-        return _error_payload("not_configured"), 503, None
-    if not authorize_runtime_device_request(
-        runtime, headers, data.get("device_id"), payload_client_type(data)
-    ):
-        return _error_payload("unauthorized"), 401, None
-    if validate_required_client_type(data) is None:
-        return _error_payload("invalid_client_type"), 400, None
-    try:
-        context = await async_resolve_device_bound_request_context(
-            hass, runtime, data, request_source="session_broadcast_subscribe"
-        )
-    except Exception as exc:  # noqa: BLE001
-        result, resolved_status = profile_error_payload(exc)
-        return result, resolved_status, None
-    session_id = str(data.get("session_id") or "").strip()
-    if not session_id:
-        return _error_payload("session_id_required"), 400, None
-    manager = session_runtime_manager(hass)
+    if manager is None or profile_id is None:
+        return result, status, None
+    session_id = result["session_id"]
     subscribed = await manager.async_subscribe(
-        owner_profile_id=context.profile_id,
+        owner_profile_id=profile_id,
         session_id=session_id,
         callback=callback,
     )
     if subscribed is None:
         return _error_payload("active_session_not_found"), 404, None
-    subscription_id, snapshot = subscribed
+    subscription_id, _snapshot = subscribed
 
     async def cleanup() -> None:
         await manager.async_unsubscribe(
-            owner_profile_id=context.profile_id,
+            owner_profile_id=profile_id,
             session_id=session_id,
             subscription_id=subscription_id,
         )
 
     return {
-        "success": True,
         "subscription_id": subscription_id,
-        "session_id": session_id,
-        "snapshot": snapshot,
+        **result,
     }, 200, cleanup
 
 

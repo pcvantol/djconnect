@@ -6,10 +6,11 @@
 
 ## Canonical renderer integration model
 
-The Home Assistant authenticated WebSocket is the one canonical live transport
+The Home Assistant authenticated WebSocket is the canonical live transport
 for an active DJ Session. It is a Runtime-owned Broadcast subscription, not a
-second planner, polling endpoint, VibeCast feed, guest transport or Universal
-Session Receiver.
+second planner, VibeCast feed, guest transport or Universal Session Receiver.
+An owner may also retrieve the same renderer-safe Broadcast snapshot over HTTP
+as point-in-time recovery; HTTP does not poll, subscribe or deliver live events.
 
 ```text
 Broadcast State
@@ -18,6 +19,18 @@ Incremental Broadcast Events
   ↓ authenticated owner WebSocket
 Renderer
 ```
+
+### Owner HTTP snapshot fallback
+
+`GET /api/djconnect/v1/session/broadcast/{session_id}` returns the existing
+owner-authorized Broadcast State projection for the exact active Session. It is
+the HTTP recovery fallback for a disconnected owner renderer and is equivalent
+to the initial owner WebSocket snapshot. It creates no subscription, callback,
+Session, Flow entry or playback action.
+
+The endpoint is snapshot-only. Flow delta, sequence, cursor, replay,
+deduplication and ordering recovery remain unavailable. `GET /session/active`
+remains a broader owner Runtime resource, not the renderer snapshot contract.
 
 The server remains authoritative:
 
@@ -104,11 +117,14 @@ same initial snapshot followed by the same incremental Broadcast events.
 The server supplies capabilities with every Receiver connection:
 
 ```json
-{"view_broadcast": true, "like": false, "audience_signals": false, "ask_dj": false, "owner_controls": false}
+{"view_broadcast": true, "like": false, "audience_signals": true, "ask_dj": false, "owner_controls": false}
 ```
 
-Receiver frames cannot invoke commands or mutate Runtime, Planner, Playback or
-Profile state. Tokens cannot access owner endpoints or another Runtime.
+Receiver frames cannot invoke owner commands, playback or Profile state. The
+existing bounded `audience_signal` frame may contribute an aggregated audience
+signal through the Runtime; it does not grant Planner, playback or owner
+controls. Tokens cannot access owner endpoints or another Runtime. Broader
+receiver interaction policy remains deferred.
 
 ## Renderer behavior
 

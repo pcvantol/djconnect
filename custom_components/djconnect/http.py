@@ -47,6 +47,7 @@ from .const import (
     API_SESSION_START,
     API_SESSION_END,
     API_SESSION_ACTIVE,
+    API_SESSION_BROADCAST,
     API_SESSION_BROADCAST_TOKEN,
     API_SESSION_BROADCAST_WS,
     API_VOICE,
@@ -2747,6 +2748,23 @@ class DJConnectActiveSessionView(_DJConnectSessionView):
 
         result, status = await async_handle_active_session_payload(
             request.app["hass"], dict(request.query), headers=request.headers, user_id=_request_user_id(request)
+        )
+        return self.json(result, status_code=status)
+
+
+class DJConnectSessionBroadcastSnapshotView(_DJConnectSessionView):
+    """Return the active owner's renderer-safe Broadcast snapshot over HTTP."""
+
+    url = API_SESSION_BROADCAST
+    name = "api:djconnect:session:broadcast:snapshot"
+
+    async def get(self, request, session_id: str):
+        from .api_handlers import async_handle_session_broadcast_snapshot_payload
+
+        payload = dict(request.query)
+        payload["session_id"] = session_id
+        result, status = await async_handle_session_broadcast_snapshot_payload(
+            request.app["hass"], payload, headers=request.headers, user_id=_request_user_id(request)
         )
         return self.json(result, status_code=status)
 
