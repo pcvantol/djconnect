@@ -5,9 +5,9 @@
 
 ## Current engineering increment
 
-PR [#330](https://github.com/pcvantol/djconnect/pull/330), **Deterministic
-Horizon Replanning**, merged as `881619f15a845d87fa2951704b0b871282a6c6dd`.
-Its dedicated Finalization reconciles bounded Planner-owned provisional replanning.
+PR [#332](https://github.com/pcvantol/djconnect/pull/332), **Planner Influence
+Model**, merged as `9adcaf493aaff73273345dc164c5414ba026bea0`. Its dedicated
+Finalization reconciles the bounded Planner-owned normalized influence input.
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`.
 
 PR #323, **Mood and Direction
