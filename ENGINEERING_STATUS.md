@@ -5,9 +5,9 @@
 
 ## Current engineering increment
 
-PR [#332](https://github.com/pcvantol/djconnect/pull/332), **Planner Influence
-Model**, merged as `9adcaf493aaff73273345dc164c5414ba026bea0`. Its dedicated
-Finalization reconciles the bounded Planner-owned normalized influence input.
+PR [#334](https://github.com/pcvantol/djconnect/pull/334), **Knowledge Prefetch
+Planning**, merged as `cc44e992e168d1f66dd971944bf19e077c786ae7`. Its dedicated
+Finalization reconciles bounded Planner-owned future knowledge requirements.
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`.
 
 PR #323, **Mood and Direction
