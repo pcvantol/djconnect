@@ -5,13 +5,13 @@
 
 ## Current engineering increment
 
-PR [#294](https://github.com/pcvantol/djconnect/pull/294), **Harden Persistence
-Schema Lifecycle**, merged on 2026-07-21 as
-`9996f04c5ac13e35dc4930abb74f746e55bc167d`. It is
-`MERGED_UNRECONCILED`; this governance-only Finalization archives immutable
-Prompt History and reconciles rolling records. It hardens only migration,
-schema validation and safe concurrency; it adds no Session writes, Runtime
-persistence or recovery behaviour.
+PR [#296](https://github.com/pcvantol/djconnect/pull/296), **Harden Persistence
+Foundation Validation**, merged on 2026-07-21 as
+`5e0d1c1ba550afb57e2d8da5b40c0d2a7dcfb741`. This Finalization reconciles its
+immutable Prompt History and rolling records to `MERGED_RECONCILED`. It adds
+deterministic foundation evidence, fail-fast metadata validation and serialized
+bootstrap only; it adds no Session writes, Runtime persistence or recovery
+behaviour.
 
 Every implementation capability uses the mandatory Pre-Flight → Implementation
 → Validation → Merge → Finalization lifecycle. Pre-Flight ends in `GO` or
