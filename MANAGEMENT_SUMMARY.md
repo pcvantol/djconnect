@@ -15,10 +15,9 @@
 
 ## Current position
 
-PR [#362](https://github.com/pcvantol/djconnect/pull/362), **Universal Receiver
-V1 — Now Playing**, merged as `dfbc5826ae73762818e4bd002b97773852014394`.
-This dedicated Finalization reconciles its completed capability record and
-immutable Prompt History.
+PR [#364](https://github.com/pcvantol/djconnect/pull/364), **Reconcile
+Developer Experience Roadmap**, merged as `92ecef3f61e16d538b3dae6e40b3f76820666eeb`. This dedicated Finalization
+reconciles the completed roadmap transition and immutable Prompt History.
 
 The **Session Intelligence Runtime Integration Epic** is complete. DJConnect
 now has one canonical Runtime lifecycle for supported Track Started decisions:
@@ -27,19 +26,19 @@ Session Flow publication and Broadcast distribution. The ownership model is
 stable and the legacy Track Started route is only lifecycle-failure protection.
 
 The roadmap therefore transitions from runtime architecture to experience
-expansion. Universal Receiver V1 remains the primary active architectural Epic.
-Capability 1 — Broadcast Connection and Session Rendering — and Capability 2
-— Session Flow Timeline Rendering — are complete. The stateless Web Renderer
-Host renders only existing renderer-safe Broadcast projections, preserving
-server-owned Flow ordering through snapshot, live-update, reset and reconnect
-replacement. PR #360 completes the server-side playback presentation
-prerequisite: metadata, HA-proxied artwork and a bounded Runtime-owned progress
-projection use the existing Broadcast contract. The server corrects progress
-from backend observations; Renderer Hosts never infer playback time. Capability
-3 — Now Playing Experience — is complete in PR #362. It displays the existing
-playback projection and server-owned progress without browser inference. No
-browser authority, new transport or provider polling was introduced.
-Audience Intelligence remains intentionally deferred.
+expansion and verification. Universal Receiver V1 foundation is complete:
+server architecture, Broadcast Connection, Session Flow Timeline, renderer-safe
+Playback Projection and Now Playing. The stateless Web Renderer Host consumes
+only existing server-owned Broadcast projections, reconstructing from snapshot
+and live updates without browser authority, local playback timing, a new
+transport or provider polling.
+
+Developer Experience and Verification is now active. **Developer Session
+Bootstrap** is the only next capability: a bounded HA development/service
+boundary for ordinary server-owned Session startup, session-scoped ephemeral
+Receiver access, and cleanup for manual development and CI. Simulation remains
+parked and must later exercise the real pipeline rather than an alternate
+Runtime. Audience Intelligence remains deferred and low priority.
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`
 after this Finalization merges and Workspace Cleanup completes.
 
