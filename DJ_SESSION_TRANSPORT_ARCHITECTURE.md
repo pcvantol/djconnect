@@ -53,7 +53,7 @@ HTTP is the canonical request/response transport and the guaranteed fallback for
 - Session start and stop;
 - Session status and the current Runtime snapshot;
 - the current DJ Moment;
-- Session Flow snapshot and Session Flow changes after a known sequence;
+- Session Flow snapshot and Session Flow changes after a known Flow revision;
 - Ask DJ and Track Insight;
 - capability discovery; and
 - diagnostics authorized for the caller.
@@ -72,9 +72,14 @@ The current authenticated Home Assistant WebSocket Broadcast subscription return
 
 ## Snapshots, Deltas and Authoritative Ordering
 
-A **snapshot** is the current authorized state of one Session at one point in time. A **delta** is an authorized set of changes after a client-known Session Flow sequence. A client must be able to recover with a current snapshot or a delta; it must not reconstruct Session state from transport-local assumptions or replay an entire Session merely because a connection dropped.
+A **snapshot** is the current authorized state of one Session at one point in time. A **delta** is an authorized set of changes after a client-known Session Flow revision. A client must be able to recover with a current snapshot or a delta; it must not reconstruct Session state from transport-local assumptions or replay an entire Session merely because a connection dropped.
 
-Session Flow ordering is authoritative. Future HTTP delta retrieval and WebSocket recovery must use that canonical ordering rather than a socket event identifier, local timestamp or client-managed history. This establishes a recovery contract, not a sequence field, cursor format or endpoint design.
+Session Flow ordering is authoritative. Future HTTP delta retrieval must use a
+canonical Flow revision rather than a socket event identifier, local timestamp
+or client-managed history. Broadcast replay has a separate, scoped Broadcast
+delivery cursor and watermark; it is not a Session Flow sequence. The complete
+ownership, lifetime and fallback contract is
+[`SESSION_FLOW_RECOVERY_ARCHITECTURE.md`](SESSION_FLOW_RECOVERY_ARCHITECTURE.md).
 
 ## Recovery
 
@@ -92,7 +97,7 @@ Client reconnects WebSocket when available
 New live delivery continues from server-authoritative state
 ```
 
-The server must never require a permanently connected WebSocket for a Session to remain valid. A client remains functionally usable through HTTP alone. After reconnecting, a returned server snapshot is authoritative over any local transport cache.
+The server must never require a permanently connected WebSocket for a Session to remain valid. A client remains functionally usable through HTTP alone. After reconnecting, a returned server snapshot is authoritative over any local transport cache. Future cursor replay is an optimization only; it must fall back to this snapshot path whenever the server returns `snapshot_required`.
 
 ## Client Expectations
 
@@ -107,6 +112,7 @@ Push notifications, MQTT, Voice and future transports may become delivery adapte
 ## Relationship to Existing Documents
 
 - [`DJ_SESSION_RUNTIME_CONTRACTS.md`](DJ_SESSION_RUNTIME_CONTRACTS.md) owns Runtime lifecycle and ownership.
+- [`SESSION_FLOW_RECOVERY_ARCHITECTURE.md`](SESSION_FLOW_RECOVERY_ARCHITECTURE.md) owns canonical Flow revision and Broadcast recovery identity.
 - [`docs/product/DJ_INTELLIGENCE_ARCHITECTURE.md`](docs/product/DJ_INTELLIGENCE_ARCHITECTURE.md) owns the intelligence pipeline.
 - [`docs/technical/BROADCAST_TRANSPORT.md`](docs/technical/BROADCAST_TRANSPORT.md) records the current Broadcast transport implementation.
 - [`docs/technical/HTTP_API.md`](docs/technical/HTTP_API.md) and [`docs/technical/WEBSOCKET_API.md`](docs/technical/WEBSOCKET_API.md) record current transport inventories.
