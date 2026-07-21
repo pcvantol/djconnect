@@ -565,6 +565,30 @@ class PlannerIntent:
     generation: int
 
 
+class PlannedIntentStatus(StrEnum):
+    """Lifecycle of one speculative Planner-owned future intent."""
+
+    PLANNED = "planned"
+    SUPERSEDED = "superseded"
+    APPROVED = "approved"
+    DISCARDED = "discarded"
+
+
+@dataclass(frozen=True)
+class PlannedIntent:
+    """One bounded future candidate; never a committed or realized Moment."""
+
+    category: str
+    slot: CandidatePlanningSlot
+    generation: int
+    confidence: float
+    status: PlannedIntentStatus = PlannedIntentStatus.PLANNED
+
+    def as_planner_intent(self) -> PlannerIntent:
+        """Return the internal approval value without exposing the planning slot."""
+        return PlannerIntent(category=self.category, generation=self.generation)
+
+
 class PlannerIntentSelector:
     """Select at most one supported candidate deterministically."""
 
@@ -615,10 +639,68 @@ class PlanningWindow:
     generation: int = 0
     confidence: float = 0.0
     candidate_slots: tuple[CandidatePlanningSlot, ...] = ()
+    planned_intents: tuple[PlannedIntent, ...] = ()
     approved_intent: PlannerIntent | None = None
+    max_planned_intents: int = 20
+
+    def plan_intents(self) -> tuple[PlannedIntent, ...]:
+        """Create deterministic provisional intents only for observed future slots."""
+        if self.planned_intents:
+            return self.planned_intents
+        if self.planning_coverage_seconds <= 0:
+            return ()
+
+        eligible_slots = (
+            slot
+            for slot in sorted(
+                self.candidate_slots,
+                key=lambda slot: (slot.starts_at_seconds, slot.ends_at_seconds, slot.category),
+            )
+            if (
+                slot.category in PlannerIntentSelector._SUPPORTED
+                and 0 <= slot.starts_at_seconds < slot.ends_at_seconds
+                and slot.ends_at_seconds <= self.planning_coverage_seconds
+            )
+        )
+        confidence = max(0.0, min(1.0, self.confidence))
+        self.planned_intents = tuple(
+            PlannedIntent(
+                category=slot.category,
+                slot=slot,
+                generation=self.generation,
+                confidence=confidence,
+            )
+            for slot in eligible_slots
+        )[: self.max_planned_intents]
+        return self.planned_intents
+
+    def approve_earliest_planned_intent(self) -> PlannerIntent | None:
+        """Approve at most the earliest eligible future intent, once per window."""
+        if self.approved_intent is not None:
+            return self.approved_intent
+
+        planned_intents = self.plan_intents()
+        for index, planned in enumerate(planned_intents):
+            if planned.status is not PlannedIntentStatus.PLANNED:
+                continue
+            approved = PlannedIntent(
+                category=planned.category,
+                slot=planned.slot,
+                generation=planned.generation,
+                confidence=planned.confidence,
+                status=PlannedIntentStatus.APPROVED,
+            )
+            self.planned_intents = (
+                planned_intents[:index] + (approved,) + planned_intents[index + 1 :]
+            )
+            self.approved_intent = approved.as_planner_intent()
+            return self.approved_intent
+        return None
 
     def select_intent(self) -> PlannerIntent | None:
         """Approve one deterministic candidate without realizing it."""
+        if self.candidate_slots:
+            return self.approve_earliest_planned_intent()
         self.approved_intent = PlannerIntentSelector.select(self)
         return self.approved_intent
 
@@ -638,16 +720,29 @@ class RollingSessionHorizon:
     planning_window: PlanningWindow | None = None
 
     def build_planning_window(self) -> PlanningWindow:
-        """Build a bounded empty opportunity space from normalized observations."""
+        """Build bounded silence-capable slots only from observed playback duration."""
         coverage = self.upcoming_playback.observable_duration_seconds
+        planning_coverage = min(coverage, self.window_minutes * 60)
+        offset = 0
+        slots: list[CandidatePlanningSlot] = []
+        for entry in self.upcoming_playback.entries:
+            duration = max(0, entry.duration_seconds)
+            slot_end = min(offset + duration, planning_coverage)
+            if offset < slot_end:
+                slots.append(CandidatePlanningSlot("silence", offset, slot_end))
+            offset += duration
+            if offset >= planning_coverage:
+                break
         self.planning_window = PlanningWindow(
             starts_at=self.created_at,
             ends_at=self.created_at,
             observable_coverage_seconds=coverage,
-            planning_coverage_seconds=min(coverage, self.window_minutes * 60),
+            planning_coverage_seconds=planning_coverage,
             generation=self.invalidation_generation,
             confidence=self.upcoming_playback.confidence,
+            candidate_slots=tuple(slots),
         )
+        self.planning_window.plan_intents()
         return self.planning_window
 
     def invalidate(self) -> None:
