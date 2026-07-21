@@ -15,9 +15,10 @@
 
 ## Current position
 
-PR [#358](https://github.com/pcvantol/djconnect/pull/358), **Universal Receiver
-V1 — Session Flow Timeline Rendering**, merged as `25be97ae7bf79c1026cec6a5c29096b2a852276a`. This dedicated Finalization
-reconciles its completed capability record and immutable Prompt History.
+PR [#360](https://github.com/pcvantol/djconnect/pull/360), **Renderer-Safe
+Playback Projection**, merged as `637ab709174b1c49409259f66c902d23b32619fa`.
+This dedicated Finalization reconciles its completed capability record and
+immutable Prompt History.
 
 The **Session Intelligence Runtime Integration Epic** is complete. DJConnect
 now has one canonical Runtime lifecycle for supported Track Started decisions:
@@ -31,10 +32,15 @@ Capability 1 — Broadcast Connection and Session Rendering — and Capability 2
 — Session Flow Timeline Rendering — are complete. The stateless Web Renderer
 Host renders only existing renderer-safe Broadcast projections, preserving
 server-owned Flow ordering through snapshot, live-update, reset and reconnect
-replacement. No browser authority, controls, polling, persistence,
-authentication redesign, HTTP endpoint, WebSocket channel or ownership change
-was introduced. Audience Intelligence remains intentionally deferred.
-Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`.
+replacement. PR #360 completes the server-side playback presentation
+prerequisite: metadata, HA-proxied artwork and a bounded Runtime-owned progress
+projection use the existing Broadcast contract. The server corrects progress
+from backend observations; Renderer Hosts never infer playback time. Capability
+3 — Now Playing Experience — is ready for a separate presentation-only prompt.
+No browser authority, new transport or provider polling was introduced.
+Audience Intelligence remains intentionally deferred.
+Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`
+after this Finalization merges and Workspace Cleanup completes.
 
 PR #315 merged as
 `6a22b0814fcfcd277a9a854fc78b5a28ed04eadd`. It adds only the ephemeral,
