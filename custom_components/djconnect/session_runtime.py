@@ -589,6 +589,26 @@ class PlannedIntent:
         return PlannerIntent(category=self.category, generation=self.generation)
 
 
+class KnowledgePrefetchStatus(StrEnum):
+    """Lifecycle of Planner-owned knowledge preparation work."""
+
+    PLANNED = "planned"
+    INVALIDATED = "invalidated"
+
+
+@dataclass(frozen=True)
+class KnowledgePrefetch:
+    """One future knowledge requirement; never retrieved knowledge or a Moment."""
+
+    target_intent: PlannedIntent
+    knowledge_category: str
+    planning_generation: int
+    status: KnowledgePrefetchStatus
+    knowledge_confidence: float
+    freshness: float
+    invalidation_generation: int
+
+
 @dataclass(frozen=True)
 class PlannerInfluence:
     """Normalized, bounded Runtime context consumed by Planner Intent Selection."""
@@ -687,6 +707,64 @@ class PlanningWindow:
     approved_intent: PlannerIntent | None = None
     max_planned_intents: int = 20
     influence: PlannerInfluence = field(default_factory=PlannerInfluence)
+    knowledge_prefetches: tuple[KnowledgePrefetch, ...] = ()
+
+    _PREFETCH_CATEGORIES = {
+        "artist_story": "artist",
+        "album_story": "album",
+        "genre_story": "genre",
+        "recommendation": "recommendation",
+    }
+
+    @staticmethod
+    def _prefetch_key(intent: PlannedIntent) -> tuple[str, int, int, int]:
+        """Identify one bounded future requirement without provider metadata."""
+        return (
+            intent.category,
+            intent.slot.starts_at_seconds,
+            intent.slot.ends_at_seconds,
+            intent.generation,
+        )
+
+    def plan_knowledge_prefetches(
+        self,
+        *,
+        invalidation_generation: int,
+        previous_prefetches: tuple[KnowledgePrefetch, ...] = (),
+    ) -> tuple[KnowledgePrefetch, ...]:
+        """Prepare bounded knowledge requirements for still-provisional future intents."""
+        confidence = min(self.confidence, self.influence.confidence)
+        active = tuple(
+            KnowledgePrefetch(
+                target_intent=intent,
+                knowledge_category=self._PREFETCH_CATEGORIES[intent.category],
+                planning_generation=intent.generation,
+                status=KnowledgePrefetchStatus.PLANNED,
+                knowledge_confidence=max(0.0, min(1.0, confidence)),
+                freshness=self.influence.freshness,
+                invalidation_generation=invalidation_generation,
+            )
+            for intent in self.planned_intents
+            if intent.status is PlannedIntentStatus.PLANNED
+            and intent.category in self._PREFETCH_CATEGORIES
+        )
+        active_keys = {self._prefetch_key(prefetch.target_intent) for prefetch in active}
+        invalidated = tuple(
+            KnowledgePrefetch(
+                target_intent=prefetch.target_intent,
+                knowledge_category=prefetch.knowledge_category,
+                planning_generation=prefetch.planning_generation,
+                status=KnowledgePrefetchStatus.INVALIDATED,
+                knowledge_confidence=prefetch.knowledge_confidence,
+                freshness=prefetch.freshness,
+                invalidation_generation=invalidation_generation,
+            )
+            for prefetch in previous_prefetches
+            if self._prefetch_key(prefetch.target_intent) not in active_keys
+            and prefetch.status is KnowledgePrefetchStatus.PLANNED
+        )
+        self.knowledge_prefetches = (active + invalidated)[: self.max_planned_intents]
+        return self.knowledge_prefetches
 
     def plan_intents(self) -> tuple[PlannedIntent, ...]:
         """Create deterministic provisional intents only for observed future slots."""
@@ -840,6 +918,9 @@ class RollingSessionHorizon:
     def build_planning_window(self) -> PlanningWindow:
         """Build bounded silence-capable slots only from observed playback duration."""
         self.planning_window = self._new_planning_window(self.invalidation_generation)
+        self.planning_window.plan_knowledge_prefetches(
+            invalidation_generation=self.invalidation_generation
+        )
         self._replanning_signature = self._signature()
         return self.planning_window
 
@@ -856,6 +937,10 @@ class RollingSessionHorizon:
             and planned.status is PlannedIntentStatus.PLANNED
             else planned
             for planned in self.planning_window.planned_intents
+        )
+        self.planning_window.plan_knowledge_prefetches(
+            invalidation_generation=self.invalidation_generation,
+            previous_prefetches=self.planning_window.knowledge_prefetches,
         )
 
     def replan(
@@ -907,6 +992,10 @@ class RollingSessionHorizon:
             None,
         )
         rebuilt.approved_intent = approved.as_planner_intent() if approved is not None else None
+        rebuilt.plan_knowledge_prefetches(
+            invalidation_generation=generation,
+            previous_prefetches=previous.knowledge_prefetches,
+        )
         self.planning_window = rebuilt
         self._replanning_signature = self._signature()
         return rebuilt

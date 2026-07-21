@@ -288,6 +288,100 @@ class SessionRuntimeManagerTest(unittest.TestCase):
 
         self.assertIsNone(asyncio.run(manager.async_get_active("profile-influence")))
 
+    def test_knowledge_prefetch_is_created_for_a_planned_knowledge_intent(self) -> None:
+        window = self.runtime.PlanningWindow(
+            starts_at="now",
+            ends_at="later",
+            planning_coverage_seconds=120,
+            generation=3,
+            confidence=0.8,
+            influence=self.runtime.PlannerInfluence.normalize(confidence=0.6, freshness=0.9),
+            candidate_slots=(
+                self.runtime.CandidatePlanningSlot("artist_story", 0, 60),
+                self.runtime.CandidatePlanningSlot("silence", 60, 120),
+            ),
+        )
+        window.plan_intents()
+
+        prefetches = window.plan_knowledge_prefetches(invalidation_generation=4)
+
+        self.assertEqual(len(prefetches), 1)
+        prefetch = prefetches[0]
+        self.assertEqual(prefetch.target_intent, window.planned_intents[0])
+        self.assertEqual(prefetch.knowledge_category, "artist")
+        self.assertEqual(prefetch.planning_generation, 3)
+        self.assertEqual(prefetch.status, self.runtime.KnowledgePrefetchStatus.PLANNED)
+        self.assertEqual((prefetch.knowledge_confidence, prefetch.freshness), (0.6, 0.9))
+        self.assertEqual(prefetch.invalidation_generation, 4)
+
+    def test_obsolete_planned_intent_invalidates_associated_prefetch(self) -> None:
+        original = self.runtime.PlanningWindow(
+            starts_at="now",
+            ends_at="later",
+            planning_coverage_seconds=60,
+            generation=0,
+            candidate_slots=(self.runtime.CandidatePlanningSlot("artist_story", 0, 60),),
+        )
+        original.plan_intents()
+        original.plan_knowledge_prefetches(invalidation_generation=0)
+        replacement = self.runtime.PlanningWindow(
+            starts_at="now",
+            ends_at="later",
+            planning_coverage_seconds=60,
+            generation=1,
+            candidate_slots=(self.runtime.CandidatePlanningSlot("album_story", 0, 60),),
+        )
+        replacement.plan_intents()
+
+        prefetches = replacement.plan_knowledge_prefetches(
+            invalidation_generation=1,
+            previous_prefetches=original.knowledge_prefetches,
+        )
+
+        self.assertEqual(
+            [prefetch.status for prefetch in prefetches],
+            [
+                self.runtime.KnowledgePrefetchStatus.PLANNED,
+                self.runtime.KnowledgePrefetchStatus.INVALIDATED,
+            ],
+        )
+        self.assertEqual(prefetches[1].target_intent, original.planned_intents[0])
+        self.assertEqual(prefetches[1].invalidation_generation, 1)
+
+    def test_knowledge_prefetch_generation_is_deterministic(self) -> None:
+        def build_prefetches():
+            window = self.runtime.PlanningWindow(
+                starts_at="now",
+                ends_at="later",
+                planning_coverage_seconds=60,
+                generation=5,
+                candidate_slots=(self.runtime.CandidatePlanningSlot("genre_story", 0, 60),),
+            )
+            window.plan_intents()
+            return window.plan_knowledge_prefetches(invalidation_generation=7)
+
+        first = build_prefetches()
+        second = build_prefetches()
+
+        self.assertEqual(first, second)
+        self.assertEqual((first[0].planning_generation, first[0].invalidation_generation), (5, 7))
+
+    def test_knowledge_prefetch_is_runtime_internal_and_disposed_with_runtime(self) -> None:
+        manager = self.runtime.SessionRuntimeManager()
+        created = asyncio.run(manager.async_start(owner_profile_id="profile-prefetch"))
+        assert created.planner.horizon is not None
+        window = created.planner.horizon.build_planning_window()
+
+        self.assertEqual(window.knowledge_prefetches, ())
+        self.assertNotIn("knowledge_prefetches", created.planner.as_dict())
+        self.assertNotIn("knowledge_prefetches", created.as_dict())
+
+        asyncio.run(
+            manager.async_end(owner_profile_id="profile-prefetch", session_id=created.session_id)
+        )
+
+        self.assertIsNone(asyncio.run(manager.async_get_active("profile-prefetch")))
+
     def test_horizon_replanning_is_a_no_op_for_unchanged_inputs(self) -> None:
         horizon = self.runtime.RollingSessionHorizon(
             window_minutes=15,
