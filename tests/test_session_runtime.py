@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import importlib.util
+import inspect
 from pathlib import Path
 import sys
 import types
@@ -191,6 +192,102 @@ class SessionRuntimeManagerTest(unittest.TestCase):
 
         self.assertIsNone(asyncio.run(manager.async_get_active("profile-planning")))
 
+    def test_planner_influence_normalizes_mood_direction_and_performance_memory(self) -> None:
+        memory = self.runtime.PerformanceMemory("flow-a", recent_artists=("Artist",))
+
+        influence = self.runtime.PlannerInfluence.normalize(
+            mood=" Chill ",
+            direction=self.runtime.SessionDirectionType.EXPLORING,
+            performance_memory=memory,
+            generation=-2,
+            confidence=2.0,
+            freshness=-1.0,
+        )
+
+        self.assertEqual(influence.effective_mood, "chill")
+        self.assertEqual(influence.effective_direction, self.runtime.SessionDirectionType.EXPLORING)
+        self.assertIs(influence.performance_memory, memory)
+        self.assertEqual((influence.generation, influence.confidence, influence.freshness), (0, 1.0, 0.0))
+        self.assertTrue(influence.is_valid)
+
+    def test_planner_influence_and_selector_are_deterministic(self) -> None:
+        window = self.runtime.PlanningWindow(
+            starts_at="now",
+            ends_at="later",
+            candidate_slots=(
+                self.runtime.CandidatePlanningSlot("silence", 0, 60),
+                self.runtime.CandidatePlanningSlot("recommendation", 60, 120),
+            ),
+        )
+        influence = self.runtime.PlannerInfluence.normalize(
+            mood="chill", direction=self.runtime.SessionDirectionType.EXPLORING
+        )
+
+        first = self.runtime.PlannerIntentSelector.select(window, influence=influence)
+        second = self.runtime.PlannerIntentSelector.select(window, influence=influence)
+
+        self.assertEqual(first, self.runtime.PlannerIntent("silence", 0))
+        self.assertEqual(first, second)
+
+    def test_selector_consumes_only_planner_influence_model(self) -> None:
+        window = self.runtime.PlanningWindow(
+            starts_at="now",
+            ends_at="later",
+            candidate_slots=(
+                self.runtime.CandidatePlanningSlot("artist_story", 0, 60),
+                self.runtime.CandidatePlanningSlot("genre_story", 60, 120),
+            ),
+        )
+        influence = self.runtime.PlannerInfluence.normalize(
+            performance_memory=self.runtime.PerformanceMemory("flow-a", recent_artists=("Artist",))
+        )
+        parameters = inspect.signature(self.runtime.PlannerIntentSelector.select).parameters
+
+        selected = self.runtime.PlannerIntentSelector.select(window, influence=influence)
+
+        self.assertEqual(selected, self.runtime.PlannerIntent("genre_story", 0))
+        self.assertIn("influence", parameters)
+        self.assertNotIn("mood", parameters)
+        self.assertNotIn("direction", parameters)
+        self.assertNotIn("performance_memory", parameters)
+
+    def test_changed_influence_participates_in_horizon_invalidation(self) -> None:
+        horizon = self.runtime.RollingSessionHorizon(
+            window_minutes=15,
+            created_at="now",
+            upcoming_playback=self.runtime.UpcomingPlaybackProjection.from_entries(
+                (self.runtime.UpcomingPlaybackEntry("track-a", duration_seconds=60),)
+            ),
+        )
+        horizon.build_planning_window()
+        influence = self.runtime.PlannerInfluence.normalize(
+            mood="chill", generation=1, confidence=0.7, freshness=0.9
+        )
+
+        replanned = horizon.replan(influence=influence)
+        repeated = horizon.replan(influence=influence)
+
+        self.assertEqual(replanned.generation, 1)
+        self.assertIs(repeated, replanned)
+        self.assertEqual(horizon.influence, influence)
+
+    def test_planner_influence_is_runtime_internal_and_disposed_with_runtime(self) -> None:
+        manager = self.runtime.SessionRuntimeManager()
+        created = asyncio.run(manager.async_start(owner_profile_id="profile-influence"))
+        assert created.planner.horizon is not None
+        created.planner.horizon.replan(
+            influence=self.runtime.PlannerInfluence.normalize(mood="chill", generation=1)
+        )
+
+        self.assertNotIn("influence", created.planner.as_dict())
+        self.assertNotIn("influence", created.as_dict())
+
+        asyncio.run(
+            manager.async_end(owner_profile_id="profile-influence", session_id=created.session_id)
+        )
+
+        self.assertIsNone(asyncio.run(manager.async_get_active("profile-influence")))
+
     def test_horizon_replanning_is_a_no_op_for_unchanged_inputs(self) -> None:
         horizon = self.runtime.RollingSessionHorizon(
             window_minutes=15,
@@ -307,9 +404,10 @@ class SessionRuntimeManagerTest(unittest.TestCase):
         first.build_planning_window()
         second.build_planning_window()
 
-        first_replan = first.replan(upcoming_playback=projection, effective_mood="chill")
-        second_replan = second.replan(upcoming_playback=projection, effective_mood="chill")
-        repeated = first.replan(upcoming_playback=projection, effective_mood="chill")
+        influence = self.runtime.PlannerInfluence.normalize(mood="chill")
+        first_replan = first.replan(upcoming_playback=projection, influence=influence)
+        second_replan = second.replan(upcoming_playback=projection, influence=influence)
+        repeated = first.replan(upcoming_playback=projection, influence=influence)
 
         self.assertEqual(first_replan, second_replan)
         self.assertIs(repeated, first_replan)

@@ -589,6 +589,43 @@ class PlannedIntent:
         return PlannerIntent(category=self.category, generation=self.generation)
 
 
+@dataclass(frozen=True)
+class PlannerInfluence:
+    """Normalized, bounded Runtime context consumed by Planner Intent Selection."""
+
+    effective_mood: str = ""
+    effective_direction: SessionDirectionType | None = None
+    performance_memory: PerformanceMemory | None = None
+    generation: int = 0
+    confidence: float = 1.0
+    freshness: float = 1.0
+    is_valid: bool = True
+    extensions: tuple[tuple[str, str], ...] = ()
+
+    @classmethod
+    def normalize(
+        cls,
+        *,
+        mood: str = "",
+        direction: SessionDirectionType | None = None,
+        performance_memory: PerformanceMemory | None = None,
+        generation: int = 0,
+        confidence: float = 1.0,
+        freshness: float = 1.0,
+        is_valid: bool = True,
+    ) -> "PlannerInfluence":
+        """Normalize supported Runtime inputs without adding selection heuristics."""
+        return cls(
+            effective_mood=mood.strip().lower(),
+            effective_direction=direction,
+            performance_memory=performance_memory,
+            generation=max(0, generation),
+            confidence=max(0.0, min(1.0, confidence)),
+            freshness=max(0.0, min(1.0, freshness)),
+            is_valid=is_valid,
+        )
+
+
 class PlannerIntentSelector:
     """Select at most one supported candidate deterministically."""
 
@@ -599,18 +636,25 @@ class PlannerIntentSelector:
         cls,
         window: "PlanningWindow",
         *,
-        mood: str = "",
-        direction: SessionDirectionType | None = None,
-        performance_memory: PerformanceMemory | None = None,
+        influence: PlannerInfluence | None = None,
     ) -> PlannerIntent | None:
-        """Use bounded Runtime context only to rank one future candidate."""
+        """Use only normalized Planner influence to rank one future candidate."""
+        influence = influence or PlannerInfluence()
         priorities = cls._SUPPORTED
-        if mood == "chill" or direction is SessionDirectionType.COOLING_DOWN:
+        if not influence.is_valid:
+            priorities = ("silence",)
+        elif (
+            influence.effective_mood == "chill"
+            or influence.effective_direction is SessionDirectionType.COOLING_DOWN
+        ):
             priorities = ("silence", "genre_story", "artist_story", "album_story", "recommendation")
-        elif direction is SessionDirectionType.EXPLORING:
+        elif influence.effective_direction is SessionDirectionType.EXPLORING:
             priorities = ("recommendation", "artist_story", "album_story", "genre_story", "silence")
         for category in priorities:
-            if performance_memory is not None and cls._recently_used(category, performance_memory):
+            if (
+                influence.performance_memory is not None
+                and cls._recently_used(category, influence.performance_memory)
+            ):
                 continue
             if any(slot.category == category for slot in window.candidate_slots):
                 return PlannerIntent(category, window.generation)
@@ -642,6 +686,7 @@ class PlanningWindow:
     planned_intents: tuple[PlannedIntent, ...] = ()
     approved_intent: PlannerIntent | None = None
     max_planned_intents: int = 20
+    influence: PlannerInfluence = field(default_factory=PlannerInfluence)
 
     def plan_intents(self) -> tuple[PlannedIntent, ...]:
         """Create deterministic provisional intents only for observed future slots."""
@@ -697,11 +742,13 @@ class PlanningWindow:
             return self.approved_intent
         return None
 
-    def select_intent(self) -> PlannerIntent | None:
+    def select_intent(self, influence: PlannerInfluence | None = None) -> PlannerIntent | None:
         """Approve one deterministic candidate without realizing it."""
+        if influence is not None:
+            self.influence = influence
         if self.candidate_slots:
             return self.approve_earliest_planned_intent()
-        self.approved_intent = PlannerIntentSelector.select(self)
+        self.approved_intent = PlannerIntentSelector.select(self, influence=self.influence)
         return self.approved_intent
 
 
@@ -718,8 +765,7 @@ class RollingSessionHorizon:
     planned_at: str = ""
     upcoming_playback: UpcomingPlaybackProjection = field(default_factory=UpcomingPlaybackProjection)
     planning_window: PlanningWindow | None = None
-    effective_mood: str = ""
-    effective_direction: SessionDirectionType | None = None
+    influence: PlannerInfluence = field(default_factory=PlannerInfluence)
     consumed_slot_keys: tuple[tuple[str, int, int], ...] = ()
     _replanning_signature: tuple[Any, ...] | None = field(default=None, repr=False)
 
@@ -747,8 +793,7 @@ class RollingSessionHorizon:
         window = self.planning_window
         return (
             self.invalidation_generation,
-            self.effective_mood,
-            self.effective_direction.value if self.effective_direction is not None else "",
+            self.influence,
             self.upcoming_playback.entries,
             self.upcoming_playback.observed_at,
             self.upcoming_playback.confidence,
@@ -787,6 +832,7 @@ class RollingSessionHorizon:
             generation=generation,
             confidence=self.upcoming_playback.confidence,
             candidate_slots=self._candidate_slots(planning_coverage),
+            influence=self.influence,
         )
         window.plan_intents()
         return window
@@ -816,16 +862,13 @@ class RollingSessionHorizon:
         self,
         *,
         upcoming_playback: UpcomingPlaybackProjection | None = None,
-        effective_mood: str | None = None,
-        effective_direction: SessionDirectionType | None = None,
+        influence: PlannerInfluence | None = None,
     ) -> PlanningWindow:
         """Deterministically replace only invalid provisional planning after input change."""
         if upcoming_playback is not None:
             self.upcoming_playback = upcoming_playback
-        if effective_mood is not None:
-            self.effective_mood = effective_mood
-        if effective_direction is not None:
-            self.effective_direction = effective_direction
+        if influence is not None:
+            self.influence = influence
         if self.planning_window is None:
             return self.build_planning_window()
 
