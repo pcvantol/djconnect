@@ -30,6 +30,7 @@ WS_TYPE_MUSIC_DISCOVERY_REFRESH = "djconnect/music_discovery/refresh"
 WS_TYPE_MUSIC_DISCOVERY_PLAY = "djconnect/music_discovery/play"
 WS_TYPE_MUSIC_DISCOVERY_FEEDBACK = "djconnect/music_discovery/feedback"
 WS_TYPE_SESSION_BROADCAST_SUBSCRIBE = "djconnect/session/broadcast/subscribe"
+WS_TYPE_SESSION_BROADCAST_RECOVER = "djconnect/session/broadcast/recover"
 WS_EVENT_SESSION_BROADCAST = "djconnect/session/broadcast"
 
 HTTP_FALLBACK_PATHS = {
@@ -69,7 +70,10 @@ FEATURE_COMMANDS = {
         WS_TYPE_MUSIC_DISCOVERY_PLAY,
     ),
     "music_discovery_feedback": (WS_TYPE_MUSIC_DISCOVERY_FEEDBACK,),
-    "session_broadcast_transport": (WS_TYPE_SESSION_BROADCAST_SUBSCRIBE,),
+    "session_broadcast_transport": (
+        WS_TYPE_SESSION_BROADCAST_SUBSCRIBE,
+        WS_TYPE_SESSION_BROADCAST_RECOVER,
+    ),
 }
 
 PROFILE_CONTEXT_SCHEMA_FIELDS = {
@@ -185,6 +189,14 @@ async def async_handle_session_broadcast_subscribe_payload(
     return await handler(*args, **kwargs)
 
 
+async def async_handle_session_broadcast_recovery_payload(
+    *args: Any, **kwargs: Any
+) -> tuple[dict[str, Any], int, Any, Any]:
+    from .api_handlers import async_handle_session_broadcast_recovery_payload as handler
+
+    return await handler(*args, **kwargs)
+
+
 def _websocket_command(schema: dict[Any, Any]) -> Any:
     if websocket_api is None:
         return lambda func: func
@@ -222,6 +234,7 @@ def async_register(hass: Any) -> None:
     websocket_api.async_register_command(hass, websocket_music_discovery_play)
     websocket_api.async_register_command(hass, websocket_music_discovery_feedback)
     websocket_api.async_register_command(hass, websocket_session_broadcast_subscribe)
+    websocket_api.async_register_command(hass, websocket_session_broadcast_recover)
     domain_data["websocket_registered"] = True
 
 
@@ -376,7 +389,7 @@ def _capability_fallbacks(commands: list[str]) -> dict[str, dict[str, Any]]:
             "available": features["session_broadcast_transport"],
             "preferred_transport": "websocket" if features["session_broadcast_transport"] else "http",
             "http_snapshot_path": session_broadcast["http_snapshot"]["path"],
-            "snapshot_only": session_broadcast["snapshot_recovery"],
+            "snapshot_only": not session_broadcast["replay"],
             "flow_delta": session_broadcast["flow_delta"],
             "replay": session_broadcast["replay"],
             "cursor": session_broadcast["cursor"],
@@ -466,6 +479,75 @@ async def websocket_session_broadcast_subscribe(
         connection.send_event(WS_EVENT_SESSION_BROADCAST, event)
 
     result, status_code, activate, cleanup = await async_handle_session_broadcast_subscribe_payload(
+        hass,
+        payload,
+        callback=publish,
+        headers=headers,
+        user_id=_connection_user_id(connection),
+    )
+    if not 200 <= status_code < 300:
+        _send_error(connection, msg, result)
+        return
+    if cleanup is None:
+        connection.send_result(msg["id"], result)
+        return
+
+    try:
+        connection.send_result(msg["id"], result)
+    except Exception:
+        await cleanup()
+        raise
+
+    def unsubscribe_on_close() -> None:
+        hass.async_create_task(cleanup())
+
+    on_close = getattr(connection, "async_on_close", None)
+    if callable(on_close):
+        on_close(unsubscribe_on_close)
+    if activate is not None:
+        await activate()
+
+
+@_websocket_command(
+    {
+        vol.Required("type"): WS_TYPE_SESSION_BROADCAST_RECOVER,
+        vol.Required("session_id"): str,
+        vol.Required("recovery_cursor"): str,
+        vol.Optional("payload", default={}): dict,
+        vol.Optional("device_id"): str,
+        vol.Optional("client_type"): str,
+        vol.Optional("client_id"): str,
+        vol.Optional("device_name"): str,
+        vol.Optional("device_token"): str,
+        vol.Optional("client_token"): str,
+        vol.Optional("authorization"): str,
+        vol.Optional("identity"): dict,
+        **PROFILE_CONTEXT_SCHEMA_FIELDS,
+    }
+)
+@_async_response
+async def websocket_session_broadcast_recover(
+    hass: Any, connection: Any, msg: dict[str, Any]
+) -> None:
+    """Recover an owner stream with the existing opaque Broadcast cursor."""
+    payload = _payload_from_message(
+        msg,
+        (
+            "device_id",
+            "client_type",
+            "client_id",
+            "device_name",
+            "identity",
+            "session_id",
+            "recovery_cursor",
+        ),
+    )
+    headers = _headers_from_message(payload, msg)
+
+    def publish(event: dict[str, Any]) -> None:
+        connection.send_event(WS_EVENT_SESSION_BROADCAST, event)
+
+    result, status_code, activate, cleanup = await async_handle_session_broadcast_recovery_payload(
         hass,
         payload,
         callback=publish,

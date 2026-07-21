@@ -39,6 +39,7 @@ class OwnerBroadcastSnapshotTest(unittest.TestCase):
             async_subscribe=self._subscribe,
             async_register_subscription=self._register_subscription,
             async_register_pending_subscription=self._register_pending_subscription,
+            async_recover_owner_subscription=self._recover_owner_subscription,
             async_activate_subscription=self._activate_subscription,
             async_unsubscribe=self._unsubscribe,
         )
@@ -50,6 +51,7 @@ class OwnerBroadcastSnapshotTest(unittest.TestCase):
         self.unsubscribe_calls = 0
         self.registered_callback = None
         self.pending_events = []
+        self.recovery_result = None
         self.emit_during_snapshot = None
         self.registration_result = "subscription-1"
         self.originals = {
@@ -98,6 +100,11 @@ class OwnerBroadcastSnapshotTest(unittest.TestCase):
             self.registered_callback(event)
         self.pending_events.clear()
 
+    async def _recover_owner_subscription(self, **kwargs):
+        self.pending_register_calls += 1
+        self.registered_callback = kwargs["callback"]
+        return self.recovery_result
+
     async def _unsubscribe(self, **kwargs):
         self.unsubscribe_calls += 1
         self.registered_callback = None
@@ -129,7 +136,14 @@ class OwnerBroadcastSnapshotTest(unittest.TestCase):
         )
 
         self.assertEqual(status, 200)
-        self.assertEqual(result, {"success": True, "session_id": "session-1", "snapshot": self.snapshot})
+        self.assertEqual(
+            result,
+            {
+                "success": True,
+                "session_id": "session-1",
+                "snapshot": self.snapshot,
+            },
+        )
         self.assertEqual(self.subscribe_calls, 0)
         self.assertEqual(self.register_calls, 0)
         self.assertEqual(self.get_active_calls, 2)
@@ -239,14 +253,80 @@ class OwnerBroadcastSnapshotTest(unittest.TestCase):
         self.assertEqual((result["error"], status, activate, cleanup), ("active_session_not_found", 404, None, None))
         self.assertEqual(self.pending_register_calls, 0)
 
+    def test_owner_websocket_recovery_replays_or_falls_back_to_snapshot(self) -> None:
+        self.recovery_result = (
+            "subscription-recovery",
+            {
+                "recovery": "replayed",
+                "events": [{"event_type": "planner_updated", "session_id": "session-1", "payload": {}}],
+                "snapshot_watermark": 3,
+                "recovery_cursor": "a" * 32,
+            },
+        )
+        payload = {**self._payload(), "recovery_cursor": "b" * 32}
+        result, status, activate, cleanup = asyncio.run(
+            api_handlers.async_handle_session_broadcast_recovery_payload(
+                object(), payload, callback=lambda event: None
+            )
+        )
+        self.assertEqual(status, 200)
+        self.assertEqual(result["recovery"], "replayed")
+        self.assertEqual(result["events"][0]["event_type"], "planner_updated")
+        assert activate is not None
+        asyncio.run(activate())
+        assert cleanup is not None
+        asyncio.run(cleanup())
+
+        self.recovery_result = (
+            "subscription-fallback",
+            {"recovery": "snapshot_required", "snapshot": self.snapshot, "recovery_cursor": "c" * 32},
+        )
+        result, status, _activate, _cleanup = asyncio.run(
+            api_handlers.async_handle_session_broadcast_recovery_payload(
+                object(), payload, callback=lambda event: None
+            )
+        )
+        self.assertEqual(status, 200)
+        self.assertEqual(result["recovery"], "snapshot_required")
+        self.assertEqual(result["snapshot"], self.snapshot)
+
+    def test_owner_websocket_recovery_rejects_invalid_or_expired_owner_context(self) -> None:
+        payload = {**self._payload(), "recovery_cursor": "invalid"}
+        result, status, activate, cleanup = asyncio.run(
+            api_handlers.async_handle_session_broadcast_recovery_payload(
+                object(), payload, callback=lambda event: None
+            )
+        )
+        self.assertEqual((result["error"], status, activate, cleanup), ("invalid_recovery_cursor", 400, None, None))
+
         api_handlers.authorize_runtime_device_request = lambda *args, **kwargs: False
         result, status, activate, cleanup = asyncio.run(
-            api_handlers.async_handle_session_broadcast_subscribe_payload(
-                object(), self._payload(), callback=lambda event: None
+            api_handlers.async_handle_session_broadcast_recovery_payload(
+                object(), {**self._payload(), "recovery_cursor": "a" * 32}, callback=lambda event: None
             )
         )
         self.assertEqual((result["error"], status, activate, cleanup), ("unauthorized", 401, None, None))
-        self.assertEqual(self.pending_register_calls, 0)
+
+        api_handlers.authorize_runtime_device_request = lambda *args, **kwargs: True
+        self.active = None
+        result, status, activate, cleanup = asyncio.run(
+            api_handlers.async_handle_session_broadcast_recovery_payload(
+                object(), {**self._payload(), "recovery_cursor": "a" * 32}, callback=lambda event: None
+            )
+        )
+        self.assertEqual((result["error"], status, activate, cleanup), ("active_session_not_found", 404, None, None))
+
+        self.active = types.SimpleNamespace(
+            session_id="session-1",
+            broadcast=types.SimpleNamespace(as_dict=self._snapshot),
+        )
+        self.context = types.SimpleNamespace(profile_id="profile-foreign")
+        result, status, activate, cleanup = asyncio.run(
+            api_handlers.async_handle_session_broadcast_recovery_payload(
+                object(), {**self._payload(), "recovery_cursor": "a" * 32}, callback=lambda event: None
+            )
+        )
+        self.assertEqual((result["error"], status, activate, cleanup), ("active_session_not_found", 404, None, None))
 
     def test_snapshot_query_or_registration_failure_never_retains_a_callback(self) -> None:
         def unavailable_snapshot():

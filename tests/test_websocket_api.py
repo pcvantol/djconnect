@@ -103,6 +103,7 @@ class DJConnectWebsocketApiTest(unittest.TestCase):
                 "websocket_music_discovery_play",
                 "websocket_music_discovery_feedback",
                 "websocket_session_broadcast_subscribe",
+                "websocket_session_broadcast_recover",
             ],
         )
         self.assertTrue(hass.data["djconnect"]["websocket_registered"])
@@ -174,7 +175,9 @@ class DJConnectWebsocketApiTest(unittest.TestCase):
             result["fallbacks"]["session_broadcast_transport"]["http_snapshot_path"],
             self.transport_capabilities.session_broadcast_transport_capabilities()["http_snapshot"]["path"],
         )
-        self.assertTrue(result["fallbacks"]["session_broadcast_transport"]["snapshot_only"])
+        self.assertFalse(result["fallbacks"]["session_broadcast_transport"]["snapshot_only"])
+        self.assertTrue(result["fallbacks"]["session_broadcast_transport"]["replay"])
+        self.assertTrue(result["fallbacks"]["session_broadcast_transport"]["cursor"])
         self.assertFalse(result["fallbacks"]["session_broadcast_transport"]["flow_delta"])
         self.assertFalse(result["fallbacks"]["session_broadcast_transport"]["sequence"])
 
@@ -274,6 +277,65 @@ class DJConnectWebsocketApiTest(unittest.TestCase):
 
         self.assertEqual(cleanup_called, [True])
         self.assertEqual(connection.close_callbacks, [])
+
+    def test_session_broadcast_recovery_returns_replay_before_live_events(self) -> None:
+        calls = []
+        cleanup_called = []
+
+        async def recovery_handler(hass, payload, *, callback, headers=None, user_id=None):
+            calls.append((payload, headers, user_id))
+
+            async def activate():
+                callback(
+                    {
+                        "event_type": "session_flow_updated",
+                        "session_id": "session-1",
+                        "payload": {"session_flow": {"flow_id": "flow-session-1"}},
+                    }
+                )
+
+            async def cleanup():
+                cleanup_called.append(True)
+
+            return {
+                "success": True,
+                "subscription_id": "subscription-recovery",
+                "session_id": "session-1",
+                "recovery": "replayed",
+                "events": [{"event_type": "planner_updated", "session_id": "session-1", "payload": {}}],
+                "snapshot_watermark": 3,
+                "recovery_cursor": "a" * 32,
+            }, 200, activate, cleanup
+
+        original = self.websocket_api.async_handle_session_broadcast_recovery_payload
+        self.websocket_api.async_handle_session_broadcast_recovery_payload = recovery_handler
+        try:
+            connection = _Connection(user_id="ha-owner")
+            asyncio.run(
+                self.websocket_api.websocket_session_broadcast_recover(
+                    types.SimpleNamespace(data={}, async_create_task=lambda task: task.close()),
+                    connection,
+                    {
+                        "id": 50,
+                        "type": self.websocket_api.WS_TYPE_SESSION_BROADCAST_RECOVER,
+                        "session_id": "session-1",
+                        "recovery_cursor": "b" * 32,
+                        "device_id": "djconnect-ios-ABCDEF123456",
+                        "client_type": "ios",
+                        "device_token": "device-secret",
+                    },
+                )
+            )
+        finally:
+            self.websocket_api.async_handle_session_broadcast_recovery_payload = original
+
+        self.assertEqual(connection.errors, [])
+        self.assertEqual(connection.results[0][1]["recovery"], "replayed")
+        self.assertEqual(calls[0][0]["recovery_cursor"], "b" * 32)
+        self.assertEqual(calls[0][2], "ha-owner")
+        self.assertEqual(len(connection.close_callbacks), 1)
+        self.assertEqual(cleanup_called, [])
+        self.assertEqual(connection.delivery_order, ["result", "event"])
 
     def test_backend_capability_fallbacks_degrade_when_command_is_missing(self) -> None:
         commands = [

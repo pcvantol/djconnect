@@ -817,6 +817,8 @@ class SessionRuntimeManagerTest(unittest.TestCase):
             ),
         )
         self.assertIn(cursor.delivery_sequence, [entry.delivery_sequence for entry in broadcast.replay_log])
+        self.assertGreaterEqual(len(cursor.opaque_value), 32)
+        self.assertNotIn(cursor.opaque_value, broadcast.as_dict())
         with self.assertRaises(FrozenInstanceError):
             cursor.delivery_sequence = 3  # type: ignore[misc]
 
@@ -879,6 +881,50 @@ class SessionRuntimeManagerTest(unittest.TestCase):
         )
         with self.assertRaises(FrozenInstanceError):
             broadcast.replay_log[0].delivery_sequence = 9  # type: ignore[misc]
+
+    def test_broadcast_owner_recovery_replays_only_the_bounded_runtime_log(self) -> None:
+        manager = self.runtime.SessionRuntimeManager()
+        created = asyncio.run(manager.async_start(owner_profile_id="profile-peter"))
+        broadcast = created.broadcast
+        cursor = broadcast.owner_recovery_cursor()
+        assert cursor is not None
+
+        created.republish_session_flow()
+        recovery = broadcast.recover_owner(cursor)
+        assert recovery is not None
+        self.assertEqual(recovery["recovery"], "replayed")
+        self.assertEqual(
+            [event["event_type"] for event in recovery["events"]],
+            ["planner_updated", "session_flow_updated"],
+        )
+        self.assertEqual(recovery["snapshot_watermark"], broadcast.delivery_sequence)
+        self.assertNotIn("delivery_sequence", recovery)
+        self.assertNotIn("replay_log", recovery)
+        self.assertNotEqual(recovery["recovery_cursor"], cursor)
+        self.assertIsNone(broadcast.recover_owner("invalid"))
+
+        other = asyncio.run(manager.async_start(owner_profile_id="profile-other"))
+        cross_session = other.broadcast.recover_owner(cursor)
+        assert cross_session is not None
+        self.assertEqual(cross_session["recovery"], "snapshot_required")
+        self.assertEqual(cross_session["snapshot"]["session"]["session_id"], other.session_id)
+
+    def test_broadcast_owner_recovery_falls_back_after_replay_log_eviction(self) -> None:
+        manager = self.runtime.SessionRuntimeManager()
+        created = asyncio.run(manager.async_start(owner_profile_id="profile-peter"))
+        broadcast = self.runtime.DJSessionBroadcastEngine(
+            state=created.broadcast.state, replay_log_limit=2
+        )
+        broadcast._publish(self.runtime.BroadcastEventType.PLANNER_UPDATED, {"planner": {"value": 1}})
+        expired_cursor = broadcast.owner_recovery_cursor()
+        assert expired_cursor is not None
+        broadcast._publish(self.runtime.BroadcastEventType.AUDIENCE_UPDATED, {"audience": {"value": 2}})
+        broadcast._publish(self.runtime.BroadcastEventType.MOOD_CHANGED, {"session": {"value": 3}})
+
+        recovery = broadcast.recover_owner(expired_cursor)
+        assert recovery is not None
+        self.assertEqual(recovery["recovery"], "snapshot_required")
+        self.assertEqual(recovery["snapshot"]["broadcast"]["snapshot_watermark"], 3)
 
     def test_session_flow_is_not_shared_and_is_removed_with_runtime(self) -> None:
         manager = self.runtime.SessionRuntimeManager()
