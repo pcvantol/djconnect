@@ -30,6 +30,7 @@ from custom_components.djconnect.persistence.bootstrap import (  # noqa: E402
     async_shutdown_persistence,
 )
 from custom_components.djconnect.persistence.sqlite import SQLitePersistenceProvider  # noqa: E402
+from custom_components.djconnect.persistence.schema import CURRENT_SCHEMA_VERSION, MIGRATIONS  # noqa: E402
 
 
 class PersistenceFoundationTest(unittest.TestCase):
@@ -44,8 +45,8 @@ class PersistenceFoundationTest(unittest.TestCase):
             readiness = asyncio.run(service.async_initialize())
 
             self.assertTrue(readiness.ready)
-            self.assertEqual(readiness.schema_version, 2)
-            self.assertEqual(readiness.last_migration_id, "0002_migration_identity")
+            self.assertEqual(readiness.schema_version, CURRENT_SCHEMA_VERSION)
+            self.assertEqual(readiness.last_migration_id, MIGRATIONS[-1].migration_id)
             self.assertTrue((Path(directory) / "djconnect.sqlite3").exists())
             asyncio.run(service.async_close())
             self.assertFalse(service.readiness.ready)
@@ -58,7 +59,7 @@ class PersistenceFoundationTest(unittest.TestCase):
 
             readiness = asyncio.run(service.async_initialize())
 
-            self.assertEqual(readiness.schema_version, 2)
+            self.assertEqual(readiness.schema_version, CURRENT_SCHEMA_VERSION)
             connection = sqlite3.connect(path)
             try:
                 applied = connection.execute(
@@ -66,7 +67,7 @@ class PersistenceFoundationTest(unittest.TestCase):
                 ).fetchall()
             finally:
                 connection.close()
-            self.assertEqual(applied, [(1,), (2,)])
+            self.assertEqual(applied, [(migration.version,) for migration in MIGRATIONS])
             asyncio.run(service.async_close())
 
     def test_latest_schema_restarts_after_a_clean_shutdown(self) -> None:
@@ -79,7 +80,7 @@ class PersistenceFoundationTest(unittest.TestCase):
             readiness = asyncio.run(restarted.async_initialize())
 
             self.assertTrue(readiness.ready)
-            self.assertEqual(readiness.schema_version, 2)
+            self.assertEqual(readiness.schema_version, CURRENT_SCHEMA_VERSION)
             asyncio.run(restarted.async_close())
 
     def test_missing_schema_metadata_with_migration_history_is_rejected(self) -> None:
@@ -143,8 +144,8 @@ class PersistenceFoundationTest(unittest.TestCase):
 
             readiness = asyncio.run(self._service(directory).async_initialize())
 
-            self.assertEqual(readiness.schema_version, 2)
-            self.assertEqual(readiness.last_migration_id, "0002_migration_identity")
+            self.assertEqual(readiness.schema_version, CURRENT_SCHEMA_VERSION)
+            self.assertEqual(readiness.last_migration_id, MIGRATIONS[-1].migration_id)
 
     def test_inconsistent_migration_history_fails_without_readiness(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -256,7 +257,7 @@ class PersistenceFoundationTest(unittest.TestCase):
 
             reads, writes = asyncio.run(exercise_provider())
 
-            self.assertEqual(reads, [2, 2, 2])
+            self.assertEqual(reads, [CURRENT_SCHEMA_VERSION] * 3)
             self.assertEqual(writes, [None, None])
             asyncio.run(service.async_close())
 
@@ -272,7 +273,7 @@ class PersistenceFoundationTest(unittest.TestCase):
             readiness = asyncio.run(service.async_initialize())
 
             self.assertTrue(readiness.ready)
-            self.assertEqual(readiness.schema_version, 2)
+            self.assertEqual(readiness.schema_version, CURRENT_SCHEMA_VERSION)
             asyncio.run(service.async_close())
 
     @staticmethod

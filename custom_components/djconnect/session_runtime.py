@@ -13,6 +13,13 @@ from typing import Any, Awaitable, Callable
 from uuid import uuid4
 
 from .const import DOMAIN
+from .persistence import persistence_service
+from .persistence.sessions import (
+    ACTIVE as PERSISTENT_SESSION_ACTIVE,
+    ENDED as PERSISTENT_SESSION_ENDED,
+    INTERRUPTED as PERSISTENT_SESSION_INTERRUPTED,
+    PersistentSessionRepository,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -1671,9 +1678,10 @@ class DJSessionRuntime:
 class SessionRuntimeManager:
     """Own active DJ Session Runtimes for this Home Assistant instance."""
 
-    def __init__(self) -> None:
+    def __init__(self, persistent_sessions: PersistentSessionRepository | None = None) -> None:
         self._active_by_profile: dict[str, DJSessionRuntime] = {}
         self._lock = asyncio.Lock()
+        self._persistent_sessions = persistent_sessions
 
     async def async_start(
         self,
@@ -1701,6 +1709,14 @@ class SessionRuntimeManager:
                 else DiscoverContext()
             )
             session_direction = _initial_session_direction(start_configuration, now)
+            if self._persistent_sessions is not None:
+                await self._persistent_sessions.async_create(
+                    owner_profile_id,
+                    session_id=session_id,
+                    start_strategy=start_configuration.strategy.value,
+                    initial_mood=initial_session_mood,
+                    initial_direction=session_direction.direction.value,
+                )
             planner = _create_session_planner(
                 session_id=session_id,
                 created_at=now,
@@ -1744,6 +1760,19 @@ class SessionRuntimeManager:
                     "started_at": _timestamp(),
                 }
             )
+            if self._persistent_sessions is not None:
+                try:
+                    await self._persistent_sessions.async_transition(
+                        owner_profile_id, session_id, PERSISTENT_SESSION_ACTIVE
+                    )
+                except Exception:
+                    await self._persistent_sessions.async_transition(
+                        owner_profile_id,
+                        session_id,
+                        PERSISTENT_SESSION_INTERRUPTED,
+                        reason="runtime_activation_failed",
+                    )
+                    raise
             self._active_by_profile[owner_profile_id] = active
             return active
 
@@ -2115,6 +2144,10 @@ class SessionRuntimeManager:
                 return None
             if session_id and active.session_id != session_id:
                 return None
+            if self._persistent_sessions is not None:
+                await self._persistent_sessions.async_transition(
+                    owner_profile_id, active.session_id, PERSISTENT_SESSION_ENDED
+                )
             active.broadcast.update_runtime_state(SessionRuntimeState.ENDING)
             ending = DJSessionRuntime(
                 **{**active.__dict__, "runtime_state": SessionRuntimeState.ENDING}
@@ -2140,7 +2173,7 @@ def session_runtime_manager(hass: Any) -> SessionRuntimeManager:
     domain_data = hass.data.setdefault(DOMAIN, {})
     manager = domain_data.get("session_runtime_manager")
     if manager is None:
-        manager = SessionRuntimeManager()
+        manager = SessionRuntimeManager(PersistentSessionRepository(persistence_service(hass)))
         domain_data["session_runtime_manager"] = manager
     return manager
 

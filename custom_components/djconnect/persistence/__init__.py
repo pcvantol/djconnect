@@ -20,6 +20,7 @@ from .service import (
     PersistenceService,
     PersistenceTransaction,
 )
+from .sessions import PersistentSession, PersistentSessionRepository, SessionLifecycleError, SessionOwnershipError
 
 __all__ = [
     "PERSISTENCE_SERVICE_KEY",
@@ -30,6 +31,10 @@ __all__ = [
     "PersistenceSchemaError",
     "PersistenceService",
     "PersistenceTransaction",
+    "PersistentSession",
+    "PersistentSessionRepository",
+    "SessionLifecycleError",
+    "SessionOwnershipError",
     "async_initialize_persistence",
     "async_shutdown_persistence",
     "persistence_service",

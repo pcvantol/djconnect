@@ -23,6 +23,12 @@ class _SQLiteTransaction:
     def execute(self, statement: str, parameters: tuple[object, ...] = ()) -> None:
         self._connection.execute(statement, parameters)
 
+    def fetchone(self, statement: str, parameters: tuple[object, ...] = ()) -> tuple[object, ...] | None:
+        return self._connection.execute(statement, parameters).fetchone()
+
+    def fetchall(self, statement: str, parameters: tuple[object, ...] = ()) -> list[tuple[object, ...]]:
+        return self._connection.execute(statement, parameters).fetchall()
+
 
 class SQLitePersistenceProvider:
     """First local provider for the platform-owned persistence boundary."""
