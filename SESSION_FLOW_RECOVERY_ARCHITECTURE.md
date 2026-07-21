@@ -1,9 +1,9 @@
 # Session Flow Recovery Architecture
 
-**Status:** Accepted architecture amendment
+**Status:** Accepted architecture amendment; Recovery Cell 1 reconciled
 **Owner:** DJConnect Product Development
-**Scope:** Canonical recovery contracts for an active DJ Session; no production,
-transport, API or Runtime implementation
+**Scope:** Canonical recovery contracts for an active DJ Session. Recovery Cell
+1 is implemented; later delivery, replay and transport work remains deferred.
 
 ## Decision
 
@@ -53,6 +53,16 @@ Runtime-scoped integer associated with exactly one `flow_id`.
 The Runtime creates this identity with the Planner's Flow and destroys it with
 the Runtime. It is never stored in Profile history, Music DNA, a provider or a
 renderer, and does not survive a new Session or Runtime destruction.
+
+### Recovery Cell 1 implementation status
+
+Recovery Cell 1 is current through PR [#276](https://github.com/pcvantol/djconnect/pull/276).
+The Planner creates revision `0` with the canonical Flow, then advances the
+revision exactly once when it commits a semantic Flow state. The immutable,
+Runtime-scoped Flow Change Journal records initialization, Flow republishing and
+appended Moments. Broadcast reads the resulting existing Flow projection and
+does not own or mutate revision or journal state. Runtime disposal clears the
+journal. This cell creates no Flow delta or delivery/replay contract.
 
 ## Broadcast delivery identity
 
@@ -136,9 +146,9 @@ to `owner_only` content or raw provider data.
 
 ## Recommended implementation order
 
-1. Add Flow revision and a bounded, Runtime-scoped canonical Flow-change
+1. **Current:** Flow revision and a bounded, Runtime-scoped canonical Flow-change
    journal without a new transport surface.
-2. Add a scoped Broadcast delivery sequence, snapshot watermark and bounded
+2. **Next:** add a scoped Broadcast delivery sequence, snapshot watermark and bounded
    replay log without changing Planner or Moment semantics.
 3. Add authorized WebSocket recovery using an opaque Broadcast cursor.
 4. Add authorized HTTP Flow delta using `flow_id` and Flow revision.
@@ -151,10 +161,10 @@ implemented before scoped Broadcast delivery identity and retention exist.
 
 ## Explicit non-goals
 
-This amendment creates no sequence field, Flow revision field, cursor,
-watermark, replay log, recovery endpoint, WebSocket acknowledgement, HTTP
-delta, persistence model or renderer behaviour. It does not alter Runtime,
-Planner, Knowledge Engine, DJ Moment Engine, Session Flow, Broadcast or
+Beyond the current Flow revision and Flow Change Journal, this amendment creates
+no delivery sequence, cursor, watermark, replay log, recovery endpoint,
+WebSocket acknowledgement, HTTP delta, persistence model or renderer behaviour.
+It does not alter playback, provider, Knowledge Engine, DJ Moment Engine or
 transport implementation.
 
 ## Risks

@@ -15,13 +15,13 @@
 
 ## Current position
 
-PR [#274](https://github.com/pcvantol/djconnect/pull/274) merged as
-`2e359f218dc590fa418224dec78d201a2941f158`. Transport Cells 1–4 are current.
-The approved Session Flow Recovery Architecture separates semantic Flow identity
-from delivery identity: Planner-owned Flow revision/delta versus Broadcast-owned
-sequence, watermark, cursor and bounded replay. Snapshots remain the mandatory
-fallback. Existing subscriptions, authorization, schemas, events and Runtime
-behaviour are unchanged.
+PR [#276](https://github.com/pcvantol/djconnect/pull/276) merged as
+`222e3871b0d5e504077802308e0a4e7d568cd752`. Transport Cells 1–4 and Recovery
+Cell 1 are current. The Planner now owns a revision-zero Session Flow, advances
+its revision on every committed semantic Flow change and retains the immutable,
+Runtime-scoped change journal. Broadcast consumes the existing Flow projection;
+it neither owns nor mutates the revision. Snapshots remain the mandatory
+fallback, and subscriptions, authorization, schemas and events are unchanged.
 
 The reconciled chain also records PR #260 external dependency evidence, #261
 validation-only baseline correction, #262 maturity-cell documentation, #263
@@ -31,11 +31,12 @@ Stage 1, Knowledge Engine Stage 2 and Performance Memory remain current within
 their documented scopes. Continue Stage 2 and Music Assistant observation
 remain deferred by their external conditions.
 
-Recovery Cell 1—Flow revision and a semantic change journal—is the next
-bounded candidate. Delivery sequence/cursor/watermark, HTTP delta, replay,
-ordering, duplicate/out-of-order handling, reconnect, Universal Receiver HTTP,
-receiver audience signals and granular Session resources remain deferred. No
-Intelligence, Runtime, Flow, renderer or maturity capability changed.
+Recovery Cell 2—scoped Broadcast delivery sequence, snapshot watermark and a
+bounded replay log—is the next bounded candidate. Cursor, replay transport,
+HTTP Flow delta, ordering, duplicate/out-of-order handling, reconnect,
+Universal Receiver HTTP, receiver audience signals and granular Session
+resources remain deferred. No playback, provider, renderer or client recovery
+capability changed.
 
 | Area | Objectively supported status | Evidence |
 | --- | --- | --- |
