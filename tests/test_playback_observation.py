@@ -21,6 +21,7 @@ def _load_modules():
     const = types.ModuleType(f"{PACKAGE}.const")
     const.DOMAIN = "djconnect"
     const.MUSIC_BACKEND_SPOTIFY_DIRECT = "spotify_direct"
+    const.API_IMAGE_PROXY_BASE = "/api/djconnect/v1/image_proxy"
     sys.modules[f"{PACKAGE}.const"] = const
 
     helpers = sys.modules.setdefault("homeassistant.helpers", types.ModuleType("homeassistant.helpers"))
@@ -107,8 +108,10 @@ class PlaybackObservationTest(unittest.TestCase):
         self.manager = self.runtime.session_runtime_manager(self.hass)
         self.observer = self.observation.playback_observation_manager(self.hass)
 
-    def _observation(self, uri: str = "", *, playing: bool = True):
-        return types.SimpleNamespace(is_playing=playing, media_identity=uri)
+    def _observation(self, uri: str = "", *, playing: bool = True, artwork_url: str = ""):
+        return types.SimpleNamespace(
+            is_playing=playing, media_identity=uri, artwork_url=artwork_url
+        )
 
     async def _insight(self):
         return {
@@ -174,7 +177,25 @@ class PlaybackObservationTest(unittest.TestCase):
                     integration_runtime=object(), session=session, insight_provider=self._insight
                 )
             )
-            self.assertEqual(len(self.scheduled), 1)
+            self.assertEqual(len(self.scheduled), 2)
+
+    def test_observation_publishes_only_an_existing_ha_proxy_artwork_url(self) -> None:
+        session = self._start()
+        external_artwork = "https://image-cdn.example/cover.jpg"
+        self.spotify.SpotifyBackend.responses = [
+            self._observation("spotify:track:a", artwork_url=external_artwork)
+        ]
+
+        asyncio.run(
+            self.observer.async_start_spotify(
+                integration_runtime=object(), session=session, insight_provider=self._insight
+            )
+        )
+
+        active = asyncio.run(self.manager.async_get_active("profile-a"))
+        playback = active.broadcast.as_dict()["playback"]
+        self.assertTrue(playback["artwork_url"].startswith("/api/djconnect/v1/image_proxy/"))
+        self.assertNotIn(external_artwork, str(playback))
 
     def test_no_active_or_non_spotify_session_does_not_schedule_observation(self) -> None:
         session = asyncio.run(
@@ -213,6 +234,7 @@ class PlaybackObservationTest(unittest.TestCase):
         asyncio.run(self.manager.async_end(owner_profile_id="profile-a", session_id=session.session_id))
         asyncio.run(self.scheduled[0]["callback"](None))
         self.assertTrue(self.scheduled[0]["removed"])
+        self.assertTrue(self.scheduled[1]["removed"])
         self.assertIsNone(asyncio.run(self.manager.async_get_active("profile-a")))
 
     def test_overlapping_poll_is_suppressed(self) -> None:

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import hashlib
 import json
 import logging
 import secrets
@@ -13,7 +14,7 @@ from enum import StrEnum
 from typing import Any, Awaitable, Callable
 from uuid import uuid4
 
-from .const import DOMAIN
+from .const import API_IMAGE_PROXY_BASE, DOMAIN
 from .persistence import persistence_service
 from .persistence.sessions import (
     ACTIVE as PERSISTENT_SESSION_ACTIVE,
@@ -2563,6 +2564,81 @@ def _thaw_broadcast_payload(value: Any) -> Any:
 
 
 @dataclass(frozen=True)
+class RendererSafePlaybackProjection:
+    """Backend-neutral, ephemeral playback data safe for Renderer Hosts."""
+
+    state: str = "idle"
+    item_id: str = ""
+    title: str = ""
+    artist: str = ""
+    album: str = ""
+    artwork_url: str = ""
+    target_name: str = ""
+    duration_ms: int | None = None
+    position_ms: int | None = None
+    updated_at: str = ""
+
+    @classmethod
+    def from_observation(
+        cls,
+        *,
+        state: str,
+        media_identity: str = "",
+        title: str = "",
+        artist: str = "",
+        album: str = "",
+        artwork_url: str = "",
+        target_name: str = "",
+        duration_ms: int | None = None,
+        position_ms: int | None = None,
+    ) -> "RendererSafePlaybackProjection":
+        """Normalize only already-observed, renderer-safe metadata."""
+        normalized_state = str(state or "idle").strip().lower()
+        if normalized_state not in {"playing", "paused", "stopped", "idle"}:
+            normalized_state = "idle"
+        if normalized_state in {"idle", "stopped"}:
+            return cls(state=normalized_state)
+        identity = str(media_identity or "").strip()
+        item_id = hashlib.sha256(identity.encode()).hexdigest()[:24] if identity else ""
+        safe_duration = duration_ms if isinstance(duration_ms, int) and duration_ms >= 0 else None
+        safe_position = None
+        if (
+            safe_duration is not None
+            and isinstance(position_ms, int)
+            and position_ms >= 0
+        ):
+            safe_position = min(position_ms, safe_duration)
+        return cls(
+            state=normalized_state,
+            item_id=item_id,
+            title=_bounded_text(title, 256),
+            artist=_bounded_text(artist, 256),
+            album=_bounded_text(album, 256),
+            artwork_url=_safe_artwork_url(artwork_url),
+            target_name=_bounded_text(target_name, 256),
+            duration_ms=safe_duration,
+            position_ms=safe_position,
+            updated_at=_timestamp(),
+        )
+
+    def same_content(self, other: "RendererSafePlaybackProjection") -> bool:
+        return self.__dict__ | {"updated_at": ""} == other.__dict__ | {"updated_at": ""}
+
+    def as_dict(self) -> dict[str, Any]:
+        """Expose only renderer-safe presentation fields."""
+        result: dict[str, Any] = {"state": self.state}
+        for key in ("item_id", "title", "artist", "album", "artwork_url", "target_name", "updated_at"):
+            value = getattr(self, key)
+            if value:
+                result[key] = value
+        if self.duration_ms is not None:
+            result["duration_ms"] = self.duration_ms
+        if self.position_ms is not None:
+            result["position_ms"] = self.position_ms
+        return result
+
+
+@dataclass(frozen=True)
 class DJBroadcastState:
     """Canonical, renderer-safe representation of the current DJ Session."""
 
@@ -2577,6 +2653,7 @@ class DJBroadcastState:
     audience_totals: dict[str, int] = field(default_factory=dict)
     recent_audience_activity: tuple[str, ...] = ()
     dj_moments: tuple[DJMoment, ...] = ()
+    playback: "RendererSafePlaybackProjection" = field(default_factory=lambda: RendererSafePlaybackProjection())
 
     def as_dict(self, *, include_owner_only: bool = True) -> dict[str, Any]:
         """Return canonical state with its Planner-produced Session Flow."""
@@ -2586,7 +2663,7 @@ class DJBroadcastState:
                 "runtime_state": str(self.runtime_state),
                 "selected_mood": self.selected_mood,
             },
-            "playback": {"current_track": None, "playback_progress": None},
+            "playback": self.playback.as_dict(),
             "planner": {
                 "planning_state": str(self.planning_state),
                 "planning_horizon_minutes": self.planning_horizon_minutes,
@@ -2625,6 +2702,18 @@ class BroadcastRecoveryCursor:
     snapshot_watermark: int
     authorization_scope: BroadcastAuthorizationScope
     opaque_value: str
+
+
+@dataclass
+class PlaybackProgressClock:
+    """Runtime-scoped server clock corrected by backend playback snapshots."""
+
+    session_id: str
+    item_id: str
+    anchor_position_ms: int
+    duration_ms: int
+    anchor_monotonic: float
+    last_published_position_ms: int
 
 
 @dataclass
@@ -2740,6 +2829,22 @@ class DJSessionBroadcastEngine:
             **{**self.state.__dict__, "session_direction": session_direction}
         )
         self._publish(BroadcastEventType.PLANNER_UPDATED, {"planner": self.as_dict()["planner"]})
+
+    def update_playback(self, playback: RendererSafePlaybackProjection) -> bool:
+        """Publish one replacement projection only when its safe content changes."""
+        if self.state.playback.same_content(playback):
+            return False
+        self.state = DJBroadcastState(**{**self.state.__dict__, "playback": playback})
+        self._publish(BroadcastEventType.PLAYBACK_CHANGED, {"playback": self.as_dict()["playback"]})
+        return True
+
+    def update_playback_progress(self, playback: RendererSafePlaybackProjection) -> bool:
+        """Publish a server-calculated playback position without provider access."""
+        if self.state.playback.same_content(playback):
+            return False
+        self.state = DJBroadcastState(**{**self.state.__dict__, "playback": playback})
+        self._publish(BroadcastEventType.PLAYBACK_PROGRESS, {"playback": self.as_dict()["playback"]})
+        return True
 
     def publish_audience_state(self, totals: dict[str, int], recent_activity: tuple[str, ...]) -> None:
         self.state = DJBroadcastState(**{**self.state.__dict__, "audience_totals": dict(totals), "recent_audience_activity": recent_activity})
@@ -2965,6 +3070,7 @@ class SessionRuntimeManager:
 
     def __init__(self, persistent_sessions: PersistentSessionRepository | None = None, historical_projections: HistoricalProjectionRepository | None = None) -> None:
         self._active_by_profile: dict[str, DJSessionRuntime] = {}
+        self._playback_progress_clocks: dict[str, PlaybackProgressClock] = {}
         self._lock = asyncio.Lock()
         self._persistent_sessions = persistent_sessions
         self._historical_projections = historical_projections
@@ -3062,6 +3168,98 @@ class SessionRuntimeManager:
                     raise
             self._active_by_profile[owner_profile_id] = active
             return active
+
+    async def async_update_playback_projection(
+        self,
+        *,
+        owner_profile_id: str,
+        session_id: str,
+        state: str,
+        media_identity: str = "",
+        title: str = "",
+        artist: str = "",
+        album: str = "",
+        artwork_url: str = "",
+        target_name: str = "",
+        duration_ms: int | None = None,
+        position_ms: int | None = None,
+    ) -> bool:
+        """Apply one normalized observation to its active Runtime only."""
+        projection = RendererSafePlaybackProjection.from_observation(
+            state=state, media_identity=media_identity, title=title, artist=artist,
+            album=album, artwork_url=artwork_url, target_name=target_name, duration_ms=duration_ms,
+            position_ms=position_ms,
+        )
+        async with self._lock:
+            active = self._active_by_profile.get(owner_profile_id)
+            if active is None or active.session_id != session_id:
+                return False
+            changed = active.broadcast.update_playback(projection)
+            self._replace_playback_progress_clock(owner_profile_id, projection, session_id)
+            if changed:
+                _LOGGER.debug("DJConnect renderer-safe playback projection changed")
+            return changed
+
+    async def async_advance_playback_progress(
+        self, *, owner_profile_id: str, session_id: str
+    ) -> bool:
+        """Advance one active Runtime's server-owned progress estimate."""
+        async with self._lock:
+            active = self._active_by_profile.get(owner_profile_id)
+            clock = self._playback_progress_clocks.get(owner_profile_id)
+            if (
+                active is None
+                or active.session_id != session_id
+                or clock is None
+                or clock.session_id != session_id
+            ):
+                return False
+            playback = active.broadcast.state.playback
+            if playback.state != "playing" or playback.item_id != clock.item_id:
+                self._playback_progress_clocks.pop(owner_profile_id, None)
+                return False
+            elapsed_ms = max(0, int((time.monotonic() - clock.anchor_monotonic) * 1000))
+            position_ms = min(clock.duration_ms, clock.anchor_position_ms + elapsed_ms)
+            if position_ms <= clock.last_published_position_ms:
+                return False
+            updated = RendererSafePlaybackProjection(
+                **{
+                    **playback.__dict__,
+                    "position_ms": position_ms,
+                    "updated_at": _timestamp(),
+                }
+            )
+            changed = active.broadcast.update_playback_progress(updated)
+            if changed:
+                clock.last_published_position_ms = position_ms
+            if position_ms >= clock.duration_ms:
+                self._playback_progress_clocks.pop(owner_profile_id, None)
+            return changed
+
+    def _replace_playback_progress_clock(
+        self,
+        owner_profile_id: str,
+        playback: RendererSafePlaybackProjection,
+        session_id: str,
+    ) -> None:
+        """Start only a bounded clock based on a reliable backend observation."""
+        if (
+            playback.state != "playing"
+            or not playback.item_id
+            or playback.position_ms is None
+            or playback.duration_ms is None
+            or playback.duration_ms <= 0
+        ):
+            self._playback_progress_clocks.pop(owner_profile_id, None)
+            return
+        self._playback_progress_clocks[owner_profile_id] = PlaybackProgressClock(
+            session_id=session_id,
+            item_id=playback.item_id,
+            anchor_position_ms=playback.position_ms,
+            duration_ms=playback.duration_ms,
+            anchor_monotonic=time.monotonic(),
+            last_published_position_ms=playback.position_ms,
+        )
 
     async def async_process_track_started(
         self,
@@ -3528,6 +3726,7 @@ class SessionRuntimeManager:
                 return None
             if session_id and active.session_id != session_id:
                 return None
+            self._playback_progress_clocks.pop(owner_profile_id, None)
             if self._persistent_sessions is not None:
                 persistent = await self._persistent_sessions.async_transition(
                     owner_profile_id, active.session_id, PERSISTENT_SESSION_ENDED
@@ -4017,6 +4216,12 @@ def _track_key(track: dict[str, Any]) -> str:
 
 def _bounded_text(value: Any, limit: int) -> str:
     return str(value or "").strip()[:limit]
+
+
+def _safe_artwork_url(value: Any) -> str:
+    """Keep only URLs served by DJConnect's existing HA image proxy."""
+    url = str(value or "").strip()
+    return url if url.startswith(f"{API_IMAGE_PROXY_BASE}/") else ""
 
 
 def _locale_family(value: str) -> str:

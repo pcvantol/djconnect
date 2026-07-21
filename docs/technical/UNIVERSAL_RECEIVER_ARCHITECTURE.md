@@ -125,6 +125,15 @@ it does not append an inferred timeline entry. Runtime termination clears the
 timeline. Consequently, completed, active and future semantics remain defined
 solely by the server-published Flow item attributes.
 
+## Capability 3 prerequisite — Renderer-Safe Playback Projection
+
+Now Playing presentation remains blocked until the server-side
+[`Renderer-Safe Playback Projection`](RENDERER_SAFE_PLAYBACK_PROJECTION.md) is
+complete and reconciled. That prerequisite supplies an existing Broadcast
+snapshot, metadata replacement updates and optional Runtime-owned progress
+updates; Capability 3 will remain a separate, presentation-only Receiver
+increment.
+
 ## Multi-renderer model
 
 Multiple Renderer Hosts may consume one active Broadcast concurrently. Apple,
