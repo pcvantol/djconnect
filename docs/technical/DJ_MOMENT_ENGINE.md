@@ -64,7 +64,7 @@ They are behavioural prompt guidance, never voice-provider settings.
 | KEEP | Broadcast authorization | Owner device/Profile authorization and Broadcast Token runtime isolation remain unchanged. |
 | KEEP | Music DNA privacy boundary | Music DNA is not passed to shared Moment generation or Broadcast projections. |
 | DEFER | Ask DJ chat ownership | No interactive chat turn, history or generic Ask DJ endpoint is used by the Engine. |
-| DEFER | Discover, recommendations, lyrics, concert and audience generation | Represented by the architecture only; no production generation is included. |
+| DEFER | New Discover providers/search/playback, lyrics, concert and audience generation | Discover and Recommendation already have bounded current-maturity paths; future source-backed or audience-generated Moments remain deferred by `docs/product/DJ_INTELLIGENCE_MATURITY.md`. |
 
 ## Privacy and projection
 
