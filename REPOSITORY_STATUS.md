@@ -28,10 +28,10 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-Current main contains PR [#325](https://github.com/pcvantol/djconnect/pull/325),
-**Performance Memory Intent Selection**, merged as
-`1d71c34d14773e3a0abdc467034dc06ac713c009`. This bounded internal Planner
-selection influence was reconciled by merged Finalization PR #326. Repository
+Current main contains PR [#328](https://github.com/pcvantol/djconnect/pull/328),
+**Planning Horizon Expansion**, merged as
+`6542feddf2be00c12eb89b968d7721ed6f81f412`. This bounded Planner-owned,
+ephemeral Planned Intent collection is in its dedicated Finalization. Repository
 State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`.
 
 The preceding PR #313,

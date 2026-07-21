@@ -4,11 +4,11 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#325](https://github.com/pcvantol/djconnect/pull/325), merged as
-`1d71c34d14773e3a0abdc467034dc06ac713c009`, is the current merged
-implementation. Its dedicated Finalization, PR #326, is merged. Repository
-State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`. Its Prompt History is
-`docs/history/prompts/2026-07-21-performance-memory-intent-selection.md`.
+PR [#328](https://github.com/pcvantol/djconnect/pull/328), merged as
+`6542feddf2be00c12eb89b968d7721ed6f81f412`, is the current merged
+implementation. Its dedicated Finalization reconciles the rolling records.
+Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`.
+Its Prompt History is `docs/history/prompts/2026-07-21-planning-horizon-expansion.md`.
 
 PR #315, merged as
 `6a22b0814fcfcd277a9a854fc78b5a28ed04eadd`, is the current merged
