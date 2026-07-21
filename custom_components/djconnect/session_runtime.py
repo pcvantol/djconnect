@@ -1236,9 +1236,14 @@ class DJSessionBroadcastEngine:
         self, callback: Callable[[dict[str, Any]], None]
     ) -> tuple[str, dict[str, Any]]:
         """Register one renderer and return its required initial snapshot."""
+        subscription_id = self.register_subscription(callback)
+        return subscription_id, self.as_dict()
+
+    def register_subscription(self, callback: Callable[[dict[str, Any]], None]) -> str:
+        """Register one renderer without constructing a Broadcast snapshot."""
         subscription_id = f"broadcast-subscription-{uuid4().hex}"
         self._subscribers[subscription_id] = (callback, True)
-        return subscription_id, self.as_dict()
+        return subscription_id
 
     def subscribe_with_broadcast_token(
         self, token: str, callback: Callable[[dict[str, Any]], None]
@@ -1725,6 +1730,20 @@ class SessionRuntimeManager:
             if active is None or active.session_id != session_id:
                 return None
             return active.broadcast.subscribe(callback)
+
+    async def async_register_subscription(
+        self,
+        *,
+        owner_profile_id: str,
+        session_id: str,
+        callback: Callable[[dict[str, Any]], None],
+    ) -> str | None:
+        """Register an authenticated owner renderer without a snapshot."""
+        async with self._lock:
+            active = self._active_by_profile.get(owner_profile_id)
+            if active is None or active.session_id != session_id:
+                return None
+            return active.broadcast.register_subscription(callback)
 
     async def async_subscribe_with_broadcast_token(
         self,

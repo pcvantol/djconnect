@@ -472,9 +472,15 @@ async def websocket_session_broadcast_subscribe(
     if not 200 <= status_code < 300:
         _send_error(connection, msg, result)
         return
-    connection.send_result(msg["id"], result)
     if cleanup is None:
+        connection.send_result(msg["id"], result)
         return
+
+    try:
+        connection.send_result(msg["id"], result)
+    except Exception:
+        await cleanup()
+        raise
 
     def unsubscribe_on_close() -> None:
         hass.async_create_task(cleanup())

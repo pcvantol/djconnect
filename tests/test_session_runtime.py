@@ -792,6 +792,41 @@ class SessionRuntimeManagerTest(unittest.TestCase):
         )
         self.assertEqual(created.broadcast.subscriber_count, 0)
 
+    def test_broadcast_registration_without_snapshot_preserves_live_delivery_and_cleanup(self) -> None:
+        manager = self.runtime.SessionRuntimeManager()
+        created = asyncio.run(manager.async_start(owner_profile_id="profile-peter"))
+        received: list[dict] = []
+        snapshot = created.broadcast.as_dict
+
+        def fail_if_snapshot_is_constructed():
+            raise AssertionError("snapshot construction is not part of registration")
+
+        created.broadcast.as_dict = fail_if_snapshot_is_constructed
+        subscription_id = asyncio.run(
+            manager.async_register_subscription(
+                owner_profile_id="profile-peter",
+                session_id=created.session_id,
+                callback=received.append,
+            )
+        )
+        self.assertIsNotNone(subscription_id)
+        self.assertEqual(created.broadcast.subscriber_count, 1)
+
+        created.broadcast.as_dict = snapshot
+        created.republish_session_flow()
+        self.assertEqual(
+            [event["event_type"] for event in received],
+            ["planner_updated", "session_flow_updated"],
+        )
+        asyncio.run(
+            manager.async_unsubscribe(
+                owner_profile_id="profile-peter",
+                session_id=created.session_id,
+                subscription_id=subscription_id,
+            )
+        )
+        self.assertEqual(created.broadcast.subscriber_count, 0)
+
     def test_broadcast_runtime_termination_notifies_and_releases_subscriptions(self) -> None:
         manager = self.runtime.SessionRuntimeManager()
         created = asyncio.run(manager.async_start(owner_profile_id="profile-peter"))

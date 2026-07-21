@@ -342,9 +342,9 @@ async def async_handle_session_broadcast_subscribe_payload(
 ) -> tuple[dict[str, Any], int, Callable[[], Awaitable[None]] | None]:
     """Subscribe an authenticated owner renderer to one active Broadcast Engine.
 
-    The returned snapshot is always sent before the engine emits incremental
-    events. The cleanup callback is deliberately transport-owned so a closed
-    websocket cannot retain a Runtime subscription.
+    The pure query remains the only initial snapshot source. The cleanup
+    callback is deliberately transport-owned so a closed websocket cannot
+    retain a Runtime subscription.
     """
     result, status, manager, profile_id = await _async_owner_broadcast_snapshot_query(
         hass, data, headers=headers, user_id=user_id, source="session_broadcast_subscribe"
@@ -352,14 +352,13 @@ async def async_handle_session_broadcast_subscribe_payload(
     if manager is None or profile_id is None:
         return result, status, None
     session_id = result["session_id"]
-    subscribed = await manager.async_subscribe(
+    subscription_id = await manager.async_register_subscription(
         owner_profile_id=profile_id,
         session_id=session_id,
         callback=callback,
     )
-    if subscribed is None:
+    if subscription_id is None:
         return _error_payload("active_session_not_found"), 404, None
-    subscription_id, _snapshot = subscribed
 
     async def cleanup() -> None:
         await manager.async_unsubscribe(
