@@ -28,12 +28,12 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-Current main contains PR [#288](https://github.com/pcvantol/djconnect/pull/288),
-**Define Rolling Session Horizon Architecture**, merged on 2026-07-21 as
-`ec9fbb3eff183cf380e9dc1ca8d630f465f1ad3f`. It is
+Current main contains PR [#290](https://github.com/pcvantol/djconnect/pull/290),
+**Add DJConnect V4 Completion Roadmap**, merged on 2026-07-21 as
+`f2fbd26819c53286afec1453cca34ce28e7bc126`. It is
 `MERGED_UNRECONCILED` pending this governance-only Finalization. The amendment
 passed host qualification, 1240 local unit tests (7 skipped), Ruff and diff
-validation; it adds no production behaviour.
+validation; it adds no production behaviour, architecture or maturity change.
 
 The preceding Broadcast baseline remains PR [#280](https://github.com/pcvantol/djconnect/pull/280),
 **Add Broadcast recovery cursor**, merged as

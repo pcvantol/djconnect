@@ -4,8 +4,8 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#288](https://github.com/pcvantol/djconnect/pull/288), merged as
-`ec9fbb3eff183cf380e9dc1ca8d630f465f1ad3f`, is `MERGED_UNRECONCILED` pending
+PR [#290](https://github.com/pcvantol/djconnect/pull/290), merged as
+`f2fbd26819c53286afec1453cca34ce28e7bc126`, is `MERGED_UNRECONCILED` pending
 this dedicated Finalization. Recovery Cells 1–4 remain complete.
 Planner-owned Flow Revision/Change Journal and Broadcast-owned Delivery
 Sequence, snapshot watermark, bounded internal Replay Log and immutable
@@ -15,10 +15,8 @@ replay cannot be completed, Broadcast returns a fresh authorized snapshot.
 HTTP Flow delta, public replay/query APIs, persistence, cross-Session replay
 and renderer-specific recovery remain deferred.
 
-PR #288 established **Rolling Session Horizon Architecture**. It defines a
-future approximately twenty-minute, ephemeral Planner horizon with safe
-future-context degradation and bounded replanning. It does not authorize
-Planner, provider, queue, persistence, transport or renderer work.
+PR #290 established **DJConnect V4 Completion Roadmap**. It sequences server
+and iOS completion without authorizing architecture or production work.
 
 Spotify Direct Live Playback Observation Stage 1, Knowledge Engine `KE-2.2`
 and Planner `PL-4.1` are current. Music Assistant Stage 1, Continue Stage 2,
@@ -65,6 +63,7 @@ planning is read.
 
 | Prompt | Lifecycle | Coherent objective | Branch | Completion evidence |
 | --- | --- | --- | --- | --- |
+| DJConnect V4 Completion Roadmap | Completed / merged unreconciled / archived | Define a high-level, canonical route from current server state through stable iOS Renderer Host completion without changing architecture, maturity or production behaviour. | `codex/djconnect-v4-completion-roadmap` | `docs/history/prompts/2026-07-21-djconnect-v4-completion-roadmap.md`; PR [#290](https://github.com/pcvantol/djconnect/pull/290), merged as `f2fbd26819c53286afec1453cca34ce28e7bc126`. |
 | Rolling Session Horizon Architecture | Completed / merged unreconciled / archived | Define the approximately twenty-minute, Planner-owned ephemeral horizon, safe future-context degradation and bounded implementation sequence without production changes. | `codex/rolling-session-horizon-architecture` | `docs/history/prompts/2026-07-21-rolling-session-horizon-architecture.md`; PR [#288](https://github.com/pcvantol/djconnect/pull/288), merged as `ec9fbb3eff183cf380e9dc1ca8d630f465f1ad3f`. |
 | Persistent Session Architecture Finalization | Completed / reviewable frozen | Archive PR #286 Prompt History and reconcile rolling records without production, architecture or roadmap expansion. | `codex/finalize-persistent-session-architecture` | PR [#287](https://github.com/pcvantol/djconnect/pull/287); full unit suite, Ruff, diff check and host qualification passed. |
 | Persistent Session Architecture | Completed / merged unreconciled / archived | Define the durable Profile-owned DJ Session lifecycle, renderer-safe historical projection boundary, persistence/backup/export ownership and bounded implementation sequence without production changes. | `codex/persistent-session-architecture` | `docs/history/prompts/2026-07-21-persistent-session-architecture.md`; PR [#286](https://github.com/pcvantol/djconnect/pull/286), merged as `8828179ae042eaa672eb6af065dcefbe323ce79a`. |
