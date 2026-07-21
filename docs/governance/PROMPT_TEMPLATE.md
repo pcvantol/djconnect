@@ -17,6 +17,10 @@ PRE-FLIGHT (mandatory; no production change before an explicit GO):
 - Previous Pull Request Verification: use objective GitHub/Git evidence for predecessor, merge state/commit, current-main containment and archived Prompt History; stop on missing evidence.
 - Post-Merge State Classification: determine `REVIEWABLE_FROZEN`, `MERGED_UNRECONCILED` or `MERGED_RECONCILED` under `ENGINEERING_METHOD.md`.
 - Repository State Gate: an implementation capability requires `MERGED_RECONCILED`; `MERGED_UNRECONCILED` permits only its dedicated Finalization.
+- Workspace State Gate: verify `WORKSPACE_READY` independently from Repository
+  State: canonical `main`, synchronized origin, clean tree, the just-completed
+  local implementation branch removed and obsolete remote references pruned.
+  Either unmet state is `NO-GO`.
 - Canonical Repository Read: follow `BOOTSTRAP.md` through active roadmap/backlog and `PROMPT_INDEX.md` only after required reconciliation.
 - Implementation Reality Check: inspect existing functionality, validation, qualification and documentation; do not reimplement an existing outcome.
 - Capability Evidence: verify the requested capability is pending, the roadmap/architecture/maturity records are current, the validation baseline applies, and no superseding architecture amendment exists.
@@ -47,6 +51,9 @@ VALIDATION:
 Finalization checks:
 - do not assume predecessor, current increment or repository status from chat
 - preceding PR merged and remote branch removed
+- after Finalization merges, cleanup identifies only the just-completed local
+  implementation branch; it is fully merged, has no unpublished commits and is
+  not checked out before non-forced deletion
 - prior Prompt History archived
 - predecessor merge and current-main containment objectively verified
 - the merged implementation entered `MERGED_UNRECONCILED`
@@ -58,7 +65,12 @@ Finalization:
 - update ENGINEERING_STATUS, REPOSITORY_STATUS, MANAGEMENT_SUMMARY, PROMPT_INDEX and applicable roadmap/governance records
 - create or verify one immutable Prompt History record
 - run governance and repository-bootstrap validation
-- merge Finalization to restore `MERGED_RECONCILED`; only then may the next implementation capability begin
+- merge Finalization to restore `MERGED_RECONCILED`, then run Workspace Cleanup
+  and issue its deterministic report: current branch, working tree,
+  synchronization, completed branch, remote status, local deletion, prune,
+  Repository State, Workspace State and `READY`/`NOT READY`
+- only `MERGED_RECONCILED` and `WORKSPACE_READY` permit the next
+  implementation capability
 ```
 
 For Innovation Engineering, use `docs/meta/INNOVATION_ENGINEERING.md` in

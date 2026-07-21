@@ -532,6 +532,10 @@ creating exactly one reviewable Pull Request
 
 leaving the repository clean
 
+After its Finalization has merged, the completed capability SHALL execute the
+canonical Workspace Cleanup in `ENGINEERING_METHOD.md` and report
+`WORKSPACE_READY` before the next production capability begins.
+
 ==============================================================================
 
 Prompt Freeze
@@ -1122,6 +1126,10 @@ Working tree clean
 
 Repository clean
 
+Repository State `MERGED_RECONCILED`
+
+Workspace State `WORKSPACE_READY`
+
 Deferred Work recorded
 
 Recommended next prompt recorded
@@ -1232,6 +1240,9 @@ own exactly one engineering increment
 produce exactly one reviewable Pull Request
 
 finish with Prompt Finalization
+
+require Workspace Cleanup after Finalization merge before the next production
+capability
 
 leave behind one immutable Prompt History record
 

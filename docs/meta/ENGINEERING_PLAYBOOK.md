@@ -78,6 +78,14 @@ Dedicated Finalization
 
 ↓
 
+Workspace Cleanup
+
+↓
+
+`WORKSPACE_READY`
+
+↓
+
 Next Capability
 ```
 
@@ -91,7 +99,8 @@ Next Capability
 5. Merge remains an explicit governance decision; opening a pull request does
    not authorize its merge.
 6. The next production capability must not begin until its predecessor's
-   Finalization has merged and restored `MERGED_RECONCILED`.
+   Finalization has merged, restored `MERGED_RECONCILED` and completed the
+   canonical Workspace Cleanup to establish `WORKSPACE_READY`.
 7. Canonical prompts must not compete for, or overlap on, implementation
    scope.
 

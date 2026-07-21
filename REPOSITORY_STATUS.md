@@ -254,16 +254,18 @@ Architecture change.
 
 Decision: `POST_MERGE_ENGINEERING_STATE_RECONCILIATION_ESTABLISHED`
 
-The Engineering Method defines three explicit engineering lifecycle states:
-`REVIEWABLE_FROZEN`, `MERGED_UNRECONCILED` and `MERGED_RECONCILED`. GitHub merge
-evidence and synchronized current main determine the state; current main always
+The Engineering Method defines the explicit Repository States
+`REVIEWABLE_FROZEN`, `MERGED_UNRECONCILED` and `MERGED_RECONCILED`, plus the
+independent Workspace State `WORKSPACE_READY`. GitHub merge evidence and
+synchronized current main determine Repository State; current main always
 overrides conversations, prompts, historical assumptions and Prompt History.
 Prompt History remains immutable. A verified merged predecessor whose rolling
 records still describe its freeze point is an expected
 `MERGED_UNRECONCILED` transition, not an inconsistency. Only its dedicated
 Finalization reconciles `ENGINEERING_STATUS.md`, `REPOSITORY_STATUS.md`,
 `MANAGEMENT_SUMMARY.md` and `PROMPT_INDEX.md`; no production capability may
-start until that Finalization restores `MERGED_RECONCILED`. PR
+start until that Finalization restores `MERGED_RECONCILED` and Workspace Cleanup
+verifies `WORKSPACE_READY`. PR
 [#125](https://github.com/pcvantol/djconnect/pull/125) is now merged into
 current main; its rolling records are reconciled by the Repository Governance
 Rollout Planning increment.

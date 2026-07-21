@@ -17,11 +17,11 @@
 
 PR [#302](https://github.com/pcvantol/djconnect/pull/302) merged as
 `0a224834aa685a3d57788e9aaf70d515a502cc0c`. This dedicated governance-only
-Finalization reconciles its status to `MERGED_RECONCILED`: every implementation
-capability must pass
-Pre-Flight, Implementation, Validation, Merge and Finalization. Only `GO`
-authorizes a bounded production change; `MERGED_UNRECONCILED` permits only
-Finalization.
+Finalization reconciles its Repository State to `MERGED_RECONCILED`: every
+implementation capability must pass Pre-Flight, Implementation, Validation,
+Merge, Finalization and Workspace Cleanup. Only `GO` authorizes a bounded
+production change; `MERGED_UNRECONCILED` permits only Finalization, and the
+next capability also requires Workspace State `WORKSPACE_READY`.
 
 Transport Cells 1–4 and Recovery Cells 1–4 are current. Session Flow
 semantic identity is Planner-owned: Flow Revision starts at zero and its
