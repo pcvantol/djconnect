@@ -4,9 +4,11 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#358](https://github.com/pcvantol/djconnect/pull/358), **Universal Receiver
-V1 — Session Flow Timeline Rendering**, merged as `25be97ae7bf79c1026cec6a5c29096b2a852276a`. This dedicated Finalization
-reconciles its completed capability record and immutable Prompt History.
+PR [#360](https://github.com/pcvantol/djconnect/pull/360), **Renderer-Safe
+Playback Projection**, merged as `637ab709174b1c49409259f66c902d23b32619fa`.
+This dedicated Finalization reconciles its completed capability record and
+immutable Prompt History at
+`docs/history/prompts/2026-07-21-renderer-safe-playback-projection.md`.
 
 The Session Intelligence Runtime Integration Epic is complete and reconciled.
 Supported Track Started decisions now use the one canonical Runtime lifecycle:
@@ -15,12 +17,12 @@ intelligence prompts must extend that lifecycle rather than introduce another
 Runtime pipeline. Audience Intelligence remains intentionally deferred.
 
 PR #350 established Universal Receiver V1 as the primary active architectural
-Epic. Capability 1 (PR #354) and Capability 2 (PR #358) are complete. The
-passive, stateless Receiver renders existing renderer-safe Broadcast snapshots
-and incremental Session Flow updates in server-defined order, reconstructing
-only from snapshots on reconnect or reset. Further browser experience
-capability remains separately authorized.
-Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`.
+Epic. Capability 1 (PR #354) and Capability 2 (PR #358) are complete. PR #360
+now supplies the renderer-safe, Runtime-owned playback metadata, artwork,
+duration and bounded progress projection that Capability 3 may consume.
+Capability 3 itself remains separately authorized and presentation-only.
+Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`
+after this Finalization merges and Workspace Cleanup completes.
 Its Prompt History is
 `docs/history/prompts/2026-07-21-universal-receiver-server-architecture.md`.
 

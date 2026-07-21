@@ -28,9 +28,10 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-PR [#358](https://github.com/pcvantol/djconnect/pull/358), **Universal Receiver
-V1 — Session Flow Timeline Rendering**, merged as `25be97ae7bf79c1026cec6a5c29096b2a852276a`. This dedicated Finalization
-reconciles its completed capability record and immutable Prompt History.
+PR [#360](https://github.com/pcvantol/djconnect/pull/360), **Renderer-Safe
+Playback Projection**, merged as `637ab709174b1c49409259f66c902d23b32619fa`.
+This dedicated Finalization reconciles its completed capability record and
+immutable Prompt History.
 
 Current main records **Session Intelligence Runtime Complete**. The Runtime is
 the one canonical execution engine for all supported Track Started decisions:
@@ -45,12 +46,15 @@ established its server boundary, PR #354 completed Capability 1 — Broadcast
 Connection and Session Rendering, and PR #358 completed Capability 2 — Session
 Flow Timeline Rendering. The disposable, stateless Receiver renders only
 renderer-safe Broadcast projections, preserving the server-defined Flow order
-through snapshots, live updates, resets and reconnects. No browser authority,
-controls, polling, persistence, HTTP endpoint, WebSocket channel or ownership
-change was added.
-Experience expansion is next; Audience Intelligence remains intentionally
-deferred.
-Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`.
+through snapshots, live updates, resets and reconnects. PR #360 completes the
+server prerequisite for Capability 3: the Runtime publishes optional playback
+metadata, HA-proxied artwork, duration and bounded server-owned progress using
+the existing Broadcast snapshot and event stream. No browser authority,
+provider payload, new endpoint, WebSocket channel or provider polling exists.
+Capability 3 — Now Playing Experience — is unblocked but not activated by this
+Finalization. Audience Intelligence remains intentionally deferred.
+Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`
+after this Finalization merges and Workspace Cleanup completes.
 
 The preceding PR #313,
 **Localization and Narrative Architecture**, merged as

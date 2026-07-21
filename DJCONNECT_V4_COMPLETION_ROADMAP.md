@@ -96,9 +96,11 @@ Rendering — are complete. Subsequent browser delivery, like Apple, Windows,
 Raspberry Pi and Voice delivery, must consume existing Broadcast projections
 and server APIs without acquiring Runtime ownership.
 
-Universal Receiver V1 Capability 3 — Now Playing Experience — remains blocked
-until the Renderer-Safe Playback Projection prerequisite is complete and
-reconciled; it will not add a browser-owned playback API or transport.
+Universal Receiver V1 Capability 3 — Now Playing Experience — is unblocked by
+PR #360, Renderer-Safe Playback Projection, merged as
+`637ab709174b1c49409259f66c902d23b32619fa`. Its dedicated Finalization and
+Workspace Cleanup remain pending. Capability 3 stays separately authorized and
+will not add a browser-owned playback API or transport.
 
 - Universal Receiver V1
 - Apple

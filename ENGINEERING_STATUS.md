@@ -5,9 +5,10 @@
 
 ## Current engineering increment
 
-PR [#358](https://github.com/pcvantol/djconnect/pull/358), **Universal Receiver
-V1 — Session Flow Timeline Rendering**, merged as `25be97ae7bf79c1026cec6a5c29096b2a852276a`. This dedicated Finalization
-reconciles its completed capability record and immutable Prompt History.
+PR [#360](https://github.com/pcvantol/djconnect/pull/360), **Renderer-Safe
+Playback Projection**, merged as `637ab709174b1c49409259f66c902d23b32619fa`.
+This dedicated Finalization reconciles its completed capability record and
+immutable Prompt History.
 
 The **Session Intelligence Runtime Integration Epic** is complete. The Runtime
 is now the canonical execution engine for all supported Track Started decisions:
@@ -22,11 +23,14 @@ Capability 1, **Broadcast Connection and Session Rendering**, is complete.
 Capability 2, **Session Flow Timeline Rendering**, is complete: the passive
 Receiver renders only renderer-safe Broadcast projections and replaces the
 server-owned Session Flow from snapshots, live updates, resets and reconnects.
-No Runtime, Planner, Knowledge, Session Flow or Broadcast ownership changed;
-no polling, browser authority, HTTP endpoint or WebSocket channel was added.
-Experience delivery is next; Audience Intelligence remains intentionally
-deferred.
-Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`.
+PR #360 now completes the server-side Renderer-Safe Playback Projection:
+optional normalized metadata, HA-proxied artwork, duration and a bounded
+Runtime-owned `position_ms` clock flow through existing Broadcast snapshots
+and updates. Backend snapshots correct progress; no client owns a clock and no
+new transport or provider polling was introduced. Capability 3 — Now Playing
+Experience — is unblocked but remains separately authorized.
+Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`
+after this Finalization merges and Workspace Cleanup completes.
 
 PR #323, **Mood and Direction
 Intent Selection**, merged as `a2e394bc92beb42de596eb613327678615d5abbf`.
