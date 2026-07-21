@@ -21,6 +21,7 @@ from .service import (
     PersistenceTransaction,
 )
 from .sessions import PersistentSession, PersistentSessionRepository, SessionLifecycleError, SessionOwnershipError
+from .reconciliation import PersistentSessionStartupReconciler
 
 __all__ = [
     "PERSISTENCE_SERVICE_KEY",
@@ -33,6 +34,7 @@ __all__ = [
     "PersistenceTransaction",
     "PersistentSession",
     "PersistentSessionRepository",
+    "PersistentSessionStartupReconciler",
     "SessionLifecycleError",
     "SessionOwnershipError",
     "async_initialize_persistence",
