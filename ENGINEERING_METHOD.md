@@ -1,7 +1,7 @@
 # DJConnect Engineering Method
 
 **Status:** Canonical operational governance
-**Version:** 2.6
+**Version:** 2.7
 **Scope:** Entire DJConnect platform
 
 ## Purpose
@@ -38,7 +38,7 @@ Switch to main
   -> Qualify development machine for repository mutation
   -> Verify previous pull request
   -> Classify post-merge engineering state
-  -> Reconcile rolling state when required
+  -> Enter Finalization when required
   -> Canonical repository read
   -> ENGINEERING_STATUS
   -> REPOSITORY_STATUS
@@ -81,6 +81,51 @@ governance/backlog documentation and the onboarding package are canonical in
 bypasses synchronization, repository reality, authorization, review or the
 rest of this Engineering Method.
 
+## Capability Completion Lifecycle
+
+Every implementation capability follows this mandatory lifecycle:
+
+```text
+PRE-FLIGHT
+  -> IMPLEMENTATION
+  -> VALIDATION
+  -> MERGE
+  -> FINALIZATION
+  -> MERGED_RECONCILED
+  -> NEXT CAPABILITY
+```
+
+`PRE-FLIGHT` is a mandatory decision gate before any production implementation
+change. It verifies synchronized current main, a clean worktree, development
+machine qualification where required, the required validation baseline,
+predecessor and repository lifecycle state, current roadmap/architecture/
+maturity evidence, the requested capability's pending status, absence of an
+equivalent merged implementation, and absence of a superseding architecture
+amendment. It ends with exactly one explicit decision:
+
+- `GO`: the bounded implementation may begin.
+- `NO-GO`: production changes are prohibited; resolve or record the blocking
+  repository evidence first.
+
+`IMPLEMENTATION` owns only the bounded production change and its focused
+tests. `VALIDATION` is a separate mandatory phase before review and merge. It
+runs all capability and regression tests plus applicable Ruff, architecture,
+bootstrap and diff validation. Implementation does not itself complete the
+capability.
+
+`MERGE` is an external governance decision. A merged implementation enters
+`MERGED_UNRECONCILED`; this expected temporary state is not a completed
+capability. `FINALIZATION` is a separate governance-only increment after the
+merge. It reconciles rolling records, immutable Prompt History, applicable
+roadmap/governance records and repository bootstrap evidence. Only a merged
+Finalization restores `MERGED_RECONCILED`, after which the next capability may
+start.
+
+The canonical implementation-prompt structure is `PRE-FLIGHT`,
+`IMPLEMENTATION`, `VALIDATION` and `FINALIZATION`, defined by
+`docs/governance/PROMPT_TEMPLATE.md`. Prompts may reference that standard
+instead of reproducing these rules.
+
 ## Engineering lifecycle state
 
 Every increment has one explicit engineering lifecycle state:
@@ -91,9 +136,11 @@ Every increment has one explicit engineering lifecycle state:
 | `MERGED_UNRECONCILED` | Objective GitHub evidence proves the predecessor merged and current `main` contains it, while rolling records may still describe its freeze point. This is expected, not automatically inconsistent. |
 | `MERGED_RECONCILED` | Rolling engineering records reflect the merged repository truth; normal planning and implementation may continue. |
 
-The reviewable pull request is the freeze point. Human merge is external. The
-next increment owns reconciliation after an objectively verified merge; it
-never rewrites immutable Prompt History.
+The reviewable pull request is the freeze point. Human merge is external.
+`MERGED_UNRECONCILED` permits only the dedicated Finalization increment; no
+production implementation may begin from that state. The next capability may
+begin only from `MERGED_RECONCILED`. Finalization never rewrites immutable
+Prompt History.
 
 ## Reality before planning
 
@@ -101,8 +148,8 @@ Before every engineering prompt, verify synchronized repository state, the
 previous pull request, merge evidence, `ENGINEERING_STATUS`, the active
 roadmap, the active backlog and implementation reality. A verified merged
 predecessor whose rolling records remain at its freeze point is
-`MERGED_UNRECONCILED`; reconcile it before substantive engineering. Other
-unexplained divergence remains fail-closed.
+`MERGED_UNRECONCILED`; only Finalization may proceed. Other unexplained
+divergence remains fail-closed.
 
 Before proposing implementation, establish whether the requested capability
 already exists, is validated, is qualified, or is already supported by
@@ -118,10 +165,10 @@ informational only; engineering work is never invented from chat context.
 
 Every increment begins from synchronized current main, qualifies the
 development machine before contentful mutation, verifies repository truth,
-classifies and reconciles post-merge state when needed, and plans only after
-the implementation-reality check. If requested functionality already exists,
-is validated or is qualified, do not reimplement it; close only the remaining
-evidenced gaps.
+classifies post-merge state and enters Finalization when needed, and plans only
+after the implementation-reality check. If requested functionality already
+exists, is validated or is qualified, do not reimplement it; close only the
+remaining evidenced gaps.
 
 ## Safe bounded subagent parallelization
 

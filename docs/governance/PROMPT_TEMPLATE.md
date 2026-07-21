@@ -10,15 +10,17 @@ Title:
 Generation and engineering program:
 Engineering mode: Platform Engineering | Product Engineering | Innovation Engineering
 
-Initialization (mandatory, before planning):
+PRE-FLIGHT (mandatory; no production change before an explicit GO):
 - Repository Synchronization: `git switch main`, then `git pull --ff-only`; stop on failure.
 - Current Main Verification: branch, HEAD, upstream, fast-forward status, working tree and repository cleanliness; stop on failure.
+- Development Machine Qualification: require current-session readiness evidence where the mutation gate applies; stop on an unsatisfied gate.
 - Previous Pull Request Verification: use objective GitHub/Git evidence for predecessor, merge state/commit, current-main containment and archived Prompt History; stop on missing evidence.
 - Post-Merge State Classification: determine `REVIEWABLE_FROZEN`, `MERGED_UNRECONCILED` or `MERGED_RECONCILED` under `ENGINEERING_METHOD.md`.
-- Rolling State Reconciliation: for `MERGED_UNRECONCILED`, reconcile ENGINEERING_STATUS, REPOSITORY_STATUS, MANAGEMENT_SUMMARY and PROMPT_INDEX before substantive work; never rewrite Prompt History.
+- Repository State Gate: an implementation capability requires `MERGED_RECONCILED`; `MERGED_UNRECONCILED` permits only its dedicated Finalization.
 - Canonical Repository Read: follow `BOOTSTRAP.md` through active roadmap/backlog and `PROMPT_INDEX.md` only after required reconciliation.
 - Implementation Reality Check: inspect existing functionality, validation, qualification and documentation; do not reimplement an existing outcome.
-- Engineering Planning: determine the current increment, program, repository truth, backlog, deferred work and recommended next prompt from current main.
+- Capability Evidence: verify the requested capability is pending, the roadmap/architecture/maturity records are current, the validation baseline applies, and no superseding architecture amendment exists.
+- Decision: record exactly one `GO` or `NO-GO`. `NO-GO` prohibits production changes.
 
 Objective:
 Repository truth verified:
@@ -32,21 +34,31 @@ Acceptance evidence:
 Required documentation updates:
 Deferred-work handling:
 
-Initialization checks:
+IMPLEMENTATION:
+- state the one bounded production capability and its ownership constraints
+- list in-scope production changes and focused tests
+- state explicit non-goals and deferred work
+
+VALIDATION:
+- list capability tests, regression tests and required validation baseline
+- include applicable Ruff, architecture, bootstrap and diff validation
+- retain objective evidence before review and merge
+
+Finalization checks:
 - do not assume predecessor, current increment or repository status from chat
 - preceding PR merged and remote branch removed
 - prior Prompt History archived
 - predecessor merge and current-main containment objectively verified
-- post-merge state classified and rolling records reconciled when required
+- the merged implementation entered `MERGED_UNRECONCILED`
 - synchronized current main and status records verified
 - repository clean
 
 Finalization:
-- validate and retain evidence
-- update ENGINEERING_STATUS, REPOSITORY_STATUS, MANAGEMENT_SUMMARY and PROMPT_INDEX
-- create one immutable Prompt History record
-- create exactly one reviewable pull request
-- record `REVIEWABLE_FROZEN` and stop at the freeze point; merge and later reconciliation belong to the next increment
+- after the implementation merge, create one governance-only Finalization increment
+- update ENGINEERING_STATUS, REPOSITORY_STATUS, MANAGEMENT_SUMMARY, PROMPT_INDEX and applicable roadmap/governance records
+- create or verify one immutable Prompt History record
+- run governance and repository-bootstrap validation
+- merge Finalization to restore `MERGED_RECONCILED`; only then may the next implementation capability begin
 ```
 
 For Innovation Engineering, use `docs/meta/INNOVATION_ENGINEERING.md` in

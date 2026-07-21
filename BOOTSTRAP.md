@@ -21,8 +21,10 @@ a substitute.
 
 Classify the engineering lifecycle using `ENGINEERING_METHOD.md`. If a verified
 merged predecessor has rolling records still at its reviewable freeze point,
-the expected state is `MERGED_UNRECONCILED`: reconcile the four rolling records
-named below before substantive engineering. Never rewrite Prompt History.
+the expected state is `MERGED_UNRECONCILED`: only the dedicated Finalization
+increment may reconcile the four rolling records named below. Never rewrite
+Prompt History. Production implementation may begin only from
+`MERGED_RECONCILED` after the `GO` decision in `PROMPT_INITIALIZATION.md`.
 Other unresolved merge or repository inconsistencies are terminal.
 
 Only after required reconciliation, read the current repository in the

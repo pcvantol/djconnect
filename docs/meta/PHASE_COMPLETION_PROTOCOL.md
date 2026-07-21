@@ -36,9 +36,20 @@ Implementation without durable knowledge is considered incomplete.
 
 ---
 
-# Engineering Lifecycle
+# Capability Completion Lifecycle
 
-At the conclusion of every implementation phase, execute the following protocol.
+Every implementation capability follows the canonical lifecycle in
+`ENGINEERING_METHOD.md`:
+
+```text
+PRE-FLIGHT -> IMPLEMENTATION -> VALIDATION -> MERGE -> FINALIZATION
+-> MERGED_RECONCILED -> NEXT CAPABILITY
+```
+
+At the conclusion of every implementation phase, execute the following
+completion protocol. Its implementation pull request is not capability
+completion: after merge, the separate Finalization increment reconciles the
+repository and restores `MERGED_RECONCILED`.
 
 ```
 Implementation
@@ -480,7 +491,7 @@ The repository should become progressively more complete.
 
 # Step 18 — Final Output
 
-Every completed phase should produce:
+Every completed capability should produce:
 
 Completion Report
 
@@ -488,13 +499,8 @@ Qualification Decision
 
 Updated Documentation
 
-Repository Status Update
-
-Management Summary Update
-
-Updated Prompt Library
-
-Updated Prompt Index
+Merged Finalization with updated rolling records, Prompt History and applicable
+roadmap/governance records
 
 Repository Improvements
 
@@ -502,7 +508,7 @@ Commit SHA
 
 Pull Request
 
-Recommended Next Phase
+`MERGED_RECONCILED` decision and recommended next capability
 
 Clean-session bootstrap command
 
@@ -530,21 +536,21 @@ A phase is complete only when:
 
 ✓ Evidence exists
 
-✓ Repository knowledge has been updated
+✓ Pre-Flight ended in `GO`
 
-✓ Documentation is current
+✓ Implementation and Validation are complete for the stated scope
 
-✓ Completion Report exists
+✓ Production implementation merged
 
-✓ Qualification decision exists
+✓ Finalization merged
 
-✓ Next prompt exists
+✓ Rolling records and applicable roadmap/governance records are synchronized
 
-✓ Prompt Index is updated
+✓ Immutable Prompt History is recorded
 
-✓ Exactly one reviewable pull request exists
+✓ Governance and repository-bootstrap validation passed
 
-✓ Repository bootstrap remains valid
+✓ Repository state is `MERGED_RECONCILED`
 
 ✓ No important engineering knowledge exists only in conversations
 
