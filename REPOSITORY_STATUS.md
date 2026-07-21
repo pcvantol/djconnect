@@ -28,10 +28,10 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-Current main contains PR [#332](https://github.com/pcvantol/djconnect/pull/332),
-**Planner Influence Model**, merged as
-`9adcaf493aaff73273345dc164c5414ba026bea0`. This bounded Planner-owned,
-ephemeral normalized influence model is in its dedicated Finalization. Repository
+Current main contains PR [#334](https://github.com/pcvantol/djconnect/pull/334),
+**Knowledge Prefetch Planning**, merged as
+`cc44e992e168d1f66dd971944bf19e077c786ae7`. This bounded Planner-owned,
+ephemeral future knowledge requirement model is in its dedicated Finalization. Repository
 State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`.
 
 The preceding PR #313,

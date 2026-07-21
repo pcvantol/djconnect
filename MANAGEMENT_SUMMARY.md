@@ -15,9 +15,9 @@
 
 ## Current position
 
-PR [#332](https://github.com/pcvantol/djconnect/pull/332) merged as
-`9adcaf493aaff73273345dc164c5414ba026bea0`. It adds one bounded, ephemeral
-Planner-owned normalized influence input for Intent Selection. This is its
+PR [#334](https://github.com/pcvantol/djconnect/pull/334) merged as
+`cc44e992e168d1f66dd971944bf19e077c786ae7`. It adds bounded, ephemeral
+Planner-owned future knowledge requirements for Planned Intents. This is its
 dedicated governance-only Finalization. Repository State: `MERGED_RECONCILED`;
 Workspace State: `WORKSPACE_READY`.
 
