@@ -1236,6 +1236,11 @@ DEVELOPER_SERVICE_SCHEMAS = {
             vol.Optional("explicit_user_request", default=True): bool,
         }
     ),
+    "developer_session_bootstrap": _developer_service_schema(
+        {
+            vol.Optional("action", default="start"): str,
+        }
+    ),
     "push_register": _developer_service_schema(
         {
             vol.Required("push_token"): str,
@@ -2764,6 +2769,13 @@ def _register_developer_services(
         )
         return result
 
+    async def handle_developer_session_bootstrap(call: ServiceCall) -> dict[str, Any]:
+        from .developer_session_bootstrap import async_handle_developer_session_bootstrap
+
+        return await async_handle_developer_session_bootstrap(
+            hass, str(call.data.get("action") or "start")
+        )
+
     service_handlers = {
         "test_parse": (handle_test_parse, "optional"),
         "test_tts": (handle_test_tts, "optional"),
@@ -2809,6 +2821,7 @@ def _register_developer_services(
         "start_session": (handle_start_session, "optional"),
         "end_session": (handle_end_session, "optional"),
         "active_session": (handle_active_session, "optional"),
+        "developer_session_bootstrap": (handle_developer_session_bootstrap, "only"),
     }
     for service_name, (handler, response_mode) in service_handlers.items():
         hass.services.async_register(

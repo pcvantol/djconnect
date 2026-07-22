@@ -49,6 +49,25 @@ active_session:
       selector:
         text:
 
+developer_session_bootstrap:
+  name: Bootstrap Session Intelligence Golden Scenario
+  description: >
+    Developer and CI helper: start or stop the isolated server-owned Runtime
+    Session required to enable Session Intelligence Golden Scenario SI-GOLDEN-001.
+    It does not execute the scenario, generate a DJMoment or expose Runtime,
+    Planner, Knowledge, Performance Memory or Broadcast-token internals.
+  fields:
+    action:
+      name: Action
+      description: Start the isolated Session or stop and clean it up.
+      required: false
+      default: start
+      selector:
+        select:
+          options:
+            - start
+            - stop
+
 test_parse:
   name: Test Assist parser
   description: >
