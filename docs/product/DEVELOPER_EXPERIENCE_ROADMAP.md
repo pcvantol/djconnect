@@ -10,9 +10,10 @@ Session Capture and Structural Invariant Validator are complete. This document i
 a roadmap and governance record; it authorizes no implementation of CI,
 Developer Mode, simulation, browser testing or runtime behavior.
 
-The [Session Intelligence Qualification Policy](../verification/SESSION_INTELLIGENCE_QUALIFICATION_POLICY.md)
-defines the intended qualification layers and makes Golden Scenarios the
-product-behavior contracts that Verification infrastructure serves.
+The [Session Intelligence Qualification Policy](../verification/SESSION_INTELLIGENCE_QUALIFICATION_POLICY.md),
+established in PR #378, defines the intended qualification layers and makes
+Golden Scenarios the product-behavior contracts that Verification infrastructure
+serves.
 
 ## Purpose
 

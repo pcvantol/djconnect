@@ -4,11 +4,11 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#376](https://github.com/pcvantol/djconnect/pull/376), **Add Structural
-Invariant Validator**, merged as `e53df0334c418a93b7b688a5472589817a780238`.
-This dedicated Finalization reconciles the completed read-only validation layer
-and immutable Prompt History at
-`docs/history/prompts/2026-07-22-structural-invariant-validator.md`.
+PR [#378](https://github.com/pcvantol/djconnect/pull/378), **Add Session
+Intelligence Qualification Policy**, merged as `eed97d37f3d4499e72b600792c8479170a30c38b`.
+This dedicated Finalization
+reconciles the completed policy and immutable Prompt History at
+`docs/history/prompts/2026-07-22-session-intelligence-qualification-policy.md`.
 
 The Session Intelligence Runtime Integration Epic is complete and reconciled.
 Supported Track Started decisions now use the one canonical Runtime lifecycle:
@@ -33,6 +33,9 @@ now next. The ordered roadmap is
 `docs/product/DEVELOPER_EXPERIENCE_ROADMAP.md`. Receiver browser E2E and
 Developer Overlay are separate later layers. Audience Intelligence remains
 deferred and low priority.
+The qualification pyramid is canonical in
+`docs/verification/SESSION_INTELLIGENCE_QUALIFICATION_POLICY.md`; it authorizes
+no CI workflow implementation.
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`
 after this Finalization merges and Workspace Cleanup completes.
 Its Prompt History is
