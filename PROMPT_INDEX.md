@@ -4,10 +4,10 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#386](https://github.com/pcvantol/djconnect/pull/386), **Govern Golden
-Scenario Planning**, merged as `add8a6d1980f6934e9d176bfe567a9bea6fad4be`.
-This dedicated Finalization reconciles its canonical policy and immutable Prompt
-History at `docs/history/prompts/2026-07-22-golden-scenario-governance.md`.
+PR [#388](https://github.com/pcvantol/djconnect/pull/388), **Execute
+SI-GOLDEN-003 Knowledge Failure**, merged as `c8297d5cd7ad5bc0293c8d558b43801e2d527c7d`.
+This dedicated Finalization reconciles its immutable Prompt History at
+`docs/history/prompts/2026-07-22-si-golden-003-knowledge-failure.md`.
 
 The Session Intelligence Runtime Integration Epic is complete and reconciled.
 Supported Track Started decisions now use the one canonical Runtime lifecycle:
@@ -35,7 +35,9 @@ Planner/Knowledge/Moment internals or another Runtime. Immutable E2E Session
 Capture and the Structural Invariant Validator now also cover executable
 `SI-GOLDEN-002`: its isolated Clock advances beyond the speaking interval and
 Performance Memory prevents the first eligible repetition. CI Smoke Suite is
-next. The ordered roadmap is
+next. `SI-GOLDEN-003` is also executable, captured and structurally validated:
+one fixed unavailable-Knowledge input yields approved Silence without fabricated
+content or a new fallback path. The ordered roadmap is
 `docs/product/DEVELOPER_EXPERIENCE_ROADMAP.md`. Receiver browser E2E and
 Developer Overlay are separate later layers. Audience Intelligence remains
 deferred and low priority.
@@ -52,7 +54,7 @@ preserved behavioral contract and no-duplicate-path evidence before `GO`.
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`
 after this Finalization merges and Workspace Cleanup completes.
 Its Prompt History is
-`docs/history/prompts/2026-07-22-platform-ambient-experience.md`.
+`docs/history/prompts/2026-07-22-si-golden-003-knowledge-failure.md`.
 
 PR #315, merged as
 `6a22b0814fcfcd277a9a854fc78b5a28ed04eadd`, is the current merged

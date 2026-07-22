@@ -5,10 +5,10 @@
 
 ## Current engineering increment
 
-PR [#386](https://github.com/pcvantol/djconnect/pull/386), **Govern Golden
-Scenario Planning**, merged as `add8a6d1980f6934e9d176bfe567a9bea6fad4be`.
-This dedicated Finalization reconciles the canonical Golden Scenario Governance
-policy and its immutable Prompt History.
+PR [#388](https://github.com/pcvantol/djconnect/pull/388), **Execute
+SI-GOLDEN-003 Knowledge Failure**, merged as `c8297d5cd7ad5bc0293c8d558b43801e2d527c7d`.
+This dedicated Finalization reconciles its safe-degradation verification
+evidence and immutable Prompt History.
 
 The **Session Intelligence Runtime Integration Epic** is complete. The Runtime
 is now the canonical execution engine for all supported Track Started decisions:
@@ -37,7 +37,7 @@ architecture and six product-focused Golden Scenarios are now canonical. They
 define a read-only, headless verification path over the real Runtime pipeline,
 three validation layers and strict separation from browser/overlay work.
 Bootstrap, Driver, immutable Capture and Structural Invariant Validator are
-complete for `SI-GOLDEN-001` and `SI-GOLDEN-002`. The second scenario uses one
+complete through `SI-GOLDEN-003`. The second scenario uses one
 ephemeral verification Clock composed only into its isolated Runtime: after the
 minimum interval it proves Performance Memory prevents the first eligible
 knowledge-backed repetition. The Validator is read-only and deterministic: it
@@ -47,6 +47,9 @@ end-to-end PR layer, Golden Regression as broader qualification and Quality
 Reports as non-blocking. CI Smoke Suite is next. Audience Intelligence remains
 deferred and low priority. The Verification Clock Architecture and its bounded
 `SI-GOLDEN-002` implementation are complete; CI Smoke Suite is next.
+`SI-GOLDEN-003` proves one unavailable Knowledge input becomes an approved
+Silence without fabricated content, while Session Flow and Broadcast remain
+valid. It changes no production Runtime fallback behavior.
 
 Golden Scenario Governance is now canonical. Future Verification increments
 must declare whether they enable, execute, capture, validate or protect an

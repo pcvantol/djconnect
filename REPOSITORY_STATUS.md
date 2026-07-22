@@ -28,10 +28,10 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-PR [#386](https://github.com/pcvantol/djconnect/pull/386), **Govern Golden
-Scenario Planning**, merged as `add8a6d1980f6934e9d176bfe567a9bea6fad4be`.
-This dedicated Finalization reconciles the canonical Golden Scenario Governance
-policy and its immutable Prompt History.
+PR [#388](https://github.com/pcvantol/djconnect/pull/388), **Execute
+SI-GOLDEN-003 Knowledge Failure**, merged as `c8297d5cd7ad5bc0293c8d558b43801e2d527c7d`.
+This dedicated Finalization reconciles its safe-degradation verification
+evidence and immutable Prompt History.
 
 Current main records **Session Intelligence Runtime Complete**. The Runtime is
 the one canonical execution engine for all supported Track Started decisions:
@@ -68,6 +68,12 @@ same Runtime path with an ephemeral verification Clock, then captures and
 structurally validates its first eligible non-repeating knowledge-backed
 Moment. CI Smoke Suite is next. Audience Intelligence remains deferred and low
 priority.
+
+PR #388 makes `SI-GOLDEN-003` executable, captured and structurally
+verifiable through the existing Runtime. One fixed unavailable-Knowledge input
+results in approved Silence with no fabricated content, while Flow and
+renderer-safe Broadcast projection remain valid. No production fallback policy
+or ownership changes.
 
 Golden Scenario Governance requires future Verification work to name its
 approved scenario relationship and future Session Intelligence work to state
