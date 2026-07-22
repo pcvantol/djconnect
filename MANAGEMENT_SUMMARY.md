@@ -15,10 +15,9 @@
 
 ## Current position
 
-PR [#380](https://github.com/pcvantol/djconnect/pull/380), **Define Verification
-Clock Architecture**, merged as `76aa0399c46d4d1ec3a5ac31413f6cb0772ea99b`.
-This dedicated Finalization reconciles the accepted architecture and immutable
-Prompt History.
+PR [#382](https://github.com/pcvantol/djconnect/pull/382), **Execute
+SI-GOLDEN-002 with Verification Clock**, merged as `532b81b925f434e3b4945d53910dd8f8784eeeb0`. This dedicated Finalization
+reconciles its verified implementation and immutable Prompt History.
 
 The **Session Intelligence Runtime Integration Epic** is complete. DJConnect
 now has one canonical Runtime lifecycle for supported Track Started decisions:
@@ -46,10 +45,11 @@ The canonical Qualification Policy now establishes Golden Scenarios as
 product-behavior contracts, Golden Smoke as the intended blocking PR layer,
 Golden Regression as broader qualification and Quality Reports as
 non-blocking until explicitly promoted by governance.
-PR #380 resolves the `SI-GOLDEN-002` timing blocker architecturally: the
-Verification Clock is restricted to isolated Runtime composition, while
-production keeps its current monotonic time source. Clock implementation is
-the next separately authorized capability.
+PRs #380 and #382 resolve the `SI-GOLDEN-002` timing blocker: the Verification
+Clock is restricted to isolated Runtime composition, while production retains
+its current monotonic time source. The fixed scenario proves that Performance
+Memory prevents the first eligible repeated knowledge-backed Moment. CI Smoke
+Suite is the next separately authorized capability.
 Audience Intelligence remains deferred and low priority.
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`
 after this Finalization merges and Workspace Cleanup completes.

@@ -4,11 +4,10 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#380](https://github.com/pcvantol/djconnect/pull/380), **Define Verification
-Clock Architecture**, merged as `76aa0399c46d4d1ec3a5ac31413f6cb0772ea99b`.
-This dedicated Finalization reconciles the accepted architecture and immutable
-Prompt History at
-`docs/history/prompts/2026-07-22-verification-clock-architecture.md`.
+PR [#382](https://github.com/pcvantol/djconnect/pull/382), **Execute
+SI-GOLDEN-002 with Verification Clock**, merged as `532b81b925f434e3b4945d53910dd8f8784eeeb0`. This dedicated Finalization
+reconciles its implementation and immutable Prompt History at
+`docs/history/prompts/2026-07-22-si-golden-002-verification-clock.md`.
 
 The Session Intelligence Runtime Integration Epic is complete and reconciled.
 Supported Track Started decisions now use the one canonical Runtime lifecycle:
@@ -28,9 +27,10 @@ knowledge flow, repetition avoidance, safe degradation, replanning, Session
 Update and intentional Silence. PRs #370 and #372 complete bounded Bootstrap
 and deterministic `SI-GOLDEN-001` execution without browser Session creation,
 Planner/Knowledge/Moment internals or another Runtime. Immutable E2E Session
-Capture and the Structural Invariant Validator are complete. CI Smoke Suite is
-not yet next: the accepted Verification Clock must first receive its separate
-bounded implementation for `SI-GOLDEN-002`. The ordered roadmap is
+Capture and the Structural Invariant Validator now also cover executable
+`SI-GOLDEN-002`: its isolated Clock advances beyond the speaking interval and
+Performance Memory prevents the first eligible repetition. CI Smoke Suite is
+next. The ordered roadmap is
 `docs/product/DEVELOPER_EXPERIENCE_ROADMAP.md`. Receiver browser E2E and
 Developer Overlay are separate later layers. Audience Intelligence remains
 deferred and low priority.
@@ -38,12 +38,12 @@ The qualification pyramid is canonical in
 `docs/verification/SESSION_INTELLIGENCE_QUALIFICATION_POLICY.md`; it authorizes
 no CI workflow implementation.
 The Clock architecture is canonical in
-`docs/verification/VERIFICATION_CLOCK_ARCHITECTURE.md` and does not authorize
-Runtime behavior, CI workflow or Scenario Driver changes.
+`docs/verification/VERIFICATION_CLOCK_ARCHITECTURE.md`; its completed bounded
+implementation authorizes no generic Runtime, CI workflow or simulation change.
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`
 after this Finalization merges and Workspace Cleanup completes.
 Its Prompt History is
-`docs/history/prompts/2026-07-21-universal-receiver-server-architecture.md`.
+`docs/history/prompts/2026-07-22-si-golden-002-verification-clock.md`.
 
 PR #315, merged as
 `6a22b0814fcfcd277a9a854fc78b5a28ed04eadd`, is the current merged
