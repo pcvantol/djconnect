@@ -26,6 +26,7 @@ Lab or Deferred. `ROADMAP_INDEX.md` owns cross-program navigation.
 | Ambient Light Renderer Host architecture | Deferred — Presentation Intent-driven ambient-light renderer role; no WLED, Hue, ESPHome, Broadcast or Runtime implementation | Universal Receiver maturity, operational Room Presentation Routing and real hardware evaluation; `docs/technical/AMBIENT_LIGHT_RENDERER_HOST_ARCHITECTURE.md` | 8 |
 | VibeCast product definition and V1 host architecture | Completed — canonical ambient-first Web Renderer definition only; implementation remains deferred | Universal Receiver Web Platform, Renderer Host classification and renderer-safe Broadcast projections; `docs/product/VIBECAST_ARCHITECTURE.md` | 8 |
 | VibeCast V1 implementation | Backlog — bounded Google Cast Custom Web Receiver product epic after feasibility validation | Golden Smoke CI, mature Universal Receiver Web Platform, Custom Web Receiver feasibility and bounded receiver-safe Session handoff | 10 |
+| Audience Experience and Ambient Reactions | Deferred — architecture only; no reaction, Broadcast or Planner implementation authorized | Audience Experience validation, privacy policy, bounded server-side intake, Audience Projection and renderer pressure design; `docs/product/AUDIENCE_EXPERIENCE_ARCHITECTURE.md` | 11 |
 | Renderer discovery, pairing and authorization architecture | Deferred | Renderer Host classification; local-first device lifecycle requirements | 8 |
 | Automated Session Intelligence E2E Verification | In Progress — primary active Epic; Architecture, Bootstrap, Driver, Capture, Structural Invariant Validator, Qualification Policy, Verification Clock and executable `SI-GOLDEN-001` through `SI-GOLDEN-003` are complete; CI Smoke Suite is next | Session Intelligence Runtime; operational Universal Receiver foundation; `docs/product/DEVELOPER_EXPERIENCE_ROADMAP.md` | 9 |
 | Verification Clock Architecture | Completed — restricted Runtime-composition time source for isolated verification; no implementation or production behavior change | `SI-GOLDEN-002` Pre-Flight evidence; `docs/verification/VERIFICATION_CLOCK_ARCHITECTURE.md` | 10 |
@@ -41,7 +42,7 @@ Lab or Deferred. `ROADMAP_INDEX.md` owns cross-program navigation.
 | Session Simulation and accelerated execution | Planned within the Automated E2E Verification Epic | Bootstrap, scenario, capture and clock architecture | 15 |
 | Preferences and Music DNA expansion | Deferred | Existing Profile and Planner influence boundaries | 15 |
 | Narrative Sequencing, Lyrics and Discover Evolution | Deferred | Existing Planner, Knowledge and DJ Moment Engine abstractions | 16 |
-| Audience Intelligence | Deferred | Explicit bounded Planner-influence policy; remains intentionally deferred | 17 |
+| Audience Observation for Session Intelligence | Deferred — only a separately authorized coarse Audience Energy observation may be considered; individual Audience Events never steer the Planner | Audience Experience, privacy review, aggregation evidence and an explicit bounded Planner-influence policy | 17 |
 | Playback Observation Stage 2 and Continue Stage 2 | Deferred | External Observation Boundary capability conditions | 18 |
 
 The retained material after this section is pre-Generation 2 product and

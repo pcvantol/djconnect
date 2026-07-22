@@ -116,7 +116,7 @@ If it does not improve the listening experience, it probably does not belong in 
 
 Every active DJ Session has a server-owned, ephemeral Session Runtime. It owns
 active Session orchestration, Session Planner, Conversation Engine, Session
-Memory, Session Flow, Broadcast Engine, Audience Signals and Runtime State. It
+Memory, Session Flow, Broadcast Engine, deferred Audience Experience and Runtime State. It
 may consume a validated bounded playback observation, but Playback Context and
 Playback Instance Identity remain owned by the Music Backend Observation
 Boundary. When the session ends, the Runtime ends; only permitted durable

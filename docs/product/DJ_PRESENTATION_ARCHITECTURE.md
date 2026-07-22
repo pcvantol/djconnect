@@ -124,6 +124,11 @@ the Universal Receiver Web Platform. Its deferred Google Cast Custom Web
 Receiver V1 model is defined in
 [`VIBECAST_ARCHITECTURE.md`](VIBECAST_ARCHITECTURE.md); it adds no second
 presentation pipeline or Renderer Host authority.
+Audience Experience is a separate, deferred participant-originated presentation
+concern. Its Audience Events are not DJMoments and its renderer-safe Audience
+Projection may add an independent Audience Layer without changing DJMoment
+ownership or Session Intelligence; see
+[`AUDIENCE_EXPERIENCE_ARCHITECTURE.md`](AUDIENCE_EXPERIENCE_ARCHITECTURE.md).
 
 ## Presentation Modes
 
@@ -166,7 +171,8 @@ DJ Moment. Users may continue from that card into the complete Session Flow.
 
 **Session Flow** is the canonical chronological narrative of the Session. Its
 items may include Session Started, Track Started, DJ Moment, Transition,
-Recommendation, Audience Signal, Mood Change, Silence and Session Finished.
+Recommendation, Mood Change, Silence and Session Finished. Audience Events are
+separate participant-originated Session context, not Flow items or DJMoments.
 It tells the story of the session; it is not a provider queue or a collection
 of unrelated feature pages.
 

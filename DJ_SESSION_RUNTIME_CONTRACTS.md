@@ -71,7 +71,7 @@ owns:
 - Conversation Engine;
 - Session Memory;
 - Broadcast Engine;
-- Audience Signals; and
+- deferred Audience Experience; and
 - Runtime State.
 
 All Runtime state is ephemeral. The authoritative Playback Context and Playback
@@ -154,8 +154,10 @@ Future Planner implementations will add replanning, announcements, Track
 Insight scheduling, Discover scheduling, mood progression and transition
 planning.
 
-The Planner consumes available playback, aggregated Audience Signals, owner
-interaction, conversation, permitted Music DNA and backend availability. It
+The Planner consumes available playback, owner interaction, conversation,
+permitted Music DNA and backend availability. Audience Events and Audience
+Projections remain outside the Planner; any future coarse Audience Observation
+requires separate authorization. It
 does not issue direct playback commands, generate a static playlist or mutate
 Profile state.
 
@@ -293,27 +295,21 @@ never access Planner or Runtime internals. Future Voice follows the same
 boundary. VibeCast and the Universal Session Receiver are future renderers that
 consume the Broadcast Feed; neither is a Broadcast Engine, Planner or Runtime.
 
-## Audience Signal contract
+## Audience Experience boundary
 
-Audience Signals are planner inputs, never direct playback commands. The
-initial catalogue is:
+[Audience Experience](docs/product/AUDIENCE_EXPERIENCE_ARCHITECTURE.md) owns
+future lightweight participant reactions as immutable, ephemeral Audience
+Events and renderer-safe Audience Projections. These events are not DJMoments,
+not music-library Likes and not Planner inputs. The Runtime may eventually own
+their server-side validation and bounded Session-scoped distribution, but no
+Audience Event, individual reaction, count or identity currently reaches the
+Planner.
 
-- `Like`
-- `MoreEnergy`
-- `LessEnergy`
-- `MoodSuggestion`
-- `GenreSuggestion`
-- `ArtistSuggestion`
-- `ArtistExclusion`
-- `TrackSuggestion`
-- `MoreLikeThis`
-- `SurpriseUs`
-
-The Runtime aggregates signals within the active session before the Planner
-interprets them. Aggregation may combine compatible inputs, retain meaningful
-direction or suppress insufficient/conflicting signals; it never translates a
-single signal directly into provider playback. The Planner decides whether and
-how aggregated signals influence a future Session Flow.
+The earlier broad Audience Signal catalogue remains deferred planning context,
+not an authorized execution contract. A separately governed future Audience
+Observation may consider only coarse, privacy-preserving Audience Energy; it
+must never provide raw reactions or participant identity and cannot become a
+direct playback command.
 
 ## Room Voice contract
 
@@ -345,7 +341,8 @@ for its active session. Renderers may consume but never enable capabilities.
 The initial capability catalogue is:
 
 - `canAskDJ`
-- `canSubmitAudienceSignals`
+- future audience-participation capability only after a separate Audience
+  Participation Policy
 - `canChangeMood`
 - `canStartBroadcast`
 - `canUseMusicDNA`
@@ -361,5 +358,5 @@ renderer-consumption rule before implementation.
    ending one active session.
 
 This slice must remain bounded: it does not add AI logic, playback logic,
-Broadcast Feed transport, Audience Signal execution, persistence beyond the
+Broadcast Feed transport, Audience Experience execution, persistence beyond the
 accepted contract, or v3 compatibility work.

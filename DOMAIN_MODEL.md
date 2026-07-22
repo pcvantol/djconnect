@@ -215,7 +215,8 @@ Playback Zone ownership belongs to backend integration and household configurati
 
 A DJ Session Runtime is the server-owned, ephemeral runtime for one active DJ
 Session. It owns the active Playback Context, Session Planner, Conversation
-Engine, Session Memory, Session Flow, Broadcast Engine, Audience Signals and
+Engine, Session Memory, Session Flow, Broadcast Engine, deferred Audience
+Experience and
 Runtime State.
 
 The Runtime exists only while its DJ Session is active. When it ends, it is
@@ -232,8 +233,10 @@ consume Moments without reinterpreting them.
 
 The Session Planner is the central AI orchestration engine for a Session
 Runtime. It plans approximately the next fifteen minutes and continuously
-replans from playback, interaction, audience signals, conversation, mood,
-backend availability and permitted Music DNA.
+replans from playback, interaction, conversation, mood, backend availability
+and permitted Music DNA. Audience Events and Audience Projections do not enter
+the Planner; any future coarse Audience Observation requires a separate
+explicit decision.
 
 It creates Session Flow, not a static playlist. A provider queue remains
 backend-owned and may be exposed as an advanced view.
