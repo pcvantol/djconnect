@@ -102,6 +102,9 @@ Session Flow or cross-platform semantics.
 The Universal Receiver is the Web Renderer Host. Its server-owned projection,
 subscription lifecycle and security boundary are defined in
 [`../technical/UNIVERSAL_RECEIVER_ARCHITECTURE.md`](../technical/UNIVERSAL_RECEIVER_ARCHITECTURE.md).
+Device Lifecycle (Guest/Registered) and Experience Mode
+(Interactive/Ambient) are independent Renderer Host axes defined in
+[`../technical/RENDERER_HOST_CLASSIFICATION.md`](../technical/RENDERER_HOST_CLASSIFICATION.md).
 
 ## Presentation Modes
 

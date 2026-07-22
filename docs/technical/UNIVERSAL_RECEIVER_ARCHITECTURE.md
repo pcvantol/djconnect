@@ -26,6 +26,13 @@ Home Assistant
 The browser renders an authorized projection. It does not compute, infer,
 repair or recreate Session meaning.
 
+The canonical [Renderer Host Classification](RENDERER_HOST_CLASSIFICATION.md)
+places Universal Receiver primarily on the **Interactive** experience axis. Its
+web foundation may serve Guest or Registered deployments later, but those
+device-lifecycle concerns do not change this Receiver's Runtime or Broadcast
+boundary. VibeCast is a distinct Ambient Renderer experience, not a Universal
+Receiver page with controls hidden.
+
 ## Ownership
 
 | Owner | Owns | The Universal Receiver does not own |
@@ -179,6 +186,9 @@ durable Session or planning state.
 - Any central or cloud-hosted Receiver delivery mechanism.
 - Platform Ambient Experience and any hardware-specific wall-panel capability;
   see [Platform Ambient Experience](PLATFORM_AMBIENT_EXPERIENCE.md).
+- Guest/Registered renderer authorization, pairing and discovery; see
+  [Renderer Host Classification](RENDERER_HOST_CLASSIFICATION.md).
+- VibeCast layered Ambient Renderer product architecture.
 
 Before any further Receiver capability is authorized, its Pre-Flight must
 inspect current `main` and this document. It must not duplicate the completed
@@ -188,6 +198,7 @@ existing Broadcast projection it will consume.
 ## Canonical references
 
 - [DJ Presentation Architecture](../product/DJ_PRESENTATION_ARCHITECTURE.md)
+- [Renderer Host Classification](RENDERER_HOST_CLASSIFICATION.md)
 - [Broadcast Transport](BROADCAST_TRANSPORT.md)
 - [WebSocket API](WEBSOCKET_API.md)
 - [DJ Session Transport Architecture](../../DJ_SESSION_TRANSPORT_ARCHITECTURE.md)
