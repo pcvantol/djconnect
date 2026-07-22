@@ -4,11 +4,10 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#384](https://github.com/pcvantol/djconnect/pull/384), **Define Deferred
-Platform Ambient Experience**, merged as `e07b259e41a37f4bb937f2b772a4aff6754462d2`.
-This dedicated Finalization reconciles its deferred architecture and immutable
-Prompt History at
-`docs/history/prompts/2026-07-22-platform-ambient-experience.md`.
+PR [#386](https://github.com/pcvantol/djconnect/pull/386), **Govern Golden
+Scenario Planning**, merged as `add8a6d1980f6934e9d176bfe567a9bea6fad4be`.
+This dedicated Finalization reconciles its canonical policy and immutable Prompt
+History at `docs/history/prompts/2026-07-22-golden-scenario-governance.md`.
 
 The Session Intelligence Runtime Integration Epic is complete and reconciled.
 Supported Track Started decisions now use the one canonical Runtime lifecycle:
@@ -46,6 +45,10 @@ no CI workflow implementation.
 The Clock architecture is canonical in
 `docs/verification/VERIFICATION_CLOCK_ARCHITECTURE.md`; its completed bounded
 implementation authorizes no generic Runtime, CI workflow or simulation change.
+Golden Scenario Governance is canonical in
+`docs/verification/GOLDEN_SCENARIO_GOVERNANCE.md`. Every future Verification
+or Session Intelligence prompt must declare its approved scenario relationship,
+preserved behavioral contract and no-duplicate-path evidence before `GO`.
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`
 after this Finalization merges and Workspace Cleanup completes.
 Its Prompt History is

@@ -15,10 +15,10 @@
 
 ## Current position
 
-PR [#384](https://github.com/pcvantol/djconnect/pull/384), **Define Deferred
-Platform Ambient Experience**, merged as `e07b259e41a37f4bb937f2b772a4aff6754462d2`.
-This dedicated Finalization reconciles its deferred architecture and immutable
-Prompt History.
+PR [#386](https://github.com/pcvantol/djconnect/pull/386), **Govern Golden
+Scenario Planning**, merged as `add8a6d1980f6934e9d176bfe567a9bea6fad4be`.
+This dedicated Finalization reconciles the canonical Golden Scenario Governance
+policy and its immutable Prompt History.
 
 The **Session Intelligence Runtime Integration Epic** is complete. DJConnect
 now has one canonical Runtime lifecycle for supported Track Started decisions:
@@ -56,6 +56,11 @@ Clock is restricted to isolated Runtime composition, while production retains
 its current monotonic time source. The fixed scenario proves that Performance
 Memory prevents the first eligible repeated knowledge-backed Moment. CI Smoke
 Suite is the next separately authorized capability.
+Golden Scenario Governance now requires every future Verification or Session
+Intelligence proposal to relate to approved user-visible behavior, preserve it
+unless governed otherwise and avoid a duplicate execution path. It strengthens
+planning and Pre-Flight only; it adds no Runtime, CI, renderer or diagnostics
+capability.
 Audience Intelligence remains deferred and low priority.
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`
 after this Finalization merges and Workspace Cleanup completes.
