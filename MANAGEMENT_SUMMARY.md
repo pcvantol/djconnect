@@ -15,9 +15,9 @@
 
 ## Current position
 
-PR [#366](https://github.com/pcvantol/djconnect/pull/366), **Prioritize Session
-Intelligence E2E Verification**, merged as `c60e9f4d3a4d49de32d1ffaa13e8ca78a0d6bf84`. This dedicated Finalization
-reconciles the completed E2E-roadmap transition and immutable Prompt History.
+PR [#368](https://github.com/pcvantol/djconnect/pull/368), **Define Session
+Intelligence E2E Architecture**, merged as `110ee4ae1f79d160246f0fd6ec9b5b1e83b0215b`. This dedicated Finalization
+reconciles the completed architecture and immutable Prompt History.
 
 The **Session Intelligence Runtime Integration Epic** is complete. DJConnect
 now has one canonical Runtime lifecycle for supported Track Started decisions:
@@ -33,14 +33,14 @@ only existing server-owned Broadcast projections, reconstructing from snapshot
 and live updates without browser authority, local playback timing, a new
 transport or provider polling.
 
-Automated Session Intelligence E2E Verification is now active. Its sole next
-capability is the architecture that defines isolated, deterministic, headless
-CI verification of the real pipeline. Developer Session Bootstrap is the first
-enabling capability for CI; deterministic scenarios, immutable captures,
-structural validation, accelerated execution, Golden Sessions and non-blocking
-quality metrics follow in order. Browser Receiver E2E and Developer Overlay
-remain separate later layers. Audience Intelligence remains deferred and low
-priority.
+Automated Session Intelligence E2E Verification is active. PR #368 defines its
+canonical architecture and six Golden Scenarios as the primary product
+artifact. Verification observes the real Runtime pipeline and remains separate
+from runtime behavior, browser rendering and diagnostics. Developer Session
+Bootstrap is now the next CI-enabling capability; Scenario Driver, capture,
+invariant validation, CI execution and accelerated timing remain separately
+authorized. Browser Receiver E2E and Developer Overlay are later layers.
+Audience Intelligence remains deferred and low priority.
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`
 after this Finalization merges and Workspace Cleanup completes.
 

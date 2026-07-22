@@ -5,9 +5,9 @@
 
 ## Current engineering increment
 
-PR [#366](https://github.com/pcvantol/djconnect/pull/366), **Prioritize Session
-Intelligence E2E Verification**, merged as `c60e9f4d3a4d49de32d1ffaa13e8ca78a0d6bf84`. This dedicated Finalization
-reconciles the completed E2E-roadmap transition and its immutable Prompt History.
+PR [#368](https://github.com/pcvantol/djconnect/pull/368), **Define Session
+Intelligence E2E Architecture**, merged as `110ee4ae1f79d160246f0fd6ec9b5b1e83b0215b`. This dedicated Finalization
+reconciles the completed architecture and its immutable Prompt History.
 
 The **Session Intelligence Runtime Integration Epic** is complete. The Runtime
 is now the canonical execution engine for all supported Track Started decisions:
@@ -25,15 +25,13 @@ projections; timeline and Now Playing state reconstruct from server snapshots
 and updates without browser authority, provider access, polling or a local
 playback clock.
 
-**Automated Session Intelligence E2E Verification** is now the active Epic. Its
-single next capability is **Automated Session Intelligence E2E Verification
-Architecture**. It will define headless CI ownership, production-boundary
-reuse, bootstrap, deterministic scenarios, capture, invariant validation,
-clock strategy, security and staged rollout. Developer Session Bootstrap is
-the first enabling capability for CI, not the end goal. Core intelligence
-validation remains frontend-independent; Receiver browser E2E and the
-read-only Developer Overlay are separate later layers. Audience Intelligence
-remains deferred and low priority.
+**Automated Session Intelligence E2E Verification** is the active Epic. Its
+architecture and six product-focused Golden Scenarios are now canonical. They
+define a read-only, headless verification path over the real Runtime pipeline,
+three validation layers and strict separation from browser/overlay work.
+Developer Session Bootstrap is the next enabling capability for CI, not the
+goal of the Epic. It must remain machine-readable, server-owned and scoped to
+ephemeral test access. Audience Intelligence remains deferred and low priority.
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`
 after this Finalization merges and Workspace Cleanup completes.
 
