@@ -13,7 +13,8 @@ Scenario Driver, Immutable E2E Session Capture and Structural Invariant
 Validator are complete as recorded in
 [`docs/product/DEVELOPER_EXPERIENCE_ROADMAP.md`](../../product/DEVELOPER_EXPERIENCE_ROADMAP.md).
 Bootstrap enables only `SI-GOLDEN-001` lifecycle setup for headless CI rather
-than manual setup; CI Smoke Suite is next. This record
+than manual setup; restricted Verification Clock implementation for
+`SI-GOLDEN-002` is next. This record
 activates no Verification Platform implementation or simulation runtime. Future scenario, capture,
 report and Golden Session work must reuse the canonical Runtime, Planner,
 Knowledge Engine, DJ Moment Engine, Session Flow and Broadcast pipeline.

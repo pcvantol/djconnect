@@ -142,8 +142,12 @@ Epic.
 3. Immutable E2E Session Capture — redacted canonical evidence.
 4. Structural Invariant Validator — Layer 1 and approved Layer 2 evaluation.
 5. CI smoke and later Golden Session suites — bounded execution and artifacts.
-6. Accelerated/event-driven execution — an approved clock or observation
-   boundary, never `test_mode` conditionals in business logic.
+6. Verification Clock implementation — only after the accepted
+   [Verification Clock Architecture](VERIFICATION_CLOCK_ARCHITECTURE.md);
+   it remains an infrastructure time source, never business logic.
+7. Accelerated/event-driven execution — a future separately authorized
+   capability that may use the approved Clock boundary, never `test_mode`
+   conditionals in business logic.
 
 Core E2E validation remains headless and frontend-independent. A later
 Universal Receiver layer may use `Broadcast -> headless browser -> DOM
@@ -176,6 +180,7 @@ capabilities.
 - [Developer Experience Roadmap](../product/DEVELOPER_EXPERIENCE_ROADMAP.md)
 - [Golden Scenario Catalogue](SESSION_INTELLIGENCE_GOLDEN_SCENARIOS.md)
 - [Session Intelligence Qualification Policy](SESSION_INTELLIGENCE_QUALIFICATION_POLICY.md)
+- [Verification Clock Architecture](VERIFICATION_CLOCK_ARCHITECTURE.md)
 - [DJ Session Runtime Contracts](../../DJ_SESSION_RUNTIME_CONTRACTS.md)
 - [DJ Moment Engine](../technical/DJ_MOMENT_ENGINE.md)
 - [Verification Architecture](01_VERIFICATION_ARCHITECTURE.md)
