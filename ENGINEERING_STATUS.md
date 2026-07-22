@@ -6,8 +6,8 @@
 ## Current engineering increment
 
 PR [#394](https://github.com/pcvantol/djconnect/pull/394), **Clarify Audio
-Renderer Host Terminology**, merged as
-`6188accd06e6eb4ce8b84570a0d234f5f4d29de4`. This dedicated Finalization
+Renderer Host Terminology**, merged as `6188accd06e6eb4ce8b84570a0d234f5f4d29de4`.
+This dedicated Finalization
 reconciles the platform-neutral audio-presentation terminology and immutable
 Prompt History.
 

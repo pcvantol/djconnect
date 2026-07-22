@@ -64,9 +64,16 @@ class CapabilityCompletionLifecycleTest(unittest.TestCase):
     def test_finalization_validation_requires_current_rolling_record_evidence(self) -> None:
         """Make stale status/index references fail the focused lifecycle gate."""
         engineering_status = (ROOT / "ENGINEERING_STATUS.md").read_text()
-        current_increment = re.search(
-            r"PR \[#(?P<number>\d+)\].*?merged as `(?P<commit>[0-9a-f]{40})`",
+        current_section = re.search(
+            r"## Current engineering increment\n\n(?P<contents>.*?)(?=\n## |\Z)",
             engineering_status,
+            re.DOTALL,
+        )
+        self.assertIsNotNone(current_section)
+        assert current_section is not None
+        current_increment = re.search(
+            r"PR \[#(?P<number>\d+)\].*?merged as\s+`(?P<commit>[0-9a-f]{40})`",
+            current_section.group("contents"),
             re.DOTALL,
         )
         self.assertIsNotNone(current_increment)

@@ -5,8 +5,7 @@ Status: canonical prompt navigation
 ## Current product architecture note
 
 PR [#394](https://github.com/pcvantol/djconnect/pull/394), **Clarify Audio
-Renderer Host Terminology**, merged as
-`6188accd06e6eb4ce8b84570a0d234f5f4d29de4`.
+Renderer Host Terminology**, merged as `6188accd06e6eb4ce8b84570a0d234f5f4d29de4`.
 This dedicated Finalization reconciles its immutable Prompt History at
 `docs/history/prompts/2026-07-22-audio-renderer-host-terminology.md`.
 
