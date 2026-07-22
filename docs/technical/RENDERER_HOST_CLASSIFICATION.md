@@ -133,6 +133,12 @@ Universal Receiver product shell, a remote control or a debug UI. It is a
 passive, layered visual expression of the active Session, initially deployed as
 Guest + Ambient for Chromecast, television and temporary browser displays.
 
+VibeCast is a distinct experience built on the Universal Receiver Web Platform.
+Its future V1 Google TV host is a Google Cast Custom Web Receiver that renders
+locally from renderer-safe Broadcast projections; Cast does not stream sender
+pixels and VibeCast is not a native Android TV or Google TV application. See
+[VibeCast Architecture and V1 Product Definition](../product/VIBECAST_ARCHITECTURE.md).
+
 Future Registered + Ambient deployment is separate work. VibeCast consumes the
 same renderer-safe Broadcast projections and introduces no second transport or
 Session pipeline.
@@ -164,8 +170,8 @@ over another Renderer Host.
 ## Deferred follow-up capabilities
 
 - Renderer discovery, registration, pairing and authorization architecture.
-- VibeCast layered visual product architecture.
-- Guest Renderer access and Chromecast implementation.
+- VibeCast V1 implementation, including Guest Renderer access, bounded session
+  handoff and Google Cast Custom Web Receiver feasibility.
 - Registered Raspberry Pi onboarding and Platform Adapter implementation.
 - Ambient mode, display power, ambient audio and local mode-transition policy.
 

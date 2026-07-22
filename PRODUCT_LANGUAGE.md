@@ -54,8 +54,9 @@ Use these terms consistently:
 | Ask DJ | Conversational AI DJ experience |
 | Insights | User-facing umbrella for track, artist, album, lyrics and mood intelligence |
 | Broadcast Feed | Event-driven feed from an active DJ Session for local renderer consumption. Developer-facing; it is not video. |
-| VibeCast | The Broadcast Capability of an active DJ Session, rendered by the Universal Session Receiver. |
-| Universal Session Receiver | Shared renderer for a VibeCast Broadcast Feed, with TV, Guest, Desktop, Browser, Pi and Chromecast modes. |
+| [VibeCast](docs/product/VIBECAST_ARCHITECTURE.md) | Ambient-first, minimally interactive DJConnect web-renderer experience for large displays and television devices. It is built on the Universal Receiver Web Platform and renders renderer-safe Broadcast projections locally. |
+| Universal Receiver Web Platform | Shared projection-based web platform for Renderer Host connection, renderer-safe projections and reusable presentation primitives. Its Universal Receiver experience is the Interactive web product shell. |
+| Google Cast Custom Web Receiver | The deferred VibeCast V1 television host. Google Cast launches it; it renders locally and does not receive a stream of sender pixels. |
 | Discover | Recommendation and discovery experience |
 | Music Backend | Provider adapter such as Spotify Direct or Music Assistant; it owns playback and provides Playback Context to DJConnect. |
 | Music Account | Provider account binding used by a profile |
@@ -112,7 +113,10 @@ each locale, not direct word-for-word translation from English.
 | Free vs paid | Community vs Personal | More value-oriented |
 | Feature locked | Personal capability | Avoid negative framing |
 | Queue as the main experience | Session Flow | The backend queue remains an advanced playback view. |
-| VibeCast video stream | VibeCast Broadcast Capability | VibeCast is event-driven and rendered client-side. |
+| VibeCast video stream | VibeCast web-renderer experience | VibeCast is event-driven and rendered client-side. |
+| Universal Session Receiver | Universal Receiver Web Platform / Universal Receiver | The older term conflates the shared web platform, its Interactive experience and VibeCast. |
+| Native Google TV app / Android TV app | Google Cast Custom Web Receiver | Native television applications are not VibeCast V1 scope. |
+| AirPlay stream / mirrored VibeCast | Local VibeCast Custom Web Receiver rendering | Sender-side pixel or video streaming contradicts Renderer Host ownership. |
 
 ## Feature naming rules
 

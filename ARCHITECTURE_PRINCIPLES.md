@@ -117,8 +117,11 @@ are defined in `DJ_SESSION_RUNTIME_CONTRACTS.md`.
 
 The Broadcast Engine publishes an event-driven Broadcast Feed for an active
 session. It is neither video streaming nor server-rendered video. VibeCast is
-the session's Broadcast Capability; a Universal Session Receiver renders the
-feed locally.
+the ambient-first web-renderer experience that consumes renderer-safe Broadcast
+projections locally through the Universal Receiver Web Platform. Its future
+Google TV host is a Google Cast Custom Web Receiver, not a native television
+application or a sender-streamed display; see
+`docs/product/VIBECAST_ARCHITECTURE.md`.
 
 ### Insight Feed
 

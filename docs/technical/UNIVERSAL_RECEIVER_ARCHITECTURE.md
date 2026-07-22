@@ -188,7 +188,9 @@ durable Session or planning state.
   see [Platform Ambient Experience](PLATFORM_AMBIENT_EXPERIENCE.md).
 - Guest/Registered renderer authorization, pairing and discovery; see
   [Renderer Host Classification](RENDERER_HOST_CLASSIFICATION.md).
-- VibeCast layered Ambient Renderer product architecture.
+- VibeCast V1 ambient product implementation. Its canonical positioning,
+  Google Cast Custom Web Receiver host model and validation gates are defined
+  in [VibeCast Architecture and V1 Product Definition](../product/VIBECAST_ARCHITECTURE.md).
 
 Before any further Receiver capability is authorized, its Pre-Flight must
 inspect current `main` and this document. It must not duplicate the completed
