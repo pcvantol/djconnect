@@ -28,10 +28,10 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-PR [#378](https://github.com/pcvantol/djconnect/pull/378), **Add Session
-Intelligence Qualification Policy**, merged as `eed97d37f3d4499e72b600792c8479170a30c38b`.
-This dedicated Finalization
-reconciles the completed policy and immutable Prompt History.
+PR [#380](https://github.com/pcvantol/djconnect/pull/380), **Define Verification
+Clock Architecture**, merged as `76aa0399c46d4d1ec3a5ac31413f6cb0772ea99b`.
+This dedicated Finalization reconciles the accepted architecture and immutable
+Prompt History.
 
 Current main records **Session Intelligence Runtime Complete**. The Runtime is
 the one canonical execution engine for all supported Track Started decisions:
@@ -58,7 +58,9 @@ internals. PR #374 adds the immutable read-only observation artifact and PR
 PR #378 establishes the canonical qualification pyramid: Golden Smoke is the
 intended blocking E2E PR layer, Golden Regression is broader qualification and
 Quality Reports remain non-blocking. CI Smoke Suite is next. Audience
-Intelligence remains deferred and low priority.
+Intelligence remains deferred and low priority. PR #380 accepts a restricted
+Verification Clock architecture, making Clock implementation for
+`SI-GOLDEN-002` the next separately authorized capability.
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`
 after this Finalization merges and Workspace Cleanup completes.
 

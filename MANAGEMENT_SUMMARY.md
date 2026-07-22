@@ -15,10 +15,10 @@
 
 ## Current position
 
-PR [#378](https://github.com/pcvantol/djconnect/pull/378), **Add Session
-Intelligence Qualification Policy**, merged as `eed97d37f3d4499e72b600792c8479170a30c38b`.
-This dedicated Finalization
-reconciles the completed qualification policy and immutable Prompt History.
+PR [#380](https://github.com/pcvantol/djconnect/pull/380), **Define Verification
+Clock Architecture**, merged as `76aa0399c46d4d1ec3a5ac31413f6cb0772ea99b`.
+This dedicated Finalization reconciles the accepted architecture and immutable
+Prompt History.
 
 The **Session Intelligence Runtime Integration Epic** is complete. DJConnect
 now has one canonical Runtime lifecycle for supported Track Started decisions:
@@ -46,6 +46,10 @@ The canonical Qualification Policy now establishes Golden Scenarios as
 product-behavior contracts, Golden Smoke as the intended blocking PR layer,
 Golden Regression as broader qualification and Quality Reports as
 non-blocking until explicitly promoted by governance.
+PR #380 resolves the `SI-GOLDEN-002` timing blocker architecturally: the
+Verification Clock is restricted to isolated Runtime composition, while
+production keeps its current monotonic time source. Clock implementation is
+the next separately authorized capability.
 Audience Intelligence remains deferred and low priority.
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`
 after this Finalization merges and Workspace Cleanup completes.
