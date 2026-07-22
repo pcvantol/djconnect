@@ -14,9 +14,13 @@ Runtime → Planner → Knowledge → DJ Moment → Session Flow → Broadcast p
 Its capture and assertions observe outcomes only; they never participate in
 planning or repair a Session.
 
-Blocking assertions belong to Layer 1 structural invariants or an explicitly
-approved Layer 2 deterministic behavior. Non-blocking observations belong to
-Layer 3 quality reporting until separately promoted by governance.
+Blocking assertions belong to structural invariants or an explicitly approved
+deterministic behavior. Non-blocking observations belong to quality reporting
+until separately promoted by governance.
+
+The [Session Intelligence Qualification Policy](SESSION_INTELLIGENCE_QUALIFICATION_POLICY.md)
+defines how these approved product-behavior contracts participate in Golden
+Smoke, Golden Regression and non-blocking Quality Reports.
 
 ## SI-GOLDEN-001 — Helpful track context reaches every Session surface
 
@@ -129,7 +133,7 @@ Layer 3 quality reporting until separately promoted by governance.
 ## Catalogue evolution
 
 New scenarios must be approved product behaviors, retain this complete contract
-shape and identify their Layer 1/2 blocking assertions separately from Layer 3
+shape and identify blocking assertions separately from non-blocking quality
 observations. Golden Scenario revisions are versioned and reviewable. They must
 prefer semantic and structural evidence over byte-for-byte narrative snapshots
 unless a specific narrative contract becomes explicitly deterministic.
@@ -137,5 +141,6 @@ unless a specific narrative contract becomes explicitly deterministic.
 ## References
 
 - [E2E Verification Architecture](SESSION_INTELLIGENCE_E2E_ARCHITECTURE.md)
+- [Session Intelligence Qualification Policy](SESSION_INTELLIGENCE_QUALIFICATION_POLICY.md)
 - [Developer Experience Roadmap](../product/DEVELOPER_EXPERIENCE_ROADMAP.md)
 - [DJ Moment Engine](../technical/DJ_MOMENT_ENGINE.md)

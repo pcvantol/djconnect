@@ -10,6 +10,10 @@ Session Capture and Structural Invariant Validator are complete. This document i
 a roadmap and governance record; it authorizes no implementation of CI,
 Developer Mode, simulation, browser testing or runtime behavior.
 
+The [Session Intelligence Qualification Policy](../verification/SESSION_INTELLIGENCE_QUALIFICATION_POLICY.md)
+defines the intended qualification layers and makes Golden Scenarios the
+product-behavior contracts that Verification infrastructure serves.
+
 ## Purpose
 
 Developer Mode exists primarily to make the real Session Intelligence pipeline
@@ -107,14 +111,14 @@ Broadcast projections, fallbacks, warnings, completion and cleanup result.
 
 Validation is deliberately layered:
 
-1. **Structural invariants** — Session lifecycle, one canonical approval path,
+1. **Structural invariant assessment** — Session lifecycle, one canonical approval path,
    immutable/non-duplicate Moments, Flow ordering, expected Broadcast projection,
    generation safety and complete cleanup. These may block CI immediately.
-2. **Deterministic behavioral expectations** — approved fixed-fixture policies
+2. **Deterministic behavioral assessment** — approved fixed-fixture policies
    such as Performance Memory repetition avoidance, safe knowledge fallback,
    obsolete-plan supersession and earliest-eligible approval. These block only
    after their contract is explicitly approved.
-3. **Intelligence quality metrics** — repetition and Silence ratios, Moment
+3. **Quality observations** — repetition and Silence ratios, Moment
    distribution, recommendation diversity, fallback use, replanning churn and
    transition frequency. These start as non-blocking artifacts; a blocking
    threshold requires a stable definition, approved baseline, understood false
@@ -130,9 +134,9 @@ byte-compared unless a narrative contract is explicitly deterministic.
 The later CI shape must provision an isolated environment, execute selected
 baseline scenarios with timeouts, publish readable redacted captures and
 failure diagnostics, clean up even after failure, and report clear pass/fail.
-The choice between per-PR smoke and broader main/release/scheduled suites stays
-for the architecture capability after inspecting runner capacity and CI
-governance.
+Golden Smoke and broader Golden Regression placement are governed by the
+[Session Intelligence Qualification Policy](../verification/SESSION_INTELLIGENCE_QUALIFICATION_POLICY.md).
+This roadmap still authorizes no CI workflow implementation.
 
 Core Intelligence Engine validation is headless and frontend-independent. A
 separate optional Renderer E2E layer may later verify:

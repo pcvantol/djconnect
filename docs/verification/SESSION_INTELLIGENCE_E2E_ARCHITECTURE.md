@@ -2,11 +2,11 @@
 
 ## Status
 
-**Accepted architecture with Developer Session Bootstrap and the Deterministic
-Scenario Driver implemented for `SI-GOLDEN-001`.** These boundaries remain
-narrow production-lifecycle and event-injection infrastructure only; this
-document still defines no capture implementation, CI workflow or production
-Runtime behavior change.
+**Accepted architecture with Bootstrap, Driver, immutable Capture and
+Structural Invariant Validator implemented for `SI-GOLDEN-001`.** These
+boundaries remain narrow production-lifecycle, event-injection and read-only
+observation infrastructure only; this document defines no CI workflow or
+production Runtime behavior change.
 
 The companion [Golden Scenario Catalogue](SESSION_INTELLIGENCE_GOLDEN_SCENARIOS.md)
 is the primary product artifact. Verification infrastructure exists only to
@@ -108,21 +108,21 @@ new Broadcast contract.
 
 ## Validation model
 
-### Layer 1 — structural invariants
+### Structural invariant assessment
 
 These are immediate CI blockers: correct Session start/stop, exactly one
 canonical approval path, immutable/non-duplicate Moments, Flow ordering,
 expected renderer-safe Broadcast projection, stale-generation rejection and
 complete Runtime cleanup.
 
-### Layer 2 — deterministic behavioral expectations
+### Deterministic behavioral assessment
 
 These validate explicitly approved fixed-fixture behavior, such as repetition
 avoidance, safe knowledge fallback, supersession, earliest-eligible approval,
 Session Update and intentional Silence. They become blocking only when the
 relevant Golden Scenario marks them approved.
 
-### Layer 3 — intelligence quality metrics
+### Quality observations
 
 Repetition and Silence ratios, Moment distribution, recommendation diversity,
 fallback use, replanning churn and transition frequency are reporting-only
@@ -158,10 +158,9 @@ enforce bounded execution, preserve redacted failure artifacts, always clean up
 and report a clear pass/fail result. It must run without manual Home Assistant
 Developer Tools interaction, copied Session IDs or copied Broadcast tokens.
 
-The architecture intentionally does not yet choose per-PR versus main/release
-or scheduled suite placement. That decision requires the later inspection of
-CI governance, runner capacity, test duration and approved Golden Scenario
-scope.
+The [Session Intelligence Qualification Policy](SESSION_INTELLIGENCE_QUALIFICATION_POLICY.md)
+defines intended PR, main, release and scheduled qualification placement. It
+does not authorize or prescribe a GitHub Actions implementation.
 
 ## Scope exclusions
 
@@ -176,6 +175,7 @@ capabilities.
 
 - [Developer Experience Roadmap](../product/DEVELOPER_EXPERIENCE_ROADMAP.md)
 - [Golden Scenario Catalogue](SESSION_INTELLIGENCE_GOLDEN_SCENARIOS.md)
+- [Session Intelligence Qualification Policy](SESSION_INTELLIGENCE_QUALIFICATION_POLICY.md)
 - [DJ Session Runtime Contracts](../../DJ_SESSION_RUNTIME_CONTRACTS.md)
 - [DJ Moment Engine](../technical/DJ_MOMENT_ENGINE.md)
 - [Verification Architecture](01_VERIFICATION_ARCHITECTURE.md)
