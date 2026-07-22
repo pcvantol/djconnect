@@ -24,11 +24,23 @@ PRE-FLIGHT (mandatory; no production change before an explicit GO):
 - Canonical Repository Read: follow `BOOTSTRAP.md` through active roadmap/backlog and `PROMPT_INDEX.md` only after required reconciliation.
 - Implementation Reality Check: inspect existing functionality, validation, qualification and documentation; do not reimplement an existing outcome.
 - Capability Evidence: verify the requested capability is pending, the roadmap/architecture/maturity records are current, the validation baseline applies, and no superseding architecture amendment exists.
+- Golden Scenario Governance: for Verification work, name each approved Golden
+  Scenario and its relationship (`enable`, `execute`, `capture`, `validate` or
+  `protect`). For Session Intelligence work, name each affected approved
+  Scenario and whether the capability preserves, extends or introduces it. A
+  missing relationship requires explicit accepted architectural justification.
+- Behavioral Contract Preservation: identify the existing approved behavior that
+  must remain true, or the governed catalogue revision that authorizes a change.
+  Verify the proposal creates no duplicate Runtime, Scenario Driver,
+  verification path or browser-owned verification authority.
 - Decision: record exactly one `GO` or `NO-GO`. `NO-GO` prohibits production changes.
 
 Objective:
 Repository truth verified:
 Current roadmap and backlog evidence:
+Golden Scenario relationship and justification:
+Behavioral contract preserved or governed change:
+Duplicate-path assessment:
 
 In scope:
 Out of scope:

@@ -50,6 +50,11 @@ justification. A Verification capability must in turn enable execution,
 observation or validation of one or more approved Golden Scenarios; technical
 interest alone is not sufficient scope justification.
 
+The [Golden Scenario Governance](GOLDEN_SCENARIO_GOVERNANCE.md) defines the
+mandatory relationship declaration, behavioral-preservation and
+duplicate-execution-path checks for capability Pre-Flight. This qualification
+policy continues to own qualification layers and metric-promotion rules.
+
 ## CI policy boundary
 
 The intended policy is that every production-code implementation PR eventually
@@ -63,5 +68,6 @@ Verification infrastructure.
 ## References
 
 - [Golden Scenario Catalogue](SESSION_INTELLIGENCE_GOLDEN_SCENARIOS.md)
+- [Golden Scenario Governance](GOLDEN_SCENARIO_GOVERNANCE.md)
 - [E2E Verification Architecture](SESSION_INTELLIGENCE_E2E_ARCHITECTURE.md)
 - [Developer Experience Roadmap](../product/DEVELOPER_EXPERIENCE_ROADMAP.md)

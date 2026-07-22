@@ -15,6 +15,7 @@ Repository Synchronization
   -> Workspace State Verification
   -> Canonical Repository Read
   -> Implementation Reality Check
+  -> Golden Scenario Governance Check
   -> GO / NO-GO Decision
 ```
 
@@ -88,6 +89,22 @@ is absent or cannot be verified, the decision is `NO-GO`.
 After synchronization, inspect the requested functionality, its validation,
 qualification, documentation and implementation. Do not reimplement an
 existing outcome; close only remaining evidence-backed gaps.
+
+## Golden Scenario Governance Check
+
+Before a Verification or Session Intelligence capability receives a `GO`, read
+the [Golden Scenario Governance](docs/verification/GOLDEN_SCENARIO_GOVERNANCE.md)
+and the canonical Golden Scenario Catalogue. A Verification capability names
+the approved scenario relationship it enables, executes, captures, validates or
+protects. A Session Intelligence capability names whether it preserves,
+extends or introduces approved behavior.
+
+When no direct scenario relationship exists, the prompt must contain an
+explicit architectural justification and proportionate narrower validation
+evidence. Verify the requested work preserves the applicable behavioral
+contract unless a governed catalogue revision authorizes a change, and verify
+it creates no duplicate Runtime, Scenario Driver, verification path or
+browser-owned verification authority. Missing evidence is `NO-GO`.
 
 ## GO / NO-GO Decision
 
