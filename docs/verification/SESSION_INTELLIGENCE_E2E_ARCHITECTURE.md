@@ -2,9 +2,10 @@
 
 ## Status
 
-**Accepted architecture with Developer Session Bootstrap implemented.** The
-bootstrap is a narrow production-lifecycle boundary only; this document still
-defines no Scenario Driver, capture implementation, CI workflow or production
+**Accepted architecture with Developer Session Bootstrap and the Deterministic
+Scenario Driver implemented for `SI-GOLDEN-001`.** These boundaries remain
+narrow production-lifecycle and event-injection infrastructure only; this
+document still defines no capture implementation, CI workflow or production
 Runtime behavior change.
 
 The companion [Golden Scenario Catalogue](SESSION_INTELLIGENCE_GOLDEN_SCENARIOS.md)
@@ -55,9 +56,9 @@ recreate Planner/Knowledge/Moment decisions.
 2. Developer Session Bootstrap starts one ordinary server-owned Session for a
    deterministic fixture and returns bounded, ephemeral bootstrap data only to
    the invoking test process.
-3. The future Scenario Driver supplies scripted normalized observations at an
-   approved boundary. It never fabricates provider-owned Playback Instance
-   Identity.
+3. The Deterministic Scenario Driver supplies the one scripted normalized
+   `SI-GOLDEN-001` Track Insight input at the existing Runtime boundary. It
+   never fabricates provider-owned Playback Instance Identity.
 4. The existing Runtime processes the events using its production contracts.
 5. A read-only capture observes safe Runtime outcomes, Flow and renderer-safe
    Broadcast projections.

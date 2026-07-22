@@ -13,7 +13,7 @@ from .session_runtime import (
 
 DEVELOPER_SESSION_BOOTSTRAP_SERVICE = "developer_session_bootstrap"
 GOLDEN_SCENARIO_ID = "SI-GOLDEN-001"
-_FIXTURE_PROFILE_ID = "e2e-session-intelligence-golden-001"
+GOLDEN_SCENARIO_PROFILE_ID = "e2e-session-intelligence-golden-001"
 
 
 async def async_handle_developer_session_bootstrap(
@@ -30,7 +30,7 @@ async def async_handle_developer_session_bootstrap(
     if normalized_action == "start":
         try:
             session = await manager.async_start(
-                owner_profile_id=_FIXTURE_PROFILE_ID,
+                owner_profile_id=GOLDEN_SCENARIO_PROFILE_ID,
                 room="e2e",
                 selected_mood="groove",
                 dj_persona=DJPersona.HOME_DJ,
@@ -46,7 +46,7 @@ async def async_handle_developer_session_bootstrap(
         return _bootstrap_result(session, "ready")
 
     if normalized_action == "stop":
-        active = await manager.async_get_active(_FIXTURE_PROFILE_ID)
+        active = await manager.async_get_active(GOLDEN_SCENARIO_PROFILE_ID)
         if active is None:
             return {
                 "success": False,
@@ -54,7 +54,7 @@ async def async_handle_developer_session_bootstrap(
                 "scenario_id": GOLDEN_SCENARIO_ID,
             }
         ended = await manager.async_end(
-            owner_profile_id=_FIXTURE_PROFILE_ID,
+            owner_profile_id=GOLDEN_SCENARIO_PROFILE_ID,
             session_id=active.session_id,
         )
         if ended is None:
