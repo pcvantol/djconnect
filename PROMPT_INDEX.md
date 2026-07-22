@@ -4,10 +4,11 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#368](https://github.com/pcvantol/djconnect/pull/368), **Define Session
-Intelligence E2E Architecture**, merged as `110ee4ae1f79d160246f0fd6ec9b5b1e83b0215b`. This dedicated Finalization
-reconciles the completed architecture and immutable Prompt History at
-`docs/history/prompts/2026-07-22-session-intelligence-e2e-architecture.md`.
+PR [#370](https://github.com/pcvantol/djconnect/pull/370), **Add Developer
+Session Bootstrap**, merged as `0c4ae9ecc7cd5822b58b2423c2eafacfcef93bcf`.
+This dedicated Finalization reconciles the completed bootstrap and immutable
+Prompt History at
+`docs/history/prompts/2026-07-22-developer-session-bootstrap.md`.
 
 The Session Intelligence Runtime Integration Epic is complete and reconciled.
 Supported Track Started decisions now use the one canonical Runtime lifecycle:
@@ -24,12 +25,13 @@ transport or timing authority.
 Automated Session Intelligence E2E Verification is the active workstream. PR
 #368 establishes its canonical architecture and six Golden Scenarios for normal
 knowledge flow, repetition avoidance, safe degradation, replanning, Session
-Update and intentional Silence. Verification observes the real Runtime
-pipeline; it does not create a second intelligence system. Developer Session
-Bootstrap is the next CI-enabling capability and cannot grant browser Session
-creation. The ordered roadmap is `docs/product/DEVELOPER_EXPERIENCE_ROADMAP.md`.
-Receiver browser E2E and Developer Overlay are separate later layers. Audience
-Intelligence remains deferred and low priority.
+Update and intentional Silence. PR #370 completes the bounded,
+machine-invokable Bootstrap for `SI-GOLDEN-001`; it cannot grant browser Session
+creation, execute a scenario, or create another Runtime. The deterministic
+Scenario Driver is now next. The ordered roadmap is
+`docs/product/DEVELOPER_EXPERIENCE_ROADMAP.md`. Receiver browser E2E and
+Developer Overlay are separate later layers. Audience Intelligence remains
+deferred and low priority.
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`
 after this Finalization merges and Workspace Cleanup completes.
 Its Prompt History is
