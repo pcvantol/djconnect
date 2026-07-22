@@ -15,8 +15,8 @@
 
 ## Current position
 
-PR [#372](https://github.com/pcvantol/djconnect/pull/372), **Add Deterministic
-Scenario Driver**, merged as `fe36351a73dc3278956e29dd3b18373454c00f21`.
+PR [#374](https://github.com/pcvantol/djconnect/pull/374), **Add Immutable E2E
+Session Capture**, merged as `d927d30e5eb5162501ed916c24a3db8d5df1c066`.
 This dedicated Finalization reconciles the completed Driver and immutable
 Prompt History.
 
@@ -39,7 +39,7 @@ canonical architecture and six Golden Scenarios as the primary product
 artifact; PRs #370 and #372 complete bounded bootstrap and deterministic
 `SI-GOLDEN-001` execution through the real Runtime pipeline. Verification
 remains separate from runtime behavior, browser rendering and diagnostics. The
-next capability is Immutable E2E Session Capture; invariant validation, CI
+next capability is Structural Invariant Validator; CI
 execution and accelerated timing remain separately authorized. Browser Receiver E2E and
 Developer Overlay are later layers.
 Audience Intelligence remains deferred and low priority.

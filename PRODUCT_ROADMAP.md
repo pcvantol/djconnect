@@ -20,7 +20,8 @@ Lab or Deferred. `ROADMAP_INDEX.md` owns cross-program navigation.
 | Persistent Session Foundation | Completed | Persistent Session Architecture; PR #292 | 5 |
 | Session Intelligence Runtime Integration | Completed | DJ Session Runtime Contracts, Planner, Knowledge Engine, DJ Moment Engine, Session Flow and Broadcast | 7 |
 | Universal Receiver V1 foundation | Completed — Architecture plus Broadcast Connection, Session Flow Timeline, renderer-safe Playback Projection and Now Playing are operational | Session Intelligence Runtime; `docs/technical/UNIVERSAL_RECEIVER_ARCHITECTURE.md` | 8 |
-| Automated Session Intelligence E2E Verification | In Progress — primary active Epic; Architecture, Bootstrap and Scenario Driver are complete, Immutable E2E Session Capture is next | Session Intelligence Runtime; operational Universal Receiver foundation; `docs/product/DEVELOPER_EXPERIENCE_ROADMAP.md` | 9 |
+| Automated Session Intelligence E2E Verification | In Progress — primary active Epic; Architecture, Bootstrap, Driver and Capture are complete, Structural Invariant Validator is next | Session Intelligence Runtime; operational Universal Receiver foundation; `docs/product/DEVELOPER_EXPERIENCE_ROADMAP.md` | 9 |
+| Immutable E2E Session Capture | Completed — immutable read-only SI-GOLDEN-001 observation artifact | Deterministic Scenario Driver; PR #374 | 10 |
 | Deterministic Scenario Driver | Completed — fixed `SI-GOLDEN-001` input reaches only the existing Runtime boundary | Developer Session Bootstrap; PR #372 | 10 |
 | Developer Session Bootstrap | Completed — bounded machine-invokable lifecycle for `SI-GOLDEN-001` | Approved Automated E2E Verification Architecture; PR #370 | 10 |
 | Apple experience delivery | Planned | Stable Renderer Host and developer-verification access contracts | 11 |

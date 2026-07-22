@@ -5,8 +5,8 @@
 
 ## Current engineering increment
 
-PR [#372](https://github.com/pcvantol/djconnect/pull/372), **Add Deterministic
-Scenario Driver**, merged as `fe36351a73dc3278956e29dd3b18373454c00f21`.
+PR [#374](https://github.com/pcvantol/djconnect/pull/374), **Add Immutable E2E
+Session Capture**, merged as `d927d30e5eb5162501ed916c24a3db8d5df1c066`.
 This dedicated Finalization reconciles its implementation evidence and
 immutable Prompt History.
 
@@ -30,11 +30,9 @@ playback clock.
 architecture and six product-focused Golden Scenarios are now canonical. They
 define a read-only, headless verification path over the real Runtime pipeline,
 three validation layers and strict separation from browser/overlay work.
-Developer Session Bootstrap and the Deterministic Scenario Driver are complete
-for `SI-GOLDEN-001`. One fixed Track Insight input now enters only through the
-existing Runtime boundary; planning, knowledge, Moment realization, Flow and
-Broadcast remain Runtime-owned. Immutable E2E Session Capture is next. Audience
-Intelligence remains deferred and low priority.
+Bootstrap, Driver and immutable Capture are complete for `SI-GOLDEN-001`.
+Capture observes only existing Runtime, Flow and Broadcast outcomes. Structural
+Invariant Validator is next. Audience Intelligence remains deferred and low priority.
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`
 after this Finalization merges and Workspace Cleanup completes.
 
