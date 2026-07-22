@@ -20,7 +20,10 @@ Lab or Deferred. `ROADMAP_INDEX.md` owns cross-program navigation.
 | Persistent Session Foundation | Completed | Persistent Session Architecture; PR #292 | 5 |
 | Session Intelligence Runtime Integration | Completed | DJ Session Runtime Contracts, Planner, Knowledge Engine, DJ Moment Engine, Session Flow and Broadcast | 7 |
 | Universal Receiver V1 foundation | Completed — Architecture plus Broadcast Connection, Session Flow Timeline, renderer-safe Playback Projection and Now Playing are operational | Session Intelligence Runtime; `docs/technical/UNIVERSAL_RECEIVER_ARCHITECTURE.md` | 8 |
-| Automated Session Intelligence E2E Verification | In Progress — primary active Epic; Architecture, Bootstrap, Driver, Capture, Structural Invariant Validator, Qualification Policy and Verification Clock Architecture are complete; Clock implementation for `SI-GOLDEN-002` is next | Session Intelligence Runtime; operational Universal Receiver foundation; `docs/product/DEVELOPER_EXPERIENCE_ROADMAP.md` | 9 |
+| Renderer Host classification | Completed — canonical independent Device Lifecycle (Guest/Registered) and Experience Mode (Interactive/Ambient) axes; no Runtime or transport change | Universal Receiver V1 foundation; `docs/technical/RENDERER_HOST_CLASSIFICATION.md` | 8 |
+| VibeCast layered Ambient Renderer architecture | Deferred | Renderer Host classification; renderer-safe Broadcast projections | 8 |
+| Renderer discovery, pairing and authorization architecture | Deferred | Renderer Host classification; local-first device lifecycle requirements | 8 |
+| Automated Session Intelligence E2E Verification | In Progress — primary active Epic; Architecture, Bootstrap, Driver, Capture, Structural Invariant Validator, Qualification Policy, Verification Clock and executable `SI-GOLDEN-001` through `SI-GOLDEN-003` are complete; CI Smoke Suite is next | Session Intelligence Runtime; operational Universal Receiver foundation; `docs/product/DEVELOPER_EXPERIENCE_ROADMAP.md` | 9 |
 | Verification Clock Architecture | Completed — restricted Runtime-composition time source for isolated verification; no implementation or production behavior change | `SI-GOLDEN-002` Pre-Flight evidence; `docs/verification/VERIFICATION_CLOCK_ARCHITECTURE.md` | 10 |
 | Session Intelligence Qualification Policy | Completed — Golden Scenarios are product-behavior contracts; Golden Smoke is the intended blocking PR layer | Golden Scenario Catalogue; PR #378 | 10 |
 | Structural Invariant Validator | Completed — deterministic, read-only and fail-closed assessment of `SI-GOLDEN-001` capture evidence | Immutable E2E Session Capture; PR #376 | 10 |
@@ -29,7 +32,7 @@ Lab or Deferred. `ROADMAP_INDEX.md` owns cross-program navigation.
 | Developer Session Bootstrap | Completed — bounded machine-invokable lifecycle for `SI-GOLDEN-001` | Approved Automated E2E Verification Architecture; PR #370 | 10 |
 | Apple experience delivery | Planned | Stable Renderer Host and developer-verification access contracts | 11 |
 | Windows experience delivery | Planned | Stable Renderer Host and developer-verification access contracts | 12 |
-| Raspberry Pi experience delivery | Planned | Stable Renderer Host and developer-verification access contracts | 13 |
+| Raspberry Pi experience delivery | Planned — Registered + Interactive Wall Panel by default; future Ambient state remains separate | Stable Renderer Host and developer-verification access contracts | 13 |
 | Voice experience delivery | Planned | Stable current/historical Moment contracts and Assist capability validation | 14 |
 | Session Simulation and accelerated execution | Planned within the Automated E2E Verification Epic | Bootstrap, scenario, capture and clock architecture | 15 |
 | Preferences and Music DNA expansion | Deferred | Existing Profile and Planner influence boundaries | 15 |
@@ -62,8 +65,8 @@ foundation; **Automated Session Intelligence E2E Verification** is now the
 primary active Epic. Its Architecture and the first bounded Developer Session
 Bootstrap, Deterministic Scenario Driver, Immutable E2E Session Capture and
 Structural Invariant Validator, Qualification Policy and Verification Clock
-Architecture are complete; Verification Clock implementation for
-`SI-GOLDEN-002` is next.
+Architecture are complete. `SI-GOLDEN-001` through `SI-GOLDEN-003` are
+executable and structurally verifiable; CI Smoke Suite is next.
 Audience Intelligence remains deferred and is not an active priority.
 
 Canonical product roadmap for all DJConnect repositories. This file lives only

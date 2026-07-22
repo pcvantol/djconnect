@@ -21,6 +21,11 @@ server-owned Broadcast Engine publishes an event-driven Broadcast Feed; one
 Universal Session Receiver consumes that Feed and renders it locally in TV,
 Guest, Desktop, Browser, Pi and Chromecast modes.
 
+The later canonical [Renderer Host Classification](../technical/RENDERER_HOST_CLASSIFICATION.md)
+positions VibeCast specifically as the Ambient Renderer experience, initially
+Guest + Ambient. Universal Receiver remains the Interactive web product shell;
+both consume the same Broadcast projections.
+
 The Feed is capability- and privacy-scoped. It is not video streaming, does
 not server-render visual output and does not expose Profile data unless the
 active session policy permits it.
@@ -63,3 +68,4 @@ Rejected. Rendering belongs to receivers; the server owns the session events.
 - `DOMAIN_MODEL.md`
 - `ARCHITECTURE_PRINCIPLES.md`
 - `CLIENT_CAPABILITY_MATRIX.md`
+- `docs/technical/RENDERER_HOST_CLASSIFICATION.md`

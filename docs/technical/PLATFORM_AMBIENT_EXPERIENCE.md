@@ -10,6 +10,10 @@ The reference hardware for future evaluation is a Raspberry Pi-based wall
 panel. It is not a new DJConnect platform owner and does not alter Universal
 Receiver V1's platform-neutral Renderer Host boundary.
 
+Under the canonical [Renderer Host Classification](RENDERER_HOST_CLASSIFICATION.md),
+the Wall Panel is Registered + Interactive by default. A future Ambient state
+is a renderer-local experience transition, not a separate Session or Runtime.
+
 ## Purpose
 
 Platform Ambient Experience describes how an installation-owned wall display
@@ -105,6 +109,10 @@ The future Raspberry Pi wall panel remains:
 - Renderer-only; and
 - subordinate to the Home Assistant-owned Runtime and Broadcast lifecycle.
 
+Its registration/pairing, if implemented, establishes only appliance identity,
+approved configuration and capabilities. It is never Profile login or Session
+lifecycle.
+
 Disconnecting, restarting or replacing the panel must never affect an active
 Session, Planner, Knowledge Engine, playback backend, Session Flow or Broadcast
 state. It must reconstruct presentation from the established renderer-safe
@@ -185,5 +193,6 @@ This document does not implement or authorize:
 ## References
 
 - [Universal Receiver V1 — Server Architecture](UNIVERSAL_RECEIVER_ARCHITECTURE.md)
+- [Renderer Host Classification](RENDERER_HOST_CLASSIFICATION.md)
 - [DJ Presentation Architecture](../product/DJ_PRESENTATION_ARCHITECTURE.md)
 - [Developer Experience Roadmap](../product/DEVELOPER_EXPERIENCE_ROADMAP.md)

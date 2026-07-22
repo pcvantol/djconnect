@@ -9,7 +9,7 @@ No client owns product features. Clients render or expose platform capabilities 
 | Class | Examples | Role |
 | --- | --- | --- |
 | Personal Experience | iOS, iPadOS, macOS, Windows, Apple Watch | Native, Profile-bound DJ Session experience |
-| Shared Experience | Browser, TV, Chromecast, Raspberry Pi, desktop, guest phones | Universal Session Receiver for an active shared DJ Session |
+| Shared Experience | Browser, TV, Chromecast, Raspberry Pi, desktop, guest phones | Renderer Host for an active shared DJ Session; lifecycle and experience mode are classified separately |
 | Room Experience | ESP32, Home Assistant Voice Satellite | Voice/control rendering for the active room DJ Session |
 
 ## Capability matrix
@@ -21,7 +21,7 @@ No client owns product features. Clients render or expose platform capabilities 
 | Music control | Full | Basic/shared when the receiver permits it | Physical or voice controls |
 | Ask DJ | Rich text and voice where available | Guest-safe/read-only where permitted | Voice and short TTS only |
 | Music DNA | Personal UI | Never exposed without explicit policy | Never exposed without explicit policy |
-| VibeCast | Control and handoff | Primary Universal Session Receiver rendering | No visual rendering |
+| VibeCast | Control and handoff | Guest + Ambient Renderer experience by default | No visual rendering |
 | Diagnostics and updates | Platform-specific | Platform-specific | Device-focused |
 
 ## Rules
@@ -39,6 +39,12 @@ Shared Experience uses one Universal Session Receiver for an active DJ Session.
 Browser, TV, Chromecast, Raspberry Pi, desktop and guest-phone modes consume
 the event-driven Broadcast Feed and render it locally. They never receive
 private Profile state without explicit policy.
+
+The canonical [Renderer Host Classification](docs/technical/RENDERER_HOST_CLASSIFICATION.md)
+separates Device Lifecycle (Guest/Registered) from Experience Mode
+(Interactive/Ambient). Chromecast need not be permanently registered; the
+Raspberry Pi Wall Panel is Registered + Interactive by default, with a future
+renderer-local Ambient state. VibeCast is Guest + Ambient by default.
 
 By default, Pi should resolve to a shared profile unless explicitly linked to a personal profile.
 
