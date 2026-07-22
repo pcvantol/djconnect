@@ -46,6 +46,11 @@ class SIGolden001SessionCapture:
     session_flow: tuple[CapturedFlowEntry, ...]
     broadcast_publications: tuple[CapturedBroadcastPublication, ...]
     completion_state: str
+    planning_lifecycle: str = ""
+    approval_count: int = 0
+    planning_generation: int = -1
+    legacy_fallback_used: bool = False
+    cleanup_completed: bool = False
 
 
 async def async_capture_si_golden_001(hass: Any) -> SIGolden001SessionCapture | None:
@@ -82,6 +87,11 @@ async def async_capture_si_golden_001(hass: Any) -> SIGolden001SessionCapture | 
         session_flow=flow,
         broadcast_publications=publications,
         completion_state="completed",
+        planning_lifecycle=active.planning_coordinator.last_lifecycle_state or "",
+        approval_count=1 if active.planning_coordinator.last_approval_source == "planned_intent" else 0,
+        planning_generation=active.planning_coordinator.last_planning_generation or 0,
+        legacy_fallback_used=active.planning_coordinator.last_fallback_reason is not None,
+        cleanup_completed=True,
     )
 
 
