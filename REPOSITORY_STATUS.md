@@ -28,10 +28,10 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-PR [#390](https://github.com/pcvantol/djconnect/pull/390), **Classify Renderer
-Host Modes**, merged as `2e0f237b249f2634f06bec8b0c7ad4c430a959d5`.
-This dedicated Finalization reconciles the canonical two-axis Renderer Host
-architecture and immutable Prompt History.
+PR [#392](https://github.com/pcvantol/djconnect/pull/392), **Define Room
+Presentation Routing**, merged as `d5ff9c9cb887a3e9f9b255d7315673c719c4ac48`.
+This dedicated Finalization reconciles the deferred room-scoped presentation
+routing architecture and immutable Prompt History.
 
 Current main records **Session Intelligence Runtime Complete**. The Runtime is
 the one canonical execution engine for all supported Track Started decisions:
@@ -60,6 +60,14 @@ the canonical Guest + Ambient experience; Universal Receiver remains the
 Interactive web product shell; the Pi Wall Panel remains a registered native
 Renderer Host. No new Runtime, Planner, Knowledge, Broadcast or transport path
 was introduced.
+
+Room Presentation Routing is now canonically deferred. The active playback
+output is the future source for resolving a Home Assistant Area and selecting
+eligible independent Visual and Audio Renderer Hosts for the same immutable
+DJMoment. It adds no implementation, Runtime, Broadcast, transport or
+Renderer-to-Renderer communication. If the Area cannot be reliably resolved,
+autonomous speech routing remains disabled. Output Target Binding and Area
+Presentation Policy remain separately deferred installation configuration.
 
 Automated Session Intelligence E2E Verification is the active Product
 Development Epic. PR #368 establishes its canonical architecture and Golden
