@@ -8,8 +8,8 @@ Do not automatically create GitHub issues from this file.
 > Historical verification-gap record. The current Product Development Epic is
 > Automated Session Intelligence E2E Verification, defined in
 > `docs/product/DEVELOPER_EXPERIENCE_ROADMAP.md`. Its Architecture and Developer
-> Session Bootstrap are complete; Deterministic Scenario Driver is the next
-> CI-enabling cell.
+> Session Bootstrap and Deterministic Scenario Driver are complete; Immutable
+> E2E Session Capture is the next CI-enabling cell.
 > Any later scenario, capture, accelerated execution or verification work must
 > exercise the canonical server-owned pipeline rather than introduce alternate
 > Runtime or business-logic paths.

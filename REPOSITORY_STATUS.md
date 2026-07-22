@@ -28,9 +28,9 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-PR [#370](https://github.com/pcvantol/djconnect/pull/370), **Add Developer
-Session Bootstrap**, merged as `0c4ae9ecc7cd5822b58b2423c2eafacfcef93bcf`.
-This dedicated Finalization reconciles the completed bootstrap and immutable
+PR [#372](https://github.com/pcvantol/djconnect/pull/372), **Add Deterministic
+Scenario Driver**, merged as `fe36351a73dc3278956e29dd3b18373454c00f21`.
+This dedicated Finalization reconciles the completed Driver and immutable
 Prompt History.
 
 Current main records **Session Intelligence Runtime Complete**. The Runtime is
@@ -50,12 +50,11 @@ additional endpoint, WebSocket channel, polling path or playback clock.
 
 Automated Session Intelligence E2E Verification is the active Product
 Development Epic. PR #368 establishes its canonical architecture and Golden
-Scenario Catalogue; PR #370 completes its first enabling capability for
-`SI-GOLDEN-001`. The machine-invokable bootstrap starts and stops the isolated
-fixture through the existing Runtime Manager, returns only bounded lifecycle
-information, and neither executes a scenario nor creates a second Runtime
-pipeline. The deterministic Scenario Driver is next. Audience Intelligence
-remains deferred and low priority.
+Scenario Catalogue; PR #370 completes its Bootstrap and PR #372 executes only
+`SI-GOLDEN-001` through the existing Runtime boundary. The fixed Track Insight
+fixture neither fabricates Runtime state nor calls Planner, Knowledge or Moment
+internals. Immutable E2E Session Capture is next. Audience Intelligence remains
+deferred and low priority.
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`
 after this Finalization merges and Workspace Cleanup completes.
 

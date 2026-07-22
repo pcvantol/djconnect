@@ -4,11 +4,11 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#370](https://github.com/pcvantol/djconnect/pull/370), **Add Developer
-Session Bootstrap**, merged as `0c4ae9ecc7cd5822b58b2423c2eafacfcef93bcf`.
-This dedicated Finalization reconciles the completed bootstrap and immutable
+PR [#372](https://github.com/pcvantol/djconnect/pull/372), **Add Deterministic
+Scenario Driver**, merged as `fe36351a73dc3278956e29dd3b18373454c00f21`.
+This dedicated Finalization reconciles the completed Driver and immutable
 Prompt History at
-`docs/history/prompts/2026-07-22-developer-session-bootstrap.md`.
+`docs/history/prompts/2026-07-22-deterministic-scenario-driver.md`.
 
 The Session Intelligence Runtime Integration Epic is complete and reconciled.
 Supported Track Started decisions now use the one canonical Runtime lifecycle:
@@ -25,10 +25,10 @@ transport or timing authority.
 Automated Session Intelligence E2E Verification is the active workstream. PR
 #368 establishes its canonical architecture and six Golden Scenarios for normal
 knowledge flow, repetition avoidance, safe degradation, replanning, Session
-Update and intentional Silence. PR #370 completes the bounded,
-machine-invokable Bootstrap for `SI-GOLDEN-001`; it cannot grant browser Session
-creation, execute a scenario, or create another Runtime. The deterministic
-Scenario Driver is now next. The ordered roadmap is
+Update and intentional Silence. PRs #370 and #372 complete bounded Bootstrap
+and deterministic `SI-GOLDEN-001` execution without browser Session creation,
+Planner/Knowledge/Moment internals or another Runtime. Immutable E2E Session
+Capture is now next. The ordered roadmap is
 `docs/product/DEVELOPER_EXPERIENCE_ROADMAP.md`. Receiver browser E2E and
 Developer Overlay are separate later layers. Audience Intelligence remains
 deferred and low priority.
