@@ -5,11 +5,10 @@
 
 ## Current engineering increment
 
-PR [#394](https://github.com/pcvantol/djconnect/pull/394), **Clarify Audio
-Renderer Host Terminology**, merged as `6188accd06e6eb4ce8b84570a0d234f5f4d29de4`.
-This dedicated Finalization
-reconciles the platform-neutral audio-presentation terminology and immutable
-Prompt History.
+PR [#396](https://github.com/pcvantol/djconnect/pull/396), **Define Ambient
+Light Renderer Host**, merged as `afbdd4df52cc0deb2c900c5037860b9c5bcd211c`.
+This dedicated Finalization reconciles the deferred ambient-light renderer
+architecture and immutable Prompt History.
 
 The **Session Intelligence Runtime Integration Epic** is complete. The Runtime
 is now the canonical execution engine for all supported Track Started decisions:
@@ -48,6 +47,12 @@ Satellite remains the external term for Home Assistant products, entities,
 configuration and UI; one Voice Satellite may implement an Audio Renderer Host.
 Ambient remains an independent experience mode. No Voice Endpoint, Runtime,
 Broadcast, routing or Home Assistant terminology behavior changed.
+
+Ambient Light Renderer Host is now the deferred internal renderer role for
+ambient lighting that responds only to approved Presentation Intent and the
+immutable DJMoment. It is not a raw-audio, beat or FFT visualizer. WLED, Hue
+and ESPHome remain future implementations; no lighting, Runtime, Broadcast or
+transport implementation was introduced.
 
 Platform Ambient Experience is explicitly deferred. It preserves the future
 Platform Adapter boundary for reference wall-panel hardware, Display Policy,

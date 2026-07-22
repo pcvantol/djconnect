@@ -4,10 +4,10 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#394](https://github.com/pcvantol/djconnect/pull/394), **Clarify Audio
-Renderer Host Terminology**, merged as `6188accd06e6eb4ce8b84570a0d234f5f4d29de4`.
+PR [#396](https://github.com/pcvantol/djconnect/pull/396), **Define Ambient
+Light Renderer Host**, merged as `afbdd4df52cc0deb2c900c5037860b9c5bcd211c`.
 This dedicated Finalization reconciles its immutable Prompt History at
-`docs/history/prompts/2026-07-22-audio-renderer-host-terminology.md`.
+`docs/history/prompts/2026-07-22-ambient-light-renderer-host.md`.
 
 The Session Intelligence Runtime Integration Epic is complete and reconciled.
 Supported Track Started decisions now use the one canonical Runtime lifecycle:
@@ -40,6 +40,13 @@ Host that renders approved audio presentation. Home Assistant Voice Satellite
 remains the external product, entity, configuration and UI term and is one
 possible implementation. Ambient is still an independent experience mode; this
 terminology adds no Voice Endpoint, Runtime, Broadcast or routing behavior.
+
+Ambient Light Renderer Host is canonically deferred in
+`docs/technical/AMBIENT_LIGHT_RENDERER_HOST_ARCHITECTURE.md`. It consumes only
+the immutable DJMoment and Presentation Intent for local ambient lighting; it
+is not raw-audio, beat or FFT synchronization. WLED, Hue and ESPHome remain
+future implementations, blocked until Universal Receiver maturity, operational
+Room Presentation Routing and real-hardware evaluation.
 
 Platform Ambient Experience is a deferred future direction for an optional
 Raspberry Pi Reference Renderer and a separate local Platform Adapter. It
@@ -74,7 +81,7 @@ preserved behavioral contract and no-duplicate-path evidence before `GO`.
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`
 after this Finalization merges and Workspace Cleanup completes.
 Its Prompt History is
-`docs/history/prompts/2026-07-22-audio-renderer-host-terminology.md`.
+`docs/history/prompts/2026-07-22-ambient-light-renderer-host.md`.
 
 PR #315, merged as
 `6a22b0814fcfcd277a9a854fc78b5a28ed04eadd`, is the current merged
