@@ -21,7 +21,7 @@ No client owns product features. Clients render or expose platform capabilities 
 | Music control | Full | Basic/shared when the receiver permits it | Physical or voice controls |
 | Ask DJ | Rich text and voice where available | Guest-safe/read-only where permitted | Voice and short TTS only |
 | Music DNA | Personal UI | Never exposed without explicit policy | Never exposed without explicit policy |
-| VibeCast | Control and handoff | Guest + Ambient Renderer experience by default | No visual rendering |
+| VibeCast | Supported iOS/iPadOS sender launch and handoff only | Guest + Ambient Renderer experience by default; VibeCast itself is the television web renderer | No visual rendering |
 | Diagnostics and updates | Platform-specific | Platform-specific | Device-focused |
 
 ## Rules
@@ -44,7 +44,11 @@ The canonical [Renderer Host Classification](docs/technical/RENDERER_HOST_CLASSI
 separates Device Lifecycle (Guest/Registered) from Experience Mode
 (Interactive/Ambient). Chromecast need not be permanently registered; the
 Raspberry Pi Wall Panel is Registered + Interactive by default, with a future
-renderer-local Ambient state. VibeCast is Guest + Ambient by default.
+renderer-local Ambient state. VibeCast is Guest + Ambient by default. Its
+future V1 target is Google TV through a Google Cast Custom Web Receiver that
+renders renderer-safe Broadcast projections locally, rather than a native
+television app or a mirrored sender stream; see
+[`docs/product/VIBECAST_ARCHITECTURE.md`](docs/product/VIBECAST_ARCHITECTURE.md).
 
 By default, Pi should resolve to a shared profile unless explicitly linked to a personal profile.
 
