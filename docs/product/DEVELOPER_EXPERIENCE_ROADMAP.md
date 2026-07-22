@@ -64,7 +64,7 @@ and a separately authorized capability.
 
 | Order | Capability | Status | Boundary |
 | --- | --- | --- | --- |
-| 1 | Automated Session Intelligence E2E Verification Architecture | Active / next | Defines test-host ownership, production-boundary reuse, bootstrap, scenario, clock, capture, validation, CI shape, security, artifacts and staged rollout. |
+| 1 | [Automated Session Intelligence E2E Verification Architecture](../verification/SESSION_INTELLIGENCE_E2E_ARCHITECTURE.md) | Active / next | Defines test-host ownership, production-boundary reuse, bootstrap, scenario, clock, capture, validation, CI shape, security, artifacts and staged rollout. Its [Golden Scenario Catalogue](../verification/SESSION_INTELLIGENCE_GOLDEN_SCENARIOS.md) is the primary product artifact. |
 | 2 | Developer Session Bootstrap | Planned | Enables machine-readable, server-owned Session startup, scoped test access and cleanup for CI. |
 | 3 | Deterministic Scenario Driver | Planned | Supplies provider-independent scripted normalized inputs without fabricating provider-owned occurrence identity. |
 | 4 | Immutable E2E Session Capture | Planned | Captures safe canonical outcomes and cleanup evidence. |
