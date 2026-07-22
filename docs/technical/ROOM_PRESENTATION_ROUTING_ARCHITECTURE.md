@@ -124,6 +124,15 @@ TTS generation. Where speech is available, an independent Audio Renderer Host
 in the same resolved Area is expected to render it. Platform Adapter work stays
 independent from Room Presentation Routing.
 
+### Ambient Light Renderer Hosts
+
+Eligible Ambient Light Renderer Hosts are a deferred third presentation role.
+They receive the same immutable DJMoment and Presentation Intent, and may
+express that approved meaning through local lighting capabilities. They do not
+read raw audio, communicate with Visual or Audio Renderer Hosts, or alter
+routing ownership; see
+[Ambient Light Renderer Host Architecture](AMBIENT_LIGHT_RENDERER_HOST_ARCHITECTURE.md).
+
 ## Shared presentation and soft synchronization
 
 ```text
@@ -132,6 +141,7 @@ one immutable DJMoment
 Room Presentation Routing
         ├── Visual Renderer Host(s)
         └── Audio Renderer Host(s)
+        └── Ambient Light Renderer Host(s)
 ```
 
 Each host interprets the same Presentation Intent according to its approved
@@ -169,6 +179,7 @@ to infer a room.
 | Active playback output normalization | Session Runtime / existing playback boundary |
 | Future Area eligibility decision | Room Presentation Routing |
 | Local visual or audio rendering | each independent Renderer Host |
+| Local ambient-light rendering | each independent Ambient Light Renderer Host |
 | Provider-output-to-Area installation mapping | future Output Target Binding |
 
 This architecture does not authorize implementation of Room Presentation
@@ -181,6 +192,7 @@ transport changes or Runtime behavior changes.
 
 - [DJ Presentation Architecture](../product/DJ_PRESENTATION_ARCHITECTURE.md)
 - [Audio Renderer Host Architecture](AUDIO_RENDERER_HOST_ARCHITECTURE.md)
+- [Ambient Light Renderer Host Architecture](AMBIENT_LIGHT_RENDERER_HOST_ARCHITECTURE.md)
 - [Renderer Host Classification](RENDERER_HOST_CLASSIFICATION.md)
 - [Platform Ambient Experience](PLATFORM_AMBIENT_EXPERIENCE.md)
 - [Universal Receiver V1 — Server Architecture](UNIVERSAL_RECEIVER_ARCHITECTURE.md)

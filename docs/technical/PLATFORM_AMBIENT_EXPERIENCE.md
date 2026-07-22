@@ -46,6 +46,11 @@ Platform-specific capabilities must not become Renderer business logic. A
 browser page must not acquire GPIO, display-power, watchdog, audio-device or
 kiosk-process ownership merely because it is displayed on a wall panel.
 
+Future ambient lighting is a separate deferred Ambient Light Renderer Host
+role, not a Wall Panel Platform Adapter concern or a raw-audio visualizer. It
+responds only to an approved Presentation Intent; see
+[Ambient Light Renderer Host Architecture](AMBIENT_LIGHT_RENDERER_HOST_ARCHITECTURE.md).
+
 ## Deferred Platform Adapter
 
 A future Platform Adapter may own only local, hardware-specific concerns such
@@ -200,6 +205,7 @@ This document does not implement or authorize:
 
 - [Universal Receiver V1 — Server Architecture](UNIVERSAL_RECEIVER_ARCHITECTURE.md)
 - [Audio Renderer Host Architecture](AUDIO_RENDERER_HOST_ARCHITECTURE.md)
+- [Ambient Light Renderer Host Architecture](AMBIENT_LIGHT_RENDERER_HOST_ARCHITECTURE.md)
 - [Renderer Host Classification](RENDERER_HOST_CLASSIFICATION.md)
 - [Room Presentation Routing Architecture](ROOM_PRESENTATION_ROUTING_ARCHITECTURE.md)
 - [DJ Presentation Architecture](../product/DJ_PRESENTATION_ARCHITECTURE.md)

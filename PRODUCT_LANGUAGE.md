@@ -64,6 +64,7 @@ Use these terms consistently:
 | Guest Profile | Guest-safe shared profile with no personal leakage |
 | Voice Satellite / HA Voice Satellite | Home Assistant voice endpoint that can invoke DJConnect through Assist; retain this external term for Home Assistant docs, entities, configuration and UI |
 | [Audio Renderer Host](docs/technical/AUDIO_RENDERER_HOST_ARCHITECTURE.md) | Internal DJConnect architectural term for a Renderer Host that renders approved audio presentation; a Home Assistant Voice Satellite is one implementation |
+| [Ambient Light Renderer Host](docs/technical/AMBIENT_LIGHT_RENDERER_HOST_ARCHITECTURE.md) | Deferred internal DJConnect presentation role for approved ambient lighting; it is not a WLED, Hue or raw-audio integration |
 | Request Context | Developer-facing resolver input describing where an interaction originated |
 | Satellite mapping | Developer-facing mapping from an HA Voice Satellite to a DJConnect Profile |
 | Personal | Paid/profile-level personalization tier |
