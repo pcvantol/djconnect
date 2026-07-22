@@ -28,9 +28,10 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-PR [#382](https://github.com/pcvantol/djconnect/pull/382), **Execute
-SI-GOLDEN-002 with Verification Clock**, merged as `532b81b925f434e3b4945d53910dd8f8784eeeb0`. This dedicated Finalization
-reconciles the completed bounded implementation and immutable Prompt History.
+PR [#384](https://github.com/pcvantol/djconnect/pull/384), **Define Deferred
+Platform Ambient Experience**, merged as `e07b259e41a37f4bb937f2b772a4aff6754462d2`.
+This dedicated Finalization reconciles its deferred architecture and immutable
+Prompt History.
 
 Current main records **Session Intelligence Runtime Complete**. The Runtime is
 the one canonical execution engine for all supported Track Started decisions:
@@ -46,6 +47,12 @@ Timeline and Now Playing respectively; PR #360 supplied the renderer-safe
 Playback Projection. The disposable Receiver renders only renderer-safe
 Broadcast projections and retains no browser authority, provider access,
 additional endpoint, WebSocket channel, polling path or playback clock.
+
+Platform Ambient Experience is a deferred, platform-neutral direction only.
+Its future Platform Adapter may own local wall-panel hardware concerns without
+receiving Runtime, Planner, Knowledge, Session Flow or Broadcast ownership.
+It remains blocked pending reference hardware, Receiver maturity and real-world
+evaluation.
 
 Automated Session Intelligence E2E Verification is the active Product
 Development Epic. PR #368 establishes its canonical architecture and Golden

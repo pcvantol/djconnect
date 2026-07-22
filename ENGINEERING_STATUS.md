@@ -5,9 +5,9 @@
 
 ## Current engineering increment
 
-PR [#382](https://github.com/pcvantol/djconnect/pull/382), **Execute
-SI-GOLDEN-002 with Verification Clock**, merged as `532b81b925f434e3b4945d53910dd8f8784eeeb0`. This dedicated Finalization
-reconciles its verified runtime-scoped Clock implementation and immutable
+PR [#384](https://github.com/pcvantol/djconnect/pull/384), **Define Deferred
+Platform Ambient Experience**, merged as `e07b259e41a37f4bb937f2b772a4aff6754462d2`.
+This dedicated Finalization reconciles its deferred architecture and immutable
 Prompt History.
 
 The **Session Intelligence Runtime Integration Epic** is complete. The Runtime
@@ -25,6 +25,12 @@ Now Playing. The passive Receiver consumes only renderer-safe Broadcast
 projections; timeline and Now Playing state reconstruct from server snapshots
 and updates without browser authority, provider access, polling or a local
 playback clock.
+
+Platform Ambient Experience is explicitly deferred. It preserves the future
+Platform Adapter boundary for reference wall-panel hardware, Display Policy,
+Ambient Audio, optional server-generated speech rendering and passive live
+Development Replay observation. It authorizes no Universal Receiver, Pi,
+Runtime, Broadcast or verification implementation.
 
 **Automated Session Intelligence E2E Verification** is the active Epic. Its
 architecture and six product-focused Golden Scenarios are now canonical. They

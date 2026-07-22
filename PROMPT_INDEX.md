@@ -4,10 +4,11 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#382](https://github.com/pcvantol/djconnect/pull/382), **Execute
-SI-GOLDEN-002 with Verification Clock**, merged as `532b81b925f434e3b4945d53910dd8f8784eeeb0`. This dedicated Finalization
-reconciles its implementation and immutable Prompt History at
-`docs/history/prompts/2026-07-22-si-golden-002-verification-clock.md`.
+PR [#384](https://github.com/pcvantol/djconnect/pull/384), **Define Deferred
+Platform Ambient Experience**, merged as `e07b259e41a37f4bb937f2b772a4aff6754462d2`.
+This dedicated Finalization reconciles its deferred architecture and immutable
+Prompt History at
+`docs/history/prompts/2026-07-22-platform-ambient-experience.md`.
 
 The Session Intelligence Runtime Integration Epic is complete and reconciled.
 Supported Track Started decisions now use the one canonical Runtime lifecycle:
@@ -20,6 +21,11 @@ Capabilities 1 (PR #354), 2 (PR #358) and 3 (PR #362), and the renderer-safe
 Playback Projection (PR #360). The Receiver remains passive and local-first:
 it consumes installation-owned Broadcast projections without browser Runtime,
 transport or timing authority.
+
+Platform Ambient Experience is a deferred future direction for an optional
+Raspberry Pi Reference Renderer and a separate local Platform Adapter. It
+preserves platform neutrality and permits only passive observation of the
+existing Golden Scenario execution; it does not authorize implementation.
 
 Automated Session Intelligence E2E Verification is the active workstream. PR
 #368 establishes its canonical architecture and six Golden Scenarios for normal
@@ -43,7 +49,7 @@ implementation authorizes no generic Runtime, CI workflow or simulation change.
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`
 after this Finalization merges and Workspace Cleanup completes.
 Its Prompt History is
-`docs/history/prompts/2026-07-22-si-golden-002-verification-clock.md`.
+`docs/history/prompts/2026-07-22-platform-ambient-experience.md`.
 
 PR #315, merged as
 `6a22b0814fcfcd277a9a854fc78b5a28ed04eadd`, is the current merged
