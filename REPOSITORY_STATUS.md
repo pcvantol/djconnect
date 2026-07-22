@@ -28,10 +28,10 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-PR [#396](https://github.com/pcvantol/djconnect/pull/396), **Define Ambient
-Light Renderer Host**, merged as `afbdd4df52cc0deb2c900c5037860b9c5bcd211c`.
-This dedicated Finalization reconciles the deferred ambient-light renderer
-architecture and immutable Prompt History.
+PR [#398](https://github.com/pcvantol/djconnect/pull/398), **Define VibeCast
+Architecture**, merged as `ba7f9478f00700a95e863808c590110e9d3557b5`.
+This dedicated Finalization reconciles the canonical VibeCast product
+definition and immutable Prompt History.
 
 Current main records **Session Intelligence Runtime Complete**. The Runtime is
 the one canonical execution engine for all supported Track Started decisions:
@@ -82,6 +82,14 @@ approved Presentation Intent as other Renderer Hosts; it never synchronizes to
 raw audio, beat or FFT data. WLED, Hue and ESPHome remain possible future
 implementations. No lighting integration, Runtime, Broadcast or transport
 behavior was introduced.
+
+VibeCast is canonically the ambient-first, minimally interactive web-renderer
+experience built on the Universal Receiver Web Platform. Google TV is its
+primary future target through a Google Cast Custom Web Receiver that renders
+renderer-safe Broadcast projections locally. It is not a native television app,
+AirPlay mirror or sender pixel stream. VibeCast V1 remains a future bounded
+product capability pending Custom Web Receiver feasibility and receiver-safe
+Session handoff; no implementation or ownership change was introduced.
 
 Automated Session Intelligence E2E Verification is the active Product
 Development Epic. PR #368 establishes its canonical architecture and Golden

@@ -15,10 +15,10 @@
 
 ## Current position
 
-PR [#396](https://github.com/pcvantol/djconnect/pull/396), **Define Ambient
-Light Renderer Host**, merged as `afbdd4df52cc0deb2c900c5037860b9c5bcd211c`.
-This dedicated Finalization reconciles the deferred ambient-light renderer
-architecture and immutable Prompt History.
+PR [#398](https://github.com/pcvantol/djconnect/pull/398), **Define VibeCast
+Architecture**, merged as `ba7f9478f00700a95e863808c590110e9d3557b5`.
+This dedicated Finalization reconciles the canonical VibeCast product
+definition and immutable Prompt History.
 
 The **Session Intelligence Runtime Integration Epic** is complete. DJConnect
 now has one canonical Runtime lifecycle for supported Track Started decisions:
@@ -58,6 +58,14 @@ lighting renderer role. It reinforces the Session's existing semantic meaning;
 it is not music-reactive raw-audio, beat or FFT lighting. WLED, Hue and ESPHome
 remain possible implementations after Receiver maturity, operational room
 routing and real-hardware evaluation. No integration behavior has changed.
+
+VibeCast is now a bounded future product experience: ambient-first and
+minimally interactive on the Universal Receiver Web Platform. Google TV is the
+primary target through a Google Cast Custom Web Receiver that renders locally
+from renderer-safe Broadcast projections. The sender does not stream pixels;
+there is no native-TV, AirPlay, Runtime, Broadcast or transport implementation.
+VibeCast implementation waits for Custom Web Receiver feasibility, receiver-safe
+Session handoff and the active Verification roadmap.
 
 Automated Session Intelligence E2E Verification is active. PR #368 defines its
 canonical architecture and six Golden Scenarios as the primary product
