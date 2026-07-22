@@ -28,9 +28,9 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-PR [#398](https://github.com/pcvantol/djconnect/pull/398), **Define VibeCast
-Architecture**, merged as `ba7f9478f00700a95e863808c590110e9d3557b5`.
-This dedicated Finalization reconciles the canonical VibeCast product
+PR [#400](https://github.com/pcvantol/djconnect/pull/400), **Define Audience
+Experience Architecture**, merged as `64d40399bb9e838b38b162b17311464eeb295d69`.
+This dedicated Finalization reconciles the canonical Audience Experience
 definition and immutable Prompt History.
 
 Current main records **Session Intelligence Runtime Complete**. The Runtime is
@@ -90,6 +90,14 @@ renderer-safe Broadcast projections locally. It is not a native television app,
 AirPlay mirror or sender pixel stream. VibeCast V1 remains a future bounded
 product capability pending Custom Web Receiver feasibility and receiver-safe
 Session handoff; no implementation or ownership change was introduced.
+
+Audience Experience is the deferred participant-reaction layer parallel to
+Session Intelligence. Its future Audience Events are immutable and ephemeral,
+not DJMoments, persistent preferences or Planner inputs; renderer-safe Audience
+Projections may support Ambient presentation without changing Session authority.
+Audience Energy and any coarse Audience Observation require separate evidence
+and authorization. No reaction, Broadcast, Renderer, Runtime or Planner
+implementation was introduced.
 
 Automated Session Intelligence E2E Verification is the active Product
 Development Epic. PR #368 establishes its canonical architecture and Golden

@@ -15,9 +15,9 @@
 
 ## Current position
 
-PR [#398](https://github.com/pcvantol/djconnect/pull/398), **Define VibeCast
-Architecture**, merged as `ba7f9478f00700a95e863808c590110e9d3557b5`.
-This dedicated Finalization reconciles the canonical VibeCast product
+PR [#400](https://github.com/pcvantol/djconnect/pull/400), **Define Audience
+Experience Architecture**, merged as `64d40399bb9e838b38b162b17311464eeb295d69`.
+This dedicated Finalization reconciles the canonical Audience Experience
 definition and immutable Prompt History.
 
 The **Session Intelligence Runtime Integration Epic** is complete. DJConnect
@@ -66,6 +66,13 @@ from renderer-safe Broadcast projections. The sender does not stream pixels;
 there is no native-TV, AirPlay, Runtime, Broadcast or transport implementation.
 VibeCast implementation waits for Custom Web Receiver feasibility, receiver-safe
 Session handoff and the active Verification roadmap.
+
+Audience Experience is now a bounded future presentation capability. It keeps
+participant reactions observable but non-authoritative: Audience Events are not
+DJMoments, music Likes or Planner inputs. Future renderer-safe Audience
+Projections may enrich VibeCast through a separate Audience Layer, while any
+Audience Energy or coarse Planner observation stays privacy- and autonomy-gated.
+No implementation behavior changed.
 
 Automated Session Intelligence E2E Verification is active. PR #368 defines its
 canonical architecture and six Golden Scenarios as the primary product

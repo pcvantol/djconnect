@@ -5,9 +5,9 @@
 
 ## Current engineering increment
 
-PR [#398](https://github.com/pcvantol/djconnect/pull/398), **Define VibeCast
-Architecture**, merged as `ba7f9478f00700a95e863808c590110e9d3557b5`.
-This dedicated Finalization reconciles the canonical VibeCast product
+PR [#400](https://github.com/pcvantol/djconnect/pull/400), **Define Audience
+Experience Architecture**, merged as `64d40399bb9e838b38b162b17311464eeb295d69`.
+This dedicated Finalization reconciles the canonical Audience Experience
 definition and immutable Prompt History.
 
 The **Session Intelligence Runtime Integration Epic** is complete. The Runtime
@@ -61,6 +61,14 @@ launches a television-local renderer and never streams sender pixels. VibeCast
 remains bounded behind Custom Web Receiver feasibility, receiver-safe Session
 handoff and the active Verification roadmap. No Cast, native-TV, AirPlay,
 Runtime, Broadcast or transport implementation was introduced.
+
+Audience Experience is now the deferred, server-owned parallel layer for
+lightweight participant reactions. Audience Events are ephemeral and
+participant-originated, not DJMoments, Session Flow entries, Likes or Planner
+inputs. Future renderer-safe Audience Projections may enrich VibeCast and other
+Ambient experiences without obscuring DJMoments. Audience Energy and any coarse
+Planner observation remain separately gated; no reaction, Broadcast, Renderer,
+Runtime or Planner implementation was introduced.
 
 Platform Ambient Experience is explicitly deferred. It preserves the future
 Platform Adapter boundary for reference wall-panel hardware, Display Policy,
