@@ -15,11 +15,10 @@
 
 ## Current position
 
-PR [#394](https://github.com/pcvantol/djconnect/pull/394), **Clarify Audio
-Renderer Host Terminology**, merged as `6188accd06e6eb4ce8b84570a0d234f5f4d29de4`.
-This dedicated Finalization
-reconciles the platform-neutral audio-presentation terminology and immutable
-Prompt History.
+PR [#396](https://github.com/pcvantol/djconnect/pull/396), **Define Ambient
+Light Renderer Host**, merged as `afbdd4df52cc0deb2c900c5037860b9c5bcd211c`.
+This dedicated Finalization reconciles the deferred ambient-light renderer
+architecture and immutable Prompt History.
 
 The **Session Intelligence Runtime Integration Epic** is complete. DJConnect
 now has one canonical Runtime lifecycle for supported Track Started decisions:
@@ -53,6 +52,12 @@ audio-presentation role. Home Assistant Voice Satellite remains the external
 Home Assistant product and configuration term, and is one possible
 implementation of that role. Ambient stays an independent experience mode;
 this clarification adds no Runtime, Broadcast, routing or Voice Endpoint work.
+
+Ambient Light Renderer Host is now a deferred Presentation Intent-driven
+lighting renderer role. It reinforces the Session's existing semantic meaning;
+it is not music-reactive raw-audio, beat or FFT lighting. WLED, Hue and ESPHome
+remain possible implementations after Receiver maturity, operational room
+routing and real-hardware evaluation. No integration behavior has changed.
 
 Automated Session Intelligence E2E Verification is active. PR #368 defines its
 canonical architecture and six Golden Scenarios as the primary product

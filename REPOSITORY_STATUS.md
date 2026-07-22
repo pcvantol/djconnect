@@ -28,11 +28,10 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-PR [#394](https://github.com/pcvantol/djconnect/pull/394), **Clarify Audio
-Renderer Host Terminology**, merged as `6188accd06e6eb4ce8b84570a0d234f5f4d29de4`.
-This dedicated Finalization
-reconciles the platform-neutral audio-presentation terminology and immutable
-Prompt History.
+PR [#396](https://github.com/pcvantol/djconnect/pull/396), **Define Ambient
+Light Renderer Host**, merged as `afbdd4df52cc0deb2c900c5037860b9c5bcd211c`.
+This dedicated Finalization reconciles the deferred ambient-light renderer
+architecture and immutable Prompt History.
 
 Current main records **Session Intelligence Runtime Complete**. The Runtime is
 the one canonical execution engine for all supported Track Started decisions:
@@ -76,6 +75,13 @@ external product, entity, configuration and UI term; a Voice Satellite is one
 possible Audio Renderer Host. Ambient remains an independent experience mode.
 No implementation, Runtime, Broadcast, routing, Voice Endpoint or Home
 Assistant terminology behavior was introduced or changed.
+
+Ambient Light Renderer Host is now deferred architecture for a room-scoped
+lighting presentation role. It consumes only the same immutable DJMoment and
+approved Presentation Intent as other Renderer Hosts; it never synchronizes to
+raw audio, beat or FFT data. WLED, Hue and ESPHome remain possible future
+implementations. No lighting integration, Runtime, Broadcast or transport
+behavior was introduced.
 
 Automated Session Intelligence E2E Verification is the active Product
 Development Epic. PR #368 establishes its canonical architecture and Golden
