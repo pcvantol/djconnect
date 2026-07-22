@@ -199,6 +199,7 @@ This document does not implement or authorize:
 ## References
 
 - [Universal Receiver V1 — Server Architecture](UNIVERSAL_RECEIVER_ARCHITECTURE.md)
+- [Audio Renderer Host Architecture](AUDIO_RENDERER_HOST_ARCHITECTURE.md)
 - [Renderer Host Classification](RENDERER_HOST_CLASSIFICATION.md)
 - [Room Presentation Routing Architecture](ROOM_PRESENTATION_ROUTING_ARCHITECTURE.md)
 - [DJ Presentation Architecture](../product/DJ_PRESENTATION_ARCHITECTURE.md)
