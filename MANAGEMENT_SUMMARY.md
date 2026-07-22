@@ -15,9 +15,10 @@
 
 ## Current position
 
-PR [#382](https://github.com/pcvantol/djconnect/pull/382), **Execute
-SI-GOLDEN-002 with Verification Clock**, merged as `532b81b925f434e3b4945d53910dd8f8784eeeb0`. This dedicated Finalization
-reconciles its verified implementation and immutable Prompt History.
+PR [#384](https://github.com/pcvantol/djconnect/pull/384), **Define Deferred
+Platform Ambient Experience**, merged as `e07b259e41a37f4bb937f2b772a4aff6754462d2`.
+This dedicated Finalization reconciles its deferred architecture and immutable
+Prompt History.
 
 The **Session Intelligence Runtime Integration Epic** is complete. DJConnect
 now has one canonical Runtime lifecycle for supported Track Started decisions:
@@ -32,6 +33,11 @@ Playback Projection and Now Playing. The stateless Web Renderer Host consumes
 only existing server-owned Broadcast projections, reconstructing from snapshot
 and live updates without browser authority, local playback timing, a new
 transport or provider polling.
+
+The future Raspberry Pi wall-panel direction is recorded as deferred Platform
+Ambient Experience. It isolates device integration behind a future Platform
+Adapter and permits only passive Development Replay observation of the existing
+Golden Scenario path. It does not reprioritize Receiver or Verification work.
 
 Automated Session Intelligence E2E Verification is active. PR #368 defines its
 canonical architecture and six Golden Scenarios as the primary product
