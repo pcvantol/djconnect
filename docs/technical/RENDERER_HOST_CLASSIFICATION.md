@@ -146,6 +146,10 @@ Neither classification authorizes a broad authentication redesign.
 Both kinds remain local-first and may operate against the local DJConnect
 installation without mandatory central cloud service. Host-platform requirements
 such as Chromecast discovery remain separately designed implementation work.
+Future room-scoped eligibility is independent of both classification axes and
+is defined by [Room Presentation Routing](ROOM_PRESENTATION_ROUTING_ARCHITECTURE.md).
+It does not make a Guest, Registered, Interactive or Ambient host authoritative
+over another Renderer Host.
 
 ## Deferred follow-up capabilities
 
@@ -159,5 +163,6 @@ such as Chromecast discovery remain separately designed implementation work.
 
 - [Universal Receiver V1 — Server Architecture](UNIVERSAL_RECEIVER_ARCHITECTURE.md)
 - [Platform Ambient Experience](PLATFORM_AMBIENT_EXPERIENCE.md)
+- [Room Presentation Routing Architecture](ROOM_PRESENTATION_ROUTING_ARCHITECTURE.md)
 - [DJ Presentation Architecture](../product/DJ_PRESENTATION_ARCHITECTURE.md)
 - [ADR-0015: VibeCast is a Broadcast Capability](../adr/0015-vibecast-broadcast-capability.md)
