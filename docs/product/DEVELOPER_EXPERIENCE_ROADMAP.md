@@ -4,8 +4,9 @@
 
 **Primary active Epic:** Automated Session Intelligence E2E Verification.
 
-The single recommended next capability is the **Deterministic Scenario Driver**.
-The Architecture and Developer Session Bootstrap are complete. This document is
+The single recommended next capability is **Immutable E2E Session Capture**.
+The Architecture, Developer Session Bootstrap and Deterministic Scenario Driver
+are complete. This document is
 a roadmap and governance record; it authorizes no implementation of CI,
 Developer Mode, simulation, browser testing or runtime behavior.
 
@@ -66,8 +67,8 @@ and a separately authorized capability.
 | --- | --- | --- | --- |
 | 1 | [Automated Session Intelligence E2E Verification Architecture](../verification/SESSION_INTELLIGENCE_E2E_ARCHITECTURE.md) | Complete | Defines test-host ownership, production-boundary reuse, bootstrap, scenario, clock, capture, validation, CI shape, security, artifacts and staged rollout. Its [Golden Scenario Catalogue](../verification/SESSION_INTELLIGENCE_GOLDEN_SCENARIOS.md) is the primary product artifact. |
 | 2 | [Developer Session Bootstrap](../technical/DEVELOPER_SESSION_BOOTSTRAP.md) | Complete — PR #370 | Enables machine-readable, server-owned startup and cleanup only for `SI-GOLDEN-001`; returns bounded lifecycle information and executes no scenario. |
-| 3 | Deterministic Scenario Driver | Active / next | Supplies provider-independent scripted normalized inputs without fabricating provider-owned occurrence identity. |
-| 4 | Immutable E2E Session Capture | Planned | Captures safe canonical outcomes and cleanup evidence. |
+| 3 | [Deterministic Scenario Driver](../technical/DETERMINISTIC_SCENARIO_DRIVER.md) | Complete — PR #372 | Supplies only the fixed `SI-GOLDEN-001` Track Insight input through the existing Runtime boundary. |
+| 4 | Immutable E2E Session Capture | Active / next | Captures safe canonical outcomes and cleanup evidence. |
 | 5 | Structural Invariant Validator | Planned | Blocks immediate architectural and lifecycle violations. |
 | 6 | CI Smoke Suite | Planned | Runs bounded selected scenarios in an isolated headless environment. |
 | 7 | Accelerated / event-driven Session execution | Planned | Uses approved infrastructure clock/observation controls, never business-logic conditionals. |

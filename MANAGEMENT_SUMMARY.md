@@ -15,9 +15,9 @@
 
 ## Current position
 
-PR [#370](https://github.com/pcvantol/djconnect/pull/370), **Add Developer
-Session Bootstrap**, merged as `0c4ae9ecc7cd5822b58b2423c2eafacfcef93bcf`.
-This dedicated Finalization reconciles the completed bootstrap and immutable
+PR [#372](https://github.com/pcvantol/djconnect/pull/372), **Add Deterministic
+Scenario Driver**, merged as `fe36351a73dc3278956e29dd3b18373454c00f21`.
+This dedicated Finalization reconciles the completed Driver and immutable
 Prompt History.
 
 The **Session Intelligence Runtime Integration Epic** is complete. DJConnect
@@ -36,11 +36,11 @@ transport or provider polling.
 
 Automated Session Intelligence E2E Verification is active. PR #368 defines its
 canonical architecture and six Golden Scenarios as the primary product
-artifact; PR #370 completes the bounded Bootstrap for `SI-GOLDEN-001`.
-Verification observes the real Runtime pipeline and remains separate from
-runtime behavior, browser rendering and diagnostics. The next capability is the
-deterministic Scenario Driver; capture, invariant validation, CI execution and
-accelerated timing remain separately authorized. Browser Receiver E2E and
+artifact; PRs #370 and #372 complete bounded bootstrap and deterministic
+`SI-GOLDEN-001` execution through the real Runtime pipeline. Verification
+remains separate from runtime behavior, browser rendering and diagnostics. The
+next capability is Immutable E2E Session Capture; invariant validation, CI
+execution and accelerated timing remain separately authorized. Browser Receiver E2E and
 Developer Overlay are later layers.
 Audience Intelligence remains deferred and low priority.
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`

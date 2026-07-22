@@ -20,7 +20,8 @@ Lab or Deferred. `ROADMAP_INDEX.md` owns cross-program navigation.
 | Persistent Session Foundation | Completed | Persistent Session Architecture; PR #292 | 5 |
 | Session Intelligence Runtime Integration | Completed | DJ Session Runtime Contracts, Planner, Knowledge Engine, DJ Moment Engine, Session Flow and Broadcast | 7 |
 | Universal Receiver V1 foundation | Completed — Architecture plus Broadcast Connection, Session Flow Timeline, renderer-safe Playback Projection and Now Playing are operational | Session Intelligence Runtime; `docs/technical/UNIVERSAL_RECEIVER_ARCHITECTURE.md` | 8 |
-| Automated Session Intelligence E2E Verification | In Progress — primary active Epic; Architecture and Developer Session Bootstrap are complete, Deterministic Scenario Driver is next | Session Intelligence Runtime; operational Universal Receiver foundation; `docs/product/DEVELOPER_EXPERIENCE_ROADMAP.md` | 9 |
+| Automated Session Intelligence E2E Verification | In Progress — primary active Epic; Architecture, Bootstrap and Scenario Driver are complete, Immutable E2E Session Capture is next | Session Intelligence Runtime; operational Universal Receiver foundation; `docs/product/DEVELOPER_EXPERIENCE_ROADMAP.md` | 9 |
+| Deterministic Scenario Driver | Completed — fixed `SI-GOLDEN-001` input reaches only the existing Runtime boundary | Developer Session Bootstrap; PR #372 | 10 |
 | Developer Session Bootstrap | Completed — bounded machine-invokable lifecycle for `SI-GOLDEN-001` | Approved Automated E2E Verification Architecture; PR #370 | 10 |
 | Apple experience delivery | Planned | Stable Renderer Host and developer-verification access contracts | 11 |
 | Windows experience delivery | Planned | Stable Renderer Host and developer-verification access contracts | 12 |
@@ -55,7 +56,8 @@ The active roadmap now moves from runtime-architecture construction to
 experience expansion and verification. Universal Receiver V1 has an operational
 foundation; **Automated Session Intelligence E2E Verification** is now the
 primary active Epic. Its Architecture and the first bounded Developer Session
-Bootstrap capability are complete; the deterministic Scenario Driver is next.
+Bootstrap and Deterministic Scenario Driver are complete; Immutable E2E Session
+Capture is next.
 Audience Intelligence remains deferred and is not an active priority.
 
 Canonical product roadmap for all DJConnect repositories. This file lives only

@@ -5,8 +5,8 @@
 
 ## Current engineering increment
 
-PR [#370](https://github.com/pcvantol/djconnect/pull/370), **Add Developer
-Session Bootstrap**, merged as `0c4ae9ecc7cd5822b58b2423c2eafacfcef93bcf`.
+PR [#372](https://github.com/pcvantol/djconnect/pull/372), **Add Deterministic
+Scenario Driver**, merged as `fe36351a73dc3278956e29dd3b18373454c00f21`.
 This dedicated Finalization reconciles its implementation evidence and
 immutable Prompt History.
 
@@ -30,12 +30,11 @@ playback clock.
 architecture and six product-focused Golden Scenarios are now canonical. They
 define a read-only, headless verification path over the real Runtime pipeline,
 three validation layers and strict separation from browser/overlay work.
-Developer Session Bootstrap is complete for `SI-GOLDEN-001`: the machine-
-invokable Home Assistant boundary starts and stops only its isolated Runtime
-fixture through the existing Runtime Manager, returns bounded status and
-lifecycle information, and executes no scenario. The next enabling capability
-is the deterministic Scenario Driver. Audience Intelligence remains deferred
-and low priority.
+Developer Session Bootstrap and the Deterministic Scenario Driver are complete
+for `SI-GOLDEN-001`. One fixed Track Insight input now enters only through the
+existing Runtime boundary; planning, knowledge, Moment realization, Flow and
+Broadcast remain Runtime-owned. Immutable E2E Session Capture is next. Audience
+Intelligence remains deferred and low priority.
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`
 after this Finalization merges and Workspace Cleanup completes.
 
