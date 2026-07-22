@@ -28,10 +28,10 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-PR [#374](https://github.com/pcvantol/djconnect/pull/374), **Add Immutable E2E
-Session Capture**, merged as `d927d30e5eb5162501ed916c24a3db8d5df1c066`.
-This dedicated Finalization reconciles the completed Driver and immutable
-Prompt History.
+PR [#376](https://github.com/pcvantol/djconnect/pull/376), **Add Structural
+Invariant Validator**, merged as `e53df0334c418a93b7b688a5472589817a780238`.
+This dedicated Finalization reconciles the completed bounded validation layer
+and immutable Prompt History.
 
 Current main records **Session Intelligence Runtime Complete**. The Runtime is
 the one canonical execution engine for all supported Track Started decisions:
@@ -53,8 +53,9 @@ Development Epic. PR #368 establishes its canonical architecture and Golden
 Scenario Catalogue; PR #370 completes its Bootstrap and PR #372 executes only
 `SI-GOLDEN-001` through the existing Runtime boundary. The fixed Track Insight
 fixture neither fabricates Runtime state nor calls Planner, Knowledge or Moment
-internals. PR #374 adds the immutable read-only observation artifact. Structural
-Invariant Validator is next. Audience Intelligence remains deferred and low priority.
+internals. PR #374 adds the immutable read-only observation artifact and PR
+#376 adds deterministic, fail-closed structural assessment of that artifact.
+CI Smoke Suite is next. Audience Intelligence remains deferred and low priority.
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`
 after this Finalization merges and Workspace Cleanup completes.
 

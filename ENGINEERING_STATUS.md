@@ -5,10 +5,10 @@
 
 ## Current engineering increment
 
-PR [#374](https://github.com/pcvantol/djconnect/pull/374), **Add Immutable E2E
-Session Capture**, merged as `d927d30e5eb5162501ed916c24a3db8d5df1c066`.
-This dedicated Finalization reconciles its implementation evidence and
-immutable Prompt History.
+PR [#376](https://github.com/pcvantol/djconnect/pull/376), **Add Structural
+Invariant Validator**, merged as `e53df0334c418a93b7b688a5472589817a780238`.
+This dedicated Finalization reconciles its bounded post-capture validation
+evidence and immutable Prompt History.
 
 The **Session Intelligence Runtime Integration Epic** is complete. The Runtime
 is now the canonical execution engine for all supported Track Started decisions:
@@ -30,9 +30,10 @@ playback clock.
 architecture and six product-focused Golden Scenarios are now canonical. They
 define a read-only, headless verification path over the real Runtime pipeline,
 three validation layers and strict separation from browser/overlay work.
-Bootstrap, Driver and immutable Capture are complete for `SI-GOLDEN-001`.
-Capture observes only existing Runtime, Flow and Broadcast outcomes. Structural
-Invariant Validator is next. Audience Intelligence remains deferred and low priority.
+Bootstrap, Driver, immutable Capture and Structural Invariant Validator are
+complete for `SI-GOLDEN-001`. The Validator is read-only and deterministic: it
+fails closed on missing structural evidence without changing Runtime behavior.
+CI Smoke Suite is next. Audience Intelligence remains deferred and low priority.
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`
 after this Finalization merges and Workspace Cleanup completes.
 
