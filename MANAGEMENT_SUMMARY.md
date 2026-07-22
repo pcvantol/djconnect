@@ -15,10 +15,10 @@
 
 ## Current position
 
-PR [#386](https://github.com/pcvantol/djconnect/pull/386), **Govern Golden
-Scenario Planning**, merged as `add8a6d1980f6934e9d176bfe567a9bea6fad4be`.
-This dedicated Finalization reconciles the canonical Golden Scenario Governance
-policy and its immutable Prompt History.
+PR [#388](https://github.com/pcvantol/djconnect/pull/388), **Execute
+SI-GOLDEN-003 Knowledge Failure**, merged as `c8297d5cd7ad5bc0293c8d558b43801e2d527c7d`.
+This dedicated Finalization reconciles its safe-degradation verification
+evidence and immutable Prompt History.
 
 The **Session Intelligence Runtime Integration Epic** is complete. DJConnect
 now has one canonical Runtime lifecycle for supported Track Started decisions:
@@ -61,6 +61,10 @@ Intelligence proposal to relate to approved user-visible behavior, preserve it
 unless governed otherwise and avoid a duplicate execution path. It strengthens
 planning and Pre-Flight only; it adds no Runtime, CI, renderer or diagnostics
 capability.
+PR #388 extends only the approved Golden Scenario execution: unavailable
+Knowledge reaches the existing Runtime boundary and yields one verified Silence
+without fabricated content or a new fallback policy. CI Smoke Suite remains
+the next separately authorized capability.
 Audience Intelligence remains deferred and low priority.
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`
 after this Finalization merges and Workspace Cleanup completes.
