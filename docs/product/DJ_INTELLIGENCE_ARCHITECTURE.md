@@ -106,8 +106,9 @@ assumption.
 The Knowledge Engine retrieves and assembles the context relevant to a
 Knowledge Intent. It may draw from current track, artist, album, genre, music
 metadata, Music Backend context, permitted Music DNA, conversation context,
-previous DJ Moments, Session history, Audience Signals and external music
-knowledge.
+previous DJ Moments, Session history and external music knowledge. Audience
+Events and Audience Projections do not enter Session Intelligence; any future
+coarse Audience Observation requires a separately governed decision.
 
 It returns **Knowledge Context**, not presentation. It does not schedule,
 generate user-facing storytelling or decide a renderer. Privacy filtering and

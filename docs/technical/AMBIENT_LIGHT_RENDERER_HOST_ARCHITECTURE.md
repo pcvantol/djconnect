@@ -77,6 +77,16 @@ They are not this architecture, do not define its ownership and must not become
 independent feature requests. A future implementation requires its own
 Pre-Flight, hardware evaluation and bounded integration contract.
 
+## Deferred Audience coherence
+
+A future, aggregate Audience Projection or Audience Presentation Intent may
+produce a restrained semantic response such as a short warm lift, gentle
+brightness pulse or brief palette accent. An Ambient Light Renderer never
+consumes participant identity, communicates directly with VibeCast, becomes
+beat-reactive or turns reaction bursts into a strobe system. This is deferred
+Audience Experience presentation only, not a lighting implementation; see
+[Audience Experience Architecture](../product/AUDIENCE_EXPERIENCE_ARCHITECTURE.md).
+
 ## Deferred gate
 
 Ambient Light Renderer Host implementation remains deferred until all of the

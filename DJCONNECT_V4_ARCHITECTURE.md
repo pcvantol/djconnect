@@ -34,7 +34,7 @@ DJ Session Runtime (ephemeral, server-owned)
   -> DJ Moment Engine
   -> Conversation Engine
   -> live Session Memory and Session Flow
-  -> Broadcast Engine and Audience Signals
+  -> Broadcast Engine and deferred Audience Experience
   -> active Runtime State
 ```
 
@@ -57,8 +57,9 @@ or other Runtime internals directly.
 The **Session Planner** is the central AI orchestration engine. Its accepted
 Rolling Session Horizon target is roughly the next twenty minutes and it
 replans as playback, listener
-interaction, audience signals, conversation, mood, backend availability or
-permitted Music DNA changes.
+interaction, conversation, mood, backend availability or permitted Music DNA
+changes. Audience Events and Audience Projections are not Planner inputs; any
+future Audience Observation requires a separate explicit decision.
 
 The Planner does not generate a static playlist and does not take ownership of
 provider playback. It supplies a **Session Flow**: what the DJ is planning

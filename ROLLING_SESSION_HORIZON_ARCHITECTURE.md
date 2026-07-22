@@ -78,8 +78,10 @@ in Session Flow.
 
 The Planner rebuilds or partially invalidates only from normalized Runtime
 inputs: accepted playback projection change, rolling-window advance,
-Strategy/Mood/Direction change, approved aggregated Audience Signal, approved
-Session feedback, safe Knowledge confidence change or Planner tick. It is
+Strategy/Mood/Direction change, approved Session feedback, safe Knowledge
+confidence change or Planner tick. Audience Events and Audience Projections are
+not Planner inputs; a future coarse Audience Observation requires its own
+explicit decision. It is
 debounced and deterministic for an identical input snapshot.
 
 A policy-defined stability window protects near-term approved commitments.
@@ -96,7 +98,7 @@ but cancels it on supersession, Session end or confidence loss. Caches and
 prepared context are Runtime-scoped. Full lyrics, raw provider responses and
 copyright-restricted content are never persisted as Session state.
 
-## Dynamic influences and Audience Signals
+## Dynamic influences and Audience Experience
 
 Strategy, current Mood, Persona and Direction influence only future priority
 and pacing. Performance Memory is Runtime-scoped realized history used to avoid
@@ -106,16 +108,13 @@ like, dislike or approved skip may trigger future partial replanning and later
 separate Music DNA learning, but cannot change playback, historic Flow or a
 published Moment.
 
-Audience Signals are normalized, privacy-bounded Runtime inputs, never raw Home
-Assistant entities, provider commands or renderer mutations. Authenticated,
-permitted in-session requests are authoritative; consented bounded room/receiver
-projections are advisory. Runtime owns aggregation, expiry and source confidence;
-Planner alone interprets their future effect. Compatible requests aggregate,
-equal opposing requests resolve to no-op, and expiry, minimum consensus,
-hysteresis and the stability window prevent oscillation. Signals may affect
-future pacing, density, Silence preference and existing intent selection only
-through separately matured Planner cells. Household visibility does not expose
-personal Music DNA, preference, conversation or raw sensor data.
+Audience Experience is a separate, privacy-bounded participant presentation
+concern. Its Audience Events and Audience Projections are never raw Home
+Assistant entities, provider commands, renderer mutations or Planner inputs.
+A future coarse Audience Observation would need a separate privacy,
+aggregation, confidence and Planner-influence decision; it is not authorized by
+this Horizon architecture. Household visibility must not expose personal Music
+DNA, preference, conversation, raw sensor data or participant identity.
 
 The current Universal Receiver audience-signal capability is declarative only;
 its documentation and implementation must reconcile before interaction expands.
@@ -136,16 +135,17 @@ diagnostic projection would require a separate privacy and transport decision.
 4. Debounced invalidation, stability window and partial rebuild.
 5. Mood and Direction future-slot adaptation.
 6. Session feedback adaptation for likes, dislikes and approved skips.
-7. Reconcile Universal Receiver drift, then normalized Audience Signals.
+7. Reconcile Universal Receiver drift, then separately assess coarse Audience
+   Observation only after Audience Experience and privacy prerequisites.
 8. Cancellable Runtime-scoped Knowledge prefetch.
 9. Separate copyright-safe Lyrics Knowledge capability.
 10. Narrative sequencing, callbacks, opening, pacing and closing.
 11. Discover/recommendation expansion, then audience-adaptive intelligence and
     stable native renderer adoption.
 
-`PL-3.2` audience-direction consensus remains the first already planned Planner
-cell. Horizon implementation starts only with its separately authorized first
-cell and may not skip existing maturity gates.
+No Audience Experience capability is a Horizon or Planner cell. A future coarse
+Audience Observation may be assessed only after separate privacy, aggregation
+and artistic-autonomy evidence; it is not implied by this architecture.
 
 ## Explicit non-goals
 
@@ -161,4 +161,3 @@ Continue Stage 2 is added.
 - [DJ Intelligence Architecture](docs/product/DJ_INTELLIGENCE_ARCHITECTURE.md)
 - [DJ Intelligence Maturity](docs/product/DJ_INTELLIGENCE_MATURITY.md)
 - [Live Playback Observation](docs/product/LIVE_PLAYBACK_OBSERVATION.md)
-

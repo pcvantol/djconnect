@@ -80,6 +80,12 @@ future presentation can combine these conceptual layers:
 4. **Optional Context** — safely available lyrics, artist facts, album or
    track metadata and contextual overlays.
 
+A later Audience Layer may coexist beneath these presentation concerns using a
+privacy-filtered Audience Projection. It never replaces or obscures an active
+DJMoment, turns VibeCast into a social feed or grants VibeCast Session
+authority. Audience Experience is a separate future enrichment and is not
+required by VibeCast V1; see [Audience Experience Architecture](AUDIENCE_EXPERIENCE_ARCHITECTURE.md).
+
 These are product directions, not styling rules, animation algorithms or
 requirements to derive data locally. The ambient palette gives Session Mood
 dominant semantic influence; artwork colours and the current DJMoment's
@@ -212,4 +218,3 @@ a separately bounded VibeCast V1 implementation epic.
 - [Room Presentation Routing Architecture](../technical/ROOM_PRESENTATION_ROUTING_ARCHITECTURE.md)
 - [Audio Renderer Host Architecture](../technical/AUDIO_RENDERER_HOST_ARCHITECTURE.md)
 - [Ambient Light Renderer Host Architecture](../technical/AMBIENT_LIGHT_RENDERER_HOST_ARCHITECTURE.md)
-

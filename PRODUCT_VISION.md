@@ -71,7 +71,8 @@ experiencing a playlist or queue as the primary story, people experience a
 chronological flow of music and DJ Moments.
 
 It can include Session Started, Track Started, DJ Moment, Recommendation,
-Transition, Mood Change, Audience Signal, Silence and Session Finished. The
+Transition, Mood Change, Silence and Session Finished. Audience Experience is
+parallel participant context rather than a Session Flow item or DJMoment. The
 Flow tells the story of the evening while playback queues remain useful
 infrastructure for people who need them.
 

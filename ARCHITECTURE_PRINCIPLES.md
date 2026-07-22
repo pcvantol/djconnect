@@ -101,8 +101,10 @@ Moment → Broadcast → Renderer`; see `docs/product/DJ_PRESENTATION_ARCHITECTU
 
 The Session Planner is the central AI orchestration engine. It continuously
 plans approximately the next fifteen minutes and replans from playback,
-interaction, audience signals, conversation, mood, backend availability and
-permitted Music DNA. It produces Session Flow, not a static playlist.
+interaction, conversation, mood, backend availability and permitted Music DNA.
+Audience Events and Audience Projections are not Planner inputs; a future
+coarse Audience Observation would require its own explicit architecture and
+bounded policy. The Planner produces Session Flow, not a static playlist.
 
 Session Flow is the primary DJConnect experience of what the DJ plans next:
 current track, announcements, Track Insights, Discover moments, musical
@@ -110,7 +112,7 @@ direction and planned transitions. The backend queue remains provider-owned and
 can be shown only as an advanced playback view.
 
 The canonical Runtime lifecycle, state ownership, typed Session Flow, Broadcast
-Feed, Audience Signal, Room Voice, Renderer and Session Capability contracts
+Feed, Audience Experience, Room Voice, Renderer and Session Capability contracts
 are defined in `DJ_SESSION_RUNTIME_CONTRACTS.md`.
 
 ### Broadcast Engine and Broadcast Feed

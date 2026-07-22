@@ -45,7 +45,11 @@ Use these terms consistently:
 | Session Planner | The AI orchestration engine that continuously plans an active DJ Session. Developer-facing; do not use as consumer UI copy. |
 | Session Flow | What the DJ is planning next in an active DJ Session; it is the primary experience, not the provider queue. |
 | Session Capability | Runtime-owned statement of what an active session permits a renderer to do. Developer-facing; do not use as consumer UI copy. |
-| Audience Signal | A listener contribution that the Session Planner may interpret; it is never a direct playback command. |
+| [Audience Experience](docs/product/AUDIENCE_EXPERIENCE_ARCHITECTURE.md) | Deferred, server-owned Session layer for lightweight, time-bound participant reactions and renderer-safe Audience Projections. It is parallel to Session Intelligence. |
+| Audience Event | Immutable, ephemeral, participant-originated reaction in Session time. It is not a DJMoment, music Like or Planner input. |
+| Audience Projection | Privacy-filtered, renderer-safe presentation of eligible Audience Experience context. |
+| Audience Energy Aggregation | Deferred coarse, privacy-preserving engagement observation. It is not raw reaction history and has no authorized Planner use. |
+| Audience Signal | Reserved future term for a separately approved coarse Audience Observation; it does not mean an individual Audience Event or current Planner authority. |
 | Session Memory | The objective chronological record of events in one DJ Session; it performs no interpretation. |
 | Session Timeline | The user-facing chronological story of one completed DJ Session; it is not a chat history. |
 | Playback Context | Music Backend-owned playback information available to DJConnect, such as the current track, queue, state, device or room context. |

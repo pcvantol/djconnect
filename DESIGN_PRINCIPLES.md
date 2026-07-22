@@ -50,6 +50,8 @@ VibeCast should make music beautiful and alive on a larger screen.
 
 It may include artwork, lyrics, track insight, artist context, album context, mood layers, guest companion features, and live visual reactions.
 
+Any future reactions follow the deferred [Audience Experience Architecture](docs/product/AUDIENCE_EXPERIENCE_ARCHITECTURE.md): they are transient, privacy-filtered Audience Events presented through an independent layer, never social-feed content or direct intelligence authority.
+
 It should avoid becoming a complex controller.
 
 ## 8. Ask DJ should feel conversational, not transactional
