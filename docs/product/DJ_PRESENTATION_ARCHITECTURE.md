@@ -96,6 +96,11 @@ Renderer Host are presentation examples. An Audio Renderer Host is the internal
 DJConnect abstraction; a Home Assistant Voice Satellite remains the external
 platform term for one possible implementation.
 
+An Ambient Light Renderer Host is a separately deferred presentation role. It
+interprets the same immutable DJMoment and Presentation Intent as other
+Renderer Hosts and does not synchronize to raw audio or own lighting behavior.
+See [`../technical/AMBIENT_LIGHT_RENDERER_HOST_ARCHITECTURE.md`](../technical/AMBIENT_LIGHT_RENDERER_HOST_ARCHITECTURE.md).
+
 A Renderer Host owns its renderer registry, renderer discovery, renderer
 lifecycle and navigation integration. It selects an appropriate Presentation
 Mode for its current context. It does not own server meaning, Moment creation,

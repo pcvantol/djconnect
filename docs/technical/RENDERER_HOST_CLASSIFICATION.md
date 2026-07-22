@@ -31,6 +31,10 @@ Host may be a Visual Renderer Host or an Audio Renderer Host. The latter is
 broader than a Home Assistant Voice Satellite, which remains external platform
 terminology. Ambient remains an Experience Mode rather than a third host role;
 see [Audio Renderer Host Architecture](AUDIO_RENDERER_HOST_ARCHITECTURE.md).
+An [Ambient Light Renderer Host](AMBIENT_LIGHT_RENDERER_HOST_ARCHITECTURE.md)
+is a separately deferred presentation role that responds only to approved
+Presentation Intent; it is not raw-audio synchronization or a new experience
+axis.
 
 ## Shared ownership boundary
 
@@ -169,6 +173,7 @@ over another Renderer Host.
 
 - [Universal Receiver V1 — Server Architecture](UNIVERSAL_RECEIVER_ARCHITECTURE.md)
 - [Platform Ambient Experience](PLATFORM_AMBIENT_EXPERIENCE.md)
+- [Ambient Light Renderer Host Architecture](AMBIENT_LIGHT_RENDERER_HOST_ARCHITECTURE.md)
 - [Room Presentation Routing Architecture](ROOM_PRESENTATION_ROUTING_ARCHITECTURE.md)
 - [DJ Presentation Architecture](../product/DJ_PRESENTATION_ARCHITECTURE.md)
 - [ADR-0015: VibeCast is a Broadcast Capability](../adr/0015-vibecast-broadcast-capability.md)
