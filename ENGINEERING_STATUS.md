@@ -5,10 +5,10 @@
 
 ## Current engineering increment
 
-PR [#396](https://github.com/pcvantol/djconnect/pull/396), **Define Ambient
-Light Renderer Host**, merged as `afbdd4df52cc0deb2c900c5037860b9c5bcd211c`.
-This dedicated Finalization reconciles the deferred ambient-light renderer
-architecture and immutable Prompt History.
+PR [#398](https://github.com/pcvantol/djconnect/pull/398), **Define VibeCast
+Architecture**, merged as `ba7f9478f00700a95e863808c590110e9d3557b5`.
+This dedicated Finalization reconciles the canonical VibeCast product
+definition and immutable Prompt History.
 
 The **Session Intelligence Runtime Integration Epic** is complete. The Runtime
 is now the canonical execution engine for all supported Track Started decisions:
@@ -53,6 +53,14 @@ ambient lighting that responds only to approved Presentation Intent and the
 immutable DJMoment. It is not a raw-audio, beat or FFT visualizer. WLED, Hue
 and ESPHome remain future implementations; no lighting, Runtime, Broadcast or
 transport implementation was introduced.
+
+VibeCast is now canonically defined as an ambient-first, minimally interactive
+web-renderer experience built on the Universal Receiver Web Platform. Google TV
+is the primary future target through a Google Cast Custom Web Receiver; Cast
+launches a television-local renderer and never streams sender pixels. VibeCast
+remains bounded behind Custom Web Receiver feasibility, receiver-safe Session
+handoff and the active Verification roadmap. No Cast, native-TV, AirPlay,
+Runtime, Broadcast or transport implementation was introduced.
 
 Platform Ambient Experience is explicitly deferred. It preserves the future
 Platform Adapter boundary for reference wall-panel hardware, Display Policy,

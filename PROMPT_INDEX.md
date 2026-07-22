@@ -4,10 +4,10 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#396](https://github.com/pcvantol/djconnect/pull/396), **Define Ambient
-Light Renderer Host**, merged as `afbdd4df52cc0deb2c900c5037860b9c5bcd211c`.
+PR [#398](https://github.com/pcvantol/djconnect/pull/398), **Define VibeCast
+Architecture**, merged as `ba7f9478f00700a95e863808c590110e9d3557b5`.
 This dedicated Finalization reconciles its immutable Prompt History at
-`docs/history/prompts/2026-07-22-ambient-light-renderer-host.md`.
+`docs/history/prompts/2026-07-22-vibecast-architecture.md`.
 
 The Session Intelligence Runtime Integration Epic is complete and reconciled.
 Supported Track Started decisions now use the one canonical Runtime lifecycle:
@@ -48,6 +48,14 @@ is not raw-audio, beat or FFT synchronization. WLED, Hue and ESPHome remain
 future implementations, blocked until Universal Receiver maturity, operational
 Room Presentation Routing and real-hardware evaluation.
 
+VibeCast is canonically defined in `docs/product/VIBECAST_ARCHITECTURE.md` as
+an ambient-first, minimally interactive web-renderer experience on the
+Universal Receiver Web Platform. Google TV is its primary future target through
+a Google Cast Custom Web Receiver. Cast launches a television-local Renderer
+Host and never streams sender pixels; native television apps and AirPlay are
+out of scope. VibeCast V1 implementation remains deferred behind Custom Web
+Receiver feasibility and receiver-safe Session handoff.
+
 Platform Ambient Experience is a deferred future direction for an optional
 Raspberry Pi Reference Renderer and a separate local Platform Adapter. It
 preserves platform neutrality and permits only passive observation of the
@@ -81,7 +89,7 @@ preserved behavioral contract and no-duplicate-path evidence before `GO`.
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`
 after this Finalization merges and Workspace Cleanup completes.
 Its Prompt History is
-`docs/history/prompts/2026-07-22-ambient-light-renderer-host.md`.
+`docs/history/prompts/2026-07-22-vibecast-architecture.md`.
 
 PR #315, merged as
 `6a22b0814fcfcd277a9a854fc78b5a28ed04eadd`, is the current merged
