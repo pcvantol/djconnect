@@ -28,10 +28,10 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-PR [#384](https://github.com/pcvantol/djconnect/pull/384), **Define Deferred
-Platform Ambient Experience**, merged as `e07b259e41a37f4bb937f2b772a4aff6754462d2`.
-This dedicated Finalization reconciles its deferred architecture and immutable
-Prompt History.
+PR [#386](https://github.com/pcvantol/djconnect/pull/386), **Govern Golden
+Scenario Planning**, merged as `add8a6d1980f6934e9d176bfe567a9bea6fad4be`.
+This dedicated Finalization reconciles the canonical Golden Scenario Governance
+policy and its immutable Prompt History.
 
 Current main records **Session Intelligence Runtime Complete**. The Runtime is
 the one canonical execution engine for all supported Track Started decisions:
@@ -68,6 +68,13 @@ same Runtime path with an ephemeral verification Clock, then captures and
 structurally validates its first eligible non-repeating knowledge-backed
 Moment. CI Smoke Suite is next. Audience Intelligence remains deferred and low
 priority.
+
+Golden Scenario Governance requires future Verification work to name its
+approved scenario relationship and future Session Intelligence work to state
+whether it preserves, extends or introduces approved behavior. The canonical
+Pre-Flight now also rejects duplicate Runtime, Scenario Driver, verification
+and browser-authority paths. This governance change does not alter production
+Runtime behavior or make a scenario executable.
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`
 after this Finalization merges and Workspace Cleanup completes.
 

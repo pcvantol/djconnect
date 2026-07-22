@@ -5,10 +5,10 @@
 
 ## Current engineering increment
 
-PR [#384](https://github.com/pcvantol/djconnect/pull/384), **Define Deferred
-Platform Ambient Experience**, merged as `e07b259e41a37f4bb937f2b772a4aff6754462d2`.
-This dedicated Finalization reconciles its deferred architecture and immutable
-Prompt History.
+PR [#386](https://github.com/pcvantol/djconnect/pull/386), **Govern Golden
+Scenario Planning**, merged as `add8a6d1980f6934e9d176bfe567a9bea6fad4be`.
+This dedicated Finalization reconciles the canonical Golden Scenario Governance
+policy and its immutable Prompt History.
 
 The **Session Intelligence Runtime Integration Epic** is complete. The Runtime
 is now the canonical execution engine for all supported Track Started decisions:
@@ -47,6 +47,13 @@ end-to-end PR layer, Golden Regression as broader qualification and Quality
 Reports as non-blocking. CI Smoke Suite is next. Audience Intelligence remains
 deferred and low priority. The Verification Clock Architecture and its bounded
 `SI-GOLDEN-002` implementation are complete; CI Smoke Suite is next.
+
+Golden Scenario Governance is now canonical. Future Verification increments
+must declare whether they enable, execute, capture, validate or protect an
+approved scenario; future Session Intelligence increments must declare whether
+they preserve, extend or introduce one. Both must preserve approved behavior by
+default and prove they create no duplicate Runtime, Scenario Driver,
+verification path or browser-owned authority.
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`
 after this Finalization merges and Workspace Cleanup completes.
 
