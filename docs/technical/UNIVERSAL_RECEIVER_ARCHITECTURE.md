@@ -177,6 +177,8 @@ durable Session or planning state.
   browser-side recovery logic.
 - Renderer-specific diagnostics and any new control surface.
 - Any central or cloud-hosted Receiver delivery mechanism.
+- Platform Ambient Experience and any hardware-specific wall-panel capability;
+  see [Platform Ambient Experience](PLATFORM_AMBIENT_EXPERIENCE.md).
 
 Before any further Receiver capability is authorized, its Pre-Flight must
 inspect current `main` and this document. It must not duplicate the completed
