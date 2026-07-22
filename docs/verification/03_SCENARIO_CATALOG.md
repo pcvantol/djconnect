@@ -6,6 +6,15 @@ Builds on: `docs/verification/00_VERIFICATION_VISION.md`, `docs/verification/01_
 ## Purpose
 This catalog defines durable DJConnect platform behavior as executable scenarios. It is not the verification harness, not adapter implementation and not a test runner. Each scenario describes expected behavior that Phase 4 and later verification adapters can execute through Home Assistant, clients, firmware, release artifacts or manual evidence collection.
 The catalog intentionally favors breadth. The goal is to stop rediscovering what should be tested and instead choose which existing scenarios can be automated, executed manually or deferred with a documented limitation.
+
+## Session Intelligence Golden Scenarios
+
+The dedicated [Session Intelligence Golden Scenario Catalogue](SESSION_INTELLIGENCE_GOLDEN_SCENARIOS.md)
+is the canonical product-behavior source for the Automated Session Intelligence
+E2E Verification Epic. It is intentionally separate from this broad
+platform-scenario index: it defines the end-to-end Runtime behaviors that later
+bootstrap, Scenario Driver, capture and CI capabilities must execute without
+creating an alternate Intelligence Engine.
 ## Catalog Rules
 - Scenario IDs are stable long-term references.
 - Scenario YAML files are the canonical assets; this document is the human index.
