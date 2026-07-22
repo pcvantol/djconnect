@@ -4,10 +4,10 @@
 
 **Primary active Epic:** Automated Session Intelligence E2E Verification.
 
-The single recommended next capability is **Automated Session Intelligence E2E
-Verification Architecture**. This document is a roadmap and governance record;
-it authorizes no implementation of CI, Developer Mode, simulation, browser
-testing or runtime behavior.
+The single recommended next capability is the **Deterministic Scenario Driver**.
+The Architecture and Developer Session Bootstrap are complete. This document is
+a roadmap and governance record; it authorizes no implementation of CI,
+Developer Mode, simulation, browser testing or runtime behavior.
 
 ## Purpose
 
@@ -44,14 +44,14 @@ CI must never require a human to copy a Session identifier or Broadcast
 credential. The server-side automation boundary returns only the bounded,
 ephemeral information required by its invoking test process.
 
-## Enabling capability: Developer Session Bootstrap
+## Completed enabling capability: Developer Session Bootstrap
 
-Developer Session Bootstrap is the first enabling capability in this Epic; its
-primary consumer is automated CI. A future bounded machine-readable Home
-Assistant boundary may start an ordinary server-owned Session for a deterministic
-development Profile or fixture, return internal bootstrap output to the test
-process, establish ephemeral session-scoped Broadcast access where required,
-and stop and clean up deterministically.
+Developer Session Bootstrap is the first completed enabling capability in this
+Epic. PR #370 provides the bounded machine-readable Home Assistant boundary for
+`SI-GOLDEN-001`: it starts and stops an isolated deterministic fixture through
+the existing Runtime Manager and returns only bounded lifecycle information to
+the invoking test process. It does not execute the Scenario, grant Broadcast
+access, or own Runtime state.
 
 It must reuse the production Session Runtime lifecycle. A browser never creates
 a Session, CI never performs a manual token exchange, and the boundary does not
@@ -64,9 +64,9 @@ and a separately authorized capability.
 
 | Order | Capability | Status | Boundary |
 | --- | --- | --- | --- |
-| 1 | [Automated Session Intelligence E2E Verification Architecture](../verification/SESSION_INTELLIGENCE_E2E_ARCHITECTURE.md) | Active / next | Defines test-host ownership, production-boundary reuse, bootstrap, scenario, clock, capture, validation, CI shape, security, artifacts and staged rollout. Its [Golden Scenario Catalogue](../verification/SESSION_INTELLIGENCE_GOLDEN_SCENARIOS.md) is the primary product artifact. |
-| 2 | Developer Session Bootstrap | Planned | Enables machine-readable, server-owned Session startup, scoped test access and cleanup for CI. |
-| 3 | Deterministic Scenario Driver | Planned | Supplies provider-independent scripted normalized inputs without fabricating provider-owned occurrence identity. |
+| 1 | [Automated Session Intelligence E2E Verification Architecture](../verification/SESSION_INTELLIGENCE_E2E_ARCHITECTURE.md) | Complete | Defines test-host ownership, production-boundary reuse, bootstrap, scenario, clock, capture, validation, CI shape, security, artifacts and staged rollout. Its [Golden Scenario Catalogue](../verification/SESSION_INTELLIGENCE_GOLDEN_SCENARIOS.md) is the primary product artifact. |
+| 2 | [Developer Session Bootstrap](../technical/DEVELOPER_SESSION_BOOTSTRAP.md) | Complete — PR #370 | Enables machine-readable, server-owned startup and cleanup only for `SI-GOLDEN-001`; returns bounded lifecycle information and executes no scenario. |
+| 3 | Deterministic Scenario Driver | Active / next | Supplies provider-independent scripted normalized inputs without fabricating provider-owned occurrence identity. |
 | 4 | Immutable E2E Session Capture | Planned | Captures safe canonical outcomes and cleanup evidence. |
 | 5 | Structural Invariant Validator | Planned | Blocks immediate architectural and lifecycle violations. |
 | 6 | CI Smoke Suite | Planned | Runs bounded selected scenarios in an isolated headless environment. |

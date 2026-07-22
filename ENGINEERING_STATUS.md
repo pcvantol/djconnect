@@ -1,13 +1,14 @@
 # DJConnect Engineering Status
 
 **Status:** Operational handoff
-**Updated:** 2026-07-21
+**Updated:** 2026-07-22
 
 ## Current engineering increment
 
-PR [#368](https://github.com/pcvantol/djconnect/pull/368), **Define Session
-Intelligence E2E Architecture**, merged as `110ee4ae1f79d160246f0fd6ec9b5b1e83b0215b`. This dedicated Finalization
-reconciles the completed architecture and its immutable Prompt History.
+PR [#370](https://github.com/pcvantol/djconnect/pull/370), **Add Developer
+Session Bootstrap**, merged as `0c4ae9ecc7cd5822b58b2423c2eafacfcef93bcf`.
+This dedicated Finalization reconciles its implementation evidence and
+immutable Prompt History.
 
 The **Session Intelligence Runtime Integration Epic** is complete. The Runtime
 is now the canonical execution engine for all supported Track Started decisions:
@@ -29,9 +30,12 @@ playback clock.
 architecture and six product-focused Golden Scenarios are now canonical. They
 define a read-only, headless verification path over the real Runtime pipeline,
 three validation layers and strict separation from browser/overlay work.
-Developer Session Bootstrap is the next enabling capability for CI, not the
-goal of the Epic. It must remain machine-readable, server-owned and scoped to
-ephemeral test access. Audience Intelligence remains deferred and low priority.
+Developer Session Bootstrap is complete for `SI-GOLDEN-001`: the machine-
+invokable Home Assistant boundary starts and stops only its isolated Runtime
+fixture through the existing Runtime Manager, returns bounded status and
+lifecycle information, and executes no scenario. The next enabling capability
+is the deterministic Scenario Driver. Audience Intelligence remains deferred
+and low priority.
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`
 after this Finalization merges and Workspace Cleanup completes.
 

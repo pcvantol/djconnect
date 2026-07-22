@@ -105,17 +105,18 @@ the completed Session Flow Timeline or Now Playing capabilities, and must name
 the existing Broadcast projection it consumes.
 
 **Automated Session Intelligence E2E Verification is now the active Epic.**
-Its single next capability is **Automated Session Intelligence E2E Verification
-Architecture**. Developer Session Bootstrap is the first enabling capability
-inside that Epic, principally for headless CI rather than manual debugging. The
+Its Architecture and first enabling capability, Developer Session Bootstrap,
+are complete. The next capability is the **Deterministic Scenario Driver**.
+Bootstrap remains principally for headless CI rather than manual debugging. The
 full authorized sequence, including deterministic scenarios, capture,
 structural validation, accelerated execution and the separate future Developer
 Overlay architecture review, is recorded in
 [`docs/product/DEVELOPER_EXPERIENCE_ROADMAP.md`](docs/product/DEVELOPER_EXPERIENCE_ROADMAP.md).
 
 - Universal Receiver V1 foundation (complete)
-- Automated Session Intelligence E2E Verification Architecture (active next capability)
-- Developer Session Bootstrap (first enabling capability)
+- Automated Session Intelligence E2E Verification Architecture (complete)
+- Developer Session Bootstrap (complete for `SI-GOLDEN-001`)
+- Deterministic Scenario Driver (active next capability)
 - Apple
 - Windows
 - Raspberry Pi

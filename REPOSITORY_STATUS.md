@@ -28,9 +28,10 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-PR [#368](https://github.com/pcvantol/djconnect/pull/368), **Define Session
-Intelligence E2E Architecture**, merged as `110ee4ae1f79d160246f0fd6ec9b5b1e83b0215b`. This dedicated Finalization
-reconciles the completed architecture and immutable Prompt History.
+PR [#370](https://github.com/pcvantol/djconnect/pull/370), **Add Developer
+Session Bootstrap**, merged as `0c4ae9ecc7cd5822b58b2423c2eafacfcef93bcf`.
+This dedicated Finalization reconciles the completed bootstrap and immutable
+Prompt History.
 
 Current main records **Session Intelligence Runtime Complete**. The Runtime is
 the one canonical execution engine for all supported Track Started decisions:
@@ -49,13 +50,12 @@ additional endpoint, WebSocket channel, polling path or playback clock.
 
 Automated Session Intelligence E2E Verification is the active Product
 Development Epic. PR #368 establishes its canonical architecture and Golden
-Scenario Catalogue. The catalogue protects normal knowledge flow, repetition
-avoidance, safe degradation, deterministic replanning, Session Update and
-intentional Silence through the real Runtime, Planner, Knowledge Engine, DJ
-Moment Engine, Session Flow and Broadcast path. Developer Session Bootstrap is
-the next machine-readable CI-enabling boundary, not a browser Session creator
-or a second Runtime pipeline. Audience Intelligence remains deferred and low
-priority.
+Scenario Catalogue; PR #370 completes its first enabling capability for
+`SI-GOLDEN-001`. The machine-invokable bootstrap starts and stops the isolated
+fixture through the existing Runtime Manager, returns only bounded lifecycle
+information, and neither executes a scenario nor creates a second Runtime
+pipeline. The deterministic Scenario Driver is next. Audience Intelligence
+remains deferred and low priority.
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`
 after this Finalization merges and Workspace Cleanup completes.
 

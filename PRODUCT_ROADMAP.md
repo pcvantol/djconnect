@@ -20,8 +20,8 @@ Lab or Deferred. `ROADMAP_INDEX.md` owns cross-program navigation.
 | Persistent Session Foundation | Completed | Persistent Session Architecture; PR #292 | 5 |
 | Session Intelligence Runtime Integration | Completed | DJ Session Runtime Contracts, Planner, Knowledge Engine, DJ Moment Engine, Session Flow and Broadcast | 7 |
 | Universal Receiver V1 foundation | Completed — Architecture plus Broadcast Connection, Session Flow Timeline, renderer-safe Playback Projection and Now Playing are operational | Session Intelligence Runtime; `docs/technical/UNIVERSAL_RECEIVER_ARCHITECTURE.md` | 8 |
-| Automated Session Intelligence E2E Verification | In Progress — primary active Epic; architecture is the single next capability | Session Intelligence Runtime; operational Universal Receiver foundation; `docs/product/DEVELOPER_EXPERIENCE_ROADMAP.md` | 9 |
-| Developer Session Bootstrap | Planned — first enabling capability for automated CI verification | Approved Automated E2E Verification Architecture | 10 |
+| Automated Session Intelligence E2E Verification | In Progress — primary active Epic; Architecture and Developer Session Bootstrap are complete, Deterministic Scenario Driver is next | Session Intelligence Runtime; operational Universal Receiver foundation; `docs/product/DEVELOPER_EXPERIENCE_ROADMAP.md` | 9 |
+| Developer Session Bootstrap | Completed — bounded machine-invokable lifecycle for `SI-GOLDEN-001` | Approved Automated E2E Verification Architecture; PR #370 | 10 |
 | Apple experience delivery | Planned | Stable Renderer Host and developer-verification access contracts | 11 |
 | Windows experience delivery | Planned | Stable Renderer Host and developer-verification access contracts | 12 |
 | Raspberry Pi experience delivery | Planned | Stable Renderer Host and developer-verification access contracts | 13 |
@@ -54,10 +54,9 @@ and DJ Moment Engine abstractions; they do not create another Runtime pipeline.
 The active roadmap now moves from runtime-architecture construction to
 experience expansion and verification. Universal Receiver V1 has an operational
 foundation; **Automated Session Intelligence E2E Verification** is now the
-primary active Epic. Its single next capability is the architecture that
-defines headless, deterministic CI verification. Developer Session Bootstrap is
-the first enabling capability inside that Epic, not its end goal. Audience
-Intelligence remains deferred and is not an active priority.
+primary active Epic. Its Architecture and the first bounded Developer Session
+Bootstrap capability are complete; the deterministic Scenario Driver is next.
+Audience Intelligence remains deferred and is not an active priority.
 
 Canonical product roadmap for all DJConnect repositories. This file lives only
 in the Home Assistant integration repo `pcvantol/djconnect` and is the leading
