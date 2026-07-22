@@ -4,11 +4,11 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#378](https://github.com/pcvantol/djconnect/pull/378), **Add Session
-Intelligence Qualification Policy**, merged as `eed97d37f3d4499e72b600792c8479170a30c38b`.
-This dedicated Finalization
-reconciles the completed policy and immutable Prompt History at
-`docs/history/prompts/2026-07-22-session-intelligence-qualification-policy.md`.
+PR [#380](https://github.com/pcvantol/djconnect/pull/380), **Define Verification
+Clock Architecture**, merged as `76aa0399c46d4d1ec3a5ac31413f6cb0772ea99b`.
+This dedicated Finalization reconciles the accepted architecture and immutable
+Prompt History at
+`docs/history/prompts/2026-07-22-verification-clock-architecture.md`.
 
 The Session Intelligence Runtime Integration Epic is complete and reconciled.
 Supported Track Started decisions now use the one canonical Runtime lifecycle:
@@ -29,13 +29,17 @@ Update and intentional Silence. PRs #370 and #372 complete bounded Bootstrap
 and deterministic `SI-GOLDEN-001` execution without browser Session creation,
 Planner/Knowledge/Moment internals or another Runtime. Immutable E2E Session
 Capture and the Structural Invariant Validator are complete. CI Smoke Suite is
-now next. The ordered roadmap is
+not yet next: the accepted Verification Clock must first receive its separate
+bounded implementation for `SI-GOLDEN-002`. The ordered roadmap is
 `docs/product/DEVELOPER_EXPERIENCE_ROADMAP.md`. Receiver browser E2E and
 Developer Overlay are separate later layers. Audience Intelligence remains
 deferred and low priority.
 The qualification pyramid is canonical in
 `docs/verification/SESSION_INTELLIGENCE_QUALIFICATION_POLICY.md`; it authorizes
 no CI workflow implementation.
+The Clock architecture is canonical in
+`docs/verification/VERIFICATION_CLOCK_ARCHITECTURE.md` and does not authorize
+Runtime behavior, CI workflow or Scenario Driver changes.
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`
 after this Finalization merges and Workspace Cleanup completes.
 Its Prompt History is
