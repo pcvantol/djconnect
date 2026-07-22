@@ -4,9 +4,9 @@
 
 **Primary active Epic:** Automated Session Intelligence E2E Verification.
 
-The single recommended next capability is **Structural Invariant Validator**.
-The Architecture, Developer Session Bootstrap and Deterministic Scenario Driver
-are complete. This document is
+The single recommended next capability is **CI Smoke Suite**. The Architecture,
+Developer Session Bootstrap, Deterministic Scenario Driver, Immutable E2E
+Session Capture and Structural Invariant Validator are complete. This document is
 a roadmap and governance record; it authorizes no implementation of CI,
 Developer Mode, simulation, browser testing or runtime behavior.
 
@@ -69,8 +69,8 @@ and a separately authorized capability.
 | 2 | [Developer Session Bootstrap](../technical/DEVELOPER_SESSION_BOOTSTRAP.md) | Complete — PR #370 | Enables machine-readable, server-owned startup and cleanup only for `SI-GOLDEN-001`; returns bounded lifecycle information and executes no scenario. |
 | 3 | [Deterministic Scenario Driver](../technical/DETERMINISTIC_SCENARIO_DRIVER.md) | Complete — PR #372 | Supplies only the fixed `SI-GOLDEN-001` Track Insight input through the existing Runtime boundary. |
 | 4 | Immutable E2E Session Capture | Complete — PR #374 | Captures safe canonical outcomes and cleanup evidence without Runtime mutation. |
-| 5 | Structural Invariant Validator | Active / next | Blocks immediate architectural and lifecycle violations. |
-| 6 | CI Smoke Suite | Planned | Runs bounded selected scenarios in an isolated headless environment. |
+| 5 | Structural Invariant Validator | Complete — PR #376 | Deterministically assesses only immutable `SI-GOLDEN-001` capture evidence; fails closed without Runtime participation. |
+| 6 | CI Smoke Suite | Active / next | Runs bounded selected scenarios in an isolated headless environment. |
 | 7 | Accelerated / event-driven Session execution | Planned | Uses approved infrastructure clock/observation controls, never business-logic conditionals. |
 | 8 | Golden Session Regression Suite | Planned | Applies versioned semantic and structural expectations. |
 | 9 | Intelligence Quality Metrics | Planned, initially non-blocking | Reports stable metrics before any governance-approved blocking threshold. |

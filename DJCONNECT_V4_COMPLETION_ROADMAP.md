@@ -105,9 +105,9 @@ the completed Session Flow Timeline or Now Playing capabilities, and must name
 the existing Broadcast projection it consumes.
 
 **Automated Session Intelligence E2E Verification is now the active Epic.**
-Its Architecture and first enabling capability, Developer Session Bootstrap,
-and the Deterministic Scenario Driver are complete. The next capability is
-**Immutable E2E Session Capture**.
+Its Architecture, Developer Session Bootstrap, Deterministic Scenario Driver,
+Immutable E2E Session Capture and Structural Invariant Validator are complete.
+The next capability is **CI Smoke Suite**.
 Bootstrap remains principally for headless CI rather than manual debugging. The
 full authorized sequence, including deterministic scenarios, capture,
 structural validation, accelerated execution and the separate future Developer
@@ -118,7 +118,9 @@ Overlay architecture review, is recorded in
 - Automated Session Intelligence E2E Verification Architecture (complete)
 - Developer Session Bootstrap (complete for `SI-GOLDEN-001`)
 - Deterministic Scenario Driver (complete for `SI-GOLDEN-001`)
-- Immutable E2E Session Capture (active next capability)
+- Immutable E2E Session Capture (complete)
+- Structural Invariant Validator (complete)
+- CI Smoke Suite (active next capability)
 - Apple
 - Windows
 - Raspberry Pi

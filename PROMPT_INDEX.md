@@ -4,11 +4,11 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#374](https://github.com/pcvantol/djconnect/pull/374), **Add Immutable E2E
-Session Capture**, merged as `d927d30e5eb5162501ed916c24a3db8d5df1c066`.
-This dedicated Finalization reconciles the completed Driver and immutable
-Prompt History at
-`docs/history/prompts/2026-07-22-immutable-e2e-session-capture.md`.
+PR [#376](https://github.com/pcvantol/djconnect/pull/376), **Add Structural
+Invariant Validator**, merged as `e53df0334c418a93b7b688a5472589817a780238`.
+This dedicated Finalization reconciles the completed read-only validation layer
+and immutable Prompt History at
+`docs/history/prompts/2026-07-22-structural-invariant-validator.md`.
 
 The Session Intelligence Runtime Integration Epic is complete and reconciled.
 Supported Track Started decisions now use the one canonical Runtime lifecycle:
@@ -28,7 +28,8 @@ knowledge flow, repetition avoidance, safe degradation, replanning, Session
 Update and intentional Silence. PRs #370 and #372 complete bounded Bootstrap
 and deterministic `SI-GOLDEN-001` execution without browser Session creation,
 Planner/Knowledge/Moment internals or another Runtime. Immutable E2E Session
-Capture is now next. The ordered roadmap is
+Capture and the Structural Invariant Validator are complete. CI Smoke Suite is
+now next. The ordered roadmap is
 `docs/product/DEVELOPER_EXPERIENCE_ROADMAP.md`. Receiver browser E2E and
 Developer Overlay are separate later layers. Audience Intelligence remains
 deferred and low priority.

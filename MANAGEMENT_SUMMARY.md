@@ -15,10 +15,10 @@
 
 ## Current position
 
-PR [#374](https://github.com/pcvantol/djconnect/pull/374), **Add Immutable E2E
-Session Capture**, merged as `d927d30e5eb5162501ed916c24a3db8d5df1c066`.
-This dedicated Finalization reconciles the completed Driver and immutable
-Prompt History.
+PR [#376](https://github.com/pcvantol/djconnect/pull/376), **Add Structural
+Invariant Validator**, merged as `e53df0334c418a93b7b688a5472589817a780238`.
+This dedicated Finalization reconciles the completed read-only validation
+layer and immutable Prompt History.
 
 The **Session Intelligence Runtime Integration Epic** is complete. DJConnect
 now has one canonical Runtime lifecycle for supported Track Started decisions:
@@ -36,12 +36,12 @@ transport or provider polling.
 
 Automated Session Intelligence E2E Verification is active. PR #368 defines its
 canonical architecture and six Golden Scenarios as the primary product
-artifact; PRs #370 and #372 complete bounded bootstrap and deterministic
-`SI-GOLDEN-001` execution through the real Runtime pipeline. Verification
-remains separate from runtime behavior, browser rendering and diagnostics. The
-next capability is Structural Invariant Validator; CI
-execution and accelerated timing remain separately authorized. Browser Receiver E2E and
-Developer Overlay are later layers.
+artifact; PRs #370, #372, #374 and #376 complete Bootstrap, deterministic
+`SI-GOLDEN-001` execution, immutable observation and structural validation
+through the real Runtime pipeline. Verification remains separate from runtime
+behavior, browser rendering and diagnostics. CI Smoke Suite is next; accelerated
+timing remains separately authorized. Browser Receiver E2E and Developer Overlay
+are later layers.
 Audience Intelligence remains deferred and low priority.
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`
 after this Finalization merges and Workspace Cleanup completes.
