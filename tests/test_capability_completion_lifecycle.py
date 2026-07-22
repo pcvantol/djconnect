@@ -1,6 +1,7 @@
 """Regression coverage for the canonical Capability Completion Lifecycle."""
 
 from pathlib import Path
+import re
 import unittest
 
 
@@ -59,6 +60,26 @@ class CapabilityCompletionLifecycleTest(unittest.TestCase):
         }
         for name, required in expected_finalization_gate.items():
             self.assertIn(required, (ROOT / name).read_text(), name)
+
+    def test_finalization_validation_requires_current_rolling_record_evidence(self) -> None:
+        """Make stale status/index references fail the focused lifecycle gate."""
+        engineering_status = (ROOT / "ENGINEERING_STATUS.md").read_text()
+        current_increment = re.search(
+            r"PR \[#(?P<number>\d+)\].*?merged as `(?P<commit>[0-9a-f]{40})`",
+            engineering_status,
+            re.DOTALL,
+        )
+        self.assertIsNotNone(current_increment)
+        assert current_increment is not None
+
+        for name in (
+            "REPOSITORY_STATUS.md",
+            "MANAGEMENT_SUMMARY.md",
+            "PROMPT_INDEX.md",
+        ):
+            contents = (ROOT / name).read_text()
+            self.assertIn(f"PR [#{current_increment.group('number')}]", contents, name)
+            self.assertIn(current_increment.group("commit"), contents, name)
 
 
 if __name__ == "__main__":
