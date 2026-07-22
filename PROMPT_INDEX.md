@@ -4,10 +4,10 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#398](https://github.com/pcvantol/djconnect/pull/398), **Define VibeCast
-Architecture**, merged as `ba7f9478f00700a95e863808c590110e9d3557b5`.
+PR [#400](https://github.com/pcvantol/djconnect/pull/400), **Define Audience
+Experience Architecture**, merged as `64d40399bb9e838b38b162b17311464eeb295d69`.
 This dedicated Finalization reconciles its immutable Prompt History at
-`docs/history/prompts/2026-07-22-vibecast-architecture.md`.
+`docs/history/prompts/2026-07-22-audience-experience-architecture.md`.
 
 The Session Intelligence Runtime Integration Epic is complete and reconciled.
 Supported Track Started decisions now use the one canonical Runtime lifecycle:
@@ -56,6 +56,14 @@ Host and never streams sender pixels; native television apps and AirPlay are
 out of scope. VibeCast V1 implementation remains deferred behind Custom Web
 Receiver feasibility and receiver-safe Session handoff.
 
+Audience Experience is canonically defined in
+`docs/product/AUDIENCE_EXPERIENCE_ARCHITECTURE.md`. It is the future,
+server-owned participant reaction layer parallel to Session Intelligence:
+Audience Events are not DJMoments, Flow items, Likes or Planner inputs. A
+future Audience Projection may enrich Ambient Renderer Hosts such as VibeCast;
+Audience Energy and any coarse Audience Observation remain separately gated.
+No reaction or Planner implementation is authorized.
+
 Platform Ambient Experience is a deferred future direction for an optional
 Raspberry Pi Reference Renderer and a separate local Platform Adapter. It
 preserves platform neutrality and permits only passive observation of the
@@ -89,7 +97,7 @@ preserved behavioral contract and no-duplicate-path evidence before `GO`.
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`
 after this Finalization merges and Workspace Cleanup completes.
 Its Prompt History is
-`docs/history/prompts/2026-07-22-vibecast-architecture.md`.
+`docs/history/prompts/2026-07-22-audience-experience-architecture.md`.
 
 PR #315, merged as
 `6a22b0814fcfcd277a9a854fc78b5a28ed04eadd`, is the current merged
