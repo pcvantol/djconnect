@@ -5,10 +5,10 @@
 
 ## Current engineering increment
 
-PR [#390](https://github.com/pcvantol/djconnect/pull/390), **Classify Renderer
-Host Modes**, merged as `2e0f237b249f2634f06bec8b0c7ad4c430a959d5`.
-This dedicated Finalization reconciles the canonical two-axis Renderer Host
-architecture and immutable Prompt History.
+PR [#392](https://github.com/pcvantol/djconnect/pull/392), **Define Room
+Presentation Routing**, merged as `d5ff9c9cb887a3e9f9b255d7315673c719c4ac48`.
+This dedicated Finalization reconciles the deferred room-scoped presentation
+routing architecture and immutable Prompt History.
 
 The **Session Intelligence Runtime Integration Epic** is complete. The Runtime
 is now the canonical execution engine for all supported Track Started decisions:
@@ -32,6 +32,14 @@ Ambient. Universal Receiver is the Interactive web Renderer; VibeCast is
 Guest + Ambient by default; Raspberry Pi Wall Panel is Registered + Interactive
 by default with future local Ambient presentation deferred. Pairing is device
 lifecycle only, never Session lifecycle.
+
+Room Presentation Routing is now a deferred canonical architecture. The active
+playback output may resolve through Home Assistant entity, Device Registry and
+Area Registry to select eligible independent Visual and Audio Renderer Hosts
+for the same immutable DJMoment. It introduces no routing implementation,
+Runtime, Broadcast or transport change. An unresolved Area disables autonomous
+speech routing; Output Target Binding and Area Presentation Policy remain
+separate future installation-owned concepts.
 
 Platform Ambient Experience is explicitly deferred. It preserves the future
 Platform Adapter boundary for reference wall-panel hardware, Display Policy,

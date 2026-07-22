@@ -4,10 +4,10 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#390](https://github.com/pcvantol/djconnect/pull/390), **Classify Renderer
-Host Modes**, merged as `2e0f237b249f2634f06bec8b0c7ad4c430a959d5`.
+PR [#392](https://github.com/pcvantol/djconnect/pull/392), **Define Room
+Presentation Routing**, merged as `d5ff9c9cb887a3e9f9b255d7315673c719c4ac48`.
 This dedicated Finalization reconciles its immutable Prompt History at
-`docs/history/prompts/2026-07-22-renderer-host-classification.md`.
+`docs/history/prompts/2026-07-22-room-presentation-routing.md`.
 
 The Session Intelligence Runtime Integration Epic is complete and reconciled.
 Supported Track Started decisions now use the one canonical Runtime lifecycle:
@@ -26,6 +26,14 @@ Renderer Host Classification is canonical in
 Interactive/Ambient are independent axes. VibeCast is Guest + Ambient by
 default; Universal Receiver is Interactive; Pi Wall Panel is Registered +
 Interactive by default. Pairing belongs to device lifecycle only.
+
+Room Presentation Routing is canonically deferred in
+`docs/technical/ROOM_PRESENTATION_ROUTING_ARCHITECTURE.md`. The active playback
+output may resolve through Home Assistant registries to an Area, which selects
+eligible independent Visual and Audio Renderer Hosts for one immutable
+DJMoment. It authorizes no routing, transport, Runtime or Renderer
+implementation. An unresolved Area disables autonomous speech routing; Output
+Target Binding and Area Presentation Policy remain separately deferred.
 
 Platform Ambient Experience is a deferred future direction for an optional
 Raspberry Pi Reference Renderer and a separate local Platform Adapter. It
@@ -60,7 +68,7 @@ preserved behavioral contract and no-duplicate-path evidence before `GO`.
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`
 after this Finalization merges and Workspace Cleanup completes.
 Its Prompt History is
-`docs/history/prompts/2026-07-22-renderer-host-classification.md`.
+`docs/history/prompts/2026-07-22-room-presentation-routing.md`.
 
 PR #315, merged as
 `6a22b0814fcfcd277a9a854fc78b5a28ed04eadd`, is the current merged

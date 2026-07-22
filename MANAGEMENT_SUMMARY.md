@@ -15,10 +15,10 @@
 
 ## Current position
 
-PR [#390](https://github.com/pcvantol/djconnect/pull/390), **Classify Renderer
-Host Modes**, merged as `2e0f237b249f2634f06bec8b0c7ad4c430a959d5`.
-This dedicated Finalization reconciles the canonical two-axis Renderer Host
-architecture and immutable Prompt History.
+PR [#392](https://github.com/pcvantol/djconnect/pull/392), **Define Room
+Presentation Routing**, merged as `d5ff9c9cb887a3e9f9b255d7315673c719c4ac48`.
+This dedicated Finalization reconciles the deferred room-scoped presentation
+routing architecture and immutable Prompt History.
 
 The **Session Intelligence Runtime Integration Epic** is complete. DJConnect
 now has one canonical Runtime lifecycle for supported Track Started decisions:
@@ -38,6 +38,14 @@ The future Raspberry Pi wall-panel direction is recorded as deferred Platform
 Ambient Experience. It isolates device integration behind a future Platform
 Adapter and permits only passive Development Replay observation of the existing
 Golden Scenario path. It does not reprioritize Receiver or Verification work.
+
+Room Presentation Routing is now a separate deferred architecture: the active
+playback output may resolve to a Home Assistant Area, which then determines
+eligible independent Visual and Audio Renderer Hosts for the same immutable
+DJMoment. It changes no Runtime, Broadcast or renderer behavior. Speech is
+disabled rather than routed arbitrarily when that Area is unresolved; future
+Output Target Binding and Area Presentation Policy remain installation-owned
+configuration work.
 
 Automated Session Intelligence E2E Verification is active. PR #368 defines its
 canonical architecture and six Golden Scenarios as the primary product
