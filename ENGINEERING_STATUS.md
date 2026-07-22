@@ -5,10 +5,10 @@
 
 ## Current engineering increment
 
-PR [#388](https://github.com/pcvantol/djconnect/pull/388), **Execute
-SI-GOLDEN-003 Knowledge Failure**, merged as `c8297d5cd7ad5bc0293c8d558b43801e2d527c7d`.
-This dedicated Finalization reconciles its safe-degradation verification
-evidence and immutable Prompt History.
+PR [#390](https://github.com/pcvantol/djconnect/pull/390), **Classify Renderer
+Host Modes**, merged as `2e0f237b249f2634f06bec8b0c7ad4c430a959d5`.
+This dedicated Finalization reconciles the canonical two-axis Renderer Host
+architecture and immutable Prompt History.
 
 The **Session Intelligence Runtime Integration Epic** is complete. The Runtime
 is now the canonical execution engine for all supported Track Started decisions:
@@ -25,6 +25,13 @@ Now Playing. The passive Receiver consumes only renderer-safe Broadcast
 projections; timeline and Now Playing state reconstruct from server snapshots
 and updates without browser authority, provider access, polling or a local
 playback clock.
+
+Renderer Host classification is canonical: Device Lifecycle is independently
+Guest or Registered, while Experience Mode is independently Interactive or
+Ambient. Universal Receiver is the Interactive web Renderer; VibeCast is
+Guest + Ambient by default; Raspberry Pi Wall Panel is Registered + Interactive
+by default with future local Ambient presentation deferred. Pairing is device
+lifecycle only, never Session lifecycle.
 
 Platform Ambient Experience is explicitly deferred. It preserves the future
 Platform Adapter boundary for reference wall-panel hardware, Display Policy,

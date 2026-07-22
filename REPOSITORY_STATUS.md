@@ -28,10 +28,10 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-PR [#388](https://github.com/pcvantol/djconnect/pull/388), **Execute
-SI-GOLDEN-003 Knowledge Failure**, merged as `c8297d5cd7ad5bc0293c8d558b43801e2d527c7d`.
-This dedicated Finalization reconciles its safe-degradation verification
-evidence and immutable Prompt History.
+PR [#390](https://github.com/pcvantol/djconnect/pull/390), **Classify Renderer
+Host Modes**, merged as `2e0f237b249f2634f06bec8b0c7ad4c430a959d5`.
+This dedicated Finalization reconciles the canonical two-axis Renderer Host
+architecture and immutable Prompt History.
 
 Current main records **Session Intelligence Runtime Complete**. The Runtime is
 the one canonical execution engine for all supported Track Started decisions:
@@ -53,6 +53,13 @@ Its future Platform Adapter may own local wall-panel hardware concerns without
 receiving Runtime, Planner, Knowledge, Session Flow or Broadcast ownership.
 It remains blocked pending reference hardware, Receiver maturity and real-world
 evaluation.
+
+Renderer Host classification now distinguishes device lifecycle from experience
+mode: Guest/Registered and Interactive/Ambient are independent. VibeCast is
+the canonical Guest + Ambient experience; Universal Receiver remains the
+Interactive web product shell; the Pi Wall Panel remains a registered native
+Renderer Host. No new Runtime, Planner, Knowledge, Broadcast or transport path
+was introduced.
 
 Automated Session Intelligence E2E Verification is the active Product
 Development Epic. PR #368 establishes its canonical architecture and Golden
