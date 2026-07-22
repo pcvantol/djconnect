@@ -74,6 +74,13 @@ solely for Profile resolution. It should resolve through the canonical
 fallback. Shared room Voice Endpoints should normally resolve to shared, room,
 household, guest-safe or kids profiles unless explicitly configured otherwise.
 
+Future Room Presentation Routing is distinct from Profile resolution. It uses
+the active playback output's reliably resolved Home Assistant Area only to
+choose eligible independent Visual and Audio Renderer Hosts for the same
+immutable DJMoment. When the Area is unresolved, it must not route autonomous
+speech to an arbitrary room; see
+[`docs/technical/ROOM_PRESENTATION_ROUTING_ARCHITECTURE.md`](docs/technical/ROOM_PRESENTATION_ROUTING_ARCHITECTURE.md).
+
 Future speaker recognition may become a resolver hint, but it is not a current
 client capability and must not override explicit profile selection. HA Voice
 Voice Endpoints have no persistent personal UI and no automatic access to personal

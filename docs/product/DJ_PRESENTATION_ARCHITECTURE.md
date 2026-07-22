@@ -105,6 +105,11 @@ subscription lifecycle and security boundary are defined in
 Device Lifecycle (Guest/Registered) and Experience Mode
 (Interactive/Ambient) are independent Renderer Host axes defined in
 [`../technical/RENDERER_HOST_CLASSIFICATION.md`](../technical/RENDERER_HOST_CLASSIFICATION.md).
+Future room-scoped delivery is separately bounded by the
+[`../technical/ROOM_PRESENTATION_ROUTING_ARCHITECTURE.md`](../technical/ROOM_PRESENTATION_ROUTING_ARCHITECTURE.md):
+the active playback Area selects eligible independent visual and audio Renderer
+Hosts, without changing DJMoment ownership or introducing host-to-host
+communication.
 
 ## Presentation Modes
 

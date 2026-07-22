@@ -10,6 +10,12 @@ The reference hardware for future evaluation is a Raspberry Pi-based wall
 panel. It is not a new DJConnect platform owner and does not alter Universal
 Receiver V1's platform-neutral Renderer Host boundary.
 
+When future Room Presentation Routing is implemented, the Wall Panel remains a
+Visual Renderer Host. It does not generate local TTS; a separate eligible
+Audio Renderer Host may render server-approved speech for the same Area. The
+deferred routing boundary is defined in
+[Room Presentation Routing](ROOM_PRESENTATION_ROUTING_ARCHITECTURE.md).
+
 Under the canonical [Renderer Host Classification](RENDERER_HOST_CLASSIFICATION.md),
 the Wall Panel is Registered + Interactive by default. A future Ambient state
 is a renderer-local experience transition, not a separate Session or Runtime.
@@ -194,5 +200,6 @@ This document does not implement or authorize:
 
 - [Universal Receiver V1 — Server Architecture](UNIVERSAL_RECEIVER_ARCHITECTURE.md)
 - [Renderer Host Classification](RENDERER_HOST_CLASSIFICATION.md)
+- [Room Presentation Routing Architecture](ROOM_PRESENTATION_ROUTING_ARCHITECTURE.md)
 - [DJ Presentation Architecture](../product/DJ_PRESENTATION_ARCHITECTURE.md)
 - [Developer Experience Roadmap](../product/DEVELOPER_EXPERIENCE_ROADMAP.md)
