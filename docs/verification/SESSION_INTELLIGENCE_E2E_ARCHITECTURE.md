@@ -3,7 +3,7 @@
 ## Status
 
 **Accepted architecture with Bootstrap, Driver, immutable Capture and
-Structural Invariant Validator implemented for `SI-GOLDEN-001`.** These
+Structural Invariant Validator implemented through `SI-GOLDEN-003`.** These
 boundaries remain narrow production-lifecycle, event-injection and read-only
 observation infrastructure only; this document defines no CI workflow or
 production Runtime behavior change.
@@ -61,9 +61,10 @@ recreate Planner/Knowledge/Moment decisions.
 2. Developer Session Bootstrap starts one ordinary server-owned Session for a
    deterministic fixture and returns bounded, ephemeral bootstrap data only to
    the invoking test process.
-3. The Deterministic Scenario Driver supplies the one scripted normalized
-   `SI-GOLDEN-001` Track Insight input at the existing Runtime boundary. It
-   never fabricates provider-owned Playback Instance Identity.
+3. The Deterministic Scenario Driver supplies the approved scripted normalized
+   input, or `SI-GOLDEN-003`'s fixed unavailable-Knowledge input, at the
+   existing Runtime boundary. It never fabricates provider-owned Playback
+   Instance Identity or Knowledge results.
 4. The existing Runtime processes the events using its production contracts.
 5. A read-only capture observes safe Runtime outcomes, Flow and renderer-safe
    Broadcast projections.

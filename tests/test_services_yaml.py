@@ -106,6 +106,7 @@ class ServicesYamlTest(unittest.TestCase):
         self.assertIn("Get active DJ Session", text)
         self.assertIn("Bootstrap Session Intelligence Golden Scenario", text)
         self.assertIn("SI-GOLDEN-001", text)
+        self.assertIn("SI-GOLDEN-003", text)
         self.assertIn("does not execute the scenario", compact_text)
         self.assertIn("Run Session Intelligence Golden Scenario", text)
         self.assertIn("does not invoke Planner, Knowledge or DJ Moment Engine", text)

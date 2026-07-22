@@ -2791,6 +2791,7 @@ def _register_developer_services(
         from .developer_session_scenario_driver import (
             async_execute_si_golden_001,
             async_execute_si_golden_002,
+            async_execute_si_golden_003,
         )
 
         scenario_id = str(call.data.get("scenario_id") or "SI-GOLDEN-001").strip().upper()
@@ -2798,6 +2799,8 @@ def _register_developer_services(
             return await async_execute_si_golden_001(hass)
         if scenario_id == "SI-GOLDEN-002":
             return await async_execute_si_golden_002(hass)
+        if scenario_id == "SI-GOLDEN-003":
+            return await async_execute_si_golden_003(hass)
         return {"success": False, "status": "invalid_scenario", "scenario_id": scenario_id}
 
     async def handle_developer_session_capture(call: ServiceCall) -> dict[str, Any]:

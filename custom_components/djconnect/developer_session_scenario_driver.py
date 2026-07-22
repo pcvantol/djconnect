@@ -9,6 +9,8 @@ from .developer_session_bootstrap import (
     GOLDEN_SCENARIO_PROFILE_ID,
     SI_GOLDEN_002_ID,
     SI_GOLDEN_002_PROFILE_ID,
+    SI_GOLDEN_003_ID,
+    SI_GOLDEN_003_PROFILE_ID,
     async_advance_si_golden_002_clock,
 )
 from .session_runtime import session_runtime_manager
@@ -73,6 +75,15 @@ class SIGolden002Fixture:
 
 SI_GOLDEN_002_FIXTURE = SIGolden002Fixture()
 _SI_GOLDEN_002_INTERVAL_SECONDS = 61.0
+
+
+class _SIGolden003KnowledgeUnavailable(Exception):
+    """Fixed unavailable Knowledge input for the one approved failure scenario."""
+
+
+async def _si_golden_003_unavailable_insight_provider() -> dict[str, Any]:
+    """Use the normal Runtime failure boundary; never return fabricated knowledge."""
+    raise _SIGolden003KnowledgeUnavailable("approved deterministic unavailable knowledge")
 
 
 async def async_execute_si_golden_001(hass: Any) -> dict[str, Any]:
@@ -164,4 +175,35 @@ def _si_golden_002_not_executed(session_id: str) -> dict[str, Any]:
         "status": "not_executed",
         "scenario_id": SI_GOLDEN_002_ID,
         "session_id": session_id,
+    }
+
+
+async def async_execute_si_golden_003(hass: Any) -> dict[str, Any]:
+    """Drive one approved unavailable-Knowledge input through the Runtime only."""
+    manager = session_runtime_manager(hass)
+    active = await manager.async_get_active(SI_GOLDEN_003_PROFILE_ID)
+    if active is None:
+        return {
+            "success": False,
+            "status": "bootstrap_required",
+            "scenario_id": SI_GOLDEN_003_ID,
+        }
+    moment = await manager.async_process_track_started(
+        owner_profile_id=SI_GOLDEN_003_PROFILE_ID,
+        session_id=active.session_id,
+        insight_provider=_si_golden_003_unavailable_insight_provider,
+    )
+    if moment is None:
+        return {
+            "success": False,
+            "status": "not_executed",
+            "scenario_id": SI_GOLDEN_003_ID,
+            "session_id": active.session_id,
+        }
+    return {
+        "success": True,
+        "status": "executed",
+        "scenario_id": SI_GOLDEN_003_ID,
+        "session_id": active.session_id,
+        "moment_id": moment.moment_id,
     }

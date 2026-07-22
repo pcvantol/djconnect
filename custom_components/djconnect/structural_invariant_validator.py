@@ -3,8 +3,12 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from .developer_session_bootstrap import GOLDEN_SCENARIO_ID, SI_GOLDEN_002_ID
-from .developer_session_capture import SIGolden001SessionCapture, SIGolden002SessionCapture
+from .developer_session_bootstrap import GOLDEN_SCENARIO_ID, SI_GOLDEN_002_ID, SI_GOLDEN_003_ID
+from .developer_session_capture import (
+    SIGolden001SessionCapture,
+    SIGolden002SessionCapture,
+    SIGolden003SessionCapture,
+)
 
 
 @dataclass(frozen=True)
@@ -154,6 +158,110 @@ def validate_si_golden_002(capture: SIGolden002SessionCapture) -> StructuralVali
     )
     require(
         "SI002-CLEANUP",
+        capture.cleanup_completed,
+        "completed cleanup",
+        str(capture.cleanup_completed),
+        "cleanup_completed",
+    )
+    return StructuralValidationResult("passed" if not failures else "failed", tuple(failures))
+
+
+def validate_si_golden_003(capture: SIGolden003SessionCapture) -> StructuralValidationResult:
+    """Validate only SI-GOLDEN-003's observable safe-degradation contract."""
+    failures: list[InvariantFailure] = []
+
+    def require(identifier: str, condition: bool, expected: str, observed: str, reference: str) -> None:
+        if not condition:
+            failures.append(
+                InvariantFailure(
+                    identifier,
+                    identifier.replace("SI003-", "").lower().replace("-", " "),
+                    expected,
+                    observed,
+                    reference,
+                )
+            )
+
+    if capture.scenario_id != SI_GOLDEN_003_ID or not capture.session_id:
+        return StructuralValidationResult(
+            "invalid_capture",
+            (
+                InvariantFailure(
+                    "SI003-CAPTURE-IDENTITY",
+                    "capture identity",
+                    SI_GOLDEN_003_ID,
+                    capture.scenario_id,
+                    "scenario_id",
+                ),
+            ),
+        )
+    require(
+        "SI003-RUNTIME-LIFECYCLE",
+        "runtime_active" in capture.runtime_events and capture.completion_state == "completed",
+        "active then completed",
+        repr(capture.runtime_events),
+        "runtime_events",
+    )
+    require(
+        "SI003-TRACK-STARTED",
+        capture.track_started_events == ("track_started",),
+        "one Track Started",
+        repr(capture.track_started_events),
+        "track_started_events",
+    )
+    require(
+        "SI003-KNOWLEDGE-FAILURE",
+        capture.knowledge_failure_observed,
+        "approved unavailable knowledge outcome",
+        str(capture.knowledge_failure_observed),
+        "knowledge_failure_observed",
+    )
+    require(
+        "SI003-NO-FABRICATION",
+        capture.no_fabricated_knowledge,
+        "no fabricated knowledge content or sources",
+        str(capture.no_fabricated_knowledge),
+        "no_fabricated_knowledge",
+    )
+    require(
+        "SI003-SILENCE",
+        capture.realized_moment.moment_type == "silence"
+        and capture.realized_moment.knowledge_intent == "silence",
+        "one approved Silence outcome",
+        repr(capture.realized_moment),
+        "realized_moment",
+    )
+    require(
+        "SI003-PLANNER-APPROVAL",
+        capture.approval_count == 1 and capture.planning_lifecycle == "completed",
+        "one completed Planner approval",
+        f"approval_count={capture.approval_count}, lifecycle={capture.planning_lifecycle}",
+        "approval_count/planning_lifecycle",
+    )
+    require(
+        "SI003-FLOW",
+        any(item.moment_id == capture.realized_moment.moment_id for item in capture.session_flow),
+        "Silence in Session Flow",
+        repr(capture.session_flow),
+        "session_flow",
+    )
+    require(
+        "SI003-BROADCAST",
+        capture.broadcast_contains_realized_moment
+        and not any(item.event_type == "dj_moment_published" for item in capture.broadcast_publications),
+        "Silence retained in Broadcast projection without narrative publication",
+        repr(capture.broadcast_publications),
+        "broadcast_publications",
+    )
+    require(
+        "SI003-NO-LEGACY-FALLBACK",
+        not capture.legacy_fallback_used,
+        "no legacy fallback",
+        str(capture.legacy_fallback_used),
+        "legacy_fallback_used",
+    )
+    require(
+        "SI003-CLEANUP",
         capture.cleanup_completed,
         "completed cleanup",
         str(capture.cleanup_completed),
