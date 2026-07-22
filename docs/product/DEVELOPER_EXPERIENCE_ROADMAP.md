@@ -75,15 +75,17 @@ and a separately authorized capability.
 | 3 | [Deterministic Scenario Driver](../technical/DETERMINISTIC_SCENARIO_DRIVER.md) | Complete — PR #372 | Supplies only the fixed `SI-GOLDEN-001` Track Insight input through the existing Runtime boundary. |
 | 4 | Immutable E2E Session Capture | Complete — PR #374 | Captures safe canonical outcomes and cleanup evidence without Runtime mutation. |
 | 5 | Structural Invariant Validator | Complete — PR #376 | Deterministically assesses only immutable `SI-GOLDEN-001` capture evidence; fails closed without Runtime participation. |
-| 6 | CI Smoke Suite | Active / next | Runs bounded selected scenarios in an isolated headless environment. |
-| 7 | Accelerated / event-driven Session execution | Planned | Uses approved infrastructure clock/observation controls, never business-logic conditionals. |
-| 8 | Golden Session Regression Suite | Planned | Applies versioned semantic and structural expectations. |
-| 9 | Intelligence Quality Metrics | Planned, initially non-blocking | Reports stable metrics before any governance-approved blocking threshold. |
-| 10 | Full CI Qualification and readable reports | Planned | Expands scenario coverage, artifacts and explicit qualification shape. |
-| 11 | Universal Receiver browser E2E | Optional / separate layer | Validates Receiver presentation through Broadcast and a headless browser, not core Intelligence behavior. |
-| 12 | Read-only Developer Overlay | Optional / deferred | Development-only, non-authoritative and disabled in production by default. |
-| 13 | Optional TTS Session Replay | Deferred | Reuses eligible presentation output without canonical audio persistence. |
-| 14 | Optional side-by-side Session comparison | Deferred | Compares capture artifacts without creating a competing planner. |
+| 6 | Verification Clock Architecture | Complete | Accepts one restricted infrastructure-owned elapsed-time source for isolated verification Runtimes; implementation remains separate. |
+| 7 | Verification Clock implementation for `SI-GOLDEN-002` | Active / next | Binds the accepted Clock only at the Runtime composition boundary; enables deterministic Performance Memory verification. |
+| 8 | CI Smoke Suite | Planned | Runs bounded selected scenarios in an isolated headless environment. |
+| 9 | Accelerated / event-driven Session execution | Planned | May use the approved Clock boundary only through a separately authorized capability; never business-logic conditionals. |
+| 10 | Golden Session Regression Suite | Planned | Applies versioned semantic and structural expectations. |
+| 11 | Intelligence Quality Metrics | Planned, initially non-blocking | Reports stable metrics before any governance-approved blocking threshold. |
+| 12 | Full CI Qualification and readable reports | Planned | Expands scenario coverage, artifacts and explicit qualification shape. |
+| 13 | Universal Receiver browser E2E | Optional / separate layer | Validates Receiver presentation through Broadcast and a headless browser, not core Intelligence behavior. |
+| 14 | Read-only Developer Overlay | Optional / deferred | Development-only, non-authoritative and disabled in production by default. |
+| 15 | Optional TTS Session Replay | Deferred | Reuses eligible presentation output without canonical audio persistence. |
+| 16 | Optional side-by-side Session comparison | Deferred | Compares capture artifacts without creating a competing planner. |
 
 ## Scenario and execution policy
 
@@ -94,12 +96,12 @@ invalidation, replanning, Session Update, Silence and Session end. Baseline
 scenarios remain provider-independent and must not invent provider-owned
 playback occurrence identity.
 
-Accelerated execution follows bootstrap, scenario and capture contracts. It
-uses an injectable or controlled test clock only at approved infrastructure
-boundaries and accelerated or event-driven observation timing. Production
-owners consume the same normalized contracts in real and automated scenarios;
-scattered `developer_mode`, `test_mode` or `accelerated` business-logic paths
-are prohibited.
+The [Verification Clock Architecture](../verification/VERIFICATION_CLOCK_ARCHITECTURE.md)
+accepts a restricted verification-only elapsed-time source at the Runtime
+composition boundary. Accelerated execution remains separately authorized.
+Production owners consume the same normalized contracts in real and automated
+scenarios; scattered `developer_mode`, `test_mode` or `accelerated`
+business-logic paths are prohibited.
 
 ## E2E Session Capture and validation layers
 
