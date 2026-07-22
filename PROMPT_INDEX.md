@@ -4,10 +4,11 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#392](https://github.com/pcvantol/djconnect/pull/392), **Define Room
-Presentation Routing**, merged as `d5ff9c9cb887a3e9f9b255d7315673c719c4ac48`.
+PR [#394](https://github.com/pcvantol/djconnect/pull/394), **Clarify Audio
+Renderer Host Terminology**, merged as
+`6188accd06e6eb4ce8b84570a0d234f5f4d29de4`.
 This dedicated Finalization reconciles its immutable Prompt History at
-`docs/history/prompts/2026-07-22-room-presentation-routing.md`.
+`docs/history/prompts/2026-07-22-audio-renderer-host-terminology.md`.
 
 The Session Intelligence Runtime Integration Epic is complete and reconciled.
 Supported Track Started decisions now use the one canonical Runtime lifecycle:
@@ -34,6 +35,12 @@ eligible independent Visual and Audio Renderer Hosts for one immutable
 DJMoment. It authorizes no routing, transport, Runtime or Renderer
 implementation. An unresolved Area disables autonomous speech routing; Output
 Target Binding and Area Presentation Policy remain separately deferred.
+
+Audio Renderer Host is canonical internal DJConnect terminology for a Renderer
+Host that renders approved audio presentation. Home Assistant Voice Satellite
+remains the external product, entity, configuration and UI term and is one
+possible implementation. Ambient is still an independent experience mode; this
+terminology adds no Voice Endpoint, Runtime, Broadcast or routing behavior.
 
 Platform Ambient Experience is a deferred future direction for an optional
 Raspberry Pi Reference Renderer and a separate local Platform Adapter. It
@@ -68,7 +75,7 @@ preserved behavioral contract and no-duplicate-path evidence before `GO`.
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`
 after this Finalization merges and Workspace Cleanup completes.
 Its Prompt History is
-`docs/history/prompts/2026-07-22-room-presentation-routing.md`.
+`docs/history/prompts/2026-07-22-audio-renderer-host-terminology.md`.
 
 PR #315, merged as
 `6a22b0814fcfcd277a9a854fc78b5a28ed04eadd`, is the current merged

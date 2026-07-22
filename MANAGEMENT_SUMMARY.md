@@ -15,10 +15,11 @@
 
 ## Current position
 
-PR [#392](https://github.com/pcvantol/djconnect/pull/392), **Define Room
-Presentation Routing**, merged as `d5ff9c9cb887a3e9f9b255d7315673c719c4ac48`.
-This dedicated Finalization reconciles the deferred room-scoped presentation
-routing architecture and immutable Prompt History.
+PR [#394](https://github.com/pcvantol/djconnect/pull/394), **Clarify Audio
+Renderer Host Terminology**, merged as
+`6188accd06e6eb4ce8b84570a0d234f5f4d29de4`. This dedicated Finalization
+reconciles the platform-neutral audio-presentation terminology and immutable
+Prompt History.
 
 The **Session Intelligence Runtime Integration Epic** is complete. DJConnect
 now has one canonical Runtime lifecycle for supported Track Started decisions:
@@ -46,6 +47,12 @@ DJMoment. It changes no Runtime, Broadcast or renderer behavior. Speech is
 disabled rather than routed arbitrarily when that Area is unresolved; future
 Output Target Binding and Area Presentation Policy remain installation-owned
 configuration work.
+
+Audio Renderer Host is now DJConnect's platform-neutral internal name for the
+audio-presentation role. Home Assistant Voice Satellite remains the external
+Home Assistant product and configuration term, and is one possible
+implementation of that role. Ambient stays an independent experience mode;
+this clarification adds no Runtime, Broadcast, routing or Voice Endpoint work.
 
 Automated Session Intelligence E2E Verification is active. PR #368 defines its
 canonical architecture and six Golden Scenarios as the primary product

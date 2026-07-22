@@ -28,10 +28,11 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-PR [#392](https://github.com/pcvantol/djconnect/pull/392), **Define Room
-Presentation Routing**, merged as `d5ff9c9cb887a3e9f9b255d7315673c719c4ac48`.
-This dedicated Finalization reconciles the deferred room-scoped presentation
-routing architecture and immutable Prompt History.
+PR [#394](https://github.com/pcvantol/djconnect/pull/394), **Clarify Audio
+Renderer Host Terminology**, merged as
+`6188accd06e6eb4ce8b84570a0d234f5f4d29de4`. This dedicated Finalization
+reconciles the platform-neutral audio-presentation terminology and immutable
+Prompt History.
 
 Current main records **Session Intelligence Runtime Complete**. The Runtime is
 the one canonical execution engine for all supported Track Started decisions:
@@ -68,6 +69,13 @@ DJMoment. It adds no implementation, Runtime, Broadcast, transport or
 Renderer-to-Renderer communication. If the Area cannot be reliably resolved,
 autonomous speech routing remains disabled. Output Target Binding and Area
 Presentation Policy remain separately deferred installation configuration.
+
+Audio Renderer Host is now the canonical internal DJConnect architectural role
+for local audio presentation. Home Assistant Voice Satellite remains the
+external product, entity, configuration and UI term; a Voice Satellite is one
+possible Audio Renderer Host. Ambient remains an independent experience mode.
+No implementation, Runtime, Broadcast, routing, Voice Endpoint or Home
+Assistant terminology behavior was introduced or changed.
 
 Automated Session Intelligence E2E Verification is the active Product
 Development Epic. PR #368 establishes its canonical architecture and Golden

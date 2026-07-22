@@ -5,10 +5,11 @@
 
 ## Current engineering increment
 
-PR [#392](https://github.com/pcvantol/djconnect/pull/392), **Define Room
-Presentation Routing**, merged as `d5ff9c9cb887a3e9f9b255d7315673c719c4ac48`.
-This dedicated Finalization reconciles the deferred room-scoped presentation
-routing architecture and immutable Prompt History.
+PR [#394](https://github.com/pcvantol/djconnect/pull/394), **Clarify Audio
+Renderer Host Terminology**, merged as
+`6188accd06e6eb4ce8b84570a0d234f5f4d29de4`. This dedicated Finalization
+reconciles the platform-neutral audio-presentation terminology and immutable
+Prompt History.
 
 The **Session Intelligence Runtime Integration Epic** is complete. The Runtime
 is now the canonical execution engine for all supported Track Started decisions:
@@ -40,6 +41,13 @@ for the same immutable DJMoment. It introduces no routing implementation,
 Runtime, Broadcast or transport change. An unresolved Area disables autonomous
 speech routing; Output Target Binding and Area Presentation Policy remain
 separate future installation-owned concepts.
+
+Audio Renderer Host is now the canonical internal DJConnect abstraction for a
+Renderer Host that renders approved audio presentation. Home Assistant Voice
+Satellite remains the external term for Home Assistant products, entities,
+configuration and UI; one Voice Satellite may implement an Audio Renderer Host.
+Ambient remains an independent experience mode. No Voice Endpoint, Runtime,
+Broadcast, routing or Home Assistant terminology behavior changed.
 
 Platform Ambient Experience is explicitly deferred. It preserves the future
 Platform Adapter boundary for reference wall-panel hardware, Display Policy,
