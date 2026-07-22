@@ -15,10 +15,10 @@
 
 ## Current position
 
-PR [#376](https://github.com/pcvantol/djconnect/pull/376), **Add Structural
-Invariant Validator**, merged as `e53df0334c418a93b7b688a5472589817a780238`.
-This dedicated Finalization reconciles the completed read-only validation
-layer and immutable Prompt History.
+PR [#378](https://github.com/pcvantol/djconnect/pull/378), **Add Session
+Intelligence Qualification Policy**, merged as `eed97d37f3d4499e72b600792c8479170a30c38b`.
+This dedicated Finalization
+reconciles the completed qualification policy and immutable Prompt History.
 
 The **Session Intelligence Runtime Integration Epic** is complete. DJConnect
 now has one canonical Runtime lifecycle for supported Track Started decisions:
@@ -42,6 +42,10 @@ through the real Runtime pipeline. Verification remains separate from runtime
 behavior, browser rendering and diagnostics. CI Smoke Suite is next; accelerated
 timing remains separately authorized. Browser Receiver E2E and Developer Overlay
 are later layers.
+The canonical Qualification Policy now establishes Golden Scenarios as
+product-behavior contracts, Golden Smoke as the intended blocking PR layer,
+Golden Regression as broader qualification and Quality Reports as
+non-blocking until explicitly promoted by governance.
 Audience Intelligence remains deferred and low priority.
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`
 after this Finalization merges and Workspace Cleanup completes.

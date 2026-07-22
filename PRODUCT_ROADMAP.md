@@ -20,7 +20,8 @@ Lab or Deferred. `ROADMAP_INDEX.md` owns cross-program navigation.
 | Persistent Session Foundation | Completed | Persistent Session Architecture; PR #292 | 5 |
 | Session Intelligence Runtime Integration | Completed | DJ Session Runtime Contracts, Planner, Knowledge Engine, DJ Moment Engine, Session Flow and Broadcast | 7 |
 | Universal Receiver V1 foundation | Completed — Architecture plus Broadcast Connection, Session Flow Timeline, renderer-safe Playback Projection and Now Playing are operational | Session Intelligence Runtime; `docs/technical/UNIVERSAL_RECEIVER_ARCHITECTURE.md` | 8 |
-| Automated Session Intelligence E2E Verification | In Progress — primary active Epic; Architecture, Bootstrap, Driver, Capture and Structural Invariant Validator are complete; CI Smoke Suite is next | Session Intelligence Runtime; operational Universal Receiver foundation; `docs/product/DEVELOPER_EXPERIENCE_ROADMAP.md` | 9 |
+| Automated Session Intelligence E2E Verification | In Progress — primary active Epic; Architecture, Bootstrap, Driver, Capture, Structural Invariant Validator and Qualification Policy are complete; CI Smoke Suite is next | Session Intelligence Runtime; operational Universal Receiver foundation; `docs/product/DEVELOPER_EXPERIENCE_ROADMAP.md` | 9 |
+| Session Intelligence Qualification Policy | Completed — Golden Scenarios are product-behavior contracts; Golden Smoke is the intended blocking PR layer | Golden Scenario Catalogue; PR #378 | 10 |
 | Structural Invariant Validator | Completed — deterministic, read-only and fail-closed assessment of `SI-GOLDEN-001` capture evidence | Immutable E2E Session Capture; PR #376 | 10 |
 | Immutable E2E Session Capture | Completed — immutable read-only SI-GOLDEN-001 observation artifact | Deterministic Scenario Driver; PR #374 | 10 |
 | Deterministic Scenario Driver | Completed — fixed `SI-GOLDEN-001` input reaches only the existing Runtime boundary | Developer Session Bootstrap; PR #372 | 10 |

@@ -5,10 +5,10 @@
 
 ## Current engineering increment
 
-PR [#376](https://github.com/pcvantol/djconnect/pull/376), **Add Structural
-Invariant Validator**, merged as `e53df0334c418a93b7b688a5472589817a780238`.
-This dedicated Finalization reconciles its bounded post-capture validation
-evidence and immutable Prompt History.
+PR [#378](https://github.com/pcvantol/djconnect/pull/378), **Add Session
+Intelligence Qualification Policy**, merged as `eed97d37f3d4499e72b600792c8479170a30c38b`.
+This dedicated Finalization
+reconciles its canonical policy and immutable Prompt History.
 
 The **Session Intelligence Runtime Integration Epic** is complete. The Runtime
 is now the canonical execution engine for all supported Track Started decisions:
@@ -33,7 +33,10 @@ three validation layers and strict separation from browser/overlay work.
 Bootstrap, Driver, immutable Capture and Structural Invariant Validator are
 complete for `SI-GOLDEN-001`. The Validator is read-only and deterministic: it
 fails closed on missing structural evidence without changing Runtime behavior.
-CI Smoke Suite is next. Audience Intelligence remains deferred and low priority.
+The Qualification Policy establishes Golden Smoke as the intended blocking
+end-to-end PR layer, Golden Regression as broader qualification and Quality
+Reports as non-blocking. CI Smoke Suite is next. Audience Intelligence remains
+deferred and low priority.
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`
 after this Finalization merges and Workspace Cleanup completes.
 

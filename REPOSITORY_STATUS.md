@@ -28,10 +28,10 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-PR [#376](https://github.com/pcvantol/djconnect/pull/376), **Add Structural
-Invariant Validator**, merged as `e53df0334c418a93b7b688a5472589817a780238`.
-This dedicated Finalization reconciles the completed bounded validation layer
-and immutable Prompt History.
+PR [#378](https://github.com/pcvantol/djconnect/pull/378), **Add Session
+Intelligence Qualification Policy**, merged as `eed97d37f3d4499e72b600792c8479170a30c38b`.
+This dedicated Finalization
+reconciles the completed policy and immutable Prompt History.
 
 Current main records **Session Intelligence Runtime Complete**. The Runtime is
 the one canonical execution engine for all supported Track Started decisions:
@@ -55,7 +55,10 @@ Scenario Catalogue; PR #370 completes its Bootstrap and PR #372 executes only
 fixture neither fabricates Runtime state nor calls Planner, Knowledge or Moment
 internals. PR #374 adds the immutable read-only observation artifact and PR
 #376 adds deterministic, fail-closed structural assessment of that artifact.
-CI Smoke Suite is next. Audience Intelligence remains deferred and low priority.
+PR #378 establishes the canonical qualification pyramid: Golden Smoke is the
+intended blocking E2E PR layer, Golden Regression is broader qualification and
+Quality Reports remain non-blocking. CI Smoke Suite is next. Audience
+Intelligence remains deferred and low priority.
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`
 after this Finalization merges and Workspace Cleanup completes.
 
