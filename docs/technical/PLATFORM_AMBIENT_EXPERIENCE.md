@@ -110,6 +110,49 @@ Session, Planner, Knowledge Engine, playback backend, Session Flow or Broadcast
 state. It must reconstruct presentation from the established renderer-safe
 projection when it reconnects.
 
+## Deferred Development Replay workflow
+
+Interactive development must reuse the identical canonical Golden Scenario
+execution. It must not create a second Runtime, Scenario Driver, verification
+path, Planner behavior or Knowledge behavior.
+
+The canonical execution remains:
+
+```text
+Golden Scenario
+  → Developer Session Bootstrap
+  → Deterministic Scenario Driver
+  → Production Runtime
+  → Immutable Session Capture
+  → Structural Validation
+  → PASS / FAIL
+```
+
+A future live development replay adds only a passive Renderer Host to that
+already-running verification Session:
+
+```text
+Golden Scenario
+  → Developer Session Bootstrap
+  → Production Runtime
+  → Broadcast
+  → Universal Receiver or Raspberry Pi Reference Renderer
+  → live visualization of the executing Session
+  → Immutable Session Capture
+  → Structural Validation
+  → PASS / FAIL
+```
+
+Broadcast remains the sole renderer input. The Renderer Host does not execute
+the scenario, control verification, alter timing, retain a verification result
+or participate in Capture or Structural Validation. Closing it must have no
+effect on the running verification Session or its PASS / FAIL result.
+
+The future Raspberry Pi Reference Renderer is an optional live observer for
+visual verification, UX validation and engineering debugging. It consumes the
+same renderer-safe Broadcast projections as every other Renderer Host. It is
+not a Golden Scenario executor, verifier or Runtime owner.
+
 ## Deferred gate
 
 Platform Ambient Experience remains deferred until all of the following are
@@ -120,6 +163,8 @@ true:
    meaningful; and
 3. a dedicated Pre-Flight identifies the smallest needed local contract without
    changing the platform-neutral Renderer boundary.
+4. the Golden Scenario infrastructure is complete enough to attach a passive
+   Renderer Host without weakening the canonical execution path.
 
 It does not outrank current Universal Receiver work or the active Automated
 Session Intelligence E2E Verification Epic.
@@ -133,6 +178,8 @@ This document does not implement or authorize:
 - Ambient Audio, local audio playback or TTS;
 - a new Runtime, Broadcast, HTTP or WebSocket contract;
 - browser persistence, local Session state or browser authority; or
+- Development Replay implementation, Renderer-attached verification or a
+  second Scenario execution path; or
 - a change to Universal Receiver V1 behaviour.
 
 ## References
