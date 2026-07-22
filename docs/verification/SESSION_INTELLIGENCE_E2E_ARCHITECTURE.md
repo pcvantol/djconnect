@@ -142,9 +142,11 @@ Epic.
 3. Immutable E2E Session Capture — redacted canonical evidence.
 4. Structural Invariant Validator — Layer 1 and approved Layer 2 evaluation.
 5. CI smoke and later Golden Session suites — bounded execution and artifacts.
-6. Verification Clock implementation — only after the accepted
-   [Verification Clock Architecture](VERIFICATION_CLOCK_ARCHITECTURE.md);
-   it remains an infrastructure time source, never business logic.
+6. Verification Clock implementation for `SI-GOLDEN-002` — implemented on the
+   active capability branch, pending validation/finalization, as the restricted
+   infrastructure time source accepted by the
+   [Verification Clock Architecture](VERIFICATION_CLOCK_ARCHITECTURE.md); it
+   remains infrastructure, never business logic.
 7. Accelerated/event-driven execution — a future separately authorized
    capability that may use the approved Clock boundary, never `test_mode`
    conditionals in business logic.

@@ -32,6 +32,9 @@ class StructuralInvariantValidatorTest(unittest.TestCase):
         bootstrap = types.ModuleType(f"{PACKAGE}.developer_session_bootstrap")
         bootstrap.GOLDEN_SCENARIO_ID = "SI-GOLDEN-001"
         bootstrap.GOLDEN_SCENARIO_PROFILE_ID = "fixture"
+        bootstrap.SI_GOLDEN_002_ID = "SI-GOLDEN-002"
+        bootstrap.SI_GOLDEN_002_PROFILE_ID = "fixture-002"
+        bootstrap.si_golden_002_clock_evidence = lambda hass: None
         sys.modules[bootstrap.__name__] = bootstrap
         runtime = types.ModuleType(f"{PACKAGE}.session_runtime")
         runtime.session_runtime_manager = lambda hass: None

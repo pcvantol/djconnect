@@ -1239,10 +1239,15 @@ DEVELOPER_SERVICE_SCHEMAS = {
     "developer_session_bootstrap": _developer_service_schema(
         {
             vol.Optional("action", default="start"): str,
+            vol.Optional("scenario_id", default="SI-GOLDEN-001"): str,
         }
     ),
-    "developer_session_scenario_driver": _developer_service_schema({}),
-    "developer_session_capture": _developer_service_schema({}),
+    "developer_session_scenario_driver": _developer_service_schema(
+        {vol.Optional("scenario_id", default="SI-GOLDEN-001"): str}
+    ),
+    "developer_session_capture": _developer_service_schema(
+        {vol.Optional("scenario_id", default="SI-GOLDEN-001"): str}
+    ),
     "push_register": _developer_service_schema(
         {
             vol.Required("push_token"): str,
@@ -2775,20 +2780,32 @@ def _register_developer_services(
         from .developer_session_bootstrap import async_handle_developer_session_bootstrap
 
         return await async_handle_developer_session_bootstrap(
-            hass, str(call.data.get("action") or "start")
+            hass,
+            str(call.data.get("action") or "start"),
+            str(call.data.get("scenario_id") or "SI-GOLDEN-001"),
         )
 
     async def handle_developer_session_scenario_driver(
         call: ServiceCall,
     ) -> dict[str, Any]:
-        from .developer_session_scenario_driver import async_execute_si_golden_001
+        from .developer_session_scenario_driver import (
+            async_execute_si_golden_001,
+            async_execute_si_golden_002,
+        )
 
-        return await async_execute_si_golden_001(hass)
+        scenario_id = str(call.data.get("scenario_id") or "SI-GOLDEN-001").strip().upper()
+        if scenario_id == "SI-GOLDEN-001":
+            return await async_execute_si_golden_001(hass)
+        if scenario_id == "SI-GOLDEN-002":
+            return await async_execute_si_golden_002(hass)
+        return {"success": False, "status": "invalid_scenario", "scenario_id": scenario_id}
 
     async def handle_developer_session_capture(call: ServiceCall) -> dict[str, Any]:
         from .developer_session_capture import async_handle_developer_session_capture
 
-        return await async_handle_developer_session_capture(hass)
+        return await async_handle_developer_session_capture(
+            hass, str(call.data.get("scenario_id") or "SI-GOLDEN-001")
+        )
 
     service_handlers = {
         "test_parse": (handle_test_parse, "optional"),

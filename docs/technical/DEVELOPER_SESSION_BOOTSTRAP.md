@@ -4,8 +4,8 @@
 
 `djconnect.developer_session_bootstrap` is the narrow, machine-invokable Home
 Assistant developer-service boundary that enables the first Session
-Intelligence Golden Scenario, `SI-GOLDEN-001` (the requested GS-001 flow).
-It creates and terminates an isolated ordinary server-owned Runtime Session.
+Intelligence Golden Scenarios `SI-GOLDEN-001` and `SI-GOLDEN-002`. It creates
+and terminates an isolated ordinary server-owned Runtime Session.
 
 It is an enabling boundary only. It does not execute a Golden Scenario,
 provide a Scenario Driver, collect E2E evidence, evaluate assertions, or
@@ -13,11 +13,12 @@ introduce CI orchestration.
 
 ## Contract
 
-The service accepts one optional field:
+The service accepts two optional fields:
 
 | Field | Values | Default |
 | --- | --- | --- |
 | `action` | `start`, `stop` | `start` |
+| `scenario_id` | `SI-GOLDEN-001`, `SI-GOLDEN-002` | `SI-GOLDEN-001` |
 
 `start` creates the deterministic fixture Session through the existing
 integration-wide `SessionRuntimeManager`. It returns only the machine-readable
@@ -46,17 +47,23 @@ Knowledge Engine, DJ Moment Engine, Session Flow, Broadcast and all scoped
 state. Runtime disposal follows the ordinary production lifecycle and removes
 the fixture Session from the manager.
 
-The fixture uses a dedicated profile identifier, a deterministic room, mood,
+The fixtures use dedicated profile identifiers, a deterministic room, mood,
 locale and manual start strategy. It is provider-neutral and has no provider
 credentials, queue reads or user-profile mutation.
+
+`SI-GOLDEN-002` additionally composes one ephemeral Verification Clock at the
+approved Runtime construction boundary. The Clock supplies only the ordinary
+monotonic elapsed-time value used by that Runtime's Planner. It is not created
+for production Sessions, cannot cross the fixture Session boundary, and is
+removed with the fixture Runtime. It is not exposed through Runtime transport,
+Broadcast, persistence or renderer state.
 
 ## Explicit exclusions
 
 Bootstrap does not submit Track Started observations, resolve knowledge,
 realize a DJMoment, publish a scenario outcome, obtain a Broadcast token, or
 expose Planner, Knowledge, Performance Memory or Runtime internals. It adds no
-browser surface, transport, persistence mechanism, time acceleration or Runtime
-business logic.
+browser surface, transport, persistence mechanism or Runtime business logic.
 
 ## Relationship to E2E verification
 
