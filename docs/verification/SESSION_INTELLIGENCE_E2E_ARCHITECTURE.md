@@ -12,6 +12,11 @@ The companion [Golden Scenario Catalogue](SESSION_INTELLIGENCE_GOLDEN_SCENARIOS.
 is the primary product artifact. Verification infrastructure exists only to
 execute those approved behaviors automatically.
 
+The companion [Golden Scenario Governance](GOLDEN_SCENARIO_GOVERNANCE.md)
+requires future Verification and Session Intelligence capabilities to declare
+their relationship to those approved behaviors and prevents duplicate
+execution paths.
+
 ## Purpose
 
 DJConnect must protect user-visible Session Intelligence behavior end to end.
@@ -180,6 +185,7 @@ capabilities.
 
 - [Developer Experience Roadmap](../product/DEVELOPER_EXPERIENCE_ROADMAP.md)
 - [Golden Scenario Catalogue](SESSION_INTELLIGENCE_GOLDEN_SCENARIOS.md)
+- [Golden Scenario Governance](GOLDEN_SCENARIO_GOVERNANCE.md)
 - [Session Intelligence Qualification Policy](SESSION_INTELLIGENCE_QUALIFICATION_POLICY.md)
 - [Verification Clock Architecture](VERIFICATION_CLOCK_ARCHITECTURE.md)
 - [DJ Session Runtime Contracts](../../DJ_SESSION_RUNTIME_CONTRACTS.md)

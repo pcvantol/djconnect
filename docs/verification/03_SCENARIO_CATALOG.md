@@ -15,6 +15,10 @@ E2E Verification Epic. It is intentionally separate from this broad
 platform-scenario index: it defines the end-to-end Runtime behaviors that later
 bootstrap, Scenario Driver, capture and CI capabilities must execute without
 creating an alternate Intelligence Engine.
+
+The companion [Golden Scenario Governance](GOLDEN_SCENARIO_GOVERNANCE.md)
+governs how future Session Intelligence and Verification capabilities relate to
+those product-behavior contracts.
 ## Catalog Rules
 - Scenario IDs are stable long-term references.
 - Scenario YAML files are the canonical assets; this document is the human index.
