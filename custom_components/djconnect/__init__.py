@@ -1242,6 +1242,7 @@ DEVELOPER_SERVICE_SCHEMAS = {
         }
     ),
     "developer_session_scenario_driver": _developer_service_schema({}),
+    "developer_session_capture": _developer_service_schema({}),
     "push_register": _developer_service_schema(
         {
             vol.Required("push_token"): str,
@@ -2784,6 +2785,11 @@ def _register_developer_services(
 
         return await async_execute_si_golden_001(hass)
 
+    async def handle_developer_session_capture(call: ServiceCall) -> dict[str, Any]:
+        from .developer_session_capture import async_handle_developer_session_capture
+
+        return await async_handle_developer_session_capture(hass)
+
     service_handlers = {
         "test_parse": (handle_test_parse, "optional"),
         "test_tts": (handle_test_tts, "optional"),
@@ -2834,6 +2840,7 @@ def _register_developer_services(
             handle_developer_session_scenario_driver,
             "only",
         ),
+        "developer_session_capture": (handle_developer_session_capture, "only"),
     }
     for service_name, (handler, response_mode) in service_handlers.items():
         hass.services.async_register(

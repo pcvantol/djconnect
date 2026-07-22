@@ -76,6 +76,13 @@ developer_session_scenario_driver:
     isolated Session. It supplies one deterministic Track Insight input and
     does not invoke Planner, Knowledge or DJ Moment Engine internals directly.
 
+developer_session_capture:
+  name: Capture Session Intelligence Golden Scenario
+  description: >
+    Developer and CI helper: create one immutable, read-only observation of the
+    completed SI-GOLDEN-001 Runtime execution. It captures no credentials,
+    mutable Runtime objects or Planner internals.
+
 test_parse:
   name: Test Assist parser
   description: >
