@@ -2,9 +2,10 @@
 
 ## Status
 
-**Accepted architecture for future implementation.** This document defines no
-Developer Session Bootstrap, Scenario Driver, capture implementation, CI
-workflow or production Runtime behavior.
+**Accepted architecture with Developer Session Bootstrap implemented.** The
+bootstrap is a narrow production-lifecycle boundary only; this document still
+defines no Scenario Driver, capture implementation, CI workflow or production
+Runtime behavior change.
 
 The companion [Golden Scenario Catalogue](SESSION_INTELLIGENCE_GOLDEN_SCENARIOS.md)
 is the primary product artifact. Verification infrastructure exists only to
@@ -42,17 +43,18 @@ cross-component behavior that those narrower layers cannot prove alone.
 | Capture and Validation | Read-only collection and evaluation of canonical outcomes | Mutation, recovery or correction of a live Session |
 | CI orchestration | Runs selected scenarios, retains redacted artifacts and reports results | Scenario semantics or Runtime ownership |
 
-The verification side can request a bounded start/stop boundary only after a
-future Developer Session Bootstrap capability is approved. It may never create
+The verification side can request the bounded start/stop boundary provided by
+the [Developer Session Bootstrap](../technical/DEVELOPER_SESSION_BOOTSTRAP.md).
+It may never create
 Sessions from a browser, obtain user credentials, mutate a user Profile or
 recreate Planner/Knowledge/Moment decisions.
 
 ## Future lifecycle
 
 1. CI or a local developer starts an isolated Home Assistant test environment.
-2. The future Developer Session Bootstrap starts one ordinary server-owned
-   Session for a deterministic fixture and returns internal, ephemeral data only
-   to the invoking test process.
+2. Developer Session Bootstrap starts one ordinary server-owned Session for a
+   deterministic fixture and returns bounded, ephemeral bootstrap data only to
+   the invoking test process.
 3. The future Scenario Driver supplies scripted normalized observations at an
    approved boundary. It never fabricates provider-owned Playback Instance
    Identity.

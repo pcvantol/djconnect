@@ -48,6 +48,7 @@ class ServicesYamlTest(unittest.TestCase):
             "start_session",
             "end_session",
             "active_session",
+            "developer_session_bootstrap",
         ):
             with self.subTest(service=service):
                 self.assertIn(f"{service}:", text)
@@ -101,6 +102,9 @@ class ServicesYamlTest(unittest.TestCase):
         self.assertIn("Start DJ Session", text)
         self.assertIn("End DJ Session", text)
         self.assertIn("Get active DJ Session", text)
+        self.assertIn("Bootstrap Session Intelligence Golden Scenario", text)
+        self.assertIn("SI-GOLDEN-001", text)
+        self.assertIn("does not execute the scenario", compact_text)
 
     def test_test_command_documents_play_flag(self) -> None:
         text = SERVICES.read_text()
