@@ -8,13 +8,10 @@ import unittest
 
 
 ROOT = Path(__file__).resolve().parents[1]
-PACKAGE = "custom_components.djconnect"
+PACKAGE = "structural_invariant_validator_test_package"
 
 
 def _load(name: str):
-    package = types.ModuleType(PACKAGE)
-    package.__path__ = [str(ROOT / "custom_components" / "djconnect")]
-    sys.modules.setdefault(PACKAGE, package)
     spec = importlib.util.spec_from_file_location(
         f"{PACKAGE}.{name}", ROOT / "custom_components" / "djconnect" / f"{name}.py"
     )
@@ -28,6 +25,10 @@ def _load(name: str):
 class StructuralInvariantValidatorTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
+        """Load fixtures in a private package, never in the integration package."""
+        package = types.ModuleType(PACKAGE)
+        package.__path__ = [str(ROOT / "custom_components" / "djconnect")]
+        sys.modules[PACKAGE] = package
         bootstrap = types.ModuleType(f"{PACKAGE}.developer_session_bootstrap")
         bootstrap.GOLDEN_SCENARIO_ID = "SI-GOLDEN-001"
         bootstrap.GOLDEN_SCENARIO_PROFILE_ID = "fixture"
@@ -37,6 +38,12 @@ class StructuralInvariantValidatorTest(unittest.TestCase):
         sys.modules[runtime.__name__] = runtime
         cls.capture = _load("developer_session_capture")
         cls.validator = _load("structural_invariant_validator")
+
+    @classmethod
+    def tearDownClass(cls):
+        for name in tuple(sys.modules):
+            if name == PACKAGE or name.startswith(f"{PACKAGE}."):
+                del sys.modules[name]
 
     def valid_capture(self):
         return self.capture.SIGolden001SessionCapture(
