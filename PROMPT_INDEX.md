@@ -4,10 +4,10 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#388](https://github.com/pcvantol/djconnect/pull/388), **Execute
-SI-GOLDEN-003 Knowledge Failure**, merged as `c8297d5cd7ad5bc0293c8d558b43801e2d527c7d`.
+PR [#390](https://github.com/pcvantol/djconnect/pull/390), **Classify Renderer
+Host Modes**, merged as `2e0f237b249f2634f06bec8b0c7ad4c430a959d5`.
 This dedicated Finalization reconciles its immutable Prompt History at
-`docs/history/prompts/2026-07-22-si-golden-003-knowledge-failure.md`.
+`docs/history/prompts/2026-07-22-renderer-host-classification.md`.
 
 The Session Intelligence Runtime Integration Epic is complete and reconciled.
 Supported Track Started decisions now use the one canonical Runtime lifecycle:
@@ -20,6 +20,12 @@ Capabilities 1 (PR #354), 2 (PR #358) and 3 (PR #362), and the renderer-safe
 Playback Projection (PR #360). The Receiver remains passive and local-first:
 it consumes installation-owned Broadcast projections without browser Runtime,
 transport or timing authority.
+
+Renderer Host Classification is canonical in
+`docs/technical/RENDERER_HOST_CLASSIFICATION.md`: Guest/Registered and
+Interactive/Ambient are independent axes. VibeCast is Guest + Ambient by
+default; Universal Receiver is Interactive; Pi Wall Panel is Registered +
+Interactive by default. Pairing belongs to device lifecycle only.
 
 Platform Ambient Experience is a deferred future direction for an optional
 Raspberry Pi Reference Renderer and a separate local Platform Adapter. It
@@ -54,7 +60,7 @@ preserved behavioral contract and no-duplicate-path evidence before `GO`.
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`
 after this Finalization merges and Workspace Cleanup completes.
 Its Prompt History is
-`docs/history/prompts/2026-07-22-si-golden-003-knowledge-failure.md`.
+`docs/history/prompts/2026-07-22-renderer-host-classification.md`.
 
 PR #315, merged as
 `6a22b0814fcfcd277a9a854fc78b5a28ed04eadd`, is the current merged

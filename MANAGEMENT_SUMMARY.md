@@ -15,10 +15,10 @@
 
 ## Current position
 
-PR [#388](https://github.com/pcvantol/djconnect/pull/388), **Execute
-SI-GOLDEN-003 Knowledge Failure**, merged as `c8297d5cd7ad5bc0293c8d558b43801e2d527c7d`.
-This dedicated Finalization reconciles its safe-degradation verification
-evidence and immutable Prompt History.
+PR [#390](https://github.com/pcvantol/djconnect/pull/390), **Classify Renderer
+Host Modes**, merged as `2e0f237b249f2634f06bec8b0c7ad4c430a959d5`.
+This dedicated Finalization reconciles the canonical two-axis Renderer Host
+architecture and immutable Prompt History.
 
 The **Session Intelligence Runtime Integration Epic** is complete. DJConnect
 now has one canonical Runtime lifecycle for supported Track Started decisions:
