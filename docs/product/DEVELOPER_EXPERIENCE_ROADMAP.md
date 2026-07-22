@@ -6,8 +6,8 @@
 
 The single recommended next capability is **CI Smoke Suite**. The Architecture,
 Developer Session Bootstrap, Deterministic Scenario Driver, Immutable E2E
-Session Capture and Structural Invariant Validator are complete. This document is
-a roadmap and governance record; it authorizes no implementation of CI,
+Session Capture and Structural Invariant Validator now execute through
+`SI-GOLDEN-003`. This document is a roadmap and governance record; it authorizes no implementation of CI,
 Developer Mode, simulation, browser testing or runtime behavior.
 
 The [Session Intelligence Qualification Policy](../verification/SESSION_INTELLIGENCE_QUALIFICATION_POLICY.md),
@@ -81,15 +81,16 @@ and a separately authorized capability.
 | 5 | Structural Invariant Validator | Complete — PR #376 | Deterministically assesses only immutable `SI-GOLDEN-001` capture evidence; fails closed without Runtime participation. |
 | 6 | Verification Clock Architecture | Complete | Accepts one restricted infrastructure-owned elapsed-time source for isolated verification Runtimes; implementation remains separate. |
 | 7 | Verification Clock implementation for `SI-GOLDEN-002` | Complete — PR #382 | Binds the accepted Clock only at the Runtime composition boundary; executes, captures and structurally validates deterministic first-eligible Performance Memory repetition avoidance without changing production clock composition. |
-| 8 | CI Smoke Suite | Planned | Runs bounded selected scenarios in an isolated headless environment. |
-| 9 | Accelerated / event-driven Session execution | Planned | May use the approved Clock boundary only through a separately authorized capability; never business-logic conditionals. |
-| 10 | Golden Session Regression Suite | Planned | Applies versioned semantic and structural expectations. |
-| 11 | Intelligence Quality Metrics | Planned, initially non-blocking | Reports stable metrics before any governance-approved blocking threshold. |
-| 12 | Full CI Qualification and readable reports | Planned | Expands scenario coverage, artifacts and explicit qualification shape. |
-| 13 | Universal Receiver browser E2E | Optional / separate layer | Validates Receiver presentation through Broadcast and a headless browser, not core Intelligence behavior. |
-| 14 | Read-only Developer Overlay | Optional / deferred | Development-only, non-authoritative and disabled in production by default. |
-| 15 | Optional TTS Session Replay | Deferred | Reuses eligible presentation output without canonical audio persistence. |
-| 16 | Optional side-by-side Session comparison | Deferred | Compares capture artifacts without creating a competing planner. |
+| 8 | `SI-GOLDEN-003` safe Knowledge degradation | Complete | Executes, captures and structurally validates one fixed unavailable-Knowledge input through the existing Runtime, resulting in approved Silence without fabricated content. |
+| 9 | CI Smoke Suite | Planned | Runs bounded selected scenarios in an isolated headless environment. |
+| 10 | Accelerated / event-driven Session execution | Planned | May use the approved Clock boundary only through a separately authorized capability; never business-logic conditionals. |
+| 11 | Golden Session Regression Suite | Planned | Applies versioned semantic and structural expectations. |
+| 12 | Intelligence Quality Metrics | Planned, initially non-blocking | Reports stable metrics before any governance-approved blocking threshold. |
+| 13 | Full CI Qualification and readable reports | Planned | Expands scenario coverage, artifacts and explicit qualification shape. |
+| 14 | Universal Receiver browser E2E | Optional / separate layer | Validates Receiver presentation through Broadcast and a headless browser, not core Intelligence behavior. |
+| 15 | Read-only Developer Overlay | Optional / deferred | Development-only, non-authoritative and disabled in production by default. |
+| 16 | Optional TTS Session Replay | Deferred | Reuses eligible presentation output without canonical audio persistence. |
+| 17 | Optional side-by-side Session comparison | Deferred | Compares capture artifacts without creating a competing planner. |
 
 ## Scenario and execution policy
 

@@ -18,6 +18,8 @@ SI_GOLDEN_001_ID = "SI-GOLDEN-001"
 SI_GOLDEN_001_PROFILE_ID = "e2e-session-intelligence-golden-001"
 SI_GOLDEN_002_ID = "SI-GOLDEN-002"
 SI_GOLDEN_002_PROFILE_ID = "e2e-session-intelligence-golden-002"
+SI_GOLDEN_003_ID = "SI-GOLDEN-003"
+SI_GOLDEN_003_PROFILE_ID = "e2e-session-intelligence-golden-003"
 
 # Kept as the original fixed-scenario names for the completed SI-GOLDEN-001 API.
 GOLDEN_SCENARIO_ID = SI_GOLDEN_001_ID
@@ -120,6 +122,8 @@ def _scenario_profile_id(scenario_id: str) -> str:
         return SI_GOLDEN_001_PROFILE_ID
     if scenario_id == SI_GOLDEN_002_ID:
         return SI_GOLDEN_002_PROFILE_ID
+    if scenario_id == SI_GOLDEN_003_ID:
+        return SI_GOLDEN_003_PROFILE_ID
     return ""
 
 

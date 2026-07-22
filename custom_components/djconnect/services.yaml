@@ -54,7 +54,7 @@ developer_session_bootstrap:
   description: >
     Developer and CI helper: start or stop the isolated server-owned Runtime
     Session required to enable the explicitly selected Session Intelligence
-    Golden Scenario. It supports only SI-GOLDEN-001 and SI-GOLDEN-002.
+    Golden Scenario. It supports only SI-GOLDEN-001, SI-GOLDEN-002 and SI-GOLDEN-003.
     It does not execute the scenario, generate a DJMoment or expose Runtime,
     Planner, Knowledge, Performance Memory or Broadcast-token internals.
   fields:
@@ -78,6 +78,7 @@ developer_session_bootstrap:
           options:
             - SI-GOLDEN-001
             - SI-GOLDEN-002
+            - SI-GOLDEN-003
 
 developer_session_scenario_driver:
   name: Run Session Intelligence Golden Scenario
@@ -97,6 +98,7 @@ developer_session_scenario_driver:
           options:
             - SI-GOLDEN-001
             - SI-GOLDEN-002
+            - SI-GOLDEN-003
 
 developer_session_capture:
   name: Capture Session Intelligence Golden Scenario
@@ -115,6 +117,7 @@ developer_session_capture:
           options:
             - SI-GOLDEN-001
             - SI-GOLDEN-002
+            - SI-GOLDEN-003
 
 test_parse:
   name: Test Assist parser
