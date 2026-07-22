@@ -76,7 +76,7 @@ and a separately authorized capability.
 | 4 | Immutable E2E Session Capture | Complete — PR #374 | Captures safe canonical outcomes and cleanup evidence without Runtime mutation. |
 | 5 | Structural Invariant Validator | Complete — PR #376 | Deterministically assesses only immutable `SI-GOLDEN-001` capture evidence; fails closed without Runtime participation. |
 | 6 | Verification Clock Architecture | Complete | Accepts one restricted infrastructure-owned elapsed-time source for isolated verification Runtimes; implementation remains separate. |
-| 7 | Verification Clock implementation for `SI-GOLDEN-002` | Active / next | Binds the accepted Clock only at the Runtime composition boundary; enables deterministic Performance Memory verification. |
+| 7 | Verification Clock implementation for `SI-GOLDEN-002` | Implemented — pending validation/finalization | Binds the accepted Clock only at the Runtime composition boundary; enables deterministic Performance Memory verification without changing production clock composition. |
 | 8 | CI Smoke Suite | Planned | Runs bounded selected scenarios in an isolated headless environment. |
 | 9 | Accelerated / event-driven Session execution | Planned | May use the approved Clock boundary only through a separately authorized capability; never business-logic conditionals. |
 | 10 | Golden Session Regression Suite | Planned | Applies versioned semantic and structural expectations. |

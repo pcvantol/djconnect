@@ -10,8 +10,9 @@ Do not automatically create GitHub issues from this file.
 > `docs/product/DEVELOPER_EXPERIENCE_ROADMAP.md`. Its Architecture and Developer
 > Session Bootstrap, Deterministic Scenario Driver, Immutable E2E Session
 > Capture, Structural Invariant Validator and Verification Clock Architecture
-> are complete; restricted Clock implementation for `SI-GOLDEN-002` is the
-> next CI-enabling cell.
+> are complete. Restricted Clock implementation for `SI-GOLDEN-002` is
+> implemented on the active capability branch, pending validation/finalization;
+> CI smoke execution remains the next separately authorized enabling cell.
 > Any later scenario, capture, accelerated execution or verification work must
 > exercise the canonical server-owned pipeline rather than introduce alternate
 > Runtime or business-logic paths.

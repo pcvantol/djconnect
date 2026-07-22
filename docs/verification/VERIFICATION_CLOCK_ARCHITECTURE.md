@@ -64,10 +64,10 @@ The Verification Clock must not:
 
 ## Relationship to future capabilities
 
-`SI-GOLDEN-002` may use the Clock only after a separately authorized
-implementation binds it at the approved Runtime boundary. Its Scenario Driver
-continues to supply observable inputs only and never advances time or changes
-Planner state.
+`SI-GOLDEN-002` uses the Clock through the separately authorized implementation
+at the approved Runtime boundary. Its fixed Driver requests one bounded
+infrastructure advance between its two observable Track Started inputs; it
+does not select a clock, manipulate Planner state or change a Planner decision.
 
 This decision is not accelerated execution. A future accelerated-execution
 capability may propose controlled advancement only through this same
@@ -77,11 +77,10 @@ simulation, Runtime shortcuts or CI workflow changes.
 
 ## Consequences
 
-The next verification implementation may introduce the smallest bounded Clock
-contract needed to execute `SI-GOLDEN-002`; it must prove unchanged production
-monotonic behavior and no business-mode branching. Until that separate
-capability is accepted, no Scenario Driver, Planner, Runtime or CI change is
-authorized by this architecture record.
+The implementation provides the smallest bounded Clock contract needed to
+execute `SI-GOLDEN-002`. It proves unchanged production monotonic composition
+and no business-mode branching. This does not authorize a generic simulation
+engine, accelerated execution or CI workflow changes.
 
 ## References
 

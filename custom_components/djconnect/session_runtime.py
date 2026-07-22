@@ -1274,6 +1274,9 @@ class DJSessionPlanner:
     last_spoken_moment_at: float = 0.0
     last_decision: PlannerDecision | None = None
     flow_change_journal: tuple[SessionFlowChange, ...] = ()
+    elapsed_time_source: Callable[[], float] = field(
+        default=time.monotonic, repr=False, compare=False
+    )
 
     def __post_init__(self) -> None:
         """Record the initial canonical Flow state without advancing its revision."""
@@ -1352,7 +1355,7 @@ class DJSessionPlanner:
         performance_memory = performance_memory or PerformanceMemory("")
         discover_context = discover_context or DiscoverContext()
         mood = selected_mood.strip().lower()
-        now = time.monotonic()
+        now = self.elapsed_time_source()
         if self.last_spoken_moment_at and now - self.last_spoken_moment_at < self.configuration.minimum_time_between_moments_seconds:
             self.last_decision = PlannerDecision(PlannerDecisionType.SILENCE, "minimum_interval")
             return self.last_decision
@@ -1441,7 +1444,7 @@ class DJSessionPlanner:
         return self.last_decision
 
     def record_spoken_moment(self) -> None:
-        self.last_spoken_moment_at = time.monotonic()
+        self.last_spoken_moment_at = self.elapsed_time_source()
 
     def project_track_started_planning_input(
         self,
@@ -3086,6 +3089,7 @@ class SessionRuntimeManager:
         locale: str = "en",
         session_start_strategy: SessionStartStrategy = SessionStartStrategy.MANUAL,
         discover_context: DiscoverContext | None = None,
+        elapsed_time_source: Callable[[], float] | None = None,
     ) -> DJSessionRuntime:
         """Create the one active Runtime allowed for a Profile."""
         async with self._lock:
@@ -3113,6 +3117,7 @@ class SessionRuntimeManager:
                 session_id=session_id,
                 created_at=now,
                 configuration=start_configuration.planner_configuration,
+                elapsed_time_source=elapsed_time_source,
             )
             performance_memory = PerformanceMemory(planner.output.session_flow.flow_id)
             creating = DJSessionRuntime(
@@ -3982,7 +3987,11 @@ def _discover_context_repeats(
 
 
 def _create_session_planner(
-    *, session_id: str, created_at: str, configuration: PlannerConfiguration
+    *,
+    session_id: str,
+    created_at: str,
+    configuration: PlannerConfiguration,
+    elapsed_time_source: Callable[[], float] | None = None,
 ) -> DJSessionPlanner:
     """Create the one non-persistent Planner for a newly created Runtime."""
     return DJSessionPlanner(
@@ -4001,6 +4010,7 @@ def _create_session_planner(
             )
         ),
         horizon=RollingSessionHorizon(window_minutes=15, created_at=created_at),
+        elapsed_time_source=elapsed_time_source or time.monotonic,
     )
 
 

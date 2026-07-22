@@ -10,11 +10,11 @@ The Session Intelligence Runtime and Universal Receiver V1 foundation are
 complete. The active Product Development Epic is Automated Session Intelligence
 E2E Verification. Its Architecture, Developer Session Bootstrap, Deterministic
 Scenario Driver, Immutable E2E Session Capture and Structural Invariant
-Validator are complete as recorded in
+Validator are complete, while the restricted `SI-GOLDEN-002` Verification Clock
+implementation is pending validation/finalization as recorded in
 [`docs/product/DEVELOPER_EXPERIENCE_ROADMAP.md`](../../product/DEVELOPER_EXPERIENCE_ROADMAP.md).
-Bootstrap enables only `SI-GOLDEN-001` lifecycle setup for headless CI rather
-than manual setup; restricted Verification Clock implementation for
-`SI-GOLDEN-002` is next. This record
+Bootstrap enables explicit approved Golden Scenario lifecycle setup for
+headless verification rather than manual setup. This record
 activates no Verification Platform implementation or simulation runtime. Future scenario, capture,
 report and Golden Session work must reuse the canonical Runtime, Planner,
 Knowledge Engine, DJ Moment Engine, Session Flow and Broadcast pipeline.
