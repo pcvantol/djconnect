@@ -26,6 +26,12 @@ configured as an appliance. Experience Mode describes how that renderer presents
 an active Session. Neither axis changes Session ownership, Runtime behavior or
 the canonical Broadcast contract.
 
+Presentation role is a separate internal architectural distinction: a Renderer
+Host may be a Visual Renderer Host or an Audio Renderer Host. The latter is
+broader than a Home Assistant Voice Satellite, which remains external platform
+terminology. Ambient remains an Experience Mode rather than a third host role;
+see [Audio Renderer Host Architecture](AUDIO_RENDERER_HOST_ARCHITECTURE.md).
+
 ## Shared ownership boundary
 
 All combinations consume the same renderer-safe, server-owned Broadcast

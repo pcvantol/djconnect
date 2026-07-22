@@ -91,8 +91,10 @@ presentations of specific Moment types, not independent feature concepts.
 ## Renderer Hosts
 
 A **Renderer Host** renders DJ Moments on one technology stack. Apple Renderer
-Host, Windows Renderer Host, Web Renderer Host and Voice Renderer Host are
-examples.
+Host, Windows Renderer Host, Web Renderer Host, Visual Renderer Host and Audio
+Renderer Host are presentation examples. An Audio Renderer Host is the internal
+DJConnect abstraction; a Home Assistant Voice Satellite remains the external
+platform term for one possible implementation.
 
 A Renderer Host owns its renderer registry, renderer discovery, renderer
 lifecycle and navigation integration. It selects an appropriate Presentation
@@ -110,6 +112,8 @@ Future room-scoped delivery is separately bounded by the
 the active playback Area selects eligible independent visual and audio Renderer
 Hosts, without changing DJMoment ownership or introducing host-to-host
 communication.
+The platform-neutral Audio Renderer Host boundary is defined in
+[`../technical/AUDIO_RENDERER_HOST_ARCHITECTURE.md`](../technical/AUDIO_RENDERER_HOST_ARCHITECTURE.md).
 
 ## Presentation Modes
 

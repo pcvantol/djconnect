@@ -80,6 +80,10 @@ choose eligible independent Visual and Audio Renderer Hosts for the same
 immutable DJMoment. When the Area is unresolved, it must not route autonomous
 speech to an arbitrary room; see
 [`docs/technical/ROOM_PRESENTATION_ROUTING_ARCHITECTURE.md`](docs/technical/ROOM_PRESENTATION_ROUTING_ARCHITECTURE.md).
+[Audio Renderer Host](docs/technical/AUDIO_RENDERER_HOST_ARCHITECTURE.md) is the internal DJConnect presentation term; Home Assistant
+Voice Satellite remains the external term for the Home Assistant product,
+entity, configuration and UI. The distinction does not change Voice Endpoint
+request-context or Profile-resolution behavior.
 
 Future speaker recognition may become a resolver hint, but it is not a current
 client capability and must not override explicit profile selection. HA Voice

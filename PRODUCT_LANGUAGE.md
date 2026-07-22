@@ -62,7 +62,8 @@ Use these terms consistently:
 | Household Profile | Shared profile for shared devices and family spaces |
 | Shared Room Profile | Shared profile for a room, area or satellite context |
 | Guest Profile | Guest-safe shared profile with no personal leakage |
-| Voice Satellite / HA Voice Satellite | Home Assistant voice endpoint that can invoke DJConnect through Assist |
+| Voice Satellite / HA Voice Satellite | Home Assistant voice endpoint that can invoke DJConnect through Assist; retain this external term for Home Assistant docs, entities, configuration and UI |
+| [Audio Renderer Host](docs/technical/AUDIO_RENDERER_HOST_ARCHITECTURE.md) | Internal DJConnect architectural term for a Renderer Host that renders approved audio presentation; a Home Assistant Voice Satellite is one implementation |
 | Request Context | Developer-facing resolver input describing where an interaction originated |
 | Satellite mapping | Developer-facing mapping from an HA Voice Satellite to a DJConnect Profile |
 | Personal | Paid/profile-level personalization tier |

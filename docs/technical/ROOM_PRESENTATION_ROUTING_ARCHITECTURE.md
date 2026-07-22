@@ -113,7 +113,9 @@ and future Ambient displays.
 ### Audio Renderer Hosts
 
 Eligible audio hosts in the active Area may render server-approved speech.
-Home Assistant Voice Satellites are an illustrative future Audio Renderer Host.
+A Home Assistant Voice Satellite is one possible Audio Renderer Host. Voice
+Satellite remains the correct Home Assistant product, entity, configuration and
+UI terminology; Audio Renderer Host is DJConnect's internal architectural term.
 They consume the same DJMoment as visual hosts and never synchronize through
 peer communication.
 
@@ -178,6 +180,7 @@ transport changes or Runtime behavior changes.
 ## References
 
 - [DJ Presentation Architecture](../product/DJ_PRESENTATION_ARCHITECTURE.md)
+- [Audio Renderer Host Architecture](AUDIO_RENDERER_HOST_ARCHITECTURE.md)
 - [Renderer Host Classification](RENDERER_HOST_CLASSIFICATION.md)
 - [Platform Ambient Experience](PLATFORM_AMBIENT_EXPERIENCE.md)
 - [Universal Receiver V1 — Server Architecture](UNIVERSAL_RECEIVER_ARCHITECTURE.md)
