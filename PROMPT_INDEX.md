@@ -4,11 +4,11 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#372](https://github.com/pcvantol/djconnect/pull/372), **Add Deterministic
-Scenario Driver**, merged as `fe36351a73dc3278956e29dd3b18373454c00f21`.
+PR [#374](https://github.com/pcvantol/djconnect/pull/374), **Add Immutable E2E
+Session Capture**, merged as `d927d30e5eb5162501ed916c24a3db8d5df1c066`.
 This dedicated Finalization reconciles the completed Driver and immutable
 Prompt History at
-`docs/history/prompts/2026-07-22-deterministic-scenario-driver.md`.
+`docs/history/prompts/2026-07-22-immutable-e2e-session-capture.md`.
 
 The Session Intelligence Runtime Integration Epic is complete and reconciled.
 Supported Track Started decisions now use the one canonical Runtime lifecycle:
