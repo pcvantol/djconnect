@@ -4,8 +4,8 @@
 
 `djconnect.developer_session_bootstrap` is the narrow, machine-invokable Home
 Assistant developer-service boundary that enables the first Session
-Intelligence Golden Scenarios `SI-GOLDEN-001`, `SI-GOLDEN-002` and
-`SI-GOLDEN-003`. It creates
+Intelligence Golden Scenarios `SI-GOLDEN-001` through `SI-GOLDEN-006`. It
+creates
 and terminates an isolated ordinary server-owned Runtime Session.
 
 It is an enabling boundary only. It does not execute a Golden Scenario,
@@ -19,7 +19,7 @@ The service accepts two optional fields:
 | Field | Values | Default |
 | --- | --- | --- |
 | `action` | `start`, `stop` | `start` |
-| `scenario_id` | `SI-GOLDEN-001`, `SI-GOLDEN-002`, `SI-GOLDEN-003` | `SI-GOLDEN-001` |
+| `scenario_id` | `SI-GOLDEN-001` through `SI-GOLDEN-006` | `SI-GOLDEN-001` |
 
 `start` creates the deterministic fixture Session through the existing
 integration-wide `SessionRuntimeManager`. It returns only the machine-readable
@@ -63,6 +63,10 @@ Broadcast, persistence or renderer state.
 isolated Session and the ordinary Runtime lifecycle, so the fixed unavailable
 Knowledge input can degrade through the existing Planner, Knowledge, Moment,
 Session Flow and Broadcast boundaries.
+
+`SI-GOLDEN-004` through `SI-GOLDEN-006` use the same isolated lifecycle. The
+only fixture distinction is the existing chill influence for `SI-GOLDEN-006`;
+the Bootstrap does not select, realize or expose a planner result.
 
 ## Explicit exclusions
 

@@ -5,20 +5,21 @@
 
 ## Current engineering increment
 
-PR [#414](https://github.com/pcvantol/djconnect/pull/414), **Add Golden
-Qualification Foundation**, merged as `35d14e24fc226b8afec9a2d5e7c2c9a7e517f20b`.
-This dedicated Finalization reconciles its immutable Prompt History and
-qualification evidence.
+PR [#416](https://github.com/pcvantol/djconnect/pull/416), **Complete original
+Session Intelligence Golden Scenarios**, merged as `330e81805ce6df71f6a99c687f7fa15ce17a7f9f`. This dedicated Finalization
+reconciles its immutable Prompt History and qualification evidence.
 
 Golden Qualification Foundation is now the one executable deterministic,
-server-side path for the current approved Golden Scenarios. It composes the
-existing Bootstrap, Scenario Driver, immutable Capture and Structural Validator
-twice per scenario, proving Session Intelligence, immutable Presentation and
-renderer-safe Broadcast evidence. Silence correctly remains Presentation
-`not_applicable`. Golden Smoke and Golden Regression are future selection
-profiles over this same path, never second implementations. No Renderer Host,
-visual, audio, TTS, hardware, CI workflow, Runtime ownership, Planner,
-Knowledge Engine or Session Flow behavior changed.
+server-side path for all six original approved Golden Scenarios. It composes
+the existing Bootstrap, Scenario Driver, immutable Capture and Structural
+Validator twice per scenario, proving Session Intelligence, immutable
+Presentation where product semantics require it, and renderer-safe Broadcast
+evidence. `SI-GOLDEN-004` remains planning-only; `SI-GOLDEN-006` preserves
+Intentional Silence without forcing Speech Presentation. Golden Smoke and
+Golden Regression are future selection profiles over this same path, never
+second implementations. No Renderer Host, visual, audio, TTS, hardware, CI
+workflow, Runtime ownership, Planner, Knowledge Engine or Session Flow
+behavior changed.
 
 The **Session Intelligence Runtime Integration Epic** is complete. The Runtime
 is now the canonical execution engine for all supported Track Started decisions:
@@ -91,7 +92,7 @@ architecture and six product-focused Golden Scenarios are now canonical. They
 define a read-only, headless verification path over the real Runtime pipeline,
 three validation layers and strict separation from browser/overlay work.
 Bootstrap, Driver, immutable Capture and Structural Invariant Validator are
-complete through `SI-GOLDEN-003`. The second scenario uses one
+complete through `SI-GOLDEN-006`. The second scenario uses one
 ephemeral verification Clock composed only into its isolated Runtime: after the
 minimum interval it proves Performance Memory prevents the first eligible
 knowledge-backed repetition. The Validator is read-only and deterministic: it
@@ -102,8 +103,11 @@ Reports as non-blocking. CI Smoke Suite is next. Audience Intelligence remains
 deferred and low priority. The Verification Clock Architecture and its bounded
 `SI-GOLDEN-002` implementation are complete; CI Smoke Suite is next.
 `SI-GOLDEN-003` proves one unavailable Knowledge input becomes an approved
-Silence without fabricated content, while Session Flow and Broadcast remain
-valid. It changes no production Runtime fallback behavior.
+Silence without fabricated content. `SI-GOLDEN-004` proves bounded replanning
+without a realized Moment; `SI-GOLDEN-005` proves two Silences followed by one
+Session Update with Presentation; `SI-GOLDEN-006` proves Intentional Silence
+without narrative content. Session Flow and Broadcast remain canonical and no
+production Runtime fallback behavior changed.
 
 Golden Scenario Governance is now canonical. Future Verification increments
 must declare whether they enable, execute, capture, validate or protect an

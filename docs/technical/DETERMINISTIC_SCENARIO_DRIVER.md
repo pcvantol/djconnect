@@ -3,8 +3,8 @@
 ## Purpose
 
 `djconnect.developer_session_scenario_driver` executes only the approved
-`SI-GOLDEN-001`, `SI-GOLDEN-002` and `SI-GOLDEN-003` scenarios through the
-existing production Session Runtime. It is a machine-invokable, headless
+`SI-GOLDEN-001` through `SI-GOLDEN-006` scenarios through the existing
+production Session Runtime. It is a machine-invokable, headless
 verification boundary, not a simulation engine or a second Runtime.
 
 The service requires the isolated Session created by
@@ -23,6 +23,14 @@ identifier, credentials, queue data, wall-clock value or random value.
 the existing Runtime insight-provider boundary. It returns no partial insight,
 fabricated knowledge result or provider payload. The Runtime's normal failure
 handling owns the resulting approved Silence behavior.
+
+`SI-GOLDEN-004` submits only three bounded observed-playback projections to
+the Runtime-owned replanning boundary: initial, extended/equivalent and
+shortened. It does not call Planner internals or realize a DJMoment.
+`SI-GOLDEN-005` supplies three deterministic empty inputs so existing Runtime
+semantics produce two Silences and one resetting Session Update.
+`SI-GOLDEN-006` supplies one safe track observation with bounded upcoming
+coverage, allowing existing chill policy to choose Intentional Silence.
 
 The driver invokes the existing Runtime boundary for every fixed Track Started
 event:
@@ -57,3 +65,7 @@ For `SI-GOLDEN-003`, the Driver does not catch, translate or recover the
 unavailable input. It supplies the fixed failure at the same boundary as every
 other input; Planner selection, Knowledge resolution, Silence realization,
 Flow and Broadcast remain Runtime-owned.
+
+The same boundaries apply to `SI-GOLDEN-004` through `SI-GOLDEN-006`: the
+Driver supplies only approved observations, while the Runtime owns replanning,
+selection, realization, Presentation, Flow and Broadcast semantics.
