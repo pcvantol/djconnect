@@ -15,10 +15,15 @@
 
 ## Current position
 
-PR [#400](https://github.com/pcvantol/djconnect/pull/400), **Define Audience
-Experience Architecture**, merged as `64d40399bb9e838b38b162b17311464eeb295d69`.
-This dedicated Finalization reconciles the canonical Audience Experience
-definition and immutable Prompt History.
+PR [#402](https://github.com/pcvantol/djconnect/pull/402), **Add Platform
+Overview Architecture**, merged as `8afdb7456bd0567f3bfa20209aa6c428415a5e60`.
+This dedicated Finalization reconciles the canonical architectural entry point
+and immutable Prompt History.
+
+The Platform Overview Architecture is now the recommended descriptive starting
+point for the established Profile, Playback, Session Intelligence, Presentation
+and Verification platforms. It adds no product behavior, ownership change or
+delivery commitment; the linked detailed architecture remains authoritative.
 
 The **Session Intelligence Runtime Integration Epic** is complete. DJConnect
 now has one canonical Runtime lifecycle for supported Track Started decisions:
