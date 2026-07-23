@@ -4,10 +4,15 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#400](https://github.com/pcvantol/djconnect/pull/400), **Define Audience
-Experience Architecture**, merged as `64d40399bb9e838b38b162b17311464eeb295d69`.
+PR [#402](https://github.com/pcvantol/djconnect/pull/402), **Add Platform
+Overview Architecture**, merged as `8afdb7456bd0567f3bfa20209aa6c428415a5e60`.
 This dedicated Finalization reconciles its immutable Prompt History at
-`docs/history/prompts/2026-07-22-audience-experience-architecture.md`.
+`docs/history/prompts/2026-07-23-platform-overview-architecture.md`.
+
+`PLATFORM_OVERVIEW_ARCHITECTURE.md` is the recommended descriptive architecture
+entry point for existing Profile, Playback, Session Intelligence, Presentation
+and Verification platform boundaries. It introduces no new architecture,
+ownership, implementation authorization or Runtime behavior.
 
 The Session Intelligence Runtime Integration Epic is complete and reconciled.
 Supported Track Started decisions now use the one canonical Runtime lifecycle:

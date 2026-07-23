@@ -28,10 +28,15 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-PR [#400](https://github.com/pcvantol/djconnect/pull/400), **Define Audience
-Experience Architecture**, merged as `64d40399bb9e838b38b162b17311464eeb295d69`.
-This dedicated Finalization reconciles the canonical Audience Experience
-definition and immutable Prompt History.
+PR [#402](https://github.com/pcvantol/djconnect/pull/402), **Add Platform
+Overview Architecture**, merged as `8afdb7456bd0567f3bfa20209aa6c428415a5e60`.
+This dedicated Finalization reconciles the canonical architectural entry point
+and immutable Prompt History.
+
+`PLATFORM_OVERVIEW_ARCHITECTURE.md` is the recommended descriptive architecture
+starting point. It navigates established Profile, Playback, Session
+Intelligence, Presentation and Verification boundaries without creating a new
+platform, ownership model, implementation plan or Runtime behavior.
 
 Current main records **Session Intelligence Runtime Complete**. The Runtime is
 the one canonical execution engine for all supported Track Started decisions:
