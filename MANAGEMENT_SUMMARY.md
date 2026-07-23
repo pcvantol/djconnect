@@ -15,20 +15,18 @@
 
 ## Current position
 
-PR [#406](https://github.com/pcvantol/djconnect/pull/406), **Integrate
-Presentation Composer execution pipeline**, merged as
-`353bbd9c57fd87b3d61d53cfd77e17eebea87e19`. This dedicated Finalization
-reconciles its renderer-safe Projection, Golden Scenario evidence and immutable
-Prompt History.
+PR [#408](https://github.com/pcvantol/djconnect/pull/408), **Define
+renderer-neutral Speech Rendering contract**, merged as
+`2eb658b66aa2a366183a4114218a7f0138210744`. This dedicated Finalization
+reconciles its contract evidence and immutable Prompt History.
 
-Presentation Composer is now the first server-side Presentation Platform
-execution boundary with a complete Broadcast and verification path. It composes
-one internal immutable Presentation from one approved DJMoment; Broadcast adds
-its renderer-safe Presentation Projection without replacing the DJMoment
-projection or creating a Flow item. Speech is text-only. SI-GOLDEN-002 proves
-the deterministic eligible DJ–Sidekick and non-eligible Primary Only outcomes.
-No new planner, knowledge, runtime, playback, TTS, voice or renderer authority
-was introduced.
+Speech Presentation now has one clear cross-platform boundary. Presentation
+Composer and Broadcast provide identical immutable, ordered text segments and
+semantic roles; each Renderer Host may locally choose text, audio or both.
+Voice selection and TTS provider selection are never server decisions. The
+Universal Receiver, VibeCast, Apple and Home Assistant remain future Renderer
+Host implementations, not new server pipelines. No planner, knowledge,
+runtime, playback, TTS or renderer implementation was introduced.
 
 The **Session Intelligence Runtime Integration Epic** is complete. DJConnect
 now has one canonical Runtime lifecycle for supported Track Started decisions:
