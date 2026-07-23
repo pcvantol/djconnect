@@ -44,6 +44,7 @@ GOLDEN_QUALIFICATION_PROFILE = "golden_qualification_foundation"
 GOLDEN_SMOKE_PROFILE = "golden_smoke"
 GOLDEN_REGRESSION_PROFILE = "golden_regression"
 GOLDEN_REGRESSION_PROFILE_VERSION = 1
+ADVISORY_QUALITY_METRICS_SCHEMA_VERSION = 1
 EXECUTABLE_GOLDEN_SCENARIOS = (
     SI_GOLDEN_001_ID,
     SI_GOLDEN_002_ID,
@@ -103,10 +104,67 @@ async def async_run_golden_qualification(
     )
 
 
-async def async_handle_golden_qualification(hass: Any) -> dict[str, Any]:
-    """Expose bounded qualification metadata without exposing Runtime internals."""
-    report = await async_run_golden_qualification(hass)
+def advisory_quality_metrics(report: GoldenQualificationReport) -> dict[str, Any]:
+    """Project bounded, read-only advisory metrics from one immutable report.
+
+    This is deliberately a report projection: it neither participates in
+    qualification nor retains any evidence after the caller has received it.
+    """
+    selected_scenarios = len(report.scenarios)
+    executed_scenarios = selected_scenarios
+    session_passes = sum(
+        item.session_verification == "passed" for item in report.scenarios
+    )
+    deterministic_scenarios = sum(item.deterministic for item in report.scenarios)
+    applicable_presentations = tuple(
+        item
+        for item in report.scenarios
+        if item.presentation_verification != "not_applicable"
+    )
+    presentation_passes = sum(
+        item.presentation_verification == "passed"
+        for item in applicable_presentations
+    )
+    failure_identifier_counts: dict[str, int] = {}
+    for item in report.scenarios:
+        for identifier in item.failure_identifiers:
+            failure_identifier_counts[identifier] = (
+                failure_identifier_counts.get(identifier, 0) + 1
+            )
+
     return {
+        "metric_schema_version": ADVISORY_QUALITY_METRICS_SCHEMA_VERSION,
+        "profile": report.profile,
+        "profile_version": report.profile_version,
+        "selected_scenarios": selected_scenarios,
+        "executed_scenarios": executed_scenarios,
+        "scenario_coverage": (
+            executed_scenarios / selected_scenarios if selected_scenarios else 0.0
+        ),
+        "session_verification_pass_rate": (
+            session_passes / selected_scenarios if selected_scenarios else 0.0
+        ),
+        "determinism_rate": (
+            deterministic_scenarios / selected_scenarios if selected_scenarios else 0.0
+        ),
+        "applicable_presentation_verifications": len(applicable_presentations),
+        "presentation_pass_rate": (
+            presentation_passes / len(applicable_presentations)
+            if applicable_presentations
+            else None
+        ),
+        "failure_identifier_counts": dict(sorted(failure_identifier_counts.items())),
+        "advisory_status": "advisory",
+    }
+
+
+def _bounded_report_payload(
+    report: GoldenQualificationReport,
+    *,
+    include_advisory_metrics: bool = False,
+) -> dict[str, Any]:
+    """Return the existing bounded report, optionally with its advisory view."""
+    payload = {
         "success": report.overall_status == "passed",
         "status": report.overall_status,
         "profile": report.profile,
@@ -122,6 +180,21 @@ async def async_handle_golden_qualification(hass: Any) -> dict[str, Any]:
             for item in report.scenarios
         ],
     }
+    if report.profile_version is not None:
+        payload["profile_version"] = report.profile_version
+    if include_advisory_metrics:
+        payload["advisory_metrics"] = advisory_quality_metrics(report)
+    return payload
+
+
+async def async_handle_golden_qualification(
+    hass: Any, *, include_advisory_metrics: bool = False
+) -> dict[str, Any]:
+    """Expose bounded qualification metadata without exposing Runtime internals."""
+    report = await async_run_golden_qualification(hass)
+    return _bounded_report_payload(
+        report, include_advisory_metrics=include_advisory_metrics
+    )
 
 
 async def async_run_golden_smoke(hass: Any) -> GoldenQualificationReport:
@@ -136,25 +209,14 @@ async def async_run_golden_smoke(hass: Any) -> GoldenQualificationReport:
     )
 
 
-async def async_handle_golden_smoke(hass: Any) -> dict[str, Any]:
+async def async_handle_golden_smoke(
+    hass: Any, *, include_advisory_metrics: bool = False
+) -> dict[str, Any]:
     """Expose the bounded Golden Smoke report from the canonical path."""
     report = await async_run_golden_smoke(hass)
-    return {
-        "success": report.overall_status == "passed",
-        "status": report.overall_status,
-        "profile": report.profile,
-        "scenarios": [
-            {
-                "scenario_id": item.scenario_id,
-                "session_verification": item.session_verification,
-                "presentation_verification": item.presentation_verification,
-                "deterministic": item.deterministic,
-                "overall_status": item.overall_status,
-                "failure_identifiers": item.failure_identifiers,
-            }
-            for item in report.scenarios
-        ],
-    }
+    return _bounded_report_payload(
+        report, include_advisory_metrics=include_advisory_metrics
+    )
 
 
 async def async_run_golden_regression(hass: Any) -> GoldenQualificationReport:
@@ -170,26 +232,14 @@ async def async_run_golden_regression(hass: Any) -> GoldenQualificationReport:
     )
 
 
-async def async_handle_golden_regression(hass: Any) -> dict[str, Any]:
+async def async_handle_golden_regression(
+    hass: Any, *, include_advisory_metrics: bool = False
+) -> dict[str, Any]:
     """Expose the bounded Golden Regression report from the canonical path."""
     report = await async_run_golden_regression(hass)
-    return {
-        "success": report.overall_status == "passed",
-        "status": report.overall_status,
-        "profile": report.profile,
-        "profile_version": report.profile_version,
-        "scenarios": [
-            {
-                "scenario_id": item.scenario_id,
-                "session_verification": item.session_verification,
-                "presentation_verification": item.presentation_verification,
-                "deterministic": item.deterministic,
-                "overall_status": item.overall_status,
-                "failure_identifiers": item.failure_identifiers,
-            }
-            for item in report.scenarios
-        ],
-    }
+    return _bounded_report_payload(
+        report, include_advisory_metrics=include_advisory_metrics
+    )
 
 
 async def _qualify_scenario(hass: Any, scenario_id: str) -> GoldenScenarioQualification:

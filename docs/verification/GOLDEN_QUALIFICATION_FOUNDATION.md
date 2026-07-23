@@ -64,6 +64,26 @@ Validator, cleanup and two-run deterministic comparison.
 
 Neither profile introduces a CI workflow, scheduled run or release gate.
 
+## Advisory Intelligence Quality Metrics
+
+Each existing bounded qualification report can optionally include an
+**Intelligence Quality Metrics v1** section. It is a transient, read-only
+projection created only after the Foundation has produced its immutable
+`GoldenQualificationReport`; it is not a second qualification or evidence
+model. The section is selected with `include_advisory_metrics: true` on a
+Golden Foundation, Smoke or Regression developer service.
+
+Metrics v1 is schema-versioned and limited to report-derived profile metadata,
+scenario selection and execution counts, coverage, session-verification and
+determinism rates, applicable Presentation-verification count and pass rate,
+and aggregated invariant-failure identifier counts. Its `advisory_status` is
+always advisory. It cannot influence Structural Validator authority, the
+qualification PASS/FAIL result, Foundation execution or cleanup.
+
+The projection retains no history and exposes no prompts, Moment text, Runtime
+objects, Planner or Knowledge state, provider or renderer information, memory,
+credentials, or raw evidence.
+
 ## Scope exclusions
 
 No Renderer Host, browser UI, DOM, visual snapshot, animation, generated audio,

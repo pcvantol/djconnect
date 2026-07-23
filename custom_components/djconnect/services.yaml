@@ -139,6 +139,15 @@ golden_qualification:
     only Planner, Knowledge, DJMoment, Presentation, Session Flow and
     renderer-safe Broadcast projections; it does not test a Renderer Host,
     visual output, audio, TTS or hardware.
+  fields:
+    include_advisory_metrics:
+      name: Include advisory metrics
+      description: >
+        Add the bounded, read-only Intelligence Quality Metrics v1 projection
+        to this report. It does not affect qualification success or failure.
+      default: false
+      selector:
+        boolean:
 
 golden_smoke:
   name: Run Golden Smoke
@@ -148,6 +157,15 @@ golden_smoke:
     Qualification Foundation. It reuses the same Bootstrap, Scenario Driver,
     immutable Capture, Structural Validation and bounded report. This service
     does not implement a CI workflow or change Golden Scenario behavior.
+  fields:
+    include_advisory_metrics:
+      name: Include advisory metrics
+      description: >
+        Add the bounded, read-only Intelligence Quality Metrics v1 projection
+        to this report. It does not affect qualification success or failure.
+      default: false
+      selector:
+        boolean:
 
 golden_regression:
   name: Run Golden Regression
@@ -158,6 +176,15 @@ golden_regression:
     Runtime, immutable Capture, Structural Validation, cleanup and bounded
     report. This fixed profile accepts no scenario selection or configuration,
     and does not implement a CI workflow or release gate.
+  fields:
+    include_advisory_metrics:
+      name: Include advisory metrics
+      description: >
+        Add the bounded, read-only Intelligence Quality Metrics v1 projection
+        to this report. It does not affect qualification success or failure.
+      default: false
+      selector:
+        boolean:
 
 test_parse:
   name: Test Assist parser

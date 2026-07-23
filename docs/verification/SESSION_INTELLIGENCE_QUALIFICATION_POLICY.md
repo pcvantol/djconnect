@@ -20,7 +20,7 @@ exists only to execute, observe or validate these approved contracts.
 | 3 | Golden Qualification Foundation | Execute the canonical deterministic server-side path for current Session Intelligence and Presentation evidence. | Local development and future CI reuse | Implemented; no CI gate yet |
 | 4 | Golden Smoke profile | Select the smallest approved end-to-end behavior, `SI-GOLDEN-001`, from the Foundation. | Local development and future CI reuse | Implemented; no CI gate yet |
 | 5 | Golden Regression profile | Select the complete approved Session Intelligence catalogue, `SI-GOLDEN-001` through `SI-GOLDEN-006`, from the Foundation. | Local development and future broader qualification reuse | Implemented locally; no CI gate yet |
-| 6 | Quality Reports | Observe long-term Intelligence quality. | Qualification reporting | Non-blocking |
+| 6 | Advisory Intelligence Quality Metrics | Provide bounded, report-derived qualification insight. | Optional local report section | Implemented; advisory only |
 
 Golden Smoke remains deterministic, fast, stable and small enough for routine
 CI. Golden Regression is the broader qualification suite. Both are execution
@@ -35,14 +35,18 @@ renderer-safe Broadcast projection, never renderer output.
 
 ## Quality metrics policy
 
-Quality Reports may include repetition ratio, Silence ratio, recommendation
-diversity, transition frequency, planning churn and fallback frequency. They
-are observational and non-blocking by default.
+Intelligence Quality Metrics v1 is a bounded, schema-versioned and transient
+projection of an immutable `GoldenQualificationReport`. It is strictly
+advisory: the Structural Validator remains the sole success authority, and the
+projection cannot alter qualification PASS/FAIL, execution, Capture or
+validation.
 
-A quality metric may become a release gate only when its definition is stable,
-its baseline is approved, false-positive behavior is understood, and repository
-governance explicitly authorizes promotion. No metric becomes blocking merely
-because it can be measured.
+It includes only objective report-derived metadata, scenario coverage and
+counts, session-verification and determinism rates, applicable Presentation
+verification and pass rate, and aggregated invariant-failure identifiers. It
+does not retain history, set thresholds or scores, create a gate, or expose
+prompts, Moment text, Runtime state, Planner or Knowledge state, provider or
+renderer data, memory, credentials or raw evidence.
 
 ## Scenario relationship for new capabilities
 
