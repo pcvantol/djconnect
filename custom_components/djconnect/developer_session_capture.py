@@ -11,6 +11,12 @@ from .developer_session_bootstrap import (
     SI_GOLDEN_002_PROFILE_ID,
     SI_GOLDEN_003_ID,
     SI_GOLDEN_003_PROFILE_ID,
+    SI_GOLDEN_004_ID,
+    SI_GOLDEN_004_PROFILE_ID,
+    SI_GOLDEN_005_ID,
+    SI_GOLDEN_005_PROFILE_ID,
+    SI_GOLDEN_006_ID,
+    SI_GOLDEN_006_PROFILE_ID,
     si_golden_002_clock_evidence,
 )
 from .session_runtime import session_runtime_manager
@@ -35,6 +41,7 @@ class CapturedMoment:
     knowledge_intent: str
     summary: str = ""
     content: str = ""
+    reason: str = ""
 
 
 @dataclass(frozen=True)
@@ -134,6 +141,21 @@ class SIGolden003SessionCapture:
     legacy_fallback_used: bool = False
     cleanup_completed: bool = False
     presentations: tuple[CapturedPresentation, ...] = ()
+
+
+@dataclass(frozen=True)
+class RemainingGoldenSessionCapture:
+    """Immutable evidence for the remaining original Golden Scenario contracts."""
+    scenario_id: str
+    session_id: str
+    moments: tuple[CapturedMoment, ...]
+    session_flow: tuple[CapturedFlowEntry, ...]
+    broadcast_publications: tuple[CapturedBroadcastPublication, ...]
+    presentations: tuple[CapturedPresentation, ...]
+    planning_generation: int
+    superseded_intent_count: int = 0
+    planned_intents: tuple[tuple[str, int, str], ...] = ()
+    completion_state: str = "completed"
 
 
 async def async_capture_si_golden_001(hass: Any) -> SIGolden001SessionCapture | None:
@@ -284,6 +306,49 @@ async def async_capture_si_golden_003(hass: Any) -> SIGolden003SessionCapture | 
     )
 
 
+async def async_capture_remaining_golden(hass: Any, scenario_id: str) -> RemainingGoldenSessionCapture | None:
+    """Capture only immutable observable Runtime evidence for GS-004 through GS-006."""
+    profiles = {SI_GOLDEN_004_ID: SI_GOLDEN_004_PROFILE_ID, SI_GOLDEN_005_ID: SI_GOLDEN_005_PROFILE_ID, SI_GOLDEN_006_ID: SI_GOLDEN_006_PROFILE_ID}
+    active = await session_runtime_manager(hass).async_get_active(profiles.get(scenario_id, ""))
+    if active is None:
+        return None
+    flow = tuple(CapturedFlowEntry(item.item_id, item.item_type.value, item.position.value, item.moment_id, item.moment_type) for item in active.planner.output.session_flow.items)
+    publications = tuple(CapturedBroadcastPublication(entry.delivery_sequence, entry.event_type.value) for entry in active.broadcast.replay_log)
+    moments = tuple(
+        CapturedMoment(
+            moment.moment_id,
+            moment.moment_type.value,
+            moment.knowledge_intent.intent_type.value,
+            moment.summary,
+            moment.content,
+            dict(moment.generation_metadata).get("reason", ""),
+        )
+        for moment in active.moment_engine.moments
+    )
+    horizon = active.planner.horizon
+    superseded = sum(intent.status.value == "superseded" for intent in horizon.planning_window.planned_intents) if horizon and horizon.planning_window else 0
+    planned_intents = tuple(
+        (intent.category, intent.generation, intent.status.value)
+        for intent in horizon.planning_window.planned_intents
+    ) if horizon and horizon.planning_window else ()
+    planning_generation = (
+        horizon.planning_window.generation
+        if horizon and horizon.planning_window is not None
+        else active.planning_coordinator.last_planning_generation or 0
+    )
+    return RemainingGoldenSessionCapture(
+        scenario_id,
+        active.session_id,
+        moments,
+        flow,
+        publications,
+        _captured_presentations(active),
+        planning_generation,
+        superseded,
+        planned_intents,
+    )
+
+
 async def async_handle_developer_session_capture(
     hass: Any, scenario_id: str = GOLDEN_SCENARIO_ID
 ) -> dict[str, Any]:
@@ -295,13 +360,21 @@ async def async_handle_developer_session_capture(
         capture = await async_capture_si_golden_002(hass)
     elif scenario == SI_GOLDEN_003_ID:
         capture = await async_capture_si_golden_003(hass)
+    elif scenario in {SI_GOLDEN_004_ID, SI_GOLDEN_005_ID, SI_GOLDEN_006_ID}:
+        capture = await async_capture_remaining_golden(hass, scenario)
     else:
         return {"success": False, "status": "invalid_scenario", "scenario_id": scenario}
     if capture is None:
         return {"success": False, "status": "execution_required", "scenario_id": scenario}
     moment_id = capture.second_realized_moment.moment_id if isinstance(
         capture, SIGolden002SessionCapture
-    ) else capture.realized_moment.moment_id
+    ) else (
+        capture.moments[-1].moment_id
+        if isinstance(capture, RemainingGoldenSessionCapture) and capture.moments
+        else capture.realized_moment.moment_id
+        if not isinstance(capture, RemainingGoldenSessionCapture)
+        else ""
+    )
     return {
         "success": True,
         "status": "captured",

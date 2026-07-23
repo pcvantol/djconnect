@@ -3,9 +3,10 @@
 ## Status
 
 **Implemented deterministic server-side qualification foundation.** It is the
-sole executable qualification path for `SI-GOLDEN-001`, `SI-GOLDEN-002` and
-`SI-GOLDEN-003`. It runs locally through `djconnect.golden_qualification`; a
-future CI invocation must reuse the same composition boundary.
+sole executable qualification path for all six original Session Intelligence
+Golden Scenarios (`SI-GOLDEN-001` through `SI-GOLDEN-006`). It runs locally
+through `djconnect.golden_qualification`; a future CI invocation must reuse
+the same composition boundary.
 
 ## Canonical execution
 
@@ -33,9 +34,15 @@ exists, Presentation Verification covers source identity, mode, ordered Speech
 segments, semantic Speaker Roles, safe fallback and renderer-safe projection.
 Overall Qualification requires both executions to pass and to be equivalent.
 
-`SI-GOLDEN-003` reports Presentation Verification as `not_applicable`: its
-approved Silence has no narrative Presentation and verification must not
-invent one. It remains qualified through its Session and Broadcast contract.
+`SI-GOLDEN-004` reports Presentation Verification as `not_applicable`: it is
+deliberately planning-only and must not force a DJMoment, Presentation, Flow
+rewrite or Broadcast planning projection. `SI-GOLDEN-003` and
+`SI-GOLDEN-006` also report it as `not_applicable`: their Silence contracts
+do not require narrative Speech Presentation. `SI-GOLDEN-006` may retain the
+existing non-speech renderer-safe Presentation projection when the canonical
+domain model produces one; qualification never fabricates one for uniformity.
+All three remain qualified through their respective Session and Broadcast
+contracts.
 
 Reports contain only bounded statuses and invariant identifiers. They expose no
 mutable Runtime state, Planner or Knowledge internals, renderer configuration,

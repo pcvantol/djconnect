@@ -3323,6 +3323,36 @@ class SessionRuntimeManager:
             last_published_position_ms=playback.position_ms,
         )
 
+    async def async_replan_observed_playback(
+        self,
+        *,
+        owner_profile_id: str,
+        session_id: str,
+        upcoming_playback: UpcomingPlaybackProjection,
+        approve_earliest: bool = False,
+    ) -> bool:
+        """Apply an observed playback change to the active Planner Horizon only.
+
+        This is the Runtime-owned planning path for observation changes that do
+        not constitute Track Started and therefore must not realize a DJMoment.
+        It exposes no planning state and never publishes a renderer projection.
+        """
+        async with self._lock:
+            active = self._active_by_profile.get(owner_profile_id)
+            if (
+                active is None
+                or active.session_id != session_id
+                or active.planner.horizon is None
+            ):
+                return False
+            window = active.planner.horizon.replan(upcoming_playback=upcoming_playback)
+            if approve_earliest:
+                window.evaluate_readiness(
+                    invalidation_generation=active.planner.horizon.invalidation_generation
+                )
+                return window.approve_earliest_planned_intent() is not None
+            return True
+
     async def async_process_track_started(
         self,
         *,
