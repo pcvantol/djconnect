@@ -28,17 +28,19 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-PR [#404](https://github.com/pcvantol/djconnect/pull/404), **Add Presentation
-Composer**, merged as `93fdb4eb0c514997b81bd26e7b740f001327b5c5`.
-This dedicated Finalization reconciles the bounded server-side Presentation
-Composer and immutable Prompt History.
+PR [#406](https://github.com/pcvantol/djconnect/pull/406), **Integrate
+Presentation Composer execution pipeline**, merged as
+`353bbd9c57fd87b3d61d53cfd77e17eebea87e19`. This dedicated Finalization
+reconciles its immutable Prompt History and evidence.
 
 Presentation Composer now converts each Runtime-published immutable DJMoment
-into one immutable renderer-safe Presentation before Broadcast. Speech is its
-first capability; deterministic Artist Story composition may add one Sidekick
-segment sourced only from approved content, otherwise Primary Only applies. No
-new intelligence owner, playback behaviour, TTS, voice configuration or local
-renderer composition was introduced.
+into an internal immutable Presentation and Broadcast publishes its additive
+canonical renderer-safe Presentation Projection beside the existing DJMoment
+projection. Speech remains text-only. SI-GOLDEN-002 structurally verifies the
+eligible Artist Story DJ–Sidekick sequence and the non-eligible Primary Only
+sequence, each source-linked to its existing Moment without a Presentation Flow
+entry. No new intelligence owner, playback behaviour, TTS, voice configuration
+or local renderer composition was introduced.
 
 Current main records **Session Intelligence Runtime Complete**. The Runtime is
 the one canonical execution engine for all supported Track Started decisions:

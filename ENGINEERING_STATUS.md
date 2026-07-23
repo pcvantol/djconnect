@@ -5,17 +5,22 @@
 
 ## Current engineering increment
 
-PR [#404](https://github.com/pcvantol/djconnect/pull/404), **Add Presentation
-Composer**, merged as `93fdb4eb0c514997b81bd26e7b740f001327b5c5`.
-This dedicated Finalization reconciles the bounded server-side Presentation
-Composer implementation and its immutable Prompt History.
+PR [#406](https://github.com/pcvantol/djconnect/pull/406), **Integrate
+Presentation Composer execution pipeline**, merged as `353bbd9c57fd87b3d61d53cfd77e17eebea87e19`.
+This dedicated Finalization
+reconciles its renderer-safe Presentation Projection, Golden Scenario evidence
+and immutable Prompt History.
 
-Presentation Composer is now the Presentation Platform boundary after one
-approved immutable DJMoment and before Broadcast. It composes one immutable,
-renderer-safe Presentation with Speech Presentation as its first capability.
-The bounded Sidekick is only an Artist Story secondary role and otherwise falls
-back deterministically to Primary Only. It adds no Planner, Knowledge Engine,
-Runtime, playback, TTS, voice-selection or renderer authority.
+Presentation Composer now composes its immutable internal Presentation after
+one approved DJMoment. Broadcast retains the existing DJMoment projection and
+additively distributes the canonical renderer-safe Presentation Projection.
+The Projection contains source identity, safe visibility and optional ordered
+Speech segments only; it excludes Runtime Context, Planner, Knowledge, prompts,
+provider payloads, renderer configuration and Profile-private state. The
+existing SI-GOLDEN-002 proves an eligible Artist Story's DJ–Sidekick sequence
+and the next non-eligible Moment's Primary Only sequence without changing
+Session Flow. No Planner, Knowledge Engine, Runtime, playback, TTS,
+voice-selection or renderer authority changed.
 
 The **Session Intelligence Runtime Integration Epic** is complete. The Runtime
 is now the canonical execution engine for all supported Track Started decisions:
