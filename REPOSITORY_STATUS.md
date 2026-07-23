@@ -28,10 +28,18 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-PR [#416](https://github.com/pcvantol/djconnect/pull/416), **Complete original
-Session Intelligence Golden Scenarios**, merged as
-`330e81805ce6df71f6a99c687f7fa15ce17a7f9f`. This dedicated Finalization
-reconciles its immutable Prompt History and evidence.
+PR [#418](https://github.com/pcvantol/djconnect/pull/418), **Establish
+platform-scoped Golden Scenario governance**, merged as
+`af80f88da98504b8cf8c244b63500de7f194ddae`. This dedicated Finalization
+reconciles its immutable Prompt History and governance evidence.
+
+Golden Scenarios are now governed as platform-scoped behavioral contract
+families. The original six Session Intelligence scenarios are complete and
+unchanged. Presentation and Audience Experience receive separate future
+families with scoped identifiers, and any later platform family needs explicit
+product justification. Golden Qualification remains one unified behavioral
+qualification pipeline. No scenario, Qualification, Golden Smoke, Golden
+Regression, CI, Runtime, renderer or Audience behavior changed.
 
 Golden Qualification Foundation now executes the one canonical deterministic
 server-side qualification path for all six original Golden Scenarios. It

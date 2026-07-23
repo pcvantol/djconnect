@@ -4,11 +4,19 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#416](https://github.com/pcvantol/djconnect/pull/416), **Complete original
-Session Intelligence Golden Scenarios**, merged as
-`330e81805ce6df71f6a99c687f7fa15ce17a7f9f`. This dedicated Finalization
+PR [#418](https://github.com/pcvantol/djconnect/pull/418), **Establish
+platform-scoped Golden Scenario governance**, merged as
+`af80f88da98504b8cf8c244b63500de7f194ddae`. This dedicated Finalization
 reconciles its immutable Prompt History at
-`docs/history/prompts/2026-07-23-complete-original-golden-scenarios.md`.
+`docs/history/prompts/2026-07-23-golden-scenario-platform-governance.md`.
+
+Golden Scenarios are product-behavior contracts scoped to their architectural
+platform. `SI-GOLDEN-001` through `SI-GOLDEN-006` remain the complete original
+Session Intelligence family. Presentation and Audience Experience have separate
+future families with scoped identifiers; no scenario execution or behavior is
+authorized by that governance change. Golden Qualification remains one
+platform-independent pipeline, and current Golden Smoke, Golden Regression and
+CI scope are unchanged.
 
 Golden Qualification Foundation is the sole executable deterministic
 server-side path for all six original Golden Scenarios: Bootstrap -> Scenario
