@@ -4,18 +4,19 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#408](https://github.com/pcvantol/djconnect/pull/408), **Define
-renderer-neutral Speech Rendering contract**, merged as
-`2eb658b66aa2a366183a4114218a7f0138210744`. This dedicated Finalization
+PR [#410](https://github.com/pcvantol/djconnect/pull/410), **Define
+Presentation Capability Architecture**, merged as
+`942ce57aa617ba482a06354b86445575fd0b83b0`. This dedicated Finalization
 reconciles its immutable Prompt History at
-`docs/history/prompts/2026-07-23-speech-rendering-contract.md`.
+`docs/history/prompts/2026-07-23-presentation-capability-architecture.md`.
 
-The Speech Rendering Contract defines the one renderer-neutral consumption
-boundary after Broadcast. Renderer Hosts consume the same immutable ordered
-Speech Presentation and never generate or modify it. Semantic roles remain
-unchanged; voice mapping, configured TTS and Text/Audio interpretation are
-renderer-local. This authorizes no Universal Receiver, VibeCast, Apple or Home
-Assistant renderer implementation.
+Presentation Capability Architecture formalizes the additive capability layer.
+Existing renderer-safe visual Presentation remains canonical; Speech is the
+first newly formalized structured Composer-capability. Renderer Hosts consume
+only supported capabilities independently, while Room Presentation Routing
+selects hosts rather than capabilities. Future composition expands the current
+architecture and authorizes no renderer, negotiation, Broadcast or Runtime
+implementation.
 
 The Session Intelligence Runtime Integration Epic is complete and reconciled.
 Supported Track Started decisions now use the one canonical Runtime lifecycle:

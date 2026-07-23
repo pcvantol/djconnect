@@ -5,19 +5,19 @@
 
 ## Current engineering increment
 
-PR [#408](https://github.com/pcvantol/djconnect/pull/408), **Define
-renderer-neutral Speech Rendering contract**, merged as `2eb658b66aa2a366183a4114218a7f0138210744`.
+PR [#410](https://github.com/pcvantol/djconnect/pull/410), **Define
+Presentation Capability Architecture**, merged as `942ce57aa617ba482a06354b86445575fd0b83b0`.
 This dedicated Finalization reconciles its immutable Prompt History and
-renderer-contract evidence.
+capability-architecture evidence.
 
-Speech Presentation now has one canonical consumption contract: Renderer Hosts
-receive only immutable renderer-safe Presentation Projections and preserve
-their ordered semantic Speaker Roles. Role-to-Voice mapping, provider choice
-and audio/text rendering stay local to each Renderer Host. Broadcast remains
-text-only and exposes no TTS, voice, provider, Room-routing or renderer
-configuration. The focused regression proves the immutable Projection survives
-Broadcast unchanged and excludes renderer-specific information. No Renderer,
-TTS, transport, Planner, Knowledge Engine or Runtime implementation changed.
+Presentation now has one canonical capability model. Existing renderer-safe
+visual Presentation through DJMoment, Session Flow, Playback, Universal
+Receiver and safe visual metadata remains current and authoritative. Speech is
+the first newly formalized structured Composer-capability and augments that
+existing visual architecture; it does not replace, supersede or defer it.
+Richer visual, Ambient, Audience and Ambient Light composition remain deferred
+extensions. No Renderer, negotiation, Broadcast, TTS, Runtime, Planner or
+Knowledge Engine behavior changed.
 
 The **Session Intelligence Runtime Integration Epic** is complete. The Runtime
 is now the canonical execution engine for all supported Track Started decisions:

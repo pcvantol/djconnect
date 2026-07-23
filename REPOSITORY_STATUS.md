@@ -28,18 +28,19 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-PR [#408](https://github.com/pcvantol/djconnect/pull/408), **Define
-renderer-neutral Speech Rendering contract**, merged as
-`2eb658b66aa2a366183a4114218a7f0138210744`. This dedicated Finalization
+PR [#410](https://github.com/pcvantol/djconnect/pull/410), **Define
+Presentation Capability Architecture**, merged as
+`942ce57aa617ba482a06354b86445575fd0b83b0`. This dedicated Finalization
 reconciles its immutable Prompt History and evidence.
 
-Speech Presentation is now canonically consumed after Broadcast by Renderer
-Hosts. The immutable Projection remains the same for Audio and Visual Renderer
-Hosts; a host may render text, local speech or both without modifying it.
-Role-to-Voice mapping, configured TTS provider and fallback remain
-renderer-local. VibeCast, Apple, Home Assistant and the Universal Receiver are
-documented future consumers only. No renderer, TTS, transport, Runtime or
-Session Intelligence behavior was introduced.
+Presentation now has one canonical capability architecture. Existing
+renderer-safe visual Presentation remains authoritative through established
+DJMoment, Session Flow, Playback and renderer-safe metadata projections. Speech
+is the first newly formalized structured capability introduced by Presentation
+Composer and is additive. Future richer visual, Ambient, Audience and Ambient
+Light composition extend rather than replace existing Presentation. No
+renderer negotiation, renderer implementation, Broadcast, Runtime or Session
+Intelligence behavior was introduced.
 
 Current main records **Session Intelligence Runtime Complete**. The Runtime is
 the one canonical execution engine for all supported Track Started decisions:
