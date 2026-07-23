@@ -15,10 +15,17 @@
 
 ## Current position
 
-PR [#416](https://github.com/pcvantol/djconnect/pull/416), **Complete original
-Session Intelligence Golden Scenarios**, merged as
-`330e81805ce6df71f6a99c687f7fa15ce17a7f9f`. This dedicated Finalization
-reconciles its capability evidence and immutable Prompt History.
+PR [#418](https://github.com/pcvantol/djconnect/pull/418), **Establish
+platform-scoped Golden Scenario governance**, merged as
+`af80f88da98504b8cf8c244b63500de7f194ddae`. This dedicated Finalization
+reconciles its governance evidence and immutable Prompt History.
+
+Golden Scenario governance now keeps product-behavior contracts within their
+own architectural platforms. The six original Session Intelligence scenarios
+are complete and unchanged; Presentation and Audience Experience have separate
+future families rather than extending that roadmap. Golden Qualification stays
+one platform-independent pipeline. The change adds no scenario, Qualification,
+CI, Runtime, renderer or Audience behavior.
 
 Golden Qualification Foundation now supplies one executable proof path for all
 six original server-owned behavioral contracts: deterministic Playback

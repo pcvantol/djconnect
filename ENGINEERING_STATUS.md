@@ -5,9 +5,18 @@
 
 ## Current engineering increment
 
-PR [#416](https://github.com/pcvantol/djconnect/pull/416), **Complete original
-Session Intelligence Golden Scenarios**, merged as `330e81805ce6df71f6a99c687f7fa15ce17a7f9f`. This dedicated Finalization
-reconciles its immutable Prompt History and qualification evidence.
+PR [#418](https://github.com/pcvantol/djconnect/pull/418), **Establish
+platform-scoped Golden Scenario governance**, merged as `af80f88da98504b8cf8c244b63500de7f194ddae`. This dedicated Finalization
+reconciles its immutable Prompt History and governance evidence.
+
+Golden Scenarios are canonically organized by architectural platform. The six
+original `SI-GOLDEN-001` through `SI-GOLDEN-006` scenarios remain the complete
+Session Intelligence behavioral contract. Presentation and Audience Experience
+have separate future `PR-GOLDEN-###` and `AUD-GOLDEN-###` families; neither
+family is implemented or authorized. Golden Qualification remains the one
+platform-independent pipeline for all approved families. No scenario,
+Qualification, Golden Smoke, Golden Regression, CI, Runtime or renderer
+behavior changed.
 
 Golden Qualification Foundation is now the one executable deterministic,
 server-side path for all six original approved Golden Scenarios. It composes
