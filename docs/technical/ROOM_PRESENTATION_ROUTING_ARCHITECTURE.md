@@ -10,16 +10,17 @@ configuration, transport or user-interface implementation.
 ## Purpose
 
 Room Presentation Routing determines which independent Renderer Hosts may
-present the same immutable DJMoment in the Home Assistant Area of the active
-playback output. It is presentation distribution, not DJMoment creation,
-playback control or Renderer-to-Renderer coordination.
+present the same immutable Presentation for one DJMoment in the Home Assistant
+Area of the active playback output. It is Presentation distribution, not
+DJMoment creation, Presentation composition, playback control or
+Renderer-to-Renderer coordination.
 
 ```text
-Session Runtime owns DJMoment
+Session Runtime owns DJMoment and Presentation Composer composes Presentation
         ↓
 Room Presentation Routing selects eligible hosts for the active Area
         ↓
-Visual Renderer Host(s) and Audio Renderer Host(s) present that same DJMoment
+Renderer Hosts consume supported capabilities from that same Presentation
 ```
 
 The Runtime remains the owner of Session lifecycle and immutable DJMoments.
@@ -101,7 +102,9 @@ before any binding is implemented.
 ## Independent Renderer Hosts
 
 Routing makes eligible hosts recipients of the same immutable DJMoment; it
-does not create a master Renderer Host.
+does not create a master Renderer Host. Each host consumes only the independent
+Presentation Capabilities it supports; routing never selects a capability for a
+host. See [Presentation Capability Architecture](../product/PRESENTATION_CAPABILITY_ARCHITECTURE.md).
 
 ### Visual Renderer Hosts
 
