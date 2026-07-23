@@ -7,7 +7,7 @@ Builds on: `docs/verification/00_VERIFICATION_VISION.md`, `docs/verification/01_
 This catalog defines durable DJConnect platform behavior as executable scenarios. It is not the verification harness, not adapter implementation and not a test runner. Each scenario describes expected behavior that Phase 4 and later verification adapters can execute through Home Assistant, clients, firmware, release artifacts or manual evidence collection.
 The catalog intentionally favors breadth. The goal is to stop rediscovering what should be tested and instead choose which existing scenarios can be automated, executed manually or deferred with a documented limitation.
 
-## Session Intelligence Golden Scenarios
+## Golden Scenario families
 
 The dedicated [Session Intelligence Golden Scenario Catalogue](SESSION_INTELLIGENCE_GOLDEN_SCENARIOS.md)
 is the canonical product-behavior source for the Automated Session Intelligence
@@ -17,8 +17,13 @@ bootstrap, Scenario Driver, capture and CI capabilities must execute without
 creating an alternate Intelligence Engine.
 
 The companion [Golden Scenario Governance](GOLDEN_SCENARIO_GOVERNANCE.md)
-governs how future Session Intelligence and Verification capabilities relate to
-those product-behavior contracts.
+organizes Golden Scenarios as platform-scoped product-behavior families. The
+six original `SI-GOLDEN-001` through `SI-GOLDEN-006` contracts are complete for
+Session Intelligence and remain unchanged. Presentation and Audience Experience
+may receive their own future `PR-GOLDEN-###` and `AUD-GOLDEN-###` families; no
+such scenario is created by this catalog entry. Golden Qualification remains
+the single platform-independent pipeline that will execute all approved
+families.
 ## Catalog Rules
 - Scenario IDs are stable long-term references.
 - Scenario YAML files are the canonical assets; this document is the human index.
