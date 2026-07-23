@@ -28,15 +28,17 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-PR [#402](https://github.com/pcvantol/djconnect/pull/402), **Add Platform
-Overview Architecture**, merged as `8afdb7456bd0567f3bfa20209aa6c428415a5e60`.
-This dedicated Finalization reconciles the canonical architectural entry point
-and immutable Prompt History.
+PR [#404](https://github.com/pcvantol/djconnect/pull/404), **Add Presentation
+Composer**, merged as `93fdb4eb0c514997b81bd26e7b740f001327b5c5`.
+This dedicated Finalization reconciles the bounded server-side Presentation
+Composer and immutable Prompt History.
 
-`PLATFORM_OVERVIEW_ARCHITECTURE.md` is the recommended descriptive architecture
-starting point. It navigates established Profile, Playback, Session
-Intelligence, Presentation and Verification boundaries without creating a new
-platform, ownership model, implementation plan or Runtime behavior.
+Presentation Composer now converts each Runtime-published immutable DJMoment
+into one immutable renderer-safe Presentation before Broadcast. Speech is its
+first capability; deterministic Artist Story composition may add one Sidekick
+segment sourced only from approved content, otherwise Primary Only applies. No
+new intelligence owner, playback behaviour, TTS, voice configuration or local
+renderer composition was introduced.
 
 Current main records **Session Intelligence Runtime Complete**. The Runtime is
 the one canonical execution engine for all supported Track Started decisions:
