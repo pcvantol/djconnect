@@ -84,13 +84,15 @@ and a separately authorized capability.
 | 8 | `SI-GOLDEN-003` safe Knowledge degradation | Complete | Executes, captures and structurally validates one fixed unavailable-Knowledge input through the existing Runtime, resulting in approved Silence without fabricated content. |
 | 9 | CI Smoke Suite | Planned | Runs bounded selected scenarios in an isolated headless environment. |
 | 10 | Accelerated / event-driven Session execution | Planned | May use the approved Clock boundary only through a separately authorized capability; never business-logic conditionals. |
-| 11 | Golden Session Regression Suite | Planned | Applies versioned semantic and structural expectations. |
-| 12 | Intelligence Quality Metrics | Planned, initially non-blocking | Reports stable metrics before any governance-approved blocking threshold. |
-| 13 | Full CI Qualification and readable reports | Planned | Expands scenario coverage, artifacts and explicit qualification shape. |
-| 14 | Universal Receiver browser E2E | Optional / separate layer | Validates Receiver presentation through Broadcast and a headless browser, not core Intelligence behavior. |
-| 15 | Read-only Developer Overlay | Optional / deferred | Development-only, non-authoritative and disabled in production by default. |
-| 16 | Optional TTS Session Replay | Deferred | Reuses eligible presentation output without canonical audio persistence. |
-| 17 | Optional side-by-side Session comparison | Deferred | Compares capture artifacts without creating a competing planner. |
+| 11 | [Presentation Verification Architecture](../verification/PRESENTATION_VERIFICATION_ARCHITECTURE.md) | Planned / architecture defined | Defines a separate server-side Presentation contract for immutable composition and renderer-safe projection; no renderer, audio, capture, scenario or CI implementation. |
+| 12 | Presentation Golden Scenarios | Deferred | Future product contracts for Primary Only, Sidekick, fallback, projection and determinism; they reuse canonical Runtime execution and end at the renderer-safe projection. |
+| 13 | Golden Session Regression Suite | Planned | Applies versioned semantic and structural expectations. Once governed and executable, it may cover both Session Intelligence and Presentation Golden Scenario families. |
+| 14 | Intelligence Quality Metrics | Planned, initially non-blocking | Reports stable metrics before any governance-approved blocking threshold. |
+| 15 | Full CI Qualification and readable reports | Planned | Expands scenario coverage, artifacts and explicit qualification shape. |
+| 16 | Universal Receiver browser E2E | Optional / separate layer | Validates Receiver presentation through Broadcast and a headless browser, not core Intelligence or server-side Presentation verification behavior. |
+| 17 | Read-only Developer Overlay | Optional / deferred | Development-only, non-authoritative and disabled in production by default. |
+| 18 | Optional TTS Session Replay | Deferred | Reuses eligible presentation output without canonical audio persistence. |
+| 19 | Optional side-by-side Session comparison | Deferred | Compares capture artifacts without creating a competing planner. |
 
 ## Scenario and execution policy
 
@@ -136,6 +138,12 @@ Golden Sessions are versioned scenario definitions with structural invariants,
 approved deterministic expectations, optional quality baselines and schema
 compatibility. Prefer semantic and structural assertions; narrative text is not
 byte-compared unless a narrative contract is explicitly deterministic.
+
+Presentation Verification is a separate future server-side layer. It proves
+immutable Presentation composition, bounded Context handling and renderer-safe
+Broadcast projection; it ends before any Renderer Host. Its future Presentation
+Golden Scenarios may precede an extension of Golden Smoke and Golden Regression,
+but do not authorize renderer, visual, audio, TTS, hardware or CI work.
 
 ## CI and renderer separation
 

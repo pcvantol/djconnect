@@ -17,6 +17,14 @@ requires future Verification and Session Intelligence capabilities to declare
 their relationship to those approved behaviors and prevents duplicate
 execution paths.
 
+This architecture remains the canonical E2E contract for **Session
+Intelligence** behavior. The separate
+[Presentation Verification Architecture](PRESENTATION_VERIFICATION_ARCHITECTURE.md)
+defines the future read-only verification boundary for deterministic
+Presentation composition and renderer-safe projection. It neither broadens
+this capture into renderer verification nor changes the semantic Golden
+Scenario family.
+
 ## Purpose
 
 DJConnect must protect user-visible Session Intelligence behavior end to end.
@@ -192,6 +200,7 @@ capabilities.
 - [Golden Scenario Catalogue](SESSION_INTELLIGENCE_GOLDEN_SCENARIOS.md)
 - [Golden Scenario Governance](GOLDEN_SCENARIO_GOVERNANCE.md)
 - [Session Intelligence Qualification Policy](SESSION_INTELLIGENCE_QUALIFICATION_POLICY.md)
+- [Presentation Verification Architecture](PRESENTATION_VERIFICATION_ARCHITECTURE.md)
 - [Verification Clock Architecture](VERIFICATION_CLOCK_ARCHITECTURE.md)
 - [DJ Session Runtime Contracts](../../DJ_SESSION_RUNTIME_CONTRACTS.md)
 - [DJ Moment Engine](../technical/DJ_MOMENT_ENGINE.md)
