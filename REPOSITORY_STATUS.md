@@ -28,20 +28,21 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-PR [#414](https://github.com/pcvantol/djconnect/pull/414), **Add Golden
-Qualification Foundation**, merged as `35d14e24fc226b8afec9a2d5e7c2c9a7e517f20b`.
-This dedicated Finalization reconciles its immutable Prompt History and
-evidence.
+PR [#416](https://github.com/pcvantol/djconnect/pull/416), **Complete original
+Session Intelligence Golden Scenarios**, merged as
+`330e81805ce6df71f6a99c687f7fa15ce17a7f9f`. This dedicated Finalization
+reconciles its immutable Prompt History and evidence.
 
 Golden Qualification Foundation now executes the one canonical deterministic
-server-side qualification path for the currently executable Golden Scenarios.
-It reuses Bootstrap, Driver, immutable Capture and Structural Validation to
-assess Session Intelligence, immutable Presentation and renderer-safe Broadcast
-projection twice per scenario. It creates no alternate Runtime or renderer
-path. Golden Smoke and Golden Regression remain future profiles of this same
-Foundation. No renderer, visual/audio/TTS/hardware, CI workflow, Runtime,
-Session Intelligence, Planner, Knowledge or Session Flow behavior was
-introduced.
+server-side qualification path for all six original Golden Scenarios. It
+reuses Bootstrap, Driver, immutable Capture and Structural Validation to assess
+Session Intelligence, applicable immutable Presentation and renderer-safe
+Broadcast projection twice per scenario. `SI-GOLDEN-004` stays planning-only;
+`SI-GOLDEN-006` remains intentional non-narrative Silence. It creates no
+alternate Runtime or renderer path. Golden Smoke and Golden Regression remain
+future profiles of this same Foundation. No renderer, visual/audio/TTS/hardware,
+CI workflow, Runtime, Session Intelligence, Planner, Knowledge or Session Flow
+behavior was introduced.
 
 Current main records **Session Intelligence Runtime Complete**. The Runtime is
 the one canonical execution engine for all supported Track Started decisions:

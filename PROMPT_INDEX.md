@@ -4,19 +4,21 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#414](https://github.com/pcvantol/djconnect/pull/414), **Add Golden
-Qualification Foundation**, merged as `35d14e24fc226b8afec9a2d5e7c2c9a7e517f20b`.
-This dedicated Finalization reconciles its immutable Prompt History at
-`docs/history/prompts/2026-07-23-golden-qualification-foundation.md`.
+PR [#416](https://github.com/pcvantol/djconnect/pull/416), **Complete original
+Session Intelligence Golden Scenarios**, merged as
+`330e81805ce6df71f6a99c687f7fa15ce17a7f9f`. This dedicated Finalization
+reconciles its immutable Prompt History at
+`docs/history/prompts/2026-07-23-complete-original-golden-scenarios.md`.
 
 Golden Qualification Foundation is the sole executable deterministic
-server-side path for current Golden Scenarios: Bootstrap -> Scenario Driver ->
-Runtime -> Planner -> Knowledge -> DJMoment -> Presentation -> Broadcast ->
-immutable Capture -> Structural Validation. It compares two isolated executions
-for equivalent server-owned Session and Presentation output. Silence remains
-Presentation `not_applicable`; no renderer state, visuals, audio, TTS, hardware
-or CI workflow is involved. Golden Smoke and Golden Regression are future
-profiles over this same path.
+server-side path for all six original Golden Scenarios: Bootstrap -> Scenario
+Driver -> Runtime -> Planner -> Knowledge -> DJMoment -> Presentation ->
+Broadcast -> immutable Capture -> Structural Validation. It compares two
+isolated executions for equivalent server-owned Session and Presentation output
+where product semantics require it. `SI-GOLDEN-004` remains planning-only and
+`SI-GOLDEN-006` does not require Speech Presentation; no renderer state,
+visuals, audio, TTS, hardware or CI workflow is involved. Golden Smoke and
+Golden Regression are future profiles over this same path.
 
 The Session Intelligence Runtime Integration Epic is complete and reconciled.
 Supported Track Started decisions now use the one canonical Runtime lifecycle:

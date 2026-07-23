@@ -7,8 +7,8 @@
 The single recommended next capability is **Golden Smoke execution profile**.
 The Architecture,
 Developer Session Bootstrap, Deterministic Scenario Driver, Immutable E2E
-Session Capture and Structural Invariant Validator now execute through
-`SI-GOLDEN-003`. This document is a roadmap and governance record; it authorizes no implementation of CI,
+Session Capture and Structural Invariant Validator now execute all six original
+Golden Scenarios. This document is a roadmap and governance record; it authorizes no implementation of CI,
 Developer Mode, simulation, browser testing or runtime behavior.
 
 The [Session Intelligence Qualification Policy](../verification/SESSION_INTELLIGENCE_QUALIFICATION_POLICY.md),
@@ -76,14 +76,14 @@ and a separately authorized capability.
 | Order | Capability | Status | Boundary |
 | --- | --- | --- | --- |
 | 1 | [Automated Session Intelligence E2E Verification Architecture](../verification/SESSION_INTELLIGENCE_E2E_ARCHITECTURE.md) | Complete | Defines test-host ownership, production-boundary reuse, bootstrap, scenario, clock, capture, validation, CI shape, security, artifacts and staged rollout. Its [Golden Scenario Catalogue](../verification/SESSION_INTELLIGENCE_GOLDEN_SCENARIOS.md) is the primary product artifact; [Golden Scenario Governance](../verification/GOLDEN_SCENARIO_GOVERNANCE.md) keeps future work product-driven and prevents duplicate execution paths. |
-| 2 | [Developer Session Bootstrap](../technical/DEVELOPER_SESSION_BOOTSTRAP.md) | Complete — PR #370 | Enables machine-readable, server-owned startup and cleanup only for `SI-GOLDEN-001`; returns bounded lifecycle information and executes no scenario. |
-| 3 | [Deterministic Scenario Driver](../technical/DETERMINISTIC_SCENARIO_DRIVER.md) | Complete — PR #372 | Supplies only the fixed `SI-GOLDEN-001` Track Insight input through the existing Runtime boundary. |
-| 4 | Immutable E2E Session Capture | Complete — PR #374 | Captures safe canonical outcomes and cleanup evidence without Runtime mutation. |
-| 5 | Structural Invariant Validator | Complete — PR #376 | Deterministically assesses only immutable `SI-GOLDEN-001` capture evidence; fails closed without Runtime participation. |
+| 2 | [Developer Session Bootstrap](../technical/DEVELOPER_SESSION_BOOTSTRAP.md) | Complete — extended by PR #416 | Enables machine-readable, server-owned startup and cleanup for all six original approved scenarios; returns bounded lifecycle information and executes no scenario. |
+| 3 | [Deterministic Scenario Driver](../technical/DETERMINISTIC_SCENARIO_DRIVER.md) | Complete — extended by PR #416 | Supplies only approved deterministic fixtures through the existing Runtime boundary, including planner-only bounded replanning. |
+| 4 | Immutable E2E Session Capture | Complete — extended by PR #416 | Captures safe canonical outcomes and cleanup evidence for all six scenarios without Runtime mutation. |
+| 5 | Structural Invariant Validator | Complete — extended by PR #416 | Deterministically assesses immutable capture evidence for all six original contracts; fails closed without Runtime participation. |
 | 6 | Verification Clock Architecture | Complete | Accepts one restricted infrastructure-owned elapsed-time source for isolated verification Runtimes; implementation remains separate. |
 | 7 | Verification Clock implementation for `SI-GOLDEN-002` | Complete — PR #382 | Binds the accepted Clock only at the Runtime composition boundary; executes, captures and structurally validates deterministic first-eligible Performance Memory repetition avoidance without changing production clock composition. |
-| 8 | `SI-GOLDEN-003` safe Knowledge degradation | Complete | Executes, captures and structurally validates one fixed unavailable-Knowledge input through the existing Runtime, resulting in approved Silence without fabricated content. |
-| 9 | [Golden Qualification Foundation](../verification/GOLDEN_QUALIFICATION_FOUNDATION.md) | Complete | Executes each current approved scenario twice through the existing server-side path and validates Session Intelligence, Presentation and safe Broadcast evidence. |
+| 8 | Original `SI-GOLDEN-001` through `SI-GOLDEN-006` behavioral roadmap | Complete — PR #416 | Completes the original six product contracts: normal flow, repetition avoidance, safe knowledge degradation, planner-only replanning, Session Update after repeated Silence and Intentional Silence. |
+| 9 | [Golden Qualification Foundation](../verification/GOLDEN_QUALIFICATION_FOUNDATION.md) | Complete | Executes each of the six original approved scenarios twice through the existing server-side path and validates Session Intelligence, applicable Presentation and safe Broadcast evidence. |
 | 10 | Golden Smoke execution profile | Planned | Selects the smallest approved scenario set from the same Qualification Foundation; no separate verification implementation. |
 | 11 | Accelerated / event-driven Session execution | Planned | May use the approved Clock boundary only through a separately authorized capability; never business-logic conditionals. |
 | 12 | [Presentation Verification Architecture](../verification/PRESENTATION_VERIFICATION_ARCHITECTURE.md) | Complete — PR #412 | Defines the server-side Presentation contract now exercised by the Qualification Foundation; no renderer, audio or CI implementation. |
