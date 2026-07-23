@@ -15,15 +15,17 @@
 
 ## Current position
 
-PR [#402](https://github.com/pcvantol/djconnect/pull/402), **Add Platform
-Overview Architecture**, merged as `8afdb7456bd0567f3bfa20209aa6c428415a5e60`.
-This dedicated Finalization reconciles the canonical architectural entry point
-and immutable Prompt History.
+PR [#404](https://github.com/pcvantol/djconnect/pull/404), **Add Presentation
+Composer**, merged as `93fdb4eb0c514997b81bd26e7b740f001327b5c5`.
+This dedicated Finalization reconciles the bounded server-side Presentation
+Composer and immutable Prompt History.
 
-The Platform Overview Architecture is now the recommended descriptive starting
-point for the established Profile, Playback, Session Intelligence, Presentation
-and Verification platforms. It adds no product behavior, ownership change or
-delivery commitment; the linked detailed architecture remains authoritative.
+Presentation Composer is now the first server-side Presentation Platform
+execution boundary. It composes one immutable renderer-safe Presentation from
+one approved DJMoment before Broadcast. Speech is the first capability; only an
+eligible Artist Story gets a deterministic, secondary Sidekick segment based on
+already-approved text. All other composition is Primary Only. No new planner,
+knowledge, runtime, playback, TTS, voice or renderer authority was introduced.
 
 The **Session Intelligence Runtime Integration Epic** is complete. DJConnect
 now has one canonical Runtime lifecycle for supported Track Started decisions:

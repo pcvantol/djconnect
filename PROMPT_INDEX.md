@@ -4,15 +4,17 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#402](https://github.com/pcvantol/djconnect/pull/402), **Add Platform
-Overview Architecture**, merged as `8afdb7456bd0567f3bfa20209aa6c428415a5e60`.
+PR [#404](https://github.com/pcvantol/djconnect/pull/404), **Add Presentation
+Composer**, merged as `93fdb4eb0c514997b81bd26e7b740f001327b5c5`.
 This dedicated Finalization reconciles its immutable Prompt History at
-`docs/history/prompts/2026-07-23-platform-overview-architecture.md`.
+`docs/history/prompts/2026-07-23-presentation-composer.md`.
 
-`PLATFORM_OVERVIEW_ARCHITECTURE.md` is the recommended descriptive architecture
-entry point for existing Profile, Playback, Session Intelligence, Presentation
-and Verification platform boundaries. It introduces no new architecture,
-ownership, implementation authorization or Runtime behavior.
+Presentation Composer is the server-owned Presentation Platform boundary
+between immutable DJMoment and Broadcast. It creates one immutable,
+renderer-safe Presentation per published Moment. Speech is the first
+capability; Sidekick is one deterministic, secondary Artist Story role using
+only approved source text, with Primary Only as the fallback. It adds no
+independent intelligence, playback, TTS, voice-selection or renderer authority.
 
 The Session Intelligence Runtime Integration Epic is complete and reconciled.
 Supported Track Started decisions now use the one canonical Runtime lifecycle:

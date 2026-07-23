@@ -5,16 +5,17 @@
 
 ## Current engineering increment
 
-PR [#402](https://github.com/pcvantol/djconnect/pull/402), **Add Platform
-Overview Architecture**, merged as `8afdb7456bd0567f3bfa20209aa6c428415a5e60`.
-This dedicated Finalization reconciles the canonical architectural entry point
-and its immutable Prompt History.
+PR [#404](https://github.com/pcvantol/djconnect/pull/404), **Add Presentation
+Composer**, merged as `93fdb4eb0c514997b81bd26e7b740f001327b5c5`.
+This dedicated Finalization reconciles the bounded server-side Presentation
+Composer implementation and its immutable Prompt History.
 
-`PLATFORM_OVERVIEW_ARCHITECTURE.md` is now the recommended descriptive entry
-point for existing Profile, Playback, Session Intelligence, Presentation and
-Verification platform boundaries. It introduces no new architecture, ownership,
-implementation authorization or Runtime behavior; detailed canonical documents
-remain authoritative.
+Presentation Composer is now the Presentation Platform boundary after one
+approved immutable DJMoment and before Broadcast. It composes one immutable,
+renderer-safe Presentation with Speech Presentation as its first capability.
+The bounded Sidekick is only an Artist Story secondary role and otherwise falls
+back deterministically to Primary Only. It adds no Planner, Knowledge Engine,
+Runtime, playback, TTS, voice-selection or renderer authority.
 
 The **Session Intelligence Runtime Integration Epic** is complete. The Runtime
 is now the canonical execution engine for all supported Track Started decisions:
