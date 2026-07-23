@@ -28,19 +28,21 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-PR [#410](https://github.com/pcvantol/djconnect/pull/410), **Define
-Presentation Capability Architecture**, merged as
-`942ce57aa617ba482a06354b86445575fd0b83b0`. This dedicated Finalization
+PR [#412](https://github.com/pcvantol/djconnect/pull/412), **Define
+Presentation Verification Architecture**, merged as `22665a2a96b3a8ebf586ed02157961bd0dfaa0dc`.
+This dedicated Finalization
 reconciles its immutable Prompt History and evidence.
 
-Presentation now has one canonical capability architecture. Existing
-renderer-safe visual Presentation remains authoritative through established
-DJMoment, Session Flow, Playback and renderer-safe metadata projections. Speech
-is the first newly formalized structured capability introduced by Presentation
-Composer and is additive. Future richer visual, Ambient, Audience and Ambient
-Light composition extend rather than replace existing Presentation. No
-renderer negotiation, renderer implementation, Broadcast, Runtime or Session
-Intelligence behavior was introduced.
+Presentation Verification now has one canonical future architecture. It is a
+read-only server-side proof boundary from approved immutable DJMoment through
+Presentation Composer, immutable Presentation and renderer-safe Broadcast
+projection. It ends before Renderer Hosts and is distinct from the established
+Session Intelligence Golden Scenario family. Future Presentation Golden
+Scenarios may protect Primary Only, Sidekick, fallback, projection and
+determinism without testing renderer visuals, audio, TTS or hardware. Existing
+renderer-safe visual Presentation remains authoritative. No renderer,
+Broadcast, Runtime, Session Intelligence, CI or qualification behavior was
+introduced.
 
 Current main records **Session Intelligence Runtime Complete**. The Runtime is
 the one canonical execution engine for all supported Track Started decisions:
