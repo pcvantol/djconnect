@@ -48,15 +48,21 @@ Reports contain only bounded statuses and invariant identifiers. They expose no
 mutable Runtime state, Planner or Knowledge internals, renderer configuration,
 audio or provider data. Runtime-only Presentation Context is not captured.
 
-## Golden Smoke positioning
+## Execution profiles
 
 Golden Smoke is an implemented **execution profile** of this same
 qualification pipeline, not a separate implementation. It selects only
-`SI-GOLDEN-001` through `djconnect.golden_smoke`. A Golden Regression profile
-may later select a broader approved set. Both reuse the same Bootstrap, Driver,
-Capture, Validator and reporting boundary.
+`SI-GOLDEN-001` through `djconnect.golden_smoke`.
 
-Golden Smoke introduces no CI workflow, scheduled run or release gate.
+Golden Regression is the implemented local **broader execution profile**. It
+selects the immutable canonical Session Intelligence contract,
+`SI-GOLDEN-001` through `SI-GOLDEN-006`, through
+`djconnect.golden_regression`. Its bounded report identifies
+`profile: golden_regression` and `profile_version: 1`. It only delegates to
+this Foundation, so it reuses the same Bootstrap, Driver, Runtime, Capture,
+Validator, cleanup and two-run deterministic comparison.
+
+Neither profile introduces a CI workflow, scheduled run or release gate.
 
 ## Scope exclusions
 

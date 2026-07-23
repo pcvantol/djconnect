@@ -7,6 +7,7 @@ from pathlib import Path
 import sys
 import types
 import unittest
+from unittest.mock import AsyncMock, patch
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -128,6 +129,77 @@ class GoldenQualificationTest(unittest.TestCase):
         self.assertEqual(tuple(item["scenario_id"] for item in result["scenarios"]), ("SI-GOLDEN-001",))
         self.assertNotIn("runtime", result)
         self.assertNotIn("renderer", result)
+        self.assertNotIn("profile_version", result)
+
+    def test_golden_regression_uses_the_immutable_canonical_scenario_selection(self) -> None:
+        self.assertIsInstance(self.qualification.GOLDEN_REGRESSION_SCENARIOS, tuple)
+        self.assertEqual(
+            self.qualification.GOLDEN_REGRESSION_SCENARIOS,
+            (
+                "SI-GOLDEN-001",
+                "SI-GOLDEN-002",
+                "SI-GOLDEN-003",
+                "SI-GOLDEN-004",
+                "SI-GOLDEN-005",
+                "SI-GOLDEN-006",
+            ),
+        )
+
+    def test_golden_regression_delegates_to_the_existing_foundation(self) -> None:
+        foundation_report = asyncio.run(
+            self.qualification.async_run_golden_qualification(self.hass)
+        )
+        delegated = AsyncMock(return_value=foundation_report)
+        with patch.object(
+            self.qualification,
+            "async_run_golden_qualification",
+            delegated,
+        ):
+            report = asyncio.run(self.qualification.async_run_golden_regression(self.hass))
+
+        delegated.assert_awaited_once_with(
+            self.hass,
+            scenario_ids=self.qualification.GOLDEN_REGRESSION_SCENARIOS,
+        )
+        self.assertEqual(report.scenarios, foundation_report.scenarios)
+        self.assertEqual(report.overall_status, foundation_report.overall_status)
+
+    def test_golden_regression_executes_the_complete_contract_and_cleans_up(self) -> None:
+        report = asyncio.run(self.qualification.async_run_golden_regression(self.hass))
+
+        self.assertEqual(report.profile, "golden_regression")
+        self.assertEqual(report.profile_version, 1)
+        self.assertEqual(report.overall_status, "passed")
+        self.assertEqual(
+            tuple(item.scenario_id for item in report.scenarios),
+            self.qualification.GOLDEN_REGRESSION_SCENARIOS,
+        )
+        self.assertTrue(all(item.deterministic for item in report.scenarios))
+        manager = self.runtime.session_runtime_manager(self.hass)
+        for profile_id in (
+            self.bootstrap.SI_GOLDEN_001_PROFILE_ID,
+            self.bootstrap.SI_GOLDEN_002_PROFILE_ID,
+            self.bootstrap.SI_GOLDEN_003_PROFILE_ID,
+            self.bootstrap.SI_GOLDEN_004_PROFILE_ID,
+            self.bootstrap.SI_GOLDEN_005_PROFILE_ID,
+            self.bootstrap.SI_GOLDEN_006_PROFILE_ID,
+        ):
+            self.assertIsNone(asyncio.run(manager.async_get_active(profile_id)))
+
+    def test_golden_regression_report_is_bounded_and_has_deterministic_metadata(self) -> None:
+        first = asyncio.run(self.qualification.async_handle_golden_regression(self.hass))
+        second = asyncio.run(
+            self.qualification.async_handle_golden_regression(types.SimpleNamespace(data={}))
+        )
+
+        self.assertEqual(first["profile"], "golden_regression")
+        self.assertEqual(first["profile_version"], 1)
+        self.assertEqual(
+            (first["profile"], first["profile_version"], first["scenarios"]),
+            (second["profile"], second["profile_version"], second["scenarios"]),
+        )
+        for key in ("runtime", "renderer", "planner", "knowledge", "provider", "memory", "prompt"):
+            self.assertNotIn(key, first)
 
 
 if __name__ == "__main__":

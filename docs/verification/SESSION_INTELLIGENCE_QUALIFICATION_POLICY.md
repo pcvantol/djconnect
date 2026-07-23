@@ -19,7 +19,7 @@ exists only to execute, observe or validate these approved contracts.
 | 2 | Integration Tests | Protect subsystem boundaries. | Every implementation PR | Blocking |
 | 3 | Golden Qualification Foundation | Execute the canonical deterministic server-side path for current Session Intelligence and Presentation evidence. | Local development and future CI reuse | Implemented; no CI gate yet |
 | 4 | Golden Smoke profile | Select the smallest approved end-to-end behavior, `SI-GOLDEN-001`, from the Foundation. | Local development and future CI reuse | Implemented; no CI gate yet |
-| 5 | Golden Regression profile | Select the broader approved catalogue from the Foundation. | `main`, release qualification and scheduled verification | Determined by repository policy for each execution context |
+| 5 | Golden Regression profile | Select the complete approved Session Intelligence catalogue, `SI-GOLDEN-001` through `SI-GOLDEN-006`, from the Foundation. | Local development and future broader qualification reuse | Implemented locally; no CI gate yet |
 | 6 | Quality Reports | Observe long-term Intelligence quality. | Qualification reporting | Non-blocking |
 
 Golden Smoke remains deterministic, fast, stable and small enough for routine
