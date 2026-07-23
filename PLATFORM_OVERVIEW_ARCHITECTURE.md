@@ -84,6 +84,7 @@ Continue through [Renderer Host Classification](docs/technical/RENDERER_HOST_CLA
 [Room Presentation Routing](docs/technical/ROOM_PRESENTATION_ROUTING_ARCHITECTURE.md),
 [Universal Receiver Architecture](docs/technical/UNIVERSAL_RECEIVER_ARCHITECTURE.md),
 [Presentation Composer Architecture](docs/product/PRESENTATION_COMPOSER_ARCHITECTURE.md),
+[Speech Rendering Contract](docs/technical/SPEECH_RENDERING_CONTRACT.md),
 [VibeCast Architecture](docs/product/VIBECAST_ARCHITECTURE.md) and
 [Audience Experience Architecture](docs/product/AUDIENCE_EXPERIENCE_ARCHITECTURE.md).
 

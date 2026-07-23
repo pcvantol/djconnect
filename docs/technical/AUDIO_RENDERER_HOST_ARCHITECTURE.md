@@ -52,6 +52,12 @@ An Audio Renderer Host owns only local audio presentation, including:
 - future renderer-local ambient audio cues; and
 - declared renderer-local audio capabilities.
 
+For Speech Presentation it may also own local Role Mapping: semantic Speaker
+Role to configured local voice to configured local TTS provider. This mapping
+is never sent to Presentation Composer or Broadcast. A missing local speech
+capability does not invalidate the immutable Presentation; a Visual Renderer
+may still render its text through the same Projection.
+
 It does not own the Session Runtime, Planner, Knowledge Engine, DJ Moment
 Engine, Session Flow, business logic, DJMoment generation, Presentation Intent
 selection, provider playback, provider credentials or Broadcast state.
@@ -88,3 +94,4 @@ changes.
 - [Renderer Host Classification](RENDERER_HOST_CLASSIFICATION.md)
 - [Room Presentation Routing Architecture](ROOM_PRESENTATION_ROUTING_ARCHITECTURE.md)
 - [Platform Ambient Experience](PLATFORM_AMBIENT_EXPERIENCE.md)
+- [Speech Rendering Contract](SPEECH_RENDERING_CONTRACT.md)

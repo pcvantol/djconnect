@@ -165,6 +165,10 @@ mapping, speech playback, synchronized highlighting or Browser-owned state.
 If an Audio Renderer later maps a role to a local voice, that mapping stays
 renderer-local and Broadcast remains text-only.
 
+The canonical role, ordering, fallback and renderer-capability boundary is the
+[Speech Rendering Contract](SPEECH_RENDERING_CONTRACT.md). A future Receiver
+Speech Presentation Component is only a text interpretation of that contract.
+
 ## Multi-renderer model
 
 Multiple Renderer Hosts may consume one active Broadcast concurrently. Apple,

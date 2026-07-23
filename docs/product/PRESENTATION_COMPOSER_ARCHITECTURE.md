@@ -129,6 +129,9 @@ voices and perform local TTS after it receives a Projection. That mapping is
 renderer-local: the server never selects a voice, TTS engine, room or speech
 provider, and Broadcast carries text only.
 
+The complete Renderer-neutral consumption boundary is the
+[Speech Rendering Contract](../technical/SPEECH_RENDERING_CONTRACT.md).
+
 ## Deferred capabilities
 
 The following are explicitly deferred: DJ–Sidekick–DJ dialogue, Presentation
@@ -145,3 +148,4 @@ speech, Audience Presentation and Ambient Light Presentation.
 - [DJ Session Runtime Contracts](../../DJ_SESSION_RUNTIME_CONTRACTS.md)
 - [Platform Overview Architecture](../../PLATFORM_OVERVIEW_ARCHITECTURE.md)
 - [Renderer Host Classification](../technical/RENDERER_HOST_CLASSIFICATION.md)
+- [Speech Rendering Contract](../technical/SPEECH_RENDERING_CONTRACT.md)
