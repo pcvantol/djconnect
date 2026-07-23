@@ -4,19 +4,21 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#410](https://github.com/pcvantol/djconnect/pull/410), **Define
-Presentation Capability Architecture**, merged as
-`942ce57aa617ba482a06354b86445575fd0b83b0`. This dedicated Finalization
+PR [#412](https://github.com/pcvantol/djconnect/pull/412), **Define
+Presentation Verification Architecture**, merged as `22665a2a96b3a8ebf586ed02157961bd0dfaa0dc`.
+This dedicated Finalization
 reconciles its immutable Prompt History at
-`docs/history/prompts/2026-07-23-presentation-capability-architecture.md`.
+`docs/history/prompts/2026-07-23-presentation-verification-architecture.md`.
 
-Presentation Capability Architecture formalizes the additive capability layer.
-Existing renderer-safe visual Presentation remains canonical; Speech is the
-first newly formalized structured Composer-capability. Renderer Hosts consume
-only supported capabilities independently, while Room Presentation Routing
-selects hosts rather than capabilities. Future composition expands the current
-architecture and authorizes no renderer, negotiation, Broadcast or Runtime
-implementation.
+Presentation Verification formalizes the future server-side proof boundary:
+approved immutable DJMoment -> Presentation Composer -> immutable Presentation
+-> renderer-safe Broadcast projection. It verifies composition, identity,
+bounded Context, ordered roles, fallback, determinism and safe projection;
+it ends before a Renderer Host. Presentation Golden Scenarios are a future
+family distinct from Session Intelligence Golden Scenarios. Existing
+renderer-safe visual Presentation remains canonical. This architecture
+authorizes no renderer, visual/audio/TTS test, capture, CI, Golden Smoke,
+Golden Regression, Broadcast or Runtime implementation.
 
 The Session Intelligence Runtime Integration Epic is complete and reconciled.
 Supported Track Started decisions now use the one canonical Runtime lifecycle:

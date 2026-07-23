@@ -15,18 +15,20 @@
 
 ## Current position
 
-PR [#410](https://github.com/pcvantol/djconnect/pull/410), **Define
-Presentation Capability Architecture**, merged as
-`942ce57aa617ba482a06354b86445575fd0b83b0`. This dedicated Finalization
+PR [#412](https://github.com/pcvantol/djconnect/pull/412), **Define
+Presentation Verification Architecture**, merged as `22665a2a96b3a8ebf586ed02157961bd0dfaa0dc`.
+This dedicated Finalization
 reconciles its capability evidence and immutable Prompt History.
 
-Presentation capability architecture is now explicit without remodelling the
-current product. Existing renderer-safe visual Presentation stays authoritative.
-Speech is the first newly formalized structured capability from Presentation
-Composer, delivered alongside—not instead of—the existing visual experience.
-Future richer visual, Ambient, Audience and Ambient Light composition are
-separate extensions. No planner, knowledge, runtime, playback, Broadcast, TTS
-or renderer implementation was introduced.
+Presentation Verification is now explicitly bounded without changing the
+product. It will prove that a server composes and publishes an immutable
+Presentation correctly, from approved DJMoment through the renderer-safe
+Broadcast projection. It ends before the Renderer Host: it neither tests
+visuals or audio nor becomes a second Session Intelligence path. Future
+Presentation Golden Scenarios remain separate from the established semantic
+Session Intelligence Golden Scenarios. Existing renderer-safe visual
+Presentation stays authoritative. No Planner, Knowledge, Runtime, Playback,
+Broadcast, TTS, renderer, CI or qualification implementation was introduced.
 
 The **Session Intelligence Runtime Integration Epic** is complete. DJConnect
 now has one canonical Runtime lifecycle for supported Track Started decisions:

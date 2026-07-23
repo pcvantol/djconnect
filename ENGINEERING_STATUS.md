@@ -5,19 +5,21 @@
 
 ## Current engineering increment
 
-PR [#410](https://github.com/pcvantol/djconnect/pull/410), **Define
-Presentation Capability Architecture**, merged as `942ce57aa617ba482a06354b86445575fd0b83b0`.
-This dedicated Finalization reconciles its immutable Prompt History and
-capability-architecture evidence.
+PR [#412](https://github.com/pcvantol/djconnect/pull/412), **Define
+Presentation Verification Architecture**, merged as `22665a2a96b3a8ebf586ed02157961bd0dfaa0dc`.
+This dedicated Finalization
+reconciles its immutable Prompt History and architectural evidence.
 
-Presentation now has one canonical capability model. Existing renderer-safe
-visual Presentation through DJMoment, Session Flow, Playback, Universal
-Receiver and safe visual metadata remains current and authoritative. Speech is
-the first newly formalized structured Composer-capability and augments that
-existing visual architecture; it does not replace, supersede or defer it.
-Richer visual, Ambient, Audience and Ambient Light composition remain deferred
-extensions. No Renderer, negotiation, Broadcast, TTS, Runtime, Planner or
-Knowledge Engine behavior changed.
+Presentation Verification is now a canonical future, read-only server-side
+verification boundary. It proves immutable Presentation composition and
+renderer-safe Broadcast projection from an approved DJMoment, while ending
+before any Renderer Host. It remains distinct from Session Intelligence
+Verification: semantic Session behavior stays in the existing Golden Scenario
+family; a future Presentation Golden Scenario family protects composition,
+fallback, projection and determinism. Existing renderer-safe visual
+Presentation remains authoritative. No renderer, audio, TTS, CI, Golden Smoke,
+Golden Regression, Broadcast, Runtime, Planner, Knowledge Engine or Session
+Flow behavior changed.
 
 The **Session Intelligence Runtime Integration Epic** is complete. The Runtime
 is now the canonical execution engine for all supported Track Started decisions:
