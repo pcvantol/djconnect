@@ -4,11 +4,17 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#418](https://github.com/pcvantol/djconnect/pull/418), **Establish
-platform-scoped Golden Scenario governance**, merged as
-`af80f88da98504b8cf8c244b63500de7f194ddae`. This dedicated Finalization
+PR [#420](https://github.com/pcvantol/djconnect/pull/420), **Add Golden Smoke
+execution profile**, merged as
+`c0f2cd9ca4ce475294a457e6f80f6b3a48253776`. This dedicated Finalization
 reconciles its immutable Prompt History at
-`docs/history/prompts/2026-07-23-golden-scenario-platform-governance.md`.
+`docs/history/prompts/2026-07-23-golden-smoke-execution-profile.md`.
+
+Golden Smoke is implemented as the smallest local profile of the existing
+Golden Qualification Foundation. It selects only `SI-GOLDEN-001` and reuses
+the canonical Bootstrap, Driver, Capture, Validator, cleanup and bounded
+reporting path. CI integration, CI/release gates, Golden Regression and all
+Scenario behavior changes remain separately authorized.
 
 Golden Scenarios are product-behavior contracts scoped to their architectural
 platform. `SI-GOLDEN-001` through `SI-GOLDEN-006` remain the complete original

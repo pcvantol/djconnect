@@ -5,9 +5,15 @@
 
 ## Current engineering increment
 
-PR [#418](https://github.com/pcvantol/djconnect/pull/418), **Establish
-platform-scoped Golden Scenario governance**, merged as `af80f88da98504b8cf8c244b63500de7f194ddae`. This dedicated Finalization
-reconciles its immutable Prompt History and governance evidence.
+PR [#420](https://github.com/pcvantol/djconnect/pull/420), **Add Golden Smoke
+execution profile**, merged as `c0f2cd9ca4ce475294a457e6f80f6b3a48253776`. This dedicated Finalization
+reconciles its immutable Prompt History and qualification evidence.
+
+Golden Smoke is now the smallest implemented local execution profile of the
+one Golden Qualification Foundation. It selects only `SI-GOLDEN-001` and
+reuses the existing Bootstrap, Driver, Capture, Validator, cleanup and bounded
+report path. It adds no CI workflow, CI or release gate, Golden Regression,
+Scenario behavior, Runtime, renderer, audio, TTS or hardware behavior.
 
 Golden Scenarios are canonically organized by architectural platform. The six
 original `SI-GOLDEN-001` through `SI-GOLDEN-006` scenarios remain the complete
