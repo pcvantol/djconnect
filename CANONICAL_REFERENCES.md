@@ -22,6 +22,20 @@ copying or redefining them.
 Sibling repositories may reference Platform Strategy, but they must not copy,
 reinterpret or redefine it in repository-local prompt indexes or roadmaps.
 
+## Platform Overview Architecture
+
+- Canonical repository: `pcvantol/djconnect`
+- Canonical document: `PLATFORM_OVERVIEW_ARCHITECTURE.md`
+- Local responsibility: provide the descriptive architectural entry point for
+  the existing Profile, Playback, Session Intelligence, Presentation and
+  Verification platforms, while directing readers to their detailed canonical
+  documents.
+- May this repository modify it: yes, only when established architecture or its
+  canonical navigation changes.
+
+The overview does not define a new platform, ownership model, implementation
+plan or Runtime behaviour.
+
 ## Platform Foundation
 
 - Canonical repository: `pcvantol/djconnect`
