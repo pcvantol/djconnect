@@ -50,13 +50,13 @@ audio or provider data. Runtime-only Presentation Context is not captured.
 
 ## Golden Smoke positioning
 
-Golden Smoke is a future **execution profile** of this same qualification
-pipeline, not a separate implementation. A future authorized Smoke profile may
-select only `SI-GOLDEN-001`; a Golden Regression profile may select a broader
-approved set. Both reuse the same Bootstrap, Driver, Capture, Validator and
-reporting boundary.
+Golden Smoke is an implemented **execution profile** of this same
+qualification pipeline, not a separate implementation. It selects only
+`SI-GOLDEN-001` through `djconnect.golden_smoke`. A Golden Regression profile
+may later select a broader approved set. Both reuse the same Bootstrap, Driver,
+Capture, Validator and reporting boundary.
 
-This foundation introduces no CI workflow, scheduled run or release gate.
+Golden Smoke introduces no CI workflow, scheduled run or release gate.
 
 ## Scope exclusions
 

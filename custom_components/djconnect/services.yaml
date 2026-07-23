@@ -140,6 +140,15 @@ golden_qualification:
     renderer-safe Broadcast projections; it does not test a Renderer Host,
     visual output, audio, TTS or hardware.
 
+golden_smoke:
+  name: Run Golden Smoke
+  description: >
+    Developer and future-CI helper: run the smallest approved Golden Smoke
+    selection, currently SI-GOLDEN-001, through the existing Golden
+    Qualification Foundation. It reuses the same Bootstrap, Scenario Driver,
+    immutable Capture, Structural Validation and bounded report. This service
+    does not implement a CI workflow or change Golden Scenario behavior.
+
 test_parse:
   name: Test Assist parser
   description: >

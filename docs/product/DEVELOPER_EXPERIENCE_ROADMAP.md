@@ -4,7 +4,8 @@
 
 **Primary active Epic:** Automated Session Intelligence E2E Verification.
 
-The single recommended next capability is **Golden Smoke execution profile**.
+Golden Smoke execution profile is complete. The single recommended next
+capability is **Accelerated / event-driven Session execution**.
 The Architecture,
 Developer Session Bootstrap, Deterministic Scenario Driver, Immutable E2E
 Session Capture and Structural Invariant Validator now execute all six original
@@ -84,7 +85,7 @@ and a separately authorized capability.
 | 7 | Verification Clock implementation for `SI-GOLDEN-002` | Complete — PR #382 | Binds the accepted Clock only at the Runtime composition boundary; executes, captures and structurally validates deterministic first-eligible Performance Memory repetition avoidance without changing production clock composition. |
 | 8 | Original `SI-GOLDEN-001` through `SI-GOLDEN-006` behavioral roadmap | Complete — PR #416 | Completes the original six product contracts: normal flow, repetition avoidance, safe knowledge degradation, planner-only replanning, Session Update after repeated Silence and Intentional Silence. |
 | 9 | [Golden Qualification Foundation](../verification/GOLDEN_QUALIFICATION_FOUNDATION.md) | Complete | Executes each of the six original approved scenarios twice through the existing server-side path and validates Session Intelligence, applicable Presentation and safe Broadcast evidence. |
-| 10 | Golden Smoke execution profile | Planned | Selects the smallest approved scenario set from the same Qualification Foundation; no separate verification implementation. |
+| 10 | Golden Smoke execution profile | Complete | Selects only `SI-GOLDEN-001` from the same Qualification Foundation; no separate verification implementation or CI gate. |
 | 11 | Accelerated / event-driven Session execution | Planned | May use the approved Clock boundary only through a separately authorized capability; never business-logic conditionals. |
 | 12 | [Presentation Verification Architecture](../verification/PRESENTATION_VERIFICATION_ARCHITECTURE.md) | Complete — PR #412 | Defines the server-side Presentation contract now exercised by the Qualification Foundation; no renderer, audio or CI implementation. |
 | 13 | Presentation Golden Scenarios | Deferred | Future product contracts for Primary Only, Sidekick, fallback, projection and determinism; they reuse canonical Runtime execution and end at the renderer-safe projection. |

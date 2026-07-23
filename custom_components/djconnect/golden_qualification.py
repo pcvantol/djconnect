@@ -41,6 +41,7 @@ from .structural_invariant_validator import (
 
 
 GOLDEN_QUALIFICATION_PROFILE = "golden_qualification_foundation"
+GOLDEN_SMOKE_PROFILE = "golden_smoke"
 EXECUTABLE_GOLDEN_SCENARIOS = (
     SI_GOLDEN_001_ID,
     SI_GOLDEN_002_ID,
@@ -49,6 +50,7 @@ EXECUTABLE_GOLDEN_SCENARIOS = (
     SI_GOLDEN_005_ID,
     SI_GOLDEN_006_ID,
 )
+GOLDEN_SMOKE_SCENARIOS = (SI_GOLDEN_001_ID,)
 
 
 @dataclass(frozen=True)
@@ -98,6 +100,39 @@ async def async_run_golden_qualification(
 async def async_handle_golden_qualification(hass: Any) -> dict[str, Any]:
     """Expose bounded qualification metadata without exposing Runtime internals."""
     report = await async_run_golden_qualification(hass)
+    return {
+        "success": report.overall_status == "passed",
+        "status": report.overall_status,
+        "profile": report.profile,
+        "scenarios": [
+            {
+                "scenario_id": item.scenario_id,
+                "session_verification": item.session_verification,
+                "presentation_verification": item.presentation_verification,
+                "deterministic": item.deterministic,
+                "overall_status": item.overall_status,
+                "failure_identifiers": item.failure_identifiers,
+            }
+            for item in report.scenarios
+        ],
+    }
+
+
+async def async_run_golden_smoke(hass: Any) -> GoldenQualificationReport:
+    """Run the smallest approved selection through Golden Qualification."""
+    foundation_report = await async_run_golden_qualification(
+        hass, scenario_ids=GOLDEN_SMOKE_SCENARIOS
+    )
+    return GoldenQualificationReport(
+        profile=GOLDEN_SMOKE_PROFILE,
+        scenarios=foundation_report.scenarios,
+        overall_status=foundation_report.overall_status,
+    )
+
+
+async def async_handle_golden_smoke(hass: Any) -> dict[str, Any]:
+    """Expose the bounded Golden Smoke report from the canonical path."""
+    report = await async_run_golden_smoke(hass)
     return {
         "success": report.overall_status == "passed",
         "status": report.overall_status,
