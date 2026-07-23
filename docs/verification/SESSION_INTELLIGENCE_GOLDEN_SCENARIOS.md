@@ -130,6 +130,16 @@ Smoke, Golden Regression and non-blocking Quality Reports.
 | Non-blocking observations | Silence ratio, timing position and interruption-avoidance distribution. |
 | Forbidden outcomes | Treating Silence as Runtime failure, user-visible invented story, playback mutation, duplicate Silence publication or a browser-owned interpretation. |
 
+## Implementation status
+
+All six original approved Session Intelligence Golden Scenarios are executable
+through the single canonical Bootstrap → Driver → Runtime → Capture →
+Structural Validation → Qualification path. `SI-GOLDEN-004` remains
+planner-only. `SI-GOLDEN-005` validates its normal Session Update Presentation.
+`SI-GOLDEN-006` validates intentional, non-narrative Silence and permits only
+the existing canonical non-speech Presentation projection where the domain
+model emits it.
+
 ## Catalogue evolution
 
 New scenarios must be approved product behaviors, retain this complete contract

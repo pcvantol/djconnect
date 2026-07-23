@@ -36,6 +36,12 @@ class StructuralInvariantValidatorTest(unittest.TestCase):
         bootstrap.SI_GOLDEN_002_PROFILE_ID = "fixture-002"
         bootstrap.SI_GOLDEN_003_ID = "SI-GOLDEN-003"
         bootstrap.SI_GOLDEN_003_PROFILE_ID = "fixture-003"
+        bootstrap.SI_GOLDEN_004_ID = "SI-GOLDEN-004"
+        bootstrap.SI_GOLDEN_004_PROFILE_ID = "fixture-004"
+        bootstrap.SI_GOLDEN_005_ID = "SI-GOLDEN-005"
+        bootstrap.SI_GOLDEN_005_PROFILE_ID = "fixture-005"
+        bootstrap.SI_GOLDEN_006_ID = "SI-GOLDEN-006"
+        bootstrap.SI_GOLDEN_006_PROFILE_ID = "fixture-006"
         bootstrap.si_golden_002_clock_evidence = lambda hass: None
         sys.modules[bootstrap.__name__] = bootstrap
         runtime = types.ModuleType(f"{PACKAGE}.session_runtime")

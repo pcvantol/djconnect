@@ -11,6 +11,12 @@ from .developer_session_bootstrap import (
     SI_GOLDEN_002_PROFILE_ID,
     SI_GOLDEN_003_ID,
     SI_GOLDEN_003_PROFILE_ID,
+    SI_GOLDEN_004_ID,
+    SI_GOLDEN_004_PROFILE_ID,
+    SI_GOLDEN_005_ID,
+    SI_GOLDEN_005_PROFILE_ID,
+    SI_GOLDEN_006_ID,
+    SI_GOLDEN_006_PROFILE_ID,
     async_advance_si_golden_002_clock,
 )
 from .session_runtime import session_runtime_manager
@@ -206,4 +212,126 @@ async def async_execute_si_golden_003(hass: Any) -> dict[str, Any]:
         "scenario_id": SI_GOLDEN_003_ID,
         "session_id": active.session_id,
         "moment_id": moment.moment_id,
+    }
+
+
+async def async_execute_si_golden_004(hass: Any) -> dict[str, Any]:
+    """Exercise bounded Horizon replanning without realizing a Moment."""
+    manager = session_runtime_manager(hass)
+    active = await manager.async_get_active(SI_GOLDEN_004_PROFILE_ID)
+    if active is None:
+        return {"success": False, "status": "bootstrap_required", "scenario_id": SI_GOLDEN_004_ID}
+    from .session_runtime import UpcomingPlaybackEntry, UpcomingPlaybackProjection
+    initial = UpcomingPlaybackProjection.from_entries(
+        (UpcomingPlaybackEntry("golden-a", 60), UpcomingPlaybackEntry("golden-b", 60)),
+        confidence=0.8,
+    )
+    approved = await manager.async_replan_observed_playback(
+        owner_profile_id=SI_GOLDEN_004_PROFILE_ID,
+        session_id=active.session_id,
+        upcoming_playback=initial,
+        approve_earliest=True,
+    )
+    if not approved:
+        return {"success": False, "status": "not_ready", "scenario_id": SI_GOLDEN_004_ID}
+    extended = await manager.async_replan_observed_playback(
+        owner_profile_id=SI_GOLDEN_004_PROFILE_ID,
+        session_id=active.session_id,
+        upcoming_playback=UpcomingPlaybackProjection.from_entries(
+            (
+                UpcomingPlaybackEntry("golden-a", 60),
+                UpcomingPlaybackEntry("golden-b", 60),
+                UpcomingPlaybackEntry("golden-c", 60),
+            ),
+            confidence=0.8,
+        )
+    )
+    equivalent = await manager.async_replan_observed_playback(
+        owner_profile_id=SI_GOLDEN_004_PROFILE_ID,
+        session_id=active.session_id,
+        upcoming_playback=UpcomingPlaybackProjection.from_entries(
+            (
+                UpcomingPlaybackEntry("golden-a", 60),
+                UpcomingPlaybackEntry("golden-b", 60),
+                UpcomingPlaybackEntry("golden-c", 60),
+            ),
+            confidence=0.8,
+        ),
+    )
+    replacement = await manager.async_replan_observed_playback(
+        owner_profile_id=SI_GOLDEN_004_PROFILE_ID,
+        session_id=active.session_id,
+        upcoming_playback=UpcomingPlaybackProjection.from_entries(
+            (UpcomingPlaybackEntry("golden-a", 60),), confidence=0.8
+        )
+    )
+    return {
+        "success": extended and equivalent and replacement,
+        "status": "executed",
+        "scenario_id": SI_GOLDEN_004_ID,
+        "session_id": active.session_id,
+    }
+
+
+async def async_execute_si_golden_005(hass: Any) -> dict[str, Any]:
+    """Use the production Runtime path for two Silences and one resetting Update."""
+    manager = session_runtime_manager(hass)
+    active = await manager.async_get_active(SI_GOLDEN_005_PROFILE_ID)
+    if active is None:
+        return {"success": False, "status": "bootstrap_required", "scenario_id": SI_GOLDEN_005_ID}
+    async def empty() -> dict[str, Any]: return {}
+    moments = []
+    for _ in range(3):
+        moment = await manager.async_process_track_started(
+            owner_profile_id=SI_GOLDEN_005_PROFILE_ID,
+            session_id=active.session_id,
+            insight_provider=empty,
+        )
+        if moment is None:
+            return {
+                "success": False,
+                "status": "not_executed",
+                "scenario_id": SI_GOLDEN_005_ID,
+            }
+        moments.append(moment)
+    return {
+        "success": True,
+        "status": "executed",
+        "scenario_id": SI_GOLDEN_005_ID,
+        "session_id": active.session_id,
+        "moment_ids": tuple(moment.moment_id for moment in moments),
+    }
+
+
+async def async_execute_si_golden_006(hass: Any) -> dict[str, Any]:
+    """Use the existing coordinator's planned current-track Silence path."""
+    manager = session_runtime_manager(hass)
+    active = await manager.async_get_active(SI_GOLDEN_006_PROFILE_ID)
+    if active is None:
+        return {
+            "success": False,
+            "status": "bootstrap_required",
+            "scenario_id": SI_GOLDEN_006_ID,
+        }
+
+    async def insight() -> dict[str, Any]:
+        return {
+            "track": {"title": "Still Water", "artist": "Northline", "producer": "Northline"},
+            "analysis": {"summary": "Safe context.", "full_text": "Safe context."},
+        }
+    from .session_runtime import UpcomingPlaybackEntry, UpcomingPlaybackProjection
+    moment = await manager.async_process_track_started(
+        owner_profile_id=SI_GOLDEN_006_PROFILE_ID,
+        session_id=active.session_id,
+        insight_provider=insight,
+        upcoming_playback=UpcomingPlaybackProjection.from_entries(
+            (UpcomingPlaybackEntry("golden-silence", duration_seconds=60),), confidence=0.8
+        ),
+    )
+    return {
+        "success": moment is not None,
+        "status": "executed" if moment else "not_executed",
+        "scenario_id": SI_GOLDEN_006_ID,
+        "session_id": active.session_id,
+        "moment_id": moment.moment_id if moment else "",
     }

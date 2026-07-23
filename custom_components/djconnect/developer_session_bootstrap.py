@@ -20,6 +20,12 @@ SI_GOLDEN_002_ID = "SI-GOLDEN-002"
 SI_GOLDEN_002_PROFILE_ID = "e2e-session-intelligence-golden-002"
 SI_GOLDEN_003_ID = "SI-GOLDEN-003"
 SI_GOLDEN_003_PROFILE_ID = "e2e-session-intelligence-golden-003"
+SI_GOLDEN_004_ID = "SI-GOLDEN-004"
+SI_GOLDEN_004_PROFILE_ID = "e2e-session-intelligence-golden-004"
+SI_GOLDEN_005_ID = "SI-GOLDEN-005"
+SI_GOLDEN_005_PROFILE_ID = "e2e-session-intelligence-golden-005"
+SI_GOLDEN_006_ID = "SI-GOLDEN-006"
+SI_GOLDEN_006_PROFILE_ID = "e2e-session-intelligence-golden-006"
 
 # Kept as the original fixed-scenario names for the completed SI-GOLDEN-001 API.
 GOLDEN_SCENARIO_ID = SI_GOLDEN_001_ID
@@ -48,7 +54,7 @@ async def async_handle_developer_session_bootstrap(
             session = await manager.async_start(
                 owner_profile_id=profile_id,
                 room="e2e",
-                selected_mood="groove",
+                selected_mood="chill" if scenario == SI_GOLDEN_006_ID else "groove",
                 dj_persona=DJPersona.HOME_DJ,
                 locale="en",
                 session_start_strategy=SessionStartStrategy.MANUAL,
@@ -124,6 +130,12 @@ def _scenario_profile_id(scenario_id: str) -> str:
         return SI_GOLDEN_002_PROFILE_ID
     if scenario_id == SI_GOLDEN_003_ID:
         return SI_GOLDEN_003_PROFILE_ID
+    if scenario_id == SI_GOLDEN_004_ID:
+        return SI_GOLDEN_004_PROFILE_ID
+    if scenario_id == SI_GOLDEN_005_ID:
+        return SI_GOLDEN_005_PROFILE_ID
+    if scenario_id == SI_GOLDEN_006_ID:
+        return SI_GOLDEN_006_PROFILE_ID
     return ""
 
 

@@ -3,12 +3,48 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from .developer_session_bootstrap import GOLDEN_SCENARIO_ID, SI_GOLDEN_002_ID, SI_GOLDEN_003_ID
+from .developer_session_bootstrap import (
+    GOLDEN_SCENARIO_ID,
+    SI_GOLDEN_002_ID,
+    SI_GOLDEN_003_ID,
+    SI_GOLDEN_004_ID,
+    SI_GOLDEN_005_ID,
+    SI_GOLDEN_006_ID,
+)
 from .developer_session_capture import (
     SIGolden001SessionCapture,
     SIGolden002SessionCapture,
     SIGolden003SessionCapture,
+    RemainingGoldenSessionCapture,
 )
+
+
+def validate_remaining_golden(capture: RemainingGoldenSessionCapture) -> StructuralValidationResult:
+    """Validate the distinct product semantics of GS-004 through GS-006."""
+    failures: list[InvariantFailure] = []
+    def require(identifier: str, condition: bool, expected: str, observed: str) -> None:
+        if not condition:
+            failures.append(InvariantFailure(identifier, identifier.lower(), expected, observed, "capture"))
+    if capture.scenario_id == SI_GOLDEN_004_ID:
+        require("SI004-REPLAN", capture.planning_generation > 0, "replacement generation", str(capture.planning_generation))
+        require("SI004-SUPERSESSION", capture.superseded_intent_count > 0, "superseded provisional intent", str(capture.superseded_intent_count))
+        require("SI004-ONE-APPROVAL", sum(status == "approved" for _, _, status in capture.planned_intents) == 1, "one stable approved intent", repr(capture.planned_intents))
+        require("SI004-NO-MOMENT", not capture.moments, "no DJMoment", repr(capture.moments))
+        require("SI004-NO-PRESENTATION", not capture.presentations, "no Presentation", repr(capture.presentations))
+        require("SI004-NO-FLOW-REWRITE", not any(item.moment_id for item in capture.session_flow), "no realized Flow Moment", repr(capture.session_flow))
+        require("SI004-NO-BROADCAST-LEAK", not any(item.event_type in {"dj_moment_published", "presentation_published"} for item in capture.broadcast_publications), "no planning internals or Moment publication", repr(capture.broadcast_publications))
+    elif capture.scenario_id == SI_GOLDEN_005_ID:
+        require("SI005-THREE-MOMENTS", tuple(item.moment_type for item in capture.moments) == ("silence", "silence", "session"), "two Silence then Session Update", repr(capture.moments))
+        require("SI005-ONE-UPDATE", sum(item.moment_type == "session" for item in capture.moments) == 1, "one Session Update", repr(capture.moments))
+        require("SI005-PRESENTATION", bool(capture.presentations) and capture.presentations[-1].source_moment_id == capture.moments[-1].moment_id, "Session Update Presentation", repr(capture.presentations))
+    elif capture.scenario_id == SI_GOLDEN_006_ID:
+        require("SI006-SILENCE", len(capture.moments) == 1 and capture.moments[0].moment_type == "silence", "one canonical Silence", repr(capture.moments))
+        require("SI006-INTENTIONAL", bool(capture.moments) and capture.moments[0].reason == "planned_silence", "planned intentional Silence", repr(capture.moments))
+        require("SI006-NO-NARRATIVE", bool(capture.moments) and not capture.moments[0].content, "no narrative content", repr(capture.moments))
+        require("SI006-NO-SPEECH", not capture.presentations or not capture.presentations[0].segments, "no narrative Speech", repr(capture.presentations))
+    else:
+        failures.append(InvariantFailure("SI-UNKNOWN", "scenario", "known scenario", capture.scenario_id, "scenario_id"))
+    return StructuralValidationResult("passed" if not failures else "failed", tuple(failures))
 
 
 @dataclass(frozen=True)

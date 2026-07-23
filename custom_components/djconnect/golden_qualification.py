@@ -8,6 +8,9 @@ from .developer_session_bootstrap import (
     SI_GOLDEN_001_ID,
     SI_GOLDEN_002_ID,
     SI_GOLDEN_003_ID,
+    SI_GOLDEN_004_ID,
+    SI_GOLDEN_005_ID,
+    SI_GOLDEN_006_ID,
     async_handle_developer_session_bootstrap,
 )
 from .developer_session_capture import (
@@ -17,17 +20,23 @@ from .developer_session_capture import (
     async_capture_si_golden_001,
     async_capture_si_golden_002,
     async_capture_si_golden_003,
+    async_capture_remaining_golden,
+    RemainingGoldenSessionCapture,
 )
 from .developer_session_scenario_driver import (
     async_execute_si_golden_001,
     async_execute_si_golden_002,
     async_execute_si_golden_003,
+    async_execute_si_golden_004,
+    async_execute_si_golden_005,
+    async_execute_si_golden_006,
 )
 from .structural_invariant_validator import (
     StructuralValidationResult,
     validate_si_golden_001,
     validate_si_golden_002,
     validate_si_golden_003,
+    validate_remaining_golden,
 )
 
 
@@ -36,6 +45,9 @@ EXECUTABLE_GOLDEN_SCENARIOS = (
     SI_GOLDEN_001_ID,
     SI_GOLDEN_002_ID,
     SI_GOLDEN_003_ID,
+    SI_GOLDEN_004_ID,
+    SI_GOLDEN_005_ID,
+    SI_GOLDEN_006_ID,
 )
 
 
@@ -121,7 +133,13 @@ async def _qualify_scenario(hass: Any, scenario_id: str) -> GoldenScenarioQualif
     )
     if not deterministic:
         failures = (*failures, "QUALIFICATION-DETERMINISM")
-    presentation_expected = scenario_id != SI_GOLDEN_003_ID
+    # GS-004 is deliberately planner-only.  GS-003 and GS-006 produce
+    # canonical Silence without requiring narrative Speech Presentation.
+    presentation_expected = scenario_id in {
+        SI_GOLDEN_001_ID,
+        SI_GOLDEN_002_ID,
+        SI_GOLDEN_005_ID,
+    }
     presentation_failures = tuple(
         identifier
         for identifier in failures
@@ -146,7 +164,14 @@ async def _qualify_scenario(hass: Any, scenario_id: str) -> GoldenScenarioQualif
 
 async def _execute_once(
     hass: Any, scenario_id: str
-) -> tuple[SIGolden001SessionCapture | SIGolden002SessionCapture | SIGolden003SessionCapture | None, StructuralValidationResult]:
+) -> tuple[
+    SIGolden001SessionCapture
+    | SIGolden002SessionCapture
+    | SIGolden003SessionCapture
+    | RemainingGoldenSessionCapture
+    | None,
+    StructuralValidationResult,
+]:
     """Reuse the canonical start -> drive -> capture -> validate -> stop flow."""
     started = await async_handle_developer_session_bootstrap(hass, scenario_id=scenario_id)
     if not started.get("success"):
@@ -166,6 +191,9 @@ def _driver_for(scenario_id: str):
         SI_GOLDEN_001_ID: async_execute_si_golden_001,
         SI_GOLDEN_002_ID: async_execute_si_golden_002,
         SI_GOLDEN_003_ID: async_execute_si_golden_003,
+        SI_GOLDEN_004_ID: async_execute_si_golden_004,
+        SI_GOLDEN_005_ID: async_execute_si_golden_005,
+        SI_GOLDEN_006_ID: async_execute_si_golden_006,
     }.get(scenario_id, _invalid_driver)
 
 
@@ -174,6 +202,9 @@ def _capture_for(scenario_id: str):
         SI_GOLDEN_001_ID: async_capture_si_golden_001,
         SI_GOLDEN_002_ID: async_capture_si_golden_002,
         SI_GOLDEN_003_ID: async_capture_si_golden_003,
+        SI_GOLDEN_004_ID: lambda hass: async_capture_remaining_golden(hass, SI_GOLDEN_004_ID),
+        SI_GOLDEN_005_ID: lambda hass: async_capture_remaining_golden(hass, SI_GOLDEN_005_ID),
+        SI_GOLDEN_006_ID: lambda hass: async_capture_remaining_golden(hass, SI_GOLDEN_006_ID),
     }.get(scenario_id, _invalid_capture)
 
 
@@ -182,6 +213,9 @@ def _validator_for(scenario_id: str):
         SI_GOLDEN_001_ID: validate_si_golden_001,
         SI_GOLDEN_002_ID: validate_si_golden_002,
         SI_GOLDEN_003_ID: validate_si_golden_003,
+        SI_GOLDEN_004_ID: validate_remaining_golden,
+        SI_GOLDEN_005_ID: validate_remaining_golden,
+        SI_GOLDEN_006_ID: validate_remaining_golden,
     }.get(scenario_id, _invalid_validator)
 
 
@@ -198,12 +232,19 @@ def _invalid_validator(_: Any) -> StructuralValidationResult:
 
 
 def _normalized_server_output(
-    capture: SIGolden001SessionCapture | SIGolden002SessionCapture | SIGolden003SessionCapture,
+    capture: (
+        SIGolden001SessionCapture
+        | SIGolden002SessionCapture
+        | SIGolden003SessionCapture
+        | RemainingGoldenSessionCapture
+    ),
 ) -> tuple[Any, ...]:
     """Compare stable server-owned semantic and Presentation evidence only."""
     moments = (
         (capture.first_realized_moment, capture.second_realized_moment)
         if isinstance(capture, SIGolden002SessionCapture)
+        else capture.moments
+        if isinstance(capture, RemainingGoldenSessionCapture)
         else (capture.realized_moment,)
     )
     return (

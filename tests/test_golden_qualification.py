@@ -71,13 +71,20 @@ class GoldenQualificationTest(unittest.TestCase):
         self.assertEqual(report.overall_status, "passed")
         self.assertEqual(
             tuple(item.scenario_id for item in report.scenarios),
-            ("SI-GOLDEN-001", "SI-GOLDEN-002", "SI-GOLDEN-003"),
+            (
+                "SI-GOLDEN-001",
+                "SI-GOLDEN-002",
+                "SI-GOLDEN-003",
+                "SI-GOLDEN-004",
+                "SI-GOLDEN-005",
+                "SI-GOLDEN-006",
+            ),
         )
         self.assertTrue(all(item.deterministic for item in report.scenarios))
         self.assertTrue(all(item.session_verification == "passed" for item in report.scenarios))
         self.assertEqual(
             tuple(item.presentation_verification for item in report.scenarios),
-            ("passed", "passed", "not_applicable"),
+            ("passed", "passed", "not_applicable", "not_applicable", "passed", "not_applicable"),
         )
 
     def test_qualification_stops_every_isolated_runtime(self) -> None:
@@ -88,6 +95,9 @@ class GoldenQualificationTest(unittest.TestCase):
             self.bootstrap.SI_GOLDEN_001_PROFILE_ID,
             self.bootstrap.SI_GOLDEN_002_PROFILE_ID,
             self.bootstrap.SI_GOLDEN_003_PROFILE_ID,
+            self.bootstrap.SI_GOLDEN_004_PROFILE_ID,
+            self.bootstrap.SI_GOLDEN_005_PROFILE_ID,
+            self.bootstrap.SI_GOLDEN_006_PROFILE_ID,
         ):
             self.assertIsNone(asyncio.run(manager.async_get_active(profile_id)))
 
@@ -98,7 +108,7 @@ class GoldenQualificationTest(unittest.TestCase):
         self.assertEqual(result["status"], "passed")
         self.assertNotIn("runtime", result)
         self.assertNotIn("renderer", result)
-        self.assertEqual(len(result["scenarios"]), 3)
+        self.assertEqual(len(result["scenarios"]), 6)
 
 
 if __name__ == "__main__":

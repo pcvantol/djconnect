@@ -3,7 +3,8 @@
 ## Status
 
 **Accepted architecture with Bootstrap, Driver, immutable Capture and
-Structural Invariant Validator implemented through `SI-GOLDEN-003`.** These
+Structural Invariant Validator implemented for all six original Session
+Intelligence Golden Scenarios.** These
 boundaries remain narrow production-lifecycle, event-injection and read-only
 observation infrastructure only; this document defines no CI workflow or
 production Runtime behavior change.
@@ -77,9 +78,11 @@ recreate Planner/Knowledge/Moment decisions.
    deterministic fixture and returns bounded, ephemeral bootstrap data only to
    the invoking test process.
 3. The Deterministic Scenario Driver supplies the approved scripted normalized
-   input, or `SI-GOLDEN-003`'s fixed unavailable-Knowledge input, at the
-   existing Runtime boundary. It never fabricates provider-owned Playback
-   Instance Identity or Knowledge results.
+   input at the existing Runtime boundary. `SI-GOLDEN-004` uses the
+   Runtime-owned observed-playback replanning boundary only: it deliberately
+   produces no DJMoment, Presentation or renderer-facing planning data. It
+   never fabricates provider-owned Playback Instance Identity or Knowledge
+   results.
 4. The existing Runtime processes the events using its production contracts.
 5. A read-only capture observes safe Runtime outcomes, immutable DJMoments,
    their immutable Presentation Projections, Flow and renderer-safe Broadcast
@@ -166,7 +169,8 @@ Epic.
 3. Immutable E2E Session Capture — redacted canonical evidence.
 4. Structural Invariant Validator — Layer 1 and approved Layer 2 evaluation.
 5. Golden Qualification Foundation — complete; one local deterministic
-   execution path that composes Bootstrap, Driver, Capture and Validator.
+   execution path that composes Bootstrap, Driver, Capture and Validator for
+   all six original Session Intelligence Golden Scenarios.
 6. Golden Smoke and later Golden Session profiles — future bounded selections
    over that same qualification path, with no duplicate implementation.
 7. Verification Clock implementation for `SI-GOLDEN-002` — complete in PR
