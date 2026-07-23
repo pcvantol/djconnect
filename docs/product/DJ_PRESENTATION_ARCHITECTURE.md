@@ -126,6 +126,8 @@ Hosts, without changing DJMoment ownership or introducing host-to-host
 communication.
 The platform-neutral Audio Renderer Host boundary is defined in
 [`../technical/AUDIO_RENDERER_HOST_ARCHITECTURE.md`](../technical/AUDIO_RENDERER_HOST_ARCHITECTURE.md).
+The renderer-neutral Speech Presentation consumption boundary is defined in
+[`../technical/SPEECH_RENDERING_CONTRACT.md`](../technical/SPEECH_RENDERING_CONTRACT.md).
 VibeCast is the distinct ambient-first web-renderer product experience built on
 the Universal Receiver Web Platform. Its deferred Google Cast Custom Web
 Receiver V1 model is defined in

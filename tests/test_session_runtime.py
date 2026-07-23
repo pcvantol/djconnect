@@ -2237,6 +2237,25 @@ class SessionRuntimeManagerTest(unittest.TestCase):
                 ("sidekick", "A defining trip-hop presence."),
             ],
         )
+        projection = created.broadcast.as_dict()["presentations"][-1]
+        self.assertEqual(
+            projection,
+            {
+                "presentation_id": "presentation-moment-artist-story",
+                "source_moment_id": moment.moment_id,
+                "source_moment_type": "artist",
+                "visibility": "session_shared",
+                "speech": {
+                    "mode": "primary_with_sidekick",
+                    "segments": [
+                        {"ordinal": 1, "speaker_role": "dj", "text": moment.content},
+                        {"ordinal": 2, "speaker_role": "sidekick", "text": moment.summary},
+                    ],
+                },
+            },
+        )
+        for forbidden in ("context", "session_id", "planner", "knowledge", "prompt", "provider", "voice", "tts"):
+            self.assertNotIn(forbidden, projection)
         with self.assertRaises(FrozenInstanceError):
             presentation.speech.segments[0].text = "mutated"  # type: ignore[misc]
         self.assertEqual(moment.summary, "A defining trip-hop presence.")

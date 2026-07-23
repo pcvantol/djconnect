@@ -124,10 +124,12 @@ application is not justified solely for richer navigation.
 
 VibeCast may eventually have both Visual Renderer Host and optional Audio
 Renderer Host capability. A renderer-safe Speech Presentation associated with
-the same immutable DJMoment may contain a presentation identity, optional text,
-temporary audio asset reference, locale, voice identity, expected duration and
-presentation policy. The preferred V1 model is centrally generated speech
-audio played locally by standard web media capability.
+the same immutable DJMoment contains only renderer-safe identity, optional
+ordered text segments and semantic speaker roles. VibeCast may later interpret
+that identical Presentation as text, audio or both through local capabilities.
+It receives no audio asset, locale, voice identity, TTS provider, room-routing
+instruction or renderer configuration. The [Speech Rendering Contract](../technical/SPEECH_RENDERING_CONTRACT.md)
+defines this boundary; VibeCast implementation remains deferred.
 
 VibeCast never becomes the music playback target. Music continues through the
 selected backend output; approved DJ speech may independently use the
