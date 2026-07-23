@@ -39,6 +39,10 @@ one Golden Qualification Foundation. It selects `SI-GOLDEN-001` through
 profile version metadata. No CI workflow or gate, new Scenario behavior,
 Runtime, renderer, audio, TTS or hardware behavior was introduced.
 
+Accelerated / event-driven Session execution is `NO-GO` and no longer an active
+implementation candidate. The existing restricted Verification Clock satisfies
+all approved timing behavior; Intelligence Quality Metrics (Advisory) is next.
+
 Golden Scenarios are now governed as platform-scoped behavioral contract
 families. The original six Session Intelligence scenarios are complete and
 unchanged. Presentation and Audience Experience receive separate future
