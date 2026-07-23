@@ -12,6 +12,10 @@ Speech Presentation is the immutable, renderer-safe expression of an approved
 DJMoment. It is produced server-side by Presentation Composer and is consumed
 only after Broadcast by Renderer Hosts.
 
+Speech is the first implemented Presentation Capability, not the complete
+Presentation. The canonical hierarchy and deferred independent capabilities
+are defined in the [Presentation Capability Architecture](../product/PRESENTATION_CAPABILITY_ARCHITECTURE.md).
+
 ```text
 Session Intelligence
   -> DJMoment
@@ -133,6 +137,7 @@ Composer or introduces a second presentation pipeline.
 ## References
 
 - [Presentation Composer Architecture](../product/PRESENTATION_COMPOSER_ARCHITECTURE.md)
+- [Presentation Capability Architecture](../product/PRESENTATION_CAPABILITY_ARCHITECTURE.md)
 - [Broadcast Transport](BROADCAST_TRANSPORT.md)
 - [Universal Receiver Architecture](UNIVERSAL_RECEIVER_ARCHITECTURE.md)
 - [Audio Renderer Host Architecture](AUDIO_RENDERER_HOST_ARCHITECTURE.md)

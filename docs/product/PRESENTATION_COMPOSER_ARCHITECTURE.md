@@ -51,7 +51,9 @@ provider data, renderer configuration and Profile-private data.
 
 The first implemented capability is **Speech Presentation**. Future Visual,
 Ambient, Audience and Ambient Light Presentation capabilities remain separate
-and deferred; the Composer is Presentation-oriented, not Speech-oriented.
+and deferred; the Composer is Presentation-oriented, not Speech-oriented. The
+complete hierarchy, ownership and capability-independence model is defined in
+the [Presentation Capability Architecture](PRESENTATION_CAPABILITY_ARCHITECTURE.md).
 
 ### Presentation Context
 
@@ -145,6 +147,7 @@ speech, Audience Presentation and Ambient Light Presentation.
 ## Canonical references
 
 - [DJ Presentation Architecture](DJ_PRESENTATION_ARCHITECTURE.md)
+- [Presentation Capability Architecture](PRESENTATION_CAPABILITY_ARCHITECTURE.md)
 - [DJ Session Runtime Contracts](../../DJ_SESSION_RUNTIME_CONTRACTS.md)
 - [Platform Overview Architecture](../../PLATFORM_OVERVIEW_ARCHITECTURE.md)
 - [Renderer Host Classification](../technical/RENDERER_HOST_CLASSIFICATION.md)

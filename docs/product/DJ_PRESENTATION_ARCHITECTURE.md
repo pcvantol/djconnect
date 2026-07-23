@@ -53,6 +53,12 @@ Session Intelligence retains Moment existence, meaning, placement and Silence.
 Renderer Hosts consume immutable Presentations and render locally without
 composing dialogue or Sidekick behaviour.
 
+One Presentation consists of independent Presentation Capabilities. Speech is
+the first implemented capability; Visual, Ambient, Audience and Ambient Light
+capabilities are formally deferred. The canonical capability hierarchy and
+renderer-consumption boundary are defined in
+[Presentation Capability Architecture](PRESENTATION_CAPABILITY_ARCHITECTURE.md).
+
 ## DJ Persona and Session Mood
 
 A **DJ Persona** is a first-class behavioural identity: Home DJ, Radio DJ,
