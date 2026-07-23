@@ -119,6 +119,17 @@ developer_session_capture:
             - SI-GOLDEN-002
             - SI-GOLDEN-003
 
+golden_qualification:
+  name: Run Golden Qualification Foundation
+  description: >
+    Developer and future-CI helper: execute the canonical deterministic
+    server-side qualification path for all executable Session Intelligence
+    Golden Scenarios. It reuses Bootstrap, Scenario Driver, immutable Capture
+    and Structural Validation, then cleans every isolated Session. It validates
+    only Planner, Knowledge, DJMoment, Presentation, Session Flow and
+    renderer-safe Broadcast projections; it does not test a Renderer Host,
+    visual output, audio, TTS or hardware.
+
 test_parse:
   name: Test Assist parser
   description: >

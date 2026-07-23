@@ -61,6 +61,7 @@ class CapturedPresentation:
     source_moment_type: str
     mode: str
     segments: tuple[CapturedSpeechSegment, ...]
+    visibility: str = ""
 
 
 @dataclass(frozen=True)
@@ -332,6 +333,7 @@ def _captured_presentations(active: Any) -> tuple[CapturedPresentation, ...]:
                 )
                 if speech is not None
                 else (),
+                visibility=presentation.visibility,
             )
         )
     return tuple(captured)

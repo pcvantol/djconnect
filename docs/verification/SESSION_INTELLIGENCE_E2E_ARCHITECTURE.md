@@ -25,6 +25,12 @@ Presentation composition and renderer-safe projection. It neither broadens
 this capture into renderer verification nor changes the semantic Golden
 Scenario family.
 
+The [Golden Qualification Foundation](GOLDEN_QUALIFICATION_FOUNDATION.md)
+now composes the existing execution path twice per executable scenario and
+reports Session Verification, Presentation Verification and Overall
+Qualification. It ends at renderer-safe Broadcast projection and creates no
+renderer, CI or alternate verification path.
+
 ## Purpose
 
 DJConnect must protect user-visible Session Intelligence behavior end to end.
@@ -159,12 +165,15 @@ Epic.
    safe knowledge results/failures.
 3. Immutable E2E Session Capture — redacted canonical evidence.
 4. Structural Invariant Validator — Layer 1 and approved Layer 2 evaluation.
-5. CI smoke and later Golden Session suites — bounded execution and artifacts.
-6. Verification Clock implementation for `SI-GOLDEN-002` — complete in PR
+5. Golden Qualification Foundation — complete; one local deterministic
+   execution path that composes Bootstrap, Driver, Capture and Validator.
+6. Golden Smoke and later Golden Session profiles — future bounded selections
+   over that same qualification path, with no duplicate implementation.
+7. Verification Clock implementation for `SI-GOLDEN-002` — complete in PR
    #382 as the restricted infrastructure time source accepted by the
    [Verification Clock Architecture](VERIFICATION_CLOCK_ARCHITECTURE.md); it
    remains infrastructure, never business logic.
-7. Accelerated/event-driven execution — a future separately authorized
+8. Accelerated/event-driven execution — a future separately authorized
    capability that may use the approved Clock boundary, never `test_mode`
    conditionals in business logic.
 
@@ -201,6 +210,7 @@ capabilities.
 - [Golden Scenario Governance](GOLDEN_SCENARIO_GOVERNANCE.md)
 - [Session Intelligence Qualification Policy](SESSION_INTELLIGENCE_QUALIFICATION_POLICY.md)
 - [Presentation Verification Architecture](PRESENTATION_VERIFICATION_ARCHITECTURE.md)
+- [Golden Qualification Foundation](GOLDEN_QUALIFICATION_FOUNDATION.md)
 - [Verification Clock Architecture](VERIFICATION_CLOCK_ARCHITECTURE.md)
 - [DJ Session Runtime Contracts](../../DJ_SESSION_RUNTIME_CONTRACTS.md)
 - [DJ Moment Engine](../technical/DJ_MOMENT_ENGINE.md)
