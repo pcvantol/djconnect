@@ -4,8 +4,9 @@
 
 **Primary active Epic:** Automated Session Intelligence E2E Verification.
 
-Golden Smoke execution profile is complete. The single recommended next
-capability is **Accelerated / event-driven Session execution**.
+Golden Smoke and Golden Session Regression execution profiles are complete.
+Accelerated / event-driven Session execution concluded `NO-GO`; the next
+capability requires a separately authorized Product Development Pre-Flight.
 The Architecture,
 Developer Session Bootstrap, Deterministic Scenario Driver, Immutable E2E
 Session Capture and Structural Invariant Validator now execute all six original
@@ -89,7 +90,7 @@ and a separately authorized capability.
 | 11 | Accelerated / event-driven Session execution | Planned | May use the approved Clock boundary only through a separately authorized capability; never business-logic conditionals. |
 | 12 | [Presentation Verification Architecture](../verification/PRESENTATION_VERIFICATION_ARCHITECTURE.md) | Complete — PR #412 | Defines the server-side Presentation contract now exercised by the Qualification Foundation; no renderer, audio or CI implementation. |
 | 13 | Presentation Golden Scenarios | Deferred | Future product contracts for Primary Only, Sidekick, fallback, projection and determinism; they reuse canonical Runtime execution and end at the renderer-safe projection. |
-| 14 | Golden Session Regression profile | Planned | Applies versioned semantic and structural expectations through the same Qualification Foundation. |
+| 14 | Golden Session Regression profile | Complete — PR #422 | Fixed local `golden_regression` profile selects `SI-GOLDEN-001` through `SI-GOLDEN-006` through the same Qualification Foundation, with bounded profile version metadata and no CI gate. |
 | 15 | Intelligence Quality Metrics | Planned, initially non-blocking | Reports stable metrics before any governance-approved blocking threshold. |
 | 16 | Full CI Qualification and readable reports | Planned | Expands scenario coverage, artifacts and explicit qualification shape. |
 | 17 | Universal Receiver browser E2E | Optional / separate layer | Validates Receiver presentation through Broadcast and a headless browser, not core Intelligence or server-side Presentation verification behavior. |

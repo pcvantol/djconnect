@@ -5,15 +5,16 @@
 
 ## Current engineering increment
 
-PR [#420](https://github.com/pcvantol/djconnect/pull/420), **Add Golden Smoke
-execution profile**, merged as `c0f2cd9ca4ce475294a457e6f80f6b3a48253776`. This dedicated Finalization
-reconciles its immutable Prompt History and qualification evidence.
+PR [#422](https://github.com/pcvantol/djconnect/pull/422), **Add Golden Session
+Regression profile**, merged as `39aa07b8f098342fd036554fff2f561b31dc429a`.
+This dedicated Finalization reconciles its immutable Prompt History and
+qualification evidence.
 
-Golden Smoke is now the smallest implemented local execution profile of the
-one Golden Qualification Foundation. It selects only `SI-GOLDEN-001` and
-reuses the existing Bootstrap, Driver, Capture, Validator, cleanup and bounded
-report path. It adds no CI workflow, CI or release gate, Golden Regression,
-Scenario behavior, Runtime, renderer, audio, TTS or hardware behavior.
+Golden Regression is now the implemented fixed local broader profile of the
+one Golden Qualification Foundation. It selects `SI-GOLDEN-001` through
+`SI-GOLDEN-006`, reuses the existing Bootstrap, Driver, Runtime, Capture,
+Validator, cleanup and two-run comparison, and returns bounded
+`profile_version: 1` metadata. It adds no CI workflow or release gate.
 
 Golden Scenarios are canonically organized by architectural platform. The six
 original `SI-GOLDEN-001` through `SI-GOLDEN-006` scenarios remain the complete
@@ -31,7 +32,7 @@ Validator twice per scenario, proving Session Intelligence, immutable
 Presentation where product semantics require it, and renderer-safe Broadcast
 evidence. `SI-GOLDEN-004` remains planning-only; `SI-GOLDEN-006` preserves
 Intentional Silence without forcing Speech Presentation. Golden Smoke and
-Golden Regression are future selection profiles over this same path, never
+Golden Regression are implemented selection profiles over this same path, never
 second implementations. No Renderer Host, visual, audio, TTS, hardware, CI
 workflow, Runtime ownership, Planner, Knowledge Engine or Session Flow
 behavior changed.

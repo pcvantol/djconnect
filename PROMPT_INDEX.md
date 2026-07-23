@@ -4,17 +4,16 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#420](https://github.com/pcvantol/djconnect/pull/420), **Add Golden Smoke
-execution profile**, merged as
-`c0f2cd9ca4ce475294a457e6f80f6b3a48253776`. This dedicated Finalization
-reconciles its immutable Prompt History at
-`docs/history/prompts/2026-07-23-golden-smoke-execution-profile.md`.
+PR [#422](https://github.com/pcvantol/djconnect/pull/422), **Add Golden Session
+Regression profile**, merged as `39aa07b8f098342fd036554fff2f561b31dc429a`.
+This dedicated Finalization reconciles its immutable Prompt History at
+`docs/history/prompts/2026-07-23-golden-session-regression-profile.md`.
 
-Golden Smoke is implemented as the smallest local profile of the existing
-Golden Qualification Foundation. It selects only `SI-GOLDEN-001` and reuses
-the canonical Bootstrap, Driver, Capture, Validator, cleanup and bounded
-reporting path. CI integration, CI/release gates, Golden Regression and all
-Scenario behavior changes remain separately authorized.
+Golden Regression is implemented as the fixed local broader profile of the
+existing Golden Qualification Foundation. It selects `SI-GOLDEN-001` through
+`SI-GOLDEN-006` and reuses the canonical Bootstrap, Driver, Runtime, Capture,
+Validator, cleanup and bounded reporting path. CI integration and CI/release
+gates remain separately authorized.
 
 Golden Scenarios are product-behavior contracts scoped to their architectural
 platform. `SI-GOLDEN-001` through `SI-GOLDEN-006` remain the complete original
@@ -32,7 +31,7 @@ isolated executions for equivalent server-owned Session and Presentation output
 where product semantics require it. `SI-GOLDEN-004` remains planning-only and
 `SI-GOLDEN-006` does not require Speech Presentation; no renderer state,
 visuals, audio, TTS, hardware or CI workflow is involved. Golden Smoke and
-Golden Regression are future profiles over this same path.
+Golden Regression are implemented profiles over this same path.
 
 The Session Intelligence Runtime Integration Epic is complete and reconciled.
 Supported Track Started decisions now use the one canonical Runtime lifecycle:
