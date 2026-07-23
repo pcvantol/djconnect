@@ -4,21 +4,19 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#412](https://github.com/pcvantol/djconnect/pull/412), **Define
-Presentation Verification Architecture**, merged as `22665a2a96b3a8ebf586ed02157961bd0dfaa0dc`.
-This dedicated Finalization
-reconciles its immutable Prompt History at
-`docs/history/prompts/2026-07-23-presentation-verification-architecture.md`.
+PR [#414](https://github.com/pcvantol/djconnect/pull/414), **Add Golden
+Qualification Foundation**, merged as `35d14e24fc226b8afec9a2d5e7c2c9a7e517f20b`.
+This dedicated Finalization reconciles its immutable Prompt History at
+`docs/history/prompts/2026-07-23-golden-qualification-foundation.md`.
 
-Presentation Verification formalizes the future server-side proof boundary:
-approved immutable DJMoment -> Presentation Composer -> immutable Presentation
--> renderer-safe Broadcast projection. It verifies composition, identity,
-bounded Context, ordered roles, fallback, determinism and safe projection;
-it ends before a Renderer Host. Presentation Golden Scenarios are a future
-family distinct from Session Intelligence Golden Scenarios. Existing
-renderer-safe visual Presentation remains canonical. This architecture
-authorizes no renderer, visual/audio/TTS test, capture, CI, Golden Smoke,
-Golden Regression, Broadcast or Runtime implementation.
+Golden Qualification Foundation is the sole executable deterministic
+server-side path for current Golden Scenarios: Bootstrap -> Scenario Driver ->
+Runtime -> Planner -> Knowledge -> DJMoment -> Presentation -> Broadcast ->
+immutable Capture -> Structural Validation. It compares two isolated executions
+for equivalent server-owned Session and Presentation output. Silence remains
+Presentation `not_applicable`; no renderer state, visuals, audio, TTS, hardware
+or CI workflow is involved. Golden Smoke and Golden Regression are future
+profiles over this same path.
 
 The Session Intelligence Runtime Integration Epic is complete and reconciled.
 Supported Track Started decisions now use the one canonical Runtime lifecycle:
