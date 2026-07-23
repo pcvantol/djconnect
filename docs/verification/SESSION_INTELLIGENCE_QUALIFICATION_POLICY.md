@@ -23,7 +23,11 @@ exists only to execute, observe or validate these approved contracts.
 
 Golden Smoke must remain deterministic, fast, stable and small enough for
 routine CI. Golden Regression is the broader qualification suite; this policy
-does not define its workflow implementation.
+does not define its workflow implementation. The future
+[Presentation Verification Architecture](PRESENTATION_VERIFICATION_ARCHITECTURE.md)
+adds a distinct Presentation Golden Scenario family before either qualification
+layer is extended. It verifies immutable Presentation composition and
+renderer-safe Broadcast projection, never renderer output.
 
 ## Quality metrics policy
 
@@ -60,6 +64,9 @@ policy continues to own qualification layers and metric-promotion rules.
 The intended policy is that every production-code implementation PR eventually
 executes Unit Tests, Integration Tests and Golden Smoke. Golden Regression runs
 in broader `main`, release-qualification and scheduled-verification contexts.
+Once separately authorized and implemented, these layers may include both
+Session Intelligence and Presentation Golden Scenario families. That future
+extension does not alter the current suite or authorize CI work.
 
 This document defines qualification policy only. It does not implement GitHub
 Actions, scenario execution, reporting, metrics, Runtime changes or
@@ -70,4 +77,5 @@ Verification infrastructure.
 - [Golden Scenario Catalogue](SESSION_INTELLIGENCE_GOLDEN_SCENARIOS.md)
 - [Golden Scenario Governance](GOLDEN_SCENARIO_GOVERNANCE.md)
 - [E2E Verification Architecture](SESSION_INTELLIGENCE_E2E_ARCHITECTURE.md)
+- [Presentation Verification Architecture](PRESENTATION_VERIFICATION_ARCHITECTURE.md)
 - [Developer Experience Roadmap](../product/DEVELOPER_EXPERIENCE_ROADMAP.md)

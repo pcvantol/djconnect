@@ -104,6 +104,11 @@ The [Verification Architecture](docs/verification/01_VERIFICATION_ARCHITECTURE.m
 and [Session Intelligence Qualification Policy](docs/verification/SESSION_INTELLIGENCE_QUALIFICATION_POLICY.md)
 define its detailed boundaries.
 
+[Presentation Verification Architecture](docs/verification/PRESENTATION_VERIFICATION_ARCHITECTURE.md)
+defines a separate future behavioral contract for immutable Presentation
+composition and renderer-safe Broadcast projection. It remains server-side and
+ends before a Renderer Host; it is not visual, audio or hardware verification.
+
 ## Platform relationships
 
 The following is a conceptual relationship, not a replacement execution

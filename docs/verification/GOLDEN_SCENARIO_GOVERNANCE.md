@@ -2,9 +2,10 @@
 
 ## Status
 
-Canonical governance policy for Session Intelligence Golden Scenarios. This
-policy governs planning and verification scope; it introduces no Runtime,
-Planner, Knowledge Engine, DJ Moment Engine, renderer or CI behavior.
+Canonical governance policy for Session Intelligence Golden Scenarios and the
+future Presentation Golden Scenario family. This policy governs planning and
+verification scope; it introduces no Runtime, Planner, Knowledge Engine, DJ
+Moment Engine, renderer or CI behavior.
 
 ## Purpose
 
@@ -16,6 +17,12 @@ is the canonical source for those contracts.
 Verification infrastructure exists only to execute, observe, validate or
 protect approved Golden Scenario behavior. It is not independently valuable
 scope and it may not become a second product architecture.
+
+Session Intelligence Golden Scenarios protect semantic Session behavior.
+Future Presentation Golden Scenarios protect immutable Presentation composition
+and renderer-safe Broadcast projection only. The latter do not test a Renderer
+Host, audio output, visuals or hardware; their boundary is defined by the
+[Presentation Verification Architecture](PRESENTATION_VERIFICATION_ARCHITECTURE.md).
 
 ## Governing rules
 
@@ -110,6 +117,7 @@ decision:
 | --- | --- |
 | Verification | Approved scenario ID(s), relationship (`enable`, `execute`, `capture`, `validate` or `protect`), and why the proposed boundary is the smallest sufficient one. |
 | Session Intelligence | Approved scenario ID(s), relationship (`preserve`, `extend` or `introduce`), and the behavioral contract that must remain true. |
+| Presentation | Presentation scenario family or accepted architectural precursor, relationship (`preserve`, `compose`, `project` or `protect`), and proof that the boundary ends at the renderer-safe projection. |
 | No direct scenario relationship | Explicit architectural justification, the reason no user-visible behavior changes, and the narrower validation evidence that replaces a Golden Scenario assertion. |
 
 The declaration must identify no duplicate execution path and no unapproved
@@ -143,6 +151,7 @@ continues to define qualification layers and metric-promotion conditions.
 - [Golden Scenario Catalogue](SESSION_INTELLIGENCE_GOLDEN_SCENARIOS.md)
 - [Session Intelligence Qualification Policy](SESSION_INTELLIGENCE_QUALIFICATION_POLICY.md)
 - [Session Intelligence E2E Verification Architecture](SESSION_INTELLIGENCE_E2E_ARCHITECTURE.md)
+- [Presentation Verification Architecture](PRESENTATION_VERIFICATION_ARCHITECTURE.md)
 - [Developer Experience Roadmap](../product/DEVELOPER_EXPERIENCE_ROADMAP.md)
 - [Canonical Engineering Prompt Template](../governance/PROMPT_TEMPLATE.md)
 - [Prompt Initialization](../../PROMPT_INITIALIZATION.md)
