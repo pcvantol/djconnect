@@ -23,6 +23,11 @@ from .persistence.sessions import (
     PersistentSessionRepository,
 )
 from .persistence.history import HistoricalProjectionRepository
+from .presentation_composer import (
+    Presentation,
+    PresentationComposer,
+    PresentationContext,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -123,6 +128,7 @@ class BroadcastEventType(StrEnum):
     BROADCAST_STARTED = "broadcast_started"
     BROADCAST_STOPPED = "broadcast_stopped"
     DJ_MOMENT_PUBLISHED = "dj_moment_published"
+    PRESENTATION_PUBLISHED = "presentation_published"
 
 
 class BroadcastAuthorizationScope(StrEnum):
@@ -2656,6 +2662,7 @@ class DJBroadcastState:
     audience_totals: dict[str, int] = field(default_factory=dict)
     recent_audience_activity: tuple[str, ...] = ()
     dj_moments: tuple[DJMoment, ...] = ()
+    presentations: tuple[Presentation, ...] = ()
     playback: "RendererSafePlaybackProjection" = field(default_factory=lambda: RendererSafePlaybackProjection())
 
     def as_dict(self, *, include_owner_only: bool = True) -> dict[str, Any]:
@@ -2679,6 +2686,13 @@ class DJBroadcastState:
                 moment.as_dict()
                 for moment in self.dj_moments
                 if include_owner_only or moment.presentation_intent.visibility is not DJMomentVisibility.OWNER_ONLY
+            ],
+            "presentations": [
+                presentation.as_dict()
+                for presentation in self.presentations
+                if include_owner_only
+                or dict(presentation.context.constraints).get("visibility")
+                != DJMomentVisibility.OWNER_ONLY.value
             ],
             "broadcast": {"started_at": self.started_at},
         }
@@ -2859,6 +2873,16 @@ class DJSessionBroadcastEngine:
         if moment.moment_type is not DJMomentType.SILENCE:
             self._publish(BroadcastEventType.DJ_MOMENT_PUBLISHED, {"dj_moment": moment.as_dict()})
 
+    def publish_presentation(self, presentation: Presentation) -> None:
+        """Publish one immutable renderer-safe Presentation after composition."""
+        self.state = DJBroadcastState(
+            **{**self.state.__dict__, "presentations": (*self.state.presentations, presentation)}
+        )
+        self._publish(
+            BroadcastEventType.PRESENTATION_PUBLISHED,
+            {"presentation": presentation.as_dict()},
+        )
+
     def close(self) -> None:
         """Notify renderers of Runtime termination, then release every subscription."""
         state = self.as_dict()
@@ -3022,6 +3046,7 @@ class DJSessionRuntime:
     planning_coordinator: PlanningRuntimeCoordinator
     knowledge_engine: DJKnowledgeEngine
     moment_engine: DJMomentEngine
+    presentation_composer: PresentationComposer
     broadcast: DJSessionBroadcastEngine
     last_accepted_media_identity: str = ""
 
@@ -3064,8 +3089,23 @@ class DJSessionRuntime:
         self, moment: DJMoment, placement: SessionFlowPosition = SessionFlowPosition.NEXT
     ) -> None:
         """Publish a Moment only after Planner placement has been established."""
+        presentation = self.presentation_composer.compose(
+            moment=moment,
+            context=PresentationContext(
+                session_mood=self.selected_mood,
+                dj_persona=self.dj_persona.value,
+                session_direction=self.session_direction.direction.value,
+                session_energy=moment.presentation_intent.energy_level,
+                presentation_style=moment.presentation_intent.delivery_style,
+                constraints=(
+                    ("maximum_duration_seconds", str(moment.presentation_intent.maximum_duration_seconds)),
+                    ("visibility", moment.presentation_intent.visibility.value),
+                ),
+            ),
+        )
         self.broadcast.publish_session_flow(self.planner.append_moment(moment, placement))
         self.broadcast.publish_moment(moment)
+        self.broadcast.publish_presentation(presentation)
 
 
 class SessionRuntimeManager:
@@ -3141,6 +3181,7 @@ class SessionRuntimeManager:
                 planning_coordinator=PlanningRuntimeCoordinator(),
                 knowledge_engine=DJKnowledgeEngine(),
                 moment_engine=DJMomentEngine(),
+                presentation_composer=PresentationComposer(),
                 broadcast=_create_broadcast_engine(
                     session_id=session_id,
                     runtime_state=SessionRuntimeState.CREATING,
@@ -4321,6 +4362,12 @@ def _transition_copy(locale: str, part: str, source: str, target: str) -> str:
 
 def _payload_contains_owner_only_moment(payload: dict[str, Any]) -> bool:
     moment = payload.get("dj_moment")
-    if not isinstance(moment, dict):
+    if isinstance(moment, dict):
+        return moment.get("visibility") == DJMomentVisibility.OWNER_ONLY.value
+    presentation = payload.get("presentation")
+    if not isinstance(presentation, dict):
         return False
-    return moment.get("visibility") == DJMomentVisibility.OWNER_ONLY.value
+    context = presentation.get("context")
+    return isinstance(context, dict) and isinstance(context.get("constraints"), dict) and (
+        context["constraints"].get("visibility") == DJMomentVisibility.OWNER_ONLY.value
+    )

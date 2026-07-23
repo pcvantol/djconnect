@@ -46,7 +46,8 @@ Profile
 | DJ Session Runtime | Active listening experience, effective Session Capabilities and orchestration of Planner, Moment Engine and Broadcast. | Persistent Profile identity, backend credentials, durable playback state, Playback Instance Identity derivation or Playback Control. |
 | Session Planner | The future: rolling planning horizon and Session Flow. | Direct provider playback execution or Profile persistence. |
 | DJ Moment Engine | Creative execution from Knowledge Intent to immutable DJ Moment. | Planner timing, direct playback execution or renderer-specific business logic. |
-| Broadcast Engine | Distribution of scoped active-session events through Broadcast Feed. | Video, pixels, renderer presentation or persistent profile data. |
+| Presentation Composer | Immutable renderer-safe Presentation composition from one approved DJMoment. | Moment existence or meaning, planning, knowledge retrieval, Session Flow, playback, TTS, voice selection or renderer behaviour. |
+| Broadcast Engine | Distribution of scoped active-session events through Broadcast Feed. | Composition, video, pixels, renderer presentation or persistent profile data. |
 | Renderer | Local presentation and user input. | Business logic, planner state, Profile state or backend logic. |
 | Music Backend Playback Control Boundary | Provider-specific playback execution, queues, transport, commands and credentials. | DJ Session ownership, planning or audience interpretation. |
 | Music Backend Observation Boundary | Normalized playback observation, Current Playback Projection, Track Started observation and opaque Playback Instance Identity. | Playback Control ownership, Session ownership or identity persistence. |
