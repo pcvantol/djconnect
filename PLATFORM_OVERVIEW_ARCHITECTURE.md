@@ -104,6 +104,11 @@ The [Verification Architecture](docs/verification/01_VERIFICATION_ARCHITECTURE.m
 and [Session Intelligence Qualification Policy](docs/verification/SESSION_INTELLIGENCE_QUALIFICATION_POLICY.md)
 define its detailed boundaries.
 
+The [Golden Qualification Foundation](docs/verification/GOLDEN_QUALIFICATION_FOUNDATION.md)
+is the implemented server-side execution path for current Golden Scenario
+qualification. Future Golden Smoke and Golden Regression are profiles of that
+one path, not independent verification systems.
+
 [Presentation Verification Architecture](docs/verification/PRESENTATION_VERIFICATION_ARCHITECTURE.md)
 defines a separate future behavioral contract for immutable Presentation
 composition and renderer-safe Broadcast projection. It remains server-side and

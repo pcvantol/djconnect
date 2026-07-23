@@ -54,6 +54,18 @@ def validate_si_golden_001(capture: SIGolden001SessionCapture) -> StructuralVali
         None,
     )
     require("SI001-PRESENTATION-PROJECTION", presentation is not None and bool(presentation.presentation_id), "one Presentation for realized Moment", repr(presentation), "presentations")
+    require(
+        "SI001-PRESENTATION-STRUCTURE",
+        presentation is not None
+        and presentation.presentation_id == f"presentation-{capture.realized_moment.moment_id}"
+        and presentation.source_moment_type == capture.realized_moment.moment_type
+        and presentation.visibility == "session_shared"
+        and presentation.mode in {"primary_only", "primary_with_sidekick"}
+        and _valid_speech_structure(presentation.mode, presentation.segments),
+        "safe source-linked Presentation with ordered semantic Speech roles",
+        repr(presentation),
+        "presentations",
+    )
     require("SI001-FLOW-UNCHANGED", not any(item.item_type == "presentation" for item in capture.session_flow), "no Presentation Flow item", repr(capture.session_flow), "session_flow")
     require("SI001-NO-LEGACY-FALLBACK", not capture.legacy_fallback_used, "no legacy fallback", str(capture.legacy_fallback_used), "legacy_fallback_used")
     require("SI001-PLANNING-GENERATION", capture.planning_generation >= 0, "valid planning generation", str(capture.planning_generation), "planning_generation")
@@ -187,6 +199,18 @@ def validate_si_golden_002(capture: SIGolden002SessionCapture) -> StructuralVali
         "presentations",
     )
     require(
+        "SI002-PRESENTATION-COMPATIBILITY",
+        first_presentation is not None
+        and second_presentation is not None
+        and first_presentation.visibility == "session_shared"
+        and second_presentation.visibility == "session_shared"
+        and _valid_speech_structure(first_presentation.mode, first_presentation.segments)
+        and _valid_speech_structure(second_presentation.mode, second_presentation.segments),
+        "renderer-safe compatible Presentation projections",
+        repr((first_presentation, second_presentation)),
+        "presentations",
+    )
+    require(
         "SI002-NONELIGIBLE-PRIMARY-PROJECTION",
         second_presentation is not None
         and second_presentation.presentation_id
@@ -219,6 +243,20 @@ def validate_si_golden_002(capture: SIGolden002SessionCapture) -> StructuralVali
         "cleanup_completed",
     )
     return StructuralValidationResult("passed" if not failures else "failed", tuple(failures))
+
+
+def _valid_speech_structure(mode: str, segments: tuple[object, ...]) -> bool:
+    """Validate only immutable segment ordering and semantic roles."""
+    ordinals = tuple(getattr(segment, "ordinal", None) for segment in segments)
+    roles = tuple(getattr(segment, "speaker_role", None) for segment in segments)
+    texts = tuple(getattr(segment, "text", None) for segment in segments)
+    if not all(isinstance(text, str) and text for text in texts):
+        return False
+    if mode == "primary_only":
+        return ordinals == (1,) and roles == ("dj",)
+    if mode == "primary_with_sidekick":
+        return ordinals == (1, 2) and roles == ("dj", "sidekick")
+    return False
 
 
 def validate_si_golden_003(capture: SIGolden003SessionCapture) -> StructuralValidationResult:

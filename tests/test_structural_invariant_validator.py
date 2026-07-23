@@ -77,12 +77,13 @@ class StructuralInvariantValidatorTest(unittest.TestCase):
                     "presentation-moment-1",
                     "moment-1",
                     "artist",
-                    "primary_with_sidekick",
-                    (
-                        self.capture.CapturedSpeechSegment(1, "dj", "Approved artist story."),
-                        self.capture.CapturedSpeechSegment(2, "sidekick", "Approved summary."),
-                    ),
+                "primary_with_sidekick",
+                (
+                    self.capture.CapturedSpeechSegment(1, "dj", "Approved artist story."),
+                    self.capture.CapturedSpeechSegment(2, "sidekick", "Approved summary."),
                 ),
+                "session_shared",
+            ),
             ),
         )
 
