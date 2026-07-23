@@ -4,21 +4,21 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#422](https://github.com/pcvantol/djconnect/pull/422), **Add Golden Session
-Regression profile**, merged as `39aa07b8f098342fd036554fff2f561b31dc429a`.
-This dedicated Finalization reconciles its immutable Prompt History at
-`docs/history/prompts/2026-07-23-golden-session-regression-profile.md`.
+PR [#425](https://github.com/pcvantol/djconnect/pull/425), **Add advisory
+Intelligence Quality Metrics**, merged as
+`1eaced29e168fba12c07219bd796dabe764cce6e`. This dedicated Finalization
+reconciles its immutable Prompt History at
+`docs/history/prompts/2026-07-23-intelligence-quality-metrics-advisory.md`.
 
-Golden Regression is implemented as the fixed local broader profile of the
-existing Golden Qualification Foundation. It selects `SI-GOLDEN-001` through
-`SI-GOLDEN-006` and reuses the canonical Bootstrap, Driver, Runtime, Capture,
-Validator, cleanup and bounded reporting path. CI integration and CI/release
-gates remain separately authorized.
+Intelligence Quality Metrics v1 is implemented as an optional bounded section
+of the existing Golden Qualification report. It derives only approved metrics
+from immutable report evidence after Foundation execution completes. It remains
+transient and advisory: Structural Validation remains the sole PASS/FAIL
+authority, with no execution-path, persistence, replay, scoring, gate or
+sensitive-evidence change.
 
-Accelerated / event-driven Session execution is reconciled as `NO-GO`; its
-existing restricted Verification Clock meets all currently approved behavior.
-The next Product Development Pre-Flight candidate is Intelligence Quality
-Metrics (Advisory).
+The next Product Development Pre-Flight candidate is **Full CI Qualification
+and readable reports**.
 
 Golden Scenarios are product-behavior contracts scoped to their architectural
 platform. `SI-GOLDEN-001` through `SI-GOLDEN-006` remain the complete original

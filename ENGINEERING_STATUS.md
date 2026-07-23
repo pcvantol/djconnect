@@ -5,21 +5,22 @@
 
 ## Current engineering increment
 
-PR [#422](https://github.com/pcvantol/djconnect/pull/422), **Add Golden Session
-Regression profile**, merged as `39aa07b8f098342fd036554fff2f561b31dc429a`.
-This dedicated Finalization reconciles its immutable Prompt History and
-qualification evidence.
+PR [#425](https://github.com/pcvantol/djconnect/pull/425), **Add advisory
+Intelligence Quality Metrics**, merged as
+`1eaced29e168fba12c07219bd796dabe764cce6e`. This dedicated Finalization
+reconciles its immutable Prompt History and qualification evidence.
 
-Golden Regression is now the implemented fixed local broader profile of the
-one Golden Qualification Foundation. It selects `SI-GOLDEN-001` through
-`SI-GOLDEN-006`, reuses the existing Bootstrap, Driver, Runtime, Capture,
-Validator, cleanup and two-run comparison, and returns bounded
-`profile_version: 1` metadata. It adds no CI workflow or release gate.
+Intelligence Quality Metrics v1 is now an optional, transient, read-only
+section of the existing bounded Golden Qualification report. It is derived
+only after the immutable report exists and contains schema-versioned profile
+metadata, report-derived counts and rates, and aggregated invariant-failure
+identifiers. The Structural Validator remains the sole PASS/FAIL authority;
+Foundation execution, Runtime, Planner, Knowledge, Capture and Validation are
+unchanged. No history, score, threshold, gate or sensitive evidence is stored
+or exposed.
 
-Accelerated / event-driven Session execution is reconciled as `NO-GO`: the
-restricted Verification Clock already covers the approved timing contract and
-no Golden Scenario has a further acceleration need. The next Product
-Development candidate is Intelligence Quality Metrics (Advisory).
+The next Product Development candidate requiring a Pre-Flight is **Full CI
+Qualification and readable reports**.
 
 Golden Scenarios are canonically organized by architectural platform. The six
 original `SI-GOLDEN-001` through `SI-GOLDEN-006` scenarios remain the complete
