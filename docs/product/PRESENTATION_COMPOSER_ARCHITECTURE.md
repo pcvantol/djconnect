@@ -49,11 +49,13 @@ and ordered renderer-safe segments. The Projection deliberately excludes
 Session identity, Presentation Context, Planner state, Knowledge data, prompts,
 provider data, renderer configuration and Profile-private data.
 
-The first implemented capability is **Speech Presentation**. Future Visual,
-Ambient, Audience and Ambient Light Presentation capabilities remain separate
-and deferred; the Composer is Presentation-oriented, not Speech-oriented. The
-complete hierarchy, ownership and capability-independence model is defined in
-the [Presentation Capability Architecture](PRESENTATION_CAPABILITY_ARCHITECTURE.md).
+Speech Presentation is the first newly formalized structured capability
+implemented by Presentation Composer. Existing renderer-safe visual
+Presentation remains canonical and unchanged. Future richer visual, Ambient,
+Audience and Ambient Light composition remain separate and deferred; the
+Composer is Presentation-oriented, not Speech-oriented. The complete hierarchy,
+ownership and capability-independence model is defined in the
+[Presentation Capability Architecture](PRESENTATION_CAPABILITY_ARCHITECTURE.md).
 
 ### Presentation Context
 

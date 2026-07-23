@@ -18,10 +18,11 @@ class PresentationCapabilityArchitectureTest(unittest.TestCase):
         contents = self._contents()
 
         for required in (
-            "DJMoment -> Presentation -> Presentation Capabilities",
+            "approved immutable DJMoment -> Presentation Composer -> Presentation",
             "Presentation represents exactly one approved DJMoment.",
-            "Speech Presentation CURRENT",
-            "Speech is not the Presentation; it is the first implemented Presentation Capability.",
+            "existing renderer-safe visual Presentation CURRENT, AUTHORITATIVE",
+            "Speech Presentation CURRENT, STRUCTURED",
+            "first newly formalized structured Presentation Capability introduced by Presentation Composer.",
         ):
             self.assertIn(required, contents)
 
@@ -29,7 +30,8 @@ class PresentationCapabilityArchitectureTest(unittest.TestCase):
         contents = self._contents()
 
         for required in (
-            "Visual Presentation DEFERRED",
+            "Existing visual Presentation | Current",
+            "Richer visual composition | Deferred",
             "Ambient Presentation DEFERRED",
             "Audience Presentation DEFERRED",
             "Ambient Light Presentation DEFERRED",
@@ -54,11 +56,22 @@ class PresentationCapabilityArchitectureTest(unittest.TestCase):
         contents = self._contents()
 
         for required in (
-            "Speech unavailable -> Visual Presentation remains valid",
-            "Visual unavailable -> Speech Presentation remains valid",
-            "Ambient unavailable -> Speech and Visual Presentation remain valid",
-            "Speech -> Visual -> Ambient -> Audience -> Ambient Light",
-            "does not authorize any future implementation",
+            "Speech unavailable -> existing visual Presentation remains valid",
+            "Future richer visual composition unavailable -> Speech and existing visual Presentation remain valid",
+            "Ambient unavailable -> Speech and existing visual Presentation remain valid",
+            "Speech -> richer visual composition -> Ambient -> Audience -> Ambient Light",
+            "does not replace existing visual Presentation",
+        ):
+            self.assertIn(required, contents)
+
+    def test_existing_visual_presentation_is_not_remodelled_or_deferred(self) -> None:
+        contents = self._contents()
+
+        for required in (
+            "Existing renderer-safe visual Presentation remains authoritative",
+            "Existing visual Presentation is not remodelled as a new capability",
+            "It neither replaces nor supersedes existing visual Presentation.",
+            "existing visual Presentation remains unchanged.",
         ):
             self.assertIn(required, contents)
 

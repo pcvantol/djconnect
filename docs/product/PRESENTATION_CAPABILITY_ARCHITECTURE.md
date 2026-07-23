@@ -11,40 +11,49 @@ Runtime behavior or Session Intelligence change.
 
 One approved immutable DJMoment is experienced through one immutable
 Presentation. At the Broadcast boundary its Presentation Projection is the
-canonical renderer-safe execution model. A Presentation consists of independent
-Presentation Capabilities: modalities through which the same approved meaning
-may be experienced.
+canonical renderer-safe execution model. Existing renderer-safe visual
+Presentation remains authoritative through the established DJMoment, Session
+Flow, Playback, Universal Receiver and renderer-safe metadata projections.
+Presentation Composer augments that existing architecture with independent,
+structured Presentation Capabilities.
 
 ```text
-DJMoment
+approved immutable DJMoment
+  -> Presentation Composer
   -> Presentation
-      -> Presentation Capabilities
-          -> Renderer Host local interpretation
+      -> existing renderer-safe visual Presentation
+      + Speech Presentation
+      -> Renderer Host local interpretation
 ```
 
 A Presentation represents exactly one approved DJMoment. A Presentation
 Capability never represents a second Moment, Session Flow item, planning
-decision or renderer-owned message.
+decision or renderer-owned message. Existing visual Presentation is not
+remodelled as a new capability by this architecture.
 
 ## Capability model
 
 ```text
 Presentation
-├── Speech Presentation                 CURRENT
-├── Visual Presentation                 DEFERRED
-├── Ambient Presentation                DEFERRED
-├── Audience Presentation               DEFERRED
-└── Ambient Light Presentation          DEFERRED
+├── existing renderer-safe visual Presentation     CURRENT, AUTHORITATIVE
+├── Speech Presentation                            CURRENT, STRUCTURED
+├── richer visual composition                      DEFERRED
+├── Ambient Presentation                           DEFERRED
+├── Audience Presentation                          DEFERRED
+└── Ambient Light Presentation                     DEFERRED
 ```
 
 Capabilities are orthogonal. No capability owns another capability, and a
 Renderer Host is not required to support every capability. Speech is not the
-Presentation; it is the first implemented Presentation Capability.
+Presentation; it is the first newly formalized structured Presentation
+Capability introduced by Presentation Composer. It neither replaces nor
+supersedes existing visual Presentation.
 
 | Capability | Status | Renderer-safe purpose | Does not authorize |
 | --- | --- | --- | --- |
+| Existing visual Presentation | Current | Existing renderer-safe DJMoment, Flow, Playback and visual metadata projections. | A new Visual Presentation model or renderer change. |
 | Speech Presentation | Current | Ordered text segments and semantic speaker roles. | TTS, voice mapping, audio asset or renderer implementation. |
-| Visual Presentation | Deferred | Future visual composition of approved Presentation meaning. | UI layout, theme system or Universal Receiver change. |
+| Richer visual composition | Deferred | Future additive composition over existing visual Presentation. | UI layout, theme system or Universal Receiver change. |
 | Ambient Presentation | Deferred | Future attention-light expression of approved meaning. | VibeCast, timing master or audio synchronization implementation. |
 | Audience Presentation | Deferred | Future renderer-safe expression of separately owned Audience context. | Audience Signals, Planner influence or reaction implementation. |
 | Ambient Light Presentation | Deferred | Future local lighting expression of approved meaning. | Lighting integration, raw-audio analysis or renderer communication. |
@@ -59,9 +68,11 @@ Presentation; it is the first implemented Presentation Capability.
 | Renderer Host | Independently consumes the capabilities it supports and renders locally. | Presentation modification, composition or server authority. |
 | Room Presentation Routing | Future selection of eligible Renderer Hosts for a Presentation. | DJMoment creation, Presentation composition or capability-to-device selection. |
 
-Presentation Composer is Presentation-oriented, not Speech-oriented. Speech is
-currently its only implemented capability; a future capability may be composed
-through the same Composer without a second Runtime or Presentation pipeline.
+Presentation Composer is Presentation-oriented, not Speech-oriented. In the
+current implementation slice it actively composes only Speech Presentation;
+existing visual Presentation remains unchanged. Future work may add richer
+visual, Ambient, Audience or Ambient Light composition through the same
+Composer without a second Runtime or Presentation pipeline.
 
 ## Renderer capability consumption
 
@@ -81,8 +92,8 @@ implementation requirements:
 | Renderer role | Possible supported capabilities |
 | --- | --- |
 | Audio Renderer Host | Speech Presentation. |
-| Visual Renderer Host | Speech Presentation as text; future Visual Presentation. |
-| VibeCast | Speech Presentation; future Visual and Ambient Presentation. |
+| Visual Renderer Host | Existing visual Presentation; Speech Presentation as text; future richer visual composition. |
+| VibeCast | Existing visual Presentation; Speech Presentation; future richer visual and Ambient composition. |
 | Future Ambient Light Renderer Host | Future Ambient Light Presentation. |
 
 No Renderer Host changes the supplied capability, infers a missing capability
@@ -94,9 +105,9 @@ Failure, absence or lack of renderer support for one capability never
 invalidates the Presentation or another capability:
 
 ```text
-Speech unavailable  -> Visual Presentation remains valid
-Visual unavailable  -> Speech Presentation remains valid
-Ambient unavailable -> Speech and Visual Presentation remain valid
+Speech unavailable  -> existing visual Presentation remains valid
+Future richer visual composition unavailable -> Speech and existing visual Presentation remain valid
+Ambient unavailable -> Speech and existing visual Presentation remain valid
 ```
 
 The Presentation itself remains valid. A Renderer Host continues only with its
@@ -115,11 +126,12 @@ selects a Renderer Host, device or Home Assistant Area.
 The formal evolution order is:
 
 ```text
-Speech -> Visual -> Ambient -> Audience -> Ambient Light
+Speech -> richer visual composition -> Ambient -> Audience -> Ambient Light
 ```
 
-This order records architectural positioning only. It does not authorize any
-future implementation or make capabilities dependent on their predecessor.
+This order records expansion of Presentation composition only. It does not
+replace existing visual Presentation, authorize implementation or make
+capabilities dependent on their predecessor.
 
 ## References
 

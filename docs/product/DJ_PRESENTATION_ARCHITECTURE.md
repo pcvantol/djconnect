@@ -53,10 +53,12 @@ Session Intelligence retains Moment existence, meaning, placement and Silence.
 Renderer Hosts consume immutable Presentations and render locally without
 composing dialogue or Sidekick behaviour.
 
-One Presentation consists of independent Presentation Capabilities. Speech is
-the first implemented capability; Visual, Ambient, Audience and Ambient Light
-capabilities are formally deferred. The canonical capability hierarchy and
-renderer-consumption boundary are defined in
+Existing renderer-safe visual Presentation remains canonical through the
+established DJMoment, Session Flow, Playback and renderer metadata projections.
+Speech is the first newly formalized structured capability added by Presentation
+Composer; it augments rather than replaces visual Presentation. Future richer
+visual, Ambient, Audience and Ambient Light composition are deferred. The
+canonical capability hierarchy and renderer-consumption boundary are defined in
 [Presentation Capability Architecture](PRESENTATION_CAPABILITY_ARCHITECTURE.md).
 
 ## DJ Persona and Session Mood
