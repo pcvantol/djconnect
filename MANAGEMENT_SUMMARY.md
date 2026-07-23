@@ -15,18 +15,18 @@
 
 ## Current position
 
-PR [#408](https://github.com/pcvantol/djconnect/pull/408), **Define
-renderer-neutral Speech Rendering contract**, merged as
-`2eb658b66aa2a366183a4114218a7f0138210744`. This dedicated Finalization
-reconciles its contract evidence and immutable Prompt History.
+PR [#410](https://github.com/pcvantol/djconnect/pull/410), **Define
+Presentation Capability Architecture**, merged as
+`942ce57aa617ba482a06354b86445575fd0b83b0`. This dedicated Finalization
+reconciles its capability evidence and immutable Prompt History.
 
-Speech Presentation now has one clear cross-platform boundary. Presentation
-Composer and Broadcast provide identical immutable, ordered text segments and
-semantic roles; each Renderer Host may locally choose text, audio or both.
-Voice selection and TTS provider selection are never server decisions. The
-Universal Receiver, VibeCast, Apple and Home Assistant remain future Renderer
-Host implementations, not new server pipelines. No planner, knowledge,
-runtime, playback, TTS or renderer implementation was introduced.
+Presentation capability architecture is now explicit without remodelling the
+current product. Existing renderer-safe visual Presentation stays authoritative.
+Speech is the first newly formalized structured capability from Presentation
+Composer, delivered alongside—not instead of—the existing visual experience.
+Future richer visual, Ambient, Audience and Ambient Light composition are
+separate extensions. No planner, knowledge, runtime, playback, Broadcast, TTS
+or renderer implementation was introduced.
 
 The **Session Intelligence Runtime Integration Epic** is complete. DJConnect
 now has one canonical Runtime lifecycle for supported Track Started decisions:
