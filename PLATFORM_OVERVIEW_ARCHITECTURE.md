@@ -67,9 +67,10 @@ model is defined by the [DJ Session Runtime Contracts](DJ_SESSION_RUNTIME_CONTRA
 ## Presentation Platform
 
 The Presentation Platform determines **how Session Intelligence is
-experienced**. Broadcast distributes renderer-safe projections; Presentation
-Routing determines eligible independent Renderer Hosts; and each Renderer Host
-owns local presentation.
+experienced**. The server-owned Presentation Composer transforms one approved
+immutable DJMoment into one immutable renderer-safe Presentation before
+Broadcast distributes it. Presentation Routing determines eligible independent
+Renderer Hosts; each Renderer Host owns local presentation only.
 
 The platform includes Visual, Audio and Ambient Light Renderer Hosts, the
 Universal Receiver Web Platform, VibeCast and Audience Experience. These are
@@ -81,6 +82,7 @@ Experience remains a separate participant-originated concern.
 Continue through [Renderer Host Classification](docs/technical/RENDERER_HOST_CLASSIFICATION.md),
 [Room Presentation Routing](docs/technical/ROOM_PRESENTATION_ROUTING_ARCHITECTURE.md),
 [Universal Receiver Architecture](docs/technical/UNIVERSAL_RECEIVER_ARCHITECTURE.md),
+[Presentation Composer Architecture](docs/product/PRESENTATION_COMPOSER_ARCHITECTURE.md),
 [VibeCast Architecture](docs/product/VIBECAST_ARCHITECTURE.md) and
 [Audience Experience Architecture](docs/product/AUDIENCE_EXPERIENCE_ARCHITECTURE.md).
 

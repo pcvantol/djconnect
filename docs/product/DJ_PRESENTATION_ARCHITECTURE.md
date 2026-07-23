@@ -46,6 +46,13 @@ The Presentation Layer turns DJ Moments into user experiences. It owns Renderer
 Hosts, Presentation Modes and DJ Moment Renderers. It never generates a Moment
 or changes the semantic meaning already decided by the server.
 
+The server-owned [Presentation Composer](PRESENTATION_COMPOSER_ARCHITECTURE.md)
+is the canonical boundary between one immutable DJMoment and one immutable,
+renderer-safe Presentation before Broadcast. It composes presentation only;
+Session Intelligence retains Moment existence, meaning, placement and Silence.
+Renderer Hosts consume immutable Presentations and render locally without
+composing dialogue or Sidekick behaviour.
+
 ## DJ Persona and Session Mood
 
 A **DJ Persona** is a first-class behavioural identity: Home DJ, Radio DJ,

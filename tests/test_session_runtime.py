@@ -2142,6 +2142,7 @@ class SessionRuntimeManagerTest(unittest.TestCase):
                 "broadcast_started",
                 "broadcast_stopped",
                 "dj_moment_published",
+                "presentation_published",
             ],
         )
 
@@ -2171,9 +2172,117 @@ class SessionRuntimeManagerTest(unittest.TestCase):
         self.assertEqual(moment.presentation_intent.dj_persona, self.runtime.DJPersona.RADIO_DJ)
         self.assertEqual(created.broadcast.as_dict()["dj_moments"][0]["moment_id"], moment.moment_id)
         self.assertIn(moment.moment_id, [item.moment_id for item in created.planner.output.session_flow.items])
-        self.assertEqual(events[-1]["event_type"], "dj_moment_published")
+        self.assertEqual(events[-2]["event_type"], "dj_moment_published")
+        self.assertEqual(events[-1]["event_type"], "presentation_published")
+        self.assertEqual(
+            events[-1]["payload"]["presentation"]["source_moment_id"], moment.moment_id
+        )
         with self.assertRaises(FrozenInstanceError):
             moment.summary = "mutated"  # type: ignore[misc]
+
+    def test_presentation_composer_creates_one_immutable_artist_story_with_sidekick(self) -> None:
+        manager = self.runtime.SessionRuntimeManager()
+        created = asyncio.run(
+            manager.async_start(
+                owner_profile_id="profile-presentation",
+                selected_mood="energy",
+                dj_persona=self.runtime.DJPersona.CLUB_DJ,
+            )
+        )
+        moment = self.runtime.DJMoment(
+            moment_id="moment-artist-story",
+            session_id=created.session_id,
+            created_at="2026-07-23T00:00:00+00:00",
+            moment_type=self.runtime.DJMomentType.ARTIST,
+            knowledge_intent=self.runtime.KnowledgeIntent(
+                self.runtime.KnowledgeIntentType.ARTIST_STORY,
+                "Share the approved artist story.",
+            ),
+            presentation_intent=self.runtime.PresentationIntent(
+                source_session_mood="energy",
+                dj_persona=self.runtime.DJPersona.CLUB_DJ,
+                tone_of_voice="energized",
+                energy_level="high",
+                delivery_style="direct",
+                voice_style="",
+                visual_theme="",
+                importance="normal",
+                maximum_duration_seconds=30,
+                delivery_channels=(self.runtime.DeliveryChannel.BROADCAST,),
+                visibility=self.runtime.DJMomentVisibility.SESSION_SHARED,
+            ),
+            title="Massive Attack",
+            summary="A defining trip-hop presence.",
+            content="Massive Attack helped shape the sound of trip-hop.",
+            artwork_url=None,
+            actions=(),
+            source_references=("track_insight",),
+            generation_metadata=(("validated", "true"),),
+        )
+
+        created.publish_moment(moment)
+
+        presentation = created.broadcast.state.presentations[-1]
+        self.assertEqual(presentation.source_moment_id, moment.moment_id)
+        self.assertEqual(presentation.presentation_id, "presentation-moment-artist-story")
+        self.assertEqual(presentation.context.session_mood, "energy")
+        self.assertEqual(presentation.context.dj_persona, "club_dj")
+        assert presentation.speech is not None
+        self.assertEqual(presentation.speech.mode.value, "primary_with_sidekick")
+        self.assertEqual(
+            [(segment.speaker_role.value, segment.text) for segment in presentation.speech.segments],
+            [
+                ("dj", "Massive Attack helped shape the sound of trip-hop."),
+                ("sidekick", "A defining trip-hop presence."),
+            ],
+        )
+        with self.assertRaises(FrozenInstanceError):
+            presentation.context.session_mood = "chill"  # type: ignore[misc]
+        with self.assertRaises(FrozenInstanceError):
+            presentation.speech.segments[0].text = "mutated"  # type: ignore[misc]
+        self.assertEqual(moment.summary, "A defining trip-hop presence.")
+
+    def test_presentation_composer_falls_back_to_primary_only_outside_artist_story(self) -> None:
+        manager = self.runtime.SessionRuntimeManager()
+        created = asyncio.run(manager.async_start(owner_profile_id="profile-primary-only"))
+        moment = self.runtime.DJMoment(
+            moment_id="moment-track-context",
+            session_id=created.session_id,
+            created_at="2026-07-23T00:00:00+00:00",
+            moment_type=self.runtime.DJMomentType.TRACK,
+            knowledge_intent=self.runtime.KnowledgeIntent(
+                self.runtime.KnowledgeIntentType.TRACK_CONTEXT,
+                "Share approved track context.",
+            ),
+            presentation_intent=self.runtime.PresentationIntent(
+                source_session_mood="",
+                dj_persona=self.runtime.DJPersona.HOME_DJ,
+                tone_of_voice="warm",
+                energy_level="medium",
+                delivery_style="compact",
+                voice_style="",
+                visual_theme="",
+                importance="normal",
+                maximum_duration_seconds=30,
+                delivery_channels=(self.runtime.DeliveryChannel.BROADCAST,),
+                visibility=self.runtime.DJMomentVisibility.SESSION_SHARED,
+            ),
+            title="Teardrop",
+            summary="Approved supporting summary.",
+            content="Approved primary context.",
+            artwork_url=None,
+            actions=(),
+            source_references=("track_insight",),
+            generation_metadata=(("validated", "true"),),
+        )
+
+        created.publish_moment(moment)
+
+        presentation = created.broadcast.state.presentations[-1]
+        assert presentation.speech is not None
+        self.assertEqual(presentation.speech.mode.value, "primary_only")
+        self.assertEqual(len(presentation.speech.segments), 1)
+        self.assertEqual(presentation.speech.segments[0].speaker_role.value, "dj")
 
     def test_runtime_uses_one_insight_for_contextual_planner_intents(self) -> None:
         cases = (
@@ -3510,9 +3619,18 @@ class SessionRuntimeManagerTest(unittest.TestCase):
             presentation_intent=self.runtime.PresentationIntent("deep", self.runtime.DJPersona.HOME_DJ, "warm", "deep", "short", "guided", "music", "normal", 20, (self.runtime.DeliveryChannel.OWNER,), self.runtime.DJMomentVisibility.OWNER_ONLY),
             title="Private", summary="Private", content="Private", artwork_url=None, actions=(), source_references=(), generation_metadata=(),
         )
-        created.broadcast.publish_moment(private)
-        self.assertEqual(receiver_events, [])
+        created.publish_moment(private)
+        self.assertNotIn(
+            "dj_moment_published", [event["event_type"] for event in receiver_events]
+        )
+        self.assertNotIn(
+            "presentation_published", [event["event_type"] for event in receiver_events]
+        )
         self.assertEqual(subscription[1]["dj_moments"], [])
+        self.assertEqual(subscription[1]["presentations"], [])
+        public_snapshot = created.broadcast.as_dict(include_owner_only=False)
+        self.assertEqual(public_snapshot["dj_moments"], [])
+        self.assertEqual(public_snapshot["presentations"], [])
 
     def test_generated_moments_remain_isolated_between_profile_runtimes(self) -> None:
         manager = self.runtime.SessionRuntimeManager()
