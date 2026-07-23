@@ -4,17 +4,19 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#404](https://github.com/pcvantol/djconnect/pull/404), **Add Presentation
-Composer**, merged as `93fdb4eb0c514997b81bd26e7b740f001327b5c5`.
-This dedicated Finalization reconciles its immutable Prompt History at
-`docs/history/prompts/2026-07-23-presentation-composer.md`.
+PR [#406](https://github.com/pcvantol/djconnect/pull/406), **Integrate
+Presentation Composer execution pipeline**, merged as
+`353bbd9c57fd87b3d61d53cfd77e17eebea87e19`. This dedicated Finalization
+reconciles its immutable Prompt History at
+`docs/history/prompts/2026-07-23-presentation-execution-pipeline.md`.
 
 Presentation Composer is the server-owned Presentation Platform boundary
-between immutable DJMoment and Broadcast. It creates one immutable,
-renderer-safe Presentation per published Moment. Speech is the first
-capability; Sidekick is one deterministic, secondary Artist Story role using
-only approved source text, with Primary Only as the fallback. It adds no
-independent intelligence, playback, TTS, voice-selection or renderer authority.
+between immutable DJMoment and Broadcast. Its internal Presentation becomes an
+additive canonical renderer-safe Presentation Projection; existing DJMoment
+projections remain compatible. Speech is text-only and ordered by semantic
+role. The existing SI-GOLDEN-002 captures and validates the Artist Story
+DJ–Sidekick path and the subsequent Primary Only path without a second Runtime,
+Scenario Driver, verification path or renderer authority.
 
 The Session Intelligence Runtime Integration Epic is complete and reconciled.
 Supported Track Started decisions now use the one canonical Runtime lifecycle:

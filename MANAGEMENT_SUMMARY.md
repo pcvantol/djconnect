@@ -15,17 +15,20 @@
 
 ## Current position
 
-PR [#404](https://github.com/pcvantol/djconnect/pull/404), **Add Presentation
-Composer**, merged as `93fdb4eb0c514997b81bd26e7b740f001327b5c5`.
-This dedicated Finalization reconciles the bounded server-side Presentation
-Composer and immutable Prompt History.
+PR [#406](https://github.com/pcvantol/djconnect/pull/406), **Integrate
+Presentation Composer execution pipeline**, merged as
+`353bbd9c57fd87b3d61d53cfd77e17eebea87e19`. This dedicated Finalization
+reconciles its renderer-safe Projection, Golden Scenario evidence and immutable
+Prompt History.
 
 Presentation Composer is now the first server-side Presentation Platform
-execution boundary. It composes one immutable renderer-safe Presentation from
-one approved DJMoment before Broadcast. Speech is the first capability; only an
-eligible Artist Story gets a deterministic, secondary Sidekick segment based on
-already-approved text. All other composition is Primary Only. No new planner,
-knowledge, runtime, playback, TTS, voice or renderer authority was introduced.
+execution boundary with a complete Broadcast and verification path. It composes
+one internal immutable Presentation from one approved DJMoment; Broadcast adds
+its renderer-safe Presentation Projection without replacing the DJMoment
+projection or creating a Flow item. Speech is text-only. SI-GOLDEN-002 proves
+the deterministic eligible DJ–Sidekick and non-eligible Primary Only outcomes.
+No new planner, knowledge, runtime, playback, TTS, voice or renderer authority
+was introduced.
 
 The **Session Intelligence Runtime Integration Epic** is complete. DJConnect
 now has one canonical Runtime lifecycle for supported Track Started decisions:
