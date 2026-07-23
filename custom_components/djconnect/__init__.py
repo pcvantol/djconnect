@@ -1248,9 +1248,15 @@ DEVELOPER_SERVICE_SCHEMAS = {
     "developer_session_capture": _developer_service_schema(
         {vol.Optional("scenario_id", default="SI-GOLDEN-001"): str}
     ),
-    "golden_qualification": _developer_service_schema({}),
-    "golden_smoke": _developer_service_schema({}),
-    "golden_regression": _developer_service_schema({}),
+    "golden_qualification": _developer_service_schema(
+        {vol.Optional("include_advisory_metrics", default=False): bool}
+    ),
+    "golden_smoke": _developer_service_schema(
+        {vol.Optional("include_advisory_metrics", default=False): bool}
+    ),
+    "golden_regression": _developer_service_schema(
+        {vol.Optional("include_advisory_metrics", default=False): bool}
+    ),
     "push_register": _developer_service_schema(
         {
             vol.Required("push_token"): str,
@@ -2825,17 +2831,26 @@ def _register_developer_services(
     async def handle_golden_qualification(call: ServiceCall) -> dict[str, Any]:
         from .golden_qualification import async_handle_golden_qualification
 
-        return await async_handle_golden_qualification(hass)
+        return await async_handle_golden_qualification(
+            hass,
+            include_advisory_metrics=bool(call.data.get("include_advisory_metrics")),
+        )
 
     async def handle_golden_smoke(call: ServiceCall) -> dict[str, Any]:
         from .golden_qualification import async_handle_golden_smoke
 
-        return await async_handle_golden_smoke(hass)
+        return await async_handle_golden_smoke(
+            hass,
+            include_advisory_metrics=bool(call.data.get("include_advisory_metrics")),
+        )
 
     async def handle_golden_regression(call: ServiceCall) -> dict[str, Any]:
         from .golden_qualification import async_handle_golden_regression
 
-        return await async_handle_golden_regression(hass)
+        return await async_handle_golden_regression(
+            hass,
+            include_advisory_metrics=bool(call.data.get("include_advisory_metrics")),
+        )
 
     service_handlers = {
         "test_parse": (handle_test_parse, "optional"),
