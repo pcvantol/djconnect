@@ -15,10 +15,15 @@
 
 ## Current position
 
-PR [#418](https://github.com/pcvantol/djconnect/pull/418), **Establish
-platform-scoped Golden Scenario governance**, merged as
-`af80f88da98504b8cf8c244b63500de7f194ddae`. This dedicated Finalization
-reconciles its governance evidence and immutable Prompt History.
+PR [#420](https://github.com/pcvantol/djconnect/pull/420), **Add Golden Smoke
+execution profile**, merged as
+`c0f2cd9ca4ce475294a457e6f80f6b3a48253776`. This dedicated Finalization
+reconciles its qualification evidence and immutable Prompt History.
+
+Golden Smoke is now the implemented smallest local profile of the one Golden
+Qualification Foundation. It selects only `SI-GOLDEN-001` through the existing
+server-side path and does not introduce a CI workflow, gate, Golden Regression,
+new Scenario behavior, Runtime or renderer behavior.
 
 Golden Scenario governance now keeps product-behavior contracts within their
 own architectural platforms. The six original Session Intelligence scenarios
