@@ -42,6 +42,8 @@ from .structural_invariant_validator import (
 
 GOLDEN_QUALIFICATION_PROFILE = "golden_qualification_foundation"
 GOLDEN_SMOKE_PROFILE = "golden_smoke"
+GOLDEN_REGRESSION_PROFILE = "golden_regression"
+GOLDEN_REGRESSION_PROFILE_VERSION = 1
 EXECUTABLE_GOLDEN_SCENARIOS = (
     SI_GOLDEN_001_ID,
     SI_GOLDEN_002_ID,
@@ -51,6 +53,9 @@ EXECUTABLE_GOLDEN_SCENARIOS = (
     SI_GOLDEN_006_ID,
 )
 GOLDEN_SMOKE_SCENARIOS = (SI_GOLDEN_001_ID,)
+# Regression is deliberately the complete currently approved Session
+# Intelligence contract, in the catalogue's canonical order.
+GOLDEN_REGRESSION_SCENARIOS = EXECUTABLE_GOLDEN_SCENARIOS
 
 
 @dataclass(frozen=True)
@@ -72,6 +77,7 @@ class GoldenQualificationReport:
     profile: str
     scenarios: tuple[GoldenScenarioQualification, ...]
     overall_status: str
+    profile_version: int | None = None
 
 
 async def async_run_golden_qualification(
@@ -137,6 +143,41 @@ async def async_handle_golden_smoke(hass: Any) -> dict[str, Any]:
         "success": report.overall_status == "passed",
         "status": report.overall_status,
         "profile": report.profile,
+        "scenarios": [
+            {
+                "scenario_id": item.scenario_id,
+                "session_verification": item.session_verification,
+                "presentation_verification": item.presentation_verification,
+                "deterministic": item.deterministic,
+                "overall_status": item.overall_status,
+                "failure_identifiers": item.failure_identifiers,
+            }
+            for item in report.scenarios
+        ],
+    }
+
+
+async def async_run_golden_regression(hass: Any) -> GoldenQualificationReport:
+    """Run the complete approved contract through Golden Qualification only."""
+    foundation_report = await async_run_golden_qualification(
+        hass, scenario_ids=GOLDEN_REGRESSION_SCENARIOS
+    )
+    return GoldenQualificationReport(
+        profile=GOLDEN_REGRESSION_PROFILE,
+        scenarios=foundation_report.scenarios,
+        overall_status=foundation_report.overall_status,
+        profile_version=GOLDEN_REGRESSION_PROFILE_VERSION,
+    )
+
+
+async def async_handle_golden_regression(hass: Any) -> dict[str, Any]:
+    """Expose the bounded Golden Regression report from the canonical path."""
+    report = await async_run_golden_regression(hass)
+    return {
+        "success": report.overall_status == "passed",
+        "status": report.overall_status,
+        "profile": report.profile,
+        "profile_version": report.profile_version,
         "scenarios": [
             {
                 "scenario_id": item.scenario_id,

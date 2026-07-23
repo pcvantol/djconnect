@@ -149,6 +149,16 @@ golden_smoke:
     immutable Capture, Structural Validation and bounded report. This service
     does not implement a CI workflow or change Golden Scenario behavior.
 
+golden_regression:
+  name: Run Golden Regression
+  description: >
+    Local developer helper: run the complete approved Session Intelligence
+    contract, SI-GOLDEN-001 through SI-GOLDEN-006, through the existing Golden
+    Qualification Foundation. It reuses the same Bootstrap, Scenario Driver,
+    Runtime, immutable Capture, Structural Validation, cleanup and bounded
+    report. This fixed profile accepts no scenario selection or configuration,
+    and does not implement a CI workflow or release gate.
+
 test_parse:
   name: Test Assist parser
   description: >

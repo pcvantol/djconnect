@@ -1250,6 +1250,7 @@ DEVELOPER_SERVICE_SCHEMAS = {
     ),
     "golden_qualification": _developer_service_schema({}),
     "golden_smoke": _developer_service_schema({}),
+    "golden_regression": _developer_service_schema({}),
     "push_register": _developer_service_schema(
         {
             vol.Required("push_token"): str,
@@ -2831,6 +2832,11 @@ def _register_developer_services(
 
         return await async_handle_golden_smoke(hass)
 
+    async def handle_golden_regression(call: ServiceCall) -> dict[str, Any]:
+        from .golden_qualification import async_handle_golden_regression
+
+        return await async_handle_golden_regression(hass)
+
     service_handlers = {
         "test_parse": (handle_test_parse, "optional"),
         "test_tts": (handle_test_tts, "optional"),
@@ -2884,6 +2890,7 @@ def _register_developer_services(
         "developer_session_capture": (handle_developer_session_capture, "only"),
         "golden_qualification": (handle_golden_qualification, "only"),
         "golden_smoke": (handle_golden_smoke, "only"),
+        "golden_regression": (handle_golden_regression, "only"),
     }
     for service_name, (handler, response_mode) in service_handlers.items():
         hass.services.async_register(
