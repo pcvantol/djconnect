@@ -28,16 +28,16 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-PR [#420](https://github.com/pcvantol/djconnect/pull/420), **Add Golden Smoke
-execution profile**, merged as
-`c0f2cd9ca4ce475294a457e6f80f6b3a48253776`. This dedicated Finalization
-reconciles its immutable Prompt History and qualification evidence.
+PR [#422](https://github.com/pcvantol/djconnect/pull/422), **Add Golden Session
+Regression profile**, merged as `39aa07b8f098342fd036554fff2f561b31dc429a`.
+This dedicated Finalization reconciles its immutable Prompt History and
+qualification evidence.
 
-Golden Smoke is now the smallest implemented local profile over the one Golden
-Qualification Foundation. It selects only `SI-GOLDEN-001` through the existing
-server-side execution path. No CI workflow or gate, Golden Regression, new
-Scenario behavior, Runtime, renderer, audio, TTS or hardware behavior was
-introduced.
+Golden Regression is now the implemented fixed local broader profile over the
+one Golden Qualification Foundation. It selects `SI-GOLDEN-001` through
+`SI-GOLDEN-006` through the existing server-side execution path, with bounded
+profile version metadata. No CI workflow or gate, new Scenario behavior,
+Runtime, renderer, audio, TTS or hardware behavior was introduced.
 
 Golden Scenarios are now governed as platform-scoped behavioral contract
 families. The original six Session Intelligence scenarios are complete and
