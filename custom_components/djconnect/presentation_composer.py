@@ -21,6 +21,17 @@ class SpeechPresentationMode(StrEnum):
     PRIMARY_WITH_SIDEKICK = "primary_with_sidekick"
 
 
+class PresentationCompositionOutcome(StrEnum):
+    """Bounded internal outcomes for composition diagnostics only."""
+
+    PRESENTATION_CREATED = "presentation_created"
+    PRIMARY_ONLY = "primary_only"
+    PRIMARY_WITH_SIDEKICK = "primary_with_sidekick"
+    SIDEKICK_DISABLED = "sidekick_disabled"
+    SIDEKICK_INELIGIBLE = "sidekick_ineligible"
+    SIDEKICK_FALLBACK = "sidekick_fallback"
+
+
 @dataclass(frozen=True)
 class PresentationContext:
     """Shared Runtime-derived emotional and stylistic presentation context."""
@@ -75,7 +86,7 @@ class SpeechPresentation:
 
 @dataclass(frozen=True)
 class Presentation:
-    """One immutable renderer-safe realization of exactly one source DJMoment."""
+    """One immutable internal realization of exactly one source DJMoment."""
 
     presentation_id: str
     source_moment_id: str
@@ -96,10 +107,53 @@ class Presentation:
             result["speech"] = self.speech.as_dict()
         return result
 
+    def to_projection(self) -> "PresentationProjection":
+        """Remove Runtime-only composition context at the Broadcast boundary."""
+        return PresentationProjection(
+            presentation_id=self.presentation_id,
+            source_moment_id=self.source_moment_id,
+            source_moment_type=self.source_moment_type,
+            visibility=dict(self.context.constraints).get("visibility", "session_shared"),
+            speech=self.speech,
+        )
+
+
+@dataclass(frozen=True)
+class PresentationProjection:
+    """The canonical immutable, renderer-safe Broadcast presentation model."""
+
+    presentation_id: str
+    source_moment_id: str
+    source_moment_type: str
+    visibility: str
+    speech: SpeechPresentation | None = None
+
+    def as_dict(self) -> dict[str, Any]:
+        """Expose only presentation data a Renderer Host may consume."""
+        result: dict[str, Any] = {
+            "presentation_id": self.presentation_id,
+            "source_moment_id": self.source_moment_id,
+            "source_moment_type": self.source_moment_type,
+            "visibility": self.visibility,
+        }
+        if self.speech is not None:
+            result["speech"] = self.speech.as_dict()
+        return result
+
+
+@dataclass(frozen=True)
+class PresentationCompositionResult:
+    """One immutable composition result plus non-renderer diagnostic outcomes."""
+
+    presentation: Presentation
+    outcomes: tuple[PresentationCompositionOutcome, ...]
+
 
 @dataclass(frozen=True)
 class PresentationComposer:
     """Compose presentations without owning planning, knowledge or rendering."""
+
+    sidekick_enabled: bool = True
 
     def compose(self, *, moment: Any, context: PresentationContext) -> Presentation:
         """Create one deterministic Presentation from one approved DJMoment.
@@ -108,6 +162,12 @@ class PresentationComposer:
         optional Sidekick segment repeats the already-approved summary verbatim,
         which prevents new facts, knowledge retrieval or semantic expansion.
         """
+        return self.compose_with_diagnostics(moment=moment, context=context).presentation
+
+    def compose_with_diagnostics(
+        self, *, moment: Any, context: PresentationContext
+    ) -> PresentationCompositionResult:
+        """Compose once and report bounded internal outcomes without rendering them."""
         source_moment_id = _safe_text(getattr(moment, "moment_id", ""), 128)
         session_id = _safe_text(getattr(moment, "session_id", ""), 128)
         if not source_moment_id or not session_id:
@@ -116,36 +176,68 @@ class PresentationComposer:
         moment_type = _enum_value(getattr(moment, "moment_type", ""))
         primary_text = _safe_text(getattr(moment, "content", ""), 1200)
         summary = _safe_text(getattr(moment, "summary", ""), 320)
-        speech = self._compose_speech(
+        speech, outcomes = self._compose_speech(
             moment=moment,
             primary_text=primary_text,
             summary=summary,
         )
-        return Presentation(
-            presentation_id=f"presentation-{source_moment_id}",
-            source_moment_id=source_moment_id,
-            session_id=session_id,
-            source_moment_type=moment_type,
-            context=context,
-            speech=speech,
+        return PresentationCompositionResult(
+            presentation=Presentation(
+                presentation_id=f"presentation-{source_moment_id}",
+                source_moment_id=source_moment_id,
+                session_id=session_id,
+                source_moment_type=moment_type,
+                context=context,
+                speech=speech,
+            ),
+            outcomes=(PresentationCompositionOutcome.PRESENTATION_CREATED, *outcomes),
         )
 
     def _compose_speech(
         self, *, moment: Any, primary_text: str, summary: str
-    ) -> SpeechPresentation | None:
+    ) -> tuple[SpeechPresentation | None, tuple[PresentationCompositionOutcome, ...]]:
         """Use the source's approved text only, with Primary Only as fallback."""
         if not primary_text:
-            return None
+            return None, ()
         primary = SpeechSegment(ordinal=1, speaker_role=SpeakerRole.DJ, text=primary_text)
         if not self._is_sidekick_eligible(moment=moment, summary=summary):
-            return SpeechPresentation(SpeechPresentationMode.PRIMARY_ONLY, (primary,))
-        return SpeechPresentation(
-            SpeechPresentationMode.PRIMARY_WITH_SIDEKICK,
-            (
-                primary,
-                SpeechSegment(ordinal=2, speaker_role=SpeakerRole.SIDEKICK, text=summary),
+            return (
+                SpeechPresentation(SpeechPresentationMode.PRIMARY_ONLY, (primary,)),
+                (
+                    PresentationCompositionOutcome.PRIMARY_ONLY,
+                    PresentationCompositionOutcome.SIDEKICK_INELIGIBLE,
+                ),
+            )
+        if not self.sidekick_enabled:
+            return (
+                SpeechPresentation(SpeechPresentationMode.PRIMARY_ONLY, (primary,)),
+                (
+                    PresentationCompositionOutcome.PRIMARY_ONLY,
+                    PresentationCompositionOutcome.SIDEKICK_DISABLED,
+                ),
+            )
+        try:
+            sidekick = self._create_sidekick_segment(summary)
+        except Exception:  # Presentation enrichment must never invalidate its source Moment.
+            return (
+                SpeechPresentation(SpeechPresentationMode.PRIMARY_ONLY, (primary,)),
+                (
+                    PresentationCompositionOutcome.PRIMARY_ONLY,
+                    PresentationCompositionOutcome.SIDEKICK_FALLBACK,
+                ),
+            )
+        return (
+            SpeechPresentation(
+                SpeechPresentationMode.PRIMARY_WITH_SIDEKICK,
+                (primary, sidekick),
             ),
+            (PresentationCompositionOutcome.PRIMARY_WITH_SIDEKICK,),
         )
+
+    @staticmethod
+    def _create_sidekick_segment(summary: str) -> SpeechSegment:
+        """Make one deterministic secondary segment from approved source text only."""
+        return SpeechSegment(ordinal=2, speaker_role=SpeakerRole.SIDEKICK, text=summary)
 
     @staticmethod
     def _is_sidekick_eligible(*, moment: Any, summary: str) -> bool:

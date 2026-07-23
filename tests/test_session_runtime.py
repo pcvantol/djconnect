@@ -2225,8 +2225,9 @@ class SessionRuntimeManagerTest(unittest.TestCase):
         presentation = created.broadcast.state.presentations[-1]
         self.assertEqual(presentation.source_moment_id, moment.moment_id)
         self.assertEqual(presentation.presentation_id, "presentation-moment-artist-story")
-        self.assertEqual(presentation.context.session_mood, "energy")
-        self.assertEqual(presentation.context.dj_persona, "club_dj")
+        self.assertEqual(presentation.visibility, "session_shared")
+        self.assertNotIn("context", presentation.as_dict())
+        self.assertNotIn("session_id", presentation.as_dict())
         assert presentation.speech is not None
         self.assertEqual(presentation.speech.mode.value, "primary_with_sidekick")
         self.assertEqual(
@@ -2237,10 +2238,12 @@ class SessionRuntimeManagerTest(unittest.TestCase):
             ],
         )
         with self.assertRaises(FrozenInstanceError):
-            presentation.context.session_mood = "chill"  # type: ignore[misc]
-        with self.assertRaises(FrozenInstanceError):
             presentation.speech.segments[0].text = "mutated"  # type: ignore[misc]
         self.assertEqual(moment.summary, "A defining trip-hop presence.")
+        self.assertEqual(
+            [outcome.value for outcome in created.presentation_diagnostics.last_outcomes],
+            ["presentation_created", "primary_with_sidekick"],
+        )
 
     def test_presentation_composer_falls_back_to_primary_only_outside_artist_story(self) -> None:
         manager = self.runtime.SessionRuntimeManager()
@@ -2283,6 +2286,34 @@ class SessionRuntimeManagerTest(unittest.TestCase):
         self.assertEqual(presentation.speech.mode.value, "primary_only")
         self.assertEqual(len(presentation.speech.segments), 1)
         self.assertEqual(presentation.speech.segments[0].speaker_role.value, "dj")
+        self.assertEqual(
+            [outcome.value for outcome in created.presentation_diagnostics.last_outcomes],
+            ["presentation_created", "primary_only", "sidekick_ineligible"],
+        )
+
+    def test_presentation_composer_sidekick_disabled_or_failed_keeps_primary_source_text(self) -> None:
+        manager = self.runtime.SessionRuntimeManager()
+        created = asyncio.run(manager.async_start(owner_profile_id="profile-sidekick-fallback"))
+        moment = self.runtime.DJMoment(
+            moment_id="moment-sidekick-fallback", session_id=created.session_id,
+            created_at="2026-07-23T00:00:00+00:00", moment_type=self.runtime.DJMomentType.ARTIST,
+            knowledge_intent=self.runtime.KnowledgeIntent(self.runtime.KnowledgeIntentType.ARTIST_STORY, "Artist story"),
+            presentation_intent=self.runtime.PresentationIntent("groove", self.runtime.DJPersona.HOME_DJ, "warm", "medium", "compact", "", "", "normal", 30, (self.runtime.DeliveryChannel.BROADCAST,), self.runtime.DJMomentVisibility.SESSION_SHARED),
+            title="Northline", summary="Approved Sidekick summary.", content="Approved primary artist story.", artwork_url=None, actions=(), source_references=(), generation_metadata=(),
+        )
+        context = self.runtime.PresentationContext("groove", "home_dj", "maintaining_energy", "medium", "compact", ())
+        disabled = self.runtime.PresentationComposer(sidekick_enabled=False).compose_with_diagnostics(moment=moment, context=context)
+        with patch.object(self.runtime.PresentationComposer, "_create_sidekick_segment", side_effect=RuntimeError("unavailable")):
+            fallback = self.runtime.PresentationComposer().compose_with_diagnostics(moment=moment, context=context)
+
+        for result, expected in (
+            (disabled, "sidekick_disabled"),
+            (fallback, "sidekick_fallback"),
+        ):
+            assert result.presentation.speech is not None
+            self.assertEqual(result.presentation.speech.mode.value, "primary_only")
+            self.assertEqual(result.presentation.speech.segments[0].text, moment.content)
+            self.assertIn(expected, [outcome.value for outcome in result.outcomes])
 
     def test_runtime_uses_one_insight_for_contextual_planner_intents(self) -> None:
         cases = (

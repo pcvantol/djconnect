@@ -53,10 +53,10 @@ Smoke, Golden Regression and non-blocking Quality Reports.
 | Expected Knowledge behavior | Resolves only the newly approved alternative category. |
 | Expected DJMoment behavior | Realizes one immutable alternative-category Moment, never retroactively changing the first Moment. |
 | Expected Session Flow | Preserves first then second contribution in canonical order. |
-| Expected Broadcast behavior | Distributes the two renderer-safe results in Flow order; exposes no Performance Memory internals. |
-| Blocking assertions | No immediate repeated Artist Story when the fixture provides a valid alternative; one approval per evaluation; deterministic rerun produces the same semantic result. |
+| Expected Broadcast behavior | Distributes the two renderer-safe results and their additive Presentation Projections in Flow order; exposes no Performance Memory internals. The first Artist Story has ordered DJ then Sidekick text; the non-eligible alternative remains Primary Only. |
+| Blocking assertions | No immediate repeated Artist Story when the fixture provides a valid alternative; one approval per evaluation; deterministic rerun produces the same semantic result; each Projection identifies its source Moment, retains ordered approved text and does not add a Session Flow item. |
 | Non-blocking observations | Repetition ratio and diversity score across the fixture. |
-| Forbidden outcomes | Persistent learning, Profile mutation, multiple approvals, changing historical Moments or bypassing existing recommendation spacing. |
+| Forbidden outcomes | Persistent learning, Profile mutation, multiple approvals, changing historical Moments, Presentation-derived Flow entries or bypassing existing recommendation spacing. |
 
 ## SI-GOLDEN-003 — Missing knowledge never breaks the listening Session
 

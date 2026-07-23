@@ -77,6 +77,22 @@ and is intentionally not emitted as a visual Moment event.
 See [`DJ_MOMENT_ENGINE.md`](DJ_MOMENT_ENGINE.md) for the current production
 scope and reuse boundary.
 
+## Presentation Projection
+
+Broadcast additionally carries the additive immutable `presentations` snapshot
+collection and `presentation_published` incremental event. A Presentation
+Projection is created only after one approved DJMoment has been realized. It
+contains the Presentation and source Moment identities, source Moment type,
+safe visibility, and optional Speech Presentation mode with ordered `{ordinal,
+speaker_role, text}` segments. It is not a replacement for `dj_moments` and it
+does not create or alter a Session Flow item.
+
+The Projection excludes Session Runtime context, Session identity, Planner,
+Knowledge, prompts, provider payloads, renderer configuration and Profile
+private state. Broadcast Token subscriptions apply the same visibility rule as
+DJMoment projections. Speech is text-only: no audio, TTS provider, voice,
+room-routing or renderer control is transported.
+
 ## Subscription contract
 
 After completing the normal Home Assistant WebSocket authentication, an owner
