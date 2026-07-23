@@ -15,6 +15,11 @@ existing Golden Qualification Foundation. It selects `SI-GOLDEN-001` through
 Validator, cleanup and bounded reporting path. CI integration and CI/release
 gates remain separately authorized.
 
+Accelerated / event-driven Session execution is reconciled as `NO-GO`; its
+existing restricted Verification Clock meets all currently approved behavior.
+The next Product Development Pre-Flight candidate is Intelligence Quality
+Metrics (Advisory).
+
 Golden Scenarios are product-behavior contracts scoped to their architectural
 platform. `SI-GOLDEN-001` through `SI-GOLDEN-006` remain the complete original
 Session Intelligence family. Presentation and Audience Experience have separate

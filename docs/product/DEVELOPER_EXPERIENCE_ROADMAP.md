@@ -5,8 +5,10 @@
 **Primary active Epic:** Automated Session Intelligence E2E Verification.
 
 Golden Smoke and Golden Session Regression execution profiles are complete.
-Accelerated / event-driven Session execution concluded `NO-GO`; the next
-capability requires a separately authorized Product Development Pre-Flight.
+Accelerated / event-driven Session execution concluded `NO-GO`: the existing
+restricted Verification Clock already satisfies every approved behavior, and
+generic acceleration has no current product value. The next Product Development
+candidate requiring a Pre-Flight is **Intelligence Quality Metrics (Advisory)**.
 The Architecture,
 Developer Session Bootstrap, Deterministic Scenario Driver, Immutable E2E
 Session Capture and Structural Invariant Validator now execute all six original
@@ -87,7 +89,7 @@ and a separately authorized capability.
 | 8 | Original `SI-GOLDEN-001` through `SI-GOLDEN-006` behavioral roadmap | Complete — PR #416 | Completes the original six product contracts: normal flow, repetition avoidance, safe knowledge degradation, planner-only replanning, Session Update after repeated Silence and Intentional Silence. |
 | 9 | [Golden Qualification Foundation](../verification/GOLDEN_QUALIFICATION_FOUNDATION.md) | Complete | Executes each of the six original approved scenarios twice through the existing server-side path and validates Session Intelligence, applicable Presentation and safe Broadcast evidence. |
 | 10 | Golden Smoke execution profile | Complete | Selects only `SI-GOLDEN-001` from the same Qualification Foundation; no separate verification implementation or CI gate. |
-| 11 | Accelerated / event-driven Session execution | Planned | May use the approved Clock boundary only through a separately authorized capability; never business-logic conditionals. |
+| 11 | Accelerated / event-driven Session execution | Deferred — `NO-GO` | Existing Verification Clock satisfies all approved scenarios; no implementation remains unless a new approved time-dependent behavior justifies a fresh Pre-Flight. |
 | 12 | [Presentation Verification Architecture](../verification/PRESENTATION_VERIFICATION_ARCHITECTURE.md) | Complete — PR #412 | Defines the server-side Presentation contract now exercised by the Qualification Foundation; no renderer, audio or CI implementation. |
 | 13 | Presentation Golden Scenarios | Deferred | Future product contracts for Primary Only, Sidekick, fallback, projection and determinism; they reuse canonical Runtime execution and end at the renderer-safe projection. |
 | 14 | Golden Session Regression profile | Complete — PR #422 | Fixed local `golden_regression` profile selects `SI-GOLDEN-001` through `SI-GOLDEN-006` through the same Qualification Foundation, with bounded profile version metadata and no CI gate. |

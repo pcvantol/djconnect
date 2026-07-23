@@ -39,7 +39,7 @@ Lab or Deferred. `ROADMAP_INDEX.md` owns cross-program navigation.
 | Windows experience delivery | Planned | Stable Renderer Host and developer-verification access contracts | 12 |
 | Raspberry Pi experience delivery | Planned — Registered + Interactive Wall Panel by default; future Ambient state remains separate | Stable Renderer Host and developer-verification access contracts | 13 |
 | Voice experience delivery | Planned | Stable current/historical Moment contracts and Assist capability validation | 14 |
-| Session Simulation and accelerated execution | Planned within the Automated E2E Verification Epic | Bootstrap, scenario, capture and clock architecture | 15 |
+| Session Simulation and accelerated execution | Deferred — Accelerated / event-driven execution concluded `NO-GO`; the existing restricted Verification Clock already satisfies every approved Golden Scenario, so no implementation work remains | A new approved time-dependent behavioral contract and separately authorized Pre-Flight would be required to revisit | 15 |
 | Preferences and Music DNA expansion | Deferred | Existing Profile and Planner influence boundaries | 15 |
 | Narrative Sequencing, Lyrics and Discover Evolution | Deferred | Existing Planner, Knowledge and DJ Moment Engine abstractions | 16 |
 | Audience Observation for Session Intelligence | Deferred — only a separately authorized coarse Audience Energy observation may be considered; individual Audience Events never steer the Planner | Audience Experience, privacy review, aggregation evidence and an explicit bounded Planner-influence policy | 17 |
