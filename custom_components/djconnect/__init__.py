@@ -1249,6 +1249,7 @@ DEVELOPER_SERVICE_SCHEMAS = {
         {vol.Optional("scenario_id", default="SI-GOLDEN-001"): str}
     ),
     "golden_qualification": _developer_service_schema({}),
+    "golden_smoke": _developer_service_schema({}),
     "push_register": _developer_service_schema(
         {
             vol.Required("push_token"): str,
@@ -2825,6 +2826,11 @@ def _register_developer_services(
 
         return await async_handle_golden_qualification(hass)
 
+    async def handle_golden_smoke(call: ServiceCall) -> dict[str, Any]:
+        from .golden_qualification import async_handle_golden_smoke
+
+        return await async_handle_golden_smoke(hass)
+
     service_handlers = {
         "test_parse": (handle_test_parse, "optional"),
         "test_tts": (handle_test_tts, "optional"),
@@ -2877,6 +2883,7 @@ def _register_developer_services(
         ),
         "developer_session_capture": (handle_developer_session_capture, "only"),
         "golden_qualification": (handle_golden_qualification, "only"),
+        "golden_smoke": (handle_golden_smoke, "only"),
     }
     for service_name, (handler, response_mode) in service_handlers.items():
         hass.services.async_register(

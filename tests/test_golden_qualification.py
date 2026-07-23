@@ -110,6 +110,25 @@ class GoldenQualificationTest(unittest.TestCase):
         self.assertNotIn("renderer", result)
         self.assertEqual(len(result["scenarios"]), 6)
 
+    def test_golden_smoke_selects_only_the_minimal_approved_scenario(self) -> None:
+        report = asyncio.run(self.qualification.async_run_golden_smoke(self.hass))
+
+        self.assertEqual(report.profile, "golden_smoke")
+        self.assertEqual(report.overall_status, "passed")
+        self.assertEqual(
+            tuple(item.scenario_id for item in report.scenarios),
+            ("SI-GOLDEN-001",),
+        )
+
+    def test_golden_smoke_report_reuses_the_bounded_foundation_shape(self) -> None:
+        result = asyncio.run(self.qualification.async_handle_golden_smoke(self.hass))
+
+        self.assertTrue(result["success"])
+        self.assertEqual(result["profile"], "golden_smoke")
+        self.assertEqual(tuple(item["scenario_id"] for item in result["scenarios"]), ("SI-GOLDEN-001",))
+        self.assertNotIn("runtime", result)
+        self.assertNotIn("renderer", result)
+
 
 if __name__ == "__main__":
     unittest.main()

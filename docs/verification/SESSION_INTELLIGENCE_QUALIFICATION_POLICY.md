@@ -18,13 +18,13 @@ exists only to execute, observe or validate these approved contracts.
 | 1 | Unit Tests | Protect local implementation correctness. | Every implementation PR | Blocking |
 | 2 | Integration Tests | Protect subsystem boundaries. | Every implementation PR | Blocking |
 | 3 | Golden Qualification Foundation | Execute the canonical deterministic server-side path for current Session Intelligence and Presentation evidence. | Local development and future CI reuse | Implemented; no CI gate yet |
-| 4 | Golden Smoke profile | Select the smallest approved end-to-end behavior, initially `SI-GOLDEN-001`, from the Foundation. | Every production-code implementation PR | Future separately authorized gate |
+| 4 | Golden Smoke profile | Select the smallest approved end-to-end behavior, `SI-GOLDEN-001`, from the Foundation. | Local development and future CI reuse | Implemented; no CI gate yet |
 | 5 | Golden Regression profile | Select the broader approved catalogue from the Foundation. | `main`, release qualification and scheduled verification | Determined by repository policy for each execution context |
 | 6 | Quality Reports | Observe long-term Intelligence quality. | Qualification reporting | Non-blocking |
 
-Golden Smoke must remain deterministic, fast, stable and small enough for
-routine CI. Golden Regression is the broader qualification suite. Both are
-future execution profiles of the implemented
+Golden Smoke remains deterministic, fast, stable and small enough for routine
+CI. Golden Regression is the broader qualification suite. Both are execution
+profiles of the implemented
 [Golden Qualification Foundation](GOLDEN_QUALIFICATION_FOUNDATION.md), not
 separate verification implementations. This policy does not define their CI
 workflow. The future
