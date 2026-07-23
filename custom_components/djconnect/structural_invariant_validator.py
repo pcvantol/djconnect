@@ -45,6 +45,16 @@ def validate_si_golden_001(capture: SIGolden001SessionCapture) -> StructuralVali
     flow_index = next((i for i, item in enumerate(capture.session_flow) if item.moment_id == capture.realized_moment.moment_id), -1)
     broadcast_index = next((i for i, item in enumerate(capture.broadcast_publications) if item.event_type == "dj_moment_published"), -1)
     require("SI001-FLOW-BEFORE-BROADCAST", flow_index >= 0 and broadcast_index >= 0, "Moment in Flow and Broadcast", f"flow={flow_index}, broadcast={broadcast_index}", "session_flow/broadcast_publications")
+    presentation = next(
+        (
+            item
+            for item in capture.presentations
+            if getattr(item, "source_moment_id", "") == capture.realized_moment.moment_id
+        ),
+        None,
+    )
+    require("SI001-PRESENTATION-PROJECTION", presentation is not None and bool(presentation.presentation_id), "one Presentation for realized Moment", repr(presentation), "presentations")
+    require("SI001-FLOW-UNCHANGED", not any(item.item_type == "presentation" for item in capture.session_flow), "no Presentation Flow item", repr(capture.session_flow), "session_flow")
     require("SI001-NO-LEGACY-FALLBACK", not capture.legacy_fallback_used, "no legacy fallback", str(capture.legacy_fallback_used), "legacy_fallback_used")
     require("SI001-PLANNING-GENERATION", capture.planning_generation >= 0, "valid planning generation", str(capture.planning_generation), "planning_generation")
     require("SI001-CLEANUP", capture.cleanup_completed, "completed cleanup", str(capture.cleanup_completed), "cleanup_completed")
@@ -148,6 +158,51 @@ def validate_si_golden_002(capture: SIGolden002SessionCapture) -> StructuralVali
         "two canonical DJMoment publications",
         str(publication_count),
         "broadcast_publications",
+    )
+    presentations_by_source = {
+        item.source_moment_id: item
+        for item in capture.presentations
+        if hasattr(item, "source_moment_id")
+    }
+    first_presentation = presentations_by_source.get(capture.first_realized_moment.moment_id)
+    second_presentation = presentations_by_source.get(capture.second_realized_moment.moment_id)
+    require(
+        "SI002-PRESENTATION-PUBLICATION",
+        sum(item.event_type == "presentation_published" for item in capture.broadcast_publications) == 2,
+        "two canonical Presentation publications",
+        repr(capture.broadcast_publications),
+        "broadcast_publications",
+    )
+    require(
+        "SI002-ARTIST-SIDEKICK-PROJECTION",
+        first_presentation is not None
+        and first_presentation.presentation_id
+        and first_presentation.mode == "primary_with_sidekick"
+        and tuple(segment.ordinal for segment in first_presentation.segments) == (1, 2)
+        and tuple(segment.speaker_role for segment in first_presentation.segments) == ("dj", "sidekick")
+        and tuple(segment.text for segment in first_presentation.segments)
+        == (capture.first_realized_moment.content, capture.first_realized_moment.summary),
+        "Artist Story Presentation with ordered approved DJ and Sidekick text",
+        repr(first_presentation),
+        "presentations",
+    )
+    require(
+        "SI002-NONELIGIBLE-PRIMARY-PROJECTION",
+        second_presentation is not None
+        and second_presentation.presentation_id
+        and second_presentation.mode == "primary_only"
+        and tuple((segment.ordinal, segment.speaker_role, segment.text) for segment in second_presentation.segments)
+        == ((1, "dj", capture.second_realized_moment.content),),
+        "non-eligible Moment Presentation with one approved DJ segment",
+        repr(second_presentation),
+        "presentations",
+    )
+    require(
+        "SI002-FLOW-UNCHANGED",
+        not any(item.item_type == "presentation" for item in capture.session_flow),
+        "no Presentation Flow item",
+        repr(capture.session_flow),
+        "session_flow",
     )
     require(
         "SI002-NO-LEGACY-FALLBACK",

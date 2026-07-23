@@ -40,10 +40,14 @@ Presentation Context. It never creates a DJMoment or independent knowledge.
 
 ## Presentation model
 
-A Presentation has one source DJMoment identity, Session identity, source type,
-shared Presentation Context and optional capability projections. It never
-exists without a source DJMoment and contains only renderer-safe presentation
-information.
+An internal Presentation has one source DJMoment identity, Session identity,
+source type, shared Presentation Context and optional capability projections.
+It never exists without a source DJMoment. At the Broadcast boundary it becomes
+the additive canonical **Presentation Projection**: presentation identity,
+source Moment identity and type, renderer-safe visibility, optional speech mode
+and ordered renderer-safe segments. The Projection deliberately excludes
+Session identity, Presentation Context, Planner state, Knowledge data, prompts,
+provider data, renderer configuration and Profile-private data.
 
 The first implemented capability is **Speech Presentation**. Future Visual,
 Ambient, Audience and Ambient Light Presentation capabilities remain separate
@@ -94,6 +98,20 @@ Composition failure never invalidates the source DJMoment, creates Silence,
 changes Session Flow or changes Session Direction. The canonical fallback is
 Primary Only whenever the source supports one primary segment.
 
+## Runtime, projection and diagnostics
+
+The active Session Runtime invokes the Composer only after a DJMoment is
+approved and realized. It then keeps the existing DJMoment and Session Flow
+publication order intact, and publishes the additive immutable Presentation
+Projection through the same Broadcast snapshot and incremental event model.
+Presentations never become Session Flow entries, do not alter Flow ordering and
+cannot replace the DJMoment projection used by existing Renderer Hosts.
+
+Runtime-only bounded diagnostics record `presentation_created`, `primary_only`,
+`primary_with_sidekick`, `sidekick_disabled`, `sidekick_ineligible` or
+`sidekick_fallback`. They are neither Broadcast payloads nor renderer state.
+They contain no source payload, provider data or user-profile data.
+
 ## Server and Broadcast boundary
 
 The Composer runs entirely inside the server-owned active Session Runtime. The
@@ -106,14 +124,20 @@ visibility constraint.
 Renderer Hosts receive immutable Presentations and render them locally. They
 must not compose dialogue, generate Sidekick behaviour or rewrite content.
 
+An Audio Renderer Host may map the semantic `DJ` and `Sidekick` roles to local
+voices and perform local TTS after it receives a Projection. That mapping is
+renderer-local: the server never selects a voice, TTS engine, room or speech
+provider, and Broadcast carries text only.
+
 ## Deferred capabilities
 
 The following are explicitly deferred: DJ–Sidekick–DJ dialogue, Presentation
 Cast, Presentation Memory, multiple Sidekick personas, generative dialogue,
-Audience-aware presentation, renderer-specific composition, voice
-configuration, Apple local speech rendering, Home Assistant speech rendering,
-VibeCast speech rendering, Ambient Presentation, Audience Presentation and
-Ambient Light Presentation.
+Audience-aware presentation, renderer-specific composition, voice mapping UI,
+Apple and Home Assistant renderer implementation, Apple local speech rendering,
+VibeCast speech rendering, Audio Renderer Host implementation, room routing,
+ambient presentation, synchronized segment highlighting, speech assets, cloud
+speech, Audience Presentation and Ambient Light Presentation.
 
 ## Canonical references
 

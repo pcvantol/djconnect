@@ -33,12 +33,34 @@ class CapturedMoment:
     moment_id: str
     moment_type: str
     knowledge_intent: str
+    summary: str = ""
+    content: str = ""
 
 
 @dataclass(frozen=True)
 class CapturedBroadcastPublication:
     delivery_sequence: int
     event_type: str
+
+
+@dataclass(frozen=True)
+class CapturedSpeechSegment:
+    """One renderer-safe, ordered speech segment observed after realization."""
+
+    ordinal: int
+    speaker_role: str
+    text: str
+
+
+@dataclass(frozen=True)
+class CapturedPresentation:
+    """Minimal immutable evidence of one Broadcast Presentation projection."""
+
+    presentation_id: str
+    source_moment_id: str
+    source_moment_type: str
+    mode: str
+    segments: tuple[CapturedSpeechSegment, ...]
 
 
 @dataclass(frozen=True)
@@ -59,6 +81,7 @@ class SIGolden001SessionCapture:
     planning_generation: int = -1
     legacy_fallback_used: bool = False
     cleanup_completed: bool = False
+    presentations: tuple[CapturedPresentation, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -87,6 +110,7 @@ class SIGolden002SessionCapture:
     approval_count: int = 0
     legacy_fallback_used: bool = False
     cleanup_completed: bool = False
+    presentations: tuple[CapturedPresentation, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -108,6 +132,7 @@ class SIGolden003SessionCapture:
     approval_count: int = 0
     legacy_fallback_used: bool = False
     cleanup_completed: bool = False
+    presentations: tuple[CapturedPresentation, ...] = ()
 
 
 async def async_capture_si_golden_001(hass: Any) -> SIGolden001SessionCapture | None:
@@ -140,9 +165,12 @@ async def async_capture_si_golden_001(hass: Any) -> SIGolden001SessionCapture | 
             moment_id=moment.moment_id,
             moment_type=moment.moment_type.value,
             knowledge_intent=moment.knowledge_intent.intent_type.value,
+            summary=moment.summary,
+            content=moment.content,
         ),
         session_flow=flow,
         broadcast_publications=publications,
+        presentations=_captured_presentations(active),
         completion_state="completed",
         planning_lifecycle=active.planning_coordinator.last_lifecycle_state or "",
         approval_count=1 if active.planning_coordinator.last_approval_source == "planned_intent" else 0,
@@ -180,13 +208,22 @@ async def async_capture_si_golden_002(hass: Any) -> SIGolden002SessionCapture | 
         track_started_events=("track_started", "track_started"),
         verification_clock=CapturedVerificationClock(*clock_evidence),
         first_realized_moment=CapturedMoment(
-            first.moment_id, first.moment_type.value, first.knowledge_intent.intent_type.value
+            first.moment_id,
+            first.moment_type.value,
+            first.knowledge_intent.intent_type.value,
+            first.summary,
+            first.content,
         ),
         second_realized_moment=CapturedMoment(
-            second.moment_id, second.moment_type.value, second.knowledge_intent.intent_type.value
+            second.moment_id,
+            second.moment_type.value,
+            second.knowledge_intent.intent_type.value,
+            second.summary,
+            second.content,
         ),
         session_flow=flow,
         broadcast_publications=publications,
+        presentations=_captured_presentations(active),
         completion_state="completed",
         planning_lifecycle=active.planning_coordinator.last_lifecycle_state or "",
         approval_count=1 if active.planning_coordinator.last_approval_source == "planned_intent" else 0,
@@ -222,7 +259,11 @@ async def async_capture_si_golden_003(hass: Any) -> SIGolden003SessionCapture | 
         runtime_events=("runtime_active", "track_started", "runtime_completed"),
         track_started_events=("track_started",),
         realized_moment=CapturedMoment(
-            moment.moment_id, moment.moment_type.value, moment.knowledge_intent.intent_type.value
+            moment.moment_id,
+            moment.moment_type.value,
+            moment.knowledge_intent.intent_type.value,
+            moment.summary,
+            moment.content,
         ),
         knowledge_failure_observed=(
             moment.moment_type.value == "silence" and metadata.get("reason") == "invalid_ai_output"
@@ -230,6 +271,7 @@ async def async_capture_si_golden_003(hass: Any) -> SIGolden003SessionCapture | 
         no_fabricated_knowledge=not moment.content and not moment.source_references,
         session_flow=flow,
         broadcast_publications=publications,
+        presentations=_captured_presentations(active),
         broadcast_contains_realized_moment=any(
             item.moment_id == moment.moment_id for item in active.broadcast.state.dj_moments
         ),
@@ -267,3 +309,29 @@ async def async_handle_developer_session_capture(
         "moment_id": moment_id,
         "completion_state": capture.completion_state,
     }
+
+
+def _captured_presentations(active: Any) -> tuple[CapturedPresentation, ...]:
+    """Copy only renderer-safe projection evidence; never Runtime objects."""
+    captured: list[CapturedPresentation] = []
+    for presentation in active.broadcast.state.presentations:
+        speech = presentation.speech
+        captured.append(
+            CapturedPresentation(
+                presentation_id=presentation.presentation_id,
+                source_moment_id=presentation.source_moment_id,
+                source_moment_type=presentation.source_moment_type,
+                mode=speech.mode.value if speech is not None else "",
+                segments=tuple(
+                    CapturedSpeechSegment(
+                        ordinal=segment.ordinal,
+                        speaker_role=segment.speaker_role.value,
+                        text=segment.text,
+                    )
+                    for segment in speech.segments
+                )
+                if speech is not None
+                else (),
+            )
+        )
+    return tuple(captured)

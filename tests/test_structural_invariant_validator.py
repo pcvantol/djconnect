@@ -57,7 +57,9 @@ class StructuralInvariantValidatorTest(unittest.TestCase):
             ("runtime_active", "track_started", "runtime_completed"),
             ("track_started",),
             "artist_story",
-            self.capture.CapturedMoment("moment-1", "artist", "artist_story"),
+            self.capture.CapturedMoment(
+                "moment-1", "artist", "artist_story", "Approved summary.", "Approved artist story."
+            ),
             (
                 self.capture.CapturedFlowEntry(
                     "moment-1", "dj_moment", "next", "moment-1", "artist"
@@ -70,6 +72,18 @@ class StructuralInvariantValidatorTest(unittest.TestCase):
             0,
             False,
             True,
+            (
+                self.capture.CapturedPresentation(
+                    "presentation-moment-1",
+                    "moment-1",
+                    "artist",
+                    "primary_with_sidekick",
+                    (
+                        self.capture.CapturedSpeechSegment(1, "dj", "Approved artist story."),
+                        self.capture.CapturedSpeechSegment(2, "sidekick", "Approved summary."),
+                    ),
+                ),
+            ),
         )
 
     def test_valid_capture_passes_and_is_deterministic(self):

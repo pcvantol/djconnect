@@ -150,6 +150,21 @@ Assistant installation owns Runtime, access and delivery. No central hosting
 or delivery-provider selection is introduced by V1. Any later Home Assistant
 delivery mechanism remains separately deferred.
 
+## Future Text Presentation consumption
+
+Broadcast now also has an additive renderer-safe Presentation Projection. A
+future Receiver increment may render its ordered Speech Presentation segments
+as text, for example as compact role-labelled DJ and Sidekick dialogue bubbles
+subordinate to their single existing Session Flow Moment. Such text is a
+presentation of the server-supplied Projection, not a chat, message history or
+second timeline. The Receiver must neither construct segments nor infer a
+missing Presentation from a DJMoment.
+
+This document does not authorize a new Receiver UX, local TTS, role-to-voice
+mapping, speech playback, synchronized highlighting or Browser-owned state.
+If an Audio Renderer later maps a role to a local voice, that mapping stays
+renderer-local and Broadcast remains text-only.
+
 ## Multi-renderer model
 
 Multiple Renderer Hosts may consume one active Broadcast concurrently. Apple,

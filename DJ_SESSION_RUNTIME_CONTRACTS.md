@@ -46,7 +46,7 @@ Profile
 | DJ Session Runtime | Active listening experience, effective Session Capabilities and orchestration of Planner, Moment Engine and Broadcast. | Persistent Profile identity, backend credentials, durable playback state, Playback Instance Identity derivation or Playback Control. |
 | Session Planner | The future: rolling planning horizon and Session Flow. | Direct provider playback execution or Profile persistence. |
 | DJ Moment Engine | Creative execution from Knowledge Intent to immutable DJ Moment. | Planner timing, direct playback execution or renderer-specific business logic. |
-| Presentation Composer | Immutable renderer-safe Presentation composition from one approved DJMoment. | Moment existence or meaning, planning, knowledge retrieval, Session Flow, playback, TTS, voice selection or renderer behaviour. |
+| Presentation Composer | Immutable Presentation composition and additive renderer-safe Presentation Projection from one approved DJMoment. | Moment existence or meaning, planning, knowledge retrieval, Session Flow, playback, TTS, voice selection or renderer behaviour. |
 | Broadcast Engine | Distribution of scoped active-session events through Broadcast Feed. | Composition, video, pixels, renderer presentation or persistent profile data. |
 | Renderer | Local presentation and user input. | Business logic, planner state, Profile state or backend logic. |
 | Music Backend Playback Control Boundary | Provider-specific playback execution, queues, transport, commands and credentials. | DJ Session ownership, planning or audience interpretation. |
@@ -290,8 +290,10 @@ is `runtime_created`, `runtime_ended`, `playback_changed`, `playback_progress`,
 does not yet distribute events or generate state content.
 
 The Runtime is the sole orchestrator: inputs flow through Runtime to Planner,
-then Knowledge Intent, DJ Moment Engine, DJ Moment, Broadcast Engine and
-renderers. Renderers consume only Broadcast State and Broadcast Events; they
+then Knowledge Intent, DJ Moment Engine, DJMoment, Presentation Composer,
+Presentation Projection, Broadcast Engine and renderers. The additive
+Projection never changes the established DJMoment or Session Flow route.
+Renderers consume only Broadcast State and Broadcast Events; they
 never access Planner or Runtime internals. Future Voice follows the same
 boundary. VibeCast and the Universal Session Receiver are future renderers that
 consume the Broadcast Feed; neither is a Broadcast Engine, Planner or Runtime.

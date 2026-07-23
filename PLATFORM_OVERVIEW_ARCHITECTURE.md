@@ -69,7 +69,8 @@ model is defined by the [DJ Session Runtime Contracts](DJ_SESSION_RUNTIME_CONTRA
 The Presentation Platform determines **how Session Intelligence is
 experienced**. The server-owned Presentation Composer transforms one approved
 immutable DJMoment into one immutable renderer-safe Presentation before
-Broadcast distributes it. Presentation Routing determines eligible independent
+Broadcast distributes its additive Presentation Projection beside the existing
+DJMoment projection. Presentation Routing determines eligible independent
 Renderer Hosts; each Renderer Host owns local presentation only.
 
 The platform includes Visual, Audio and Ambient Light Renderer Hosts, the

@@ -24,9 +24,10 @@ from .persistence.sessions import (
 )
 from .persistence.history import HistoricalProjectionRepository
 from .presentation_composer import (
-    Presentation,
     PresentationComposer,
+    PresentationCompositionOutcome,
     PresentationContext,
+    PresentationProjection,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -2662,7 +2663,7 @@ class DJBroadcastState:
     audience_totals: dict[str, int] = field(default_factory=dict)
     recent_audience_activity: tuple[str, ...] = ()
     dj_moments: tuple[DJMoment, ...] = ()
-    presentations: tuple[Presentation, ...] = ()
+    presentations: tuple[PresentationProjection, ...] = ()
     playback: "RendererSafePlaybackProjection" = field(default_factory=lambda: RendererSafePlaybackProjection())
 
     def as_dict(self, *, include_owner_only: bool = True) -> dict[str, Any]:
@@ -2691,8 +2692,7 @@ class DJBroadcastState:
                 presentation.as_dict()
                 for presentation in self.presentations
                 if include_owner_only
-                or dict(presentation.context.constraints).get("visibility")
-                != DJMomentVisibility.OWNER_ONLY.value
+                or presentation.visibility != DJMomentVisibility.OWNER_ONLY.value
             ],
             "broadcast": {"started_at": self.started_at},
         }
@@ -2873,7 +2873,7 @@ class DJSessionBroadcastEngine:
         if moment.moment_type is not DJMomentType.SILENCE:
             self._publish(BroadcastEventType.DJ_MOMENT_PUBLISHED, {"dj_moment": moment.as_dict()})
 
-    def publish_presentation(self, presentation: Presentation) -> None:
+    def publish_presentation(self, presentation: PresentationProjection) -> None:
         """Publish one immutable renderer-safe Presentation after composition."""
         self.state = DJBroadcastState(
             **{**self.state.__dict__, "presentations": (*self.state.presentations, presentation)}
@@ -3022,6 +3022,18 @@ class ActiveSessionExistsError(RuntimeError):
         super().__init__(f"Profile already has an active DJ Session: {profile_id}")
 
 
+@dataclass
+class PresentationCompositionDiagnostics:
+    """Bounded Runtime-only outcome evidence; never a Broadcast projection."""
+
+    last_outcomes: tuple[PresentationCompositionOutcome, ...] = ()
+    composition_count: int = 0
+
+    def record(self, outcomes: tuple[PresentationCompositionOutcome, ...]) -> None:
+        self.last_outcomes = outcomes
+        self.composition_count += 1
+
+
 @dataclass(frozen=True)
 class DJSessionRuntime:
     """Minimum ephemeral state for one active DJ Session."""
@@ -3048,6 +3060,9 @@ class DJSessionRuntime:
     moment_engine: DJMomentEngine
     presentation_composer: PresentationComposer
     broadcast: DJSessionBroadcastEngine
+    presentation_diagnostics: "PresentationCompositionDiagnostics" = field(
+        default_factory=lambda: PresentationCompositionDiagnostics()
+    )
     last_accepted_media_identity: str = ""
 
     def as_dict(self) -> dict[str, Any]:
@@ -3089,7 +3104,7 @@ class DJSessionRuntime:
         self, moment: DJMoment, placement: SessionFlowPosition = SessionFlowPosition.NEXT
     ) -> None:
         """Publish a Moment only after Planner placement has been established."""
-        presentation = self.presentation_composer.compose(
+        composition = self.presentation_composer.compose_with_diagnostics(
             moment=moment,
             context=PresentationContext(
                 session_mood=self.selected_mood,
@@ -3103,9 +3118,10 @@ class DJSessionRuntime:
                 ),
             ),
         )
+        self.presentation_diagnostics.record(composition.outcomes)
         self.broadcast.publish_session_flow(self.planner.append_moment(moment, placement))
         self.broadcast.publish_moment(moment)
-        self.broadcast.publish_presentation(presentation)
+        self.broadcast.publish_presentation(composition.presentation.to_projection())
 
 
 class SessionRuntimeManager:
@@ -4367,7 +4383,4 @@ def _payload_contains_owner_only_moment(payload: dict[str, Any]) -> bool:
     presentation = payload.get("presentation")
     if not isinstance(presentation, dict):
         return False
-    context = presentation.get("context")
-    return isinstance(context, dict) and isinstance(context.get("constraints"), dict) and (
-        context["constraints"].get("visibility") == DJMomentVisibility.OWNER_ONLY.value
-    )
+    return presentation.get("visibility") == DJMomentVisibility.OWNER_ONLY.value

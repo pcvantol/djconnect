@@ -114,6 +114,23 @@ class SIGolden002Test(unittest.TestCase):
             sum(event.event_type == "dj_moment_published" for event in capture.broadcast_publications),
             2,
         )
+        self.assertEqual(
+            [presentation.source_moment_id for presentation in capture.presentations],
+            [capture.first_realized_moment.moment_id, capture.second_realized_moment.moment_id],
+        )
+        self.assertEqual(capture.presentations[0].mode, "primary_with_sidekick")
+        self.assertEqual(
+            [(segment.ordinal, segment.speaker_role, segment.text) for segment in capture.presentations[0].segments],
+            [
+                (1, "dj", capture.first_realized_moment.content),
+                (2, "sidekick", capture.first_realized_moment.summary),
+            ],
+        )
+        self.assertEqual(capture.presentations[1].mode, "primary_only")
+        self.assertEqual(
+            [(segment.ordinal, segment.speaker_role, segment.text) for segment in capture.presentations[1].segments],
+            [(1, "dj", capture.second_realized_moment.content)],
+        )
 
     def test_immutable_capture_passes_structural_validation(self) -> None:
         _, _, capture = self._execute()
@@ -123,6 +140,8 @@ class SIGolden002Test(unittest.TestCase):
         self.assertEqual(self.validator.validate_si_golden_002(capture).status, "passed")
         repeated = replace(capture, second_realized_moment=capture.first_realized_moment)
         self.assertEqual(self.validator.validate_si_golden_002(repeated).status, "failed")
+        missing_presentation = replace(capture, presentations=())
+        self.assertEqual(self.validator.validate_si_golden_002(missing_presentation).status, "failed")
 
     def test_fresh_executions_have_identical_observable_results(self) -> None:
         _, _, first = self._execute()

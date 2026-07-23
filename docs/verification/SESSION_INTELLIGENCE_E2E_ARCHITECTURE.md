@@ -28,7 +28,8 @@ Isolated test host
   -> production-boundary bootstrap
   -> normalized observation or approved test adapter
   -> Session Runtime -> Planning Runtime Coordinator -> Planner
-  -> Knowledge Engine -> DJ Moment Engine -> Session Flow -> Broadcast
+  -> Knowledge Engine -> DJ Moment Engine -> Presentation Composer
+  -> Session Flow -> Broadcast
   -> immutable E2E capture -> validation -> redacted CI artifacts
 ```
 
@@ -41,7 +42,7 @@ cross-component behavior that those narrower layers cannot prove alone.
 
 | Owner | Responsibility | Does not own |
 | --- | --- | --- |
-| Production Runtime | Session lifecycle and orchestration of Planner, Knowledge, Moment, Flow and Broadcast | Test control, assertions or artifact policy |
+| Production Runtime | Session lifecycle and orchestration of Planner, Knowledge, Moment, Presentation, Flow and Broadcast | Test control, assertions or artifact policy |
 | Planner / Knowledge / DJ Moment Engine | Existing production planning, resolution and immutable realization | Scenario orchestration or validation outcomes |
 | Session Flow / Broadcast | Canonical result history and renderer-safe distribution | Test-specific history or a second event protocol |
 | E2E Verification host | Isolated environment, scenario invocation, capture collection and cleanup verification | Runtime business behavior or product decisions |
@@ -66,8 +67,9 @@ recreate Planner/Knowledge/Moment decisions.
    existing Runtime boundary. It never fabricates provider-owned Playback
    Instance Identity or Knowledge results.
 4. The existing Runtime processes the events using its production contracts.
-5. A read-only capture observes safe Runtime outcomes, Flow and renderer-safe
-   Broadcast projections.
+5. A read-only capture observes safe Runtime outcomes, immutable DJMoments,
+   their immutable Presentation Projections, Flow and renderer-safe Broadcast
+   publications.
 6. The Validation Engine evaluates the selected Golden Scenario's assertions.
 7. CI emits redacted, human-readable and machine-readable artifacts.
 8. Bootstrap stops the Session; the host proves Runtime and scoped access are
@@ -103,7 +105,8 @@ artifact. It may record, when safely available:
 - Session configuration and normalized playback timeline;
 - planning generations, selected and approved intents, readiness and prefetch
   outcomes;
-- immutable DJMoments, Silence reasons, Session Updates and Transitions;
+- immutable DJMoments, their source-linked Presentation Projections, Silence
+  reasons, Session Updates and Transitions;
 - canonical Session Flow ordering and renderer-safe Broadcast projections;
 - fallback use, validation warnings, Session completion and cleanup result.
 
@@ -118,8 +121,9 @@ new Broadcast contract.
 
 These are immediate CI blockers: correct Session start/stop, exactly one
 canonical approval path, immutable/non-duplicate Moments, Flow ordering,
-expected renderer-safe Broadcast projection, stale-generation rejection and
-complete Runtime cleanup.
+expected renderer-safe Broadcast projection, source-linked immutable
+Presentation Projection, unchanged Flow semantics, stale-generation rejection
+and complete Runtime cleanup.
 
 ### Deterministic behavioral assessment
 
