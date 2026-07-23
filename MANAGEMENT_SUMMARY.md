@@ -15,21 +15,20 @@
 
 ## Current position
 
-PR [#422](https://github.com/pcvantol/djconnect/pull/422), **Add Golden Session
-Regression profile**, merged as `39aa07b8f098342fd036554fff2f561b31dc429a`.
-This dedicated Finalization reconciles its qualification evidence and immutable
-Prompt History.
+PR [#425](https://github.com/pcvantol/djconnect/pull/425), **Add advisory
+Intelligence Quality Metrics**, merged as
+`1eaced29e168fba12c07219bd796dabe764cce6e`. This dedicated Finalization
+reconciles its qualification evidence and immutable Prompt History.
 
-Golden Regression is now the implemented fixed local broader profile of the
-one Golden Qualification Foundation. It selects `SI-GOLDEN-001` through
-`SI-GOLDEN-006` through the existing path with bounded version metadata; it
-does not introduce a CI workflow, gate, new Scenario behavior, Runtime or
-renderer behavior.
+Intelligence Quality Metrics v1 provides optional, bounded observational
+insight from existing Golden Qualification reports. It is read-only and
+transient: the existing Structural Validator stays the sole qualification
+authority, while execution behavior and the platform's privacy boundaries are
+unchanged. The implementation introduces no scoring, thresholds, gates,
+history, replay or Runtime-path change.
 
-Accelerated / event-driven Session execution is `NO-GO`: the approved
-Verification Clock already meets the current behavioral need, so no generic
-acceleration implementation is justified. Intelligence Quality Metrics
-(Advisory) is the next Product Development candidate.
+The next Product Development candidate requiring a Pre-Flight is **Full CI
+Qualification and readable reports**.
 
 Golden Scenario governance now keeps product-behavior contracts within their
 own architectural platforms. The six original Session Intelligence scenarios

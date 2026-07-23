@@ -28,20 +28,21 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-PR [#422](https://github.com/pcvantol/djconnect/pull/422), **Add Golden Session
-Regression profile**, merged as `39aa07b8f098342fd036554fff2f561b31dc429a`.
-This dedicated Finalization reconciles its immutable Prompt History and
-qualification evidence.
+PR [#425](https://github.com/pcvantol/djconnect/pull/425), **Add advisory
+Intelligence Quality Metrics**, merged as
+`1eaced29e168fba12c07219bd796dabe764cce6e`. This dedicated Finalization
+reconciles its immutable Prompt History and qualification evidence.
 
-Golden Regression is now the implemented fixed local broader profile over the
-one Golden Qualification Foundation. It selects `SI-GOLDEN-001` through
-`SI-GOLDEN-006` through the existing server-side execution path, with bounded
-profile version metadata. No CI workflow or gate, new Scenario behavior,
-Runtime, renderer, audio, TTS or hardware behavior was introduced.
+Intelligence Quality Metrics v1 is implemented only as an opt-in, transient,
+bounded projection of an immutable Golden Qualification report. It exposes
+schema-versioned profile metadata, objectively derived counts and rates, and
+aggregated invariant-failure identifiers. It cannot alter the canonical
+Foundation path or Structural Validator PASS/FAIL authority, and adds no
+Runtime, Planner, Knowledge, Capture, validation, storage, replay, threshold,
+gate or sensitive-evidence behavior.
 
-Accelerated / event-driven Session execution is `NO-GO` and no longer an active
-implementation candidate. The existing restricted Verification Clock satisfies
-all approved timing behavior; Intelligence Quality Metrics (Advisory) is next.
+The next Product Development candidate requiring a Pre-Flight is **Full CI
+Qualification and readable reports**.
 
 Golden Scenarios are now governed as platform-scoped behavioral contract
 families. The original six Session Intelligence scenarios are complete and

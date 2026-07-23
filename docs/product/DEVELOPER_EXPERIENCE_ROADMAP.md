@@ -4,11 +4,12 @@
 
 **Primary active Epic:** Automated Session Intelligence E2E Verification.
 
-Golden Smoke and Golden Session Regression execution profiles are complete.
-Accelerated / event-driven Session execution concluded `NO-GO`: the existing
-restricted Verification Clock already satisfies every approved behavior, and
-generic acceleration has no current product value. The next Product Development
-candidate requiring a Pre-Flight is **Intelligence Quality Metrics (Advisory)**.
+Golden Smoke, Golden Session Regression and Advisory Intelligence Quality
+Metrics are complete. Accelerated / event-driven Session execution concluded
+`NO-GO`: the existing restricted Verification Clock already satisfies every
+approved behavior, and generic acceleration has no current product value. The
+next Product Development candidate requiring a Pre-Flight is **Full CI
+Qualification and readable reports**.
 The Architecture,
 Developer Session Bootstrap, Deterministic Scenario Driver, Immutable E2E
 Session Capture and Structural Invariant Validator now execute all six original
@@ -93,7 +94,7 @@ and a separately authorized capability.
 | 12 | [Presentation Verification Architecture](../verification/PRESENTATION_VERIFICATION_ARCHITECTURE.md) | Complete — PR #412 | Defines the server-side Presentation contract now exercised by the Qualification Foundation; no renderer, audio or CI implementation. |
 | 13 | Presentation Golden Scenarios | Deferred | Future product contracts for Primary Only, Sidekick, fallback, projection and determinism; they reuse canonical Runtime execution and end at the renderer-safe projection. |
 | 14 | Golden Session Regression profile | Complete — PR #422 | Fixed local `golden_regression` profile selects `SI-GOLDEN-001` through `SI-GOLDEN-006` through the same Qualification Foundation, with bounded profile version metadata and no CI gate. |
-| 15 | Intelligence Quality Metrics | Planned, initially non-blocking | Reports stable metrics before any governance-approved blocking threshold. |
+| 15 | Intelligence Quality Metrics | Complete — PR #425 | Optional transient, report-derived advisory projection; no scoring, threshold, gate or history. |
 | 16 | Full CI Qualification and readable reports | Planned | Expands scenario coverage, artifacts and explicit qualification shape. |
 | 17 | Universal Receiver browser E2E | Optional / separate layer | Validates Receiver presentation through Broadcast and a headless browser, not core Intelligence or server-side Presentation verification behavior. |
 | 18 | Read-only Developer Overlay | Optional / deferred | Development-only, non-authoritative and disabled in production by default. |
