@@ -106,8 +106,12 @@ define its detailed boundaries.
 
 The [Golden Qualification Foundation](docs/verification/GOLDEN_QUALIFICATION_FOUNDATION.md)
 is the implemented server-side execution path for current Golden Scenario
-qualification. Future Golden Smoke and Golden Regression are profiles of that
-one path, not independent verification systems.
+qualification. Golden Scenarios are product-behavior contracts organized by
+architectural platform: the six original Session Intelligence contracts are
+complete, while Presentation and Audience Experience have separate future
+families. Golden Qualification remains the one platform-independent pipeline
+for every approved family. Future Golden Smoke and Golden Regression are
+profiles of that one path, not independent verification systems.
 
 [Presentation Verification Architecture](docs/verification/PRESENTATION_VERIFICATION_ARCHITECTURE.md)
 defines a separate future behavioral contract for immutable Presentation
