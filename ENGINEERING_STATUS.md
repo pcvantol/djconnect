@@ -5,22 +5,19 @@
 
 ## Current engineering increment
 
-PR [#406](https://github.com/pcvantol/djconnect/pull/406), **Integrate
-Presentation Composer execution pipeline**, merged as `353bbd9c57fd87b3d61d53cfd77e17eebea87e19`.
-This dedicated Finalization
-reconciles its renderer-safe Presentation Projection, Golden Scenario evidence
-and immutable Prompt History.
+PR [#408](https://github.com/pcvantol/djconnect/pull/408), **Define
+renderer-neutral Speech Rendering contract**, merged as `2eb658b66aa2a366183a4114218a7f0138210744`.
+This dedicated Finalization reconciles its immutable Prompt History and
+renderer-contract evidence.
 
-Presentation Composer now composes its immutable internal Presentation after
-one approved DJMoment. Broadcast retains the existing DJMoment projection and
-additively distributes the canonical renderer-safe Presentation Projection.
-The Projection contains source identity, safe visibility and optional ordered
-Speech segments only; it excludes Runtime Context, Planner, Knowledge, prompts,
-provider payloads, renderer configuration and Profile-private state. The
-existing SI-GOLDEN-002 proves an eligible Artist Story's DJ–Sidekick sequence
-and the next non-eligible Moment's Primary Only sequence without changing
-Session Flow. No Planner, Knowledge Engine, Runtime, playback, TTS,
-voice-selection or renderer authority changed.
+Speech Presentation now has one canonical consumption contract: Renderer Hosts
+receive only immutable renderer-safe Presentation Projections and preserve
+their ordered semantic Speaker Roles. Role-to-Voice mapping, provider choice
+and audio/text rendering stay local to each Renderer Host. Broadcast remains
+text-only and exposes no TTS, voice, provider, Room-routing or renderer
+configuration. The focused regression proves the immutable Projection survives
+Broadcast unchanged and excludes renderer-specific information. No Renderer,
+TTS, transport, Planner, Knowledge Engine or Runtime implementation changed.
 
 The **Session Intelligence Runtime Integration Epic** is complete. The Runtime
 is now the canonical execution engine for all supported Track Started decisions:

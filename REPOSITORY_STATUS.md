@@ -28,19 +28,18 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-PR [#406](https://github.com/pcvantol/djconnect/pull/406), **Integrate
-Presentation Composer execution pipeline**, merged as
-`353bbd9c57fd87b3d61d53cfd77e17eebea87e19`. This dedicated Finalization
+PR [#408](https://github.com/pcvantol/djconnect/pull/408), **Define
+renderer-neutral Speech Rendering contract**, merged as
+`2eb658b66aa2a366183a4114218a7f0138210744`. This dedicated Finalization
 reconciles its immutable Prompt History and evidence.
 
-Presentation Composer now converts each Runtime-published immutable DJMoment
-into an internal immutable Presentation and Broadcast publishes its additive
-canonical renderer-safe Presentation Projection beside the existing DJMoment
-projection. Speech remains text-only. SI-GOLDEN-002 structurally verifies the
-eligible Artist Story DJ–Sidekick sequence and the non-eligible Primary Only
-sequence, each source-linked to its existing Moment without a Presentation Flow
-entry. No new intelligence owner, playback behaviour, TTS, voice configuration
-or local renderer composition was introduced.
+Speech Presentation is now canonically consumed after Broadcast by Renderer
+Hosts. The immutable Projection remains the same for Audio and Visual Renderer
+Hosts; a host may render text, local speech or both without modifying it.
+Role-to-Voice mapping, configured TTS provider and fallback remain
+renderer-local. VibeCast, Apple, Home Assistant and the Universal Receiver are
+documented future consumers only. No renderer, TTS, transport, Runtime or
+Session Intelligence behavior was introduced.
 
 Current main records **Session Intelligence Runtime Complete**. The Runtime is
 the one canonical execution engine for all supported Track Started decisions:

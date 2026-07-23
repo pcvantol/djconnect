@@ -4,19 +4,18 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#406](https://github.com/pcvantol/djconnect/pull/406), **Integrate
-Presentation Composer execution pipeline**, merged as
-`353bbd9c57fd87b3d61d53cfd77e17eebea87e19`. This dedicated Finalization
+PR [#408](https://github.com/pcvantol/djconnect/pull/408), **Define
+renderer-neutral Speech Rendering contract**, merged as
+`2eb658b66aa2a366183a4114218a7f0138210744`. This dedicated Finalization
 reconciles its immutable Prompt History at
-`docs/history/prompts/2026-07-23-presentation-execution-pipeline.md`.
+`docs/history/prompts/2026-07-23-speech-rendering-contract.md`.
 
-Presentation Composer is the server-owned Presentation Platform boundary
-between immutable DJMoment and Broadcast. Its internal Presentation becomes an
-additive canonical renderer-safe Presentation Projection; existing DJMoment
-projections remain compatible. Speech is text-only and ordered by semantic
-role. The existing SI-GOLDEN-002 captures and validates the Artist Story
-DJ–Sidekick path and the subsequent Primary Only path without a second Runtime,
-Scenario Driver, verification path or renderer authority.
+The Speech Rendering Contract defines the one renderer-neutral consumption
+boundary after Broadcast. Renderer Hosts consume the same immutable ordered
+Speech Presentation and never generate or modify it. Semantic roles remain
+unchanged; voice mapping, configured TTS and Text/Audio interpretation are
+renderer-local. This authorizes no Universal Receiver, VibeCast, Apple or Home
+Assistant renderer implementation.
 
 The Session Intelligence Runtime Integration Epic is complete and reconciled.
 Supported Track Started decisions now use the one canonical Runtime lifecycle:
