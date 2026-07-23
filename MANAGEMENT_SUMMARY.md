@@ -15,20 +15,19 @@
 
 ## Current position
 
-PR [#412](https://github.com/pcvantol/djconnect/pull/412), **Define
-Presentation Verification Architecture**, merged as `22665a2a96b3a8ebf586ed02157961bd0dfaa0dc`.
-This dedicated Finalization
-reconciles its capability evidence and immutable Prompt History.
+PR [#414](https://github.com/pcvantol/djconnect/pull/414), **Add Golden
+Qualification Foundation**, merged as `35d14e24fc226b8afec9a2d5e7c2c9a7e517f20b`.
+This dedicated Finalization reconciles its capability evidence and immutable
+Prompt History.
 
-Presentation Verification is now explicitly bounded without changing the
-product. It will prove that a server composes and publishes an immutable
-Presentation correctly, from approved DJMoment through the renderer-safe
-Broadcast projection. It ends before the Renderer Host: it neither tests
-visuals or audio nor becomes a second Session Intelligence path. Future
-Presentation Golden Scenarios remain separate from the established semantic
-Session Intelligence Golden Scenarios. Existing renderer-safe visual
-Presentation stays authoritative. No Planner, Knowledge, Runtime, Playback,
-Broadcast, TTS, renderer, CI or qualification implementation was introduced.
+Golden Qualification Foundation now supplies one executable proof path for the
+server-owned behavioral contract: deterministic Playback Observation fixtures
+flow through Runtime, Planner, Knowledge, immutable DJMoment, Presentation and
+renderer-safe Broadcast. Every currently executable scenario runs twice and
+reports Session Verification, Presentation Verification where applicable and
+Overall Qualification. No renderer output, audio, TTS, hardware or CI workflow
+is included. Golden Smoke is the next future profile on this foundation, not a
+new verification system.
 
 The **Session Intelligence Runtime Integration Epic** is complete. DJConnect
 now has one canonical Runtime lifecycle for supported Track Started decisions:

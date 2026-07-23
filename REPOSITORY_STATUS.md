@@ -28,20 +28,19 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-PR [#412](https://github.com/pcvantol/djconnect/pull/412), **Define
-Presentation Verification Architecture**, merged as `22665a2a96b3a8ebf586ed02157961bd0dfaa0dc`.
-This dedicated Finalization
-reconciles its immutable Prompt History and evidence.
+PR [#414](https://github.com/pcvantol/djconnect/pull/414), **Add Golden
+Qualification Foundation**, merged as `35d14e24fc226b8afec9a2d5e7c2c9a7e517f20b`.
+This dedicated Finalization reconciles its immutable Prompt History and
+evidence.
 
-Presentation Verification now has one canonical future architecture. It is a
-read-only server-side proof boundary from approved immutable DJMoment through
-Presentation Composer, immutable Presentation and renderer-safe Broadcast
-projection. It ends before Renderer Hosts and is distinct from the established
-Session Intelligence Golden Scenario family. Future Presentation Golden
-Scenarios may protect Primary Only, Sidekick, fallback, projection and
-determinism without testing renderer visuals, audio, TTS or hardware. Existing
-renderer-safe visual Presentation remains authoritative. No renderer,
-Broadcast, Runtime, Session Intelligence, CI or qualification behavior was
+Golden Qualification Foundation now executes the one canonical deterministic
+server-side qualification path for the currently executable Golden Scenarios.
+It reuses Bootstrap, Driver, immutable Capture and Structural Validation to
+assess Session Intelligence, immutable Presentation and renderer-safe Broadcast
+projection twice per scenario. It creates no alternate Runtime or renderer
+path. Golden Smoke and Golden Regression remain future profiles of this same
+Foundation. No renderer, visual/audio/TTS/hardware, CI workflow, Runtime,
+Session Intelligence, Planner, Knowledge or Session Flow behavior was
 introduced.
 
 Current main records **Session Intelligence Runtime Complete**. The Runtime is

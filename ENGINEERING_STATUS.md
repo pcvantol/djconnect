@@ -5,21 +5,20 @@
 
 ## Current engineering increment
 
-PR [#412](https://github.com/pcvantol/djconnect/pull/412), **Define
-Presentation Verification Architecture**, merged as `22665a2a96b3a8ebf586ed02157961bd0dfaa0dc`.
-This dedicated Finalization
-reconciles its immutable Prompt History and architectural evidence.
+PR [#414](https://github.com/pcvantol/djconnect/pull/414), **Add Golden
+Qualification Foundation**, merged as `35d14e24fc226b8afec9a2d5e7c2c9a7e517f20b`.
+This dedicated Finalization reconciles its immutable Prompt History and
+qualification evidence.
 
-Presentation Verification is now a canonical future, read-only server-side
-verification boundary. It proves immutable Presentation composition and
-renderer-safe Broadcast projection from an approved DJMoment, while ending
-before any Renderer Host. It remains distinct from Session Intelligence
-Verification: semantic Session behavior stays in the existing Golden Scenario
-family; a future Presentation Golden Scenario family protects composition,
-fallback, projection and determinism. Existing renderer-safe visual
-Presentation remains authoritative. No renderer, audio, TTS, CI, Golden Smoke,
-Golden Regression, Broadcast, Runtime, Planner, Knowledge Engine or Session
-Flow behavior changed.
+Golden Qualification Foundation is now the one executable deterministic,
+server-side path for the current approved Golden Scenarios. It composes the
+existing Bootstrap, Scenario Driver, immutable Capture and Structural Validator
+twice per scenario, proving Session Intelligence, immutable Presentation and
+renderer-safe Broadcast evidence. Silence correctly remains Presentation
+`not_applicable`. Golden Smoke and Golden Regression are future selection
+profiles over this same path, never second implementations. No Renderer Host,
+visual, audio, TTS, hardware, CI workflow, Runtime ownership, Planner,
+Knowledge Engine or Session Flow behavior changed.
 
 The **Session Intelligence Runtime Integration Epic** is complete. The Runtime
 is now the canonical execution engine for all supported Track Started decisions:
