@@ -4,19 +4,17 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#436](https://github.com/pcvantol/djconnect/pull/436), **Align product
-philosophy documentation**, merged as
-`d237c50e4bb0f622074fef630b4060854fc029c6`. Its dedicated Finalization
+PR [#438](https://github.com/pcvantol/djconnect/pull/438), **Establish
+Experience Engineering Foundation**, merged as
+`1bfabbb7986e50c2e8cd4ecebdf44e39ddf5376f`. Its dedicated Finalization
 reconciles the immutable Prompt History at
-`docs/history/prompts/2026-07-24-product-philosophy-alignment.md`.
+`docs/history/prompts/2026-07-24-experience-engineering-foundation.md`.
 
-The Product Philosophy Alignment reviewed every canonical document under
-`docs/product/` against Product Definition 2.1. It changed only product
-wording and navigation: DJConnect is the local-first AI DJ, one coherent DJ
-Session is the product, Community is complete and local-first, Personal is the
-same DJ becoming personal through opt-in Music DNA, and future Cloud extends
-rather than replaces the local-first foundation. No roadmap, capability,
-architecture, ownership or implementation commitment changed.
+Experience Foundation v1 is the canonical reverse-engineered cross-surface
+baseline. It records evidence, maturity, intentional absences and the future
+Experience Gap Analysis / Qualification sequence without introducing a Design
+System, UI implementation, Runtime, renderer, capability, ownership, API,
+product scope, roadmap or implementation commitment.
 
 PR [#431](https://github.com/pcvantol/djconnect/pull/431), **Add Universal
 Receiver browser E2E**, merged as
@@ -230,7 +228,8 @@ planning is read.
 
 | Prompt | Lifecycle | Coherent objective | Branch | Completion evidence |
 | --- | --- | --- | --- | --- |
-| Product Philosophy Alignment | Completed / MERGED_UNRECONCILED / archived | Align every canonical product document to Product Definition 2.1 without product, roadmap, architecture, ownership or implementation change. | `codex/product-philosophy-alignment` | `docs/history/prompts/2026-07-24-product-philosophy-alignment.md`; PR [#436](https://github.com/pcvantol/djconnect/pull/436), merged as `d237c50e4bb0f622074fef630b4060854fc029c6`; dedicated Finalization is active. |
+| Experience Engineering Foundation | Completed / MERGED_UNRECONCILED / archived | Establish the evidence-led Experience Foundation v1 without UI, Runtime, renderer, capability, ownership, API, product scope or implementation change. | `codex/experience-engineering-foundation-v1` | `docs/history/prompts/2026-07-24-experience-engineering-foundation.md`; PR [#438](https://github.com/pcvantol/djconnect/pull/438), merged as `1bfabbb7986e50c2e8cd4ecebdf44e39ddf5376f`; dedicated Finalization is active. |
+| Product Philosophy Alignment | Completed / merged reconciled / archived | Align every canonical product document to Product Definition 2.1 without product, roadmap, architecture, ownership or implementation change. | `codex/product-philosophy-alignment` | `docs/history/prompts/2026-07-24-product-philosophy-alignment.md`; PR [#436](https://github.com/pcvantol/djconnect/pull/436), merged as `d237c50e4bb0f622074fef630b4060854fc029c6`; Finalization PR [#437](https://github.com/pcvantol/djconnect/pull/437) merged as `1a1f10db084328892abd331ae06b43e2485b0d61`. |
 | Canonical Capability Architecture | Completed / merged reconciled / archived | Establish the Generation 2 Capability Architecture: canonical capabilities, Host Roles, Concrete Hosts and Platform Families, without Runtime, renderer, API, ownership or technology changes. | `codex/canonical-capability-model-v1` | `docs/history/prompts/2026-07-24-canonical-capability-architecture.md`; PR [#433](https://github.com/pcvantol/djconnect/pull/433), merged as `cfb299965f06f15500b139de969e7ae2e4aec773`; Finalization PR [#434](https://github.com/pcvantol/djconnect/pull/434) merged as `3217c1bc31866b837cace5dd315465f93bfa8a91`. |
 | Persistent Session Startup Reconciliation | Completed / merged reconciled / archived | Deterministically interrupt non-terminal durable Sessions on startup without Runtime or provider recovery. | `codex/persistent-session-startup-reconciliation` | `docs/history/prompts/2026-07-21-persistent-session-startup-reconciliation.md`; PR [#300](https://github.com/pcvantol/djconnect/pull/300), merged as `822468e10527aa07895a802c99fbcde7eeccd98c`. |
 | Historical Projection Query Service | Completed / merged unreconciled / archived | Add the canonical, owner-authorized, transport-independent historical Session and DJMoment query layer without client or transport features. | `codex/historical-projection-query-service` | `docs/history/prompts/2026-07-21-historical-projection-query-service.md`; PR [#309](https://github.com/pcvantol/djconnect/pull/309), merged as `11ba4f76411f04aaba4bdb6f8e55988c7c14eb04`; dedicated Finalization is active. |
