@@ -15,21 +15,19 @@
 
 ## Current position
 
-PR [#436](https://github.com/pcvantol/djconnect/pull/436), **Align product
-philosophy documentation**, merged as
-`d237c50e4bb0f622074fef630b4060854fc029c6`. This dedicated Finalization
+PR [#438](https://github.com/pcvantol/djconnect/pull/438), **Establish
+Experience Engineering Foundation**, merged as
+`1bfabbb7986e50c2e8cd4ecebdf44e39ddf5376f`. This dedicated Finalization
 reconciles its validation evidence and immutable Prompt History.
 
-PR #436 completes a documentation-only alignment of the canonical product
-documents to Product Definition 2.1. DJConnect is consistently presented as a
-local-first AI DJ whose primary experience is one coherent DJ Session.
-Community remains complete and local-first; Personal is the same DJ becoming
-personal through opt-in Music DNA; future Cloud is additive. No capability,
-roadmap, architecture, ownership or implementation commitment changed. The
-recommended next capability after Finalization and Workspace Cleanup remains a
-fresh assessment-first increment from `CAPABILITY_MODEL_BACKLOG.md`.
-Repository State: `MERGED_UNRECONCILED`. Workspace State: `NOT_READY` pending
-this governance-only Finalization and subsequent Workspace Cleanup.
+PR #438 establishes the Experience Foundation v1: a reverse-engineered,
+evidence-led cross-surface baseline, assessment maturity and future Experience
+Gap Analysis / Qualification framework. It changes no UI, Runtime, renderer,
+capability, ownership, API, product scope, roadmap sequence or implementation
+commitment. The recommended next work after Finalization and Workspace Cleanup
+is the separately scoped Generation 2 roadmap reconciliation. Repository State:
+`MERGED_UNRECONCILED`. Workspace State: `NOT_READY` pending this governance-
+only Finalization and subsequent Workspace Cleanup.
 
 ## Historical management context
 
