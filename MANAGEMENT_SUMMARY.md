@@ -18,6 +18,20 @@
 PR [#438](https://github.com/pcvantol/djconnect/pull/438), **Establish
 Experience Engineering Foundation**, merged as
 `1bfabbb7986e50c2e8cd4ecebdf44e39ddf5376f`. This dedicated Finalization
+
+Generation 2 Program Reconciliation is the current documentation and
+governance increment. The completed foundation inventory, current execution,
+historical transition treatment and future Platform Evolution backlog are
+defined in `GENERATION_2_PROGRAM_RECONCILIATION.md`. It introduces no Runtime,
+renderer, product, capability, ownership, API or implementation change.
+
+The completed Generation 2 foundations are Product Definition 2.1, Product
+Philosophy Alignment, Capability Architecture, Host Role Architecture,
+Raspberry Pi Platform Foundation and Experience Foundation v1. They are no
+longer active roadmap work. Automated Session Intelligence E2E Verification is
+the sole current Product Development execution record; future user-facing work
+uses Experience Assessment, Experience Gap Analysis, Implementation and
+Experience Validation.
 reconciles its validation evidence and immutable Prompt History.
 
 PR #438 establishes the Experience Foundation v1: a reverse-engineered,

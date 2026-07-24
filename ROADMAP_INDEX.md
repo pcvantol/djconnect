@@ -9,6 +9,7 @@ Use this index to find the one canonical record for current work.
 | Long-term engineering intent | `PLATFORM_STRATEGY.md` | Platform strategy |
 | Generation 1 historical closure | `ENGINEERING_PLATFORM_GENERATION_1_COMPLETION_REPORT.md` | Platform governance |
 | Program boundaries | `ENGINEERING_PROGRAM_MODEL.md` | Engineering governance |
+| Generation 2 completed foundations, current execution and historical-transition reconciliation | `GENERATION_2_PROGRAM_RECONCILIATION.md` | Platform governance |
 | User-facing product priorities and sequence | `PRODUCT_ROADMAP.md` | DJConnect Product Development |
 | Engineering-platform improvements | `PLATFORM_EVOLUTION_BACKLOG.md` | Platform Evolution |
 | Implemented cross-platform capability catalog, projections and convergence decisions | `DJCONNECT_CAPABILITY_MODEL.md` | Platform Foundation |
@@ -18,7 +19,7 @@ Use this index to find the one canonical record for current work.
 | Assessment-first capability-model planning projection | `CAPABILITY_MODEL_BACKLOG.md` | Platform Evolution |
 | Live Playback Observation, Continue Current Playback Continuity and external capability dependencies | `docs/product/DJ_INTELLIGENCE_MATURITY.md` (canonical maturity, blocked status and planning policy), `docs/product/LIVE_PLAYBACK_OBSERVATION.md`, `docs/product/CONTINUE_CURRENT_PLAYBACK_CONTINUITY.md`, `docs/adr/0016-playback-instance-identity-observation-boundary.md` | DJConnect Product Development |
 | DJ Session transport independence, HTTP recovery and transport-neutral Broadcast delivery | `DJ_SESSION_TRANSPORT_ARCHITECTURE.md` | DJConnect Product Development |
-| Completed Session Intelligence Runtime milestone and the transition to experience expansion | `DJCONNECT_V4_COMPLETION_ROADMAP.md`, `docs/product/DJ_INTELLIGENCE_MATURITY.md` | DJConnect Product Development |
+| Historical V4 transition to the completed Session Intelligence Runtime milestone | `DJCONNECT_V4_COMPLETION_ROADMAP.md`, `docs/product/DJ_INTELLIGENCE_MATURITY.md` | Historical engineering evidence |
 | VibeCast ambient web-renderer product definition, Universal Receiver Web Platform relationship and deferred Google Cast Custom Web Receiver V1 | `docs/product/VIBECAST_ARCHITECTURE.md`, `docs/technical/RENDERER_HOST_CLASSIFICATION.md`, `docs/technical/UNIVERSAL_RECEIVER_ARCHITECTURE.md`, `PRODUCT_ROADMAP.md` | DJConnect Product Development |
 | Deferred Audience Experience, ambient reactions and future privacy-bounded Audience Observation | `docs/product/AUDIENCE_EXPERIENCE_ARCHITECTURE.md`, `PRODUCT_ROADMAP.md`, `INNOVATION_BACKLOG.md` | DJConnect Product Development / Innovation Lab |
 | Deferred room-scoped eligibility for independent Visual and Audio Renderer Hosts | `docs/technical/ROOM_PRESENTATION_ROUTING_ARCHITECTURE.md`, `PRODUCT_ROADMAP.md` | DJConnect Product Development |
