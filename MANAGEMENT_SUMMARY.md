@@ -25,9 +25,14 @@ The completed Generation 2 foundations are Product Definition 2.1, Product
 Philosophy Alignment, Capability Architecture, Host Role Architecture,
 Raspberry Pi Platform Foundation and Experience Foundation v1. They are no
 longer active roadmap work. Automated Session Intelligence E2E Verification is
-the sole current Product Development execution record; future user-facing work
-uses Experience Assessment, Experience Gap Analysis, Implementation and
-Experience Validation.
+the current engineering execution for the **Reference Experience** Product
+Initiative. The initiative is the first complete canonical DJConnect experience
+across interaction and presentation surfaces; verification enables it and does
+not replace product direction. Future user-facing work uses Experience
+Assessment, Experience Gap Analysis, Implementation and Experience Validation.
+Apple Public Release precedes the Desktop Platform Family. A Public Release
+Readiness Assessment determines the minimum lovable release scope before any
+additional Public Release Completion work is selected.
 
 PR [#436](https://github.com/pcvantol/djconnect/pull/436), **Align product
 philosophy documentation**, merged as

@@ -9,6 +9,11 @@ Generation 2 foundations are recorded in
 below uses exactly one program status: Completed, Current execution, Planned,
 Deferred, Historical or Retired.
 
+Platform Evolution remains assessment-first foundation evolution, governance,
+qualification, privacy and release maturity. It is not the primary source of
+user-facing roadmap progress; the current Product Initiative is recorded in
+`PRODUCT_ROADMAP.md`.
+
 | Initiative | Priority | Status | Dependencies | Promotion path |
 | --- | --- | --- | --- | --- |
 | Capability-profile assessment follow-up | P2 | Planned | `DJCONNECT_CAPABILITY_MODEL.md`, current contract/host evidence | assessment-first increments in `CAPABILITY_MODEL_BACKLOG.md`; no product implementation authorization |
