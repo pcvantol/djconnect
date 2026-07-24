@@ -6,26 +6,35 @@ Repository: `pcvantol/djconnect`
 ## Purpose
 
 This document defines the canonical Product Strategy foundation for DJConnect.
+It applies the product philosophy in
+[`PRODUCT_DEFINITION.md`](PRODUCT_DEFINITION.md); Product Definition 2.1 is
+the authority for the AI DJ identity, the DJ Session as the product, and the
+Community/Personal proposition.
 
 It is intentionally concise. It does not define features, epics, stories,
 priorities, implementation phases or release scope.
 
 ## Mission
 
-DJConnect helps people experience music through calm control, useful
-intelligence and shared presence across the devices already around them.
+DJConnect is a local-first AI DJ that helps people experience music through
+one coherent DJ Session: calm control, useful intelligence and shared presence
+across the devices already around them.
 
 ## Vision
 
-DJConnect should become a local-first music intelligence product that feels
-personal without becoming intrusive, expressive without becoming noisy and
-cross-platform without making every client responsible for backend
-intelligence.
+DJConnect should become the local-first AI DJ that feels personal without
+becoming intrusive, expressive without becoming noisy and coherent across
+multiple interaction and presentation surfaces without making any surface
+responsible for backend intelligence.
 
 ## Product Principles
 
-- Music should remain the center of the experience.
-- Control should feel immediate, physical and low-friction.
+- The DJ Session is the product; individual capabilities contribute to that
+  coherent experience.
+- The AI DJ is the product identity; music playback remains owned by the
+  configured Music Backend.
+- Music should remain the center of the experience and control should feel
+  immediate, physical and low-friction.
 - Intelligence should explain, recommend and assist without pretending to know
   more than the available evidence supports.
 - Personalization must respect profile, household, guest and private-session
@@ -33,10 +42,12 @@ intelligence.
 - Shared-room experiences should be useful without leaking personal history.
 - Clients should render and control; the backend should own durable
   intelligence.
-- Local-first use must remain complete enough to be valuable without a
-  DJConnect account.
-- Cloud and premium capabilities should extend the product rather than replace
-  the local foundation.
+- Community must remain a complete, valuable local-first AI DJ experience
+  without a DJConnect account; it is never a trial or an upgrade funnel.
+- Personal is the same AI DJ becoming more personal through opt-in Music DNA,
+  never a separate product or a different DJ.
+- Cloud and premium capabilities should extend the same AI DJ rather than
+  replace the local-first foundation.
 
 ## Target Users
 
@@ -53,12 +64,13 @@ DJConnect is built for:
 
 ## Long-Term Product Direction
 
-DJConnect's validated product direction is a cross-platform music intelligence
-layer with Home Assistant as the first local-first runtime.
+DJConnect's validated product direction is one cross-surface, local-first AI
+DJ experience, with Home Assistant as its local-first foundation.
 
 The product should grow around:
 
-- backend-owned music intelligence;
+- one coherent DJ Session across eligible interaction and presentation surfaces;
+- AI DJ intelligence that enriches playback without owning it;
 - profile-aware personalization and privacy;
 - shared-room and household experiences;
 - physical, voice and rich-client control surfaces;

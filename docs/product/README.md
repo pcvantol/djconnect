@@ -6,7 +6,9 @@ Repository: `pcvantol/djconnect`
 ## Purpose
 
 This directory owns the canonical Product Strategy and Product Definition
-foundation for DJConnect.
+foundation for DJConnect. [Product Definition 2.1](PRODUCT_DEFINITION.md) is
+the canonical product philosophy: DJConnect is a local-first AI DJ, and one
+coherent DJ Session is its primary product experience.
 
 Product Strategy begins where Innovation Labs end. Innovation Labs own ideas,
 experiments and open product questions. Product Strategy owns validated product
@@ -75,6 +77,7 @@ product strategy.
 
 ## Current Documents
 
+- `PRODUCT_PHILOSOPHY_ALIGNMENT_REPORT.md`
 - `PRODUCT_STRATEGY.md`
 - `PRODUCT_DEFINITION.md`
 - `DJ_SESSION_DOMAIN_MODEL.md`
