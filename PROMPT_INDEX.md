@@ -4,21 +4,22 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#425](https://github.com/pcvantol/djconnect/pull/425), **Add advisory
-Intelligence Quality Metrics**, merged as
-`1eaced29e168fba12c07219bd796dabe764cce6e`. This dedicated Finalization
+PR [#427](https://github.com/pcvantol/djconnect/pull/427), **Add CI
+Qualification Report Governance**, merged as
+`550c167871359e09c283f6008570bf988514c637`. This dedicated Finalization
 reconciles its immutable Prompt History at
-`docs/history/prompts/2026-07-23-intelligence-quality-metrics-advisory.md`.
+`docs/history/prompts/2026-07-24-ci-qualification-report-governance.md`.
 
-Intelligence Quality Metrics v1 is implemented as an optional bounded section
-of the existing Golden Qualification report. It derives only approved metrics
-from immutable report evidence after Foundation execution completes. It remains
-transient and advisory: Structural Validation remains the sole PASS/FAIL
-authority, with no execution-path, persistence, replay, scoring, gate or
-sensitive-evidence change.
+The canonical CI Qualification Report Governance permits only a redacted,
+allowlist-validated projection of the existing Golden Qualification Report in
+repository Actions. It defines access, retention and cleanup without changing
+Foundation execution, Structural Validator authority or the advisory status of
+Quality Metrics.
 
-The next Product Development Pre-Flight candidate is **Full CI Qualification
-and readable reports**.
+The next Product Development implementation candidate is **Full CI
+Qualification and readable reports**. Its first rollout must remain advisory,
+non-blocking and non-required; required checks, merge protection and release
+gates need separate governance.
 
 Golden Scenarios are product-behavior contracts scoped to their architectural
 platform. `SI-GOLDEN-001` through `SI-GOLDEN-006` remain the complete original
