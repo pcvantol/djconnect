@@ -67,6 +67,23 @@ The advisory CI integration invokes Smoke for pull requests and Regression for
 publishes only an allowlist-validated Markdown Job Summary and creates no
 required check, release gate or alternate execution path.
 
+## Universal Receiver Browser E2E
+
+The implemented optional Browser E2E observer attaches to the existing active
+Foundation execution through the already-authorized, runtime-scoped Broadcast
+viewer contract. It executes the existing `/djconnect/receiver` page in a
+deterministic headless runtime and observes only snapshot-first delivery,
+ordered renderer-safe events, reconnect, Runtime termination and subscription
+cleanup. Pull-request CI observes Golden Smoke; `main`, manual and scheduled
+CI observe Golden Regression. The workflow remains advisory and non-blocking.
+
+The observer has no Session, Runtime, Planner, Knowledge, Capture or Validator
+ownership. It does not alter the two-run comparison, Structural Validator
+authority, qualification result or bounded Qualification Report. Its transient
+token and renderer inputs remain process-local; no browser state, token, raw
+Broadcast payload, screenshot, trace, HAR, video or DOM baseline is published
+or retained.
+
 ## Advisory Intelligence Quality Metrics
 
 Each existing bounded qualification report can optionally include an
@@ -89,9 +106,10 @@ credentials, or raw evidence.
 
 ## Scope exclusions
 
-No Renderer Host, browser UI, DOM, visual snapshot, animation, generated audio,
-TTS provider, Apple, Home Assistant, Universal Receiver, VibeCast or hardware
-behavior is tested. Those remain renderer responsibilities.
+No visual presentation, screenshot, DOM baseline, animation, generated audio,
+TTS provider, Apple, Home Assistant, VibeCast or hardware behavior is tested.
+The optional Universal Receiver observer validates only renderer-host Broadcast
+transport integration; all other renderer behavior remains renderer-owned.
 
 ## References
 

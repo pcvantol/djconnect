@@ -143,6 +143,25 @@ class CIQualificationReportTest(unittest.TestCase):
         self.assertTrue(smoke["success"])
         self.assertTrue(regression["success"])
 
+    def test_browser_observation_keeps_the_existing_bounded_report(self) -> None:
+        runner = _load_runner()
+
+        ordinary = asyncio.run(runner.async_run_profile("golden_smoke"))
+        observed = asyncio.run(
+            runner.async_run_profile("golden_smoke", observe_browser_e2e=True)
+        )
+
+        self.assertEqual(observed, ordinary)
+        self.assertNotIn("browser", observed)
+        self.assertNotIn("token", observed)
+
+    def test_workflow_observes_profiles_without_publishing_browser_evidence(self) -> None:
+        workflow = (ROOT / ".github" / "workflows" / "golden-qualification-ci.yml").read_text()
+
+        self.assertEqual(workflow.count("--observe-browser-e2e"), 2)
+        self.assertNotIn("browser report", workflow.lower())
+        self.assertNotIn("upload-artifact", workflow)
+
 
 if __name__ == "__main__":
     unittest.main()
