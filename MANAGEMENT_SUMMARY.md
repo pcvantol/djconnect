@@ -15,9 +15,9 @@
 
 ## Current position
 
-PR [#429](https://github.com/pcvantol/djconnect/pull/429), **Add advisory CI
-Golden qualification reports**, merged as
-`59c40ea9a609ca5a51639b71ae63d48904fcdad9`. This dedicated Finalization
+PR [#431](https://github.com/pcvantol/djconnect/pull/431), **Add Universal
+Receiver browser E2E**, merged as
+`ff4e6f62be23e6cab7429b55918cb0e7617788f9`. This dedicated Finalization
 reconciles its qualification evidence and immutable Prompt History.
 
 Golden Smoke now runs advisory on pull requests and Golden Regression advisory
@@ -28,8 +28,12 @@ execution and PASS/FAIL roles; Advisory Metrics remains advisory. There is no
 artifact, required check, merge protection, release gate or product behavior
 change.
 
-The next Product Development candidate requiring a Pre-Flight is **Universal
-Receiver browser E2E**, a separate optional verification layer.
+Universal Receiver Browser E2E now provides a transient renderer-host transport
+observation of the existing Golden Foundation. It changes neither qualification
+semantics nor the Foundation's sole authority, and introduces no additional
+Runtime, Driver, Capture, Validator or Qualification Report. CI remains
+advisory with no merge protection, release gate, artifact or privacy-boundary
+change. The next candidate is the read-only Developer Overlay.
 
 Golden Scenario governance now keeps product-behavior contracts within their
 own architectural platforms. The six original Session Intelligence scenarios

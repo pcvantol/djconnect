@@ -4,11 +4,11 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#429](https://github.com/pcvantol/djconnect/pull/429), **Add advisory CI
-Golden qualification reports**, merged as
-`59c40ea9a609ca5a51639b71ae63d48904fcdad9`. This dedicated Finalization
+PR [#431](https://github.com/pcvantol/djconnect/pull/431), **Add Universal
+Receiver browser E2E**, merged as
+`ff4e6f62be23e6cab7429b55918cb0e7617788f9`. This dedicated Finalization
 reconciles its immutable Prompt History at
-`docs/history/prompts/2026-07-24-full-ci-qualification-readable-reports.md`.
+`docs/history/prompts/2026-07-24-universal-receiver-browser-e2e.md`.
 
 Repository Actions now runs existing Golden Smoke for pull requests and
 existing Golden Regression for `main`, manual and scheduled advisory
@@ -17,8 +17,12 @@ Markdown Job Summary and removes temporary report files after every outcome.
 Foundation execution, Structural Validator authority and the advisory status of
 Quality Metrics are unchanged.
 
-The next Product Development Pre-Flight candidate is **Universal Receiver
-browser E2E**, a separately scoped optional verification layer.
+Universal Receiver Browser E2E is now an implemented, transient observer of
+the existing Golden Foundation through renderer-safe Broadcast. It remains
+non-authoritative and adds no second Runtime, Driver, Capture, Validator or
+Qualification Report. CI remains advisory; no gates or browser evidence
+publication were introduced. The next Product Development Pre-Flight candidate
+is the **read-only Developer Overlay**.
 
 Golden Scenarios are product-behavior contracts scoped to their architectural
 platform. `SI-GOLDEN-001` through `SI-GOLDEN-006` remain the complete original

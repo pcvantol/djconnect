@@ -5,10 +5,10 @@
 
 ## Current engineering increment
 
-PR [#429](https://github.com/pcvantol/djconnect/pull/429), **Add advisory CI
-Golden qualification reports**, merged as `59c40ea9a609ca5a51639b71ae63d48904fcdad9`.
-This dedicated Finalization
-reconciles its immutable Prompt History and the rolling records.
+PR [#431](https://github.com/pcvantol/djconnect/pull/431), **Add Universal
+Receiver browser E2E**, merged as `ff4e6f62be23e6cab7429b55918cb0e7617788f9`.
+This dedicated Finalization reconciles its immutable Prompt History and the
+rolling records.
 
 Repository Actions now invokes the existing Golden Smoke profile for pull
 requests and the existing Golden Regression profile for `main`, manual and
@@ -21,8 +21,13 @@ the only qualification path, the Structural Validator the sole PASS/FAIL
 authority, and Advisory Metrics v1 advisory. No artifact, gate, Runtime,
 Driver, Capture or Validator behavior was added.
 
-The next Product Development candidate requiring a Pre-Flight is **Universal
-Receiver browser E2E**, a separately scoped optional verification layer.
+Universal Receiver Browser E2E is implemented as a transient renderer-host
+observer. It consumes the existing renderer-safe Broadcast subscription during
+the existing Golden Foundation runs: Smoke on pull requests and Regression on
+`main`, manual and scheduled runs. It adds no Runtime, Driver, Capture,
+Validator, Qualification Report, Presentation or Audience authority. CI stays
+advisory, non-blocking and non-required; no merge protection or release gate
+exists. The next candidate is the read-only Developer Overlay.
 
 Golden Scenarios are canonically organized by architectural platform. The six
 original `SI-GOLDEN-001` through `SI-GOLDEN-006` scenarios remain the complete
