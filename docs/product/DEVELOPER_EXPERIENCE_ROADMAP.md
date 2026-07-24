@@ -5,11 +5,14 @@
 **Primary active Epic:** Automated Session Intelligence E2E Verification.
 
 Golden Smoke, Golden Session Regression and Advisory Intelligence Quality
-Metrics are complete. Accelerated / event-driven Session execution concluded
+Metrics are complete. CI Qualification Report Governance is complete through
+PR #427, so Full CI Qualification and readable reports is ready for its
+separate advisory implementation increment. Accelerated / event-driven Session
+execution concluded
 `NO-GO`: the existing restricted Verification Clock already satisfies every
 approved behavior, and generic acceleration has no current product value. The
-next Product Development candidate requiring a Pre-Flight is **Full CI
-Qualification and readable reports**.
+next Product Development implementation candidate is **Full CI Qualification
+and readable reports**, subject to its approved advisory boundaries.
 The Architecture,
 Developer Session Bootstrap, Deterministic Scenario Driver, Immutable E2E
 Session Capture and Structural Invariant Validator now execute all six original
@@ -95,7 +98,7 @@ and a separately authorized capability.
 | 13 | Presentation Golden Scenarios | Deferred | Future product contracts for Primary Only, Sidekick, fallback, projection and determinism; they reuse canonical Runtime execution and end at the renderer-safe projection. |
 | 14 | Golden Session Regression profile | Complete — PR #422 | Fixed local `golden_regression` profile selects `SI-GOLDEN-001` through `SI-GOLDEN-006` through the same Qualification Foundation, with bounded profile version metadata and no CI gate. |
 | 15 | Intelligence Quality Metrics | Complete — PR #425 | Optional transient, report-derived advisory projection; no scoring, threshold, gate or history. |
-| 16 | Full CI Qualification and readable reports | Planned | Expands scenario coverage, artifacts and explicit qualification shape. |
+| 16 | Full CI Qualification and readable reports | Ready for advisory implementation | Reuses the existing Foundation and bounded report projection; CI publication follows PR #427 governance, with no required check or release gate. |
 | 17 | Universal Receiver browser E2E | Optional / separate layer | Validates Receiver presentation through Broadcast and a headless browser, not core Intelligence or server-side Presentation verification behavior. |
 | 18 | Read-only Developer Overlay | Optional / deferred | Development-only, non-authoritative and disabled in production by default. |
 | 19 | Optional TTS Session Replay | Deferred | Reuses eligible presentation output without canonical audio persistence. |

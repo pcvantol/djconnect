@@ -15,20 +15,21 @@
 
 ## Current position
 
-PR [#425](https://github.com/pcvantol/djconnect/pull/425), **Add advisory
-Intelligence Quality Metrics**, merged as
-`1eaced29e168fba12c07219bd796dabe764cce6e`. This dedicated Finalization
-reconciles its qualification evidence and immutable Prompt History.
+PR [#427](https://github.com/pcvantol/djconnect/pull/427), **Add CI
+Qualification Report Governance**, merged as
+`550c167871359e09c283f6008570bf988514c637`. This dedicated Finalization
+reconciles its qualification governance and immutable Prompt History.
 
-Intelligence Quality Metrics v1 provides optional, bounded observational
-insight from existing Golden Qualification reports. It is read-only and
-transient: the existing Structural Validator stays the sole qualification
-authority, while execution behavior and the platform's privacy boundaries are
-unchanged. The implementation introduces no scoring, thresholds, gates,
-history, replay or Runtime-path change.
+CI report publication is now explicitly governed without changing
+qualification. Reports are redacted, bounded projections of the existing
+Qualification Report in repository Actions, with allowlist validation,
+restricted access, defined optional-artifact retention and mandatory cleanup.
+The Foundation and Structural Validator retain their sole execution and
+PASS/FAIL roles; Advisory Metrics remains advisory. No CI workflow, release
+gate or product behavior was introduced.
 
-The next Product Development candidate requiring a Pre-Flight is **Full CI
-Qualification and readable reports**.
+The next Product Development increment may implement **Full CI Qualification
+and readable reports** as advisory, non-blocking and non-required execution.
 
 Golden Scenario governance now keeps product-behavior contracts within their
 own architectural platforms. The six original Session Intelligence scenarios

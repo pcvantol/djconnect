@@ -1,26 +1,29 @@
 # DJConnect Engineering Status
 
 **Status:** Operational handoff
-**Updated:** 2026-07-23
+**Updated:** 2026-07-24
 
 ## Current engineering increment
 
-PR [#425](https://github.com/pcvantol/djconnect/pull/425), **Add advisory
-Intelligence Quality Metrics**, merged as `1eaced29e168fba12c07219bd796dabe764cce6e`.
+PR [#427](https://github.com/pcvantol/djconnect/pull/427), **Add CI
+Qualification Report Governance**, merged as `550c167871359e09c283f6008570bf988514c637`.
 This dedicated Finalization
-reconciles its immutable Prompt History and qualification evidence.
+reconciles its immutable Prompt History and the rolling records.
 
-Intelligence Quality Metrics v1 is now an optional, transient, read-only
-section of the existing bounded Golden Qualification report. It is derived
-only after the immutable report exists and contains schema-versioned profile
-metadata, report-derived counts and rates, and aggregated invariant-failure
-identifiers. The Structural Validator remains the sole PASS/FAIL authority;
-Foundation execution, Runtime, Planner, Knowledge, Capture and Validation are
-unchanged. No history, score, threshold, gate or sensitive evidence is stored
-or exposed.
+The canonical [CI Qualification Report Governance](docs/governance/CI_QUALIFICATION_REPORT_GOVERNANCE.md)
+now governs future Golden Qualification publication in repository Actions.
+It permits only a bounded, redacted projection of the existing immutable
+Qualification Report, with fail-closed allowlist validation, repository-Actions
+access, seven-day maximum optional-artifact retention and cleanup after PASS
+and FAIL. The Foundation remains the only qualification path, the Structural
+Validator the sole PASS/FAIL authority, and Advisory Metrics v1 advisory.
+No workflow, Runtime, Driver, Capture, Validator or qualification behavior
+changed.
 
-The next Product Development candidate requiring a Pre-Flight is **Full CI
-Qualification and readable reports**.
+The Full CI Qualification and readable reports Pre-Flight is now unblocked for
+one separate, advisory Product Development implementation increment. It must
+reuse the existing Foundation and report projection exactly as governed; merge
+protection, required execution and release gates remain out of scope.
 
 Golden Scenarios are canonically organized by architectural platform. The six
 original `SI-GOLDEN-001` through `SI-GOLDEN-006` scenarios remain the complete
