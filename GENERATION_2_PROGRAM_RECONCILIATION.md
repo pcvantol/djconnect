@@ -47,8 +47,8 @@ Automated Session Intelligence E2E Verification remains the current
 engineering execution. It enables the Reference Experience through trustworthy
 existing Session behaviour; it is not a replacement for the product direction.
 
-The public release defines the minimum lovable DJConnect product, not the
-complete long-term product vision.
+The public Community release defines the minimum lovable DJConnect product,
+not the complete long-term product vision.
 
 ### Completed foundations
 
@@ -71,23 +71,35 @@ implementation assumption.
 | --- | --- | --- | --- |
 | DJConnect Product Development | Automated Session Intelligence E2E Verification | Current execution | `docs/product/DEVELOPER_EXPERIENCE_ROADMAP.md` |
 
-### Product-maturity phases
+### Product-maturity phase navigation
 
-| Phase | Product maturity | Status | Scope boundary |
-| --- | --- | --- | --- |
-| 0 | Generation 2 Foundations | Completed | Product, capability, Host Role, Pi and Experience foundations. |
-| 1 | Reference Experience | Current execution | Universal Receiver experience, renderer-safe Session experience, and the Experience Engineering cycle. |
-| 2 | Apple Public Release | Planned | macOS, iPhone/iPad, Apple Watch, onboarding, release polish, readiness and experience qualification. Apple remains the premium reference implementation. |
-| 3 | Public Release Readiness Assessment | Planned | Determine the minimum additional work for a first public release; this is assessment, not feature delivery. |
-| 4 | Public Release Completion | Planned | Implement only work explicitly selected by Phase 3. |
-| 5 | Desktop Platform Family | Planned | Windows after Apple public release; any Linux Concrete Host requires separate assessment. No technology choice is made. |
-| 6 | Personal AI DJ evolution | Deferred | Expanded Music DNA, richer Session Timeline, recommendation evolution and premium experiences only after public release. |
-| 7 | Future Cloud evolution | Deferred | Long-term additive extension of the same local-first AI DJ. |
+`PRODUCT_ROADMAP.md` is the sole detailed phase register. This reconciliation
+records only its program-level status:
+
+| Phase | Product maturity | Status |
+| --- | --- | --- |
+| 0 | Generation 2 Foundations | Completed |
+| 1 | Reference Experience | Current execution |
+| 2 | Apple Premium Experience | Planned |
+| 3 | Public Release Readiness Assessment | Planned |
+| 4 | Productization | Planned |
+| 5 | Community Public Release | Planned |
+| 6 | Desktop Platform Family | Planned |
+| 7 | Personal AI DJ evolution | Deferred |
+| 8 | Future Cloud evolution | Deferred |
 
 Phase 3 may conclude that planned capabilities, including Session Timeline or
 minimal Music DNA work, are unnecessary for the first public release. It
-authorizes no implementation. Phase 4 does not automatically include Personal
-capabilities.
+authorizes no implementation. Productization does not automatically include
+Personal capabilities or commit a paid model. Commercial readiness is
+assessment-only and may conclude that the first public release remains
+Community-only.
+
+Productization covers release preparation rather than product-scope expansion:
+distribution and beta strategy, App Store readiness, supported-platform and
+accessibility review, signing/notarization/CI/CD readiness, compliance,
+support operations, release notes and localization approval. Each workstream
+still requires its own selection and implementation authorization.
 
 Future user-facing work follows the Experience Engineering sequence:
 

@@ -34,9 +34,11 @@ Initiative. The initiative is the first complete canonical DJConnect experience
 across interaction and presentation surfaces; verification enables it and does
 not replace product direction. Future user-facing work uses Experience
 Assessment, Experience Gap Analysis, Implementation and Experience Validation.
-Apple Public Release precedes the Desktop Platform Family. A Public Release
-Readiness Assessment determines the minimum lovable release scope before any
-additional Public Release Completion work is selected.
+Apple Premium Experience precedes a Public Release Readiness Assessment and
+Productization, which together determine the minimum lovable Community Public
+Release scope before any delivery is selected. Desktop follows Community Public
+Release. Commercial readiness is assessment-only and does not authorize a paid
+model.
 reconciles its validation evidence and immutable Prompt History.
 
 PR #438 establishes the Experience Foundation v1: a reverse-engineered,
