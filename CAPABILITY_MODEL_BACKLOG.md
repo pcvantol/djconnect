@@ -20,7 +20,7 @@ starts with a current-state Repository Capability Assessment under
 | CMB-06 | Assess Pi 10-inch capability profile | Planned | hardware, privacy and renderer evidence | no inherited 4-inch scope |
 | CMB-07 | Analyse Apple–Windows atomic convergence | Planned | contract-level supported/absent matrix | explicit per-capability disposition |
 | CMB-08 | Decompose Universal Receiver and VibeCast | Planned | current Broadcast/receiver evidence | separate host/experience capability records |
-| CMB-09 | Assess Voice Hosts and constrained ESP32 profiles | Planned | HA Voice and ESP32 contract evidence | role-profile decisions only |
+| CMB-09 | Assess Voice Interaction Host and constrained ESP32 profiles | Planned | HA Voice, Session Start Request and ESP32 contract evidence | role-profile decisions only; no Session ownership or direct host coordination |
 | CMB-10 | Onboard future Android and Meta Quest capability profiles | Backlog | product authorization and evidence | profile assessment before any client work |
 
 ## Rules

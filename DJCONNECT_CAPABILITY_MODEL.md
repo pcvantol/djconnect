@@ -47,7 +47,7 @@ material). Maturity is **Implemented**, **Planned**, or **Deprecated**.
 
 | ID | Atomic capability | Bundle | Canonical owner | Dependencies | Maturity | Privacy | Supported projection types | Class |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| CAP-ID-01 | Profile lifecycle | Identity and Policy | HA Profile Platform | persistent storage | Implemented | personal | Apple, Windows, Pi, API contracts | REUSE |
+| CAP-ID-01 | Profile lifecycle | Identity and Policy | HA Profile Platform | persistent storage | Implemented | personal | Apple, Windows, Pi, HA client API contracts | REUSE |
 | CAP-ID-02 | Profile resolution | Identity and Policy | HA Profile Platform | request/device/room context | Implemented | personal | all request sources | REUSE |
 | CAP-ID-03 | Profile privacy policy | Identity and Policy | HA Profile Platform | profile resolution | Implemented | personal | rich, shared and voice-safe responses | REUSE |
 | CAP-ID-04 | Device-to-profile mapping | Identity and Policy | HA Profile Platform | device registry | Implemented | personal | Apple, Windows, Pi, ESP32, Voice Hosts | REUSE |
@@ -63,8 +63,9 @@ material). Maturity is **Implemented**, **Planned**, or **Deprecated**.
 | CAP-SI-04 | Knowledge intent resolution | Session Intelligence | HA Session Runtime | Planner, approved knowledge | Implemented | personal | DJMoment/projection only | REUSE |
 | CAP-SI-05 | Immutable DJMoment creation | Session Intelligence | HA DJ Moment Engine | Planner and knowledge intent | Implemented | renderer-safe | Broadcast and renderer hosts | REUSE |
 | CAP-SI-06 | Session Flow | Session Intelligence | HA Session Runtime | Planner, DJMoments | Implemented | renderer-safe | owner and authorized renderers | REUSE |
+| CAP-SI-07 | Authorized Session Start Request | Session Intelligence | HA Session Runtime | Profile resolution, command authorization, existing Start Strategy model | Implemented | restricted | Voice, Apple, Windows and other eligible Interaction Hosts | REUSE |
 | CAP-BP-01 | Renderer-safe Broadcast snapshot | Broadcast and Presentation | HA Broadcast | active Runtime | Implemented | renderer-safe | Universal Receiver, native renderers | REUSE |
-| CAP-BP-02 | Session-scoped Broadcast authorization | Broadcast and Presentation | HA Broadcast | active Session, authorization | Implemented | restricted | Universal Receiver and renderer hosts | REUSE |
+| CAP-BP-02 | Session-scoped Broadcast authorization | Broadcast and Presentation | HA Broadcast | active Session, authorization | Implemented | restricted | unpaired Universal Receiver participation | REUSE |
 | CAP-BP-03 | Broadcast WebSocket delivery | Broadcast and Presentation | HA Broadcast | snapshot and authorization | Implemented | renderer-safe | Apple, Windows, Pi, Universal Receiver | REUSE |
 | CAP-BP-04 | Broadcast recovery cursor | Broadcast and Presentation | HA Broadcast | bounded replay log | Implemented | restricted | authorized renderer recovery | REUSE |
 | CAP-BP-05 | Universal Receiver hosting | Broadcast and Presentation | HA | Broadcast and session authorization | Implemented | renderer-safe | unpaired browser/TV receiver | REUSE |
@@ -83,8 +84,8 @@ material). Maturity is **Implemented**, **Planned**, or **Deprecated**.
 | CAP-IN-02 | Music Discovery feed | Insight and Discovery | HA Discovery service | profile context, backend capabilities | Implemented | personal | Apple, Windows, Pi read-heavy | REUSE |
 | CAP-IN-03 | Recently-played query | Insight and Discovery | HA Music Backend boundary | backend capability | Implemented | personal | rich-client informative lists | REUSE |
 | CAP-IN-04 | Recommendation proposal | Insight and Discovery | HA Discovery service | profile context, backend capability | Implemented | personal | rich-client action cards | REUSE |
-| CAP-VR-01 | Assist/STT integration | Voice and Response | HA Conversation Agent | HA Assist/STT | Implemented | restricted | ESP32 and Voice Hosts; Apple PTT | REUSE |
-| CAP-VR-02 | Push-to-talk request intake | Voice and Response | HA Voice boundary | device/voice authorization | Implemented | operational | ESP32 and Apple where supported | REUSE |
+| CAP-VR-01 | Assist/STT integration | Voice and Response | HA Conversation Agent | HA Assist/STT | Implemented | restricted | ESP32 and Voice Interaction Hosts; Apple PTT | REUSE |
+| CAP-VR-02 | Push-to-talk request intake | Voice and Response | HA Voice boundary | device/voice authorization | Implemented | operational | ESP32, Voice Interaction Hosts and Apple where supported | REUSE |
 | CAP-VR-03 | Audio-response policy | Voice and Response | HA Conversation Agent | request context, HA TTS | Implemented | operational | voice and rich client responses | REUSE |
 | CAP-VR-04 | Temporary DJ response media | Voice and Response | HA TTS/response service | HA TTS | Implemented | restricted | device-local response playback | REUSE |
 | CAP-VR-05 | Device DJ response delivery | Voice and Response | HA device boundary | paired device local API | Implemented | operational | ESP32 device hosts | REUSE |
@@ -109,18 +110,23 @@ State legend: **S** Supported; **P** Planned; **IA** Intentional absence;
 An absence is not a defect unless the divergence register marks it for a future
 decision.
 
-| Capability bundle | HA | Apple | Windows | Pi 4-inch | Pi 10-inch | ESPHome Voice Hosts | constrained ESP32 | Universal Receiver | Central API | Website / artifacts |
+| Capability bundle | HA | Apple | Windows | Pi 4-inch | Pi 10-inch | ESPHome Voice Hosts | constrained ESP32 | Universal Receiver | Central API | Website | Release/artifact repositories |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Identity and Policy | S owner | S projection | S projection | S shared projection | U | IA persistent UI | IA persistent UI | IA | IA | IA |
-| Playback | S owner | S controls | S controls | S bounded controls | U | IA | S physical controls | IA | IA | IA |
-| Session Intelligence | S owner | S projection | S projection | S bounded projection | U | S voice projection | S short projection | S renderer-safe projection | IA | IA |
-| Broadcast and Presentation | S owner | S consumer | S consumer | S consumer | U | P audio-host projection | IA visual projection | S hosted consumer | IA | IA |
-| Ask DJ / Conversation | S owner | S rich | S rich | S text/read-heavy | U | S two-way voice | IA chat history | IA | IA | IA |
-| Personalization | S owner | S authorized | S authorized | S privacy-limited | U | IA | IA | IA | IA | IA |
-| Insight and Discovery | S owner | S rich | S rich | S read-heavy | U | IA | IA | IA | IA | IA |
-| Voice and Response | S owner | S where supported | PS text/audio client | IA PTT | U | S | S | IA | IA | IA |
-| Device Lifecycle | S orchestration | PS app lifecycle | PS app lifecycle | PS appliance lifecycle | U | PS HA-managed host | S hardware lifecycle | IA | IA | PS distribution |
-| Supporting Infrastructure | S HA side | S bootstrap consumer | IA | IA | IA | IA | IA | IA | S relay-only | S product/distribution surface |
+| Identity and Policy | S owner | S projection | S projection | S shared projection | U | IA persistent UI | IA persistent UI | IA | IA | IA | IA |
+| Playback | S owner | S controls | S controls | S bounded controls | U | S bounded voice actions | S physical controls | S renderer-safe playback projection | IA | IA | IA |
+| Session Intelligence | S owner | S projection | S projection | S bounded projection | U | S interaction projection | S short projection | S renderer-safe projection | IA | IA | IA |
+| Broadcast and Presentation | S owner | S consumer | S consumer | S consumer | U | S complementary audio response projection where applicable | IA visual projection | S hosted consumer | IA | IA | IA |
+| Ask DJ / Conversation | S owner | S rich | S rich | S text/read-heavy | U | S inside and outside Session | IA chat history | IA | IA | IA | IA |
+| Personalization | S owner | S authorized | S authorized | S privacy-limited | U | IA | IA | IA | IA | IA | IA |
+| Insight and Discovery | S owner | S rich | S rich | S read-heavy | U | IA | IA | IA | IA | IA | IA |
+| Voice and Response | S owner | S where supported | PS text/audio client | IA PTT | U | S | S | IA | IA | IA | IA |
+| Device Lifecycle | S orchestration | PS app lifecycle | PS app lifecycle | PS appliance lifecycle | U | PS HA-managed host | S hardware lifecycle | IA | IA | IA | PS distribution |
+| Supporting Infrastructure | S HA side | S bootstrap consumer | IA | IA | IA | IA | IA | IA | S relay-only | S product/onboarding surface | S artifact distribution metadata |
+
+ESPHome Voice Interaction Hosts deliberately have no Session Flow UI, queue
+browsing, artwork or rich conversation history. Those are **Intentional
+absence**, not missing Voice Host projections. Their bounded interaction and
+complementary audio response projections do not make them Session owners.
 
 ## Divergence and convergence register
 
@@ -157,6 +163,14 @@ A capability exists canonically once. Clients, Renderer Hosts and device hosts
 provide role-appropriate projections. Intentional role differences do not
 create parity defects.
 
+### Multimodal Session Coordination
+
+Multiple Interaction and Renderer Hosts may participate concurrently in one DJ
+Session. The Session remains the sole coordinator of context, decisions,
+canonical events and authorized actions. Hosts complement each other through
+bounded input and presentation projections; they do not coordinate directly or
+duplicate Session intelligence.
+
 ### Capability Convergence Review
 
 Major increments and public-release preparation must reverse-check relevant
@@ -170,14 +184,22 @@ authorize product implementation.
 Home Assistant owns Profile/privacy, playback orchestration, Session Runtime,
 Planner, Knowledge, DJMoments, Session Flow, Presentation, Broadcast,
 Universal Receiver hosting, Session authorization and command authorization.
-Native clients and Pi consume canonical contracts. Universal Receiver is
-browser-based, unpaired and valid only for an authorized active Session;
-VibeCast is an experience mode over that contract. ESPHome Voice Interaction
-Hosts use the HA DJConnect Conversation Agent for two-way interaction but own
-neither it nor Session intelligence. The Central API is APNs relay/minimal
-Apple bootstrap support only. The Website is a standalone product, onboarding,
-documentation, distribution and support surface. Release repositories remain
-artifact-only.
+Eligible Interaction Hosts may submit an authorized Session Start Request; the
+Home Assistant Runtime creates and owns the Session, resolving the request
+through the existing Start Strategy model. Native clients and Pi consume
+canonical contracts. Universal Receiver is browser-based, unpaired and valid
+only for an authorized active Session; its session-scoped authorization applies
+to that unpaired Receiver participation and never replaces registered-device
+authorization for native hosts. VibeCast is an experience mode over that
+contract. ESPHome Voice Interaction Hosts use the HA DJConnect Conversation
+Agent for two-way interaction but own neither it nor Session intelligence.
+
+Voice has two operating contexts. Outside an active Session, Ask DJ remains
+available and may submit an authorized Session Start Request. Inside an active
+Session, Ask DJ and bounded voice actions use that active Session context.
+The Central API is APNs relay/minimal Apple bootstrap support only. The Website
+is a standalone product, onboarding, documentation, distribution and support
+surface. Release repositories remain artifact-only.
 
 ## Related planning
 
