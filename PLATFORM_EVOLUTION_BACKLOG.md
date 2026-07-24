@@ -9,6 +9,7 @@ or governed operations are constrained.
 
 | Initiative | Priority | Status | Dependencies | Promotion path |
 | --- | --- | --- | --- | --- |
+| Capability Model adoption and capability-profile assessment | P2 | Planned | `DJCONNECT_CAPABILITY_MODEL.md`, current contract/host evidence | assessment-first increments in `CAPABILITY_MODEL_BACKLOG.md`; no product implementation authorization |
 | Canonical governance Version 2.2 alignment | P0 | Reviewable / merge pending | merge and reconcile PR #126 | repository-by-repository adoption planning |
 | Component Release Mode | P2 | Backlog | release evidence and current manifest model | bounded architecture review if contracts change |
 | GitHub Actions retention and evidence preservation (`TD-GITHUB-001`) | P1 | Open / Backlog | governance approval, Repository Ownership integration and a future approved retention design | governed implementation only after design and qualification |

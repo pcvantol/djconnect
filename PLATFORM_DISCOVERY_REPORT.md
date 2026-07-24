@@ -3,7 +3,15 @@
 Epic 2: Platform Discovery & Repository Audit  
 Date: 2026-07-09  
 Scope: all current DJConnect repositories  
-Mode: discovery-only; no runtime implementation changes
+Mode: historical discovery-only evidence; no runtime implementation changes
+
+> **Historical status.** This report records the platform as observed on
+> 2026-07-09. It is not current-state capability authority. The canonical
+> current model is [`DJCONNECT_CAPABILITY_MODEL.md`](DJCONNECT_CAPABILITY_MODEL.md).
+> In particular, its then-future statements about Profile models/context,
+> privacy modes, persistent Sessions, the ephemeral Runtime, Broadcast recovery
+> and Presentation Composer are superseded by current `main` implementation
+> evidence; they remain historical findings rather than active gaps.
 
 ## Executive summary
 
