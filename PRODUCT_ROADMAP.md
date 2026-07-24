@@ -2,49 +2,107 @@
 
 **Status:** Canonical Generation 2 product roadmap
 
-## Active roadmap
+## Product-maturity roadmap
 
-This is the single active roadmap for DJConnect Product Development. Every
-item in the active table below has this program as owner and uses exactly one
-canonical status: Completed, Current execution, Planned, Deferred, Historical
-or Retired. `ROADMAP_INDEX.md` owns cross-program navigation. Completed
+This is the single active roadmap for DJConnect Product Development. It is
+organized around product maturity rather than engineering mechanics. Every item
+in the table below has this program as owner and uses exactly one canonical
+status: Completed, Current execution, Planned, Deferred, Historical or
+Retired. `ROADMAP_INDEX.md` owns cross-program navigation. Completed
 foundations remain reference points, not active architecture work.
 
-| Initiative | Status | Dependencies | Delivery order |
+The public release defines the minimum lovable DJConnect product, not the
+complete long-term product vision.
+
+### Phase 0 — Generation 2 Foundations
+
+Completed: Product Definition, Product Philosophy Alignment, Capability
+Architecture, Host Role Architecture, Raspberry Pi Platform Foundation and
+Experience Foundation. These are durable authorities, not active roadmap work.
+
+### Phase 1 — Reference Experience
+
+**Current Product Initiative:** **Reference Experience** — create the first
+complete, canonical DJConnect experience across interaction and presentation
+surfaces. The Universal Receiver is the first reference implementation of this
+experience. Automated Session Intelligence E2E Verification is the current
+engineering execution that enables it; verification does not replace the
+product direction.
+
+Every future user-facing slice in this phase follows:
+
+```text
+Experience Assessment → Experience Gap Analysis → Implementation → Experience Validation
+```
+
+This consumes `EXPERIENCE_FOUNDATION.md`; it does not recreate it.
+
+The Reference Experience consumes the existing canonical renderer and
+presentation boundaries: `docs/technical/RENDERER_HOST_CLASSIFICATION.md`,
+`docs/technical/ROOM_PRESENTATION_ROUTING_ARCHITECTURE.md`,
+`docs/technical/AUDIO_RENDERER_HOST_ARCHITECTURE.md`,
+`docs/technical/AMBIENT_LIGHT_RENDERER_HOST_ARCHITECTURE.md`,
+`docs/product/VIBECAST_ARCHITECTURE.md` and
+`docs/product/AUDIENCE_EXPERIENCE_ARCHITECTURE.md`. These references preserve
+their established scope; this roadmap does not authorize their implementation.
+
+| Phase | Initiative | Status | Dependencies |
 | --- | --- | --- | --- |
-| Product Definition and Community/Personal proposition | Completed | `docs/product/PRODUCT_DEFINITION.md` | 1 |
-| DJConnect v4 Architecture Definition | Completed | Architecture Review; `DJCONNECT_V4_ARCHITECTURE.md` | 2 |
-| DJ Session Runtime Contracts | Completed | v4 Architecture Definition; `DJ_SESSION_RUNTIME_CONTRACTS.md` | 3 |
-| Persistent Session Architecture | Completed | DJ Session Runtime Contracts; `PERSISTENT_SESSION_ARCHITECTURE.md` | 4 |
-| Rolling Session Horizon Architecture | Completed | DJ Session Runtime Contracts; `ROLLING_SESSION_HORIZON_ARCHITECTURE.md` | 5 |
-| DJConnect V4 Completion Roadmap | Completed | Persistent Session and Rolling Horizon architectures; `DJCONNECT_V4_COMPLETION_ROADMAP.md` | 6 |
-| Persistent Session Foundation | Completed | Persistent Session Architecture; PR #292 | 5 |
-| Session Intelligence Runtime Integration | Completed | DJ Session Runtime Contracts, Planner, Knowledge Engine, DJ Moment Engine, Session Flow and Broadcast | 7 |
-| Universal Receiver V1 foundation | Completed | Session Intelligence Runtime; `docs/technical/UNIVERSAL_RECEIVER_ARCHITECTURE.md` | 8 |
-| Renderer Host classification | Completed | Universal Receiver V1 foundation; `docs/technical/RENDERER_HOST_CLASSIFICATION.md` | 8 |
-| Room Presentation Routing architecture | Completed | Renderer Host classification; `docs/technical/ROOM_PRESENTATION_ROUTING_ARCHITECTURE.md` | 8 |
-| Audio Renderer Host terminology | Completed | Room Presentation Routing; `docs/technical/AUDIO_RENDERER_HOST_ARCHITECTURE.md` | 8 |
-| Ambient Light Renderer Host architecture | Deferred | Universal Receiver maturity, operational Room Presentation Routing and real hardware evaluation; `docs/technical/AMBIENT_LIGHT_RENDERER_HOST_ARCHITECTURE.md` | 8 |
-| VibeCast product definition and V1 host architecture | Completed | Universal Receiver Web Platform, Renderer Host classification and renderer-safe Broadcast projections; `docs/product/VIBECAST_ARCHITECTURE.md` | 8 |
-| VibeCast V1 implementation | Planned | Golden Smoke CI, mature Universal Receiver Web Platform, Custom Web Receiver feasibility and bounded receiver-safe Session handoff | 10 |
-| Audience Experience and Ambient Reactions | Deferred | Audience Experience validation, privacy policy, bounded server-side intake, Audience Projection and renderer pressure design; `docs/product/AUDIENCE_EXPERIENCE_ARCHITECTURE.md` | 11 |
-| Renderer discovery, pairing and authorization architecture | Deferred | Renderer Host classification; local-first device lifecycle requirements | 8 |
-| Automated Session Intelligence E2E Verification | Current execution | Session Intelligence Runtime; operational Universal Receiver foundation; `docs/product/DEVELOPER_EXPERIENCE_ROADMAP.md` | 9 |
-| Verification Clock Architecture | Completed | `SI-GOLDEN-002` Pre-Flight evidence; `docs/verification/VERIFICATION_CLOCK_ARCHITECTURE.md` | 10 |
-| Session Intelligence Qualification Policy | Completed | Golden Scenario Catalogue; PR #378 | 10 |
-| Structural Invariant Validator | Completed | Immutable E2E Session Capture; PR #376 | 10 |
-| Immutable E2E Session Capture | Completed | Deterministic Scenario Driver; PR #374 | 10 |
-| Deterministic Scenario Driver | Completed | Developer Session Bootstrap; PR #372 | 10 |
-| Developer Session Bootstrap | Completed | Approved Automated E2E Verification Architecture; PR #370 | 10 |
-| Apple experience delivery | Planned | Stable Renderer Host and developer-verification access contracts | 11 |
-| Windows experience delivery | Planned | Stable Renderer Host and developer-verification access contracts | 12 |
-| Raspberry Pi experience delivery | Planned | Stable Renderer Host and developer-verification access contracts | 13 |
-| Voice experience delivery | Planned | Stable current/historical Moment contracts and Assist capability validation | 14 |
-| Session Simulation and accelerated execution | Retired | A new approved time-dependent behavioral contract and separately authorized Pre-Flight would be required to revisit | 15 |
-| Preferences and Music DNA expansion | Deferred | Existing Profile and Planner influence boundaries | 15 |
-| Narrative Sequencing, Lyrics and Discover Evolution | Deferred | Existing Planner, Knowledge and DJ Moment Engine abstractions | 16 |
-| Audience Observation for Session Intelligence | Deferred | Audience Experience, privacy review, aggregation evidence and an explicit bounded Planner-influence policy | 17 |
-| Playback Observation Stage 2 and Continue Stage 2 | Deferred | External Observation Boundary capability conditions | 18 |
+| 0 | Product Definition and Community/Personal proposition | Completed | `docs/product/PRODUCT_DEFINITION.md` |
+| 0 | Capability, Host Role, Pi and Experience foundations | Completed | `DJCONNECT_CAPABILITY_MODEL.md`, `HOST_ROLE_ARCHITECTURE.md`, `RASPBERRY_PI_PLATFORM_FOUNDATION.md`, `EXPERIENCE_FOUNDATION.md` |
+| Historical | DJConnect V4 architecture and Runtime transition | Historical | `DJCONNECT_V4_COMPLETION_ROADMAP.md` |
+| 1 | Universal Receiver reference experience | Current execution | Session Intelligence Runtime; `docs/technical/UNIVERSAL_RECEIVER_ARCHITECTURE.md` |
+| 1 | Automated Session Intelligence E2E Verification | Current execution | `docs/product/DEVELOPER_EXPERIENCE_ROADMAP.md` |
+| 1 | Renderer-safe Session experience and experience validation | Planned | Reference Experience assessment and existing renderer-safe projections |
+| 2 | Apple Public Release | Planned | Reference Experience, release readiness, onboarding and experience qualification |
+| 3 | Public Release Readiness Assessment | Planned | Phase 2 evidence; it determines minimum public-release scope without authorizing features |
+| 4 | Public Release Completion | Planned | Explicit output of Phase 3 only |
+| 5 | Desktop Platform Family | Planned | Apple Public Release; current Windows Concrete Host; future Linux only after assessment |
+| 6 | Personal AI DJ evolution | Deferred | Public Release Completion; existing Profile and Planner boundaries |
+| 7 | Future Cloud evolution | Deferred | Long-term product direction; Community local-first foundation remains primary |
+| Deferred | Ambient Light Renderer Host | Deferred | Universal Receiver maturity, Room Presentation Routing and real-hardware evaluation |
+| Deferred | VibeCast V1 implementation | Planned | Custom Web Receiver feasibility and bounded receiver-safe Session handoff |
+| Deferred | Audience Experience and Ambient Reactions | Deferred | Audience validation, privacy policy and bounded renderer design |
+| Deferred | Renderer discovery, pairing and authorization architecture | Deferred | Renderer Host classification and local-first device lifecycle requirements |
+| Deferred | Voice experience delivery | Planned | Stable current/historical Moment contracts and Assist capability validation |
+| Retired | Session Simulation and accelerated execution | Retired | A new approved time-dependent behavioral contract and separately authorized Pre-Flight would be required to revisit |
+| 6 | Preferences and Music DNA expansion | Deferred | Existing Profile and Planner influence boundaries |
+| 6 | Narrative Sequencing, Lyrics and Discover Evolution | Deferred | Existing Planner, Knowledge and DJ Moment Engine abstractions |
+| Deferred | Audience Observation for Session Intelligence | Deferred | Audience Experience, privacy review and explicit bounded Planner-influence policy |
+| Deferred | Playback Observation Stage 2 and Continue Stage 2 | Deferred | External Observation Boundary capability conditions |
+
+### Phase 2 — Apple Public Release
+
+Apple is the first premium public implementation of the Reference Experience:
+macOS, iPhone/iPad and Apple Watch are independently assessable Concrete Hosts.
+This phase covers release polish, onboarding, release readiness and Experience
+Qualification. It does not presume capability parity or add implementation
+technology policy.
+
+### Phase 3 — Public Release Readiness Assessment
+
+This is an assessment phase, not a feature-delivery phase. It determines the
+minimum additional work needed for first public release, which may include
+onboarding, Session Timeline, minimal Music DNA, recovery UX, release quality
+or documentation. It may also conclude that some are unnecessary. No work is
+authorized until that assessment selects it.
+
+### Phase 4 — Public Release Completion
+
+Only work explicitly identified by the Release Readiness Assessment is
+implemented. Personal capabilities are not automatically included.
+
+### Phase 5 — Desktop Platform Family
+
+The current Desktop Concrete Host is Windows. This phase follows Apple public
+release. A future Linux host requires its own assessment; no implementation
+technology decision is introduced.
+
+### Phases 6 and 7 — Long-term evolution
+
+Personal AI DJ evolution follows public release. Future Cloud capabilities are
+long-term and extend the same local-first AI DJ; neither defines the minimum
+lovable product.
 
 The retained material after this section is **Historical** pre-Generation 2
 product and release memory. It is not an active roadmap, does not establish

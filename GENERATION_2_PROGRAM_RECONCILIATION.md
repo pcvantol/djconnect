@@ -31,6 +31,25 @@ Every current program register uses exactly one of these statuses:
 
 ## Generation 2 program status
 
+## Generation 2 execution model
+
+Generation 2 is product-led. The current **Product Initiative** is
+**Reference Experience**: create the first complete, canonical DJConnect
+experience across bounded interaction and presentation surfaces.
+
+```text
+Product Initiative: Reference Experience
+        ↓
+Engineering execution: Automated Session Intelligence E2E Verification
+```
+
+Automated Session Intelligence E2E Verification remains the current
+engineering execution. It enables the Reference Experience through trustworthy
+existing Session behaviour; it is not a replacement for the product direction.
+
+The public release defines the minimum lovable DJConnect product, not the
+complete long-term product vision.
+
 ### Completed foundations
 
 | Foundation | Status | Canonical authority |
@@ -52,6 +71,24 @@ implementation assumption.
 | --- | --- | --- | --- |
 | DJConnect Product Development | Automated Session Intelligence E2E Verification | Current execution | `docs/product/DEVELOPER_EXPERIENCE_ROADMAP.md` |
 
+### Product-maturity phases
+
+| Phase | Product maturity | Status | Scope boundary |
+| --- | --- | --- | --- |
+| 0 | Generation 2 Foundations | Completed | Product, capability, Host Role, Pi and Experience foundations. |
+| 1 | Reference Experience | Current execution | Universal Receiver experience, renderer-safe Session experience, and the Experience Engineering cycle. |
+| 2 | Apple Public Release | Planned | macOS, iPhone/iPad, Apple Watch, onboarding, release polish, readiness and experience qualification. Apple remains the premium reference implementation. |
+| 3 | Public Release Readiness Assessment | Planned | Determine the minimum additional work for a first public release; this is assessment, not feature delivery. |
+| 4 | Public Release Completion | Planned | Implement only work explicitly selected by Phase 3. |
+| 5 | Desktop Platform Family | Planned | Windows after Apple public release; any Linux Concrete Host requires separate assessment. No technology choice is made. |
+| 6 | Personal AI DJ evolution | Deferred | Expanded Music DNA, richer Session Timeline, recommendation evolution and premium experiences only after public release. |
+| 7 | Future Cloud evolution | Deferred | Long-term additive extension of the same local-first AI DJ. |
+
+Phase 3 may conclude that planned capabilities, including Session Timeline or
+minimal Music DNA work, are unnecessary for the first public release. It
+authorizes no implementation. Phase 4 does not automatically include Personal
+capabilities.
+
 Future user-facing work follows the Experience Engineering sequence:
 
 ```text
@@ -68,10 +105,10 @@ This sequence consumes `EXPERIENCE_FOUNDATION.md`; it does not duplicate it.
 
 ### Future evolution
 
-Platform Evolution retains assessment-first follow-up only: capability-profile
-assessments (including CMB-05 through CMB-10), evidence retention, release
-observability, privacy assessment and bounded release/distribution evolution.
-Those items remain separate from user-facing Product Development.
+Platform Evolution retains assessment-first foundation evolution, governance,
+qualification, privacy, release maturity and capability-profile follow-up
+(including CMB-05 through CMB-10). It is not the primary source of
+user-facing roadmap progress.
 
 ## Historical reconciliation
 
@@ -96,11 +133,11 @@ Future Platform Evolution and Innovation (Planned or Deferred)
 
 ## Recommended next Product Development slice
 
-Continue the existing Automated Session Intelligence E2E Verification work
-through its already-authorized next bounded capability. Any subsequent
-user-facing slice must begin with the applicable capability assessment and
-Experience Gap Analysis; it must not reopen completed foundations or assume
-cross-host capability parity.
+Continue the existing Automated Session Intelligence E2E Verification work as
+the enabling engineering stream for Phase 1, Reference Experience. Any
+subsequent user-facing slice must begin with the applicable capability
+assessment and Experience Gap Analysis; it must not reopen completed
+foundations or assume cross-host capability parity.
 
 ## Reconciliation outcome
 
