@@ -4,22 +4,21 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#427](https://github.com/pcvantol/djconnect/pull/427), **Add CI
-Qualification Report Governance**, merged as
-`550c167871359e09c283f6008570bf988514c637`. This dedicated Finalization
+PR [#429](https://github.com/pcvantol/djconnect/pull/429), **Add advisory CI
+Golden qualification reports**, merged as
+`59c40ea9a609ca5a51639b71ae63d48904fcdad9`. This dedicated Finalization
 reconciles its immutable Prompt History at
-`docs/history/prompts/2026-07-24-ci-qualification-report-governance.md`.
+`docs/history/prompts/2026-07-24-full-ci-qualification-readable-reports.md`.
 
-The canonical CI Qualification Report Governance permits only a redacted,
-allowlist-validated projection of the existing Golden Qualification Report in
-repository Actions. It defines access, retention and cleanup without changing
-Foundation execution, Structural Validator authority or the advisory status of
-Quality Metrics.
+Repository Actions now runs existing Golden Smoke for pull requests and
+existing Golden Regression for `main`, manual and scheduled advisory
+qualification. It publishes only a fail-closed, allowlist-validated bounded
+Markdown Job Summary and removes temporary report files after every outcome.
+Foundation execution, Structural Validator authority and the advisory status of
+Quality Metrics are unchanged.
 
-The next Product Development implementation candidate is **Full CI
-Qualification and readable reports**. Its first rollout must remain advisory,
-non-blocking and non-required; required checks, merge protection and release
-gates need separate governance.
+The next Product Development Pre-Flight candidate is **Universal Receiver
+browser E2E**, a separately scoped optional verification layer.
 
 Golden Scenarios are product-behavior contracts scoped to their architectural
 platform. `SI-GOLDEN-001` through `SI-GOLDEN-006` remain the complete original

@@ -28,22 +28,23 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-PR [#427](https://github.com/pcvantol/djconnect/pull/427), **Add CI
-Qualification Report Governance**, merged as
-`550c167871359e09c283f6008570bf988514c637`. This dedicated Finalization
+PR [#429](https://github.com/pcvantol/djconnect/pull/429), **Add advisory CI
+Golden qualification reports**, merged as
+`59c40ea9a609ca5a51639b71ae63d48904fcdad9`. This dedicated Finalization
 reconciles its immutable Prompt History and rolling repository truth.
 
 The canonical [CI Qualification Report Governance](docs/governance/CI_QUALIFICATION_REPORT_GOVERNANCE.md)
-now supplies the missing publication, access, retention, redaction and cleanup
-rules for future Golden Qualification CI reports. Reports are bounded,
-redacted verification evidence in repository Actions only; they are not
-captures, diagnostics, replay artifacts or historical evidence stores. The
-existing Foundation and Structural Validator remain the sole execution and
-PASS/FAIL authorities, and Advisory Metrics remains advisory. No workflow or
-product behavior changed.
+now governs an implemented advisory CI layer. Repository Actions runs existing
+Golden Smoke for pull requests and existing Golden Regression for `main`,
+manual and scheduled runs. It publishes only a fail-closed, allowlist-validated
+bounded Markdown Job Summary and removes temporary report files after every
+outcome. The Foundation and Structural Validator remain the sole execution and
+PASS/FAIL authorities; Advisory Metrics remains advisory. No artifact,
+required check, merge protection, release gate or alternate qualification path
+exists.
 
-The next authorized Product Development increment is **Full CI Qualification
-and readable reports**, initially advisory, non-blocking and non-required.
+The next Product Development candidate requiring a Pre-Flight is **Universal
+Receiver browser E2E**, a separate optional verification layer.
 
 Golden Scenarios are now governed as platform-scoped behavioral contract
 families. The original six Session Intelligence scenarios are complete and

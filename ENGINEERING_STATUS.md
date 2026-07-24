@@ -5,25 +5,24 @@
 
 ## Current engineering increment
 
-PR [#427](https://github.com/pcvantol/djconnect/pull/427), **Add CI
-Qualification Report Governance**, merged as `550c167871359e09c283f6008570bf988514c637`.
+PR [#429](https://github.com/pcvantol/djconnect/pull/429), **Add advisory CI
+Golden qualification reports**, merged as `59c40ea9a609ca5a51639b71ae63d48904fcdad9`.
 This dedicated Finalization
 reconciles its immutable Prompt History and the rolling records.
 
-The canonical [CI Qualification Report Governance](docs/governance/CI_QUALIFICATION_REPORT_GOVERNANCE.md)
-now governs future Golden Qualification publication in repository Actions.
-It permits only a bounded, redacted projection of the existing immutable
-Qualification Report, with fail-closed allowlist validation, repository-Actions
-access, seven-day maximum optional-artifact retention and cleanup after PASS
-and FAIL. The Foundation remains the only qualification path, the Structural
-Validator the sole PASS/FAIL authority, and Advisory Metrics v1 advisory.
-No workflow, Runtime, Driver, Capture, Validator or qualification behavior
-changed.
+Repository Actions now invokes the existing Golden Smoke profile for pull
+requests and the existing Golden Regression profile for `main`, manual and
+scheduled runs. The first pull-request Smoke and post-merge Regression runs
+both passed. Before a bounded Markdown Job Summary is published, its existing
+Qualification Report payload is validated fail-closed against the canonical
+allowlist; temporary report files are removed after every outcome. The
+workflow is advisory, non-blocking and non-required. The Foundation remains
+the only qualification path, the Structural Validator the sole PASS/FAIL
+authority, and Advisory Metrics v1 advisory. No artifact, gate, Runtime,
+Driver, Capture or Validator behavior was added.
 
-The Full CI Qualification and readable reports Pre-Flight is now unblocked for
-one separate, advisory Product Development implementation increment. It must
-reuse the existing Foundation and report projection exactly as governed; merge
-protection, required execution and release gates remain out of scope.
+The next Product Development candidate requiring a Pre-Flight is **Universal
+Receiver browser E2E**, a separately scoped optional verification layer.
 
 Golden Scenarios are canonically organized by architectural platform. The six
 original `SI-GOLDEN-001` through `SI-GOLDEN-006` scenarios remain the complete

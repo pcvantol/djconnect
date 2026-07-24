@@ -15,21 +15,21 @@
 
 ## Current position
 
-PR [#427](https://github.com/pcvantol/djconnect/pull/427), **Add CI
-Qualification Report Governance**, merged as
-`550c167871359e09c283f6008570bf988514c637`. This dedicated Finalization
-reconciles its qualification governance and immutable Prompt History.
+PR [#429](https://github.com/pcvantol/djconnect/pull/429), **Add advisory CI
+Golden qualification reports**, merged as
+`59c40ea9a609ca5a51639b71ae63d48904fcdad9`. This dedicated Finalization
+reconciles its qualification evidence and immutable Prompt History.
 
-CI report publication is now explicitly governed without changing
-qualification. Reports are redacted, bounded projections of the existing
-Qualification Report in repository Actions, with allowlist validation,
-restricted access, defined optional-artifact retention and mandatory cleanup.
-The Foundation and Structural Validator retain their sole execution and
-PASS/FAIL roles; Advisory Metrics remains advisory. No CI workflow, release
-gate or product behavior was introduced.
+Golden Smoke now runs advisory on pull requests and Golden Regression advisory
+on `main`, manual and scheduled Actions runs. Each run publishes only a
+fail-closed, allowlist-validated bounded Markdown Job Summary and cleans up
+temporary files. The Foundation and Structural Validator retain their sole
+execution and PASS/FAIL roles; Advisory Metrics remains advisory. There is no
+artifact, required check, merge protection, release gate or product behavior
+change.
 
-The next Product Development increment may implement **Full CI Qualification
-and readable reports** as advisory, non-blocking and non-required execution.
+The next Product Development candidate requiring a Pre-Flight is **Universal
+Receiver browser E2E**, a separate optional verification layer.
 
 Golden Scenario governance now keeps product-behavior contracts within their
 own architectural platforms. The six original Session Intelligence scenarios
