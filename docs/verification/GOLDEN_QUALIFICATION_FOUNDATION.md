@@ -5,8 +5,8 @@
 **Implemented deterministic server-side qualification foundation.** It is the
 sole executable qualification path for all six original Session Intelligence
 Golden Scenarios (`SI-GOLDEN-001` through `SI-GOLDEN-006`). It runs locally
-through `djconnect.golden_qualification`; a future CI invocation must reuse
-the same composition boundary.
+through `djconnect.golden_qualification` and in advisory CI through the same
+composition boundary.
 
 ## Canonical execution
 
@@ -62,7 +62,10 @@ selects the immutable canonical Session Intelligence contract,
 this Foundation, so it reuses the same Bootstrap, Driver, Runtime, Capture,
 Validator, cleanup and two-run deterministic comparison.
 
-Neither profile introduces a CI workflow, scheduled run or release gate.
+The advisory CI integration invokes Smoke for pull requests and Regression for
+`main`, manual and scheduled qualification through these same profiles. It
+publishes only an allowlist-validated Markdown Job Summary and creates no
+required check, release gate or alternate execution path.
 
 ## Advisory Intelligence Quality Metrics
 
