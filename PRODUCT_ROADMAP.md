@@ -5,9 +5,10 @@
 ## Active roadmap
 
 This is the single active roadmap for DJConnect Product Development. Every
-active item below has this program as owner and uses one of the canonical
-statuses: Completed, Operational, In Progress, Planned, Backlog, Innovation
-Lab or Deferred. `ROADMAP_INDEX.md` owns cross-program navigation.
+item in the active table below has this program as owner and uses exactly one
+canonical status: Completed, Current execution, Planned, Deferred, Historical
+or Retired. `ROADMAP_INDEX.md` owns cross-program navigation. Completed
+foundations remain reference points, not active architecture work.
 
 | Initiative | Status | Dependencies | Delivery order |
 | --- | --- | --- | --- |
@@ -19,35 +20,36 @@ Lab or Deferred. `ROADMAP_INDEX.md` owns cross-program navigation.
 | DJConnect V4 Completion Roadmap | Completed | Persistent Session and Rolling Horizon architectures; `DJCONNECT_V4_COMPLETION_ROADMAP.md` | 6 |
 | Persistent Session Foundation | Completed | Persistent Session Architecture; PR #292 | 5 |
 | Session Intelligence Runtime Integration | Completed | DJ Session Runtime Contracts, Planner, Knowledge Engine, DJ Moment Engine, Session Flow and Broadcast | 7 |
-| Universal Receiver V1 foundation | Completed — Architecture plus Broadcast Connection, Session Flow Timeline, renderer-safe Playback Projection and Now Playing are operational | Session Intelligence Runtime; `docs/technical/UNIVERSAL_RECEIVER_ARCHITECTURE.md` | 8 |
-| Renderer Host classification | Completed — canonical independent Device Lifecycle (Guest/Registered) and Experience Mode (Interactive/Ambient) axes; no Runtime or transport change | Universal Receiver V1 foundation; `docs/technical/RENDERER_HOST_CLASSIFICATION.md` | 8 |
-| Room Presentation Routing architecture | Completed — deferred architecture for Area-scoped eligibility of independent Visual and Audio Renderer Hosts; no routing, Runtime or transport implementation | Renderer Host classification; `docs/technical/ROOM_PRESENTATION_ROUTING_ARCHITECTURE.md` | 8 |
-| Audio Renderer Host terminology | Completed — platform-neutral internal audio-presentation role; Home Assistant Voice Satellite remains external platform terminology | Room Presentation Routing; `docs/technical/AUDIO_RENDERER_HOST_ARCHITECTURE.md` | 8 |
-| Ambient Light Renderer Host architecture | Deferred — Presentation Intent-driven ambient-light renderer role; no WLED, Hue, ESPHome, Broadcast or Runtime implementation | Universal Receiver maturity, operational Room Presentation Routing and real hardware evaluation; `docs/technical/AMBIENT_LIGHT_RENDERER_HOST_ARCHITECTURE.md` | 8 |
-| VibeCast product definition and V1 host architecture | Completed — canonical ambient-first Web Renderer definition only; implementation remains deferred | Universal Receiver Web Platform, Renderer Host classification and renderer-safe Broadcast projections; `docs/product/VIBECAST_ARCHITECTURE.md` | 8 |
-| VibeCast V1 implementation | Backlog — bounded Google Cast Custom Web Receiver product epic after feasibility validation | Golden Smoke CI, mature Universal Receiver Web Platform, Custom Web Receiver feasibility and bounded receiver-safe Session handoff | 10 |
-| Audience Experience and Ambient Reactions | Deferred — architecture only; no reaction, Broadcast or Planner implementation authorized | Audience Experience validation, privacy policy, bounded server-side intake, Audience Projection and renderer pressure design; `docs/product/AUDIENCE_EXPERIENCE_ARCHITECTURE.md` | 11 |
+| Universal Receiver V1 foundation | Completed | Session Intelligence Runtime; `docs/technical/UNIVERSAL_RECEIVER_ARCHITECTURE.md` | 8 |
+| Renderer Host classification | Completed | Universal Receiver V1 foundation; `docs/technical/RENDERER_HOST_CLASSIFICATION.md` | 8 |
+| Room Presentation Routing architecture | Completed | Renderer Host classification; `docs/technical/ROOM_PRESENTATION_ROUTING_ARCHITECTURE.md` | 8 |
+| Audio Renderer Host terminology | Completed | Room Presentation Routing; `docs/technical/AUDIO_RENDERER_HOST_ARCHITECTURE.md` | 8 |
+| Ambient Light Renderer Host architecture | Deferred | Universal Receiver maturity, operational Room Presentation Routing and real hardware evaluation; `docs/technical/AMBIENT_LIGHT_RENDERER_HOST_ARCHITECTURE.md` | 8 |
+| VibeCast product definition and V1 host architecture | Completed | Universal Receiver Web Platform, Renderer Host classification and renderer-safe Broadcast projections; `docs/product/VIBECAST_ARCHITECTURE.md` | 8 |
+| VibeCast V1 implementation | Planned | Golden Smoke CI, mature Universal Receiver Web Platform, Custom Web Receiver feasibility and bounded receiver-safe Session handoff | 10 |
+| Audience Experience and Ambient Reactions | Deferred | Audience Experience validation, privacy policy, bounded server-side intake, Audience Projection and renderer pressure design; `docs/product/AUDIENCE_EXPERIENCE_ARCHITECTURE.md` | 11 |
 | Renderer discovery, pairing and authorization architecture | Deferred | Renderer Host classification; local-first device lifecycle requirements | 8 |
-| Automated Session Intelligence E2E Verification | In Progress — primary active Epic; Architecture, Bootstrap, Driver, Capture, Structural Invariant Validator, Qualification Policy, Verification Clock and executable `SI-GOLDEN-001` through `SI-GOLDEN-003` are complete; CI Smoke Suite is next | Session Intelligence Runtime; operational Universal Receiver foundation; `docs/product/DEVELOPER_EXPERIENCE_ROADMAP.md` | 9 |
-| Verification Clock Architecture | Completed — restricted Runtime-composition time source for isolated verification; no implementation or production behavior change | `SI-GOLDEN-002` Pre-Flight evidence; `docs/verification/VERIFICATION_CLOCK_ARCHITECTURE.md` | 10 |
-| Session Intelligence Qualification Policy | Completed — Golden Scenarios are product-behavior contracts; Golden Smoke is the intended blocking PR layer | Golden Scenario Catalogue; PR #378 | 10 |
-| Structural Invariant Validator | Completed — deterministic, read-only and fail-closed assessment of `SI-GOLDEN-001` capture evidence | Immutable E2E Session Capture; PR #376 | 10 |
-| Immutable E2E Session Capture | Completed — immutable read-only SI-GOLDEN-001 observation artifact | Deterministic Scenario Driver; PR #374 | 10 |
-| Deterministic Scenario Driver | Completed — fixed `SI-GOLDEN-001` input reaches only the existing Runtime boundary | Developer Session Bootstrap; PR #372 | 10 |
-| Developer Session Bootstrap | Completed — bounded machine-invokable lifecycle for `SI-GOLDEN-001` | Approved Automated E2E Verification Architecture; PR #370 | 10 |
+| Automated Session Intelligence E2E Verification | Current execution | Session Intelligence Runtime; operational Universal Receiver foundation; `docs/product/DEVELOPER_EXPERIENCE_ROADMAP.md` | 9 |
+| Verification Clock Architecture | Completed | `SI-GOLDEN-002` Pre-Flight evidence; `docs/verification/VERIFICATION_CLOCK_ARCHITECTURE.md` | 10 |
+| Session Intelligence Qualification Policy | Completed | Golden Scenario Catalogue; PR #378 | 10 |
+| Structural Invariant Validator | Completed | Immutable E2E Session Capture; PR #376 | 10 |
+| Immutable E2E Session Capture | Completed | Deterministic Scenario Driver; PR #374 | 10 |
+| Deterministic Scenario Driver | Completed | Developer Session Bootstrap; PR #372 | 10 |
+| Developer Session Bootstrap | Completed | Approved Automated E2E Verification Architecture; PR #370 | 10 |
 | Apple experience delivery | Planned | Stable Renderer Host and developer-verification access contracts | 11 |
 | Windows experience delivery | Planned | Stable Renderer Host and developer-verification access contracts | 12 |
-| Raspberry Pi experience delivery | Planned — Registered + Interactive Wall Panel by default; future Ambient state remains separate | Stable Renderer Host and developer-verification access contracts | 13 |
+| Raspberry Pi experience delivery | Planned | Stable Renderer Host and developer-verification access contracts | 13 |
 | Voice experience delivery | Planned | Stable current/historical Moment contracts and Assist capability validation | 14 |
-| Session Simulation and accelerated execution | Deferred — Accelerated / event-driven execution concluded `NO-GO`; the existing restricted Verification Clock already satisfies every approved Golden Scenario, so no implementation work remains | A new approved time-dependent behavioral contract and separately authorized Pre-Flight would be required to revisit | 15 |
+| Session Simulation and accelerated execution | Retired | A new approved time-dependent behavioral contract and separately authorized Pre-Flight would be required to revisit | 15 |
 | Preferences and Music DNA expansion | Deferred | Existing Profile and Planner influence boundaries | 15 |
 | Narrative Sequencing, Lyrics and Discover Evolution | Deferred | Existing Planner, Knowledge and DJ Moment Engine abstractions | 16 |
-| Audience Observation for Session Intelligence | Deferred — only a separately authorized coarse Audience Energy observation may be considered; individual Audience Events never steer the Planner | Audience Experience, privacy review, aggregation evidence and an explicit bounded Planner-influence policy | 17 |
+| Audience Observation for Session Intelligence | Deferred | Audience Experience, privacy review, aggregation evidence and an explicit bounded Planner-influence policy | 17 |
 | Playback Observation Stage 2 and Continue Stage 2 | Deferred | External Observation Boundary capability conditions | 18 |
 
-The retained material after this section is pre-Generation 2 product and
-release memory. It is not an active roadmap, does not establish current
-ownership or priority, and must not be used to bypass the table above.
+The retained material after this section is **Historical** pre-Generation 2
+product and release memory. It is not an active roadmap, does not establish
+current ownership, priority, pricing or implementation commitments, and must
+not be used to bypass the table above.
 
 Innovation Lab is the source of potential future product candidates. A
 candidate appears in this roadmap only after an explicit GO and promotion

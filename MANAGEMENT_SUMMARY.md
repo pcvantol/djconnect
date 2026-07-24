@@ -15,6 +15,20 @@
 
 ## Current position
 
+Generation 2 Program Reconciliation is the current documentation and
+governance increment. The completed foundation inventory, current execution,
+historical transition treatment and future Platform Evolution backlog are
+defined in `GENERATION_2_PROGRAM_RECONCILIATION.md`. It introduces no Runtime,
+renderer, product, capability, ownership, API or implementation change.
+
+The completed Generation 2 foundations are Product Definition 2.1, Product
+Philosophy Alignment, Capability Architecture, Host Role Architecture,
+Raspberry Pi Platform Foundation and Experience Foundation v1. They are no
+longer active roadmap work. Automated Session Intelligence E2E Verification is
+the sole current Product Development execution record; future user-facing work
+uses Experience Assessment, Experience Gap Analysis, Implementation and
+Experience Validation.
+
 PR [#436](https://github.com/pcvantol/djconnect/pull/436), **Align product
 philosophy documentation**, merged as
 `d237c50e4bb0f622074fef630b4060854fc029c6`. This dedicated Finalization

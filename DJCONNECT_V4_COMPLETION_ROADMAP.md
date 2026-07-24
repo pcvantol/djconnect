@@ -1,10 +1,21 @@
 # DJConnect V4 Completion Roadmap
 
-**Status:** Canonical high-level completion projection
+**Status:** Historical engineering transition record
 **Owner:** DJConnect Product Development
-**Scope:** Sequencing from current Home Assistant server capabilities to the
-complete V4 iOS experience. This document is orchestration only: it does not
-change architecture, maturity, production behaviour or ownership.
+**Scope:** Retained evidence of the former V4 completion framing and the
+transition to the completed Session Intelligence Runtime. It does not set
+current Generation 2 execution, change architecture, maturity, production
+behaviour or ownership.
+
+## Reconciliation status
+
+This document is **Historical**. Its completed Runtime and foundation evidence
+remains useful, but active Product Development is owned by
+`PRODUCT_ROADMAP.md` and the Generation 2 program position by
+`GENERATION_2_PROGRAM_RECONCILIATION.md`. The earlier labels in this retained
+record map to the current vocabulary as follows: `CURRENT` becomes Completed
+when it describes delivered evidence, `NEXT` and `PLANNED` become Planned,
+`BLOCKED` and `POST-V4` become Deferred. They do not create active work here.
 
 ## Executive summary
 
@@ -20,7 +31,7 @@ Rolling Session Horizon are foundational tracks; neither displaces the AI DJ
 product goal. Renderer adoption consumes stable server contracts and does not
 redefine them.
 
-## Status legend
+## Historical status legend
 
 - **CURRENT** — implemented and validated on current main.
 - **NEXT** — first separately authorized cell after a fresh Pre-Flight.
