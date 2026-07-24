@@ -4,17 +4,18 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#438](https://github.com/pcvantol/djconnect/pull/438), **Establish
-Experience Engineering Foundation**, merged as
-`1bfabbb7986e50c2e8cd4ecebdf44e39ddf5376f`. Its dedicated Finalization
+PR [#441](https://github.com/pcvantol/djconnect/pull/441), **Reconcile
+Generation 2 product roadmap**, merged as
+`928544a02f9c927af71edb1cea15c48dd381927f`. Its dedicated Finalization
 reconciles the immutable Prompt History at
-`docs/history/prompts/2026-07-24-experience-engineering-foundation.md`.
+`docs/history/prompts/2026-07-24-generation-2-program-reconciliation.md`.
 
-Experience Foundation v1 is the canonical reverse-engineered cross-surface
-baseline. It records evidence, maturity, intentional absences and the future
-Experience Gap Analysis / Qualification sequence without introducing a Design
-System, UI implementation, Runtime, renderer, capability, ownership, API,
-product scope, roadmap or implementation commitment.
+Generation 2 is now a product-execution program built on completed
+foundations. Reference Experience is the current Product Initiative; Automated
+Session Intelligence E2E Verification is its enabling engineering workstream.
+Runtime Readiness, Productization, Community Public Release and Platform
+Adoption are distinct planning concerns. No architecture or implementation is
+authorized by this reconciliation.
 
 PR [#431](https://github.com/pcvantol/djconnect/pull/431), **Add Universal
 Receiver browser E2E**, merged as
@@ -228,7 +229,8 @@ planning is read.
 
 | Prompt | Lifecycle | Coherent objective | Branch | Completion evidence |
 | --- | --- | --- | --- | --- |
-| Experience Engineering Foundation | Completed / MERGED_UNRECONCILED / archived | Establish the evidence-led Experience Foundation v1 without UI, Runtime, renderer, capability, ownership, API, product scope or implementation change. | `codex/experience-engineering-foundation-v1` | `docs/history/prompts/2026-07-24-experience-engineering-foundation.md`; PR [#438](https://github.com/pcvantol/djconnect/pull/438), merged as `1bfabbb7986e50c2e8cd4ecebdf44e39ddf5376f`; dedicated Finalization is active. |
+| Generation 2 Program Reconciliation | Completed / MERGED_UNRECONCILED / archived | Reconcile completed foundations, product execution, Runtime Readiness, Productization, Community Public Release and Platform Adoption without architecture or implementation change. | `codex/generation-2-program-reconciliation` | `docs/history/prompts/2026-07-24-generation-2-program-reconciliation.md`; PR [#441](https://github.com/pcvantol/djconnect/pull/441), merged as `928544a02f9c927af71edb1cea15c48dd381927f`; dedicated Finalization is active. |
+| Experience Engineering Foundation | Completed / merged reconciled / archived | Establish the evidence-led Experience Foundation v1 without UI, Runtime, renderer, capability, ownership, API, product scope or implementation change. | `codex/experience-engineering-foundation-v1` | `docs/history/prompts/2026-07-24-experience-engineering-foundation.md`; PR [#438](https://github.com/pcvantol/djconnect/pull/438), merged as `1bfabbb7986e50c2e8cd4ecebdf44e39ddf5376f`; Finalization PR [#440](https://github.com/pcvantol/djconnect/pull/440) merged as `2482a3f2f177e2e50a1999902aac231ece9e3d25`. |
 | Product Philosophy Alignment | Completed / merged reconciled / archived | Align every canonical product document to Product Definition 2.1 without product, roadmap, architecture, ownership or implementation change. | `codex/product-philosophy-alignment` | `docs/history/prompts/2026-07-24-product-philosophy-alignment.md`; PR [#436](https://github.com/pcvantol/djconnect/pull/436), merged as `d237c50e4bb0f622074fef630b4060854fc029c6`; Finalization PR [#437](https://github.com/pcvantol/djconnect/pull/437) merged as `1a1f10db084328892abd331ae06b43e2485b0d61`. |
 | Canonical Capability Architecture | Completed / merged reconciled / archived | Establish the Generation 2 Capability Architecture: canonical capabilities, Host Roles, Concrete Hosts and Platform Families, without Runtime, renderer, API, ownership or technology changes. | `codex/canonical-capability-model-v1` | `docs/history/prompts/2026-07-24-canonical-capability-architecture.md`; PR [#433](https://github.com/pcvantol/djconnect/pull/433), merged as `cfb299965f06f15500b139de969e7ae2e4aec773`; Finalization PR [#434](https://github.com/pcvantol/djconnect/pull/434) merged as `3217c1bc31866b837cace5dd315465f93bfa8a91`. |
 | Persistent Session Startup Reconciliation | Completed / merged reconciled / archived | Deterministically interrupt non-terminal durable Sessions on startup without Runtime or provider recovery. | `codex/persistent-session-startup-reconciliation` | `docs/history/prompts/2026-07-21-persistent-session-startup-reconciliation.md`; PR [#300](https://github.com/pcvantol/djconnect/pull/300), merged as `822468e10527aa07895a802c99fbcde7eeccd98c`. |

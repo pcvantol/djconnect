@@ -5,16 +5,15 @@
 
 ## Current engineering increment
 
-PR [#438](https://github.com/pcvantol/djconnect/pull/438), **Establish
-Experience Engineering Foundation**, merged as
-`1bfabbb7986e50c2e8cd4ecebdf44e39ddf5376f`. This dedicated Finalization
+PR [#441](https://github.com/pcvantol/djconnect/pull/441), **Reconcile
+Generation 2 product roadmap**, merged as
+`928544a02f9c927af71edb1cea15c48dd381927f`. This dedicated Finalization
 reconciles its immutable Prompt History and rolling records.
 
-PR #438 establishes Experience Engineering as the canonical evidence-led
-baseline for how the AI DJ is perceived across interaction and presentation
-surfaces. It records current experience evidence, maturity, the Experience Gap
-Analysis framework and future Experience Qualification without changing any
-Runtime, renderer, capability, ownership, API, product scope, roadmap or
+PR #441 reconciles Generation 2 as a product-execution program: completed
+foundations, Reference Experience, Runtime Readiness, Productization, Community
+Public Release and independent Platform Adoption are now canonically distinct.
+It changes no Runtime, renderer, capability, ownership, API, product scope or
 implementation commitment. Repository State: `MERGED_UNRECONCILED`. Workspace
 State: `NOT_READY` until this Finalization merges; Workspace Cleanup then
 establishes `WORKSPACE_READY`.

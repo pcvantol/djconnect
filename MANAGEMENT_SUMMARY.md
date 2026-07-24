@@ -15,10 +15,6 @@
 
 ## Current position
 
-PR [#438](https://github.com/pcvantol/djconnect/pull/438), **Establish
-Experience Engineering Foundation**, merged as
-`1bfabbb7986e50c2e8cd4ecebdf44e39ddf5376f`. This dedicated Finalization
-
 Generation 2 Program Reconciliation is the current documentation and
 governance increment. The completed foundation inventory, current execution,
 historical transition treatment and future Platform Evolution backlog are
@@ -46,16 +42,15 @@ separate, non-release-gating stream for bringing the completed Runtime to
 additional Concrete Hosts. VibeCast placement is an explicit Release Readiness
 Assessment decision: it remains Platform Adoption unless the assessment finds
 it Community-defining Runtime Readiness work.
-reconciles its validation evidence and immutable Prompt History.
 
-PR #438 establishes the Experience Foundation v1: a reverse-engineered,
-evidence-led cross-surface baseline, assessment maturity and future Experience
-Gap Analysis / Qualification framework. It changes no UI, Runtime, renderer,
-capability, ownership, API, product scope, roadmap sequence or implementation
-commitment. The recommended next work after Finalization and Workspace Cleanup
-is the separately scoped Generation 2 roadmap reconciliation. Repository State:
-`MERGED_UNRECONCILED`. Workspace State: `NOT_READY` pending this governance-
-only Finalization and subsequent Workspace Cleanup.
+PR [#441](https://github.com/pcvantol/djconnect/pull/441), **Reconcile
+Generation 2 product roadmap**, merged as
+`928544a02f9c927af71edb1cea15c48dd381927f`. This dedicated Finalization
+reconciles its validation evidence and immutable Prompt History. The
+reconciliation changes planning and governance only; no Runtime, renderer,
+capability, ownership, API, product scope or implementation commitment changed.
+Repository State: `MERGED_UNRECONCILED`. Workspace State: `NOT_READY` pending
+this governance-only Finalization and subsequent Workspace Cleanup.
 
 ## Historical management context
 

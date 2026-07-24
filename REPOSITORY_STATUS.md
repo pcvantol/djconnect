@@ -28,18 +28,18 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-PR [#438](https://github.com/pcvantol/djconnect/pull/438), **Establish
-Experience Engineering Foundation**, merged as
-`1bfabbb7986e50c2e8cd4ecebdf44e39ddf5376f`. This dedicated Finalization
+PR [#441](https://github.com/pcvantol/djconnect/pull/441), **Reconcile
+Generation 2 product roadmap**, merged as
+`928544a02f9c927af71edb1cea15c48dd381927f`. This dedicated Finalization
 reconciles its immutable Prompt History and rolling repository truth.
 
-PR #438 establishes the canonical Experience Engineering baseline from
-cross-surface implementation evidence. It defines no Design System, UI
-implementation, Runtime, renderer, capability, ownership, API or product-scope
-change. Its maturity assessment is evidence-led rather than final Experience
-Qualification. Repository State: `MERGED_UNRECONCILED`. Workspace State:
-`NOT_READY` pending this governance-only Finalization; Workspace Cleanup
-follows its merge.
+PR #441 makes the Generation 2 route product-led while preserving completed
+foundations: Reference Experience is the current initiative; Runtime Readiness
+is the Home Assistant-owned release gate; Platform Adoption is independent and
+non-release-gating; Productization prepares the public Community release. No
+architecture, ownership, API, capability or implementation change occurred.
+Repository State: `MERGED_UNRECONCILED`. Workspace State: `NOT_READY` pending
+this governance-only Finalization; Workspace Cleanup follows its merge.
 
 ## Historical repository context
 
