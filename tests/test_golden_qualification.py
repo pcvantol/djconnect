@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import asyncio
+import importlib
 import importlib.util
 from pathlib import Path
 import sys
@@ -209,6 +210,47 @@ class GoldenQualificationTest(unittest.TestCase):
         self.assertEqual(
             tuple(item.scenario_id for item in report.scenarios),
             ("SI-GOLDEN-001",),
+        )
+
+    def test_browser_observation_preserves_the_smoke_qualification_report(self) -> None:
+        without_browser = asyncio.run(self.qualification.async_run_golden_smoke(self.hass))
+        with_browser = asyncio.run(
+            self.qualification.async_run_golden_smoke(
+                types.SimpleNamespace(data={}), observe_browser_e2e=True
+            )
+        )
+
+        self.assertEqual(with_browser, without_browser)
+
+    def test_browser_observation_releases_every_runtime_and_subscription(self) -> None:
+        asyncio.run(
+            self.qualification.async_run_golden_smoke(self.hass, observe_browser_e2e=True)
+        )
+
+        manager = self.runtime.session_runtime_manager(self.hass)
+        self.assertIsNone(
+            asyncio.run(manager.async_get_active(self.bootstrap.SI_GOLDEN_001_PROFILE_ID))
+        )
+
+    def test_browser_observation_releases_runtime_after_a_browser_failure(self) -> None:
+        bridge = importlib.import_module(
+            f"{PACKAGE}.universal_receiver_browser_e2e"
+        )
+        with patch.object(
+            bridge,
+            "_run_headless_receiver",
+            side_effect=bridge.UniversalReceiverBrowserE2EError("failed"),
+        ):
+            with self.assertRaises(bridge.UniversalReceiverBrowserE2EError):
+                asyncio.run(
+                    self.qualification.async_run_golden_smoke(
+                        self.hass, observe_browser_e2e=True
+                    )
+                )
+
+        manager = self.runtime.session_runtime_manager(self.hass)
+        self.assertIsNone(
+            asyncio.run(manager.async_get_active(self.bootstrap.SI_GOLDEN_001_PROFILE_ID))
         )
 
     def test_golden_smoke_report_reuses_the_bounded_foundation_shape(self) -> None:

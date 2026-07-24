@@ -92,6 +92,21 @@ subscription receives a fresh authoritative snapshot. Owner cursor recovery is
 an existing owner-only Broadcast capability; V1 does not grant the Receiver a
 new cursor, replay protocol, local event log or persistence requirement.
 
+## Browser E2E verification
+
+The optional Universal Receiver Browser E2E layer observes the existing Golden
+Foundation execution through this same renderer-safe Broadcast subscription.
+It executes the existing page in a deterministic headless runtime and asserts
+only connection, snapshot-first delivery, ordered event application, reconnect,
+Runtime-end handling and cleanup. It is not a Presentation, visual-regression,
+Audience or browser-ownership qualification.
+
+The temporary Broadcast token remains process-local and is never logged,
+stored, reported or published. Browser E2E creates no screenshot, DOM baseline,
+trace, HAR, video, replay, Capture, Validator, Qualification Report field or
+CI artifact. The Foundation and Structural Validator remain the sole
+qualification authorities.
+
 ## Capability 1 — Broadcast Connection and Session Rendering
 
 **Status: COMPLETE.**

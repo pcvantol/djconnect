@@ -56,7 +56,7 @@ def _unload_modules() -> None:
             del sys.modules[name]
 
 
-async def async_run_profile(profile: str) -> dict[str, Any]:
+async def async_run_profile(profile: str, *, observe_browser_e2e: bool = False) -> dict[str, Any]:
     """Run only an existing profile through its existing Foundation handler."""
     qualification, _ = _load_qualification_modules()
     try:
@@ -64,6 +64,13 @@ async def async_run_profile(profile: str) -> dict[str, Any]:
             "golden_smoke": qualification.async_handle_golden_smoke,
             "golden_regression": qualification.async_handle_golden_regression,
         }[profile]
+        if observe_browser_e2e:
+            runner = {
+                "golden_smoke": qualification.async_run_golden_smoke,
+                "golden_regression": qualification.async_run_golden_regression,
+            }[profile]
+            report = await runner(types.SimpleNamespace(data={}), observe_browser_e2e=True)
+            return qualification._bounded_report_payload(report, include_advisory_metrics=True)
         return await handler(types.SimpleNamespace(data={}), include_advisory_metrics=True)
     finally:
         _unload_modules()
@@ -73,9 +80,10 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--profile", choices=("golden_smoke", "golden_regression"), required=True)
     parser.add_argument("--report-path", type=Path, required=True)
+    parser.add_argument("--observe-browser-e2e", action="store_true")
     args = parser.parse_args()
 
-    report = asyncio.run(async_run_profile(args.profile))
+    report = asyncio.run(async_run_profile(args.profile, observe_browser_e2e=args.observe_browser_e2e))
     _, reporter = _load_qualification_modules()
     try:
         markdown = reporter.render_ci_qualification_report(report)

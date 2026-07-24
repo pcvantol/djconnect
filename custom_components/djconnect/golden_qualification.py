@@ -84,18 +84,23 @@ class GoldenQualificationReport:
 async def async_run_golden_qualification(
     hass: Any,
     scenario_ids: tuple[str, ...] = EXECUTABLE_GOLDEN_SCENARIOS,
+    *,
+    observe_browser_e2e: bool = False,
 ) -> GoldenQualificationReport:
     """Execute each approved scenario twice through the existing Runtime path.
 
     Bootstrap, Driver, Capture and Validator remain their existing owners. This
     coordinator only composes them, stops every successfully started Session,
-    and compares normalized immutable server-owned output. It never reads or
-    drives a Renderer Host.
+    and compares normalized immutable server-owned output.  An explicitly
+    requested Browser E2E observer may subscribe to the existing renderer-safe
+    Broadcast view, but cannot alter Capture, validation or this report.
     """
     normalized = tuple(str(item).strip().upper() for item in scenario_ids)
     results_list: list[GoldenScenarioQualification] = []
     for scenario_id in normalized:
-        results_list.append(await _qualify_scenario(hass, scenario_id))
+        results_list.append(
+            await _qualify_scenario(hass, scenario_id, observe_browser_e2e=observe_browser_e2e)
+        )
     results = tuple(results_list)
     return GoldenQualificationReport(
         profile=GOLDEN_QUALIFICATION_PROFILE,
@@ -197,10 +202,14 @@ async def async_handle_golden_qualification(
     )
 
 
-async def async_run_golden_smoke(hass: Any) -> GoldenQualificationReport:
+async def async_run_golden_smoke(
+    hass: Any, *, observe_browser_e2e: bool = False
+) -> GoldenQualificationReport:
     """Run the smallest approved selection through Golden Qualification."""
     foundation_report = await async_run_golden_qualification(
-        hass, scenario_ids=GOLDEN_SMOKE_SCENARIOS
+        hass,
+        scenario_ids=GOLDEN_SMOKE_SCENARIOS,
+        **({"observe_browser_e2e": True} if observe_browser_e2e else {}),
     )
     return GoldenQualificationReport(
         profile=GOLDEN_SMOKE_PROFILE,
@@ -219,10 +228,14 @@ async def async_handle_golden_smoke(
     )
 
 
-async def async_run_golden_regression(hass: Any) -> GoldenQualificationReport:
+async def async_run_golden_regression(
+    hass: Any, *, observe_browser_e2e: bool = False
+) -> GoldenQualificationReport:
     """Run the complete approved contract through Golden Qualification only."""
     foundation_report = await async_run_golden_qualification(
-        hass, scenario_ids=GOLDEN_REGRESSION_SCENARIOS
+        hass,
+        scenario_ids=GOLDEN_REGRESSION_SCENARIOS,
+        **({"observe_browser_e2e": True} if observe_browser_e2e else {}),
     )
     return GoldenQualificationReport(
         profile=GOLDEN_REGRESSION_PROFILE,
@@ -242,10 +255,16 @@ async def async_handle_golden_regression(
     )
 
 
-async def _qualify_scenario(hass: Any, scenario_id: str) -> GoldenScenarioQualification:
+async def _qualify_scenario(
+    hass: Any, scenario_id: str, *, observe_browser_e2e: bool = False
+) -> GoldenScenarioQualification:
     """Run one scenario twice and compare only immutable observable evidence."""
-    first, first_validation = await _execute_once(hass, scenario_id)
-    second, second_validation = await _execute_once(hass, scenario_id)
+    first, first_validation = await _execute_once(
+        hass, scenario_id, observe_browser_e2e=observe_browser_e2e
+    )
+    second, second_validation = await _execute_once(
+        hass, scenario_id, observe_browser_e2e=observe_browser_e2e
+    )
     validations = (first_validation, second_validation)
     failures = tuple(
         failure.identifier
@@ -289,7 +308,7 @@ async def _qualify_scenario(hass: Any, scenario_id: str) -> GoldenScenarioQualif
 
 
 async def _execute_once(
-    hass: Any, scenario_id: str
+    hass: Any, scenario_id: str, *, observe_browser_e2e: bool = False
 ) -> tuple[
     SIGolden001SessionCapture
     | SIGolden002SessionCapture
@@ -302,7 +321,13 @@ async def _execute_once(
     started = await async_handle_developer_session_bootstrap(hass, scenario_id=scenario_id)
     if not started.get("success"):
         return None, StructuralValidationResult("failed")
+    observer = None
     try:
+        if observe_browser_e2e:
+            from .universal_receiver_browser_e2e import UniversalReceiverBrowserObserver
+
+            observer = UniversalReceiverBrowserObserver(hass, scenario_id, started["session_id"])
+            await observer.async_attach()
         execution = await _driver_for(scenario_id)(hass)
         capture = await _capture_for(scenario_id)(hass)
         if not execution.get("success") or capture is None:
@@ -310,6 +335,8 @@ async def _execute_once(
         return capture, _validator_for(scenario_id)(capture)
     finally:
         await async_handle_developer_session_bootstrap(hass, action="stop", scenario_id=scenario_id)
+        if observer is not None:
+            await observer.async_assert_and_release()
 
 
 def _driver_for(scenario_id: str):
