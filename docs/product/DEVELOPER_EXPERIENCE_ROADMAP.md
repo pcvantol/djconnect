@@ -10,9 +10,10 @@ through PR #429: existing Smoke and Regression profiles now run advisory in
 repository Actions with bounded Markdown Job Summaries. Accelerated / event-driven Session
 execution concluded
 `NO-GO`: the existing restricted Verification Clock already satisfies every
-approved behavior, and generic acceleration has no current product value. The
-next Product Development Pre-Flight candidate is **Universal Receiver browser
-E2E**, a separate optional verification layer.
+approved behavior, and generic acceleration has no current product value.
+Universal Receiver Browser E2E is complete through PR #431 as a separate,
+optional renderer-host transport layer. The next Product Development
+Pre-Flight candidate is the **read-only Developer Overlay**.
 The Architecture,
 Developer Session Bootstrap, Deterministic Scenario Driver, Immutable E2E
 Session Capture and Structural Invariant Validator now execute all six original
@@ -99,8 +100,8 @@ and a separately authorized capability.
 | 14 | Golden Session Regression profile | Complete — PR #422 | Fixed local `golden_regression` profile selects `SI-GOLDEN-001` through `SI-GOLDEN-006` through the same Qualification Foundation, with bounded profile version metadata and no CI gate. |
 | 15 | Intelligence Quality Metrics | Complete — PR #425 | Optional transient, report-derived advisory projection; no scoring, threshold, gate or history. |
 | 16 | Full CI Qualification and readable reports | Complete — PR #429 | Existing Smoke and Regression profiles run advisory in repository Actions; only fail-closed, bounded Markdown Job Summaries are published, without artifacts or gates. |
-| 17 | Universal Receiver browser E2E | Optional / separate layer | Validates Receiver presentation through Broadcast and a headless browser, not core Intelligence or server-side Presentation verification behavior. |
-| 18 | Read-only Developer Overlay | Optional / deferred | Development-only, non-authoritative and disabled in production by default. |
+| 17 | Universal Receiver browser E2E | Complete — PR #431 | Observes existing Smoke and Regression Foundation executions through renderer-safe Broadcast and a transient headless Receiver; it does not alter qualification authority or reports. |
+| 18 | Read-only Developer Overlay | Optional / deferred — next Pre-Flight | Development-only, non-authoritative and disabled in production by default. |
 | 19 | Optional TTS Session Replay | Deferred | Reuses eligible presentation output without canonical audio persistence. |
 | 20 | Optional side-by-side Session comparison | Deferred | Compares capture artifacts without creating a competing planner. |
 
