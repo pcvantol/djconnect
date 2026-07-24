@@ -15,18 +15,19 @@
 
 ## Current position
 
-PR [#433](https://github.com/pcvantol/djconnect/pull/433), **Add canonical
-capability model v1.0**, merged as
-`cfb299965f06f15500b139de969e7ae2e4aec773`. This dedicated Finalization
+PR [#436](https://github.com/pcvantol/djconnect/pull/436), **Align product
+philosophy documentation**, merged as
+`d237c50e4bb0f622074fef630b4060854fc029c6`. This dedicated Finalization
 reconciles its validation evidence and immutable Prompt History.
 
-PR #433 establishes the Generation 2 Capability Architecture: canonical
-capabilities exist once; Host Roles define participation; Concrete Hosts inherit
-bounded projections; and Platform Families organize product, release and
-technology grouping without architectural ownership. It is documentation and
-governance only. The recommended next capability after Finalization and
-Workspace Cleanup is an assessment-first increment from
-`CAPABILITY_MODEL_BACKLOG.md`, beginning with CMB-09.
+PR #436 completes a documentation-only alignment of the canonical product
+documents to Product Definition 2.1. DJConnect is consistently presented as a
+local-first AI DJ whose primary experience is one coherent DJ Session.
+Community remains complete and local-first; Personal is the same DJ becoming
+personal through opt-in Music DNA; future Cloud is additive. No capability,
+roadmap, architecture, ownership or implementation commitment changed. The
+recommended next capability after Finalization and Workspace Cleanup remains a
+fresh assessment-first increment from `CAPABILITY_MODEL_BACKLOG.md`.
 Repository State: `MERGED_UNRECONCILED`. Workspace State: `NOT_READY` pending
 this governance-only Finalization and subsequent Workspace Cleanup.
 

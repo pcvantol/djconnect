@@ -271,7 +271,7 @@ class PlaybackObservationTest(unittest.TestCase):
         current_pr = current_increment.group("number")
         current_commit = current_increment.group("commit")
         current_state = re.search(
-            r"Repository State(?: is|:) `(?P<state>MERGED_(?:UN)?RECONCILED)`",
+            r"Repository State(?: is|:)\s+`(?P<state>MERGED_(?:UN)?RECONCILED)`",
             current_section,
         )
         self.assertIsNotNone(current_state)
@@ -286,7 +286,10 @@ class PlaybackObservationTest(unittest.TestCase):
             contents = (ROOT / name).read_text()
             self.assertIn(f"PR [#{current_pr}]", contents)
             self.assertIn(current_commit, contents)
-            self.assertIn(f"Repository State: `{expected_state}`", contents)
+            normalized_contents = re.sub(r"\s+", " ", contents)
+            self.assertIn(
+                f"Repository State: `{expected_state}`", normalized_contents
+            )
 
         prompt_index = (ROOT / "PROMPT_INDEX.md").read_text()
         self.assertIn(f"PR [#{current_pr}]", prompt_index)
