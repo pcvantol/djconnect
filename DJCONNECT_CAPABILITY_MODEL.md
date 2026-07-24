@@ -26,9 +26,10 @@ lowest planning unit. A **projection** is a bounded presentation, input or
 transport use of a canonical capability; it does not create a second owner.
 
 [Host Roles](HOST_ROLE_ARCHITECTURE.md) are the canonical architectural layer
-between a capability and a concrete platform. They define participation and
-inheritance only; this Capability Model remains authoritative for the
-capability itself.
+between a capability and a Concrete Host. Platform Families group Concrete
+Hosts for product, release and technology purposes, but never own capabilities
+or Host Roles. Host Roles define participation and inheritance only; this
+Capability Model remains authoritative for the capability itself.
 
 No repository-wide identifier convention existed for product capabilities.
 This model establishes `CAP-<BUNDLE>-<NN>`: an uppercase bundle mnemonic and

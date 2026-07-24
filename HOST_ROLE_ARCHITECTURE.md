@@ -4,21 +4,57 @@
 
 **Owner:** DJConnect Platform Foundation
 
-**Scope:** Architectural participation roles between canonical capabilities and concrete platforms. This document changes no Runtime, renderer, API, capability ownership or platform behaviour.
+**Scope:** Architectural participation roles between canonical capabilities and Concrete Hosts, plus Platform Family classification. This document changes no Runtime, renderer, API, capability ownership or platform behaviour.
 
 ## Purpose
 
-DJConnect capabilities exist canonically once. A concrete platform does not define those capabilities; it implements one or more **Host Roles** through which it participates in them.
+DJConnect capabilities exist canonically once. A **Concrete Host** does not
+define those capabilities; it implements one or more **Host Roles** through
+which it participates in them. A **Platform Family** groups related Concrete
+Hosts for product, release and technology purposes, but is not itself an
+architectural participant.
 
 ```text
 Canonical Capability
         ↓
 Host Role
         ↓
-Platform
+Concrete Host
+        ↓
+Platform Family
 ```
 
 The [DJConnect Capability Model](DJCONNECT_CAPABILITY_MODEL.md) remains the authority for capability identity, ownership, maturity, privacy and projection state. This document is the authority for Host Role meaning and inheritance.
+
+## Platform Families and Concrete Hosts
+
+A **Platform Family** is a product grouping, release grouping and technology
+grouping. It never owns a capability, Host Role, Runtime state or architectural
+participation. Capabilities are assigned to Concrete Hosts only through their
+Host Roles.
+
+A **Concrete Host** is one independently assessable application, device or
+receiver implementation. It inherits eligible capability projections through
+its Host Roles; it does not receive parity merely because another Concrete Host
+shares its Platform Family.
+
+### Apple Platform Family
+
+Apple remains the native premium product experience. Its current Concrete Hosts
+are the macOS application, the iPhone/iPad application and the Apple Watch
+companion application. They are independently assessable and may expose
+different authorized capability projections. The shared Apple family therefore
+does not imply capability parity or a shared architectural owner.
+
+### Desktop Platform Family
+
+Desktop is a Platform Family, not a Windows-specific architecture. Its current
+Concrete Host is the Windows application. A future Repository Capability
+Assessment may justify additional Concrete Hosts, such as a Linux desktop
+application, within this family. That possibility authorizes no migration,
+rewrite, shared implementation or technology selection. No implementation
+technology is canonical; all future desktop technology choices remain Product
+Development decisions after assessment.
 
 ## Principles
 
@@ -45,25 +81,30 @@ The [DJConnect Capability Model](DJCONNECT_CAPABILITY_MODEL.md) remains the auth
 
 A Voice Interaction Host is an Interaction Host with a voice-first projection. Outside an active Session, Ask DJ remains available and may submit an authorized `CAP-SI-07` Session Start Request. Inside an active Session, Ask DJ and bounded voice actions use the active Session context. In both contexts, Home Assistant owns Conversation intelligence and the Session remains the sole coordinator.
 
-## Canonical Host Role Matrix
+## Concrete Host Role Matrix
 
-`Yes` denotes an implemented role, `Planned` a documented future role, and `—` an intentional non-role. The matrix documents only implemented Host Roles; capabilities are inherited through the mapping below.
+`Yes` denotes an implemented role, `Planned` a documented future role, and `—` an intentional non-role. The matrix records only Concrete Host → Host Role mapping; capabilities are inherited through the mapping below.
 
-| Platform | Runtime | Interaction | Renderer | Rich Personal | Shared Appliance | Ambient | Voice Interaction | Constrained Device |
+| Platform Family | Concrete Host | Runtime | Interaction | Renderer | Rich Personal | Shared Appliance | Ambient | Voice Interaction | Constrained Device |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Home Assistant | Yes | — | — | — | — | — | — | — |
-| Apple | — | Yes | Yes | Yes | — | — | — | — |
-| Windows | — | Yes | Yes | Yes | — | — | — | — |
-| Pi 4-inch | — | Yes | Yes | — | Yes | — | — | — |
-| Pi 10-inch | — | Planned | Planned | — | Planned | Planned | — | — |
-| ESPHome Voice Hosts | — | Yes | — | — | — | — | Yes | — |
-| constrained ESP32 | — | Yes | — | — | — | — | — | Yes |
-| Universal Receiver | — | Yes (bounded) | Yes | — | — | — | — | — |
-| VibeCast | — | Yes (lightweight) | Yes | — | — | Yes | — | — |
-| Central API | — | — | — | — | — | — | — | — |
-| Website | — | — | — | — | — | — | — | — |
+| Home Assistant | Home Assistant Runtime | Yes | — | — | — | — | — | — | — |
+| Apple | macOS application | — | Yes | Yes | Yes | — | — | — | — |
+| Apple | iPhone/iPad application | — | Yes | Yes | Yes | — | — | — | — |
+| Apple | Apple Watch companion application | — | Yes | Yes | Yes | — | — | — | — |
+| Desktop | Windows application | — | Yes | Yes | Yes | — | — | — | — |
+| Raspberry Pi | Pi 4-inch appliance | — | Yes | Yes | — | Yes | — | — | — |
+| Raspberry Pi | Pi 10-inch appliance | — | Planned | Planned | — | Planned | Planned | — | — |
+| ESPHome | ESPHome Voice Host | — | Yes | — | — | — | — | Yes | — |
+| ESP32 | constrained ESP32 Device Host | — | Yes | — | — | — | — | — | Yes |
+| Web Receiver | Universal Receiver | — | Yes (bounded) | Yes | — | — | — | — | — |
+| Web Receiver | VibeCast | — | Yes (lightweight) | Yes | — | — | Yes | — | — |
+| Central API | Central API service | — | — | — | — | — | — | — | — |
+| Website | Website | — | — | — | — | — | — | — | — |
 
-Central API and Website are supporting/product surfaces, respectively; neither is a Runtime or Host Role implementation. Release/artifact repositories are also not Host Role implementations.
+Central API and Website are supporting/product surfaces, respectively; neither
+is a Runtime or Host Role implementation. Release/artifact repositories are
+also not Host Role implementations. They appear only as Concrete Host
+classification evidence, never as capability or role owners.
 
 ## Capability → Host Role inheritance
 
@@ -84,12 +125,16 @@ The following maps every canonical capability from the Capability Model to requi
 
 The ranges above are exact references to the IDs in the Capability Model and apply to every ID within each range. A host may receive only the bounded, authorized projection that its role permits; inheritance neither grants a capability to every platform implementing a role nor changes an intentional absence.
 
-## Host Role → Platform mapping
+## Host Role → Concrete Host mapping
 
-The Canonical Host Role Matrix is the complete Platform mapping. It records only implemented roles and deliberately does not repeat capability inventories. Platforms inherit relevant capability projections from their roles subject to the Capability Model.
+The Concrete Host Role Matrix is the complete Host Role → Concrete Host mapping.
+It deliberately does not repeat capability inventories. Concrete Hosts inherit
+relevant capability projections from their roles subject to the Capability
+Model. Platform Families group those Concrete Hosts but inherit nothing and own
+nothing architecturally.
 
 ## Architectural rationale and follow-up
 
-Host Roles remove the false choice between a platform-defined architecture and feature-parity demands. They preserve canonical capabilities and Home Assistant ownership while allowing a platform to combine interaction, presentation, personal, appliance, ambient, voice or constrained participation as appropriate.
+Host Roles remove the false choice between a platform-defined architecture and feature-parity demands. They preserve canonical capabilities and Home Assistant ownership while allowing a Concrete Host to combine interaction, presentation, personal, appliance, ambient, voice or constrained participation as appropriate. Platform Families then provide product/release/technology grouping without becoming architecture participants.
 
 The next narrow increment is **CMB-09**, the formal Voice Interaction Host and constrained ESP32 capability-profile assessment. Pi assessments inherit Shared Appliance Host and Renderer Host; Apple and Windows inherit Interaction Host, Renderer Host and Rich Personal Host. Future Android, CarPlay, wearables, Meta Quest and other platforms must select Host Roles before proposing platform capabilities.
