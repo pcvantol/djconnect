@@ -93,7 +93,7 @@ A Voice Interaction Host is an Interaction Host with a voice-first projection. O
 | Apple | Apple Watch companion application | — | Yes | Yes | Yes | — | — | — | — |
 | Desktop | Windows application | — | Yes | Yes | Yes | — | — | — | — |
 | Raspberry Pi | Pi 4-inch appliance | — | Yes | Yes | — | Yes | — | — | — |
-| Raspberry Pi | Pi 10-inch appliance | — | Planned | Planned | — | Planned | Planned | — | — |
+| Raspberry Pi | Pi 10-inch appliance | — | Yes | Yes | — | Yes | Planned | — | — |
 | ESPHome | ESPHome Voice Host | — | Yes | — | — | — | — | Yes | — |
 | ESP32 | constrained ESP32 Device Host | — | Yes | — | — | — | — | — | Yes |
 | Web Receiver | Universal Receiver | — | Yes (bounded) | Yes | — | — | — | — | — |
