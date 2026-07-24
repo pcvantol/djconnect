@@ -11,8 +11,8 @@ status: Completed, Current execution, Planned, Deferred, Historical or
 Retired. `ROADMAP_INDEX.md` owns cross-program navigation. Completed
 foundations remain reference points, not active architecture work.
 
-The public release defines the minimum lovable DJConnect product, not the
-complete long-term product vision.
+The public Community release defines the minimum lovable DJConnect product,
+not the complete long-term product vision.
 
 ### Phase 0 — Generation 2 Foundations
 
@@ -54,24 +54,25 @@ their established scope; this roadmap does not authorize their implementation.
 | 1 | Universal Receiver reference experience | Current execution | Session Intelligence Runtime; `docs/technical/UNIVERSAL_RECEIVER_ARCHITECTURE.md` |
 | 1 | Automated Session Intelligence E2E Verification | Current execution | `docs/product/DEVELOPER_EXPERIENCE_ROADMAP.md` |
 | 1 | Renderer-safe Session experience and experience validation | Planned | Reference Experience assessment and existing renderer-safe projections |
-| 2 | Apple Public Release | Planned | Reference Experience, release readiness, onboarding and experience qualification |
+| 2 | Apple Premium Experience | Planned | Reference Experience, experience quality, polish, onboarding and release readiness for macOS, iPhone/iPad and Apple Watch |
 | 3 | Public Release Readiness Assessment | Planned | Phase 2 evidence; it determines minimum public-release scope without authorizing features |
-| 4 | Public Release Completion | Planned | Explicit output of Phase 3 only |
-| 5 | Desktop Platform Family | Planned | Apple Public Release; current Windows Concrete Host; future Linux only after assessment |
-| 6 | Personal AI DJ evolution | Deferred | Public Release Completion; existing Profile and Planner boundaries |
-| 7 | Future Cloud evolution | Deferred | Long-term product direction; Community local-first foundation remains primary |
+| 4 | Productization | Planned | Phase 3 assessment; no feature or paid-model commitment |
+| 5 | Community Public Release | Planned | Productization and explicit release selection; complete local-first Community Edition |
+| 6 | Desktop Platform Family | Planned | Community Public Release; current Windows Concrete Host; future Linux only after assessment |
+| 7 | Personal AI DJ evolution | Deferred | Community Public Release; existing Profile and Planner boundaries |
+| 8 | Future Cloud evolution | Deferred | Long-term product direction; Community local-first foundation remains primary |
 | Deferred | Ambient Light Renderer Host | Deferred | Universal Receiver maturity, Room Presentation Routing and real-hardware evaluation |
 | Deferred | VibeCast V1 implementation | Planned | Custom Web Receiver feasibility and bounded receiver-safe Session handoff |
 | Deferred | Audience Experience and Ambient Reactions | Deferred | Audience validation, privacy policy and bounded renderer design |
 | Deferred | Renderer discovery, pairing and authorization architecture | Deferred | Renderer Host classification and local-first device lifecycle requirements |
 | Deferred | Voice experience delivery | Planned | Stable current/historical Moment contracts and Assist capability validation |
 | Retired | Session Simulation and accelerated execution | Retired | A new approved time-dependent behavioral contract and separately authorized Pre-Flight would be required to revisit |
-| 6 | Preferences and Music DNA expansion | Deferred | Existing Profile and Planner influence boundaries |
-| 6 | Narrative Sequencing, Lyrics and Discover Evolution | Deferred | Existing Planner, Knowledge and DJ Moment Engine abstractions |
+| 7 | Preferences and Music DNA expansion | Deferred | Existing Profile and Planner influence boundaries |
+| 7 | Narrative Sequencing, Lyrics and Discover Evolution | Deferred | Existing Planner, Knowledge and DJ Moment Engine abstractions |
 | Deferred | Audience Observation for Session Intelligence | Deferred | Audience Experience, privacy review and explicit bounded Planner-influence policy |
 | Deferred | Playback Observation Stage 2 and Continue Stage 2 | Deferred | External Observation Boundary capability conditions |
 
-### Phase 2 — Apple Public Release
+### Phase 2 — Apple Premium Experience
 
 Apple is the first premium public implementation of the Reference Experience:
 macOS, iPhone/iPad and Apple Watch are independently assessable Concrete Hosts.
@@ -87,20 +88,45 @@ onboarding, Session Timeline, minimal Music DNA, recovery UX, release quality
 or documentation. It may also conclude that some are unnecessary. No work is
 authorized until that assessment selects it.
 
-### Phase 4 — Public Release Completion
+### Phase 4 — Productization
 
-Only work explicitly identified by the Release Readiness Assessment is
-implemented. Personal capabilities are not automatically included.
+Productization prepares DJConnect to become a public product. It may assess
+and select bounded work in these categories:
 
-### Phase 5 — Desktop Platform Family
+- distribution: TestFlight strategy, internal testing, external beta and a
+  release-candidate process;
+- App Store readiness: metadata, screenshots, categories, review notes and
+  marketing assets;
+- platform readiness: supported iOS/macOS versions and devices, unsupported
+  devices, and accessibility review;
+- release engineering: signing, certificates, notarization, CI/CD, App Store
+  Connect and Mac App Store preparation;
+- compliance: privacy review, entitlements, legal texts and licenses; and
+- product operations: support mailbox/procedures, ticket intake, release notes
+  and localization approval.
 
-The current Desktop Concrete Host is Windows. This phase follows Apple public
-release. A future Linux host requires its own assessment; no implementation
+Commercial readiness is assessment only. It may examine a Community-only
+launch, StoreKit readiness, subscription feasibility and migration strategy.
+No paid model is authorized, and the assessment may conclude that the first
+public release remains Community-only.
+
+### Phase 5 — Community Public Release
+
+This is the first public product milestone: a complete Community Edition that
+is local-first, requires no cloud account, is not a trial and is not a reduced
+product. Only work explicitly selected by the Release Readiness Assessment and
+Productization is implemented; Personal capabilities are not automatically
+included.
+
+### Phase 6 — Desktop Platform Family
+
+The current Desktop Concrete Host is Windows. This phase follows Community
+Public Release. A future Linux host requires its own assessment; no implementation
 technology decision is introduced.
 
-### Phases 6 and 7 — Long-term evolution
+### Phases 7 and 8 — Long-term evolution
 
-Personal AI DJ evolution follows public release. Future Cloud capabilities are
+Personal AI DJ evolution follows Community Public Release. Future Cloud capabilities are
 long-term and extend the same local-first AI DJ; neither defines the minimum
 lovable product.
 
