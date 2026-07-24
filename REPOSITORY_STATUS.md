@@ -28,10 +28,19 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-PR [#431](https://github.com/pcvantol/djconnect/pull/431), **Add Universal
-Receiver browser E2E**, merged as
-`ff4e6f62be23e6cab7429b55918cb0e7617788f9`. This dedicated Finalization
+PR [#433](https://github.com/pcvantol/djconnect/pull/433), **Add canonical
+capability model v1.0**, merged as
+`cfb299965f06f15500b139de969e7ae2e4aec773`. This dedicated Finalization
 reconciles its immutable Prompt History and rolling repository truth.
+
+PR #433 establishes the Generation 2 Capability Architecture. Canonical
+capabilities now map through Host Roles to Concrete Hosts, while Platform
+Families remain non-participating product/release/technology groupings. No
+Runtime, renderer, API, ownership or implementation technology changed.
+Repository State: `MERGED_UNRECONCILED`. Workspace State: `NOT_READY` pending
+this governance-only Finalization; Workspace Cleanup follows its merge.
+
+## Historical repository context
 
 The canonical [CI Qualification Report Governance](docs/governance/CI_QUALIFICATION_REPORT_GOVERNANCE.md)
 now governs an implemented advisory CI layer. Repository Actions runs existing

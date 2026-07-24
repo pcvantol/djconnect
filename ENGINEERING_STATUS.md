@@ -5,10 +5,19 @@
 
 ## Current engineering increment
 
-PR [#431](https://github.com/pcvantol/djconnect/pull/431), **Add Universal
-Receiver browser E2E**, merged as `ff4e6f62be23e6cab7429b55918cb0e7617788f9`.
-This dedicated Finalization reconciles its immutable Prompt History and the
-rolling records.
+PR [#433](https://github.com/pcvantol/djconnect/pull/433), **Add canonical
+capability model v1.0**, merged as
+`cfb299965f06f15500b139de969e7ae2e4aec773`. This dedicated Finalization
+reconciles its immutable Prompt History and the rolling records.
+
+PR #433 establishes the Generation 2 Capability Architecture: canonical
+capabilities are planned through Host Roles, projected by Concrete Hosts and
+organized by non-participating Platform Families. It changes no Runtime,
+renderer, API, ownership or implementation technology. Repository State: `MERGED_UNRECONCILED`.
+Workspace State: `NOT_READY` until this Finalization merges; Workspace Cleanup
+then establishes `WORKSPACE_READY`.
+
+## Historical operational context
 
 Repository Actions now invokes the existing Golden Smoke profile for pull
 requests and the existing Golden Regression profile for `main`, manual and

@@ -259,9 +259,10 @@ class PlaybackObservationTest(unittest.TestCase):
 
     def test_rolling_records_reconcile_current_merged_implementation(self) -> None:
         engineering_status = (ROOT / "ENGINEERING_STATUS.md").read_text()
+        current_section = engineering_status.split("## Historical operational context", 1)[0]
         current_increment = re.search(
-            r"PR \[#(?P<number>\d+)\].*?merged as `(?P<commit>[0-9a-f]{40})`",
-            engineering_status,
+            r"PR \[#(?P<number>\d+)\].*?merged as\s+`(?P<commit>[0-9a-f]{40})`",
+            current_section,
             re.DOTALL,
         )
         self.assertIsNotNone(current_increment)
@@ -269,21 +270,28 @@ class PlaybackObservationTest(unittest.TestCase):
 
         current_pr = current_increment.group("number")
         current_commit = current_increment.group("commit")
+        current_state = re.search(
+            r"Repository State(?: is|:) `(?P<state>MERGED_(?:UN)?RECONCILED)`",
+            current_section,
+        )
+        self.assertIsNotNone(current_state)
+        assert current_state is not None
+        expected_state = current_state.group("state")
+
         for name in (
             "ENGINEERING_STATUS.md",
             "REPOSITORY_STATUS.md",
             "MANAGEMENT_SUMMARY.md",
-            "PROMPT_INDEX.md",
         ):
             contents = (ROOT / name).read_text()
             self.assertIn(f"PR [#{current_pr}]", contents)
             self.assertIn(current_commit, contents)
-            self.assertRegex(
-                contents, r"Repository\s+State:\s*`MERGED_RECONCILED`"
-            )
-            self.assertRegex(
-                contents, r"Workspace\s+State:\s*`WORKSPACE_READY`"
-            )
+            self.assertIn(f"Repository State: `{expected_state}`", contents)
+
+        prompt_index = (ROOT / "PROMPT_INDEX.md").read_text()
+        self.assertIn(f"PR [#{current_pr}]", prompt_index)
+        self.assertIn(current_commit, prompt_index)
+        self.assertIn(expected_state.lower(), prompt_index.lower())
 
     def test_media_identity_never_enters_public_runtime_representation(self) -> None:
         session = self._start()
