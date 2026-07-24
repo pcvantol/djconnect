@@ -4,19 +4,55 @@
 
 **Owner:** DJConnect Platform Foundation / Home Assistant
 
-**Scope:** Repository-wide implemented capabilities and their platform projections
+**Scope:** Canonical Capability Architecture: repository-wide implemented capabilities, Host Role participation, Concrete Host projections and Platform Family framing
 **Decision type:** Documentation-only; this model changes no Runtime, renderer, API or ownership behaviour.
 
 ## Purpose and authority
 
-This is the canonical planning model for implemented DJConnect capabilities.
-It records the capability once at its canonical owner and records the
-platform-appropriate projections separately. It is not a client feature list,
-an implementation backlog, or an entitlement catalogue.
+This is the canonical **Capability Architecture** for implemented DJConnect
+capabilities. It records every capability once at its canonical owner and
+establishes the permanent architectural layering through which future Platform
+Evolution and Product Development work is planned. It is not a client feature
+list, an implementation backlog, or an entitlement catalogue.
 
 Current `main` implementation evidence is authoritative. The historical
 [`PLATFORM_DISCOVERY_REPORT.md`](PLATFORM_DISCOVERY_REPORT.md) remains evidence
 of its 2026-07-09 audit; it is not authority for current capability state.
+
+## Generation 2 Foundation
+
+This Capability Architecture establishes the Generation 2 planning foundation
+by shifting work from platform-first feature development to capability-first
+engineering. Future work is planned against canonical capabilities. Concrete
+Hosts inherit their permitted capability projections through Host Roles instead
+of platforms defining capabilities themselves.
+
+## Capability Architecture layering
+
+```text
+Canonical Capability
+        ↓
+Host Role
+        ↓
+Concrete Host
+        ↓
+Platform Family
+```
+
+| Layer | Architectural responsibility |
+| --- | --- |
+| Canonical Capability | Defines one product behaviour, its owner, privacy classification, maturity and implementation preference. It exists exactly once. |
+| Host Role | Defines how a host participates: interaction model, rendering model and responsibility boundaries. It never owns a capability or Runtime state. |
+| Concrete Host | An independently deployable product host that implements one or more Host Roles, such as a macOS application, iPhone/iPad application, Apple Watch companion, Windows desktop application, Pi appliance, ESPHome Voice Host, Universal Receiver or constrained ESP32. |
+| Platform Family | An organizational release, product and technology grouping of Concrete Hosts. It is not an architectural participant and never owns capabilities or Host Roles. |
+
+The detailed role and inheritance authority is
+[HOST_ROLE_ARCHITECTURE.md](HOST_ROLE_ARCHITECTURE.md). Apple remains the native
+premium experience; its macOS, iPhone/iPad and Watch Concrete Hosts are
+assessed independently and never presumed to have capability parity. Desktop
+remains a Platform Family with Windows as its current Concrete Host. Future
+desktop hosts remain possible only after assessment, and their implementation
+technology is intentionally undecided.
 
 ## Terms and stable identifiers
 
@@ -43,6 +79,24 @@ Implementation classification is selected in this mandatory order:
 All catalogued capabilities are implemented on current `main`; their current
 implementation classification is therefore `REUSE`. A future change may use a
 different classification only after a Repository Capability Assessment.
+
+### Capability-first planning sequence
+
+Future work follows this order:
+
+1. Capability Assessment
+2. Capability decision
+3. Host Role assessment
+4. Concrete Host assessment
+5. Platform implementation
+
+At the implementation step, the required preference remains:
+
+`REUSE → CONFIGURE → EXTEND → NEW`
+
+This order introduces no implementation decision. Home Assistant remains the
+only Runtime Host; Host Roles participate but never own capabilities; Concrete
+Hosts inherit through Host Roles; and Platform Families never own capabilities.
 
 Privacy classifications are: **personal** (profile-owned or sensitive),
 **renderer-safe** (safe bounded projection), **operational** (device/service
