@@ -1,6 +1,11 @@
 # DJConnect Platform Discovery
 
-Epic 2 discovery artifacts.
+Epic 2 historical discovery artifacts.
+
+These reports preserve the repository audit performed for Epic 2. They are
+historical evidence, not current capability authority. For current implemented
+capabilities, platform projections and convergence disposition, use the
+canonical [`DJConnect Capability Model`](../../DJCONNECT_CAPABILITY_MODEL.md).
 
 ## Cross-platform reports
 
