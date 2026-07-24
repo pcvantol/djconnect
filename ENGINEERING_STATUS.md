@@ -6,8 +6,8 @@
 ## Current engineering increment
 
 PR [#425](https://github.com/pcvantol/djconnect/pull/425), **Add advisory
-Intelligence Quality Metrics**, merged as
-`1eaced29e168fba12c07219bd796dabe764cce6e`. This dedicated Finalization
+Intelligence Quality Metrics**, merged as `1eaced29e168fba12c07219bd796dabe764cce6e`.
+This dedicated Finalization
 reconciles its immutable Prompt History and qualification evidence.
 
 Intelligence Quality Metrics v1 is now an optional, transient, read-only
