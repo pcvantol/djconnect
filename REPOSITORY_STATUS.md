@@ -37,8 +37,8 @@ PR #433 establishes the Generation 2 Capability Architecture. Canonical
 capabilities now map through Host Roles to Concrete Hosts, while Platform
 Families remain non-participating product/release/technology groupings. No
 Runtime, renderer, API, ownership or implementation technology changed.
-Repository State is `MERGED_UNRECONCILED` pending this governance-only
-Finalization; Workspace Cleanup follows its merge.
+Repository State: `MERGED_UNRECONCILED`. Workspace State: `NOT_READY` pending
+this governance-only Finalization; Workspace Cleanup follows its merge.
 
 ## Historical repository context
 

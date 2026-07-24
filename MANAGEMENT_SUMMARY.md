@@ -27,6 +27,8 @@ technology grouping without architectural ownership. It is documentation and
 governance only. The recommended next capability after Finalization and
 Workspace Cleanup is an assessment-first increment from
 `CAPABILITY_MODEL_BACKLOG.md`, beginning with CMB-09.
+Repository State: `MERGED_UNRECONCILED`. Workspace State: `NOT_READY` pending
+this governance-only Finalization and subsequent Workspace Cleanup.
 
 ## Historical management context
 

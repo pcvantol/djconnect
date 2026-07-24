@@ -13,9 +13,9 @@ reconciles its immutable Prompt History and the rolling records.
 PR #433 establishes the Generation 2 Capability Architecture: canonical
 capabilities are planned through Host Roles, projected by Concrete Hosts and
 organized by non-participating Platform Families. It changes no Runtime,
-renderer, API, ownership or implementation technology. Repository State is
-`MERGED_UNRECONCILED` until this Finalization merges; Workspace Cleanup then
-establishes `WORKSPACE_READY`.
+renderer, API, ownership or implementation technology. Repository State: `MERGED_UNRECONCILED`.
+Workspace State: `NOT_READY` until this Finalization merges; Workspace Cleanup
+then establishes `WORKSPACE_READY`.
 
 ## Historical operational context
 
