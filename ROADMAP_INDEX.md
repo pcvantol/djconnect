@@ -14,6 +14,7 @@ Use this index to find the one canonical record for current work.
 | Implemented cross-platform capability catalog, projections and convergence decisions | `DJCONNECT_CAPABILITY_MODEL.md` | Platform Foundation |
 | Host Role abstraction, capability inheritance and platform role matrix | `HOST_ROLE_ARCHITECTURE.md` | Platform Foundation |
 | Raspberry Pi Platform Family and Pi 4-inch/Pi 10-inch Concrete Host architecture | `RASPBERRY_PI_PLATFORM_FOUNDATION.md` | Platform Evolution |
+| Canonical reverse-engineered cross-surface experience baseline and Experience Gap Analysis framework | `EXPERIENCE_FOUNDATION.md` | Experience Engineering |
 | Assessment-first capability-model planning projection | `CAPABILITY_MODEL_BACKLOG.md` | Platform Evolution |
 | Live Playback Observation, Continue Current Playback Continuity and external capability dependencies | `docs/product/DJ_INTELLIGENCE_MATURITY.md` (canonical maturity, blocked status and planning policy), `docs/product/LIVE_PLAYBACK_OBSERVATION.md`, `docs/product/CONTINUE_CURRENT_PLAYBACK_CONTINUITY.md`, `docs/adr/0016-playback-instance-identity-observation-boundary.md` | DJConnect Product Development |
 | DJ Session transport independence, HTTP recovery and transport-neutral Broadcast delivery | `DJ_SESSION_TRANSPORT_ARCHITECTURE.md` | DJConnect Product Development |
