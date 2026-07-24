@@ -14,6 +14,9 @@ foundations remain reference points, not active architecture work.
 The public Community release defines the minimum lovable DJConnect product,
 not the complete long-term product vision.
 
+The roadmap governs product evolution. Platform implementations support the
+product; they do not automatically determine product readiness.
+
 ### Phase 0 — Generation 2 Foundations
 
 Completed: Product Definition, Product Philosophy Alignment, Capability
@@ -58,11 +61,10 @@ their established scope; this roadmap does not authorize their implementation.
 | 3 | Public Release Readiness Assessment | Planned | Phase 2 evidence; it determines minimum public-release scope without authorizing features |
 | 4 | Productization | Planned | Phase 3 assessment; no feature or paid-model commitment |
 | 5 | Community Public Release | Planned | Productization and explicit release selection; complete local-first Community Edition |
-| 6 | Desktop Platform Family | Planned | Community Public Release; current Windows Concrete Host; future Linux only after assessment |
 | 7 | Personal AI DJ evolution | Deferred | Community Public Release; existing Profile and Planner boundaries |
 | 8 | Future Cloud evolution | Deferred | Long-term product direction; Community local-first foundation remains primary |
 | Deferred | Ambient Light Renderer Host | Deferred | Universal Receiver maturity, Room Presentation Routing and real-hardware evaluation |
-| Deferred | VibeCast V1 implementation | Planned | Custom Web Receiver feasibility and bounded receiver-safe Session handoff |
+| Assessment | VibeCast release placement | Planned | Phase 3 decision: Community-defining Runtime Readiness or Platform-extending Platform Adoption |
 | Deferred | Audience Experience and Ambient Reactions | Deferred | Audience validation, privacy policy and bounded renderer design |
 | Deferred | Renderer discovery, pairing and authorization architecture | Deferred | Renderer Host classification and local-first device lifecycle requirements |
 | Deferred | Voice experience delivery | Planned | Stable current/historical Moment contracts and Assist capability validation |
@@ -87,6 +89,31 @@ minimum additional work needed for first public release, which may include
 onboarding, Session Timeline, minimal Music DNA, recovery UX, release quality
 or documentation. It may also conclude that some are unnecessary. No work is
 authorized until that assessment selects it.
+
+For every capability requiring a renderer, the assessment determines whether
+it is **Community-defining** or **Platform-extending**. Community-defining
+capability is Runtime Readiness work because it is required for the Community
+promise. Platform-extending capability is Platform Adoption work because it
+extends reach without changing that promise. Renderer implementation alone
+never determines roadmap placement.
+
+VibeCast is an explicit assessment decision: does Community v4.0 fulfil its
+product promise without VibeCast? If yes, VibeCast remains Platform Adoption
+work. If no, it becomes Runtime Readiness work through the Universal Receiver
+renderer. This roadmap does not predetermine the outcome.
+
+### Runtime Readiness — Community Public Release gate
+
+Runtime Readiness is the minimum functional completeness required before
+Community Public Release. It is a release gate owned by Home Assistant, the
+sole Runtime Host, and determines whether the Community product promise can be
+fulfilled independently of any one renderer.
+
+Its evidence covers the existing Session Runtime, Planner, Knowledge, DJMoment,
+Presentation, Broadcast, Ask DJ, Track Insight, Discover, Session Memory,
+capability contracts, pairing and APNs support where required for Apple. This
+is a release-readiness classification, not a new capability or implementation
+commitment.
 
 ### Phase 4 — Productization
 
@@ -114,15 +141,23 @@ public release remains Community-only.
 
 This is the first public product milestone: a complete Community Edition that
 is local-first, requires no cloud account, is not a trial and is not a reduced
-product. Only work explicitly selected by the Release Readiness Assessment and
-Productization is implemented; Personal capabilities are not automatically
-included.
+product. Apple is its first public consumer implementation and premium
+reference, without becoming product or Runtime owner. Only work explicitly
+selected by the Release Readiness Assessment and Productization is implemented;
+Personal capabilities are not automatically included.
 
-### Phase 6 — Desktop Platform Family
+### Independent Platform Adoption
 
-The current Desktop Concrete Host is Windows. This phase follows Community
-Public Release. A future Linux host requires its own assessment; no implementation
-technology decision is introduced.
+Platform Adoption is the independent, non-release-gating stream that brings
+the completed Runtime to additional Concrete Hosts when it does not block the
+current product milestone. It includes Raspberry Pi, ESPHome Voice, the
+Desktop Platform Family, Website, Universal Receiver renderer and ESP32.
+
+Apple remains the first public consumer product and the premium reference
+implementation of the Community product; it does not own the product or
+Runtime. The current Desktop Concrete Host is Windows and follows the first
+public Apple release. A future Linux host requires its own assessment; no
+implementation technology decision is introduced.
 
 ### Phases 7 and 8 — Long-term evolution
 

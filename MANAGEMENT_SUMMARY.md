@@ -36,9 +36,16 @@ not replace product direction. Future user-facing work uses Experience
 Assessment, Experience Gap Analysis, Implementation and Experience Validation.
 Apple Premium Experience precedes a Public Release Readiness Assessment and
 Productization, which together determine the minimum lovable Community Public
-Release scope before any delivery is selected. Desktop follows Community Public
-Release. Commercial readiness is assessment-only and does not authorize a paid
-model.
+Release scope before any delivery is selected. Apple is the first public
+consumer implementation; Desktop follows that first public Apple release.
+Commercial readiness is assessment-only and does not authorize a paid model.
+
+Runtime Readiness is the Home Assistant-owned release gate for the minimum
+functional completeness of the Community promise. Platform Adoption is a
+separate, non-release-gating stream for bringing the completed Runtime to
+additional Concrete Hosts. VibeCast placement is an explicit Release Readiness
+Assessment decision: it remains Platform Adoption unless the assessment finds
+it Community-defining Runtime Readiness work.
 reconciles its validation evidence and immutable Prompt History.
 
 PR #438 establishes the Experience Foundation v1: a reverse-engineered,

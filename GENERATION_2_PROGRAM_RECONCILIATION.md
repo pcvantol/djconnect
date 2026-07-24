@@ -50,6 +50,9 @@ existing Session behaviour; it is not a replacement for the product direction.
 The public Community release defines the minimum lovable DJConnect product,
 not the complete long-term product vision.
 
+The roadmap governs product evolution. Platform implementations support that
+product; they do not automatically determine product readiness.
+
 ### Completed foundations
 
 | Foundation | Status | Canonical authority |
@@ -84,7 +87,6 @@ records only its program-level status:
 | 3 | Public Release Readiness Assessment | Planned |
 | 4 | Productization | Planned |
 | 5 | Community Public Release | Planned |
-| 6 | Desktop Platform Family | Planned |
 | 7 | Personal AI DJ evolution | Deferred |
 | 8 | Future Cloud evolution | Deferred |
 
@@ -100,6 +102,48 @@ distribution and beta strategy, App Store readiness, supported-platform and
 accessibility review, signing/notarization/CI/CD readiness, compliance,
 support operations, release notes and localization approval. Each workstream
 still requires its own selection and implementation authorization.
+
+### Runtime Readiness
+
+**Runtime Readiness** is the minimum functional completeness required before
+Community Public Release. It is a release gate owned by Home Assistant, the
+sole Runtime Host. It determines whether the Community product promise can be
+fulfilled, independently of any one renderer implementation.
+
+Its release evidence covers the existing Runtime and its canonical contracts:
+Session Runtime, Planner, Knowledge, DJMoment, Presentation, Broadcast, Ask
+DJ, Track Insight, Discover, Session Memory, capability contracts, pairing and
+APNs support where required for Apple. This is a readiness classification, not
+a new capability or implementation commitment.
+
+For every capability that needs a renderer, Release Readiness Assessment first
+decides whether it is **Community-defining** or **Platform-extending**.
+Community-defining capability is Runtime Readiness work because it is required
+for the Community promise. Platform-extending capability belongs to Platform
+Adoption because it broadens reach without changing that promise. Renderer
+implementation alone never determines placement.
+
+### Platform Adoption
+
+**Platform Adoption** is the independent, non-release-gating stream that
+brings the completed Runtime to additional Concrete Hosts when doing so does
+not block the current product milestone. It includes Raspberry Pi, ESPHome
+Voice, the Desktop Platform Family, Website, Universal Receiver renderer and
+ESP32 adoption work. It changes neither Runtime ownership nor product
+readiness.
+
+Apple remains the first public consumer product and the premium reference
+implementation of the Community product; it never owns the product or the
+Runtime. Desktop adoption follows the first public Apple release. Future Linux
+remains separately assessable, with no technology choice made here.
+
+### VibeCast Release Readiness decision
+
+VibeCast is not pre-classified. The Release Readiness Assessment asks whether
+Community v4.0 fulfils its product promise without VibeCast. If yes, VibeCast
+remains Platform Adoption work. If no, it becomes Runtime Readiness work
+through the Universal Receiver renderer. The assessment, not a renderer
+implementation, determines that outcome.
 
 Future user-facing work follows the Experience Engineering sequence:
 
