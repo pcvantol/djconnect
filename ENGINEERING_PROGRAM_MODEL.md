@@ -19,8 +19,9 @@ not be duplicated there.
 
 - Every active initiative records its owner, priority, dependencies, status and
   promotion path in its canonical program register.
-- Status is exactly one of: Completed, Operational, In Progress, Planned,
-  Backlog, Innovation Lab or Deferred.
+- Status is exactly one of: Completed, Current execution, Planned, Deferred,
+  Historical or Retired. Innovation Lab records use the same vocabulary and
+  identify their owning program separately.
 - Operational release work is temporary work outside the three programs. It is
   recorded in `MANAGEMENT_SUMMARY.md` and release evidence, never promoted into
   a permanent program merely because it is urgent.

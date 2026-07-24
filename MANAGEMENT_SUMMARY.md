@@ -18,6 +18,34 @@
 PR [#438](https://github.com/pcvantol/djconnect/pull/438), **Establish
 Experience Engineering Foundation**, merged as
 `1bfabbb7986e50c2e8cd4ecebdf44e39ddf5376f`. This dedicated Finalization
+
+Generation 2 Program Reconciliation is the current documentation and
+governance increment. The completed foundation inventory, current execution,
+historical transition treatment and future Platform Evolution backlog are
+defined in `GENERATION_2_PROGRAM_RECONCILIATION.md`. It introduces no Runtime,
+renderer, product, capability, ownership, API or implementation change.
+
+The completed Generation 2 foundations are Product Definition 2.1, Product
+Philosophy Alignment, Capability Architecture, Host Role Architecture,
+Raspberry Pi Platform Foundation and Experience Foundation v1. They are no
+longer active roadmap work. Automated Session Intelligence E2E Verification is
+the current engineering execution for the **Reference Experience** Product
+Initiative. The initiative is the first complete canonical DJConnect experience
+across interaction and presentation surfaces; verification enables it and does
+not replace product direction. Future user-facing work uses Experience
+Assessment, Experience Gap Analysis, Implementation and Experience Validation.
+Apple Premium Experience precedes a Public Release Readiness Assessment and
+Productization, which together determine the minimum lovable Community Public
+Release scope before any delivery is selected. Apple is the first public
+consumer implementation; Desktop follows that first public Apple release.
+Commercial readiness is assessment-only and does not authorize a paid model.
+
+Runtime Readiness is the Home Assistant-owned release gate for the minimum
+functional completeness of the Community promise. Platform Adoption is a
+separate, non-release-gating stream for bringing the completed Runtime to
+additional Concrete Hosts. VibeCast placement is an explicit Release Readiness
+Assessment decision: it remains Platform Adoption unless the assessment finds
+it Community-defining Runtime Readiness work.
 reconciles its validation evidence and immutable Prompt History.
 
 PR #438 establishes the Experience Foundation v1: a reverse-engineered,

@@ -1,39 +1,45 @@
 # DJConnect Platform Evolution Backlog
 
 **Owner:** Platform Evolution
-**Status:** Canonical active backlog
+**Status:** Canonical future-evolution backlog
 
-Platform Evolution is supporting work, not the primary roadmap. Items enter
-this backlog only after objective evidence shows that product delivery, safety
-or governed operations are constrained.
+Platform Evolution is supporting work, not the primary roadmap. Completed
+Generation 2 foundations are recorded in
+`GENERATION_2_PROGRAM_RECONCILIATION.md`, not in this backlog. Every item
+below uses exactly one program status: Completed, Current execution, Planned,
+Deferred, Historical or Retired.
+
+Platform Evolution remains assessment-first foundation evolution, governance,
+qualification, privacy and release maturity. It is not the primary source of
+user-facing roadmap progress; the current Product Initiative is recorded in
+`PRODUCT_ROADMAP.md`.
 
 | Initiative | Priority | Status | Dependencies | Promotion path |
 | --- | --- | --- | --- | --- |
-| Capability Model adoption and capability-profile assessment | P2 | Planned | `DJCONNECT_CAPABILITY_MODEL.md`, current contract/host evidence | assessment-first increments in `CAPABILITY_MODEL_BACKLOG.md`; no product implementation authorization |
-| Canonical governance Version 2.2 alignment | P0 | Reviewable / merge pending | merge and reconcile PR #126 | repository-by-repository adoption planning |
-| Component Release Mode | P2 | Backlog | release evidence and current manifest model | bounded architecture review if contracts change |
-| GitHub Actions retention and evidence preservation (`TD-GITHUB-001`) | P1 | Open / Backlog | governance approval, Repository Ownership integration and a future approved retention design | governed implementation only after design and qualification |
-| Public distribution: Apple | P1 | Backlog | qualified Internal Release consumers and explicit authorization | release-operational work |
-| Public distribution: Windows | P1 | Backlog | qualified Internal Release consumers and explicit authorization | release-operational work |
-| Public HACS distribution | P1 | Backlog | fresh candidate and release authorization | release-operational work |
-| HACS 3.3.0 release visibility (`HACS-3.3.0-001`) | P1 | Open / Backlog | verify release/tag metadata, HACS cache/index discovery and update presentation | bounded distribution investigation; separate from the active HA HTTP-route runtime incident |
-| Home Assistant DJConnect HTTP-route registration (`HA-HTTP-ROUTE-3.3.0-001`) | P0 | Active incident | installed 3.3.0 artifact, active integration lifecycle and successful live route smoke | identify why the HA runtime still returns HTTP 404 for `/status`, `/command` and `/voice` after a successful target deployment; do not treat it as a Pi-client or HACS-distribution defect |
-| Firmware OTA publication and staged rollback | P1 | Backlog | manifest-bound consumer qualification | release-operational work |
-| Website production deployment and announcements | P1 | Backlog | approved manifest and consumer qualification | release-operational work |
-| Technical Debt Engine integration | P1 | Backlog | released standalone TDE CLI, stable evidence schema, trusted distribution and Software Assurance compatibility | Platform Evolution integration after external product initialization |
-| Privacy Assessment | P2 | Backlog | privacy inventory, profile/shared-device review and Software Assurance compatibility | Platform Evolution assessment; possible future standalone engine |
-| SBOM generation | P2 | Backlog | Trusted Delivery compatibility assessment | scoped Platform Evolution proposal |
-| Release Health and observability | P2 | Design Complete / Implementation Backlog | operational release evidence and [`PLATFORM_RELEASE_OBSERVATORY_DESIGN.md`](docs/platform_evolution/PLATFORM_RELEASE_OBSERVATORY_DESIGN.md) | three bounded delivery increments; no implementation authorization |
-| Platform diagnostics | P3 | Backlog | privacy and redaction review | scoped Platform Evolution proposal |
-| Future governance improvements | P3 | Backlog | governance evidence | governance review |
+| Capability-profile assessment follow-up | P2 | Planned | `DJCONNECT_CAPABILITY_MODEL.md`, current contract/host evidence | assessment-first increments in `CAPABILITY_MODEL_BACKLOG.md`; no product implementation authorization |
+| Canonical governance Version 2.2 alignment | P0 | Historical | merged governance evidence | retained governance evidence only |
+| Component Release Mode | P2 | Planned | release evidence and current manifest model | bounded architecture review if contracts change |
+| GitHub Actions retention and evidence preservation (`TD-GITHUB-001`) | P1 | Planned | governance approval, Repository Ownership integration and a future approved retention design | governed implementation only after design and qualification |
+| Public distribution: Apple | P1 | Planned | qualified Internal Release consumers and explicit authorization | release-operational work |
+| Public distribution: Windows | P1 | Planned | qualified Internal Release consumers and explicit authorization | release-operational work |
+| Public HACS distribution | P1 | Planned | fresh candidate and release authorization | release-operational work |
+| HACS 3.3.0 release visibility (`HACS-3.3.0-001`) | P1 | Planned | verify release/tag metadata, HACS cache/index discovery and update presentation | bounded distribution investigation |
+| Home Assistant DJConnect HTTP-route registration (`HA-HTTP-ROUTE-3.3.0-001`) | P0 | Historical | reconciled incident evidence | retained incident evidence only |
+| Firmware OTA publication and staged rollback | P1 | Planned | manifest-bound consumer qualification | release-operational work |
+| Website production deployment and announcements | P1 | Planned | approved manifest and consumer qualification | release-operational work |
+| Technical Debt Engine integration | P1 | Deferred | released standalone TDE CLI, stable evidence schema, trusted distribution and Software Assurance compatibility | Platform Evolution integration after external product initialization |
+| Privacy Assessment | P2 | Planned | privacy inventory, profile/shared-device review and Software Assurance compatibility | Platform Evolution assessment; possible future standalone engine |
+| SBOM generation | P2 | Planned | Trusted Delivery compatibility assessment | scoped Platform Evolution proposal |
+| Release Health and observability | P2 | Planned | operational release evidence and [`PLATFORM_RELEASE_OBSERVATORY_DESIGN.md`](docs/platform_evolution/PLATFORM_RELEASE_OBSERVATORY_DESIGN.md) | three bounded delivery increments; no implementation authorization |
+| Platform diagnostics | P3 | Planned | privacy and redaction review | scoped Platform Evolution proposal |
+| Future governance improvements | P3 | Planned | governance evidence | governance review |
 
-## Current operational work
+## Historical operational context
 
-Platform Release 3.3 Internal is **Operational** but remains blocked. It needs
-a fresh exact-SHA candidate manifest, qualified manifest-bound deployment and
-smoke consumers for every required target, and explicit dispatch authorization.
-It is documented in `docs/release/PLATFORM_RELEASE_MANAGEMENT_SUMMARY.md`; it
-does not become a fourth program.
+Platform Release 3.3 Internal is **Historical** operational evidence. Its
+completed release and any retained operational evidence are documented in
+`docs/release/PLATFORM_RELEASE_MANAGEMENT_SUMMARY.md`; they do not become a
+fourth program or an active Platform Evolution item.
 
 ## Backlog detail: GitHub Actions retention and evidence preservation
 
