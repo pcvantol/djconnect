@@ -33,20 +33,20 @@ The files below define Platform Strategy, then the platform foundation itself.
 16. `CLIENT_CAPABILITY_MATRIX.md`
 17. `DJCONNECT_CAPABILITY_MODEL.md`
 18. `HOST_ROLE_ARCHITECTURE.md`
-19. `LOCALIZATION_STANDARD.md`
-20. `PRODUCT_LANGUAGE.md`
-21. `PLATFORM_GOVERNANCE.md`
-22. `PLATFORM_QUALITY_STANDARD.md`
-23. `PLATFORM_BACKLOG.md`
-24. `INNOVATION_LAB.md`
-25. `docs/research/R0_RUNTIME_INDEPENDENCE.md` where runtime evolution is relevant
-26. `ADR_INDEX.md`
-27. `CI_CD_RELEASE_GOVERNANCE.md`
-28. `docs/verification/00_VERIFICATION_VISION.md`
-29. `docs/verification/01_VERIFICATION_ARCHITECTURE.md`
-30. `tools/verification/README.md`
-31. `tools/verification/RUNTIME_CAPABILITIES.md`
-32. `tools/verification/RUNTIME_COMPATIBILITY.md`
+19. `RASPBERRY_PI_PLATFORM_FOUNDATION.md`
+20. `LOCALIZATION_STANDARD.md`
+21. `PRODUCT_LANGUAGE.md`
+22. `PLATFORM_GOVERNANCE.md`
+23. `PLATFORM_QUALITY_STANDARD.md`
+24. `PLATFORM_BACKLOG.md`
+25. `INNOVATION_LAB.md`
+26. `docs/research/R0_RUNTIME_INDEPENDENCE.md` where runtime evolution is relevant
+27. `ADR_INDEX.md`
+28. `CI_CD_RELEASE_GOVERNANCE.md`
+29. `docs/verification/00_VERIFICATION_VISION.md`
+30. `docs/verification/01_VERIFICATION_ARCHITECTURE.md`
+31. `tools/verification/README.md`
+32. `tools/verification/RUNTIME_CAPABILITIES.md`
 33. `tools/verification/RUNTIME_COVERAGE.md`
 34. `tools/verification/RUNTIME_METADATA.md`
 35. `tools/verification/RUNTIME_ROADMAP.md`
