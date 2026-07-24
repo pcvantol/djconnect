@@ -17,17 +17,19 @@ exists only to execute, observe or validate these approved contracts.
 | --- | --- | --- | --- | --- |
 | 1 | Unit Tests | Protect local implementation correctness. | Every implementation PR | Blocking |
 | 2 | Integration Tests | Protect subsystem boundaries. | Every implementation PR | Blocking |
-| 3 | Golden Qualification Foundation | Execute the canonical deterministic server-side path for current Session Intelligence and Presentation evidence. | Local development and future CI reuse | Implemented; no CI gate yet |
-| 4 | Golden Smoke profile | Select the smallest approved end-to-end behavior, `SI-GOLDEN-001`, from the Foundation. | Local development and future CI reuse | Implemented; no CI gate yet |
-| 5 | Golden Regression profile | Select the complete approved Session Intelligence catalogue, `SI-GOLDEN-001` through `SI-GOLDEN-006`, from the Foundation. | Local development and future broader qualification reuse | Implemented locally; no CI gate yet |
+| 3 | Golden Qualification Foundation | Execute the canonical deterministic server-side path for current Session Intelligence and Presentation evidence. | Local development and advisory CI reuse | Implemented; no required CI gate |
+| 4 | Golden Smoke profile | Select the smallest approved end-to-end behavior, `SI-GOLDEN-001`, from the Foundation. | Local development and advisory pull-request CI | Implemented; advisory only |
+| 5 | Golden Regression profile | Select the complete approved Session Intelligence catalogue, `SI-GOLDEN-001` through `SI-GOLDEN-006`, from the Foundation. | Local development and advisory `main`, manual and scheduled CI | Implemented; advisory only |
 | 6 | Advisory Intelligence Quality Metrics | Provide bounded, report-derived qualification insight. | Optional local report section | Implemented; advisory only |
 
 Golden Smoke remains deterministic, fast, stable and small enough for routine
 CI. Golden Regression is the broader qualification suite. Both are execution
 profiles of the implemented
 [Golden Qualification Foundation](GOLDEN_QUALIFICATION_FOUNDATION.md), not
-separate verification implementations. This policy does not define their CI
-workflow. The future
+separate verification implementations. Advisory CI uses the existing Smoke
+profile for pull requests and the existing Regression profile for `main`,
+manual and scheduled qualification. The CI workflow remains non-blocking and
+non-required. The future
 [Presentation Verification Architecture](PRESENTATION_VERIFICATION_ARCHITECTURE.md)
 adds a distinct Presentation Golden Scenario family before either qualification
 layer is extended. It verifies immutable Presentation composition and
@@ -69,16 +71,16 @@ policy continues to own qualification layers and metric-promotion rules.
 
 ## CI policy boundary
 
-The intended policy is that every production-code implementation PR eventually
-executes Unit Tests, Integration Tests and Golden Smoke. Golden Regression runs
-in broader `main`, release-qualification and scheduled-verification contexts.
-Once separately authorized and implemented, these layers may include both
-Session Intelligence and Presentation Golden Scenario families. That future
-extension does not alter the current suite or authorize CI work.
+The current policy executes Unit Tests, Integration Tests and advisory Golden
+Smoke for production-code implementation pull requests. Advisory Golden
+Regression runs in broader `main`, manual and scheduled-verification contexts.
+Neither profile is a required check, merge protection or release gate. A future
+promotion or extension to further Golden Scenario families requires separate
+governance and does not alter the current suite.
 
-This document defines qualification policy only. It does not implement GitHub
-Actions, scenario execution, reporting, metrics, Runtime changes or
-Verification infrastructure.
+This document defines qualification policy. The advisory CI workflow reuses the
+existing scenario execution and bounded report projection; it does not alter
+metrics, Runtime behavior or Verification infrastructure.
 
 ## References
 
