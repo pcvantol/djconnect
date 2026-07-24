@@ -28,17 +28,19 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-PR [#433](https://github.com/pcvantol/djconnect/pull/433), **Add canonical
-capability model v1.0**, merged as
-`cfb299965f06f15500b139de969e7ae2e4aec773`. This dedicated Finalization
+PR [#436](https://github.com/pcvantol/djconnect/pull/436), **Align product
+philosophy documentation**, merged as
+`d237c50e4bb0f622074fef630b4060854fc029c6`. This dedicated Finalization
 reconciles its immutable Prompt History and rolling repository truth.
 
-PR #433 establishes the Generation 2 Capability Architecture. Canonical
-capabilities now map through Host Roles to Concrete Hosts, while Platform
-Families remain non-participating product/release/technology groupings. No
-Runtime, renderer, API, ownership or implementation technology changed.
-Repository State: `MERGED_UNRECONCILED`. Workspace State: `NOT_READY` pending
-this governance-only Finalization; Workspace Cleanup follows its merge.
+PR #436 reviewed every canonical document under `docs/product/` against
+Product Definition 2.1 and made wording-only alignment updates. The product is
+one local-first AI DJ experience centred on the DJ Session; Community remains
+complete and local-first, Personal remains opt-in continuity for the same DJ,
+and Cloud remains additive. No Runtime, renderer, API, ownership, roadmap or
+implementation commitment changed. Repository State: `MERGED_UNRECONCILED`.
+Workspace State: `NOT_READY` pending this governance-only Finalization;
+Workspace Cleanup follows its merge.
 
 ## Historical repository context
 
