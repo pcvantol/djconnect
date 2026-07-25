@@ -4,15 +4,19 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#474](https://github.com/pcvantol/djconnect/pull/474), **Reconcile Sharing
-Experience architecture**, merged as `e66d7576642b846c91d937247856c9da99d46b62`.
-Its immutable assessment history is
-`docs/history/prompts/2026-07-25-sharing-experience-architecture-reconciliation.md`;
-this Finalization records rolling-state reconciliation. The active supporting
-increment remains Automated Session Intelligence E2E Verification.
+PR [#477](https://github.com/pcvantol/djconnect/pull/477), **Assess read-only
+Developer Overlay**, merged as `63ea10edcb902fce032ec767fb155cffd03edd2a`.
+Its immutable Pre-Flight history is
+`docs/history/prompts/2026-07-25-read-only-developer-overlay-preflight.md`.
+The decision `GO_READ_ONLY_DEVELOPER_OVERLAY` permits only a separately
+authorized, development-only, default-off implementation using existing
+renderer-safe Broadcast data and local transport state. This Finalization
+records rolling-state reconciliation; the active supporting increment remains
+Automated Session Intelligence E2E Verification.
 
 The current roadmap handoff is Phase 1 **DJ Intelligence Evolution** with the
-read-only Developer Overlay as the next E2E Pre-Flight candidate. `CMB-11`
+read-only Developer Overlay as the next E2E implementation candidate, subject
+to separate authorization. `CMB-11`
 retains one future Sharing producer/native Renderer assessment; `CMB-04`
 retains Renderer Experience roadmap atomization. Playback Observation Stage 2
 and Continue Stage 2 remain externally blocked by Playback Instance Identity.

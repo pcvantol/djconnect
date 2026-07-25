@@ -47,13 +47,13 @@ additional Concrete Hosts. VibeCast placement is an explicit Release Readiness
 Assessment decision: it remains Platform Adoption unless the assessment finds
 it Community-defining Runtime Readiness work.
 
-PR [#474](https://github.com/pcvantol/djconnect/pull/474), **Reconcile Sharing
-Experience architecture**, merged as `e66d7576642b846c91d937247856c9da99d46b62`.
-It records a planned native Renderer Host Sharing Experience: existing Track
-Insight, DJMoment, Session Flow, Discover, Ask DJ and Music DNA may be bounded
-future producers, while sharing remains user-initiated and privacy-led. No
-share implementation or Runtime, Broadcast, Planner, Session Flow or DJMoment
-behavior changed. Decision: `SHARING_EXPERIENCE_ARCHITECTURE_ESTABLISHED`.
+PR [#477](https://github.com/pcvantol/djconnect/pull/477), **Assess read-only
+Developer Overlay**, merged as `63ea10edcb902fce032ec767fb155cffd03edd2a`.
+It records `GO_READ_ONLY_DEVELOPER_OVERLAY` for one future, separately
+authorized development-only overlay. It may project only existing renderer-safe
+Broadcast fields and local transport state; it is default-off in production and
+cannot introduce controls, endpoints, Runtime/Planner/Knowledge access or
+qualification authority. No overlay implementation or product behavior changed.
 Repository State: `MERGED_RECONCILED`. Workspace State: `WORKSPACE_READY`
 after this Finalization and verified cleanup.
 
@@ -61,14 +61,16 @@ after this Finalization and verified cleanup.
 
 DJConnect remains in Generation 2, Phase 1 — **DJ Intelligence Evolution**.
 Automated Session Intelligence E2E Verification remains the active supporting
-engineering execution. Its next Product Development Pre-Flight candidate is
+engineering execution. Its next Product Development implementation candidate is
 the **read-only Developer Overlay**: a development-only, non-authoritative
-surface, disabled in production by default.
+surface, disabled in production by default, with Pre-Flight
+`GO_READ_ONLY_DEVELOPER_OVERLAY` completed. A separate implementation prompt
+remains required.
 
 The visible five-item follow-on backlog is:
 
 1. E2E roadmap item 18 — **read-only Developer Overlay** (the sole next
-   Product Development Pre-Flight candidate).
+   implementation candidate; separate authorization required).
 2. `CMB-11` — select and assess exactly one Sharing Experience producer and
    one native Renderer Host, with explicit Profile privacy evidence; no Runtime,
    Broadcast, public URL or social-service scope.
