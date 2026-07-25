@@ -28,12 +28,11 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-PR [#466](https://github.com/pcvantol/djconnect/pull/466), **Reconcile playback observation adaptive planning**, merged as
-`68390a795d33ac1ceee57c014052f1a519636588`. This dedicated Finalization
+PR [#468](https://github.com/pcvantol/djconnect/pull/468), **Reconcile session direction architecture**, merged as
+`df8e4fd9e5eb19d9eb00255442d41f8fb64bcb25`. This dedicated Finalization
 reconciles its immutable Prompt History and rolling repository truth.
 
-PR #466 reconciles existing observation and Horizon architecture; Continue Stage
-2 is externally blocked. No implementation changed. Repository State:
+PR #468 records a future mutable Session Direction Projection; no implementation changed. Repository State:
 `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY` after cleanup.
 
 ## Historical repository context

@@ -5,13 +5,12 @@
 
 ## Current engineering increment
 
-PR [#466](https://github.com/pcvantol/djconnect/pull/466), **Reconcile playback observation adaptive planning**, merged as
-`68390a795d33ac1ceee57c014052f1a519636588`. This dedicated Finalization
+PR [#468](https://github.com/pcvantol/djconnect/pull/468), **Reconcile session direction architecture**, merged as
+`df8e4fd9e5eb19d9eb00255442d41f8fb64bcb25`. This dedicated Finalization
 reconciles its immutable Prompt History and rolling records.
 
-PR #466 confirms backend playback ownership and records Continue Stage 2 as
-externally blocked pending occurrence identity. No Runtime, Planner, provider
-or API implementation changed. Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY` after cleanup.
+PR #468 records a future renderer-safe Session Direction Projection design; no
+Runtime, Planner, Broadcast or renderer implementation changed. Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY` after cleanup.
 
 ## Historical operational context
 
