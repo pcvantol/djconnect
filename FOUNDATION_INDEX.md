@@ -189,6 +189,17 @@ collaborate while evolving the platform.
 - `docs/meta/AI_AGENT_GUIDELINES.md` defines how AI agents are expected to
   operate within the DJConnect engineering process.
 
+### Development collaboration docs
+
+`docs/development/` contains repository-owned collaboration and development
+process documentation. It does not define product architecture or replace the
+Meta Engineering method.
+
+- `docs/development/DEVELOPER_HANDOFF.md` defines the repository-first
+  continuity workflow for new ChatGPT Product & Platform Architect sessions.
+- `docs/development/README.md` is the navigation page and points to the
+  canonical Product Development assessment workflow.
+
 ### Operational docs
 
 ### Platform Release Engineering
