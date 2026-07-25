@@ -503,7 +503,8 @@ Updated Documentation
 Merged Finalization with updated rolling records, Prompt History and applicable
 roadmap/governance records
 
-Workspace Cleanup report with `WORKSPACE_READY` decision
+Workspace Cleanup report with `WORKSPACE_READY` decision and explicit stale
+local branch result (`none` or named branches with disposition)
 
 Repository Improvements
 
