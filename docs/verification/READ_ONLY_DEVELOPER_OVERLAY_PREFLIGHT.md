@@ -6,10 +6,10 @@
 
 The original shipping-overlay decision was narrowed by the
 [Delivery Guard Pre-Flight](DEVELOPER_OVERLAY_DELIVERY_GUARD_PREFLIGHT.md).
-The next separately authorized implementation may add only an **E2E-only,
-process-local read-only overlay** composed by the existing Universal Receiver
-Browser E2E harness. It is not a product capability, public-release requirement,
-shipping development build feature or Golden Qualification authority.
+The completed implementation is an **E2E-only, process-local read-only
+overlay** composed by the existing Universal Receiver Browser E2E harness. It
+is not a product capability, public-release requirement, shipping development
+build feature or Golden Qualification authority.
 
 ## Purpose and release policy
 
@@ -77,15 +77,15 @@ same snapshot/event sequence but neither executes, captures nor validates a
 scenario. Headless Golden Qualification remains complete without it; the
 Structural Invariant Validator remains the sole PASS/FAIL authority.
 
-Focused future evidence must prove the overlay is unavailable by default in a
-production delivery, contains no controls or outbound mutation path, renders
-only the allowlisted projection fields, redacts/omits excluded data, preserves
-the existing Receiver reconnect and Runtime-end behavior, and has no effect on
-Golden Qualification reports or CI advisory/blocking semantics.
+The completed focused evidence proves the overlay is unavailable in production
+delivery, contains no controls or outbound mutation path, renders only the
+allowlisted projection fields, omits excluded data, preserves the existing
+Receiver reconnect and Runtime-end behavior, and has no effect on Golden
+Qualification reports or CI advisory/blocking semantics.
 
-## Explicit exclusions
+## Completion and explicit exclusions
 
 No Runtime, Planner, Knowledge Engine, DJMoment, Session Flow, Broadcast,
 Capability Registry, HTTP API, WebSocket API, Golden Scenario, renderer
-ownership, playback or product behavior changes are authorized by this
-assessment. No developer overlay implementation is included here.
+ownership, playback or product behavior changes were authorized or made by this
+work. The completed harness composition is the sole implementation outcome.

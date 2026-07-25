@@ -43,10 +43,12 @@ registry metadata, Start Strategy, Persona, renderer identity, credentials or
 provider data. It protects, but does not execute, capture or validate,
 `SI-GOLDEN-001` through `SI-GOLDEN-006`.
 
-## Exactly one next step
+## Implemented outcome
 
-Authorize one bounded **E2E-only Developer Overlay harness implementation**:
-compose an allowlisted read-only panel in the existing headless Receiver
-harness, test its presence only in the harness and its absence from the served
-Receiver/release artifact, and retain the existing Browser E2E privacy,
-transport and qualification boundaries.
+The authorized **E2E-only Developer Overlay harness implementation** is
+complete. It composes an allowlisted read-only panel only in the existing
+headless Receiver harness, tests its presence there and its absence from the
+served Receiver/release artifact, and retains the existing Browser E2E privacy,
+transport and qualification boundaries. This records
+`E2E_HARNESS_OBSERVABILITY_IMPLEMENTED`; it does not authorize a shipping
+overlay or any follow-on implementation.
