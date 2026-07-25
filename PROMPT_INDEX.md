@@ -4,16 +4,16 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#445](https://github.com/pcvantol/djconnect/pull/445), **Report stale
-local branches in finalization**, merged as
-`34f2cc23808727b8ee933b8c4b62fa53334a95e4`. Its dedicated Finalization
+PR [#447](https://github.com/pcvantol/djconnect/pull/447), **Report two-PR
+management feedback at finalization**, merged as
+`7d2301dddd14a75d76eec1ff352ce44e5a52edf1`. Its dedicated Finalization
 reconciles the immutable Prompt History at
-`docs/history/prompts/2026-07-25-finalization-stale-branch-reporting.md`.
+`docs/history/prompts/2026-07-25-finalization-management-feedback.md`.
 
-Every post-Finalization Workspace Cleanup now explicitly reports whether stale
-local branches remain. This is audit output only: it identifies names and
-dispositions without authorizing deletion beyond the completed capability
-branch. No architecture or implementation is authorized by this refinement.
+Every post-Finalization Workspace Cleanup now produces an evidence-based
+management feedback summary of the two newest merged PRs for the Product &
+Platform Architect. It reports outcomes, preserved boundaries, validation and
+remaining decisions without authorizing new scope or architecture.
 
 PR [#431](https://github.com/pcvantol/djconnect/pull/431), **Add Universal
 Receiver browser E2E**, merged as
@@ -227,6 +227,7 @@ planning is read.
 
 | Prompt | Lifecycle | Coherent objective | Branch | Completion evidence |
 | --- | --- | --- | --- | --- |
+| Finalization Management Feedback | Completed / MERGED_UNRECONCILED / archived | Require evidence-based management feedback for the two newest merged PRs after every Finalization and Workspace Cleanup. | `codex/finalization-management-feedback` | `docs/history/prompts/2026-07-25-finalization-management-feedback.md`; PR [#447](https://github.com/pcvantol/djconnect/pull/447), merged as `7d2301dddd14a75d76eec1ff352ce44e5a52edf1`; dedicated Finalization is active. |
 | Finalization Stale Branch Reporting | Completed / MERGED_UNRECONCILED / archived | Require deterministic stale-local-branch reporting in every Finalization and Workspace Cleanup without broad deletion authority. | `codex/finalization-stale-branch-reporting` | `docs/history/prompts/2026-07-25-finalization-stale-branch-reporting.md`; PR [#445](https://github.com/pcvantol/djconnect/pull/445), merged as `34f2cc23808727b8ee933b8c4b62fa53334a95e4`; dedicated Finalization is active. |
 | DJ Intelligence Evolution Roadmap | Completed / MERGED_UNRECONCILED / archived | Add repository-grounded current-state intelligence evidence and reorder Generation 2 so the minimum DJ Intelligence baseline precedes Reference Experience, without architecture or implementation change. | `codex/dj-intelligence-capability-review` | `docs/history/prompts/2026-07-25-dj-intelligence-evolution-roadmap.md`; PR [#443](https://github.com/pcvantol/djconnect/pull/443), merged as `9e8daa6a8060e34a5212496bd35b46ee635d56e9`; dedicated Finalization is active. |
 | Generation 2 Program Reconciliation | Completed / MERGED_UNRECONCILED / archived | Reconcile completed foundations, product execution, Runtime Readiness, Productization, Community Public Release and Platform Adoption without architecture or implementation change. | `codex/generation-2-program-reconciliation` | `docs/history/prompts/2026-07-24-generation-2-program-reconciliation.md`; PR [#441](https://github.com/pcvantol/djconnect/pull/441), merged as `928544a02f9c927af71edb1cea15c48dd381927f`; dedicated Finalization is active. |
