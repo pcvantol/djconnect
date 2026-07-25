@@ -4,18 +4,19 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#441](https://github.com/pcvantol/djconnect/pull/441), **Reconcile
-Generation 2 product roadmap**, merged as
-`928544a02f9c927af71edb1cea15c48dd381927f`. Its dedicated Finalization
+PR [#443](https://github.com/pcvantol/djconnect/pull/443), **Add DJ
+intelligence review and prioritize intelligence evolution**, merged as
+`9e8daa6a8060e34a5212496bd35b46ee635d56e9`. Its dedicated Finalization
 reconciles the immutable Prompt History at
-`docs/history/prompts/2026-07-24-generation-2-program-reconciliation.md`.
+`docs/history/prompts/2026-07-25-dj-intelligence-evolution-roadmap.md`.
 
-Generation 2 is now a product-execution program built on completed
-foundations. Reference Experience is the current Product Initiative; Automated
-Session Intelligence E2E Verification is its enabling engineering workstream.
-Runtime Readiness, Productization, Community Public Release and Platform
-Adoption are distinct planning concerns. No architecture or implementation is
-authorized by this reconciliation.
+Generation 2 remains a product-execution program built on completed
+foundations. DJ Intelligence Evolution is the current Product Initiative;
+Automated Session Intelligence E2E Verification is its supporting engineering
+workstream. Reference Experience follows after the minimum intelligence
+baseline and its Universal Receiver renderer consumes, rather than defines,
+that baseline. No architecture or implementation is authorized by this
+refinement.
 
 PR [#431](https://github.com/pcvantol/djconnect/pull/431), **Add Universal
 Receiver browser E2E**, merged as
@@ -229,6 +230,7 @@ planning is read.
 
 | Prompt | Lifecycle | Coherent objective | Branch | Completion evidence |
 | --- | --- | --- | --- | --- |
+| DJ Intelligence Evolution Roadmap | Completed / MERGED_UNRECONCILED / archived | Add repository-grounded current-state intelligence evidence and reorder Generation 2 so the minimum DJ Intelligence baseline precedes Reference Experience, without architecture or implementation change. | `codex/dj-intelligence-capability-review` | `docs/history/prompts/2026-07-25-dj-intelligence-evolution-roadmap.md`; PR [#443](https://github.com/pcvantol/djconnect/pull/443), merged as `9e8daa6a8060e34a5212496bd35b46ee635d56e9`; dedicated Finalization is active. |
 | Generation 2 Program Reconciliation | Completed / MERGED_UNRECONCILED / archived | Reconcile completed foundations, product execution, Runtime Readiness, Productization, Community Public Release and Platform Adoption without architecture or implementation change. | `codex/generation-2-program-reconciliation` | `docs/history/prompts/2026-07-24-generation-2-program-reconciliation.md`; PR [#441](https://github.com/pcvantol/djconnect/pull/441), merged as `928544a02f9c927af71edb1cea15c48dd381927f`; dedicated Finalization is active. |
 | Experience Engineering Foundation | Completed / merged reconciled / archived | Establish the evidence-led Experience Foundation v1 without UI, Runtime, renderer, capability, ownership, API, product scope or implementation change. | `codex/experience-engineering-foundation-v1` | `docs/history/prompts/2026-07-24-experience-engineering-foundation.md`; PR [#438](https://github.com/pcvantol/djconnect/pull/438), merged as `1bfabbb7986e50c2e8cd4ecebdf44e39ddf5376f`; Finalization PR [#440](https://github.com/pcvantol/djconnect/pull/440) merged as `2482a3f2f177e2e50a1999902aac231ece9e3d25`. |
 | Product Philosophy Alignment | Completed / merged reconciled / archived | Align every canonical product document to Product Definition 2.1 without product, roadmap, architecture, ownership or implementation change. | `codex/product-philosophy-alignment` | `docs/history/prompts/2026-07-24-product-philosophy-alignment.md`; PR [#436](https://github.com/pcvantol/djconnect/pull/436), merged as `d237c50e4bb0f622074fef630b4060854fc029c6`; Finalization PR [#437](https://github.com/pcvantol/djconnect/pull/437) merged as `1a1f10db084328892abd331ae06b43e2485b0d61`. |

@@ -15,11 +15,12 @@
 
 ## Current position
 
-Generation 2 Program Reconciliation is the current documentation and
-governance increment. The completed foundation inventory, current execution,
-historical transition treatment and future Platform Evolution backlog are
-defined in `GENERATION_2_PROGRAM_RECONCILIATION.md`. It introduces no Runtime,
-renderer, product, capability, ownership, API or implementation change.
+DJ Intelligence Evolution roadmap refinement is the current documentation and
+governance increment. The repository-grounded capability review and revised
+Generation 2 execution order are defined in
+`docs/product/DJ_INTELLIGENCE_CAPABILITY_REVIEW.md`, `PRODUCT_ROADMAP.md` and
+`GENERATION_2_PROGRAM_RECONCILIATION.md`. It introduces no Runtime, renderer,
+product, capability, ownership, API or implementation change.
 
 The completed Generation 2 foundations are Product Definition 2.1, Product
 Philosophy Alignment, Capability Architecture, Host Role Architecture,
@@ -46,14 +47,14 @@ additional Concrete Hosts. VibeCast placement is an explicit Release Readiness
 Assessment decision: it remains Platform Adoption unless the assessment finds
 it Community-defining Runtime Readiness work.
 
-PR [#441](https://github.com/pcvantol/djconnect/pull/441), **Reconcile
-Generation 2 product roadmap**, merged as
-`928544a02f9c927af71edb1cea15c48dd381927f`. This dedicated Finalization
-reconciles its validation evidence and immutable Prompt History. The
-reconciliation changes planning and governance only; no Runtime, renderer,
-capability, ownership, API, product scope or implementation commitment changed.
-Repository State: `MERGED_UNRECONCILED`. Workspace State: `NOT_READY` pending
-this governance-only Finalization and subsequent Workspace Cleanup.
+PR [#443](https://github.com/pcvantol/djconnect/pull/443), **Add DJ
+intelligence review and prioritize intelligence evolution**, merged as
+`9e8daa6a8060e34a5212496bd35b46ee635d56e9`. This dedicated Finalization
+reconciles its validation evidence and immutable Prompt History. The refinement
+changes planning order only; no Runtime, renderer, capability, ownership, API,
+product scope or implementation commitment changed. Repository State:
+`MERGED_UNRECONCILED`. Workspace State: `NOT_READY` pending this governance-only
+Finalization and subsequent Workspace Cleanup.
 
 ## Historical management context
 
