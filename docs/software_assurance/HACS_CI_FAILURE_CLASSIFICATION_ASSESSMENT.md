@@ -1,10 +1,17 @@
 # HACS CI Failure Classification Assessment
 
-**Status:** Assessment complete
+**Status:** Superseded for current planning by
+[`HACS_CI_VALIDATOR_EVIDENCE_RECONCILIATION_ASSESSMENT.md`](HACS_CI_VALIDATOR_EVIDENCE_RECONCILIATION_ASSESSMENT.md)
 
 **Decision:** `HACS_CI_WORKFLOW_CORRECTION_REQUIRED`
 
 **Scope:** Existing Home Assistant/HACS CI route only.
+
+> **Current-planning note:** This assessment's historical observations remain
+> intact, but its `HACS_CI_WORKFLOW_CORRECTION_REQUIRED` decision is superseded
+> by PR #459 evidence that the same configured route successfully validated
+> both a pull-request head commit and merge commit. The reconciliation
+> assessment records the current `NO_GO_INSUFFICIENT_EVIDENCE` decision.
 
 ## Objective
 
