@@ -24,6 +24,13 @@ PRE-FLIGHT (mandatory; no production change before an explicit GO):
 - Canonical Repository Read: follow `BOOTSTRAP.md` through active roadmap/backlog and `PROMPT_INDEX.md` only after required reconciliation.
 - Implementation Reality Check: inspect existing functionality, validation, qualification and documentation; do not reimplement an existing outcome.
 - Capability Evidence: verify the requested capability is pending, the roadmap/architecture/maturity records are current, the validation baseline applies, and no superseding architecture amendment exists.
+- DJ Intelligence Applicability: determine whether the slice changes Session
+  Planner, Planner inputs/outputs, Knowledge Engine/source/selection/ranking,
+  DJMoment generation, narrative planning, Audience adaptation, Lyric
+  Intelligence, music understanding, recommendation reasoning, performance
+  learning or other Session decision logic. If it does, complete the
+  DJ Intelligence Assessment and Golden Scenario Assessment below before GO;
+  otherwise omit both sections entirely.
 - Golden Scenario Governance: for Verification work, name each approved Golden
   Scenario and its relationship (`enable`, `execute`, `capture`, `validate` or
   `protect`). For Session Intelligence work, name each affected approved
@@ -41,6 +48,22 @@ Current roadmap and backlog evidence:
 Golden Scenario relationship and justification:
 Behavioral contract preserved or governed change:
 Duplicate-path assessment:
+
+DJ Intelligence Assessment (only when applicable):
+- Planner behaviour:
+- Planner inputs:
+- Knowledge source, selection and ranking:
+- DJMoment types:
+- Narrative and planning horizon:
+- Audience interpretation and Planner influence:
+- Lyrics and music-aware timing:
+- Performance learning:
+- Capability Architecture ownership:
+
+Golden Scenario Assessment (only when DJ Intelligence Assessment applies):
+- Existing coverage sufficient, existing scenario extended, or new scenario introduced:
+- Scenario IDs and `preserve` / `extend` / `introduce` relationship:
+- Traceability: Capability → Planner Input → Planner Decision → Knowledge → DJMoment → Golden Scenario → Experience Validation:
 
 In scope:
 Out of scope:

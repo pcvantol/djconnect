@@ -22,6 +22,44 @@ Include:
 - what remains unchanged;
 - why this phase is the next smallest mergeable unit.
 
+## Product Development assessments
+
+Record the completed Capability Assessment, Product Assessment and Experience
+Assessment that justify this phase. For user-facing work, also state how the
+phase will complete Experience Validation.
+
+### DJ Intelligence Assessment (omit this whole section when not applicable)
+
+This section is mandatory only when the phase modifies Session Planner, Planner
+inputs or outputs, Knowledge Engine/source/selection/ranking, DJMoment
+generation, narrative planning, Audience adaptation, Lyric Intelligence, music
+understanding, recommendation reasoning, performance learning or other Session
+decision logic.
+
+Record explicit answers:
+
+- Planner behaviour changed:
+- Planner inputs introduced or modified:
+- Knowledge sources, selection or prioritization changed:
+- DJMoment types introduced or modified:
+- Session narrative or planning horizon changed:
+- Audience Signal interpretation or Planner influence changed:
+- Lyric awareness or music-aware timing introduced:
+- Learning from prior Session behaviour introduced or changed:
+- Capability Architecture ownership preserved:
+
+### Golden Scenario Assessment (required with DJ Intelligence Assessment)
+
+- Existing Golden coverage is sufficient, an existing scenario is extended, or
+  a new scenario is introduced:
+- Affected Golden Scenario IDs and relationship (`preserve`, `extend` or
+  `introduce`):
+- Required traceability: Capability → Planner Input → Planner Decision →
+  Knowledge → DJMoment → Golden Scenario → Experience Validation:
+
+This assessment uses `docs/verification/GOLDEN_SCENARIO_GOVERNANCE.md`. It does
+not create a separate DJ Intelligence governance process.
+
 ## Architecture
 
 Describe the architecture boundary.

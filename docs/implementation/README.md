@@ -55,6 +55,13 @@ Each phase is a small implementation unit. A phase may include runtime code, doc
 
 Use `epic-template/01-phase-template.md` for every phase.
 
+Product Development phases use the assessment workflow in
+`../../ENGINEERING_PROGRAM_MODEL.md`. When a phase modifies DJ Intelligence,
+the phase template requires its conditional DJ Intelligence Assessment and
+Golden Scenario Assessment before implementation. These are Product
+Development assessments, not a separate engineering discipline. They are
+omitted entirely for work that does not affect AI DJ behaviour.
+
 ## Review
 
 After each phase, run an architecture review using `epic-template/02-review-template.md`.
