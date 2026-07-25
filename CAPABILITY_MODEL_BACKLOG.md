@@ -22,6 +22,7 @@ starts with a current-state Repository Capability Assessment under
 | CMB-08 | Decompose Universal Receiver and VibeCast | Planned | current Broadcast/receiver evidence | separate host/experience capability records |
 | CMB-09 | Assess Voice Interaction Host and constrained ESP32 profiles | Planned | HA Voice, Session Start Request and ESP32 contract evidence | role-profile decisions only; no Session ownership or direct host coordination |
 | CMB-10 | Onboard future Android and Meta Quest capability profiles | Deferred | product authorization and evidence | profile assessment before any client work |
+| CMB-11 | Assess Sharing Experience producers and native Renderer Host realization | Planned | `docs/product/SHARING_EXPERIENCE_ARCHITECTURE.md`, producer privacy evidence and native-client capability inventory | one producer/renderer slice only; no Runtime, Broadcast, public URL or social-service scope |
 
 ## Rules
 

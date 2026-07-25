@@ -114,6 +114,16 @@ The Presentation itself remains valid. A Renderer Host continues only with its
 supported, authorized local behavior. It does not request server regeneration,
 change Broadcast state or create a Session Flow entry.
 
+## Sharing boundary
+
+Sharing Experience is separate from Presentation composition. A native Renderer
+Host may later project an already-authorized DJConnect producer into a
+user-initiated local share representation, but that representation is neither a
+Presentation Capability nor a Broadcast payload. It does not compose a new
+DJMoment, alter Presentation, add a Session Flow item or use realtime delivery.
+Its producer and privacy boundary are defined in
+[`SHARING_EXPERIENCE_ARCHITECTURE.md`](SHARING_EXPERIENCE_ARCHITECTURE.md).
+
 ## Room Presentation Routing
 
 Room Presentation Routing routes Presentations to eligible Renderer Hosts; it
