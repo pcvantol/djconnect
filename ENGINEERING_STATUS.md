@@ -5,13 +5,13 @@
 
 ## Current engineering increment
 
-PR [#464](https://github.com/pcvantol/djconnect/pull/464), **Reconcile client connectivity resilience architecture**, merged as
-`b233f147fd6c82fbdab4f731100516879a1f6cb7`. This dedicated Finalization
+PR [#466](https://github.com/pcvantol/djconnect/pull/466), **Reconcile playback observation adaptive planning**, merged as
+`68390a795d33ac1ceee57c014052f1a519636588`. This dedicated Finalization
 reconciles its immutable Prompt History and rolling records.
 
-PR #464 reconciles Client Connectivity & Resilience as Public Release Readiness
-architecture only. No Runtime, transport, client or qualification implementation
-changed. Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY` after cleanup.
+PR #466 confirms backend playback ownership and records Continue Stage 2 as
+externally blocked pending occurrence identity. No Runtime, Planner, provider
+or API implementation changed. Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY` after cleanup.
 
 ## Historical operational context
 

@@ -47,7 +47,7 @@ additional Concrete Hosts. VibeCast placement is an explicit Release Readiness
 Assessment decision: it remains Platform Adoption unless the assessment finds
 it Community-defining Runtime Readiness work.
 
-PR [#464](https://github.com/pcvantol/djconnect/pull/464), **Reconcile client connectivity resilience architecture**, merged as `b233f147fd6c82fbdab4f731100516879a1f6cb7`. It consolidates existing boundaries for Public Release Readiness without Runtime, transport, client, API or workflow changes.
+PR [#466](https://github.com/pcvantol/djconnect/pull/466), **Reconcile playback observation adaptive planning**, merged as `68390a795d33ac1ceee57c014052f1a519636588`. It records Continue Stage 2 as externally blocked without Runtime, Planner, provider, API or workflow changes.
 Repository State: `MERGED_RECONCILED`. Workspace State: `WORKSPACE_READY`
 after verified cleanup.
 
