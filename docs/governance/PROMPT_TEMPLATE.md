@@ -112,7 +112,9 @@ Finalization:
   management summary: Repository Status, Management Summary, Roadmap Position,
   Rolling Horizon (Next 5 Planned), Blocked Items, Deferred Items, Repository
   State and Workspace State; derive the horizon afresh from canonical backlog
-  records and exclude Deferred and Blocked items
+  records and exclude Deferred and Blocked items; give every horizon item a
+  one-line Execution Rationale and include an Execution Priority Override only
+  when objective evidence changes backlog execution order
 - only `MERGED_RECONCILED` and `WORKSPACE_READY` permit the next
   implementation capability
 ```
