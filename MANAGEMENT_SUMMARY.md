@@ -15,12 +15,10 @@
 
 ## Current position
 
-DJ Intelligence Evolution roadmap refinement is the current documentation and
-governance increment. The repository-grounded capability review and revised
-Generation 2 execution order are defined in
-`docs/product/DJ_INTELLIGENCE_CAPABILITY_REVIEW.md`, `PRODUCT_ROADMAP.md` and
-`GENERATION_2_PROGRAM_RECONCILIATION.md`. It introduces no Runtime, renderer,
-product, capability, ownership, API or implementation change.
+Stale-local-branch reporting is the current governance increment. The
+Finalization contract, Workspace Cleanup method and Phase Completion Protocol
+now require an explicit stale-branch audit result. It introduces no Runtime,
+renderer, product, capability, ownership, API or implementation change.
 
 The completed Generation 2 foundations are Product Definition 2.1, Product
 Philosophy Alignment, Capability Architecture, Host Role Architecture,
@@ -47,12 +45,12 @@ additional Concrete Hosts. VibeCast placement is an explicit Release Readiness
 Assessment decision: it remains Platform Adoption unless the assessment finds
 it Community-defining Runtime Readiness work.
 
-PR [#443](https://github.com/pcvantol/djconnect/pull/443), **Add DJ
-intelligence review and prioritize intelligence evolution**, merged as
-`9e8daa6a8060e34a5212496bd35b46ee635d56e9`. This dedicated Finalization
-reconciles its validation evidence and immutable Prompt History. The refinement
-changes planning order only; no Runtime, renderer, capability, ownership, API,
-product scope or implementation commitment changed. Repository State:
+PR [#445](https://github.com/pcvantol/djconnect/pull/445), **Report stale
+local branches in finalization**, merged as
+`34f2cc23808727b8ee933b8c4b62fa53334a95e4`. This dedicated Finalization
+reconciles its validation evidence and immutable Prompt History. The change
+adds reporting only; no Runtime, renderer, capability, ownership, API, product
+scope or implementation commitment changed. Repository State:
 `MERGED_UNRECONCILED`. Workspace State: `NOT_READY` pending this governance-only
 Finalization and subsequent Workspace Cleanup.
 
