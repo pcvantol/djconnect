@@ -6,6 +6,7 @@ from dataclasses import replace
 from typing import Any
 import uuid
 
+from ..dj_brain_capabilities import CapabilityPolicy, CapabilityPolicyMode
 from .backend import BackendProvider, MusicBackendCapabilities, MusicBackendRegistration
 from .device import Device, DeviceCapabilities, DevicePairingState, DeviceRuntimeMetadata
 from .errors import ProfileNotFound, UnknownBackend, UnknownMusicAccount
@@ -686,6 +687,10 @@ def _profile_to_storage(profile: Profile) -> dict[str, Any]:
             "privacy_controls": profile.capabilities.privacy_controls,
             "shared_context": profile.capabilities.shared_context,
         },
+        "capability_policy": {
+            "mode": profile.capability_policy.mode.value,
+            "allowed_capability_ids": sorted(profile.capability_policy.allowed_capability_ids),
+        },
         "likes": sorted(profile.likes),
         "dislikes": sorted(profile.dislikes),
     }
@@ -698,6 +703,7 @@ def _profile_from_storage(data: dict[str, Any]) -> Profile:
     mood = data.get("mood") or {}
     entitlements = data.get("entitlements") or {}
     capabilities = data.get("capabilities") or {}
+    capability_policy = data.get("capability_policy") or {}
     return Profile(
         profile_id=clean_identifier(data.get("profile_id")),
         display_name=clean_identifier(data.get("display_name")) or "Profile",
@@ -715,6 +721,10 @@ def _profile_from_storage(data: dict[str, Any]) -> Profile:
             response_style=_enum(ResponseStyle, prefs.get("response_style"), ResponseStyle.BALANCED),
             voice_style=_enum(VoiceStyle, prefs.get("voice_style"), VoiceStyle.DEFAULT),
             language=clean_identifier(prefs.get("language")),
+        ),
+        capability_policy=CapabilityPolicy(
+            mode=_enum(CapabilityPolicyMode, capability_policy.get("mode"), CapabilityPolicyMode.FULL),
+            allowed_capability_ids=frozenset(_list(capability_policy.get("allowed_capability_ids"))),
         ),
         metadata=ProfileMetadata(
             created_at=clean_identifier(metadata.get("created_at")),

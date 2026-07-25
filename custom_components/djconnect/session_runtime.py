@@ -789,6 +789,7 @@ class PlannerIntentSelector:
         window: "PlanningWindow",
         *,
         influence: PlannerInfluence | None = None,
+        allowed_intents: frozenset[str] | None = None,
     ) -> PlannerIntent | None:
         """Use only normalized Planner influence to rank one future candidate."""
         influence = influence or PlannerInfluence()
@@ -803,6 +804,8 @@ class PlannerIntentSelector:
         elif influence.effective_direction is SessionDirectionType.EXPLORING:
             priorities = ("recommendation", "artist_story", "album_story", "genre_story", "silence")
         for category in priorities:
+            if allowed_intents is not None and category not in allowed_intents and category != "silence":
+                continue
             if (
                 influence.performance_memory is not None
                 and cls._recently_used(category, influence.performance_memory)
@@ -838,6 +841,7 @@ class PlanningWindow:
     planned_intents: tuple[PlannedIntent, ...] = ()
     approved_intent: PlannerIntent | None = None
     max_planned_intents: int = 20
+    allowed_intents: frozenset[str] | None = None
     influence: PlannerInfluence = field(default_factory=PlannerInfluence)
     knowledge_prefetches: tuple[KnowledgePrefetch, ...] = ()
     readiness_evaluations: tuple[ReadinessEvaluation, ...] = ()
@@ -1007,6 +1011,11 @@ class PlanningWindow:
             if (
                 slot.category in PlannerIntentSelector._SUPPORTED
                 and (
+                    self.allowed_intents is None
+                    or slot.category == "silence"
+                    or slot.category in self.allowed_intents
+                )
+                and (
                     slot.is_current_track
                     or (
                         0 <= slot.starts_at_seconds < slot.ends_at_seconds
@@ -1084,6 +1093,7 @@ class RollingSessionHorizon:
     current_track_candidate: CandidatePlanningSlot | None = None
     planning_window: PlanningWindow | None = None
     influence: PlannerInfluence = field(default_factory=PlannerInfluence)
+    allowed_intents: frozenset[str] | None = None
     consumed_slot_keys: tuple[tuple[str, int, int], ...] = ()
     _replanning_signature: tuple[Any, ...] | None = field(default=None, repr=False)
 
@@ -1128,6 +1138,7 @@ class RollingSessionHorizon:
             if window
             else (),
             self.consumed_slot_keys,
+            self.allowed_intents,
         )
 
     @staticmethod
@@ -1158,6 +1169,7 @@ class RollingSessionHorizon:
             ),
             candidate_slots=self._candidate_slots(planning_coverage),
             influence=self.influence,
+            allowed_intents=self.allowed_intents,
         )
         window.plan_intents()
         return window
@@ -1196,12 +1208,15 @@ class RollingSessionHorizon:
         upcoming_playback: UpcomingPlaybackProjection | None = None,
         influence: PlannerInfluence | None = None,
         current_track_candidate: CandidatePlanningSlot | None = None,
+        allowed_intents: frozenset[str] | None = None,
     ) -> PlanningWindow:
         """Deterministically replace only invalid provisional planning after input change."""
         if upcoming_playback is not None:
             self.upcoming_playback = upcoming_playback
         if influence is not None:
             self.influence = influence
+        if allowed_intents is not None:
+            self.allowed_intents = allowed_intents
         self.current_track_candidate = current_track_candidate
         if self.planning_window is None:
             return self.build_planning_window()
@@ -1220,10 +1235,26 @@ class RollingSessionHorizon:
         retained_keys: set[tuple[str, int, int]] = set()
         for intent in previous.planned_intents:
             key = self._slot_key(intent.slot)
-            if intent.status is PlannedIntentStatus.APPROVED:
+            if (
+                intent.status is PlannedIntentStatus.APPROVED
+                and (
+                    self.allowed_intents is None
+                    or intent.category == "silence"
+                    or intent.category in self.allowed_intents
+                )
+            ):
                 retained.append(intent)
                 retained_keys.add(key)
-            elif intent.status is PlannedIntentStatus.PLANNED and key in available and key not in consumed:
+            elif (
+                intent.status is PlannedIntentStatus.PLANNED
+                and key in available
+                and key not in consumed
+                and (
+                    self.allowed_intents is None
+                    or intent.category == "silence"
+                    or intent.category in self.allowed_intents
+                )
+            ):
                 retained.append(intent)
                 retained_keys.add(key)
             elif intent.status is PlannedIntentStatus.PLANNED:
@@ -2207,6 +2238,7 @@ class PlanningRuntimeCoordinator:
         discover_context: DiscoverContext,
         raw_insight: dict[str, Any],
         planning_input: TrackStartedPlanningInput,
+        allowed_intents: frozenset[str] | None = None,
     ) -> DJMoment | None:
         """Run the authoritative planning lifecycle; ``None`` preserves fallback."""
         self.last_lifecycle_state = "entered"
@@ -2227,6 +2259,7 @@ class PlanningRuntimeCoordinator:
             upcoming_playback=planning_input.upcoming_playback,
             influence=influence,
             current_track_candidate=planning_input.current_track_candidate,
+            allowed_intents=allowed_intents,
         )
         self.last_planning_generation = window.generation
         prefetches = window.plan_knowledge_prefetches(
@@ -2251,6 +2284,15 @@ class PlanningRuntimeCoordinator:
         )
         approved = window.approve_earliest_planned_intent()
         if approved is None:
+            if allowed_intents is not None:
+                self.last_lifecycle_state = "completed"
+                return moment_engine.create_silence(
+                    session_id=session_id,
+                    selected_mood=selected_mood,
+                    persona=persona,
+                    locale=locale,
+                    reason="capability_policy_no_eligible_intent",
+                )
             return self._fallback("no_ready_planned_intent")
         planned = next(
             (
@@ -3060,6 +3102,7 @@ class DJSessionRuntime:
     moment_engine: DJMomentEngine
     presentation_composer: PresentationComposer
     broadcast: DJSessionBroadcastEngine
+    allowed_capability_intents: frozenset[str] | None = None
     presentation_diagnostics: "PresentationCompositionDiagnostics" = field(
         default_factory=lambda: PresentationCompositionDiagnostics()
     )
@@ -3146,6 +3189,7 @@ class SessionRuntimeManager:
         session_start_strategy: SessionStartStrategy = SessionStartStrategy.MANUAL,
         discover_context: DiscoverContext | None = None,
         elapsed_time_source: Callable[[], float] | None = None,
+        allowed_capability_intents: frozenset[str] | None = None,
     ) -> DJSessionRuntime:
         """Create the one active Runtime allowed for a Profile."""
         async with self._lock:
@@ -3206,6 +3250,7 @@ class SessionRuntimeManager:
                     planner=planner,
                     started_at=now,
                 ),
+                allowed_capability_intents=allowed_capability_intents,
             )
             creating.broadcast.update_runtime_state(SessionRuntimeState.ACTIVE)
             active = DJSessionRuntime(
@@ -3261,6 +3306,29 @@ class SessionRuntimeManager:
             if changed:
                 _LOGGER.debug("DJConnect renderer-safe playback projection changed")
             return changed
+
+    async def async_update_allowed_capability_intents(
+        self,
+        *,
+        owner_profile_id: str,
+        session_id: str,
+        allowed_capability_intents: frozenset[str],
+    ) -> bool:
+        """Invalidate disallowed unrealized work without publishing Session state."""
+        async with self._lock:
+            active = self._active_by_profile.get(owner_profile_id)
+            if active is None or active.session_id != session_id:
+                return False
+            updated = DJSessionRuntime(
+                **{
+                    **active.__dict__,
+                    "allowed_capability_intents": allowed_capability_intents,
+                }
+            )
+            if updated.planner.horizon is not None:
+                updated.planner.horizon.replan(allowed_intents=allowed_capability_intents)
+            self._active_by_profile[owner_profile_id] = updated
+            return True
 
     async def async_advance_playback_progress(
         self, *, owner_profile_id: str, session_id: str
@@ -3415,6 +3483,7 @@ class SessionRuntimeManager:
                 discover_context=active.discover_context,
                 raw_insight=raw_insight,
                 planning_input=planning_input,
+                allowed_intents=active.allowed_capability_intents,
             )
         except Exception as exc:  # noqa: BLE001
             _LOGGER.debug("DJConnect Planning Runtime Coordinator failed: %s", exc.__class__.__name__)

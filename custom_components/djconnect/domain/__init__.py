@@ -10,6 +10,7 @@ from .backend import (
     MusicBackendRegistration,
     MusicBackendState,
 )
+from ..dj_brain_capabilities import CapabilityPolicy, CapabilityPolicyMode
 from .device import Device, DeviceCapabilities, DevicePairingState, DeviceRuntimeMetadata
 from .errors import (
     DeviceNotMapped,
@@ -49,6 +50,8 @@ from .storage import ProfilePlatformStorage, ProfileStorageValidationError
 
 __all__ = [
     "BackendProvider",
+    "CapabilityPolicy",
+    "CapabilityPolicyMode",
     "ConversationReference",
     "Device",
     "DeviceCapabilities",

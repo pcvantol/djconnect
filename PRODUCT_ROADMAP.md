@@ -44,6 +44,11 @@ Automated Session Intelligence E2E Verification remains the current
 engineering execution supporting this Product Initiative. It verifies existing
 Session behaviour and does not itself define the product direction.
 
+The built-in DJ Brain Capability Platform is current supporting architecture:
+it constrains selection of existing trusted capabilities through Profile policy
+and does not authorize new DJ Intelligence behaviour or alter the active E2E
+workstream.
+
 ### Phase 2 — Reference Experience
 
 Reference Experience begins only after the minimum DJ Intelligence baseline is
