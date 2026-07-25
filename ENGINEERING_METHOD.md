@@ -231,6 +231,22 @@ for the next assessment. It is decision support only, never new authority: it
 must not invent scope, priorities, ownership, architecture or implementation
 commitments. Canonical repository records remain authoritative.
 
+### Product and Platform roadmap projection
+
+The same post-Finalization completion report must state where the repository is
+in the current Product and Platform cycle: the authoritative program/cycle,
+product-roadmap phase, active increment and relevant Platform Evolution backlog
+state. It then lists the next three to five **tentative** candidate items from
+the canonical Product Roadmap, Platform Evolution Backlog and their navigation
+records. Each item must identify its source, current status and any recorded
+gate or dependency.
+
+This is a current-state projection for the Product & Platform Architect, not a
+delivery plan. It must say that the order can change through later evidence,
+assessment, dependency resolution or authorized reprioritization. It neither
+selects work nor grants implementation authority; canonical roadmap and backlog
+records remain authoritative.
+
 ### Squash-Merge Cleanup Exception
 
 A completed implementation branch may be removed after a squash merge even
