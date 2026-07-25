@@ -23,6 +23,7 @@ user-facing roadmap progress; the current Product Initiative is recorded in
 | Public distribution: Apple | P1 | Planned | qualified Internal Release consumers and explicit authorization | release-operational work |
 | Public distribution: Windows | P1 | Planned | qualified Internal Release consumers and explicit authorization | release-operational work |
 | Public HACS distribution | P1 | Planned | fresh candidate and release authorization | release-operational work |
+| Client Connectivity & Resilience qualification | P1 | Planned | `docs/technical/CLIENT_CONNECTIVITY_RESILIENCE_ARCHITECTURE.md`, Public Release Readiness Assessment | bounded external HTTP qualification and resilience evidence; no Runtime, transport or client implementation authorization |
 | HACS 3.3.0 release visibility (`HACS-3.3.0-001`) | P1 | Planned | verify release/tag metadata, HACS cache/index discovery and update presentation | bounded distribution investigation |
 | HACS pull-request validation reliability (`HACS-CI-PR-REF-001`) | P1 | Planned | `docs/software_assurance/HACS_CI_ALTERNATING_PR_VALIDATION_RECLASSIFICATION.md`; retained PR #461 head/merge loading failures and `main` success | bounded operational classification guidance only; no workflow, Runtime, qualification, gate or action-pinning change |
 | Home Assistant DJConnect HTTP-route registration (`HA-HTTP-ROUTE-3.3.0-001`) | P0 | Historical | reconciled incident evidence | retained incident evidence only |
