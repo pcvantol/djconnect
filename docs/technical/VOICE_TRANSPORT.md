@@ -16,6 +16,10 @@ runs the recognized text through command playback logic for ESP audio requests.
 types as Ask DJ input after STT. Response includes `transcript` and
 `recognized_text`, plus Ask DJ result fields and optional audio.
 
+Native app input is currently a bounded complete WAV upload. Home Assistant's
+selected Assist Pipeline remains canonical STT authority; no DJConnect native
+WebSocket streaming, partial-transcript or on-device-STT contract is current.
+
 ## Text/JSON Voice Route
 
 `CONFIRMED_CODE` Non-audio JSON/text requests to `/voice` are treated as DJ
