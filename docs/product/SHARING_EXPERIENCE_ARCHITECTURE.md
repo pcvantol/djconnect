@@ -98,3 +98,24 @@ themes, public landing pages and cloud/social sharing services.
 
 No deferred item authorizes a new Runtime event, Broadcast event, Session Flow
 mutation, Planner change or DJMoment Engine change.
+
+## CMB-11 assessment outcome
+
+**Decision:** `GO_SHARING_REFINEMENT_REQUIRED`
+
+Repository evidence confirms that Sharing is a renderer-facing capability, not
+a DJ Intelligence capability. Existing Track Insight, one immutable current
+DJMoment, curated Session Flow Story, future Session Summary, Discover result
+and user-selected Ask DJ answer are producer candidates; each remains owned by
+its existing server capability and must expose only a bounded safe result.
+
+An immutable, producer-neutral and renderer-safe Share Projection is the
+fitting future contract boundary. It remains separate from native share APIs
+and does not need a Broadcast projection: existing Broadcast is live delivery,
+not sharing. Apple and Windows are the evidenced native Share Renderer targets;
+Browser and future Renderer Hosts require their own local capability evidence.
+
+The remaining gap is not a new Runtime or Broadcast contract. A separately
+authorized refinement must select exactly one existing producer and one native
+Renderer Host, confirm its local capability inventory and Profile privacy
+evidence, then decide whether a bounded Share Projection contract is necessary.
