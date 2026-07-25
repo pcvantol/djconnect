@@ -28,19 +28,16 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-PR [#460](https://github.com/pcvantol/djconnect/pull/460), **Reconcile HACS CI
-validator evidence**, merged as
-`a5fe9a31288203f99a3344d02d3cd2047815c9ea`. This dedicated Finalization
+PR [#462](https://github.com/pcvantol/djconnect/pull/462), **Reclassify alternating HACS CI
+PR validation**, merged as
+`954c423f370ff21f1ccdda3f60ed71c126e135d2`. This dedicated Finalization
 reconciles its immutable Prompt History and rolling repository truth.
 
-PR #460 establishes `NO_GO_INSUFFICIENT_EVIDENCE` for a HACS workflow
-correction: the unchanged route successfully validated both PR #459 ref forms,
-so the older loading failures do not establish a deterministic current defect.
-HACS remains enabled for pull requests and canonical `main`; its completed
-content-validation failures remain failing results. No architecture, ownership,
-API, capability, roadmap or implementation change occurred. Repository State:
-`MERGED_RECONCILED`. Workspace State: `WORKSPACE_READY` after verified PR #460
-branch cleanup.
+PR #462 establishes `HACS_CI_PR_SIGNAL_NOT_ACTIONABLY_CLASSIFIED`. HACS stays
+enabled, but a loading failure is not an integration-content verdict; the
+independent E2E backlog may resume. No architecture, ownership, API, capability
+or implementation change occurred. Repository State: `MERGED_RECONCILED`;
+Workspace State: `WORKSPACE_READY` after cleanup.
 
 ## Historical repository context
 
