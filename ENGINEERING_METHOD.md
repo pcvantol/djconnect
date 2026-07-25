@@ -213,6 +213,24 @@ continues to delete only the just-completed capability branch after all
 applicable checks pass. It must not delete an unrelated stale branch merely
 because the report identifies it.
 
+### Two-PR management feedback
+
+After every Finalization and Workspace Cleanup, the user-facing completion
+report must include a concise management summary of the two most recently
+merged pull requests, newest first. This is the explicit feedback loop to the
+Product & Platform Architect (ChatGPT). Each entry records, from repository and
+GitHub evidence only:
+
+- the product, platform or governance outcome;
+- material decisions and boundaries preserved;
+- validation or qualification status; and
+- remaining risks, deferred work or the next decision required.
+
+The report concludes with the combined architectural/product-planning feedback
+for the next assessment. It is decision support only, never new authority: it
+must not invent scope, priorities, ownership, architecture or implementation
+commitments. Canonical repository records remain authoritative.
+
 ### Squash-Merge Cleanup Exception
 
 A completed implementation branch may be removed after a squash merge even
