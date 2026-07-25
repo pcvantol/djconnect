@@ -4,10 +4,10 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#466](https://github.com/pcvantol/djconnect/pull/466), **Reconcile playback observation adaptive planning**, merged as
-`68390a795d33ac1ceee57c014052f1a519636588`. Its dedicated Finalization
+PR [#468](https://github.com/pcvantol/djconnect/pull/468), **Reconcile session direction architecture**, merged as
+`df8e4fd9e5eb19d9eb00255442d41f8fb64bcb25`. Its dedicated Finalization
 reconciles the immutable Prompt History at
-`docs/history/prompts/2026-07-25-playback-observation-adaptive-planning-reconciliation.md`.
+`docs/history/prompts/2026-07-25-session-direction-architecture-reconciliation.md`.
 
 `BOOTSTRAP.md` is the single canonical repository entry point for new ChatGPT
 Product & Platform Architect sessions. **Repository Sync + Developer Handoff**
