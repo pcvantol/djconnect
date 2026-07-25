@@ -24,17 +24,20 @@ renderer, product, capability, ownership, API or implementation change.
 The completed Generation 2 foundations are Product Definition 2.1, Product
 Philosophy Alignment, Capability Architecture, Host Role Architecture,
 Raspberry Pi Platform Foundation and Experience Foundation v1. They are no
-longer active roadmap work. Automated Session Intelligence E2E Verification is
-the current engineering execution for the **Reference Experience** Product
-Initiative. The initiative is the first complete canonical DJConnect experience
-across interaction and presentation surfaces; verification enables it and does
-not replace product direction. Future user-facing work uses Experience
-Assessment, Experience Gap Analysis, Implementation and Experience Validation.
-Apple Premium Experience precedes a Public Release Readiness Assessment and
-Productization, which together determine the minimum lovable Community Public
-Release scope before any delivery is selected. Apple is the first public
-consumer implementation; Desktop follows that first public Apple release.
-Commercial readiness is assessment-only and does not authorize a paid model.
+longer active roadmap work. **DJ Intelligence Evolution** is the current
+Product Initiative: it establishes the minimum intelligence baseline for the
+first convincing canonical DJConnect experience, using the repository-grounded
+DJ Intelligence Capability Review as evidence. Automated Session Intelligence
+E2E Verification is its supporting engineering execution, not the Product
+Initiative itself. Reference Experience follows after that baseline; the
+Universal Receiver consumes rather than defines it. Future user-facing work
+uses Experience Assessment, Experience Gap Analysis, Implementation and
+Experience Validation. Apple Premium Experience then precedes a Public Release
+Readiness Assessment and Productization, which together determine the minimum
+lovable Community Public Release scope before any delivery is selected. Apple
+is the first public consumer implementation; Desktop follows that first public
+Apple release. Commercial readiness is assessment-only and does not authorize a
+paid model.
 
 Runtime Readiness is the Home Assistant-owned release gate for the minimum
 functional completeness of the Community promise. Platform Adoption is a

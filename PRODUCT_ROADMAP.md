@@ -23,14 +23,34 @@ Completed: Product Definition, Product Philosophy Alignment, Capability
 Architecture, Host Role Architecture, Raspberry Pi Platform Foundation and
 Experience Foundation. These are durable authorities, not active roadmap work.
 
-### Phase 1 — Reference Experience
+### Phase 1 — DJ Intelligence Evolution
 
-**Current Product Initiative:** **Reference Experience** — create the first
-complete, canonical DJConnect experience across interaction and presentation
-surfaces. The Universal Receiver is the first reference implementation of this
-experience. Automated Session Intelligence E2E Verification is the current
-engineering execution that enables it; verification does not replace the
-product direction.
+**Current Product Initiative:** **DJ Intelligence Evolution** — establish the
+minimum intelligence baseline required for the first convincing, canonical
+DJConnect experience. It raises the existing context-aware Session planner
+toward the intended AI DJ before that experience is frozen across renderer
+surfaces. The repository-grounded evidence for this phase is
+[`docs/product/DJ_INTELLIGENCE_CAPABILITY_REVIEW.md`](docs/product/DJ_INTELLIGENCE_CAPABILITY_REVIEW.md).
+
+This is not a general AI research program and it does not reopen completed
+foundations. Each candidate capability family must first be classified by its
+current implementation maturity and by whether its gap is represented,
+implicit or unrepresented in planning. The review identifies Knowledge
+Strategy, bounded long-horizon/narrative planning, Audience Signals, Lyric
+Intelligence and Performance Learning as candidate families; it authorizes none
+of them automatically.
+
+Automated Session Intelligence E2E Verification remains the current
+engineering execution supporting this Product Initiative. It verifies existing
+Session behaviour and does not itself define the product direction.
+
+### Phase 2 — Reference Experience
+
+Reference Experience begins only after the minimum DJ Intelligence baseline is
+established. Its purpose is to design the canonical DJConnect experience around
+the intended AI DJ rather than freeze renderer behaviour around today's
+implementation. The Universal Receiver remains the first reference renderer;
+it consumes the completed intelligence baseline and does not define it.
 
 Every future user-facing slice in this phase follows:
 
@@ -54,13 +74,15 @@ their established scope; this roadmap does not authorize their implementation.
 | 0 | Product Definition and Community/Personal proposition | Completed | `docs/product/PRODUCT_DEFINITION.md` |
 | 0 | Capability, Host Role, Pi and Experience foundations | Completed | `DJCONNECT_CAPABILITY_MODEL.md`, `HOST_ROLE_ARCHITECTURE.md`, `RASPBERRY_PI_PLATFORM_FOUNDATION.md`, `EXPERIENCE_FOUNDATION.md` |
 | Historical | DJConnect V4 architecture and Runtime transition | Historical | `DJCONNECT_V4_COMPLETION_ROADMAP.md` |
-| 1 | Universal Receiver reference experience | Current execution | Session Intelligence Runtime; `docs/technical/UNIVERSAL_RECEIVER_ARCHITECTURE.md` |
+| 1 | DJ Intelligence Evolution | Current execution | `docs/product/DJ_INTELLIGENCE_CAPABILITY_REVIEW.md`; completed Session Intelligence Runtime and existing maturity boundaries |
 | 1 | Automated Session Intelligence E2E Verification | Current execution | `docs/product/DEVELOPER_EXPERIENCE_ROADMAP.md` |
-| 1 | Renderer-safe Session experience and experience validation | Planned | Reference Experience assessment and existing renderer-safe projections |
-| 2 | Apple Premium Experience | Planned | Reference Experience, experience quality, polish, onboarding and release readiness for macOS, iPhone/iPad and Apple Watch |
-| 3 | Public Release Readiness Assessment | Planned | Phase 2 evidence; it determines minimum public-release scope without authorizing features |
-| 4 | Productization | Planned | Phase 3 assessment; no feature or paid-model commitment |
-| 5 | Community Public Release | Planned | Productization and explicit release selection; complete local-first Community Edition |
+| 2 | Universal Receiver Reference Experience | Planned | Minimum DJ Intelligence baseline; `docs/technical/UNIVERSAL_RECEIVER_ARCHITECTURE.md` |
+| 2 | Renderer-safe Session experience and experience validation | Planned | Reference Experience assessment and existing renderer-safe projections |
+| 3 | Apple Premium Experience | Planned | Reference Experience, experience quality, polish, onboarding and release readiness for macOS, iPhone/iPad and Apple Watch |
+| 4 | Public Release Readiness Assessment | Planned | Phase 3 evidence; it determines minimum public-release scope without authorizing features |
+| 5 | Productization | Planned | Phase 4 assessment; no feature or paid-model commitment |
+| 6 | Community Public Release | Planned | Productization and explicit release selection; complete local-first Community Edition |
+| 7 | Desktop Platform Family | Deferred | First public Apple release; independent Platform Adoption assessment |
 | 7 | Personal AI DJ evolution | Deferred | Community Public Release; existing Profile and Planner boundaries |
 | 8 | Future Cloud evolution | Deferred | Long-term product direction; Community local-first foundation remains primary |
 | Deferred | Ambient Light Renderer Host | Deferred | Universal Receiver maturity, Room Presentation Routing and real-hardware evaluation |
@@ -74,7 +96,7 @@ their established scope; this roadmap does not authorize their implementation.
 | Deferred | Audience Observation for Session Intelligence | Deferred | Audience Experience, privacy review and explicit bounded Planner-influence policy |
 | Deferred | Playback Observation Stage 2 and Continue Stage 2 | Deferred | External Observation Boundary capability conditions |
 
-### Phase 2 — Apple Premium Experience
+### Phase 3 — Apple Premium Experience
 
 Apple is the first premium public implementation of the Reference Experience:
 macOS, iPhone/iPad and Apple Watch are independently assessable Concrete Hosts.
@@ -82,7 +104,7 @@ This phase covers release polish, onboarding, release readiness and Experience
 Qualification. It does not presume capability parity or add implementation
 technology policy.
 
-### Phase 3 — Public Release Readiness Assessment
+### Phase 4 — Public Release Readiness Assessment
 
 This is an assessment phase, not a feature-delivery phase. It determines the
 minimum additional work needed for first public release, which may include
@@ -115,7 +137,7 @@ capability contracts, pairing and APNs support where required for Apple. This
 is a release-readiness classification, not a new capability or implementation
 commitment.
 
-### Phase 4 — Productization
+### Phase 5 — Productization
 
 Productization prepares DJConnect to become a public product. It may assess
 and select bounded work in these categories:
@@ -137,7 +159,7 @@ launch, StoreKit readiness, subscription feasibility and migration strategy.
 No paid model is authorized, and the assessment may conclude that the first
 public release remains Community-only.
 
-### Phase 5 — Community Public Release
+### Phase 6 — Community Public Release
 
 This is the first public product milestone: a complete Community Edition that
 is local-first, requires no cloud account, is not a trial and is not a reduced
@@ -159,7 +181,7 @@ Runtime. The current Desktop Concrete Host is Windows and follows the first
 public Apple release. A future Linux host requires its own assessment; no
 implementation technology decision is introduced.
 
-### Phases 7 and 8 — Long-term evolution
+### Phase 7+ — Long-term evolution
 
 Personal AI DJ evolution follows Community Public Release. Future Cloud capabilities are
 long-term and extend the same local-first AI DJ; neither defines the minimum
@@ -185,10 +207,10 @@ bounded runtime protection for lifecycle failure.
 
 Future intelligence capabilities extend the existing Planner, Knowledge Engine
 and DJ Moment Engine abstractions; they do not create another Runtime pipeline.
-The active roadmap now moves from runtime-architecture construction to
-experience expansion and verification. Universal Receiver V1 has an operational
-foundation; **Automated Session Intelligence E2E Verification** is now the
-primary active Epic. Its Architecture and the first bounded Developer Session
+The active roadmap now moves from runtime-architecture construction to DJ
+Intelligence Evolution. Universal Receiver V1 has an operational foundation;
+**Automated Session Intelligence E2E Verification** is the current supporting
+engineering Epic. Its Architecture and the first bounded Developer Session
 Bootstrap, Deterministic Scenario Driver, Immutable E2E Session Capture and
 Structural Invariant Validator, Qualification Policy and Verification Clock
 Architecture are complete. `SI-GOLDEN-001` through `SI-GOLDEN-003` are
