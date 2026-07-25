@@ -47,17 +47,17 @@ additional Concrete Hosts. VibeCast placement is an explicit Release Readiness
 Assessment decision: it remains Platform Adoption unless the assessment finds
 it Community-defining Runtime Readiness work.
 
-PR [#458](https://github.com/pcvantol/djconnect/pull/458), **Assess HACS CI
-pull-request ref failures**, merged as
-`224755de20b8b2b94b7ca08e1e11b9ced4c0cfd7`. It records
-`HACS_CI_WORKFLOW_CORRECTION_REQUIRED`: the pinned HACS action fails before
-content validation for pull-request refs but validates canonical `main`.
-The assessment creates one bounded Platform Evolution follow-up and preserves
-the current action pinning, advisory/non-blocking semantics and canonical-main
-HACS repository-content validation. No Runtime, renderer, capability,
+PR [#460](https://github.com/pcvantol/djconnect/pull/460), **Reconcile HACS CI
+validator evidence**, merged as
+`a5fe9a31288203f99a3344d02d3cd2047815c9ea`. It records
+`NO_GO_INSUFFICIENT_EVIDENCE`: PR #459's unchanged pinned HACS route validated
+both its pull-request head and merge commits, so a deterministic ref limitation
+and workflow correction are not established. HACS remains enabled and a real
+content-validation finding remains failing; action pinning and advisory/
+non-blocking semantics are unchanged. No Runtime, renderer, capability,
 ownership, API, product scope, roadmap or implementation commitment changed.
 Repository State: `MERGED_RECONCILED`. Workspace State: `WORKSPACE_READY`
-after verified PR #458 branch cleanup.
+after verified PR #460 branch cleanup.
 
 ## Historical management context
 
