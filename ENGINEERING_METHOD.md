@@ -195,8 +195,23 @@ condition and leave Workspace State `NOT_READY` until it is resolved.
 
 The cleanup report is deterministic and records: current branch, working tree,
 repository synchronization, completed capability branch, remote branch status,
-local branch deletion, remote prune, Repository State, Workspace State and the
-final `READY` or `NOT READY` decision.
+local branch deletion, remote prune, **stale local branch result**, Repository
+State, Workspace State and the final `READY` or `NOT READY` decision.
+
+### Stale local branch result
+
+Every cleanup report must state whether stale local branches remain after the
+completed capability branch is handled. A stale local branch is a non-current,
+non-`main` local branch whose upstream has been removed or whose exact content
+is already integrated into canonical `main`. The report records either `none`
+or each branch name with its disposition: removed as the completed capability,
+retained because it is outside this cleanup scope, or retained because a
+required safety check failed.
+
+This is an audit requirement, not broad cleanup authority. Workspace Cleanup
+continues to delete only the just-completed capability branch after all
+applicable checks pass. It must not delete an unrelated stale branch merely
+because the report identifies it.
 
 ### Squash-Merge Cleanup Exception
 
