@@ -231,21 +231,43 @@ for the next assessment. It is decision support only, never new authority: it
 must not invent scope, priorities, ownership, architecture or implementation
 commitments. Canonical repository records remain authoritative.
 
-### Product and Platform roadmap projection
+### Finalization Rolling Horizon standard
 
-The same post-Finalization completion report must state where the repository is
-in the current Product and Platform cycle: the authoritative program/cycle,
-product-roadmap phase, active increment and relevant Platform Evolution backlog
-state. It then lists the next three to five **tentative** candidate items from
-the canonical Product Roadmap, Platform Evolution Backlog and their navigation
-records. Each item must identify its source, current status and any recorded
-gate or dependency.
+Every post-Finalization and Workspace Cleanup management summary must use this
+fixed order:
 
-This is a current-state projection for the Product & Platform Architect, not a
-delivery plan. It must say that the order can change through later evidence,
-assessment, dependency resolution or authorized reprioritization. It neither
-selects work nor grants implementation authority; canonical roadmap and backlog
-records remain authoritative.
+1. Repository Status
+2. Management Summary
+3. Roadmap Position
+4. Rolling Horizon (Next 5 Planned)
+5. Blocked Items
+6. Deferred Items
+7. Repository State
+8. Workspace State
+
+**Roadmap Position** states the authoritative Generation, Phase and active
+engineering increment. **Repository Status** records the relevant merge
+commit(s), CI and HACS outcome, `main == origin/main`, Repository State,
+Workspace State and stale-local-branch result.
+
+**Rolling Horizon (Next 5 Planned)** contains exactly the first five eligible
+items in the canonical repository backlog execution order. Each item identifies
+its backlog ID, title, canonical source, current status and direct dependency
+when one is recorded. Eligibility is limited to `Planned`, `Authorized`, or
+`Ready` after direct dependencies. `Deferred`, `Blocked`, `Completed`,
+`Merged`, `Rejected` and `Cancelled` items are never eligible. The horizon is
+derived afresh from the canonical repository backlog records, never from chat
+history, memory, a personal recommendation or a prior management summary. It
+therefore advances automatically when a completed item is no longer eligible.
+
+**Blocked Items** lists only current blocks, each with its subject, blocking
+reason and deconditioning evidence. **Deferred Items** lists only consciously
+deferred roadmap items. Neither section contributes items to the Rolling
+Horizon.
+
+This is a current-state handoff, not a delivery plan. It neither selects work
+nor grants implementation authority; canonical roadmap and backlog records
+remain authoritative when records conflict.
 
 ### Squash-Merge Cleanup Exception
 

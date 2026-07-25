@@ -108,6 +108,11 @@ Finalization:
   and issue its deterministic report: current branch, working tree,
   synchronization, completed branch, remote status, local deletion, prune,
   Repository State, Workspace State and `READY`/`NOT READY`
+- use the `ENGINEERING_METHOD.md` Finalization Rolling Horizon standard in the
+  management summary: Repository Status, Management Summary, Roadmap Position,
+  Rolling Horizon (Next 5 Planned), Blocked Items, Deferred Items, Repository
+  State and Workspace State; derive the horizon afresh from canonical backlog
+  records and exclude Deferred and Blocked items
 - only `MERGED_RECONCILED` and `WORKSPACE_READY` permit the next
   implementation capability
 ```
