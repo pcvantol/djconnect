@@ -33,19 +33,25 @@ Every current program register uses exactly one of these statuses:
 
 ## Generation 2 execution model
 
-Generation 2 is product-led. The current **Product Initiative** is
-**Reference Experience**: create the first complete, canonical DJConnect
-experience across bounded interaction and presentation surfaces.
+Generation 2 is product-led. The current **Product Initiative** is **DJ
+Intelligence Evolution**: establish the minimum intelligence baseline needed
+for the first convincing, canonical DJConnect experience.
 
 ```text
-Product Initiative: Reference Experience
+Product Initiative: DJ Intelligence Evolution
         ↓
 Engineering execution: Automated Session Intelligence E2E Verification
 ```
 
 Automated Session Intelligence E2E Verification remains the current
-engineering execution. It enables the Reference Experience through trustworthy
-existing Session behaviour; it is not a replacement for the product direction.
+engineering execution. It supports DJ Intelligence Evolution through
+trustworthy existing Session behaviour; it is not a replacement for the
+product direction.
+
+The repository-grounded DJ Intelligence Capability Review is the planning
+baseline for this phase. Reference Experience follows after that minimum
+baseline: the Universal Receiver consumes it as the first reference renderer
+and never defines Session Intelligence or future renderer behaviour.
 
 The public Community release defines the minimum lovable DJConnect product,
 not the complete long-term product vision.
@@ -82,11 +88,13 @@ records only its program-level status:
 | Phase | Product maturity | Status |
 | --- | --- | --- |
 | 0 | Generation 2 Foundations | Completed |
-| 1 | Reference Experience | Current execution |
-| 2 | Apple Premium Experience | Planned |
-| 3 | Public Release Readiness Assessment | Planned |
-| 4 | Productization | Planned |
-| 5 | Community Public Release | Planned |
+| 1 | DJ Intelligence Evolution | Current execution |
+| 2 | Reference Experience | Planned |
+| 3 | Apple Premium Experience | Planned |
+| 4 | Public Release Readiness Assessment | Planned |
+| 5 | Productization | Planned |
+| 6 | Community Public Release | Planned |
+| 7 | Desktop Platform Family | Deferred |
 | 7 | Personal AI DJ evolution | Deferred |
 | 8 | Future Cloud evolution | Deferred |
 
@@ -190,9 +198,10 @@ Future Platform Evolution and Innovation (Planned or Deferred)
 ## Recommended next Product Development slice
 
 Continue the existing Automated Session Intelligence E2E Verification work as
-the enabling engineering stream for Phase 1, Reference Experience. Any
-subsequent user-facing slice must begin with the applicable capability
-assessment and Experience Gap Analysis; it must not reopen completed
+the engineering stream supporting Phase 1, DJ Intelligence Evolution. Phase 2
+Reference Experience begins only after the minimum intelligence baseline is
+established, then follows Experience Assessment, Experience Gap Analysis,
+Implementation and Experience Validation. It must not reopen completed
 foundations or assume cross-host capability parity.
 
 ## Reconciliation outcome
