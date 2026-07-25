@@ -2,20 +2,21 @@
 
 ## Decision
 
-`GO_READ_ONLY_DEVELOPER_OVERLAY`
+`GO_E2E_HARNESS_ONLY`
 
-The next separately authorized implementation may add an optional **development-only,
-read-only Developer Overlay** as a subordinate observer of the existing Universal
-Receiver Broadcast projection. This decision authorizes no implementation in this
-Pre-Flight and does not make the overlay a product capability, public-release
-requirement or Golden Qualification authority.
+The original shipping-overlay decision was narrowed by the
+[Delivery Guard Pre-Flight](DEVELOPER_OVERLAY_DELIVERY_GUARD_PREFLIGHT.md).
+The next separately authorized implementation may add only an **E2E-only,
+process-local read-only overlay** composed by the existing Universal Receiver
+Browser E2E harness. It is not a product capability, public-release requirement,
+shipping development build feature or Golden Qualification authority.
 
 ## Purpose and release policy
 
-The overlay is Developer Tooling and Verification Support under Platform
-Evolution. It exists only to aid local debugging and E2E observation. It is
-disabled in production by default, absent from public-release scope and never a
-user-facing feature.
+The overlay is Verification Support under Platform Evolution. It exists only in
+the E2E harness to aid deterministic observation. It is absent from the served
+Receiver, release artifact and public-release scope, and is never a user-facing
+feature.
 
 It may project existing authorized data and locally known connection state. It
 must never offer controls, send mutation frames, change a Session, influence the
@@ -59,18 +60,14 @@ is intentional and must remain visible rather than inferred.
 
 ## Architecture and positioning
 
-The least invasive placement is a **development-only extension of the existing
-Universal Receiver presentation path**, using its existing in-memory,
-renderer-safe Broadcast projection and local socket lifecycle. It is not
-platform-wide, Apple-only, a Home Assistant diagnostics panel or a new Renderer
-Host.
+The least invasive placement is an **E2E-only composition in the existing
+Universal Receiver Browser E2E harness**. The served Receiver page remains
+unchanged. It is not platform-wide, Apple-only, a Home Assistant diagnostics
+panel, a shipping development build or a new Renderer Host.
 
-The required guard is delivery/build-time development enablement with a default
-of off for production. A URL parameter, Home Assistant service, config option,
-feature flag that changes server behavior, or client-to-server control is not
-authorized by this decision. The implementation Pre-Flight must select the
-smallest existing delivery mechanism that meets this guard without adding a new
-transport contract.
+The Delivery Guard Pre-Flight found no existing safe build-time or asset-delivery
+guard. A URL parameter, Home Assistant service, config option, feature flag that
+changes server behavior, or client-to-server control remains unauthorized.
 
 ## Verification and governance
 
