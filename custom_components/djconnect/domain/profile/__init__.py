@@ -16,9 +16,12 @@ from .models import (
     ResponseStyle,
     VoiceStyle,
 )
+from ...dj_brain_capabilities import CapabilityPolicy, CapabilityPolicyMode
 
 __all__ = [
     "ConversationReference",
+    "CapabilityPolicy",
+    "CapabilityPolicyMode",
     "FeatureEntitlements",
     "MoodState",
     "MusicDNAReference",

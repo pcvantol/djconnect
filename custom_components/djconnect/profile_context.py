@@ -7,6 +7,7 @@ import logging
 from typing import Any
 
 from .const import CONF_CLIENT_TYPE, CONF_DEVICE_ID, DOMAIN
+from .dj_brain_capabilities import CapabilityPolicy, allowed_intents
 from .domain import (
     Profile,
     ProfilePrivacyMode,
@@ -47,6 +48,7 @@ class DJConnectRequestContext:
     profile_playback_zone_id: str = ""
     privacy_mode: ProfilePrivacyMode = ProfilePrivacyMode.NORMAL
     privacy_policy: ProfilePrivacyPolicy = ProfilePrivacyPolicy(ProfilePrivacyMode.NORMAL)
+    capability_policy: CapabilityPolicy = CapabilityPolicy()
     request_source: str = ""
     resolution_reason: ProfileResolutionReason = ProfileResolutionReason.FALLBACK
     resolution_signal: str = ""
@@ -56,6 +58,11 @@ class DJConnectRequestContext:
     def music_dna_key(self) -> str:
         """Return the profile-scoped key used by current Music DNA adapters."""
         return f"profile:{self.profile_id}"
+
+    @property
+    def allowed_capability_intents(self) -> frozenset[str]:
+        """Resolve the Profile's built-in capability policy for the Planner."""
+        return allowed_intents(self.capability_policy)
 
 
 class ProfileContextError(ResolverError):
@@ -222,6 +229,7 @@ async def async_resolve_request_context(
         profile_playback_zone_id=preferences.fallback_playback_zone_id,
         privacy_mode=privacy_policy.mode,
         privacy_policy=privacy_policy,
+        capability_policy=profile.capability_policy,
         request_source=request_source,
         resolution_reason=resolution.reason,
         resolution_signal=resolution.signal,
@@ -276,6 +284,7 @@ async def async_resolve_device_bound_request_context(
         profile_playback_zone_id=preferences.fallback_playback_zone_id,
         privacy_mode=privacy_policy.mode,
         privacy_policy=privacy_policy,
+        capability_policy=profile.capability_policy,
         request_source=request_source,
         resolution_reason=ProfileResolutionReason.DEVICE_MAPPING,
         resolution_signal=context.device_id,
@@ -325,6 +334,8 @@ async def async_apply_profile_context(
     setattr(runtime, "profile_context_music_account_id", context.music_account_id)
     setattr(runtime, "profile_context_playback_zone_id", context.profile_playback_zone_id)
     setattr(runtime, "profile_context_privacy_policy", context.privacy_policy)
+    setattr(runtime, "profile_context_capability_policy", context.capability_policy)
+    setattr(runtime, "profile_context_allowed_capability_intents", context.allowed_capability_intents)
     setattr(runtime, "profile_context_resolution_reason", context.resolution_reason.value)
     return context
 

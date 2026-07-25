@@ -6,6 +6,8 @@ from dataclasses import dataclass, field
 from enum import StrEnum
 from typing import Any
 
+from ...dj_brain_capabilities import CapabilityPolicy
+
 from ..models import clean_identifier
 
 
@@ -153,6 +155,7 @@ class Profile:
     mood: MoodState = field(default_factory=MoodState)
     entitlements: FeatureEntitlements = field(default_factory=FeatureEntitlements)
     capabilities: ProfileCapabilities = field(default_factory=ProfileCapabilities)
+    capability_policy: CapabilityPolicy = field(default_factory=CapabilityPolicy)
     likes: frozenset[str] = field(default_factory=frozenset)
     dislikes: frozenset[str] = field(default_factory=frozenset)
     feature_settings: dict[str, Any] = field(default_factory=dict)

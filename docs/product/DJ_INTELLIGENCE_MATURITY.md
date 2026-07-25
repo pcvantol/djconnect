@@ -30,6 +30,13 @@ not become active merely because its future cell exists. The E2E foundation must
 protect the canonical pipeline before material new Intelligence Engine
 complexity is added.
 
+The trusted built-in DJ Brain Capability Platform is a current selection
+boundary, not a new intelligence stage. Its Profile-owned policy can restrict
+which already-supported Planner intents are eligible before Knowledge and
+Moment realization; it neither adds a Planner input nor changes Knowledge,
+Moment, Flow, Broadcast, Golden Scenario or renderer semantics. See
+[`DJ_BRAIN_CAPABILITY_PLATFORM.md`](DJ_BRAIN_CAPABILITY_PLATFORM.md).
+
 ## Maturity principles
 
 Every stage must remain production ready, testable and faithful to established
