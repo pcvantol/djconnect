@@ -130,6 +130,57 @@ assert.equal(sockets.length, 1);
 assert.equal(sockets[0].url, "wss://receiver.test/api/djconnect/v1/session/broadcast/ws/observer-session?broadcast_token=ephemeral");
 sockets[0].onopen();
 sockets[0].onmessage({ data: JSON.stringify({ type: "snapshot", snapshot: input.snapshot }) });
+// This panel belongs solely to this process-local harness.  It is composed
+// after the unchanged Receiver has consumed its snapshot, and intentionally
+// projects only the Delivery Guard allowlist rather than the full snapshot.
+const snapshot = input.snapshot && typeof input.snapshot === "object" ? input.snapshot : {};
+const session = snapshot.session && typeof snapshot.session === "object" ? snapshot.session : {};
+const planner = snapshot.planner && typeof snapshot.planner === "object" ? snapshot.planner : {};
+const flowState = snapshot.session_flow && typeof snapshot.session_flow === "object" ? snapshot.session_flow : {};
+const flowItems = Array.isArray(flowState.items) ? flowState.items : [];
+const moments = Array.isArray(snapshot.dj_moments) ? snapshot.dj_moments : [];
+const activeFlowItem = flowItems.find(item => item && item.position === "now" && item.moment_id);
+const activeMoment = moments.find(moment => activeFlowItem && moment && moment.moment_id === activeFlowItem.moment_id) || moments.at(-1) || {};
+const broadcast = snapshot.broadcast && typeof snapshot.broadcast === "object" ? snapshot.broadcast : {};
+const observability = {
+  session: {
+    session_id: typeof session.session_id === "string" ? session.session_id : "",
+    runtime_state: typeof session.runtime_state === "string" ? session.runtime_state : "",
+    selected_mood: typeof session.selected_mood === "string" ? session.selected_mood : "",
+  },
+  planner: {
+    planning_state: typeof planner.planning_state === "string" ? planner.planning_state : "",
+    current_direction: typeof planner.current_direction === "string" ? planner.current_direction : "",
+    planning_horizon_minutes: Number.isFinite(planner.planning_horizon_minutes) ? planner.planning_horizon_minutes : null,
+  },
+  current_moment: {
+    moment_id: typeof activeMoment.moment_id === "string" ? activeMoment.moment_id : "",
+    moment_type: typeof activeMoment.type === "string" ? activeMoment.type : (typeof activeMoment.moment_type === "string" ? activeMoment.moment_type : ""),
+  },
+  session_flow: {
+    flow_revision: Number.isFinite(flowState.flow_revision) ? flowState.flow_revision : null,
+    item_count: flowItems.length,
+  },
+  broadcast: {
+    snapshot_watermark: Number.isFinite(broadcast.snapshot_watermark) ? broadcast.snapshot_watermark : null,
+    started_at: typeof broadcast.started_at === "string" ? broadcast.started_at : "",
+  },
+  transport: { protocol: "websocket", connection_state: "live", reconnecting: false, snapshot_received: true },
+};
+const overlay = makeElement();
+overlay.dataset.kind = "read-only-observability";
+overlay.textContent = JSON.stringify(observability);
+elements.set("developer-overlay", overlay);
+assert.equal(elements.get("developer-overlay").dataset.kind, "read-only-observability");
+assert.deepEqual(JSON.parse(elements.get("developer-overlay").textContent), observability);
+assert.deepEqual(Object.keys(observability), ["session", "planner", "current_moment", "session_flow", "broadcast", "transport"]);
+assert.equal(observability.session.session_id, session.session_id || "");
+assert.equal(observability.session.runtime_state, session.runtime_state || "");
+assert.equal(observability.planner.current_direction, planner.current_direction || "");
+assert.equal(observability.current_moment.moment_id, activeMoment.moment_id || "");
+assert.equal(observability.session_flow.item_count, flowItems.length);
+assert.equal(observability.broadcast.snapshot_watermark, Number.isFinite(broadcast.snapshot_watermark) ? broadcast.snapshot_watermark : null);
+assert.deepEqual(observability.transport, { protocol: "websocket", connection_state: "live", reconnecting: false, snapshot_received: true });
 // Re-apply after snapshot in source order: this proves snapshot-first state
 // replacement and ordered subsequent event consumption without visual checks.
 for (const event of liveEvents) sockets[0].onmessage({ data: JSON.stringify({ type: "event", data: event }) });

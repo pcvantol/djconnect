@@ -12,8 +12,10 @@ execution concluded
 `NO-GO`: the existing restricted Verification Clock already satisfies every
 approved behavior, and generic acceleration has no current product value.
 Universal Receiver Browser E2E is complete through PR #431 as a separate,
-optional renderer-host transport layer. The next Product Development
-Pre-Flight candidate is the **read-only Developer Overlay**.
+optional renderer-host transport layer. The E2E-only Read-only Developer
+Overlay harness is complete as process-local verification support; it is not a
+Receiver or shipping feature. The next architecture candidate is the
+**CMB-11 Sharing Producer / Native Renderer Assessment**.
 The Architecture,
 Developer Session Bootstrap, Deterministic Scenario Driver, Immutable E2E
 Session Capture and Structural Invariant Validator now execute all six original
@@ -101,7 +103,7 @@ and a separately authorized capability.
 | 15 | Intelligence Quality Metrics | Complete — PR #425 | Optional transient, report-derived advisory projection; no scoring, threshold, gate or history. |
 | 16 | Full CI Qualification and readable reports | Complete — PR #429 | Existing Smoke and Regression profiles run advisory in repository Actions; only fail-closed, bounded Markdown Job Summaries are published, without artifacts or gates. |
 | 17 | Universal Receiver browser E2E | Complete — PR #431 | Observes existing Smoke and Regression Foundation executions through renderer-safe Broadcast and a transient headless Receiver; it does not alter qualification authority or reports. |
-| 18 | E2E-only Read-only Developer Overlay | Planned — Delivery Guard `GO_E2E_HARNESS_ONLY` | Process-local Browser E2E observability tooling only; absent from the served Receiver, HACS/release artifact and product scope; consumes only existing renderer-safe Broadcast projection and local transport state. |
+| 18 | E2E-only Read-only Developer Overlay | Complete — `E2E_HARNESS_OBSERVABILITY_IMPLEMENTED` | Process-local Browser E2E observability tooling only; absent from the served Receiver, HACS/release artifact and product scope; consumes only an explicit renderer-safe Broadcast allowlist and local WebSocket state. |
 | 19 | Optional TTS Session Replay | Deferred | Reuses eligible presentation output without canonical audio persistence. |
 | 20 | Optional side-by-side Session comparison | Deferred | Compares capture artifacts without creating a competing planner. |
 
