@@ -28,11 +28,11 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-PR [#468](https://github.com/pcvantol/djconnect/pull/468), **Reconcile session direction architecture**, merged as
-`df8e4fd9e5eb19d9eb00255442d41f8fb64bcb25`. This dedicated Finalization
+PR [#470](https://github.com/pcvantol/djconnect/pull/470), **Reconcile native Ask DJ voice ingest**, merged as
+`283601f3c33156b47e20c12f2cf349f6befcb705`. This dedicated Finalization
 reconciles its immutable Prompt History and rolling repository truth.
 
-PR #468 records a future mutable Session Direction Projection; no implementation changed. Repository State:
+PR #470 records native streaming as blocked pending Assist Pipeline evidence; no implementation changed. Repository State:
 `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY` after cleanup.
 
 ## Historical repository context

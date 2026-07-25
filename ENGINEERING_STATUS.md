@@ -5,12 +5,12 @@
 
 ## Current engineering increment
 
-PR [#468](https://github.com/pcvantol/djconnect/pull/468), **Reconcile session direction architecture**, merged as
-`df8e4fd9e5eb19d9eb00255442d41f8fb64bcb25`. This dedicated Finalization
+PR [#470](https://github.com/pcvantol/djconnect/pull/470), **Reconcile native Ask DJ voice ingest**, merged as
+`283601f3c33156b47e20c12f2cf349f6befcb705`. This dedicated Finalization
 reconciles its immutable Prompt History and rolling records.
 
-PR #468 records a future renderer-safe Session Direction Projection design; no
-Runtime, Planner, Broadcast or renderer implementation changed. Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY` after cleanup.
+PR #470 confirms HA Assist/STT ownership and records native streaming as blocked
+pending a safe Assist Pipeline contract. No implementation changed. Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY` after cleanup.
 
 ## Historical operational context
 
