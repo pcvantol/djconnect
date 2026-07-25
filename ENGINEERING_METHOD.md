@@ -250,15 +250,14 @@ engineering increment. **Repository Status** records the relevant merge
 commit(s), CI and HACS outcome, `main == origin/main`, Repository State,
 Workspace State and stale-local-branch result.
 
-**Rolling Horizon (Next 5 Planned)** contains exactly the first five eligible
-items in the canonical repository backlog execution order. Each item identifies
+**Rolling Horizon (Execution Horizon)** contains the next five actually authorized execution items. Backlog order remains the default basis; an item may be skipped only for a recorded dependency, explicit management decision, or repository decision that changes execution order. Each skip includes a compact objective execution justification. Each item identifies
 its backlog ID, title, canonical source, current status and direct dependency
 when one is recorded. Eligibility is limited to `Planned`, `Authorized`, or
 `Ready` after direct dependencies. `Deferred`, `Blocked`, `Completed`,
 `Merged`, `Rejected` and `Cancelled` items are never eligible. The horizon is
 derived afresh from the canonical repository backlog records, never from chat
 history, memory, a personal recommendation or a prior management summary. It
-therefore advances automatically when a completed item is no longer eligible.
+therefore advances automatically when a completed item is no longer eligible. It is not a Backlog Horizon and never skips work for personal or AI preference.
 
 **Blocked Items** lists only current blocks, each with its subject, blocking
 reason and deconditioning evidence. **Deferred Items** lists only consciously
