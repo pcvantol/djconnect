@@ -47,37 +47,36 @@ additional Concrete Hosts. VibeCast placement is an explicit Release Readiness
 Assessment decision: it remains Platform Adoption unless the assessment finds
 it Community-defining Runtime Readiness work.
 
-PR [#479](https://github.com/pcvantol/djconnect/pull/479), **Assess Developer
-Overlay delivery guard**, merged as `6cb1f5ed2482fd1fe1b325e57d92fbd7e0335d3b`.
-It records `GO_E2E_HARNESS_ONLY`: the only safe future overlay is process-local
-Browser E2E tooling, absent from the served Receiver and release/HACS artifacts.
-No product behavior, Runtime, Broadcast or transport changed.
-Repository State: `MERGED_RECONCILED`. Workspace State: `WORKSPACE_READY`
-after this Finalization and verified cleanup.
+PR [#481](https://github.com/pcvantol/djconnect/pull/481), **Add E2E harness
+read-only observability**, merged as
+`b838019e84f848f2d39a579f17fc41300addef39`. It records
+`E2E_HARNESS_OBSERVABILITY_IMPLEMENTED`: the existing Browser E2E harness now
+composes a process-local, allowlisted read-only panel. The Universal Receiver,
+Runtime, Broadcast, Planner, Session Flow, release/HACS assets and
+qualification authority are unchanged.
+Repository State: `MERGED_UNRECONCILED`. Workspace State: `NOT_READY` until
+this Finalization and verified cleanup.
 
 ## Roadmap position and next backlog
 
 DJConnect remains in Generation 2, Phase 1 — **DJ Intelligence Evolution**.
 Automated Session Intelligence E2E Verification remains the active supporting
-engineering execution. Its next Product Development implementation candidate is
-the **read-only Developer Overlay**: a development-only, non-authoritative
-surface, disabled in production by default, with Pre-Flight
-`GO_READ_ONLY_DEVELOPER_OVERLAY` completed. A separate implementation prompt
-remains required.
+engineering execution. The E2E-only Read-only Developer Overlay is complete;
+it is not a shipping or follow-on implementation candidate.
 
-The visible five-item follow-on backlog is:
+The tentative five-item follow-on projection is:
 
-1. E2E roadmap item 18 — **read-only Developer Overlay** (the sole next
-   implementation candidate; separate authorization required).
-2. `CMB-11` — select and assess exactly one Sharing Experience producer and
+1. `CMB-11` — select and assess exactly one Sharing Experience producer and
    one native Renderer Host, with explicit Profile privacy evidence; no Runtime,
    Broadcast, public URL or social-service scope.
-3. `CMB-04` — atomically re-express the Renderer Experience roadmap before
+2. `CMB-04` — atomically re-express the Renderer Experience roadmap before
    renderer parity or delivery work.
-4. E2E roadmap item 19 — optional TTS Session Replay, retaining its deferred
-   boundary of eligible presentation output and no canonical audio persistence.
-5. E2E roadmap item 20 — optional side-by-side Session comparison, retaining
-   its deferred boundary of capture-artifact comparison and no competing Planner.
+3. `CMB-08` — decompose Universal Receiver and VibeCast into separate
+   host/experience capability records.
+4. `HACS-CI-PR-REF-001` — classify HACS pull-request validation reliability
+   without workflow, action-pinning or gate changes.
+5. Client Connectivity & Resilience qualification — bounded external HTTP
+   resilience evidence after its Public Release Readiness Assessment dependency.
 
 Playback Observation Stage 2 and Continue Stage 2 remain deferred until a
 backend-owned Playback Instance Identity is available; they are a recorded
