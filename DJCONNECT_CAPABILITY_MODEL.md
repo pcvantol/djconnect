@@ -76,9 +76,11 @@ Implementation classification is selected in this mandatory order:
 
 `REUSE → CONFIGURE → EXTEND → NEW`
 
-All catalogued capabilities are implemented on current `main`; their current
-implementation classification is therefore `REUSE`. A future change may use a
-different classification only after a Repository Capability Assessment.
+Implemented catalogued capabilities on current `main` use `REUSE`. A planned
+capability record is architectural evidence only and must name its maturity and
+future assessment boundary; it does not authorize implementation. A future
+change may use a different classification only after a Repository Capability
+Assessment.
 
 ### Capability-first planning sequence
 
@@ -144,6 +146,7 @@ material). Maturity is **Implemented**, **Planned**, or **Deprecated**.
 | CAP-IN-02 | Music Discovery feed | Insight and Discovery | HA Discovery service | profile context, backend capabilities | Implemented | personal | Apple, Windows, Pi read-heavy | REUSE |
 | CAP-IN-03 | Recently-played query | Insight and Discovery | HA Music Backend boundary | backend capability | Implemented | personal | rich-client informative lists | REUSE |
 | CAP-IN-04 | Recommendation proposal | Insight and Discovery | HA Discovery service | profile context, backend capability | Implemented | personal | rich-client action cards | REUSE |
+| CAP-SH-01 | Sharing Experience projection | Sharing Experience | DJConnect product contract | authorized existing producer, Profile privacy, native Renderer Host | Planned | renderer-safe | opt-in native client share representation | NEW |
 | CAP-VR-01 | Assist/STT integration | Voice and Response | HA Conversation Agent | HA Assist/STT | Implemented | restricted | ESP32 and Voice Interaction Hosts; Apple PTT | REUSE |
 | CAP-VR-02 | Push-to-talk request intake | Voice and Response | HA Voice boundary | device/voice authorization | Implemented | operational | ESP32, Voice Interaction Hosts and Apple where supported | REUSE |
 | CAP-VR-03 | Audio-response policy | Voice and Response | HA Conversation Agent | request context, HA TTS | Implemented | operational | voice and rich client responses | REUSE |
@@ -179,6 +182,7 @@ decision.
 | Ask DJ / Conversation | S owner | S rich | S rich | S text/read-heavy | U | S inside and outside Session | IA chat history | IA | IA | IA | IA |
 | Personalization | S owner | S authorized | S authorized | S privacy-limited | U | IA | IA | IA | IA | IA | IA |
 | Insight and Discovery | S owner | S rich | S rich | S read-heavy | U | IA | IA | IA | IA | IA | IA |
+| Sharing Experience | IA | P native renderer | P native renderer | U | U | IA | IA | IA | IA | IA | IA |
 | Voice and Response | S owner | S where supported | PS text/audio client | IA PTT | U | S | S | IA | IA | IA | IA |
 | Device Lifecycle | S orchestration | PS app lifecycle | PS app lifecycle | PS appliance lifecycle | U | PS HA-managed host | S hardware lifecycle | IA | IA | IA | PS distribution |
 | Supporting Infrastructure | S HA side | S bootstrap consumer | IA | IA | IA | IA | IA | IA | S relay-only | S product/onboarding surface | S artifact distribution metadata |
@@ -198,6 +202,7 @@ complementary audio response projections do not make them Session owners.
 | Pi 10-inch projection | Unknown / requires evidence | no inference | Assess separately; do not inherit Pi 4-inch scope automatically. |
 | Apple and Windows rich-client surfaces differ | missing projection / requires evidence | no automatic convergence | Atomic Apple–Windows comparison and explicit disposition. |
 | Universal Receiver/VibeCast differs from paired clients | platform-specific capability | retain | Decompose receiver and VibeCast experiences before roadmap work. |
+| Native sharing has no canonical producer/renderer contract | missing projection | planned Sharing Experience architecture | Assess producer and native-renderer implementation separately; do not add sharing to Runtime or Broadcast. |
 | Apple-local minigames | candidate for canonical promotion or retirement | no current promotion | Decide whether each remains an optional local feature, becomes a shared capability, or retires. |
 | Historical discovery describes Profile/Runtime/Presentation as conceptual | stale documentation | superseded for current state | Preserve as dated evidence; do not use it for current planning. |
 | Central API or website becoming Runtime owners | implementation inconsistency risk | prohibited by current boundary | Require Architecture Review before any scope expansion. |
