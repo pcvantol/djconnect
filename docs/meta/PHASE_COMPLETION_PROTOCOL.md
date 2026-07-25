@@ -510,6 +510,11 @@ User-facing two-PR management feedback summary for the Product & Platform
 Architect: outcomes, preserved boundaries, validation, remaining decisions and
 combined planning feedback from repository/GitHub evidence only
 
+User-facing Product and Platform position: current program/cycle, roadmap phase
+and active increment, plus a tentative three-to-five-item canonical
+roadmap/backlog projection with source, status, gates and explicit
+reprioritization caveat
+
 Repository Improvements
 
 Commit SHA
