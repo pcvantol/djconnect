@@ -5,6 +5,27 @@ Architecture collaboration continues across engineering conversations. It does
 not define product architecture, Runtime behaviour, capability ownership,
 roadmap priority or implementation work.
 
+## Collaboration navigation
+
+`BOOTSTRAP.md` remains the single canonical repository entry point. It invokes
+the Developer Handoff for Product & Platform Architect continuity, which then
+consumes the existing Product Development workflow:
+
+```text
+Repository BOOTSTRAP
+        ↓
+Developer Handoff
+        ↓
+Product Development Workflow
+        ↓
+Future engineering process documentation
+```
+
+This is one navigation path, not a second bootstrap mechanism. The Developer
+Handoff helps a new conversation interpret current repository evidence; it
+does not replace repository synchronization, canonical governance or product
+architecture.
+
 ## Current documents
 
 - [Developer Handoff](DEVELOPER_HANDOFF.md) — the repository-first continuity
