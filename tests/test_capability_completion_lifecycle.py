@@ -88,6 +88,23 @@ class CapabilityCompletionLifecycleTest(unittest.TestCase):
             self.assertIn(f"PR [#{current_increment.group('number')}]", contents, name)
             self.assertIn(current_increment.group("commit"), contents, name)
 
+    def test_finalization_requires_the_canonical_rolling_horizon(self) -> None:
+        method = (ROOT / "ENGINEERING_METHOD.md").read_text()
+        template = (ROOT / "docs/governance/PROMPT_TEMPLATE.md").read_text()
+
+        for required in (
+            "Rolling Horizon (Next 5 Planned)",
+            "Blocked Items",
+            "Deferred Items",
+            "exactly the first five eligible",
+            "Deferred`, `Blocked`, `Completed`",
+            "derived afresh from the canonical repository backlog records",
+            "advances automatically",
+        ):
+            self.assertIn(required, method)
+        self.assertIn("Finalization Rolling Horizon standard", template)
+        self.assertIn("exclude Deferred and Blocked items", template)
+
 
 if __name__ == "__main__":
     unittest.main()
