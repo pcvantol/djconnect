@@ -28,6 +28,94 @@ not be duplicated there.
 - Product Development is primary. Platform Evolution work requires objective
   evidence that it removes a product-delivery constraint.
 
+## Product Development assessment workflow
+
+Product Development is the single delivery discipline. Its assessment-first
+workflow is:
+
+```text
+Capability Assessment
+        ↓
+Product Assessment
+        ↓
+Experience Assessment
+        ↓
+If the slice modifies DJ Intelligence:
+        ↓
+DJ Intelligence Assessment
+        ↓
+Golden Scenario Assessment
+        ↓
+Implementation
+        ↓
+Verification
+        ↓
+Experience Validation
+```
+
+For a slice that does not modify DJ Intelligence, the conditional DJ
+Intelligence Assessment and Golden Scenario Assessment are omitted entirely;
+the slice proceeds from Experience Assessment to Implementation. This is one
+Product Development workflow, not a separate Intelligence Engineering
+discipline or governance track.
+
+### DJ Intelligence applicability
+
+A Product Development slice requires the conditional assessment when it
+changes one or more of:
+
+- Session Planner, Planner inputs or Planner outputs;
+- Knowledge Engine, knowledge sources, selection or ranking;
+- DJMoment generation or existing DJMoment types;
+- narrative planning or planning horizon;
+- audience adaptation or interpretation of Audience Signals;
+- Lyric Intelligence or music-aware timing;
+- music understanding or recommendation reasoning;
+- performance learning; or
+- other Session decision logic.
+
+### DJ Intelligence Assessment checklist
+
+Each applicable slice records explicit answers to:
+
+| Area | Required assessment |
+| --- | --- |
+| Planner | Whether Planner behaviour changes. |
+| Planner inputs | Whether inputs are introduced or changed. |
+| Knowledge | Whether sources, selection or prioritization change. |
+| DJMoment | Whether types are introduced or changed. |
+| Narrative | Whether Session narrative or planning horizon changes. |
+| Audience | Whether runtime Audience Signals become Planner inputs or are interpreted differently. |
+| Lyrics | Whether lyric awareness or music-aware timing is introduced. |
+| Performance | Whether the DJ learns from prior Session behaviour. |
+| Capability ownership | Whether ownership remains consistent with the Capability Architecture. |
+
+### Golden Scenario Assessment and traceability
+
+Every applicable DJ Intelligence slice also determines, as review evidence,
+whether existing Golden coverage is sufficient, an existing Golden Scenario
+must be extended, or a new Golden Scenario is required. This consumes
+`docs/verification/GOLDEN_SCENARIO_GOVERNANCE.md`; it does not create a
+parallel scenario process.
+
+The slice records this traceability:
+
+```text
+Capability
+  ↓
+Planner Input
+  ↓
+Planner Decision
+  ↓
+Knowledge
+  ↓
+DJMoment
+  ↓
+Golden Scenario
+  ↓
+Experience Validation
+```
+
 ## Frozen baseline
 
 The following remain frozen under Generation 1 decisions: Platform Engineering,

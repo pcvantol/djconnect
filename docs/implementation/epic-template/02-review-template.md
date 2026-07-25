@@ -36,6 +36,27 @@ Did implementation move responsibilities to the correct repository or layer?
 
 Notes:
 
+## DJ Intelligence and Golden Scenario review (omit when not applicable)
+
+For a phase that modified DJ Intelligence, confirm that its pre-implementation
+DJ Intelligence Assessment explicitly addressed Planner, Planner inputs,
+Knowledge, DJMoment, Narrative, Audience, Lyrics, Performance and Capability
+Architecture ownership.
+
+Record the Golden Scenario Assessment decision:
+
+- existing coverage sufficient;
+- existing scenario extended; or
+- new scenario introduced.
+
+Record the affected scenario IDs, the `preserve` / `extend` / `introduce`
+relationship and the traceability from Capability through Planner Input,
+Planner Decision, Knowledge and DJMoment to Golden Scenario and Experience
+Validation.
+
+This review evidence is part of Product Development. It does not establish a
+separate DJ Intelligence governance process.
+
 ## Duplication review
 
 Did the phase introduce duplicated contracts or duplicated business logic?
