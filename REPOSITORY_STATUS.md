@@ -28,17 +28,16 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-PR [#453](https://github.com/pcvantol/djconnect/pull/453), **Add developer
-handoff collaboration workflow**, merged as
-`d94250d31a7dad5ac41511c47d00adf5f96d5481`. This dedicated Finalization
+PR [#455](https://github.com/pcvantol/djconnect/pull/455), **Improve repository
+bootstrap for AI collaboration**, merged as
+`852c27bb468e7ac77af8038ea3eafc137dc70789`. This dedicated Finalization
 reconciles its immutable Prompt History and rolling repository truth.
 
-PR #453 adds a discoverable, repository-owned Developer Handoff for new
-ChatGPT Product & Platform Architect sessions. It documents how existing
-repository evidence, Product Development assessments and the canonical prompt
-template guide continuity; it adds neither a new delivery discipline nor a
-separate governance track. No architecture, ownership, API, capability,
-roadmap or implementation change occurred. Repository State:
+PR #455 clarifies `BOOTSTRAP.md` as the single canonical repository entry
+point for a new Product & Platform Architect session, then connects it to the
+Developer Handoff and existing Product Development workflow. It adds no new
+bootstrap, delivery discipline or governance track. No architecture, ownership,
+API, capability, roadmap or implementation change occurred. Repository State:
 `MERGED_UNRECONCILED`. Workspace State: `NOT_READY` pending this
 governance-only Finalization; Workspace Cleanup follows its merge.
 

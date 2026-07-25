@@ -5,17 +5,18 @@
 
 ## Current engineering increment
 
-PR [#453](https://github.com/pcvantol/djconnect/pull/453), **Add developer
-handoff collaboration workflow**, merged as
-`d94250d31a7dad5ac41511c47d00adf5f96d5481`. This dedicated Finalization
+PR [#455](https://github.com/pcvantol/djconnect/pull/455), **Improve repository
+bootstrap for AI collaboration**, merged as
+`852c27bb468e7ac77af8038ea3eafc137dc70789`. This dedicated Finalization
 reconciles its immutable Prompt History and rolling records.
 
-PR #453 creates the repository-owned Developer Handoff for new ChatGPT Product
-& Platform Architect sessions. It requires repository synchronization,
-continuity validation, a standard evidence-based review cycle and one bounded
-next Product Development prompt. The handoff consumes the existing conditional
-DJ Intelligence workflow and creates no product architecture, Runtime,
-capability, ownership, roadmap or implementation change. Repository State:
+PR #455 makes `BOOTSTRAP.md` the explicit single repository entry point for
+AI-assisted Product & Platform Architecture sessions. **Repository Sync +
+Developer Handoff** now leads through Bootstrap, Developer Handoff,
+repository synchronization, the supplied management summary and one bounded
+next Product Development prompt. It creates no second bootstrap mechanism and
+changes no Runtime, Product Definition, Capability Architecture, Experience
+Foundation, roadmap, ownership or implementation behaviour. Repository State:
 `MERGED_UNRECONCILED`. Workspace State: `NOT_READY` until this Finalization
 merges; Workspace Cleanup then establishes `WORKSPACE_READY`.
 
