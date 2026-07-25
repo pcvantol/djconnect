@@ -28,12 +28,15 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-PR [#470](https://github.com/pcvantol/djconnect/pull/470), **Reconcile native Ask DJ voice ingest**, merged as
-`283601f3c33156b47e20c12f2cf349f6befcb705`. This dedicated Finalization
-reconciles its immutable Prompt History and rolling repository truth.
+PR [#472](https://github.com/pcvantol/djconnect/pull/472), **Add built-in DJ
+Brain capability policy**, merged as `d57c4cb0d109c3917c78958384b073b736f3926e`.
+The implementation adds only fixed built-in capability metadata, Profile policy
+persistence and Planner eligibility filtering. No extension loading, provider,
+planner strategy, Knowledge, Moment, Flow, Broadcast, renderer, CI or Golden
+Scenario behavior was introduced.
 
-PR #470 records native streaming as blocked pending Assist Pipeline evidence; no implementation changed. Repository State:
-`MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY` after cleanup.
+Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`
+after this dedicated Finalization merges and cleanup completes.
 
 ## Historical repository context
 

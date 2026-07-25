@@ -5,12 +5,18 @@
 
 ## Current engineering increment
 
-PR [#470](https://github.com/pcvantol/djconnect/pull/470), **Reconcile native Ask DJ voice ingest**, merged as
-`283601f3c33156b47e20c12f2cf349f6befcb705`. This dedicated Finalization
-reconciles its immutable Prompt History and rolling records.
+PR [#472](https://github.com/pcvantol/djconnect/pull/472), **Add built-in DJ
+Brain capability policy**, merged as `d57c4cb0d109c3917c78958384b073b736f3926e`.
+It establishes fixed, trusted built-in capability metadata and Profile-owned
+Full, Minimal and Custom policy resolution before Planner selection. Planner,
+Knowledge, DJMoment, Session Flow and Broadcast ownership remain unchanged;
+policy exclusion uses the existing Silence semantics. Its immutable histories
+are `docs/history/prompts/2026-07-25-dj-brain-built-in-capability-platform.md`
+and this dedicated Finalization record.
 
-PR #470 confirms HA Assist/STT ownership and records native streaming as blocked
-pending a safe Assist Pipeline contract. No implementation changed. Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY` after cleanup.
+Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`
+after this Finalization merges and verified cleanup completes. The active
+supporting increment remains Automated Session Intelligence E2E Verification.
 
 ## Historical operational context
 

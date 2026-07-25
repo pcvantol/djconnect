@@ -4,10 +4,12 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#470](https://github.com/pcvantol/djconnect/pull/470), **Reconcile native Ask DJ voice ingest**, merged as
-`283601f3c33156b47e20c12f2cf349f6befcb705`. Its dedicated Finalization
-reconciles the immutable Prompt History at
-`docs/history/prompts/2026-07-25-native-ask-dj-voice-ingest-reconciliation.md`.
+PR [#472](https://github.com/pcvantol/djconnect/pull/472), **Add built-in DJ
+Brain capability policy**, merged as `d57c4cb0d109c3917c78958384b073b736f3926e`.
+Its immutable implementation history is
+`docs/history/prompts/2026-07-25-dj-brain-built-in-capability-platform.md`;
+this Finalization records rolling-state reconciliation. The active supporting
+increment remains Automated Session Intelligence E2E Verification.
 
 `BOOTSTRAP.md` is the single canonical repository entry point for new ChatGPT
 Product & Platform Architect sessions. **Repository Sync + Developer Handoff**
@@ -15,7 +17,7 @@ uses that bootstrap to orient the session, synchronize and validate repository
 truth, consume the supplied management summary and apply the standard review
 cycle. It does not replace canonical assessment, authorization or
 implementation controls. Repository State is `MERGED_RECONCILED`; Workspace
-State is `WORKSPACE_READY` after verified PR #462 branch cleanup.
+State is `WORKSPACE_READY` after this Finalization merges and verified cleanup.
 
 PR [#431](https://github.com/pcvantol/djconnect/pull/431), **Add Universal
 Receiver browser E2E**, merged as
