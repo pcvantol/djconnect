@@ -5,13 +5,15 @@
 
 ## Current engineering increment
 
-PR [#474](https://github.com/pcvantol/djconnect/pull/474), **Reconcile Sharing
-Experience architecture**, merged as `e66d7576642b846c91d937247856c9da99d46b62`.
-It establishes Sharing Experience as a planned, user-initiated native Renderer
-Host projection over existing authorized content. It adds no share sheet,
-backend, public URL, cloud/social service, Runtime, Broadcast, Planner, Session
-Flow or DJMoment implementation. Its immutable histories are
-`docs/history/prompts/2026-07-25-sharing-experience-architecture-reconciliation.md`
+PR [#477](https://github.com/pcvantol/djconnect/pull/477), **Assess read-only
+Developer Overlay**, merged as `63ea10edcb902fce032ec767fb155cffd03edd2a`.
+It records `GO_READ_ONLY_DEVELOPER_OVERLAY` for one future bounded
+development-only overlay. That future overlay may use only existing
+renderer-safe Broadcast data and local transport state; it is default-off in
+production and cannot add controls, endpoints, Runtime/Planner/Knowledge access
+or qualification authority. This assessment adds no overlay implementation.
+Its immutable histories are
+`docs/history/prompts/2026-07-25-read-only-developer-overlay-preflight.md`
 and this dedicated Finalization record.
 
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`
@@ -23,15 +25,17 @@ supporting increment remains Automated Session Intelligence E2E Verification.
 Generation 2 remains in Phase 1, **DJ Intelligence Evolution**. Automated
 Session Intelligence E2E Verification remains its supporting engineering
 execution; it is not a replacement Product Initiative. The single next
-Product Development Pre-Flight candidate is E2E roadmap item 18, **read-only
-Developer Overlay**: development-only, non-authoritative and disabled in
-production by default.
+Product Development implementation candidate is E2E roadmap item 18,
+**read-only Developer Overlay**. Its Pre-Flight decision is
+`GO_READ_ONLY_DEVELOPER_OVERLAY`; its implementation still requires a separate
+authorized prompt and must remain development-only, non-authoritative and
+disabled in production by default.
 
 The visible five-item follow-on backlog, none of which is an implementation
 authorization, is:
 
-1. E2E roadmap item 18 — read-only Developer Overlay (the sole next Pre-Flight
-   candidate).
+1. E2E roadmap item 18 — read-only Developer Overlay (the sole next
+   implementation candidate; separate authorization required).
 2. `CMB-11` — assess exactly one Sharing Experience producer and one native
    Renderer Host, with privacy evidence and no Runtime/Broadcast/public-sharing
    scope.

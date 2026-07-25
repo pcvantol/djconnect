@@ -28,12 +28,12 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-PR [#474](https://github.com/pcvantol/djconnect/pull/474), **Reconcile Sharing
-Experience architecture**, merged as `e66d7576642b846c91d937247856c9da99d46b62`.
-It adds assessment-only producer/renderer architecture, a planned capability
-record and roadmap/backlog references. No share model is implemented and no
-Runtime, Broadcast, Planner, Session Flow, DJMoment, client transport or CI
-behavior changed.
+PR [#477](https://github.com/pcvantol/djconnect/pull/477), **Assess read-only
+Developer Overlay**, merged as `63ea10edcb902fce032ec767fb155cffd03edd2a`.
+It establishes the assessment decision `GO_READ_ONLY_DEVELOPER_OVERLAY`: a
+future development-only, default-off overlay may project existing renderer-safe
+Broadcast fields and local transport state only. No overlay, Runtime, Broadcast,
+Planner, Session Flow, DJMoment, client transport or CI behavior changed.
 
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`
 after this dedicated Finalization merges and cleanup completes.
@@ -42,7 +42,7 @@ after this dedicated Finalization merges and cleanup completes.
 
 The repository remains in Phase 1 **DJ Intelligence Evolution**. The visible
 five-item handoff backlog is: (1) E2E read-only Developer Overlay as the sole
-next Pre-Flight candidate; (2) `CMB-11` one-producer/one-native-Renderer
+next implementation candidate, subject to separate authorization; (2) `CMB-11` one-producer/one-native-Renderer
 Sharing Experience assessment; (3) `CMB-04` atomic Renderer Experience roadmap
 re-expression; (4) E2E optional TTS Session Replay without canonical audio
 persistence; and (5) E2E optional side-by-side Session comparison over capture
