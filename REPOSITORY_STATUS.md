@@ -28,12 +28,11 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-PR [#477](https://github.com/pcvantol/djconnect/pull/477), **Assess read-only
-Developer Overlay**, merged as `63ea10edcb902fce032ec767fb155cffd03edd2a`.
-It establishes the assessment decision `GO_READ_ONLY_DEVELOPER_OVERLAY`: a
-future development-only, default-off overlay may project existing renderer-safe
-Broadcast fields and local transport state only. No overlay, Runtime, Broadcast,
-Planner, Session Flow, DJMoment, client transport or CI behavior changed.
+PR [#479](https://github.com/pcvantol/djconnect/pull/479), **Assess Developer
+Overlay delivery guard**, merged as `6cb1f5ed2482fd1fe1b325e57d92fbd7e0335d3b`.
+It establishes `GO_E2E_HARNESS_ONLY`: future overlay work is process-local
+verification tooling, never a served Receiver or release/HACS asset. No Runtime,
+Broadcast, Planner, Session Flow, DJMoment, client transport or CI behavior changed.
 
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`
 after this dedicated Finalization merges and cleanup completes.

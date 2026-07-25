@@ -5,16 +5,12 @@
 
 ## Current engineering increment
 
-PR [#477](https://github.com/pcvantol/djconnect/pull/477), **Assess read-only
-Developer Overlay**, merged as `63ea10edcb902fce032ec767fb155cffd03edd2a`.
-It records `GO_READ_ONLY_DEVELOPER_OVERLAY` for one future bounded
-development-only overlay. That future overlay may use only existing
-renderer-safe Broadcast data and local transport state; it is default-off in
-production and cannot add controls, endpoints, Runtime/Planner/Knowledge access
-or qualification authority. This assessment adds no overlay implementation.
-Its immutable histories are
-`docs/history/prompts/2026-07-25-read-only-developer-overlay-preflight.md`
-and this dedicated Finalization record.
+PR [#479](https://github.com/pcvantol/djconnect/pull/479), **Assess Developer
+Overlay delivery guard**, merged as `6cb1f5ed2482fd1fe1b325e57d92fbd7e0335d3b`.
+It records `GO_E2E_HARNESS_ONLY`: the overlay is process-local Browser E2E
+tooling, absent from the served Receiver and release/HACS artifacts. Its
+separately authorized implementation may only compose allowlisted existing
+Broadcast data and local transport state in the existing harness.
 
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`
 after this Finalization merges and verified cleanup completes. The active
@@ -26,10 +22,9 @@ Generation 2 remains in Phase 1, **DJ Intelligence Evolution**. Automated
 Session Intelligence E2E Verification remains its supporting engineering
 execution; it is not a replacement Product Initiative. The single next
 Product Development implementation candidate is E2E roadmap item 18,
-**read-only Developer Overlay**. Its Pre-Flight decision is
-`GO_READ_ONLY_DEVELOPER_OVERLAY`; its implementation still requires a separate
-authorized prompt and must remain development-only, non-authoritative and
-disabled in production by default.
+**E2E-only read-only Developer Overlay**. Its Delivery Guard decision is
+`GO_E2E_HARNESS_ONLY`; its implementation still requires a separate authorized
+verification-tooling prompt and remains absent from product delivery.
 
 The visible five-item follow-on backlog, none of which is an implementation
 authorization, is:

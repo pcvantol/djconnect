@@ -47,13 +47,11 @@ additional Concrete Hosts. VibeCast placement is an explicit Release Readiness
 Assessment decision: it remains Platform Adoption unless the assessment finds
 it Community-defining Runtime Readiness work.
 
-PR [#477](https://github.com/pcvantol/djconnect/pull/477), **Assess read-only
-Developer Overlay**, merged as `63ea10edcb902fce032ec767fb155cffd03edd2a`.
-It records `GO_READ_ONLY_DEVELOPER_OVERLAY` for one future, separately
-authorized development-only overlay. It may project only existing renderer-safe
-Broadcast fields and local transport state; it is default-off in production and
-cannot introduce controls, endpoints, Runtime/Planner/Knowledge access or
-qualification authority. No overlay implementation or product behavior changed.
+PR [#479](https://github.com/pcvantol/djconnect/pull/479), **Assess Developer
+Overlay delivery guard**, merged as `6cb1f5ed2482fd1fe1b325e57d92fbd7e0335d3b`.
+It records `GO_E2E_HARNESS_ONLY`: the only safe future overlay is process-local
+Browser E2E tooling, absent from the served Receiver and release/HACS artifacts.
+No product behavior, Runtime, Broadcast or transport changed.
 Repository State: `MERGED_RECONCILED`. Workspace State: `WORKSPACE_READY`
 after this Finalization and verified cleanup.
 
