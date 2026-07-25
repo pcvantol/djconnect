@@ -54,8 +54,9 @@ read-only observability**, merged as
 composes a process-local, allowlisted read-only panel. The Universal Receiver,
 Runtime, Broadcast, Planner, Session Flow, release/HACS assets and
 qualification authority are unchanged.
-Repository State: `MERGED_UNRECONCILED`. Workspace State: `NOT_READY` until
-this Finalization and verified cleanup.
+Repository State: `MERGED_RECONCILED`. Workspace State: `WORKSPACE_READY`
+after Finalization PR #482 merged as `c601cfbd96714efc6107110eb20b2b925575bde4`
+and deterministic cleanup completed.
 
 ## Roadmap position and next backlog
 

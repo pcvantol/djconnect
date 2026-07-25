@@ -24,8 +24,9 @@ Product & Platform Architect sessions. **Repository Sync + Developer Handoff**
 uses that bootstrap to orient the session, synchronize and validate repository
 truth, consume the supplied management summary and apply the standard review
 cycle. It does not replace canonical assessment, authorization or
-implementation controls. Repository State is `MERGED_UNRECONCILED`; Workspace
-State is `NOT_READY` until this Finalization merges and verified cleanup completes.
+implementation controls. Repository State is `MERGED_RECONCILED`; Workspace
+State is `WORKSPACE_READY` after Finalization PR #482 merged as
+`c601cfbd96714efc6107110eb20b2b925575bde4` and deterministic cleanup completed.
 
 PR [#431](https://github.com/pcvantol/djconnect/pull/431), **Add Universal
 Receiver browser E2E**, merged as

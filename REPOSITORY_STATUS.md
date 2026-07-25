@@ -36,8 +36,9 @@ harness composes the allowlisted panel. No Universal Receiver, Runtime,
 Broadcast, Planner, Session Flow, DJMoment, client transport, CI or release/HACS
 asset behavior changed.
 
-Repository State: `MERGED_UNRECONCILED`; Workspace State: `NOT_READY` until
-this dedicated Finalization merges and cleanup completes.
+Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`
+after Finalization PR #482 merged as `c601cfbd96714efc6107110eb20b2b925575bde4`
+and deterministic cleanup completed.
 
 ## Current roadmap handoff
 
