@@ -5,18 +5,22 @@
 
 ## Current engineering increment
 
-PR [#449](https://github.com/pcvantol/djconnect/pull/449), **Report roadmap
-projection at finalization**, merged as
-`ac029f929dfa19556db5cc70fba83584ec6f4010`. This dedicated Finalization
+PR [#451](https://github.com/pcvantol/djconnect/pull/451), **Integrate
+conditional DJ intelligence assessment**, merged as
+`000967b9e1b4d09dde8ad4cd3b5bc4abd722c5c8`. This dedicated Finalization
 reconciles its immutable Prompt History and rolling records.
 
-PR #449 makes current Product/Platform cycle, phase and increment reporting
-mandatory after Finalization, with a clearly tentative three-to-five-item
-roadmap/backlog projection. Each projected item records its canonical source,
-status and gate; reprioritization remains possible. No Runtime, renderer,
-capability, ownership, API, product scope or implementation commitment changed.
-Repository State: `MERGED_UNRECONCILED`. Workspace State: `NOT_READY` until
-this Finalization merges; Workspace Cleanup then establishes `WORKSPACE_READY`.
+PR #451 extends the one assessment-first Product Development workflow. A slice
+that modifies DJ Intelligence must complete a DJ Intelligence Assessment and
+Golden Scenario Assessment before implementation; a non-intelligence slice
+omits both. The standard phase, review and prompt templates now carry the
+conditional checklist and Capability → Planner Input → Planner Decision →
+Knowledge → DJMoment → Golden Scenario → Experience Validation traceability.
+This is not a separate engineering discipline or governance track. No Runtime,
+renderer, capability, ownership, API, roadmap or implementation behaviour
+changed. Repository State: `MERGED_UNRECONCILED`. Workspace State: `NOT_READY`
+until this Finalization merges; Workspace Cleanup then establishes
+`WORKSPACE_READY`.
 
 ## Historical operational context
 

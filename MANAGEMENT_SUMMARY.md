@@ -15,11 +15,13 @@
 
 ## Current position
 
-Roadmap projection reporting is the current governance increment. The
-Finalization contract, Workspace Cleanup method and Phase Completion Protocol
-now require the current Product/Platform position and a tentative canonical
-roadmap/backlog projection. It introduces no Runtime, renderer, product,
-capability, ownership, API or implementation change.
+Conditional DJ Intelligence Assessment is the current governance increment.
+The single assessment-first Product Development workflow now conditionally
+adds DJ Intelligence Assessment and Golden Scenario Assessment before
+implementation when a slice changes AI DJ behaviour. It adds no separate
+engineering discipline or governance track; non-intelligence slices omit the
+conditional assessments. It introduces no Runtime, renderer, product,
+capability, ownership, API, roadmap or implementation change.
 
 The completed Generation 2 foundations are Product Definition 2.1, Product
 Philosophy Alignment, Capability Architecture, Host Role Architecture,
@@ -46,14 +48,16 @@ additional Concrete Hosts. VibeCast placement is an explicit Release Readiness
 Assessment decision: it remains Platform Adoption unless the assessment finds
 it Community-defining Runtime Readiness work.
 
-PR [#449](https://github.com/pcvantol/djconnect/pull/449), **Report roadmap
-projection at finalization**, merged as
-`ac029f929dfa19556db5cc70fba83584ec6f4010`. This dedicated Finalization
+PR [#451](https://github.com/pcvantol/djconnect/pull/451), **Integrate
+conditional DJ intelligence assessment**, merged as
+`000967b9e1b4d09dde8ad4cd3b5bc4abd722c5c8`. This dedicated Finalization
 reconciles its validation evidence and immutable Prompt History. The change
-adds reporting only; no Runtime, renderer, capability, ownership, API, product
-scope or implementation commitment changed. Repository State:
-`MERGED_UNRECONCILED`. Workspace State: `NOT_READY` pending this governance-only
-Finalization and subsequent Workspace Cleanup.
+makes the existing Product Development workflow more explicit for applicable
+AI DJ slices, including a Golden coverage decision and end-to-end traceability.
+No Runtime, renderer, capability, ownership, API, product scope, roadmap or
+implementation commitment changed. Repository State: `MERGED_UNRECONCILED`.
+Workspace State: `NOT_READY` pending this governance-only Finalization and
+subsequent Workspace Cleanup.
 
 ## Historical management context
 

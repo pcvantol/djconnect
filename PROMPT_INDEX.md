@@ -4,16 +4,17 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#449](https://github.com/pcvantol/djconnect/pull/449), **Report roadmap
-projection at finalization**, merged as
-`ac029f929dfa19556db5cc70fba83584ec6f4010`. Its dedicated Finalization
+PR [#451](https://github.com/pcvantol/djconnect/pull/451), **Integrate
+conditional DJ intelligence assessment**, merged as
+`000967b9e1b4d09dde8ad4cd3b5bc4abd722c5c8`. Its dedicated Finalization
 reconciles the immutable Prompt History at
-`docs/history/prompts/2026-07-25-finalization-roadmap-projection.md`.
+`docs/history/prompts/2026-07-25-conditional-dj-intelligence-assessment.md`.
 
-Every post-Finalization Workspace Cleanup now states the current Product and
-Platform cycle, phase and increment, then gives a clearly tentative three-to-
-five-item canonical roadmap/backlog projection with source, status and gates.
-It is decision support only and can change through authorized reprioritization.
+Every Product Development prompt determines whether its scope modifies DJ
+Intelligence. Applicable slices complete the conditional DJ Intelligence
+Assessment and Golden Scenario Assessment before implementation and record the
+required traceability; non-intelligence slices omit both. This remains one
+Product Development workflow and does not create a separate governance track.
 
 PR [#431](https://github.com/pcvantol/djconnect/pull/431), **Add Universal
 Receiver browser E2E**, merged as
