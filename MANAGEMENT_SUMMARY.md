@@ -15,10 +15,11 @@
 
 ## Current position
 
-Stale-local-branch reporting is the current governance increment. The
+Two-PR management feedback is the current governance increment. The
 Finalization contract, Workspace Cleanup method and Phase Completion Protocol
-now require an explicit stale-branch audit result. It introduces no Runtime,
-renderer, product, capability, ownership, API or implementation change.
+now require a concise evidence-based feedback summary for the Product &
+Platform Architect. It introduces no Runtime, renderer, product, capability,
+ownership, API or implementation change.
 
 The completed Generation 2 foundations are Product Definition 2.1, Product
 Philosophy Alignment, Capability Architecture, Host Role Architecture,
@@ -45,9 +46,9 @@ additional Concrete Hosts. VibeCast placement is an explicit Release Readiness
 Assessment decision: it remains Platform Adoption unless the assessment finds
 it Community-defining Runtime Readiness work.
 
-PR [#445](https://github.com/pcvantol/djconnect/pull/445), **Report stale
-local branches in finalization**, merged as
-`34f2cc23808727b8ee933b8c4b62fa53334a95e4`. This dedicated Finalization
+PR [#447](https://github.com/pcvantol/djconnect/pull/447), **Report two-PR
+management feedback at finalization**, merged as
+`7d2301dddd14a75d76eec1ff352ce44e5a52edf1`. This dedicated Finalization
 reconciles its validation evidence and immutable Prompt History. The change
 adds reporting only; no Runtime, renderer, capability, ownership, API, product
 scope or implementation commitment changed. Repository State:
