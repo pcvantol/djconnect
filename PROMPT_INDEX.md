@@ -4,15 +4,14 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#477](https://github.com/pcvantol/djconnect/pull/477), **Assess read-only
-Developer Overlay**, merged as `63ea10edcb902fce032ec767fb155cffd03edd2a`.
-Its immutable Pre-Flight history is
-`docs/history/prompts/2026-07-25-read-only-developer-overlay-preflight.md`.
-The decision `GO_READ_ONLY_DEVELOPER_OVERLAY` permits only a separately
-authorized, development-only, default-off implementation using existing
-renderer-safe Broadcast data and local transport state. This Finalization
-records rolling-state reconciliation; the active supporting increment remains
-Automated Session Intelligence E2E Verification.
+PR [#479](https://github.com/pcvantol/djconnect/pull/479), **Assess Developer
+Overlay delivery guard**, merged as `6cb1f5ed2482fd1fe1b325e57d92fbd7e0335d3b`.
+Its immutable history is
+`docs/history/prompts/2026-07-25-developer-overlay-delivery-guard-preflight.md`.
+The decision `GO_E2E_HARNESS_ONLY` permits only a separately authorized,
+process-local verification-tooling implementation. This Finalization records
+rolling-state reconciliation; the active supporting increment remains Automated
+Session Intelligence E2E Verification.
 
 The current roadmap handoff is Phase 1 **DJ Intelligence Evolution** with the
 read-only Developer Overlay as the next E2E implementation candidate, subject
