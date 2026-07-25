@@ -80,6 +80,7 @@ their established scope; this roadmap does not authorize their implementation.
 | 2 | Renderer-safe Session experience and experience validation | Planned | Reference Experience assessment and existing renderer-safe projections |
 | 3 | Apple Premium Experience | Planned | Reference Experience, experience quality, polish, onboarding and release readiness for macOS, iPhone/iPad and Apple Watch |
 | 4 | Public Release Readiness Assessment | Planned | Phase 3 evidence; it determines minimum public-release scope without authorizing features |
+| 4 | Client Connectivity & Resilience qualification | Planned | endpoint, offline/cache and external HTTP qualification policy; no implementation authorization |
 | 5 | Productization | Planned | Phase 4 assessment; no feature or paid-model commitment |
 | 6 | Community Public Release | Planned | Productization and explicit release selection; complete local-first Community Edition |
 | 7 | Desktop Platform Family | Deferred | First public Apple release; independent Platform Adoption assessment |
