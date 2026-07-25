@@ -4,11 +4,10 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#462](https://github.com/pcvantol/djconnect/pull/462), **Reclassify alternating HACS CI
-PR validation**, merged as
-`954c423f370ff21f1ccdda3f60ed71c126e135d2`. Its dedicated Finalization
+PR [#464](https://github.com/pcvantol/djconnect/pull/464), **Reconcile client connectivity resilience architecture**, merged as
+`b233f147fd6c82fbdab4f731100516879a1f6cb7`. Its dedicated Finalization
 reconciles the immutable Prompt History at
-`docs/history/prompts/2026-07-25-hacs-ci-alternating-pr-validation-reclassification.md`.
+`docs/history/prompts/2026-07-25-client-connectivity-resilience-reconciliation.md`.
 
 `BOOTSTRAP.md` is the single canonical repository entry point for new ChatGPT
 Product & Platform Architect sessions. **Repository Sync + Developer Handoff**

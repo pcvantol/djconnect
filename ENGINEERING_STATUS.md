@@ -5,16 +5,13 @@
 
 ## Current engineering increment
 
-PR [#462](https://github.com/pcvantol/djconnect/pull/462), **Reclassify alternating HACS CI
-PR validation**, merged as
-`954c423f370ff21f1ccdda3f60ed71c126e135d2`. This dedicated Finalization
+PR [#464](https://github.com/pcvantol/djconnect/pull/464), **Reconcile client connectivity resilience architecture**, merged as
+`b233f147fd6c82fbdab4f731100516879a1f6cb7`. This dedicated Finalization
 reconciles its immutable Prompt History and rolling records.
 
-PR #462 records `HACS_CI_PR_SIGNAL_NOT_ACTIONABLY_CLASSIFIED`: a PR loading
-failure is not a repository-content verdict. HACS remains advisory and enabled;
-Automated Session Intelligence E2E Verification may resume. No CI workflow,
-pinning, gate, Qualification or product behaviour changed. Repository State:
-`MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY` after cleanup.
+PR #464 reconciles Client Connectivity & Resilience as Public Release Readiness
+architecture only. No Runtime, transport, client or qualification implementation
+changed. Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY` after cleanup.
 
 ## Historical operational context
 

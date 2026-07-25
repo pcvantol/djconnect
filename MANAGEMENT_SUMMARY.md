@@ -47,11 +47,7 @@ additional Concrete Hosts. VibeCast placement is an explicit Release Readiness
 Assessment decision: it remains Platform Adoption unless the assessment finds
 it Community-defining Runtime Readiness work.
 
-PR [#462](https://github.com/pcvantol/djconnect/pull/462), **Reclassify alternating HACS CI
-PR validation**, merged as `954c423f370ff21f1ccdda3f60ed71c126e135d2`. It records
-`HACS_CI_PR_SIGNAL_NOT_ACTIONABLY_CLASSIFIED`: a HACS loading failure cannot be
-read as a repository-content result. HACS remains enabled and advisory; E2E may
-resume. No Runtime, renderer, capability, ownership, API or workflow change occurred.
+PR [#464](https://github.com/pcvantol/djconnect/pull/464), **Reconcile client connectivity resilience architecture**, merged as `b233f147fd6c82fbdab4f731100516879a1f6cb7`. It consolidates existing boundaries for Public Release Readiness without Runtime, transport, client, API or workflow changes.
 Repository State: `MERGED_RECONCILED`. Workspace State: `WORKSPACE_READY`
 after verified cleanup.
 
