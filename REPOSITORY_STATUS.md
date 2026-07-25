@@ -28,24 +28,26 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-PR [#479](https://github.com/pcvantol/djconnect/pull/479), **Assess Developer
-Overlay delivery guard**, merged as `6cb1f5ed2482fd1fe1b325e57d92fbd7e0335d3b`.
-It establishes `GO_E2E_HARNESS_ONLY`: future overlay work is process-local
-verification tooling, never a served Receiver or release/HACS asset. No Runtime,
-Broadcast, Planner, Session Flow, DJMoment, client transport or CI behavior changed.
+PR [#481](https://github.com/pcvantol/djconnect/pull/481), **Add E2E harness
+read-only observability**, merged as
+`b838019e84f848f2d39a579f17fc41300addef39`. It establishes
+`E2E_HARNESS_OBSERVABILITY_IMPLEMENTED`: only the process-local Browser E2E
+harness composes the allowlisted panel. No Universal Receiver, Runtime,
+Broadcast, Planner, Session Flow, DJMoment, client transport, CI or release/HACS
+asset behavior changed.
 
-Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`
-after this dedicated Finalization merges and cleanup completes.
+Repository State: `MERGED_UNRECONCILED`; Workspace State: `NOT_READY` until
+this dedicated Finalization merges and cleanup completes.
 
 ## Current roadmap handoff
 
 The repository remains in Phase 1 **DJ Intelligence Evolution**. The visible
-five-item handoff backlog is: (1) E2E read-only Developer Overlay as the sole
-next implementation candidate, subject to separate authorization; (2) `CMB-11` one-producer/one-native-Renderer
-Sharing Experience assessment; (3) `CMB-04` atomic Renderer Experience roadmap
-re-expression; (4) E2E optional TTS Session Replay without canonical audio
-persistence; and (5) E2E optional side-by-side Session comparison over capture
-artifacts only. None authorizes implementation. Playback Observation Stage 2
+five-item tentative handoff projection is: (1) `CMB-11` one-producer/one-native
+Renderer Sharing Experience assessment; (2) `CMB-04` atomic Renderer Experience
+roadmap re-expression; (3) `CMB-08` Universal Receiver/VibeCast decomposition;
+(4) `HACS-CI-PR-REF-001` HACS PR-validation reliability classification; and
+(5) Client Connectivity & Resilience qualification. None authorizes
+implementation. Playback Observation Stage 2
 and Continue Stage 2 remain externally blocked by Playback Instance Identity,
 not recommended next work.
 

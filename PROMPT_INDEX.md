@@ -4,29 +4,28 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#479](https://github.com/pcvantol/djconnect/pull/479), **Assess Developer
-Overlay delivery guard**, merged as `6cb1f5ed2482fd1fe1b325e57d92fbd7e0335d3b`.
-Its immutable history is
-`docs/history/prompts/2026-07-25-developer-overlay-delivery-guard-preflight.md`.
-The decision `GO_E2E_HARNESS_ONLY` permits only a separately authorized,
-process-local verification-tooling implementation. This Finalization records
-rolling-state reconciliation; the active supporting increment remains Automated
-Session Intelligence E2E Verification.
+PR [#481](https://github.com/pcvantol/djconnect/pull/481), **Add E2E harness
+read-only observability**, merged as
+`b838019e84f848f2d39a579f17fc41300addef39`. Its immutable history is
+`docs/history/prompts/2026-07-25-e2e-harness-read-only-observability-implementation.md`.
+The decision `E2E_HARNESS_OBSERVABILITY_IMPLEMENTED` limits the completed panel
+to the process-local Browser E2E harness. This Finalization records rolling-state
+reconciliation; the active supporting increment remains Automated Session
+Intelligence E2E Verification.
 
-The current roadmap handoff is Phase 1 **DJ Intelligence Evolution** with the
-read-only Developer Overlay as the next E2E implementation candidate, subject
-to separate authorization. `CMB-11`
-retains one future Sharing producer/native Renderer assessment; `CMB-04`
-retains Renderer Experience roadmap atomization. Playback Observation Stage 2
-and Continue Stage 2 remain externally blocked by Playback Instance Identity.
+The current roadmap handoff is Phase 1 **DJ Intelligence Evolution**. Its
+tentative next assessment candidates are `CMB-11`, `CMB-04`, `CMB-08`,
+`HACS-CI-PR-REF-001` and Client Connectivity & Resilience qualification.
+Playback Observation Stage 2 and Continue Stage 2 remain externally blocked by
+Playback Instance Identity.
 
 `BOOTSTRAP.md` is the single canonical repository entry point for new ChatGPT
 Product & Platform Architect sessions. **Repository Sync + Developer Handoff**
 uses that bootstrap to orient the session, synchronize and validate repository
 truth, consume the supplied management summary and apply the standard review
 cycle. It does not replace canonical assessment, authorization or
-implementation controls. Repository State is `MERGED_RECONCILED`; Workspace
-State is `WORKSPACE_READY` after this Finalization merges and verified cleanup.
+implementation controls. Repository State is `MERGED_UNRECONCILED`; Workspace
+State is `NOT_READY` until this Finalization merges and verified cleanup completes.
 
 PR [#431](https://github.com/pcvantol/djconnect/pull/431), **Add Universal
 Receiver browser E2E**, merged as

@@ -5,41 +5,37 @@
 
 ## Current engineering increment
 
-PR [#479](https://github.com/pcvantol/djconnect/pull/479), **Assess Developer
-Overlay delivery guard**, merged as `6cb1f5ed2482fd1fe1b325e57d92fbd7e0335d3b`.
-It records `GO_E2E_HARNESS_ONLY`: the overlay is process-local Browser E2E
-tooling, absent from the served Receiver and release/HACS artifacts. Its
-separately authorized implementation may only compose allowlisted existing
-Broadcast data and local transport state in the existing harness.
+PR [#481](https://github.com/pcvantol/djconnect/pull/481), **Add E2E harness
+read-only observability**, merged as
+`b838019e84f848f2d39a579f17fc41300addef39`. It records
+`E2E_HARNESS_OBSERVABILITY_IMPLEMENTED`: the existing Browser E2E harness now
+composes an allowlisted, process-local read-only observability panel. The
+Universal Receiver, Runtime, Broadcast, Planner, Session Flow, release/HACS
+assets and qualification authority remain unchanged.
 
-Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`
-after this Finalization merges and verified cleanup completes. The active
+Repository State: `MERGED_UNRECONCILED`; Workspace State: `NOT_READY` until
+this dedicated Finalization merges and verified cleanup completes. The active
 supporting increment remains Automated Session Intelligence E2E Verification.
 
 ### Roadmap position and ordered backlog
 
 Generation 2 remains in Phase 1, **DJ Intelligence Evolution**. Automated
 Session Intelligence E2E Verification remains its supporting engineering
-execution; it is not a replacement Product Initiative. The single next
-Product Development implementation candidate is E2E roadmap item 18,
-**E2E-only read-only Developer Overlay**. Its Delivery Guard decision is
-`GO_E2E_HARNESS_ONLY`; its implementation still requires a separate authorized
-verification-tooling prompt and remains absent from product delivery.
+execution; it is not a replacement Product Initiative. The completed E2E
+overlay is no longer a next-work candidate. The tentative five-item projection,
+none of which is an implementation authorization, is:
 
-The visible five-item follow-on backlog, none of which is an implementation
-authorization, is:
-
-1. E2E roadmap item 18 — read-only Developer Overlay (the sole next
-   implementation candidate; separate authorization required).
-2. `CMB-11` — assess exactly one Sharing Experience producer and one native
+1. `CMB-11` — assess exactly one Sharing Experience producer and one native
    Renderer Host, with privacy evidence and no Runtime/Broadcast/public-sharing
    scope.
-3. `CMB-04` — re-express Renderer Experience roadmap atomically before any
+2. `CMB-04` — re-express Renderer Experience roadmap atomically before any
    renderer parity or delivery work.
-4. E2E roadmap item 19 — optional TTS Session Replay, without canonical audio
-   persistence.
-5. E2E roadmap item 20 — optional side-by-side Session comparison, using only
-   capture artifacts and without a competing Planner.
+3. `CMB-08` — decompose Universal Receiver and VibeCast into separate
+   host/experience capability records.
+4. `HACS-CI-PR-REF-001` — classify pull-request HACS validation reliability;
+   no workflow, action-pinning or gate change.
+5. Client Connectivity & Resilience qualification — bounded external HTTP
+   resilience evidence, subject to Public Release Readiness Assessment.
 
 Playback Observation Stage 2 / Continue Stage 2 remains deferred and
 externally blocked by backend-owned Playback Instance Identity; it is not a
