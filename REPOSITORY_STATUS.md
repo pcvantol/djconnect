@@ -28,13 +28,13 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-PR [#464](https://github.com/pcvantol/djconnect/pull/464), **Reconcile client connectivity resilience architecture**, merged as
-`b233f147fd6c82fbdab4f731100516879a1f6cb7`. This dedicated Finalization
+PR [#466](https://github.com/pcvantol/djconnect/pull/466), **Reconcile playback observation adaptive planning**, merged as
+`68390a795d33ac1ceee57c014052f1a519636588`. This dedicated Finalization
 reconciles its immutable Prompt History and rolling repository truth.
 
-PR #464 consolidates existing connectivity, pairing, cache, push and renderer
-boundaries for Public Release Readiness. No implementation changed. Repository
-State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY` after cleanup.
+PR #466 reconciles existing observation and Horizon architecture; Continue Stage
+2 is externally blocked. No implementation changed. Repository State:
+`MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY` after cleanup.
 
 ## Historical repository context
 
