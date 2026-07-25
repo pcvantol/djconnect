@@ -33,6 +33,53 @@ Workspace Cleanup supports topological merge completion and the approved
 squash-merge patch-equivalence exception, plus the separate deterministic
 Finalization-branch delta exception.
 
+## Product & Platform Architect Sessions
+
+`BOOTSTRAP.md` is the single canonical repository entry point for AI-assisted
+Product & Platform Architecture work. The canonical session command is:
+
+```text
+Repository Sync + Developer Handoff
+```
+
+This command starts at this repository bootstrap. It directs a new ChatGPT
+Product & Platform Architect session to:
+
+1. read `docs/development/DEVELOPER_HANDOFF.md` for collaboration orientation;
+2. synchronize and verify the current repository before planning or review;
+3. treat repository evidence as the canonical source of truth;
+4. adopt the Product & Platform Architect role defined by the Developer
+   Handoff;
+5. wait for the latest management summary supplied by the user;
+6. validate repository continuity against that summary and current evidence;
+7. execute the standard Product & Platform Architect review cycle; and
+8. finish with exactly one repository-grounded Product Development prompt.
+
+If repository evidence differs from previous conversations, repository
+evidence always wins. The Developer Handoff continues repository evolution; it
+does not preserve obsolete chat history, replace this bootstrap or establish a
+second bootstrap mechanism.
+
+The standard collaboration sequence is:
+
+```text
+New Chat
+  ↓
+Repository Sync + Developer Handoff
+  ↓
+BOOTSTRAP.md
+  ↓
+Developer Handoff
+  ↓
+Repository Synchronization
+  ↓
+Latest Management Summary
+  ↓
+Product & Platform Architect Review
+  ↓
+Next Product Development Prompt
+```
+
 Only after required reconciliation, read the current repository in the
 following order:
 

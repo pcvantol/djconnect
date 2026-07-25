@@ -1,5 +1,19 @@
 # Developer Handoff: Product & Platform Architecture Collaboration
 
+## Quick Start
+
+This document is normally invoked from the repository
+[`BOOTSTRAP.md`](../../BOOTSTRAP.md). For a new Product & Platform Architect
+conversation:
+
+1. execute **Repository Sync + Developer Handoff** from `BOOTSTRAP.md`;
+2. supply the latest management summary; and
+3. continue according to the Standard Review Cycle.
+
+The latest management summary is the synchronization point between the
+repository and the new conversation. It is review input, not authority: current
+repository evidence always resolves any difference.
+
 ## Purpose
 
 This handoff enables a completely new ChatGPT Product & Platform Architect
@@ -13,7 +27,8 @@ management summary when they differ.
 
 ## Repository synchronization and continuity validation
 
-Every new session begins with Repository Synchronization under `BOOTSTRAP.md`:
+`BOOTSTRAP.md` remains the single repository entry point. Every new session
+then completes Repository Synchronization under that bootstrap:
 
 1. synchronize and verify current `main`;
 2. establish repository and workspace state;
@@ -157,11 +172,13 @@ Every review ultimately answers:
 
 When this command is used, ChatGPT shall:
 
-1. synchronize with the repository;
-2. read the latest management summary supplied by the user and validate it
+1. start from `BOOTSTRAP.md` and read this handoff for collaboration
+   orientation;
+2. synchronize with the repository;
+3. read the latest management summary supplied by the user and validate it
    against current repository evidence;
-3. perform the Standard Review Cycle; and
-4. finish with the next repository-grounded Product Development prompt.
+4. perform the Standard Review Cycle; and
+5. finish with the next repository-grounded Product Development prompt.
 
 The command does not replace the repository bootstrap, required assessment,
 authorization or implementation lifecycle.
