@@ -1,6 +1,6 @@
 # Continue Current Playback Continuity
 
-**Status:** Authorized architecture contract; implementation deferred
+**Status:** Authorized architecture contract; implementation externally blocked
 **Owner:** DJConnect Product Development
 **Scope:** One provider-neutral current-playback observation for a future Continue Session Start. This document authorizes no production code, API, storage or renderer behaviour.
 
