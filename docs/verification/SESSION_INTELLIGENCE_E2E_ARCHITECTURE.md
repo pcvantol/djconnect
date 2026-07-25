@@ -185,7 +185,10 @@ Core E2E validation remains headless and frontend-independent. A later
 Universal Receiver layer may use `Broadcast -> headless browser -> DOM
 assertions`; it validates the Receiver, not the core Intelligence Engine.
 Likewise, any Developer Overlay remains read-only, development-only,
-non-authoritative and optional.
+non-authoritative and optional. Its completed Pre-Flight is
+[`READ_ONLY_DEVELOPER_OVERLAY_PREFLIGHT.md`](READ_ONLY_DEVELOPER_OVERLAY_PREFLIGHT.md):
+it may only project existing renderer-safe Broadcast data and local transport
+state, and cannot become a second observability model.
 
 ## CI model
 
