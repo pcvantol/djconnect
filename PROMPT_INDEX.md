@@ -4,17 +4,18 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#451](https://github.com/pcvantol/djconnect/pull/451), **Integrate
-conditional DJ intelligence assessment**, merged as
-`000967b9e1b4d09dde8ad4cd3b5bc4abd722c5c8`. Its dedicated Finalization
+PR [#453](https://github.com/pcvantol/djconnect/pull/453), **Add developer
+handoff collaboration workflow**, merged as
+`d94250d31a7dad5ac41511c47d00adf5f96d5481`. Its dedicated Finalization
 reconciles the immutable Prompt History at
-`docs/history/prompts/2026-07-25-conditional-dj-intelligence-assessment.md`.
+`docs/history/prompts/2026-07-25-developer-handoff-collaboration.md`.
 
-Every Product Development prompt determines whether its scope modifies DJ
-Intelligence. Applicable slices complete the conditional DJ Intelligence
-Assessment and Golden Scenario Assessment before implementation and record the
-required traceability; non-intelligence slices omit both. This remains one
-Product Development workflow and does not create a separate governance track.
+`docs/development/DEVELOPER_HANDOFF.md` is the repository-owned continuity
+guide for a new ChatGPT Product & Platform Architect session. It directs the
+session to synchronize, validate current repository evidence, apply the
+standard review cycle and conclude with one repository-grounded Product
+Development prompt. It does not replace canonical bootstrap, assessment,
+authorization or implementation controls.
 
 PR [#431](https://github.com/pcvantol/djconnect/pull/431), **Add Universal
 Receiver browser E2E**, merged as
