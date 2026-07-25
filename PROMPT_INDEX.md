@@ -4,11 +4,11 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#456](https://github.com/pcvantol/djconnect/pull/456), **Finalize AI
-collaboration bootstrap**, merged as
-`3ab754ba7e709f336af9419f9bad0af2c953edc2`. It finalizes PR #455 and
-reconciles its immutable Prompt History at
-`docs/history/prompts/2026-07-25-ai-collaboration-bootstrap.md`.
+PR [#458](https://github.com/pcvantol/djconnect/pull/458), **Assess HACS CI
+pull-request ref failures**, merged as
+`224755de20b8b2b94b7ca08e1e11b9ced4c0cfd7`. Its dedicated Finalization
+reconciles the immutable Prompt History at
+`docs/history/prompts/2026-07-25-hacs-ci-failure-classification-assessment.md`.
 
 `BOOTSTRAP.md` is the single canonical repository entry point for new ChatGPT
 Product & Platform Architect sessions. **Repository Sync + Developer Handoff**
@@ -16,7 +16,7 @@ uses that bootstrap to orient the session, synchronize and validate repository
 truth, consume the supplied management summary and apply the standard review
 cycle. It does not replace canonical assessment, authorization or
 implementation controls. Repository State is `MERGED_RECONCILED`; Workspace
-State is `WORKSPACE_READY` after the verified PR #456 branch cleanup.
+State is `WORKSPACE_READY` after verified PR #458 branch cleanup.
 
 PR [#431](https://github.com/pcvantol/djconnect/pull/431), **Add Universal
 Receiver browser E2E**, merged as
