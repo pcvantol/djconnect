@@ -5,20 +5,18 @@
 
 ## Current engineering increment
 
-PR [#443](https://github.com/pcvantol/djconnect/pull/443), **Add DJ
-intelligence review and prioritize intelligence evolution**, merged as
-`9e8daa6a8060e34a5212496bd35b46ee635d56e9`. This dedicated Finalization
+PR [#445](https://github.com/pcvantol/djconnect/pull/445), **Report stale
+local branches in finalization**, merged as
+`34f2cc23808727b8ee933b8c4b62fa53334a95e4`. This dedicated Finalization
 reconciles its immutable Prompt History and rolling records.
 
-PR #443 adds repository-grounded evidence for current DJ Intelligence and
-changes Generation 2 execution order only: DJ Intelligence Evolution is the
-current Product Initiative; Reference Experience follows after its minimum
-baseline; the Universal Receiver consumes, rather than defines, that baseline.
-Automated Session Intelligence E2E Verification remains the supporting
-engineering execution. No Runtime, renderer, capability, ownership, API,
-product scope or implementation commitment changed. Repository State:
-`MERGED_UNRECONCILED`. Workspace State: `NOT_READY` until this Finalization
-merges; Workspace Cleanup then establishes `WORKSPACE_READY`.
+PR #445 makes stale-local-branch reporting mandatory in Finalization and
+Workspace Cleanup. Every cleanup report now states `none` or names every stale
+local branch with its removed/retained disposition, while preserving the rule
+that unrelated branches are never broadly deleted. No Runtime, renderer,
+capability, ownership, API, product scope or implementation commitment changed.
+Repository State: `MERGED_UNRECONCILED`. Workspace State: `NOT_READY` until
+this Finalization merges; Workspace Cleanup then establishes `WORKSPACE_READY`.
 
 ## Historical operational context
 
