@@ -47,9 +47,14 @@ additional Concrete Hosts. VibeCast placement is an explicit Release Readiness
 Assessment decision: it remains Platform Adoption unless the assessment finds
 it Community-defining Runtime Readiness work.
 
-PR [#470](https://github.com/pcvantol/djconnect/pull/470), **Reconcile native Ask DJ voice ingest**, merged as `283601f3c33156b47e20c12f2cf349f6befcb705`. It confirms HA Assist/STT ownership and blocks streaming pending contract evidence.
+PR [#472](https://github.com/pcvantol/djconnect/pull/472), **Add built-in DJ
+Brain capability policy**, merged as `d57c4cb0d109c3917c78958384b073b736f3926e`.
+It adds a trusted internal capability registry and Profile-owned Full, Minimal
+and Custom policy selection. The policy gates existing Planner eligibility only;
+all existing Runtime ownership, behavior, verification and CI semantics remain
+unchanged. Decision: `EXISTING_ARCHITECTURE_EXTENDED_WITH_CAPABILITY_POLICY`.
 Repository State: `MERGED_RECONCILED`. Workspace State: `WORKSPACE_READY`
-after verified cleanup.
+after this Finalization and verified cleanup.
 
 ## Historical management context
 
