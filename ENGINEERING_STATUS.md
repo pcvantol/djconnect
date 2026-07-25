@@ -18,6 +18,34 @@ Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`
 after this Finalization merges and verified cleanup completes. The active
 supporting increment remains Automated Session Intelligence E2E Verification.
 
+### Roadmap position and ordered backlog
+
+Generation 2 remains in Phase 1, **DJ Intelligence Evolution**. Automated
+Session Intelligence E2E Verification remains its supporting engineering
+execution; it is not a replacement Product Initiative. The single next
+Product Development Pre-Flight candidate is E2E roadmap item 18, **read-only
+Developer Overlay**: development-only, non-authoritative and disabled in
+production by default.
+
+The visible five-item follow-on backlog, none of which is an implementation
+authorization, is:
+
+1. E2E roadmap item 18 — read-only Developer Overlay (the sole next Pre-Flight
+   candidate).
+2. `CMB-11` — assess exactly one Sharing Experience producer and one native
+   Renderer Host, with privacy evidence and no Runtime/Broadcast/public-sharing
+   scope.
+3. `CMB-04` — re-express Renderer Experience roadmap atomically before any
+   renderer parity or delivery work.
+4. E2E roadmap item 19 — optional TTS Session Replay, without canonical audio
+   persistence.
+5. E2E roadmap item 20 — optional side-by-side Session comparison, using only
+   capture artifacts and without a competing Planner.
+
+Playback Observation Stage 2 / Continue Stage 2 remains deferred and
+externally blocked by backend-owned Playback Instance Identity; it is not a
+recommended next item.
+
 ## Historical operational context
 
 Repository Actions now invokes the existing Golden Smoke profile for pull
