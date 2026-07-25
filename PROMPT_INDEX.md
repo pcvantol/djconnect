@@ -4,10 +4,10 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#472](https://github.com/pcvantol/djconnect/pull/472), **Add built-in DJ
-Brain capability policy**, merged as `d57c4cb0d109c3917c78958384b073b736f3926e`.
-Its immutable implementation history is
-`docs/history/prompts/2026-07-25-dj-brain-built-in-capability-platform.md`;
+PR [#474](https://github.com/pcvantol/djconnect/pull/474), **Reconcile Sharing
+Experience architecture**, merged as `e66d7576642b846c91d937247856c9da99d46b62`.
+Its immutable assessment history is
+`docs/history/prompts/2026-07-25-sharing-experience-architecture-reconciliation.md`;
 this Finalization records rolling-state reconciliation. The active supporting
 increment remains Automated Session Intelligence E2E Verification.
 

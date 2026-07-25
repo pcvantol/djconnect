@@ -47,12 +47,13 @@ additional Concrete Hosts. VibeCast placement is an explicit Release Readiness
 Assessment decision: it remains Platform Adoption unless the assessment finds
 it Community-defining Runtime Readiness work.
 
-PR [#472](https://github.com/pcvantol/djconnect/pull/472), **Add built-in DJ
-Brain capability policy**, merged as `d57c4cb0d109c3917c78958384b073b736f3926e`.
-It adds a trusted internal capability registry and Profile-owned Full, Minimal
-and Custom policy selection. The policy gates existing Planner eligibility only;
-all existing Runtime ownership, behavior, verification and CI semantics remain
-unchanged. Decision: `EXISTING_ARCHITECTURE_EXTENDED_WITH_CAPABILITY_POLICY`.
+PR [#474](https://github.com/pcvantol/djconnect/pull/474), **Reconcile Sharing
+Experience architecture**, merged as `e66d7576642b846c91d937247856c9da99d46b62`.
+It records a planned native Renderer Host Sharing Experience: existing Track
+Insight, DJMoment, Session Flow, Discover, Ask DJ and Music DNA may be bounded
+future producers, while sharing remains user-initiated and privacy-led. No
+share implementation or Runtime, Broadcast, Planner, Session Flow or DJMoment
+behavior changed. Decision: `SHARING_EXPERIENCE_ARCHITECTURE_ESTABLISHED`.
 Repository State: `MERGED_RECONCILED`. Workspace State: `WORKSPACE_READY`
 after this Finalization and verified cleanup.
 

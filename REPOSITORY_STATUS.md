@@ -28,12 +28,12 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-PR [#472](https://github.com/pcvantol/djconnect/pull/472), **Add built-in DJ
-Brain capability policy**, merged as `d57c4cb0d109c3917c78958384b073b736f3926e`.
-The implementation adds only fixed built-in capability metadata, Profile policy
-persistence and Planner eligibility filtering. No extension loading, provider,
-planner strategy, Knowledge, Moment, Flow, Broadcast, renderer, CI or Golden
-Scenario behavior was introduced.
+PR [#474](https://github.com/pcvantol/djconnect/pull/474), **Reconcile Sharing
+Experience architecture**, merged as `e66d7576642b846c91d937247856c9da99d46b62`.
+It adds assessment-only producer/renderer architecture, a planned capability
+record and roadmap/backlog references. No share model is implemented and no
+Runtime, Broadcast, Planner, Session Flow, DJMoment, client transport or CI
+behavior changed.
 
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`
 after this dedicated Finalization merges and cleanup completes.

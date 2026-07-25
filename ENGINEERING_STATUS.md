@@ -5,13 +5,13 @@
 
 ## Current engineering increment
 
-PR [#472](https://github.com/pcvantol/djconnect/pull/472), **Add built-in DJ
-Brain capability policy**, merged as `d57c4cb0d109c3917c78958384b073b736f3926e`.
-It establishes fixed, trusted built-in capability metadata and Profile-owned
-Full, Minimal and Custom policy resolution before Planner selection. Planner,
-Knowledge, DJMoment, Session Flow and Broadcast ownership remain unchanged;
-policy exclusion uses the existing Silence semantics. Its immutable histories
-are `docs/history/prompts/2026-07-25-dj-brain-built-in-capability-platform.md`
+PR [#474](https://github.com/pcvantol/djconnect/pull/474), **Reconcile Sharing
+Experience architecture**, merged as `e66d7576642b846c91d937247856c9da99d46b62`.
+It establishes Sharing Experience as a planned, user-initiated native Renderer
+Host projection over existing authorized content. It adds no share sheet,
+backend, public URL, cloud/social service, Runtime, Broadcast, Planner, Session
+Flow or DJMoment implementation. Its immutable histories are
+`docs/history/prompts/2026-07-25-sharing-experience-architecture-reconciliation.md`
 and this dedicated Finalization record.
 
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`
