@@ -78,6 +78,7 @@ their established scope; this roadmap does not authorize their implementation.
 | 1 | Automated Session Intelligence E2E Verification | Current execution | `docs/product/DEVELOPER_EXPERIENCE_ROADMAP.md` |
 | 2 | Universal Receiver Reference Experience | Planned | Minimum DJ Intelligence baseline; `docs/technical/UNIVERSAL_RECEIVER_ARCHITECTURE.md` |
 | 2 | Renderer-safe Session experience and experience validation | Planned | Reference Experience assessment and existing renderer-safe projections |
+| Technical Design | Session Direction Projection | Planned | `docs/technical/SESSION_DIRECTION_PROJECTION_ARCHITECTURE.md`; dedicated Broadcast and renderer assessment before implementation |
 | 3 | Apple Premium Experience | Planned | Reference Experience, experience quality, polish, onboarding and release readiness for macOS, iPhone/iPad and Apple Watch |
 | 4 | Public Release Readiness Assessment | Planned | Phase 3 evidence; it determines minimum public-release scope without authorizing features |
 | 4 | Client Connectivity & Resilience qualification | Planned | endpoint, offline/cache and external HTTP qualification policy; no implementation authorization |
