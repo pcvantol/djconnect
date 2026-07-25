@@ -88,6 +88,10 @@ product strategy.
 - `DJ_PRESENTATION_ARCHITECTURE.md`
 - `PRESENTATION_COMPOSER_ARCHITECTURE.md`
 - `AUDIENCE_EXPERIENCE_ARCHITECTURE.md`
+- `DJ_INTELLIGENCE_CAPABILITY_REVIEW.md` — repository-grounded discovery
+  inventory of current DJ Intelligence, its bounded planning horizon, knowledge
+  sources and documented gaps. This is planning evidence, not a capability or
+  implementation authorization.
 - `VIBECAST_ARCHITECTURE.md`
 - `DJ_SESSION_VISION.md`
 - `../../DJCONNECT_V4_ARCHITECTURE.md`
