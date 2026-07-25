@@ -15,14 +15,12 @@
 
 ## Current position
 
-Developer Handoff collaboration is the current governance increment. New
-ChatGPT Product & Platform Architect sessions can now restart from repository
-evidence rather than chat history, apply the standard review cycle and produce
-one bounded next Product Development prompt. The handoff consumes the existing
-assessment-first workflow, including its conditional DJ Intelligence Assessment
-and Golden Scenario Assessment; it adds no separate engineering discipline or
-governance track. It introduces no Runtime, renderer, product, capability,
-ownership, API, roadmap or implementation change.
+Repository Bootstrap for AI Collaboration is the current governance increment.
+`BOOTSTRAP.md` is now the explicit single entry point for new ChatGPT Product &
+Platform Architect sessions, invoking the Developer Handoff and existing
+Product Development workflow without a parallel bootstrap or governance path.
+It introduces no Runtime, renderer, product, capability, ownership, API,
+roadmap or implementation change.
 
 The completed Generation 2 foundations are Product Definition 2.1, Product
 Philosophy Alignment, Capability Architecture, Host Role Architecture,
@@ -49,15 +47,16 @@ additional Concrete Hosts. VibeCast placement is an explicit Release Readiness
 Assessment decision: it remains Platform Adoption unless the assessment finds
 it Community-defining Runtime Readiness work.
 
-PR [#453](https://github.com/pcvantol/djconnect/pull/453), **Add developer
-handoff collaboration workflow**, merged as
-`d94250d31a7dad5ac41511c47d00adf5f96d5481`. This dedicated Finalization
+PR [#455](https://github.com/pcvantol/djconnect/pull/455), **Improve repository
+bootstrap for AI collaboration**, merged as
+`852c27bb468e7ac77af8038ea3eafc137dc70789`. This dedicated Finalization
 reconciles its validation evidence and immutable Prompt History. The change
-provides a durable collaboration handoff and documentation navigation without
-changing product direction or engineering authority. No Runtime, renderer,
-capability, ownership, API, product scope, roadmap or implementation commitment
-changed. Repository State: `MERGED_UNRECONCILED`. Workspace State: `NOT_READY`
-pending this governance-only Finalization and subsequent Workspace Cleanup.
+improves discoverability and conversation continuity while retaining the
+repository as authority and `BOOTSTRAP.md` as the one entry point. No Runtime,
+renderer, capability, ownership, API, product scope, roadmap or implementation
+commitment changed. Repository State: `MERGED_UNRECONCILED`. Workspace State:
+`NOT_READY` pending this governance-only Finalization and subsequent Workspace
+Cleanup.
 
 ## Historical management context
 

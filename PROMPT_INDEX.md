@@ -4,18 +4,18 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#453](https://github.com/pcvantol/djconnect/pull/453), **Add developer
-handoff collaboration workflow**, merged as
-`d94250d31a7dad5ac41511c47d00adf5f96d5481`. Its dedicated Finalization
+PR [#455](https://github.com/pcvantol/djconnect/pull/455), **Improve repository
+bootstrap for AI collaboration**, merged as
+`852c27bb468e7ac77af8038ea3eafc137dc70789`. Its dedicated Finalization
 reconciles the immutable Prompt History at
-`docs/history/prompts/2026-07-25-developer-handoff-collaboration.md`.
+`docs/history/prompts/2026-07-25-ai-collaboration-bootstrap.md`.
 
-`docs/development/DEVELOPER_HANDOFF.md` is the repository-owned continuity
-guide for a new ChatGPT Product & Platform Architect session. It directs the
-session to synchronize, validate current repository evidence, apply the
-standard review cycle and conclude with one repository-grounded Product
-Development prompt. It does not replace canonical bootstrap, assessment,
-authorization or implementation controls.
+`BOOTSTRAP.md` is the single canonical repository entry point for new ChatGPT
+Product & Platform Architect sessions. **Repository Sync + Developer Handoff**
+uses that bootstrap to orient the session, synchronize and validate repository
+truth, consume the supplied management summary and apply the standard review
+cycle. It does not replace canonical assessment, authorization or
+implementation controls.
 
 PR [#431](https://github.com/pcvantol/djconnect/pull/431), **Add Universal
 Receiver browser E2E**, merged as
