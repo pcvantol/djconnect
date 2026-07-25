@@ -28,17 +28,15 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-PR [#481](https://github.com/pcvantol/djconnect/pull/481), **Add E2E harness
-read-only observability**, merged as
-`b838019e84f848f2d39a579f17fc41300addef39`. It establishes
-`E2E_HARNESS_OBSERVABILITY_IMPLEMENTED`: only the process-local Browser E2E
-harness composes the allowlisted panel. No Universal Receiver, Runtime,
-Broadcast, Planner, Session Flow, DJMoment, client transport, CI or release/HACS
+PR [#484](https://github.com/pcvantol/djconnect/pull/484), **Standardize
+Finalization rolling horizon**, merged as
+`b8d488006114059ee243ce6e989960b8a4151a15`. It establishes the mandatory
+Finalization handoff order and canonical Rolling Horizon rules. No backlog
+priority, Universal Receiver, Runtime, Broadcast, Planner, CI or release/HACS
 asset behavior changed.
 
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`
-after Finalization PR #482 merged as `c601cfbd96714efc6107110eb20b2b925575bde4`
-and deterministic cleanup completed.
+after this Finalization merges and deterministic cleanup completes.
 
 ## Current roadmap handoff
 

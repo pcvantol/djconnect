@@ -5,18 +5,16 @@
 
 ## Current engineering increment
 
-PR [#481](https://github.com/pcvantol/djconnect/pull/481), **Add E2E harness
-read-only observability**, merged as
-`b838019e84f848f2d39a579f17fc41300addef39`. It records
-`E2E_HARNESS_OBSERVABILITY_IMPLEMENTED`: the existing Browser E2E harness now
-composes an allowlisted, process-local read-only observability panel. The
-Universal Receiver, Runtime, Broadcast, Planner, Session Flow, release/HACS
-assets and qualification authority remain unchanged.
+PR [#484](https://github.com/pcvantol/djconnect/pull/484), **Standardize
+Finalization rolling horizon**, merged as
+`b8d488006114059ee243ce6e989960b8a4151a15`. It establishes the mandatory
+Finalization-management-summary order, an objective Rolling Horizon of the
+next five eligible planned items, and separate Blocked and Deferred sections.
+No backlog priority, product, Runtime, renderer, CI or release behavior changed.
 
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`
-after Finalization PR #482 merged as `c601cfbd96714efc6107110eb20b2b925575bde4`
-and deterministic cleanup completed. The active supporting increment remains
-Automated Session Intelligence E2E Verification.
+after this Finalization merges and deterministic cleanup completes. The active
+supporting increment remains Automated Session Intelligence E2E Verification.
 
 ### Roadmap position and ordered backlog
 

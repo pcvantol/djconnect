@@ -47,16 +47,14 @@ additional Concrete Hosts. VibeCast placement is an explicit Release Readiness
 Assessment decision: it remains Platform Adoption unless the assessment finds
 it Community-defining Runtime Readiness work.
 
-PR [#481](https://github.com/pcvantol/djconnect/pull/481), **Add E2E harness
-read-only observability**, merged as
-`b838019e84f848f2d39a579f17fc41300addef39`. It records
-`E2E_HARNESS_OBSERVABILITY_IMPLEMENTED`: the existing Browser E2E harness now
-composes a process-local, allowlisted read-only panel. The Universal Receiver,
-Runtime, Broadcast, Planner, Session Flow, release/HACS assets and
-qualification authority are unchanged.
+PR [#484](https://github.com/pcvantol/djconnect/pull/484), **Standardize
+Finalization rolling horizon**, merged as
+`b8d488006114059ee243ce6e989960b8a4151a15`. It establishes objective
+Finalization handoff reporting: the next five eligible planned items, current
+blocked items and consciously deferred items are separated. No backlog priority,
+product, Runtime, renderer, CI or release behavior changed.
 Repository State: `MERGED_RECONCILED`. Workspace State: `WORKSPACE_READY`
-after Finalization PR #482 merged as `c601cfbd96714efc6107110eb20b2b925575bde4`
-and deterministic cleanup completed.
+after this Finalization merges and deterministic cleanup completes.
 
 ## Roadmap position and next backlog
 
