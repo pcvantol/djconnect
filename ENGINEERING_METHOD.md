@@ -252,7 +252,8 @@ Workspace State and stale-local-branch result.
 
 **Rolling Horizon (Execution Horizon)** contains the next five actually authorized execution items. Backlog order remains the default basis; an item may be skipped only for a recorded dependency, explicit management decision, or repository decision that changes execution order. Each skip includes a compact objective execution justification. Each item identifies
 its backlog ID, title, canonical source, current status and direct dependency
-when one is recorded. Eligibility is limited to `Planned`, `Authorized`, or
+when one is recorded, plus a one-line **Execution Rationale** explaining why it
+is currently scheduled. Eligibility is limited to `Planned`, `Authorized`, or
 `Ready` after direct dependencies. `Deferred`, `Blocked`, `Completed`,
 `Merged`, `Rejected` and `Cancelled` items are never eligible. The horizon is
 derived afresh from the canonical repository backlog records, never from chat
@@ -267,6 +268,11 @@ Horizon.
 This is a current-state handoff, not a delivery plan. It neither selects work
 nor grants implementation authority; canonical roadmap and backlog records
 remain authoritative when records conflict.
+
+When the Execution Horizon differs from canonical backlog order, add one
+compact **Execution Priority Override** after the horizon. It identifies the
+item and objective dependency, management or repository decision causing the
+deviation. Omit it when no deviation exists.
 
 ### Squash-Merge Cleanup Exception
 
