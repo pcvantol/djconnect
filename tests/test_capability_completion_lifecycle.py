@@ -96,7 +96,7 @@ class CapabilityCompletionLifecycleTest(unittest.TestCase):
             "Rolling Horizon (Next 5 Planned)",
             "Blocked Items",
             "Deferred Items",
-            "exactly the first five eligible",
+            "next five actually authorized execution items",
             "Deferred`, `Blocked`, `Completed`",
             "derived afresh from the canonical repository backlog records",
             "advances automatically",
