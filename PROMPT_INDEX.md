@@ -11,6 +11,12 @@ Its immutable assessment history is
 this Finalization records rolling-state reconciliation. The active supporting
 increment remains Automated Session Intelligence E2E Verification.
 
+The current roadmap handoff is Phase 1 **DJ Intelligence Evolution** with the
+read-only Developer Overlay as the next E2E Pre-Flight candidate. `CMB-11`
+retains one future Sharing producer/native Renderer assessment; `CMB-04`
+retains Renderer Experience roadmap atomization. Playback Observation Stage 2
+and Continue Stage 2 remain externally blocked by Playback Instance Identity.
+
 `BOOTSTRAP.md` is the single canonical repository entry point for new ChatGPT
 Product & Platform Architect sessions. **Repository Sync + Developer Handoff**
 uses that bootstrap to orient the session, synchronize and validate repository

@@ -38,6 +38,18 @@ behavior changed.
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`
 after this dedicated Finalization merges and cleanup completes.
 
+## Current roadmap handoff
+
+The repository remains in Phase 1 **DJ Intelligence Evolution**. The visible
+five-item handoff backlog is: (1) E2E read-only Developer Overlay as the sole
+next Pre-Flight candidate; (2) `CMB-11` one-producer/one-native-Renderer
+Sharing Experience assessment; (3) `CMB-04` atomic Renderer Experience roadmap
+re-expression; (4) E2E optional TTS Session Replay without canonical audio
+persistence; and (5) E2E optional side-by-side Session comparison over capture
+artifacts only. None authorizes implementation. Playback Observation Stage 2
+and Continue Stage 2 remain externally blocked by Playback Instance Identity,
+not recommended next work.
+
 ## Historical repository context
 
 The canonical [CI Qualification Report Governance](docs/governance/CI_QUALIFICATION_REPORT_GOVERNANCE.md)

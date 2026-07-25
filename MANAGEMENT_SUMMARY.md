@@ -57,6 +57,34 @@ behavior changed. Decision: `SHARING_EXPERIENCE_ARCHITECTURE_ESTABLISHED`.
 Repository State: `MERGED_RECONCILED`. Workspace State: `WORKSPACE_READY`
 after this Finalization and verified cleanup.
 
+## Roadmap position and next backlog
+
+DJConnect remains in Generation 2, Phase 1 — **DJ Intelligence Evolution**.
+Automated Session Intelligence E2E Verification remains the active supporting
+engineering execution. Its next Product Development Pre-Flight candidate is
+the **read-only Developer Overlay**: a development-only, non-authoritative
+surface, disabled in production by default.
+
+The visible five-item follow-on backlog is:
+
+1. E2E roadmap item 18 — **read-only Developer Overlay** (the sole next
+   Product Development Pre-Flight candidate).
+2. `CMB-11` — select and assess exactly one Sharing Experience producer and
+   one native Renderer Host, with explicit Profile privacy evidence; no Runtime,
+   Broadcast, public URL or social-service scope.
+3. `CMB-04` — atomically re-express the Renderer Experience roadmap before
+   renderer parity or delivery work.
+4. E2E roadmap item 19 — optional TTS Session Replay, retaining its deferred
+   boundary of eligible presentation output and no canonical audio persistence.
+5. E2E roadmap item 20 — optional side-by-side Session comparison, retaining
+   its deferred boundary of capture-artifact comparison and no competing Planner.
+
+Playback Observation Stage 2 and Continue Stage 2 remain deferred until a
+backend-owned Playback Instance Identity is available; they are a recorded
+external block, not one of the five recommended next items. This ordering does
+not start an implementation increment. Local stale branches:
+**0**; only synchronized `main` remains after cleanup.
+
 ## Historical management context
 
 Golden Smoke now runs advisory on pull requests and Golden Regression advisory
