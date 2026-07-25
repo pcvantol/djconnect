@@ -4,14 +4,13 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#481](https://github.com/pcvantol/djconnect/pull/481), **Add E2E harness
-read-only observability**, merged as
-`b838019e84f848f2d39a579f17fc41300addef39`. Its immutable history is
-`docs/history/prompts/2026-07-25-e2e-harness-read-only-observability-implementation.md`.
-The decision `E2E_HARNESS_OBSERVABILITY_IMPLEMENTED` limits the completed panel
-to the process-local Browser E2E harness. This Finalization records rolling-state
-reconciliation; the active supporting increment remains Automated Session
-Intelligence E2E Verification.
+PR [#484](https://github.com/pcvantol/djconnect/pull/484), **Standardize
+Finalization rolling horizon**, merged as
+`b8d488006114059ee243ce6e989960b8a4151a15`. Its immutable history is
+`docs/history/prompts/2026-07-25-finalization-rolling-horizon-standardization.md`.
+The governance standard requires an objective five-item Rolling Horizon and
+separate Blocked and Deferred sections in every future Finalization management
+summary. This Finalization records rolling-state reconciliation.
 
 The current roadmap handoff is Phase 1 **DJ Intelligence Evolution**. Its
 tentative next assessment candidates are `CMB-11`, `CMB-04`, `CMB-08`,
@@ -25,8 +24,8 @@ uses that bootstrap to orient the session, synchronize and validate repository
 truth, consume the supplied management summary and apply the standard review
 cycle. It does not replace canonical assessment, authorization or
 implementation controls. Repository State is `MERGED_RECONCILED`; Workspace
-State is `WORKSPACE_READY` after Finalization PR #482 merged as
-`c601cfbd96714efc6107110eb20b2b925575bde4` and deterministic cleanup completed.
+State is `WORKSPACE_READY` after this Finalization merges and deterministic
+cleanup completes.
 
 PR [#431](https://github.com/pcvantol/djconnect/pull/431), **Add Universal
 Receiver browser E2E**, merged as
