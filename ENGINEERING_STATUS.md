@@ -5,18 +5,16 @@
 
 ## Current engineering increment
 
-PR [#460](https://github.com/pcvantol/djconnect/pull/460), **Reconcile HACS CI
-validator evidence**, merged as
-`a5fe9a31288203f99a3344d02d3cd2047815c9ea`. This dedicated Finalization
+PR [#462](https://github.com/pcvantol/djconnect/pull/462), **Reclassify alternating HACS CI
+PR validation**, merged as
+`954c423f370ff21f1ccdda3f60ed71c126e135d2`. This dedicated Finalization
 reconciles its immutable Prompt History and rolling records.
 
-PR #460 records `NO_GO_INSUFFICIENT_EVIDENCE`: the same unchanged HACS route
-successfully validated both head and merge commits of PR #459, so the prior
-claim of a reproducible pull-request-ref limitation is not current planning
-evidence. HACS remains enabled and actual content-validation failures still
-fail; no CI workflow, action pinning, gate, Qualification or product behaviour
-changed. Repository State: `MERGED_RECONCILED`. Workspace State:
-`WORKSPACE_READY` after verified PR #460 branch cleanup.
+PR #462 records `HACS_CI_PR_SIGNAL_NOT_ACTIONABLY_CLASSIFIED`: a PR loading
+failure is not a repository-content verdict. HACS remains advisory and enabled;
+Automated Session Intelligence E2E Verification may resume. No CI workflow,
+pinning, gate, Qualification or product behaviour changed. Repository State:
+`MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY` after cleanup.
 
 ## Historical operational context
 
