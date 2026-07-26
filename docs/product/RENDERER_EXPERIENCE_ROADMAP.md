@@ -64,6 +64,55 @@ Platform Profiles validate the inherited capability set; Platform Divergences
 record deliberate platform-specific absences or realizations. Neither changes
 canonical ownership or requires convergence.
 
+## Registered future capability family: Native Surface Integration
+
+**Status:** roadmap registered; no assessment or implementation is authorized.
+
+Native Surface Integration is the future Renderer Host family for
+platform-native surfaces that either present existing renderer-safe projections
+or submit an explicit, existing Session lifecycle request. It has no DJ
+Intelligence, Playback Runtime, Music Backend, Planner, Knowledge, Broadcast
+or projection-creation ownership.
+
+| Surface category | Existing-boundary purpose | Examples | Explicit boundary |
+| --- | --- | --- | --- |
+| Session Control Surfaces | An explicit user request to start, continue, open or end a Session, or open Ask DJ | App Shortcuts, App Icon Context Menu, Jump Lists, Spotlight and Siri App Intents | A surface submits only existing authorized Session lifecycle requests or opens a local renderer view. It does not control playback, execute DJ Intelligence or create automatic Session mutations. |
+| Session Surfaces | Active-Session presentation | Live Activity, Dynamic Island and Lock Screen Live Activity | The Apple Renderer Host presents only existing renderer-safe projections while a DJ Session is active and removes the surface when that Session ends. |
+| Information Surfaces | Persistent, non-player presentation | iOS Widget, macOS Widget and future watchOS complications | Widgets present only renderer-safe Session Direction or current DJMoment information. They are not a second music player or a source of Runtime state. |
+
+The canonical boundaries remain:
+
+```text
+Session Control Surfaces -> existing authorized Session Runtime request -> Renderer
+Session Surfaces         -> renderer-safe projections -> Apple Renderer Host
+Information Surfaces     -> renderer-safe projections -> Widgets
+```
+
+No arrow introduces a Runtime, Planner, Broadcast, Knowledge Engine or DJ
+Intelligence capability. The Renderer Host owns local platform presentation and
+user interaction; Home Assistant remains the owner of authorization, Session
+lifecycle and every canonical projection.
+
+### Apple-first assessment candidate
+
+**CMB-12 — Apple Native Surface Capability Assessment** is the first future
+assessment for this family. It will inventory only repository evidence for
+Widgets, Live Activity, Dynamic Island, Lock Screen Activity, App Shortcuts,
+App Icon Context Menu, Spotlight, Siri App Intents, Notifications, Handoff and
+Universal Links. It must not design an architecture or implement Apple code.
+
+The assessment is deliberately sequenced after CMB-05, CMB-06 and CMB-07. It
+is not part of the current Execution Horizon and introduces no priority
+override.
+
+### Candidate follow-on slices
+
+Small, Medium and Large Widgets, Live Activity, Dynamic Island, Lock Screen
+Activity, App Shortcuts and Siri App Intents are possible separately bounded
+implementation candidates only after the Apple-first assessment and a future
+explicit authorization. This registration neither selects nor authorizes any
+candidate.
+
 ## Recommendation
 
 Use this atomic inventory as the Renderer Experience planning projection. The

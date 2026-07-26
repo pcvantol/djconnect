@@ -22,6 +22,7 @@ in that same roadmap projection.
 | Raspberry Pi Platform Family and Pi 4-inch/Pi 10-inch Concrete Host architecture | `RASPBERRY_PI_PLATFORM_FOUNDATION.md` | Platform Evolution |
 | Canonical reverse-engineered cross-surface experience baseline and Experience Gap Analysis framework | `EXPERIENCE_FOUNDATION.md` | Experience Engineering |
 | Assessment-first capability-model planning projection | `CAPABILITY_MODEL_BACKLOG.md` | Platform Evolution |
+| Registered Native Surface Integration family, its Apple-first capability assessment and bounded future surface candidates | `docs/product/RENDERER_EXPERIENCE_ROADMAP.md`, `CAPABILITY_MODEL_BACKLOG.md` | Platform Evolution / Apple Renderer Host |
 | Repository-grounded current DJ Intelligence, Planner inputs, knowledge sources, DJMoments and planning gaps | `docs/product/DJ_INTELLIGENCE_CAPABILITY_REVIEW.md` | DJConnect Product Development |
 | Live Playback Observation, Continue Current Playback Continuity and external capability dependencies | `docs/product/DJ_INTELLIGENCE_MATURITY.md` (canonical maturity, blocked status and planning policy), `docs/product/LIVE_PLAYBACK_OBSERVATION.md`, `docs/product/CONTINUE_CURRENT_PLAYBACK_CONTINUITY.md`, `docs/adr/0016-playback-instance-identity-observation-boundary.md` | DJConnect Product Development |
 | DJ Session transport independence, HTTP recovery and transport-neutral Broadcast delivery | `DJ_SESSION_TRANSPORT_ARCHITECTURE.md` | DJConnect Product Development |
