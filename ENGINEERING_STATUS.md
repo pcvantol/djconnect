@@ -5,6 +5,14 @@
 
 ## Current engineering increment
 
+PR [#507](https://github.com/pcvantol/djconnect/pull/507), **Register
+Interactive DJMoments capability family**, merged as
+`29808f22ceace6e2b681019005d1cfc2d364b792`. It records
+`GO_INTERACTIVE_DJMOMENTS_REGISTERED`: a future Product Development,
+assessment-first family on the existing DJMoment path. It remains outside the
+current Execution Horizon and authorizes no Runtime, Planner, Knowledge,
+DJMoment Engine, Renderer or Music Backend change.
+
 PR [#505](https://github.com/pcvantol/djconnect/pull/505), **Register HA
 onboarding experience assessment**, merged as
 `416314f0df33cf6008b188dd688b0883b04a2eda`. It records

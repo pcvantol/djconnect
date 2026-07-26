@@ -28,6 +28,13 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
+PR [#507](https://github.com/pcvantol/djconnect/pull/507) merged as
+`29808f22ceace6e2b681019005d1cfc2d364b792`. The repository records
+`GO_INTERACTIVE_DJMOMENTS_REGISTERED` as a future Product Development family.
+It preserves the existing immutable DJMoment path and current owner boundaries;
+it authorizes no assessment, implementation, Runtime, Planner, Knowledge,
+DJMoment Engine, Renderer or Music Backend change.
+
 PR [#505](https://github.com/pcvantol/djconnect/pull/505) merged as
 `416314f0df33cf6008b188dd688b0883b04a2eda`. The repository records
 `GO_HA_ONBOARDING_EXPERIENCE_ROADMAP_REGISTERED` for `HA-ONBOARDING-001`.
@@ -88,6 +95,8 @@ backend-owned Playback Instance Identity; deferred Audience and Lyrics work is
 excluded from the Horizon.
 `HA-ONBOARDING-001` is likewise dependency-gated after Client Connectivity &
 Resilience and concrete-host evidence; it is excluded from the Horizon.
+Interactive DJMoments is assessment-first and likewise excluded from the
+current Horizon.
 
 ## Historical repository context
 

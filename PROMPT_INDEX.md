@@ -4,6 +4,14 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
+PR [#507](https://github.com/pcvantol/djconnect/pull/507) merged as
+`29808f22ceace6e2b681019005d1cfc2d364b792`. Interactive DJMoments is
+registered with `GO_INTERACTIVE_DJMOMENTS_REGISTERED` as a future,
+assessment-first Product Development family. It remains outside the current
+Execution Horizon and authorizes neither assessment nor implementation. Its
+immutable registration history is
+`docs/history/prompts/2026-07-26-interactive-djmoments-capability-registration.md`.
+
 PR [#505](https://github.com/pcvantol/djconnect/pull/505) merged as
 `416314f0df33cf6008b188dd688b0883b04a2eda`. `HA-ONBOARDING-001` is registered
 with `GO_HA_ONBOARDING_EXPERIENCE_ROADMAP_REGISTERED` as a future Home
