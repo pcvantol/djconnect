@@ -88,6 +88,34 @@ class CapabilityCompletionLifecycleTest(unittest.TestCase):
             self.assertIn(f"PR [#{current_increment.group('number')}]", contents, name)
             self.assertIn(current_increment.group("commit"), contents, name)
 
+    def test_rendered_execution_horizons_are_consistent(self) -> None:
+        """Keep the two canonical rendered horizons from drifting apart."""
+        horizons = {}
+        for name, heading_level in (
+            ("ENGINEERING_STATUS.md", "####"),
+            ("MANAGEMENT_SUMMARY.md", "###"),
+        ):
+            contents = (ROOT / name).read_text()
+            section = re.search(
+                rf"^{heading_level} Rolling Horizon \(Execution Horizon — Next 5 Planned\)\n"
+                r"\n(?P<contents>.*?)(?=\n" + heading_level + r" |\Z)",
+                contents,
+                re.DOTALL | re.MULTILINE,
+            )
+            self.assertIsNotNone(section, name)
+            assert section is not None
+            horizons[name] = re.findall(
+                r"^\d+\. \*\*(?P<item>.+?) —",
+                section.group("contents"),
+                re.MULTILINE,
+            )
+            self.assertEqual(5, len(horizons[name]), name)
+
+        self.assertEqual(
+            horizons["ENGINEERING_STATUS.md"],
+            horizons["MANAGEMENT_SUMMARY.md"],
+        )
+
     def test_finalization_requires_the_canonical_rolling_horizon(self) -> None:
         method = (ROOT / "ENGINEERING_METHOD.md").read_text()
         template = (ROOT / "docs/governance/PROMPT_TEMPLATE.md").read_text()
@@ -104,6 +132,19 @@ class CapabilityCompletionLifecycleTest(unittest.TestCase):
             self.assertIn(required, method)
         self.assertIn("Finalization Rolling Horizon standard", template)
         self.assertIn("exclude Deferred and Blocked items", template)
+
+    def test_finalization_requires_pre_push_consistency_validation(self) -> None:
+        method = (ROOT / "ENGINEERING_METHOD.md").read_text()
+        finalization = (ROOT / "PROMPT_FINALIZATION.md").read_text()
+        template = (ROOT / "docs/governance/PROMPT_TEMPLATE.md").read_text()
+
+        for contents, name in (
+            (method, "ENGINEERING_METHOD.md"),
+            (finalization, "PROMPT_FINALIZATION.md"),
+            (template, "PROMPT_TEMPLATE.md"),
+        ):
+            self.assertIn("Finalization pre-push consistency check", contents, name)
+            self.assertIn("tests.test_capability_completion_lifecycle", contents, name)
 
 
 if __name__ == "__main__":

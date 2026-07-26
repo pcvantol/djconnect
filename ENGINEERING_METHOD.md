@@ -274,6 +274,28 @@ compact **Execution Priority Override** after the horizon. It identifies the
 item and objective dependency, management or repository decision causing the
 deviation. Omit it when no deviation exists.
 
+### Finalization pre-push consistency check
+
+Before a Finalization pull request is pushed, derive its current-state handoff
+once from the verified merged predecessor and the canonical backlog records.
+Apply that result as one set to `ENGINEERING_STATUS.md`,
+`REPOSITORY_STATUS.md`, `MANAGEMENT_SUMMARY.md` and `PROMPT_INDEX.md`; do not
+copy a prior summary or update those records independently. Every record must
+contain the predecessor's canonical Markdown pull-request link and exact merge
+commit. The Execution Horizon must exclude the completed predecessor and must
+be identical wherever it is rendered.
+
+Run the focused lifecycle regression before push:
+
+```sh
+python3 -m unittest tests.test_capability_completion_lifecycle
+```
+
+The Finalization is not reviewable when that check, `git diff --check`, or the
+four-record comparison fails. This is a documentation-consistency safeguard
+only: it does not add a CI gate, alter merge semantics or change the canonical
+backlog.
+
 ### Squash-Merge Cleanup Exception
 
 A completed implementation branch may be removed after a squash merge even
