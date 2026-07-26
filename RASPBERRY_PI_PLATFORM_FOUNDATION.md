@@ -166,3 +166,9 @@ qualification preserves this foundation: the Pi 4-inch remains a compact,
 shared native appliance with intentional rich-surface absences, while only
 target-hardware compact-projection and shared-profile visibility evidence
 remain for future assessment.
+
+The CMB-06 assessment is recorded in
+`docs/product/PI_10_INCH_CAPABILITY_PROFILE_ASSESSMENT.md`. It qualifies the
+Pi 10-inch as the independent native, shared wall appliance with full active
+renderer-safe Session Flow and Presentation, while concrete 10-inch hardware
+and shared-wall projection evidence remain Future Assessment items.
