@@ -19,7 +19,7 @@ starts with a current-state Repository Capability Assessment under
 | CMB-05 | Assess Pi 4-inch capability profile | Planned | current Pi source, contract and shared-device privacy evidence | explicit profile decision; no implementation |
 | CMB-06 | Assess Pi 10-inch capability profile | Planned | hardware, privacy and renderer evidence | no inherited 4-inch scope |
 | CMB-07 | Analyse Apple–Windows atomic convergence | Planned | contract-level supported/absent matrix | explicit per-capability disposition |
-| CMB-08 | Decompose Universal Receiver and VibeCast | Planned | current Broadcast/receiver evidence | separate host/experience capability records |
+| CMB-08 | Decompose Universal Receiver and VibeCast | Assessed | current Broadcast/receiver evidence | separate host/experience capability records; see `docs/product/RENDERER_EXPERIENCE_ROADMAP.md` |
 | CMB-09 | Assess Voice Interaction Host and constrained ESP32 profiles | Planned | HA Voice, Session Start Request and ESP32 contract evidence | role-profile decisions only; no Session ownership or direct host coordination |
 | CMB-10 | Onboard future Android and Meta Quest capability profiles | Deferred | product authorization and evidence | profile assessment before any client work |
 | CMB-11 | Assess Sharing Experience producers and native Renderer Host realization | Planned | `docs/product/SHARING_EXPERIENCE_ARCHITECTURE.md`, producer privacy evidence and native-client capability inventory | one producer/renderer slice only; no Runtime, Broadcast, public URL or social-service scope |
