@@ -15,6 +15,13 @@
 
 ## Current position
 
+PR [#525](https://github.com/pcvantol/djconnect/pull/525) merged as
+`310edd23c217bc115d24b7895211abaa830eadde`. Its decision is
+`GO_CMB07_APPLE_WINDOWS_CONVERGENCE_PARTIALLY_QUALIFIED`: shared personal
+renderer behavior is qualified; Apple-native surfaces remain platform-only;
+only the active-Session projection disposition remains Future Assessment. No
+Runtime, Apple, Windows or API implementation is authorized.
+
 PR [#523](https://github.com/pcvantol/djconnect/pull/523) merged as
 `373e65eb6a8126b96ab48a6ec3e7844e4dbffcc4`. Its decision is
 `GO_RASPBERRY_PI_RENDERER_FAMILY_DOCUMENTED`: the independently assessed Pi
@@ -172,26 +179,34 @@ it is not a shipping or follow-on implementation candidate.
 
 ### Rolling Horizon (Execution Horizon — Next 5 Planned)
 
-1. **CMB-07 — Analyse Apple–Windows atomic convergence** — Source:
-   `CAPABILITY_MODEL_BACKLOG.md`; Status: Planned; Dependency: contract-level
-   supported/absent matrix. Reason: establishes an explicit per-capability
-   disposition after the profile evidence.
-2. **CMB-09 — Assess Voice Interaction Host and constrained ESP32 profiles** —
+1. **CMB-09 — Assess Voice Interaction Host and constrained ESP32 profiles** —
    Source: `CAPABILITY_MODEL_BACKLOG.md`; Status: Planned; Dependency: HA Voice,
     Session Start Request and ESP32 contract evidence. Reason: records
     role-profile decisions without Session ownership or host coordination.
-3. **CMB-12 — Assess Apple Native Surface capabilities** — Source:
+2. **CMB-12 — Assess Apple Native Surface capabilities** — Source:
    `CAPABILITY_MODEL_BACKLOG.md`; Status: Planned; Dependency:
    CMB-05/CMB-06/CMB-07 and the existing Apple Renderer Host surface inventory.
    Reason: bounded inventory after required platform-profile evidence.
-4. **CMB-02 — Validate platform capability profiles** — Source:
+3. **CMB-02 — Validate platform capability profiles** — Source:
    `CAPABILITY_MODEL_BACKLOG.md`; Status: Planned; Dependency: current contract
    and host capability inventory. Reason: validates the profile evidence after
    the concrete-host assessments.
-5. **CMB-03 — Decide registered platform-only divergences** — Source:
+4. **CMB-03 — Decide registered platform-only divergences** — Source:
    `CAPABILITY_MODEL_BACKLOG.md`; Status: Planned; Dependency: divergence
    register and owner evidence. Reason: records retained platform-specific
    differences after applicable profile evidence.
+5. **CMB-01 — Adopt Capability Model assessment in future pre-flights** —
+   Source: `CAPABILITY_MODEL_BACKLOG.md`; Status: Planned; Dependency: sample
+   pre-flight against one existing capability. Reason: bounded
+   capability-model governance assessment after the existing renderer-profile
+   sequence.
+
+### Execution Priority Override
+
+CMB-09 through CMB-03 remain ahead of CMB-01 because the pre-existing canonical
+Execution Horizon explicitly sequenced renderer-profile evidence first.
+CMB-01 is now the next eligible fifth planned item; no priority or backlog
+order is changed.
 
 ### Blocked Items
 
