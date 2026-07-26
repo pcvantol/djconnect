@@ -5,6 +5,14 @@
 
 ## Current engineering increment
 
+PR [#513](https://github.com/pcvantol/djconnect/pull/513), **Add Product &
+Community Readiness phase**, merged as
+`1f3e56181944cf818b3f20cd44cea5b81fe0c218`. It records
+`GO_PRODUCT_AND_COMMUNITY_READINESS_REGISTERED`: a future Phase 6
+Product Development readiness phase between Productization and Community Public
+Release. It remains outside the current Execution Horizon and authorizes no
+assessment, implementation, capability, tooling or deployment change.
+
 PR [#511](https://github.com/pcvantol/djconnect/pull/511), **Register Apple
 Watch Moment-First Conversational Companion**, merged as
 `bc9acd1bb3055d7c55c5a1f4366e933bba90910e`. It records

@@ -4,6 +4,14 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
+PR [#513](https://github.com/pcvantol/djconnect/pull/513) merged as
+`1f3e56181944cf818b3f20cd44cea5b81fe0c218`. Product & Community Readiness is
+registered with `GO_PRODUCT_AND_COMMUNITY_READINESS_REGISTERED` as a future
+Phase 6 Product Development readiness phase. It remains outside the current
+Execution Horizon and authorizes neither assessment nor implementation. Its
+immutable registration history is
+`docs/history/prompts/2026-07-26-product-community-readiness-phase.md`.
+
 PR [#511](https://github.com/pcvantol/djconnect/pull/511) merged as
 `bc9acd1bb3055d7c55c5a1f4366e933bba90910e`. Apple Watch Moment-First
 Conversational Companion is registered with
