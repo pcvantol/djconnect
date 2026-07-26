@@ -28,6 +28,14 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
+PR [#503](https://github.com/pcvantol/djconnect/pull/503) merged as
+`63b57964698c6a03eddd5091cf5453a4f7fbe0e1`. The repository records
+`GO_NATIVE_SURFACE_ROADMAP_REGISTERED`: the future Native Surface Integration
+family may present only renderer-safe projections or submit explicit existing
+Session lifecycle requests. CMB-12 is a later Apple-first inventory after
+CMB-05/CMB-06/CMB-07, not a current-Horizon item or implementation
+authorization.
+
 PR [#501](https://github.com/pcvantol/djconnect/pull/501) merged as
 `527f7ee86f215993fedc77b13c9a2bd6d7e09ac4`. HACS pull-request validation is
 classified as bounded engineering evidence when completed, never as
@@ -65,7 +73,9 @@ Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`.
 The repository remains in Phase 1 **DJ Intelligence Evolution**. The current
 Execution Horizon begins with Client Connectivity & Resilience qualification,
 followed by CMB-05, CMB-06, CMB-07 and CMB-09 in the canonical records.
-Playback Observation Stage 2 and Continue Stage 2 remain blocked by
+CMB-12 Native Surface Integration remains a dependency-gated future assessment
+after CMB-05/CMB-06/CMB-07 and is excluded from that Horizon. Playback
+Observation Stage 2 and Continue Stage 2 remain blocked by
 backend-owned Playback Instance Identity; deferred Audience and Lyrics work is
 excluded from the Horizon.
 

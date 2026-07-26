@@ -15,6 +15,14 @@
 
 ## Current position
 
+PR [#503](https://github.com/pcvantol/djconnect/pull/503) merged as
+`63b57964698c6a03eddd5091cf5453a4f7fbe0e1`. It registers
+`GO_NATIVE_SURFACE_ROADMAP_REGISTERED`: Native Surface Integration is a future
+Renderer Host planning family for renderer-safe Session Control, Session and
+Information Surfaces. Its Apple-first CMB-12 inventory is sequenced after
+CMB-05/CMB-06/CMB-07, remains outside the Execution Horizon and authorizes no
+Apple feature, Runtime, Renderer, API or product implementation.
+
 PR [#501](https://github.com/pcvantol/djconnect/pull/501) merged as
 `527f7ee86f215993fedc77b13c9a2bd6d7e09ac4`. HACS pull-request validation is
 now classified as execution-required engineering evidence when completed, not
