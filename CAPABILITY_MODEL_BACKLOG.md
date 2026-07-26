@@ -23,6 +23,7 @@ starts with a current-state Repository Capability Assessment under
 | CMB-09 | Assess Voice Interaction Host and constrained ESP32 profiles | Planned | HA Voice, Session Start Request and ESP32 contract evidence | role-profile decisions only; no Session ownership or direct host coordination |
 | CMB-10 | Onboard future Android and Meta Quest capability profiles | Deferred | product authorization and evidence | profile assessment before any client work |
 | CMB-11 | Assess Sharing Experience producers and native Renderer Host realization | Planned | `docs/product/SHARING_EXPERIENCE_ARCHITECTURE.md`, producer privacy evidence and native-client capability inventory | one producer/renderer slice only; no Runtime, Broadcast, public URL or social-service scope |
+| CMB-12 | Assess Apple Native Surface capabilities | Planned, after CMB-05/CMB-06/CMB-07 | existing Apple Renderer Host surface inventory and the completed platform-profile evidence | capability inventory and ownership classification only; no surface implementation or Runtime, Renderer, API or product change |
 
 ## Rules
 
@@ -31,3 +32,6 @@ starts with a current-state Repository Capability Assessment under
 - A platform-specific absence may be retained without remediation.
 - Product Development owns user-facing delivery; Platform Evolution owns only
   the capability-model assessment and governance work recorded here.
+- CMB-12 registers the future **Native Surface Integration** family. It is not
+  in the current Execution Horizon and does not authorize a native surface or
+  implementation candidate.
