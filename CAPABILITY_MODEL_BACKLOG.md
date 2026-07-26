@@ -16,7 +16,7 @@ starts with a current-state Repository Capability Assessment under
 | CMB-02 | Validate platform capability profiles | Planned | current contract and host capability inventory | validation only; no parity requirement |
 | CMB-03 | Decide each registered platform-only divergence | Planned | divergence register plus owner evidence | promote, retain, converge or retire decision |
 | CMB-04 | Re-express Renderer Experience roadmap atomically | Assessed | Receiver, VibeCast and Presentation capability assessment | roadmap/documentation only; see `docs/product/RENDERER_EXPERIENCE_ROADMAP.md` |
-| CMB-05 | Assess Pi 4-inch capability profile | Planned | current Pi source, contract and shared-device privacy evidence | explicit profile decision; no implementation |
+| CMB-05 | Assess Pi 4-inch capability profile | Assessed | `docs/product/PI_4_INCH_CAPABILITY_PROFILE_ASSESSMENT.md`; Pi source, contract and shared-device privacy evidence | `GO_PI_4_INCH_PROFILE_PARTIALLY_QUALIFIED`; target-hardware compact-projection and shared-profile visibility evidence remain Future Assessment items; no implementation |
 | CMB-06 | Assess Pi 10-inch capability profile | Planned | hardware, privacy and renderer evidence | no inherited 4-inch scope |
 | CMB-07 | Analyse Apple–Windows atomic convergence | Planned | contract-level supported/absent matrix | explicit per-capability disposition |
 | CMB-08 | Decompose Universal Receiver and VibeCast | Assessed | current Broadcast/receiver evidence | separate host/experience capability records; see `docs/product/RENDERER_EXPERIENCE_ROADMAP.md` |
