@@ -5,6 +5,13 @@
 
 ## Current engineering increment
 
+PR [#521](https://github.com/pcvantol/djconnect/pull/521), **Assess Pi 10-inch
+capability profile**, merged as
+`3c981c28c5188484ae8d545a60f9c6d1216a45c2`. It records
+`GO_PI_10_INCH_PROFILE_PARTIALLY_QUALIFIED`: the independent native shared wall
+profile is qualified; concrete 10-inch appliance and shared-wall projection
+evidence remain Future Assessment items. It authorizes no production change.
+
 PR [#519](https://github.com/pcvantol/djconnect/pull/519), **Assess Pi 4-inch
 capability profile**, merged as
 `57d334ee867f31e4db2796268047b7ab7a333d54`. It records
@@ -128,25 +135,26 @@ execution; it is not a replacement Product Initiative.
 
 #### Rolling Horizon (Execution Horizon — Next 5 Planned)
 
-1. **CMB-06 — Pi 10-inch Capability Profile Assessment** — Source:
-   `CAPABILITY_MODEL_BACKLOG.md`; Status: Planned; Dependency: hardware,
-   privacy and renderer evidence. Rationale: independent wall-appliance profile.
-2. **CMB-07 — Analyse Apple–Windows atomic convergence** — Source:
+1. **CMB-07 — Analyse Apple–Windows atomic convergence** — Source:
    `CAPABILITY_MODEL_BACKLOG.md`; Status: Planned; Dependency: contract-level
    supported/absent matrix. Rationale: establishes an explicit per-capability
    disposition after the profile evidence.
-3. **CMB-09 — Assess Voice Interaction Host and constrained ESP32 profiles** —
+2. **CMB-09 — Assess Voice Interaction Host and constrained ESP32 profiles** —
    Source: `CAPABILITY_MODEL_BACKLOG.md`; Status: Planned; Dependency: HA Voice,
     Session Start Request and ESP32 contract evidence. Rationale: records
     role-profile decisions without Session ownership or host coordination.
-4. **CMB-12 — Assess Apple Native Surface capabilities** — Source:
+3. **CMB-12 — Assess Apple Native Surface capabilities** — Source:
    `CAPABILITY_MODEL_BACKLOG.md`; Status: Planned; Dependency:
    CMB-05/CMB-06/CMB-07 and the existing Apple Renderer Host surface inventory.
    Rationale: bounded inventory after the required platform-profile evidence.
-5. **CMB-02 — Validate platform capability profiles** — Source:
+4. **CMB-02 — Validate platform capability profiles** — Source:
    `CAPABILITY_MODEL_BACKLOG.md`; Status: Planned; Dependency: current contract
    and host capability inventory. Rationale: validates the profile evidence
    after the concrete-host assessments.
+5. **CMB-03 — Decide registered platform-only divergences** — Source:
+   `CAPABILITY_MODEL_BACKLOG.md`; Status: Planned; Dependency: divergence
+   register and owner evidence. Rationale: records retained platform-specific
+   differences after the applicable profile evidence.
 
 #### Blocked Items
 
