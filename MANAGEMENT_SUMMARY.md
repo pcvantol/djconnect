@@ -15,6 +15,12 @@
 
 ## Current position
 
+PR [#501](https://github.com/pcvantol/djconnect/pull/501) merged as
+`527f7ee86f215993fedc77b13c9a2bd6d7e09ac4`. HACS pull-request validation is
+now classified as execution-required engineering evidence when completed, not
+as a release authority. Historical repository-loading failures are not a
+repository-content verdict and do not authorize a workflow correction.
+
 PR [#498](https://github.com/pcvantol/djconnect/pull/498) merged as
 `60a2708e48eef92f035ab9d0991bd55c3d4aa7ed`. CMB-08 completes the existing
 Interactive Universal Receiver and Ambient VibeCast decomposition with
@@ -81,25 +87,25 @@ it is not a shipping or follow-on implementation candidate.
 
 ### Rolling Horizon (Execution Horizon — Next 5 Planned)
 
-1. **HACS-CI-PR-REF-001 — HACS PR Validation Reliability** — Source:
-   `PLATFORM_EVOLUTION_BACKLOG.md`; Status: Planned; Dependency: retained
-   alternating-validation evidence. Reason: preserves actionable assurance
-   evidence for the supporting verification increment.
-2. **Client Connectivity & Resilience Qualification** — Source:
+1. **Client Connectivity & Resilience Qualification** — Source:
    `PLATFORM_EVOLUTION_BACKLOG.md`; Status: Planned; Dependency: Public Release
    Readiness Assessment. Reason: bounded external-HTTP qualification once its
    direct dependency is met.
 
-3. **CMB-05 — Pi 4-inch Capability Profile Assessment** — Source:
+2. **CMB-05 — Pi 4-inch Capability Profile Assessment** — Source:
    `CAPABILITY_MODEL_BACKLOG.md`; Status: Planned; Dependency: current Pi
    source, contract and shared-device privacy evidence. Reason: independent profile assessment.
-4. **CMB-06 — Pi 10-inch Capability Profile Assessment** — Source:
+3. **CMB-06 — Pi 10-inch Capability Profile Assessment** — Source:
    `CAPABILITY_MODEL_BACKLOG.md`; Status: Planned; Dependency: hardware,
    privacy and renderer evidence. Reason: independent wall-appliance profile.
-5. **CMB-07 — Analyse Apple–Windows atomic convergence** — Source:
+4. **CMB-07 — Analyse Apple–Windows atomic convergence** — Source:
    `CAPABILITY_MODEL_BACKLOG.md`; Status: Planned; Dependency: contract-level
    supported/absent matrix. Reason: establishes an explicit per-capability
    disposition after the profile evidence.
+5. **CMB-09 — Assess Voice Interaction Host and constrained ESP32 profiles** —
+   Source: `CAPABILITY_MODEL_BACKLOG.md`; Status: Planned; Dependency: HA Voice,
+   Session Start Request and ESP32 contract evidence. Reason: records
+   role-profile decisions without Session ownership or host coordination.
 
 ### Blocked Items
 
