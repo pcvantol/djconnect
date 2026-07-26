@@ -172,3 +172,6 @@ The CMB-06 assessment is recorded in
 Pi 10-inch as the independent native, shared wall appliance with full active
 renderer-safe Session Flow and Presentation, while concrete 10-inch hardware
 and shared-wall projection evidence remain Future Assessment items.
+
+For a compact family-level reference that does not change either profile, see
+`docs/product/RASPBERRY_PI_RENDERER_FAMILY.md`.
