@@ -4,6 +4,14 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
+PR [#517](https://github.com/pcvantol/djconnect/pull/517) merged as
+`227a24e628e2631ea510839f73538508bc008777` with
+`GO_QUALIFICATION_REGISTER_INTRODUCED`. `QUALIFICATION_REGISTER.md` centrally
+indexes current Generation 2 assessment qualification items and their existing
+disposition, owner and reassessment trigger. It creates no roadmap, backlog,
+implementation authorization or Execution Horizon change. Its immutable
+history is `docs/history/prompts/2026-07-26-qualification-register-introduction.md`.
+
 PR [#515](https://github.com/pcvantol/djconnect/pull/515) merged as
 `cc672895bfdd6100868c7cb7988c608d8e347972` with
 `GO_CLIENT_CONNECTIVITY_PARTIALLY_QUALIFIED`. Existing ownership, HTTP

@@ -5,6 +5,14 @@
 
 ## Current engineering increment
 
+PR [#517](https://github.com/pcvantol/djconnect/pull/517), **Introduce
+Qualification Register**, merged as
+`227a24e628e2631ea510839f73538508bc008777`. It records
+`GO_QUALIFICATION_REGISTER_INTRODUCED`: the new current-state index centralizes
+existing active Generation 2 qualification items, their existing dispositions,
+owners and reassessment triggers. It does not create a roadmap, backlog,
+implementation authorization or Execution Horizon change.
+
 PR [#515](https://github.com/pcvantol/djconnect/pull/515), **Qualify client
 connectivity resilience**, merged as
 `cc672895bfdd6100868c7cb7988c608d8e347972`. It records

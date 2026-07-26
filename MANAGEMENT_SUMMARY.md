@@ -15,6 +15,14 @@
 
 ## Current position
 
+PR [#517](https://github.com/pcvantol/djconnect/pull/517) merged as
+`227a24e628e2631ea510839f73538508bc008777`. Its decision is
+`GO_QUALIFICATION_REGISTER_INTRODUCED`: the repository now centrally indexes
+current Generation 2 assessment qualification items, existing dispositions,
+owners and reassessment triggers. Public Release Readiness will start from
+that register; no roadmap, backlog, implementation authorization or Execution
+Horizon change was introduced.
+
 PR [#515](https://github.com/pcvantol/djconnect/pull/515) merged as
 `cc672895bfdd6100868c7cb7988c608d8e347972`. Its decision is
 `GO_CLIENT_CONNECTIVITY_PARTIALLY_QUALIFIED`: established client/server

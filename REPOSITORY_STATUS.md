@@ -28,6 +28,13 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
+PR [#517](https://github.com/pcvantol/djconnect/pull/517) merged as
+`227a24e628e2631ea510839f73538508bc008777`. It records
+`GO_QUALIFICATION_REGISTER_INTRODUCED`: `QUALIFICATION_REGISTER.md` is the
+current Generation 2 qualification index. It centralizes existing dispositions
+and Public Release Readiness triggers without creating a roadmap, backlog,
+implementation authorization or Execution Horizon change.
+
 PR [#515](https://github.com/pcvantol/djconnect/pull/515) merged as
 `cc672895bfdd6100868c7cb7988c608d8e347972`. It records
 `GO_CLIENT_CONNECTIVITY_PARTIALLY_QUALIFIED`: existing connectivity ownership,
