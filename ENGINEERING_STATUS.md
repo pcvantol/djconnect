@@ -5,6 +5,14 @@
 
 ## Current engineering increment
 
+PR [#505](https://github.com/pcvantol/djconnect/pull/505), **Register HA
+onboarding experience assessment**, merged as
+`416314f0df33cf6008b188dd688b0883b04a2eda`. It records
+`GO_HA_ONBOARDING_EXPERIENCE_ROADMAP_REGISTERED`: `HA-ONBOARDING-001` is a
+future Product Development assessment after connectivity and host-profile
+evidence. It stays outside the current Execution Horizon and authorizes no
+Config Flow, Options Flow, pairing, OAuth, Profile or product implementation.
+
 PR [#503](https://github.com/pcvantol/djconnect/pull/503), **Register Native
 Surface Integration roadmap**, merged as
 `63b57964698c6a03eddd5091cf5453a4f7fbe0e1`. It records

@@ -28,6 +28,14 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
+PR [#505](https://github.com/pcvantol/djconnect/pull/505) merged as
+`416314f0df33cf6008b188dd688b0883b04a2eda`. The repository records
+`GO_HA_ONBOARDING_EXPERIENCE_ROADMAP_REGISTERED` for `HA-ONBOARDING-001`.
+It is a future Product Development assessment of the existing Home Assistant
+integration journey, after connectivity and concrete-host evidence, and does
+not authorize Config Flow, Options Flow, pairing, OAuth, Profile, Runtime, API
+or product changes.
+
 PR [#503](https://github.com/pcvantol/djconnect/pull/503) merged as
 `63b57964698c6a03eddd5091cf5453a4f7fbe0e1`. The repository records
 `GO_NATIVE_SURFACE_ROADMAP_REGISTERED`: the future Native Surface Integration
@@ -78,6 +86,8 @@ after CMB-05/CMB-06/CMB-07 and is excluded from that Horizon. Playback
 Observation Stage 2 and Continue Stage 2 remain blocked by
 backend-owned Playback Instance Identity; deferred Audience and Lyrics work is
 excluded from the Horizon.
+`HA-ONBOARDING-001` is likewise dependency-gated after Client Connectivity &
+Resilience and concrete-host evidence; it is excluded from the Horizon.
 
 ## Historical repository context
 
