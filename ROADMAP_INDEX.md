@@ -20,6 +20,7 @@ in that same roadmap projection.
 | Future Session Continuation capability family, privacy-safe external invitation boundary and assessment-first scope | `PRODUCT_ROADMAP.md` | DJConnect Product Development |
 | Future Apple Watch Moment-First Conversational Companion experience, within Apple Premium Experience | `PRODUCT_ROADMAP.md`, `docs/product/RENDERER_EXPERIENCE_ROADMAP.md` | Product Development / Apple Renderer Host |
 | Future Home Assistant installation-to-first-DJ-Session onboarding and configuration experience | `PRODUCT_ROADMAP.md` (`HA-ONBOARDING-001`) | Product Development / Home Assistant Integration |
+| Product & Community Readiness phase: presentation, onboarding, deployment and developer-experience readiness before Community Public Release | `PRODUCT_ROADMAP.md` | DJConnect Product Development |
 | Engineering-platform improvements | `PLATFORM_EVOLUTION_BACKLOG.md` | Platform Evolution |
 | Implemented cross-platform capability catalog, projections and convergence decisions | `DJCONNECT_CAPABILITY_MODEL.md` | Platform Foundation |
 | Host Role abstraction, capability inheritance and platform role matrix | `HOST_ROLE_ARCHITECTURE.md` | Platform Foundation |

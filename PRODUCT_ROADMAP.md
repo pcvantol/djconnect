@@ -93,10 +93,11 @@ their established scope; this roadmap does not authorize their implementation.
 | 4 | Client Connectivity & Resilience qualification | Planned | endpoint, offline/cache and external HTTP qualification policy; no implementation authorization |
 | 4 | HA Integration Onboarding & Configuration Experience Assessment (`HA-ONBOARDING-001`) | Planned | Client Connectivity & Resilience qualification; CMB-05/CMB-06/CMB-07/CMB-09 host-profile evidence; Profile, pairing and authorization architecture; Public Release Readiness context |
 | 5 | Productization | Planned | Phase 4 assessment; no feature or paid-model commitment |
-| 6 | Community Public Release | Planned | Productization and explicit release selection; complete local-first Community Edition |
-| 7 | Desktop Platform Family | Deferred | First public Apple release; independent Platform Adoption assessment |
-| 7 | Personal AI DJ evolution | Deferred | Community Public Release; existing Profile and Planner boundaries |
-| 8 | Future Cloud evolution | Deferred | Long-term product direction; Community local-first foundation remains primary |
+| 6 | Product & Community Readiness | Planned | Productization; Public Release Readiness selection; no feature delivery or implementation authorization |
+| 7 | Community Public Release | Planned | Productization, Product & Community Readiness and explicit release selection; complete local-first Community Edition |
+| 8 | Desktop Platform Family | Deferred | First public Apple release; independent Platform Adoption assessment |
+| 8 | Personal AI DJ evolution | Deferred | Community Public Release; existing Profile and Planner boundaries |
+| 9 | Future Cloud evolution | Deferred | Long-term product direction; Community local-first foundation remains primary |
 | Deferred | Ambient Light Renderer Host | Deferred | Universal Receiver maturity, Room Presentation Routing and real-hardware evaluation |
 | Assessment | VibeCast release placement | Planned | Phase 3 decision: Community-defining Runtime Readiness or Platform-extending Platform Adoption |
 | Deferred | Audience Experience and Ambient Reactions | Deferred | Audience validation, privacy policy and bounded renderer design |
@@ -519,13 +520,68 @@ launch, StoreKit readiness, subscription feasibility and migration strategy.
 No paid model is authorized, and the assessment may conclude that the first
 public release remains Community-only.
 
-### Phase 6 — Community Public Release
+### Phase 6 — Product & Community Readiness
+
+Product & Community Readiness prepares the completed product for successful
+public adoption before Community Public Release. It does not add DJ
+functionality. It qualifies and completes the surrounding experience of
+installation, onboarding, deployment, documentation, discoverability and
+developer readiness for Home Assistant users, device installers, developers
+and future contributors.
+
+It has four assessment-led areas:
+
+1. **Product Presentation:** README, screenshots, demos, website/SEO, App
+   Store/TestFlight, HACS presence, release notes, changelog, product messaging
+   and feature overview. It authorizes no marketing campaign, advertising,
+   growth mechanism or commercial acquisition.
+2. **User Onboarding:** installation, Getting Started, existing Config and
+   Options Flow, Spotify OAuth, Music Assistant, Assist, pairing, Profile and
+   device onboarding, troubleshooting, FAQ, configuration reference and user
+   documentation. It authorizes no Config/Options implementation.
+3. **Device Deployment Experience:** reproducible documented deployment,
+   update, recovery and pairing assessment for Pi (images, flashing, kiosk,
+   first boot), ESP32 (installer, flashing, BLE/OTA), Apple
+   (TestFlight/App Store/pairing) and Windows (installer, updates/pairing). It
+   authorizes no deployment implementation.
+4. **Developer Experience:** developer bootstrap, local run, tests,
+   verification, architecture/repository orientation, contribution workflow,
+   setup/helper tooling, possible Dev Containers and deployment/recovery tools.
+   It authorizes no tooling implementation.
+
+DJConnect remains AI-native and repository-governed. Developer Experience
+enables bounded capabilities, Renderer Hosts, tooling, documentation,
+verification, deployment and integrations; it does not make arbitrary feature
+PRs canonical roadmap work or permit uncontrolled change to DJ Intelligence.
+The applicable contribution route remains:
+
+```text
+Capability Proposal -> Assessment -> Architecture Review -> GO
+-> Implementation -> Qualification -> Promotion -> Merge
+```
+
+The phase is ready when a Home Assistant user can independently install,
+configure and start a first DJ Session; Pi/ESP32 deployment and recovery are
+reproducible and documented; a developer can understand and run the repository
+within a reasonable onboarding path; and GitHub, website, HACS and App Store
+information is consistent. It has no user, download or GitHub-star target.
+
+Possible later assessments include Product Documentation, Config & Options UX,
+Deployment Experience, Developer Onboarding, GitHub Presentation, Website
+Readiness, HACS Discoverability, App Store Readiness and Documentation
+Completeness. They are not authorized by this phase registration. Paid
+marketing, advertisements, growth hacking, viral campaigns, commercial
+acquisition, new DJ Intelligence, Runtime/Planner expansion, Renderer delivery
+and AI functionality are explicitly outside scope.
+
+### Phase 7 — Community Public Release
 
 This is the first public product milestone: a complete Community Edition that
 is local-first, requires no cloud account, is not a trial and is not a reduced
 product. Apple is its first public consumer implementation and premium
 reference, without becoming product or Runtime owner. Only work explicitly
-selected by the Release Readiness Assessment and Productization is implemented;
+selected by the Release Readiness Assessment, Productization and Product &
+Community Readiness is implemented;
 Personal capabilities are not automatically included.
 
 ### Independent Platform Adoption
@@ -541,7 +597,7 @@ Runtime. The current Desktop Concrete Host is Windows and follows the first
 public Apple release. A future Linux host requires its own assessment; no
 implementation technology decision is introduced.
 
-### Phase 7+ — Long-term evolution
+### Phase 8+ — Long-term evolution
 
 Personal AI DJ evolution follows Community Public Release. Future Cloud capabilities are
 long-term and extend the same local-first AI DJ; neither defines the minimum
