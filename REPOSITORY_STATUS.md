@@ -28,6 +28,13 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
+PR [#529](https://github.com/pcvantol/djconnect/pull/529), **Assess CMB-12
+Apple Native Surfaces**, merged as `5d4642316ea26ff8418441f9c35a866787dd3c4e`.
+It records `GO_CMB12_APPLE_NATIVE_SURFACES_PARTIALLY_QUALIFIED`: supported
+Apple native surfaces are classified, and only active-Session projection and
+lifecycle-invocation evidence remains Future Assessment. It authorizes no
+implementation.
+
 PR [#527](https://github.com/pcvantol/djconnect/pull/527) merged as
 `38310726e4c3da89f4aac78ff29ec76d7eeaebd1`. It records
 `GO_CMB09_VOICE_HOST_PROFILE_QUALIFIED`: Home Assistant Voice Interaction
@@ -157,10 +164,11 @@ Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`.
 ## Current roadmap handoff
 
 The repository remains in Phase 1 **DJ Intelligence Evolution**. The current
-Execution Horizon begins with CMB-12, followed by CMB-02, CMB-03 and CMB-01;
-the fifth planned item is the canonical Capability-profile assessment follow-up
-from `PLATFORM_EVOLUTION_BACKLOG.md`. CMB-12 Native Surface Integration is now
-eligible after CMB-05/CMB-06/CMB-07. Playback
+Execution Horizon begins with CMB-02, followed by CMB-03, CMB-01 and the
+canonical Capability-profile assessment follow-up from
+`PLATFORM_EVOLUTION_BACKLOG.md`; Component Release Mode is fifth. CMB-12 is
+completed and its two objective evidence items are retained in the
+Qualification Register. Playback
 Observation Stage 2 and Continue Stage 2 remain blocked by
 backend-owned Playback Instance Identity; deferred Audience and Lyrics work is
 excluded from the Horizon.
