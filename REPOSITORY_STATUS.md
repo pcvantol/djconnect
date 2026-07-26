@@ -28,6 +28,12 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
+PR [#501](https://github.com/pcvantol/djconnect/pull/501) merged as
+`527f7ee86f215993fedc77b13c9a2bd6d7e09ac4`. HACS pull-request validation is
+classified as bounded engineering evidence when completed, never as
+release-authoritative evidence. Historical repository-loading failures do not
+establish a repository defect or authorize a workflow correction.
+
 PR [#498](https://github.com/pcvantol/djconnect/pull/498) merged as
 `60a2708e48eef92f035ab9d0991bd55c3d4aa7ed`. CMB-08 is
 assessment-only and requires no implementation phase.
@@ -57,11 +63,11 @@ Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`.
 ## Current roadmap handoff
 
 The repository remains in Phase 1 **DJ Intelligence Evolution**. The current
-Execution Horizon begins with `HACS-CI-PR-REF-001`, followed by Client
-Connectivity & Resilience qualification, CMB-05, CMB-06 and CMB-07 in the
-canonical records. Playback Observation Stage 2 and Continue Stage 2 remain
-blocked by backend-owned Playback Instance Identity; deferred Audience and
-Lyrics work is excluded from the Horizon.
+Execution Horizon begins with Client Connectivity & Resilience qualification,
+followed by CMB-05, CMB-06, CMB-07 and CMB-09 in the canonical records.
+Playback Observation Stage 2 and Continue Stage 2 remain blocked by
+backend-owned Playback Instance Identity; deferred Audience and Lyrics work is
+excluded from the Horizon.
 
 ## Historical repository context
 
