@@ -23,7 +23,7 @@ starts with a current-state Repository Capability Assessment under
 | CMB-09 | Assess Voice Interaction Host and constrained ESP32 profiles | Assessed | `docs/product/VOICE_INTERACTION_HOST_ESP32_CAPABILITY_PROFILE_ASSESSMENT.md`; Home Assistant Voice Host and native LilyGO appliance evidence | `GO_CMB09_VOICE_HOST_PROFILE_QUALIFIED`; the shared Home Assistant Voice Host and DJConnect-owned appliance profiles are distinct, bounded and implementation-free |
 | CMB-10 | Onboard future Android and Meta Quest capability profiles | Deferred | product authorization and evidence | profile assessment before any client work |
 | CMB-11 | Assess Sharing Experience producers and native Renderer Host realization | Assessed / implementation completed | `docs/product/SHARING_EXPERIENCE_ARCHITECTURE.md`, PR #490/#492 assessment-refinement evidence and `djconnect-app` PR #50 native-share evidence | `GO_SHARING_IMPLEMENTATION` was realized only as Track Insight → Apple Native Sharing; no generic sharing platform, Runtime, Broadcast, public URL or social-service scope |
-| CMB-12 | Assess Apple Native Surface capabilities | Planned, after CMB-05/CMB-06/CMB-07 | existing Apple Renderer Host surface inventory and the completed platform-profile evidence | capability inventory and ownership classification only; no surface implementation or Runtime, Renderer, API or product change |
+| CMB-12 | Assess Apple Native Surface capabilities | Assessed | `docs/product/APPLE_NATIVE_SURFACE_CAPABILITY_ASSESSMENT.md`; canonical renderer boundaries and `djconnect-app` native-surface inventory | `GO_CMB12_APPLE_NATIVE_SURFACES_PARTIALLY_QUALIFIED`; existing Apple Session, Information and navigation surfaces are classified; active-Session projection and lifecycle-invocation qualification remain Future Assessment; no implementation |
 
 ## Rules
 
@@ -32,6 +32,6 @@ starts with a current-state Repository Capability Assessment under
 - A platform-specific absence may be retained without remediation.
 - Product Development owns user-facing delivery; Platform Evolution owns only
   the capability-model assessment and governance work recorded here.
-- CMB-12 registers the future **Native Surface Integration** family. It is not
-  in the current Execution Horizon and does not authorize a native surface or
-  implementation candidate.
+- CMB-12 assesses the **Native Surface Integration** family. It authorizes no
+  native surface or implementation candidate; its two remaining qualification
+  items remain separate Future Assessments.
