@@ -5,6 +5,15 @@
 
 ## Current engineering increment
 
+PR [#515](https://github.com/pcvantol/djconnect/pull/515), **Qualify client
+connectivity resilience**, merged as
+`cc672895bfdd6100868c7cb7988c608d8e347972`. It records
+`GO_CLIENT_CONNECTIVITY_PARTIALLY_QUALIFIED`: the existing ownership,
+HTTP-fallback, Broadcast-recovery and token/privacy architecture is qualified;
+bounded external HTTPS and resilience evidence remains required in Public
+Release Readiness. It authorizes no Runtime, Renderer, API, transport, pairing,
+onboarding or client implementation.
+
 PR [#513](https://github.com/pcvantol/djconnect/pull/513), **Add Product &
 Community Readiness phase**, merged as
 `1f3e56181944cf818b3f20cd44cea5b81fe0c218`. It records
@@ -51,8 +60,8 @@ Surface Integration roadmap**, merged as
 `63b57964698c6a03eddd5091cf5453a4f7fbe0e1`. It records
 `GO_NATIVE_SURFACE_ROADMAP_REGISTERED`: Native Surface Integration is a future
 Renderer Host planning family only. CMB-12 is an Apple-first capability
-inventory after CMB-05/CMB-06/CMB-07; it is not in the current Execution
-Horizon and authorizes no assessment or implementation.
+inventory after CMB-05/CMB-06/CMB-07; it is the dependency-gated fifth
+Execution Horizon item and authorizes no implementation.
 
 PR [#501](https://github.com/pcvantol/djconnect/pull/501), **Assess HACS
 pull-request validation reliability**, merged as
@@ -103,25 +112,24 @@ execution; it is not a replacement Product Initiative.
 
 #### Rolling Horizon (Execution Horizon — Next 5 Planned)
 
-1. **Client Connectivity & Resilience Qualification** — Source:
-   `PLATFORM_EVOLUTION_BACKLOG.md`; Status: Planned; Dependency: Public Release
-   Readiness Assessment. Rationale: bounded external-HTTP qualification once
-   its recorded dependency is met.
-
-2. **CMB-05 — Pi 4-inch Capability Profile Assessment** — Source:
+1. **CMB-05 — Pi 4-inch Capability Profile Assessment** — Source:
    `CAPABILITY_MODEL_BACKLOG.md`; Status: Planned; Dependency: current Pi
    source, contract and shared-device privacy evidence. Rationale: independent profile assessment.
-3. **CMB-06 — Pi 10-inch Capability Profile Assessment** — Source:
+2. **CMB-06 — Pi 10-inch Capability Profile Assessment** — Source:
    `CAPABILITY_MODEL_BACKLOG.md`; Status: Planned; Dependency: hardware,
    privacy and renderer evidence. Rationale: independent wall-appliance profile.
-4. **CMB-07 — Analyse Apple–Windows atomic convergence** — Source:
+3. **CMB-07 — Analyse Apple–Windows atomic convergence** — Source:
    `CAPABILITY_MODEL_BACKLOG.md`; Status: Planned; Dependency: contract-level
    supported/absent matrix. Rationale: establishes an explicit per-capability
    disposition after the profile evidence.
-5. **CMB-09 — Assess Voice Interaction Host and constrained ESP32 profiles** —
+4. **CMB-09 — Assess Voice Interaction Host and constrained ESP32 profiles** —
    Source: `CAPABILITY_MODEL_BACKLOG.md`; Status: Planned; Dependency: HA Voice,
-   Session Start Request and ESP32 contract evidence. Rationale: records
-   role-profile decisions without Session ownership or host coordination.
+    Session Start Request and ESP32 contract evidence. Rationale: records
+    role-profile decisions without Session ownership or host coordination.
+5. **CMB-12 — Assess Apple Native Surface capabilities** — Source:
+   `CAPABILITY_MODEL_BACKLOG.md`; Status: Planned; Dependency:
+   CMB-05/CMB-06/CMB-07 and the existing Apple Renderer Host surface inventory.
+   Rationale: bounded inventory after the required platform-profile evidence.
 
 #### Blocked Items
 

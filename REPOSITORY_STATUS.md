@@ -28,6 +28,14 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
+PR [#515](https://github.com/pcvantol/djconnect/pull/515) merged as
+`cc672895bfdd6100868c7cb7988c608d8e347972`. It records
+`GO_CLIENT_CONNECTIVITY_PARTIALLY_QUALIFIED`: existing connectivity ownership,
+HTTP fallback, Broadcast recovery and security boundaries are qualified;
+bounded external HTTPS and resilience observation remains Public Release
+Readiness evidence. It authorizes no Runtime, Renderer, API, transport,
+pairing, onboarding or client implementation.
+
 PR [#513](https://github.com/pcvantol/djconnect/pull/513) merged as
 `1f3e56181944cf818b3f20cd44cea5b81fe0c218`. The repository records
 `GO_PRODUCT_AND_COMMUNITY_READINESS_REGISTERED`: a future Phase 6 Product
@@ -70,8 +78,8 @@ PR [#503](https://github.com/pcvantol/djconnect/pull/503) merged as
 `GO_NATIVE_SURFACE_ROADMAP_REGISTERED`: the future Native Surface Integration
 family may present only renderer-safe projections or submit explicit existing
 Session lifecycle requests. CMB-12 is a later Apple-first inventory after
-CMB-05/CMB-06/CMB-07, not a current-Horizon item or implementation
-authorization.
+CMB-05/CMB-06/CMB-07, the dependency-gated fifth Horizon item and not an
+implementation authorization.
 
 PR [#501](https://github.com/pcvantol/djconnect/pull/501) merged as
 `527f7ee86f215993fedc77b13c9a2bd6d7e09ac4`. HACS pull-request validation is
@@ -108,10 +116,9 @@ Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`.
 ## Current roadmap handoff
 
 The repository remains in Phase 1 **DJ Intelligence Evolution**. The current
-Execution Horizon begins with Client Connectivity & Resilience qualification,
-followed by CMB-05, CMB-06, CMB-07 and CMB-09 in the canonical records.
-CMB-12 Native Surface Integration remains a dependency-gated future assessment
-after CMB-05/CMB-06/CMB-07 and is excluded from that Horizon. Playback
+Execution Horizon begins with CMB-05, followed by CMB-06, CMB-07, CMB-09 and
+CMB-12 in the canonical records. CMB-12 Native Surface Integration remains
+dependency-gated after CMB-05/CMB-06/CMB-07. Playback
 Observation Stage 2 and Continue Stage 2 remain blocked by
 backend-owned Playback Instance Identity; deferred Audience and Lyrics work is
 excluded from the Horizon.
