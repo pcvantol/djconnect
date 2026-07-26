@@ -83,6 +83,7 @@ their established scope; this roadmap does not authorize their implementation.
 | 1 | Automated Session Intelligence E2E Verification | Current execution | `docs/product/DEVELOPER_EXPERIENCE_ROADMAP.md` |
 | 2 | Universal Receiver Reference Experience | Planned | Minimum DJ Intelligence baseline; `docs/technical/UNIVERSAL_RECEIVER_ARCHITECTURE.md` |
 | 2 | Renderer-safe Session experience and experience validation | Planned | Reference Experience assessment and existing renderer-safe projections |
+| 2 | Interactive DJMoments capability family | Planned | Reference Experience; existing DJMoment, Planner, Knowledge, command/Ask DJ and renderer-safe Presentation boundaries; future assessment-first decision |
 | Technical Design | Session Direction Projection | Planned | `docs/technical/SESSION_DIRECTION_PROJECTION_ARCHITECTURE.md`; dedicated Broadcast and renderer assessment before implementation |
 | Technical Design | Sharing Experience | Planned | `docs/product/SHARING_EXPERIENCE_ARCHITECTURE.md`; user-initiated native Renderer Host assessment before any share implementation |
 | 3 | Apple Premium Experience | Planned | Reference Experience, experience quality, polish, onboarding and release readiness for macOS, iPhone/iPad and Apple Watch |
@@ -104,6 +105,65 @@ their established scope; this roadmap does not authorize their implementation.
 | 7 | Narrative Sequencing, Lyrics and Discover Evolution | Deferred | Existing Planner, Knowledge and DJ Moment Engine abstractions |
 | Deferred | Audience Observation for Session Intelligence | Deferred | Audience Experience, privacy review and explicit bounded Planner-influence policy |
 | Deferred | Playback Observation Stage 2 and Continue Stage 2 | Deferred | External Observation Boundary capability conditions |
+
+### Interactive DJMoments capability family
+
+**Status:** Planned Product Development capability family. It is assessment-first,
+outside the current Execution Horizon, and authorizes no assessment,
+implementation, Runtime extension or new DJMoment type.
+
+Interactive DJMoments are ordinary, immutable DJMoments through the existing
+canonical path:
+
+```text
+Knowledge Engine -> Planner -> DJMoment Engine -> Interactive DJMoment
+-> Renderer Host -> user response -> existing command / Ask DJ route
+```
+
+This is not a second Runtime, interaction engine, Planner, renderer
+architecture or Music Backend path. The Planner alone may later decide whether
+an Interactive DJMoment is appropriate, which type is selected and when it is
+presented. The Knowledge Engine supplies only existing approved contextual
+possibilities; the DJMoment Engine retains Moment realization. A renderer
+never creates a Moment, changes its meaning or treats a local response as a
+planning decision.
+
+The family is intended to increase engaged, natural participation in an active
+DJ Session while the AI DJ retains Session ownership. It is not gamification,
+scoreboards, achievements, a standalone quiz mode or an educational
+application. Existing Trivia remains an ordinary possible DJMoment type; this
+future family concerns only an explicitly planned, interactive presentation and
+response boundary.
+
+Future examples may include Quiz, Guess the Track, Prediction, Poll, Challenge
+and Vote Moments. A future Quiz Moment must be Planner-originated and use only
+existing Knowledge context for the current artist, album, genre, Session,
+previous Moments/stories or Session Direction. It must not retrieve arbitrary
+trivia or create a standalone quiz database.
+
+Renderer Hosts remain free to present one approved Moment locally: for example,
+Apple may use haptics, animation or confetti; Pi may use simple animation; and
+Voice may use spoken feedback. Those presentation choices never select the
+Moment or alter Planner policy. A future Moment may carry optional,
+renderer-safe follow-up actions such as Play Now, Play Next, Open Album or Open
+Artist only when the existing action/command boundaries already permit them.
+The user must explicitly invoke any action through an existing command route;
+the Music Backend retains all playback ownership and never changes
+autonomously.
+
+Interactive DJMoments must never project credentials, provider payloads, queue
+information, Music DNA, Ask DJ history or internal Runtime identities. Any
+future response remains within the existing renderer and command/Ask DJ
+boundaries. Future adaptive consideration may assess bounded active-Session
+signals such as participation, skips, preferred interaction type or difficulty,
+but this registration authorizes no persistent learning, Performance Memory
+extension or preference mechanism.
+
+A later assessment may investigate suitable Moment types, Planner-selection
+policy, approved Knowledge context, renderer presentation, bounded
+Performance-Memory influence, optional playback-action projections and privacy
+boundaries. Any delivery must be separately authorized, preserve the existing
+canonical path and solve one bounded interactive Session problem.
 
 ### Phase 3 — Apple Premium Experience
 
