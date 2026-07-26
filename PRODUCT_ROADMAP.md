@@ -84,6 +84,7 @@ their established scope; this roadmap does not authorize their implementation.
 | 2 | Universal Receiver Reference Experience | Planned | Minimum DJ Intelligence baseline; `docs/technical/UNIVERSAL_RECEIVER_ARCHITECTURE.md` |
 | 2 | Renderer-safe Session experience and experience validation | Planned | Reference Experience assessment and existing renderer-safe projections |
 | 2 | Interactive DJMoments capability family | Planned | Reference Experience; existing DJMoment, Planner, Knowledge, command/Ask DJ and renderer-safe Presentation boundaries; future assessment-first decision |
+| 2 | Session Continuation capability family | Planned | Canonical DJMoment, active Session Runtime/Flow, Profile privacy and device-authorization boundaries, Renderer Host classification and a future assessment-first decision |
 | Technical Design | Session Direction Projection | Planned | `docs/technical/SESSION_DIRECTION_PROJECTION_ARCHITECTURE.md`; dedicated Broadcast and renderer assessment before implementation |
 | Technical Design | Sharing Experience | Planned | `docs/product/SHARING_EXPERIENCE_ARCHITECTURE.md`; user-initiated native Renderer Host assessment before any share implementation |
 | 3 | Apple Premium Experience | Planned | Reference Experience, experience quality, polish, onboarding and release readiness for macOS, iPhone/iPad and Apple Watch |
@@ -164,6 +165,107 @@ policy, approved Knowledge context, renderer presentation, bounded
 Performance-Memory influence, optional playback-action projections and privacy
 boundaries. Any delivery must be separately authorized, preserve the existing
 canonical path and solve one bounded interactive Session problem.
+
+### Session Continuation capability family
+
+**Status:** Planned Product Development capability family. It is
+assessment-first, outside the current Execution Horizon, and authorizes no
+assessment, implementation, notification, push, APNs, Runtime, Planner,
+DJMoment, preference, deep-link or playback change.
+
+**Product purpose:** calmly, contextually and privately invite a user back to
+an already active DJ Session when a relevant DJMoment or interaction is ready.
+It is never marketing, a generic engagement push, a streak mechanism, an
+attention-extraction reminder or a request to start a new Session.
+
+The future responsibility chain is deliberately separate:
+
+```text
+Active DJ Session
+  -> Planner selects or prepares a relevant DJMoment
+  -> Continuation Opportunity
+  -> Continuation Policy
+  -> privacy-safe Notification Projection
+  -> Platform Notification Renderer
+  -> user opens the existing Session
+  -> Renderer fetches current authorized content
+```
+
+The Planner alone may determine that a Moment or interaction is relevant to an
+active Session. It does not decide interruption frequency, platform routing,
+lock-screen content, notification permissions, quiet hours or consent. A
+future **Continuation Opportunity** is session-scoped, temporary and coupled
+to an existing or prepared DJMoment; it is not itself a notification and has no
+schema yet. A future **Continuation Policy** exclusively decides whether that
+opportunity may be presented externally. Its later evidence may include active
+Session/current-Moment validity, recent user activity, prior invitations,
+preferences and quiet hours, Profile privacy, host authorization, Session
+Mood, DJ Persona, Moment type, personal/shared context and prior open/ignore
+signals. This registration defines neither policy values nor frequency.
+
+The Notification Projection is a minimal, privacy-safe invitation, never the
+complete immutable DJMoment. A future payload may carry only an opaque
+continuation reference, a safe general category, a short expiry and a renderer
+route. It must exclude questions or answers, stories/insights, media or
+provider references, playback commands, credentials, Profile data, Runtime
+identities and Planner or Knowledge context. Visible content is category-only:
+it must not reveal artist, track, album or playlist names; Session Direction;
+Profile, room or device names; Music DNA; Ask DJ content; provider data; queue;
+listening history; or free text from a DJMoment. Persona, Mood and response
+style may later affect only a bounded safe copy catalogue; generative
+notification copy is not authorized.
+
+Platform Notification Renderers own only native presentation, delivery and
+local user interaction inside those limits. Apple/APNs is transport and not the
+capability owner. Product Development owns the Session Continuation experience;
+Home Assistant Runtime retains active-Session status; Renderer Hosts retain
+native presentation; and the Music Backend retains playback. A notification
+never starts/resumes playback, changes a queue, activates Play Now or executes
+an Ask DJ command. After opening, an ordinary Moment may still offer explicit
+user actions only through existing command routes.
+
+On opening, a future host must revalidate the active Session, opportunity
+validity, profile/device and renderer authorization, Moment currentness and
+consumption, and host eligibility. An expired or invalid opportunity may not
+show stale content or fall back covertly: it goes safely to the current Session
+or neutral status. Session Continuation exists only during an active Session;
+it may not revive an ended Session, promote Discover content, start background
+playback, automatically resume a Session or change Session Direction.
+
+The family is independent of Interactive DJMoments. Interactive DJMoments
+increase participation within a Session; Session Continuation invites a user
+back to it. Either an Interactive DJMoment (for example Quiz, Prediction or
+Poll) or a non-interactive Moment (for example Artist Story, Album Story,
+Recommendation or Session Update) may later provide evidence for an
+opportunity. Neither capability is the parent of the other.
+
+Public delivery requires future opt-in or explicit configuration and a privacy
+assessment of a master/per-profile/per-device control, permitted categories,
+frequency, quiet hours, focus/sleep context, personal/shared profiles and
+lock-screen privacy. The future policy must prohibit a fixed marketing cadence,
+app-closed-only delivery, unbounded retries, multiple invitations for one
+Moment, delivery after Session end, low-value Moments, interruption of an
+already active participant, and retention or streak optimization.
+
+A later **Session Continuation Capability Assessment** may examine existing
+Planner and DJMoment evidence; opportunity lifecycle and ownership; policy,
+consent, preferences and anti-spam limits; privacy-safe projections; safe
+persona/Mood catalogues; deep links; expiry, consumption and revalidation;
+Apple/APNs as one concrete renderer; shared profiles; content-free
+observability; the independent Interactive DJMoments relationship; and release
+and privacy qualification. Possible separately authorized follow-ons are a
+Continuation Opportunity contract refinement, policy/consent model,
+Notification Projection, deep-link/revalidation contract, Apple renderer
+assessment, Apple privacy-safe push delivery, Interactive and non-interactive
+reference slices, preference UX, and stale-opportunity recovery.
+
+This family follows the existing DJMoment architecture, active Session Runtime
+and Session Flow, Profile privacy/device authorization and Renderer Host
+classification. Relevant native-surface/notification evidence and Public
+Release Readiness plus privacy qualification are dependencies for any public
+activation. It is not part of Native Surface Integration, even where a native
+surface may later realize it, and does not change the current Execution
+Horizon or any existing priority.
 
 ### Phase 3 — Apple Premium Experience
 

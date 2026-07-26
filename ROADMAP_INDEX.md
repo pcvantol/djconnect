@@ -17,6 +17,7 @@ in that same roadmap projection.
 | Generation 2 completed foundations, current execution and historical-transition reconciliation | `GENERATION_2_PROGRAM_RECONCILIATION.md` | Platform governance |
 | User-facing product priorities and sequence | `PRODUCT_ROADMAP.md` | DJConnect Product Development |
 | Future Interactive DJMoments capability family and its assessment-first boundary | `PRODUCT_ROADMAP.md` | DJConnect Product Development |
+| Future Session Continuation capability family, privacy-safe external invitation boundary and assessment-first scope | `PRODUCT_ROADMAP.md` | DJConnect Product Development |
 | Future Home Assistant installation-to-first-DJ-Session onboarding and configuration experience | `PRODUCT_ROADMAP.md` (`HA-ONBOARDING-001`) | Product Development / Home Assistant Integration |
 | Engineering-platform improvements | `PLATFORM_EVOLUTION_BACKLOG.md` | Platform Evolution |
 | Implemented cross-platform capability catalog, projections and convergence decisions | `DJCONNECT_CAPABILITY_MODEL.md` | Platform Foundation |
