@@ -28,7 +28,8 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-PR #498 merged as `60a2708e48eef92f035ab9d0991bd55c3d4aa7ed`. CMB-08 is
+PR [#498](https://github.com/pcvantol/djconnect/pull/498) merged as
+`60a2708e48eef92f035ab9d0991bd55c3d4aa7ed`. CMB-08 is
 assessment-only and requires no implementation phase.
 
 PR [#495](https://github.com/pcvantol/djconnect/pull/495) merged as
@@ -56,12 +57,11 @@ Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`.
 ## Current roadmap handoff
 
 The repository remains in Phase 1 **DJ Intelligence Evolution**. The current
-Execution Horizon begins with the authorized **Track Insight (CAP-IN-01) →
-Apple Native Sharing Implementation**, followed by `CMB-04`, `CMB-08`,
-`HACS-CI-PR-REF-001` and Client Connectivity & Resilience qualification in the
+Execution Horizon begins with `HACS-CI-PR-REF-001`, followed by Client
+Connectivity & Resilience qualification, CMB-05, CMB-06 and CMB-07 in the
 canonical records. Playback Observation Stage 2 and Continue Stage 2 remain
-blocked by backend-owned Playback Instance Identity; deferred Audience,
-Lyrics and playback-observation work is excluded from the Horizon.
+blocked by backend-owned Playback Instance Identity; deferred Audience and
+Lyrics work is excluded from the Horizon.
 
 ## Historical repository context
 
