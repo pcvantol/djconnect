@@ -5,6 +5,11 @@
 
 ## Current engineering increment
 
+PR [#498](https://github.com/pcvantol/djconnect/pull/498), **Assess CMB-08
+Universal Receiver and VibeCast**, merged as
+`60a2708e48eef92f035ab9d0991bd55c3d4aa7ed`. It records
+`GO_UNIVERSAL_RECEIVER_DECOMPOSITION`; no implementation is authorized.
+
 PR [#495](https://github.com/pcvantol/djconnect/pull/495), **Assess CMB-04
 Renderer Experience roadmap**, merged as
 `2385bc7db2d574c5d9972bf30a10f980c3e8a49f`. It records
@@ -41,25 +46,25 @@ execution; it is not a replacement Product Initiative.
 
 #### Rolling Horizon (Execution Horizon — Next 5 Planned)
 
-1. **CMB-08 — Universal Receiver & VibeCast Capability Decomposition** — Source:
-   `CAPABILITY_MODEL_BACKLOG.md`; Status: Planned; Dependency: current
-   Broadcast and receiver evidence. Rationale: separates host and experience
-   records before platform-profile validation.
-2. **HACS-CI-PR-REF-001 — HACS PR Validation Reliability** — Source:
+1. **HACS-CI-PR-REF-001 — HACS PR Validation Reliability** — Source:
    `PLATFORM_EVOLUTION_BACKLOG.md`; Status: Planned; Dependency: retained
    alternating-validation evidence. Rationale: preserves actionable assurance
    evidence for the supporting verification increment.
-3. **Client Connectivity & Resilience Qualification** — Source:
+2. **Client Connectivity & Resilience Qualification** — Source:
    `PLATFORM_EVOLUTION_BACKLOG.md`; Status: Planned; Dependency: Public Release
    Readiness Assessment. Rationale: bounded external-HTTP qualification once
    its recorded dependency is met.
 
-4. **CMB-05 — Pi 4-inch Capability Profile Assessment** — Source:
+3. **CMB-05 — Pi 4-inch Capability Profile Assessment** — Source:
    `CAPABILITY_MODEL_BACKLOG.md`; Status: Planned; Dependency: current Pi
    source, contract and shared-device privacy evidence. Rationale: independent profile assessment.
-5. **CMB-06 — Pi 10-inch Capability Profile Assessment** — Source:
+4. **CMB-06 — Pi 10-inch Capability Profile Assessment** — Source:
    `CAPABILITY_MODEL_BACKLOG.md`; Status: Planned; Dependency: hardware,
    privacy and renderer evidence. Rationale: independent wall-appliance profile.
+5. **CMB-07 — Analyse Apple–Windows atomic convergence** — Source:
+   `CAPABILITY_MODEL_BACKLOG.md`; Status: Planned; Dependency: contract-level
+   supported/absent matrix. Rationale: establishes an explicit per-capability
+   disposition after the profile evidence.
 
 #### Blocked Items
 

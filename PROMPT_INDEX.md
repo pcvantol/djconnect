@@ -4,6 +4,10 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
+PR [#498](https://github.com/pcvantol/djconnect/pull/498) merged as
+`60a2708e48eef92f035ab9d0991bd55c3d4aa7ed`. CMB-08 is
+complete with `GO_UNIVERSAL_RECEIVER_DECOMPOSITION` and authorizes no code.
+
 PR [#495](https://github.com/pcvantol/djconnect/pull/495) merged as
 `2385bc7db2d574c5d9972bf30a10f980c3e8a49f`. CMB-04 is complete as a
 roadmap-only assessment with `GO_RENDERER_ROADMAP_REEXPRESSION`; it authorizes
@@ -24,12 +28,12 @@ The reconciled decision is `GO_SHARING_IMPLEMENTATION` for the sole bounded
 slice **Track Insight (CAP-IN-01) → Apple Native Sharing**. Apple evidence is
 `djconnect-app` PR #50, merged as `d98d1428a09b93429b23784a190241ef49a4bc74`,
 decision `GO_CROSS_REPOSITORY_EVIDENCE_COMPLETE`. No Runtime, Broadcast, API
-or DJ Intelligence change is authorized. The Execution Horizon next lists that
-authorized implementation, followed by `CMB-04`, `CMB-08`,
-`HACS-CI-PR-REF-001` and Client Connectivity & Resilience qualification.
-Playback Observation Stage 2 / Continue Stage 2 remains blocked by
-Playback Instance Identity; deferred Audience, Lyrics and playback-observation
-work remains outside the Horizon.
+or DJ Intelligence change is authorized. After the completed Apple Sharing,
+CMB-04 and CMB-08 lifecycles, the Execution Horizon begins with
+`HACS-CI-PR-REF-001`, followed by Client Connectivity & Resilience
+qualification, CMB-05, CMB-06 and CMB-07. Playback Observation Stage 2 /
+Continue Stage 2 remains blocked by Playback Instance Identity; only Audience
+and Lyrics work remains deferred outside the Horizon.
 
 `BOOTSTRAP.md` is the single canonical repository entry point for new ChatGPT
 Product & Platform Architect sessions. **Repository Sync + Developer Handoff**
