@@ -5,6 +5,14 @@
 
 ## Current engineering increment
 
+PR [#523](https://github.com/pcvantol/djconnect/pull/523), **Document
+Raspberry Pi Renderer Family**, merged as
+`373e65eb6a8126b96ab48a6ec3e7844e4dbffcc4`. It records
+`GO_RASPBERRY_PI_RENDERER_FAMILY_DOCUMENTED`: the existing, independently
+assessed Pi 4-inch and Pi 10-inch native QML Renderer Host profiles now have a
+single compact reference. It creates no capability, implementation,
+qualification item, roadmap or Execution Horizon change.
+
 PR [#521](https://github.com/pcvantol/djconnect/pull/521), **Assess Pi 10-inch
 capability profile**, merged as
 `3c981c28c5188484ae8d545a60f9c6d1216a45c2`. It records

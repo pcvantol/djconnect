@@ -15,6 +15,13 @@
 
 ## Current position
 
+PR [#523](https://github.com/pcvantol/djconnect/pull/523) merged as
+`373e65eb6a8126b96ab48a6ec3e7844e4dbffcc4`. Its decision is
+`GO_RASPBERRY_PI_RENDERER_FAMILY_DOCUMENTED`: the independently assessed Pi
+4-inch compact appliance and Pi 10-inch shared wall-appliance profiles now
+have one compact canonical reference. No capability, implementation,
+qualification item, roadmap or Execution Horizon change is authorized.
+
 PR [#521](https://github.com/pcvantol/djconnect/pull/521) merged as
 `3c981c28c5188484ae8d545a60f9c6d1216a45c2`. Its decision is
 `GO_PI_10_INCH_PROFILE_PARTIALLY_QUALIFIED`: the independent native shared wall
