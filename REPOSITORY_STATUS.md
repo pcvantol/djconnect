@@ -28,6 +28,13 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
+PR [#511](https://github.com/pcvantol/djconnect/pull/511) merged as
+`bc9acd1bb3055d7c55c5a1f4366e933bba90910e`. The repository records
+`GO_APPLE_WATCH_MOMENT_COMPANION_REGISTERED` as a future Phase 3 Apple Premium
+Experience. It preserves Apple Renderer Host presentation, Home Assistant
+Runtime, Planner, Knowledge, DJMoment, Audience Signal, Session Continuation
+and Music Backend ownership; it authorizes no assessment or implementation.
+
 PR [#509](https://github.com/pcvantol/djconnect/pull/509) merged as
 `cd403dcb7142ae49c6b4315890f0490f33edb99a`. The repository records
 `GO_SESSION_CONTINUATION_REGISTERED` as a future Product Development family.
@@ -108,6 +115,9 @@ current Horizon.
 Session Continuation is independently assessment-first, depends on active
 Session, privacy, authorization and renderer evidence, and is likewise
 excluded from the current Horizon.
+The Apple Watch Moment-First Conversational Companion is independently
+assessment-first within Phase 3, depends on relevant Apple/host-profile
+evidence and is likewise excluded from the current Horizon.
 
 ## Historical repository context
 

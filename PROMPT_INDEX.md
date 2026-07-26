@@ -4,6 +4,15 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
+PR [#511](https://github.com/pcvantol/djconnect/pull/511) merged as
+`bc9acd1bb3055d7c55c5a1f4366e933bba90910e`. Apple Watch Moment-First
+Conversational Companion is registered with
+`GO_APPLE_WATCH_MOMENT_COMPANION_REGISTERED` as a future, assessment-first
+Phase 3 Apple Premium Experience. It remains outside the current Execution
+Horizon and authorizes neither assessment nor implementation. Its immutable
+registration history is
+`docs/history/prompts/2026-07-26-apple-watch-moment-first-companion-registration.md`.
+
 PR [#509](https://github.com/pcvantol/djconnect/pull/509) merged as
 `cd403dcb7142ae49c6b4315890f0490f33edb99a`. Session Continuation is
 registered with `GO_SESSION_CONTINUATION_REGISTERED` as a future,
