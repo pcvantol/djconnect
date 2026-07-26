@@ -4,6 +4,15 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
+PR [#503](https://github.com/pcvantol/djconnect/pull/503) merged as
+`63b57964698c6a03eddd5091cf5453a4f7fbe0e1`. Native Surface Integration is
+registered with `GO_NATIVE_SURFACE_ROADMAP_REGISTERED` as a future Renderer
+Host capability family only. Its CMB-12 Apple-first capability inventory follows
+CMB-05/CMB-06/CMB-07, remains outside the current Execution Horizon and
+authorizes neither an assessment nor an implementation. Its immutable roadmap
+registration history is
+`docs/history/prompts/2026-07-26-native-surface-integration-roadmap-introduction.md`.
+
 PR [#501](https://github.com/pcvantol/djconnect/pull/501) merged as
 `527f7ee86f215993fedc77b13c9a2bd6d7e09ac4`. HACS pull-request validation is
 classified as bounded engineering evidence when it completes, not as a
