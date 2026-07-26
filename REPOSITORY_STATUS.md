@@ -28,6 +28,13 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
+PR [#531](https://github.com/pcvantol/djconnect/pull/531), **Validate CMB-02
+platform capability profiles**, merged as
+`c4613e6db9bf71aeb374dedadcb89b7780b10afe`. It records
+`GO_CMB02_PLATFORM_CAPABILITY_PROFILES_PARTIALLY_QUALIFIED`; the profile model
+is consistent and retains only already-listed host evidence. No implementation
+is authorized.
+
 PR [#529](https://github.com/pcvantol/djconnect/pull/529), **Assess CMB-12
 Apple Native Surfaces**, merged as `5d4642316ea26ff8418441f9c35a866787dd3c4e`.
 It records `GO_CMB12_APPLE_NATIVE_SURFACES_PARTIALLY_QUALIFIED`: supported
@@ -164,10 +171,10 @@ Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`.
 ## Current roadmap handoff
 
 The repository remains in Phase 1 **DJ Intelligence Evolution**. The current
-Execution Horizon begins with CMB-02, followed by CMB-03, CMB-01 and the
+Execution Horizon begins with CMB-03, followed by CMB-01 and the
 canonical Capability-profile assessment follow-up from
-`PLATFORM_EVOLUTION_BACKLOG.md`; Component Release Mode is fifth. CMB-12 is
-completed and its two objective evidence items are retained in the
+`PLATFORM_EVOLUTION_BACKLOG.md`; Component Release Mode and TD-GITHUB-001
+follow. CMB-02 is completed and its objective evidence remains in the
 Qualification Register. Playback
 Observation Stage 2 and Continue Stage 2 remain blocked by
 backend-owned Playback Instance Identity; deferred Audience and Lyrics work is
