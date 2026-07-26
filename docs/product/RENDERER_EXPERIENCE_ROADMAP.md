@@ -69,3 +69,41 @@ canonical ownership or requires convergence.
 Use this atomic inventory as the Renderer Experience planning projection. The
 next dependent renderer assessment is CMB-08; no renderer implementation,
 Runtime change, API change or new capability family is authorized by CMB-04.
+
+## CMB-08: Universal Receiver and VibeCast decomposition
+
+**Decision:** `GO_UNIVERSAL_RECEIVER_DECOMPOSITION`
+
+The existing repository decomposition is complete and overlap-free. The
+Universal Receiver is the implemented **Interactive Web Renderer Host**. It
+owns only temporary browser presentation and lifecycle, and consumes existing
+Broadcast snapshots, updates, renderer-safe Now Playing, current DJMoment and
+Session Flow. It owns no Runtime, authorization decision, Planner, Knowledge,
+DJMoment, canonical history or provider access.
+
+VibeCast is a separate, planned **Ambient Renderer experience**. It may reuse
+the Universal Receiver Web Platform's connection lifecycle, safe projection
+subscription, handoff foundations and design primitives, but owns its ambient
+composition, attention model and television-oriented lifecycle. Google TV is a
+future Custom Web Receiver host, not a second Runtime, native TV app or sender
+pixel stream.
+
+| Capability | Owner | Maturity | Classification |
+| --- | --- | --- | --- |
+| Broadcast subscription, snapshot-first delivery, reconnect and Runtime-end cleanup | Broadcast / Web platform | Implemented | shared infrastructure |
+| Interactive Now Playing, current DJMoment and Session Flow rendering | Universal Receiver | Implemented | Receiver-specific |
+| Ambient composition, minimal interaction and television pacing | VibeCast Renderer Host | Planned | VibeCast-specific |
+| Session authorization, Planning, Knowledge, Moments and Flow | Runtime / Broadcast | Implemented | neither renderer owns it |
+| Guest participation | Broadcast authorization and Renderer Host classification | existing boundary; detailed lifecycle planned | shared boundary |
+
+Guest renderers receive only session-scoped, renderer-safe projections. The
+existing Receiver token grants no owner controls, Ask DJ, likes or Profile
+access. A future VibeCast interaction adapter may submit only existing
+server-validated Session Commands after receiver-input feasibility is proven;
+rich Ask DJ, Discover, profiles, queue management and persistent controls stay
+personal or interactive-host concerns.
+
+No new Broadcast projection is necessary: current and future receiver work must
+reuse existing safe playback, DJMoment, Session Flow and Presentation
+projections. CMB-02 and CMB-03 depend on this distinction for profile and
+divergence validation; CMB-05/CMB-06 remain independent Pi profile assessments.
