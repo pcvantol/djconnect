@@ -4,6 +4,14 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
+PR [#523](https://github.com/pcvantol/djconnect/pull/523) merged as
+`373e65eb6a8126b96ab48a6ec3e7844e4dbffcc4` with
+`GO_RASPBERRY_PI_RENDERER_FAMILY_DOCUMENTED`. Its compact canonical reference
+summarizes the independent Pi 4-inch and Pi 10-inch native QML Renderer Host
+profiles without changing a capability, implementation, qualification item,
+roadmap or Execution Horizon. Its immutable history is
+`docs/history/prompts/2026-07-26-raspberry-pi-renderer-family-documentation.md`.
+
 PR [#521](https://github.com/pcvantol/djconnect/pull/521) merged as
 `3c981c28c5188484ae8d545a60f9c6d1216a45c2` with
 `GO_PI_10_INCH_PROFILE_PARTIALLY_QUALIFIED`. Pi 10-inch remains the independent
