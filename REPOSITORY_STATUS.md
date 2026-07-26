@@ -28,27 +28,32 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-PR [#484](https://github.com/pcvantol/djconnect/pull/484), **Standardize
-Finalization rolling horizon**, merged as
-`b8d488006114059ee243ce6e989960b8a4151a15`. It establishes the mandatory
-Finalization handoff order and canonical Rolling Horizon rules. No backlog
-priority, Universal Receiver, Runtime, Broadcast, Planner, CI or release/HACS
-asset behavior changed.
+PR [#493](https://github.com/pcvantol/djconnect/pull/493), **Finalize CMB-11
+Sharing refinement**, merged as
+`eb4410d23475fa243b697dc8000191cb5ed9cbca`. It reconciles CMB-11 assessment
+PR [#490](https://github.com/pcvantol/djconnect/pull/490),
+`52745205895518bf4ea7cea5930d49ef9dfc2947`, and Sharing Contract Refinement
+PR [#492](https://github.com/pcvantol/djconnect/pull/492),
+`8dd8348db3f4d13f246b336065caee6a7549b535`.
 
-Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`
-after this Finalization merges and deterministic cleanup completes.
+The resulting decision is `GO_SHARING_IMPLEMENTATION` for the single bounded
+slice **Track Insight (CAP-IN-01) → Apple Native Sharing**. Cross-repository
+Apple evidence is `djconnect-app` PR #50, merged as
+`d98d1428a09b93429b23784a190241ef49a4bc74`, decision
+`GO_CROSS_REPOSITORY_EVIDENCE_COMPLETE`. No Runtime, Broadcast, API or DJ
+Intelligence behavior is authorized or changed.
+
+Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`.
 
 ## Current roadmap handoff
 
-The repository remains in Phase 1 **DJ Intelligence Evolution**. The visible
-five-item tentative handoff projection is: (1) `CMB-11` one-producer/one-native
-Renderer Sharing Experience assessment; (2) `CMB-04` atomic Renderer Experience
-roadmap re-expression; (3) `CMB-08` Universal Receiver/VibeCast decomposition;
-(4) `HACS-CI-PR-REF-001` HACS PR-validation reliability classification; and
-(5) Client Connectivity & Resilience qualification. None authorizes
-implementation. Playback Observation Stage 2
-and Continue Stage 2 remain externally blocked by Playback Instance Identity,
-not recommended next work.
+The repository remains in Phase 1 **DJ Intelligence Evolution**. The current
+Execution Horizon begins with the authorized **Track Insight (CAP-IN-01) →
+Apple Native Sharing Implementation**, followed by `CMB-04`, `CMB-08`,
+`HACS-CI-PR-REF-001` and Client Connectivity & Resilience qualification in the
+canonical records. Playback Observation Stage 2 and Continue Stage 2 remain
+blocked by backend-owned Playback Instance Identity; deferred Audience,
+Lyrics and playback-observation work is excluded from the Horizon.
 
 ## Historical repository context
 

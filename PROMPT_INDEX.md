@@ -4,19 +4,27 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
-PR [#484](https://github.com/pcvantol/djconnect/pull/484), **Standardize
-Finalization rolling horizon**, merged as
-`b8d488006114059ee243ce6e989960b8a4151a15`. Its immutable history is
-`docs/history/prompts/2026-07-25-finalization-rolling-horizon-standardization.md`.
-The governance standard requires an objective five-item Rolling Horizon and
-separate Blocked and Deferred sections in every future Finalization management
-summary. This Finalization records rolling-state reconciliation.
+PR [#493](https://github.com/pcvantol/djconnect/pull/493), **Finalize CMB-11
+Sharing refinement**, merged as
+`eb4410d23475fa243b697dc8000191cb5ed9cbca`. It reconciles assessment PR
+[#490](https://github.com/pcvantol/djconnect/pull/490),
+`52745205895518bf4ea7cea5930d49ef9dfc2947`, and refinement PR
+[#492](https://github.com/pcvantol/djconnect/pull/492),
+`8dd8348db3f4d13f246b336065caee6a7549b535`. Its immutable Finalization prompt
+history is `docs/history/prompts/2026-07-26-cmb-11-sharing-refinement-finalization.md`.
+The subsequent rolling-record correction is immutably archived at
+`docs/history/prompts/2026-07-26-cmb-11-finalization-record-reconciliation.md`.
 
-The current roadmap handoff is Phase 1 **DJ Intelligence Evolution**. Its
-tentative next assessment candidates are `CMB-11`, `CMB-04`, `CMB-08`,
+The reconciled decision is `GO_SHARING_IMPLEMENTATION` for the sole bounded
+slice **Track Insight (CAP-IN-01) → Apple Native Sharing**. Apple evidence is
+`djconnect-app` PR #50, merged as `d98d1428a09b93429b23784a190241ef49a4bc74`,
+decision `GO_CROSS_REPOSITORY_EVIDENCE_COMPLETE`. No Runtime, Broadcast, API
+or DJ Intelligence change is authorized. The Execution Horizon next lists that
+authorized implementation, followed by `CMB-04`, `CMB-08`,
 `HACS-CI-PR-REF-001` and Client Connectivity & Resilience qualification.
-Playback Observation Stage 2 and Continue Stage 2 remain externally blocked by
-Playback Instance Identity.
+Playback Observation Stage 2 / Continue Stage 2 remains blocked by
+Playback Instance Identity; deferred Audience, Lyrics and playback-observation
+work remains outside the Horizon.
 
 `BOOTSTRAP.md` is the single canonical repository entry point for new ChatGPT
 Product & Platform Architect sessions. **Repository Sync + Developer Handoff**
@@ -24,8 +32,8 @@ uses that bootstrap to orient the session, synchronize and validate repository
 truth, consume the supplied management summary and apply the standard review
 cycle. It does not replace canonical assessment, authorization or
 implementation controls. Repository State is `MERGED_RECONCILED`; Workspace
-State is `WORKSPACE_READY` after this Finalization merges and deterministic
-cleanup completes.
+State is `WORKSPACE_READY` after Finalization reconciliation and deterministic
+cleanup completed.
 
 PR [#431](https://github.com/pcvantol/djconnect/pull/431), **Add Universal
 Receiver browser E2E**, merged as

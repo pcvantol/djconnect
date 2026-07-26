@@ -47,14 +47,20 @@ additional Concrete Hosts. VibeCast placement is an explicit Release Readiness
 Assessment decision: it remains Platform Adoption unless the assessment finds
 it Community-defining Runtime Readiness work.
 
-PR [#484](https://github.com/pcvantol/djconnect/pull/484), **Standardize
-Finalization rolling horizon**, merged as
-`b8d488006114059ee243ce6e989960b8a4151a15`. It establishes objective
-Finalization handoff reporting: the next five eligible planned items, current
-blocked items and consciously deferred items are separated. No backlog priority,
-product, Runtime, renderer, CI or release behavior changed.
-Repository State: `MERGED_RECONCILED`. Workspace State: `WORKSPACE_READY`
-after this Finalization merges and deterministic cleanup completes.
+PR [#493](https://github.com/pcvantol/djconnect/pull/493), **Finalize CMB-11
+Sharing refinement**, merged as
+`eb4410d23475fa243b697dc8000191cb5ed9cbca`. Its CI and HACS validation passed.
+It completes the CMB-11 chain: assessment PR [#490](https://github.com/pcvantol/djconnect/pull/490),
+`52745205895518bf4ea7cea5930d49ef9dfc2947`, and refinement PR
+[#492](https://github.com/pcvantol/djconnect/pull/492),
+`8dd8348db3f4d13f246b336065caee6a7549b535`.
+
+The final decision is `GO_SHARING_IMPLEMENTATION` for exactly **Track Insight
+(CAP-IN-01) → Apple Native Sharing**. `djconnect-app` PR #50, merged as
+`d98d1428a09b93429b23784a190241ef49a4bc74`, supplies the Apple native-share
+evidence and decision `GO_CROSS_REPOSITORY_EVIDENCE_COMPLETE`. The bounded
+authorization introduces no Runtime, Broadcast, API or DJ Intelligence change.
+Repository State: `MERGED_RECONCILED`. Workspace State: `WORKSPACE_READY`.
 
 ## Roadmap position and next backlog
 
@@ -63,25 +69,42 @@ Automated Session Intelligence E2E Verification remains the active supporting
 engineering execution. The E2E-only Read-only Developer Overlay is complete;
 it is not a shipping or follow-on implementation candidate.
 
-The tentative five-item follow-on projection is:
+### Rolling Horizon (Execution Horizon — Next 5 Planned)
 
-1. `CMB-11` — select and assess exactly one Sharing Experience producer and
-   one native Renderer Host, with explicit Profile privacy evidence; no Runtime,
-   Broadcast, public URL or social-service scope.
-2. `CMB-04` — atomically re-express the Renderer Experience roadmap before
-   renderer parity or delivery work.
-3. `CMB-08` — decompose Universal Receiver and VibeCast into separate
-   host/experience capability records.
-4. `HACS-CI-PR-REF-001` — classify HACS pull-request validation reliability
-   without workflow, action-pinning or gate changes.
-5. Client Connectivity & Resilience qualification — bounded external HTTP
-   resilience evidence after its Public Release Readiness Assessment dependency.
+1. **Track Insight (CAP-IN-01) → Apple Native Sharing Implementation** —
+   Source: CMB-11 refinement PR #492; Status: Authorized; Dependency: CMB-11
+   evidence and Apple PR #50 complete. Reason: the only Sharing implementation
+   approved by the reconciled contract.
+2. **CMB-04 — Re-express Renderer Experience roadmap atomically** — Source:
+   `CAPABILITY_MODEL_BACKLOG.md`; Status: Planned; Dependency: none recorded.
+   Reason: next canonical Renderer Experience planning record.
+3. **CMB-08 — Decompose Universal Receiver and VibeCast** — Source:
+   `CAPABILITY_MODEL_BACKLOG.md`; Status: Planned; Dependency: existing
+   Broadcast and receiver evidence. Reason: separates host and experience
+   records before platform-profile validation.
+4. **HACS-CI-PR-REF-001 — HACS pull-request validation reliability** — Source:
+   `PLATFORM_EVOLUTION_BACKLOG.md`; Status: Planned; Dependency: retained
+   alternating-validation evidence. Reason: preserves actionable assurance
+   evidence for the supporting verification increment.
+5. **Client Connectivity & Resilience qualification** — Source:
+   `PLATFORM_EVOLUTION_BACKLOG.md`; Status: Planned; Dependency: Public Release
+   Readiness Assessment. Reason: bounded external-HTTP qualification once its
+   direct dependency is met.
 
-Playback Observation Stage 2 and Continue Stage 2 remain deferred until a
-backend-owned Playback Instance Identity is available; they are a recorded
-external block, not one of the five recommended next items. This ordering does
-not start an implementation increment. Local stale branches:
-**0**; only synchronized `main` remains after cleanup.
+**Execution Priority Override:** PR #492 authorized the CMB-11 implementation
+before remaining planned Capability Model assessments after the Apple evidence
+was complete.
+
+### Blocked Items
+
+Playback Observation Stage 2 / Continue Stage 2 is blocked by backend-owned
+Playback Instance Identity; that capability is the deconditioner.
+
+### Deferred Items
+
+Audience Experience and Ambient Reactions, Lyrics Knowledge, and Playback
+Observation Stage 2 / Continue Stage 2 remain deferred and are excluded from
+the Execution Horizon. Local stale branches: **0**.
 
 ## Historical management context
 
