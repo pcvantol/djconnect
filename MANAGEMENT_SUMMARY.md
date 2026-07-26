@@ -15,6 +15,11 @@
 
 ## Current position
 
+PR [#498](https://github.com/pcvantol/djconnect/pull/498) merged as
+`60a2708e48eef92f035ab9d0991bd55c3d4aa7ed`. CMB-08 completes the existing
+Interactive Universal Receiver and Ambient VibeCast decomposition with
+`GO_UNIVERSAL_RECEIVER_DECOMPOSITION`; no implementation phase is required.
+
 PR [#495](https://github.com/pcvantol/djconnect/pull/495) merged as
 `2385bc7db2d574c5d9972bf30a10f980c3e8a49f`. CMB-04 re-expresses only the
 existing Renderer Experience roadmap as atomic owned capabilities; its decision

@@ -4,6 +4,9 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
+PR #498 merged as `60a2708e48eef92f035ab9d0991bd55c3d4aa7ed`. CMB-08 is
+complete with `GO_UNIVERSAL_RECEIVER_DECOMPOSITION` and authorizes no code.
+
 PR [#495](https://github.com/pcvantol/djconnect/pull/495) merged as
 `2385bc7db2d574c5d9972bf30a10f980c3e8a49f`. CMB-04 is complete as a
 roadmap-only assessment with `GO_RENDERER_ROADMAP_REEXPRESSION`; it authorizes

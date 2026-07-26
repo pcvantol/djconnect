@@ -5,6 +5,11 @@
 
 ## Current engineering increment
 
+PR [#498](https://github.com/pcvantol/djconnect/pull/498), **Assess CMB-08
+Universal Receiver and VibeCast**, merged as
+`60a2708e48eef92f035ab9d0991bd55c3d4aa7ed`. It records
+`GO_UNIVERSAL_RECEIVER_DECOMPOSITION`; no implementation is authorized.
+
 PR [#495](https://github.com/pcvantol/djconnect/pull/495), **Assess CMB-04
 Renderer Experience roadmap**, merged as
 `2385bc7db2d574c5d9972bf30a10f980c3e8a49f`. It records

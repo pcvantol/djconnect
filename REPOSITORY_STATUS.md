@@ -28,6 +28,9 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
+PR #498 merged as `60a2708e48eef92f035ab9d0991bd55c3d4aa7ed`. CMB-08 is
+assessment-only and requires no implementation phase.
+
 PR [#495](https://github.com/pcvantol/djconnect/pull/495) merged as
 `2385bc7db2d574c5d9972bf30a10f980c3e8a49f`. CMB-04 is assessment-only and
 has no implementation phase; its atomic renderer roadmap is
