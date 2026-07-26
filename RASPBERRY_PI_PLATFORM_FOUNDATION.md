@@ -159,3 +159,10 @@ authorization:
 - Universal Receiver is independent of the Pi Platform Family.
 - Native QML remains the canonical Pi implementation.
 - Pi 4-inch and Pi 10-inch remain independently assessable Concrete Hosts.
+
+The CMB-05 assessment is recorded in
+`docs/product/PI_4_INCH_CAPABILITY_PROFILE_ASSESSMENT.md`. Its partial
+qualification preserves this foundation: the Pi 4-inch remains a compact,
+shared native appliance with intentional rich-surface absences, while only
+target-hardware compact-projection and shared-profile visibility evidence
+remain for future assessment.
