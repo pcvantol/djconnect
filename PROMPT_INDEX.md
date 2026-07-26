@@ -4,6 +4,14 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
+PR [#519](https://github.com/pcvantol/djconnect/pull/519) merged as
+`57d334ee867f31e4db2796268047b7ab7a333d54` with
+`GO_PI_4_INCH_PROFILE_PARTIALLY_QUALIFIED`. Pi 4-inch remains the compact
+shared native appliance; target-hardware compact-projection and shared-profile
+visibility evidence remain Future Assessment only. It authorizes no Pi code,
+Runtime, Renderer, API or Execution Horizon change. Its immutable history is
+`docs/history/prompts/2026-07-26-cmb-05-pi-4-inch-capability-profile-assessment.md`.
+
 PR [#517](https://github.com/pcvantol/djconnect/pull/517) merged as
 `227a24e628e2631ea510839f73538508bc008777` with
 `GO_QUALIFICATION_REGISTER_INTRODUCED`. `QUALIFICATION_REGISTER.md` centrally
@@ -105,9 +113,9 @@ slice **Track Insight (CAP-IN-01) → Apple Native Sharing**. Apple evidence is
 `djconnect-app` PR #50, merged as `d98d1428a09b93429b23784a190241ef49a4bc74`,
 decision `GO_CROSS_REPOSITORY_EVIDENCE_COMPLETE`. No Runtime, Broadcast, API
 or DJ Intelligence change is authorized. After the completed Apple Sharing,
-CMB-04, CMB-08, HACS-CI-PR-REF-001 and Client Connectivity & Resilience
-qualification lifecycles, the Execution Horizon begins with CMB-05, followed
-by CMB-06, CMB-07, CMB-09 and CMB-12. Playback Observation Stage 2 / Continue
+CMB-04, CMB-08, HACS-CI-PR-REF-001, Client Connectivity & Resilience and
+CMB-05 lifecycles, the Execution Horizon begins with CMB-06, followed by
+CMB-07, CMB-09, CMB-12 and CMB-02. Playback Observation Stage 2 / Continue
 Stage 2 remains blocked by Playback Instance Identity; only Audience and Lyrics
 work remains deferred outside the Horizon.
 

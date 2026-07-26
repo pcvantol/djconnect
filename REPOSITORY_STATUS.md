@@ -28,6 +28,12 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
+PR [#519](https://github.com/pcvantol/djconnect/pull/519) merged as
+`57d334ee867f31e4db2796268047b7ab7a333d54`. It records
+`GO_PI_4_INCH_PROFILE_PARTIALLY_QUALIFIED`: the Pi 4-inch compact shared native
+appliance profile is qualified apart from target-hardware compact-projection
+and shared-profile visibility evidence. No production change is authorized.
+
 PR [#517](https://github.com/pcvantol/djconnect/pull/517) merged as
 `227a24e628e2631ea510839f73538508bc008777`. It records
 `GO_QUALIFICATION_REGISTER_INTRODUCED`: `QUALIFICATION_REGISTER.md` is the
@@ -123,8 +129,8 @@ Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`.
 ## Current roadmap handoff
 
 The repository remains in Phase 1 **DJ Intelligence Evolution**. The current
-Execution Horizon begins with CMB-05, followed by CMB-06, CMB-07, CMB-09 and
-CMB-12 in the canonical records. CMB-12 Native Surface Integration remains
+Execution Horizon begins with CMB-06, followed by CMB-07, CMB-09, CMB-12 and
+CMB-02 in the canonical records. CMB-12 Native Surface Integration remains
 dependency-gated after CMB-05/CMB-06/CMB-07. Playback
 Observation Stage 2 and Continue Stage 2 remain blocked by
 backend-owned Playback Instance Identity; deferred Audience and Lyrics work is
