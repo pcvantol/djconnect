@@ -98,6 +98,13 @@ Finalization checks:
 - the merged implementation entered `MERGED_UNRECONCILED`
 - synchronized current main and status records verified
 - repository clean
+- **Finalization pre-push consistency check:** before a Finalization push,
+  derive all four rolling records from the same
+  merged-predecessor and canonical-backlog evidence; confirm canonical Markdown
+  PR link, exact merge commit and an Execution Horizon that excludes the
+  completed predecessor everywhere it is rendered
+- run `python3 -m unittest tests.test_capability_completion_lifecycle` and
+  `git diff --check`; a failure blocks review until records are reconciled
 
 Finalization:
 - after the implementation merge, create one governance-only Finalization increment
