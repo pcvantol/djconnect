@@ -5,6 +5,13 @@
 
 ## Current engineering increment
 
+PR [#529](https://github.com/pcvantol/djconnect/pull/529), **Assess CMB-12
+Apple Native Surfaces**, merged as `5d4642316ea26ff8418441f9c35a866787dd3c4e`.
+It records `GO_CMB12_APPLE_NATIVE_SURFACES_PARTIALLY_QUALIFIED`: the Apple
+Renderer Host has existing Session, Information and navigation surfaces, while
+active-Session projection and lifecycle-invocation qualification remain Future
+Assessment items. It authorizes no Apple, Runtime, API or product change.
+
 PR [#527](https://github.com/pcvantol/djconnect/pull/527), **Assess CMB-09
 Voice Host and appliance**, merged as `38310726e4c3da89f4aac78ff29ec76d7eeaebd1`.
 It records `GO_CMB09_VOICE_HOST_PROFILE_QUALIFIED`: the Home Assistant Voice
@@ -159,35 +166,34 @@ execution; it is not a replacement Product Initiative.
 
 #### Rolling Horizon (Execution Horizon — Next 5 Planned)
 
-1. **CMB-12 — Assess Apple Native Surface capabilities** — Source:
-   `CAPABILITY_MODEL_BACKLOG.md`; Status: Planned; Dependency:
-   CMB-05/CMB-06/CMB-07 and the existing Apple Renderer Host surface inventory.
-   Rationale: bounded inventory after the required platform-profile evidence.
-2. **CMB-02 — Validate platform capability profiles** — Source:
+1. **CMB-02 — Validate platform capability profiles** — Source:
    `CAPABILITY_MODEL_BACKLOG.md`; Status: Planned; Dependency: current contract
    and host capability inventory. Rationale: validates the profile evidence
    after the concrete-host assessments.
-3. **CMB-03 — Decide registered platform-only divergences** — Source:
+2. **CMB-03 — Decide registered platform-only divergences** — Source:
    `CAPABILITY_MODEL_BACKLOG.md`; Status: Planned; Dependency: divergence
    register and owner evidence. Rationale: records retained platform-specific
    differences after the applicable profile evidence.
-4. **CMB-01 — Adopt Capability Model assessment in future pre-flights** —
+3. **CMB-01 — Adopt Capability Model assessment in future pre-flights** —
    Source: `CAPABILITY_MODEL_BACKLOG.md`; Status: Planned; Dependency: sample
    pre-flight against one existing capability. Rationale: closes the remaining
    bounded capability-model governance assessment after the current explicit
    renderer-profile sequence.
-5. **Capability-profile assessment follow-up** — Source:
+4. **Capability-profile assessment follow-up** — Source:
    `PLATFORM_EVOLUTION_BACKLOG.md`; Status: Planned; Dependency: the current
    contract and objective outstanding host-profile evidence. Rationale:
    provides the canonical assessment-first path for the retained CMB-05,
    CMB-06 and CMB-07 qualification items without authorizing implementation.
+5. **Component Release Mode** — Source: `PLATFORM_EVOLUTION_BACKLOG.md`;
+   Status: Planned; Dependency: release evidence and current manifest model.
+   Rationale: next canonical Platform Evolution item after the retained
+   capability-profile follow-up.
 
 #### Execution Priority Override
 
-CMB-12 through CMB-03 remain ahead of CMB-01 because the pre-existing canonical
-Execution Horizon explicitly sequenced the renderer-profile evidence first.
-CMB-01 now follows those eligible profile and divergence assessments; no priority or
-backlog order is changed.
+CMB-02 and CMB-03 remain ahead of CMB-01 because the pre-existing canonical
+Execution Horizon explicitly sequenced profile and divergence evidence first.
+CMB-12 is completed and removed; no backlog order is changed.
 
 #### Blocked Items
 
