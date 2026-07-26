@@ -4,6 +4,15 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
+PR [#505](https://github.com/pcvantol/djconnect/pull/505) merged as
+`416314f0df33cf6008b188dd688b0883b04a2eda`. `HA-ONBOARDING-001` is registered
+with `GO_HA_ONBOARDING_EXPERIENCE_ROADMAP_REGISTERED` as a future Home
+Assistant installation-to-first-DJ-Session assessment. It remains outside the
+current Execution Horizon until connectivity and host-profile dependencies are
+available, and authorizes no assessment or implementation. Its immutable
+registration history is
+`docs/history/prompts/2026-07-26-ha-onboarding-configuration-experience-roadmap.md`.
+
 PR [#503](https://github.com/pcvantol/djconnect/pull/503) merged as
 `63b57964698c6a03eddd5091cf5453a4f7fbe0e1`. Native Surface Integration is
 registered with `GO_NATIVE_SURFACE_ROADMAP_REGISTERED` as a future Renderer

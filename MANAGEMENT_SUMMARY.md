@@ -15,6 +15,15 @@
 
 ## Current position
 
+PR [#505](https://github.com/pcvantol/djconnect/pull/505) merged as
+`416314f0df33cf6008b188dd688b0883b04a2eda`. It registers
+`GO_HA_ONBOARDING_EXPERIENCE_ROADMAP_REGISTERED`: `HA-ONBOARDING-001` is the
+future Home Assistant installation-to-first-DJ-Session assessment. Product
+Development owns the experience; the integration owns any later delivery and
+Platform Evolution contributes only evidence. It remains dependency-gated and
+outside the Execution Horizon, with no Config/Options, Profile, pairing, OAuth,
+Assist, Runtime, API or product implementation authorized.
+
 PR [#503](https://github.com/pcvantol/djconnect/pull/503) merged as
 `63b57964698c6a03eddd5091cf5453a4f7fbe0e1`. It registers
 `GO_NATIVE_SURFACE_ROADMAP_REGISTERED`: Native Surface Integration is a future
