@@ -88,6 +88,7 @@ their established scope; this roadmap does not authorize their implementation.
 | Technical Design | Session Direction Projection | Planned | `docs/technical/SESSION_DIRECTION_PROJECTION_ARCHITECTURE.md`; dedicated Broadcast and renderer assessment before implementation |
 | Technical Design | Sharing Experience | Planned | `docs/product/SHARING_EXPERIENCE_ARCHITECTURE.md`; user-initiated native Renderer Host assessment before any share implementation |
 | 3 | Apple Premium Experience | Planned | Reference Experience, experience quality, polish, onboarding and release readiness for macOS, iPhone/iPad and Apple Watch |
+| 3 | Apple Watch Moment-First Conversational Companion | Planned | Apple Premium Experience; CMB-07 Apple/Windows evidence; existing Watch companion evidence; active Session, privacy/device authorization and renderer-safe projection assessment |
 | 4 | Public Release Readiness Assessment | Planned | Phase 3 evidence; it determines minimum public-release scope without authorizing features |
 | 4 | Client Connectivity & Resilience qualification | Planned | endpoint, offline/cache and external HTTP qualification policy; no implementation authorization |
 | 4 | HA Integration Onboarding & Configuration Experience Assessment (`HA-ONBOARDING-001`) | Planned | Client Connectivity & Resilience qualification; CMB-05/CMB-06/CMB-07/CMB-09 host-profile evidence; Profile, pairing and authorization architecture; Public Release Readiness context |
@@ -274,6 +275,120 @@ macOS, iPhone/iPad and Apple Watch are independently assessable Concrete Hosts.
 This phase covers release polish, onboarding, release readiness and Experience
 Qualification. It does not presume capability parity or add implementation
 technology policy.
+
+### Apple Watch Moment-First Conversational Companion
+
+**Status:** Planned, assessment-first Product Development experience within
+Apple Premium Experience. It is outside the current Execution Horizon and
+authorizes no assessment, design finalization, watchOS/iPhone code, Runtime,
+Planner, Knowledge, DJMoment, Broadcast, API, APNs, Profile or playback change.
+No separate CMB identifier is introduced: this is a Phase 3 Apple Premium
+Experience record, not a Platform Evolution capability-profile assessment.
+
+**Product position:** Apple Watch is a moment-first, conversation-first
+Concrete Renderer Host: a direct companion, compact DJMoment renderer,
+micro-interaction surface and quick route to an active DJ Session. It is not a
+Runtime or Session owner, Music Backend, configuration/Profile host, remote
+control, Now Playing clone, playlist/queue editor, Session archive, full Ask
+DJ chat client or miniature iPhone application.
+
+During an active Session, the primary view is **Current DJMoment**. A later
+experience assessment may qualify a bounded, renderer-safe active-Session card
+stack through Digital Crown navigation and a separate compact Session
+Projection:
+
+```text
+Current DJMoment <-> bounded active Session Flow cards
+Current DJMoment <-> compact Session Projection
+prominent action    -> Ask DJ Push to Talk
+```
+
+The stack is limited to a small, useful selection from the current active
+Session; it is not Session History, an event log, unbounded scrolling or a
+guarantee that every Flow record receives a Watch card. The assessment must
+decide eligible Moment types, currentness, expiry/removal and the treatment of
+Silence or technical records. The compact Session Projection may later use
+renderer-safe current track, artist, artwork, playback state, Session Direction
+and relevant Session Mood, with only a few explicit actions. Session Direction
+is preferred context over queue detail. It is not a queue, playlist browser,
+full iPhone Now Playing surface or future-track projection.
+
+Without an active Session, **Ask DJ Push to Talk** is the sole primary
+experience; no empty Flow, disabled Moment card, Now Playing view, history,
+configuration or generic dashboard is shown. The future assessment decides
+safe unavailable/unconfigured state copy. PTT remains a bounded request through
+the existing Home Assistant STT and Ask DJ path, with an optional configured
+speaker/authorized output and one compact current response projection. The
+Watch has no local DJ Intelligence or presumed STT engine, retains no full Ask
+DJ history and never starts a Session except through an already authorized Ask
+DJ or Session Start Request contract. Input method, cancellation, timeout,
+errors/retry, output selection, Watch-audio fallback, response length and
+iPhone handoff remain assessment questions.
+
+Apple Watch may later be a strong native Renderer Host for separately owned
+Interactive DJMoments, such as Quiz, Poll, Prediction, Guess, Challenge or
+Vote Moments. One-tap choices, haptics, bounded animation/confetti and explicit
+follow-up actions are local presentation only; Planner, Knowledge and DJMoment
+Engine retain content and intent ownership. It may also later render a small,
+contextual set of **Audience Expressions** for a DJMoment. A user selection
+must be sent as a stable semantic expression identifier, never a raw emoji;
+emoji is merely Watch presentation. Audience Signals, any Performance Memory
+effect and Planner influence remain separately deferred and require their own
+ownership/privacy assessment. This is not a general like/dislike model.
+
+**Lyric Moment** is a possible Watch-specific micro presentation only: one
+meaningful lyric fragment with short DJ context, never a full-song lyric,
+karaoke, synchronized/scrolled viewer or substitute for a music-provider lyric
+surface. Any future Lyric Moment remains behind deferred Lyrics Knowledge and
+must separately qualify rights, licensed source/fragment scope, interpretation,
+timing and renderer-safe projection. This record does not promote Lyrics
+Knowledge or authorize lyric delivery.
+
+Existing renderer-safe DJMoment actions may later appear only as explicit
+user-initiated controls (for example Play Now, Play Next, Open Album, Open
+Artist or Continue on iPhone) through existing command routes. The Music
+Backend retains playback; a Moment never executes a command autonomously, and
+no provider object, credential, queue or backend identity is projected.
+
+Session Continuation remains an independent capability. Apple Watch can later
+be a presentation surface for a valid continuation invitation, but it does not
+own an Opportunity or Policy. The default future posture is iPhone-targeted
+APNs with platform mirroring where available, not an architectural requirement
+for a separate Watch push channel. Opening must fetch/revalidate current
+authorized Session content and never show stale material. WatchConnectivity may
+be a transport or optimization; Home Assistant Runtime, not iPhone-local state,
+remains canonical.
+
+All Watch presentation remains renderer-safe: never Music DNA, Ask DJ history,
+Profile-management data, credentials/tokens, internal Runtime identities, full
+queue, sensitive notification content or shared-profile content without valid
+device/Profile authorization. Lockscreen and notification content remain
+content-neutral under Session Continuation privacy principles.
+
+A future **Apple Watch Moment-First Companion Experience Assessment** may
+inventory current watchOS evidence and gaps; define Current DJMoment, bounded
+Flow cards/Crown navigation and compact Session Projection; qualify PTT/current
+answer and active/no-active-Session states; examine Interactive DJMoment,
+Audience Expression, Lyric Moment and explicit-action presentation;
+continuation opening/revalidation and iPhone/Watch invalidation; accessibility,
+battery, latency/network constraints and privacy. The current Watch companion
+implementation is evidence for that assessment, not approval of its present UI
+as this target experience.
+
+Possible separately authorized delivery candidates include Current DJMoment
+projection; bounded Flow cards; Crown navigation; compact Session Projection;
+PTT capture/current answer; Ask-DJ-only inactive state; one Interactive Moment
+renderer; contextual expression renderer; Lyric Moment renderer; explicit
+action projection; continuation-open/revalidation; state invalidation; and
+experience/accessibility qualification. Each remains separately assessed,
+authorized and bounded, without a parity requirement.
+
+This work follows CMB-07 evidence without requiring Apple/Windows parity, is
+related but not owned by CMB-12 Native Surface Integration, and remains
+independent of Interactive DJMoments, Session Continuation, Audience Experience
+and deferred Lyrics Knowledge. Public Release Readiness later determines any
+release-critical Watch scope. It must not begin before relevant Apple/host
+profile evidence unless the canonical roadmap explicitly changes.
 
 ### Phase 4 — Public Release Readiness Assessment
 

@@ -25,6 +25,7 @@ Every Renderer Host consumes only authorized renderer-safe projections.
 | VibeCast ambient experience | VibeCast Renderer Host | Planned | separate Guest + Ambient experience; Custom Web Receiver feasibility precedes implementation. |
 | Pi 4-inch compact appliance profile | Pi Concrete Host | Planned assessment | bounded playback and Current DJMoment; intentional rich-surface absences. |
 | Pi 10-inch wall appliance profile | Pi Concrete Host | Planned assessment | adds Session Flow / Presentation projection; independent from Pi 4-inch. |
+| Apple Watch Moment-First Conversational Companion | Apple Renderer Host / Product Development | Planned assessment | Phase 3 Apple Premium Experience; Current DJMoment, bounded active Session Flow, compact Session projection and Ask DJ PTT are future renderer-safe experience candidates, not Watch parity or implementation authorization. |
 | Voice / notification presentation | Voice Interaction and constrained-device hosts | Implemented bounded | HA owns response intelligence; hosts provide short spoken/control projection only. |
 | Future Renderer Hosts | selected Host Role / Concrete Host | Assessment-only | capability profile and privacy evidence required before any implementation. |
 
