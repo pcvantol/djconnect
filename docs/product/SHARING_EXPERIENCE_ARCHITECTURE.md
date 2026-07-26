@@ -143,3 +143,23 @@ Existing renderer-safe Track Insight information can be reused, but it is not
 itself a Share Projection. The missing Apple-native share capability inventory
 and explicit local privacy/selection evidence prevent authorizing an
 implementation or a new projection contract.
+
+## CMB-11 continuation: Apple local boundary
+
+**Decision:** `NO_GO_INSUFFICIENT_EVIDENCE`
+
+Track Insight selects only its existing renderer-safe result; the Sharing
+Contract freezes the bounded payload; the Apple Native Renderer performs local
+payload qualification, formatting and Share Sheet invocation; the end user
+explicitly selects the share action and Apple Share Sheet destination.
+
+Before opening the Share Sheet, Apple must accept only renderer-safe contract
+fields and reject internal metadata, Music DNA, Profile, Performance Memory,
+Planner/Runtime context, provider payloads, Ask DJ history, credentials and
+tokens. This is a local qualification boundary, not a server policy,
+Broadcast or API contract.
+
+No Apple Native Share Sheet code or Apple capability inventory exists in this
+repository. Rich Track Insight rendering alone cannot prove Share Sheet
+invocation, selection UX or this qualification boundary. The required
+Apple-native evidence is absent; no Sharing implementation is authorized.
