@@ -28,6 +28,13 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
+PR [#525](https://github.com/pcvantol/djconnect/pull/525) merged as
+`310edd23c217bc115d24b7895211abaa830eadde`. It records
+`GO_CMB07_APPLE_WINDOWS_CONVERGENCE_PARTIALLY_QUALIFIED`: the shared personal
+renderer contract is qualified, platform-native surfaces are non-parity work,
+and only the active-Session projection disposition remains Future Assessment.
+No Runtime, Apple, Windows or API implementation is authorized.
+
 PR [#523](https://github.com/pcvantol/djconnect/pull/523) merged as
 `373e65eb6a8126b96ab48a6ec3e7844e4dbffcc4`. It records
 `GO_RASPBERRY_PI_RENDERER_FAMILY_DOCUMENTED`: a compact reference now
@@ -142,9 +149,9 @@ Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`.
 ## Current roadmap handoff
 
 The repository remains in Phase 1 **DJ Intelligence Evolution**. The current
-Execution Horizon begins with CMB-07, followed by CMB-09, CMB-12, CMB-02 and
-CMB-03 in the canonical records. CMB-12 Native Surface Integration remains
-dependency-gated after CMB-05/CMB-06/CMB-07. Playback
+Execution Horizon begins with CMB-09, followed by CMB-12, CMB-02, CMB-03 and
+CMB-01 in the canonical records. CMB-12 Native Surface Integration is now
+eligible after CMB-05/CMB-06/CMB-07. Playback
 Observation Stage 2 and Continue Stage 2 remain blocked by
 backend-owned Playback Instance Identity; deferred Audience and Lyrics work is
 excluded from the Horizon.
