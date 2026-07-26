@@ -5,6 +5,14 @@
 
 ## Current engineering increment
 
+PR [#527](https://github.com/pcvantol/djconnect/pull/527), **Assess CMB-09
+Voice Host and appliance**, merged as `38310726e4c3da89f4aac78ff29ec76d7eeaebd1`.
+It records `GO_CMB09_VOICE_HOST_PROFILE_QUALIFIED`: the Home Assistant Voice
+Interaction Host is a platform-owned Conversation/Audio Interaction Host; the
+LilyGO T-Embed CC1101 is the distinct DJConnect-owned native appliance with
+bounded PTT, controls, display and lifecycle. Neither owns Session, Profile,
+Music DNA, Ask DJ history, Planner, Knowledge or Music Backend state.
+
 PR [#525](https://github.com/pcvantol/djconnect/pull/525), **Assess
 Apple–Windows atomic convergence**, merged as
 `310edd23c217bc115d24b7895211abaa830eadde`. It records
@@ -151,33 +159,34 @@ execution; it is not a replacement Product Initiative.
 
 #### Rolling Horizon (Execution Horizon — Next 5 Planned)
 
-1. **CMB-09 — Assess Voice Interaction Host and constrained ESP32 profiles** —
-   Source: `CAPABILITY_MODEL_BACKLOG.md`; Status: Planned; Dependency: HA Voice,
-    Session Start Request and ESP32 contract evidence. Rationale: records
-    role-profile decisions without Session ownership or host coordination.
-2. **CMB-12 — Assess Apple Native Surface capabilities** — Source:
+1. **CMB-12 — Assess Apple Native Surface capabilities** — Source:
    `CAPABILITY_MODEL_BACKLOG.md`; Status: Planned; Dependency:
    CMB-05/CMB-06/CMB-07 and the existing Apple Renderer Host surface inventory.
    Rationale: bounded inventory after the required platform-profile evidence.
-3. **CMB-02 — Validate platform capability profiles** — Source:
+2. **CMB-02 — Validate platform capability profiles** — Source:
    `CAPABILITY_MODEL_BACKLOG.md`; Status: Planned; Dependency: current contract
    and host capability inventory. Rationale: validates the profile evidence
    after the concrete-host assessments.
-4. **CMB-03 — Decide registered platform-only divergences** — Source:
+3. **CMB-03 — Decide registered platform-only divergences** — Source:
    `CAPABILITY_MODEL_BACKLOG.md`; Status: Planned; Dependency: divergence
    register and owner evidence. Rationale: records retained platform-specific
    differences after the applicable profile evidence.
-5. **CMB-01 — Adopt Capability Model assessment in future pre-flights** —
+4. **CMB-01 — Adopt Capability Model assessment in future pre-flights** —
    Source: `CAPABILITY_MODEL_BACKLOG.md`; Status: Planned; Dependency: sample
    pre-flight against one existing capability. Rationale: closes the remaining
    bounded capability-model governance assessment after the current explicit
    renderer-profile sequence.
+5. **Capability-profile assessment follow-up** — Source:
+   `PLATFORM_EVOLUTION_BACKLOG.md`; Status: Planned; Dependency: the current
+   contract and objective outstanding host-profile evidence. Rationale:
+   provides the canonical assessment-first path for the retained CMB-05,
+   CMB-06 and CMB-07 qualification items without authorizing implementation.
 
 #### Execution Priority Override
 
-CMB-09 through CMB-03 remain ahead of CMB-01 because the pre-existing canonical
+CMB-12 through CMB-03 remain ahead of CMB-01 because the pre-existing canonical
 Execution Horizon explicitly sequenced the renderer-profile evidence first.
-CMB-01 now enters as the next eligible fifth planned item; no priority or
+CMB-01 now follows those eligible profile and divergence assessments; no priority or
 backlog order is changed.
 
 #### Blocked Items

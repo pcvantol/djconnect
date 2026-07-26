@@ -28,6 +28,14 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
+PR [#527](https://github.com/pcvantol/djconnect/pull/527) merged as
+`38310726e4c3da89f4aac78ff29ec76d7eeaebd1`. It records
+`GO_CMB09_VOICE_HOST_PROFILE_QUALIFIED`: Home Assistant Voice Interaction
+Hosts are platform-owned Conversation/Audio Interaction Hosts, while the
+LilyGO T-Embed CC1101 is the separate DJConnect-owned native appliance. Their
+hardware/lifecycle differences are intentional; neither route gains local
+Session, Profile, Music DNA, Ask DJ history or intelligence ownership.
+
 PR [#525](https://github.com/pcvantol/djconnect/pull/525) merged as
 `310edd23c217bc115d24b7895211abaa830eadde`. It records
 `GO_CMB07_APPLE_WINDOWS_CONVERGENCE_PARTIALLY_QUALIFIED`: the shared personal
@@ -149,8 +157,9 @@ Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`.
 ## Current roadmap handoff
 
 The repository remains in Phase 1 **DJ Intelligence Evolution**. The current
-Execution Horizon begins with CMB-09, followed by CMB-12, CMB-02, CMB-03 and
-CMB-01 in the canonical records. CMB-12 Native Surface Integration is now
+Execution Horizon begins with CMB-12, followed by CMB-02, CMB-03 and CMB-01;
+the fifth planned item is the canonical Capability-profile assessment follow-up
+from `PLATFORM_EVOLUTION_BACKLOG.md`. CMB-12 Native Surface Integration is now
 eligible after CMB-05/CMB-06/CMB-07. Playback
 Observation Stage 2 and Continue Stage 2 remain blocked by
 backend-owned Playback Instance Identity; deferred Audience and Lyrics work is
