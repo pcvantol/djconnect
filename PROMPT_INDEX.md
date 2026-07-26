@@ -4,6 +4,11 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
+PR [#495](https://github.com/pcvantol/djconnect/pull/495) merged as
+`2385bc7db2d574c5d9972bf30a10f980c3e8a49f`. CMB-04 is complete as a
+roadmap-only assessment with `GO_RENDERER_ROADMAP_REEXPRESSION`; it authorizes
+no implementation. CMB-08 remains the next renderer assessment candidate.
+
 PR [#493](https://github.com/pcvantol/djconnect/pull/493), **Finalize CMB-11
 Sharing refinement**, merged as
 `eb4410d23475fa243b697dc8000191cb5ed9cbca`. It reconciles assessment PR

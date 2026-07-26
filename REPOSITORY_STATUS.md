@@ -28,6 +28,11 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
+PR [#495](https://github.com/pcvantol/djconnect/pull/495) merged as
+`2385bc7db2d574c5d9972bf30a10f980c3e8a49f`. CMB-04 is assessment-only and
+has no implementation phase; its atomic renderer roadmap is
+`docs/product/RENDERER_EXPERIENCE_ROADMAP.md`.
+
 PR [#493](https://github.com/pcvantol/djconnect/pull/493), **Finalize CMB-11
 Sharing refinement**, merged as
 `eb4410d23475fa243b697dc8000191cb5ed9cbca`. It reconciles CMB-11 assessment

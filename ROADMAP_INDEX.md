@@ -4,6 +4,9 @@
 
 Use this index to find the one canonical record for current work.
 
+CMB-04 is complete as the atomic Renderer Experience roadmap assessment;
+`docs/product/RENDERER_EXPERIENCE_ROADMAP.md` is its planning projection.
+
 | Need | Canonical document | Owner |
 | --- | --- | --- |
 | Long-term engineering intent | `PLATFORM_STRATEGY.md` | Platform strategy |

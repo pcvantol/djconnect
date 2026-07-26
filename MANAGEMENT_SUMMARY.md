@@ -15,6 +15,11 @@
 
 ## Current position
 
+PR [#495](https://github.com/pcvantol/djconnect/pull/495) merged as
+`2385bc7db2d574c5d9972bf30a10f980c3e8a49f`. CMB-04 re-expresses only the
+existing Renderer Experience roadmap as atomic owned capabilities; its decision
+is `GO_RENDERER_ROADMAP_REEXPRESSION`. No implementation phase is required.
+
 Repository Bootstrap for AI Collaboration is the current governance increment.
 `BOOTSTRAP.md` is now the explicit single entry point for new ChatGPT Product &
 Platform Architect sessions, invoking the Developer Handoff and existing
