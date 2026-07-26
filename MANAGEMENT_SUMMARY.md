@@ -15,6 +15,13 @@
 
 ## Current position
 
+PR [#507](https://github.com/pcvantol/djconnect/pull/507) merged as
+`29808f22ceace6e2b681019005d1cfc2d364b792`. It registers
+`GO_INTERACTIVE_DJMOMENTS_REGISTERED`: Interactive DJMoments remain ordinary
+future DJMoments on the existing Knowledge, Planner, DJMoment, renderer and
+command/Ask DJ path. The family is assessment-first, outside the Execution
+Horizon and authorizes no implementation or ownership change.
+
 PR [#505](https://github.com/pcvantol/djconnect/pull/505) merged as
 `416314f0df33cf6008b188dd688b0883b04a2eda`. It registers
 `GO_HA_ONBOARDING_EXPERIENCE_ROADMAP_REGISTERED`: `HA-ONBOARDING-001` is the
