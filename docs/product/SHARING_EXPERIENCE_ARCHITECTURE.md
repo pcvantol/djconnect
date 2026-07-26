@@ -119,3 +119,27 @@ The remaining gap is not a new Runtime or Broadcast contract. A separately
 authorized refinement must select exactly one existing producer and one native
 Renderer Host, confirm its local capability inventory and Profile privacy
 evidence, then decide whether a bounded Share Projection contract is necessary.
+
+## CMB-11 contract refinement
+
+**Decision:** `GO_ADDITIONAL_REFINEMENT_REQUIRED`
+
+The single reference producer is **Track Insight** (`CAP-IN-01`): it is already
+implemented, renderer-safe and exposes selected track facts plus an existing
+safe artwork reference without requiring a live Session, Planner context or
+personal Discover result. The single reference Native Share Renderer is
+**Apple**: repository evidence identifies it as a rich Track Insight renderer;
+Windows, Pi, Browser and future hosts are outside this refinement.
+
+The minimal future contract remains immutable and producer-neutral: bounded
+title/body, optional renderer-safe image reference and bounded non-secret
+metadata. Track Insight owns the safe source result; the Share Contract owns
+the immutable projection; the Apple Native Renderer owns local formatting and
+the Platform Share API invocation. DJ Intelligence does not invoke platform
+sharing. Music DNA, Profile, Performance Memory, Runtime/Planner context,
+provider payloads/credentials and Ask DJ history are never payload fields.
+
+Existing renderer-safe Track Insight information can be reused, but it is not
+itself a Share Projection. The missing Apple-native share capability inventory
+and explicit local privacy/selection evidence prevent authorizing an
+implementation or a new projection contract.
