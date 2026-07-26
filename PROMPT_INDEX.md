@@ -4,6 +4,15 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
+PR [#515](https://github.com/pcvantol/djconnect/pull/515) merged as
+`cc672895bfdd6100868c7cb7988c608d8e347972` with
+`GO_CLIENT_CONNECTIVITY_PARTIALLY_QUALIFIED`. Existing ownership, HTTP
+fallback, Broadcast recovery and token/privacy boundaries are qualified;
+bounded external HTTPS and resilience observation remains Public Release
+Readiness evidence. It authorizes no Runtime, Renderer, API, transport,
+pairing, onboarding or client implementation. Its immutable assessment history
+is `docs/history/prompts/2026-07-26-client-connectivity-resilience-qualification.md`.
+
 PR [#513](https://github.com/pcvantol/djconnect/pull/513) merged as
 `1f3e56181944cf818b3f20cd44cea5b81fe0c218`. Product & Community Readiness is
 registered with `GO_PRODUCT_AND_COMMUNITY_READINESS_REGISTERED` as a future
@@ -50,8 +59,8 @@ PR [#503](https://github.com/pcvantol/djconnect/pull/503) merged as
 `63b57964698c6a03eddd5091cf5453a4f7fbe0e1`. Native Surface Integration is
 registered with `GO_NATIVE_SURFACE_ROADMAP_REGISTERED` as a future Renderer
 Host capability family only. Its CMB-12 Apple-first capability inventory follows
-CMB-05/CMB-06/CMB-07, remains outside the current Execution Horizon and
-authorizes neither an assessment nor an implementation. Its immutable roadmap
+CMB-05/CMB-06/CMB-07, is the dependency-gated fifth Execution Horizon item and
+authorizes no implementation. Its immutable roadmap
 registration history is
 `docs/history/prompts/2026-07-26-native-surface-integration-roadmap-introduction.md`.
 
@@ -88,11 +97,11 @@ slice **Track Insight (CAP-IN-01) → Apple Native Sharing**. Apple evidence is
 `djconnect-app` PR #50, merged as `d98d1428a09b93429b23784a190241ef49a4bc74`,
 decision `GO_CROSS_REPOSITORY_EVIDENCE_COMPLETE`. No Runtime, Broadcast, API
 or DJ Intelligence change is authorized. After the completed Apple Sharing,
-CMB-04, CMB-08 and HACS-CI-PR-REF-001 lifecycles, the Execution Horizon begins
-with Client Connectivity & Resilience qualification, followed by CMB-05,
-CMB-06, CMB-07 and CMB-09. Playback Observation Stage 2 / Continue Stage 2
-remains blocked by Playback Instance Identity; only Audience and Lyrics work
-remains deferred outside the Horizon.
+CMB-04, CMB-08, HACS-CI-PR-REF-001 and Client Connectivity & Resilience
+qualification lifecycles, the Execution Horizon begins with CMB-05, followed
+by CMB-06, CMB-07, CMB-09 and CMB-12. Playback Observation Stage 2 / Continue
+Stage 2 remains blocked by Playback Instance Identity; only Audience and Lyrics
+work remains deferred outside the Horizon.
 
 `BOOTSTRAP.md` is the single canonical repository entry point for new ChatGPT
 Product & Platform Architect sessions. **Repository Sync + Developer Handoff**
