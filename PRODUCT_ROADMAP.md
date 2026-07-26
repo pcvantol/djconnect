@@ -397,7 +397,10 @@ This is an assessment phase, not a feature-delivery phase. It determines the
 minimum additional work needed for first public release, which may include
 onboarding, Session Timeline, minimal Music DNA, recovery UX, release quality
 or documentation. It may also conclude that some are unnecessary. No work is
-authorized until that assessment selects it.
+authorized until that assessment selects it. It begins by reviewing every
+remaining item in `QUALIFICATION_REGISTER.md` and determining, from current
+repository evidence, whether the item is resolved, accepted, needs
+implementation or is no longer relevant.
 
 ### HA Integration Onboarding & Configuration Experience Assessment (`HA-ONBOARDING-001`)
 

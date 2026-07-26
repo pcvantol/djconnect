@@ -124,6 +124,12 @@ governance reconciliation has merged successfully, `WORKSPACE CLEANUP` is
 mandatory. The next capability may start only when both Repository State is
 `MERGED_RECONCILED` and Workspace State is `WORKSPACE_READY`.
 
+When the completed increment is an assessment, Finalization also verifies that
+`QUALIFICATION_REGISTER.md` records its merged Assessment Result, Qualification
+Summary, objective Remaining Qualification Items and existing disposition. The
+register is a current-state index only; this check never creates a backlog item,
+changes the Execution Horizon or authorizes implementation.
+
 The canonical implementation-prompt structure is `PRE-FLIGHT`,
 `IMPLEMENTATION`, `VALIDATION` and `FINALIZATION`, defined by
 `docs/governance/PROMPT_TEMPLATE.md`. Prompts may reference that standard
