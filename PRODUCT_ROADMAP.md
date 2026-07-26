@@ -88,6 +88,7 @@ their established scope; this roadmap does not authorize their implementation.
 | 3 | Apple Premium Experience | Planned | Reference Experience, experience quality, polish, onboarding and release readiness for macOS, iPhone/iPad and Apple Watch |
 | 4 | Public Release Readiness Assessment | Planned | Phase 3 evidence; it determines minimum public-release scope without authorizing features |
 | 4 | Client Connectivity & Resilience qualification | Planned | endpoint, offline/cache and external HTTP qualification policy; no implementation authorization |
+| 4 | HA Integration Onboarding & Configuration Experience Assessment (`HA-ONBOARDING-001`) | Planned | Client Connectivity & Resilience qualification; CMB-05/CMB-06/CMB-07/CMB-09 host-profile evidence; Profile, pairing and authorization architecture; Public Release Readiness context |
 | 5 | Productization | Planned | Phase 4 assessment; no feature or paid-model commitment |
 | 6 | Community Public Release | Planned | Productization and explicit release selection; complete local-first Community Edition |
 | 7 | Desktop Platform Family | Deferred | First public Apple release; independent Platform Adoption assessment |
@@ -119,6 +120,80 @@ minimum additional work needed for first public release, which may include
 onboarding, Session Timeline, minimal Music DNA, recovery UX, release quality
 or documentation. It may also conclude that some are unnecessary. No work is
 authorized until that assessment selects it.
+
+### HA Integration Onboarding & Configuration Experience Assessment (`HA-ONBOARDING-001`)
+
+**Status:** Planned assessment-first Product Development capability. It is not
+in the current Execution Horizon and authorizes neither an assessment nor an
+implementation before its recorded dependencies are available.
+
+**Product question:** Can a new user without DJConnect knowledge independently
+reach a first successful DJ Session from a Home Assistant installation, through
+understandable choices, clear device instructions and recoverable errors?
+
+Product Development owns the user journey. The Home Assistant integration owns
+any later Config Flow, Options Flow and onboarding delivery. Platform Evolution
+contributes only required pairing, connectivity, privacy and qualification
+evidence; it does not own the experience or authorize a parallel platform
+onboarding flow.
+
+The future assessment covers the existing journey only:
+
+```text
+Add integration -> configure first Profile -> select and authorize a Music
+Backend -> optionally qualify Assist/voice -> pair first app or device -> map
+device to Profile -> safely start the first DJ Session
+```
+
+It must assess, without changing the present contracts:
+
+1. **Initial setup happy path:** one first Personal Profile, one backend or
+   account, one first app/device, safe defaults, advanced settings deferred to
+   Options and an explicit ready-for-first-Session outcome.
+2. **Profile onboarding and CRUD:** creation, update, deletion, Personal /
+   Household / Guest / Kids roles, privacy mode, response style, fallback
+   Profile, device mappings and understandable Profile-scoped Music DNA,
+   preferences and Ask DJ continuity.
+3. **Music Backend selection and Spotify OAuth:** Spotify Direct, Music
+   Assistant, any supported deferred choice, prerequisites, switching,
+   unsuitable-backend handling, OAuth callback/scopes/market/cancellation and
+   reauthorization without exposing credentials or tokens. The Music Backend
+   remains playback owner.
+4. **Assist Pipeline and voice readiness:** existing-pipeline selection,
+   absent-pipeline guidance, optional voice versus a non-voice happy path, and
+   clear boundaries among STT, TTS, Conversation Agent, Assist satellite and
+   announcement speaker. DJConnect never silently configures Home Assistant
+   Assist outside existing Home Assistant contracts.
+5. **Concrete-host onboarding:** Apple, Windows, Pi 4-inch, Pi 10-inch, ESP32
+   and Voice Interaction Host instructions, only where their future profile
+   evidence permits. It may assess version/compatibility, local-network,
+   pairing start, pair-code or supported QR guidance, successful pairing,
+   Profile mapping and recovery; it must not invent downloads, public
+   distribution claims or a QR flow.
+6. **Options and recovery UX:** clear separation of saving settings, Profile
+   management, backend change, Spotify reauthorization, pairing retry/full
+   repair, reassignment, fallback Profile and existing voice/announcement
+   settings without exposing technical state or credentials.
+7. **Language, accessibility, privacy and completion:** five-language product
+   terminology and constrained-flow accessibility; no display or logging of
+   refresh/install/device tokens, credentials, private Profile data, Music DNA,
+   Ask DJ history or internal pairing/runtime identities. It must define
+   evidence that a valid Profile, backend, paired/mapped host and optional voice
+   readiness make a first Session safe to start, never automatic to start.
+
+The assessment follows Client Connectivity & Resilience qualification and the
+relevant CMB-05/CMB-06/CMB-07/CMB-09 host-profile evidence. It is a required
+readiness input for Public Release Readiness Assessment and may inform later
+Apple Premium Experience onboarding/polish; it does not move either phase or
+change their priorities.
+
+Possible later, separately authorized delivery slices are: Initial Setup Happy
+Path; Profile Setup/CRUD UX; Music Backend prerequisite guidance; Spotify OAuth
+and reauthorization UX; Assist Pipeline guidance; host-specific pairing
+instructions; Options/Recovery information architecture; localized accessible
+flow copy; and first-Session readiness feedback. Each must solve one bounded
+user problem, preserve existing backend and ownership boundaries, and have its
+own tests and authorization. No broad onboarding rewrite is implied.
 
 For every capability requiring a renderer, the assessment determines whether
 it is **Community-defining** or **Platform-extending**. Community-defining
