@@ -76,29 +76,25 @@ it is not a shipping or follow-on implementation candidate.
 
 ### Rolling Horizon (Execution Horizon — Next 5 Planned)
 
-1. **Track Insight (CAP-IN-01) → Apple Native Sharing Implementation** —
-   Source: CMB-11 refinement PR #492; Status: Authorized; Dependency: CMB-11
-   evidence and Apple PR #50 complete. Reason: the only Sharing implementation
-   approved by the reconciled contract.
-2. **CMB-04 — Re-express Renderer Experience roadmap atomically** — Source:
-   `CAPABILITY_MODEL_BACKLOG.md`; Status: Planned; Dependency: none recorded.
-   Reason: next canonical Renderer Experience planning record.
-3. **CMB-08 — Decompose Universal Receiver and VibeCast** — Source:
+1. **CMB-08 — Universal Receiver & VibeCast Capability Decomposition** — Source:
    `CAPABILITY_MODEL_BACKLOG.md`; Status: Planned; Dependency: existing
    Broadcast and receiver evidence. Reason: separates host and experience
    records before platform-profile validation.
-4. **HACS-CI-PR-REF-001 — HACS pull-request validation reliability** — Source:
+2. **HACS-CI-PR-REF-001 — HACS PR Validation Reliability** — Source:
    `PLATFORM_EVOLUTION_BACKLOG.md`; Status: Planned; Dependency: retained
    alternating-validation evidence. Reason: preserves actionable assurance
    evidence for the supporting verification increment.
-5. **Client Connectivity & Resilience qualification** — Source:
+3. **Client Connectivity & Resilience Qualification** — Source:
    `PLATFORM_EVOLUTION_BACKLOG.md`; Status: Planned; Dependency: Public Release
    Readiness Assessment. Reason: bounded external-HTTP qualification once its
    direct dependency is met.
 
-**Execution Priority Override:** PR #492 authorized the CMB-11 implementation
-before remaining planned Capability Model assessments after the Apple evidence
-was complete.
+4. **CMB-05 — Pi 4-inch Capability Profile Assessment** — Source:
+   `CAPABILITY_MODEL_BACKLOG.md`; Status: Planned; Dependency: current Pi
+   source, contract and shared-device privacy evidence. Reason: independent profile assessment.
+5. **CMB-06 — Pi 10-inch Capability Profile Assessment** — Source:
+   `CAPABILITY_MODEL_BACKLOG.md`; Status: Planned; Dependency: hardware,
+   privacy and renderer evidence. Reason: independent wall-appliance profile.
 
 ### Blocked Items
 
@@ -107,9 +103,8 @@ Playback Instance Identity; that capability is the deconditioner.
 
 ### Deferred Items
 
-Audience Experience and Ambient Reactions, Lyrics Knowledge, and Playback
-Observation Stage 2 / Continue Stage 2 remain deferred and are excluded from
-the Execution Horizon. Local stale branches: **0**.
+Audience Experience and Ambient Reactions and Lyrics Knowledge remain deferred
+and are excluded from the Execution Horizon. Local stale branches: **0**.
 
 ## Historical management context
 
