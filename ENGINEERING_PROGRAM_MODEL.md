@@ -59,6 +59,15 @@ the slice proceeds from Experience Assessment to Implementation. This is one
 Product Development workflow, not a separate Intelligence Engineering
 discipline or governance track.
 
+### Qualification-record completion
+
+Every assessment records its Assessment Result, Qualification Summary and any
+objective Remaining Qualification Items with an existing disposition. The
+current cross-capability index is `QUALIFICATION_REGISTER.md`; it is not a
+roadmap, backlog or implementation authorization. The assessment Finalization
+verifies that index against the merged assessment before it restores
+`MERGED_RECONCILED`.
+
 ### DJ Intelligence applicability
 
 A Product Development slice requires the conditional assessment when it
@@ -137,4 +146,5 @@ delivery work only after Promote.
 - Product Development: `PRODUCT_ROADMAP.md`
 - Platform Evolution: `PLATFORM_EVOLUTION_BACKLOG.md`
 - Innovation Lab: `INNOVATION_LAB.md` and `INNOVATION_BACKLOG.md`
+- Current assessment qualification index: `QUALIFICATION_REGISTER.md`
 - Navigation: `ROADMAP_INDEX.md`
