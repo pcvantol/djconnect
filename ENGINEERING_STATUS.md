@@ -5,6 +5,15 @@
 
 ## Current engineering increment
 
+PR [#509](https://github.com/pcvantol/djconnect/pull/509), **Register Session
+Continuation capability**, merged as
+`cd403dcb7142ae49c6b4315890f0490f33edb99a`. It records
+`GO_SESSION_CONTINUATION_REGISTERED`: a future Product Development,
+assessment-first family for a privacy-safe invitation back to an active
+Session. It remains outside the current Execution Horizon and authorizes no
+notification, push, APNs, Runtime, Planner, DJMoment, Renderer, preference,
+deep-link or Music Backend change.
+
 PR [#507](https://github.com/pcvantol/djconnect/pull/507), **Register
 Interactive DJMoments capability family**, merged as
 `29808f22ceace6e2b681019005d1cfc2d364b792`. It records

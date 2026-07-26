@@ -15,6 +15,15 @@
 
 ## Current position
 
+PR [#509](https://github.com/pcvantol/djconnect/pull/509) merged as
+`cd403dcb7142ae49c6b4315890f0490f33edb99a`. It registers
+`GO_SESSION_CONTINUATION_REGISTERED`: Session Continuation is a future,
+assessment-first Product Development family for privacy-safe invitations back
+to an active Session. The Planner may later establish relevance only; a future
+policy owns interruption/delivery, Renderer Hosts own native presentation and
+the Music Backend retains playback. It is outside the Execution Horizon and
+authorizes no notification, push, APNs, implementation or ownership change.
+
 PR [#507](https://github.com/pcvantol/djconnect/pull/507) merged as
 `29808f22ceace6e2b681019005d1cfc2d364b792`. It registers
 `GO_INTERACTIVE_DJMOMENTS_REGISTERED`: Interactive DJMoments remain ordinary

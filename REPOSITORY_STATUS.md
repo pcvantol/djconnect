@@ -28,6 +28,14 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
+PR [#509](https://github.com/pcvantol/djconnect/pull/509) merged as
+`cd403dcb7142ae49c6b4315890f0490f33edb99a`. The repository records
+`GO_SESSION_CONTINUATION_REGISTERED` as a future Product Development family.
+It preserves active-Session, Planner relevance, DJMoment, Renderer Host,
+privacy and Music Backend boundaries; it authorizes no notification, push,
+APNs, Runtime, Planner, DJMoment, preference, deep-link or implementation
+change.
+
 PR [#507](https://github.com/pcvantol/djconnect/pull/507) merged as
 `29808f22ceace6e2b681019005d1cfc2d364b792`. The repository records
 `GO_INTERACTIVE_DJMOMENTS_REGISTERED` as a future Product Development family.
@@ -97,6 +105,9 @@ excluded from the Horizon.
 Resilience and concrete-host evidence; it is excluded from the Horizon.
 Interactive DJMoments is assessment-first and likewise excluded from the
 current Horizon.
+Session Continuation is independently assessment-first, depends on active
+Session, privacy, authorization and renderer evidence, and is likewise
+excluded from the current Horizon.
 
 ## Historical repository context
 

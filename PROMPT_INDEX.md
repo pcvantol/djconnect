@@ -4,6 +4,14 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
+PR [#509](https://github.com/pcvantol/djconnect/pull/509) merged as
+`cd403dcb7142ae49c6b4315890f0490f33edb99a`. Session Continuation is
+registered with `GO_SESSION_CONTINUATION_REGISTERED` as a future,
+assessment-first Product Development family. It remains outside the current
+Execution Horizon and authorizes neither assessment nor implementation. Its
+immutable registration history is
+`docs/history/prompts/2026-07-26-session-continuation-capability-registration.md`.
+
 PR [#507](https://github.com/pcvantol/djconnect/pull/507) merged as
 `29808f22ceace6e2b681019005d1cfc2d364b792`. Interactive DJMoments is
 registered with `GO_INTERACTIVE_DJMOMENTS_REGISTERED` as a future,
