@@ -146,7 +146,7 @@ implementation or a new projection contract.
 
 ## CMB-11 continuation: Apple local boundary
 
-**Decision:** `NO_GO_INSUFFICIENT_EVIDENCE`
+**Decision:** `GO_SHARING_IMPLEMENTATION`
 
 Track Insight selects only its existing renderer-safe result; the Sharing
 Contract freezes the bounded payload; the Apple Native Renderer performs local
@@ -159,7 +159,11 @@ Planner/Runtime context, provider payloads, Ask DJ history, credentials and
 tokens. This is a local qualification boundary, not a server policy,
 Broadcast or API contract.
 
-No Apple Native Share Sheet code or Apple capability inventory exists in this
-repository. Rich Track Insight rendering alone cannot prove Share Sheet
-invocation, selection UX or this qualification boundary. The required
-Apple-native evidence is absent; no Sharing implementation is authorized.
+Cross-repository evidence is now available in `pcvantol/djconnect-app` PR #50,
+commit `5d2723bd8ab5686f99188e715226492fae74d27c`: existing
+`TrackInsightShareRenderer`, `TrackInsightShareService` and SwiftUI `ShareLink`
+prove local payload rendering, user-initiated selection and platform Share
+Sheet invocation. This supports the stated ownership and privacy boundaries;
+no objective contract gap remains. A bounded Track Insight-to-Apple Sharing
+implementation is authorized, without Runtime, Broadcast, API or DJ
+Intelligence changes.
