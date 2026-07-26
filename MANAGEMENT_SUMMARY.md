@@ -15,6 +15,14 @@
 
 ## Current position
 
+PR [#513](https://github.com/pcvantol/djconnect/pull/513) merged as
+`1f3e56181944cf818b3f20cd44cea5b81fe0c218`. It registers
+`GO_PRODUCT_AND_COMMUNITY_READINESS_REGISTERED`: a future Phase 6 adoption
+readiness phase between Productization and Community Public Release. Product
+Presentation, User Onboarding, Device Deployment Experience and Developer
+Experience remain future assessment areas; no capability, tooling, deployment
+or implementation is authorized and the Execution Horizon is unchanged.
+
 PR [#511](https://github.com/pcvantol/djconnect/pull/511) merged as
 `bc9acd1bb3055d7c55c5a1f4366e933bba90910e`. It registers
 `GO_APPLE_WATCH_MOMENT_COMPANION_REGISTERED`: a future Phase 3,

@@ -28,6 +28,13 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
+PR [#513](https://github.com/pcvantol/djconnect/pull/513) merged as
+`1f3e56181944cf818b3f20cd44cea5b81fe0c218`. The repository records
+`GO_PRODUCT_AND_COMMUNITY_READINESS_REGISTERED`: a future Phase 6 Product
+Development readiness phase for presentation, onboarding, deployment and
+developer experience. It authorizes no assessment, implementation, capability,
+tooling or deployment delivery.
+
 PR [#511](https://github.com/pcvantol/djconnect/pull/511) merged as
 `bc9acd1bb3055d7c55c5a1f4366e933bba90910e`. The repository records
 `GO_APPLE_WATCH_MOMENT_COMPANION_REGISTERED` as a future Phase 3 Apple Premium
@@ -118,6 +125,8 @@ excluded from the current Horizon.
 The Apple Watch Moment-First Conversational Companion is independently
 assessment-first within Phase 3, depends on relevant Apple/host-profile
 evidence and is likewise excluded from the current Horizon.
+Product & Community Readiness is a later Phase 6 readiness phase and is
+likewise excluded from the current Horizon.
 
 ## Historical repository context
 
