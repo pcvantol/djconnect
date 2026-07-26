@@ -1,102 +1,111 @@
-# CMB-09 — Voice Interaction Host and constrained ESP32 Capability Profile Assessment
+# CMB-09 — Voice Interaction Host and Native ESP32 Appliance Capability Assessment
 
 **Status:** Assessment complete
 
-**Decision:** `GO_CMB09_VOICE_PROFILE_QUALIFIED`
+**Decision:** `GO_CMB09_VOICE_HOST_PROFILE_QUALIFIED`
 
-**Scope:** Repository-first qualification of the canonical DJConnect Voice
-Interaction Host role against `djconnect-esp32` current `main` at
-`42fe290b9abffad0d103685a78918d2959ed82ae`. This assessment changes no Home
-Assistant Runtime, ESP32 firmware, Voice implementation, Renderer, API,
-roadmap or Execution Horizon behavior.
+**Scope:** Repository-first qualification of two deliberately separate routes:
+the Home Assistant Voice Interaction Host in `djconnect` at
+`93292c1b305d277644aaa75d8a3345fa7c0d9a9b`, and the native DJConnect LilyGO
+T-Embed CC1101 appliance in `djconnect-esp32` at
+`42fe290b9abffad0d103685a78918d2959ed82ae`. No Home Assistant, ESP32,
+ESPHome, Runtime, Renderer, API, roadmap or Execution Horizon behavior changes.
 
-## Canonical host role
+## Route A — Home Assistant Voice Interaction Host
 
-A Voice Interaction Host is a **registered, appliance-style Audio Renderer and
-bounded Interaction Host**. Its primary role is natural local interaction:
-capture an explicit voice request, provide concise device-local feedback, and
-return the user to the surrounding room experience. Its secondary role is
-bounded, authorized playback control through existing Home Assistant command
-and voice boundaries.
+### Role and ownership
 
-It is not a visual personal renderer, Session coordinator, Conversation Agent,
-or intelligence runtime. Home Assistant owns Profile resolution, Session
-Runtime, Session Start Request resolution, Planner, Knowledge, immutable
-DJMoments, Ask DJ interpretation/history, STT, TTS policy, Music DNA, Broadcast
-and Music Backend behavior. A Voice Interaction Host sends a request and
-renders only the returned, locally appropriate response.
+The Home Assistant Voice Interaction Host is a **Conversation/Audio Interaction
+Host**, not DJConnect-owned hardware. Home Assistant Voice Preview, ESPHome
+Voice Satellites and future supported Assist satellites supply their own
+firmware, hardware, provisioning, OTA, microphones, speakers and any local
+display or buttons. They must not be treated as DJConnect firmware or as a
+native ESP32 appliance variant.
 
-## Voice and interaction profile
+DJConnect contributes the Conversation Agent, Ask DJ routing, authorized
+Session Start Request handling, DJ-intelligence response path and use of the
+existing Home Assistant Assist/STT/TTS routes. Home Assistant owns Assist
+Pipeline selection and execution, satellite lifecycle, audio hardware and
+transport, user/area context, and the Session Runtime. The Voice Host owns no
+Session, Planner, Knowledge, DJMoment, Music Backend, Broadcast or personal
+state.
 
-| Dimension | Canonical constrained Voice Host profile | ESP32 repository evidence | Qualification |
+### Capability profile
+
+| Dimension | Canonical Home Assistant Voice Host profile | Evidence | Qualification |
 | --- | --- | --- | --- |
-| Voice intake | Explicit PTT is the canonical request boundary; local wake-word detection may initiate the same bounded capture path. | `VoiceRecorder`, `VoiceHttpClient`, `WakeWordEngine` and the vendored Okay Nabu micro-wake-word model exist; wake word remains a device setting. | Qualified. |
-| STT and response intelligence | Host records and uploads audio; Home Assistant Assist/STT and the existing command/Ask DJ path interpret it. | Physical PTT stores bounded mono PCM WAV temporarily, uploads it to `/api/djconnect/v1/voice` with the paired token, and accepts returned text plus optional temporary audio. | Qualified. |
-| TTS and output | The host provides local short spoken/text feedback when HA supplies it; it does not choose voice policy or a remote speaker. | `DjResponseAudioPlayer` handles compatible returned WAV/MP3; text-only responses remain valid and are displayed. | Qualified. |
-| Session entry | Outside an active Session, voice may submit an already authorized Session Start Request; inside one, it uses the active Session context. | `CAP-SI-07` and the Capability Model place the authorization and Start Strategy in HA; the ESP sends no Session-creation logic. | Qualified. |
-| Ask DJ | Voice is a bounded spoken request surface, not a rich chat client. | The firmware deliberately has no Ask DJ text chat, history, client-message idempotency or follow-up UI; it uses the existing voice/command path only. | Qualified intentional absence. |
-| Physical interaction | Voice, encoder/buttons, LED and concise display/speaker feedback are local appliance interaction. | The LilyGO target has a PDM microphone, speaker, rotary encoder, buttons, WS2812 LED ring and ST7789 display; the firmware owns input, display and local feedback. | Qualified. |
+| Primary role | Natural spoken interaction through Home Assistant Assist and DJConnect Conversation/Ask DJ behavior. | `conversation.py`, `assist_stt.py`, `pipeline.py`, the Capability Model and Voice Transport retain the server-side route. | Qualified. |
+| Secondary role | Submit an already authorized spoken request, including a possible Session Start Request, then render/speak the returned answer through the host platform. | `CAP-SI-07` places Start Strategy and authorization in HA; the Capability Model defines voice contexts inside/outside an active Session. | Qualified. |
+| Renderer role | A bounded Audio Renderer: short spoken or otherwise host-native response realization only. | Audio Renderer Host architecture and Renderer Experience Roadmap classify voice/notification presentation as bounded and never intelligence. | Qualified. |
+| Privacy | Shared room input is resolver context, not personal-device identity; personal data is server-side and resolved only through existing Profile/privacy policy. | Domain Model Voice Endpoint boundary and Capability Model exclude local Music DNA, history and Session ownership. | Qualified. |
+| Non-goals | No DJConnect hardware, ESPHome firmware, pairing/provisioning/OTA, rich Session Flow, visual dashboard, persistent local Ask DJ history or local intelligence. | Repository ownership boundaries above. | Qualified intentional absence. |
 
-## Renderer and privacy profile
+The canonical shared Voice Interaction capability is therefore **conversation
+ingress and concise response delivery under Home Assistant ownership**. It is
+not a generic visual Renderer Host and does not prescribe a hardware form.
 
-The constrained ESP32 has a **limited display**, not no display: pairing,
-status, current playback, concise response text and device feedback are local
-appliance surfaces. It is not eligible for rich Session Flow, a Session
-timeline, personal dashboard, rich Ask DJ history, Discover, queue browsing as
-a canonical rich-client surface, or renderer-owned Current DJMoment reasoning.
-Those absences are intentional and do not indicate a Voice Host deficit.
+## Route B — Native LilyGO T-Embed CC1101 DJConnect appliance
 
-Only request-scoped audio, returned short text, optional temporary response
-media, bounded playback state and necessary device lifecycle data belong on
-the appliance. The host must never retain or project Music DNA, Profile details,
-Ask DJ history, recommendation or Performance Memory, Planner/Knowledge/Runtime
-context, provider payloads, credentials, tokens or a canonical Session state.
-Pairing and configuration are device lifecycle data only; they do not grant
-Profile or Session ownership.
+### Appliance role
 
-## Boundaries with adjacent hosts
+The LilyGO T-Embed CC1101 is a **DJConnect-owned registered native appliance**.
+It exists to combine room-local voice and bounded playback interaction with
+device lifecycle responsibility: firmware, pairing, Wi-Fi/BLE provisioning,
+OTA, display, encoder/buttons, battery-aware operation and local appliance
+recovery. It is not an ESPHome Voice Satellite, a generic Assist satellite, a
+personal rich renderer or a Session controller.
 
-| Adjacent capability | Canonical distinction |
-| --- | --- |
-| Home Assistant Conversation Agent | HA is the server-side conversation, Assist/STT and authorization boundary. The Voice Host is the local capture/output appliance and owns neither the agent nor conversation state. |
-| Ask DJ | Ask DJ interprets authorized requests with Profile and backend context. The ESP32 neither stores Ask DJ history nor executes intelligence; its PTT is only a bounded ingress. |
-| Apple and Windows personal renderers | Personal renderers may expose authorized rich text/history, Discover, Track Insight and navigation. A shared constrained Voice Host intentionally does not. |
-| Pi 4-inch and Pi 10-inch | Pi appliances are native visual Renderer Hosts with their independently assessed visual profiles. The ESP32 is voice/control first and has no full Session Flow or Presentation timeline. |
-| Apple Watch conversational companion | A companion is a personal, moment-first renderer candidate with a user-owned companion context. A Voice Host is room/appliance-first, request-scoped and has no personal conversational persistence. |
+### Capability profile
 
-## Hardware and appliance boundary
+| Dimension | Native appliance profile | ESP32 repository evidence | Qualification |
+| --- | --- | --- | --- |
+| Voice | Explicit physical PTT is the canonical device ingress; optional local wake-word initiation remains device-local. HA performs Assist/STT and the existing command/Ask DJ handling. | `VoiceRecorder`, `VoiceHttpClient`, `WakeWordEngine`, Okay Nabu micro-wake-word model and `/api/djconnect/v1/voice` PTT flow. | Qualified. |
+| Interaction | Rotary encoder, buttons, LED ring, speaker and compact display feedback are appliance-owned interaction. | LilyGO target configuration, `InputController`, `LedRing`, `SoundManager` and `DisplayManager`. | Qualified. |
+| Display | Pairing/status, bounded current playback and concise returned text/device feedback only. No rich Session Flow, timeline, dashboard or renderer-owned DJMoment reasoning. | `DisplayManager` and firmware README screen/voice behavior. | Qualified intentional boundary. |
+| Playback | Existing authorized generic commands and current-state feedback; no provider credentials, backend policy or Session ownership. | Firmware README and HA-owned generic command contract. | Qualified. |
+| Appliance lifecycle | Local pairing, token storage, LAN/mDNS runtime, BLE Wi-Fi provisioning, battery guards and manifest-verified OTA. | `DJConnectPairing`, `BleWifiProvisioning`, `DJConnectOTA`, `ProvisioningController`, NVS/LittleFS and PlatformIO target configuration. | Qualified. |
+| Privacy | Request-scoped WAV/audio and concise returned response only. Never Music DNA, Profile details, Ask DJ history, recommendations, Planner/Knowledge/Runtime context, provider payloads, credentials, tokens or canonical Session state. | ESP PTT transport, device lifecycle contract and canonical Device/Voice Endpoint boundaries. | Qualified. |
 
-The ESP32-S3 LilyGO T-Embed target has finite embedded resources and a fixed
-appliance lifecycle: Wi-Fi LAN traffic, NVS pairing/settings, LittleFS
-request-scoped WAV storage, BLE Wi-Fi provisioning, mDNS discovery, battery
-guards and manifest-verified OTA. The firmware deliberately preserves heap for
-display, network, voice and OTA work and uses a 16 MB flash target with PSRAM
-support. These facts support short, serialized local capture/output and
-appliance recovery; they do not create a requirement for on-device STT, local
-DJ intelligence, streaming transcription, persistent conversation storage or a
-rich visual Session product.
+The device is constrained by embedded appliance resources and lifecycle. Its
+16 MB flash/PSRAM-capable ESP32-S3 target, bounded temporary LittleFS audio,
+networking, display and OTA coexistence support serialized local interaction;
+they do not imply on-device STT, streaming transcription, local DJ intelligence
+or persistent conversation storage.
 
-BLE is provisioning-only, OTA is firmware lifecycle-only, and the local device
-API is paired-device control only. Home Assistant retains backend credentials
-and server authority. These boundaries are enduring architecture, not temporary
-feature omissions.
+## Comparison and enduring boundaries
 
-## Capability conclusion
+| Capability | Home Assistant Voice Interaction Host | Native LilyGO appliance |
+| --- | --- | --- |
+| Shared Voice Interaction | Assist-facing spoken request and concise response under HA/DJConnect server ownership. | Same server-owned request/response semantics through the paired device route. |
+| Hardware lifecycle | Home Assistant or satellite platform owns it. | DJConnect firmware owns it: pairing, BLE provisioning, OTA and appliance recovery. |
+| Local controls and display | Platform-defined; not a DJConnect firmware contract. | Canonical bounded encoder, buttons, LED, speaker and display feedback. |
+| Conversation and intelligence | DJConnect/HA owns Conversation Agent, Ask DJ, Profile/privacy, Session Start Request and intelligence. | Uses those existing server-owned paths; owns none of them. |
+| Rich personal/visual surfaces | Not implied by voice participation. | Intentionally absent: no rich history, personal dashboard or Session Flow. |
 
-The canonical Voice Interaction Host and the current ESP32 appliance align:
-voice-first, bounded control, local response delivery and no Session or
-personal-intelligence ownership. Its differences from personal and visual
-Renderer Hosts are deliberate, durable profile boundaries. No remaining
-qualification item is required for this CMB-09 role-profile assessment, and no
-implementation is authorized by this decision.
+These differences are intentional, durable and not feature-parity gaps. Route
+A is a host-platform voice capability. Route B adds an owned hardware appliance
+capability around the same server-owned voice boundary. Neither route gains
+local Session authority, personal-memory ownership or a new renderer contract.
+
+## Qualification conclusion
+
+Both profiles are objectively qualified and strictly separated. The Home
+Assistant Voice Interaction Host is a shared, platform-owned conversational
+audio interaction route. The LilyGO appliance is the native DJConnect-specific
+voice/control hardware realization with its own lifecycle and bounded local
+surfaces. No remaining qualification item or implementation follow-up is
+created by CMB-09.
 
 ## Sources
 
 - [DJConnect Capability Model](../../DJCONNECT_CAPABILITY_MODEL.md)
 - [Domain Model](../../DOMAIN_MODEL.md)
+- [Audio Renderer Host Architecture](../technical/AUDIO_RENDERER_HOST_ARCHITECTURE.md)
 - [Renderer Host Classification](../technical/RENDERER_HOST_CLASSIFICATION.md)
 - [Voice Transport](../technical/VOICE_TRANSPORT.md)
 - [Renderer Experience Roadmap](RENDERER_EXPERIENCE_ROADMAP.md)
+- `custom_components/djconnect/conversation.py`, `assist_stt.py`, `pipeline.py`
+  and `ask_dj/` in `djconnect`.
 - `djconnect-esp32` `README.md`, `platformio.ini`, `src/VoiceRecorder.cpp`,
   `src/VoiceHttpClient.cpp`, `src/WakeWordEngine.cpp`, `src/DJConnectPairing.cpp`,
   `src/BleWifiProvisioning.cpp`, `src/DJConnectOTA.cpp`, `src/InputController.cpp`,
