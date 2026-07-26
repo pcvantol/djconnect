@@ -5,6 +5,14 @@
 
 ## Current engineering increment
 
+PR [#511](https://github.com/pcvantol/djconnect/pull/511), **Register Apple
+Watch Moment-First Conversational Companion**, merged as
+`bc9acd1bb3055d7c55c5a1f4366e933bba90910e`. It records
+`GO_APPLE_WATCH_MOMENT_COMPANION_REGISTERED`: a future Phase 3 Apple Premium
+Experience, assessment-first Product Development record. It remains outside
+the current Execution Horizon and authorizes no assessment, watchOS/iPhone
+implementation, Runtime, Planner, DJMoment, API, APNs or playback change.
+
 PR [#509](https://github.com/pcvantol/djconnect/pull/509), **Register Session
 Continuation capability**, merged as
 `cd403dcb7142ae49c6b4315890f0490f33edb99a`. It records

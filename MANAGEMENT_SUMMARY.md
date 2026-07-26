@@ -15,6 +15,14 @@
 
 ## Current position
 
+PR [#511](https://github.com/pcvantol/djconnect/pull/511) merged as
+`bc9acd1bb3055d7c55c5a1f4366e933bba90910e`. It registers
+`GO_APPLE_WATCH_MOMENT_COMPANION_REGISTERED`: a future Phase 3,
+assessment-first Apple Watch experience. Current DJMoment, bounded Session
+Flow, compact Session Projection and Ask DJ PTT are future renderer-safe
+experience candidates only; it authorizes no assessment, code, APNs, Runtime,
+Planner, DJMoment, Audience, Lyrics or playback change.
+
 PR [#509](https://github.com/pcvantol/djconnect/pull/509) merged as
 `cd403dcb7142ae49c6b4315890f0490f33edb99a`. It registers
 `GO_SESSION_CONTINUATION_REGISTERED`: Session Continuation is a future,
