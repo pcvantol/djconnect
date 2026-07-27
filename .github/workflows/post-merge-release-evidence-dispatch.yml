@@ -15,9 +15,9 @@ permissions:
 jobs:
   reconcile:
     if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main'
-    uses: pcvantol/djconnect/.github/workflows/post-merge-release-evidence.yml@361f02c6fa500d506d6b01a6cb344789678e6451
+    uses: pcvantol/djconnect/.github/workflows/post-merge-release-evidence.yml@5fc277b3bb93d26d23a6703f8b3921fe2b0e4eac
     with:
-      policy_source_ref: 361f02c6fa500d506d6b01a6cb344789678e6451
+      policy_source_ref: 5fc277b3bb93d26d23a6703f8b3921fe2b0e4eac
       required_main_workflow: Validate Home Assistant custom integration
       repository_role: active_source
       coverage_artifact_name: ha-cobertura-coverage
