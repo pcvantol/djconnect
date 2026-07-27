@@ -12,6 +12,9 @@ PR [#562](https://github.com/pcvantol/djconnect/pull/562) merged as
 Its finalization prompt is preserved at
 `docs/history/prompts/2026-07-27-platform-dependency-governance-conformance-finalization.md`.
 
+The successor implementation finalization prompt is preserved at
+`docs/history/prompts/2026-07-27-platform-dependency-governance-conformance-implementation-finalization.md`.
+
 ## Platform Cleanup & Evidence Workflow Conformance Repair
 
 PR [#559](https://github.com/pcvantol/djconnect/pull/559) merged as

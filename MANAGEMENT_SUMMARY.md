@@ -15,6 +15,12 @@
 
 ## Current position
 
+Platform Dependency Governance implementation is merged across all ten active
+repositories. The successor finalization supplies current exact-main evidence;
+the original high-risk PR #564 pre-merge run was cleanup-deleted before an
+Owner Authorization read-back and remains a separate evidence-retention
+follow-up. No unsafe historical evidence claim is made.
+
 PR [#562](https://github.com/pcvantol/djconnect/pull/562) merged as
 `f18fcfbdf2bbb0cb6e56aa0d422d7d48c156df9d` with
 `NO_GO_PLATFORM_DEPENDENCY_GOVERNANCE_DIVERGENCE`. Dependency Graph and
