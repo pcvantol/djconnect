@@ -5,6 +5,13 @@
 
 ## TD-GITHUB-001 finalization
 
+PR [#562](https://github.com/pcvantol/djconnect/pull/562), **Platform
+Dependency Governance Conformance Assessment**, merged as
+`f18fcfbdf2bbb0cb6e56aa0d422d7d48c156df9d`. It records
+`NO_GO_PLATFORM_DEPENDENCY_GOVERNANCE_DIVERGENCE`: existing GitHub-native
+security settings do not establish a uniform version-update or dependency
+assurance contract, and TDE remains Deferred. It authorizes no implementation.
+
 PR [#559](https://github.com/pcvantol/djconnect/pull/559), **Platform Cleanup
 & Evidence Workflow Conformance Repair**, merged as
 `b5fbd9d9cf7d3c65f648adf799e1bb9ab842f393`. It records

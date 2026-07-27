@@ -28,6 +28,12 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
+PR [#562](https://github.com/pcvantol/djconnect/pull/562) is reconciled as
+`NO_GO_PLATFORM_DEPENDENCY_GOVERNANCE_DIVERGENCE`. Its merge commit
+`f18fcfbdf2bbb0cb6e56aa0d422d7d48c156df9d` is contained in current `main`;
+validation run `30268304254` and post-merge durable evidence run `30268419713`
+succeeded. The assessment changes no runtime or platform configuration.
+
 Platform cleanup and evidence conformance is reconciled. PR [#559](https://github.com/pcvantol/djconnect/pull/559) merged as
 `b5fbd9d9cf7d3c65f648adf799e1bb9ab842f393` with
 `GO_CLEANUP_WORKFLOW_PLATFORM_CONFORMANT`; all active repositories are on the
