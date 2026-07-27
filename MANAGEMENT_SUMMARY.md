@@ -15,6 +15,11 @@
 
 ## Current position
 
+TD-GITHUB-001 is now `GO_TD_GITHUB_001_QUALIFIED`. PRs #547–#554 established
+and activated a fail-closed durable evidence path; the exact-main release asset
+for `f6e346018dadaccc8457dac7b5cadd19a03b80e7` was objectively read back with
+no validation findings. No product, Runtime, API or Renderer behavior changed.
+
 PR [#545](https://github.com/pcvantol/djconnect/pull/545) merged as
 `e5246f0409063d7eec12e3e3c01d78737ae6ba2c` with
 `GO_GENERATION_2_EXECUTION_DIRECTION_REVIEWED`. Generation 2 is

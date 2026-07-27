@@ -1,7 +1,7 @@
 # TD-GITHUB-001 — GitHub Actions Retention and Evidence Preservation Assessment
 
-**Status:** Assessment complete  
-**Decision:** `GO_TD_GITHUB_001_PARTIALLY_QUALIFIED`  
+**Status:** Qualification complete
+**Decision:** `GO_TD_GITHUB_001_QUALIFIED`
 **Scope:** Existing GitHub Actions, Verification Platform, Software Assurance,
 Trusted Delivery and Platform Release evidence contracts only. No workflow,
 retention setting, GitHub configuration, Runtime, API, Renderer, release or
@@ -67,26 +67,22 @@ evidence, but the repository does not yet prove a complete configured path
 that preserves every decision-bound Actions record independently of workflow
 retention.
 
-## Remaining qualification item
+## Qualification completion evidence
 
-1. **Evidence Preservation Qualification** — qualify, against the existing
-   classification, that every decision-bound Permanent Evidence and Long-term
-   Retention item has a redacted, immutable, independently durable record;
-   prove that missing preservation fails closed for the affected release or
-   qualification decision. The assessment must retain the existing cleanup,
-   Golden-report and redaction boundaries unless a separately authorized
-   implementation changes them.
-
-This is a future qualification and possible bounded implementation prerequisite
-only. It authorizes no archive, export, retention setting, workflow, GitHub
-Actions, release or configuration change.
+The bounded implementation publishes one redacted, immutable record to the
+existing exact-main internal release. For main
+`f6e346018dadaccc8457dac7b5cadd19a03b80e7`, the release asset
+`qualification-evidence-f6e346018dadaccc8457dac7b5cadd19a03b80e7.json` was
+published, downloaded and validated with no findings. The record outcome is
+`POST_MERGE_RELEASE_EVIDENCE_QUALIFIED`, its redaction status is `REDACTED`,
+and publication fails closed before qualified status on invalid source,
+collision, upload or read-back validation failure.
 
 ## Conclusion
 
-`GO_TD_GITHUB_001_PARTIALLY_QUALIFIED`
+`GO_TD_GITHUB_001_QUALIFIED`
 
-The canonical evidence classes and decision dependencies are now explicit. The
-current Actions retention model is sufficient for ephemeral and short-term
-feedback, but does not itself prove durable preservation of every
-decision-bound record. The sole next step is **Evidence Preservation
-Qualification**.
+The canonical evidence classes and decision dependencies are explicit, and the
+configured publication path now provides the required durable, redacted
+decision record independently of Actions cleanup. This does not alter the
+existing native SHA-pinning compatibility exception.
