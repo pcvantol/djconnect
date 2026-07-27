@@ -1,0 +1,13 @@
+{
+  "identifier": "djconnect",
+  "name": "DJConnect",
+  "repositoryRoot": "../..",
+  "repositoryType": "source",
+  "primaryLanguage": "Python",
+  "defaultAssessmentProfile": "standard",
+  "metadata": {
+    "consumer": "DJConnect",
+    "rolloutPhase": "observe"
+  }
+}
+
