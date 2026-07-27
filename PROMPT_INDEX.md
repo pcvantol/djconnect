@@ -4,8 +4,13 @@ Status: canonical prompt navigation
 
 ## Platform Dependency Governance Conformance Assessment
 
-The immutable assessment prompt is preserved at
+PR [#562](https://github.com/pcvantol/djconnect/pull/562) merged as
+`f18fcfbdf2bbb0cb6e56aa0d422d7d48c156df9d` with
+`NO_GO_PLATFORM_DEPENDENCY_GOVERNANCE_DIVERGENCE`. The immutable assessment prompt is preserved at
 `docs/history/prompts/2026-07-27-platform-dependency-governance-conformance-assessment.md`.
+
+Its finalization prompt is preserved at
+`docs/history/prompts/2026-07-27-platform-dependency-governance-conformance-finalization.md`.
 
 ## Platform Cleanup & Evidence Workflow Conformance Repair
 

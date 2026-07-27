@@ -15,6 +15,14 @@
 
 ## Current position
 
+PR [#562](https://github.com/pcvantol/djconnect/pull/562) merged as
+`f18fcfbdf2bbb0cb6e56aa0d422d7d48c156df9d` with
+`NO_GO_PLATFORM_DEPENDENCY_GOVERNANCE_DIVERGENCE`. Dependency Graph and
+Dependabot Security Updates are enabled across the active platform, but a
+repository-owned version-update policy, uniform dependency assurance and an
+active TDE layer are not evidenced. No workflow, GitHub setting, CI, Runtime,
+API, Renderer, product or release behavior changed.
+
 PR [#559](https://github.com/pcvantol/djconnect/pull/559) merged as
 `b5fbd9d9cf7d3c65f648adf799e1bb9ab842f393` with
 `GO_CLEANUP_WORKFLOW_PLATFORM_CONFORMANT`. All ten active repositories now
