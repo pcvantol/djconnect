@@ -2,6 +2,11 @@
 
 Status: canonical prompt navigation
 
+## Platform Dependency Governance Conformance Assessment
+
+The immutable assessment prompt is preserved at
+`docs/history/prompts/2026-07-27-platform-dependency-governance-conformance-assessment.md`.
+
 ## Platform Cleanup & Evidence Workflow Conformance Repair
 
 PR [#559](https://github.com/pcvantol/djconnect/pull/559) merged as
