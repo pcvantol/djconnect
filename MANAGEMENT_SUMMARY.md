@@ -701,3 +701,32 @@ this reconciliation increment is reviewable.
 `PLATFORM_EVOLUTION_BACKLOG.md` and `INNOVATION_BACKLOG.md` are the only active
 program registers. `PLATFORM_BACKLOG.md` remains a clearly marked Generation 1
 archive. Promotion rules are explicit in `INNOVATION_PROMOTION_POLICY.md`.
+
+## Dependabot Maintenance Status — 2026-07-27
+
+**Decision:** `GO_PLATFORM_DEPENDABOT_MAINTENANCE_COMPLETE`.
+
+The controlled platform-wide Dependabot maintenance round is complete. All ten
+active DJConnect repositories have zero open Dependabot security alerts and
+zero open Dependabot pull requests. Fourteen reviewed Dependabot pull requests
+merged: 66 immutable GitHub Actions pin updates, three central Python tooling
+updates, two API npm tooling updates, the website c8 10-to-12 update and the
+Windows MAUI Controls 10.0.80-to-10.0.90 update.
+
+High-risk workflow-only updates were merged only after the existing exact-SHA
+Owner Authorization route succeeded. Website lockfile and workflow-pin test
+contract follow-ups were validated before the website PRs merged. No Runtime,
+API, Renderer, product or release behavior changed.
+
+| Repository | Merged Dependabot PRs |
+| --- | --- |
+| djconnect | #565, #566 |
+| djconnect-api | #58, #59 |
+| djconnect-app | #63 |
+| djconnect-app-releases | #19 |
+| djconnect-esp32 | #38 |
+| djconnect-firmware | #18 |
+| djconnect-pi | #66 |
+| djconnect-pi-releases | #18 |
+| djconnect-website | #40, #45 |
+| djconnect-windows | #50, #51 |
