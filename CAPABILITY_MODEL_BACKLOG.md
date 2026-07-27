@@ -12,7 +12,7 @@ starts with a current-state Repository Capability Assessment under
 
 | ID | Assessment-first increment | Status | Required first evidence | Outcome boundary |
 | --- | --- | --- | --- | --- |
-| CMB-01 | Adopt Capability Model assessment in future pre-flights | Planned | sample pre-flight against one existing capability | governance/template only |
+| CMB-01 | Adopt Capability Model assessment in future pre-flights | Assessed | `docs/governance/CAPABILITY_MODEL_PREFLIGHT_ADOPTION.md`; CMB-12 reference pre-flight and existing Capability Model/template | `GO_CMB01_CAPABILITY_PREFLIGHT_ADOPTED`; existing pre-flight method adopted without new governance or implementation |
 | CMB-02 | Validate platform capability profiles | Assessed | `docs/product/PLATFORM_CAPABILITY_PROFILE_VALIDATION.md`; Capability Model, Host Role Architecture, Client Capability Matrix and completed host assessments | `GO_CMB02_PLATFORM_CAPABILITY_PROFILES_PARTIALLY_QUALIFIED`; current role-to-host profiles are consistent; retained host evidence remains Future Assessment; no implementation |
 | CMB-03 | Decide each registered platform-only divergence | Assessed | `docs/product/PLATFORM_DIVERGENCE_DISPOSITION.md`; canonical divergence register and completed host assessments | `GO_CMB03_PLATFORM_DIVERGENCES_QUALIFIED`; differences are retained, separately assessed or prohibited; no implementation |
 | CMB-04 | Re-express Renderer Experience roadmap atomically | Assessed | Receiver, VibeCast and Presentation capability assessment | roadmap/documentation only; see `docs/product/RENDERER_EXPERIENCE_ROADMAP.md` |
