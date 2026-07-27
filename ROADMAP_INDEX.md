@@ -11,6 +11,7 @@ in that same roadmap projection.
 
 | Need | Canonical document | Owner |
 | --- | --- | --- |
+| Generation 2 execution direction: remaining assessment necessity, bounded engineering readiness, blocked and deferred disposition | `docs/governance/GENERATION_2_EXECUTION_REVIEW.md` | Platform governance |
 | Long-term engineering intent | `PLATFORM_STRATEGY.md` | Platform strategy |
 | Generation 1 historical closure | `ENGINEERING_PLATFORM_GENERATION_1_COMPLETION_REPORT.md` | Platform governance |
 | Program boundaries | `ENGINEERING_PROGRAM_MODEL.md` | Engineering governance |
