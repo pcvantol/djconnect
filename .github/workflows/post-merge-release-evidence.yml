@@ -144,6 +144,7 @@ jobs:
         env:
           CANDIDATE_SHA: ${{ github.event.workflow_run.head_sha }}
           GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
         run: |
           set -euo pipefail
           tag="internal-ha-${CANDIDATE_SHA}"
