@@ -15,6 +15,14 @@
 
 ## Current position
 
+PR [#559](https://github.com/pcvantol/djconnect/pull/559) merged as
+`b5fbd9d9cf7d3c65f648adf799e1bb9ab842f393` with
+`GO_CLEANUP_WORKFLOW_PLATFORM_CONFORMANT`. All ten active repositories now
+use the canonical cleanup/evidence contract or its qualified distribution-role
+equivalent. Exact-main evidence is successful for every consumer; the central
+dispatcher is aligned to the same immutable revision. No product, Runtime,
+API, Renderer or release-policy behavior changed.
+
 TD-GITHUB-001 is now `GO_TD_GITHUB_001_QUALIFIED`. PRs #547–#554 established
 and activated a fail-closed durable evidence path; the exact-main release asset
 for `f6e346018dadaccc8457dac7b5cadd19a03b80e7` was objectively read back with

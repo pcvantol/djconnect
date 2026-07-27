@@ -28,6 +28,13 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
+Platform cleanup and evidence conformance is reconciled. PR #559 merged as
+`b5fbd9d9cf7d3c65f648adf799e1bb9ab842f393` with
+`GO_CLEANUP_WORKFLOW_PLATFORM_CONFORMANT`; all active repositories are on the
+same qualified evidence/authorization revision, with the deliberate
+distribution-role integrity equivalent retained. The central post-merge
+dispatcher passed for that exact main SHA in run `30265354375`.
+
 TD-GITHUB-001 is finalized as `GO_TD_GITHUB_001_QUALIFIED`: the exact-main
 release asset for `f6e346018dadaccc8457dac7b5cadd19a03b80e7` was published,
 read back and validated as redacted durable evidence. The native GitHub SHA
