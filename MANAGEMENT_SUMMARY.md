@@ -15,6 +15,11 @@
 
 ## Current position
 
+PR [#533](https://github.com/pcvantol/djconnect/pull/533) merged as
+`d60a5bba` with `GO_CMB03_PLATFORM_DIVERGENCES_QUALIFIED`: all registered
+differences are retained, separately bounded or prohibited. No implementation
+is authorized.
+
 PR [#531](https://github.com/pcvantol/djconnect/pull/531) merged as
 `c4613e6db9bf71aeb374dedadcb89b7780b10afe` with
 `GO_CMB02_PLATFORM_CAPABILITY_PROFILES_PARTIALLY_QUALIFIED`. Existing
@@ -202,34 +207,31 @@ it is not a shipping or follow-on implementation candidate.
 
 ### Rolling Horizon (Execution Horizon — Next 5 Planned)
 
-1. **CMB-03 — Decide registered platform-only divergences** — Source:
-   `CAPABILITY_MODEL_BACKLOG.md`; Status: Planned; Dependency: divergence
-   register and owner evidence. Reason: records retained platform-specific
-   differences after applicable profile evidence.
-2. **CMB-01 — Adopt Capability Model assessment in future pre-flights** —
+1. **CMB-01 — Adopt Capability Model assessment in future pre-flights** —
    Source: `CAPABILITY_MODEL_BACKLOG.md`; Status: Planned; Dependency: sample
    pre-flight against one existing capability. Reason: bounded
    capability-model governance assessment after the existing renderer-profile
    sequence.
-3. **Capability-profile assessment follow-up** — Source:
+2. **Capability-profile assessment follow-up** — Source:
    `PLATFORM_EVOLUTION_BACKLOG.md`; Status: Planned; Dependency: the current
    contract and objective outstanding host-profile evidence. Reason: canonical
    assessment-first path for retained CMB-05/CMB-06/CMB-07 qualification items;
    it authorizes no implementation.
-4. **Component Release Mode** — Source: `PLATFORM_EVOLUTION_BACKLOG.md`;
+3. **Component Release Mode** — Source: `PLATFORM_EVOLUTION_BACKLOG.md`;
    Status: Planned; Dependency: release evidence and current manifest model.
    Reason: next canonical Platform Evolution item after the retained
    capability-profile follow-up.
-5. **GitHub Actions retention and evidence preservation (`TD-GITHUB-001`)** —
+4. **GitHub Actions retention and evidence preservation (`TD-GITHUB-001`)** —
    Source: `PLATFORM_EVOLUTION_BACKLOG.md`; Status: Planned; Dependency:
    governance approval and a future retention design. Reason: next canonical
    planned Platform Evolution risk item.
+5. **Public distribution: Apple** — Source: `PLATFORM_EVOLUTION_BACKLOG.md`;
+   Status: Planned; Dependency: qualified Internal Release consumers and
+   explicit authorization. Reason: next canonical planned item.
 
 ### Execution Priority Override
 
-CMB-03 remains ahead of CMB-01 because the pre-existing canonical
-Execution Horizon explicitly sequenced profile and divergence evidence first.
-CMB-02 is completed and removed; no backlog order is changed.
+CMB-03 is completed and removed; CMB-01 is next by canonical order.
 
 ### Blocked Items
 
