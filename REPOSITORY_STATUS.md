@@ -28,6 +28,12 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
+The Platform Dependency Governance conformance rollout is merged and is being
+reconciled by a successor exact-main finalization. The original PR #564
+pre-merge workflow run was removed by cleanup before Owner Authorization could
+read it back; this does not alter the merged configuration and is not silently
+treated as qualified historical evidence.
+
 PR [#562](https://github.com/pcvantol/djconnect/pull/562) is reconciled as
 `NO_GO_PLATFORM_DEPENDENCY_GOVERNANCE_DIVERGENCE`. Its merge commit
 `f18fcfbdf2bbb0cb6e56aa0d422d7d48c156df9d` is contained in current `main`;
