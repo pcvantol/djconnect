@@ -70,6 +70,13 @@ class EvidencePreservationTest(unittest.TestCase):
         with self.assertRaises(EvidencePreservationError):
             publication_asset_name("not-a-sha")
 
+    def test_normalizes_github_artifact_digest_prefix(self) -> None:
+        data = source()
+        data["post_merge"]["coverage_artifact_sha"] = "sha256:" + "d" * 64  # type: ignore[index]
+        record = build_record(data, policy_source_revision=POLICY, timestamp="2026-07-27T00:00:00Z", workflow_run_id="456")
+        self.assertEqual(record["supplemental_evidence"][0]["sha256"], "d" * 64)  # type: ignore[index]
+        self.assertEqual(validate_record(record), [])
+
     def test_mutated_published_record_is_detected(self) -> None:
         record = copy.deepcopy(self.build())
         record["qualification"]["required_checks"]["post_merge_ci"] = "FAIL"  # type: ignore[index]
