@@ -21,6 +21,10 @@ on:
         description: Main workflow whose successful run supplies post-merge evidence.
         required: true
         type: string
+      required_check_contexts:
+        description: JSON array of the protected main-branch checks required for merge.
+        required: true
+        type: string
       repository_role:
         description: Repository Ownership release role.
         required: true
@@ -60,6 +64,7 @@ jobs:
           COVERAGE_ARTIFACT: ${{ inputs.coverage_artifact_name }}
           DISTRIBUTION_EVIDENCE_ARTIFACT: ${{ inputs.distribution_evidence_artifact_name }}
           REQUIRED_MAIN_WORKFLOW: ${{ inputs.required_main_workflow }}
+          REQUIRED_CHECK_CONTEXTS: ${{ inputs.required_check_contexts }}
           REPOSITORY_ROLE: ${{ inputs.repository_role }}
           MAIN_SHA: ${{ github.event.workflow_run.head_sha }}
         with:
@@ -80,13 +85,16 @@ jobs:
             const prContexts = pr ? await github.graphql(`query($owner:String!,$repo:String!,$sha:GitObjectID!){repository(owner:$owner,name:$repo){object(oid:$sha){... on Commit {statusCheckRollup {contexts(first:100){nodes{__typename ... on CheckRun{name status conclusion} ... on StatusContext{context state description}}}}}}}}`, {owner, repo, sha: pr.data.head.sha}) : null;
             const contextNodes = prContexts?.repository?.object?.statusCheckRollup?.contexts?.nodes || [];
             const checkPass = name => contextNodes.some(item => item.__typename === "CheckRun" && item.name === name && item.status === "COMPLETED" && item.conclusion === "SUCCESS");
-            const protection = pr
-              ? await github.rest.repos.getBranchProtection({owner, repo, branch: "main"}).catch(() => null)
-              : null;
-            const requiredContexts = new Set([
-              ...(protection?.data?.required_status_checks?.contexts || []),
-              ...(protection?.data?.required_status_checks?.checks || []).map(check => check.context),
-            ]);
+            let requiredContexts;
+            try {
+              const configuredContexts = JSON.parse(process.env.REQUIRED_CHECK_CONTEXTS);
+              if (!Array.isArray(configuredContexts) || configuredContexts.length === 0 || !configuredContexts.every(item => typeof item === "string" && item)) {
+                throw new Error("required_check_contexts must be a non-empty JSON array of strings");
+              }
+              requiredContexts = new Set(configuredContexts);
+            } catch (error) {
+              throw new Error(`required_check_contexts is invalid: ${error.message}`);
+            }
             const requiredCheckPass = name => contextNodes.some(item =>
               (item.__typename === "CheckRun" && item.name === name && item.status === "COMPLETED" && item.conclusion === "SUCCESS") ||
               (item.__typename === "StatusContext" && item.context === name && item.state === "SUCCESS")
