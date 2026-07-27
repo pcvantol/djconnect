@@ -5,6 +5,14 @@
 
 ## Current engineering increment
 
+PR [#541](https://github.com/pcvantol/djconnect/pull/541), **Assess Component
+Release Mode**, merged as `5dfeb7b0f46d8d11b92ead95b8dc9137eff981af`. It
+records `GO_COMPONENT_RELEASE_MODE_PARTIALLY_QUALIFIED`: canonical repository
+release units, patch and verification boundaries are qualified; only the
+future Component Release Qualification assessment remains. No release-mode
+implementation, workflow, manifest, Runtime, API or Renderer change is
+authorized.
+
 PR [#539](https://github.com/pcvantol/djconnect/pull/539), **Reconcile
 Capability-profile qualifications**, merged as
 `31a57a8900c6e113edebaf601266b3c68af5b0bd`. It records
@@ -201,28 +209,28 @@ execution; it is not a replacement Product Initiative.
 
 #### Rolling Horizon (Execution Horizon — Next 5 Planned)
 
-1. **Component Release Mode** — Source: `PLATFORM_EVOLUTION_BACKLOG.md`;
-   Status: Planned; Dependency: release evidence and current manifest model.
-   Rationale: next canonical Platform Evolution item after the completed
-   capability-profile assessment follow-up.
-2. **GitHub Actions retention and evidence preservation (`TD-GITHUB-001`)** —
+1. **GitHub Actions retention and evidence preservation (`TD-GITHUB-001`)** —
    Source: `PLATFORM_EVOLUTION_BACKLOG.md`; Status: Planned; Dependency:
    governance approval and a future retention design. Rationale: next
    canonical planned Platform Evolution risk item.
-3. **Public distribution: Apple** — Source: `PLATFORM_EVOLUTION_BACKLOG.md`;
+2. **Public distribution: Apple** — Source: `PLATFORM_EVOLUTION_BACKLOG.md`;
    Status: Planned; Dependency: qualified Internal Release consumers and
    explicit authorization. Rationale: next canonical planned item.
-4. **Public distribution: Windows** — Source: `PLATFORM_EVOLUTION_BACKLOG.md`;
+3. **Public distribution: Windows** — Source: `PLATFORM_EVOLUTION_BACKLOG.md`;
    Status: Planned; Dependency: qualified Internal Release consumers and
    explicit authorization. Rationale: next canonical planned item.
-5. **Public HACS distribution** — Source: `PLATFORM_EVOLUTION_BACKLOG.md`;
+4. **Public HACS distribution** — Source: `PLATFORM_EVOLUTION_BACKLOG.md`;
    Status: Planned; Dependency: fresh candidate and release authorization.
    Rationale: next canonical planned distribution item.
+5. **HACS 3.3.0 release visibility (`HACS-3.3.0-001`)** — Source:
+   `PLATFORM_EVOLUTION_BACKLOG.md`; Status: Planned; Dependency: release/tag
+   metadata, HACS cache/index discovery and update presentation. Rationale:
+   next canonical planned distribution investigation.
 
 #### Execution Priority Override
 
-Capability-profile assessment follow-up is completed and removed; no priority
-or backlog order is changed.
+Component Release Mode is completed and removed; no priority or backlog order
+is changed.
 
 #### Blocked Items
 

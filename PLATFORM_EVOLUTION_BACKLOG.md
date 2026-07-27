@@ -18,7 +18,7 @@ user-facing roadmap progress; the current Product Initiative is recorded in
 | --- | --- | --- | --- | --- |
 | Capability-profile assessment follow-up | P2 | Completed | PR #539 / `QUALIFICATION_REGISTER.md`; current CMB-05/CMB-06/CMB-07/CMB-09/CMB-12 evidence | `GO_CAPABILITY_PROFILE_FOLLOW_UP_RECONCILED`; seven original items reconciled to six unique active items; no product implementation authorization |
 | Canonical governance Version 2.2 alignment | P0 | Historical | merged governance evidence | retained governance evidence only |
-| Component Release Mode | P2 | Assessed | `docs/release/COMPONENT_RELEASE_MODE_ASSESSMENT.md`; release evidence and current manifest model | `GO_COMPONENT_RELEASE_MODE_PARTIALLY_QUALIFIED`; only Component Release Qualification remains, with no release-mode implementation authorization |
+| Component Release Mode | P2 | Completed | PR #541 / `docs/release/COMPONENT_RELEASE_MODE_ASSESSMENT.md`; release evidence and current manifest model | `GO_COMPONENT_RELEASE_MODE_PARTIALLY_QUALIFIED`; Component Release Qualification remains Future Assessment only, with no release-mode implementation authorization |
 | GitHub Actions retention and evidence preservation (`TD-GITHUB-001`) | P1 | Planned | governance approval, Repository Ownership integration and a future approved retention design | governed implementation only after design and qualification |
 | Public distribution: Apple | P1 | Planned | qualified Internal Release consumers and explicit authorization | release-operational work |
 | Public distribution: Windows | P1 | Planned | qualified Internal Release consumers and explicit authorization | release-operational work |

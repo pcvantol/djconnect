@@ -28,6 +28,14 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
+PR [#541](https://github.com/pcvantol/djconnect/pull/541), **Assess Component
+Release Mode**, merged as `5dfeb7b0f46d8d11b92ead95b8dc9137eff981af`. It
+records `GO_COMPONENT_RELEASE_MODE_PARTIALLY_QUALIFIED`: existing repository
+release units, patch and verification boundaries are qualified, while a
+generic single-component selection path remains a Future Assessment. No
+release-mode implementation, workflow, manifest, Runtime, API or Renderer
+change is authorized.
+
 PR [#539](https://github.com/pcvantol/djconnect/pull/539), **Reconcile
 Capability-profile qualifications**, merged as
 `31a57a8900c6e113edebaf601266b3c68af5b0bd`. It records
@@ -194,11 +202,11 @@ Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`.
 ## Current roadmap handoff
 
 The repository remains in Phase 1 **DJ Intelligence Evolution**. The current
-Execution Horizon begins with Component Release Mode, followed by
-TD-GITHUB-001, Public distribution: Apple, Public distribution: Windows and
-Public HACS distribution from `PLATFORM_EVOLUTION_BACKLOG.md`. The
-Capability-profile assessment follow-up is completed and its objective evidence
-remains in the Qualification Register. Playback
+Execution Horizon begins with TD-GITHUB-001, followed by Public distribution:
+Apple, Public distribution: Windows, Public HACS distribution and HACS 3.3.0
+release visibility (`HACS-3.3.0-001`) from `PLATFORM_EVOLUTION_BACKLOG.md`.
+Component Release Mode is completed and its remaining qualification evidence
+is in the Qualification Register. Playback
 Observation Stage 2 and Continue Stage 2 remain blocked by
 backend-owned Playback Instance Identity; deferred Audience and Lyrics work is
 excluded from the Horizon.
