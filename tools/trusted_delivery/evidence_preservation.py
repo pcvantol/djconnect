@@ -75,8 +75,10 @@ def build_record(
         raise EvidencePreservationError("post-merge SHA does not match main SHA")
     if post_merge.get("coverage_report_sha") != main_sha:
         raise EvidencePreservationError("coverage report SHA does not match main SHA")
-    if not isinstance(post_merge.get("coverage_artifact_sha"), str) or not _DIGEST.fullmatch(post_merge["coverage_artifact_sha"]):
-        raise EvidencePreservationError("coverage artifact digest is invalid")
+    coverage_artifact_digest = _normalized_digest(
+        post_merge.get("coverage_artifact_sha"),
+        "coverage artifact digest",
+    )
     run_ids = post_merge.get("workflow_run_ids")
     if not isinstance(run_ids, list) or not run_ids or not all(isinstance(item, str) and _RUN_ID.fullmatch(item) for item in run_ids):
         raise EvidencePreservationError("post-merge workflow run IDs are invalid")
@@ -113,7 +115,7 @@ def build_record(
         },
         "published_at": timestamp,
         "supplemental_evidence": [
-            {"kind": "coverage_artifact_digest", "sha256": post_merge["coverage_artifact_sha"]}
+            {"kind": "coverage_artifact_digest", "sha256": coverage_artifact_digest}
         ],
     }
     _reject_sensitive_content(record)
@@ -180,6 +182,17 @@ def _required_sha(value: dict[str, Any], key: str) -> str:
     if not _SHA.fullmatch(item):
         raise EvidencePreservationError(f"{key} must be a lowercase SHA")
     return item
+
+
+def _normalized_digest(value: object, label: str) -> str:
+    """Accept GitHub's ``sha256:`` artifact form and store canonical hex."""
+
+    if not isinstance(value, str):
+        raise EvidencePreservationError(f"{label} is invalid")
+    digest = value.removeprefix("sha256:")
+    if not _DIGEST.fullmatch(digest):
+        raise EvidencePreservationError(f"{label} is invalid")
+    return digest
 
 
 def _require_passes(value: dict[str, Any], keys: tuple[str, ...], label: str) -> None:
