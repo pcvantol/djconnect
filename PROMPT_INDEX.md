@@ -4,6 +4,14 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
+PR [#537](https://github.com/pcvantol/djconnect/pull/537) merged as
+`c5d489f0a38875da2de8a9f2851891648b97604a` with
+`GO_SESSION_LIFECYCLE_COMPLETION_REGISTERED`. Its immutable history is
+`docs/history/prompts/2026-07-27-session-lifecycle-completion-capability-proposal.md`.
+The family is future-only and assessment-first; it preserves the existing
+Session lifecycle, Session Continuation, Timeline, Music DNA and Renderer
+ownership boundaries without changing the Execution Horizon.
+
 PR [#535](https://github.com/pcvantol/djconnect/pull/535) merged as
 `0949f578621a83049c43e1b514d39fa6cfd1e47c` with
 `GO_CMB01_CAPABILITY_PREFLIGHT_ADOPTED`. Its immutable history is

@@ -15,6 +15,14 @@
 
 ## Current position
 
+PR [#537](https://github.com/pcvantol/djconnect/pull/537) merged as
+`c5d489f0a38875da2de8a9f2851891648b97604a` with
+`GO_SESSION_LIFECYCLE_COMPLETION_REGISTERED`. Session Lifecycle Completion is
+registered only as a future, assessment-first family for activity-aware
+completion, bounded closing experience, completed-session summary and Personal
+transition. It creates no Runtime, Planner, Renderer, API, Session or product
+implementation and does not change the Execution Horizon.
+
 PR [#535](https://github.com/pcvantol/djconnect/pull/535) merged as
 `0949f578621a83049c43e1b514d39fa6cfd1e47c` with
 `GO_CMB01_CAPABILITY_PREFLIGHT_ADOPTED`. The existing Capability Model
