@@ -18,6 +18,7 @@ in that same roadmap projection.
 | User-facing product priorities and sequence | `PRODUCT_ROADMAP.md` | DJConnect Product Development |
 | Future Interactive DJMoments capability family and its assessment-first boundary | `PRODUCT_ROADMAP.md` | DJConnect Product Development |
 | Future Session Continuation capability family, privacy-safe external invitation boundary and assessment-first scope | `PRODUCT_ROADMAP.md` | DJConnect Product Development |
+| Future Session Lifecycle Completion capability family, activity-aware completion, closing experience and completed-Session transition boundary | `PRODUCT_ROADMAP.md` | DJConnect Product Development |
 | Future Apple Watch Moment-First Conversational Companion experience, within Apple Premium Experience | `PRODUCT_ROADMAP.md`, `docs/product/RENDERER_EXPERIENCE_ROADMAP.md` | Product Development / Apple Renderer Host |
 | Future Home Assistant installation-to-first-DJ-Session onboarding and configuration experience | `PRODUCT_ROADMAP.md` (`HA-ONBOARDING-001`) | Product Development / Home Assistant Integration |
 | Product & Community Readiness phase: presentation, onboarding, deployment and developer-experience readiness before Community Public Release | `PRODUCT_ROADMAP.md` | DJConnect Product Development |

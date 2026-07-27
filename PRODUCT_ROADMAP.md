@@ -85,6 +85,7 @@ their established scope; this roadmap does not authorize their implementation.
 | 2 | Renderer-safe Session experience and experience validation | Planned | Reference Experience assessment and existing renderer-safe projections |
 | 2 | Interactive DJMoments capability family | Planned | Reference Experience; existing DJMoment, Planner, Knowledge, command/Ask DJ and renderer-safe Presentation boundaries; future assessment-first decision |
 | 2 | Session Continuation capability family | Planned | Canonical DJMoment, active Session Runtime/Flow, Profile privacy and device-authorization boundaries, Renderer Host classification and a future assessment-first decision |
+| 2 | Session Lifecycle Completion capability family | Planned | Existing DJ Session lifecycle, Session Start Strategy, Session Continuation, Session Flow, historical Session Timeline, opt-in Music DNA and renderer-safe projection boundaries; future assessment-first decision |
 | Technical Design | Session Direction Projection | Planned | `docs/technical/SESSION_DIRECTION_PROJECTION_ARCHITECTURE.md`; dedicated Broadcast and renderer assessment before implementation |
 | Technical Design | Sharing Experience | Planned | `docs/product/SHARING_EXPERIENCE_ARCHITECTURE.md`; user-initiated native Renderer Host assessment before any share implementation |
 | 3 | Apple Premium Experience | Planned | Reference Experience, experience quality, polish, onboarding and release readiness for macOS, iPhone/iPad and Apple Watch |
@@ -268,6 +269,101 @@ Release Readiness plus privacy qualification are dependencies for any public
 activation. It is not part of Native Surface Integration, even where a native
 surface may later realize it, and does not change the current Execution
 Horizon or any existing priority.
+
+### Session Lifecycle Completion capability family
+
+**Status:** Planned Product Development capability family. It is
+assessment-first, outside the current Execution Horizon, and authorizes no
+assessment, implementation, Runtime, Planner, DJMoment, Renderer, API,
+Session, persistence or Music Backend change.
+
+**Product purpose:** describe the second half of a DJ Session: its reliable
+completion, one bounded closing experience, the completed Session Timeline and
+the respectful transition from the shared Session moment back to Personal
+history and future opt-in learning. It does not redefine the existing DJ
+Session, Session Memory, Session Timeline or Music DNA concepts.
+
+The existing conceptual lifecycle remains the only starting point:
+
+```text
+Idle -> Start DJ Session -> Active Session -> End Session
+     -> existing Session Timeline -> opt-in Music DNA learning
+```
+
+This family may later assess how an already active Session reaches its existing
+end boundary. Candidate evidence includes an explicit user end request,
+activity-aware playback idle, replacement by a newly started Session,
+backend loss and restart recovery. A Session is not defined to end solely
+because a fixed duration elapsed: meaningful activity is more important than
+session age. This registration does not select a detector, timeout, recovery
+policy, persistence model or a definitive end-reason catalogue.
+
+Different future end reasons may require different renderer-safe experiences,
+such as user-ended, playback-idle, session-replaced, backend-lost,
+restart-recovery or unsupported-resume. Those labels are examples only. A
+future assessment must establish whether they exist, their ownership and which
+experience differences are justified; it may not infer an end reason from a
+renderer or a Music Backend provider payload.
+
+The intended future chain is deliberately bounded:
+
+```text
+Existing active DJ Session
+  -> future activity-aware completion qualification
+  -> existing Session end boundary
+  -> optional renderer-safe Closing Experience
+  -> existing completed Session Timeline
+  -> optional Personal transition under existing privacy and opt-in boundaries
+```
+
+A future Closing Experience may be one final DJMoment, a short DJ closing
+contribution or another renderer-safe completion projection. It is not a new
+DJMoment Engine, a second Session Flow, an automatic playback action or a
+renderer-owned lifecycle transition. Renderer Hosts may later present it once;
+they never determine that a Session has ended. After that bounded experience,
+the renderer may show the existing completed Session Timeline and then its
+ordinary Home state. No screen, copy, cadence or platform behavior is selected
+here.
+
+The future Session Summary subject is limited to an AI-hosted summary of a
+completed Session: possible highlights, meaningful DJMoments, discoveries and
+future recommendations. It is not authorized as a persistence schema,
+generative feature, sharing surface, Profile record or new knowledge source.
+Any Personal transition must continue to distinguish objective Session History
+from opt-in Music DNA interpretation, preserve active-profile privacy and never
+expose Performance Memory, Planner/Runtime context, provider payloads,
+credentials or Ask DJ history.
+
+Session Continuation remains separate and precedes this family: it can invite a
+person back only to an already active Session. Lifecycle Completion concerns a
+finished Session and must never revive it through an expired continuation,
+automatically resume playback or imply that a Session is resumable. A future
+assessment must distinguish active, completed and explicitly resumable Session
+states using then-current Runtime and backend evidence. A new Session may later
+replace, complete or safely hand off from an active Session only through the
+existing Session Start and Runtime ownership boundaries; this registration
+defines no transition behavior.
+
+Future assessment backlog, without authorization or sequencing:
+
+- **Session Lifecycle Completion Capability Assessment** — reconcile current
+  Runtime, Start Strategy, Flow, continuation, historical Timeline,
+  Performance Memory and backend-observation evidence; establish whether an
+  activity-based completion model is warranted.
+- **Closing Experience and renderer-safe Session Summary assessment** — only
+  after the lifecycle boundary is qualified; assess one completed-Session
+  presentation boundary without selecting a renderer implementation.
+- **Personal Transition and resumability qualification** — only after the
+  completed-session boundary is qualified; assess Timeline, Profile privacy,
+  opt-in Music DNA and explicit-resume evidence without creating persistence.
+
+Interactive DJMoments remain participation inside an active Session, and the
+Apple Watch Moment-First Companion remains a separately registered renderer
+experience. Product & Community Readiness may later consume qualified
+completed-session evidence, but neither capability is changed by this
+registration. The current Phase 1 initiative, Automated Session Intelligence
+E2E Verification increment, canonical backlog order and Execution Horizon are
+unchanged.
 
 ### Phase 3 — Apple Premium Experience
 
