@@ -85,6 +85,23 @@ jobs:
           current_run_id="${GITHUB_RUN_ID}"
           current_workflow_id="$(gh api "/repos/${repo}/actions/runs/${current_run_id}" --jq '.workflow_id')"
 
+          # Preserve the exact pre-merge runs for the pull request that
+          # produced this main SHA until post-merge reconciliation consumes
+          # their check evidence.
+          protected_run_ids=()
+          pr_head_sha="$(
+            gh api -H 'Accept: application/vnd.github+json' \
+              "/repos/${repo}/commits/${GITHUB_SHA}/pulls" \
+              --jq '[.[] | select(.merged_at and .base.ref == "main" and .merge_commit_sha == env.GITHUB_SHA)] | if length == 1 then .[0].head.sha else empty end' \
+              || true
+          )"
+          if [ -n "${pr_head_sha}" ]; then
+            mapfile -t protected_run_ids < <(
+              gh api "/repos/${repo}/actions/runs?head_sha=${pr_head_sha}&per_page=100" \
+                --paginate --jq '.workflow_runs[] | .id'
+            )
+          fi
+
           gh api "/repos/${repo}/actions/workflows" --paginate --jq '.workflows[] | [.id, .name] | @tsv' |
           while IFS=$'\t' read -r workflow_id workflow_name; do
             [ -n "${workflow_id}" ] || continue
@@ -119,7 +136,7 @@ jobs:
 
             for index in "${!run_ids[@]}"; do
               run_id="${run_ids[$index]}"
-              if ((index < keep_limit)) || [ "${run_id}" = "${current_run_id}" ]; then
+              if ((index < keep_limit)) || [ "${run_id}" = "${current_run_id}" ] || [[ " ${protected_run_ids[*]} " == *" ${run_id} "* ]]; then
                 continue
               fi
 

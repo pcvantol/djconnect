@@ -5,6 +5,12 @@
 
 ## TD-GITHUB-001 finalization
 
+Platform Dependency Governance conformance is implemented across all active
+repositories through GitHub-native Dependabot configuration. Finalization
+revalidates the current merged state on a fresh candidate SHA because the
+original central high-risk pre-merge Actions run was no longer queryable after
+cleanup. That historical evidence-retention gap is retained separately.
+
 PR [#562](https://github.com/pcvantol/djconnect/pull/562), **Platform
 Dependency Governance Conformance Assessment**, merged as
 `f18fcfbdf2bbb0cb6e56aa0d422d7d48c156df9d`. It records
