@@ -28,7 +28,7 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-Platform cleanup and evidence conformance is reconciled. PR #559 merged as
+Platform cleanup and evidence conformance is reconciled. PR [#559](https://github.com/pcvantol/djconnect/pull/559) merged as
 `b5fbd9d9cf7d3c65f648adf799e1bb9ab842f393` with
 `GO_CLEANUP_WORKFLOW_PLATFORM_CONFORMANT`; all active repositories are on the
 same qualified evidence/authorization revision, with the deliberate
