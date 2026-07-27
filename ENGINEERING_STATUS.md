@@ -5,6 +5,15 @@
 
 ## TD-GITHUB-001 finalization
 
+PR [#559](https://github.com/pcvantol/djconnect/pull/559), **Platform Cleanup
+& Evidence Workflow Conformance Repair**, merged as
+`b5fbd9d9cf7d3c65f648adf799e1bb9ab842f393`. It records
+`GO_CLEANUP_WORKFLOW_PLATFORM_CONFORMANT`: the central dispatcher and all
+active consumers use the qualified evidence/authorization revision; the three
+distribution repositories retain their qualified role-equivalent integrity
+evidence. No evidence-loss finding, product change or release-policy change
+was identified.
+
 PRs #547–#554 implemented and activated durable evidence preservation. The
 post-merge dispatcher succeeded for `f6e346018dadaccc8457dac7b5cadd19a03b80e7`
 and its exact-main release asset was independently read back with no validation
