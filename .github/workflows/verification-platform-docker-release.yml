@@ -28,7 +28,7 @@ jobs:
     name: Software Assurance governance
     permissions:
       contents: read
-    uses: pcvantol/djconnect/.github/workflows/software-assurance-governance.yml@3d7d24a84b3aaacb8f2fb229e09c33da85e0545d
+    uses: pcvantol/djconnect/.github/workflows/software-assurance-governance.yml@5f12a591647942c50b59162264529fef6896e5e3
     with:
       execution_profile: release
       owner: pcvantol/djconnect
@@ -39,9 +39,9 @@ jobs:
     env:
       DEFAULT_IMAGE: pcvantol/djconnect-verification-platform
     steps:
-      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v5
 
-      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
         with:
           python-version: "3.11"
 
@@ -154,7 +154,7 @@ jobs:
 
       - name: Log in to Docker Hub
         if: ${{ github.event_name == 'push' || inputs.push }}
-        uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # v4.4.0
+        uses: docker/login-action@abd2ef45e78c5afb21d64d4ca52ee8550d9572c7 # v4.5.1
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}

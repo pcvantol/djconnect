@@ -13,7 +13,7 @@ jobs:
     if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v5
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
           fetch-depth: 1
@@ -38,7 +38,7 @@ jobs:
           printf 'artifact_id=release-asset:%s:%s:%s\n' "$GITHUB_REPOSITORY" "$tag" "$asset" >> "$GITHUB_OUTPUT"
           printf 'artifact_url=https://github.com/%s/releases/download/%s/%s\n' "$GITHUB_REPOSITORY" "$tag" "$asset" >> "$GITHUB_OUTPUT"
       - id: upload
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: djconnect-home-assistant-integration-${{ github.event.workflow_run.head_sha }}
           path: ${{ steps.release.outputs.asset }}
@@ -64,7 +64,7 @@ jobs:
                   "timestamp": datetime.now(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z"),
               }, file, sort_keys=True)
           PY
-      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: home-assistant-release-artifact-evidence
           path: home-assistant-release-artifact-evidence.json
