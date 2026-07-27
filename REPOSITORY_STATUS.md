@@ -28,6 +28,11 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
+TD-GITHUB-001 is finalized as `GO_TD_GITHUB_001_QUALIFIED`: the exact-main
+release asset for `f6e346018dadaccc8457dac7b5cadd19a03b80e7` was published,
+read back and validated as redacted durable evidence. The native GitHub SHA
+pinning compatibility exception remains unchanged.
+
 PR [#545](https://github.com/pcvantol/djconnect/pull/545), **Review
 Generation 2 execution direction**, merged as
 `e5246f0409063d7eec12e3e3c01d78737ae6ba2c`. It records

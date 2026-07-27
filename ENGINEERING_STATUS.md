@@ -3,6 +3,14 @@
 **Status:** Operational handoff
 **Updated:** 2026-07-27
 
+## TD-GITHUB-001 finalization
+
+PRs #547–#554 implemented and activated durable evidence preservation. The
+post-merge dispatcher succeeded for `f6e346018dadaccc8457dac7b5cadd19a03b80e7`
+and its exact-main release asset was independently read back with no validation
+findings. Decision: `GO_TD_GITHUB_001_QUALIFIED`. This closes the retained
+qualification item; no Runtime, product, API or renderer behavior changed.
+
 ## Current engineering increment
 
 PR [#545](https://github.com/pcvantol/djconnect/pull/545), **Review

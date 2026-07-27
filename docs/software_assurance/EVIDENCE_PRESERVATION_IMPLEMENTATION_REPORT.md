@@ -1,6 +1,6 @@
 # Evidence Preservation Qualification Implementation Report
 
-**Status:** Implemented; post-merge qualification pending
+**Status:** Implemented and post-merge qualified
 
 ## Scope
 
@@ -65,7 +65,6 @@ their own contracts and are not retroactively asserted to meet this format.
 
 ## Qualification evidence required after merge
 
-The post-merge workflow must complete on the merged SHA and expose a readable
-asset with a valid schema, `REDACTED` status and matching integrity digest. The
-separate qualification Finalization may then promote TD-GITHUB-001 only if
-that objective read-back succeeds.
+The post-merge workflow completed on `f6e346018dadaccc8457dac7b5cadd19a03b80e7`.
+Its exact-main release asset was read back with a valid schema, `REDACTED`
+status and matching integrity digest; `validate_record` returned no findings.
