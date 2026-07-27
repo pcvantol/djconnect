@@ -80,6 +80,17 @@ jobs:
             const prContexts = pr ? await github.graphql(`query($owner:String!,$repo:String!,$sha:GitObjectID!){repository(owner:$owner,name:$repo){object(oid:$sha){... on Commit {statusCheckRollup {contexts(first:100){nodes{__typename ... on CheckRun{name status conclusion} ... on StatusContext{context state description}}}}}}}}`, {owner, repo, sha: pr.data.head.sha}) : null;
             const contextNodes = prContexts?.repository?.object?.statusCheckRollup?.contexts?.nodes || [];
             const checkPass = name => contextNodes.some(item => item.__typename === "CheckRun" && item.name === name && item.status === "COMPLETED" && item.conclusion === "SUCCESS");
+            const protection = pr
+              ? await github.rest.repos.getBranchProtection({owner, repo, branch: "main"}).catch(() => null)
+              : null;
+            const requiredContexts = new Set([
+              ...(protection?.data?.required_status_checks?.contexts || []),
+              ...(protection?.data?.required_status_checks?.checks || []).map(check => check.context),
+            ]);
+            const requiredCheckPass = name => contextNodes.some(item =>
+              (item.__typename === "CheckRun" && item.name === name && item.status === "COMPLETED" && item.conclusion === "SUCCESS") ||
+              (item.__typename === "StatusContext" && item.context === name && item.state === "SUCCESS")
+            );
             const ownerStatus = contextNodes.find(item => item.__typename === "StatusContext" && item.context === "Owner Authorization");
             const risk = ownerStatus?.description?.startsWith("HIGH_RISK") ? "HIGH_RISK" : "NORMAL_RISK";
             const runs = await github.paginate(github.rest.actions.listWorkflowRunsForRepo, {owner, repo, head_sha: mainSha, status: "completed", per_page: 100});
@@ -94,7 +105,7 @@ jobs:
             const request = {
               repository: `${owner}/${repo}`, repository_role: process.env.REPOSITORY_ROLE, main_sha: mainSha, main_parents: commit.data.parents.map(parent => parent.sha), timestamp: new Date().toISOString(),
               originating_pr: pr ? {number: pr.data.number, state: pr.data.merged ? "MERGED" : "OPEN", base_ref: pr.data.base.ref, head_sha: pr.data.head.sha, merge_commit_sha: pr.data.merge_commit_sha, merge_strategy: pr.data.merge_commit_sha === mainSha && commit.data.parents.length === 1 ? "SQUASH" : "MERGE", merge_actor: pr.data.merged_by?.login, merged_at: pr.data.merged_at, changed_files: prFiles.map(file => file.filename), main_changed_files: (commit.data.files || []).map(file => file.filename)} : null,
-              pre_merge: pr ? {candidate_sha: pr.data.head.sha, risk_classification: risk, owner_authorization: risk === "HIGH_RISK" ? (ownerStatus?.state === "SUCCESS" ? "PASS" : "FAIL") : "PASS", verification: checkPass("Trusted Delivery qualification / Qualify trusted delivery") ? "PASS" : "FAIL", software_assurance: checkPass("Software Assurance governance / Validate canonical governance policy") ? "PASS" : "FAIL", trusted_delivery: checkPass("Trusted Delivery qualification / Qualify trusted delivery") ? "PASS" : "FAIL", workflow_integrity: checkPass("Trusted Delivery qualification / Qualify trusted delivery") ? "PASS" : "FAIL", required_checks: contextNodes.every(item => item.__typename === "CheckRun" ? item.conclusion === "SUCCESS" || item.conclusion === "SKIPPED" : item.state === "SUCCESS") ? "PASS" : "FAIL"} : null,
+              pre_merge: pr ? {candidate_sha: pr.data.head.sha, risk_classification: risk, owner_authorization: risk === "HIGH_RISK" ? (ownerStatus?.state === "SUCCESS" ? "PASS" : "FAIL") : "PASS", verification: checkPass("Trusted Delivery qualification / Qualify trusted delivery") ? "PASS" : "FAIL", software_assurance: checkPass("Software Assurance governance / Validate canonical governance policy") ? "PASS" : "FAIL", trusted_delivery: checkPass("Trusted Delivery qualification / Qualify trusted delivery") ? "PASS" : "FAIL", workflow_integrity: checkPass("Trusted Delivery qualification / Qualify trusted delivery") ? "PASS" : "FAIL", required_checks: requiredContexts.size > 0 && [...requiredContexts].every(requiredCheckPass) ? "PASS" : "FAIL"} : null,
               post_merge: postMerge
             };
             fs.writeFileSync("reconciliation-request.json", JSON.stringify(request));
