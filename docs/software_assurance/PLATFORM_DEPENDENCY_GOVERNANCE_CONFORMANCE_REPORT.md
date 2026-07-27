@@ -1,6 +1,6 @@
 # Platform Dependency Governance Conformance Report
 
-**Status:** implementation complete; successor exact-main evidence pending finalization  
+**Status:** implementation complete; successor exact-main evidence pending finalization
 **Scope:** GitHub-native Dependabot configuration and existing platform
 governance only.
 
