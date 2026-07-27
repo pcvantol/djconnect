@@ -38,6 +38,23 @@ def source() -> dict[str, object]:
     }
 
 
+def distribution_source() -> dict[str, object]:
+    data = source()
+    data["repository_role"] = "distribution"
+    post_merge = data["post_merge"]
+    assert isinstance(post_merge, dict)
+    for key in ("tests", "lint", "static_analysis", "build_validation", "coverage", "coverage_report_sha", "coverage_artifact_sha"):
+        post_merge.pop(key)
+    post_merge.update(
+        {
+            "distribution_integrity": "PASS",
+            "metadata_validation": "PASS",
+            "distribution_artifact_sha": "d" * 64,
+        }
+    )
+    return data
+
+
 class EvidencePreservationTest(unittest.TestCase):
     def build(self) -> dict[str, object]:
         return build_record(source(), policy_source_revision=POLICY, timestamp="2026-07-27T00:00:00Z", workflow_run_id="456")
@@ -75,6 +92,15 @@ class EvidencePreservationTest(unittest.TestCase):
         data["post_merge"]["coverage_artifact_sha"] = "sha256:" + "d" * 64  # type: ignore[index]
         record = build_record(data, policy_source_revision=POLICY, timestamp="2026-07-27T00:00:00Z", workflow_run_id="456")
         self.assertEqual(record["supplemental_evidence"][0]["sha256"], "d" * 64)  # type: ignore[index]
+        self.assertEqual(validate_record(record), [])
+
+    def test_distribution_record_uses_integrity_evidence_without_coverage(self) -> None:
+        data = distribution_source()
+        post_merge = data["post_merge"]
+        assert isinstance(post_merge, dict)
+        post_merge["distribution_artifact_sha"] = "sha256:" + "d" * 64
+        record = build_record(data, policy_source_revision=POLICY, timestamp="2026-07-27T00:00:00Z", workflow_run_id="456")
+        self.assertEqual(record["supplemental_evidence"], [{"kind": "distribution_integrity_artifact_digest", "sha256": "d" * 64}])  # type: ignore[index]
         self.assertEqual(validate_record(record), [])
 
     def test_mutated_published_record_is_detected(self) -> None:

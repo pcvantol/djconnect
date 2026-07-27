@@ -37,6 +37,12 @@ _REQUIRED_POST_MERGE = (
     "governance",
     "coverage",
 )
+_REQUIRED_DISTRIBUTION_POST_MERGE = (
+    "ci",
+    "distribution_integrity",
+    "metadata_validation",
+    "governance",
+)
 
 
 class EvidencePreservationError(ValueError):
@@ -67,25 +73,42 @@ def build_record(
     if not isinstance(source_digest, str) or not _DIGEST.fullmatch(source_digest):
         raise EvidencePreservationError("source evidence digest is invalid")
 
+    repository_role = source.get("repository_role")
+    if repository_role not in {"active_source", "release_source", "distribution"}:
+        raise EvidencePreservationError("repository role is invalid")
+
     pre_merge = _required_mapping(source, "pre_merge")
     post_merge = _required_mapping(source, "post_merge")
     _require_passes(pre_merge, _REQUIRED_PRE_MERGE, "pre-merge")
-    _require_passes(post_merge, _REQUIRED_POST_MERGE, "post-merge")
+    required_post_merge = (
+        _REQUIRED_DISTRIBUTION_POST_MERGE
+        if repository_role == "distribution"
+        else _REQUIRED_POST_MERGE
+    )
+    _require_passes(post_merge, required_post_merge, "post-merge")
     if post_merge.get("sha") != main_sha:
         raise EvidencePreservationError("post-merge SHA does not match main SHA")
-    if post_merge.get("coverage_report_sha") != main_sha:
-        raise EvidencePreservationError("coverage report SHA does not match main SHA")
-    coverage_artifact_digest = _normalized_digest(
-        post_merge.get("coverage_artifact_sha"),
-        "coverage artifact digest",
-    )
+    if repository_role == "distribution":
+        supplemental_kind = "distribution_integrity_artifact_digest"
+        supplemental_digest = _normalized_digest(
+            post_merge.get("distribution_artifact_sha"),
+            "distribution integrity artifact digest",
+        )
+    else:
+        if post_merge.get("coverage_report_sha") != main_sha:
+            raise EvidencePreservationError("coverage report SHA does not match main SHA")
+        supplemental_kind = "coverage_artifact_digest"
+        supplemental_digest = _normalized_digest(
+            post_merge.get("coverage_artifact_sha"),
+            "coverage artifact digest",
+        )
     run_ids = post_merge.get("workflow_run_ids")
     if not isinstance(run_ids, list) or not run_ids or not all(isinstance(item, str) and _RUN_ID.fullmatch(item) for item in run_ids):
         raise EvidencePreservationError("post-merge workflow run IDs are invalid")
 
     required_checks = {
         **{key: pre_merge[key] for key in _REQUIRED_PRE_MERGE},
-        **{f"post_merge_{key}": post_merge[key] for key in _REQUIRED_POST_MERGE},
+        **{f"post_merge_{key}": post_merge[key] for key in required_post_merge},
     }
     record: dict[str, Any] = {
         "schema_version": 1,
@@ -115,7 +138,7 @@ def build_record(
         },
         "published_at": timestamp,
         "supplemental_evidence": [
-            {"kind": "coverage_artifact_digest", "sha256": coverage_artifact_digest}
+            {"kind": supplemental_kind, "sha256": supplemental_digest}
         ],
     }
     _reject_sensitive_content(record)
@@ -141,7 +164,18 @@ def validate_record(record: dict[str, Any]) -> list[str]:
     if not isinstance(qualification, dict) or qualification.get("outcome") != _QUALIFIED:
         errors.append("qualification outcome is not qualified")
     checks = qualification.get("required_checks") if isinstance(qualification, dict) else None
-    if not isinstance(checks, dict) or not checks or any(value != _PASS for value in checks.values()):
+    role = record.get("repository_role")
+    required_post_merge = (
+        _REQUIRED_DISTRIBUTION_POST_MERGE
+        if role == "distribution"
+        else _REQUIRED_POST_MERGE
+    )
+    required_check_keys = (*_REQUIRED_PRE_MERGE, *(f"post_merge_{key}" for key in required_post_merge))
+    if (
+        role not in {"active_source", "release_source", "distribution"}
+        or not isinstance(checks, dict)
+        or any(checks.get(key) != _PASS for key in required_check_keys)
+    ):
         errors.append("required formal check result is missing or not PASS")
     integrity = record.get("integrity")
     if not isinstance(integrity, dict) or integrity.get("algorithm") != "sha256-canonical-json" or not isinstance(integrity.get("digest"), str):
