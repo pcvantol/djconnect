@@ -15,9 +15,10 @@ permissions:
 jobs:
   reconcile:
     if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main'
-    uses: pcvantol/djconnect/.github/workflows/post-merge-release-evidence.yml@335e32f37f1b4889fb60114a15b6f332afc32121
+    uses: pcvantol/djconnect/.github/workflows/post-merge-release-evidence.yml@4931f1371b53159d837968955a7b4972051bdcbe
     with:
-      policy_source_ref: 335e32f37f1b4889fb60114a15b6f332afc32121
+      policy_source_ref: 4931f1371b53159d837968955a7b4972051bdcbe
       required_main_workflow: Validate Home Assistant custom integration
+      required_check_contexts: '["Trusted Delivery qualification / Qualify trusted delivery"]'
       repository_role: active_source
       coverage_artifact_name: ha-cobertura-coverage
