@@ -28,6 +28,13 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
+PR [#537](https://github.com/pcvantol/djconnect/pull/537), **Register Session
+Lifecycle Completion capability**, merged as
+`c5d489f0a38875da2de8a9f2851891648b97604a`. It records
+`GO_SESSION_LIFECYCLE_COMPLETION_REGISTERED`; the future assessment-first
+family preserves the existing Session lifecycle, Timeline, Music DNA,
+Continuation and Renderer boundaries. No implementation is authorized.
+
 PR [#535](https://github.com/pcvantol/djconnect/pull/535), **Adopt CMB-01
 Capability Model pre-flight**, merged as
 `0949f578621a83049c43e1b514d39fa6cfd1e47c`. It records
