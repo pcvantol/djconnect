@@ -15,6 +15,13 @@
 
 ## Current position
 
+PR [#543](https://github.com/pcvantol/djconnect/pull/543) merged as
+`d011d88bfda745a7fb1c89ffa24479bced1297e3` with
+`GO_TD_GITHUB_001_PARTIALLY_QUALIFIED`. The canonical evidence inventory now
+separates Permanent, Long-term, Short-term and Ephemeral output. Evidence
+Preservation Qualification remains the sole future item; no retention, archive,
+GitHub Actions, workflow, Runtime, API or Renderer change is authorized.
+
 PR [#541](https://github.com/pcvantol/djconnect/pull/541) merged as
 `5dfeb7b0f46d8d11b92ead95b8dc9137eff981af` with
 `GO_COMPONENT_RELEASE_MODE_PARTIALLY_QUALIFIED`. Canonical repository release
@@ -236,28 +243,28 @@ it is not a shipping or follow-on implementation candidate.
 
 ### Rolling Horizon (Execution Horizon — Next 5 Planned)
 
-1. **GitHub Actions retention and evidence preservation (`TD-GITHUB-001`)** —
-   Source: `PLATFORM_EVOLUTION_BACKLOG.md`; Status: Planned; Dependency:
-   governance approval and a future retention design. Reason: next canonical
-   planned Platform Evolution risk item.
-2. **Public distribution: Apple** — Source: `PLATFORM_EVOLUTION_BACKLOG.md`;
+1. **Public distribution: Apple** — Source: `PLATFORM_EVOLUTION_BACKLOG.md`;
    Status: Planned; Dependency: qualified Internal Release consumers and
    explicit authorization. Reason: next canonical planned item.
-3. **Public distribution: Windows** — Source: `PLATFORM_EVOLUTION_BACKLOG.md`;
+2. **Public distribution: Windows** — Source: `PLATFORM_EVOLUTION_BACKLOG.md`;
    Status: Planned; Dependency: qualified Internal Release consumers and
    explicit authorization. Reason: next canonical planned item.
-4. **Public HACS distribution** — Source: `PLATFORM_EVOLUTION_BACKLOG.md`;
+3. **Public HACS distribution** — Source: `PLATFORM_EVOLUTION_BACKLOG.md`;
    Status: Planned; Dependency: fresh candidate and release authorization.
    Reason: next canonical planned distribution item.
-5. **HACS 3.3.0 release visibility (`HACS-3.3.0-001`)** — Source:
+4. **HACS 3.3.0 release visibility (`HACS-3.3.0-001`)** — Source:
    `PLATFORM_EVOLUTION_BACKLOG.md`; Status: Planned; Dependency: release/tag
    metadata, HACS cache/index discovery and update presentation. Reason: next
    canonical planned distribution investigation.
+5. **Firmware OTA publication and staged rollback** — Source:
+   `PLATFORM_EVOLUTION_BACKLOG.md`; Status: Planned; Dependency:
+   manifest-bound consumer qualification. Reason: next canonical planned
+   release-operational item.
 
 ### Execution Priority Override
 
-Component Release Mode is completed and removed; no priority or backlog order
-is changed.
+TD-GITHUB-001 is completed and removed; no priority or backlog order is
+changed.
 
 ### Blocked Items
 

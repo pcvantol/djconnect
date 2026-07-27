@@ -28,6 +28,14 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
+PR [#543](https://github.com/pcvantol/djconnect/pull/543), **Assess GitHub
+Actions retention and evidence preservation**, merged as
+`d011d88bfda745a7fb1c89ffa24479bced1297e3`. It records
+`GO_TD_GITHUB_001_PARTIALLY_QUALIFIED`: evidence preservation classes and
+decision dependencies are qualified; Evidence Preservation Qualification
+remains Future Assessment only. No retention, archive, GitHub Actions,
+workflow, Runtime, API or Renderer change is authorized.
+
 PR [#541](https://github.com/pcvantol/djconnect/pull/541), **Assess Component
 Release Mode**, merged as `5dfeb7b0f46d8d11b92ead95b8dc9137eff981af`. It
 records `GO_COMPONENT_RELEASE_MODE_PARTIALLY_QUALIFIED`: existing repository
@@ -202,11 +210,11 @@ Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`.
 ## Current roadmap handoff
 
 The repository remains in Phase 1 **DJ Intelligence Evolution**. The current
-Execution Horizon begins with TD-GITHUB-001, followed by Public distribution:
-Apple, Public distribution: Windows, Public HACS distribution and HACS 3.3.0
-release visibility (`HACS-3.3.0-001`) from `PLATFORM_EVOLUTION_BACKLOG.md`.
-Component Release Mode is completed and its remaining qualification evidence
-is in the Qualification Register. Playback
+Execution Horizon begins with Public distribution: Apple, followed by Public
+distribution: Windows, Public HACS distribution, HACS 3.3.0 release visibility
+(`HACS-3.3.0-001`) and Firmware OTA publication and staged rollback from
+`PLATFORM_EVOLUTION_BACKLOG.md`. TD-GITHUB-001 is completed and its remaining
+qualification evidence is in the Qualification Register. Playback
 Observation Stage 2 and Continue Stage 2 remain blocked by
 backend-owned Playback Instance Identity; deferred Audience and Lyrics work is
 excluded from the Horizon.
