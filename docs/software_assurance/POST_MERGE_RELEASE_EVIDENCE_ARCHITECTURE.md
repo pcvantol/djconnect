@@ -36,3 +36,11 @@ artifact is available before it is read. The reusable workflow rejects direct
 `Post-Merge Release Evidence / Reconcile release evidence` on the exact
 workflow-run head SHA, even if a later commit reaches `main` while
 reconciliation is running. It uploads `post-merge-release-evidence`.
+
+Workflow-run cleanup is intentionally bounded, but it must preserve the
+completed checks on the exact pull-request head that produced the current
+`main` SHA. Those checks are the only valid pre-merge input for the following
+reconciliation. A later cleanup invocation may remove them only after the
+durable exact-main evidence has been published. Manual `workflow_dispatch`
+runs are not releases and must not trigger a source repository's post-merge
+reconciliation or require its push-only coverage artifact.
