@@ -15,6 +15,16 @@
 
 ## Current position
 
+PR [#545](https://github.com/pcvantol/djconnect/pull/545) merged as
+`e5246f0409063d7eec12e3e3c01d78737ae6ba2c` with
+`GO_GENERATION_2_EXECUTION_DIRECTION_REVIEWED`. Generation 2 is
+architecturally mature enough for the existing bounded distribution horizon;
+this does not make every future product capability implementation-ready.
+Targeted assessments remain only for recorded evidence gaps, while the current
+five distribution items need no new architecture assessment. The review does
+not change the roadmap, priorities, Execution Horizon or any release or
+implementation authorization.
+
 PR [#543](https://github.com/pcvantol/djconnect/pull/543) merged as
 `d011d88bfda745a7fb1c89ffa24479bced1297e3` with
 `GO_TD_GITHUB_001_PARTIALLY_QUALIFIED`. The canonical evidence inventory now
