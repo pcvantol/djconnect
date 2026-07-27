@@ -29,7 +29,7 @@ on:
 permissions:
   actions: read
   checks: read
-  contents: read
+  contents: write
   pull-requests: read
   statuses: write
 
@@ -109,6 +109,68 @@ jobs:
           evidence = reconcile(json.loads(Path("../reconciliation-request.json").read_text()))
           Path("../post-merge-release-evidence.json").write_text(json.dumps(evidence, indent=2, sort_keys=True) + "\n")
           print(evidence["decision"])
+          PY
+
+      - name: Produce redacted durable qualification evidence
+        working-directory: reconciliation-policy
+        env:
+          POLICY_SOURCE_REVISION: ${{ inputs.policy_source_ref }}
+          PRODUCER_RUN_ID: ${{ github.run_id }}
+        run: |
+          python - <<'PY'
+          from datetime import UTC, datetime
+          import json
+          import os
+          from pathlib import Path
+          from tools.trusted_delivery.evidence_preservation import build_record, validate_record
+
+          source = json.loads(Path("../post-merge-release-evidence.json").read_text())
+          timestamp = datetime.now(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+          record = build_record(
+              source,
+              policy_source_revision=os.environ["POLICY_SOURCE_REVISION"],
+              timestamp=timestamp,
+              workflow_run_id=os.environ["PRODUCER_RUN_ID"],
+          )
+          findings = validate_record(record)
+          if findings:
+              raise SystemExit("durable evidence validation failed: " + "; ".join(findings))
+          Path("../durable-qualification-evidence.json").write_text(
+              json.dumps(record, indent=2, sort_keys=True) + "\n"
+          )
+          PY
+
+      - name: Publish append-only durable qualification evidence
+        env:
+          CANDIDATE_SHA: ${{ github.event.workflow_run.head_sha }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tag="internal-ha-${CANDIDATE_SHA}"
+          asset="qualification-evidence-${CANDIDATE_SHA}.json"
+          if ! gh release view "$tag" >/dev/null 2>&1; then
+            gh release create "$tag" --target "$CANDIDATE_SHA" --title "DJConnect Home Assistant artifact ${CANDIDATE_SHA}" --prerelease --notes "Immutable internal deployment artifact." || gh release view "$tag" >/dev/null
+          fi
+          test "$(gh release view "$tag" --json targetCommitish --jq .targetCommitish)" = "$CANDIDATE_SHA"
+          if gh release view "$tag" --json assets --jq '.assets[].name' | grep -Fx "$asset"; then
+            echo "durable evidence collision: existing record will not be overwritten" >&2
+            exit 1
+          fi
+          cp durable-qualification-evidence.json "$asset"
+          gh release upload "$tag" "$asset"
+          mkdir durable-evidence-readback
+          gh release download "$tag" --pattern "$asset" --dir durable-evidence-readback
+          cmp durable-qualification-evidence.json "durable-evidence-readback/$asset"
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          from tools.trusted_delivery.evidence_preservation import validate_record
+          path = Path("durable-evidence-readback") / f"qualification-evidence-{os.environ['CANDIDATE_SHA']}.json"
+          record = json.loads(path.read_text())
+          findings = validate_record(record)
+          if findings:
+              raise SystemExit("published durable evidence validation failed: " + "; ".join(findings))
           PY
 
       - name: Publish exact-main-SHA reconciliation status
