@@ -23,3 +23,17 @@ class PostMergeWorkflowContractTest(unittest.TestCase):
         self.assertIn("sha: evidence.main_sha", workflow)
         self.assertNotIn("sha: context.sha, context: \"Post-Merge Release Evidence", workflow)
 
+    def test_qualified_main_evidence_is_published_append_only_and_read_back(self) -> None:
+        workflow = (ROOT / ".github/workflows/post-merge-release-evidence.yml").read_text()
+        dispatch = (ROOT / ".github/workflows/post-merge-release-evidence-dispatch.yml").read_text()
+
+        self.assertIn("contents: write", workflow)
+        self.assertIn("contents: write", dispatch)
+        self.assertIn("Produce redacted durable qualification evidence", workflow)
+        self.assertIn("Publish append-only durable qualification evidence", workflow)
+        self.assertIn("durable evidence collision: existing record will not be overwritten", workflow)
+        self.assertIn("gh release download", workflow)
+        self.assertLess(
+            workflow.index("Publish append-only durable qualification evidence"),
+            workflow.index("Publish exact-main-SHA reconciliation status"),
+        )
