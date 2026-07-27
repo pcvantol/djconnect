@@ -4,6 +4,14 @@ Status: canonical prompt navigation
 
 ## Current product architecture note
 
+PR [#539](https://github.com/pcvantol/djconnect/pull/539) merged as
+`31a57a8900c6e113edebaf601266b3c68af5b0bd` with
+`GO_CAPABILITY_PROFILE_FOLLOW_UP_RECONCILED`. Its immutable history is
+`docs/history/prompts/2026-07-27-capability-profile-assessment-follow-up.md`.
+It normalizes seven CMB-05/CMB-06/CMB-07/CMB-09/CMB-12 source items to six
+unique Future Assessment items without implementation or Execution Horizon
+authority.
+
 PR [#537](https://github.com/pcvantol/djconnect/pull/537) merged as
 `c5d489f0a38875da2de8a9f2851891648b97604a` with
 `GO_SESSION_LIFECYCLE_COMPLETION_REGISTERED`. Its immutable history is
@@ -175,13 +183,13 @@ slice **Track Insight (CAP-IN-01) → Apple Native Sharing**. Apple evidence is
 decision `GO_CROSS_REPOSITORY_EVIDENCE_COMPLETE`. No Runtime, Broadcast, API
 or DJ Intelligence change is authorized. After the completed Apple Sharing,
 CMB-04, CMB-08, HACS-CI-PR-REF-001, Client Connectivity & Resilience, CMB-05,
-CMB-06, CMB-07, CMB-09, CMB-12, CMB-02, CMB-03 and CMB-01 lifecycles, the
-Execution Horizon begins with the canonical Capability-profile assessment
-follow-up, Component Release Mode, TD-GITHUB-001, Public distribution: Apple
-and Public distribution: Windows from
-`PLATFORM_EVOLUTION_BACKLOG.md`. Playback Observation Stage 2 / Continue
-Stage 2 remains blocked by Playback Instance Identity; only Audience and Lyrics
-work remains deferred outside the Horizon.
+CMB-06, CMB-07, CMB-09, CMB-12, CMB-02, CMB-03, CMB-01 and the
+Capability-profile assessment follow-up lifecycles, the Execution Horizon
+begins with Component Release Mode, TD-GITHUB-001, Public distribution: Apple,
+Public distribution: Windows and Public HACS distribution from
+`PLATFORM_EVOLUTION_BACKLOG.md`. Playback Observation Stage 2 / Continue Stage
+2 remains blocked by Playback Instance Identity; only Audience and Lyrics work
+remains deferred outside the Horizon.
 
 `BOOTSTRAP.md` is the single canonical repository entry point for new ChatGPT
 Product & Platform Architect sessions. **Repository Sync + Developer Handoff**

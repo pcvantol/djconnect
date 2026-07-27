@@ -28,6 +28,13 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
+PR [#539](https://github.com/pcvantol/djconnect/pull/539), **Reconcile
+Capability-profile qualifications**, merged as
+`31a57a8900c6e113edebaf601266b3c68af5b0bd`. It records
+`GO_CAPABILITY_PROFILE_FOLLOW_UP_RECONCILED`: the register has six unique
+active qualification items after normalizing CMB-05/CMB-06/CMB-07/CMB-09/CMB-12
+evidence. No implementation is authorized.
+
 PR [#537](https://github.com/pcvantol/djconnect/pull/537), **Register Session
 Lifecycle Completion capability**, merged as
 `c5d489f0a38875da2de8a9f2851891648b97604a`. It records
@@ -187,11 +194,11 @@ Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`.
 ## Current roadmap handoff
 
 The repository remains in Phase 1 **DJ Intelligence Evolution**. The current
-Execution Horizon begins with the canonical Capability-profile assessment
-follow-up from `PLATFORM_EVOLUTION_BACKLOG.md`; Component Release Mode,
-TD-GITHUB-001, Public distribution: Apple and Public distribution: Windows
-follow. CMB-01 is completed and its objective evidence remains in the
-Qualification Register. Playback
+Execution Horizon begins with Component Release Mode, followed by
+TD-GITHUB-001, Public distribution: Apple, Public distribution: Windows and
+Public HACS distribution from `PLATFORM_EVOLUTION_BACKLOG.md`. The
+Capability-profile assessment follow-up is completed and its objective evidence
+remains in the Qualification Register. Playback
 Observation Stage 2 and Continue Stage 2 remain blocked by
 backend-owned Playback Instance Identity; deferred Audience and Lyrics work is
 excluded from the Horizon.

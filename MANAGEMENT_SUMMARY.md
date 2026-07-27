@@ -15,6 +15,13 @@
 
 ## Current position
 
+PR [#539](https://github.com/pcvantol/djconnect/pull/539) merged as
+`31a57a8900c6e113edebaf601266b3c68af5b0bd` with
+`GO_CAPABILITY_PROFILE_FOLLOW_UP_RECONCILED`. Seven original remaining
+qualification items from CMB-05/CMB-06/CMB-07/CMB-09/CMB-12 are reconciled to
+six unique active items: four retained, two split into Future Assessments and
+one duplicate CMB-12 entry closed. No implementation is authorized.
+
 PR [#537](https://github.com/pcvantol/djconnect/pull/537) merged as
 `c5d489f0a38875da2de8a9f2851891648b97604a` with
 `GO_SESSION_LIFECYCLE_COMPLETION_REGISTERED`. Session Lifecycle Completion is
@@ -220,29 +227,28 @@ it is not a shipping or follow-on implementation candidate.
 
 ### Rolling Horizon (Execution Horizon — Next 5 Planned)
 
-1. **Capability-profile assessment follow-up** — Source:
-   `PLATFORM_EVOLUTION_BACKLOG.md`; Status: Planned; Dependency: the current
-   contract and objective outstanding host-profile evidence. Reason: canonical
-   assessment-first path for retained CMB-05/CMB-06/CMB-07 qualification items;
-   it authorizes no implementation.
-2. **Component Release Mode** — Source: `PLATFORM_EVOLUTION_BACKLOG.md`;
+1. **Component Release Mode** — Source: `PLATFORM_EVOLUTION_BACKLOG.md`;
    Status: Planned; Dependency: release evidence and current manifest model.
-   Reason: next canonical Platform Evolution item after the retained
-   capability-profile follow-up.
-3. **GitHub Actions retention and evidence preservation (`TD-GITHUB-001`)** —
+   Reason: next canonical Platform Evolution item after the completed
+   capability-profile assessment follow-up.
+2. **GitHub Actions retention and evidence preservation (`TD-GITHUB-001`)** —
    Source: `PLATFORM_EVOLUTION_BACKLOG.md`; Status: Planned; Dependency:
    governance approval and a future retention design. Reason: next canonical
    planned Platform Evolution risk item.
-4. **Public distribution: Apple** — Source: `PLATFORM_EVOLUTION_BACKLOG.md`;
+3. **Public distribution: Apple** — Source: `PLATFORM_EVOLUTION_BACKLOG.md`;
    Status: Planned; Dependency: qualified Internal Release consumers and
    explicit authorization. Reason: next canonical planned item.
-5. **Public distribution: Windows** — Source: `PLATFORM_EVOLUTION_BACKLOG.md`;
+4. **Public distribution: Windows** — Source: `PLATFORM_EVOLUTION_BACKLOG.md`;
    Status: Planned; Dependency: qualified Internal Release consumers and
    explicit authorization. Reason: next canonical planned item.
+5. **Public HACS distribution** — Source: `PLATFORM_EVOLUTION_BACKLOG.md`;
+   Status: Planned; Dependency: fresh candidate and release authorization.
+   Reason: next canonical planned distribution item.
 
 ### Execution Priority Override
 
-CMB-01 is completed and removed; no priority or backlog order is changed.
+Capability-profile assessment follow-up is completed and removed; no priority
+or backlog order is changed.
 
 ### Blocked Items
 
