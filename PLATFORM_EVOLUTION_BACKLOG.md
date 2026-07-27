@@ -16,7 +16,7 @@ user-facing roadmap progress; the current Product Initiative is recorded in
 
 | Initiative | Priority | Status | Dependencies | Promotion path |
 | --- | --- | --- | --- | --- |
-| Capability-profile assessment follow-up | P2 | Planned | `DJCONNECT_CAPABILITY_MODEL.md`, current contract/host evidence | assessment-first increments in `CAPABILITY_MODEL_BACKLOG.md`; no product implementation authorization |
+| Capability-profile assessment follow-up | P2 | Completed | PR #539 / `QUALIFICATION_REGISTER.md`; current CMB-05/CMB-06/CMB-07/CMB-09/CMB-12 evidence | `GO_CAPABILITY_PROFILE_FOLLOW_UP_RECONCILED`; seven original items reconciled to six unique active items; no product implementation authorization |
 | Canonical governance Version 2.2 alignment | P0 | Historical | merged governance evidence | retained governance evidence only |
 | Component Release Mode | P2 | Planned | release evidence and current manifest model | bounded architecture review if contracts change |
 | GitHub Actions retention and evidence preservation (`TD-GITHUB-001`) | P1 | Planned | governance approval, Repository Ownership integration and a future approved retention design | governed implementation only after design and qualification |
