@@ -2,6 +2,13 @@
 
 Status: canonical prompt navigation
 
+## Platform Cleanup & Evidence Workflow Conformance Repair
+
+The repair prompt is preserved at
+`docs/history/prompts/2026-07-27-platform-cleanup-evidence-workflow-conformance-repair.md`.
+It reconciles the active platform cleanup and durable-evidence callers without
+changing Runtime, product behavior or release policy.
+
 ## Current product architecture note
 
 PR [#545](https://github.com/pcvantol/djconnect/pull/545) merged as

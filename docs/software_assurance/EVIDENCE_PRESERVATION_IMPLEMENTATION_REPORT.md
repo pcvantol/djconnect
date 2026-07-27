@@ -68,3 +68,14 @@ their own contracts and are not retroactively asserted to meet this format.
 The post-merge workflow completed on `f6e346018dadaccc8457dac7b5cadd19a03b80e7`.
 Its exact-main release asset was read back with a valid schema, `REDACTED`
 status and matching integrity digest; `validate_record` returned no findings.
+
+## Platform conformance rollout
+
+On 2026-07-27 the active platform consumers and the central dispatcher were
+aligned to reusable evidence and Owner Authorization revision
+`4931f1371b53159d837968955a7b4972051bdcbe`. Every active source repository
+produced successful exact-main durable evidence. The three distribution
+repositories produced their already-qualified release-role integrity evidence.
+The full inventory and run identifiers are retained in
+`CROSS_REPOSITORY_ROLLOUT_REPORT.md`; the result is
+`GO_CLEANUP_WORKFLOW_PLATFORM_CONFORMANT`.

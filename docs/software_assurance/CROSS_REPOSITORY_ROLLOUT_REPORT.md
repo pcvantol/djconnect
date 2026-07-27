@@ -53,3 +53,32 @@ It validates the Prompt 1 policy source at
 - policy self-validation passes;
 - repository settings, rulesets, branch protection and CODEOWNERS were not
   changed.
+
+## Platform Cleanup & Evidence Workflow Conformance Repair — 2026-07-27
+
+**Decision:** `GO_CLEANUP_WORKFLOW_PLATFORM_CONFORMANT`
+
+The active DJConnect platform now uses the same qualified cleanup and durable
+evidence contract. Cleanup remains limited to transient Actions workflow runs;
+it cannot delete qualification records, release evidence, immutable prompt
+history, release assets or post-merge evidence. Durable evidence is published
+and read back as an append-only release asset before the qualified status is
+emitted.
+
+| Repository | Role | Cleanup contract | Evidence / owner revision | Exact-main evidence |
+| --- | --- | --- | --- | --- |
+| `djconnect` | active source | Canonical | `4931f1371b53159d837968955a7b4972051bdcbe` | Reconciled by this record; next main validation uses the aligned dispatcher. |
+| `djconnect-api` | active source | Canonical | `4931f1371b53159d837968955a7b4972051bdcbe` | Run `30262200374` successful. |
+| `djconnect-app` | active source | Canonical | `4931f1371b53159d837968955a7b4972051bdcbe` | Run `30264664846` successful. |
+| `djconnect-app-releases` | distribution | Equivalent release-role contract | `4931f1371b53159d837968955a7b4972051bdcbe` | Run `30262171116` successful. |
+| `djconnect-esp32` | active source | Canonical | `4931f1371b53159d837968955a7b4972051bdcbe` | Run `30262551584` successful. |
+| `djconnect-firmware` | distribution | Equivalent release-role contract | `4931f1371b53159d837968955a7b4972051bdcbe` | Run `30262186203` successful. |
+| `djconnect-pi` | active source | Canonical | `4931f1371b53159d837968955a7b4972051bdcbe` | Run `30262251000` successful. |
+| `djconnect-pi-releases` | distribution | Equivalent release-role contract | `4931f1371b53159d837968955a7b4972051bdcbe` | Run `30262199634` successful. |
+| `djconnect-website` | active source | Canonical | `4931f1371b53159d837968955a7b4972051bdcbe` | Run `30262411162` successful. |
+| `djconnect-windows` | active source | Canonical | `4931f1371b53159d837968955a7b4972051bdcbe` | Run `30262532163` successful. |
+
+The three distribution repositories intentionally do not model source-build
+coverage. Their existing release-role integrity artifact is the qualified
+equivalent evidence source; this is a role boundary, not a workflow
+divergence. No evidence-loss finding was observed.
