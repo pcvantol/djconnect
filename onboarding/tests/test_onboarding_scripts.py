@@ -135,6 +135,22 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertEqual(compose_path.stdout, "/tmp/djconnect compose.yml")
         self.assertEqual(quoted.stdout, "docker compose -f two\\ words.yml")
 
+    def test_macos_build_cleanup_removes_only_ignored_directories(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            repository = root / "fixture"
+            repository.mkdir()
+            subprocess.run(["git", "init", "--quiet", str(repository)], check=True)
+            (repository / ".gitignore").write_text("build/\n", encoding="utf-8")
+            (repository / "build").mkdir()
+            (repository / "release").mkdir()
+            result = run_macos_unit(
+                f'GITHUB_ROOT="{root}"; NO_COLOR=1; clean_build_output'
+            )
+            self.assertEqual(result.returncode, 0, result.stdout)
+            self.assertFalse((repository / "build").exists())
+            self.assertTrue((repository / "release").is_dir())
+
     def test_macos_host_bootstrap_has_no_token_argument(self) -> None:
         result = subprocess.run(
             [str(HOST_BOOTSTRAP_SCRIPT), "--help"],
