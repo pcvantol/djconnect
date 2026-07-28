@@ -135,6 +135,38 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertEqual(compose_path.stdout, "/tmp/djconnect compose.yml")
         self.assertEqual(quoted.stdout, "docker compose -f two\\ words.yml")
 
+    def test_macos_build_cleanup_removes_only_ignored_directories(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            repository = root / "fixture"
+            repository.mkdir()
+            subprocess.run(["git", "init", "--quiet", str(repository)], check=True)
+            (repository / ".gitignore").write_text(
+                "build/\n.xcode-derived*/\n.pio/\n", encoding="utf-8"
+            )
+            (repository / "build").mkdir()
+            (repository / ".xcode-derived-debug").mkdir()
+            (repository / ".pio").mkdir()
+            (repository / "release").mkdir()
+            result = run_macos_unit(
+                f'GITHUB_ROOT="{root}"; NO_COLOR=1; clean_build_output'
+            )
+            self.assertEqual(result.returncode, 0, result.stdout)
+            self.assertFalse((repository / "build").exists())
+            self.assertFalse((repository / ".xcode-derived-debug").exists())
+            self.assertFalse((repository / ".pio").exists())
+            self.assertTrue((repository / "release").is_dir())
+
+    def test_macos_storage_maintenance_has_safe_contract(self) -> None:
+        source = SCRIPT.read_text(encoding="utf-8")
+
+        self.assertIn("--clean-build-output", source)
+        self.assertIn("git -C \"$repo\" check-ignore -q", source)
+        self.assertIn("--install-verification-cleanup", source)
+        self.assertIn("cleanup_verification_artifacts.sh", source)
+        self.assertIn("<key>Hour</key><integer>10</integer>", source)
+        self.assertIn("verification-artifact-cleanup.log", source)
+
     def test_macos_host_bootstrap_has_no_token_argument(self) -> None:
         result = subprocess.run(
             [str(HOST_BOOTSTRAP_SCRIPT), "--help"],
@@ -265,7 +297,7 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout)
         self.assertEqual(
             result.stdout,
-            "DJConnect macOS Development Host Bootstrap 2.0.6\n",
+            "DJConnect macOS Development Host Bootstrap 2.0.8\n",
         )
         self.assertTrue(MACOS_HOST_BOOTSTRAP_CHANGELOG.is_file())
         changelog = MACOS_HOST_BOOTSTRAP_CHANGELOG.read_text(encoding="utf-8")
@@ -619,7 +651,7 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertTrue((HOST_BOOTSTRAP_PACKAGE / "apple.sh").is_file())
         self.assertTrue(HOST_BOOTSTRAP_MANIFEST.is_file())
         manifest = HOST_BOOTSTRAP_MANIFEST.read_text(encoding="utf-8")
-        self.assertIn("package.version: 2.0.6", manifest)
+        self.assertIn("package.version: 2.0.8", manifest)
         self.assertIn("package.aggregate_sha256:", manifest)
         self.assertIn("component.entry.sha256:", manifest)
         self.assertIn("component.workflow.version: 1.3.1", manifest)

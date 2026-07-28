@@ -15,7 +15,7 @@ from onboarding import build_package
 class OnboardingPackageBuildTests(unittest.TestCase):
     def test_manifest_declares_versioned_runtime_and_test_components(self) -> None:
         self.assertEqual(build_package.manifest_value("package.name"), "djconnect-developer-onboarding")
-        self.assertEqual(build_package.manifest_value("package.version"), "3.3.1")
+        self.assertEqual(build_package.manifest_value("package.version"), "4.0.0")
         self.assertEqual(build_package.manifest_value("package.platform_release_alignment"), "3.3.0")
         self.assertEqual(build_package.manifest_value("package.platform_release_dependency"), "none")
         self.assertEqual(build_package.manifest_value("component.tests.path"), "tests/test_onboarding_scripts.py")
@@ -36,6 +36,17 @@ class OnboardingPackageBuildTests(unittest.TestCase):
         self.assertIn("tests/test_package_build.py", names)
         self.assertFalse(any(name.startswith("dist/") or "__pycache__" in name for name in names))
 
+    def test_readme_documents_safe_local_storage_maintenance(self) -> None:
+        readme = (build_package.PACKAGE_ROOT / "README.md").read_text(encoding="utf-8")
+
+        self.assertIn("--clean-build-output --yes", readme)
+        self.assertIn("Git confirms are ignored", readme)
+        self.assertIn("--install-verification-cleanup --yes", readme)
+        self.assertIn("older than 14 days", readme)
+        self.assertIn("daily at 10:00", readme)
+        self.assertIn("bootstrap_djconnect_macos_host.sh --verify", readme)
+        self.assertIn("It does not delete files or change the host", readme)
+
     def test_build_emits_deterministic_versioned_artifacts(self) -> None:
         with tempfile.TemporaryDirectory() as first, tempfile.TemporaryDirectory() as second:
             first_artifacts = build_package.build(Path(first))
@@ -43,7 +54,7 @@ class OnboardingPackageBuildTests(unittest.TestCase):
             self.assertEqual([item.name for item in first_artifacts], [item.name for item in second_artifacts])
             self.assertEqual(first_artifacts[0].read_bytes(), second_artifacts[0].read_bytes())
             metadata = json.loads(first_artifacts[2].read_text(encoding="utf-8"))
-            self.assertEqual(metadata["version"], "3.3.1")
+            self.assertEqual(metadata["version"], "4.0.0")
             self.assertEqual(metadata["sha256"], hashlib.sha256(first_artifacts[0].read_bytes()).hexdigest())
             with zipfile.ZipFile(first_artifacts[0]) as archive:
                 self.assertIn("onboarding/dev_onboarding_macos.sh", archive.namelist())

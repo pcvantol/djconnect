@@ -1,4 +1,4 @@
-# Version: 1.3.5
+# Version: 1.3.7
 # CLI help, desired-state verification and console/report primitives.
 usage() {
   cat <<'EOF'
@@ -279,6 +279,30 @@ required_cask_installation() {
   return 1
 }
 
+verification_output_size_bytes() {
+  local repository="$1" candidate total_kb=0
+  local -a candidates
+  candidates=("$repository"/.xcode-derived-* "$repository"/.build "$repository"/.pio
+    "$repository"/DerivedData "$repository"/artifacts "$repository"/build
+    "$repository"/bin "$repository"/obj "$repository"/dist "$repository"/release)
+  for candidate in "${candidates[@]}"; do
+    [[ -d "$candidate" ]] || continue
+    git -C "$repository" check-ignore -q -- "${candidate#"$repository"/}" || continue
+    total_kb=$((total_kb + $(du -sk "$candidate" 2>/dev/null | awk '{print $1}')))
+  done
+  printf '%s' "$((total_kb * 1024))"
+}
+
+report_repository_build_output() {
+  local repository name bytes
+  for repository in "$GITHUB_ROOT"/*; do
+    [[ -d "$repository/.git" ]] || continue
+    name="$(basename "$repository")"
+    bytes="$(verification_output_size_bytes "$repository")"
+    verify_delta_row "storage.$name.ignored_build_output" 'reported read-only' "${bytes}B" MATCH
+  done
+}
+
 run_desired_state_verification() {
   local hardware_profile macos_version macos_major cpu_brand mem_bytes mem_gb cpu_count disk_probe_path disk_kb disk_gb formula cask profile install_dir uid_value ha_running ngrok_config ngrok_permissions ngrok_config_version ngrok_authtoken_status ngrok_authtoken_state ngrok_tunnel tailscale_installation tailscale_state
   printf '# DJConnect macOS Development Host Desired-State Delta\n\n'
@@ -308,6 +332,10 @@ run_desired_state_verification() {
   else
     verify_delta_row 'host.minimum_free_disk_gb' ">=$DESIRED_MINIMUM_FREE_DISK_GB" "${disk_gb}GB at $disk_probe_path" DRIFT
   fi
+  report_repository_build_output
+  local verification_cleanup="$GITHUB_ROOT/djconnect/scripts/maintenance/cleanup_verification_artifacts.sh" cleanup_label="com.djconnect.verification-artifact-cleanup"
+  if [[ -x "$verification_cleanup" ]] && "$verification_cleanup" --check; then verify_delta_row 'maintenance.verification_artifact_retention' 'no ignored output older than 14 days' clean MATCH; else verify_delta_row 'maintenance.verification_artifact_retention' 'no ignored output older than 14 days' expired DRIFT; fi
+  if launchctl print "gui/$(id -u)/$cleanup_label" >/dev/null 2>&1; then verify_delta_row 'maintenance.verification_artifact_cleanup' "$cleanup_label loaded" loaded MATCH; else verify_delta_row 'maintenance.verification_artifact_cleanup' "$cleanup_label loaded" absent DRIFT; fi
 
   for formula in "${DESIRED_TOOL_FORMULAS[@]}"; do
     if command -v brew >/dev/null 2>&1 && brew list --versions "$formula" >/dev/null 2>&1; then
@@ -325,9 +353,11 @@ run_desired_state_verification() {
       verify_delta_row "tooling.cask.$cask" installed absent DRIFT
     fi
   done
-  for cask in "${DESIRED_OPTIONAL_CASKS[@]}"; do
-    if command -v brew >/dev/null 2>&1 && brew list --cask "$cask" >/dev/null 2>&1; then verify_delta_row "tooling.optional_cask.$cask" installed installed MATCH; else verify_delta_row "tooling.optional_cask.$cask" optional absent OPTIONAL; fi
-  done
+  if (( ${#DESIRED_OPTIONAL_CASKS[@]} > 0 )); then
+    for cask in "${DESIRED_OPTIONAL_CASKS[@]}"; do
+      if command -v brew >/dev/null 2>&1 && brew list --cask "$cask" >/dev/null 2>&1; then verify_delta_row "tooling.optional_cask.$cask" installed installed MATCH; else verify_delta_row "tooling.optional_cask.$cask" optional absent OPTIONAL; fi
+    done
+  fi
   if command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1; then
     ha_running="$(docker inspect --format '{{.State.Running}}' "$DESIRED_HA_CONTAINER_NAME" 2>/dev/null || true)"
     verify_delta_row 'lab.home_assistant.container' "$DESIRED_HA_CONTAINER_NAME running" "${ha_running:-absent}" "$([[ "$ha_running" == 'true' ]] && printf MATCH || printf DRIFT)"

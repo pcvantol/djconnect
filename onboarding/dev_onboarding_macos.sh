@@ -33,6 +33,7 @@ PLAN_ONLY=0
 APPLY_UPGRADES=0
 RUN_CI_PUSH=0
 DRY_RUN=0
+CLEAN_BUILD_OUTPUT=0
 NO_COLOR_MODE="${NO_COLOR_MODE:-0}"
 SELECTED_STEPS=""
 SUDO_KEEPALIVE_PID=""
@@ -162,6 +163,10 @@ Options:
   --prompt-secrets      Prompt for optional local tokens/API keys before steps.
   --plan                Print selected steps and exit without making changes.
   --dry-run             Print mutating commands instead of executing them.
+  --clean-build-output  Remove only Git-ignored local build/cache directories
+                       from sibling DJConnect repositories. Prompts before
+                       deletion unless --yes is also supplied.
+  --install-verification-cleanup Install the daily 14-day verification cleanup LaunchAgent.
   --apply-upgrades      Allow step 24 to modify installed packages/tooling.
   --e2e-version VER     Version passed to release dry-run scripts.
                        Default: $E2E_VERSION
@@ -710,6 +715,47 @@ step_0_preflight() {
   else
     log "Preflight completed successfully."
   fi
+}
+
+clean_build_output() {
+  local repo candidate relative cleaned=0 preserved=0
+  local -a repositories candidates
+  repositories=("$GITHUB_ROOT"/*)
+
+  log "Cleaning Git-ignored local build output under $GITHUB_ROOT."
+  for repo in "${repositories[@]}"; do
+    [[ -d "$repo/.git" ]] || continue
+    candidates=("$repo"/.xcode-derived-* "$repo"/.build "$repo"/.pio
+      "$repo"/DerivedData "$repo"/build "$repo"/bin "$repo"/obj
+      "$repo"/dist "$repo"/release)
+    for candidate in "${candidates[@]}"; do
+      [[ -d "$candidate" ]] || continue
+      relative="${candidate#"$repo"/}"
+      if git -C "$repo" check-ignore -q -- "$relative"; then
+        if [[ "$DRY_RUN" == "1" ]]; then
+          printf '%s %s\n' "$(style "$CLR_CYAN$CLR_BOLD" "DRY")" "remove $candidate"
+        else
+          rm -rf -- "$candidate"
+          printf '%s %s\n' "$(style "$CLR_GREEN$CLR_BOLD" "REMOVED")" "$candidate"
+        fi
+        cleaned=$((cleaned + 1))
+      else
+        warn "Preserving non-ignored directory: $candidate"
+        preserved=$((preserved + 1))
+      fi
+    done
+  done
+  log "Build-output cleanup complete: $cleaned ignored directory(s) removed, $preserved preserved."
+}
+
+install_verification_cleanup() {
+  local label="com.djconnect.verification-artifact-cleanup" plist="$HOME/Library/LaunchAgents/com.djconnect.verification-artifact-cleanup.plist"
+  mkdir -p "$HOME/Library/LaunchAgents"
+  cat > "$plist" <<EOF
+<?xml version="1.0" encoding="UTF-8"?><plist version="1.0"><dict><key>Label</key><string>$label</string><key>ProgramArguments</key><array><string>/bin/bash</string><string>$REPO_ROOT/scripts/maintenance/cleanup_verification_artifacts.sh</string><string>--execute</string></array><key>StandardOutPath</key><string>$LOG_DIR/verification-artifact-cleanup.log</string><key>StandardErrorPath</key><string>$LOG_DIR/verification-artifact-cleanup.log</string><key>StartCalendarInterval</key><dict><key>Hour</key><integer>10</integer><key>Minute</key><integer>0</integer></dict><key>RunAtLoad</key><true/></dict></plist>
+EOF
+  launchctl unload "$plist" >/dev/null 2>&1 || true
+  launchctl load "$plist"
 }
 
 wait_for_home_assistant() {
@@ -2254,6 +2300,14 @@ while [[ $# -gt 0 ]]; do
       DRY_RUN=1
       shift
       ;;
+    --clean-build-output)
+      CLEAN_BUILD_OUTPUT=1
+      shift
+      ;;
+    --install-verification-cleanup)
+      INSTALL_VERIFICATION_CLEANUP=1
+      shift
+      ;;
     --apply-upgrades)
       APPLY_UPGRADES=1
       shift
@@ -2336,6 +2390,15 @@ fi
 if [[ "$PROMPT_SECRETS" == "1" ]]; then
   collect_optional_secrets
 fi
+
+if [[ "$CLEAN_BUILD_OUTPUT" == "1" ]]; then
+  if [[ "$DRY_RUN" == "1" ]] || confirm "Remove Git-ignored local build output?"; then
+    clean_build_output
+  else
+    die "Build-output cleanup was not confirmed."
+  fi
+fi
+if [[ "${INSTALL_VERIFICATION_CLEANUP:-0}" == "1" ]]; then install_verification_cleanup; fi
 
 if [[ -z "$SELECTED_STEPS" ]]; then
   interactive_menu
