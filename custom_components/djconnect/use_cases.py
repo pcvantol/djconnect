@@ -1,4 +1,5 @@
 """DJConnect use-case layer over music backend adapters."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -232,9 +233,7 @@ class MusicBackendCapabilityError(SpotifyBackendError):
         self.command = command
         self.capability = capability or _CAPABILITY_BY_COMMAND.get(command) or "unknown"
         self.backend = backend or "unknown"
-        super().__init__(
-            unsupported_capability_message(self.capability, self.backend)
-        )
+        super().__init__(unsupported_capability_message(self.capability, self.backend))
 
 
 class SpotifyDirectBackend:
@@ -589,9 +588,10 @@ def music_backend_metadata(hass: HomeAssistant, runtime: Any) -> dict[str, Any]:
             }
     available = True
     error = None
-    if backend == MUSIC_BACKEND_SPOTIFY_DIRECT and not str(
-        getattr(runtime, "config", {}).get(CONF_SPOTIFY_REFRESH_TOKEN) or ""
-    ).strip():
+    if (
+        backend == MUSIC_BACKEND_SPOTIFY_DIRECT
+        and not str(getattr(runtime, "config", {}).get(CONF_SPOTIFY_REFRESH_TOKEN) or "").strip()
+    ):
         available = False
         error = {
             "code": "spotify_oauth_required",
@@ -611,9 +611,7 @@ def music_backend_metadata(hass: HomeAssistant, runtime: Any) -> dict[str, Any]:
             getattr(runtime, "config", {}).get(CONF_MUSIC_BACKEND_REVISION)
         ),
         "music_backend_capabilities": dict(adapter.capabilities.__dict__),
-        "music_backend_observation_capabilities": dict(
-            adapter.observation_capabilities.__dict__
-        ),
+        "music_backend_observation_capabilities": dict(adapter.observation_capabilities.__dict__),
         "music_target_player": target_player,
         "music_backend_error": error,
     }
@@ -633,7 +631,9 @@ def music_backend_action_fields(
     if backend not in MUSIC_BACKEND_NAMES:
         backend = DEFAULT_MUSIC_BACKEND
     revision = _int_revision(config.get(CONF_MUSIC_BACKEND_REVISION))
-    provider = MUSIC_BACKEND_MUSIC_ASSISTANT if backend == MUSIC_BACKEND_MUSIC_ASSISTANT else "spotify"
+    provider = (
+        MUSIC_BACKEND_MUSIC_ASSISTANT if backend == MUSIC_BACKEND_MUSIC_ASSISTANT else "spotify"
+    )
     clean_kind = str(kind or "music").strip().lower() or "music"
     if backend == MUSIC_BACKEND_MUSIC_ASSISTANT:
         value = BackendActionValue(
@@ -671,31 +671,7 @@ def build_playback_action(
         return {}
     item_id = _playback_item_id(item)
     clean_kind = str(kind or _playback_item_kind(item, item_id)).strip().lower() or "music"
-    title = str(
-        item.get("title")
-        or item.get("track_name")
-        or item.get("name")
-        or item_id
-        or ""
-    ).strip()
-    subtitle = str(
-        item.get("subtitle")
-        or item.get("artist")
-        or item.get("artist_name")
-        or item.get("album_name")
-        or item.get("owner")
-        or ""
-    ).strip()
-    image_url = str(
-        item.get("image_url")
-        or item.get("thumbnail_url")
-        or item.get("album_image_url")
-        or item.get("artist_image_url")
-        or item.get("album_art_url")
-        or item.get("media_image_url")
-        or item.get("entity_picture")
-        or ""
-    ).strip()
+    title, subtitle, image_url = _playback_action_text(item, item_id)
     action = PlaybackAction(
         id=item_id or str(item.get("id") or "").strip(),
         title=title,
@@ -715,6 +691,28 @@ def build_playback_action(
     if image_url:
         action["thumbnail_url"] = image_url
     return {key: value for key, value in action.items() if value not in ("", None, [], {})}
+
+
+def _playback_action_text(item: dict[str, Any], item_id: str) -> tuple[str, str, str]:
+    """Extract the display fields shared by all client playback actions."""
+    title = _first_item_text(item, "title", "track_name", "name") or item_id
+    subtitle = _first_item_text(item, "subtitle", "artist", "artist_name", "album_name", "owner")
+    image_url = _first_item_text(
+        item,
+        "image_url",
+        "thumbnail_url",
+        "album_image_url",
+        "artist_image_url",
+        "album_art_url",
+        "media_image_url",
+        "entity_picture",
+    )
+    return title, subtitle, image_url
+
+
+def _first_item_text(item: dict[str, Any], *keys: str) -> str:
+    """Return the first non-empty display property from an intent item."""
+    return str(next((item.get(key) for key in keys if item.get(key)), "") or "").strip()
 
 
 def unsupported_capability_message(capability: str, backend: str) -> str:
@@ -818,18 +816,21 @@ def _playback_item_kind(item: dict[str, Any], item_id: str) -> str:
     spotify_kind = _spotify_uri_kind(item_id)
     if spotify_kind:
         return spotify_kind
-    kind = str(
-        item.get("media_type")
-        or item.get("type")
-        or item.get("kind")
-        or "music"
-    ).strip().lower()
+    kind = (
+        str(item.get("media_type") or item.get("type") or item.get("kind") or "music")
+        .strip()
+        .lower()
+    )
     return kind if kind in {"track", "album", "artist", "playlist"} else "music"
 
 
 def _spotify_uri_kind(uri: str) -> str:
     parts = str(uri or "").split(":")
-    if len(parts) >= 3 and parts[0] == "spotify" and parts[1] in {"track", "album", "artist", "playlist"}:
+    if (
+        len(parts) >= 3
+        and parts[0] == "spotify"
+        and parts[1] in {"track", "album", "artist", "playlist"}
+    ):
         return parts[1]
     return ""
 

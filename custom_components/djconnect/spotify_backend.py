@@ -185,55 +185,58 @@ async def handle_spotify_command(
             "success": True,
             "artist": await backend.artist_profile(_artist_album_query(value)),
         }
-    if normalized == "pause":
-        await backend.pause()
-        return {"success": True, "playback": await backend.playback_state()}
-    if normalized == "play":
+    return await _spotify_playback_command(backend, normalized, value, play, command)
+
+
+async def _spotify_playback_command(
+    backend: "SpotifyBackend", command: str, value: Any, play: bool | None, original_command: str
+) -> dict[str, Any]:
+    """Dispatch state-changing Spotify commands and return their latest state."""
+    no_value = {"pause": backend.pause, "next": backend.next, "previous": backend.previous,
+                "start_liked_proxy": backend.start_liked_proxy}
+    if command in no_value:
+        await no_value[command]()
+    elif command == "play":
         await backend.play(value)
-        return {"success": True, "playback": await backend.playback_state()}
-    if normalized == "play_context_at":
+    elif command == "play_context_at":
         await backend.play_context_at(value)
-        return {"success": True, "playback": await backend.playback_state()}
-    if normalized == "next":
-        await backend.next()
-        return {"success": True, "playback": await backend.playback_state()}
-    if normalized == "previous":
-        await backend.previous()
-        return {"success": True, "playback": await backend.playback_state()}
-    if normalized == "seek_relative":
+    elif command == "seek_relative":
         await backend.seek_relative(value)
-        return {"success": True, "playback": await backend.playback_state()}
-    if normalized == "start_liked_proxy":
-        await backend.start_liked_proxy()
-        return {"success": True, "playback": await backend.playback_state()}
-    if normalized == "start_playlist":
+    elif command == "start_playlist":
         await backend.start_playlist(str(value or ""))
-        return {"success": True, "playback": await backend.playback_state()}
-    if normalized == "play_artist_top_tracks":
+    elif command == "play_artist_top_tracks":
         await backend.play_artist_top_tracks(_search_query(value))
-        return {"success": True, "playback": await backend.playback_state()}
-    if normalized == "play_uris":
+    elif command == "play_uris":
         await backend.play_uris(_track_uris(value))
-        return {"success": True, "playback": await backend.playback_state()}
-    if normalized == "set_shuffle":
+    elif command == "set_shuffle":
         await backend.set_shuffle(value)
-        return {"success": True, "playback": await backend.playback_state()}
-    if normalized == "set_repeat":
+    elif command == "set_repeat":
         await backend.set_repeat(str(value or ""))
-        return {"success": True, "playback": await backend.playback_state()}
-    if normalized == "set_output":
+    elif command == "set_output":
         await backend.set_output(str(value or ""), play=bool(play))
-        return {"success": True, "playback": await backend.playback_state()}
-    if normalized == "set_volume":
+    elif command == "set_volume":
         await backend.set_volume(value)
-        return {"success": True, "playback": await backend.playback_state()}
-    if normalized == "save_current_track":
-        playback = await backend.set_current_track_favorite(True)
-        return {"success": True, "playback": playback}
-    if normalized in {"set_current_track_favorite", "toggle_current_track_favorite"}:
-        playback = await backend.set_current_track_favorite(value)
-        return {"success": True, "playback": playback}
-    raise ValueError(f"Unsupported DJConnect command: {command}")
+    elif command == "save_current_track":
+        return {"success": True, "playback": await backend.set_current_track_favorite(True)}
+    elif command in {"set_current_track_favorite", "toggle_current_track_favorite"}:
+        return {"success": True, "playback": await backend.set_current_track_favorite(value)}
+    else:
+        raise ValueError(f"Unsupported DJConnect command: {original_command}")
+    return {"success": True, "playback": await backend.playback_state()}
+
+
+def _recommendation_genres(names: list[str], occupied_seed_count: int) -> list[str]:
+    """Return unique normalized genre seeds within Spotify's five-seed limit."""
+    genres: list[str] = []
+    seen: set[str] = set()
+    for genre in names:
+        normalized = str(genre or "").strip().lower()
+        if normalized and normalized not in seen:
+            seen.add(normalized)
+            genres.append(normalized)
+        if occupied_seed_count + len(genres) >= 5:
+            break
+    return genres
 
 
 class SpotifyBackend:
@@ -767,46 +770,9 @@ class SpotifyBackend:
         track_names = _track_names(value)
         genre_names = _genre_names(value)
         limit = _search_limit(value, default=25, maximum=50)
-        artists: list[dict[str, Any]] = []
-        seed_tracks: list[dict[str, Any]] = []
-        seen_ids: set[str] = set()
-        for name in artist_names:
-            try:
-                artist = await self._search_artist(name)
-            except SpotifyBackendError:
-                continue
-            artist_id = str(artist.get("id") or _spotify_id_from_uri(artist.get("uri"))).strip()
-            if not artist_id or artist_id in seen_ids:
-                continue
-            seen_ids.add(artist_id)
-            artists.append(_normalize_related_artist(artist))
-            if len(artists) >= 5:
-                break
-        seen_track_ids: set[str] = set()
-        for name in track_names:
-            uri = str(name or "").strip() if str(name or "").strip().startswith("spotify:track:") else ""
-            if not uri:
-                try:
-                    uri = await self._search_uri(name, "track")
-                except SpotifyBackendError:
-                    continue
-            track_id = _spotify_id_from_uri(uri)
-            if not track_id or track_id in seen_track_ids:
-                continue
-            seen_track_ids.add(track_id)
-            selected = getattr(self.runtime, "last_resolved_media", None)
-            seed_tracks.append(selected if isinstance(selected, dict) else {"uri": uri, "title": name})
-            if len(artists) + len(seed_tracks) >= 5:
-                break
-        genres = []
-        seen_genres: set[str] = set()
-        for genre in genre_names:
-            normalized_genre = str(genre or "").strip().lower()
-            if normalized_genre and normalized_genre not in seen_genres:
-                seen_genres.add(normalized_genre)
-                genres.append(normalized_genre)
-            if len(artists) + len(seed_tracks) + len(genres) >= 5:
-                break
+        artists = await self._recommendation_artists(artist_names)
+        seed_tracks = await self._recommendation_tracks(track_names, len(artists))
+        genres = _recommendation_genres(genre_names, len(artists) + len(seed_tracks))
         if not (artists or seed_tracks or genres):
             raise SpotifyBackendError("Spotify found no usable seeds for this mix request")
         market = str(self.conf.get("spotify_market") or DEFAULT_SPOTIFY_MARKET)
@@ -839,6 +805,47 @@ class SpotifyBackend:
             "requested_genres": genre_names,
             "source": "spotify_recommendations",
         }
+
+    async def _recommendation_artists(self, names: list[str]) -> list[dict[str, Any]]:
+        """Resolve at most five unique artist seeds."""
+        artists: list[dict[str, Any]] = []
+        seen_ids: set[str] = set()
+        for name in names:
+            try:
+                artist = await self._search_artist(name)
+            except SpotifyBackendError:
+                continue
+            artist_id = str(artist.get("id") or _spotify_id_from_uri(artist.get("uri"))).strip()
+            if not artist_id or artist_id in seen_ids:
+                continue
+            seen_ids.add(artist_id)
+            artists.append(_normalize_related_artist(artist))
+            if len(artists) >= 5:
+                break
+        return artists
+
+    async def _recommendation_tracks(
+        self, names: list[str], occupied_seed_count: int
+    ) -> list[dict[str, Any]]:
+        """Resolve unique track seeds, keeping Spotify's five-seed contract."""
+        tracks: list[dict[str, Any]] = []
+        seen_ids: set[str] = set()
+        for name in names:
+            uri = str(name or "").strip()
+            if not uri.startswith("spotify:track:"):
+                try:
+                    uri = await self._search_uri(name, "track")
+                except SpotifyBackendError:
+                    continue
+            track_id = _spotify_id_from_uri(uri)
+            if not track_id or track_id in seen_ids:
+                continue
+            seen_ids.add(track_id)
+            selected = getattr(self.runtime, "last_resolved_media", None)
+            tracks.append(selected if isinstance(selected, dict) else {"uri": uri, "title": name})
+            if occupied_seed_count + len(tracks) >= 5:
+                break
+        return tracks
 
     async def listening_profile(self) -> dict[str, Any]:
         """Fetch compact Spotify listening profile data for Ask DJ."""

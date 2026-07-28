@@ -3421,6 +3421,27 @@ class SessionRuntimeManager:
                 return window.approve_earliest_planned_intent() is not None
             return True
 
+    def _accept_track_started_media(
+        self, owner_profile_id: str, session_id: str, media_identity: str
+    ) -> DJSessionRuntime | None:
+        """Return an active session after accepting one non-duplicate track identity.
+
+        The caller holds ``_lock``. The first observed identity establishes the
+        baseline only; subsequent distinct identities can create a moment.
+        """
+        active = self._active_by_profile.get(owner_profile_id)
+        if active is None or active.session_id != session_id:
+            return None
+        if not media_identity:
+            return active
+        if active.last_accepted_media_identity == media_identity:
+            return None
+        updated = DJSessionRuntime(
+            **{**active.__dict__, "last_accepted_media_identity": media_identity}
+        )
+        self._active_by_profile[owner_profile_id] = updated
+        return updated if active.last_accepted_media_identity else None
+
     async def async_process_track_started(
         self,
         *,
@@ -3432,21 +3453,9 @@ class SessionRuntimeManager:
     ) -> DJMoment | None:
         """Orchestrate Planner → Knowledge → Moment → Flow → Broadcast."""
         async with self._lock:
-            active = self._active_by_profile.get(owner_profile_id)
-            if active is None or active.session_id != session_id:
+            active = self._accept_track_started_media(owner_profile_id, session_id, media_identity)
+            if active is None:
                 return None
-            if media_identity:
-                if active.last_accepted_media_identity == media_identity:
-                    return None
-                if not active.last_accepted_media_identity:
-                    self._active_by_profile[owner_profile_id] = DJSessionRuntime(
-                        **{**active.__dict__, "last_accepted_media_identity": media_identity}
-                    )
-                    return None
-                active = DJSessionRuntime(
-                    **{**active.__dict__, "last_accepted_media_identity": media_identity}
-                )
-                self._active_by_profile[owner_profile_id] = active
         try:
             raw_insight = await insight_provider()
         except Exception as exc:  # noqa: BLE001

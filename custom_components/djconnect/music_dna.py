@@ -7,7 +7,7 @@ from datetime import datetime, timedelta, timezone
 import logging
 import re
 import uuid
-from typing import Any
+from typing import Any, Callable
 
 from .const import CONF_CLIENT_TYPE, CONF_DEVICE_ID, CONF_DEVICE_NAME
 from .mood import mood_zone_for_value
@@ -937,6 +937,21 @@ def prompt_context_text(context: dict[str, Any]) -> str:
     server_history = context.get("server_history") if isinstance(context, dict) else []
     if not isinstance(memory, dict):
         memory = {}
+    lines = _memory_prompt_lines(memory)
+    lines.extend(_discovery_feedback_prompt_lines(memory))
+    time_context_line = _listening_time_context_prompt_line(memory)
+    if time_context_line:
+        lines.append(time_context_line)
+    recent_tracks_line = _recent_tracks_prompt_line(memory)
+    if recent_tracks_line:
+        lines.append(recent_tracks_line)
+    lines.extend(_history_prompt_lines(session, "Recente Ask DJ beurt(en)", 6))
+    lines.extend(_history_prompt_lines(server_history, "Server Ask DJ history", 8))
+    return "\n".join(line for line in lines if line and not line.endswith(": None"))
+
+
+def _memory_prompt_lines(memory: dict[str, Any]) -> list[str]:
+    """Build the stable Music DNA prompt lines from persisted memory."""
     lines: list[str] = []
     last = memory.get("last_ask_dj") if isinstance(memory.get("last_ask_dj"), dict) else {}
     if last:
@@ -962,96 +977,124 @@ def prompt_context_text(context: dict[str, Any]) -> str:
             lines.append(f"Mood/energy: {memory.get('mood')}/100")
     if memory.get("dj_style"):
         lines.append(f"DJ stijl: {memory.get('dj_style')}")
-    blocked_artists = memory.get("blocked_artists")
-    if isinstance(blocked_artists, list) and blocked_artists:
+    lines.extend(_blocked_music_prompt_lines(memory))
+    return lines
+
+
+def _blocked_music_prompt_lines(memory: dict[str, Any]) -> list[str]:
+    """Render explicit artist and item exclusions without raw payload data."""
+    lines: list[str] = []
+    for key, prefix in (
+        ("blocked_artists", "Niet meer draaien volgens gebruiker: "),
+        ("blocked_items", "Vermijd deze muziekitems: "),
+    ):
+        blocked = memory.get(key)
+        if not isinstance(blocked, list) or not blocked:
+            continue
         names = [
             str(item.get("name") or "").strip()
-            for item in blocked_artists[:8]
+            for item in blocked[:8]
             if isinstance(item, dict) and item.get("name")
         ]
         if names:
-            lines.append("Niet meer draaien volgens gebruiker: " + "; ".join(names))
-    blocked_items = memory.get("blocked_items")
-    if isinstance(blocked_items, list) and blocked_items:
-        names = [
-            str(item.get("name") or "").strip()
-            for item in blocked_items[:8]
-            if isinstance(item, dict) and item.get("name")
-        ]
-        if names:
-            lines.append("Vermijd deze muziekitems: " + "; ".join(names))
+            lines.append(prefix + "; ".join(names))
+    return lines
+
+
+def _discovery_feedback_prompt_lines(memory: dict[str, Any]) -> list[str]:
+    """Render eligible Discover feedback in the compact prompt format."""
+    lines: list[str] = []
     discovery_feedback = _profile_discovery_feedback(memory)
-    if discovery_feedback.get("eligible"):
-        accepted_lines = []
-        for item in discovery_feedback.get("accepted_items") or []:
-            if not isinstance(item, dict):
-                continue
-            title = _clean_text(item.get("title"))
-            subtitle = _clean_text(item.get("subtitle"))
-            if not title:
-                continue
-            score = item.get("quality_score")
-            score_text = f", kwaliteit {score}" if score is not None else ""
-            reason = _clean_text(item.get("reason"))
-            reason_text = f", reden: {reason}" if reason else ""
-            accepted_lines.append(
-                title
-                + (f" - {subtitle}" if subtitle else "")
-                + score_text
-                + reason_text
-            )
-        if accepted_lines:
-            lines.append("Discover gekozen door gebruiker: " + "; ".join(accepted_lines[:5]))
-        avoid_lines = []
-        for item in discovery_feedback.get("blocked_artists") or []:
-            if isinstance(item, dict) and item.get("name"):
-                avoid_lines.append(f"artiest {item.get('name')}")
-        for item in discovery_feedback.get("blocked_items") or []:
-            if isinstance(item, dict) and item.get("name"):
-                avoid_lines.append(str(item.get("name")))
-        if avoid_lines:
-            lines.append("Discover negatieve feedback: " + "; ".join(avoid_lines[:8]))
-    time_context = memory.get("listening_time_context")
-    if isinstance(time_context, dict):
-        day = time_context.get("weekday_name")
-        daypart = time_context.get("daypart")
-        weekend = "weekend" if time_context.get("is_weekend") else "weekdag"
-        hour = time_context.get("hour")
+    if not discovery_feedback.get("eligible"):
+        return lines
+    accepted_lines = _accepted_discovery_feedback_lines(discovery_feedback)
+    if accepted_lines:
+        lines.append("Discover gekozen door gebruiker: " + "; ".join(accepted_lines[:5]))
+    avoid_lines = _blocked_discovery_feedback_lines(discovery_feedback)
+    if avoid_lines:
+        lines.append("Discover negatieve feedback: " + "; ".join(avoid_lines[:8]))
+    return lines
+
+
+def _accepted_discovery_feedback_lines(feedback: dict[str, Any]) -> list[str]:
+    """Return concise labels for accepted Discover items."""
+    lines: list[str] = []
+    for item in feedback.get("accepted_items") or []:
+        if not isinstance(item, dict):
+            continue
+        title = _clean_text(item.get("title"))
+        if not title:
+            continue
+        subtitle = _clean_text(item.get("subtitle"))
+        score = item.get("quality_score")
+        reason = _clean_text(item.get("reason"))
         lines.append(
-            "Luistertijdcontext: "
-            + ", ".join(str(value) for value in (day, daypart, weekend, f"{hour}:00" if hour is not None else "") if value)
+            title
+            + (f" - {subtitle}" if subtitle else "")
+            + (f", kwaliteit {score}" if score is not None else "")
+            + (f", reden: {reason}" if reason else "")
         )
+    return lines
+
+
+def _blocked_discovery_feedback_lines(feedback: dict[str, Any]) -> list[str]:
+    """Return concise labels for rejected Discover items."""
+    artists = [
+        f"artiest {item.get('name')}"
+        for item in feedback.get("blocked_artists") or []
+        if isinstance(item, dict) and item.get("name")
+    ]
+    items = [
+        str(item.get("name"))
+        for item in feedback.get("blocked_items") or []
+        if isinstance(item, dict) and item.get("name")
+    ]
+    return artists + items
+
+
+def _listening_time_context_prompt_line(memory: dict[str, Any]) -> str:
+    """Format listening-time context when it is available."""
+    time_context = memory.get("listening_time_context")
+    if not isinstance(time_context, dict):
+        return ""
+    day = time_context.get("weekday_name")
+    daypart = time_context.get("daypart")
+    weekend = "weekend" if time_context.get("is_weekend") else "weekdag"
+    hour = time_context.get("hour")
+    return "Luistertijdcontext: " + ", ".join(
+        str(value)
+        for value in (day, daypart, weekend, f"{hour}:00" if hour is not None else "")
+        if value
+    )
+
+
+def _recent_tracks_prompt_line(memory: dict[str, Any]) -> str:
+    """Format recently played tracks for prompt context."""
     recent = memory.get("recent_tracks")
-    if isinstance(recent, list) and recent:
-        names = []
-        for track in recent[:5]:
-            if isinstance(track, dict):
-                label = " - ".join(
-                    str(value)
-                    for value in (track.get("artist"), track.get("title") or track.get("name"))
-                    if value
-                )
-                if label:
-                    names.append(label)
-        if names:
-            lines.append("Recente tracks: " + "; ".join(names))
-    if isinstance(session, list) and session:
-        turns = [
-            f"{item.get('role')}: {item.get('text')}"
-            for item in session[-6:]
-            if isinstance(item, dict) and item.get("text")
-        ]
-        if turns:
-            lines.append("Recente Ask DJ beurt(en): " + " | ".join(turns))
-    if isinstance(server_history, list) and server_history:
-        turns = [
-            f"{item.get('role')}: {item.get('text')}"
-            for item in server_history[-8:]
-            if isinstance(item, dict) and item.get("text")
-        ]
-        if turns:
-            lines.append("Server Ask DJ history: " + " | ".join(turns))
-    return "\n".join(line for line in lines if line and not line.endswith(": None"))
+    if not isinstance(recent, list) or not recent:
+        return ""
+    names = [
+        " - ".join(
+            str(value)
+            for value in (track.get("artist"), track.get("title") or track.get("name"))
+            if value
+        )
+        for track in recent[:5]
+        if isinstance(track, dict)
+    ]
+    return "Recente tracks: " + "; ".join(name for name in names if name) if names else ""
+
+
+def _history_prompt_lines(history: Any, label: str, limit: int) -> list[str]:
+    """Format a bounded conversational history section."""
+    if not isinstance(history, list) or not history:
+        return []
+    turns = [
+        f"{item.get('role')}: {item.get('text')}"
+        for item in history[-limit:]
+        if isinstance(item, dict) and item.get("text")
+    ]
+    return [f"{label}: " + " | ".join(turns)] if turns else []
 
 
 def enrich_user_text_with_memory(user_text: str, context: dict[str, Any]) -> str:
@@ -1975,32 +2018,12 @@ def _compact_listening_profile(profile: dict[str, Any]) -> dict[str, Any]:
         )
         if compact
     ]
-    top_tracks_by_range: dict[str, list[dict[str, Any]]] = {}
-    for time_range, tracks in (profile.get("top_tracks_by_range") or {}).items():
-        if time_range not in {"short_term", "medium_term", "long_term"} or not isinstance(tracks, list):
-            continue
-        top_tracks_by_range[time_range] = [
-            compact
-            for compact in (
-                _compact_track(track)
-                for track in tracks[:50]
-                if isinstance(track, dict)
-            )
-            if compact
-        ]
-    top_artists_by_range: dict[str, list[dict[str, Any]]] = {}
-    for time_range, artists in (profile.get("top_artists_by_range") or {}).items():
-        if time_range not in {"short_term", "medium_term", "long_term"} or not isinstance(artists, list):
-            continue
-        top_artists_by_range[time_range] = [
-            compact
-            for compact in (
-                _compact_profile_artist(artist)
-                for artist in artists[:50]
-                if isinstance(artist, dict)
-            )
-            if compact
-        ]
+    top_tracks_by_range = _compact_profile_ranges(
+        profile.get("top_tracks_by_range"), _compact_track
+    )
+    top_artists_by_range = _compact_profile_ranges(
+        profile.get("top_artists_by_range"), _compact_profile_artist
+    )
     result = {
         "source": "spotify",
         "recent_track_ids": _unique_texts(profile.get("recent_track_ids") or [])[:50],
@@ -2017,6 +2040,26 @@ def _compact_listening_profile(profile: dict[str, Any]) -> dict[str, Any]:
         key: value
         for key, value in result.items()
         if value not in (None, "", [], {})
+    }
+
+
+def _compact_profile_ranges(
+    ranges: Any, compact_item: Callable[[dict[str, Any]], dict[str, Any]]
+) -> dict[str, list[dict[str, Any]]]:
+    """Compact supported Spotify time ranges without retaining provider payloads."""
+    if not isinstance(ranges, dict):
+        return {}
+    supported = {"short_term", "medium_term", "long_term"}
+    return {
+        time_range: [
+            compact
+            for compact in (
+                compact_item(item) for item in items[:50] if isinstance(item, dict)
+            )
+            if compact
+        ]
+        for time_range, items in ranges.items()
+        if time_range in supported and isinstance(items, list)
     }
 
 

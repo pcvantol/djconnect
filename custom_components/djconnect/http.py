@@ -1474,107 +1474,50 @@ async def _handle_ask_dj_play_recommendation(
         return stale
     backend_meta = music_backend_metadata(hass, runtime)
     selected_backend = str(backend_meta.get("music_backend") or "").strip()
-    uri = str(recommendation.get("uri") or "").strip()
-    context_uri = str(recommendation.get("context_uri") or "").strip()
-    offset_uri = str(recommendation.get("offset_uri") or "").strip()
-    kind = str(recommendation.get("kind") or _spotify_recommendation_kind(uri or context_uri)).strip()
-    uris = _recommendation_track_uris(recommendation.get("uris"))
     if selected_backend == "music_assistant":
-        media_value = _music_assistant_recommendation_value(recommendation)
-        if not media_value:
-            return {
-                "success": False,
-                "error": "stale_backend_action",
-                "message": "This action was created for a previous music backend. Ask DJ again for a fresh recommendation.",
-                **backend_meta,
-            }
-        try:
-            result = await run_music_command(hass, runtime, "play", media_value, play=True)
-        except MusicBackendCapabilityError as exc:
-            return _unsupported_backend_capability_payload(hass, runtime, exc)
-        except SpotifyBackendError as exc:
-            return {
-                "success": False,
-                "error": "backend_playback_failed",
-                "message": _safe_backend_error_message(exc),
-                **backend_meta,
-            }
-        return await _recommendation_play_success_response(
-            hass,
-            runtime,
-            recommendation,
-            request_payload,
-            result,
-            user_id=user_id,
+        return await _play_music_assistant_recommendation(
+            hass, runtime, recommendation, request_payload, backend_meta, user_id=user_id
         )
-    if not (uri or context_uri):
+    spotify_recommendation = _validated_spotify_recommendation(recommendation)
+    if isinstance(spotify_recommendation, dict):
+        return spotify_recommendation
+    return await _play_spotify_recommendation(
+        hass,
+        runtime,
+        recommendation,
+        request_payload,
+        spotify_recommendation,
+        user_id=user_id,
+    )
+
+
+async def _play_music_assistant_recommendation(
+    hass: Any,
+    runtime: Any,
+    recommendation: dict[str, Any],
+    request_payload: dict[str, Any],
+    backend_meta: dict[str, Any],
+    *,
+    user_id: str | None,
+) -> dict[str, Any]:
+    media_value = _music_assistant_recommendation_value(recommendation)
+    if not media_value:
         return {
             "success": False,
-            "error": "missing_recommendation_uri",
-            "message": "Ik weet niet welke aanbeveling ik moet afspelen.",
-        }
-    if kind not in {"track", "album", "artist", "playlist", "track_mix"}:
-        return {
-            "success": False,
-            "error": "unsupported_recommendation_kind",
-            "message": "Ik kan dit type aanbeveling nog niet afspelen.",
-        }
-    if uri and _spotify_recommendation_kind(uri) not in {"track", "album", "artist", "playlist"}:
-        return {
-            "success": False,
-            "error": "unsupported_recommendation_kind",
-            "message": "Ik kan alleen Spotify track, album, artist of playlist URIs afspelen.",
-        }
-    if context_uri and _spotify_recommendation_kind(context_uri) not in {"album", "artist", "playlist"}:
-        return {
-            "success": False,
-            "error": "unsupported_recommendation_kind",
-            "message": "Ik kan deze Spotify context niet afspelen.",
-        }
-    if offset_uri and _spotify_recommendation_kind(offset_uri) != "track":
-        return {
-            "success": False,
-            "error": "unsupported_recommendation_kind",
-            "message": "De offset van een aanbeveling moet een Spotify track zijn.",
+            "error": "stale_backend_action",
+            "message": "This action was created for a previous music backend. Ask DJ again for a fresh recommendation.",
+            **backend_meta,
         }
     try:
-        if kind == "track_mix":
-            result = await run_music_command(hass, runtime, "play_uris", uris, play=True)
-        elif kind == "track" and context_uri and offset_uri:
-            result = await run_music_command(
-                hass,
-                runtime,
-                "play_context_at",
-                {"context_uri": context_uri, "offset_uri": offset_uri},
-                play=True,
-            )
-        elif kind == "track":
-            result = await run_music_command(hass, runtime, "play", uri, play=True)
-        else:
-            target = context_uri or uri
-            result = await run_music_command(hass, runtime, "play", target, play=True)
+        result = await run_music_command(hass, runtime, "play", media_value, play=True)
     except MusicBackendCapabilityError as exc:
         return _unsupported_backend_capability_payload(hass, runtime, exc)
     except SpotifyBackendError as exc:
-        message = str(exc)
-        safe_message = _safe_backend_error_message(exc)
-        if _looks_like_no_active_output(message):
-            return await _speaker_selection_for_recommendation(
-                hass,
-                runtime,
-                recommendation,
-                request_payload,
-            )
-        if "reauthorize" in message.lower() or "authorization" in message.lower():
-            return {
-                "success": False,
-                "error": "spotify_auth_required",
-                "message": safe_message,
-            }
         return {
             "success": False,
-            "error": "spotify_playback_failed",
-            "message": safe_message,
+            "error": "backend_playback_failed",
+            "message": _safe_backend_error_message(exc),
+            **backend_meta,
         }
     return await _recommendation_play_success_response(
         hass,
@@ -1584,6 +1527,91 @@ async def _handle_ask_dj_play_recommendation(
         result,
         user_id=user_id,
     )
+
+
+def _validated_spotify_recommendation(
+    recommendation: dict[str, Any],
+) -> tuple[str, str, str, str, list[str]] | dict[str, Any]:
+    uri = str(recommendation.get("uri") or "").strip()
+    context_uri = str(recommendation.get("context_uri") or "").strip()
+    offset_uri = str(recommendation.get("offset_uri") or "").strip()
+    kind = str(recommendation.get("kind") or _spotify_recommendation_kind(uri or context_uri)).strip()
+    if not (uri or context_uri):
+        return _recommendation_error("missing_recommendation_uri", "Ik weet niet welke aanbeveling ik moet afspelen.")
+    if kind not in {"track", "album", "artist", "playlist", "track_mix"}:
+        return _recommendation_error("unsupported_recommendation_kind", "Ik kan dit type aanbeveling nog niet afspelen.")
+    if uri and _spotify_recommendation_kind(uri) not in {"track", "album", "artist", "playlist"}:
+        return _recommendation_error("unsupported_recommendation_kind", "Ik kan alleen Spotify track, album, artist of playlist URIs afspelen.")
+    if context_uri and _spotify_recommendation_kind(context_uri) not in {"album", "artist", "playlist"}:
+        return _recommendation_error("unsupported_recommendation_kind", "Ik kan deze Spotify context niet afspelen.")
+    if offset_uri and _spotify_recommendation_kind(offset_uri) != "track":
+        return _recommendation_error("unsupported_recommendation_kind", "De offset van een aanbeveling moet een Spotify track zijn.")
+    return kind, uri, context_uri, offset_uri, _recommendation_track_uris(recommendation.get("uris"))
+
+
+def _recommendation_error(error: str, message: str) -> dict[str, Any]:
+    return {"success": False, "error": error, "message": message}
+
+
+async def _play_spotify_recommendation(
+    hass: Any,
+    runtime: Any,
+    recommendation: dict[str, Any],
+    request_payload: dict[str, Any],
+    spotify_recommendation: tuple[str, str, str, str, list[str]],
+    *,
+    user_id: str | None,
+) -> dict[str, Any]:
+    kind, uri, context_uri, offset_uri, uris = spotify_recommendation
+    try:
+        result = await _run_spotify_recommendation_playback(
+            hass, runtime, kind, uri, context_uri, offset_uri, uris
+        )
+    except MusicBackendCapabilityError as exc:
+        return _unsupported_backend_capability_payload(hass, runtime, exc)
+    except SpotifyBackendError as exc:
+        return await _spotify_recommendation_playback_error(
+            hass, runtime, recommendation, request_payload, exc
+        )
+    return await _recommendation_play_success_response(
+        hass, runtime, recommendation, request_payload, result, user_id=user_id
+    )
+
+
+async def _run_spotify_recommendation_playback(
+    hass: Any,
+    runtime: Any,
+    kind: str,
+    uri: str,
+    context_uri: str,
+    offset_uri: str,
+    uris: list[str],
+) -> dict[str, Any]:
+    if kind == "track_mix":
+        return await run_music_command(hass, runtime, "play_uris", uris, play=True)
+    if kind == "track" and context_uri and offset_uri:
+        return await run_music_command(
+            hass, runtime, "play_context_at", {"context_uri": context_uri, "offset_uri": offset_uri}, play=True
+        )
+    if kind == "track":
+        return await run_music_command(hass, runtime, "play", uri, play=True)
+    return await run_music_command(hass, runtime, "play", context_uri or uri, play=True)
+
+
+async def _spotify_recommendation_playback_error(
+    hass: Any,
+    runtime: Any,
+    recommendation: dict[str, Any],
+    request_payload: dict[str, Any],
+    exc: SpotifyBackendError,
+) -> dict[str, Any]:
+    message = str(exc)
+    safe_message = _safe_backend_error_message(exc)
+    if _looks_like_no_active_output(message):
+        return await _speaker_selection_for_recommendation(hass, runtime, recommendation, request_payload)
+    if "reauthorize" in message.lower() or "authorization" in message.lower():
+        return _recommendation_error("spotify_auth_required", safe_message)
+    return _recommendation_error("spotify_playback_failed", safe_message)
 
 
 async def _recommendation_play_success_response(
@@ -2601,7 +2629,6 @@ class DJConnectStatusView(HomeAssistantView):
                 runtime.device_token,
                 runtime.device_status.get(CONF_CLIENT_TYPE),
             )
-        spotify_configured = data.get("spotify_configured")
         # OTA lifecycle hints from ESP.
         ota_state = data.get("ota_state") or data.get("update_state")
         if ota_state in {"idle", "success", "failed"}:
@@ -2612,62 +2639,66 @@ class DJConnectStatusView(HomeAssistantView):
             runtime.update()
         else:
             runtime.update(last_error=None)
-        conf = runtime.config
-        response = {
-            "success": True,
-            "client_type": _runtime_client_type(runtime),
-            "assist_pipeline_id": conf.get(CONF_ASSIST_PIPELINE_ID, ""),
-            "playback": getattr(runtime, "last_playback", None) or {},
-        }
-        response.update(_bootstrap_metadata(hass, runtime))
-        response.update(_ask_dj_capabilities(runtime, client_type=client_type))
-        response.update(music_backend_metadata(hass, runtime))
-        response.update(
-            await _push_status(
-                hass,
-                runtime,
-                user_id=_request_user_id(request),
-                device_id=status_update.get("device_id"),
-                client_type=client_type,
-            )
+        response = await _status_response(
+            hass, runtime, request, status_update, client_type, music_dna_key, data
         )
-        if music_dna_key:
-            response["music_dna_key"] = music_dna_key
-        response.update(_ha_version_payload())
-        response.update(_esp32_language_payload(runtime))
-        response.update(await async_ha_url_payload(hass, conf, client_type=client_type))
-        if _client_status_uses_backend_playback(client_type):
-            response.update(await _status_playback_payload(hass, runtime))
-            backend_available = bool(response.get("backend_available"))
-        else:
-            if response.get("music_backend") == "music_assistant":
-                backend_available = bool(response.get("music_backend_available"))
-            else:
-                backend_available = bool(_current_spotify_credentials_for_status(hass, runtime))
-            response["backend_available"] = backend_available
-            playback = response.get("playback")
-            if not isinstance(playback, dict) or "has_playback" not in playback:
-                response["playback"] = {"has_playback": False}
-        _LOGGER.debug(
-            "DJConnect status from device %s: spotify_configured=%s backend_available=%s",
-            _safe_debug_identifier(data.get("device_id")),
-            spotify_configured,
-            backend_available,
-        )
-        playback = response.get("playback") if isinstance(response.get("playback"), dict) else {}
-        _LOGGER.debug(
-            "DJConnect playback status result client_type=%s device_id=%s backend=%s backend_available=%s music_backend_available=%s has_playback=%s playback_state=%s is_playing=%s",
-            client_type,
-            _safe_debug_identifier(data.get("device_id")),
-            response.get("music_backend"),
-            backend_available,
-            response.get("music_backend_available"),
-            playback.get("has_playback") if isinstance(playback, dict) else None,
-            _safe_playback_state(playback.get("state") if isinstance(playback, dict) else None),
-            playback.get("is_playing") if isinstance(playback, dict) else None,
-        )
-        runtime.device_status["backend_available"] = backend_available
         return self.json(response)
+
+
+async def _status_response(
+    hass: Any,
+    runtime: Any,
+    request: Any,
+    status_update: dict[str, Any],
+    client_type: str,
+    music_dna_key: str | None,
+    data: dict[str, Any],
+) -> dict[str, Any]:
+    """Build the established status response after a validated device update."""
+    conf = runtime.config
+    response = {
+        "success": True,
+        "client_type": _runtime_client_type(runtime),
+        "assist_pipeline_id": conf.get(CONF_ASSIST_PIPELINE_ID, ""),
+        "playback": getattr(runtime, "last_playback", None) or {},
+    }
+    response.update(_bootstrap_metadata(hass, runtime))
+    response.update(_ask_dj_capabilities(runtime, client_type=client_type))
+    response.update(music_backend_metadata(hass, runtime))
+    response.update(await _push_status(hass, runtime, user_id=_request_user_id(request), device_id=status_update.get("device_id"), client_type=client_type))
+    if music_dna_key:
+        response["music_dna_key"] = music_dna_key
+    response.update(_ha_version_payload())
+    response.update(_esp32_language_payload(runtime))
+    response.update(await async_ha_url_payload(hass, conf, client_type=client_type))
+    backend_available = await _status_backend_availability(hass, runtime, response, client_type)
+    _debug_status_response(runtime, data, client_type, response, backend_available)
+    runtime.device_status["backend_available"] = backend_available
+    return response
+
+
+async def _status_backend_availability(
+    hass: Any, runtime: Any, response: dict[str, Any], client_type: str
+) -> bool:
+    """Populate canonical playback evidence and return backend availability."""
+    if _client_status_uses_backend_playback(client_type):
+        response.update(await _status_playback_payload(hass, runtime))
+        return bool(response.get("backend_available"))
+    backend_available = bool(response.get("music_backend_available")) if response.get("music_backend") == "music_assistant" else bool(_current_spotify_credentials_for_status(hass, runtime))
+    response["backend_available"] = backend_available
+    playback = response.get("playback")
+    if not isinstance(playback, dict) or "has_playback" not in playback:
+        response["playback"] = {"has_playback": False}
+    return backend_available
+
+
+def _debug_status_response(
+    runtime: Any, data: dict[str, Any], client_type: str, response: dict[str, Any], backend_available: bool
+) -> None:
+    """Emit the existing status diagnostics after response assembly."""
+    _LOGGER.debug("DJConnect status from device %s: spotify_configured=%s backend_available=%s", _safe_debug_identifier(data.get("device_id")), data.get("spotify_configured"), backend_available)
+    playback = response.get("playback") if isinstance(response.get("playback"), dict) else {}
+    _LOGGER.debug("DJConnect playback status result client_type=%s device_id=%s backend=%s backend_available=%s music_backend_available=%s has_playback=%s playback_state=%s is_playing=%s", client_type, _safe_debug_identifier(data.get("device_id")), response.get("music_backend"), backend_available, response.get("music_backend_available"), playback.get("has_playback"), _safe_playback_state(playback.get("state")), playback.get("is_playing"))
 
 
 class DJConnectCommandView(HomeAssistantView):
@@ -3620,6 +3651,310 @@ class DJConnectAskDjHistoryStateView(HomeAssistantView):
         return self.json(result, status_code=status_code)
 
 
+async def _read_voice_input(
+    view: HomeAssistantView,
+    request: Any,
+    hass: Any,
+    runtime: Any,
+    device_id: str,
+) -> tuple[dict[str, Any] | None, Any]:
+    content_type = request.headers.get("Content-Type", "").split(";", 1)[0].strip().lower()
+    is_audio_request = _is_audio_upload(content_type)
+    header_client_type = (
+        request.headers.get(CONF_CLIENT_TYPE)
+        or request.headers.get("X-DJConnect-Client-Type")
+        or getattr(runtime, "device_status", {}).get(CONF_CLIENT_TYPE)
+    )
+    data = None
+    user_text = ""
+    if is_audio_request:
+        user_text, error_response = await _transcribe_voice_request(
+            view, request, hass, runtime, device_id, content_type, header_client_type
+        )
+        if error_response is not None:
+            return None, error_response
+    elif content_type == "application/json":
+        try:
+            data = await request.json()
+        except Exception:  # noqa: BLE001
+            return None, _json_error(view, "invalid_json", 400)
+        if _is_voice_only_payload(data):
+            _LOGGER.debug("Ignoring voice-only payload for device sensor update")
+    elif request.headers.get("X-DJConnect-Text"):
+        pass
+    elif content_type:
+        await request.read()
+        return None, _json_error(view, "unsupported_media_type", 415)
+    else:
+        await request.read()
+    return {
+        "data": data,
+        "user_text": user_text or _text_from_payload(request.headers, data),
+        "is_audio_request": is_audio_request,
+        "header_client_type": header_client_type,
+    }, None
+
+
+async def _transcribe_voice_request(
+    view: HomeAssistantView,
+    request: Any,
+    hass: Any,
+    runtime: Any,
+    device_id: str,
+    content_type: str,
+    header_client_type: str | None,
+) -> tuple[str | None, Any]:
+    limit = int(runtime.config.get(CONF_MAX_AUDIO_BYTES, DEFAULT_MAX_AUDIO_BYTES))
+    wav = await request.read()
+    if not wav:
+        return None, _json_error(view, "missing_audio", 400)
+    if len(wav) > limit:
+        return None, _json_error(view, "audio_too_large", 413)
+    _store_debug_voice_wav(hass, device_id, content_type, wav)
+    entry = getattr(runtime, "entry", None)
+    pipeline_id = str(runtime.config.get(CONF_ASSIST_PIPELINE_ID) or "").strip()
+    _LOGGER.info(
+        "DJConnect WAV voice request: entry_id=%s options_keys=%s data_keys=%s "
+        "assist_pipeline_id=%s content_type=%s body_bytes=%s",
+        getattr(entry, "entry_id", None),
+        _safe_config_keys(getattr(entry, "options", None)),
+        _safe_config_keys(getattr(entry, "data", None)),
+        pipeline_id or None,
+        content_type,
+        len(wav),
+    )
+    _set_device_state(runtime, "processing")
+    runtime.update(last_error=None)
+    try:
+        return await transcribe_wav_with_assist(hass, wav, runtime.config), None
+    except DJConnectNoSttProviderError as exc:
+        return None, _voice_stt_failure_response(view, runtime, exc, header_client_type, 503)
+    except Exception as exc:  # noqa: BLE001
+        return None, _voice_stt_failure_response(view, runtime, exc, header_client_type, 500)
+
+
+def _voice_stt_failure_response(
+    view: HomeAssistantView,
+    runtime: Any,
+    exc: Exception,
+    client_type: str | None,
+    default_status: int,
+) -> Any:
+    _set_device_state(runtime, "error")
+    message = _safe_backend_error_message(exc)
+    runtime.update(last_error=message)
+    return _stt_error_response(view, message, 422 if _is_ask_dj_voice_client(client_type) else default_status)
+
+
+async def _ask_dj_voice_response(
+    view: HomeAssistantView,
+    request: Any,
+    hass: Any,
+    runtime: Any,
+    device_id: str,
+    client_type: str | None,
+    user_text: str,
+) -> Any:
+    ask_payload = _voice_header_payload(request.headers, device_id, str(client_type or ""))
+    ask_payload.update(text=user_text, input_type="voice")
+    _set_device_state(runtime, "processing")
+    runtime.update(last_text=user_text, last_error=None)
+    try:
+        result = await async_handle_ask_dj(hass, runtime, ask_payload, user_id=_request_user_id(request))
+    except Exception as exc:  # noqa: BLE001
+        _LOGGER.warning("DJConnect Ask DJ voice failed: %s", _safe_backend_error_message(exc))
+        _set_device_state(runtime, "error")
+        runtime.update(last_error=_safe_backend_error_message(exc))
+        return view.json(_ask_dj_voice_failure_payload(user_text), status_code=503)
+    _persist_runtime_device_status(hass, runtime)
+    _set_device_state(runtime, "idle")
+    return view.json(
+        {
+            "success": bool(result.get("success", True)),
+            **result,
+            "transcript": user_text,
+            "recognized_text": user_text,
+            "audio_type": result.get("audio_type") or _audio_type_from_url(result.get("audio_url")),
+            "actions": result.get("actions") or [],
+            "sources": result.get("sources") or [],
+        }
+    )
+
+
+def _ask_dj_voice_failure_payload(user_text: str) -> dict[str, Any]:
+    return {
+        "success": False,
+        "error": "ask_dj_unavailable",
+        "message": "Ask DJ is nu niet bereikbaar.",
+        "text": "Ask DJ is nu niet bereikbaar.",
+        "dj_text": "Ask DJ is nu niet bereikbaar.",
+        "transcript": user_text,
+        "recognized_text": user_text,
+        "images": [],
+        "links": [],
+        "sources": [],
+        "actions": [],
+    }
+
+
+def _voice_memory_payload(data: Any, device_id: str, runtime: Any) -> dict[str, Any]:
+    if isinstance(data, dict):
+        return data
+    return {
+        CONF_DEVICE_ID: device_id,
+        CONF_CLIENT_TYPE: getattr(runtime, "device_status", {}).get(CONF_CLIENT_TYPE),
+    }
+
+
+async def _voice_text_test_response(
+    view: HomeAssistantView,
+    hass: Any,
+    runtime: Any,
+    user_text: str,
+    music_dna_key: str | None,
+) -> Any:
+    dj_text = _test_dj_text(runtime)
+    _LOGGER.debug("DJConnect DJ response text test: %s", user_text)
+    _set_device_state(runtime, "responding")
+    runtime.update(last_text=user_text, last_dj_text=dj_text, last_error=None)
+    dj_response = await async_send_dj_response_best_effort(hass, runtime, dj_text)
+    _persist_runtime_device_status(hass, runtime)
+    audio_url = dj_response.get("audio_url_value")
+    _set_device_state(runtime, "idle")
+    return view.json(
+        {
+            "success": True,
+            "text": dj_text,
+            "dj_text": dj_text,
+            "recognized_text": user_text,
+            "dj_response": dj_response,
+            "audio_url": audio_url,
+            "audio_type": _audio_type_from_url(audio_url),
+            "music_dna_key": music_dna_key,
+        }
+    )
+
+
+async def _voice_command_response(
+    view: HomeAssistantView,
+    request: Any,
+    hass: Any,
+    runtime: Any,
+    user_text: str,
+    memory_payload: dict[str, Any],
+    music_dna_key: str | None,
+) -> Any:
+    _LOGGER.debug("DJConnect command: %s", user_text)
+    _set_device_state(runtime, "processing")
+    runtime.update(last_text=user_text, last_error=None)
+    try:
+        result = await _run_text_command_with_memory(
+            hass, runtime, user_text, play=True, correct_stt=True,
+            memory_payload=memory_payload, user_id=_request_user_id(request),
+        )
+    except Exception as exc:  # noqa: BLE001
+        return await _voice_command_failure_response(view, hass, runtime, user_text, music_dna_key, exc)
+    _set_device_state(runtime, "responding")
+    result["dj_response"] = await async_send_dj_response_best_effort(hass, runtime, result.get("dj_text") or "")
+    _persist_runtime_device_status(hass, runtime)
+    audio_url = result.get("dj_response", {}).get("audio_url_value")
+    _set_device_state(runtime, "idle")
+    _LOGGER.debug(
+        "DJConnect result intent=%s playback=%s dj_text=%s audio_url=%s audio_type=%s",
+        result.get("intent"), bool(result.get("playback")), bool(result.get("dj_text")),
+        bool(audio_url), _audio_type_from_url(audio_url),
+    )
+    return view.json(
+        {
+            "success": True,
+            **result,
+            "text": result.get("dj_text") or result.get("text"),
+            "recognized_text": user_text,
+            "audio_url": audio_url,
+            "audio_type": _audio_type_from_url(audio_url),
+            "music_dna_key": music_dna_key,
+        }
+    )
+
+
+async def _voice_command_failure_response(
+    view: HomeAssistantView,
+    hass: Any,
+    runtime: Any,
+    user_text: str,
+    music_dna_key: str | None,
+    exc: Exception,
+) -> Any:
+    _LOGGER.warning("DJConnect command parser/playback failed: %s", _safe_backend_error_message(exc))
+    _set_device_state(runtime, "responding")
+    dj_text = _command_failed_text(runtime, exc)
+    runtime.update(last_error=_safe_backend_error_message(exc), last_dj_text=dj_text)
+    dj_response = await async_send_dj_response_best_effort(hass, runtime, dj_text)
+    _persist_runtime_device_status(hass, runtime)
+    audio_url = dj_response.get("audio_url_value")
+    _set_device_state(runtime, "idle")
+    return view.json(
+        {
+            "success": True,
+            "error": "command_failed",
+            "message": _safe_backend_error_message(exc),
+            "text": dj_text,
+            "dj_text": dj_text,
+            "recognized_text": user_text,
+            "intent": getattr(runtime, "last_intent", None),
+            "dj_response": dj_response,
+            "audio_url": audio_url,
+            "audio_type": _audio_type_from_url(audio_url),
+            "music_dna_key": music_dna_key,
+        }
+    )
+
+
+async def _handle_voice_request(
+    view: HomeAssistantView,
+    request: Any,
+    hass: Any,
+    runtime: Any,
+    device_id: str,
+) -> Any:
+    try:
+        voice_input, error_response = await _read_voice_input(view, request, hass, runtime, device_id)
+        if error_response is not None:
+            return error_response
+        assert voice_input is not None
+        user_text = voice_input["user_text"]
+        if not user_text:
+            return _missing_text_response(view)
+        if voice_input["is_audio_request"] and _is_ask_dj_voice_client(voice_input["header_client_type"]):
+            return await _ask_dj_voice_response(
+                view, request, hass, runtime, device_id, voice_input["header_client_type"], user_text
+            )
+        memory_payload = _voice_memory_payload(voice_input["data"], device_id, runtime)
+        music_dna_key = await _update_memory_metadata(runtime, memory_payload, user_id=_request_user_id(request))
+        if not voice_input["is_audio_request"]:
+            return await _voice_text_test_response(view, hass, runtime, user_text, music_dna_key)
+        return await _voice_command_response(
+            view, request, hass, runtime, user_text, memory_payload, music_dna_key
+        )
+    except Exception as exc:  # noqa: BLE001
+        _LOGGER.exception("DJConnect request failed: %s", _safe_backend_error_message(exc))
+        _set_device_state(runtime, "error")
+        runtime.update(last_error=_safe_backend_error_message(exc))
+        dj_response = await _send_failure_dj_response(hass, runtime, exc)
+        dj_text = _command_failed_text(runtime, exc)
+        runtime.update(last_error=_safe_backend_error_message(exc))
+        return view.json(
+            {
+                "success": False,
+                "error": "command_failed",
+                "message": _safe_backend_error_message(exc),
+                "dj_text": dj_text,
+                "dj_response": dj_response,
+            },
+            status_code=500,
+        )
+
+
 class DJConnectVoiceView(HomeAssistantView):
     url = API_VOICE
     name = "api:djconnect:voice"
@@ -3637,276 +3972,19 @@ class DJConnectVoiceView(HomeAssistantView):
         if runtime is None:
             return _json_error(self, "not_configured", 503)
         if not _authorize_runtime_device_request(
-            runtime,
-            request.headers,
-            device_id,
-            request.headers.get(CONF_CLIENT_TYPE),
+            runtime, request.headers, device_id, request.headers.get(CONF_CLIENT_TYPE)
         ):
             return _json_error(self, "unauthorized", 401)
         if not _runtime_versions_compatible(runtime):
             return _runtime_version_mismatch_response(self, runtime)
         if getattr(runtime, "device_token", None):
             _persist_paired_device(
-                hass,
-                runtime,
-                device_id,
+                hass, runtime, device_id,
                 getattr(runtime, "device_status", {}).get("local_url"),
                 runtime.device_token,
                 getattr(runtime, "device_status", {}).get(CONF_CLIENT_TYPE),
             )
-
-        try:
-            content_type = request.headers.get("Content-Type", "")
-            content_type = content_type.split(";", 1)[0].strip().lower()
-            data = None
-            user_text = ""
-            is_audio_request = _is_audio_upload(content_type)
-            header_client_type = (
-                request.headers.get(CONF_CLIENT_TYPE)
-                or request.headers.get("X-DJConnect-Client-Type")
-                or getattr(runtime, "device_status", {}).get(CONF_CLIENT_TYPE)
-            )
-
-            if is_audio_request:
-                limit = int(runtime.config.get(CONF_MAX_AUDIO_BYTES, DEFAULT_MAX_AUDIO_BYTES))
-                wav = await request.read()
-                if not wav:
-                    return _json_error(self, "missing_audio", 400)
-                if len(wav) > limit:
-                    return _json_error(self, "audio_too_large", 413)
-                _store_debug_voice_wav(hass, device_id, content_type, wav)
-                entry = getattr(runtime, "entry", None)
-                pipeline_id = str(
-                    runtime.config.get(CONF_ASSIST_PIPELINE_ID) or ""
-                ).strip()
-                _LOGGER.info(
-                    "DJConnect WAV voice request: entry_id=%s options_keys=%s "
-                    "data_keys=%s assist_pipeline_id=%s "
-                    "content_type=%s body_bytes=%s",
-                    getattr(entry, "entry_id", None),
-                    _safe_config_keys(getattr(entry, "options", None)),
-                    _safe_config_keys(getattr(entry, "data", None)),
-                    pipeline_id or None,
-                    content_type,
-                    len(wav),
-                )
-                _set_device_state(runtime, "processing")
-                runtime.update(last_error=None)
-                try:
-                    user_text = await transcribe_wav_with_assist(hass, wav, runtime.config)
-                except DJConnectNoSttProviderError as exc:
-                    _set_device_state(runtime, "error")
-                    runtime.update(last_error=_safe_backend_error_message(exc))
-                    return _stt_error_response(
-                        self,
-                        _safe_backend_error_message(exc),
-                        422 if _is_ask_dj_voice_client(header_client_type) else 503,
-                    )
-                except Exception as exc:  # noqa: BLE001
-                    _set_device_state(runtime, "error")
-                    runtime.update(last_error=_safe_backend_error_message(exc))
-                    return _stt_error_response(
-                        self,
-                        _safe_backend_error_message(exc),
-                        422 if _is_ask_dj_voice_client(header_client_type) else 500,
-                    )
-            elif content_type == "application/json":
-                try:
-                    data = await request.json()
-                except Exception:  # noqa: BLE001
-                    return _json_error(self, "invalid_json", 400)
-                if _is_voice_only_payload(data):
-                    _LOGGER.debug("Ignoring voice-only payload for device sensor update")
-            elif request.headers.get("X-DJConnect-Text"):
-                pass
-            elif content_type:
-                await request.read()
-                return _json_error(self, "unsupported_media_type", 415)
-            else:
-                await request.read()
-
-            user_text = user_text or _text_from_payload(request.headers, data)
-            if not user_text:
-                return _missing_text_response(self)
-            if is_audio_request and _is_ask_dj_voice_client(header_client_type):
-                ask_payload = _voice_header_payload(
-                    request.headers,
-                    device_id,
-                    str(header_client_type or ""),
-                )
-                ask_payload["text"] = user_text
-                ask_payload["input_type"] = "voice"
-                _set_device_state(runtime, "processing")
-                runtime.update(last_text=user_text, last_error=None)
-                try:
-                    result = await async_handle_ask_dj(
-                        hass,
-                        runtime,
-                        ask_payload,
-                        user_id=_request_user_id(request),
-                    )
-                except Exception as exc:  # noqa: BLE001
-                    _LOGGER.warning("DJConnect Ask DJ voice failed: %s", _safe_backend_error_message(exc))
-                    _set_device_state(runtime, "error")
-                    runtime.update(last_error=_safe_backend_error_message(exc))
-                    return self.json(
-                        {
-                            "success": False,
-                            "error": "ask_dj_unavailable",
-                            "message": "Ask DJ is nu niet bereikbaar.",
-                            "text": "Ask DJ is nu niet bereikbaar.",
-                            "dj_text": "Ask DJ is nu niet bereikbaar.",
-                            "transcript": user_text,
-                            "recognized_text": user_text,
-                            "images": [],
-                            "links": [],
-                            "sources": [],
-                            "actions": [],
-                        },
-                        status_code=503,
-                    )
-                _persist_runtime_device_status(hass, runtime)
-                _set_device_state(runtime, "idle")
-                return self.json(
-                    {
-                        "success": bool(result.get("success", True)),
-                        **result,
-                        "transcript": user_text,
-                        "recognized_text": user_text,
-                        "audio_type": result.get("audio_type")
-                        or _audio_type_from_url(result.get("audio_url")),
-                        "actions": result.get("actions") or [],
-                        "sources": result.get("sources") or [],
-                    }
-                )
-            if isinstance(data, dict):
-                memory_payload = data
-            else:
-                memory_payload = {
-                    CONF_DEVICE_ID: device_id,
-                    CONF_CLIENT_TYPE: getattr(runtime, "device_status", {}).get(
-                        CONF_CLIENT_TYPE
-                    ),
-                }
-            music_dna_key = await _update_memory_metadata(
-                runtime,
-                memory_payload,
-                user_id=_request_user_id(request),
-            )
-
-            if not is_audio_request:
-                dj_text = _test_dj_text(runtime)
-                _LOGGER.debug("DJConnect DJ response text test: %s", user_text)
-                _set_device_state(runtime, "responding")
-                runtime.update(last_text=user_text, last_dj_text=dj_text, last_error=None)
-                dj_response = await async_send_dj_response_best_effort(
-                    hass,
-                    runtime,
-                    dj_text,
-                )
-                _persist_runtime_device_status(hass, runtime)
-                audio_url = dj_response.get("audio_url_value")
-                _set_device_state(runtime, "idle")
-                return self.json(
-                    {
-                        "success": True,
-                        "text": dj_text,
-                        "dj_text": dj_text,
-                        "recognized_text": user_text,
-                        "dj_response": dj_response,
-                        "audio_url": audio_url,
-                        "audio_type": _audio_type_from_url(audio_url),
-                        "music_dna_key": music_dna_key,
-                    }
-                )
-
-            _LOGGER.debug("DJConnect command: %s", user_text)
-            _set_device_state(runtime, "processing")
-            runtime.update(last_text=user_text, last_error=None)
-            try:
-                result = await _run_text_command_with_memory(
-                    hass,
-                    runtime,
-                    user_text,
-                    play=True,
-                    correct_stt=True,
-                    memory_payload=memory_payload,
-                    user_id=_request_user_id(request),
-                )
-            except Exception as exc:  # noqa: BLE001
-                _LOGGER.warning("DJConnect command parser/playback failed: %s", _safe_backend_error_message(exc))
-                _set_device_state(runtime, "responding")
-                dj_text = _command_failed_text(runtime, exc)
-                runtime.update(last_error=_safe_backend_error_message(exc), last_dj_text=dj_text)
-                dj_response = await async_send_dj_response_best_effort(
-                    hass,
-                    runtime,
-                    dj_text,
-                )
-                _persist_runtime_device_status(hass, runtime)
-                audio_url = dj_response.get("audio_url_value")
-                _set_device_state(runtime, "idle")
-                return self.json(
-                    {
-                        "success": True,
-                        "error": "command_failed",
-                        "message": _safe_backend_error_message(exc),
-                        "text": dj_text,
-                        "dj_text": dj_text,
-                        "recognized_text": user_text,
-                        "intent": getattr(runtime, "last_intent", None),
-                        "dj_response": dj_response,
-                        "audio_url": audio_url,
-                        "audio_type": _audio_type_from_url(audio_url),
-                        "music_dna_key": music_dna_key,
-                    }
-                )
-            _set_device_state(runtime, "responding")
-            result["dj_response"] = await async_send_dj_response_best_effort(
-                hass,
-                runtime,
-                result.get("dj_text") or "",
-            )
-            _persist_runtime_device_status(hass, runtime)
-            audio_url = result.get("dj_response", {}).get("audio_url_value")
-            _set_device_state(runtime, "idle")
-            _LOGGER.debug(
-                "DJConnect result intent=%s playback=%s dj_text=%s audio_url=%s audio_type=%s",
-                result.get("intent"),
-                bool(result.get("playback")),
-                bool(result.get("dj_text")),
-                bool(audio_url),
-                _audio_type_from_url(audio_url),
-            )
-            return self.json(
-                {
-                    "success": True,
-                    **result,
-                    "text": result.get("dj_text") or result.get("text"),
-                    "recognized_text": user_text,
-                    "audio_url": audio_url,
-                    "audio_type": _audio_type_from_url(audio_url),
-                    "music_dna_key": music_dna_key,
-                }
-            )
-
-        except Exception as exc:  # noqa: BLE001
-            _LOGGER.exception("DJConnect request failed: %s", _safe_backend_error_message(exc))
-            _set_device_state(runtime, "error")
-            runtime.update(last_error=_safe_backend_error_message(exc))
-            dj_response = await _send_failure_dj_response(hass, runtime, exc)
-            dj_text = _command_failed_text(runtime, exc)
-            runtime.update(last_error=_safe_backend_error_message(exc))
-            return self.json(
-                {
-                    "success": False,
-                    "error": "command_failed",
-                    "message": _safe_backend_error_message(exc),
-                    "dj_text": dj_text,
-                    "dj_response": dj_response,
-                },
-                status_code=500,
-            )
+        return await _handle_voice_request(self, request, hass, runtime, device_id)
 
 
 class DJConnectTtsView(HomeAssistantView):

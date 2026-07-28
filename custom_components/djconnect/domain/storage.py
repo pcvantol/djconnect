@@ -172,66 +172,20 @@ class ProfilePlatformStorage:
             _require_profile(household, reassign_id)
         profiles = dict(household.profiles)
         profiles.pop(profile.profile_id)
-        devices = {
-            device_id: (
-                replace(device, linked_profile_id=reassign_id)
-                if device.linked_profile_id == profile.profile_id
-                else device
-            )
-            for device_id, device in household.devices.items()
-        }
-        shared = replace(
+        devices = _reassign_profile_devices(household.devices, profile.profile_id, reassign_id)
+        shared = _reassign_shared_profile_references(
             household.shared,
-            room_profile_ids={
-                room: (reassign_id if mapped == profile.profile_id else mapped)
-                for room, mapped in household.shared.room_profile_ids.items()
-                if mapped != profile.profile_id or reassign_id
-            },
-            area_profile_ids={
-                area: (reassign_id if mapped == profile.profile_id else mapped)
-                for area, mapped in household.shared.area_profile_ids.items()
-                if mapped != profile.profile_id or reassign_id
-            },
-            voice_endpoint_profile_ids={
-                endpoint: (reassign_id if mapped == profile.profile_id else mapped)
-                for endpoint, mapped in household.shared.voice_endpoint_profile_ids.items()
-                if mapped != profile.profile_id or reassign_id
-            },
-            ha_device_profile_ids={
-                device: (reassign_id if mapped == profile.profile_id else mapped)
-                for device, mapped in household.shared.ha_device_profile_ids.items()
-                if mapped != profile.profile_id or reassign_id
-            },
-            ha_user_profile_ids={
-                user: (reassign_id if mapped == profile.profile_id else mapped)
-                for user, mapped in household.shared.ha_user_profile_ids.items()
-                if mapped != profile.profile_id or reassign_id
-            },
-            player_profile_ids={
-                player: (reassign_id if mapped == profile.profile_id else mapped)
-                for player, mapped in household.shared.player_profile_ids.items()
-                if mapped != profile.profile_id or reassign_id
-            },
-            playback_zone_profile_ids={
-                zone: (reassign_id if mapped == profile.profile_id else mapped)
-                for zone, mapped in household.shared.playback_zone_profile_ids.items()
-                if mapped != profile.profile_id or reassign_id
-            },
+            profile.profile_id,
+            reassign_id,
         )
         fallback = household.fallback
         if fallback_id == profile.profile_id:
             fallback = replace(fallback, fallback_profile_id=reassign_id)
-        accounts = {
-            account_id: replace(
-                account,
-                linked_profile_ids=frozenset(
-                    reassign_id if item == profile.profile_id and reassign_id else item
-                    for item in account.linked_profile_ids
-                    if item != profile.profile_id or reassign_id
-                ),
-            )
-            for account_id, account in household.music_accounts.items()
-        }
+        accounts = _reassign_music_account_profiles(
+            household.music_accounts,
+            profile.profile_id,
+            reassign_id,
+        )
         self._household = replace(
             household,
             profiles=profiles,
@@ -461,6 +415,80 @@ class ProfilePlatformStorage:
         except Exception:  # noqa: BLE001
             return None
         return Store(hass, STORE_VERSION, STORE_KEY)
+
+
+def _reassign_profile_devices(
+    devices: dict[str, Device],
+    profile_id: str,
+    replacement_id: str,
+) -> dict[str, Device]:
+    """Replace a removed profile reference on registered devices."""
+    return {
+        device_id: (
+            replace(device, linked_profile_id=replacement_id)
+            if device.linked_profile_id == profile_id
+            else device
+        )
+        for device_id, device in devices.items()
+    }
+
+
+def _reassign_profile_mapping(
+    mappings: dict[str, str],
+    profile_id: str,
+    replacement_id: str,
+) -> dict[str, str]:
+    """Replace or remove one profile reference from a shared mapping."""
+    return {
+        key: replacement_id if mapped == profile_id else mapped
+        for key, mapped in mappings.items()
+        if mapped != profile_id or replacement_id
+    }
+
+
+def _reassign_shared_profile_references(
+    shared: SharedConfiguration,
+    profile_id: str,
+    replacement_id: str,
+) -> SharedConfiguration:
+    """Apply a profile deletion consistently to all shared reference maps."""
+    return replace(
+        shared,
+        room_profile_ids=_reassign_profile_mapping(shared.room_profile_ids, profile_id, replacement_id),
+        area_profile_ids=_reassign_profile_mapping(shared.area_profile_ids, profile_id, replacement_id),
+        voice_endpoint_profile_ids=_reassign_profile_mapping(
+            shared.voice_endpoint_profile_ids, profile_id, replacement_id
+        ),
+        ha_device_profile_ids=_reassign_profile_mapping(
+            shared.ha_device_profile_ids, profile_id, replacement_id
+        ),
+        ha_user_profile_ids=_reassign_profile_mapping(
+            shared.ha_user_profile_ids, profile_id, replacement_id
+        ),
+        player_profile_ids=_reassign_profile_mapping(shared.player_profile_ids, profile_id, replacement_id),
+        playback_zone_profile_ids=_reassign_profile_mapping(
+            shared.playback_zone_profile_ids, profile_id, replacement_id
+        ),
+    )
+
+
+def _reassign_music_account_profiles(
+    accounts: dict[str, MusicAccount],
+    profile_id: str,
+    replacement_id: str,
+) -> dict[str, MusicAccount]:
+    """Replace or remove a profile reference on every music account."""
+    return {
+        account_id: replace(
+            account,
+            linked_profile_ids=frozenset(
+                replacement_id if item == profile_id and replacement_id else item
+                for item in account.linked_profile_ids
+                if item != profile_id or replacement_id
+            ),
+        )
+        for account_id, account in accounts.items()
+    }
 
 
 def default_household() -> Household:
