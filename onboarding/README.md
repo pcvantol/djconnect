@@ -60,8 +60,9 @@ Developer readiness remains read-only. Run:
 ```
 
 It reports `storage.<repository>.ignored_build_output` for each checked-out
-repository, verifies the 14-day retention result and confirms that the
-LaunchAgent is loaded. It does not delete files or change the host.
+repository, verifies the 14-day retention result, confirms that the LaunchAgent
+is loaded, and requires the canonical `djconnect/onboarding/manifest.yml`
+package version to be `4.0.0`. It does not delete files or change the host.
 
 The macOS package reconciles Docker Desktop and the persistent local Home
 Assistant Compose environment. The Home Assistant service is available at
