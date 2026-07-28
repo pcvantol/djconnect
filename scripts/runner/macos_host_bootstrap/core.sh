@@ -1,4 +1,4 @@
-# Version: 1.3.7
+# Version: 1.3.8
 # CLI help, desired-state verification and console/report primitives.
 usage() {
   cat <<'EOF'
@@ -181,6 +181,8 @@ load_desired_state() {
   DESIRED_MINIMUM_CPU_CORES="$(require_desired_state_value host.minimum_cpu_cores)"
   DESIRED_MINIMUM_FREE_DISK_GB="$(require_desired_state_value host.minimum_free_disk_gb)"
   DESIRED_RECOMMENDED_FREE_DISK_GB="$(require_desired_state_value host.recommended_free_disk_gb)"
+  DESIRED_ONBOARDING_PACKAGE_VERSION="$(require_desired_state_value onboarding.package_version)"
+  [[ "$DESIRED_ONBOARDING_PACKAGE_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || die "Invalid desired-state onboarding.package_version: $DESIRED_ONBOARDING_PACKAGE_VERSION"
   IFS=',' read -r -a DESIRED_TOOL_FORMULAS <<<"$(require_desired_state_value tooling.formulas)"
   IFS=',' read -r -a DESIRED_REQUIRED_CASKS <<<"$(require_desired_state_value tooling.required_casks)"
   local optional_casks
@@ -304,7 +306,7 @@ report_repository_build_output() {
 }
 
 run_desired_state_verification() {
-  local hardware_profile macos_version macos_major cpu_brand mem_bytes mem_gb cpu_count disk_probe_path disk_kb disk_gb formula cask profile install_dir uid_value ha_running ngrok_config ngrok_permissions ngrok_config_version ngrok_authtoken_status ngrok_authtoken_state ngrok_tunnel tailscale_installation tailscale_state
+  local hardware_profile macos_version macos_major cpu_brand mem_bytes mem_gb cpu_count disk_probe_path disk_kb disk_gb onboarding_manifest onboarding_version formula cask profile install_dir uid_value ha_running ngrok_config ngrok_permissions ngrok_config_version ngrok_authtoken_status ngrok_authtoken_state ngrok_tunnel tailscale_installation tailscale_state
   printf '# DJConnect macOS Development Host Desired-State Delta\n\n'
   printf '%s\n\n' "Manifest: \`$DESIRED_STATE_FILE\` (version $DESIRED_STATE_VERSION, schema $DESIRED_STATE_SCHEMA_VERSION; bootstrap $SCRIPT_VERSION, minimum tool $DESIRED_MINIMUM_TOOL_VERSION, $MANIFEST_TOOL_COMPATIBILITY_VERDICT)"
   printf '%s\n' '| Component | Desired | Actual | Delta |'
@@ -331,6 +333,17 @@ run_desired_state_verification() {
     verify_delta_row 'host.minimum_free_disk_gb' ">=$DESIRED_MINIMUM_FREE_DISK_GB" "${disk_gb}GB at $disk_probe_path" MATCH
   else
     verify_delta_row 'host.minimum_free_disk_gb' ">=$DESIRED_MINIMUM_FREE_DISK_GB" "${disk_gb}GB at $disk_probe_path" DRIFT
+  fi
+  onboarding_manifest="$GITHUB_ROOT/djconnect/onboarding/manifest.yml"
+  onboarding_version='missing'
+  if [[ -f "$onboarding_manifest" ]]; then
+    onboarding_version="$(awk -F': ' '$1 == "package.version" { print $2; exit }' "$onboarding_manifest")"
+    [[ "$onboarding_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || onboarding_version='invalid'
+  fi
+  if [[ "$onboarding_version" == "$DESIRED_ONBOARDING_PACKAGE_VERSION" ]]; then
+    verify_delta_row 'onboarding.package_version' "$DESIRED_ONBOARDING_PACKAGE_VERSION" "$onboarding_version from $onboarding_manifest" MATCH
+  else
+    verify_delta_row 'onboarding.package_version' "$DESIRED_ONBOARDING_PACKAGE_VERSION" "$onboarding_version from $onboarding_manifest" DRIFT
   fi
   report_repository_build_output
   local verification_cleanup="$GITHUB_ROOT/djconnect/scripts/maintenance/cleanup_verification_artifacts.sh" cleanup_label="com.djconnect.verification-artifact-cleanup"
