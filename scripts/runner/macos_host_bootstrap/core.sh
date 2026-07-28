@@ -333,6 +333,9 @@ run_desired_state_verification() {
     verify_delta_row 'host.minimum_free_disk_gb' ">=$DESIRED_MINIMUM_FREE_DISK_GB" "${disk_gb}GB at $disk_probe_path" DRIFT
   fi
   report_repository_build_output
+  local verification_cleanup="$GITHUB_ROOT/djconnect/scripts/maintenance/cleanup_verification_artifacts.sh" cleanup_label="com.djconnect.verification-artifact-cleanup"
+  if [[ -x "$verification_cleanup" ]] && "$verification_cleanup" --check; then verify_delta_row 'maintenance.verification_artifact_retention' 'no ignored output older than 14 days' clean MATCH; else verify_delta_row 'maintenance.verification_artifact_retention' 'no ignored output older than 14 days' expired DRIFT; fi
+  if launchctl print "gui/$(id -u)/$cleanup_label" >/dev/null 2>&1; then verify_delta_row 'maintenance.verification_artifact_cleanup' "$cleanup_label loaded" loaded MATCH; else verify_delta_row 'maintenance.verification_artifact_cleanup' "$cleanup_label loaded" absent DRIFT; fi
 
   for formula in "${DESIRED_TOOL_FORMULAS[@]}"; do
     if command -v brew >/dev/null 2>&1 && brew list --versions "$formula" >/dev/null 2>&1; then

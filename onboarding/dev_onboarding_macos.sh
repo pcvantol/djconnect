@@ -166,6 +166,7 @@ Options:
   --clean-build-output  Remove only Git-ignored local build/cache directories
                        from sibling DJConnect repositories. Prompts before
                        deletion unless --yes is also supplied.
+  --install-verification-cleanup Install the daily 14-day verification cleanup LaunchAgent.
   --apply-upgrades      Allow step 24 to modify installed packages/tooling.
   --e2e-version VER     Version passed to release dry-run scripts.
                        Default: $E2E_VERSION
@@ -745,6 +746,16 @@ clean_build_output() {
     done
   done
   log "Build-output cleanup complete: $cleaned ignored directory(s) removed, $preserved preserved."
+}
+
+install_verification_cleanup() {
+  local label="com.djconnect.verification-artifact-cleanup" plist="$HOME/Library/LaunchAgents/com.djconnect.verification-artifact-cleanup.plist"
+  mkdir -p "$HOME/Library/LaunchAgents"
+  cat > "$plist" <<EOF
+<?xml version="1.0" encoding="UTF-8"?><plist version="1.0"><dict><key>Label</key><string>$label</string><key>ProgramArguments</key><array><string>/bin/bash</string><string>$REPO_ROOT/scripts/maintenance/cleanup_verification_artifacts.sh</string><string>--execute</string></array><key>StartCalendarInterval</key><dict><key>Hour</key><integer>3</integer><key>Minute</key><integer>15</integer></dict><key>RunAtLoad</key><true/></dict></plist>
+EOF
+  launchctl unload "$plist" >/dev/null 2>&1 || true
+  launchctl load "$plist"
 }
 
 wait_for_home_assistant() {
@@ -2293,6 +2304,10 @@ while [[ $# -gt 0 ]]; do
       CLEAN_BUILD_OUTPUT=1
       shift
       ;;
+    --install-verification-cleanup)
+      INSTALL_VERIFICATION_CLEANUP=1
+      shift
+      ;;
     --apply-upgrades)
       APPLY_UPGRADES=1
       shift
@@ -2383,6 +2398,7 @@ if [[ "$CLEAN_BUILD_OUTPUT" == "1" ]]; then
     die "Build-output cleanup was not confirmed."
   fi
 fi
+if [[ "${INSTALL_VERIFICATION_CLEANUP:-0}" == "1" ]]; then install_verification_cleanup; fi
 
 if [[ -z "$SELECTED_STEPS" ]]; then
   interactive_menu
