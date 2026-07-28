@@ -752,7 +752,7 @@ install_verification_cleanup() {
   local label="com.djconnect.verification-artifact-cleanup" plist="$HOME/Library/LaunchAgents/com.djconnect.verification-artifact-cleanup.plist"
   mkdir -p "$HOME/Library/LaunchAgents"
   cat > "$plist" <<EOF
-<?xml version="1.0" encoding="UTF-8"?><plist version="1.0"><dict><key>Label</key><string>$label</string><key>ProgramArguments</key><array><string>/bin/bash</string><string>$REPO_ROOT/scripts/maintenance/cleanup_verification_artifacts.sh</string><string>--execute</string></array><key>StartCalendarInterval</key><dict><key>Hour</key><integer>3</integer><key>Minute</key><integer>15</integer></dict><key>RunAtLoad</key><true/></dict></plist>
+<?xml version="1.0" encoding="UTF-8"?><plist version="1.0"><dict><key>Label</key><string>$label</string><key>ProgramArguments</key><array><string>/bin/bash</string><string>$REPO_ROOT/scripts/maintenance/cleanup_verification_artifacts.sh</string><string>--execute</string></array><key>StartCalendarInterval</key><dict><key>Hour</key><integer>10</integer><key>Minute</key><integer>0</integer></dict><key>RunAtLoad</key><true/></dict></plist>
 EOF
   launchctl unload "$plist" >/dev/null 2>&1 || true
   launchctl load "$plist"
