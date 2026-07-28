@@ -120,12 +120,12 @@ The component categories and their governance boundaries are qualified, but
 the existing simulation manifest and Runtime do not yet prove a generic,
 fail-closed single-component selection and affected-only qualification path.
 
-1. **Component Release Qualification** — use an existing Repository Ownership
-   participant and the current manifest/runtime model to assess whether exactly
-   one source participant, its necessary distribution/target dependency, its
-   patch-only version handling, affected-only Verification/Software Assurance/
-   Trusted Delivery evidence, qualified runner routing and recovery evidence
-   can be represented without changing coordinated Platform Release semantics.
+1. **Component Release Scope Refinement** — the completed
+   `COMPONENT_RELEASE_QUALIFICATION_ASSESSMENT.md` found that the current
+   manifest/runtime preserves fail-closed execution after scope is supplied,
+   but does not canonically select one source participant or derive its
+   dependency/evidence closure. Define the minimum such closure within the
+   existing Runtime before any implementation is considered.
 
 This is a future assessment only. It authorizes no release-mode implementation,
 workflow change, component release, tag, publication, deployment or rollback.
@@ -136,6 +136,6 @@ workflow change, component release, tag, publication, deployment or rollback.
 
 DJConnect already has canonical releaseable repository units, a patch-only
 compatibility boundary and one recorded HACS component-patch precedent. The
-single remaining question is whether the existing manifest/runtime can qualify
-the generic one-component selection path fail closed. The sole next step is the
-bounded **Component Release Qualification** assessment.
+completed qualification assessment did not establish generic one-component
+selection. The sole next step is the bounded **Component Release Scope
+Refinement**; no release-mode implementation is authorized.

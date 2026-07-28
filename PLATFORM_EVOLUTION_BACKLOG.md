@@ -18,7 +18,7 @@ user-facing roadmap progress; the current Product Initiative is recorded in
 | --- | --- | --- | --- | --- |
 | Capability-profile assessment follow-up | P2 | Completed | PR #539 / `QUALIFICATION_REGISTER.md`; current CMB-05/CMB-06/CMB-07/CMB-09/CMB-12 evidence | `GO_CAPABILITY_PROFILE_FOLLOW_UP_RECONCILED`; seven original items reconciled to six unique active items; no product implementation authorization |
 | Canonical governance Version 2.2 alignment | P0 | Historical | merged governance evidence | retained governance evidence only |
-| Component Release Mode | P2 | Completed | PR #541 / `docs/release/COMPONENT_RELEASE_MODE_ASSESSMENT.md`; release evidence and current manifest model | `GO_COMPONENT_RELEASE_MODE_PARTIALLY_QUALIFIED`; Component Release Qualification remains Future Assessment only, with no release-mode implementation authorization |
+| Component Release Mode | P2 | Completed | PR #541 / `docs/release/COMPONENT_RELEASE_MODE_ASSESSMENT.md`; completed `docs/release/COMPONENT_RELEASE_QUALIFICATION_ASSESSMENT.md`; release evidence and current manifest model | `GO_COMPONENT_RELEASE_MODE_PARTIALLY_QUALIFIED`; the qualification assessment returned `NO_GO_COMPONENT_RELEASE_QUALIFICATION_INSUFFICIENT_RUNTIME_EVIDENCE`; only Scope Refinement remains future, with no release-mode implementation authorization |
 | GitHub Actions retention and evidence preservation (`TD-GITHUB-001`) | P1 | Completed | PRs #547–#554; `docs/software_assurance/EVIDENCE_PRESERVATION_IMPLEMENTATION_REPORT.md`; durable record for `f6e346018dadaccc8457dac7b5cadd19a03b80e7` | `GO_TD_GITHUB_001_QUALIFIED`; redacted, immutable release-asset evidence is published and read back fail-closed |
 | Platform Dependency Governance conformance | P1 | Completed | `docs/software_assurance/PLATFORM_DEPENDENCY_GOVERNANCE_POLICY.md`; merged Dependabot rollout and successor finalization evidence | GitHub-native version-update conformance; TDE remains Deferred and no new analyzer or product behavior is authorized |
 | Public distribution: Apple | P1 | Planned | qualified Internal Release consumers and explicit authorization | release-operational work |
@@ -121,8 +121,10 @@ authoritative release source until a future delivery increment is authorized.
 The canonical component inventory, ownership, release boundaries, version
 posture and minimum verification evidence are recorded in
 `docs/release/COMPONENT_RELEASE_MODE_ASSESSMENT.md`. Existing repository-local
-patch releases remain bounded by the platform `major.minor` train; a generic
-single-component selection path remains a future qualification question only.
+patch releases remain bounded by the platform `major.minor` train. The
+completed Component Release Qualification found that a generic selected-source
+and dependency/evidence closure is not yet represented by the current Runtime;
+only a future Scope Refinement remains.
 
 Design a first-class Component Release mode within the existing Platform
 Release Runtime. The runtime remains the one canonical release orchestrator;
@@ -140,11 +142,11 @@ the qualification or release scope. Component release notes must contain only
 the component, patch version, fixes, candidate SHA and applicable verification
 and qualification evidence.
 
-Future design and implementation must prove single-component selection, patch
-version handling, affected-component-only Verification/Software Assurance/
-Trusted Delivery, release/deployment/rollback evidence and qualified runner
-routing. This is a Platform Evolution backlog item only; it authorizes neither
-a Component Release nor changes to Platform Release execution.
+Any future refinement and implementation must prove single-component selection,
+patch version handling, affected-component-only Verification/Software
+Assurance/Trusted Delivery, release/deployment/rollback evidence and qualified
+runner routing. This is a Platform Evolution backlog item only; it authorizes
+neither a Component Release nor changes to Platform Release execution.
 
 ## Backlog detail: Technical Debt Engine integration
 

@@ -50,8 +50,11 @@ PR [#541](https://github.com/pcvantol/djconnect/pull/541) merged as
 `GO_COMPONENT_RELEASE_MODE_PARTIALLY_QUALIFIED`. Its immutable history is
 `docs/history/prompts/2026-07-27-component-release-mode-assessment.md`. It
 classifies canonical repository release units and their patch, evidence and
-governance boundaries; only Component Release Qualification remains a future
-assessment, with no release-mode implementation authority.
+governance boundaries. The subsequent Component Release Qualification history
+is `docs/history/prompts/2026-07-28-component-release-qualification-assessment.md`;
+it returned `NO_GO_COMPONENT_RELEASE_QUALIFICATION_INSUFFICIENT_RUNTIME_EVIDENCE`.
+Only a bounded Component Release Scope Refinement remains future, with no
+release-mode implementation authority.
 
 PR [#539](https://github.com/pcvantol/djconnect/pull/539) merged as
 `31a57a8900c6e113edebaf601266b3c68af5b0bd` with
