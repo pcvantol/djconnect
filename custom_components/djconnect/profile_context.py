@@ -133,42 +133,39 @@ def profile_resolution_context_from_payload(
 ) -> ProfileResolutionContext:
     """Build canonical Profile resolution input from a runtime request payload."""
     payload = payload or {}
-    device_id = str(
-        payload.get(CONF_DEVICE_ID)
-        or payload.get("device_id")
-        or getattr(runtime, "pairing_device_id", "")
-        or getattr(runtime, "device_status", {}).get(CONF_DEVICE_ID)
-        or ""
-    ).strip()
+    device_id = _request_value(
+        payload, CONF_DEVICE_ID, "device_id", fallback=_runtime_device_id(runtime)
+    )
     return ProfileResolutionContext(
-        explicit_profile_id=str(
-            payload.get("profile_id") or payload.get("explicit_profile_id") or ""
-        ).strip(),
+        explicit_profile_id=_request_value(payload, "profile_id", "explicit_profile_id"),
         device_id=device_id,
-        client_type=str(payload.get(CONF_CLIENT_TYPE) or payload.get("client_type") or "").strip(),
-        ha_user_id=str(user_id or payload.get("ha_user_id") or payload.get("user_id") or "").strip(),
-        satellite_id=str(
-            payload.get("satellite_id") or payload.get("assist_satellite_id") or ""
-        ).strip(),
-        voice_endpoint_id=str(
-            payload.get("voice_endpoint_id")
-            or payload.get("voice_endpoint")
-            or payload.get("assist_voice_endpoint_id")
-            or ""
-        ).strip(),
-        assist_pipeline_id=str(
-            payload.get("assist_pipeline_id") or payload.get("pipeline_id") or ""
-        ).strip(),
-        ha_device_id=str(payload.get("ha_device_id") or payload.get("ha_device") or "").strip(),
-        area_id=str(payload.get("area_id") or payload.get("area") or "").strip(),
-        room_id=str(payload.get("room_id") or payload.get("room") or "").strip(),
-        player_id=str(payload.get("player_id") or payload.get("target_player_id") or "").strip(),
-        playback_zone_id=str(
-            payload.get("playback_zone_id") or payload.get("zone_id") or ""
-        ).strip(),
-        session_id=str(payload.get("session_id") or "").strip(),
+        client_type=_request_value(payload, CONF_CLIENT_TYPE, "client_type"),
+        ha_user_id=str(user_id or _request_value(payload, "ha_user_id", "user_id")).strip(),
+        satellite_id=_request_value(payload, "satellite_id", "assist_satellite_id"),
+        voice_endpoint_id=_request_value(
+            payload, "voice_endpoint_id", "voice_endpoint", "assist_voice_endpoint_id"
+        ),
+        assist_pipeline_id=_request_value(payload, "assist_pipeline_id", "pipeline_id"),
+        ha_device_id=_request_value(payload, "ha_device_id", "ha_device"),
+        area_id=_request_value(payload, "area_id", "area"),
+        room_id=_request_value(payload, "room_id", "room"),
+        player_id=_request_value(payload, "player_id", "target_player_id"),
+        playback_zone_id=_request_value(payload, "playback_zone_id", "zone_id"),
+        session_id=_request_value(payload, "session_id"),
         request_source=request_source,
-        speaker_identity_hint=str(payload.get("speaker_identity_hint") or "").strip(),
+        speaker_identity_hint=_request_value(payload, "speaker_identity_hint"),
+    )
+
+
+def _request_value(payload: dict[str, Any], *keys: str, fallback: Any = "") -> str:
+    """Return the first populated request field, normalized as text."""
+    return str(next((payload.get(key) for key in keys if payload.get(key)), fallback) or "").strip()
+
+
+def _runtime_device_id(runtime: Any) -> Any:
+    """Return the device fallback published by the current runtime."""
+    return getattr(runtime, "pairing_device_id", "") or getattr(runtime, "device_status", {}).get(
+        CONF_DEVICE_ID
     )
 
 
@@ -184,10 +181,7 @@ async def async_resolve_request_context(
     payload = payload or {}
     manager = _profile_storage(hass)
     household = await manager.async_load()
-    if (
-        not household.profiles
-        and not str(payload.get("profile_id") or "").strip()
-    ):
+    if not household.profiles and not str(payload.get("profile_id") or "").strip():
         raise ProfilePlatformNotConfigured("Profile Platform is not configured.")
     context = profile_resolution_context_from_payload(
         runtime,
@@ -335,7 +329,9 @@ async def async_apply_profile_context(
     setattr(runtime, "profile_context_playback_zone_id", context.profile_playback_zone_id)
     setattr(runtime, "profile_context_privacy_policy", context.privacy_policy)
     setattr(runtime, "profile_context_capability_policy", context.capability_policy)
-    setattr(runtime, "profile_context_allowed_capability_intents", context.allowed_capability_intents)
+    setattr(
+        runtime, "profile_context_allowed_capability_intents", context.allowed_capability_intents
+    )
     setattr(runtime, "profile_context_resolution_reason", context.resolution_reason.value)
     return context
 

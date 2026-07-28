@@ -1429,6 +1429,13 @@ async def _async_pair_before_create(hass: Any, data: dict[str, Any]) -> None:
         data[CONF_LOCAL_URL] = local_url
 
 
+def _pair_code_error(pair_code: str) -> str:
+    """Return the translated validation error for a submitted pair code."""
+    if not pair_code:
+        return "missing_pair_code"
+    return "" if _valid_pair_code(pair_code) else "invalid_pair_code"
+
+
 class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle the DJConnect config flow."""
 
@@ -1576,21 +1583,10 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             )
 
         if user_input is None:
-            if is_app_pairing:
-                await self._ensure_app_pairing_defaults()
-            else:
-                await self._ensure_mdns_discovery()
+            await self._async_prepare_pair_defaults(is_app_pairing)
+        elif await self._async_update_discovered_pair_selection(user_input, is_app_pairing):
+            return await self.async_step_pair()
         else:
-            discovered_key = str(user_input.get(DISCOVERY_CLIENT_FIELD) or "").strip()
-            if not is_app_pairing and DISCOVERY_CLIENT_FIELD in user_input:
-                if discovered_key and discovered_key != self._selected_discovered_key:
-                    self._apply_discovered_client_key(discovered_key)
-                    return await self.async_step_pair()
-                if not discovered_key and self._selected_discovered_key:
-                    self._selected_discovered_key = ""
-                    self._discovered_defaults = {}
-                    self._discovered_device_name_authoritative = False
-                    return await self.async_step_pair()
             if is_app_pairing:
                 await self._ensure_app_pairing_defaults()
             pair_code = str(
@@ -1602,10 +1598,9 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 or ""
             ).strip()
             self._last_pair_code = pair_code
-            if not pair_code:
-                errors[CONF_PAIR_CODE] = "missing_pair_code"
-            elif not _valid_pair_code(pair_code):
-                errors[CONF_PAIR_CODE] = "invalid_pair_code"
+            pair_code_error = _pair_code_error(pair_code)
+            if pair_code_error:
+                errors[CONF_PAIR_CODE] = pair_code_error
             else:
                 defaults = getattr(self, "_discovered_defaults", {})
                 client_type = _clean(
@@ -1617,12 +1612,7 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     user_input.get(CONF_LOCAL_URL),
                     _clean(defaults.get(CONF_LOCAL_URL), _default_local_url(pair_code)),
                 )
-                selected_client = self._selected_discovered_client()
-                if (
-                    selected_client is not None
-                    and selected_client.pairing_info_failed
-                    and str(local_url or "").strip() == selected_client.local_url
-                ):
+                if self._selected_client_pairing_info_failed(local_url):
                     errors["base"] = DISCOVERY_PAIRING_INFO_ERROR
                     return self.async_show_form(
                         step_id=step_id,
@@ -1692,6 +1682,39 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             errors=errors,
             description_placeholders=self._pair_description_placeholders(),
             last_step=False,
+        )
+
+    async def _async_prepare_pair_defaults(self, is_app_pairing: bool) -> None:
+        """Load the pairing defaults appropriate to the selected setup path."""
+        if is_app_pairing:
+            await self._ensure_app_pairing_defaults()
+        else:
+            await self._ensure_mdns_discovery()
+
+    async def _async_update_discovered_pair_selection(
+        self, user_input: dict[str, Any], is_app_pairing: bool
+    ) -> bool:
+        """Apply a changed local-device discovery selection, if present."""
+        if is_app_pairing or DISCOVERY_CLIENT_FIELD not in user_input:
+            return False
+        discovered_key = str(user_input.get(DISCOVERY_CLIENT_FIELD) or "").strip()
+        if discovered_key and discovered_key != self._selected_discovered_key:
+            self._apply_discovered_client_key(discovered_key)
+            return True
+        if not discovered_key and self._selected_discovered_key:
+            self._selected_discovered_key = ""
+            self._discovered_defaults = {}
+            self._discovered_device_name_authoritative = False
+            return True
+        return False
+
+    def _selected_client_pairing_info_failed(self, local_url: str) -> bool:
+        """Whether the selected discovery result rejected this local endpoint."""
+        selected_client = self._selected_discovered_client()
+        return bool(
+            selected_client is not None
+            and selected_client.pairing_info_failed
+            and str(local_url or "").strip() == selected_client.local_url
         )
 
     def _pair_step_id(self) -> str:

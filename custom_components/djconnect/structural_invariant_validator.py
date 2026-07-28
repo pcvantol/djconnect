@@ -138,53 +138,7 @@ def validate_si_golden_002(capture: SIGolden002SessionCapture) -> StructuralVali
                 ),
             ),
         )
-    require(
-        "SI002-RUNTIME-LIFECYCLE",
-        "runtime_active" in capture.runtime_events and capture.completion_state == "completed",
-        "active then completed",
-        repr(capture.runtime_events),
-        "runtime_events",
-    )
-    require(
-        "SI002-TRACK-STARTED",
-        capture.track_started_events == ("track_started", "track_started"),
-        "two Track Started events",
-        repr(capture.track_started_events),
-        "track_started_events",
-    )
-    require(
-        "SI002-CLOCK-ADVANCED",
-        capture.verification_clock.advance_count == 1
-        and capture.verification_clock.elapsed_seconds > 60.0,
-        "one advance beyond 60 seconds",
-        repr(capture.verification_clock),
-        "verification_clock",
-    )
-    require(
-        "SI002-FIRST-MOMENT",
-        bool(capture.first_realized_moment.moment_id)
-        and bool(capture.first_realized_moment.knowledge_intent),
-        "one knowledge-backed first Moment",
-        repr(capture.first_realized_moment),
-        "first_realized_moment",
-    )
-    require(
-        "SI002-NO-IMMEDIATE-REPETITION",
-        capture.first_realized_moment.knowledge_intent
-        != capture.second_realized_moment.knowledge_intent,
-        "a different eligible knowledge intent",
-        repr((capture.first_realized_moment, capture.second_realized_moment)),
-        "first_realized_moment/second_realized_moment",
-    )
-    require(
-        "SI002-SECOND-APPROVAL",
-        capture.approval_count == 1
-        and bool(capture.second_realized_moment.moment_id)
-        and bool(capture.second_realized_moment.knowledge_intent),
-        "one approved and realized second Moment",
-        str(capture.approval_count),
-        "approval_count",
-    )
+    _validate_si002_lifecycle(capture, require)
     flow_ids = tuple(item.moment_id for item in capture.session_flow if item.moment_id)
     require(
         "SI002-FLOW-ORDER",
@@ -221,19 +175,7 @@ def validate_si_golden_002(capture: SIGolden002SessionCapture) -> StructuralVali
         repr(capture.broadcast_publications),
         "broadcast_publications",
     )
-    require(
-        "SI002-ARTIST-SIDEKICK-PROJECTION",
-        first_presentation is not None
-        and first_presentation.presentation_id
-        and first_presentation.mode == "primary_with_sidekick"
-        and tuple(segment.ordinal for segment in first_presentation.segments) == (1, 2)
-        and tuple(segment.speaker_role for segment in first_presentation.segments) == ("dj", "sidekick")
-        and tuple(segment.text for segment in first_presentation.segments)
-        == (capture.first_realized_moment.content, capture.first_realized_moment.summary),
-        "Artist Story Presentation with ordered approved DJ and Sidekick text",
-        repr(first_presentation),
-        "presentations",
-    )
+    _validate_si002_artist_sidekick(capture, first_presentation, require)
     require(
         "SI002-PRESENTATION-COMPATIBILITY",
         first_presentation is not None
@@ -279,6 +221,35 @@ def validate_si_golden_002(capture: SIGolden002SessionCapture) -> StructuralVali
         "cleanup_completed",
     )
     return StructuralValidationResult("passed" if not failures else "failed", tuple(failures))
+
+
+def _validate_si002_lifecycle(capture: SIGolden002SessionCapture, require) -> None:
+    """Record the first-cycle lifecycle invariants for SI-GOLDEN-002."""
+    require("SI002-RUNTIME-LIFECYCLE", "runtime_active" in capture.runtime_events and capture.completion_state == "completed", "active then completed", repr(capture.runtime_events), "runtime_events")
+    require("SI002-TRACK-STARTED", capture.track_started_events == ("track_started", "track_started"), "two Track Started events", repr(capture.track_started_events), "track_started_events")
+    require("SI002-CLOCK-ADVANCED", capture.verification_clock.advance_count == 1 and capture.verification_clock.elapsed_seconds > 60.0, "one advance beyond 60 seconds", repr(capture.verification_clock), "verification_clock")
+    require("SI002-FIRST-MOMENT", bool(capture.first_realized_moment.moment_id) and bool(capture.first_realized_moment.knowledge_intent), "one knowledge-backed first Moment", repr(capture.first_realized_moment), "first_realized_moment")
+    require("SI002-NO-IMMEDIATE-REPETITION", capture.first_realized_moment.knowledge_intent != capture.second_realized_moment.knowledge_intent, "a different eligible knowledge intent", repr((capture.first_realized_moment, capture.second_realized_moment)), "first_realized_moment/second_realized_moment")
+    require("SI002-SECOND-APPROVAL", capture.approval_count == 1 and bool(capture.second_realized_moment.moment_id) and bool(capture.second_realized_moment.knowledge_intent), "one approved and realized second Moment", str(capture.approval_count), "approval_count")
+
+
+def _validate_si002_artist_sidekick(
+    capture: SIGolden002SessionCapture, presentation: object | None, require
+) -> None:
+    """Record the source-linked Artist Story projection invariant."""
+    require(
+        "SI002-ARTIST-SIDEKICK-PROJECTION",
+        presentation is not None
+        and presentation.presentation_id
+        and presentation.mode == "primary_with_sidekick"
+        and tuple(segment.ordinal for segment in presentation.segments) == (1, 2)
+        and tuple(segment.speaker_role for segment in presentation.segments) == ("dj", "sidekick")
+        and tuple(segment.text for segment in presentation.segments)
+        == (capture.first_realized_moment.content, capture.first_realized_moment.summary),
+        "Artist Story Presentation with ordered approved DJ and Sidekick text",
+        repr(presentation),
+        "presentations",
+    )
 
 
 def _valid_speech_structure(mode: str, segments: tuple[object, ...]) -> bool:
