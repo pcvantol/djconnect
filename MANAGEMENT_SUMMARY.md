@@ -15,6 +15,21 @@
 
 ## Current position
 
+PR [#574](https://github.com/pcvantol/djconnect/pull/574), **Assess Component
+Release Qualification**, merged as
+`43e8203b9f8223f37a659bfc17fa9951eb75e4c9` with
+`NO_GO_COMPONENT_RELEASE_QUALIFICATION_INSUFFICIENT_RUNTIME_EVIDENCE`.
+Repository evidence confirms that the Platform Release Runtime fails closed
+only after a scope is supplied; it cannot yet canonically select one source
+participant and prove its exact dependency/evidence closure. No Runtime,
+workflow, manifest, API, Renderer, product or release-operation change was
+made. The sole recorded follow-up is a future Component Release Scope
+Refinement; the current distribution Execution Horizon is unchanged.
+
+The predecessor's HACS, hassfest, tests, Ruff, Bandit, dependency-audit,
+verification-framework, Golden Smoke and Trusted Delivery evidence succeeded.
+This Finalization reconciles the merged assessment and its rolling records.
+
 Platform Dependency Governance implementation is merged across all ten active
 repositories. The successor finalization supplies current exact-main evidence;
 the original high-risk PR #564 pre-merge run was cleanup-deleted before an
@@ -297,11 +312,6 @@ it is not a shipping or follow-on implementation candidate.
    `PLATFORM_EVOLUTION_BACKLOG.md`; Status: Planned; Dependency:
    manifest-bound consumer qualification. Reason: next canonical planned
    release-operational item.
-
-### Execution Priority Override
-
-TD-GITHUB-001 is completed and removed; no priority or backlog order is
-changed.
 
 ### Blocked Items
 

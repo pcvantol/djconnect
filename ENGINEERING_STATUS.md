@@ -1,7 +1,23 @@
 # DJConnect Engineering Status
 
 **Status:** Operational handoff
-**Updated:** 2026-07-27
+**Updated:** 2026-07-28
+
+## Component Release Qualification finalization
+
+PR [#574](https://github.com/pcvantol/djconnect/pull/574), **Assess Component
+Release Qualification**, merged as
+`43e8203b9f8223f37a659bfc17fa9951eb75e4c9`. It records
+`NO_GO_COMPONENT_RELEASE_QUALIFICATION_INSUFFICIENT_RUNTIME_EVIDENCE`: the
+existing Runtime fails closed after a scope is supplied, but does not
+canonically select one source participant or prove its dependency/evidence
+closure. HACS, hassfest, tests, Ruff, Bandit, dependency audit,
+verification-framework, Golden Smoke and Trusted Delivery evidence succeeded.
+
+The Qualification Register now retains only the bounded **Component Release
+Scope Refinement** follow-up. It does not authorize a release-mode
+implementation and does not change the current distribution Execution Horizon.
+This governance-only Finalization reconciles the merged result.
 
 ## TD-GITHUB-001 finalization
 
@@ -259,26 +275,21 @@ execution; it is not a replacement Product Initiative.
 
 1. **Public distribution: Apple** — Source: `PLATFORM_EVOLUTION_BACKLOG.md`;
    Status: Planned; Dependency: qualified Internal Release consumers and
-   explicit authorization. Rationale: next canonical planned item.
+   explicit authorization. Reason: next canonical planned item.
 2. **Public distribution: Windows** — Source: `PLATFORM_EVOLUTION_BACKLOG.md`;
    Status: Planned; Dependency: qualified Internal Release consumers and
-   explicit authorization. Rationale: next canonical planned item.
+   explicit authorization. Reason: next canonical planned item.
 3. **Public HACS distribution** — Source: `PLATFORM_EVOLUTION_BACKLOG.md`;
    Status: Planned; Dependency: fresh candidate and release authorization.
-   Rationale: next canonical planned distribution item.
+   Reason: next canonical planned distribution item.
 4. **HACS 3.3.0 release visibility (`HACS-3.3.0-001`)** — Source:
    `PLATFORM_EVOLUTION_BACKLOG.md`; Status: Planned; Dependency: release/tag
-   metadata, HACS cache/index discovery and update presentation. Rationale:
+   metadata, HACS cache/index discovery and update presentation. Reason:
    next canonical planned distribution investigation.
 5. **Firmware OTA publication and staged rollback** — Source:
    `PLATFORM_EVOLUTION_BACKLOG.md`; Status: Planned; Dependency:
-   manifest-bound consumer qualification. Rationale: next canonical planned
+   manifest-bound consumer qualification. Reason: next canonical planned
    release-operational item.
-
-#### Execution Priority Override
-
-TD-GITHUB-001 is completed and removed; no priority or backlog order is
-changed.
 
 #### Blocked Items
 

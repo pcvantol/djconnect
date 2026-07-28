@@ -56,6 +56,17 @@ it returned `NO_GO_COMPONENT_RELEASE_QUALIFICATION_INSUFFICIENT_RUNTIME_EVIDENCE
 Only a bounded Component Release Scope Refinement remains future, with no
 release-mode implementation authority.
 
+PR [#574](https://github.com/pcvantol/djconnect/pull/574) merged as
+`43e8203b9f8223f37a659bfc17fa9951eb75e4c9` with
+`NO_GO_COMPONENT_RELEASE_QUALIFICATION_INSUFFICIENT_RUNTIME_EVIDENCE`. Its
+immutable assessment history is
+`docs/history/prompts/2026-07-28-component-release-qualification-assessment.md`.
+Its governance-only Finalization history is
+`docs/history/prompts/2026-07-28-component-release-qualification-finalization.md`.
+The assessment preserves the existing fail-closed execution gate but finds no
+canonical selected-source or dependency/evidence closure; only a bounded Scope
+Refinement remains future, with no release-mode implementation authority.
+
 PR [#539](https://github.com/pcvantol/djconnect/pull/539) merged as
 `31a57a8900c6e113edebaf601266b3c68af5b0bd` with
 `GO_CAPABILITY_PROFILE_FOLLOW_UP_RECONCILED`. Its immutable history is
