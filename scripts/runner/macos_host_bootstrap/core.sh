@@ -1,4 +1,4 @@
-# Version: 1.3.5
+# Version: 1.3.7
 # CLI help, desired-state verification and console/report primitives.
 usage() {
   cat <<'EOF'
@@ -353,9 +353,11 @@ run_desired_state_verification() {
       verify_delta_row "tooling.cask.$cask" installed absent DRIFT
     fi
   done
-  for cask in "${DESIRED_OPTIONAL_CASKS[@]}"; do
-    if command -v brew >/dev/null 2>&1 && brew list --cask "$cask" >/dev/null 2>&1; then verify_delta_row "tooling.optional_cask.$cask" installed installed MATCH; else verify_delta_row "tooling.optional_cask.$cask" optional absent OPTIONAL; fi
-  done
+  if (( ${#DESIRED_OPTIONAL_CASKS[@]} > 0 )); then
+    for cask in "${DESIRED_OPTIONAL_CASKS[@]}"; do
+      if command -v brew >/dev/null 2>&1 && brew list --cask "$cask" >/dev/null 2>&1; then verify_delta_row "tooling.optional_cask.$cask" installed installed MATCH; else verify_delta_row "tooling.optional_cask.$cask" optional absent OPTIONAL; fi
+    done
+  fi
   if command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1; then
     ha_running="$(docker inspect --format '{{.State.Running}}' "$DESIRED_HA_CONTAINER_NAME" 2>/dev/null || true)"
     verify_delta_row 'lab.home_assistant.container' "$DESIRED_HA_CONTAINER_NAME running" "${ha_running:-absent}" "$([[ "$ha_running" == 'true' ]] && printf MATCH || printf DRIFT)"

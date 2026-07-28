@@ -1,5 +1,11 @@
 # DJConnect Developer Onboarding Changelog
 
+## 4.0.0 — 2026-07-28
+
+- Add explicit, opt-in cleanup of ignored local build output and a read-only
+  per-repository storage report to macOS developer readiness.
+- Install the ignored verification-artifact retention task for 10:00 daily.
+
 ## 3.3.1 — 2026-07-17
 
 - Fix the Windows virtual-service-account migration: configure its `obj=`

@@ -6,6 +6,12 @@ This changelog covers only
 compatibility and security changes to the development-host bootstrap independently of
 the DJConnect product release.
 
+## [2.0.8] - 2026-07-28
+
+- Report ignored local build-output storage for each checked-out DJConnect
+  repository and verify the daily ignored verification-artifact retention task.
+- Handle an empty optional-cask list under strict shell mode.
+
 ## [2.0.6] - 2026-07-17
 
 - Make scheduled maintenance the single Homebrew tooling-currency owner:
