@@ -15,6 +15,15 @@
 
 ## Current position
 
+PR [#606](https://github.com/pcvantol/djconnect/pull/606), **Complete
+autonomous runner finalization lifecycle**, merged as
+`60be7930e5eb83b023ee930a01e8ac5127c295a9`. The bounded local runner now
+records implementation and Finalization merge evidence, derives its mandatory
+governance-only Finalization from current main, repairs the same PR where
+eligible and prints a safe lifecycle completion summary. Repository/GitHub
+evidence remains decisive; Product, Runtime, release, deployment, publication,
+CI, roadmap priority and protection behavior are unchanged.
+
 PR [#604](https://github.com/pcvantol/djconnect/pull/604), **Add
 owner-authorized autonomous PR lifecycle**, merged as
 `95eabfde75e471dfe497f89c6e66225752946c8f`. `dj-engineer --owner-authorized`
