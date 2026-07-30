@@ -104,8 +104,10 @@ evidence-based cleanup and never removes unrelated branches.
 ## Terminal reports and advisory sub-agents
 
 Each terminal transaction writes an immutable local Markdown report beneath
-`.djconnect/reports/` and best-effort opens it using `$EDITOR`, Visual Studio
-Code, then Sublime Text. Reports are git-ignored; editor failure never changes
+`.djconnect/reports/` and best-effort opens it using `$EDITOR`, then native
+macOS Visual Studio Code or Sublime Text application bundles, then a PATH
+executable fallback. PATH `code` is reported by its resolved executable path,
+never inferred to be Visual Studio Code. Reports are git-ignored; editor failure never changes
 the engineering result. They summarize checkpoint evidence, PRs, repair and
 cleanup evidence, diagnostics and the management summary. Optional sub-agents
 are read-only, bounded advisory helpers for inspection or validation; they
