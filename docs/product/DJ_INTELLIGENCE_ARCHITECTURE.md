@@ -53,6 +53,11 @@ Presentation
 The Runtime is the sole orchestrator. Nothing outside an active Runtime invokes
 the Planner, Knowledge Engine or DJ Moment Engine directly.
 
+The provider-independent source, qualification, normalization and cache
+boundary inside the existing Knowledge Engine is defined in
+[`KNOWLEDGE_SOURCE_ARCHITECTURE.md`](KNOWLEDGE_SOURCE_ARCHITECTURE.md). It adds
+no second Runtime path, source provider or Planner behaviour.
+
 ## Session Planner
 
 The Planner owns the future of a Session: its progression, pacing,
@@ -113,6 +118,13 @@ coarse Audience Observation requires a separately governed decision.
 It returns **Knowledge Context**, not presentation. It does not schedule,
 generate user-facing storytelling or decide a renderer. Privacy filtering and
 source reliability apply before context reaches the DJ Moment Engine.
+
+External material reaches the Engine only through its internal Knowledge
+Resolver and must first become a qualified, provider-independent Knowledge
+Object. Raw provider payloads terminate at the Resolver boundary. The Planner,
+DJ Moment Engine, Broadcast and Renderer Hosts never consume provider payloads
+or provider schemas; the detailed contract is
+[`KNOWLEDGE_SOURCE_ARCHITECTURE.md`](KNOWLEDGE_SOURCE_ARCHITECTURE.md).
 
 ## DJ Moment Engine
 
