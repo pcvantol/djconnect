@@ -15,6 +15,12 @@
 
 ## Current position
 
+PR [#620](https://github.com/pcvantol/djconnect/pull/620), **Reconcile Component
+Release Mode backlog**, merged as `0423c98451e7e75af40de9acc8e5c10e0e2cdc06`.
+The authoritative backlog state is now aligned with the completed, fail-closed
+component selection and evidence closure; Execute Qualification remains separate
+and unauthorized. The five-item Execution Horizon is unchanged.
+
 PR [#618](https://github.com/pcvantol/djconnect/pull/618), **Make editor launch
 deterministic**, merged as `f2d2fe56c74a99a9856086d939816694f337fc46`.
 Local reporting now accurately describes the editor it launched.
