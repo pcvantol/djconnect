@@ -1,7 +1,24 @@
 # DJConnect Engineering Status
 
 **Status:** Operational handoff
-**Updated:** 2026-07-28
+**Updated:** 2026-07-30
+
+## Knowledge Source Qualification contract finalization
+
+PR [#584](https://github.com/pcvantol/djconnect/pull/584), **Define canonical
+Knowledge Source Qualification contract**, merged as
+`df22287c3c3418ce19e69aca7cea2586082cf482`. It records
+`GO_PROVIDER_INDEPENDENT_KNOWLEDGE_OBJECT_ARCHITECTURE`: the existing V4
+Knowledge Engine now has an explicit provider-independent Source Contract,
+Knowledge Qualification, internal Resolver and canonical Knowledge Object
+boundary. Raw provider payloads terminate at the Resolver; only qualified
+Knowledge Context reaches the DJ Moment Engine, and only DJMoments reach
+Broadcast.
+
+This documentation-only refinement changes no provider integration, Runtime
+behaviour, Planner policy, cache implementation, Lyrics Knowledge, API or
+Broadcast schema. The completed predecessor is in `MERGED_UNRECONCILED` until
+this dedicated Finalization reconciles the rolling records.
 
 ## Component Release Qualification finalization
 
@@ -51,256 +68,52 @@ qualification item; no Runtime, product, API or renderer behavior changed.
 
 ## Current engineering increment
 
-PR [#545](https://github.com/pcvantol/djconnect/pull/545), **Review
-Generation 2 execution direction**, merged as
-`e5246f0409063d7eec12e3e3c01d78737ae6ba2c`. It records
-`GO_GENERATION_2_EXECUTION_DIRECTION_REVIEWED`: the current distribution
-horizon is bounded release-operational engineering work; targeted
-qualification and assessment remain necessary only where a canonical record
-identifies an objective evidence gap. It changes no roadmap, Execution Horizon,
-priority, owner, dependency, release authorization or implementation
-authorization.
-
-PR [#543](https://github.com/pcvantol/djconnect/pull/543), **Assess GitHub
-Actions retention and evidence preservation**, merged as
-`d011d88bfda745a7fb1c89ffa24479bced1297e3`. It records
-`GO_TD_GITHUB_001_PARTIALLY_QUALIFIED`: Permanent, Long-term, Short-term and
-Ephemeral evidence boundaries are explicit; only Evidence Preservation
-Qualification remains. No retention, archive, GitHub Actions, workflow,
-Runtime, API or Renderer change is authorized.
-
-PR [#541](https://github.com/pcvantol/djconnect/pull/541), **Assess Component
-Release Mode**, merged as `5dfeb7b0f46d8d11b92ead95b8dc9137eff981af`. It
-records `GO_COMPONENT_RELEASE_MODE_PARTIALLY_QUALIFIED`: canonical repository
-release units, patch and verification boundaries are qualified; only the
-future Component Release Qualification assessment remains. No release-mode
-implementation, workflow, manifest, Runtime, API or Renderer change is
-authorized.
-
-PR [#539](https://github.com/pcvantol/djconnect/pull/539), **Reconcile
-Capability-profile qualifications**, merged as
-`31a57a8900c6e113edebaf601266b3c68af5b0bd`. It records
-`GO_CAPABILITY_PROFILE_FOLLOW_UP_RECONCILED`: seven source items from
-CMB-05/CMB-06/CMB-07/CMB-09/CMB-12 reconcile to six unique active items; four
-are retained, two split into Future Assessments and one duplicate CMB-12 entry
-is closed. No implementation is authorized.
-
-PR [#537](https://github.com/pcvantol/djconnect/pull/537), **Register Session
-Lifecycle Completion capability**, merged as
-`c5d489f0a38875da2de8a9f2851891648b97604a`. It records
-`GO_SESSION_LIFECYCLE_COMPLETION_REGISTERED`: the future, assessment-first
-family captures activity-aware completion, Closing Experience, Session Summary
-and Personal transition boundaries without authorizing Runtime, Planner,
-Renderer, API, Session or implementation work. The Execution Horizon is
-unchanged.
-
-PR [#535](https://github.com/pcvantol/djconnect/pull/535), **Adopt CMB-01
-Capability Model pre-flight**, merged as
-`0949f578621a83049c43e1b514d39fa6cfd1e47c`. It records
-`GO_CMB01_CAPABILITY_PREFLIGHT_ADOPTED`: the existing pre-flight method is
-adopted with CMB-12 as evidence; no new governance or implementation exists.
-
-PR [#533](https://github.com/pcvantol/djconnect/pull/533), **Assess CMB-03
-platform divergences**, merged as `d60a5bba`. It records
-`GO_CMB03_PLATFORM_DIVERGENCES_QUALIFIED`: every registered difference is
-retained, separately bounded or prohibited; no implementation is authorized.
-
-PR [#531](https://github.com/pcvantol/djconnect/pull/531), **Validate CMB-02
-platform capability profiles**, merged as
-`c4613e6db9bf71aeb374dedadcb89b7780b10afe`. It records
-`GO_CMB02_PLATFORM_CAPABILITY_PROFILES_PARTIALLY_QUALIFIED`: existing
-capability-to-role-to-host profiles are consistent; only already-registered
-host evidence remains Future Assessment. It authorizes no implementation.
-
-PR [#529](https://github.com/pcvantol/djconnect/pull/529), **Assess CMB-12
-Apple Native Surfaces**, merged as `5d4642316ea26ff8418441f9c35a866787dd3c4e`.
-It records `GO_CMB12_APPLE_NATIVE_SURFACES_PARTIALLY_QUALIFIED`: the Apple
-Renderer Host has existing Session, Information and navigation surfaces, while
-active-Session projection and lifecycle-invocation qualification remain Future
-Assessment items. It authorizes no Apple, Runtime, API or product change.
-
-PR [#527](https://github.com/pcvantol/djconnect/pull/527), **Assess CMB-09
-Voice Host and appliance**, merged as `38310726e4c3da89f4aac78ff29ec76d7eeaebd1`.
-It records `GO_CMB09_VOICE_HOST_PROFILE_QUALIFIED`: the Home Assistant Voice
-Interaction Host is a platform-owned Conversation/Audio Interaction Host; the
-LilyGO T-Embed CC1101 is the distinct DJConnect-owned native appliance with
-bounded PTT, controls, display and lifecycle. Neither owns Session, Profile,
-Music DNA, Ask DJ history, Planner, Knowledge or Music Backend state.
-
-PR [#525](https://github.com/pcvantol/djconnect/pull/525), **Assess
-Apple–Windows atomic convergence**, merged as
-`310edd23c217bc115d24b7895211abaa830eadde`. It records
-`GO_CMB07_APPLE_WINDOWS_CONVERGENCE_PARTIALLY_QUALIFIED`: shared personal
-renderer behavior is qualified and platform-native surfaces remain non-parity
-work; the active-Session projection disposition remains Future Assessment only.
-It authorizes no Runtime, Apple, Windows or API implementation.
-
-PR [#523](https://github.com/pcvantol/djconnect/pull/523), **Document
-Raspberry Pi Renderer Family**, merged as
-`373e65eb6a8126b96ab48a6ec3e7844e4dbffcc4`. It records
-`GO_RASPBERRY_PI_RENDERER_FAMILY_DOCUMENTED`: the existing, independently
-assessed Pi 4-inch and Pi 10-inch native QML Renderer Host profiles now have a
-single compact reference. It creates no capability, implementation,
-qualification item, roadmap or Execution Horizon change.
-
-PR [#521](https://github.com/pcvantol/djconnect/pull/521), **Assess Pi 10-inch
-capability profile**, merged as
-`3c981c28c5188484ae8d545a60f9c6d1216a45c2`. It records
-`GO_PI_10_INCH_PROFILE_PARTIALLY_QUALIFIED`: the independent native shared wall
-profile is qualified; concrete 10-inch appliance and shared-wall projection
-evidence remain Future Assessment items. It authorizes no production change.
-
-PR [#519](https://github.com/pcvantol/djconnect/pull/519), **Assess Pi 4-inch
-capability profile**, merged as
-`57d334ee867f31e4db2796268047b7ab7a333d54`. It records
-`GO_PI_4_INCH_PROFILE_PARTIALLY_QUALIFIED`: Pi 4-inch is the compact shared
-native appliance; only target-hardware compact-projection and shared-profile
-visibility evidence remain Future Assessment items. It authorizes no Pi code,
-Runtime, Renderer, API or Execution Horizon change.
-
-PR [#517](https://github.com/pcvantol/djconnect/pull/517), **Introduce
-Qualification Register**, merged as
-`227a24e628e2631ea510839f73538508bc008777`. It records
-`GO_QUALIFICATION_REGISTER_INTRODUCED`: the new current-state index centralizes
-existing active Generation 2 qualification items, their existing dispositions,
-owners and reassessment triggers. It does not create a roadmap, backlog,
-implementation authorization or Execution Horizon change.
-
-PR [#515](https://github.com/pcvantol/djconnect/pull/515), **Qualify client
-connectivity resilience**, merged as
-`cc672895bfdd6100868c7cb7988c608d8e347972`. It records
-`GO_CLIENT_CONNECTIVITY_PARTIALLY_QUALIFIED`: the existing ownership,
-HTTP-fallback, Broadcast-recovery and token/privacy architecture is qualified;
-bounded external HTTPS and resilience evidence remains required in Public
-Release Readiness. It authorizes no Runtime, Renderer, API, transport, pairing,
-onboarding or client implementation.
-
-PR [#513](https://github.com/pcvantol/djconnect/pull/513), **Add Product &
-Community Readiness phase**, merged as
-`1f3e56181944cf818b3f20cd44cea5b81fe0c218`. It records
-`GO_PRODUCT_AND_COMMUNITY_READINESS_REGISTERED`: a future Phase 6
-Product Development readiness phase between Productization and Community Public
-Release. It remains outside the current Execution Horizon and authorizes no
-assessment, implementation, capability, tooling or deployment change.
-
-PR [#511](https://github.com/pcvantol/djconnect/pull/511), **Register Apple
-Watch Moment-First Conversational Companion**, merged as
-`bc9acd1bb3055d7c55c5a1f4366e933bba90910e`. It records
-`GO_APPLE_WATCH_MOMENT_COMPANION_REGISTERED`: a future Phase 3 Apple Premium
-Experience, assessment-first Product Development record. It remains outside
-the current Execution Horizon and authorizes no assessment, watchOS/iPhone
-implementation, Runtime, Planner, DJMoment, API, APNs or playback change.
-
-PR [#509](https://github.com/pcvantol/djconnect/pull/509), **Register Session
-Continuation capability**, merged as
-`cd403dcb7142ae49c6b4315890f0490f33edb99a`. It records
-`GO_SESSION_CONTINUATION_REGISTERED`: a future Product Development,
-assessment-first family for a privacy-safe invitation back to an active
-Session. It remains outside the current Execution Horizon and authorizes no
-notification, push, APNs, Runtime, Planner, DJMoment, Renderer, preference,
-deep-link or Music Backend change.
-
-PR [#507](https://github.com/pcvantol/djconnect/pull/507), **Register
-Interactive DJMoments capability family**, merged as
-`29808f22ceace6e2b681019005d1cfc2d364b792`. It records
-`GO_INTERACTIVE_DJMOMENTS_REGISTERED`: a future Product Development,
-assessment-first family on the existing DJMoment path. It remains outside the
-current Execution Horizon and authorizes no Runtime, Planner, Knowledge,
-DJMoment Engine, Renderer or Music Backend change.
-
-PR [#505](https://github.com/pcvantol/djconnect/pull/505), **Register HA
-onboarding experience assessment**, merged as
-`416314f0df33cf6008b188dd688b0883b04a2eda`. It records
-`GO_HA_ONBOARDING_EXPERIENCE_ROADMAP_REGISTERED`: `HA-ONBOARDING-001` is a
-future Product Development assessment after connectivity and host-profile
-evidence. It stays outside the current Execution Horizon and authorizes no
-Config Flow, Options Flow, pairing, OAuth, Profile or product implementation.
-
-PR [#503](https://github.com/pcvantol/djconnect/pull/503), **Register Native
-Surface Integration roadmap**, merged as
-`63b57964698c6a03eddd5091cf5453a4f7fbe0e1`. It records
-`GO_NATIVE_SURFACE_ROADMAP_REGISTERED`: Native Surface Integration is a future
-Renderer Host planning family only. CMB-12 is an Apple-first capability
-inventory after CMB-05/CMB-06/CMB-07; it is the dependency-gated fifth
-Execution Horizon item and authorizes no implementation.
-
-PR [#501](https://github.com/pcvantol/djconnect/pull/501), **Assess HACS
-pull-request validation reliability**, merged as
-`527f7ee86f215993fedc77b13c9a2bd6d7e09ac4`. It records
-`GO_HACS_PR_RELIABILITY_CLASSIFIED`: HACS is execution-required engineering
-evidence when it completes, but is not release-authoritative. Historical
-repository-loading failures do not establish a repository defect or authorize
-a workflow correction.
-
-PR [#498](https://github.com/pcvantol/djconnect/pull/498), **Assess CMB-08
-Universal Receiver and VibeCast**, merged as
-`60a2708e48eef92f035ab9d0991bd55c3d4aa7ed`. It records
-`GO_UNIVERSAL_RECEIVER_DECOMPOSITION`; no implementation is authorized.
-
-PR [#495](https://github.com/pcvantol/djconnect/pull/495), **Assess CMB-04
-Renderer Experience roadmap**, merged as
-`2385bc7db2d574c5d9972bf30a10f980c3e8a49f`. It records
-`GO_RENDERER_ROADMAP_REEXPRESSION`: the existing Renderer Experience is now
-atomically expressed without a Runtime, Renderer, API or capability change.
-The next renderer assessment is CMB-08; CMB-05 through CMB-07 retain their
-recorded dependencies.
-
-PR [#493](https://github.com/pcvantol/djconnect/pull/493), **Finalize CMB-11
-Sharing refinement**, merged as
-`eb4410d23475fa243b697dc8000191cb5ed9cbca`. It finalizes PR
-[#492](https://github.com/pcvantol/djconnect/pull/492), merged as
-`8dd8348db3f4d13f246b336065caee6a7549b535`, after the CMB-11 assessment PR
-[#490](https://github.com/pcvantol/djconnect/pull/490), merged as
-`52745205895518bf4ea7cea5930d49ef9dfc2947`.
-
-The reconciled decision is `GO_SHARING_IMPLEMENTATION` for exactly **Track
-Insight (CAP-IN-01) → Apple Native Sharing**. Apple evidence is durable in
-`djconnect-app` PR [#50](https://github.com/pcvantol/djconnect-app/pull/50),
-merged as `d98d1428a09b93429b23784a190241ef49a4bc74`, with decision
-`GO_CROSS_REPOSITORY_EVIDENCE_COMPLETE`. It confirms the existing native share
-lifecycle, renderer ownership and local payload handling. This authorization
-does not change Runtime, Broadcast, API or DJ Intelligence behavior.
-
-Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`.
-The active supporting increment remains Automated Session Intelligence E2E
-Verification.
+PR [#584](https://github.com/pcvantol/djconnect/pull/584), **Define canonical
+Knowledge Source Qualification contract**, merged as
+`df22287c3c3418ce19e69aca7cea2586082cf482`, records
+`GO_PROVIDER_INDEPENDENT_KNOWLEDGE_OBJECT_ARCHITECTURE`. It formalizes the
+existing V4 Knowledge Engine boundary without authorizing a source provider,
+Lyrics Knowledge, a Runtime capability or a Planner, API or Broadcast change.
 
 ### Roadmap position and Execution Horizon
 
 Generation 2 remains in Phase 1, **DJ Intelligence Evolution**. Automated
-Session Intelligence E2E Verification remains its supporting engineering
-execution; it is not a replacement Product Initiative.
+Session Intelligence E2E Verification remains the supporting engineering
+increment; it is not replaced by this documentation refinement.
 
 #### Rolling Horizon (Execution Horizon — Next 5 Planned)
 
 1. **Public distribution: Apple** — Source: `PLATFORM_EVOLUTION_BACKLOG.md`;
    Status: Planned; Dependency: qualified Internal Release consumers and
-   explicit authorization. Reason: next canonical planned item.
+   explicit authorization. Reason: first canonical planned execution.
 2. **Public distribution: Windows** — Source: `PLATFORM_EVOLUTION_BACKLOG.md`;
    Status: Planned; Dependency: qualified Internal Release consumers and
-   explicit authorization. Reason: next canonical planned item.
+   explicit authorization. Reason: next canonical planned execution.
 3. **Public HACS distribution** — Source: `PLATFORM_EVOLUTION_BACKLOG.md`;
    Status: Planned; Dependency: fresh candidate and release authorization.
-   Reason: next canonical planned distribution item.
+   Reason: next canonical planned execution.
 4. **HACS 3.3.0 release visibility (`HACS-3.3.0-001`)** — Source:
    `PLATFORM_EVOLUTION_BACKLOG.md`; Status: Planned; Dependency: release/tag
-   metadata, HACS cache/index discovery and update presentation. Reason:
-   next canonical planned distribution investigation.
+   metadata, HACS cache/index discovery and update presentation. Reason: next
+   canonical planned investigation.
 5. **Firmware OTA publication and staged rollback** — Source:
    `PLATFORM_EVOLUTION_BACKLOG.md`; Status: Planned; Dependency:
    manifest-bound consumer qualification. Reason: next canonical planned
-   release-operational item.
+   release-operational execution.
 
 #### Blocked Items
 
-**Playback Observation Stage 2 / Continue Stage 2** — Blocked by
-backend-owned Playback Instance Identity; deconditioned only when that
-capability is available. It is not in the Execution Horizon.
+**Playback Observation Stage 2 / Continue Stage 2** — blocked by backend-owned
+Playback Instance Identity; that capability is its deconditioner.
 
 #### Deferred Items
 
-**Audience Experience and Ambient Reactions** and **Lyrics Knowledge** remain
-deferred roadmap work. They are not in the Execution Horizon.
+**Audience Experience and Ambient Reactions**, **Lyrics Knowledge** and
+**Technical Debt Engine integration** remain deferred and excluded from the
+Execution Horizon.
+
+Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`
+after this Finalization merges and its branch-only cleanup completes.
 
 ## Historical operational context
 

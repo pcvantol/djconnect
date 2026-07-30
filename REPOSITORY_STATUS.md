@@ -2,6 +2,21 @@
 
 Status: active platform-evolution repository
 
+## Current reconciliation
+
+PR [#584](https://github.com/pcvantol/djconnect/pull/584), **Define canonical
+Knowledge Source Qualification contract**, merged as
+`df22287c3c3418ce19e69aca7cea2586082cf482` with
+`GO_PROVIDER_INDEPENDENT_KNOWLEDGE_OBJECT_ARCHITECTURE`. Its Source Contract,
+Knowledge Qualification, Resolver and Knowledge Object documentation make the
+existing Knowledge Engine provider-independent. It introduces no source
+provider, external service, Runtime, Planner, API, Broadcast, cache or Lyrics
+implementation.
+
+This dedicated Finalization reconciles the four rolling records only. After it
+merges and the branch-only workspace cleanup succeeds, Repository State is
+`MERGED_RECONCILED` and Workspace State is `WORKSPACE_READY`.
+
 ## Generation 2 strategy
 
 Decision: `DJCONNECT_GENERATION_2_STRATEGY_ESTABLISHED`
