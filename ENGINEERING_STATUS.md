@@ -3,6 +3,24 @@
 **Status:** Operational handoff
 **Updated:** 2026-07-30
 
+## Component Release Scope Refinement finalization
+
+PR [#590](https://github.com/pcvantol/djconnect/pull/590), **Refine Component
+Release Scopes**, merged as `7d472c285423cb3a398875ae971f6de74b38e02f`.
+It records `GO_COMPONENT_RELEASE_SCOPE_REFINEMENT_PARTIALLY_QUALIFIED`: one
+fail-closed selection, participant and evidence-closure contract now profiles
+HACS, API, website, ESP32, iOS/watchOS, macOS, Windows and the shared Pi
+renderer family. Pi 4-inch and Pi 10-inch remain non-selectable because the
+repository has one shared Pi artifact rather than independent release
+identities.
+
+The completed refinement changes no Runtime, workflow, artifact, channel,
+release, API, Renderer or product behaviour. The only retained release-mode
+follow-up is bounded Runtime selection and exact evidence-closure
+implementation; it does not change the canonical distribution Execution
+Horizon or authorize a component release. This Finalization reconciles the
+four rolling records only.
+
 ## Pico 2 W developer onboarding finalization
 
 PR [#588](https://github.com/pcvantol/djconnect/pull/588), **Add Pico 2 W
@@ -62,10 +80,10 @@ canonically select one source participant or prove its dependency/evidence
 closure. HACS, hassfest, tests, Ruff, Bandit, dependency audit,
 verification-framework, Golden Smoke and Trusted Delivery evidence succeeded.
 
-The Qualification Register now retains only the bounded **Component Release
-Scope Refinement** follow-up. It does not authorize a release-mode
-implementation and does not change the current distribution Execution Horizon.
-This governance-only Finalization reconciles the merged result.
+The formerly retained **Component Release Scope Refinement** is now complete.
+The Qualification Register retains only bounded Runtime selection and exact
+evidence-closure implementation; it does not authorize release-mode execution
+and does not change the current distribution Execution Horizon.
 
 ## TD-GITHUB-001 finalization
 

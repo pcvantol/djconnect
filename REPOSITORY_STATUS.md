@@ -4,6 +4,21 @@ Status: active platform-evolution repository
 
 ## Current reconciliation
 
+PR [#590](https://github.com/pcvantol/djconnect/pull/590), **Refine Component
+Release Scopes**, merged as `7d472c285423cb3a398875ae971f6de74b38e02f` with
+`GO_COMPONENT_RELEASE_SCOPE_REFINEMENT_PARTIALLY_QUALIFIED`. The merged
+documentation defines the canonical fail-closed component selection,
+participant and evidence-closure contract for HACS, API, website, ESP32,
+iOS/watchOS, macOS, Windows and the shared Pi renderer family. Pi 4-inch and
+Pi 10-inch are objectively non-selectable until independent artifacts,
+manifests, checksums and target evidence exist.
+
+No Runtime, workflow, artifact, publication, deployment, API, Renderer or
+product change is included. The next release-mode work remains selection and
+evidence-closure implementation inside the existing Platform Release Runtime;
+no component execution is authorized. This Finalization reconciles only the
+four rolling records and the already archived Prompt History.
+
 PR [#588](https://github.com/pcvantol/djconnect/pull/588), **Add Pico 2 W
 developer onboarding**, merged as
 `03ba5446b17c666d9294c4b5fdbc7cd1dc9c49cc`. The bounded macOS developer
@@ -72,8 +87,9 @@ current Platform Release Runtime validates an already supplied scope fail
 closed, but does not yet provide canonical selected-source or
 dependency/evidence-closure proof. The merged assessment introduces no
 Runtime, workflow, manifest, API, Renderer, product or release-operation
-change. Only a future Component Release Scope Refinement remains; the
-canonical distribution Execution Horizon is unchanged.
+change. The Scope Refinement is now complete; only bounded Runtime selection
+and exact evidence-closure implementation remains. The canonical distribution
+Execution Horizon is unchanged.
 
 This Finalization reconciles the predecessor's rolling records. After it
 merges and the completed assessment branch is safely removed, Repository State
