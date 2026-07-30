@@ -5,6 +5,10 @@
 
 ## Owner-authorized autonomous PR lifecycle finalization
 
+## Remote onboarding readiness finalization
+
+PR [#636](https://github.com/pcvantol/djconnect/pull/636) merged as `c491508e95970d07b8eafc8b4dca439818159c7d`. Remote Engineering onboarding now installs the owned local dashboard with the watcher; repository state remains `MERGED_RECONCILED`.
+
 ## Remote Engineering Experience finalization
 
 PR [#634](https://github.com/pcvantol/djconnect/pull/634), **Add Remote
