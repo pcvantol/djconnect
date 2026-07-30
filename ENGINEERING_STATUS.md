@@ -5,6 +5,15 @@
 
 ## Owner-authorized autonomous PR lifecycle finalization
 
+## iCloud Engineering Inbox watcher finalization
+
+PR [#632](https://github.com/pcvantol/djconnect/pull/632), **Add iCloud
+Engineering Inbox watcher**, merged as `43c2a8d2c388658a6cec1464323f6363fded2aae`.
+Engineering Platform 1.4 adds a local, serialized and fail-closed iCloud
+inbox transport, per-user macOS onboarding and bounded report delivery. iCloud
+is not repository truth; Product, Runtime, Release and Deployment are unchanged.
+Repository State: `MERGED_RECONCILED`
+
 ## Engineering Platform Generation 1 closure finalization
 
 PR [#630](https://github.com/pcvantol/djconnect/pull/630), **Close Engineering
