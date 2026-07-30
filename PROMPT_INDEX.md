@@ -2,6 +2,22 @@
 
 Status: canonical prompt navigation
 
+## Knowledge Source Qualification contract
+
+PR [#584](https://github.com/pcvantol/djconnect/pull/584), **Define canonical
+Knowledge Source Qualification contract**, merged as
+`df22287c3c3418ce19e69aca7cea2586082cf482` with
+`GO_PROVIDER_INDEPENDENT_KNOWLEDGE_OBJECT_ARCHITECTURE`. Its immutable
+implementation prompt is
+`docs/history/prompts/2026-07-30-knowledge-source-qualification-contract.md`.
+Its governance-only Finalization prompt is
+`docs/history/prompts/2026-07-30-knowledge-source-qualification-contract-finalization.md`.
+
+The refinement formalizes source qualification and normalized Knowledge Objects
+within the existing Knowledge Engine; it does not authorize a provider,
+external integration, Runtime capability, Planner change, Lyrics Knowledge,
+API or Broadcast change.
+
 ## Platform Dependency Governance Conformance Assessment
 
 PR [#562](https://github.com/pcvantol/djconnect/pull/562) merged as

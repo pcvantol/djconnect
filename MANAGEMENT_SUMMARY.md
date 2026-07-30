@@ -15,6 +15,21 @@
 
 ## Current position
 
+PR [#584](https://github.com/pcvantol/djconnect/pull/584), **Define canonical
+Knowledge Source Qualification contract**, merged as
+`df22287c3c3418ce19e69aca7cea2586082cf482` with
+`GO_PROVIDER_INDEPENDENT_KNOWLEDGE_OBJECT_ARCHITECTURE`. The existing V4
+Knowledge Engine now explicitly separates source eligibility, per-resolution
+qualification, the internal Resolver and provider-independent Knowledge
+Objects. Provider payloads cannot cross the Resolver boundary; only qualified
+Knowledge Context reaches the DJ Moment Engine, and Broadcast continues to
+distribute DJMoments only.
+
+This was a documentation-only architecture refinement: no provider was chosen
+or integrated, and no Runtime, Planner, cache, Lyrics Knowledge, API or
+Broadcast behaviour changed. The decision adds no implementation authorization
+and does not alter the canonical Execution Horizon.
+
 PR [#574](https://github.com/pcvantol/djconnect/pull/574), **Assess Component
 Release Qualification**, merged as
 `43e8203b9f8223f37a659bfc17fa9951eb75e4c9` with
@@ -285,6 +300,7 @@ The final decision is `GO_SHARING_IMPLEMENTATION` for exactly **Track Insight
 evidence and decision `GO_CROSS_REPOSITORY_EVIDENCE_COMPLETE`. The bounded
 authorization introduces no Runtime, Broadcast, API or DJ Intelligence change.
 Repository State: `MERGED_RECONCILED`. Workspace State: `WORKSPACE_READY`.
+Stale local branches: **0**.
 
 ## Roadmap position and next backlog
 
