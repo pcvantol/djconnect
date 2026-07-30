@@ -60,6 +60,34 @@ If Codex CLI itself exits unexpectedly, the current console additionally shows
 its exit code plus bounded, redacted stderr and stdout. Those command-output
 details are never checkpointed; the checkpoint contains only a safe summary.
 
+## Autonomous lifecycle and Finalization
+
+With `--owner-authorized`, the runner treats implementation and its mandatory
+governance-only Finalization as one resumable transaction. It checkpoints the
+implementation and Finalization branch, PR, observed head, merge commit, safe
+repository/GitHub evidence and repair count. Repository and GitHub evidence
+always override those advisory fields on resume.
+
+After objective evidence proves the implementation merge is in main, the
+runner synchronizes local main and derives Finalization from the merged change
+and current repository governance. Finalization may reconcile rolling status
+records, management/repository summaries, prompt navigation/history and
+lifecycle evidence. It cannot add capabilities, change runtime behavior,
+select new roadmap work, release, deploy or publish.
+
+The runner marks both PRs ready for review, polls until checks are terminal,
+and merges only green PRs under the recorded authorization. A failed required
+check starts a bounded repair cycle on the same PR; its check name and repair
+count are safe diagnostic evidence. Missing permission, unsatisfied review,
+out-of-scope merge conflict or another external dependency remains blocked
+with a bounded reason and resume guidance. Waiting, queued CI and transient
+API failures remain non-terminal.
+
+On full authorized completion the console emits one management summary with
+the implementation/Finalization PRs and merge commits, repair count, authority
+boundary and confirmation that no release, deployment or publication occurred.
+It does not expose prompt content.
+
 ## Terminal evidence and boundaries
 
 Queued or running CI, pending checks, a polling interval, a temporary GitHub
@@ -76,6 +104,5 @@ approval or other external authority boundary is reported rather than bypassed.
 Without `--owner-authorized` it does not merge. In every mode it does not
 release or deploy.
 
-ChatGPT cannot directly control this local process. Architectural discussion
-may continue separately while the developer leaves this foreground command
-running or later resumes it.
+This foreground process has no background continuation. It can be resumed from
+repository evidence after an interruption.
