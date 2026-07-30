@@ -4,6 +4,10 @@ Status: active platform-evolution repository
 
 ## Owner-authorized autonomous PR lifecycle finalization
 
+PR [#618](https://github.com/pcvantol/djconnect/pull/618), **Make editor launch
+deterministic**, merged as `f2d2fe56c74a99a9856086d939816694f337fc46`.
+PATH editor fallbacks no longer claim application identity.
+
 PR [#616](https://github.com/pcvantol/djconnect/pull/616), **Use reconciliation
 evidence for branch cleanup**, merged as `e020c056c467370551127ef8fc5fbdfb6294dcd1`.
 Cleanup is repository-evidence-based and remains restricted to transaction-owned branches.

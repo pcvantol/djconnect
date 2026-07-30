@@ -5,6 +5,11 @@
 
 ## Owner-authorized autonomous PR lifecycle finalization
 
+PR [#618](https://github.com/pcvantol/djconnect/pull/618), **Make editor launch
+deterministic**, merged as `f2d2fe56c74a99a9856086d939816694f337fc46`.
+The local runner now identifies actual editor launch mechanisms deterministically;
+no Product, Runtime, release, deployment or roadmap behavior changed.
+
 PR [#616](https://github.com/pcvantol/djconnect/pull/616), **Use reconciliation
 evidence for branch cleanup**, merged as `e020c056c467370551127ef8fc5fbdfb6294dcd1`.
 The local runner now recognizes reconciled squash merges during transaction-only
