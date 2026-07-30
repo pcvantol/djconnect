@@ -15,6 +15,11 @@
 
 ## Current position
 
+PR [#626](https://github.com/pcvantol/djconnect/pull/626), **Add Product
+Capability Reviewers**, merged as `5b9cc606c8fc51ef9273f194fc1bad5d9af4b586`.
+Engineering Platform 1.2 mirrors DJConnect capability areas in bounded advisory
+reviews while preserving one primary engineering owner. The Execution Horizon is unchanged.
+
 PR [#624](https://github.com/pcvantol/djconnect/pull/624), **Select
 Capability-Aware Reviewers**, merged as `a51f1ed28e1f8bf3ec13939d36d1d91e24bde569`.
 Engineering Platform 1.1 improves bounded review quality through deterministic,

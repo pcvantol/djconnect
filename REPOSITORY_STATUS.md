@@ -4,6 +4,13 @@ Status: active platform-evolution repository
 
 ## Owner-authorized autonomous PR lifecycle finalization
 
+## Product capability specialists finalization
+
+PR [#626](https://github.com/pcvantol/djconnect/pull/626), **Add Product
+Capability Reviewers**, merged as `5b9cc606c8fc51ef9273f194fc1bad5d9af4b586`.
+Product reviewers are local, deterministic, read-only and advisory; no Product,
+Runtime, Release, Deployment or Engineering governance behavior changed.
+
 ## Capability-aware reviewer selection finalization
 
 PR [#624](https://github.com/pcvantol/djconnect/pull/624), **Select
