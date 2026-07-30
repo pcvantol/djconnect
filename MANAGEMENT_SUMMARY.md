@@ -15,6 +15,12 @@
 
 ## Current position
 
+PR [#598](https://github.com/pcvantol/djconnect/pull/598), **Define Long-running
+Engineering Operation Governance**, merged as
+`0168fad5fb2f8e30b0b40067d4f117c456f4b2e2`. Completion and resumption are now
+explicitly determined by objective repository evidence, not execution lifetime.
+No lifecycle, Runtime, Product, CI or release behavior changed.
+
 PR [#596](https://github.com/pcvantol/djconnect/pull/596), **Define Device
 Distribution and Provisioning Architecture**, merged as
 `efcbde0a4b37716ae72a167ec6ccff5a3af20dfd`. It establishes one independent

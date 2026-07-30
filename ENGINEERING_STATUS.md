@@ -3,6 +3,14 @@
 **Status:** Operational handoff
 **Updated:** 2026-07-30
 
+## Long-running engineering operation governance finalization
+
+PR [#598](https://github.com/pcvantol/djconnect/pull/598), **Define Long-running
+Engineering Operation Governance**, merged as
+`0168fad5fb2f8e30b0b40067d4f117c456f4b2e2`. It makes completion and resumption
+repository-evidence-based without changing lifecycle phases, Runtime, Product,
+CI or release behavior. This Finalization reconciles records only.
+
 ## Platform Device Distribution and Provisioning finalization
 
 PR [#596](https://github.com/pcvantol/djconnect/pull/596), **Define Device
