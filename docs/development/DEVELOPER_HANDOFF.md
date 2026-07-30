@@ -65,6 +65,67 @@ or replace the human maintainer's authority. It provides repository-grounded
 analysis and one bounded recommendation for the existing Product Development
 discipline.
 
+## iPhone Siri Shortcut for remote engineering submission
+
+The local Engineering Platform may receive a prompt through the iCloud Drive
+Engineering Inbox. The iPhone Shortcut is a transport convenience only: the
+repository, GitHub evidence and `dj-engineer` remain authoritative.
+
+Create the iCloud folder first:
+
+```text
+iCloud Drive/
+└── DJConnect Engineering/
+    └── Inbox/
+```
+
+Create the Shortcut on iPhone as follows:
+
+1. Open **Shortcuts** and create a new shortcut named **Engineering Platform**.
+2. Add **Current Date**.
+3. Add **Format Date** and use the custom format:
+
+   ```text
+   yyyyMMdd-HHmmss
+   ```
+
+4. Add **Get Clipboard**.
+5. Add **Save File**.
+6. Configure **Save File** as follows:
+   - input: **Clipboard**;
+   - destination: `iCloud Drive/DJConnect Engineering/Inbox`;
+   - disable **Ask Where to Save**;
+   - disable overwrite;
+   - set the subpath to the formatted date plus a text extension, for example:
+
+     ```text
+     engineering-[Formatted Date].txt
+     ```
+
+   iOS may append `.txt` even when `.md` was requested. This is expected; the
+   Engineering Inbox accepts both `.txt` and `.md` prompt files.
+7. Optionally add **Show Notification** with a confirmation such as
+   `Engineering job submitted`.
+
+The normal mobile workflow is:
+
+```text
+ChatGPT prompt
+  ↓
+Copy
+  ↓
+Run “Engineering Platform” with Siri or from Shortcuts
+  ↓
+iCloud Drive Engineering Inbox
+  ↓
+macOS Engineering Inbox watcher
+  ↓
+dj-engineer
+```
+
+The Shortcut must submit only prompt text. It does not grant release,
+deployment, publication or repository authority and must not contain secrets.
+
 ## Standard review cycle
 
 When a management summary of the latest merged pull requests is supplied, use
