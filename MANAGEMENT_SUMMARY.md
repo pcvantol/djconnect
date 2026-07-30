@@ -15,6 +15,12 @@
 
 ## Current position
 
+PR [#596](https://github.com/pcvantol/djconnect/pull/596), **Define Device
+Distribution and Provisioning Architecture**, merged as
+`efcbde0a4b37716ae72a167ec6ccff5a3af20dfd`. It establishes one independent
+product-first installer and one public distribution truth for ESP, RP2 and
+Raspberry Pi. It changes no Runtime, pairing, renderer or OTA behavior.
+
 PR [#594](https://github.com/pcvantol/djconnect/pull/594), **Define ESPHome
 Firmware Platform Architecture**, merged as
 `270a1e558c8bcb360ad6b3a5c31a1d681facbba3`. ESPHome is now the accepted,

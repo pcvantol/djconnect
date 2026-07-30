@@ -2,6 +2,14 @@
 
 Status: active platform-evolution repository
 
+## Platform Device Distribution and Provisioning finalization
+
+PR [#596](https://github.com/pcvantol/djconnect/pull/596), **Define Device
+Distribution and Provisioning Architecture**, merged as
+`efcbde0a4b37716ae72a167ec6ccff5a3af20dfd`. One Installer, product catalog and
+firmware-distribution boundary are now canonical; no Runtime, pairing, renderer
+or OTA behavior changed. This Finalization reconciles rolling records only.
+
 ## ESPHome firmware platform architecture finalization
 
 PR [#594](https://github.com/pcvantol/djconnect/pull/594), **Define ESPHome
