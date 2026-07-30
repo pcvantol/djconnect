@@ -99,6 +99,17 @@ missing branches are already-cleaned success, while an unmerged, current or
 uncertain branch is preserved and reported as blocked. Resume repeats the same
 idempotent evidence-based cleanup and never removes unrelated branches.
 
+## Terminal reports and advisory sub-agents
+
+Each terminal transaction writes an immutable local Markdown report beneath
+`.djconnect/reports/` and best-effort opens it using `$EDITOR`, Visual Studio
+Code, then Sublime Text. Reports are git-ignored; editor failure never changes
+the engineering result. They summarize checkpoint evidence, PRs, repair and
+cleanup evidence, diagnostics and the management summary. Optional sub-agents
+are read-only, bounded advisory helpers for inspection or validation; they
+cannot write, create/ready/merge PRs, create Finalization, alter governance or
+perform cleanup. The primary runner validates and integrates every result.
+
 ## Terminal evidence and boundaries
 
 Queued or running CI, pending checks, a polling interval, a temporary GitHub
