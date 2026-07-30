@@ -31,6 +31,10 @@ publishes bounded status plus local-run reports to `Reports`. Use
 `... uninstall` to remove only this LaunchAgent. iCloud is transport only;
 repository and GitHub evidence remain authoritative.
 
+Engineering prompts require Engineering Platform `>= 1.5.0`. An older platform
+is incompatible: upgrade it before starting a prompt; do not bypass bootstrap
+compatibility validation.
+
 ## Raspberry Pi Pico 2 W development (macOS)
 
 Pico 2 W is a first-class profile of this canonical onboarding package. It is a

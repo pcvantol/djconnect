@@ -128,12 +128,41 @@ supported Codex CLI `0.146.0`. On supported macOS workstations, the watcher
 and its per-user LaunchAgent must satisfy this same contract before accepting
 iCloud inbox work; incompatibility is blocked with corrective diagnostics.
 
-Every future Platform Engineering prompt requires Engineering Platform `1.6.0`
-or newer. Product & Platform Architect prompts require Engineering Platform
-`1.2.0` or newer. The generated prompt
+Every future Platform Engineering prompt requires:
+
+```text
+Required Engineering Platform: >= 1.5.0
+```
+
+Engineering Platform 1.5 is the minimum supported platform for future
+engineering prompts. Older versions are incompatible and compatibility
+validation fails closed. The repository bootstrap is the authoritative
+compatibility contract. Product & Platform Architect prompts require
+Engineering Platform `1.5.0` or newer. The generated prompt
 must state this minimum explicitly. `dj-engineer` must fail closed before any
 repository mutation when the detected Engineering Platform is older than the
 prompt's declared minimum.
+
+When an older platform is detected, report the following diagnostic without
+continuing:
+
+```text
+Engineering Platform detected:
+
+<detected version>
+
+Required:
+
+>= 1.5.0
+
+Status:
+
+UPGRADE_REQUIRED
+
+Action:
+
+Upgrade the Engineering Platform before executing this engineering prompt.
+```
 
 `dj-engineer` validates this manifest at startup. Engineering compatibility is
 determined from this Engineering Platform contract, not from individual runner
