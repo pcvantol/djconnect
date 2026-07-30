@@ -3,6 +3,21 @@
 **Status:** Operational handoff
 **Updated:** 2026-07-30
 
+## TDE 1.1.1 planning reconciliation finalization
+
+PR [#586](https://github.com/pcvantol/djconnect/pull/586), **Reconcile
+planning after TDE 1.1.1 rollout**, merged as
+`ab662d3698fc48b57b55acbeb822fc25617b9d2b`. It records completed historical
+delivery for the public TDE runtime and CLI across selected DJConnect source
+consumers. TDE provides non-blocking observe evidence for `code_size`,
+`complexity`, `coverage` and `dependency_health`; it is not a product
+capability, Runtime concern, merge gate or release gate.
+
+The reconciliation adds the canonical selected-product-work register, removes
+obsolete Deferred rollout wording and preserves the existing product phases,
+five-item Execution Horizon, architecture and priorities. This dedicated
+Finalization reconciles the merged planning increment only.
+
 ## Knowledge Source Qualification contract finalization
 
 PR [#584](https://github.com/pcvantol/djconnect/pull/584), **Define canonical
@@ -70,12 +85,12 @@ qualification item; no Runtime, product, API or renderer behavior changed.
 
 ## Current engineering increment
 
-PR [#584](https://github.com/pcvantol/djconnect/pull/584), **Define canonical
-Knowledge Source Qualification contract**, merged as
-`df22287c3c3418ce19e69aca7cea2586082cf482`, records
-`GO_PROVIDER_INDEPENDENT_KNOWLEDGE_OBJECT_ARCHITECTURE`. It formalizes the
-existing V4 Knowledge Engine boundary without authorizing a source provider,
-Lyrics Knowledge, a Runtime capability or a Planner, API or Broadcast change.
+PR [#586](https://github.com/pcvantol/djconnect/pull/586), **Reconcile
+planning after TDE 1.1.1 rollout**, merged as
+`ab662d3698fc48b57b55acbeb822fc25617b9d2b`, records completed operational
+engineering foundations for Verification, Software Assurance and TDE. It does
+not authorize a new product capability, provider, Runtime, Planner, API,
+Broadcast or release behaviour.
 
 ### Roadmap position and Execution Horizon
 
