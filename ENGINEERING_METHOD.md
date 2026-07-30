@@ -173,6 +173,18 @@ the prior execution ended, nor repeat completed work unless current repository
 evidence requires it. Local execution memory is advisory only and never
 overrides repository evidence or the Engineering Method.
 
+### Owner-authorized local transactions
+
+An explicitly owner-authorized local transaction may automate the bounded pull
+request readiness, repair, merge and mandatory governance-only Finalization
+steps already required by this method. Its checkpoint is advisory and records
+only safe lifecycle evidence; current repository and GitHub evidence remain
+authoritative on every resume. The authorization does not create a new
+engineering phase or permit releases, deployments, publication, tags,
+repository-settings changes, branch-protection bypass, roadmap selection or
+scope expansion. Finalization remains limited to its established reconciliation
+scope and must complete before the repository is `MERGED_RECONCILED`.
+
 ## Repository and workspace state
 
 Repository State and Workspace State are independent. Repository State records
