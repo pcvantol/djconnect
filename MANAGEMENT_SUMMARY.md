@@ -15,6 +15,12 @@
 
 ## Current position
 
+PR [#622](https://github.com/pcvantol/djconnect/pull/622), **Version Engineering
+Platform**, merged as `fe218a3d0c6763c09acc97a70c305a0dc8ec5c1e`.
+Engineering compatibility is now explicit, deterministic and auditable through
+one manifest, runner startup validation and terminal-report metadata. No product
+or release behavior changed, and the five-item Execution Horizon is unchanged.
+
 PR [#620](https://github.com/pcvantol/djconnect/pull/620), **Reconcile Component
 Release Mode backlog**, merged as `0423c98451e7e75af40de9acc8e5c10e0e2cdc06`.
 The authoritative backlog state is now aligned with the completed, fail-closed
