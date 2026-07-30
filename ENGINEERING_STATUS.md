@@ -47,9 +47,11 @@ cleanup. That historical evidence-retention gap is retained separately.
 PR [#562](https://github.com/pcvantol/djconnect/pull/562), **Platform
 Dependency Governance Conformance Assessment**, merged as
 `f18fcfbdf2bbb0cb6e56aa0d422d7d48c156df9d`. It records
-`NO_GO_PLATFORM_DEPENDENCY_GOVERNANCE_DIVERGENCE`: existing GitHub-native
-security settings do not establish a uniform version-update or dependency
-assurance contract, and TDE remains Deferred. It authorizes no implementation.
+`NO_GO_PLATFORM_DEPENDENCY_GOVERNANCE_DIVERGENCE`: at that assessment point,
+existing GitHub-native security settings did not establish a uniform
+version-update or dependency-assurance contract. The subsequent Dependabot
+rollout and TDE 1.1.1 observe rollout are completed historical delivery;
+neither changes product behaviour or turns TDE into a gate.
 
 PR [#559](https://github.com/pcvantol/djconnect/pull/559), **Platform Cleanup
 & Evidence Workflow Conformance Repair**, merged as
@@ -81,6 +83,12 @@ Generation 2 remains in Phase 1, **DJ Intelligence Evolution**. Automated
 Session Intelligence E2E Verification remains the supporting engineering
 increment; it is not replaced by this documentation refinement.
 
+The engineering platform is operational: Verification, Software Assurance and
+the TDE 1.1.1 consumer rollout supply reusable quality evidence. TDE uses its
+public runtime and CLI in non-blocking observe mode for `code_size`,
+`complexity`, `coverage` and `dependency_health`; it is not active platform
+delivery work and does not alter product sequencing.
+
 #### Rolling Horizon (Execution Horizon — Next 5 Planned)
 
 1. **Public distribution: Apple** — Source: `PLATFORM_EVOLUTION_BACKLOG.md`;
@@ -108,9 +116,9 @@ Playback Instance Identity; that capability is its deconditioner.
 
 #### Deferred Items
 
-**Audience Experience and Ambient Reactions**, **Lyrics Knowledge** and
-**Technical Debt Engine integration** remain deferred and excluded from the
-Execution Horizon.
+**Audience Experience and Ambient Reactions** and **Lyrics Knowledge** remain
+deferred and excluded from the Execution Horizon. TDE rollout is completed,
+not deferred work.
 
 Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`
 after this Finalization merges and its branch-only cleanup completes.

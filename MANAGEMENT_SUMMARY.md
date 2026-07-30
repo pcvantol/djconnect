@@ -15,6 +15,15 @@
 
 ## Current position
 
+TDE 1.1.1 is now an operational engineering-quality foundation across the
+selected DJConnect source repositories. It uses the public runtime and CLI to
+produce non-blocking observe evidence for `code_size`, `complexity`, `coverage`
+and `dependency_health`. TDE does not replace Verification, Software
+Assurance, Dependabot, dependency audit or Trusted Delivery, and it introduces
+no merge or release gate. Its lifecycle remains owned by the TDE repository;
+DJConnect's completed rollout is historical delivery rather than active
+Platform Evolution work.
+
 PR [#584](https://github.com/pcvantol/djconnect/pull/584), **Define canonical
 Knowledge Source Qualification contract**, merged as
 `df22287c3c3418ce19e69aca7cea2586082cf482` with

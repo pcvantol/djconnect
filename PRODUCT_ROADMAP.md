@@ -17,6 +17,15 @@ not the complete long-term product vision.
 The roadmap governs product evolution. Platform implementations support the
 product; they do not automatically determine product readiness.
 
+### Operational engineering foundation
+
+The Verification Platform, Software Assurance Platform and TDE 1.1.1 consumer
+rollout are completed operational foundations. TDE supplies non-blocking,
+repository-scoped observe evidence for `code_size`, `complexity`, `coverage`
+and `dependency_health` through its public runtime and CLI. These foundations
+support product delivery; they are not Product Development roadmap items and
+do not delay or reorder the product phases below.
+
 ### Phase 0 — Generation 2 Foundations
 
 Completed: Product Definition, Product Philosophy Alignment, Capability

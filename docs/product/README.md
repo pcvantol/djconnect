@@ -14,7 +14,9 @@ Product Strategy begins where Innovation Labs end. Innovation Labs own ideas,
 experiments and open product questions. Product Strategy owns validated product
 direction.
 
-This directory does not own implementation planning.
+This directory does not own implementation planning. The canonical product
+roadmap is `../../PRODUCT_ROADMAP.md`; `../../PRODUCT_BACKLOG.md` records only
+work selected from that roadmap.
 
 ## Ownership Model
 
@@ -71,9 +73,10 @@ backlog. Retained pre-Generation 2 roadmap content is historical memory only.
 
 ## Relationship With Product Backlog
 
-The Product Backlog is introduced only after Product Roadmap selection and
+The Product Backlog records selected work after Product Roadmap selection and
 approved discovery/architecture work. It owns selected engineering work, not
-product strategy.
+product strategy. Planned and deferred roadmap work stays outside the backlog
+until separately selected.
 
 ## Current Documents
 

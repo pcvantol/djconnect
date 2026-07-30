@@ -5,6 +5,18 @@
 **Scope:** Existing repository, GitHub and platform evidence only. No
 configuration, workflow, CI, branch-protection or product change.
 
+## Subsequent operational status
+
+This assessment preserves its point-in-time conclusion. Subsequent completed
+delivery established repository-local Dependabot policy and TDE 1.1.1
+observe-only consumer evidence. TDE now provides canonical public-runtime and
+public-CLI evidence for `code_size`, `complexity`, `coverage` and
+`dependency_health`; it remains non-blocking and does not replace Dependabot,
+dependency audit, Software Assurance, Trusted Delivery or Verification. See
+`PLATFORM_DEPENDENCY_GOVERNANCE_CONFORMANCE_REPORT.md` and
+`../governance/TDE_1_1_1_PLANNING_RECONCILIATION.md` for the reconciled current
+status.
+
 ## Reconciliation
 
 The active Platform Release inventory contains `djconnect`, `djconnect-api`,

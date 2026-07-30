@@ -4,6 +4,13 @@ Status: active platform-evolution repository
 
 ## Current reconciliation
 
+TDE 1.1.1 consumer rollout is completed historical delivery. The selected
+source repositories consume the public runtime and CLI in observe-only,
+non-blocking mode for `code_size`, `complexity`, `coverage` and
+`dependency_health`. TDE remains outside the Runtime and does not replace
+Software Assurance, Verification, native dependency controls or release
+authorization.
+
 PR [#584](https://github.com/pcvantol/djconnect/pull/584), **Define canonical
 Knowledge Source Qualification contract**, merged as
 `df22287c3c3418ce19e69aca7cea2586082cf482` with

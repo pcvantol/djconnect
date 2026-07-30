@@ -74,6 +74,15 @@ These foundations are durable direction, not active roadmap work. Their future
 changes require an evidence-backed assessment rather than a parity or
 implementation assumption.
 
+### Operational engineering foundations
+
+Verification, Software Assurance and the TDE 1.1.1 consumer rollout are
+operational foundations. TDE contributes non-blocking observe evidence for
+`code_size`, `complexity`, `coverage` and `dependency_health` through its
+public runtime and CLI. These controls support product execution but are not a
+separate active delivery program, a Product Development capability, or a merge
+or release gate.
+
 ### Current execution
 
 | Program | Item | Status | Canonical record |
