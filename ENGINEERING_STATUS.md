@@ -5,6 +5,13 @@
 
 ## Owner-authorized autonomous PR lifecycle finalization
 
+## Engineering Platform 1.5 finalization
+
+PR [#642](https://github.com/pcvantol/djconnect/pull/642) merged as
+`164e06f80f5adeab4cdb957e76d28c8a16ab81c7`. Platform Identity, Workspace
+Identity, provider contracts, public API, bootstrap, qualification and
+EP-GOLDEN-001 are reconciled. Repository State: `MERGED_RECONCILED`.
+
 ## Engineering Platform 1.4 completion finalization
 
 PR [#639](https://github.com/pcvantol/djconnect/pull/639) merged as `983dc283c590e1ef16c8e9a64f67c86d9d4e28ab`. Canonical status, private dashboard, Tailscale diagnostics and Remote Experience qualification are reconciled. Repository State: `MERGED_RECONCILED`
