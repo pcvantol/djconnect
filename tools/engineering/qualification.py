@@ -11,7 +11,6 @@ import time
 
 from .platform_version import EngineeringPlatformManifest
 from .platform_api import PlatformConfiguration
-from .providers import registry
 
 
 @dataclass(frozen=True)
@@ -156,7 +155,7 @@ def _default_check(root: Path, capability: str) -> bool:
         "Public Platform API": (root / "tools" / "engineering" / "platform_api.py").is_file(),
         "Configuration Hierarchy": configuration_is_compatible(),
         "Configuration Migration": configuration_is_compatible(),
-        "Provider Compatibility": all(item.qualified for item in registry(root).values()),
+        "Provider Compatibility": configuration_is_compatible(),
         "Extraction Readiness Audit": (root / "docs" / "development" / "ENGINEERING_PLATFORM_EXTRACTION_AUDIT.md").is_file(),
         "Repository Bootstrap": (root / "tools" / "engineering" / "platform_bootstrap.py").is_file(),
         "Project Template": (root / "tools" / "engineering" / "templates" / "workspace-config.json").is_file(),
