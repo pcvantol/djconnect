@@ -5,6 +5,11 @@
 
 ## Owner-authorized autonomous PR lifecycle finalization
 
+PR [#614](https://github.com/pcvantol/djconnect/pull/614), **Add local
+engineering memory**, merged as `254217a7537371486ec42f117d5b7d217baa6956`.
+The runner now stores bounded, local-only engineering metadata as advisory
+context; repository and GitHub evidence remain authoritative.
+
 PR [#612](https://github.com/pcvantol/djconnect/pull/612), **Add live runner
 progress status**, merged as `91ab36333f91ef9795ffaad8ee6cb37714747f55`.
 The runner now writes an atomic local progress status and exposes a status
