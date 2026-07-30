@@ -36,9 +36,11 @@ class InboxWatcherTest(unittest.TestCase):
     def test_complete_job_is_serialized_and_archived(self) -> None:
         (self.inbox / "job.txt").write_text("# prompt", encoding="utf-8")
         run_id = "inbox-0cff9d624c2412db"
-        report_dir = self.repo / ".djconnect/reports"; report_dir.mkdir(parents=True)
+        report_dir = self.repo / ".djconnect/reports"
+        report_dir.mkdir(parents=True)
         (report_dir / f"report_{run_id}.md").write_text("# report", encoding="utf-8")
-        checkpoint = self.repo / ".djconnect/engineering-runs"; checkpoint.mkdir(parents=True)
+        checkpoint = self.repo / ".djconnect/engineering-runs"
+        checkpoint.mkdir(parents=True)
         (checkpoint / f"{run_id}.json").write_text(json.dumps({"phase": "COMPLETE"}), encoding="utf-8")
         with patch("tools.engineering.inbox_watcher.subprocess.run") as run:
             run.return_value = __import__("subprocess").CompletedProcess((), 0)
