@@ -3,6 +3,15 @@
 **Status:** Operational handoff
 **Updated:** 2026-07-30
 
+## Local agent runner diagnostics finalization
+
+PR [#602](https://github.com/pcvantol/djconnect/pull/602), **Add local agent
+runner diagnostics**, merged as `25bce99283b1e978ebfac13e0f89e167360a0080`.
+Blocked and failed local transactions now preserve bounded redacted reasons and
+show safe CLI failure details without changing engineering lifecycle, Product,
+Runtime, Release, CI, merge or deployment behavior. This Finalization
+reconciles records and prompt history only.
+
 ## Local agent runner finalization
 
 PR [#600](https://github.com/pcvantol/djconnect/pull/600), **Add resumable local

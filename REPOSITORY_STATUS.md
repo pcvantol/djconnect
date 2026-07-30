@@ -2,6 +2,14 @@
 
 Status: active platform-evolution repository
 
+## Local agent runner diagnostics finalization
+
+PR [#602](https://github.com/pcvantol/djconnect/pull/602), **Add local agent
+runner diagnostics**, merged as `25bce99283b1e978ebfac13e0f89e167360a0080`.
+The local runner now gives safe bounded reasons for blocked and failed work;
+repository and GitHub evidence remain authoritative for resumption. No Product,
+Runtime, Release, CI, merge or deployment behavior changed.
+
 ## Local agent runner finalization
 
 PR [#600](https://github.com/pcvantol/djconnect/pull/600), **Add resumable local

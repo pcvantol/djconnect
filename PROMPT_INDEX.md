@@ -2,6 +2,14 @@
 
 Status: canonical prompt navigation
 
+## Local agent runner diagnostics
+
+PR [#602](https://github.com/pcvantol/djconnect/pull/602), **Add local agent
+runner diagnostics**, merged as `25bce99283b1e978ebfac13e0f89e167360a0080`.
+Its immutable implementation Prompt History is
+`docs/history/prompts/2026-07-30-local-agent-runner-diagnostics.md`. It adds
+safe stop diagnostics only and preserves the existing runner lifecycle.
+
 ## Local agent runner
 
 PR [#600](https://github.com/pcvantol/djconnect/pull/600), **Add resumable local
