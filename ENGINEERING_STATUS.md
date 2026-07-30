@@ -5,6 +5,11 @@
 
 ## Owner-authorized autonomous PR lifecycle finalization
 
+PR [#616](https://github.com/pcvantol/djconnect/pull/616), **Use reconciliation
+evidence for branch cleanup**, merged as `e020c056c467370551127ef8fc5fbdfb6294dcd1`.
+The local runner now recognizes reconciled squash merges during transaction-only
+cleanup; no Product, Runtime, release, deployment or roadmap behavior changed.
+
 PR [#614](https://github.com/pcvantol/djconnect/pull/614), **Add local
 engineering memory**, merged as `254217a7537371486ec42f117d5b7d217baa6956`.
 The runner now stores bounded, local-only engineering metadata as advisory
