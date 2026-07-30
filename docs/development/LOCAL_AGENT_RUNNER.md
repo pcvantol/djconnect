@@ -88,6 +88,17 @@ the implementation/Finalization PRs and merge commits, repair count, authority
 boundary and confirmation that no release, deployment or publication occurred.
 It does not expose prompt content.
 
+## Repository cleanup
+
+After merged Finalization evidence is contained in `main`, the runner enters
+`REPOSITORY_CLEANUP` before it can report `COMPLETE`. It fetches with
+`git fetch --prune`, checks out and fast-forwards `main`, and evaluates only
+the implementation and Finalization branches recorded for that transaction.
+It uses ordinary merged-branch deletion only after objective merge evidence;
+missing branches are already-cleaned success, while an unmerged, current or
+uncertain branch is preserved and reported as blocked. Resume repeats the same
+idempotent evidence-based cleanup and never removes unrelated branches.
+
 ## Terminal evidence and boundaries
 
 Queued or running CI, pending checks, a polling interval, a temporary GitHub
