@@ -2,6 +2,14 @@
 
 Status: active platform-evolution repository
 
+## Long-running engineering operation governance finalization
+
+PR [#598](https://github.com/pcvantol/djconnect/pull/598), **Define Long-running
+Engineering Operation Governance**, merged as
+`0168fad5fb2f8e30b0b40067d4f117c456f4b2e2`. Repository evidence now governs
+completion and interrupted-operation continuation; no product or release
+behavior changed. This Finalization reconciles rolling records only.
+
 ## Platform Device Distribution and Provisioning finalization
 
 PR [#596](https://github.com/pcvantol/djconnect/pull/596), **Define Device
