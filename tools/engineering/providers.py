@@ -26,6 +26,7 @@ class RuntimeProvider(Protocol):
 
 class RepositoryProvider(Protocol):
     def status(self, root: Path) -> ProviderStatus: ...
+    def command(self, root: Path, *args: str) -> str: ...
 
 
 class ServiceManagerProvider(Protocol):
@@ -53,6 +54,12 @@ class GitHubProvider:
         remote = subprocess.run(("git", "remote", "get-url", "origin"), cwd=root, text=True, capture_output=True, check=False)
         qualified = remote.returncode == 0 and "github" in remote.stdout.lower()
         return ProviderStatus("github", "configured", qualified, remote.stdout.strip() if qualified else "GitHub origin unavailable")
+
+    def command(self, root: Path, *args: str) -> str:
+        completed = subprocess.run(args, cwd=root, text=True, capture_output=True, check=False)
+        if completed.returncode:
+            raise RuntimeError(completed.stderr.strip() or "repository provider command failed")
+        return completed.stdout.strip()
 
 
 class LaunchdProvider:

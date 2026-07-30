@@ -37,6 +37,7 @@ from .qualification import dashboard, execute_qualification, latest_qualificatio
 from .repository_handoff import publish as publish_repository_handoff
 from .status_model import build as build_canonical_status, publish as publish_canonical_status
 from .platform_api import PlatformConfiguration, PlatformConfigurationError, provider_registry
+from .providers import GitHubProvider
 
 
 class RunnerError(RuntimeError):
@@ -103,11 +104,14 @@ class AgentClient(Protocol):
 
 
 class SubprocessRepositoryClient:
+    def __init__(self, provider: GitHubProvider | None = None) -> None:
+        self.provider = provider or GitHubProvider()
+
     def _run(self, root: Path, *args: str) -> str:
-        completed = subprocess.run(args, cwd=root, text=True, capture_output=True, check=False)
-        if completed.returncode:
-            raise RunnerError(completed.stderr.strip() or "repository command failed")
-        return completed.stdout.strip()
+        try:
+            return self.provider.command(root, *args)
+        except RuntimeError as error:
+            raise RunnerError(str(error)) from error
 
     def inspect(self, root: Path) -> RepositoryEvidence:
         if not (root / "BOOTSTRAP.md").is_file() or not (root / ".git").exists():
