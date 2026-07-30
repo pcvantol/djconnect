@@ -15,6 +15,10 @@
 
 ## Current position
 
+PR [#610](https://github.com/pcvantol/djconnect/pull/610), **Add local post-run
+engineering reports**, merged as `b41134c17ebe162564b20a1c60afeb601325544c`.
+Local terminal reports improve auditability without changing product or release behavior.
+
 PR [#608](https://github.com/pcvantol/djconnect/pull/608), **Add autonomous
 repository cleanup phase**, merged as `289a60ad4fcd09879211d43ca1e217b0e2ea2122`.
 Completed bounded transactions now require safe fetch/prune, main sync and

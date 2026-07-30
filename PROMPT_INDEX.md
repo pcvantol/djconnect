@@ -4,6 +4,9 @@ Status: canonical prompt navigation
 
 ## Owner-authorized autonomous PR lifecycle
 
+PR [#610](https://github.com/pcvantol/djconnect/pull/610), **Add local post-run
+engineering reports**, merged as `b41134c17ebe162564b20a1c60afeb601325544c`.
+
 PR [#608](https://github.com/pcvantol/djconnect/pull/608), **Add autonomous
 repository cleanup phase**, merged as `289a60ad4fcd09879211d43ca1e217b0e2ea2122`.
 Its immutable history is `docs/history/prompts/2026-07-30-autonomous-repository-cleanup.md`.

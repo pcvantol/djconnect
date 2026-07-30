@@ -5,6 +5,12 @@
 
 ## Owner-authorized autonomous PR lifecycle finalization
 
+PR [#610](https://github.com/pcvantol/djconnect/pull/610), **Add local post-run
+engineering reports**, merged as `b41134c17ebe162564b20a1c60afeb601325544c`.
+Terminal runner transactions now create git-ignored local reports with safe
+lifecycle evidence and optional editor opening; no Product, Runtime, release,
+deployment or roadmap behavior changed.
+
 PR [#608](https://github.com/pcvantol/djconnect/pull/608), **Add autonomous
 repository cleanup phase**, merged as `289a60ad4fcd09879211d43ca1e217b0e2ea2122`.
 The local runner now fetches/prunes, synchronizes main and safely removes only
