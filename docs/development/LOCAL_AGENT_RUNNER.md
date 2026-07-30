@@ -136,3 +136,11 @@ maintains `.djconnect/status/current.json`. The git-ignored status record is
 advisory; resume recomputes from repository and GitHub evidence. Run
 `./tools/engineering/dj-engineer status` to display the current phase, PRs,
 repair count and action.
+
+## Engineering Memory
+
+Successful transactions store bounded metadata under `.djconnect/memory/`,
+which is already covered by the local `.djconnect/` ignore rule. Memory never
+stores prompts, source snapshots, credentials or personal data. Retrieved
+patterns are advisory context only: repository and GitHub evidence override
+them, and they cannot change scope, validation or authority.
