@@ -15,6 +15,14 @@
 
 ## Current position
 
+PR [#586](https://github.com/pcvantol/djconnect/pull/586), **Reconcile
+planning after TDE 1.1.1 rollout**, merged as
+`ab662d3698fc48b57b55acbeb822fc25617b9d2b`. It completes the planning
+transition from TDE rollout to operational engineering foundation. The Product
+Backlog now distinguishes the one selected E2E workstream from roadmap-held
+work that remains unselected. Product phases, the existing five-item Execution
+Horizon, architecture and priorities are unchanged.
+
 TDE 1.1.1 is now an operational engineering-quality foundation across the
 selected DJConnect source repositories. It uses the public runtime and CLI to
 produce non-blocking observe evidence for `code_size`, `complexity`, `coverage`
