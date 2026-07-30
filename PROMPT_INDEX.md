@@ -73,7 +73,8 @@ Its finalization prompt is preserved at
 
 ## Component Release Scope Refinement
 
-The platform-wide Component Release Scope Refinement is recorded in
+PR [#590](https://github.com/pcvantol/djconnect/pull/590), **Refine Component
+Release Scopes**, is recorded in
 `docs/release/COMPONENT_RELEASE_SCOPE_REFINEMENT.md` with decision
 `GO_COMPONENT_RELEASE_SCOPE_REFINEMENT_PARTIALLY_QUALIFIED`, merged as
 `7d472c285423cb3a398875ae971f6de74b38e02f`. Its immutable prompt history is
