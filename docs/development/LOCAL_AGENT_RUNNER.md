@@ -35,6 +35,18 @@ next-action fields. Malformed, incompatible or conflicting state fails closed.
 An abandoned checkpoint can be removed only after inspecting it locally, with
 `rm .djconnect/engineering-runs/<run-id>.json`.
 
+## Diagnostics
+
+Codex may return an optional short `diagnostic` field with a `BLOCKED` or
+`FAILED` structured result. The runner stores only a bounded, redacted,
+human-readable reason in the local checkpoint and prints the reason and the
+next action. Diagnostics are advisory: resume always recomputes phase from
+repository and GitHub evidence.
+
+If Codex CLI itself exits unexpectedly, the current console additionally shows
+its exit code plus bounded, redacted stderr and stdout. Those command-output
+details are never checkpointed; the checkpoint contains only a safe summary.
+
 ## Terminal evidence and boundaries
 
 Queued or running CI, pending checks, a polling interval, a temporary GitHub
