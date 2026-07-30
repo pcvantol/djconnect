@@ -4,6 +4,13 @@ Status: canonical prompt navigation
 
 ## Owner-authorized autonomous PR lifecycle
 
+## Engineering Platform versioning finalization
+
+PR [#622](https://github.com/pcvantol/djconnect/pull/622), **Version Engineering
+Platform**, merged as `fe218a3d0c6763c09acc97a70c305a0dc8ec5c1e`.
+Its immutable implementation history is
+`docs/history/prompts/2026-07-30-engineering-platform-versioning.md`.
+
 ## Component Release Mode backlog hygiene finalization
 
 PR [#620](https://github.com/pcvantol/djconnect/pull/620), **Reconcile Component

@@ -5,6 +5,14 @@
 
 ## Owner-authorized autonomous PR lifecycle finalization
 
+## Engineering Platform versioning finalization
+
+PR [#622](https://github.com/pcvantol/djconnect/pull/622), **Version Engineering
+Platform**, merged as `fe218a3d0c6763c09acc97a70c305a0dc8ec5c1e`.
+The local Engineering Platform now has a deterministic manifest, fail-closed
+compatibility validation and versioned terminal reports. No Product, Runtime,
+Release or Deployment behavior changed.
+
 ## Component Release Mode backlog hygiene finalization
 
 PR [#620](https://github.com/pcvantol/djconnect/pull/620), **Reconcile Component
