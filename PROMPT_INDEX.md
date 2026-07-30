@@ -2,6 +2,20 @@
 
 Status: canonical prompt navigation
 
+## TDE 1.1.1 planning reconciliation
+
+PR [#586](https://github.com/pcvantol/djconnect/pull/586), **Reconcile
+planning after TDE 1.1.1 rollout**, merged as
+`ab662d3698fc48b57b55acbeb822fc25617b9d2b`. Its immutable implementation
+prompt is
+`docs/history/prompts/2026-07-30-tde-1-1-1-planning-reconciliation.md`.
+Its governance-only Finalization prompt is
+`docs/history/prompts/2026-07-30-tde-1-1-1-planning-reconciliation-finalization.md`.
+
+The reconciliation records TDE as a completed observe-only engineering
+foundation, makes selected product work explicit and leaves the product
+roadmap, Execution Horizon, priorities and implementation authority unchanged.
+
 ## Knowledge Source Qualification contract
 
 PR [#584](https://github.com/pcvantol/djconnect/pull/584), **Define canonical

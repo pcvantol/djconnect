@@ -4,6 +4,13 @@ Status: active platform-evolution repository
 
 ## Current reconciliation
 
+PR [#586](https://github.com/pcvantol/djconnect/pull/586), **Reconcile
+planning after TDE 1.1.1 rollout**, merged as
+`ab662d3698fc48b57b55acbeb822fc25617b9d2b`. The planning reconciliation is
+complete: TDE no longer appears as deferred platform work, and the Product
+Backlog contains only selected product work. It does not change the existing
+Execution Horizon, product phases, architecture, Runtime or release controls.
+
 TDE 1.1.1 consumer rollout is completed historical delivery. The selected
 source repositories consume the public runtime and CLI in observe-only,
 non-blocking mode for `code_size`, `complexity`, `coverage` and
