@@ -15,6 +15,10 @@
 
 ## Current position
 
+PR [#616](https://github.com/pcvantol/djconnect/pull/616), **Use reconciliation
+evidence for branch cleanup**, merged as `e020c056c467370551127ef8fc5fbdfb6294dcd1`.
+Squash Merge no longer incorrectly prevents local workspace reconciliation.
+
 PR [#614](https://github.com/pcvantol/djconnect/pull/614), **Add local
 engineering memory**, merged as `254217a7537371486ec42f117d5b7d217baa6956`.
 The local runner gains explainable advisory learning without changing authority.
