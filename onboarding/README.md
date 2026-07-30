@@ -19,7 +19,8 @@ artifacts, and does not require a matching platform version to run or verify.
 
 ## Engineering Inbox (macOS)
 
-Engineering Platform `1.4.0` provides a local iCloud Engineering Inbox. Run
+Engineering Platform `1.5.0` provides a local iCloud Engineering Inbox through
+the configured Remote Submission Provider. Run
 `./onboarding/dev_onboarding_macos.sh --steps 31 --yes` to create the private
 workspace, install the per-user `com.djconnect.engineering-inbox` LaunchAgent
 and verify it. Submit UTF-8 `.md` or `.txt` prompts to `iCloud Drive/DJConnect

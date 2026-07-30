@@ -10,6 +10,7 @@ import subprocess
 import sys
 import shutil
 import time
+from .platform_api import PlatformConfiguration
 
 LABEL = "com.djconnect.engineering-dashboard"
 DASHBOARD_VERSION = "1.0.0"
@@ -25,6 +26,7 @@ def _status(root: Path) -> bytes:
 
 
 def handler(root: Path):
+    title = PlatformConfiguration.load(root).workspace.dashboard_title
     class DashboardHandler(BaseHTTPRequestHandler):
         def _send(self, content: bytes, content_type: str) -> None:
             self.send_response(200)
@@ -67,7 +69,7 @@ def handler(root: Path):
                 return self._send(content, "text/markdown; charset=utf-8")
             if self.path == "/":
                 return self._send(
-                    '<!doctype html><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>DJConnect Engineering</title><style>body{margin:0;background:#121217;color:#f7f3ee;font:16px system-ui;padding:max(20px,env(safe-area-inset-top)) 20px}.card{background:#24242d;border-radius:16px;padding:16px;margin:12px 0;box-shadow:0 4px 18px #0005}strong{color:#c7a6ff}</style><h1>DJConnect Engineering</h1><div class="card"><strong id="state">Loading</strong><p id="action"></p></div><div class="card" id="job"></div><div class="card" id="prs"></div><div class="card" id="repo"></div><div class="card" id="diag"></div><script>function r(x){state.textContent=x.watcher_state+" · "+(x.current_phase||"idle");action.textContent=x.current_action||"No active action";job.textContent="Run: "+(x.run_id||"none")+" · Queue: "+x.queue_depth;prs.textContent="Implementation: "+(x.implementation_pr||"none")+" · Finalization: "+(x.finalization_pr||"none");repo.textContent=x.repository_state+" · "+x.workspace_state;diag.textContent=x.diagnostic||"No diagnostic"}let e=new EventSource("/api/events");e.addEventListener("status",x=>r(JSON.parse(x.data)));fetch("/api/status").then(x=>x.json()).then(r)</script>'.encode(),
+                    f'<!doctype html><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>{title}</title><style>body{{margin:0;background:#121217;color:#f7f3ee;font:16px system-ui;padding:max(20px,env(safe-area-inset-top)) 20px}}.card{{background:#24242d;border-radius:16px;padding:16px;margin:12px 0;box-shadow:0 4px 18px #0005}}strong{{color:#c7a6ff}}</style><h1>{title}</h1><div class="card"><strong id="state">Loading</strong><p id="action"></p></div><div class="card" id="job"></div><div class="card" id="prs"></div><div class="card" id="repo"></div><div class="card" id="diag"></div><script>function r(x){{state.textContent=x.watcher_state+" · "+(x.current_phase||"idle");action.textContent=x.current_action||"No active action";job.textContent="Run: "+(x.run_id||"none")+" · Queue: "+x.queue_depth;prs.textContent="Implementation: "+(x.implementation_pr||"none")+" · Finalization: "+(x.finalization_pr||"none");repo.textContent=x.repository_state+" · "+x.workspace_state;diag.textContent=x.diagnostic||"No diagnostic"}}let e=new EventSource("/api/events");e.addEventListener("status",x=>r(JSON.parse(x.data)));fetch("/api/status").then(x=>x.json()).then(r)</script>'.encode(),
                     "text/html; charset=utf-8",
                 )
             self.send_error(404)
