@@ -45,6 +45,15 @@ product area without cross-capability repository evidence. Product and generic
 reviewers can inspect independently in parallel, while recommendations remain
 advisory and require primary-agent reconciliation.
 
+## Engineering Platform Qualification
+
+Run `./tools/engineering/dj-engineer qualify` to execute every deterministic
+scenario in `tools/engineering/ENGINEERING_QUALIFICATION.md`. The local
+qualification dashboard reports pass/fail, scenario coverage, failure and
+blocked counts. Its JSON and Markdown evidence remains under the git-ignored
+`.djconnect/qualification/` directory. Terminal Engineering Reports include the
+latest available qualification version, result, execution time and coverage.
+
 ## Prerequisite and usage
 
 Codex CLI must already be installed and authenticated in the developer's local

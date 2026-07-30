@@ -119,8 +119,8 @@ this file is the canonical repository-state entry point.
 
 The local AI-assisted engineering environment is independently versioned by
 `tools/engineering/ENGINEERING_PLATFORM_VERSION.json`. Its current canonical
-contract is Engineering Platform `1.2.0`, runner `1.2.0`, Bootstrap Contract
-`2026.09`, Checkpoint Format `1`, Engineering Memory Format `2`, Report Format
+contract is Engineering Platform `1.3.0`, runner `1.3.0`, Bootstrap Contract
+`2026.10`, Checkpoint Format `1`, Engineering Memory Format `2`, Report Format
 `2` and minimum supported Codex CLI `0.146.0`.
 
 Every new engineering prompt produced through the Product & Platform Architect
@@ -137,3 +137,13 @@ runner version, Bootstrap Contract, checkpoint, memory and report formats, and
 minimum Codex CLI version. Any incompatible combination is blocked with the
 expected version, detected version and required upgrade action; it is never
 silently ignored.
+
+## Engineering Platform Qualification
+
+Engineering Platform capabilities are evidence-first: implementation alone does
+not make a capability trusted. Run `./tools/engineering/dj-engineer qualify`
+to execute the canonical local qualification registry in
+`tools/engineering/ENGINEERING_QUALIFICATION.md`. Reports are local under
+`.djconnect/qualification/`; they record scenario outcome, duration,
+diagnostics, evidence, Engineering Platform version, repository version and
+Codex CLI version.
