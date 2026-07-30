@@ -72,6 +72,18 @@ invokes only the repository-owned runner. Its v1 protocol is
 Use `python3 -m tools.engineering.inbox_watcher doctor` before the explicit
 per-user `install` command. The LaunchAgent is never installed by tests.
 
+## Remote Engineering Experience
+
+Engineering Platform 1.4 projects canonical watcher status as bounded, atomic
+`status.json` and iPhone-readable `status.md`. The private dashboard is
+strictly read-only and loopback-bound by default: use
+`./tools/engineering/dj-engineering-dashboard doctor` before its explicit
+per-user `install`. Tailscale may provide private reachability, but this
+repository never enables Funnel, public binding, ACL changes or remote command
+execution. `docs/engineering/runs/latest.md` and `index.json` are the durable,
+sanitized discovery records for successfully finalized transactions; local
+reports and prompt contents remain local.
+
 ## Prerequisite and usage
 
 Codex CLI must already be installed and authenticated in the developer's local
