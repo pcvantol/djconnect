@@ -3,6 +3,15 @@
 **Status:** Operational handoff
 **Updated:** 2026-07-30
 
+## Platform Device Distribution and Provisioning finalization
+
+PR [#596](https://github.com/pcvantol/djconnect/pull/596), **Define Device
+Distribution and Provisioning Architecture**, merged as
+`efcbde0a4b37716ae72a167ec6ccff5a3af20dfd`. It establishes one standalone,
+product-first Device Installer and `djconnect-firmware` as distribution truth
+for ESP, RP2 and Raspberry Pi artifacts. No Runtime, pairing, renderer, OTA or
+device-capability behavior changed; this Finalization reconciles records only.
+
 ## ESPHome Firmware Platform Architecture finalization
 
 PR [#594](https://github.com/pcvantol/djconnect/pull/594), **Define ESPHome

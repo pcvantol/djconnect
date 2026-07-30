@@ -2,6 +2,14 @@
 
 Status: canonical prompt navigation
 
+## Platform Device Distribution and Provisioning
+
+PR [#596](https://github.com/pcvantol/djconnect/pull/596), **Define Device
+Distribution and Provisioning Architecture**, merged as
+`efcbde0a4b37716ae72a167ec6ccff5a3af20dfd`. It records one product-first
+Device Installer and `djconnect-firmware` as artifact truth for ESP, RP2 and
+Raspberry Pi, without Runtime, pairing, renderer or OTA changes.
+
 ## ESPHome firmware platform architecture
 
 PR [#594](https://github.com/pcvantol/djconnect/pull/594), **Define ESPHome
