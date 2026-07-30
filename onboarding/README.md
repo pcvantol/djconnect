@@ -17,6 +17,19 @@ artifacts, and does not require a matching platform version to run or verify.
 - Windows: `pwsh -File .\onboarding\dev_onboarding_windows.ps1`
 - macOS machine transfer: `./onboarding/machine_transfer_macos.sh`
 
+## Engineering Inbox (macOS)
+
+Engineering Platform `1.4.0` provides a local iCloud Engineering Inbox. Run
+`./onboarding/dev_onboarding_macos.sh --steps 31 --yes` to create the private
+workspace, install the per-user `com.djconnect.engineering-inbox` LaunchAgent
+and verify it. Submit UTF-8 `.md` or `.txt` prompts to `iCloud Drive/DJConnect
+Engineering/Inbox`; iOS-created `.txt` files are supported. The watcher claims
+stable files one at a time, invokes only this repository's `dj-engineer`, and
+publishes bounded status plus local-run reports to `Reports`. Use
+`python3 -m tools.engineering.inbox_watcher doctor` for corrective actions or
+`... uninstall` to remove only this LaunchAgent. iCloud is transport only;
+repository and GitHub evidence remain authoritative.
+
 ## Raspberry Pi Pico 2 W development (macOS)
 
 Pico 2 W is a first-class profile of this canonical onboarding package. It is a
