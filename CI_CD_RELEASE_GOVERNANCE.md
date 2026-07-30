@@ -37,8 +37,9 @@ Release repositories publish community artifacts, unsigned/non-signed binaries, 
 They must not become product-logic owners. They mirror release outputs and public distribution state.
 
 `pcvantol/djconnect-firmware` is the firmware distribution repository. It
-publishes qualified native and ESPHome artifacts but never owns firmware source
-or board enablement.
+publishes qualified native, ESPHome, RP2 and Raspberry Pi bootstrap artifacts
+but never owns source or platform enablement. Every physical-device channel,
+manifest, checksum and release note is authoritative there.
 
 ## Minimum CI expectations
 

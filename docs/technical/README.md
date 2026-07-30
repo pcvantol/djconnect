@@ -50,6 +50,7 @@ Do not treat this directory as a new platform design.
 - [PUSH_NOTIFICATIONS.md](PUSH_NOTIFICATIONS.md)
 - [UPDATE_MODEL.md](UPDATE_MODEL.md)
 - [ESPHOME_FIRMWARE_PLATFORM_ARCHITECTURE.md](ESPHOME_FIRMWARE_PLATFORM_ARCHITECTURE.md) — accepted target architecture; not implementation archaeology
+- [DEVICE_DISTRIBUTION_AND_PROVISIONING_ARCHITECTURE.md](DEVICE_DISTRIBUTION_AND_PROVISIONING_ARCHITECTURE.md) — accepted target architecture; not implementation archaeology
 - [TECHNICAL_DRIFT.md](TECHNICAL_DRIFT.md)
 - [UNKNOWNS.md](UNKNOWNS.md)
 
