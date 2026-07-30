@@ -48,6 +48,9 @@ class CodexCliProvider:
         available = shutil.which("codex") is not None
         return ProviderStatus("codex_cli", "configured", available, "available" if available else "codex unavailable")
 
+    def command(self, *args: str) -> subprocess.CompletedProcess[str]:
+        return subprocess.run(("codex", *args), text=True, capture_output=True, check=False)
+
 
 class GitHubProvider:
     def status(self, root: Path) -> ProviderStatus:

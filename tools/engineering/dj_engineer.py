@@ -37,7 +37,7 @@ from .qualification import dashboard, execute_qualification, latest_qualificatio
 from .repository_handoff import publish as publish_repository_handoff
 from .status_model import build as build_canonical_status, publish as publish_canonical_status
 from .platform_api import PlatformConfiguration, PlatformConfigurationError, provider_registry
-from .providers import GitHubProvider
+from .providers import GitHubProvider, CodexCliProvider
 
 
 class RunnerError(RuntimeError):
@@ -230,18 +230,14 @@ class GhCliClient:
 
 
 class CodexCliClient:
+    def __init__(self, provider: CodexCliProvider | None = None) -> None:
+        self.provider = provider or CodexCliProvider()
+
     def available(self) -> bool:
-        return (
-            subprocess.run(
-                ("codex", "--version"), text=True, capture_output=True, check=False
-            ).returncode
-            == 0
-        )
+        return self.provider.command("--version").returncode == 0
 
     def version(self) -> str:
-        completed = subprocess.run(
-            ("codex", "--version"), text=True, capture_output=True, check=False
-        )
+        completed = self.provider.command("--version")
         if completed.returncode:
             raise RunnerError("Codex CLI version could not be detected")
         return detected_codex_cli_version(completed.stdout)
