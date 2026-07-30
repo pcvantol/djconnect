@@ -11,6 +11,7 @@ import time
 
 from .platform_version import EngineeringPlatformManifest
 from .platform_api import PlatformConfiguration
+from .providers import registry
 
 
 @dataclass(frozen=True)
@@ -53,6 +54,10 @@ SCENARIOS = tuple(
         "Provider Registry",
         "Capability Registry",
         "Public Platform API",
+        "Configuration Hierarchy",
+        "Configuration Migration",
+        "Provider Compatibility",
+        "Extraction Readiness Audit",
     )
 )
 
@@ -146,6 +151,10 @@ def _default_check(root: Path, capability: str) -> bool:
         "Provider Registry": configuration_is_compatible(),
         "Capability Registry": (root / "tools" / "engineering" / "platform_api.py").is_file(),
         "Public Platform API": (root / "tools" / "engineering" / "platform_api.py").is_file(),
+        "Configuration Hierarchy": configuration_is_compatible(),
+        "Configuration Migration": configuration_is_compatible(),
+        "Provider Compatibility": all(item.qualified for item in registry(root).values()),
+        "Extraction Readiness Audit": (root / "docs" / "development" / "ENGINEERING_PLATFORM_EXTRACTION_AUDIT.md").is_file(),
     }
     return contracts.get(capability, (root / "tools" / "engineering" / "dj_engineer.py").is_file())
 

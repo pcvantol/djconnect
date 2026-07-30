@@ -9,6 +9,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 import json
 from pathlib import Path
+from .providers import registry
 
 
 class PlatformConfigurationError(ValueError):
@@ -65,3 +66,12 @@ class PlatformConfiguration:
 def capabilities() -> tuple[str, ...]:
     """Deterministic public capability registry for the 1.5 product boundary."""
     return ("runner", "runtime_provider", "repository_provider", "service_manager_provider", "remote_submission_provider", "private_remote_access_provider", "dashboard", "qualification", "repository_handoff")
+
+
+def provider_registry(root: Path) -> dict[str, object]:
+    """Public provider discovery API; unknown or unavailable providers are explicit."""
+    configuration = PlatformConfiguration.load(root)
+    active = registry(root)
+    if set(active) != {"runtime", "repository", "service_manager", "remote_submission", "private_remote_access"}:
+        raise PlatformConfigurationError("Provider registry is incomplete.")
+    return {kind: {"selected": configuration.providers[kind], "status": active[kind]} for kind in active}

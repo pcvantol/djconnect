@@ -1,0 +1,27 @@
+from __future__ import annotations
+
+from pathlib import Path
+import unittest
+
+from tools.engineering.platform_api import PlatformConfiguration, capabilities, provider_registry
+
+
+ROOT = Path(__file__).resolve().parents[2]
+
+
+class PlatformProductizationTest(unittest.TestCase):
+    def test_identity_and_configuration_are_canonical(self) -> None:
+        configuration = PlatformConfiguration.load(ROOT)
+        self.assertEqual(configuration.platform.id, "engineering-platform")
+        self.assertEqual(configuration.platform.version, "1.5.0")
+        self.assertEqual(configuration.workspace.id, "djconnect")
+        self.assertEqual(configuration.providers["runtime"], "codex_cli")
+
+    def test_public_api_has_all_productization_capabilities(self) -> None:
+        registered = set(capabilities())
+        self.assertTrue({"runner", "runtime_provider", "repository_provider", "service_manager_provider", "remote_submission_provider", "private_remote_access_provider"} <= registered)
+
+    def test_provider_registry_is_configuration_backed(self) -> None:
+        providers = provider_registry(ROOT)
+        self.assertEqual(providers["repository"]["selected"], "github")
+        self.assertIn("status", providers["runtime"])
