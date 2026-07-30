@@ -9,6 +9,7 @@ Status: active platform-evolution repository
 PR [#632](https://github.com/pcvantol/djconnect/pull/632) merged as
 `43c2a8d2c388658a6cec1464323f6363fded2aae`. The local Engineering Platform
 1.4 watcher is reconciled; iCloud remains input transport only.
+Repository State: `MERGED_RECONCILED`
 
 ## Engineering Platform Generation 1 closure finalization
 

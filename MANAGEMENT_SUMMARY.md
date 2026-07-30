@@ -20,6 +20,7 @@ Engineering Inbox watcher**, merged as `43c2a8d2c388658a6cec1464323f6363fded2aae
 Engineering Platform 1.4 provides a local fail-closed iCloud-to-runner path,
 macOS onboarding and bounded reports. Repository and GitHub remain authoritative;
 no Product, Runtime, Release or Deployment behavior changed.
+Repository State: `MERGED_RECONCILED`
 
 PR [#630](https://github.com/pcvantol/djconnect/pull/630), **Close Engineering
 Platform Generation 1**, merged as `71dfd01777a2c0748e5ebfb606e1c3a932caf417`.

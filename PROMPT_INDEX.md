@@ -4,6 +4,13 @@ Status: canonical prompt navigation
 
 ## Owner-authorized autonomous PR lifecycle
 
+## iCloud Engineering Inbox watcher finalization
+
+PR [#632](https://github.com/pcvantol/djconnect/pull/632), **Add iCloud
+Engineering Inbox watcher**, merged as `43c2a8d2c388658a6cec1464323f6363fded2aae`.
+Its Finalization is `merged_reconciled`; the iCloud workspace remains transport
+only and does not alter repository authority.
+
 ## Engineering Platform Generation 1 closure finalization
 
 PR [#630](https://github.com/pcvantol/djconnect/pull/630), **Close Engineering
