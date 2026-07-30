@@ -3,6 +3,22 @@
 **Status:** Operational handoff
 **Updated:** 2026-07-30
 
+## Pico 2 W developer onboarding finalization
+
+PR [#588](https://github.com/pcvantol/djconnect/pull/588), **Add Pico 2 W
+developer onboarding**, merged as
+`03ba5446b17c666d9294c4b5fdbc7cd1dc9c49cc`. It adds the bounded macOS
+developer-onboarding profile, package 4.1.0, deterministic readiness checks and
+the documented MicroPython-first toolchain decision for Raspberry Pi Pico 2 W.
+The live host evidence passed all tooling checks; the only expected warnings
+are no connected Pico device and intentionally unchanged shell `PATH`.
+
+The merged increment changes no DJConnect Runtime, API, Renderer, product
+capability, Platform Evolution priority or Execution Horizon. This dedicated
+Finalization reconciles only its rolling records. The predecessor implementation
+Prompt History archive is absent; this records that immutable historical
+traceability gap without recreating a prompt.
+
 ## TDE 1.1.1 planning reconciliation finalization
 
 PR [#586](https://github.com/pcvantol/djconnect/pull/586), **Reconcile
@@ -85,12 +101,11 @@ qualification item; no Runtime, product, API or renderer behavior changed.
 
 ## Current engineering increment
 
-PR [#586](https://github.com/pcvantol/djconnect/pull/586), **Reconcile
-planning after TDE 1.1.1 rollout**, merged as
-`ab662d3698fc48b57b55acbeb822fc25617b9d2b`, records completed operational
-engineering foundations for Verification, Software Assurance and TDE. It does
-not authorize a new product capability, provider, Runtime, Planner, API,
-Broadcast or release behaviour.
+PR [#588](https://github.com/pcvantol/djconnect/pull/588), **Add Pico 2 W
+developer onboarding**, merged as
+`03ba5446b17c666d9294c4b5fdbc7cd1dc9c49cc`, records bounded developer-host
+onboarding evidence. It does not authorize a new product capability, Runtime,
+Planner, API, Broadcast, release behaviour or Execution Horizon change.
 
 ### Roadmap position and Execution Horizon
 

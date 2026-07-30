@@ -15,6 +15,14 @@
 
 ## Current position
 
+PR [#588](https://github.com/pcvantol/djconnect/pull/588), **Add Pico 2 W
+developer onboarding**, merged as
+`03ba5446b17c666d9294c4b5fdbc7cd1dc9c49cc`. The macOS developer environment
+now has an explicitly qualified Pico 2 W onboarding path, MicroPython-first
+tooling and package version 4.1.0 verification. This is developer enablement
+only: it introduces no device Runtime, production capability, API, Renderer,
+roadmap or release-semantic change.
+
 PR [#586](https://github.com/pcvantol/djconnect/pull/586), **Reconcile
 planning after TDE 1.1.1 rollout**, merged as
 `ab662d3698fc48b57b55acbeb822fc25617b9d2b`. It completes the planning
