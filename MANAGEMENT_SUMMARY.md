@@ -15,6 +15,22 @@
 
 ## Current position
 
+PR [#590](https://github.com/pcvantol/djconnect/pull/590), **Refine Component
+Release Scopes**, merged as `7d472c285423cb3a398875ae971f6de74b38e02f` with
+`GO_COMPONENT_RELEASE_SCOPE_REFINEMENT_PARTIALLY_QUALIFIED`. DJConnect now has
+one canonical, fail-closed closure contract for a component patch: exact
+component identity, source SHA, artifact checksum, manifest, participants,
+evidence and human authorization must agree. Profiles are recorded for HACS,
+API, website, ESP32, iOS/watchOS, macOS, Windows and the shared Pi renderer
+family.
+
+This refinement makes no component release operational: current execution
+dispatchers remain dry-run only and the Platform Release Runtime still needs
+bounded selection/evidence-closure implementation. Pi 4-inch and Pi 10-inch
+remain intentionally non-selectable until each has an independent artifact,
+manifest and target-evidence chain. No Runtime, workflow, product or release
+channel changed; the distribution Execution Horizon is unchanged.
+
 PR [#588](https://github.com/pcvantol/djconnect/pull/588), **Add Pico 2 W
 developer onboarding**, merged as
 `03ba5446b17c666d9294c4b5fdbc7cd1dc9c49cc`. The macOS developer environment
@@ -63,8 +79,9 @@ Repository evidence confirms that the Platform Release Runtime fails closed
 only after a scope is supplied; it cannot yet canonically select one source
 participant and prove its exact dependency/evidence closure. No Runtime,
 workflow, manifest, API, Renderer, product or release-operation change was
-made. The sole recorded follow-up is a future Component Release Scope
-Refinement; the current distribution Execution Horizon is unchanged.
+made. The Scope Refinement is now complete; bounded Runtime selection and exact
+evidence-closure implementation is the sole recorded follow-up. The current
+distribution Execution Horizon is unchanged.
 
 The predecessor's HACS, hassfest, tests, Ruff, Bandit, dependency-audit,
 verification-framework, Golden Smoke and Trusted Delivery evidence succeeded.

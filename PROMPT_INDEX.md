@@ -71,15 +71,16 @@ changing Runtime, product behavior or release policy.
 Its finalization prompt is preserved at
 `docs/history/prompts/2026-07-27-platform-cleanup-evidence-workflow-conformance-finalization.md`.
 
-## Current product architecture note
-
 ## Component Release Scope Refinement
 
-The platform-wide Component Release Scope Refinement is recorded in
+PR [#590](https://github.com/pcvantol/djconnect/pull/590), **Refine Component
+Release Scopes**, is recorded in
 `docs/release/COMPONENT_RELEASE_SCOPE_REFINEMENT.md` with decision
-`GO_COMPONENT_RELEASE_SCOPE_REFINEMENT_PARTIALLY_QUALIFIED`. Its immutable
-prompt history is
+`GO_COMPONENT_RELEASE_SCOPE_REFINEMENT_PARTIALLY_QUALIFIED`, merged as
+`7d472c285423cb3a398875ae971f6de74b38e02f`. Its immutable prompt history is
 `docs/history/prompts/2026-07-30-component-release-scope-refinement-all-components.md`.
+Its governance-only Finalization history is
+`docs/history/prompts/2026-07-30-component-release-scope-refinement-finalization.md`.
 
 It defines the reusable fail-closed selection and evidence-closure contract
 for HACS, API, website, ESP32, iOS/watchOS, macOS, Windows and the shared Pi
@@ -112,8 +113,9 @@ classifies canonical repository release units and their patch, evidence and
 governance boundaries. The subsequent Component Release Qualification history
 is `docs/history/prompts/2026-07-28-component-release-qualification-assessment.md`;
 it returned `NO_GO_COMPONENT_RELEASE_QUALIFICATION_INSUFFICIENT_RUNTIME_EVIDENCE`.
-Only a bounded Component Release Scope Refinement remains future, with no
-release-mode implementation authority.
+The formerly future Scope Refinement is complete; bounded Runtime selection and
+exact evidence-closure implementation remains future, with no release-mode
+execution authority.
 
 PR [#574](https://github.com/pcvantol/djconnect/pull/574) merged as
 `43e8203b9f8223f37a659bfc17fa9951eb75e4c9` with
