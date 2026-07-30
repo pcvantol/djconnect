@@ -6,7 +6,7 @@ contract tests and package documentation.
 
 ## Release alignment
 
-The current onboarding package is released as `4.0.0`, aligned with the current
+The current onboarding package is released as `4.1.0`, aligned with the current
 DJConnect platform release for operator clarity. This is version alignment only:
 the package remains independently versioned, does not consume platform release
 artifacts, and does not require a matching platform version to run or verify.
@@ -16,6 +16,103 @@ artifacts, and does not require a matching platform version to run or verify.
 - macOS: `./onboarding/dev_onboarding_macos.sh`
 - Windows: `pwsh -File .\onboarding\dev_onboarding_windows.ps1`
 - macOS machine transfer: `./onboarding/machine_transfer_macos.sh`
+
+## Raspberry Pi Pico 2 W development (macOS)
+
+Pico 2 W is a first-class profile of this canonical onboarding package. It is a
+developer-experience capability only: it does not introduce Pico product
+runtime behavior, a new Home Assistant contract, or a second firmware
+architecture.
+
+The current `djconnect-pico` checkout contains no implementation or build
+contract that selects the C/C++ Pico SDK. The canonical onboarding default is
+therefore **MicroPython**, not two competing complete toolchains. Re-evaluate
+that choice only when the Pico repository itself adopts and documents a C/C++
+SDK contract.
+
+From a clone of `djconnect`, run the normal onboarding entry point:
+
+```sh
+./onboarding/dev_onboarding_macos.sh --steps 13,29,30 --yes
+```
+
+Step 13 discovers/clones `djconnect-pico`; step 29 installs the Pico host
+tools and immediately re-runs step 30, the read-only Pico readiness report.
+For a later read-only check use:
+
+```sh
+./onboarding/dev_onboarding_macos.sh --steps 30
+```
+
+The report uses `PASS`, `WARNING` and `FAIL` rows and exits non-zero only for
+missing required host tooling. A disconnected board is a `WARNING`, so a new
+developer can prepare a workstation before connecting hardware.
+
+### Required tools
+
+| Tool | Installation owner | Readiness requirement |
+| --- | --- | --- |
+| Homebrew, Python 3.12+, Git | canonical macOS onboarding | Required |
+| VS Code + `code` launcher | developer / VS Code | Required |
+| MicroPico, Python and Pylance VS Code extensions | Pico onboarding step | Required |
+| `picotool` | Homebrew | Required |
+| `mpremote`, `micropython-stubber`, Ruff | isolated Pico tool environment | Required |
+| MicroPython `RPI_PICO2_W` stable UF2 | manual device flashing | Required before first device run |
+
+The Pico step installs Python host tools in
+`~/Library/Application Support/DJConnect/pico-tools` by default, rather than
+globally. Use `--pico-tool-venv <directory>` or `PICO_TOOL_VENV` to select a
+different isolated environment. Onboarding calls those tools by full path and
+does not edit a shell startup file or silently change `PATH`.
+
+Black is not a required developer command: the existing canonical Python
+checks use Ruff, while no repository evidence selects Black as a formatting
+contract. It can be present as a transitive dependency of `micropython-stubber`.
+Thonny is optional for people who prefer its beginner-focused REPL workflow;
+the recommended IDE is VS Code with MicroPico.
+
+### Tool-version matrix
+
+| Component | Supported policy | Reported by readiness |
+| --- | --- | --- |
+| macOS | 14 or later; Apple Silicon is the primary host | Host version and architecture |
+| Python | 3.12 or later | Python version |
+| MicroPython firmware | Current stable `RPI_PICO2_W` release; do not use a preview for baseline work | Board-reported implementation when connected |
+| `picotool` | Homebrew stable formula | `picotool --version` |
+| `mpremote` | `>=1.26,<2` | `mpremote --version` |
+| `micropython-stubber` | `>=1.24,<2` | `stubber --version` |
+| Ruff | `0.16.0` (the existing canonical CI version) | `ruff --version` |
+
+### Flash, connect, upload and debug
+
+1. Download the stable `RPI_PICO2_W` UF2 from the official MicroPython download
+   page. Hold **BOOTSEL** while connecting the Pico 2 W through a data-capable
+   USB cable; copy the UF2 onto the `RPI-RP2` volume. The board restarts after
+   the copy completes.
+2. Connect normally. Run step 30; it checks macOS USB visibility, `/dev/cu.usb*`
+   serial access and asks the connected board for its MicroPython version.
+3. From `djconnect-pico`, use the isolated tool path for the initial workflow:
+
+   ```sh
+   PICO_TOOLS="$HOME/Library/Application Support/DJConnect/pico-tools/bin"
+   "$PICO_TOOLS/mpremote" connect auto fs cp main.py :main.py
+   "$PICO_TOOLS/mpremote" connect auto reset
+   "$PICO_TOOLS/mpremote" connect auto repl
+   ```
+
+   Replace `main.py` with the repository-defined entry point when that source
+   repository becomes populated. MicroPico provides the equivalent upload,
+   serial monitor and REPL actions inside VS Code.
+4. For a board that does not appear, first retry with another known data cable
+   and direct Mac USB port. Re-enter BOOTSEL mode and confirm that `RPI-RP2`
+   mounts before reflashing. If flashing works but no serial device appears,
+   rerun step 30 and confirm the installed MicroPython firmware is the stable
+   `RPI_PICO2_W` build—not an RP2040/Pico W image.
+
+`picotool` is present for RP2040/RP2350 inspection and recovery work, but does
+not replace the MicroPython UF2 flash workflow. Linux and Windows are not
+implemented by this increment; the explicit tool choices are portable enough
+to assess later without diverging from this canonical macOS experience.
 
 The former `tools/dev_onboarding_macos.sh` and
 `tools/dev_onboarding_windows.ps1` paths remain minimal compatibility wrappers.
@@ -62,7 +159,7 @@ Developer readiness remains read-only. Run:
 It reports `storage.<repository>.ignored_build_output` for each checked-out
 repository, verifies the 14-day retention result, confirms that the LaunchAgent
 is loaded, and requires the canonical `djconnect/onboarding/manifest.yml`
-package version to be `4.0.0`. It does not delete files or change the host.
+package version to be `4.1.0`. It does not delete files or change the host.
 
 The macOS package reconciles Docker Desktop and the persistent local Home
 Assistant Compose environment. The Home Assistant service is available at

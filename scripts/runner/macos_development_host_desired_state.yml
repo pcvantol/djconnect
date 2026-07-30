@@ -20,9 +20,9 @@ host.recommended_free_disk_gb: 120
 
 # The read-only readiness check requires the canonical developer-onboarding
 # checkout used by this host to match this version exactly.
-onboarding.package_version: 4.0.0
+onboarding.package_version: 4.1.0
 
-tooling.formulas: git,gh,jq,node,python@3.12,xcodegen,swiftlint,xcbeautify,create-dmg,mas,xcodes,platformio
+tooling.formulas: git,gh,jq,node,python@3.12,xcodegen,swiftlint,xcbeautify,create-dmg,mas,xcodes,platformio,picotool
 tooling.required_casks: docker,dotnet-sdk,parallels,ngrok
 tooling.optional_casks:
 

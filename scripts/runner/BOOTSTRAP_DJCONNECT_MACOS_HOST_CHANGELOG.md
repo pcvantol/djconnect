@@ -6,6 +6,11 @@ This changelog covers only
 compatibility and security changes to the development-host bootstrap independently of
 the DJConnect product release.
 
+## [2.0.10] - 2026-07-30
+
+- Fail closed before recovery invokes developer onboarding unless the canonical
+  `djconnect/onboarding/manifest.yml` declares package version `4.1.0`.
+
 ## [2.0.8] - 2026-07-28
 
 - Report ignored local build-output storage for each checked-out DJConnect

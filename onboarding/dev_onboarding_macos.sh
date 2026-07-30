@@ -54,6 +54,10 @@ CLR_CYAN=""
 PACKAGE_VERSION="unknown"
 VERSION_CURRENCY_DECISION="NOT_CHECKED"
 VERSION_CURRENCY_DETAIL=""
+PICO_REPO_URL="${PICO_REPO_URL:-https://github.com/pcvantol/djconnect-pico.git}"
+PICO_TOOL_VENV="${PICO_TOOL_VENV:-$HOME/Library/Application Support/DJConnect/pico-tools}"
+PICO_REQUIREMENTS_FILE="$PACKAGE_ROOT/pico_toolchain_requirements.txt"
+PICO_READINESS_SCRIPT="$PACKAGE_ROOT/pico_readiness_macos.py"
 
 init_style() {
   if [[ "$NO_COLOR_MODE" == "1" || -n "${NO_COLOR:-}" || ! -t 1 ]]; then
@@ -177,6 +181,8 @@ Options:
                        Default: $MA_DATA_DIR
   --ngrok-domain DOMAIN Reserved ngrok static domain for step 28.
                        Free-tier accounts can use a static domain from ngrok.
+  --pico-tool-venv DIR Isolated Python environment for Pico host tools.
+                       Default: $PICO_TOOL_VENV
   --log-file FILE       Write a persistent run log. Default is timestamped.
   --no-log-file         Disable persistent run logging.
   --report-file FILE    Write the Markdown onboarding report to FILE.
@@ -212,6 +218,8 @@ Environment overrides:
   NO_COLOR              Standard way to disable colored output.
   E2E_VERSION           Same as --e2e-version.
   CI_BRANCH             Same as --ci-branch.
+  PICO_REPO_URL         Pico repository clone URL. Default: $PICO_REPO_URL
+  PICO_TOOL_VENV         Same as --pico-tool-venv. Shell configuration is unchanged.
   DJCONNECT_HA_WS_URL   Optional HA websocket URL for step 25 capability smoke.
                        Example: ws://localhost:8123/api/websocket
   DJCONNECT_HA_TOKEN    Long-lived HA access token for websocket smoke.
@@ -236,6 +244,14 @@ need_macos() {
 
 have() {
   command -v "$1" >/dev/null 2>&1
+}
+
+pico_python() {
+  if have python3.12; then
+    command -v python3.12
+  else
+    command -v python3
+  fi
 }
 
 warm_sudo() {
@@ -1057,13 +1073,46 @@ step_20_validate_complete_environment() {
   [[ -d "$GITHUB_ROOT/djconnect-esp32" ]] || { warn "Missing djconnect-esp32 repo."; failed=1; }
   [[ -d "$GITHUB_ROOT/djconnect-website" ]] || { warn "Missing djconnect-website repo."; failed=1; }
   [[ -d "$GITHUB_ROOT/djconnect-pi" ]] || { warn "Missing djconnect-pi repo."; failed=1; }
+  [[ -d "$GITHUB_ROOT/djconnect-pico" ]] || { warn "Missing djconnect-pico repo."; failed=1; }
   [[ -d "$GITHUB_ROOT/djconnect-api" ]] || { warn "Missing djconnect-api repo."; failed=1; }
   [[ -d "$GITHUB_ROOT/djconnect-windows" ]] || { warn "Missing djconnect-windows repo."; failed=1; }
   step_17_cross_repo_validation || failed=1
+  python3 "$PICO_READINESS_SCRIPT" --tool-venv "$PICO_TOOL_VENV" || failed=1
   if (( failed )); then
     die "Complete validation found missing or incomplete setup."
   fi
   log "Complete validation finished successfully."
+}
+
+step_28_pico_tooling() {
+  local python_bin
+  need_macos
+  ensure_homebrew
+  python_bin="$(pico_python)"
+  log "Preparing the Raspberry Pi Pico 2 W MicroPython toolchain."
+  run brew install picotool
+  if [[ ! -x "$PICO_TOOL_VENV/bin/python" ]]; then
+    run "$python_bin" -m venv "$PICO_TOOL_VENV"
+  fi
+  run "$PICO_TOOL_VENV/bin/python" -m pip install --upgrade pip
+  run "$PICO_TOOL_VENV/bin/python" -m pip install --requirement "$PICO_REQUIREMENTS_FILE"
+  if have code; then
+    run code --install-extension paulober.pico-w-go --force
+    run code --install-extension ms-python.python --force
+    run code --install-extension ms-python.vscode-pylance --force
+  else
+    warn "VS Code is not installed or its 'code' launcher is unavailable. Install VS Code, enable the shell command, then rerun this step."
+  fi
+  log "Pico host tools were installed in $PICO_TOOL_VENV. Shell configuration was not changed."
+  step_29_pico_readiness
+}
+
+step_29_pico_readiness() {
+  local python_bin
+  need_macos
+  python_bin="$(pico_python)"
+  log "Validating Raspberry Pi Pico 2 W development readiness."
+  "$python_bin" "$PICO_READINESS_SCRIPT" --tool-venv "$PICO_TOOL_VENV"
 }
 
 run_if_dir() {
@@ -1982,6 +2031,7 @@ step_11_clone_all_repos() {
   clone_or_update djconnect-esp32 https://github.com/pcvantol/djconnect-esp32.git
   clone_or_update djconnect-website https://github.com/pcvantol/djconnect-website.git
   clone_or_update djconnect-pi https://github.com/pcvantol/djconnect-pi.git
+  clone_or_update djconnect-pico "$PICO_REPO_URL"
   clone_or_update djconnect-api https://github.com/pcvantol/djconnect-api.git
   clone_or_update djconnect-windows https://github.com/pcvantol/djconnect-windows.git
   clone_or_update djconnect-firmware https://github.com/pcvantol/djconnect-firmware.git
@@ -2118,6 +2168,8 @@ $(style "$CLR_BOLD" "Cross Repo")
  26. GitHub CI smoke push and workflow validation
  27. Install/start local HA voice/backend Docker Compose stack
  28. Install/start persistent ngrok tunnel for local Home Assistant
+ 29. Raspberry Pi Pico 2 W tooling: MicroPython, picotool and VS Code extensions
+ 30. Validate Raspberry Pi Pico 2 W development readiness
 
 $(style "$CLR_BOLD" "Examples")
   ./$SCRIPT_NAME --all --yes
@@ -2132,6 +2184,7 @@ $(style "$CLR_BOLD" "Examples")
   ./$SCRIPT_NAME --steps 26 --run-ci-push
   ./$SCRIPT_NAME --steps 27
   ./$SCRIPT_NAME --steps 28 --ngrok-domain your-domain.ngrok-free.app
+  ./$SCRIPT_NAME --steps 29,30
 
 EOF
 }
@@ -2166,6 +2219,8 @@ run_step() {
     26) step_25_ci_smoke_push ;;
     27) step_26_music_assistant_server ;;
     28) step_27_ngrok_home_assistant_tunnel ;;
+    29) step_28_pico_tooling ;;
+    30) step_29_pico_readiness ;;
     *) die "Unknown step: $1" ;;
   esac
 }
@@ -2200,6 +2255,8 @@ step_label() {
     26) printf 'GitHub CI smoke push and workflow validation' ;;
     27) printf 'Install/start local HA voice/backend Docker Compose stack' ;;
     28) printf 'Install/start persistent ngrok tunnel for local Home Assistant' ;;
+    29) printf 'Raspberry Pi Pico 2 W tooling: MicroPython, picotool and VS Code extensions' ;;
+    30) printf 'Validate Raspberry Pi Pico 2 W development readiness' ;;
     *) printf 'Unknown step' ;;
   esac
 }
@@ -2213,7 +2270,7 @@ parse_steps() {
   STEP_INDEX=0
   for step in "${parts[@]}"; do
     [[ "$step" =~ ^[0-9]+$ ]] || die "Invalid step: $step"
-    (( step >= 0 && step <= 28 )) || die "Step out of range: $step"
+    (( step >= 0 && step <= 30 )) || die "Step out of range: $step"
     (( step != 1 && step != 2 )) || die "Step $step was removed. VM bootstrap is intentionally outside the onboarding script."
     if [[ "$PLAN_ONLY" == "1" ]]; then
       printf '%s %2s. %s\n' "$(style "$CLR_CYAN" "PLAN")" "$step" "$(step_label "$step")"
@@ -2233,7 +2290,7 @@ resolve_step_selection() {
   case "$raw" in
     q|quit|exit) return 1 ;;
     all)
-      printf '%s' "0,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,25,26,27,28"
+      printf '%s' "0,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,29,22,23,25,26,27,28"
       ;;
     core)
       printf '%s' "3,4,5,6,7,8,9,10,11,12"
@@ -2269,7 +2326,7 @@ onboarding_main() {
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --all)
-      SELECTED_STEPS="0,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,25,26,27,28"
+      SELECTED_STEPS="0,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,29,22,23,25,26,27,28"
       shift
       ;;
     --core)
@@ -2330,6 +2387,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --ngrok-domain)
       NGROK_DOMAIN="${2:-}"
+      shift 2
+      ;;
+    --pico-tool-venv)
+      PICO_TOOL_VENV="${2:-}"
       shift 2
       ;;
     --ha-config-dir)

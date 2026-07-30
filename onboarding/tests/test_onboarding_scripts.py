@@ -122,7 +122,7 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertEqual(all_steps.returncode, 0, all_steps.stdout)
         self.assertEqual(
             all_steps.stdout,
-            "0,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,25,26,27,28",
+            "0,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,29,22,23,25,26,27,28",
         )
         self.assertEqual(core_steps.stdout, "3,4,5,6,7,8,9,10,11,12")
         self.assertEqual(label.stdout, "Create/start Home Assistant with Docker Compose")
@@ -261,10 +261,11 @@ class DevOnboardingScriptTests(unittest.TestCase):
         desired_state = MACOS_DEVELOPMENT_HOST_DESIRED_STATE.read_text()
         self.assertIn("schema_version: 1", desired_state)
         self.assertIn("host.minimum_free_disk_gb: 80", desired_state)
-        self.assertIn("onboarding.package_version: 4.0.0", desired_state)
+        self.assertIn("onboarding.package_version: 4.1.0", desired_state)
         self.assertIn("version: 3.3.0", desired_state)
         self.assertIn("minimum_tool_version: 2.0.2", desired_state)
         self.assertIn("runner.profiles: apple,private-network,esp32,pi,windows", desired_state)
+        self.assertIn("picotool", desired_state)
         self.assertIn("tooling.required_casks: docker,dotnet-sdk,parallels,ngrok", desired_state)
         self.assertNotIn("tooling.refresh_casks:", desired_state)
         self.assertIn("network.ngrok.tunnel.domain: victory-curvy-refold.ngrok-free.dev", desired_state)
@@ -301,7 +302,7 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout)
         self.assertEqual(
             result.stdout,
-            "DJConnect macOS Development Host Bootstrap 2.0.9\n",
+            "DJConnect macOS Development Host Bootstrap 2.0.10\n",
         )
         self.assertTrue(MACOS_HOST_BOOTSTRAP_CHANGELOG.is_file())
         changelog = MACOS_HOST_BOOTSTRAP_CHANGELOG.read_text(encoding="utf-8")
@@ -655,16 +656,18 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertTrue((HOST_BOOTSTRAP_PACKAGE / "apple.sh").is_file())
         self.assertTrue(HOST_BOOTSTRAP_MANIFEST.is_file())
         manifest = HOST_BOOTSTRAP_MANIFEST.read_text(encoding="utf-8")
-        self.assertIn("package.version: 2.0.9", manifest)
+        self.assertIn("package.version: 2.0.10", manifest)
         self.assertIn("package.aggregate_sha256:", manifest)
         self.assertIn("component.entry.sha256:", manifest)
         self.assertIn("component.workflow.version: 1.3.1", manifest)
-        self.assertIn("component.operations.version: 1.3.2", manifest)
+        self.assertIn("component.operations.version: 1.3.3", manifest)
         self.assertIn("component.apple.version: 1.0.0", manifest)
         source = read_macos_host_bootstrap_source()
         self.assertIn("verify_recovery_package_manifest", source)
         self.assertIn("Host-bootstrap package component", source)
         self.assertIn("aggregate SHA-256 mismatch", source)
+        self.assertIn("require_canonical_onboarding_4_1_0", source)
+        self.assertIn("requires onboarding 4.1.0", source)
 
     def test_macos_host_bootstrap_preserves_its_active_source_checkout_during_repair(self) -> None:
         source = (HOST_BOOTSTRAP_PACKAGE / "operations.sh").read_text(encoding="utf-8")
@@ -808,6 +811,15 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("PLAN  0. Preflight", result.stdout)
         self.assertIn("PLAN 23. Check package manager upgrades", result.stdout)
         self.assertNotIn("PLAN 24. Apply package manager upgrades", result.stdout)
+
+    def test_pico_tooling_and_readiness_steps_are_plan_addressable(self) -> None:
+        result = run_script("--steps", "29,30", "--plan", "--no-color")
+
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertIn("PLAN 29. Raspberry Pi Pico 2 W tooling", result.stdout)
+        self.assertIn("PLAN 30. Validate Raspberry Pi Pico 2 W development readiness", result.stdout)
+        self.assertIn("pico_toolchain_requirements.txt", SCRIPT.read_text(encoding="utf-8"))
+        self.assertIn("pico_readiness_macos.py", SCRIPT.read_text(encoding="utf-8"))
 
     def test_core_plan_uses_shifted_core_steps(self) -> None:
         result = run_script("--core", "--plan", "--no-color")

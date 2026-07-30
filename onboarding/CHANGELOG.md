@@ -1,5 +1,15 @@
 # DJConnect Developer Onboarding Changelog
 
+## 4.1.0 — 2026-07-30
+
+- Add the macOS-first Raspberry Pi Pico 2 W MicroPython profile to canonical
+  onboarding: isolated `mpremote`, `micropython-stubber` and Ruff tooling;
+  Homebrew `picotool`; and required VS Code MicroPico/Python/Pylance extensions.
+- Add a deterministic read-only Pico readiness report with PASS/WARNING/FAIL
+  checks for host tools, versions, PATH, USB visibility, serial access and a
+  connected board's MicroPython implementation.
+- Add Pico to the shared macOS desired-state formula and runner-profile model.
+
 ## 4.0.0 — 2026-07-28
 
 - Add explicit, opt-in cleanup of ignored local build output and a read-only

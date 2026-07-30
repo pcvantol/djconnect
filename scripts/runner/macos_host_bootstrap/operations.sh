@@ -1,4 +1,4 @@
-# Version: 1.3.2
+# Version: 1.3.3
 # macOS host provisioning, developer-workstation and service operations.
 warm_sudo() {
   if [[ "$DRY_RUN" == '1' ]]; then
@@ -283,6 +283,15 @@ prepare_repositories() {
   done
 }
 
+require_canonical_onboarding_4_1_0() {
+  local central_repository="$1" manifest actual_version
+  manifest="$central_repository/onboarding/manifest.yml"
+  [[ "$DESIRED_ONBOARDING_PACKAGE_VERSION" == '4.1.0' ]] || die "The canonical macOS bootstrap requires onboarding 4.1.0; desired state declares $DESIRED_ONBOARDING_PACKAGE_VERSION."
+  [[ -f "$manifest" ]] || die "The canonical onboarding manifest is unavailable: $manifest"
+  actual_version="$(awk -F': ' '$1 == "package.version" { print $2; exit }' "$manifest")"
+  [[ "$actual_version" == '4.1.0' ]] || die "The canonical macOS bootstrap requires onboarding 4.1.0; found ${actual_version:-missing} in $manifest."
+}
+
 bootstrap_developer_workstation() {
   if [[ "$SKIP_DEVELOPER_WORKSTATION" == '1' ]]; then
     return
@@ -290,6 +299,7 @@ bootstrap_developer_workstation() {
   local central_repository="$GITHUB_ROOT/djconnect"
   local onboarding="$central_repository/onboarding/dev_onboarding_macos.sh"
   [[ -f "$onboarding" ]] || die "The full developer onboarding script is unavailable at $onboarding."
+  require_canonical_onboarding_4_1_0 "$central_repository"
   if [[ -n "$NGROK_DOMAIN" && -z "${NGROK_AUTHTOKEN:-}" && "$PROMPT_NGROK_AUTH" == '1' ]]; then
     prompt_secret 'ngrok authtoken'
     export NGROK_AUTHTOKEN="$REPLY"
