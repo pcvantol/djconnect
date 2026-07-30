@@ -65,14 +65,18 @@ Update canonical docs when: Pi capabilities change shared Ambient Client expecta
 
 ## `pcvantol/djconnect-esp32`
 
-Owns: ESP32 Voice/Control Client firmware.
+Owns: ESP32 Voice/Control Client firmware, including ESPHome source, board
+compositions, reusable packages, narrowly scoped custom components and
+hardware-baseline qualification.
 
 Also owns: correct localized rendering for firmware, constrained device UI and
 web portal surfaces.
 
 Does not own: Spotify credentials, backend playback orchestration, Music DNA, Ask DJ chat history, canonical Profile resolution or foundation docs.
 
-Must follow: Device identity, firmware protocol, local device API, pairing, OTA, privacy and backend command contracts.
+Must follow: Device identity, firmware protocol, local device API, pairing, OTA, privacy and backend command contracts. For a qualified supported board,
+ESPHome uses an attributed, pinned community hardware baseline; source must not
+duplicate low-level drivers without an approved board-specific exception.
 
 Update canonical docs when: firmware changes require new platform protocol, Device model or release governance decisions.
 
@@ -104,7 +108,9 @@ Update canonical docs when: website work reveals product-language drift, onboard
 
 ## `pcvantol/djconnect-firmware`
 
-Owns: public firmware release distribution artifacts only.
+Owns: public firmware release distribution artifacts only: compiled native or
+ESPHome variants, manifests, checksums, stable/beta OTA and Web Installer
+assets, release notes and rollback metadata.
 
 Also owns: localization consistency for end-user release/install copy stored in
 the repository or attached to releases.

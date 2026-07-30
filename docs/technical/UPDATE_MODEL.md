@@ -6,6 +6,11 @@
 and calls ESP32 `/api/device/ota`. ESP32 downloads firmware, follows redirects,
 verifies SHA256, writes OTA partition and reboots after success.
 
+`TARGET_ARCHITECTURE` Native and ESPHome firmware variants use this same
+manifest, stable/beta channel and OTA ownership model. The manifest identifies
+the qualified board/variant; HA and the Device Installer do not infer or own
+the build technology. See `ESPHOME_FIRMWARE_PLATFORM_ARCHITECTURE.md`.
+
 ## Pi Updates
 
 `CONFIRMED_CODE` Pi updater downloads release bundle/checksum, installs under

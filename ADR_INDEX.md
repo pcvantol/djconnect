@@ -93,6 +93,15 @@ Playback Instance Identity, Current Playback Projection and normalized Track
 Started observation in the Music Backend Observation Boundary. Runtime consumes
 only an opaque, ephemeral identity.
 
+### ADR-0017 — ESPHome is the preferred firmware platform for supported DJConnect ESP hardware
+
+**Status:** Accepted
+**File:** `docs/adr/0017-esphome-firmware-platform.md`
+
+Decision to use a pinned, qualified community ESPHome hardware baseline as the
+preferred firmware foundation for supported ESP boards while retaining existing
+DJConnect contracts and the source/distribution repository boundary.
+
 ## ADR backlog
 
 ### ADR-0013 — Platform Baseline v1.0 certification boundary

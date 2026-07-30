@@ -29,6 +29,7 @@ user-facing roadmap progress; the current Product Initiative is recorded in
 | HACS pull-request validation reliability (`HACS-CI-PR-REF-001`) | P1 | Assessed | `docs/software_assurance/HACS_PR_VALIDATION_RELIABILITY_ASSESSMENT.md`; retained PR #461 head/merge loading failures, PR #459/#500 success and `main` success | HACS is execution-required engineering evidence but not release-authoritative; no workflow, Runtime, qualification, gate or action-pinning change |
 | Home Assistant DJConnect HTTP-route registration (`HA-HTTP-ROUTE-3.3.0-001`) | P0 | Historical | reconciled incident evidence | retained incident evidence only |
 | Firmware OTA publication and staged rollback | P1 | Planned | manifest-bound consumer qualification | release-operational work |
+| ESPHome firmware platform adoption | P2 | Planned | ADR-0017; pinned community baseline, board-specific qualification and existing firmware distribution evidence | board-by-board Platform Adoption; no Runtime, pairing, renderer or HA-integration change |
 | Website production deployment and announcements | P1 | Planned | approved manifest and consumer qualification | release-operational work |
 | Technical Debt Engine 1.1.1 consumer rollout | P1 | Completed | PR #583 and current `tde-observe.yml` evidence across the selected source consumers | Canonical public runtime and CLI provide observe-only `code_size`, `complexity`, `coverage` and `dependency_health` evidence; no release or merge gate |
 | Privacy Assessment | P2 | Planned | privacy inventory, profile/shared-device review and Software Assurance compatibility | Platform Evolution assessment; possible future standalone engine |
@@ -43,6 +44,24 @@ Platform Release 3.3 Internal is **Historical** operational evidence. Its
 completed release and any retained operational evidence are documented in
 `docs/release/PLATFORM_RELEASE_MANAGEMENT_SUMMARY.md`; they do not become a
 fourth program or an active Platform Evolution item.
+
+## Backlog detail: ESPHome firmware platform adoption
+
+**Owner:** `pcvantol/djconnect-esp32` source; `pcvantol/djconnect-firmware`
+distribution.
+
+**Priority:** P2
+**Status:** Planned
+
+Implement the accepted ESPHome Firmware Platform Architecture board by board:
+record an attributed pinned community baseline; compose DJConnect packages and
+components; qualify boot/display, input, audio where applicable, memory,
+networking/provisioning, pairing, Runtime connection, device UI, OTA and reboot
+recovery; then publish through the existing beta/stable manifest path. The
+Device Installer consumes manifests and remains firmware-agnostic.
+
+This backlog item authorizes no change to the Runtime, pairing, renderer
+contracts, transport protocols, capabilities or Home Assistant integration.
 
 ## Backlog detail: GitHub Actions retention and evidence preservation
 

@@ -28,7 +28,6 @@ Source repositories own implementation and tests:
 - `pcvantol/djconnect-windows`;
 - `pcvantol/djconnect-pi`;
 - `pcvantol/djconnect-esp32`;
-- `pcvantol/djconnect-firmware`;
 - `pcvantol/djconnect-website`.
 
 ### Release repositories
@@ -36,6 +35,10 @@ Source repositories own implementation and tests:
 Release repositories publish community artifacts, unsigned/non-signed binaries, firmware images, app builds, manifests, and release notes.
 
 They must not become product-logic owners. They mirror release outputs and public distribution state.
+
+`pcvantol/djconnect-firmware` is the firmware distribution repository. It
+publishes qualified native and ESPHome artifacts but never owns firmware source
+or board enablement.
 
 ## Minimum CI expectations
 
