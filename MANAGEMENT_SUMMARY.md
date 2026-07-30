@@ -15,6 +15,12 @@
 
 ## Current position
 
+PR [#624](https://github.com/pcvantol/djconnect/pull/624), **Select
+Capability-Aware Reviewers**, merged as `a51f1ed28e1f8bf3ec13939d36d1d91e24bde569`.
+Engineering Platform 1.1 improves bounded review quality through deterministic,
+explainable specialist selection while keeping the primary agent solely
+responsible for engineering decisions and lifecycle. The Execution Horizon is unchanged.
+
 PR [#622](https://github.com/pcvantol/djconnect/pull/622), **Version Engineering
 Platform**, merged as `fe218a3d0c6763c09acc97a70c305a0dc8ec5c1e`.
 Engineering compatibility is now explicit, deterministic and auditable through

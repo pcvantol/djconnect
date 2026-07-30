@@ -4,6 +4,13 @@ Status: canonical prompt navigation
 
 ## Owner-authorized autonomous PR lifecycle
 
+## Capability-aware reviewer selection finalization
+
+PR [#624](https://github.com/pcvantol/djconnect/pull/624), **Select
+Capability-Aware Reviewers**, merged as `a51f1ed28e1f8bf3ec13939d36d1d91e24bde569`.
+Its immutable implementation history is
+`docs/history/prompts/2026-07-30-capability-aware-reviewer-selection.md`.
+
 ## Engineering Platform versioning finalization
 
 PR [#622](https://github.com/pcvantol/djconnect/pull/622), **Version Engineering
