@@ -4,6 +4,11 @@ Status: active platform-evolution repository
 
 ## Owner-authorized autonomous PR lifecycle finalization
 
+PR [#608](https://github.com/pcvantol/djconnect/pull/608), **Add autonomous
+repository cleanup phase**, merged as `289a60ad4fcd09879211d43ca1e217b0e2ea2122`.
+Bounded runner cleanup is repository-evidence-based and preserves uncertain or
+unmerged branches; no production or release behavior changed.
+
 PR [#606](https://github.com/pcvantol/djconnect/pull/606), **Complete
 autonomous runner finalization lifecycle**, merged as
 `60be7930e5eb83b023ee930a01e8ac5127c295a9`. The local developer runner now
