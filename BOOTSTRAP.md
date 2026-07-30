@@ -147,3 +147,9 @@ to execute the canonical local qualification registry in
 `.djconnect/qualification/`; they record scenario outcome, duration,
 diagnostics, evidence, Engineering Platform version, repository version and
 Codex CLI version.
+
+## Engineering Platform Status
+
+Engineering Platform Generation 1 is `FEATURE_COMPLETE`. Its stable capability
+set, qualification-first closure and evidence-driven future-evolution policy
+are canonical in `tools/engineering/ENGINEERING_PLATFORM_STATUS.md`.
