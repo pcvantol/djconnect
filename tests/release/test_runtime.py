@@ -8,6 +8,7 @@ import tempfile
 import unittest
 
 from tools.release.cli import main
+from tools.release.component_scope import COMPONENT_PROFILES
 from tools.release.discovery import discover_repositories
 from tools.release.execution import ExecutionAction, ExecutionError, ExecutionRequest, ReleaseExecutor, write_execution_evidence
 from tools.release.manifest import validate_manifest
@@ -66,6 +67,26 @@ class ReleaseRuntimeTest(unittest.TestCase):
         def reconciliation(repository: str, main_sha: str, pr_sha: str) -> dict[str, object]:
             return reconcile({"repository": repository, "main_sha": main_sha, "main_parents": ["c" * 40], "timestamp": "2026-01-01T00:00:00Z", "originating_pr": {"number": 1, "state": "MERGED", "base_ref": "main", "head_sha": pr_sha, "merge_commit_sha": main_sha, "merge_strategy": "SQUASH", "merge_actor": "maintainer", "merged_at": "2026-01-01T00:00:00Z", "changed_files": ["x"], "main_changed_files": ["x"]}, "pre_merge": {"candidate_sha": pr_sha, "risk_classification": "NORMAL_RISK", "owner_authorization": "PASS", "verification": "PASS", "software_assurance": "PASS", "trusted_delivery": "PASS", "workflow_integrity": "PASS", "required_checks": "PASS"}, "post_merge": {"sha": main_sha, "ci": "PASS", "tests": "PASS", "lint": "PASS", "static_analysis": "PASS", "build_validation": "PASS", "governance": "PASS", "coverage": "PASS", "coverage_report_sha": main_sha, "coverage_artifact_sha": "d" * 64, "workflow_run_ids": ["1"]}})
         return ReleaseSimulation(self.ownership).run("3.3", mode="production", versions={"example/source": "3.3.1", "example/distribution": "3.3.2"}, shas=shas, evidence={"verification": "PASS", "software_assurance": "PASS", "trusted_delivery": "PASS", "coverage": "PASS", "platform_qualification": "PASS"}, reconciliations={"example/source": reconciliation("example/source", shas["example/source"], "d" * 40), "example/distribution": reconciliation("example/distribution", shas["example/distribution"], "e" * 40)})
+
+    def _component_manifest(self, mutate: callable | None = None) -> dict[str, object]:
+        ownership = self.root / "component_ownership.md"
+        ownership.write_text("""# Ownership
+
+## `pcvantol/djconnect-app`
+Owns: Apple client source.
+
+## `pcvantol/djconnect-app-releases`
+Owns: internal release distribution artifacts only.
+""", encoding="utf-8")
+        source, distribution = "pcvantol/djconnect-app", "pcvantol/djconnect-app-releases"
+        shas = {source: "a" * 40, distribution: "b" * 40}
+        def reconciliation(repository: str, main_sha: str) -> dict[str, object]:
+            return reconcile({"repository": repository, "main_sha": main_sha, "main_parents": ["c" * 40], "timestamp": "2026-01-01T00:00:00Z", "originating_pr": {"number": 1, "state": "MERGED", "base_ref": "main", "head_sha": "d" * 40, "merge_commit_sha": main_sha, "merge_strategy": "SQUASH", "merge_actor": "maintainer", "merged_at": "2026-01-01T00:00:00Z", "changed_files": ["x"], "main_changed_files": ["x"]}, "pre_merge": {"candidate_sha": "d" * 40, "risk_classification": "NORMAL_RISK", "owner_authorization": "PASS", "verification": "PASS", "software_assurance": "PASS", "trusted_delivery": "PASS", "workflow_integrity": "PASS", "required_checks": "PASS"}, "post_merge": {"sha": main_sha, "ci": "PASS", "tests": "PASS", "lint": "PASS", "static_analysis": "PASS", "build_validation": "PASS", "governance": "PASS", "coverage": "PASS", "coverage_report_sha": main_sha, "coverage_artifact_sha": "d" * 64, "workflow_run_ids": ["1"]}})
+        identity = {"component_id": "apple-macos", "source_sha": shas[source], "artifact_identity": "djconnect-macos-3.3.1.zip", "artifact_sha256": "e" * 64, "manifest_id": "apple-macos-3.3.1", "manifest_sha256": "f" * 64, "version": "3.3.1"}
+        selection: dict[str, object] = {**identity, "component_owner": "DJConnect Apple Client", "source_repository": source, "platform_train": "3.3", "release_channel": "apple-macos-internal", "target_distribution": "Apple macOS internal distribution", "artifact_kind": "macos_artifact", "participants": [source, distribution], "evidence": {name: {"status": "PASS", **identity} for name in ("source_qualification", "build_test", "software_assurance", "trusted_delivery", "artifact_provenance", "manifest_validation", "channel_validation", "durable_post_merge", "owner_authorization")}}
+        if mutate:
+            mutate(selection)
+        return ReleaseSimulation(ownership).run("3.3", mode="production", versions={source: "3.3.1", distribution: "3.3.1"}, shas=shas, evidence={"verification": "PASS", "software_assurance": "PASS", "trusted_delivery": "PASS", "coverage": "PASS", "platform_qualification": "PASS"}, reconciliations={source: reconciliation(source, shas[source]), distribution: reconciliation(distribution, shas[distribution])}, component_selection=selection)
 
     def _action(self, manifest: dict[str, object], repository: str, category: str = "build", mode: str = "execute") -> dict[str, object]:
         sha = "a" * 40 if repository == "example/source" else "b" * 40
@@ -138,3 +159,29 @@ class ReleaseRuntimeTest(unittest.TestCase):
         action = self._action(manifest, "example/source", mode="dry_run")
         outcome = ReleaseExecutor(RecordingClient()).execute(manifest, self._request(manifest, [action], non_production=True))
         self.assertEqual({path.name for path in write_execution_evidence(outcome, self.root / "evidence")}, {"release-execution-report.json", "release-deployment-evidence.json", "release-publication-evidence.json"})
+
+    def test_component_selection_is_deterministic_and_excludes_other_components(self) -> None:
+        manifest = self._component_manifest()
+        self.assertEqual(manifest["readiness"]["state"], "READY")
+        self.assertEqual(manifest["component_selection"]["component_id"], "apple-macos")
+        self.assertEqual({item["name"] for item in manifest["repositories"] if item["included"]}, {"pcvantol/djconnect-app", "pcvantol/djconnect-app-releases"})
+        self.assertFalse(manifest["component_execution_authorized"])
+        with self.assertRaisesRegex(ExecutionError, "component selection is qualification-only"):
+            ReleaseExecutor(RecordingClient()).execute(manifest, self._request(manifest, [self._action(manifest, "pcvantol/djconnect-app")]))
+
+    def test_component_selection_rejects_checksum_or_evidence_identity_drift(self) -> None:
+        manifest = self._component_manifest(lambda selection: selection.__setitem__("artifact_sha256", "invalid"))
+        codes = {item["code"] for item in manifest["readiness"]["conditions"]}
+        self.assertEqual(manifest["readiness"]["state"], "BLOCKED")
+        self.assertIn("artifact_sha256_invalid", codes)
+        self.assertIn("component_evidence_binding_mismatch", codes)
+
+    def test_component_selection_rejects_non_selectable_pi_product_profile(self) -> None:
+        manifest = self._component_manifest(lambda selection: selection.__setitem__("component_id", "pi-4-inch"))
+        self.assertEqual(manifest["readiness"]["state"], "BLOCKED")
+        self.assertIn("component_profile_not_selectable", {item["code"] for item in manifest["readiness"]["conditions"]})
+
+    def test_component_profile_inventory_preserves_all_registered_boundaries(self) -> None:
+        self.assertEqual(set(COMPONENT_PROFILES), {"hacs-integration", "api-worker", "website", "esp32-firmware", "apple-ios-watchos", "apple-macos", "windows-client", "pi-renderer-family", "pi-4-inch", "pi-10-inch"})
+        self.assertFalse(COMPONENT_PROFILES["pi-4-inch"].selectable)
+        self.assertFalse(COMPONENT_PROFILES["pi-10-inch"].selectable)
