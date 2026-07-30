@@ -20,6 +20,22 @@ Newer runners remain compatible with older repositories only when they
 explicitly advertise support for every declared contract. Compatibility is
 therefore auditable and never inferred from individual implementation details.
 
+## Capability-aware specialist reviewers
+
+Engineering Platform 1.1 has four deterministic, read-only reviewer types:
+Repository Governance, Validation, Documentation and Finalization. Before the
+primary agent begins work, the runner classifies the objective, lifecycle state
+and safe Engineering Memory and selects only relevant reviewers. Independent
+reviewers may run in parallel; their recommendations are deduplicated and
+advisory.
+
+Reviewers may inspect, analyse and recommend only. They cannot edit, commit,
+push, merge, create pull requests, finalize or alter lifecycle state. Reviewer
+failure is recorded as advisory and the primary engineering agent continues
+from repository evidence. Reports show selection reasons, contributions and
+reconciled recommendation counts; Engineering Memory retains bounded reviewer
+confidence, usage, outcome and duration metadata for future selection.
+
 ## Prerequisite and usage
 
 Codex CLI must already be installed and authenticated in the developer's local
