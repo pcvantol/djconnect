@@ -122,9 +122,15 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     health = (repo / ".djconnect" / "status" / "status.json").is_file()
     tailscale = shutil.which("tailscale") is not None
+    connected = False
+    if tailscale:
+        observed = subprocess.run(
+            ("tailscale", "status", "--json"), text=True, capture_output=True, check=False
+        )
+        connected = observed.returncode == 0 and '"BackendState":"Running"' in observed.stdout
     state = "READY" if health and agent.is_file() else "DEGRADED"
     print(
-        f"REMOTE_ENGINEERING_{state}\ntailscale={'available' if tailscale else 'not_installed'}\nAction: install/connect Tailscale for private remote Safari access; no network configuration was changed."
+        f"REMOTE_ENGINEERING_{state}\ntailscale={'connected' if connected else ('installed_not_connected' if tailscale else 'not_installed')}\nAction: install/connect Tailscale for private remote Safari access; no network configuration was changed."
     )
     return 0 if state == "READY" else 1
 
