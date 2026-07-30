@@ -4,6 +4,15 @@ Status: active platform-evolution repository
 
 ## Owner-authorized autonomous PR lifecycle finalization
 
+PR [#606](https://github.com/pcvantol/djconnect/pull/606), **Complete
+autonomous runner finalization lifecycle**, merged as
+`60be7930e5eb83b023ee930a01e8ac5127c295a9`. The local developer runner now
+checkpoints safe implementation/Finalization evidence and repair counts,
+synchronizes main before derived governance-only Finalization, and prevents a
+duplicate stored Finalization transaction. Repository and GitHub evidence
+remain authoritative. No Runtime, Product, Release, CI, deployment,
+publication, roadmap-priority or branch-protection behavior changed.
+
 PR [#604](https://github.com/pcvantol/djconnect/pull/604), **Add
 owner-authorized autonomous PR lifecycle**, merged as
 `95eabfde75e471dfe497f89c6e66225752946c8f`. Explicit local authorization now
