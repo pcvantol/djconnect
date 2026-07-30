@@ -2,6 +2,15 @@
 
 Status: active platform-evolution repository
 
+## Local agent runner finalization
+
+PR [#600](https://github.com/pcvantol/djconnect/pull/600), **Add resumable local
+engineering runner**, merged as `1145f1e31a2f0504632b466c0a0abdcfea3007f4`.
+The bounded developer tool invokes local Codex CLI with canonical repository
+instructions and resumes from objective repository and GitHub evidence. It does
+not introduce merge, release, deployment, Runtime or product behavior. This
+Finalization reconciles rolling records and prompt history only.
+
 ## Long-running engineering operation governance finalization
 
 PR [#598](https://github.com/pcvantol/djconnect/pull/598), **Define Long-running

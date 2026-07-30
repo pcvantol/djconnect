@@ -3,6 +3,15 @@
 **Status:** Operational handoff
 **Updated:** 2026-07-30
 
+## Local agent runner finalization
+
+PR [#600](https://github.com/pcvantol/djconnect/pull/600), **Add resumable local
+engineering runner**, merged as `1145f1e31a2f0504632b466c0a0abdcfea3007f4`.
+It adds the local-only `dj-engineer` foreground command, atomic Git-ignored
+checkpoints and repository/GitHub-evidence-based resume and CI polling. It has
+no merge, release, deployment, Runtime, Product or Execution Horizon authority.
+This Finalization reconciles records and archives immutable prompt history only.
+
 ## Long-running engineering operation governance finalization
 
 PR [#598](https://github.com/pcvantol/djconnect/pull/598), **Define Long-running
