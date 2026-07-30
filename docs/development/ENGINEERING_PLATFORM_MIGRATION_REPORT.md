@@ -24,6 +24,8 @@ engineering execution authority merely by being configured.
 
 ## Deferred to 1.6
 
-Actual package extraction, generic command renaming, additional provider
-implementations and repository templates require extraction-readiness evidence.
+Actual package extraction, generic command renaming and additional provider
+implementations require extraction-readiness evidence. The 1.5 repository
+bootstrap API, idempotent workspace provisioning and generic configuration
+template are complete compatibility surfaces.
 No functional product, release, deployment or publication behavior changed.

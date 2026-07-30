@@ -4,6 +4,7 @@ from pathlib import Path
 import unittest
 
 from tools.engineering.platform_api import PlatformConfiguration, capabilities, provider_registry
+from tools.engineering.platform_bootstrap import provision_workspace
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -25,3 +26,9 @@ class PlatformProductizationTest(unittest.TestCase):
         providers = provider_registry(ROOT)
         self.assertEqual(providers["repository"]["selected"], "github")
         self.assertIn("status", providers["runtime"])
+
+    def test_workspace_provisioning_is_idempotent(self) -> None:
+        first = provision_workspace(ROOT)
+        second = provision_workspace(ROOT)
+        self.assertEqual(first, second)
+        self.assertTrue(first["status"].is_dir())

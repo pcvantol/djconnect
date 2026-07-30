@@ -58,6 +58,9 @@ SCENARIOS = tuple(
         "Configuration Migration",
         "Provider Compatibility",
         "Extraction Readiness Audit",
+        "Repository Bootstrap",
+        "Project Template",
+        "Workspace Provisioning",
     )
 )
 
@@ -155,6 +158,9 @@ def _default_check(root: Path, capability: str) -> bool:
         "Configuration Migration": configuration_is_compatible(),
         "Provider Compatibility": all(item.qualified for item in registry(root).values()),
         "Extraction Readiness Audit": (root / "docs" / "development" / "ENGINEERING_PLATFORM_EXTRACTION_AUDIT.md").is_file(),
+        "Repository Bootstrap": (root / "tools" / "engineering" / "platform_bootstrap.py").is_file(),
+        "Project Template": (root / "tools" / "engineering" / "templates" / "workspace-config.json").is_file(),
+        "Workspace Provisioning": (root / "tools" / "engineering" / "platform_bootstrap.py").is_file(),
     }
     return contracts.get(capability, (root / "tools" / "engineering" / "dj_engineer.py").is_file())
 

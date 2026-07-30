@@ -75,3 +75,10 @@ def provider_registry(root: Path) -> dict[str, object]:
     if set(active) != {"runtime", "repository", "service_manager", "remote_submission", "private_remote_access"}:
         raise PlatformConfigurationError("Provider registry is incomplete.")
     return {kind: {"selected": configuration.providers[kind], "status": active[kind]} for kind in active}
+
+
+def bootstrap_repository(root: Path) -> dict[str, object]:
+    """Public idempotent consumer bootstrap; never changes product source."""
+    from .platform_bootstrap import provision_workspace, validate_repository
+    configuration = validate_repository(root)
+    return {"platform": configuration.platform.id, "workspace": configuration.workspace.id, "provisioned": {name: str(path) for name, path in provision_workspace(root).items()}}
