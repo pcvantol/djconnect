@@ -4,6 +4,9 @@ Status: canonical prompt navigation
 
 ## Owner-authorized autonomous PR lifecycle
 
+PR [#612](https://github.com/pcvantol/djconnect/pull/612), **Add live runner
+progress status**, merged as `91ab36333f91ef9795ffaad8ee6cb37714747f55`.
+
 PR [#610](https://github.com/pcvantol/djconnect/pull/610), **Add local post-run
 engineering reports**, merged as `b41134c17ebe162564b20a1c60afeb601325544c`.
 
