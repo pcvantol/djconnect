@@ -4,6 +4,13 @@ Status: canonical prompt navigation
 
 ## Owner-authorized autonomous PR lifecycle
 
+## Product capability specialists finalization
+
+PR [#626](https://github.com/pcvantol/djconnect/pull/626), **Add Product
+Capability Reviewers**, merged as `5b9cc606c8fc51ef9273f194fc1bad5d9af4b586`.
+Its immutable implementation history is
+`docs/history/prompts/2026-07-30-product-capability-specialists.md`.
+
 ## Capability-aware reviewer selection finalization
 
 PR [#624](https://github.com/pcvantol/djconnect/pull/624), **Select

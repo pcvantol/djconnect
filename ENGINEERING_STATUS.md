@@ -5,6 +5,13 @@
 
 ## Owner-authorized autonomous PR lifecycle finalization
 
+## Product capability specialists finalization
+
+PR [#626](https://github.com/pcvantol/djconnect/pull/626), **Add Product
+Capability Reviewers**, merged as `5b9cc606c8fc51ef9273f194fc1bad5d9af4b586`.
+Engineering Platform 1.2 now provides deterministic, bounded product specialists
+alongside generic reviewers. The primary agent remains the only transaction owner.
+
 ## Capability-aware reviewer selection finalization
 
 PR [#624](https://github.com/pcvantol/djconnect/pull/624), **Select
