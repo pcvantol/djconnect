@@ -128,3 +128,11 @@ release or deploy.
 
 This foreground process has no background continuation. It can be resumed from
 repository evidence after an interruption.
+
+## Live progress
+
+The runner emits concise terminal and cleanup phase updates and atomically
+maintains `.djconnect/status/current.json`. The git-ignored status record is
+advisory; resume recomputes from repository and GitHub evidence. Run
+`./tools/engineering/dj-engineer status` to display the current phase, PRs,
+repair count and action.
