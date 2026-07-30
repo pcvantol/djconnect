@@ -59,6 +59,7 @@ PICO_TOOL_VENV="${PICO_TOOL_VENV:-$HOME/Library/Application Support/DJConnect/pi
 PICO_REQUIREMENTS_FILE="$PACKAGE_ROOT/pico_toolchain_requirements.txt"
 PICO_READINESS_SCRIPT="$PACKAGE_ROOT/pico_readiness_macos.py"
 ENGINEERING_INBOX_WATCHER="$REPO_ROOT/tools/engineering/inbox_watcher.py"
+ENGINEERING_DASHBOARD="$REPO_ROOT/tools/engineering/dashboard.py"
 
 init_style() {
   if [[ "$NO_COLOR_MODE" == "1" || -n "${NO_COLOR:-}" || ! -t 1 ]]; then
@@ -1119,10 +1120,13 @@ step_29_pico_readiness() {
 step_30_engineering_inbox() {
   need_macos
   [[ -f "$ENGINEERING_INBOX_WATCHER" ]] || die "Engineering Inbox watcher is missing from this repository."
-  log "Installing the per-user Engineering Inbox watcher."
+  [[ -f "$ENGINEERING_DASHBOARD" ]] || die "Engineering Dashboard is missing from this repository."
+  log "Installing the per-user Engineering Inbox watcher and private dashboard."
   python3 -m tools.engineering.inbox_watcher install --repo "$REPO_ROOT"
+  python3 -m tools.engineering.dashboard install --repo "$REPO_ROOT"
   python3 -m tools.engineering.inbox_watcher doctor --repo "$REPO_ROOT" || warn "Engineering Inbox is degraded; run its doctor command for corrective actions."
-  log "iPhone Shortcut target: iCloud Drive/DJConnect Engineering/Inbox. Reports: iCloud Drive/DJConnect Engineering/Reports."
+  python3 -m tools.engineering.dashboard doctor --repo "$REPO_ROOT" || warn "Engineering Dashboard is degraded; it remains loopback-only until private access is configured."
+  log "iPhone Shortcut target: iCloud Drive/DJConnect Engineering/Inbox. Reports: iCloud Drive/DJConnect Engineering/Reports. Dashboard: http://127.0.0.1:8765."
 }
 
 run_if_dir() {
