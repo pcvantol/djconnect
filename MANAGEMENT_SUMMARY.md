@@ -15,6 +15,8 @@
 
 ## Current position
 
+PR [#636](https://github.com/pcvantol/djconnect/pull/636) merged as `c491508e95970d07b8eafc8b4dca439818159c7d`. Remote onboarding/readiness is reconciled. Repository State: `MERGED_RECONCILED`
+
 PR [#634](https://github.com/pcvantol/djconnect/pull/634), **Add Remote
 Engineering Experience**, merged as `78208facd516ff26666afdf338746d5ad0c592e8`.
 Engineering Platform 1.4 provides canonical local status, a private dashboard
