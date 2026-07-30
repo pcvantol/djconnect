@@ -17,6 +17,7 @@ def evaluate_readiness(
     mode: str,
     profile: str | None = None,
     reconciliations: dict[str, object] | None = None,
+    component_conditions: list[dict[str, str]] | None = None,
 ) -> dict[str, object]:
     """Return READY, NOT_READY or BLOCKED and every contributing condition."""
 
@@ -46,6 +47,7 @@ def evaluate_readiness(
                 for error in validate_release_evidence(reconciliation, node.name, shas[node.name]):
                     conditions.append(_condition("BLOCKED", "post_merge_evidence_invalid", node.name, error))
 
+    conditions.extend(component_conditions or [])
     for evidence_name in mode_policy(mode, profile)["required_evidence"]:
         value = evidence.get(str(evidence_name), "MISSING")
         if value != "PASS":

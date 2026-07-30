@@ -135,6 +135,8 @@ def write_execution_evidence(outcome: dict[str, object], output_dir: Path) -> li
 
 
 def _validate_execution_gate(manifest: dict[str, object], request: ExecutionRequest) -> None:
+    if manifest.get("component_selection") is not None or manifest.get("component_execution_authorized") is False:
+        raise ExecutionError("component selection is qualification-only; execute qualification remains a separate bounded increment")
     if manifest.get("release_mode") not in {"production", "hotfix"}:
         raise ExecutionError("operational orchestration requires production or hotfix release mode")
     readiness = manifest.get("readiness")

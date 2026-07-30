@@ -22,11 +22,12 @@ and one shared Pi release bundle. Treating them as two independently
 releasable components before hardware-specific artifacts exist would weaken
 the fail-closed boundary.
 
-No profile is operationally executable yet. The Runtime still lacks canonical
-selected-component and affected-evidence closure enforcement, and the current
-platform execution dispatchers retain their documented `dry_run` boundary.
-This refinement therefore authorizes no release, publication, tag, deployment
-or version change.
+This refinement itself authorized no release, publication, tag, deployment or
+version change. Its bounded Runtime follow-through is now documented in
+`COMPONENT_RELEASE_SELECTION_EVIDENCE_CLOSURE_IMPLEMENTATION.md`: canonical
+selected-component and affected-evidence closure enforcement exists, while the
+current platform execution dispatchers retain their documented `dry_run`
+boundary.
 
 ## Canonical Component Release Scope Contract
 
@@ -137,10 +138,10 @@ channel or prove that a one-component closure was derived canonically.
 
 ## Bounded Follow-up Sequence
 
-1. **Component Release Selection and Evidence Closure implementation** — add
-   the existing Runtime's fail-closed support for these registered profile IDs,
-   deterministic participant closure and exact evidence binding. It must not
-   enable release execution.
+1. **Component Release Selection and Evidence Closure implementation** —
+   completed pending Finalization. The existing Runtime now supports the
+   registered profile IDs, deterministic participant closure and exact evidence
+   binding without enabling release execution.
 2. **Component Release Execute Qualification** — separately qualify the
    existing execute route for each profile only when its platform-native
    execution prerequisites and human authorization are present.
