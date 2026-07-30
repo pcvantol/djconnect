@@ -5,6 +5,13 @@
 
 ## Owner-authorized autonomous PR lifecycle finalization
 
+## Engineering Platform Generation 1 closure finalization
+
+PR [#630](https://github.com/pcvantol/djconnect/pull/630), **Close Engineering
+Platform Generation 1**, merged as `71dfd01777a2c0748e5ebfb606e1c3a932caf417`.
+Engineering Platform Generation 1 is formally `FEATURE_COMPLETE`; future work is
+qualification-first and evidence-driven, with no engineering behavior change.
+
 ## Engineering Platform qualification finalization
 
 PR [#628](https://github.com/pcvantol/djconnect/pull/628), **Qualify Engineering

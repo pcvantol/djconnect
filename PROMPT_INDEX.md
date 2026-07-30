@@ -4,6 +4,13 @@ Status: canonical prompt navigation
 
 ## Owner-authorized autonomous PR lifecycle
 
+## Engineering Platform Generation 1 closure finalization
+
+PR [#630](https://github.com/pcvantol/djconnect/pull/630), **Close Engineering
+Platform Generation 1**, merged as `71dfd01777a2c0748e5ebfb606e1c3a932caf417`.
+Its immutable implementation history is
+`docs/history/prompts/2026-07-30-engineering-platform-generation-one-closure.md`.
+
 ## Engineering Platform qualification finalization
 
 PR [#628](https://github.com/pcvantol/djconnect/pull/628), **Qualify Engineering
