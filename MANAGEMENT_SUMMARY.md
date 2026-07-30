@@ -15,6 +15,12 @@
 
 ## Current position
 
+PR [#634](https://github.com/pcvantol/djconnect/pull/634), **Add Remote
+Engineering Experience**, merged as `78208facd516ff26666afdf338746d5ad0c592e8`.
+Engineering Platform 1.4 provides canonical local status, a private dashboard
+projection and repository-handoff discovery. No Product, Runtime, Release or
+Deployment behavior changed. Repository State: `MERGED_RECONCILED`
+
 PR [#632](https://github.com/pcvantol/djconnect/pull/632), **Add iCloud
 Engineering Inbox watcher**, merged as `43c2a8d2c388658a6cec1464323f6363fded2aae`.
 Engineering Platform 1.4 provides a local fail-closed iCloud-to-runner path,
