@@ -15,6 +15,12 @@
 
 ## Current position
 
+PR [#602](https://github.com/pcvantol/djconnect/pull/602), **Add local agent
+runner diagnostics**, merged as `25bce99283b1e978ebfac13e0f89e167360a0080`.
+The local `dj-engineer` runner now stores bounded redacted stop reasons and
+prints safe CLI failure context. Resume remains repository-evidence-based; no
+Product, Runtime, release, CI, merge or deployment behavior changed.
+
 PR [#600](https://github.com/pcvantol/djconnect/pull/600), **Add resumable local
 engineering runner**, merged as `1145f1e31a2f0504632b466c0a0abdcfea3007f4`.
 It provides `dj-engineer`, a local foreground command for one bounded Codex CLI
