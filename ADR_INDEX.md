@@ -102,6 +102,14 @@ Decision to use a pinned, qualified community ESPHome hardware baseline as the
 preferred firmware foundation for supported ESP boards while retaining existing
 DJConnect contracts and the source/distribution repository boundary.
 
+### ADR-0018 — Platform Device Distribution and Provisioning
+
+**Status:** Accepted
+**File:** `docs/adr/0018-platform-device-distribution-and-provisioning.md`
+
+Decision to use one standalone, product-first Device Installer and one
+artifact-truth repository for ESP, RP2 and Raspberry Pi device distribution.
+
 ## ADR backlog
 
 ### ADR-0013 — Platform Baseline v1.0 certification boundary

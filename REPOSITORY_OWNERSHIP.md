@@ -109,8 +109,9 @@ Update canonical docs when: website work reveals product-language drift, onboard
 ## `pcvantol/djconnect-firmware`
 
 Owns: public firmware release distribution artifacts only: compiled native or
-ESPHome variants, manifests, checksums, stable/beta OTA and Web Installer
-assets, release notes and rollback metadata.
+ESPHome variants, RP2 firmware, Raspberry Pi bootstrap/distribution metadata,
+manifests, checksums, stable/beta OTA and Web Installer assets, release notes
+and rollback metadata.
 
 Also owns: localization consistency for end-user release/install copy stored in
 the repository or attached to releases.
@@ -120,6 +121,15 @@ Does not own: ESP32 source code, firmware architecture, HA integration behavior 
 Must follow: release artifact naming, manifest, licensing, security and release governance rules.
 
 Update canonical docs when: firmware distribution format or release governance needs a platform-level change.
+
+## `pcvantol/djconnect-device-installer`
+
+Owns: the standalone product-first Device Installer at `devices.djconnect.dev`:
+device catalog rendering, compatible-platform selection, published manifest
+consumption and standard flashing/bootstrap orchestration.
+
+Does not own: firmware artifacts, source builds, OTA logic, pairing, Runtime
+state, credentials or marketing-site behavior.
 
 ## `pcvantol/djconnect-app-releases`
 

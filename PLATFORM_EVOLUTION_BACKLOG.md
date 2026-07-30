@@ -30,6 +30,7 @@ user-facing roadmap progress; the current Product Initiative is recorded in
 | Home Assistant DJConnect HTTP-route registration (`HA-HTTP-ROUTE-3.3.0-001`) | P0 | Historical | reconciled incident evidence | retained incident evidence only |
 | Firmware OTA publication and staged rollback | P1 | Planned | manifest-bound consumer qualification | release-operational work |
 | ESPHome firmware platform adoption | P2 | Planned | ADR-0017; pinned community baseline, board-specific qualification and existing firmware distribution evidence | board-by-board Platform Adoption; no Runtime, pairing, renderer or HA-integration change |
+| Platform Device Distribution & Provisioning | P2 | Planned | ADR-0018; catalog/manifest contract, installer repository and platform installation qualification | one Installer and one artifact truth for ESP, RP2 and Pi; no Runtime, pairing, renderer or OTA redesign |
 | Website production deployment and announcements | P1 | Planned | approved manifest and consumer qualification | release-operational work |
 | Technical Debt Engine 1.1.1 consumer rollout | P1 | Completed | PR #583 and current `tde-observe.yml` evidence across the selected source consumers | Canonical public runtime and CLI provide observe-only `code_size`, `complexity`, `coverage` and `dependency_health` evidence; no release or merge gate |
 | Privacy Assessment | P2 | Planned | privacy inventory, profile/shared-device review and Software Assurance compatibility | Platform Evolution assessment; possible future standalone engine |
