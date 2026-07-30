@@ -62,24 +62,26 @@ class CapabilityCompletionLifecycleTest(unittest.TestCase):
             self.assertIn(required, (ROOT / name).read_text(), name)
 
     def test_finalization_validation_requires_current_rolling_record_evidence(self) -> None:
-        """Make stale status/index references fail the focused lifecycle gate."""
+        """Make the newest merged increment consistent in every rolling record."""
         engineering_status = (ROOT / "ENGINEERING_STATUS.md").read_text()
-        current_section = re.search(
-            r"## Current engineering increment\n\n(?P<contents>.*?)(?=\n## |\Z)",
-            engineering_status,
-            re.DOTALL,
-        )
-        self.assertIsNotNone(current_section)
-        assert current_section is not None
+        current_section = engineering_status.split("## Historical operational context", 1)[0]
         current_increment = re.search(
             r"PR \[#(?P<number>\d+)\].*?merged as\s+`(?P<commit>[0-9a-f]{40})`",
-            current_section.group("contents"),
+            current_section,
             re.DOTALL,
         )
         self.assertIsNotNone(current_increment)
         assert current_increment is not None
 
+        current_state = re.search(
+            r"Repository State(?: is|:)\s+`(?P<state>MERGED_(?:UN)?RECONCILED)`",
+            current_section,
+        )
+        self.assertIsNotNone(current_state)
+        assert current_state is not None
+
         for name in (
+            "ENGINEERING_STATUS.md",
             "REPOSITORY_STATUS.md",
             "MANAGEMENT_SUMMARY.md",
             "PROMPT_INDEX.md",
@@ -87,6 +89,15 @@ class CapabilityCompletionLifecycleTest(unittest.TestCase):
             contents = (ROOT / name).read_text()
             self.assertIn(f"PR [#{current_increment.group('number')}]", contents, name)
             self.assertIn(current_increment.group("commit"), contents, name)
+            if name != "PROMPT_INDEX.md":
+                normalized_contents = re.sub(r"\s+", " ", contents)
+                self.assertIn(
+                    f"Repository State: `{current_state.group('state')}`",
+                    normalized_contents,
+                    name,
+                )
+            else:
+                self.assertIn(current_state.group("state").lower(), contents.lower(), name)
 
     def test_rendered_execution_horizons_are_consistent(self) -> None:
         """Keep the two canonical rendered horizons from drifting apart."""
