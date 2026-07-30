@@ -15,6 +15,13 @@
 
 ## Current position
 
+PR [#604](https://github.com/pcvantol/djconnect/pull/604), **Add
+owner-authorized autonomous PR lifecycle**, merged as
+`95eabfde75e471dfe497f89c6e66225752946c8f`. `dj-engineer --owner-authorized`
+now checkpoints bounded owner authorization and autonomously drives eligible PR
+repair, merge and Finalization. Product, Runtime, release, deployment, CI and
+branch-protection behavior are unchanged.
+
 PR [#602](https://github.com/pcvantol/djconnect/pull/602), **Add local agent
 runner diagnostics**, merged as `25bce99283b1e978ebfac13e0f89e167360a0080`.
 The local `dj-engineer` runner now stores bounded redacted stop reasons and

@@ -3,6 +3,15 @@
 **Status:** Operational handoff
 **Updated:** 2026-07-30
 
+## Owner-authorized autonomous PR lifecycle finalization
+
+PR [#604](https://github.com/pcvantol/djconnect/pull/604), **Add
+owner-authorized autonomous PR lifecycle**, merged as
+`95eabfde75e471dfe497f89c6e66225752946c8f`. The local runner now checkpoints
+explicit owner authorization for bounded PR readiness, repair, merge and
+Finalization, while release, deployment and protection bypass remain excluded.
+This Finalization reconciles records and immutable prompt history only.
+
 ## Local agent runner diagnostics finalization
 
 PR [#602](https://github.com/pcvantol/djconnect/pull/602), **Add local agent
