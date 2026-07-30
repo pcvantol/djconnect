@@ -4,6 +4,13 @@ Status: canonical prompt navigation
 
 ## Owner-authorized autonomous PR lifecycle
 
+## Engineering Platform qualification finalization
+
+PR [#628](https://github.com/pcvantol/djconnect/pull/628), **Qualify Engineering
+Platform**, merged as `a59c07599496249d7e2109469c971dd1e7fa52d2`.
+Its immutable implementation history is
+`docs/history/prompts/2026-07-30-engineering-qualification-framework.md`.
+
 ## Product capability specialists finalization
 
 PR [#626](https://github.com/pcvantol/djconnect/pull/626), **Add Product
