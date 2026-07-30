@@ -15,6 +15,13 @@
 
 ## Current position
 
+PR [#600](https://github.com/pcvantol/djconnect/pull/600), **Add resumable local
+engineering runner**, merged as `1145f1e31a2f0504632b466c0a0abdcfea3007f4`.
+It provides `dj-engineer`, a local foreground command for one bounded Codex CLI
+transaction. Atomic local state is advisory, pending CI remains active, and a
+resume recomputes from repository and GitHub evidence. No Product, Runtime,
+release, merge, deployment or Execution Horizon behavior changed.
+
 PR [#598](https://github.com/pcvantol/djconnect/pull/598), **Define Long-running
 Engineering Operation Governance**, merged as
 `0168fad5fb2f8e30b0b40067d4f117c456f4b2e2`. Completion and resumption are now

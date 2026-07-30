@@ -2,6 +2,16 @@
 
 Status: canonical prompt navigation
 
+## Local agent runner
+
+PR [#600](https://github.com/pcvantol/djconnect/pull/600), **Add resumable local
+engineering runner**, merged as `1145f1e31a2f0504632b466c0a0abdcfea3007f4`.
+Its immutable implementation Prompt History is
+`docs/history/prompts/2026-07-30-local-agent-runner.md`. The local runner is
+repository-scoped developer tooling only: it polls terminal evidence and safely
+resumes, but does not gain merge, release, deployment, Runtime or product
+authority.
+
 ## Long-running engineering operation governance
 
 PR [#598](https://github.com/pcvantol/djconnect/pull/598), **Define Long-running
