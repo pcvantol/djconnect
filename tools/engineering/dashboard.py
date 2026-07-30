@@ -8,6 +8,7 @@ import os
 from pathlib import Path
 import subprocess
 import sys
+import shutil
 
 LABEL = "com.djconnect.engineering-dashboard"
 DASHBOARD_VERSION = "1.0.0"
@@ -41,6 +42,10 @@ def handler(root: Path):
                 return self._send(_status(root), "application/json; charset=utf-8")
             if self.path == "/api/health":
                 return self._send(b'{"health":"ok"}', "application/json; charset=utf-8")
+            if self.path == "/api/events":
+                return self._send(
+                    b"data: " + _status(root) + b"\n\n", "text/event-stream; charset=utf-8"
+                )
             if self.path == "/api/report/latest":
                 try:
                     reports = sorted((root / ".djconnect" / "reports").glob("*.md"))
@@ -116,8 +121,12 @@ def main(argv: list[str] | None = None) -> int:
         agent.unlink(missing_ok=True)
         return 0
     health = (repo / ".djconnect" / "status" / "status.json").is_file()
-    print(f"REMOTE_ENGINEERING_{'READY' if health and agent.is_file() else 'DEGRADED'}")
-    return 0 if health and agent.is_file() else 1
+    tailscale = shutil.which("tailscale") is not None
+    state = "READY" if health and agent.is_file() else "DEGRADED"
+    print(
+        f"REMOTE_ENGINEERING_{state}\ntailscale={'available' if tailscale else 'not_installed'}\nAction: install/connect Tailscale for private remote Safari access; no network configuration was changed."
+    )
+    return 0 if state == "READY" else 1
 
 
 if __name__ == "__main__":
