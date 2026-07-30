@@ -41,6 +41,15 @@ def handler(root: Path):
                 return self._send(_status(root), "application/json; charset=utf-8")
             if self.path == "/api/health":
                 return self._send(b'{"health":"ok"}', "application/json; charset=utf-8")
+            if self.path == "/api/report/latest":
+                try:
+                    reports = sorted((root / ".djconnect" / "reports").glob("*.md"))
+                    content = (
+                        reports[-1].read_bytes() if reports else b"No local report is available."
+                    )
+                except OSError:
+                    content = b"Report is unavailable."
+                return self._send(content, "text/markdown; charset=utf-8")
             if self.path == "/":
                 return self._send(
                     '<!doctype html><meta name="viewport" content="width=device-width,initial-scale=1"><title>DJConnect Engineering</title><style>body{margin:0;background:#121217;color:#f7f3ee;font:16px system-ui;padding:20px}pre{white-space:pre-wrap;background:#24242d;border-radius:14px;padding:16px;color:#d9c7ff}</style><h1>DJConnect Engineering</h1><pre id="s">Loading</pre><script>fetch("/api/status").then(r=>r.json()).then(x=>s.textContent=JSON.stringify(x,null,2)).catch(()=>s.textContent="Status unavailable")</script>'.encode(),
