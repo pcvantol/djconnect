@@ -119,8 +119,8 @@ this file is the canonical repository-state entry point.
 
 The local AI-assisted engineering environment is independently versioned by
 `tools/engineering/ENGINEERING_PLATFORM_VERSION.json`. Its current canonical
-contract is Engineering Platform `1.1.0`, runner `1.1.0`, Bootstrap Contract
-`2026.08`, Checkpoint Format `1`, Engineering Memory Format `2`, Report Format
+contract is Engineering Platform `1.2.0`, runner `1.2.0`, Bootstrap Contract
+`2026.09`, Checkpoint Format `1`, Engineering Memory Format `2`, Report Format
 `2` and minimum supported Codex CLI `0.146.0`.
 
 `dj-engineer` validates this manifest at startup. Engineering compatibility is
