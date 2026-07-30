@@ -2,6 +2,20 @@
 
 Status: canonical prompt navigation
 
+## Pico 2 W developer onboarding
+
+PR [#588](https://github.com/pcvantol/djconnect/pull/588), **Add Pico 2 W
+developer onboarding**, merged as
+`03ba5446b17c666d9294c4b5fdbc7cd1dc9c49cc`. Its implementation Prompt History
+archive is absent; this Finalization records the immutable historical
+traceability gap without recreating a prompt. Its governance-only Finalization
+history is
+`docs/history/prompts/2026-07-30-pico-2-w-developer-onboarding-finalization.md`.
+
+The developer-onboarding profile is bounded to macOS tooling, package
+verification and readiness evidence. It does not create a device Runtime,
+product capability, API, Renderer, roadmap or release change.
+
 ## TDE 1.1.1 planning reconciliation
 
 PR [#586](https://github.com/pcvantol/djconnect/pull/586), **Reconcile

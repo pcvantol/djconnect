@@ -4,6 +4,13 @@ Status: active platform-evolution repository
 
 ## Current reconciliation
 
+PR [#588](https://github.com/pcvantol/djconnect/pull/588), **Add Pico 2 W
+developer onboarding**, merged as
+`03ba5446b17c666d9294c4b5fdbc7cd1dc9c49cc`. The bounded macOS developer
+onboarding profile is complete, including package/version verification and
+Pico-specific readiness evidence. It changes no production Runtime, API,
+Renderer, product capability, roadmap or release control.
+
 PR [#586](https://github.com/pcvantol/djconnect/pull/586), **Reconcile
 planning after TDE 1.1.1 rollout**, merged as
 `ab662d3698fc48b57b55acbeb822fc25617b9d2b`. The planning reconciliation is
