@@ -4,6 +4,13 @@ Status: active platform-evolution repository
 
 ## Owner-authorized autonomous PR lifecycle finalization
 
+## Component Release Mode backlog hygiene finalization
+
+PR [#620](https://github.com/pcvantol/djconnect/pull/620), **Reconcile Component
+Release Mode backlog**, merged as `0423c98451e7e75af40de9acc8e5c10e0e2cdc06`.
+Documentation now records the finalized selection-and-closure state only;
+component operational dispatch and release operations remain unauthorized.
+
 PR [#618](https://github.com/pcvantol/djconnect/pull/618), **Make editor launch
 deterministic**, merged as `f2d2fe56c74a99a9856086d939816694f337fc46`.
 PATH editor fallbacks no longer claim application identity.
