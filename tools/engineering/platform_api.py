@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import json
+from copy import deepcopy
 from pathlib import Path
 from .providers import registry
 
@@ -49,18 +50,34 @@ class PlatformConfiguration:
         path = root / "tools" / "engineering" / "ENGINEERING_PLATFORM_CONFIG.json"
         try:
             raw = json.loads(path.read_text(encoding="utf-8"))
+            local = root / ".djconnect" / "engineering-platform.local.json"
+            if local.is_file():
+                override = json.loads(local.read_text(encoding="utf-8"))
+                if set(override) - {"workspace"}:
+                    raise PlatformConfigurationError("Local Engineering Platform configuration is incompatible.")
+                raw = _merge(raw, override)
             platform, workspace = raw["platform"], raw["workspace"]
             repository, branding = workspace["repository"], workspace["branding"]
             providers = raw["providers"]
         except (OSError, KeyError, TypeError, json.JSONDecodeError) as error:
             raise PlatformConfigurationError("Engineering Platform configuration is invalid.") from error
         expected = {"runtime", "repository", "service_manager", "remote_submission", "private_remote_access", "dashboard"}
-        if raw.get("schema_version") != 1 or set(providers) != expected or not all(isinstance(v, str) and v for v in providers.values()):
+        if set(raw) != {"schema_version", "platform", "workspace", "providers"} or raw.get("schema_version") != 1 or set(providers) != expected or not all(isinstance(v, str) and v for v in providers.values()):
             raise PlatformConfigurationError("Engineering Platform configuration is incompatible.")
         identity = PlatformIdentity(platform["id"], platform["name"], platform["version"], platform["generation"], platform["documentation_namespace"], platform["capability_registry_version"])
         if identity.id != "engineering-platform" or identity.version != "1.5.0" or identity.generation != 2:
             raise PlatformConfigurationError("Engineering Platform identity is incompatible.")
         return cls(1, identity, WorkspaceIdentity(workspace["id"], workspace["name"], repository["provider"], repository["owner"], repository["name"], repository["default_branch"], branding["dashboard_title"]), dict(providers))
+
+
+def _merge(base: dict[str, object], override: dict[str, object]) -> dict[str, object]:
+    result = deepcopy(base)
+    for key, value in override.items():
+        if isinstance(value, dict) and isinstance(result.get(key), dict):
+            result[key] = _merge(result[key], value)
+        else:
+            result[key] = value
+    return result
 
 
 def capabilities() -> tuple[str, ...]:
