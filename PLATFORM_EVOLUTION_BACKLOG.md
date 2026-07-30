@@ -20,7 +20,7 @@ user-facing roadmap progress; the current Product Initiative is recorded in
 | Canonical governance Version 2.2 alignment | P0 | Historical | merged governance evidence | retained governance evidence only |
 | Component Release Mode | P2 | Completed | PR #541 / `docs/release/COMPONENT_RELEASE_MODE_ASSESSMENT.md`; completed `docs/release/COMPONENT_RELEASE_QUALIFICATION_ASSESSMENT.md`; release evidence and current manifest model | `GO_COMPONENT_RELEASE_MODE_PARTIALLY_QUALIFIED`; the qualification assessment returned `NO_GO_COMPONENT_RELEASE_QUALIFICATION_INSUFFICIENT_RUNTIME_EVIDENCE`; only Scope Refinement remains future, with no release-mode implementation authorization |
 | GitHub Actions retention and evidence preservation (`TD-GITHUB-001`) | P1 | Completed | PRs #547–#554; `docs/software_assurance/EVIDENCE_PRESERVATION_IMPLEMENTATION_REPORT.md`; durable record for `f6e346018dadaccc8457dac7b5cadd19a03b80e7` | `GO_TD_GITHUB_001_QUALIFIED`; redacted, immutable release-asset evidence is published and read back fail-closed |
-| Platform Dependency Governance conformance | P1 | Completed | `docs/software_assurance/PLATFORM_DEPENDENCY_GOVERNANCE_POLICY.md`; merged Dependabot rollout and successor finalization evidence | GitHub-native version-update conformance; TDE remains Deferred and no new analyzer or product behavior is authorized |
+| Platform Dependency Governance conformance | P1 | Completed | `docs/software_assurance/PLATFORM_DEPENDENCY_GOVERNANCE_POLICY.md`; merged Dependabot rollout and successor finalization evidence | GitHub-native version-update conformance is complete; TDE 1.1.1 supplies separate canonical non-blocking observe evidence and does not replace native security controls |
 | Public distribution: Apple | P1 | Planned | qualified Internal Release consumers and explicit authorization | release-operational work |
 | Public distribution: Windows | P1 | Planned | qualified Internal Release consumers and explicit authorization | release-operational work |
 | Public HACS distribution | P1 | Planned | fresh candidate and release authorization | release-operational work |
@@ -30,7 +30,7 @@ user-facing roadmap progress; the current Product Initiative is recorded in
 | Home Assistant DJConnect HTTP-route registration (`HA-HTTP-ROUTE-3.3.0-001`) | P0 | Historical | reconciled incident evidence | retained incident evidence only |
 | Firmware OTA publication and staged rollback | P1 | Planned | manifest-bound consumer qualification | release-operational work |
 | Website production deployment and announcements | P1 | Planned | approved manifest and consumer qualification | release-operational work |
-| Technical Debt Engine integration | P1 | Deferred | released standalone TDE CLI, stable evidence schema, trusted distribution and Software Assurance compatibility | Platform Evolution integration after external product initialization |
+| Technical Debt Engine 1.1.1 consumer rollout | P1 | Completed | PR #583 and current `tde-observe.yml` evidence across the selected source consumers | Canonical public runtime and CLI provide observe-only `code_size`, `complexity`, `coverage` and `dependency_health` evidence; no release or merge gate |
 | Privacy Assessment | P2 | Planned | privacy inventory, profile/shared-device review and Software Assurance compatibility | Platform Evolution assessment; possible future standalone engine |
 | SBOM generation | P2 | Planned | Trusted Delivery compatibility assessment | scoped Platform Evolution proposal |
 | Release Health and observability | P2 | Planned | operational release evidence and [`PLATFORM_RELEASE_OBSERVATORY_DESIGN.md`](docs/platform_evolution/PLATFORM_RELEASE_OBSERVATORY_DESIGN.md) | three bounded delivery increments; no implementation authorization |
@@ -148,35 +148,21 @@ Assurance/Trusted Delivery, release/deployment/rollback evidence and qualified
 runner routing. This is a Platform Evolution backlog item only; it authorizes
 neither a Component Release nor changes to Platform Release execution.
 
-## Backlog detail: Technical Debt Engine integration
+## Historical delivery: Technical Debt Engine 1.1.1 consumer rollout
 
-Integrate DJConnect as a reference consumer of the standalone **Technical Debt
-Engine** (TDE), whose canonical CLI is `tde`. TDE is an independent,
-platform- and project-agnostic product and must live in its own repository
-(suggested: `pcvantol/technical-debt-engine`; final name remains a product
-initialization decision). DJConnect must not contain, copy or reimplement TDE
-runtime, analyzers, schemas, qualification logic, packaging or release process.
+DJConnect consumes the standalone **Technical Debt Engine** (TDE) as an
+independent public product. The selected source repositories use the exact
+published `technical-debt-engine-runtime==1.1.1` and the public `tde` CLI;
+DJConnect does not contain, copy or own TDE runtime, analyzers, schemas,
+qualification logic, packaging or release lifecycle.
 
-DJConnect's future integration layer may discover repositories through
-`REPOSITORY_OWNERSHIP.md`, invoke only an immutably pinned released TDE CLI,
-validate TDE schema/version/repository identity/candidate SHA, apply
-DJConnect-specific configuration and exclusions, retain per-repository evidence
-and aggregate platform baselines and trends. Generation 1 integration is
-informational: observe, baseline, report, compare and trend only. It must keep
-release gating disabled and preserve Software Assurance and Trusted Delivery.
-
-The standalone product must first establish its own vision, architecture,
-roadmap, backlog, governance, CLI and versioned evidence contracts, adapter and
-test strategy, packaging/release strategy and prompt index. Its first released
-CLI needs supported language adapters, reproducible trusted distribution and
-documented exit codes. DJConnect integration may begin only after that release;
-it must never depend on unreleased local TDE source.
-
-Future work must reject stale, candidate-SHA-mismatched, incomplete,
-unsupported-schema or untrusted-version evidence. Optional regression-aware
-release gates require a separate future governance and qualification decision.
-This is a Platform Evolution backlog item only; it authorizes neither creation
-of the TDE repository nor any TDE/DJConnect implementation.
+The completed rollout produces repository-scoped, artifact-backed standard
+assessments for `code_size`, `complexity`, `coverage` and `dependency_health`.
+It is observe-only and non-blocking: it neither replaces Dependabot,
+dependency audit, Software Assurance, Trusted Delivery or Verification nor
+becomes a merge, release or product gate. Future changes to TDE itself remain
+owned by its repository. Any future change from observation to enforcement
+would require a separate DJConnect governance and qualification decision.
 
 ## Backlog detail: Privacy Assessment
 

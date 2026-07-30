@@ -1,6 +1,6 @@
 # Platform Dependency Governance Conformance Report
 
-**Status:** implementation complete; successor exact-main evidence pending finalization
+**Status:** completed historical delivery; successor exact-main evidence reconciled
 **Scope:** GitHub-native Dependabot configuration and existing platform
 governance only.
 
@@ -39,4 +39,6 @@ This is recorded as evidence-retention follow-up, not treated as qualified
 historical PR evidence.
 
 The report does not claim a new Dependency Review or vulnerability analyzer:
-those remain bounded by existing repository assurance. TDE remains Deferred.
+those remain bounded by existing repository assurance. The later TDE 1.1.1
+consumer rollout is separately complete and provides non-blocking,
+repository-scoped observe evidence; it does not replace those controls.

@@ -23,9 +23,11 @@ chain.
   accepted package-manager update where that ecosystem uses them.
 - SHA-pinned Actions remain required; Dependabot may update only the immutable
   SHA and its corresponding version comment.
-- TDE Dependency Health remains Deferred and future-only. It may normalize
-  health evidence later but never replaces Dependabot, Dependency Review or
-  ecosystem-native vulnerability assessment.
+- TDE 1.1.1 provides canonical non-blocking observe evidence for
+  `code_size`, `complexity`, `coverage` and `dependency_health` through the
+  public runtime and CLI. It complements, and never replaces, Dependabot,
+  dependency audit, Dependency Review where available or ecosystem-native
+  vulnerability assessment.
 
 ## Supported native ecosystems
 
@@ -41,5 +43,6 @@ Dependabot security updates remain enabled in GitHub. A repository may retain a
 native-ecosystem exception only when the ecosystem is unsupported by Dependabot
 or no manifest is present; the exception must be recorded in the platform
 conformance report. This policy adds no new vulnerability database, analyzer,
-automerge path, TDE control or recovery SLO beyond the existing GitHub security
-update and Trusted Delivery operating model.
+automerge path or recovery SLO beyond the existing GitHub security update and
+Trusted Delivery operating model. TDE remains observe-only and cannot create a
+merge or release gate.
