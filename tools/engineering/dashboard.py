@@ -3,7 +3,14 @@
 from __future__ import annotations
 
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+import argparse
+import os
 from pathlib import Path
+import subprocess
+import sys
+
+LABEL = "com.djconnect.engineering-dashboard"
+DASHBOARD_VERSION = "1.0.0"
 
 
 def _status(root: Path) -> bytes:
@@ -49,3 +56,60 @@ def handler(root: Path):
 
 def run(root: Path, host: str = "127.0.0.1", port: int = 8765) -> None:
     ThreadingHTTPServer((host, port), handler(root)).serve_forever()
+
+
+def launch_agent(repo: Path) -> Path:
+    """Render the only owned per-user LaunchAgent; no network policy changes."""
+    destination = Path.home() / "Library/LaunchAgents" / f"{LABEL}.plist"
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    logs = repo / ".djconnect" / "logs"
+    logs.mkdir(mode=0o700, parents=True, exist_ok=True)
+    arguments = "".join(
+        f"<string>{value}</string>"
+        for value in (
+            sys.executable,
+            "-m",
+            "tools.engineering.dashboard",
+            "run",
+            "--repo",
+            str(repo),
+        )
+    )
+    destination.write_text(
+        f'<?xml version="1.0" encoding="UTF-8"?><plist version="1.0"><dict><key>Label</key><string>{LABEL}</string><key>ProgramArguments</key><array>{arguments}</array><key>WorkingDirectory</key><string>{repo}</string><key>RunAtLoad</key><true/><key>KeepAlive</key><true/><key>ThrottleInterval</key><integer>15</integer><key>StandardOutPath</key><string>{logs / "dashboard.out.log"}</string><key>StandardErrorPath</key><string>{logs / "dashboard.err.log"}</string></dict></plist>',
+        encoding="utf-8",
+    )
+    return destination
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("command", choices=("run", "install", "uninstall", "status", "doctor"))
+    parser.add_argument("--repo", type=Path, default=Path.cwd())
+    parser.add_argument("--port", type=int, default=8765)
+    args = parser.parse_args(argv)
+    repo = args.repo.resolve()
+    agent = Path.home() / "Library/LaunchAgents" / f"{LABEL}.plist"
+    if args.command == "run":
+        run(repo, port=args.port)
+        return 0
+    if args.command == "install":
+        agent = launch_agent(repo)
+        subprocess.run(
+            ("launchctl", "bootout", f"gui/{os.getuid()}", str(agent)),
+            check=False,
+            capture_output=True,
+        )
+        subprocess.run(("launchctl", "bootstrap", f"gui/{os.getuid()}", str(agent)), check=False)
+        return 0
+    if args.command == "uninstall":
+        subprocess.run(("launchctl", "bootout", f"gui/{os.getuid()}", str(agent)), check=False)
+        agent.unlink(missing_ok=True)
+        return 0
+    health = (repo / ".djconnect" / "status" / "status.json").is_file()
+    print(f"REMOTE_ENGINEERING_{'READY' if health and agent.is_file() else 'DEGRADED'}")
+    return 0 if health and agent.is_file() else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
