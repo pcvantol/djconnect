@@ -13,6 +13,19 @@ environment. From a clean DJConnect checkout, run:
 ./tools/engineering/dj-engineer path/to/engineering-prompt.md
 ```
 
+For a bounded transaction with explicit owner authorization for the complete
+PR and Finalization lifecycle, use:
+
+```sh
+./tools/engineering/dj-engineer path/to/engineering-prompt.md \
+  --owner-authorized --run-id bounded-run
+```
+
+The authorization is checkpointed locally, applies only to that transaction,
+and permits branch/PR readiness, bounded repair, merge and Finalization. It
+does not permit releases, deployments, tags, packages, infrastructure changes,
+repository-settings changes or branch-protection bypass.
+
 The runner verifies the repository, builds a repository-first Codex prompt from
 the supplied file and canonical repository instructions, then records an
 advisory checkpoint in `.djconnect/engineering-runs/`. That directory is local
@@ -60,7 +73,8 @@ The runner uses repository-scoped `workspace-write` Codex access. It does not
 reset, stash, overwrite or discard unrelated work. A dirty workspace,
 repository mismatch, missing Codex CLI, failed required checks, missing
 approval or other external authority boundary is reported rather than bypassed.
-It does not merge, release or deploy.
+Without `--owner-authorized` it does not merge. In every mode it does not
+release or deploy.
 
 ChatGPT cannot directly control this local process. Architectural discussion
 may continue separately while the developer leaves this foreground command
