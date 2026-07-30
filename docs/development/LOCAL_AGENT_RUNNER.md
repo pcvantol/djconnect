@@ -36,6 +36,15 @@ from repository evidence. Reports show selection reasons, contributions and
 reconciled recommendation counts; Engineering Memory retains bounded reviewer
 confidence, usage, outcome and duration metadata for future selection.
 
+Engineering Platform 1.2 complements those generic reviewers with deterministic
+product specialists for Apple Platform, Windows Platform, Home Assistant
+Integration, ESPHome Firmware, Pi Renderer, Universal Receiver, Website and
+API. Path and objective evidence select only the relevant specialist; each
+reviewer receives an explicit capability scope and may not redesign another
+product area without cross-capability repository evidence. Product and generic
+reviewers can inspect independently in parallel, while recommendations remain
+advisory and require primary-agent reconciliation.
+
 ## Prerequisite and usage
 
 Codex CLI must already be installed and authenticated in the developer's local
