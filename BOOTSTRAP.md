@@ -123,6 +123,12 @@ contract is Engineering Platform `1.2.0`, runner `1.2.0`, Bootstrap Contract
 `2026.09`, Checkpoint Format `1`, Engineering Memory Format `2`, Report Format
 `2` and minimum supported Codex CLI `0.146.0`.
 
+Every new engineering prompt produced through the Product & Platform Architect
+workflow requires Engineering Platform `1.2.0` or newer. The generated prompt
+must state this minimum explicitly. `dj-engineer` must fail closed before any
+repository mutation when the detected Engineering Platform is older than the
+prompt's declared minimum.
+
 `dj-engineer` validates this manifest at startup. Engineering compatibility is
 determined from this Engineering Platform contract, not from individual runner
 implementation details. A newer runner may execute an older repository only
