@@ -94,10 +94,12 @@ After merged Finalization evidence is contained in `main`, the runner enters
 `REPOSITORY_CLEANUP` before it can report `COMPLETE`. It fetches with
 `git fetch --prune`, checks out and fast-forwards `main`, and evaluates only
 the implementation and Finalization branches recorded for that transaction.
-It uses ordinary merged-branch deletion only after objective merge evidence;
-missing branches are already-cleaned success, while an unmerged, current or
-uncertain branch is preserved and reported as blocked. Resume repeats the same
-idempotent evidence-based cleanup and never removes unrelated branches.
+It first uses ordinary deletion. If Git refuses solely because a squash merge
+made the transaction branch non-ancestral, reconciled PR/main evidence and
+checkpoint ownership authorize a safe local force deletion for that exact
+branch. Missing branches are already-cleaned success; uncertain ownership or
+failed reconciliation remains blocked. Resume repeats the same idempotent
+evidence-based cleanup and never removes unrelated branches.
 
 ## Terminal reports and advisory sub-agents
 
