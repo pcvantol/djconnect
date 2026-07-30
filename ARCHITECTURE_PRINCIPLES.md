@@ -256,7 +256,13 @@ Community household display / ambient client.
 
 ### `pcvantol/djconnect-esp32` and `pcvantol/djconnect-firmware`
 
-Community firmware/control clients focused on physical controls, lightweight voice/TTS, device identity, and reliable local interaction.
+`djconnect-esp32` owns firmware source and board enablement. For a qualified
+supported board, ESPHome is the preferred firmware platform: DJConnect composes
+an attributed, pinned community hardware baseline with thin packages and
+components instead of independently reimplementing low-level hardware drivers.
+`djconnect-firmware` is the distribution-only owner of compiled artifacts,
+manifests, checksums and release notes. Both preserve existing device identity,
+transport, pairing and Runtime contracts. See ADR-0017.
 
 ### Release repositories
 

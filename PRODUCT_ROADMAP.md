@@ -96,6 +96,7 @@ their established scope; this roadmap does not authorize their implementation.
 | 2 | Session Continuation capability family | Planned | Canonical DJMoment, active Session Runtime/Flow, Profile privacy and device-authorization boundaries, Renderer Host classification and a future assessment-first decision |
 | 2 | Session Lifecycle Completion capability family | Planned | Existing DJ Session lifecycle, Session Start Strategy, Session Continuation, Session Flow, historical Session Timeline, opt-in Music DNA and renderer-safe projection boundaries; future assessment-first decision |
 | Technical Design | Session Direction Projection | Planned | `docs/technical/SESSION_DIRECTION_PROJECTION_ARCHITECTURE.md`; dedicated Broadcast and renderer assessment before implementation |
+| Platform Adoption | ESPHome firmware platform | Planned | ADR-0017; `docs/technical/ESPHOME_FIRMWARE_PLATFORM_ARCHITECTURE.md`; board-specific baseline and qualification evidence; no Runtime, pairing or renderer-contract change |
 | Technical Design | Sharing Experience | Planned | `docs/product/SHARING_EXPERIENCE_ARCHITECTURE.md`; user-initiated native Renderer Host assessment before any share implementation |
 | 3 | Apple Premium Experience | Planned | Reference Experience, experience quality, polish, onboarding and release readiness for macOS, iPhone/iPad and Apple Watch |
 | 3 | Apple Watch Moment-First Conversational Companion | Planned | Apple Premium Experience; CMB-07 Apple/Windows evidence; existing Watch companion evidence; active Session, privacy/device authorization and renderer-safe projection assessment |
@@ -697,7 +698,10 @@ Personal capabilities are not automatically included.
 Platform Adoption is the independent, non-release-gating stream that brings
 the completed Runtime to additional Concrete Hosts when it does not block the
 current product milestone. It includes Raspberry Pi, ESPHome Voice, the
-Desktop Platform Family, Website, Universal Receiver renderer and ESP32.
+Desktop Platform Family, Website, Universal Receiver renderer and ESP32. The
+ESPHome firmware platform is a device-enablement path for the constrained ESP32
+host, not the separate ESPHome Voice Host category and not a new Renderer
+Platform.
 
 Apple remains the first public consumer product and the premium reference
 implementation of the Community product; it does not own the product or

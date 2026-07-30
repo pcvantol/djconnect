@@ -18,6 +18,7 @@ Classification tags used throughout:
 | `CONFIRMED_TEST` | Directly observed in automated tests or fixtures. |
 | `CONFIRMED_RUNTIME` | Observed only from runtime evidence. None was collected in this phase. |
 | `DOCUMENTED_ONLY` | Stated in docs or AGENTS but not confirmed in code during this pass. |
+| `TARGET_ARCHITECTURE` | Accepted future architecture; it does not claim current implementation. |
 | `INFERRED` | Reasonable conclusion from multiple source facts; not directly asserted by code. |
 | `UNKNOWN` | Not confidently determined. |
 
@@ -48,6 +49,7 @@ Do not treat this directory as a new platform design.
 - [BUILD_VARIANTS.md](BUILD_VARIANTS.md)
 - [PUSH_NOTIFICATIONS.md](PUSH_NOTIFICATIONS.md)
 - [UPDATE_MODEL.md](UPDATE_MODEL.md)
+- [ESPHOME_FIRMWARE_PLATFORM_ARCHITECTURE.md](ESPHOME_FIRMWARE_PLATFORM_ARCHITECTURE.md) — accepted target architecture; not implementation archaeology
 - [TECHNICAL_DRIFT.md](TECHNICAL_DRIFT.md)
 - [UNKNOWNS.md](UNKNOWNS.md)
 

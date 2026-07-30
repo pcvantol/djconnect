@@ -27,7 +27,7 @@ music intelligence runtime.
 | `djconnect-app` | Apple iOS/macOS/watchOS Intelligence Client, HTTP and websocket client, APNs registration surface. | `CONFIRMED_CODE` |
 | `djconnect-windows` | .NET MAUI Windows client with HTTP/websocket transport, Credential Manager/Keychain credential storage, local pairing UI. | `CONFIRMED_CODE` |
 | `djconnect-pi` | Python Raspberry Pi Ambient Client with local `/api/device` API, HA HTTP client, optional websocket fast path, updater. | `CONFIRMED_CODE` |
-| `djconnect-esp32` | PlatformIO/Arduino ESP32 firmware with local `/api/device` API, mDNS, NVS provisioning, PTT WAV upload, OTA. | `CONFIRMED_CODE` |
+| `djconnect-esp32` | Current PlatformIO/Arduino ESP32 firmware with local `/api/device` API, mDNS, NVS provisioning, PTT WAV upload and OTA; accepted target architecture adds ESPHome as the preferred qualified hardware-enablement platform without changing these contracts. | `CONFIRMED_CODE` / `TARGET_ARCHITECTURE` |
 | `djconnect-api` | Cloudflare Worker for install tokens, bootstrap proofs and APNs relay. | `CONFIRMED_CODE` |
 | `djconnect-website` | Product website/docs implementation. No runtime protocol ownership observed. | `DOCUMENTED_ONLY` |
 | `djconnect-firmware` | Public firmware release artifacts/manifest. | `DOCUMENTED_ONLY` |
