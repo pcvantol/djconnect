@@ -15,6 +15,8 @@
 
 ## Current position
 
+PR [#639](https://github.com/pcvantol/djconnect/pull/639) merged as `983dc283c590e1ef16c8e9a64f67c86d9d4e28ab`. Engineering Platform 1.4 Remote Engineering contracts are reconciled. Repository State: `MERGED_RECONCILED`
+
 PR [#636](https://github.com/pcvantol/djconnect/pull/636) merged as `c491508e95970d07b8eafc8b4dca439818159c7d`. Remote onboarding/readiness is reconciled. Repository State: `MERGED_RECONCILED`
 
 PR [#634](https://github.com/pcvantol/djconnect/pull/634), **Add Remote
