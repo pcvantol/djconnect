@@ -11,6 +11,7 @@ import sys
 import time
 from .platform_api import PlatformConfiguration
 from .providers import TailscaleProvider
+from .providers import LaunchdProvider
 
 LABEL = "com.djconnect.engineering-dashboard"
 DASHBOARD_VERSION = "1.0.0"
@@ -121,15 +122,10 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "install":
         agent = launch_agent(repo)
-        subprocess.run(
-            ("launchctl", "bootout", f"gui/{os.getuid()}", str(agent)),
-            check=False,
-            capture_output=True,
-        )
-        subprocess.run(("launchctl", "bootstrap", f"gui/{os.getuid()}", str(agent)), check=False)
+        LaunchdProvider().install(LABEL, agent)
         return 0
     if args.command == "uninstall":
-        subprocess.run(("launchctl", "bootout", f"gui/{os.getuid()}", str(agent)), check=False)
+        LaunchdProvider().uninstall(agent)
         agent.unlink(missing_ok=True)
         return 0
     health = (repo / ".djconnect" / "status" / "status.json").is_file()

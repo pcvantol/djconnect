@@ -16,6 +16,7 @@ import time
 
 from .platform_version import EngineeringPlatformManifest
 from .platform_api import PlatformConfiguration
+from .providers import LaunchdProvider
 from .status_model import build, publish
 
 LABEL = "com.djconnect.engineering-inbox"
@@ -353,15 +354,10 @@ def main(argv: list[str] | None = None) -> int:
     agent = Path.home() / "Library/LaunchAgents" / f"{LABEL}.plist"
     if args.command == "install":
         agent = launch_agent(repo)
-        subprocess.run(
-            ("launchctl", "bootout", f"gui/{os.getuid()}", str(agent)),
-            check=False,
-            capture_output=True,
-        )
-        subprocess.run(("launchctl", "bootstrap", f"gui/{os.getuid()}", str(agent)), check=False)
+        LaunchdProvider().install(LABEL, agent)
         return 0
     if args.command == "uninstall":
-        subprocess.run(("launchctl", "bootout", f"gui/{os.getuid()}", str(agent)), check=False)
+        LaunchdProvider().uninstall(agent)
         agent.unlink(missing_ok=True)
         return 0
     return doctor(repo, root)

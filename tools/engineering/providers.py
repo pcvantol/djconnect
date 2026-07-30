@@ -30,6 +30,8 @@ class RepositoryProvider(Protocol):
 
 class ServiceManagerProvider(Protocol):
     def status(self) -> ProviderStatus: ...
+    def install(self, label: str, plist: Path) -> None: ...
+    def uninstall(self, plist: Path) -> None: ...
 
 
 class RemoteSubmissionProvider(Protocol):
@@ -57,6 +59,13 @@ class LaunchdProvider:
     def status(self) -> ProviderStatus:
         available = shutil.which("launchctl") is not None
         return ProviderStatus("launchd", "configured", available, "available" if available else "launchctl unavailable")
+
+    def install(self, label: str, plist: Path) -> None:
+        subprocess.run(("launchctl", "bootout", f"gui/{__import__('os').getuid()}", str(plist)), check=False, capture_output=True)
+        subprocess.run(("launchctl", "bootstrap", f"gui/{__import__('os').getuid()}", str(plist)), check=False)
+
+    def uninstall(self, plist: Path) -> None:
+        subprocess.run(("launchctl", "bootout", f"gui/{__import__('os').getuid()}", str(plist)), check=False)
 
 
 class ICloudInboxProvider:
