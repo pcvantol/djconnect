@@ -15,6 +15,21 @@
 
 ## Current position
 
+PR [#594](https://github.com/pcvantol/djconnect/pull/594), **Define ESPHome
+Firmware Platform Architecture**, merged as
+`270a1e558c8bcb360ad6b3a5c31a1d681facbba3`. ESPHome is now the accepted,
+first-class and preferred firmware platform for qualified DJConnect ESP
+hardware. The decision requires attributed, pinned community hardware
+baselines, modular source ownership in `djconnect-esp32`, board-by-board
+qualification and artifact-only distribution through `djconnect-firmware`.
+
+This is a documentation and governance decision only. It preserves the
+existing Runtime, pairing, renderer, transport, capability and Home Assistant
+integration boundaries; the Device Installer remains firmware-agnostic. The
+new P2 Platform Adoption item does not displace the current Execution Horizon.
+The implementation Prompt History archive is absent and remains an explicit
+traceability gap rather than recreated history.
+
 PR [#592](https://github.com/pcvantol/djconnect/pull/592), **Enforce Component
 Release Selection Closure**, merged as
 `122e37544b7f5b5f526b77386eaac749ca6f0958` with

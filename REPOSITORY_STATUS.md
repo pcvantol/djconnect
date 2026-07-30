@@ -2,6 +2,22 @@
 
 Status: active platform-evolution repository
 
+## ESPHome firmware platform architecture finalization
+
+PR [#594](https://github.com/pcvantol/djconnect/pull/594), **Define ESPHome
+Firmware Platform Architecture**, merged as
+`270a1e558c8bcb360ad6b3a5c31a1d681facbba3`. It establishes ESPHome as the
+preferred qualified firmware platform for supported DJConnect ESP hardware,
+with a pinned community baseline, reusable source packages, board-level
+qualification and existing manifest-based distribution.
+
+No Runtime, pairing, renderer, transport, device-capability or HA-integration
+behavior changed. `djconnect-esp32` remains the source owner and
+`djconnect-firmware` the artifact/distribution owner. The implementation Prompt
+History archive is absent and is recorded as a traceability gap without being
+recreated. This Finalization reconciles the rolling records only; the added P2
+Platform Adoption item does not alter the five-item Execution Horizon.
+
 ## Current reconciliation
 
 PR [#592](https://github.com/pcvantol/djconnect/pull/592), **Enforce Component

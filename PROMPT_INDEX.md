@@ -2,6 +2,21 @@
 
 Status: canonical prompt navigation
 
+## ESPHome firmware platform architecture
+
+PR [#594](https://github.com/pcvantol/djconnect/pull/594), **Define ESPHome
+Firmware Platform Architecture**, merged as
+`270a1e558c8bcb360ad6b3a5c31a1d681facbba3`. It accepts ESPHome as the
+preferred firmware platform for qualified DJConnect ESP hardware, with an
+attributed pinned community baseline, board-level qualification and the
+existing `djconnect-esp32` source / `djconnect-firmware` distribution boundary.
+
+The implementation Prompt History archive is absent. This governance-only
+Finalization records that immutable traceability gap without recreating history.
+It changes no Runtime, pairing, renderer, transport, device-capability or Home
+Assistant integration behavior, and its P2 Platform Adoption record does not
+change the Execution Horizon.
+
 ## Component Release Selection and Evidence Closure
 
 PR [#592](https://github.com/pcvantol/djconnect/pull/592), **Enforce Component

@@ -3,6 +3,22 @@
 **Status:** Operational handoff
 **Updated:** 2026-07-30
 
+## ESPHome Firmware Platform Architecture finalization
+
+PR [#594](https://github.com/pcvantol/djconnect/pull/594), **Define ESPHome
+Firmware Platform Architecture**, merged as
+`270a1e558c8bcb360ad6b3a5c31a1d681facbba3`. It accepts ESPHome as the
+preferred, first-class firmware platform for qualified DJConnect ESP hardware,
+using attributed, pinned community hardware baselines and board-by-board
+qualification. It keeps `djconnect-esp32` as the source owner and
+`djconnect-firmware` as the distribution-only owner.
+
+The merged architecture changes no DJConnect Runtime, pairing, renderer
+contract, transport protocol, device capability or Home Assistant integration.
+Its implementation Prompt History archive is absent; this Finalization records
+that immutable traceability gap without recreating history. The new Platform
+Adoption item is P2 and does not displace the current Execution Horizon.
+
 ## Component Release Selection and Evidence Closure finalization
 
 PR [#592](https://github.com/pcvantol/djconnect/pull/592), **Enforce Component
@@ -139,12 +155,13 @@ qualification item; no Runtime, product, API or renderer behavior changed.
 
 ## Current engineering increment
 
-PR [#592](https://github.com/pcvantol/djconnect/pull/592), **Enforce Component
-Release Selection Closure**, merged as
-`122e37544b7f5b5f526b77386eaac749ca6f0958`, completes the bounded existing
-Platform Release Runtime selection/evidence-closure implementation. It does
-not authorize a component execute route, release behavior or Execution Horizon
-change.
+PR [#594](https://github.com/pcvantol/djconnect/pull/594), **Define ESPHome
+Firmware Platform Architecture**, merged as
+`270a1e558c8bcb360ad6b3a5c31a1d681facbba3`. It makes ESPHome the preferred,
+first-class firmware platform for qualified supported ESP hardware while
+preserving the existing DJConnect Runtime, pairing, renderer, transport and HA
+integration contracts. The work is architecture, governance and planning only;
+it authorizes no firmware implementation or release.
 
 ### Roadmap position and Execution Horizon
 
