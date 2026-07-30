@@ -5,6 +5,14 @@
 
 ## Owner-authorized autonomous PR lifecycle finalization
 
+## Capability-aware reviewer selection finalization
+
+PR [#624](https://github.com/pcvantol/djconnect/pull/624), **Select
+Capability-Aware Reviewers**, merged as `a51f1ed28e1f8bf3ec13939d36d1d91e24bde569`.
+Engineering Platform 1.1 now selects bounded, read-only specialist reviewers
+from repository objective, lifecycle and safe memory evidence. The primary
+agent retains all decision, write and lifecycle responsibility.
+
 ## Engineering Platform versioning finalization
 
 PR [#622](https://github.com/pcvantol/djconnect/pull/622), **Version Engineering

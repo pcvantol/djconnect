@@ -4,6 +4,13 @@ Status: active platform-evolution repository
 
 ## Owner-authorized autonomous PR lifecycle finalization
 
+## Capability-aware reviewer selection finalization
+
+PR [#624](https://github.com/pcvantol/djconnect/pull/624), **Select
+Capability-Aware Reviewers**, merged as `a51f1ed28e1f8bf3ec13939d36d1d91e24bde569`.
+Reviewer selection is local, read-only and advisory; no Product, Runtime,
+Release, Deployment or Engineering governance behavior changed.
+
 ## Engineering Platform versioning finalization
 
 PR [#622](https://github.com/pcvantol/djconnect/pull/622), **Version Engineering
