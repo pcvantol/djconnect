@@ -4,9 +4,7 @@ from __future__ import annotations
 
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import argparse
-import os
 from pathlib import Path
-import subprocess
 import sys
 import time
 from .platform_api import PlatformConfiguration

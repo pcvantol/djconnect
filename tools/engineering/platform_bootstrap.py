@@ -9,7 +9,7 @@ from .platform_api import PlatformConfiguration, PlatformConfigurationError
 
 def provision_workspace(root: Path) -> dict[str, Path]:
     """Provision only platform-owned local directories; safe to repeat."""
-    configuration = PlatformConfiguration.load(root)
+    PlatformConfiguration.load(root)
     workspace = root / ".djconnect"
     paths = {"workspace": workspace, "reports": workspace / "reports", "status": workspace / "status", "runs": workspace / "engineering-runs", "diagnostics": workspace / "logs"}
     for path in paths.values():

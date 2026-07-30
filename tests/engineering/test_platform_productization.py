@@ -37,7 +37,12 @@ class PlatformProductizationTest(unittest.TestCase):
 
     def test_unknown_local_configuration_fails_closed(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
-            root = Path(temporary); target = root / "tools/engineering"; target.mkdir(parents=True)
+            root = Path(temporary)
+            target = root / "tools/engineering"
+            target.mkdir(parents=True)
             (target / "ENGINEERING_PLATFORM_CONFIG.json").write_text((ROOT / "tools/engineering/ENGINEERING_PLATFORM_CONFIG.json").read_text())
-            local = root / ".djconnect"; local.mkdir(); (local / "engineering-platform.local.json").write_text(json.dumps({"providers": {"runtime": "other"}}))
-            with self.assertRaises(ValueError): PlatformConfiguration.load(root)
+            local = root / ".djconnect"
+            local.mkdir()
+            (local / "engineering-platform.local.json").write_text(json.dumps({"providers": {"runtime": "other"}}))
+            with self.assertRaises(ValueError):
+                PlatformConfiguration.load(root)

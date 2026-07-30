@@ -220,13 +220,17 @@ class GhCliClient:
         )
 
     def ready(self, number: int) -> None:
-        try: self.provider.github("pr", "ready", str(number))
+        try:
+            self.provider.github("pr", "ready", str(number))
         except RuntimeError as error:
-            if "already ready" not in str(error).lower(): raise RunnerError(str(error)) from error
+            if "already ready" not in str(error).lower():
+                raise RunnerError(str(error)) from error
 
     def merge(self, number: int) -> None:
-        try: self.provider.github("pr", "merge", str(number), "--squash", "--delete-branch")
-        except RuntimeError as error: raise RunnerError(str(error)) from error
+        try:
+            self.provider.github("pr", "merge", str(number), "--squash", "--delete-branch")
+        except RuntimeError as error:
+            raise RunnerError(str(error)) from error
 
 
 class CodexCliClient:
