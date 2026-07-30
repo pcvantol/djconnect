@@ -54,6 +54,15 @@ blocked counts. Its JSON and Markdown evidence remains under the git-ignored
 `.djconnect/qualification/` directory. Terminal Engineering Reports include the
 latest available qualification version, result, execution time and coverage.
 
+## Generation 1 status
+
+Engineering Platform Generation 1 is feature complete. Its stable capability
+set and future evidence-driven governance are recorded in
+`tools/engineering/ENGINEERING_PLATFORM_STATUS.md`. New capabilities require
+demonstrated insufficient coverage, explicit architectural approval,
+implementation, qualification and evidence; routine work remains limited to
+maintenance, bug fixes, compatibility and qualification improvement.
+
 ## Prerequisite and usage
 
 Codex CLI must already be installed and authenticated in the developer's local
