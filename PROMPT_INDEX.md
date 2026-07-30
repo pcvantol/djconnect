@@ -4,6 +4,13 @@ Status: canonical prompt navigation
 
 ## Owner-authorized autonomous PR lifecycle
 
+## Remote Engineering Experience finalization
+
+PR [#634](https://github.com/pcvantol/djconnect/pull/634), **Add Remote
+Engineering Experience**, merged as `78208facd516ff26666afdf338746d5ad0c592e8`.
+Its Finalization is `merged_reconciled`; repository and GitHub remain the
+engineering source of truth.
+
 ## iCloud Engineering Inbox watcher finalization
 
 PR [#632](https://github.com/pcvantol/djconnect/pull/632), **Add iCloud
