@@ -64,6 +64,10 @@ release process the source of truth.
   `PLATFORM_RELEASE_EXECUTION_REPORT.md` and
   `PLATFORM_RELEASE_DEPLOYMENT_EVIDENCE.md` record the controlled operational
   runtime and its representative non-production qualification.
+- `COMPONENT_RELEASE_SCOPE_REFINEMENT.md` defines the reusable fail-closed
+  component-selection, participant and evidence-closure contract. It records
+  which current components are profiled and which remain non-selectable; it
+  does not enable component-release execution.
 
 The architecture consumes repository membership from
 [`REPOSITORY_OWNERSHIP.md`](../../REPOSITORY_OWNERSHIP.md). It consumes

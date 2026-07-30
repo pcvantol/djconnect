@@ -73,6 +73,21 @@ Its finalization prompt is preserved at
 
 ## Current product architecture note
 
+## Component Release Scope Refinement
+
+The platform-wide Component Release Scope Refinement is recorded in
+`docs/release/COMPONENT_RELEASE_SCOPE_REFINEMENT.md` with decision
+`GO_COMPONENT_RELEASE_SCOPE_REFINEMENT_PARTIALLY_QUALIFIED`. Its immutable
+prompt history is
+`docs/history/prompts/2026-07-30-component-release-scope-refinement-all-components.md`.
+
+It defines the reusable fail-closed selection and evidence-closure contract
+for HACS, API, website, ESP32, iOS/watchOS, macOS, Windows and the shared Pi
+renderer family. It records Pi 4-inch and Pi 10-inch as non-selectable until
+they have independent artifacts and target evidence. It authorizes no release:
+Runtime selection/evidence closure implementation remains the sole next
+component-release increment.
+
 PR [#545](https://github.com/pcvantol/djconnect/pull/545) merged as
 `e5246f0409063d7eec12e3e3c01d78737ae6ba2c` with
 `GO_GENERATION_2_EXECUTION_DIRECTION_REVIEWED`. Its immutable history is
