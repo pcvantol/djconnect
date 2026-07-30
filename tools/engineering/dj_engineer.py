@@ -36,6 +36,7 @@ from .platform_version import (
 from .qualification import dashboard, execute_qualification, latest_qualification
 from .repository_handoff import publish as publish_repository_handoff
 from .status_model import build as build_canonical_status, publish as publish_canonical_status
+from .platform_api import PlatformConfiguration, PlatformConfigurationError, provider_registry
 
 
 class RunnerError(RuntimeError):
@@ -532,7 +533,15 @@ class EngineeringRunner:
             validate_compatibility(
                 self.platform_manifest, self.compatibility, self.detected_codex_cli
             )
-        except EngineeringPlatformCompatibilityError as error:
+            configuration_path = self.root / "tools" / "engineering" / "ENGINEERING_PLATFORM_CONFIG.json"
+            if configuration_path.is_file():
+                configuration = PlatformConfiguration.load(self.root)
+                if configuration.platform.version != self.platform_manifest.platform_version:
+                    raise EngineeringPlatformCompatibilityError("Platform identity and manifest version mismatch")
+                providers = provider_registry(self.root)
+                if any(not item["status"].qualified for item in providers.values()):
+                    raise EngineeringPlatformCompatibilityError("Configured Engineering Platform provider is unavailable")
+        except (EngineeringPlatformCompatibilityError, PlatformConfigurationError) as error:
             raise RunnerError(str(error)) from error
 
     def _reconcile(self, state: TransactionState, evidence: RepositoryEvidence) -> TransactionState:

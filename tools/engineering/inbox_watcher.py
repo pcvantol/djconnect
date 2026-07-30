@@ -15,6 +15,7 @@ import sys
 import time
 
 from .platform_version import EngineeringPlatformManifest
+from .platform_api import PlatformConfiguration
 from .status_model import build, publish
 
 LABEL = "com.djconnect.engineering-inbox"
@@ -23,9 +24,11 @@ MAX_BYTES = 256_000
 TERMINAL_PHASES = frozenset({"COMPLETE", "BLOCKED", "FAILED"})
 
 
-def cloud_root(value: str | None = None) -> Path:
+def cloud_root(value: str | None = None, repo: Path | None = None) -> Path:
     """Return the per-user iCloud workspace without hard-coding a username."""
     default = Path.home() / "Library/Mobile Documents/com~apple~CloudDocs/DJConnect Engineering"
+    if repo is not None:
+        PlatformConfiguration.load(repo)
     return Path(value or os.environ.get("DJCONNECT_ENGINEERING_INBOX") or default).expanduser()
 
 
@@ -325,7 +328,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--icloud-root")
     parser.add_argument("--interval", type=float, default=15)
     args = parser.parse_args(argv)
-    repo, root = args.repo.resolve(), cloud_root(args.icloud_root)
+    repo = args.repo.resolve()
+    root = cloud_root(args.icloud_root, repo)
     if args.command == "once":
         return once(repo, root, 0.0)
     if args.command == "run":
