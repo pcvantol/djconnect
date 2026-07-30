@@ -18,7 +18,7 @@ user-facing roadmap progress; the current Product Initiative is recorded in
 | --- | --- | --- | --- | --- |
 | Capability-profile assessment follow-up | P2 | Completed | PR #539 / `QUALIFICATION_REGISTER.md`; current CMB-05/CMB-06/CMB-07/CMB-09/CMB-12 evidence | `GO_CAPABILITY_PROFILE_FOLLOW_UP_RECONCILED`; seven original items reconciled to six unique active items; no product implementation authorization |
 | Canonical governance Version 2.2 alignment | P0 | Historical | merged governance evidence | retained governance evidence only |
-| Component Release Mode | P2 | Implemented — Finalization pending | `docs/release/COMPONENT_RELEASE_MODE_ASSESSMENT.md`, `docs/release/COMPONENT_RELEASE_QUALIFICATION_ASSESSMENT.md`, `docs/release/COMPONENT_RELEASE_SCOPE_REFINEMENT.md` and `docs/release/COMPONENT_RELEASE_SELECTION_EVIDENCE_CLOSURE_IMPLEMENTATION.md` | `GO_COMPONENT_RELEASE_SELECTION_EVIDENCE_CLOSURE_IMPLEMENTED`; canonical profiles are now deterministically selected and fail-closed against exact closure evidence. Component execution and release remain unauthorized pending profile-specific execute qualification. |
+| Component Release Mode | P2 | Implemented and Finalized — Execute Qualification pending | `docs/release/COMPONENT_RELEASE_MODE_ASSESSMENT.md`, `docs/release/COMPONENT_RELEASE_QUALIFICATION_ASSESSMENT.md`, `docs/release/COMPONENT_RELEASE_SCOPE_REFINEMENT.md` and `docs/release/COMPONENT_RELEASE_SELECTION_EVIDENCE_CLOSURE_IMPLEMENTATION.md` | `GO_COMPONENT_RELEASE_SELECTION_EVIDENCE_CLOSURE_IMPLEMENTED`; canonical profiles are deterministically selected and fail closed against exact closure evidence. Component execution and release remain unauthorized pending profile-specific Execute Qualification. |
 | GitHub Actions retention and evidence preservation (`TD-GITHUB-001`) | P1 | Completed | PRs #547–#554; `docs/software_assurance/EVIDENCE_PRESERVATION_IMPLEMENTATION_REPORT.md`; durable record for `f6e346018dadaccc8457dac7b5cadd19a03b80e7` | `GO_TD_GITHUB_001_QUALIFIED`; redacted, immutable release-asset evidence is published and read back fail-closed |
 | Platform Dependency Governance conformance | P1 | Completed | `docs/software_assurance/PLATFORM_DEPENDENCY_GOVERNANCE_POLICY.md`; merged Dependabot rollout and successor finalization evidence | GitHub-native version-update conformance is complete; TDE 1.1.1 supplies separate canonical non-blocking observe evidence and does not replace native security controls |
 | Public distribution: Apple | P1 | Planned | qualified Internal Release consumers and explicit authorization | release-operational work |
@@ -140,33 +140,26 @@ authoritative release source until a future delivery increment is authorized.
 
 The canonical component inventory, ownership, release boundaries, version
 posture and minimum verification evidence are recorded in
-`docs/release/COMPONENT_RELEASE_MODE_ASSESSMENT.md`. Existing repository-local
-patch releases remain bounded by the platform `major.minor` train. The
-completed Component Release Qualification found that a generic selected-source
-and dependency/evidence closure is not yet represented by the current Runtime;
-only a future Scope Refinement remains.
+`docs/release/COMPONENT_RELEASE_MODE_ASSESSMENT.md`. PRs #592 and #593
+implemented and finalized Component Release Selection and Evidence Closure
+within the existing Platform Release Runtime.
 
-Design a first-class Component Release mode within the existing Platform
-Release Runtime. The runtime remains the one canonical release orchestrator;
-the new mode must select exactly one Repository Ownership participant and reuse
-the existing release graph, Verification Runtime, Software Assurance, Trusted
-Delivery, SHA-based candidate qualification, evidence, deployment and rollback
-paths. It must not create a second release engine or alter coordinated Platform
-Release mode.
+The Runtime deterministically selects exactly one registered component profile:
+HACS, API, website, ESP32, iOS/watchOS, macOS, Windows or the shared Raspberry
+Pi renderer family. It binds the selected profile's source SHA, version,
+artifact, manifest, participants, channel and nine closure-evidence records
+fail closed. Only declared closure participants enter the scoped plan; unrelated
+components do not enter the qualification scope. Pi 4-inch and Pi 10-inch
+remain non-selectable because independent artifact and manifest evidence is
+absent.
 
-The selected component may increment only its patch version within the current
-platform `major.minor` train. Repository discovery must determine the affected
-source repository, dependent release repository where applicable, deployment
-target and verification target without bringing unrelated repositories into
-the qualification or release scope. Component release notes must contain only
-the component, patch version, fixes, candidate SHA and applicable verification
-and qualification evidence.
-
-Any future refinement and implementation must prove single-component selection,
-patch version handling, affected-component-only Verification/Software
-Assurance/Trusted Delivery, release/deployment/rollback evidence and qualified
-runner routing. This is a Platform Evolution backlog item only; it authorizes
-neither a Component Release nor changes to Platform Release execution.
+This completed selection-and-closure capability is qualification-only.
+Component execution and release operations remain explicitly unauthorized, and
+the existing component-selection boundary rejects operational dispatch. The
+sole retained Component Release Mode follow-up is profile-specific Execute
+Qualification. Only after that qualification and separate authorization may a
+real bounded patch operational proof occur. This backlog item authorizes no
+component release and no change to Platform Release execution.
 
 ## Historical delivery: Technical Debt Engine 1.1.1 consumer rollout
 
