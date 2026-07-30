@@ -61,6 +61,12 @@ class GitHubProvider:
             raise RuntimeError(completed.stderr.strip() or "repository provider command failed")
         return completed.stdout.strip()
 
+    def github(self, *args: str) -> str:
+        completed = subprocess.run(("gh", *args), text=True, capture_output=True, check=False)
+        if completed.returncode:
+            raise RuntimeError(completed.stderr.strip() or "GitHub provider command failed")
+        return completed.stdout.strip()
+
 
 class LaunchdProvider:
     def status(self) -> ProviderStatus:

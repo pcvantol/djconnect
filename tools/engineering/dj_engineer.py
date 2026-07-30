@@ -195,23 +195,14 @@ class SubprocessRepositoryClient:
 
 
 class GhCliClient:
+    def __init__(self, provider: GitHubProvider | None = None) -> None:
+        self.provider = provider or GitHubProvider()
+
     def pull_request(self, number: int) -> PullRequestEvidence:
-        completed = subprocess.run(
-            (
-                "gh",
-                "pr",
-                "view",
-                str(number),
-                "--json",
-                "number,state,isDraft,mergeCommit,statusCheckRollup",
-            ),
-            text=True,
-            capture_output=True,
-            check=False,
-        )
-        if completed.returncode:
-            raise RunnerError(completed.stderr.strip() or "GitHub evidence could not be read")
-        raw = json.loads(completed.stdout)
+        try:
+            raw = json.loads(self.provider.github("pr", "view", str(number), "--json", "number,state,isDraft,mergeCommit,statusCheckRollup"))
+        except RuntimeError as error:
+            raise RunnerError(str(error)) from error
         checks = raw.get("statusCheckRollup") or []
         terminal = bool(checks) and all(item.get("status") == "COMPLETED" for item in checks)
         passed = terminal and all(
@@ -229,21 +220,13 @@ class GhCliClient:
         )
 
     def ready(self, number: int) -> None:
-        completed = subprocess.run(
-            ("gh", "pr", "ready", str(number)), text=True, capture_output=True, check=False
-        )
-        if completed.returncode and "already ready" not in completed.stderr.lower():
-            raise RunnerError(completed.stderr.strip() or "pull request could not be marked ready")
+        try: self.provider.github("pr", "ready", str(number))
+        except RuntimeError as error:
+            if "already ready" not in str(error).lower(): raise RunnerError(str(error)) from error
 
     def merge(self, number: int) -> None:
-        completed = subprocess.run(
-            ("gh", "pr", "merge", str(number), "--squash", "--delete-branch"),
-            text=True,
-            capture_output=True,
-            check=False,
-        )
-        if completed.returncode:
-            raise RunnerError(completed.stderr.strip() or "pull request could not be merged")
+        try: self.provider.github("pr", "merge", str(number), "--squash", "--delete-branch")
+        except RuntimeError as error: raise RunnerError(str(error)) from error
 
 
 class CodexCliClient:
