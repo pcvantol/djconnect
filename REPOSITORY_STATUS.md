@@ -4,6 +4,10 @@ Status: active platform-evolution repository
 
 ## Owner-authorized autonomous PR lifecycle finalization
 
+PR [#612](https://github.com/pcvantol/djconnect/pull/612), **Add live runner
+progress status**, merged as `91ab36333f91ef9795ffaad8ee6cb37714747f55`.
+Live status remains local-only and repository evidence remains authoritative.
+
 PR [#610](https://github.com/pcvantol/djconnect/pull/610), **Add local post-run
 engineering reports**, merged as `b41134c17ebe162564b20a1c60afeb601325544c`.
 Reports remain local-only; bounded advisory sub-agent guidance preserves primary
