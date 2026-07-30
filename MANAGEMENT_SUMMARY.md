@@ -15,6 +15,11 @@
 
 ## Current position
 
+PR [#628](https://github.com/pcvantol/djconnect/pull/628), **Qualify Engineering
+Platform**, merged as `a59c07599496249d7e2109469c971dd1e7fa52d2`.
+The Engineering Platform now uses the same deterministic evidence-first posture
+for its own capabilities. The Execution Horizon is unchanged.
+
 PR [#626](https://github.com/pcvantol/djconnect/pull/626), **Add Product
 Capability Reviewers**, merged as `5b9cc606c8fc51ef9273f194fc1bad5d9af4b586`.
 Engineering Platform 1.2 mirrors DJConnect capability areas in bounded advisory
