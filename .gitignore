@@ -6,8 +6,9 @@ __pycache__/
 .pytest_cache/
 .env*.local
 
-# Advisory state for the local foreground engineering runner.
+# Advisory state and local prompts for the foreground engineering runner.
 .djconnect/engineering-runs/
+.djconnect/prompts/
 
 # Local macOS recovery-bootstrap evidence and reboot state must never be committed.
 macos-runner-recovery-*.log
