@@ -2,6 +2,14 @@
 
 Status: active platform-evolution repository
 
+## Owner-authorized autonomous PR lifecycle finalization
+
+PR [#604](https://github.com/pcvantol/djconnect/pull/604), **Add
+owner-authorized autonomous PR lifecycle**, merged as
+`95eabfde75e471dfe497f89c6e66225752946c8f`. Explicit local authorization now
+enables the bounded PR lifecycle and mandatory Finalization only; repository
+and GitHub evidence remain authoritative and release/deployment remain denied.
+
 ## Local agent runner diagnostics finalization
 
 PR [#602](https://github.com/pcvantol/djconnect/pull/602), **Add local agent
