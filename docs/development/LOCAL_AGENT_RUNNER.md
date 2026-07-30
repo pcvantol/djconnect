@@ -4,6 +4,22 @@
 repository. It is local-only developer tooling, not a product capability, CI
 system, release engine, merge authority, daemon or remote control plane.
 
+## Engineering Platform versioning
+
+`tools/engineering/ENGINEERING_PLATFORM_VERSION.json` is the canonical,
+deterministic Engineering Platform manifest. It versions the engineering
+environment independently from the repository and declares the platform and
+runner versions, Bootstrap Contract, checkpoint, memory and report formats,
+and minimum Codex CLI version.
+
+At runner startup, `dj-engineer` reads the manifest and rejects an unsupported
+platform major version, older runner, older Bootstrap Contract, unsupported
+checkpoint/memory/report format or unsupported Codex CLI. Diagnostics state the
+repository requirement, detected runner or CLI value, and required action.
+Newer runners remain compatible with older repositories only when they
+explicitly advertise support for every declared contract. Compatibility is
+therefore auditable and never inferred from individual implementation details.
+
 ## Prerequisite and usage
 
 Codex CLI must already be installed and authenticated in the developer's local
@@ -113,6 +129,10 @@ cleanup evidence, diagnostics and the management summary. Optional sub-agents
 are read-only, bounded advisory helpers for inspection or validation; they
 cannot write, create/ready/merge PRs, create Finalization, alter governance or
 perform cleanup. The primary runner validates and integrates every result.
+
+Every report records the Engineering Platform Version, Runner Version,
+Bootstrap Contract, Checkpoint Format, Memory Format, Report Format and the
+detected Codex CLI version alongside the transaction evidence.
 
 ## Terminal evidence and boundaries
 

@@ -114,3 +114,20 @@ and Meta Engineering guidance only as required by the selected increment.
 
 `BOOTSTRAP_CODEX_SESSION.md` remains the platform-wide supplemental bootstrap;
 this file is the canonical repository-state entry point.
+
+## Engineering Platform
+
+The local AI-assisted engineering environment is independently versioned by
+`tools/engineering/ENGINEERING_PLATFORM_VERSION.json`. Its current canonical
+contract is Engineering Platform `1.0.0`, runner `1.0.0`, Bootstrap Contract
+`2026.07`, Checkpoint Format `1`, Engineering Memory Format `1`, Report Format
+`1` and minimum supported Codex CLI `0.146.0`.
+
+`dj-engineer` validates this manifest at startup. Engineering compatibility is
+determined from this Engineering Platform contract, not from individual runner
+implementation details. A newer runner may execute an older repository only
+when it explicitly supports the repository's platform major version, minimum
+runner version, Bootstrap Contract, checkpoint, memory and report formats, and
+minimum Codex CLI version. Any incompatible combination is blocked with the
+expected version, detected version and required upgrade action; it is never
+silently ignored.
