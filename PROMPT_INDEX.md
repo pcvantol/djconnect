@@ -2,6 +2,25 @@
 
 Status: canonical prompt navigation
 
+## Component Release Selection and Evidence Closure
+
+PR [#592](https://github.com/pcvantol/djconnect/pull/592), **Enforce Component
+Release Selection Closure**, merged as
+`122e37544b7f5b5f526b77386eaac749ca6f0958` with
+`GO_COMPONENT_RELEASE_SELECTION_EVIDENCE_CLOSURE_IMPLEMENTED`. Its immutable
+implementation history is
+`docs/history/prompts/2026-07-30-component-release-selection-evidence-closure-implementation.md`.
+Its governance-only Finalization history is
+`docs/history/prompts/2026-07-30-component-release-selection-evidence-closure-finalization.md`.
+
+The existing Platform Release Runtime now deterministically selects the
+registered HACS, API, website, ESP32, iOS/watchOS, macOS, Windows and shared Pi
+renderer-family component profiles. Exact source-SHA, artifact, manifest and
+evidence closure fails closed, and only declared closure participants are
+included. Pi 4-inch and Pi 10-inch remain non-selectable. Component execution
+is explicitly not authorized; profile-specific Execute Qualification remains
+the next bounded follow-up.
+
 ## Pico 2 W developer onboarding
 
 PR [#588](https://github.com/pcvantol/djconnect/pull/588), **Add Pico 2 W

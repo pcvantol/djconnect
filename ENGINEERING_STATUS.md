@@ -3,6 +3,26 @@
 **Status:** Operational handoff
 **Updated:** 2026-07-30
 
+## Component Release Selection and Evidence Closure finalization
+
+PR [#592](https://github.com/pcvantol/djconnect/pull/592), **Enforce Component
+Release Selection Closure**, merged as
+`122e37544b7f5b5f526b77386eaac749ca6f0958`. It records
+`GO_COMPONENT_RELEASE_SELECTION_EVIDENCE_CLOSURE_IMPLEMENTED`: the existing
+Platform Release Runtime deterministically selects one registered component
+profile and binds its source SHA, version, artifact and manifest checksums,
+participants, channel and nine closure-evidence records fail closed. Only the
+selected source and required handoff/distribution participants enter the scoped
+plan; no unrelated component is promoted. Pi 4-inch and Pi 10-inch remain
+non-selectable because their independent artifact/manifest evidence is absent.
+
+This implementation preserves the platform-wide simulation path and explicitly
+rejects component operational dispatch. It does not create a release, artifact,
+tag, publication, deployment, rollback, version, workflow, product, API or
+Renderer change. The sole remaining Component Release Mode follow-up is a
+profile-specific Execute Qualification, followed only by a real bounded patch
+proof. This Finalization reconciles the four rolling records only.
+
 ## Component Release Scope Refinement finalization
 
 PR [#590](https://github.com/pcvantol/djconnect/pull/590), **Refine Component
@@ -119,11 +139,12 @@ qualification item; no Runtime, product, API or renderer behavior changed.
 
 ## Current engineering increment
 
-PR [#588](https://github.com/pcvantol/djconnect/pull/588), **Add Pico 2 W
-developer onboarding**, merged as
-`03ba5446b17c666d9294c4b5fdbc7cd1dc9c49cc`, records bounded developer-host
-onboarding evidence. It does not authorize a new product capability, Runtime,
-Planner, API, Broadcast, release behaviour or Execution Horizon change.
+PR [#592](https://github.com/pcvantol/djconnect/pull/592), **Enforce Component
+Release Selection Closure**, merged as
+`122e37544b7f5b5f526b77386eaac749ca6f0958`, completes the bounded existing
+Platform Release Runtime selection/evidence-closure implementation. It does
+not authorize a component execute route, release behavior or Execution Horizon
+change.
 
 ### Roadmap position and Execution Horizon
 
