@@ -151,6 +151,28 @@ production implementation may begin from that state. The next capability may
 begin only from `MERGED_RECONCILED`. Finalization never rewrites immutable
 Prompt History.
 
+## Long-running engineering operations
+
+Engineering completion is determined only by objective repository evidence.
+Execution characteristics never redefine completion: runtime or connector
+limits, polling timeouts, transient GitHub/API failures, queued or pending CI,
+release propagation, indexing and deployment-observation latency are not
+terminal engineering states.
+
+An asynchronous engineering activity remains active until objective evidence
+establishes exactly one of: successful completion, terminal failure, or an
+external dependency that cannot be progressed automatically, such as missing
+permission or required human authorization. Temporary waiting is never
+completion.
+
+When execution is interrupted without terminal repository evidence, the active
+engineering phase remains active. A later session synchronizes the repository,
+verifies current Git and GitHub evidence, determines the last completed phase
+and continues from that verified point. It must not restart work merely because
+the prior execution ended, nor repeat completed work unless current repository
+evidence requires it. Local execution memory is advisory only and never
+overrides repository evidence or the Engineering Method.
+
 ## Repository and workspace state
 
 Repository State and Workspace State are independent. Repository State records
