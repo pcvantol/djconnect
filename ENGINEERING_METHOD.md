@@ -185,6 +185,12 @@ repository-settings changes, branch-protection bypass, roadmap selection or
 scope expansion. Finalization remains limited to its established reconciliation
 scope and must complete before the repository is `MERGED_RECONCILED`.
 
+For an approved local transaction, successful Finalization reconciliation is
+followed by the existing mandatory Workspace Cleanup procedure before the
+transaction is complete. The local runner fetches/prunes first and may remove
+only its objectively merged implementation and Finalization branches using
+normal deletion; uncertainty preserves the branch and blocks completion.
+
 ## Repository and workspace state
 
 Repository State and Workspace State are independent. Repository State records
