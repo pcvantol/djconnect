@@ -63,6 +63,15 @@ demonstrated insufficient coverage, explicit architectural approval,
 implementation, qualification and evidence; routine work remains limited to
 maintenance, bug fixes, compatibility and qualification improvement.
 
+## iCloud Engineering Inbox
+
+The repository-owned local watcher accepts iPhone-submitted `.txt` and `.md`
+prompts from iCloud Drive, validates stable UTF-8 input, serializes jobs and
+invokes only the repository-owned runner. Its v1 protocol is
+`tools/engineering/ENGINEERING_INBOX_PROTOCOL.md`; iCloud is transport only.
+Use `python3 -m tools.engineering.inbox_watcher doctor` before the explicit
+per-user `install` command. The LaunchAgent is never installed by tests.
+
 ## Prerequisite and usage
 
 Codex CLI must already be installed and authenticated in the developer's local

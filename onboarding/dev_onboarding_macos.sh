@@ -58,6 +58,7 @@ PICO_REPO_URL="${PICO_REPO_URL:-https://github.com/pcvantol/djconnect-pico.git}"
 PICO_TOOL_VENV="${PICO_TOOL_VENV:-$HOME/Library/Application Support/DJConnect/pico-tools}"
 PICO_REQUIREMENTS_FILE="$PACKAGE_ROOT/pico_toolchain_requirements.txt"
 PICO_READINESS_SCRIPT="$PACKAGE_ROOT/pico_readiness_macos.py"
+ENGINEERING_INBOX_WATCHER="$REPO_ROOT/tools/engineering/inbox_watcher.py"
 
 init_style() {
   if [[ "$NO_COLOR_MODE" == "1" || -n "${NO_COLOR:-}" || ! -t 1 ]]; then
@@ -1115,6 +1116,15 @@ step_29_pico_readiness() {
   "$python_bin" "$PICO_READINESS_SCRIPT" --tool-venv "$PICO_TOOL_VENV"
 }
 
+step_30_engineering_inbox() {
+  need_macos
+  [[ -f "$ENGINEERING_INBOX_WATCHER" ]] || die "Engineering Inbox watcher is missing from this repository."
+  log "Installing the per-user Engineering Inbox watcher."
+  python3 -m tools.engineering.inbox_watcher install --repo "$REPO_ROOT"
+  python3 -m tools.engineering.inbox_watcher doctor --repo "$REPO_ROOT" || warn "Engineering Inbox is degraded; run its doctor command for corrective actions."
+  log "iPhone Shortcut target: iCloud Drive/DJConnect Engineering/Inbox. Reports: iCloud Drive/DJConnect Engineering/Reports."
+}
+
 run_if_dir() {
   local dir="$1"
   shift
@@ -2170,6 +2180,7 @@ $(style "$CLR_BOLD" "Cross Repo")
  28. Install/start persistent ngrok tunnel for local Home Assistant
  29. Raspberry Pi Pico 2 W tooling: MicroPython, picotool and VS Code extensions
  30. Validate Raspberry Pi Pico 2 W development readiness
+ 31. Install and validate the local iCloud Engineering Inbox watcher
 
 $(style "$CLR_BOLD" "Examples")
   ./$SCRIPT_NAME --all --yes
@@ -2184,7 +2195,7 @@ $(style "$CLR_BOLD" "Examples")
   ./$SCRIPT_NAME --steps 26 --run-ci-push
   ./$SCRIPT_NAME --steps 27
   ./$SCRIPT_NAME --steps 28 --ngrok-domain your-domain.ngrok-free.app
-  ./$SCRIPT_NAME --steps 29,30
+  ./$SCRIPT_NAME --steps 29,30,31
 
 EOF
 }
@@ -2221,6 +2232,7 @@ run_step() {
     28) step_27_ngrok_home_assistant_tunnel ;;
     29) step_28_pico_tooling ;;
     30) step_29_pico_readiness ;;
+    31) step_30_engineering_inbox ;;
     *) die "Unknown step: $1" ;;
   esac
 }
@@ -2257,6 +2269,7 @@ step_label() {
     28) printf 'Install/start persistent ngrok tunnel for local Home Assistant' ;;
     29) printf 'Raspberry Pi Pico 2 W tooling: MicroPython, picotool and VS Code extensions' ;;
     30) printf 'Validate Raspberry Pi Pico 2 W development readiness' ;;
+    31) printf 'Install and validate local iCloud Engineering Inbox watcher' ;;
     *) printf 'Unknown step' ;;
   esac
 }

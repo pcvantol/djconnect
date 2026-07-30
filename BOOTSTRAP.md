@@ -119,9 +119,12 @@ this file is the canonical repository-state entry point.
 
 The local AI-assisted engineering environment is independently versioned by
 `tools/engineering/ENGINEERING_PLATFORM_VERSION.json`. Its current canonical
-contract is Engineering Platform `1.3.0`, runner `1.3.0`, Bootstrap Contract
-`2026.10`, Checkpoint Format `1`, Engineering Memory Format `2`, Report Format
-`2` and minimum supported Codex CLI `0.146.0`.
+contract is Engineering Platform `1.4.0`, runner `1.4.0`, Bootstrap Contract
+`2026.11`, Checkpoint Format `1`, Engineering Memory Format `2`, Report Format
+`2`, Engineering Inbox watcher `1.0.0` (Inbox Protocol `1`) and minimum
+supported Codex CLI `0.146.0`. On supported macOS workstations, the watcher
+and its per-user LaunchAgent must satisfy this same contract before accepting
+iCloud inbox work; incompatibility is blocked with corrective diagnostics.
 
 Every new engineering prompt produced through the Product & Platform Architect
 workflow requires Engineering Platform `1.2.0` or newer. The generated prompt
