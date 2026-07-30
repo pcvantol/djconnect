@@ -15,6 +15,11 @@
 
 ## Current position
 
+PR [#630](https://github.com/pcvantol/djconnect/pull/630), **Close Engineering
+Platform Generation 1**, merged as `71dfd01777a2c0748e5ebfb606e1c3a932caf417`.
+Generation 1 is feature complete; future platform evolution requires demonstrated
+insufficiency, qualification evidence and explicit architectural approval.
+
 PR [#628](https://github.com/pcvantol/djconnect/pull/628), **Qualify Engineering
 Platform**, merged as `a59c07599496249d7e2109469c971dd1e7fa52d2`.
 The Engineering Platform now uses the same deterministic evidence-first posture
