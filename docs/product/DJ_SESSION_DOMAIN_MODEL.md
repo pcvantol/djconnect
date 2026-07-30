@@ -32,6 +32,9 @@ schemas, serialization or implementation.
 | DJ Persona | A behavioural DJ identity for a session. | Shapes how future contributions are presented; it is not a voice or mood. |
 | Session Mood | The dynamic emotional atmosphere of the active Session Runtime. | Is initialized independently from Strategy and Persona, informs future presentation and never rewrites completed Moments. |
 | Knowledge Intent | A planned statement of what the DJ should communicate. | Contains no delivery, wording, voice or visual choice. |
+| Knowledge Object | One provider-independent, source-qualified internal representation of knowledge about an identified subject. | Is assembled only by the Knowledge Engine and never becomes a provider payload, API, Broadcast or renderer model. |
+| Knowledge Context | A bounded assembly of qualified Knowledge Objects for one approved Knowledge Intent. | Is Runtime-scoped; it is neither a provider response nor a cache or persistence format. |
+| Storytelling Value | Qualitative usefulness of eligible knowledge for one DJMoment. | Is separate from confidence, correctness, freshness and rights eligibility. |
 | Presentation Intent | The immutable snapshot of how a Knowledge Intent will be delivered. | Carries Persona, Mood, tone, delivery and channel choices into one Moment. |
 | DJ Moment | The immutable, renderer-safe presentation contribution. | Is the universal unit published to Broadcast and presented by renderers. |
 
@@ -71,6 +74,8 @@ future implementation boundary are in
 [`DJ_PRESENTATION_ARCHITECTURE.md`](DJ_PRESENTATION_ARCHITECTURE.md). The
 durable lifecycle, historical projection and storage boundary are in
 [`../../PERSISTENT_SESSION_ARCHITECTURE.md`](../../PERSISTENT_SESSION_ARCHITECTURE.md).
+The provider-independent knowledge qualification and normalization boundary is
+defined in [`KNOWLEDGE_SOURCE_ARCHITECTURE.md`](KNOWLEDGE_SOURCE_ARCHITECTURE.md).
 
 ## Playback Context
 
