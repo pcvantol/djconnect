@@ -15,6 +15,23 @@
 
 ## Current position
 
+PR [#592](https://github.com/pcvantol/djconnect/pull/592), **Enforce Component
+Release Selection Closure**, merged as
+`122e37544b7f5b5f526b77386eaac749ca6f0958` with
+`GO_COMPONENT_RELEASE_SELECTION_EVIDENCE_CLOSURE_IMPLEMENTED`. The existing
+Platform Release Runtime now deterministically selects one registered component
+profile and binds source SHA, version, artifact checksum, manifest checksum,
+participants, release channel and nine evidence records fail closed. It scopes
+the plan to the selected source and required handoff/distribution participants
+only; Pi 4-inch and Pi 10-inch remain intentionally non-selectable.
+
+This is qualification infrastructure, not a release capability: component
+operational dispatch is explicitly rejected, and no artifact, tag, publication,
+deployment, rollback, version, workflow or product behavior changed. The next
+Component Release Mode follow-up is profile-specific Execute Qualification;
+only after that can a real bounded patch prove operational release behavior.
+The distribution Execution Horizon remains unchanged.
+
 PR [#590](https://github.com/pcvantol/djconnect/pull/590), **Refine Component
 Release Scopes**, merged as `7d472c285423cb3a398875ae971f6de74b38e02f` with
 `GO_COMPONENT_RELEASE_SCOPE_REFINEMENT_PARTIALLY_QUALIFIED`. DJConnect now has
@@ -24,12 +41,12 @@ evidence and human authorization must agree. Profiles are recorded for HACS,
 API, website, ESP32, iOS/watchOS, macOS, Windows and the shared Pi renderer
 family.
 
-This refinement makes no component release operational: current execution
-dispatchers remain dry-run only and the Platform Release Runtime still needs
-bounded selection/evidence-closure implementation. Pi 4-inch and Pi 10-inch
-remain intentionally non-selectable until each has an independent artifact,
-manifest and target-evidence chain. No Runtime, workflow, product or release
-channel changed; the distribution Execution Horizon is unchanged.
+The refinement did not make a component release operational. Its bounded
+selection/evidence-closure implementation is now complete through PR #592;
+component execute qualification still remains separate. Pi 4-inch and Pi
+10-inch remain intentionally non-selectable until each has an independent
+artifact, manifest and target-evidence chain. The distribution Execution
+Horizon is unchanged.
 
 PR [#588](https://github.com/pcvantol/djconnect/pull/588), **Add Pico 2 W
 developer onboarding**, merged as

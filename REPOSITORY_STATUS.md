@@ -4,6 +4,23 @@ Status: active platform-evolution repository
 
 ## Current reconciliation
 
+PR [#592](https://github.com/pcvantol/djconnect/pull/592), **Enforce Component
+Release Selection Closure**, merged as
+`122e37544b7f5b5f526b77386eaac749ca6f0958` with
+`GO_COMPONENT_RELEASE_SELECTION_EVIDENCE_CLOSURE_IMPLEMENTED`. The existing
+Platform Release Runtime now deterministically selects one registered component
+profile and fails closed unless exact source-SHA, version, artifact checksum,
+manifest checksum, participant, channel and evidence bindings agree. Its
+component plan includes only the selected source and closure-required handoff
+or distribution participants; Pi 4-inch and Pi 10-inch remain non-selectable.
+
+Component selection remains qualification-only and rejects operational dispatch.
+No release, workflow, artifact, manifest, publication, deployment, rollback,
+version, Runtime, API, Renderer or product behavior changed. The remaining
+follow-up is profile-specific Component Release Execute Qualification, then a
+real bounded patch proof. This Finalization reconciles the four rolling records
+and preserves immutable Prompt History.
+
 PR [#590](https://github.com/pcvantol/djconnect/pull/590), **Refine Component
 Release Scopes**, merged as `7d472c285423cb3a398875ae971f6de74b38e02f` with
 `GO_COMPONENT_RELEASE_SCOPE_REFINEMENT_PARTIALLY_QUALIFIED`. The merged
@@ -79,17 +96,14 @@ cross-repository governance and Home Assistant integration implementation.
 
 ## Current Phase
 
-PR [#574](https://github.com/pcvantol/djconnect/pull/574), **Assess Component
-Release Qualification**, merged as
-`43e8203b9f8223f37a659bfc17fa9951eb75e4c9` with
-`NO_GO_COMPONENT_RELEASE_QUALIFICATION_INSUFFICIENT_RUNTIME_EVIDENCE`. The
-current Platform Release Runtime validates an already supplied scope fail
-closed, but does not yet provide canonical selected-source or
-dependency/evidence-closure proof. The merged assessment introduces no
-Runtime, workflow, manifest, API, Renderer, product or release-operation
-change. The Scope Refinement is now complete; only bounded Runtime selection
-and exact evidence-closure implementation remains. The canonical distribution
-Execution Horizon is unchanged.
+PR [#592](https://github.com/pcvantol/djconnect/pull/592), **Enforce Component
+Release Selection Closure**, merged as
+`122e37544b7f5b5f526b77386eaac749ca6f0958` with
+`GO_COMPONENT_RELEASE_SELECTION_EVIDENCE_CLOSURE_IMPLEMENTED`. The former
+selected-source and dependency/evidence-closure gap is implemented in the
+existing Platform Release Runtime. It is qualification-only: component execute
+qualification and a real bounded patch proof remain future work; the canonical
+distribution Execution Horizon is unchanged.
 
 This Finalization reconciles the predecessor's rolling records. After it
 merges and the completed assessment branch is safely removed, Repository State
