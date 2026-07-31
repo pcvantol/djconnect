@@ -4,6 +4,12 @@ Status: canonical prompt navigation
 
 ## Owner-authorized autonomous PR lifecycle
 
+PR [#649](https://github.com/pcvantol/djconnect/pull/649) merged as
+`31198276733fdac29bd2ea2d0d5ed2961595afb3`; its immutable implementation
+history is
+`docs/history/prompts/2026-07-31-private-tailscale-dashboard-access.md`.
+Finalization is in progress.
+
 PR [#638](https://github.com/pcvantol/djconnect/pull/638) merged as
 `8e4e41d7f02231a57f0dbbab50abc55b5e53cd2a`, and PR
 [#640](https://github.com/pcvantol/djconnect/pull/640) merged as

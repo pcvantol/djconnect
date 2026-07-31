@@ -15,6 +15,14 @@
 
 ## Current position
 
+PR [#649](https://github.com/pcvantol/djconnect/pull/649) merged as
+`31198276733fdac29bd2ea2d0d5ed2961595afb3`. The Engineering Dashboard is now
+privately reachable from an authorized iPhone over the locally reported
+Tailscale IPv4 address, while retaining loopback access. It stays read-only and
+does not expose a wildcard, LAN or public listener, nor modify Tailnet ACLs,
+Funnel, port forwarding or network policy. No Product, Runtime, Release or
+Deployment behavior changed. Repository State: `MERGED_RECONCILED`.
+
 PR [#638](https://github.com/pcvantol/djconnect/pull/638) merged as
 `8e4e41d7f02231a57f0dbbab50abc55b5e53cd2a`. It updates `mpremote` and
 `micropython-stubber`, with the tracked developer-onboarding distribution
