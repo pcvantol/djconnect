@@ -102,8 +102,10 @@ Create the Shortcut on iPhone as follows:
      engineering-[Formatted Date].txt
      ```
 
-   iOS may append `.txt` even when `.md` was requested. This is expected; the
-   Engineering Inbox accepts both `.txt` and `.md` prompt files.
+   iOS may append `.txt` even when `.md` was requested. This is expected. The
+   Engineering Inbox accepts `.txt`, `.md` and filename-neutral files whose
+   bounded UTF-8 content is Markdown. It processes eligible files in File Date
+   Modified order, oldest first.
 7. Optionally add **Show Notification** with a confirmation such as
    `Engineering job submitted`.
 
