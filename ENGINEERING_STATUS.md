@@ -5,6 +5,17 @@
 
 ## Owner-authorized autonomous PR lifecycle finalization
 
+## Private Tailscale dashboard access finalization
+
+PR [#649](https://github.com/pcvantol/djconnect/pull/649) merged as
+`31198276733fdac29bd2ea2d0d5ed2961595afb3`. The read-only Engineering
+Dashboard now binds to loopback and the locally reported Tailscale IPv4 address
+only, enabling private iPhone status access. It does not bind wildcard, LAN or
+public addresses and makes no Tailscale ACL, Funnel, port-forwarding or network
+policy change. Its immutable implementation record is
+`docs/history/prompts/2026-07-31-private-tailscale-dashboard-access.md`.
+Repository State: `MERGED_RECONCILED`.
+
 ## Dependabot maintenance finalization
 
 PR [#638](https://github.com/pcvantol/djconnect/pull/638) merged as

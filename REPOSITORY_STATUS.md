@@ -4,6 +4,12 @@ Status: active platform-evolution repository
 
 ## Owner-authorized autonomous PR lifecycle finalization
 
+PR [#649](https://github.com/pcvantol/djconnect/pull/649) merged as
+`31198276733fdac29bd2ea2d0d5ed2961595afb3`. The private, read-only dashboard
+now has an explicit local Tailscale listener for authorized Tailnet devices,
+while retaining loopback access. Wildcard, LAN and public listeners remain
+absent; Tailnet policy is not changed. Repository State: `MERGED_RECONCILED`.
+
 PR [#638](https://github.com/pcvantol/djconnect/pull/638) merged as
 `8e4e41d7f02231a57f0dbbab50abc55b5e53cd2a`; the Pico developer toolchain and
 its generated onboarding distribution are aligned. PR
