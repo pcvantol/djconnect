@@ -5,12 +5,21 @@
 
 ## Owner-authorized autonomous PR lifecycle finalization
 
+## Dashboard loading fix finalization
+
+PR [#644](https://github.com/pcvantol/djconnect/pull/644) merged as
+`0d1d7912318cde580ab8c477070ddc6758a9186c`. The private dashboard now renders
+a complete degraded status when local status data is unavailable, rather than
+remaining on a loading state. Repository State: `MERGED_RECONCILED`.
+
 ## Engineering Platform 1.5 finalization
 
 PR [#642](https://github.com/pcvantol/djconnect/pull/642) merged as
 `164e06f80f5adeab4cdb957e76d28c8a16ab81c7`. Platform Identity, Workspace
 Identity, provider contracts, public API, bootstrap, qualification and
-EP-GOLDEN-001 are reconciled. Repository State: `MERGED_RECONCILED`.
+EP-GOLDEN-001 are reconciled. Its Finalization PR [#643](https://github.com/pcvantol/djconnect/pull/643)
+merged as `50ae9b625e2a42800938597f526c9d5fc1109fe7`.
+Repository State: `MERGED_RECONCILED`.
 
 ## Engineering Platform 1.4 completion finalization
 

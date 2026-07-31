@@ -4,8 +4,16 @@ Status: canonical prompt navigation
 
 ## Owner-authorized autonomous PR lifecycle
 
+PR [#644](https://github.com/pcvantol/djconnect/pull/644) merged as
+`0d1d7912318cde580ab8c477070ddc6758a9186c`; its immutable implementation
+history is
+`docs/history/prompts/2026-07-31-engineering-dashboard-loading-fix.md`.
+Finalization is in progress.
+
 PR [#642](https://github.com/pcvantol/djconnect/pull/642) merged as
-`164e06f80f5adeab4cdb957e76d28c8a16ab81c7`; Finalization is in progress.
+`164e06f80f5adeab4cdb957e76d28c8a16ab81c7`; its Finalization PR
+[#643](https://github.com/pcvantol/djconnect/pull/643) merged as
+`50ae9b625e2a42800938597f526c9d5fc1109fe7` and is `merged_reconciled`.
 
 PR [#639](https://github.com/pcvantol/djconnect/pull/639) merged as `983dc283c590e1ef16c8e9a64f67c86d9d4e28ab`; Finalization is `merged_reconciled`.
 
