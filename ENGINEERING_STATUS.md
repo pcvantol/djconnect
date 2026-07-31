@@ -5,12 +5,22 @@
 
 ## Owner-authorized autonomous PR lifecycle finalization
 
+## Canonical storage architecture finalization
+
+PR [#646](https://github.com/pcvantol/djconnect/pull/646) merged as
+`f33f63ff399599b46c220c5169875abbda230f9a`. The Home Assistant integration is
+now the explicit canonical storage owner; renderer storage remains bounded and
+rebuildable. No DJConnect runtime or renderer behavior changed.
+Repository State: `MERGED_RECONCILED`.
+
 ## Dashboard loading fix finalization
 
 PR [#644](https://github.com/pcvantol/djconnect/pull/644) merged as
 `0d1d7912318cde580ab8c477070ddc6758a9186c`. The private dashboard now renders
 a complete degraded status when local status data is unavailable, rather than
 remaining on a loading state. Repository State: `MERGED_RECONCILED`.
+Its Finalization PR [#645](https://github.com/pcvantol/djconnect/pull/645)
+merged as `f8622632e3c4d80f5a93e193d73c659db3e779a9`.
 
 ## Engineering Platform 1.5 finalization
 
