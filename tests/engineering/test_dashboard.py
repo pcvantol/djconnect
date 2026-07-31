@@ -31,6 +31,8 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn("geen betrouwbare ETA", page)
         self.assertIn('id="usage"', page)
         self.assertIn('fetch("/api/usage")', page)
+        self.assertIn("Engineering Platform-versie", page)
+        self.assertIn('id="platformVersion"', page)
         for label in (
             "Watcher",
             "Fase",
