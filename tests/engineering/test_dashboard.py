@@ -31,6 +31,19 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn("geen betrouwbare ETA", page)
         self.assertIn('id="usage"', page)
         self.assertIn('fetch("/api/usage")', page)
+        for label in (
+            "Watcher",
+            "Fase",
+            "Huidige actie",
+            "Prompttitel",
+            "Bestandsnaam",
+            "Codex CLI-diagnose",
+            "Run-ID",
+            "Wachtrij",
+            "Repositorystatus",
+            "Werkruimtestatus",
+        ):
+            self.assertIn(label, page)
 
     def test_codex_usage_is_shown_only_for_the_displayed_run(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
