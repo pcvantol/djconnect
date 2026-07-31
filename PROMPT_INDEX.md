@@ -4,6 +4,15 @@ Status: canonical prompt navigation
 
 ## Owner-authorized autonomous PR lifecycle
 
+PR [#638](https://github.com/pcvantol/djconnect/pull/638) merged as
+`8e4e41d7f02231a57f0dbbab50abc55b5e53cd2a`, and PR
+[#640](https://github.com/pcvantol/djconnect/pull/640) merged as
+`696f57080a0b09f6c259702494f10ab715c8b149`. They are source-generated
+Dependabot maintenance transactions, not human-authored engineering prompts;
+their GitHub pull requests and merge commits are the immutable source evidence.
+No synthetic Prompt History is created. This Finalization is
+`merged_reconciled`.
+
 PR [#646](https://github.com/pcvantol/djconnect/pull/646) merged as
 `f33f63ff399599b46c220c5169875abbda230f9a`; its immutable implementation
 history is
