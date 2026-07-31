@@ -25,6 +25,10 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn("indicator--orange", page)
         self.assertIn("indicator--red", page)
         self.assertIn('return "grey"', page)
+        self.assertIn('id="executionEstimate"', page)
+        self.assertIn("function estimate(x)", page)
+        self.assertIn("ongeveer 15–30 minuten", page)
+        self.assertIn("geen betrouwbare ETA", page)
 
     def test_missing_status_uses_a_complete_degraded_projection(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
