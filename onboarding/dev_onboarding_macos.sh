@@ -1126,7 +1126,7 @@ step_30_engineering_inbox() {
   python3 -m tools.engineering.dashboard install --repo "$REPO_ROOT"
   python3 -m tools.engineering.inbox_watcher doctor --repo "$REPO_ROOT" || warn "Engineering Inbox is degraded; run its doctor command for corrective actions."
   python3 -m tools.engineering.dashboard doctor --repo "$REPO_ROOT" || warn "Engineering Dashboard is degraded; it remains loopback-only until private access is configured."
-  log "iPhone Shortcut target: iCloud Drive/DJConnect Engineering/Inbox. Reports: iCloud Drive/DJConnect Engineering/Reports. Dashboard: http://127.0.0.1:8765."
+  log "iPhone Shortcut target: iCloud Drive/DJConnect Engineering/Inbox. Reports: iCloud Drive/DJConnect Engineering/Reports. Dashboard: http://127.0.0.1:8765; when Tailscale is connected, use the current Tailscale IPv4 address on port 8765 from an authorized Tailnet device."
 }
 
 run_if_dir() {
