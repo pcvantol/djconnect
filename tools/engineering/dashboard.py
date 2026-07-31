@@ -234,7 +234,7 @@ pre{white-space:pre-wrap;word-break:break-word;margin:8px 0 0;font:12px ui-monos
 </main>
 <footer class="footer"><span class="label">Engineering Platform-versie</span><span id="platformVersion">Laden…</span> · <span class="label">Git-commit</span><code>$BUILD_COMMIT</code></footer>
 <script>
-const $=id=>document.getElementById(id),REFRESH_SECONDS=5,
+const $=id=>document.getElementById(id),REFRESH_SECONDS=5,DASHBOARD_BUILD="$BUILD_COMMIT",DASHBOARD_BUILD_KEY="djconnect-engineering-dashboard-build",
 formatTime=new Intl.DateTimeFormat("nl-NL",{timeZone:"Europe/Amsterdam",dateStyle:"full",timeStyle:"medium"}),
 fallback={watcher_state:"REMOTE_ENGINEERING_DEGRADED",current_phase:"status unavailable",current_action:"Refresh the dashboard after the Engineering Platform publishes status.",queue_depth:0,repository_state:"UNKNOWN",workspace_state:"UNKNOWN",diagnostic:"The status request could not be completed."};
 let currentLogRun,lastLogRun,lastRefresh,nextRefresh;
@@ -243,6 +243,7 @@ function humanize(){for(const id of ["watcher","phase","action","repositoryState
 function tone(x){const phase=x.current_phase||"",watcher=x.watcher_state||"";if(["BLOCKED","FAILED"].includes(phase)||["JOB_BLOCKED","JOB_FAILED"].includes(watcher))return "red";if(phase==="COMPLETE"||watcher==="JOB_COMPLETED")return "green";if(phase==="WAIT_FOR_TERMINAL_EVIDENCE"||watcher==="WAITING_FOR_REPOSITORY")return "yellow";if(["INITIALIZE","EXECUTE_AGENT","REPAIR_AGENT","FINALIZE_AGENT","REPOSITORY_CLEANUP"].includes(phase)||["RUNNER_STARTING","JOB_CLAIMED"].includes(watcher))return "orange";return "grey"}
 function estimate(x){const phase=x.current_phase||"";if(phase==="INITIALIZE")return "Geschat resterend: minder dan 1 minuut";if(phase==="EXECUTE_AGENT")return "Geschat resterend: ongeveer 15–30 minuten";if(phase==="REPAIR_AGENT")return "Geschat resterend: ongeveer 10–20 minuten";if(phase==="FINALIZE_AGENT")return "Geschat resterend: ongeveer 5–10 minuten";if(phase==="REPOSITORY_CLEANUP")return "Geschat resterend: ongeveer 2 minuten";if(phase==="WAIT_FOR_TERMINAL_EVIDENCE")return "Wacht op externe verificatie; geen betrouwbare ETA";if(phase==="COMPLETE")return "Voltooid";if(["BLOCKED","FAILED"].includes(phase))return "Gestopt; actie nodig";return "Nog niet beschikbaar"}
 function isActiveRun(x){return x.watcher_state==="ENGINEERING_RUN_ACTIVE"&&Boolean(x.run_id)}
+function checkBuild(){fetch("/api/build",{cache:"no-store"}).then(x=>x.json()).then(x=>{if(x.build_commit===DASHBOARD_BUILD){sessionStorage.removeItem(DASHBOARD_BUILD_KEY);return}if(x.build_commit&&DASHBOARD_BUILD!=="onbekend"&&sessionStorage.getItem(DASHBOARD_BUILD_KEY)!==x.build_commit){sessionStorage.setItem(DASHBOARD_BUILD_KEY,x.build_commit);location.reload()}}).catch(()=>{})}
 function clock(){let now=Date.now();$("currentTime").textContent=formatTime.format(new Date(now));$("lastRefresh").textContent="Laatst ververst: "+(lastRefresh?formatTime.format(lastRefresh):"laden…");$("nextRefresh").textContent="Volgende verversing: "+(nextRefresh?Math.max(0,Math.ceil((nextRefresh-now)/1000))+" seconden":"laden…")}
 function l(id,url,run,last){if(run===(last?lastLogRun:currentLogRun))return;if(last)lastLogRun=run;else currentLogRun=run;$(id).textContent="Loading diagnostic…";fetch(url).then(x=>x.text()).then(x=>$(id).textContent=x).catch(()=>$(id).textContent="Codex CLI diagnostic is unavailable.")}
 function usage(){const labels={input_tokens:"Invoertokens",cached_input_tokens:"Gecachete invoertokens",output_tokens:"Uitvoertokens",total_tokens:"Totaal tokens",cost:"Kosten",remaining:"Resterend beschikbaar",plan_remaining:"Resterend in plan",usage:"Gebruik"};fetch("/api/usage").then(x=>x.json()).then(x=>{let entries=Object.entries(x);$("usage").hidden=!entries.length;$("usageDetails").textContent=entries.map(([key,value])=>(labels[key]||key.replaceAll("_"," "))+": "+value).join("\\n")}).catch(()=>$("usage").hidden=true)}
@@ -252,7 +253,7 @@ let reportLoaded=false,reportRequest;function report(){if(reportLoaded)return re
 function copyReport(){report().then(()=>navigator.clipboard.writeText($("reportContent").textContent)).then(()=>{$("copyReport").textContent="Gekopieerd";setTimeout(()=>{$("copyReport").textContent="⧉ Kopieer"},1500)}).catch(()=>{$("copyReport").textContent="Kopiëren mislukt"})}
 function r(x){lastRefresh=new Date();nextRefresh=Date.now()+REFRESH_SECONDS*1000;clock();x=x&&typeof x==="object"?x:fallback;let active=isActiveRun(x),statusTone=tone(x),indicator=$("indicator");indicator.className="indicator indicator--"+statusTone+(active?" indicator--running":"");indicator.setAttribute("aria-label","Promptstatus: "+statusTone);$("watcher").textContent=x.watcher_state||fallback.watcher_state;$("phase").textContent=x.current_phase||"idle";$("action").textContent=x.current_action||"Geen actieve actie";$("executionEstimate").textContent=estimate(x);$("current").hidden=!active;$("currentPrompt").textContent=x.prompt_title||"Niet beschikbaar";$("currentFile").textContent=x.submitted_filename||"Niet beschikbaar";if(active)l("currentLog","/api/log/current",x.run_id||null,false);$("lastPrompt").textContent=x.last_executed_title||"Nog geen prompt uitgevoerd";$("lastFile").textContent=x.last_executed_filename||"Niet beschikbaar";l("lastLog","/api/log/last",x.last_executed_run||null,true);$("runId").textContent=x.run_id||"geen";$("queue").textContent=x.queue_depth??0;$("implementation").textContent=x.implementation_pr||"geen";$("finalization").textContent=x.finalization_pr||"geen";$("repositoryState").textContent=x.repository_state||"ONBEKEND";$("workspaceState").textContent=x.workspace_state||"ONBEKEND";$("diag").textContent=x.diagnostic||"Geen diagnose";$("platformVersion").textContent=x.platform_version||"Niet beschikbaar";usage();commits()}
 function refresh(){fetch("/api/status").then(x=>{if(!x.ok)throw Error("status unavailable");return x.json()}).then(r).catch(()=>r(fallback))}
-let e=new EventSource("/api/events");e.addEventListener("status",x=>{try{r(JSON.parse(x.data));humanize()}catch{r(fallback);humanize()}});$("report").addEventListener("toggle",()=>{$("report").open&&report()});$("copyReport").addEventListener("click",copyReport);setInterval(()=>{clock();humanize();if(nextRefresh&&Date.now()>=nextRefresh)refresh()},250);clock();refresh();setInterval(promptStarted,5000);promptStarted()
+let e=new EventSource("/api/events");e.addEventListener("status",x=>{try{r(JSON.parse(x.data));humanize()}catch{r(fallback);humanize()}});$("report").addEventListener("toggle",()=>{$("report").open&&report()});$("copyReport").addEventListener("click",copyReport);setInterval(()=>{clock();humanize();if(nextRefresh&&Date.now()>=nextRefresh)refresh()},250);clock();refresh();checkBuild();setInterval(checkBuild,5000);setInterval(promptStarted,5000);promptStarted()
 </script>"""
     return page.replace("$TITLE", escape(title)).replace("$BUILD_COMMIT", escape(build_commit)).encode()
 
@@ -276,6 +277,11 @@ def handler(root: Path):
         def do_GET(self) -> None:
             if self.path == "/api/status":
                 return self._send(_status(root), "application/json; charset=utf-8")
+            if self.path == "/api/build":
+                return self._send(
+                    json.dumps({"build_commit": _build_commit(root)}).encode(),
+                    "application/json; charset=utf-8",
+                )
             if self.path == "/api/health":
                 return self._send(b'{"health":"ok"}', "application/json; charset=utf-8")
             if self.path == "/api/events":

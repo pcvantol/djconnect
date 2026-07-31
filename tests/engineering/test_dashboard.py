@@ -58,6 +58,9 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn('id="platformVersion"', page)
         self.assertIn("Git-commit", page)
         self.assertIn("onbekend", page)
+        self.assertIn('DASHBOARD_BUILD="onbekend"', page)
+        self.assertIn('fetch("/api/build",{cache:"no-store"})', page)
+        self.assertIn("setInterval(checkBuild,5000)", page)
         for label in (
             "Watcher",
             "Fase",
