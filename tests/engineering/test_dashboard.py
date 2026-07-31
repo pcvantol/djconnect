@@ -6,10 +6,20 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from tools.engineering.dashboard import LOOPBACK_ADDRESS, _current_codex_log, _last_executed_codex_log, _latest_codex_log, _sse_status, _status, binding_addresses
+from tools.engineering.dashboard import LOOPBACK_ADDRESS, _current_codex_log, _dashboard_html, _last_executed_codex_log, _latest_codex_log, _sse_status, _status, binding_addresses
 
 
 class DashboardStatusTest(unittest.TestCase):
+    def test_dashboard_shows_amsterdam_time_and_refresh_countdown(self) -> None:
+        page = _dashboard_html("DJConnect Engineering").decode()
+
+        self.assertIn('id="currentTime"', page)
+        self.assertIn('id="lastRefresh"', page)
+        self.assertIn('id="nextRefresh"', page)
+        self.assertIn('timeZone:"Europe/Amsterdam"', page)
+        self.assertIn('"nl-NL"', page)
+        self.assertIn("REFRESH_SECONDS=5", page)
+
     def test_missing_status_uses_a_complete_degraded_projection(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             status = json.loads(_status(Path(temporary)))
