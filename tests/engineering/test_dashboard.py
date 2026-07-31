@@ -45,6 +45,8 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn('fetch("/api/usage")', page)
         self.assertIn("Engineering Platform-versie", page)
         self.assertIn('id="platformVersion"', page)
+        self.assertIn("Git-commit", page)
+        self.assertIn("onbekend", page)
         for label in (
             "Watcher",
             "Fase",

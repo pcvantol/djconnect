@@ -8,6 +8,7 @@ from html import escape
 import json
 from pathlib import Path
 import re
+import subprocess
 import sys
 from threading import Thread
 import time
@@ -191,7 +192,18 @@ def _prompt_started(root: Path) -> bytes:
     return b"{}"
 
 
-def _dashboard_html(title: str) -> bytes:
+def _build_commit(root: Path) -> str:
+    """Return the local checked-out revision for read-only dashboard identification."""
+    observed = subprocess.run(
+        ("git", "-C", str(root), "rev-parse", "--short=12", "HEAD"),
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    return observed.stdout.strip() if observed.returncode == 0 else "onbekend"
+
+
+def _dashboard_html(title: str, build_commit: str = "onbekend") -> bytes:
     """Render the private dashboard with client-local, visible refresh timing."""
     page = """<!doctype html>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -215,7 +227,7 @@ pre{white-space:pre-wrap;word-break:break-word;margin:8px 0 0;font:12px ui-monos
 <div class="card"><strong>Repository</strong><p class="field"><span class="label">Repositorystatus</span><span id="repositoryState"></span></p><p class="field"><span class="label">Werkruimtestatus</span><span id="workspaceState"></span></p></div>
 <div class="card"><strong>Diagnose</strong><p id="diag"></p></div>
 <details class="card" id="report"><summary><strong>Engineeringrapport</strong></summary><button class="copy" id="copyReport" type="button" title="Kopieer rapport" aria-label="Kopieer rapport">⧉ Kopieer</button><div class="field"><span class="label">Markdownrapport</span><pre id="reportContent">Open dit blok om het rapport te laden.</pre></div></details>
-<footer class="footer"><span class="label">Engineering Platform-versie</span><span id="platformVersion">Laden…</span></footer>
+<footer class="footer"><span class="label">Engineering Platform-versie</span><span id="platformVersion">Laden…</span> · <span class="label">Git-commit</span><code>$BUILD_COMMIT</code></footer>
 <script>
 const $=id=>document.getElementById(id),REFRESH_SECONDS=5,
 formatTime=new Intl.DateTimeFormat("nl-NL",{timeZone:"Europe/Amsterdam",dateStyle:"full",timeStyle:"medium"}),
@@ -236,7 +248,7 @@ function r(x){lastRefresh=new Date();nextRefresh=Date.now()+REFRESH_SECONDS*1000
 function refresh(){fetch("/api/status").then(x=>{if(!x.ok)throw Error("status unavailable");return x.json()}).then(r).catch(()=>r(fallback))}
 let e=new EventSource("/api/events");e.addEventListener("status",x=>{try{r(JSON.parse(x.data));humanize()}catch{r(fallback);humanize()}});$("report").addEventListener("toggle",()=>{$("report").open&&report()});$("copyReport").addEventListener("click",copyReport);setInterval(()=>{clock();humanize();if(nextRefresh&&Date.now()>=nextRefresh)refresh()},250);clock();refresh();setInterval(promptStarted,5000);promptStarted()
 </script>"""
-    return page.replace("$TITLE", escape(title)).encode()
+    return page.replace("$TITLE", escape(title)).replace("$BUILD_COMMIT", escape(build_commit)).encode()
 
 
 def handler(root: Path):
@@ -295,7 +307,7 @@ def handler(root: Path):
             if self.path == "/api/prompt-started":
                 return self._send(_prompt_started(root), "application/json; charset=utf-8")
             if self.path == "/":
-                return self._send(_dashboard_html(title), "text/html; charset=utf-8")
+                return self._send(_dashboard_html(title, _build_commit(root)), "text/html; charset=utf-8")
             self.send_error(404)
 
         def log_message(self, *_: object) -> None:
