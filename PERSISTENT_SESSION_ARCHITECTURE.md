@@ -1,10 +1,11 @@
 # Persistent Session Architecture
 
-**Status:** Accepted architecture amendment
+**Status:** Accepted architecture amendment and implemented-foundation record
 **Owner:** DJConnect Product Development
 **Scope:** Durable DJ Session domain truth and its boundary with an ephemeral
-Session Runtime. This amendment authorizes no storage, migration, recovery,
-voice or renderer implementation.
+Session Runtime. The implemented storage foundation is recorded in
+`DJCONNECT_STORAGE_ARCHITECTURE.md`; this record does not authorize Runtime
+serialization, renderer persistence or recovery redesign.
 
 ## Decision
 
@@ -272,10 +273,12 @@ Playback Instance Identity contract are implemented and verified.
 
 ## Explicit non-goals
 
-This amendment does not implement SQLite, schemas, repositories, migrations,
-Session writes, restart recovery, Runtime serialization, historical storage,
-TTS endpoints/caching, backup/restore, product import/export, replay controls,
-voice delivery, renderer changes, Continue Stage 2 or providers.
+The foundation now implements SQLite schema/migration infrastructure and
+historical Session/Moment tables, but not Runtime serialization, active Session
+recovery, product-facing backup/restore, DJPrint, replay controls, voice
+delivery, renderer changes, Continue Stage 2 or providers. The cross-host
+ownership and import/export boundary is canonical in
+`DJCONNECT_STORAGE_ARCHITECTURE.md`.
 
 ## Related records
 
@@ -284,3 +287,4 @@ voice delivery, renderer changes, Continue Stage 2 or providers.
 - [`docs/product/DJ_SESSION_DOMAIN_MODEL.md`](docs/product/DJ_SESSION_DOMAIN_MODEL.md)
 - [`SESSION_FLOW_RECOVERY_ARCHITECTURE.md`](SESSION_FLOW_RECOVERY_ARCHITECTURE.md)
 - [`docs/product/CONTINUE_CURRENT_PLAYBACK_CONTINUITY.md`](docs/product/CONTINUE_CURRENT_PLAYBACK_CONTINUITY.md)
+- [`DJCONNECT_STORAGE_ARCHITECTURE.md`](DJCONNECT_STORAGE_ARCHITECTURE.md)

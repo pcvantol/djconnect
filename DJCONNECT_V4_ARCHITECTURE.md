@@ -156,3 +156,5 @@ capability contract for this architecture.
 amendment for future Flow delta and Broadcast replay capabilities.
 `PERSISTENT_SESSION_ARCHITECTURE.md` is the canonical durable Session boundary,
 lifecycle, historical projection and future persistence roadmap.
+`DJCONNECT_STORAGE_ARCHITECTURE.md` is the canonical cross-host storage,
+backup, import/export and renderer-recovery contract.
