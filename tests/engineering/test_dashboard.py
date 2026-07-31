@@ -6,7 +6,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from tools.engineering.dashboard import LOOPBACK_ADDRESS, _current_codex_log, _dashboard_html, _last_executed_codex_log, _latest_codex_log, _sse_status, _status, binding_addresses
+from tools.engineering.dashboard import LOOPBACK_ADDRESS, _codex_usage, _current_codex_log, _dashboard_html, _last_executed_codex_log, _latest_codex_log, _sse_status, _status, binding_addresses
 
 
 class DashboardStatusTest(unittest.TestCase):
@@ -29,6 +29,26 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn("function estimate(x)", page)
         self.assertIn("ongeveer 15–30 minuten", page)
         self.assertIn("geen betrouwbare ETA", page)
+        self.assertIn('id="usage"', page)
+        self.assertIn('fetch("/api/usage")', page)
+
+    def test_codex_usage_is_shown_only_for_the_displayed_run(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            status = root / ".djconnect" / "status"
+            status.mkdir(parents=True)
+            (status / "status.json").write_text('{"run_id":"inbox-visible"}', encoding="utf-8")
+            (status / "codex_usage.json").write_text(
+                '{"run_id":"inbox-visible","usage":{"input_tokens":123,"cost":1.25}}',
+                encoding="utf-8",
+            )
+            self.assertEqual(
+                json.loads(_codex_usage(root)), {"input_tokens": 123, "cost": 1.25}
+            )
+            (status / "codex_usage.json").write_text(
+                '{"run_id":"inbox-other","usage":{"input_tokens":123}}', encoding="utf-8"
+            )
+            self.assertEqual(json.loads(_codex_usage(root)), {})
 
     def test_missing_status_uses_a_complete_degraded_projection(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

@@ -133,6 +133,21 @@ def _last_executed_codex_log(root: Path) -> bytes:
         return b"No Codex CLI diagnostic is available for the last executed run."
 
 
+def _codex_usage(root: Path) -> bytes:
+    """Return only CLI-reported usage bound to the displayed current or last run."""
+    try:
+        status = json.loads(_status(root))
+        recorded = json.loads((root / ".djconnect" / "status" / "codex_usage.json").read_text(encoding="utf-8"))
+        run_id = recorded.get("run_id")
+        usage = recorded.get("usage")
+    except (OSError, json.JSONDecodeError):
+        return b"{}"
+    if run_id not in {status.get("run_id"), status.get("last_executed_run")} or not isinstance(usage, dict):
+        return b"{}"
+    allowed = {key: value for key, value in usage.items() if isinstance(key, str) and isinstance(value, (int, float, str))}
+    return json.dumps(allowed, separators=(",", ":")).encode()
+
+
 def _dashboard_html(title: str) -> bytes:
     """Render the private dashboard with client-local, visible refresh timing."""
     page = """<!doctype html>
@@ -148,6 +163,7 @@ pre{white-space:pre-wrap;word-break:break-word;margin:8px 0 0;font:12px ui-monos
 <div class="card"><div class="status"><span id="indicator" class="indicator" role="status" aria-label="Status onbekend"></span><strong id="state">Loading status…</strong></div><p id="action"></p></div>
 <div class="card"><strong>Tijd</strong><p id="currentTime">Laden…</p><p id="lastRefresh">Laatst ververst: laden…</p><p id="nextRefresh">Volgende verversing: laden…</p></div>
 <div class="card"><strong>Geschatte uitvoeringstijd</strong><p id="executionEstimate">Nog niet beschikbaar…</p></div>
+<div class="card" id="usage" hidden><strong>Codex CLI-gebruik</strong><pre id="usageDetails"></pre></div>
 <div class="card" id="current" hidden><strong>Current running</strong><p id="currentPrompt"></p><pre id="currentFile"></pre><pre id="currentLog">Loading diagnostic…</pre></div>
 <div class="card"><strong>Last executed</strong><p id="lastPrompt"></p><pre id="lastFile"></pre><pre id="lastLog">Loading diagnostic…</pre></div>
 <div class="card" id="job"></div><div class="card" id="prs"></div><div class="card" id="repo"></div><div class="card" id="diag"></div>
@@ -160,7 +176,8 @@ function tone(x){const phase=x.current_phase||"",watcher=x.watcher_state||"";if(
 function estimate(x){const phase=x.current_phase||"";if(phase==="INITIALIZE")return "Geschat resterend: minder dan 1 minuut";if(phase==="EXECUTE_AGENT")return "Geschat resterend: ongeveer 15–30 minuten";if(phase==="REPAIR_AGENT")return "Geschat resterend: ongeveer 10–20 minuten";if(phase==="FINALIZE_AGENT")return "Geschat resterend: ongeveer 5–10 minuten";if(phase==="REPOSITORY_CLEANUP")return "Geschat resterend: ongeveer 2 minuten";if(phase==="WAIT_FOR_TERMINAL_EVIDENCE")return "Wacht op externe verificatie; geen betrouwbare ETA";if(phase==="COMPLETE")return "Voltooid";if(["BLOCKED","FAILED"].includes(phase))return "Gestopt; actie nodig";return "Nog niet beschikbaar"}
 function clock(){let now=Date.now();$("currentTime").textContent=formatTime.format(new Date(now));$("lastRefresh").textContent="Laatst ververst: "+(lastRefresh?formatTime.format(lastRefresh):"laden…");$("nextRefresh").textContent="Volgende verversing: "+(nextRefresh?Math.max(0,Math.ceil((nextRefresh-now)/1000))+" seconden":"laden…")}
 function l(id,url,run,last){if(run===(last?lastLogRun:currentLogRun))return;if(last)lastLogRun=run;else currentLogRun=run;$(id).textContent="Loading diagnostic…";fetch(url).then(x=>x.text()).then(x=>$(id).textContent=x).catch(()=>$(id).textContent="Codex CLI diagnostic is unavailable.")}
-function r(x){lastRefresh=new Date();nextRefresh=Date.now()+REFRESH_SECONDS*1000;clock();x=x&&typeof x==="object"?x:fallback;let active=!["COMPLETE","BLOCKED","FAILED"].includes(x.current_phase),statusTone=tone(x),indicator=$("indicator");indicator.className="indicator indicator--"+statusTone;indicator.setAttribute("aria-label","Promptstatus: "+statusTone);$("state").textContent=(x.watcher_state||fallback.watcher_state)+" · "+(x.current_phase||"idle");$("action").textContent=x.current_action||"No active action";$("executionEstimate").textContent=estimate(x);$("current").hidden=!active;$("currentPrompt").textContent=x.prompt_title||"Prompt title unavailable";$("currentFile").textContent=x.submitted_filename||"Filename unavailable";if(active)l("currentLog","/api/log/current",x.run_id||null,false);$("lastPrompt").textContent=x.last_executed_title||"No executed prompt yet";$("lastFile").textContent=x.last_executed_filename||"Filename unavailable";l("lastLog","/api/log/last",x.last_executed_run||null,true);$("job").textContent="Run: "+(x.run_id||"none")+" · Queue: "+(x.queue_depth??0);$("prs").textContent="Implementation: "+(x.implementation_pr||"none")+" · Finalization: "+(x.finalization_pr||"none");$("repo").textContent=(x.repository_state||"UNKNOWN")+" · "+(x.workspace_state||"UNKNOWN");$("diag").textContent=x.diagnostic||"No diagnostic"}
+function usage(){fetch("/api/usage").then(x=>x.json()).then(x=>{let entries=Object.entries(x);$("usage").hidden=!entries.length;$("usageDetails").textContent=entries.map(([key,value])=>key.replaceAll("_"," ")+": "+value).join("\n")}).catch(()=>$("usage").hidden=true)}
+function r(x){lastRefresh=new Date();nextRefresh=Date.now()+REFRESH_SECONDS*1000;clock();x=x&&typeof x==="object"?x:fallback;let active=!["COMPLETE","BLOCKED","FAILED"].includes(x.current_phase),statusTone=tone(x),indicator=$("indicator");indicator.className="indicator indicator--"+statusTone;indicator.setAttribute("aria-label","Promptstatus: "+statusTone);$("state").textContent=(x.watcher_state||fallback.watcher_state)+" · "+(x.current_phase||"idle");$("action").textContent=x.current_action||"No active action";$("executionEstimate").textContent=estimate(x);$("current").hidden=!active;$("currentPrompt").textContent=x.prompt_title||"Prompt title unavailable";$("currentFile").textContent=x.submitted_filename||"Filename unavailable";if(active)l("currentLog","/api/log/current",x.run_id||null,false);$("lastPrompt").textContent=x.last_executed_title||"No executed prompt yet";$("lastFile").textContent=x.last_executed_filename||"Filename unavailable";l("lastLog","/api/log/last",x.last_executed_run||null,true);$("job").textContent="Run: "+(x.run_id||"none")+" · Queue: "+(x.queue_depth??0);$("prs").textContent="Implementation: "+(x.implementation_pr||"none")+" · Finalization: "+(x.finalization_pr||"none");$("repo").textContent=(x.repository_state||"UNKNOWN")+" · "+(x.workspace_state||"UNKNOWN");$("diag").textContent=x.diagnostic||"No diagnostic";usage()}
 function refresh(){fetch("/api/status").then(x=>{if(!x.ok)throw Error("status unavailable");return x.json()}).then(r).catch(()=>r(fallback))}
 let e=new EventSource("/api/events");e.addEventListener("status",x=>{try{r(JSON.parse(x.data))}catch{r(fallback)}});setInterval(()=>{clock();if(nextRefresh&&Date.now()>=nextRefresh)refresh()},250);clock();refresh()
 </script>"""
@@ -216,6 +233,8 @@ def handler(root: Path):
                 return self._send(_current_codex_log(root), "text/plain; charset=utf-8")
             if self.path == "/api/log/last":
                 return self._send(_last_executed_codex_log(root), "text/plain; charset=utf-8")
+            if self.path == "/api/usage":
+                return self._send(_codex_usage(root), "application/json; charset=utf-8")
             if self.path == "/":
                 return self._send(_dashboard_html(title), "text/html; charset=utf-8")
             self.send_error(404)
