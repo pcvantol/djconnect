@@ -15,6 +15,17 @@
 
 ## Current position
 
+PR [#638](https://github.com/pcvantol/djconnect/pull/638) merged as
+`8e4e41d7f02231a57f0dbbab50abc55b5e53cd2a`. It updates `mpremote` and
+`micropython-stubber`, with the tracked developer-onboarding distribution
+regenerated to keep its packaged requirements current. PR
+[#640](https://github.com/pcvantol/djconnect/pull/640) merged as
+`696f57080a0b09f6c259702494f10ab715c8b149`. It refreshes five pinned GitHub
+Actions dependencies; all technical checks passed and its protected workflow
+change received the required exact-SHA owner authorization. These are
+compatibility maintenance updates only: no Product, Runtime, Release or
+Deployment behavior changed. Repository State: `MERGED_RECONCILED`.
+
 PR [#646](https://github.com/pcvantol/djconnect/pull/646) merged as
 `f33f63ff399599b46c220c5169875abbda230f9a`. Canonical DJConnect storage is
 now explicitly Home Assistant-owned across five host profiles; renderer state

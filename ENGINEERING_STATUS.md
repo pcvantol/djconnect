@@ -1,9 +1,22 @@
 # DJConnect Engineering Status
 
 **Status:** Operational handoff
-**Updated:** 2026-07-30
+**Updated:** 2026-07-31
 
 ## Owner-authorized autonomous PR lifecycle finalization
+
+## Dependabot maintenance finalization
+
+PR [#638](https://github.com/pcvantol/djconnect/pull/638) merged as
+`8e4e41d7f02231a57f0dbbab50abc55b5e53cd2a`; it updates the Pico developer
+toolchain dependencies and refreshes the matching onboarding distribution.
+PR [#640](https://github.com/pcvantol/djconnect/pull/640) merged as
+`696f57080a0b09f6c259702494f10ab715c8b149`; it updates the pinned GitHub
+Actions dependencies. Both merged changes passed their required checks; #640
+also passed its exact-SHA owner authorization. They are source-generated
+Dependabot maintenance transactions, so no human-authored Prompt History is
+reconstructed. No Product, Runtime, Release or Deployment behavior changed.
+Repository State: `MERGED_RECONCILED`.
 
 ## Canonical storage architecture finalization
 

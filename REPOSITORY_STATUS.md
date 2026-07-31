@@ -4,6 +4,16 @@ Status: active platform-evolution repository
 
 ## Owner-authorized autonomous PR lifecycle finalization
 
+PR [#638](https://github.com/pcvantol/djconnect/pull/638) merged as
+`8e4e41d7f02231a57f0dbbab50abc55b5e53cd2a`; the Pico developer toolchain and
+its generated onboarding distribution are aligned. PR
+[#640](https://github.com/pcvantol/djconnect/pull/640) merged as
+`696f57080a0b09f6c259702494f10ab715c8b149`; pinned GitHub Actions are current.
+Both were verified in CI; #640 additionally passed exact-SHA owner
+authorization. These source-generated Dependabot maintenance transactions add
+no human-authored Prompt History and no Product, Runtime, Release or
+Deployment behavior. Repository State: `MERGED_RECONCILED`.
+
 PR [#646](https://github.com/pcvantol/djconnect/pull/646) merged as
 `f33f63ff399599b46c220c5169875abbda230f9a`. Canonical storage ownership,
 server lifecycle operations and rebuildable renderer state are reconciled.
