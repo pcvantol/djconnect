@@ -19,6 +19,12 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn('timeZone:"Europe/Amsterdam"', page)
         self.assertIn('"nl-NL"', page)
         self.assertIn("REFRESH_SECONDS=5", page)
+        self.assertIn('id="indicator"', page)
+        self.assertIn("indicator--green", page)
+        self.assertIn("indicator--yellow", page)
+        self.assertIn("indicator--orange", page)
+        self.assertIn("indicator--red", page)
+        self.assertIn('return "grey"', page)
 
     def test_missing_status_uses_a_complete_degraded_projection(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
