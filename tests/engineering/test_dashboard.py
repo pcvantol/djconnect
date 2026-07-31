@@ -15,6 +15,9 @@ class DashboardStatusTest(unittest.TestCase):
 
         self.assertIn("<title>Engineering Status</title>", page)
         self.assertIn("<h1>Engineering Status</h1>", page)
+        self.assertIn('class="dashboard-grid"', page)
+        self.assertIn("@media (min-width:900px)", page)
+        self.assertIn("grid-template-columns:repeat(2,minmax(0,1fr))", page)
         self.assertIn('id="currentTime"', page)
         self.assertIn('id="lastRefresh"', page)
         self.assertIn('id="nextRefresh"', page)
