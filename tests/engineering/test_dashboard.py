@@ -11,8 +11,10 @@ from tools.engineering.dashboard import LOOPBACK_ADDRESS, _codex_usage, _complet
 
 class DashboardStatusTest(unittest.TestCase):
     def test_dashboard_shows_amsterdam_time_and_refresh_countdown(self) -> None:
-        page = _dashboard_html("DJConnect Engineering").decode()
+        page = _dashboard_html("Engineering Status").decode()
 
+        self.assertIn("<title>Engineering Status</title>", page)
+        self.assertIn("<h1>Engineering Status</h1>", page)
         self.assertIn('id="currentTime"', page)
         self.assertIn('id="lastRefresh"', page)
         self.assertIn('id="nextRefresh"', page)
