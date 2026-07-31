@@ -34,6 +34,8 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn('id="report"', page)
         self.assertIn("Engineeringrapport", page)
         self.assertIn('fetch("/api/report/latest")', page)
+        self.assertIn('id="copyReport"', page)
+        self.assertIn("navigator.clipboard.writeText", page)
         self.assertIn('return "grey"', page)
         self.assertIn('id="executionEstimate"', page)
         self.assertIn("function estimate(x)", page)
