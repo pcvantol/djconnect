@@ -35,6 +35,7 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn("indicator--orange", page)
         self.assertIn("indicator--red", page)
         self.assertIn("indicator--running", page)
+        self.assertIn('function isActiveRun(x){return x.watcher_state==="ENGINEERING_RUN_ACTIVE"&&Boolean(x.run_id)}', page)
         self.assertIn("@keyframes spin", page)
         self.assertIn('ENGINEERING_RUN_ACTIVE:"Engineering actief"', page)
         self.assertIn('EXECUTE_AGENT:"Uitvoering"', page)
