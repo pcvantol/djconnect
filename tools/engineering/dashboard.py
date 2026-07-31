@@ -4,25 +4,46 @@ from __future__ import annotations
 
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import argparse
-import os
+import json
 from pathlib import Path
-import subprocess
 import sys
+import time
+from .platform_api import PlatformConfiguration
+from .providers import TailscaleProvider
+from .providers import LaunchdProvider
 
 LABEL = "com.djconnect.engineering-dashboard"
 DASHBOARD_VERSION = "1.0.0"
+
+
+def _unavailable_status() -> bytes:
+    """Return the complete, safe status shape when no projection exists yet."""
+    return json.dumps(
+        {
+            "watcher_state": "REMOTE_ENGINEERING_DEGRADED",
+            "current_phase": "status unavailable",
+            "current_action": "Run Engineering Platform to publish a status update.",
+            "run_id": None,
+            "queue_depth": 0,
+            "implementation_pr": None,
+            "finalization_pr": None,
+            "repository_state": "UNKNOWN",
+            "workspace_state": "UNKNOWN",
+            "diagnostic": "No local engineering status has been published yet.",
+        },
+        separators=(",", ":"),
+    ).encode()
 
 
 def _status(root: Path) -> bytes:
     try:
         return (root / ".djconnect" / "status" / "status.json").read_bytes()
     except OSError:
-        return (
-            b'{"watcher_state":"REMOTE_ENGINEERING_DEGRADED","diagnostic":"Status is unavailable."}'
-        )
+        return _unavailable_status()
 
 
 def handler(root: Path):
+    title = PlatformConfiguration.load(root).workspace.dashboard_title
     class DashboardHandler(BaseHTTPRequestHandler):
         def _send(self, content: bytes, content_type: str) -> None:
             self.send_response(200)
@@ -41,9 +62,31 @@ def handler(root: Path):
                 return self._send(_status(root), "application/json; charset=utf-8")
             if self.path == "/api/health":
                 return self._send(b'{"health":"ok"}', "application/json; charset=utf-8")
+            if self.path == "/api/events":
+                self.send_response(200)
+                self.send_header("Content-Type", "text/event-stream; charset=utf-8")
+                self.send_header("Cache-Control", "no-store")
+                self.end_headers()
+                try:
+                    for _ in range(60):
+                        self.wfile.write(b"event: status\ndata: " + _status(root) + b"\n\n")
+                        self.wfile.flush()
+                        time.sleep(5)
+                except (BrokenPipeError, ConnectionResetError):
+                    pass
+                return
+            if self.path == "/api/report/latest":
+                try:
+                    reports = sorted((root / ".djconnect" / "reports").glob("*.md"))
+                    content = (
+                        reports[-1].read_bytes() if reports else b"No local report is available."
+                    )
+                except OSError:
+                    content = b"Report is unavailable."
+                return self._send(content, "text/markdown; charset=utf-8")
             if self.path == "/":
                 return self._send(
-                    '<!doctype html><meta name="viewport" content="width=device-width,initial-scale=1"><title>DJConnect Engineering</title><style>body{margin:0;background:#121217;color:#f7f3ee;font:16px system-ui;padding:20px}pre{white-space:pre-wrap;background:#24242d;border-radius:14px;padding:16px;color:#d9c7ff}</style><h1>DJConnect Engineering</h1><pre id="s">Loading</pre><script>fetch("/api/status").then(r=>r.json()).then(x=>s.textContent=JSON.stringify(x,null,2)).catch(()=>s.textContent="Status unavailable")</script>'.encode(),
+                    f'<!doctype html><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>{title}</title><style>body{{margin:0;background:#121217;color:#f7f3ee;font:16px system-ui;padding:max(20px,env(safe-area-inset-top)) 20px}}.card{{background:#24242d;border-radius:16px;padding:16px;margin:12px 0;box-shadow:0 4px 18px #0005}}strong{{color:#c7a6ff}}</style><h1>{title}</h1><div class="card"><strong id="state">Loading status…</strong><p id="action"></p></div><div class="card" id="job"></div><div class="card" id="prs"></div><div class="card" id="repo"></div><div class="card" id="diag"></div><script>const $=id=>document.getElementById(id),fallback={{watcher_state:"REMOTE_ENGINEERING_DEGRADED",current_phase:"status unavailable",current_action:"Refresh the dashboard after the Engineering Platform publishes status.",queue_depth:0,repository_state:"UNKNOWN",workspace_state:"UNKNOWN",diagnostic:"The status request could not be completed."}};function r(x){{x=x&&typeof x==="object"?x:fallback;$("state").textContent=(x.watcher_state||fallback.watcher_state)+" · "+(x.current_phase||"idle");$("action").textContent=x.current_action||"No active action";$("job").textContent="Run: "+(x.run_id||"none")+" · Queue: "+(x.queue_depth??0);$("prs").textContent="Implementation: "+(x.implementation_pr||"none")+" · Finalization: "+(x.finalization_pr||"none");$("repo").textContent=(x.repository_state||"UNKNOWN")+" · "+(x.workspace_state||"UNKNOWN");$("diag").textContent=x.diagnostic||"No diagnostic"}}let e=new EventSource("/api/events");e.addEventListener("status",x=>{{try{{r(JSON.parse(x.data))}}catch{{r(fallback)}}}});fetch("/api/status").then(x=>{{if(!x.ok)throw Error("status unavailable");return x.json()}}).then(r).catch(()=>r(fallback))</script>'.encode(),
                     "text/html; charset=utf-8",
                 )
             self.send_error(404)
@@ -95,20 +138,19 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "install":
         agent = launch_agent(repo)
-        subprocess.run(
-            ("launchctl", "bootout", f"gui/{os.getuid()}", str(agent)),
-            check=False,
-            capture_output=True,
-        )
-        subprocess.run(("launchctl", "bootstrap", f"gui/{os.getuid()}", str(agent)), check=False)
+        LaunchdProvider().install(LABEL, agent)
         return 0
     if args.command == "uninstall":
-        subprocess.run(("launchctl", "bootout", f"gui/{os.getuid()}", str(agent)), check=False)
+        LaunchdProvider().uninstall(agent)
         agent.unlink(missing_ok=True)
         return 0
     health = (repo / ".djconnect" / "status" / "status.json").is_file()
-    print(f"REMOTE_ENGINEERING_{'READY' if health and agent.is_file() else 'DEGRADED'}")
-    return 0 if health and agent.is_file() else 1
+    remote = TailscaleProvider().status()
+    state = "READY" if health and agent.is_file() else "DEGRADED"
+    print(
+        f"REMOTE_ENGINEERING_{state}\nprivate_remote_access={remote.detail}\nAction: configure the qualified private-access provider; no network configuration was changed."
+    )
+    return 0 if state == "READY" else 1
 
 
 if __name__ == "__main__":
