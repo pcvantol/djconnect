@@ -24,6 +24,8 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn("indicator--yellow", page)
         self.assertIn("indicator--orange", page)
         self.assertIn("indicator--red", page)
+        self.assertIn("indicator--running", page)
+        self.assertIn("@keyframes spin", page)
         self.assertIn('return "grey"', page)
         self.assertIn('id="executionEstimate"', page)
         self.assertIn("function estimate(x)", page)
