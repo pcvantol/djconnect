@@ -5,6 +5,36 @@
 
 ## Owner-authorized autonomous PR lifecycle finalization
 
+## Canonical storage architecture finalization
+
+PR [#646](https://github.com/pcvantol/djconnect/pull/646) merged as
+`f33f63ff399599b46c220c5169875abbda230f9a`. The Home Assistant integration is
+now the explicit canonical storage owner; renderer storage remains bounded and
+rebuildable. No DJConnect runtime or renderer behavior changed.
+Repository State: `MERGED_RECONCILED`.
+
+## Dashboard loading fix finalization
+
+PR [#644](https://github.com/pcvantol/djconnect/pull/644) merged as
+`0d1d7912318cde580ab8c477070ddc6758a9186c`. The private dashboard now renders
+a complete degraded status when local status data is unavailable, rather than
+remaining on a loading state. Repository State: `MERGED_RECONCILED`.
+Its Finalization PR [#645](https://github.com/pcvantol/djconnect/pull/645)
+merged as `f8622632e3c4d80f5a93e193d73c659db3e779a9`.
+
+## Engineering Platform 1.5 finalization
+
+PR [#642](https://github.com/pcvantol/djconnect/pull/642) merged as
+`164e06f80f5adeab4cdb957e76d28c8a16ab81c7`. Platform Identity, Workspace
+Identity, provider contracts, public API, bootstrap, qualification and
+EP-GOLDEN-001 are reconciled. Its Finalization PR [#643](https://github.com/pcvantol/djconnect/pull/643)
+merged as `50ae9b625e2a42800938597f526c9d5fc1109fe7`.
+Repository State: `MERGED_RECONCILED`.
+
+## Engineering Platform 1.4 completion finalization
+
+PR [#639](https://github.com/pcvantol/djconnect/pull/639) merged as `983dc283c590e1ef16c8e9a64f67c86d9d4e28ab`. Canonical status, private dashboard, Tailscale diagnostics and Remote Experience qualification are reconciled. Repository State: `MERGED_RECONCILED`
+
 ## Remote onboarding readiness finalization
 
 PR [#636](https://github.com/pcvantol/djconnect/pull/636) merged as `c491508e95970d07b8eafc8b4dca439818159c7d`. Remote Engineering onboarding now installs the owned local dashboard with the watcher; repository state remains `MERGED_RECONCILED`.

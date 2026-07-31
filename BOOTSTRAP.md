@@ -119,18 +119,50 @@ this file is the canonical repository-state entry point.
 
 The local AI-assisted engineering environment is independently versioned by
 `tools/engineering/ENGINEERING_PLATFORM_VERSION.json`. Its current canonical
-contract is Engineering Platform `1.4.0`, runner `1.4.0`, Bootstrap Contract
-`2026.11`, Checkpoint Format `1`, Engineering Memory Format `2`, Report Format
-`2`, Engineering Inbox watcher `1.0.0` (Inbox Protocol `1`) and minimum
+contract is Engineering Platform `1.5.0`, runner `1.5.0`, Bootstrap Contract
+`2026.12`, Checkpoint Format `1`, Engineering Memory Format `2`, Report Format
+`2`, Engineering Inbox watcher `1.0.0` (Inbox Protocol `1`), Platform Identity
+generation `2`, Workspace Identity schema `1`, provider model `1`, configuration
+schema `1`, qualification registry `1` and minimum
 supported Codex CLI `0.146.0`. On supported macOS workstations, the watcher
 and its per-user LaunchAgent must satisfy this same contract before accepting
 iCloud inbox work; incompatibility is blocked with corrective diagnostics.
 
-Every new engineering prompt produced through the Product & Platform Architect
-workflow requires Engineering Platform `1.2.0` or newer. The generated prompt
+Every future Platform Engineering prompt requires:
+
+```text
+Required Engineering Platform: >= 1.5.0
+```
+
+Engineering Platform 1.5 is the minimum supported platform for future
+engineering prompts. Older versions are incompatible and compatibility
+validation fails closed. The repository bootstrap is the authoritative
+compatibility contract. Product & Platform Architect prompts require
+Engineering Platform `1.5.0` or newer. The generated prompt
 must state this minimum explicitly. `dj-engineer` must fail closed before any
 repository mutation when the detected Engineering Platform is older than the
 prompt's declared minimum.
+
+When an older platform is detected, report the following diagnostic without
+continuing:
+
+```text
+Engineering Platform detected:
+
+<detected version>
+
+Required:
+
+>= 1.5.0
+
+Status:
+
+UPGRADE_REQUIRED
+
+Action:
+
+Upgrade the Engineering Platform before executing this engineering prompt.
+```
 
 `dj-engineer` validates this manifest at startup. Engineering compatibility is
 determined from this Engineering Platform contract, not from individual runner

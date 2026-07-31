@@ -1,14 +1,20 @@
 # Client Storage
 
+[`DJCONNECT_STORAGE_ARCHITECTURE.md`](../../DJCONNECT_STORAGE_ARCHITECTURE.md)
+is the canonical ownership, lifecycle, backup and recovery contract. This
+document is deliberately an implementation inventory only; it does not create
+an alternative storage architecture.
+
 The machine-readable inventory is
 [`inventory/client_storage.json`](inventory/client_storage.json).
 
 ## HA
 
 `CONFIRMED_CODE` HA uses Home Assistant `Store` for profile platform storage,
-Ask DJ history and Music DNA. Config entries/options hold pairing, OAuth and
-runtime configuration. Runtime objects cache device status, playback and push
-status.
+Ask DJ history and Music DNA; the integration-owned persistence service owns
+the private SQLite schema/migration lifecycle. Config entries/options hold
+pairing, OAuth and runtime configuration. Runtime objects cache device status,
+playback and push status and are not canonical storage.
 
 ## Apple
 

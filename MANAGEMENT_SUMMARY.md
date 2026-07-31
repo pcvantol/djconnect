@@ -15,6 +15,30 @@
 
 ## Current position
 
+PR [#646](https://github.com/pcvantol/djconnect/pull/646) merged as
+`f33f63ff399599b46c220c5169875abbda230f9a`. Canonical DJConnect storage is
+now explicitly Home Assistant-owned across five host profiles; renderer state
+is non-authoritative and rebuildable. No Product, Runtime, Release or
+Deployment behavior changed. Repository State: `MERGED_RECONCILED`.
+
+PR [#644](https://github.com/pcvantol/djconnect/pull/644) merged as
+`0d1d7912318cde580ab8c477070ddc6758a9186c`. The private Engineering Status
+dashboard now renders a complete, explicit degraded state when local status
+data is unavailable. No transaction, Product, Runtime, Release, Deployment or
+publication authority changed. Repository State: `MERGED_RECONCILED`.
+Its Finalization PR [#645](https://github.com/pcvantol/djconnect/pull/645)
+merged as `f8622632e3c4d80f5a93e193d73c659db3e779a9`.
+
+PR [#642](https://github.com/pcvantol/djconnect/pull/642) merged as
+`164e06f80f5adeab4cdb957e76d28c8a16ab81c7`. Engineering Platform 1.5 adds
+provider-neutral productization, public bootstrap and deterministic CI/Golden
+Scenario qualification without Product, Runtime, Release or Deployment change.
+Its Finalization PR [#643](https://github.com/pcvantol/djconnect/pull/643)
+merged as `50ae9b625e2a42800938597f526c9d5fc1109fe7`.
+Repository State: `MERGED_RECONCILED`.
+
+PR [#639](https://github.com/pcvantol/djconnect/pull/639) merged as `983dc283c590e1ef16c8e9a64f67c86d9d4e28ab`. Engineering Platform 1.4 Remote Engineering contracts are reconciled. Repository State: `MERGED_RECONCILED`
+
 PR [#636](https://github.com/pcvantol/djconnect/pull/636) merged as `c491508e95970d07b8eafc8b4dca439818159c7d`. Remote onboarding/readiness is reconciled. Repository State: `MERGED_RECONCILED`
 
 PR [#634](https://github.com/pcvantol/djconnect/pull/634), **Add Remote
