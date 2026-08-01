@@ -183,6 +183,7 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn("window.isSecureContext", page)
         self.assertIn('<link id="dashboardFavicon" rel="icon" type="image/svg+xml">', page)
         self.assertIn('id="componentLogs"', page)
+        self.assertIn('<summary><strong>Logs</strong></summary>', page)
         self.assertIn('data-testid="clear-inbox-log"', page)
         self.assertIn('data-testid="clear-dashboard-log"', page)
         self.assertIn('function clearComponentLog(component,button)', page)
