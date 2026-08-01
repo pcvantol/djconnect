@@ -143,6 +143,30 @@ class FakeReviewer:
 
 
 class ClientContractTest(unittest.TestCase):
+    @patch("tools.engineering.dj_engineer.subprocess.run")
+    def test_repository_main_containment_uses_git_ancestry_evidence(self, run: object) -> None:
+        client = SubprocessRepositoryClient()
+        run.return_value = subprocess.CompletedProcess(("git",), 0)
+        self.assertTrue(client.main_contains(Path("/repository"), "a" * 40))
+        run.return_value = subprocess.CompletedProcess(("git",), 1)
+        self.assertFalse(client.main_contains(Path("/repository"), "a" * 40))
+
+    def test_repository_synchronization_uses_only_main_fast_forward_commands(self) -> None:
+        class Provider:
+            def __init__(self) -> None:
+                self.calls: list[tuple[str, ...]] = []
+
+            def command(self, _: Path, *args: str) -> str:
+                self.calls.append(args)
+                return ""
+
+        provider = Provider()
+        SubprocessRepositoryClient(provider).synchronize_main(Path("/repository"))
+        self.assertEqual(
+            provider.calls,
+            [("git", "switch", "main"), ("git", "pull", "--ff-only")],
+        )
+
     def test_repository_client_inspects_and_translates_provider_failures(self) -> None:
         class Provider:
             def command(self, root: Path, *args: str) -> str:
