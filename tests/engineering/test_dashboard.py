@@ -211,6 +211,8 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn('id="workerVersion"', page)
         self.assertIn("component_versions", page)
         self.assertIn("Git-commit", page)
+        self.assertIn('.footer{align-items:baseline;display:flex;gap:6px;justify-content:center;overflow-x:auto;white-space:nowrap}', page)
+        self.assertIn('.footer .label{display:inline;margin:0}', page)
         self.assertIn("onbekend", page)
         self.assertIn('DASHBOARD_BUILD="onbekend"', page)
         for label in (
