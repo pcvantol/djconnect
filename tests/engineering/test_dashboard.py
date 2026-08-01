@@ -37,6 +37,11 @@ class DashboardStatusTest(unittest.TestCase):
 
         self.assertIn("<title>Engineering Status</title>", page)
         self.assertIn("<h1>Engineering Status</h1>", page)
+        self.assertIn('data-testid="engineering-workspace"', page)
+        self.assertIn("<strong>Workspace</strong>", page)
+        self.assertIn("Canonieke Engineering-map", page)
+        self.assertIn("djconnect", _dashboard_html("Engineering Status", workspace_id="djconnect").decode())
+        self.assertIn(".engineering", _dashboard_html("Engineering Status", engineering_path=".engineering").decode())
         self.assertIn('class="dashboard-grid"', page)
         self.assertIn('class="current-run" id="currentRun"', page)
         self.assertIn('class="current-run__title"', page)

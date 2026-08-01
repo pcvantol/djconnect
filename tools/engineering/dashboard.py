@@ -34,7 +34,7 @@ from .codex_chat import CodexChatError, chat_model, respond as codex_chat_respon
 
 LABEL = "com.djconnect.engineering-dashboard"
 RELAY_LABEL = "com.djconnect.engineering-dashboard-relay"
-DASHBOARD_VERSION = "1.2.37"
+DASHBOARD_VERSION = "1.2.38"
 LOOPBACK_ADDRESS = "127.0.0.1"
 CODEX_PROCESS = re.compile(r"(?:^|\s)(?:\S*/)?codex(?:\s|$)")
 RATE_LIMIT_CACHE_SECONDS = 60
@@ -541,7 +541,12 @@ def _build_commit(root: Path) -> str:
     return observed.stdout.strip() if observed.returncode == 0 else "onbekend"
 
 
-def _dashboard_html(title: str, build_commit: str = "onbekend") -> bytes:
+def _dashboard_html(
+    title: str,
+    build_commit: str = "onbekend",
+    workspace_id: str = "onbekend",
+    engineering_path: str = ".engineering",
+) -> bytes:
     """Render the private dashboard with a server-pushed status stream."""
     page = """<!doctype html>
 <html lang="nl">
@@ -562,6 +567,7 @@ pre{white-space:pre-wrap;word-break:break-word;margin:5px 0 0;font:12px ui-monos
 <body>
 <a class="skip-link" href="#engineering-dashboard-content">Naar dashboardinhoud</a>
 <h1>$TITLE</h1>
+<section class="card card--context workspace-card" data-testid="engineering-workspace"><strong>Workspace</strong><p class="field"><span class="label">Naam</span><span>$WORKSPACE_ID</span></p><div class="field"><span class="label">Canonieke Engineering-map</span><pre>$ENGINEERING_PATH</pre></div></section>
 <main class="dashboard-grid" id="engineering-dashboard-content" tabindex="-1">
 <section class="current-run" id="currentRun" aria-label="Huidige uitvoering" hidden><div class="current-run__title"><span class="label">Prompttitel</span><h2 id="currentPrompt">Laden…</h2><div class="field"><span class="label">Bestandsnaam</span><pre id="currentFile">Laden…</pre></div></div><div class="current-run__grid">
 <div class="card"><div class="status"><span id="indicator" class="indicator" role="status" aria-label="Status onbekend"></span><strong>Promptstatus</strong></div><p class="field"><span class="label">Watcher</span><span id="watcher">Laden…</span></p><p class="field"><span class="label">Fase</span><span id="phase">Laden…</span></p><p class="field"><span class="label">Huidige actie</span><span id="action">Laden…</span></p></div>
@@ -639,12 +645,17 @@ renderChatHistory();
         page.replace("$TITLE", escape(title))
         .replace("$BUILD_COMMIT", escape(build_commit))
         .replace("$CHAT_MODEL", escape(chat_model()))
+        .replace("$WORKSPACE_ID", escape(workspace_id))
+        .replace("$ENGINEERING_PATH", escape(engineering_path))
         .encode()
     )
 
 
 def handler(root: Path, logger: logging.Logger | None = None):
-    title = PlatformConfiguration.load(root).workspace.dashboard_title
+    configuration = PlatformConfiguration.load(root)
+    title = configuration.workspace.dashboard_title
+    workspace_id = configuration.workspace.id
+    engineering_path = str(root / ".engineering")
     logger = logger or component_logger(root, "dashboard")
     class DashboardHandler(BaseHTTPRequestHandler):
         def _send(self, content: bytes, content_type: str, status_code: int = 200) -> None:
@@ -771,7 +782,10 @@ def handler(root: Path, logger: logging.Logger | None = None):
             if self.path == "/api/prompt-started":
                 return self._send(_prompt_started(root), "application/json; charset=utf-8")
             if self.path == "/":
-                return self._send(_dashboard_html(title, _build_commit(root)), "text/html; charset=utf-8")
+                return self._send(
+                    _dashboard_html(title, _build_commit(root), workspace_id, engineering_path),
+                    "text/html; charset=utf-8",
+                )
             log_event(logger, logging.WARNING, "http_not_found", diagnostic=request.path)
             self.send_error(404)
 
