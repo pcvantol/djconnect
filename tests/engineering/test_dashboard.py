@@ -252,6 +252,8 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn('$("chatSend").querySelector("span").textContent="↑"', page)
         self.assertIn('.workspace-card{--category-color:#f3d36a;background:#302d20;border-left-color:#f3d36a}', page)
         self.assertIn('#engineering-dashboard-content>.technical-details:not(#componentLogs){border-left-width:3px}', page)
+        self.assertIn('.workspace-card,#rateLimits,.last-execution-group,#componentLogs,#codexChat,#engineering-dashboard-content>.technical-details:not(#componentLogs),#currentRun,.telemetry,.platform-health{border:2px solid var(--category-color);border-left-width:2px}', page)
+        self.assertIn('#engineering-dashboard-content>.technical-details .card,.current-run .card,.last-execution-group .card--previous,.reviewer-agent,.platform-health__component{border-left-width:1px;border-width:1px}', page)
         self.assertIn('#componentLogs .card{border-left-width:1px}', page)
         self.assertIn('#componentLogs .log-card-header strong{color:var(--category-color)}', page)
         self.assertIn('#componentLogs .log-table-wrap{border-color:color-mix(in srgb,var(--category-color) 55%,#3d3651)}', page)

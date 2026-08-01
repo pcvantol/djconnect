@@ -73,6 +73,18 @@ test.describe("Engineering Status browser smoke", () => {
       document.getElementById("platformHealth").nextElementSibling.id,
     ])).toEqual(["executionTelemetry", "platformHealth", "componentLogs"]);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBeTruthy();
+    expect(await page.evaluate(() => {
+      const mainCategory = document.getElementById("componentLogs");
+      const nestedCard = mainCategory.querySelector(".card");
+      const widths = (element) => {
+        const style = getComputedStyle(element);
+        return [style.borderTopWidth, style.borderRightWidth, style.borderBottomWidth, style.borderLeftWidth];
+      };
+      return { main: widths(mainCategory), nested: widths(nestedCard) };
+    })).toEqual({
+      main: ["2px", "2px", "2px", "2px"],
+      nested: ["1px", "1px", "1px", "1px"],
+    });
     await expect(page.locator("#componentLogControls")).not.toHaveAttribute("hidden", "");
     expect(await page.locator("#reportContent").evaluate((element) => element.parentElement.className)).toBe("markdown-copy-wrap");
     expect(await page.locator("#reportAnalysisContent").evaluate((element) => element.parentElement.className)).toBe("markdown-copy-wrap");
