@@ -188,6 +188,8 @@ class DashboardStatusTest(unittest.TestCase):
         for label in ("Modus", "Repository", "Lokale checkout", "Actieve branch"):
             self.assertIn(label, page)
         self.assertIn('id="copyReport"', page)
+        self.assertIn('function copyAvailable(id,available)', page)
+        self.assertIn('copyAvailable("copyReport",false)', page)
         self.assertIn('function compactCopyButton(buttonId,contentId)', page)
         self.assertIn('button.classList.add("copy--glyph")', page)
         self.assertIn('.copy.copy--glyph{align-items:center', page)
