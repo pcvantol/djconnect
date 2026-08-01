@@ -139,6 +139,7 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn('<details class="card codex-chat" id="codexChat"><summary>', page)
         self.assertIn('id="chatInput" class="chat-input" rows="5"', page)
         self.assertIn('class="chat-compose"', page)
+        self.assertLess(page.index('class="chat-compose"'), page.index('id="chatModel"'))
         self.assertIn('id="chatSend" type="button" title="Verstuur vraag"', page)
         self.assertIn('"Gesprek met AI-assistent"', page)
         self.assertIn("CHAT_HISTORY_KEY", page)
