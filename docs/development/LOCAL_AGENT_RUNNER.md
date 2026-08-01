@@ -14,6 +14,13 @@ memory, report, status-model and Inbox Protocol formats; and the minimum Codex
 CLI version. Engineering Platform `1.5.0` is the current minimum supported
 platform for future engineering prompts.
 
+The local Inbox worker and private Dashboard are separately versioned
+components of Engineering Platform 1.5. Their current versions are the
+canonical `watcher_version` and `dashboard_version` manifest fields; neither
+is a separate Engineering Platform release. The private dashboard displays
+both component versions next to the Engineering Platform version and Git
+commit to make local operational evidence unambiguous.
+
 At runner startup, `dj-engineer` reads the manifest and rejects an unsupported
 platform major version, older runner, older Bootstrap Contract, unsupported
 checkpoint/memory/report format or unsupported Codex CLI. Diagnostics state the
