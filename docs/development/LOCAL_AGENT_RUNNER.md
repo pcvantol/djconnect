@@ -111,6 +111,10 @@ component and, where applicable, run ID. Event and diagnostic text are redacted
 and bounded before it is written. Logs rotate at 1 MB and retain at most three
 previous files.
 
+In Engineering Status, open **Applicatielogs** and select **Logs laden** to
+inspect a bounded tail of these redacted logs. They are never loaded or
+streamed automatically.
+
 The existing `inbox.out.log`, `inbox.err.log`, `dashboard.out.log` and
 `dashboard.err.log` remain the LaunchAgent process streams. They complement,
 rather than replace, the application logs.
