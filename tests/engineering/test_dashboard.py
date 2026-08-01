@@ -147,6 +147,8 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn('id="lastUsage" hidden', page)
         self.assertIn("lastUsage(snapshot.last_executed_usage)", page)
         self.assertIn("function lastExecutionTime(x)", page)
+        self.assertIn('executionTimeField("lastExecutionFinishedAt","Uitgevoerd op",file)', page)
+        self.assertIn("finished_at", page)
         self.assertIn("Codex CLI-uitvoeringstijd", page)
         self.assertIn("Totale doorlooptijd", page)
         self.assertIn('total_seconds', page)

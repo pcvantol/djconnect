@@ -153,20 +153,22 @@ def daily_statistics(root: Path, *, days: int = 7) -> list[dict[str, object]]:
     return [dict(zip(keys, row, strict=True)) for row in rows]
 
 
-def execution_timing(root: Path, run_id: str) -> dict[str, float]:
-    """Return persisted timing evidence for one terminal run, if available."""
+def execution_timing(root: Path, run_id: str) -> dict[str, float | str]:
+    """Return persisted timing and terminal timestamp evidence for one run."""
     connection = open_storage(root)
     try:
         row = connection.execute(
-            "SELECT execution_seconds, total_execution_seconds FROM execution_runs WHERE run_id = ?",
+            "SELECT execution_seconds, total_execution_seconds, execution_finished_at FROM execution_runs WHERE run_id = ?",
             (run_id,),
         ).fetchone()
     finally:
         connection.close()
     if row is None:
         return {}
-    result: dict[str, float] = {}
-    for key, value in zip(("execution_seconds", "total_execution_seconds"), row, strict=True):
+    result: dict[str, float | str] = {}
+    for key, value in zip(("execution_seconds", "total_execution_seconds"), row[:2], strict=True):
         if isinstance(value, (int, float)) and not isinstance(value, bool) and value >= 0:
             result[key] = float(value)
+    if isinstance(row[2], str):
+        result["finished_at"] = row[2]
     return result

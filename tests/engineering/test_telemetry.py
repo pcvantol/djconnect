@@ -75,7 +75,11 @@ class ExecutionHostTelemetryTest(unittest.TestCase):
                 )
             self.assertEqual(
                 execution_timing(root, "run-complete"),
-                {"execution_seconds": 75.0, "total_execution_seconds": 102.0},
+                {
+                    "execution_seconds": 75.0,
+                    "total_execution_seconds": 102.0,
+                    "finished_at": "2026-08-01T10:01:30+00:00",
+                },
             )
 
     def test_async_telemetry_failure_is_isolated_from_engineering(self) -> None:

@@ -95,7 +95,8 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#copyReport")).toHaveClass(/copy--glyph/);
     await expect(page.locator("#copyReport")).toHaveText("⧉");
     expect(await page.locator("#lastFinalStatus").evaluate((element) => element.previousElementSibling.id)).toBe("lastIndicator");
-    await page.evaluate(() => lastExecutionTime({ seconds: 75, total_seconds: 125 }));
+    await page.evaluate(() => lastExecutionTime({ seconds: 75, total_seconds: 125, finished_at: "2026-08-01T10:01:30Z" }));
+    await expect(page.locator("#lastExecutionFinishedAtValue")).toHaveText("zaterdag 1 augustus 2026 om 12:01:30");
     await expect(page.locator("#lastExecutionTimeValue")).toHaveText("1 min 15 sec");
     await expect(page.locator("#lastTotalExecutionTimeValue")).toHaveText("2 min 5 sec");
     await page.evaluate(() => {
