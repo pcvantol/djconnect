@@ -62,6 +62,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.getByTestId("dashboard-splash")).toBeHidden();
     await expect(page.locator("#dashboardFavicon")).toHaveAttribute("href", /^data:image\/svg\+xml,/);
     await expect(page.getByTestId("engineering-workspace")).not.toHaveAttribute("open", "");
+    await expect(page.getByTestId("platform-health")).not.toHaveAttribute("open", "");
     await expect(page.locator("#workspaceCard > summary .category-icon")).toHaveText("⌂");
     await expect(page.locator("#rateLimits > summary .category-icon")).toHaveText("◔");
     await expect(page.locator("#componentLogs > summary .category-icon")).toHaveText("≡");

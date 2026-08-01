@@ -166,6 +166,7 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn(".telemetry>summary{border-bottom:1px solid var(--category-color)", page)
         self.assertIn(".platform-health>summary{border-bottom:1px solid var(--category-color)", page)
         self.assertIn('id="platformHealth"', page)
+        self.assertNotIn('id="platformHealth" open', page)
         self.assertLess(page.index('id="platformHealth"'), page.index('id="componentLogs"'))
         self.assertGreater(page.index('id="platformHealth"'), page.index('id="lastExecutionGroup"'))
         self.assertNotIn("Alle componenten gezond", page)
