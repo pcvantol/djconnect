@@ -20,6 +20,7 @@ from tools.engineering.dj_engineer import (
     SubprocessRepositoryClient,
     _format_terminal_report,
     _format_cli_failure,
+    extract_codex_runtime_metadata,
     extract_codex_usage,
     execution_mode_for,
     resolve_execution_context,
@@ -879,10 +880,36 @@ class LocalAgentRunnerTest(unittest.TestCase):
 
     def test_terminal_report_records_engineering_platform(self) -> None:
         state = TransactionState("platform-report", "pcvantol/djconnect", str(self.prompt), "COMPLETE", terminal=True)
-        report = generate_terminal_report(self.root, state, EngineeringPlatformManifest.load(self.root / "tools" / "engineering" / "ENGINEERING_PLATFORM_VERSION.json"), "0.146.0")
+        report = generate_terminal_report(
+            self.root,
+            state,
+            EngineeringPlatformManifest.load(self.root / "tools" / "engineering" / "ENGINEERING_PLATFORM_VERSION.json"),
+            "0.146.0",
+            runtime_metadata={
+                "runtime_provider": "codex_cli",
+                "model": "gpt-5.6-terra",
+                "reasoning_profile": "medium",
+                "configuration_profile": "workspace-write",
+            },
+        )
         body = report.read_text(encoding="utf-8")
         self.assertIn("Platform Version: `1.0.0`", body)
-        self.assertIn("Detected Codex CLI Version: `0.146.0`", body)
+        self.assertIn("Runtime Provider: `codex_cli`", body)
+        self.assertIn("AI Model: `gpt-5.6-terra`", body)
+        self.assertIn("Reasoning Profile: `medium`", body)
+        self.assertIn("Configuration Profile: `workspace-write`", body)
+        self.assertIn("Codex CLI Version: `0.146.0`", body)
+
+    def test_runtime_metadata_uses_only_cli_reported_values(self) -> None:
+        metadata = extract_codex_runtime_metadata(
+            "model: gpt-5.6-terra\nreasoning effort: medium\nsandbox: workspace-write\n",
+            "provider: openai\n",
+        )
+        self.assertEqual(metadata["runtime_provider"], "codex_cli")
+        self.assertEqual(metadata["model"], "gpt-5.6-terra")
+        self.assertEqual(metadata["reasoning_profile"], "medium")
+        self.assertEqual(metadata["provider"], "openai")
+        self.assertEqual(metadata["configuration_profile"], "workspace-write")
 
     def test_successful_report_prioritizes_final_repository_outcome(self) -> None:
         state = TransactionState(

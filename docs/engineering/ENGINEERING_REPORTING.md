@@ -44,3 +44,11 @@ The dashboard displays that analysis only within **Laatst uitgevoerd** and only
 when its run identifier matches the displayed terminal run. A failed or absent
 analysis never changes the terminal checkpoint, report, repository state,
 validation result or lifecycle outcome.
+
+## Runtime provenance
+
+Every terminal report records the runtime provider, the model actually reported
+by that provider, any reported reasoning/configuration profile and the detected
+Codex CLI version. A value is explicitly shown as `not reported` when the
+provider does not emit it; the runner never infers or fabricates model or
+reasoning metadata.

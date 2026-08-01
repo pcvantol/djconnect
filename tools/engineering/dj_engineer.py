@@ -11,7 +11,7 @@ from pathlib import Path
 import subprocess
 import tempfile
 import time
-from typing import Protocol
+from typing import Mapping, Protocol
 import uuid
 
 from .agent_state import StateError, StateStore, TransactionState, redact_diagnostic
@@ -91,6 +91,47 @@ def extract_codex_usage(*outputs: str) -> dict[str, int | float | str]:
             except json.JSONDecodeError:
                 continue
     return usage
+
+
+def extract_codex_runtime_metadata(*outputs: str) -> dict[str, str]:
+    """Return only runtime metadata explicitly emitted by the Codex CLI.
+
+    The CLI currently writes its selected model and configuration profile to
+    its console preamble.  These values are useful report provenance, but are
+    optional: a provider that does not emit them must never be guessed.
+    """
+    aliases = {
+        "model": "model",
+        "model_name": "model",
+        "reasoning effort": "reasoning_profile",
+        "reasoning_effort": "reasoning_profile",
+        "reasoning": "reasoning_profile",
+        "configuration profile": "configuration_profile",
+        "configuration_profile": "configuration_profile",
+        "sandbox": "configuration_profile",
+        "approval": "configuration_profile",
+        "provider": "provider",
+    }
+    metadata: dict[str, str] = {"runtime_provider": "codex_cli"}
+    for output in outputs:
+        for raw_line in output.splitlines():
+            line = raw_line.strip()
+            if ":" not in line:
+                continue
+            key, value = (part.strip() for part in line.split(":", 1))
+            normalized = aliases.get(key.casefold())
+            if not normalized or not value:
+                continue
+            # Keep only a short, single-line diagnostic-safe provider value.
+            value = redact_diagnostic(value, limit=120)
+            if value and value != "[REDACTED]":
+                previous = metadata.get(normalized)
+                metadata[normalized] = (
+                    f"{previous}; {key}: {value}"
+                    if previous and previous != value and normalized == "configuration_profile"
+                    else value
+                )
+    return metadata
 
 
 def _codex_final_message(output: str) -> str:
@@ -465,6 +506,7 @@ class CodexCliClient:
         self.provider = provider or CodexCliProvider()
         self.last_usage: dict[str, int | float | str] = {}
         self.last_execution_seconds: float | None = None
+        self.last_runtime_metadata: dict[str, str] = {"runtime_provider": "codex_cli"}
 
     def available(self) -> bool:
         return self.provider.command("--version").returncode == 0
@@ -542,6 +584,7 @@ class CodexCliClient:
     def invoke(self, root: Path, prompt: str) -> AgentResult:
         self.last_usage = {}
         self.last_execution_seconds = None
+        self.last_runtime_metadata = {"runtime_provider": "codex_cli"}
         state_directory = root / ".engineering" / "engineering-runs"
         state_directory.mkdir(mode=0o700, parents=True, exist_ok=True)
         schema = {
@@ -606,6 +649,9 @@ class CodexCliClient:
             )
             self.last_execution_seconds = round(time.monotonic() - started, 3)
             self.last_usage = extract_codex_usage(completed.stdout, completed.stderr)
+            self.last_runtime_metadata = extract_codex_runtime_metadata(
+                completed.stdout, completed.stderr
+            )
         finally:
             schema_path.unlink(missing_ok=True)
         if completed.returncode:
@@ -1254,6 +1300,7 @@ def main(argv: list[str] | None = None) -> int:
             runner.platform_manifest,
             runner.detected_codex_cli,
             runner.reviewer_records,
+            getattr(runner.agent, "last_runtime_metadata", None),
         )
         if state.terminal
         else None
@@ -1479,6 +1526,7 @@ def generate_terminal_report(
     manifest: EngineeringPlatformManifest | None = None,
     detected_cli: str | None = None,
     reviewer_records: tuple[dict[str, object], ...] = (),
+    runtime_metadata: Mapping[str, str] | None = None,
 ) -> Path:
     """Write one immutable, local-only report for a terminal transaction."""
     reports = root / ".engineering" / "reports"
@@ -1499,6 +1547,11 @@ def generate_terminal_report(
         if qualification is None
         else f"Version: `{qualification.get('engineering_platform_version')}`\n- Latest Qualification: `{qualification.get('qualification')}`\n- Executed: `{qualification.get('executed_at')}`\n- Qualification Coverage: `{qualification.get('coverage_percent')}%`"
     )
+    runtime_metadata = runtime_metadata or {"runtime_provider": "codex_cli"}
+    runtime_provider = runtime_metadata.get("runtime_provider", "unavailable")
+    reported_model = runtime_metadata.get("model", "not reported")
+    reported_reasoning = runtime_metadata.get("reasoning_profile", "not reported")
+    reported_configuration = runtime_metadata.get("configuration_profile", "not reported")
     body = "\n".join(
         (
             "# Engineering Report",
@@ -1517,7 +1570,11 @@ def generate_terminal_report(
             f"- Checkpoint Format: `{manifest.checkpoint_format}`",
             f"- Memory Format: `{manifest.memory_format}`",
             f"- Report Format: `{manifest.report_format}`",
-            f"- Detected Codex CLI Version: `{detected_cli or 'unavailable'}`",
+            f"- Runtime Provider: `{runtime_provider}`",
+            f"- AI Model: `{reported_model}`",
+            f"- Reasoning Profile: `{reported_reasoning}`",
+            f"- Configuration Profile: `{reported_configuration}`",
+            f"- Codex CLI Version: `{detected_cli or 'unavailable'}`",
             "",
             "## Engineering Platform Qualification",
             qualification_summary,
