@@ -6,7 +6,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from tools.engineering.dashboard import LOOPBACK_ADDRESS, _codex_usage, _completion_commits, _current_codex_log, _dashboard_html, _last_executed_codex_log, _latest_codex_log, _report_for_run, _sse_status, _status, binding_addresses
+from tools.engineering.dashboard import LOOPBACK_ADDRESS, _codex_usage, _codex_usage_for_run, _completion_commits, _current_codex_log, _dashboard_html, _last_executed_codex_log, _latest_codex_log, _report_for_run, _sse_status, _status, binding_addresses
 
 
 class DashboardStatusTest(unittest.TestCase):
@@ -57,8 +57,8 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn("function estimate(x)", page)
         self.assertIn("ongeveer 15–30 minuten", page)
         self.assertIn("geen betrouwbare ETA", page)
-        self.assertIn('id="usage"', page)
-        self.assertIn('fetch("/api/usage")', page)
+        self.assertIn('id="lastUsage" hidden', page)
+        self.assertIn('fetch("/api/usage/last-executed?run_id="+encodeURIComponent(lastExecutedRun))', page)
         self.assertIn("Engineering Platform-versie", page)
         self.assertIn('id="platformVersion"', page)
         self.assertIn("Git-commit", page)
@@ -97,6 +97,21 @@ class DashboardStatusTest(unittest.TestCase):
                 '{"run_id":"inbox-other","usage":{"input_tokens":123}}', encoding="utf-8"
             )
             self.assertEqual(json.loads(_codex_usage(root)), {})
+
+    def test_last_executed_usage_is_bound_to_its_exact_run(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            status = root / ".djconnect" / "status"
+            status.mkdir(parents=True)
+            (status / "codex_usage.json").write_text(
+                '{"run_id":"inbox-last","usage":{"input_tokens":123,"cost":1.25}}',
+                encoding="utf-8",
+            )
+            self.assertEqual(
+                json.loads(_codex_usage_for_run(root, "inbox-last")),
+                {"input_tokens": 123, "cost": 1.25},
+            )
+            self.assertEqual(json.loads(_codex_usage_for_run(root, "inbox-other")), {})
 
     def test_completion_commits_are_shown_only_after_completion(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
