@@ -151,6 +151,17 @@ execution. `docs/engineering/runs/latest.md` and `index.json` are the durable,
 sanitized discovery records for successfully finalized transactions; local
 reports and prompt contents remain local.
 
+The dashboard's **Codex gesprek** is a separate, private advice surface. It is
+available only through the same loopback/Tailnet listener and uses the repository
+identity, last executed prompt and matching Engineering Report as bounded context.
+Each reply uses an ephemeral `codex exec` process in a separate read-only
+workspace. It has no Inbox, runner, repository write, pull-request, merge,
+release, deployment or publication authority. A requested change must still be
+submitted as a new explicit Engineering prompt. The displayed chat model is
+explicitly selected as `gpt-5.6-terra` by default; a local
+`DJCONNECT_ENGINEERING_CHAT_MODEL` override may select another valid Codex
+model before the dashboard is started.
+
 ## Prerequisite and usage
 
 Codex CLI must already be installed and authenticated in the developer's local
