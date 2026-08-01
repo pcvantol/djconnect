@@ -129,6 +129,7 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn('fetch("/api/logs/inbox")', page)
         self.assertIn('fetch("/api/logs/dashboard")', page)
         self.assertIn('id="codexChat"', page)
+        self.assertIn('id="chatInput" class="chat-input" rows="5"', page)
         self.assertIn('id="chatModel">gpt-5.6-terra', page)
         self.assertIn("Codex gesprek", page)
         self.assertIn('fetch("/api/codex-chat"', page)
