@@ -28,6 +28,7 @@ from tools.engineering.dj_engineer import (
     generate_terminal_report,
     write_redacted_codex_cli_log,
     write_codex_usage,
+    write_live_status,
 )
 from tools.engineering.platform_version import (
     EngineeringPlatformCompatibilityError,
@@ -170,6 +171,21 @@ class LocalAgentRunnerTest(unittest.TestCase):
         runner.run(self.prompt, run_id="live-phase-run")
         self.assertEqual(agent.live_phase, "EXECUTE_AGENT")
         self.assertEqual(agent.live_action, "invoke_agent")
+
+    def test_live_status_records_execution_context(self) -> None:
+        state = TransactionState(
+            "genesis-context",
+            "pcvantol/djconnect",
+            str(self.prompt),
+            "EXECUTE_AGENT",
+            execution_mode="GENESIS",
+            genesis_repository_path=str(self.root),
+        )
+        write_live_status(self.root, state, "invoke_agent")
+        payload = json.loads((self.root / ".djconnect" / "status" / "current.json").read_text())
+        self.assertEqual(payload["execution_mode"], "GENESIS")
+        self.assertEqual(payload["target_repository"], self.root.name)
+        self.assertEqual(payload["checkout_path"], str(self.root))
 
     def test_genesis_mode_requires_an_explicit_execution_mode_declaration(self) -> None:
         self.assertEqual(execution_mode_for("Introduce Genesis Mode documentation."), "MANAGED")
@@ -342,6 +358,31 @@ class LocalAgentRunnerTest(unittest.TestCase):
         )
 
         self.assertEqual(usage, {"input_tokens": 120, "output_tokens": 30, "cost": 0.04})
+
+    def test_cli_json_usage_and_final_message_are_recorded_together(self) -> None:
+        captured: list[str] = []
+        output = "\n".join(
+            (
+                '{"type":"thread.started","thread_id":"run-1"}',
+                '{"type":"item.completed","item":{"type":"agent_message","text":"{\\\"terminal_state\\\":\\\"COMPLETE\\\",\\\"branch\\\":null,\\\"pull_request\\\":null,\\\"terminal_condition\\\":\\\"repository_reconciled\\\",\\\"diagnostic\\\":null,\\\"repository_path\\\":null,\\\"commit_sha\\\":null}"}}',
+                '{"type":"turn.completed","usage":{"input_tokens":120,"output_tokens":30,"total_tokens":150}}',
+            )
+        )
+
+        def invoke_with_json(command: tuple[str, ...], **_: object) -> object:
+            captured.extend(command)
+            return __import__("subprocess").CompletedProcess(command, 0, output, "")
+
+        client = CodexCliClient()
+        with patch("tools.engineering.dj_engineer.subprocess.run", side_effect=invoke_with_json):
+            result = client.invoke(self.root, "test")
+
+        self.assertIn("--json", captured)
+        self.assertEqual(result.terminal_state, "COMPLETE")
+        self.assertEqual(
+            client.last_usage,
+            {"input_tokens": 120, "output_tokens": 30, "total_tokens": 150},
+        )
 
     def test_genesis_workspace_preflight_requires_accessible_target(self) -> None:
         issue = genesis_workspace_preflight(Path("/definitely/absent/forge"))
@@ -558,6 +599,64 @@ class LocalAgentRunnerTest(unittest.TestCase):
         self.assertIn("Platform Version: `1.0.0`", body)
         self.assertIn("Detected Codex CLI Version: `0.146.0`", body)
 
+    def test_successful_report_prioritizes_final_repository_outcome(self) -> None:
+        state = TransactionState(
+            "outcome-report",
+            "pcvantol/djconnect",
+            str(self.prompt),
+            "COMPLETE",
+            implementation_merge_commit="a" * 40,
+            latest_repository_evidence="branch=main; clean=True",
+            terminal=True,
+        )
+        records = (
+            {
+                "reviewer": "documentation",
+                "selected_because": "documentation-oriented objective",
+                "contribution": "The capability does not yet exist.",
+                "accepted_recommendations": 1,
+                "rejected_recommendations": 0,
+                "failed": False,
+            },
+        )
+        with patch("tools.engineering.dj_engineer._open_report", return_value=None):
+            report, _ = generate_terminal_report(
+                self.root,
+                state,
+                EngineeringPlatformManifest.load(
+                    self.root / "tools" / "engineering" / "ENGINEERING_PLATFORM_VERSION.json"
+                ),
+                "0.146.0",
+                records,
+            )
+        body = report.read_text(encoding="utf-8")
+        self.assertIn("## Initial Repository Assessment", body)
+        self.assertIn("## Engineering Outcome", body)
+        self.assertIn("## Reviewer Findings", body)
+        self.assertIn("## Repository Truth", body)
+        self.assertIn("Initial observation: The capability does not yet exist.", body)
+        self.assertIn("Resolved during implementation", body)
+        self.assertIn("Resulting commits: implementation `" + "a" * 40, body)
+        self.assertIn("Repository state: branch=main; clean=True", body)
+        self.assertTrue(terminal_report_matches_state(body, state))
+
+    def test_assessment_only_report_does_not_claim_delivery(self) -> None:
+        state = TransactionState(
+            "assessment-report",
+            "pcvantol/djconnect",
+            str(self.prompt),
+            "BLOCKED",
+            diagnostic="Repository preflight requires attention.",
+            terminal=True,
+        )
+        with patch("tools.engineering.dj_engineer._open_report", return_value=None):
+            report, _ = generate_terminal_report(self.root, state)
+        body = report.read_text(encoding="utf-8")
+        self.assertIn("## Initial Repository Assessment", body)
+        self.assertIn("Completed work: no successful engineering delivery is claimed.", body)
+        self.assertIn("BLOCKED — no engineering changes were executed or delivered.", body)
+        self.assertTrue(terminal_report_matches_state(body, state))
+
     def test_blocked_and_failed_reports_match_the_terminal_checkpoint(self) -> None:
         manifest = EngineeringPlatformManifest.load(self.root / "tools" / "engineering" / "ENGINEERING_PLATFORM_VERSION.json")
         for phase, expected in (
@@ -570,6 +669,8 @@ class LocalAgentRunnerTest(unittest.TestCase):
                 body = report.read_text(encoding="utf-8")
             self.assertIn(expected, body)
             self.assertNotIn("COMPLETE —", body)
+            self.assertIn("## Engineering Outcome", body)
+            self.assertIn("## Reviewer Findings", body)
             self.assertTrue(terminal_report_matches_state(body, state))
 
     def test_capability_selection_covers_documentation_validation_governance_and_finalization(self) -> None:
