@@ -18,8 +18,8 @@ The local Inbox worker and private Dashboard are separately versioned
 components of Engineering Platform 1.5. Their current versions are the
 canonical `watcher_version` and `dashboard_version` manifest fields; neither
 is a separate Engineering Platform release. The private dashboard displays
-both component versions next to the Engineering Platform version and Git
-commit to make local operational evidence unambiguous.
+them with the corresponding live components, while its status bar displays the
+Engineering Platform version and Git commit.
 
 At runner startup, `dj-engineer` reads the manifest and rejects an unsupported
 platform major version, older runner, older Bootstrap Contract, unsupported
@@ -278,8 +278,11 @@ cannot write, create/ready/merge PRs, create Finalization, alter governance or
 perform cleanup. The primary runner validates and integrates every result.
 
 Every report records the Engineering Platform Version, Runner Version,
-Bootstrap Contract, Checkpoint Format, Memory Format, Report Format and the
-detected Codex CLI version alongside the transaction evidence.
+Bootstrap Contract, Checkpoint Format, Memory Format and Report Format
+alongside the transaction evidence. It also records runtime provenance for the
+specific invocation: Runtime Provider, AI Model, Reasoning Profile,
+Configuration Profile and detected Codex CLI Version. The runner writes `not
+reported` rather than inventing provider metadata that the CLI did not emit.
 
 ## Terminal evidence and boundaries
 

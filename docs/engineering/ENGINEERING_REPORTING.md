@@ -47,8 +47,20 @@ validation result or lifecycle outcome.
 
 ## Runtime provenance
 
-Every terminal report records the runtime provider, the model actually reported
-by that provider, any reported reasoning/configuration profile and the detected
-Codex CLI version. A value is explicitly shown as `not reported` when the
-provider does not emit it; the runner never infers or fabricates model or
-reasoning metadata.
+Every terminal report records its runtime provenance alongside the terminal
+evidence:
+
+- **Runtime Provider**;
+- **AI Model**, as actually reported by the provider;
+- **Reasoning Profile**, when reported;
+- **Configuration Profile**, when reported; and
+- **Codex CLI Version**, when detected.
+
+A value is explicitly shown as `not reported` when the provider does not emit
+it. The runner never infers or fabricates model, reasoning or configuration
+metadata. These fields describe the process that produced this specific report;
+they are not a claim about a currently configured provider or a later run.
+
+The matching **Laatst uitgevoerde prompt** dashboard card reads the provenance
+only from that terminal report. It therefore cannot display a model or profile
+from an unrelated current run.

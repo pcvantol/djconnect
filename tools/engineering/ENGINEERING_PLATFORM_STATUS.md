@@ -22,6 +22,10 @@ boundary. Existing commands remain compatibility interfaces.
 - Codex CLI invocations request JSONL events so a run's explicitly reported
   token usage is captured only for that exact run. Costs and plan allowance are
   shown only when the CLI supplies them.
+- Terminal reports preserve report-bound runtime provenance: Runtime Provider,
+  actual AI Model, reported Reasoning and Configuration Profiles, and Codex CLI
+  Version. The dashboard presents those values only for the matching completed
+  run and never infers unavailable values.
 - Strict sequential Inbox safety: a `BLOCKED` or `FAILED` predecessor holds
   later submissions at `WAITING_FOR_PREDECESSOR` until an explicit
   `Retry-Of` replacement completes. This is the safe default until a future

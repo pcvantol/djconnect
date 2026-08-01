@@ -55,9 +55,10 @@ The dashboard does not read iCloud reports, status or archived prompts.
 
 The page receives status changes through server-sent events. A browser refresh
 remains safe, but periodic polling is not the source of truth. The dashboard
-also shows the Engineering Platform, watcher, dashboard and build-commit
-versions so a maintainer can distinguish a stale local service from a stale
-browser page.
+shows the Engineering Platform version and build commit in its status bar. The
+component-health category shows the dashboard and watcher versions beside their
+live health state, so a maintainer can distinguish a stale local service from a
+stale browser page.
 
 ## Component health endpoint
 
@@ -106,10 +107,14 @@ credit is available. This is the dashboard's sole account-side effect: it
 cannot access the Inbox, alter repository files, start a runner, create a pull
 request, merge, release or deploy.
 
-The active and last execution cards use provider-neutral wording. Each card
-also states the actual execution provenance explicitly, for example
-**AI-provider: Codex CLI**. This preserves a future provider abstraction
-without concealing which adapter executed the displayed transaction.
+The active and last execution cards use provider-neutral wording. The last
+execution card reads the exact report-bound runtime provenance for that run:
+**Runtime Provider**, **AI Model**, any reported **Reasoning Profile** and
+**Configuration Profile**, plus **Codex CLI Version**. Values that the CLI did
+not report remain explicitly unavailable; the dashboard never substitutes the
+current provider configuration or guesses a model. This preserves a future
+provider abstraction without concealing which adapter executed the displayed
+transaction.
 
 The always-visible **Inbox-wachtrij** shows the current queue even when it is
 empty. Entries are numbered in their real execution order: oldest file
