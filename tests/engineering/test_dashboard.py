@@ -10,7 +10,7 @@ import unittest
 from unittest.mock import patch
 
 from tools.engineering import dashboard
-from tools.engineering.dashboard import DASHBOARD_VERSION, LOOPBACK_ADDRESS, _clear_component_log, _codex_process_metrics, _codex_usage, _codex_usage_for_run, _component_log, _component_log_versions, _completion_commits, _current_codex_log, _dashboard_html, _last_executed_agent_execution, _last_executed_codex_log, _last_executed_commits, _latest_codex_log, _normalize_rate_limits, _platform_health, _report_analysis_available_for_run, _report_analysis_for_run, _report_for_run, _reviewer_agents_for_run, _sse_snapshot, _sse_status, _status, _tracked_file_count, binding_addresses
+from tools.engineering.dashboard import DASHBOARD_VERSION, LOOPBACK_ADDRESS, _clear_component_log, _codex_process_metrics, _codex_usage, _codex_usage_for_run, _component_log, _component_log_versions, _completion_commits, _current_codex_log, _dashboard_html, _last_executed_agent_execution, _last_executed_codex_log, _last_executed_commits, _last_executed_runtime_metadata, _latest_codex_log, _normalize_rate_limits, _platform_health, _report_analysis_available_for_run, _report_analysis_for_run, _report_for_run, _reviewer_agents_for_run, _sse_snapshot, _sse_status, _status, _tracked_file_count, binding_addresses
 from tools.engineering.inbox_watcher import WATCHER_VERSION
 from tools.engineering.platform_version import EngineeringPlatformManifest
 from tools.engineering.storage import open_storage
@@ -157,6 +157,12 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn("Totale doorlooptijd", page)
         self.assertIn('total_seconds', page)
         self.assertIn("lastExecutionTime(snapshot.last_executed_execution)", page)
+        self.assertIn("lastRuntimeMetadata(snapshot.last_executed_runtime_metadata)", page)
+        self.assertIn('id="lastRuntimeProvider" hidden', page)
+        self.assertIn('id="lastModel" hidden', page)
+        self.assertIn('id="lastReasoningProfile" hidden', page)
+        self.assertIn('id="lastConfigurationProfile" hidden', page)
+        self.assertIn('id="lastCodexCliVersion" hidden', page)
         self.assertIn("Execution Host-telemetrie", page)
         self.assertIn("function executionTelemetry(rows)", page)
         self.assertIn("Gem. totaal", page)
@@ -258,7 +264,7 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn('.last-execution-group>summary>strong{color:#8dc7ff;text-transform:uppercase}', page)
         self.assertIn('.chat-message--user .chat-message__role{color:#8dc7ff}', page)
         self.assertIn('.chat-message--assistant .chat-message__role{color:#d0a4ff}', page)
-        self.assertIn('.chat-compose{display:block;position:relative}.chat-compose .chat-input{padding:8px 62px 58px 8px}.chat-compose .chat-send{background:#f7f3ee;border-color:#f7f3ee;border-radius:50%;bottom:10px;color:#292336;height:44px;min-width:44px;padding:0;position:absolute;right:10px;width:44px;z-index:1}', page)
+        self.assertIn('.chat-compose{display:block;position:relative}.chat-compose .chat-input{padding:8px 62px 58px 8px}.chat-compose .chat-send{background:#34283f;border-color:#d0a4ff;border-radius:8px;bottom:10px;color:#eadcff;height:44px;min-width:44px;padding:0;position:absolute;right:10px;width:44px;z-index:1}', page)
         self.assertIn('.chat-compose .chat-send{background:#121217;border-color:#d0a4ff;color:#d0a4ff}', page)
         self.assertIn('$("chatSend").querySelector("span").textContent="↑"', page)
         self.assertIn('.workspace-card{--category-color:#f3d36a;background:#302d20;border-left-color:#f3d36a}', page)
@@ -321,7 +327,6 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn("data-sort-indicator", page)
         self.assertIn('id="chatModel">gpt-5.6-terra', page)
         self.assertIn("AI-gesprek", page)
-        self.assertIn("function addProviderEvidence()", page)
         self.assertIn('function addTestIds()', page)
         self.assertIn('data-testid","engineering-dashboard"', page)
         self.assertIn('category.dataset.testid="last-executed-prompt-category"', page)
@@ -330,8 +335,6 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn('function applyAccessibility()', page)
         self.assertIn('aria-relevant","additions text"', page)
         self.assertIn('@media (prefers-reduced-motion:reduce)', page)
-        self.assertIn('label.textContent="AI-provider"', page)
-        self.assertIn('value.textContent="Codex CLI"', page)
         self.assertIn('fetch("/api/codex-chat"', page)
         self.assertIn("Alleen lezen", page)
         self.assertIn('id="currentDiagnostic" hidden', page)
@@ -669,6 +672,38 @@ class DashboardStatusTest(unittest.TestCase):
                 {"seconds": 125.4},
             )
             self.assertEqual(json.loads(_last_executed_agent_execution(root, "invalid/run")), {})
+
+    def test_last_executed_runtime_metadata_is_bound_to_its_report(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            reports = root / ".engineering" / "reports"
+            reports.mkdir(parents=True)
+            (reports / "one_inbox-other.md").write_text(
+                "- AI Model: `other-model`\n", encoding="utf-8"
+            )
+            (reports / "two_inbox-last.md").write_text(
+                "\n".join(
+                    (
+                        "- Runtime Provider: `codex_cli`",
+                        "- AI Model: `gpt-5.6-terra`",
+                        "- Reasoning Profile: `medium`",
+                        "- Configuration Profile: `workspace-write`",
+                        "- Codex CLI Version: `0.146.0`",
+                    )
+                ),
+                encoding="utf-8",
+            )
+            self.assertEqual(
+                json.loads(_last_executed_runtime_metadata(root, "inbox-last")),
+                {
+                    "runtime_provider": "codex_cli",
+                    "model": "gpt-5.6-terra",
+                    "reasoning_profile": "medium",
+                    "configuration_profile": "workspace-write",
+                    "codex_cli_version": "0.146.0",
+                },
+            )
+            self.assertEqual(json.loads(_last_executed_runtime_metadata(root, "bad/run")), {})
 
     def test_missing_status_uses_a_complete_degraded_projection(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
