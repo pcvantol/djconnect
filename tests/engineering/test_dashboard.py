@@ -137,6 +137,8 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn('.card:has(#currentTime)', page)
         self.assertIn('#processMetrics,#usage,#rateLimits', page)
         self.assertIn('log-line-number{color:#92919b;text-align:right;white-space:nowrap;width:3.25rem', page)
+        self.assertIn("function setLogSort(key)", page)
+        self.assertIn("data-sort-indicator", page)
         self.assertIn('id="chatModel">gpt-5.6-terra', page)
         self.assertIn("Codex gesprek", page)
         self.assertIn('fetch("/api/codex-chat"', page)
