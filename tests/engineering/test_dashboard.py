@@ -213,6 +213,7 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn("Git-commit", page)
         self.assertIn('.footer{align-items:baseline;display:flex;gap:6px;justify-content:center;overflow-x:auto;white-space:nowrap}', page)
         self.assertIn('.footer .label{display:inline;margin:0}', page)
+        self.assertIn('.prompt-runs__heading,.last-execution-group__heading,.technical-details>summary>strong,.codex-chat>summary>strong{font-size:18px;font-weight:700;letter-spacing:.04em;line-height:1.25;text-transform:uppercase}', page)
         self.assertIn("onbekend", page)
         self.assertIn('DASHBOARD_BUILD="onbekend"', page)
         for label in (
