@@ -139,6 +139,7 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn('font-family:"Unispace",ui-monospace,monospace', page)
         self.assertIn('.card:has(#currentTime)', page)
         self.assertIn('.card,.technical-details{background:#24242d;border-left:3px solid #c7a6ff', page)
+        self.assertIn('summary::before{content:"▸ ";color:#c7a6ff;display:inline-block;font-size:20px', page)
         self.assertIn('.current-run{background:#1d1d25;border:1px solid #3d3651;border-left:3px solid #c7a6ff', page)
         self.assertIn('#processMetrics,#usage,#rateLimits', page)
         self.assertIn('#componentLogs{background:#302a24;border-left:3px solid #f0b66a}', page)
