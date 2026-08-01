@@ -46,6 +46,7 @@ class CodexChatTest(unittest.TestCase):
             self.assertIn("--sandbox", command)
             self.assertIn("read-only", command)
             self.assertIn("--ephemeral", command)
+            self.assertEqual(command[command.index("--model") + 1], "gpt-5.6-terra")
             self.assertIn("--ignore-user-config", command)
             self.assertIn("--ignore-rules", command)
             self.assertNotIn("--add-dir", command)

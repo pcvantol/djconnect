@@ -114,6 +114,7 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn('fetch("/api/logs/inbox")', page)
         self.assertIn('fetch("/api/logs/dashboard")', page)
         self.assertIn('id="codexChat"', page)
+        self.assertIn('id="chatModel">gpt-5.6-terra', page)
         self.assertIn("Codex gesprek", page)
         self.assertIn('fetch("/api/codex-chat"', page)
         self.assertIn("Alleen lezen", page)
@@ -539,7 +540,10 @@ class DashboardStatusTest(unittest.TestCase):
                 )
                 response = connection.getresponse()
                 self.assertEqual(response.status, 200)
-                self.assertEqual(json.loads(response.read()), {"answer": "Veilig advies."})
+                self.assertEqual(
+                    json.loads(response.read()),
+                    {"answer": "Veilig advies.", "model": "gpt-5.6-terra"},
+                )
             connection.request(
                 "POST",
                 "/api/codex-chat",

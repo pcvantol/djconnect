@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
+import re
 import subprocess
 import tempfile
 from threading import Lock
@@ -15,11 +17,20 @@ MAX_HISTORY_ITEMS = 6
 MAX_CONTEXT_CHARACTERS = 24_000
 MAX_RESPONSE_CHARACTERS = 6_000
 CHAT_TIMEOUT_SECONDS = 75
+CHAT_MODEL_ENVIRONMENT = "DJCONNECT_ENGINEERING_CHAT_MODEL"
+DEFAULT_CHAT_MODEL = "gpt-5.6-terra"
+MODEL_PATTERN = re.compile(r"[A-Za-z0-9._-]{1,80}")
 _chat_lock = Lock()
 
 
 class CodexChatError(ValueError):
     """A safe, displayable refusal or invocation failure."""
+
+
+def chat_model() -> str:
+    """Return the explicit chat model, rejecting malformed local overrides."""
+    value = os.environ.get(CHAT_MODEL_ENVIRONMENT, DEFAULT_CHAT_MODEL).strip()
+    return value if MODEL_PATTERN.fullmatch(value) else DEFAULT_CHAT_MODEL
 
 
 def _bounded_text(path: Path, limit: int = MAX_CONTEXT_CHARACTERS) -> str:
@@ -129,6 +140,8 @@ CONTEXTPAKKET:
                         "-C",
                         workspace,
                         "--json",
+                        "--model",
+                        chat_model(),
                         instruction,
                     ),
                     text=True,

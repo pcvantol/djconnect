@@ -157,7 +157,10 @@ identity, last executed prompt and matching Engineering Report as bounded contex
 Each reply uses an ephemeral `codex exec` process in a separate read-only
 workspace. It has no Inbox, runner, repository write, pull-request, merge,
 release, deployment or publication authority. A requested change must still be
-submitted as a new explicit Engineering prompt.
+submitted as a new explicit Engineering prompt. The displayed chat model is
+explicitly selected as `gpt-5.6-terra` by default; a local
+`DJCONNECT_ENGINEERING_CHAT_MODEL` override may select another valid Codex
+model before the dashboard is started.
 
 ## Prerequisite and usage
 
