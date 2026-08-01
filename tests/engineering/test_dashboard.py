@@ -135,6 +135,8 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn("function renderChatHistory()", page)
         self.assertIn('font-family:"Unispace",ui-monospace,monospace', page)
         self.assertIn('.card:has(#currentTime)', page)
+        self.assertIn('.card,.technical-details{background:#24242d;border-left:3px solid #c7a6ff', page)
+        self.assertIn('.current-run{background:#1d1d25;border:1px solid #3d3651;border-left:3px solid #c7a6ff', page)
         self.assertIn('#processMetrics,#usage,#rateLimits', page)
         self.assertIn('#componentLogs,#componentLogs .card', page)
         self.assertIn('main>details.technical-details:not(#componentLogs)', page)
