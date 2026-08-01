@@ -67,6 +67,11 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#loadComponentLogs")).toHaveCount(0);
     await expect(page.getByTestId("pull-refresh")).toHaveText("Trek omlaag om te vernieuwen");
     await page.evaluate(() => executionTelemetry([{ date: "2026-08-01", prompt_count: 1, average_execution_seconds: 10, average_total_execution_seconds: 12, average_queue_wait_seconds: 2, input_tokens: 100, output_tokens: 20, total_tokens: 120, complete_count: 1, blocked_count: 0, failed_count: 0 }]));
+    expect(await page.evaluate(() => [
+      document.getElementById("technicalDetails").nextElementSibling.id,
+      document.getElementById("executionTelemetry").nextElementSibling.id,
+      document.getElementById("platformHealth").nextElementSibling.id,
+    ])).toEqual(["executionTelemetry", "platformHealth", "componentLogs"]);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBeTruthy();
     await expect(page.locator("#componentLogControls")).not.toHaveAttribute("hidden", "");
     expect(await page.locator("#reportContent").evaluate((element) => element.parentElement.className)).toBe("markdown-copy-wrap");
