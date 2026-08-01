@@ -62,6 +62,10 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.getByTestId("dashboard-splash")).toBeHidden();
     await expect(page.locator("#dashboardFavicon")).toHaveAttribute("href", /^data:image\/svg\+xml,/);
     await expect(page.getByTestId("engineering-workspace")).not.toHaveAttribute("open", "");
+    await expect(page.locator("#workspaceCard > summary .category-icon")).toHaveText("⌂");
+    await expect(page.locator("#rateLimits > summary .category-icon")).toHaveText("◔");
+    await expect(page.locator("#componentLogs > summary .category-icon")).toHaveText("≡");
+    await expect(page.locator("#codexChat > summary .category-icon")).toHaveText("✦");
     await expect(page.locator(".current-run__category-description")).toHaveText("De actieve engineeringprompt, met actuele voortgang, uitvoeringstijd en uitvoeringscontext.");
     expect(await page.locator("#indicator").evaluate((element) => element.parentElement.className)).toBe("current-run__prompt-heading");
     await expect(page.locator("#loadComponentLogs")).toHaveCount(0);
