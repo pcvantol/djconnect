@@ -54,6 +54,8 @@ test.describe("Engineering Status browser smoke", () => {
         private_remote_access: expect.objectContaining({ healthy: expect.any(Boolean) }),
       }),
     }));
+    expect(health.components.dashboard.version).toMatch(/^\d+\.\d+\.\d+$/);
+    expect(health.components.inbox_watcher.version).toMatch(/^\d+\.\d+\.\d+$/);
   });
 
   test("shows the private dashboard and keeps completed work collapsed by default", async ({ page }) => {
