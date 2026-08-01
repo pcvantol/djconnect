@@ -190,6 +190,7 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn('id="copyReport"', page)
         self.assertIn('function copyAvailable(id,available)', page)
         self.assertIn('Er is geen AI-analyse beschikbaar voor deze uitgevoerde prompt.', page)
+        self.assertIn('Er is geen AI-uitvoeringsdiagnose beschikbaar voor deze uitgevoerde prompt.', page)
         self.assertIn('copyAvailable("copyReport",false)', page)
         self.assertIn('function compactCopyButton(buttonId,contentId)', page)
         self.assertIn('button.classList.add("copy--glyph")', page)
