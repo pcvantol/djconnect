@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import io
 import json
 from http.client import HTTPConnection
 from pathlib import Path
@@ -197,6 +198,55 @@ class DashboardStatusTest(unittest.TestCase):
                 "reset_credits": 2,
             },
         )
+
+    def test_codex_rate_limits_reads_a_deterministic_app_server_response(self) -> None:
+        class FakeProcess:
+            def __init__(self) -> None:
+                self.stdin = io.StringIO()
+                self.stdout = io.StringIO(
+                    "\n".join(
+                        (
+                            json.dumps({"id": 1, "result": {}}),
+                            json.dumps(
+                                {
+                                    "id": 2,
+                                    "result": {
+                                        "rateLimits": {
+                                            "primary": {
+                                                "usedPercent": 12,
+                                                "windowDurationMins": 300,
+                                                "resetsAt": 1_786_162_124,
+                                            }
+                                        },
+                                        "rateLimitResetCredits": {"availableCount": 2},
+                                    },
+                                }
+                            ),
+                        )
+                    )
+                    + "\n"
+                )
+                self.terminated = False
+
+            def terminate(self) -> None:
+                self.terminated = True
+
+            def wait(self, timeout: float) -> None:
+                return None
+
+        process = FakeProcess()
+        with (
+            patch("tools.engineering.dashboard.subprocess.Popen", return_value=process),
+            patch("tools.engineering.dashboard.select.select", return_value=([process.stdout], [], [])),
+        ):
+            dashboard._rate_limit_cache = None
+            result = json.loads(dashboard._codex_rate_limits())
+            dashboard._rate_limit_cache = None
+        self.assertEqual(result["reset_credits"], 2)
+        self.assertEqual(result["windows"][0]["label"], "5-uursvenster")
+        self.assertIn('"method": "initialize"', process.stdin.getvalue())
+        self.assertIn('"method": "account/rateLimits/read"', process.stdin.getvalue())
+        self.assertTrue(process.terminated)
 
     def test_completion_commits_are_shown_only_after_completion(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
