@@ -6,7 +6,7 @@ contract tests and package documentation.
 
 ## Release alignment
 
-The current onboarding package is released as `4.2.0`, aligned with the current
+The current onboarding package is released as `4.3.0`, aligned with the current
 DJConnect platform release for operator clarity. This is version alignment only:
 the package remains independently versioned, does not consume platform release
 artifacts, and does not require a matching platform version to run or verify.
@@ -199,7 +199,7 @@ Developer readiness remains read-only. Run:
 It reports `storage.<repository>.ignored_build_output` for each checked-out
 repository, verifies the 14-day retention result, confirms that the LaunchAgent
 is loaded, and requires the canonical `djconnect/onboarding/manifest.yml`
-package version to be `4.2.0`. It does not delete files or change the host.
+package version to be `4.3.0`. It does not delete files or change the host.
 
 The same verification is fail-closed for Engineering Platform readiness. It
 requires the declared platform version, the canonical Inbox watcher and
@@ -321,6 +321,14 @@ It writes an owner-only Markdown report outside the repository by default. It
 does not capture all system traffic and does not mutate services or firewall
 rules; it assesses the known DJConnect dependency endpoints and produces
 conditional least-privilege recommendations.
+
+For private Engineering Status access from an iPhone through Tailscale, ESET
+Cyber Security needs one inbound allow rule for the repository-owned relay:
+`<checkout>/.djconnect/bin/engineering-dashboard-relay`, TCP port `8765`,
+scoped to `100.64.0.0/10` or the trusted Tailscale zone. Keep the firewall
+enabled; do not allow LAN, wildcard or public access. The Mac itself uses
+`http://127.0.0.1:8765/`; other authorized Tailnet devices use the Mac's
+Tailscale IPv4 address on port `8765`.
 
 Its mandatory macOS preflight requires macOS 14 or later and verifies that no
 patch update is available within the installed macOS major version. It does not

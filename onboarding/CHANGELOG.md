@@ -1,5 +1,12 @@
 # DJConnect Developer Onboarding Changelog
 
+## 4.3.0 — 2026-08-01
+
+- Add the private Engineering Status Tailnet relay recovery guidance, including
+  the scoped ESET firewall rule required for iPhone dashboard access.
+- Preserve the immutable `4.2.0` distribution artifact; this release carries
+  all onboarding-content changes introduced after that version.
+
 ## 4.2.0 — 2026-08-01
 
 - Align the canonical onboarding package, developer-machine readiness contract

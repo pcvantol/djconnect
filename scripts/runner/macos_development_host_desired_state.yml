@@ -20,13 +20,14 @@ host.recommended_free_disk_gb: 120
 
 # The read-only readiness check requires the canonical developer-onboarding
 # checkout used by this host to match this version exactly.
-onboarding.package_version: 4.2.0
+onboarding.package_version: 4.3.0
 
 # Engineering Platform must be installed as its canonical per-user services and
 # answer locally before this host can accept remote engineering work.
 engineering.platform_version: 1.5.0
 engineering.watcher_launch_agent: com.djconnect.engineering-inbox
 engineering.dashboard_launch_agent: com.djconnect.engineering-dashboard
+engineering.dashboard_relay_launch_agent: com.djconnect.engineering-dashboard-relay
 engineering.dashboard_health_url: http://127.0.0.1:8765/api/health
 engineering.status_relative_path: .djconnect/status/status.json
 engineering.reports_relative_path: .djconnect/reports

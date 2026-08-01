@@ -1,4 +1,4 @@
-# Version: 1.3.9
+# Version: 1.3.11
 # CLI help, desired-state verification and console/report primitives.
 usage() {
   cat <<'EOF'
@@ -186,6 +186,7 @@ load_desired_state() {
   DESIRED_ENGINEERING_PLATFORM_VERSION="$(require_desired_state_value engineering.platform_version)"
   DESIRED_ENGINEERING_WATCHER_LAUNCH_AGENT="$(require_desired_state_value engineering.watcher_launch_agent)"
   DESIRED_ENGINEERING_DASHBOARD_LAUNCH_AGENT="$(require_desired_state_value engineering.dashboard_launch_agent)"
+  DESIRED_ENGINEERING_DASHBOARD_RELAY_LAUNCH_AGENT="$(require_desired_state_value engineering.dashboard_relay_launch_agent)"
   DESIRED_ENGINEERING_DASHBOARD_HEALTH_URL="$(require_desired_state_value engineering.dashboard_health_url)"
   DESIRED_ENGINEERING_STATUS_RELATIVE_PATH="$(require_desired_state_value engineering.status_relative_path)"
   DESIRED_ENGINEERING_REPORTS_RELATIVE_PATH="$(require_desired_state_value engineering.reports_relative_path)"
@@ -367,6 +368,13 @@ run_desired_state_verification() {
   uid_value="$(id -u)"
   if launchctl print "gui/$uid_value/$DESIRED_ENGINEERING_WATCHER_LAUNCH_AGENT" 2>/dev/null | grep -Fq 'state = running'; then verify_delta_row 'engineering.watcher_launch_agent' "$DESIRED_ENGINEERING_WATCHER_LAUNCH_AGENT running" running MATCH; else verify_delta_row 'engineering.watcher_launch_agent' "$DESIRED_ENGINEERING_WATCHER_LAUNCH_AGENT running" unavailable DRIFT; fi
   if launchctl print "gui/$uid_value/$DESIRED_ENGINEERING_DASHBOARD_LAUNCH_AGENT" 2>/dev/null | grep -Fq 'state = running'; then verify_delta_row 'engineering.dashboard_launch_agent' "$DESIRED_ENGINEERING_DASHBOARD_LAUNCH_AGENT running" running MATCH; else verify_delta_row 'engineering.dashboard_launch_agent' "$DESIRED_ENGINEERING_DASHBOARD_LAUNCH_AGENT running" unavailable DRIFT; fi
+  if launchctl print "gui/$uid_value/$DESIRED_ENGINEERING_DASHBOARD_RELAY_LAUNCH_AGENT" 2>/dev/null | grep -Fq 'state = running'; then
+    verify_delta_row 'engineering.dashboard_relay_launch_agent' "$DESIRED_ENGINEERING_DASHBOARD_RELAY_LAUNCH_AGENT running" running MATCH
+  else
+    verify_delta_row 'engineering.dashboard_relay_launch_agent' "$DESIRED_ENGINEERING_DASHBOARD_RELAY_LAUNCH_AGENT running" unavailable DRIFT
+    printf '> Herstelhint: installeer het dashboard opnieuw. Blijft iPhone-toegang via Tailscale uit, sta dan alleen `%s/.djconnect/bin/engineering-dashboard-relay` toe voor inkomend TCP 8765 vanuit `100.64.0.0/10` in ESET.\n' "$GITHUB_ROOT/djconnect"
+  fi
+  printf '> Opmerking: iPhone-toegang via Tailscale is niet betrouwbaar vanaf deze Mac zelf te testen. Als de lokale dashboard-health groen is maar de iPhone geen verbinding krijgt, controleer dan eerst de ESET-regel voor `%s/.djconnect/bin/engineering-dashboard-relay` op TCP 8765 vanuit `100.64.0.0/10`.\n' "$GITHUB_ROOT/djconnect"
   dashboard_health="$(curl -fsS --max-time 5 "$DESIRED_ENGINEERING_DASHBOARD_HEALTH_URL" 2>/dev/null || true)"
   if [[ "$dashboard_health" == '{"health":"ok"}' ]]; then verify_delta_row 'engineering.dashboard_health' "$DESIRED_ENGINEERING_DASHBOARD_HEALTH_URL health=ok" healthy MATCH; else verify_delta_row 'engineering.dashboard_health' "$DESIRED_ENGINEERING_DASHBOARD_HEALTH_URL health=ok" unavailable DRIFT; fi
   engineering_status="$GITHUB_ROOT/djconnect/$DESIRED_ENGINEERING_STATUS_RELATIVE_PATH"
