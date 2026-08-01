@@ -133,6 +133,7 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn('aria-label="Gesprek met Codex"', page)
         self.assertIn("CHAT_HISTORY_KEY", page)
         self.assertIn("function renderChatHistory()", page)
+        self.assertIn('font-family:"Unispace",ui-monospace,monospace', page)
         self.assertIn('id="chatModel">gpt-5.6-terra', page)
         self.assertIn("Codex gesprek", page)
         self.assertIn('fetch("/api/codex-chat"', page)
