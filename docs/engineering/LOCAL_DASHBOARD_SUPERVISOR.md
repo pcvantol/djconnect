@@ -79,6 +79,20 @@ also states the actual execution provenance explicitly, for example
 **AI-provider: Codex CLI**. This preserves a future provider abstraction
 without concealing which adapter executed the displayed transaction.
 
+## Accessibility
+
+The dashboard targets WCAG 2.2 AA for its private status interface. It exposes
+a Dutch document language, a keyboard-visible skip link, semantic headings and
+native controls, persistent focus indication, and touch targets of at least
+44 by 44 CSS pixels for actions. Status changes and chat results use polite
+live regions; log tables have accessible names and keyboard-operable sortable
+headers. Motion is reduced when the operating system requests it, and forced
+colours retain visible focus.
+
+Automated checks cover the accessibility contract embedded in the page. Before
+claiming complete conformance, also perform a manual keyboard and screen-reader
+review in the supported browser and a contrast review of the rendered page.
+
 ## Private read-only AI advice
 
 **AI-gesprek** is available only through this same private listener. Its
