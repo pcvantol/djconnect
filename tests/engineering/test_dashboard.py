@@ -386,7 +386,7 @@ class DashboardStatusTest(unittest.TestCase):
     def test_codex_usage_is_shown_only_for_the_displayed_run(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            status = root / ".djconnect" / "status"
+            status = root / ".engineering" / "status"
             status.mkdir(parents=True)
             (status / "status.json").write_text('{"run_id":"inbox-visible"}', encoding="utf-8")
             (status / "codex_usage.json").write_text(
@@ -404,7 +404,7 @@ class DashboardStatusTest(unittest.TestCase):
     def test_last_executed_usage_is_bound_to_its_exact_run(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            status = root / ".djconnect" / "status"
+            status = root / ".engineering" / "status"
             status.mkdir(parents=True)
             (status / "codex_usage.json").write_text(
                 '{"run_id":"inbox-last","usage":{"input_tokens":123,"cost":1.25}}',
@@ -614,8 +614,8 @@ class DashboardStatusTest(unittest.TestCase):
     def test_completion_commits_are_shown_only_after_completion(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            status = root / ".djconnect" / "status"
-            runs = root / ".djconnect" / "engineering-runs"
+            status = root / ".engineering" / "status"
+            runs = root / ".engineering" / "engineering-runs"
             status.mkdir(parents=True)
             runs.mkdir(parents=True)
             (status / "status.json").write_text('{"run_id":"inbox-done","current_phase":"COMPLETE"}', encoding="utf-8")
@@ -625,8 +625,8 @@ class DashboardStatusTest(unittest.TestCase):
     def test_last_executed_commits_are_bound_to_the_completed_last_run(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            status = root / ".djconnect" / "status"
-            runs = root / ".djconnect" / "engineering-runs"
+            status = root / ".engineering" / "status"
+            runs = root / ".engineering" / "engineering-runs"
             status.mkdir(parents=True)
             runs.mkdir(parents=True)
             (status / "status.json").write_text(
@@ -640,7 +640,7 @@ class DashboardStatusTest(unittest.TestCase):
     def test_last_executed_agent_execution_is_bound_to_the_exact_run(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            runs = root / ".djconnect" / "engineering-runs"
+            runs = root / ".engineering" / "engineering-runs"
             runs.mkdir(parents=True)
             (runs / "inbox-last.json").write_text(
                 '{"agent_execution_seconds":125.4}', encoding="utf-8"
@@ -667,7 +667,7 @@ class DashboardStatusTest(unittest.TestCase):
 
     def test_live_runner_status_is_a_dashboard_projection(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
-            directory = Path(temporary) / ".djconnect" / "status"
+            directory = Path(temporary) / ".engineering" / "status"
             directory.mkdir(parents=True)
             (directory / "current.json").write_text(
                 json.dumps(
@@ -691,7 +691,7 @@ class DashboardStatusTest(unittest.TestCase):
 
     def test_active_runner_status_wins_over_previous_terminal_status(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
-            directory = Path(temporary) / ".djconnect" / "status"
+            directory = Path(temporary) / ".engineering" / "status"
             directory.mkdir(parents=True)
             (directory / "status.json").write_text('{"current_phase":"BLOCKED"}', encoding="utf-8")
             (directory / "current.json").write_text(
@@ -705,7 +705,7 @@ class DashboardStatusTest(unittest.TestCase):
 
     def test_live_runner_status_preserves_the_watcher_queue_projection(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
-            directory = Path(temporary) / ".djconnect" / "status"
+            directory = Path(temporary) / ".engineering" / "status"
             directory.mkdir(parents=True)
             (directory / "status.json").write_text(
                 '{"queue_items":[{"filename":"later.md","title":"Later prompt","modified_at":"2026-08-01T10:00:00+00:00"}]}',
@@ -721,7 +721,7 @@ class DashboardStatusTest(unittest.TestCase):
 
     def test_sse_status_is_single_line_json(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
-            directory = Path(temporary) / ".djconnect" / "status"
+            directory = Path(temporary) / ".engineering" / "status"
             directory.mkdir(parents=True)
             (directory / "status.json").write_text('{\n  "watcher_state": "WATCHER_IDLE"\n}', encoding="utf-8")
             payload = _sse_status(Path(temporary))
@@ -739,7 +739,7 @@ class DashboardStatusTest(unittest.TestCase):
     @patch("tools.engineering.dashboard._codex_rate_limits", return_value=b"{}")
     def test_sse_snapshot_contains_the_read_only_dashboard_projection(self, _: object) -> None:
         with tempfile.TemporaryDirectory() as temporary:
-            directory = Path(temporary) / ".djconnect" / "status"
+            directory = Path(temporary) / ".engineering" / "status"
             directory.mkdir(parents=True)
             (directory / "status.json").write_text('{"watcher_state":"WATCHER_IDLE"}', encoding="utf-8")
             snapshot = json.loads(_sse_snapshot(Path(temporary)))
@@ -759,7 +759,7 @@ class DashboardStatusTest(unittest.TestCase):
 
     def test_latest_codex_log_is_local_and_read_only(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
-            logs = Path(temporary) / ".djconnect" / "logs" / "codex"
+            logs = Path(temporary) / ".engineering" / "logs" / "codex"
             logs.mkdir(parents=True)
             (logs / "run.log").write_text("redacted diagnostic", encoding="utf-8")
             self.assertEqual(_latest_codex_log(Path(temporary)), b"redacted diagnostic")
@@ -780,8 +780,8 @@ class DashboardStatusTest(unittest.TestCase):
     def test_current_codex_log_never_falls_back_to_a_different_run(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            status = root / ".djconnect" / "status"
-            logs = root / ".djconnect" / "logs" / "codex"
+            status = root / ".engineering" / "status"
+            logs = root / ".engineering" / "logs" / "codex"
             status.mkdir(parents=True)
             logs.mkdir(parents=True)
             (status / "current.json").write_text('{"run_id":"inbox-new","phase":"INITIALIZE"}', encoding="utf-8")
@@ -793,8 +793,8 @@ class DashboardStatusTest(unittest.TestCase):
     def test_last_executed_log_is_bound_to_last_executed_run(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            status = root / ".djconnect" / "status"
-            logs = root / ".djconnect" / "logs" / "codex"
+            status = root / ".engineering" / "status"
+            logs = root / ".engineering" / "logs" / "codex"
             status.mkdir(parents=True)
             logs.mkdir(parents=True)
             (status / "status.json").write_text('{"last_executed_run":"inbox-last"}', encoding="utf-8")
@@ -806,7 +806,7 @@ class DashboardStatusTest(unittest.TestCase):
     def test_report_is_bound_to_the_requested_last_executed_run(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            reports = root / ".djconnect" / "reports"
+            reports = root / ".engineering" / "reports"
             reports.mkdir(parents=True)
             (reports / "one_inbox-other.md").write_text("other", encoding="utf-8")
             (reports / "two_inbox-last.md").write_text("last", encoding="utf-8")
@@ -816,7 +816,7 @@ class DashboardStatusTest(unittest.TestCase):
     def test_reviewer_agents_are_derived_from_the_exact_terminal_report(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            reports = root / ".djconnect" / "reports"
+            reports = root / ".engineering" / "reports"
             reports.mkdir(parents=True)
             (reports / "2026-08-01T10-00-00Z_inbox-last.md").write_text(
                 "\n".join(
@@ -868,7 +868,7 @@ class DashboardStatusTest(unittest.TestCase):
     def test_report_analysis_is_bound_to_the_requested_last_executed_run(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            analyses = root / ".djconnect" / "report-analysis"
+            analyses = root / ".engineering" / "report-analysis"
             analyses.mkdir(parents=True)
             (analyses / "inbox-other.md").write_text("other analysis", encoding="utf-8")
             (analyses / "inbox-last.md").write_text("last analysis", encoding="utf-8")
@@ -877,7 +877,7 @@ class DashboardStatusTest(unittest.TestCase):
     def test_component_log_is_bounded_to_known_redacted_log_files(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            logs = root / ".djconnect" / "logs"
+            logs = root / ".engineering" / "logs"
             logs.mkdir(parents=True)
             (logs / "inbox.log").write_text("first\nsecond\n", encoding="utf-8")
             self.assertEqual(_component_log(root, "inbox"), b"first\nsecond")
@@ -886,7 +886,7 @@ class DashboardStatusTest(unittest.TestCase):
     def test_component_log_clear_is_limited_to_the_requested_known_component(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            logs = root / ".djconnect" / "logs"
+            logs = root / ".engineering" / "logs"
             logs.mkdir(parents=True)
             inbox = logs / "inbox.log"
             dashboard_log = logs / "dashboard.log"
@@ -903,7 +903,7 @@ class DashboardStatusTest(unittest.TestCase):
     def test_component_log_versions_change_when_component_log_changes(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            logs = root / ".djconnect" / "logs"
+            logs = root / ".engineering" / "logs"
             logs.mkdir(parents=True)
             self.assertEqual(
                 _component_log_versions(root),
@@ -926,7 +926,7 @@ class DashboardStatusTest(unittest.TestCase):
         }
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            status = root / ".djconnect" / "status"
+            status = root / ".engineering" / "status"
             status.mkdir(parents=True)
             (status / "status.json").write_text("{}", encoding="utf-8")
             health = _platform_health(root)
@@ -1108,9 +1108,9 @@ class DashboardStatusTest(unittest.TestCase):
             "tools.engineering.dashboard.Path.home", return_value=Path(temporary)
         ):
             root = Path(temporary) / "repository"
-            (root / ".djconnect" / "status").mkdir(parents=True)
+            (root / ".engineering" / "status").mkdir(parents=True)
             self.assertEqual(dashboard.main(["doctor", "--repo", str(root)]), 1)
-            (root / ".djconnect" / "status" / "status.json").write_text("{}", encoding="utf-8")
+            (root / ".engineering" / "status" / "status.json").write_text("{}", encoding="utf-8")
             agent = Path(temporary) / "Library/LaunchAgents" / f"{dashboard.LABEL}.plist"
             agent.parent.mkdir(parents=True)
             agent.write_text("owned", encoding="utf-8")
@@ -1170,7 +1170,7 @@ class DashboardStatusTest(unittest.TestCase):
     def test_terminal_watcher_status_is_used_when_no_live_run_exists(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            status = root / ".djconnect" / "status"
+            status = root / ".engineering" / "status"
             status.mkdir(parents=True)
             (status / "status.json").write_text(
                 '{"watcher_state":"JOB_COMPLETED","current_phase":"COMPLETE"}',

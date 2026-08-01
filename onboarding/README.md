@@ -30,14 +30,14 @@ stable files one at a time, oldest File Date Modified first, and invokes only
 this repository's `dj-engineer`.
 
 iCloud is transport only. After a prompt is claimed, the executed prompt copy,
-status, reports, logs and terminal archive live locally under `.djconnect/`:
+status, reports, logs and terminal archive live locally under `.engineering/`:
 
-- `.djconnect/inbox/Running`, `Completed` and `Failed` hold the local prompt
+- `.engineering/inbox/Running`, `Completed` and `Failed` hold the local prompt
   lifecycle archive;
-- `.djconnect/inbox-processing/` contains the immutable executed input;
-- `.djconnect/status/` holds the canonical dashboard status;
-- `.djconnect/reports/` holds Engineering Reports; and
-- `.djconnect/logs/` holds redacted component logs.
+- `.engineering/inbox-processing/` contains the immutable executed input;
+- `.engineering/status/` holds the canonical dashboard status;
+- `.engineering/reports/` holds Engineering Reports; and
+- `.engineering/logs/` holds redacted component logs.
 
 Do not create or rely on `iCloud Drive/DJConnect Engineering/Reports` or an
 iCloud `status.json`. Existing legacy iCloud archives can be moved safely with
@@ -209,7 +209,7 @@ If any of these rows reports drift, rerun onboarding step 31 to install and
 validate the canonical watcher and dashboard services before accepting Inbox
 work. The unattended host-bootstrap `--repair` follows the same path: it saves
 the diagnostic result, retires only the two known legacy dashboard LaunchAgents
-to local `.djconnect` storage, restarts the canonical services, then verifies
+to local `.engineering` storage, restarts the canonical services, then verifies
 them again. It never executes or removes Inbox prompts.
 
 The macOS package reconciles Docker Desktop and the persistent local Home
@@ -324,7 +324,7 @@ conditional least-privilege recommendations.
 
 For private Engineering Status access from an iPhone through Tailscale, ESET
 Cyber Security needs one inbound allow rule for the repository-owned relay:
-`<checkout>/.djconnect/bin/engineering-dashboard-relay`, TCP port `8765`,
+`<checkout>/.engineering/bin/engineering-dashboard-relay`, TCP port `8765`,
 scoped to `100.64.0.0/10` or the trusted Tailscale zone. Keep the firewall
 enabled; do not allow LAN, wildcard or public access. The Mac itself uses
 `http://127.0.0.1:8765/`; other authorized Tailnet devices use the Mac's

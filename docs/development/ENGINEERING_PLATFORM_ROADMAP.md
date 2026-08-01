@@ -16,7 +16,7 @@ DJConnect. Existing commands remain compatibility wrappers.
 
 The completed operational hardening keeps iCloud Drive limited to Inbox
 transport, stores canonical prompt archives, status, reports and logs under
-`.djconnect/`, stops a strict Inbox sequence after `BLOCKED` or `FAILED`, and
+`.engineering/`, stops a strict Inbox sequence after `BLOCKED` or `FAILED`, and
 provides bounded redacted component logs, report analysis and read-only private
 Codex advice. Qualification covers 39 registered scenarios. These are
 compatible 1.5 maintenance and evidence improvements, not a 1.6 requirement.

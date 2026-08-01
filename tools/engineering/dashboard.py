@@ -20,6 +20,7 @@ import time
 import uuid
 from urllib.parse import parse_qs, urlsplit
 from .platform_api import PlatformConfiguration
+from .platform_bootstrap import provision_workspace
 from .providers import TailscaleProvider
 from .providers import LaunchdProvider
 from .inbox_watcher import LABEL as WATCHER_LABEL
@@ -38,7 +39,7 @@ from .platform_version import EngineeringPlatformManifest
 
 LABEL = "com.djconnect.engineering-dashboard"
 RELAY_LABEL = "com.djconnect.engineering-dashboard-relay"
-DASHBOARD_VERSION = "1.2.58"
+DASHBOARD_VERSION = "1.2.59"
 LOOPBACK_ADDRESS = "127.0.0.1"
 CODEX_PROCESS = re.compile(r"(?:^|\s)(?:\S*/)?codex(?:\s|$)")
 RATE_LIMIT_CACHE_SECONDS = 60
@@ -85,11 +86,11 @@ def _unavailable_status() -> bytes:
 
 def _status(root: Path) -> bytes:
     try:
-        watcher = json.loads((root / ".djconnect" / "status" / "status.json").read_text(encoding="utf-8"))
+        watcher = json.loads((root / ".engineering" / "status" / "status.json").read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):
         watcher = {}
     try:
-        live = json.loads((root / ".djconnect" / "status" / "current.json").read_text(encoding="utf-8"))
+        live = json.loads((root / ".engineering" / "status" / "current.json").read_text(encoding="utf-8"))
         projection = json.dumps(
             {
                 "watcher_state": "ENGINEERING_RUN_ACTIVE",
@@ -129,7 +130,7 @@ def _status(root: Path) -> bytes:
     try:
         if watcher and (watcher.get("run_id") or watcher.get("last_executed_run")):
             return json.dumps(watcher, separators=(",", ":")).encode()
-        return (root / ".djconnect" / "status" / "status.json").read_bytes()
+        return (root / ".engineering" / "status" / "status.json").read_bytes()
     except OSError:
         return projection or _unavailable_status()
 
@@ -438,7 +439,7 @@ def _consume_codex_rate_limit_reset_credit() -> str:
 
 def _latest_codex_log(root: Path) -> bytes:
     """Return only the latest locally redacted Codex diagnostic."""
-    logs = sorted((root / ".djconnect" / "logs" / "codex").glob("*.log"))
+    logs = sorted((root / ".engineering" / "logs" / "codex").glob("*.log"))
     try:
         return logs[-1].read_bytes() if logs else b"Geen Codex CLI-diagnose beschikbaar."
     except OSError:
@@ -450,7 +451,7 @@ def _component_log(root: Path, component: str) -> bytes:
     if component not in {"inbox", "dashboard"}:
         return b""
     try:
-        lines = (root / ".djconnect" / "logs" / f"{component}.log").read_text(
+        lines = (root / ".engineering" / "logs" / f"{component}.log").read_text(
             encoding="utf-8"
         ).splitlines()
     except OSError:
@@ -463,7 +464,7 @@ def _clear_component_log(root: Path, component: str) -> None:
     """Clear exactly one known component log; never accept arbitrary paths."""
     if component not in {"inbox", "dashboard"}:
         raise ValueError("Onbekende componentlog.")
-    path = root / ".djconnect" / "logs" / f"{component}.log"
+    path = root / ".engineering" / "logs" / f"{component}.log"
     try:
         path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
         path.write_text("", encoding="utf-8")
@@ -476,7 +477,7 @@ def _component_log_versions(root: Path) -> dict[str, str]:
     revisions: dict[str, str] = {}
     for component in ("inbox", "dashboard"):
         try:
-            observed = (root / ".djconnect" / "logs" / f"{component}.log").stat()
+            observed = (root / ".engineering" / "logs" / f"{component}.log").stat()
             revisions[component] = f"{observed.st_mtime_ns}:{observed.st_size}"
         except OSError:
             revisions[component] = "missing"
@@ -507,12 +508,12 @@ def _platform_health(root: Path) -> dict[str, object]:
         "inbox_watcher": _launch_agent_health(WATCHER_LABEL),
         "dashboard_relay": _launch_agent_health(RELAY_LABEL),
         "status_storage": {
-            "healthy": (root / ".djconnect" / "status" / "status.json").is_file(),
+            "healthy": (root / ".engineering" / "status" / "status.json").is_file(),
             "state": "available"
-            if (root / ".djconnect" / "status" / "status.json").is_file()
+            if (root / ".engineering" / "status" / "status.json").is_file()
             else "missing",
             "detail": "Statusprojectie beschikbaar"
-            if (root / ".djconnect" / "status" / "status.json").is_file()
+            if (root / ".engineering" / "status" / "status.json").is_file()
             else "Statusprojectie ontbreekt",
         },
         "private_remote_access": {
@@ -561,7 +562,7 @@ def _report_for_run(root: Path, run_id: str | None) -> bytes:
     if not isinstance(run_id, str) or not re.fullmatch(r"[a-z0-9][a-z0-9-]{0,63}", run_id):
         return b""
     try:
-        reports = sorted((root / ".djconnect" / "reports").glob(f"*_{run_id}.md"))
+        reports = sorted((root / ".engineering" / "reports").glob(f"*_{run_id}.md"))
         return reports[-1].read_bytes() if reports else b""
     except OSError:
         return b""
@@ -616,7 +617,7 @@ def _report_analysis_for_run(root: Path, run_id: str | None) -> bytes:
     if not isinstance(run_id, str) or not re.fullmatch(r"[a-z0-9][a-z0-9-]{0,63}", run_id):
         return b""
     try:
-        return (root / ".djconnect" / "report-analysis" / f"{run_id}.md").read_bytes()
+        return (root / ".engineering" / "report-analysis" / f"{run_id}.md").read_bytes()
     except OSError:
         return b""
 
@@ -630,7 +631,7 @@ def _current_codex_log(root: Path) -> bytes:
     if not isinstance(run_id, str) or not re.fullmatch(r"[a-z0-9][a-z0-9-]{0,63}", run_id):
         return b"Geen Codex CLI-diagnose beschikbaar voor de huidige uitvoering."
     try:
-        return (root / ".djconnect" / "logs" / "codex" / f"{run_id}.log").read_bytes()
+        return (root / ".engineering" / "logs" / "codex" / f"{run_id}.log").read_bytes()
     except OSError:
         return b"Geen Codex CLI-diagnose beschikbaar voor de huidige uitvoering."
 
@@ -638,13 +639,13 @@ def _current_codex_log(root: Path) -> bytes:
 def _last_executed_codex_log(root: Path) -> bytes:
     """Return only the log bound to the latest completed or failed Inbox run."""
     try:
-        run_id = json.loads((root / ".djconnect" / "status" / "status.json").read_text(encoding="utf-8")).get("last_executed_run")
+        run_id = json.loads((root / ".engineering" / "status" / "status.json").read_text(encoding="utf-8")).get("last_executed_run")
     except (OSError, json.JSONDecodeError):
         run_id = None
     if not isinstance(run_id, str) or not re.fullmatch(r"[a-z0-9][a-z0-9-]{0,63}", run_id):
         return b"Geen Codex CLI-diagnose beschikbaar voor de laatst uitgevoerde uitvoering."
     try:
-        return (root / ".djconnect" / "logs" / "codex" / f"{run_id}.log").read_bytes()
+        return (root / ".engineering" / "logs" / "codex" / f"{run_id}.log").read_bytes()
     except OSError:
         return b"Geen Codex CLI-diagnose beschikbaar voor de laatst uitgevoerde uitvoering."
 
@@ -653,7 +654,7 @@ def _codex_usage(root: Path) -> bytes:
     """Return only CLI-reported usage bound to the displayed current or last run."""
     try:
         status = json.loads(_status(root))
-        recorded = json.loads((root / ".djconnect" / "status" / "codex_usage.json").read_text(encoding="utf-8"))
+        recorded = json.loads((root / ".engineering" / "status" / "codex_usage.json").read_text(encoding="utf-8"))
         run_id = recorded.get("run_id")
         usage = recorded.get("usage")
     except (OSError, json.JSONDecodeError):
@@ -670,7 +671,7 @@ def _codex_usage_for_run(root: Path, run_id: str | None) -> bytes:
         return b"{}"
     try:
         recorded = json.loads(
-            (root / ".djconnect" / "status" / "codex_usage.json").read_text(encoding="utf-8")
+            (root / ".engineering" / "status" / "codex_usage.json").read_text(encoding="utf-8")
         )
         usage = recorded.get("usage")
     except (OSError, json.JSONDecodeError):
@@ -694,7 +695,7 @@ def _completion_commits(root: Path) -> bytes:
         run_id = status.get("run_id")
         if not isinstance(run_id, str):
             return b"{}"
-        checkpoint = json.loads((root / ".djconnect" / "engineering-runs" / f"{run_id}.json").read_text(encoding="utf-8"))
+        checkpoint = json.loads((root / ".engineering" / "engineering-runs" / f"{run_id}.json").read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):
         return b"{}"
     labels = {
@@ -715,7 +716,7 @@ def _last_executed_commits(root: Path) -> bytes:
         if not isinstance(run_id, str) or phase != "COMPLETE":
             return b"{}"
         checkpoint = json.loads(
-            (root / ".djconnect" / "engineering-runs" / f"{run_id}.json").read_text(encoding="utf-8")
+            (root / ".engineering" / "engineering-runs" / f"{run_id}.json").read_text(encoding="utf-8")
         )
     except (OSError, json.JSONDecodeError):
         return b"{}"
@@ -735,7 +736,7 @@ def _last_executed_agent_execution(root: Path, run_id: str | None) -> bytes:
     result: dict[str, float] = {}
     try:
         checkpoint = json.loads(
-            (root / ".djconnect" / "engineering-runs" / f"{run_id}.json").read_text(
+            (root / ".engineering" / "engineering-runs" / f"{run_id}.json").read_text(
                 encoding="utf-8"
             )
         )
@@ -765,7 +766,7 @@ def _prompt_started(root: Path) -> bytes:
         run_id = None
     if not isinstance(run_id, str):
         return b"{}"
-    for record in (root / ".djconnect" / "inbox-processing").glob("*/job.json"):
+    for record in (root / ".engineering" / "inbox-processing").glob("*/job.json"):
         try:
             job = json.loads(record.read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError):
@@ -1157,7 +1158,7 @@ def handler(root: Path, logger: logging.Logger | None = None):
                 return
             if self.path == "/api/report/latest":
                 try:
-                    reports = sorted((root / ".djconnect" / "reports").glob("*.md"))
+                    reports = sorted((root / ".engineering" / "reports").glob("*.md"))
                     content = (
                         reports[-1].read_bytes() if reports else b"Geen lokaal rapport beschikbaar."
                     )
@@ -1228,6 +1229,7 @@ def create_servers(
 
 def run(root: Path, port: int = 8765, provider: TailscaleProvider | None = None) -> None:
     """Serve the read-only dashboard on loopback; the relay handles Tailnet ingress."""
+    provision_workspace(root)
     logger = component_logger(root, "dashboard")
     try:
         with single_instance(root, "dashboard"):
@@ -1269,7 +1271,7 @@ def launch_agent(repo: Path) -> Path:
 
 
 def relay_binary(repo: Path) -> Path:
-    return repo / ".djconnect" / "bin" / "engineering-dashboard-relay"
+    return repo / ".engineering" / "bin" / "engineering-dashboard-relay"
 
 
 def build_relay(repo: Path) -> Path:
@@ -1318,7 +1320,7 @@ def main(argv: list[str] | None = None) -> int:
         LaunchdProvider().uninstall(relay_agent)
         relay_agent.unlink(missing_ok=True)
         return 0
-    health = (repo / ".djconnect" / "status" / "status.json").is_file()
+    health = (repo / ".engineering" / "status" / "status.json").is_file()
     remote_provider = TailscaleProvider()
     remote = remote_provider.status()
     tailscale_address = remote_provider.ipv4_address()

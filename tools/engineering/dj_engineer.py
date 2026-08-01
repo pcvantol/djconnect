@@ -36,6 +36,7 @@ from .repository_handoff import publish as publish_repository_handoff
 from .report_analysis import analyze as analyze_terminal_report
 from .status_model import build as build_canonical_status, publish as publish_canonical_status
 from .platform_api import PlatformConfiguration, PlatformConfigurationError, provider_registry
+from .platform_bootstrap import migrate_legacy_workspace
 from .providers import GitHubProvider, CodexCliProvider
 
 
@@ -119,7 +120,7 @@ def write_codex_usage(root: Path, run_id: str, usage: dict[str, int | float | st
     }
     if not safe_usage:
         return
-    directory = root / ".djconnect" / "status"
+    directory = root / ".engineering" / "status"
     directory.mkdir(mode=0o700, parents=True, exist_ok=True)
     existing: dict[str, int | float] = {}
     try:
@@ -157,7 +158,7 @@ def additional_workspace_write_roots(root: Path) -> tuple[Path, ...]:
     parent. It enables a new sibling project without giving a transaction broad
     filesystem write authority.
     """
-    local = root / ".djconnect" / "engineering-platform.local.json"
+    local = root / ".engineering" / "engineering-platform.local.json"
     if not local.is_file():
         return ()
     try:
@@ -489,7 +490,7 @@ class CodexCliClient:
                 },
             },
         }
-        state_directory = root / ".djconnect"
+        state_directory = root / ".engineering"
         state_directory.mkdir(mode=0o700, parents=True, exist_ok=True)
         with tempfile.NamedTemporaryFile(
             "w", encoding="utf-8", suffix=".json", dir=state_directory, delete=False
@@ -541,7 +542,7 @@ class CodexCliClient:
     def invoke(self, root: Path, prompt: str) -> AgentResult:
         self.last_usage = {}
         self.last_execution_seconds = None
-        state_directory = root / ".djconnect" / "engineering-runs"
+        state_directory = root / ".engineering" / "engineering-runs"
         state_directory.mkdir(mode=0o700, parents=True, exist_ok=True)
         schema = {
             "type": "object",
@@ -645,7 +646,7 @@ def _format_cli_failure(exit_code: int, stderr: str, stdout: str, prompt: str = 
 
 def write_redacted_codex_cli_log(root: Path, run_id: str, detail: str) -> Path:
     """Persist bounded, redacted CLI diagnostics for local troubleshooting."""
-    directory = root / ".djconnect" / "logs" / "codex"
+    directory = root / ".engineering" / "logs" / "codex"
     directory.mkdir(mode=0o700, parents=True, exist_ok=True)
     path = directory / f"{run_id}.log"
     content = "# Redacted Codex CLI diagnostic\n\n" + redact_diagnostic(detail, limit=3_000) + "\n"
@@ -1220,14 +1221,15 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main(argv: list[str] | None = None) -> int:
     raw_args = argv if argv is not None else __import__("sys").argv[1:]
+    root = Path.cwd().resolve()
+    migrate_legacy_workspace(root)
     if raw_args == ["status"]:
-        return print_live_status(Path.cwd().resolve())
+        return print_live_status(root)
     if raw_args == ["qualify"]:
-        report = execute_qualification(Path.cwd().resolve())
+        report = execute_qualification(root)
         print(dashboard(report))
         return 0 if report["qualification"] == "PASS" else 1
     args = build_parser().parse_args(raw_args)
-    root = Path.cwd().resolve()
     prompt_path = args.prompt.resolve()
     if not prompt_path.is_file():
         raise SystemExit(f"prompt does not exist: {prompt_path}")
@@ -1235,7 +1237,7 @@ def main(argv: list[str] | None = None) -> int:
         raise SystemExit("--resume requires --run-id")
     runner = EngineeringRunner(
         root,
-        StateStore(root / ".djconnect" / "engineering-runs"),
+        StateStore(root / ".engineering" / "engineering-runs"),
         SubprocessRepositoryClient(),
         GhCliClient(),
         CodexCliClient(),
@@ -1260,7 +1262,7 @@ def main(argv: list[str] | None = None) -> int:
         analyze_terminal_report(root, state.run_id, report_path)
     if runner.platform_manifest:
         publish_canonical_status(
-            root / ".djconnect" / "status",
+            root / ".engineering" / "status",
             build_canonical_status(
                 runner.platform_manifest,
                 current_phase=state.phase,
@@ -1479,7 +1481,7 @@ def generate_terminal_report(
     reviewer_records: tuple[dict[str, object], ...] = (),
 ) -> Path:
     """Write one immutable, local-only report for a terminal transaction."""
-    reports = root / ".djconnect" / "reports"
+    reports = root / ".engineering" / "reports"
     reports.mkdir(mode=0o700, parents=True, exist_ok=True)
     timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H-%M-%SZ")
     path = reports / f"{timestamp}_{state.run_id}.md"
@@ -1585,7 +1587,7 @@ def generate_terminal_report(
 
 def write_live_status(root: Path, state: TransactionState, action: str) -> Path:
     """Atomically publish the advisory current transaction state."""
-    directory = root / ".djconnect" / "status"
+    directory = root / ".engineering" / "status"
     directory.mkdir(mode=0o700, parents=True, exist_ok=True)
     path = directory / "current.json"
     checkout = (
@@ -1640,7 +1642,7 @@ def write_live_status(root: Path, state: TransactionState, action: str) -> Path:
 
 
 def print_live_status(root: Path) -> int:
-    path = root / ".djconnect" / "status" / "current.json"
+    path = root / ".engineering" / "status" / "current.json"
     if not path.is_file():
         print("No active engineering status is available.")
         return 1
@@ -1656,7 +1658,7 @@ def print_live_status(root: Path) -> int:
 
 
 def _memory_path(root: Path) -> Path:
-    return root / ".djconnect" / "memory" / "engineering-memory.json"
+    return root / ".engineering" / "memory" / "engineering-memory.json"
 
 
 def load_engineering_memory(root: Path) -> dict[str, object]:

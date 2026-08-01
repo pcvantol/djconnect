@@ -122,7 +122,7 @@ class LiveStatusFakeAgent(FakeAgent):
         self.live_action: str | None = None
 
     def invoke(self, root: Path, prompt: str) -> AgentResult:
-        payload = json.loads((root / ".djconnect" / "status" / "current.json").read_text())
+        payload = json.loads((root / ".engineering" / "status" / "current.json").read_text())
         self.live_phase = payload["phase"]
         self.live_action = payload["current_action"]
         return super().invoke(root, prompt)
@@ -411,21 +411,21 @@ class ClientContractTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             module.write_codex_usage(root, "run-usage", {"unknown": 1, "input_tokens": -1})
-            self.assertFalse((root / ".djconnect/status/codex_usage.json").exists())
+            self.assertFalse((root / ".engineering/status/codex_usage.json").exists())
             module.write_codex_usage(root, "run-usage", {"input_tokens": 2})
             self.assertEqual(
-                json.loads((root / ".djconnect/status/codex_usage.json").read_text(encoding="utf-8"))["usage"],
+                json.loads((root / ".engineering/status/codex_usage.json").read_text(encoding="utf-8"))["usage"],
                 {"input_tokens": 2},
             )
-            (root / ".djconnect/status/codex_usage.json").write_text("not-json", encoding="utf-8")
+            (root / ".engineering/status/codex_usage.json").write_text("not-json", encoding="utf-8")
             module.write_codex_usage(root, "run-usage", {"output_tokens": 3})
             self.assertEqual(
-                json.loads((root / ".djconnect/status/codex_usage.json").read_text(encoding="utf-8"))["usage"],
+                json.loads((root / ".engineering/status/codex_usage.json").read_text(encoding="utf-8"))["usage"],
                 {"output_tokens": 3},
             )
             module.write_codex_usage(root, "run-usage", {"input_tokens": 2})
             self.assertEqual(
-                json.loads((root / ".djconnect/status/codex_usage.json").read_text(encoding="utf-8"))["usage"],
+                json.loads((root / ".engineering/status/codex_usage.json").read_text(encoding="utf-8"))["usage"],
                 {"input_tokens": 2},
             )
         self.assertEqual(execution_mode_for("Execution Mode: Genesis"), "GENESIS")
@@ -445,7 +445,7 @@ class LocalAgentRunnerTest(unittest.TestCase):
             '{"platform_version":"1.0.0","runner_version":"1.0.0","bootstrap_contract":"2026.07","checkpoint_format":1,"memory_format":1,"report_format":1,"minimum_codex_cli":"0.146.0","watcher_version":"1.0.0","inbox_protocol":1,"dashboard_version":"1.0.0","handoff_protocol":1,"status_model":1,"storage_schema":1}\n',
             encoding="utf-8",
         )
-        self.store = StateStore(self.root / ".djconnect" / "engineering-runs")
+        self.store = StateStore(self.root / ".engineering" / "engineering-runs")
 
     def tearDown(self) -> None:
         self.temporary.cleanup()
@@ -476,7 +476,7 @@ class LocalAgentRunnerTest(unittest.TestCase):
             genesis_repository_path=str(self.root),
         )
         write_live_status(self.root, state, "invoke_agent")
-        payload = json.loads((self.root / ".djconnect" / "status" / "current.json").read_text())
+        payload = json.loads((self.root / ".engineering" / "status" / "current.json").read_text())
         self.assertEqual(payload["execution_mode"], "GENESIS")
         self.assertEqual(payload["target_repository"], self.root.name)
         self.assertEqual(payload["checkout_path"], str(self.root))
@@ -687,7 +687,7 @@ class LocalAgentRunnerTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             write_codex_usage(root, "inbox-usage", {"total_tokens": 150})
-            payload = json.loads((root / ".djconnect" / "status" / "codex_usage.json").read_text())
+            payload = json.loads((root / ".engineering" / "status" / "codex_usage.json").read_text())
             self.assertEqual(payload, {"run_id": "inbox-usage", "usage": {"total_tokens": 150}})
 
     def test_cli_output_schema_requires_every_declared_property(self) -> None:
@@ -713,7 +713,7 @@ class LocalAgentRunnerTest(unittest.TestCase):
         configuration = self.root / "tools/engineering/ENGINEERING_PLATFORM_CONFIG.json"
         configuration.parent.mkdir(parents=True, exist_ok=True)
         configuration.write_text(source.read_text(encoding="utf-8"), encoding="utf-8")
-        local = self.root / ".djconnect"
+        local = self.root / ".engineering"
         local.mkdir(exist_ok=True)
         workspace_root = self.root.parent.resolve()
         (local / "engineering-platform.local.json").write_text(

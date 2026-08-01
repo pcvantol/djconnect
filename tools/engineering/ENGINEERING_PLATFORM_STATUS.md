@@ -28,7 +28,7 @@ boundary. Existing commands remain compatibility interfaces.
   Engineering Intent dependency model can express finer-grained ordering.
 - iCloud Drive is submission transport only. Claimed prompts, immutable
   execution copies, status, reports, diagnostics and component logs are
-  canonical local `.djconnect/` evidence.
+  canonical local `.engineering/` evidence.
 - Advisory Engineering Memory.
 - Capability-aware generic reviewers and product capability specialists.
 - Deterministic Engineering Qualification and local evidence reports.
@@ -54,9 +54,9 @@ boundary. Existing commands remain compatibility interfaces.
   server-pushed status, category-coded evidence cards, client-side structured
   log filtering/sorting and browser-session-local read-only advice history.
 - Engineering Storage schema `3` is versioned and fail-closed in the platform
-  manifest. It is the verified SQLite storage foundation for the planned
-  `.engineering/engineering.db` migration; current runtime evidence remains
-  under `.djconnect/` until the complete consumer migration is qualified.
+  manifest. `.engineering/engineering.db` and the surrounding `.engineering/`
+  workspace are canonical; a verified, fail-closed legacy migration preserves
+  prior `.djconnect/` evidence before the legacy directory is removed.
 
 ## Future governance
 

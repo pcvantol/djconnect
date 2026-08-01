@@ -1,4 +1,4 @@
-# Version: 1.3.6
+# Version: 1.3.7
 # macOS host provisioning, developer-workstation and service operations.
 warm_sudo() {
   if [[ "$DRY_RUN" == '1' ]]; then
@@ -334,7 +334,7 @@ repair_engineering_platform() {
     warn 'Engineering dashboard doctor reported drift; repairing the canonical dashboard service.'
   fi
 
-  legacy_directory="$repository/.djconnect/legacy-launchagents"
+  legacy_directory="$repository/.engineering/legacy-launchagents"
   for label in com.djconnect.engineering-dashboard-backend com.djconnect.engineering-dashboard-proxy; do
     plist="$HOME/Library/LaunchAgents/$label.plist"
     [[ -f "$plist" ]] || continue

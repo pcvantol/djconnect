@@ -13,8 +13,8 @@ class EngineeringOperationalDocumentationTest(unittest.TestCase):
     def test_onboarding_describes_iCloud_as_transport_only(self) -> None:
         onboarding = (ROOT / "onboarding" / "README.md").read_text(encoding="utf-8")
         self.assertIn("iCloud is transport only.", onboarding)
-        self.assertIn(".djconnect/status/", onboarding)
-        self.assertIn(".djconnect/reports/", onboarding)
+        self.assertIn(".engineering/status/", onboarding)
+        self.assertIn(".engineering/reports/", onboarding)
         self.assertIn("WAITING_FOR_PREDECESSOR", onboarding)
         self.assertNotIn("local-run reports to `Reports`", onboarding)
 
@@ -28,7 +28,7 @@ class EngineeringOperationalDocumentationTest(unittest.TestCase):
     def test_local_runner_and_dashboard_docs_use_canonical_local_storage(self) -> None:
         runner = (ROOT / "docs" / "development" / "LOCAL_AGENT_RUNNER.md").read_text(encoding="utf-8")
         dashboard = (ROOT / "docs" / "engineering" / "LOCAL_DASHBOARD_SUPERVISOR.md").read_text(encoding="utf-8")
-        self.assertIn(".djconnect/status/status.json", runner)
+        self.assertIn(".engineering/status/status.json", runner)
         self.assertNotIn("DJConnect Engineering/status.json", runner)
         self.assertNotIn("DJConnect Engineering/Reports/", runner)
         self.assertIn("server-sent events", dashboard)

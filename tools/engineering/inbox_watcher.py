@@ -21,6 +21,7 @@ import time
 from .platform_version import EngineeringPlatformManifest
 from .agent_state import redact_diagnostic
 from .platform_api import PlatformConfiguration
+from .platform_bootstrap import provision_workspace
 from .providers import LaunchdProvider
 from .status_model import build, publish
 from .component_logging import (
@@ -34,7 +35,7 @@ from .component_lock import DuplicateComponentInstanceError, single_instance
 from .telemetry import ExecutionTelemetry, persist_execution_async
 
 LABEL = "com.djconnect.engineering-inbox"
-WATCHER_VERSION = "1.1.2"
+WATCHER_VERSION = "1.1.3"
 MAX_BYTES = 256_000
 TERMINAL_PHASES = frozenset({"COMPLETE", "BLOCKED", "FAILED"})
 BLOCKING_PREDECESSOR_PHASES = frozenset({"BLOCKED", "FAILED"})
@@ -60,7 +61,7 @@ def folders(root: Path) -> dict[str, Path]:
 
 def local_folders(repo: Path) -> dict[str, Path]:
     """Return canonical local prompt archives owned by Engineering Platform."""
-    result = {name: repo / ".djconnect" / "inbox" / name for name in ("Running", "Completed", "Failed")}
+    result = {name: repo / ".engineering" / "inbox" / name for name in ("Running", "Completed", "Failed")}
     for path in result.values():
         path.mkdir(mode=0o700, parents=True, exist_ok=True)
     return result
@@ -148,7 +149,7 @@ def _telemetry_values(repo: Path, run_id: str) -> tuple[float | None, dict[str, 
     execution_seconds: float | None = None
     repository = repo.name
     try:
-        state = json.loads((repo / ".djconnect" / "engineering-runs" / f"{run_id}.json").read_text(encoding="utf-8"))
+        state = json.loads((repo / ".engineering" / "engineering-runs" / f"{run_id}.json").read_text(encoding="utf-8"))
         value = state.get("agent_execution_seconds")
         if isinstance(value, (int, float)) and not isinstance(value, bool) and value >= 0:
             execution_seconds = float(value)
@@ -158,7 +159,7 @@ def _telemetry_values(repo: Path, run_id: str) -> tuple[float | None, dict[str, 
         pass
     usage: dict[str, int | None] = {"input_tokens": None, "output_tokens": None, "total_tokens": None}
     try:
-        stored = json.loads((repo / ".djconnect" / "status" / "codex_usage.json").read_text(encoding="utf-8"))
+        stored = json.loads((repo / ".engineering" / "status" / "codex_usage.json").read_text(encoding="utf-8"))
         raw = stored.get("usage") if stored.get("run_id") == run_id else {}
         if isinstance(raw, dict):
             for key in usage:
@@ -258,7 +259,7 @@ def _previous_prompt_context(repo: Path) -> dict[str, object]:
         "predecessor_recovery_action",
     )
     try:
-        prior = json.loads((repo / ".djconnect" / "status" / "status.json").read_text(encoding="utf-8"))
+        prior = json.loads((repo / ".engineering" / "status" / "status.json").read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):
         return {}
     return {key: prior[key] for key in keys if prior.get(key) is not None}
@@ -295,7 +296,7 @@ def status(repo: Path, state: str, **details: object) -> None:
         resume_available=state in {"JOB_BLOCKED", "JOB_FAILED"},
         **context,
     )
-    publish(repo / ".djconnect" / "status", payload)
+    publish(repo / ".engineering" / "status", payload)
 
 
 def _job_id(source: Path, content: str) -> tuple[str, str, str]:
@@ -354,7 +355,7 @@ def _move(source: Path, destination: Path) -> None:
 
 
 def _active_transaction(repo: Path) -> bool:
-    current = repo / ".djconnect" / "status" / "current.json"
+    current = repo / ".engineering" / "status" / "current.json"
     try:
         payload = json.loads(current.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):
@@ -373,7 +374,7 @@ def _active_transaction(repo: Path) -> bool:
 @contextmanager
 def _lock(repo: Path):
     """Use an exclusive local lock and recover only a proven stale PID lock."""
-    path = repo / ".djconnect" / "engineering-inbox.lock"
+    path = repo / ".engineering" / "engineering-inbox.lock"
     path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
     try:
         descriptor = os.open(path, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
@@ -395,7 +396,7 @@ def _lock(repo: Path):
 
 
 def _runner_result(repo: Path, run_id: str) -> tuple[str | None, str | None]:
-    checkpoint = repo / ".djconnect" / "engineering-runs" / f"{run_id}.json"
+    checkpoint = repo / ".engineering" / "engineering-runs" / f"{run_id}.json"
     try:
         state = json.loads(checkpoint.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):
@@ -404,13 +405,13 @@ def _runner_result(repo: Path, run_id: str) -> tuple[str | None, str | None]:
 
 
 def _report(repo: Path, run_id: str) -> Path | None:
-    reports = sorted((repo / ".djconnect" / "reports").glob(f"*_{run_id}.md"))
+    reports = sorted((repo / ".engineering" / "reports").glob(f"*_{run_id}.md"))
     return reports[-1] if reports else None
 
 
 def _clear_prior_codex_log(repo: Path, run_id: str) -> None:
     """A retried deterministic Inbox run must not display an older attempt's log."""
-    (repo / ".djconnect" / "logs" / "codex" / f"{run_id}.log").unlink(missing_ok=True)
+    (repo / ".engineering" / "logs" / "codex" / f"{run_id}.log").unlink(missing_ok=True)
 
 
 def once(repo: Path, root: Path, interval: float = 1.0) -> int:
@@ -487,7 +488,7 @@ def once(repo: Path, root: Path, interval: float = 1.0) -> int:
                blocking_predecessor_title=None, predecessor_recovery_action=None)
         log_event(logger, logging.INFO, "job_claimed", run_id=run_id)
         _move(source, claimed)
-        local = repo / ".djconnect" / "inbox-processing" / job_id
+        local = repo / ".engineering" / "inbox-processing" / job_id
         local.mkdir(mode=0o700, parents=True, exist_ok=True)
         prompt = local / "prompt.md"
         prompt.write_text(content, encoding="utf-8")
@@ -544,7 +545,7 @@ def once(repo: Path, root: Path, interval: float = 1.0) -> int:
             delivered = report
         else:
             corrected_report = True
-            delivered = repo / ".djconnect" / "reports" / f"corrected_{run_id}.md"
+            delivered = repo / ".engineering" / "reports" / f"corrected_{run_id}.md"
             delivered.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
             delivered.write_text(
                 _corrected_terminal_report(run_id, terminal_phase, reason), encoding="utf-8"
@@ -653,7 +654,7 @@ def doctor(repo: Path, root: Path) -> int:
         "inbox_writable": os.access(transport["Inbox"], os.W_OK),
         "local_archives_writable": os.access(areas["Completed"], os.W_OK),
         "launch_agent": agent.is_file(),
-        "gitignored": ".djconnect/" in (repo / ".gitignore").read_text(encoding="utf-8"),
+        "gitignored": ".engineering/" in (repo / ".gitignore").read_text(encoding="utf-8"),
         "dashboard_code": (repo / "tools/engineering/dashboard.py").is_file(),
         "handoff_index": (repo / "docs/engineering/runs/index.json").is_file(),
         "handoff_latest": (repo / "docs/engineering/runs/latest.md").is_file(),
@@ -684,7 +685,7 @@ def migrate_icloud_archives(repo: Path, root: Path) -> dict[str, int]:
         "Running": local["Running"],
         "Completed": local["Completed"],
         "Failed": local["Failed"],
-        "Reports": repo / ".djconnect" / "reports",
+        "Reports": repo / ".engineering" / "reports",
     }
     moved = deleted = 0
     for name, target in targets.items():
@@ -705,7 +706,7 @@ def migrate_icloud_archives(repo: Path, root: Path) -> dict[str, int]:
         source_directory.rmdir()
     for name in ("status.json", "status.md"):
         source = root / name
-        destination = repo / ".djconnect" / "status" / name
+        destination = repo / ".engineering" / "status" / name
         if not source.is_file() or source.is_symlink():
             continue
         destination.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
@@ -728,6 +729,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--interval", type=float, default=15)
     args = parser.parse_args(argv)
     repo = args.repo.resolve()
+    provision_workspace(repo)
     root = cloud_root(args.icloud_root, repo)
     if args.command == "once":
         return once(repo, root, 0.0)
@@ -752,8 +754,8 @@ def main(argv: list[str] | None = None) -> int:
             return 1
     if args.command == "status":
         print(
-            (repo / ".djconnect" / "status" / "status.md").read_text(encoding="utf-8")
-            if (repo / ".djconnect" / "status" / "status.md").exists()
+            (repo / ".engineering" / "status" / "status.md").read_text(encoding="utf-8")
+            if (repo / ".engineering" / "status" / "status.md").exists()
             else "WATCHER_IDLE"
         )
         return 0

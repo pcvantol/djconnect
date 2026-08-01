@@ -6,7 +6,7 @@ import tempfile
 import unittest
 
 from tools.engineering.platform_api import PlatformConfiguration, capabilities, provider_registry
-from tools.engineering.platform_bootstrap import provision_workspace
+from tools.engineering.platform_bootstrap import migrate_legacy_workspace, provision_workspace
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -35,13 +35,42 @@ class PlatformProductizationTest(unittest.TestCase):
         self.assertEqual(first, second)
         self.assertTrue(first["status"].is_dir())
 
+    def test_legacy_workspace_migrates_without_losing_evidence(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            legacy = root / ".djconnect"
+            report = legacy / "reports" / "run.md"
+            report.parent.mkdir(parents=True)
+            report.write_text("evidence", encoding="utf-8")
+
+            workspace = migrate_legacy_workspace(root)
+
+            self.assertEqual(workspace, (root / ".engineering").resolve())
+            self.assertEqual((workspace / "reports" / "run.md").read_text(encoding="utf-8"), "evidence")
+            self.assertFalse(legacy.exists())
+
+    def test_legacy_workspace_conflict_fails_closed(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            legacy = root / ".djconnect"
+            workspace = root / ".engineering"
+            legacy.mkdir()
+            workspace.mkdir()
+            (legacy / "status.json").write_text("legacy", encoding="utf-8")
+            (workspace / "status.json").write_text("canonical", encoding="utf-8")
+
+            with self.assertRaises(RuntimeError):
+                migrate_legacy_workspace(root)
+
+            self.assertTrue(legacy.exists())
+
     def test_unknown_local_configuration_fails_closed(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             target = root / "tools/engineering"
             target.mkdir(parents=True)
             (target / "ENGINEERING_PLATFORM_CONFIG.json").write_text((ROOT / "tools/engineering/ENGINEERING_PLATFORM_CONFIG.json").read_text())
-            local = root / ".djconnect"
+            local = root / ".engineering"
             local.mkdir()
             (local / "engineering-platform.local.json").write_text(json.dumps({"providers": {"runtime": "other"}}))
             with self.assertRaises(ValueError):

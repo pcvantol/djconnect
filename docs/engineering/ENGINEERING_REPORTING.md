@@ -36,7 +36,7 @@ reports never claim successful implementation or delivery.
 
 After a terminal report is written, the runner may request one separate Codex
 CLI analysis of that exact local report. The analysis is read-only, bounded and
-stored locally per run under `.djconnect/report-analysis/<run-id>.md`. It
+stored locally per run under `.engineering/report-analysis/<run-id>.md`. It
 distils findings, issues, risks, next steps and advice for the Product
 Architect. Its output is advisory and redacted before persistence.
 

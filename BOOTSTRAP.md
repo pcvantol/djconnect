@@ -180,7 +180,7 @@ Engineering Platform capabilities are evidence-first: implementation alone does
 not make a capability trusted. Run `./tools/engineering/dj-engineer qualify`
 to execute the canonical local qualification registry in
 `tools/engineering/ENGINEERING_QUALIFICATION.md`. Reports are local under
-`.djconnect/qualification/`; they record scenario outcome, duration,
+`.engineering/qualification/`; they record scenario outcome, duration,
 diagnostics, evidence, Engineering Platform version, repository version and
 Codex CLI version.
 

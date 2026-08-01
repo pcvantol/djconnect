@@ -27,7 +27,7 @@ the locally compiled relay to accept incoming TCP traffic on port `8765` from
 authorized Tailnet devices. The relay path is stable for this checkout:
 
 ```text
-/Users/pcvantol/Documents/GitHub/djconnect/.djconnect/bin/engineering-dashboard-relay
+/Users/pcvantol/Documents/GitHub/djconnect/.engineering/bin/engineering-dashboard-relay
 ```
 
 Use an inbound allow rule scoped to the Tailscale address range
@@ -43,10 +43,10 @@ iPhone. On the Mac itself, use `http://127.0.0.1:8765/`.
 The dashboard reads only canonical local Engineering Platform state. It does
 not need iCloud Drive to render a current or completed run:
 
-- `.djconnect/status/status.json` supplies bounded watcher status;
-- `.djconnect/reports/` supplies the Engineering Report and its advisory
+- `.engineering/status/status.json` supplies bounded watcher status;
+- `.engineering/reports/` supplies the Engineering Report and its advisory
   analysis for the matching terminal run; and
-- `.djconnect/logs/dashboard.log` and `.djconnect/logs/inbox.log` supply
+- `.engineering/logs/dashboard.log` and `.engineering/logs/inbox.log` supply
   bounded, redacted component-log tails that are automatically refreshed when
   their server-pushed revision changes.
 

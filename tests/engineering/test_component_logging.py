@@ -24,7 +24,7 @@ class ComponentLoggingTest(unittest.TestCase):
             )
             for handler in logger.handlers:
                 handler.flush()
-            path = root / ".djconnect" / "logs" / "inbox.log"
+            path = root / ".engineering" / "logs" / "inbox.log"
             record = json.loads(path.read_text(encoding="utf-8"))
             self.assertEqual(record["level"], "INFO")
             self.assertEqual(record["component"], "inbox")
@@ -45,7 +45,7 @@ class ComponentLoggingTest(unittest.TestCase):
             component_logging.log_event(logger, logging.INFO, "second")
             for handler in logger.handlers:
                 handler.flush()
-            directory = root / ".djconnect" / "logs"
+            directory = root / ".engineering" / "logs"
             self.assertTrue((directory / "dashboard.log").exists())
             self.assertTrue((directory / "dashboard.log.1").exists())
             self.assertEqual((directory / "dashboard.log").stat().st_mode & 0o777, 0o600)

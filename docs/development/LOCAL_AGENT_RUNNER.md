@@ -60,7 +60,7 @@ Run `./tools/engineering/dj-engineer qualify` to execute every deterministic
 scenario in `tools/engineering/ENGINEERING_QUALIFICATION.md`. The local
 qualification dashboard reports pass/fail, scenario coverage, failure and
 blocked counts. Its JSON and Markdown evidence remains under the git-ignored
-`.djconnect/qualification/` directory. Terminal Engineering Reports include the
+`.engineering/qualification/` directory. Terminal Engineering Reports include the
 latest available qualification version, result, execution time and coverage.
 
 ## Generation 1 status
@@ -81,7 +81,7 @@ serializes jobs and invokes only the repository-owned runner. Its v1 protocol
 is `tools/engineering/ENGINEERING_INBOX_PROTOCOL.md`; iCloud is transport
 only.
 After a prompt is claimed, its lifecycle archive, reports and status are stored
-only in `.djconnect/`. The iCloud workspace contains only `Inbox/`.
+only in `.engineering/`. The iCloud workspace contains only `Inbox/`.
 The default queue is strict and fail-closed: after a `BLOCKED` or `FAILED`
 Inbox run, later prompts remain in Inbox as `WAITING_FOR_PREDECESSOR`.
 Repair and explicitly resubmit the blocking prompt with
@@ -107,8 +107,8 @@ supported commands. Tests never install the LaunchAgent.
 ### Component logging
 
 The watcher writes private, structured application events to
-`.djconnect/logs/inbox.log`; the dashboard writes them to
-`.djconnect/logs/dashboard.log`. Each JSON line has a UTC timestamp, severity,
+`.engineering/logs/inbox.log`; the dashboard writes them to
+`.engineering/logs/dashboard.log`. Each JSON line has a UTC timestamp, severity,
 component and, where applicable, run ID. Event and diagnostic text are redacted
 and bounded before it is written. Logs rotate at 1 MB and retain at most three
 previous files.
@@ -188,7 +188,7 @@ repository-settings changes or branch-protection bypass.
 
 The runner verifies the repository, builds a repository-first Codex prompt from
 the supplied file and canonical repository instructions, then records an
-advisory checkpoint in `.djconnect/engineering-runs/`. That directory is local
+advisory checkpoint in `.engineering/engineering-runs/`. That directory is local
 and Git-ignored. It stores identity and execution evidence only; it never
 stores prompt content, credentials, tokens or agent output.
 
@@ -206,7 +206,7 @@ There is no background continuation. A resume synchronizes and re-inspects
 repository and GitHub evidence; that evidence overrides checkpoint phase and
 next-action fields. Malformed, incompatible or conflicting state fails closed.
 An abandoned checkpoint can be removed only after inspecting it locally, with
-`rm .djconnect/engineering-runs/<run-id>.json`.
+`rm .engineering/engineering-runs/<run-id>.json`.
 
 ## Diagnostics
 
@@ -264,11 +264,11 @@ evidence-based cleanup and never removes unrelated branches.
 ## Terminal reports and advisory sub-agents
 
 Each terminal transaction writes an immutable local Markdown report beneath
-`.djconnect/reports/`. Reports are never opened automatically in an editor;
+`.engineering/reports/`. Reports are never opened automatically in an editor;
 they remain available through Engineering Status and the local report path.
 Reports are git-ignored. When the Inbox watcher owns the
 transaction, it validates the report against the terminal checkpoint and keeps
-the safe terminal report locally under `.djconnect/reports/`. If correction is
+the safe terminal report locally under `.engineering/reports/`. If correction is
 needed, the watcher writes a corrected checkpoint-consistent local copy; it
 never publishes a report to iCloud. Reports summarize checkpoint evidence,
 PRs, repair and cleanup evidence, diagnostics and the management summary.
@@ -303,8 +303,8 @@ repository evidence after an interruption.
 ## Live progress
 
 The runner emits concise terminal and cleanup phase updates and atomically
-maintains `.djconnect/status/current.json`. The Inbox watcher projects bounded
-dashboard status to `.djconnect/status/status.json`. Both are git-ignored local
+maintains `.engineering/status/current.json`. The Inbox watcher projects bounded
+dashboard status to `.engineering/status/status.json`. Both are git-ignored local
 advisory records; resume recomputes from repository and GitHub evidence. iCloud
 carries only a submitted Inbox file and never receives status, reports or prompt
 archives. Run
@@ -313,8 +313,8 @@ repair count and action.
 
 ## Engineering Memory
 
-Successful transactions store bounded metadata under `.djconnect/memory/`,
-which is already covered by the local `.djconnect/` ignore rule. Memory never
+Successful transactions store bounded metadata under `.engineering/memory/`,
+which is already covered by the local `.engineering/` ignore rule. Memory never
 stores prompts, source snapshots, credentials or personal data. Retrieved
 patterns are advisory context only: repository and GitHub evidence override
 them, and they cannot change scope, validation or authority.

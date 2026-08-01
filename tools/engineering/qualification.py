@@ -120,7 +120,7 @@ def dashboard(report: dict[str, object]) -> str:
 
 
 def latest_qualification(root: Path) -> dict[str, object] | None:
-    directory = root / ".djconnect" / "qualification"
+    directory = root / ".engineering" / "qualification"
     reports = sorted(directory.glob("qualification-*.json"))
     if not reports:
         return None
@@ -178,7 +178,7 @@ def _default_check(root: Path, capability: str) -> bool:
 
 
 def _write_report(root: Path, report: dict[str, object]) -> None:
-    directory = root / ".djconnect" / "qualification"
+    directory = root / ".engineering" / "qualification"
     directory.mkdir(mode=0o700, parents=True, exist_ok=True)
     stamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H-%M-%SZ")
     (directory / f"qualification-{stamp}.json").write_text(

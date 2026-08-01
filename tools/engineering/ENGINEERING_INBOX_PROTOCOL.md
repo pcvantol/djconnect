@@ -7,12 +7,12 @@ non-empty, non-symlink file with stable size and mtime before moving it out of
 iCloud Inbox into local Engineering Platform storage. Job identity derives from
 filename and content digest.
 
-Jobs are strictly sequential: `iCloud Inbox → .djconnect/inbox/Running →
-.djconnect/inbox/Completed|Failed`. A local immutable
-`.djconnect/inbox-processing/<job-id>/prompt.md` copy is the only executed
+Jobs are strictly sequential: `iCloud Inbox → .engineering/inbox/Running →
+.engineering/inbox/Completed|Failed`. A local immutable
+`.engineering/inbox-processing/<job-id>/prompt.md` copy is the only executed
 input. The watcher invokes only the repository-owned `dj-engineer` with owner
-authorization and a stable run ID. Reports remain under `.djconnect/reports/`
-and status under `.djconnect/status/`. iCloud is transport only; it retains no
+authorization and a stable run ID. Reports remain under `.engineering/reports/`
+and status under `.engineering/status/`. iCloud is transport only; it retains no
 reports, status or prompt archive after a job is claimed.
 
 The private status page shows the current unclaimed queue from this watcher

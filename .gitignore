@@ -10,7 +10,6 @@ test-results/
 .env*.local
 
 # Local AI engineering workspace.
-.djconnect/
 .engineering/
 
 # Local macOS recovery-bootstrap evidence and reboot state must never be committed.

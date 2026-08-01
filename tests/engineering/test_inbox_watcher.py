@@ -83,8 +83,8 @@ class InboxWatcherTest(unittest.TestCase):
             self.assertEqual(inbox_watcher.launch_path().split(":")[0], "/opt/homebrew/bin")
 
     def test_terminal_checkpoint_overrides_stale_live_status(self) -> None:
-        status = self.repo / ".djconnect/status"
-        checkpoint = self.repo / ".djconnect/engineering-runs"
+        status = self.repo / ".engineering/status"
+        checkpoint = self.repo / ".engineering/engineering-runs"
         status.mkdir(parents=True)
         checkpoint.mkdir(parents=True)
         (status / "current.json").write_text('{"run_id":"inbox-stale","phase":"INITIALIZE"}', encoding="utf-8")
@@ -110,13 +110,13 @@ class InboxWatcherTest(unittest.TestCase):
     def test_complete_job_is_serialized_and_archived(self) -> None:
         (self.inbox / "job.txt").write_text("# prompt", encoding="utf-8")
         run_id = "inbox-0cff9d624c2412db"
-        report_dir = self.repo / ".djconnect/reports"
+        report_dir = self.repo / ".engineering/reports"
         report_dir.mkdir(parents=True)
         (report_dir / f"report_{run_id}.md").write_text("# report", encoding="utf-8")
-        checkpoint = self.repo / ".djconnect/engineering-runs"
+        checkpoint = self.repo / ".engineering/engineering-runs"
         checkpoint.mkdir(parents=True)
         (checkpoint / f"{run_id}.json").write_text(json.dumps({"phase": "COMPLETE"}), encoding="utf-8")
-        old_log = self.repo / ".djconnect/logs/codex" / f"{run_id}.log"
+        old_log = self.repo / ".engineering/logs/codex" / f"{run_id}.log"
         old_log.parent.mkdir(parents=True)
         old_log.write_text("previous attempt", encoding="utf-8")
         with patch("tools.engineering.inbox_watcher.subprocess.run") as run:
@@ -149,12 +149,12 @@ class InboxWatcherTest(unittest.TestCase):
         self.assertEqual(snapshot["watcher_state"], "JOB_FAILED")
         self.assertEqual(snapshot["last_executed_run"], run_id)
         self.assertEqual(snapshot["last_executed_phase"], "FAILED")
-        report = self.repo / ".djconnect" / "reports" / f"corrected_{run_id}.md"
+        report = self.repo / ".engineering" / "reports" / f"corrected_{run_id}.md"
         self.assertTrue(report.exists())
         self.assertTrue(inbox_watcher._report_matches_terminal_phase(report, "FAILED"))
 
     def test_status_helpers_keep_previous_context_and_bound_details(self) -> None:
-        status = self.repo / ".djconnect" / "status"
+        status = self.repo / ".engineering" / "status"
         status.mkdir(parents=True)
         (status / "status.json").write_text(
             json.dumps({"submitted_filename": "old.md", "last_executed_run": "inbox-old"}),
@@ -173,7 +173,7 @@ class InboxWatcherTest(unittest.TestCase):
             with self.assertRaisesRegex(RuntimeError, "another watcher"):
                 with inbox_watcher._lock(self.repo):
                     pass
-        lock = self.repo / ".djconnect/engineering-inbox.lock"
+        lock = self.repo / ".engineering/engineering-inbox.lock"
         lock.parent.mkdir(parents=True, exist_ok=True)
         lock.write_text("99999999", encoding="utf-8")
         with inbox_watcher._lock(self.repo):
@@ -185,7 +185,7 @@ class InboxWatcherTest(unittest.TestCase):
         self.assertIsNone(inbox_watcher._report(self.repo, "inbox-none"))
         self.assertEqual(inbox_watcher.once(self.repo, self.root, 0), 0)
         self.assertEqual(json_status(self.repo)["watcher_state"], "WATCHER_IDLE")
-        runs = self.repo / ".djconnect/engineering-runs"
+        runs = self.repo / ".engineering/engineering-runs"
         runs.mkdir(parents=True)
         (runs / "inbox-evidence.json").write_text(
             '{"phase":"FAILED","diagnostic":"bounded"}', encoding="utf-8"
@@ -197,7 +197,7 @@ class InboxWatcherTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as home, patch(
             "tools.engineering.inbox_watcher.Path.home", return_value=Path(home)
         ), patch("tools.engineering.inbox_watcher.PlatformConfiguration.load"):
-            (self.repo / ".gitignore").write_text(".djconnect/\n", encoding="utf-8")
+            (self.repo / ".gitignore").write_text(".engineering/\n", encoding="utf-8")
             self.assertEqual(
                 inbox_watcher.main(["install", "--repo", str(self.repo), "--icloud-root", str(self.root)]),
                 0,
@@ -219,7 +219,7 @@ class InboxWatcherTest(unittest.TestCase):
 
     def test_blocked_predecessor_holds_later_inbox_prompts_without_claiming_them(self) -> None:
         (self.inbox / "next.txt").write_text("# Later prompt", encoding="utf-8")
-        status_directory = self.repo / ".djconnect" / "status"
+        status_directory = self.repo / ".engineering" / "status"
         status_directory.mkdir(parents=True)
         (status_directory / "status.json").write_text(
             json.dumps(
@@ -256,7 +256,7 @@ class InboxWatcherTest(unittest.TestCase):
         now = time.time_ns()
         os.utime(later, ns=(now, now))
         os.utime(retry, ns=(now + 1_000_000, now + 1_000_000))
-        status_directory = self.repo / ".djconnect" / "status"
+        status_directory = self.repo / ".engineering" / "status"
         status_directory.mkdir(parents=True)
         (status_directory / "status.json").write_text(
             json.dumps(
@@ -270,10 +270,10 @@ class InboxWatcherTest(unittest.TestCase):
             encoding="utf-8",
         )
         _, retry_run_id, _ = inbox_watcher._job_id(retry, retry_content)
-        checkpoint = self.repo / ".djconnect/engineering-runs"
+        checkpoint = self.repo / ".engineering/engineering-runs"
         checkpoint.mkdir(parents=True)
         (checkpoint / f"{retry_run_id}.json").write_text(json.dumps({"phase": "COMPLETE"}), encoding="utf-8")
-        report_dir = self.repo / ".djconnect/reports"
+        report_dir = self.repo / ".engineering/reports"
         report_dir.mkdir(parents=True)
         (report_dir / f"report_{retry_run_id}.md").write_text(
             inbox_watcher._corrected_terminal_report(retry_run_id, "COMPLETE", None),
@@ -300,9 +300,9 @@ class InboxWatcherTest(unittest.TestCase):
         (self.root / "status.json").write_text('{"watcher_state":"WATCHER_IDLE"}', encoding="utf-8")
         migrated = inbox_watcher.migrate_icloud_archives(self.repo, self.root)
         self.assertEqual(migrated, {"moved": 3, "deleted_duplicates": 0})
-        self.assertTrue((self.repo / ".djconnect" / "inbox" / "Completed" / "old.txt").exists())
-        self.assertTrue((self.repo / ".djconnect" / "reports" / "old.md").exists())
-        self.assertTrue((self.repo / ".djconnect" / "status" / "status.json").exists())
+        self.assertTrue((self.repo / ".engineering" / "inbox" / "Completed" / "old.txt").exists())
+        self.assertTrue((self.repo / ".engineering" / "reports" / "old.md").exists())
+        self.assertTrue((self.repo / ".engineering" / "status" / "status.json").exists())
         self.assertFalse((self.root / "Completed").exists())
         self.assertFalse((self.root / "Reports").exists())
         self.assertFalse((self.root / "status.json").exists())
@@ -310,4 +310,4 @@ class InboxWatcherTest(unittest.TestCase):
 
 def json_status(repo: Path) -> dict[str, object]:
     import json
-    return json.loads((repo / ".djconnect" / "status" / "status.json").read_text(encoding="utf-8"))
+    return json.loads((repo / ".engineering" / "status" / "status.json").read_text(encoding="utf-8"))

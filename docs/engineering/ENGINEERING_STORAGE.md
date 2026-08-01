@@ -2,9 +2,8 @@
 
 ## Purpose
 
-Engineering Platform persistent evidence is being prepared for consolidation
-under the repository-local, git-ignored `.engineering/` workspace. Its only
-database path is:
+Engineering Platform persistent evidence is stored in the repository-local,
+git-ignored `.engineering/` workspace. Its only database path is:
 
 ```text
 .engineering/engineering.db
@@ -50,19 +49,22 @@ An unavailable database is logged by the watcher but never changes the
 authoritative engineering checkpoint or its outcome. Token values remain null
 when the provider did not report them; the platform never estimates them.
 
-## Current transition status
+## Canonical workspace migration
 
-Schema `3` is the versioned storage foundation. It defines normalized tables
-for status projections, transaction checkpoints, immutable artifacts and
-redacted component logs. The current watcher, runner and dashboard still use
-the existing `.djconnect/` evidence layout until their complete migration is
-implemented and qualified as one compatibility-preserving transaction.
+`.engineering/` is the sole canonical local location for status projections,
+transaction checkpoints, immutable artifacts, reports, redacted component logs
+and locks. When an existing workspace contains the historical `.djconnect/`
+directory, provisioning performs a local, fail-closed migration before any
+component starts:
 
-This distinction is intentional: creating a database schema does not silently
-change runtime authority or move live evidence. A future migration must first
-copy and verify legacy status, reports, prompts, analyses, usage, checkpoints,
-logs, qualification evidence and lock metadata; only then may `.engineering`
-become the sole canonical local location.
+- existing evidence is moved to `.engineering/` without rewriting it;
+- byte-identical duplicates are discarded only after verification;
+- a conflicting historic log or qualification category is retained under
+  `.engineering/legacy/` without replacing its active counterpart;
+- a conflicting file, symlink or incompatible path type aborts the migration;
+- the legacy directory is removed only after every child has migrated.
+
+The migration has no cloud, release, deployment or publication effect.
 
 ## Integrity and privacy
 

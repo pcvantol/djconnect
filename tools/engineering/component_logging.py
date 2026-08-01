@@ -52,7 +52,7 @@ class RedactingJsonFormatter(logging.Formatter):
 
 def component_logger(root: Path, component: str, *, level: str | None = None) -> logging.Logger:
     """Return the single private rotating logger for one EP component."""
-    directory = root / ".djconnect" / "logs"
+    directory = root / ".engineering" / "logs"
     directory.mkdir(mode=0o700, parents=True, exist_ok=True)
     path = directory / f"{component}.log"
     logger = logging.getLogger(f"djconnect.engineering.{component}")
