@@ -113,6 +113,8 @@ class DashboardStatusTest(unittest.TestCase):
         for label in ("Modus", "Repository", "Lokale checkout", "Actieve branch"):
             self.assertIn(label, page)
         self.assertIn('id="copyReport"', page)
+        self.assertIn('function copyReportAnalysis()', page)
+        self.assertIn('button.id="copyReportAnalysis"', page)
         self.assertIn("navigator.clipboard.writeText", page)
         self.assertIn("function fallbackCopy(value)", page)
         self.assertIn('document.execCommand("copy")', page)
