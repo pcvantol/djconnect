@@ -229,6 +229,7 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn('#codexChat .chat-input,#codexChat .chat-send{border-color:#d0a4ff}', page)
         self.assertIn('#chatInput:focus-visible{outline:2px solid #d0a4ff;outline-offset:2px;box-shadow:0 0 0 4px #292336}', page)
         self.assertIn(':where(input,select,textarea):focus-visible{outline:2px solid var(--category-color);outline-offset:2px;box-shadow:0 0 0 4px color-mix(in srgb,var(--category-color) 24%,transparent)}', page)
+        self.assertIn('.workspace-card>summary:focus-visible,#rateLimits>summary:focus-visible,.last-execution-group>summary:focus-visible,.telemetry>summary:focus-visible,.platform-health>summary:focus-visible,.technical-details>summary:focus-visible,.current-run>summary:focus-visible{outline:2px solid var(--category-color);outline-offset:3px;box-shadow:0 0 0 4px color-mix(in srgb,var(--category-color) 24%,transparent)}', page)
         self.assertIn('#reportContent{max-height:50dvh;overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}', page)
         self.assertIn('.last-execution-group__heading,.technical-details>summary>strong,.codex-chat>summary>strong,#rateLimits>summary>strong,.workspace-card>summary>strong{font-size:17px}', page)
         self.assertIn('#rateLimits>summary>strong{color:var(--category-color)}', page)
