@@ -47,6 +47,11 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn('fetch("/api/report/last-executed?run_id="+encodeURIComponent(lastExecutedRun))', page)
         self.assertIn('id="promptRuns"', page)
         self.assertIn('id="lastExecution" hidden', page)
+        self.assertIn('id="lastIndicator"', page)
+        self.assertIn('id="lastFinalStatus"', page)
+        self.assertIn("function finalStatus(phase)", page)
+        self.assertIn("Geblokkeerd", page)
+        self.assertIn("Mislukt", page)
         self.assertIn('id="executionContext" hidden', page)
         for label in ("Modus", "Repository", "Lokale checkout", "Actieve branch"):
             self.assertIn(label, page)
