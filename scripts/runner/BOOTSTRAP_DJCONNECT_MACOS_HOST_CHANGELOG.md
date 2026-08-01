@@ -6,6 +6,11 @@ This changelog covers only
 compatibility and security changes to the development-host bootstrap independently of
 the DJConnect product release.
 
+## [2.0.14] - 2026-08-01
+
+- Require the immutable canonical developer-onboarding package `4.3.0` before
+  recovery invokes it.
+
 ## [2.0.13] - 2026-08-01
 
 - Make unattended repair analyze Engineering Platform readiness, archive only

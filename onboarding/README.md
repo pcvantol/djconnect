@@ -6,7 +6,7 @@ contract tests and package documentation.
 
 ## Release alignment
 
-The current onboarding package is released as `4.2.0`, aligned with the current
+The current onboarding package is released as `4.3.0`, aligned with the current
 DJConnect platform release for operator clarity. This is version alignment only:
 the package remains independently versioned, does not consume platform release
 artifacts, and does not require a matching platform version to run or verify.
@@ -199,7 +199,7 @@ Developer readiness remains read-only. Run:
 It reports `storage.<repository>.ignored_build_output` for each checked-out
 repository, verifies the 14-day retention result, confirms that the LaunchAgent
 is loaded, and requires the canonical `djconnect/onboarding/manifest.yml`
-package version to be `4.2.0`. It does not delete files or change the host.
+package version to be `4.3.0`. It does not delete files or change the host.
 
 The same verification is fail-closed for Engineering Platform readiness. It
 requires the declared platform version, the canonical Inbox watcher and
