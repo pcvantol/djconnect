@@ -10,7 +10,7 @@ import unittest
 from unittest.mock import patch
 
 from tools.engineering import dashboard
-from tools.engineering.dashboard import DASHBOARD_VERSION, LOOPBACK_ADDRESS, _clear_component_log, _codex_process_metrics, _codex_usage, _codex_usage_for_run, _component_log, _component_log_versions, _completion_commits, _current_codex_log, _dashboard_html, _last_executed_agent_execution, _last_executed_codex_log, _last_executed_commits, _latest_codex_log, _normalize_rate_limits, _platform_health, _report_analysis_for_run, _report_for_run, _reviewer_agents_for_run, _sse_snapshot, _sse_status, _status, _tracked_file_count, binding_addresses
+from tools.engineering.dashboard import DASHBOARD_VERSION, LOOPBACK_ADDRESS, _clear_component_log, _codex_process_metrics, _codex_usage, _codex_usage_for_run, _component_log, _component_log_versions, _completion_commits, _current_codex_log, _dashboard_html, _last_executed_agent_execution, _last_executed_codex_log, _last_executed_commits, _latest_codex_log, _normalize_rate_limits, _platform_health, _report_analysis_available_for_run, _report_analysis_for_run, _report_for_run, _reviewer_agents_for_run, _sse_snapshot, _sse_status, _status, _tracked_file_count, binding_addresses
 from tools.engineering.inbox_watcher import WATCHER_VERSION
 from tools.engineering.platform_version import EngineeringPlatformManifest
 
@@ -189,6 +189,7 @@ class DashboardStatusTest(unittest.TestCase):
             self.assertIn(label, page)
         self.assertIn('id="copyReport"', page)
         self.assertIn('function copyAvailable(id,available)', page)
+        self.assertIn('Er is geen AI-analyse beschikbaar voor deze uitgevoerde prompt.', page)
         self.assertIn('copyAvailable("copyReport",false)', page)
         self.assertIn('function compactCopyButton(buttonId,contentId)', page)
         self.assertIn('button.classList.add("copy--glyph")', page)
@@ -882,6 +883,8 @@ class DashboardStatusTest(unittest.TestCase):
             (analyses / "inbox-last.md").write_text("last analysis", encoding="utf-8")
             self.assertEqual(_report_analysis_for_run(root, "inbox-last"), b"last analysis")
             self.assertEqual(_report_analysis_for_run(root, "inbox-missing"), b"")
+            self.assertTrue(_report_analysis_available_for_run(root, "inbox-last"))
+            self.assertFalse(_report_analysis_available_for_run(root, "inbox-missing"))
     def test_component_log_is_bounded_to_known_redacted_log_files(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
