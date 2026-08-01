@@ -6,6 +6,8 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import argparse
 from html import escape
 import json
+import logging
+import os
 from pathlib import Path
 import re
 import select
@@ -19,6 +21,13 @@ from .platform_api import PlatformConfigurationError
 from .providers import TailscaleProvider
 from .providers import LaunchdProvider
 from .inbox_watcher import WATCHER_VERSION, cloud_root
+from .component_logging import (
+    DEFAULT_LOG_LEVEL,
+    LOG_LEVEL_ENVIRONMENT,
+    VALID_LEVELS,
+    component_logger,
+    log_event,
+)
 
 LABEL = "com.djconnect.engineering-dashboard"
 DASHBOARD_VERSION = "1.1.1"
@@ -583,8 +592,9 @@ let e=new EventSource("/api/events");e.addEventListener("dashboard",x=>{try{let 
     return page.replace("$TITLE", escape(title)).replace("$BUILD_COMMIT", escape(build_commit)).encode()
 
 
-def handler(root: Path):
+def handler(root: Path, logger: logging.Logger | None = None):
     title = PlatformConfiguration.load(root).workspace.dashboard_title
+    logger = logger or component_logger(root, "dashboard")
     class DashboardHandler(BaseHTTPRequestHandler):
         def _send(self, content: bytes, content_type: str) -> None:
             self.send_response(200)
@@ -601,6 +611,7 @@ def handler(root: Path):
 
         def do_GET(self) -> None:
             request = urlsplit(self.path)
+            log_event(logger, logging.DEBUG, "http_request", diagnostic=request.path)
             if request.path == "/api/report/last-executed":
                 run_id = parse_qs(request.query).get("run_id", [None])[0]
                 return self._send(
@@ -646,7 +657,7 @@ def handler(root: Path):
                             self.wfile.flush()
                         time.sleep(1)
                 except (BrokenPipeError, ConnectionResetError):
-                    pass
+                    log_event(logger, logging.DEBUG, "sse_client_disconnected")
                 return
             if self.path == "/api/report/latest":
                 try:
@@ -673,10 +684,11 @@ def handler(root: Path):
                 return self._send(_prompt_started(root), "application/json; charset=utf-8")
             if self.path == "/":
                 return self._send(_dashboard_html(title, _build_commit(root)), "text/html; charset=utf-8")
+            log_event(logger, logging.WARNING, "http_not_found", diagnostic=request.path)
             self.send_error(404)
 
-        def log_message(self, *_: object) -> None:
-            pass
+        def log_message(self, message: str, *_: object) -> None:
+            log_event(logger, logging.DEBUG, "http_server_message", diagnostic=message)
 
     return DashboardHandler
 
@@ -693,10 +705,13 @@ def binding_addresses(provider: TailscaleProvider | None = None) -> tuple[str, .
 
 
 def create_servers(
-    root: Path, port: int = 8765, provider: TailscaleProvider | None = None
+    root: Path,
+    port: int = 8765,
+    provider: TailscaleProvider | None = None,
+    logger: logging.Logger | None = None,
 ) -> tuple[DashboardHTTPServer, ...]:
     """Create the exact private listeners for the dashboard."""
-    request_handler = handler(root)
+    request_handler = handler(root, logger)
     return tuple(
         DashboardHTTPServer((address, port), request_handler)
         for address in binding_addresses(provider)
@@ -705,10 +720,24 @@ def create_servers(
 
 def run(root: Path, port: int = 8765, provider: TailscaleProvider | None = None) -> None:
     """Serve locally and, when present, over the authenticated Tailnet only."""
-    servers = create_servers(root, port, provider)
+    logger = component_logger(root, "dashboard")
+    try:
+        servers = create_servers(root, port, provider, logger)
+    except OSError as error:
+        log_event(logger, logging.ERROR, "dashboard_start_failed", diagnostic=str(error))
+        raise
+    log_event(
+        logger,
+        logging.INFO,
+        "dashboard_started",
+        diagnostic="addresses=" + ",".join(address for address, _ in (server.server_address for server in servers)),
+    )
     for server in servers[1:]:
         Thread(target=server.serve_forever, daemon=True).start()
-    servers[0].serve_forever()
+    try:
+        servers[0].serve_forever()
+    finally:
+        log_event(logger, logging.INFO, "dashboard_stopped")
 
 
 def launch_agent(repo: Path) -> Path:
@@ -728,8 +757,11 @@ def launch_agent(repo: Path) -> Path:
             str(repo),
         )
     )
+    log_level = os.environ.get(LOG_LEVEL_ENVIRONMENT, DEFAULT_LOG_LEVEL).upper()
+    if log_level not in VALID_LEVELS:
+        log_level = DEFAULT_LOG_LEVEL
     destination.write_text(
-        f'<?xml version="1.0" encoding="UTF-8"?><plist version="1.0"><dict><key>Label</key><string>{LABEL}</string><key>ProgramArguments</key><array>{arguments}</array><key>WorkingDirectory</key><string>{repo}</string><key>RunAtLoad</key><true/><key>KeepAlive</key><true/><key>ThrottleInterval</key><integer>15</integer><key>StandardOutPath</key><string>{logs / "dashboard.out.log"}</string><key>StandardErrorPath</key><string>{logs / "dashboard.err.log"}</string></dict></plist>',
+        f'<?xml version="1.0" encoding="UTF-8"?><plist version="1.0"><dict><key>Label</key><string>{LABEL}</string><key>ProgramArguments</key><array>{arguments}</array><key>WorkingDirectory</key><string>{repo}</string><key>EnvironmentVariables</key><dict><key>{LOG_LEVEL_ENVIRONMENT}</key><string>{log_level}</string></dict><key>RunAtLoad</key><true/><key>KeepAlive</key><true/><key>ThrottleInterval</key><integer>15</integer><key>StandardOutPath</key><string>{logs / "dashboard.out.log"}</string><key>StandardErrorPath</key><string>{logs / "dashboard.err.log"}</string></dict></plist>',
         encoding="utf-8",
     )
     return destination

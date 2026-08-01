@@ -102,6 +102,24 @@ The installed LaunchAgent starts at login and remains limited to the configured
 local repository. `once`, `run`, `status`, `uninstall` and `doctor` remain the
 supported commands. Tests never install the LaunchAgent.
 
+### Component logging
+
+The watcher writes private, structured application events to
+`.djconnect/logs/inbox.log`; the dashboard writes them to
+`.djconnect/logs/dashboard.log`. Each JSON line has a UTC timestamp, severity,
+component and, where applicable, run ID. Event and diagnostic text are redacted
+and bounded before it is written. Logs rotate at 1 MB and retain at most three
+previous files.
+
+The existing `inbox.out.log`, `inbox.err.log`, `dashboard.out.log` and
+`dashboard.err.log` remain the LaunchAgent process streams. They complement,
+rather than replace, the application logs.
+
+Set `DJCONNECT_ENGINEERING_LOG_LEVEL` to `DEBUG`, `INFO`, `WARNING` or `ERROR`
+before installing a watcher or dashboard LaunchAgent; the selected value is
+stored in its LaunchAgent environment. The default is `INFO`; an invalid value
+fails closed to `INFO`. Reinstall the relevant LaunchAgent after changing it.
+
 ## Remote Engineering Experience
 
 Engineering Platform 1.5 projects canonical watcher status as bounded, atomic
