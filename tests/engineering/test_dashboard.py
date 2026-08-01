@@ -57,6 +57,8 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertEqual(page.count("const humanLabels="), 1)
         self.assertEqual(page.count("let chatHistory=loadChatHistory()"), 1)
         self.assertIn('class="card card--previous last-execution-card" id="lastExecution" hidden><summary>', page)
+        self.assertIn('function groupLastExecution()', page)
+        self.assertIn('Laatste uitgevoerde prompt', page)
         self.assertIn('<summary><div class="final-status">', page)
         self.assertIn(".card--previous", page)
         self.assertIn('id="currentTime"', page)
