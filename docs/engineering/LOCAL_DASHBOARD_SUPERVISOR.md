@@ -111,6 +111,12 @@ also states the actual execution provenance explicitly, for example
 **AI-provider: Codex CLI**. This preserves a future provider abstraction
 without concealing which adapter executed the displayed transaction.
 
+The always-visible **Inbox-wachtrij** shows the current queue even when it is
+empty. Entries are numbered in their real execution order: oldest file
+modification timestamp first, with filename, prompt title and modification time.
+The status projection is intentionally bounded to the first 25 queued prompts;
+when more are waiting, the dashboard says so explicitly.
+
 ## Accessibility
 
 The dashboard targets WCAG 2.2 AA for its private status interface. It exposes

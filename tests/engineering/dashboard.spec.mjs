@@ -152,6 +152,29 @@ test.describe("Engineering Status browser smoke", () => {
     expect(entries.map((entry) => entry.level)).toEqual(["INFO", "WARNING"]);
   });
 
+  test("keeps the Inbox queue visible when empty and numbers the oldest prompt first", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#autoRefresh").uncheck();
+    const queue = page.getByTestId("engineering-inbox-queue");
+    await page.evaluate(() => queueItems([], 0));
+    await expect(queue).toBeVisible();
+    await expect(page.locator("#queueSummary")).toHaveText("0 prompts in de wachtrij.");
+    await expect(page.locator("#queueList")).toContainText("Geen Inbox-prompts wachten op uitvoering.");
+
+    await page.evaluate(() => queueItems([
+      { filename: "later.md", title: "Later uitvoeren", modified_at: "2026-08-02T10:02:00Z" },
+      { filename: "earlier.md", title: "Eerst uitvoeren", modified_at: "2026-08-02T10:01:00Z" },
+    ], 2));
+    const entries = page.locator("#queueList .queue-item");
+    await expect(entries).toHaveCount(2);
+    await expect(entries.nth(0)).toContainText("1");
+    await expect(entries.nth(0)).toContainText("Eerst uitvoeren");
+    await expect(entries.nth(0)).toContainText("Bestandsnaam: earlier.md");
+    await expect(entries.nth(0)).toHaveAttribute("aria-label", "Positie 1: Eerst uitvoeren");
+    await expect(entries.nth(1)).toContainText("Later uitvoeren");
+    await expect(page.locator("#queueSummary")).toHaveText("2 prompts in uitvoervolgorde: oudste eerst.");
+  });
+
   test("renders provider limit rows on separate lines", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.evaluate(() => rateLimits({
