@@ -216,6 +216,8 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertNotIn('class="prompt-runs__heading"', page)
         self.assertIn('.last-execution-group__heading,.technical-details>summary>strong,.codex-chat>summary>strong{font-size:18px;font-weight:700;letter-spacing:.04em;line-height:1.25;text-transform:uppercase}', page)
         self.assertIn('.last-execution-group>summary::before,.dashboard-grid>#componentLogs>summary::before,.dashboard-grid>#codexChat>summary::before,.dashboard-grid>.technical-details:not(#componentLogs)>summary::before{font-size:24px;padding-right:8px}', page)
+        self.assertIn('#engineering-dashboard-content>.technical-details:not(#componentLogs){--category-color:#65c5d9;background:#202b34;border-left-color:#65c5d9}', page)
+        self.assertIn('.footer .label{color:#65c5d9}', page)
         self.assertIn("onbekend", page)
         self.assertIn('DASHBOARD_BUILD="onbekend"', page)
         for label in (
