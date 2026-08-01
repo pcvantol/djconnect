@@ -8,9 +8,11 @@ system, release engine, merge authority, daemon or remote control plane.
 
 `tools/engineering/ENGINEERING_PLATFORM_VERSION.json` is the canonical,
 deterministic Engineering Platform manifest. It versions the engineering
-environment independently from the repository and declares the platform and
-runner versions, Bootstrap Contract, checkpoint, memory and report formats,
-and minimum Codex CLI version.
+environment independently from the repository and declares the platform,
+runner, watcher and dashboard versions; Bootstrap Contract; checkpoint,
+memory, report, status-model and Inbox Protocol formats; and the minimum Codex
+CLI version. Engineering Platform `1.5.0` is the current minimum supported
+platform for future engineering prompts.
 
 At runner startup, `dj-engineer` reads the manifest and rejects an unsupported
 platform major version, older runner, older Bootstrap Contract, unsupported
@@ -65,21 +67,52 @@ maintenance, bug fixes, compatibility and qualification improvement.
 
 ## iCloud Engineering Inbox
 
-The repository-owned local watcher accepts iPhone-submitted `.txt` and `.md`
-prompts from iCloud Drive, validates stable UTF-8 input, serializes jobs and
-invokes only the repository-owned runner. Its v1 protocol is
-`tools/engineering/ENGINEERING_INBOX_PROTOCOL.md`; iCloud is transport only.
-Use `python3 -m tools.engineering.inbox_watcher doctor` before the explicit
-per-user `install` command. The LaunchAgent is never installed by tests.
+The repository-owned local watcher accepts iPhone-submitted `.txt`, `.md` and
+filename-neutral files whose bounded UTF-8 content is Markdown. It validates a
+stable input file, selects the oldest eligible file by File Date Modified,
+serializes jobs and invokes only the repository-owned runner. Its v1 protocol
+is `tools/engineering/ENGINEERING_INBOX_PROTOCOL.md`; iCloud is transport
+only.
+
+Before the explicit per-user install, verify readiness:
+
+```sh
+python3 -m tools.engineering.inbox_watcher doctor
+```
+
+Install the watcher only for the current local user:
+
+```sh
+python3 -m tools.engineering.inbox_watcher install
+```
+
+The installed LaunchAgent starts at login and remains limited to the configured
+local repository. `once`, `run`, `status`, `uninstall` and `doctor` remain the
+supported commands. Tests never install the LaunchAgent.
 
 ## Remote Engineering Experience
 
-Engineering Platform 1.4 projects canonical watcher status as bounded, atomic
-`status.json` and iPhone-readable `status.md`. The private dashboard is
-strictly read-only and loopback-bound by default: use
-`./tools/engineering/dj-engineering-dashboard doctor` before its explicit
-per-user `install`. Tailscale may provide private reachability, but this
-repository never enables Funnel, public binding, ACL changes or remote command
+Engineering Platform 1.5 projects canonical watcher status as bounded, atomic
+`status.json` and an iPhone-readable private dashboard. The dashboard is
+strictly read-only. It binds only to loopback and, when Tailscale reports one,
+the workstation's explicit Tailscale IPv4 address; it never binds a wildcard,
+LAN or public address. It uses server-sent events for status changes and has no
+execution, release, deployment or publication authority.
+
+Before the explicit per-user dashboard install, verify readiness:
+
+```sh
+./tools/engineering/dj-engineering-dashboard doctor
+```
+
+Then install it for the current local user:
+
+```sh
+./tools/engineering/dj-engineering-dashboard install
+```
+
+Tailscale may provide private reachability, but this repository never enables
+Funnel, public binding, ACL changes, port forwarding or remote command
 execution. `docs/engineering/runs/latest.md` and `index.json` are the durable,
 sanitized discovery records for successfully finalized transactions; local
 reports and prompt contents remain local.
@@ -187,9 +220,14 @@ Each terminal transaction writes an immutable local Markdown report beneath
 `.djconnect/reports/` and best-effort opens it using `$EDITOR`, then native
 macOS Visual Studio Code or Sublime Text application bundles, then a PATH
 executable fallback. PATH `code` is reported by its resolved executable path,
-never inferred to be Visual Studio Code. Reports are git-ignored; editor failure never changes
-the engineering result. They summarize checkpoint evidence, PRs, repair and
-cleanup evidence, diagnostics and the management summary. Optional sub-agents
+never inferred to be Visual Studio Code. Reports are git-ignored; editor
+failure never changes the engineering result. When the Inbox watcher owns the
+transaction, it validates the report against the terminal checkpoint and copies
+a safe report to `DJConnect Engineering/Reports/` in the configured iCloud
+workspace. The watcher keeps the original local report when it must publish a
+corrected checkpoint-consistent copy. Reports summarize checkpoint evidence,
+PRs, repair and cleanup evidence, diagnostics and the management summary.
+Optional sub-agents
 are read-only, bounded advisory helpers for inspection or validation; they
 cannot write, create/ready/merge PRs, create Finalization, alter governance or
 perform cleanup. The primary runner validates and integrates every result.
@@ -220,8 +258,10 @@ repository evidence after an interruption.
 ## Live progress
 
 The runner emits concise terminal and cleanup phase updates and atomically
-maintains `.djconnect/status/current.json`. The git-ignored status record is
-advisory; resume recomputes from repository and GitHub evidence. Run
+maintains `.djconnect/status/current.json`. The Inbox watcher projects its
+bounded public status to `DJConnect Engineering/status.json` in the configured
+iCloud workspace. Both are git-ignored advisory records; resume recomputes
+from repository and GitHub evidence. Run
 `./tools/engineering/dj-engineer status` to display the current phase, PRs,
 repair count and action.
 
