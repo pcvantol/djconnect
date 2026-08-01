@@ -154,6 +154,7 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn("Execution Host-telemetrie", page)
         self.assertIn("function executionTelemetry(rows)", page)
         self.assertIn("Gem. totaal", page)
+        self.assertIn('column-gap:10px;display:grid;grid-template-columns:auto 1fr', page)
         self.assertIn("executionTelemetry(snapshot.telemetry)", page)
         self.assertIn(".telemetry{--category-color:#fb7185", page)
         self.assertIn(".telemetry>summary::before", page)
