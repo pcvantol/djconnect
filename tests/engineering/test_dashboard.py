@@ -675,9 +675,13 @@ class DashboardStatusTest(unittest.TestCase):
             server.server_close()
             thread.join(timeout=2)
 
+    @patch(
+        "tools.engineering.dashboard.build_relay",
+        return_value=Path("/private/tmp/engineering-dashboard-relay"),
+    )
     @patch("tools.engineering.dashboard.LaunchdProvider")
     @patch("tools.engineering.dashboard.run")
-    def test_main_handles_service_lifecycle(self, run: object, launchd: object) -> None:
+    def test_main_handles_service_lifecycle(self, run: object, launchd: object, _: object) -> None:
         root = Path(__file__).parents[2]
         with tempfile.TemporaryDirectory() as temporary, patch(
             "tools.engineering.dashboard.Path.home", return_value=Path(temporary)
