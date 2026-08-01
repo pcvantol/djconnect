@@ -322,6 +322,14 @@ does not capture all system traffic and does not mutate services or firewall
 rules; it assesses the known DJConnect dependency endpoints and produces
 conditional least-privilege recommendations.
 
+For private Engineering Status access from an iPhone through Tailscale, ESET
+Cyber Security needs one inbound allow rule for the repository-owned relay:
+`<checkout>/.djconnect/bin/engineering-dashboard-relay`, TCP port `8765`,
+scoped to `100.64.0.0/10` or the trusted Tailscale zone. Keep the firewall
+enabled; do not allow LAN, wildcard or public access. The Mac itself uses
+`http://127.0.0.1:8765/`; other authorized Tailnet devices use the Mac's
+Tailscale IPv4 address on port `8765`.
+
 Its mandatory macOS preflight requires macOS 14 or later and verifies that no
 patch update is available within the installed macOS major version. It does not
 force a major-version upgrade. If a patch is available, install it through

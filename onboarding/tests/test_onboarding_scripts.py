@@ -675,6 +675,7 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("engineering.platform_version", source)
         self.assertIn("engineering.watcher_launch_agent", source)
         self.assertIn("engineering.dashboard_launch_agent", source)
+        self.assertIn("engineering.dashboard_relay_launch_agent", source)
         self.assertIn("engineering.dashboard_health", source)
         self.assertIn("engineering.status_storage", source)
         self.assertIn("engineering.report_storage", source)

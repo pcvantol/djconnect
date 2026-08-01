@@ -20,6 +20,24 @@ port-forwarding, pull requests, releases or deployments. The Inbox watcher is
 a separate repository-owned LaunchAgent and has no authority beyond the normal
 Engineering Platform lifecycle.
 
+## ESET Firewall
+
+When ESET Cyber Security controls the macOS firewall, it must explicitly allow
+the locally compiled relay to accept incoming TCP traffic on port `8765` from
+authorized Tailnet devices. The relay path is stable for this checkout:
+
+```text
+/Users/pcvantol/Documents/GitHub/djconnect/.djconnect/bin/engineering-dashboard-relay
+```
+
+Use an inbound allow rule scoped to the Tailscale address range
+`100.64.0.0/10`, or to the trusted Tailscale network zone where ESET offers
+that scope. Do not disable the firewall and do not add a wildcard, LAN or
+public rule. The loopback dashboard itself does not need a network exception.
+
+After changing the rule, open `http://<this-mac-tailscale-ip>:8765/` from the
+iPhone. On the Mac itself, use `http://127.0.0.1:8765/`.
+
 ## Local status, reports and logs
 
 The dashboard reads only canonical local Engineering Platform state. It does
