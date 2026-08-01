@@ -44,7 +44,8 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn("setTimeout(hideDashboardSplash,8000)", page)
         self.assertIn("html{-webkit-text-size-adjust:100%;text-size-adjust:100%}", page)
         self.assertIn('padding:max(18px,env(safe-area-inset-top)) calc(28px + env(safe-area-inset-right)) max(18px,env(safe-area-inset-bottom)) calc(28px + env(safe-area-inset-left))', page)
-        self.assertIn('h1{background:#121217;box-shadow:0 10px 18px #121217;margin:0 0 18px;padding:8px 0 12px;position:sticky;top:max(8px,env(safe-area-inset-top));z-index:15}', page)
+        self.assertIn('body{overflow-x:hidden}.dashboard-grid,.dashboard-grid>*{min-width:0}', page)
+        self.assertIn('h1{background:#121217;box-shadow:0 10px 18px #121217;box-sizing:border-box;margin:0 0 18px;max-width:100%;padding:8px 0 12px;position:sticky;top:max(8px,env(safe-area-inset-top));width:100%;z-index:15}', page)
         self.assertIn('data-testid="engineering-workspace"', page)
         self.assertIn('<details class="card card--context workspace-card"', page)
         self.assertIn('.workspace-card>summary::before{color:var(--category-color);content:"▸ ";display:inline-block;font-size:24px;line-height:1;padding-right:8px;vertical-align:-2px}', page)
@@ -957,6 +958,15 @@ class DashboardStatusTest(unittest.TestCase):
                 response = connection.getresponse()
                 self.assertEqual(response.status, 200)
                 self.assertEqual(json.loads(response.read())["health"], "ok")
+            for route, content_type in (
+                ("/api/report-analysis/last-executed?run_id=invalid", "text/markdown"),
+                ("/api/usage/last-executed?run_id=invalid", "application/json"),
+            ):
+                connection.request("GET", route)
+                response = connection.getresponse()
+                self.assertEqual(response.status, 200)
+                self.assertIn(content_type, response.getheader("Content-Type"))
+                response.read()
             connection.request("GET", "/missing")
             self.assertEqual(connection.getresponse().status, 404)
             with (
@@ -973,6 +983,14 @@ class DashboardStatusTest(unittest.TestCase):
                 self.assertEqual(response.status, 200)
                 self.assertEqual(json.loads(response.read()), {"cleared": "inbox"})
                 clear_log.assert_called_once_with(root, "inbox")
+            connection.request(
+                "POST", "/api/logs/not-a-component", body="{}", headers={"Content-Type": "application/json"}
+            )
+            self.assertEqual(connection.getresponse().status, 400)
+            connection.request(
+                "POST", "/api/logs/inbox", body="[]", headers={"Content-Type": "application/json"}
+            )
+            self.assertEqual(connection.getresponse().status, 400)
             with patch("tools.engineering.dashboard.codex_chat_response", return_value="Veilig advies."):
                 connection.request(
                     "POST",
@@ -986,6 +1004,10 @@ class DashboardStatusTest(unittest.TestCase):
                     json.loads(response.read()),
                     {"answer": "Veilig advies.", "model": "gpt-5.6-terra"},
                 )
+            connection.request(
+                "POST", "/api/codex-chat", body="{}", headers={"Content-Type": "application/json"}
+            )
+            self.assertEqual(connection.getresponse().status, 400)
             with (
                 patch("tools.engineering.dashboard._consume_codex_rate_limit_reset_credit", return_value="reset"),
                 patch("tools.engineering.dashboard._codex_rate_limits", return_value=b'{"reset_credits":1}'),
@@ -1002,6 +1024,23 @@ class DashboardStatusTest(unittest.TestCase):
                     json.loads(response.read()),
                     {"outcome": "reset", "rate_limits": {"reset_credits": 1}},
                 )
+            connection.request(
+                "POST", "/api/rate-limit-reset", body="[]", headers={"Content-Type": "application/json"}
+            )
+            self.assertEqual(connection.getresponse().status, 400)
+            with patch(
+                "tools.engineering.dashboard._consume_codex_rate_limit_reset_credit",
+                side_effect=dashboard.RateLimitResetError("Reset niet beschikbaar."),
+            ):
+                connection.request(
+                    "POST", "/api/rate-limit-reset", body="{}", headers={"Content-Type": "application/json"}
+                )
+                self.assertEqual(connection.getresponse().status, 503)
+            with patch("tools.engineering.dashboard._clear_component_log", side_effect=OSError("Niet beschikbaar.")):
+                connection.request(
+                    "POST", "/api/logs/inbox", body="{}", headers={"Content-Type": "application/json"}
+                )
+                self.assertEqual(connection.getresponse().status, 503)
             connection.request(
                 "POST",
                 "/api/codex-chat",

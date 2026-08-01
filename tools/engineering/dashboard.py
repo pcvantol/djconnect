@@ -806,7 +806,7 @@ def _dashboard_html(
     platform_version: str = "1.5.0",
 ) -> bytes:
     """Render the private dashboard with a server-pushed status stream."""
-    page = """<!doctype html>
+    page = r"""<!doctype html>
 <html lang="nl">
 <head>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -861,7 +861,7 @@ pre{white-space:pre-wrap;word-break:break-word;margin:5px 0 0;font:12px ui-monos
 .log-card-header{align-items:center;display:flex;gap:12px;justify-content:space-between;margin-bottom:10px}.clear-component-log{background:#3b281b;border:1px solid #f0b66a;border-radius:7px;color:#fff0dc;font:12px system-ui;padding:6px 9px}.clear-component-log:hover{background:#543721}.clear-component-log:disabled{cursor:wait;opacity:.7}
 #pullRefresh{align-items:center;background:#18181f;border:1px solid #58c8df;border-radius:999px;color:#bceefa;display:flex;font:13px system-ui;gap:8px;left:50%;opacity:0;padding:8px 13px;pointer-events:none;position:fixed;top:10px;transform:translate(-50%,-80px);transition:opacity .15s ease,transform .15s ease;z-index:20}#pullRefresh.pull-refresh--visible{opacity:1;transform:translate(-50%,0)}#pullRefresh::before{content:"↓";font-size:18px;line-height:1}@media (prefers-reduced-motion:reduce){#pullRefresh{transition:none}}
 #dashboardSplash{align-items:center;background:#101015;display:flex;inset:0;justify-content:center;padding:24px;position:fixed;text-align:center;transition:opacity .25s ease,visibility .25s ease;z-index:100}#dashboardSplash[hidden]{display:none}body.dashboard-ready #dashboardSplash{opacity:0;pointer-events:none;visibility:hidden}.dashboard-splash__content{align-items:center;display:flex;flex-direction:column;gap:12px;max-width:360px}.dashboard-splash__title{color:#f7f3ee;font:700 clamp(28px,8vw,42px)/1.1 system-ui;margin:0}.dashboard-splash__version{color:#b79aff;font:600 14px/1.3 system-ui;letter-spacing:.04em;text-transform:uppercase}.dashboard-splash__loading{color:#c8c4cc;font:14px system-ui}.dashboard-splash__spinner{animation:dashboard-splash-spin .85s linear infinite;border:3px solid #332a44;border-radius:50%;border-top-color:#b79aff;height:34px;width:34px}@keyframes dashboard-splash-spin{to{transform:rotate(360deg)}}
-h1{background:#121217;box-shadow:0 10px 18px #121217;margin:0 0 18px;padding:8px 0 12px;position:sticky;top:max(8px,env(safe-area-inset-top));z-index:15}
+body{overflow-x:hidden}.dashboard-grid,.dashboard-grid>*{min-width:0}.telemetry,.platform-health{min-width:0}.telemetry-scroll{max-width:100%;-webkit-overflow-scrolling:touch}.platform-health__component{min-width:0}.platform-health__component-detail{overflow-wrap:anywhere}h1{background:#121217;box-shadow:0 10px 18px #121217;box-sizing:border-box;margin:0 0 18px;max-width:100%;padding:8px 0 12px;position:sticky;top:max(8px,env(safe-area-inset-top));width:100%;z-index:15}
 </style>
 </head>
 <body>

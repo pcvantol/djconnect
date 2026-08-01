@@ -417,6 +417,17 @@ class ClientContractTest(unittest.TestCase):
                 json.loads((root / ".djconnect/status/codex_usage.json").read_text(encoding="utf-8"))["usage"],
                 {"input_tokens": 2},
             )
+            (root / ".djconnect/status/codex_usage.json").write_text("not-json", encoding="utf-8")
+            module.write_codex_usage(root, "run-usage", {"output_tokens": 3})
+            self.assertEqual(
+                json.loads((root / ".djconnect/status/codex_usage.json").read_text(encoding="utf-8"))["usage"],
+                {"output_tokens": 3},
+            )
+            module.write_codex_usage(root, "run-usage", {"input_tokens": 2})
+            self.assertEqual(
+                json.loads((root / ".djconnect/status/codex_usage.json").read_text(encoding="utf-8"))["usage"],
+                {"input_tokens": 2},
+            )
         self.assertEqual(execution_mode_for("Execution Mode: Genesis"), "GENESIS")
         self.assertEqual(execution_mode_for("no declaration"), "MANAGED")
         self.assertIsNotNone(genesis_workspace_preflight(None))

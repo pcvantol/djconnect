@@ -66,6 +66,8 @@ test.describe("Engineering Status browser smoke", () => {
     expect(await page.locator("#indicator").evaluate((element) => element.parentElement.className)).toBe("current-run__prompt-heading");
     await expect(page.locator("#loadComponentLogs")).toHaveCount(0);
     await expect(page.getByTestId("pull-refresh")).toHaveText("Trek omlaag om te vernieuwen");
+    await page.evaluate(() => executionTelemetry([{ date: "2026-08-01", prompt_count: 1, average_execution_seconds: 10, average_total_execution_seconds: 12, average_queue_wait_seconds: 2, input_tokens: 100, output_tokens: 20, total_tokens: 120, complete_count: 1, blocked_count: 0, failed_count: 0 }]));
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBeTruthy();
     await expect(page.locator("#componentLogControls")).not.toHaveAttribute("hidden", "");
     expect(await page.locator("#reportContent").evaluate((element) => element.parentElement.className)).toBe("markdown-copy-wrap");
     expect(await page.locator("#reportAnalysisContent").evaluate((element) => element.parentElement.className)).toBe("markdown-copy-wrap");
@@ -90,6 +92,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(categorySummary).toContainText("Laatst uitgevoerde prompt");
     await expect(lastExecution).not.toHaveAttribute("open", "");
     await expect(lastExecution).toHaveCSS("row-gap", "0px");
+    await categorySummary.scrollIntoViewIfNeeded();
     await categorySummary.click();
     await expect(lastExecution).toHaveAttribute("open", "");
   });
