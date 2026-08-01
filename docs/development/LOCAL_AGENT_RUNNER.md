@@ -80,6 +80,11 @@ stable input file, selects the oldest eligible file by File Date Modified,
 serializes jobs and invokes only the repository-owned runner. Its v1 protocol
 is `tools/engineering/ENGINEERING_INBOX_PROTOCOL.md`; iCloud is transport
 only.
+The default queue is strict and fail-closed: after a `BLOCKED` or `FAILED`
+Inbox run, later prompts remain in Inbox as `WAITING_FOR_PREDECESSOR`.
+Repair and explicitly resubmit the blocking prompt with
+`Retry-Of: <blocking-run-id>` as its own line; only that corrected retry can
+release the sequence.
 
 Before the explicit per-user install, verify readiness:
 
