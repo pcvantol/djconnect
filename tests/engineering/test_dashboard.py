@@ -10,7 +10,7 @@ import unittest
 from unittest.mock import patch
 
 from tools.engineering import dashboard
-from tools.engineering.dashboard import DASHBOARD_VERSION, LOOPBACK_ADDRESS, _codex_process_metrics, _codex_usage, _codex_usage_for_run, _component_log, _completion_commits, _current_codex_log, _dashboard_html, _last_executed_codex_log, _last_executed_commits, _latest_codex_log, _normalize_rate_limits, _report_analysis_for_run, _report_for_run, _sse_snapshot, _sse_status, _status, binding_addresses
+from tools.engineering.dashboard import DASHBOARD_VERSION, LOOPBACK_ADDRESS, _clear_component_log, _codex_process_metrics, _codex_usage, _codex_usage_for_run, _component_log, _component_log_versions, _completion_commits, _current_codex_log, _dashboard_html, _last_executed_agent_execution, _last_executed_codex_log, _last_executed_commits, _latest_codex_log, _normalize_rate_limits, _platform_health, _report_analysis_for_run, _report_for_run, _reviewer_agents_for_run, _sse_snapshot, _sse_status, _status, _tracked_file_count, binding_addresses
 from tools.engineering.inbox_watcher import WATCHER_VERSION
 from tools.engineering.platform_version import EngineeringPlatformManifest
 
@@ -37,19 +37,37 @@ class DashboardStatusTest(unittest.TestCase):
 
         self.assertIn("<title>Engineering Status</title>", page)
         self.assertIn("<h1>Engineering Status</h1>", page)
+        self.assertIn('id="dashboardSplash"', page)
+        self.assertIn("Engineering Platform 1.5.0", page)
+        self.assertIn('class="dashboard-splash__spinner"', page)
+        self.assertIn("function hideDashboardSplash()", page)
+        self.assertIn("setTimeout(hideDashboardSplash,8000)", page)
+        self.assertIn("html{-webkit-text-size-adjust:100%;text-size-adjust:100%}", page)
+        self.assertIn('padding:max(18px,env(safe-area-inset-top)) calc(28px + env(safe-area-inset-right)) max(18px,env(safe-area-inset-bottom)) calc(28px + env(safe-area-inset-left))', page)
+        self.assertIn('h1{background:#121217;box-shadow:0 10px 18px #121217;margin:0 0 18px;padding:8px 0 12px;position:sticky;top:max(8px,env(safe-area-inset-top));z-index:15}', page)
         self.assertIn('data-testid="engineering-workspace"', page)
         self.assertIn('<details class="card card--context workspace-card"', page)
         self.assertIn('.workspace-card>summary::before{color:var(--category-color);content:"▸ ";display:inline-block;font-size:24px;line-height:1;padding-right:8px;vertical-align:-2px}', page)
         self.assertIn("<strong>Workspace</strong>", page)
-        self.assertIn("Canonieke Engineering-map", page)
+        self.assertIn("Workspace locatie", page)
         self.assertIn("djconnect", _dashboard_html("Engineering Status", workspace_id="djconnect").decode())
-        self.assertIn(".engineering", _dashboard_html("Engineering Status", engineering_path=".engineering").decode())
+        self.assertIn("/Users/example/workspace", _dashboard_html("Engineering Status", workspace_location="/Users/example/workspace").decode())
+        self.assertIn("Tracked files", page)
+        self.assertIn(">42<", _dashboard_html("Engineering Status", tracked_files="42").decode())
         self.assertIn('class="dashboard-grid"', page)
-        self.assertIn('class="current-run" id="currentRun"', page)
+        self.assertIn('<details class="current-run" id="currentRun"', page)
         self.assertIn('class="current-run__title"', page)
+        self.assertIn('<span class="label">Actieve prompt</span>', page)
+        self.assertIn('function arrangeCurrentRunCategory()', page)
+        self.assertIn('heading.append(indicator)', page)
+        self.assertIn('De actieve engineeringprompt, met actuele voortgang, uitvoeringstijd en uitvoeringscontext.', page)
+        self.assertIn('#currentRun .card:has(#currentTime),#currentRun .card:has(#executionEstimate),#currentRun .card:has(#runId),#currentRun .card:has(#executionMode){--category-color:#f472b6', page)
+        self.assertIn('#currentRun .current-run__grid>.card{border-left:1px solid var(--category-color)!important}', page)
         self.assertIn('class="current-run__grid"', page)
         self.assertLess(page.index('class="current-run__title"'), page.index('Promptstatus'))
         self.assertIn('$("currentRun").hidden=!active', page)
+        self.assertIn('let lastExecutionCategoryRun,activePromptCategoryRun', page)
+        self.assertIn('current.open=false', page)
         self.assertNotIn('$("current").hidden=!active', page)
         self.assertNotIn("@media (min-width:900px)", page)
         self.assertNotIn("grid-template-columns:repeat(2,minmax(0,1fr))", page)
@@ -66,7 +84,11 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn('<div class="last-execution last-execution-group" id="lastExecutionGroup"', page)
         self.assertIn('<article class="card card--previous last-execution-card" id="lastExecution" hidden>', page)
         self.assertIn('function groupLastExecution()', page)
-        self.assertIn('Laatste uitgevoerde prompt', page)
+        self.assertIn('Laatst uitgevoerde prompt', page)
+        self.assertIn('const category=document.createElement("details")', page)
+        self.assertIn('category.hidden=group.hidden', page)
+        self.assertIn('group.open=false', page)
+        self.assertIn('last-execution-group__content{display:grid;gap:16px;margin-top:12px}', page)
         self.assertIn('.last-execution-group>summary::before{color:var(--category-color);content:"▸ ";display:inline-block;font-size:20px', page)
         self.assertNotIn('Laatste uitgevoerde prompt</h2>', page)
         self.assertIn(".card--previous", page)
@@ -117,22 +139,57 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn("lastCommits(snapshot.last_executed_commits)", page)
         self.assertIn('id="lastUsage" hidden', page)
         self.assertIn("lastUsage(snapshot.last_executed_usage)", page)
+        self.assertIn("function lastExecutionTime(x)", page)
+        self.assertIn("Codex CLI-uitvoeringstijd", page)
+        self.assertIn("Totale doorlooptijd", page)
+        self.assertIn('total_seconds', page)
+        self.assertIn("lastExecutionTime(snapshot.last_executed_execution)", page)
+        self.assertIn("Execution Host-telemetrie", page)
+        self.assertIn("function executionTelemetry(rows)", page)
+        self.assertIn("Gem. totaal", page)
+        self.assertIn("executionTelemetry(snapshot.telemetry)", page)
+        self.assertIn(".telemetry{--category-color:#fb7185", page)
+        self.assertIn(".telemetry>summary::before", page)
+        self.assertIn(".telemetry[open]>summary{border-bottom:1px solid var(--category-color)}", page)
+        self.assertIn('id="platformHealth"', page)
+        self.assertIn("Live gezondheidscontrole van de lokale Engineering Platform-componenten.", page)
+        self.assertIn('fetch("/health",{cache:"no-store"})', page)
+        self.assertIn("function renderPlatformHealth(payload)", page)
+        self.assertIn("window.setInterval(refreshPlatformHealth,15000)", page)
+        self.assertIn('log_event(logger, logging.INFO, "http_not_found"', Path("tools/engineering/dashboard.py").read_text(encoding="utf-8"))
+        self.assertIn('id="reviewerAgents" hidden', page)
+        self.assertIn("Specialistische agentreviews", page)
+        self.assertIn("function reviewerAgents(items)", page)
+        self.assertIn("reviewerAgents(snapshot.last_executed_reviewer_agents)", page)
         self.assertIn("function finalStatus(phase)", page)
+        self.assertIn('function placeFinalStatusIndicator()', page)
+        self.assertIn('status.before(indicator)', page)
         self.assertIn("Geblokkeerd", page)
         self.assertIn("Mislukt", page)
         self.assertIn('id="executionContext" hidden', page)
         for label in ("Modus", "Repository", "Lokale checkout", "Actieve branch"):
             self.assertIn(label, page)
         self.assertIn('id="copyReport"', page)
+        self.assertIn('function compactCopyButton(buttonId,contentId)', page)
+        self.assertIn('button.classList.add("copy--glyph")', page)
+        self.assertIn('.copy.copy--glyph{align-items:center', page)
         self.assertIn('function copyReportAnalysis()', page)
         self.assertIn('button.id="copyReportAnalysis"', page)
         self.assertIn("navigator.clipboard.writeText", page)
         self.assertIn("function fallbackCopy(value)", page)
         self.assertIn('document.execCommand("copy")', page)
         self.assertIn("window.isSecureContext", page)
+        self.assertIn('<link id="dashboardFavicon" rel="icon" type="image/svg+xml">', page)
         self.assertIn('id="componentLogs"', page)
-        self.assertIn('id="loadComponentLogs"', page)
-        self.assertIn('#loadComponentLogs{position:absolute;right:14px;top:14px}', page)
+        self.assertIn('data-testid="clear-inbox-log"', page)
+        self.assertIn('data-testid="clear-dashboard-log"', page)
+        self.assertIn('function clearComponentLog(component,button)', page)
+        self.assertIn('window.confirm("Weet je zeker dat je de applicatielogs van "+name+" wilt wissen?', page)
+        self.assertIn('id="pullRefresh"', page)
+        self.assertIn('function startPullRefresh(event)', page)
+        self.assertIn('function movePullRefresh(event)', page)
+        self.assertIn('function endPullRefresh()', page)
+        self.assertIn('window.location.reload()', page)
         self.assertIn('id="componentLogControls" hidden', page)
         self.assertIn('id="logFilter"', page)
         self.assertIn('id="logLevelFilter"', page)
@@ -143,11 +200,62 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn("user-select:text", page)
         self.assertIn('fetch("/api/logs/inbox")', page)
         self.assertIn('fetch("/api/logs/dashboard")', page)
+        self.assertIn('function refreshComponentLogs(versions={})', page)
+        self.assertIn('button?.remove()', page)
+        self.assertIn('Automatisch bijgewerkt via serverpush.', page)
+        self.assertIn('refreshComponentLogs(snapshot.component_log_versions||{})', page)
+        self.assertIn('function flattenMarkdownPanels()', page)
+        self.assertIn('field.replaceWith(content)', page)
+        self.assertIn("function updateFavicon(status)", page)
+        self.assertIn("const renderStatusWithFavicon=r", page)
         self.assertIn('<details class="card codex-chat" id="codexChat"><summary>', page)
         self.assertIn('id="chatInput" class="chat-input" rows="5"', page)
         self.assertIn('class="chat-compose"', page)
         self.assertLess(page.index('class="chat-compose"'), page.index('id="chatModel"'))
-        self.assertIn('.technical-details>summary>strong,.codex-chat>summary>strong,.last-execution-group__heading{font-size:18px', page)
+        self.assertIn('#reportContent,#reportAnalysisContent{box-sizing:border-box;max-height:50dvh;overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;background:#18181f;border:1px solid var(--category-color);border-radius:8px;padding:10px;user-select:text}', page)
+        self.assertIn('.markdown-copy-wrap .markdown-document{padding-right:52px}', page)
+        self.assertIn('#report .field,#reportAnalysis .field{background:#18181f;border:1px solid var(--category-color);border-radius:8px;padding:10px}', page)
+        self.assertIn('function renderMarkdownAnswer(target,value)', page)
+        self.assertIn('function renderMarkdownDocument(target,value)', page)
+        self.assertIn('renderMarkdownDocument($("reportContent"),x)', page)
+        self.assertIn('renderMarkdownDocument($("reportAnalysisContent"),x)', page)
+        self.assertIn('const plainChatMessage=chatMessage;chatMessage=(role,text)=>{if(role!=="assistant")', page)
+        self.assertIn('link.rel="noopener noreferrer"', page)
+        self.assertIn('.chat-message--assistant .chat-message__body{font-family:system-ui,sans-serif}', page)
+        self.assertIn('#codexChat .chat-input,#codexChat .chat-send{border-color:#d0a4ff}', page)
+        self.assertIn('#chatInput:focus-visible{outline:2px solid #d0a4ff;outline-offset:2px;box-shadow:0 0 0 4px #292336}', page)
+        self.assertIn(':where(input,select,textarea):focus-visible{outline:2px solid var(--category-color);outline-offset:2px;box-shadow:0 0 0 4px color-mix(in srgb,var(--category-color) 24%,transparent)}', page)
+        self.assertIn('#reportContent{max-height:50dvh;overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}', page)
+        self.assertIn('.last-execution-group__heading,.technical-details>summary>strong,.codex-chat>summary>strong,#rateLimits>summary>strong,.workspace-card>summary>strong{font-size:17px}', page)
+        self.assertIn('#rateLimits>summary>strong{color:var(--category-color)}', page)
+        self.assertIn('#componentLogs>summary{padding-right:0}', page)
+        self.assertIn('.last-execution-group>summary>strong{color:#8dc7ff;text-transform:uppercase}', page)
+        self.assertIn('.chat-message--user .chat-message__role{color:#8dc7ff}', page)
+        self.assertIn('.chat-message--assistant .chat-message__role{color:#d0a4ff}', page)
+        self.assertIn('.chat-compose{display:block;position:relative}.chat-compose .chat-input{padding:8px 62px 58px 8px}.chat-compose .chat-send{background:#f7f3ee;border-color:#f7f3ee;border-radius:50%;bottom:10px;color:#292336;height:44px;min-width:44px;padding:0;position:absolute;right:10px;width:44px;z-index:1}', page)
+        self.assertIn('.chat-compose .chat-send{background:#121217;border-color:#d0a4ff;color:#d0a4ff}', page)
+        self.assertIn('$("chatSend").querySelector("span").textContent="↑"', page)
+        self.assertIn('.workspace-card{--category-color:#f3d36a;background:#302d20;border-left-color:#f3d36a}', page)
+        self.assertIn('#engineering-dashboard-content>.technical-details:not(#componentLogs){border-left-width:3px}', page)
+        self.assertIn('#componentLogs .card{border-left-width:1px}', page)
+        self.assertIn('.workspace-card>summary,#rateLimits>summary,.last-execution-group>summary,#componentLogs>summary,#codexChat>summary,#engineering-dashboard-content>.technical-details:not(#componentLogs)>summary{border-bottom:1px solid var(--category-color);margin-bottom:12px;padding-bottom:14px}', page)
+        self.assertIn('.category-description{color:#b9b6c0;font-size:14px;line-height:1.4;margin:0 0 14px}', page)
+        self.assertIn('.workspace-card,#rateLimits,.last-execution-group,#componentLogs,#codexChat,#engineering-dashboard-content>.technical-details:not(#componentLogs){border:1px solid var(--category-color);border-left-width:3px}', page)
+        self.assertIn('#currentRun{--category-color:#f472b6;background:#321d2d;border:1px solid var(--category-color);border-left-width:3px;cursor:pointer}', page)
+        self.assertIn('#currentRun .card{--category-color:#f472b6;background:#241b25;border:1px solid var(--category-color);border-left-width:1px}', page)
+        self.assertIn('.estimate-primary{font-size:inherit}#executionEstimateMeta{white-space:pre-line}', page)
+        self.assertIn('.workspace-card>summary>strong,#rateLimits>summary>strong,.last-execution-group>summary>strong,#componentLogs>summary>strong,#codexChat>summary>strong,#engineering-dashboard-content>.technical-details:not(#componentLogs)>summary>strong{font-size:17px;line-height:1.25}', page)
+        self.assertIn('.workspace-card>summary,#rateLimits>summary,.last-execution-group>summary,#componentLogs>summary,#codexChat>summary,#engineering-dashboard-content>.technical-details:not(#componentLogs)>summary{margin-bottom:8px;padding-bottom:10px}', page)
+        self.assertIn('.workspace-card>summary>strong,#rateLimits>summary>strong,.last-execution-group>summary>strong,#componentLogs>summary>strong,#codexChat>summary>strong,#engineering-dashboard-content>.technical-details:not(#componentLogs)>summary>strong{color:var(--category-color)}', page)
+        self.assertIn('String.fromCharCode(10)+"gebaseerd op promptomvang, fase en verstreken tijd.', page)
+        self.assertIn('#currentRun .card strong,#currentRun .label,#currentRun .queue-item__title{color:var(--category-color)}', page)
+        self.assertIn('function addCategoryDescriptions()', page)
+        self.assertIn('function moveComponentLogsLast()', page)
+        self.assertIn('technical.insertAdjacentElement("afterend",logs)', page)
+        self.assertIn('De actieve werkruimte en de locatie van dit dashboard.', page)
+        self.assertIn('Operationele details over pull requests, repository, werkruimte en diagnose.', page)
+        self.assertIn('#engineering-dashboard-content>.technical-details:not(#componentLogs),#engineering-dashboard-content>.technical-details:not(#componentLogs) .card{border-left-width:1px}', page)
+        self.assertIn('.chat-message--user{background:#243648;border:1px solid #8dc7ff}.chat-message--assistant{background:#34283f;border-color:#d0a4ff}', page)
         self.assertIn('.card>strong,.card>summary,.technical-details>summary,.last-execution-group>summary{display:block;padding-bottom:10px}', page)
         self.assertIn('.last-execution-group .card--previous{border-left:3px solid var(--category-color);box-shadow:0 10px 24px #000a,0 1px 0 #8dc7ff30}', page)
         self.assertIn('.workspace-card{margin-bottom:16px;cursor:pointer}', page)
@@ -170,13 +278,16 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn('.technical-details .log-controls label,.technical-details .log-table th', page)
         self.assertIn('log-line-number{color:#92919b;text-align:right;white-space:nowrap;width:3.25rem', page)
         self.assertIn("function setLogSort(key)", page)
+        self.assertIn('const independentLogSortStates={inbox:', page)
+        self.assertIn('function setIndependentLogSort(component,key)', page)
+        self.assertIn('function logComponentForTable(table)', page)
         self.assertIn("data-sort-indicator", page)
         self.assertIn('id="chatModel">gpt-5.6-terra', page)
         self.assertIn("AI-gesprek", page)
         self.assertIn("function addProviderEvidence()", page)
         self.assertIn('function addTestIds()', page)
         self.assertIn('data-testid","engineering-dashboard"', page)
-        self.assertIn('group.dataset.testid="last-executed-prompt-category"', page)
+        self.assertIn('category.dataset.testid="last-executed-prompt-category"', page)
         self.assertIn('<html lang="nl">', page)
         self.assertIn('href="#engineering-dashboard-content"', page)
         self.assertIn('function applyAccessibility()', page)
@@ -207,9 +318,14 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn('<details class="card card--resource" id="rateLimits" hidden>', page)
         self.assertIn('#rateLimits>summary::before{color:var(--category-color);content:"▸ ";display:inline-block;font-size:24px;line-height:1;padding-right:8px;vertical-align:-2px}', page)
         self.assertIn('.last-execution-group{row-gap:16px}', page)
+        self.assertIn('.last-execution-group{row-gap:0}', page)
         self.assertIn('#engineering-dashboard-content>.technical-details:not(#componentLogs) .card,#componentLogs .card,.current-run .card,.last-execution-group .card--previous{border:1px solid var(--category-color);border-left:3px solid var(--category-color)}', page)
         self.assertIn("function rateLimits(x)", page)
         self.assertIn("rateLimits(snapshot.rate_limits)", page)
+        self.assertIn('id="rateLimitReset" type="button" hidden', page)
+        self.assertIn("function consumeRateLimitReset()", page)
+        self.assertIn('fetch("/api/rate-limit-reset"', page)
+        self.assertIn('$("rateLimitReset").addEventListener("click",consumeRateLimitReset)', page)
         self.assertIn("Beschikbare resets", page)
         self.assertIn("Engineering Platform-versie", page)
         self.assertIn('id="platformVersion"', page)
@@ -422,6 +538,52 @@ class DashboardStatusTest(unittest.TestCase):
             self.assertEqual(dashboard._codex_rate_limits(), b"{}")
             dashboard._rate_limit_cache = None
 
+    def test_codex_rate_limit_reset_consumes_one_credit_with_an_idempotency_key(self) -> None:
+        class RecordingInput:
+            def __init__(self) -> None:
+                self.chunks: list[str] = []
+
+            def write(self, value: str) -> int:
+                self.chunks.append(value)
+                return len(value)
+
+            def flush(self) -> None:
+                return None
+
+            def close(self) -> None:
+                return None
+
+        class FakeProcess:
+            def __init__(self) -> None:
+                self.stdin = RecordingInput()
+                self.stdout = io.StringIO(
+                    "\n".join(
+                        (
+                            json.dumps({"id": 1, "result": {}}),
+                            json.dumps({"id": 2, "result": {"outcome": "reset"}}),
+                        )
+                    )
+                    + "\n"
+                )
+                self.terminated = False
+
+            def terminate(self) -> None:
+                self.terminated = True
+
+            def wait(self, timeout: float) -> None:
+                return None
+
+        process = FakeProcess()
+        with (
+            patch("tools.engineering.dashboard.subprocess.Popen", return_value=process),
+            patch("tools.engineering.dashboard.select.select", return_value=([process.stdout], [], [])),
+        ):
+            self.assertEqual(dashboard._consume_codex_rate_limit_reset_credit(), "reset")
+        request = "".join(process.stdin.chunks)
+        self.assertIn('"method": "account/rateLimitResetCredit/consume"', request)
+        self.assertIn('"idempotencyKey":', request)
+        self.assertTrue(process.terminated)
+
     def test_completion_commits_are_shown_only_after_completion(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
@@ -447,6 +609,24 @@ class DashboardStatusTest(unittest.TestCase):
                 '{"implementation_merge_commit":"' + "b" * 40 + '"}', encoding="utf-8"
             )
             self.assertEqual(json.loads(_last_executed_commits(root)), {"Implementatie-mergecommit": "b" * 40})
+
+    def test_last_executed_agent_execution_is_bound_to_the_exact_run(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            runs = root / ".djconnect" / "engineering-runs"
+            runs.mkdir(parents=True)
+            (runs / "inbox-last.json").write_text(
+                '{"agent_execution_seconds":125.4}', encoding="utf-8"
+            )
+            (runs / "inbox-other.json").write_text(
+                '{"agent_execution_seconds":999}', encoding="utf-8"
+            )
+
+            self.assertEqual(
+                json.loads(_last_executed_agent_execution(root, "inbox-last")),
+                {"seconds": 125.4},
+            )
+            self.assertEqual(json.loads(_last_executed_agent_execution(root, "invalid/run")), {})
 
     def test_missing_status_uses_a_complete_degraded_projection(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -522,6 +702,13 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertNotIn(b"\n", payload)
         self.assertEqual(json.loads(payload)["watcher_state"], "WATCHER_IDLE")
 
+    @patch("tools.engineering.dashboard.subprocess.run")
+    def test_tracked_file_count_counts_recursive_git_index_entries(self, run: object) -> None:
+        run.return_value = __import__("subprocess").CompletedProcess(
+            ("git",), 0, b"README.md\0docs/guide.md\0tools/engineering/dashboard.py\0", b""
+        )
+        self.assertEqual(_tracked_file_count(Path("/workspace")), "3")
+
     @patch("tools.engineering.dashboard._codex_rate_limits", return_value=b"{}")
     def test_sse_snapshot_contains_the_read_only_dashboard_projection(self, _: object) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -535,6 +722,11 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertEqual(snapshot["prompt_started"], {})
         self.assertEqual(snapshot["usage"], {})
         self.assertEqual(snapshot["rate_limits"], {})
+        self.assertEqual(snapshot["telemetry"], [])
+        self.assertEqual(
+            snapshot["component_log_versions"],
+            {"inbox": "missing", "dashboard": "missing"},
+        )
         self.assertEqual(snapshot["component_versions"]["dashboard"], DASHBOARD_VERSION)
         self.assertEqual(snapshot["component_versions"]["worker"], WATCHER_VERSION)
 
@@ -594,6 +786,58 @@ class DashboardStatusTest(unittest.TestCase):
             self.assertEqual(_report_for_run(root, "inbox-last"), b"last")
             self.assertEqual(_report_for_run(root, "inbox-missing"), b"")
 
+    def test_reviewer_agents_are_derived_from_the_exact_terminal_report(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            reports = root / ".djconnect" / "reports"
+            reports.mkdir(parents=True)
+            (reports / "2026-08-01T10-00-00Z_inbox-last.md").write_text(
+                "\n".join(
+                    (
+                        "# Engineering Report",
+                        "",
+                        "## Reviewer Findings",
+                        "Initial observations only.",
+                        "- Reviewer: repository_governance",
+                        "  - Capability: engineering",
+                        "  - Selected because: repository-governance objective",
+                        "  - Accepted recommendations: 2",
+                        "- Reviewer: validation",
+                        "  - Capability: validation",
+                        "  - Selected because: validation objective",
+                        "  - Accepted recommendations: 1",
+                        "",
+                        "## Repository Truth",
+                        "Repository evidence is authoritative.",
+                    )
+                ),
+                encoding="utf-8",
+            )
+            (reports / "2026-08-01T10-00-01Z_inbox-other.md").write_text(
+                "## Reviewer Findings\n- Reviewer: other\n", encoding="utf-8"
+            )
+
+            self.assertEqual(
+                json.loads(_reviewer_agents_for_run(root, "inbox-last")),
+                [
+                    {
+                        "reviewer": "repository_governance",
+                        "capability": "engineering",
+                        "selected_because": "repository-governance objective",
+                        "accepted_recommendations": 2,
+                        "status": "Uitgevoerd",
+                    },
+                    {
+                        "reviewer": "validation",
+                        "capability": "validation",
+                        "selected_because": "validation objective",
+                        "accepted_recommendations": 1,
+                        "status": "Uitgevoerd",
+                    },
+                ],
+            )
+            self.assertEqual(json.loads(_reviewer_agents_for_run(root, "inbox-other")), [{"reviewer": "other", "capability": "engineering", "selected_because": "Niet vastgelegd.", "accepted_recommendations": 0, "status": "Uitgevoerd"}])
+
     def test_report_analysis_is_bound_to_the_requested_last_executed_run(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
@@ -611,6 +855,64 @@ class DashboardStatusTest(unittest.TestCase):
             (logs / "inbox.log").write_text("first\nsecond\n", encoding="utf-8")
             self.assertEqual(_component_log(root, "inbox"), b"first\nsecond")
             self.assertEqual(_component_log(root, "unknown"), b"")
+
+    def test_component_log_clear_is_limited_to_the_requested_known_component(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            logs = root / ".djconnect" / "logs"
+            logs.mkdir(parents=True)
+            inbox = logs / "inbox.log"
+            dashboard_log = logs / "dashboard.log"
+            inbox.write_text("inbox event\n", encoding="utf-8")
+            dashboard_log.write_text("dashboard event\n", encoding="utf-8")
+
+            _clear_component_log(root, "inbox")
+
+            self.assertEqual(inbox.read_text(encoding="utf-8"), "")
+            self.assertEqual(dashboard_log.read_text(encoding="utf-8"), "dashboard event\n")
+            with self.assertRaises(ValueError):
+                _clear_component_log(root, "../outside")
+
+    def test_component_log_versions_change_when_component_log_changes(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            logs = root / ".djconnect" / "logs"
+            logs.mkdir(parents=True)
+            self.assertEqual(
+                _component_log_versions(root),
+                {"inbox": "missing", "dashboard": "missing"},
+            )
+            (logs / "inbox.log").write_text("one\n", encoding="utf-8")
+            self.assertNotEqual(_component_log_versions(root)["inbox"], "missing")
+
+    @patch("tools.engineering.dashboard._launch_agent_health")
+    @patch("tools.engineering.dashboard.TailscaleProvider.status")
+    def test_platform_health_reports_each_required_component(
+        self, remote_status: object, launch_agent_health: object
+    ) -> None:
+        remote_status.return_value.qualified = True
+        remote_status.return_value.detail = "connected"
+        launch_agent_health.return_value = {
+            "healthy": True,
+            "state": "running",
+            "detail": "LaunchAgent is geladen",
+        }
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            status = root / ".djconnect" / "status"
+            status.mkdir(parents=True)
+            (status / "status.json").write_text("{}", encoding="utf-8")
+            health = _platform_health(root)
+
+        self.assertEqual(health["health"], "ok")
+        self.assertTrue(health["healthy"])
+        self.assertEqual(set(health["components"]), {
+            "dashboard",
+            "inbox_watcher",
+            "dashboard_relay",
+            "status_storage",
+            "private_remote_access",
+        })
 
     def test_dashboard_binds_only_loopback_and_delegates_tailnet_ingress_to_relay(self) -> None:
         self.assertEqual(binding_addresses(), (LOOPBACK_ADDRESS,))
@@ -647,8 +949,30 @@ class DashboardStatusTest(unittest.TestCase):
                 self.assertIn(content_type, response.getheader("Content-Type"))
                 self.assertEqual(response.getheader("Cache-Control"), "no-store")
                 response.read()
+            with patch(
+                "tools.engineering.dashboard._platform_health",
+                return_value={"health": "ok", "healthy": True, "components": {}},
+            ):
+                connection.request("GET", "/health")
+                response = connection.getresponse()
+                self.assertEqual(response.status, 200)
+                self.assertEqual(json.loads(response.read())["health"], "ok")
             connection.request("GET", "/missing")
             self.assertEqual(connection.getresponse().status, 404)
+            with (
+                patch("tools.engineering.dashboard._clear_component_log") as clear_log,
+                patch("tools.engineering.dashboard.log_event"),
+            ):
+                connection.request(
+                    "POST",
+                    "/api/logs/inbox",
+                    body="{}",
+                    headers={"Content-Type": "application/json"},
+                )
+                response = connection.getresponse()
+                self.assertEqual(response.status, 200)
+                self.assertEqual(json.loads(response.read()), {"cleared": "inbox"})
+                clear_log.assert_called_once_with(root, "inbox")
             with patch("tools.engineering.dashboard.codex_chat_response", return_value="Veilig advies."):
                 connection.request(
                     "POST",
@@ -661,6 +985,22 @@ class DashboardStatusTest(unittest.TestCase):
                 self.assertEqual(
                     json.loads(response.read()),
                     {"answer": "Veilig advies.", "model": "gpt-5.6-terra"},
+                )
+            with (
+                patch("tools.engineering.dashboard._consume_codex_rate_limit_reset_credit", return_value="reset"),
+                patch("tools.engineering.dashboard._codex_rate_limits", return_value=b'{"reset_credits":1}'),
+            ):
+                connection.request(
+                    "POST",
+                    "/api/rate-limit-reset",
+                    body="{}",
+                    headers={"Content-Type": "application/json"},
+                )
+                response = connection.getresponse()
+                self.assertEqual(response.status, 200)
+                self.assertEqual(
+                    json.loads(response.read()),
+                    {"outcome": "reset", "rate_limits": {"reset_credits": 1}},
                 )
             connection.request(
                 "POST",

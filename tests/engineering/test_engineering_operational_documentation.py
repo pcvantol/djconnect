@@ -35,7 +35,7 @@ class EngineeringOperationalDocumentationTest(unittest.TestCase):
         self.assertIn("Private read-only AI advice", dashboard)
         self.assertIn("AI-provider: Codex CLI", dashboard)
         storage = (ROOT / "docs" / "engineering" / "ENGINEERING_STORAGE.md").read_text(encoding="utf-8")
-        self.assertIn("schema `1`", storage)
+        self.assertIn("schema `3`", storage)
         self.assertIn("engineering_schema_migrations", storage)
 
     def test_roadmap_and_active_backlog_distinguish_completed_1_5_from_maintenance(self) -> None:

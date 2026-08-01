@@ -20,7 +20,6 @@ from tools.engineering.dj_engineer import (
     SubprocessRepositoryClient,
     _format_terminal_report,
     _format_cli_failure,
-    _open_report,
     extract_codex_usage,
     execution_mode_for,
     resolve_execution_context,
@@ -257,6 +256,34 @@ class ClientContractTest(unittest.TestCase):
         self.assertEqual(review.recommendations, ("keep scope",))
         self.assertEqual(result.pull_request, 12)
 
+    @patch("tools.engineering.dj_engineer.time.monotonic", side_effect=(10.0, 12.75))
+    @patch("tools.engineering.dj_engineer.subprocess.run")
+    def test_codex_client_records_measured_invocation_time(
+        self, run: object, _: object
+    ) -> None:
+        agent_message = json.dumps(
+            {
+                "terminal_state": "COMPLETE",
+                "branch": "codex/test",
+                "pull_request": 12,
+                "terminal_condition": "repository_reconciled",
+                "diagnostic": "safe",
+                "repository_path": "/tmp/repository",
+                "commit_sha": "c" * 40,
+            }
+        )
+        run.return_value = subprocess.CompletedProcess(
+            ("codex",),
+            0,
+            json.dumps({"type": "item.completed", "item": {"type": "agent_message", "text": agent_message}}),
+            "",
+        )
+        with tempfile.TemporaryDirectory() as temporary:
+            client = CodexCliClient()
+            client.invoke(Path(temporary), "objective")
+        self.assertEqual(client.last_execution_seconds, 2.75)
+
+
     @patch("tools.engineering.dj_engineer.subprocess.run")
     def test_codex_client_keeps_bounded_diagnostics_on_failures(self, run: object) -> None:
         run.return_value = subprocess.CompletedProcess(("codex",), 1, "prompt body", "token=secret\nfailed")
@@ -266,7 +293,7 @@ class ClientContractTest(unittest.TestCase):
         self.assertIn("code 1", str(raised.exception))
         self.assertNotIn("secret", raised.exception.console_detail)
 
-    @patch("tools.engineering.dj_engineer.generate_terminal_report", return_value=(None, None))
+    @patch("tools.engineering.dj_engineer.generate_terminal_report", return_value=None)
     @patch("tools.engineering.dj_engineer.EngineeringRunner")
     def test_main_publishes_complete_runner_result(self, runner_type: object, _: object) -> None:
         state = TransactionState(
@@ -371,19 +398,13 @@ class ClientContractTest(unittest.TestCase):
             self.assertIn("validation", memory["reviewers"][0]["reviewer"])
             self.assertIn("documentation", module.retrieve_engineering_memory(root, Path("documentation-next.md")))
 
-    @patch("tools.engineering.dj_engineer.subprocess.Popen", side_effect=OSError)
-    @patch("tools.engineering.dj_engineer.shutil.which", return_value="/usr/local/bin/code")
-    @patch("tools.engineering.dj_engineer.platform.system", return_value="Linux")
-    def test_cli_helpers_and_editor_fallbacks_are_bounded(
-        self, _: object, __: object, ___: object
-    ) -> None:
+    def test_cli_helpers_are_bounded(self) -> None:
         module = __import__("tools.engineering.dj_engineer", fromlist=["_codex_final_message"])
         usage = extract_codex_usage(
             '{"usage":[{"input-tokens":12},{"nested":{"output_tokens":3}}]}\nnot-json'
         )
         self.assertEqual(usage, {"input_tokens": 12, "output_tokens": 3})
         self.assertEqual(module._codex_final_message("plain final message"), "plain final message")
-        self.assertIsNone(module._open_report(Path("/tmp/report.md")))
 
     def test_usage_and_execution_context_helpers_fail_closed(self) -> None:
         module = __import__("tools.engineering.dj_engineer", fromlist=["write_codex_usage"])
@@ -723,15 +744,6 @@ class LocalAgentRunnerTest(unittest.TestCase):
             self.assertIn("[REDACTED]", content)
             self.assertEqual(path.stat().st_mode & 0o777, 0o600)
 
-    def test_editor_env_has_deterministic_precedence(self) -> None:
-        with patch.dict("os.environ", {"EDITOR": "/opt/editor"}, clear=True), patch("tools.engineering.dj_engineer.subprocess.Popen") as launch:
-            self.assertEqual(_open_report(self.prompt), "EDITOR=/opt/editor")
-        self.assertEqual(launch.call_args.args[0], ("/opt/editor", str(self.prompt)))
-
-    def test_path_code_is_not_misidentified_as_vs_code(self) -> None:
-        with patch.dict("os.environ", {}, clear=True), patch("tools.engineering.dj_engineer.platform.system", return_value="Linux"), patch("tools.engineering.dj_engineer.shutil.which", side_effect=["/usr/local/bin/code", None]), patch("tools.engineering.dj_engineer.subprocess.Popen"):
-            self.assertEqual(_open_report(self.prompt), "PATH executable: /usr/local/bin/code")
-
     def test_sensitive_diagnostic_is_redacted_before_persistence(self) -> None:
         agent = FakeAgent(AgentResult("BLOCKED", diagnostic="authorization=top-secret API_KEY=also-secret"))
         runner = EngineeringRunner(self.root, self.store, FakeRepository(), FakeGitHub([]), agent, lambda _: None)
@@ -856,8 +868,7 @@ class LocalAgentRunnerTest(unittest.TestCase):
 
     def test_terminal_report_records_engineering_platform(self) -> None:
         state = TransactionState("platform-report", "pcvantol/djconnect", str(self.prompt), "COMPLETE", terminal=True)
-        with patch("tools.engineering.dj_engineer._open_report", return_value=None):
-            report, _ = generate_terminal_report(self.root, state, EngineeringPlatformManifest.load(self.root / "tools" / "engineering" / "ENGINEERING_PLATFORM_VERSION.json"), "0.146.0")
+        report = generate_terminal_report(self.root, state, EngineeringPlatformManifest.load(self.root / "tools" / "engineering" / "ENGINEERING_PLATFORM_VERSION.json"), "0.146.0")
         body = report.read_text(encoding="utf-8")
         self.assertIn("Platform Version: `1.0.0`", body)
         self.assertIn("Detected Codex CLI Version: `0.146.0`", body)
@@ -882,16 +893,15 @@ class LocalAgentRunnerTest(unittest.TestCase):
                 "failed": False,
             },
         )
-        with patch("tools.engineering.dj_engineer._open_report", return_value=None):
-            report, _ = generate_terminal_report(
-                self.root,
-                state,
-                EngineeringPlatformManifest.load(
-                    self.root / "tools" / "engineering" / "ENGINEERING_PLATFORM_VERSION.json"
-                ),
-                "0.146.0",
-                records,
-            )
+        report = generate_terminal_report(
+            self.root,
+            state,
+            EngineeringPlatformManifest.load(
+                self.root / "tools" / "engineering" / "ENGINEERING_PLATFORM_VERSION.json"
+            ),
+            "0.146.0",
+            records,
+        )
         body = report.read_text(encoding="utf-8")
         self.assertIn("## Initial Repository Assessment", body)
         self.assertIn("## Engineering Outcome", body)
@@ -912,8 +922,7 @@ class LocalAgentRunnerTest(unittest.TestCase):
             diagnostic="Repository preflight requires attention.",
             terminal=True,
         )
-        with patch("tools.engineering.dj_engineer._open_report", return_value=None):
-            report, _ = generate_terminal_report(self.root, state)
+        report = generate_terminal_report(self.root, state)
         body = report.read_text(encoding="utf-8")
         self.assertIn("## Initial Repository Assessment", body)
         self.assertIn("Completed work: no successful engineering delivery is claimed.", body)
@@ -926,9 +935,9 @@ class LocalAgentRunnerTest(unittest.TestCase):
             ("BLOCKED", "BLOCKED — no engineering changes were executed or delivered."),
             ("FAILED", "FAILED — the engineering transaction did not complete successfully."),
         ):
-            with self.subTest(phase=phase), patch("tools.engineering.dj_engineer._open_report", return_value=None):
+            with self.subTest(phase=phase):
                 state = TransactionState(f"{phase.lower()}-report", "pcvantol/djconnect", str(self.prompt), phase, diagnostic="Bounded diagnostic.", terminal=True)
-                report, _ = generate_terminal_report(self.root, state, manifest, "0.146.0")
+                report = generate_terminal_report(self.root, state, manifest, "0.146.0")
                 body = report.read_text(encoding="utf-8")
             self.assertIn(expected, body)
             self.assertNotIn("COMPLETE —", body)
@@ -964,8 +973,7 @@ class LocalAgentRunnerTest(unittest.TestCase):
     def test_terminal_report_records_selected_reviewers(self) -> None:
         state = TransactionState("review-report", "pcvantol/djconnect", str(self.prompt), "COMPLETE", terminal=True)
         records = ({"reviewer": "documentation", "selected_because": "documentation-oriented objective", "contribution": "Navigation checked.", "accepted_recommendations": 3, "rejected_recommendations": 1, "failed": False},)
-        with patch("tools.engineering.dj_engineer._open_report", return_value=None):
-            report, _ = generate_terminal_report(self.root, state, EngineeringPlatformManifest.load(self.root / "tools" / "engineering" / "ENGINEERING_PLATFORM_VERSION.json"), "0.146.0", records)
+        report = generate_terminal_report(self.root, state, EngineeringPlatformManifest.load(self.root / "tools" / "engineering" / "ENGINEERING_PLATFORM_VERSION.json"), "0.146.0", records)
         self.assertIn("Reviewer: documentation", report.read_text(encoding="utf-8"))
 
     def test_product_capability_reviewers_are_selected_from_repository_evidence(self) -> None:

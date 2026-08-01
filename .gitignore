@@ -4,6 +4,9 @@ logs/
 __pycache__/
 *.py[cod]
 .pytest_cache/
+node_modules/
+playwright-report/
+test-results/
 .env*.local
 
 # Local AI engineering workspace.

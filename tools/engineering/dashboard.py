@@ -1,4 +1,4 @@
-"""Private read-only Engineering Status dashboard; no transaction authority."""
+"""Private Engineering Status dashboard; no repository transaction authority."""
 
 from __future__ import annotations
 
@@ -17,10 +17,12 @@ import subprocess
 import sys
 from threading import Lock
 import time
+import uuid
 from urllib.parse import parse_qs, urlsplit
 from .platform_api import PlatformConfiguration
 from .providers import TailscaleProvider
 from .providers import LaunchdProvider
+from .inbox_watcher import LABEL as WATCHER_LABEL
 from .inbox_watcher import WATCHER_VERSION
 from .component_logging import (
     DEFAULT_LOG_LEVEL,
@@ -31,10 +33,12 @@ from .component_logging import (
 )
 from .component_lock import DuplicateComponentInstanceError, single_instance
 from .codex_chat import CodexChatError, chat_model, respond as codex_chat_response
+from .telemetry import daily_statistics, execution_timing
+from .platform_version import EngineeringPlatformManifest
 
 LABEL = "com.djconnect.engineering-dashboard"
 RELAY_LABEL = "com.djconnect.engineering-dashboard-relay"
-DASHBOARD_VERSION = "1.2.49"
+DASHBOARD_VERSION = "1.2.58"
 LOOPBACK_ADDRESS = "127.0.0.1"
 CODEX_PROCESS = re.compile(r"(?:^|\s)(?:\S*/)?codex(?:\s|$)")
 RATE_LIMIT_CACHE_SECONDS = 60
@@ -173,6 +177,20 @@ def _sse_snapshot(root: Path) -> bytes:
         last_executed_commits = json.loads(_last_executed_commits(root))
     except json.JSONDecodeError:
         completion_commits = last_executed_commits = {}
+    try:
+        reviewer_agents = json.loads(_reviewer_agents_for_run(root, status.get("last_executed_run")))
+    except json.JSONDecodeError:
+        reviewer_agents = []
+    try:
+        last_executed_execution = json.loads(
+            _last_executed_agent_execution(root, status.get("last_executed_run"))
+        )
+    except json.JSONDecodeError:
+        last_executed_execution = {}
+    try:
+        telemetry = daily_statistics(root, days=7)
+    except Exception:
+        telemetry = []
     active = (
         status.get("watcher_state") == "ENGINEERING_RUN_ACTIVE"
         and isinstance(status.get("run_id"), str)
@@ -191,7 +209,11 @@ def _sse_snapshot(root: Path) -> bytes:
             "last_executed_usage": last_executed_usage,
             "completion_commits": completion_commits,
             "last_executed_commits": last_executed_commits,
+            "last_executed_reviewer_agents": reviewer_agents,
+            "last_executed_execution": last_executed_execution,
+            "telemetry": telemetry,
             "process_metrics": process_metrics,
+            "component_log_versions": _component_log_versions(root),
             "component_versions": {
                 "dashboard": DASHBOARD_VERSION,
                 "worker": WATCHER_VERSION,
@@ -330,6 +352,90 @@ def _codex_rate_limits() -> bytes:
     return b"{}"
 
 
+class RateLimitResetError(RuntimeError):
+    """Raised when Codex cannot safely consume a reset credit."""
+
+
+def _consume_codex_rate_limit_reset_credit() -> str:
+    """Consume exactly one available Codex reset credit through its app-server API."""
+    global _rate_limit_cache
+    process: subprocess.Popen[str] | None = None
+    try:
+        process = subprocess.Popen(
+            ("codex", "app-server"),
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            text=True,
+            bufsize=1,
+        )
+        if process.stdin is None or process.stdout is None:
+            raise RateLimitResetError("Codex-reset is niet beschikbaar.")
+        process.stdin.write(
+            json.dumps(
+                {
+                    "method": "initialize",
+                    "id": 1,
+                    "params": {
+                        "clientInfo": {
+                            "name": "djconnect_engineering_dashboard",
+                            "title": "Engineering Status",
+                            "version": DASHBOARD_VERSION,
+                        }
+                    },
+                }
+            )
+            + "\n"
+        )
+        process.stdin.flush()
+        deadline = time.monotonic() + 5
+        requested = False
+        while time.monotonic() < deadline:
+            ready, _, _ = select.select((process.stdout,), (), (), max(0, deadline - time.monotonic()))
+            if not ready:
+                break
+            line = process.stdout.readline()
+            if not line:
+                break
+            response = json.loads(line)
+            if response.get("id") == 1 and not requested:
+                process.stdin.write(json.dumps({"method": "initialized", "params": {}}) + "\n")
+                process.stdin.write(
+                    json.dumps(
+                        {
+                            "method": "account/rateLimitResetCredit/consume",
+                            "id": 2,
+                            "params": {"idempotencyKey": str(uuid.uuid4())},
+                        }
+                    )
+                    + "\n"
+                )
+                process.stdin.flush()
+                requested = True
+            elif response.get("id") == 2:
+                result = response.get("result")
+                outcome = result.get("outcome") if isinstance(result, dict) else None
+                if outcome not in {"reset", "nothingToReset", "noCredit", "alreadyRedeemed"}:
+                    raise RateLimitResetError("Codex-reset kon niet worden bevestigd.")
+                with _rate_limit_cache_lock:
+                    _rate_limit_cache = None
+                return outcome
+    except (OSError, ValueError, json.JSONDecodeError) as error:
+        raise RateLimitResetError("Codex-reset is niet beschikbaar.") from error
+    finally:
+        if process is not None:
+            process.terminate()
+            try:
+                process.wait(timeout=1)
+            except subprocess.TimeoutExpired:
+                process.kill()
+                process.wait(timeout=1)
+            for stream in (process.stdin, process.stdout):
+                if stream is not None:
+                    stream.close()
+    raise RateLimitResetError("Codex-reset reageerde niet op tijd.")
+
+
 def _latest_codex_log(root: Path) -> bytes:
     """Return only the latest locally redacted Codex diagnostic."""
     logs = sorted((root / ".djconnect" / "logs" / "codex").glob("*.log"))
@@ -351,6 +457,72 @@ def _component_log(root: Path, component: str) -> bytes:
         return b"Nog geen applicatielog beschikbaar."
     tail = "\n".join(lines[-100:])[-64_000:]
     return (tail or "Nog geen applicatielog beschikbaar.").encode()
+
+
+def _clear_component_log(root: Path, component: str) -> None:
+    """Clear exactly one known component log; never accept arbitrary paths."""
+    if component not in {"inbox", "dashboard"}:
+        raise ValueError("Onbekende componentlog.")
+    path = root / ".djconnect" / "logs" / f"{component}.log"
+    try:
+        path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+        path.write_text("", encoding="utf-8")
+    except OSError as error:
+        raise OSError("Applicatielog kon niet worden gewist.") from error
+
+
+def _component_log_versions(root: Path) -> dict[str, str]:
+    """Return lightweight revisions so browsers fetch logs only when they changed."""
+    revisions: dict[str, str] = {}
+    for component in ("inbox", "dashboard"):
+        try:
+            observed = (root / ".djconnect" / "logs" / f"{component}.log").stat()
+            revisions[component] = f"{observed.st_mtime_ns}:{observed.st_size}"
+        except OSError:
+            revisions[component] = "missing"
+    return revisions
+
+
+def _launch_agent_health(label: str) -> dict[str, str | bool]:
+    """Inspect one owned LaunchAgent without changing its state."""
+    executable = shutil.which("launchctl")
+    if not executable:
+        return {"healthy": False, "state": "unavailable", "detail": "launchctl ontbreekt"}
+    observed = subprocess.run(
+        (executable, "print", f"gui/{os.getuid()}/{label}"),
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    if observed.returncode:
+        return {"healthy": False, "state": "not_running", "detail": "LaunchAgent is niet geladen"}
+    return {"healthy": True, "state": "running", "detail": "LaunchAgent is geladen"}
+
+
+def _platform_health(root: Path) -> dict[str, object]:
+    """Provide a read-only readiness projection for every local EP component."""
+    remote = TailscaleProvider().status()
+    components: dict[str, dict[str, str | bool]] = {
+        "dashboard": {"healthy": True, "state": "running", "detail": "HTTP-dashboard reageert"},
+        "inbox_watcher": _launch_agent_health(WATCHER_LABEL),
+        "dashboard_relay": _launch_agent_health(RELAY_LABEL),
+        "status_storage": {
+            "healthy": (root / ".djconnect" / "status" / "status.json").is_file(),
+            "state": "available"
+            if (root / ".djconnect" / "status" / "status.json").is_file()
+            else "missing",
+            "detail": "Statusprojectie beschikbaar"
+            if (root / ".djconnect" / "status" / "status.json").is_file()
+            else "Statusprojectie ontbreekt",
+        },
+        "private_remote_access": {
+            "healthy": remote.qualified,
+            "state": "connected" if remote.qualified else "disconnected",
+            "detail": remote.detail,
+        },
+    }
+    healthy = all(bool(component["healthy"]) for component in components.values())
+    return {"health": "ok" if healthy else "degraded", "healthy": healthy, "components": components}
 
 
 def _codex_process_metrics() -> bytes:
@@ -393,6 +565,50 @@ def _report_for_run(root: Path, run_id: str | None) -> bytes:
         return reports[-1].read_bytes() if reports else b""
     except OSError:
         return b""
+
+
+def _reviewer_agents_for_run(root: Path, run_id: str | None) -> bytes:
+    """Project recorded specialist reviewer agents from the exact run report.
+
+    Reviewer agents are independent, read-only advisory calls.  The dashboard
+    deliberately derives this view from the immutable terminal report instead
+    of inferring generic Codex sub-agents that the platform does not record.
+    """
+    try:
+        report = _report_for_run(root, run_id).decode("utf-8")
+    except UnicodeDecodeError:
+        return b"[]"
+    section = re.search(
+        r"^## Reviewer Findings\s*$\n(?P<body>.*?)(?=^##\s|\Z)", report, re.MULTILINE | re.DOTALL
+    )
+    if section is None:
+        return b"[]"
+
+    records: list[dict[str, object]] = []
+    for block in re.split(r"(?=^- Reviewer: )", section.group("body"), flags=re.MULTILINE):
+        reviewer = re.search(r"^- Reviewer:\s*(.+)$", block, re.MULTILINE)
+        if reviewer is None:
+            continue
+
+        def field(name: str) -> str | None:
+            match = re.search(rf"^  - {re.escape(name)}:\s*(.+)$", block, re.MULTILINE)
+            if match is None:
+                return None
+            return " ".join(match.group(1).split())[:180]
+
+        accepted = field("Accepted recommendations")
+        records.append(
+            {
+                "reviewer": " ".join(reviewer.group(1).split())[:80],
+                "capability": field("Capability") or "engineering",
+                "selected_because": field("Selected because") or "Niet vastgelegd.",
+                "accepted_recommendations": int(accepted) if accepted and accepted.isdigit() else 0,
+                "status": "Uitgevoerd",
+            }
+        )
+        if len(records) == 12:
+            break
+    return json.dumps(records, separators=(",", ":")).encode()
 
 
 def _report_analysis_for_run(root: Path, run_id: str | None) -> bytes:
@@ -512,6 +728,31 @@ def _last_executed_commits(root: Path) -> bytes:
     return json.dumps(commits, separators=(",", ":")).encode()
 
 
+def _last_executed_agent_execution(root: Path, run_id: str | None) -> bytes:
+    """Return run-bound AI and total elapsed time from independent evidence."""
+    if not isinstance(run_id, str) or not re.fullmatch(r"[a-z0-9][a-z0-9-]{0,63}", run_id):
+        return b"{}"
+    result: dict[str, float] = {}
+    try:
+        checkpoint = json.loads(
+            (root / ".djconnect" / "engineering-runs" / f"{run_id}.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        seconds = checkpoint.get("agent_execution_seconds")
+    except (OSError, json.JSONDecodeError):
+        seconds = None
+    if isinstance(seconds, (int, float)) and not isinstance(seconds, bool) and 0 <= seconds <= 86_400:
+        result["seconds"] = float(seconds)
+    try:
+        total = execution_timing(root, run_id).get("total_execution_seconds")
+    except Exception:
+        total = None
+    if isinstance(total, (int, float)) and not isinstance(total, bool) and 0 <= total <= 86_400:
+        result["total_seconds"] = float(total)
+    return json.dumps(result, separators=(",", ":")).encode()
+
+
 def _prompt_started(root: Path) -> bytes:
     """Return the recorded Inbox start time for the run currently displayed."""
     try:
@@ -541,11 +782,28 @@ def _build_commit(root: Path) -> str:
     return observed.stdout.strip() if observed.returncode == 0 else "onbekend"
 
 
+def _tracked_file_count(root: Path) -> str:
+    """Return the recursive count of files tracked by the workspace Git repository."""
+    try:
+        observed = subprocess.run(
+            ("git", "-C", str(root), "ls-files", "-z"),
+            capture_output=True,
+            check=False,
+        )
+    except OSError:
+        return "Niet beschikbaar"
+    if observed.returncode != 0:
+        return "Niet beschikbaar"
+    return str(sum(1 for path in observed.stdout.split(b"\0") if path))
+
+
 def _dashboard_html(
     title: str,
     build_commit: str = "onbekend",
     workspace_id: str = "onbekend",
-    engineering_path: str = ".engineering",
+    workspace_location: str = ".",
+    tracked_files: str = "Niet beschikbaar",
+    platform_version: str = "1.5.0",
 ) -> bytes:
     """Render the private dashboard with a server-pushed status stream."""
     page = """<!doctype html>
@@ -553,23 +811,68 @@ def _dashboard_html(
 <head>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>$TITLE</title>
+<link id="dashboardFavicon" rel="icon" type="image/svg+xml">
 <style>
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 .log-controls label:has(#logSort){display:none}.log-table th.log-sortable{cursor:pointer;user-select:none}.log-table th.log-sortable::after{color:#8dc7ff;content:attr(data-sort-indicator);font-size:11px;margin-left:6px}.log-table th.log-sortable:focus-visible{outline:2px solid #8dc7ff;outline-offset:-2px}
 .current-run .card:has(#indicator){background:#2a2530;border-left:3px solid #c7a6ff}.current-run .card:has(#predecessorRun),#currentDiagnostic,.technical-details--diagnostic{background:#302a24;border-left:3px solid #f0b66a}.current-run .card:has(#queueList),.current-run .card:has(#runId),.current-run .card:has(#executionMode){background:#28263a;border-left:3px solid #a78bfa}.current-run .card:has(#currentTime),.current-run .card:has(#executionEstimate){background:#202b34;border-left:3px solid #65c5d9}#processMetrics,#usage,#rateLimits{background:#20332f;border-left:3px solid #54d6a0}#commits{background:#202a36;border-left:3px solid #8dc7ff}#codexChat{background:#292336;border-left:3px solid #d0a4ff}
-body{margin:0;background:#121217;color:#f7f3ee;font:14px system-ui;padding:max(18px,env(safe-area-inset-top)) 20px}.dashboard-grid{display:grid;gap:10px}h1{font-size:28px;line-height:1.1;margin:0 0 18px}.card,.technical-details{background:#24242d;border-left:3px solid #c7a6ff;border-radius:14px;padding:14px;box-shadow:0 4px 18px #0005}.card p{margin:7px 0}.card--operation{background:#2a2530;border-left:3px solid #c7a6ff}.card--monitoring{background:#202b34;border-left:3px solid #65c5d9}.card--context{background:#28263a;border-left:3px solid #a78bfa}.card--resource{background:#20332f;border-left:3px solid #54d6a0}.card--evidence{background:#202a36;border-left:3px solid #8dc7ff}.card--diagnostic,.technical-details--diagnostic{background:#302a24;border-left:3px solid #f0b66a}.card--conversation{background:#292336;border-left:3px solid #d0a4ff}.current-run{background:#1d1d25;border:1px solid #3d3651;border-left:3px solid #c7a6ff;border-radius:18px;padding:14px;box-shadow:0 5px 24px #0006}.current-run__title{border-bottom:1px solid #3d3651;padding:2px 2px 13px}.current-run__title h2{font-size:18px;line-height:1.25;margin:3px 0 0}.current-run__grid{display:grid;gap:10px;margin-top:10px}.current-run .card{box-shadow:none}.prompt-runs{display:grid;gap:7px}.prompt-runs__heading{color:#b9b6c0;font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}.prompt-runs__cards,.last-execution{display:grid;gap:10px}.card--previous{background:#202a36;border:1px solid #37506a;border-left:3px solid #8dc7ff;box-shadow:0 4px 18px #0005}.card--previous strong,.card--previous .label{color:#8dc7ff}.field{margin:8px 0 0}.label{display:block;color:#c7a6ff;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;margin-bottom:2px}.estimate-primary{font-size:18px;font-weight:650;margin:8px 0 0}.estimate-meta{color:#b9b6c0;font-size:12px;line-height:1.35;margin:6px 0 0}.final-status{align-items:center;display:flex;gap:7px;margin:0 0 8px}.indicator--small{height:9px;width:9px}.footer{color:#b9b6c0;font-size:12px;margin:14px 0 4px;text-align:center}.copy,.chat-send{background:#353541;color:#f7f3ee;border:1px solid #57576a;border-radius:8px;padding:6px 9px;font:13px system-ui}.copy{float:right}.technical-details{cursor:pointer}.technical-details summary{list-style:none}.technical-details summary::-webkit-details-marker{display:none}.technical-details summary::before{content:"▸ ";color:#c7a6ff;display:inline-block;font-size:20px;line-height:1;vertical-align:-2px}.technical-details[open] summary::before{content:"▾ "}.technical-grid{display:grid;gap:10px;margin-top:12px}.codex-chat{grid-column:1 / -1}.chat-messages{display:grid;gap:9px;max-height:420px;overflow:auto;margin:12px 0;padding:2px}.chat-message{border-radius:9px;font-family:"Unispace",ui-monospace,monospace;max-width:min(880px,92%);padding:9px 10px;white-space:pre-wrap}.chat-message--user{background:#353541;justify-self:end}.chat-message--assistant{background:#202a36;border:1px solid #37506a;justify-self:start}.chat-message__role{display:block;font-size:11px;font-weight:700;letter-spacing:.04em;margin-bottom:4px;text-transform:uppercase}.chat-message--user .chat-message__role{color:#c7a6ff}.chat-message--assistant .chat-message__role{color:#8dc7ff}.chat-message__body{line-height:1.4}.chat-input{box-sizing:border-box;width:100%;min-height:110px;border:1px solid #57576a;border-radius:8px;background:#18181f;color:#f7f3ee;padding:8px;font:13px "Unispace",ui-monospace,monospace}.chat-status{color:#b9b6c0;font-size:12px}
+body{margin:0;background:#121217;color:#f7f3ee;font:14px system-ui;padding:max(18px,env(safe-area-inset-top)) calc(28px + env(safe-area-inset-right)) max(18px,env(safe-area-inset-bottom)) calc(28px + env(safe-area-inset-left))}.dashboard-grid{display:grid;gap:10px}h1{font-size:28px;line-height:1.1;margin:0 0 18px}.card,.technical-details{background:#24242d;border-left:3px solid #c7a6ff;border-radius:14px;padding:14px;box-shadow:0 4px 18px #0005}.card p{margin:7px 0}.card--operation{background:#2a2530;border-left:3px solid #c7a6ff}.card--monitoring{background:#202b34;border-left:3px solid #65c5d9}.card--context{background:#28263a;border-left:3px solid #a78bfa}.card--resource{background:#20332f;border-left:3px solid #54d6a0}.card--evidence{background:#202a36;border-left:3px solid #8dc7ff}.card--diagnostic,.technical-details--diagnostic{background:#302a24;border-left:3px solid #f0b66a}.card--conversation{background:#292336;border-left:3px solid #d0a4ff}.current-run{background:#1d1d25;border:1px solid #3d3651;border-left:3px solid #c7a6ff;border-radius:18px;padding:14px;box-shadow:0 5px 24px #0006}.current-run__title{border-bottom:1px solid #3d3651;padding:2px 2px 13px}.current-run__title h2{font-size:18px;line-height:1.25;margin:3px 0 0}.current-run__grid{display:grid;gap:10px;margin-top:10px}.current-run .card{box-shadow:none}.prompt-runs{display:grid;gap:7px}.prompt-runs__heading{color:#b9b6c0;font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}.prompt-runs__cards,.last-execution{display:grid;gap:10px}.card--previous{background:#202a36;border:1px solid #37506a;border-left:3px solid #8dc7ff;box-shadow:0 4px 18px #0005}.card--previous strong,.card--previous .label{color:#8dc7ff}.field{margin:8px 0 0}.label{display:block;color:#c7a6ff;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;margin-bottom:2px}.estimate-primary{font-size:18px;font-weight:650;margin:8px 0 0}.estimate-meta{color:#b9b6c0;font-size:12px;line-height:1.35;margin:6px 0 0}.final-status{align-items:center;display:flex;gap:7px;margin:0 0 8px}.final-status .label{margin-bottom:0}.indicator--small{height:9px;width:9px}.footer{color:#b9b6c0;font-size:12px;margin:14px 0 4px;text-align:center}.copy,.chat-send{background:#353541;color:#f7f3ee;border:1px solid #57576a;border-radius:8px;padding:6px 9px;font:13px system-ui}.copy{float:right}.technical-details{cursor:pointer}.technical-details summary{list-style:none}.technical-details summary::-webkit-details-marker{display:none}.technical-details summary::before{content:"▸ ";color:#c7a6ff;display:inline-block;font-size:20px;line-height:1;vertical-align:-2px}.technical-details[open] summary::before{content:"▾ "}.technical-grid{display:grid;gap:10px;margin-top:12px}.codex-chat{grid-column:1 / -1}.chat-messages{display:grid;gap:9px;max-height:420px;overflow:auto;margin:12px 0;padding:2px}.chat-message{border-radius:9px;font-family:"Unispace",ui-monospace,monospace;max-width:min(880px,92%);padding:9px 10px;white-space:pre-wrap}.chat-message--user{background:#353541;justify-self:end}.chat-message--assistant{background:#202a36;border:1px solid #37506a;justify-self:start}.chat-message__role{display:block;font-size:11px;font-weight:700;letter-spacing:.04em;margin-bottom:4px;text-transform:uppercase}.chat-message--user .chat-message__role{color:#c7a6ff}.chat-message--assistant .chat-message__role{color:#8dc7ff}.chat-message__body{line-height:1.4}.chat-input{box-sizing:border-box;width:100%;min-height:110px;border:1px solid #57576a;border-radius:8px;background:#18181f;color:#f7f3ee;padding:8px;font:13px "Unispace",ui-monospace,monospace}.chat-status{color:#b9b6c0;font-size:12px}
 strong{color:#c7a6ff}.status{display:flex;align-items:center;gap:8px}.queue-list{display:grid;gap:7px;margin-top:10px}.queue-item{border-top:1px solid #3d3651;padding-top:7px}.queue-item:first-child{border-top:0;padding-top:0}.queue-item__title{display:block;font-weight:600}.queue-item__meta{color:#b9b6c0;font:12px ui-monospace,monospace;margin-top:2px}.indicator{width:12px;height:12px;border-radius:50%;background:#9a9aa3;box-shadow:0 0 8px #9a9aa388;flex:none}.indicator--green{background:#51d88a;box-shadow:0 0 8px #51d88a88}.indicator--yellow{background:#f4d35e;box-shadow:0 0 8px #f4d35e88}.indicator--orange{background:#ff9f43;box-shadow:0 0 8px #ff9f4388}.indicator--red{background:#ff6b6b;box-shadow:0 0 8px #ff6b6b88}.indicator--running{background:transparent;border:3px solid #ff9f43;border-right-color:transparent;box-sizing:border-box;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
 pre{white-space:pre-wrap;word-break:break-word;margin:5px 0 0;font:12px ui-monospace,monospace}.log-controls{align-items:end;display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}.log-controls label{color:#c7a6ff;display:grid;font-size:11px;font-weight:700;gap:3px;letter-spacing:.04em;text-transform:uppercase}.log-controls input,.log-controls select{background:#18181f;border:1px solid #57576a;border-radius:7px;color:#f7f3ee;font:13px system-ui;padding:6px}.log-controls input{min-width:190px}.log-table-wrap{max-height:420px;overflow:auto;border:1px solid #3d3651;border-radius:9px;margin-top:10px}.log-table{border-collapse:collapse;font:12px ui-monospace,monospace;min-width:780px;width:100%;user-select:text}.log-table th{background:#2d2d38;color:#c7a6ff;position:sticky;text-align:left;top:0;z-index:1}.log-table th,.log-table td{border-bottom:1px solid #3d3651;padding:7px 8px;vertical-align:top}.log-table td{white-space:pre-wrap;word-break:break-word}.log-table tr:last-child td{border-bottom:0}.log-line-number{color:#92919b;text-align:right;white-space:nowrap;width:3.25rem;word-break:normal;user-select:none}.log-level{font-weight:700}.log-level--error{color:#ff8585}.log-level--warning{color:#f4d35e}.log-level--info{color:#8dc7ff}.log-level--debug{color:#b9b6c0}.log-empty{color:#b9b6c0;padding:10px}[hidden]{display:none}
 #componentLogs{background:#302a24;border-left:3px solid #f0b66a}#componentLogs .card{background:#24242d;border-left:0}.technical-details:not(#componentLogs){background:#28263a;border-left:3px solid #a78bfa}.technical-details:not(#componentLogs) .card{background:#24242d;border-left:0}.last-execution-card{cursor:default}.last-execution-card summary{cursor:pointer;list-style:none}.last-execution-card summary::-webkit-details-marker{display:none}.last-execution-card summary::before{content:"▸ ";color:#8dc7ff}.last-execution-card[open] summary::before{content:"▾ "}.last-execution-card__details{border-top:1px solid #37506a;margin-top:10px;padding-top:2px}.codex-chat{cursor:default}.codex-chat summary{cursor:pointer;list-style:none}.codex-chat summary::-webkit-details-marker{display:none}.codex-chat summary::before{content:"▸ ";color:#d0a4ff}.codex-chat[open] summary::before{content:"▾ "}.codex-chat__details{border-top:1px solid #56446e;margin-top:10px;padding-top:2px}.card,.technical-details{--category-color:#c7a6ff}.card--monitoring,.current-run .card:has(#currentTime),.current-run .card:has(#executionEstimate){--category-color:#65c5d9}.card--context,.technical-details:not(#componentLogs),.current-run .card:has(#queueList),.current-run .card:has(#runId),.current-run .card:has(#executionMode){--category-color:#a78bfa}.card--resource,#processMetrics,#usage,#rateLimits{--category-color:#54d6a0}.card--evidence,.card--previous,#commits{--category-color:#8dc7ff}.card--diagnostic,.technical-details--diagnostic,#currentDiagnostic,#componentLogs,.current-run .card:has(#predecessorRun){--category-color:#f0b66a}.card--conversation,#codexChat{--category-color:#d0a4ff}.technical-details .card{--category-color:inherit}.card>strong,.technical-details>summary>strong,.card .label,.technical-details .label,.technical-details .log-controls label,.technical-details .log-table th,.technical-details summary::before{color:var(--category-color)}.technical-details .log-table th.log-sortable::after{color:var(--category-color)}.technical-details .log-table th.log-sortable:focus-visible{outline-color:var(--category-color)}.last-execution-group{--category-color:#8dc7ff;background:#202a36;border-left:3px solid #8dc7ff;border-radius:16px;box-shadow:0 4px 18px #0005;padding:14px}.last-execution-group:has(#lastExecution[hidden]){display:none}.last-execution-group__heading{color:var(--category-color);font-size:15px;margin:0 0 10px}.last-execution-group .card--previous{background:#24242d;border-left:0}.last-execution-group .card--previous strong,.last-execution-group .card--previous .label{color:var(--category-color)}
 .chat-compose{align-items:stretch;display:flex;gap:8px}.chat-compose .chat-input{flex:1}.chat-compose .chat-send{align-items:center;display:flex;font-size:23px;justify-content:center;min-width:48px;padding:6px}.chat-compose .chat-send:focus-visible{outline:2px solid var(--category-color);outline-offset:2px}.chat-status{display:block;margin:7px 0 0}.card--previous summary{cursor:pointer;list-style:none}.card--previous summary::-webkit-details-marker{display:none}.card--previous summary::before{color:var(--category-color);content:"▸ ";display:inline-block;font-size:20px;line-height:1;vertical-align:-2px}.card--previous[open] summary::before{content:"▾ "}.last-execution-group>summary{cursor:pointer;list-style:none}.last-execution-group>summary::-webkit-details-marker{display:none}.last-execution-group>summary::before{color:var(--category-color);content:"▸ ";display:inline-block;font-size:20px;line-height:1;vertical-align:-2px}.last-execution-group[open]>summary::before{content:"▾ "}.last-execution-group__heading{display:inline;font-size:18px;margin:0}.skip-link{background:#fff;color:#121217;left:12px;padding:10px 14px;position:fixed;top:-60px;z-index:10}.skip-link:focus{top:12px}.sr-only{height:1px;margin:-1px;overflow:hidden;padding:0;position:absolute;clip:rect(0,0,0,0);white-space:nowrap;width:1px}:where(button,input,select,textarea,summary,[role="button"],[tabindex]):focus-visible{outline:3px solid #fff;outline-offset:3px;box-shadow:0 0 0 6px #121217}button,.copy,.chat-send{min-height:44px;min-width:44px}@media (prefers-reduced-motion:reduce){*,::before,::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}@media (forced-colors:active){:where(button,input,select,textarea,summary,[role="button"],[tabindex]):focus-visible{outline-color:Highlight;box-shadow:none}.indicator{forced-color-adjust:auto}}
 #componentLogs{position:relative}#componentLogs>summary{padding-right:150px}#loadComponentLogs{position:absolute;right:14px;top:14px}.technical-details>summary>strong,.codex-chat>summary>strong,.last-execution-group__heading{font-size:18px;line-height:1.25}.card>strong,.card>summary,.technical-details>summary,.last-execution-group>summary{display:block;padding-bottom:10px}.last-execution-group .card--previous{border-left:3px solid var(--category-color);box-shadow:0 10px 24px #000a,0 1px 0 #8dc7ff30}.dashboard-grid>#componentLogs,.dashboard-grid>#codexChat,.dashboard-grid>.technical-details:not(#componentLogs){margin-top:8px}.footer{align-items:baseline;display:flex;gap:6px;justify-content:center;overflow-x:auto;white-space:nowrap}.footer .label{display:inline;margin:0}.last-execution-group__heading,.technical-details>summary>strong,.codex-chat>summary>strong{font-size:18px;font-weight:700;letter-spacing:.04em;line-height:1.25;text-transform:uppercase}.last-execution-group>summary::before,.dashboard-grid>#componentLogs>summary::before,.dashboard-grid>#codexChat>summary::before,.dashboard-grid>.technical-details:not(#componentLogs)>summary::before{font-size:24px;padding-right:8px}#engineering-dashboard-content>.technical-details:not(#componentLogs){--category-color:#65c5d9;background:#202b34;border-left-color:#65c5d9}.footer .label{color:#65c5d9}#rateLimits{cursor:pointer}#rateLimits>summary{cursor:pointer;list-style:none}#rateLimits>summary::-webkit-details-marker{display:none}#rateLimits>summary::before{color:var(--category-color);content:"▸ ";display:inline-block;font-size:24px;line-height:1;padding-right:8px;vertical-align:-2px}#rateLimits[open]>summary::before{content:"▾ "}#rateLimits>summary>strong{font-size:18px;font-weight:700;letter-spacing:.04em;line-height:1.25;text-transform:uppercase}.last-execution-group{row-gap:16px}#engineering-dashboard-content>.technical-details:not(#componentLogs) .card,#componentLogs .card,.current-run .card,.last-execution-group .card--previous{border:1px solid var(--category-color);border-left:3px solid var(--category-color)}.workspace-card{margin-bottom:16px;cursor:pointer}.workspace-card>summary{cursor:pointer;list-style:none}.workspace-card>summary::-webkit-details-marker{display:none}.workspace-card>summary::before{color:var(--category-color);content:"▸ ";display:inline-block;font-size:24px;line-height:1;padding-right:8px;vertical-align:-2px}.workspace-card[open]>summary::before{content:"▾ "}.workspace-card>summary>strong{font-size:18px;font-weight:700;letter-spacing:.04em;line-height:1.25;text-transform:uppercase}.dashboard-grid{gap:16px}.dashboard-grid>#componentLogs,.dashboard-grid>#codexChat,.dashboard-grid>.technical-details:not(#componentLogs){margin-top:0}
+.last-execution-group__content{display:grid;gap:16px;margin-top:12px}
+.reviewer-agents__list{display:grid;gap:8px;margin-top:10px}.reviewer-agent{background:#202b34;border:1px solid var(--category-color);border-left-width:1px;border-radius:8px;padding:10px}.reviewer-agent__name{color:var(--category-color);font-weight:700;margin:0 0 4px}.reviewer-agent__meta{color:#d3d0d8;font-size:13px;line-height:1.4;margin:0}.reviewer-agent__meta+.reviewer-agent__meta{margin-top:3px}
+.telemetry{--category-color:#fb7185;background:#351f2a;border:1px solid var(--category-color);border-left-width:3px;border-radius:18px;box-shadow:0 5px 24px #0006;cursor:pointer;padding:14px}.telemetry>summary{cursor:pointer;display:block;list-style:none;padding:2px 2px 13px}.telemetry>summary::-webkit-details-marker{display:none}.telemetry>summary::before{color:var(--category-color);content:"▸ ";display:inline-block;font-size:24px;line-height:1;padding-right:8px;vertical-align:-2px}.telemetry[open]>summary::before{content:"▾ "}.telemetry>summary>strong{color:var(--category-color);font-size:17px;font-weight:700;letter-spacing:.04em;line-height:1.25;text-transform:uppercase}.telemetry[open]>summary{border-bottom:1px solid var(--category-color)}.telemetry .category-description{color:#d8c3ca;font-size:14px;line-height:1.4;margin:12px 0}.telemetry-table{border-collapse:collapse;font-size:13px;width:100%}.telemetry-table th,.telemetry-table td{border-bottom:1px solid #fb718555;padding:7px;text-align:left;white-space:nowrap}.telemetry-table th{color:var(--category-color)}.telemetry-scroll{overflow-x:auto}.telemetry-empty{color:#b9b6c0;margin:0}
+.platform-health{--category-color:#a3e635;background:#29331d;border:1px solid var(--category-color);border-left-width:3px;border-radius:18px;box-shadow:0 5px 24px #0006;cursor:pointer;padding:14px}.platform-health>summary{cursor:pointer;display:block;list-style:none;padding:2px 2px 13px}.platform-health>summary::-webkit-details-marker{display:none}.platform-health>summary::before{color:var(--category-color);content:"▸ ";display:inline-block;font-size:24px;line-height:1;padding-right:8px;vertical-align:-2px}.platform-health[open]>summary::before{content:"▾ "}.platform-health>summary>strong{color:var(--category-color);font-size:17px;font-weight:700;letter-spacing:.04em;line-height:1.25;text-transform:uppercase}.platform-health[open]>summary{border-bottom:1px solid var(--category-color)}.platform-health .category-description{color:#d4ddc7;font-size:14px;line-height:1.4;margin:12px 0}.platform-health__summary{color:#d4ddc7;font-size:12px;margin-left:8px}.platform-health__components{display:grid;gap:8px}.platform-health__component{align-items:center;background:#1e2518;border:1px solid color-mix(in srgb,var(--category-color) 64%,transparent);border-radius:9px;display:grid;gap:3px;grid-template-columns:auto 1fr;padding:9px 10px}.platform-health__component .indicator{grid-row:span 2}.platform-health__component-name{color:var(--category-color);font-weight:700}.platform-health__component-detail{color:#d4ddc7;font-size:12px;grid-column:2;line-height:1.35}.platform-health__empty{color:#d4ddc7;margin:0}.platform-health__component[data-health="false"]{--category-color:#ff8585;background:#351f24}
+#codexChat .chat-input,#codexChat .chat-send{border-color:#d0a4ff}
+#chatInput:focus-visible{outline:2px solid #d0a4ff;outline-offset:2px;box-shadow:0 0 0 4px #292336}
+:where(input,select,textarea):focus-visible{outline:2px solid var(--category-color);outline-offset:2px;box-shadow:0 0 0 4px color-mix(in srgb,var(--category-color) 24%,transparent)}
+#reportContent{max-height:50dvh;overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+.last-execution-group__heading,.technical-details>summary>strong,.codex-chat>summary>strong,#rateLimits>summary>strong,.workspace-card>summary>strong{font-size:17px}
+#rateLimits>summary>strong{color:var(--category-color)}
+#loadComponentLogs{background:#4a321f;border-color:#f0b66a;color:#fff0dc}
+#engineering-dashboard-content>.technical-details:not(#componentLogs),#engineering-dashboard-content>.technical-details:not(#componentLogs) .card{border-left-width:1px}
+.chat-message--user{background:#243648;border:1px solid #8dc7ff}.chat-message--assistant{background:#34283f;border-color:#d0a4ff}
+#reportContent,#reportAnalysisContent{box-sizing:border-box;max-height:50dvh;overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;background:#18181f;border:1px solid var(--category-color);border-radius:8px;padding:10px;user-select:text}.markdown-document{font-family:system-ui,sans-serif;line-height:1.45}.markdown-document p{margin:0 0 10px}.markdown-document p:last-child{margin-bottom:0}.markdown-document h3,.markdown-document h4{color:var(--category-color);margin:0 0 10px}.markdown-document ul,.markdown-document ol{margin:0 0 10px;padding-left:24px}.markdown-document code,.markdown-document pre{font-family:"Unispace",ui-monospace,monospace}.markdown-document code{background:#24242d;border-radius:4px;padding:1px 4px}.markdown-document pre{background:#24242d;border-radius:6px;margin:0 0 10px;overflow:auto;padding:8px}
+.markdown-copy-wrap{position:relative}.markdown-copy-wrap .markdown-document{padding-right:52px}.copy.copy--glyph{align-items:center;background:#24242de6;border-color:var(--category-color);border-radius:50%;box-shadow:0 2px 8px #0008;display:flex;float:none;font-size:0;height:32px;justify-content:center;min-height:32px;min-width:32px;padding:0;position:absolute;right:10px;top:10px;width:32px;z-index:2}.copy.copy--glyph::before{content:"⧉";font:20px/1 system-ui}.copy.copy--glyph:hover{background:#353541}.copy.copy--glyph:focus-visible{outline-color:var(--category-color)}
+.last-execution-group{row-gap:0}
+.chat-compose .chat-send{background:#121217;border-color:#d0a4ff;color:#d0a4ff}
+#currentRun .current-run__title>.label{display:inline;color:var(--category-color);font-size:17px;font-weight:700;letter-spacing:.04em;line-height:1.25;text-transform:uppercase}.current-run__prompt-heading{align-items:center;display:flex;gap:8px;margin:8px 0 0}.current-run__prompt-heading h2{margin:0}.current-run__prompt-heading .indicator{margin:0}.current-run__category-description{color:#d6bdca;font-size:14px;line-height:1.4;margin:0 0 14px}#currentRun .current-run__grid{margin-top:0}#currentRun .card:has(#currentTime),#currentRun .card:has(#executionEstimate),#currentRun .card:has(#runId),#currentRun .card:has(#executionMode){--category-color:#f472b6;background:#241b25;border-color:#f472b6}
+#report .field,#reportAnalysis .field{background:#18181f;border:1px solid var(--category-color);border-radius:8px;padding:10px}
+.chat-message--assistant .chat-message__body{font-family:system-ui,sans-serif}.chat-message__body p{margin:0 0 8px}.chat-message__body p:last-child{margin-bottom:0}.chat-message__body h3,.chat-message__body h4{color:#d0a4ff;margin:0 0 8px}.chat-message__body ul,.chat-message__body ol{margin:0 0 8px;padding-left:22px}.chat-message__body code,.chat-message__body pre{font-family:"Unispace",ui-monospace,monospace}.chat-message__body code{background:#18181f;border-radius:4px;padding:1px 4px}.chat-message__body pre{background:#18181f;border-radius:6px;margin:0 0 8px;overflow:auto;padding:8px}
+#componentLogs>summary{padding-right:0}
+.last-execution-group>summary>strong{color:#8dc7ff;text-transform:uppercase}
+.chat-message--user .chat-message__role{color:#8dc7ff}
+.chat-message--assistant .chat-message__role{color:#d0a4ff}
+.chat-compose{display:block;position:relative}.chat-compose .chat-input{padding:8px 62px 58px 8px}.chat-compose .chat-send{background:#f7f3ee;border-color:#f7f3ee;border-radius:50%;bottom:10px;color:#292336;height:44px;min-width:44px;padding:0;position:absolute;right:10px;width:44px;z-index:1}
+.workspace-card{--category-color:#f3d36a;background:#302d20;border-left-color:#f3d36a}
+#engineering-dashboard-content>.technical-details:not(#componentLogs){border-left-width:3px}
+#componentLogs .card{border-left-width:1px}
+.workspace-card>summary,#rateLimits>summary,.last-execution-group>summary,#componentLogs>summary,#codexChat>summary,#engineering-dashboard-content>.technical-details:not(#componentLogs)>summary{border-bottom:1px solid var(--category-color);margin-bottom:12px;padding-bottom:14px}
+.category-description{color:#b9b6c0;font-size:14px;line-height:1.4;margin:0 0 14px}
+.workspace-card,#rateLimits,.last-execution-group,#componentLogs,#codexChat,#engineering-dashboard-content>.technical-details:not(#componentLogs){border:1px solid var(--category-color);border-left-width:3px}
+.rate-limit-reset{background:#173c31;border:1px solid #54d6a0;border-radius:8px;color:#d9fff0;font:13px system-ui;margin-top:12px;padding:8px 10px}.rate-limit-reset:disabled{cursor:wait;opacity:.7}.rate-limit-reset-status{color:#b9b6c0;font-size:12px;margin:8px 0 0}
+.estimate-primary{font-size:inherit}#executionEstimateMeta{white-space:pre-line}
+.workspace-card>summary>strong,#rateLimits>summary>strong,.last-execution-group>summary>strong,#componentLogs>summary>strong,#codexChat>summary>strong,#engineering-dashboard-content>.technical-details:not(#componentLogs)>summary>strong{font-size:17px;line-height:1.25}.workspace-card>summary,#rateLimits>summary,.last-execution-group>summary,#componentLogs>summary,#codexChat>summary,#engineering-dashboard-content>.technical-details:not(#componentLogs)>summary{margin-bottom:8px;padding-bottom:10px}
+.workspace-card>summary>strong,#rateLimits>summary>strong,.last-execution-group>summary>strong,#componentLogs>summary>strong,#codexChat>summary>strong,#engineering-dashboard-content>.technical-details:not(#componentLogs)>summary>strong{color:var(--category-color)}
+#currentRun{--category-color:#f472b6;background:#321d2d;border:1px solid var(--category-color);border-left-width:3px;cursor:pointer}#currentRun>summary{cursor:pointer;list-style:none}#currentRun>summary::-webkit-details-marker{display:none}#currentRun>summary::before{color:var(--category-color);content:"▸ ";display:inline-block;font-size:24px;line-height:1;padding-right:8px;vertical-align:-2px}#currentRun[open]>summary::before{content:"▾ "}#currentRun[open]>summary{border-bottom:1px solid var(--category-color);margin-bottom:12px;padding-bottom:14px}#currentRun .card{--category-color:#f472b6;background:#241b25;border:1px solid var(--category-color);border-left-width:1px}#currentRun .current-run__grid>.card{border-left:1px solid var(--category-color)!important}#currentRun .card strong,#currentRun .label,#currentRun .queue-item__title{color:var(--category-color)}#currentRun .queue-item{border-top-color:#6e385d}#currentRun .estimate-meta{color:#d6bdca}
+.log-card-header{align-items:center;display:flex;gap:12px;justify-content:space-between;margin-bottom:10px}.clear-component-log{background:#3b281b;border:1px solid #f0b66a;border-radius:7px;color:#fff0dc;font:12px system-ui;padding:6px 9px}.clear-component-log:hover{background:#543721}.clear-component-log:disabled{cursor:wait;opacity:.7}
+#pullRefresh{align-items:center;background:#18181f;border:1px solid #58c8df;border-radius:999px;color:#bceefa;display:flex;font:13px system-ui;gap:8px;left:50%;opacity:0;padding:8px 13px;pointer-events:none;position:fixed;top:10px;transform:translate(-50%,-80px);transition:opacity .15s ease,transform .15s ease;z-index:20}#pullRefresh.pull-refresh--visible{opacity:1;transform:translate(-50%,0)}#pullRefresh::before{content:"↓";font-size:18px;line-height:1}@media (prefers-reduced-motion:reduce){#pullRefresh{transition:none}}
+#dashboardSplash{align-items:center;background:#101015;display:flex;inset:0;justify-content:center;padding:24px;position:fixed;text-align:center;transition:opacity .25s ease,visibility .25s ease;z-index:100}#dashboardSplash[hidden]{display:none}body.dashboard-ready #dashboardSplash{opacity:0;pointer-events:none;visibility:hidden}.dashboard-splash__content{align-items:center;display:flex;flex-direction:column;gap:12px;max-width:360px}.dashboard-splash__title{color:#f7f3ee;font:700 clamp(28px,8vw,42px)/1.1 system-ui;margin:0}.dashboard-splash__version{color:#b79aff;font:600 14px/1.3 system-ui;letter-spacing:.04em;text-transform:uppercase}.dashboard-splash__loading{color:#c8c4cc;font:14px system-ui}.dashboard-splash__spinner{animation:dashboard-splash-spin .85s linear infinite;border:3px solid #332a44;border-radius:50%;border-top-color:#b79aff;height:34px;width:34px}@keyframes dashboard-splash-spin{to{transform:rotate(360deg)}}
+h1{background:#121217;box-shadow:0 10px 18px #121217;margin:0 0 18px;padding:8px 0 12px;position:sticky;top:max(8px,env(safe-area-inset-top));z-index:15}
 </style>
 </head>
 <body>
 <a class="skip-link" href="#engineering-dashboard-content">Naar dashboardinhoud</a>
+<div id="dashboardSplash" role="status" aria-live="polite" data-testid="dashboard-splash"><div class="dashboard-splash__content"><h2 class="dashboard-splash__title">$TITLE</h2><span class="dashboard-splash__version">Engineering Platform $PLATFORM_VERSION</span><span class="dashboard-splash__spinner" aria-hidden="true"></span><span class="dashboard-splash__loading">Status laden…</span></div></div>
+<div id="pullRefresh" role="status" aria-live="polite" aria-hidden="true" data-testid="pull-refresh">Trek omlaag om te vernieuwen</div>
 <h1>$TITLE</h1>
-<details class="card card--context workspace-card" data-testid="engineering-workspace"><summary><strong>Workspace</strong></summary><p class="field"><span class="label">Naam</span><span>$WORKSPACE_ID</span></p><div class="field"><span class="label">Canonieke Engineering-map</span><pre>$ENGINEERING_PATH</pre></div></details>
+<details class="card card--context workspace-card" data-testid="engineering-workspace"><summary><strong>Workspace</strong></summary><p class="field"><span class="label">Naam</span><span>$WORKSPACE_ID</span></p><div class="field"><span class="label">Workspace locatie</span><pre>$WORKSPACE_LOCATION</pre></div><p class="field"><span class="label">Tracked files</span><span>$TRACKED_FILES</span></p></details>
 <main class="dashboard-grid" id="engineering-dashboard-content" tabindex="-1">
-<section class="current-run" id="currentRun" aria-label="Huidige uitvoering" hidden><div class="current-run__title"><span class="label">Prompttitel</span><h2 id="currentPrompt">Laden…</h2><div class="field"><span class="label">Bestandsnaam</span><pre id="currentFile">Laden…</pre></div></div><div class="current-run__grid">
+<details class="platform-health" id="platformHealth" open data-testid="platform-health"><summary><strong>Platformonderdelen</strong><span class="platform-health__summary" id="platformHealthSummary" role="status">Live status laden…</span></summary><p class="category-description">Live gezondheidscontrole van de lokale Engineering Platform-componenten.</p><div class="platform-health__components" id="platformHealthComponents" aria-live="polite"><p class="platform-health__empty">Componentstatus laden…</p></div></details>
+<details class="current-run" id="currentRun" aria-label="Huidige uitvoering" hidden><summary class="current-run__title"><span class="label">Actieve prompt</span><h2 id="currentPrompt">Laden…</h2><div class="field"><span class="label">Bestandsnaam</span><pre id="currentFile">Laden…</pre></div></summary><div class="current-run__grid">
 <div class="card"><div class="status"><span id="indicator" class="indicator" role="status" aria-label="Status onbekend"></span><strong>Promptstatus</strong></div><p class="field"><span class="label">Watcher</span><span id="watcher">Laden…</span></p><p class="field"><span class="label">Fase</span><span id="phase">Laden…</span></p><p class="field"><span class="label">Huidige actie</span><span id="action">Laden…</span></p></div>
 <div class="card" id="predecessorGate" hidden><strong>Wachtrij geblokkeerd</strong><p class="field"><span class="label">Blokkerende run</span><code id="predecessorRun"></code></p><p class="field"><span class="label">Voorafgaande prompt</span><span id="predecessorPrompt"></span></p><p class="field"><span class="label">Eindstatus</span><span id="predecessorPhase"></span></p><div class="field"><span class="label">Herstelactie</span><pre id="predecessorAction"></pre></div></div>
 <section class="card" id="queueItems" hidden><strong>Wachtrij</strong><p class="estimate-meta">Nog niet geclaimde Inbox-prompts, oudste eerst.</p><div class="queue-list" id="queueList"></div></section>
@@ -580,13 +883,12 @@ pre{white-space:pre-wrap;word-break:break-word;margin:5px 0 0;font:12px ui-monos
 <div class="card" id="processMetrics" hidden><strong>Lokale Codex-processen</strong><p class="field"><span class="label">CPU-gebruik</span><span id="codexCpu">Laden…</span></p><p class="field"><span class="label">Actieve processen</span><span id="codexProcesses">Laden…</span></p><p class="field"><span class="label">GPU-gebruik</span><span id="codexGpu">Laden…</span></p></div>
 <div class="card" id="usage" hidden><strong>Codex CLI-gebruik</strong><div class="field"><span class="label">Gerapporteerd verbruik</span><pre id="usageDetails"></pre></div></div>
 <div class="card" id="currentDiagnostic" hidden><strong>Codex CLI-diagnose</strong><pre id="currentLog">Laden…</pre></div>
-</div></section>
-<details class="card card--resource" id="rateLimits" hidden><summary><strong>Resterend gebruik</strong></summary><div class="field"><span class="label">Codex-gebruikslimieten</span><pre id="rateLimitDetails"></pre></div></details>
-<div class="card" id="commits" hidden><strong>Voltooiingscommits</strong><div class="field"><span class="label">Vastgelegd bewijs</span><pre id="completionCommits"></pre></div></div>
+</div></details>
+<details class="card card--resource" id="rateLimits" hidden><summary><strong>Resterend gebruik</strong></summary><div class="field"><span class="label">Codex-gebruikslimieten</span><pre id="rateLimitDetails"></pre></div><button class="rate-limit-reset" id="rateLimitReset" type="button" hidden>Gebruik reset</button><p class="rate-limit-reset-status" id="rateLimitResetStatus" role="status" aria-live="polite"></p></details>
 <section class="prompt-runs" id="promptRuns" aria-label="Promptuitvoeringen" hidden><div class="prompt-runs__cards">
-<div class="last-execution last-execution-group" id="lastExecutionGroup" data-testid="last-executed-prompt-category"><article class="card card--previous last-execution-card" id="lastExecution" hidden><div class="final-status"><span id="lastIndicator" class="indicator indicator--small" aria-hidden="true"></span><strong>Laatst uitgevoerd</strong><span id="lastFinalStatus"></span></div><p class="field"><span class="label">Prompttitel</span><span id="lastPrompt"></span></p><div class="field"><span class="label">Bestandsnaam</span><pre id="lastFile"></pre></div><div class="field" id="lastCommits" hidden><span class="label">Git-commit</span><pre id="lastCommitDetails"></pre></div><div class="field" id="lastUsage" hidden><span class="label">Codex CLI-gebruik</span><pre id="lastUsageDetails"></pre></div><div class="field"><span class="label">AI-provider</span><span>Codex CLI</span></div><div class="field" id="lastDiagnostic" hidden><span class="label">Codex CLI-diagnose</span><pre id="lastLog">Laden…</pre></div></article><details class="card card--previous" id="report" hidden><summary><strong>Engineeringrapport</strong></summary><button class="copy" id="copyReport" type="button" title="Kopieer rapport" aria-label="Kopieer rapport">⧉ Kopieer</button><div class="field"><span class="label">Markdownrapport</span><pre id="reportContent">Open dit blok om het rapport te laden.</pre></div></details><details class="card card--previous" id="reportAnalysis" hidden><summary><strong>Codex-analyse van rapport</strong></summary><div class="field"><span class="label">Adviserend; repositorybewijs blijft leidend</span><pre id="reportAnalysisContent">Open dit blok om de analyse te laden.</pre></div></details></div>
+<div class="last-execution last-execution-group" id="lastExecutionGroup" data-testid="last-executed-prompt-category"><article class="card card--previous last-execution-card" id="lastExecution" hidden><div class="final-status"><span id="lastIndicator" class="indicator indicator--small" aria-hidden="true"></span><span class="label">Prompt status</span><span id="lastFinalStatus"></span></div><p class="field"><span class="label">Prompttitel</span><span id="lastPrompt"></span></p><div class="field"><span class="label">Bestandsnaam</span><pre id="lastFile"></pre></div><div class="field" id="lastCommits" hidden><span class="label">Git-commit</span><pre id="lastCommitDetails"></pre></div><div class="field" id="lastUsage" hidden><span class="label">Codex CLI-gebruik</span><pre id="lastUsageDetails"></pre></div><div class="field"><span class="label">AI-provider</span><span>Codex CLI</span></div><div class="field" id="lastDiagnostic" hidden><span class="label">Codex CLI-diagnose</span><pre id="lastLog">Laden…</pre></div></article><section class="card card--previous reviewer-agents" id="reviewerAgents" hidden><strong>Specialistische agentreviews</strong><p class="estimate-meta">Alleen-lezende, onafhankelijke beoordelingen. De primaire agent behield uitvoerings- en lifecycleverantwoordelijkheid.</p><div class="reviewer-agents__list" id="reviewerAgentList"></div></section><div class="card card--previous" id="commits" hidden><strong>Voltooiingscommits</strong><div class="field"><span class="label">Vastgelegd bewijs</span><pre id="completionCommits"></pre></div></div><details class="card card--previous" id="report" hidden><summary><strong>Engineeringrapport</strong></summary><button class="copy" id="copyReport" type="button" title="Kopieer rapport" aria-label="Kopieer rapport">⧉ Kopieer</button><div id="reportContent" class="markdown-document">Open dit blok om het rapport te laden.</div></details><details class="card card--previous" id="reportAnalysis" hidden><summary><strong>Codex-analyse van rapport</strong></summary><div id="reportAnalysisContent" class="markdown-document">Open dit blok om de analyse te laden.</div></details></div>
 </div></section>
-<details class="technical-details" id="componentLogs"><summary><strong>Applicatielogs</strong></summary><p class="estimate-meta">Geredigeerde, roterende logs van watcher en dashboard. Deze worden pas opgehaald nadat je op de knop drukt.</p><button class="copy" id="loadComponentLogs" type="button">Logs laden</button><div class="log-controls" id="componentLogControls" hidden><label for="logFilter">Zoeken<input id="logFilter" type="search" placeholder="Zoek in alle velden"></label><label for="logLevelFilter">Niveau<select id="logLevelFilter"><option value="">Alle niveaus</option><option value="ERROR">Fout</option><option value="WARNING">Waarschuwing</option><option value="INFO">Informatie</option><option value="DEBUG">Debug</option></select></label><label for="logSort">Sortering<select id="logSort"><option value="newest">Nieuwste eerst</option><option value="oldest">Oudste eerst</option><option value="level">Niveau</option><option value="event">Gebeurtenis</option></select></label></div><div class="technical-grid"><div class="card"><strong>Inbox-watcher</strong><div class="log-table-wrap"><table class="log-table"><thead><tr><th>#</th><th>Tijdstip</th><th>Niveau</th><th>Gebeurtenis</th><th>Run-ID</th><th>Details</th></tr></thead><tbody id="inboxComponentLog"><tr><td class="log-empty" colspan="6">Nog niet geladen.</td></tr></tbody></table></div></div><div class="card"><strong>Statusdashboard</strong><div class="log-table-wrap"><table class="log-table"><thead><tr><th>#</th><th>Tijdstip</th><th>Niveau</th><th>Gebeurtenis</th><th>Run-ID</th><th>Details</th></tr></thead><tbody id="dashboardComponentLog"><tr><td class="log-empty" colspan="6">Nog niet geladen.</td></tr></tbody></table></div></div></div></details>
+<details class="technical-details" id="componentLogs"><summary><strong>Applicatielogs</strong></summary><p class="estimate-meta">Geredigeerde, roterende logs van watcher en dashboard. Deze worden pas opgehaald nadat je op de knop drukt.</p><button class="copy" id="loadComponentLogs" type="button">Logs laden</button><div class="log-controls" id="componentLogControls" hidden><label for="logFilter">Zoeken<input id="logFilter" type="search" placeholder="Zoek in alle velden"></label><label for="logLevelFilter">Niveau<select id="logLevelFilter"><option value="">Alle niveaus</option><option value="ERROR">Fout</option><option value="WARNING">Waarschuwing</option><option value="INFO">Informatie</option><option value="DEBUG">Debug</option></select></label><label for="logSort">Sortering<select id="logSort"><option value="newest">Nieuwste eerst</option><option value="oldest">Oudste eerst</option><option value="level">Niveau</option><option value="event">Gebeurtenis</option></select></label></div><div class="technical-grid"><div class="card"><div class="log-card-header"><strong>Inbox-watcher</strong><button class="clear-component-log" data-component="inbox" data-testid="clear-inbox-log" type="button">Logs wissen</button></div><div class="log-table-wrap"><table class="log-table"><thead><tr><th>#</th><th>Tijdstip</th><th>Niveau</th><th>Gebeurtenis</th><th>Run-ID</th><th>Details</th></tr></thead><tbody id="inboxComponentLog"><tr><td class="log-empty" colspan="6">Nog niet geladen.</td></tr></tbody></table></div></div><div class="card"><div class="log-card-header"><strong>Statusdashboard</strong><button class="clear-component-log" data-component="dashboard" data-testid="clear-dashboard-log" type="button">Logs wissen</button></div><div class="log-table-wrap"><table class="log-table"><thead><tr><th>#</th><th>Tijdstip</th><th>Niveau</th><th>Gebeurtenis</th><th>Run-ID</th><th>Details</th></tr></thead><tbody id="dashboardComponentLog"><tr><td class="log-empty" colspan="6">Nog niet geladen.</td></tr></tbody></table></div></div></div></details>
 <details class="card codex-chat" id="codexChat"><summary><strong>AI-gesprek</strong></summary><div class="codex-chat__details"><p class="estimate-meta">Alleen lezen · context: repository, laatst uitgevoerde prompt en rapport. Deze chat kan geen engineering starten of wijzigingen uitvoeren.</p><div class="chat-messages" id="chatMessages" aria-live="polite" aria-label="Gesprek met AI-assistent"></div><label class="label" for="chatInput">Nieuwe vraag aan AI-assistent</label><div class="chat-compose"><textarea id="chatInput" class="chat-input" rows="5" maxlength="2000" placeholder="Bijvoorbeeld: wat zijn de belangrijkste vervolgstappen uit het laatste rapport?"></textarea><button class="chat-send" id="chatSend" type="button" title="Verstuur vraag" aria-label="Verstuur vraag"><span aria-hidden="true">➤</span></button></div><p class="field"><span class="label">Gebruikt model</span><span id="chatModel">$CHAT_MODEL</span></p><p class="chat-status" id="chatStatus"></p></div></details>
 <details class="technical-details"><summary><strong>Technische details</strong></summary><div class="technical-grid">
 <div class="card"><strong>Pull requests</strong><p class="field"><span class="label">Implementatie</span><span id="implementation"></span></p><p class="field"><span class="label">Finalisatie</span><span id="finalization"></span></p></div>
@@ -608,21 +910,24 @@ function tone(x){const phase=x.current_phase||"",watcher=x.watcher_state||"";if(
 function finalStatus(phase){if(phase==="COMPLETE")return ["green","Voltooid"];if(phase==="BLOCKED")return ["yellow","Geblokkeerd"];if(phase==="FAILED")return ["red","Mislukt"];return ["grey","Status onbekend"]}
 function executionRange(x){const characters=Number(x.prompt_characters)||0;if(characters<=2000)return [6,10];if(characters<=6000)return [10,18];if(characters<=12000)return [16,26];return [24,38]}
 function pluralMinutes(value){return value===1?"minuut":"minuten"}
-function estimate(x){const phase=x.current_phase||"";if(phase==="INITIALIZE")return {summary:"Voorbereiding: minder dan 1 minuut",context:""};if(["EXECUTE_AGENT","REPAIR_AGENT"].includes(phase)){const [minimum,maximum]=executionRange(x);if(!promptStartedAt)return {summary:"Indicatieve totale duur: "+minimum+"–"+maximum+" minuten",context:"Gebaseerd op promptomvang en fase. Live Codex-voortgang is niet beschikbaar."};const elapsed=Math.max(0,Math.floor((Date.now()-promptStartedAt)/60000)),remainingMinimum=Math.max(1,minimum-elapsed),remainingMaximum=Math.max(remainingMinimum,maximum-elapsed);return {summary:"Indicatief resterend: "+remainingMinimum+"–"+remainingMaximum+" minuten",context:elapsed+" "+pluralMinutes(elapsed)+" verstreken · gebaseerd op promptomvang, fase en verstreken tijd. Geen live Codex-voortgang of tokenverbruik."}}if(phase==="FINALIZE_AGENT")return {summary:"Finalisatie in uitvoering",context:"De resterende tijd is pas betrouwbaar met live Codex-voortgang."};if(phase==="REPOSITORY_CLEANUP")return {summary:"Opschoning in uitvoering",context:"De resterende tijd hangt af van de lokale repository."};if(phase==="WAIT_FOR_TERMINAL_EVIDENCE")return {summary:"Wacht op externe verificatie",context:"Geen betrouwbare ETA."};if(phase==="COMPLETE")return {summary:"Voltooid",context:""};if(["BLOCKED","FAILED"].includes(phase))return {summary:"Gestopt; actie nodig",context:""};return {summary:"Nog niet beschikbaar",context:""}}
+function estimate(x){const phase=x.current_phase||"";if(phase==="INITIALIZE")return {summary:"Voorbereiding: minder dan 1 minuut",context:""};if(["EXECUTE_AGENT","REPAIR_AGENT"].includes(phase)){const [minimum,maximum]=executionRange(x);if(!promptStartedAt)return {summary:"Indicatieve totale duur: "+minimum+"–"+maximum+" minuten",context:"Gebaseerd op promptomvang en fase. Live Codex-voortgang is niet beschikbaar."};const elapsed=Math.max(0,Math.floor((Date.now()-promptStartedAt)/60000)),remainingMinimum=Math.max(1,minimum-elapsed),remainingMaximum=Math.max(remainingMinimum,maximum-elapsed);return {summary:"Indicatief resterend: "+remainingMinimum+"–"+remainingMaximum+" minuten",context:elapsed+" "+pluralMinutes(elapsed)+" verstreken."+String.fromCharCode(10)+"gebaseerd op promptomvang, fase en verstreken tijd. Geen live Codex-voortgang of tokenverbruik."}}if(phase==="FINALIZE_AGENT")return {summary:"Finalisatie in uitvoering",context:"De resterende tijd is pas betrouwbaar met live Codex-voortgang."};if(phase==="REPOSITORY_CLEANUP")return {summary:"Opschoning in uitvoering",context:"De resterende tijd hangt af van de lokale repository."};if(phase==="WAIT_FOR_TERMINAL_EVIDENCE")return {summary:"Wacht op externe verificatie",context:"Geen betrouwbare ETA."};if(phase==="COMPLETE")return {summary:"Voltooid",context:""};if(["BLOCKED","FAILED"].includes(phase))return {summary:"Gestopt; actie nodig",context:""};return {summary:"Nog niet beschikbaar",context:""}}
 function renderEstimate(x){const value=estimate(x);$("executionEstimate").textContent=value.summary;$("executionEstimateMeta").textContent=value.context;$("executionEstimateMeta").hidden=!value.context}
 function isActiveRun(x){return x.watcher_state==="ENGINEERING_RUN_ACTIVE"&&Boolean(x.run_id)}
 function checkBuild(build){if(build===DASHBOARD_BUILD){sessionStorage.removeItem(DASHBOARD_BUILD_KEY);return}if(build&&DASHBOARD_BUILD!=="onbekend"&&sessionStorage.getItem(DASHBOARD_BUILD_KEY)!==build){sessionStorage.setItem(DASHBOARD_BUILD_KEY,build);location.reload()}}
 function clock(){let now=Date.now();$("currentTime").textContent=formatTime.format(new Date(now));$("lastRefresh").textContent="Laatst bijgewerkt: "+(lastRefresh?formatTime.format(lastRefresh):"laden…")}
 function l(id,url,run,last,container){if(run===(last?lastLogRun:currentLogRun))return;if(last)lastLogRun=run;else currentLogRun=run;$(id).textContent="Diagnose laden…";fetch(url).then(x=>x.text()).then(x=>{const available=Boolean(x)&&!x.startsWith("No Codex CLI diagnostic is available")&&!x.startsWith("Geen Codex CLI-diagnose beschikbaar");$(container).hidden=!available;if(available)$(id).textContent=x}).catch(()=>{$(container).hidden=false;$(id).textContent="Codex CLI-diagnose is niet beschikbaar."})}
 function usage(x){const labels={input_tokens:"Invoertokens",cached_input_tokens:"Gecachete invoertokens",output_tokens:"Uitvoertokens",total_tokens:"Totaal tokens",cost:"Kosten",remaining:"Resterend beschikbaar",plan_remaining:"Resterend in plan",usage:"Gebruik"};let entries=Object.entries(x||{});$("usage").hidden=!entries.length;$("usageDetails").textContent=entries.map(([key,value])=>(labels[key]||key.replaceAll("_"," "))+": "+value).join("\\n")}
-function rateLimits(x){const windows=Array.isArray(x?.windows)?x.windows:[],credits=Number.isInteger(x?.reset_credits)?x.reset_credits:null;$("rateLimits").hidden=!windows.length&&credits===null;let lines=windows.map(window=>{const remaining=Math.max(0,100-Number(window.used_percent||0)),reset=Number(window.resets_at);return window.label+": "+remaining+"% beschikbaar · reset "+(Number.isFinite(reset)?formatTime.format(new Date(reset*1000)):"onbekend")});if(credits!==null)lines.push("Beschikbare resets: "+credits);$("rateLimitDetails").textContent=lines.join("\\n")}
+function rateLimits(x){const windows=Array.isArray(x?.windows)?x.windows:[],credits=Number.isInteger(x?.reset_credits)?x.reset_credits:null,button=$("rateLimitReset");$("rateLimits").hidden=!windows.length&&credits===null;let lines=windows.map(window=>{const remaining=Math.max(0,100-Number(window.used_percent||0)),reset=Number(window.resets_at);return window.label+": "+remaining+"% beschikbaar · reset "+(Number.isFinite(reset)?formatTime.format(new Date(reset*1000)):"onbekend")});if(credits!==null)lines.push("Beschikbare resets: "+credits);$("rateLimitDetails").textContent=lines.join("\\n");button.hidden=!(credits>0);button.disabled=false}
+function consumeRateLimitReset(){const button=$("rateLimitReset"),status=$("rateLimitResetStatus");if(button.hidden||button.disabled)return;if(!window.confirm("Gebruik één beschikbare Codex-reset? Deze actie verbruikt een resetcredit."))return;button.disabled=true;status.textContent="Reset gebruiken…";fetch("/api/rate-limit-reset",{method:"POST",headers:{"Content-Type":"application/json"},body:"{}"}).then(async response=>({ok:response.ok,body:await response.json()})).then(result=>{if(!result.ok)throw Error(result.body.error||"Reset kon niet worden uitgevoerd.");const messages={reset:"Reset gebruikt. De gebruikslimieten zijn bijgewerkt.",nothingToReset:"Er is op dit moment niets om te resetten.",noCredit:"Er is geen resetcredit beschikbaar.",alreadyRedeemed:"Deze resetcredit is al gebruikt."};status.textContent=messages[result.body.outcome]||"Reset verwerkt.";if(result.body.rate_limits)rateLimits(result.body.rate_limits)}).catch(error=>{status.textContent=error.message}).finally(()=>{button.disabled=false})}
 function lastUsage(x){const labels={input_tokens:"Invoertokens",cached_input_tokens:"Gecachete invoertokens",output_tokens:"Uitvoertokens",total_tokens:"Totaal tokens",cost:"Kosten",remaining:"Resterend beschikbaar",plan_remaining:"Resterend in plan",usage:"Gebruik"};let entries=Object.entries(x||{});$("lastUsage").hidden=!entries.length;$("lastUsageDetails").textContent=entries.map(([key,value])=>(labels[key]||key.replaceAll("_"," "))+": "+value).join("\\n")}
 function processMetrics(active,x){$("processMetrics").hidden=!active;if(!active)return;$("codexCpu").textContent=Number(x?.cpu_percent||0).toLocaleString("nl-NL",{maximumFractionDigits:1})+"%";$("codexProcesses").textContent=x?.process_count??0;$("codexGpu").textContent=x?.gpu_status||"Niet beschikbaar"}
 function commits(x){let entries=Object.entries(x||{});$("commits").hidden=!entries.length;$("completionCommits").textContent=entries.map(([label,sha])=>label+": "+sha).join("\\n")}
 function lastCommits(x){let entries=Object.entries(x||{});$("lastCommits").hidden=!entries.length;$("lastCommitDetails").textContent=entries.map(([label,sha])=>label+": "+sha).join("\\n")}
+function lastExecutionTime(x){let seconds=Number(x?.seconds),field=$("lastExecutionTime"),value=$("lastExecutionTimeValue");if(!field){field=document.createElement("div");value=document.createElement("span");const label=document.createElement("span");field.className="field";field.id="lastExecutionTime";value.id="lastExecutionTimeValue";label.className="label";label.textContent="Codex CLI-uitvoeringstijd";field.append(label,value);$("lastFile").closest(".field").insertAdjacentElement("afterend",field)}field.hidden=!Number.isFinite(seconds)||seconds<0;if(field.hidden)return;const hours=Math.floor(seconds/3600),minutes=Math.floor((seconds%3600)/60),remaining=Math.round(seconds%60);value.textContent=(hours?hours+" u ":"")+(minutes?minutes+" min ":"")+remaining+" sec"}
+function reviewerAgents(items){const agents=Array.isArray(items)?items:[],card=$("reviewerAgents"),list=$("reviewerAgentList");card.hidden=!agents.length;list.replaceChildren();for(const agent of agents){if(!agent||typeof agent!=="object")continue;const row=document.createElement("article"),name=document.createElement("p"),capability=document.createElement("p"),reason=document.createElement("p"),recommendations=Number(agent.accepted_recommendations)||0;row.className="reviewer-agent";name.className="reviewer-agent__name";capability.className=reason.className="reviewer-agent__meta";name.textContent=String(agent.reviewer||"Specialistische review").replaceAll("_"," ");capability.textContent="Capaciteit: "+String(agent.capability||"engineering")+" · "+String(agent.status||"Uitgevoerd")+" · Gebruikte aanbevelingen: "+recommendations;reason.textContent="Geselecteerd voor: "+String(agent.selected_because||"Niet vastgelegd.");row.append(name,capability,reason);list.append(row)}}
 function queueItems(x){const items=Array.isArray(x)?x:[],container=$("queueList");$("queueItems").hidden=!items.length;container.replaceChildren();items.forEach(item=>{if(!item||typeof item!=="object")return;const row=document.createElement("div"),title=document.createElement("span"),meta=document.createElement("div"),modified=Date.parse(item.modified_at||"");row.className="queue-item";title.className="queue-item__title";meta.className="queue-item__meta";title.textContent=item.title||item.filename||"Naamloze prompt";meta.textContent=(item.filename||"Bestandsnaam niet beschikbaar")+" · "+(Number.isFinite(modified)?formatTime.format(new Date(modified)):"Tijdstip niet beschikbaar");row.append(title,meta);container.append(row)})}
 function promptStarted(x){promptStartedAt=x?.started_at?Date.parse(x.started_at):undefined;$("promptStarted").textContent=promptStartedAt?formatTime.format(new Date(promptStartedAt)):"Niet beschikbaar";if(latestStatus)renderEstimate(latestStatus)}
-let lastExecutedRun,reportLoaded=false,reportRequest,analysisLoaded=false,analysisRequest;function report(){if(!lastExecutedRun)return Promise.resolve();if(reportLoaded)return reportRequest;reportLoaded=true;return reportRequest=fetch("/api/report/last-executed?run_id="+encodeURIComponent(lastExecutedRun)).then(x=>x.text()).then(x=>{if(!x){$("report").hidden=true;return}$("reportContent").textContent=x}).catch(()=>{$("reportContent").textContent="Engineeringrapport is niet beschikbaar."})}function analysis(){if(!lastExecutedRun)return Promise.resolve();if(analysisLoaded)return analysisRequest;analysisLoaded=true;return analysisRequest=fetch("/api/report-analysis/last-executed?run_id="+encodeURIComponent(lastExecutedRun)).then(x=>x.text()).then(x=>{if(!x){$("reportAnalysis").hidden=true;return}$("reportAnalysisContent").textContent=x}).catch(()=>{$("reportAnalysisContent").textContent="Codex-analyse is niet beschikbaar."})}
+let lastExecutedRun,reportLoaded=false,reportRequest,analysisLoaded=false,analysisRequest;function renderMarkdownDocument(target,value){target.replaceChildren();renderMarkdownAnswer(target,value)}function report(){if(!lastExecutedRun)return Promise.resolve();if(reportLoaded)return reportRequest;reportLoaded=true;return reportRequest=fetch("/api/report/last-executed?run_id="+encodeURIComponent(lastExecutedRun)).then(x=>x.text()).then(x=>{if(!x){$("report").hidden=true;return}renderMarkdownDocument($("reportContent"),x)}).catch(()=>{$("reportContent").textContent="Engineeringrapport is niet beschikbaar."})}function analysis(){if(!lastExecutedRun)return Promise.resolve();if(analysisLoaded)return analysisRequest;analysisLoaded=true;return analysisRequest=fetch("/api/report-analysis/last-executed?run_id="+encodeURIComponent(lastExecutedRun)).then(x=>x.text()).then(x=>{if(!x){$("reportAnalysis").hidden=true;return}renderMarkdownDocument($("reportAnalysisContent"),x)}).catch(()=>{$("reportAnalysisContent").textContent="Codex-analyse is niet beschikbaar."})}
 let componentLogsLoaded=false,componentLogEntries={inbox:[],dashboard:[]};function structuredLogEntries(text){return String(text||"").split(/\\r?\\n/).filter(Boolean).map((line,index)=>{try{const entry=JSON.parse(line);if(!entry||typeof entry!=="object"||Array.isArray(entry))throw Error("not an object");const known=new Set(["timestamp","level","event","run_id","component"]),details=Object.entries(entry).filter(([key])=>!known.has(key)).map(([key,value])=>key+": "+(typeof value==="string"?value:JSON.stringify(value))).join(" · ");return {line:index+1,timestamp:String(entry.timestamp||""),level:String(entry.level||"ONBEKEND").toUpperCase(),event:String(entry.event||"onbekend"),runId:entry.run_id==null?"":String(entry.run_id),details:details}}catch{return {line:index+1,timestamp:"",level:"ONGELDIGE JSON",event:"onleesbare logregel",runId:"",details:line}}})}function logTimestamp(entry){const value=Date.parse(entry.timestamp);return Number.isFinite(value)?value:0}function renderComponentLogs(){const needle=$("logFilter").value.trim().toLocaleLowerCase("nl-NL"),level=$("logLevelFilter").value,sort=$("logSort").value;for(const component of ["inbox","dashboard"]){const rows=componentLogEntries[component].filter(entry=>!level||entry.level===level).filter(entry=>!needle||Object.values(entry).join(" ").toLocaleLowerCase("nl-NL").includes(needle)).sort((left,right)=>sort==="oldest"?logTimestamp(left)-logTimestamp(right):sort==="level"?left.level.localeCompare(right.level,"nl"):sort==="event"?left.event.localeCompare(right.event,"nl"):logTimestamp(right)-logTimestamp(left)),body=$(component+"ComponentLog");body.replaceChildren();if(!rows.length){const cell=document.createElement("td"),row=document.createElement("tr");cell.className="log-empty";cell.colSpan=6;cell.textContent="Geen logregels voor deze selectie.";row.append(cell);body.append(row);continue}for(const entry of rows){const row=document.createElement("tr");for(const [name,value] of [["log-line-number",entry.line],["",entry.timestamp||"—"],["log-level log-level--"+entry.level.toLocaleLowerCase("nl-NL"),entry.level],["",entry.event],["",entry.runId||"—"],["",entry.details||"—"]]){const cell=document.createElement("td");cell.className=name;cell.textContent=value;row.append(cell)}body.append(row)}}}function loadComponentLogs(){if(componentLogsLoaded)return;$("loadComponentLogs").disabled=true;$("loadComponentLogs").textContent="Logs laden…";Promise.all([fetch("/api/logs/inbox").then(x=>x.text()),fetch("/api/logs/dashboard").then(x=>x.text())]).then(([inbox,dashboard])=>{componentLogEntries.inbox=structuredLogEntries(inbox);componentLogEntries.dashboard=structuredLogEntries(dashboard);componentLogsLoaded=true;$("componentLogControls").hidden=false;renderComponentLogs();$("loadComponentLogs").textContent="Logs geladen"}).catch(()=>{componentLogEntries.inbox=structuredLogEntries('{"level":"ERROR","event":"inbox_log_unavailable","diagnostic":"Inbox-log is niet beschikbaar."}');componentLogEntries.dashboard=structuredLogEntries('{"level":"ERROR","event":"dashboard_log_unavailable","diagnostic":"Dashboard-log is niet beschikbaar."}');$("componentLogControls").hidden=false;renderComponentLogs();$("loadComponentLogs").disabled=false;$("loadComponentLogs").textContent="Opnieuw proberen"})}
 const CHAT_HISTORY_KEY="djconnect-engineering-chat-history",CHAT_CONTEXT_KEY="djconnect-engineering-chat-context",CHAT_HISTORY_LIMIT=20;function loadChatHistory(){try{const saved=JSON.parse(sessionStorage.getItem(CHAT_HISTORY_KEY)||"[]");return Array.isArray(saved)?saved.filter(entry=>entry&&["user","assistant"].includes(entry.role)&&typeof entry.text==="string").slice(-CHAT_HISTORY_LIMIT):[]}catch{return []}}let chatHistory=loadChatHistory();function persistChatHistory(){sessionStorage.setItem(CHAT_HISTORY_KEY,JSON.stringify(chatHistory))}function chatMessage(role,text){let item=document.createElement("article"),label=document.createElement("span"),body=document.createElement("div");item.className="chat-message chat-message--"+role;label.className="chat-message__role";label.textContent=role==="user"?"Jij":"Codex";body.className="chat-message__body";body.textContent=text;item.append(label,body);$("chatMessages").append(item);item.scrollIntoView({block:"nearest"})}function renderChatHistory(){const container=$("chatMessages");container.replaceChildren();chatHistory.forEach(entry=>chatMessage(entry.role,entry.text))}function reconcileChatContext(run){if(!latestStatus)return;const context=run||"none";if(sessionStorage.getItem(CHAT_CONTEXT_KEY)===context)return;chatHistory=[];sessionStorage.removeItem(CHAT_HISTORY_KEY);sessionStorage.setItem(CHAT_CONTEXT_KEY,context);renderChatHistory()}function askCodex(){let input=$("chatInput"),message=input.value.trim();if(!message||$("chatSend").disabled)return;$("chatSend").disabled=true;$("chatStatus").textContent="Codex denkt na…";chatHistory.push({role:"user",text:message});chatHistory=chatHistory.slice(-CHAT_HISTORY_LIMIT);persistChatHistory();chatMessage("user",message);input.value="";fetch("/api/codex-chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({message:message,history:chatHistory.slice(0,-1).slice(-6)})}).then(async response=>({ok:response.ok,body:await response.json()})).then(result=>{if(!result.ok)throw Error(result.body.error||"Codex Gesprek is niet beschikbaar.");let answer=result.body.answer;$("chatModel").textContent=result.body.model||$("chatModel").textContent;chatHistory.push({role:"assistant",text:answer});chatHistory=chatHistory.slice(-CHAT_HISTORY_LIMIT);persistChatHistory();chatMessage("assistant",answer);$("chatStatus").textContent=""}).catch(error=>{$("chatStatus").textContent=error.message}).finally(()=>{$("chatSend").disabled=false})}
 function fallbackCopy(value){const area=document.createElement("textarea");area.value=value;area.setAttribute("readonly","");area.style.cssText="position:fixed;top:0;left:0;opacity:0";document.body.append(area);area.focus();area.select();area.setSelectionRange(0,area.value.length);const copied=document.execCommand("copy");area.remove();if(!copied)throw Error("copy unavailable")}
@@ -630,14 +935,37 @@ function copyText(value){return navigator.clipboard&&window.isSecureContext?navi
 function copyReport(){report().then(()=>copyText($("reportContent").textContent)).then(()=>{$("copyReport").textContent="Gekopieerd";setTimeout(()=>{$("copyReport").textContent="⧉ Kopieer"},1500)}).catch(()=>{$("copyReport").textContent="Kopiëren mislukt"})}
 function copyReportAnalysis(){analysis().then(()=>copyText($("reportAnalysisContent").textContent)).then(()=>{$("copyReportAnalysis").textContent="Gekopieerd";setTimeout(()=>{$("copyReportAnalysis").textContent="⧉ Kopieer"},1500)}).catch(()=>{$("copyReportAnalysis").textContent="Kopiëren mislukt"})}
 function addReportAnalysisCopy(){const card=$("reportAnalysis");if(!card||$("copyReportAnalysis"))return;const button=document.createElement("button");button.className="copy";button.id="copyReportAnalysis";button.type="button";button.title="Kopieer analyse";button.setAttribute("aria-label","Kopieer analyse");button.textContent="⧉ Kopieer";button.addEventListener("click",copyReportAnalysis);card.querySelector("summary").insertAdjacentElement("afterend",button)}addReportAnalysisCopy()
-function r(x,snapshot={}){lastRefresh=new Date();clock();x=x&&typeof x==="object"?x:fallback;latestStatus=x;let active=isActiveRun(x),statusTone=tone(x),indicator=$("indicator"),previous=x.last_executed_run||null,lastStatus=finalStatus(x.last_executed_phase),components=snapshot.component_versions||{},blocked=Boolean(x.blocking_predecessor_run);if(previous!==lastExecutedRun){lastExecutedRun=previous;reportLoaded=false;reportRequest=undefined;analysisLoaded=false;analysisRequest=undefined;$("report").open=false;$("reportAnalysis").open=false;$("reportContent").textContent="Open dit blok om het rapport te laden.";$("reportAnalysisContent").textContent="Open dit blok om de analyse te laden."}$("currentRun").hidden=!active;$("promptRuns").hidden=!previous;$("lastExecution").hidden=!previous;$("report").hidden=!previous;$("reportAnalysis").hidden=!previous;$("predecessorGate").hidden=!blocked;$("predecessorRun").textContent=x.blocking_predecessor_run||"Niet beschikbaar";$("predecessorPrompt").textContent=x.blocking_predecessor_title||x.blocking_predecessor_filename||"Niet beschikbaar";$("predecessorPhase").textContent=translate(x.blocking_predecessor_phase||"Niet beschikbaar");$("predecessorAction").textContent=x.predecessor_recovery_action||"Niet beschikbaar";$("executionContext").hidden=!x.execution_mode;$("executionMode").textContent=x.execution_mode||"Niet beschikbaar";$("targetRepository").textContent=x.target_repository||"Niet beschikbaar";$("checkoutPath").textContent=x.checkout_path||"Niet beschikbaar";$("activeBranch").textContent=x.active_branch||"Niet beschikbaar";indicator.className="indicator indicator--"+statusTone+(active?" indicator--running":"");indicator.setAttribute("aria-label","Promptstatus: "+statusTone);$("lastIndicator").className="indicator indicator--small indicator--"+lastStatus[0];$("lastFinalStatus").textContent=lastStatus[1];$("watcher").textContent=translate(x.watcher_state||fallback.watcher_state);$("phase").textContent=translate(x.current_phase||"idle");$("action").textContent=translate(x.current_action||"Geen actieve actie");promptStarted(snapshot.prompt_started);renderEstimate(x);processMetrics(active,snapshot.process_metrics);$("currentPrompt").textContent=x.prompt_title||"Niet beschikbaar";$("currentFile").textContent=x.submitted_filename||"Niet beschikbaar";if(!active||x.run_id!==currentLogRun)$("currentDiagnostic").hidden=true;if(active)l("currentLog","/api/log/current",x.run_id||null,false,"currentDiagnostic");$("lastPrompt").textContent=x.last_executed_title||"Nog geen prompt uitgevoerd";$("lastFile").textContent=x.last_executed_filename||"Niet beschikbaar";$("lastDiagnostic").hidden=lastStatus[0]==="green";if(previous&&lastStatus[0]!=="green")l("lastLog","/api/log/last",previous,true,"lastDiagnostic");$("runId").textContent=x.run_id||"geen";$("queue").textContent=x.queue_depth??0;$("implementation").textContent=x.implementation_pr||"geen";$("finalization").textContent=x.finalization_pr||"geen";$("repositoryState").textContent=translate(x.repository_state||"UNKNOWN");$("workspaceState").textContent=translate(x.workspace_state||"UNKNOWN");$("diag").textContent=translate(x.diagnostic||"Geen diagnose");$("platformVersion").textContent=x.platform_version||"Niet beschikbaar";$("dashboardVersion").textContent=components.dashboard||"Niet beschikbaar";$("workerVersion").textContent=components.worker||"Niet beschikbaar";usage(snapshot.usage);rateLimits(snapshot.rate_limits);lastUsage(snapshot.last_executed_usage);commits(snapshot.completion_commits);lastCommits(snapshot.last_executed_commits)}
+function r(x,snapshot={}){lastRefresh=new Date();clock();x=x&&typeof x==="object"?x:fallback;latestStatus=x;let active=isActiveRun(x),statusTone=tone(x),indicator=$("indicator"),previous=x.last_executed_run||null,lastStatus=finalStatus(x.last_executed_phase),components=snapshot.component_versions||{},blocked=Boolean(x.blocking_predecessor_run);if(previous!==lastExecutedRun){lastExecutedRun=previous;reportLoaded=false;reportRequest=undefined;analysisLoaded=false;analysisRequest=undefined;$("report").open=false;$("reportAnalysis").open=false;$("reportContent").textContent="Open dit blok om het rapport te laden.";$("reportAnalysisContent").textContent="Open dit blok om de analyse te laden."}$("currentRun").hidden=!active;$("promptRuns").hidden=!previous;$("lastExecution").hidden=!previous;$("report").hidden=!previous;$("reportAnalysis").hidden=!previous;$("predecessorGate").hidden=!blocked;$("predecessorRun").textContent=x.blocking_predecessor_run||"Niet beschikbaar";$("predecessorPrompt").textContent=x.blocking_predecessor_title||x.blocking_predecessor_filename||"Niet beschikbaar";$("predecessorPhase").textContent=translate(x.blocking_predecessor_phase||"Niet beschikbaar");$("predecessorAction").textContent=x.predecessor_recovery_action||"Niet beschikbaar";$("executionContext").hidden=!x.execution_mode;$("executionMode").textContent=x.execution_mode||"Niet beschikbaar";$("targetRepository").textContent=x.target_repository||"Niet beschikbaar";$("checkoutPath").textContent=x.checkout_path||"Niet beschikbaar";$("activeBranch").textContent=x.active_branch||"Niet beschikbaar";indicator.className="indicator indicator--"+statusTone+(active?" indicator--running":"");indicator.setAttribute("aria-label","Promptstatus: "+statusTone);$("lastIndicator").className="indicator indicator--small indicator--"+lastStatus[0];$("lastFinalStatus").textContent=lastStatus[1];$("watcher").textContent=translate(x.watcher_state||fallback.watcher_state);$("phase").textContent=translate(x.current_phase||"idle");$("action").textContent=translate(x.current_action||"Geen actieve actie");promptStarted(snapshot.prompt_started);renderEstimate(x);processMetrics(active,snapshot.process_metrics);$("currentPrompt").textContent=x.prompt_title||"Niet beschikbaar";$("currentFile").textContent=x.submitted_filename||"Niet beschikbaar";if(!active||x.run_id!==currentLogRun)$("currentDiagnostic").hidden=true;if(active)l("currentLog","/api/log/current",x.run_id||null,false,"currentDiagnostic");$("lastPrompt").textContent=x.last_executed_title||"Nog geen prompt uitgevoerd";$("lastFile").textContent=x.last_executed_filename||"Niet beschikbaar";$("lastDiagnostic").hidden=lastStatus[0]==="green";if(previous&&lastStatus[0]!=="green")l("lastLog","/api/log/last",previous,true,"lastDiagnostic");$("runId").textContent=x.run_id||"geen";$("queue").textContent=x.queue_depth??0;$("implementation").textContent=x.implementation_pr||"geen";$("finalization").textContent=x.finalization_pr||"geen";$("repositoryState").textContent=translate(x.repository_state||"UNKNOWN");$("workspaceState").textContent=translate(x.workspace_state||"UNKNOWN");$("diag").textContent=translate(x.diagnostic||"Geen diagnose");$("platformVersion").textContent=x.platform_version||"Niet beschikbaar";$("dashboardVersion").textContent=components.dashboard||"Niet beschikbaar";$("workerVersion").textContent=components.worker||"Niet beschikbaar";usage(snapshot.usage);rateLimits(snapshot.rate_limits);lastUsage(snapshot.last_executed_usage);commits(snapshot.completion_commits);lastCommits(snapshot.last_executed_commits);reviewerAgents(snapshot.last_executed_reviewer_agents)}
+const renderStatus=r;let lastExecutionCategoryRun,activePromptCategoryRun;r=(x,snapshot={})=>{renderStatus(x,snapshot);const active=x&&typeof x==="object"&&isActiveRun(x),current=$("currentRun"),previous=x&&typeof x==="object"?x.last_executed_run||null:null,group=$("lastExecutionGroup");if(active&&current&&x.run_id!==activePromptCategoryRun){activePromptCategoryRun=x.run_id;current.open=false}if(!group)return;group.hidden=!previous;if(previous!==lastExecutionCategoryRun){lastExecutionCategoryRun=previous;group.open=false}}
 let e=new EventSource("/api/events");e.addEventListener("dashboard",x=>{try{let snapshot=JSON.parse(x.data);r(snapshot.status,snapshot);queueItems(snapshot.status?.queue_items);humanize();checkBuild(snapshot.build_commit);$("updateMode").textContent="Serverpush: verbonden"}catch{r(fallback);queueItems([]);humanize();$("updateMode").textContent="Serverpush: update ongeldig"}});e.onerror=()=>{$("updateMode").textContent="Serverpush: opnieuw verbinden…"};$("report").addEventListener("toggle",()=>{$("report").open&&report()});$("reportAnalysis").addEventListener("toggle",()=>{$("reportAnalysis").open&&analysis()});$("copyReport").addEventListener("click",copyReport);$("loadComponentLogs").addEventListener("click",loadComponentLogs);for(const id of ["logFilter","logLevelFilter","logSort"])$(id).addEventListener("input",renderComponentLogs);$("chatSend").addEventListener("click",askCodex);$("chatInput").addEventListener("keydown",event=>{if(event.key==="Enter"&&(event.metaKey||event.ctrlKey)){event.preventDefault();askCodex()}});renderChatHistory();setInterval(()=>{reconcileChatContext(latestStatus?.last_executed_run);clock()},250);clock()
 let logSortState={key:"timestamp",direction:"desc"};function logValue(entry,key){if(key==="line")return Number(entry.line)||0;if(key==="timestamp")return logTimestamp(entry);return String(entry[key]||"").toLocaleLowerCase("nl-NL")}function updateLogSortHeaders(){document.querySelectorAll(".log-table th[data-sort-key]").forEach(header=>{const active=header.dataset.sortKey===logSortState.key;header.dataset.sortIndicator=active?(logSortState.direction==="asc"?"↑":"↓"):"↕";header.setAttribute("aria-sort",active?(logSortState.direction==="asc"?"ascending":"descending"):"none")})}function setLogSort(key){logSortState=logSortState.key===key?{key:key,direction:logSortState.direction==="asc"?"desc":"asc"}:{key:key,direction:key==="timestamp"?"desc":"asc"};updateLogSortHeaders();renderComponentLogs()}function renderComponentLogs(){const needle=$("logFilter").value.trim().toLocaleLowerCase("nl-NL"),level=$("logLevelFilter").value;for(const component of ["inbox","dashboard"]){const rows=componentLogEntries[component].filter(entry=>!level||entry.level===level).filter(entry=>!needle||Object.values(entry).join(" ").toLocaleLowerCase("nl-NL").includes(needle)).sort((left,right)=>{const first=logValue(left,logSortState.key),second=logValue(right,logSortState.key),result=typeof first==="number"&&typeof second==="number"?first-second:String(first).localeCompare(String(second),"nl");return logSortState.direction==="asc"?result:-result}),body=$(component+"ComponentLog");body.replaceChildren();if(!rows.length){const cell=document.createElement("td"),row=document.createElement("tr");cell.className="log-empty";cell.colSpan=6;cell.textContent="Geen logregels voor deze selectie.";row.append(cell);body.append(row);continue}for(const entry of rows){const row=document.createElement("tr");for(const [name,value] of [["log-line-number",entry.line],["",entry.timestamp||"—"],["log-level log-level--"+entry.level.toLocaleLowerCase("nl-NL").replaceAll(" ","-"),entry.level],["",entry.event],["",entry.runId||"—"],["",entry.details||"—"]]){const cell=document.createElement("td");cell.className=name;cell.textContent=value;row.append(cell)}body.append(row)}}}function configureLogSortHeaders(){const keys=["line","timestamp","level","event","runId","details"];document.querySelectorAll(".log-table").forEach(table=>table.querySelectorAll("th").forEach((header,index)=>{const key=keys[index];header.classList.add("log-sortable");header.dataset.sortKey=key;header.tabIndex=0;header.addEventListener("click",()=>setLogSort(key));header.addEventListener("keydown",event=>{if(event.key==="Enter"||event.key===" "){event.preventDefault();setLogSort(key)}})}));updateLogSortHeaders()}function providerNeutralLabels(){const labels=[["#processMetrics>strong","Lokale AI-processen"],["#usage>strong","AI-providergebruik"],["#currentDiagnostic>strong","AI-uitvoeringsdiagnose"],["#rateLimits .label","AI-providerlimieten"],["#lastUsage .label","AI-providergebruik"],["#lastDiagnostic .label","AI-uitvoeringsdiagnose"],["#reportAnalysis summary strong","AI-analyse van rapport"],["#codexChat>strong","AI-gesprek"],["#chatMessages","Gesprek met AI-assistent"],["label[for=chatInput]","Nieuwe vraag aan AI-assistent"]];labels.forEach(([selector,text])=>{const element=document.querySelector(selector);if(element){element.textContent=text;if(selector==="#chatMessages")element.setAttribute("aria-label",text)}})}function chatMessage(role,text){let item=document.createElement("article"),label=document.createElement("span"),body=document.createElement("div");item.className="chat-message chat-message--"+role;label.className="chat-message__role";label.textContent=role==="user"?"Jij":"AI-assistent";body.className="chat-message__body";body.textContent=text;item.append(label,body);$("chatMessages").append(item);item.scrollIntoView({block:"nearest"})}configureLogSortHeaders();providerNeutralLabels();
 function addProviderEvidence(){for(const [rootId,targetSelector,fieldId] of [["currentRun",".current-run__title","currentProvider"],["lastExecution","summary","lastProvider"]]){const root=$(rootId),target=root?.querySelector(targetSelector);if(!target||$(fieldId))continue;const field=document.createElement("div"),label=document.createElement("span"),value=document.createElement("span");field.className="field";field.id=fieldId;label.className="label";label.textContent="AI-provider";value.textContent="Codex CLI";field.append(label,value);target.append(field)}}addProviderEvidence();
-function groupLastExecution(){const group=$("lastExecution")?.parentElement;if(!group||group.classList.contains("last-execution-group"))return;group.classList.add("last-execution-group");group.dataset.testid="last-executed-prompt-category";const heading=document.createElement("h2");heading.className="last-execution-group__heading";heading.dataset.testid="last-executed-prompt-category-title";heading.textContent="Laatste uitgevoerde prompt";group.prepend(heading)}groupLastExecution();
+function groupLastExecution(){const group=$("lastExecutionGroup");if(!group||group.tagName==="DETAILS")return;const category=document.createElement("details"),summary=document.createElement("summary"),title=document.createElement("strong"),content=document.createElement("div");category.id=group.id;category.className=group.className;category.dataset.testid="last-executed-prompt-category";category.hidden=group.hidden;title.textContent="Laatst uitgevoerde prompt";summary.append(title);content.className="last-execution-group__content";while(group.firstChild)content.append(group.firstChild);category.append(summary,content);group.replaceWith(category)}groupLastExecution();
+function addCategoryDescriptions(){const descriptions=[[".workspace-card","De actieve werkruimte en de locatie van dit dashboard."],["#rateLimits","Beschikbare gebruiksruimte en resets van de actieve AI-provider."],["#lastExecutionGroup","De meest recent uitgevoerde prompt, met bewijs, rapport en analyse."],["#componentLogs","Geredigeerde, roterende logs van watcher en dashboard. Automatisch bijgewerkt via serverpush."],["#codexChat","Alleen lezen · context: repository, laatst uitgevoerde prompt en rapport. Deze chat kan geen engineering starten of wijzigingen uitvoeren."],["#engineering-dashboard-content>.technical-details:not(#componentLogs)","Operationele details over pull requests, repository, werkruimte en diagnose."]];for(const [selector,text] of descriptions){const category=document.querySelector(selector),summary=category?.querySelector(":scope>summary");if(!category||!summary)continue;let description=category.querySelector(":scope>.category-description")||category.querySelector(":scope>.estimate-meta");if(!description){description=document.createElement("p");description.textContent=text;summary.insertAdjacentElement("afterend",description)}description.classList.add("category-description")}}addCategoryDescriptions();
+function moveComponentLogsLast(){const logs=$("componentLogs"),technical=[...document.querySelectorAll("#engineering-dashboard-content>.technical-details:not(#componentLogs)")].at(-1);if(logs&&technical)technical.insertAdjacentElement("afterend",logs)}moveComponentLogsLast();$("rateLimitReset").addEventListener("click",consumeRateLimitReset);
 function addTestIds(){const toTestId=value=>"engineering-"+value.replace(/[A-Z]/g,letter=>"-"+letter.toLowerCase());document.querySelector("main")?.setAttribute("data-testid","engineering-dashboard");document.querySelector("h1")?.setAttribute("data-testid","engineering-dashboard-title");document.querySelectorAll("[id]").forEach(element=>{if(!element.dataset.testid)element.dataset.testid=toTestId(element.id)});document.querySelectorAll(".log-table").forEach((table,index)=>table.dataset.testid="engineering-log-table-"+(index+1))}addTestIds();
 function applyAccessibility(){const indicator=$("indicator"),chatStatus=$("chatStatus"),messages=$("chatMessages");indicator.setAttribute("role","status");indicator.setAttribute("aria-live","polite");indicator.setAttribute("aria-atomic","true");chatStatus.setAttribute("role","status");chatStatus.setAttribute("aria-live","polite");messages.setAttribute("role","log");messages.setAttribute("aria-relevant","additions text");document.querySelectorAll(".log-table").forEach((table,index)=>{table.setAttribute("aria-label",index===0?"Logregels van Inbox-watcher":"Logregels van Statusdashboard");table.querySelectorAll("th.log-sortable").forEach(header=>{header.setAttribute("role","button");header.setAttribute("aria-label",header.textContent.trim()+" sorteren")})});const live=document.createElement("div");live.className="sr-only";live.id="dashboardStatusAnnouncement";live.setAttribute("role","status");live.setAttribute("aria-live","polite");live.setAttribute("aria-atomic","true");document.body.append(live);let previous="";new MutationObserver(()=>{const message=indicator.getAttribute("aria-label")||"";if(message&&message!==previous){previous=message;live.textContent=message}}).observe(indicator,{attributes:true,attributeFilter:["aria-label"]})}applyAccessibility();
 renderChatHistory();
+function appendMarkdownInline(target,value){const pattern=/(\*\*[^*]+\*\*|`[^`]+`|\[[^\]]+\]\(https?:\/\/[^)\s]+\)|\*[^*]+\*)/g;let offset=0;for(const token of String(value).matchAll(pattern)){target.append(document.createTextNode(value.slice(offset,token.index)));const text=token[0];if(text.startsWith("**")){const strong=document.createElement("strong");strong.textContent=text.slice(2,-2);target.append(strong)}else if(text.startsWith("`")){const code=document.createElement("code");code.textContent=text.slice(1,-1);target.append(code)}else if(text.startsWith("[")){const match=/^\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)$/.exec(text),link=document.createElement("a");link.href=match[2];link.rel="noopener noreferrer";link.target="_blank";link.textContent=match[1];target.append(link)}else{const emphasis=document.createElement("em");emphasis.textContent=text.slice(1,-1);target.append(emphasis)}offset=token.index+text.length}target.append(document.createTextNode(value.slice(offset)))}
+function renderMarkdownAnswer(target,value){const newline=String.fromCharCode(10);let codeLines=null,list=null,listType="";for(const line of String(value).split(newline)){if(line.startsWith("```")){if(codeLines===null){codeLines=[]}else{const pre=document.createElement("pre"),code=document.createElement("code");code.textContent=codeLines.join(newline);pre.append(code);target.append(pre);codeLines=null}list=null;continue}if(codeLines!==null){codeLines.push(line);continue}const heading=/^(#{1,3})\s+(.+)$/.exec(line),bullet=/^[-*]\s+(.+)$/.exec(line),ordered=/^\d+\.\s+(.+)$/.exec(line);if(heading){const element=document.createElement("h"+Math.min(heading[1].length+2,4));appendMarkdownInline(element,heading[2]);target.append(element);list=null;continue}if(/^ {0,3}([-*_])\1\1+\s*$/.test(line)){target.append(document.createElement("hr"));list=null;continue}if(bullet||ordered){const type=bullet?"ul":"ol";if(!list||listType!==type){list=document.createElement(type);listType=type;target.append(list)}const item=document.createElement("li");appendMarkdownInline(item,(bullet||ordered)[1]);list.append(item);continue}list=null;if(!line.trim())continue;const paragraph=document.createElement("p");appendMarkdownInline(paragraph,line);target.append(paragraph)}if(codeLines!==null){const pre=document.createElement("pre"),code=document.createElement("code");code.textContent=codeLines.join(newline);pre.append(code);target.append(pre)}}
+const plainChatMessage=chatMessage;chatMessage=(role,text)=>{if(role!=="assistant"){plainChatMessage(role,text);return}const item=document.createElement("article"),label=document.createElement("span"),body=document.createElement("div");item.className="chat-message chat-message--assistant";label.className="chat-message__role";label.textContent="AI-assistent";body.className="chat-message__body";renderMarkdownAnswer(body,text);item.append(label,body);$("chatMessages").append(item);item.scrollIntoView({block:"nearest"})};renderChatHistory();
+$("chatSend").querySelector("span").textContent="↑";
+let componentLogVersion="";function refreshComponentLogs(versions={}){const version=JSON.stringify(versions);if(componentLogsLoaded&&version===componentLogVersion)return;componentLogVersion=version;Promise.all([fetch("/api/logs/inbox").then(response=>response.text()),fetch("/api/logs/dashboard").then(response=>response.text())]).then(([inbox,dashboard])=>{componentLogEntries.inbox=structuredLogEntries(inbox);componentLogEntries.dashboard=structuredLogEntries(dashboard);componentLogsLoaded=true;$("componentLogControls").hidden=false;renderComponentLogs()}).catch(()=>{componentLogEntries.inbox=structuredLogEntries('{"level":"ERROR","event":"inbox_log_unavailable","diagnostic":"Inbox-log is niet beschikbaar."}');componentLogEntries.dashboard=structuredLogEntries('{"level":"ERROR","event":"dashboard_log_unavailable","diagnostic":"Dashboard-log is niet beschikbaar."}');$("componentLogControls").hidden=false;renderComponentLogs()})}function enableLiveComponentLogs(){const button=$("loadComponentLogs"),description=document.querySelector("#componentLogs .estimate-meta");button?.remove();if(description)description.textContent="Geredigeerde, roterende logs van watcher en dashboard. Automatisch bijgewerkt via serverpush.";$("componentLogControls").hidden=false;refreshComponentLogs()}const renderStatusWithLiveComponentLogs=r;r=(x,snapshot={})=>{renderStatusWithLiveComponentLogs(x,snapshot);refreshComponentLogs(snapshot.component_log_versions||{})};enableLiveComponentLogs();
+const healthComponentLabels={dashboard:"Statusdashboard",inbox_watcher:"Inbox-watcher",dashboard_relay:"Dashboardrelay",status_storage:"Statusopslag",private_remote_access:"Privé externe toegang"};let healthRequestInFlight=false;function healthIndicatorClass(healthy){return healthy?"indicator indicator--green":"indicator indicator--red"}function renderPlatformHealth(payload){const container=$("platformHealthComponents"),summary=$("platformHealthSummary");if(!container||!summary)return;const components=payload&&typeof payload.components==="object"?payload.components:null;const healthy=Boolean(payload?.healthy);summary.textContent=components?(healthy?"Alle componenten gezond":"Actie vereist"):"Status niet beschikbaar";container.replaceChildren();if(!components){const message=document.createElement("p");message.className="platform-health__empty";message.textContent="De live gezondheidscontrole is tijdelijk niet beschikbaar.";container.append(message);return}for(const [key,component] of Object.entries(components)){const item=document.createElement("article"),indicator=document.createElement("span"),name=document.createElement("span"),detail=document.createElement("span"),componentHealthy=Boolean(component?.healthy);item.className="platform-health__component";item.dataset.health=String(componentHealthy);indicator.className=healthIndicatorClass(componentHealthy);indicator.setAttribute("aria-hidden","true");name.className="platform-health__component-name";name.textContent=healthComponentLabels[key]||key;detail.className="platform-health__component-detail";detail.textContent=(componentHealthy?"Gezond":"Niet gezond")+" · "+String(component?.detail||component?.state||"Geen toelichting");item.append(indicator,name,detail);container.append(item)}}async function refreshPlatformHealth(){if(healthRequestInFlight)return;healthRequestInFlight=true;try{const response=await fetch("/health",{cache:"no-store"}),payload=await response.json();renderPlatformHealth(payload)}catch{renderPlatformHealth(null)}finally{healthRequestInFlight=false}}refreshPlatformHealth();window.setInterval(refreshPlatformHealth,15000);
+function flattenMarkdownPanels(){for(const [panelId,contentId] of [["report","reportContent"],["reportAnalysis","reportAnalysisContent"]]){const panel=$(panelId),content=$(contentId),field=content?.closest(".field");if(panel&&field&&field.parentElement===panel)field.replaceWith(content)}}flattenMarkdownPanels();
+function compactCopyButton(buttonId,contentId){const button=$(buttonId),content=$(contentId);if(!button||!content)return;let wrapper=content.parentElement;if(!wrapper.classList.contains("markdown-copy-wrap")){wrapper=document.createElement("div");wrapper.className="markdown-copy-wrap";content.replaceWith(wrapper);wrapper.append(content)}button.classList.add("copy--glyph");button.textContent="⧉";wrapper.append(button)}function compactReportCopyButtons(){compactCopyButton("copyReport","reportContent");compactCopyButton("copyReportAnalysis","reportAnalysisContent")}compactReportCopyButtons();
+function placeFinalStatusIndicator(){const indicator=$("lastIndicator"),status=$("lastFinalStatus");if(indicator&&status)status.before(indicator)}placeFinalStatusIndicator();
+function arrangeCurrentRunCategory(){const current=$("currentRun"),summary=current?.querySelector(":scope>summary"),prompt=$("currentPrompt"),indicator=$("indicator");if(!current||!summary||!prompt||!indicator)return;let heading=summary.querySelector(".current-run__prompt-heading");if(!heading){heading=document.createElement("div");heading.className="current-run__prompt-heading";prompt.replaceWith(heading);heading.append(prompt)}heading.append(indicator);let description=current.querySelector(":scope>.current-run__category-description");if(!description){description=document.createElement("p");description.className="current-run__category-description";description.textContent="De actieve engineeringprompt, met actuele voortgang, uitvoeringstijd en uitvoeringscontext.";summary.insertAdjacentElement("afterend",description)}}arrangeCurrentRunCategory();
+function durationText(seconds){if(!Number.isFinite(seconds)||seconds<0)return"—";const hours=Math.floor(seconds/3600),minutes=Math.floor((seconds%3600)/60),remaining=Math.round(seconds%60);return(hours?hours+" u ":"")+(minutes?minutes+" min ":"")+remaining+" sec"}function executionTimeField(id,label,after){let field=$(id),value=$(id+"Value");if(!field){field=document.createElement("div");value=document.createElement("span");const fieldLabel=document.createElement("span");field.className="field";field.id=id;value.id=id+"Value";fieldLabel.className="label";fieldLabel.textContent=label;field.append(fieldLabel,value);after.insertAdjacentElement("afterend",field)}return[field,value]}function lastExecutionTime(x){const agent=Number(x?.seconds),total=Number(x?.total_seconds),file=$("lastFile").closest(".field"),[agentField,agentValue]=executionTimeField("lastExecutionTime","Codex CLI-uitvoeringstijd",file),[totalField,totalValue]=executionTimeField("lastTotalExecutionTime","Totale doorlooptijd",agentField);agentField.hidden=!Number.isFinite(agent)||agent<0;totalField.hidden=!Number.isFinite(total)||total<0;if(!agentField.hidden)agentValue.textContent=durationText(agent);if(!totalField.hidden)totalValue.textContent=durationText(total)}
+function executionTelemetry(rows){let panel=$("executionTelemetry"),body=$("executionTelemetryRows");if(!panel){panel=document.createElement("details");panel.id="executionTelemetry";panel.className="telemetry";const summary=document.createElement("summary"),title=document.createElement("strong"),description=document.createElement("p"),scroll=document.createElement("div"),table=document.createElement("table"),head=document.createElement("thead"),headRow=document.createElement("tr"),tableBody=document.createElement("tbody");title.textContent="Execution Host-telemetrie";summary.append(title);description.className="category-description";description.textContent="Operationele trends van de laatste zeven dagen. Telemetrie is geen repositorybewijs.";scroll.className="telemetry-scroll";table.className="telemetry-table";table.setAttribute("aria-label","Dagelijkse Execution Host-telemetrie");for(const label of ["Dag","Prompts","Gem. AI-tijd","Gem. totaal","Gem. wachttijd","Input","Output","Totaal","Voltooid","Geblokkeerd","Mislukt"]){const cell=document.createElement("th");cell.scope="col";cell.textContent=label;headRow.append(cell)}head.append(headRow);tableBody.id="executionTelemetryRows";table.append(head,tableBody);scroll.append(table);panel.append(summary,description,scroll);const rate=$("rateLimits");rate?.insertAdjacentElement("afterend",panel);body=tableBody}body.replaceChildren();for(const row of Array.isArray(rows)?rows:[]){if(!row||typeof row!=="object")continue;const line=document.createElement("tr");for(const value of [row.date,row.prompt_count,durationText(row.average_execution_seconds),durationText(row.average_total_execution_seconds),durationText(row.average_queue_wait_seconds),row.input_tokens??"—",row.output_tokens??"—",row.total_tokens??"—",row.complete_count,row.blocked_count,row.failed_count]){const cell=document.createElement("td");cell.textContent=String(value??"—");line.append(cell)}body.append(line)}if(!body.children.length){const line=document.createElement("tr"),cell=document.createElement("td");cell.colSpan=11;cell.className="telemetry-empty";cell.textContent="Nog geen voltooide Execution Host-telemetrie beschikbaar.";line.append(cell);body.append(line)}}
+function telemetryDuration(seconds){if(typeof seconds!=="number"||seconds<0)return"—";const minutes=Math.floor(seconds/60),remaining=Math.round(seconds%60);return(minutes?minutes+" min ":"")+remaining+" sec"}function executionTelemetry(rows){let panel=$("executionTelemetry"),body=$("executionTelemetryRows");if(!panel){panel=document.createElement("details");panel.id="executionTelemetry";panel.className="telemetry";const summary=document.createElement("summary"),title=document.createElement("strong"),description=document.createElement("p"),scroll=document.createElement("div"),table=document.createElement("table"),head=document.createElement("thead"),headRow=document.createElement("tr"),tableBody=document.createElement("tbody");title.textContent="Execution Host-telemetrie";summary.append(title);description.className="category-description";description.textContent="Operationele trends van de laatste zeven dagen. Telemetrie is geen repositorybewijs.";scroll.className="telemetry-scroll";table.className="telemetry-table";table.setAttribute("aria-label","Dagelijkse Execution Host-telemetrie");for(const label of ["Dag","Prompts","Gem. uitvoering","Gem. wachttijd","Input","Output","Totaal","Voltooid","Geblokkeerd","Mislukt"]){const cell=document.createElement("th");cell.scope="col";cell.textContent=label;headRow.append(cell)}head.append(headRow);tableBody.id="executionTelemetryRows";table.append(head,tableBody);scroll.append(table);panel.append(summary,description,scroll);const rate=$("rateLimits");rate?.insertAdjacentElement("afterend",panel);body=tableBody}body.replaceChildren();for(const row of Array.isArray(rows)?rows:[]){if(!row||typeof row!=="object")continue;const line=document.createElement("tr");for(const value of [row.date,row.prompt_count,telemetryDuration(row.average_execution_seconds),telemetryDuration(row.average_queue_wait_seconds),row.input_tokens??"—",row.output_tokens??"—",row.total_tokens??"—",row.complete_count,row.blocked_count,row.failed_count]){const cell=document.createElement("td");cell.textContent=String(value??"—");line.append(cell)}body.append(line)}if(!body.children.length){const line=document.createElement("tr"),cell=document.createElement("td");cell.colSpan=10;cell.className="telemetry-empty";cell.textContent="Nog geen voltooide Execution Host-telemetrie beschikbaar.";line.append(cell);body.append(line)}}
+function updateFavicon(status){const running=isActiveRun(status||{}),color=running?"#ff9f43":"#51d88a",glyph=running?'<path d="M11 8l7 4-7 4z" fill="#fff"/>':'<path d="M7 12l3 3 7-7" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"/>',svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect width="24" height="24" rx="6" fill="#20242d"/><circle cx="12" cy="12" r="8" fill="'+color+'"/>'+glyph+'</svg>';$('dashboardFavicon').href="data:image/svg+xml,"+encodeURIComponent(svg)}const renderStatusWithFavicon=r;r=(x,snapshot={})=>{renderStatusWithFavicon(x,snapshot);updateFavicon(x);executionTelemetry(snapshot.telemetry)};updateFavicon(fallback);
+const renderStatusWithExecutionEvidence=r;r=(x,snapshot={})=>{renderStatusWithExecutionEvidence(x,snapshot);lastExecutionTime(snapshot.last_executed_execution);reviewerAgents(snapshot.last_executed_reviewer_agents)};
+const independentLogSortStates={inbox:{key:"timestamp",direction:"desc"},dashboard:{key:"timestamp",direction:"desc"}};function logComponentForTable(table){return table.querySelector("#inboxComponentLog")?"inbox":"dashboard"}function updateIndependentLogSortHeaders(){document.querySelectorAll(".log-table").forEach(table=>{const state=independentLogSortStates[logComponentForTable(table)];table.querySelectorAll("th[data-sort-key]").forEach(header=>{const active=header.dataset.sortKey===state.key;header.dataset.sortIndicator=active?(state.direction==="asc"?"↑":"↓"):"↕";header.setAttribute("aria-sort",active?(state.direction==="asc"?"ascending":"descending"):"none")})})}function renderComponentLogs(){const needle=$("logFilter").value.trim().toLocaleLowerCase("nl-NL"),level=$("logLevelFilter").value;for(const component of ["inbox","dashboard"]){const state=independentLogSortStates[component],rows=componentLogEntries[component].filter(entry=>!level||entry.level===level).filter(entry=>!needle||Object.values(entry).join(" ").toLocaleLowerCase("nl-NL").includes(needle)).sort((left,right)=>{const first=logValue(left,state.key),second=logValue(right,state.key),result=typeof first==="number"&&typeof second==="number"?first-second:String(first).localeCompare(String(second),"nl");return state.direction==="asc"?result:-result}),body=$(component+"ComponentLog");body.replaceChildren();if(!rows.length){const cell=document.createElement("td"),row=document.createElement("tr");cell.className="log-empty";cell.colSpan=6;cell.textContent="Geen logregels voor deze selectie.";row.append(cell);body.append(row);continue}for(const entry of rows){const row=document.createElement("tr");for(const [name,value] of [["log-line-number",entry.line],["",entry.timestamp||"—"],["log-level log-level--"+entry.level.toLocaleLowerCase("nl-NL").replaceAll(" ","-"),entry.level],["",entry.event],["",entry.runId||"—"],["",entry.details||"—"]]){const cell=document.createElement("td");cell.className=name;cell.textContent=value;row.append(cell)}body.append(row)}}updateIndependentLogSortHeaders()}function setIndependentLogSort(component,key){const state=independentLogSortStates[component];independentLogSortStates[component]=state.key===key?{key:key,direction:state.direction==="asc"?"desc":"asc"}:{key:key,direction:key==="timestamp"?"desc":"asc"};renderComponentLogs()}document.querySelectorAll(".log-table").forEach(table=>{const component=logComponentForTable(table);table.querySelectorAll("th[data-sort-key]").forEach(header=>{const key=header.dataset.sortKey;header.addEventListener("click",()=>setIndependentLogSort(component,key));header.addEventListener("keydown",event=>{if(event.key==="Enter"||event.key===" "){event.preventDefault();setIndependentLogSort(component,key)}})})});updateIndependentLogSortHeaders();
+async function clearComponentLog(component,button){const name=component==="inbox"?"Inbox-watcher":"Statusdashboard";if(!window.confirm("Weet je zeker dat je de applicatielogs van "+name+" wilt wissen? Dit kan niet ongedaan worden gemaakt."))return;button.disabled=true;try{const response=await fetch("/api/logs/"+encodeURIComponent(component),{method:"POST",headers:{"Content-Type":"application/json"},body:"{}"});if(!response.ok){const payload=await response.json().catch(()=>({}));throw Error(payload.error||"Logs wissen is niet gelukt.")}componentLogEntries[component]=structuredLogEntries(await fetch("/api/logs/"+encodeURIComponent(component)).then(response=>response.text()));componentLogVersion="";renderComponentLogs()}catch(error){window.alert(error.message||"Logs wissen is niet gelukt.")}finally{button.disabled=false}}
+document.querySelectorAll(".clear-component-log").forEach(button=>button.addEventListener("click",()=>clearComponentLog(button.dataset.component,button)));
+let pullRefreshStart=null,pullRefreshDistance=0;const pullRefresh=$("pullRefresh");function updatePullRefresh(distance){pullRefreshDistance=Math.max(0,Math.min(distance,112));const ready=pullRefreshDistance>=72;pullRefresh.classList.toggle("pull-refresh--visible",pullRefreshDistance>8);pullRefresh.textContent=ready?"Laat los om te vernieuwen":"Trek omlaag om te vernieuwen";pullRefresh.setAttribute("aria-hidden",String(pullRefreshDistance<=8))}function startPullRefresh(event){if(window.scrollY>0||event.touches.length!==1)return;const target=event.target;if(target instanceof Element&&target.closest("input,textarea,select,button,[contenteditable=true]"))return;pullRefreshStart=event.touches[0].clientY;pullRefreshDistance=0}function movePullRefresh(event){if(pullRefreshStart===null||event.touches.length!==1)return;const distance=event.touches[0].clientY-pullRefreshStart;if(distance<=0){updatePullRefresh(0);return}event.preventDefault();updatePullRefresh(distance)}function endPullRefresh(){const refresh=pullRefreshDistance>=72;pullRefreshStart=null;updatePullRefresh(0);if(refresh){pullRefresh.textContent="Dashboard vernieuwen…";pullRefresh.classList.add("pull-refresh--visible");pullRefresh.setAttribute("aria-hidden","false");window.location.reload()}}document.addEventListener("touchstart",startPullRefresh,{passive:true});document.addEventListener("touchmove",movePullRefresh,{passive:false});document.addEventListener("touchend",endPullRefresh,{passive:true});document.addEventListener("touchcancel",endPullRefresh,{passive:true});
+function hideDashboardSplash(){const splash=$("dashboardSplash");if(!splash||document.body.classList.contains("dashboard-ready"))return;document.body.classList.add("dashboard-ready");splash.setAttribute("aria-hidden","true");setTimeout(()=>{splash.hidden=true},260)}const renderStatusWithSplash=r;r=(x,snapshot={})=>{renderStatusWithSplash(x,snapshot);hideDashboardSplash()};setTimeout(hideDashboardSplash,8000);
 </script>
 </body>
 </html>"""
@@ -646,7 +974,9 @@ renderChatHistory();
         .replace("$BUILD_COMMIT", escape(build_commit))
         .replace("$CHAT_MODEL", escape(chat_model()))
         .replace("$WORKSPACE_ID", escape(workspace_id))
-        .replace("$ENGINEERING_PATH", escape(engineering_path))
+        .replace("$WORKSPACE_LOCATION", escape(workspace_location))
+        .replace("$TRACKED_FILES", escape(tracked_files))
+        .replace("$PLATFORM_VERSION", escape(platform_version))
         .encode()
     )
 
@@ -655,7 +985,11 @@ def handler(root: Path, logger: logging.Logger | None = None):
     configuration = PlatformConfiguration.load(root)
     title = configuration.workspace.dashboard_title
     workspace_id = configuration.workspace.id
-    engineering_path = str(root / ".engineering")
+    workspace_location = str(root)
+    tracked_files = _tracked_file_count(root)
+    platform_version = EngineeringPlatformManifest.load(
+        root / "tools/engineering/ENGINEERING_PLATFORM_VERSION.json"
+    ).platform_version
     logger = logger or component_logger(root, "dashboard")
     class DashboardHandler(BaseHTTPRequestHandler):
         def _send(self, content: bytes, content_type: str, status_code: int = 200) -> None:
@@ -676,11 +1010,62 @@ def handler(root: Path, logger: logging.Logger | None = None):
             return not origin or origin == f"http://{self.headers.get('Host', '')}"
 
         def do_POST(self) -> None:
-            if urlsplit(self.path).path != "/api/codex-chat":
-                self.send_error(404)
-                return
             if not self._same_origin():
                 self._send(b'{"error":"Ongeldige herkomst."}', "application/json; charset=utf-8", 403)
+                return
+            request_path = urlsplit(self.path).path
+            if request_path == "/api/rate-limit-reset":
+                try:
+                    length = int(self.headers.get("Content-Length", "0"))
+                    if length != 2 or self.rfile.read(length) != b"{}":
+                        raise ValueError
+                    outcome = _consume_codex_rate_limit_reset_credit()
+                    log_event(logger, logging.INFO, "rate_limit_reset_consumed", diagnostic=outcome)
+                    payload = {
+                        "outcome": outcome,
+                        "rate_limits": json.loads(_codex_rate_limits()),
+                    }
+                except RateLimitResetError as error:
+                    content = json.dumps({"error": str(error)}, ensure_ascii=False).encode()
+                    self._send(content, "application/json; charset=utf-8", 503)
+                    return
+                except (ValueError, json.JSONDecodeError):
+                    self._send(b'{"error":"Ongeldig resetverzoek."}', "application/json; charset=utf-8", 400)
+                    return
+                status_code = 200 if outcome == "reset" else 409
+                self._send(
+                    json.dumps(payload, ensure_ascii=False).encode(),
+                    "application/json; charset=utf-8",
+                    status_code,
+                )
+                return
+            if request_path.startswith("/api/logs/"):
+                component = request_path.rsplit("/", 1)[-1]
+                try:
+                    length = int(self.headers.get("Content-Length", "0"))
+                    if length != 2 or self.rfile.read(length) != b"{}":
+                        raise ValueError
+                    _clear_component_log(root, component)
+                    log_event(
+                        logger,
+                        logging.INFO,
+                        "component_log_cleared",
+                        diagnostic=component,
+                    )
+                except ValueError:
+                    self._send(b'{"error":"Ongeldig logverzoek."}', "application/json; charset=utf-8", 400)
+                    return
+                except OSError as error:
+                    content = json.dumps({"error": str(error)}, ensure_ascii=False).encode()
+                    self._send(content, "application/json; charset=utf-8", 503)
+                    return
+                self._send(
+                    json.dumps({"cleared": component}, ensure_ascii=False).encode(),
+                    "application/json; charset=utf-8",
+                )
+                return
+            if request_path != "/api/codex-chat":
+                self.send_error(404)
                 return
             try:
                 length = int(self.headers.get("Content-Length", "0"))
@@ -705,7 +1090,8 @@ def handler(root: Path, logger: logging.Logger | None = None):
 
         def do_GET(self) -> None:
             request = urlsplit(self.path)
-            log_event(logger, logging.DEBUG, "http_request", diagnostic=request.path)
+            if request.path not in {"/api/logs/inbox", "/api/logs/dashboard"}:
+                log_event(logger, logging.DEBUG, "http_request", diagnostic=request.path)
             if request.path == "/api/report/last-executed":
                 run_id = parse_qs(request.query).get("run_id", [None])[0]
                 return self._send(
@@ -730,6 +1116,13 @@ def handler(root: Path, logger: logging.Logger | None = None):
                 )
             if self.path == "/api/health":
                 return self._send(b'{"health":"ok"}', "application/json; charset=utf-8")
+            if self.path == "/health":
+                payload = _platform_health(root)
+                return self._send(
+                    json.dumps(payload, separators=(",", ":")).encode(),
+                    "application/json; charset=utf-8",
+                    200 if payload["healthy"] else 503,
+                )
             if self.path == "/api/process-metrics":
                 return self._send(_codex_process_metrics(), "application/json; charset=utf-8")
             if self.path == "/api/events":
@@ -783,10 +1176,20 @@ def handler(root: Path, logger: logging.Logger | None = None):
                 return self._send(_prompt_started(root), "application/json; charset=utf-8")
             if self.path == "/":
                 return self._send(
-                    _dashboard_html(title, _build_commit(root), workspace_id, engineering_path),
+                    _dashboard_html(
+                        title,
+                        _build_commit(root),
+                        workspace_id,
+                        workspace_location,
+                        tracked_files,
+                        platform_version,
+                    ),
                     "text/html; charset=utf-8",
                 )
-            log_event(logger, logging.WARNING, "http_not_found", diagnostic=request.path)
+            # A missing browser asset or a manual mistyped path does not affect
+            # Engineering Platform health. Keep it observable without presenting
+            # it as an operational warning in the dashboard log.
+            log_event(logger, logging.INFO, "http_not_found", diagnostic=request.path)
             self.send_error(404)
 
         def log_message(self, message: str, *_: object) -> None:

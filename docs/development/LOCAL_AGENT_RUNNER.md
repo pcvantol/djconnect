@@ -264,11 +264,9 @@ evidence-based cleanup and never removes unrelated branches.
 ## Terminal reports and advisory sub-agents
 
 Each terminal transaction writes an immutable local Markdown report beneath
-`.djconnect/reports/` and best-effort opens it using `$EDITOR`, then native
-macOS Visual Studio Code or Sublime Text application bundles, then a PATH
-executable fallback. PATH `code` is reported by its resolved executable path,
-never inferred to be Visual Studio Code. Reports are git-ignored; editor
-failure never changes the engineering result. When the Inbox watcher owns the
+`.djconnect/reports/`. Reports are never opened automatically in an editor;
+they remain available through Engineering Status and the local report path.
+Reports are git-ignored. When the Inbox watcher owns the
 transaction, it validates the report against the terminal checkpoint and keeps
 the safe terminal report locally under `.djconnect/reports/`. If correction is
 needed, the watcher writes a corrected checkpoint-consistent local copy; it

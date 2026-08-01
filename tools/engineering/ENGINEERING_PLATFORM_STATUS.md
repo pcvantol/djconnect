@@ -35,13 +35,16 @@ boundary. Existing commands remain compatibility interfaces.
 - Provider-neutral runtime, repository, service, submission and private-access
   configuration, with Codex CLI, GitHub, launchd, iCloud Inbox and Tailscale as
   current configured providers.
-- The private dashboard is read-only and binds only to loopback plus the
-  locally reported Tailscale IPv4 address. It never binds a wildcard, LAN or
-  public address, and it does not configure Tailnet ACLs, Funnel, port
-  forwarding or network policy.
+- The private dashboard is status-only for Engineering lifecycle activity and
+  binds only to loopback plus the locally reported Tailscale IPv4 address. It
+  never binds a wildcard, LAN or public address, and it does not configure
+  Tailnet ACLs, Funnel, port forwarding or network policy. Its sole bounded
+  account-side action is consuming one available Codex resetcredit after an
+  explicit maintainer confirmation; it cannot affect Inbox, repository,
+  lifecycle, release or deployment state.
 - Watcher and dashboard application logs are structured, bounded, rotated and
-  redacted before persistence. The dashboard shows a log tail only after an
-  explicit maintainer action.
+  redacted before persistence. The dashboard automatically refreshes a bounded
+  log tail only when its server-pushed revision changes.
 - The private dashboard's Codex advice surface is separately bounded to a
   read-only, ephemeral CLI process with context from the repository, matching
   terminal prompt and Engineering Report. It cannot start engineering or
@@ -50,7 +53,7 @@ boundary. Existing commands remain compatibility interfaces.
   per-run provenance (for example, `AI-provider: Codex CLI`). It offers
   server-pushed status, category-coded evidence cards, client-side structured
   log filtering/sorting and browser-session-local read-only advice history.
-- Engineering Storage schema `1` is versioned and fail-closed in the platform
+- Engineering Storage schema `3` is versioned and fail-closed in the platform
   manifest. It is the verified SQLite storage foundation for the planned
   `.engineering/engineering.db` migration; current runtime evidence remains
   under `.djconnect/` until the complete consumer migration is qualified.

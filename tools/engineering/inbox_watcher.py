@@ -31,6 +31,7 @@ from .component_logging import (
     log_event,
 )
 from .component_lock import DuplicateComponentInstanceError, single_instance
+from .telemetry import ExecutionTelemetry, persist_execution_async
 
 LABEL = "com.djconnect.engineering-inbox"
 WATCHER_VERSION = "1.1.2"
@@ -140,6 +141,33 @@ def _runner_failure_detail(completed: subprocess.CompletedProcess[str]) -> str:
     lines = [line.strip() for line in output.splitlines() if line.strip()]
     detail = lines[-1] if lines else "Runner stopped before publishing a checkpoint."
     return redact_diagnostic(detail, limit=500)
+
+
+def _telemetry_values(repo: Path, run_id: str) -> tuple[float | None, dict[str, int | None], str]:
+    """Read only local, run-bound evidence for best-effort telemetry."""
+    execution_seconds: float | None = None
+    repository = repo.name
+    try:
+        state = json.loads((repo / ".djconnect" / "engineering-runs" / f"{run_id}.json").read_text(encoding="utf-8"))
+        value = state.get("agent_execution_seconds")
+        if isinstance(value, (int, float)) and not isinstance(value, bool) and value >= 0:
+            execution_seconds = float(value)
+        if isinstance(state.get("repository"), str):
+            repository = state["repository"]
+    except (OSError, json.JSONDecodeError):
+        pass
+    usage: dict[str, int | None] = {"input_tokens": None, "output_tokens": None, "total_tokens": None}
+    try:
+        stored = json.loads((repo / ".djconnect" / "status" / "codex_usage.json").read_text(encoding="utf-8"))
+        raw = stored.get("usage") if stored.get("run_id") == run_id else {}
+        if isinstance(raw, dict):
+            for key in usage:
+                value = raw.get(key)
+                if isinstance(value, int) and not isinstance(value, bool) and value >= 0:
+                    usage[key] = value
+    except (OSError, json.JSONDecodeError):
+        pass
+    return execution_seconds, usage, repository
 
 
 def _report_matches_terminal_phase(report: Path, phase: str | None) -> bool:
@@ -450,6 +478,10 @@ def once(repo: Path, root: Path, interval: float = 1.0) -> int:
             return 0
         claimed = _archive_path(areas["Running"], job_id, source)
         title = _prompt_title(content, source.name)
+        try:
+            arrived_at = datetime.fromtimestamp(source.stat().st_mtime, timezone.utc)
+        except OSError:
+            arrived_at = datetime.now(timezone.utc)
         status(repo, "JOB_CLAIMED", queued_jobs=len(candidates) - 1, queue_items=_queue_items(candidates, source), job_id=job_id, run_id=run_id, submitted_filename=source.name, prompt_title=title,
                blocking_predecessor_run=None, blocking_predecessor_phase=None, blocking_predecessor_filename=None,
                blocking_predecessor_title=None, predecessor_recovery_action=None)
@@ -489,6 +521,7 @@ def once(repo: Path, root: Path, interval: float = 1.0) -> int:
             submitted_filename=source.name, prompt_title=title,
         )
         log_event(logger, logging.INFO, "runner_started", run_id=run_id)
+        execution_started_at = datetime.now(timezone.utc)
         completed = subprocess.run(arguments, cwd=repo, text=True, capture_output=True, check=False)
         phase, diagnostic = _runner_result(repo, run_id)
         report = _report(repo, run_id)
@@ -554,6 +587,43 @@ def once(repo: Path, root: Path, interval: float = 1.0) -> int:
             run_id=run_id,
             diagnostic=reason,
         )
+        try:
+            execution_seconds, usage, repository = _telemetry_values(repo, run_id)
+            persist_execution_async(
+                repo,
+                ExecutionTelemetry(
+                    run_id=run_id,
+                    arrived_at=arrived_at,
+                    execution_started_at=execution_started_at,
+                    execution_finished_at=datetime.now(timezone.utc),
+                    terminal_state=phase if phase in TERMINAL_PHASES else "FAILED",
+                    execution_seconds=execution_seconds,
+                    input_tokens=usage["input_tokens"],
+                    output_tokens=usage["output_tokens"],
+                    total_tokens=usage["total_tokens"],
+                    execution_mode="GENESIS" if "Execution Mode: Genesis" in content else "MANAGED",
+                    workspace=repo.name,
+                    repository=repository,
+                    execution_host_version=EngineeringPlatformManifest.load(
+                        Path(__file__).with_name("ENGINEERING_PLATFORM_VERSION.json")
+                    ).platform_version,
+                ),
+                on_error=lambda error: log_event(
+                    logger,
+                    logging.WARNING,
+                    "telemetry_persist_failed",
+                    run_id=run_id,
+                    diagnostic=str(error),
+                ),
+            )
+        except Exception as error:
+            log_event(
+                logger,
+                logging.WARNING,
+                "telemetry_schedule_failed",
+                run_id=run_id,
+                diagnostic=str(error),
+            )
         return 0 if successful else (completed.returncode or 1)
 
 

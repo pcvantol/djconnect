@@ -14,7 +14,7 @@ import sqlite3
 
 WORKSPACE_DIRECTORY = ".engineering"
 DATABASE_FILENAME = "engineering.db"
-ENGINEERING_STORAGE_SCHEMA_VERSION = 1
+ENGINEERING_STORAGE_SCHEMA_VERSION = 3
 
 
 class EngineeringStorageError(RuntimeError):
@@ -83,7 +83,60 @@ def _schema_v1(connection: sqlite3.Connection) -> None:
             connection.execute(f"INSERT OR IGNORE INTO {destination}({columns}) SELECT {columns} FROM {source}")
 
 
-MIGRATIONS: dict[int, Migration] = {1: _schema_v1}
+def _schema_v2(connection: sqlite3.Connection) -> None:
+    """Create generic, local-only Execution Host telemetry evidence."""
+    for statement in """
+        CREATE TABLE IF NOT EXISTS execution_runs (
+            run_id TEXT PRIMARY KEY,
+            execution_date TEXT NOT NULL,
+            arrived_at TEXT NOT NULL,
+            execution_started_at TEXT NOT NULL,
+            execution_finished_at TEXT NOT NULL,
+            queue_wait_seconds REAL NOT NULL,
+            execution_seconds REAL,
+            terminal_state TEXT NOT NULL,
+            input_tokens INTEGER,
+            output_tokens INTEGER,
+            total_tokens INTEGER,
+            execution_mode TEXT NOT NULL,
+            workspace TEXT NOT NULL,
+            repository TEXT NOT NULL,
+            execution_host_version TEXT NOT NULL
+        );
+        CREATE INDEX IF NOT EXISTS execution_runs_daily_lookup
+            ON execution_runs(execution_date, terminal_state);
+        CREATE TABLE IF NOT EXISTS daily_execution_statistics (
+            execution_date TEXT NOT NULL,
+            workspace TEXT NOT NULL,
+            repository TEXT NOT NULL,
+            execution_mode TEXT NOT NULL,
+            prompt_count INTEGER NOT NULL,
+            complete_count INTEGER NOT NULL,
+            blocked_count INTEGER NOT NULL,
+            failed_count INTEGER NOT NULL,
+            average_execution_seconds REAL,
+            average_queue_wait_seconds REAL,
+            input_tokens INTEGER,
+            output_tokens INTEGER,
+            total_tokens INTEGER,
+            PRIMARY KEY(execution_date, workspace, repository, execution_mode)
+        );
+        CREATE INDEX IF NOT EXISTS daily_execution_statistics_date_lookup
+            ON daily_execution_statistics(execution_date);
+        """.split(";"):
+        if statement.strip():
+            connection.execute(statement)
+
+
+def _schema_v3(connection: sqlite3.Connection) -> None:
+    """Add total Execution Host elapsed time without changing run authority."""
+    connection.execute("ALTER TABLE execution_runs ADD COLUMN total_execution_seconds REAL")
+    connection.execute(
+        "ALTER TABLE daily_execution_statistics ADD COLUMN average_total_execution_seconds REAL"
+    )
+
+
+MIGRATIONS: dict[int, Migration] = {1: _schema_v1, 2: _schema_v2, 3: _schema_v3}
 
 
 def database_path(root: Path) -> Path:

@@ -8,8 +8,6 @@ from dataclasses import dataclass, replace
 import json
 import os
 from pathlib import Path
-import platform
-import shutil
 import subprocess
 import tempfile
 import time
@@ -113,7 +111,7 @@ def _codex_final_message(output: str) -> str:
 
 
 def write_codex_usage(root: Path, run_id: str, usage: dict[str, int | float | str]) -> None:
-    """Persist only current-run CLI usage that the CLI explicitly supplied."""
+    """Persist cumulative, explicitly-reported CLI usage for one run only."""
     safe_usage = {
         key: value
         for key, value in usage.items()
@@ -123,6 +121,22 @@ def write_codex_usage(root: Path, run_id: str, usage: dict[str, int | float | st
         return
     directory = root / ".djconnect" / "status"
     directory.mkdir(mode=0o700, parents=True, exist_ok=True)
+    existing: dict[str, int | float] = {}
+    try:
+        prior = json.loads((directory / "codex_usage.json").read_text(encoding="utf-8"))
+        if prior.get("run_id") == run_id and isinstance(prior.get("usage"), dict):
+            existing = {
+                key: value
+                for key, value in prior["usage"].items()
+                if key in USAGE_KEYS and isinstance(value, (int, float)) and not isinstance(value, bool)
+            }
+    except (OSError, json.JSONDecodeError):
+        pass
+    token_keys = {"input_tokens", "cached_input_tokens", "output_tokens", "total_tokens"}
+    safe_usage = {
+        key: (existing.get(key, 0) + value if key in token_keys else value)
+        for key, value in safe_usage.items()
+    }
     descriptor, temporary = tempfile.mkstemp(prefix=".codex-usage.", suffix=".tmp", dir=directory)
     try:
         os.fchmod(descriptor, 0o600)
@@ -449,6 +463,7 @@ class CodexCliClient:
     def __init__(self, provider: CodexCliProvider | None = None) -> None:
         self.provider = provider or CodexCliProvider()
         self.last_usage: dict[str, int | float | str] = {}
+        self.last_execution_seconds: float | None = None
 
     def available(self) -> bool:
         return self.provider.command("--version").returncode == 0
@@ -525,6 +540,7 @@ class CodexCliClient:
 
     def invoke(self, root: Path, prompt: str) -> AgentResult:
         self.last_usage = {}
+        self.last_execution_seconds = None
         state_directory = root / ".djconnect" / "engineering-runs"
         state_directory.mkdir(mode=0o700, parents=True, exist_ok=True)
         schema = {
@@ -579,6 +595,7 @@ class CodexCliClient:
             for extra_root in extra_roots:
                 command.extend(("--add-dir", str(extra_root)))
             command.extend(("--output-schema", str(schema_path), prompt))
+            started = time.monotonic()
             completed = subprocess.run(
                 tuple(command),
                 cwd=root,
@@ -586,6 +603,7 @@ class CodexCliClient:
                 capture_output=True,
                 check=False,
             )
+            self.last_execution_seconds = round(time.monotonic() - started, 3)
             self.last_usage = extract_codex_usage(completed.stdout, completed.stderr)
         finally:
             schema_path.unlink(missing_ok=True)
@@ -693,6 +711,18 @@ class EngineeringRunner:
         usage = getattr(self.agent, "last_usage", None)
         if isinstance(usage, dict):
             write_codex_usage(self.root, run_id, usage)
+
+    def _record_agent_execution_time(self, state: TransactionState) -> TransactionState:
+        """Accumulate only measured Codex CLI invocation time for this run."""
+        measured = getattr(self.agent, "last_execution_seconds", None)
+        if isinstance(measured, bool) or not isinstance(measured, (int, float)):
+            return state
+        if not 0 <= measured <= 86_400:
+            return state
+        return replace(
+            state,
+            agent_execution_seconds=round((state.agent_execution_seconds or 0) + measured, 3),
+        )
 
     def run(
         self,
@@ -813,8 +843,10 @@ class EngineeringRunner:
             result = self.agent.invoke(
                 self.root, assemble_prompt(prompt_path, state) + memory + reviewer_context
             )
+            state = self._record_agent_execution_time(state)
             self._persist_agent_usage(state.run_id)
         except CodexInvocationError as error:
+            state = self._record_agent_execution_time(state)
             self.console_detail = error.console_detail
             return self._save_terminal(state, "BLOCKED", "inspect_codex_cli", str(error))
         if state.execution_mode == "GENESIS":
@@ -1003,8 +1035,10 @@ class EngineeringRunner:
                 assemble_prompt(Path(repair.prompt_path), repair)
                 + f"\n\nRepair objective: {objective}",
             )
+            repair = self._record_agent_execution_time(repair)
             self._persist_agent_usage(repair.run_id)
         except CodexInvocationError as error:
+            repair = self._record_agent_execution_time(repair)
             self.console_detail = error.console_detail
             return self._save_terminal(repair, "BLOCKED", "inspect_codex_cli", str(error))
         if result.terminal_state in {"BLOCKED", "FAILED"}:
@@ -1064,8 +1098,10 @@ class EngineeringRunner:
                 self.root,
                 assemble_prompt(Path(finalization.prompt_path), finalization) + instruction,
             )
+            finalization = self._record_agent_execution_time(finalization)
             self._persist_agent_usage(finalization.run_id)
         except CodexInvocationError as error:
+            finalization = self._record_agent_execution_time(finalization)
             self.console_detail = error.console_detail
             return self._save_terminal(finalization, "BLOCKED", "inspect_codex_cli", str(error))
         if result.terminal_state in {"BLOCKED", "FAILED"} or not result.pull_request:
@@ -1209,7 +1245,7 @@ def main(argv: list[str] | None = None) -> int:
     except (RunnerError, StateError) as error:
         print(f"BLOCKED: {error}")
         return 2
-    report_path, editor = (
+    report_path = (
         generate_terminal_report(
             root,
             state,
@@ -1218,7 +1254,7 @@ def main(argv: list[str] | None = None) -> int:
             runner.reviewer_records,
         )
         if state.terminal
-        else (None, None)
+        else None
     )
     if report_path:
         analyze_terminal_report(root, state.run_id, report_path)
@@ -1256,7 +1292,7 @@ def main(argv: list[str] | None = None) -> int:
         )
     if report_path:
         print(
-            f"Engineering report generated:\n\n{report_path}\n\nOpened in:\n\n{editor or 'not available'}\n\nReady for review."
+            f"Engineering report generated:\n\n{report_path}\n\nAvailable in the Engineering Status dashboard."
         )
     if state.phase in {"BLOCKED", "FAILED"}:
         print(_format_terminal_report(state))
@@ -1441,7 +1477,7 @@ def generate_terminal_report(
     manifest: EngineeringPlatformManifest | None = None,
     detected_cli: str | None = None,
     reviewer_records: tuple[dict[str, object], ...] = (),
-) -> tuple[Path, str | None]:
+) -> Path:
     """Write one immutable, local-only report for a terminal transaction."""
     reports = root / ".djconnect" / "reports"
     reports.mkdir(mode=0o700, parents=True, exist_ok=True)
@@ -1522,8 +1558,8 @@ def generate_terminal_report(
             "## Repository Cleanup",
             state.latest_repository_evidence or "Cleanup evidence unavailable.",
             "",
-            "## Sub-Agent Usage",
-            "No sub-agents were required. Sub-agents are read-only advisory helpers; the primary runner retains lifecycle authority.",
+            "## Specialist Agent Reviews",
+            "Specialist review agents are read-only advisory helpers. Their initial observations are listed above; the primary runner retains lifecycle authority.",
             "",
             "## Management Summary",
             "Final repository outcome; it does not restate initial reviewer observations as current state.",
@@ -1534,6 +1570,7 @@ def generate_terminal_report(
             f"Resume: `dj-engineer {state.prompt_path} --run-id {state.run_id} --resume`",
             "",
             "## Metrics",
+            f"- Codex CLI execution time: {state.agent_execution_seconds if state.agent_execution_seconds is not None else 'not measured'} seconds",
             f"- Repair iterations: {state.repair_iterations}",
             f"- PRs created: {sum(value is not None for value in (state.implementation_pull_request, state.finalization_pull_request))}",
             f"- Merges performed: {sum(value is not None for value in (state.implementation_merge_commit, state.finalization_merge_commit))}",
@@ -1543,38 +1580,7 @@ def generate_terminal_report(
     if not terminal_report_matches_state(body, state):
         body = corrected_terminal_report(state)
     path.write_text(body, encoding="utf-8")
-    return path, _open_report(path)
-
-
-def _open_report(path: Path) -> str | None:
-    """Best-effort editor launch; failure is deliberately non-terminal."""
-    editor = os.environ.get("EDITOR")
-    if editor:
-        return _launch_editor(tuple(editor.split()) + (str(path),), f"EDITOR={editor}")
-    if platform.system() == "Darwin":
-        for application, label in (
-            ("Visual Studio Code", "Visual Studio Code"),
-            ("Sublime Text", "Sublime Text"),
-        ):
-            if Path("/Applications", f"{application}.app").is_dir():
-                launched = _launch_editor(("open", "-a", application, str(path)), label)
-                if launched:
-                    return launched
-    for executable in ("code", "subl"):
-        resolved = shutil.which(executable)
-        if resolved:
-            launched = _launch_editor((resolved, str(path)), f"PATH executable: {resolved}")
-            if launched:
-                return launched
-    return None
-
-
-def _launch_editor(command: tuple[str, ...], label: str) -> str | None:
-    try:
-        subprocess.Popen(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        return label
-    except OSError:
-        return None
+    return path
 
 
 def write_live_status(root: Path, state: TransactionState, action: str) -> Path:

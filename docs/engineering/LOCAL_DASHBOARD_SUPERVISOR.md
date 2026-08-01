@@ -47,8 +47,8 @@ not need iCloud Drive to render a current or completed run:
 - `.djconnect/reports/` supplies the Engineering Report and its advisory
   analysis for the matching terminal run; and
 - `.djconnect/logs/dashboard.log` and `.djconnect/logs/inbox.log` supply
-  bounded, redacted component-log tails after the maintainer explicitly chooses
-  **Applicatielogs → Logs laden**.
+  bounded, redacted component-log tails that are automatically refreshed when
+  their server-pushed revision changes.
 
 iCloud Drive is solely an Inbox transport source for the separate watcher.
 The dashboard does not read iCloud reports, status or archived prompts.
@@ -59,6 +59,28 @@ also shows the Engineering Platform, watcher, dashboard and build-commit
 versions so a maintainer can distinguish a stale local service from a stale
 browser page.
 
+## Component health endpoint
+
+`GET /health` returns JSON for unattended checks. It is healthy only when the
+dashboard process, Inbox watcher LaunchAgent, private relay LaunchAgent, local
+status storage and Tailscale connectivity are all available. It returns HTTP
+`200` with `"health":"ok"` when all components are healthy, otherwise HTTP
+`503` with `"health":"degraded"` and a per-component diagnostic. The endpoint
+is read-only and does not repair or restart a component.
+
+## Browser validation
+
+The Engineering Platform validation workflow runs a Playwright Chromium smoke
+test against a locally started dashboard. It uses an iPhone-sized viewport and
+checks the private status surface, workspace category and collapsed completed
+prompt category. Run the same validation locally with:
+
+```sh
+npm ci
+npx playwright install chromium
+npm run test:engineering-dashboard
+```
+
 ## Dashboard interpretation and interaction
 
 The status page uses category accents to make unrelated evidence visually
@@ -68,11 +90,21 @@ context, technical details and the advisory conversation. A colour never
 changes lifecycle meaning; the prompt status indicator remains the authoritative
 visual outcome.
 
-The **Applicatielogs** section loads only after an explicit action. It parses
-the redacted JSON records locally into selectable, copyable tables. Search and
-level filtering are client-side. Clicking a column heading sorts that table and
-shows the active ascending or descending direction; the subtle line number is
-not a server-side log identifier.
+The **Applicatielogs** section automatically keeps the redacted JSON records
+current through server-push revisions and parses them locally into selectable,
+copyable tables. Search and level filtering are client-side. Clicking a column
+heading sorts that table and shows the active ascending or descending direction;
+the subtle line number is not a server-side log identifier.
+
+## Codex resetcredit
+
+When the local Codex account reports one or more available resetcredits, the
+**Resterend gebruik** category shows a **Gebruik reset** button. It invokes the
+installed Codex CLI's account reset-credit operation and consumes exactly one
+credit after an explicit browser confirmation. The button is hidden when no
+credit is available. This is the dashboard's sole account-side effect: it
+cannot access the Inbox, alter repository files, start a runner, create a pull
+request, merge, release or deploy.
 
 The active and last execution cards use provider-neutral wording. Each card
 also states the actual execution provenance explicitly, for example
