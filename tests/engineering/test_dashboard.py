@@ -124,6 +124,7 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn('WAITING_FOR_PREDECESSOR:"Wacht op voorafgaande prompt"', page)
         self.assertIn("indicator--green", page)
         self.assertIn("indicator--yellow", page)
+        self.assertIn("indicator--running{background:transparent;border:3px solid #ff6b6b", page)
         self.assertIn("indicator--orange", page)
         self.assertIn("indicator--red", page)
         self.assertIn("indicator--running", page)
