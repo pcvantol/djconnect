@@ -122,7 +122,7 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertEqual(all_steps.returncode, 0, all_steps.stdout)
         self.assertEqual(
             all_steps.stdout,
-            "0,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,29,22,23,25,26,27,28",
+            "0,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,29,22,23,25,26,27,28,31",
         )
         self.assertEqual(core_steps.stdout, "3,4,5,6,7,8,9,10,11,12")
         self.assertEqual(label.stdout, "Create/start Home Assistant with Docker Compose")
@@ -261,7 +261,11 @@ class DevOnboardingScriptTests(unittest.TestCase):
         desired_state = MACOS_DEVELOPMENT_HOST_DESIRED_STATE.read_text()
         self.assertIn("schema_version: 1", desired_state)
         self.assertIn("host.minimum_free_disk_gb: 80", desired_state)
-        self.assertIn("onboarding.package_version: 4.1.0", desired_state)
+        self.assertIn("onboarding.package_version: 4.2.0", desired_state)
+        self.assertIn("engineering.platform_version: 1.5.0", desired_state)
+        self.assertIn("engineering.watcher_launch_agent: com.djconnect.engineering-inbox", desired_state)
+        self.assertIn("engineering.dashboard_launch_agent: com.djconnect.engineering-dashboard", desired_state)
+        self.assertIn("engineering.dashboard_health_url: http://127.0.0.1:8765/api/health", desired_state)
         self.assertIn("version: 3.3.0", desired_state)
         self.assertIn("minimum_tool_version: 2.0.2", desired_state)
         self.assertIn("runner.profiles: apple,private-network,esp32,pi,windows", desired_state)
@@ -302,7 +306,7 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout)
         self.assertEqual(
             result.stdout,
-            "DJConnect macOS Development Host Bootstrap 2.0.10\n",
+            "DJConnect macOS Development Host Bootstrap 2.0.13\n",
         )
         self.assertTrue(MACOS_HOST_BOOTSTRAP_CHANGELOG.is_file())
         changelog = MACOS_HOST_BOOTSTRAP_CHANGELOG.read_text(encoding="utf-8")
@@ -598,7 +602,7 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("PROGRESS", source)
         self.assertIn("completed * 100 / total", source)
         self.assertIn("emit_repair_progress", source)
-        self.assertIn("REPAIR_PROGRESS_TOTAL=6", source)
+        self.assertIn("REPAIR_PROGRESS_TOTAL=7", source)
 
     def test_macos_host_bootstrap_audits_least_privilege(self) -> None:
         source = read_macos_host_bootstrap_source()
@@ -656,18 +660,27 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertTrue((HOST_BOOTSTRAP_PACKAGE / "apple.sh").is_file())
         self.assertTrue(HOST_BOOTSTRAP_MANIFEST.is_file())
         manifest = HOST_BOOTSTRAP_MANIFEST.read_text(encoding="utf-8")
-        self.assertIn("package.version: 2.0.10", manifest)
+        self.assertIn("package.version: 2.0.13", manifest)
         self.assertIn("package.aggregate_sha256:", manifest)
         self.assertIn("component.entry.sha256:", manifest)
-        self.assertIn("component.workflow.version: 1.3.1", manifest)
-        self.assertIn("component.operations.version: 1.3.3", manifest)
+        self.assertIn("component.workflow.version: 1.3.2", manifest)
+        self.assertIn("component.operations.version: 1.3.5", manifest)
         self.assertIn("component.apple.version: 1.0.0", manifest)
         source = read_macos_host_bootstrap_source()
         self.assertIn("verify_recovery_package_manifest", source)
         self.assertIn("Host-bootstrap package component", source)
         self.assertIn("aggregate SHA-256 mismatch", source)
-        self.assertIn("require_canonical_onboarding_4_1_0", source)
-        self.assertIn("requires onboarding 4.1.0", source)
+        self.assertIn("require_canonical_onboarding_4_2_0", source)
+        self.assertIn("requires onboarding 4.2.0", source)
+        self.assertIn("engineering.platform_version", source)
+        self.assertIn("engineering.watcher_launch_agent", source)
+        self.assertIn("engineering.dashboard_launch_agent", source)
+        self.assertIn("engineering.dashboard_health", source)
+        self.assertIn("engineering.status_storage", source)
+        self.assertIn("engineering.report_storage", source)
+        self.assertIn("engineering.inbox_transport", source)
+        self.assertIn("repair_engineering_platform", source)
+        self.assertIn("Engineering Platform watcher and dashboard", source)
 
     def test_macos_host_bootstrap_preserves_its_active_source_checkout_during_repair(self) -> None:
         source = (HOST_BOOTSTRAP_PACKAGE / "operations.sh").read_text(encoding="utf-8")
@@ -678,6 +691,19 @@ class DevOnboardingScriptTests(unittest.TestCase):
             source.index("Preserving active host-bootstrap checkout"),
             source.index('run_in_dir "$directory" git switch main'),
         )
+
+    def test_macos_host_bootstrap_repairs_only_canonical_engineering_services(self) -> None:
+        source = (HOST_BOOTSTRAP_PACKAGE / "operations.sh").read_text(encoding="utf-8")
+
+        self.assertIn("repair_engineering_platform()", source)
+        self.assertIn("tools.engineering.inbox_watcher doctor", source)
+        self.assertIn("tools.engineering.dashboard doctor", source)
+        self.assertIn("tools.engineering.inbox_watcher install", source)
+        self.assertIn("tools.engineering.dashboard install", source)
+        self.assertIn("com.djconnect.engineering-dashboard-backend", source)
+        self.assertIn("com.djconnect.engineering-dashboard-proxy", source)
+        self.assertIn("legacy-launchagents", source)
+        self.assertNotIn("rm -rf", source)
 
     def test_macos_host_bootstrap_rejects_manifest_component_mismatch(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:

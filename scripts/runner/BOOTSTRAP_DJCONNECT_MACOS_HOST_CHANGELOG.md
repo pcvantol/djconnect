@@ -6,6 +6,23 @@ This changelog covers only
 compatibility and security changes to the development-host bootstrap independently of
 the DJConnect product release.
 
+## [2.0.13] - 2026-08-01
+
+- Make unattended repair analyze Engineering Platform readiness, archive only
+  known legacy dashboard LaunchAgents locally, restart canonical watcher and
+  dashboard services, then verify their health again.
+
+## [2.0.12] - 2026-08-01
+
+- Add fail-closed Engineering Platform readiness verification for the canonical
+  watcher and dashboard services, loopback health endpoint, platform version,
+  local status/report storage and iCloud Inbox transport.
+
+## [2.0.11] - 2026-08-01
+
+- Fail closed before recovery invokes developer onboarding unless the canonical
+  `djconnect/onboarding/manifest.yml` declares package version `4.2.0`.
+
 ## [2.0.10] - 2026-07-30
 
 - Fail closed before recovery invokes developer onboarding unless the canonical
