@@ -34,7 +34,13 @@ architecture.
   — the canonical assessment-first delivery workflow, including its conditional
   DJ Intelligence and Golden Scenario assessments.
 - [Local Agent Runner](LOCAL_AGENT_RUNNER.md) — the bounded, resumable local
-  Codex CLI transaction runner for repository-grounded engineering work.
+  Codex CLI transaction runner for repository-grounded engineering work,
+  including watcher, dashboard and local-report operation.
+- [Engineering Inbox Protocol](../../tools/engineering/ENGINEERING_INBOX_PROTOCOL.md)
+  — accepted prompt files, ordering and iCloud delivery boundaries.
+- [Engineering Report Evidence Contract](../engineering/ENGINEERING_REPORTING.md)
+  — how initial observations, final repository evidence and terminal reports
+  are interpreted.
 
 Future development-process documentation belongs here only when it explains
 how collaboration or engineering work is performed. Product direction remains
