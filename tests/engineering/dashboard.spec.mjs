@@ -119,6 +119,17 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(inboxLevel).toHaveAttribute("aria-sort", "ascending");
   });
 
+  test("keeps dashboard view preferences in the browser", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    const autoRefresh = page.locator("#autoRefresh");
+    await expect(autoRefresh).toBeChecked();
+    await page.locator("#technicalDetails > summary").click();
+    await page.locator("#autoRefresh").uncheck();
+    await page.reload({ waitUntil: "domcontentloaded" });
+    await expect(autoRefresh).not.toBeChecked();
+    await expect(page.locator("#technicalDetails")).toHaveAttribute("open", "");
+  });
+
   test("asks for confirmation before clearing each component log", async ({ page }) => {
     await page.route("**/api/logs/inbox", async (route) => {
       if (route.request().method() === "POST") {
