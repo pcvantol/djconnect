@@ -113,6 +113,10 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn('id="loadComponentLogs"', page)
         self.assertIn('fetch("/api/logs/inbox")', page)
         self.assertIn('fetch("/api/logs/dashboard")', page)
+        self.assertIn('id="codexChat"', page)
+        self.assertIn("Codex gesprek", page)
+        self.assertIn('fetch("/api/codex-chat"', page)
+        self.assertIn("Alleen lezen", page)
         self.assertIn('id="currentDiagnostic" hidden', page)
         self.assertIn('id="lastDiagnostic" hidden', page)
         self.assertIn('x.startsWith("No Codex CLI diagnostic is available")', page)
@@ -492,7 +496,7 @@ class DashboardStatusTest(unittest.TestCase):
     def test_dashboard_fails_closed_to_loopback_without_tailscale(self, _address: object) -> None:
         self.assertEqual(binding_addresses(), (LOOPBACK_ADDRESS,))
 
-    def test_http_dashboard_exposes_only_read_only_routes(self) -> None:
+    def test_http_dashboard_exposes_status_routes_and_bounded_read_only_chat(self) -> None:
         root = Path(__file__).parents[2]
         server = dashboard.DashboardHTTPServer((LOOPBACK_ADDRESS, 0), dashboard.handler(root))
         thread = Thread(target=server.serve_forever, daemon=True)
@@ -526,6 +530,23 @@ class DashboardStatusTest(unittest.TestCase):
                 response.read()
             connection.request("GET", "/missing")
             self.assertEqual(connection.getresponse().status, 404)
+            with patch("tools.engineering.dashboard.codex_chat_response", return_value="Veilig advies."):
+                connection.request(
+                    "POST",
+                    "/api/codex-chat",
+                    body=json.dumps({"message": "Wat nu?", "history": []}),
+                    headers={"Content-Type": "application/json"},
+                )
+                response = connection.getresponse()
+                self.assertEqual(response.status, 200)
+                self.assertEqual(json.loads(response.read()), {"answer": "Veilig advies."})
+            connection.request(
+                "POST",
+                "/api/codex-chat",
+                body=json.dumps({"message": "Wat nu?", "history": []}),
+                headers={"Content-Type": "application/json", "Origin": "https://example.invalid"},
+            )
+            self.assertEqual(connection.getresponse().status, 403)
         finally:
             connection.close()
             server.shutdown()
