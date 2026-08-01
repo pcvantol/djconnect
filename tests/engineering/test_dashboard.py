@@ -203,6 +203,7 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn('id="usage"', page)
         self.assertIn('<details class="card card--resource" id="rateLimits" hidden>', page)
         self.assertIn('#rateLimits>summary::before{color:var(--category-color);content:"▸ ";display:inline-block;font-size:24px;line-height:1;padding-right:8px;vertical-align:-2px}', page)
+        self.assertIn('.last-execution-group{row-gap:16px}', page)
         self.assertIn("function rateLimits(x)", page)
         self.assertIn("rateLimits(snapshot.rate_limits)", page)
         self.assertIn("Beschikbare resets", page)
