@@ -108,6 +108,20 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#lastExecutionFinishedAtValue")).toHaveText("zaterdag 1 augustus 2026 om 12:01:30");
     await expect(page.locator("#lastExecutionTimeValue")).toHaveText("1 min 15 sec");
     await expect(page.locator("#lastTotalExecutionTimeValue")).toHaveText("2 min 5 sec");
+    await page.evaluate(() => lastRuntimeMetadata({
+      runtime_provider: "codex_cli",
+      model: "gpt-5.6-terra",
+      reasoning_profile: "medium",
+      configuration_profile: "sandbox: workspace-write",
+      codex_cli_version: "0.146.0",
+    }));
+    await expect(page.locator("#lastRuntimeProviderValue")).toHaveText("codex_cli");
+    await expect(page.locator("#lastModelValue")).toHaveText("gpt-5.6-terra");
+    await expect(page.locator("#lastReasoningProfileValue")).toHaveText("medium");
+    await expect(page.locator("#lastConfigurationProfileValue")).toHaveText("sandbox: workspace-write");
+    await expect(page.locator("#lastCodexCliVersionValue")).toHaveText("0.146.0");
+    await page.evaluate(() => lastRuntimeMetadata({ runtime_provider: "codex_cli" }));
+    await expect(page.locator("#lastModel")).toHaveAttribute("hidden", "");
     await page.evaluate(() => {
       const target = document.getElementById("reportContent");
       target.replaceChildren();
@@ -128,6 +142,14 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(lastExecution).toHaveCSS("row-gap", "0px");
     await categorySummary.click();
     await expect(lastExecution).toHaveAttribute("open", "");
+
+    const sendButton = page.locator("#chatSend");
+    await expect(sendButton).toHaveCSS("background-color", "rgb(52, 40, 63)");
+    await expect(sendButton).toHaveCSS("border-bottom-left-radius", "8px");
+    expect(await sendButton.evaluate((button) => {
+      const style = getComputedStyle(button);
+      return { bottom: style.bottom, right: style.right };
+    })).toEqual({ bottom: "10px", right: "10px" });
   });
 
   test("sorts the two component-log tables independently", async ({ page }) => {
