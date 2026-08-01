@@ -8,11 +8,18 @@ release, deployment or product authority.
 
 ## 1.5 — Platform Productization
 
-Current. The platform is an independent engineering product located in this
-repository as an implementation strategy. Platform Identity, Workspace
-Identity, provider and capability registries, configuration validation and the
-Public Platform API remove architectural dependence on DJConnect. Existing
-commands remain compatibility wrappers.
+Completed and operational. The platform is an independent engineering product
+located in this repository as an implementation strategy. Platform Identity,
+Workspace Identity, provider and capability registries, configuration
+validation and the Public Platform API remove architectural dependence on
+DJConnect. Existing commands remain compatibility wrappers.
+
+The completed operational hardening keeps iCloud Drive limited to Inbox
+transport, stores canonical prompt archives, status, reports and logs under
+`.djconnect/`, stops a strict Inbox sequence after `BLOCKED` or `FAILED`, and
+provides bounded redacted component logs, report analysis and read-only private
+Codex advice. Qualification covers 39 registered scenarios. These are
+compatible 1.5 maintenance and evidence improvements, not a 1.6 requirement.
 
 ## 1.6 — Repository Extraction Readiness
 

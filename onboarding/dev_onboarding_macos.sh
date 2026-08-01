@@ -1126,7 +1126,7 @@ step_30_engineering_inbox() {
   python3 -m tools.engineering.dashboard install --repo "$REPO_ROOT"
   python3 -m tools.engineering.inbox_watcher doctor --repo "$REPO_ROOT" || warn "Engineering Inbox is degraded; run its doctor command for corrective actions."
   python3 -m tools.engineering.dashboard doctor --repo "$REPO_ROOT" || warn "Engineering Dashboard is degraded; it remains loopback-only until private access is configured."
-  log "iPhone Shortcut target: iCloud Drive/DJConnect Engineering/Inbox. Reports: iCloud Drive/DJConnect Engineering/Reports. Dashboard: http://127.0.0.1:8765; when Tailscale is connected, use the current Tailscale IPv4 address on port 8765 from an authorized Tailnet device."
+  log "iPhone Shortcut target: iCloud Drive/DJConnect Engineering/Inbox. iCloud is transport only; prompts, reports and status are stored locally under .djconnect. Dashboard: http://127.0.0.1:8765; when Tailscale is connected, use the current Tailscale IPv4 address on port 8765 from an authorized Tailnet device."
 }
 
 run_if_dir() {
@@ -2184,7 +2184,7 @@ $(style "$CLR_BOLD" "Cross Repo")
  28. Install/start persistent ngrok tunnel for local Home Assistant
  29. Raspberry Pi Pico 2 W tooling: MicroPython, picotool and VS Code extensions
  30. Validate Raspberry Pi Pico 2 W development readiness
- 31. Install and validate the local iCloud Engineering Inbox watcher
+ 31. Install and validate the local Engineering Inbox watcher and private dashboard
 
 $(style "$CLR_BOLD" "Examples")
   ./$SCRIPT_NAME --all --yes
@@ -2273,7 +2273,7 @@ step_label() {
     28) printf 'Install/start persistent ngrok tunnel for local Home Assistant' ;;
     29) printf 'Raspberry Pi Pico 2 W tooling: MicroPython, picotool and VS Code extensions' ;;
     30) printf 'Validate Raspberry Pi Pico 2 W development readiness' ;;
-    31) printf 'Install and validate local iCloud Engineering Inbox watcher' ;;
+    31) printf 'Install and validate local Engineering Inbox watcher and private dashboard' ;;
     *) printf 'Unknown step' ;;
   esac
 }
@@ -2287,7 +2287,7 @@ parse_steps() {
   STEP_INDEX=0
   for step in "${parts[@]}"; do
     [[ "$step" =~ ^[0-9]+$ ]] || die "Invalid step: $step"
-    (( step >= 0 && step <= 30 )) || die "Step out of range: $step"
+    (( step >= 0 && step <= 31 )) || die "Step out of range: $step"
     (( step != 1 && step != 2 )) || die "Step $step was removed. VM bootstrap is intentionally outside the onboarding script."
     if [[ "$PLAN_ONLY" == "1" ]]; then
       printf '%s %2s. %s\n' "$(style "$CLR_CYAN" "PLAN")" "$step" "$(step_label "$step")"
@@ -2307,7 +2307,7 @@ resolve_step_selection() {
   case "$raw" in
     q|quit|exit) return 1 ;;
     all)
-      printf '%s' "0,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,29,22,23,25,26,27,28"
+      printf '%s' "0,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,29,22,23,25,26,27,28,31"
       ;;
     core)
       printf '%s' "3,4,5,6,7,8,9,10,11,12"

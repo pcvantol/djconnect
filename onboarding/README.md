@@ -6,7 +6,7 @@ contract tests and package documentation.
 
 ## Release alignment
 
-The current onboarding package is released as `4.1.0`, aligned with the current
+The current onboarding package is released as `4.2.0`, aligned with the current
 DJConnect platform release for operator clarity. This is version alignment only:
 the package remains independently versioned, does not consume platform release
 artifacts, and does not require a matching platform version to run or verify.
@@ -22,14 +22,36 @@ artifacts, and does not require a matching platform version to run or verify.
 Engineering Platform `1.5.0` provides a local iCloud Engineering Inbox through
 the configured Remote Submission Provider. Run
 `./onboarding/dev_onboarding_macos.sh --steps 31 --yes` to create the private
-workspace, install the per-user `com.djconnect.engineering-inbox` LaunchAgent
-and verify it. Submit UTF-8 `.md` or `.txt` prompts to `iCloud Drive/DJConnect
-Engineering/Inbox`; iOS-created `.txt` files are supported. The watcher claims
-stable files one at a time, invokes only this repository's `dj-engineer`, and
-publishes bounded status plus local-run reports to `Reports`. Use
-`python3 -m tools.engineering.inbox_watcher doctor` for corrective actions or
-`... uninstall` to remove only this LaunchAgent. iCloud is transport only;
-repository and GitHub evidence remain authoritative.
+workspace, install the per-user `com.djconnect.engineering-inbox` watcher and
+the private dashboard LaunchAgent, and verify both. Submit UTF-8 `.md` or
+`.txt` prompts to `iCloud Drive/DJConnect Engineering/Inbox`; iOS-created
+`.txt` files and filename-neutral Markdown are supported. The watcher claims
+stable files one at a time, oldest File Date Modified first, and invokes only
+this repository's `dj-engineer`.
+
+iCloud is transport only. After a prompt is claimed, the executed prompt copy,
+status, reports, logs and terminal archive live locally under `.djconnect/`:
+
+- `.djconnect/inbox/Running`, `Completed` and `Failed` hold the local prompt
+  lifecycle archive;
+- `.djconnect/inbox-processing/` contains the immutable executed input;
+- `.djconnect/status/` holds the canonical dashboard status;
+- `.djconnect/reports/` holds Engineering Reports; and
+- `.djconnect/logs/` holds redacted component logs.
+
+Do not create or rely on `iCloud Drive/DJConnect Engineering/Reports` or an
+iCloud `status.json`. Existing legacy iCloud archives can be moved safely with
+`python3 -m tools.engineering.inbox_watcher migrate-icloud-archives` after
+checking the local copies. Use `python3 -m tools.engineering.inbox_watcher
+doctor` or `./tools/engineering/dj-engineering-dashboard doctor` for corrective
+actions. Use each component's `uninstall` command to remove only its own
+LaunchAgent. Repository and GitHub evidence remain authoritative.
+
+The Inbox is deliberately strict: if a prompt ends `BLOCKED` or `FAILED`,
+later prompts remain unclaimed with dashboardstatus `WAITING_FOR_PREDECESSOR`.
+Submit the repaired prompt with `Retry-Of:
+<blocking-run-id>` on its own line to release the sequence after that retry
+completes. The dashboard identifies the blocking prompt and recovery action.
 
 Engineering prompts require Engineering Platform `>= 1.5.0`. An older platform
 is incompatible: upgrade it before starting a prompt; do not bypass bootstrap
@@ -177,7 +199,18 @@ Developer readiness remains read-only. Run:
 It reports `storage.<repository>.ignored_build_output` for each checked-out
 repository, verifies the 14-day retention result, confirms that the LaunchAgent
 is loaded, and requires the canonical `djconnect/onboarding/manifest.yml`
-package version to be `4.1.0`. It does not delete files or change the host.
+package version to be `4.2.0`. It does not delete files or change the host.
+
+The same verification is fail-closed for Engineering Platform readiness. It
+requires the declared platform version, the canonical Inbox watcher and
+dashboard LaunchAgents running, a healthy loopback dashboard endpoint, writable
+local status/report storage and a writable iCloud Inbox transport folder.
+If any of these rows reports drift, rerun onboarding step 31 to install and
+validate the canonical watcher and dashboard services before accepting Inbox
+work. The unattended host-bootstrap `--repair` follows the same path: it saves
+the diagnostic result, retires only the two known legacy dashboard LaunchAgents
+to local `.djconnect` storage, restarts the canonical services, then verifies
+them again. It never executes or removes Inbox prompts.
 
 The macOS package reconciles Docker Desktop and the persistent local Home
 Assistant Compose environment. The Home Assistant service is available at

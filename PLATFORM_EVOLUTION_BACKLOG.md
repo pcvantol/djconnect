@@ -16,6 +16,8 @@ user-facing roadmap progress; the current Product Initiative is recorded in
 
 | Initiative | Priority | Status | Dependencies | Promotion path |
 | --- | --- | --- | --- | --- |
+| Engineering Platform 1.5 operational hardening | P2 | Completed | EP 1.5 finalization and PRs #689–#699; `tools/engineering/ENGINEERING_QUALIFICATION.md` | `EP_1_5_OPERATIONAL`; private engineering remains repository-owned, qualified and behaviorally separate from DJConnect Product/Runtime/Release/Deployment work |
+| Legacy iCloud Engineering archive migration | P3 | Planned operational maintenance | local `.djconnect/` copies verified; `python3 -m tools.engineering.inbox_watcher migrate-icloud-archives` | run only on the owner workstation after local copies are verified; leave `iCloud Drive/DJConnect Engineering/Inbox` as the sole iCloud engineering folder; no product or platform capability change |
 | Capability-profile assessment follow-up | P2 | Completed | PR #539 / `QUALIFICATION_REGISTER.md`; current CMB-05/CMB-06/CMB-07/CMB-09/CMB-12 evidence | `GO_CAPABILITY_PROFILE_FOLLOW_UP_RECONCILED`; seven original items reconciled to six unique active items; no product implementation authorization |
 | Canonical governance Version 2.2 alignment | P0 | Historical | merged governance evidence | retained governance evidence only |
 | Component Release Mode | P2 | Implemented and Finalized — Execute Qualification pending | `docs/release/COMPONENT_RELEASE_MODE_ASSESSMENT.md`, `docs/release/COMPONENT_RELEASE_QUALIFICATION_ASSESSMENT.md`, `docs/release/COMPONENT_RELEASE_SCOPE_REFINEMENT.md` and `docs/release/COMPONENT_RELEASE_SELECTION_EVIDENCE_CLOSURE_IMPLEMENTATION.md` | `GO_COMPONENT_RELEASE_SELECTION_EVIDENCE_CLOSURE_IMPLEMENTED`; canonical profiles are deterministically selected and fail closed against exact closure evidence. Component execution and release remain unauthorized pending profile-specific Execute Qualification. |
@@ -38,6 +40,44 @@ user-facing roadmap progress; the current Product Initiative is recorded in
 | Release Health and observability | P2 | Planned | operational release evidence and [`PLATFORM_RELEASE_OBSERVATORY_DESIGN.md`](docs/platform_evolution/PLATFORM_RELEASE_OBSERVATORY_DESIGN.md) | three bounded delivery increments; no implementation authorization |
 | Platform diagnostics | P3 | Planned | privacy and redaction review | scoped Platform Evolution proposal |
 | Future governance improvements | P3 | Planned | governance evidence | governance review |
+
+## Engineering Platform operational updates
+
+## Backlog detail: Engineering Platform 1.5 operational hardening
+
+**Owner:** Platform Evolution / local maintainer
+
+**Priority:** P2
+**Status:** Completed
+
+Engineering Platform 1.5 remains the minimum supported platform. Its completed
+operational hardening adds no DJConnect product capability and no remote
+execution authority. The completed evidence covers versioned watcher and
+dashboard components, strict predecessor-aware Inbox sequencing, local
+canonical engineering evidence, bounded redacted component logging, advisory
+report analysis, private read-only Codex advice and documentation/onboarding
+contract checks. The local qualification registry records 39 scenarios.
+
+This entry does not authorize standalone extraction, a generic CLI, new
+providers, public exposure, release automation or a 1.6 implementation.
+
+## Backlog detail: Legacy iCloud Engineering archive migration
+
+**Owner:** local maintainer
+
+**Priority:** P3
+**Status:** Planned operational maintenance
+
+Older workstation archives may still exist in `iCloud Drive/DJConnect
+Engineering/Running`, `Completed`, `Failed`, `Reports` or `status.json` from
+the pre-local-storage design. The qualified migration command moves those
+records into their canonical `.djconnect/` locations and removes a legacy copy
+only after a safe local copy is present.
+
+This is a one-time owner-controlled workstation maintenance action. It does
+not change Engineering Platform behavior, qualification, repository truth,
+Product, Runtime, Release or Deployment. The desired end state is that iCloud
+contains only `DJConnect Engineering/Inbox/`.
 
 ## Historical operational context
 

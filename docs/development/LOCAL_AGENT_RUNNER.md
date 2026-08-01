@@ -269,10 +269,10 @@ macOS Visual Studio Code or Sublime Text application bundles, then a PATH
 executable fallback. PATH `code` is reported by its resolved executable path,
 never inferred to be Visual Studio Code. Reports are git-ignored; editor
 failure never changes the engineering result. When the Inbox watcher owns the
-transaction, it validates the report against the terminal checkpoint and copies
-a safe report to `DJConnect Engineering/Reports/` in the configured iCloud
-workspace. The watcher keeps the original local report when it must publish a
-corrected checkpoint-consistent copy. Reports summarize checkpoint evidence,
+transaction, it validates the report against the terminal checkpoint and keeps
+the safe terminal report locally under `.djconnect/reports/`. If correction is
+needed, the watcher writes a corrected checkpoint-consistent local copy; it
+never publishes a report to iCloud. Reports summarize checkpoint evidence,
 PRs, repair and cleanup evidence, diagnostics and the management summary.
 Optional sub-agents
 are read-only, bounded advisory helpers for inspection or validation; they
@@ -305,10 +305,11 @@ repository evidence after an interruption.
 ## Live progress
 
 The runner emits concise terminal and cleanup phase updates and atomically
-maintains `.djconnect/status/current.json`. The Inbox watcher projects its
-bounded public status to `DJConnect Engineering/status.json` in the configured
-iCloud workspace. Both are git-ignored advisory records; resume recomputes
-from repository and GitHub evidence. Run
+maintains `.djconnect/status/current.json`. The Inbox watcher projects bounded
+dashboard status to `.djconnect/status/status.json`. Both are git-ignored local
+advisory records; resume recomputes from repository and GitHub evidence. iCloud
+carries only a submitted Inbox file and never receives status, reports or prompt
+archives. Run
 `./tools/engineering/dj-engineer status` to display the current phase, PRs,
 repair count and action.
 

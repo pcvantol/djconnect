@@ -1,5 +1,18 @@
 # DJConnect Developer Onboarding Changelog
 
+## 4.2.0 — 2026-08-01
+
+- Align the canonical onboarding package, developer-machine readiness contract
+  and bootstrap requirement with the Engineering Platform 1.5 operational
+  hardening update.
+- Document the local-only Engineering Platform evidence model, including the
+  iCloud Inbox transport boundary, local reports and component logging.
+- Require the Engineering Platform watcher, dashboard, loopback health check,
+  local status/report storage and iCloud Inbox transport to be healthy during
+  development-host readiness verification.
+- Make host-bootstrap repair diagnose and restart only the canonical local
+  Engineering Platform services when those readiness checks report drift.
+
 ## 4.1.0 — 2026-07-30
 
 - Add the macOS-first Raspberry Pi Pico 2 W MicroPython profile to canonical

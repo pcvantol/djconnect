@@ -1,4 +1,4 @@
-# Version: 1.3.3
+# Version: 1.3.5
 # macOS host provisioning, developer-workstation and service operations.
 warm_sudo() {
   if [[ "$DRY_RUN" == '1' ]]; then
@@ -283,13 +283,13 @@ prepare_repositories() {
   done
 }
 
-require_canonical_onboarding_4_1_0() {
+require_canonical_onboarding_4_2_0() {
   local central_repository="$1" manifest actual_version
   manifest="$central_repository/onboarding/manifest.yml"
-  [[ "$DESIRED_ONBOARDING_PACKAGE_VERSION" == '4.1.0' ]] || die "The canonical macOS bootstrap requires onboarding 4.1.0; desired state declares $DESIRED_ONBOARDING_PACKAGE_VERSION."
+  [[ "$DESIRED_ONBOARDING_PACKAGE_VERSION" == '4.2.0' ]] || die "The canonical macOS bootstrap requires onboarding 4.2.0; desired state declares $DESIRED_ONBOARDING_PACKAGE_VERSION."
   [[ -f "$manifest" ]] || die "The canonical onboarding manifest is unavailable: $manifest"
   actual_version="$(awk -F': ' '$1 == "package.version" { print $2; exit }' "$manifest")"
-  [[ "$actual_version" == '4.1.0' ]] || die "The canonical macOS bootstrap requires onboarding 4.1.0; found ${actual_version:-missing} in $manifest."
+  [[ "$actual_version" == '4.2.0' ]] || die "The canonical macOS bootstrap requires onboarding 4.2.0; found ${actual_version:-missing} in $manifest."
 }
 
 bootstrap_developer_workstation() {
@@ -299,7 +299,7 @@ bootstrap_developer_workstation() {
   local central_repository="$GITHUB_ROOT/djconnect"
   local onboarding="$central_repository/onboarding/dev_onboarding_macos.sh"
   [[ -f "$onboarding" ]] || die "The full developer onboarding script is unavailable at $onboarding."
-  require_canonical_onboarding_4_1_0 "$central_repository"
+  require_canonical_onboarding_4_2_0 "$central_repository"
   if [[ -n "$NGROK_DOMAIN" && -z "${NGROK_AUTHTOKEN:-}" && "$PROMPT_NGROK_AUTH" == '1' ]]; then
     prompt_secret 'ngrok authtoken'
     export NGROK_AUTHTOKEN="$REPLY"
@@ -319,6 +319,38 @@ bootstrap_developer_workstation() {
     onboarding_args+=(--ngrok-domain "$NGROK_DOMAIN")
   fi
   run_in_dir "$central_repository" bash "${onboarding_args[@]}"
+}
+
+repair_engineering_platform() {
+  local repository="$GITHUB_ROOT/djconnect" legacy_directory label plist
+  [[ -f "$repository/tools/engineering/inbox_watcher.py" ]] || die "Engineering Inbox watcher is missing from $repository."
+  [[ -f "$repository/tools/engineering/dashboard.py" ]] || die "Engineering dashboard is missing from $repository."
+
+  log 'Analyzing local Engineering Platform watcher and dashboard health.'
+  if ! python3 -m tools.engineering.inbox_watcher doctor --repo "$repository"; then
+    warn 'Engineering Inbox doctor reported drift; repairing the canonical watcher service.'
+  fi
+  if ! python3 -m tools.engineering.dashboard doctor --repo "$repository"; then
+    warn 'Engineering dashboard doctor reported drift; repairing the canonical dashboard service.'
+  fi
+
+  legacy_directory="$repository/.djconnect/legacy-launchagents"
+  for label in com.djconnect.engineering-dashboard-backend com.djconnect.engineering-dashboard-proxy; do
+    plist="$HOME/Library/LaunchAgents/$label.plist"
+    [[ -f "$plist" ]] || continue
+    log "Retiring legacy Engineering dashboard service $label before canonical restart."
+    launchctl bootout "gui/$(id -u)" "$plist" >/dev/null 2>&1 || true
+    mkdir -p "$legacy_directory"
+    mv "$plist" "$legacy_directory/$label.plist"
+  done
+
+  log 'Restarting the canonical local Engineering Inbox watcher and dashboard.'
+  python3 -m tools.engineering.inbox_watcher install --repo "$repository"
+  python3 -m tools.engineering.dashboard install --repo "$repository"
+  sleep 2
+
+  python3 -m tools.engineering.inbox_watcher doctor --repo "$repository" || return 1
+  python3 -m tools.engineering.dashboard doctor --repo "$repository" || return 1
 }
 
 ensure_home_assistant_internal_test_environment() {
