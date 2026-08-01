@@ -141,6 +141,7 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn('class="chat-compose"', page)
         self.assertLess(page.index('class="chat-compose"'), page.index('id="chatModel"'))
         self.assertIn('.technical-details>summary>strong,.codex-chat>summary>strong,.last-execution-group__heading{font-size:18px', page)
+        self.assertIn('.card>strong,.card>summary,.technical-details>summary,.last-execution-group>summary{display:block;padding-bottom:10px}', page)
         self.assertIn('id="chatSend" type="button" title="Verstuur vraag"', page)
         self.assertIn('"Gesprek met AI-assistent"', page)
         self.assertIn("CHAT_HISTORY_KEY", page)
