@@ -87,12 +87,14 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#reportContent strong")).toHaveText("belangrijk bewijs");
 
     const lastExecution = page.getByTestId("last-executed-prompt-category");
-    await page.evaluate(() => { document.getElementById("lastExecutionGroup").hidden = false; });
+    await page.evaluate(() => {
+      document.getElementById("lastExecutionGroup").hidden = false;
+      document.querySelector('[data-testid="last-executed-prompt-category"]').hidden = false;
+    });
     const categorySummary = lastExecution.locator(":scope > summary");
     await expect(categorySummary).toContainText("Laatst uitgevoerde prompt");
     await expect(lastExecution).not.toHaveAttribute("open", "");
     await expect(lastExecution).toHaveCSS("row-gap", "0px");
-    await categorySummary.scrollIntoViewIfNeeded();
     await categorySummary.click();
     await expect(lastExecution).toHaveAttribute("open", "");
   });
