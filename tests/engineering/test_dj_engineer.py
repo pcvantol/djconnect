@@ -843,6 +843,7 @@ class LocalAgentRunnerTest(unittest.TestCase):
             (RunnerCompatibility(checkpoint_formats=frozenset({2})), "Checkpoint format mismatch"),
             (RunnerCompatibility(memory_formats=frozenset({2})), "Engineering Memory format mismatch"),
             (RunnerCompatibility(report_formats=frozenset({2})), "Report format mismatch"),
+            (RunnerCompatibility(storage_schemas=frozenset({2})), "Engineering storage schema mismatch"),
         )
         for compatibility, diagnostic in cases:
             with self.subTest(diagnostic=diagnostic), self.assertRaisesRegex(EngineeringPlatformCompatibilityError, diagnostic):
