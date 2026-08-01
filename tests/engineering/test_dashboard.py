@@ -125,6 +125,7 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn("window.isSecureContext", page)
         self.assertIn('id="componentLogs"', page)
         self.assertIn('id="loadComponentLogs"', page)
+        self.assertIn('#loadComponentLogs{position:absolute;right:14px;top:14px}', page)
         self.assertIn('id="componentLogControls" hidden', page)
         self.assertIn('id="logFilter"', page)
         self.assertIn('id="logLevelFilter"', page)
