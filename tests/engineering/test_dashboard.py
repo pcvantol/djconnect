@@ -154,6 +154,7 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn(".telemetry>summary{border-bottom:1px solid var(--category-color)", page)
         self.assertIn(".platform-health>summary{border-bottom:1px solid var(--category-color)", page)
         self.assertIn('id="platformHealth"', page)
+        self.assertNotIn("Alle componenten gezond", page)
         self.assertIn("Live gezondheidscontrole van de lokale Engineering Platform-componenten.", page)
         self.assertIn('fetch("/health",{cache:"no-store"})', page)
         self.assertIn("function renderPlatformHealth(payload)", page)
