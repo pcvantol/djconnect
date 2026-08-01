@@ -59,11 +59,37 @@ also shows the Engineering Platform, watcher, dashboard and build-commit
 versions so a maintainer can distinguish a stale local service from a stale
 browser page.
 
-## Private read-only Codex advice
+## Dashboard interpretation and interaction
 
-**Codex gesprek** is available only through this same private listener. Its
+The status page uses category accents to make unrelated evidence visually
+distinct: green for local capacity and usage, blue for completed evidence,
+orange for diagnosis and application logs, and purple variants for execution
+context, technical details and the advisory conversation. A colour never
+changes lifecycle meaning; the prompt status indicator remains the authoritative
+visual outcome.
+
+The **Applicatielogs** section loads only after an explicit action. It parses
+the redacted JSON records locally into selectable, copyable tables. Search and
+level filtering are client-side. Clicking a column heading sorts that table and
+shows the active ascending or descending direction; the subtle line number is
+not a server-side log identifier.
+
+The active and last execution cards use provider-neutral wording. Each card
+also states the actual execution provenance explicitly, for example
+**AI-provider: Codex CLI**. This preserves a future provider abstraction
+without concealing which adapter executed the displayed transaction.
+
+## Private read-only AI advice
+
+**AI-gesprek** is available only through this same private listener. Its
 bounded context is the repository identity, the latest terminal prompt and
-the matching local Engineering Report. It starts an ephemeral, read-only Codex
-CLI process and cannot inspect or submit Inbox files, modify a repository,
+the matching local Engineering Report. The visible interface is
+provider-neutral; the current configured adapter is Codex CLI and is shown as
+such. It starts an ephemeral, read-only process and cannot inspect or submit
+Inbox files, modify a repository,
 create or merge pull requests, or trigger release, deployment or publication.
 Any requested implementation must be submitted as a new Engineering prompt.
+
+Conversation history is browser-session-local and is reset when the displayed
+last-executed run changes. It is not Engineering Memory and is never an Inbox,
+runner or repository-control channel.
