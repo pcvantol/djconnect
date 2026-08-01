@@ -93,6 +93,24 @@ def extract_codex_usage(*outputs: str) -> dict[str, int | float | str]:
     return usage
 
 
+def _codex_final_message(output: str) -> str:
+    """Extract the final agent message from Codex JSONL, with legacy fallback."""
+    for line in reversed(output.splitlines()):
+        try:
+            event = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        item = event.get("item") if isinstance(event, dict) else None
+        if (
+            event.get("type") == "item.completed"
+            and isinstance(item, dict)
+            and item.get("type") == "agent_message"
+            and isinstance(item.get("text"), str)
+        ):
+            return item["text"]
+    return output.strip().splitlines()[-1] if output.strip() else ""
+
+
 def write_codex_usage(root: Path, run_id: str, usage: dict[str, int | float | str]) -> None:
     """Persist only current-run CLI usage that the CLI explicitly supplied."""
     safe_usage = {
@@ -441,6 +459,7 @@ class CodexCliClient:
         return detected_codex_cli_version(completed.stdout)
 
     def review(self, root: Path, selection: ReviewerSelection, objective: str) -> ReviewerResult:
+        self.last_usage = {}
         schema = {
             "type": "object",
             "additionalProperties": False,
@@ -470,6 +489,7 @@ class CodexCliClient:
                     "read-only",
                     "-C",
                     str(root),
+                    "--json",
                     "--output-schema",
                     str(schema_path),
                     reviewer_prompt(selection, objective),
@@ -489,7 +509,7 @@ class CodexCliClient:
                 failed=True,
             )
         try:
-            raw = json.loads(completed.stdout.strip().splitlines()[-1])
+            raw = json.loads(_codex_final_message(completed.stdout))
             return ReviewerResult(
                 selection.reviewer,
                 str(raw["contribution"]),
@@ -503,6 +523,7 @@ class CodexCliClient:
             )
 
     def invoke(self, root: Path, prompt: str) -> AgentResult:
+        self.last_usage = {}
         state_directory = root / ".djconnect" / "engineering-runs"
         state_directory.mkdir(mode=0o700, parents=True, exist_ok=True)
         schema = {
@@ -552,6 +573,7 @@ class CodexCliClient:
                 "workspace-write",
                 "-C",
                 str(root),
+                "--json",
             ]
             for extra_root in extra_roots:
                 command.extend(("--add-dir", str(extra_root)))
@@ -573,7 +595,7 @@ class CodexCliClient:
                 detail,
             )
         try:
-            raw = json.loads(completed.stdout.strip().splitlines()[-1])
+            raw = json.loads(_codex_final_message(completed.stdout))
             result = AgentResult(**raw)
             if result.diagnostic is not None:
                 result = replace(result, diagnostic=redact_diagnostic(result.diagnostic))
@@ -1321,6 +1343,15 @@ def terminal_report_matches_state(body: str, state: TransactionState) -> bool:
     """Reject report prose that conflicts with its immutable terminal checkpoint."""
     if f"- Terminal state: `{state.phase}`" not in body:
         return False
+    required_sections = (
+        "## Initial Repository Assessment",
+        "## Engineering Outcome",
+        "## Reviewer Findings",
+        "## Repository Truth",
+        "## Management Summary",
+    )
+    if any(section not in body for section in required_sections):
+        return False
     if state.phase == "BLOCKED":
         return "BLOCKED — no engineering changes were executed or delivered." in body and "COMPLETE —" not in body
     if state.phase == "FAILED":
@@ -1337,6 +1368,18 @@ def corrected_terminal_report(state: TransactionState) -> str:
             f"- Run ID: `{state.run_id}`",
             f"- Terminal state: `{state.phase}`",
             "",
+            "## Initial Repository Assessment",
+            "Assessment evidence is unavailable. This section describes only the repository before any attempted implementation.",
+            "",
+            "## Engineering Outcome",
+            format_terminal_management_summary(state),
+            "",
+            "## Reviewer Findings",
+            "No reviewer findings were retained. Reviewer observations are advisory initial observations only.",
+            "",
+            "## Repository Truth",
+            "Priority: persisted repository state, resulting commits, validation results, then reviewer observations.",
+            "",
             "## Management Summary",
             format_terminal_management_summary(state),
             "",
@@ -1347,9 +1390,9 @@ def corrected_terminal_report(state: TransactionState) -> str:
     )
 
 
-def _format_reviewer_records(records: tuple[dict[str, object], ...]) -> str:
+def _format_reviewer_records(records: tuple[dict[str, object], ...], phase: str) -> str:
     if not records:
-        return "No specialist reviewers required."
+        return "No specialist reviewers required. Any future reviewer observations remain advisory initial observations."
     lines: list[str] = []
     for record in records:
         lines.extend(
@@ -1357,12 +1400,36 @@ def _format_reviewer_records(records: tuple[dict[str, object], ...]) -> str:
                 f"- Reviewer: {record['reviewer']}",
                 f"  - Capability: {record.get('capability', 'engineering')}",
                 f"  - Selected because: {record['selected_because']}",
-                f"  - Contribution: {record['contribution']}",
+                f"  - Initial observation: {record['contribution']}",
                 f"  - Accepted recommendations: {record['accepted_recommendations']}",
                 f"  - Rejected recommendations: {record['rejected_recommendations']}",
+                "  - Outcome: Resolved during implementation; the final repository evidence below is authoritative."
+                if phase == "COMPLETE"
+                else "  - Outcome: Not a final repository statement; consult the terminal checkpoint and diagnostics.",
             )
         )
     return "\n".join(lines)
+
+
+def _format_engineering_outcome(state: TransactionState) -> str:
+    """Describe final delivery from checkpoint and repository evidence, never advice."""
+    if state.phase != "COMPLETE":
+        return "\n".join(
+            (
+                f"- Final checkpoint: `{state.phase}`",
+                "- Completed work: no successful engineering delivery is claimed.",
+                f"- Remaining limitation: {state.diagnostic or 'Terminal outcome requires follow-up.'}",
+            )
+        )
+    return "\n".join(
+        (
+            "- Final checkpoint: `COMPLETE`",
+            "- Completed work: implementation and any required reconciliation completed according to the persisted checkpoint.",
+            f"- Resulting commits: implementation `{state.implementation_merge_commit or 'not applicable'}`; finalization `{state.finalization_merge_commit or 'not applicable'}`.",
+            f"- Repository state: {state.latest_repository_evidence or 'Recorded by the terminal COMPLETE checkpoint.'}",
+            "- Remaining limitations: none recorded by the terminal checkpoint.",
+        )
+    )
 
 
 def generate_terminal_report(
@@ -1425,8 +1492,19 @@ def generate_terminal_report(
             f"- Implementation: branch `{state.implementation_branch}`, PR `{state.implementation_pull_request}`, merge `{state.implementation_merge_commit}`",
             f"- Finalization: branch `{state.finalization_branch}`, PR `{state.finalization_pull_request}`, merge `{state.finalization_merge_commit}`",
             "",
-            "## Product Capability Review",
-            _format_reviewer_records(reviewer_records),
+            "## Initial Repository Assessment",
+            "This assessment describes the repository before implementation. Reviewer observations are advisory and cannot describe the final repository state.",
+            "",
+            "## Engineering Outcome",
+            _format_engineering_outcome(state),
+            "",
+            "## Reviewer Findings",
+            "Initial observations only. They are not final repository claims.",
+            _format_reviewer_records(reviewer_records, state.phase),
+            "",
+            "## Repository Truth",
+            "Priority: persisted repository state, resulting commits, validation results, then reviewer observations.",
+            "The Engineering Outcome and Management Summary above are derived from that priority order.",
             "",
             "## Validation",
             "Repository validation is recorded by the runner and required GitHub Actions; inspect the linked PR evidence for durations."
@@ -1445,6 +1523,7 @@ def generate_terminal_report(
             "No sub-agents were required. Sub-agents are read-only advisory helpers; the primary runner retains lifecycle authority.",
             "",
             "## Management Summary",
+            "Final repository outcome; it does not restate initial reviewer observations as current state.",
             format_terminal_management_summary(state),
             "",
             "## Diagnostics",
@@ -1500,6 +1579,24 @@ def write_live_status(root: Path, state: TransactionState, action: str) -> Path:
     directory = root / ".djconnect" / "status"
     directory.mkdir(mode=0o700, parents=True, exist_ok=True)
     path = directory / "current.json"
+    checkout = (
+        Path(state.genesis_repository_path).expanduser()
+        if state.execution_mode == "GENESIS" and state.genesis_repository_path
+        else root
+    )
+    try:
+        observed_branch = subprocess.run(
+            ("git", "-C", str(checkout), "branch", "--show-current"),
+            text=True,
+            capture_output=True,
+            check=False,
+        ).stdout.strip()
+    except OSError:
+        observed_branch = ""
+    try:
+        prompt_characters = len(Path(state.prompt_path).read_text(encoding="utf-8"))
+    except OSError:
+        prompt_characters = None
     payload = {
         "run_id": state.run_id,
         "phase": state.phase,
@@ -1512,8 +1609,13 @@ def write_live_status(root: Path, state: TransactionState, action: str) -> Path:
         "workspace_state": "WORKSPACE_READY" if state.phase == "COMPLETE" else "ACTIVE",
         "last_update": datetime.now(timezone.utc).isoformat(),
         "elapsed_seconds": 0,
+        "prompt_characters": prompt_characters,
         "diagnostic": state.diagnostic,
         "resume_command": f"dj-engineer {state.prompt_path} --run-id {state.run_id} --resume",
+        "execution_mode": state.execution_mode,
+        "target_repository": checkout.name if state.execution_mode == "GENESIS" else state.repository,
+        "checkout_path": str(checkout),
+        "active_branch": observed_branch or state.branch or "unavailable",
     }
     descriptor, temporary = tempfile.mkstemp(prefix=".current.", suffix=".tmp", dir=directory)
     try:
