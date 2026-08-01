@@ -12,9 +12,10 @@ from pathlib import Path
 import re
 import select
 import shlex
+import shutil
 import subprocess
 import sys
-from threading import Lock, Thread
+from threading import Lock
 import time
 from urllib.parse import parse_qs, urlsplit
 from .platform_api import PlatformConfiguration
@@ -32,7 +33,8 @@ from .component_lock import DuplicateComponentInstanceError, single_instance
 from .codex_chat import CodexChatError, chat_model, respond as codex_chat_response
 
 LABEL = "com.djconnect.engineering-dashboard"
-DASHBOARD_VERSION = "1.2.3"
+RELAY_LABEL = "com.djconnect.engineering-dashboard-relay"
+DASHBOARD_VERSION = "1.2.4"
 LOOPBACK_ADDRESS = "127.0.0.1"
 CODEX_PROCESS = re.compile(r"(?:^|\s)(?:\S*/)?codex(?:\s|$)")
 RATE_LIMIT_CACHE_SECONDS = 60
@@ -761,14 +763,8 @@ def handler(root: Path, logger: logging.Logger | None = None):
 
 
 def binding_addresses(provider: TailscaleProvider | None = None) -> tuple[str, ...]:
-    """Bind only loopback and the explicit local Tailscale address.
-
-    The dashboard deliberately never binds a wildcard, LAN, public or Funnel
-    address.  Tailnet policy remains the access boundary; this code changes no
-    Tailscale configuration.
-    """
-    tailscale_address = (provider or TailscaleProvider()).ipv4_address()
-    return (LOOPBACK_ADDRESS, *(() if tailscale_address is None else (tailscale_address,)))
+    """Keep the HTTP application on loopback; the relay owns Tailnet ingress."""
+    return (LOOPBACK_ADDRESS,)
 
 
 def create_servers(
@@ -777,7 +773,7 @@ def create_servers(
     provider: TailscaleProvider | None = None,
     logger: logging.Logger | None = None,
 ) -> tuple[DashboardHTTPServer, ...]:
-    """Create the exact private listeners for the dashboard."""
+    """Create the loopback-only HTTP listener for the dashboard."""
     request_handler = handler(root, logger)
     return tuple(
         DashboardHTTPServer((address, port), request_handler)
@@ -786,7 +782,7 @@ def create_servers(
 
 
 def run(root: Path, port: int = 8765, provider: TailscaleProvider | None = None) -> None:
-    """Serve locally and, when present, over the authenticated Tailnet only."""
+    """Serve the read-only dashboard on loopback; the relay handles Tailnet ingress."""
     logger = component_logger(root, "dashboard")
     try:
         with single_instance(root, "dashboard"):
@@ -801,8 +797,6 @@ def run(root: Path, port: int = 8765, provider: TailscaleProvider | None = None)
                 "dashboard_started",
                 diagnostic="addresses=" + ",".join(address for address, _ in (server.server_address for server in servers)),
             )
-            for server in servers[1:]:
-                Thread(target=server.serve_forever, daemon=True).start()
             try:
                 servers[0].serve_forever()
             finally:
@@ -829,6 +823,32 @@ def launch_agent(repo: Path) -> Path:
     return destination
 
 
+def relay_binary(repo: Path) -> Path:
+    return repo / ".djconnect" / "bin" / "engineering-dashboard-relay"
+
+
+def build_relay(repo: Path) -> Path:
+    """Compile the repository-owned private Tailnet-to-loopback relay."""
+    compiler = shutil.which("swiftc")
+    if compiler is None:
+        raise RuntimeError("Swift compiler ontbreekt; de private dashboardrelay kan niet starten.")
+    binary = relay_binary(repo)
+    binary.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+    subprocess.run((compiler, str(repo / "tools/engineering/dashboard_supervisor.swift"), "-o", str(binary)), check=True)
+    binary.chmod(0o700)
+    return binary
+
+
+def relay_launch_agent(repo: Path, binary: Path) -> Path:
+    destination = Path.home() / "Library/LaunchAgents" / f"{RELAY_LABEL}.plist"
+    arguments = f"<string>{escape(str(binary))}</string>"
+    destination.write_text(
+        f'<?xml version="1.0" encoding="UTF-8"?><plist version="1.0"><dict><key>Label</key><string>{RELAY_LABEL}</string><key>ProgramArguments</key><array>{arguments}</array><key>RunAtLoad</key><true/><key>KeepAlive</key><true/></dict></plist>',
+        encoding="utf-8",
+    )
+    return destination
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("command", choices=("run", "install", "uninstall", "status", "doctor"))
@@ -837,22 +857,27 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     repo = args.repo.resolve()
     agent = Path.home() / "Library/LaunchAgents" / f"{LABEL}.plist"
+    relay_agent = Path.home() / "Library/LaunchAgents" / f"{RELAY_LABEL}.plist"
     if args.command == "run":
         run(repo, port=args.port)
         return 0
     if args.command == "install":
         agent = launch_agent(repo)
         LaunchdProvider().install(LABEL, agent)
+        relay_agent = relay_launch_agent(repo, build_relay(repo))
+        LaunchdProvider().install(RELAY_LABEL, relay_agent)
         return 0
     if args.command == "uninstall":
         LaunchdProvider().uninstall(agent)
         agent.unlink(missing_ok=True)
+        LaunchdProvider().uninstall(relay_agent)
+        relay_agent.unlink(missing_ok=True)
         return 0
     health = (repo / ".djconnect" / "status" / "status.json").is_file()
     remote_provider = TailscaleProvider()
     remote = remote_provider.status()
     tailscale_address = remote_provider.ipv4_address()
-    state = "READY" if health and agent.is_file() and tailscale_address else "DEGRADED"
+    state = "READY" if health and agent.is_file() and relay_agent.is_file() and tailscale_address else "DEGRADED"
     action = (
         "Voer het Engineering Platform uit om een statusupdate te publiceren."
         if not health

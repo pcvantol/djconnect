@@ -540,15 +540,7 @@ class DashboardStatusTest(unittest.TestCase):
             self.assertEqual(_component_log(root, "inbox"), b"first\nsecond")
             self.assertEqual(_component_log(root, "unknown"), b"")
 
-    @patch("tools.engineering.dashboard.TailscaleProvider.ipv4_address", return_value="100.108.178.11")
-    def test_dashboard_binds_only_loopback_and_local_tailscale_address(self, _address: object) -> None:
-        self.assertEqual(
-            binding_addresses(),
-            (LOOPBACK_ADDRESS, "100.108.178.11"),
-        )
-
-    @patch("tools.engineering.dashboard.TailscaleProvider.ipv4_address", return_value=None)
-    def test_dashboard_fails_closed_to_loopback_without_tailscale(self, _address: object) -> None:
+    def test_dashboard_binds_only_loopback_and_delegates_tailnet_ingress_to_relay(self) -> None:
         self.assertEqual(binding_addresses(), (LOOPBACK_ADDRESS,))
 
     def test_http_dashboard_exposes_status_routes_and_bounded_read_only_chat(self) -> None:
@@ -621,9 +613,9 @@ class DashboardStatusTest(unittest.TestCase):
             self.assertEqual(dashboard.main(["run", "--repo", str(root), "--port", "9888"]), 0)
             run.assert_called_once()
             self.assertEqual(dashboard.main(["install", "--repo", str(root)]), 0)
-            launchd.return_value.install.assert_called_once()
+            self.assertEqual(launchd.return_value.install.call_count, 2)
             self.assertEqual(dashboard.main(["uninstall", "--repo", str(root)]), 0)
-            launchd.return_value.uninstall.assert_called_once()
+            self.assertEqual(launchd.return_value.uninstall.call_count, 2)
 
     @patch("tools.engineering.dashboard.TailscaleProvider")
     def test_doctor_reports_both_ready_and_degraded_states(self, provider: object) -> None:
@@ -641,6 +633,8 @@ class DashboardStatusTest(unittest.TestCase):
             agent = Path(temporary) / "Library/LaunchAgents" / f"{dashboard.LABEL}.plist"
             agent.parent.mkdir(parents=True)
             agent.write_text("owned", encoding="utf-8")
+            relay = Path(temporary) / "Library/LaunchAgents" / f"{dashboard.RELAY_LABEL}.plist"
+            relay.write_text("owned", encoding="utf-8")
             self.assertEqual(dashboard.main(["doctor", "--repo", str(root)]), 0)
 
     @patch("tools.engineering.dashboard.binding_addresses", return_value=(LOOPBACK_ADDRESS,))
