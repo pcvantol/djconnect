@@ -11,6 +11,7 @@ import os
 from pathlib import Path
 import re
 import select
+import shlex
 import subprocess
 import sys
 from threading import Lock, Thread
@@ -30,7 +31,7 @@ from .component_logging import (
 from .codex_chat import CodexChatError, chat_model, respond as codex_chat_response
 
 LABEL = "com.djconnect.engineering-dashboard"
-DASHBOARD_VERSION = "1.2.0"
+DASHBOARD_VERSION = "1.2.1"
 LOOPBACK_ADDRESS = "127.0.0.1"
 CODEX_PROCESS = re.compile(r"(?:^|\s)(?:\S*/)?codex(?:\s|$)")
 RATE_LIMIT_CACHE_SECONDS = 60
@@ -811,24 +812,14 @@ def launch_agent(repo: Path) -> Path:
     """Render the only owned per-user LaunchAgent; no network policy changes."""
     destination = Path.home() / "Library/LaunchAgents" / f"{LABEL}.plist"
     destination.parent.mkdir(parents=True, exist_ok=True)
-    logs = repo / ".djconnect" / "logs"
-    logs.mkdir(mode=0o700, parents=True, exist_ok=True)
-    arguments = "".join(
-        f"<string>{value}</string>"
-        for value in (
-            sys.executable,
-            "-m",
-            "tools.engineering.dashboard",
-            "run",
-            "--repo",
-            str(repo),
-        )
-    )
+    launcher = (sys.executable, "-m", "tools.engineering.dashboard", "run", "--repo", str(repo))
+    command = f"cd {shlex.quote(str(repo))} && exec " + " ".join(shlex.quote(value) for value in launcher)
+    arguments = f"<string>/bin/zsh</string><string>-lc</string><string>{escape(command)}</string>"
     log_level = os.environ.get(LOG_LEVEL_ENVIRONMENT, DEFAULT_LOG_LEVEL).upper()
     if log_level not in VALID_LEVELS:
         log_level = DEFAULT_LOG_LEVEL
     destination.write_text(
-        f'<?xml version="1.0" encoding="UTF-8"?><plist version="1.0"><dict><key>Label</key><string>{LABEL}</string><key>ProgramArguments</key><array>{arguments}</array><key>WorkingDirectory</key><string>{repo}</string><key>EnvironmentVariables</key><dict><key>{LOG_LEVEL_ENVIRONMENT}</key><string>{log_level}</string></dict><key>RunAtLoad</key><true/><key>KeepAlive</key><true/><key>ThrottleInterval</key><integer>15</integer><key>StandardOutPath</key><string>{logs / "dashboard.out.log"}</string><key>StandardErrorPath</key><string>{logs / "dashboard.err.log"}</string></dict></plist>',
+        f'<?xml version="1.0" encoding="UTF-8"?><plist version="1.0"><dict><key>Label</key><string>{LABEL}</string><key>ProgramArguments</key><array>{arguments}</array><key>WorkingDirectory</key><string>{repo}</string><key>EnvironmentVariables</key><dict><key>{LOG_LEVEL_ENVIRONMENT}</key><string>{log_level}</string></dict><key>RunAtLoad</key><true/><key>KeepAlive</key><true/><key>ThrottleInterval</key><integer>15</integer></dict></plist>',
         encoding="utf-8",
     )
     return destination
