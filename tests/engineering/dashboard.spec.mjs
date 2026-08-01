@@ -130,6 +130,16 @@ test.describe("Engineering Status browser smoke", () => {
     expect(entries.map((entry) => entry.level)).toEqual(["INFO", "WARNING"]);
   });
 
+  test("renders provider limit rows on separate lines", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => rateLimits({
+      windows: [{ label: "Weekvenster", used_percent: 24, resets_at: 0 }],
+      reset_credits: 2,
+    }));
+    await expect(page.locator("#rateLimitDetails")).toHaveText(/Weekvenster: 76% beschikbaar.*Beschikbare resets: 2/s);
+    expect(await page.locator("#rateLimitDetails").evaluate((element) => element.textContent)).toContain("\n");
+  });
+
   test("keeps dashboard view preferences in the browser", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     const autoRefresh = page.locator("#autoRefresh");

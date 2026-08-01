@@ -335,6 +335,7 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn('.last-execution-group{row-gap:0}', page)
         self.assertIn('#engineering-dashboard-content>.technical-details:not(#componentLogs) .card,#componentLogs .card,.current-run .card,.last-execution-group .card--previous{border:1px solid var(--category-color);border-left:3px solid var(--category-color)}', page)
         self.assertIn("function rateLimits(x)", page)
+        self.assertIn('$("rateLimitDetails").textContent=lines.join(String.fromCharCode(10))', page)
         self.assertIn("rateLimits(snapshot.rate_limits)", page)
         self.assertIn('id="rateLimitReset" type="button" hidden', page)
         self.assertIn("function consumeRateLimitReset()", page)
