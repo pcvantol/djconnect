@@ -248,6 +248,33 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn('"method": "account/rateLimits/read"', process.stdin.getvalue())
         self.assertTrue(process.terminated)
 
+    def test_codex_rate_limits_fails_closed_when_app_server_streams_are_unavailable(self) -> None:
+        class FakeProcess:
+            stdin = None
+            stdout = None
+
+            def __init__(self) -> None:
+                self.terminated = False
+
+            def terminate(self) -> None:
+                self.terminated = True
+
+            def wait(self, timeout: float) -> None:
+                return None
+
+        process = FakeProcess()
+        with patch("tools.engineering.dashboard.subprocess.Popen", return_value=process):
+            dashboard._rate_limit_cache = None
+            self.assertEqual(dashboard._codex_rate_limits(), b"{}")
+            dashboard._rate_limit_cache = None
+        self.assertTrue(process.terminated)
+
+    def test_codex_rate_limits_fails_closed_when_app_server_cannot_start(self) -> None:
+        with patch("tools.engineering.dashboard.subprocess.Popen", side_effect=OSError):
+            dashboard._rate_limit_cache = None
+            self.assertEqual(dashboard._codex_rate_limits(), b"{}")
+            dashboard._rate_limit_cache = None
+
     def test_completion_commits_are_shown_only_after_completion(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
