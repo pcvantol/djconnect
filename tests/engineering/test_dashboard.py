@@ -142,6 +142,8 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn('#componentLogs{background:#302a24;border-left:3px solid #f0b66a}', page)
         self.assertIn('#componentLogs .card{background:#24242d;border-left:0}', page)
         self.assertIn('.technical-details:not(#componentLogs) .card{background:#24242d;border-left:0}', page)
+        self.assertIn('#componentLogs,.current-run .card:has(#predecessorRun){--category-color:#f0b66a}', page)
+        self.assertIn('.technical-details .log-controls label,.technical-details .log-table th', page)
         self.assertIn('log-line-number{color:#92919b;text-align:right;white-space:nowrap;width:3.25rem', page)
         self.assertIn("function setLogSort(key)", page)
         self.assertIn("data-sort-indicator", page)
