@@ -129,7 +129,7 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn("user-select:text", page)
         self.assertIn('fetch("/api/logs/inbox")', page)
         self.assertIn('fetch("/api/logs/dashboard")', page)
-        self.assertIn('id="codexChat"', page)
+        self.assertIn('<details class="card codex-chat" id="codexChat"><summary>', page)
         self.assertIn('id="chatInput" class="chat-input" rows="5"', page)
         self.assertIn('"Gesprek met AI-assistent"', page)
         self.assertIn("CHAT_HISTORY_KEY", page)
