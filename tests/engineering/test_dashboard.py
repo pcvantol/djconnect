@@ -136,6 +136,8 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn('font-family:"Unispace",ui-monospace,monospace', page)
         self.assertIn('.card:has(#currentTime)', page)
         self.assertIn('#processMetrics,#usage,#rateLimits', page)
+        self.assertIn('#componentLogs,#componentLogs .card', page)
+        self.assertIn('main>details.technical-details:not(#componentLogs)', page)
         self.assertIn('log-line-number{color:#92919b;text-align:right;white-space:nowrap;width:3.25rem', page)
         self.assertIn("function setLogSort(key)", page)
         self.assertIn("data-sort-indicator", page)
