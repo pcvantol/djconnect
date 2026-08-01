@@ -30,9 +30,10 @@ from .component_logging import (
     component_logger,
     log_event,
 )
+from .component_lock import DuplicateComponentInstanceError, single_instance
 
 LABEL = "com.djconnect.engineering-inbox"
-WATCHER_VERSION = "1.1.1"
+WATCHER_VERSION = "1.1.2"
 MAX_BYTES = 256_000
 TERMINAL_PHASES = frozenset({"COMPLETE", "BLOCKED", "FAILED"})
 BLOCKING_PREDECESSOR_PHASES = frozenset({"BLOCKED", "FAILED"})
@@ -662,18 +663,23 @@ def main(argv: list[str] | None = None) -> int:
         return once(repo, root, 0.0)
     if args.command == "run":
         logger = component_logger(repo, "inbox")
-        log_event(logger, logging.INFO, "watcher_started")
-        while True:
-            try:
-                once(repo, root, 1.0)
-            except RuntimeError as error:
-                status(
-                    repo,
-                    "WAITING_FOR_REPOSITORY",
-                    diagnostic="Een andere watcher beheert de lokale Inbox-vergrendeling.",
-                )
-                log_event(logger, logging.ERROR, "watcher_cycle_failed", diagnostic=str(error))
-            time.sleep(max(5, args.interval))
+        try:
+            with single_instance(repo, "inbox-watcher"):
+                log_event(logger, logging.INFO, "watcher_started")
+                while True:
+                    try:
+                        once(repo, root, 1.0)
+                    except RuntimeError as error:
+                        status(
+                            repo,
+                            "WAITING_FOR_REPOSITORY",
+                            diagnostic="Een andere watcher beheert de lokale Inbox-vergrendeling.",
+                        )
+                        log_event(logger, logging.ERROR, "watcher_cycle_failed", diagnostic=str(error))
+                    time.sleep(max(5, args.interval))
+        except DuplicateComponentInstanceError as error:
+            log_event(logger, logging.ERROR, "duplicate_watcher_refused", diagnostic=str(error))
+            return 1
     if args.command == "status":
         print(
             (repo / ".djconnect" / "status" / "status.md").read_text(encoding="utf-8")

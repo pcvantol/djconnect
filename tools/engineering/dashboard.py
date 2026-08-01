@@ -28,10 +28,11 @@ from .component_logging import (
     component_logger,
     log_event,
 )
+from .component_lock import DuplicateComponentInstanceError, single_instance
 from .codex_chat import CodexChatError, chat_model, respond as codex_chat_response
 
 LABEL = "com.djconnect.engineering-dashboard"
-DASHBOARD_VERSION = "1.2.1"
+DASHBOARD_VERSION = "1.2.2"
 LOOPBACK_ADDRESS = "127.0.0.1"
 CODEX_PROCESS = re.compile(r"(?:^|\s)(?:\S*/)?codex(?:\s|$)")
 RATE_LIMIT_CACHE_SECONDS = 60
@@ -790,22 +791,27 @@ def run(root: Path, port: int = 8765, provider: TailscaleProvider | None = None)
     """Serve locally and, when present, over the authenticated Tailnet only."""
     logger = component_logger(root, "dashboard")
     try:
-        servers = create_servers(root, port, provider, logger)
-    except OSError as error:
-        log_event(logger, logging.ERROR, "dashboard_start_failed", diagnostic=str(error))
+        with single_instance(root, "dashboard"):
+            try:
+                servers = create_servers(root, port, provider, logger)
+            except OSError as error:
+                log_event(logger, logging.ERROR, "dashboard_start_failed", diagnostic=str(error))
+                raise
+            log_event(
+                logger,
+                logging.INFO,
+                "dashboard_started",
+                diagnostic="addresses=" + ",".join(address for address, _ in (server.server_address for server in servers)),
+            )
+            for server in servers[1:]:
+                Thread(target=server.serve_forever, daemon=True).start()
+            try:
+                servers[0].serve_forever()
+            finally:
+                log_event(logger, logging.INFO, "dashboard_stopped")
+    except DuplicateComponentInstanceError as error:
+        log_event(logger, logging.ERROR, "duplicate_dashboard_refused", diagnostic=str(error))
         raise
-    log_event(
-        logger,
-        logging.INFO,
-        "dashboard_started",
-        diagnostic="addresses=" + ",".join(address for address, _ in (server.server_address for server in servers)),
-    )
-    for server in servers[1:]:
-        Thread(target=server.serve_forever, daemon=True).start()
-    try:
-        servers[0].serve_forever()
-    finally:
-        log_event(logger, logging.INFO, "dashboard_stopped")
 
 
 def launch_agent(repo: Path) -> Path:
