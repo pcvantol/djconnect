@@ -206,6 +206,7 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn('id="logSort"', page)
         self.assertIn('class="log-table"', page)
         self.assertIn("function structuredLogEntries(text)", page)
+        self.assertIn('split(/\\r?\\n/).filter(Boolean)', page)
         self.assertIn("function renderComponentLogs()", page)
         self.assertIn("user-select:text", page)
         self.assertIn('fetch("/api/logs/inbox")', page)

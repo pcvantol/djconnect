@@ -119,6 +119,17 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(inboxLevel).toHaveAttribute("aria-sort", "ascending");
   });
 
+  test("parses each newline-delimited JSON log entry separately", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    const entries = await page.evaluate(() => structuredLogEntries(
+      '{"timestamp":"2026-08-01T10:00:00+00:00","level":"INFO","event":"first"}\n'
+      + '{"timestamp":"2026-08-01T10:01:00+00:00","level":"WARNING","event":"second"}',
+    ));
+    expect(entries).toHaveLength(2);
+    expect(entries.map((entry) => entry.event)).toEqual(["first", "second"]);
+    expect(entries.map((entry) => entry.level)).toEqual(["INFO", "WARNING"]);
+  });
+
   test("keeps dashboard view preferences in the browser", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     const autoRefresh = page.locator("#autoRefresh");
