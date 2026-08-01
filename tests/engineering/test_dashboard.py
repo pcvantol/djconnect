@@ -13,6 +13,7 @@ from tools.engineering import dashboard
 from tools.engineering.dashboard import DASHBOARD_VERSION, LOOPBACK_ADDRESS, _clear_component_log, _codex_process_metrics, _codex_usage, _codex_usage_for_run, _component_log, _component_log_versions, _completion_commits, _current_codex_log, _dashboard_html, _last_executed_agent_execution, _last_executed_codex_log, _last_executed_commits, _latest_codex_log, _normalize_rate_limits, _platform_health, _report_analysis_available_for_run, _report_analysis_for_run, _report_for_run, _reviewer_agents_for_run, _sse_snapshot, _sse_status, _status, _tracked_file_count, binding_addresses
 from tools.engineering.inbox_watcher import WATCHER_VERSION
 from tools.engineering.platform_version import EngineeringPlatformManifest
+from tools.engineering.storage import open_storage
 
 
 class DashboardStatusTest(unittest.TestCase):
@@ -766,7 +767,7 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertEqual(snapshot["telemetry"], [])
         self.assertEqual(
             snapshot["component_log_versions"],
-            {"inbox": "missing", "dashboard": "missing"},
+            {"inbox": "sqlite:0:0", "dashboard": "sqlite:0:0"},
         )
         self.assertEqual(snapshot["component_versions"]["dashboard"], DASHBOARD_VERSION)
         self.assertEqual(snapshot["component_versions"]["worker"], WATCHER_VERSION)
@@ -890,43 +891,52 @@ class DashboardStatusTest(unittest.TestCase):
             self.assertEqual(_report_analysis_for_run(root, "inbox-missing"), b"")
             self.assertTrue(_report_analysis_available_for_run(root, "inbox-last"))
             self.assertFalse(_report_analysis_available_for_run(root, "inbox-missing"))
-    def test_component_log_is_bounded_to_known_redacted_log_files(self) -> None:
+    def test_component_log_is_read_from_canonical_sqlite_storage(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            logs = root / ".engineering" / "logs"
-            logs.mkdir(parents=True)
-            (logs / "inbox.log").write_text("first\nsecond\n", encoding="utf-8")
-            self.assertEqual(_component_log(root, "inbox"), b"first\nsecond")
+            with open_storage(root) as connection:
+                connection.execute(
+                    "INSERT INTO engineering_component_logs(component,payload,created_at) VALUES('inbox','{\"event\":\"first\"}','now')"
+                )
+                connection.execute(
+                    "INSERT INTO engineering_component_logs(component,payload,created_at) VALUES('inbox','{\"event\":\"second\"}','now')"
+                )
+            self.assertIn(b'"event":"first"', _component_log(root, "inbox"))
+            self.assertIn(b'"event":"second"', _component_log(root, "inbox"))
             self.assertEqual(_component_log(root, "unknown"), b"")
 
     def test_component_log_clear_is_limited_to_the_requested_known_component(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            logs = root / ".engineering" / "logs"
-            logs.mkdir(parents=True)
-            inbox = logs / "inbox.log"
-            dashboard_log = logs / "dashboard.log"
-            inbox.write_text("inbox event\n", encoding="utf-8")
-            dashboard_log.write_text("dashboard event\n", encoding="utf-8")
+            with open_storage(root) as connection:
+                connection.execute(
+                    "INSERT INTO engineering_component_logs(component,payload,created_at) VALUES('inbox','inbox event','now')"
+                )
+                connection.execute(
+                    "INSERT INTO engineering_component_logs(component,payload,created_at) VALUES('dashboard','dashboard event','now')"
+                )
 
             _clear_component_log(root, "inbox")
 
-            self.assertEqual(inbox.read_text(encoding="utf-8"), "")
-            self.assertEqual(dashboard_log.read_text(encoding="utf-8"), "dashboard event\n")
+            self.assertNotIn(b"inbox event", _component_log(root, "inbox"))
+            self.assertIn(b"dashboard event", _component_log(root, "dashboard"))
             with self.assertRaises(ValueError):
                 _clear_component_log(root, "../outside")
 
     def test_component_log_versions_change_when_component_log_changes(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            logs = root / ".engineering" / "logs"
-            logs.mkdir(parents=True)
+            with open_storage(root):
+                pass
             self.assertEqual(
                 _component_log_versions(root),
-                {"inbox": "missing", "dashboard": "missing"},
+                {"inbox": "sqlite:0:0", "dashboard": "sqlite:0:0"},
             )
-            (logs / "inbox.log").write_text("one\n", encoding="utf-8")
-            self.assertNotEqual(_component_log_versions(root)["inbox"], "missing")
+            with open_storage(root) as connection:
+                connection.execute(
+                    "INSERT INTO engineering_component_logs(component,payload,created_at) VALUES('inbox','one','now')"
+                )
+            self.assertEqual(_component_log_versions(root)["inbox"], "sqlite:1:1")
 
     @patch("tools.engineering.dashboard._launch_agent_health")
     @patch("tools.engineering.dashboard.TailscaleProvider.status")

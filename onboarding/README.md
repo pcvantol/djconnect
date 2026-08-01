@@ -37,7 +37,9 @@ status, reports, logs and terminal archive live locally under `.engineering/`:
 - `.engineering/inbox-processing/` contains the immutable executed input;
 - `.engineering/status/` holds the canonical dashboard status;
 - `.engineering/reports/` holds Engineering Reports; and
-- `.engineering/logs/` holds redacted component logs.
+- `.engineering/engineering.db` holds redacted component logs and other
+  versioned local Engineering evidence. `.engineering/logs/` is only a private
+  fallback for early startup or crash logging when SQLite is unavailable.
 
 Do not create or rely on `iCloud Drive/DJConnect Engineering/Reports` or an
 iCloud `status.json`. Existing legacy iCloud archives can be moved safely with

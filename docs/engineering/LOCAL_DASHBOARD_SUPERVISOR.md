@@ -46,7 +46,7 @@ not need iCloud Drive to render a current or completed run:
 - `.engineering/status/status.json` supplies bounded watcher status;
 - `.engineering/reports/` supplies the Engineering Report and its advisory
   analysis for the matching terminal run; and
-- `.engineering/logs/dashboard.log` and `.engineering/logs/inbox.log` supply
+- `engineering_component_logs` in `.engineering/engineering.db` supplies
   bounded, redacted component-log tails that are automatically refreshed when
   their server-pushed revision changes.
 

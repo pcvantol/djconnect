@@ -8,13 +8,15 @@ silently replaced or downgraded.
 from __future__ import annotations
 
 from collections.abc import Callable
+from datetime import datetime, timezone
+import json
 from pathlib import Path
 import sqlite3
 
 
 WORKSPACE_DIRECTORY = ".engineering"
 DATABASE_FILENAME = "engineering.db"
-ENGINEERING_STORAGE_SCHEMA_VERSION = 3
+ENGINEERING_STORAGE_SCHEMA_VERSION = 4
 
 
 class EngineeringStorageError(RuntimeError):
@@ -136,7 +138,40 @@ def _schema_v3(connection: sqlite3.Connection) -> None:
     )
 
 
-MIGRATIONS: dict[int, Migration] = {1: _schema_v1, 2: _schema_v2, 3: _schema_v3}
+def _schema_v4(connection: sqlite3.Connection) -> None:
+    """Migrate the previous redacted component-log files into SQLite once."""
+    database = Path(connection.execute("PRAGMA database_list").fetchone()[2])
+    logs = database.parent / "logs"
+    for component in ("inbox", "dashboard"):
+        existing = connection.execute(
+            "SELECT COUNT(*) FROM engineering_component_logs WHERE component=?", (component,)
+        ).fetchone()[0]
+        if existing:
+            continue
+        files = [logs / f"{component}.log.{index}" for index in range(3, 0, -1)]
+        files.append(logs / f"{component}.log")
+        for path in files:
+            try:
+                lines = path.read_text(encoding="utf-8").splitlines()
+            except OSError:
+                continue
+            for line in lines:
+                try:
+                    payload = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                if not isinstance(payload, dict):
+                    continue
+                created_at = payload.get("timestamp")
+                if not isinstance(created_at, str) or not created_at:
+                    created_at = datetime.now(timezone.utc).isoformat()
+                connection.execute(
+                    "INSERT INTO engineering_component_logs(component,payload,created_at) VALUES(?,?,?)",
+                    (component, json.dumps(payload, separators=(",", ":"), sort_keys=True), created_at),
+                )
+
+
+MIGRATIONS: dict[int, Migration] = {1: _schema_v1, 2: _schema_v2, 3: _schema_v3, 4: _schema_v4}
 
 
 def database_path(root: Path) -> Path:

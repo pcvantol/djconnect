@@ -35,7 +35,7 @@ from .component_lock import DuplicateComponentInstanceError, single_instance
 from .telemetry import ExecutionTelemetry, persist_execution_async
 
 LABEL = "com.djconnect.engineering-inbox"
-WATCHER_VERSION = "1.1.3"
+WATCHER_VERSION = "1.1.4"
 MAX_BYTES = 256_000
 TERMINAL_PHASES = frozenset({"COMPLETE", "BLOCKED", "FAILED"})
 BLOCKING_PREDECESSOR_PHASES = frozenset({"BLOCKED", "FAILED"})

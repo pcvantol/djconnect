@@ -29,6 +29,9 @@ from .component_logging import (
     DEFAULT_LOG_LEVEL,
     LOG_LEVEL_ENVIRONMENT,
     VALID_LEVELS,
+    clear_component_log as clear_stored_component_log,
+    component_log as stored_component_log,
+    component_log_version,
     component_logger,
     log_event,
 )
@@ -39,7 +42,7 @@ from .platform_version import EngineeringPlatformManifest
 
 LABEL = "com.djconnect.engineering-dashboard"
 RELAY_LABEL = "com.djconnect.engineering-dashboard-relay"
-DASHBOARD_VERSION = "1.2.69"
+DASHBOARD_VERSION = "1.2.70"
 LOOPBACK_ADDRESS = "127.0.0.1"
 CODEX_PROCESS = re.compile(r"(?:^|\s)(?:\S*/)?codex(?:\s|$)")
 RATE_LIMIT_CACHE_SECONDS = 60
@@ -450,41 +453,18 @@ def _latest_codex_log(root: Path) -> bytes:
 
 
 def _component_log(root: Path, component: str) -> bytes:
-    """Return a bounded tail of one known, already-redacted component log."""
-    if component not in {"inbox", "dashboard"}:
-        return b""
-    try:
-        lines = (root / ".engineering" / "logs" / f"{component}.log").read_text(
-            encoding="utf-8"
-        ).splitlines()
-    except OSError:
-        return b"Nog geen applicatielog beschikbaar."
-    tail = "\n".join(lines[-100:])[-64_000:]
-    return (tail or "Nog geen applicatielog beschikbaar.").encode()
+    """Return canonical SQLite logs with the file-only fallback retained in logging."""
+    return stored_component_log(root, component)
 
 
 def _clear_component_log(root: Path, component: str) -> None:
-    """Clear exactly one known component log; never accept arbitrary paths."""
-    if component not in {"inbox", "dashboard"}:
-        raise ValueError("Onbekende componentlog.")
-    path = root / ".engineering" / "logs" / f"{component}.log"
-    try:
-        path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
-        path.write_text("", encoding="utf-8")
-    except OSError as error:
-        raise OSError("Applicatielog kon niet worden gewist.") from error
+    """Clear exactly one canonical component log."""
+    clear_stored_component_log(root, component)
 
 
 def _component_log_versions(root: Path) -> dict[str, str]:
-    """Return lightweight revisions so browsers fetch logs only when they changed."""
-    revisions: dict[str, str] = {}
-    for component in ("inbox", "dashboard"):
-        try:
-            observed = (root / ".engineering" / "logs" / f"{component}.log").stat()
-            revisions[component] = f"{observed.st_mtime_ns}:{observed.st_size}"
-        except OSError:
-            revisions[component] = "missing"
-    return revisions
+    """Return SQLite revisions so browsers fetch logs only when they changed."""
+    return {component: component_log_version(root, component) for component in ("inbox", "dashboard")}
 
 
 def _launch_agent_health(label: str) -> dict[str, str | bool]:

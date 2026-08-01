@@ -106,20 +106,20 @@ supported commands. Tests never install the LaunchAgent.
 
 ### Component logging
 
-The watcher writes private, structured application events to
-`.engineering/logs/inbox.log`; the dashboard writes them to
-`.engineering/logs/dashboard.log`. Each JSON line has a UTC timestamp, severity,
-component and, where applicable, run ID. Event and diagnostic text are redacted
-and bounded before it is written. Logs rotate at 1 MB and retain at most three
-previous files.
+The watcher and dashboard write private, structured application events to
+`engineering_component_logs` in `.engineering/engineering.db`. Each record has
+a UTC timestamp, severity, component and, where applicable, run ID. Event and
+diagnostic text are redacted and bounded before persistence.
 
-In Engineering Status, open **Applicatielogs** and select **Logs laden** to
-inspect a bounded tail of these redacted logs. They are never loaded or
-streamed automatically.
+In Engineering Status, open **Logs** to inspect a bounded, live view of these
+redacted records. They are never loaded or streamed outside the private
+dashboard.
 
 The existing `inbox.out.log`, `inbox.err.log`, `dashboard.out.log` and
 `dashboard.err.log` remain the LaunchAgent process streams. They complement,
-rather than replace, the application logs.
+rather than replace, the application logs. Rotating `.engineering/logs/*.log`
+files are created only as a private fallback if SQLite is unavailable during
+early startup or a crash.
 
 Set `DJCONNECT_ENGINEERING_LOG_LEVEL` to `DEBUG`, `INFO`, `WARNING` or `ERROR`
 before installing a watcher or dashboard LaunchAgent; the selected value is

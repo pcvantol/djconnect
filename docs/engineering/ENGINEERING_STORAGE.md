@@ -14,7 +14,7 @@ iCloud Drive remains transport only. It is not an Engineering evidence store.
 ## Versioned schema
 
 The storage contract is independently versioned as **Engineering Storage
-schema `3`**. The required version is declared as `storage_schema` in
+schema `4`**. The required version is declared as `storage_schema` in
 `tools/engineering/ENGINEERING_PLATFORM_VERSION.json` and is validated by the
 runner compatibility contract.
 
@@ -33,7 +33,9 @@ The latter avoids persistent WAL sidecar files in `.engineering/`.
 ## Execution Host telemetry
 
 Schema `2` adds the generic, local-only Execution Host telemetry model. Schema
-`3` adds total elapsed time to that model:
+`3` adds total elapsed time to that model. Schema `4` makes SQLite the
+canonical component-log store and imports the previous redacted JSONL logs on
+first upgrade:
 
 - `execution_runs` stores one operational record per terminal run, including
   Inbox arrival, runner start, completion, measured Codex CLI duration and
@@ -48,6 +50,19 @@ Telemetry is best-effort and is scheduled only after terminal report delivery.
 An unavailable database is logged by the watcher but never changes the
 authoritative engineering checkpoint or its outcome. Token values remain null
 when the provider did not report them; the platform never estimates them.
+
+## Component logging
+
+`engineering_component_logs` is the canonical store for redacted watcher and
+dashboard events. The dashboard reads its bounded log views from this table,
+and clearing a component log removes only that component's SQLite rows.
+
+The former `.engineering/logs/inbox.log` and `dashboard.log` files are no
+longer normal application logs. They are created only as a private, rotating
+fallback when SQLite cannot be opened during early startup or an application
+failure. Existing redacted JSONL entries are imported once during the schema
+`4` migration. LaunchAgent `*.out.log` and `*.err.log` streams remain separate
+process-level crash diagnostics.
 
 ## Canonical workspace migration
 
