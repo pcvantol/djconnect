@@ -134,6 +134,25 @@ class InboxWatcherTest(unittest.TestCase):
         self.assertEqual(snapshot["last_executed_phase"], "COMPLETE")
         self.assertFalse(old_log.exists())
 
+    def test_preflight_failure_delivers_a_terminal_report_and_failed_phase(self) -> None:
+        prompt = self.inbox / "preflight.md"
+        prompt.write_text("# Preflight prompt", encoding="utf-8")
+        _, run_id, _ = inbox_watcher._job_id(prompt, prompt.read_text(encoding="utf-8"))
+        with patch("tools.engineering.inbox_watcher.subprocess.run") as run:
+            run.return_value = subprocess.CompletedProcess(
+                ("dj-engineer",), 2, "", "Engineering Platform upgrade required."
+            )
+            code = inbox_watcher.once(self.repo, self.root, 0)
+
+        self.assertEqual(code, 2)
+        snapshot = json_status(self.repo)
+        self.assertEqual(snapshot["watcher_state"], "JOB_FAILED")
+        self.assertEqual(snapshot["last_executed_run"], run_id)
+        self.assertEqual(snapshot["last_executed_phase"], "FAILED")
+        report = self.repo / ".djconnect" / "reports" / f"corrected_{run_id}.md"
+        self.assertTrue(report.exists())
+        self.assertTrue(inbox_watcher._report_matches_terminal_phase(report, "FAILED"))
+
     def test_status_helpers_keep_previous_context_and_bound_details(self) -> None:
         status = self.repo / ".djconnect" / "status"
         status.mkdir(parents=True)

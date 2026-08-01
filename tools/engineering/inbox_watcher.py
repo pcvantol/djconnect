@@ -524,31 +524,7 @@ def once(repo: Path, root: Path, interval: float = 1.0) -> int:
         execution_started_at = datetime.now(timezone.utc)
         completed = subprocess.run(arguments, cwd=repo, text=True, capture_output=True, check=False)
         phase, diagnostic = _runner_result(repo, run_id)
-        report = _report(repo, run_id)
-        delivered = None
-        corrected_report = False
-        if report:
-            status(
-                repo, "REPORT_PUBLISHING", job_id=job_id, run_id=run_id, queued_jobs=len(candidates) - 1, queue_items=_queue_items(candidates, source),
-            )
-            delivered = report
-            if _report_matches_terminal_phase(report, phase):
-                pass
-            else:
-                corrected_report = True
-                delivered = repo / ".djconnect" / "reports" / f"corrected_{run_id}.md"
-                delivered.write_text(
-                    _corrected_terminal_report(run_id, phase, diagnostic), encoding="utf-8"
-                )
-                log_event(logger, logging.WARNING, "terminal_report_corrected", run_id=run_id)
-        successful = completed.returncode == 0 and phase == "COMPLETE" and delivered is not None
-        target = areas["Completed"] if successful else areas["Failed"]
-        _move(claimed, _archive_path(target, job_id, source))
-        final_state = (
-            "JOB_COMPLETED"
-            if successful
-            else ("JOB_BLOCKED" if phase == "BLOCKED" else "JOB_FAILED")
-        )
+        terminal_phase = phase if phase in TERMINAL_PHASES else "FAILED"
         reason = diagnostic or (
             _runner_failure_detail(completed)
             if completed.returncode and phase is None
@@ -558,9 +534,33 @@ def once(repo: Path, root: Path, interval: float = 1.0) -> int:
             if completed.returncode == 0
             else "De runner stopte zonder een veilig eindrapport."
         )
+        report = _report(repo, run_id)
+        delivered = None
+        corrected_report = False
+        if report and _report_matches_terminal_phase(report, terminal_phase):
+            status(
+                repo, "REPORT_PUBLISHING", job_id=job_id, run_id=run_id, queued_jobs=len(candidates) - 1, queue_items=_queue_items(candidates, source),
+            )
+            delivered = report
+        else:
+            corrected_report = True
+            delivered = repo / ".djconnect" / "reports" / f"corrected_{run_id}.md"
+            delivered.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+            delivered.write_text(
+                _corrected_terminal_report(run_id, terminal_phase, reason), encoding="utf-8"
+            )
+            log_event(logger, logging.WARNING, "terminal_report_corrected", run_id=run_id)
+        successful = completed.returncode == 0 and terminal_phase == "COMPLETE" and delivered is not None
+        target = areas["Completed"] if successful else areas["Failed"]
+        _move(claimed, _archive_path(target, job_id, source))
+        final_state = (
+            "JOB_COMPLETED"
+            if successful
+            else ("JOB_BLOCKED" if terminal_phase == "BLOCKED" else "JOB_FAILED")
+        )
         if corrected_report:
             reason = redact_diagnostic(
-                "The original terminal report contradicted its checkpoint; a corrected report was delivered."
+                "Een checkpoint-conform eindrapport is afgeleverd voor deze uitvoering."
             )
         status(
             repo,
@@ -569,7 +569,7 @@ def once(repo: Path, root: Path, interval: float = 1.0) -> int:
             run_id=run_id,
             queued_jobs=len(candidates) - 1,
             queue_items=_queue_items(candidates, source),
-            runner_phase=phase,
+            runner_phase=terminal_phase,
             report=str(delivered) if delivered else None,
             diagnostic=reason,
             resume_instruction=f"Run dj-engineer with --run-id {run_id} --resume.",
@@ -578,7 +578,7 @@ def once(repo: Path, root: Path, interval: float = 1.0) -> int:
             last_executed_filename=source.name,
             last_executed_title=title,
             last_executed_run=run_id,
-            last_executed_phase=phase,
+            last_executed_phase=terminal_phase,
         )
         log_event(
             logger,
@@ -596,7 +596,7 @@ def once(repo: Path, root: Path, interval: float = 1.0) -> int:
                     arrived_at=arrived_at,
                     execution_started_at=execution_started_at,
                     execution_finished_at=datetime.now(timezone.utc),
-                    terminal_state=phase if phase in TERMINAL_PHASES else "FAILED",
+                    terminal_state=terminal_phase,
                     execution_seconds=execution_seconds,
                     input_tokens=usage["input_tokens"],
                     output_tokens=usage["output_tokens"],
