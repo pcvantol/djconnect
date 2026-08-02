@@ -50,7 +50,6 @@ test.describe("Engineering Status browser smoke", () => {
         dashboard: expect.objectContaining({ healthy: true, state: "running" }),
         inbox_watcher: expect.objectContaining({ healthy: expect.any(Boolean) }),
         dashboard_relay: expect.objectContaining({ healthy: expect.any(Boolean) }),
-        status_storage: expect.objectContaining({ healthy: expect.any(Boolean) }),
         private_remote_access: expect.objectContaining({ healthy: expect.any(Boolean) }),
       }),
     }));
@@ -74,12 +73,11 @@ test.describe("Engineering Status browser smoke", () => {
     await page.evaluate(() => renderPlatformHealth({ components: {
       dashboard: { healthy: true, detail: "HTTP-dashboard reageert", version: "1.2.82", uptime_seconds: 3725 },
       inbox_watcher: { healthy: true, detail: "LaunchAgent is geladen", version: "1.1.4", uptime_seconds: 75 },
-      status_storage: { healthy: true, detail: "Statusprojectie beschikbaar" },
     }}));
 
     await expect(page.locator("#platformHealthComponents")).toContainText("Uptime 1u 2m");
     await expect(page.locator("#platformHealthComponents")).toContainText("Uptime 1m");
-    await expect(page.locator("#platformHealthComponents")).not.toContainText("Statusprojectie beschikbaar · Uptime");
+    await expect(page.locator("#platformHealthComponents")).not.toContainText("Statusopslag");
   });
 
   test("centres component information actions and balances component-card text padding", async ({ page }) => {

@@ -65,7 +65,7 @@ class DashboardStatusTest(unittest.TestCase):
                 {"healthy": False, "state": "unavailable", "detail": "launchctl ontbreekt"},
             )
             with self.assertRaises(ValueError):
-                dashboard._restart_component("status_storage")
+                dashboard._restart_component("unknown_component")
             with self.assertRaises(OSError):
                 dashboard._restart_component("dashboard")
 
@@ -1250,7 +1250,7 @@ class DashboardStatusTest(unittest.TestCase):
     @patch("tools.engineering.dashboard._component_uptime_seconds", side_effect=(3661, 122))
     @patch("tools.engineering.dashboard._launch_agent_health")
     @patch("tools.engineering.dashboard.TailscaleProvider.status")
-    def test_platform_health_reports_each_required_component(
+    def test_platform_health_reports_each_visible_component(
         self, remote_status: object, launch_agent_health: object, component_uptime: object
     ) -> None:
         remote_status.return_value.qualified = True
@@ -1262,9 +1262,6 @@ class DashboardStatusTest(unittest.TestCase):
         }
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            status = root / ".engineering" / "status"
-            status.mkdir(parents=True)
-            (status / "status.json").write_text("{}", encoding="utf-8")
             health = _platform_health(root)
 
         self.assertEqual(health["health"], "ok")
@@ -1273,13 +1270,11 @@ class DashboardStatusTest(unittest.TestCase):
             "dashboard",
             "inbox_watcher",
             "dashboard_relay",
-            "status_storage",
             "private_remote_access",
         })
         self.assertIsInstance(health["components"]["dashboard"]["uptime_seconds"], int)
         self.assertEqual(health["components"]["inbox_watcher"]["uptime_seconds"], 3661)
         self.assertEqual(health["components"]["dashboard_relay"]["uptime_seconds"], 122)
-        self.assertNotIn("uptime_seconds", health["components"]["status_storage"])
         self.assertNotIn("uptime_seconds", health["components"]["private_remote_access"])
         component_uptime.assert_called()
 
@@ -1406,7 +1401,7 @@ class DashboardStatusTest(unittest.TestCase):
                 self.assertEqual(restart_event.kwargs["context"]["target_component"], "inbox_watcher")
             connection.request(
                 "POST",
-                "/api/components/status_storage/restart",
+                "/api/components/unknown_component/restart",
                 body="{}",
                 headers={"Content-Type": "application/json"},
             )
