@@ -176,6 +176,13 @@ test.describe("Engineering Status browser smoke", () => {
       const style = getComputedStyle(button);
       return { bottom: style.bottom, right: style.right };
     })).toEqual({ bottom: "10px", right: "10px" });
+    await expect(page.locator("#downloadChat")).toHaveAttribute("hidden", "");
+    await page.evaluate(() => {
+      chatHistory = [{ role: "user", text: "Wat zijn de volgende stappen?" }];
+      renderChatHistory();
+    });
+    await expect(page.locator("#downloadChat")).not.toHaveAttribute("hidden", "");
+    expect(await page.evaluate(() => chatHistoryMarkdown())).toContain("## Jij\n\nWat zijn de volgende stappen?");
   });
 
   test("sorts the two component-log tables independently", async ({ page }) => {
