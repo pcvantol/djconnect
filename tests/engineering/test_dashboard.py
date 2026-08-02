@@ -26,6 +26,81 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertEqual(DASHBOARD_VERSION, manifest.dashboard_version)
         self.assertEqual(WATCHER_VERSION, manifest.watcher_version)
 
+    def test_dashboard_helpers_fail_closed_for_unavailable_local_dependencies(self) -> None:
+        with patch("tools.engineering.dashboard.shutil.which", return_value=None):
+            self.assertEqual(
+                dashboard._launch_agent_health("com.example.missing"),
+                {"healthy": False, "state": "unavailable", "detail": "launchctl ontbreekt"},
+            )
+            with self.assertRaises(ValueError):
+                dashboard._restart_component("status_storage")
+            with self.assertRaises(OSError):
+                dashboard._restart_component("dashboard")
+
+        with (
+            patch("tools.engineering.dashboard.shutil.which", return_value="/bin/launchctl"),
+            patch("tools.engineering.dashboard.subprocess.run") as run,
+        ):
+            run.return_value = __import__("subprocess").CompletedProcess(("launchctl",), 1, "", "")
+            self.assertEqual(
+                dashboard._launch_agent_health("com.example.missing"),
+                {"healthy": False, "state": "not_running", "detail": "LaunchAgent is niet geladen"},
+            )
+            with self.assertRaisesRegex(OSError, "De herstart is niet gelukt"):
+                dashboard._restart_component("dashboard")
+
+    def test_rate_limit_helpers_cover_generic_windows_and_unavailable_provider_version(self) -> None:
+        self.assertEqual(dashboard._rate_limit_window_label(1_440), "1-daags venster")
+        self.assertEqual(dashboard._rate_limit_window_label(120), "2-uursvenster")
+        self.assertEqual(dashboard._rate_limit_window_label(17), "17-minutenvenster")
+        self.assertEqual(dashboard._normalize_rate_limits([]), {})
+        self.assertEqual(dashboard._normalize_rate_limits({"rateLimits": []}), {})
+
+        dashboard._codex_identity_cache = None
+        with patch("tools.engineering.dashboard.shutil.which", return_value=None):
+            self.assertEqual(
+                dashboard._codex_provider_identity(),
+                {"provider": "Codex CLI", "provider_version": "versie niet beschikbaar"},
+            )
+
+    def test_component_processes_and_metrics_ignore_invalid_process_rows(self) -> None:
+        self.assertEqual(dashboard._component_processes("unknown"), [])
+        with patch("tools.engineering.dashboard.subprocess.run", side_effect=OSError):
+            self.assertEqual(dashboard._component_processes("dashboard"), [])
+        with patch("tools.engineering.dashboard.subprocess.run") as run:
+            run.return_value = __import__("subprocess").CompletedProcess(("ps",), 0, "bad\n1 x 3 dashboard.py\n2 4 5 dashboard.py\n", "")
+            self.assertEqual(
+                dashboard._component_processes("dashboard"),
+                [{"pid": 2, "memory_kib": 4, "uptime_seconds": 5}],
+            )
+        with patch("tools.engineering.dashboard.subprocess.run") as run:
+            run.return_value = __import__("subprocess").CompletedProcess(
+                ("ps",), 0, "1 bad codex\n2 1.5 unrelated\n3 2.5 codex exec\n", ""
+            )
+            metrics = json.loads(dashboard._codex_process_metrics())
+        self.assertEqual(metrics["process_count"], 1)
+        self.assertEqual(metrics["cpu_percent"], 2.5)
+
+    def test_report_and_runtime_projections_reject_invalid_or_unavailable_input(self) -> None:
+        root = Path("/missing")
+        self.assertEqual(dashboard._report_for_run(root, "INVALID"), b"")
+        self.assertEqual(dashboard._report_analysis_for_run(root, "INVALID"), b"")
+        self.assertFalse(dashboard._report_analysis_available_for_run(root, "INVALID"))
+        self.assertEqual(dashboard._reviewer_agents_for_run(root, "run-1"), b"[]")
+        self.assertEqual(dashboard._last_executed_agent_execution(root, "INVALID"), b"{}")
+        self.assertEqual(dashboard._last_executed_runtime_metadata(root, "INVALID"), b"{}")
+
+    def test_launch_agent_details_and_component_details_handle_unavailable_records(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary, patch(
+            "tools.engineering.dashboard.Path.home", return_value=Path(temporary)
+        ):
+            details = dashboard._launch_agent_details("com.example.missing")
+        self.assertFalse(details["loaded"])
+        self.assertEqual(details["program_arguments"], [])
+        with patch("tools.engineering.dashboard._platform_health", return_value={"components": {}}):
+            with self.assertRaisesRegex(ValueError, "Onbekend Engineering Platform-onderdeel"):
+                dashboard._component_details(Path("/missing"), "missing")
+
     def test_local_dashboard_supervisor_preserves_private_and_resilient_boundaries(self) -> None:
         source = (Path(__file__).parents[2] / "tools/engineering/dashboard_supervisor.swift").read_text(encoding="utf-8")
         self.assertIn("tailscale", source)
