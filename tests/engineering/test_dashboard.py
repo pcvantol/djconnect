@@ -71,13 +71,17 @@ class DashboardStatusTest(unittest.TestCase):
             run.return_value = __import__("subprocess").CompletedProcess(
                 ("ps",),
                 0,
-                "bad\n1 x 3 dashboard.py\n2 4 5 python -m tools.engineering.dashboard run\n",
+                "bad\n1 x 3 dashboard.py\n2 4 5 python -m tools.engineering.dashboard run\n3 12 01:05 python -m tools.engineering.dashboard run\n",
                 "",
             )
             self.assertEqual(
                 dashboard._component_processes("dashboard"),
-                [{"pid": 2, "memory_kib": 4, "uptime_seconds": 5}],
+                [
+                    {"pid": 2, "memory_kib": 4, "uptime_seconds": 5},
+                    {"pid": 3, "memory_kib": 12, "uptime_seconds": 65},
+                ],
             )
+        self.assertEqual(dashboard._process_elapsed_seconds("2-01:02:03"), 176_523)
         with patch("tools.engineering.dashboard.subprocess.run") as run:
             run.return_value = __import__("subprocess").CompletedProcess(
                 ("ps",), 0, "1 bad codex\n2 1.5 unrelated\n3 2.5 codex exec\n", ""

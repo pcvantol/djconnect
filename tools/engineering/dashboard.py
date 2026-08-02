@@ -492,7 +492,7 @@ def _component_processes(component: str) -> list[dict[str, int | str]]:
         return []
     try:
         observed = subprocess.run(
-            ("ps", "-axo", "pid=,rss=,etimes=,command="),
+            ("ps", "-axo", "pid=,rss=,etime=,command="),
             text=True,
             capture_output=True,
             check=False,
@@ -507,16 +507,37 @@ def _component_processes(component: str) -> list[dict[str, int | str]]:
         if len(parts) != 4 or not any(pattern in parts[3] for pattern in patterns):
             continue
         try:
+            elapsed = _process_elapsed_seconds(parts[2])
             processes.append(
                 {
                     "pid": int(parts[0]),
                     "memory_kib": int(parts[1]),
-                    "uptime_seconds": max(0, int(parts[2])),
+                    "uptime_seconds": elapsed,
                 }
             )
         except ValueError:
             continue
     return processes
+
+
+def _process_elapsed_seconds(value: str) -> int:
+    """Convert portable ps etime values into bounded elapsed seconds."""
+    days, separator, clock = value.partition("-")
+    if not separator:
+        clock = days
+        day_count = 0
+    else:
+        day_count = int(days)
+    parts = [int(part) for part in clock.split(":")]
+    if len(parts) == 1:
+        hours, minutes, seconds = 0, 0, parts[0]
+    elif len(parts) == 2:
+        hours, minutes, seconds = 0, parts[0], parts[1]
+    elif len(parts) == 3:
+        hours, minutes, seconds = parts
+    else:
+        raise ValueError("Ongeldig ps etime-formaat")
+    return max(0, day_count * 86_400 + hours * 3_600 + minutes * 60 + seconds)
 
 
 def _component_uptime_seconds(component: str) -> int | None:
