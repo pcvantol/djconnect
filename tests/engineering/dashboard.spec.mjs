@@ -92,6 +92,17 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator(".platform-health__component-detail")).toHaveCSS("color", "rgb(24, 34, 48)");
   });
 
+  test("renders component details in the light modal theme", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.getByTestId("theme-toggle").click();
+    await page.locator("#platformHealth").evaluate((element) => { element.open = true; });
+    await page.locator(".component-info").first().click();
+
+    await expect(page.locator("#componentModal")).toHaveAttribute("open", "");
+    await expect(page.locator(".component-modal__panel")).toHaveCSS("background-color", "rgb(255, 255, 255)");
+    await expect(page.locator(".component-modal__panel")).toHaveCSS("color", "rgb(24, 34, 48)");
+  });
+
   test("uses matching orange iOS-style toggles in the title bar", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     const theme = page.getByTestId("theme-toggle");
