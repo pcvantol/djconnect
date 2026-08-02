@@ -466,6 +466,7 @@ class DashboardStatusTest(unittest.TestCase):
             "Huidige actie",
             "Prompttitel",
             "Bestandsnaam",
+            "Aangeleverd als",
             "Codex CLI-diagnose",
             "Run-ID",
             "Wachtrij",
