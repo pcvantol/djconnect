@@ -239,7 +239,7 @@ class DashboardStatusTest(unittest.TestCase):
         )
         self.assertIn('<summary><strong>Inbox-wachtrij</strong></summary>', page)
         self.assertIn(
-            'Prompts in uitvoervolgorde: oudste eerst. Ook een lege wachtrij blijft zichtbaar.',
+            'Prompts worden uitgevoerd op volgorde van aanmaakdatum.',
             page,
         )
         self.assertIn('.inbox-queue{--category-color:#818cf8', page)
@@ -249,7 +249,7 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn('grid-template-columns:1.25rem minmax(0,1fr);padding-left:0', page)
         self.assertIn('id="queueSummary"', page)
         self.assertIn("0 prompts in de wachtrij.", page)
-        self.assertIn("in uitvoervolgorde: oudste eerst.", page)
+        self.assertIn("Prompts worden uitgevoerd op volgorde van aanmaakdatum.", page)
         self.assertIn("function queueItems(x,queueDepth)", page)
         self.assertIn('"queueItems","currentRun"', page)
         self.assertIn("Wachtrij geblokkeerd", page)
