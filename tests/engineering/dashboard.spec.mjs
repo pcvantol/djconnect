@@ -177,6 +177,32 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(inboxLevel).toHaveAttribute("aria-sort", "ascending");
   });
 
+  test("opens and closes all visible dashboard categories with the title-bar switch", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#autoRefresh").uncheck();
+    const toggle = page.getByTestId("toggle-all-sections");
+    await expect(toggle).toHaveAttribute("role", "switch");
+    await expect(toggle).toHaveAttribute("aria-checked", "false");
+    await expect(toggle).toHaveAttribute("aria-label", "Alle secties openen");
+
+    await toggle.click();
+    await expect(toggle).toHaveAttribute("aria-checked", "true");
+    await expect(toggle).toHaveAttribute("aria-label", "Alle secties sluiten");
+    for (const id of ["workspaceCard", "platformHealth", "codexChat", "technicalDetails", "componentLogs"]) {
+      await expect(page.locator(`#${id}`)).toHaveAttribute("open", "");
+    }
+
+    await page.reload({ waitUntil: "domcontentloaded" });
+    await expect(toggle).toHaveAttribute("aria-checked", "true");
+    await expect(page.locator("#workspaceCard")).toHaveAttribute("open", "");
+
+    await toggle.click();
+    await expect(toggle).toHaveAttribute("aria-checked", "false");
+    for (const id of ["workspaceCard", "platformHealth", "codexChat", "technicalDetails", "componentLogs"]) {
+      await expect(page.locator(`#${id}`)).not.toHaveAttribute("open", "");
+    }
+  });
+
   test("parses each newline-delimited JSON log entry separately", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     const entries = await page.evaluate(() => structuredLogEntries(
