@@ -154,6 +154,17 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(platformLabel).toHaveCSS("color", "rgb(240, 182, 106)");
   });
 
+  test("uses the centralized house style for toast and shared controls", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    const houseStyle = await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue("--house-style").trim());
+    expect(houseStyle).toBe("#f0b66a");
+
+    await page.evaluate(() => showCopyToast());
+    await expect(page.getByTestId("copy-toast")).toHaveCSS("border-color", "rgb(240, 182, 106)");
+    await expect(page.locator("#autoRefresh")).toHaveCSS("background-color", "rgb(240, 182, 106)");
+    await expect(page.locator(".rate-limit-reset")).toHaveCSS("border-color", "rgb(240, 182, 106)");
+  });
+
   test("pads title bar content evenly from both horizontal edges", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     const padding = await page.locator(".dashboard-titlebar").evaluate((element) => {
@@ -496,8 +507,8 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
     await expect(page.locator("body")).toHaveCSS("background-color", "rgb(244, 247, 251)");
     await page.evaluate(() => rateLimits({ provider: "Codex CLI", provider_version: "0.146.0", windows: [], reset_credits: 1 }));
-    await expect(page.locator("#rateLimitReset")).toHaveCSS("background-color", "rgb(232, 255, 245)");
-    await expect(page.locator("#rateLimitReset")).toHaveCSS("color", "rgb(20, 90, 66)");
+    await expect(page.locator("#rateLimitReset")).toHaveCSS("background-color", "rgb(255, 244, 230)");
+    await expect(page.locator("#rateLimitReset")).toHaveCSS("color", "rgb(101, 58, 19)");
     await expect(page.locator("#technicalDetails .technical-grid > .card").first()).toHaveCSS("background-color", "rgb(255, 255, 255)");
     await page.evaluate(() => {
       document.querySelector("#promptHistory").open = true;
