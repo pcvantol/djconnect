@@ -368,7 +368,7 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn('anchor.insertAdjacentElement("afterend",telemetry);anchor=telemetry', page)
         self.assertIn('anchor.insertAdjacentElement("afterend",health);anchor=health', page)
         self.assertIn('if(logs)anchor.insertAdjacentElement("afterend",logs)', page)
-        self.assertIn('De actieve werkruimte en de locatie van dit dashboard.', page)
+        self.assertIn('De actieve werkruimte van dit project.', page)
         self.assertIn('Operationele details over pull requests, repository, werkruimte en diagnose.', page)
         self.assertIn('#engineering-dashboard-content>.technical-details:not(#componentLogs),#engineering-dashboard-content>.technical-details:not(#componentLogs) .card{border-left-width:1px}', page)
         self.assertIn('.chat-message--user{background:#243648;border:1px solid #8dc7ff}.chat-message--assistant{background:#34283f;border-color:#d0a4ff}', page)
