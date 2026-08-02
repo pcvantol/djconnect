@@ -110,6 +110,29 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#chatInput")).toHaveCSS("resize", "vertical");
   });
 
+  test("bounds and sanitizes free-form dashboard input client-side", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await expect(page.locator("#chatInput")).toHaveAttribute("maxlength", "2000");
+    await expect(page.locator("#promptHistoryFilter")).toHaveAttribute("maxlength", "160");
+    await expect(page.locator("#logFilter")).toHaveAttribute("maxlength", "160");
+
+    const values = await page.locator("#chatInput, #promptHistoryFilter").evaluateAll((inputs) => Object.fromEntries(inputs.map((input) => {
+      input.value = input.id === "chatInput"
+        ? `eerste\r\ntweede\u202E${"x".repeat(2100)}`
+        : `zoek\u0000term\n${"x".repeat(200)}`;
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+      return [input.id, input.value];
+    })));
+
+    expect(values.chatInput).toHaveLength(2000);
+    expect(values.chatInput).toContain("eerste\ntweede");
+    expect(values.chatInput).not.toContain("\u202E");
+    expect(values.promptHistoryFilter).toHaveLength(160);
+    expect(values.promptHistoryFilter).toContain("zoekterm");
+    expect(values.promptHistoryFilter).not.toContain("\u0000");
+    expect(values.promptHistoryFilter).not.toContain("\n");
+  });
+
   test("keeps platform health status text readable in light mode", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.getByTestId("theme-toggle").click();
