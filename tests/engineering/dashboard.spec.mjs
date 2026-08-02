@@ -347,6 +347,10 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#downloadChat")).toHaveText("⇩");
     expect(await page.locator("#downloadChat").evaluate((element) => getComputedStyle(element).borderRadius)).toBe("50%");
     expect(await page.locator("#downloadChat").evaluate((element) => getComputedStyle(element, "::before").content)).toContain("↓");
+    await page.evaluate(() => chatMessage("assistant", "Een antwoord."));
+    expect(await page.locator(".chat-message--user .chat-message__body").evaluate((element) => getComputedStyle(element).fontFamily)).toBe(
+      await page.locator(".chat-message--assistant .chat-message__body").evaluate((element) => getComputedStyle(element).fontFamily),
+    );
     expect(await page.evaluate(() => chatHistoryMarkdown())).toContain("## Jij\n\nWat zijn de volgende stappen?");
   });
 
