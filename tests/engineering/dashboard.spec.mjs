@@ -212,6 +212,42 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(inboxLevel).toHaveAttribute("aria-sort", "ascending");
   });
 
+  test("paginates the two component-log tables independently", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#componentLogs").evaluate((element) => { element.open = true; });
+    await page.locator("#autoRefresh").uncheck();
+    await page.waitForFunction(() => componentLogsLoaded);
+    await page.evaluate(() => {
+      refreshComponentLogs = async () => {};
+      componentLogEntries.inbox = Array.from({ length: 51 }, (_, index) => ({
+        line: index + 1,
+        timestamp: `2026-08-02T00:${String(index).padStart(2, "0")}:00Z`,
+        level: "INFO",
+        event: `inbox_${index}`,
+        runId: "—",
+        details: "test",
+      }));
+      componentLogEntries.dashboard = Array.from({ length: 2 }, (_, index) => ({
+        line: index + 1,
+        timestamp: `2026-08-02T01:0${index}:00Z`,
+        level: "INFO",
+        event: `dashboard_${index}`,
+        runId: "—",
+        details: "test",
+      }));
+      componentLogsLoaded = true;
+      renderComponentLogs();
+    });
+
+    await expect(page.locator("#inboxComponentLog tr")).toHaveCount(50);
+    await expect(page.locator("#inboxLogPagination")).toContainText("Pagina 1 van 2 · 51 regels");
+    await expect(page.locator("#dashboardLogPagination")).toContainText("Pagina 1 van 1 · 2 regels");
+    await page.locator("#inboxLogPagination").getByRole("button", { name: "Volgende" }).click();
+    await expect(page.locator("#inboxComponentLog tr")).toHaveCount(1);
+    await expect(page.locator("#inboxLogPagination")).toContainText("Pagina 2 van 2 · 51 regels");
+    await expect(page.locator("#dashboardComponentLog tr")).toHaveCount(2);
+  });
+
   test("opens and closes all visible dashboard categories with the title-bar switch", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.locator("#autoRefresh").uncheck();

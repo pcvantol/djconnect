@@ -130,8 +130,9 @@ a UTC timestamp, severity, component and, where applicable, run ID. Event and
 diagnostic text are redacted and bounded before persistence.
 
 In Engineering Status, open **Logs** to inspect a bounded, live view of these
-redacted records. They are never loaded or streamed outside the private
-dashboard.
+redacted records. Each table keeps its own sort order and shows 50 matching
+records per page; filters apply across all loaded records before pagination.
+They are never loaded or streamed outside the private dashboard.
 
 The existing `inbox.out.log`, `inbox.err.log`, `dashboard.out.log` and
 `dashboard.err.log` remain the LaunchAgent process streams. They complement,
