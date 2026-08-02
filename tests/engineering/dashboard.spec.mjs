@@ -393,6 +393,7 @@ test.describe("Engineering Status browser smoke", () => {
     await page.evaluate(() => rateLimits({ provider: "Codex CLI", provider_version: "0.146.0", windows: [], reset_credits: 1 }));
     await expect(page.locator("#rateLimitReset")).toHaveCSS("background-color", "rgb(232, 255, 245)");
     await expect(page.locator("#rateLimitReset")).toHaveCSS("color", "rgb(20, 90, 66)");
+    await expect(page.locator("#technicalDetails .technical-grid > .card").first()).toHaveCSS("background-color", "rgb(255, 255, 255)");
     await page.evaluate(() => {
       document.querySelector("#promptHistory").open = true;
       promptHistoryEntries = Array.from({ length: 26 }, (_, index) => ({
