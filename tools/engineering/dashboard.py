@@ -14,6 +14,7 @@ import re
 import select
 import shlex
 import shutil
+import sqlite3
 import socket
 import subprocess
 import sys
@@ -890,12 +891,39 @@ def _tracked_file_count(root: Path) -> str:
     return str(sum(1 for path in observed.stdout.split(b"\0") if path))
 
 
+def _engineering_database_details(root: Path) -> dict[str, str]:
+    """Return read-only local SQLite identity details without creating storage."""
+    database = root.resolve() / ".engineering" / "engineering.db"
+    details = {
+        "path": str(database),
+        "size": "Niet beschikbaar",
+        "schema_version": "Niet beschikbaar",
+    }
+    try:
+        details["size"] = f"{database.stat().st_size} bytes"
+    except OSError:
+        return details
+    try:
+        with sqlite3.connect(f"{database.resolve().as_uri()}?mode=ro", uri=True) as connection:
+            row = connection.execute(
+                "SELECT MAX(version) FROM engineering_schema_migrations"
+            ).fetchone()
+    except (OSError, sqlite3.DatabaseError):
+        return details
+    if row and row[0] is not None:
+        details["schema_version"] = str(row[0])
+    return details
+
+
 def _dashboard_html(
     title: str,
     build_commit: str = "onbekend",
     workspace_id: str = "onbekend",
     workspace_location: str = ".",
     tracked_files: str = "Niet beschikbaar",
+    engineering_database_path: str = "Niet beschikbaar",
+    engineering_database_size: str = "Niet beschikbaar",
+    engineering_database_schema_version: str = "Niet beschikbaar",
     platform_version: str = "1.5.0",
 ) -> bytes:
     """Render the private dashboard with a server-pushed status stream."""
@@ -985,7 +1013,7 @@ html[data-theme="light"] body{background:#f4f7fb;color:#182230}html[data-theme="
 <div id="copyToast" role="status" aria-live="polite" aria-atomic="true" hidden data-testid="copy-toast"></div>
 <div id="pullRefresh" role="status" aria-live="polite" aria-hidden="true" data-testid="pull-refresh">Trek omlaag om te vernieuwen</div>
 <header class="dashboard-titlebar"><div class="dashboard-titlebar__brand"><img class="dashboard-app-icon" src="/assets/engineering-status-icon.svg" alt="" aria-hidden="true" data-testid="dashboard-app-icon"><h1>$TITLE</h1></div><div class="dashboard-titlebar__actions"><button class="theme-toggle" id="themeToggle" type="button" role="switch" aria-checked="false" aria-label="Lichte modus inschakelen" data-testid="theme-toggle"><span class="theme-toggle__label">Thema</span></button><button class="section-state-toggle" id="toggleAllSections" type="button" role="switch" aria-checked="false" aria-label="Alle secties openen" data-testid="toggle-all-sections"><span class="section-state-toggle__label">Alles</span></button><label class="auto-refresh-toggle" for="autoRefresh"><input id="autoRefresh" type="checkbox" checked><span>Automatisch vernieuwen</span></label></div></header>
-<details class="card card--context workspace-card" id="workspaceCard" data-testid="engineering-workspace"><summary><strong>Workspace</strong></summary><p class="field"><span class="label">Naam</span><span>$WORKSPACE_ID</span></p><div class="field"><span class="label">Workspace locatie</span><pre>$WORKSPACE_LOCATION</pre></div><p class="field"><span class="label">Tracked files</span><span>$TRACKED_FILES</span></p></details>
+<details class="card card--context workspace-card" id="workspaceCard" data-testid="engineering-workspace"><summary><strong>Workspace</strong></summary><p class="field"><span class="label">Naam</span><span>$WORKSPACE_ID</span></p><div class="field"><span class="label">Workspace locatie</span><pre>$WORKSPACE_LOCATION</pre></div><p class="field"><span class="label">Tracked files</span><span>$TRACKED_FILES</span></p><div class="field"><span class="label">Engineering-database</span><pre>$ENGINEERING_DATABASE_PATH</pre></div><p class="field"><span class="label">Databasegrootte</span><span>$ENGINEERING_DATABASE_SIZE</span></p><p class="field"><span class="label">Schema-versie</span><span>$ENGINEERING_DATABASE_SCHEMA_VERSION</span></p></details>
 <main class="dashboard-grid" id="engineering-dashboard-content" tabindex="-1">
 <details class="inbox-queue" id="queueItems" data-testid="engineering-inbox-queue"><summary><strong>Inbox-wachtrij</strong></summary><p class="category-description">Prompts in uitvoervolgorde: oudste eerst. Ook een lege wachtrij blijft zichtbaar.</p><p class="estimate-meta" id="queueSummary">Wachtrij laden…</p><ol class="queue-list" id="queueList" aria-live="polite"></ol></details>
 <details class="prompt-history" id="promptHistory" data-testid="engineering-prompt-history"><summary><strong>Promptgeschiedenis</strong></summary><p class="category-description">Alle terminale Engineering Platform-uitvoeringen, lokaal gecachet in de Engineering SQLite-opslag.</p><div class="log-controls"><label for="promptHistoryFilter">Zoeken<input id="promptHistoryFilter" type="search" placeholder="Zoek in alle velden"></label></div><div class="log-table-wrap"><table class="log-table" aria-label="Promptgeschiedenis"><thead><tr><th data-history-sort-key="status" scope="col">Status</th><th data-history-sort-key="title" scope="col">Prompttitel</th><th data-history-sort-key="executed_at" scope="col">Uitgevoerd op</th><th data-history-sort-key="git_commit" scope="col">Git-commit</th><th scope="col">Rapport</th></tr></thead><tbody id="promptHistoryRows"><tr><td class="log-empty" colspan="5">Promptgeschiedenis laden…</td></tr></tbody></table></div><nav class="log-pagination" id="promptHistoryPagination" aria-label="Paginering Promptgeschiedenis"></nav></details>
@@ -1106,6 +1134,9 @@ $("rateLimitProvider")?.previousElementSibling?.replaceChildren("Huidige AI-prov
         .replace("$WORKSPACE_ID", escape(workspace_id))
         .replace("$WORKSPACE_LOCATION", escape(workspace_location))
         .replace("$TRACKED_FILES", escape(tracked_files))
+        .replace("$ENGINEERING_DATABASE_PATH", escape(engineering_database_path))
+        .replace("$ENGINEERING_DATABASE_SIZE", escape(engineering_database_size))
+        .replace("$ENGINEERING_DATABASE_SCHEMA_VERSION", escape(engineering_database_schema_version))
         .replace("$PLATFORM_VERSION", escape(platform_version))
         .encode()
     )
@@ -1373,6 +1404,7 @@ def handler(root: Path, logger: logging.Logger | None = None):
             if self.path == "/api/prompt-started":
                 return self._send(_prompt_started(root), "application/json; charset=utf-8")
             if self.path == "/":
+                engineering_database = _engineering_database_details(root)
                 return self._send(
                     _dashboard_html(
                         title,
@@ -1380,6 +1412,9 @@ def handler(root: Path, logger: logging.Logger | None = None):
                         workspace_id,
                         workspace_location,
                         tracked_files,
+                        engineering_database["path"],
+                        engineering_database["size"],
+                        engineering_database["schema_version"],
                         platform_version,
                     ),
                     "text/html; charset=utf-8",

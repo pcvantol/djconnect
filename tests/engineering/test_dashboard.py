@@ -150,6 +150,18 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn("/Users/example/workspace", _dashboard_html("Engineering Status", workspace_location="/Users/example/workspace").decode())
         self.assertIn("Tracked files", page)
         self.assertIn(">42<", _dashboard_html("Engineering Status", tracked_files="42").decode())
+        self.assertIn("Engineering-database", page)
+        self.assertIn("Databasegrootte", page)
+        self.assertIn("Schema-versie", page)
+        database_page = _dashboard_html(
+            "Engineering Status",
+            engineering_database_path="/workspace/.engineering/engineering.db",
+            engineering_database_size="2048 bytes",
+            engineering_database_schema_version="5",
+        ).decode()
+        self.assertIn("/workspace/.engineering/engineering.db", database_page)
+        self.assertIn(">2048 bytes<", database_page)
+        self.assertIn(">5<", database_page)
         self.assertIn('class="dashboard-grid"', page)
         self.assertIn('id="promptHistory"', page)
         self.assertIn("Promptgeschiedenis", page)
@@ -955,6 +967,25 @@ class DashboardStatusTest(unittest.TestCase):
 
         self.assertNotIn(b"\n", payload)
         self.assertEqual(json.loads(payload)["watcher_state"], "WATCHER_IDLE")
+
+    def test_engineering_database_details_are_read_only_and_report_the_schema(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            missing = dashboard._engineering_database_details(root)
+            self.assertEqual(
+                missing["path"], str((root / ".engineering" / "engineering.db").resolve())
+            )
+            self.assertEqual(missing["size"], "Niet beschikbaar")
+            self.assertEqual(missing["schema_version"], "Niet beschikbaar")
+            self.assertFalse((root / ".engineering").exists())
+
+            with open_storage(root) as connection:
+                connection.execute("SELECT 1")
+            details = dashboard._engineering_database_details(root)
+
+        self.assertTrue(details["size"].endswith(" bytes"))
+        self.assertNotEqual(details["size"], "0 bytes")
+        self.assertEqual(details["schema_version"], "5")
 
     @patch("tools.engineering.dashboard.subprocess.run")
     def test_tracked_file_count_counts_recursive_git_index_entries(self, run: object) -> None:
