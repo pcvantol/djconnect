@@ -3,7 +3,8 @@
   "private": true,
   "version": "1.0.0",
   "scripts": {
-    "test:engineering-dashboard": "playwright test tests/engineering/dashboard.spec.mjs"
+    "test:engineering-dashboard": "playwright test tests/engineering/dashboard.spec.mjs",
+    "test:engineering-dashboard-logic": "node --test tests/engineering/dashboard_status_store.test.mjs"
   },
   "devDependencies": {
     "@playwright/test": "1.61.0"
