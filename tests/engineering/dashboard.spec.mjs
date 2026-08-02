@@ -123,6 +123,22 @@ test.describe("Engineering Status browser smoke", () => {
     expect(violations).toEqual([]);
   });
 
+  test("marks every dashboard element with the active light or dark theme", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+
+    for (const theme of ["dark", "light"]) {
+      await page.evaluate((activeTheme) => applyDashboardTheme(activeTheme), theme);
+      const violations = await page.evaluate((activeTheme) => [...document.querySelectorAll("body, body *")]
+        .filter((element) => !["SCRIPT", "STYLE"].includes(element.tagName))
+        .filter((element) => element.dataset.themeMode !== activeTheme)
+        .map((element) => ({
+          element: element.id || element.getAttribute("data-testid") || element.tagName,
+          themeMode: element.dataset.themeMode || null,
+        })), theme);
+      expect(violations).toEqual([]);
+    }
+  });
+
   test("shows the private dashboard and keeps completed work collapsed by default", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     // This test intentionally mutates projected state below.  Freeze the
