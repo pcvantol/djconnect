@@ -1233,7 +1233,6 @@ def handler(root: Path, logger: logging.Logger | None = None):
                     if length != 2 or self.rfile.read(length) != b"{}":
                         raise ValueError
                     outcome = _consume_codex_rate_limit_reset_credit()
-                    log_event(logger, logging.INFO, "rate_limit_reset_consumed", diagnostic=outcome)
                     payload = {
                         "outcome": outcome,
                         "rate_limits": json.loads(_codex_rate_limits()),
@@ -1452,10 +1451,9 @@ def handler(root: Path, logger: logging.Logger | None = None):
                     ),
                     "text/html; charset=utf-8",
                 )
-            # A missing browser asset or a manual mistyped path does not affect
-            # Engineering Platform health. Keep it observable without presenting
-            # it as an operational warning in the dashboard log.
-            log_event(logger, logging.INFO, "http_not_found", diagnostic=request.path)
+            # Browser asset misses and mistyped paths are normal HTTP noise. They
+            # are returned to the caller but intentionally do not pollute the
+            # operational Engineering Platform event log.
             self.send_error(404)
 
         def log_message(self, message: str, *_: object) -> None:
