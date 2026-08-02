@@ -122,6 +122,7 @@ test.describe("Engineering Status browser smoke", () => {
     expect(await page.locator("#reportAnalysisContent").evaluate((element) => element.parentElement.className)).toBe("markdown-copy-wrap");
     await expect(page.locator("#copyReport")).toHaveClass(/copy--glyph/);
     await expect(page.locator("#copyReport")).toHaveText("⧉");
+    expect(await page.locator("#reportContent").evaluate((element) => getComputedStyle(element).paddingRight)).toBe("68px");
     await expect(page.locator("#copyReport")).toHaveAttribute("hidden", "");
     await expect(page.locator("#copyReportAnalysis")).toHaveAttribute("hidden", "");
     expect(await page.locator("#lastFinalStatus").evaluate((element) => element.previousElementSibling.id)).toBe("lastIndicator");
