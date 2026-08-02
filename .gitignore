@@ -4,10 +4,13 @@ logs/
 __pycache__/
 *.py[cod]
 .pytest_cache/
+.coverage
+node_modules/
+playwright-report/
+test-results/
 .env*.local
 
 # Local AI engineering workspace.
-.djconnect/
 .engineering/
 
 # Local macOS recovery-bootstrap evidence and reboot state must never be committed.

@@ -1,4 +1,4 @@
-# Version: 1.3.11
+# Version: 1.3.12
 # CLI help, desired-state verification and console/report primitives.
 usage() {
   cat <<'EOF'
@@ -233,8 +233,8 @@ load_desired_state() {
   [[ "$DESIRED_ENGINEERING_WATCHER_LAUNCH_AGENT" =~ ^[A-Za-z0-9_.-]+$ ]] || die 'Invalid Engineering watcher LaunchAgent label.'
   [[ "$DESIRED_ENGINEERING_DASHBOARD_LAUNCH_AGENT" =~ ^[A-Za-z0-9_.-]+$ ]] || die 'Invalid Engineering dashboard LaunchAgent label.'
   [[ "$DESIRED_ENGINEERING_DASHBOARD_HEALTH_URL" =~ ^http://127\.0\.0\.1:[0-9]+/api/health$ ]] || die 'Engineering dashboard health endpoint must bind to loopback.'
-  [[ "$DESIRED_ENGINEERING_STATUS_RELATIVE_PATH" == .djconnect/status/status.json ]] || die 'Invalid Engineering status storage policy.'
-  [[ "$DESIRED_ENGINEERING_REPORTS_RELATIVE_PATH" == .djconnect/reports ]] || die 'Invalid Engineering report storage policy.'
+  [[ "$DESIRED_ENGINEERING_STATUS_RELATIVE_PATH" == .engineering/status/status.json ]] || die 'Invalid Engineering status storage policy.'
+  [[ "$DESIRED_ENGINEERING_REPORTS_RELATIVE_PATH" == .engineering/reports ]] || die 'Invalid Engineering report storage policy.'
   IFS=',' read -r -a DESIRED_PROFILES <<<"$(require_desired_state_value runner.profiles)"
   for profile in "${DESIRED_PROFILES[@]}"; do
     case "$profile" in
@@ -372,9 +372,9 @@ run_desired_state_verification() {
     verify_delta_row 'engineering.dashboard_relay_launch_agent' "$DESIRED_ENGINEERING_DASHBOARD_RELAY_LAUNCH_AGENT running" running MATCH
   else
     verify_delta_row 'engineering.dashboard_relay_launch_agent' "$DESIRED_ENGINEERING_DASHBOARD_RELAY_LAUNCH_AGENT running" unavailable DRIFT
-    printf '> Herstelhint: installeer het dashboard opnieuw. Blijft iPhone-toegang via Tailscale uit, sta dan alleen `%s/.djconnect/bin/engineering-dashboard-relay` toe voor inkomend TCP 8765 vanuit `100.64.0.0/10` in ESET.\n' "$GITHUB_ROOT/djconnect"
+    printf '> Herstelhint: installeer het dashboard opnieuw. Blijft iPhone-toegang via Tailscale uit, sta dan alleen `%s/.engineering/bin/engineering-dashboard-relay` toe voor inkomend TCP 8765 vanuit `100.64.0.0/10` in ESET.\n' "$GITHUB_ROOT/djconnect"
   fi
-  printf '> Opmerking: iPhone-toegang via Tailscale is niet betrouwbaar vanaf deze Mac zelf te testen. Als de lokale dashboard-health groen is maar de iPhone geen verbinding krijgt, controleer dan eerst de ESET-regel voor `%s/.djconnect/bin/engineering-dashboard-relay` op TCP 8765 vanuit `100.64.0.0/10`.\n' "$GITHUB_ROOT/djconnect"
+  printf '> Opmerking: iPhone-toegang via Tailscale is niet betrouwbaar vanaf deze Mac zelf te testen. Als de lokale dashboard-health groen is maar de iPhone geen verbinding krijgt, controleer dan eerst de ESET-regel voor `%s/.engineering/bin/engineering-dashboard-relay` op TCP 8765 vanuit `100.64.0.0/10`.\n' "$GITHUB_ROOT/djconnect"
   dashboard_health="$(curl -fsS --max-time 5 "$DESIRED_ENGINEERING_DASHBOARD_HEALTH_URL" 2>/dev/null || true)"
   if [[ "$dashboard_health" == '{"health":"ok"}' ]]; then verify_delta_row 'engineering.dashboard_health' "$DESIRED_ENGINEERING_DASHBOARD_HEALTH_URL health=ok" healthy MATCH; else verify_delta_row 'engineering.dashboard_health' "$DESIRED_ENGINEERING_DASHBOARD_HEALTH_URL health=ok" unavailable DRIFT; fi
   engineering_status="$GITHUB_ROOT/djconnect/$DESIRED_ENGINEERING_STATUS_RELATIVE_PATH"

@@ -1,8 +1,27 @@
 # Local Agent Runner
 
-`dj-engineer` starts one foreground, bounded engineering transaction from this
+`engineering-execution-host` starts one foreground, bounded engineering transaction from this
 repository. It is local-only developer tooling, not a product capability, CI
 system, release engine, merge authority, daemon or remote control plane.
+
+## Runner module boundaries
+
+`tools/engineering/execution_host.py` is the foreground lifecycle orchestrator.
+It owns mode selection, repository and GitHub reconciliation, agent invocation,
+terminal checkpoints and command-line integration. Small, independently tested
+local responsibilities are kept outside that orchestrator:
+
+- `codex_observability.py` extracts explicitly emitted usage and runtime
+  provenance and persists bounded per-run usage;
+- `engineering_memory.py` owns advisory, local Engineering Memory persistence;
+  and
+- `live_status.py` atomically projects the current local status consumed by
+  Engineering Status.
+
+The deprecated `tools.engineering.dj_engineer` import and `dj-engineer` command
+remain compatibility aliases; new integrations use the Execution Host names.
+The aliases do not alter lifecycle authority, repository truth or the runner
+command contract.
 
 ## Engineering Platform versioning
 
@@ -18,10 +37,10 @@ The local Inbox worker and private Dashboard are separately versioned
 components of Engineering Platform 1.5. Their current versions are the
 canonical `watcher_version` and `dashboard_version` manifest fields; neither
 is a separate Engineering Platform release. The private dashboard displays
-both component versions next to the Engineering Platform version and Git
-commit to make local operational evidence unambiguous.
+them with the corresponding live components, while its status bar displays the
+Engineering Platform version and Git commit.
 
-At runner startup, `dj-engineer` reads the manifest and rejects an unsupported
+At runner startup, `engineering-execution-host` reads the manifest and rejects an unsupported
 platform major version, older runner, older Bootstrap Contract, unsupported
 checkpoint/memory/report format or unsupported Codex CLI. Diagnostics state the
 repository requirement, detected runner or CLI value, and required action.
@@ -56,11 +75,11 @@ advisory and require primary-agent reconciliation.
 
 ## Engineering Platform Qualification
 
-Run `./tools/engineering/dj-engineer qualify` to execute every deterministic
+Run `./tools/engineering/engineering-execution-host qualify` to execute every deterministic
 scenario in `tools/engineering/ENGINEERING_QUALIFICATION.md`. The local
 qualification dashboard reports pass/fail, scenario coverage, failure and
 blocked counts. Its JSON and Markdown evidence remains under the git-ignored
-`.djconnect/qualification/` directory. Terminal Engineering Reports include the
+`.engineering/qualification/` directory. Terminal Engineering Reports include the
 latest available qualification version, result, execution time and coverage.
 
 ## Generation 1 status
@@ -81,7 +100,7 @@ serializes jobs and invokes only the repository-owned runner. Its v1 protocol
 is `tools/engineering/ENGINEERING_INBOX_PROTOCOL.md`; iCloud is transport
 only.
 After a prompt is claimed, its lifecycle archive, reports and status are stored
-only in `.djconnect/`. The iCloud workspace contains only `Inbox/`.
+only in `.engineering/`. The iCloud workspace contains only `Inbox/`.
 The default queue is strict and fail-closed: after a `BLOCKED` or `FAILED`
 Inbox run, later prompts remain in Inbox as `WAITING_FOR_PREDECESSOR`.
 Repair and explicitly resubmit the blocking prompt with
@@ -106,34 +125,70 @@ supported commands. Tests never install the LaunchAgent.
 
 ### Component logging
 
-The watcher writes private, structured application events to
-`.djconnect/logs/inbox.log`; the dashboard writes them to
-`.djconnect/logs/dashboard.log`. Each JSON line has a UTC timestamp, severity,
-component and, where applicable, run ID. Event and diagnostic text are redacted
-and bounded before it is written. Logs rotate at 1 MB and retain at most three
-previous files.
+The watcher and dashboard write private, structured application events to
+`engineering_component_logs` in `.engineering/engineering.db`. Each record has
+a UTC timestamp, severity, component and, where applicable, run ID. Event and
+diagnostic text are redacted and bounded before persistence.
 
-In Engineering Status, open **Applicatielogs** and select **Logs laden** to
-inspect a bounded tail of these redacted logs. They are never loaded or
-streamed automatically.
+Both owned long-lived components publish lifecycle `INFO` events: startup,
+received shutdown signal, and completed orderly shutdown. The dashboard also
+records an explicit restart request before it kickstarts one of the three fixed
+owned LaunchAgents. Lifecycle records carry the component version, short build
+commit, fixed LaunchAgent label and plist location. They never carry prompt
+content, credentials, browser input, arbitrary commands or executable paths.
+These records are audit diagnostics only: a lifecycle record neither changes a
+run checkpoint nor authorizes runner, Inbox, repository or release work.
+
+In Engineering Status, open **Logs** to inspect a bounded, live view of these
+redacted records. Each table keeps its own sort order and shows 50 matching
+records per page; filters apply across all loaded records before pagination.
+They are never loaded or streamed outside the private dashboard.
 
 The existing `inbox.out.log`, `inbox.err.log`, `dashboard.out.log` and
 `dashboard.err.log` remain the LaunchAgent process streams. They complement,
-rather than replace, the application logs.
+rather than replace, the application logs. Rotating `.engineering/logs/*.log`
+files are created only as a private fallback if SQLite is unavailable during
+early startup or a crash.
+
+### Prompt history
+
+The dashboard also maintains **Promptgeschiedenis** from the private SQLite
+table `prompt_execution_history`. It lists terminal Inbox runs with their
+status, title, execution time, available commit and a report download when a
+local Engineering Report exists. This projection is convenience metadata; the
+terminal checkpoint and target repository remain authoritative.
 
 Set `DJCONNECT_ENGINEERING_LOG_LEVEL` to `DEBUG`, `INFO`, `WARNING` or `ERROR`
 before installing a watcher or dashboard LaunchAgent; the selected value is
 stored in its LaunchAgent environment. The default is `INFO`; an invalid value
 fails closed to `INFO`. Reinstall the relevant LaunchAgent after changing it.
 
+When a component does not start or terminate cleanly, inspect **Logs** in the
+private dashboard first. If that is unavailable, inspect the owned LaunchAgent
+`*.out.log` and `*.err.log` streams, then run the appropriate `doctor` command.
+Do not manually edit the SQLite database or invoke `launchctl` with an arbitrary
+label; use the repository-owned install, doctor and explicitly confirmed
+dashboard restart paths.
+
 ## Remote Engineering Experience
 
 Engineering Platform 1.5 projects canonical watcher status as bounded, atomic
 `status.json` and an iPhone-readable private dashboard. The dashboard is
-strictly read-only. It binds only to loopback and, when Tailscale reports one,
-the workstation's explicit Tailscale IPv4 address; it never binds a wildcard,
-LAN or public address. It uses server-sent events for status changes and has no
-execution, release, deployment or publication authority.
+status- and evidence-first. Its only local operational control is an explicit,
+confirmed restart of one of its own per-user LaunchAgents (dashboard,
+Inbox-watcher or dashboard relay). It binds only to loopback and, when
+Tailscale reports one, the workstation's explicit Tailscale IPv4 address; it
+never binds a wildcard, LAN or public address. It uses server-sent events for
+status changes and has no engineering execution, repository, release,
+deployment or publication authority.
+
+In **Platformonderdelen**, the information glyph opens bounded component
+details: current host, executable/LaunchAgent settings, build commit and
+observed process memory. Restart is shown only for the three owned
+LaunchAgents and calls `launchctl kickstart -k` for that fixed label after a
+browser confirmation. Status storage and private remote access remain
+diagnostic-only. No arbitrary executable, label or command is accepted from
+the browser.
 
 Before the explicit per-user dashboard install, verify readiness:
 
@@ -170,14 +225,14 @@ Codex CLI must already be installed and authenticated in the developer's local
 environment. From a clean DJConnect checkout, run:
 
 ```sh
-./tools/engineering/dj-engineer path/to/engineering-prompt.md
+./tools/engineering/engineering-execution-host path/to/engineering-prompt.md
 ```
 
 For a bounded transaction with explicit owner authorization for the complete
 PR and Finalization lifecycle, use:
 
 ```sh
-./tools/engineering/dj-engineer path/to/engineering-prompt.md \
+./tools/engineering/engineering-execution-host path/to/engineering-prompt.md \
   --owner-authorized --run-id bounded-run
 ```
 
@@ -188,7 +243,7 @@ repository-settings changes or branch-protection bypass.
 
 The runner verifies the repository, builds a repository-first Codex prompt from
 the supplied file and canonical repository instructions, then records an
-advisory checkpoint in `.djconnect/engineering-runs/`. That directory is local
+advisory checkpoint in `.engineering/engineering-runs/`. That directory is local
 and Git-ignored. It stores identity and execution evidence only; it never
 stores prompt content, credentials, tokens or agent output.
 
@@ -199,14 +254,14 @@ directory. Blocked and malformed checkpoints are preserved for inspection.
 To continue an interrupted non-terminal run, restart the foreground command:
 
 ```sh
-./tools/engineering/dj-engineer path/to/engineering-prompt.md --run-id <run-id> --resume
+./tools/engineering/engineering-execution-host path/to/engineering-prompt.md --run-id <run-id> --resume
 ```
 
 There is no background continuation. A resume synchronizes and re-inspects
 repository and GitHub evidence; that evidence overrides checkpoint phase and
 next-action fields. Malformed, incompatible or conflicting state fails closed.
 An abandoned checkpoint can be removed only after inspecting it locally, with
-`rm .djconnect/engineering-runs/<run-id>.json`.
+`rm .engineering/engineering-runs/<run-id>.json`.
 
 ## Diagnostics
 
@@ -264,13 +319,11 @@ evidence-based cleanup and never removes unrelated branches.
 ## Terminal reports and advisory sub-agents
 
 Each terminal transaction writes an immutable local Markdown report beneath
-`.djconnect/reports/` and best-effort opens it using `$EDITOR`, then native
-macOS Visual Studio Code or Sublime Text application bundles, then a PATH
-executable fallback. PATH `code` is reported by its resolved executable path,
-never inferred to be Visual Studio Code. Reports are git-ignored; editor
-failure never changes the engineering result. When the Inbox watcher owns the
+`.engineering/reports/`. Reports are never opened automatically in an editor;
+they remain available through Engineering Status and the local report path.
+Reports are git-ignored. When the Inbox watcher owns the
 transaction, it validates the report against the terminal checkpoint and keeps
-the safe terminal report locally under `.djconnect/reports/`. If correction is
+the safe terminal report locally under `.engineering/reports/`. If correction is
 needed, the watcher writes a corrected checkpoint-consistent local copy; it
 never publishes a report to iCloud. Reports summarize checkpoint evidence,
 PRs, repair and cleanup evidence, diagnostics and the management summary.
@@ -280,8 +333,11 @@ cannot write, create/ready/merge PRs, create Finalization, alter governance or
 perform cleanup. The primary runner validates and integrates every result.
 
 Every report records the Engineering Platform Version, Runner Version,
-Bootstrap Contract, Checkpoint Format, Memory Format, Report Format and the
-detected Codex CLI version alongside the transaction evidence.
+Bootstrap Contract, Checkpoint Format, Memory Format and Report Format
+alongside the transaction evidence. It also records runtime provenance for the
+specific invocation: Runtime Provider, AI Model, Reasoning Profile,
+Configuration Profile and detected Codex CLI Version. The runner writes `not
+reported` rather than inventing provider metadata that the CLI did not emit.
 
 ## Terminal evidence and boundaries
 
@@ -305,18 +361,18 @@ repository evidence after an interruption.
 ## Live progress
 
 The runner emits concise terminal and cleanup phase updates and atomically
-maintains `.djconnect/status/current.json`. The Inbox watcher projects bounded
-dashboard status to `.djconnect/status/status.json`. Both are git-ignored local
+maintains `.engineering/status/current.json`. The Inbox watcher projects bounded
+dashboard status to `.engineering/status/status.json`. Both are git-ignored local
 advisory records; resume recomputes from repository and GitHub evidence. iCloud
 carries only a submitted Inbox file and never receives status, reports or prompt
 archives. Run
-`./tools/engineering/dj-engineer status` to display the current phase, PRs,
+`./tools/engineering/engineering-execution-host status` to display the current phase, PRs,
 repair count and action.
 
 ## Engineering Memory
 
-Successful transactions store bounded metadata under `.djconnect/memory/`,
-which is already covered by the local `.djconnect/` ignore rule. Memory never
+Successful transactions store bounded metadata under `.engineering/memory/`,
+which is already covered by the local `.engineering/` ignore rule. Memory never
 stores prompts, source snapshots, credentials or personal data. Retrieved
 patterns are advisory context only: repository and GitHub evidence override
 them, and they cannot change scope, validation or authority.

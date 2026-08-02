@@ -6,7 +6,7 @@ contract tests and package documentation.
 
 ## Release alignment
 
-The current onboarding package is released as `4.3.0`, aligned with the current
+The current onboarding package is released as `4.5.0`, aligned with the current
 DJConnect platform release for operator clarity. This is version alignment only:
 the package remains independently versioned, does not consume platform release
 artifacts, and does not require a matching platform version to run or verify.
@@ -27,17 +27,36 @@ the private dashboard LaunchAgent, and verify both. Submit UTF-8 `.md` or
 `.txt` prompts to `iCloud Drive/DJConnect Engineering/Inbox`; iOS-created
 `.txt` files and filename-neutral Markdown are supported. The watcher claims
 stable files one at a time, oldest File Date Modified first, and invokes only
-this repository's `dj-engineer`.
+this repository's `engineering-execution-host`.
 
 iCloud is transport only. After a prompt is claimed, the executed prompt copy,
-status, reports, logs and terminal archive live locally under `.djconnect/`:
+status, reports, logs and terminal archive live locally under `.engineering/`:
 
-- `.djconnect/inbox/Running`, `Completed` and `Failed` hold the local prompt
+- `.engineering/inbox/Running`, `Completed` and `Failed` hold the local prompt
   lifecycle archive;
-- `.djconnect/inbox-processing/` contains the immutable executed input;
-- `.djconnect/status/` holds the canonical dashboard status;
-- `.djconnect/reports/` holds Engineering Reports; and
-- `.djconnect/logs/` holds redacted component logs.
+- `.engineering/inbox-processing/` contains the immutable executed input;
+- `.engineering/status/` holds the canonical dashboard status;
+- `.engineering/reports/` holds Engineering Reports; and
+- `.engineering/engineering.db` holds redacted component logs and other
+  versioned local Engineering evidence. `.engineering/logs/` is only a private
+  fallback for early startup or crash logging when SQLite is unavailable.
+
+The installed Inbox watcher and dashboard record bounded lifecycle `INFO`
+events for startup, received shutdown signals and orderly shutdown. A confirmed
+dashboard restart records the fixed component requested before the owned
+LaunchAgent is kickstarted. Each lifecycle event contains only component
+version, short build commit and fixed LaunchAgent identity; it never includes
+prompt content, secrets, account data or a browser-supplied command. Inspect
+these records through **Engineering Status → Logs**. If SQLite is unavailable
+during early startup, use the corresponding owned LaunchAgent output stream as
+the fallback diagnostic source, then run the documented `doctor` command.
+
+Each completed Engineering Report also records the execution provenance for
+that exact run: Runtime Provider, reported AI Model, reported Reasoning and
+Configuration Profiles, and detected Codex CLI Version. Values are shown as
+`not reported` when the CLI did not supply them; the runner and Engineering
+Status never guess them. In Engineering Status, these fields appear only with
+the matching **Laatst uitgevoerde prompt** report, not with a later run.
 
 Do not create or rely on `iCloud Drive/DJConnect Engineering/Reports` or an
 iCloud `status.json`. Existing legacy iCloud archives can be moved safely with
@@ -199,7 +218,7 @@ Developer readiness remains read-only. Run:
 It reports `storage.<repository>.ignored_build_output` for each checked-out
 repository, verifies the 14-day retention result, confirms that the LaunchAgent
 is loaded, and requires the canonical `djconnect/onboarding/manifest.yml`
-package version to be `4.3.0`. It does not delete files or change the host.
+package version to be `4.5.0`. It does not delete files or change the host.
 
 The same verification is fail-closed for Engineering Platform readiness. It
 requires the declared platform version, the canonical Inbox watcher and
@@ -209,7 +228,7 @@ If any of these rows reports drift, rerun onboarding step 31 to install and
 validate the canonical watcher and dashboard services before accepting Inbox
 work. The unattended host-bootstrap `--repair` follows the same path: it saves
 the diagnostic result, retires only the two known legacy dashboard LaunchAgents
-to local `.djconnect` storage, restarts the canonical services, then verifies
+to local `.engineering` storage, restarts the canonical services, then verifies
 them again. It never executes or removes Inbox prompts.
 
 The macOS package reconciles Docker Desktop and the persistent local Home
@@ -324,7 +343,7 @@ conditional least-privilege recommendations.
 
 For private Engineering Status access from an iPhone through Tailscale, ESET
 Cyber Security needs one inbound allow rule for the repository-owned relay:
-`<checkout>/.djconnect/bin/engineering-dashboard-relay`, TCP port `8765`,
+`<checkout>/.engineering/bin/engineering-dashboard-relay`, TCP port `8765`,
 scoped to `100.64.0.0/10` or the trusted Tailscale zone. Keep the firewall
 enabled; do not allow LAN, wildcard or public access. The Mac itself uses
 `http://127.0.0.1:8765/`; other authorized Tailnet devices use the Mac's

@@ -1,0 +1,11 @@
+{
+  "name": "djconnect-engineering-platform-browser-validation",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "test:engineering-dashboard": "playwright test tests/engineering/dashboard.spec.mjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.61.0"
+  }
+}

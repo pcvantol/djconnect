@@ -69,7 +69,7 @@ discipline.
 
 The local Engineering Platform may receive a prompt through the iCloud Drive
 Engineering Inbox. The iPhone Shortcut is a transport convenience only: the
-repository, GitHub evidence and `dj-engineer` remain authoritative.
+repository, GitHub evidence and `engineering-execution-host` remain authoritative.
 
 Create the iCloud folder first:
 
@@ -122,7 +122,7 @@ iCloud Drive Engineering Inbox
   ↓
 macOS Engineering Inbox watcher
   ↓
-dj-engineer
+engineering-execution-host
 ```
 
 The Shortcut must submit only prompt text. It does not grant release,

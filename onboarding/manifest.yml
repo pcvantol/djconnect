@@ -1,7 +1,7 @@
 # Canonical manifest for the DJConnect developer onboarding package.
 schema_version: 1
 package.name: djconnect-developer-onboarding
-package.version: 4.3.0
+package.version: 4.5.0
 package.root: onboarding
 package.platform_release_alignment: 3.3.0
 package.platform_release_dependency: none

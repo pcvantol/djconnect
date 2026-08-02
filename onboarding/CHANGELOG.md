@@ -1,5 +1,26 @@
 # DJConnect Developer Onboarding Changelog
 
+## 4.5.0 — 2026-08-02
+
+- Document the bounded Engineering Platform component lifecycle audit trail:
+  watcher/dashboard startup, received shutdown signal, orderly shutdown and
+  confirmed owned-component restart requests.
+- Clarify that lifecycle diagnostics are redacted SQLite application evidence,
+  not repository truth or execution authority, and retain LaunchAgent streams
+  as the fallback for early-startup failures.
+- Require the matching `4.5.0` package in macOS host-bootstrap verification and
+  recovery.
+
+## 4.4.0 — 2026-08-02
+
+- Document report-bound Engineering Platform runtime provenance: Runtime
+  Provider, reported AI Model, reported Reasoning and Configuration Profiles,
+  and detected Codex CLI Version.
+- Clarify that unavailable runtime metadata is shown as `not reported` and
+  cannot be inferred from the current dashboard configuration or another run.
+- Require the matching `4.4.0` canonical onboarding package during macOS host
+  bootstrap verification and recovery.
+
 ## 4.3.0 — 2026-08-01
 
 - Add the private Engineering Status Tailnet relay recovery guidance, including
