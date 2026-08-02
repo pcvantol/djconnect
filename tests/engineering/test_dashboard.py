@@ -8,6 +8,7 @@ from pathlib import Path
 import tempfile
 from threading import Thread
 import unittest
+from contextlib import nullcontext
 from unittest.mock import ANY, patch
 
 from tools.engineering import dashboard
@@ -18,6 +19,36 @@ from tools.engineering.storage import open_storage
 
 
 class DashboardStatusTest(unittest.TestCase):
+    def test_dashboard_run_logs_startup_and_graceful_shutdown_identity(self) -> None:
+        class InterruptingServer:
+            server_address = (LOOPBACK_ADDRESS, 8765)
+
+            def serve_forever(self) -> None:
+                raise KeyboardInterrupt
+
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            lifecycle_context = {
+                "application_version": DASHBOARD_VERSION,
+                "git_commit": "abc123def456",
+                "launchd_label": dashboard.LABEL,
+                "launch_agent_path": "/tmp/dashboard.plist",
+            }
+            with (
+                patch("tools.engineering.dashboard.provision_workspace"),
+                patch("tools.engineering.dashboard.component_logger", return_value=logging.getLogger("test")) as logger,
+                patch("tools.engineering.dashboard.component_lifecycle_context", return_value=lifecycle_context),
+                patch("tools.engineering.dashboard.shutdown_signal_logging", return_value=nullcontext()),
+                patch("tools.engineering.dashboard.create_servers", return_value=(InterruptingServer(),)),
+                patch("tools.engineering.dashboard.log_event") as log_event,
+            ):
+                dashboard.run(root)
+
+            logger.assert_called_once_with(root, "dashboard")
+            self.assertEqual(log_event.call_args_list[0].args[2], "dashboard_started")
+            self.assertEqual(log_event.call_args_list[-1].args[2], "dashboard_shutdown_completed")
+            self.assertEqual(log_event.call_args_list[-1].kwargs["context"], lifecycle_context)
+
     def test_component_versions_match_the_canonical_platform_manifest(self) -> None:
         root = Path(__file__).parents[2]
         manifest = EngineeringPlatformManifest.load(
@@ -1349,7 +1380,8 @@ class DashboardStatusTest(unittest.TestCase):
             self.assertEqual(connection.getresponse().status, 400)
             with (
                 patch("tools.engineering.dashboard.Timer") as timer,
-                patch("tools.engineering.dashboard.log_event"),
+                patch("tools.engineering.dashboard.component_lifecycle_context", return_value={"git_commit": "abc"}),
+                patch("tools.engineering.dashboard.log_event") as log_event,
             ):
                 connection.request(
                     "POST",
@@ -1362,6 +1394,12 @@ class DashboardStatusTest(unittest.TestCase):
                 self.assertEqual(json.loads(response.read()), {"restarting": "inbox_watcher"})
                 timer.assert_called_once()
                 timer.return_value.start.assert_called_once()
+                restart_event = next(
+                    call
+                    for call in log_event.call_args_list
+                    if call.args[2] == "component_restart_trigger_received"
+                )
+                self.assertEqual(restart_event.kwargs["context"]["target_component"], "inbox_watcher")
             connection.request(
                 "POST",
                 "/api/components/status_storage/restart",
