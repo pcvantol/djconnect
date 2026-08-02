@@ -143,6 +143,7 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn('id="autoRefresh" type="checkbox" role="switch" checked', page)
         self.assertIn('Automatisch vernieuwen', page)
         self.assertIn('.dashboard-titlebar{align-items:center;background:#121217;box-shadow:0 10px 18px #121217;', page)
+        self.assertIn('padding:8px 16px 12px;position:sticky', page)
         self.assertIn('DASHBOARD_CLIENT_STATE_KEY="engineering-dashboard-client-state-v1"', page)
         self.assertIn('restoreDashboardDetails();', page)
         self.assertIn('dashboardClientState.logSorts=structuredClone(independentLogSortStates);saveDashboardClientState()', page)

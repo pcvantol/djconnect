@@ -138,6 +138,15 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(platformLabel).toHaveCSS("color", "rgb(240, 182, 106)");
   });
 
+  test("pads title bar content evenly from both horizontal edges", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    const padding = await page.locator(".dashboard-titlebar").evaluate((element) => {
+      const style = getComputedStyle(element);
+      return [style.paddingLeft, style.paddingRight];
+    });
+    expect(padding).toEqual(["16px", "16px"]);
+  });
+
   test("never renders a white focus ring on visible interactive elements", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.evaluate(() => {
