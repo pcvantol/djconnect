@@ -43,8 +43,9 @@ class EngineeringOperationalDocumentationTest(unittest.TestCase):
         self.assertIn("Reasoning Profile", reporting)
         self.assertIn("Configuration Profile", reporting)
         storage = (ROOT / "docs" / "engineering" / "ENGINEERING_STORAGE.md").read_text(encoding="utf-8")
-        self.assertIn("schema `4`", storage)
+        self.assertIn("schema `5`", storage)
         self.assertIn("engineering_schema_migrations", storage)
+        self.assertIn("prompt_execution_history", storage)
 
     def test_local_runner_documents_orchestrator_module_boundaries(self) -> None:
         runner = (ROOT / "docs" / "development" / "LOCAL_AGENT_RUNNER.md").read_text(encoding="utf-8")

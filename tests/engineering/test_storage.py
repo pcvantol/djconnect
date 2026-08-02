@@ -31,6 +31,11 @@ class EngineeringStorageTest(unittest.TestCase):
                         "SELECT name FROM sqlite_master WHERE type='table' AND name='engineering_artifacts'"
                     ).fetchone()
                 )
+                self.assertIsNotNone(
+                    connection.execute(
+                        "SELECT name FROM sqlite_master WHERE type='table' AND name='prompt_execution_history'"
+                    ).fetchone()
+                )
             path = root / WORKSPACE_DIRECTORY / DATABASE_FILENAME
             self.assertEqual(database_path(root), path.resolve())
             self.assertEqual(path.stat().st_mode & 0o777, 0o600)

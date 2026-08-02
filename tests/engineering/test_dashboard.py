@@ -10,7 +10,7 @@ import unittest
 from unittest.mock import patch
 
 from tools.engineering import dashboard
-from tools.engineering.dashboard import DASHBOARD_VERSION, LOOPBACK_ADDRESS, _clear_component_log, _codex_process_metrics, _codex_usage, _codex_usage_for_run, _component_log, _component_log_versions, _completion_commits, _current_codex_log, _dashboard_html, _last_executed_agent_execution, _last_executed_codex_log, _last_executed_commits, _last_executed_runtime_metadata, _latest_codex_log, _normalize_rate_limits, _platform_health, _report_analysis_available_for_run, _report_analysis_for_run, _report_for_run, _reviewer_agents_for_run, _sse_snapshot, _sse_status, _status, _tracked_file_count, binding_addresses
+from tools.engineering.dashboard import DASHBOARD_VERSION, LOOPBACK_ADDRESS, _clear_component_log, _codex_process_metrics, _codex_usage, _codex_usage_for_run, _component_log, _component_log_versions, _completion_commits, _current_codex_log, _dashboard_html, _last_executed_agent_execution, _last_executed_codex_log, _last_executed_commits, _last_executed_runtime_metadata, _latest_codex_log, _normalize_rate_limits, _platform_health, _prompt_history, _report_analysis_available_for_run, _report_analysis_for_run, _report_for_run, _reviewer_agents_for_run, _sse_snapshot, _sse_status, _status, _tracked_file_count, binding_addresses
 from tools.engineering.inbox_watcher import WATCHER_VERSION
 from tools.engineering.platform_version import EngineeringPlatformManifest
 from tools.engineering.storage import open_storage
@@ -71,6 +71,13 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn("Tracked files", page)
         self.assertIn(">42<", _dashboard_html("Engineering Status", tracked_files="42").decode())
         self.assertIn('class="dashboard-grid"', page)
+        self.assertIn('id="promptHistory"', page)
+        self.assertIn("Promptgeschiedenis", page)
+        self.assertIn('id="promptHistoryFilter"', page)
+        self.assertIn('id="promptHistoryPagination"', page)
+        self.assertIn('fetch("/api/prompt-history")', page)
+        self.assertIn("PROMPT_HISTORY_PAGE_SIZE=25", page)
+        self.assertIn('data-history-sort-key="executed_at"', page)
         self.assertIn('<details class="current-run" id="currentRun"', page)
         self.assertIn('class="current-run__title"', page)
         self.assertIn('<span class="label">Actieve prompt</span>', page)
@@ -1066,6 +1073,12 @@ class DashboardStatusTest(unittest.TestCase):
     def test_dashboard_binds_only_loopback_and_delegates_tailnet_ingress_to_relay(self) -> None:
         self.assertEqual(binding_addresses(), (LOOPBACK_ADDRESS,))
 
+    def test_prompt_history_projection_is_private_json(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            payload = json.loads(_prompt_history(root))
+        self.assertEqual(payload, {"runs": []})
+
     def test_http_dashboard_exposes_status_routes_and_bounded_read_only_chat(self) -> None:
         root = Path(__file__).parents[2]
         server = dashboard.DashboardHTTPServer((LOOPBACK_ADDRESS, 0), dashboard.handler(root))
@@ -1087,6 +1100,7 @@ class DashboardStatusTest(unittest.TestCase):
                 ("/api/commits", "application/json"),
                 ("/api/commits/last-executed", "application/json"),
                 ("/api/prompt-started", "application/json"),
+                ("/api/prompt-history", "application/json"),
                 ("/api/log/latest", "text/plain"),
                 ("/api/logs/inbox", "text/plain"),
                 ("/api/logs/dashboard", "text/plain"),

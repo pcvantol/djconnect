@@ -33,9 +33,10 @@ from .component_logging import (
 )
 from .component_lock import DuplicateComponentInstanceError, single_instance
 from .telemetry import ExecutionTelemetry, persist_execution_async
+from .prompt_history import record_prompt_execution
 
 LABEL = "com.djconnect.engineering-inbox"
-WATCHER_VERSION = "1.1.4"
+WATCHER_VERSION = "1.1.5"
 MAX_BYTES = 256_000
 TERMINAL_PHASES = frozenset({"COMPLETE", "BLOCKED", "FAILED"})
 BLOCKING_PREDECESSOR_PHASES = frozenset({"BLOCKED", "FAILED"})
@@ -169,6 +170,23 @@ def _telemetry_values(repo: Path, run_id: str) -> tuple[float | None, dict[str, 
     except (OSError, json.JSONDecodeError):
         pass
     return execution_seconds, usage, repository
+
+
+def _terminal_git_commit(repo: Path, run_id: str) -> str | None:
+    """Read the strongest local commit evidence without changing terminal state."""
+    try:
+        checkpoint = json.loads(
+            (repo / ".engineering" / "engineering-runs" / f"{run_id}.json").read_text(
+                encoding="utf-8"
+            )
+        )
+    except (OSError, json.JSONDecodeError):
+        return None
+    for key in ("genesis_commit_sha", "implementation_merge_commit", "finalization_merge_commit"):
+        value = checkpoint.get(key)
+        if isinstance(value, str) and re.fullmatch(r"[0-9a-f]{7,64}", value):
+            return value
+    return None
 
 
 def _report_matches_terminal_phase(report: Path, phase: str | None) -> bool:
@@ -588,6 +606,24 @@ def once(repo: Path, root: Path, interval: float = 1.0) -> int:
             run_id=run_id,
             diagnostic=reason,
         )
+        try:
+            record_prompt_execution(
+                repo,
+                run_id=run_id,
+                terminal_state=terminal_phase,
+                prompt_title=title,
+                executed_at=datetime.now(timezone.utc),
+                report=delivered,
+                git_commit=_terminal_git_commit(repo, run_id),
+            )
+        except Exception as error:
+            log_event(
+                logger,
+                logging.WARNING,
+                "prompt_history_persist_failed",
+                run_id=run_id,
+                diagnostic=str(error),
+            )
         try:
             execution_seconds, usage, repository = _telemetry_values(repo, run_id)
             persist_execution_async(

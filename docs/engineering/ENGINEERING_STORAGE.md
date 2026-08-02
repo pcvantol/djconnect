@@ -14,7 +14,7 @@ iCloud Drive remains transport only. It is not an Engineering evidence store.
 ## Versioned schema
 
 The storage contract is independently versioned as **Engineering Storage
-schema `4`**. The required version is declared as `storage_schema` in
+schema `5`**. The required version is declared as `storage_schema` in
 `tools/engineering/ENGINEERING_PLATFORM_VERSION.json` and is validated by the
 runner compatibility contract.
 
@@ -63,6 +63,20 @@ fallback when SQLite cannot be opened during early startup or an application
 failure. Existing redacted JSONL entries are imported once during the schema
 `4` migration. LaunchAgent `*.out.log` and `*.err.log` streams remain separate
 process-level crash diagnostics.
+
+## Prompt history
+
+Schema `5` adds `prompt_execution_history`, a canonical local index of every
+terminal Engineering Platform run. It stores the immutable run identifier,
+terminal status, prompt title, execution timestamp, available Git commit and
+the relative location of a delivered Engineering Report. Existing reports and
+telemetry runs are backfilled safely when the dashboard first requests the
+history. The index is a convenience projection only: the checkpoint, report
+and target repository remain authoritative evidence.
+
+The private dashboard exposes this as **Promptgeschiedenis**. Its searchable,
+sortable and paginated table can download an indexed report only when that
+report was actually delivered locally.
 
 ## Canonical workspace migration
 

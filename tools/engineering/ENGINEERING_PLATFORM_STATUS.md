@@ -52,6 +52,11 @@ boundary. Existing commands remain compatibility interfaces.
 - Watcher and dashboard application logs are structured, bounded, rotated and
   redacted before persistence. The dashboard automatically refreshes a bounded
   log tail only when its server-pushed revision changes.
+- Terminal runs are indexed in local SQLite prompt history with their status,
+  title, completed timestamp, available commit and delivered-report reference.
+  The private dashboard renders this evidence projection as a searchable,
+  sortable, paginated Promptgeschiedenis table; reports remain downloadable
+  only when local delivery succeeded.
 - The private dashboard's Codex advice surface is separately bounded to a
   read-only, ephemeral CLI process with context from the repository, matching
   terminal prompt and Engineering Report. It cannot start engineering or
@@ -60,7 +65,7 @@ boundary. Existing commands remain compatibility interfaces.
   per-run provenance (for example, `AI-provider: Codex CLI`). It offers
   server-pushed status, category-coded evidence cards, client-side structured
   log filtering/sorting and browser-session-local read-only advice history.
-- Engineering Storage schema `4` is versioned and fail-closed in the platform
+- Engineering Storage schema `5` is versioned and fail-closed in the platform
   manifest. `.engineering/engineering.db` and the surrounding `.engineering/`
   workspace are canonical; a verified, fail-closed legacy migration preserves
   prior `.djconnect/` evidence before the legacy directory is removed.

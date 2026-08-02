@@ -140,6 +140,14 @@ rather than replace, the application logs. Rotating `.engineering/logs/*.log`
 files are created only as a private fallback if SQLite is unavailable during
 early startup or a crash.
 
+### Prompt history
+
+The dashboard also maintains **Promptgeschiedenis** from the private SQLite
+table `prompt_execution_history`. It lists terminal Inbox runs with their
+status, title, execution time, available commit and a report download when a
+local Engineering Report exists. This projection is convenience metadata; the
+terminal checkpoint and target repository remain authoritative.
+
 Set `DJCONNECT_ENGINEERING_LOG_LEVEL` to `DEBUG`, `INFO`, `WARNING` or `ERROR`
 before installing a watcher or dashboard LaunchAgent; the selected value is
 stored in its LaunchAgent environment. The default is `INFO`; an invalid value

@@ -121,9 +121,9 @@ The local AI-assisted engineering environment is independently versioned by
 `tools/engineering/ENGINEERING_PLATFORM_VERSION.json`. Its current canonical
 contract is Engineering Platform `1.5.0`, runner `1.5.0`, Bootstrap Contract
 `2026.12`, Checkpoint Format `1`, Engineering Memory Format `2`, Report Format
-`2`, Engineering Inbox watcher `1.1.2` (Inbox Protocol `1`), private dashboard
-`1.2.79`, Platform Identity
-generation `2`, Workspace Identity schema `1`, Engineering Storage schema `4`, provider model `1`, configuration
+`2`, Engineering Inbox watcher `1.1.5` (Inbox Protocol `1`), private dashboard
+`1.2.80`, Platform Identity
+generation `2`, Workspace Identity schema `1`, Engineering Storage schema `5`, provider model `1`, configuration
 schema `1`, qualification registry `1` and minimum
 supported Codex CLI `0.146.0`. On supported macOS workstations, the watcher
 and its per-user LaunchAgent must satisfy this same contract before accepting

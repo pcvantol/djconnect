@@ -195,7 +195,7 @@ test.describe("Engineering Status browser smoke", () => {
   test("sorts the two component-log tables independently", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.locator("#componentLogs").evaluate((element) => { element.open = true; });
-    const tables = page.locator(".log-table");
+    const tables = page.locator("#componentLogs .log-table");
     await expect(tables).toHaveCount(2);
 
     const inboxLevel = tables.nth(0).locator('th[data-sort-key="level"]');
@@ -248,6 +248,33 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#dashboardComponentLog tr")).toHaveCount(2);
   });
 
+  test("shows a searchable, sortable and paginated prompt history", async ({ page }) => {
+    await page.route("**/api/prompt-history", async (route) => {
+      await route.fulfill({ json: { runs: [] } });
+    });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#promptHistory").evaluate((element) => { element.open = true; });
+    await page.evaluate(() => {
+      promptHistoryEntries = Array.from({ length: 26 }, (_, index) => ({
+        run_id: `inbox-history-${index}`,
+        status: index % 2 ? "COMPLETE" : "FAILED",
+        title: `Geschiedenis prompt ${String(index).padStart(2, "0")}`,
+        executed_at: `2026-08-02T12:${String(index).padStart(2, "0")}:00Z`,
+        git_commit: index % 2 ? "abcdef1" : null,
+        report_available: index % 2 === 1,
+      }));
+      renderPromptHistory();
+    });
+
+    await expect(page.locator("#promptHistoryRows tr")).toHaveCount(25);
+    await expect(page.locator("#promptHistoryPagination")).toContainText("Pagina 1 van 2 · 26 prompts");
+    await page.locator('#promptHistory th[data-history-sort-key="title"]').click();
+    await expect(page.locator('#promptHistory th[data-history-sort-key="title"]')).toHaveAttribute("aria-sort", "ascending");
+    await page.locator("#promptHistoryFilter").fill("prompt 25");
+    await expect(page.locator("#promptHistoryRows tr")).toHaveCount(1);
+    await expect(page.locator("#promptHistoryRows a[download]")).toHaveCount(1);
+  });
+
   test("opens and closes all visible dashboard categories with the title-bar switch", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.locator("#autoRefresh").uncheck();
@@ -259,7 +286,7 @@ test.describe("Engineering Status browser smoke", () => {
     await toggle.click();
     await expect(toggle).toHaveAttribute("aria-checked", "true");
     await expect(toggle).toHaveAttribute("aria-label", "Alle secties sluiten");
-    for (const id of ["workspaceCard", "platformHealth", "codexChat", "technicalDetails", "componentLogs"]) {
+    for (const id of ["workspaceCard", "promptHistory", "platformHealth", "codexChat", "technicalDetails", "componentLogs"]) {
       await expect(page.locator(`#${id}`)).toHaveAttribute("open", "");
     }
 

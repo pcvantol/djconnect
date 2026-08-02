@@ -16,7 +16,7 @@ import sqlite3
 
 WORKSPACE_DIRECTORY = ".engineering"
 DATABASE_FILENAME = "engineering.db"
-ENGINEERING_STORAGE_SCHEMA_VERSION = 4
+ENGINEERING_STORAGE_SCHEMA_VERSION = 5
 JOURNAL_MODES = frozenset({"DELETE", "MEMORY"})
 
 
@@ -172,7 +172,34 @@ def _schema_v4(connection: sqlite3.Connection) -> None:
                 )
 
 
-MIGRATIONS: dict[int, Migration] = {1: _schema_v1, 2: _schema_v2, 3: _schema_v3, 4: _schema_v4}
+def _schema_v5(connection: sqlite3.Connection) -> None:
+    """Create the canonical, private index of terminal prompt executions."""
+    connection.execute(
+        """
+        CREATE TABLE IF NOT EXISTS prompt_execution_history (
+            run_id TEXT PRIMARY KEY,
+            terminal_state TEXT NOT NULL,
+            prompt_title TEXT NOT NULL,
+            executed_at TEXT NOT NULL,
+            git_commit TEXT,
+            report_path TEXT,
+            updated_at TEXT NOT NULL
+        )
+        """
+    )
+    connection.execute(
+        "CREATE INDEX IF NOT EXISTS prompt_execution_history_executed_lookup "
+        "ON prompt_execution_history(executed_at DESC, run_id DESC)"
+    )
+
+
+MIGRATIONS: dict[int, Migration] = {
+    1: _schema_v1,
+    2: _schema_v2,
+    3: _schema_v3,
+    4: _schema_v4,
+    5: _schema_v5,
+}
 
 
 def database_path(root: Path) -> Path:
