@@ -104,6 +104,12 @@ test.describe("Engineering Status browser smoke", () => {
     expect(alignment.paddingDifference).toBeLessThan(1);
   });
 
+  test("allows the AI question field to grow only vertically", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#codexChat").evaluate((element) => { element.open = true; });
+    await expect(page.locator("#chatInput")).toHaveCSS("resize", "vertical");
+  });
+
   test("keeps platform health status text readable in light mode", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.getByTestId("theme-toggle").click();
