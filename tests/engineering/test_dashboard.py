@@ -199,6 +199,13 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn("Live gezondheidscontrole van de lokale Engineering Platform-componenten.", page)
         self.assertIn('fetch("/health",{cache:"no-store"})', page)
         self.assertIn("function renderPlatformHealth(payload)", page)
+        self.assertIn('info.className="component-info"', page)
+        self.assertIn('id="componentModal"', page)
+        self.assertIn('id="componentModalRestart"', page)
+        self.assertIn('function showComponentDetails(component)', page)
+        self.assertIn('function restartDashboardComponent()', page)
+        self.assertIn('fetch("/api/components/"+encodeURIComponent(component)+"/details"', page)
+        self.assertIn('"/restart",{method:"POST"', page)
         self.assertIn("window.setInterval(refreshPlatformHealth,15000)", page)
         self.assertIn('log_event(logger, logging.INFO, "http_not_found"', Path("tools/engineering/dashboard.py").read_text(encoding="utf-8"))
         self.assertIn('id="reviewerAgents" hidden', page)
@@ -1068,6 +1075,7 @@ class DashboardStatusTest(unittest.TestCase):
                 ("/api/status", "application/json"),
                 ("/api/build", "application/json"),
                 ("/api/health", "application/json"),
+                ("/api/components/dashboard/details", "application/json"),
                 ("/api/process-metrics", "application/json"),
                 ("/api/usage", "application/json"),
                 ("/api/usage/last-executed?run_id=invalid", "application/json"),
@@ -1127,6 +1135,28 @@ class DashboardStatusTest(unittest.TestCase):
             self.assertEqual(connection.getresponse().status, 400)
             connection.request(
                 "POST", "/api/logs/inbox", body="[]", headers={"Content-Type": "application/json"}
+            )
+            self.assertEqual(connection.getresponse().status, 400)
+            with (
+                patch("tools.engineering.dashboard.Timer") as timer,
+                patch("tools.engineering.dashboard.log_event"),
+            ):
+                connection.request(
+                    "POST",
+                    "/api/components/inbox_watcher/restart",
+                    body="{}",
+                    headers={"Content-Type": "application/json"},
+                )
+                response = connection.getresponse()
+                self.assertEqual(response.status, 202)
+                self.assertEqual(json.loads(response.read()), {"restarting": "inbox_watcher"})
+                timer.assert_called_once()
+                timer.return_value.start.assert_called_once()
+            connection.request(
+                "POST",
+                "/api/components/status_storage/restart",
+                body="{}",
+                headers={"Content-Type": "application/json"},
             )
             self.assertEqual(connection.getresponse().status, 400)
             with patch("tools.engineering.dashboard.codex_chat_response", return_value="Veilig advies."):

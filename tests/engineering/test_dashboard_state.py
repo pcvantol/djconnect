@@ -49,7 +49,7 @@ class DashboardStateTest(unittest.TestCase):
                 process_metrics_reader=lambda: b"{}",
                 build_commit_reader=lambda _: "abc123",
                 component_log_versions_reader=lambda _: {"inbox": "1", "dashboard": "2"},
-                dashboard_version="1.2.77",
+                dashboard_version="1.2.78",
                 worker_version="1.1.2",
             )
         )

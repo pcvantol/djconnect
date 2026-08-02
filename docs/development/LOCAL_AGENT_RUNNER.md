@@ -148,10 +148,21 @@ fails closed to `INFO`. Reinstall the relevant LaunchAgent after changing it.
 
 Engineering Platform 1.5 projects canonical watcher status as bounded, atomic
 `status.json` and an iPhone-readable private dashboard. The dashboard is
-strictly read-only. It binds only to loopback and, when Tailscale reports one,
-the workstation's explicit Tailscale IPv4 address; it never binds a wildcard,
-LAN or public address. It uses server-sent events for status changes and has no
-execution, release, deployment or publication authority.
+status- and evidence-first. Its only local operational control is an explicit,
+confirmed restart of one of its own per-user LaunchAgents (dashboard,
+Inbox-watcher or dashboard relay). It binds only to loopback and, when
+Tailscale reports one, the workstation's explicit Tailscale IPv4 address; it
+never binds a wildcard, LAN or public address. It uses server-sent events for
+status changes and has no engineering execution, repository, release,
+deployment or publication authority.
+
+In **Platformonderdelen**, the information glyph opens bounded component
+details: current host, executable/LaunchAgent settings, build commit and
+observed process memory. Restart is shown only for the three owned
+LaunchAgents and calls `launchctl kickstart -k` for that fixed label after a
+browser confirmation. Status storage and private remote access remain
+diagnostic-only. No arbitrary executable, label or command is accepted from
+the browser.
 
 Before the explicit per-user dashboard install, verify readiness:
 

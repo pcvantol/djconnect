@@ -98,6 +98,13 @@ test.describe("Engineering Status browser smoke", () => {
       "workspaceCard", "platformHealth", "codexChat", "technicalDetails", "componentLogs",
     ].map((id) => document.getElementById(id).getBoundingClientRect().height));
     expect(Math.max(...collapsedCategoryHeights) - Math.min(...collapsedCategoryHeights)).toBeLessThan(1);
+    await page.locator("#platformHealth").evaluate((element) => { element.open = true; });
+    await expect(page.locator(".component-info").first()).toBeVisible();
+    await page.locator(".component-info").first().click();
+    await expect(page.locator("#componentModal")).toHaveAttribute("open", "");
+    await expect(page.locator("#componentModalTitle")).not.toHaveText("Componentinformatie");
+    await page.locator("#componentModalClose").click();
+    await expect(page.locator("#componentModal")).not.toHaveAttribute("open", "");
     await page.evaluate(() => executionTelemetry([{ date: "2026-08-01", prompt_count: 1, average_execution_seconds: 10, average_total_execution_seconds: 12, average_queue_wait_seconds: 2, input_tokens: 100, output_tokens: 20, total_tokens: 120, complete_count: 1, blocked_count: 0, failed_count: 0 }]));
     expect(await page.evaluate(() => [
       document.getElementById("technicalDetails").nextElementSibling.id,

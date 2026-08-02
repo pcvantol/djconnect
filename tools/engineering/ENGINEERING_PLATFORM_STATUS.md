@@ -39,13 +39,16 @@ boundary. Existing commands remain compatibility interfaces.
 - Provider-neutral runtime, repository, service, submission and private-access
   configuration, with Codex CLI, GitHub, launchd, iCloud Inbox and Tailscale as
   current configured providers.
-- The private dashboard is status-only for Engineering lifecycle activity and
+- The private dashboard is status- and evidence-first for Engineering lifecycle
+  activity and
   binds only to loopback plus the locally reported Tailscale IPv4 address. It
   never binds a wildcard, LAN or public address, and it does not configure
   Tailnet ACLs, Funnel, port forwarding or network policy. Its sole bounded
   account-side action is consuming one available Codex resetcredit after an
-  explicit maintainer confirmation; it cannot affect Inbox, repository,
-  lifecycle, release or deployment state.
+  explicit maintainer confirmation. Its only local service action is a
+  confirmed restart of a fixed, owned dashboard, watcher or relay LaunchAgent;
+  it cannot affect Inbox work, repository, lifecycle, release or deployment
+  state.
 - Watcher and dashboard application logs are structured, bounded, rotated and
   redacted before persistence. The dashboard automatically refreshes a bounded
   log tail only when its server-pushed revision changes.

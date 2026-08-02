@@ -9,13 +9,15 @@ import json
 import logging
 import os
 from pathlib import Path
+import plistlib
 import re
 import select
 import shlex
 import shutil
+import socket
 import subprocess
 import sys
-from threading import Lock
+from threading import Lock, Timer
 import time
 import uuid
 from urllib.parse import parse_qs, urlsplit
@@ -43,7 +45,7 @@ from . import dashboard_state
 
 LABEL = "com.djconnect.engineering-dashboard"
 RELAY_LABEL = "com.djconnect.engineering-dashboard-relay"
-DASHBOARD_VERSION = "1.2.77"
+DASHBOARD_VERSION = "1.2.78"
 ASSET_DIRECTORY = Path(__file__).with_name("assets")
 APP_ICON_SVG = "engineering-status-icon.svg"
 APP_ICON_TOUCH = "engineering-status-icon-180.png"
@@ -52,6 +54,13 @@ CODEX_PROCESS = re.compile(r"(?:^|\s)(?:\S*/)?codex(?:\s|$)")
 RATE_LIMIT_CACHE_SECONDS = 60
 _rate_limit_cache_lock = Lock()
 _rate_limit_cache: tuple[float, bytes] | None = None
+
+COMPONENT_LABELS = {
+    "dashboard": LABEL,
+    "inbox_watcher": WATCHER_LABEL,
+    "dashboard_relay": RELAY_LABEL,
+}
+RESTARTABLE_COMPONENTS = frozenset(COMPONENT_LABELS)
 
 
 class DashboardHTTPServer(ThreadingHTTPServer):
@@ -390,6 +399,118 @@ def _platform_health(root: Path) -> dict[str, object]:
     }
     healthy = all(bool(component["healthy"]) for component in components.values())
     return {"health": "ok" if healthy else "degraded", "healthy": healthy, "components": components}
+
+
+def _launch_agent_details(label: str) -> dict[str, object]:
+    """Return the safe, owned portion of one per-user LaunchAgent contract."""
+    plist_path = Path.home() / "Library" / "LaunchAgents" / f"{label}.plist"
+    details: dict[str, object] = {
+        "label": label,
+        "plist_path": str(plist_path),
+        "loaded": False,
+        "program_arguments": [],
+        "keep_alive": None,
+        "run_at_load": None,
+    }
+    try:
+        payload = plistlib.loads(plist_path.read_bytes())
+    except (OSError, plistlib.InvalidFileException):
+        return details
+    if not isinstance(payload, dict):
+        return details
+    arguments = payload.get("ProgramArguments")
+    if isinstance(arguments, list):
+        details["program_arguments"] = [str(value) for value in arguments[:8]]
+    details["keep_alive"] = bool(payload.get("KeepAlive"))
+    details["run_at_load"] = bool(payload.get("RunAtLoad"))
+    details["loaded"] = bool(_launch_agent_health(label).get("healthy"))
+    return details
+
+
+def _component_processes(component: str) -> list[dict[str, int | str]]:
+    """Return bounded process evidence for a known local component only."""
+    patterns = {
+        "dashboard": ("dashboard.py",),
+        "inbox_watcher": ("inbox_watcher",),
+        "dashboard_relay": ("dashboard_supervisor",),
+    }.get(component, ())
+    if not patterns:
+        return []
+    try:
+        observed = subprocess.run(
+            ("ps", "-axo", "pid=,rss=,command="),
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+    except OSError:
+        return []
+    if observed.returncode:
+        return []
+    processes: list[dict[str, int | str]] = []
+    for line in observed.stdout.splitlines():
+        parts = line.strip().split(maxsplit=2)
+        if len(parts) != 3 or not any(pattern in parts[2] for pattern in patterns):
+            continue
+        try:
+            processes.append({"pid": int(parts[0]), "memory_kib": int(parts[1])})
+        except ValueError:
+            continue
+    return processes
+
+
+def _component_details(root: Path, component: str) -> dict[str, object]:
+    """Describe one named EP component without exposing credentials or prompts."""
+    health = _platform_health(root).get("components", {})
+    current = health.get(component) if isinstance(health, dict) else None
+    if not isinstance(current, dict):
+        raise ValueError("Onbekend Engineering Platform-onderdeel.")
+    result: dict[str, object] = {
+        "component": component,
+        "machine": socket.gethostname(),
+        "git_commit": _build_commit(root),
+        "healthy": bool(current.get("healthy")),
+        "state": str(current.get("state", "unknown")),
+        "detail": str(current.get("detail", "Geen toelichting")),
+        "version": current.get("version"),
+        "restart_supported": component in RESTARTABLE_COMPONENTS,
+        "processes": _component_processes(component),
+    }
+    if label := COMPONENT_LABELS.get(component):
+        result["launchd"] = _launch_agent_details(label)
+    else:
+        result["launchd"] = None
+        result["executable_path"] = (
+            str(root / ".engineering" / "status" / "status.json")
+            if component == "status_storage"
+            else shutil.which("tailscale") if component == "private_remote_access" else None
+        )
+    return result
+
+
+def _restart_component(component: str) -> None:
+    """Safely ask launchd to restart one explicitly owned, restartable component."""
+    if component not in RESTARTABLE_COMPONENTS:
+        raise ValueError("Dit onderdeel kan niet veilig vanuit het dashboard worden herstart.")
+    executable = shutil.which("launchctl")
+    if not executable:
+        raise OSError("launchctl ontbreekt.")
+    observed = subprocess.run(
+        (executable, "kickstart", "-k", f"gui/{os.getuid()}/{COMPONENT_LABELS[component]}"),
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    if observed.returncode:
+        raise OSError(observed.stderr.strip() or "De herstart is niet gelukt.")
+
+
+def _restart_component_after_response(component: str, logger: logging.Logger) -> None:
+    """Restart after the acknowledgement and retain only a bounded failure event."""
+    try:
+        _restart_component(component)
+    except OSError as error:
+        log_event(logger, logging.ERROR, "component_restart_failed", diagnostic=str(error))
 
 
 def _codex_process_metrics() -> bytes:
@@ -735,6 +856,7 @@ pre{white-space:pre-wrap;word-break:break-word;margin:5px 0 0;font:12px ui-monos
 .platform-health{--category-color:#a3e635;background:#29331d;border:1px solid var(--category-color);border-left-width:3px;border-radius:18px;box-shadow:0 5px 24px #0006;cursor:pointer;padding:14px}.platform-health>summary{border-bottom:1px solid var(--category-color);cursor:pointer;display:block;list-style:none;margin-bottom:12px;padding:2px 2px 13px}.platform-health>summary::-webkit-details-marker{display:none}.platform-health>summary::before{color:var(--category-color);content:"▸ ";display:inline-block;font-size:24px;line-height:1;padding-right:8px;vertical-align:-2px}.platform-health[open]>summary::before{content:"▾ "}.platform-health>summary>strong{color:var(--category-color);font-size:17px;font-weight:700;letter-spacing:.04em;line-height:1.25;text-transform:uppercase}.platform-health .category-description{color:#d4ddc7;font-size:14px;line-height:1.4;margin:12px 0}.platform-health__summary{color:#d4ddc7;font-size:12px;margin-left:8px}.platform-health__components{display:grid;gap:8px}.platform-health__component{align-items:center;background:#1e2518;border:1px solid color-mix(in srgb,var(--category-color) 64%,transparent);border-radius:9px;column-gap:10px;display:grid;grid-template-columns:auto 1fr;padding:9px 10px;row-gap:3px}.platform-health__component .indicator{grid-row:span 2}.platform-health__component-name{color:var(--category-color);font-weight:700}.platform-health__component-detail{color:#d4ddc7;font-size:12px;grid-column:2;line-height:1.35}.platform-health__empty{color:#d4ddc7;margin:0}.platform-health__component[data-health="false"]{--category-color:#ff8585;background:#351f24}
 #codexChat .chat-input,#codexChat .chat-send{border-color:#d0a4ff}
 #codexChat .codex-chat__details{position:relative}#codexChat .codex-chat__details>.estimate-meta{padding-right:52px}#downloadChat.download--glyph{right:14px}
+.component-info{align-items:center;background:transparent;border:1px solid var(--category-color);border-radius:50%;color:var(--category-color);cursor:pointer;display:grid;font:700 15px/1 system-ui;height:32px;justify-items:center;padding:0;width:32px}.component-info:hover{background:color-mix(in srgb,var(--category-color) 16%,transparent)}.platform-health__component{grid-template-columns:auto 1fr auto}.platform-health__component-detail{grid-column:2}.component-modal{background:#15151de8;border:0;height:100dvh;max-height:none;max-width:none;padding:18px;width:100vw}.component-modal[open]{display:grid;place-items:center}.component-modal__panel{background:#22242c;border:2px solid #a3e635;border-radius:16px;box-shadow:0 16px 52px #000c;box-sizing:border-box;max-height:min(700px,calc(100dvh - 36px));max-width:680px;overflow:auto;padding:20px;position:relative;width:min(680px,calc(100vw - 36px))}.component-modal__close{background:transparent;border:1px solid #a3e635;border-radius:50%;color:#d8f7a5;cursor:pointer;font:20px/1 system-ui;height:34px;position:absolute;right:14px;top:14px;width:34px}.component-modal h2{color:#a3e635;margin:0 44px 14px 0}.component-modal dl{display:grid;gap:10px;margin:0}.component-modal dt{color:#a3e635;font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase}.component-modal dd{margin:3px 0 0;overflow-wrap:anywhere}.component-modal__restart{background:#253b17;border:1px solid #a3e635;border-radius:8px;color:#e6ffc0;cursor:pointer;font:14px system-ui;margin-top:18px;padding:9px 12px}.component-modal__restart:disabled{cursor:wait;opacity:.7}.component-modal__status{color:#d4ddc7;font-size:13px;margin:10px 0 0}
 #chatInput:focus-visible{outline:2px solid #d0a4ff;outline-offset:2px;box-shadow:0 0 0 4px #292336}
 :where(input,select,textarea):focus-visible{outline:2px solid var(--category-color);outline-offset:2px;box-shadow:0 0 0 4px color-mix(in srgb,var(--category-color) 24%,transparent)}
 #reportContent{max-height:50dvh;overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
@@ -806,6 +928,7 @@ body{overflow-x:hidden}.dashboard-grid,.dashboard-grid>*{min-width:0}.telemetry,
 <div class="last-execution last-execution-group" id="lastExecutionGroup" data-testid="last-executed-prompt-category"><article class="card card--previous last-execution-card" id="lastExecution" hidden><div class="final-status"><span id="lastIndicator" class="indicator indicator--small" aria-hidden="true"></span><span class="label">Prompt status</span><span id="lastFinalStatus"></span></div><p class="field"><span class="label">Prompttitel</span><span id="lastPrompt"></span></p><div class="field"><span class="label">Bestandsnaam</span><pre id="lastFile"></pre></div><div class="field" id="lastRuntimeProvider" hidden><span class="label">Runtimeprovider</span><span id="lastRuntimeProviderValue"></span></div><div class="field" id="lastModel" hidden><span class="label">Gebruikt model</span><span id="lastModelValue"></span></div><div class="field" id="lastReasoningProfile" hidden><span class="label">Reasoning-profiel</span><span id="lastReasoningProfileValue"></span></div><div class="field" id="lastConfigurationProfile" hidden><span class="label">Configuratieprofiel</span><span id="lastConfigurationProfileValue"></span></div><div class="field" id="lastCodexCliVersion" hidden><span class="label">Codex CLI-versie</span><span id="lastCodexCliVersionValue"></span></div><div class="field" id="lastCommits" hidden><span class="label">Git-commit</span><pre id="lastCommitDetails"></pre></div><div class="field" id="lastUsage" hidden><span class="label">Codex CLI-gebruik</span><pre id="lastUsageDetails"></pre></div><div class="field" id="lastDiagnostic" hidden><span class="label">Codex CLI-diagnose</span><pre id="lastLog">Laden…</pre></div></article><section class="card card--previous reviewer-agents" id="reviewerAgents" hidden><strong>Specialistische agentreviews</strong><p class="estimate-meta">Alleen-lezende, onafhankelijke beoordelingen. De primaire agent behield uitvoerings- en lifecycleverantwoordelijkheid.</p><div class="reviewer-agents__list" id="reviewerAgentList"></div></section><div class="card card--previous" id="commits" hidden><strong>Voltooiingscommits</strong><div class="field"><span class="label">Vastgelegd bewijs</span><pre id="completionCommits"></pre></div></div><details class="card card--previous" id="report" hidden><summary><strong>Engineeringrapport</strong></summary><button class="copy" id="copyReport" type="button" title="Kopieer rapport" aria-label="Kopieer rapport">⧉ Kopieer</button><div id="reportContent" class="markdown-document">Open dit blok om het rapport te laden.</div></details><details class="card card--previous" id="reportAnalysis" hidden><summary><strong>AI-analyse van rapport</strong></summary><div id="reportAnalysisContent" class="markdown-document">Open dit blok om de analyse te laden.</div></details></div>
 </div></section>
 <details class="platform-health" id="platformHealth" data-testid="platform-health"><summary><strong>Platformonderdelen</strong></summary><p class="category-description">Live gezondheidscontrole van de lokale Engineering Platform-componenten.</p><div class="platform-health__components" id="platformHealthComponents" aria-live="polite"><p class="platform-health__empty">Componentstatus laden…</p></div></details>
+<dialog class="component-modal" id="componentModal" aria-labelledby="componentModalTitle"><section class="component-modal__panel"><button class="component-modal__close" id="componentModalClose" type="button" aria-label="Meer informatie sluiten">×</button><h2 id="componentModalTitle">Componentinformatie</h2><div id="componentModalContent"></div><button class="component-modal__restart" id="componentModalRestart" type="button" hidden>Component herstarten</button><p class="component-modal__status" id="componentModalStatus" aria-live="polite"></p></section></dialog>
 <details class="technical-details" id="componentLogs"><summary><strong>Logs</strong></summary><p class="estimate-meta">Geredigeerde, roterende logs van watcher en dashboard. Deze worden pas opgehaald nadat je op de knop drukt.</p><button class="copy" id="loadComponentLogs" type="button">Logs laden</button><div class="log-controls" id="componentLogControls" hidden><label for="logFilter">Zoeken<input id="logFilter" type="search" placeholder="Zoek in alle velden"></label><label for="logLevelFilter">Niveau<select id="logLevelFilter"><option value="">Alle niveaus</option><option value="ERROR">Fout</option><option value="WARNING">Waarschuwing</option><option value="INFO">Informatie</option><option value="DEBUG">Debug</option></select></label><label for="logSort">Sortering<select id="logSort"><option value="newest">Nieuwste eerst</option><option value="oldest">Oudste eerst</option><option value="level">Niveau</option><option value="event">Gebeurtenis</option></select></label></div><div class="technical-grid"><div class="card"><div class="log-card-header"><strong>Inbox-watcher</strong><button class="clear-component-log" data-component="inbox" data-testid="clear-inbox-log" type="button">Logs wissen</button></div><div class="log-table-wrap"><table class="log-table"><thead><tr><th>#</th><th>Tijdstip</th><th>Niveau</th><th>Gebeurtenis</th><th>Run-ID</th><th>Details</th></tr></thead><tbody id="inboxComponentLog"><tr><td class="log-empty" colspan="6">Nog niet geladen.</td></tr></tbody></table></div></div><div class="card"><div class="log-card-header"><strong>Statusdashboard</strong><button class="clear-component-log" data-component="dashboard" data-testid="clear-dashboard-log" type="button">Logs wissen</button></div><div class="log-table-wrap"><table class="log-table"><thead><tr><th>#</th><th>Tijdstip</th><th>Niveau</th><th>Gebeurtenis</th><th>Run-ID</th><th>Details</th></tr></thead><tbody id="dashboardComponentLog"><tr><td class="log-empty" colspan="6">Nog niet geladen.</td></tr></tbody></table></div></div></div></details>
 <details class="card codex-chat" id="codexChat"><summary><strong>AI-gesprek</strong></summary><div class="codex-chat__details"><button class="download download--glyph" id="downloadChat" type="button" title="Download gesprek" aria-label="Download gesprek" hidden>⇩</button><p class="estimate-meta">Alleen lezen · context: repository, laatst uitgevoerde prompt en rapport. Deze chat kan geen engineering starten of wijzigingen uitvoeren.</p><div class="chat-messages" id="chatMessages" aria-live="polite" aria-label="Gesprek met AI-assistent"></div><label class="label" for="chatInput">Nieuwe vraag aan AI-assistent</label><div class="chat-compose"><textarea id="chatInput" class="chat-input" rows="5" maxlength="2000" placeholder="Bijvoorbeeld: wat zijn de belangrijkste vervolgstappen uit het laatste rapport?"></textarea><button class="chat-send" id="chatSend" type="button" title="Verstuur vraag" aria-label="Verstuur vraag"><span aria-hidden="true">➤</span></button></div><p class="field"><span class="label">Gebruikt model</span><span id="chatModel">$CHAT_MODEL</span></p><p class="chat-status" id="chatStatus"></p></div></details>
 <details class="technical-details" id="technicalDetails"><summary><strong>Technische details</strong></summary><div class="technical-grid">
@@ -871,7 +994,7 @@ function renderMarkdownAnswer(target,value){const newline=String.fromCharCode(10
 const plainChatMessage=chatMessage;chatMessage=(role,text)=>{if(role!=="assistant"){plainChatMessage(role,text);return}const item=document.createElement("article"),label=document.createElement("span"),body=document.createElement("div");item.className="chat-message chat-message--assistant";label.className="chat-message__role";label.textContent="AI-assistent";body.className="chat-message__body";renderMarkdownAnswer(body,text);item.append(label,body);$("chatMessages").append(item);item.scrollIntoView({block:"nearest"})};renderChatHistory();
 $("chatSend").querySelector("span").textContent="↑";
 let componentLogVersion="";function refreshComponentLogs(versions={}){const version=JSON.stringify(versions);if(componentLogsLoaded&&version===componentLogVersion)return;componentLogVersion=version;Promise.all([fetch("/api/logs/inbox").then(response=>response.text()),fetch("/api/logs/dashboard").then(response=>response.text())]).then(([inbox,dashboard])=>{componentLogEntries.inbox=structuredLogEntries(inbox);componentLogEntries.dashboard=structuredLogEntries(dashboard);componentLogsLoaded=true;$("componentLogControls").hidden=false;renderComponentLogs()}).catch(()=>{componentLogEntries.inbox=structuredLogEntries('{"level":"ERROR","event":"inbox_log_unavailable","diagnostic":"Inbox-log is niet beschikbaar."}');componentLogEntries.dashboard=structuredLogEntries('{"level":"ERROR","event":"dashboard_log_unavailable","diagnostic":"Dashboard-log is niet beschikbaar."}');$("componentLogControls").hidden=false;renderComponentLogs()})}function enableLiveComponentLogs(){const button=$("loadComponentLogs"),description=document.querySelector("#componentLogs .estimate-meta");button?.remove();if(description)description.textContent="Geredigeerde, roterende logs van watcher en dashboard. Automatisch bijgewerkt via serverpush.";$("componentLogControls").hidden=false;refreshComponentLogs()}const renderStatusWithLiveComponentLogs=r;r=(x,snapshot={})=>{renderStatusWithLiveComponentLogs(x,snapshot);refreshComponentLogs(snapshot.component_log_versions||{})};enableLiveComponentLogs();
-const healthComponentLabels={dashboard:"Statusdashboard",inbox_watcher:"Inbox-watcher",dashboard_relay:"Dashboardrelay",status_storage:"Statusopslag",private_remote_access:"Privé externe toegang"};let healthRequestInFlight=false;function healthIndicatorClass(healthy){return healthy?"indicator indicator--green":"indicator indicator--red"}function renderPlatformHealth(payload){const container=$("platformHealthComponents");if(!container)return;const components=payload&&typeof payload.components==="object"?payload.components:null;container.replaceChildren();if(!components){const message=document.createElement("p");message.className="platform-health__empty";message.textContent="De live gezondheidscontrole is tijdelijk niet beschikbaar.";container.append(message);return}for(const [key,component] of Object.entries(components)){const item=document.createElement("article"),indicator=document.createElement("span"),name=document.createElement("span"),detail=document.createElement("span"),componentHealthy=Boolean(component?.healthy),version=typeof component?.version==="string"?" · Versie "+component.version:"";item.className="platform-health__component";item.dataset.health=String(componentHealthy);indicator.className=healthIndicatorClass(componentHealthy);indicator.setAttribute("aria-hidden","true");name.className="platform-health__component-name";name.textContent=healthComponentLabels[key]||key;detail.className="platform-health__component-detail";detail.textContent=(componentHealthy?"Gezond":"Niet gezond")+" · "+String(component?.detail||component?.state||"Geen toelichting")+version;item.append(indicator,name,detail);container.append(item)}}async function refreshPlatformHealth(){if(healthRequestInFlight)return;healthRequestInFlight=true;try{const response=await fetch("/health",{cache:"no-store"}),payload=await response.json();renderPlatformHealth(payload)}catch{renderPlatformHealth(null)}finally{healthRequestInFlight=false}}refreshPlatformHealth();window.setInterval(refreshPlatformHealth,15000);
+const healthComponentLabels={dashboard:"Statusdashboard",inbox_watcher:"Inbox-watcher",dashboard_relay:"Dashboardrelay",status_storage:"Statusopslag",private_remote_access:"Privé externe toegang"};let healthRequestInFlight=false;function healthIndicatorClass(healthy){return healthy?"indicator indicator--green":"indicator indicator--red"}function componentDetailField(list,label,value){if(value===null||value===undefined||value==="")return;const term=document.createElement("dt"),description=document.createElement("dd"),entry=document.createElement("div");term.textContent=label;description.textContent=String(value);entry.append(term,description);list.append(entry)}function componentMemory(processes){if(!Array.isArray(processes)||!processes.length)return"Geen lokaal proces gevonden";return processes.map(process=>"PID "+process.pid+": "+(Number(process.memory_kib||0)/1024).toFixed(1)+" MiB").join(" · ")}function showComponentModal(payload){const modal=$("componentModal"),content=$("componentModalContent"),title=$("componentModalTitle"),restart=$("componentModalRestart"),status=$("componentModalStatus"),launchd=payload.launchd||{};title.textContent=healthComponentLabels[payload.component]||"Componentinformatie";content.replaceChildren();const fields=document.createElement("dl");componentDetailField(fields,"Machine",payload.machine);componentDetailField(fields,"Status",(payload.healthy?"Gezond":"Niet gezond")+" · "+(payload.detail||payload.state||"Geen toelichting"));componentDetailField(fields,"Versie",payload.version);componentDetailField(fields,"Git-commit",payload.git_commit);componentDetailField(fields,"Uitvoerbaar pad",Array.isArray(launchd.program_arguments)&&launchd.program_arguments.length?launchd.program_arguments[0]:payload.executable_path);componentDetailField(fields,"Launchd-label",launchd.label);componentDetailField(fields,"LaunchAgent",launchd.plist_path);componentDetailField(fields,"Launchd-instellingen",launchd.label?(launchd.loaded?"Geladen":"Niet geladen")+" · Start bij laden: "+(launchd.run_at_load?"ja":"nee")+" · Blijf actief: "+(launchd.keep_alive?"ja":"nee"):null);componentDetailField(fields,"Huidig geheugen",componentMemory(payload.processes));content.append(fields);restart.hidden=!payload.restart_supported;restart.dataset.component=payload.component;status.textContent="";if(!modal.open)modal.showModal()}async function showComponentDetails(component){try{const response=await fetch("/api/components/"+encodeURIComponent(component)+"/details",{cache:"no-store"}),payload=await response.json();if(!response.ok)throw Error(payload.error||"Componentinformatie is niet beschikbaar.");showComponentModal(payload)}catch(error){window.alert(error.message||"Componentinformatie is niet beschikbaar.")}}async function restartDashboardComponent(){const restart=$("componentModalRestart"),component=restart.dataset.component;if(!component)return;if(!window.confirm("Weet je zeker dat je dit Engineering Platform-onderdeel wilt herstarten?"))return;restart.disabled=true;try{const response=await fetch("/api/components/"+encodeURIComponent(component)+"/restart",{method:"POST",headers:{"Content-Type":"application/json"},body:"{}"}),payload=await response.json();if(!response.ok)throw Error(payload.error||"Herstarten is niet gelukt.");$("componentModalStatus").textContent="Herstartverzoek verzonden. De component komt zo opnieuw beschikbaar."}catch(error){$("componentModalStatus").textContent=error.message||"Herstarten is niet gelukt."}finally{restart.disabled=false}}$("componentModalClose").addEventListener("click",()=>$("componentModal").close());$("componentModal").addEventListener("click",event=>{if(event.target===$("componentModal"))$("componentModal").close()});$("componentModalRestart").addEventListener("click",restartDashboardComponent);function renderPlatformHealth(payload){const container=$("platformHealthComponents");if(!container)return;const components=payload&&typeof payload.components==="object"?payload.components:null;container.replaceChildren();if(!components){const message=document.createElement("p");message.className="platform-health__empty";message.textContent="De live gezondheidscontrole is tijdelijk niet beschikbaar.";container.append(message);return}for(const [key,component] of Object.entries(components)){const item=document.createElement("article"),indicator=document.createElement("span"),name=document.createElement("span"),detail=document.createElement("span"),info=document.createElement("button"),componentHealthy=Boolean(component?.healthy),version=typeof component?.version==="string"?" · Versie "+component.version:"";item.className="platform-health__component";item.dataset.health=String(componentHealthy);indicator.className=healthIndicatorClass(componentHealthy);indicator.setAttribute("aria-hidden","true");name.className="platform-health__component-name";name.textContent=healthComponentLabels[key]||key;detail.className="platform-health__component-detail";detail.textContent=(componentHealthy?"Gezond":"Niet gezond")+" · "+String(component?.detail||component?.state||"Geen toelichting")+version;info.className="component-info";info.type="button";info.textContent="i";info.title="Meer informatie over "+name.textContent;info.setAttribute("aria-label",info.title);info.addEventListener("click",()=>showComponentDetails(key));item.append(indicator,name,detail,info);container.append(item)}}async function refreshPlatformHealth(){if(healthRequestInFlight)return;healthRequestInFlight=true;try{const response=await fetch("/health",{cache:"no-store"}),payload=await response.json();renderPlatformHealth(payload)}catch{renderPlatformHealth(null)}finally{healthRequestInFlight=false}}refreshPlatformHealth();window.setInterval(refreshPlatformHealth,15000);
 function flattenMarkdownPanels(){for(const [panelId,contentId] of [["report","reportContent"],["reportAnalysis","reportAnalysisContent"]]){const panel=$(panelId),content=$(contentId),field=content?.closest(".field");if(panel&&field&&field.parentElement===panel)field.replaceWith(content)}}flattenMarkdownPanels();
 function compactCopyButton(buttonId,contentId){const button=$(buttonId),content=$(contentId);if(!button||!content)return;let wrapper=content.parentElement;if(!wrapper.classList.contains("markdown-copy-wrap")){wrapper=document.createElement("div");wrapper.className="markdown-copy-wrap";content.replaceWith(wrapper);wrapper.append(content)}button.classList.add("copy--glyph");button.textContent="⧉";wrapper.append(button)}function compactReportCopyButtons(){compactCopyButton("copyReport","reportContent");compactCopyButton("copyReportAnalysis","reportAnalysisContent")}compactReportCopyButtons();
 function downloadLastExecutedDocument(endpoint,filenamePrefix){if(!lastExecutedRun)return Promise.reject(Error("Geen uitgevoerde prompt beschikbaar."));return fetch(endpoint+"?run_id="+encodeURIComponent(lastExecutedRun)).then(response=>response.ok?response.text():Promise.reject(Error("Download is niet beschikbaar."))).then(text=>{if(!text)throw Error("Download is niet beschikbaar.");const link=document.createElement("a"),url=URL.createObjectURL(new Blob([text],{type:"text/markdown;charset=utf-8"})),safeRun=String(lastExecutedRun).replace(/[^a-z0-9._-]+/gi,"-");link.href=url;link.download=filenamePrefix+"-"+safeRun+".md";link.hidden=true;document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),0)})}function addDownloadButton(panelId,contentId,buttonId,filenamePrefix,label){const panel=$(panelId),content=$(contentId);if(!panel||!content||$(buttonId))return;const button=document.createElement("button");button.className="download download--glyph";button.id=buttonId;button.type="button";button.title=label;button.setAttribute("aria-label",label);button.textContent="⇩";button.hidden=true;button.addEventListener("click",()=>downloadLastExecutedDocument(panelId==="report"?"/api/report/last-executed":"/api/report-analysis/last-executed",filenamePrefix).catch(()=>{button.title="Download is niet beschikbaar."}));const wrapper=content.parentElement;button.classList.add("download--glyph");wrapper.append(button)}addDownloadButton("report","reportContent","downloadReport","engineering-report","Download rapport");addDownloadButton("reportAnalysis","reportAnalysisContent","downloadReportAnalysis","ai-analyse","Download AI-analyse");const originalCopyAvailable=copyAvailable;copyAvailable=(id,available)=>{originalCopyAvailable(id,available);const downloads={copyReport:"downloadReport",copyReportAnalysis:"downloadReportAnalysis"};if(downloads[id])originalCopyAvailable(downloads[id],available)};
@@ -938,6 +1061,31 @@ def handler(root: Path, logger: logging.Logger | None = None):
                 self._send(b'{"error":"Ongeldige herkomst."}', "application/json; charset=utf-8", 403)
                 return
             request_path = urlsplit(self.path).path
+            if request_path.startswith("/api/components/") and request_path.endswith("/restart"):
+                component = request_path.removeprefix("/api/components/").removesuffix("/restart").rstrip("/")
+                try:
+                    length = int(self.headers.get("Content-Length", "0"))
+                    if length != 2 or self.rfile.read(length) != b"{}":
+                        raise ValueError("Ongeldig herstartverzoek.")
+                    if component not in RESTARTABLE_COMPONENTS:
+                        raise ValueError("Dit onderdeel kan niet veilig vanuit het dashboard worden herstart.")
+                    # Give the response a chance to reach the browser before the
+                    # dashboard asks launchd to replace its own process.
+                    Timer(0.25, _restart_component_after_response, args=(component, logger)).start()
+                    log_event(logger, logging.INFO, "component_restart_requested", diagnostic=component)
+                except ValueError as error:
+                    self._send(
+                        json.dumps({"error": str(error)}, ensure_ascii=False).encode(),
+                        "application/json; charset=utf-8",
+                        400,
+                    )
+                    return
+                self._send(
+                    json.dumps({"restarting": component}, ensure_ascii=False).encode(),
+                    "application/json; charset=utf-8",
+                    202,
+                )
+                return
             if request_path == "/api/rate-limit-reset":
                 try:
                     length = int(self.headers.get("Content-Length", "0"))
@@ -1058,6 +1206,21 @@ def handler(root: Path, logger: logging.Logger | None = None):
                     json.dumps(payload, separators=(",", ":")).encode(),
                     "application/json; charset=utf-8",
                     200 if payload["healthy"] else 503,
+                )
+            if request.path.startswith("/api/components/") and request.path.endswith("/details"):
+                component = request.path.removeprefix("/api/components/").removesuffix("/details").rstrip("/")
+                try:
+                    payload = _component_details(root, component)
+                except ValueError as error:
+                    self._send(
+                        json.dumps({"error": str(error)}, ensure_ascii=False).encode(),
+                        "application/json; charset=utf-8",
+                        404,
+                    )
+                    return
+                return self._send(
+                    json.dumps(payload, ensure_ascii=False, separators=(",", ":")).encode(),
+                    "application/json; charset=utf-8",
                 )
             if self.path == "/api/process-metrics":
                 return self._send(_codex_process_metrics(), "application/json; charset=utf-8")

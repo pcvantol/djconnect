@@ -78,7 +78,19 @@ dashboard process, Inbox watcher LaunchAgent, private relay LaunchAgent, local
 status storage and Tailscale connectivity are all available. It returns HTTP
 `200` with `"health":"ok"` when all components are healthy, otherwise HTTP
 `503` with `"health":"degraded"` and a per-component diagnostic. The endpoint
-is read-only and does not repair or restart a component.
+is read-only and does not repair a component.
+
+The matching **Platformonderdelen** dashboard category exposes a per-component
+information dialog. It obtains its bounded metadata from
+`GET /api/components/<component>/details`: the local host, executable or
+LaunchAgent configuration, current build commit and observed process memory.
+For only `dashboard`, `inbox_watcher` and `dashboard_relay`, an explicitly
+confirmed `POST /api/components/<component>/restart` schedules a local
+`launchctl kickstart -k` for the fixed owned label. The request accepts only an
+empty JSON object, is same-origin, and never accepts a browser-supplied command
+or executable. Storage and Tailscale entries are diagnostic-only. The restart
+control cannot run engineering, claim Inbox work, or affect repository,
+release, deployment or publication state.
 
 ## Browser validation
 
