@@ -224,6 +224,23 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#inboxLogPagination button").first()).toHaveCSS("background-color", "rgb(255, 243, 226)");
   });
 
+  test("downloads each redacted component log", async ({ page }) => {
+    await page.route("**/api/logs/**", (route) => route.fulfill({ contentType: "application/x-ndjson", body: '{"level":"INFO","event":"test"}\n' }));
+    await page.route("**/api/audit/user-action", (route) => route.fulfill({ contentType: "application/json", body: '{"logged":true}' }));
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#dashboardSplash").evaluate((element) => { element.hidden = true; });
+    await page.locator("#componentLogs").evaluate((element) => { element.open = true; });
+
+    await page.evaluate(() => {
+      URL.createObjectURL = () => "blob:component-log";
+      HTMLAnchorElement.prototype.click = function click() { window.__componentLogDownload = this.download; };
+    });
+    for (const [testId, filename] of [["download-inbox-log", "inbox-watcher-log-"], ["download-dashboard-log", "statusdashboard-log-"]]) {
+      await page.getByTestId(testId).click();
+      await expect.poll(() => page.evaluate(() => window.__componentLogDownload)).toMatch(new RegExp(`^${filename}.*\\.ndjson$`));
+    }
+  });
+
   test("uses matching orange iOS-style toggles in the title bar", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     const theme = page.getByTestId("theme-toggle");
@@ -560,7 +577,16 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator('#promptHistory th[data-history-sort-key="title"]')).toHaveAttribute("aria-sort", "ascending");
     await page.locator("#promptHistoryFilter").fill("prompt 25");
     await expect(page.locator("#promptHistoryRows tr")).toHaveCount(1);
-    await expect(page.locator("#promptHistoryRows a[download]")).toHaveCount(1);
+    const reportView = page.locator("#promptHistoryRows .prompt-history-report");
+    await expect(reportView).toHaveCount(1);
+    await page.route("**/api/prompt-history/**/report", (route) => route.fulfill({
+      contentType: "text/markdown",
+      body: "# Historisch rapport\n\nDit rapport wordt in een dialoog getoond.",
+    }));
+    await reportView.click();
+    await expect(page.locator("#promptHistoryReportModal")).toBeVisible();
+    await expect(page.locator("#promptHistoryReportContent")).toContainText("Historisch rapport");
+    await expect(page.getByTestId("download-inbox-log")).toHaveCount(1);
   });
 
   test("opens and closes all visible dashboard categories with the title-bar switch", async ({ page }) => {
