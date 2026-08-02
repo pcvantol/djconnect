@@ -105,14 +105,18 @@ test.describe("Engineering Status browser smoke", () => {
       };
       const hasWhite = (value) => /rgb\(\s*(?:2[4-5]\d|255)\s*,\s*(?:2[4-5]\d|255)\s*,\s*(?:2[4-5]\d|255)\s*\)/.test(value);
 
-      return [...document.querySelectorAll(selector)].filter(isVisible).flatMap((element) => {
-        element.focus({ preventScroll: true });
-        const style = getComputedStyle(element);
-        const focusStyles = `${style.outlineColor} ${style.boxShadow}`;
-        return hasWhite(focusStyles) ? [{
-          element: element.id || element.getAttribute("data-testid") || element.tagName,
-          focusStyles,
-        }] : [];
+      return ["dark", "light"].flatMap((theme) => {
+        document.documentElement.dataset.theme = theme;
+        return [...document.querySelectorAll(selector)].filter(isVisible).flatMap((element) => {
+          element.focus({ preventScroll: true });
+          const style = getComputedStyle(element);
+          const focusStyles = `${style.outlineColor} ${style.boxShadow}`;
+          return hasWhite(focusStyles) ? [{
+            theme,
+            element: element.id || element.getAttribute("data-testid") || element.tagName,
+            focusStyles,
+          }] : [];
+        });
       });
     });
 
@@ -369,6 +373,9 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(toggle).toHaveAttribute("aria-label", "Donkere modus inschakelen");
     await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
     await expect(page.locator("body")).toHaveCSS("background-color", "rgb(244, 247, 251)");
+    await page.evaluate(() => rateLimits({ provider: "Codex CLI", provider_version: "0.146.0", windows: [], reset_credits: 1 }));
+    await expect(page.locator("#rateLimitReset")).toHaveCSS("background-color", "rgb(232, 255, 245)");
+    await expect(page.locator("#rateLimitReset")).toHaveCSS("color", "rgb(20, 90, 66)");
 
     await page.reload({ waitUntil: "domcontentloaded" });
     await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
