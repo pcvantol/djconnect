@@ -357,6 +357,16 @@ test.describe("Engineering Status browser smoke", () => {
       await page.locator(".chat-message--assistant .chat-message__body").evaluate((element) => getComputedStyle(element).fontFamily),
     );
     await expect(page.locator('label[for="chatInput"]')).toHaveCSS("margin-bottom", "10px");
+    await expect(page.locator(".chat-message__copy")).toHaveCount(2);
+    await expect(page.locator(".chat-message--assistant .chat-message__copy")).toHaveAttribute("aria-label", "Kopieer bericht");
+    await page.evaluate(() => Object.defineProperty(navigator, "clipboard", {
+      configurable: true,
+      value: { writeText: () => Promise.resolve() },
+    }));
+    await page.locator("#codexChat").evaluate((element) => { element.open = true; });
+    await page.locator(".chat-message--assistant .chat-message__copy").click();
+    await expect(page.getByTestId("copy-toast")).toHaveText("Gekopieerd naar klembord");
+    await expect(page.getByTestId("copy-toast")).toHaveClass(/copy-toast--visible/);
     expect(await page.evaluate(() => chatHistoryMarkdown())).toContain("## Jij\n\nWat zijn de volgende stappen?");
   });
 
