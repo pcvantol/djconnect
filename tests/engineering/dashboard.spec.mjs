@@ -77,12 +77,14 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator('link[rel="apple-touch-icon"]')).toHaveAttribute("href", "/assets/engineering-status-icon-180.png");
     await expect(page.getByTestId("dashboard-app-icon")).toHaveAttribute("src", "/assets/engineering-status-icon.svg");
     await expect(page.getByTestId("engineering-workspace")).not.toHaveAttribute("open", "");
+    await expect(page.getByTestId("engineering-inbox-queue")).not.toHaveAttribute("open", "");
     await expect(page.getByTestId("platform-health")).not.toHaveAttribute("open", "");
+    await expect(page.locator("#queueItems > summary .category-icon")).toHaveText("☷");
     await expect(page.locator("#workspaceCard > summary .category-icon")).toHaveText("⌂");
     await expect(page.locator("#rateLimits > summary .category-icon")).toHaveText("◔");
     await expect(page.locator("#componentLogs > summary .category-icon")).toHaveText("≡");
     await expect(page.locator("#codexChat > summary .category-icon")).toHaveText("✦");
-    for (const selector of ["#workspaceCard > summary", "#rateLimits > summary", "#componentLogs > summary", "#codexChat > summary"]) {
+    for (const selector of ["#workspaceCard > summary", "#queueItems > summary", "#rateLimits > summary", "#componentLogs > summary", "#codexChat > summary"]) {
       expect(await page.locator(selector).evaluate((summary) => getComputedStyle(summary, "::before").right)).toBe("0px");
     }
     await expect(page.locator(".current-run__category-description")).toHaveText("De actieve engineeringprompt, met actuele voortgang, uitvoeringstijd en uitvoeringscontext.");
@@ -232,6 +234,10 @@ test.describe("Engineering Status browser smoke", () => {
     const queue = page.getByTestId("engineering-inbox-queue");
     await page.evaluate(() => queueItems([], 0));
     await expect(queue).toBeVisible();
+    await expect(queue).not.toHaveAttribute("open", "");
+    await expect(queue.locator("summary")).toContainText("Inbox-wachtrij");
+    await expect(queue.locator(".category-description")).toHaveText("Prompts in uitvoervolgorde: oudste eerst. Ook een lege wachtrij blijft zichtbaar.");
+    await queue.locator("summary").click();
     await expect(page.locator("#queueSummary")).toHaveText("0 prompts in de wachtrij.");
     await expect(page.locator("#queueList")).toContainText("Geen Inbox-prompts wachten op uitvoering.");
 

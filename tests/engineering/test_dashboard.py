@@ -57,11 +57,11 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn('<details class="card card--context workspace-card"', page)
         self.assertIn('.workspace-card>summary::before{color:var(--category-color);content:"▸ ";display:inline-block;font-size:24px;line-height:1;padding-right:8px;vertical-align:-2px}', page)
         self.assertIn(
-            ':where(.workspace-card,#rateLimits,.last-execution-group,#componentLogs,#codexChat,#engineering-dashboard-content>.technical-details:not(#componentLogs),#currentRun,.telemetry,.platform-health)>summary{padding-right:40px;position:relative}',
+            ':where(.workspace-card,#queueItems,#rateLimits,.last-execution-group,#componentLogs,#codexChat,#engineering-dashboard-content>.technical-details:not(#componentLogs),#currentRun,.telemetry,.platform-health)>summary{padding-right:40px;position:relative}',
             page,
         )
         self.assertIn(
-            ':where(.workspace-card,#rateLimits,.last-execution-group,#componentLogs,#codexChat,#engineering-dashboard-content>.technical-details:not(#componentLogs),#currentRun,.telemetry,.platform-health)>summary::before{margin:0;padding-right:0;position:absolute;right:0;top:0}',
+            ':where(.workspace-card,#queueItems,#rateLimits,.last-execution-group,#componentLogs,#codexChat,#engineering-dashboard-content>.technical-details:not(#componentLogs),#currentRun,.telemetry,.platform-health)>summary::before{margin:0;padding-right:0;position:absolute;right:0;top:0}',
             page,
         )
         self.assertIn("<strong>Workspace</strong>", page)
@@ -121,12 +121,23 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertNotIn('fetch("/api/status")', page)
         self.assertIn('id="indicator"', page)
         self.assertIn('id="predecessorGate" hidden', page)
-        self.assertIn('id="queueItems" data-testid="engineering-inbox-queue"', page)
+        self.assertIn(
+            '<details class="inbox-queue" id="queueItems" data-testid="engineering-inbox-queue">',
+            page,
+        )
+        self.assertIn('<summary><strong>Inbox-wachtrij</strong></summary>', page)
+        self.assertIn(
+            'Prompts in uitvoervolgorde: oudste eerst. Ook een lege wachtrij blijft zichtbaar.',
+            page,
+        )
+        self.assertIn('.inbox-queue{--category-color:#818cf8', page)
+        self.assertIn('.inbox-queue[open]>summary::before{content:"▾ "}', page)
         self.assertIn('id="queueList"', page)
         self.assertIn('id="queueSummary"', page)
         self.assertIn("0 prompts in de wachtrij.", page)
         self.assertIn("in uitvoervolgorde: oudste eerst.", page)
         self.assertIn("function queueItems(x,queueDepth)", page)
+        self.assertIn('"queueItems","currentRun"', page)
         self.assertIn("Wachtrij geblokkeerd", page)
         self.assertIn('id="predecessorRun"', page)
         self.assertIn('id="predecessorAction"', page)
