@@ -36,6 +36,37 @@ class ComponentLoggingTest(unittest.TestCase):
             self.assertIn("[REDACTED]", record["diagnostic"])
             self.assertFalse((root / ".engineering" / "logs" / "inbox.log").exists())
 
+    def test_lifecycle_events_include_only_redacted_component_identity(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary, patch.object(
+            component_logging.subprocess,
+            "run",
+            return_value=__import__("subprocess").CompletedProcess((), 0, "abc123def456\n", ""),
+        ):
+            root = Path(temporary)
+            context = component_logging.component_lifecycle_context(
+                root,
+                version="1.2.3",
+                launchd_label="com.example.engineering",
+                launch_agent_path=Path("/Users/example/Library/LaunchAgents/com.example.engineering.plist"),
+            )
+            logger = component_logging.component_logger(root, "dashboard")
+            component_logging.log_event(
+                logger,
+                logging.INFO,
+                "component_restart_trigger_received",
+                context={**context, "target_component": "inbox_watcher", "secret": "must-not-persist"},
+            )
+            with sqlite3.connect(root / ".engineering" / "engineering.db") as connection:
+                payload = connection.execute(
+                    "SELECT payload FROM engineering_component_logs WHERE component='dashboard'"
+                ).fetchone()[0]
+            record = json.loads(payload)
+            self.assertEqual(record["application_version"], "1.2.3")
+            self.assertEqual(record["git_commit"], "abc123def456")
+            self.assertEqual(record["launchd_label"], "com.example.engineering")
+            self.assertEqual(record["target_component"], "inbox_watcher")
+            self.assertNotIn("secret", record)
+
     def test_invalid_level_fails_closed_to_info_and_uses_file_only_when_storage_fails(self) -> None:
         with tempfile.TemporaryDirectory() as temporary, patch.object(
             component_logging, "MAX_LOG_BYTES", 1

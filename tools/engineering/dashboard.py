@@ -35,8 +35,10 @@ from .component_logging import (
     clear_component_log as clear_stored_component_log,
     component_log as stored_component_log,
     component_log_version,
+    component_lifecycle_context,
     component_logger,
     log_event,
+    shutdown_signal_logging,
 )
 from .component_lock import DuplicateComponentInstanceError, single_instance
 from .codex_chat import CodexChatError, chat_model, respond as codex_chat_response
@@ -1234,7 +1236,23 @@ def handler(root: Path, logger: logging.Logger | None = None):
                     # Give the response a chance to reach the browser before the
                     # dashboard asks launchd to replace its own process.
                     Timer(0.25, _restart_component_after_response, args=(component, logger)).start()
-                    log_event(logger, logging.INFO, "component_restart_requested", diagnostic=component)
+                    log_event(
+                        logger,
+                        logging.INFO,
+                        "component_restart_trigger_received",
+                        diagnostic=f"target={component}",
+                        context={
+                            **component_lifecycle_context(
+                                root,
+                                version=DASHBOARD_VERSION,
+                                launchd_label=LABEL,
+                                launch_agent_path=Path.home()
+                                / "Library/LaunchAgents"
+                                / f"{LABEL}.plist",
+                            ),
+                            "target_component": component,
+                        },
+                    )
                 except ValueError as error:
                     self._send(
                         json.dumps({"error": str(error)}, ensure_ascii=False).encode(),
@@ -1529,23 +1547,39 @@ def run(root: Path, port: int = 8765, provider: TailscaleProvider | None = None)
     """Serve the read-only dashboard on loopback; the relay handles Tailnet ingress."""
     provision_workspace(root)
     logger = component_logger(root, "dashboard")
+    lifecycle_context = component_lifecycle_context(
+        root,
+        version=DASHBOARD_VERSION,
+        launchd_label=LABEL,
+        launch_agent_path=Path.home() / "Library/LaunchAgents" / f"{LABEL}.plist",
+    )
     try:
         with single_instance(root, "dashboard"):
-            try:
-                servers = create_servers(root, port, provider, logger)
-            except OSError as error:
-                log_event(logger, logging.ERROR, "dashboard_start_failed", diagnostic=str(error))
-                raise
-            log_event(
-                logger,
-                logging.INFO,
-                "dashboard_started",
-                diagnostic="addresses=" + ",".join(address for address, _ in (server.server_address for server in servers)),
-            )
-            try:
-                servers[0].serve_forever()
-            finally:
-                log_event(logger, logging.INFO, "dashboard_stopped")
+            with shutdown_signal_logging(logger, lifecycle_context):
+                try:
+                    servers = create_servers(root, port, provider, logger)
+                except OSError as error:
+                    log_event(logger, logging.ERROR, "dashboard_start_failed", diagnostic=str(error))
+                    raise
+                log_event(
+                    logger,
+                    logging.INFO,
+                    "dashboard_started",
+                    diagnostic="addresses="
+                    + ",".join(address for address, _ in (server.server_address for server in servers)),
+                    context=lifecycle_context,
+                )
+                try:
+                    servers[0].serve_forever()
+                finally:
+                    log_event(
+                        logger,
+                        logging.INFO,
+                        "dashboard_shutdown_completed",
+                        context=lifecycle_context,
+                    )
+    except KeyboardInterrupt:
+        return
     except DuplicateComponentInstanceError as error:
         log_event(logger, logging.ERROR, "duplicate_dashboard_refused", diagnostic=str(error))
         raise

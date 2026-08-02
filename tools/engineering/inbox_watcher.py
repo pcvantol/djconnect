@@ -28,8 +28,10 @@ from .component_logging import (
     DEFAULT_LOG_LEVEL,
     LOG_LEVEL_ENVIRONMENT,
     VALID_LEVELS,
+    component_lifecycle_context,
     component_logger,
     log_event,
+    shutdown_signal_logging,
 )
 from .component_lock import DuplicateComponentInstanceError, single_instance
 from .telemetry import ExecutionTelemetry, persist_execution_async
@@ -771,20 +773,37 @@ def main(argv: list[str] | None = None) -> int:
         return once(repo, root, 0.0)
     if args.command == "run":
         logger = component_logger(repo, "inbox")
+        lifecycle_context = component_lifecycle_context(
+            repo,
+            version=WATCHER_VERSION,
+            launchd_label=LABEL,
+            launch_agent_path=Path.home() / "Library/LaunchAgents" / f"{LABEL}.plist",
+        )
         try:
             with single_instance(repo, "inbox-watcher"):
-                log_event(logger, logging.INFO, "watcher_started")
-                while True:
+                with shutdown_signal_logging(logger, lifecycle_context):
+                    log_event(logger, logging.INFO, "watcher_started", context=lifecycle_context)
                     try:
-                        once(repo, root, 1.0)
-                    except RuntimeError as error:
-                        status(
-                            repo,
-                            "WAITING_FOR_REPOSITORY",
-                            diagnostic="Een andere watcher beheert de lokale Inbox-vergrendeling.",
+                        while True:
+                            try:
+                                once(repo, root, 1.0)
+                            except RuntimeError as error:
+                                status(
+                                    repo,
+                                    "WAITING_FOR_REPOSITORY",
+                                    diagnostic="Een andere watcher beheert de lokale Inbox-vergrendeling.",
+                                )
+                                log_event(logger, logging.ERROR, "watcher_cycle_failed", diagnostic=str(error))
+                            time.sleep(max(5, args.interval))
+                    finally:
+                        log_event(
+                            logger,
+                            logging.INFO,
+                            "watcher_shutdown_completed",
+                            context=lifecycle_context,
                         )
-                        log_event(logger, logging.ERROR, "watcher_cycle_failed", diagnostic=str(error))
-                    time.sleep(max(5, args.interval))
+        except KeyboardInterrupt:
+            return 0
         except DuplicateComponentInstanceError as error:
             log_event(logger, logging.ERROR, "duplicate_watcher_refused", diagnostic=str(error))
             return 1

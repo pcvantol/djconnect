@@ -2,13 +2,17 @@
 
 from __future__ import annotations
 
+from contextlib import contextmanager
 from datetime import datetime, timezone
 import json
 import logging
 from logging.handlers import RotatingFileHandler
 import os
 from pathlib import Path
+import signal
 import sqlite3
+import subprocess
+from collections.abc import Iterator, Mapping
 
 from .agent_state import redact_diagnostic
 from .storage import EngineeringStorageError, open_storage
@@ -18,6 +22,16 @@ DEFAULT_LOG_LEVEL = "INFO"
 MAX_LOG_BYTES = 1_000_000
 BACKUP_COUNT = 3
 VALID_LEVELS = frozenset({"DEBUG", "INFO", "WARNING", "ERROR"})
+LIFECYCLE_CONTEXT_KEYS = frozenset(
+    {
+        "application_version",
+        "git_commit",
+        "launchd_label",
+        "launch_agent_path",
+        "target_component",
+        "shutdown_signal",
+    }
+)
 
 
 def configured_level(value: str | None = None) -> int:
@@ -49,6 +63,11 @@ class RedactingJsonFormatter(logging.Formatter):
         diagnostic = getattr(record, "diagnostic", None)
         if diagnostic is not None:
             payload["diagnostic"] = redact_diagnostic(str(diagnostic), limit=500)
+        context = getattr(record, "context", {})
+        if isinstance(context, Mapping):
+            for key in sorted(LIFECYCLE_CONTEXT_KEYS):
+                if (value := context.get(key)) is not None:
+                    payload[key] = redact_diagnostic(str(value), limit=500)
         return json.dumps(payload, separators=(",", ":"), sort_keys=True)
 
 
@@ -195,6 +214,7 @@ def log_event(
     *,
     run_id: str | None = None,
     diagnostic: str | None = None,
+    context: Mapping[str, object] | None = None,
 ) -> None:
     """Write one redacted, structured event without exposing arbitrary extras."""
     logger.log(
@@ -204,5 +224,61 @@ def log_event(
             "component": logger.name.rsplit(".", 1)[-1],
             "run_id": run_id or "",
             "diagnostic": diagnostic,
+            "context": dict(context or {}),
         },
     )
+
+
+def component_lifecycle_context(
+    root: Path,
+    *,
+    version: str,
+    launchd_label: str,
+    launch_agent_path: Path,
+) -> dict[str, str]:
+    """Return bounded, non-secret identity data for a component lifecycle event."""
+    try:
+        result = subprocess.run(
+            ("git", "-C", str(root.resolve()), "rev-parse", "--short=12", "HEAD"),
+            text=True,
+            capture_output=True,
+            check=False,
+            timeout=2,
+        )
+        commit = result.stdout.strip() if result.returncode == 0 else "onbekend"
+    except (OSError, subprocess.SubprocessError):
+        commit = "onbekend"
+    return {
+        "application_version": version,
+        "git_commit": commit or "onbekend",
+        "launchd_label": launchd_label,
+        "launch_agent_path": str(launch_agent_path),
+    }
+
+
+@contextmanager
+def shutdown_signal_logging(
+    logger: logging.Logger,
+    context: Mapping[str, object],
+) -> Iterator[None]:
+    """Log a managed shutdown request before ending the local service loop."""
+    previous_handlers: dict[int, signal.Handlers] = {}
+
+    def request_shutdown(signum: int, _frame: object) -> None:
+        signal_name = signal.Signals(signum).name
+        log_event(
+            logger,
+            logging.INFO,
+            "component_shutdown_trigger_received",
+            context={**context, "shutdown_signal": signal_name},
+        )
+        raise KeyboardInterrupt
+
+    for current_signal in (signal.SIGINT, signal.SIGTERM):
+        previous_handlers[current_signal] = signal.getsignal(current_signal)
+        signal.signal(current_signal, request_shutdown)
+    try:
+        yield
+    finally:
+        for current_signal, previous in previous_handlers.items():
+            signal.signal(current_signal, previous)
