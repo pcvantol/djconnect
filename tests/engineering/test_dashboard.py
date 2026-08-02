@@ -68,7 +68,12 @@ class DashboardStatusTest(unittest.TestCase):
         with patch("tools.engineering.dashboard.subprocess.run", side_effect=OSError):
             self.assertEqual(dashboard._component_processes("dashboard"), [])
         with patch("tools.engineering.dashboard.subprocess.run") as run:
-            run.return_value = __import__("subprocess").CompletedProcess(("ps",), 0, "bad\n1 x 3 dashboard.py\n2 4 5 dashboard.py\n", "")
+            run.return_value = __import__("subprocess").CompletedProcess(
+                ("ps",),
+                0,
+                "bad\n1 x 3 dashboard.py\n2 4 5 python -m tools.engineering.dashboard run\n",
+                "",
+            )
             self.assertEqual(
                 dashboard._component_processes("dashboard"),
                 [{"pid": 2, "memory_kib": 4, "uptime_seconds": 5}],

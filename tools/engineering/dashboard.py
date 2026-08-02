@@ -484,7 +484,7 @@ def _launch_agent_details(label: str) -> dict[str, object]:
 def _component_processes(component: str) -> list[dict[str, int | str]]:
     """Return bounded process evidence for a known local component only."""
     patterns = {
-        "dashboard": ("dashboard.py",),
+        "dashboard": ("tools.engineering.dashboard", "dashboard.py"),
         "inbox_watcher": ("inbox_watcher",),
         "dashboard_relay": ("dashboard_supervisor",),
     }.get(component, ())
