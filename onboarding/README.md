@@ -6,7 +6,7 @@ contract tests and package documentation.
 
 ## Release alignment
 
-The current onboarding package is released as `4.4.0`, aligned with the current
+The current onboarding package is released as `4.5.0`, aligned with the current
 DJConnect platform release for operator clarity. This is version alignment only:
 the package remains independently versioned, does not consume platform release
 artifacts, and does not require a matching platform version to run or verify.
@@ -40,6 +40,16 @@ status, reports, logs and terminal archive live locally under `.engineering/`:
 - `.engineering/engineering.db` holds redacted component logs and other
   versioned local Engineering evidence. `.engineering/logs/` is only a private
   fallback for early startup or crash logging when SQLite is unavailable.
+
+The installed Inbox watcher and dashboard record bounded lifecycle `INFO`
+events for startup, received shutdown signals and orderly shutdown. A confirmed
+dashboard restart records the fixed component requested before the owned
+LaunchAgent is kickstarted. Each lifecycle event contains only component
+version, short build commit and fixed LaunchAgent identity; it never includes
+prompt content, secrets, account data or a browser-supplied command. Inspect
+these records through **Engineering Status → Logs**. If SQLite is unavailable
+during early startup, use the corresponding owned LaunchAgent output stream as
+the fallback diagnostic source, then run the documented `doctor` command.
 
 Each completed Engineering Report also records the execution provenance for
 that exact run: Runtime Provider, reported AI Model, reported Reasoning and
@@ -208,7 +218,7 @@ Developer readiness remains read-only. Run:
 It reports `storage.<repository>.ignored_build_output` for each checked-out
 repository, verifies the 14-day retention result, confirms that the LaunchAgent
 is loaded, and requires the canonical `djconnect/onboarding/manifest.yml`
-package version to be `4.4.0`. It does not delete files or change the host.
+package version to be `4.5.0`. It does not delete files or change the host.
 
 The same verification is fail-closed for Engineering Platform readiness. It
 requires the declared platform version, the canonical Inbox watcher and

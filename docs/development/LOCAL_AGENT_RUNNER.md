@@ -130,6 +130,15 @@ The watcher and dashboard write private, structured application events to
 a UTC timestamp, severity, component and, where applicable, run ID. Event and
 diagnostic text are redacted and bounded before persistence.
 
+Both owned long-lived components publish lifecycle `INFO` events: startup,
+received shutdown signal, and completed orderly shutdown. The dashboard also
+records an explicit restart request before it kickstarts one of the three fixed
+owned LaunchAgents. Lifecycle records carry the component version, short build
+commit, fixed LaunchAgent label and plist location. They never carry prompt
+content, credentials, browser input, arbitrary commands or executable paths.
+These records are audit diagnostics only: a lifecycle record neither changes a
+run checkpoint nor authorizes runner, Inbox, repository or release work.
+
 In Engineering Status, open **Logs** to inspect a bounded, live view of these
 redacted records. Each table keeps its own sort order and shows 50 matching
 records per page; filters apply across all loaded records before pagination.
@@ -153,6 +162,13 @@ Set `DJCONNECT_ENGINEERING_LOG_LEVEL` to `DEBUG`, `INFO`, `WARNING` or `ERROR`
 before installing a watcher or dashboard LaunchAgent; the selected value is
 stored in its LaunchAgent environment. The default is `INFO`; an invalid value
 fails closed to `INFO`. Reinstall the relevant LaunchAgent after changing it.
+
+When a component does not start or terminate cleanly, inspect **Logs** in the
+private dashboard first. If that is unavailable, inspect the owned LaunchAgent
+`*.out.log` and `*.err.log` streams, then run the appropriate `doctor` command.
+Do not manually edit the SQLite database or invoke `launchctl` with an arbitrary
+label; use the repository-owned install, doctor and explicitly confirmed
+dashboard restart paths.
 
 ## Remote Engineering Experience
 

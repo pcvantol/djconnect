@@ -1,13 +1,15 @@
 from __future__ import annotations
 
-from pathlib import Path
+from contextlib import nullcontext
+import json
+import logging
 import os
+from pathlib import Path
 import subprocess
 import tempfile
 import time
 import unittest
 from unittest.mock import patch
-import json
 
 from tools.engineering import inbox_watcher
 from tools.engineering.telemetry import wait_for_pending_telemetry
@@ -34,6 +36,36 @@ class InboxWatcherTest(unittest.TestCase):
             inbox_watcher._runner_failure_detail(completed),
             "BLOCKED: working tree is not clean",
         )
+
+    def test_watcher_run_logs_lifecycle_identity_on_orderly_shutdown(self) -> None:
+        lifecycle_context = {
+            "application_version": inbox_watcher.WATCHER_VERSION,
+            "git_commit": "abc123def456",
+            "launchd_label": inbox_watcher.LABEL,
+            "launch_agent_path": "/tmp/inbox.plist",
+        }
+        with (
+            patch("tools.engineering.inbox_watcher.provision_workspace"),
+            patch("tools.engineering.inbox_watcher.cloud_root", return_value=self.root),
+            patch(
+                "tools.engineering.inbox_watcher.component_logger",
+                return_value=logging.getLogger("test"),
+            ) as logger,
+            patch("tools.engineering.inbox_watcher.component_lifecycle_context", return_value=lifecycle_context),
+            patch("tools.engineering.inbox_watcher.shutdown_signal_logging", return_value=nullcontext()),
+            patch("tools.engineering.inbox_watcher.single_instance", return_value=nullcontext()),
+            patch("tools.engineering.inbox_watcher.time.sleep", side_effect=KeyboardInterrupt),
+            patch("tools.engineering.inbox_watcher.log_event") as log_event,
+        ):
+            self.assertEqual(
+                inbox_watcher.main(["run", "--repo", str(self.repo), "--icloud-root", str(self.root)]),
+                0,
+            )
+
+        self.assertEqual(logger.call_args_list[0].args, (self.repo.resolve(), "inbox"))
+        self.assertEqual(log_event.call_args_list[0].args[2], "watcher_started")
+        self.assertEqual(log_event.call_args_list[-1].args[2], "watcher_shutdown_completed")
+        self.assertEqual(log_event.call_args_list[-1].kwargs["context"], lifecycle_context)
 
     def test_launch_agent_uses_a_shell_exec_launcher_for_the_selected_runtime(self) -> None:
         with patch("tools.engineering.inbox_watcher.Path.home", return_value=Path(self.temp.name)):

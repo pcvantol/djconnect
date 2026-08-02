@@ -74,6 +74,23 @@ report their locally observed uptime. Storage and private external access have
 no process-owned uptime metric, so the dashboard intentionally does not invent
 one for them.
 
+## Component lifecycle audit trail
+
+The owned dashboard and Inbox watcher write an `INFO` lifecycle record when
+they start and when their orderly shutdown completes. Each record carries only
+bounded component identity: component version, short repository build commit,
+fixed LaunchAgent label and LaunchAgent plist path. A dashboard-initiated
+component restart also records the requested fixed component name before the
+owned `launchctl kickstart -k` call is made. Signal receipt is recorded before
+the normal shutdown record when macOS asks an owned component to stop.
+
+This audit trail is operational evidence, not repository truth. It is stored
+through the same redacted SQLite logging contract as other component events.
+It never includes prompt bodies, credentials, account data, arbitrary commands
+or browser-supplied executable paths. The process-level LaunchAgent output
+streams remain the fallback source for failures that occur before the SQLite
+logging layer is available.
+
 ## Component health endpoint
 
 `GET /health` returns JSON for unattended checks. It is healthy only when the
@@ -118,11 +135,12 @@ context, technical details and the advisory conversation. A colour never
 changes lifecycle meaning; the prompt status indicator remains the authoritative
 visual outcome.
 
-The **Applicatielogs** section automatically keeps the redacted JSON records
-current through server-push revisions and parses them locally into selectable,
-copyable tables. Search and level filtering are client-side. Clicking a column
-heading sorts that table and shows the active ascending or descending direction;
-the subtle line number is not a server-side log identifier.
+The **Logs** section automatically keeps the redacted JSON records current
+through server-push revisions and parses them locally into selectable, copyable
+tables. Search and level filtering are client-side. Clicking a column heading
+sorts that table and shows the active ascending or descending direction; the
+subtle line number is not a server-side log identifier. Startup, restart and
+orderly-shutdown lifecycle events are visible there as `INFO` records.
 
 ## Codex resetcredit
 
