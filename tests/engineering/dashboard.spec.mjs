@@ -344,6 +344,9 @@ test.describe("Engineering Status browser smoke", () => {
       renderChatHistory();
     });
     await expect(page.locator("#downloadChat")).not.toHaveAttribute("hidden", "");
+    await expect(page.locator("#downloadChat")).toHaveText("⇩");
+    expect(await page.locator("#downloadChat").evaluate((element) => getComputedStyle(element).borderRadius)).toBe("50%");
+    expect(await page.locator("#downloadChat").evaluate((element) => getComputedStyle(element, "::before").content)).toContain("↓");
     expect(await page.evaluate(() => chatHistoryMarkdown())).toContain("## Jij\n\nWat zijn de volgende stappen?");
   });
 
