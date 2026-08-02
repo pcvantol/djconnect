@@ -381,9 +381,12 @@ test.describe("Engineering Status browser smoke", () => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.locator("#autoRefresh").uncheck();
     await page.evaluate(() => rateLimits({
+      provider: "Codex CLI",
+      provider_version: "0.146.0",
       windows: [{ label: "Weekvenster", used_percent: 24, resets_at: 0 }],
       reset_credits: 2,
     }));
+    await expect(page.locator("#rateLimitProvider")).toHaveText("Codex CLI · 0.146.0");
     await expect(page.locator("#rateLimitDetails")).toHaveText(/Weekvenster: 76% beschikbaar.*Beschikbare resets: 2/s);
     expect(await page.locator("#rateLimitDetails").evaluate((element) => element.textContent)).toContain("\n");
   });

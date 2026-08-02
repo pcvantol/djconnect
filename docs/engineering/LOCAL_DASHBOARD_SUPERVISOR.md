@@ -134,6 +134,10 @@ credit is available. This is the dashboard's sole account-side effect: it
 cannot access the Inbox, alter repository files, start a runner, create a pull
 request, merge, release or deploy.
 
+Above the quota values, the category identifies the active AI provider and the
+locally detected CLI version. This identity is cached briefly, excludes paths
+and account data, and remains visible even when quota retrieval is unavailable.
+
 The active and last execution cards use provider-neutral wording. The last
 execution card reads the exact report-bound runtime provenance for that run:
 **Runtime Provider**, **AI Model**, any reported **Reasoning Profile** and

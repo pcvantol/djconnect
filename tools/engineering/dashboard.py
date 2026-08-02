@@ -46,7 +46,7 @@ from . import dashboard_state
 
 LABEL = "com.djconnect.engineering-dashboard"
 RELAY_LABEL = "com.djconnect.engineering-dashboard-relay"
-DASHBOARD_VERSION = "1.2.84"
+DASHBOARD_VERSION = "1.2.85"
 DASHBOARD_STARTED_AT = time.monotonic()
 ASSET_DIRECTORY = Path(__file__).with_name("assets")
 APP_ICON_SVG = "engineering-status-icon.svg"
@@ -56,6 +56,9 @@ CODEX_PROCESS = re.compile(r"(?:^|\s)(?:\S*/)?codex(?:\s|$)")
 RATE_LIMIT_CACHE_SECONDS = 60
 _rate_limit_cache_lock = Lock()
 _rate_limit_cache: tuple[float, bytes] | None = None
+CODEX_IDENTITY_CACHE_SECONDS = 300
+_codex_identity_cache_lock = Lock()
+_codex_identity_cache: tuple[float, dict[str, str]] | None = None
 
 COMPONENT_LABELS = {
     "dashboard": LABEL,
@@ -178,6 +181,39 @@ def _normalize_rate_limits(payload: object) -> dict[str, object]:
     return normalized if windows or "reset_credits" in normalized else {}
 
 
+def _codex_provider_identity() -> dict[str, str]:
+    """Return the active provider identity without exposing local paths or account data."""
+    global _codex_identity_cache
+    now = time.monotonic()
+    with _codex_identity_cache_lock:
+        if _codex_identity_cache and now - _codex_identity_cache[0] < CODEX_IDENTITY_CACHE_SECONDS:
+            return dict(_codex_identity_cache[1])
+
+    identity = {"provider": "Codex CLI", "provider_version": "versie niet beschikbaar"}
+    executable = shutil.which("codex")
+    if executable:
+        try:
+            completed = subprocess.run(
+                (executable, "--version"),
+                text=True,
+                capture_output=True,
+                check=False,
+                timeout=3,
+            )
+        except (OSError, subprocess.TimeoutExpired):
+            completed = None
+        if completed and completed.returncode == 0:
+            match = re.search(
+                r"(?<!\d)(\d+\.\d+\.\d+)(?!\d)",
+                (completed.stdout or completed.stderr).strip(),
+            )
+            if match:
+                identity["provider_version"] = match.group(1)
+    with _codex_identity_cache_lock:
+        _codex_identity_cache = (now, identity)
+    return dict(identity)
+
+
 def _codex_rate_limits() -> bytes:
     """Read current Codex quota windows without persisting account or credit data."""
     global _rate_limit_cache
@@ -185,6 +221,7 @@ def _codex_rate_limits() -> bytes:
     with _rate_limit_cache_lock:
         if _rate_limit_cache and now - _rate_limit_cache[0] < RATE_LIMIT_CACHE_SECONDS:
             return _rate_limit_cache[1]
+    identity = _codex_provider_identity()
     process: subprocess.Popen[str] | None = None
     try:
         process = subprocess.Popen(
@@ -196,7 +233,7 @@ def _codex_rate_limits() -> bytes:
             bufsize=1,
         )
         if process.stdin is None or process.stdout is None:
-            return b"{}"
+            return json.dumps(identity, separators=(",", ":")).encode()
         process.stdin.write(
             json.dumps(
                 {
@@ -233,13 +270,13 @@ def _codex_rate_limits() -> bytes:
                 process.stdin.flush()
                 requested = True
             elif response.get("id") == 2:
-                result = _normalize_rate_limits(response.get("result"))
+                result = {**identity, **_normalize_rate_limits(response.get("result"))}
                 encoded = json.dumps(result, separators=(",", ":")).encode()
                 with _rate_limit_cache_lock:
                     _rate_limit_cache = (time.monotonic(), encoded)
                 return encoded
     except (OSError, ValueError, json.JSONDecodeError):
-        return b"{}"
+        return json.dumps(identity, separators=(",", ":")).encode()
     finally:
         if process is not None:
             process.terminate()
@@ -251,7 +288,7 @@ def _codex_rate_limits() -> bytes:
             for stream in (process.stdin, process.stdout):
                 if stream is not None:
                     stream.close()
-    return b"{}"
+    return json.dumps(identity, separators=(",", ":")).encode()
 
 
 class RateLimitResetError(RuntimeError):
@@ -963,7 +1000,7 @@ html[data-theme="light"] body{background:#f4f7fb;color:#182230}html[data-theme="
 <div class="card" id="usage" hidden><strong>Codex CLI-gebruik</strong><div class="field"><span class="label">Gerapporteerd verbruik</span><pre id="usageDetails"></pre></div></div>
 <div class="card" id="currentDiagnostic" hidden><strong>Codex CLI-diagnose</strong><pre id="currentLog">Laden…</pre></div>
 </div></details>
-<details class="card card--resource" id="rateLimits" hidden><summary><strong>Resterend gebruik</strong></summary><div class="field"><span class="label">Codex-gebruikslimieten</span><pre id="rateLimitDetails"></pre></div><button class="rate-limit-reset" id="rateLimitReset" type="button" hidden>Gebruik reset</button><p class="rate-limit-reset-status" id="rateLimitResetStatus" role="status" aria-live="polite"></p></details>
+<details class="card card--resource" id="rateLimits" hidden><summary><strong>Resterend gebruik</strong></summary><div class="field"><span class="label">Huidige AI-provider</span><span id="rateLimitProvider">Laden…</span></div><div class="field"><span class="label" id="rateLimitLabel">Codex-gebruikslimieten</span><pre id="rateLimitDetails"></pre></div><button class="rate-limit-reset" id="rateLimitReset" type="button" hidden>Gebruik reset</button><p class="rate-limit-reset-status" id="rateLimitResetStatus" role="status" aria-live="polite"></p></details>
 <section class="prompt-runs" id="promptRuns" aria-label="Promptuitvoeringen" hidden><div class="prompt-runs__cards">
 <div class="last-execution last-execution-group" id="lastExecutionGroup" data-testid="last-executed-prompt-category"><article class="card card--previous last-execution-card" id="lastExecution" hidden><div class="final-status"><span id="lastIndicator" class="indicator indicator--small" aria-hidden="true"></span><span class="label">Prompt status</span><span id="lastFinalStatus"></span></div><p class="field"><span class="label">Prompttitel</span><span id="lastPrompt"></span></p><div class="field"><span class="label">Aangeleverd als</span><pre id="lastFile"></pre></div><div class="field" id="lastRuntimeProvider" hidden><span class="label">Runtimeprovider</span><span id="lastRuntimeProviderValue"></span></div><div class="field" id="lastModel" hidden><span class="label">Gebruikt model</span><span id="lastModelValue"></span></div><div class="field" id="lastReasoningProfile" hidden><span class="label">Reasoning-profiel</span><span id="lastReasoningProfileValue"></span></div><div class="field" id="lastConfigurationProfile" hidden><span class="label">Configuratieprofiel</span><span id="lastConfigurationProfileValue"></span></div><div class="field" id="lastCodexCliVersion" hidden><span class="label">Codex CLI-versie</span><span id="lastCodexCliVersionValue"></span></div><div class="field" id="lastCommits" hidden><span class="label">Git-commit</span><pre id="lastCommitDetails"></pre></div><div class="field" id="lastUsage" hidden><span class="label">Codex CLI-gebruik</span><pre id="lastUsageDetails"></pre></div><div class="field" id="lastDiagnostic" hidden><span class="label">Codex CLI-diagnose</span><pre id="lastLog">Laden…</pre></div></article><section class="card card--previous reviewer-agents" id="reviewerAgents" hidden><strong>Specialistische agentreviews</strong><p class="estimate-meta">Alleen-lezende, onafhankelijke beoordelingen. De primaire agent behield uitvoerings- en lifecycleverantwoordelijkheid.</p><div class="reviewer-agents__list" id="reviewerAgentList"></div></section><div class="card card--previous" id="commits" hidden><strong>Voltooiingscommits</strong><div class="field"><span class="label">Vastgelegd bewijs</span><pre id="completionCommits"></pre></div></div><details class="card card--previous" id="report" hidden><summary><strong>Engineeringrapport</strong></summary><button class="copy" id="copyReport" type="button" title="Kopieer rapport" aria-label="Kopieer rapport">⧉ Kopieer</button><div id="reportContent" class="markdown-document">Open dit blok om het rapport te laden.</div></details><details class="card card--previous" id="reportAnalysis" hidden><summary><strong>AI-analyse van rapport</strong></summary><div id="reportAnalysisContent" class="markdown-document">Open dit blok om de analyse te laden.</div></details></div>
 </div></section>
@@ -998,7 +1035,7 @@ function checkBuild(build){if(build===DASHBOARD_BUILD){sessionStorage.removeItem
 function clock(){let now=Date.now();$("currentTime").textContent=formatTime.format(new Date(now));$("lastRefresh").textContent="Laatst bijgewerkt: "+(lastRefresh?formatTime.format(lastRefresh):"laden…")}
 function l(id,url,run,last,container){if(run===(last?lastLogRun:currentLogRun))return;if(last)lastLogRun=run;else currentLogRun=run;$(id).textContent="Diagnose laden…";fetch(url).then(x=>x.text()).then(x=>{const available=Boolean(x)&&!x.startsWith("No Codex CLI diagnostic is available")&&!x.startsWith("Geen Codex CLI-diagnose beschikbaar");$(container).hidden=false;$(id).textContent=available?x:(last?"Er is geen AI-uitvoeringsdiagnose beschikbaar voor deze uitgevoerde prompt.":"Er is geen AI-uitvoeringsdiagnose beschikbaar voor deze actieve prompt.")}).catch(()=>{$(container).hidden=false;$(id).textContent=last?"Er is geen AI-uitvoeringsdiagnose beschikbaar voor deze uitgevoerde prompt.":"AI-uitvoeringsdiagnose is niet beschikbaar voor deze actieve prompt."})}
 function usage(x){const labels={input_tokens:"Invoertokens",cached_input_tokens:"Gecachete invoertokens",output_tokens:"Uitvoertokens",total_tokens:"Totaal tokens",cost:"Kosten",remaining:"Resterend beschikbaar",plan_remaining:"Resterend in plan",usage:"Gebruik"};let entries=Object.entries(x||{});$("usage").hidden=!entries.length;$("usageDetails").textContent=entries.map(([key,value])=>(labels[key]||key.replaceAll("_"," "))+": "+value).join(String.fromCharCode(10))}
-function rateLimits(x){const windows=Array.isArray(x?.windows)?x.windows:[],credits=Number.isInteger(x?.reset_credits)?x.reset_credits:null,button=$("rateLimitReset");$("rateLimits").hidden=!windows.length&&credits===null;let lines=windows.map(window=>{const remaining=Math.max(0,100-Number(window.used_percent||0)),reset=Number(window.resets_at);return window.label+": "+remaining+"% beschikbaar · reset "+(Number.isFinite(reset)?formatTime.format(new Date(reset*1000)):"onbekend")});if(credits!==null)lines.push("Beschikbare resets: "+credits);$("rateLimitDetails").textContent=lines.join(String.fromCharCode(10));button.hidden=!(credits>0);button.disabled=false}
+function rateLimits(x){const windows=Array.isArray(x?.windows)?x.windows:[],credits=Number.isInteger(x?.reset_credits)?x.reset_credits:null,provider=typeof x?.provider==="string"?x.provider:"Niet beschikbaar",version=typeof x?.provider_version==="string"?x.provider_version:"versie niet beschikbaar",button=$("rateLimitReset");$("rateLimits").hidden=!windows.length&&credits===null&&provider==="Niet beschikbaar";$("rateLimitProvider").textContent=provider+" · "+version;let lines=windows.map(window=>{const remaining=Math.max(0,100-Number(window.used_percent||0)),reset=Number(window.resets_at);return window.label+": "+remaining+"% beschikbaar · reset "+(Number.isFinite(reset)?formatTime.format(new Date(reset*1000)):"onbekend")});if(credits!==null)lines.push("Beschikbare resets: "+credits);$("rateLimitDetails").textContent=lines.join(String.fromCharCode(10));button.hidden=!(credits>0);button.disabled=false}
 function consumeRateLimitReset(){const button=$("rateLimitReset"),status=$("rateLimitResetStatus");if(button.hidden||button.disabled)return;if(!window.confirm("Gebruik één beschikbare Codex-reset? Deze actie verbruikt een resetcredit."))return;button.disabled=true;status.textContent="Reset gebruiken…";fetch("/api/rate-limit-reset",{method:"POST",headers:{"Content-Type":"application/json"},body:"{}"}).then(async response=>({ok:response.ok,body:await response.json()})).then(result=>{if(!result.ok)throw Error(result.body.error||"Reset kon niet worden uitgevoerd.");const messages={reset:"Reset gebruikt. De gebruikslimieten zijn bijgewerkt.",nothingToReset:"Er is op dit moment niets om te resetten.",noCredit:"Er is geen resetcredit beschikbaar.",alreadyRedeemed:"Deze resetcredit is al gebruikt."};status.textContent=messages[result.body.outcome]||"Reset verwerkt.";if(result.body.rate_limits)rateLimits(result.body.rate_limits)}).catch(error=>{status.textContent=error.message}).finally(()=>{button.disabled=false})}
 function lastUsage(x){const labels={input_tokens:"Invoertokens",cached_input_tokens:"Gecachete invoertokens",output_tokens:"Uitvoertokens",total_tokens:"Totaal tokens",cost:"Kosten",remaining:"Resterend beschikbaar",plan_remaining:"Resterend in plan",usage:"Gebruik"};let entries=Object.entries(x||{});$("lastUsage").hidden=!entries.length;$("lastUsageDetails").textContent=entries.map(([key,value])=>(labels[key]||key.replaceAll("_"," "))+": "+value).join(String.fromCharCode(10))}
 function lastRuntimeMetadata(metadata){const fields=[["runtime_provider","lastRuntimeProvider","lastRuntimeProviderValue"],["model","lastModel","lastModelValue"],["reasoning_profile","lastReasoningProfile","lastReasoningProfileValue"],["configuration_profile","lastConfigurationProfile","lastConfigurationProfileValue"],["codex_cli_version","lastCodexCliVersion","lastCodexCliVersionValue"]];for(const [key,fieldId,valueId] of fields){const value=metadata&&typeof metadata[key]==="string"&&metadata[key]!=="not reported"?metadata[key]:"";$(fieldId).hidden=!value;$(valueId).textContent=value}}
@@ -1057,6 +1094,7 @@ const DASHBOARD_CLIENT_STATE_KEY="engineering-dashboard-client-state-v1";functio
 function chatHistoryMarkdown(){const entries=chatHistory.map(entry=>"## "+(entry.role==="user"?"Jij":"AI-assistent")+"\n\n"+entry.text.trim()).filter(Boolean);return["# AI-gesprek","","Model: "+$("chatModel").textContent.trim(),"",...entries].join("\n\n")}function updateChatDownloadAvailability(){const button=$("downloadChat");if(button)button.hidden=chatHistory.length===0}function downloadChatHistory(){if(!chatHistory.length)return;const url=URL.createObjectURL(new Blob([chatHistoryMarkdown()],{type:"text/markdown;charset=utf-8"})),link=document.createElement("a");link.href=url;link.download="ai-gesprek-"+new Date().toISOString().replace(/[:.]/g,"-")+".md";link.hidden=true;document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),0)}const renderChatHistoryWithDownload=renderChatHistory;renderChatHistory=()=>{renderChatHistoryWithDownload();updateChatDownloadAvailability()};const chatMessageWithDownload=chatMessage;chatMessage=(role,text)=>{chatMessageWithDownload(role,text);updateChatDownloadAvailability()};$("downloadChat").addEventListener("click",downloadChatHistory);updateChatDownloadAvailability();
 const promptHistoryCategory=$("promptHistory");if(promptHistoryCategory&&Object.hasOwn(dashboardClientState.details||{},"promptHistory"))promptHistoryCategory.open=Boolean(dashboardClientState.details.promptHistory);dashboardCategoryIds.splice(2,0,"promptHistory");updateAllSectionsToggle();
 const themeToggle=$("themeToggle"),themeColor=$("dashboardThemeColor");function applyDashboardTheme(theme){const light=theme==="light";document.documentElement.dataset.theme=light?"light":"dark";themeColor.content=light?"#f4f7fb":"#15151d";themeToggle.setAttribute("aria-checked",String(light));themeToggle.setAttribute("aria-label",light?"Donkere modus inschakelen":"Lichte modus inschakelen");themeToggle.title=light?"Donkere modus":"Lichte modus"}applyDashboardTheme(dashboardClientState.theme==="light"?"light":"dark");themeToggle.addEventListener("click",()=>{dashboardClientState.theme=document.documentElement.dataset.theme==="light"?"dark":"light";saveDashboardClientState();applyDashboardTheme(dashboardClientState.theme)});
+$("rateLimitProvider")?.previousElementSibling?.replaceChildren("Huidige AI-provider");
 </script>
 </body>
 </html>"""

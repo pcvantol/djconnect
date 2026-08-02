@@ -10,7 +10,7 @@ import unittest
 from unittest.mock import patch
 
 from tools.engineering import dashboard
-from tools.engineering.dashboard import DASHBOARD_VERSION, LOOPBACK_ADDRESS, _clear_component_log, _codex_process_metrics, _codex_usage, _codex_usage_for_run, _component_log, _component_log_versions, _completion_commits, _component_uptime_seconds, _current_codex_log, _dashboard_html, _last_executed_agent_execution, _last_executed_codex_log, _last_executed_commits, _last_executed_runtime_metadata, _latest_codex_log, _normalize_rate_limits, _platform_health, _prompt_history, _report_analysis_available_for_run, _report_analysis_for_run, _report_for_run, _reviewer_agents_for_run, _sse_snapshot, _sse_status, _status, _tracked_file_count, binding_addresses
+from tools.engineering.dashboard import DASHBOARD_VERSION, LOOPBACK_ADDRESS, _clear_component_log, _codex_process_metrics, _codex_provider_identity, _codex_usage, _codex_usage_for_run, _component_log, _component_log_versions, _completion_commits, _component_uptime_seconds, _current_codex_log, _dashboard_html, _last_executed_agent_execution, _last_executed_codex_log, _last_executed_commits, _last_executed_runtime_metadata, _latest_codex_log, _normalize_rate_limits, _platform_health, _prompt_history, _report_analysis_available_for_run, _report_analysis_for_run, _report_for_run, _reviewer_agents_for_run, _sse_snapshot, _sse_status, _status, _tracked_file_count, binding_addresses
 from tools.engineering.inbox_watcher import WATCHER_VERSION
 from tools.engineering.platform_version import EngineeringPlatformManifest
 from tools.engineering.storage import open_storage
@@ -434,6 +434,9 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn('.last-execution-group{row-gap:0}', page)
         self.assertIn('#engineering-dashboard-content>.technical-details:not(#componentLogs) .card,#componentLogs .card,.current-run .card,.last-execution-group .card--previous{border:1px solid var(--category-color);border-left:3px solid var(--category-color)}', page)
         self.assertIn("function rateLimits(x)", page)
+        self.assertIn('id="rateLimitProvider"', page)
+        self.assertIn("Huidige AI-provider", page)
+        self.assertIn('$("rateLimitProvider").textContent=provider+" · "+version', page)
         self.assertIn('$("rateLimitDetails").textContent=lines.join(String.fromCharCode(10))', page)
         self.assertIn("rateLimits(snapshot.rate_limits)", page)
         self.assertIn('id="rateLimitReset" type="button" hidden', page)
@@ -562,6 +565,21 @@ class DashboardStatusTest(unittest.TestCase):
             {},
         )
 
+    @patch("tools.engineering.dashboard.subprocess.run")
+    @patch("tools.engineering.dashboard.shutil.which", return_value="/usr/local/bin/codex")
+    def test_codex_provider_identity_keeps_only_the_cli_version(
+        self, _: object, run: object
+    ) -> None:
+        run.return_value = __import__("subprocess").CompletedProcess(
+            ("codex", "--version"), 0, "OpenAI Codex v0.146.0", ""
+        )
+        dashboard._codex_identity_cache = None
+        self.assertEqual(
+            _codex_provider_identity(),
+            {"provider": "Codex CLI", "provider_version": "0.146.0"},
+        )
+        dashboard._codex_identity_cache = None
+
     def test_codex_rate_limits_reads_a_deterministic_app_server_response(self) -> None:
         class RecordingInput:
             def __init__(self) -> None:
@@ -647,14 +665,20 @@ class DashboardStatusTest(unittest.TestCase):
         process = FakeProcess()
         with patch("tools.engineering.dashboard.subprocess.Popen", return_value=process):
             dashboard._rate_limit_cache = None
-            self.assertEqual(dashboard._codex_rate_limits(), b"{}")
+            self.assertEqual(
+                json.loads(dashboard._codex_rate_limits()),
+                {"provider": "Codex CLI", "provider_version": "versie niet beschikbaar"},
+            )
             dashboard._rate_limit_cache = None
         self.assertTrue(process.terminated)
 
     def test_codex_rate_limits_fails_closed_when_app_server_cannot_start(self) -> None:
         with patch("tools.engineering.dashboard.subprocess.Popen", side_effect=OSError):
             dashboard._rate_limit_cache = None
-            self.assertEqual(dashboard._codex_rate_limits(), b"{}")
+            self.assertEqual(
+                json.loads(dashboard._codex_rate_limits()),
+                {"provider": "Codex CLI", "provider_version": "versie niet beschikbaar"},
+            )
             dashboard._rate_limit_cache = None
 
     def test_codex_rate_limit_reset_consumes_one_credit_with_an_idempotency_key(self) -> None:
