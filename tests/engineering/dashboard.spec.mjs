@@ -122,8 +122,11 @@ test.describe("Engineering Status browser smoke", () => {
     expect(await page.locator("#reportAnalysisContent").evaluate((element) => element.parentElement.className)).toBe("markdown-copy-wrap");
     await expect(page.locator("#copyReport")).toHaveClass(/copy--glyph/);
     await expect(page.locator("#copyReport")).toHaveText("⧉");
-    expect(await page.locator("#reportContent").evaluate((element) => getComputedStyle(element).paddingRight)).toBe("68px");
+    await expect(page.locator("#downloadReport")).toHaveClass(/download--glyph/);
+    await expect(page.locator("#downloadReportAnalysis")).toHaveClass(/download--glyph/);
+    expect(await page.locator("#reportContent").evaluate((element) => getComputedStyle(element).paddingRight)).toBe("108px");
     await expect(page.locator("#copyReport")).toHaveAttribute("hidden", "");
+    await expect(page.locator("#downloadReport")).toHaveAttribute("hidden", "");
     await expect(page.locator("#copyReportAnalysis")).toHaveAttribute("hidden", "");
     expect(await page.locator("#lastFinalStatus").evaluate((element) => element.previousElementSibling.id)).toBe("lastIndicator");
     await page.evaluate(() => lastExecutionTime({ seconds: 75, total_seconds: 125, finished_at: "2026-08-01T10:01:30Z" }));
