@@ -56,6 +56,13 @@ test.describe("Engineering Status browser smoke", () => {
     }));
     expect(health.components.dashboard.version).toMatch(/^\d+\.\d+\.\d+$/);
     expect(health.components.inbox_watcher.version).toMatch(/^\d+\.\d+\.\d+$/);
+
+    const favicon = await request.get(`${dashboardUrl}/assets/engineering-status-icon.svg`);
+    expect(favicon.status()).toBe(200);
+    expect(favicon.headers()["content-type"]).toContain("image/svg+xml");
+    const homescreenIcon = await request.get(`${dashboardUrl}/assets/engineering-status-icon-180.png`);
+    expect(homescreenIcon.status()).toBe(200);
+    expect(homescreenIcon.headers()["content-type"]).toContain("image/png");
   });
 
   test("shows the private dashboard and keeps completed work collapsed by default", async ({ page }) => {
@@ -66,7 +73,9 @@ test.describe("Engineering Status browser smoke", () => {
     await page.locator("#autoRefresh").uncheck();
     await expect(page.getByTestId("engineering-dashboard-title")).toHaveText("Engineering Status");
     await expect(page.getByTestId("dashboard-splash")).toBeHidden();
-    await expect(page.locator("#dashboardFavicon")).toHaveAttribute("href", /^data:image\/svg\+xml,/);
+    await expect(page.locator("#dashboardFavicon")).toHaveAttribute("href", "/assets/engineering-status-icon.svg");
+    await expect(page.locator('link[rel="apple-touch-icon"]')).toHaveAttribute("href", "/assets/engineering-status-icon-180.png");
+    await expect(page.getByTestId("dashboard-app-icon")).toHaveAttribute("src", "/assets/engineering-status-icon.svg");
     await expect(page.getByTestId("engineering-workspace")).not.toHaveAttribute("open", "");
     await expect(page.getByTestId("platform-health")).not.toHaveAttribute("open", "");
     await expect(page.locator("#workspaceCard > summary .category-icon")).toHaveText("⌂");

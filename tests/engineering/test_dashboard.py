@@ -208,7 +208,19 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn("function fallbackCopy(value)", page)
         self.assertIn('document.execCommand("copy")', page)
         self.assertIn("window.isSecureContext", page)
-        self.assertIn('<link id="dashboardFavicon" rel="icon" type="image/svg+xml">', page)
+        self.assertIn(
+            '<link id="dashboardFavicon" rel="icon" type="image/svg+xml" href="/assets/engineering-status-icon.svg">',
+            page,
+        )
+        self.assertIn(
+            '<link rel="apple-touch-icon" sizes="180x180" href="/assets/engineering-status-icon-180.png">',
+            page,
+        )
+        self.assertIn('class="dashboard-titlebar__brand"', page)
+        self.assertIn(
+            'class="dashboard-app-icon" src="/assets/engineering-status-icon.svg"',
+            page,
+        )
         self.assertIn('id="componentLogs"', page)
         self.assertIn('<summary><strong>Logs</strong></summary>', page)
         self.assertIn('data-testid="clear-inbox-log"', page)
@@ -237,7 +249,10 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn('refreshComponentLogs(snapshot.component_log_versions||{})', page)
         self.assertIn('function flattenMarkdownPanels()', page)
         self.assertIn('field.replaceWith(content)', page)
-        self.assertIn("function updateFavicon(status)", page)
+        self.assertIn(
+            'function updateFavicon(){$("dashboardFavicon").href="/assets/engineering-status-icon.svg"}',
+            page,
+        )
         self.assertIn("const renderStatusWithFavicon=r", page)
         self.assertIn('<details class="card codex-chat" id="codexChat"><summary>', page)
         self.assertIn('id="chatInput" class="chat-input" rows="5"', page)
@@ -1014,6 +1029,8 @@ class DashboardStatusTest(unittest.TestCase):
         try:
             for route, content_type in (
                 ("/", "text/html"),
+                ("/assets/engineering-status-icon.svg", "image/svg+xml"),
+                ("/assets/engineering-status-icon-180.png", "image/png"),
                 ("/api/status", "application/json"),
                 ("/api/build", "application/json"),
                 ("/api/health", "application/json"),
