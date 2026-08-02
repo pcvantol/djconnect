@@ -235,6 +235,8 @@ test.describe("Engineering Status browser smoke", () => {
         runId: "—",
         details: "test",
       }));
+      independentLogPageStates.inbox = 1;
+      independentLogPageStates.dashboard = 1;
       componentLogsLoaded = true;
       renderComponentLogs();
     });
@@ -299,6 +301,25 @@ test.describe("Engineering Status browser smoke", () => {
     for (const id of ["workspaceCard", "platformHealth", "codexChat", "technicalDetails", "componentLogs"]) {
       await expect(page.locator(`#${id}`)).not.toHaveAttribute("open", "");
     }
+  });
+
+  test("switches between persisted dark and light dashboard themes", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    const toggle = page.getByTestId("theme-toggle");
+    await expect(toggle).toHaveAttribute("role", "switch");
+    await expect(toggle).toHaveAttribute("aria-checked", "false");
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+
+    await toggle.click();
+    await expect(toggle).toHaveAttribute("aria-checked", "true");
+    await expect(toggle).toHaveAttribute("aria-label", "Donkere modus inschakelen");
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+    await expect(page.locator("body")).toHaveCSS("background-color", "rgb(244, 247, 251)");
+
+    await page.reload({ waitUntil: "domcontentloaded" });
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+    await toggle.click();
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
   });
 
   test("parses each newline-delimited JSON log entry separately", async ({ page }) => {
