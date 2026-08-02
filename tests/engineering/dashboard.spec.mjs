@@ -353,6 +353,10 @@ test.describe("Engineering Status browser smoke", () => {
     expect(await page.locator(".chat-message--user .chat-message__body").evaluate((element) => getComputedStyle(element).fontFamily)).toBe(
       await page.locator(".chat-message--assistant .chat-message__body").evaluate((element) => getComputedStyle(element).fontFamily),
     );
+    expect(await page.locator("#chatInput").evaluate((element) => getComputedStyle(element).fontFamily)).toBe(
+      await page.locator(".chat-message--assistant .chat-message__body").evaluate((element) => getComputedStyle(element).fontFamily),
+    );
+    await expect(page.locator('label[for="chatInput"]')).toHaveCSS("margin-bottom", "10px");
     expect(await page.evaluate(() => chatHistoryMarkdown())).toContain("## Jij\n\nWat zijn de volgende stappen?");
   });
 

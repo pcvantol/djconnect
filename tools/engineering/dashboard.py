@@ -1009,6 +1009,7 @@ pre{white-space:pre-wrap;word-break:break-word;margin:5px 0 0;font:12px ui-monos
 .chat-message--user .chat-message__role{color:#8dc7ff}
 .chat-message--assistant .chat-message__role{color:#d0a4ff}
 .chat-compose{display:block;position:relative}.chat-compose .chat-input{padding:8px 62px 58px 8px}.chat-compose .chat-send{background:#34283f;border-color:#d0a4ff;border-radius:8px;bottom:10px;color:#eadcff;height:44px;min-width:44px;padding:0;position:absolute;right:10px;width:44px;z-index:1}.chat-compose .chat-send:hover{background:#463653}.chat-compose .chat-send:disabled{cursor:wait;opacity:.7}
+#codexChat label[for="chatInput"]{margin-bottom:10px}.chat-input{font:13px system-ui,sans-serif}
 .workspace-card{--category-color:#f3d36a;background:#302d20;border-left-color:#f3d36a}
 #engineering-dashboard-content>.technical-details:not(#componentLogs){border-left-width:3px}
 #componentLogs .card{border-left-width:1px}
