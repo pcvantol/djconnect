@@ -130,6 +130,14 @@ test.describe("Engineering Status browser smoke", () => {
     }
   });
 
+  test("keeps the platform version labels orange in both themes", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    const platformLabel = page.locator(".footer .label").first();
+    await expect(platformLabel).toHaveCSS("color", "rgb(240, 182, 106)");
+    await page.getByTestId("theme-toggle").click();
+    await expect(platformLabel).toHaveCSS("color", "rgb(240, 182, 106)");
+  });
+
   test("never renders a white focus ring on visible interactive elements", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.evaluate(() => {
@@ -339,6 +347,7 @@ test.describe("Engineering Status browser smoke", () => {
     await page.locator("#componentLogs").evaluate((element) => { element.open = true; });
     await page.locator("#autoRefresh").uncheck();
     await page.waitForFunction(() => componentLogsLoaded);
+    await page.waitForTimeout(350);
     await page.evaluate(() => {
       refreshComponentLogs = async () => {};
       componentLogEntries.inbox = Array.from({ length: 51 }, (_, index) => ({
