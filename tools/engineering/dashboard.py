@@ -39,6 +39,7 @@ from .component_lock import DuplicateComponentInstanceError, single_instance
 from .codex_chat import CodexChatError, chat_model, respond as codex_chat_response
 from .telemetry import daily_statistics, execution_timing
 from .platform_version import EngineeringPlatformManifest
+from . import dashboard_state
 
 LABEL = "com.djconnect.engineering-dashboard"
 RELAY_LABEL = "com.djconnect.engineering-dashboard-relay"
@@ -57,94 +58,18 @@ class DashboardHTTPServer(ThreadingHTTPServer):
 
 
 def _unavailable_status() -> bytes:
-    """Return the complete, safe status shape when no projection exists yet."""
-    return json.dumps(
-        {
-            "watcher_state": "REMOTE_ENGINEERING_DEGRADED",
-            "current_phase": "status niet beschikbaar",
-            "current_action": "Voer het Engineering Platform uit om een statusupdate te publiceren.",
-            "run_id": None,
-            "queue_depth": 0,
-            "queue_items": [],
-            "implementation_pr": None,
-            "finalization_pr": None,
-            "repository_state": "UNKNOWN",
-            "workspace_state": "UNKNOWN",
-            "diagnostic": "Er is nog geen lokale engineeringstatus gepubliceerd.",
-            "submitted_filename": None,
-            "prompt_title": None,
-            "last_executed_filename": None,
-            "last_executed_title": None,
-            "last_executed_run": None,
-            "last_executed_phase": None,
-            "blocking_predecessor_run": None,
-            "blocking_predecessor_phase": None,
-            "blocking_predecessor_filename": None,
-            "blocking_predecessor_title": None,
-            "predecessor_recovery_action": None,
-        },
-        separators=(",", ":"),
-    ).encode()
+    """Compatibility façade for the dashboard state module."""
+    return dashboard_state.unavailable_status()
 
 
 def _status(root: Path) -> bytes:
-    try:
-        watcher = json.loads((root / ".engineering" / "status" / "status.json").read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError):
-        watcher = {}
-    try:
-        live = json.loads((root / ".engineering" / "status" / "current.json").read_text(encoding="utf-8"))
-        projection = json.dumps(
-            {
-                "watcher_state": "ENGINEERING_RUN_ACTIVE",
-                "current_phase": live.get("phase") or "INITIALIZE",
-                "current_action": live.get("current_action") or "Engineeringuitvoering is actief.",
-                "run_id": live.get("run_id"),
-                "queue_depth": 0,
-                "queue_items": watcher.get("queue_items", []),
-                "implementation_pr": live.get("implementation_pr"),
-                "finalization_pr": live.get("finalization_pr"),
-                "repository_state": live.get("repository_state") or "ACTIVE",
-                "workspace_state": live.get("workspace_state") or "ACTIVE",
-                "prompt_characters": live.get("prompt_characters"),
-                "diagnostic": live.get("diagnostic"),
-                "submitted_filename": watcher.get("submitted_filename"),
-                "prompt_title": watcher.get("prompt_title"),
-                "last_executed_filename": watcher.get("last_executed_filename"),
-                "last_executed_title": watcher.get("last_executed_title"),
-                "last_executed_run": watcher.get("last_executed_run"),
-                "last_executed_phase": watcher.get("last_executed_phase"),
-                "blocking_predecessor_run": watcher.get("blocking_predecessor_run"),
-                "blocking_predecessor_phase": watcher.get("blocking_predecessor_phase"),
-                "blocking_predecessor_filename": watcher.get("blocking_predecessor_filename"),
-                "blocking_predecessor_title": watcher.get("blocking_predecessor_title"),
-                "predecessor_recovery_action": watcher.get("predecessor_recovery_action"),
-                "execution_mode": live.get("execution_mode"),
-                "target_repository": live.get("target_repository"),
-                "checkout_path": live.get("checkout_path"),
-                "active_branch": live.get("active_branch"),
-            },
-            separators=(",", ":"),
-        ).encode()
-    except (OSError, json.JSONDecodeError):
-        live, projection = None, None
-    if live and live.get("phase") not in {"COMPLETE", "BLOCKED", "FAILED"}:
-        return projection
-    try:
-        if watcher and (watcher.get("run_id") or watcher.get("last_executed_run")):
-            return json.dumps(watcher, separators=(",", ":")).encode()
-        return (root / ".engineering" / "status" / "status.json").read_bytes()
-    except OSError:
-        return projection or _unavailable_status()
+    """Compatibility façade for the stable status projection."""
+    return dashboard_state.status(root)
 
 
 def _sse_status(root: Path) -> bytes:
     """Encode the status as a single SSE data line."""
-    try:
-        payload = json.loads(_status(root))
-    except json.JSONDecodeError:
-        payload = json.loads(_unavailable_status())
-    return json.dumps(payload, separators=(",", ":")).encode()
+    return dashboard_state.sse_status(root)
 
 
 def _sse_snapshot(root: Path) -> bytes:
@@ -154,87 +79,27 @@ def _sse_snapshot(root: Path) -> bytes:
     its observable values changes.  This keeps the dashboard event-driven
     without giving the dashboard any transaction authority.
     """
-    try:
-        status = json.loads(_sse_status(root))
-    except json.JSONDecodeError:
-        status = json.loads(_unavailable_status())
-    try:
-        prompt_started = json.loads(_prompt_started(root))
-    except json.JSONDecodeError:
-        prompt_started = {}
-    try:
-        usage = json.loads(_codex_usage(root))
-    except json.JSONDecodeError:
-        usage = {}
-    try:
-        rate_limits = json.loads(_codex_rate_limits())
-    except json.JSONDecodeError:
-        rate_limits = {}
-    try:
-        last_executed_usage = json.loads(
-            _codex_usage_for_run(root, status.get("last_executed_run"))
-        )
-    except json.JSONDecodeError:
-        last_executed_usage = {}
-    try:
-        completion_commits = json.loads(_completion_commits(root))
-        last_executed_commits = json.loads(_last_executed_commits(root))
-    except json.JSONDecodeError:
-        completion_commits = last_executed_commits = {}
-    try:
-        reviewer_agents = json.loads(_reviewer_agents_for_run(root, status.get("last_executed_run")))
-    except json.JSONDecodeError:
-        reviewer_agents = []
-    try:
-        last_executed_execution = json.loads(
-            _last_executed_agent_execution(root, status.get("last_executed_run"))
-        )
-    except json.JSONDecodeError:
-        last_executed_execution = {}
-    try:
-        last_executed_runtime_metadata = json.loads(
-            _last_executed_runtime_metadata(root, status.get("last_executed_run"))
-        )
-    except json.JSONDecodeError:
-        last_executed_runtime_metadata = {}
-    try:
-        telemetry = daily_statistics(root, days=7)
-    except Exception:
-        telemetry = []
-    active = (
-        status.get("watcher_state") == "ENGINEERING_RUN_ACTIVE"
-        and isinstance(status.get("run_id"), str)
+    return dashboard_state.snapshot(
+        root,
+        status_reader=_sse_status,
+        unavailable_reader=_unavailable_status,
+        prompt_started_reader=_prompt_started,
+        usage_reader=_codex_usage,
+        rate_limits_reader=_codex_rate_limits,
+        usage_for_run_reader=_codex_usage_for_run,
+        completion_commits_reader=_completion_commits,
+        last_executed_commits_reader=_last_executed_commits,
+        reviewer_agents_reader=_reviewer_agents_for_run,
+        execution_reader=_last_executed_agent_execution,
+        runtime_metadata_reader=_last_executed_runtime_metadata,
+        report_analysis_available_reader=_report_analysis_available_for_run,
+        telemetry_reader=lambda workspace: daily_statistics(workspace, days=7),
+        process_metrics_reader=_codex_process_metrics,
+        build_commit_reader=_build_commit,
+        component_log_versions_reader=_component_log_versions,
+        dashboard_version=DASHBOARD_VERSION,
+        worker_version=WATCHER_VERSION,
     )
-    try:
-        process_metrics = json.loads(_codex_process_metrics()) if active else {}
-    except json.JSONDecodeError:
-        process_metrics = {}
-    return json.dumps(
-        {
-            "status": status,
-            "build_commit": _build_commit(root),
-            "prompt_started": prompt_started,
-            "usage": usage,
-            "rate_limits": rate_limits,
-            "last_executed_usage": last_executed_usage,
-            "completion_commits": completion_commits,
-            "last_executed_commits": last_executed_commits,
-            "last_executed_reviewer_agents": reviewer_agents,
-            "last_executed_execution": last_executed_execution,
-            "last_executed_runtime_metadata": last_executed_runtime_metadata,
-            "last_executed_report_analysis_available": _report_analysis_available_for_run(
-                root, status.get("last_executed_run")
-            ),
-            "telemetry": telemetry,
-            "process_metrics": process_metrics,
-            "component_log_versions": _component_log_versions(root),
-            "component_versions": {
-                "dashboard": DASHBOARD_VERSION,
-                "worker": WATCHER_VERSION,
-            },
-        },
-        separators=(",", ":"),
-    ).encode()
 
 
 def _rate_limit_window_label(duration_minutes: int) -> str:

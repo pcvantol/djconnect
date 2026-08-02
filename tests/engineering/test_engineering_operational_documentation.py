@@ -36,6 +36,8 @@ class EngineeringOperationalDocumentationTest(unittest.TestCase):
         self.assertIn("Private read-only AI advice", dashboard)
         self.assertIn("Runtime Provider", dashboard)
         self.assertIn("Codex CLI Version", dashboard)
+        self.assertIn("Dashboard module boundaries", dashboard)
+        self.assertIn("dashboard_state.py", dashboard)
         reporting = (ROOT / "docs" / "engineering" / "ENGINEERING_REPORTING.md").read_text(encoding="utf-8")
         self.assertIn("## Runtime provenance", reporting)
         self.assertIn("Reasoning Profile", reporting)

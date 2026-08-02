@@ -20,6 +20,17 @@ port-forwarding, pull requests, releases or deployments. The Inbox watcher is
 a separate repository-owned LaunchAgent and has no authority beyond the normal
 Engineering Platform lifecycle.
 
+## Dashboard module boundaries
+
+`tools/engineering/dashboard.py` is the intentionally thin dashboard façade:
+it owns the private HTTP endpoints, security headers, server lifecycle and
+LaunchAgent commands. `tools/engineering/dashboard_state.py` owns the
+read-only status and server-sent-event snapshot composition. The façade passes
+its bounded repository readers into that state module, preserving the existing
+endpoint contracts while keeping the dashboard state model independently
+testable. Neither module has authority to start engineering work or change a
+target repository.
+
 ## ESET Firewall
 
 When ESET Cyber Security controls the macOS firewall, it must explicitly allow
