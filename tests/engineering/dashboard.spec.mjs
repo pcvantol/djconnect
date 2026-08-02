@@ -339,6 +339,8 @@ test.describe("Engineering Status browser smoke", () => {
       return { bottom: style.bottom, right: style.right };
     })).toEqual({ bottom: "10px", right: "10px" });
     await expect(page.locator("#downloadChat")).toHaveAttribute("hidden", "");
+    await expect(page.locator("#codexChat > .category-description")).toHaveText("Stel korte, alleen-lezen vragen over de laatst uitgevoerde prompt en het bijbehorende rapport. Dit start geen engineering of wijzigingen.");
+    await expect(page.locator("#codexChat .estimate-meta")).toHaveCount(0);
     await page.evaluate(() => {
       chatHistory = [{ role: "user", text: "Wat zijn de volgende stappen?" }];
       renderChatHistory();
