@@ -91,6 +91,9 @@ test.describe("Engineering Status browser smoke", () => {
     expect(await page.locator("#indicator").evaluate((element) => element.parentElement.className)).toBe("current-run__prompt-heading");
     await expect(page.locator("#loadComponentLogs")).toHaveCount(0);
     await expect(page.getByTestId("pull-refresh")).toHaveText("Trek omlaag om te vernieuwen");
+    await page.evaluate(() => showCopyToast());
+    await expect(page.getByTestId("copy-toast")).toHaveText("Gekopieerd naar klembord");
+    await expect(page.getByTestId("copy-toast")).toHaveClass(/copy-toast--visible/);
     const collapsedCategoryHeights = await page.evaluate(() => [
       "workspaceCard", "platformHealth", "codexChat", "technicalDetails", "componentLogs",
     ].map((id) => document.getElementById(id).getBoundingClientRect().height));
