@@ -154,6 +154,35 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator(".component-modal__panel")).toHaveCSS("color", "rgb(24, 34, 48)");
   });
 
+  test("refreshes uptime and memory while component details remain open", async ({ page }) => {
+    let detailsRequest = 0;
+    await page.route("**/api/components/dashboard/details", (route) => {
+      detailsRequest += 1;
+      return route.fulfill({ json: {
+        component: "dashboard",
+        healthy: true,
+        detail: "HTTP-dashboard reageert",
+        version: "1.2.87",
+        uptime_seconds: detailsRequest === 1 ? 10 : 20,
+        processes: [{ pid: 42, memory_kib: detailsRequest === 1 ? 1024 : 2048 }],
+        launchd: {},
+        restart_supported: true,
+      } });
+    });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#platformHealth").evaluate((element) => { element.open = true; });
+    await page.locator(".component-info").first().click();
+
+    await expect(page.locator("#componentModalContent")).toContainText("Uptime10s");
+    await expect(page.locator("#componentModalContent")).toContainText("PID 42: 1.0 MiB");
+    await page.evaluate(() => refreshOpenComponentDetails());
+    await expect(page.locator("#componentModalContent")).toContainText("Uptime20s");
+    await expect(page.locator("#componentModalContent")).toContainText("PID 42: 2.0 MiB");
+
+    await page.locator("#componentModalClose").click();
+    await expect.poll(() => page.evaluate(() => componentDetailsRefreshTimer)).toBeNull();
+  });
+
   test("renders reports and their actions as light surfaces in light mode", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.locator("#themeToggle").click();
