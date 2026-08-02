@@ -102,6 +102,23 @@ test.describe("Engineering Status browser smoke", () => {
     expect(alignment.paddingDifference).toBeLessThan(1);
   });
 
+  test("keeps host-specific fields out of private external access details", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => showComponentModal({
+      component: "private_remote_access",
+      healthy: true,
+      detail: "connected",
+      git_commit: "host-only-commit",
+      processes: [{ pid: 123, memory_kib: 1024 }],
+      executable_path: "/usr/local/bin/tailscale",
+    }));
+
+    const modal = page.locator("#componentModal");
+    await expect(modal).toContainText("Uitvoerbaar pad");
+    await expect(modal).not.toContainText("Git-commit");
+    await expect(modal).not.toContainText("Huidig geheugen");
+  });
+
   test("allows the AI question field to grow only vertically", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.locator("#codexChat").evaluate((element) => { element.open = true; });
