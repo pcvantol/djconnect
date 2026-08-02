@@ -2,12 +2,13 @@ from __future__ import annotations
 
 import io
 import json
+import logging
 from http.client import HTTPConnection
 from pathlib import Path
 import tempfile
 from threading import Thread
 import unittest
-from unittest.mock import patch
+from unittest.mock import ANY, patch
 
 from tools.engineering import dashboard
 from tools.engineering.dashboard import DASHBOARD_VERSION, LOOPBACK_ADDRESS, _clear_component_log, _codex_process_metrics, _codex_provider_identity, _codex_usage, _codex_usage_for_run, _component_log, _component_log_versions, _completion_commits, _component_uptime_seconds, _current_codex_log, _dashboard_html, _last_executed_agent_execution, _last_executed_codex_log, _last_executed_commits, _last_executed_runtime_metadata, _latest_codex_log, _normalize_rate_limits, _platform_health, _prompt_history, _report_analysis_available_for_run, _report_analysis_for_run, _report_for_run, _reviewer_agents_for_run, _sse_snapshot, _sse_status, _status, _tracked_file_count, binding_addresses
@@ -329,6 +330,10 @@ class DashboardStatusTest(unittest.TestCase):
         dashboard_source = Path("tools/engineering/dashboard.py").read_text(encoding="utf-8")
         self.assertNotIn('"http_not_found"', dashboard_source)
         self.assertNotIn('"rate_limit_reset_consumed"', dashboard_source)
+        self.assertIn('"ai_usage_reset_completed"', dashboard_source)
+        self.assertIn('"ai_chat_message_sent", diagnostic="[REDACTED]"', dashboard_source)
+        self.assertIn('"engineering_report_downloaded"', dashboard_source)
+        self.assertIn('"report_analysis_downloaded"', dashboard_source)
         self.assertIn('id="reviewerAgents" hidden', page)
         self.assertIn("Specialistische agentreviews", page)
         self.assertIn("function reviewerAgents(items)", page)
@@ -1360,7 +1365,10 @@ class DashboardStatusTest(unittest.TestCase):
                 headers={"Content-Type": "application/json"},
             )
             self.assertEqual(connection.getresponse().status, 400)
-            with patch("tools.engineering.dashboard.codex_chat_response", return_value="Veilig advies."):
+            with (
+                patch("tools.engineering.dashboard.codex_chat_response", return_value="Veilig advies."),
+                patch("tools.engineering.dashboard.log_event") as chat_log_event,
+            ):
                 connection.request(
                     "POST",
                     "/api/codex-chat",
@@ -1373,6 +1381,12 @@ class DashboardStatusTest(unittest.TestCase):
                     json.loads(response.read()),
                     {"answer": "Veilig advies.", "model": "gpt-5.6-terra"},
                 )
+                chat_log_event.assert_any_call(
+                    ANY,
+                    logging.INFO,
+                    "ai_chat_message_sent",
+                    diagnostic="[REDACTED]",
+                )
             connection.request(
                 "POST", "/api/codex-chat", body="{}", headers={"Content-Type": "application/json"}
             )
@@ -1380,6 +1394,7 @@ class DashboardStatusTest(unittest.TestCase):
             with (
                 patch("tools.engineering.dashboard._consume_codex_rate_limit_reset_credit", return_value="reset"),
                 patch("tools.engineering.dashboard._codex_rate_limits", return_value=b'{"reset_credits":1}'),
+                patch("tools.engineering.dashboard.log_event") as reset_log_event,
             ):
                 connection.request(
                     "POST",
@@ -1392,6 +1407,26 @@ class DashboardStatusTest(unittest.TestCase):
                 self.assertEqual(
                     json.loads(response.read()),
                     {"outcome": "reset", "rate_limits": {"reset_credits": 1}},
+                )
+                reset_log_event.assert_any_call(
+                    ANY,
+                    logging.INFO,
+                    "ai_usage_reset_completed",
+                )
+            with patch("tools.engineering.dashboard.log_event") as audit_log_event:
+                connection.request(
+                    "POST",
+                    "/api/audit/user-action",
+                    body='{"action":"chat_downloaded"}',
+                    headers={"Content-Type": "application/json"},
+                )
+                response = connection.getresponse()
+                self.assertEqual(response.status, 200)
+                self.assertEqual(json.loads(response.read()), {"logged": True})
+                audit_log_event.assert_any_call(
+                    ANY,
+                    logging.INFO,
+                    "chat_downloaded",
                 )
             connection.request(
                 "POST", "/api/rate-limit-reset", body="[]", headers={"Content-Type": "application/json"}

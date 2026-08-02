@@ -67,6 +67,13 @@ COMPONENT_LABELS = {
     "dashboard_relay": RELAY_LABEL,
 }
 RESTARTABLE_COMPONENTS = frozenset(COMPONENT_LABELS)
+AUDITABLE_USER_ACTIONS = frozenset(
+    {
+        "chat_downloaded",
+        "report_copied",
+        "report_analysis_copied",
+    }
+)
 
 
 class DashboardHTTPServer(ThreadingHTTPServer):
@@ -1151,6 +1158,10 @@ const themeToggle=$("themeToggle"),themeColor=$("dashboardThemeColor");function 
 $("rateLimitProvider")?.previousElementSibling?.replaceChildren("Huidige AI-provider");
 let latestPlatformHealthPayload=null;const restartingPlatformComponents=new Set();const renderPlatformHealthWithRestartState=renderPlatformHealth;renderPlatformHealth=payload=>{latestPlatformHealthPayload=payload;const components=payload&&typeof payload.components==="object"?Object.fromEntries(Object.entries(payload.components).map(([key,component])=>restartingPlatformComponents.has(key)?[key,{...component,healthy:false,state:"restarting",detail:"Herstart wordt uitgevoerd"}]:[key,component])):null;return renderPlatformHealthWithRestartState(components?{...payload,components}:payload)};async function confirmComponentRestart(component){for(let attempt=0;attempt<5;attempt++){await new Promise(resolve=>setTimeout(resolve,1250));try{const response=await fetch("/health",{cache:"no-store"}),payload=await response.json();if(response.ok&&payload?.components?.[component]?.healthy){restartingPlatformComponents.delete(component);renderPlatformHealth(payload);$("componentModalStatus").textContent="Component is opnieuw beschikbaar.";return}renderPlatformHealth(payload)}catch{}}$("componentModalStatus").textContent="De component komt nog niet gezond terug; controle loopt door."}const legacyRestartControl=$("componentModalRestart"),restartControl=legacyRestartControl.cloneNode(true);legacyRestartControl.replaceWith(restartControl);restartControl.addEventListener("click",async()=>{const component=restartControl.dataset.component;if(!component)return;if(!window.confirm("Weet je zeker dat je dit Engineering Platform-onderdeel wilt herstarten?"))return;restartControl.disabled=true;restartingPlatformComponents.add(component);renderPlatformHealth(latestPlatformHealthPayload);try{const response=await fetch("/api/components/"+encodeURIComponent(component)+"/restart",{method:"POST",headers:{"Content-Type":"application/json"},body:"{}"}),payload=await response.json();if(!response.ok)throw Error(payload.error||"Herstarten is niet gelukt.");$("componentModalStatus").textContent="Herstartverzoek verzonden. De component wordt opnieuw gecontroleerd.";void confirmComponentRestart(component)}catch(error){restartingPlatformComponents.delete(component);renderPlatformHealth(latestPlatformHealthPayload);$("componentModalStatus").textContent=error.message||"Herstarten is niet gelukt."}finally{restartControl.disabled=false}});const renderStatusWithHealthInvalidation=r;r=(x,snapshot={})=>{renderStatusWithHealthInvalidation(x,snapshot);void refreshPlatformHealth()};
 const formatComponentUptimeForMeasuredValues=formatComponentUptime;formatComponentUptime=value=>{const seconds=Number(value);return Number.isFinite(seconds)&&seconds>0?formatComponentUptimeForMeasuredValues(value):""};
+function recordUserAction(action){return fetch("/api/audit/user-action",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action})}).catch(()=>undefined)}
+function downloadLastExecutedDocument(endpoint,filenamePrefix){if(!lastExecutedRun)return Promise.reject(Error("Geen uitgevoerde prompt beschikbaar."));const separator=endpoint.includes("?")?"&":"?";return fetch(endpoint+separator+"run_id="+encodeURIComponent(lastExecutedRun)+"&audit=download").then(response=>response.ok?response.text():Promise.reject(Error("Download is niet beschikbaar."))).then(text=>{if(!text)throw Error("Download is niet beschikbaar.");const link=document.createElement("a"),url=URL.createObjectURL(new Blob([text],{type:"text/markdown;charset=utf-8"})),safeRun=String(lastExecutedRun).replace(/[^a-z0-9._-]+/gi,"-");link.href=url;link.download=filenamePrefix+"-"+safeRun+".md";link.hidden=true;document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),0)})}
+$("downloadChat")?.addEventListener("click",()=>void recordUserAction("chat_downloaded"));$("copyReport")?.addEventListener("click",()=>void recordUserAction("report_copied"));$("copyReportAnalysis")?.addEventListener("click",()=>void recordUserAction("report_analysis_copied"));
+const renderPromptHistoryWithAudit=renderPromptHistory;renderPromptHistory=()=>{renderPromptHistoryWithAudit();document.querySelectorAll("#promptHistoryRows a.prompt-history-report").forEach(link=>{const url=new URL(link.href,location.href);url.searchParams.set("audit","download");link.href=url.toString()})};
 </script>
 </body>
 </html>"""
@@ -1233,6 +1244,7 @@ def handler(root: Path, logger: logging.Logger | None = None):
                     if length != 2 or self.rfile.read(length) != b"{}":
                         raise ValueError
                     outcome = _consume_codex_rate_limit_reset_credit()
+                    log_event(logger, logging.INFO, "ai_usage_reset_completed")
                     payload = {
                         "outcome": outcome,
                         "rate_limits": json.loads(_codex_rate_limits()),
@@ -1250,6 +1262,21 @@ def handler(root: Path, logger: logging.Logger | None = None):
                     "application/json; charset=utf-8",
                     status_code,
                 )
+                return
+            if request_path == "/api/audit/user-action":
+                try:
+                    length = int(self.headers.get("Content-Length", "0"))
+                    if not 0 < length <= 256:
+                        raise ValueError
+                    payload = json.loads(self.rfile.read(length).decode("utf-8"))
+                    action = payload.get("action") if isinstance(payload, dict) else None
+                    if action not in AUDITABLE_USER_ACTIONS:
+                        raise ValueError
+                    log_event(logger, logging.INFO, str(action))
+                except (UnicodeDecodeError, ValueError, json.JSONDecodeError):
+                    self._send(b'{"error":"Ongeldige gebruikersactie."}', "application/json; charset=utf-8", 400)
+                    return
+                self._send(b'{"logged":true}', "application/json; charset=utf-8")
                 return
             if request_path.startswith("/api/logs/"):
                 component = request_path.rsplit("/", 1)[-1]
@@ -1295,6 +1322,7 @@ def handler(root: Path, logger: logging.Logger | None = None):
             except (UnicodeDecodeError, ValueError, json.JSONDecodeError):
                 self._send(b'{"error":"Ongeldig chatverzoek."}', "application/json; charset=utf-8", 400)
                 return
+            log_event(logger, logging.INFO, "ai_chat_message_sent", diagnostic="[REDACTED]")
             self._send(
                 json.dumps({"answer": answer, "model": chat_model()}, ensure_ascii=False).encode(),
                 "application/json; charset=utf-8",
@@ -1324,11 +1352,15 @@ def handler(root: Path, logger: logging.Logger | None = None):
                 return self._send(content, content_type)
             if request.path == "/api/report/last-executed":
                 run_id = parse_qs(request.query).get("run_id", [None])[0]
+                if parse_qs(request.query).get("audit") == ["download"]:
+                    log_event(logger, logging.INFO, "engineering_report_downloaded", run_id=run_id)
                 return self._send(
                     _report_for_run(root, run_id), "text/markdown; charset=utf-8"
                 )
             if request.path == "/api/report-analysis/last-executed":
                 run_id = parse_qs(request.query).get("run_id", [None])[0]
+                if parse_qs(request.query).get("audit") == ["download"]:
+                    log_event(logger, logging.INFO, "report_analysis_downloaded", run_id=run_id)
                 return self._send(
                     _report_analysis_for_run(root, run_id), "text/markdown; charset=utf-8"
                 )
@@ -1340,6 +1372,8 @@ def handler(root: Path, logger: logging.Logger | None = None):
                 if report is None:
                     self._send(b'{"error":"Engineeringrapport is niet beschikbaar."}', "application/json; charset=utf-8", 404)
                     return
+                if parse_qs(request.query).get("audit") == ["download"]:
+                    log_event(logger, logging.INFO, "engineering_report_downloaded", run_id=run_id)
                 self.send_response(200)
                 self.send_header("Content-Type", "text/markdown; charset=utf-8")
                 self.send_header("Content-Disposition", f'attachment; filename="engineering-report-{run_id}.md"')
