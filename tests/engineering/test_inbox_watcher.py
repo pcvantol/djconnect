@@ -10,6 +10,7 @@ from unittest.mock import patch
 import json
 
 from tools.engineering import inbox_watcher
+from tools.engineering.telemetry import wait_for_pending_telemetry
 
 
 class InboxWatcherTest(unittest.TestCase):
@@ -22,7 +23,9 @@ class InboxWatcherTest(unittest.TestCase):
         inbox = inbox_watcher.folders(self.root)["Inbox"]
         self.inbox = inbox
 
-    def tearDown(self) -> None: self.temp.cleanup()
+    def tearDown(self) -> None:
+        wait_for_pending_telemetry()
+        self.temp.cleanup()
 
     def test_preflight_failure_keeps_the_specific_bounded_runner_reason(self) -> None:
         completed = subprocess.CompletedProcess(("dj-engineer",), 2, "BLOCKED: working tree is not clean\n", "")

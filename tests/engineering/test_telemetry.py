@@ -15,6 +15,7 @@ from tools.engineering.telemetry import (
     execution_timing,
     persist_execution,
     persist_execution_async,
+    wait_for_pending_telemetry,
 )
 
 
@@ -115,3 +116,15 @@ class ExecutionHostTelemetryTest(unittest.TestCase):
             worker.join(timeout=2)
 
             self.assertFalse(root.exists())
+
+    def test_pending_telemetry_can_be_drained_before_workspace_cleanup(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            persist_execution(root, self._record("run-existing", "COMPLETE", datetime.now(timezone.utc)))
+            worker = persist_execution_async(
+                root,
+                self._record("run-drained", "COMPLETE", datetime.now(timezone.utc)),
+            )
+            wait_for_pending_telemetry()
+            self.assertFalse(worker.is_alive())
+            self.assertTrue(execution_timing(root, "run-drained"))

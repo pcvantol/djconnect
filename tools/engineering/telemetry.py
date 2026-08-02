@@ -9,13 +9,16 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from threading import Thread
+from threading import Lock, Thread, current_thread
+from time import monotonic
 from typing import Callable
 
 from .storage import open_storage
 
 
 TERMINAL_STATES = frozenset({"COMPLETE", "BLOCKED", "FAILED"})
+_PENDING_WORKERS: set[Thread] = set()
+_PENDING_WORKERS_LOCK = Lock()
 
 
 @dataclass(frozen=True)
@@ -128,10 +131,35 @@ def persist_execution_async(
         except Exception as error:  # Best-effort boundary; caller logs only.
             if on_error is not None:
                 on_error(error)
+        finally:
+            with _PENDING_WORKERS_LOCK:
+                _PENDING_WORKERS.discard(current_thread())
 
     worker = Thread(target=persist, name=f"ep-telemetry-{telemetry.run_id}", daemon=True)
+    with _PENDING_WORKERS_LOCK:
+        _PENDING_WORKERS.add(worker)
     worker.start()
     return worker
+
+
+def wait_for_pending_telemetry(*, timeout: float = 5.0) -> None:
+    """Wait for scheduled best-effort writes when a host is shutting down.
+
+    The watcher never calls this on its normal prompt-delivery path.  It gives
+    callers that own a temporary workspace a deterministic way to close it
+    only after the explicitly asynchronous telemetry writer is finished.
+    """
+    deadline = monotonic() + max(0.0, timeout)
+    while True:
+        with _PENDING_WORKERS_LOCK:
+            workers = tuple(_PENDING_WORKERS)
+        if not workers:
+            return
+        remaining = deadline - monotonic()
+        if remaining <= 0:
+            return
+        for worker in workers:
+            worker.join(timeout=remaining)
 
 
 def daily_statistics(root: Path, *, days: int = 7) -> list[dict[str, object]]:
