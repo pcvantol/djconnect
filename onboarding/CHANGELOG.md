@@ -1,5 +1,15 @@
 # DJConnect Developer Onboarding Changelog
 
+## 4.4.0 — 2026-08-02
+
+- Document report-bound Engineering Platform runtime provenance: Runtime
+  Provider, reported AI Model, reported Reasoning and Configuration Profiles,
+  and detected Codex CLI Version.
+- Clarify that unavailable runtime metadata is shown as `not reported` and
+  cannot be inferred from the current dashboard configuration or another run.
+- Require the matching `4.4.0` canonical onboarding package during macOS host
+  bootstrap verification and recovery.
+
 ## 4.3.0 — 2026-08-01
 
 - Add the private Engineering Status Tailnet relay recovery guidance, including

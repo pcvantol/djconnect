@@ -20,7 +20,7 @@ host.recommended_free_disk_gb: 120
 
 # The read-only readiness check requires the canonical developer-onboarding
 # checkout used by this host to match this version exactly.
-onboarding.package_version: 4.3.0
+onboarding.package_version: 4.4.0
 
 # Engineering Platform must be installed as its canonical per-user services and
 # answer locally before this host can accept remote engineering work.
