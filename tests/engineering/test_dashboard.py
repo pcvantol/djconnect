@@ -56,6 +56,14 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn('data-testid="engineering-workspace"', page)
         self.assertIn('<details class="card card--context workspace-card"', page)
         self.assertIn('.workspace-card>summary::before{color:var(--category-color);content:"▸ ";display:inline-block;font-size:24px;line-height:1;padding-right:8px;vertical-align:-2px}', page)
+        self.assertIn(
+            ':where(.workspace-card,#rateLimits,.last-execution-group,#componentLogs,#codexChat,#engineering-dashboard-content>.technical-details:not(#componentLogs),#currentRun,.telemetry,.platform-health)>summary{padding-right:40px;position:relative}',
+            page,
+        )
+        self.assertIn(
+            ':where(.workspace-card,#rateLimits,.last-execution-group,#componentLogs,#codexChat,#engineering-dashboard-content>.technical-details:not(#componentLogs),#currentRun,.telemetry,.platform-health)>summary::before{margin:0;padding-right:0;position:absolute;right:0;top:0}',
+            page,
+        )
         self.assertIn("<strong>Workspace</strong>", page)
         self.assertIn("Workspace locatie", page)
         self.assertIn("djconnect", _dashboard_html("Engineering Status", workspace_id="djconnect").decode())

@@ -82,6 +82,9 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#rateLimits > summary .category-icon")).toHaveText("◔");
     await expect(page.locator("#componentLogs > summary .category-icon")).toHaveText("≡");
     await expect(page.locator("#codexChat > summary .category-icon")).toHaveText("✦");
+    for (const selector of ["#workspaceCard > summary", "#rateLimits > summary", "#componentLogs > summary", "#codexChat > summary"]) {
+      expect(await page.locator(selector).evaluate((summary) => getComputedStyle(summary, "::before").right)).toBe("0px");
+    }
     await expect(page.locator(".current-run__category-description")).toHaveText("De actieve engineeringprompt, met actuele voortgang, uitvoeringstijd en uitvoeringscontext.");
     expect(await page.locator("#indicator").evaluate((element) => element.parentElement.className)).toBe("current-run__prompt-heading");
     await expect(page.locator("#loadComponentLogs")).toHaveCount(0);
