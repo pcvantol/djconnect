@@ -103,6 +103,22 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator(".component-modal__panel")).toHaveCSS("color", "rgb(24, 34, 48)");
   });
 
+  test("renders reports and their actions as light surfaces in light mode", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#themeToggle").click();
+    await page.locator("#report").evaluate((element) => { element.hidden = false; element.open = true; });
+    await page.locator("#reportAnalysis").evaluate((element) => { element.hidden = false; element.open = true; });
+    await page.locator("#reportContent").evaluate((element) => { element.textContent = "# Rapport\n\nInhoud"; });
+    await page.locator("#reportAnalysisContent").evaluate((element) => { element.textContent = "# Analyse\n\nInhoud"; });
+    await page.locator("#copyReport").evaluate((element) => { element.hidden = false; });
+    await page.locator("#downloadReport").evaluate((element) => { element.hidden = false; });
+    for (const selector of ["#reportContent", "#reportAnalysisContent", "#copyReport", "#downloadReport"]) {
+      expect(await page.locator(selector).evaluate((element) => getComputedStyle(element).backgroundColor)).not.toBe("rgb(24, 24, 31)");
+    }
+    await expect(page.locator("#downloadReport")).toHaveText("⇩");
+    expect(await page.locator("#downloadReport").evaluate((element) => getComputedStyle(element, "::before").content)).toContain("↓");
+  });
+
   test("renders log actions in the light category style", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.getByTestId("theme-toggle").click();
