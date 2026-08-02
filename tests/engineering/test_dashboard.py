@@ -125,6 +125,8 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn('id="themeToggle"', page)
         self.assertIn('data-testid="theme-toggle"', page)
         self.assertIn('html[data-theme="light"] body{background:#f4f7fb;color:#182230}', page)
+        self.assertIn('html[data-theme="light"] #engineering-dashboard-content>.technical-details:not(#componentLogs){background:#effbfe}', page)
+        self.assertIn('html[data-theme="light"] .platform-health{background:#f2fae8}', page)
         self.assertIn('function applyDashboardTheme(theme)', page)
         self.assertIn('dashboardClientState.theme', page)
         self.assertIn('id="autoRefresh" type="checkbox" checked', page)
