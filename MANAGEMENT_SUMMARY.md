@@ -15,6 +15,28 @@
 
 ## Current position
 
+## PR #704 governance finalization
+
+PR [#704](https://github.com/pcvantol/djconnect/pull/704), **Enhance
+Engineering Platform execution host**, merged as
+`685539daaa8598b8cf5f54e187ffafcb00dc82f7`. The owner has explicitly approved
+a narrowly limited historical traceability exception for this PR only. No
+immutable Prompt History record was available, no prompt has been reconstructed,
+and no historical exception has been extended. Engineering Platform 1.5 was
+expanded as a local Execution Host without changing DJConnect Product, Runtime,
+Release, Deployment or Publication behavior. Repository State remains
+`MERGED_UNRECONCILED` until this dedicated Finalization merges.
+
+## Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+1. **Public distribution: Apple** — Source: `PLATFORM_EVOLUTION_BACKLOG.md`; Status: Planned; Dependency: qualified Internal Release consumers and explicit authorization.
+2. **Public distribution: Windows** — Source: `PLATFORM_EVOLUTION_BACKLOG.md`; Status: Planned; Dependency: qualified Internal Release consumers and explicit authorization.
+3. **Public HACS distribution** — Source: `PLATFORM_EVOLUTION_BACKLOG.md`; Status: Planned; Dependency: fresh candidate and release authorization.
+4. **HACS 3.3.0 release visibility (`HACS-3.3.0-001`)** — Source: `PLATFORM_EVOLUTION_BACKLOG.md`; Status: Planned; Dependency: release/tag metadata, HACS cache/index discovery and update presentation.
+5. **Firmware OTA publication and staged rollback** — Source: `PLATFORM_EVOLUTION_BACKLOG.md`; Status: Planned; Dependency: manifest-bound consumer qualification.
+
+Blocked: Playback Observation Stage 2 / Continue Stage 2 awaits backend-owned Playback Instance Identity. Deferred outside the Horizon: Audience Experience and Ambient Reactions; Lyrics Knowledge.
+
 PR [#649](https://github.com/pcvantol/djconnect/pull/649) merged as
 `31198276733fdac29bd2ea2d0d5ed2961595afb3`. The Engineering Dashboard is now
 privately reachable from an authorized iPhone over the locally reported
