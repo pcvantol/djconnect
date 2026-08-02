@@ -127,6 +127,7 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn('html[data-theme="light"] body{background:#f4f7fb;color:#182230}', page)
         self.assertIn('html[data-theme="light"] #engineering-dashboard-content>.technical-details:not(#componentLogs){background:#effbfe}', page)
         self.assertIn('html[data-theme="light"] .platform-health{background:#f2fae8}', page)
+        self.assertIn('.workspace-card,#rateLimits,.last-execution-group,#componentLogs,#codexChat,#engineering-dashboard-content>.technical-details:not(#componentLogs),.telemetry,.platform-health,.current-run{box-shadow:0 10px 28px rgb(15 23 42 / .18),0 3px 9px rgb(15 23 42 / .12)}', page)
         self.assertIn('function applyDashboardTheme(theme)', page)
         self.assertIn('dashboardClientState.theme', page)
         self.assertIn('id="autoRefresh" type="checkbox" checked', page)
