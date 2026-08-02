@@ -92,6 +92,23 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator(".platform-health__component-detail")).toHaveCSS("color", "rgb(24, 34, 48)");
   });
 
+  test("uses matching orange iOS-style toggles in the title bar", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    const theme = page.getByTestId("theme-toggle");
+    const allSections = page.getByTestId("toggle-all-sections");
+    const autoRefresh = page.locator("#autoRefresh");
+
+    await expect(autoRefresh).toHaveAttribute("role", "switch");
+    await expect(autoRefresh).toHaveCSS("background-color", "rgb(240, 182, 106)");
+    await theme.click();
+    await allSections.click();
+    await page.waitForTimeout(250);
+    for (const toggle of [theme, allSections]) {
+      await expect(toggle).toHaveAttribute("aria-checked", "true");
+      expect(await toggle.evaluate((element) => getComputedStyle(element, "::before").backgroundColor)).toBe("rgb(240, 182, 106)");
+    }
+  });
+
   test("never renders a white focus ring on visible interactive elements", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.evaluate(() => {

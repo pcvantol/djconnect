@@ -140,7 +140,7 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn('.workspace-card,#rateLimits,.last-execution-group,#componentLogs,#codexChat,#engineering-dashboard-content>.technical-details:not(#componentLogs),.telemetry,.platform-health,.current-run{box-shadow:0 10px 28px rgb(15 23 42 / .18),0 3px 9px rgb(15 23 42 / .12)}', page)
         self.assertIn('function applyDashboardTheme(theme)', page)
         self.assertIn('dashboardClientState.theme', page)
-        self.assertIn('id="autoRefresh" type="checkbox" checked', page)
+        self.assertIn('id="autoRefresh" type="checkbox" role="switch" checked', page)
         self.assertIn('Automatisch vernieuwen', page)
         self.assertIn('.dashboard-titlebar{align-items:center;background:#121217;box-shadow:0 10px 18px #121217;', page)
         self.assertIn('DASHBOARD_CLIENT_STATE_KEY="engineering-dashboard-client-state-v1"', page)
