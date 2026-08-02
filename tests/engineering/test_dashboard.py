@@ -312,6 +312,8 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn("Live gezondheidscontrole van de lokale Engineering Platform-componenten.", page)
         self.assertIn('fetch("/health",{cache:"no-store"})', page)
         self.assertIn("function renderPlatformHealth(payload)", page)
+        self.assertIn("const formatComponentUptimeForMeasuredValues=formatComponentUptime", page)
+        self.assertIn("Number.isFinite(seconds)&&seconds>0", page)
         self.assertIn('info.className="component-info"', page)
         self.assertIn('id="componentModal"', page)
         self.assertIn('id="componentModalRestart"', page)
