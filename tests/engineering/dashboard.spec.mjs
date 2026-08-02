@@ -103,6 +103,16 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator(".component-modal__panel")).toHaveCSS("color", "rgb(24, 34, 48)");
   });
 
+  test("renders log actions in the light category style", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.getByTestId("theme-toggle").click();
+    await page.locator("#componentLogs").evaluate((element) => { element.open = true; });
+    await page.evaluate(() => renderLogPagination("inbox", 1, 1));
+
+    await expect(page.getByTestId("clear-inbox-log")).toHaveCSS("background-color", "rgb(255, 248, 239)");
+    await expect(page.locator("#inboxLogPagination button").first()).toHaveCSS("background-color", "rgb(255, 243, 226)");
+  });
+
   test("uses matching orange iOS-style toggles in the title bar", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     const theme = page.getByTestId("theme-toggle");
