@@ -1281,6 +1281,12 @@ def handler(root: Path, logger: logging.Logger | None = None):
             icon_assets = {
                 "/assets/engineering-status-icon.svg": (APP_ICON_SVG, "image/svg+xml; charset=utf-8"),
                 "/assets/engineering-status-icon-180.png": (APP_ICON_TOUCH, "image/png"),
+                # Serve the conventional browser and iOS discovery paths too.
+                # They intentionally reuse the canonical app icon rather than
+                # introducing duplicate, independently-versioned icon files.
+                "/favicon.ico": (APP_ICON_TOUCH, "image/png"),
+                "/apple-touch-icon.png": (APP_ICON_TOUCH, "image/png"),
+                "/apple-touch-icon-precomposed.png": (APP_ICON_TOUCH, "image/png"),
             }
             if asset := icon_assets.get(request.path):
                 asset_name, content_type = asset
