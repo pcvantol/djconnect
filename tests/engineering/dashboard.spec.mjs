@@ -586,6 +586,10 @@ test.describe("Engineering Status browser smoke", () => {
     await reportView.click();
     await expect(page.locator("#promptHistoryReportModal")).toBeVisible();
     await expect(page.locator("#promptHistoryReportContent")).toContainText("Historisch rapport");
+    await expect(page.locator("#promptHistoryReportDownload")).toBeVisible();
+    await expect(page.locator("#promptHistoryReportCopy")).toBeVisible();
+    await page.locator("#promptHistoryReportClose").click();
+    await expect(page.locator("#promptHistoryReportModal")).not.toBeVisible();
     await expect(page.getByTestId("download-inbox-log")).toHaveCount(1);
   });
 

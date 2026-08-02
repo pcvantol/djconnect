@@ -66,13 +66,30 @@ The dashboard does not read iCloud reports, status or archived prompts.
 
 The page receives status changes through server-sent events. A browser refresh
 remains safe, but periodic polling is not the source of truth. The dashboard
-shows the Engineering Platform version and build commit in its status bar. The
+shows the Engineering Platform version in its status bar. The
 component-health category shows the dashboard and watcher versions beside their
 live health state, so a maintainer can distinguish a stale local service from a
 stale browser page. The dashboard, Inbox watcher and dashboard relay also
 report their locally observed uptime. Storage and private external access have
 no process-owned uptime metric, so the dashboard intentionally does not invent
 one for them.
+
+## Browser state and evidence views
+
+The title bar provides three browser-local controls: theme, section expansion
+and automatic refresh. Their values, open category state, table filters,
+sorting and pagination remain in the browser during a server-pushed status
+update. With automatic refresh disabled, the visible state remains static until
+the maintainer refreshes or re-enables it. These are presentation preferences;
+they never alter an Engineering run or its evidence.
+
+The **Laatst uitgevoerde prompt** and **Promptgeschiedenis** views fetch report
+content only when a maintainer opens it. A delivered report can be viewed in a
+large read-only Markdown dialog, copied to the clipboard or downloaded as a
+Markdown file. The advisory AI analysis uses the same bounded interaction.
+When a report or analysis does not exist, the dashboard states that explicitly
+and does not present a download or copy control. Copy confirmation is a local
+toast only; it does not send report content to another service.
 
 ## Component lifecycle audit trail
 
@@ -141,6 +158,10 @@ tables. Search and level filtering are client-side. Clicking a column heading
 sorts that table and shows the active ascending or descending direction; the
 subtle line number is not a server-side log identifier. Startup, restart and
 orderly-shutdown lifecycle events are visible there as `INFO` records.
+Each watcher and dashboard table has independent filtering, sorting and
+pagination, and its own download and confirmed-clear controls. Downloaded logs
+remain redacted NDJSON. A missing log is presented as an empty log, never as an
+invalid JSON record.
 
 ## Codex resetcredit
 

@@ -45,6 +45,23 @@ when its run identifier matches the displayed terminal run. A failed or absent
 analysis never changes the terminal checkpoint, report, repository state,
 validation result or lifecycle outcome.
 
+## Private dashboard evidence access
+
+The dashboard renders a report and an advisory analysis as read-only Markdown
+only after the maintainer opens the relevant evidence view. It provides local
+copy and download actions only when the matching artifact exists. Downloaded
+files contain the original local Markdown; rendering and copying do not alter
+the report, checkpoint or target repository.
+
+**Promptgeschiedenis** is a private SQLite-backed index of terminal runs. Its
+report action opens the selected report in the same read-only Markdown dialog,
+not in an editor. It is deliberately an evidence-navigation feature rather
+than an execution or repository-control surface.
+
+When no report or analysis was persisted for the selected terminal run, the
+dashboard must say so explicitly. It must not show an unavailable artifact as
+pending, or expose copy/download controls for empty content.
+
 ## Runtime provenance
 
 Every terminal report records its runtime provenance alongside the terminal

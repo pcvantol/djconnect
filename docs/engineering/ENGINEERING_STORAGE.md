@@ -57,6 +57,13 @@ when the provider did not report them; the platform never estimates them.
 dashboard events. The dashboard reads its bounded log views from this table,
 and clearing a component log removes only that component's SQLite rows.
 
+The table also records bounded, redacted dashboard user actions that have an
+operational effect or access local evidence: component restart requests,
+provider reset-credit requests, submitted AI-advice questions, and report or
+log downloads. A user action records its event type and the applicable fixed
+component or run identifier, never its free-form chat text, report body,
+credentials or browser-supplied command.
+
 The former `.engineering/logs/inbox.log` and `dashboard.log` files are no
 longer normal application logs. They are created only as a private, rotating
 fallback when SQLite cannot be opened during early startup or an application
