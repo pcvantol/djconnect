@@ -421,6 +421,7 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn('.chat-message--assistant .chat-message__body{font-family:system-ui,sans-serif}', page)
         self.assertIn('#codexChat .chat-input,#codexChat .chat-send{border-color:#d0a4ff}', page)
         self.assertIn('#downloadChat.download--glyph{right:14px}', page)
+        self.assertIn('.component-modal__panel{color:#f7f3ee}.component-modal__close:hover{background:#a3e63526}.component-modal__close:focus-visible{box-shadow:0 0 0 4px #a3e63540;outline:2px solid #a3e635;outline-offset:3px}', page)
         self.assertIn('#chatInput:focus-visible{outline:2px solid #d0a4ff;outline-offset:2px;box-shadow:0 0 0 4px #292336}', page)
         self.assertIn(':where(input,select,textarea):focus-visible{outline:2px solid var(--category-color);outline-offset:2px;box-shadow:0 0 0 4px color-mix(in srgb,var(--category-color) 24%,transparent)}', page)
         self.assertIn('.workspace-card>summary:focus-visible,#rateLimits>summary:focus-visible,.last-execution-group>summary:focus-visible,.telemetry>summary:focus-visible,.platform-health>summary:focus-visible,.technical-details>summary:focus-visible,#codexChat>summary:focus-visible,.current-run>summary:focus-visible{outline:2px solid var(--category-color);outline-offset:3px;box-shadow:0 0 0 4px color-mix(in srgb,var(--category-color) 24%,transparent)}', page)
