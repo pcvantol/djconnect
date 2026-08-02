@@ -82,6 +82,43 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#platformHealthComponents")).not.toContainText("Statusprojectie beschikbaar · Uptime");
   });
 
+  test("never renders a white focus ring on visible interactive elements", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => {
+      document.querySelectorAll("details").forEach((element) => { element.open = true; });
+    });
+
+    const violations = await page.evaluate(() => {
+      const selector = [
+        "button:not([disabled])",
+        "input:not([disabled])",
+        "select:not([disabled])",
+        "textarea:not([disabled])",
+        "summary",
+        '[role="button"]:not([aria-disabled="true"])',
+        "[tabindex]:not([tabindex='-1'])",
+      ].join(",");
+      const isVisible = (element) => {
+        const style = getComputedStyle(element);
+        const rect = element.getBoundingClientRect();
+        return style.visibility !== "hidden" && style.display !== "none" && rect.width > 0 && rect.height > 0;
+      };
+      const hasWhite = (value) => /rgb\(\s*(?:2[4-5]\d|255)\s*,\s*(?:2[4-5]\d|255)\s*,\s*(?:2[4-5]\d|255)\s*\)/.test(value);
+
+      return [...document.querySelectorAll(selector)].filter(isVisible).flatMap((element) => {
+        element.focus({ preventScroll: true });
+        const style = getComputedStyle(element);
+        const focusStyles = `${style.outlineColor} ${style.boxShadow}`;
+        return hasWhite(focusStyles) ? [{
+          element: element.id || element.getAttribute("data-testid") || element.tagName,
+          focusStyles,
+        }] : [];
+      });
+    });
+
+    expect(violations).toEqual([]);
+  });
+
   test("shows the private dashboard and keeps completed work collapsed by default", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     // This test intentionally mutates projected state below.  Freeze the
@@ -372,7 +409,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(queue).toBeVisible();
     await expect(queue).not.toHaveAttribute("open", "");
     await expect(queue.locator("summary")).toContainText("Inbox-wachtrij");
-    await expect(queue.locator(".category-description")).toHaveText("Prompts in uitvoervolgorde: oudste eerst. Ook een lege wachtrij blijft zichtbaar.");
+    await expect(queue.locator(".category-description")).toHaveText("Prompts worden uitgevoerd op volgorde van aanmaakdatum.");
     await queue.locator("summary").click();
     await expect(page.locator("#queueSummary")).toHaveText("0 prompts in de wachtrij.");
     await expect(page.locator("#queueList")).toContainText("Geen Inbox-prompts wachten op uitvoering.");
@@ -388,7 +425,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(entries.nth(0)).toContainText("Bestandsnaam: earlier.md");
     await expect(entries.nth(0)).toHaveAttribute("aria-label", "Positie 1: Eerst uitvoeren");
     await expect(entries.nth(1)).toContainText("Later uitvoeren");
-    await expect(page.locator("#queueSummary")).toHaveText("2 prompts in uitvoervolgorde: oudste eerst.");
+    await expect(page.locator("#queueSummary")).toHaveText("2 prompts in de wachtrij.");
   });
 
   test("renders provider limit rows on separate lines", async ({ page }) => {
