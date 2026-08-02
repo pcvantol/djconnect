@@ -1,4 +1,4 @@
-"""Private Engineering Status dashboard; no repository transaction authority."""
+"""Private Engineering Status dashboard with a bounded predecessor-retry action."""
 
 from __future__ import annotations
 
@@ -28,6 +28,7 @@ from .providers import TailscaleProvider
 from .providers import LaunchdProvider
 from .inbox_watcher import LABEL as WATCHER_LABEL
 from .inbox_watcher import WATCHER_VERSION
+from .inbox_watcher import RetrySubmissionError, cloud_root, submit_predecessor_retry
 from .component_logging import (
     DEFAULT_LOG_LEVEL,
     LOG_LEVEL_ENVIRONMENT,
@@ -1021,6 +1022,7 @@ pre{white-space:pre-wrap;word-break:break-word;margin:5px 0 0;font:12px ui-monos
 .category-description{color:#b9b6c0;font-size:14px;line-height:1.4;margin:0 0 14px}
 .workspace-card,#rateLimits,.last-execution-group,#componentLogs,#codexChat,#engineering-dashboard-content>.technical-details:not(#componentLogs){border:1px solid var(--category-color);border-left-width:3px}
 .rate-limit-reset{background:#173c31;border:1px solid #54d6a0;border-radius:8px;color:#d9fff0;font:13px system-ui;margin-top:12px;padding:8px 10px}.rate-limit-reset:disabled{cursor:wait;opacity:.7}.rate-limit-reset-status{color:#b9b6c0;font-size:12px;margin:8px 0 0}
+.predecessor-retry{background:#3b281b;border:1px solid #f0b66a;border-radius:8px;color:#fff0dc;font:13px system-ui;margin-top:12px;padding:8px 10px}.predecessor-retry:hover:not(:disabled){background:#543721}.predecessor-retry:disabled{cursor:wait;opacity:.7}.predecessor-retry-status{color:#d6c5a8;font-size:12px;margin:8px 0 0}
 .estimate-primary{font-size:inherit}#executionEstimateMeta{white-space:pre-line}
 .workspace-card>summary>strong,#rateLimits>summary>strong,.last-execution-group>summary>strong,#componentLogs>summary>strong,#codexChat>summary>strong,#engineering-dashboard-content>.technical-details:not(#componentLogs)>summary>strong{font-size:17px;line-height:1.25}.workspace-card>summary,#rateLimits>summary,.last-execution-group>summary,#componentLogs>summary,#codexChat>summary,#engineering-dashboard-content>.technical-details:not(#componentLogs)>summary{margin-bottom:8px;padding-bottom:10px}
 .workspace-card>summary>strong,#rateLimits>summary>strong,.last-execution-group>summary>strong,#componentLogs>summary>strong,#codexChat>summary>strong,#engineering-dashboard-content>.technical-details:not(#componentLogs)>summary>strong{color:var(--category-color)}
@@ -1062,6 +1064,7 @@ html[data-theme="light"] #downloadChat.download--glyph{background:#fff7ff;border
 /* Component cards use symmetric vertical padding; the info action belongs at the card centre. */
 .platform-health__component{align-items:start;grid-template-areas:"indicator name info" "indicator detail info";grid-template-columns:auto minmax(0,1fr) auto;padding:12px 10px;row-gap:8px}.platform-health__component .indicator{align-self:center;grid-area:indicator}.platform-health__component-name{grid-area:name}.platform-health__component-detail{grid-area:detail;margin:0}.component-info{align-self:center;grid-area:info}
 .chat-input{resize:vertical}
+html[data-theme="light"] .predecessor-retry{background:#fff8ef;border-color:#d68b23;color:#643a13}html[data-theme="light"] .predecessor-retry:hover:not(:disabled){background:#fff0dc}
 </style>
 </head>
 <body>
@@ -1076,7 +1079,7 @@ html[data-theme="light"] #downloadChat.download--glyph{background:#fff7ff;border
 <details class="prompt-history" id="promptHistory" data-testid="engineering-prompt-history"><summary><strong>Promptgeschiedenis</strong></summary><p class="category-description">Alle terminale Engineering Platform-uitvoeringen, lokaal gecachet in de Engineering SQLite-opslag.</p><div class="log-controls"><label for="promptHistoryFilter">Zoeken<input id="promptHistoryFilter" type="search" maxlength="160" data-sanitize="single-line" placeholder="Zoek in alle velden"></label></div><div class="log-table-wrap"><table class="log-table" aria-label="Promptgeschiedenis"><thead><tr><th data-history-sort-key="status" scope="col">Status</th><th data-history-sort-key="title" scope="col">Prompttitel</th><th data-history-sort-key="executed_at" scope="col">Uitgevoerd op</th><th data-history-sort-key="git_commit" scope="col">Git-commit</th><th scope="col">Rapport</th></tr></thead><tbody id="promptHistoryRows"><tr><td class="log-empty" colspan="5">Promptgeschiedenis laden…</td></tr></tbody></table></div><nav class="log-pagination" id="promptHistoryPagination" aria-label="Paginering Promptgeschiedenis"></nav></details>
 <details class="current-run" id="currentRun" aria-label="Huidige uitvoering" hidden><summary class="current-run__title"><span class="label">Actieve prompt</span><h2 id="currentPrompt">Laden…</h2><div class="field"><span class="label">Bestandsnaam</span><pre id="currentFile">Laden…</pre></div></summary><div class="current-run__grid">
 <div class="card"><div class="status"><span id="indicator" class="indicator" role="status" aria-label="Status onbekend"></span><strong>Promptstatus</strong></div><p class="field"><span class="label">Watcher</span><span id="watcher">Laden…</span></p><p class="field"><span class="label">Fase</span><span id="phase">Laden…</span></p><p class="field"><span class="label">Huidige actie</span><span id="action">Laden…</span></p></div>
-<div class="card" id="predecessorGate" hidden><strong>Wachtrij geblokkeerd</strong><p class="field"><span class="label">Blokkerende run</span><code id="predecessorRun"></code></p><p class="field"><span class="label">Voorafgaande prompt</span><span id="predecessorPrompt"></span></p><p class="field"><span class="label">Eindstatus</span><span id="predecessorPhase"></span></p><div class="field"><span class="label">Herstelactie</span><pre id="predecessorAction"></pre></div></div>
+<div class="card" id="predecessorGate" hidden><strong>Wachtrij geblokkeerd</strong><p class="field"><span class="label">Blokkerende run</span><code id="predecessorRun"></code></p><p class="field"><span class="label">Voorafgaande prompt</span><span id="predecessorPrompt"></span></p><p class="field"><span class="label">Eindstatus</span><span id="predecessorPhase"></span></p><div class="field"><span class="label">Herstelactie</span><pre id="predecessorAction"></pre></div><button class="predecessor-retry" id="predecessorRetry" type="button">Opnieuw indienen</button><p class="predecessor-retry-status" id="predecessorRetryStatus" role="status" aria-live="polite"></p></div>
 <div class="card"><strong>Tijd</strong><p id="currentTime">Laden…</p><p id="lastRefresh">Laatst bijgewerkt: laden…</p><p id="updateMode">Serverpush: verbinden…</p></div>
 <div class="card"><strong>Geschatte uitvoeringstijd</strong><p class="estimate-primary" id="executionEstimate">Nog niet beschikbaar…</p><p class="estimate-meta" id="executionEstimateMeta" hidden></p></div>
 <div class="card"><strong>Uitvoering</strong><p class="field"><span class="label">Run-ID</span><span id="runId"></span></p><p class="field"><span class="label">Prompt gestart op</span><span id="promptStarted">Laden…</span></p><p class="field"><span class="label">Wachtrij</span><span id="queue"></span></p></div>
@@ -1092,7 +1095,7 @@ html[data-theme="light"] #downloadChat.download--glyph{background:#fff7ff;border
 <details class="platform-health" id="platformHealth" data-testid="platform-health"><summary><strong>Platformonderdelen</strong></summary><p class="category-description">Live gezondheidscontrole van de lokale Engineering Platform-componenten.</p><div class="platform-health__components" id="platformHealthComponents" aria-live="polite"><p class="platform-health__empty">Componentstatus laden…</p></div></details>
 <dialog class="component-modal" id="componentModal" aria-labelledby="componentModalTitle"><section class="component-modal__panel"><button class="component-modal__close" id="componentModalClose" type="button" aria-label="Meer informatie sluiten">×</button><h2 id="componentModalTitle">Componentinformatie</h2><div id="componentModalContent"></div><button class="component-modal__restart" id="componentModalRestart" type="button" hidden>Component herstarten</button><p class="component-modal__status" id="componentModalStatus" aria-live="polite"></p></section></dialog>
 <details class="technical-details" id="componentLogs"><summary><strong>Logs</strong></summary><p class="estimate-meta">Geredigeerde, roterende logs van watcher en dashboard. Deze worden pas opgehaald nadat je op de knop drukt.</p><button class="copy" id="loadComponentLogs" type="button">Logs laden</button><div class="log-controls" id="componentLogControls" hidden><label for="logFilter">Zoeken<input id="logFilter" type="search" maxlength="160" data-sanitize="single-line" placeholder="Zoek in alle velden"></label><label for="logLevelFilter">Niveau<select id="logLevelFilter"><option value="">Alle niveaus</option><option value="ERROR">Fout</option><option value="WARNING">Waarschuwing</option><option value="INFO">Informatie</option><option value="DEBUG">Debug</option></select></label><label for="logSort">Sortering<select id="logSort"><option value="newest">Nieuwste eerst</option><option value="oldest">Oudste eerst</option><option value="level">Niveau</option><option value="event">Gebeurtenis</option></select></label></div><div class="technical-grid"><div class="card"><div class="log-card-header"><strong>Inbox-watcher</strong><button class="clear-component-log" data-component="inbox" data-testid="clear-inbox-log" type="button">Logs wissen</button></div><div class="log-table-wrap"><table class="log-table"><thead><tr><th>#</th><th>Tijdstip</th><th>Niveau</th><th>Gebeurtenis</th><th>Run-ID</th><th>Details</th></tr></thead><tbody id="inboxComponentLog"><tr><td class="log-empty" colspan="6">Nog niet geladen.</td></tr></tbody></table></div><nav class="log-pagination" id="inboxLogPagination" aria-label="Paginering Inbox-watcher"></nav></div><div class="card"><div class="log-card-header"><strong>Statusdashboard</strong><button class="clear-component-log" data-component="dashboard" data-testid="clear-dashboard-log" type="button">Logs wissen</button></div><div class="log-table-wrap"><table class="log-table"><thead><tr><th>#</th><th>Tijdstip</th><th>Niveau</th><th>Gebeurtenis</th><th>Run-ID</th><th>Details</th></tr></thead><tbody id="dashboardComponentLog"><tr><td class="log-empty" colspan="6">Nog niet geladen.</td></tr></tbody></table></div><nav class="log-pagination" id="dashboardLogPagination" aria-label="Paginering Statusdashboard"></nav></div></div></details>
-<details class="card codex-chat" id="codexChat"><summary><strong>AI-gesprek</strong></summary><div class="codex-chat__details"><button class="download download--glyph" id="downloadChat" type="button" title="Download gesprek" aria-label="Download gesprek" hidden>⇩</button><div class="chat-messages" id="chatMessages" aria-live="polite" aria-label="Gesprek met AI-assistent"></div><label class="label" for="chatInput">Nieuwe vraag aan AI-assistent</label><div class="chat-compose"><textarea id="chatInput" class="chat-input" rows="5" maxlength="2000" autocomplete="off" data-sanitize="multiline" placeholder="Bijvoorbeeld: wat zijn de belangrijkste vervolgstappen uit het laatste rapport?"></textarea><button class="chat-send" id="chatSend" type="button" title="Verstuur vraag" aria-label="Verstuur vraag"><span aria-hidden="true">➤</span></button></div><p class="field"><span class="label">Gebruikt model</span><span id="chatModel">$CHAT_MODEL</span></p><p class="chat-status" id="chatStatus"></p></div></details>
+<details class="card codex-chat" id="codexChat"><summary><strong>AI-gesprek</strong></summary><p class="category-description">Stel korte, alleen-lezen vragen over de laatst uitgevoerde prompt en het bijbehorende rapport. Dit start geen engineering of wijzigingen.</p><div class="codex-chat__details"><button class="download download--glyph" id="downloadChat" type="button" title="Download gesprek" aria-label="Download gesprek" hidden>⇩</button><div class="chat-messages" id="chatMessages" aria-live="polite" aria-label="Gesprek met AI-assistent"></div><label class="label" for="chatInput">Nieuwe vraag aan AI-assistent</label><div class="chat-compose"><textarea id="chatInput" class="chat-input" rows="5" maxlength="2000" autocomplete="off" data-sanitize="multiline" placeholder="Bijvoorbeeld: wat zijn de belangrijkste vervolgstappen uit het laatste rapport?"></textarea><button class="chat-send" id="chatSend" type="button" title="Verstuur vraag" aria-label="Verstuur vraag"><span aria-hidden="true">➤</span></button></div><p class="field"><span class="label">Gebruikt model</span><span id="chatModel">$CHAT_MODEL</span></p><p class="chat-status" id="chatStatus"></p></div></details>
 <details class="technical-details" id="technicalDetails"><summary><strong>Technische details</strong></summary><div class="technical-grid">
 <div class="card"><strong>Pull requests</strong><p class="field"><span class="label">Implementatie</span><span id="implementation"></span></p><p class="field"><span class="label">Finalisatie</span><span id="finalization"></span></p></div>
 <div class="card"><strong>Repository</strong><p class="field"><span class="label">Repositorystatus</span><span id="repositoryState"></span></p><p class="field"><span class="label">Werkruimtestatus</span><span id="workspaceState"></span></p></div>
@@ -1190,6 +1193,9 @@ function recordUserAction(action){return fetch("/api/audit/user-action",{method:
 function downloadLastExecutedDocument(endpoint,filenamePrefix){if(!lastExecutedRun)return Promise.reject(Error("Geen uitgevoerde prompt beschikbaar."));const separator=endpoint.includes("?")?"&":"?";return fetch(endpoint+separator+"run_id="+encodeURIComponent(lastExecutedRun)+"&audit=download").then(response=>response.ok?response.text():Promise.reject(Error("Download is niet beschikbaar."))).then(text=>{if(!text)throw Error("Download is niet beschikbaar.");const link=document.createElement("a"),url=URL.createObjectURL(new Blob([text],{type:"text/markdown;charset=utf-8"})),safeRun=String(lastExecutedRun).replace(/[^a-z0-9._-]+/gi,"-");link.href=url;link.download=filenamePrefix+"-"+safeRun+".md";link.hidden=true;document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),0)})}
 $("downloadChat")?.addEventListener("click",()=>void recordUserAction("chat_downloaded"));$("copyReport")?.addEventListener("click",()=>void recordUserAction("report_copied"));$("copyReportAnalysis")?.addEventListener("click",()=>void recordUserAction("report_analysis_copied"));
 const renderPromptHistoryWithAudit=renderPromptHistory;renderPromptHistory=()=>{renderPromptHistoryWithAudit();document.querySelectorAll("#promptHistoryRows a.prompt-history-report").forEach(link=>{const url=new URL(link.href,location.href);url.searchParams.set("audit","download");link.href=url.toString()})};
+const renderStatusWithRetry=r;r=(x,snapshot={})=>{renderStatusWithRetry(x,snapshot);const blocked=Boolean(x&&x.blocking_predecessor_run),button=$("predecessorRetry"),status=$("predecessorRetryStatus");button.hidden=!blocked;button.disabled=isActiveRun(x||{});if(!blocked)status.textContent=""};
+function submitPredecessorRetry(){const button=$("predecessorRetry"),status=$("predecessorRetryStatus"),run=latestStatus?.blocking_predecessor_run;if(!run||button.disabled)return;if(!window.confirm("Deze actie dient de geblokkeerde prompt opnieuw in. De Inbox-watcher voert hem daarna als eerstvolgende prompt uit. Doorgaan?"))return;button.disabled=true;status.textContent="Herindiening wordt klaargezet…";fetch("/api/predecessor-retry",{method:"POST",headers:{"Content-Type":"application/json"},body:"{}"}).then(async response=>({ok:response.ok,body:await response.json()})).then(result=>{if(!result.ok)throw Error(result.body.error||"Herindiening kon niet worden gestart.");status.textContent="Herindiening staat in de Inbox en wordt door de watcher opgepakt."}).catch(error=>{status.textContent=error.message||"Herindiening kon niet worden gestart."}).finally(()=>{button.disabled=false})}
+$("predecessorRetry").addEventListener("click",submitPredecessorRetry);
 </script>
 </body>
 </html>"""
@@ -1305,6 +1311,36 @@ def handler(root: Path, logger: logging.Logger | None = None):
                     json.dumps(payload, ensure_ascii=False).encode(),
                     "application/json; charset=utf-8",
                     status_code,
+                )
+                return
+            if request_path == "/api/predecessor-retry":
+                try:
+                    length = int(self.headers.get("Content-Length", "0"))
+                    if length != 2 or self.rfile.read(length) != b"{}":
+                        raise ValueError
+                    outcome = submit_predecessor_retry(root, cloud_root(repo=root))
+                    log_event(
+                        logger,
+                        logging.INFO,
+                        "predecessor_retry_submission_triggered",
+                        run_id=outcome["blocking_run_id"],
+                        diagnostic=f"retry_run_id={outcome['retry_run_id']}",
+                    )
+                except RetrySubmissionError as error:
+                    content = json.dumps({"error": str(error)}, ensure_ascii=False).encode()
+                    self._send(content, "application/json; charset=utf-8", 409)
+                    return
+                except (RuntimeError, ValueError):
+                    self._send(
+                        b'{"error":"De Inbox-watcher verwerkt momenteel een actie. Probeer het opnieuw."}',
+                        "application/json; charset=utf-8",
+                        409,
+                    )
+                    return
+                self._send(
+                    json.dumps(outcome, ensure_ascii=False).encode(),
+                    "application/json; charset=utf-8",
+                    202,
                 )
                 return
             if request_path == "/api/audit/user-action":

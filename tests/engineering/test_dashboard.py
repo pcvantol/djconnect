@@ -287,6 +287,10 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn("Wachtrij geblokkeerd", page)
         self.assertIn('id="predecessorRun"', page)
         self.assertIn('id="predecessorAction"', page)
+        self.assertIn('id="predecessorRetry"', page)
+        self.assertIn('id="predecessorRetryStatus"', page)
+        self.assertIn('fetch("/api/predecessor-retry"', page)
+        self.assertIn('function submitPredecessorRetry()', page)
         self.assertIn('WAITING_FOR_PREDECESSOR:"Wacht op voorafgaande prompt"', page)
         self.assertIn("indicator--green", page)
         self.assertIn("indicator--yellow", page)
@@ -391,7 +395,7 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn('button.classList.add("copy--glyph")', page)
         self.assertIn('.copy.copy--glyph,.download.download--glyph{align-items:center', page)
         self.assertIn('id="copyToast" role="status" aria-live="polite"', page)
-        self.assertIn('#copyToast{background:#20332f;border:1px solid #54d6a0', page)
+        self.assertIn('#copyToast{background:var(--house-style-surface);border:1px solid var(--house-style)', page)
         self.assertIn('function showCopyToast()', page)
         self.assertIn('toast.textContent="Gekopieerd naar klembord"', page)
         self.assertIn('function copyReportAnalysis()', page)
@@ -472,14 +476,14 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn('renderMarkdownDocument($("reportAnalysisContent"),x)', page)
         self.assertIn('const plainChatMessage=chatMessage;chatMessage=(role,text)=>{if(role!=="assistant")', page)
         self.assertIn('link.rel="noopener noreferrer"', page)
-        self.assertIn('.chat-message--assistant .chat-message__body{font-family:system-ui,sans-serif}', page)
+        self.assertIn('.chat-message__body{font-family:system-ui,sans-serif}', page)
         self.assertIn('#codexChat .chat-input,#codexChat .chat-send{border-color:#d0a4ff}', page)
-        self.assertIn('#downloadChat.download--glyph{align-items:center;background:#34283f;border:1px solid #d0a4ff;border-radius:8px;color:#eadcff;display:inline-flex;float:right;font-size:12px;gap:5px;height:36px;justify-content:center;min-height:36px;min-width:auto;padding:0 10px;position:relative;right:auto;top:auto;width:auto;z-index:auto}', page)
-        self.assertIn('#downloadChat.download--glyph::after{content:"Download";font:600 12px/1 system-ui}', page)
+        self.assertIn('#downloadChat.download--glyph{align-items:center;background:#34283f;border:1px solid #d0a4ff;border-radius:50%;color:#eadcff;display:flex', page)
+        self.assertIn('#downloadChat.download--glyph::before{content:"↓";font:700 21px/1 system-ui}', page)
         self.assertIn('.component-modal__panel{color:#f7f3ee}.component-modal__close:hover{background:#a3e63526}.component-modal__close:focus-visible{box-shadow:0 0 0 4px #a3e63540;outline:2px solid #a3e635;outline-offset:3px}', page)
         self.assertIn('html[data-theme="light"] .component-modal__panel{background:#fff;color:#182230', page)
         self.assertIn('html[data-theme="light"] #componentLogs .clear-component-log,html[data-theme="light"] #componentLogs .log-pagination button{background:#fff8ef!important', page)
-        self.assertIn('.footer .label{color:#f0b66a}', page)
+        self.assertIn('.footer .label{color:var(--house-style)}', page)
         self.assertIn('#chatInput:focus-visible{outline:2px solid #d0a4ff;outline-offset:2px;box-shadow:0 0 0 4px #292336}', page)
         self.assertIn(':where(input,select,textarea):focus-visible{outline:2px solid var(--category-color);outline-offset:2px;box-shadow:0 0 0 4px color-mix(in srgb,var(--category-color) 24%,transparent)}', page)
         self.assertIn('.workspace-card>summary:focus-visible,#rateLimits>summary:focus-visible,.last-execution-group>summary:focus-visible,.telemetry>summary:focus-visible,.platform-health>summary:focus-visible,.technical-details>summary:focus-visible,#codexChat>summary:focus-visible,.current-run>summary:focus-visible{outline:2px solid var(--category-color);outline-offset:3px;box-shadow:0 0 0 4px color-mix(in srgb,var(--category-color) 24%,transparent)}', page)
@@ -562,7 +566,7 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn('aria-relevant","additions text"', page)
         self.assertIn('@media (prefers-reduced-motion:reduce)', page)
         self.assertIn('fetch("/api/codex-chat"', page)
-        self.assertIn("Alleen lezen", page)
+        self.assertIn("alleen-lezen vragen", page)
         self.assertIn('id="currentDiagnostic" hidden', page)
         self.assertIn('id="lastDiagnostic" hidden', page)
         self.assertIn('x.startsWith("No Codex CLI diagnostic is available")', page)
@@ -1469,6 +1473,36 @@ class DashboardStatusTest(unittest.TestCase):
                     ANY,
                     logging.INFO,
                     "chat_downloaded",
+                )
+            retry_outcome = {
+                "blocking_run_id": "inbox-blocked",
+                "retry_filename": "retry-inbox-blocked.md",
+                "retry_run_id": "inbox-retry",
+            }
+            with (
+                patch("tools.engineering.dashboard.cloud_root", return_value=root),
+                patch(
+                    "tools.engineering.dashboard.submit_predecessor_retry",
+                    return_value=retry_outcome,
+                ) as submit_retry,
+                patch("tools.engineering.dashboard.log_event") as retry_log_event,
+            ):
+                connection.request(
+                    "POST",
+                    "/api/predecessor-retry",
+                    body="{}",
+                    headers={"Content-Type": "application/json"},
+                )
+                response = connection.getresponse()
+                self.assertEqual(response.status, 202)
+                self.assertEqual(json.loads(response.read()), retry_outcome)
+                submit_retry.assert_called_once_with(root, root)
+                retry_log_event.assert_any_call(
+                    ANY,
+                    logging.INFO,
+                    "predecessor_retry_submission_triggered",
+                    run_id="inbox-blocked",
+                    diagnostic="retry_run_id=inbox-retry",
                 )
             connection.request(
                 "POST", "/api/rate-limit-reset", body="[]", headers={"Content-Type": "application/json"}

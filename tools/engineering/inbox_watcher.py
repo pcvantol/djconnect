@@ -17,6 +17,7 @@ import shutil
 import subprocess
 import sys
 import time
+import uuid
 
 from .platform_version import EngineeringPlatformManifest
 from .agent_state import redact_diagnostic
@@ -44,6 +45,10 @@ TERMINAL_PHASES = frozenset({"COMPLETE", "BLOCKED", "FAILED"})
 BLOCKING_PREDECESSOR_PHASES = frozenset({"BLOCKED", "FAILED"})
 RETRY_OF_PATTERN = re.compile(r"(?mi)^retry[ _-]of\s*:\s*(inbox-[a-z0-9-]{6,64})\s*$")
 LAUNCH_PATH_FALLBACK = ("/opt/homebrew/bin", "/usr/local/bin", "/usr/bin", "/bin", "/usr/sbin", "/sbin")
+
+
+class RetrySubmissionError(ValueError):
+    """Raised when a fail-closed predecessor cannot be safely resubmitted."""
 
 
 def cloud_root(value: str | None = None, repo: Path | None = None) -> Path:
@@ -361,9 +366,60 @@ def _blocking_predecessor(root: Path) -> dict[str, str] | None:
 
 def _predecessor_recovery_action(run_id: str) -> str:
     return (
-        "Herstel de geblokkeerde prompt en dien die opnieuw in met een eigen regel "
+        "Herstel de geblokkeerde prompt of dien die bewust opnieuw in met een eigen regel "
         f"`Retry-Of: {run_id}`. De wachtrij blijft gepauzeerd totdat deze herindiening voltooid is."
     )
+
+
+def _archived_prompt_for_run(repo: Path, run_id: str) -> tuple[Path, str] | None:
+    """Find the immutable local failed prompt that produced ``run_id``."""
+    for path in sorted(local_folders(repo)["Failed"].iterdir()):
+        content = stable_prompt(path, 0.0)
+        if content is not None and _job_id(path, content)[1] == run_id:
+            return path, content
+    return None
+
+
+def submit_predecessor_retry(repo: Path, root: Path) -> dict[str, str]:
+    """Explicitly resubmit the current blocking prompt through the Inbox transport.
+
+    The watcher remains the only owner of claiming, sequencing and execution.
+    A unique, inert marker prevents an accidental duplicate retry from reusing
+    an already recorded deterministic run identity.
+    """
+    with _lock(repo):
+        predecessor = _blocking_predecessor(repo)
+        if predecessor is None:
+            raise RetrySubmissionError("Er is geen geblokkeerde voorafgaande prompt om opnieuw in te dienen.")
+        candidates = [(path, stable_prompt(path, 0.0)) for path in discover(root, 0.0)]
+        if any(content is not None and _retry_of(content) == predecessor["run_id"] for _, content in candidates):
+            raise RetrySubmissionError("Een herindiening voor deze voorafgaande prompt staat al in de wachtrij.")
+        archived = _archived_prompt_for_run(repo, predecessor["run_id"])
+        if archived is None:
+            raise RetrySubmissionError("De oorspronkelijke geblokkeerde prompt is lokaal niet beschikbaar voor herindiening.")
+        source, content = archived
+        retry_content = (
+            f"Retry-Of: {predecessor['run_id']}\n"
+            f"<!-- Owner-triggered retry: {datetime.now(timezone.utc).isoformat()} {uuid.uuid4().hex} -->\n\n"
+            f"{content}"
+        )
+        inbox = folders(root)["Inbox"]
+        suffix = source.suffix.lower() if source.suffix.lower() in {".md", ".markdown", ".txt"} else ".md"
+        filename = f"retry-{predecessor['run_id']}-{uuid.uuid4().hex[:8]}{suffix}"
+        destination = inbox / filename
+        temporary = inbox / f".{filename}.tmp"
+        try:
+            temporary.write_text(retry_content, encoding="utf-8")
+            os.replace(temporary, destination)
+        except OSError as error:
+            temporary.unlink(missing_ok=True)
+            raise RetrySubmissionError("De herindiening kon niet veilig in de Inbox worden geplaatst.") from error
+        _, retry_run_id, _ = _job_id(destination, retry_content)
+        return {
+            "blocking_run_id": predecessor["run_id"],
+            "filename": filename,
+            "retry_run_id": retry_run_id,
+        }
 
 def _move(source: Path, destination: Path) -> None:
     """Move a prompt out of iCloud, allowing the expected cross-device boundary."""

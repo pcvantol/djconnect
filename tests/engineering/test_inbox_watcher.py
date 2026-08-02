@@ -327,6 +327,52 @@ class InboxWatcherTest(unittest.TestCase):
         self.assertIsNone(snapshot["blocking_predecessor_run"])
         self.assertIsNone(snapshot["predecessor_recovery_action"])
 
+    def test_owner_triggered_retry_resubmits_only_the_blocking_prompt(self) -> None:
+        original = "# Blocked predecessor\n\nKeep this prompt intact."
+        archived = inbox_watcher.local_folders(self.repo)["Failed"] / "blocked__blocked.txt"
+        archived.write_text(original, encoding="utf-8")
+        _, run_id, _ = inbox_watcher._job_id(archived, original)
+        status_directory = self.repo / ".engineering" / "status"
+        status_directory.mkdir(parents=True)
+        (status_directory / "status.json").write_text(
+            json.dumps(
+                {
+                    "last_executed_run": run_id,
+                    "last_executed_phase": "FAILED",
+                    "last_executed_filename": "blocked.txt",
+                    "last_executed_title": "Blocked predecessor",
+                }
+            ),
+            encoding="utf-8",
+        )
+        (self.inbox / "later.txt").write_text("# Later prompt", encoding="utf-8")
+
+        outcome = inbox_watcher.submit_predecessor_retry(self.repo, self.root)
+
+        submitted = self.inbox / outcome["filename"]
+        self.assertTrue(submitted.is_file())
+        retry = submitted.read_text(encoding="utf-8")
+        self.assertIn(f"Retry-Of: {run_id}", retry)
+        self.assertIn(original, retry)
+        self.assertNotEqual(outcome["retry_run_id"], run_id)
+        self.assertTrue((self.inbox / "later.txt").is_file())
+
+    def test_owner_triggered_retry_refuses_duplicate_pending_resubmission(self) -> None:
+        original = "# Blocked predecessor"
+        archived = inbox_watcher.local_folders(self.repo)["Failed"] / "blocked__blocked.txt"
+        archived.write_text(original, encoding="utf-8")
+        _, run_id, _ = inbox_watcher._job_id(archived, original)
+        status_directory = self.repo / ".engineering" / "status"
+        status_directory.mkdir(parents=True)
+        (status_directory / "status.json").write_text(
+            json.dumps({"last_executed_run": run_id, "last_executed_phase": "BLOCKED"}),
+            encoding="utf-8",
+        )
+        (self.inbox / "existing.md").write_text(f"Retry-Of: {run_id}\n# Existing retry", encoding="utf-8")
+
+        with self.assertRaisesRegex(inbox_watcher.RetrySubmissionError, "staat al in de wachtrij"):
+            inbox_watcher.submit_predecessor_retry(self.repo, self.root)
+
     def test_migration_moves_legacy_archives_and_removes_iCloud_status(self) -> None:
         (self.root / "Completed").mkdir()
         (self.root / "Reports").mkdir()
