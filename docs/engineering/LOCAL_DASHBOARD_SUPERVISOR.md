@@ -69,7 +69,10 @@ remains safe, but periodic polling is not the source of truth. The dashboard
 shows the Engineering Platform version and build commit in its status bar. The
 component-health category shows the dashboard and watcher versions beside their
 live health state, so a maintainer can distinguish a stale local service from a
-stale browser page.
+stale browser page. The dashboard, Inbox watcher and dashboard relay also
+report their locally observed uptime. Storage and private external access have
+no process-owned uptime metric, so the dashboard intentionally does not invent
+one for them.
 
 ## Component health endpoint
 
@@ -83,7 +86,8 @@ is read-only and does not repair a component.
 The matching **Platformonderdelen** dashboard category exposes a per-component
 information dialog. It obtains its bounded metadata from
 `GET /api/components/<component>/details`: the local host, executable or
-LaunchAgent configuration, current build commit and observed process memory.
+LaunchAgent configuration, current build commit, observed process memory and,
+when a component owns a local process, its uptime.
 For only `dashboard`, `inbox_watcher` and `dashboard_relay`, an explicitly
 confirmed `POST /api/components/<component>/restart` schedules a local
 `launchctl kickstart -k` for the fixed owned label. The request accepts only an

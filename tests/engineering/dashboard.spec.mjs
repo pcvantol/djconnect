@@ -56,6 +56,9 @@ test.describe("Engineering Status browser smoke", () => {
     }));
     expect(health.components.dashboard.version).toMatch(/^\d+\.\d+\.\d+$/);
     expect(health.components.inbox_watcher.version).toMatch(/^\d+\.\d+\.\d+$/);
+    expect(health.components.dashboard.uptime_seconds).toEqual(expect.any(Number));
+    expect(health.components.inbox_watcher).toHaveProperty("uptime_seconds");
+    expect(health.components.dashboard_relay).toHaveProperty("uptime_seconds");
 
     const favicon = await request.get(`${dashboardUrl}/assets/engineering-status-icon.svg`);
     expect(favicon.status()).toBe(200);
@@ -63,6 +66,20 @@ test.describe("Engineering Status browser smoke", () => {
     const homescreenIcon = await request.get(`${dashboardUrl}/assets/engineering-status-icon-180.png`);
     expect(homescreenIcon.status()).toBe(200);
     expect(homescreenIcon.headers()["content-type"]).toContain("image/png");
+  });
+
+  test("shows uptime only for locally owned processes", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#autoRefresh").uncheck();
+    await page.evaluate(() => renderPlatformHealth({ components: {
+      dashboard: { healthy: true, detail: "HTTP-dashboard reageert", version: "1.2.82", uptime_seconds: 3725 },
+      inbox_watcher: { healthy: true, detail: "LaunchAgent is geladen", version: "1.1.4", uptime_seconds: 75 },
+      status_storage: { healthy: true, detail: "Statusprojectie beschikbaar" },
+    }}));
+
+    await expect(page.locator("#platformHealthComponents")).toContainText("Uptime 1u 2m");
+    await expect(page.locator("#platformHealthComponents")).toContainText("Uptime 1m");
+    await expect(page.locator("#platformHealthComponents")).not.toContainText("Statusprojectie beschikbaar · Uptime");
   });
 
   test("shows the private dashboard and keeps completed work collapsed by default", async ({ page }) => {

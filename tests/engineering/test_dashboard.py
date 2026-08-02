@@ -10,7 +10,7 @@ import unittest
 from unittest.mock import patch
 
 from tools.engineering import dashboard
-from tools.engineering.dashboard import DASHBOARD_VERSION, LOOPBACK_ADDRESS, _clear_component_log, _codex_process_metrics, _codex_usage, _codex_usage_for_run, _component_log, _component_log_versions, _completion_commits, _current_codex_log, _dashboard_html, _last_executed_agent_execution, _last_executed_codex_log, _last_executed_commits, _last_executed_runtime_metadata, _latest_codex_log, _normalize_rate_limits, _platform_health, _prompt_history, _report_analysis_available_for_run, _report_analysis_for_run, _report_for_run, _reviewer_agents_for_run, _sse_snapshot, _sse_status, _status, _tracked_file_count, binding_addresses
+from tools.engineering.dashboard import DASHBOARD_VERSION, LOOPBACK_ADDRESS, _clear_component_log, _codex_process_metrics, _codex_usage, _codex_usage_for_run, _component_log, _component_log_versions, _completion_commits, _component_uptime_seconds, _current_codex_log, _dashboard_html, _last_executed_agent_execution, _last_executed_codex_log, _last_executed_commits, _last_executed_runtime_metadata, _latest_codex_log, _normalize_rate_limits, _platform_health, _prompt_history, _report_analysis_available_for_run, _report_analysis_for_run, _report_for_run, _reviewer_agents_for_run, _sse_snapshot, _sse_status, _status, _tracked_file_count, binding_addresses
 from tools.engineering.inbox_watcher import WATCHER_VERSION
 from tools.engineering.platform_version import EngineeringPlatformManifest
 from tools.engineering.storage import open_storage
@@ -1046,10 +1046,11 @@ class DashboardStatusTest(unittest.TestCase):
                 )
             self.assertEqual(_component_log_versions(root)["inbox"], "sqlite:1:1")
 
+    @patch("tools.engineering.dashboard._component_uptime_seconds", side_effect=(3661, 122))
     @patch("tools.engineering.dashboard._launch_agent_health")
     @patch("tools.engineering.dashboard.TailscaleProvider.status")
     def test_platform_health_reports_each_required_component(
-        self, remote_status: object, launch_agent_health: object
+        self, remote_status: object, launch_agent_health: object, component_uptime: object
     ) -> None:
         remote_status.return_value.qualified = True
         remote_status.return_value.detail = "connected"
@@ -1074,6 +1075,22 @@ class DashboardStatusTest(unittest.TestCase):
             "status_storage",
             "private_remote_access",
         })
+        self.assertIsInstance(health["components"]["dashboard"]["uptime_seconds"], int)
+        self.assertEqual(health["components"]["inbox_watcher"]["uptime_seconds"], 3661)
+        self.assertEqual(health["components"]["dashboard_relay"]["uptime_seconds"], 122)
+        self.assertNotIn("uptime_seconds", health["components"]["status_storage"])
+        self.assertNotIn("uptime_seconds", health["components"]["private_remote_access"])
+        component_uptime.assert_called()
+
+    @patch("tools.engineering.dashboard._component_processes")
+    def test_component_uptime_uses_the_longest_owned_process_lifetime(self, processes: object) -> None:
+        processes.return_value = [
+            {"pid": 10, "memory_kib": 100, "uptime_seconds": 20},
+            {"pid": 11, "memory_kib": 100, "uptime_seconds": 90},
+        ]
+        self.assertEqual(_component_uptime_seconds("inbox_watcher"), 90)
+        processes.return_value = []
+        self.assertIsNone(_component_uptime_seconds("inbox_watcher"))
 
     def test_dashboard_binds_only_loopback_and_delegates_tailnet_ingress_to_relay(self) -> None:
         self.assertEqual(binding_addresses(), (LOOPBACK_ADDRESS,))
