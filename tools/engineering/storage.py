@@ -17,6 +17,7 @@ import sqlite3
 WORKSPACE_DIRECTORY = ".engineering"
 DATABASE_FILENAME = "engineering.db"
 ENGINEERING_STORAGE_SCHEMA_VERSION = 4
+JOURNAL_MODES = frozenset({"DELETE", "MEMORY"})
 
 
 class EngineeringStorageError(RuntimeError):
@@ -194,19 +195,36 @@ def _schema_version(connection: sqlite3.Connection) -> int:
     return max(versions, default=0)
 
 
-def open_storage(root: Path) -> sqlite3.Connection:
+def open_storage(
+    root: Path, *, create: bool = True, journal_mode: str = "DELETE"
+) -> sqlite3.Connection:
     """Open, upgrade and validate the private SQLite evidence database.
 
     Schema upgrades run in one immediate transaction. SQLite rollback-journal
     mode intentionally avoids persistent WAL sidecars in `.engineering`.
+    Background best-effort writers may request an in-memory journal so their
+    temporary transaction files cannot race workspace cleanup.
     """
+    if journal_mode not in JOURNAL_MODES:
+        raise ValueError("Unsupported SQLite journal mode.")
     path = database_path(root)
-    path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
-    connection = sqlite3.connect(path, timeout=10, isolation_level=None)
+    if create:
+        path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+    elif not path.parent.is_dir():
+        raise EngineeringStorageError("Engineering storage is unavailable.")
+    # Best-effort consumers (telemetry) open in read/write-existing mode.  This
+    # prevents a delayed worker from recreating a database while a workspace is
+    # being removed.
+    connection = sqlite3.connect(
+        path if create else f"file:{path}?mode=rw",
+        timeout=10,
+        isolation_level=None,
+        uri=not create,
+    )
     try:
         connection.execute("PRAGMA foreign_keys=ON")
         connection.execute("PRAGMA busy_timeout=10000")
-        connection.execute("PRAGMA journal_mode=DELETE")
+        connection.execute(f"PRAGMA journal_mode={journal_mode}")
         current = _schema_version(connection)
         if current > ENGINEERING_STORAGE_SCHEMA_VERSION:
             raise EngineeringStorageError(

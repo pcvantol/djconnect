@@ -47,7 +47,13 @@ def _integer(value: object) -> int | None:
     return value if isinstance(value, int) and not isinstance(value, bool) and value >= 0 else None
 
 
-def persist_execution(root: Path, telemetry: ExecutionTelemetry) -> None:
+def persist_execution(
+    root: Path,
+    telemetry: ExecutionTelemetry,
+    *,
+    create: bool = True,
+    background: bool = False,
+) -> None:
     """Persist one immutable run projection and refresh its daily aggregate."""
     if telemetry.terminal_state not in TERMINAL_STATES:
         raise ValueError("telemetry requires a terminal state")
@@ -58,7 +64,7 @@ def persist_execution(root: Path, telemetry: ExecutionTelemetry) -> None:
     if execution_seconds is not None and (isinstance(execution_seconds, bool) or execution_seconds < 0):
         raise ValueError("telemetry execution duration is invalid")
     execution_date = finished.date().isoformat()
-    connection = open_storage(root)
+    connection = open_storage(root, create=create, journal_mode="MEMORY" if background else "DELETE")
     try:
         connection.execute(
             """
@@ -115,7 +121,10 @@ def persist_execution_async(
     """Schedule telemetry without ever delaying or failing engineering delivery."""
     def persist() -> None:
         try:
-            persist_execution(root, telemetry)
+            # The inbox watcher has already established the canonical workspace
+            # before telemetry is scheduled. A delayed best-effort worker must
+            # never recreate that workspace after its owner has gone away.
+            persist_execution(root, telemetry, create=False, background=True)
         except Exception as error:  # Best-effort boundary; caller logs only.
             if on_error is not None:
                 on_error(error)

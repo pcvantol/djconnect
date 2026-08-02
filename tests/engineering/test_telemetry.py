@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+import shutil
 import tempfile
 from threading import Event
 import unittest
@@ -87,7 +88,7 @@ class ExecutionHostTelemetryTest(unittest.TestCase):
             observed = Event()
             errors: list[Exception] = []
 
-            def failure(_: Path, __: ExecutionTelemetry) -> None:
+            def failure(_: Path, __: ExecutionTelemetry, **___: object) -> None:
                 raise RuntimeError("storage unavailable")
 
             with patch("tools.engineering.telemetry.persist_execution", side_effect=failure):
@@ -100,3 +101,17 @@ class ExecutionHostTelemetryTest(unittest.TestCase):
 
             self.assertTrue(observed.is_set())
             self.assertEqual(str(errors[0]), "storage unavailable")
+
+    def test_async_telemetry_never_recreates_a_removed_workspace(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary) / "workspace"
+            persist_execution(root, self._record("run-existing", "COMPLETE", datetime.now(timezone.utc)))
+            shutil.rmtree(root)
+
+            worker = persist_execution_async(
+                root,
+                self._record("run-removed", "COMPLETE", datetime.now(timezone.utc)),
+            )
+            worker.join(timeout=2)
+
+            self.assertFalse(root.exists())

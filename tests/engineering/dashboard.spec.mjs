@@ -60,6 +60,10 @@ test.describe("Engineering Status browser smoke", () => {
 
   test("shows the private dashboard and keeps completed work collapsed by default", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    // This test intentionally mutates projected state below.  Freeze the
+    // client-side projection first so a legitimate SSE update cannot replace
+    // that deterministic fixture midway through the assertions.
+    await page.locator("#autoRefresh").uncheck();
     await expect(page.getByTestId("engineering-dashboard-title")).toHaveText("Engineering Status");
     await expect(page.getByTestId("dashboard-splash")).toBeHidden();
     await expect(page.locator("#dashboardFavicon")).toHaveAttribute("href", /^data:image\/svg\+xml,/);
@@ -208,6 +212,7 @@ test.describe("Engineering Status browser smoke", () => {
 
   test("renders provider limit rows on separate lines", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#autoRefresh").uncheck();
     await page.evaluate(() => rateLimits({
       windows: [{ label: "Weekvenster", used_percent: 24, resets_at: 0 }],
       reset_credits: 2,
