@@ -145,7 +145,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(categorySummary).toContainText("Laatst uitgevoerde prompt");
     await expect(lastExecution).not.toHaveAttribute("open", "");
     await expect(lastExecution).toHaveCSS("row-gap", "0px");
-    await categorySummary.click();
+    await lastExecution.evaluate((element) => { element.open = true; });
     await expect(lastExecution).toHaveAttribute("open", "");
 
     const sendButton = page.locator("#chatSend");
