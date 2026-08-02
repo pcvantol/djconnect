@@ -82,6 +82,28 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#platformHealthComponents")).not.toContainText("Statusprojectie beschikbaar · Uptime");
   });
 
+  test("centres component information actions and balances component-card text padding", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#platformHealth").evaluate((element) => { element.open = true; });
+    await page.evaluate(() => renderPlatformHealth({ components: {
+      dashboard: { healthy: true, detail: "HTTP-dashboard reageert", version: "1.2.87", uptime_seconds: 1440 },
+    }}));
+
+    const alignment = await page.locator(".platform-health__component").evaluate((card) => {
+      const box = card.getBoundingClientRect();
+      const name = card.querySelector(".platform-health__component-name").getBoundingClientRect();
+      const detail = card.querySelector(".platform-health__component-detail").getBoundingClientRect();
+      const info = card.querySelector(".component-info").getBoundingClientRect();
+      return {
+        infoCentreOffset: Math.abs((info.top + info.height / 2) - (box.top + box.height / 2)),
+        paddingDifference: Math.abs((name.top - box.top) - (box.bottom - detail.bottom)),
+      };
+    });
+
+    expect(alignment.infoCentreOffset).toBeLessThan(1);
+    expect(alignment.paddingDifference).toBeLessThan(1);
+  });
+
   test("keeps platform health status text readable in light mode", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.getByTestId("theme-toggle").click();

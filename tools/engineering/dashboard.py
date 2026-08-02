@@ -1059,6 +1059,8 @@ html[data-theme="light"] #downloadChat.download--glyph{background:#fff7ff;border
 .footer .label{color:var(--house-style)}
 /* Product controls share the house style rather than individual category colours. */
 .theme-toggle[aria-checked="true"]::before,.section-state-toggle[aria-checked="true"]::before,.auto-refresh-toggle input:checked{background:var(--house-style)}.theme-toggle:focus-visible,.section-state-toggle:focus-visible{outline-color:var(--house-style);box-shadow:0 0 0 5px var(--house-style-focus)}.rate-limit-reset{background:var(--house-style-surface);border-color:var(--house-style);color:var(--house-style-contrast)}.rate-limit-reset:hover:not(:disabled){background:color-mix(in srgb,var(--house-style-surface) 78%,var(--house-style))}html[data-theme="light"] .rate-limit-reset{background:var(--house-style-surface);border-color:var(--house-style);color:var(--house-style-contrast)}html[data-theme="light"] .rate-limit-reset:hover:not(:disabled){background:color-mix(in srgb,var(--house-style-surface) 78%,var(--house-style))}
+/* Component cards use symmetric vertical padding; the info action belongs at the card centre. */
+.platform-health__component{align-items:start;grid-template-areas:"indicator name info" "indicator detail info";grid-template-columns:auto minmax(0,1fr) auto;padding:12px 10px;row-gap:8px}.platform-health__component .indicator{align-self:center;grid-area:indicator}.platform-health__component-name{grid-area:name}.platform-health__component-detail{grid-area:detail;margin:0}.component-info{align-self:center;grid-area:info}
 </style>
 </head>
 <body>
