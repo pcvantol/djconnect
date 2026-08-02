@@ -350,6 +350,20 @@ test.describe("Engineering Status browser smoke", () => {
     expect(entries.map((entry) => entry.level)).toEqual(["INFO", "WARNING"]);
   });
 
+  test("treats an absent component log as an empty state, not malformed JSON", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#componentLogs").evaluate((element) => { element.open = true; });
+    await page.evaluate(() => {
+      componentLogEntries.inbox = structuredLogEntries("Nog geen applicatielog beschikbaar.");
+      componentLogEntries.dashboard = [];
+      renderComponentLogs();
+    });
+
+    await expect(page.locator("#inboxComponentLog")).toContainText("Nog geen applicatielog beschikbaar.");
+    await expect(page.locator("#inboxComponentLog")).not.toContainText("ONGELDIGE JSON");
+    await expect(page.locator("#inboxComponentLog")).not.toContainText("onleesbare logregel");
+  });
+
   test("keeps the Inbox queue visible when empty and numbers the oldest prompt first", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.locator("#autoRefresh").uncheck();

@@ -292,6 +292,8 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn('"Pagina "+page+" van "+pageCount', page)
         self.assertIn("function structuredLogEntries(text)", page)
         self.assertIn('split(/\\r?\\n/).filter(Boolean)', page)
+        self.assertIn('normalized==="Nog geen applicatielog beschikbaar."', page)
+        self.assertIn('entries.length?"Geen logregels voor deze selectie.":"Nog geen applicatielog beschikbaar."', page)
         self.assertIn("function renderComponentLogs()", page)
         self.assertIn("user-select:text", page)
         self.assertIn('fetch("/api/logs/inbox")', page)
