@@ -145,6 +145,8 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn('.inbox-queue{--category-color:#818cf8', page)
         self.assertIn('.inbox-queue[open]>summary::before{content:"▾ "}', page)
         self.assertIn('id="queueList"', page)
+        self.assertIn('.queue-list{display:grid;gap:7px;list-style:none;margin:10px 0 0;padding:0;padding-inline-start:0}', page)
+        self.assertIn('grid-template-columns:1.25rem minmax(0,1fr);padding-left:0', page)
         self.assertIn('id="queueSummary"', page)
         self.assertIn("0 prompts in de wachtrij.", page)
         self.assertIn("in uitvoervolgorde: oudste eerst.", page)
