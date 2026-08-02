@@ -1041,6 +1041,7 @@ html[data-theme="light"] body{background:#f4f7fb;color:#182230}html[data-theme="
 html[data-theme="light"] .rate-limit-reset{background:#e8fff5;border-color:#259b70;color:#145a42}html[data-theme="light"] .rate-limit-reset:hover{background:#d6f8e8}html[data-theme="light"] :where(button,input,select,textarea,summary,[role="button"],[tabindex]):focus-visible{box-shadow:0 0 0 5px color-mix(in srgb,var(--category-color,#8dc7ff) 24%,transparent)}
 html[data-theme="light"] .log-pagination button{background:#fff;border-color:var(--category-color);color:color-mix(in srgb,var(--category-color) 70%,#182230)}html[data-theme="light"] .log-pagination button:hover:not(:disabled){background:color-mix(in srgb,var(--category-color) 14%,#fff)}html[data-theme="light"] .log-pagination button:disabled{background:color-mix(in srgb,var(--category-color) 12%,#f4f7fb);border-color:color-mix(in srgb,var(--category-color) 48%,#d4deeb);color:color-mix(in srgb,var(--category-color) 45%,#58677b);opacity:1}
 html[data-theme="light"] #technicalDetails .technical-grid>.card{background:#fff!important;color:#182230}html[data-theme="light"] #technicalDetails .technical-grid>.card :is(p,pre,code){color:#182230}
+html[data-theme="light"] .platform-health__component-detail,html[data-theme="light"] .platform-health__empty,html[data-theme="light"] .platform-health__summary{color:#182230}
 </style>
 </head>
 <body>

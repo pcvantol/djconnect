@@ -82,6 +82,16 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#platformHealthComponents")).not.toContainText("Statusprojectie beschikbaar · Uptime");
   });
 
+  test("keeps platform health status text readable in light mode", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.getByTestId("theme-toggle").click();
+    await page.evaluate(() => renderPlatformHealth({ components: {
+      dashboard: { healthy: true, detail: "HTTP-dashboard reageert", version: "1.2.87" },
+    }}));
+
+    await expect(page.locator(".platform-health__component-detail")).toHaveCSS("color", "rgb(24, 34, 48)");
+  });
+
   test("never renders a white focus ring on visible interactive elements", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.evaluate(() => {
