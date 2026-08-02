@@ -315,6 +315,7 @@ test.describe("Engineering Status browser smoke", () => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.locator("#promptHistory").evaluate((element) => { element.open = true; });
     await page.evaluate(() => {
+      document.querySelector("#promptHistory").open = true;
       promptHistoryEntries = Array.from({ length: 26 }, (_, index) => ({
         run_id: `inbox-history-${index}`,
         status: index % 2 ? "COMPLETE" : "FAILED",
@@ -376,6 +377,22 @@ test.describe("Engineering Status browser smoke", () => {
     await page.evaluate(() => rateLimits({ provider: "Codex CLI", provider_version: "0.146.0", windows: [], reset_credits: 1 }));
     await expect(page.locator("#rateLimitReset")).toHaveCSS("background-color", "rgb(232, 255, 245)");
     await expect(page.locator("#rateLimitReset")).toHaveCSS("color", "rgb(20, 90, 66)");
+    await page.evaluate(() => {
+      document.querySelector("#promptHistory").open = true;
+      promptHistoryEntries = Array.from({ length: 26 }, (_, index) => ({
+        run_id: `light-theme-${index}`,
+        status: "COMPLETE",
+        title: `Lichte modus prompt ${index}`,
+        executed_at: "2026-08-02T10:00:00+00:00",
+        git_commit: null,
+        report_available: false,
+      }));
+      promptHistoryPage = 1;
+      renderPromptHistory();
+    });
+    const historyPagination = page.locator("#promptHistoryPagination");
+    await expect(historyPagination.getByRole("button", { name: "Volgende" })).toHaveCSS("background-color", "rgb(255, 255, 255)");
+    await expect(historyPagination.getByRole("button", { name: "Vorige" })).not.toHaveCSS("background-color", "rgb(68, 43, 55)");
 
     await page.reload({ waitUntil: "domcontentloaded" });
     await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
