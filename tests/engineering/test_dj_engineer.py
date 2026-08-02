@@ -20,6 +20,7 @@ from tools.engineering.dj_engineer import (
     SubprocessRepositoryClient,
     _format_terminal_report,
     _format_cli_failure,
+    additional_workspace_write_roots,
     extract_codex_runtime_metadata,
     extract_codex_usage,
     execution_mode_for,
@@ -166,6 +167,45 @@ class ClientContractTest(unittest.TestCase):
             provider.calls,
             [("git", "switch", "main"), ("git", "pull", "--ff-only")],
         )
+
+    def test_repository_client_rejects_non_platform_roots_and_provider_failures(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            with self.assertRaisesRegex(RunnerError, "canonical BOOTSTRAP"):
+                SubprocessRepositoryClient().inspect(Path(temporary))
+
+        class FailingProvider:
+            def command(self, _: Path, *args: str) -> str:
+                raise RuntimeError("git unavailable")
+
+        with self.assertRaisesRegex(RunnerError, "git unavailable"):
+            SubprocessRepositoryClient(FailingProvider()).synchronize_main(Path("/repository"))
+
+    def test_github_client_translates_provider_failures_and_allows_already_ready(self) -> None:
+        class Provider:
+            def github(self, *_: str) -> str:
+                raise RuntimeError("already ready for review")
+
+        GhCliClient(Provider()).ready(42)
+
+        class FailingProvider:
+            def github(self, *_: str) -> str:
+                raise RuntimeError("service unavailable")
+
+        with self.assertRaisesRegex(RunnerError, "service unavailable"):
+            GhCliClient(FailingProvider()).merge(42)
+
+    def test_codex_client_availability_and_version_fail_closed(self) -> None:
+        class Provider:
+            def __init__(self, code: int, stdout: str = "") -> None:
+                self.code, self.stdout = code, stdout
+
+            def command(self, *_: str) -> subprocess.CompletedProcess[str]:
+                return subprocess.CompletedProcess(("codex",), self.code, self.stdout, "")
+
+        self.assertFalse(CodexCliClient(Provider(1)).available())
+        with self.assertRaisesRegex(RunnerError, "version could not be detected"):
+            CodexCliClient(Provider(1)).version()
+        self.assertEqual(CodexCliClient(Provider(0, "codex-cli 0.146.0")).version(), "0.146.0")
 
     def test_repository_client_inspects_and_translates_provider_failures(self) -> None:
         class Provider:
@@ -485,6 +525,50 @@ class LocalAgentRunnerTest(unittest.TestCase):
     def test_genesis_mode_requires_an_explicit_execution_mode_declaration(self) -> None:
         self.assertEqual(execution_mode_for("Introduce Genesis Mode documentation."), "MANAGED")
         self.assertEqual(execution_mode_for("Execution Mode: Genesis"), "GENESIS")
+
+    def test_genesis_context_rejects_relative_and_host_targets(self) -> None:
+        with self.assertRaisesRegex(RunnerError, "must be absolute"):
+            resolve_execution_context(
+                "Execution Mode: Genesis\n\nTarget repository:\n\nrelative/project\n",
+                self.root,
+            )
+        with self.assertRaisesRegex(RunnerError, "cannot be the Engineering Platform host"):
+            resolve_execution_context(
+                f"Execution Mode: Genesis\n\nTarget repository:\n\n{self.root}\n",
+                self.root,
+            )
+
+    def test_genesis_preflight_rejects_non_git_directory(self) -> None:
+        target = self.root / "not-a-git-repository"
+        target.mkdir()
+        self.assertIn("not an accessible Git repository", genesis_workspace_preflight(target) or "")
+
+    def test_additional_workspace_roots_are_absent_without_local_configuration(self) -> None:
+        self.assertEqual(additional_workspace_write_roots(self.root), ())
+
+    def test_additional_workspace_roots_reject_invalid_and_non_sibling_configuration(self) -> None:
+        configuration = self.root / "tools/engineering/ENGINEERING_PLATFORM_CONFIG.json"
+        configuration.parent.mkdir(parents=True, exist_ok=True)
+        configuration.write_text(
+            (Path(__file__).resolve().parents[2] / "tools/engineering/ENGINEERING_PLATFORM_CONFIG.json").read_text(encoding="utf-8"),
+            encoding="utf-8",
+        )
+        local = self.root / ".engineering"
+        local.mkdir()
+        (local / "engineering-platform.local.json").write_text(
+            json.dumps({"workspace": {"provisioning_root": str(self.root / "missing")}}),
+            encoding="utf-8",
+        )
+        with self.assertRaisesRegex(RunnerError, "existing directory"):
+            additional_workspace_write_roots(self.root)
+
+        external = Path(self.root.anchor).resolve()
+        (local / "engineering-platform.local.json").write_text(
+            json.dumps({"workspace": {"provisioning_root": str(external)}}),
+            encoding="utf-8",
+        )
+        with self.assertRaisesRegex(RunnerError, "direct parent"):
+            additional_workspace_write_roots(self.root)
 
     def test_genesis_mode_reconciles_a_clean_local_commit_without_remote_or_pr(self) -> None:
         target = self.root.parent / f"genesis-{self.root.name}"

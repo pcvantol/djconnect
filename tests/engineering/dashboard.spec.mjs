@@ -137,6 +137,7 @@ test.describe("Engineering Status browser smoke", () => {
 
     const lastExecution = page.getByTestId("last-executed-prompt-category");
     await page.evaluate(() => {
+      document.getElementById("promptRuns").hidden = false;
       document.getElementById("lastExecutionGroup").hidden = false;
       document.querySelector('[data-testid="last-executed-prompt-category"]').hidden = false;
     });
