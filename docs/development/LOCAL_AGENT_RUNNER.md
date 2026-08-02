@@ -4,6 +4,24 @@
 repository. It is local-only developer tooling, not a product capability, CI
 system, release engine, merge authority, daemon or remote control plane.
 
+## Runner module boundaries
+
+`tools/engineering/dj_engineer.py` is the foreground lifecycle orchestrator.
+It owns mode selection, repository and GitHub reconciliation, agent invocation,
+terminal checkpoints and command-line integration. Small, independently tested
+local responsibilities are kept outside that orchestrator:
+
+- `codex_observability.py` extracts explicitly emitted usage and runtime
+  provenance and persists bounded per-run usage;
+- `engineering_memory.py` owns advisory, local Engineering Memory persistence;
+  and
+- `live_status.py` atomically projects the current local status consumed by
+  Engineering Status.
+
+These modules preserve the public `dj_engineer` imports as compatibility
+facades. They do not alter lifecycle authority, repository truth or the runner
+command contract.
+
 ## Engineering Platform versioning
 
 `tools/engineering/ENGINEERING_PLATFORM_VERSION.json` is the canonical,

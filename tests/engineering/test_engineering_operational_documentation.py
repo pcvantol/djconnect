@@ -44,6 +44,13 @@ class EngineeringOperationalDocumentationTest(unittest.TestCase):
         self.assertIn("schema `4`", storage)
         self.assertIn("engineering_schema_migrations", storage)
 
+    def test_local_runner_documents_orchestrator_module_boundaries(self) -> None:
+        runner = (ROOT / "docs" / "development" / "LOCAL_AGENT_RUNNER.md").read_text(encoding="utf-8")
+        self.assertIn("## Runner module boundaries", runner)
+        self.assertIn("codex_observability.py", runner)
+        self.assertIn("engineering_memory.py", runner)
+        self.assertIn("live_status.py", runner)
+
     def test_roadmap_and_active_backlog_distinguish_completed_1_5_from_maintenance(self) -> None:
         roadmap = (ROOT / "docs" / "development" / "ENGINEERING_PLATFORM_ROADMAP.md").read_text(
             encoding="utf-8"
