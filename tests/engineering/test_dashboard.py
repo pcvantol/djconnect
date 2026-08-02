@@ -159,11 +159,11 @@ class DashboardStatusTest(unittest.TestCase):
         database_page = _dashboard_html(
             "Engineering Status",
             engineering_database_path="/workspace/.engineering/engineering.db",
-            engineering_database_size="2048 bytes",
+            engineering_database_size="2,00 MB",
             engineering_database_schema_version="5",
         ).decode()
         self.assertIn("/workspace/.engineering/engineering.db", database_page)
-        self.assertIn(">2048 bytes<", database_page)
+        self.assertIn(">2,00 MB<", database_page)
         self.assertIn(">5<", database_page)
         self.assertIn('class="dashboard-grid"', page)
         self.assertIn('id="promptHistory"', page)
@@ -987,8 +987,8 @@ class DashboardStatusTest(unittest.TestCase):
                 connection.execute("SELECT 1")
             details = dashboard._engineering_database_details(root)
 
-        self.assertTrue(details["size"].endswith(" bytes"))
-        self.assertNotEqual(details["size"], "0 bytes")
+        self.assertRegex(details["size"], r"^\d+,\d{2} MB$")
+        self.assertNotEqual(details["size"], "0,00 MB")
         self.assertEqual(details["schema_version"], "5")
 
     @patch("tools.engineering.dashboard.subprocess.run")

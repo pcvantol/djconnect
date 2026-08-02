@@ -900,7 +900,8 @@ def _engineering_database_details(root: Path) -> dict[str, str]:
         "schema_version": "Niet beschikbaar",
     }
     try:
-        details["size"] = f"{database.stat().st_size} bytes"
+        megabytes = database.stat().st_size / 1_000_000
+        details["size"] = f"{megabytes:.2f}".replace(".", ",") + " MB"
     except OSError:
         return details
     try:
