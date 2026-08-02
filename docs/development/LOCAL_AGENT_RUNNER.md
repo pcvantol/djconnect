@@ -1,12 +1,12 @@
 # Local Agent Runner
 
-`dj-engineer` starts one foreground, bounded engineering transaction from this
+`engineering-execution-host` starts one foreground, bounded engineering transaction from this
 repository. It is local-only developer tooling, not a product capability, CI
 system, release engine, merge authority, daemon or remote control plane.
 
 ## Runner module boundaries
 
-`tools/engineering/dj_engineer.py` is the foreground lifecycle orchestrator.
+`tools/engineering/execution_host.py` is the foreground lifecycle orchestrator.
 It owns mode selection, repository and GitHub reconciliation, agent invocation,
 terminal checkpoints and command-line integration. Small, independently tested
 local responsibilities are kept outside that orchestrator:
@@ -18,8 +18,9 @@ local responsibilities are kept outside that orchestrator:
 - `live_status.py` atomically projects the current local status consumed by
   Engineering Status.
 
-These modules preserve the public `dj_engineer` imports as compatibility
-facades. They do not alter lifecycle authority, repository truth or the runner
+The deprecated `tools.engineering.dj_engineer` import and `dj-engineer` command
+remain compatibility aliases; new integrations use the Execution Host names.
+The aliases do not alter lifecycle authority, repository truth or the runner
 command contract.
 
 ## Engineering Platform versioning
@@ -39,7 +40,7 @@ is a separate Engineering Platform release. The private dashboard displays
 them with the corresponding live components, while its status bar displays the
 Engineering Platform version and Git commit.
 
-At runner startup, `dj-engineer` reads the manifest and rejects an unsupported
+At runner startup, `engineering-execution-host` reads the manifest and rejects an unsupported
 platform major version, older runner, older Bootstrap Contract, unsupported
 checkpoint/memory/report format or unsupported Codex CLI. Diagnostics state the
 repository requirement, detected runner or CLI value, and required action.
@@ -74,7 +75,7 @@ advisory and require primary-agent reconciliation.
 
 ## Engineering Platform Qualification
 
-Run `./tools/engineering/dj-engineer qualify` to execute every deterministic
+Run `./tools/engineering/engineering-execution-host qualify` to execute every deterministic
 scenario in `tools/engineering/ENGINEERING_QUALIFICATION.md`. The local
 qualification dashboard reports pass/fail, scenario coverage, failure and
 blocked counts. Its JSON and Markdown evidence remains under the git-ignored
@@ -208,14 +209,14 @@ Codex CLI must already be installed and authenticated in the developer's local
 environment. From a clean DJConnect checkout, run:
 
 ```sh
-./tools/engineering/dj-engineer path/to/engineering-prompt.md
+./tools/engineering/engineering-execution-host path/to/engineering-prompt.md
 ```
 
 For a bounded transaction with explicit owner authorization for the complete
 PR and Finalization lifecycle, use:
 
 ```sh
-./tools/engineering/dj-engineer path/to/engineering-prompt.md \
+./tools/engineering/engineering-execution-host path/to/engineering-prompt.md \
   --owner-authorized --run-id bounded-run
 ```
 
@@ -237,7 +238,7 @@ directory. Blocked and malformed checkpoints are preserved for inspection.
 To continue an interrupted non-terminal run, restart the foreground command:
 
 ```sh
-./tools/engineering/dj-engineer path/to/engineering-prompt.md --run-id <run-id> --resume
+./tools/engineering/engineering-execution-host path/to/engineering-prompt.md --run-id <run-id> --resume
 ```
 
 There is no background continuation. A resume synchronizes and re-inspects
@@ -349,7 +350,7 @@ dashboard status to `.engineering/status/status.json`. Both are git-ignored loca
 advisory records; resume recomputes from repository and GitHub evidence. iCloud
 carries only a submitted Inbox file and never receives status, reports or prompt
 archives. Run
-`./tools/engineering/dj-engineer status` to display the current phase, PRs,
+`./tools/engineering/engineering-execution-host status` to display the current phase, PRs,
 repair count and action.
 
 ## Engineering Memory

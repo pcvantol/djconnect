@@ -27,7 +27,7 @@ the private dashboard LaunchAgent, and verify both. Submit UTF-8 `.md` or
 `.txt` prompts to `iCloud Drive/DJConnect Engineering/Inbox`; iOS-created
 `.txt` files and filename-neutral Markdown are supported. The watcher claims
 stable files one at a time, oldest File Date Modified first, and invokes only
-this repository's `dj-engineer`.
+this repository's `engineering-execution-host`.
 
 iCloud is transport only. After a prompt is claimed, the executed prompt copy,
 status, reports, logs and terminal archive live locally under `.engineering/`:

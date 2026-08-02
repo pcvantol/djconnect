@@ -19,7 +19,7 @@ class InboxWatcherTest(unittest.TestCase):
         self.root = Path(self.temp.name) / "cloud"
         self.repo = Path(self.temp.name) / "repo"
         (self.repo / "tools/engineering").mkdir(parents=True)
-        (self.repo / "tools/engineering/dj-engineer").write_text("#!/bin/sh\n", encoding="utf-8")
+        (self.repo / "tools/engineering/engineering-execution-host").write_text("#!/bin/sh\n", encoding="utf-8")
         inbox = inbox_watcher.folders(self.root)["Inbox"]
         self.inbox = inbox
 
@@ -28,7 +28,7 @@ class InboxWatcherTest(unittest.TestCase):
         self.temp.cleanup()
 
     def test_preflight_failure_keeps_the_specific_bounded_runner_reason(self) -> None:
-        completed = subprocess.CompletedProcess(("dj-engineer",), 2, "BLOCKED: working tree is not clean\n", "")
+        completed = subprocess.CompletedProcess(("engineering-execution-host",), 2, "BLOCKED: working tree is not clean\n", "")
 
         self.assertEqual(
             inbox_watcher._runner_failure_detail(completed),
@@ -143,7 +143,7 @@ class InboxWatcherTest(unittest.TestCase):
         _, run_id, _ = inbox_watcher._job_id(prompt, prompt.read_text(encoding="utf-8"))
         with patch("tools.engineering.inbox_watcher.subprocess.run") as run:
             run.return_value = subprocess.CompletedProcess(
-                ("dj-engineer",), 2, "", "Engineering Platform upgrade required."
+                ("engineering-execution-host",), 2, "", "Engineering Platform upgrade required."
             )
             code = inbox_watcher.once(self.repo, self.root, 0)
 

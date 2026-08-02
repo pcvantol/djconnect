@@ -2,13 +2,14 @@ from __future__ import annotations
 
 from pathlib import Path
 import json
+import importlib
 import subprocess
 import tempfile
 import unittest
 from unittest.mock import patch
 
 from tools.engineering.agent_state import StateError, StateStore, TransactionState, redact_diagnostic
-from tools.engineering.dj_engineer import (
+from tools.engineering.execution_host import (
     AgentResult,
     CodexCliClient,
     CodexInvocationError,
@@ -21,6 +22,7 @@ from tools.engineering.dj_engineer import (
     _format_terminal_report,
     _format_cli_failure,
     additional_workspace_write_roots,
+    build_parser,
     extract_codex_runtime_metadata,
     extract_codex_usage,
     execution_mode_for,
@@ -475,6 +477,15 @@ class ClientContractTest(unittest.TestCase):
 
 
 class LocalAgentRunnerTest(unittest.TestCase):
+    def test_execution_host_exposes_the_generic_command_name(self) -> None:
+        self.assertEqual(build_parser().prog, "engineering-execution-host")
+
+    def test_legacy_runner_module_resolves_to_the_execution_host(self) -> None:
+        legacy = importlib.import_module("tools.engineering.dj_engineer")
+        canonical = importlib.import_module("tools.engineering.execution_host")
+
+        self.assertIs(legacy, canonical)
+
     def setUp(self) -> None:
         self.temporary = tempfile.TemporaryDirectory()
         self.root = Path(self.temporary.name)

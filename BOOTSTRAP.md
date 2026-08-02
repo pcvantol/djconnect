@@ -140,7 +140,7 @@ engineering prompts. Older versions are incompatible and compatibility
 validation fails closed. The repository bootstrap is the authoritative
 compatibility contract. Product & Platform Architect prompts require
 Engineering Platform `1.5.0` or newer. The generated prompt
-must state this minimum explicitly. `dj-engineer` must fail closed before any
+must state this minimum explicitly. `engineering-execution-host` must fail closed before any
 repository mutation when the detected Engineering Platform is older than the
 prompt's declared minimum.
 
@@ -165,7 +165,7 @@ Action:
 Upgrade the Engineering Platform before executing this engineering prompt.
 ```
 
-`dj-engineer` validates this manifest at startup. Engineering compatibility is
+`engineering-execution-host` validates this manifest at startup. Engineering compatibility is
 determined from this Engineering Platform contract, not from individual runner
 implementation details. A newer runner may execute an older repository only
 when it explicitly supports the repository's platform major version, minimum
@@ -177,7 +177,7 @@ silently ignored.
 ## Engineering Platform Qualification
 
 Engineering Platform capabilities are evidence-first: implementation alone does
-not make a capability trusted. Run `./tools/engineering/dj-engineer qualify`
+not make a capability trusted. Run `./tools/engineering/engineering-execution-host qualify`
 to execute the canonical local qualification registry in
 `tools/engineering/ENGINEERING_QUALIFICATION.md`. Reports are local under
 `.engineering/qualification/`; they record scenario outcome, duration,

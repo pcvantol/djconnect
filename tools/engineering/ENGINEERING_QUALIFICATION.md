@@ -1,7 +1,7 @@
 # Engineering Platform Qualification Registry
 
 Engineering Platform capabilities are trusted for production use only after
-deterministic local qualification evidence. `dj-engineer qualify` executes the
+deterministic local qualification evidence. `engineering-execution-host qualify` executes the
 registry and writes local, git-ignored reports under `.engineering/qualification/`.
 
 | Capability | Qualification scenario | Expected behavior | Evidence | Current status |

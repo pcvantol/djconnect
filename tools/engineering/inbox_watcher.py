@@ -527,7 +527,7 @@ def once(repo: Path, root: Path, interval: float = 1.0) -> int:
         phase, _ = _runner_result(repo, run_id)
         _clear_prior_codex_log(repo, run_id)
         arguments = [
-            str(repo / "tools/engineering/dj-engineer"),
+            str(repo / "tools/engineering/engineering-execution-host"),
             str(prompt.relative_to(repo)),
             "--owner-authorized",
             "--run-id",
@@ -591,7 +591,7 @@ def once(repo: Path, root: Path, interval: float = 1.0) -> int:
             runner_phase=terminal_phase,
             report=str(delivered) if delivered else None,
             diagnostic=reason,
-            resume_instruction=f"Run dj-engineer with --run-id {run_id} --resume.",
+            resume_instruction=f"Run engineering-execution-host with --run-id {run_id} --resume.",
             submitted_filename=source.name,
             prompt_title=title,
             last_executed_filename=source.name,
@@ -686,7 +686,7 @@ def doctor(repo: Path, root: Path) -> int:
     areas = local_folders(repo)
     agent = Path.home() / "Library/LaunchAgents" / f"{LABEL}.plist"
     checks = {
-        "repository_runner": (repo / "tools/engineering/dj-engineer").is_file(),
+        "repository_runner": (repo / "tools/engineering/engineering-execution-host").is_file(),
         "inbox_writable": os.access(transport["Inbox"], os.W_OK),
         "local_archives_writable": os.access(areas["Completed"], os.W_OK),
         "launch_agent": agent.is_file(),

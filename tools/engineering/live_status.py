@@ -49,7 +49,7 @@ def write_live_status(root: Path, state: TransactionState, action: str) -> Path:
         "elapsed_seconds": 0,
         "prompt_characters": prompt_characters,
         "diagnostic": state.diagnostic,
-        "resume_command": f"dj-engineer {state.prompt_path} --run-id {state.run_id} --resume",
+        "resume_command": f"engineering-execution-host {state.prompt_path} --run-id {state.run_id} --resume",
         "execution_mode": state.execution_mode,
         "target_repository": checkout.name if state.execution_mode == "GENESIS" else state.repository,
         "checkout_path": str(checkout),

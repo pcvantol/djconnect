@@ -3,7 +3,7 @@
 ## Boundary
 
 `tools/engineering/` is the prospective package boundary. Its public entry
-points are `platform_api`, `dj_engineer`, `inbox_watcher`, `dashboard` and
+points are `platform_api`, `execution_host`, `inbox_watcher`, `dashboard` and
 `qualification`; implementation modules remain private.
 
 ## Dependency classification
@@ -14,7 +14,7 @@ points are `platform_api`, `dj_engineer`, `inbox_watcher`, `dashboard` and
 | Workspace name, branding and report navigation | WORKSPACE | Declarative configuration only. |
 | GitHub repository metadata | REPOSITORY / PROVIDER | Configuration plus GitHub provider. |
 | Codex, launchd, iCloud Inbox, Tailscale | PROVIDER | Qualified current implementations behind contracts. |
-| Existing `.djconnect` local state paths | IMPLEMENTATION | Compatibility-preserved; extraction migration is deferred to 1.6. |
+| Existing `.engineering` local state paths | IMPLEMENTATION | Canonical local workspace state, outside the product runtime. |
 
 ## Result
 

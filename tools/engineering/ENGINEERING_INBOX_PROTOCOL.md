@@ -10,7 +10,7 @@ filename and content digest.
 Jobs are strictly sequential: `iCloud Inbox → .engineering/inbox/Running →
 .engineering/inbox/Completed|Failed`. A local immutable
 `.engineering/inbox-processing/<job-id>/prompt.md` copy is the only executed
-input. The watcher invokes only the repository-owned `dj-engineer` with owner
+input. The watcher invokes only the repository-owned `engineering-execution-host` with owner
 authorization and a stable run ID. Reports remain under `.engineering/reports/`
 and status under `.engineering/status/`. iCloud is transport only; it retains no
 reports, status or prompt archive after a job is claimed.
