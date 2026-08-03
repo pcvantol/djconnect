@@ -9,10 +9,11 @@ workspace authorization**, merged as
 `1fba0b5132d286201c16794adc13f5eaa6e2e6e8`. Its immutable implementation
 history is
 `docs/history/prompts/2026-08-03-configurable-workspace-authorization.md`.
-Its Finalization PR is pending merge. Repository State:
-`MERGED_UNRECONCILED`. Workspace State: `WORKSPACE_CLEANUP_PENDING`. The next
-bounded Engineering Platform increment remains Execution Host Preflight Level
-3 (Capability Preflight).
+Its Finalization PR [#720](https://github.com/pcvantol/djconnect/pull/720)
+merged as `621eb7007445febea08c12b2725b3a2d5611c394`. Repository State:
+`MERGED_RECONCILED`. Workspace State: `WORKSPACE_READY`. The next bounded
+Engineering Platform increment remains Execution Host Preflight Level 3
+(Capability Preflight).
 
 ## PR #716 governance finalization
 
