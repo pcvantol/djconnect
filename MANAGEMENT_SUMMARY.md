@@ -15,6 +15,17 @@
 
 ## Current position
 
+## PR #710 governance finalization
+
+PR [#710](https://github.com/pcvantol/djconnect/pull/710), **Separate queue
+recovery from execution retry**, merged as
+`8b657af8fc4598b0174ef28d73c8fd55e1953f8f`. The Engineering Platform now
+separates execution-host queue recovery from a new, auditable engineering
+execution. Retry lineage is retained in local history, reports and telemetry;
+no Product, Runtime, Release, Deployment or Publication scope changed.
+Engineering Platform validation and browser validation passed. Repository State
+remains `MERGED_UNRECONCILED` until this dedicated Finalization merges.
+
 ## PR #707 governance finalization
 
 PR [#707](https://github.com/pcvantol/djconnect/pull/707), **Improve Engineering
