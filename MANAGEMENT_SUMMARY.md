@@ -15,6 +15,16 @@
 
 ## Current position
 
+## PR #722 governance finalization
+
+PR [#722](https://github.com/pcvantol/djconnect/pull/722), **Add Execution
+Host Configuration Resolver**, merged as
+`6412e0879da779d78e46e968ccda12b0ca3d47ee`. The Execution Host now owns
+transport and location resolution behind a stable provider-neutral API; no
+Forge, product or arbitrary-path behavior changed. Its Finalization PR is
+pending merge. Repository State: `MERGED_UNRECONCILED`. Workspace State:
+`WORKSPACE_CLEANUP_PENDING`.
+
 ## PR #719 governance finalization
 
 PR [#719](https://github.com/pcvantol/djconnect/pull/719), **Add configurable

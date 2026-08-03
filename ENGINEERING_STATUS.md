@@ -3,6 +3,17 @@
 **Status:** Operational handoff
 **Updated:** 2026-08-03
 
+## PR #722 governance finalization
+
+PR [#722](https://github.com/pcvantol/djconnect/pull/722), **Add Execution
+Host Configuration Resolver**, merged as
+`6412e0879da779d78e46e968ccda12b0ca3d47ee`. Execution Host configuration now
+centrally resolves Runtime Prompt transport, runtime, host identity and local
+status, report, log and telemetry stores. Consumers no longer derive iCloud
+transport locations. Forge and the Execution Host Contract remain unchanged.
+Its Finalization PR is pending merge. Repository State:
+`MERGED_UNRECONCILED`. Workspace State: `WORKSPACE_CLEANUP_PENDING`.
+
 ## PR #719 governance finalization
 
 PR [#719](https://github.com/pcvantol/djconnect/pull/719), **Add configurable

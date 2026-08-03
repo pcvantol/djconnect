@@ -2,6 +2,18 @@
 
 Status: canonical prompt navigation
 
+## PR #722 governance finalization
+
+PR [#722](https://github.com/pcvantol/djconnect/pull/722), **Add Execution
+Host Configuration Resolver**, merged as
+`6412e0879da779d78e46e968ccda12b0ca3d47ee`. Its immutable implementation
+history is
+`docs/history/prompts/2026-08-03-execution-host-configuration-resolver.md`.
+Its Finalization PR is pending merge. Repository State:
+`MERGED_UNRECONCILED`. Workspace State: `WORKSPACE_CLEANUP_PENDING`. The next
+bounded Engineering Platform increment remains Execution Host Preflight Level
+3 (Capability Preflight).
+
 ## PR #719 governance finalization
 
 PR [#719](https://github.com/pcvantol/djconnect/pull/719), **Add configurable
