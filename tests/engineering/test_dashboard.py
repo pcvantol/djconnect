@@ -174,6 +174,7 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn("--report-modal-surface", stylesheet)
         self.assertIn("background:var(--report-modal-surface)", stylesheet)
         self.assertIn(".execution-history-action{background:#4f453c", stylesheet)
+        self.assertIn("min-height:32px;min-width:0;padding:5px 9px", stylesheet)
         self.assertIn(".execution-history-action:hover:not(:disabled){background:#e7b876", stylesheet)
         self.assertIn(".prompt-history-actions{vertical-align:middle}", stylesheet)
 

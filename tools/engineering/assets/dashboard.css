@@ -180,7 +180,7 @@ html[data-theme="dark"] .markdown-copy-wrap :is(.copy.copy--glyph,.download.down
 #promptHistory .log-pagination button:hover:not(:disabled){background:#ff718f!important;border-color:#ff718f!important;color:#271923!important}
 
 /* Terminal execution actions use the explicit operational acknowledgement palette. */
-#promptHistory .execution-history-action{background:#4f453c;border-color:#e7b876;color:#f6f3ef}#promptHistory .execution-history-action:hover:not(:disabled){background:#e7b876;border-color:#e7b876;color:#17151a}
+#promptHistory .execution-history-action{background:#4f453c;border-color:#e7b876;border-radius:7px;color:#f6f3ef;font:12px system-ui;min-height:32px;min-width:0;padding:5px 9px}#promptHistory .execution-history-action:hover:not(:disabled){background:#e7b876;border-color:#e7b876;color:#17151a}
 #promptHistoryRows .prompt-history-actions{vertical-align:middle}#promptHistoryRows .execution-history-action{margin-top:0}
 
 /* Keep report actions available while a long historical report is being read. */
