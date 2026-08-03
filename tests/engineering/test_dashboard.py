@@ -170,6 +170,9 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertTrue((root / "dashboard.css").is_file())
         self.assertTrue((root / "dashboard.js").is_file())
         self.assertTrue((root / "dashboard_status_store.mjs").is_file())
+        stylesheet = (root / "dashboard.css").read_text(encoding="utf-8")
+        self.assertIn("--report-modal-surface", stylesheet)
+        self.assertIn("background:var(--report-modal-surface)", stylesheet)
 
     def test_codex_usage_is_shown_only_for_the_displayed_run(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
