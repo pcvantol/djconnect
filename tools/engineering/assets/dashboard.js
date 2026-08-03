@@ -2955,7 +2955,7 @@ function renderPromptHistory() {
         retry.addEventListener("click", () => submitExecutionRetry(entry));
         action.append(retry);
       }
-      if (["BLOCKED", "FAILED", "COMPLETE"].includes(entry.status) && entry.run_id) {
+      if (["BLOCKED", "FAILED", "COMPLETE"].includes(entry.status) && entry.run_id && entry.run_id === latestStatus?.last_executed_run && !isActiveRun(latestStatus)) {
         const dismiss = document.createElement("button");
         dismiss.type = "button";
         dismiss.className = "predecessor-retry";
