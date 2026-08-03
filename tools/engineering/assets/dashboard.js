@@ -219,6 +219,13 @@ function isActiveRun(x) {
 function isTerminalBlockedRun(x) {
   return String(x?.last_executed_phase || "").toUpperCase() === "BLOCKED";
 }
+function isTerminalExecution(x) {
+  return !isActiveRun(x) &&
+    Boolean(x?.last_executed_run) &&
+    ["BLOCKED", "FAILED", "COMPLETE"].includes(
+      String(x?.last_executed_phase || "").toUpperCase(),
+    );
+}
 function checkBuild(build) {
   if (build === DASHBOARD_BUILD) {
     sessionStorage.removeItem(DASHBOARD_BUILD_KEY);
@@ -973,6 +980,7 @@ function renderHealthStatus(x, snapshot = {}) {
     components = snapshot.component_versions || {},
     blockedPredecessor = Boolean(x.blocking_predecessor_run),
     terminalBlocked = isTerminalBlockedRun(x),
+    terminalExecution = isTerminalExecution(x),
     blocked = blockedPredecessor || terminalBlocked;
   if (previous !== lastExecutedRun) {
     lastExecutedRun = previous;
@@ -986,7 +994,7 @@ function renderHealthStatus(x, snapshot = {}) {
     $("reportAnalysisContent").textContent =
       "Open dit blok om de analyse te laden.";
   }
-  $("currentRun").hidden = !(active || blocked);
+  $("currentRun").hidden = !(active || blockedPredecessor || terminalExecution);
   $("promptRuns").hidden = !previous;
   $("lastExecution").hidden = !previous;
   $("report").hidden = !previous;
@@ -1021,12 +1029,12 @@ function renderHealthStatus(x, snapshot = {}) {
     x.watcher_state || fallback.watcher_state,
   );
   $("phase").textContent = translate(
-    x.current_phase || (terminalBlocked ? x.last_executed_phase : "idle"),
+    x.current_phase || (terminalExecution ? x.last_executed_phase : "idle"),
   );
   $("action").textContent = translate(
     x.current_action ||
-      (terminalBlocked
-        ? "Herstel de geblokkeerde prompt om opnieuw uit te voeren."
+      (terminalExecution
+        ? "Deze terminale uitvoering wacht op een operatorbeslissing."
         : "Geen actieve actie"),
   );
   const preflight = snapshot.host_preflight || {};
@@ -1044,10 +1052,10 @@ function renderHealthStatus(x, snapshot = {}) {
   renderEstimate(x);
   processMetrics(active, snapshot.process_metrics);
   $("currentPrompt").textContent =
-    x.prompt_title || (terminalBlocked ? x.last_executed_title : null) || "Niet beschikbaar";
+    x.prompt_title || (terminalExecution ? x.last_executed_title : null) || "Niet beschikbaar";
   $("currentFile").textContent =
     x.submitted_filename ||
-    (terminalBlocked ? x.last_executed_filename : null) ||
+    (terminalExecution ? x.last_executed_filename : null) ||
     "Niet beschikbaar";
   if (!active || x.run_id !== currentLogRun)
     $("currentDiagnostic").hidden = true;
@@ -1066,7 +1074,8 @@ function renderHealthStatus(x, snapshot = {}) {
   if (previous && lastStatus[0] !== "green")
     l("lastLog", "/api/log/last", previous, true, "lastDiagnostic");
   $("runId").textContent =
-    x.run_id || (terminalBlocked ? x.last_executed_run : null) || "geen";
+    x.run_id || (terminalExecution ? x.last_executed_run : null) || "geen";
+  renderExecutionDismiss(x);
   $("queue").textContent = x.queue_depth ?? 0;
   queueItems(x.queue_items, x.queue_depth);
   $("implementation").textContent = x.implementation_pr || "geen";
@@ -3598,6 +3607,12 @@ function renderPredecessorRetry(x) {
   button.disabled = isActiveRun(x || {});
   if (!blocked) status.textContent = "";
 }
+function renderExecutionDismiss(x) {
+  const button = $("executionDismiss");
+  if (!button) return;
+  button.hidden = !isTerminalExecution(x);
+  button.disabled = isActiveRun(x || {});
+}
 function submitPredecessorRetry() {
   const button = $("predecessorRetry"),
     status = $("predecessorRetryStatus"),
@@ -3678,6 +3693,14 @@ function dismissExecution(entry) {
       .catch((error) => window.alert(error.message || "Dismiss Execution kon niet worden uitgevoerd."));
   });
 }
+$("executionDismiss").addEventListener("click", () => {
+  if (!isTerminalExecution(latestStatus)) return;
+  dismissExecution({
+    run_id: latestStatus.last_executed_run,
+    title: latestStatus.last_executed_title,
+    status: latestStatus.last_executed_phase,
+  });
+});
 $("predecessorRetry").addEventListener("click", submitPredecessorRetry);
 function confirmDashboardAction(title, text, confirmLabel, color = "#c7a6ff") {
   const modal = $("confirmationModal"),
