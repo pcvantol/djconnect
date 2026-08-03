@@ -113,7 +113,7 @@ the report, checkpoint or target repository.
 Selecting a row opens the run's near-fullscreen operational-detail dialog;
 that dialog is bound to the selected Run ID and contains no report or analysis
 body. Its separate report and AI-analysis actions open the matching read-only
-Markdown dialog, not an editor. It is deliberately an evidence-navigation
+Markdown dialog, not in an editor. It is deliberately an evidence-navigation
 feature rather than an execution or repository-control surface.
 
 When no report or analysis was persisted for the selected terminal run, the
