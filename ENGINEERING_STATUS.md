@@ -13,8 +13,9 @@ exposing implementation details. Host Preflight Level 1 does not inspect the
 workspace, Git, Engineering Actions, capabilities, missions or Forge. Full
 regression, Engineering Platform validation and browser-dashboard validation
 passed. The next separately scoped increment is Execution Host Preflight Level
-2 (Workspace Preflight). Repository State remains `MERGED_UNRECONCILED` until
-this dedicated Finalization merges.
+2 (Workspace Preflight). Its Finalization PR [#714](https://github.com/pcvantol/djconnect/pull/714)
+merged as `c205c61f82fd9d3c6d6a8130ebebc414274f855c`.
+Repository State: `MERGED_RECONCILED`. Workspace State: `WORKSPACE_READY`.
 
 ## PR #710 governance finalization
 
