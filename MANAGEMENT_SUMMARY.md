@@ -23,8 +23,10 @@ recovery from execution retry**, merged as
 separates execution-host queue recovery from a new, auditable engineering
 execution. Retry lineage is retained in local history, reports and telemetry;
 no Product, Runtime, Release, Deployment or Publication scope changed.
-Engineering Platform validation and browser validation passed. Repository State
-remains `MERGED_UNRECONCILED` until this dedicated Finalization merges.
+Engineering Platform validation and browser validation passed. Its Finalization
+PR [#711](https://github.com/pcvantol/djconnect/pull/711) merged as
+`47be1014b85953556a56c5d8fb123a5842555f3e`.
+Repository State: `MERGED_RECONCILED`. Workspace State: `WORKSPACE_READY`.
 
 ## PR #707 governance finalization
 
