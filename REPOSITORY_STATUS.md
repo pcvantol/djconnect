@@ -2,6 +2,18 @@
 
 Status: active platform-evolution repository
 
+## PR #710 governance finalization
+
+PR [#710](https://github.com/pcvantol/djconnect/pull/710), **Separate queue
+recovery from execution retry**, merged as
+`8b657af8fc4598b0174ef28d73c8fd55e1953f8f`. Queue recovery and engineering
+retry are now distinct operations: queue recovery is limited to waiting
+dependent Inbox work, while terminal `BLOCKED` executions can always create a
+new linked run. Original evidence remains immutable. The immutable Prompt
+History record is `docs/history/prompts/2026-08-03-separate-queue-recovery-from-execution-retry.md`.
+Repository State remains `MERGED_UNRECONCILED` until this dedicated
+Finalization merges.
+
 ## PR #707 governance finalization
 
 PR [#707](https://github.com/pcvantol/djconnect/pull/707), **Improve Engineering

@@ -1,7 +1,20 @@
 # DJConnect Engineering Status
 
 **Status:** Operational handoff
-**Updated:** 2026-08-02
+**Updated:** 2026-08-03
+
+## PR #710 governance finalization
+
+PR [#710](https://github.com/pcvantol/djconnect/pull/710), **Separate queue
+recovery from execution retry**, merged as
+`8b657af8fc4598b0174ef28d73c8fd55e1953f8f`. Engineering Platform now presents
+**Resume Queue** only for blocked dependent Inbox work and **Retry Execution**
+for every terminal `BLOCKED` run. Each retry has independent evidence and
+durable retry lineage; original reports, checkpoints and telemetry remain
+immutable. CI, browser validation and the Engineering Platform coverage gate
+passed. No DJConnect Product, Runtime, Release, Deployment or Publication
+behavior changed. Repository State remains `MERGED_UNRECONCILED` until this
+dedicated Finalization merges.
 
 ## PR #707 governance finalization
 
