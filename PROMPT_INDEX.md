@@ -2,6 +2,10 @@
 
 Status: canonical prompt navigation
 
+## PR #730 merge finalization
+
+PR [#730](https://github.com/pcvantol/djconnect/pull/730), **Add Execution Host Capability Preflight Level 3**, merged as `c540b704fffb933b418a24e8602874d1369ee786`. Its implementation introduced pre-claim capability evidence and dashboard projection. Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY` after this Finalization.
+
 ## PR #727 governance finalization
 
 PR [#727](https://github.com/pcvantol/djconnect/pull/727), **Support current

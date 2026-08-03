@@ -15,6 +15,10 @@
 
 ## Current position
 
+## PR #730 merge finalization
+
+PR [#730](https://github.com/pcvantol/djconnect/pull/730) merged as `c540b704fffb933b418a24e8602874d1369ee786`. Engineering Platform admission now completes Level 1 Host, Level 2 Workspace and Level 3 Capability checks before Inbox claim. This is local Engineering Platform governance only.
+
 ## PR #727 governance finalization
 
 PR [#727](https://github.com/pcvantol/djconnect/pull/727), **Support current
