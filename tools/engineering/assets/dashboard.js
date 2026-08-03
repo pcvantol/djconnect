@@ -3111,7 +3111,9 @@ function dashboardCategories() {
 function updateAllSectionsToggle() {
   const categories = visibleDashboardCategories(),
     allOpen =
-      categories.length > 0 && categories.every((category) => category.open);
+      typeof allSectionsIntent === "boolean"
+        ? allSectionsIntent
+        : categories.length > 0 && categories.every((category) => category.open);
   allSectionsToggle.setAttribute("aria-checked", String(allOpen));
   allSectionsToggle.setAttribute(
     "aria-label",
