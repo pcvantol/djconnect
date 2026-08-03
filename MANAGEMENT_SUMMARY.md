@@ -15,6 +15,17 @@
 
 ## Current position
 
+## PR #719 governance finalization
+
+PR [#719](https://github.com/pcvantol/djconnect/pull/719), **Add configurable
+workspace authorization**, merged as
+`1fba0b5132d286201c16794adc13f5eaa6e2e6e8`. Engineering Platform can now
+authorize explicitly configured sibling repositories such as Forge without
+weakening Workspace Preflight, Git cleanliness or Managed execution
+governance. No arbitrary-path execution was introduced. Its Finalization PR
+is pending merge. Repository State: `MERGED_UNRECONCILED`. Workspace State:
+`WORKSPACE_CLEANUP_PENDING`.
+
 ## PR #716 governance finalization
 
 PR [#716](https://github.com/pcvantol/djconnect/pull/716), **Add Execution Host
