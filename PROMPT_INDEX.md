@@ -2,6 +2,18 @@
 
 Status: canonical prompt navigation
 
+## PR #719 governance finalization
+
+PR [#719](https://github.com/pcvantol/djconnect/pull/719), **Add configurable
+workspace authorization**, merged as
+`1fba0b5132d286201c16794adc13f5eaa6e2e6e8`. Its immutable implementation
+history is
+`docs/history/prompts/2026-08-03-configurable-workspace-authorization.md`.
+Its Finalization PR is pending merge. Repository State:
+`MERGED_UNRECONCILED`. Workspace State: `WORKSPACE_CLEANUP_PENDING`. The next
+bounded Engineering Platform increment remains Execution Host Preflight Level
+3 (Capability Preflight).
+
 ## PR #716 governance finalization
 
 PR [#716](https://github.com/pcvantol/djconnect/pull/716), **Add Execution Host

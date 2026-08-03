@@ -3,6 +3,19 @@
 **Status:** Operational handoff
 **Updated:** 2026-08-03
 
+## PR #719 governance finalization
+
+PR [#719](https://github.com/pcvantol/djconnect/pull/719), **Add configurable
+workspace authorization**, merged as
+`1fba0b5132d286201c16794adc13f5eaa6e2e6e8`. Engineering Platform now has
+trusted, versioned workspace authorization with explicit roots, direct-child
+or descendant scopes, repository allow/deny lists, canonical path checks and
+bounded preflight evidence. Legacy direct-child configuration remains
+fail-closed; Managed execution requirements are unchanged. No unrestricted
+path execution, DJConnect Product, Runtime, Release, Deployment, Publication
+or Forge behavior changed. Its Finalization PR is pending merge. Repository
+State: `MERGED_UNRECONCILED`. Workspace State: `WORKSPACE_CLEANUP_PENDING`.
+
 ## PR #716 governance finalization
 
 PR [#716](https://github.com/pcvantol/djconnect/pull/716), **Add Execution Host
