@@ -2,6 +2,18 @@
 
 Status: active platform-evolution repository
 
+## PR #713 governance finalization
+
+PR [#713](https://github.com/pcvantol/djconnect/pull/713), **Add Execution
+Host Preflight Level 1**, merged as `ed478840a41dbd3e25f65ebc7a16461a4c7ed99f`.
+Before a claim, the Execution Host now verifies only its own configuration,
+runtime directories, disk capacity, Codex CLI, telemetry storage, structured
+logging and identity. Failed preflight preserves the Inbox item and starts no
+run. The immutable Prompt History record is
+`docs/history/prompts/2026-08-03-execution-host-preflight-level-1.md`.
+Repository State remains `MERGED_UNRECONCILED` until this dedicated
+Finalization merges.
+
 ## PR #710 governance finalization
 
 PR [#710](https://github.com/pcvantol/djconnect/pull/710), **Separate queue
