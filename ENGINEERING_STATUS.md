@@ -3,6 +3,17 @@
 **Status:** Operational handoff
 **Updated:** 2026-08-03
 
+## PR #724 governance finalization
+
+PR [#724](https://github.com/pcvantol/djconnect/pull/724), **Add terminal
+execution dismiss**, merged as
+`3155283f8f7d9ae8aa2f9e05bb39d9aa149d8274`. Engineering Platform now gives an
+operator a confirmed Dismiss action for the current terminal execution. Dismiss
+clears operational attention only: reports, telemetry, prompt history, retry
+lineage and repository truth remain immutable. It is distinct from Retry and
+Queue Recovery. Its Finalization PR is pending merge. Repository State:
+`MERGED_UNRECONCILED`. Workspace State: `WORKSPACE_CLEANUP_PENDING`.
+
 ## PR #722 governance finalization
 
 PR [#722](https://github.com/pcvantol/djconnect/pull/722), **Add Execution
@@ -11,8 +22,9 @@ Host Configuration Resolver**, merged as
 centrally resolves Runtime Prompt transport, runtime, host identity and local
 status, report, log and telemetry stores. Consumers no longer derive iCloud
 transport locations. Forge and the Execution Host Contract remain unchanged.
-Its Finalization PR is pending merge. Repository State:
-`MERGED_UNRECONCILED`. Workspace State: `WORKSPACE_CLEANUP_PENDING`.
+Its Finalization PR [#723](https://github.com/pcvantol/djconnect/pull/723)
+merged as `b7e2bcfbf90bbbc165c8e028586ba0661506304`. Repository State:
+`MERGED_RECONCILED`. Workspace State: `WORKSPACE_READY`.
 
 ## PR #719 governance finalization
 
