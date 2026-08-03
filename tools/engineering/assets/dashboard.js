@@ -1041,10 +1041,16 @@ function renderHealthStatus(x, snapshot = {}) {
   $("hostPreflightTimestamp").textContent = preflight.timestamp || "Nog niet uitgevoerd";
   $("workspacePreflightStatus").textContent = workspacePreflight.outcome || "Niet beschikbaar";
   $("workspacePreflightTimestamp").textContent = workspacePreflight.timestamp || "Nog niet uitgevoerd";
-  $("capabilityPreflightStatus").textContent = capabilityPreflight.outcome || "Niet beschikbaar";
-  $("capabilityRecoverability").textContent = capabilityPreflight.recoverability || "Niet beschikbaar";
-  $("capabilityFailureOrigin").textContent = capabilityPreflight.failure_origin || "—";
-  $("capabilityRecommendation").textContent = capabilityPreflight.recommendation || "Niet beschikbaar";
+  // Older dashboard fixtures and cached shells do not have Level 3 fields.
+  // Keep the canonical status renderer backward compatible while they refresh.
+  const capabilityField = (id, value) => {
+    const element = $(id);
+    if (element) element.textContent = value;
+  };
+  capabilityField("capabilityPreflightStatus", capabilityPreflight.outcome || "Niet beschikbaar");
+  capabilityField("capabilityRecoverability", capabilityPreflight.recoverability || "Niet beschikbaar");
+  capabilityField("capabilityFailureOrigin", capabilityPreflight.failure_origin || "—");
+  capabilityField("capabilityRecommendation", capabilityPreflight.recommendation || "Niet beschikbaar");
   promptStarted(snapshot.prompt_started);
   renderEstimate(x);
   processMetrics(active, snapshot.process_metrics);
