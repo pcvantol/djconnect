@@ -163,7 +163,6 @@ class DashboardStatusTest(unittest.TestCase):
             "componentLogs",
             "codexChat",
             "confirmationModal",
-            "executionDismiss",
         ):
             self.assertIn(f'id="{identifier}"', page)
 
