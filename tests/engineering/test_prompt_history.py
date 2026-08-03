@@ -80,6 +80,33 @@ class PromptHistoryTest(unittest.TestCase):
             self.assertEqual(history[0]["git_commit"], "abcdef1")
             self.assertTrue(history[0]["report_available"])
 
+    def test_backfill_preserves_the_explicit_report_for_a_duplicate_legacy_run(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            reports = root / ".engineering" / "reports"
+            reports.mkdir(parents=True)
+            actual = reports / "2026-08-03T19-40-44Z_inbox-duplicate.md"
+            fallback = reports / "corrected_inbox-duplicate.md"
+            actual.write_text(
+                "# Engineering Report\n- Run ID: `inbox-duplicate`\n- Terminal state: `COMPLETE`\n",
+                encoding="utf-8",
+            )
+            fallback.write_text(
+                "# Engineering Report\n- Run ID: `inbox-duplicate`\n- Terminal state: `COMPLETE`\n",
+                encoding="utf-8",
+            )
+            record_prompt_execution(
+                root,
+                run_id="inbox-duplicate",
+                terminal_state="COMPLETE",
+                prompt_title="Canonical report",
+                executed_at="2026-08-03T19:40:44Z",
+                report=actual,
+            )
+
+            self.assertEqual(prompt_history(root)[0]["report_available"], True)
+            self.assertEqual(report_for_prompt_history(root, "inbox-duplicate"), actual.read_bytes())
+
     def test_rejects_non_terminal_or_invalid_runs(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)

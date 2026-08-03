@@ -45,6 +45,7 @@ from .component_lock import DuplicateComponentInstanceError, single_instance
 from .codex_chat import CodexChatError, chat_model, respond as codex_chat_response
 from .telemetry import daily_statistics, execution_timing
 from .prompt_history import prompt_history, report_for_prompt_history
+from .storage import open_storage
 from .platform_version import EngineeringPlatformManifest
 from . import dashboard_state
 
@@ -76,6 +77,8 @@ AUDITABLE_USER_ACTIONS = frozenset(
         "component_log_downloaded",
         "prompt_history_report_copied",
         "prompt_history_report_downloaded",
+        "prompt_history_analysis_copied",
+        "prompt_history_analysis_downloaded",
         "report_copied",
         "report_analysis_copied",
     }
@@ -136,10 +139,73 @@ def _sse_snapshot(root: Path) -> bytes:
 def _prompt_history(root: Path) -> bytes:
     """Return the bounded, private SQLite prompt history projection."""
     try:
-        payload = {"runs": prompt_history(root)}
+        runs = prompt_history(root)
+        for run in runs:
+            run["analysis_available"] = _report_analysis_available_for_run(
+                root, run.get("run_id")
+            )
+        payload = {"runs": runs}
     except Exception:
         payload = {"runs": []}
     return json.dumps(payload, ensure_ascii=False, separators=(",", ":")).encode()
+
+
+def _prompt_history_detail(root: Path, run_id: str | None) -> bytes:
+    """Return private, immutable operational evidence for one history row."""
+    if not isinstance(run_id, str) or not re.fullmatch(r"[a-z0-9][a-z0-9-]{0,63}", run_id):
+        return b""
+    entry = next((item for item in prompt_history(root) if item.get("run_id") == run_id), None)
+    if entry is None:
+        return b""
+    execution = json.loads(_last_executed_agent_execution(root, run_id))
+    runtime = json.loads(_last_executed_runtime_metadata(root, run_id))
+    reviewers = json.loads(_reviewer_agents_for_run(root, run_id))
+    commits = _commits_for_run(root, run_id)
+    usage: dict[str, object] = {}
+    try:
+        connection = open_storage(root)
+        row = connection.execute(
+            "SELECT input_tokens, output_tokens, total_tokens FROM execution_runs WHERE run_id = ?",
+            (run_id,),
+        ).fetchone()
+        connection.close()
+        if row:
+            usage = {
+                label: value
+                for label, value in zip(("input_tokens", "output_tokens", "total_tokens"), row)
+                if isinstance(value, (int, float)) and not isinstance(value, bool)
+            }
+    except Exception:
+        usage = {}
+    evidence: list[str] = []
+    try:
+        report = _report_for_run(root, run_id).decode("utf-8")
+        for report_label, display_label in (
+            ("Execution Host", "Execution Host"),
+            ("Target Repository", "Target repository"),
+            ("Target Commit", "Target commit"),
+        ):
+            match = re.search(rf"^- {re.escape(report_label)}: `([^`\n]+)`$", report, re.MULTILINE)
+            if match:
+                evidence.append(f"{display_label}: {match.group(1)}")
+        changed = len(re.findall(r"^- Changed file: `", report, re.MULTILINE))
+        if changed:
+            evidence.append(f"Evidence Bundle: {changed} gewijzigde bestanden")
+    except UnicodeDecodeError:
+        pass
+    return json.dumps(
+        {
+            "history": entry,
+            "execution": execution,
+            "runtime": runtime,
+            "reviewers": reviewers,
+            "commits": commits,
+            "usage": usage,
+            "evidence": evidence,
+        },
+        ensure_ascii=False,
+        separators=(",", ":"),
+    ).encode()
 
 
 def _rate_limit_window_label(duration_minutes: int) -> str:
@@ -599,11 +665,20 @@ def _restart_component_after_response(component: str, logger: logging.Logger) ->
         log_event(logger, logging.ERROR, "component_restart_failed", diagnostic=str(error))
 
 
-def _codex_process_metrics() -> bytes:
-    """Return read-only local CPU evidence for currently running Codex CLI processes."""
+def _codex_process_metrics(root: Path) -> bytes:
+    """Measure only the process group explicitly recorded by the Execution Host."""
+    try:
+        runner = json.loads((root / ".engineering" / "status" / "runner_process.json").read_text(encoding="utf-8"))
+        live = json.loads((root / ".engineering" / "status" / "current.json").read_text(encoding="utf-8"))
+        process_group = runner.get("process_group") if runner.get("run_id") == live.get("run_id") else None
+        runner_pid = runner.get("pid") if runner.get("run_id") == live.get("run_id") else None
+    except (OSError, json.JSONDecodeError):
+        process_group, runner_pid = None, None
+    if not isinstance(process_group, int) or process_group <= 0 or not isinstance(runner_pid, int) or runner_pid <= 0:
+        return json.dumps({"process_count": 0, "cpu_percent": 0, "gpu_status": "Niet beschikbaar: geen actieve Execution Host-runner."}, separators=(",", ":")).encode()
     try:
         observed = subprocess.run(
-            ("ps", "-axo", "pid=,pcpu=,command="),
+            ("ps", "-axo", "pid=,pgid=,pcpu=,command="),
             text=True,
             capture_output=True,
             check=False,
@@ -611,20 +686,26 @@ def _codex_process_metrics() -> bytes:
     except OSError:
         observed = None
     processes: list[dict[str, int | float]] = []
+    owner_seen = False
     if observed and observed.returncode == 0:
         for line in observed.stdout.splitlines():
-            parts = line.strip().split(maxsplit=2)
-            if len(parts) != 3 or not CODEX_PROCESS.search(parts[2]):
+            parts = line.strip().split(maxsplit=3)
+            if len(parts) != 4:
                 continue
             try:
-                processes.append({"pid": int(parts[0]), "cpu_percent": float(parts[1])})
+                pid, group, cpu = int(parts[0]), int(parts[1]), float(parts[2])
+                owner_seen = owner_seen or (pid == runner_pid and group == process_group)
+                if group == process_group:
+                    processes.append({"pid": pid, "cpu_percent": cpu})
             except ValueError:
                 continue
+    if not owner_seen:
+        processes = []
     return json.dumps(
         {
             "process_count": len(processes),
             "cpu_percent": round(sum(item["cpu_percent"] for item in processes), 1),
-            "gpu_status": "Niet beschikbaar: Codex-verwerking draait extern.",
+            "gpu_status": "Niet beschikbaar: Execution Host-verwerking draait extern.",
         },
         separators=(",", ":"),
     ).encode()
@@ -635,8 +716,12 @@ def _report_for_run(root: Path, run_id: str | None) -> bytes:
     if not isinstance(run_id, str) or not re.fullmatch(r"[a-z0-9][a-z0-9-]{0,63}", run_id):
         return b""
     try:
-        reports = sorted((root / ".engineering" / "reports").glob(f"*_{run_id}.md"))
-        return reports[-1].read_bytes() if reports else b""
+        indexed_report = report_for_prompt_history(root, run_id)
+        if indexed_report is not None:
+            return indexed_report
+        reports = list((root / ".engineering" / "reports").glob(f"*_{run_id}.md"))
+        report = max(reports, key=lambda path: path.stat().st_mtime) if reports else None
+        return report.read_bytes() if report else b""
     except OSError:
         return b""
 
@@ -731,7 +816,7 @@ def _last_executed_codex_log(root: Path) -> bytes:
 
 
 def _codex_usage(root: Path) -> bytes:
-    """Return only CLI-reported usage bound to the displayed current or last run."""
+    """Return usage only when it is bound to the currently displayed run."""
     try:
         status = json.loads(_status(root))
         recorded = json.loads((root / ".engineering" / "status" / "codex_usage.json").read_text(encoding="utf-8"))
@@ -739,7 +824,8 @@ def _codex_usage(root: Path) -> bytes:
         usage = recorded.get("usage")
     except (OSError, json.JSONDecodeError):
         return b"{}"
-    if run_id not in {status.get("run_id"), status.get("last_executed_run")} or not isinstance(usage, dict):
+    displayed_run = status.get("run_id") or status.get("last_executed_run")
+    if run_id != displayed_run or not isinstance(usage, dict):
         return b"{}"
     allowed = {key: value for key, value in usage.items() if isinstance(key, str) and isinstance(value, (int, float, str))}
     return json.dumps(allowed, separators=(",", ":")).encode()
@@ -787,26 +873,36 @@ def _completion_commits(root: Path) -> bytes:
     return json.dumps(commits, separators=(",", ":")).encode()
 
 
-def _last_executed_commits(root: Path) -> bytes:
-    """Return commit evidence bound to the final last-executed run only."""
+def _commits_for_run(root: Path, run_id: str | None) -> dict[str, str]:
+    """Return commit evidence owned by one exact terminal execution."""
+    if not isinstance(run_id, str) or not re.fullmatch(r"[a-z0-9][a-z0-9-]{0,63}", run_id):
+        return {}
     try:
-        status = json.loads(_status(root))
-        run_id = status.get("last_executed_run")
-        phase = status.get("last_executed_phase")
-        if not isinstance(run_id, str) or phase != "COMPLETE":
-            return b"{}"
         checkpoint = json.loads(
-            (root / ".engineering" / "engineering-runs" / f"{run_id}.json").read_text(encoding="utf-8")
+            (root / ".engineering" / "engineering-runs" / f"{run_id}.json").read_text(
+                encoding="utf-8"
+            )
         )
     except (OSError, json.JSONDecodeError):
-        return b"{}"
+        return {}
     labels = {
         "genesis_commit_sha": "Genesis-commit",
         "implementation_merge_commit": "Implementatie-mergecommit",
         "finalization_merge_commit": "Finalisatie-mergecommit",
     }
-    commits = {labels[key]: checkpoint[key] for key in labels if isinstance(checkpoint.get(key), str)}
-    return json.dumps(commits, separators=(",", ":")).encode()
+    return {labels[key]: checkpoint[key] for key in labels if isinstance(checkpoint.get(key), str)}
+
+
+def _last_executed_commits(root: Path) -> bytes:
+    """Return commit evidence bound to the final last-executed run only."""
+    try:
+        status = json.loads(_status(root))
+        run_id = status.get("last_executed_run")
+        if status.get("last_executed_phase") != "COMPLETE":
+            return b"{}"
+    except json.JSONDecodeError:
+        return b"{}"
+    return json.dumps(_commits_for_run(root, run_id), separators=(",", ":")).encode()
 
 
 def _last_executed_agent_execution(root: Path, run_id: str | None) -> bytes:
@@ -963,12 +1059,11 @@ def _dashboard_html(
 <div id="dashboardSplash" role="status" aria-live="polite" data-testid="dashboard-splash"><div class="dashboard-splash__content"><h2 class="dashboard-splash__title">$TITLE</h2><span class="dashboard-splash__version">Engineering Platform $PLATFORM_VERSION</span><span class="dashboard-splash__spinner" aria-hidden="true"></span><span class="dashboard-splash__loading">Gegevens laden…</span></div></div>
 <div id="copyToast" role="status" aria-live="polite" aria-atomic="true" hidden data-testid="copy-toast"></div>
 <div id="pullRefresh" role="status" aria-live="polite" aria-hidden="true" data-testid="pull-refresh">Trek omlaag om te vernieuwen</div>
-<header class="dashboard-titlebar"><div class="dashboard-titlebar__brand"><img class="dashboard-app-icon" src="/assets/engineering-status-icon.svg" alt="" aria-hidden="true" data-testid="dashboard-app-icon"><h1>$TITLE</h1></div><div class="dashboard-titlebar__actions"><button class="theme-toggle" id="themeToggle" type="button" role="switch" aria-checked="false" aria-label="Lichte modus inschakelen" data-testid="theme-toggle"><span class="theme-toggle__label">Thema</span></button><button class="section-state-toggle" id="toggleAllSections" type="button" role="switch" aria-checked="false" aria-label="Alle secties openen" data-testid="toggle-all-sections"><span class="section-state-toggle__label">Uitklappen</span></button><label class="auto-refresh-toggle" for="autoRefresh"><input id="autoRefresh" type="checkbox" role="switch" checked><span>Automatisch vernieuwen</span></label></div></header>
+<header class="dashboard-titlebar"><div class="dashboard-titlebar__brand"><img class="dashboard-app-icon" src="/assets/engineering-status-icon.svg" alt="" aria-hidden="true" data-testid="dashboard-app-icon"><h1>$TITLE</h1></div><div class="dashboard-titlebar__actions"><label class="dashboard-locale" for="dashboardLocale"><span>Taal</span><select id="dashboardLocale" aria-label="Dashboardtaal"><option value="nl">Nederlands</option><option value="en">English</option><option value="de">Deutsch</option><option value="fr">Français</option><option value="es">Español</option></select></label><button class="theme-toggle" id="themeToggle" type="button" role="switch" aria-checked="false" aria-label="Lichte modus inschakelen" data-testid="theme-toggle"><span class="theme-toggle__label">Thema</span></button><button class="section-state-toggle" id="toggleAllSections" type="button" role="switch" aria-checked="false" aria-label="Alle secties openen" data-testid="toggle-all-sections"><span class="section-state-toggle__label">Uitklappen</span></button><label class="auto-refresh-toggle" for="autoRefresh"><input id="autoRefresh" type="checkbox" role="switch" checked><span>Automatisch vernieuwen</span></label></div></header>
 <div class="dashboard-scroll-region">
-<details class="card card--context workspace-card" id="workspaceCard" data-testid="engineering-workspace"><summary><strong>Workspace</strong></summary><p class="field"><span class="label">Naam</span><span>$WORKSPACE_ID</span></p><div class="field"><span class="label">Workspace locatie</span><pre>$WORKSPACE_LOCATION</pre></div><p class="field"><span class="label">Tracked files</span><span>$TRACKED_FILES</span></p><div class="field"><span class="label">Engineering-database</span><pre>$ENGINEERING_DATABASE_PATH</pre></div><p class="field"><span class="label">Databasegrootte</span><span>$ENGINEERING_DATABASE_SIZE</span></p><p class="field"><span class="label">Schema-versie</span><span>$ENGINEERING_DATABASE_SCHEMA_VERSION</span></p></details>
 <main class="dashboard-grid" id="engineering-dashboard-content" tabindex="-1">
 <details class="inbox-queue" id="queueItems" data-testid="engineering-inbox-queue"><summary><strong>Inbox-wachtrij</strong></summary><p class="category-description">Prompts worden uitgevoerd op volgorde van aanmaakdatum.</p><p class="estimate-meta" id="queueSummary">Wachtrij laden…</p><ol class="queue-list" id="queueList" aria-live="polite"></ol></details>
-<details class="prompt-history" id="promptHistory" data-testid="engineering-prompt-history"><summary><strong>Promptgeschiedenis</strong></summary><p class="category-description">Alle terminale Engineering Platform-uitvoeringen, lokaal gecachet in de Engineering SQLite-opslag.</p><div class="log-controls"><label for="promptHistoryFilter">Zoeken<input id="promptHistoryFilter" type="search" maxlength="160" data-sanitize="single-line" placeholder="Zoek in alle velden"></label></div><div class="log-table-wrap"><table class="log-table" aria-label="Promptgeschiedenis"><thead><tr><th data-history-sort-key="status" scope="col">Status</th><th data-history-sort-key="title" scope="col">Prompttitel</th><th data-history-sort-key="executed_at" scope="col">Uitgevoerd op</th><th data-history-sort-key="git_commit" scope="col">Git-commit</th><th scope="col">Rapport</th><th scope="col">Actie</th></tr></thead><tbody id="promptHistoryRows"><tr><td class="log-empty" colspan="6">Promptgeschiedenis laden…</td></tr></tbody></table></div><nav class="log-pagination" id="promptHistoryPagination" aria-label="Paginering Promptgeschiedenis"></nav></details>
+<details class="prompt-history" id="promptHistory" data-testid="engineering-prompt-history"><summary><strong>Promptgeschiedenis</strong></summary><p class="category-description">Alle terminale Engineering Platform-uitvoeringen, lokaal gecachet in de Engineering SQLite-opslag.</p><div class="log-controls"><label for="promptHistoryFilter">Zoeken<input id="promptHistoryFilter" type="search" maxlength="160" data-sanitize="single-line" placeholder="Zoek in alle velden"></label></div><div class="log-table-wrap"><table class="log-table" aria-label="Promptgeschiedenis"><thead><tr><th data-history-sort-key="status" scope="col">Status</th><th data-history-sort-key="title" scope="col">Prompttitel</th><th data-history-sort-key="executed_at" scope="col">Uitgevoerd op</th><th data-history-sort-key="git_commit" scope="col">Git-commit</th><th scope="col">Rapport</th><th id="promptHistoryAnalysisHeader" scope="col">AI-analyse</th><th id="promptHistoryChatHeader" scope="col">AI-gesprek</th><th scope="col">Actie</th></tr></thead><tbody id="promptHistoryRows"><tr><td class="log-empty" colspan="8">Promptgeschiedenis laden…</td></tr></tbody></table></div><nav class="log-pagination" id="promptHistoryPagination" aria-label="Paginering Promptgeschiedenis"></nav></details>
 <details class="current-run" id="currentRun" aria-label="Huidige uitvoering" hidden><summary class="current-run__title"><span class="label">Actieve prompt</span></summary><div class="current-run__grid"><div class="field"><span class="label">Prompt</span><h2 id="currentPrompt">Laden…</h2></div><div class="field"><span class="label">Bestandsnaam</span><pre id="currentFile">Laden…</pre></div>
 <div class="card"><div class="status"><span id="indicator" class="indicator" role="status" aria-label="Status onbekend"></span><strong>Promptstatus</strong></div><p class="field"><span class="label">Watcher</span><span id="watcher">Laden…</span></p><p class="field"><span class="label">Fase</span><span id="phase">Laden…</span></p><p class="field"><span class="label">Huidige Codex-activiteit</span><span id="action">Laden…</span></p></div>
 <div class="card" id="predecessorGate" hidden><strong>Wachtrij geblokkeerd</strong><p class="field"><span class="label">Blokkerende run</span><code id="predecessorRun"></code></p><p class="field"><span class="label">Voorafgaande prompt</span><span id="predecessorPrompt"></span></p><p class="field"><span class="label">Eindstatus</span><span id="predecessorPhase"></span></p><div class="field"><span class="label">Herstelactie</span><pre id="predecessorAction"></pre></div><button class="predecessor-retry" id="predecessorRetry" type="button">Resume Queue</button><p class="predecessor-retry-status" id="predecessorRetryStatus" role="status" aria-live="polite"></p></div>
@@ -987,15 +1082,17 @@ def _dashboard_html(
 <dialog class="component-modal" id="componentModal" aria-labelledby="componentModalTitle"><section class="component-modal__panel"><button class="component-modal__close" id="componentModalClose" type="button" aria-label="Meer informatie sluiten">×</button><h2 id="componentModalTitle">Componentinformatie</h2><div id="componentModalContent"></div><button class="component-modal__restart" id="componentModalRestart" type="button" hidden>Component herstarten</button><p class="component-modal__status" id="componentModalStatus" aria-live="polite"></p></section></dialog>
 <dialog class="confirmation-modal" id="confirmationModal" aria-labelledby="confirmationModalTitle"><section class="confirmation-modal__panel"><h2 id="confirmationModalTitle">Bevestig actie</h2><p id="confirmationModalText"></p><div class="confirmation-modal__actions"><button id="confirmationModalCancel" type="button">Annuleren</button><button id="confirmationModalConfirm" type="button">Bevestigen</button></div></section></dialog>
 <dialog class="report-view-modal" id="promptHistoryReportModal" aria-labelledby="promptHistoryReportModalTitle"><section class="report-view-modal__panel"><header class="report-view-modal__header"><h2 class="report-view-modal__title" id="promptHistoryReportModalTitle">Engineeringrapport</h2><div class="report-view-modal__actions"><button class="download download--glyph" id="promptHistoryReportDownload" type="button" title="Download engineeringrapport" aria-label="Download engineeringrapport" hidden>⇩</button><button class="copy copy--glyph" id="promptHistoryReportCopy" type="button" title="Kopieer engineeringrapport" aria-label="Kopieer engineeringrapport" hidden>⧉</button><button class="report-view-modal__close" id="promptHistoryReportClose" type="button" aria-label="Engineeringrapport sluiten">×</button></div></header><article class="markdown-document report-view-modal__content" id="promptHistoryReportContent">Rapport laden…</article></section></dialog>
+<dialog class="prompt-detail-modal" id="promptHistoryDetailModal" aria-labelledby="promptHistoryDetailTitle"><section class="prompt-detail-modal__panel"><header class="prompt-detail-modal__header"><h2 id="promptHistoryDetailTitle">Promptdetails</h2><button class="report-view-modal__close" id="promptHistoryDetailClose" type="button" aria-label="Promptdetails sluiten">×</button></header><p class="prompt-detail-modal__description" id="promptHistoryDetailDescription"></p><div class="prompt-detail-modal__content" id="promptHistoryDetailContent">Promptdetails laden…</div></section></dialog>
+<dialog class="prompt-chat-modal" id="promptHistoryChatModal" aria-labelledby="promptHistoryChatTitle"><section class="prompt-chat-modal__panel"><header class="prompt-chat-modal__header"><h2 id="promptHistoryChatTitle">AI-gesprek</h2><button class="report-view-modal__close" id="promptHistoryChatClose" type="button" aria-label="AI-gesprek sluiten">×</button></header><p class="prompt-chat-modal__description" id="promptHistoryChatDescription"></p><section class="codex-chat" id="codexChat"><div class="codex-chat__details"><div class="chat-actions"><button class="download download--glyph" id="downloadChat" type="button" title="Download gesprek" aria-label="Download gesprek" hidden>⇩</button><button class="clear-chat" id="clearChat" type="button" title="Chat wissen" aria-label="Chat wissen" hidden>⌫</button></div><div class="chat-messages" id="chatMessages" aria-live="polite" aria-label="Gesprek met AI-assistent"></div><label class="label" for="chatInput">Nieuwe vraag aan AI-assistent</label><div class="chat-compose"><textarea id="chatInput" class="chat-input" rows="5" maxlength="2000" autocomplete="off" data-sanitize="multiline" placeholder="Bijvoorbeeld: wat zijn de belangrijkste vervolgstappen uit dit rapport?"></textarea><button class="chat-send" id="chatSend" type="button" title="Verstuur vraag" aria-label="Verstuur vraag"><span aria-hidden="true">➤</span></button></div><p class="field"><span class="label">Gebruikt model</span><span id="chatModel">$CHAT_MODEL</span></p><p class="chat-status" id="chatStatus"></p></div></section></section></dialog>
 <button id="loadComponentLogs" type="button" hidden>Logs laden</button>
-<details class="technical-details" id="componentLogs"><summary><strong>Logs</strong></summary><p class="estimate-meta">Geredigeerde, roterende logs van watcher en dashboard. Automatisch bijgewerkt via serverpush.</p><div class="log-controls" id="componentLogControls" hidden><label for="logFilter">Zoeken<input id="logFilter" type="search" maxlength="160" data-sanitize="single-line" placeholder="Zoek in alle velden"></label><label for="logLevelFilter">Niveau<select id="logLevelFilter"><option value="">Alle niveaus</option><option value="ERROR">Fout</option><option value="WARNING">Waarschuwing</option><option value="INFO">Informatie</option><option value="DEBUG">Debug</option></select></label><label for="logSort">Sortering<select id="logSort"><option value="newest">Nieuwste eerst</option><option value="oldest">Oudste eerst</option><option value="level">Niveau</option><option value="event">Gebeurtenis</option></select></label></div><div class="technical-grid"><div class="card"><div class="log-card-header"><strong>Inbox-watcher</strong><div class="log-card-actions"><button class="download download--glyph component-log-download" data-component="inbox" data-testid="download-inbox-log" type="button" title="Download Inbox-watcher-log" aria-label="Download Inbox-watcher-log">⇩</button><button class="clear-component-log" data-component="inbox" data-testid="clear-inbox-log" type="button">Logs wissen</button></div></div><div class="log-table-wrap"><table class="log-table"><thead><tr><th>#</th><th>Tijdstip</th><th>Niveau</th><th>Gebeurtenis</th><th>Run-ID</th><th>Details</th></tr></thead><tbody id="inboxComponentLog"><tr><td class="log-empty" colspan="6">Nog niet geladen.</td></tr></tbody></table></div><nav class="log-pagination" id="inboxLogPagination" aria-label="Paginering Inbox-watcher"></nav></div><div class="card"><div class="log-card-header"><strong>Statusdashboard</strong><div class="log-card-actions"><button class="download download--glyph component-log-download" data-component="dashboard" data-testid="download-dashboard-log" type="button" title="Download Statusdashboard-log" aria-label="Download Statusdashboard-log">⇩</button><button class="clear-component-log" data-component="dashboard" data-testid="clear-dashboard-log" type="button">Logs wissen</button></div></div><div class="log-table-wrap"><table class="log-table"><thead><tr><th>#</th><th>Tijdstip</th><th>Niveau</th><th>Gebeurtenis</th><th>Run-ID</th><th>Details</th></tr></thead><tbody id="dashboardComponentLog"><tr><td class="log-empty" colspan="6">Nog niet geladen.</td></tr></tbody></table></div><nav class="log-pagination" id="dashboardLogPagination" aria-label="Paginering Statusdashboard"></nav></div></div></details>
-<details class="card codex-chat" id="codexChat"><summary><strong>AI-gesprek</strong></summary><p class="category-description">Stel korte, alleen-lezen vragen over de laatst uitgevoerde prompt en het bijbehorende rapport. Dit start geen engineering of wijzigingen.</p><div class="codex-chat__details"><div class="chat-actions"><button class="download download--glyph" id="downloadChat" type="button" title="Download gesprek" aria-label="Download gesprek" hidden>⇩</button><button class="clear-chat" id="clearChat" type="button" title="Chat wissen" aria-label="Chat wissen" hidden>⌫</button></div><div class="chat-messages" id="chatMessages" aria-live="polite" aria-label="Gesprek met AI-assistent"></div><label class="label" for="chatInput">Nieuwe vraag aan AI-assistent</label><div class="chat-compose"><textarea id="chatInput" class="chat-input" rows="5" maxlength="2000" autocomplete="off" data-sanitize="multiline" placeholder="Bijvoorbeeld: wat zijn de belangrijkste vervolgstappen uit het laatste rapport?"></textarea><button class="chat-send" id="chatSend" type="button" title="Verstuur vraag" aria-label="Verstuur vraag"><span aria-hidden="true">➤</span></button></div><p class="field"><span class="label">Gebruikt model</span><span id="chatModel">$CHAT_MODEL</span></p><p class="chat-status" id="chatStatus"></p></div></details>
+<details class="technical-details" id="componentLogs"><summary><strong>Logs</strong></summary><p class="estimate-meta">Geredigeerde, roterende logs van watcher en dashboard. Automatisch bijgewerkt via serverpush.</p><div class="log-controls" id="componentLogControls" hidden><label for="logFilter">Zoeken<input id="logFilter" type="search" maxlength="160" data-sanitize="single-line" placeholder="Zoek in alle velden"></label><label for="logLevelFilter">Niveau<select id="logLevelFilter"><option value="">Alle niveaus</option><option value="ERROR">Fout</option><option value="WARNING">Waarschuwing</option><option value="INFO">Informatie</option><option value="DEBUG">Debug</option></select></label></div><div class="technical-grid"><div class="card"><div class="log-card-header"><strong>Inbox-watcher</strong><div class="log-card-actions"><button class="download download--glyph component-log-download" data-component="inbox" data-testid="download-inbox-log" type="button" title="Download Inbox-watcher-log" aria-label="Download Inbox-watcher-log">⇩</button><button class="clear-component-log" data-component="inbox" data-testid="clear-inbox-log" type="button">Logs wissen</button></div></div><div class="log-table-wrap"><table class="log-table"><thead><tr><th>#</th><th>Tijdstip</th><th>Niveau</th><th>Gebeurtenis</th><th>Run-ID</th><th>Details</th></tr></thead><tbody id="inboxComponentLog"><tr><td class="log-empty" colspan="6">Nog niet geladen.</td></tr></tbody></table></div><nav class="log-pagination" id="inboxLogPagination" aria-label="Paginering Inbox-watcher"></nav></div><div class="card"><div class="log-card-header"><strong>Statusdashboard</strong><div class="log-card-actions"><button class="download download--glyph component-log-download" data-component="dashboard" data-testid="download-dashboard-log" type="button" title="Download Statusdashboard-log" aria-label="Download Statusdashboard-log">⇩</button><button class="clear-component-log" data-component="dashboard" data-testid="clear-dashboard-log" type="button">Logs wissen</button></div></div><div class="log-table-wrap"><table class="log-table"><thead><tr><th>#</th><th>Tijdstip</th><th>Niveau</th><th>Gebeurtenis</th><th>Run-ID</th><th>Details</th></tr></thead><tbody id="dashboardComponentLog"><tr><td class="log-empty" colspan="6">Nog niet geladen.</td></tr></tbody></table></div><nav class="log-pagination" id="dashboardLogPagination" aria-label="Paginering Statusdashboard"></nav></div></div></details>
 <details class="technical-details" id="technicalDetails"><summary><strong>Technische details</strong></summary><div class="technical-grid">
 <div class="card"><strong>Pull requests</strong><p class="field"><span class="label">Implementatie</span><span id="implementation"></span></p><p class="field"><span class="label">Finalisatie</span><span id="finalization"></span></p></div>
 <div class="card"><strong>Repository</strong><p class="field"><span class="label">Repositorystatus</span><span id="repositoryState"></span></p><p class="field"><span class="label">Werkruimtestatus</span><span id="workspaceState"></span></p></div>
 <div class="card"><strong>Host Preflight</strong><p class="field"><span class="label">Execution Host</span><span id="executionHostName">Niet beschikbaar</span></p><p class="field"><span class="label">Execution Host Version</span><span id="executionHostVersion">Niet beschikbaar</span></p><p class="field"><span class="label">Runtime</span><span id="executionHostRuntime">Niet beschikbaar</span></p><p class="field"><span class="label">Runtime Prompt Transport</span><span id="executionHostTransport">Niet beschikbaar</span></p><p class="field"><span class="label">Hoststatus</span><span id="hostPreflightStatus">Niet beschikbaar</span></p><p class="field"><span class="label">Laatste controle</span><span id="hostPreflightTimestamp">Niet beschikbaar</span></p><p class="field"><span class="label">Workspacestatus</span><span id="workspacePreflightStatus">Niet beschikbaar</span></p><p class="field"><span class="label">Laatste workspacecontrole</span><span id="workspacePreflightTimestamp">Niet beschikbaar</span></p><p class="field"><span class="label">Capabilitystatus</span><span id="capabilityPreflightStatus">Niet beschikbaar</span></p><p class="field"><span class="label">Herstelbaarheid</span><span id="capabilityRecoverability">Niet beschikbaar</span></p><p class="field"><span class="label">Failure Origin</span><span id="capabilityFailureOrigin">Niet beschikbaar</span></p><p class="field"><span class="label">Aanbevolen actie</span><span id="capabilityRecommendation">Niet beschikbaar</span></p></div>
 <div class="card"><strong>Diagnose</strong><p id="diag"></p></div>
 </div></details>
+<details class="card card--context workspace-card" id="workspaceCard" data-testid="engineering-workspace"><summary><strong>Workspace</strong></summary><p class="field"><span class="label">Naam</span><span>$WORKSPACE_ID</span></p><div class="field"><span class="label">Workspace locatie</span><pre>$WORKSPACE_LOCATION</pre></div><p class="field"><span class="label">Tracked files</span><span>$TRACKED_FILES</span></p><div class="field"><span class="label">Engineering-database</span><pre>$ENGINEERING_DATABASE_PATH</pre></div><p class="field"><span class="label">Databasegrootte</span><span>$ENGINEERING_DATABASE_SIZE</span></p><p class="field"><span class="label">Schema-versie</span><span>$ENGINEERING_DATABASE_SCHEMA_VERSION</span></p></details>
 </main></div>
 <footer class="footer" aria-live="polite"><span class="label">Engineering Platform-versie</span><span id="platformVersion">Laden…</span><span aria-hidden="true">·</span><span id="lastRefresh">Laatst bijgewerkt: laden…</span><span aria-hidden="true">·</span><span id="updateMode">Serverpush: verbinden…</span></footer><span id="dashboardVersion" hidden></span><span id="workerVersion" hidden></span>
 <script>window.DJCONNECT_DASHBOARD_BUILD="$BUILD_COMMIT";</script>
@@ -1227,10 +1324,15 @@ def handler(root: Path, logger: logging.Logger | None = None):
                 if not 0 < length <= 16_000:
                     raise ValueError
                 payload = json.loads(self.rfile.read(length).decode("utf-8"))
-                if not isinstance(payload, dict) or set(payload) != {"message", "history"}:
+                if not isinstance(payload, dict) or set(payload) not in (
+                    {"message", "history"},
+                    {"message", "history", "run_id"},
+                ):
                     raise ValueError
                 status = json.loads(_status(root))
-                answer = codex_chat_response(root, status, payload["message"], payload["history"])
+                answer = codex_chat_response(
+                    root, status, payload["message"], payload["history"], payload.get("run_id")
+                )
             except CodexChatError as error:
                 content = json.dumps({"error": str(error)}, ensure_ascii=False).encode()
                 self._send(content, "application/json; charset=utf-8", 503)
@@ -1251,6 +1353,7 @@ def handler(root: Path, logger: logging.Logger | None = None):
             icon_assets = {
                 "/assets/dashboard.css": ("dashboard.css", "text/css; charset=utf-8"),
                 "/assets/dashboard.js": ("dashboard.js", "text/javascript; charset=utf-8"),
+                "/assets/dashboard_locales.mjs": ("dashboard_locales.mjs", "text/javascript; charset=utf-8"),
                 "/assets/dashboard_status_store.mjs": ("dashboard_status_store.mjs", "text/javascript; charset=utf-8"),
                 "/assets/engineering-status-icon.svg": (APP_ICON_SVG, "image/svg+xml; charset=utf-8"),
                 "/assets/engineering-status-icon-180.png": (APP_ICON_TOUCH, "image/png"),
@@ -1285,6 +1388,13 @@ def handler(root: Path, logger: logging.Logger | None = None):
                 )
             if request.path == "/api/prompt-history":
                 return self._send(_prompt_history(root), "application/json; charset=utf-8")
+            if request.path.startswith("/api/prompt-history/") and request.path.endswith("/details"):
+                run_id = request.path.removeprefix("/api/prompt-history/").removesuffix("/details").strip("/")
+                detail = _prompt_history_detail(root, run_id)
+                if not detail:
+                    self._send(b'{"error":"Promptdetails zijn niet beschikbaar."}', "application/json; charset=utf-8", 404)
+                    return
+                return self._send(detail, "application/json; charset=utf-8")
             if request.path.startswith("/api/prompt-history/") and request.path.endswith("/report"):
                 run_id = request.path.removeprefix("/api/prompt-history/").removesuffix("/report").strip("/")
                 report = report_for_prompt_history(root, run_id)
@@ -1300,6 +1410,22 @@ def handler(root: Path, logger: logging.Logger | None = None):
                 self.send_header("X-Content-Type-Options", "nosniff")
                 self.end_headers()
                 self.wfile.write(report)
+                return
+            if request.path.startswith("/api/prompt-history/") and request.path.endswith("/analysis"):
+                run_id = request.path.removeprefix("/api/prompt-history/").removesuffix("/analysis").strip("/")
+                analysis = _report_analysis_for_run(root, run_id)
+                if not analysis:
+                    self._send(b'{"error":"AI-analyse is niet beschikbaar."}', "application/json; charset=utf-8", 404)
+                    return
+                if parse_qs(request.query).get("audit") == ["download"]:
+                    log_event(logger, logging.INFO, "report_analysis_downloaded", run_id=run_id)
+                self.send_response(200)
+                self.send_header("Content-Type", "text/markdown; charset=utf-8")
+                self.send_header("Content-Disposition", f'attachment; filename="ai-analysis-{run_id}.md"')
+                self.send_header("Cache-Control", "no-store")
+                self.send_header("X-Content-Type-Options", "nosniff")
+                self.end_headers()
+                self.wfile.write(analysis)
                 return
             if request.path == "/api/usage/last-executed":
                 run_id = parse_qs(request.query).get("run_id", [None])[0]
@@ -1342,7 +1468,7 @@ def handler(root: Path, logger: logging.Logger | None = None):
                     "application/json; charset=utf-8",
                 )
             if self.path == "/api/process-metrics":
-                return self._send(_codex_process_metrics(), "application/json; charset=utf-8")
+                return self._send(_codex_process_metrics(root), "application/json; charset=utf-8")
             if self.path == "/api/events":
                 self.send_response(200)
                 self.send_header("Content-Type", "text/event-stream; charset=utf-8")

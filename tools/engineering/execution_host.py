@@ -11,6 +11,7 @@ from pathlib import Path
 import subprocess
 import tempfile
 import time
+from threading import Lock
 from typing import Callable, Mapping, Protocol
 import uuid
 import re
@@ -36,7 +37,7 @@ from .engineering_memory import (
     load_engineering_memory,
     retrieve_engineering_memory,
 )
-from .live_status import print_live_status, write_live_status
+from .live_status import print_live_status, write_live_status, write_runner_process
 from .platform_version import (
     EngineeringPlatformCompatibilityError,
     EngineeringPlatformManifest,
@@ -465,10 +466,15 @@ class CodexCliClient:
         self.last_execution_seconds: float | None = None
         self.last_runtime_metadata: dict[str, str] = {"runtime_provider": "codex_cli"}
         self._activity_callback: Callable[[str], None] | None = None
+        self._process_callback: Callable[[dict[str, int] | None], None] | None = None
 
     def set_activity_callback(self, callback: Callable[[str], None] | None) -> None:
         """Set the optional local-only sink for safe live activity labels."""
         self._activity_callback = callback
+
+    def set_process_callback(self, callback: Callable[[dict[str, int] | None], None] | None) -> None:
+        """Set the owned foreground Codex-process sink for runtime metrics."""
+        self._process_callback = callback
 
     def available(self) -> bool:
         return self.provider.command("--version").returncode == 0
@@ -657,18 +663,28 @@ class CodexCliClient:
             text=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
+            start_new_session=True,
         )
-        lines: list[str] = []
-        assert process.stdout is not None
-        for line in process.stdout:
-            lines.append(line)
+        if self._process_callback is not None:
             try:
-                activity = project_codex_activity(json.loads(line))
-            except json.JSONDecodeError:
-                activity = None
-            if activity is not None:
-                self._activity_callback(activity)
-        return subprocess.CompletedProcess(command, process.wait(), "".join(lines), "")
+                self._process_callback({"pid": process.pid, "process_group": os.getpgid(process.pid)})
+            except OSError:
+                self._process_callback(None)
+        lines: list[str] = []
+        try:
+            assert process.stdout is not None
+            for line in process.stdout:
+                lines.append(line)
+                try:
+                    activity = project_codex_activity(json.loads(line))
+                except json.JSONDecodeError:
+                    activity = None
+                if activity is not None:
+                    self._activity_callback(activity)
+            return subprocess.CompletedProcess(command, process.wait(), "".join(lines), "")
+        finally:
+            if self._process_callback is not None:
+                self._process_callback(None)
 
 
 def _redacted_cli_tail(value: str, prompt: str, *, limit: int = 1_200) -> str:
@@ -750,7 +766,34 @@ class EngineeringRunner:
         self.platform_manifest: EngineeringPlatformManifest | None = None
         self.detected_codex_cli: str | None = None
         self.reviewer_records: tuple[dict[str, object], ...] = ()
+        self.reviewer_runtime: list[dict[str, object]] = []
+        self._reviewer_runtime_lock = Lock()
         self.console_detail: str | None = None
+
+    def _publish_reviewer_progress(
+        self,
+        state: TransactionState,
+        selection: ReviewerSelection,
+        event: str,
+        result: ReviewerResult | None = None,
+    ) -> None:
+        """Publish bounded reviewer lifecycle status without granting reviewer authority."""
+        status_by_event = {"started": "running", "completed": "completed", "failed": "failed"}
+        status = status_by_event.get(event)
+        if status is None:
+            return
+        with self._reviewer_runtime_lock:
+            for reviewer in self.reviewer_runtime:
+                if reviewer.get("reviewer") != selection.reviewer:
+                    continue
+                reviewer["status"] = status
+                if event == "started":
+                    reviewer["started_at"] = datetime.now(timezone.utc).isoformat()
+                else:
+                    reviewer["finished_at"] = datetime.now(timezone.utc).isoformat()
+                    reviewer["failed"] = bool(result and result.failed)
+                break
+            write_live_status(self.root, state, "Capability review: " + selection.reviewer, self.reviewer_runtime)
 
     def _persist_agent_usage(self, run_id: str) -> None:
         usage = getattr(self.agent, "last_usage", None)
@@ -858,6 +901,16 @@ class EngineeringRunner:
             state.transaction_kind if state else "IMPLEMENTATION",
             load_engineering_memory(self.root),
         )
+        self.reviewer_runtime = [
+            {
+                "reviewer": item.reviewer,
+                "capability": item.capability,
+                "selected_because": item.selected_because,
+                "status": "selected",
+                "selected_at": datetime.now(timezone.utc).isoformat(),
+            }
+            for item in selections
+        ]
         write_live_status(
             self.root,
             state
@@ -869,9 +922,16 @@ class EngineeringRunner:
                 ", ".join(item.reviewer for item in selections)
                 or "No specialist reviewers required."
             ),
+            self.reviewer_runtime,
         )
         results = run_reviews(
-            self.root, selections, objective, self.agent if hasattr(self.agent, "review") else None
+            self.root,
+            selections,
+            objective,
+            self.agent if hasattr(self.agent, "review") else None,
+            progress=lambda selection, event, result: self._publish_reviewer_progress(
+                state, selection, event, result
+            ),
         )
         self.reviewer_records = records_for_storage(selections, results)
         recommendations = reconciled_recommendations(results)
@@ -894,6 +954,10 @@ class EngineeringRunner:
             if hasattr(self.agent, "set_activity_callback"):
                 self.agent.set_activity_callback(
                     lambda activity: write_live_status(self.root, state, activity)
+                )
+            if hasattr(self.agent, "set_process_callback"):
+                self.agent.set_process_callback(
+                    lambda process: write_runner_process(self.root, state.run_id, process)
                 )
             result = self.agent.invoke(
                 self.root, assemble_prompt(prompt_path, state) + memory + reviewer_context

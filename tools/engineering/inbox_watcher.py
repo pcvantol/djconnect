@@ -597,8 +597,8 @@ def _runner_result(repo: Path, run_id: str) -> tuple[str | None, str | None]:
 
 
 def _report(repo: Path, run_id: str) -> Path | None:
-    reports = sorted((repo / ".engineering" / "reports").glob(f"*_{run_id}.md"))
-    return reports[-1] if reports else None
+    reports = list((repo / ".engineering" / "reports").glob(f"*_{run_id}.md"))
+    return max(reports, key=lambda path: path.stat().st_mtime) if reports else None
 
 
 def _clear_prior_codex_log(repo: Path, run_id: str) -> None:

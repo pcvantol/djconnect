@@ -1,0 +1,208 @@
+/* Canonical user-facing copy for the private Engineering Status dashboard. */
+export const SUPPORTED_LOCALES = Object.freeze(["en", "nl", "de", "fr", "es"]);
+
+const messages = {
+  en: {
+    "language.label": "Language",
+    "language.en": "English", "language.nl": "Dutch", "language.de": "German", "language.fr": "French", "language.es": "Spanish",
+    "action.cancel": "Cancel", "action.confirm": "Confirm", "action.retry_execution": "Retry Execution", "action.dismiss_execution": "Dismiss Execution", "action.resume_queue": "Resume Queue", "action.reset_log_filters": "Reset log filters",
+    "retry.title": "Retry Execution", "retry.details": "Run ID: {run_id}\nPrompt title: {title}\nRepository: {repository}\nExecution Mode: {mode}\n\nA new engineering execution will start using the current repository state. The original execution remains unchanged. A retry relationship will be recorded.",
+    "retry.unavailable_title": "Prompt title unavailable", "retry.unavailable_repository": "Repository context not recorded", "retry.unavailable_mode": "Execution mode not recorded", "retry.failed": "Retry Execution could not be started.",
+    "dismiss.title": "Dismiss Execution", "dismiss.details": "Run ID: {run_id}\nPrompt title: {title}\nTerminal state: {state}\n\nExecution history, reports, telemetry and retry relationships are preserved. Only operational active state is cleared. No engineering work will restart.", "dismiss.failed": "Dismiss Execution could not be completed.",
+    "field.run_id": "Run ID", "field.prompt_title": "Prompt title", "field.repository": "Repository", "field.execution_mode": "Execution Mode", "field.terminal_state": "Terminal state",
+    "status.unknown": "Unknown", "status.complete": "Complete", "status.blocked": "Blocked", "status.failed": "Failed",
+    "toast.report_loading": "Loading report…", "table.no_prompt_history": "No prompts in the history match this selection.", "table.action": "Action", "table.report": "Report", "table.event": "Event",
+    "header.skip": "Skip to dashboard content", "header.theme": "Theme", "header.enable_light": "Enable light mode", "header.expand": "Expand", "header.open_all": "Open all sections", "header.auto_refresh": "Refresh automatically",
+  },
+  nl: {
+    "language.label": "Taal", "language.en": "Engels", "language.nl": "Nederlands", "language.de": "Duits", "language.fr": "Frans", "language.es": "Spaans",
+    "action.cancel": "Annuleren", "action.confirm": "Bevestigen", "action.retry_execution": "Uitvoering opnieuw proberen", "action.dismiss_execution": "Uitvoering afsluiten", "action.resume_queue": "Wachtrij hervatten", "action.reset_log_filters": "Logfilters resetten",
+    "retry.title": "Uitvoering opnieuw proberen", "retry.details": "Run-ID: {run_id}\nPrompttitel: {title}\nRepository: {repository}\nUitvoeringsmodus: {mode}\n\nEen nieuwe engineeringuitvoering start met de huidige repositorystatus. De oorspronkelijke uitvoering blijft ongewijzigd. De retry-relatie wordt vastgelegd.",
+    "retry.unavailable_title": "Prompttitel niet beschikbaar", "retry.unavailable_repository": "Repositorycontext niet vastgelegd", "retry.unavailable_mode": "Uitvoeringsmodus niet vastgelegd", "retry.failed": "De uitvoering kon niet opnieuw worden gestart.",
+    "dismiss.title": "Uitvoering afsluiten", "dismiss.details": "Run-ID: {run_id}\nPrompttitel: {title}\nEindstatus: {state}\n\nUitvoeringsgeschiedenis, rapporten, telemetrie en retry-relaties blijven bewaard. Alleen de actieve operationele status wordt gewist. Engineering wordt niet opnieuw gestart.", "dismiss.failed": "De uitvoering kon niet worden afgesloten.",
+    "field.run_id": "Run-ID", "field.prompt_title": "Prompttitel", "field.repository": "Repository", "field.execution_mode": "Uitvoeringsmodus", "field.terminal_state": "Eindstatus",
+    "status.unknown": "Onbekend", "status.complete": "Voltooid", "status.blocked": "Geblokkeerd", "status.failed": "Mislukt",
+    "toast.report_loading": "Rapport laden…", "table.no_prompt_history": "Geen prompts in de geschiedenis voor deze selectie.", "table.action": "Actie", "table.report": "Rapport", "table.event": "Gebeurtenis",
+    "header.skip": "Naar dashboardinhoud", "header.theme": "Thema", "header.enable_light": "Lichte modus inschakelen", "header.expand": "Uitklappen", "header.open_all": "Alle secties openen", "header.auto_refresh": "Automatisch vernieuwen",
+  },
+  de: {
+    "language.label": "Sprache", "language.en": "Englisch", "language.nl": "Niederländisch", "language.de": "Deutsch", "language.fr": "Französisch", "language.es": "Spanisch",
+    "action.cancel": "Abbrechen", "action.confirm": "Bestätigen", "action.retry_execution": "Ausführung wiederholen", "action.dismiss_execution": "Ausführung schließen", "action.resume_queue": "Warteschlange fortsetzen", "action.reset_log_filters": "Logfilter zurücksetzen",
+    "retry.title": "Ausführung wiederholen", "retry.details": "Run-ID: {run_id}\nPrompttitel: {title}\nRepository: {repository}\nAusführungsmodus: {mode}\n\nEine neue Engineering-Ausführung startet mit dem aktuellen Repository-Stand. Die ursprüngliche Ausführung bleibt unverändert. Die Wiederholungsbeziehung wird dokumentiert.",
+    "retry.unavailable_title": "Prompttitel nicht verfügbar", "retry.unavailable_repository": "Repository-Kontext nicht erfasst", "retry.unavailable_mode": "Ausführungsmodus nicht erfasst", "retry.failed": "Die Ausführung konnte nicht wiederholt werden.",
+    "dismiss.title": "Ausführung schließen", "dismiss.details": "Run-ID: {run_id}\nPrompttitel: {title}\nEndstatus: {state}\n\nAusführungshistorie, Berichte, Telemetrie und Wiederholungsbeziehungen bleiben erhalten. Nur der aktive Betriebsstatus wird gelöscht. Es wird keine Engineering-Arbeit neu gestartet.", "dismiss.failed": "Die Ausführung konnte nicht geschlossen werden.",
+    "field.run_id": "Run-ID", "field.prompt_title": "Prompttitel", "field.repository": "Repository", "field.execution_mode": "Ausführungsmodus", "field.terminal_state": "Endstatus",
+    "status.unknown": "Unbekannt", "status.complete": "Abgeschlossen", "status.blocked": "Blockiert", "status.failed": "Fehlgeschlagen",
+    "toast.report_loading": "Bericht wird geladen…", "table.no_prompt_history": "Keine Prompts im Verlauf für diese Auswahl.", "table.action": "Aktion", "table.report": "Bericht", "table.event": "Ereignis",
+    "header.skip": "Zum Dashboard-Inhalt", "header.theme": "Darstellung", "header.enable_light": "Hellen Modus aktivieren", "header.expand": "Ausklappen", "header.open_all": "Alle Bereiche öffnen", "header.auto_refresh": "Automatisch aktualisieren",
+  },
+  fr: {
+    "language.label": "Langue", "language.en": "Anglais", "language.nl": "Néerlandais", "language.de": "Allemand", "language.fr": "Français", "language.es": "Espagnol",
+    "action.cancel": "Annuler", "action.confirm": "Confirmer", "action.retry_execution": "Relancer l’exécution", "action.dismiss_execution": "Clore l’exécution", "action.resume_queue": "Reprendre la file", "action.reset_log_filters": "Réinitialiser les filtres des journaux",
+    "retry.title": "Relancer l’exécution", "retry.details": "ID d’exécution : {run_id}\nTitre du prompt : {title}\nDépôt : {repository}\nMode d’exécution : {mode}\n\nUne nouvelle exécution d’ingénierie démarrera avec l’état actuel du dépôt. L’exécution d’origine reste inchangée. La relation de relance sera enregistrée.",
+    "retry.unavailable_title": "Titre du prompt indisponible", "retry.unavailable_repository": "Contexte du dépôt non enregistré", "retry.unavailable_mode": "Mode d’exécution non enregistré", "retry.failed": "La relance de l’exécution a échoué.",
+    "dismiss.title": "Clore l’exécution", "dismiss.details": "ID d’exécution : {run_id}\nTitre du prompt : {title}\nÉtat final : {state}\n\nL’historique, les rapports, la télémétrie et les relations de relance sont conservés. Seul l’état opérationnel actif est effacé. Aucun travail d’ingénierie ne redémarrera.", "dismiss.failed": "L’exécution n’a pas pu être clôturée.",
+    "field.run_id": "ID d’exécution", "field.prompt_title": "Titre du prompt", "field.repository": "Dépôt", "field.execution_mode": "Mode d’exécution", "field.terminal_state": "État final",
+    "status.unknown": "Inconnu", "status.complete": "Terminé", "status.blocked": "Bloqué", "status.failed": "Échec",
+    "toast.report_loading": "Chargement du rapport…", "table.no_prompt_history": "Aucun prompt de l’historique ne correspond à cette sélection.", "table.action": "Action", "table.report": "Rapport", "table.event": "Événement",
+    "header.skip": "Aller au contenu du tableau de bord", "header.theme": "Thème", "header.enable_light": "Activer le mode clair", "header.expand": "Développer", "header.open_all": "Ouvrir toutes les sections", "header.auto_refresh": "Actualiser automatiquement",
+  },
+  es: {
+    "language.label": "Idioma", "language.en": "Inglés", "language.nl": "Neerlandés", "language.de": "Alemán", "language.fr": "Francés", "language.es": "Español",
+    "action.cancel": "Cancelar", "action.confirm": "Confirmar", "action.retry_execution": "Reintentar ejecución", "action.dismiss_execution": "Cerrar ejecución", "action.resume_queue": "Reanudar cola", "action.reset_log_filters": "Restablecer filtros de registros",
+    "retry.title": "Reintentar ejecución", "retry.details": "ID de ejecución: {run_id}\nTítulo del prompt: {title}\nRepositorio: {repository}\nModo de ejecución: {mode}\n\nSe iniciará una nueva ejecución de ingeniería con el estado actual del repositorio. La ejecución original no cambiará. Se registrará la relación de reintento.",
+    "retry.unavailable_title": "Título del prompt no disponible", "retry.unavailable_repository": "Contexto del repositorio no registrado", "retry.unavailable_mode": "Modo de ejecución no registrado", "retry.failed": "No se pudo reintentar la ejecución.",
+    "dismiss.title": "Cerrar ejecución", "dismiss.details": "ID de ejecución: {run_id}\nTítulo del prompt: {title}\nEstado final: {state}\n\nSe conservan el historial, los informes, la telemetría y las relaciones de reintento. Solo se borra el estado operativo activo. No se reiniciará ningún trabajo de ingeniería.", "dismiss.failed": "No se pudo cerrar la ejecución.",
+    "field.run_id": "ID de ejecución", "field.prompt_title": "Título del prompt", "field.repository": "Repositorio", "field.execution_mode": "Modo de ejecución", "field.terminal_state": "Estado final",
+    "status.unknown": "Desconocido", "status.complete": "Completado", "status.blocked": "Bloqueado", "status.failed": "Fallido",
+    "toast.report_loading": "Cargando informe…", "table.no_prompt_history": "No hay prompts del historial para esta selección.", "table.action": "Acción", "table.report": "Informe", "table.event": "Evento",
+    "header.skip": "Ir al contenido del panel", "header.theme": "Tema", "header.enable_light": "Activar modo claro", "header.expand": "Expandir", "header.open_all": "Abrir todas las secciones", "header.auto_refresh": "Actualizar automáticamente",
+  },
+};
+
+Object.assign(messages.en, {
+  "state.ENGINEERING_RUN_ACTIVE":"Engineering active", "state.WATCHER_IDLE":"Watcher idle", "state.REMOTE_ENGINEERING_DEGRADED":"Engineering status is partly available", "state.JOB_CLAIMED":"Job claimed", "state.RUNNER_STARTING":"Execution is starting", "state.REPORT_PUBLISHING":"Report is being published", "state.JOB_COMPLETED":"Job completed", "state.JOB_BLOCKED":"Job blocked", "state.JOB_FAILED":"Job failed", "state.WAITING_FOR_REPOSITORY":"Waiting for repository", "state.WAITING_FOR_PREDECESSOR":"Waiting for previous prompt", "state.INITIALIZE":"Preparing", "state.EXECUTE_AGENT":"Executing", "state.REPAIR_AGENT":"Repairing", "state.FINALIZE_AGENT":"Finalizing", "state.REPOSITORY_CLEANUP":"Cleaning repository", "state.COMPLETE":"Complete", "state.BLOCKED":"Blocked", "state.FAILED":"Failed", "state.ACTIVE":"Active", "state.UNKNOWN":"Unknown",
+  "format.last_updated":"Last updated: {value}", "format.loading":"Loading…", "format.unavailable":"Unavailable", "format.unknown":"Unknown", "format.not_recorded":"Not recorded", "format.not_available":"Not available", "format.timestamp_unavailable":"Timestamp unavailable",
+  "estimate.initializing":"Preparing: less than 1 minute", "estimate.total":"Indicative total duration: {minimum}–{maximum} minutes", "estimate.total_context":"Based on prompt size and phase. Live Codex progress is unavailable.", "estimate.remaining":"Indicative remaining: {minimum}–{maximum} minutes", "estimate.elapsed":"{elapsed} {minutes} elapsed.\nBased on prompt size, phase and elapsed time. No live Codex progress or token usage.", "estimate.finalizing":"Finalization in progress", "estimate.finalizing_context":"Remaining time is only reliable with live Codex progress.", "estimate.cleanup":"Cleanup in progress", "estimate.cleanup_context":"Remaining time depends on the local repository.", "estimate.waiting":"Waiting for external verification", "estimate.waiting_context":"No reliable ETA.", "estimate.action_required":"Stopped; action required", "estimate.not_available":"Not available yet", "unit.minute":"minute", "unit.minutes":"minutes",
+  "queue.empty":"No Inbox prompts are waiting for execution.", "queue.summary_zero":"0 prompts in the queue.", "queue.summary":"{count} {prompt} in the queue.{shown}", "queue.prompt":"prompt", "queue.prompts":"prompts", "queue.shown":" The first {count} are shown.", "queue.position":"Position {position}: {title}", "queue.filename":"Filename: {filename} · changed: {modified}",
+  "logs.loading":"Loading logs…", "logs.loaded":"Logs loaded", "logs.retry":"Try again", "logs.empty":"No log entries for this selection.", "logs.not_available":"No application log is available yet.", "logs.invalid_json":"INVALID JSON", "logs.unreadable":"unreadable log line", "logs.inbox_unavailable":"Inbox log is unavailable.", "logs.dashboard_unavailable":"Dashboard log is unavailable.",
+  "history.no_prompts":"No prompts in the history match this selection.", "history.page":"Page {page} of {pages} · {count} prompts", "history.no_results":"No prompts", "history.previous":"Previous", "history.next":"Next", "history.download_report":"Download engineering report for {title}", "history.view_report":"View engineering report for {title}", "history.report_loading":"Loading report…", "history.report_unavailable":"Engineering report is unavailable for this prompt.",
+  "theme.enable_light":"Enable light mode", "theme.enable_dark":"Enable dark mode", "theme.light":"Light mode", "theme.dark":"Dark mode", "sections.open_all":"Open all sections", "sections.close_all":"Close all sections", "sections.open":"Open all", "sections.close":"Close all", "refresh.connected":"Server push: connected", "refresh.off":"Automatic refresh is off",
+});
+Object.assign(messages.nl, {
+  "state.ENGINEERING_RUN_ACTIVE":"Engineering actief", "state.WATCHER_IDLE":"Watcher wacht", "state.REMOTE_ENGINEERING_DEGRADED":"Engineeringstatus beperkt beschikbaar", "state.JOB_CLAIMED":"Opdracht opgepakt", "state.RUNNER_STARTING":"Uitvoering wordt gestart", "state.REPORT_PUBLISHING":"Rapport wordt gepubliceerd", "state.JOB_COMPLETED":"Opdracht voltooid", "state.JOB_BLOCKED":"Opdracht geblokkeerd", "state.JOB_FAILED":"Opdracht mislukt", "state.WAITING_FOR_REPOSITORY":"Wacht op repository", "state.WAITING_FOR_PREDECESSOR":"Wacht op voorafgaande prompt", "state.INITIALIZE":"Voorbereiding", "state.EXECUTE_AGENT":"Uitvoering", "state.REPAIR_AGENT":"Herstel", "state.FINALIZE_AGENT":"Finalisatie", "state.REPOSITORY_CLEANUP":"Opschoning repository", "state.COMPLETE":"Voltooid", "state.BLOCKED":"Geblokkeerd", "state.FAILED":"Mislukt", "state.ACTIVE":"Actief", "state.UNKNOWN":"Onbekend",
+  "format.last_updated":"Laatst bijgewerkt: {value}", "format.loading":"Laden…", "format.unavailable":"Niet beschikbaar", "format.unknown":"Onbekend", "format.not_recorded":"Niet vastgelegd", "format.not_available":"Niet beschikbaar", "format.timestamp_unavailable":"Tijdstip niet beschikbaar",
+  "estimate.initializing":"Voorbereiding: minder dan 1 minuut", "estimate.total":"Indicatieve totale duur: {minimum}–{maximum} minuten", "estimate.total_context":"Gebaseerd op promptomvang en fase. Live Codex-voortgang is niet beschikbaar.", "estimate.remaining":"Indicatief resterend: {minimum}–{maximum} minuten", "estimate.elapsed":"{elapsed} {minutes} verstreken.\nGebaseerd op promptomvang, fase en verstreken tijd. Geen live Codex-voortgang of tokenverbruik.", "estimate.finalizing":"Finalisatie in uitvoering", "estimate.finalizing_context":"De resterende tijd is pas betrouwbaar met live Codex-voortgang.", "estimate.cleanup":"Opschoning in uitvoering", "estimate.cleanup_context":"De resterende tijd hangt af van de lokale repository.", "estimate.waiting":"Wacht op externe verificatie", "estimate.waiting_context":"Geen betrouwbare ETA.", "estimate.action_required":"Gestopt; actie nodig", "estimate.not_available":"Nog niet beschikbaar", "unit.minute":"minuut", "unit.minutes":"minuten",
+  "queue.empty":"Geen Inbox-prompts wachten op uitvoering.", "queue.summary_zero":"0 prompts in de wachtrij.", "queue.summary":"{count} {prompt} in de wachtrij.{shown}", "queue.prompt":"prompt", "queue.prompts":"prompts", "queue.shown":" De eerste {count} worden getoond.", "queue.position":"Positie {position}: {title}", "queue.filename":"Bestandsnaam: {filename} · gewijzigd: {modified}",
+  "logs.loading":"Logs laden…", "logs.loaded":"Logs geladen", "logs.retry":"Opnieuw proberen", "logs.empty":"Geen logregels voor deze selectie.", "logs.not_available":"Nog geen applicatielog beschikbaar.", "logs.invalid_json":"ONGELDIGE JSON", "logs.unreadable":"onleesbare logregel", "logs.inbox_unavailable":"Inbox-log is niet beschikbaar.", "logs.dashboard_unavailable":"Dashboard-log is niet beschikbaar.",
+  "history.no_prompts":"Geen prompts in de geschiedenis voor deze selectie.", "history.page":"Pagina {page} van {pages} · {count} prompts", "history.no_results":"Geen prompts", "history.previous":"Vorige", "history.next":"Volgende", "history.download_report":"Download engineeringrapport voor {title}", "history.view_report":"Bekijk engineeringrapport voor {title}", "history.report_loading":"Rapport laden…", "history.report_unavailable":"Engineeringrapport is niet beschikbaar voor deze prompt.",
+  "theme.enable_light":"Lichte modus inschakelen", "theme.enable_dark":"Donkere modus inschakelen", "theme.light":"Lichte modus", "theme.dark":"Donkere modus", "sections.open_all":"Alle secties openen", "sections.close_all":"Alle secties sluiten", "sections.open":"Alles openen", "sections.close":"Alles sluiten", "refresh.connected":"Serverpush: verbonden", "refresh.off":"Automatisch vernieuwen is uit",
+});
+Object.assign(messages.de, {
+  "state.ENGINEERING_RUN_ACTIVE":"Engineering aktiv", "state.WATCHER_IDLE":"Watcher inaktiv", "state.REMOTE_ENGINEERING_DEGRADED":"Engineering-Status nur teilweise verfügbar", "state.JOB_CLAIMED":"Auftrag übernommen", "state.RUNNER_STARTING":"Ausführung wird gestartet", "state.REPORT_PUBLISHING":"Bericht wird veröffentlicht", "state.JOB_COMPLETED":"Auftrag abgeschlossen", "state.JOB_BLOCKED":"Auftrag blockiert", "state.JOB_FAILED":"Auftrag fehlgeschlagen", "state.WAITING_FOR_REPOSITORY":"Warten auf Repository", "state.WAITING_FOR_PREDECESSOR":"Warten auf vorherigen Prompt", "state.INITIALIZE":"Vorbereitung", "state.EXECUTE_AGENT":"Ausführung", "state.REPAIR_AGENT":"Reparatur", "state.FINALIZE_AGENT":"Abschluss", "state.REPOSITORY_CLEANUP":"Repository wird bereinigt", "state.COMPLETE":"Abgeschlossen", "state.BLOCKED":"Blockiert", "state.FAILED":"Fehlgeschlagen", "state.ACTIVE":"Aktiv", "state.UNKNOWN":"Unbekannt",
+  "format.last_updated":"Zuletzt aktualisiert: {value}", "format.loading":"Wird geladen…", "format.unavailable":"Nicht verfügbar", "format.unknown":"Unbekannt", "format.not_recorded":"Nicht erfasst", "format.not_available":"Nicht verfügbar", "format.timestamp_unavailable":"Zeitpunkt nicht verfügbar", "unit.minute":"Minute", "unit.minutes":"Minuten", "queue.empty":"Keine Inbox-Prompts warten auf die Ausführung.", "queue.summary_zero":"0 Prompts in der Warteschlange.", "queue.summary":"{count} {prompt} in der Warteschlange.{shown}", "queue.prompt":"Prompt", "queue.prompts":"Prompts", "queue.shown":" Die ersten {count} werden angezeigt.", "queue.position":"Position {position}: {title}", "queue.filename":"Dateiname: {filename} · geändert: {modified}", "logs.loading":"Protokolle werden geladen…", "logs.loaded":"Protokolle geladen", "logs.retry":"Erneut versuchen", "logs.empty":"Keine Protokolleinträge für diese Auswahl.", "logs.not_available":"Noch kein Anwendungsprotokoll verfügbar.", "logs.invalid_json":"UNGÜLTIGES JSON", "logs.unreadable":"unlesbare Protokollzeile", "history.no_prompts":"Keine Prompts im Verlauf für diese Auswahl.", "history.page":"Seite {page} von {pages} · {count} Prompts", "history.no_results":"Keine Prompts", "history.previous":"Zurück", "history.next":"Weiter", "history.report_loading":"Bericht wird geladen…", "history.report_unavailable":"Engineering-Bericht ist für diesen Prompt nicht verfügbar.", "theme.enable_light":"Hellen Modus aktivieren", "theme.enable_dark":"Dunklen Modus aktivieren", "theme.light":"Heller Modus", "theme.dark":"Dunkler Modus", "sections.open_all":"Alle Bereiche öffnen", "sections.close_all":"Alle Bereiche schließen", "sections.open":"Alles öffnen", "sections.close":"Alles schließen", "refresh.connected":"Server-Push: verbunden", "refresh.off":"Automatische Aktualisierung ist aus",
+});
+Object.assign(messages.fr, {
+  "state.ENGINEERING_RUN_ACTIVE":"Ingénierie active", "state.WATCHER_IDLE":"Surveillant inactif", "state.REMOTE_ENGINEERING_DEGRADED":"État d’ingénierie partiellement disponible", "state.JOB_CLAIMED":"Tâche prise en charge", "state.RUNNER_STARTING":"L’exécution démarre", "state.REPORT_PUBLISHING":"Publication du rapport", "state.JOB_COMPLETED":"Tâche terminée", "state.JOB_BLOCKED":"Tâche bloquée", "state.JOB_FAILED":"Tâche échouée", "state.WAITING_FOR_REPOSITORY":"En attente du dépôt", "state.WAITING_FOR_PREDECESSOR":"En attente du prompt précédent", "state.INITIALIZE":"Préparation", "state.EXECUTE_AGENT":"Exécution", "state.REPAIR_AGENT":"Réparation", "state.FINALIZE_AGENT":"Finalisation", "state.REPOSITORY_CLEANUP":"Nettoyage du dépôt", "state.COMPLETE":"Terminé", "state.BLOCKED":"Bloqué", "state.FAILED":"Échec", "state.ACTIVE":"Actif", "state.UNKNOWN":"Inconnu",
+  "format.last_updated":"Dernière mise à jour : {value}", "format.loading":"Chargement…", "format.unavailable":"Indisponible", "format.unknown":"Inconnu", "format.not_recorded":"Non enregistré", "format.not_available":"Indisponible", "format.timestamp_unavailable":"Horodatage indisponible", "unit.minute":"minute", "unit.minutes":"minutes", "queue.empty":"Aucun prompt Inbox n’attend d’exécution.", "queue.summary_zero":"0 prompt dans la file.", "queue.summary":"{count} {prompt} dans la file.{shown}", "queue.prompt":"prompt", "queue.prompts":"prompts", "queue.shown":" Les {count} premiers sont affichés.", "queue.position":"Position {position} : {title}", "queue.filename":"Nom du fichier : {filename} · modifié : {modified}", "logs.loading":"Chargement des journaux…", "logs.loaded":"Journaux chargés", "logs.retry":"Réessayer", "logs.empty":"Aucune entrée de journal pour cette sélection.", "logs.not_available":"Aucun journal d’application n’est encore disponible.", "logs.invalid_json":"JSON NON VALIDE", "logs.unreadable":"ligne de journal illisible", "history.no_prompts":"Aucun prompt de l’historique ne correspond à cette sélection.", "history.page":"Page {page} sur {pages} · {count} prompts", "history.no_results":"Aucun prompt", "history.previous":"Précédent", "history.next":"Suivant", "history.report_loading":"Chargement du rapport…", "history.report_unavailable":"Le rapport d’ingénierie n’est pas disponible pour ce prompt.", "theme.enable_light":"Activer le mode clair", "theme.enable_dark":"Activer le mode sombre", "theme.light":"Mode clair", "theme.dark":"Mode sombre", "sections.open_all":"Ouvrir toutes les sections", "sections.close_all":"Fermer toutes les sections", "sections.open":"Tout ouvrir", "sections.close":"Tout fermer", "refresh.connected":"Push serveur : connecté", "refresh.off":"Actualisation automatique désactivée",
+});
+Object.assign(messages.es, {
+  "state.ENGINEERING_RUN_ACTIVE":"Ingeniería activa", "state.WATCHER_IDLE":"Vigilante inactivo", "state.REMOTE_ENGINEERING_DEGRADED":"Estado de ingeniería parcialmente disponible", "state.JOB_CLAIMED":"Tarea tomada", "state.RUNNER_STARTING":"La ejecución está iniciando", "state.REPORT_PUBLISHING":"Publicando informe", "state.JOB_COMPLETED":"Tarea completada", "state.JOB_BLOCKED":"Tarea bloqueada", "state.JOB_FAILED":"Tarea fallida", "state.WAITING_FOR_REPOSITORY":"Esperando el repositorio", "state.WAITING_FOR_PREDECESSOR":"Esperando el prompt anterior", "state.INITIALIZE":"Preparación", "state.EXECUTE_AGENT":"Ejecutando", "state.REPAIR_AGENT":"Reparando", "state.FINALIZE_AGENT":"Finalizando", "state.REPOSITORY_CLEANUP":"Limpiando el repositorio", "state.COMPLETE":"Completado", "state.BLOCKED":"Bloqueado", "state.FAILED":"Fallido", "state.ACTIVE":"Activo", "state.UNKNOWN":"Desconocido",
+  "format.last_updated":"Última actualización: {value}", "format.loading":"Cargando…", "format.unavailable":"No disponible", "format.unknown":"Desconocido", "format.not_recorded":"No registrado", "format.not_available":"No disponible", "format.timestamp_unavailable":"Marca de tiempo no disponible", "unit.minute":"minuto", "unit.minutes":"minutos", "queue.empty":"No hay prompts de Inbox esperando ejecución.", "queue.summary_zero":"0 prompts en la cola.", "queue.summary":"{count} {prompt} en la cola.{shown}", "queue.prompt":"prompt", "queue.prompts":"prompts", "queue.shown":" Se muestran los primeros {count}.", "queue.position":"Posición {position}: {title}", "queue.filename":"Nombre de archivo: {filename} · modificado: {modified}", "logs.loading":"Cargando registros…", "logs.loaded":"Registros cargados", "logs.retry":"Intentar de nuevo", "logs.empty":"No hay entradas de registro para esta selección.", "logs.not_available":"Aún no hay registro de la aplicación disponible.", "logs.invalid_json":"JSON NO VÁLIDO", "logs.unreadable":"línea de registro ilegible", "history.no_prompts":"No hay prompts del historial para esta selección.", "history.page":"Página {page} de {pages} · {count} prompts", "history.no_results":"Sin prompts", "history.previous":"Anterior", "history.next":"Siguiente", "history.report_loading":"Cargando informe…", "history.report_unavailable":"El informe de ingeniería no está disponible para este prompt.", "theme.enable_light":"Activar modo claro", "theme.enable_dark":"Activar modo oscuro", "theme.light":"Modo claro", "theme.dark":"Modo oscuro", "sections.open_all":"Abrir todas las secciones", "sections.close_all":"Cerrar todas las secciones", "sections.open":"Abrir todo", "sections.close":"Cerrar todo", "refresh.connected":"Actualización del servidor: conectada", "refresh.off":"Actualización automática desactivada",
+});
+
+Object.assign(messages.en, {
+  "table.analysis":"AI analysis", "table.chat":"AI chat", "history.open_chat":"Open AI chat for {title}", "history.chat_title":"AI chat: {title}", "history.chat_description":"Ask read-only questions about this exact execution. This conversation cannot start engineering or change repository state.", "history.open_details":"Open execution details for {title}", "history.details_description":"Recorded operational evidence for this execution. Engineering report and AI analysis remain available from their separate actions in the table.", "history.details_loading":"Loading prompt details…", "history.details_unavailable":"Prompt details are unavailable.", "history.report_title":"Engineering report", "history.analysis_title":"AI analysis: {title}", "history.view_analysis":"View AI analysis for {title}", "history.download_analysis":"Download AI analysis for {title}", "history.analysis_loading":"Loading AI analysis…", "history.analysis_unavailable":"AI analysis is unavailable for this prompt.",
+});
+Object.assign(messages.nl, {
+  "table.analysis":"AI-analyse", "table.chat":"AI-gesprek", "history.open_chat":"Open AI-gesprek voor {title}", "history.chat_title":"AI-gesprek: {title}", "history.chat_description":"Stel alleen-lezen vragen over precies deze uitvoering. Dit gesprek kan geen engineering starten of repositorytoestand wijzigen.", "history.open_details":"Open uitvoeringsdetails voor {title}", "history.details_description":"Vastgelegd operationeel bewijs voor deze uitvoering. Engineeringrapport en AI-analyse blijven beschikbaar via hun losse acties in de tabel.", "history.details_loading":"Promptdetails laden…", "history.details_unavailable":"Promptdetails zijn niet beschikbaar.", "history.report_title":"Engineeringrapport", "history.analysis_title":"AI-analyse: {title}", "history.view_analysis":"Bekijk AI-analyse voor {title}", "history.download_analysis":"Download AI-analyse voor {title}", "history.analysis_loading":"AI-analyse laden…", "history.analysis_unavailable":"AI-analyse is niet beschikbaar voor deze prompt.",
+});
+Object.assign(messages.de, {
+  "table.analysis":"KI-Analyse", "table.chat":"KI-Chat", "history.open_chat":"KI-Chat für {title} öffnen", "history.chat_title":"KI-Chat: {title}", "history.chat_description":"Stellen Sie schreibgeschützte Fragen zu genau dieser Ausführung. Dieses Gespräch kann kein Engineering starten oder den Repository-Status ändern.", "history.open_details":"Ausführungsdetails für {title} öffnen", "history.details_description":"Erfasste Betriebsnachweise für diese Ausführung. Engineering-Bericht und KI-Analyse bleiben über ihre separaten Tabellenaktionen verfügbar.", "history.details_loading":"Promptdetails werden geladen…", "history.details_unavailable":"Promptdetails sind nicht verfügbar.", "history.report_title":"Engineering-Bericht", "history.analysis_title":"KI-Analyse: {title}", "history.view_analysis":"KI-Analyse für {title} anzeigen", "history.download_analysis":"KI-Analyse für {title} herunterladen", "history.analysis_loading":"KI-Analyse wird geladen…", "history.analysis_unavailable":"KI-Analyse ist für diesen Prompt nicht verfügbar.",
+});
+Object.assign(messages.fr, {
+  "table.analysis":"Analyse IA", "table.chat":"Chat IA", "history.open_chat":"Ouvrir le chat IA pour {title}", "history.chat_title":"Chat IA : {title}", "history.chat_description":"Posez des questions en lecture seule sur cette exécution précise. Cette conversation ne peut pas démarrer d’ingénierie ni modifier l’état du dépôt.", "history.open_details":"Ouvrir les détails d’exécution pour {title}", "history.details_description":"Preuves opérationnelles enregistrées pour cette exécution. Le rapport d’ingénierie et l’analyse IA restent accessibles par leurs actions distinctes dans le tableau.", "history.details_loading":"Chargement des détails du prompt…", "history.details_unavailable":"Les détails du prompt ne sont pas disponibles.", "history.report_title":"Rapport d’ingénierie", "history.analysis_title":"Analyse IA : {title}", "history.view_analysis":"Afficher l’analyse IA pour {title}", "history.download_analysis":"Télécharger l’analyse IA pour {title}", "history.analysis_loading":"Chargement de l’analyse IA…", "history.analysis_unavailable":"L’analyse IA n’est pas disponible pour ce prompt.",
+});
+Object.assign(messages.es, {
+  "table.analysis":"Análisis de IA", "table.chat":"Chat de IA", "history.open_chat":"Abrir chat de IA para {title}", "history.chat_title":"Chat de IA: {title}", "history.chat_description":"Haga preguntas de solo lectura sobre esta ejecución exacta. Esta conversación no puede iniciar ingeniería ni cambiar el estado del repositorio.", "history.open_details":"Abrir detalles de ejecución de {title}", "history.details_description":"Evidencia operativa registrada para esta ejecución. El informe de ingeniería y el análisis de IA siguen disponibles mediante sus acciones independientes en la tabla.", "history.details_loading":"Cargando detalles del prompt…", "history.details_unavailable":"Los detalles del prompt no están disponibles.", "history.report_title":"Informe de ingeniería", "history.analysis_title":"Análisis de IA: {title}", "history.view_analysis":"Ver análisis de IA para {title}", "history.download_analysis":"Descargar análisis de IA para {title}", "history.analysis_loading":"Cargando análisis de IA…", "history.analysis_unavailable":"El análisis de IA no está disponible para este prompt.",
+});
+
+Object.assign(messages.en, {
+  "capability.recommendation.admission_passed":"Capability admission passed.",
+  "capability.recommendation.repair_host":"Repair or upgrade the Execution Host before resubmitting.",
+});
+Object.assign(messages.nl, {
+  "capability.recommendation.admission_passed":"Capabilitytoelating geslaagd.",
+  "capability.recommendation.repair_host":"Herstel of upgrade de Execution Host voordat je opnieuw indient.",
+});
+Object.assign(messages.de, {
+  "capability.recommendation.admission_passed":"Capability-Zulassung bestanden.",
+  "capability.recommendation.repair_host":"Reparieren oder aktualisieren Sie den Execution Host, bevor Sie erneut einreichen.",
+});
+Object.assign(messages.fr, {
+  "capability.recommendation.admission_passed":"Admission de capacité réussie.",
+  "capability.recommendation.repair_host":"Réparez ou mettez à niveau l’hôte d’exécution avant de soumettre à nouveau.",
+});
+Object.assign(messages.es, {
+  "capability.recommendation.admission_passed":"Admisión de capacidad superada.",
+  "capability.recommendation.repair_host":"Repare o actualice el host de ejecución antes de volver a enviar.",
+});
+
+Object.assign(messages.en, {
+  "enum.PASS":"Passed", "enum.FAIL":"Failed", "enum.RETRYABLE":"Retryable", "enum.RETRYABLE_AFTER_HOST_REPAIR":"Retryable after host repair", "enum.REQUIRES_NEW_PROMPT":"Requires a new prompt", "enum.REQUIRES_OPERATOR_DECISION":"Requires an operator decision", "enum.NON_RETRYABLE":"Not retryable", "enum.HOST":"Execution Host", "enum.WORKSPACE":"Workspace", "enum.CAPABILITY":"Capability", "enum.VALIDATION":"Validation", "enum.ENGINEERING":"Engineering", "enum.GOVERNANCE":"Governance",
+});
+Object.assign(messages.nl, {
+  "enum.PASS":"Geslaagd", "enum.FAIL":"Mislukt", "enum.RETRYABLE":"Opnieuw proberen mogelijk", "enum.RETRYABLE_AFTER_HOST_REPAIR":"Opnieuw proberen na herstel van de Execution Host", "enum.REQUIRES_NEW_PROMPT":"Nieuwe prompt vereist", "enum.REQUIRES_OPERATOR_DECISION":"Besluit van operator vereist", "enum.NON_RETRYABLE":"Niet opnieuw te proberen", "enum.HOST":"Execution Host", "enum.WORKSPACE":"Werkruimte", "enum.CAPABILITY":"Capability", "enum.VALIDATION":"Validatie", "enum.ENGINEERING":"Engineering", "enum.GOVERNANCE":"Governance",
+});
+Object.assign(messages.de, {
+  "enum.PASS":"Erfolgreich", "enum.FAIL":"Fehlgeschlagen", "enum.RETRYABLE":"Wiederholbar", "enum.RETRYABLE_AFTER_HOST_REPAIR":"Nach Reparatur des Execution Host wiederholbar", "enum.REQUIRES_NEW_PROMPT":"Neuer Prompt erforderlich", "enum.REQUIRES_OPERATOR_DECISION":"Entscheidung durch Bedienperson erforderlich", "enum.NON_RETRYABLE":"Nicht wiederholbar", "enum.HOST":"Execution Host", "enum.WORKSPACE":"Arbeitsbereich", "enum.CAPABILITY":"Capability", "enum.VALIDATION":"Validierung", "enum.ENGINEERING":"Engineering", "enum.GOVERNANCE":"Governance",
+});
+Object.assign(messages.fr, {
+  "enum.PASS":"Réussi", "enum.FAIL":"Échec", "enum.RETRYABLE":"Relançable", "enum.RETRYABLE_AFTER_HOST_REPAIR":"Relançable après réparation de l’hôte d’exécution", "enum.REQUIRES_NEW_PROMPT":"Nouveau prompt requis", "enum.REQUIRES_OPERATOR_DECISION":"Décision d’opérateur requise", "enum.NON_RETRYABLE":"Non relançable", "enum.HOST":"Hôte d’exécution", "enum.WORKSPACE":"Espace de travail", "enum.CAPABILITY":"Capacité", "enum.VALIDATION":"Validation", "enum.ENGINEERING":"Ingénierie", "enum.GOVERNANCE":"Gouvernance",
+});
+Object.assign(messages.es, {
+  "enum.PASS":"Superado", "enum.FAIL":"Fallido", "enum.RETRYABLE":"Reintentable", "enum.RETRYABLE_AFTER_HOST_REPAIR":"Reintentable tras reparar el host de ejecución", "enum.REQUIRES_NEW_PROMPT":"Se requiere un nuevo prompt", "enum.REQUIRES_OPERATOR_DECISION":"Se requiere una decisión del operador", "enum.NON_RETRYABLE":"No reintentable", "enum.HOST":"Host de ejecución", "enum.WORKSPACE":"Espacio de trabajo", "enum.CAPABILITY":"Capacidad", "enum.VALIDATION":"Validación", "enum.ENGINEERING":"Ingeniería", "enum.GOVERNANCE":"Gobernanza",
+});
+
+export function normalizeLocale(value) {
+  const candidate = String(value || "").toLowerCase().split("-")[0];
+  return SUPPORTED_LOCALES.includes(candidate) ? candidate : "en";
+}
+
+export function preferredLocale(state) {
+  return normalizeLocale(state?.locale || navigator.languages?.[0] || navigator.language);
+}
+
+export function createTranslator(locale) {
+  const active = normalizeLocale(locale);
+  return (key, values = {}, fallback = key) => String(messages[active]?.[key] ?? messages.en[key] ?? fallback)
+    .replace(/\{([a-z_]+)\}/g, (_, name) => String(values[name] ?? ""));
+}
+
+const localeTags = Object.freeze({
+  en: "en-GB",
+  nl: "nl-NL",
+  de: "de-DE",
+  fr: "fr-FR",
+  es: "es-ES",
+});
+
+/**
+ * The dashboard's single presentation locale boundary.  Renderers receive
+ * this service instead of constructing their own Intl instances or choosing
+ * a language for comparisons, casing and pluralisation.
+ */
+export function createLocaleService(locale) {
+  const language = normalizeLocale(locale), tag = localeTags[language], translate = createTranslator(language);
+  const dateTime = new Intl.DateTimeFormat(tag, {
+    timeZone: "Europe/Amsterdam",
+    dateStyle: "full",
+    timeStyle: "medium",
+  });
+  const logDateTime = new Intl.DateTimeFormat(tag, {
+    timeZone: "Europe/Amsterdam",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hourCycle: "h23",
+  });
+  const collator = new Intl.Collator(tag, { numeric: true, sensitivity: "base" });
+  const pluralRules = new Intl.PluralRules(tag);
+
+  return Object.freeze({
+    language,
+    tag,
+    t: translate,
+    dateTime: (value) => dateTime.format(value),
+    logDateTime: (value) => logDateTime.format(value),
+    number: (value, options) => new Intl.NumberFormat(tag, options).format(value),
+    compare: (left, right) => collator.compare(String(left ?? ""), String(right ?? "")),
+    lower: (value) => String(value ?? "").toLocaleLowerCase(tag),
+    plural: (value, singularKey, pluralKey) => translate(
+      pluralRules.select(Number(value)) === "one" ? singularKey : pluralKey,
+    ),
+  });
+}

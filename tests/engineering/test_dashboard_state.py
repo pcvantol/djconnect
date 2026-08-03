@@ -46,7 +46,7 @@ class DashboardStateTest(unittest.TestCase):
                 runtime_metadata_reader=lambda _, __: b"{}",
                 report_analysis_available_reader=lambda _, __: False,
                 telemetry_reader=lambda _: (_ for _ in ()).throw(RuntimeError("unavailable")),
-                process_metrics_reader=lambda: b"{}",
+                process_metrics_reader=lambda _: b"{}",
                 build_commit_reader=lambda _: "abc123",
                 component_log_versions_reader=lambda _: {"inbox": "1", "dashboard": "2"},
                 dashboard_version="1.2.79",

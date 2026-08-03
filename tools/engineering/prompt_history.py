@@ -160,11 +160,24 @@ def _report_record(root: Path, report: Path) -> dict[str, object] | None:
 def backfill_prompt_history(root: Path) -> None:
     """Cache legacy reports and telemetry rows into the canonical history index."""
     reports = root / ".engineering" / "reports"
+    connection = open_storage(root)
+    try:
+        indexed_run_ids = {
+            row[0]
+            for row in connection.execute("SELECT run_id FROM prompt_execution_history").fetchall()
+            if isinstance(row[0], str)
+        }
+    finally:
+        connection.close()
     if reports.is_dir():
         for report in reports.glob("*.md"):
             record = _report_record(root, report)
-            if record is not None:
+            # The stored report path is the canonical terminal projection.  A
+            # legacy fallback can share a Run ID with a later, real report;
+            # never let a filesystem scan replace that explicit reference.
+            if record is not None and record["run_id"] not in indexed_run_ids:
                 record_prompt_execution(root, **record)
+                indexed_run_ids.add(record["run_id"])
     connection = open_storage(root)
     try:
         rows = connection.execute(

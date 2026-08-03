@@ -1,13 +1,19 @@
 import { createDashboardStatusStore } from "./dashboard_status_store.mjs";
+import { createLocaleService, normalizeLocale, preferredLocale } from "./dashboard_locales.mjs";
+
+function initialDashboardLocale() {
+  try {
+    return preferredLocale(JSON.parse(localStorage.getItem("engineering-dashboard-client-state-v1") || "{}"));
+  } catch {
+    return preferredLocale({});
+  }
+}
+let dashboardLocale = initialDashboardLocale(), locale = createLocaleService(dashboardLocale), t = locale.t;
+document.documentElement.lang = dashboardLocale;
 
 const $ = (id) => document.getElementById(id),
   DASHBOARD_BUILD = window.DJCONNECT_DASHBOARD_BUILD || "",
   DASHBOARD_BUILD_KEY = "djconnect-engineering-dashboard-build",
-  formatTime = new Intl.DateTimeFormat("nl-NL", {
-    timeZone: "Europe/Amsterdam",
-    dateStyle: "full",
-    timeStyle: "medium",
-  }),
   fallback = {
     watcher_state: "REMOTE_ENGINEERING_DEGRADED",
     current_phase: "status niet beschikbaar",
@@ -19,6 +25,24 @@ const $ = (id) => document.getElementById(id),
     diagnostic: "Het statusverzoek kon niet worden voltooid.",
   };
 let currentLogRun, lastLogRun, lastRefresh, promptStartedAt, latestStatus;
+function formatTimestamp(value, fallback = t("format.timestamp_unavailable")) {
+  const timestamp = Date.parse(String(value || ""));
+  return Number.isFinite(timestamp) ? locale.dateTime(new Date(timestamp)) : fallback;
+}
+function capabilityRecommendation(value) {
+  const key = {
+    "Capability admission passed.": "capability.recommendation.admission_passed",
+    "Repair or upgrade the Execution Host before resubmitting.":
+      "capability.recommendation.repair_host",
+  }[String(value || "").trim()];
+  return key ? t(key) : String(value || t("format.not_available"));
+}
+function enumLabel(value, fallback = t("format.not_available")) {
+  const enumValue = String(value || "").trim();
+  if (!enumValue) return fallback;
+  const key = `enum.${enumValue}`;
+  return t(key, {}, enumValue);
+}
 function sanitizeFreeText(value, maximumLength, multiline = false) {
   const normalized = String(value ?? "")
     .normalize("NFC")
@@ -48,52 +72,8 @@ document
   .forEach((element) =>
     element.addEventListener("input", () => sanitizeDeclaredFreeInput(element)),
   );
-const humanLabels = {
-  ENGINEERING_RUN_ACTIVE: "Engineering actief",
-  WATCHER_IDLE: "Watcher wacht",
-  REMOTE_ENGINEERING_DEGRADED: "Engineeringstatus beperkt beschikbaar",
-  JOB_CLAIMED: "Opdracht opgepakt",
-  RUNNER_STARTING: "Uitvoering wordt gestart",
-  REPORT_PUBLISHING: "Rapport wordt gepubliceerd",
-  JOB_COMPLETED: "Opdracht voltooid",
-  JOB_BLOCKED: "Opdracht geblokkeerd",
-  JOB_FAILED: "Opdracht mislukt",
-  WAITING_FOR_REPOSITORY: "Wacht op repository",
-  WAITING_FOR_PREDECESSOR: "Wacht op voorafgaande prompt",
-  INITIALIZE: "Voorbereiding",
-  EXECUTE_AGENT: "Uitvoering",
-  REPAIR_AGENT: "Herstel",
-  FINALIZE_AGENT: "Finalisatie",
-  REPOSITORY_CLEANUP: "Opschoning repository",
-  COMPLETE: "Voltooid",
-  BLOCKED: "Geblokkeerd",
-  FAILED: "Mislukt",
-  invoke_agent: "Engineering uitvoeren",
-  repository_reconciled: "Repository afgestemd",
-  MERGED_RECONCILED: "Samengevoegd en afgestemd",
-  WORKSPACE_READY: "Werkruimte gereed",
-  ACTIVE: "Actief",
-  UNKNOWN: "Onbekend",
-  "status unavailable": "status niet beschikbaar",
-};
-const dutchDiagnostics = {
-  "Engineering report was not available for delivery.":
-    "Engineeringrapport kon niet worden afgeleverd.",
-  "Runner ended without a safe terminal report.":
-    "De runner stopte zonder een veilig eindrapport.",
-  "An existing engineering transaction remains active.":
-    "Een bestaande engineeringuitvoering is nog actief.",
-  "Duplicate job digest remains recorded.":
-    "Een dubbele opdracht is al geregistreerd.",
-  "Another watcher owns the local inbox lock.":
-    "Een andere watcher beheert de lokale Inbox-vergrendeling.",
-  "No local engineering status has been published yet.":
-    "Er is nog geen lokale engineeringstatus gepubliceerd.",
-  "The status request could not be completed.":
-    "Het statusverzoek kon niet worden voltooid.",
-};
 function translate(value) {
-  return humanLabels[value] || dutchDiagnostics[value] || value;
+  return t("state." + value, {}, value);
 }
 function humanize() {
   for (const id of [
@@ -136,10 +116,10 @@ function tone(x) {
   return "grey";
 }
 function finalStatus(phase) {
-  if (phase === "COMPLETE") return ["green", "Voltooid"];
-  if (phase === "BLOCKED") return ["yellow", "Geblokkeerd"];
-  if (phase === "FAILED") return ["red", "Mislukt"];
-  return ["grey", "Status onbekend"];
+  if (phase === "COMPLETE") return ["green", t("status.complete")];
+  if (phase === "BLOCKED") return ["yellow", t("status.blocked")];
+  if (phase === "FAILED") return ["red", t("status.failed")];
+  return ["grey", t("status.unknown")];
 }
 function executionRange(x) {
   const characters = Number(x.prompt_characters) || 0;
@@ -149,20 +129,18 @@ function executionRange(x) {
   return [24, 38];
 }
 function pluralMinutes(value) {
-  return value === 1 ? "minuut" : "minuten";
+  return locale.plural(value, "unit.minute", "unit.minutes");
 }
 function estimate(x) {
   const phase = x.current_phase || "";
   if (phase === "INITIALIZE")
-    return { summary: "Voorbereiding: minder dan 1 minuut", context: "" };
+    return { summary: t("estimate.initializing"), context: "" };
   if (["EXECUTE_AGENT", "REPAIR_AGENT"].includes(phase)) {
     const [minimum, maximum] = executionRange(x);
     if (!promptStartedAt)
       return {
-        summary:
-          "Indicatieve totale duur: " + minimum + "–" + maximum + " minuten",
-        context:
-          "Gebaseerd op promptomvang en fase. Live Codex-voortgang is niet beschikbaar.",
+        summary: t("estimate.total", { minimum, maximum }),
+        context: t("estimate.total_context"),
       };
     const elapsed = Math.max(
         0,
@@ -171,41 +149,29 @@ function estimate(x) {
       remainingMinimum = Math.max(1, minimum - elapsed),
       remainingMaximum = Math.max(remainingMinimum, maximum - elapsed);
     return {
-      summary:
-        "Indicatief resterend: " +
-        remainingMinimum +
-        "–" +
-        remainingMaximum +
-        " minuten",
-      context:
-        elapsed +
-        " " +
-        pluralMinutes(elapsed) +
-        " verstreken." +
-        String.fromCharCode(10) +
-        "gebaseerd op promptomvang, fase en verstreken tijd. Geen live Codex-voortgang of tokenverbruik.",
+      summary: t("estimate.remaining", { minimum: remainingMinimum, maximum: remainingMaximum }),
+      context: t("estimate.elapsed", { elapsed, minutes: pluralMinutes(elapsed) }),
     };
   }
   if (phase === "FINALIZE_AGENT")
     return {
-      summary: "Finalisatie in uitvoering",
-      context:
-        "De resterende tijd is pas betrouwbaar met live Codex-voortgang.",
+      summary: t("estimate.finalizing"),
+      context: t("estimate.finalizing_context"),
     };
   if (phase === "REPOSITORY_CLEANUP")
     return {
-      summary: "Opschoning in uitvoering",
-      context: "De resterende tijd hangt af van de lokale repository.",
+      summary: t("estimate.cleanup"),
+      context: t("estimate.cleanup_context"),
     };
   if (phase === "WAIT_FOR_TERMINAL_EVIDENCE")
     return {
-      summary: "Wacht op externe verificatie",
-      context: "Geen betrouwbare ETA.",
+      summary: t("estimate.waiting"),
+      context: t("estimate.waiting_context"),
     };
-  if (phase === "COMPLETE") return { summary: "Voltooid", context: "" };
+  if (phase === "COMPLETE") return { summary: t("status.complete"), context: "" };
   if (["BLOCKED", "FAILED"].includes(phase))
-    return { summary: "Gestopt; actie nodig", context: "" };
-  return { summary: "Nog niet beschikbaar", context: "" };
+    return { summary: t("estimate.action_required"), context: "" };
+  return { summary: t("estimate.not_available"), context: "" };
 }
 function renderEstimate(x) {
   const value = estimate(x);
@@ -235,8 +201,7 @@ function checkBuild(build) {
 }
 function clock() {
   $("lastRefresh").textContent =
-    "Laatst bijgewerkt: " +
-    (lastRefresh ? formatTime.format(lastRefresh) : "laden…");
+    t("format.last_updated", { value: lastRefresh ? locale.dateTime(lastRefresh) : t("format.loading") });
 }
 function l(id, url, run, last, container) {
   if (run === (last ? lastLogRun : currentLogRun)) return;
@@ -306,7 +271,7 @@ function rateLimits(x) {
       remaining +
       "% beschikbaar · reset " +
       (Number.isFinite(reset)
-        ? formatTime.format(new Date(reset * 1e3))
+        ? locale.dateTime(new Date(reset * 1e3))
         : "onbekend")
     );
   });
@@ -404,9 +369,7 @@ function processMetrics(active, x) {
   $("processMetrics").hidden = !active;
   if (!active) return;
   $("codexCpu").textContent =
-    Number(x?.cpu_percent || 0).toLocaleString("nl-NL", {
-      maximumFractionDigits: 1,
-    }) + "%";
+    locale.number(Number(x?.cpu_percent || 0), { maximumFractionDigits: 1 }) + "%";
   $("codexProcesses").textContent = x?.process_count ?? 0;
   $("codexGpu").textContent = x?.gpu_status || "Niet beschikbaar";
 }
@@ -484,6 +447,37 @@ function reviewerAgents(items) {
     list.append(row);
   }
 }
+function activeReviewerAgents(items) {
+  const agents = Array.isArray(items) ? items : [];
+  let card = $("activeReviewerAgents");
+  if (!card) {
+    card = document.createElement("section");
+    card.id = "activeReviewerAgents";
+    card.className = "card reviewer-agents";
+    card.innerHTML = "<strong>Specialistische reviewers</strong><p class=\"estimate-meta\" id=\"activeReviewerSummary\"></p><div class=\"reviewer-agents__list\" id=\"activeReviewerList\"></div>";
+    $("currentRun")?.querySelector(".current-run__grid")?.append(card);
+  }
+  card.hidden = !agents.length;
+  if (!agents.length) return;
+  const running = agents.filter((agent) => agent?.status === "running").length,
+    completed = agents.filter((agent) => ["completed", "failed"].includes(agent?.status)).length,
+    summary = $("activeReviewerSummary"),
+    list = $("activeReviewerList");
+  summary.textContent = running
+    ? `${running} van ${agents.length} specialistische reviewers actief.`
+    : `${completed} van ${agents.length} specialistische reviewers afgerond.`;
+  list.replaceChildren();
+  for (const agent of agents) {
+    const row = document.createElement("article"), name = document.createElement("p"), meta = document.createElement("p");
+    row.className = "reviewer-agent";
+    name.className = "reviewer-agent__name";
+    meta.className = "reviewer-agent__meta";
+    name.textContent = String(agent.reviewer || "Specialistische review").replaceAll("_", " ");
+    meta.textContent = `${agent.capability || "engineering"} · ${agent.status || "selected"}`;
+    row.append(name, meta);
+    list.append(row);
+  }
+}
 function queueItems(x, queueDepth) {
   const items = (Array.isArray(x) ? x : [])
       .filter((item) => item && typeof item === "object")
@@ -498,10 +492,7 @@ function queueItems(x, queueDepth) {
           return first - second;
         if (Number.isFinite(first) !== Number.isFinite(second))
           return Number.isFinite(first) ? -1 : 1;
-        return String(left.filename || "").localeCompare(
-          String(right.filename || ""),
-          "nl",
-        );
+        return locale.compare(left.filename, right.filename);
       }),
     container = $("queueList"),
     depth =
@@ -510,19 +501,17 @@ function queueItems(x, queueDepth) {
         : items.length;
   $("queueSummary").textContent =
     depth === 0
-      ? "0 prompts in de wachtrij."
-      : depth +
-        " " +
-        (depth === 1 ? "prompt" : "prompts") +
-        " in de wachtrij." +
-        (depth > items.length
-          ? " De eerste " + items.length + " worden getoond."
-          : "");
+      ? t("queue.summary_zero")
+      : t("queue.summary", {
+        count: depth,
+        prompt: locale.plural(depth, "queue.prompt", "queue.prompts"),
+        shown: depth > items.length ? t("queue.shown", { count: items.length }) : "",
+      });
   container.replaceChildren();
   if (!items.length) {
     const empty = document.createElement("li");
     empty.className = "queue-empty";
-    empty.textContent = "Geen Inbox-prompts wachten op uitvoering.";
+    empty.textContent = t("queue.empty");
     container.append(empty);
     return;
   }
@@ -533,24 +522,23 @@ function queueItems(x, queueDepth) {
       title = document.createElement("span"),
       meta = document.createElement("div"),
       modified = Date.parse(item.modified_at || ""),
-      filename = item.filename || "Bestandsnaam niet beschikbaar";
+      filename = item.filename || t("format.not_available");
     row.className = "queue-item";
     row.setAttribute(
       "aria-label",
-      "Positie " + (index + 1) + ": " + (item.title || filename),
+      t("queue.position", { position: index + 1, title: item.title || filename }),
     );
     number.className = "queue-item__number";
     number.textContent = String(index + 1);
     title.className = "queue-item__title";
     meta.className = "queue-item__meta";
     title.textContent = item.title || filename;
-    meta.textContent =
-      "Bestandsnaam: " +
-      filename +
-      " · gewijzigd: " +
-      (Number.isFinite(modified)
-        ? formatTime.format(new Date(modified))
-        : "Tijdstip niet beschikbaar");
+    meta.textContent = t("queue.filename", {
+      filename,
+      modified: Number.isFinite(modified)
+        ? locale.dateTime(new Date(modified))
+        : t("format.timestamp_unavailable"),
+    });
     body.append(title, meta);
     row.append(number, body);
     container.append(row);
@@ -559,8 +547,8 @@ function queueItems(x, queueDepth) {
 function promptStarted(x) {
   promptStartedAt = x?.started_at ? Date.parse(x.started_at) : undefined;
   $("promptStarted").textContent = promptStartedAt
-    ? formatTime.format(new Date(promptStartedAt))
-    : "Niet beschikbaar";
+    ? locale.dateTime(new Date(promptStartedAt))
+    : t("format.not_available");
   if (latestStatus) renderEstimate(latestStatus);
 }
 let lastExecutedRun,
@@ -649,7 +637,9 @@ function analysis() {
 let componentLogsLoaded = false,
   componentLogEntries = { inbox: [], dashboard: [] };
 function structuredLogEntries(text) {
-  return String(text || "")
+  const normalized = String(text ?? "").trim();
+  if (!normalized || normalized === "Nog geen applicatielog beschikbaar.") return [];
+  return normalized
     .split(/\r?\n/)
     .filter(Boolean)
     .map((line, index) => {
@@ -700,83 +690,12 @@ function logTimestamp(entry) {
 function logTimestampText(value) {
   const parsed = Date.parse(String(value || ""));
   if (!Number.isFinite(parsed)) return value ? String(value) : "—";
-  const parts = new Intl.DateTimeFormat("nl-NL", {
-    timeZone: "Europe/Amsterdam",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-    hourCycle: "h23",
-  }).formatToParts(new Date(parsed)).reduce((result, part) => {
-    result[part.type] = part.value;
-    return result;
-  }, {});
-  return `${parts.day}-${parts.month}-${parts.year} ${parts.hour}:${parts.minute}:${parts.second}`;
-}
-function renderLegacyComponentLogs() {
-  const needle = $("logFilter").value.trim().toLocaleLowerCase("nl-NL"),
-    level = $("logLevelFilter").value,
-    sort = $("logSort").value;
-  for (const component of ["inbox", "dashboard"]) {
-    const rows = componentLogEntries[component]
-        .filter((entry) => !level || entry.level === level)
-        .filter(
-          (entry) =>
-            !needle ||
-            Object.values(entry)
-              .join(" ")
-              .toLocaleLowerCase("nl-NL")
-              .includes(needle),
-        )
-        .sort((left, right) =>
-          sort === "oldest"
-            ? logTimestamp(left) - logTimestamp(right)
-            : sort === "level"
-              ? left.level.localeCompare(right.level, "nl")
-              : sort === "event"
-                ? left.event.localeCompare(right.event, "nl")
-                : logTimestamp(right) - logTimestamp(left),
-        ),
-      body = $(component + "ComponentLog");
-    body.replaceChildren();
-    if (!rows.length) {
-      const cell = document.createElement("td"),
-        row = document.createElement("tr");
-      cell.className = "log-empty";
-      cell.colSpan = 6;
-      cell.textContent = "Geen logregels voor deze selectie.";
-      row.append(cell);
-      body.append(row);
-      continue;
-    }
-    for (const entry of rows) {
-      const row = document.createElement("tr");
-      for (const [name, value] of [
-        ["log-line-number", entry.line],
-        ["", logTimestampText(entry.timestamp)],
-        [
-          "log-level log-level--" + entry.level.toLocaleLowerCase("nl-NL"),
-          entry.level,
-        ],
-        ["", entry.event],
-        ["", entry.runId || "—"],
-        ["", entry.details || "—"],
-      ]) {
-        const cell = document.createElement("td");
-        cell.className = name;
-        cell.textContent = value;
-        row.append(cell);
-      }
-      body.append(row);
-    }
-  }
+  return locale.logDateTime(new Date(parsed));
 }
 function loadComponentLogs() {
   if (componentLogsLoaded) return;
   $("loadComponentLogs").disabled = true;
-  $("loadComponentLogs").textContent = "Logs laden…";
+  $("loadComponentLogs").textContent = t("logs.loading");
   Promise.all([
     fetch("/api/logs/inbox").then((x) => x.text()),
     fetch("/api/logs/dashboard").then((x) => x.text()),
@@ -787,7 +706,7 @@ function loadComponentLogs() {
       componentLogsLoaded = true;
       $("componentLogControls").hidden = false;
       renderComponentLogs();
-      $("loadComponentLogs").textContent = "Logs geladen";
+      $("loadComponentLogs").textContent = t("logs.loaded");
     })
     .catch(() => {
       componentLogEntries.inbox = structuredLogEntries(
@@ -799,15 +718,18 @@ function loadComponentLogs() {
       $("componentLogControls").hidden = false;
       renderComponentLogs();
       $("loadComponentLogs").disabled = false;
-      $("loadComponentLogs").textContent = "Opnieuw proberen";
+      $("loadComponentLogs").textContent = t("logs.retry");
     });
 }
 const CHAT_HISTORY_KEY = "djconnect-engineering-chat-history",
-  CHAT_CONTEXT_KEY = "djconnect-engineering-chat-context",
   CHAT_HISTORY_LIMIT = 20;
-function loadChatHistory() {
+let chatContextRun = "";
+function chatHistoryStorageKey(run = chatContextRun) {
+  return CHAT_HISTORY_KEY + ":" + String(run || "none");
+}
+function loadChatHistory(run) {
   try {
-    const saved = JSON.parse(sessionStorage.getItem(CHAT_HISTORY_KEY) || "[]");
+    const saved = JSON.parse(sessionStorage.getItem(chatHistoryStorageKey(run)) || "[]");
     return Array.isArray(saved)
       ? saved
           .filter(
@@ -822,9 +744,10 @@ function loadChatHistory() {
     return [];
   }
 }
-let chatHistory = loadChatHistory();
+let chatHistory = [];
 function persistChatHistory() {
-  sessionStorage.setItem(CHAT_HISTORY_KEY, JSON.stringify(chatHistory));
+  if (chatContextRun)
+    sessionStorage.setItem(chatHistoryStorageKey(), JSON.stringify(chatHistory));
 }
 function renderLegacyChatMessage(role, text) {
   let item = document.createElement("article"),
@@ -845,18 +768,13 @@ function renderChatHistory() {
   chatHistory.forEach((entry) => chatMessage(entry.role, entry.text));
 }
 function reconcileChatContext(run) {
-  if (!latestStatus) return;
-  const context = run || "none";
-  if (sessionStorage.getItem(CHAT_CONTEXT_KEY) === context) return;
-  chatHistory = [];
-  sessionStorage.removeItem(CHAT_HISTORY_KEY);
-  sessionStorage.setItem(CHAT_CONTEXT_KEY, context);
-  renderChatHistory();
+  // Chat context is selected explicitly from Prompt History, never inferred
+  // from whichever terminal run happens to be latest in the status stream.
 }
 function askCodex() {
   let input = $("chatInput"),
     message = input.value.trim();
-  if (!message || $("chatSend").disabled) return;
+  if (!message || !chatContextRun || $("chatSend").disabled) return;
   $("chatSend").disabled = true;
   $("chatStatus").textContent = "Codex denkt na…";
   chatHistory.push({ role: "user", text: message });
@@ -870,6 +788,7 @@ function askCodex() {
     body: JSON.stringify({
       message: message,
       history: chatHistory.slice(0, -1).slice(-6),
+      run_id: chatContextRun,
     }),
   })
     .then(async (response) => ({
@@ -894,6 +813,25 @@ function askCodex() {
     .finally(() => {
       $("chatSend").disabled = false;
     });
+}
+function closePromptHistoryChat() {
+  const modal = $("promptHistoryChatModal");
+  if (modal.open) modal.close();
+}
+function openPromptHistoryChat(entry) {
+  if (!entry?.run_id) return;
+  chatContextRun = String(entry.run_id);
+  chatHistory = loadChatHistory(chatContextRun);
+  $("promptHistoryChatTitle").textContent = t("history.chat_title", {
+    title: entry.title || entry.run_id,
+  });
+  $("promptHistoryChatDescription").textContent = t("history.chat_description");
+  $("chatStatus").textContent = "";
+  renderChatHistory();
+  updateChatActions();
+  const modal = $("promptHistoryChatModal");
+  if (!modal.open) modal.showModal();
+  modal.focus();
 }
 function fallbackCopy(value) {
   const area = document.createElement("textarea");
@@ -1037,20 +975,29 @@ function renderHealthStatus(x, snapshot = {}) {
   $("executionHostVersion").textContent = executionHost.version || "Niet beschikbaar";
   $("executionHostRuntime").textContent = executionHost.runtime || "Niet beschikbaar";
   $("executionHostTransport").textContent = executionHost.runtime_prompt_transport || "Niet beschikbaar";
-  $("hostPreflightStatus").textContent = preflight.outcome || "Niet beschikbaar";
-  $("hostPreflightTimestamp").textContent = preflight.timestamp || "Nog niet uitgevoerd";
-  $("workspacePreflightStatus").textContent = workspacePreflight.outcome || "Niet beschikbaar";
-  $("workspacePreflightTimestamp").textContent = workspacePreflight.timestamp || "Nog niet uitgevoerd";
+  $("hostPreflightStatus").textContent = enumLabel(preflight.outcome);
+  $("hostPreflightTimestamp").textContent = formatTimestamp(
+    preflight.timestamp,
+    t("format.not_available"),
+  );
+  $("workspacePreflightStatus").textContent = enumLabel(workspacePreflight.outcome);
+  $("workspacePreflightTimestamp").textContent = formatTimestamp(
+    workspacePreflight.timestamp,
+    t("format.not_available"),
+  );
   // Older dashboard fixtures and cached shells do not have Level 3 fields.
   // Keep the canonical status renderer backward compatible while they refresh.
   const capabilityField = (id, value) => {
     const element = $(id);
     if (element) element.textContent = value;
   };
-  capabilityField("capabilityPreflightStatus", capabilityPreflight.outcome || "Niet beschikbaar");
-  capabilityField("capabilityRecoverability", capabilityPreflight.recoverability || "Niet beschikbaar");
-  capabilityField("capabilityFailureOrigin", capabilityPreflight.failure_origin || "—");
-  capabilityField("capabilityRecommendation", capabilityPreflight.recommendation || "Niet beschikbaar");
+  capabilityField("capabilityPreflightStatus", enumLabel(capabilityPreflight.outcome));
+  capabilityField("capabilityRecoverability", enumLabel(capabilityPreflight.recoverability));
+  capabilityField("capabilityFailureOrigin", enumLabel(capabilityPreflight.failure_origin, "—"));
+  capabilityField(
+    "capabilityRecommendation",
+    capabilityRecommendation(capabilityPreflight.recommendation),
+  );
   promptStarted(snapshot.prompt_started);
   renderEstimate(x);
   processMetrics(active, snapshot.process_metrics);
@@ -1095,6 +1042,7 @@ function renderHealthStatus(x, snapshot = {}) {
   commits(snapshot.completion_commits);
   lastCommits(snapshot.last_executed_commits);
   reviewerAgents(snapshot.last_executed_reviewer_agents);
+  activeReviewerAgents(x.reviewer_agents);
 }
 let lastExecutionCategoryRun, activePromptCategoryRun;
 function renderRunCategory(x) {
@@ -1208,8 +1156,6 @@ $("reportAnalysis").addEventListener("toggle", () => {
 });
 $("copyReport").addEventListener("click", copyReport);
 $("loadComponentLogs").addEventListener("click", loadComponentLogs);
-for (const id of ["logFilter", "logLevelFilter", "logSort"])
-  $(id).addEventListener("input", renderComponentLogs);
 $("chatSend").addEventListener("click", askCodex);
 $("chatInput").addEventListener("keydown", (event) => {
   if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
@@ -1217,125 +1163,20 @@ $("chatInput").addEventListener("keydown", (event) => {
     askCodex();
   }
 });
+$("promptHistoryChatClose").addEventListener("click", closePromptHistoryChat);
+$("promptHistoryChatModal").addEventListener("click", (event) => {
+  if (event.target === $("promptHistoryChatModal")) closePromptHistoryChat();
+});
 renderChatHistory();
 setInterval(() => {
   reconcileChatContext(latestStatus?.last_executed_run);
   clock();
 }, 250);
 clock();
-let logSortState = { key: "timestamp", direction: "desc" };
 function logValue(entry, key) {
   if (key === "line") return Number(entry.line) || 0;
   if (key === "timestamp") return logTimestamp(entry);
-  return String(entry[key] || "").toLocaleLowerCase("nl-NL");
-}
-function updateLogSortHeaders() {
-  document
-    .querySelectorAll(".log-table th[data-sort-key]")
-    .forEach((header) => {
-      const active = header.dataset.sortKey === logSortState.key;
-      header.dataset.sortIndicator = active
-        ? logSortState.direction === "asc"
-          ? "↑"
-          : "↓"
-        : "↕";
-      header.setAttribute(
-        "aria-sort",
-        active
-          ? logSortState.direction === "asc"
-            ? "ascending"
-            : "descending"
-          : "none",
-      );
-    });
-}
-function setLogSort(key) {
-  logSortState =
-    logSortState.key === key
-      ? {
-          key: key,
-          direction: logSortState.direction === "asc" ? "desc" : "asc",
-        }
-      : { key: key, direction: key === "timestamp" ? "desc" : "asc" };
-  updateLogSortHeaders();
-  renderComponentLogs();
-}
-function renderSortedComponentLogs() {
-  const needle = $("logFilter").value.trim().toLocaleLowerCase("nl-NL"),
-    level = $("logLevelFilter").value;
-  for (const component of ["inbox", "dashboard"]) {
-    const rows = componentLogEntries[component]
-        .filter((entry) => !level || entry.level === level)
-        .filter(
-          (entry) =>
-            !needle ||
-            Object.values(entry)
-              .join(" ")
-              .toLocaleLowerCase("nl-NL")
-              .includes(needle),
-        )
-        .sort((left, right) => {
-          const first = logValue(left, logSortState.key),
-            second = logValue(right, logSortState.key),
-            result =
-              typeof first === "number" && typeof second === "number"
-                ? first - second
-                : String(first).localeCompare(String(second), "nl");
-          return logSortState.direction === "asc" ? result : -result;
-        }),
-      body = $(component + "ComponentLog");
-    body.replaceChildren();
-    if (!rows.length) {
-      const cell = document.createElement("td"),
-        row = document.createElement("tr");
-      cell.className = "log-empty";
-      cell.colSpan = 6;
-      cell.textContent = "Geen logregels voor deze selectie.";
-      row.append(cell);
-      body.append(row);
-      continue;
-    }
-    for (const entry of rows) {
-      const row = document.createElement("tr");
-      for (const [name, value] of [
-        ["log-line-number", entry.line],
-        ["", logTimestampText(entry.timestamp)],
-        [
-          "log-level log-level--" +
-            entry.level.toLocaleLowerCase("nl-NL").replaceAll(" ", "-"),
-          entry.level,
-        ],
-        ["", entry.event],
-        ["", entry.runId || "—"],
-        ["", entry.details || "—"],
-      ]) {
-        const cell = document.createElement("td");
-        cell.className = name;
-        cell.textContent = value;
-        row.append(cell);
-      }
-      body.append(row);
-    }
-  }
-}
-function configureLogSortHeaders() {
-  const keys = ["line", "timestamp", "level", "event", "runId", "details"];
-  document.querySelectorAll(".log-table").forEach((table) =>
-    table.querySelectorAll("th").forEach((header, index) => {
-      const key = keys[index];
-      header.classList.add("log-sortable");
-      header.dataset.sortKey = key;
-      header.tabIndex = 0;
-      header.addEventListener("click", () => setLogSort(key));
-      header.addEventListener("keydown", (event) => {
-        if (event.key === "Enter" || event.key === " ") {
-          event.preventDefault();
-          setLogSort(key);
-        }
-      });
-    }),
-  );
-  updateLogSortHeaders();
+  return locale.lower(String(entry[key] || ""));
 }
 function providerNeutralLabels() {
   const labels = [
@@ -1372,7 +1213,6 @@ function chatMessage(role, text) {
   $("chatMessages").append(item);
   item.scrollIntoView({ block: "nearest" });
 }
-configureLogSortHeaders();
 providerNeutralLabels();
 function groupLastExecution() {
   const group = $("lastExecutionGroup");
@@ -1402,7 +1242,6 @@ function addCategoryIcons() {
     ["#rateLimits", "◔", "Resterend gebruik"],
     ["#executionTelemetry", "▥", "Execution Host-telemetrie"],
     ["#lastExecutionGroup", "◷", "Laatst uitgevoerde prompt"],
-    ["#codexChat", "✦", "AI-gesprek"],
     ["#technicalDetails", "⚙", "Technische details"],
     ["#componentLogs", "≡", "Logs"],
     ["#currentRun", "▤", "Actieve prompt"],
@@ -1441,10 +1280,6 @@ function addCategoryDescriptions() {
       "Geredigeerde, roterende logs van watcher en dashboard. Automatisch bijgewerkt via serverpush.",
     ],
     [
-      "#codexChat",
-      "Stel korte, alleen-lezen vragen over de laatst uitgevoerde prompt en het bijbehorende rapport. Dit start geen engineering of wijzigingen.",
-    ],
-    [
       "#engineering-dashboard-content>.technical-details:not(#componentLogs)",
       "Operationele details over pull requests, repository, werkruimte en diagnose.",
     ],
@@ -1467,11 +1302,16 @@ function addCategoryDescriptions() {
 addCategoryDescriptions();
 function arrangeOperationalCategories() {
   const technical = $("technicalDetails"),
+    workspace = $("workspaceCard"),
     telemetry = $("executionTelemetry"),
     health = $("platformHealth"),
     logs = $("componentLogs");
   if (!technical) return;
   let anchor = technical;
+  if (workspace) {
+    anchor.insertAdjacentElement("afterend", workspace);
+    anchor = workspace;
+  }
   if (telemetry) {
     anchor.insertAdjacentElement("afterend", telemetry);
     anchor = telemetry;
@@ -2266,7 +2106,7 @@ function lastExecutionTime(x) {
   agentField.hidden = !Number.isFinite(agent) || agent < 0;
   totalField.hidden = !Number.isFinite(total) || total < 0;
   if (!finishedField.hidden)
-    finishedValue.textContent = formatTime.format(new Date(finishedAt));
+    finishedValue.textContent = locale.dateTime(new Date(finishedAt));
   if (!agentField.hidden) agentValue.textContent = durationText(agent);
   if (!totalField.hidden) totalValue.textContent = durationText(total);
 }
@@ -2493,78 +2333,23 @@ function updateIndependentLogSortHeaders() {
     });
   });
 }
-function renderComponentLogs() {
-  const needle = $("logFilter").value.trim().toLocaleLowerCase("nl-NL"),
-    level = $("logLevelFilter").value;
-  for (const component of ["inbox", "dashboard"]) {
-    const state = independentLogSortStates[component],
-      rows = componentLogEntries[component]
-        .filter((entry) => !level || entry.level === level)
-        .filter(
-          (entry) =>
-            !needle ||
-            Object.values(entry)
-              .join(" ")
-              .toLocaleLowerCase("nl-NL")
-              .includes(needle),
-        )
-        .sort((left, right) => {
-          const first = logValue(left, state.key),
-            second = logValue(right, state.key),
-            result =
-              typeof first === "number" && typeof second === "number"
-                ? first - second
-                : String(first).localeCompare(String(second), "nl");
-          return state.direction === "asc" ? result : -result;
-        }),
-      body = $(component + "ComponentLog");
-    body.replaceChildren();
-    if (!rows.length) {
-      const cell = document.createElement("td"),
-        row = document.createElement("tr");
-      cell.className = "log-empty";
-      cell.colSpan = 6;
-      cell.textContent = "Geen logregels voor deze selectie.";
-      row.append(cell);
-      body.append(row);
-      continue;
-    }
-    for (const entry of rows) {
-      const row = document.createElement("tr");
-      for (const [name, value] of [
-        ["log-line-number", entry.line],
-        ["", logTimestampText(entry.timestamp)],
-        [
-          "log-level log-level--" +
-            entry.level.toLocaleLowerCase("nl-NL").replaceAll(" ", "-"),
-          entry.level,
-        ],
-        ["", entry.event],
-        ["", entry.runId || "—"],
-        ["", entry.details || "—"],
-      ]) {
-        const cell = document.createElement("td");
-        cell.className = name;
-        cell.textContent = value;
-        row.append(cell);
-      }
-      body.append(row);
-    }
-  }
-  updateIndependentLogSortHeaders();
-}
 function setIndependentLogSort(component, key) {
   const state = independentLogSortStates[component];
   independentLogSortStates[component] =
     state.key === key
       ? { key: key, direction: state.direction === "asc" ? "desc" : "asc" }
       : { key: key, direction: key === "timestamp" ? "desc" : "asc" };
+  independentLogPageStates[component] = 1;
   renderComponentLogs();
 }
 document.querySelectorAll(".log-table").forEach((table) => {
   const component = logComponentForTable(table);
-  table.querySelectorAll("th[data-sort-key]").forEach((header) => {
-    const key = header.dataset.sortKey;
+  const keys = ["line", "timestamp", "level", "event", "runId", "details"];
+  table.querySelectorAll("th").forEach((header, index) => {
+    const key = keys[index];
+    header.classList.add("log-sortable");
+    header.dataset.sortKey = key;
+    header.tabIndex = 0;
     header.addEventListener("click", () =>
       setIndependentLogSort(component, key),
     );
@@ -2580,23 +2365,17 @@ updateIndependentLogSortHeaders();
 const LOG_PAGE_SIZE = 50,
   independentLogPageStates = { inbox: 1, dashboard: 1 };
 function filteredComponentLogEntries(component) {
-  updateLogValueFilters();
-  const needle = $("logFilter").value.trim().toLocaleLowerCase("nl-NL"),
+  const needle = locale.lower($("logFilter").value.trim()),
     level = $("logLevelFilter").value,
     events = new Set([...$("logEventFilter").selectedOptions].map((option) => option.value)),
-    runs = new Set([...$("logRunFilter").selectedOptions].map((option) => option.value)),
     state = independentLogSortStates[component];
   return componentLogEntries[component]
     .filter((entry) => !level || entry.level === level)
     .filter((entry) => !events.size || events.has(String(entry.event || "")))
-    .filter((entry) => !runs.size || runs.has(String(entry.run_id || "")))
     .filter(
       (entry) =>
         !needle ||
-        Object.values(entry)
-          .join(" ")
-          .toLocaleLowerCase("nl-NL")
-          .includes(needle),
+        locale.lower(Object.values(entry).join(" ")).includes(needle),
     )
     .sort((left, right) => {
       const first = logValue(left, state.key),
@@ -2604,16 +2383,16 @@ function filteredComponentLogEntries(component) {
         result =
           typeof first === "number" && typeof second === "number"
             ? first - second
-            : String(first).localeCompare(String(second), "nl");
+            : locale.compare(first, second);
       return state.direction === "asc" ? result : -result;
     });
 }
 function updateLogValueFilters() {
   const entries = [...componentLogEntries.inbox, ...componentLogEntries.dashboard];
-  for (const [id, key] of [["logEventFilter", "event"], ["logRunFilter", "run_id"]]) {
+  for (const [id, key] of [["logEventFilter", "event"]]) {
     const select = $(id), selected = new Set([...select.selectedOptions].map((option) => option.value));
     select.replaceChildren();
-    [...new Set(entries.map((entry) => String(entry[key] || "")).filter(Boolean))].sort((a, b) => a.localeCompare(b, "nl")).forEach((value) => {
+    [...new Set(entries.map((entry) => String(entry[key] || "")).filter(Boolean))].sort((a, b) => locale.compare(a, b)).forEach((value) => {
       const option = new Option(value, value, false, selected.has(value)); select.add(option);
     });
   }
@@ -2648,7 +2427,8 @@ function renderLogPagination(component, total, pageCount) {
   });
   navigation.append(summary, previous, next);
 }
-function renderPaginatedComponentLogs() {
+function renderComponentLogs() {
+  updateLogValueFilters();
   for (const component of ["inbox", "dashboard"]) {
     const rows = filteredComponentLogEntries(component),
       body = $(component + "ComponentLog"),
@@ -2665,7 +2445,9 @@ function renderPaginatedComponentLogs() {
         row = document.createElement("tr");
       cell.className = "log-empty";
       cell.colSpan = 6;
-      cell.textContent = "Geen logregels voor deze selectie.";
+      cell.textContent = componentLogEntries[component].length
+        ? t("logs.empty")
+        : t("logs.not_available");
       row.append(cell);
       body.append(row);
     } else
@@ -2676,7 +2458,7 @@ function renderPaginatedComponentLogs() {
           ["", logTimestampText(entry.timestamp)],
           [
             "log-level log-level--" +
-              entry.level.toLocaleLowerCase("nl-NL").replaceAll(" ", "-"),
+              locale.lower(entry.level).replaceAll(" ", "-"),
             entry.level,
           ],
           ["", entry.event],
@@ -2694,22 +2476,27 @@ function renderPaginatedComponentLogs() {
   }
   updateIndependentLogSortHeaders();
 }
-const setIndependentLogSortWithPagination = setIndependentLogSort;
-setIndependentLogSort = (component, key) => {
-  independentLogPageStates[component] = 1;
-  setIndependentLogSortWithPagination(component, key);
-  renderPaginatedComponentLogs();
-};
-const renderComponentLogsWithPagination = renderComponentLogs;
-renderComponentLogs = () => renderPaginatedComponentLogs();
-for (const [id, label] of [["logEventFilter", "Gebeurtenis"], ["logRunFilter", "Run-ID"]]) {
+for (const [id, label] of [["logEventFilter", t("table.event")]]) {
   const control = document.createElement("label"), select = document.createElement("select");
   select.id = id; select.multiple = true; select.setAttribute("aria-label", label);
   control.htmlFor = id; control.append(label, select); $("componentLogControls").append(control);
   select.addEventListener("change", () => { independentLogPageStates.inbox = independentLogPageStates.dashboard = 1; renderComponentLogs(); });
 }
-const refreshLogFilters = updateLogValueFilters;
-updateLogValueFilters = () => { refreshLogFilters(); };
+const resetLogFiltersButton = document.createElement("button");
+resetLogFiltersButton.className = "reset-log-filters";
+resetLogFiltersButton.type = "button";
+resetLogFiltersButton.textContent = "↺";
+const resetLogFiltersLabel = t("action.reset_log_filters");
+resetLogFiltersButton.title = resetLogFiltersLabel;
+resetLogFiltersButton.setAttribute("aria-label", resetLogFiltersLabel);
+resetLogFiltersButton.addEventListener("click", () => {
+  $("logFilter").value = "";
+  $("logLevelFilter").value = "";
+  [...$("logEventFilter").options].forEach((option) => { option.selected = false; });
+  independentLogPageStates.inbox = independentLogPageStates.dashboard = 1;
+  renderComponentLogs();
+});
+$("componentLogControls").append(resetLogFiltersButton);
 $("logFilter").addEventListener("input", () => {
   independentLogPageStates.inbox = independentLogPageStates.dashboard = 1;
   renderComponentLogs();
@@ -2881,17 +2668,12 @@ function promptHistoryValue(entry, key) {
   return String(value || "");
 }
 function filteredPromptHistory() {
-  const needle = $("promptHistoryFilter")
-    .value.trim()
-    .toLocaleLowerCase("nl-NL");
+  const needle = locale.lower($("promptHistoryFilter").value.trim());
   return promptHistoryEntries
     .filter(
       (entry) =>
         !needle ||
-        Object.values(entry)
-          .join(" ")
-          .toLocaleLowerCase("nl-NL")
-          .includes(needle),
+        locale.lower(Object.values(entry).join(" ")).includes(needle),
     )
     .sort((left, right) => {
       const first = promptHistoryValue(left, promptHistorySort.key),
@@ -2899,16 +2681,12 @@ function filteredPromptHistory() {
         result =
           typeof first === "number" && typeof second === "number"
             ? first - second
-            : String(first).localeCompare(String(second), "nl");
+            : locale.compare(first, second);
       return promptHistorySort.direction === "asc" ? result : -result;
     });
 }
 function promptHistoryStatus(value) {
-  return (
-    { COMPLETE: "Voltooid", BLOCKED: "Geblokkeerd", FAILED: "Mislukt" }[
-      value
-    ] || "Onbekend"
-  );
+  return t("status." + String(value || "unknown").toLowerCase());
 }
 function updatePromptHistoryHeaders() {
   document
@@ -2948,8 +2726,8 @@ function renderPromptHistory() {
     const row = document.createElement("tr"),
       cell = document.createElement("td");
     cell.className = "log-empty";
-    cell.colSpan = 6;
-    cell.textContent = "Geen prompts in de geschiedenis voor deze selectie.";
+    cell.colSpan = 8;
+    cell.textContent = t("history.no_prompts");
     row.append(cell);
     body.append(row);
   } else
@@ -2960,52 +2738,100 @@ function renderPromptHistory() {
         executed = document.createElement("td"),
         commit = document.createElement("td"),
         report = document.createElement("td"),
+        analysis = document.createElement("td"),
+        chat = document.createElement("td"),
         action = document.createElement("td"),
         timestamp = Date.parse(String(entry.executed_at || ""));
+      row.className = "prompt-history-row";
+      row.tabIndex = 0;
+      row.setAttribute("role", "button");
+      row.setAttribute("aria-label", t("history.open_details", { title: entry.title || entry.run_id }));
+      const openDetails = (event) => {
+        if (event?.target?.closest("button,a")) return;
+        openPromptHistoryDetail(entry);
+      };
+      row.addEventListener("click", openDetails);
+      row.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          openDetails(event);
+        }
+      });
       action.className = "prompt-history-actions";
       status.className =
         "prompt-history-status prompt-history-status--" +
-        String(entry.status || "").toLocaleLowerCase("nl-NL");
+        locale.lower(String(entry.status || ""));
       status.textContent = promptHistoryStatus(entry.status);
       title.textContent = String(
-        entry.title || entry.run_id || "Prompttitel niet beschikbaar",
+        entry.title || entry.run_id || t("retry.unavailable_title"),
       );
       executed.textContent = Number.isFinite(timestamp)
-        ? formatTime.format(new Date(timestamp))
-        : String(entry.executed_at || "Tijdstip niet beschikbaar");
+        ? locale.dateTime(new Date(timestamp))
+        : String(entry.executed_at || t("format.timestamp_unavailable"));
       commit.textContent = entry.git_commit || "—";
       if (entry.report_available && entry.run_id) {
-        const link = document.createElement("a");
-        link.className = "prompt-history-report";
-        link.href =
-          "/api/prompt-history/" + encodeURIComponent(entry.run_id) + "/report";
-        link.download = "engineering-report-" + entry.run_id + ".md";
-        link.title = "Download engineeringrapport";
-        link.setAttribute(
-          "aria-label",
-          "Download engineeringrapport voor " + title.textContent,
+        const view = document.createElement("button");
+        view.className = "prompt-history-report";
+        view.type = "button";
+        view.title = t("history.view_report", { title: title.textContent });
+        view.setAttribute("aria-label", view.title);
+        view.textContent = "▤";
+        view.addEventListener("click", () =>
+          openPromptHistoryDocument(entry.run_id, title.textContent, "report"),
         );
-        link.textContent = "⇩";
-        report.append(link);
+        report.append(view);
       } else report.textContent = "—";
+      if (entry.analysis_available && entry.run_id) {
+        const actions = document.createElement("span"),
+          view = document.createElement("button"),
+          download = document.createElement("a");
+        actions.className = "prompt-history-analysis-actions";
+        view.className = "prompt-history-analysis";
+        view.type = "button";
+        view.title = t("history.view_analysis", { title: title.textContent });
+        view.setAttribute("aria-label", view.title);
+        view.textContent = "✦";
+        view.addEventListener("click", () =>
+          openPromptHistoryDocument(entry.run_id, title.textContent, "analysis"),
+        );
+        download.className = "prompt-history-analysis";
+        download.href =
+          "/api/prompt-history/" + encodeURIComponent(entry.run_id) + "/analysis?audit=download";
+        download.download = "ai-analysis-" + entry.run_id + ".md";
+        download.title = t("history.download_analysis", { title: title.textContent });
+        download.setAttribute("aria-label", download.title);
+        download.textContent = "⇩";
+        actions.append(view, download);
+        analysis.append(actions);
+      } else analysis.textContent = "—";
+      if (entry.run_id) {
+        const button = document.createElement("button");
+        button.className = "prompt-history-chat";
+        button.type = "button";
+        button.title = t("history.open_chat", { title: title.textContent });
+        button.setAttribute("aria-label", button.title);
+        button.textContent = "✦";
+        button.addEventListener("click", () => openPromptHistoryChat(entry));
+        chat.append(button);
+      } else chat.textContent = "—";
       if (entry.status === "BLOCKED" && entry.run_id) {
         const retry = document.createElement("button");
         retry.type = "button";
         retry.className = "predecessor-retry execution-history-action";
-        retry.textContent = "Retry Execution";
+        retry.textContent = t("action.retry_execution");
         retry.addEventListener("click", () => submitExecutionRetry(entry));
         action.append(retry);
       }
-      if (["BLOCKED", "FAILED", "COMPLETE"].includes(entry.status) && entry.run_id && entry.run_id === latestStatus?.last_executed_run && !isActiveRun(latestStatus)) {
+      if (["BLOCKED", "FAILED"].includes(entry.status) && entry.run_id && entry.run_id === latestStatus?.last_executed_run && !isActiveRun(latestStatus)) {
         const dismiss = document.createElement("button");
         dismiss.type = "button";
         dismiss.className = "predecessor-retry execution-history-action";
-        dismiss.textContent = "Dismiss Execution";
+        dismiss.textContent = t("action.dismiss_execution");
         dismiss.addEventListener("click", () => dismissExecution(entry));
         action.append(dismiss);
       }
       if (!action.childElementCount) action.textContent = "—";
-      row.append(status, title, executed, commit, report, action);
+      row.append(status, title, executed, commit, report, analysis, chat, action);
       body.append(row);
     }
   navigation.replaceChildren();
@@ -3014,17 +2840,11 @@ function renderPromptHistory() {
     next = document.createElement("button");
   summary.className = "log-pagination__summary";
   summary.textContent = rows.length
-    ? "Pagina " +
-      promptHistoryPage +
-      " van " +
-      pageCount +
-      " · " +
-      rows.length +
-      " prompts"
-    : "Geen prompts";
+    ? t("history.page", { page: promptHistoryPage, pages: pageCount, count: rows.length })
+    : t("history.no_results");
   previous.type = next.type = "button";
-  previous.textContent = "Vorige";
-  next.textContent = "Volgende";
+  previous.textContent = t("history.previous");
+  next.textContent = t("history.next");
   previous.disabled = promptHistoryPage <= 1;
   next.disabled = promptHistoryPage >= pageCount;
   previous.addEventListener("click", () => {
@@ -3075,63 +2895,6 @@ document
     });
   });
 refreshPromptHistory();
-const parseStructuredLogEntries = structuredLogEntries;
-structuredLogEntries = (text) => {
-  const normalized = String(text ?? "").trim();
-  return !normalized || normalized === "Nog geen applicatielog beschikbaar."
-    ? []
-    : parseStructuredLogEntries(normalized);
-};
-renderPaginatedComponentLogs = () => {
-  for (const component of ["inbox", "dashboard"]) {
-    const entries = componentLogEntries[component],
-      rows = filteredComponentLogEntries(component),
-      body = $(component + "ComponentLog"),
-      pageCount = Math.max(1, Math.ceil(rows.length / LOG_PAGE_SIZE)),
-      page = Math.min(
-        Math.max(1, independentLogPageStates[component]),
-        pageCount,
-      ),
-      visible = rows.slice((page - 1) * LOG_PAGE_SIZE, page * LOG_PAGE_SIZE);
-    independentLogPageStates[component] = page;
-    body.replaceChildren();
-    if (!visible.length) {
-      const cell = document.createElement("td"),
-        row = document.createElement("tr");
-      cell.className = "log-empty";
-      cell.colSpan = 6;
-      cell.textContent = entries.length
-        ? "Geen logregels voor deze selectie."
-        : "Nog geen applicatielog beschikbaar.";
-      row.append(cell);
-      body.append(row);
-    } else
-      for (const entry of visible) {
-        const row = document.createElement("tr");
-        for (const [name, value] of [
-          ["log-line-number", entry.line],
-          ["", logTimestampText(entry.timestamp)],
-          [
-            "log-level log-level--" +
-              entry.level.toLocaleLowerCase("nl-NL").replaceAll(" ", "-"),
-            entry.level,
-          ],
-          ["", entry.event],
-          ["", entry.runId || "—"],
-          ["", entry.details || "—"],
-        ]) {
-          const cell = document.createElement("td");
-          cell.className = name;
-          cell.textContent = value;
-          row.append(cell);
-        }
-        body.append(row);
-      }
-    renderLogPagination(component, rows.length, pageCount);
-  }
-  updateIndependentLogSortHeaders();
-};
-renderComponentLogs();
 const DASHBOARD_CLIENT_STATE_KEY = "engineering-dashboard-client-state-v1",
   ALL_SECTIONS_STATE_KEY = "engineering-dashboard-all-sections-open-v1";
 function loadDashboardClientState() {
@@ -3145,6 +2908,40 @@ function loadDashboardClientState() {
   }
 }
 const dashboardClientState = loadDashboardClientState();
+const dashboardLocaleSelector = $("dashboardLocale");
+function applyDashboardLocale() {
+  document.documentElement.lang = dashboardLocale;
+  dashboardLocaleSelector.value = dashboardLocale;
+  const replacements = [
+    [".skip-link", "header.skip"],
+    [".theme-toggle__label", "header.theme"],
+    [".section-state-toggle__label", "header.expand"],
+    [".auto-refresh-toggle span", "header.auto_refresh"],
+    [".dashboard-locale span", "language.label"],
+    ["#confirmationModalCancel", "action.cancel"],
+    ["#confirmationModalConfirm", "action.confirm"],
+    ["#promptHistoryAnalysisHeader", "table.analysis"],
+    ["#promptHistoryChatHeader", "table.chat"],
+  ];
+  replacements.forEach(([selector, key]) => {
+    const element = document.querySelector(selector);
+    if (element) element.textContent = t(key);
+  });
+  document.querySelectorAll("#dashboardLocale option").forEach((option) => {
+    option.textContent = t("language." + option.value);
+  });
+  $("themeToggle").setAttribute("aria-label", t("header.enable_light"));
+  $("toggleAllSections").setAttribute("aria-label", t("header.open_all"));
+}
+dashboardLocaleSelector.addEventListener("change", () => {
+  dashboardLocale = normalizeLocale(dashboardLocaleSelector.value);
+  locale = createLocaleService(dashboardLocale);
+  t = locale.t;
+  dashboardClientState.locale = dashboardLocale;
+  saveDashboardClientState();
+  window.location.reload();
+});
+applyDashboardLocale();
 function loadAllSectionsIntent() {
   try {
     const stored = localStorage.getItem(ALL_SECTIONS_STATE_KEY);
@@ -3196,7 +2993,6 @@ const autoRefreshToggle = $("autoRefresh"),
     "executionTelemetry",
     "lastExecutionGroup",
     "platformHealth",
-    "codexChat",
     "technicalDetails",
     "componentLogs",
   ];
@@ -3221,9 +3017,9 @@ function updateAllSectionsToggle() {
   allSectionsToggle.setAttribute("aria-checked", String(allOpen));
   allSectionsToggle.setAttribute(
     "aria-label",
-    allOpen ? "Alle secties sluiten" : "Alle secties openen",
+    allOpen ? t("sections.close_all") : t("sections.open_all"),
   );
-  allSectionsToggle.title = allOpen ? "Alles sluiten" : "Alles openen";
+  allSectionsToggle.title = allOpen ? t("sections.close") : t("sections.open");
 }
 function setAllSections(open) {
   const details = { ...(dashboardClientState.details || {}) };
@@ -3244,8 +3040,8 @@ autoRefreshToggle.addEventListener("change", () => {
   dashboardClientState.autoRefresh = autoRefreshToggle.checked;
   saveDashboardClientState();
   $("updateMode").textContent = autoRefreshToggle.checked
-    ? "Serverpush: verbonden"
-    : "Automatisch vernieuwen is uit";
+    ? t("refresh.connected")
+    : t("refresh.off");
 });
 document.addEventListener(
   "toggle",
@@ -3375,9 +3171,9 @@ function applyDashboardTheme(theme) {
   themeToggle.setAttribute("aria-checked", String(light));
   themeToggle.setAttribute(
     "aria-label",
-    light ? "Donkere modus inschakelen" : "Lichte modus inschakelen",
+    light ? t("theme.enable_dark") : t("theme.enable_light"),
   );
-  themeToggle.title = light ? "Donkere modus" : "Lichte modus";
+  themeToggle.title = light ? t("theme.dark") : t("theme.light");
 }
 applyDashboardTheme(dashboardClientState.theme === "light" ? "light" : "dark");
 themeToggle.addEventListener("click", () => {
@@ -3515,10 +3311,11 @@ $("copyReportAnalysis")?.addEventListener(
   () => void recordUserAction("report_analysis_copied"),
 );
 let promptHistoryReportText = "",
-  promptHistoryReportRun = "";
+  promptHistoryReportRun = "",
+  promptHistoryDocumentKind = "report";
 function promptHistoryReportFilename() {
   return (
-    "engineering-report-" +
+    (promptHistoryDocumentKind === "analysis" ? "ai-analysis-" : "engineering-report-") +
     String(promptHistoryReportRun || "unknown").replace(
       /[^a-z0-9._-]+/gi,
       "-",
@@ -3545,44 +3342,160 @@ function downloadPromptHistoryReport() {
   link.click();
   link.remove();
   setTimeout(() => URL.revokeObjectURL(url), 0);
-  void recordUserAction("prompt_history_report_downloaded");
+  void recordUserAction(
+    promptHistoryDocumentKind === "analysis"
+      ? "prompt_history_analysis_downloaded"
+      : "prompt_history_report_downloaded",
+  );
 }
-function openPromptHistoryReport(runId, title) {
+function openPromptHistoryDocument(runId, title, kind = "report") {
   const modal = $("promptHistoryReportModal"),
     content = $("promptHistoryReportContent");
   promptHistoryReportRun = String(runId || "");
+  promptHistoryDocumentKind = kind === "analysis" ? "analysis" : "report";
   promptHistoryReportText = "";
   $("promptHistoryReportModalTitle").textContent =
-    title || "Engineeringrapport";
+    promptHistoryDocumentKind === "analysis"
+      ? t("history.analysis_title", { title })
+      : title || t("history.report_title");
   $("promptHistoryReportCopy").hidden = true;
   $("promptHistoryReportDownload").hidden = true;
   content.replaceChildren();
-  content.textContent = "Rapport laden…";
+  content.textContent = t(
+    promptHistoryDocumentKind === "analysis"
+      ? "history.analysis_loading"
+      : "history.report_loading",
+  );
   if (!modal.open) modal.showModal();
   modal.focus();
   fetch(
     "/api/prompt-history/" +
       encodeURIComponent(promptHistoryReportRun) +
-      "/report",
+      (promptHistoryDocumentKind === "analysis" ? "/analysis" : "/report"),
     { cache: "no-store" },
   )
     .then((response) =>
       response.ok
         ? response.text()
-        : Promise.reject(Error("Rapport is niet beschikbaar.")),
+        : Promise.reject(Error("Document is niet beschikbaar.")),
     )
     .then((text) => {
-      if (!text) throw Error("Rapport is niet beschikbaar.");
+      if (!text) throw Error("Document is niet beschikbaar.");
       promptHistoryReportText = text;
       renderMarkdownDocument(content, text);
       $("promptHistoryReportCopy").hidden = false;
       $("promptHistoryReportDownload").hidden = false;
     })
     .catch(() => {
-      content.textContent =
-        "Engineeringrapport is niet beschikbaar voor deze prompt.";
+      content.textContent = t(
+        promptHistoryDocumentKind === "analysis"
+          ? "history.analysis_unavailable"
+          : "history.report_unavailable",
+      );
     });
 }
+function detailField(label, value, preformatted = false) {
+  const field = document.createElement("p"),
+    name = document.createElement("span"),
+    output = document.createElement(preformatted ? "pre" : "span");
+  field.className = "field";
+  name.className = "label";
+  name.textContent = label;
+  output.textContent = String(value ?? "—");
+  field.append(name, output);
+  return field;
+}
+function promptDetailCard(title, fields, wide = false) {
+  const card = document.createElement("section"), heading = document.createElement("h3");
+  card.className = "prompt-detail-card" + (wide ? " prompt-detail-card--wide" : "");
+  heading.textContent = title;
+  card.append(heading, ...fields);
+  return card;
+}
+function promptDetailDuration(value) {
+  const seconds = Number(value);
+  return Number.isFinite(seconds) && seconds >= 0 ? durationText(seconds) : "—";
+}
+function renderPromptHistoryDetail(payload) {
+  const content = $("promptHistoryDetailContent"),
+    history = payload?.history || {},
+    execution = payload?.execution || {},
+    runtime = payload?.runtime || {},
+    usage = payload?.usage || {},
+    commits = payload?.commits || {},
+    evidence = Array.isArray(payload?.evidence) ? payload.evidence : [],
+    reviewers = Array.isArray(payload?.reviewers) ? payload.reviewers : [],
+    timestamp = Date.parse(String(history.executed_at || ""));
+  content.replaceChildren();
+  content.append(
+    promptDetailCard("Uitvoering", [
+      detailField("Promptstatus", promptHistoryStatus(history.status)),
+      detailField("Prompttitel", history.title),
+      detailField("Run-ID", history.run_id, true),
+      detailField("Uitgevoerd op", Number.isFinite(timestamp) ? locale.dateTime(new Date(timestamp)) : history.executed_at),
+      detailField("Uitvoeringsmodus", history.execution_mode),
+      detailField("Repository", history.repository),
+    ]),
+    promptDetailCard("Doorlooptijd", [
+      detailField("Codex CLI-uitvoeringstijd", promptDetailDuration(execution.seconds)),
+      detailField("Totale doorlooptijd", promptDetailDuration(execution.total_seconds)),
+    ]),
+  );
+  const runtimeFields = [
+    ["Runtimeprovider", runtime.runtime_provider],
+    ["Gebruikt model", runtime.model],
+    ["Reasoning-profiel", runtime.reasoning_profile],
+    ["Configuratieprofiel", runtime.configuration_profile],
+    ["Codex CLI-versie", runtime.codex_cli_version],
+  ].filter(([, value]) => value);
+  if (runtimeFields.length)
+    content.append(promptDetailCard("Runtime", runtimeFields.map(([label, value]) => detailField(label, value))));
+  const usageFields = Object.entries(usage).map(([key, value]) =>
+    detailField(
+      ({ input_tokens: "Invoertokens", output_tokens: "Uitvoertokens", total_tokens: "Totaal tokens" })[key] || key,
+      value,
+    ),
+  );
+  if (usageFields.length) content.append(promptDetailCard("AI-providergebruik", usageFields));
+  if (Object.keys(commits).length)
+    content.append(promptDetailCard("Git-commit", [detailField("Vastgelegd bewijs", Object.entries(commits).map(([label, value]) => label + ": " + value).join("\n"), true)]));
+  if (evidence.length)
+    content.append(promptDetailCard("Uitvoeringsbewijs", [detailField("Bewijs", evidence.join("\n"), true)], true));
+  if (reviewers.length) {
+    const reviewerFields = reviewers.map((reviewer) =>
+      detailField(
+        String(reviewer.reviewer || "Specialistische review").replaceAll("_", " "),
+        "Capaciteit: " + String(reviewer.capability || "engineering") + " · " +
+          String(reviewer.status || "Uitgevoerd") + " · Gebruikte aanbevelingen: " +
+          (Number(reviewer.accepted_recommendations) || 0) + "\nGeselecteerd voor: " +
+          String(reviewer.selected_because || "Niet vastgelegd."),
+        true,
+      ),
+    );
+    content.append(promptDetailCard("Specialistische agentreviews", reviewerFields, true));
+  }
+}
+function closePromptHistoryDetail() {
+  const modal = $("promptHistoryDetailModal");
+  if (modal.open) modal.close();
+}
+function openPromptHistoryDetail(entry) {
+  if (!entry?.run_id) return;
+  const modal = $("promptHistoryDetailModal"), content = $("promptHistoryDetailContent");
+  $("promptHistoryDetailTitle").textContent = String(entry.title || entry.run_id);
+  $("promptHistoryDetailDescription").textContent = t("history.details_description");
+  content.textContent = t("history.details_loading");
+  if (!modal.open) modal.showModal();
+  modal.focus();
+  fetch("/api/prompt-history/" + encodeURIComponent(entry.run_id) + "/details", { cache: "no-store" })
+    .then((response) => response.ok ? response.json() : Promise.reject())
+    .then(renderPromptHistoryDetail)
+    .catch(() => { content.textContent = t("history.details_unavailable"); });
+}
+$("promptHistoryDetailClose").addEventListener("click", closePromptHistoryDetail);
+$("promptHistoryDetailModal").addEventListener("click", (event) => {
+  if (event.target === $("promptHistoryDetailModal")) closePromptHistoryDetail();
+});
 $("promptHistoryReportClose").addEventListener(
   "click",
   closePromptHistoryReport,
@@ -3594,43 +3507,17 @@ $("promptHistoryReportModal").addEventListener("click", (event) => {
 $("promptHistoryReportCopy").addEventListener("click", () => {
   if (promptHistoryReportText)
     copyText(promptHistoryReportText).then(
-      () => void recordUserAction("prompt_history_report_copied"),
+      () => void recordUserAction(
+        promptHistoryDocumentKind === "analysis"
+          ? "prompt_history_analysis_copied"
+          : "prompt_history_report_copied",
+      ),
     );
 });
 $("promptHistoryReportDownload").addEventListener(
   "click",
   downloadPromptHistoryReport,
 );
-const renderPromptHistoryWithReportView = renderPromptHistory;
-renderPromptHistory = () => {
-  renderPromptHistoryWithReportView();
-  document
-    .querySelectorAll("#promptHistoryRows a.prompt-history-report")
-    .forEach((link) => {
-      const button = document.createElement("button");
-      button.className = "prompt-history-report";
-      button.type = "button";
-      button.title = "Bekijk engineeringrapport";
-      button.setAttribute(
-        "aria-label",
-        "Bekijk engineeringrapport voor " +
-          (link.getAttribute("aria-label") || "deze prompt").replace(
-            "Download engineeringrapport voor ",
-            "",
-          ),
-      );
-      button.textContent = "▤";
-      button.addEventListener("click", () =>
-        openPromptHistoryReport(
-          link.href.split("/report")[0].split("/").pop(),
-          button
-            .getAttribute("aria-label")
-            .replace("Bekijk engineeringrapport voor ", ""),
-        ),
-      );
-      link.replaceWith(button);
-    });
-};
 function renderPredecessorRetry(x) {
   const blocked = Boolean(x && x.blocking_predecessor_run),
     button = $("predecessorRetry"),
@@ -3681,13 +3568,13 @@ function submitPredecessorRetry() {
 }
 function submitExecutionRetry(entry) {
   if (!entry?.run_id) return;
-  const title = String(entry.title || "Prompttitel niet beschikbaar");
-  const repository = String(entry.repository || "repository context not recorded");
-  const mode = String(entry.execution_mode || "execution mode not recorded");
+  const title = String(entry.title || t("retry.unavailable_title"));
+  const repository = String(entry.repository || t("retry.unavailable_repository"));
+  const mode = String(entry.execution_mode || t("retry.unavailable_mode"));
   confirmDashboardAction(
-    "Retry Execution",
-    "Run ID: " + entry.run_id + "\nPrompt title: " + title + "\nRepository: " + repository + "\nExecution Mode: " + mode + "\n\nA new engineering execution will start using the current repository state. The original execution remains unchanged. A Retry relationship will be recorded.",
-    "Retry Execution",
+    t("retry.title"),
+    t("retry.details", { run_id: entry.run_id, title, repository, mode }),
+    t("action.retry_execution"),
     "#f0b66a",
   ).then((confirmed) => {
     if (!confirmed) return;
@@ -3698,25 +3585,25 @@ function submitExecutionRetry(entry) {
     })
       .then(async (response) => ({ ok: response.ok, body: await response.json() }))
       .then((result) => {
-        if (!result.ok) throw Error(result.body.error || "Retry Execution kon niet worden gestart.");
+        if (!result.ok) throw Error(result.body.error || t("retry.failed"));
         return refreshPromptHistory();
       })
-      .catch((error) => window.alert(error.message || "Retry Execution kon niet worden gestart."));
+      .catch((error) => window.alert(error.message || t("retry.failed")));
   });
 }
 function dismissExecution(entry) {
   if (!entry?.run_id) return;
   confirmDashboardAction(
-    "Dismiss Execution",
-    "Run ID: " + entry.run_id + "\nPrompt title: " + String(entry.title || "Prompttitel niet beschikbaar") + "\nTerminal state: " + String(entry.status || "onbekend") + "\n\nExecution history, reports, telemetry and retry relationships are preserved. Only operational active state is cleared. No engineering work will restart.",
-    "Dismiss Execution",
+    t("dismiss.title"),
+    t("dismiss.details", { run_id: entry.run_id, title: String(entry.title || t("retry.unavailable_title")), state: t("status." + String(entry.status || "unknown").toLowerCase()) }),
+    t("action.dismiss_execution"),
     "#8cb4ff",
   ).then((confirmed) => {
     if (!confirmed) return;
     fetch("/api/execution-dismiss", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ run_id: entry.run_id }) })
       .then(async (response) => ({ ok: response.ok, body: await response.json() }))
-      .then((result) => { if (!result.ok) throw Error(result.body.error || "Dismiss Execution kon niet worden uitgevoerd."); return refreshPromptHistory(); })
-      .catch((error) => window.alert(error.message || "Dismiss Execution kon niet worden uitgevoerd."));
+      .then((result) => { if (!result.ok) throw Error(result.body.error || t("dismiss.failed")); return refreshPromptHistory(); })
+      .catch((error) => window.alert(error.message || t("dismiss.failed")));
   });
 }
 $("predecessorRetry").addEventListener("click", submitPredecessorRetry);
@@ -3764,7 +3651,7 @@ $("clearChat").addEventListener("click", () =>
   ).then((confirmed) => {
     if (!confirmed) return;
     chatHistory = [];
-    sessionStorage.removeItem(CHAT_HISTORY_KEY);
+    if (chatContextRun) sessionStorage.removeItem(chatHistoryStorageKey());
     renderChatHistory();
     updateChatActions();
   }),
@@ -3849,7 +3736,10 @@ Object.assign(window, {
   applyDashboardTheme,
   chatHistoryMarkdown,
   chatMessage,
+  capabilityRecommendation,
+  enumLabel,
   executionTelemetry,
+  formatTimestamp,
   lastExecutionTime,
   lastRuntimeMetadata,
   queueItems,

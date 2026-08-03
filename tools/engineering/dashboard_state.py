@@ -89,6 +89,7 @@ def status(root: Path) -> bytes:
                 "target_repository": live.get("target_repository"),
                 "checkout_path": live.get("checkout_path"),
                 "active_branch": live.get("active_branch"),
+                "reviewer_agents": live.get("reviewer_agents", []),
             },
             separators=(",", ":"),
         ).encode()
@@ -178,7 +179,7 @@ def snapshot(
             "last_executed_runtime_metadata": read_json(runtime_metadata_reader, root, run_id, fallback={}),
             "last_executed_report_analysis_available": report_analysis_available_reader(root, run_id),
             "telemetry": telemetry,
-            "process_metrics": read_json(process_metrics_reader, fallback={}) if active else {},
+            "process_metrics": read_json(process_metrics_reader, root, fallback={}) if active else {},
             "component_log_versions": component_log_versions_reader(root),
             "component_versions": {"dashboard": dashboard_version, "worker": worker_version},
             "host_preflight": latest_host_preflight(root),

@@ -546,9 +546,11 @@ class LocalAgentRunnerTest(unittest.TestCase):
         self.assertIsNone(project_codex_activity({"type": "item.completed", "item": {"type": "agent_message"}}))
         self.assertIsNone(project_codex_activity({"type": "item.started", "item": {"type": "unknown", "prompt": "secret"}}))
 
+    @patch("tools.engineering.execution_host.os.getpgid", return_value=4321)
     @patch("tools.engineering.execution_host.subprocess.Popen")
-    def test_codex_client_streams_only_safe_activity_labels(self, popen: object) -> None:
+    def test_codex_client_streams_only_safe_activity_labels(self, popen: object, _: object) -> None:
         class Process:
+            pid = 1234
             stdout = iter(
                 (
                     '{"type":"item.started","item":{"type":"reasoning","text":"secret reasoning"}}\n',
@@ -580,11 +582,16 @@ class LocalAgentRunnerTest(unittest.TestCase):
             execution_mode="GENESIS",
             genesis_repository_path=str(self.root),
         )
-        write_live_status(self.root, state, "invoke_agent")
+        reviewers = [{"reviewer": "validation", "capability": "engineering", "status": "running"}]
+        write_live_status(self.root, state, "invoke_agent", reviewers)
         payload = json.loads((self.root / ".engineering" / "status" / "current.json").read_text())
         self.assertEqual(payload["execution_mode"], "GENESIS")
         self.assertEqual(payload["target_repository"], self.root.name)
         self.assertEqual(payload["checkout_path"], str(self.root))
+        self.assertEqual(payload["reviewer_agents"], reviewers)
+        write_live_status(self.root, state, "Codex voert een opdracht uit")
+        preserved = json.loads((self.root / ".engineering" / "status" / "current.json").read_text())
+        self.assertEqual(preserved["reviewer_agents"], reviewers)
 
     def test_genesis_mode_requires_an_explicit_execution_mode_declaration(self) -> None:
         self.assertEqual(execution_mode_for("Introduce Genesis Mode documentation."), "MANAGED")
@@ -1233,6 +1240,25 @@ class LocalAgentRunnerTest(unittest.TestCase):
         self.assertEqual(reconciled_recommendations(results), ("Use canonical wording.",))
         records = records_for_storage(selections, results)
         self.assertEqual(records[0]["accepted_recommendations"], 1)
+
+    def test_reviewer_progress_reports_started_and_terminal_states(self) -> None:
+        selections = select_reviewers("documentation validation", self.prompt, "IMPLEMENTATION", {})
+        progress: list[tuple[str, str, bool | None]] = []
+
+        results = run_reviews(
+            self.root,
+            selections,
+            "objective",
+            FakeReviewer(),
+            progress=lambda selection, event, result: progress.append(
+                (selection.reviewer, event, None if result is None else result.failed)
+            ),
+        )
+
+        self.assertEqual(len(results), len(selections))
+        for selection in selections:
+            self.assertIn((selection.reviewer, "started", None), progress)
+            self.assertIn((selection.reviewer, "completed", False), progress)
 
     def test_reviewer_failure_never_blocks_selection(self) -> None:
         selections = select_reviewers("documentation", self.prompt, "IMPLEMENTATION", {})

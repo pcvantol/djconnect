@@ -86,6 +86,11 @@ stored locally per run under `.engineering/report-analysis/<run-id>.md`. It
 distils findings, issues, risks, next steps and advice for the Product
 Architect. Its output is advisory and redacted before persistence.
 
+The private Engineering Status dashboard exposes an **AI analysis** column in
+Prompt History next to the engineering report. View and download actions are
+available only when the analysis file belongs to that exact Run ID; analyses
+from another execution are never selected as a fallback.
+
 The dashboard displays that analysis only within **Laatst uitgevoerd** and only
 when its run identifier matches the displayed terminal run. A failed or absent
 analysis never changes the terminal checkpoint, report, repository state,
@@ -104,10 +109,12 @@ copy and download actions only when the matching artifact exists. Downloaded
 files contain the original local Markdown; rendering and copying do not alter
 the report, checkpoint or target repository.
 
-**Promptgeschiedenis** is a private SQLite-backed index of terminal runs. Its
-report action opens the selected report in the same read-only Markdown dialog,
-not in an editor. It is deliberately an evidence-navigation feature rather
-than an execution or repository-control surface.
+**Promptgeschiedenis** is a private SQLite-backed index of terminal runs.
+Selecting a row opens the run's near-fullscreen operational-detail dialog;
+that dialog is bound to the selected Run ID and contains no report or analysis
+body. Its separate report and AI-analysis actions open the matching read-only
+Markdown dialog, not an editor. It is deliberately an evidence-navigation
+feature rather than an execution or repository-control surface.
 
 When no report or analysis was persisted for the selected terminal run, the
 dashboard must say so explicitly. It must not show an unavailable artifact as
@@ -129,8 +136,8 @@ it. The runner never infers or fabricates model, reasoning or configuration
 metadata. These fields describe the process that produced this specific report;
 they are not a claim about a currently configured provider or a later run.
 
-The matching **Laatst uitgevoerde prompt** dashboard card reads the provenance
-only from that terminal report. It therefore cannot display a model or profile
+The matching **Promptgeschiedenis** detail dialog reads provenance only from
+the selected terminal report. It therefore cannot display a model or profile
 from an unrelated current run.
 
 ## Retry executions

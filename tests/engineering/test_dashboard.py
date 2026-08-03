@@ -12,13 +12,31 @@ from contextlib import nullcontext
 from unittest.mock import ANY, patch
 
 from tools.engineering import dashboard
-from tools.engineering.dashboard import DASHBOARD_VERSION, LOOPBACK_ADDRESS, _clear_component_log, _codex_process_metrics, _codex_provider_identity, _codex_usage, _codex_usage_for_run, _component_log, _component_log_versions, _completion_commits, _component_uptime_seconds, _current_codex_log, _dashboard_html, _last_executed_agent_execution, _last_executed_codex_log, _last_executed_commits, _last_executed_runtime_metadata, _latest_codex_log, _normalize_rate_limits, _platform_health, _prompt_history, _report_analysis_available_for_run, _report_analysis_for_run, _report_for_run, _reviewer_agents_for_run, _sse_snapshot, _sse_status, _status, _tracked_file_count, binding_addresses
+from tools.engineering.dashboard import DASHBOARD_VERSION, LOOPBACK_ADDRESS, _clear_component_log, _codex_process_metrics, _codex_provider_identity, _codex_usage, _codex_usage_for_run, _component_log, _component_log_versions, _completion_commits, _component_uptime_seconds, _current_codex_log, _dashboard_html, _last_executed_agent_execution, _last_executed_codex_log, _last_executed_commits, _last_executed_runtime_metadata, _latest_codex_log, _normalize_rate_limits, _platform_health, _prompt_history, _prompt_history_detail, _report_analysis_available_for_run, _report_analysis_for_run, _report_for_run, _reviewer_agents_for_run, _sse_snapshot, _sse_status, _status, _tracked_file_count, binding_addresses
 from tools.engineering.inbox_watcher import WATCHER_VERSION
 from tools.engineering.platform_version import EngineeringPlatformManifest
+from tools.engineering.prompt_history import record_prompt_execution
 from tools.engineering.storage import open_storage
 
 
 class DashboardStatusTest(unittest.TestCase):
+    def test_dashboard_exposes_the_canonical_five_locale_catalog(self) -> None:
+        root = Path(__file__).parents[2]
+        catalog = (root / "tools/engineering/assets/dashboard_locales.mjs").read_text(encoding="utf-8")
+        page = _dashboard_html("Engineering Status").decode("utf-8")
+
+        self.assertIn('id="dashboardLocale"', page)
+        self.assertIn('"/assets/dashboard_locales.mjs"', (root / "tools/engineering/dashboard.py").read_text(encoding="utf-8"))
+        for locale in ("en", "nl", "de", "fr", "es"):
+            self.assertIn(f"  {locale}: {{", catalog)
+            self.assertIn(f'"language.{locale}"', catalog)
+        self.assertIn('"retry.details"', catalog)
+        self.assertNotIn("Retry Execution", (root / "tools/engineering/assets/dashboard.js").read_text(encoding="utf-8"))
+        dashboard_script = (root / "tools/engineering/assets/dashboard.js").read_text(encoding="utf-8")
+        self.assertIn("createLocaleService", dashboard_script)
+        self.assertNotIn('"nl-NL"', dashboard_script)
+        self.assertNotIn("localeCompare(", dashboard_script)
+
     def test_dashboard_run_logs_startup_and_graceful_shutdown_identity(self) -> None:
         class InterruptingServer:
             server_address = (LOOPBACK_ADDRESS, 8765)
@@ -114,13 +132,18 @@ class DashboardStatusTest(unittest.TestCase):
                 ],
             )
         self.assertEqual(dashboard._process_elapsed_seconds("2-01:02:03"), 176_523)
-        with patch("tools.engineering.dashboard.subprocess.run") as run:
+        with tempfile.TemporaryDirectory() as temporary, patch("tools.engineering.dashboard.subprocess.run") as run:
+            root = Path(temporary)
+            status = root / ".engineering" / "status"
+            status.mkdir(parents=True)
+            (status / "current.json").write_text('{"run_id":"run-owned"}', encoding="utf-8")
+            (status / "runner_process.json").write_text('{"run_id":"run-owned","pid":3,"process_group":42}', encoding="utf-8")
             run.return_value = __import__("subprocess").CompletedProcess(
-                ("ps",), 0, "1 bad codex\n2 1.5 unrelated\n3 2.5 codex exec\n", ""
+                ("ps",), 0, "1 1 99.0 codex unrelated\n2 42 1.5 worker child\n3 42 2.5 codex exec\n", ""
             )
-            metrics = json.loads(dashboard._codex_process_metrics())
-        self.assertEqual(metrics["process_count"], 1)
-        self.assertEqual(metrics["cpu_percent"], 2.5)
+            metrics = json.loads(dashboard._codex_process_metrics(root))
+        self.assertEqual(metrics["process_count"], 2)
+        self.assertEqual(metrics["cpu_percent"], 4.0)
 
     def test_report_and_runtime_projections_reject_invalid_or_unavailable_input(self) -> None:
         root = Path("/missing")
@@ -169,6 +192,7 @@ class DashboardStatusTest(unittest.TestCase):
         root = Path("tools/engineering/assets")
         self.assertTrue((root / "dashboard.css").is_file())
         self.assertTrue((root / "dashboard.js").is_file())
+        self.assertTrue((root / "dashboard_locales.mjs").is_file())
         self.assertTrue((root / "dashboard_status_store.mjs").is_file())
         stylesheet = (root / "dashboard.css").read_text(encoding="utf-8")
         self.assertIn("--report-modal-surface", stylesheet)
@@ -177,6 +201,24 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn("min-height:32px;min-width:0;padding:5px 9px", stylesheet)
         self.assertIn(".execution-history-action:hover:not(:disabled){background:#e7b876", stylesheet)
         self.assertIn(".prompt-history-actions{vertical-align:middle}", stylesheet)
+        self.assertIn("Dashboard UI component layer", stylesheet)
+        self.assertIn("--dashboard-section-gap:24px", stylesheet)
+        self.assertIn("gap:var(--dashboard-section-gap)", stylesheet)
+        self.assertIn("scrollbar-gutter:stable", stylesheet)
+        self.assertIn(".inbox-queue,.prompt-history", stylesheet)
+        self.assertIn("box-shadow:none", stylesheet)
+        self.assertIn(".reset-log-filters", stylesheet)
+        self.assertIn("--dashboard-control-label-gap:8px", stylesheet)
+        self.assertIn("row-gap:var(--dashboard-control-label-gap)", stylesheet)
+        script = (root / "dashboard.js").read_text(encoding="utf-8")
+        self.assertIn("resetLogFiltersButton", script)
+        self.assertNotIn("logRunFilter", script)
+        self.assertIn("function filteredComponentLogEntries", script)
+        self.assertIn("function renderComponentLogs", script)
+        self.assertNotIn("renderLegacyComponentLogs", script)
+        self.assertNotIn("renderSortedComponentLogs", script)
+        self.assertNotIn("renderPaginatedComponentLogs", script)
+        self.assertNotIn('id="logSort"', (Path(__file__).parents[2] / "tools/engineering/dashboard.py").read_text(encoding="utf-8"))
 
     def test_codex_usage_is_shown_only_for_the_displayed_run(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -191,6 +233,19 @@ class DashboardStatusTest(unittest.TestCase):
             self.assertEqual(
                 json.loads(_codex_usage(root)), {"input_tokens": 123, "cost": 1.25}
             )
+            (status / "status.json").write_text(
+                '{"run_id":"inbox-active","last_executed_run":"inbox-visible"}',
+                encoding="utf-8",
+            )
+            self.assertEqual(
+                json.loads(_codex_usage(root)), {},
+                "Usage from the prior run must never appear on an active run.",
+            )
+            (status / "codex_usage.json").write_text(
+                '{"run_id":"inbox-active","usage":{"input_tokens":456}}',
+                encoding="utf-8",
+            )
+            self.assertEqual(json.loads(_codex_usage(root)), {"input_tokens": 456})
             (status / "codex_usage.json").write_text(
                 '{"run_id":"inbox-other","usage":{"input_tokens":123}}', encoding="utf-8"
             )
@@ -632,17 +687,21 @@ class DashboardStatusTest(unittest.TestCase):
             self.assertEqual(_latest_codex_log(Path(temporary)), b"redacted diagnostic")
 
     @patch("tools.engineering.dashboard.subprocess.run")
-    def test_codex_process_metrics_sum_only_codex_cli_processes(self, run: object) -> None:
-        run.return_value = __import__("subprocess").CompletedProcess(
-            ("ps",),
-            0,
-            "101  12.4 /opt/homebrew/bin/codex exec task\n102  3.1 /usr/bin/python worker.py\n103  7.5 codex exec review\n",
-            "",
-        )
-        metrics = json.loads(_codex_process_metrics())
+    def test_codex_process_metrics_ignore_unowned_codex_processes(self, run: object) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            status = root / ".engineering" / "status"
+            status.mkdir(parents=True)
+            (status / "current.json").write_text('{"run_id":"run-owned"}', encoding="utf-8")
+            (status / "runner_process.json").write_text('{"run_id":"run-owned","pid":103,"process_group":303}', encoding="utf-8")
+            run.return_value = __import__("subprocess").CompletedProcess(
+                ("ps",), 0,
+                "101  101  12.4 /opt/homebrew/bin/codex exec unrelated\n102  102  3.1 /usr/bin/python worker.py\n103  303  7.5 codex exec owned\n104  303  2.5 child worker\n", "",
+            )
+            metrics = json.loads(_codex_process_metrics(root))
         self.assertEqual(metrics["process_count"], 2)
-        self.assertEqual(metrics["cpu_percent"], 19.9)
-        self.assertIn("Codex-verwerking draait extern", metrics["gpu_status"])
+        self.assertEqual(metrics["cpu_percent"], 10.0)
+        self.assertIn("Execution Host-verwerking", metrics["gpu_status"])
 
     def test_current_codex_log_never_falls_back_to_a_different_run(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -679,6 +738,27 @@ class DashboardStatusTest(unittest.TestCase):
             (reports / "two_inbox-last.md").write_text("last", encoding="utf-8")
             self.assertEqual(_report_for_run(root, "inbox-last"), b"last")
             self.assertEqual(_report_for_run(root, "inbox-missing"), b"")
+
+    def test_report_prefers_the_indexed_terminal_report_over_a_duplicate_fallback(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            reports = root / ".engineering" / "reports"
+            reports.mkdir(parents=True)
+            actual = reports / "2026-08-03T19-40-44Z_inbox-last.md"
+            fallback = reports / "corrected_inbox-last.md"
+            actual.write_text("actual", encoding="utf-8")
+            fallback.write_text("fallback", encoding="utf-8")
+            from tools.engineering.prompt_history import record_prompt_execution
+            record_prompt_execution(
+                root,
+                run_id="inbox-last",
+                terminal_state="COMPLETE",
+                prompt_title="Indexed report",
+                executed_at="2026-08-03T19:40:44Z",
+                report=actual,
+            )
+
+            self.assertEqual(_report_for_run(root, "inbox-last"), b"actual")
 
     def test_reviewer_agents_are_derived_from_the_exact_terminal_report(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -743,6 +823,46 @@ class DashboardStatusTest(unittest.TestCase):
             self.assertEqual(_report_analysis_for_run(root, "inbox-missing"), b"")
             self.assertTrue(_report_analysis_available_for_run(root, "inbox-last"))
             self.assertFalse(_report_analysis_available_for_run(root, "inbox-missing"))
+
+    def test_prompt_history_marks_only_the_matching_ai_analysis_as_available(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            analyses = root / ".engineering" / "report-analysis"
+            analyses.mkdir(parents=True)
+            (analyses / "inbox-one.md").write_text("analysis", encoding="utf-8")
+            record_prompt_execution(
+                root,
+                run_id="inbox-one",
+                terminal_state="COMPLETE",
+                prompt_title="One",
+                executed_at="2026-08-03T12:00:00Z",
+            )
+            record_prompt_execution(
+                root,
+                run_id="inbox-two",
+                terminal_state="COMPLETE",
+                prompt_title="Two",
+                executed_at="2026-08-03T11:00:00Z",
+            )
+            runs = json.loads(_prompt_history(root))["runs"]
+            self.assertTrue(runs[0]["analysis_available"])
+            self.assertFalse(runs[1]["analysis_available"])
+
+    def test_prompt_history_detail_is_scoped_to_its_exact_run(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            record_prompt_execution(
+                root,
+                run_id="inbox-detail",
+                terminal_state="COMPLETE",
+                prompt_title="Detail prompt",
+                executed_at="2026-08-03T12:00:00Z",
+            )
+            payload = json.loads(_prompt_history_detail(root, "inbox-detail"))
+            self.assertEqual(payload["history"]["run_id"], "inbox-detail")
+            self.assertEqual(payload["history"]["title"], "Detail prompt")
+            self.assertEqual(payload["usage"], {})
+            self.assertEqual(_prompt_history_detail(root, "../../other"), b"")
     def test_component_log_is_read_from_canonical_sqlite_storage(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
@@ -1248,7 +1368,7 @@ class DashboardStatusTest(unittest.TestCase):
 
     @patch("tools.engineering.dashboard.subprocess.run", side_effect=OSError)
     def test_dashboard_process_metrics_fail_closed(self, _: object) -> None:
-        self.assertEqual(json.loads(_codex_process_metrics())["process_count"], 0)
+        self.assertEqual(json.loads(_codex_process_metrics(Path("/missing")))["process_count"], 0)
 
     @patch("tools.engineering.dashboard.subprocess.run")
     def test_dashboard_build_identifier_handles_failed_git_query(self, run: object) -> None:
