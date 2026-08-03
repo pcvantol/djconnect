@@ -9,10 +9,11 @@ execution dismiss**, merged as
 `3155283f8f7d9ae8aa2f9e05bb39d9aa149d8274`. Its immutable implementation
 history is
 `docs/history/prompts/2026-08-03-terminal-execution-dismiss.md`. Its
-Finalization PR is pending merge. Repository State: `MERGED_UNRECONCILED`.
-Workspace State: `WORKSPACE_CLEANUP_PENDING`. The recommended next bounded
-Engineering Platform increment remains Execution Host Preflight Level 3
-(Capability Preflight).
+Finalization PR [#725](https://github.com/pcvantol/djconnect/pull/725) merged
+as `4f0c48264b763cc3bdc0f94d403d2bc90141df58`. Repository State:
+`MERGED_RECONCILED`. Workspace State: `WORKSPACE_READY`. The recommended next
+bounded Engineering Platform increment remains Execution Host Preflight Level
+3 (Capability Preflight).
 
 ## PR #722 governance finalization
 
