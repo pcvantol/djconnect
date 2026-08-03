@@ -15,6 +15,17 @@
 
 ## Current position
 
+## PR #727 governance finalization
+
+PR [#727](https://github.com/pcvantol/djconnect/pull/727), **Support current
+engineering storage schema**, merged as
+`75b7cf2f7595016e6ff1f6e1ab6ca7ec7ea1a5af`. The active runner now accepts the
+repository storage-schema contract, and a regression test prevents a future
+manifest/runner divergence. This changes only local Execution Host
+compatibility; Forge, product and runtime engineering remain unchanged. Its
+Finalization PR is pending merge. Repository State: `MERGED_UNRECONCILED`.
+Workspace State: `WORKSPACE_CLEANUP_PENDING`.
+
 ## PR #724 governance finalization
 
 PR [#724](https://github.com/pcvantol/djconnect/pull/724), **Add terminal
