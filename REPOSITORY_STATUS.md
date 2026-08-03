@@ -2,6 +2,17 @@
 
 Status: active platform-evolution repository
 
+## PR #727 governance finalization
+
+PR [#727](https://github.com/pcvantol/djconnect/pull/727), **Support current
+engineering storage schema**, merged as
+`75b7cf2f7595016e6ff1f6e1ab6ca7ec7ea1a5af`. The immutable Prompt History
+record is
+`docs/history/prompts/2026-08-03-storage-schema-runner-compatibility.md`.
+The runner now accepts the current repository storage schema before execution
+begins. Its Finalization PR is pending merge. Repository State:
+`MERGED_UNRECONCILED`. Workspace State: `WORKSPACE_CLEANUP_PENDING`.
+
 ## PR #724 governance finalization
 
 PR [#724](https://github.com/pcvantol/djconnect/pull/724), **Add terminal
