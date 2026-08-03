@@ -10,8 +10,9 @@ engineering storage schema**, merged as
 `75b7cf2f7595016e6ff1f6e1ab6ca7ec7ea1a5af`. The Execution Host runner now
 advertises support for the repository's current telemetry-capable storage
 schema 6. Valid Inbox prompts no longer fail before execution from this stale
-compatibility matrix. Its Finalization PR is pending merge. Repository State:
-`MERGED_UNRECONCILED`. Workspace State: `WORKSPACE_CLEANUP_PENDING`.
+compatibility matrix. Its Finalization PR [#728](https://github.com/pcvantol/djconnect/pull/728)
+merged as `3937e7d49d9e5181bf8d01b140fbfb1017af9c95`. Repository State:
+`MERGED_RECONCILED`. Workspace State: `WORKSPACE_READY`.
 
 ## PR #724 governance finalization
 
