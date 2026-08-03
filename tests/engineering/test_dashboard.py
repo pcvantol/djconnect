@@ -173,6 +173,8 @@ class DashboardStatusTest(unittest.TestCase):
         stylesheet = (root / "dashboard.css").read_text(encoding="utf-8")
         self.assertIn("--report-modal-surface", stylesheet)
         self.assertIn("background:var(--report-modal-surface)", stylesheet)
+        self.assertIn(".execution-history-action{background:#4f453c", stylesheet)
+        self.assertIn(".execution-history-action:hover:not(:disabled){background:#e7b876", stylesheet)
 
     def test_codex_usage_is_shown_only_for_the_displayed_run(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

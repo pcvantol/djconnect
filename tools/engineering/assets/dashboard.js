@@ -2950,7 +2950,7 @@ function renderPromptHistory() {
       if (entry.status === "BLOCKED" && entry.run_id) {
         const retry = document.createElement("button");
         retry.type = "button";
-        retry.className = "predecessor-retry";
+        retry.className = "predecessor-retry execution-history-action";
         retry.textContent = "Retry Execution";
         retry.addEventListener("click", () => submitExecutionRetry(entry));
         action.append(retry);
@@ -2958,7 +2958,7 @@ function renderPromptHistory() {
       if (["BLOCKED", "FAILED", "COMPLETE"].includes(entry.status) && entry.run_id && entry.run_id === latestStatus?.last_executed_run && !isActiveRun(latestStatus)) {
         const dismiss = document.createElement("button");
         dismiss.type = "button";
-        dismiss.className = "predecessor-retry";
+        dismiss.className = "predecessor-retry execution-history-action";
         dismiss.textContent = "Dismiss Execution";
         dismiss.addEventListener("click", () => dismissExecution(entry));
         action.append(dismiss);
