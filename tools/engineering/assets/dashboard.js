@@ -2954,7 +2954,16 @@ function renderPromptHistory() {
         retry.textContent = "Retry Execution";
         retry.addEventListener("click", () => submitExecutionRetry(entry));
         action.append(retry);
-      } else action.textContent = "—";
+      }
+      if (["BLOCKED", "FAILED", "COMPLETE"].includes(entry.status) && entry.run_id) {
+        const dismiss = document.createElement("button");
+        dismiss.type = "button";
+        dismiss.className = "predecessor-retry";
+        dismiss.textContent = "Dismiss Execution";
+        dismiss.addEventListener("click", () => dismissExecution(entry));
+        action.append(dismiss);
+      }
+      if (!action.childElementCount) action.textContent = "—";
       row.append(status, title, executed, commit, report, action);
       body.append(row);
     }
@@ -3652,6 +3661,21 @@ function submitExecutionRetry(entry) {
         return refreshPromptHistory();
       })
       .catch((error) => window.alert(error.message || "Retry Execution kon niet worden gestart."));
+  });
+}
+function dismissExecution(entry) {
+  if (!entry?.run_id) return;
+  confirmDashboardAction(
+    "Dismiss Execution",
+    "Run ID: " + entry.run_id + "\nPrompt title: " + String(entry.title || "Prompttitel niet beschikbaar") + "\nTerminal state: " + String(entry.status || "onbekend") + "\n\nExecution history, reports, telemetry and retry relationships are preserved. Only operational active state is cleared. No engineering work will restart.",
+    "Dismiss Execution",
+    "#8cb4ff",
+  ).then((confirmed) => {
+    if (!confirmed) return;
+    fetch("/api/execution-dismiss", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ run_id: entry.run_id }) })
+      .then(async (response) => ({ ok: response.ok, body: await response.json() }))
+      .then((result) => { if (!result.ok) throw Error(result.body.error || "Dismiss Execution kon niet worden uitgevoerd."); return refreshPromptHistory(); })
+      .catch((error) => window.alert(error.message || "Dismiss Execution kon niet worden uitgevoerd."));
   });
 }
 $("predecessorRetry").addEventListener("click", submitPredecessorRetry);
