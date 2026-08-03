@@ -11,8 +11,9 @@ runtime directories, disk capacity, Codex CLI, telemetry storage, structured
 logging and identity. Failed preflight preserves the Inbox item and starts no
 run. The immutable Prompt History record is
 `docs/history/prompts/2026-08-03-execution-host-preflight-level-1.md`.
-Repository State remains `MERGED_UNRECONCILED` until this dedicated
-Finalization merges.
+Its Finalization PR [#714](https://github.com/pcvantol/djconnect/pull/714)
+merged as `c205c61f82fd9d3c6d6a8130ebebc414274f855c`.
+Repository State: `MERGED_RECONCILED`. Workspace State: `WORKSPACE_READY`.
 
 ## PR #710 governance finalization
 
