@@ -1079,6 +1079,58 @@ class DashboardStatusTest(unittest.TestCase):
                 headers={"Content-Type": "application/json"},
             )
             self.assertEqual(connection.getresponse().status, 400)
+            dismissal = {
+                "run_id": "inbox-blocked",
+                "dismissed": True,
+                "dismissed_at": "2026-08-03T12:01:00+00:00",
+                "dismissed_by": "dashboard_operator",
+            }
+            with (
+                patch("tools.engineering.dashboard.dismiss_execution", return_value=dismissal) as dismiss,
+                patch("tools.engineering.dashboard.log_event") as dismiss_log_event,
+            ):
+                connection.request(
+                    "POST",
+                    "/api/execution-dismiss",
+                    body='{"run_id":"inbox-blocked"}',
+                    headers={"Content-Type": "application/json"},
+                )
+                response = connection.getresponse()
+                self.assertEqual(response.status, 202)
+                self.assertEqual(json.loads(response.read()), dismissal)
+                dismiss.assert_called_once_with(root, "inbox-blocked")
+                dismiss_log_event.assert_any_call(
+                    ANY,
+                    logging.INFO,
+                    "execution_dismissed",
+                    run_id="inbox-blocked",
+                )
+            with patch(
+                "tools.engineering.dashboard.dismiss_execution",
+                side_effect=dashboard.RetrySubmissionError("De uitvoering is nog actief."),
+            ):
+                connection.request(
+                    "POST",
+                    "/api/execution-dismiss",
+                    body='{"run_id":"inbox-active"}',
+                    headers={"Content-Type": "application/json"},
+                )
+                response = connection.getresponse()
+                self.assertEqual(response.status, 409)
+                self.assertEqual(json.loads(response.read()), {"error": "De uitvoering is nog actief."})
+            for body in ("{}", '[]', '{"run_id":1}', '{"run_id":"inbox-blocked","extra":true}'):
+                connection.request(
+                    "POST",
+                    "/api/execution-dismiss",
+                    body=body,
+                    headers={"Content-Type": "application/json"},
+                )
+                response = connection.getresponse()
+                self.assertEqual(response.status, 400)
+                self.assertEqual(
+                    json.loads(response.read()),
+                    {"error": "De uitvoering kan nu niet veilig worden bevestigd."},
+                )
             connection.request(
                 "POST", "/api/rate-limit-reset", body="[]", headers={"Content-Type": "application/json"}
             )
