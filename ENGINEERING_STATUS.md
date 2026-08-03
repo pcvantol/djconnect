@@ -3,6 +3,19 @@
 **Status:** Operational handoff
 **Updated:** 2026-08-03
 
+## PR #713 governance finalization
+
+PR [#713](https://github.com/pcvantol/djconnect/pull/713), **Add Execution
+Host Preflight Level 1**, merged as `ed478840a41dbd3e25f65ebc7a16461a4c7ed99f`.
+The Execution Host now runs fail-closed host-only preflight before an Inbox
+claim, retains compact local evidence and reports the matching result without
+exposing implementation details. Host Preflight Level 1 does not inspect the
+workspace, Git, Engineering Actions, capabilities, missions or Forge. Full
+regression, Engineering Platform validation and browser-dashboard validation
+passed. The next separately scoped increment is Execution Host Preflight Level
+2 (Workspace Preflight). Repository State remains `MERGED_UNRECONCILED` until
+this dedicated Finalization merges.
+
 ## PR #710 governance finalization
 
 PR [#710](https://github.com/pcvantol/djconnect/pull/710), **Separate queue

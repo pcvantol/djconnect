@@ -15,6 +15,17 @@
 
 ## Current position
 
+## PR #713 governance finalization
+
+PR [#713](https://github.com/pcvantol/djconnect/pull/713), **Add Execution
+Host Preflight Level 1**, merged as `ed478840a41dbd3e25f65ebc7a16461a4c7ed99f`.
+Engineering work is now blocked before Inbox claim when the local Execution
+Host is not ready; preflight evidence is compact, local and report-bound.
+No DJConnect Product, Runtime, Release, Deployment or Publication behavior
+changed. Full regression, Engineering Platform validation and browser-dashboard
+validation passed. Repository State remains `MERGED_UNRECONCILED` until this
+dedicated Finalization merges.
+
 ## PR #710 governance finalization
 
 PR [#710](https://github.com/pcvantol/djconnect/pull/710), **Separate queue
