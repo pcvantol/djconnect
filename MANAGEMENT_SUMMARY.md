@@ -15,6 +15,16 @@
 
 ## Current position
 
+## PR #716 governance finalization
+
+PR [#716](https://github.com/pcvantol/djconnect/pull/716), **Add Execution Host
+Workspace Preflight**, merged as `0bf81b152dcbf2c6c0021fcdc27e9e355535980a`.
+Engineering work is now blocked before Inbox claim when the selected workspace
+is not ready. Evidence remains compact, local and report-bound; no DJConnect
+Product, Runtime, Release, Deployment, Publication or Forge behavior changed.
+Its Finalization PR is pending merge. Repository State: `MERGED_UNRECONCILED`.
+Workspace State: `WORKSPACE_CLEANUP_PENDING`.
+
 ## PR #713 governance finalization
 
 PR [#713](https://github.com/pcvantol/djconnect/pull/713), **Add Execution

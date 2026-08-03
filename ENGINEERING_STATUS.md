@@ -3,6 +3,19 @@
 **Status:** Operational handoff
 **Updated:** 2026-08-03
 
+## PR #716 governance finalization
+
+PR [#716](https://github.com/pcvantol/djconnect/pull/716), **Add Execution Host
+Workspace Preflight**, merged as `0bf81b152dcbf2c6c0021fcdc27e9e355535980a`.
+Workspace Preflight now runs after Host Preflight and before every Inbox claim.
+It fail-closes on invalid target resolution, unapproved workspace roots, Git
+metadata access, dirty worktrees, unfinished Git operations and mode-aware
+branch readiness. Compact workspace evidence is retained locally, report-bound
+and dashboard-visible without implementation details. No DJConnect Product,
+Runtime, Release, Deployment, Publication or Forge behavior changed. Its
+Finalization PR is pending merge. Repository State: `MERGED_UNRECONCILED`.
+Workspace State: `WORKSPACE_CLEANUP_PENDING`.
+
 ## PR #713 governance finalization
 
 PR [#713](https://github.com/pcvantol/djconnect/pull/713), **Add Execution

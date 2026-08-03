@@ -2,6 +2,17 @@
 
 Status: active platform-evolution repository
 
+## PR #716 governance finalization
+
+PR [#716](https://github.com/pcvantol/djconnect/pull/716), **Add Execution Host
+Workspace Preflight**, merged as `0bf81b152dcbf2c6c0021fcdc27e9e355535980a`.
+The immutable Prompt History record is
+`docs/history/prompts/2026-08-03-execution-host-preflight-level-2.md`.
+Workspace preflight verifies only target resolution and repository readiness
+before an Inbox claim; it does not validate missions, actions, capabilities or
+Forge. Its Finalization PR is pending merge. Repository State:
+`MERGED_UNRECONCILED`. Workspace State: `WORKSPACE_CLEANUP_PENDING`.
+
 ## PR #713 governance finalization
 
 PR [#713](https://github.com/pcvantol/djconnect/pull/713), **Add Execution
