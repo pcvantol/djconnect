@@ -10,8 +10,9 @@ The immutable Prompt History record is
 `docs/history/prompts/2026-08-03-execution-host-preflight-level-2.md`.
 Workspace preflight verifies only target resolution and repository readiness
 before an Inbox claim; it does not validate missions, actions, capabilities or
-Forge. Its Finalization PR is pending merge. Repository State:
-`MERGED_UNRECONCILED`. Workspace State: `WORKSPACE_CLEANUP_PENDING`.
+Forge. Its Finalization PR [#717](https://github.com/pcvantol/djconnect/pull/717)
+merged as `9f3927d3b11488755f0050572b7305e9a98a3218`. Repository State:
+`MERGED_RECONCILED`. Workspace State: `WORKSPACE_READY`.
 
 ## PR #713 governance finalization
 

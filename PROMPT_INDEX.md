@@ -8,9 +8,11 @@ PR [#716](https://github.com/pcvantol/djconnect/pull/716), **Add Execution Host
 Workspace Preflight**, merged as `0bf81b152dcbf2c6c0021fcdc27e9e355535980a`.
 Its immutable implementation history is
 `docs/history/prompts/2026-08-03-execution-host-preflight-level-2.md`.
-Its Finalization PR is pending merge. Repository State: `MERGED_UNRECONCILED`.
-Workspace State: `WORKSPACE_CLEANUP_PENDING`. The next bounded Engineering
-Platform increment is Execution Host Preflight Level 3 (Capability Preflight).
+Its Finalization PR [#717](https://github.com/pcvantol/djconnect/pull/717)
+merged as `9f3927d3b11488755f0050572b7305e9a98a3218`. Repository State:
+`MERGED_RECONCILED`. Workspace State: `WORKSPACE_READY`. The next bounded
+Engineering Platform increment is Execution Host Preflight Level 3 (Capability
+Preflight).
 
 ## PR #713 governance finalization
 

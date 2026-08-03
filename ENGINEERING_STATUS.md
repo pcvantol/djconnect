@@ -13,8 +13,9 @@ metadata access, dirty worktrees, unfinished Git operations and mode-aware
 branch readiness. Compact workspace evidence is retained locally, report-bound
 and dashboard-visible without implementation details. No DJConnect Product,
 Runtime, Release, Deployment, Publication or Forge behavior changed. Its
-Finalization PR is pending merge. Repository State: `MERGED_UNRECONCILED`.
-Workspace State: `WORKSPACE_CLEANUP_PENDING`.
+Finalization PR [#717](https://github.com/pcvantol/djconnect/pull/717) merged
+as `9f3927d3b11488755f0050572b7305e9a98a3218`. Repository State:
+`MERGED_RECONCILED`. Workspace State: `WORKSPACE_READY`.
 
 ## PR #713 governance finalization
 

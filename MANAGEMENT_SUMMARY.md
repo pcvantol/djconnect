@@ -22,8 +22,9 @@ Workspace Preflight**, merged as `0bf81b152dcbf2c6c0021fcdc27e9e355535980a`.
 Engineering work is now blocked before Inbox claim when the selected workspace
 is not ready. Evidence remains compact, local and report-bound; no DJConnect
 Product, Runtime, Release, Deployment, Publication or Forge behavior changed.
-Its Finalization PR is pending merge. Repository State: `MERGED_UNRECONCILED`.
-Workspace State: `WORKSPACE_CLEANUP_PENDING`.
+Its Finalization PR [#717](https://github.com/pcvantol/djconnect/pull/717)
+merged as `9f3927d3b11488755f0050572b7305e9a98a3218`. Repository State:
+`MERGED_RECONCILED`. Workspace State: `WORKSPACE_READY`.
 
 ## PR #713 governance finalization
 
