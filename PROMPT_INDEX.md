@@ -9,8 +9,9 @@ recovery from execution retry**, merged as
 `8b657af8fc4598b0174ef28d73c8fd55e1953f8f`. Its immutable implementation
 history is
 `docs/history/prompts/2026-08-03-separate-queue-recovery-from-execution-retry.md`.
-The dedicated Finalization is in progress; Repository State remains
-`MERGED_UNRECONCILED` until it merges.
+Its Finalization PR [#711](https://github.com/pcvantol/djconnect/pull/711)
+merged as `47be1014b85953556a56c5d8fb123a5842555f3e`.
+Repository State: `MERGED_RECONCILED`. Workspace State: `WORKSPACE_READY`.
 
 ## PR #707 governance finalization
 

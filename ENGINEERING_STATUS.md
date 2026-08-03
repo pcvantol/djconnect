@@ -13,8 +13,9 @@ for every terminal `BLOCKED` run. Each retry has independent evidence and
 durable retry lineage; original reports, checkpoints and telemetry remain
 immutable. CI, browser validation and the Engineering Platform coverage gate
 passed. No DJConnect Product, Runtime, Release, Deployment or Publication
-behavior changed. Repository State remains `MERGED_UNRECONCILED` until this
-dedicated Finalization merges.
+behavior changed. Its Finalization PR [#711](https://github.com/pcvantol/djconnect/pull/711)
+merged as `47be1014b85953556a56c5d8fb123a5842555f3e`.
+Repository State: `MERGED_RECONCILED`. Workspace State: `WORKSPACE_READY`.
 
 ## PR #707 governance finalization
 
