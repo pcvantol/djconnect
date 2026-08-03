@@ -1175,12 +1175,18 @@ async function loadInitialDashboardStatus() {
 }
 void loadInitialDashboardStatus();
 let e = new EventSource("/api/events");
+let promptHistoryTerminalRun = null;
 e.addEventListener("dashboard", (x) => {
   if (!$("autoRefresh").checked) return;
   try {
     let snapshot = JSON.parse(x.data);
     receivedDashboardServerPush = true;
     dashboardStatusStore.update(snapshot.status, snapshot);
+    const terminalRun = snapshot.status?.last_executed_run;
+    if (terminalRun && terminalRun !== promptHistoryTerminalRun) {
+      promptHistoryTerminalRun = terminalRun;
+      void refreshPromptHistory();
+    }
     humanize();
     checkBuild(snapshot.build_commit);
     $("updateMode").textContent = "Serverpush: verbonden";
@@ -2574,11 +2580,16 @@ updateIndependentLogSortHeaders();
 const LOG_PAGE_SIZE = 50,
   independentLogPageStates = { inbox: 1, dashboard: 1 };
 function filteredComponentLogEntries(component) {
+  updateLogValueFilters();
   const needle = $("logFilter").value.trim().toLocaleLowerCase("nl-NL"),
     level = $("logLevelFilter").value,
+    events = new Set([...$("logEventFilter").selectedOptions].map((option) => option.value)),
+    runs = new Set([...$("logRunFilter").selectedOptions].map((option) => option.value)),
     state = independentLogSortStates[component];
   return componentLogEntries[component]
     .filter((entry) => !level || entry.level === level)
+    .filter((entry) => !events.size || events.has(String(entry.event || "")))
+    .filter((entry) => !runs.size || runs.has(String(entry.run_id || "")))
     .filter(
       (entry) =>
         !needle ||
@@ -2596,6 +2607,16 @@ function filteredComponentLogEntries(component) {
             : String(first).localeCompare(String(second), "nl");
       return state.direction === "asc" ? result : -result;
     });
+}
+function updateLogValueFilters() {
+  const entries = [...componentLogEntries.inbox, ...componentLogEntries.dashboard];
+  for (const [id, key] of [["logEventFilter", "event"], ["logRunFilter", "run_id"]]) {
+    const select = $(id), selected = new Set([...select.selectedOptions].map((option) => option.value));
+    select.replaceChildren();
+    [...new Set(entries.map((entry) => String(entry[key] || "")).filter(Boolean))].sort((a, b) => a.localeCompare(b, "nl")).forEach((value) => {
+      const option = new Option(value, value, false, selected.has(value)); select.add(option);
+    });
+  }
 }
 function renderLogPagination(component, total, pageCount) {
   const navigation = $(component + "LogPagination");
@@ -2681,6 +2702,14 @@ setIndependentLogSort = (component, key) => {
 };
 const renderComponentLogsWithPagination = renderComponentLogs;
 renderComponentLogs = () => renderPaginatedComponentLogs();
+for (const [id, label] of [["logEventFilter", "Gebeurtenis"], ["logRunFilter", "Run-ID"]]) {
+  const control = document.createElement("label"), select = document.createElement("select");
+  select.id = id; select.multiple = true; select.setAttribute("aria-label", label);
+  control.htmlFor = id; control.append(label, select); $("componentLogControls").append(control);
+  select.addEventListener("change", () => { independentLogPageStates.inbox = independentLogPageStates.dashboard = 1; renderComponentLogs(); });
+}
+const refreshLogFilters = updateLogValueFilters;
+updateLogValueFilters = () => { refreshLogFilters(); };
 $("logFilter").addEventListener("input", () => {
   independentLogPageStates.inbox = independentLogPageStates.dashboard = 1;
   renderComponentLogs();

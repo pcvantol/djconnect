@@ -78,6 +78,9 @@ html[data-theme="light"] body{background:#f4f7fb;color:#182230}html[data-theme="
 html[data-theme="light"] .rate-limit-reset{background:#e8fff5;border-color:#259b70;color:#145a42}html[data-theme="light"] .rate-limit-reset:hover{background:#d6f8e8}html[data-theme="light"] :where(button,input,select,textarea,summary,[role="button"],[tabindex]):focus-visible{box-shadow:0 0 0 5px color-mix(in srgb,var(--category-color,#8dc7ff) 24%,transparent)}
 html[data-theme="light"] .log-pagination button{background:#fff;border-color:var(--category-color);color:color-mix(in srgb,var(--category-color) 70%,#182230)}html[data-theme="light"] .log-pagination button:hover:not(:disabled){background:color-mix(in srgb,var(--category-color) 14%,#fff)}html[data-theme="light"] .log-pagination button:disabled{background:color-mix(in srgb,var(--category-color) 12%,#f4f7fb);border-color:color-mix(in srgb,var(--category-color) 48%,#d4deeb);color:color-mix(in srgb,var(--category-color) 45%,#58677b);opacity:1}
 html[data-theme="light"] #technicalDetails .technical-grid>.card{background:#fff!important;color:#182230}html[data-theme="light"] #technicalDetails .technical-grid>.card :is(p,pre,code){color:#182230}
+/* Current-run cards have ID-bearing dark category selectors; explicitly
+   override those higher-specificity rules in light mode. */
+html[data-theme="light"] #currentRun .card{background:#fff!important;color:#182230}html[data-theme="light"] #currentRun .card :is(p,pre,code){color:#182230!important}
 html[data-theme="light"] .platform-health__component-detail,html[data-theme="light"] .platform-health__empty,html[data-theme="light"] .platform-health__summary{color:#182230}
 :is(.theme-toggle,.section-state-toggle)[aria-checked="true"]::before{background:var(--house-style)}.auto-refresh-toggle{font:12px system-ui;min-height:44px;min-width:44px}.auto-refresh-toggle input{appearance:none;background:#4a4a55;border:0;border-radius:999px;cursor:pointer;height:24px;margin:0;position:relative;transition:background .18s ease;width:42px}.auto-refresh-toggle input::after{background:#f7f3ee;border-radius:50%;box-shadow:0 1px 3px #0008;content:"";height:18px;left:3px;position:absolute;top:3px;transform:translateX(0);transition:transform .18s ease;width:18px}.auto-refresh-toggle input:checked{background:var(--house-style)}.auto-refresh-toggle input:checked::after{transform:translateX(18px)}.auto-refresh-toggle input:focus-visible{box-shadow:0 0 0 5px var(--house-style-focus);outline:3px solid var(--house-style);outline-offset:3px}html[data-theme="light"] .auto-refresh-toggle input{background:#4a4a55}html[data-theme="light"] .auto-refresh-toggle input:checked{background:var(--house-style)}
 html[data-theme="light"] .component-modal{background:#d8e1edb8}html[data-theme="light"] .component-modal__panel{background:#fff;color:#182230;box-shadow:0 16px 52px #26395540}html[data-theme="light"] .component-modal dd{color:#182230}html[data-theme="light"] .component-modal__close{background:#fff;color:#3c7411}html[data-theme="light"] .component-modal__close:hover{background:#effbdc}html[data-theme="light"] .component-modal__restart{background:#effbdc;color:#244b12}html[data-theme="light"] .component-modal__restart:hover:not(:disabled){background:#def5bd}html[data-theme="light"] .component-modal__status{color:#415168}
@@ -127,6 +130,7 @@ body{box-sizing:border-box;display:flex;flex-direction:column;height:100dvh;over
 .dashboard-scroll-region{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:0 4px}
 .footer{background:#121217;flex:none;margin:14px 0 0;padding:12px 16px calc(12px + env(safe-area-inset-bottom));position:relative;z-index:15}
 html[data-theme="light"] .footer{background:#f4f7fb}
+html[data-theme="light"] body,html[data-theme="light"] .dashboard-titlebar,html[data-theme="light"] .footer{background:#e8edf4}
 
 /* Keep the reset action light in the light theme while preserving its green affordance. */
 html[data-theme="light"] #rateLimitReset{background:#e8fff5;color:#145a42}
@@ -181,6 +185,7 @@ html[data-theme="dark"] .markdown-copy-wrap :is(.copy.copy--glyph,.download.down
 
 /* Terminal execution actions use the explicit operational acknowledgement palette. */
 #promptHistory .execution-history-action{background:#4f453c;border-color:#e7b876;border-radius:7px;color:#f6f3ef;font:12px system-ui;min-height:32px;min-width:0;padding:5px 9px}#promptHistory .execution-history-action:hover:not(:disabled){background:#e7b876;border-color:#e7b876;color:#17151a}
+html[data-theme="light"] #promptHistory .execution-history-action{background:#fff8ef;border-color:#d68b23;color:#643a13}html[data-theme="light"] #promptHistory .execution-history-action:hover:not(:disabled){background:#e7b876;border-color:#e7b876;color:#17151a}
 #promptHistoryRows .prompt-history-actions{vertical-align:middle}#promptHistoryRows .execution-history-action{margin-top:0}
 
 /* Keep report actions available while a long historical report is being read. */
