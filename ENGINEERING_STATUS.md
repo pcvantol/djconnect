@@ -13,8 +13,10 @@ or descendant scopes, repository allow/deny lists, canonical path checks and
 bounded preflight evidence. Legacy direct-child configuration remains
 fail-closed; Managed execution requirements are unchanged. No unrestricted
 path execution, DJConnect Product, Runtime, Release, Deployment, Publication
-or Forge behavior changed. Its Finalization PR is pending merge. Repository
-State: `MERGED_UNRECONCILED`. Workspace State: `WORKSPACE_CLEANUP_PENDING`.
+or Forge behavior changed. Its Finalization PR
+[#720](https://github.com/pcvantol/djconnect/pull/720) merged as
+`621eb7007445febea08c12b2725b3a2d5611c394`. Repository State:
+`MERGED_RECONCILED`. Workspace State: `WORKSPACE_READY`.
 
 ## PR #716 governance finalization
 

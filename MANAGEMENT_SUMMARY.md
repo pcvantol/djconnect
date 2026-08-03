@@ -23,8 +23,9 @@ workspace authorization**, merged as
 authorize explicitly configured sibling repositories such as Forge without
 weakening Workspace Preflight, Git cleanliness or Managed execution
 governance. No arbitrary-path execution was introduced. Its Finalization PR
-is pending merge. Repository State: `MERGED_UNRECONCILED`. Workspace State:
-`WORKSPACE_CLEANUP_PENDING`.
+[#720](https://github.com/pcvantol/djconnect/pull/720) merged as
+`621eb7007445febea08c12b2725b3a2d5611c394`. Repository State:
+`MERGED_RECONCILED`. Workspace State: `WORKSPACE_READY`.
 
 ## PR #716 governance finalization
 
