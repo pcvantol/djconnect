@@ -12,8 +12,9 @@ for this PR only. No immutable Prompt History record is reconstructed and the
 exception does not extend to another increment. Engineering Reports now separate
 Execution Host and Target Repository identity and expose a terminal Evidence
 Bundle; Product, Runtime, Release, Deployment and Publication behavior remain
-unchanged. Repository State remains
-`MERGED_UNRECONCILED` until this dedicated Finalization merges.
+unchanged. Its Finalization PR [#708](https://github.com/pcvantol/djconnect/pull/708)
+merged as `56216df879250ce9d17c64d0c78d8c71462d2fe9`.
+Repository State: `MERGED_RECONCILED`. Workspace State: `WORKSPACE_READY`.
 
 ## Rolling Horizon (Execution Horizon — Next 5 Planned)
 
