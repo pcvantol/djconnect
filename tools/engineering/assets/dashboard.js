@@ -2922,6 +2922,7 @@ function renderPromptHistory() {
         report = document.createElement("td"),
         action = document.createElement("td"),
         timestamp = Date.parse(String(entry.executed_at || ""));
+      action.className = "prompt-history-actions";
       status.className =
         "prompt-history-status prompt-history-status--" +
         String(entry.status || "").toLocaleLowerCase("nl-NL");
