@@ -3028,7 +3028,8 @@ renderPaginatedComponentLogs = () => {
   updateIndependentLogSortHeaders();
 };
 renderComponentLogs();
-const DASHBOARD_CLIENT_STATE_KEY = "engineering-dashboard-client-state-v1";
+const DASHBOARD_CLIENT_STATE_KEY = "engineering-dashboard-client-state-v1",
+  ALL_SECTIONS_STATE_KEY = "engineering-dashboard-all-sections-open-v1";
 function loadDashboardClientState() {
   try {
     const stored = JSON.parse(
@@ -3040,6 +3041,30 @@ function loadDashboardClientState() {
   }
 }
 const dashboardClientState = loadDashboardClientState();
+function loadAllSectionsIntent() {
+  try {
+    const stored = localStorage.getItem(ALL_SECTIONS_STATE_KEY);
+    if (stored === "true" || stored === "false") return stored === "true";
+  } catch {}
+  return typeof dashboardClientState.allSectionsOpen === "boolean"
+    ? dashboardClientState.allSectionsOpen
+    : null;
+}
+let allSectionsIntent = loadAllSectionsIntent();
+function saveAllSectionsIntent(open) {
+  allSectionsIntent = open;
+  dashboardClientState.allSectionsOpen = open;
+  try {
+    localStorage.setItem(ALL_SECTIONS_STATE_KEY, String(open));
+  } catch {}
+}
+function clearAllSectionsIntent() {
+  allSectionsIntent = null;
+  delete dashboardClientState.allSectionsOpen;
+  try {
+    localStorage.removeItem(ALL_SECTIONS_STATE_KEY);
+  } catch {}
+}
 function saveDashboardClientState() {
   try {
     localStorage.setItem(
@@ -3051,7 +3076,9 @@ function saveDashboardClientState() {
 function restoreDashboardDetails(root = document) {
   const details = dashboardClientState.details || {};
   root.querySelectorAll?.("details[id]").forEach((element) => {
-    if (Object.hasOwn(details, element.id))
+    if (typeof allSectionsIntent === "boolean")
+      element.open = allSectionsIntent;
+    else if (Object.hasOwn(details, element.id))
       element.open = Boolean(details[element.id]);
   });
 }
@@ -3099,7 +3126,7 @@ function setAllSections(open) {
     details[category.id] = open;
   }
   dashboardClientState.details = details;
-  dashboardClientState.allSectionsOpen = open;
+  saveAllSectionsIntent(open);
   saveDashboardClientState();
   updateAllSectionsToggle();
 }
@@ -3129,15 +3156,16 @@ document.addEventListener(
   },
   true,
 );
-function clearAllSectionsIntent(event) {
+function clearAllSectionsIntentFromManualToggle(event) {
   const summary = event.target.closest?.("details[id] > summary");
   if (!summary) return;
-  delete dashboardClientState.allSectionsOpen;
+  clearAllSectionsIntent();
   saveDashboardClientState();
 }
-document.addEventListener("click", clearAllSectionsIntent);
+document.addEventListener("click", clearAllSectionsIntentFromManualToggle);
 document.addEventListener("keydown", (event) => {
-  if (event.key === "Enter" || event.key === " ") clearAllSectionsIntent(event);
+  if (event.key === "Enter" || event.key === " ")
+    clearAllSectionsIntentFromManualToggle(event);
 });
 
 for (const component of ["inbox", "dashboard"]) {
@@ -3230,8 +3258,7 @@ if (
     dashboardClientState.details.promptHistory,
   );
 dashboardCategoryIds.splice(2, 0, "promptHistory");
-if (typeof dashboardClientState.allSectionsOpen === "boolean")
-  setAllSections(dashboardClientState.allSectionsOpen);
+if (typeof allSectionsIntent === "boolean") setAllSections(allSectionsIntent);
 updateAllSectionsToggle();
 const themeToggle = $("themeToggle"),
   themeColor = $("dashboardThemeColor");
