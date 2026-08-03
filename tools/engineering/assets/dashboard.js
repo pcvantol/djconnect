@@ -1031,6 +1031,7 @@ function renderHealthStatus(x, snapshot = {}) {
   );
   const preflight = snapshot.host_preflight || {};
   const workspacePreflight = snapshot.workspace_preflight || {};
+  const capabilityPreflight = snapshot.capability_preflight || {};
   const executionHost = snapshot.execution_host || {};
   $("executionHostName").textContent = executionHost.name || "Niet beschikbaar";
   $("executionHostVersion").textContent = executionHost.version || "Niet beschikbaar";
@@ -1040,6 +1041,10 @@ function renderHealthStatus(x, snapshot = {}) {
   $("hostPreflightTimestamp").textContent = preflight.timestamp || "Nog niet uitgevoerd";
   $("workspacePreflightStatus").textContent = workspacePreflight.outcome || "Niet beschikbaar";
   $("workspacePreflightTimestamp").textContent = workspacePreflight.timestamp || "Nog niet uitgevoerd";
+  $("capabilityPreflightStatus").textContent = capabilityPreflight.outcome || "Niet beschikbaar";
+  $("capabilityRecoverability").textContent = capabilityPreflight.recoverability || "Niet beschikbaar";
+  $("capabilityFailureOrigin").textContent = capabilityPreflight.failure_origin || "—";
+  $("capabilityRecommendation").textContent = capabilityPreflight.recommendation || "Niet beschikbaar";
   promptStarted(snapshot.prompt_started);
   renderEstimate(x);
   processMetrics(active, snapshot.process_metrics);
