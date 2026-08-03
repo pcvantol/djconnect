@@ -10,8 +10,9 @@ engineering storage schema**, merged as
 record is
 `docs/history/prompts/2026-08-03-storage-schema-runner-compatibility.md`.
 The runner now accepts the current repository storage schema before execution
-begins. Its Finalization PR is pending merge. Repository State:
-`MERGED_UNRECONCILED`. Workspace State: `WORKSPACE_CLEANUP_PENDING`.
+begins. Its Finalization PR [#728](https://github.com/pcvantol/djconnect/pull/728)
+merged as `3937e7d49d9e5181bf8d01b140fbfb1017af9c95`. Repository State:
+`MERGED_RECONCILED`. Workspace State: `WORKSPACE_READY`.
 
 ## PR #724 governance finalization
 

@@ -23,8 +23,9 @@ engineering storage schema**, merged as
 repository storage-schema contract, and a regression test prevents a future
 manifest/runner divergence. This changes only local Execution Host
 compatibility; Forge, product and runtime engineering remain unchanged. Its
-Finalization PR is pending merge. Repository State: `MERGED_UNRECONCILED`.
-Workspace State: `WORKSPACE_CLEANUP_PENDING`.
+Finalization PR [#728](https://github.com/pcvantol/djconnect/pull/728) merged
+as `3937e7d49d9e5181bf8d01b140fbfb1017af9c95`. Repository State:
+`MERGED_RECONCILED`. Workspace State: `WORKSPACE_READY`.
 
 ## PR #724 governance finalization
 
