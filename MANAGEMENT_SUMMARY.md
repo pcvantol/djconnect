@@ -22,9 +22,10 @@ execution dismiss**, merged as
 `3155283f8f7d9ae8aa2f9e05bb39d9aa149d8274`. Dismiss is an operator
 acknowledgement that clears only the active operational lifecycle after a
 terminal execution; it does not retry engineering, alter queues, delete
-evidence or change repository truth. Its Finalization PR is pending merge.
-Repository State: `MERGED_UNRECONCILED`. Workspace State:
-`WORKSPACE_CLEANUP_PENDING`.
+evidence or change repository truth. Its Finalization PR
+[#725](https://github.com/pcvantol/djconnect/pull/725) merged as
+`4f0c48264b763cc3bdc0f94d403d2bc90141df58`. Repository State:
+`MERGED_RECONCILED`. Workspace State: `WORKSPACE_READY`.
 
 ## PR #722 governance finalization
 

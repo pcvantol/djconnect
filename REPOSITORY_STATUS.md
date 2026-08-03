@@ -9,9 +9,10 @@ execution dismiss**, merged as
 `3155283f8f7d9ae8aa2f9e05bb39d9aa149d8274`. The immutable Prompt History
 record is `docs/history/prompts/2026-08-03-terminal-execution-dismiss.md`.
 Dismiss preserves execution evidence and repository truth while ending only
-the active operational lifecycle. Its Finalization PR is pending merge.
-Repository State: `MERGED_UNRECONCILED`. Workspace State:
-`WORKSPACE_CLEANUP_PENDING`.
+the active operational lifecycle. Its Finalization PR
+[#725](https://github.com/pcvantol/djconnect/pull/725) merged as
+`4f0c48264b763cc3bdc0f94d403d2bc90141df58`. Repository State:
+`MERGED_RECONCILED`. Workspace State: `WORKSPACE_READY`.
 
 ## PR #722 governance finalization
 

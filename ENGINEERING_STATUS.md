@@ -11,8 +11,9 @@ execution dismiss**, merged as
 operator a confirmed Dismiss action for the current terminal execution. Dismiss
 clears operational attention only: reports, telemetry, prompt history, retry
 lineage and repository truth remain immutable. It is distinct from Retry and
-Queue Recovery. Its Finalization PR is pending merge. Repository State:
-`MERGED_UNRECONCILED`. Workspace State: `WORKSPACE_CLEANUP_PENDING`.
+Queue Recovery. Its Finalization PR [#725](https://github.com/pcvantol/djconnect/pull/725)
+merged as `4f0c48264b763cc3bdc0f94d403d2bc90141df58`. Repository State:
+`MERGED_RECONCILED`. Workspace State: `WORKSPACE_READY`.
 
 ## PR #722 governance finalization
 
