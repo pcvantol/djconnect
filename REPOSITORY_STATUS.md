@@ -2,16 +2,16 @@
 
 Status: active platform-evolution repository
 
-## PR #704 governance finalization
+## PR #707 governance finalization
 
-PR [#704](https://github.com/pcvantol/djconnect/pull/704), **Enhance
-Engineering Platform execution host**, merged as
-`685539daaa8598b8cf5f54e187ffafcb00dc82f7`. The owner has explicitly approved
-a narrowly limited historical traceability exception for this PR only. No
-immutable Prompt History record was available, no prompt has been reconstructed,
-and no historical exception has been extended. Engineering Platform 1.5 was
-expanded as a local Execution Host without changing DJConnect Product, Runtime,
-Release, Deployment or Publication behavior. Repository State remains
+PR [#707](https://github.com/pcvantol/djconnect/pull/707), **Improve Engineering
+Report evidence**, merged as `822259178d05fcb9c0b40d82395356da183354ab`. The
+owner explicitly approved a narrowly limited historical traceability exception
+for this PR only. No immutable Prompt History record is reconstructed and the
+exception does not extend to another increment. Engineering Reports now separate
+Execution Host and Target Repository identity and expose a terminal Evidence
+Bundle; Product, Runtime, Release, Deployment and Publication behavior remain
+unchanged. Repository State remains
 `MERGED_UNRECONCILED` until this dedicated Finalization merges.
 
 ## Rolling Horizon (Execution Horizon — Next 5 Planned)
