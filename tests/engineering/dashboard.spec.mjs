@@ -209,6 +209,25 @@ test.describe("Engineering Status browser smoke", () => {
     }
   });
 
+  test("uses the prompt title column to fill available history table space", async ({ page }) => {
+    await page.setViewportSize({ width: 1600, height: 900 });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => { document.querySelector("#promptHistory").open = true; });
+    const layout = await page.locator("#promptHistory .log-table-wrap").evaluate((wrap) => {
+      const table = wrap.querySelector("table");
+      const titleHeader = table.querySelector("th:nth-child(2)");
+      const statusHeader = table.querySelector("th:nth-child(1)");
+      return {
+        wrapWidth: Math.round(wrap.getBoundingClientRect().width),
+        tableWidth: Math.round(table.getBoundingClientRect().width),
+        titleWidth: Math.round(titleHeader.getBoundingClientRect().width),
+        statusWidth: Math.round(statusHeader.getBoundingClientRect().width),
+      };
+    });
+    expect(layout.tableWidth).toBeGreaterThanOrEqual(layout.wrapWidth - 2);
+    expect(layout.titleWidth).toBeGreaterThan(layout.statusWidth * 3);
+  });
+
   test("localizes capability preflight recommendations", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     expect(await page.evaluate(() => capabilityRecommendation("Capability admission passed."))).toBe(
