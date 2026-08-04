@@ -478,7 +478,7 @@ test.describe("Engineering Status browser smoke", () => {
 
   test("allows the AI question field to grow only vertically", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
-    await page.locator("#codexChat").evaluate((element) => { element.open = true; });
+    await page.locator("#promptHistoryChatModal").evaluate((element) => element.showModal());
     await expect(page.locator("#chatInput")).toHaveCSS("resize", "vertical");
   });
 
@@ -758,7 +758,6 @@ test.describe("Engineering Status browser smoke", () => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
 
     for (const button of [
-      page.locator("#downloadChat"),
       page.getByTestId("download-inbox-log"),
       page.getByTestId("download-dashboard-log"),
     ]) {
@@ -768,10 +767,9 @@ test.describe("Engineering Status browser smoke", () => {
     }
   });
 
-  test("fills the chat download glyph with its purple category on hover", async ({ page }) => {
+  test("fills the prompt-scoped chat download glyph with its purple category on hover", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
-    await page.locator("#dashboardSplash").evaluate((element) => { element.hidden = true; });
-    await page.locator("#codexChat").evaluate((element) => { element.open = true; });
+    await page.locator("#promptHistoryChatModal").evaluate((element) => element.showModal());
     const download = page.locator("#downloadChat");
     await page.addStyleTag({ content: "#downloadChat[hidden]{display:flex!important}" });
 
@@ -780,10 +778,9 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(download).toHaveCSS("color", "rgb(23, 21, 26)");
   });
 
-  test("fills the AI question send action with its purple category on hover", async ({ page }) => {
+  test("fills the prompt-scoped AI question send action with its purple category on hover", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
-    await page.locator("#dashboardSplash").evaluate((element) => { element.hidden = true; });
-    await page.locator("#codexChat").evaluate((element) => { element.open = true; });
+    await page.locator("#promptHistoryChatModal").evaluate((element) => element.showModal());
     const send = page.locator("#chatSend");
 
     await send.hover();
@@ -795,11 +792,11 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(send).toHaveCSS("color", "rgb(23, 21, 26)");
   });
 
-  test("uses a light resting surface for the chat clear glyph in light mode", async ({ page }) => {
+  test("uses a light resting surface for the prompt-scoped chat clear glyph in light mode", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.getByTestId("theme-toggle").click();
     await page.evaluate(() => {
-      document.querySelector("#codexChat").open = true;
+      document.querySelector("#promptHistoryChatModal").showModal();
       document.querySelector("#clearChat").hidden = false;
     });
     const clear = page.locator("#clearChat");
@@ -1068,8 +1065,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#workspaceCard > summary .category-icon")).toHaveText("⌂");
     await expect(page.locator("#rateLimits > summary .category-icon")).toHaveText("◔");
     await expect(page.locator("#componentLogs > summary .category-icon")).toHaveText("≡");
-    await expect(page.locator("#codexChat > summary .category-icon")).toHaveText("✦");
-    for (const selector of ["#workspaceCard > summary", "#queueItems > summary", "#rateLimits > summary", "#componentLogs > summary", "#codexChat > summary"]) {
+    for (const selector of ["#workspaceCard > summary", "#queueItems > summary", "#rateLimits > summary", "#componentLogs > summary"]) {
       expect(await page.locator(selector).evaluate((summary) => getComputedStyle(summary, "::before").right)).toBe("0px");
     }
     await expect(page.locator(".current-run__category-description")).toHaveText("De actieve engineeringprompt, met actuele voortgang, uitvoeringstijd en uitvoeringscontext.");
@@ -1079,10 +1075,6 @@ test.describe("Engineering Status browser smoke", () => {
     await page.evaluate(() => showCopyToast());
     await expect(page.getByTestId("copy-toast")).toHaveText("Gekopieerd naar klembord");
     await expect(page.getByTestId("copy-toast")).toHaveClass(/copy-toast--visible/);
-    const collapsedCategoryHeights = await page.evaluate(() => [
-      "platformHealth", "codexChat", "technicalDetails", "componentLogs",
-    ].map((id) => document.getElementById(id).getBoundingClientRect().height));
-    expect(Math.max(...collapsedCategoryHeights) - Math.min(...collapsedCategoryHeights)).toBeLessThan(1);
     await page.locator("#platformHealth").evaluate((element) => { element.open = true; });
     await expect(page.locator(".component-info").first()).toBeVisible();
     await page.locator(".component-info").first().click();
@@ -1112,49 +1104,6 @@ test.describe("Engineering Status browser smoke", () => {
       nested: ["1px", "1px", "1px", "1px"],
     });
     await expect(page.locator("#componentLogControls")).not.toHaveAttribute("hidden", "");
-    const sendButton = page.locator("#chatSend");
-    await expect(sendButton).toHaveCSS("background-color", "rgb(52, 40, 63)");
-    await expect(sendButton).toHaveCSS("border-bottom-left-radius", "8px");
-    expect(await sendButton.evaluate((button) => {
-      const style = getComputedStyle(button);
-      return { bottom: style.bottom, right: style.right };
-    })).toEqual({ bottom: "10px", right: "10px" });
-    await expect(page.locator("#downloadChat")).toHaveAttribute("hidden", "");
-    await expect(page.locator("#codexChat > .category-description")).toHaveText("Stel korte, alleen-lezen vragen over de laatst uitgevoerde prompt en het bijbehorende rapport. Dit start geen engineering of wijzigingen.");
-    await expect(page.locator("#codexChat .estimate-meta")).toHaveCount(0);
-    await page.evaluate(() => {
-      chatHistory = [{ role: "user", text: "Wat zijn de volgende stappen?" }];
-      renderChatHistory();
-    });
-    await expect(page.locator("#downloadChat")).not.toHaveAttribute("hidden", "");
-    await expect(page.locator("#downloadChat")).toHaveText("⇩");
-    expect(await page.locator("#downloadChat").evaluate((element) => getComputedStyle(element).borderRadius)).toBe("50%");
-    expect(await page.locator("#downloadChat").evaluate((element) => getComputedStyle(element, "::before").content)).toContain("↓");
-    await page.evaluate(() => chatMessage("assistant", "Een antwoord."));
-    expect(await page.locator(".chat-message--user .chat-message__body").evaluate((element) => getComputedStyle(element).fontFamily)).toBe(
-      await page.locator(".chat-message--assistant .chat-message__body").evaluate((element) => getComputedStyle(element).fontFamily),
-    );
-    expect(await page.locator("#chatInput").evaluate((element) => getComputedStyle(element).fontFamily)).toBe(
-      await page.locator(".chat-message--assistant .chat-message__body").evaluate((element) => getComputedStyle(element).fontFamily),
-    );
-    await expect(page.locator('label[for="chatInput"]')).toHaveCSS("margin-bottom", "10px");
-    await expect(page.locator(".chat-message__copy")).toHaveCount(2);
-    await expect(page.locator(".chat-message--assistant .chat-message__copy")).toHaveAttribute("aria-label", "Kopieer bericht");
-    await page.locator("#codexChat").evaluate((element) => { element.open = true; });
-    await page.locator(".chat-message--user .chat-message__copy").hover();
-    await expect(page.locator(".chat-message--user .chat-message__copy")).toHaveCSS("background-color", "rgb(141, 199, 255)");
-    await expect(page.locator(".chat-message--user .chat-message__copy")).toHaveCSS("color", "rgb(23, 21, 26)");
-    await page.locator(".chat-message--assistant .chat-message__copy").hover();
-    await expect(page.locator(".chat-message--assistant .chat-message__copy")).toHaveCSS("background-color", "rgb(208, 164, 255)");
-    await expect(page.locator(".chat-message--assistant .chat-message__copy")).toHaveCSS("color", "rgb(23, 21, 26)");
-    await page.evaluate(() => Object.defineProperty(navigator, "clipboard", {
-      configurable: true,
-      value: { writeText: () => Promise.resolve() },
-    }));
-    await page.locator(".chat-message--assistant .chat-message__copy").click();
-    await expect(page.getByTestId("copy-toast")).toHaveText("Gekopieerd naar klembord");
-    await expect(page.getByTestId("copy-toast")).toHaveClass(/copy-toast--visible/);
-    expect(await page.evaluate(() => chatHistoryMarkdown())).toContain("## Jij\n\nWat zijn de volgende stappen?");
   });
 
   test("sorts the two component-log tables independently", async ({ page }) => {
@@ -1410,7 +1359,7 @@ test.describe("Engineering Status browser smoke", () => {
     await toggle.evaluate((button) => button.click());
     await expect(toggle).toHaveAttribute("aria-checked", "true");
     await expect(toggle).toHaveAttribute("aria-label", "Alle secties sluiten");
-    for (const id of ["workspaceCard", "promptHistory", "platformHealth", "codexChat", "technicalDetails", "componentLogs"]) {
+    for (const id of ["workspaceCard", "promptHistory", "platformHealth", "technicalDetails", "componentLogs"]) {
       await expect(page.locator(`#${id}`)).toHaveAttribute("open", "");
     }
 
@@ -1420,7 +1369,7 @@ test.describe("Engineering Status browser smoke", () => {
 
     await toggle.evaluate((button) => button.click());
     await expect(toggle).toHaveAttribute("aria-checked", "false");
-    for (const id of ["workspaceCard", "platformHealth", "codexChat", "technicalDetails", "componentLogs"]) {
+    for (const id of ["workspaceCard", "platformHealth", "technicalDetails", "componentLogs"]) {
       await expect(page.locator(`#${id}`)).not.toHaveAttribute("open", "");
     }
   });
@@ -1628,7 +1577,17 @@ test.describe("Engineering Status browser smoke", () => {
       await route.fulfill({ contentType: "application/json", body: '{"answer":"De uitvoering is gereed.","model":"Codex CLI"}' });
     });
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
-    await page.locator("#codexChat").evaluate((element) => { element.open = true; });
+    await page.evaluate(() => {
+      document.querySelector("#promptHistory").open = true;
+      promptHistoryEntries = [{
+        run_id: "inbox-chat-clear",
+        status: "COMPLETE",
+        title: "Chat clear",
+        executed_at: "2026-08-04T12:00:00Z",
+      }];
+      renderPromptHistory();
+    });
+    await page.locator("#promptHistoryRows .prompt-history-chat").click();
     await page.locator("#chatInput").fill("Wat is de status?");
     await page.locator("#chatSend").click();
 
