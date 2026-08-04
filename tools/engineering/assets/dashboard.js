@@ -3094,6 +3094,12 @@ function promptDetailCard(title, fields, wide = false) {
   card.append(heading, ...fields);
   return card;
 }
+function promptDetailSidebar(cards) {
+  const sidebar = document.createElement("div");
+  sidebar.className = "prompt-detail-sidebar";
+  sidebar.append(...cards.filter(Boolean));
+  return sidebar;
+}
 function promptDetailDuration(value) {
   const seconds = Number(value);
   return Number.isFinite(seconds) && seconds >= 0 ? durationText(seconds) : "—";
@@ -3205,10 +3211,12 @@ function renderPromptHistoryDetail(payload) {
   content.append(
     ...[
       promptDetailExecutionSection(history),
-      promptDetailDurationSection(execution),
-      promptDetailRuntimeSection(runtime),
+      promptDetailSidebar([
+        promptDetailDurationSection(execution),
+        promptDetailRuntimeSection(runtime),
+        promptDetailCommitsSection(commits),
+      ]),
       promptDetailUsageSection(usage),
-      promptDetailCommitsSection(commits),
       promptDetailEvidenceSection(evidence),
       promptDetailReviewersSection(reviewers),
     ].filter(Boolean),
