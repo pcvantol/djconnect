@@ -162,6 +162,22 @@ Object.assign(messages.es, {
   "estimate.historical_context":"Afinado con {count} ejecuciones completadas comparables que usan la misma configuración de ejecución informada.",
 });
 
+Object.assign(messages.en, {
+  "queue_recovery.title":"Resume queue", "queue_recovery.details":"This recovery restores the waiting Inbox order. The original blocked execution remains unchanged.", "queue_recovery.preparing":"Preparing queue recovery…", "queue_recovery.ready":"Queue recovery is ready; the watcher resumes after the replacement execution.", "queue_recovery.failed":"Queue recovery could not be started.",
+});
+Object.assign(messages.nl, {
+  "queue_recovery.title":"Wachtrij hervatten", "queue_recovery.details":"Dit wachtrijherstel herstelt de wachtende Inbox-volgorde. De oorspronkelijke geblokkeerde uitvoering blijft ongewijzigd.", "queue_recovery.preparing":"Wachtrijherstel wordt voorbereid…", "queue_recovery.ready":"Wachtrijherstel staat klaar; de watcher hervat na de vervangende uitvoering.", "queue_recovery.failed":"Wachtrijherstel kon niet worden gestart.",
+});
+Object.assign(messages.de, {
+  "queue_recovery.title":"Warteschlange fortsetzen", "queue_recovery.details":"Diese Wiederherstellung stellt die wartende Inbox-Reihenfolge wieder her. Die ursprüngliche blockierte Ausführung bleibt unverändert.", "queue_recovery.preparing":"Warteschlangenwiederherstellung wird vorbereitet…", "queue_recovery.ready":"Die Warteschlangenwiederherstellung ist bereit; der Watcher setzt nach der Ersatzausführung fort.", "queue_recovery.failed":"Die Warteschlangenwiederherstellung konnte nicht gestartet werden.",
+});
+Object.assign(messages.fr, {
+  "queue_recovery.title":"Reprendre la file", "queue_recovery.details":"Cette récupération rétablit l’ordre d’attente de la boîte de réception. L’exécution bloquée d’origine reste inchangée.", "queue_recovery.preparing":"Préparation de la récupération de la file…", "queue_recovery.ready":"La récupération de la file est prête ; le surveillant reprendra après l’exécution de remplacement.", "queue_recovery.failed":"La récupération de la file n’a pas pu démarrer.",
+});
+Object.assign(messages.es, {
+  "queue_recovery.title":"Reanudar cola", "queue_recovery.details":"Esta recuperación restablece el orden de espera de la bandeja de entrada. La ejecución bloqueada original no cambia.", "queue_recovery.preparing":"Preparando la recuperación de la cola…", "queue_recovery.ready":"La recuperación de la cola está lista; el monitor se reanudará después de la ejecución de reemplazo.", "queue_recovery.failed":"No se pudo iniciar la recuperación de la cola.",
+});
+
 export function normalizeLocale(value) {
   const candidate = String(value || "").toLowerCase().split("-")[0];
   return SUPPORTED_LOCALES.includes(candidate) ? candidate : "en";

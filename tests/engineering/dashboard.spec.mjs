@@ -102,20 +102,21 @@ test.describe("Engineering Status browser smoke", () => {
 
   test("changes visible interface copy for each supported language", async ({ page }) => {
     const expectations = [
-      ["en", "Language", "Refresh automatically", "AI analysis", "Passed", "Execution"],
-      ["nl", "Taal", "Automatisch vernieuwen", "AI-analyse", "Geslaagd", "Uitvoering"],
-      ["de", "Sprache", "Automatisch aktualisieren", "KI-Analyse", "Erfolgreich", "Ausführung"],
-      ["fr", "Langue", "Actualiser automatiquement", "Analyse IA", "Réussi", "Exécution"],
-      ["es", "Idioma", "Actualizar automáticamente", "Análisis de IA", "Superado", "Ejecución"],
+      ["en", "Language", "Refresh automatically", "AI analysis", "Passed", "Execution", "Resume Queue"],
+      ["nl", "Taal", "Automatisch vernieuwen", "AI-analyse", "Geslaagd", "Uitvoering", "Wachtrij hervatten"],
+      ["de", "Sprache", "Automatisch aktualisieren", "KI-Analyse", "Erfolgreich", "Ausführung", "Warteschlange fortsetzen"],
+      ["fr", "Langue", "Actualiser automatiquement", "Analyse IA", "Réussi", "Exécution", "Reprendre la file"],
+      ["es", "Idioma", "Actualizar automáticamente", "Análisis de IA", "Superado", "Ejecución", "Reanudar cola"],
     ];
 
-    for (const [language, localeLabel, refreshLabel, analysisLabel, passLabel, detailTitle] of expectations) {
+    for (const [language, localeLabel, refreshLabel, analysisLabel, passLabel, detailTitle, queueAction] of expectations) {
       await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
       await page.locator("#dashboardLocale").selectOption(language);
       await expect(page.locator("html")).toHaveAttribute("lang", language);
       await expect(page.locator(".dashboard-locale span")).toHaveText(localeLabel);
       await expect(page.locator(".auto-refresh-toggle span")).toHaveText(refreshLabel);
       await expect(page.locator("#promptHistoryAnalysisHeader")).toHaveText(analysisLabel);
+      await expect(page.locator("#predecessorRetry")).toHaveText(queueAction);
       expect(await page.evaluate(() => enumLabel("PASS"))).toBe(passLabel);
       await page.evaluate(() => renderPromptHistoryDetail({
         history: { run_id: "inbox-localization", status: "COMPLETE", title: "Prompt", executed_at: "2026-08-03T20:53:29Z" },

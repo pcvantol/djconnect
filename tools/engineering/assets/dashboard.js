@@ -2427,6 +2427,7 @@ function applyDashboardLocale() {
     [".dashboard-locale span", "language.label"],
     ["#confirmationModalCancel", "action.cancel"],
     ["#confirmationModalConfirm", "action.confirm"],
+    ["#predecessorRetry", "action.resume_queue"],
     ["#promptHistoryAnalysisHeader", "table.analysis"],
     ["#promptHistoryChatHeader", "table.chat"],
   ];
@@ -3046,13 +3047,13 @@ function submitPredecessorRetry() {
     run = latestStatus?.blocking_predecessor_run;
   if (!run || button.disabled) return;
   confirmDashboardAction(
-    "Resume Queue",
-    "Deze queue recovery herstelt de wachtende Inbox-volgorde. De oorspronkelijke geblokkeerde uitvoering blijft onveranderd.",
-    "Resume Queue",
+    t("queue_recovery.title"),
+    t("queue_recovery.details"),
+    t("action.resume_queue"),
   ).then((confirmed) => {
     if (!confirmed) return;
     button.disabled = true;
-    status.textContent = "Queue recovery wordt klaargezet…";
+    status.textContent = t("queue_recovery.preparing");
     fetch("/api/queue-recovery", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -3065,14 +3066,14 @@ function submitPredecessorRetry() {
       .then((result) => {
         if (!result.ok)
           throw Error(
-            result.body.error || "Queue recovery kon niet worden gestart.",
+            result.body.error || t("queue_recovery.failed"),
           );
         status.textContent =
-          "Queue recovery staat klaar; de watcher hervat na de vervangende uitvoering.";
+          t("queue_recovery.ready");
       })
       .catch((error) => {
         status.textContent =
-          error.message || "Queue recovery kon niet worden gestart.";
+          error.message || t("queue_recovery.failed");
       })
       .finally(() => {
         button.disabled = false;
