@@ -1385,6 +1385,7 @@ test.describe("Engineering Status browser smoke", () => {
   });
 
   test("keeps the copy toast above an open report modal", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.evaluate(() => {
       document.querySelector("#promptHistoryReportModal").showModal();
@@ -1395,6 +1396,12 @@ test.describe("Engineering Status browser smoke", () => {
     expect(await page.getByTestId("copy-toast").evaluate(
       (toast) => toast.matches(":popover-open"),
     )).toBeTruthy();
+    const box = await page.getByTestId("copy-toast").boundingBox();
+    expect(box).not.toBeNull();
+    expect(box.x).toBeGreaterThanOrEqual(0);
+    expect(box.x + box.width).toBeLessThanOrEqual(390);
+    expect(box.y).toBeGreaterThanOrEqual(0);
+    expect(box.y + box.height).toBeLessThanOrEqual(844);
   });
 
   test("pads title bar content evenly from both horizontal edges", async ({ page }) => {
