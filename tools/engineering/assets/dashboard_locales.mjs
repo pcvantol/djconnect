@@ -264,6 +264,21 @@ Object.assign(messages.fr, {
 Object.assign(messages.es, {
   "table.status":"Estado", "table.prompt_title":"Título del prompt", "table.executed_at":"Ejecutado el", "history.table_label":"Historial de prompts",
 });
+Object.assign(messages.en, {
+  "logs.page":"Page {page} of {pages} · {count} entries", "logs.no_entries":"No log entries",
+});
+Object.assign(messages.nl, {
+  "logs.page":"Pagina {page} van {pages} · {count} regels", "logs.no_entries":"Geen logregels",
+});
+Object.assign(messages.de, {
+  "logs.page":"Seite {page} von {pages} · {count} Einträge", "logs.no_entries":"Keine Protokolleinträge",
+});
+Object.assign(messages.fr, {
+  "logs.page":"Page {page} sur {pages} · {count} entrées", "logs.no_entries":"Aucune entrée de journal",
+});
+Object.assign(messages.es, {
+  "logs.page":"Página {page} de {pages} · {count} entradas", "logs.no_entries":"No hay entradas de registro",
+});
 
 export function normalizeLocale(value) {
   const candidate = String(value || "").toLowerCase().split("-")[0];

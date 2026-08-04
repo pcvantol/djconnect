@@ -990,6 +990,7 @@ function localizeLogControls() {
   setControlLabel("label[for=promptHistoryFilter]", "filter.search");
   setControlLabel("label[for=logFilter]", "filter.search");
   setControlLabel("label[for=logLevelFilter]", "filter.level");
+  setControlLabel("label[for=logEventFilter]", "table.event");
   ["promptHistoryFilter", "logFilter"].forEach((id) => {
     const input = $(id);
     if (input) input.placeholder = t("filter.search_placeholder");
@@ -1002,6 +1003,12 @@ function localizeLogControls() {
     const option = document.querySelector(`#logLevelFilter option[value="${value}"]`);
     if (option) option.textContent = t(key);
   });
+  const reset = document.querySelector(".reset-log-filters");
+  if (reset) {
+    const label = t("action.reset_log_filters");
+    reset.title = label;
+    reset.setAttribute("aria-label", label);
+  }
 }
 function localizePromptHistoryTable() {
   const headers = [
@@ -1953,11 +1960,11 @@ function renderLogPagination(component, total, pageCount) {
   independentLogPageStates[component] = page;
   summary.className = "log-pagination__summary";
   summary.textContent = total
-    ? "Pagina " + page + " van " + pageCount + " · " + total + " regels"
-    : "Geen logregels";
+    ? t("logs.page", { page, pages: pageCount, count: total })
+    : t("logs.no_entries");
   previous.type = next.type = "button";
-  previous.textContent = "Vorige";
-  next.textContent = "Volgende";
+  previous.textContent = t("history.previous");
+  next.textContent = t("history.next");
   previous.disabled = page <= 1;
   next.disabled = page >= pageCount;
   previous.addEventListener("click", () => {
@@ -1971,6 +1978,7 @@ function renderLogPagination(component, total, pageCount) {
   navigation.append(summary, previous, next);
 }
 function renderComponentLogs() {
+  localizeLogControls();
   updateLogValueFilters();
   for (const component of ["inbox", "dashboard"]) {
     const rows = filteredComponentLogEntries(component),
