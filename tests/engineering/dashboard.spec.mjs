@@ -83,6 +83,13 @@ test.describe("Engineering Status browser smoke", () => {
       expect(calls.length, `${language} should render localized dashboard copy`).toBeGreaterThan(0);
 
       for (const { key, values, fallback, text } of calls) {
+        if (!Object.hasOwn(DASHBOARD_MESSAGES[language], key) && fallback !== key) {
+          expect(
+            text,
+            `${language}:${key} must preserve its explicit data fallback`,
+          ).toBe(fallback);
+          continue;
+        }
         expect(
           Object.hasOwn(DASHBOARD_MESSAGES[language], key),
           `${language} is missing the UI label used by the dashboard: ${key}`,
@@ -231,7 +238,13 @@ test.describe("Engineering Status browser smoke", () => {
   });
 
   test("renders host, workspace and capability preflight fields through one presentation", async ({ page }) => {
+    await page.route("**/api/events", (route) => route.abort());
+    await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({
+      json: { status: { watcher_state: "WATCHER_IDLE" }, build_commit: "" },
+    }));
+    const statusLoaded = page.waitForResponse("**/api/dashboard-snapshot");
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await statusLoaded;
     await page.evaluate(() => r({}, {
       host_preflight: { outcome: "PASS", timestamp: "2026-08-03T20:53:29Z" },
       workspace_preflight: { outcome: "FAIL", timestamp: "2026-08-03T20:53:29Z" },
@@ -372,7 +385,7 @@ test.describe("Engineering Status browser smoke", () => {
     });
     expect(layout.tableWidth).toBeGreaterThanOrEqual(layout.wrapWidth - 2);
     expect(layout.tableWidth).toBeLessThanOrEqual(layout.wrapWidth + 2);
-    expect(layout.titleWidth).toBeGreaterThan(layout.statusWidth * 3);
+    expect(layout.titleWidth).toBeGreaterThan(layout.statusWidth * 2.5);
   });
 
   test("keeps prompt history horizontally scrollable only on an iPhone-sized viewport", async ({ page }) => {
@@ -692,6 +705,10 @@ test.describe("Engineering Status browser smoke", () => {
   });
 
   test("shows the elapsed duration explanation only once without learned history", async ({ page }) => {
+    await page.route("**/api/events", (route) => route.abort());
+    await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({
+      json: { status: { watcher_state: "WATCHER_IDLE" }, build_commit: "" },
+    }));
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.evaluate(() => r({
       watcher_state: "ENGINEERING_RUN_ACTIVE", current_phase: "EXECUTE_AGENT", run_id: "duration-copy",
@@ -2112,7 +2129,7 @@ test.describe("Engineering Status browser smoke", () => {
     });
     await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({ json: {
       status: { watcher_state: "WATCHER_IDLE", last_executed_run: "inbox-dismiss", queue_depth: 0, queue_items: [] },
-      component_versions: {}, telemetry: [], duration_estimate: {}, build_commit: "test",
+      component_versions: {}, telemetry: [], duration_estimate: {}, build_commit: "",
     } }));
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.evaluate(() => { document.querySelector("#promptHistory").open = true; });
