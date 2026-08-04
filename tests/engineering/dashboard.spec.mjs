@@ -1408,6 +1408,18 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator(".prompt-history-status--failed")).toHaveCSS("color", "rgb(180, 35, 64)");
   });
 
+  test("retains severity colours in the light component-log table", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#themeToggle").click();
+    await page.evaluate(() => {
+      document.querySelector("#inboxComponentLog").innerHTML =
+        '<tr><td class="log-level log-level--info">INFO</td><td class="log-level log-level--error">ERROR</td></tr>';
+    });
+
+    await expect(page.locator("#inboxComponentLog .log-level--info").first()).toHaveCSS("color", "rgb(23, 105, 170)");
+    await expect(page.locator("#inboxComponentLog .log-level--error").first()).toHaveCSS("color", "rgb(180, 35, 64)");
+  });
+
   test("uses a light inline-code surface in AI answers when light mode is enabled", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.locator("#themeToggle").click();

@@ -287,6 +287,10 @@ html[data-theme="light"] .confirmation-modal__panel{background:color-mix(in srgb
 /* Terminal-state meaning must survive the broad light-table text color. */
 html[data-theme="light"] #promptHistoryRows .prompt-history-status--complete{color:#14865b!important}html[data-theme="light"] #promptHistoryRows .prompt-history-status--blocked{color:#a65a00!important}html[data-theme="light"] #promptHistoryRows .prompt-history-status--failed{color:#b42340!important}
 
+/* Preserve the meaning carried by log severity colours after the light-table
+   foreground rule makes ordinary table text dark. */
+html[data-theme="light"] .log-level--error{color:#b42340!important}html[data-theme="light"] .log-level--warning{color:#9a5b00!important}html[data-theme="light"] .log-level--info{color:#1769aa!important}html[data-theme="light"] .log-level--debug{color:#566579!important}
+
 /* Advisory chat keeps code readable on a light response surface. */
 html[data-theme="light"] .chat-message__body :is(code,pre){background:#e9eef6;color:#182230}
 
