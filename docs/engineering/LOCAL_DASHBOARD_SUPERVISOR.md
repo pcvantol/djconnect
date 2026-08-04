@@ -174,6 +174,9 @@ the evidence, timing, runtime provenance, token usage, commits and reviewer
 results that belong to that exact Run ID. Engineering reports and advisory AI
 analyses stay separate row actions: they open their own Markdown dialogs and
 can be downloaded without duplicating their content in the detail dialog.
+The dashboard has no separate or hidden **Laatst uitgevoerde prompt** card;
+the selected Promptgeschiedenis row is the canonical presentation of a
+terminal execution.
 The adjacent AI-chat glyph opens a separate near-fullscreen, read-only
 question-and-answer context for that same Run ID. It receives only the selected
 run's bounded evidence and cannot start engineering work or alter repository
