@@ -854,6 +854,27 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(modal).toHaveCSS("box-shadow", "none");
   });
 
+  test("keeps the prompt-detail close action at the top right while scrolling", async ({ page }) => {
+    await page.setViewportSize({ width: 720, height: 360 });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    const modal = page.locator("#promptHistoryDetailModal"),
+      panel = modal.locator(".prompt-detail-modal__panel"),
+      close = page.locator("#promptHistoryDetailClose");
+
+    await modal.evaluate((element) => {
+      document.querySelector("#promptHistoryDetailContent").innerHTML =
+        "<p>Detailregel</p>".repeat(120);
+      element.showModal();
+    });
+    const before = await close.boundingBox();
+    await panel.evaluate((element) => { element.scrollTop = 180; });
+    const after = await close.boundingBox(), panelBox = await panel.boundingBox();
+
+    await expect.poll(() => panel.evaluate((element) => element.scrollTop)).toBe(180);
+    expect(after.y).toBe(before.y);
+    expect(after.x + after.width).toBeGreaterThan(panelBox.x + panelBox.width - 48);
+  });
+
   test("uses light glyphs for all dark report-modal actions", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.evaluate(() => {
