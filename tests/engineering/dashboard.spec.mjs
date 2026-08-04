@@ -396,6 +396,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(description).toHaveText("De actieve werkruimte van dit project.");
     await expect(description).toBeVisible();
     await expect(workspace.locator(":scope > summary")).toHaveCSS("border-bottom-width", "0px");
+    await expect(workspace.locator(":scope > summary")).toHaveCSS("margin-bottom", "0px");
     await workspace.evaluate((element) => { element.open = true; });
     await expect(workspace.locator(":scope > summary")).toHaveCSS("border-bottom-width", "1px");
   });
