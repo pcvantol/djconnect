@@ -334,6 +334,33 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#action")).toHaveText("Codex bewerkt bestanden");
   });
 
+  test("refines the active duration indication with comparable runtime history", async ({ page }) => {
+    await page.route("**/api/events", (route) => route.abort());
+    await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({
+      contentType: "application/json",
+      body: JSON.stringify({ status: { watcher_state: "WATCHER_IDLE" } }),
+    }));
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#autoRefresh").uncheck();
+    await page.evaluate(() => r({
+      watcher_state: "ENGINEERING_RUN_ACTIVE",
+      current_phase: "EXECUTE_AGENT",
+      run_id: "duration-run",
+      prompt_characters: 1000,
+    }, {
+      duration_estimate: {
+        sample_count: 3,
+        lower_seconds: 1800,
+        upper_seconds: 2400,
+      },
+    }));
+
+    await expect(page.locator("#executionEstimate")).toHaveText("Indicatieve totale duur: 22–30 minuten");
+    await expect(page.locator("#executionEstimateMeta")).toContainText(
+      "3 vergelijkbare voltooide uitvoeringen",
+    );
+  });
+
   test("keeps the active prompt category visible for a blocked predecessor", async ({ page }) => {
     await page.route("**/api/events", (route) => route.abort());
     await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({

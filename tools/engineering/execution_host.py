@@ -467,6 +467,7 @@ class CodexCliClient:
         self.last_runtime_metadata: dict[str, str] = {"runtime_provider": "codex_cli"}
         self._activity_callback: Callable[[str], None] | None = None
         self._process_callback: Callable[[dict[str, int] | None], None] | None = None
+        self._runtime_metadata_callback: Callable[[dict[str, str]], None] | None = None
 
     def set_activity_callback(self, callback: Callable[[str], None] | None) -> None:
         """Set the optional local-only sink for safe live activity labels."""
@@ -475,6 +476,12 @@ class CodexCliClient:
     def set_process_callback(self, callback: Callable[[dict[str, int] | None], None] | None) -> None:
         """Set the owned foreground Codex-process sink for runtime metrics."""
         self._process_callback = callback
+
+    def set_runtime_metadata_callback(
+        self, callback: Callable[[dict[str, str]], None] | None
+    ) -> None:
+        """Publish only explicitly reported runtime settings during a live run."""
+        self._runtime_metadata_callback = callback
 
     def available(self) -> bool:
         return self.provider.command("--version").returncode == 0
@@ -675,6 +682,11 @@ class CodexCliClient:
             assert process.stdout is not None
             for line in process.stdout:
                 lines.append(line)
+                observed_metadata = extract_codex_runtime_metadata(line)
+                if len(observed_metadata) > 1:
+                    self.last_runtime_metadata.update(observed_metadata)
+                    if self._runtime_metadata_callback is not None:
+                        self._runtime_metadata_callback(dict(self.last_runtime_metadata))
                 try:
                     activity = project_codex_activity(json.loads(line))
                 except json.JSONDecodeError:
@@ -958,6 +970,12 @@ class EngineeringRunner:
             if hasattr(self.agent, "set_process_callback"):
                 self.agent.set_process_callback(
                     lambda process: write_runner_process(self.root, state.run_id, process)
+                )
+            if hasattr(self.agent, "set_runtime_metadata_callback"):
+                self.agent.set_runtime_metadata_callback(
+                    lambda metadata: write_live_status(
+                        self.root, state, state.next_action, runtime_metadata=metadata
+                    )
                 )
             result = self.agent.invoke(
                 self.root, assemble_prompt(prompt_path, state) + memory + reviewer_context

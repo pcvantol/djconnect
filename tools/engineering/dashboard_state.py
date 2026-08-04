@@ -15,6 +15,7 @@ from .host_preflight import latest as latest_host_preflight
 from .workspace_preflight import latest as latest_workspace_preflight
 from .capability_preflight import latest as latest_capability_preflight
 from .platform_api import PlatformConfigurationError, execution_host_configuration
+from .telemetry import comparable_duration_estimate
 
 
 JsonReader = Callable[[Path], bytes]
@@ -90,6 +91,7 @@ def status(root: Path) -> bytes:
                 "checkout_path": live.get("checkout_path"),
                 "active_branch": live.get("active_branch"),
                 "reviewer_agents": live.get("reviewer_agents", []),
+                "runtime_metadata": live.get("runtime_metadata", {}),
             },
             separators=(",", ":"),
         ).encode()
@@ -155,6 +157,18 @@ def snapshot(
     except Exception:
         telemetry = []
     try:
+        duration_estimate = (
+            comparable_duration_estimate(
+                root,
+                prompt_characters=status_payload.get("prompt_characters"),
+                runtime_metadata=status_payload.get("runtime_metadata"),
+            )
+            if active
+            else {}
+        )
+    except Exception:
+        duration_estimate = {}
+    try:
         identity = execution_host_configuration(root).resolve_execution_host_identity()
         execution_host = {
             "name": identity.name,
@@ -179,6 +193,7 @@ def snapshot(
             "last_executed_runtime_metadata": read_json(runtime_metadata_reader, root, run_id, fallback={}),
             "last_executed_report_analysis_available": report_analysis_available_reader(root, run_id),
             "telemetry": telemetry,
+            "duration_estimate": duration_estimate,
             "process_metrics": read_json(process_metrics_reader, root, fallback={}) if active else {},
             "component_log_versions": component_log_versions_reader(root),
             "component_versions": {"dashboard": dashboard_version, "worker": worker_version},

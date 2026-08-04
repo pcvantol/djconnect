@@ -18,6 +18,7 @@ def write_live_status(
     state: TransactionState,
     action: str,
     reviewer_agents: list[dict[str, object]] | None = None,
+    runtime_metadata: Mapping[str, str] | None = None,
 ) -> Path:
     """Atomically publish the advisory current transaction state."""
     directory = root / ".engineering" / "status"
@@ -42,13 +43,27 @@ def write_live_status(
     except OSError:
         prompt_characters = None
     previous_reviewers: list[dict[str, object]] = []
-    if reviewer_agents is None:
-        try:
-            previous = json.loads(path.read_text(encoding="utf-8"))
-            if previous.get("run_id") == state.run_id and isinstance(previous.get("reviewer_agents"), list):
+    previous_runtime: dict[str, str] = {}
+    try:
+        previous = json.loads(path.read_text(encoding="utf-8"))
+        if previous.get("run_id") == state.run_id:
+            if reviewer_agents is None and isinstance(previous.get("reviewer_agents"), list):
                 previous_reviewers = [item for item in previous["reviewer_agents"] if isinstance(item, dict)]
-        except (OSError, json.JSONDecodeError):
-            pass
+            if runtime_metadata is None and isinstance(previous.get("runtime_metadata"), dict):
+                previous_runtime = {
+                    key: value[:120]
+                    for key, value in previous["runtime_metadata"].items()
+                    if key in {"runtime_provider", "model", "reasoning_profile", "configuration_profile"}
+                    and isinstance(value, str)
+                }
+    except (OSError, json.JSONDecodeError):
+        pass
+    safe_runtime = previous_runtime if runtime_metadata is None else {
+        key: value[:120]
+        for key, value in runtime_metadata.items()
+        if key in {"runtime_provider", "model", "reasoning_profile", "configuration_profile"}
+        and isinstance(value, str)
+    }
     payload = {
         "run_id": state.run_id,
         "phase": state.phase,
@@ -69,6 +84,7 @@ def write_live_status(
         "checkout_path": str(checkout),
         "active_branch": observed_branch or state.branch or "unavailable",
         "reviewer_agents": reviewer_agents if reviewer_agents is not None else previous_reviewers,
+        "runtime_metadata": safe_runtime,
     }
     descriptor, temporary = tempfile.mkstemp(prefix=".current.", suffix=".tmp", dir=directory)
     try:

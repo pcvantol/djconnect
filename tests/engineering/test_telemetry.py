@@ -13,6 +13,7 @@ from tools.engineering.telemetry import (
     ExecutionTelemetry,
     daily_statistics,
     execution_timing,
+    comparable_duration_estimate,
     persist_execution,
     persist_execution_async,
     wait_for_pending_telemetry,
@@ -35,6 +36,11 @@ class ExecutionHostTelemetryTest(unittest.TestCase):
             workspace="djconnect",
             repository="pcvantol/djconnect",
             execution_host_version="1.5.0",
+            prompt_characters=1_000,
+            runtime_provider="codex_cli",
+            runtime_model="gpt-5.6-terra",
+            reasoning_profile="medium",
+            configuration_profile="workspace-write",
         )
 
     def test_persists_generic_execution_runs_and_daily_aggregates(self) -> None:
@@ -102,6 +108,44 @@ class ExecutionHostTelemetryTest(unittest.TestCase):
 
             self.assertTrue(observed.is_set())
             self.assertEqual(str(errors[0]), "storage unavailable")
+
+    def test_duration_estimate_uses_only_complete_runs_with_the_exact_runtime_profile(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            started = datetime(2026, 8, 1, 10, tzinfo=timezone.utc)
+            first = self._record("run-one", "COMPLETE", started)
+            second = self._record("run-two", "COMPLETE", started + timedelta(hours=1))
+            incompatible = self._record("run-three", "COMPLETE", started + timedelta(hours=2))
+            incompatible = ExecutionTelemetry(
+                **{**incompatible.__dict__, "runtime_model": "gpt-5.6-sol"}
+            )
+            persist_execution(root, first)
+            persist_execution(root, second)
+            persist_execution(root, incompatible)
+
+            estimate = comparable_duration_estimate(
+                root,
+                prompt_characters=2_000,
+                runtime_metadata={
+                    "runtime_provider": "codex_cli",
+                    "model": "gpt-5.6-terra",
+                    "reasoning_profile": "medium",
+                    "configuration_profile": "workspace-write",
+                },
+            )
+
+            self.assertEqual(estimate["sample_count"], 2)
+            self.assertEqual(estimate["average_seconds"], 150.0)
+            self.assertEqual(estimate["lower_seconds"], 150.0)
+            self.assertEqual(estimate["upper_seconds"], 150.0)
+            self.assertEqual(
+                comparable_duration_estimate(
+                    root,
+                    prompt_characters=2_000,
+                    runtime_metadata={"runtime_provider": "codex_cli", "model": "not reported"},
+                ),
+                {},
+            )
 
     def test_async_telemetry_never_recreates_a_removed_workspace(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

@@ -186,6 +186,28 @@ def _telemetry_values(repo: Path, run_id: str) -> tuple[float | None, dict[str, 
     return execution_seconds, usage, repository
 
 
+def _report_runtime_metadata(report: Path | None) -> dict[str, str]:
+    """Read the bounded runtime signature from the immutable terminal report."""
+    if report is None:
+        return {}
+    try:
+        text = report.read_text(encoding="utf-8")
+    except OSError:
+        return {}
+    labels = {
+        "runtime_provider": "Runtime Provider",
+        "runtime_model": "AI Model",
+        "reasoning_profile": "Reasoning Profile",
+        "configuration_profile": "Configuration Profile",
+    }
+    result: dict[str, str] = {}
+    for key, label in labels.items():
+        match = re.search(rf"^- {re.escape(label)}: `([^`\\n]{{1,120}})`$", text, re.MULTILINE)
+        if match:
+            result[key] = match.group(1)
+    return result
+
+
 def _terminal_git_commit(repo: Path, run_id: str) -> str | None:
     """Read the strongest local commit evidence without changing terminal state."""
     try:
@@ -837,6 +859,7 @@ def once(repo: Path, root: Path, interval: float = 1.0) -> int:
         try:
             execution_seconds, usage, repository = _telemetry_values(repo, run_id)
             lineage = retry_metadata(content)
+            runtime_metadata = _report_runtime_metadata(delivered)
             persist_execution_async(
                 repo,
                 ExecutionTelemetry(
@@ -859,6 +882,8 @@ def once(repo: Path, root: Path, interval: float = 1.0) -> int:
                     original_run_id=lineage["original_run_id"],
                     retry_generation=lineage["retry_generation"],
                     retry_timestamp=lineage["retry_timestamp"],
+                    prompt_characters=len(content),
+                    **runtime_metadata,
                 ),
                 on_error=lambda error: log_event(
                     logger,

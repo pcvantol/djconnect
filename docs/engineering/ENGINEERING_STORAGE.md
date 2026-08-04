@@ -14,7 +14,7 @@ iCloud Drive remains transport only. It is not an Engineering evidence store.
 ## Versioned schema
 
 The storage contract is independently versioned as **Engineering Storage
-schema `6`**. The required version is declared as `storage_schema` in
+schema `7`**. The required version is declared as `storage_schema` in
 `tools/engineering/ENGINEERING_PLATFORM_VERSION.json` and is validated by the
 runner compatibility contract.
 
@@ -89,6 +89,16 @@ Schema `6` adds immutable `retry_of`, `original_run_id`, `retry_generation`
 and `retry_timestamp` fields to prompt history and execution telemetry. Each
 retry has its own Run ID, report and telemetry row; lineage links evidence
 without merging or overwriting original runs.
+
+Schema `7` adds a bounded duration-learning profile to terminal telemetry:
+prompt character count plus the explicitly reported runtime provider, model,
+reasoning profile and configuration profile. The dashboard may use this only
+for an advisory duration range when at least two **COMPLETE** runs have the
+same fully reported profile. The historical duration is scaled to the active
+prompt size and blended conservatively with the existing size-and-phase range.
+Missing or unreported runtime fields never create a cross-profile estimate.
+This data remains local operational telemetry; it does not schedule work,
+change an execution outcome or retain prompt contents.
 
 ## Canonical workspace migration
 

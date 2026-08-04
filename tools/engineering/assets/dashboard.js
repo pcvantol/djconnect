@@ -24,7 +24,7 @@ const $ = (id) => document.getElementById(id),
     workspace_state: "UNKNOWN",
     diagnostic: "Het statusverzoek kon niet worden voltooid.",
   };
-let currentLogRun, lastLogRun, lastRefresh, promptStartedAt, latestStatus;
+let currentLogRun, lastLogRun, lastRefresh, promptStartedAt, latestStatus, latestDurationEstimate;
 function formatTimestamp(value, fallback = t("format.timestamp_unavailable")) {
   const timestamp = Date.parse(String(value || ""));
   return Number.isFinite(timestamp) ? locale.dateTime(new Date(timestamp)) : fallback;
@@ -131,16 +131,36 @@ function executionRange(x) {
 function pluralMinutes(value) {
   return locale.plural(value, "unit.minute", "unit.minutes");
 }
-function estimate(x) {
+function historicalRange(estimate, fallback) {
+  const samples = Number(estimate?.sample_count) || 0,
+    lower = Number(estimate?.lower_seconds),
+    upper = Number(estimate?.upper_seconds);
+  if (samples < 2 || !Number.isFinite(lower) || !Number.isFinite(upper)) return fallback;
+  const learnedMinimum = Math.max(1, Math.round(lower / 60)),
+    learnedMaximum = Math.max(learnedMinimum, Math.ceil(upper / 60));
+  // Prompt size is represented both in the static range and in the
+  // size-adjusted history.  Retain a conservative static contribution.
+  return [
+    Math.max(1, Math.round(fallback[0] * 0.35 + learnedMinimum * 0.65)),
+    Math.max(1, Math.round(fallback[1] * 0.35 + learnedMaximum * 0.65)),
+  ];
+}
+function historicalContext(estimate, fallback) {
+  const samples = Number(estimate?.sample_count) || 0;
+  return samples >= 2
+    ? t("estimate.historical_context", { count: samples })
+    : fallback;
+}
+function estimate(x, durationEstimate = {}) {
   const phase = x.current_phase || "";
   if (phase === "INITIALIZE")
     return { summary: t("estimate.initializing"), context: "" };
   if (["EXECUTE_AGENT", "REPAIR_AGENT"].includes(phase)) {
-    const [minimum, maximum] = executionRange(x);
+    const [minimum, maximum] = historicalRange(durationEstimate, executionRange(x));
     if (!promptStartedAt)
       return {
         summary: t("estimate.total", { minimum, maximum }),
-        context: t("estimate.total_context"),
+        context: historicalContext(durationEstimate, t("estimate.total_context")),
       };
     const elapsed = Math.max(
         0,
@@ -150,7 +170,7 @@ function estimate(x) {
       remainingMaximum = Math.max(remainingMinimum, maximum - elapsed);
     return {
       summary: t("estimate.remaining", { minimum: remainingMinimum, maximum: remainingMaximum }),
-      context: t("estimate.elapsed", { elapsed, minutes: pluralMinutes(elapsed) }),
+      context: `${t("estimate.elapsed", { elapsed, minutes: pluralMinutes(elapsed) })}\n${historicalContext(durationEstimate, t("estimate.total_context"))}`,
     };
   }
   if (phase === "FINALIZE_AGENT")
@@ -173,8 +193,8 @@ function estimate(x) {
     return { summary: t("estimate.action_required"), context: "" };
   return { summary: t("estimate.not_available"), context: "" };
 }
-function renderEstimate(x) {
-  const value = estimate(x);
+function renderEstimate(x, durationEstimate = latestDurationEstimate) {
+  const value = estimate(x, durationEstimate);
   $("executionEstimate").textContent = value.summary;
   $("executionEstimateMeta").textContent = value.context;
   $("executionEstimateMeta").hidden = !value.context;
@@ -432,7 +452,7 @@ function promptStarted(x) {
   $("promptStarted").textContent = promptStartedAt
     ? locale.dateTime(new Date(promptStartedAt))
     : t("format.not_available");
-  if (latestStatus) renderEstimate(latestStatus);
+  if (latestStatus) renderEstimate(latestStatus, latestDurationEstimate);
 }
 function renderMarkdownDocument(target, value) {
   target.replaceChildren();
@@ -683,6 +703,7 @@ function renderHealthStatus(x, snapshot = {}) {
   clock();
   x = x && typeof x === "object" ? x : fallback;
   latestStatus = x;
+  latestDurationEstimate = snapshot.duration_estimate || {};
   let active = isActiveRun(x),
     statusTone = tone(x),
     indicator = $("indicator"),
@@ -757,7 +778,7 @@ function renderHealthStatus(x, snapshot = {}) {
     capabilityRecommendation(capabilityPreflight.recommendation),
   );
   promptStarted(snapshot.prompt_started);
-  renderEstimate(x);
+  renderEstimate(x, latestDurationEstimate);
   processMetrics(active, snapshot.process_metrics);
   $("currentPrompt").textContent =
     x.prompt_title || (terminalBlocked ? x.last_executed_title : null) || "Niet beschikbaar";
