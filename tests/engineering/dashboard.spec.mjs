@@ -226,6 +226,24 @@ test.describe("Engineering Status browser smoke", () => {
     }
   });
 
+  test("rerenders prompt history pagination in the selected language", async ({ page }) => {
+    await page.route("**/api/prompt-history", (route) => route.fulfill({ json: { runs: [] } }));
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#dashboardLocale").selectOption("en");
+    await expect(page.locator("html")).toHaveAttribute("lang", "en");
+    await page.evaluate(() => {
+      promptHistoryEntries = Array.from({ length: 101 }, (_, index) => ({
+        run_id: `inbox-${index}`,
+        title: `Prompt ${index}`,
+        status: "COMPLETE",
+      }));
+      renderPromptHistory();
+    });
+    await expect(page.locator("#promptHistoryPagination")).toContainText("Page 1 of 5 · 101 prompts");
+    await expect(page.locator("#promptHistoryPagination button").first()).toHaveText("Previous");
+    await expect(page.locator("#promptHistoryPagination button").last()).toHaveText("Next");
+  });
+
   test("uses the prompt title column to fill available history table space", async ({ page }) => {
     await page.setViewportSize({ width: 1600, height: 900 });
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });

@@ -2540,6 +2540,7 @@ function applyDashboardLocale() {
   localizeTechnicalDetails();
   localizeLogControls();
   localizePromptHistoryTable();
+  renderPromptHistory();
   addCategoryIcons();
   addCategoryDescriptions();
   arrangeCurrentRunCategory();
