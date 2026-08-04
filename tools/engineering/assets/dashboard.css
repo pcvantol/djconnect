@@ -349,6 +349,9 @@ html[data-theme="light"] #engineering-dashboard-content>#technicalDetails{backgr
 html[data-theme="light"]{--dashboard-expanded-content-surface:#fff}
 html[data-theme="light"] :is(.workspace-card,.inbox-queue,.prompt-history,#currentRun,#rateLimits,.platform-health,.telemetry,#componentLogs,#engineering-dashboard-content>.technical-details:not(#componentLogs))[open]>summary{background:color-mix(in srgb,var(--category-color) 12%,#fff)}
 
+/* A collapsed category is a compact summary, so it has no content divider. */
+:is(.workspace-card,.inbox-queue,.prompt-history,#currentRun,#rateLimits,.platform-health,.telemetry,#componentLogs,#codexChat,#engineering-dashboard-content>.technical-details:not(#componentLogs)):not([open])>summary{border-bottom:0!important}
+
 /* Descriptions are header metadata: they remain useful when the disclosure is
    closed and the ruler still separates that header from expandable content. */
 :is(.workspace-card,.inbox-queue,.prompt-history,#currentRun,#rateLimits,.platform-health,.telemetry,#componentLogs,#engineering-dashboard-content>.technical-details:not(#componentLogs))>summary>.category-description,

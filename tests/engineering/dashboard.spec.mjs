@@ -395,6 +395,9 @@ test.describe("Engineering Status browser smoke", () => {
     const description = workspace.locator(":scope > summary > .category-description");
     await expect(description).toHaveText("De actieve werkruimte van dit project.");
     await expect(description).toBeVisible();
+    await expect(workspace.locator(":scope > summary")).toHaveCSS("border-bottom-width", "0px");
+    await workspace.evaluate((element) => { element.open = true; });
+    await expect(workspace.locator(":scope > summary")).toHaveCSS("border-bottom-width", "1px");
   });
 
   test("refines the active duration indication with comparable runtime history", async ({ page }) => {
