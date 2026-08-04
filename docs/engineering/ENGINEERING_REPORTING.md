@@ -91,15 +91,16 @@ Prompt History next to the engineering report. View and download actions are
 available only when the analysis file belongs to that exact Run ID; analyses
 from another execution are never selected as a fallback.
 
-The dashboard displays that analysis only within **Laatst uitgevoerd** and only
-when its run identifier matches the displayed terminal run. A failed or absent
-analysis never changes the terminal checkpoint, report, repository state,
-validation result or lifecycle outcome.
+The dashboard exposes that analysis only from the matching Promptgeschiedenis
+row and only when its Run ID matches the selected terminal execution. A failed
+or absent analysis never changes the terminal checkpoint, report, repository
+state, validation result or lifecycle outcome.
 
-For the last completed execution, the dashboard also presents a compact
-read-only summary of the Execution Host, Target Repository, Target Commit and
-Evidence Bundle changed-file count. The complete Evidence Bundle remains in
-the Engineering Report, so the dashboard does not duplicate its detail.
+Promptgeschiedenis also opens a near-fullscreen operational-detail dialog for
+the selected Run ID. It contains the bounded execution status, timing, runtime
+provenance, provider usage, commits, Evidence Bundle summary and reviewer
+results. The complete report and advisory analysis remain separate evidence
+actions, so their Markdown is never duplicated in that detail dialog.
 
 ## Private dashboard evidence access
 

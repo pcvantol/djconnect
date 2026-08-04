@@ -174,6 +174,10 @@ the evidence, timing, runtime provenance, token usage, commits and reviewer
 results that belong to that exact Run ID. Engineering reports and advisory AI
 analyses stay separate row actions: they open their own Markdown dialogs and
 can be downloaded without duplicating their content in the detail dialog.
+The adjacent AI-chat glyph opens a separate near-fullscreen, read-only
+question-and-answer context for that same Run ID. It receives only the selected
+run's bounded evidence and cannot start engineering work or alter repository
+state. Its browser-session history is isolated per Run ID.
 When an artifact does not exist, the dashboard states that explicitly and does
 not present its action. Copy confirmation is a local toast only; it does not
 send report content to another service.
@@ -192,9 +196,9 @@ recent refresh timestamp and the server-push connection state. The active
 prompt category contains no separate time card.
 
 The title bar and bottom status bar remain visible; all dashboard categories
-between them scroll in one dedicated content area. Workspace metadata is a
-nested, collapsible item under **Technische details**, rather than a primary
-operational category.
+between them scroll in one dedicated content area. Workspace metadata remains
+a top-level, collapsible operational category immediately after **Technische
+details**, preserving its own independent status and evidence boundary.
 The title-bar section switch persists the deliberate all-open or all-closed
 choice across a browser reload; a later status update cannot reverse it.
 
