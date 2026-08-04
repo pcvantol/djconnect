@@ -308,7 +308,6 @@ function consumeRateLimitReset() {
     "Gebruik reset",
     "Deze actie verbruikt één beschikbare resetcredit.",
     "Gebruik reset",
-    "#51d88a",
   ).then((confirmed) => {
     if (!confirmed) return;
     button.disabled = true;
@@ -2019,7 +2018,6 @@ function clearComponentLog(component, button) {
       name +
       "? Dit kan niet ongedaan worden gemaakt.",
     "Logs wissen",
-    "#f0b66a",
   ).then(async (confirmed) => {
     if (!confirmed) return;
     button.disabled = true;
@@ -3042,7 +3040,6 @@ function submitPredecessorRetry() {
     "Resume Queue",
     "Deze queue recovery herstelt de wachtende Inbox-volgorde. De oorspronkelijke geblokkeerde uitvoering blijft onveranderd.",
     "Resume Queue",
-    "#f0b66a",
   ).then((confirmed) => {
     if (!confirmed) return;
     button.disabled = true;
@@ -3082,7 +3079,6 @@ function submitExecutionRetry(entry) {
     t("retry.title"),
     t("retry.details", { run_id: entry.run_id, title, repository, mode }),
     t("action.retry_execution"),
-    "#f0b66a",
   ).then((confirmed) => {
     if (!confirmed) return;
     fetch("/api/execution-retry", {
@@ -3104,7 +3100,6 @@ function dismissExecution(entry) {
     t("dismiss.title"),
     t("dismiss.details", { run_id: entry.run_id, title: String(entry.title || t("retry.unavailable_title")), state: t("status." + String(entry.status || "unknown").toLowerCase()) }),
     t("action.dismiss_execution"),
-    "#8cb4ff",
   ).then((confirmed) => {
     if (!confirmed) return;
     fetch("/api/execution-dismiss", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ run_id: entry.run_id }) })
@@ -3114,7 +3109,7 @@ function dismissExecution(entry) {
   });
 }
 $("predecessorRetry").addEventListener("click", submitPredecessorRetry);
-function confirmDashboardAction(title, text, confirmLabel, color = "#c7a6ff") {
+function confirmDashboardAction(title, text, confirmLabel) {
   const modal = $("confirmationModal"),
     heading = $("confirmationModalTitle"),
     body = $("confirmationModalText"),
@@ -3123,7 +3118,7 @@ function confirmDashboardAction(title, text, confirmLabel, color = "#c7a6ff") {
   heading.textContent = title;
   body.textContent = text;
   confirm.textContent = confirmLabel;
-  modal.style.setProperty("--confirmation-color", color);
+  modal.style.setProperty("--confirmation-color", "#f0b66a");
   return new Promise((resolve) => {
     const finish = (value) => {
       modal.close();
@@ -3154,7 +3149,6 @@ $("clearChat").addEventListener("click", () =>
     "Chat wissen",
     "Dit wist alleen de lokale chatweergave. Promptgeschiedenis en rapporten blijven behouden.",
     "Chat wissen",
-    "#d0a4ff",
   ).then((confirmed) => {
     if (!confirmed) return;
     chatHistory = [];
@@ -3181,7 +3175,6 @@ async function restartPlatformComponent(button) {
     "Component herstarten",
     "Herstart " + (healthComponentLabels[component] || "dit onderdeel") + "?",
     "Herstarten",
-    "#a3e635",
   );
   if (!confirmed) return;
   button.disabled = true;

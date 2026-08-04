@@ -589,7 +589,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(restart).toHaveCSS("color", "rgb(24, 35, 15)");
   });
 
-  test("renders action-coloured confirmation dialogs as light surfaces in light mode", async ({ page }) => {
+  test("renders house-orange confirmation dialogs as light surfaces in light mode", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.getByTestId("theme-toggle").click();
     await page.evaluate(() => showComponentModal({
@@ -605,7 +605,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator(".confirmation-modal__panel")).toHaveCSS("background-color", "rgb(247, 251, 255)");
     await expect(page.locator(".confirmation-modal__panel")).toHaveCSS("color", "rgb(24, 34, 48)");
     await expect(page.locator("#confirmationModalText")).toHaveCSS("color", "rgb(24, 34, 48)");
-    await expect(page.locator(".confirmation-modal__panel")).toHaveCSS("border-top-color", "rgb(163, 230, 53)");
+    await expect(page.locator(".confirmation-modal__panel")).toHaveCSS("border-top-color", "rgb(240, 182, 106)");
     expect(await page.locator("#confirmationModalConfirm").evaluate((element) => getComputedStyle(element).backgroundColor)).not.toBe("rgb(240, 182, 106)");
     await expect(page.locator("#confirmationModalConfirm")).toHaveCSS("border-top-color", "rgb(240, 182, 106)");
     await page.locator("#confirmationModalCancel").hover();
