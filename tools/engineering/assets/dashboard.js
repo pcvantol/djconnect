@@ -799,11 +799,11 @@ function renderHealthStatus(x, snapshot = {}) {
     x.run_id || (terminalBlocked ? x.last_executed_run : null) || "geen";
   $("queue").textContent = x.queue_depth ?? 0;
   queueItems(x.queue_items, x.queue_depth);
-  $("implementation").textContent = x.implementation_pr || "geen";
-  $("finalization").textContent = x.finalization_pr || "geen";
+  $("implementation").textContent = x.implementation_pr || t("value.none");
+  $("finalization").textContent = x.finalization_pr || t("value.none");
   $("repositoryState").textContent = translate(x.repository_state || "UNKNOWN");
   $("workspaceState").textContent = translate(x.workspace_state || "UNKNOWN");
-  $("diag").textContent = translate(x.diagnostic || "Geen diagnose");
+  $("diag").textContent = translate(x.diagnostic || t("value.no_diagnostics"));
   $("platformVersion").textContent = x.platform_version || "Niet beschikbaar";
   $("dashboardVersion").textContent =
     components.dashboard || "Niet beschikbaar";
@@ -2429,6 +2429,26 @@ function applyDashboardLocale() {
     ["#platformHealth > summary > strong", "section.platform_components"],
     ["#componentLogs > summary > strong", "section.logs"],
     ["#technicalDetails > summary > strong", "section.technical_details"],
+    ["#technicalPullRequestsTitle", "technical.pull_requests"],
+    ["#technicalImplementationLabel", "technical.implementation"],
+    ["#technicalFinalizationLabel", "technical.finalization"],
+    ["#technicalRepositoryTitle", "technical.repository"],
+    ["#technicalRepositoryStateLabel", "technical.repository_status"],
+    ["#technicalWorkspaceStateLabel", "technical.workspace_status"],
+    ["#technicalHostPreflightTitle", "technical.host_preflight"],
+    ["#technicalExecutionHostLabel", "technical.execution_host"],
+    ["#technicalExecutionHostVersionLabel", "technical.execution_host_version"],
+    ["#technicalRuntimeLabel", "technical.runtime"],
+    ["#technicalRuntimePromptTransportLabel", "technical.runtime_prompt_transport"],
+    ["#technicalHostStatusLabel", "technical.host_status"],
+    ["#technicalLastCheckLabel", "technical.last_check"],
+    ["#technicalWorkspacePreflightStatusLabel", "technical.workspace_status"],
+    ["#technicalLastWorkspaceCheckLabel", "technical.last_workspace_check"],
+    ["#technicalCapabilityStatusLabel", "technical.capability_status"],
+    ["#technicalRecoverabilityLabel", "technical.recoverability"],
+    ["#technicalFailureOriginLabel", "technical.failure_origin"],
+    ["#technicalRecommendationLabel", "technical.recommended_action"],
+    ["#technicalDiagnosticsTitle", "technical.diagnostics"],
     ["#workspaceCard > summary > strong", "section.workspace"],
     ["#promptHistoryAnalysisHeader", "table.analysis"],
     ["#promptHistoryChatHeader", "table.chat"],

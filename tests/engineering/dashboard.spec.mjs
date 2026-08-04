@@ -102,14 +102,14 @@ test.describe("Engineering Status browser smoke", () => {
 
   test("changes visible interface copy for each supported language", async ({ page }) => {
     const expectations = [
-      ["en", "Language", "Refresh automatically", "AI analysis", "Passed", "Execution", "Resume Queue", "Active prompt", "Inbox queue", "Prompts are executed in order of creation date.", "Engineering Status", "Loading data…"],
-      ["nl", "Taal", "Automatisch vernieuwen", "AI-analyse", "Geslaagd", "Uitvoering", "Wachtrij hervatten", "Actieve prompt", "Inbox-wachtrij", "Prompts worden uitgevoerd op volgorde van aanmaakdatum.", "Engineeringstatus", "Gegevens laden…"],
-      ["de", "Sprache", "Automatisch aktualisieren", "KI-Analyse", "Erfolgreich", "Ausführung", "Warteschlange fortsetzen", "Aktiver Prompt", "Inbox-Warteschlange", "Prompts werden in der Reihenfolge ihres Erstellungsdatums ausgeführt.", "Engineering-Status", "Daten werden geladen…"],
-      ["fr", "Langue", "Actualiser automatiquement", "Analyse IA", "Réussi", "Exécution", "Reprendre la file", "Prompt actif", "File de réception", "Les prompts sont exécutés dans l’ordre de leur date de création.", "État de l’ingénierie", "Chargement des données…"],
-      ["es", "Idioma", "Actualizar automáticamente", "Análisis de IA", "Superado", "Ejecución", "Reanudar cola", "Prompt activo", "Cola de entrada", "Los prompts se ejecutan por orden de fecha de creación.", "Estado de ingeniería", "Cargando datos…"],
+      ["en", "Language", "Refresh automatically", "AI analysis", "Passed", "Execution", "Resume Queue", "Active prompt", "Inbox queue", "Prompts are executed in order of creation date.", "Engineering Status", "Loading data…", "Pull requests", "Implementation", "None"],
+      ["nl", "Taal", "Automatisch vernieuwen", "AI-analyse", "Geslaagd", "Uitvoering", "Wachtrij hervatten", "Actieve prompt", "Inbox-wachtrij", "Prompts worden uitgevoerd op volgorde van aanmaakdatum.", "Engineeringstatus", "Gegevens laden…", "Pull requests", "Implementatie", "geen"],
+      ["de", "Sprache", "Automatisch aktualisieren", "KI-Analyse", "Erfolgreich", "Ausführung", "Warteschlange fortsetzen", "Aktiver Prompt", "Inbox-Warteschlange", "Prompts werden in der Reihenfolge ihres Erstellungsdatums ausgeführt.", "Engineering-Status", "Daten werden geladen…", "Pull Requests", "Implementierung", "Keine"],
+      ["fr", "Langue", "Actualiser automatiquement", "Analyse IA", "Réussi", "Exécution", "Reprendre la file", "Prompt actif", "File de réception", "Les prompts sont exécutés dans l’ordre de leur date de création.", "État de l’ingénierie", "Chargement des données…", "Pull requests", "Implémentation", "Aucun"],
+      ["es", "Idioma", "Actualizar automáticamente", "Análisis de IA", "Superado", "Ejecución", "Reanudar cola", "Prompt activo", "Cola de entrada", "Los prompts se ejecutan por orden de fecha de creación.", "Estado de ingeniería", "Cargando datos…", "Solicitudes de extracción", "Implementación", "Ninguno"],
     ];
 
-    for (const [language, localeLabel, refreshLabel, analysisLabel, passLabel, detailTitle, queueAction, activePrompt, queueTitle, queueDescription, dashboardTitle, splashLoading] of expectations) {
+    for (const [language, localeLabel, refreshLabel, analysisLabel, passLabel, detailTitle, queueAction, activePrompt, queueTitle, queueDescription, dashboardTitle, splashLoading, pullRequestsTitle, implementationLabel, noneLabel] of expectations) {
       await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
       await page.locator("#dashboardLocale").selectOption(language);
       await expect(page.locator("html")).toHaveAttribute("lang", language);
@@ -125,6 +125,10 @@ test.describe("Engineering Status browser smoke", () => {
       await expect(page.locator("#dashboardTitle")).toHaveText(dashboardTitle);
       await expect(page.locator("#dashboardSplashTitle")).toHaveText(dashboardTitle);
       await expect(page.locator("#dashboardSplashLoading")).toHaveText(splashLoading);
+      await expect(page.locator("#technicalPullRequestsTitle")).toHaveText(pullRequestsTitle);
+      await expect(page.locator("#technicalImplementationLabel")).toHaveText(implementationLabel);
+      await page.evaluate(() => r({}));
+      await expect(page.locator("#implementation")).toHaveText(noneLabel);
       expect(await page.title()).toBe(dashboardTitle);
       expect(await page.evaluate(() => enumLabel("PASS"))).toBe(passLabel);
       await page.evaluate(() => renderPromptHistoryDetail({
