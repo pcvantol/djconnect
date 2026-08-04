@@ -1173,6 +1173,9 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#promptHistoryDetailModal")).toBeFocused();
     await expect(page.locator("#promptHistoryDetailContent")).toContainText("Engineering Platform");
     await expect(page.locator("#promptHistoryDetailContent")).toContainText("0.146.0");
+    await expect(page.locator("#promptHistoryDetailContent")).not.toContainText("Historisch rapport");
+    await expect(page.locator("#promptHistoryDetailContent")).not.toContainText("Historische AI-analyse");
+    await expect(page.locator("#promptHistoryReportModal")).not.toBeVisible();
     await page.locator("#promptHistoryDetailClose").click();
     await expect(page.locator("#promptHistoryDetailModal")).not.toBeVisible();
     const analysisView = page.locator("#promptHistoryRows .prompt-history-analysis").first();
