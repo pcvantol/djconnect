@@ -149,6 +149,27 @@ test.describe("Engineering Status browser smoke", () => {
     ]);
   });
 
+  test("localizes dynamically rendered telemetry copy for every supported language", async ({ page }) => {
+    const expectations = [
+      ["en", "Execution Host telemetry", "Operational trends for the last seven days. Telemetry is not repository evidence."],
+      ["nl", "Execution Host-telemetrie", "Operationele trends van de laatste zeven dagen. Telemetrie is geen repositorybewijs."],
+      ["de", "Execution-Host-Telemetrie", "Betriebstrends der letzten sieben Tage. Telemetrie ist kein Repository-Nachweis."],
+      ["fr", "Télémétrie de l’hôte d’exécution", "Tendances opérationnelles des sept derniers jours. La télémétrie n’est pas une preuve de dépôt."],
+      ["es", "Telemetría del host de ejecución", "Tendencias operativas de los últimos siete días. La telemetría no es evidencia del repositorio."],
+    ];
+    for (const [language, title, description] of expectations) {
+      await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+      await page.locator("#dashboardLocale").selectOption(language);
+      await expect(page.locator("html")).toHaveAttribute("lang", language);
+      await page.evaluate(() => {
+        document.querySelector("#executionTelemetry")?.remove();
+        window.executionTelemetry([]);
+      });
+      await expect(page.locator("#executionTelemetry summary strong")).toHaveText(title);
+      await expect(page.locator("#executionTelemetry .category-description")).toHaveText(description);
+    }
+  });
+
   test("localizes capability preflight recommendations", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     expect(await page.evaluate(() => capabilityRecommendation("Capability admission passed."))).toBe(

@@ -1652,26 +1652,18 @@ function renderLegacyExecutionTelemetry(rows) {
       head = document.createElement("thead"),
       headRow = document.createElement("tr"),
       tableBody = document.createElement("tbody");
-    title.textContent = "Execution Host-telemetrie";
+    title.textContent = t("telemetry.title");
     description.className = "category-description";
-    description.textContent =
-      "Operationele trends van de laatste zeven dagen. Telemetrie is geen repositorybewijs.";
+    description.textContent = t("telemetry.description");
     scroll.className = "telemetry-scroll";
     table.className = "telemetry-table";
-    table.setAttribute("aria-label", "Dagelijkse Execution Host-telemetrie");
+    table.setAttribute("aria-label", t("telemetry.table_label"));
     for (const label of [
-      "Dag",
-      "Prompts",
-      "Gem. AI-tijd",
-      "Gem. totaal",
-      "Gem. wachttijd",
-      "Input",
-      "Output",
-      "Totaal",
-      "Voltooid",
-      "Geblokkeerd",
-      "Mislukt",
-    ]) {
+      "telemetry.day", "telemetry.prompts", "telemetry.average_execution",
+      "telemetry.average_total", "telemetry.average_wait", "telemetry.input",
+      "telemetry.output", "telemetry.total", "telemetry.complete",
+      "telemetry.blocked", "telemetry.failed",
+    ].map((key) => t(key))) {
       const cell = document.createElement("th");
       cell.scope = "col";
       cell.textContent = label;
@@ -1715,8 +1707,7 @@ function renderLegacyExecutionTelemetry(rows) {
       cell = document.createElement("td");
     cell.colSpan = 11;
     cell.className = "telemetry-empty";
-    cell.textContent =
-      "Nog geen voltooide Execution Host-telemetrie beschikbaar.";
+    cell.textContent = t("telemetry.empty");
     line.append(cell);
     body.append(line);
   }
@@ -1746,25 +1737,18 @@ function executionTelemetry(rows) {
       head = document.createElement("thead"),
       headRow = document.createElement("tr"),
       tableBody = document.createElement("tbody");
-    title.textContent = "Execution Host-telemetrie";
+    title.textContent = t("telemetry.title");
     description.className = "category-description";
-    description.textContent =
-      "Operationele trends van de laatste zeven dagen. Telemetrie is geen repositorybewijs.";
+    description.textContent = t("telemetry.description");
     scroll.className = "telemetry-scroll";
     table.className = "telemetry-table";
-    table.setAttribute("aria-label", "Dagelijkse Execution Host-telemetrie");
+    table.setAttribute("aria-label", t("telemetry.table_label"));
     for (const label of [
-      "Dag",
-      "Prompts",
-      "Gem. uitvoering",
-      "Gem. wachttijd",
-      "Input",
-      "Output",
-      "Totaal",
-      "Voltooid",
-      "Geblokkeerd",
-      "Mislukt",
-    ]) {
+      "telemetry.day", "telemetry.prompts", "telemetry.average_execution",
+      "telemetry.average_wait", "telemetry.input", "telemetry.output",
+      "telemetry.total", "telemetry.complete", "telemetry.blocked",
+      "telemetry.failed",
+    ].map((key) => t(key))) {
       const cell = document.createElement("th");
       cell.scope = "col";
       cell.textContent = label;
@@ -1807,8 +1791,7 @@ function executionTelemetry(rows) {
       cell = document.createElement("td");
     cell.colSpan = 10;
     cell.className = "telemetry-empty";
-    cell.textContent =
-      "Nog geen voltooide Execution Host-telemetrie beschikbaar.";
+    cell.textContent = t("telemetry.empty");
     line.append(cell);
     body.append(line);
   }
