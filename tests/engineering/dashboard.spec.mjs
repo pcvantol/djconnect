@@ -142,6 +142,22 @@ test.describe("Engineering Status browser smoke", () => {
     }
   });
 
+  test("localizes the AI chat question placeholder for every supported language", async ({ page }) => {
+    const expectations = [
+      ["en", "For example: what are the most important next steps from this report?"],
+      ["nl", "Bijvoorbeeld: wat zijn de belangrijkste vervolgstappen uit dit rapport?"],
+      ["de", "Zum Beispiel: Was sind die wichtigsten nächsten Schritte aus diesem Bericht?"],
+      ["fr", "Par exemple : quelles sont les principales étapes suivantes de ce rapport ?"],
+      ["es", "Por ejemplo: ¿cuáles son los pasos siguientes más importantes de este informe?"],
+    ];
+
+    for (const [language, placeholder] of expectations) {
+      await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+      await page.locator("#dashboardLocale").selectOption(language);
+      await expect(page.locator("#chatInput")).toHaveAttribute("placeholder", placeholder);
+    }
+  });
+
   test("formats preflight timestamps through the selected dashboard locale", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     expect(await page.evaluate(() => [

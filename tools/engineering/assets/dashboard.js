@@ -952,6 +952,7 @@ function providerNeutralLabels() {
         element.setAttribute("aria-label", text);
     }
   });
+  $("chatInput").setAttribute("placeholder", t("history.chat_placeholder"));
 }
 function localizeTechnicalDetails() {
   const labels = [

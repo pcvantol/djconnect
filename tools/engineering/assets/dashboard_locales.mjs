@@ -295,6 +295,22 @@ Object.assign(messages.es, {
   "logs.inbox_watcher":"Monitor de bandeja de entrada", "logs.status_dashboard":"Panel de estado", "table.number":"#", "table.timestamp":"Marca de tiempo", "table.level":"Nivel", "table.run_id":"ID de ejecución", "table.details":"Detalles",
 });
 
+Object.assign(messages.en, {
+  "history.chat_placeholder":"For example: what are the most important next steps from this report?",
+});
+Object.assign(messages.nl, {
+  "history.chat_placeholder":"Bijvoorbeeld: wat zijn de belangrijkste vervolgstappen uit dit rapport?",
+});
+Object.assign(messages.de, {
+  "history.chat_placeholder":"Zum Beispiel: Was sind die wichtigsten nächsten Schritte aus diesem Bericht?",
+});
+Object.assign(messages.fr, {
+  "history.chat_placeholder":"Par exemple : quelles sont les principales étapes suivantes de ce rapport ?",
+});
+Object.assign(messages.es, {
+  "history.chat_placeholder":"Por ejemplo: ¿cuáles son los pasos siguientes más importantes de este informe?",
+});
+
 export function normalizeLocale(value) {
   const candidate = String(value || "").toLowerCase().split("-")[0];
   return SUPPORTED_LOCALES.includes(candidate) ? candidate : "en";
