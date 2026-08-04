@@ -1102,6 +1102,7 @@ test.describe("Engineering Status browser smoke", () => {
         const style = getComputedStyle(summary, "::before");
         return {
           arrowRight: summary.getBoundingClientRect().right - parseFloat(style.right),
+          arrowTop: summary.getBoundingClientRect().top + parseFloat(style.top),
           width: style.width,
         };
       };
@@ -1114,6 +1115,7 @@ test.describe("Engineering Status browser smoke", () => {
     expect(arrowGeometry.closed.width).toBe("24px");
     expect(arrowGeometry.opened.width).toBe("24px");
     expect(Math.abs(arrowGeometry.closed.arrowRight - arrowGeometry.opened.arrowRight)).toBeLessThanOrEqual(0.1);
+    expect(Math.abs(arrowGeometry.closed.arrowTop - arrowGeometry.opened.arrowTop)).toBeLessThanOrEqual(0.1);
     await expect(page.locator(".current-run__category-description")).toHaveText("De actieve engineeringprompt, met actuele voortgang, uitvoeringstijd en uitvoeringscontext.");
     expect(await page.locator("#indicator").evaluate((element) => element.parentElement.className)).toBe("current-run__prompt-heading");
     await expect(page.locator("#loadComponentLogs")).toHaveCount(0);

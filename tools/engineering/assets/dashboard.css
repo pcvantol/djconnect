@@ -356,7 +356,7 @@ html[data-theme="light"] #engineering-dashboard-content>#technicalDetails{backgr
 :root{--dashboard-expanded-content-surface:#24242d;--dashboard-expanded-header-strength:14%}
 :is(.workspace-card,.inbox-queue,.prompt-history,#currentRun,#rateLimits,.platform-health,.telemetry,#componentLogs,#engineering-dashboard-content>.technical-details:not(#componentLogs))[open]{background:var(--dashboard-expanded-content-surface)!important}
 :is(.workspace-card,.inbox-queue,.prompt-history,#currentRun,#rateLimits,.platform-health,.telemetry,#componentLogs,#engineering-dashboard-content>.technical-details:not(#componentLogs))[open]>summary{background:color-mix(in srgb,var(--category-color) var(--dashboard-expanded-header-strength),var(--dashboard-expanded-content-surface));border-radius:15px 15px 0 0;margin:-14px -14px 12px!important;padding:14px 54px 10px 14px!important}
-:is(.workspace-card,.inbox-queue,.prompt-history,#currentRun,#rateLimits,.platform-health,.telemetry,#componentLogs,#engineering-dashboard-content>.technical-details:not(#componentLogs))[open]>summary::before{right:14px}
+:is(.workspace-card,.inbox-queue,.prompt-history,#currentRun,#rateLimits,.platform-health,.telemetry,#componentLogs,#engineering-dashboard-content>.technical-details:not(#componentLogs))[open]>summary::before{right:14px;top:14px}
 html[data-theme="light"]{--dashboard-expanded-content-surface:#fff}
 html[data-theme="light"] :is(.workspace-card,.inbox-queue,.prompt-history,#currentRun,#rateLimits,.platform-health,.telemetry,#componentLogs,#engineering-dashboard-content>.technical-details:not(#componentLogs))[open]>summary{background:color-mix(in srgb,var(--category-color) 12%,#fff)}
 
