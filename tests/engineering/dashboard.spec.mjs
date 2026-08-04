@@ -1163,6 +1163,35 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(inboxLevel).toHaveAttribute("aria-sort", "ascending");
   });
 
+  test("keeps each component-log table horizontally scrollable on iPhone", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#componentLogs").evaluate((element) => { element.open = true; });
+
+    const tables = page.locator("#componentLogs .log-table");
+    await expect(tables).toHaveCount(2);
+    for (const table of [tables.nth(0), tables.nth(1)]) {
+      const geometry = await table.evaluate((element) => {
+        const container = element.parentElement;
+        container.scrollLeft = 80;
+        return {
+          overflowX: getComputedStyle(container).overflowX,
+          scrollable: container.scrollWidth > container.clientWidth,
+          scrollLeft: container.scrollLeft,
+          tableWidth: element.getBoundingClientRect().width,
+          cellWhiteSpace: getComputedStyle(element.querySelector("td")).whiteSpace,
+        };
+      });
+      expect(geometry).toMatchObject({
+        overflowX: "auto",
+        scrollable: true,
+        scrollLeft: 80,
+        cellWhiteSpace: "nowrap",
+      });
+      expect(geometry.tableWidth).toBeGreaterThanOrEqual(780);
+    }
+  });
+
   test("paginates the two component-log tables independently", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.locator("#componentLogs").evaluate((element) => { element.open = true; });
