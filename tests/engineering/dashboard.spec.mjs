@@ -1462,6 +1462,7 @@ test.describe("Engineering Status browser smoke", () => {
     await reportView.click();
     await expect(page.locator("#promptHistoryReportModal")).toBeVisible();
     await expect(page.locator("#promptHistoryReportModal")).toBeFocused();
+    await expect(page.locator("#promptHistoryDetailModal")).not.toBeVisible();
     await expect(page.locator("#promptHistoryReportContent")).toContainText("Historisch rapport");
     await expect(page.locator("#promptHistoryReportDownload")).toBeVisible();
     await expect(page.locator("#promptHistoryReportCopy")).toBeVisible();
@@ -1497,6 +1498,7 @@ test.describe("Engineering Status browser smoke", () => {
     }));
     await analysisView.click();
     await expect(page.locator("#promptHistoryReportModal")).toBeVisible();
+    await expect(page.locator("#promptHistoryDetailModal")).not.toBeVisible();
     await expect(page.locator("#promptHistoryReportContent")).toContainText("Historische AI-analyse");
     await expect(page.locator("#promptHistoryReportDownload")).toBeVisible();
     await page.locator("#promptHistoryReportClose").click();

@@ -2354,9 +2354,11 @@ function renderPromptHistory() {
         view.title = t("history.view_report", { title: title.textContent });
         view.setAttribute("aria-label", view.title);
         view.textContent = "▤";
-        view.addEventListener("click", () =>
-          openPromptHistoryDocument(entry.run_id, title.textContent, "report"),
-        );
+        view.addEventListener("click", (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          openPromptHistoryDocument(entry.run_id, title.textContent, "report");
+        });
         report.append(view);
       } else report.textContent = "—";
       if (entry.analysis_available && entry.run_id) {
@@ -2366,9 +2368,11 @@ function renderPromptHistory() {
         view.title = t("history.view_analysis", { title: title.textContent });
         view.setAttribute("aria-label", view.title);
         view.textContent = "✦";
-        view.addEventListener("click", () =>
-          openPromptHistoryDocument(entry.run_id, title.textContent, "analysis"),
-        );
+        view.addEventListener("click", (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          openPromptHistoryDocument(entry.run_id, title.textContent, "analysis");
+        });
         analysis.append(view);
       } else analysis.textContent = "—";
       if (entry.run_id) {
