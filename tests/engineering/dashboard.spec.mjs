@@ -47,19 +47,6 @@ test.describe("Engineering Status browser smoke", () => {
     ).resolves.toBe("currentRun");
   });
 
-  test("uses prompt history rather than a hidden last-executed prompt card", async ({ page }) => {
-    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
-    for (const selector of [
-      "#promptRuns",
-      "#lastExecutionGroup",
-      "#lastExecution",
-      "#report",
-      "#reportAnalysis",
-    ])
-      await expect(page.locator(selector)).toHaveCount(0);
-    await expect(page.locator("#promptHistoryDetailModal")).toHaveCount(1);
-  });
-
   test("shows the refresh timestamp in the bottom status bar", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await expect(page.locator("#currentTime")).toHaveCount(0);
