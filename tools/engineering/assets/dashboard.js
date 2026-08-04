@@ -931,17 +931,18 @@ function logValue(entry, key) {
 }
 function providerNeutralLabels() {
   const labels = [
-    ["#processMetrics>strong", "Lokale AI-processen"],
-    ["#usage>strong", "AI-providergebruik"],
-    ["#currentDiagnostic>strong", "AI-uitvoeringsdiagnose"],
-    ["#rateLimits .label", "AI-providerlimieten"],
-    ["#codexChat>strong", "AI-gesprek"],
-    ["#chatMessages", "Gesprek met AI-assistent"],
-    ["label[for=chatInput]", "Nieuwe vraag aan AI-assistent"],
+    ["#processMetrics>strong", "section.local_ai_processes"],
+    ["#usage>strong", "section.ai_provider_usage"],
+    ["#currentDiagnostic>strong", "section.ai_execution_diagnostics"],
+    ["#rateLimits .label", "section.ai_provider_limits"],
+    ["#codexChat>strong", "section.ai_conversation"],
+    ["#chatMessages", "section.ai_conversation"],
+    ["label[for=chatInput]", "section.new_ai_question"],
   ];
-  labels.forEach(([selector, text]) => {
+  labels.forEach(([selector, key]) => {
     const element = document.querySelector(selector);
     if (element) {
+      const text = t(key);
       element.textContent = text;
       if (selector === "#chatMessages")
         element.setAttribute("aria-label", text);
@@ -954,7 +955,7 @@ function chatMessage(role, text) {
     body = document.createElement("div");
   item.className = "chat-message chat-message--" + role;
   label.className = "chat-message__role";
-  label.textContent = role === "user" ? "Jij" : "AI-assistent";
+  label.textContent = t(role === "user" ? "chat.user" : "chat.assistant");
   body.className = "chat-message__body";
   body.textContent = text;
   item.append(label, body);
@@ -963,68 +964,58 @@ function chatMessage(role, text) {
 }
 providerNeutralLabels();
 function addCategoryIcons() {
-  for (const [selector, glyph, label] of [
-    ["#workspaceCard", "⌂", "Werkruimte"],
-    ["#queueItems", "☷", "Inbox-wachtrij"],
-    ["#promptHistory", "◫", "Promptgeschiedenis"],
-    ["#platformHealth", "◈", "Platformonderdelen"],
-    ["#rateLimits", "◔", "Resterend gebruik"],
-    ["#executionTelemetry", "▥", "Execution Host-telemetrie"],
-    ["#technicalDetails", "⚙", "Technische details"],
-    ["#componentLogs", "≡", "Logs"],
-    ["#currentRun", "▤", "Actieve prompt"],
+  for (const [selector, glyph, labelKey] of [
+    ["#workspaceCard", "⌂", "section.workspace"],
+    ["#queueItems", "☷", "section.inbox_queue"],
+    ["#promptHistory", "◫", "section.prompt_history"],
+    ["#platformHealth", "◈", "section.platform_components"],
+    ["#rateLimits", "◔", "section.remaining_usage"],
+    ["#executionTelemetry", "▥", "section.execution_host_telemetry"],
+    ["#technicalDetails", "⚙", "section.technical_details"],
+    ["#componentLogs", "≡", "section.logs"],
+    ["#currentRun", "▤", "section.active_prompt"],
   ]) {
-    const summary = document.querySelector(selector + ">summary");
-    if (!summary || summary.querySelector(".category-icon")) continue;
-    const icon = document.createElement("span"),
-      title = summary.querySelector("strong,.label");
-    icon.className = "category-icon";
-    icon.setAttribute("aria-hidden", "true");
-    icon.textContent = glyph;
+    const summary = document.querySelector(selector + ">summary"),
+      label = t(labelKey);
+    if (!summary) continue;
+    let icon = summary.querySelector(".category-icon");
+    if (!icon) {
+      icon = document.createElement("span");
+      const title = summary.querySelector("strong,.label");
+      icon.className = "category-icon";
+      icon.setAttribute("aria-hidden", "true");
+      icon.textContent = glyph;
+      if (title) title.before(icon);
+      else summary.prepend(icon);
+    }
     icon.title = label;
-    if (title) title.before(icon);
-    else summary.prepend(icon);
   }
 }
 addCategoryIcons();
 function addCategoryDescriptions() {
   const descriptions = [
-    [".workspace-card", "De actieve werkruimte van dit project."],
-    ["#queueItems", "Prompts worden uitgevoerd op volgorde van aanmaakdatum."],
-    [
-      "#promptHistory",
-      "Alle terminale Engineering Platform-uitvoeringen, lokaal gecachet in de Engineering SQLite-opslag.",
-    ],
-    [
-      "#rateLimits",
-      "Beschikbare gebruiksruimte en resets van de actieve AI-provider.",
-    ],
-    [
-      "#componentLogs",
-      "Geredigeerde, roterende logs van watcher en dashboard. Automatisch bijgewerkt via serverpush.",
-    ],
-    [
-      "#engineering-dashboard-content>.technical-details:not(#componentLogs)",
-      "Operationele details over pull requests, repository, werkruimte en diagnose.",
-    ],
-    [
-      "#platformHealth",
-      "Live gezondheidscontrole van de lokale Engineering Platform-componenten.",
-    ],
+    [".workspace-card", "description.workspace"],
+    ["#queueItems", "description.inbox_queue"],
+    ["#promptHistory", "description.prompt_history"],
+    ["#rateLimits", "description.remaining_usage"],
+    ["#componentLogs", "description.logs"],
+    ["#engineering-dashboard-content>.technical-details:not(#componentLogs)", "description.technical_details"],
+    ["#platformHealth", "description.platform_components"],
   ];
-  for (const [selector, text] of descriptions) {
+  for (const [selector, key] of descriptions) {
     const category = document.querySelector(selector),
       summary = category?.querySelector(":scope>summary");
     if (!category || !summary) continue;
     let description =
-      category.querySelector(":scope>.category-description") ||
-      category.querySelector(":scope>.estimate-meta");
+      summary.querySelector(":scope>[data-category-description]") ||
+      category.querySelector(":scope>.category-description");
     if (!description) {
       description = document.createElement("p");
-      description.textContent = text;
       summary.append(description);
     }
+    description.textContent = t(key);
     description.classList.add("category-description");
+    description.dataset.categoryDescription = "";
     summary.append(description);
   }
 }
@@ -1593,10 +1584,9 @@ function arrangeCurrentRunCategory() {
   if (!description) {
     description = document.createElement("p");
     description.className = "current-run__category-description";
-    description.textContent =
-      "De actieve engineeringprompt, met actuele voortgang, uitvoeringstijd en uitvoeringscontext.";
     summary.append(description);
   }
+  description.textContent = t("description.active_prompt");
 }
 function placeCurrentRunFirst() {
   const dashboard = $("engineering-dashboard-content"),
@@ -2428,6 +2418,14 @@ function applyDashboardLocale() {
     ["#confirmationModalCancel", "action.cancel"],
     ["#confirmationModalConfirm", "action.confirm"],
     ["#predecessorRetry", "action.resume_queue"],
+    ["#queueItems > summary > strong", "section.inbox_queue"],
+    ["#promptHistory > summary > strong", "section.prompt_history"],
+    ["#currentRun > summary .label", "section.active_prompt"],
+    ["#rateLimits > summary > strong", "section.remaining_usage"],
+    ["#platformHealth > summary > strong", "section.platform_components"],
+    ["#componentLogs > summary > strong", "section.logs"],
+    ["#technicalDetails > summary > strong", "section.technical_details"],
+    ["#workspaceCard > summary > strong", "section.workspace"],
     ["#promptHistoryAnalysisHeader", "table.analysis"],
     ["#promptHistoryChatHeader", "table.chat"],
   ];
@@ -2440,6 +2438,10 @@ function applyDashboardLocale() {
   });
   $("themeToggle").setAttribute("aria-label", t("header.enable_light"));
   $("toggleAllSections").setAttribute("aria-label", t("header.open_all"));
+  providerNeutralLabels();
+  addCategoryIcons();
+  addCategoryDescriptions();
+  arrangeCurrentRunCategory();
 }
 dashboardLocaleSelector.addEventListener("change", () => {
   dashboardLocale = normalizeLocale(dashboardLocaleSelector.value);
