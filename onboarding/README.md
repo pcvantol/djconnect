@@ -55,8 +55,11 @@ Each completed Engineering Report also records the execution provenance for
 that exact run: Runtime Provider, reported AI Model, reported Reasoning and
 Configuration Profiles, and detected Codex CLI Version. Values are shown as
 `not reported` when the CLI did not supply them; the runner and Engineering
-Status never guess them. In Engineering Status, these fields appear only with
-the matching **Laatst uitgevoerde prompt** report, not with a later run.
+Status never guess them. In Engineering Status, open the matching
+**Promptgeschiedenis** row to view those fields in its read-only execution
+detail dialog. The Engineering Report and AI analysis remain separate actions
+on that same row, so every view stays bound to its exact Run ID. There is no
+separate **Laatst uitgevoerde prompt** card.
 
 Do not create or rely on `iCloud Drive/DJConnect Engineering/Reports` or an
 iCloud `status.json`. Existing legacy iCloud archives can be moved safely with
