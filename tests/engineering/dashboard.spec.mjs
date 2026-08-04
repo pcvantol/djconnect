@@ -102,14 +102,14 @@ test.describe("Engineering Status browser smoke", () => {
 
   test("changes visible interface copy for each supported language", async ({ page }) => {
     const expectations = [
-      ["en", "Language", "Refresh automatically", "AI analysis", "Passed", "Execution", "Resume Queue", "Active prompt", "Inbox queue", "Prompts are executed in order of creation date."],
-      ["nl", "Taal", "Automatisch vernieuwen", "AI-analyse", "Geslaagd", "Uitvoering", "Wachtrij hervatten", "Actieve prompt", "Inbox-wachtrij", "Prompts worden uitgevoerd op volgorde van aanmaakdatum."],
-      ["de", "Sprache", "Automatisch aktualisieren", "KI-Analyse", "Erfolgreich", "Ausführung", "Warteschlange fortsetzen", "Aktiver Prompt", "Inbox-Warteschlange", "Prompts werden in der Reihenfolge ihres Erstellungsdatums ausgeführt."],
-      ["fr", "Langue", "Actualiser automatiquement", "Analyse IA", "Réussi", "Exécution", "Reprendre la file", "Prompt actif", "File de réception", "Les prompts sont exécutés dans l’ordre de leur date de création."],
-      ["es", "Idioma", "Actualizar automáticamente", "Análisis de IA", "Superado", "Ejecución", "Reanudar cola", "Prompt activo", "Cola de entrada", "Los prompts se ejecutan por orden de fecha de creación."],
+      ["en", "Language", "Refresh automatically", "AI analysis", "Passed", "Execution", "Resume Queue", "Active prompt", "Inbox queue", "Prompts are executed in order of creation date.", "Engineering Status", "Loading data…"],
+      ["nl", "Taal", "Automatisch vernieuwen", "AI-analyse", "Geslaagd", "Uitvoering", "Wachtrij hervatten", "Actieve prompt", "Inbox-wachtrij", "Prompts worden uitgevoerd op volgorde van aanmaakdatum.", "Engineeringstatus", "Gegevens laden…"],
+      ["de", "Sprache", "Automatisch aktualisieren", "KI-Analyse", "Erfolgreich", "Ausführung", "Warteschlange fortsetzen", "Aktiver Prompt", "Inbox-Warteschlange", "Prompts werden in der Reihenfolge ihres Erstellungsdatums ausgeführt.", "Engineering-Status", "Daten werden geladen…"],
+      ["fr", "Langue", "Actualiser automatiquement", "Analyse IA", "Réussi", "Exécution", "Reprendre la file", "Prompt actif", "File de réception", "Les prompts sont exécutés dans l’ordre de leur date de création.", "État de l’ingénierie", "Chargement des données…"],
+      ["es", "Idioma", "Actualizar automáticamente", "Análisis de IA", "Superado", "Ejecución", "Reanudar cola", "Prompt activo", "Cola de entrada", "Los prompts se ejecutan por orden de fecha de creación.", "Estado de ingeniería", "Cargando datos…"],
     ];
 
-    for (const [language, localeLabel, refreshLabel, analysisLabel, passLabel, detailTitle, queueAction, activePrompt, queueTitle, queueDescription] of expectations) {
+    for (const [language, localeLabel, refreshLabel, analysisLabel, passLabel, detailTitle, queueAction, activePrompt, queueTitle, queueDescription, dashboardTitle, splashLoading] of expectations) {
       await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
       await page.locator("#dashboardLocale").selectOption(language);
       await expect(page.locator("html")).toHaveAttribute("lang", language);
@@ -122,6 +122,10 @@ test.describe("Engineering Status browser smoke", () => {
       await expect(page.locator("#queueItems > summary > .category-description").first()).toHaveText(queueDescription);
       await expect(page.locator("#queueItems > summary > [data-category-description]")).toHaveCount(1);
       await expect(page.locator("#queueSummary")).not.toHaveClass(/category-description/);
+      await expect(page.locator("#dashboardTitle")).toHaveText(dashboardTitle);
+      await expect(page.locator("#dashboardSplashTitle")).toHaveText(dashboardTitle);
+      await expect(page.locator("#dashboardSplashLoading")).toHaveText(splashLoading);
+      expect(await page.title()).toBe(dashboardTitle);
       expect(await page.evaluate(() => enumLabel("PASS"))).toBe(passLabel);
       await page.evaluate(() => renderPromptHistoryDetail({
         history: { run_id: "inbox-localization", status: "COMPLETE", title: "Prompt", executed_at: "2026-08-03T20:53:29Z" },
@@ -1088,7 +1092,7 @@ test.describe("Engineering Status browser smoke", () => {
     // client-side projection first so a legitimate SSE update cannot replace
     // that deterministic fixture midway through the assertions.
     await page.locator("#autoRefresh").uncheck();
-    await expect(page.getByTestId("engineering-dashboard-title")).toHaveText("Engineering Status");
+    await expect(page.getByTestId("engineering-dashboard-title")).toHaveText("Engineeringstatus");
     await expect(page.getByTestId("dashboard-splash")).toBeHidden();
     await expect(page.locator("#dashboardFavicon")).toHaveAttribute("href", "/assets/engineering-status-icon.svg");
     await expect(page.locator('link[rel="apple-touch-icon"]')).toHaveAttribute("href", "/assets/engineering-status-icon-180.png");

@@ -2408,6 +2408,7 @@ const dashboardClientState = loadDashboardClientState();
 const dashboardLocaleSelector = $("dashboardLocale");
 function applyDashboardLocale() {
   document.documentElement.lang = dashboardLocale;
+  document.title = t("dashboard.title");
   dashboardLocaleSelector.value = dashboardLocale;
   const replacements = [
     [".skip-link", "header.skip"],
@@ -2415,6 +2416,9 @@ function applyDashboardLocale() {
     [".section-state-toggle__label", "header.expand"],
     [".auto-refresh-toggle span", "header.auto_refresh"],
     [".dashboard-locale span", "language.label"],
+    ["#dashboardTitle", "dashboard.title"],
+    ["#dashboardSplashTitle", "dashboard.title"],
+    ["#dashboardSplashLoading", "dashboard.loading"],
     ["#confirmationModalCancel", "action.cancel"],
     ["#confirmationModalConfirm", "action.confirm"],
     ["#predecessorRetry", "action.resume_queue"],
@@ -2438,6 +2442,9 @@ function applyDashboardLocale() {
   });
   $("themeToggle").setAttribute("aria-label", t("header.enable_light"));
   $("toggleAllSections").setAttribute("aria-label", t("header.open_all"));
+  $("dashboardSplashVersion").textContent = t("dashboard.platform_version", {
+    version: $("dashboardSplashVersion").dataset.platformVersion,
+  });
   providerNeutralLabels();
   addCategoryIcons();
   addCategoryDescriptions();
