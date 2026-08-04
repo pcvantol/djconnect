@@ -763,6 +763,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator(".confirmation-modal__panel")).toHaveCSS("background-color", "rgb(247, 251, 255)");
     await expect(page.locator(".confirmation-modal__panel")).toHaveCSS("color", "rgb(24, 34, 48)");
     await expect(page.locator("#confirmationModalText")).toHaveCSS("color", "rgb(24, 34, 48)");
+    await expect(page.locator("#confirmationModalTitle")).toHaveCSS("color", "rgb(240, 182, 106)");
     await expect(page.locator(".confirmation-modal__panel")).toHaveCSS("border-top-color", "rgb(240, 182, 106)");
     expect(await page.locator("#confirmationModalConfirm").evaluate((element) => getComputedStyle(element).backgroundColor)).not.toBe("rgb(240, 182, 106)");
     await expect(page.locator("#confirmationModalConfirm")).toHaveCSS("border-top-color", "rgb(240, 182, 106)");

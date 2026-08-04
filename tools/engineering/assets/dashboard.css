@@ -294,6 +294,9 @@ html[data-theme="light"] .reset-log-filters:hover:not(:disabled){background:#f0b
 /* Modal */
 .confirmation-modal__panel{background:var(--dashboard-surface-base)}
 .confirmation-modal__panel #confirmationModalText{line-height:1.55;white-space:pre-line}
+/* Confirmation dialogs are operational actions: keep their title in the orange house style in both themes. */
+.confirmation-modal h2{color:var(--house-style)!important}
+html[data-theme="light"] .confirmation-modal h2,.confirmation-modal[data-theme-mode="light"] h2{color:var(--house-style)!important}
 html[data-theme="light"] .confirmation-modal__panel{background:color-mix(in srgb,var(--dashboard-surface-light) 94%,#eef4fb)!important}
 
 /* Terminal-state meaning must survive the broad light-table text color. */
