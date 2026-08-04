@@ -1212,6 +1212,34 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.getByTestId("download-inbox-log")).toHaveCount(1);
   });
 
+  test("scrolls only chat bubbles inside a prompt-history conversation", async ({ page }) => {
+    await page.setViewportSize({ width: 720, height: 520 });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    const modal = page.locator("#promptHistoryChatModal"),
+      messages = page.locator("#chatMessages"),
+      header = modal.locator(".prompt-chat-modal__header"),
+      input = page.locator("#chatInput");
+
+    await modal.evaluate((element) => {
+      document.querySelector("#chatMessages").innerHTML =
+        '<article class="chat-message">Bericht</article>'.repeat(100);
+      element.showModal();
+    });
+    const before = {
+      header: await header.boundingBox(),
+      input: await input.boundingBox(),
+    };
+    await messages.evaluate((element) => { element.scrollTop = 160; });
+    const after = {
+      header: await header.boundingBox(),
+      input: await input.boundingBox(),
+    };
+
+    await expect.poll(() => messages.evaluate((element) => element.scrollTop)).toBe(160);
+    expect(after.header.y).toBe(before.header.y);
+    expect(after.input.y).toBe(before.input.y);
+  });
+
   test("retains terminal status colours in the light prompt-history table", async ({ page }) => {
     await page.route("**/api/prompt-history", (route) => route.fulfill({ json: { runs: [] } }));
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
