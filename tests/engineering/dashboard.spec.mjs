@@ -1654,4 +1654,45 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.getByTestId("pull-refresh")).toHaveCSS("background-color", "rgb(255, 244, 230)");
     await expect(page.getByTestId("pull-refresh")).toHaveCSS("border-color", "rgb(240, 182, 106)");
   });
+
+  test("only starts pull-to-refresh from the scroll region's top edge", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+
+    const result = await page.evaluate(() => {
+      const region = document.querySelector(".dashboard-scroll-region");
+      const content = document.querySelector("#currentRun");
+      const top = region.getBoundingClientRect().top;
+      const move = (clientY) => {
+        let prevented = false;
+        movePullRefresh({
+          touches: [{ clientY }],
+          preventDefault: () => { prevented = true; },
+        });
+        return prevented;
+      };
+
+      region.scrollTop = 80;
+      startPullRefresh({ touches: [{ clientY: top + 12 }], target: content });
+      const ignoredWhileScrolling = move(top + 100);
+
+      region.scrollTop = 0;
+      startPullRefresh({ touches: [{ clientY: top + 72 }], target: content });
+      const ignoredFromContent = move(top + 160);
+
+      startPullRefresh({ touches: [{ clientY: top + 12 }], target: content });
+      const handledAtTopEdge = move(top + 50);
+      const visibleAtTopEdge = document.querySelector("#pullRefresh").classList.contains("pull-refresh--visible");
+      endPullRefresh();
+      return { ignoredWhileScrolling, ignoredFromContent, handledAtTopEdge, visibleAtTopEdge };
+    });
+
+    expect(result).toEqual({
+      ignoredWhileScrolling: false,
+      ignoredFromContent: false,
+      handledAtTopEdge: true,
+      visibleAtTopEdge: true,
+    });
+    await expect(page.locator(".dashboard-scroll-region")).toHaveCSS("padding-right", "22px");
+  });
 });

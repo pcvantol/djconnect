@@ -2101,6 +2101,8 @@ document.querySelectorAll(".clear-component-log").forEach((button) => {
 let pullRefreshStart = null,
   pullRefreshDistance = 0;
 const pullRefresh = $("pullRefresh");
+const dashboardScrollRegion = document.querySelector(".dashboard-scroll-region");
+const pullRefreshActivationHeight = 40;
 function updatePullRefresh(distance) {
   pullRefreshDistance = Math.max(0, Math.min(distance, 112));
   const ready = pullRefreshDistance >= 72;
@@ -2114,14 +2116,21 @@ function updatePullRefresh(distance) {
   pullRefresh.setAttribute("aria-hidden", String(pullRefreshDistance <= 8));
 }
 function startPullRefresh(event) {
-  if (window.scrollY > 0 || event.touches.length !== 1) return;
+  if (
+    event.touches.length !== 1 ||
+    (dashboardScrollRegion && dashboardScrollRegion.scrollTop > 0)
+  )
+    return;
   const target = event.target;
   if (
     target instanceof Element &&
     target.closest("input,textarea,select,button,[contenteditable=true]")
   )
     return;
-  pullRefreshStart = event.touches[0].clientY;
+  const touch = event.touches[0];
+  const scrollRegionTop = dashboardScrollRegion?.getBoundingClientRect().top ?? 0;
+  if (touch.clientY > scrollRegionTop + pullRefreshActivationHeight) return;
+  pullRefreshStart = touch.clientY;
   pullRefreshDistance = 0;
 }
 function movePullRefresh(event) {
@@ -3253,7 +3262,10 @@ Object.assign(window, {
   renderPromptHistory,
   showComponentModal,
   showCopyToast,
+  startPullRefresh,
   structuredLogEntries,
+  movePullRefresh,
+  endPullRefresh,
   updatePullRefresh,
 });
 for (const binding of [
