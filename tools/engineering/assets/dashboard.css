@@ -350,3 +350,10 @@ html[data-theme="light"] #engineering-dashboard-content>#technicalDetails{backgr
 :is(.workspace-card,.inbox-queue,.prompt-history,#currentRun,#rateLimits,.platform-health,.telemetry,#componentLogs,#engineering-dashboard-content>.technical-details:not(#componentLogs))[open]>summary{background:color-mix(in srgb,var(--category-color) var(--dashboard-expanded-header-strength),var(--dashboard-expanded-content-surface));border-radius:15px 15px 0 0;margin:-14px -14px 12px!important;padding:14px 14px 10px!important}
 html[data-theme="light"]{--dashboard-expanded-content-surface:#fff}
 html[data-theme="light"] :is(.workspace-card,.inbox-queue,.prompt-history,#currentRun,#rateLimits,.platform-health,.telemetry,#componentLogs,#engineering-dashboard-content>.technical-details:not(#componentLogs))[open]>summary{background:color-mix(in srgb,var(--category-color) 12%,#fff)}
+
+/* Descriptions are header metadata: they remain useful when the disclosure is
+   closed and the ruler still separates that header from expandable content. */
+:is(.workspace-card,.inbox-queue,.prompt-history,#currentRun,#rateLimits,.platform-health,.telemetry,#componentLogs,#engineering-dashboard-content>.technical-details:not(#componentLogs))>summary>.category-description,
+#currentRun>summary>.current-run__category-description{color:#d5d1d7;display:block;font-size:14px;font-weight:400;letter-spacing:normal;line-height:1.4;margin:10px 42px 0 0;text-transform:none}
+html[data-theme="light"] :is(.workspace-card,.inbox-queue,.prompt-history,#currentRun,#rateLimits,.platform-health,.telemetry,#componentLogs,#engineering-dashboard-content>.technical-details:not(#componentLogs))>summary>.category-description,
+html[data-theme="light"] #currentRun>summary>.current-run__category-description{color:#415168}

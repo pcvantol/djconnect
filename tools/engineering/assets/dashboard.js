@@ -1008,6 +1008,10 @@ function addCategoryDescriptions() {
       "#engineering-dashboard-content>.technical-details:not(#componentLogs)",
       "Operationele details over pull requests, repository, werkruimte en diagnose.",
     ],
+    [
+      "#platformHealth",
+      "Live gezondheidscontrole van de lokale Engineering Platform-componenten.",
+    ],
   ];
   for (const [selector, text] of descriptions) {
     const category = document.querySelector(selector),
@@ -1019,9 +1023,10 @@ function addCategoryDescriptions() {
     if (!description) {
       description = document.createElement("p");
       description.textContent = text;
-      summary.insertAdjacentElement("afterend", description);
+      summary.append(description);
     }
     description.classList.add("category-description");
+    summary.append(description);
   }
 }
 addCategoryDescriptions();
@@ -1591,7 +1596,7 @@ function arrangeCurrentRunCategory() {
     description.className = "current-run__category-description";
     description.textContent =
       "De actieve engineeringprompt, met actuele voortgang, uitvoeringstijd en uitvoeringscontext.";
-    summary.insertAdjacentElement("afterend", description);
+    summary.append(description);
   }
 }
 function placeCurrentRunFirst() {
@@ -1630,7 +1635,6 @@ function renderLegacyExecutionTelemetry(rows) {
       headRow = document.createElement("tr"),
       tableBody = document.createElement("tbody");
     title.textContent = "Execution Host-telemetrie";
-    summary.append(title);
     description.className = "category-description";
     description.textContent =
       "Operationele trends van de laatste zeven dagen. Telemetrie is geen repositorybewijs.";
@@ -1659,7 +1663,8 @@ function renderLegacyExecutionTelemetry(rows) {
     tableBody.id = "executionTelemetryRows";
     table.append(head, tableBody);
     scroll.append(table);
-    panel.append(summary, description, scroll);
+    summary.append(title, description);
+    panel.append(summary, scroll);
     const rate = $("rateLimits");
     rate?.insertAdjacentElement("afterend", panel);
     body = tableBody;
@@ -1724,7 +1729,6 @@ function executionTelemetry(rows) {
       headRow = document.createElement("tr"),
       tableBody = document.createElement("tbody");
     title.textContent = "Execution Host-telemetrie";
-    summary.append(title);
     description.className = "category-description";
     description.textContent =
       "Operationele trends van de laatste zeven dagen. Telemetrie is geen repositorybewijs.";
@@ -1752,7 +1756,8 @@ function executionTelemetry(rows) {
     tableBody.id = "executionTelemetryRows";
     table.append(head, tableBody);
     scroll.append(table);
-    panel.append(summary, description, scroll);
+    summary.append(title, description);
+    panel.append(summary, scroll);
     const rate = $("rateLimits");
     rate?.insertAdjacentElement("afterend", panel);
     body = tableBody;

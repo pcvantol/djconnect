@@ -367,6 +367,16 @@ test.describe("Engineering Status browser smoke", () => {
     expect(surfaces.heading).not.toBe(surfaces.content);
   });
 
+  test("keeps main-category descriptions visible inside collapsed headings", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    const workspace = page.locator("#workspaceCard");
+    await workspace.evaluate((element) => { element.open = false; });
+
+    const description = workspace.locator(":scope > summary > .category-description");
+    await expect(description).toHaveText("De actieve werkruimte van dit project.");
+    await expect(description).toBeVisible();
+  });
+
   test("refines the active duration indication with comparable runtime history", async ({ page }) => {
     await page.route("**/api/events", (route) => route.abort());
     await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({
