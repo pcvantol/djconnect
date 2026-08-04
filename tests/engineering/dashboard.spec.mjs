@@ -334,6 +334,21 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#action")).toHaveText("Codex bewerkt bestanden");
   });
 
+  test("uses related primary and secondary accents for category titles and field labels", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => r({
+      watcher_state: "ENGINEERING_RUN_ACTIVE",
+      current_phase: "EXECUTE_AGENT",
+      run_id: "paired-colours",
+      prompt_title: "Kleurenhiërarchie",
+      submitted_filename: "paired-colours.md",
+    }, {}));
+
+    await expect(page.locator("#currentRun > summary > .label")).toHaveCSS("color", "rgb(244, 114, 182)");
+    await expect(page.locator("#currentRun .card .label").first()).toHaveCSS("color", "rgb(249, 182, 216)");
+    await expect(page.locator("#technicalDetails .card .label").first()).toHaveCSS("color", "rgb(167, 231, 242)");
+  });
+
   test("refines the active duration indication with comparable runtime history", async ({ page }) => {
     await page.route("**/api/events", (route) => route.abort());
     await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({

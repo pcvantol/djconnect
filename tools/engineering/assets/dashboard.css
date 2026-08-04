@@ -298,3 +298,39 @@ html[data-theme="light"] .chat-message__body :is(code,pre){background:#e9eef6;co
 
 /* AI antwoorden krijgen een eigen paarse laag, los van de chatmodal. */
 .prompt-chat-modal{--prompt-chat-answer-surface:#3c2a4d}.prompt-chat-modal .chat-message--assistant{background:var(--prompt-chat-answer-surface);border-color:#bd8ee8}html[data-theme="light"] .prompt-chat-modal{--prompt-chat-answer-surface:#f3ebff}
+
+/* Category colour pairs -----------------------------------------------------
+   Every dashboard surface carries a primary accent for its boundary/title and
+   a closely related, lighter secondary accent for field labels.  This makes
+   dense cards scannable without adding an unrelated third colour. */
+.card,.technical-details{--category-secondary:#e2ccff}
+.card--monitoring,.current-run .card:has(#currentTime),.current-run .card:has(#executionEstimate){--category-secondary:#a7e7f2}
+.card--context,.technical-details:not(#componentLogs),.current-run .card:has(#queueList),.current-run .card:has(#runId),.current-run .card:has(#executionMode){--category-secondary:#c7b7ff}
+.card--resource,#processMetrics,#usage,#rateLimits{--category-secondary:#a4f0ca}
+.card--evidence,.card--previous,#commits{--category-secondary:#b9ddff}
+.card--diagnostic,.technical-details--diagnostic,#currentDiagnostic,#componentLogs,.current-run .card:has(#predecessorRun){--category-secondary:#ffd59b}
+.card--conversation,#codexChat{--category-secondary:#e5ccff}
+#currentRun,#currentRun .card:has(#currentTime),#currentRun .card:has(#executionEstimate),#currentRun .card:has(#runId),#currentRun .card:has(#executionMode){--category-secondary:#f9b6d8}
+.workspace-card{--category-secondary:#ffe795}
+.inbox-queue{--category-secondary:#bfc5ff}
+.prompt-history{--category-secondary:#ffc0d0}
+.telemetry{--category-secondary:#ffb0bc}
+.platform-health{--category-secondary:#c8f27f}
+#technicalDetails{--section-secondary:#a7e7f2}
+#componentLogs{--section-secondary:#ffd59b}
+#technicalDetails .card,#componentLogs .card{--category-secondary:var(--section-secondary)}
+#currentRun .card{--category-secondary:#f9b6d8}
+
+/* Primary stays with the heading; secondary carries every field caption. */
+:is(.card,.technical-details,.workspace-card,.inbox-queue,.prompt-history,.telemetry,.platform-health,.current-run) .label,
+:is(.technical-details,.prompt-history,.telemetry,.platform-health) .log-controls label,
+:is(.technical-details,.prompt-history,.telemetry,.platform-health) .log-table th{color:var(--category-secondary,var(--category-color))}
+#currentRun .card .label,#currentRun .current-run__grid>.field>.label{color:var(--category-secondary)}
+#currentRun>.current-run__title>.label{color:var(--category-color)}
+
+/* The same paired hierarchy remains accessible on the light dashboard. */
+html[data-theme="light"] :is(.card,.technical-details,.workspace-card,.inbox-queue,.prompt-history,.telemetry,.platform-health,.current-run) .label,
+html[data-theme="light"] :is(.technical-details,.prompt-history,.telemetry,.platform-health) .log-controls label,
+html[data-theme="light"] :is(.technical-details,.prompt-history,.telemetry,.platform-health) .log-table th{color:color-mix(in srgb,var(--category-secondary,var(--category-color)) 76%,#182230)}
+html[data-theme="light"] #currentRun .card .label,html[data-theme="light"] #currentRun .current-run__grid>.field>.label{color:color-mix(in srgb,var(--category-secondary) 76%,#182230)}
+html[data-theme="light"] #currentRun>.current-run__title>.label{color:color-mix(in srgb,var(--category-color) 82%,#182230)}
