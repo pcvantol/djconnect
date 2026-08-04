@@ -1183,7 +1183,8 @@ test.describe("Engineering Status browser smoke", () => {
     await page.locator("#promptHistoryDetailClose").click();
     await expect(page.locator("#promptHistoryDetailModal")).not.toBeVisible();
     const analysisView = page.locator("#promptHistoryRows .prompt-history-analysis").first();
-    await expect(page.locator("#promptHistoryRows .prompt-history-analysis")).toHaveCount(2);
+    await expect(page.locator("#promptHistoryRows .prompt-history-analysis")).toHaveCount(1);
+    await expect(page.locator("#promptHistoryRows a.prompt-history-analysis")).toHaveCount(0);
     await page.route("**/api/prompt-history/**/analysis", (route) => route.fulfill({
       contentType: "text/markdown",
       body: "# Historische AI-analyse\n\nDit advies hoort bij precies deze uitvoering.",

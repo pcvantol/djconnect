@@ -2260,10 +2260,7 @@ function renderPromptHistory() {
         report.append(view);
       } else report.textContent = "—";
       if (entry.analysis_available && entry.run_id) {
-        const actions = document.createElement("span"),
-          view = document.createElement("button"),
-          download = document.createElement("a");
-        actions.className = "prompt-history-analysis-actions";
+        const view = document.createElement("button");
         view.className = "prompt-history-analysis";
         view.type = "button";
         view.title = t("history.view_analysis", { title: title.textContent });
@@ -2272,15 +2269,7 @@ function renderPromptHistory() {
         view.addEventListener("click", () =>
           openPromptHistoryDocument(entry.run_id, title.textContent, "analysis"),
         );
-        download.className = "prompt-history-analysis";
-        download.href =
-          "/api/prompt-history/" + encodeURIComponent(entry.run_id) + "/analysis?audit=download";
-        download.download = "ai-analysis-" + entry.run_id + ".md";
-        download.title = t("history.download_analysis", { title: title.textContent });
-        download.setAttribute("aria-label", download.title);
-        download.textContent = "⇩";
-        actions.append(view, download);
-        analysis.append(actions);
+        analysis.append(view);
       } else analysis.textContent = "—";
       if (entry.run_id) {
         const button = document.createElement("button");
