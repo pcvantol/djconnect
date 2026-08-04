@@ -894,7 +894,7 @@ def _commits_for_run(root: Path, run_id: str | None) -> dict[str, str]:
 
 
 def _last_executed_commits(root: Path) -> bytes:
-    """Return commit evidence bound to the final last-executed run only."""
+    """Return commit evidence bound to the most recent completed run only."""
     try:
         status = json.loads(_status(root))
         run_id = status.get("last_executed_run")
@@ -1075,9 +1075,6 @@ def _dashboard_html(
 <div class="card" id="currentDiagnostic" hidden><strong>Codex CLI-diagnose</strong><pre id="currentLog">Laden…</pre></div>
 </div></details>
 <details class="card card--resource" id="rateLimits" hidden><summary><strong>Resterend gebruik</strong></summary><div class="field"><span class="label">Huidige AI-provider</span><span id="rateLimitProvider">Laden…</span></div><div class="field"><span class="label" id="rateLimitLabel">Codex-gebruikslimieten</span><pre id="rateLimitDetails"></pre></div><button class="rate-limit-reset" id="rateLimitReset" type="button" hidden>Gebruik reset</button><p class="rate-limit-reset-status" id="rateLimitResetStatus" role="status" aria-live="polite"></p></details>
-<section class="prompt-runs" id="promptRuns" aria-label="Promptuitvoeringen" hidden><div class="prompt-runs__cards">
-<div class="last-execution last-execution-group" id="lastExecutionGroup" data-testid="last-executed-prompt-category"><article class="card card--previous last-execution-card" id="lastExecution" hidden><div class="final-status"><span id="lastIndicator" class="indicator indicator--small" aria-hidden="true"></span><span class="label">Prompt status</span><span id="lastFinalStatus"></span></div><p class="field"><span class="label">Prompttitel</span><span id="lastPrompt"></span></p><div class="field"><span class="label">Aangeleverd als</span><pre id="lastFile"></pre></div><div class="field" id="lastRuntimeProvider" hidden><span class="label">Runtimeprovider</span><span id="lastRuntimeProviderValue"></span></div><div class="field" id="lastModel" hidden><span class="label">Gebruikt model</span><span id="lastModelValue"></span></div><div class="field" id="lastReasoningProfile" hidden><span class="label">Reasoning-profiel</span><span id="lastReasoningProfileValue"></span></div><div class="field" id="lastConfigurationProfile" hidden><span class="label">Configuratieprofiel</span><span id="lastConfigurationProfileValue"></span></div><div class="field" id="lastCodexCliVersion" hidden><span class="label">Codex CLI-versie</span><span id="lastCodexCliVersionValue"></span></div><div class="field" id="lastCommits" hidden><span class="label">Git-commit</span><pre id="lastCommitDetails"></pre></div><div class="field" id="lastUsage" hidden><span class="label">Codex CLI-gebruik</span><pre id="lastUsageDetails"></pre></div><div class="field" id="lastDiagnostic" hidden><span class="label">Codex CLI-diagnose</span><pre id="lastLog">Laden…</pre></div></article><section class="card card--previous reviewer-agents" id="reviewerAgents" hidden><strong>Specialistische agentreviews</strong><p class="estimate-meta">Alleen-lezende, onafhankelijke beoordelingen. De primaire agent behield uitvoerings- en lifecycleverantwoordelijkheid.</p><div class="reviewer-agents__list" id="reviewerAgentList"></div></section><div class="card card--previous" id="commits" hidden><strong>Voltooiingscommits</strong><div class="field"><span class="label">Vastgelegd bewijs</span><pre id="completionCommits"></pre></div></div><details class="card card--previous" id="report" hidden><summary><strong>Engineeringrapport</strong></summary><button class="copy" id="copyReport" type="button" title="Kopieer rapport" aria-label="Kopieer rapport">⧉ Kopieer</button><div id="reportContent" class="markdown-document">Open dit blok om het rapport te laden.</div></details><details class="card card--previous" id="reportAnalysis" hidden><summary><strong>AI-analyse van rapport</strong></summary><div id="reportAnalysisContent" class="markdown-document">Open dit blok om de analyse te laden.</div></details></div>
-</div></section>
 <details class="platform-health" id="platformHealth" data-testid="platform-health"><summary><strong>Platformonderdelen</strong></summary><p class="category-description">Live gezondheidscontrole van de lokale Engineering Platform-componenten.</p><div class="platform-health__components" id="platformHealthComponents" aria-live="polite"><p class="platform-health__empty">Componentstatus laden…</p></div></details>
 <dialog class="component-modal" id="componentModal" aria-labelledby="componentModalTitle"><section class="component-modal__panel"><button class="component-modal__close" id="componentModalClose" type="button" aria-label="Meer informatie sluiten">×</button><h2 id="componentModalTitle">Componentinformatie</h2><div id="componentModalContent"></div><button class="component-modal__restart" id="componentModalRestart" type="button" hidden>Component herstarten</button><p class="component-modal__status" id="componentModalStatus" aria-live="polite"></p></section></dialog>
 <dialog class="confirmation-modal" id="confirmationModal" aria-labelledby="confirmationModalTitle"><section class="confirmation-modal__panel"><h2 id="confirmationModalTitle">Bevestig actie</h2><p id="confirmationModalText"></p><div class="confirmation-modal__actions"><button id="confirmationModalCancel" type="button">Annuleren</button><button id="confirmationModalConfirm" type="button">Bevestigen</button></div></section></dialog>
@@ -1372,20 +1369,6 @@ def handler(root: Path, logger: logging.Logger | None = None):
                     self.send_error(404)
                     return
                 return self._send(content, content_type)
-            if request.path == "/api/report/last-executed":
-                run_id = parse_qs(request.query).get("run_id", [None])[0]
-                if parse_qs(request.query).get("audit") == ["download"]:
-                    log_event(logger, logging.INFO, "engineering_report_downloaded", run_id=run_id)
-                return self._send(
-                    _report_for_run(root, run_id), "text/markdown; charset=utf-8"
-                )
-            if request.path == "/api/report-analysis/last-executed":
-                run_id = parse_qs(request.query).get("run_id", [None])[0]
-                if parse_qs(request.query).get("audit") == ["download"]:
-                    log_event(logger, logging.INFO, "report_analysis_downloaded", run_id=run_id)
-                return self._send(
-                    _report_analysis_for_run(root, run_id), "text/markdown; charset=utf-8"
-                )
             if request.path == "/api/prompt-history":
                 return self._send(_prompt_history(root), "application/json; charset=utf-8")
             if request.path.startswith("/api/prompt-history/") and request.path.endswith("/details"):
@@ -1427,11 +1410,6 @@ def handler(root: Path, logger: logging.Logger | None = None):
                 self.end_headers()
                 self.wfile.write(analysis)
                 return
-            if request.path == "/api/usage/last-executed":
-                run_id = parse_qs(request.query).get("run_id", [None])[0]
-                return self._send(
-                    _codex_usage_for_run(root, run_id), "application/json; charset=utf-8"
-                )
             if self.path == "/api/status":
                 return self._send(_status(root), "application/json; charset=utf-8")
             if self.path == "/api/dashboard-snapshot":
@@ -1508,14 +1486,10 @@ def handler(root: Path, logger: logging.Logger | None = None):
                 )
             if self.path == "/api/log/current":
                 return self._send(_current_codex_log(root), "text/plain; charset=utf-8")
-            if self.path == "/api/log/last":
-                return self._send(_last_executed_codex_log(root), "text/plain; charset=utf-8")
             if self.path == "/api/usage":
                 return self._send(_codex_usage(root), "application/json; charset=utf-8")
             if self.path == "/api/commits":
                 return self._send(_completion_commits(root), "application/json; charset=utf-8")
-            if self.path == "/api/commits/last-executed":
-                return self._send(_last_executed_commits(root), "application/json; charset=utf-8")
             if self.path == "/api/prompt-started":
                 return self._send(_prompt_started(root), "application/json; charset=utf-8")
             if self.path == "/":

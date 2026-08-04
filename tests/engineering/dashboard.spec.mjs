@@ -47,6 +47,19 @@ test.describe("Engineering Status browser smoke", () => {
     ).resolves.toBe("currentRun");
   });
 
+  test("uses prompt history rather than a hidden last-executed prompt card", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    for (const selector of [
+      "#promptRuns",
+      "#lastExecutionGroup",
+      "#lastExecution",
+      "#report",
+      "#reportAnalysis",
+    ])
+      await expect(page.locator(selector)).toHaveCount(0);
+    await expect(page.locator("#promptHistoryDetailModal")).toHaveCount(1);
+  });
+
   test("shows the refresh timestamp in the bottom status bar", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await expect(page.locator("#currentTime")).toHaveCount(0);
@@ -533,20 +546,20 @@ test.describe("Engineering Status browser smoke", () => {
     await expect.poll(() => page.evaluate(() => componentDetailsRefreshTimer)).toBeNull();
   });
 
-  test("renders reports and their actions as light surfaces in light mode", async ({ page }) => {
+  test("renders prompt-history report actions as light surfaces in light mode", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.locator("#themeToggle").click();
-    await page.locator("#report").evaluate((element) => { element.hidden = false; element.open = true; });
-    await page.locator("#reportAnalysis").evaluate((element) => { element.hidden = false; element.open = true; });
-    await page.locator("#reportContent").evaluate((element) => { element.textContent = "# Rapport\n\nInhoud"; });
-    await page.locator("#reportAnalysisContent").evaluate((element) => { element.textContent = "# Analyse\n\nInhoud"; });
-    await page.locator("#copyReport").evaluate((element) => { element.hidden = false; });
-    await page.locator("#downloadReport").evaluate((element) => { element.hidden = false; });
-    for (const selector of ["#reportContent", "#reportAnalysisContent", "#copyReport", "#downloadReport"]) {
+    await page.evaluate(() => {
+      document.querySelector("#promptHistoryReportModal").showModal();
+      document.querySelector("#promptHistoryReportContent").textContent = "# Rapport\n\nInhoud";
+      document.querySelector("#promptHistoryReportCopy").hidden = false;
+      document.querySelector("#promptHistoryReportDownload").hidden = false;
+    });
+    for (const selector of ["#promptHistoryReportContent", "#promptHistoryReportCopy", "#promptHistoryReportDownload"]) {
       expect(await page.locator(selector).evaluate((element) => getComputedStyle(element).backgroundColor)).not.toBe("rgb(24, 24, 31)");
     }
-    await expect(page.locator("#downloadReport")).toHaveText("⇩");
-    expect(await page.locator("#downloadReport").evaluate((element) => getComputedStyle(element, "::before").content)).toContain("↓");
+    await expect(page.locator("#promptHistoryReportDownload")).toHaveText("⇩");
+    expect(await page.locator("#promptHistoryReportDownload").evaluate((element) => getComputedStyle(element, "::before").content)).toContain("↓");
   });
 
   test("keeps report-modal actions and markdown code light in light mode", async ({ page }) => {
@@ -568,30 +581,17 @@ test.describe("Engineering Status browser smoke", () => {
       await expect(page.locator(selector)).toHaveCSS("background-color", "rgb(238, 244, 251)");
   });
 
-  test("uses light glyphs for dark report copy and download actions", async ({ page }) => {
+  test("uses light glyphs for dark prompt-history report actions", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
-    await page.locator("#dashboardSplash").evaluate((element) => { element.hidden = true; });
-    await page.locator("#lastExecution").evaluate((element) => { element.hidden = false; });
-    await page.locator("#lastExecutionGroup").evaluate((element) => { element.style.display = "grid"; });
-    await page.locator("#report").evaluate((element) => { element.hidden = false; element.open = true; });
-    await page.locator("#copyReport").evaluate((element) => { element.hidden = false; });
-    await page.locator("#downloadReport").evaluate((element) => { element.hidden = false; });
-    const download = page.locator("#downloadReport");
+    await page.evaluate(() => {
+      document.querySelector("#promptHistoryReportModal").showModal();
+      document.querySelector("#promptHistoryReportCopy").hidden = false;
+      document.querySelector("#promptHistoryReportDownload").hidden = false;
+    });
+    const download = page.locator("#promptHistoryReportDownload");
 
-    for (const action of [download, page.locator("#copyReport")])
+    for (const action of [download, page.locator("#promptHistoryReportCopy")])
       await expect(action).toHaveCSS("color", "rgb(247, 243, 238)");
-  });
-
-  test("places report disclosure arrows at the far right", async ({ page }) => {
-    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
-
-    for (const selector of ["#report > summary", "#reportAnalysis > summary"]) {
-      const arrow = await page.locator(selector).evaluate((element) => {
-        const style = getComputedStyle(element, "::before");
-        return [style.position, style.right, style.top];
-      });
-      expect(arrow).toEqual(["absolute", "0px", "0px"]);
-    }
   });
 
   test("renders log actions in the light category style", async ({ page }) => {
@@ -640,7 +640,7 @@ test.describe("Engineering Status browser smoke", () => {
       promptHistoryPage = 1;
       renderPromptHistory();
     });
-    const report = page.locator("#promptHistoryRows .prompt-history-report");
+    const report = page.locator('[title="Bekijk engineeringrapport voor Rapport hover"]');
 
     await report.hover();
     await expect(report).toHaveCSS("background-color", "rgb(255, 113, 143)");
@@ -955,54 +955,6 @@ test.describe("Engineering Status browser smoke", () => {
       nested: ["1px", "1px", "1px", "1px"],
     });
     await expect(page.locator("#componentLogControls")).not.toHaveAttribute("hidden", "");
-    expect(await page.locator("#reportContent").evaluate((element) => element.parentElement.className)).toBe("markdown-copy-wrap");
-    expect(await page.locator("#reportAnalysisContent").evaluate((element) => element.parentElement.className)).toBe("markdown-copy-wrap");
-    await expect(page.locator("#copyReport")).toHaveClass(/copy--glyph/);
-    await expect(page.locator("#copyReport")).toHaveText("⧉");
-    await expect(page.locator("#downloadReport")).toHaveClass(/download--glyph/);
-    await expect(page.locator("#downloadReportAnalysis")).toHaveClass(/download--glyph/);
-    expect(await page.locator("#reportContent").evaluate((element) => getComputedStyle(element).paddingRight)).toBe("108px");
-    expect(await page.locator("#lastFinalStatus").evaluate((element) => element.previousElementSibling.id)).toBe("lastIndicator");
-    await page.evaluate(() => lastExecutionTime({ seconds: 75, total_seconds: 125, finished_at: "2026-08-01T10:01:30Z" }));
-    await expect(page.locator("#lastExecutionFinishedAtValue")).toHaveText("zaterdag 1 augustus 2026 om 12:01:30");
-    await expect(page.locator("#lastExecutionTimeValue")).toHaveText("1 min 15 sec");
-    await expect(page.locator("#lastTotalExecutionTimeValue")).toHaveText("2 min 5 sec");
-    await page.evaluate(() => lastRuntimeMetadata({
-      runtime_provider: "codex_cli",
-      model: "gpt-5.6-terra",
-      reasoning_profile: "medium",
-      configuration_profile: "sandbox: workspace-write",
-      codex_cli_version: "0.146.0",
-    }));
-    await expect(page.locator("#lastRuntimeProviderValue")).toHaveText("codex_cli");
-    await expect(page.locator("#lastModelValue")).toHaveText("gpt-5.6-terra");
-    await expect(page.locator("#lastReasoningProfileValue")).toHaveText("medium");
-    await expect(page.locator("#lastConfigurationProfileValue")).toHaveText("sandbox: workspace-write");
-    await expect(page.locator("#lastCodexCliVersionValue")).toHaveText("0.146.0");
-    await page.evaluate(() => lastRuntimeMetadata({ runtime_provider: "codex_cli" }));
-    await expect(page.locator("#lastModel")).toHaveAttribute("hidden", "");
-    await page.evaluate(() => {
-      const target = document.getElementById("reportContent");
-      target.replaceChildren();
-      renderMarkdownAnswer(target, "# Rapporttitel\n\n- eerste bevinding\n- **belangrijk bewijs**");
-    });
-    await expect(page.locator("#reportContent h3")).toHaveText("Rapporttitel");
-    await expect(page.locator("#reportContent li")).toHaveCount(2);
-    await expect(page.locator("#reportContent strong")).toHaveText("belangrijk bewijs");
-
-    const lastExecution = page.getByTestId("last-executed-prompt-category");
-    await page.evaluate(() => {
-      document.getElementById("promptRuns").hidden = false;
-      document.getElementById("lastExecutionGroup").hidden = false;
-      document.querySelector('[data-testid="last-executed-prompt-category"]').hidden = false;
-    });
-    const categorySummary = lastExecution.locator(":scope > summary");
-    await expect(categorySummary).toContainText("Laatst uitgevoerde prompt");
-    await expect(lastExecution).not.toHaveAttribute("open", "");
-    await expect(lastExecution).toHaveCSS("row-gap", "0px");
-    await lastExecution.evaluate((element) => { element.open = true; });
-    await expect(lastExecution).toHaveAttribute("open", "");
-
     const sendButton = page.locator("#chatSend");
     await expect(sendButton).toHaveCSS("background-color", "rgb(52, 40, 63)");
     await expect(sendButton).toHaveCSS("border-bottom-left-radius", "8px");

@@ -975,18 +975,14 @@ class DashboardStatusTest(unittest.TestCase):
                 ("/api/components/dashboard/details", "application/json"),
                 ("/api/process-metrics", "application/json"),
                 ("/api/usage", "application/json"),
-                ("/api/usage/last-executed?run_id=invalid", "application/json"),
                 ("/api/commits", "application/json"),
-                ("/api/commits/last-executed", "application/json"),
                 ("/api/prompt-started", "application/json"),
                 ("/api/prompt-history", "application/json"),
                 ("/api/log/latest", "text/plain"),
                 ("/api/logs/inbox", "text/plain"),
                 ("/api/logs/dashboard", "text/plain"),
                 ("/api/log/current", "text/plain"),
-                ("/api/log/last", "text/plain"),
                 ("/api/report/latest", "text/markdown"),
-                ("/api/report/last-executed?run_id=invalid", "text/markdown"),
             ):
                 connection.request("GET", route)
                 response = connection.getresponse()
@@ -1011,17 +1007,19 @@ class DashboardStatusTest(unittest.TestCase):
                 response = connection.getresponse()
                 self.assertEqual(response.status, 200)
                 self.assertEqual(json.loads(response.read())["health"], "ok")
-            for route, content_type in (
-                ("/api/report-analysis/last-executed?run_id=invalid", "text/markdown"),
-                ("/api/usage/last-executed?run_id=invalid", "application/json"),
+            connection.request("GET", "/missing")
+            self.assertEqual(connection.getresponse().status, 404)
+            for route in (
+                "/api/report/last-executed?run_id=invalid",
+                "/api/report-analysis/last-executed?run_id=invalid",
+                "/api/usage/last-executed?run_id=invalid",
+                "/api/commits/last-executed",
+                "/api/log/last",
             ):
                 connection.request("GET", route)
                 response = connection.getresponse()
-                self.assertEqual(response.status, 200)
-                self.assertIn(content_type, response.getheader("Content-Type"))
+                self.assertEqual(response.status, 404)
                 response.read()
-            connection.request("GET", "/missing")
-            self.assertEqual(connection.getresponse().status, 404)
             with (
                 patch("tools.engineering.dashboard._clear_component_log") as clear_log,
                 patch("tools.engineering.dashboard.log_event"),

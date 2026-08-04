@@ -322,49 +322,6 @@ function consumeRateLimitReset() {
       });
   });
 }
-function lastUsage(x) {
-  const labels = {
-    input_tokens: "Invoertokens",
-    cached_input_tokens: "Gecachete invoertokens",
-    output_tokens: "Uitvoertokens",
-    total_tokens: "Totaal tokens",
-    cost: "Kosten",
-    remaining: "Resterend beschikbaar",
-    plan_remaining: "Resterend in plan",
-    usage: "Gebruik",
-  };
-  let entries = Object.entries(x || {});
-  $("lastUsage").hidden = !entries.length;
-  $("lastUsageDetails").textContent = entries
-    .map(
-      ([key, value]) =>
-        (labels[key] || key.replaceAll("_", " ")) + ": " + value,
-    )
-    .join(String.fromCharCode(10));
-}
-function lastRuntimeMetadata(metadata) {
-  const fields = [
-    ["runtime_provider", "lastRuntimeProvider", "lastRuntimeProviderValue"],
-    ["model", "lastModel", "lastModelValue"],
-    ["reasoning_profile", "lastReasoningProfile", "lastReasoningProfileValue"],
-    [
-      "configuration_profile",
-      "lastConfigurationProfile",
-      "lastConfigurationProfileValue",
-    ],
-    ["codex_cli_version", "lastCodexCliVersion", "lastCodexCliVersionValue"],
-  ];
-  for (const [key, fieldId, valueId] of fields) {
-    const value =
-      metadata &&
-      typeof metadata[key] === "string" &&
-      metadata[key] !== "not reported"
-        ? metadata[key]
-        : "";
-    $(fieldId).hidden = !value;
-    $(valueId).textContent = value;
-  }
-}
 function processMetrics(active, x) {
   $("processMetrics").hidden = !active;
   if (!active) return;
@@ -372,80 +329,6 @@ function processMetrics(active, x) {
     locale.number(Number(x?.cpu_percent || 0), { maximumFractionDigits: 1 }) + "%";
   $("codexProcesses").textContent = x?.process_count ?? 0;
   $("codexGpu").textContent = x?.gpu_status || "Niet beschikbaar";
-}
-function commits(x) {
-  let entries = Object.entries(x || {});
-  $("commits").hidden = !entries.length;
-  $("completionCommits").textContent = entries
-    .map(([label, sha]) => label + ": " + sha)
-    .join(String.fromCharCode(10));
-}
-function lastCommits(x) {
-  let entries = Object.entries(x || {});
-  $("lastCommits").hidden = !entries.length;
-  $("lastCommitDetails").textContent = entries
-    .map(([label, sha]) => label + ": " + sha)
-    .join(String.fromCharCode(10));
-}
-function renderLegacyLastExecutionTime(x) {
-  let seconds = Number(x?.seconds),
-    field = $("lastExecutionTime"),
-    value = $("lastExecutionTimeValue");
-  if (!field) {
-    field = document.createElement("div");
-    value = document.createElement("span");
-    const label = document.createElement("span");
-    field.className = "field";
-    field.id = "lastExecutionTime";
-    value.id = "lastExecutionTimeValue";
-    label.className = "label";
-    label.textContent = "Codex CLI-uitvoeringstijd";
-    field.append(label, value);
-    $("lastFile").closest(".field").insertAdjacentElement("afterend", field);
-  }
-  field.hidden = !Number.isFinite(seconds) || seconds < 0;
-  if (field.hidden) return;
-  const hours = Math.floor(seconds / 3600),
-    minutes = Math.floor((seconds % 3600) / 60),
-    remaining = Math.round(seconds % 60);
-  value.textContent =
-    (hours ? hours + " u " : "") +
-    (minutes ? minutes + " min " : "") +
-    remaining +
-    " sec";
-}
-function reviewerAgents(items) {
-  const agents = Array.isArray(items) ? items : [],
-    card = $("reviewerAgents"),
-    list = $("reviewerAgentList");
-  card.hidden = !agents.length;
-  list.replaceChildren();
-  for (const agent of agents) {
-    if (!agent || typeof agent !== "object") continue;
-    const row = document.createElement("article"),
-      name = document.createElement("p"),
-      capability = document.createElement("p"),
-      reason = document.createElement("p"),
-      recommendations = Number(agent.accepted_recommendations) || 0;
-    row.className = "reviewer-agent";
-    name.className = "reviewer-agent__name";
-    capability.className = reason.className = "reviewer-agent__meta";
-    name.textContent = String(
-      agent.reviewer || "Specialistische review",
-    ).replaceAll("_", " ");
-    capability.textContent =
-      "Capaciteit: " +
-      String(agent.capability || "engineering") +
-      " · " +
-      String(agent.status || "Uitgevoerd") +
-      " · Gebruikte aanbevelingen: " +
-      recommendations;
-    reason.textContent =
-      "Geselecteerd voor: " +
-      String(agent.selected_because || "Niet vastgelegd.");
-    row.append(name, capability, reason);
-    list.append(row);
-  }
 }
 function activeReviewerAgents(items) {
   const agents = Array.isArray(items) ? items : [];
@@ -551,88 +434,9 @@ function promptStarted(x) {
     : t("format.not_available");
   if (latestStatus) renderEstimate(latestStatus);
 }
-let lastExecutedRun,
-  reportLoaded = false,
-  reportRequest,
-  analysisLoaded = false,
-  analysisRequest;
 function renderMarkdownDocument(target, value) {
   target.replaceChildren();
   renderMarkdownAnswer(target, value);
-}
-function lastTargetEvidence(value) {
-  const labels = [
-    ["Execution Host", "Execution Host"],
-    ["Target Repository", "Target repository"],
-    ["Target Commit", "Target commit"],
-  ];
-  const details = labels
-    .map(([reportLabel, displayLabel]) => {
-      const match = String(value || "").match(
-        new RegExp("^- " + reportLabel + ": `([^`\\n]+)`$", "m"),
-      );
-      return match ? displayLabel + ": " + match[1] : "";
-    })
-    .filter(Boolean);
-  const changed = (String(value || "").match(/^- Changed file: `/gm) || []).length;
-  if (changed) details.push("Evidence Bundle: " + changed + " gewijzigde bestanden");
-  let field = $("lastTargetEvidence");
-  if (!field) {
-    field = document.createElement("div");
-    field.className = "field";
-    field.id = "lastTargetEvidence";
-    const label = document.createElement("span");
-    label.className = "label";
-    label.textContent = "Uitvoeringsbewijs";
-    const output = document.createElement("pre");
-    output.id = "lastTargetEvidenceValue";
-    field.append(label, output);
-    $("lastFile").closest(".field").insertAdjacentElement("afterend", field);
-  }
-  field.hidden = !details.length;
-  $("lastTargetEvidenceValue").textContent = details.join(String.fromCharCode(10));
-}
-function report() {
-  if (!lastExecutedRun) return Promise.resolve();
-  if (reportLoaded) return reportRequest;
-  reportLoaded = true;
-  return (reportRequest = fetch(
-    "/api/report/last-executed?run_id=" + encodeURIComponent(lastExecutedRun),
-  )
-    .then((x) => x.text())
-    .then((x) => {
-      if (!x) {
-        $("report").hidden = true;
-        return;
-      }
-      renderMarkdownDocument($("reportContent"), x);
-      lastTargetEvidence(x);
-    })
-    .catch(() => {
-      $("reportContent").textContent =
-        "Engineeringrapport is niet beschikbaar.";
-    }));
-}
-function analysis() {
-  if (!lastExecutedRun) return Promise.resolve();
-  if (analysisLoaded) return analysisRequest;
-  analysisLoaded = true;
-  return (analysisRequest = fetch(
-    "/api/report-analysis/last-executed?run_id=" +
-      encodeURIComponent(lastExecutedRun),
-  )
-    .then((x) => x.text())
-    .then((x) => {
-      if (!x) {
-        $("reportAnalysis").hidden = true;
-        return;
-      }
-      renderMarkdownDocument($("reportAnalysisContent"), x);
-    })
-    .catch(() => {
-      $("reportAnalysisContent").textContent =
-        "Codex-analyse is niet beschikbaar.";
-    }));
 }
 let componentLogsLoaded = false,
   componentLogEntries = { inbox: [], dashboard: [] };
@@ -870,34 +674,6 @@ function showCopyToast() {
     }, 180);
   }, 2200);
 }
-function copyReport() {
-  report()
-    .then(() => copyText($("reportContent").textContent))
-    .catch(() => {
-      $("copyReport").textContent = "Kopiëren mislukt";
-    });
-}
-function copyReportAnalysis() {
-  analysis()
-    .then(() => copyText($("reportAnalysisContent").textContent))
-    .catch(() => {
-      $("copyReportAnalysis").textContent = "Kopiëren mislukt";
-    });
-}
-function addReportAnalysisCopy() {
-  const card = $("reportAnalysis");
-  if (!card || $("copyReportAnalysis")) return;
-  const button = document.createElement("button");
-  button.className = "copy";
-  button.id = "copyReportAnalysis";
-  button.type = "button";
-  button.title = "Kopieer analyse";
-  button.setAttribute("aria-label", "Kopieer analyse");
-  button.textContent = "⧉ Kopieer";
-  button.addEventListener("click", copyReportAnalysis);
-  card.querySelector("summary").insertAdjacentElement("afterend", button);
-}
-addReportAnalysisCopy();
 function renderHealthStatus(x, snapshot = {}) {
   lastRefresh = new Date();
   clock();
@@ -906,30 +682,11 @@ function renderHealthStatus(x, snapshot = {}) {
   let active = isActiveRun(x),
     statusTone = tone(x),
     indicator = $("indicator"),
-    previous = x.last_executed_run || null,
-    lastStatus = finalStatus(x.last_executed_phase),
     components = snapshot.component_versions || {},
     blockedPredecessor = Boolean(x.blocking_predecessor_run),
     terminalBlocked = isTerminalBlockedRun(x),
     blocked = blockedPredecessor || terminalBlocked;
-  if (previous !== lastExecutedRun) {
-    lastExecutedRun = previous;
-    reportLoaded = false;
-    reportRequest = undefined;
-    analysisLoaded = false;
-    analysisRequest = undefined;
-    $("report").open = false;
-    $("reportAnalysis").open = false;
-    $("reportContent").textContent = "Open dit blok om het rapport te laden.";
-    $("reportAnalysisContent").textContent =
-      "Open dit blok om de analyse te laden.";
-  }
   $("currentRun").hidden = !(active || blocked);
-  $("promptRuns").hidden = !previous;
-  $("lastExecution").hidden = !previous;
-  $("report").hidden = !previous;
-  $("reportAnalysis").hidden = !previous;
-  if (previous) report();
   $("predecessorGate").hidden = !blockedPredecessor;
   $("predecessorRun").textContent =
     x.blocking_predecessor_run || "Niet beschikbaar";
@@ -952,9 +709,6 @@ function renderHealthStatus(x, snapshot = {}) {
     statusTone +
     (active ? " indicator--running" : "");
   indicator.setAttribute("aria-label", "Promptstatus: " + statusTone);
-  $("lastIndicator").className =
-    "indicator indicator--small indicator--" + lastStatus[0];
-  $("lastFinalStatus").textContent = lastStatus[1];
   $("watcher").textContent = translate(
     x.watcher_state || fallback.watcher_state,
   );
@@ -1017,12 +771,6 @@ function renderHealthStatus(x, snapshot = {}) {
       false,
       "currentDiagnostic",
     );
-  $("lastPrompt").textContent =
-    x.last_executed_title || "Nog geen prompt uitgevoerd";
-  $("lastFile").textContent = x.last_executed_filename || "Niet beschikbaar";
-  $("lastDiagnostic").hidden = lastStatus[0] === "green";
-  if (previous && lastStatus[0] !== "green")
-    l("lastLog", "/api/log/last", previous, true, "lastDiagnostic");
   $("runId").textContent =
     x.run_id || (terminalBlocked ? x.last_executed_run : null) || "geen";
   $("queue").textContent = x.queue_depth ?? 0;
@@ -1038,21 +786,15 @@ function renderHealthStatus(x, snapshot = {}) {
   $("workerVersion").textContent = components.worker || "Niet beschikbaar";
   usage(snapshot.usage);
   rateLimits(snapshot.rate_limits);
-  lastUsage(snapshot.last_executed_usage);
-  commits(snapshot.completion_commits);
-  lastCommits(snapshot.last_executed_commits);
-  reviewerAgents(snapshot.last_executed_reviewer_agents);
   activeReviewerAgents(x.reviewer_agents);
 }
-let lastExecutionCategoryRun, activePromptCategoryRun;
+let activePromptCategoryRun;
 function renderRunCategory(x) {
   const active = x && typeof x === "object" && isActiveRun(x),
     blockedPredecessor = Boolean(x?.blocking_predecessor_run),
     terminalBlocked = isTerminalBlockedRun(x),
     blocked = blockedPredecessor || terminalBlocked,
-    current = $("currentRun"),
-    previous = x && typeof x === "object" ? x.last_executed_run || null : null,
-    group = $("lastExecutionGroup");
+    current = $("currentRun");
   const currentRunKey = active
     ? x.run_id
     : blockedPredecessor
@@ -1063,12 +805,6 @@ function renderRunCategory(x) {
   if (currentRunKey && current && currentRunKey !== activePromptCategoryRun) {
     activePromptCategoryRun = currentRunKey;
     current.open = blocked;
-  }
-  if (!group) return;
-  group.hidden = !previous;
-  if (previous !== lastExecutionCategoryRun) {
-    lastExecutionCategoryRun = previous;
-    group.open = false;
   }
 }
 const dashboardStatusStore = createDashboardStatusStore({
@@ -1084,10 +820,8 @@ function renderComponentDetails() {
 function renderDashboardStatus(status, snapshot) {
   renderHealthStatus(status, snapshot);
   renderRunCategory(status);
-  renderReportAvailability(status, snapshot);
   renderLogsForSnapshot(snapshot);
   renderDashboardTelemetry(snapshot);
-  renderExecutionEvidence(snapshot);
   renderPredecessorRetry(status);
   renderChatStatus(status);
   renderComponentDetails();
@@ -1148,13 +882,6 @@ e.onerror = () => {
   $("autoRefresh").checked &&
     ($("updateMode").textContent = "Serverpush: opnieuw verbinden…");
 };
-$("report").addEventListener("toggle", () => {
-  $("report").open && report();
-});
-$("reportAnalysis").addEventListener("toggle", () => {
-  $("reportAnalysis").open && analysis();
-});
-$("copyReport").addEventListener("click", copyReport);
 $("loadComponentLogs").addEventListener("click", loadComponentLogs);
 $("chatSend").addEventListener("click", askCodex);
 $("chatInput").addEventListener("keydown", (event) => {
@@ -1184,9 +911,6 @@ function providerNeutralLabels() {
     ["#usage>strong", "AI-providergebruik"],
     ["#currentDiagnostic>strong", "AI-uitvoeringsdiagnose"],
     ["#rateLimits .label", "AI-providerlimieten"],
-    ["#lastUsage .label", "AI-providergebruik"],
-    ["#lastDiagnostic .label", "AI-uitvoeringsdiagnose"],
-    ["#reportAnalysis summary strong", "AI-analyse van rapport"],
     ["#codexChat>strong", "AI-gesprek"],
     ["#chatMessages", "Gesprek met AI-assistent"],
     ["label[for=chatInput]", "Nieuwe vraag aan AI-assistent"],
@@ -1214,25 +938,6 @@ function chatMessage(role, text) {
   item.scrollIntoView({ block: "nearest" });
 }
 providerNeutralLabels();
-function groupLastExecution() {
-  const group = $("lastExecutionGroup");
-  if (!group || group.tagName === "DETAILS") return;
-  const category = document.createElement("details"),
-    summary = document.createElement("summary"),
-    title = document.createElement("strong"),
-    content = document.createElement("div");
-  category.id = group.id;
-  category.className = group.className;
-  category.dataset.testid = "last-executed-prompt-category";
-  category.hidden = group.hidden;
-  title.textContent = "Laatst uitgevoerde prompt";
-  summary.append(title);
-  content.className = "last-execution-group__content";
-  while (group.firstChild) content.append(group.firstChild);
-  category.append(summary, content);
-  group.replaceWith(category);
-}
-groupLastExecution();
 function addCategoryIcons() {
   for (const [selector, glyph, label] of [
     ["#workspaceCard", "⌂", "Werkruimte"],
@@ -1241,7 +946,6 @@ function addCategoryIcons() {
     ["#platformHealth", "◈", "Platformonderdelen"],
     ["#rateLimits", "◔", "Resterend gebruik"],
     ["#executionTelemetry", "▥", "Execution Host-telemetrie"],
-    ["#lastExecutionGroup", "◷", "Laatst uitgevoerde prompt"],
     ["#technicalDetails", "⚙", "Technische details"],
     ["#componentLogs", "≡", "Logs"],
     ["#currentRun", "▤", "Actieve prompt"],
@@ -1270,10 +974,6 @@ function addCategoryDescriptions() {
     [
       "#rateLimits",
       "Beschikbare gebruiksruimte en resets van de actieve AI-provider.",
-    ],
-    [
-      "#lastExecutionGroup",
-      "De meest recent uitgevoerde prompt, met bewijs, rapport en analyse.",
     ],
     [
       "#componentLogs",
@@ -1844,182 +1544,6 @@ async function refreshPlatformHealth() {
 }
 refreshPlatformHealth();
 window.setInterval(refreshPlatformHealth, 15e3);
-function flattenMarkdownPanels() {
-  for (const [panelId, contentId] of [
-    ["report", "reportContent"],
-    ["reportAnalysis", "reportAnalysisContent"],
-  ]) {
-    const panel = $(panelId),
-      content = $(contentId),
-      field = content?.closest(".field");
-    if (panel && field && field.parentElement === panel)
-      field.replaceWith(content);
-  }
-}
-flattenMarkdownPanels();
-function compactCopyButton(buttonId, contentId) {
-  const button = $(buttonId),
-    content = $(contentId);
-  if (!button || !content) return;
-  let wrapper = content.parentElement;
-  if (!wrapper.classList.contains("markdown-copy-wrap")) {
-    wrapper = document.createElement("div");
-    wrapper.className = "markdown-copy-wrap";
-    content.replaceWith(wrapper);
-    wrapper.append(content);
-  }
-  button.classList.add("copy--glyph");
-  button.textContent = "⧉";
-  wrapper.append(button);
-}
-function compactReportCopyButtons() {
-  compactCopyButton("copyReport", "reportContent");
-  compactCopyButton("copyReportAnalysis", "reportAnalysisContent");
-}
-compactReportCopyButtons();
-function downloadLastExecutedDocument(endpoint, filenamePrefix) {
-  if (!lastExecutedRun)
-    return Promise.reject(Error("Geen uitgevoerde prompt beschikbaar."));
-  return fetch(endpoint + "?run_id=" + encodeURIComponent(lastExecutedRun))
-    .then((response) =>
-      response.ok
-        ? response.text()
-        : Promise.reject(Error("Download is niet beschikbaar.")),
-    )
-    .then((text) => {
-      if (!text) throw Error("Download is niet beschikbaar.");
-      const link = document.createElement("a"),
-        url = URL.createObjectURL(
-          new Blob([text], { type: "text/markdown;charset=utf-8" }),
-        ),
-        safeRun = String(lastExecutedRun).replace(/[^a-z0-9._-]+/gi, "-");
-      link.href = url;
-      link.download = filenamePrefix + "-" + safeRun + ".md";
-      link.hidden = true;
-      document.body.append(link);
-      link.click();
-      link.remove();
-      setTimeout(() => URL.revokeObjectURL(url), 0);
-    });
-}
-function addDownloadButton(
-  panelId,
-  contentId,
-  buttonId,
-  filenamePrefix,
-  label,
-) {
-  const panel = $(panelId),
-    content = $(contentId);
-  if (!panel || !content || $(buttonId)) return;
-  const button = document.createElement("button");
-  button.className = "download download--glyph";
-  button.id = buttonId;
-  button.type = "button";
-  button.title = label;
-  button.setAttribute("aria-label", label);
-  button.textContent = "⇩";
-  button.hidden = true;
-  button.addEventListener("click", () =>
-    downloadLastExecutedDocument(
-      panelId === "report"
-        ? "/api/report/last-executed"
-        : "/api/report-analysis/last-executed",
-      filenamePrefix,
-    ).catch(() => {
-      button.title = "Download is niet beschikbaar.";
-    }),
-  );
-  const wrapper = content.parentElement;
-  button.classList.add("download--glyph");
-  wrapper.append(button);
-}
-addDownloadButton(
-  "report",
-  "reportContent",
-  "downloadReport",
-  "engineering-report",
-  "Download rapport",
-);
-addDownloadButton(
-  "reportAnalysis",
-  "reportAnalysisContent",
-  "downloadReportAnalysis",
-  "ai-analyse",
-  "Download AI-analyse",
-);
-const originalCopyAvailable = copyAvailable;
-copyAvailable = (id, available) => {
-  originalCopyAvailable(id, available);
-  const downloads = {
-    copyReport: "downloadReport",
-    copyReportAnalysis: "downloadReportAnalysis",
-  };
-  if (downloads[id]) originalCopyAvailable(downloads[id], available);
-};
-function placeFinalStatusIndicator() {
-  const indicator = $("lastIndicator"),
-    status = $("lastFinalStatus");
-  if (indicator && status) status.before(indicator);
-}
-placeFinalStatusIndicator();
-function copyAvailable(id, available) {
-  const button = $(id);
-  if (button) button.hidden = !available;
-}
-function updateCopyAvailability() {
-  const unavailable = (value) =>
-    !value ||
-    value.startsWith("Open dit blok") ||
-    value.includes("is niet beschikbaar.") ||
-    value.startsWith("Er is geen AI-analyse");
-  copyAvailable(
-    "copyReport",
-    !unavailable($("reportContent")?.textContent?.trim()),
-  );
-  copyAvailable(
-    "copyReportAnalysis",
-    !unavailable($("reportAnalysisContent")?.textContent?.trim()),
-  );
-}
-copyAvailable("copyReport", false);
-copyAvailable("copyReportAnalysis", false);
-const reportWithCopyAvailability = report;
-report = () =>
-  reportWithCopyAvailability().then((value) => {
-    updateCopyAvailability();
-    return value;
-  });
-const analysisWithCopyAvailability = analysis;
-analysis = () =>
-  analysisWithCopyAvailability().then((value) => {
-    updateCopyAvailability();
-    return value;
-  });
-let copyAvailabilityRun, displayedAnalysisAvailable;
-function renderReportAvailability(x, snapshot) {
-  const run = x && typeof x === "object" ? x.last_executed_run || null : null;
-  if (Object.hasOwn(snapshot, "last_executed_report_analysis_available")) {
-    displayedAnalysisAvailable = Boolean(
-      snapshot.last_executed_report_analysis_available,
-    );
-    if (displayedAnalysisAvailable === false && run) {
-      $("reportAnalysisContent").textContent =
-        "Er is geen AI-analyse beschikbaar voor deze uitgevoerde prompt.";
-      copyAvailable("copyReportAnalysis", false);
-    }
-  }
-  if (run !== copyAvailabilityRun) {
-    copyAvailabilityRun = run;
-    copyAvailable("copyReport", false);
-    copyAvailable("copyReportAnalysis", false);
-  }
-}
-const analysisWithAvailability = analysis;
-analysis = () => {
-  if (displayedAnalysisAvailable === false) return Promise.resolve();
-  return analysisWithAvailability();
-};
 function arrangeCurrentRunCategory() {
   const current = $("currentRun"),
     summary = current?.querySelector(":scope>summary"),
@@ -2064,51 +1588,6 @@ function durationText(seconds) {
     remaining +
     " sec"
   );
-}
-function executionTimeField(id, label, after) {
-  let field = $(id),
-    value = $(id + "Value");
-  if (!field) {
-    field = document.createElement("div");
-    value = document.createElement("span");
-    const fieldLabel = document.createElement("span");
-    field.className = "field";
-    field.id = id;
-    value.id = id + "Value";
-    fieldLabel.className = "label";
-    fieldLabel.textContent = label;
-    field.append(fieldLabel, value);
-    after.insertAdjacentElement("afterend", field);
-  }
-  return [field, value];
-}
-function lastExecutionTime(x) {
-  const agent = Number(x?.seconds),
-    total = Number(x?.total_seconds),
-    finishedAt = Date.parse(x?.finished_at || ""),
-    file = $("lastFile").closest(".field"),
-    [finishedField, finishedValue] = executionTimeField(
-      "lastExecutionFinishedAt",
-      "Uitgevoerd op",
-      file,
-    ),
-    [agentField, agentValue] = executionTimeField(
-      "lastExecutionTime",
-      "Codex CLI-uitvoeringstijd",
-      finishedField,
-    ),
-    [totalField, totalValue] = executionTimeField(
-      "lastTotalExecutionTime",
-      "Totale doorlooptijd",
-      agentField,
-    );
-  finishedField.hidden = !Number.isFinite(finishedAt);
-  agentField.hidden = !Number.isFinite(agent) || agent < 0;
-  totalField.hidden = !Number.isFinite(total) || total < 0;
-  if (!finishedField.hidden)
-    finishedValue.textContent = locale.dateTime(new Date(finishedAt));
-  if (!agentField.hidden) agentValue.textContent = durationText(agent);
-  if (!totalField.hidden) totalValue.textContent = durationText(total);
 }
 function renderLegacyExecutionTelemetry(rows) {
   let panel = $("executionTelemetry"),
@@ -2300,11 +1779,6 @@ function renderDashboardTelemetry(snapshot) {
   executionTelemetry(snapshot.telemetry);
 }
 updateFavicon();
-function renderExecutionEvidence(snapshot) {
-  lastExecutionTime(snapshot.last_executed_execution);
-  lastRuntimeMetadata(snapshot.last_executed_runtime_metadata);
-  reviewerAgents(snapshot.last_executed_reviewer_agents);
-}
 const independentLogSortStates = {
   inbox: { key: "timestamp", direction: "desc" },
   dashboard: { key: "timestamp", direction: "desc" },
@@ -2991,7 +2465,6 @@ const autoRefreshToggle = $("autoRefresh"),
     "currentRun",
     "rateLimits",
     "executionTelemetry",
-    "lastExecutionGroup",
     "platformHealth",
     "technicalDetails",
     "componentLogs",
@@ -3266,49 +2739,9 @@ function recordUserAction(action) {
     body: JSON.stringify({ action: action }),
   }).catch(() => undefined);
 }
-function downloadLegacyLastExecutedDocument(endpoint, filenamePrefix) {
-  if (!lastExecutedRun)
-    return Promise.reject(Error("Geen uitgevoerde prompt beschikbaar."));
-  const separator = endpoint.includes("?") ? "&" : "?";
-  return fetch(
-    endpoint +
-      separator +
-      "run_id=" +
-      encodeURIComponent(lastExecutedRun) +
-      "&audit=download",
-  )
-    .then((response) =>
-      response.ok
-        ? response.text()
-        : Promise.reject(Error("Download is niet beschikbaar.")),
-    )
-    .then((text) => {
-      if (!text) throw Error("Download is niet beschikbaar.");
-      const link = document.createElement("a"),
-        url = URL.createObjectURL(
-          new Blob([text], { type: "text/markdown;charset=utf-8" }),
-        ),
-        safeRun = String(lastExecutedRun).replace(/[^a-z0-9._-]+/gi, "-");
-      link.href = url;
-      link.download = filenamePrefix + "-" + safeRun + ".md";
-      link.hidden = true;
-      document.body.append(link);
-      link.click();
-      link.remove();
-      setTimeout(() => URL.revokeObjectURL(url), 0);
-    });
-}
 $("downloadChat")?.addEventListener(
   "click",
   () => void recordUserAction("chat_downloaded"),
-);
-$("copyReport")?.addEventListener(
-  "click",
-  () => void recordUserAction("report_copied"),
-);
-$("copyReportAnalysis")?.addEventListener(
-  "click",
-  () => void recordUserAction("report_analysis_copied"),
 );
 let promptHistoryReportText = "",
   promptHistoryReportRun = "",
@@ -3416,6 +2849,91 @@ function promptDetailDuration(value) {
   const seconds = Number(value);
   return Number.isFinite(seconds) && seconds >= 0 ? durationText(seconds) : "—";
 }
+function promptDetailExecutionSection(history) {
+  const timestamp = Date.parse(String(history.executed_at || ""));
+  return promptDetailCard(t("detail.execution"), [
+    detailField(t("detail.prompt_status"), promptHistoryStatus(history.status)),
+    detailField(t("detail.prompt_title"), history.title),
+    detailField(t("detail.run_id"), history.run_id, true),
+    detailField(
+      t("detail.executed_at"),
+      Number.isFinite(timestamp)
+        ? locale.dateTime(new Date(timestamp))
+        : history.executed_at,
+    ),
+    detailField(t("detail.execution_mode"), history.execution_mode),
+    detailField(t("detail.repository"), history.repository),
+  ]);
+}
+function promptDetailDurationSection(execution) {
+  return promptDetailCard(t("detail.duration"), [
+    detailField(
+      t("detail.agent_duration"),
+      promptDetailDuration(execution.seconds),
+    ),
+    detailField(
+      t("detail.total_duration"),
+      promptDetailDuration(execution.total_seconds),
+    ),
+  ]);
+}
+function promptDetailRuntimeSection(runtime) {
+  const fields = [
+    [t("detail.runtime_provider"), runtime.runtime_provider],
+    [t("detail.model"), runtime.model],
+    [t("detail.reasoning_profile"), runtime.reasoning_profile],
+    [t("detail.configuration_profile"), runtime.configuration_profile],
+    [t("detail.codex_cli_version"), runtime.codex_cli_version],
+  ]
+    .filter(([, value]) => value)
+    .map(([label, value]) => detailField(label, value));
+  return fields.length ? promptDetailCard(t("detail.runtime"), fields) : null;
+}
+function promptDetailUsageSection(usage) {
+  const labels = {
+    input_tokens: t("detail.input_tokens"),
+    output_tokens: t("detail.output_tokens"),
+    total_tokens: t("detail.total_tokens"),
+  };
+  const fields = Object.entries(usage).map(([key, value]) =>
+    detailField(labels[key] || key, value),
+  );
+  return fields.length ? promptDetailCard(t("detail.provider_usage"), fields) : null;
+}
+function promptDetailCommitsSection(commits) {
+  if (!Object.keys(commits).length) return null;
+  const evidence = Object.entries(commits)
+    .map(([label, value]) => label + ": " + value)
+    .join("\n");
+  return promptDetailCard(t("detail.git_commit"), [
+    detailField(t("detail.recorded_evidence"), evidence, true),
+  ]);
+}
+function promptDetailEvidenceSection(evidence) {
+  if (!evidence.length) return null;
+  return promptDetailCard(
+    t("detail.execution_evidence"),
+    [detailField(t("detail.evidence"), evidence.join("\n"), true)],
+    true,
+  );
+}
+function promptDetailReviewersSection(reviewers) {
+  if (!reviewers.length) return null;
+  const fields = reviewers.map((reviewer) =>
+    detailField(
+      String(reviewer.reviewer || t("detail.specialist_review")).replaceAll("_", " "),
+      t("detail.capability") + ": " +
+        String(reviewer.capability || "engineering") + " · " +
+        String(reviewer.status || t("detail.completed")) + " · " +
+        t("detail.accepted_recommendations") + ": " +
+        (Number(reviewer.accepted_recommendations) || 0) + "\n" +
+        t("detail.selected_because") + ": " +
+        String(reviewer.selected_because || t("detail.not_recorded")),
+      true,
+    ),
+  );
+  return promptDetailCard(t("detail.specialist_reviews"), fields, true);
+}
 function renderPromptHistoryDetail(payload) {
   const content = $("promptHistoryDetailContent"),
     history = payload?.history || {},
@@ -3424,56 +2942,19 @@ function renderPromptHistoryDetail(payload) {
     usage = payload?.usage || {},
     commits = payload?.commits || {},
     evidence = Array.isArray(payload?.evidence) ? payload.evidence : [],
-    reviewers = Array.isArray(payload?.reviewers) ? payload.reviewers : [],
-    timestamp = Date.parse(String(history.executed_at || ""));
+    reviewers = Array.isArray(payload?.reviewers) ? payload.reviewers : [];
   content.replaceChildren();
   content.append(
-    promptDetailCard(t("detail.execution"), [
-      detailField(t("detail.prompt_status"), promptHistoryStatus(history.status)),
-      detailField(t("detail.prompt_title"), history.title),
-      detailField(t("detail.run_id"), history.run_id, true),
-      detailField(t("detail.executed_at"), Number.isFinite(timestamp) ? locale.dateTime(new Date(timestamp)) : history.executed_at),
-      detailField(t("detail.execution_mode"), history.execution_mode),
-      detailField(t("detail.repository"), history.repository),
-    ]),
-    promptDetailCard(t("detail.duration"), [
-      detailField(t("detail.agent_duration"), promptDetailDuration(execution.seconds)),
-      detailField(t("detail.total_duration"), promptDetailDuration(execution.total_seconds)),
-    ]),
+    ...[
+      promptDetailExecutionSection(history),
+      promptDetailDurationSection(execution),
+      promptDetailRuntimeSection(runtime),
+      promptDetailUsageSection(usage),
+      promptDetailCommitsSection(commits),
+      promptDetailEvidenceSection(evidence),
+      promptDetailReviewersSection(reviewers),
+    ].filter(Boolean),
   );
-  const runtimeFields = [
-    [t("detail.runtime_provider"), runtime.runtime_provider],
-    [t("detail.model"), runtime.model],
-    [t("detail.reasoning_profile"), runtime.reasoning_profile],
-    [t("detail.configuration_profile"), runtime.configuration_profile],
-    [t("detail.codex_cli_version"), runtime.codex_cli_version],
-  ].filter(([, value]) => value);
-  if (runtimeFields.length)
-    content.append(promptDetailCard(t("detail.runtime"), runtimeFields.map(([label, value]) => detailField(label, value))));
-  const usageFields = Object.entries(usage).map(([key, value]) =>
-    detailField(
-      ({ input_tokens: t("detail.input_tokens"), output_tokens: t("detail.output_tokens"), total_tokens: t("detail.total_tokens") })[key] || key,
-      value,
-    ),
-  );
-  if (usageFields.length) content.append(promptDetailCard(t("detail.provider_usage"), usageFields));
-  if (Object.keys(commits).length)
-    content.append(promptDetailCard(t("detail.git_commit"), [detailField(t("detail.recorded_evidence"), Object.entries(commits).map(([label, value]) => label + ": " + value).join("\n"), true)]));
-  if (evidence.length)
-    content.append(promptDetailCard(t("detail.execution_evidence"), [detailField(t("detail.evidence"), evidence.join("\n"), true)], true));
-  if (reviewers.length) {
-    const reviewerFields = reviewers.map((reviewer) =>
-      detailField(
-        String(reviewer.reviewer || t("detail.specialist_review")).replaceAll("_", " "),
-        t("detail.capability") + ": " + String(reviewer.capability || "engineering") + " · " +
-          String(reviewer.status || t("detail.completed")) + " · " + t("detail.accepted_recommendations") + ": " +
-          (Number(reviewer.accepted_recommendations) || 0) + "\nGeselecteerd voor: " +
-          String(reviewer.selected_because || t("detail.not_recorded")),
-        true,
-      ),
-    );
-    content.append(promptDetailCard(t("detail.specialist_reviews"), reviewerFields, true));
-  }
 }
 function closePromptHistoryDetail() {
   const modal = $("promptHistoryDetailModal");
@@ -3740,8 +3221,6 @@ Object.assign(window, {
   enumLabel,
   executionTelemetry,
   formatTimestamp,
-  lastExecutionTime,
-  lastRuntimeMetadata,
   queueItems,
   r,
   rateLimits,
