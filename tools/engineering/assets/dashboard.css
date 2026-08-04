@@ -196,6 +196,9 @@ html[data-theme="light"] #promptHistory .execution-history-action{background:#ff
 /* Modal titles have a consistent category-colored ruler; close glyphs stay compact. */
 .component-modal h2{border-bottom:1px solid #a3e635;padding-bottom:12px}.confirmation-modal h2{border-bottom:1px solid #c7a6ff;margin:0;padding-bottom:12px}.report-view-modal__header{border-bottom:1px solid var(--category-color)}.component-modal__close,.report-view-modal__close{font-size:18px}
 
+/* A small, decorative glyph gives each modal title a clear visual purpose. */
+:is(.component-modal h2,.confirmation-modal h2,.report-view-modal__title,.prompt-detail-modal__header h2,.prompt-chat-modal__header h2)::before{display:inline-block;font-size:.84em;line-height:1;margin-right:.42em;vertical-align:-.06em}.component-modal h2::before{content:"⚙"}.confirmation-modal h2::before{content:"!"}.report-view-modal__title::before{content:"▤"}.prompt-detail-modal__header h2::before{content:"ⓘ"}.prompt-chat-modal__header h2::before{content:"💬"}
+
 /* A confirmation repeats the category color of the action that requested it. */
 .confirmation-modal{--confirmation-color:#c7a6ff}.confirmation-modal__panel{border-color:var(--confirmation-color)}.confirmation-modal h2{border-bottom-color:var(--confirmation-color)}.confirmation-modal__actions button:last-child{background:var(--confirmation-color);border-color:var(--confirmation-color)}
 

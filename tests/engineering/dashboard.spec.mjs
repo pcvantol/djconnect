@@ -1431,6 +1431,21 @@ test.describe("Engineering Status browser smoke", () => {
     ));
   });
 
+  test("uses purpose-matched glyphs in modal titles", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    for (const [selector, glyph] of [
+      ["#componentModalTitle", "⚙"],
+      ["#confirmationModalTitle", "!"],
+      ["#promptHistoryReportModalTitle", "▤"],
+      ["#promptHistoryDetailTitle", "ⓘ"],
+      ["#promptHistoryChatTitle", "💬"],
+    ]) {
+      expect(await page.locator(selector).evaluate(
+        (title) => getComputedStyle(title, "::before").content,
+      )).toContain(glyph);
+    }
+  });
+
   test("sizes prompt-history chat bubbles to their content", async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 900 });
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
