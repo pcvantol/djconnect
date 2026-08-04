@@ -844,6 +844,16 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(modal).toHaveCSS("box-shadow", "none");
   });
 
+  test("keeps prompt-detail shell focusable without a visible selection ring", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    const modal = page.locator("#promptHistoryDetailModal");
+
+    await modal.evaluate((element) => { element.showModal(); element.focus(); });
+    await expect(modal).toBeFocused();
+    await expect(modal).toHaveCSS("outline-style", "none");
+    await expect(modal).toHaveCSS("box-shadow", "none");
+  });
+
   test("uses light glyphs for all dark report-modal actions", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.evaluate(() => {
