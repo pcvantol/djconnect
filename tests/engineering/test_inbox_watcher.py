@@ -128,6 +128,46 @@ class InboxWatcherTest(unittest.TestCase):
         (self.inbox / "legacy.txt").write_text("plain prompt text", encoding="utf-8")
         self.assertEqual([path.name for path in inbox_watcher.discover(self.root, 0)], ["legacy.txt"])
 
+    def test_queue_scan_and_admission_keep_the_oldest_prompt_together(self) -> None:
+        oldest = self.inbox / "first.md"
+        newest = self.inbox / "second.md"
+        oldest.write_text("# First", encoding="utf-8")
+        newest.write_text("# Second", encoding="utf-8")
+        base = time.time_ns()
+        os.utime(oldest, ns=(base, base))
+        os.utime(newest, ns=(base + 1_000_000, base + 1_000_000))
+
+        candidates = inbox_watcher._scan_queue(self.root, 0)
+        admission = inbox_watcher._admit_queue_candidate(
+            self.repo,
+            candidates,
+            child_run_id=None,
+            child_job_id=None,
+            logger=logging.getLogger("test"),
+        )
+
+        self.assertEqual([path.name for path, _ in candidates], ["first.md", "second.md"])
+        self.assertEqual(admission.source, oldest)
+        self.assertEqual(admission.content, "# First")
+
+    def test_detached_runner_admission_targets_its_exact_job(self) -> None:
+        prompt = self.inbox / "job.md"
+        prompt.write_text("# Prompt", encoding="utf-8")
+        candidates = inbox_watcher._scan_queue(self.root, 0)
+        job_id, _, _ = inbox_watcher._job_id(prompt, "# Prompt")
+
+        admission = inbox_watcher._admit_queue_candidate(
+            self.repo,
+            candidates,
+            child_run_id="inbox-detached-run",
+            child_job_id=job_id,
+            logger=logging.getLogger("test"),
+        )
+
+        self.assertEqual(admission.source, prompt)
+        self.assertEqual(admission.content, "# Prompt")
+        self.assertEqual(admission.exit_code, 0)
+
     def test_queue_projection_contains_only_filename_title_and_modified_time(self) -> None:
         prompt = self.inbox / "queued.md"
         prompt.write_text("# Queue title\nSensitive prompt body", encoding="utf-8")

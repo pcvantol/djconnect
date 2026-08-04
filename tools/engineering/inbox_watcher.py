@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 from contextlib import contextmanager
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from html import escape
 import hashlib
@@ -724,13 +725,176 @@ def _clear_prior_codex_log(repo: Path, run_id: str) -> None:
     (repo / ".engineering" / "logs" / "codex" / f"{run_id}.log").unlink(missing_ok=True)
 
 
+QueueCandidate = tuple[Path, str]
+
+
+@dataclass(frozen=True)
+class QueueAdmission:
+    """The single candidate permitted to advance during one watcher cycle."""
+
+    source: Path | None
+    content: str | None
+    exit_code: int = 0
+
+
+def _scan_queue(root: Path, interval: float) -> list[QueueCandidate]:
+    """Return stable Inbox prompts in their canonical execution order."""
+    return [
+        (path, content)
+        for path in discover(root, interval)
+        if (content := stable_prompt(path, 0.0)) is not None
+    ]
+
+
+def _admit_queue_candidate(
+    repo: Path,
+    candidates: list[QueueCandidate],
+    *,
+    child_run_id: str | None,
+    child_job_id: str | None,
+    logger: logging.Logger,
+) -> QueueAdmission:
+    """Choose the one permitted candidate, preserving queue-recovery ordering."""
+    if child_job_id:
+        admitted = [
+            (candidate, prompt)
+            for candidate, prompt in candidates
+            if _job_id(candidate, prompt)[0] == child_job_id
+        ]
+        if admitted:
+            source, content = admitted[0]
+            return QueueAdmission(source, content)
+        status(
+            repo,
+            "JOB_FAILED",
+            run_id=child_run_id,
+            queued_jobs=len(candidates),
+            queue_items=_queue_items(candidates),
+            diagnostic="De toegelaten Inbox-opdracht is niet meer beschikbaar voor de losgestarte runner.",
+        )
+        log_event(logger, logging.ERROR, "detached_runner_job_missing", run_id=child_run_id)
+        return QueueAdmission(None, None, 1)
+
+    predecessor = _blocking_predecessor(repo)
+    if predecessor is None:
+        source, content = candidates[0]
+        return QueueAdmission(source, content)
+
+    retries = [
+        (candidate, prompt)
+        for candidate, prompt in candidates
+        if _retry_of(prompt) == predecessor["run_id"]
+    ]
+    if retries:
+        source, content = retries[0]
+        return QueueAdmission(source, content)
+
+    status(
+        repo,
+        "WAITING_FOR_PREDECESSOR",
+        queued_jobs=len(candidates),
+        queue_items=_queue_items(candidates),
+        runner_phase="WAITING_FOR_PREDECESSOR",
+        current_action="Wachtrij gepauzeerd tot de voorafgaande prompt is hersteld.",
+        diagnostic=(
+            f"Voorafgaande prompt {predecessor['run_id']} eindigde als "
+            f"{predecessor['phase']}; geen volgende prompt is geclaimd."
+        ),
+        blocking_predecessor_run=predecessor["run_id"],
+        blocking_predecessor_phase=predecessor["phase"],
+        blocking_predecessor_filename=predecessor["filename"],
+        blocking_predecessor_title=predecessor["title"],
+        predecessor_recovery_action=_predecessor_recovery_action(predecessor["run_id"]),
+    )
+    return QueueAdmission(None, None)
+
+
+def _detach_runner(
+    repo: Path,
+    root: Path,
+    candidates: list[QueueCandidate],
+    source: Path,
+    content: str,
+    job_id: str,
+    run_id: str,
+    logger: logging.Logger,
+) -> int:
+    """Publish admission and start one independent runner without blocking scans."""
+    status(
+        repo,
+        "RUNNER_STARTING",
+        queued_jobs=len(candidates) - 1,
+        queue_items=_queue_items(candidates, source),
+        job_id=job_id,
+        run_id=run_id,
+        submitted_filename=source.name,
+        prompt_title=_prompt_title(content, source.name),
+        current_action="De Engineering-runner is los gestart; de watcher blijft de Inbox volgen.",
+    )
+    environment = dict(os.environ)
+    environment[BACKGROUND_RUN_ID_ENVIRONMENT] = run_id
+    environment[BACKGROUND_JOB_ID_ENVIRONMENT] = job_id
+    try:
+        subprocess.Popen(
+            [
+                sys.executable,
+                "-m",
+                "tools.engineering.inbox_watcher",
+                "once",
+                "--repo",
+                str(repo),
+                "--icloud-root",
+                str(root),
+            ],
+            cwd=repo,
+            env=environment,
+            start_new_session=True,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+    except OSError as error:
+        status(
+            repo,
+            "JOB_FAILED",
+            queued_jobs=len(candidates),
+            queue_items=_queue_items(candidates),
+            job_id=job_id,
+            run_id=run_id,
+            diagnostic=f"De los gestarte Engineering-runner kon niet starten: {error}",
+        )
+        return 1
+    log_event(logger, logging.INFO, "runner_detached", run_id=run_id)
+    return 0
+
+
+def _execute_runner_command(
+    repo: Path,
+    prompt: Path,
+    run_id: str,
+) -> tuple[datetime, subprocess.CompletedProcess[str]]:
+    """Run the admitted host command and return only process lifecycle evidence."""
+    phase, _ = _runner_result(repo, run_id)
+    _clear_prior_codex_log(repo, run_id)
+    arguments = [
+        str(repo / "tools/engineering/engineering-execution-host"),
+        str(prompt.relative_to(repo)),
+        "--owner-authorized",
+        "--run-id",
+        run_id,
+    ]
+    if phase and phase not in TERMINAL_PHASES:
+        arguments.append("--resume")
+    execution_started_at = datetime.now(timezone.utc)
+    completed = subprocess.run(arguments, cwd=repo, text=True, capture_output=True, check=False)
+    return execution_started_at, completed
+
+
 def once(repo: Path, root: Path, interval: float = 1.0, *, background: bool = False) -> int:
     """Process at most one stable job; all repository mutations remain runner-owned."""
     logger = component_logger(repo, "inbox")
     areas = local_folders(repo)
     with _lock(repo):
-        candidates = [(path, stable_prompt(path, 0.0)) for path in discover(root, interval)]
-        candidates = [(path, content) for path, content in candidates if content is not None]
+        candidates = _scan_queue(root, interval)
         log_event(logger, logging.DEBUG, "inbox_scan", diagnostic=f"eligible_jobs={len(candidates)}")
         child_run_id = os.environ.get(BACKGROUND_RUN_ID_ENVIRONMENT)
         child_job_id = os.environ.get(BACKGROUND_JOB_ID_ENVIRONMENT)
@@ -742,54 +906,16 @@ def once(repo: Path, root: Path, interval: float = 1.0, *, background: bool = Fa
             log_event(logger, logging.DEBUG, "watcher_idle")
             status(repo, "WATCHER_IDLE", queued_jobs=0, queue_items=[])
             return 0
-        if child_job_id:
-            admitted = [
-                (candidate, prompt)
-                for candidate, prompt in candidates
-                if _job_id(candidate, prompt)[0] == child_job_id
-            ]
-            if not admitted:
-                status(
-                    repo,
-                    "JOB_FAILED",
-                    run_id=child_run_id,
-                    queued_jobs=len(candidates),
-                    queue_items=_queue_items(candidates),
-                    diagnostic="De toegelaten Inbox-opdracht is niet meer beschikbaar voor de losgestarte runner.",
-                )
-                log_event(logger, logging.ERROR, "detached_runner_job_missing", run_id=child_run_id)
-                return 1
-            source, content = admitted[0]
-        else:
-            predecessor = _blocking_predecessor(repo)
-            if predecessor:
-                retries = [
-                    (candidate, prompt)
-                    for candidate, prompt in candidates
-                    if _retry_of(prompt) == predecessor["run_id"]
-                ]
-                if not retries:
-                    status(
-                        repo,
-                        "WAITING_FOR_PREDECESSOR",
-                        queued_jobs=len(candidates),
-                        queue_items=_queue_items(candidates),
-                        runner_phase="WAITING_FOR_PREDECESSOR",
-                        current_action="Wachtrij gepauzeerd tot de voorafgaande prompt is hersteld.",
-                        diagnostic=(
-                            f"Voorafgaande prompt {predecessor['run_id']} eindigde als "
-                            f"{predecessor['phase']}; geen volgende prompt is geclaimd."
-                        ),
-                        blocking_predecessor_run=predecessor["run_id"],
-                        blocking_predecessor_phase=predecessor["phase"],
-                        blocking_predecessor_filename=predecessor["filename"],
-                        blocking_predecessor_title=predecessor["title"],
-                        predecessor_recovery_action=_predecessor_recovery_action(predecessor["run_id"]),
-                    )
-                    return 0
-                source, content = retries[0]
-            else:
-                source, content = candidates[0]
+        admission = _admit_queue_candidate(
+            repo,
+            candidates,
+            child_run_id=child_run_id,
+            child_job_id=child_job_id,
+            logger=logger,
+        )
+        if admission.source is None or admission.content is None:
+            return admission.exit_code
+        source, content = admission.source, admission.content
         job_id, legacy_run_id, digest = _job_id(source, content)
         preflight = execute_host_preflight(repo, run_id=None)
         if preflight.outcome == "FAIL":
@@ -837,51 +963,7 @@ def once(repo: Path, root: Path, interval: float = 1.0, *, background: bool = Fa
             return 0
         run_id = child_run_id or _allocate_run_id()
         if background and not child_run_id:
-            status(
-                repo,
-                "RUNNER_STARTING",
-                queued_jobs=len(candidates) - 1,
-                queue_items=_queue_items(candidates, source),
-                job_id=job_id,
-                run_id=run_id,
-                submitted_filename=source.name,
-                prompt_title=_prompt_title(content, source.name),
-                current_action="De Engineering-runner is los gestart; de watcher blijft de Inbox volgen.",
-            )
-            environment = dict(os.environ)
-            environment[BACKGROUND_RUN_ID_ENVIRONMENT] = run_id
-            environment[BACKGROUND_JOB_ID_ENVIRONMENT] = job_id
-            try:
-                subprocess.Popen(
-                    [
-                        sys.executable,
-                        "-m",
-                        "tools.engineering.inbox_watcher",
-                        "once",
-                        "--repo",
-                        str(repo),
-                        "--icloud-root",
-                        str(root),
-                    ],
-                    cwd=repo,
-                    env=environment,
-                    start_new_session=True,
-                    stdout=subprocess.DEVNULL,
-                    stderr=subprocess.DEVNULL,
-                )
-            except OSError as error:
-                status(
-                    repo,
-                    "JOB_FAILED",
-                    queued_jobs=len(candidates),
-                    queue_items=_queue_items(candidates),
-                    job_id=job_id,
-                    run_id=run_id,
-                    diagnostic=f"De los gestarte Engineering-runner kon niet starten: {error}",
-                )
-                return 1
-            log_event(logger, logging.INFO, "runner_detached", run_id=run_id)
-            return 0
+            return _detach_runner(repo, root, candidates, source, content, job_id, run_id, logger)
         claimed = _archive_path(areas["Running"], job_id, source)
         title = _prompt_title(content, source.name)
         try:
@@ -912,24 +994,12 @@ def once(repo: Path, root: Path, interval: float = 1.0, *, background: bool = Fa
             + "\n",
             encoding="utf-8",
         )
-        phase, _ = _runner_result(repo, run_id)
-        _clear_prior_codex_log(repo, run_id)
-        arguments = [
-            str(repo / "tools/engineering/engineering-execution-host"),
-            str(prompt.relative_to(repo)),
-            "--owner-authorized",
-            "--run-id",
-            run_id,
-        ]
-        if phase and phase not in TERMINAL_PHASES:
-            arguments.append("--resume")
         status(
             repo, "RUNNER_STARTING", job_id=job_id, run_id=run_id, queued_jobs=len(candidates) - 1, queue_items=_queue_items(candidates, source),
             submitted_filename=source.name, prompt_title=title,
         )
         log_event(logger, logging.INFO, "runner_started", run_id=run_id)
-        execution_started_at = datetime.now(timezone.utc)
-        completed = subprocess.run(arguments, cwd=repo, text=True, capture_output=True, check=False)
+        execution_started_at, completed = _execute_runner_command(repo, prompt, run_id)
         phase, diagnostic = _runner_result(repo, run_id)
         terminal_phase = phase if phase in TERMINAL_PHASES else "FAILED"
         reason = diagnostic or (
