@@ -1,5 +1,5 @@
 import { defineConfig } from "@playwright/test";
 
 export default defineConfig({
-  snapshotPathTemplate: "{testDir}/{testFilePath}-snapshots/{arg}{ext}",
+  snapshotPathTemplate: "{testDir}/{testFilePath}-snapshots/{arg}-{platform}{ext}",
 });

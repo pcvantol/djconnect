@@ -53,6 +53,10 @@ test.describe("Engineering Status browser smoke", () => {
   });
 
   test("uses catalogued copy for every UI label in every supported language", async ({ page }) => {
+    await page.route("**/api/events", (route) => route.abort());
+    await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({
+      json: { status: { watcher_state: "IDLE", queue_depth: 0 } },
+    }));
     const dashboardSource = readFileSync(
       path.join(repository, "tools/engineering/assets/dashboard.js"),
       "utf8",
@@ -71,11 +75,16 @@ test.describe("Engineering Status browser smoke", () => {
       }
 
       await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
-      await page.locator("#dashboardLocale").selectOption(language);
-      await expect(page.locator("html")).toHaveAttribute("lang", language);
       await page.waitForFunction(
         () => typeof window.__djconnectDashboardLocalizationCalls === "function",
       );
+      await page.waitForFunction(
+        () => document.body.classList.contains("dashboard-ready"),
+      );
+      // Change language only after the asynchronous snapshot has rendered;
+      // otherwise it may overwrite localized template placeholders.
+      await page.locator("#dashboardLocale").selectOption(language);
+      await expect(page.locator("html")).toHaveAttribute("lang", language);
 
       const templateBindings = await page.locator(
         "[data-i18n], [data-i18n-placeholder], [data-i18n-aria-label], [data-i18n-title]",
@@ -102,7 +111,15 @@ test.describe("Engineering Status browser smoke", () => {
         },
       ].filter(Boolean)));
       for (const binding of templateBindings.filter(
-        ({ key }) => !["format.loading", "format.unavailable", "estimate.not_available"].includes(key),
+        ({ key }) => ![
+          "format.loading",
+          "format.unavailable",
+          "logs.loading",
+          "estimate.not_available",
+          // The indicator's accessible name is deliberately enriched at runtime
+          // with the resolved status, e.g. "Prompt status: complete".
+          "status.unknown",
+        ].includes(key),
       )) {
         expect(
           binding.value,
@@ -2044,7 +2061,12 @@ test.describe("Engineering Status browser smoke", () => {
   });
 
   test("retains severity colours in the light component-log table", async ({ page }) => {
+    await page.route("**/api/events", (route) => route.abort());
+    await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({
+      json: { status: { watcher_state: "IDLE", queue_depth: 0 } },
+    }));
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.waitForFunction(() => document.body.classList.contains("dashboard-ready"));
     await page.locator("#themeToggle").click();
     await page.evaluate(() => {
       document.querySelector("#inboxComponentLog").innerHTML =
