@@ -15,6 +15,17 @@ authorization and a stable run ID. Reports remain under `.engineering/reports/`
 and status under `.engineering/status/`. iCloud is transport only; it retains no
 reports, status or prompt archive after a job is claimed.
 
+## Producer Contract
+
+The Execution Host consumes declared Producer metadata as immutable provenance:
+`Producer ID`, `Producer Type`, `Producer Version`, `Producer Correlation ID`,
+optional `Mission ID`, optional `Engineering Action ID`, and `Execution
+Constraint Version`. Forge owns this contract and its semantics. The Execution
+Host does not implement or interpret Forge logic; it persists and reports the
+metadata only. Missing metadata remains compatible with existing prompts and
+records `Producer Type: HUMAN` and `Producer ID: legacy`. Producer identity
+never changes admission, scheduling, preflight, lifecycle or execution.
+
 ## Execution Host Preflight Level 1
 
 Before claiming a discovered Inbox item, the watcher runs fail-closed **Execution

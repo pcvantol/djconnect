@@ -29,6 +29,15 @@ admission record prevents a second execution from starting. A terminal
 checkpoint clears that admission record; the historical run and its report
 remain the source of evidence.
 
+The detached runner never owns the polling lock for its engineering lifetime.
+The watcher may therefore refresh only the bounded queue projection while the
+runner is active, preserving the active Run ID and runner phase in the same
+status snapshot. This scan is read-only: a newly discovered Inbox prompt is
+shown immediately in **Inbox-wachtrij**, but is not claimed until the active
+execution reaches a terminal checkpoint. During an in-place upgrade, a watcher
+may encounter one older runner that still owns the previous lock; it still
+performs that read-only queue refresh and never starts a second runner.
+
 ## Dashboard module boundaries
 
 `tools/engineering/dashboard.py` is the intentionally thin dashboard façade:
@@ -154,6 +163,11 @@ not need iCloud Drive to render a current or completed run:
 
 iCloud Drive is solely an Inbox transport source for the separate watcher.
 The dashboard does not read iCloud reports, status or archived prompts.
+
+Prompt History and its read-only execution-detail dialog expose the stored
+Producer ID, Type, Version, Correlation ID and optional Mission and Engineering
+Action IDs for the selected run only. Producer metadata is audit evidence: it
+cannot be edited in the dashboard and never affects execution or scheduling.
 
 At every page load, the dashboard first retrieves one complete, read-only
 same-origin status snapshot. This fills all categories even when the

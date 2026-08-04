@@ -649,7 +649,7 @@ class DashboardStatusTest(unittest.TestCase):
 
         self.assertRegex(details["size"], r"^\d+,\d{2} MB$")
         self.assertNotEqual(details["size"], "0,00 MB")
-        self.assertEqual(details["schema_version"], "8")
+        self.assertEqual(details["schema_version"], "10")
 
     @patch("tools.engineering.dashboard.subprocess.run")
     def test_tracked_file_count_counts_recursive_git_index_entries(self, run: object) -> None:
@@ -914,6 +914,31 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertEqual(without_report["history"], entry)
         self.assertEqual(without_report["evidence"], [])
 
+    def test_dashboard_projects_producer_metadata_from_the_exact_execution(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            with open_storage(root) as connection:
+                connection.execute(
+                    """INSERT INTO execution_runs(
+                        run_id, execution_date, arrived_at, execution_started_at, execution_finished_at,
+                        queue_wait_seconds, terminal_state, execution_mode, workspace, repository,
+                        execution_host_version, producer_id, producer_type, producer_version,
+                        correlation_id, mission_id, engineering_action_id, execution_constraint_version
+                    ) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+                    ("inbox-producer", "2026-08-04", "now", "now", "now", 0, "COMPLETE", "MANAGED",
+                     "djconnect", "pcvantol/djconnect", "1.5.0", "forge", "FORGE", "2.0", "corr-42",
+                     "MISSION-0003", "EA-0042", "1.0"),
+                )
+            record_prompt_execution(
+                root, run_id="inbox-producer", terminal_state="COMPLETE", prompt_title="Produced prompt",
+                executed_at="2026-08-04T12:00:00Z",
+            )
+            payload = json.loads(_prompt_history(root))
+            entry = payload["runs"][0]
+            self.assertEqual(entry["producer_type"], "FORGE")
+            self.assertEqual(entry["mission_id"], "MISSION-0003")
+            self.assertEqual(entry["engineering_action_id"], "EA-0042")
+
     def test_component_log_is_read_from_canonical_sqlite_storage(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
@@ -1043,6 +1068,7 @@ class DashboardStatusTest(unittest.TestCase):
                 report=report,
                 target_checkout_path="/Users/example/Documents/GitHub/forge",
                 tracked_file_count=1655,
+                target_branch="forge-phase-evidence",
             )
             connection = MagicMock()
             connection.execute.return_value.fetchone.return_value = (10, 20, 30)
@@ -1064,6 +1090,7 @@ class DashboardStatusTest(unittest.TestCase):
                 "/Users/example/Documents/GitHub/forge",
             )
             self.assertEqual(detail["history"]["tracked_file_count"], 1655)
+            self.assertEqual(detail["history"]["target_branch"], "forge-phase-evidence")
 
     def test_dashboard_file_projections_reject_malformed_or_missing_data(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

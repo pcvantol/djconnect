@@ -31,13 +31,12 @@ const $ = (id) => document.getElementById(id),
   DASHBOARD_BUILD_KEY = "djconnect-engineering-dashboard-build",
   fallback = {
     watcher_state: "REMOTE_ENGINEERING_DEGRADED",
-    current_phase: "status niet beschikbaar",
-    current_action:
-      "Ververs het dashboard nadat het Engineering Platform een statusupdate heeft gepubliceerd.",
+    current_phase: "UNKNOWN",
+    current_action: t("dashboard.status_unavailable"),
     queue_depth: 0,
     repository_state: "UNKNOWN",
     workspace_state: "UNKNOWN",
-    diagnostic: "Het statusverzoek kon niet worden voltooid.",
+    diagnostic: t("dashboard.status_unavailable"),
   };
 let currentLogRun, lastLogRun, lastRefresh, promptStartedAt, latestStatus, latestDurationEstimate;
 function formatTimestamp(value, fallback = t("format.timestamp_unavailable")) {
@@ -245,7 +244,7 @@ function l(id, url, run, last, container) {
   if (run === (last ? lastLogRun : currentLogRun)) return;
   if (last) lastLogRun = run;
   else currentLogRun = run;
-  $(id).textContent = "Diagnose laden…";
+  $(id).textContent = t("ui.diagnostic_loading");
   fetch(url)
     .then((x) => x.text())
     .then((x) => {
@@ -257,26 +256,26 @@ function l(id, url, run, last, container) {
       $(id).textContent = available
         ? x
         : last
-          ? "Er is geen AI-uitvoeringsdiagnose beschikbaar voor deze uitgevoerde prompt."
-          : "Er is geen AI-uitvoeringsdiagnose beschikbaar voor deze actieve prompt.";
+          ? t("ui.diagnostic_unavailable_history")
+          : t("ui.diagnostic_unavailable_active");
     })
     .catch(() => {
       $(container).hidden = false;
       $(id).textContent = last
-        ? "Er is geen AI-uitvoeringsdiagnose beschikbaar voor deze uitgevoerde prompt."
-        : "AI-uitvoeringsdiagnose is niet beschikbaar voor deze actieve prompt.";
+        ? t("ui.diagnostic_unavailable_history")
+        : t("ui.diagnostic_unavailable_active");
     });
 }
 function usage(x) {
   const labels = {
-    input_tokens: "Invoertokens",
-    cached_input_tokens: "Gecachete invoertokens",
-    output_tokens: "Uitvoertokens",
-    total_tokens: "Totaal tokens",
-    cost: "Kosten",
-    remaining: "Resterend beschikbaar",
-    plan_remaining: "Resterend in plan",
-    usage: "Gebruik",
+    input_tokens: t("detail.input_tokens"),
+    cached_input_tokens: t("ui.cached_input_tokens"),
+    output_tokens: t("ui.output_tokens"),
+    total_tokens: t("ui.total_tokens"),
+    cost: t("detail.cost"),
+    remaining: t("ui.remaining_available"),
+    plan_remaining: t("detail.plan_remaining"),
+    usage: t("ui.usage"),
   };
   let entries = Object.entries(x || {});
   $("usage").hidden = !entries.length;
@@ -291,14 +290,14 @@ function rateLimits(x) {
   const windows = Array.isArray(x?.windows) ? x.windows : [],
     credits = Number.isInteger(x?.reset_credits) ? x.reset_credits : null,
     provider =
-      typeof x?.provider === "string" ? x.provider : "Niet beschikbaar",
+      typeof x?.provider === "string" ? x.provider : t("format.not_available"),
     version =
       typeof x?.provider_version === "string"
         ? x.provider_version
-        : "versie niet beschikbaar",
+        : t("format.version_unavailable"),
     button = $("rateLimitReset");
   $("rateLimits").hidden =
-    !windows.length && credits === null && provider === "Niet beschikbaar";
+    !windows.length && credits === null && provider === t("format.not_available");
   $("rateLimitProvider").textContent = provider + " · " + version;
   let lines = windows.map((window) => {
     const remaining = Math.max(0, 100 - Number(window.used_percent || 0)),
@@ -306,14 +305,13 @@ function rateLimits(x) {
     return (
       window.label +
       ": " +
-      remaining +
-      "% beschikbaar · reset " +
+      t("rate_limit.available_reset", { remaining }) + " " +
       (Number.isFinite(reset)
         ? locale.dateTime(new Date(reset * 1e3))
-        : "onbekend")
+        : t("format.unknown"))
     );
   });
-  if (credits !== null) lines.push("Beschikbare resets: " + credits);
+  if (credits !== null) lines.push(t("ui.available_resets", { count: credits }));
   $("rateLimitDetails").textContent = lines.join(String.fromCharCode(10));
   button.hidden = !(credits > 0);
   button.disabled = false;
@@ -323,13 +321,13 @@ function consumeRateLimitReset() {
     status = $("rateLimitResetStatus");
   if (button.hidden || button.disabled) return;
   confirmDashboardAction(
-    "Gebruik reset",
-    "Deze actie verbruikt één beschikbare resetcredit.",
-    "Gebruik reset",
+    t("ui.reset_ready"),
+    t("ui.reset_confirmation"),
+    t("ui.reset_ready"),
   ).then((confirmed) => {
     if (!confirmed) return;
     button.disabled = true;
-    status.textContent = "Reset gebruiken…";
+    status.textContent = t("ui.reset_in_progress");
     fetch("/api/rate-limit-reset", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -341,14 +339,14 @@ function consumeRateLimitReset() {
       }))
       .then((result) => {
         if (!result.ok)
-          throw Error(result.body.error || "Reset kon niet worden uitgevoerd.");
+          throw Error(result.body.error || t("ui.reset_failed"));
         const messages = {
-          reset: "Reset gebruikt. De gebruikslimieten zijn bijgewerkt.",
-          nothingToReset: "Er is op dit moment niets om te resetten.",
-          noCredit: "Er is geen resetcredit beschikbaar.",
-          alreadyRedeemed: "Deze resetcredit is al gebruikt.",
+          reset: t("ui.reset_used"),
+          nothingToReset: t("ui.reset_nothing"),
+          noCredit: t("ui.reset_no_credit"),
+          alreadyRedeemed: t("ui.reset_already_redeemed"),
         };
-        status.textContent = messages[result.body.outcome] || "Reset verwerkt.";
+        status.textContent = messages[result.body.outcome] || t("ui.reset_processed");
         if (result.body.rate_limits) rateLimits(result.body.rate_limits);
       })
       .catch((error) => {
@@ -365,7 +363,7 @@ function processMetrics(active, x) {
   $("codexCpu").textContent =
     locale.number(Number(x?.cpu_percent || 0), { maximumFractionDigits: 1 }) + "%";
   $("codexProcesses").textContent = x?.process_count ?? 0;
-  $("codexGpu").textContent = x?.gpu_status || "Niet beschikbaar";
+  $("codexGpu").textContent = x?.gpu_status || t("format.not_available");
 }
 function activeReviewerAgents(items) {
   const agents = Array.isArray(items) ? items : [];
@@ -374,7 +372,7 @@ function activeReviewerAgents(items) {
     card = document.createElement("section");
     card.id = "activeReviewerAgents";
     card.className = "card reviewer-agents";
-    card.innerHTML = "<strong>Specialistische reviewers</strong><p class=\"estimate-meta\" id=\"activeReviewerSummary\"></p><div class=\"reviewer-agents__list\" id=\"activeReviewerList\"></div>";
+    card.innerHTML = `<strong>${t("ui.reviewer_agents")}</strong><p class="estimate-meta" id="activeReviewerSummary"></p><div class="reviewer-agents__list" id="activeReviewerList"></div>`;
     $("currentRun")?.querySelector(".current-run__grid")?.append(card);
   }
   card.hidden = !agents.length;
@@ -384,16 +382,16 @@ function activeReviewerAgents(items) {
     summary = $("activeReviewerSummary"),
     list = $("activeReviewerList");
   summary.textContent = running
-    ? `${running} van ${agents.length} specialistische reviewers actief.`
-    : `${completed} van ${agents.length} specialistische reviewers afgerond.`;
+    ? t("ui.reviewer_running", { running, count: agents.length })
+    : t("ui.reviewer_completed", { completed, count: agents.length });
   list.replaceChildren();
   for (const agent of agents) {
     const row = document.createElement("article"), name = document.createElement("p"), meta = document.createElement("p");
     row.className = "reviewer-agent";
     name.className = "reviewer-agent__name";
     meta.className = "reviewer-agent__meta";
-    name.textContent = String(agent.reviewer || "Specialistische review").replaceAll("_", " ");
-    meta.textContent = `${agent.capability || "engineering"} · ${agent.status || "selected"}`;
+    name.textContent = String(agent.reviewer || t("ui.reviewer_default")).replaceAll("_", " ");
+    meta.textContent = `${enumLabel(agent.capability || "ENGINEERING")} · ${enumLabel(agent.status || "SELECTED")}`;
     row.append(name, meta);
     list.append(row);
   }
@@ -507,8 +505,8 @@ function structuredLogEntries(text) {
         return {
           line: index + 1,
           timestamp: String(entry.timestamp || ""),
-          level: String(entry.level || "ONBEKEND").toUpperCase(),
-          event: String(entry.event || "onbekend"),
+          level: String(entry.level || t("logs.unknown_level")).toUpperCase(),
+          event: String(entry.event || t("logs.unknown_event")),
           runId: entry.run_id == null ? "" : String(entry.run_id),
           details: details,
         };
@@ -516,8 +514,8 @@ function structuredLogEntries(text) {
         return {
           line: index + 1,
           timestamp: "",
-          level: "ONGELDIGE JSON",
-          event: "onleesbare logregel",
+          level: t("logs.invalid_json"),
+          event: t("logs.unreadable"),
           runId: "",
           details: line,
         };
@@ -551,10 +549,10 @@ function loadComponentLogs() {
     })
     .catch(() => {
       componentLogEntries.inbox = structuredLogEntries(
-        '{"level":"ERROR","event":"inbox_log_unavailable","diagnostic":"Inbox-log is niet beschikbaar."}',
+        JSON.stringify({ level: "ERROR", event: "inbox_log_unavailable", diagnostic: t("logs.inbox_unavailable") }),
       );
       componentLogEntries.dashboard = structuredLogEntries(
-        '{"level":"ERROR","event":"dashboard_log_unavailable","diagnostic":"Dashboard-log is niet beschikbaar."}',
+        JSON.stringify({ level: "ERROR", event: "dashboard_log_unavailable", diagnostic: t("logs.dashboard_unavailable") }),
       );
       $("componentLogControls").hidden = false;
       renderComponentLogs();
@@ -596,7 +594,7 @@ function renderLegacyChatMessage(role, text) {
     body = document.createElement("div");
   item.className = "chat-message chat-message--" + role;
   label.className = "chat-message__role";
-  label.textContent = role === "user" ? "Jij" : "Codex";
+  label.textContent = t(role === "user" ? "chat.user" : "chat.assistant");
   body.className = "chat-message__body";
   body.textContent = text;
   item.append(label, body);
@@ -638,7 +636,7 @@ function askCodex() {
     }))
     .then((result) => {
       if (!result.ok)
-        throw Error(result.body.error || "Codex Gesprek is niet beschikbaar.");
+        throw Error(t("chat.unavailable"));
       let answer = result.body.answer;
       $("chatModel").textContent =
         result.body.model || $("chatModel").textContent;
@@ -701,7 +699,7 @@ function showCopyToast() {
   const toast = $("copyToast");
   if (!toast) return;
   clearTimeout(copyToastTimer);
-  toast.textContent = "Gekopieerd naar klembord";
+  toast.textContent = t("copy.success");
   toast.hidden = false;
   if (typeof toast.showPopover === "function" && !toast.matches(":popover-open"))
     toast.showPopover();
@@ -764,26 +762,26 @@ function renderHealthStatus(x, snapshot = {}) {
   $("currentRun").hidden = !(active || blockedPredecessor);
   $("predecessorGate").hidden = !blockedPredecessor;
   $("predecessorRun").textContent =
-    x.blocking_predecessor_run || "Niet beschikbaar";
+    x.blocking_predecessor_run || t("format.not_available");
   $("predecessorPrompt").textContent =
     x.blocking_predecessor_title ||
     x.blocking_predecessor_filename ||
-    "Niet beschikbaar";
+    t("format.not_available");
   $("predecessorPhase").textContent = translate(
-    x.blocking_predecessor_phase || "Niet beschikbaar",
+    x.blocking_predecessor_phase || t("format.not_available"),
   );
   $("predecessorAction").textContent =
-    x.predecessor_recovery_action || "Niet beschikbaar";
+    x.predecessor_recovery_action || t("format.not_available");
   $("executionContext").hidden = !x.execution_mode;
-  $("executionMode").textContent = x.execution_mode || "Niet beschikbaar";
-  $("targetRepository").textContent = x.target_repository || "Niet beschikbaar";
-  $("checkoutPath").textContent = x.checkout_path || "Niet beschikbaar";
-  $("activeBranch").textContent = x.active_branch || "Niet beschikbaar";
+  $("executionMode").textContent = x.execution_mode || t("format.not_available");
+  $("targetRepository").textContent = x.target_repository || t("format.not_available");
+  $("checkoutPath").textContent = x.checkout_path || t("format.not_available");
+  $("activeBranch").textContent = x.active_branch || t("format.not_available");
   indicator.className =
     "indicator indicator--" +
     statusTone +
     (active ? " indicator--running" : "");
-  indicator.setAttribute("aria-label", "Promptstatus: " + statusTone);
+  indicator.setAttribute("aria-label", t("detail.prompt_status") + ": " + statusTone);
   $("watcher").textContent = translate(
     x.watcher_state || fallback.watcher_state,
   );
@@ -791,21 +789,21 @@ function renderHealthStatus(x, snapshot = {}) {
     x.current_phase || "idle",
   );
   $("action").textContent = translate(
-    x.current_action || "Geen actieve actie",
+    x.current_action || t("ui.no_active_action"),
   );
   const executionHost = snapshot.execution_host || {};
-  $("executionHostName").textContent = executionHost.name || "Niet beschikbaar";
-  $("executionHostVersion").textContent = executionHost.version || "Niet beschikbaar";
-  $("executionHostRuntime").textContent = executionHost.runtime || "Niet beschikbaar";
-  $("executionHostTransport").textContent = executionHost.runtime_prompt_transport || "Niet beschikbaar";
+  $("executionHostName").textContent = executionHost.name || t("format.not_available");
+  $("executionHostVersion").textContent = executionHost.version || t("format.not_available");
+  $("executionHostRuntime").textContent = executionHost.runtime || t("format.not_available");
+  $("executionHostTransport").textContent = executionHost.runtime_prompt_transport || t("format.not_available");
   // Older dashboard fixtures and cached shells do not have Level 3 fields.
   // Keep the canonical status renderer backward compatible while they refresh.
   renderPreflightPresentation(snapshot);
   promptStarted(snapshot.prompt_started);
   renderEstimate(x, latestDurationEstimate);
   processMetrics(active, snapshot.process_metrics);
-  $("currentPrompt").textContent = x.prompt_title || "Niet beschikbaar";
-  $("currentFile").textContent = x.submitted_filename || "Niet beschikbaar";
+  $("currentPrompt").textContent = x.prompt_title || t("format.not_available");
+  $("currentFile").textContent = x.submitted_filename || t("format.not_available");
   if (!active || x.run_id !== currentLogRun)
     $("currentDiagnostic").hidden = true;
   if (active)
@@ -816,7 +814,7 @@ function renderHealthStatus(x, snapshot = {}) {
       false,
       "currentDiagnostic",
     );
-  $("runId").textContent = x.run_id || "geen";
+  $("runId").textContent = x.run_id || t("value.none");
   $("queue").textContent = x.queue_depth ?? 0;
   queueItems(x.queue_items, x.queue_depth);
   $("implementation").textContent = x.implementation_pr || t("value.none");
@@ -824,10 +822,10 @@ function renderHealthStatus(x, snapshot = {}) {
   $("repositoryState").textContent = translate(x.repository_state || "UNKNOWN");
   $("workspaceState").textContent = translate(x.workspace_state || "UNKNOWN");
   $("diag").textContent = translate(x.diagnostic || t("value.no_diagnostics"));
-  $("platformVersion").textContent = x.platform_version || "Niet beschikbaar";
+  $("platformVersion").textContent = x.platform_version || t("format.not_available");
   $("dashboardVersion").textContent =
-    components.dashboard || "Niet beschikbaar";
-  $("workerVersion").textContent = components.worker || "Niet beschikbaar";
+    components.dashboard || t("format.not_available");
+  $("workerVersion").textContent = components.worker || t("format.not_available");
   usage(snapshot.usage);
   rateLimits(snapshot.rate_limits);
   activeReviewerAgents(x.reviewer_agents);
@@ -883,10 +881,10 @@ async function loadInitialDashboardStatus() {
     const response = await fetch("/api/dashboard-snapshot", {
       cache: "no-store",
     });
-    if (!response.ok) throw Error("Dashboardstatus is niet beschikbaar.");
+    if (!response.ok) throw Error(t("dashboard.status_unavailable"));
     const snapshot = await response.json();
     if (!snapshot || typeof snapshot.status !== "object")
-      throw Error("Dashboardstatus is ongeldig.");
+      throw Error(t("dashboard.status_invalid"));
     if (receivedDashboardServerPush) return;
     dashboardStatusStore.update(snapshot.status, snapshot);
     humanize();
@@ -929,7 +927,14 @@ e.onerror = () => {
 $("loadComponentLogs").addEventListener("click", loadComponentLogs);
 $("chatSend").addEventListener("click", askCodex);
 $("chatInput").addEventListener("keydown", (event) => {
-  if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
+  // Enter remains available for multi-line questions. Ctrl+Enter is the
+  // explicit send shortcut on every platform; Cmd+Enter remains its macOS
+  // counterpart. Do not submit while an IME composition is still active.
+  if (
+    !event.isComposing &&
+    event.key === "Enter" &&
+    (event.ctrlKey || event.metaKey)
+  ) {
     event.preventDefault();
     askCodex();
   }
@@ -951,7 +956,7 @@ function logValue(entry, key) {
 }
 function providerNeutralLabels() {
   const labels = [
-    ["#processMetrics>strong", "section.local_ai_processes"],
+    ["#processMetrics>strong", "ui.local_ai_processes"],
     ["#usage>strong", "section.ai_provider_usage"],
     ["#currentDiagnostic>strong", "section.ai_execution_diagnostics"],
     ["#rateLimits .label", "section.ai_provider_limits"],
@@ -1408,11 +1413,13 @@ function renderLogsForSnapshot(snapshot) {
   refreshComponentLogs(snapshot.component_log_versions || {});
 }
 enableLiveComponentLogs();
-const healthComponentLabels = {
-  dashboard: "Statusdashboard",
-  inbox_watcher: "Inbox-watcher",
-  dashboard_relay: "Dashboardrelay",
-};
+function healthComponentLabel(component) {
+  return {
+    dashboard: t("logs.status_dashboard"),
+    inbox_watcher: t("component.execution_host"),
+    dashboard_relay: t("component.dashboard_relay"),
+  }[component] || component;
+}
 let healthRequestInFlight = false;
 const componentDetailsRefreshIntervalMs = 5e3;
 let activeComponentDetails = null,
@@ -1448,7 +1455,7 @@ function componentDetailField(list, label, value) {
 }
 function componentMemory(processes) {
   if (!Array.isArray(processes) || !processes.length)
-    return "Geen lokaal proces gevonden";
+    return t("ui.no_local_process");
   return processes
     .map(
       (process) =>
@@ -1467,48 +1474,47 @@ function showComponentModal(payload) {
     restart = $("componentModalRestart"),
     status = $("componentModalStatus"),
     launchd = payload.launchd || {};
-  title.textContent =
-    healthComponentLabels[payload.component] || "Componentinformatie";
+  title.textContent = healthComponentLabel(payload.component) || t("component.component_information");
   content.replaceChildren();
   const fields = document.createElement("dl");
-  componentDetailField(fields, "Machine", payload.machine);
+  componentDetailField(fields, t("component.machine"), payload.machine);
   componentDetailField(
     fields,
-    "Status",
-    (payload.healthy ? "Gezond" : "Niet gezond") +
+    t("component.status"),
+    (payload.healthy ? t("component.health_healthy") : t("component.health_unhealthy")) +
       " · " +
-      (payload.detail || payload.state || "Geen toelichting"),
+      (payload.detail || payload.state || t("ui.no_component_explanation")),
   );
-  componentDetailField(fields, "Versie", payload.version);
+  componentDetailField(fields, t("component.version"), payload.version);
   componentDetailField(
     fields,
-    "Uptime",
+    t("component.uptime"),
     formatComponentUptime(payload.uptime_seconds),
   );
-  componentDetailField(fields, "Git-commit", payload.git_commit);
+  componentDetailField(fields, t("detail.git_commit"), payload.git_commit);
   componentDetailField(
     fields,
-    "Uitvoerbaar pad",
+    t("component.executable_path"),
     Array.isArray(launchd.program_arguments) && launchd.program_arguments.length
       ? launchd.program_arguments[0]
       : payload.executable_path,
   );
-  componentDetailField(fields, "Launchd-label", launchd.label);
-  componentDetailField(fields, "LaunchAgent", launchd.plist_path);
+  componentDetailField(fields, t("component.launchd_label"), launchd.label);
+  componentDetailField(fields, t("component.launch_agent"), launchd.plist_path);
   componentDetailField(
     fields,
-    "Launchd-instellingen",
+    t("component.launchd_configuration"),
     launchd.label
-      ? (launchd.loaded ? "Geladen" : "Niet geladen") +
-          " · Start bij laden: " +
-          (launchd.run_at_load ? "ja" : "nee") +
-          " · Blijf actief: " +
-          (launchd.keep_alive ? "ja" : "nee")
+      ? (launchd.loaded ? t("component.health_healthy") : t("component.health_unhealthy")) +
+          " · " + t("component.start_at_load") + ": " +
+          (launchd.run_at_load ? "✓" : "—") +
+          " · " + t("component.keep_active") + ": " +
+          (launchd.keep_alive ? "✓" : "—")
       : null,
   );
   componentDetailField(
     fields,
-    "Huidig geheugen",
+    t("component.current_memory"),
     componentMemory(payload.processes),
   );
   content.append(fields);
@@ -1528,7 +1534,7 @@ async function requestComponentDetails(component, showError = true) {
       ),
       payload = await response.json();
     if (!response.ok)
-      throw Error(payload.error || "Componentinformatie is niet beschikbaar.");
+      throw Error(payload.error || t("ui.component_information_unavailable"));
     showComponentModal(payload);
     return true;
   } catch (error) {
@@ -1639,19 +1645,19 @@ function renderPlatformHealth(payload) {
     item.setAttribute("role", "button");
     item.setAttribute(
       "aria-label",
-      "Meer informatie over " + (healthComponentLabels[key] || key),
+      t("component.more_information", { component: healthComponentLabel(key) }),
     );
     indicator.className = healthIndicatorClass(componentHealthy);
     indicator.setAttribute("aria-hidden", "true");
     name.className = "platform-health__component-name";
-    name.textContent = healthComponentLabels[key] || key;
+    name.textContent = healthComponentLabel(key);
     detail.className = "platform-health__component-detail";
     detail.textContent =
-      (componentHealthy ? "Gezond" : "Niet gezond") +
+      (componentHealthy ? t("component.health_healthy") : t("component.health_unhealthy")) +
       " · " +
-      String(component?.detail || component?.state || "Geen toelichting") +
+      String(component?.detail || component?.state || t("ui.no_component_explanation")) +
       version +
-      (uptime ? " · Uptime " + uptime : "");
+      (uptime ? " · " + t("component.uptime") + " " + uptime : "");
     info.className = "component-info";
     info.textContent = "i";
     info.setAttribute("aria-hidden", "true");
@@ -2102,13 +2108,11 @@ $("logLevelFilter").addEventListener("change", () => {
 renderComponentLogs();
 function clearComponentLog(component, button) {
   const name =
-    component === "inbox" ? "Engineering Execution Host" : "Statusdashboard";
+    component === "inbox" ? t("component.execution_host") : t("logs.status_dashboard");
   confirmDashboardAction(
-    "Logs wissen",
-    "Wis de applicatielogs van " +
-      name +
-      "? Dit kan niet ongedaan worden gemaakt.",
-    "Logs wissen",
+    t("action.clear_logs"),
+    t("logs.clear_description", { component: name }),
+    t("action.clear_logs"),
   ).then(async (confirmed) => {
     if (!confirmed) return;
     button.disabled = true;
@@ -2123,7 +2127,7 @@ function clearComponentLog(component, button) {
       );
       if (!response.ok) {
         const payload = await response.json().catch(() => ({}));
-        throw Error(payload.error || "Logs wissen is niet gelukt.");
+        throw Error(payload.error || t("logs.clear_failed"));
       }
       componentLogEntries[component] = structuredLogEntries(
         await fetch("/api/logs/" + encodeURIComponent(component)).then(
@@ -2133,7 +2137,7 @@ function clearComponentLog(component, button) {
       componentLogVersion = "";
       renderComponentLogs();
     } catch {
-      button.title = "Logs wissen is niet gelukt.";
+      button.title = t("logs.clear_failed");
     } finally {
       button.disabled = false;
     }
@@ -2149,14 +2153,14 @@ document
 function downloadComponentLog(component) {
   const names = { inbox: "inbox-watcher", dashboard: "statusdashboard" },
     name = names[component];
-  if (!name) return Promise.reject(Error("Onbekend logonderdeel."));
+  if (!name) return Promise.reject(Error(t("logs.unknown_component")));
   return fetch("/api/logs/" + encodeURIComponent(component), {
     cache: "no-store",
   })
     .then((response) =>
       response.ok
         ? response.text()
-        : Promise.reject(Error("Logdownload is niet beschikbaar.")),
+        : Promise.reject(Error(t("logs.download_unavailable"))),
     )
     .then((text) => {
       const stamp = new Date().toISOString().replace(/[:.]/g, "-"),
@@ -2177,15 +2181,15 @@ function downloadComponentLog(component) {
 document.querySelectorAll(".component-log-download").forEach((button) =>
   button.addEventListener("click", () =>
     downloadComponentLog(button.dataset.component).catch(() => {
-      button.title = "Logdownload is niet beschikbaar.";
+      button.title = t("logs.download_unavailable");
     }),
   ),
 );
 document.querySelectorAll(".clear-component-log").forEach((button) => {
   button.classList.add("clear-component-log--glyph");
   button.textContent = "⌫";
-  button.title = "Wis log";
-  button.setAttribute("aria-label", "Wis log");
+  button.title = t("action.clear_logs");
+  button.setAttribute("aria-label", t("action.clear_logs"));
 });
 let pullRefreshStart = null,
   pullRefreshDistance = 0;
@@ -2278,7 +2282,11 @@ function filteredPromptHistory() {
     .filter(
       (entry) =>
         !needle ||
-        locale.lower(Object.values(entry).join(" ")).includes(needle),
+        locale
+          .lower(
+            [...Object.values(entry), promptHistoryStatus(entry.status)].join(" "),
+          )
+          .includes(needle),
     )
     .sort((left, right) => {
       const first = promptHistoryValue(left, promptHistorySort.key),
@@ -2490,17 +2498,25 @@ function refreshPromptHistory() {
       renderPromptHistory();
     });
 }
-async function refreshAfterOperatorAction() {
-  const [snapshot] = await Promise.all([
-    fetch("/api/dashboard-snapshot", { cache: "no-store" })
-      .then((response) => (response.ok ? response.json() : Promise.reject())),
-    refreshPromptHistory(),
-  ]);
+async function refreshAfterOperatorAction({ dismissedRunId = null } = {}) {
+  // The operator just received a successful acknowledgement. Reflect it in
+  // the visible history immediately, then reconcile from storage. This keeps
+  // a slow status snapshot from leaving a stale dismiss action on screen.
+  if (dismissedRunId) {
+    promptHistoryEntries = promptHistoryEntries.map((entry) =>
+      entry.run_id === dismissedRunId ? { ...entry, dismissed: true } : entry,
+    );
+    renderPromptHistory();
+  }
+  const snapshot = await fetch("/api/dashboard-snapshot", { cache: "no-store" })
+    .then((response) => (response.ok ? response.json() : null))
+    .catch(() => null);
   if (snapshot && typeof snapshot.status === "object") {
     dashboardStatusStore.update(snapshot.status, snapshot);
     humanize();
     checkBuild(snapshot.build_commit);
   }
+  await refreshPromptHistory();
 }
 $("promptHistoryFilter").addEventListener("input", () => {
   promptHistoryPage = 1;
@@ -2593,6 +2609,13 @@ function applyDashboardLocale() {
   replacements.forEach(([selector, key]) => {
     const element = document.querySelector(selector);
     if (element) element.textContent = t(key);
+  });
+  const workspaceKeys = [
+    "workspace.name", "ui.workspace_location", "detail.tracked_files",
+    "workspace.database", "workspace.database_size", "workspace.schema_version",
+  ];
+  document.querySelectorAll("#workspaceCard .field .label").forEach((label, index) => {
+    if (workspaceKeys[index]) label.textContent = t(workspaceKeys[index]);
   });
   document.querySelectorAll("#dashboardLocale option").forEach((option) => {
     option.textContent = t("language." + option.value);
@@ -2875,7 +2898,7 @@ new MutationObserver((records) => {
       if (node instanceof Element) applyThemeModeAttributes(node);
 }).observe(document.body, { childList: true, subtree: true });
 $("rateLimitProvider")?.previousElementSibling?.replaceChildren(
-  "Huidige AI-provider",
+  t("ui.current_ai_provider"),
 );
 let latestPlatformHealthPayload = null;
 const restartingPlatformComponents = new Set();
@@ -2893,7 +2916,7 @@ renderPlatformHealth = (payload) => {
                     ...component,
                     healthy: false,
                     state: "restarting",
-                    detail: "Herstart wordt uitgevoerd",
+                    detail: t("ui.component_restart_started"),
                   },
                 ]
               : [key, component],
@@ -3036,6 +3059,26 @@ function detailField(label, value, preformatted = false) {
   field.append(name, output);
   return field;
 }
+function promptHistoryStatusTone(value) {
+  switch (String(value || "").toUpperCase()) {
+    case "COMPLETE": return "green";
+    case "BLOCKED": return "orange";
+    case "FAILED": return "red";
+    default: return "grey";
+  }
+}
+function promptDetailStatusField(value) {
+  const field = detailField(t("detail.prompt_status"), "");
+  const output = field.lastElementChild;
+  output.className = "prompt-detail-status";
+  const indicator = document.createElement("span");
+  indicator.className = "indicator indicator--small indicator--" + promptHistoryStatusTone(value);
+  indicator.setAttribute("aria-hidden", "true");
+  const text = document.createElement("span");
+  text.textContent = promptHistoryStatus(value);
+  output.replaceChildren(indicator, text);
+  return field;
+}
 function promptDetailCard(title, fields, wide = false) {
   const card = document.createElement("section"), heading = document.createElement("h3");
   card.className = "prompt-detail-card" + (wide ? " prompt-detail-card--wide" : "");
@@ -3050,7 +3093,7 @@ function promptDetailDuration(value) {
 function promptDetailExecutionSection(history) {
   const timestamp = Date.parse(String(history.executed_at || ""));
   return promptDetailCard(t("detail.execution"), [
-    detailField(t("detail.prompt_status"), promptHistoryStatus(history.status)),
+    promptDetailStatusField(history.status),
     detailField(t("detail.prompt_title"), history.title),
     detailField(t("detail.run_id"), history.run_id, true),
     detailField(
@@ -3059,8 +3102,15 @@ function promptDetailExecutionSection(history) {
         ? locale.dateTime(new Date(timestamp))
         : history.executed_at,
     ),
-    detailField(t("detail.execution_mode"), history.execution_mode),
+    detailField(t("detail.execution_mode"), history.execution_mode || t("detail.not_recorded")),
+    detailField(t("detail.producer"), history.producer_id || t("detail.not_recorded")),
+    detailField(t("detail.producer_type"), history.producer_type || t("detail.not_recorded")),
+    detailField(t("detail.producer_version"), history.producer_version || t("detail.not_recorded")),
+    detailField(t("detail.mission_id"), history.mission_id || t("detail.not_recorded")),
+    detailField(t("detail.engineering_action_id"), history.engineering_action_id || t("detail.not_recorded")),
+    detailField(t("detail.correlation_id"), history.correlation_id || t("detail.not_recorded")),
     detailField(t("detail.target_repository"), history.target_repository || t("detail.not_recorded")),
+    detailField(t("ui.active_branch"), history.target_branch || t("detail.not_recorded"), true),
     detailField(t("detail.target_checkout"), history.target_checkout_path || t("detail.not_recorded"), true),
     detailField(t("detail.tracked_files"), history.tracked_file_count ?? t("detail.not_recorded")),
   ]);
@@ -3290,7 +3340,10 @@ function dismissExecution(entry) {
     if (!confirmed) return;
     fetch("/api/execution-dismiss", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ run_id: entry.run_id }) })
       .then(async (response) => ({ ok: response.ok, body: await response.json() }))
-      .then((result) => { if (!result.ok) throw Error(result.body.error || t("dismiss.failed")); return refreshAfterOperatorAction(); })
+      .then((result) => {
+        if (!result.ok) throw Error(result.body.error || t("dismiss.failed"));
+        return refreshAfterOperatorAction({ dismissedRunId: entry.run_id });
+      })
       .catch((error) => window.alert(error.message || t("dismiss.failed")));
   });
 }
@@ -3348,7 +3401,6 @@ updateChatDownloadAvailability = () => {
   updateChatDownloadWithClear();
   updateChatActions();
 };
-healthComponentLabels.inbox_watcher = "Engineering Execution Host";
 function showDashboardReloadSplash() {
   const splash = $("dashboardSplash");
   splash.hidden = false;
@@ -3358,9 +3410,9 @@ async function restartPlatformComponent(button) {
   const component = button.dataset.component;
   if (!component) return;
   const confirmed = await confirmDashboardAction(
-    "Component herstarten",
-    "Herstart " + (healthComponentLabels[component] || "dit onderdeel") + "?",
-    "Herstarten",
+    t("component.restart_title"),
+    t("component.restart_description", { component: healthComponentLabel(component) || t("component.no_component") }),
+    t("component.restart_title"),
   );
   if (!confirmed) return;
   button.disabled = true;
@@ -3378,15 +3430,15 @@ async function restartPlatformComponent(button) {
       throw Error(payload.error || "Herstarten is niet gelukt.");
     if (component === "dashboard") {
       $("componentModalStatus").textContent =
-        "Statusdashboard wordt opnieuw geladen…";
+        t("ui.component_restart_started");
       showDashboardReloadSplash();
       window.setTimeout(() => window.location.reload(), 750);
       return;
     }
-    $("componentModalStatus").textContent = "Herstartverzoek verzonden.";
+    $("componentModalStatus").textContent = t("ui.component_restart_started");
   } catch (error) {
     $("componentModalStatus").textContent =
-      error.message || "Herstarten is niet gelukt.";
+      error.message || t("ui.component_restart_failed");
   } finally {
     button.disabled = false;
   }
@@ -3396,7 +3448,7 @@ function legacyConfirmation() {
 }
 function legacyDashboardError() {
   const status = $("componentModalStatus");
-  if (status) status.textContent = "Componentinformatie is niet beschikbaar.";
+  if (status) status.textContent = t("ui.component_information_unavailable");
 }
 const dashboardActionHandlers = {
   rateLimitReset: (button) => consumeRateLimitReset(button),
