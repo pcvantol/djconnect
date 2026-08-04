@@ -1091,20 +1091,24 @@ test.describe("Engineering Status browser smoke", () => {
     for (const selector of ["#workspaceCard > summary", "#queueItems > summary", "#rateLimits > summary", "#componentLogs > summary"]) {
       expect(await page.locator(selector).evaluate((summary) => getComputedStyle(summary, "::before").right)).toBe("0px");
     }
-    expect(await page.locator("#queueItems").evaluate((category) => {
+    const arrowGeometry = await page.locator("#queueItems").evaluate((category) => {
       const position = () => {
-        const style = getComputedStyle(category.querySelector("summary"), "::before");
-        return { right: style.right, width: style.width };
+        const summary = category.querySelector("summary");
+        const style = getComputedStyle(summary, "::before");
+        return {
+          arrowRight: summary.getBoundingClientRect().right - parseFloat(style.right),
+          width: style.width,
+        };
       };
       const closed = position();
       category.open = true;
       const opened = position();
       category.open = false;
       return { closed, opened };
-    })).toEqual({
-      closed: { right: "0px", width: "24px" },
-      opened: { right: "0px", width: "24px" },
     });
+    expect(arrowGeometry.closed.width).toBe("24px");
+    expect(arrowGeometry.opened.width).toBe("24px");
+    expect(Math.abs(arrowGeometry.closed.arrowRight - arrowGeometry.opened.arrowRight)).toBeLessThanOrEqual(0.1);
     await expect(page.locator(".current-run__category-description")).toHaveText("De actieve engineeringprompt, met actuele voortgang, uitvoeringstijd en uitvoeringscontext.");
     expect(await page.locator("#indicator").evaluate((element) => element.parentElement.className)).toBe("current-run__prompt-heading");
     await expect(page.locator("#loadComponentLogs")).toHaveCount(0);
