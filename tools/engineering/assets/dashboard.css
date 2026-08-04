@@ -360,3 +360,8 @@ html[data-theme="light"] #pullRefresh{background:var(--house-style-surface);bord
 /* Disclosure glyphs reserve the same column in both states. The right edge
    therefore remains still when the triangle changes from closed to open. */
 :where(.workspace-card,.inbox-queue,.prompt-history,#currentRun,#rateLimits,#componentLogs,#engineering-dashboard-content>.technical-details:not(#componentLogs),.telemetry,.platform-health)>summary::before{box-sizing:border-box;text-align:center;width:1em}
+
+/* The native dialog defaults add margins around a content-box width. Make the
+   full-screen component backdrop a viewport-sized border box, then centre its
+   panel inside it so iPhone side gutters always match. */
+.component-modal{box-sizing:border-box;inset:0;margin:0}

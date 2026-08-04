@@ -532,6 +532,29 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#componentModalClose")).toHaveCSS("min-width", "32px");
   });
 
+  test("centres the component modal panel within iPhone-width viewports", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => showComponentModal({
+      component: "inbox_watcher",
+      healthy: true,
+      detail: "connected",
+      launchd: {},
+    }));
+
+    const geometry = await page.locator("#componentModal").evaluate((modal) => {
+      const panel = modal.querySelector(".component-modal__panel").getBoundingClientRect();
+      const viewport = document.documentElement.clientWidth;
+      return {
+        containerWidth: modal.getBoundingClientRect().width,
+        leftGutter: panel.left,
+        rightGutter: viewport - panel.right,
+      };
+    });
+    expect(geometry.containerWidth).toBe(390);
+    expect(Math.abs(geometry.leftGutter - geometry.rightGutter)).toBeLessThanOrEqual(1);
+  });
+
   test("uses a green hover fill for the component-detail close action", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.evaluate(() => showComponentModal({
