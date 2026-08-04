@@ -283,6 +283,10 @@ html[data-theme="light"] .dashboard-locale select{background:var(--dashboard-sur
 .dashboard-scroll-region{padding-inline-start:var(--dashboard-scroll-gutter);padding-inline-end:calc(var(--dashboard-scroll-gutter) + max(8px,env(safe-area-inset-right)));scrollbar-gutter:stable}
 .technical-grid>.card,.log-table-wrap{min-width:0}.log-table-wrap{box-sizing:border-box;width:100%}
 :where(button,input,select,textarea,summary,[role="button"],[tabindex]):focus-visible{outline-width:var(--dashboard-focus-outline-width);outline-offset:var(--dashboard-focus-outline-offset);box-shadow:0 0 0 var(--dashboard-focus-ring-size) color-mix(in srgb,var(--category-color,#8dc7ff) 24%,transparent)}
+@media (max-width:620px) and (orientation:portrait){
+  body{padding-inline: max(12px,env(safe-area-inset-left)) max(12px,env(safe-area-inset-right))}
+  .dashboard-scroll-region{padding-inline:6px;scrollbar-gutter:stable both-edges}
+}
 
 /* Log controls */
 label:has(> :is(input,select,textarea)):not(.dashboard-locale):not(.auto-refresh-toggle),.log-controls label:has(> :is(input,select,textarea)){row-gap:var(--dashboard-control-label-gap)}

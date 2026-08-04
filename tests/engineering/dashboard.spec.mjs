@@ -2007,6 +2007,7 @@ test.describe("Engineering Status browser smoke", () => {
       handledAtTopEdge: true,
       visibleAtTopEdge: true,
     });
-    await expect(page.locator(".dashboard-scroll-region")).toHaveCSS("padding-right", "22px");
+    await expect(page.locator(".dashboard-scroll-region")).toHaveCSS("padding-left", "6px");
+    await expect(page.locator(".dashboard-scroll-region")).toHaveCSS("padding-right", "6px");
   });
 });
