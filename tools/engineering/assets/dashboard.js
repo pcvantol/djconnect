@@ -2222,7 +2222,16 @@ function updatePromptHistoryHeaders() {
         : "↕";
     });
 }
+function repairPromptHistoryHeader() {
+  // A dashboard can briefly retain its HTML shell while its script has already
+  // updated. Remove the retired commit column so that those mixed revisions
+  // cannot offset the prompt-history actions by one column.
+  document
+    .querySelectorAll('#promptHistory th[data-history-sort-key="git_commit"]')
+    .forEach((header) => header.remove());
+}
 function renderPromptHistory() {
+  repairPromptHistoryHeader();
   const rows = filteredPromptHistory(),
     body = $("promptHistoryRows"),
     navigation = $("promptHistoryPagination"),

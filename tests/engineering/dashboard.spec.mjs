@@ -1255,6 +1255,13 @@ test.describe("Engineering Status browser smoke", () => {
     await page.locator("#autoRefresh").uncheck();
     await page.locator("#promptHistory").evaluate((element) => { element.open = true; });
     await page.evaluate(() => {
+      const legacyCommitHeader = document.createElement("th");
+      legacyCommitHeader.dataset.historySortKey = "git_commit";
+      legacyCommitHeader.textContent = "Git-commit";
+      document.querySelector("#promptHistory thead tr").insertBefore(
+        legacyCommitHeader,
+        document.querySelector("#promptHistory thead tr").children[3],
+      );
       document.querySelector("#promptHistory").open = true;
       promptHistoryEntries = Array.from({ length: 26 }, (_, index) => ({
         run_id: `inbox-history-${index}`,
