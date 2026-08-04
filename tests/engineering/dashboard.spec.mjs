@@ -1260,6 +1260,25 @@ test.describe("Engineering Status browser smoke", () => {
     expect(after.input.y).toBe(before.input.y);
   });
 
+  test("uses a distinct purple surface for AI answers in a prompt-history conversation", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    const modal = page.locator("#promptHistoryChatModal"),
+      panel = modal.locator(".prompt-chat-modal__panel");
+    await modal.evaluate((element) => {
+      document.querySelector("#chatMessages").innerHTML =
+        '<article class="chat-message chat-message--assistant">Antwoord</article>';
+      element.showModal();
+    });
+    const answer = page.locator("#chatMessages .chat-message--assistant");
+
+    await expect(answer).toHaveCSS("background-color", "rgb(60, 42, 77)");
+    expect(await answer.evaluate(
+      (element) => getComputedStyle(element).backgroundColor,
+    )).not.toBe(await panel.evaluate(
+      (element) => getComputedStyle(element).backgroundColor,
+    ));
+  });
+
   test("retains terminal status colours in the light prompt-history table", async ({ page }) => {
     await page.route("**/api/prompt-history", (route) => route.fulfill({ json: { runs: [] } }));
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
