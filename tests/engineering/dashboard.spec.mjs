@@ -1652,5 +1652,10 @@ test.describe("Engineering Status browser smoke", () => {
     await page.evaluate(() => updatePullRefresh(72));
     await expect(page.getByTestId("pull-refresh")).toHaveText("Laat los om te vernieuwen");
     await expect(page.getByTestId("pull-refresh")).toHaveClass(/pull-refresh--visible/);
+    await expect(page.getByTestId("pull-refresh")).toHaveCSS("border-color", "rgb(240, 182, 106)");
+
+    await page.getByTestId("theme-toggle").click();
+    await expect(page.getByTestId("pull-refresh")).toHaveCSS("background-color", "rgb(255, 244, 230)");
+    await expect(page.getByTestId("pull-refresh")).toHaveCSS("border-color", "rgb(240, 182, 106)");
   });
 });
