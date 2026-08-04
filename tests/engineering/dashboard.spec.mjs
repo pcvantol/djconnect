@@ -606,13 +606,13 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator(".confirmation-modal__panel")).toHaveCSS("color", "rgb(24, 34, 48)");
     await expect(page.locator("#confirmationModalText")).toHaveCSS("color", "rgb(24, 34, 48)");
     await expect(page.locator(".confirmation-modal__panel")).toHaveCSS("border-top-color", "rgb(163, 230, 53)");
-    expect(await page.locator("#confirmationModalConfirm").evaluate((element) => getComputedStyle(element).backgroundColor)).not.toBe("rgb(163, 230, 53)");
-    await expect(page.locator("#confirmationModalConfirm")).toHaveCSS("border-top-color", "rgb(163, 230, 53)");
+    expect(await page.locator("#confirmationModalConfirm").evaluate((element) => getComputedStyle(element).backgroundColor)).not.toBe("rgb(240, 182, 106)");
+    await expect(page.locator("#confirmationModalConfirm")).toHaveCSS("border-top-color", "rgb(240, 182, 106)");
     await page.locator("#confirmationModalCancel").hover();
-    await expect(page.locator("#confirmationModalCancel")).toHaveCSS("background-color", "rgb(163, 230, 53)");
-    await expect(page.locator("#confirmationModalCancel")).toHaveCSS("border-top-color", "rgb(163, 230, 53)");
+    await expect(page.locator("#confirmationModalCancel")).toHaveCSS("background-color", "rgb(240, 182, 106)");
+    await expect(page.locator("#confirmationModalCancel")).toHaveCSS("border-top-color", "rgb(240, 182, 106)");
     await page.locator("#confirmationModalConfirm").hover();
-    await expect(page.locator("#confirmationModalConfirm")).toHaveCSS("background-color", "rgb(163, 230, 53)");
+    await expect(page.locator("#confirmationModalConfirm")).toHaveCSS("background-color", "rgb(240, 182, 106)");
   });
 
   test("shows the splash screen before reloading the dashboard", async ({ page }) => {
