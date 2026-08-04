@@ -102,14 +102,14 @@ test.describe("Engineering Status browser smoke", () => {
 
   test("changes visible interface copy for each supported language", async ({ page }) => {
     const expectations = [
-      ["en", "Language", "Refresh automatically", "AI analysis", "Passed", "Execution", "Resume Queue", "Active prompt", "Inbox queue", "Prompts are executed in order of creation date.", "Engineering Status", "Loading data…", "Pull requests", "Implementation", "None"],
-      ["nl", "Taal", "Automatisch vernieuwen", "AI-analyse", "Geslaagd", "Uitvoering", "Wachtrij hervatten", "Actieve prompt", "Inbox-wachtrij", "Prompts worden uitgevoerd op volgorde van aanmaakdatum.", "Engineeringstatus", "Gegevens laden…", "Pull requests", "Implementatie", "geen"],
-      ["de", "Sprache", "Automatisch aktualisieren", "KI-Analyse", "Erfolgreich", "Ausführung", "Warteschlange fortsetzen", "Aktiver Prompt", "Inbox-Warteschlange", "Prompts werden in der Reihenfolge ihres Erstellungsdatums ausgeführt.", "Engineering-Status", "Daten werden geladen…", "Pull Requests", "Implementierung", "Keine"],
-      ["fr", "Langue", "Actualiser automatiquement", "Analyse IA", "Réussi", "Exécution", "Reprendre la file", "Prompt actif", "File de réception", "Les prompts sont exécutés dans l’ordre de leur date de création.", "État de l’ingénierie", "Chargement des données…", "Pull requests", "Implémentation", "Aucun"],
-      ["es", "Idioma", "Actualizar automáticamente", "Análisis de IA", "Superado", "Ejecución", "Reanudar cola", "Prompt activo", "Cola de entrada", "Los prompts se ejecutan por orden de fecha de creación.", "Estado de ingeniería", "Cargando datos…", "Solicitudes de extracción", "Implementación", "Ninguno"],
+      ["en", "Language", "Refresh automatically", "AI analysis", "Passed", "Execution", "Resume Queue", "Active prompt", "Inbox queue", "Prompts are executed in order of creation date.", "Engineering Status", "Loading data…", "Pull requests", "Implementation", "None", "Engineering Platform version", "Automatic refresh is off"],
+      ["nl", "Taal", "Automatisch vernieuwen", "AI-analyse", "Geslaagd", "Uitvoering", "Wachtrij hervatten", "Actieve prompt", "Inbox-wachtrij", "Prompts worden uitgevoerd op volgorde van aanmaakdatum.", "Engineeringstatus", "Gegevens laden…", "Pull requests", "Implementatie", "geen", "Engineering Platform-versie", "Automatisch vernieuwen is uit"],
+      ["de", "Sprache", "Automatisch aktualisieren", "KI-Analyse", "Erfolgreich", "Ausführung", "Warteschlange fortsetzen", "Aktiver Prompt", "Inbox-Warteschlange", "Prompts werden in der Reihenfolge ihres Erstellungsdatums ausgeführt.", "Engineering-Status", "Daten werden geladen…", "Pull Requests", "Implementierung", "Keine", "Engineering-Plattformversion", "Automatische Aktualisierung ist aus"],
+      ["fr", "Langue", "Actualiser automatiquement", "Analyse IA", "Réussi", "Exécution", "Reprendre la file", "Prompt actif", "File de réception", "Les prompts sont exécutés dans l’ordre de leur date de création.", "État de l’ingénierie", "Chargement des données…", "Pull requests", "Implémentation", "Aucun", "Version d’Engineering Platform", "Actualisation automatique désactivée"],
+      ["es", "Idioma", "Actualizar automáticamente", "Análisis de IA", "Superado", "Ejecución", "Reanudar cola", "Prompt activo", "Cola de entrada", "Los prompts se ejecutan por orden de fecha de creación.", "Estado de ingeniería", "Cargando datos…", "Solicitudes de extracción", "Implementación", "Ninguno", "Versión de Engineering Platform", "Actualización automática desactivada"],
     ];
 
-    for (const [language, localeLabel, refreshLabel, analysisLabel, passLabel, detailTitle, queueAction, activePrompt, queueTitle, queueDescription, dashboardTitle, splashLoading, pullRequestsTitle, implementationLabel, noneLabel] of expectations) {
+    for (const [language, localeLabel, refreshLabel, analysisLabel, passLabel, detailTitle, queueAction, activePrompt, queueTitle, queueDescription, dashboardTitle, splashLoading, pullRequestsTitle, implementationLabel, noneLabel, platformVersionLabel, refreshOffLabel] of expectations) {
       await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
       await page.locator("#dashboardLocale").selectOption(language);
       await expect(page.locator("html")).toHaveAttribute("lang", language);
@@ -129,6 +129,10 @@ test.describe("Engineering Status browser smoke", () => {
       await expect(page.locator("#technicalImplementationLabel")).toHaveText(implementationLabel);
       await page.evaluate(() => r({}));
       await expect(page.locator("#implementation")).toHaveText(noneLabel);
+      await expect(page.locator("#platformVersionLabel")).toHaveText(platformVersionLabel);
+      await page.locator("#autoRefresh").check();
+      await page.locator("#autoRefresh").uncheck();
+      await expect(page.locator("#updateMode")).toHaveText(refreshOffLabel);
       expect(await page.title()).toBe(dashboardTitle);
       expect(await page.evaluate(() => enumLabel("PASS"))).toBe(passLabel);
       await page.evaluate(() => renderPromptHistoryDetail({

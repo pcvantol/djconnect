@@ -1091,7 +1091,7 @@ def _dashboard_html(
 </div></details>
 <details class="card card--context workspace-card" id="workspaceCard" data-testid="engineering-workspace"><summary><strong>Workspace</strong></summary><p class="field"><span class="label">Naam</span><span>$WORKSPACE_ID</span></p><div class="field"><span class="label">Workspace locatie</span><pre>$WORKSPACE_LOCATION</pre></div><p class="field"><span class="label">Tracked files</span><span>$TRACKED_FILES</span></p><div class="field"><span class="label">Engineering-database</span><pre>$ENGINEERING_DATABASE_PATH</pre></div><p class="field"><span class="label">Databasegrootte</span><span>$ENGINEERING_DATABASE_SIZE</span></p><p class="field"><span class="label">Schema-versie</span><span>$ENGINEERING_DATABASE_SCHEMA_VERSION</span></p></details>
 </main></div>
-<footer class="footer" aria-live="polite"><span class="label">Engineering Platform-versie</span><span id="platformVersion">Laden…</span><span aria-hidden="true">·</span><span id="lastRefresh">Laatst bijgewerkt: laden…</span><span aria-hidden="true">·</span><span id="updateMode">Serverpush: verbinden…</span></footer><span id="dashboardVersion" hidden></span><span id="workerVersion" hidden></span>
+<footer class="footer" aria-live="polite"><span class="label" id="platformVersionLabel">Engineering Platform-versie</span><span id="platformVersion">Laden…</span><span aria-hidden="true">·</span><span id="lastRefresh">Laatst bijgewerkt: laden…</span><span aria-hidden="true">·</span><span id="updateMode">Serverpush: verbinden…</span></footer><span id="dashboardVersion" hidden></span><span id="workerVersion" hidden></span>
 <script>window.DJCONNECT_DASHBOARD_BUILD="$BUILD_COMMIT";</script>
 <script src="/assets/dashboard.js" type="module"></script>
 

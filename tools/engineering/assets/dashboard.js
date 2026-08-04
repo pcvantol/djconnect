@@ -857,7 +857,11 @@ function renderDashboardStatus(status, snapshot) {
 function r(status, snapshot = {}) {
   dashboardStatusStore.update(status, snapshot);
 }
-let receivedDashboardServerPush = false;
+let receivedDashboardServerPush = false, updateModeKey = "refresh.connecting";
+function setUpdateMode(key) {
+  updateModeKey = key;
+  $("updateMode").textContent = t(key);
+}
 async function loadInitialDashboardStatus() {
   try {
     const response = await fetch("/api/dashboard-snapshot", {
@@ -871,13 +875,12 @@ async function loadInitialDashboardStatus() {
     dashboardStatusStore.update(snapshot.status, snapshot);
     humanize();
     checkBuild(snapshot.build_commit);
-    $("updateMode").textContent = "Status geladen; serverpush verbinden…";
+    setUpdateMode("refresh.connecting");
   } catch {
     if (receivedDashboardServerPush) return;
     dashboardStatusStore.update(fallback);
     humanize();
-    $("updateMode").textContent =
-      "Status laden mislukt; serverpush opnieuw verbinden…";
+    setUpdateMode("refresh.failed_reconnecting");
   }
 }
 void loadInitialDashboardStatus();
@@ -896,16 +899,16 @@ e.addEventListener("dashboard", (x) => {
     }
     humanize();
     checkBuild(snapshot.build_commit);
-    $("updateMode").textContent = "Serverpush: verbonden";
+    setUpdateMode("refresh.connected");
   } catch {
     dashboardStatusStore.update(fallback);
     humanize();
-    $("updateMode").textContent = "Serverpush: update ongeldig";
+    setUpdateMode("refresh.invalid");
   }
 });
 e.onerror = () => {
   $("autoRefresh").checked &&
-    ($("updateMode").textContent = "Serverpush: opnieuw verbinden…");
+    setUpdateMode("refresh.reconnecting");
 };
 $("loadComponentLogs").addEventListener("click", loadComponentLogs);
 $("chatSend").addEventListener("click", askCodex);
@@ -2431,6 +2434,7 @@ function applyDashboardLocale() {
     ["#dashboardTitle", "dashboard.title"],
     ["#dashboardSplashTitle", "dashboard.title"],
     ["#dashboardSplashLoading", "dashboard.loading"],
+    ["#platformVersionLabel", "footer.platform_version"],
     ["#confirmationModalCancel", "action.cancel"],
     ["#confirmationModalConfirm", "action.confirm"],
     ["#predecessorRetry", "action.resume_queue"],
@@ -2477,6 +2481,7 @@ function applyDashboardLocale() {
   $("dashboardSplashVersion").textContent = t("dashboard.platform_version", {
     version: $("dashboardSplashVersion").dataset.platformVersion,
   });
+  setUpdateMode(updateModeKey);
   providerNeutralLabels();
   localizeTechnicalDetails();
   addCategoryIcons();
@@ -2588,9 +2593,7 @@ autoRefreshToggle.checked = dashboardClientState.autoRefresh !== false;
 autoRefreshToggle.addEventListener("change", () => {
   dashboardClientState.autoRefresh = autoRefreshToggle.checked;
   saveDashboardClientState();
-  $("updateMode").textContent = autoRefreshToggle.checked
-    ? t("refresh.connected")
-    : t("refresh.off");
+  setUpdateMode(autoRefreshToggle.checked ? "refresh.connected" : "refresh.off");
 });
 document.addEventListener(
   "toggle",

@@ -219,6 +219,22 @@ Object.assign(messages.es, {
   "queue_recovery.title":"Reanudar cola", "queue_recovery.details":"Esta recuperación restablece el orden de espera de la bandeja de entrada. La ejecución bloqueada original no cambia.", "queue_recovery.preparing":"Preparando la recuperación de la cola…", "queue_recovery.ready":"La recuperación de la cola está lista; el monitor se reanudará después de la ejecución de reemplazo.", "queue_recovery.failed":"No se pudo iniciar la recuperación de la cola.",
 });
 
+Object.assign(messages.en, {
+  "footer.platform_version":"Engineering Platform version", "refresh.connecting":"Server push: connecting…", "refresh.failed_reconnecting":"Loading status failed; reconnecting server push…", "refresh.invalid":"Server push: invalid update", "refresh.reconnecting":"Server push: reconnecting…",
+});
+Object.assign(messages.nl, {
+  "footer.platform_version":"Engineering Platform-versie", "refresh.connecting":"Serverpush: verbinden…", "refresh.failed_reconnecting":"Status laden mislukt; serverpush opnieuw verbinden…", "refresh.invalid":"Serverpush: update ongeldig", "refresh.reconnecting":"Serverpush: opnieuw verbinden…",
+});
+Object.assign(messages.de, {
+  "footer.platform_version":"Engineering-Plattformversion", "refresh.connecting":"Server-Push: Verbindung wird hergestellt…", "refresh.failed_reconnecting":"Status konnte nicht geladen werden; Server-Push wird erneut verbunden…", "refresh.invalid":"Server-Push: ungültiges Update", "refresh.reconnecting":"Server-Push: erneute Verbindung…",
+});
+Object.assign(messages.fr, {
+  "footer.platform_version":"Version d’Engineering Platform", "refresh.connecting":"Push serveur : connexion…", "refresh.failed_reconnecting":"Échec du chargement de l’état ; reconnexion du push serveur…", "refresh.invalid":"Push serveur : mise à jour non valide", "refresh.reconnecting":"Push serveur : reconnexion…",
+});
+Object.assign(messages.es, {
+  "footer.platform_version":"Versión de Engineering Platform", "refresh.connecting":"Actualización del servidor: conectando…", "refresh.failed_reconnecting":"No se pudo cargar el estado; reconectando la actualización del servidor…", "refresh.invalid":"Actualización del servidor: actualización no válida", "refresh.reconnecting":"Actualización del servidor: reconectando…",
+});
+
 export function normalizeLocale(value) {
   const candidate = String(value || "").toLowerCase().split("-")[0];
   return SUPPORTED_LOCALES.includes(candidate) ? candidate : "en";
