@@ -90,6 +90,8 @@ html[data-theme="light"] #downloadChat.download--glyph{background:#fff7ff;border
 
 /* Chat maintenance glyphs share the light conversation surface. */
 html[data-theme="light"] #clearChat.clear-chat{background:#fff7ff;border-color:#b99ae5;box-shadow:0 2px 8px #6e548e2e;color:#68498a}
+/* The destructive chat-maintenance glyph has the same affirmative hover cue as download. */
+#clearChat.clear-chat:hover{background:var(--category-color)!important;border-color:var(--category-color)!important;color:#17151a!important}
 
 /* Resting glyphs need dark category ink on the light dashboard surfaces. */
 html[data-theme="light"] .platform-health .component-info{color:#3c7411}html[data-theme="light"] .chat-message--user .chat-message__copy{color:#1c4e68}html[data-theme="light"] .chat-message--assistant .chat-message__copy{color:#68498a}

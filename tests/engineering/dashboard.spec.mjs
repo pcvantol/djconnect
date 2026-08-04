@@ -837,6 +837,9 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(clear).toBeVisible();
     await expect(clear).toHaveCSS("background-color", "rgb(255, 247, 255)");
     await expect(clear).toHaveCSS("color", "rgb(104, 73, 138)");
+    await clear.hover();
+    await expect(clear).toHaveCSS("background-color", "rgb(208, 164, 255)");
+    await expect(clear).toHaveCSS("color", "rgb(23, 21, 26)");
     await page.evaluate(() => {
       chatMessage("user", "Eigen bericht");
       chatMessage("assistant", "AI-antwoord");
