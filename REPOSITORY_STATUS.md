@@ -2,6 +2,17 @@
 
 Status: active platform-evolution repository
 
+## PR #734 post-merge finalization
+
+PR [#734](https://github.com/pcvantol/djconnect/pull/734), **Improve Engineering
+Report evidence traceability**, merged as
+`8f663b0991290c83abd7a2874b1730232e85ae1d`. Engineering Evidence 2.0 adds
+derived component, requirement, validation, commit and branch traceability to
+self-validating Engineering Reports without changing Forge or DJConnect product
+behaviour. The immutable Prompt History record is
+`docs/history/prompts/2026-08-04-engineering-evidence-2.md`. Repository State:
+`MERGED_UNRECONCILED`; Finalization is required.
+
 ## PR #730 merge finalization
 
 PR [#730](https://github.com/pcvantol/djconnect/pull/730), **Add Execution Host Capability Preflight Level 3**, merged as `c540b704fffb933b418a24e8602874d1369ee786`. Capability incompatibility is rejected before Inbox acceptance; Forge and product behavior remain unchanged. Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY` after this Finalization.

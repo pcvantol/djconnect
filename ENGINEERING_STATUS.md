@@ -3,6 +3,18 @@
 **Status:** Operational handoff
 **Updated:** 2026-08-03
 
+## PR #734 post-merge finalization
+
+PR [#734](https://github.com/pcvantol/djconnect/pull/734), **Improve Engineering
+Report evidence traceability**, merged as
+`8f663b0991290c83abd7a2874b1730232e85ae1d`. Engineering Evidence 2.0 now
+derives component, requirement, validation, commit and branch evidence into
+self-validating reports while Repository Truth remains authoritative. Its
+immutable implementation history is
+`docs/history/prompts/2026-08-04-engineering-evidence-2.md`. Forge, product,
+runtime, release, deployment and publication behaviour remain unchanged.
+Repository State: `MERGED_UNRECONCILED`; Finalization is required.
+
 ## PR #730 merge finalization
 
 PR [#730](https://github.com/pcvantol/djconnect/pull/730), **Add Execution Host Capability Preflight Level 3**, merged as `c540b704fffb933b418a24e8602874d1369ee786`. Capability requirements now fail closed before Inbox claim with bounded evidence, Recoverability and Failure Origin. Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY` after this Finalization.
