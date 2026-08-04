@@ -47,6 +47,7 @@ class PromptHistoryTest(unittest.TestCase):
                         "retry_timestamp": None,
                         "target_checkout_path": None,
                         "tracked_file_count": None,
+                        "target_branch": None,
                         "execution_mode": None,
                         "repository": None,
                         "producer_id": "legacy",
@@ -141,10 +142,12 @@ class PromptHistoryTest(unittest.TestCase):
                 executed_at="2026-08-04T12:00:00Z",
                 target_checkout_path=checkout,
                 tracked_file_count=1655,
+                target_branch="forge-phase-evidence",
             )
             entry = prompt_history(root)[0]
             self.assertEqual(entry["target_checkout_path"], str(checkout.resolve()))
             self.assertEqual(entry["tracked_file_count"], 1655)
+            self.assertEqual(entry["target_branch"], "forge-phase-evidence")
 
     def test_persists_retry_relationship_without_merging_runs(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

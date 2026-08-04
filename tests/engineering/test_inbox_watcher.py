@@ -164,13 +164,15 @@ class InboxWatcherTest(unittest.TestCase):
             ),
             encoding="utf-8",
         )
-        completed = subprocess.CompletedProcess(("git",), 0, b"README.md\0src/app.py\0", b"")
-        with patch("tools.engineering.inbox_watcher.subprocess.run", return_value=completed):
-            checkout, tracked_files = inbox_watcher._terminal_workspace_snapshot(
+        files = subprocess.CompletedProcess(("git",), 0, b"README.md\0src/app.py\0", b"")
+        branch = subprocess.CompletedProcess(("git",), 0, "forge-phase-e", "")
+        with patch("tools.engineering.inbox_watcher.subprocess.run", side_effect=(files, branch)):
+            checkout, tracked_files, target_branch = inbox_watcher._terminal_workspace_snapshot(
                 self.repo, "inbox-snapshot"
             )
         self.assertEqual(checkout, str(target.resolve()))
         self.assertEqual(tracked_files, 2)
+        self.assertEqual(target_branch, "forge-phase-e")
 
     def test_contradictory_terminal_report_is_not_accepted_for_delivery(self) -> None:
         report = self.repo / "contradictory.md"
@@ -234,6 +236,41 @@ class InboxWatcherTest(unittest.TestCase):
         snapshot = json_status(self.repo)
         self.assertEqual(snapshot["watcher_state"], "RUNNER_STARTING")
         self.assertEqual(snapshot["run_id"], run_id)
+
+    def test_active_detached_runner_keeps_scanning_and_publishes_later_inbox_prompts(self) -> None:
+        (self.inbox / "running.txt").write_text("# Running prompt", encoding="utf-8")
+        run_id = "inbox-detached-run"
+        with patch("tools.engineering.inbox_watcher._allocate_run_id", return_value=run_id), patch(
+            "tools.engineering.inbox_watcher.subprocess.Popen"
+        ):
+            self.assertEqual(inbox_watcher.once(self.repo, self.root, 0, background=True), 0)
+
+        queued = self.inbox / "later.txt"
+        queued.write_text("# Later prompt", encoding="utf-8")
+
+        self.assertEqual(inbox_watcher.once(self.repo, self.root, 0, background=True), 0)
+
+        snapshot = json_status(self.repo)
+        self.assertEqual(snapshot["watcher_state"], "RUNNER_STARTING")
+        self.assertEqual(snapshot["run_id"], run_id)
+        self.assertEqual(snapshot["queue_depth"], 2)
+        self.assertEqual(
+            {item["filename"] for item in snapshot["queue_items"]},
+            {"later.txt", "running.txt"},
+        )
+
+    def test_detached_runner_does_not_hold_the_polling_watcher_lock(self) -> None:
+        lock_path = self.repo / ".engineering" / "engineering-inbox.lock"
+
+        with patch.dict(
+            os.environ,
+            {inbox_watcher.BACKGROUND_RUN_ID_ENVIRONMENT: "inbox-detached-run"},
+            clear=False,
+        ):
+            with inbox_watcher._lock(self.repo):
+                self.assertFalse(lock_path.exists())
+
+        self.assertFalse(lock_path.exists())
 
     def test_preflight_failure_delivers_a_terminal_report_and_failed_phase(self) -> None:
         prompt = self.inbox / "preflight.md"

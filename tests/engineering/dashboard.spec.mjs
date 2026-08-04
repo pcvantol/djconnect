@@ -77,6 +77,39 @@ test.describe("Engineering Status browser smoke", () => {
         () => typeof window.__djconnectDashboardLocalizationCalls === "function",
       );
 
+      const templateBindings = await page.locator(
+        "[data-i18n], [data-i18n-placeholder], [data-i18n-aria-label], [data-i18n-title]",
+      ).evaluateAll((elements) => elements.flatMap((element) => [
+        element.dataset.i18n && {
+          key: element.dataset.i18n,
+          property: "textContent",
+          value: element.textContent,
+        },
+        element.dataset.i18nPlaceholder && {
+          key: element.dataset.i18nPlaceholder,
+          property: "placeholder",
+          value: element.getAttribute("placeholder"),
+        },
+        element.dataset.i18nAriaLabel && {
+          key: element.dataset.i18nAriaLabel,
+          property: "aria-label",
+          value: element.getAttribute("aria-label"),
+        },
+        element.dataset.i18nTitle && {
+          key: element.dataset.i18nTitle,
+          property: "title",
+          value: element.getAttribute("title"),
+        },
+      ].filter(Boolean)));
+      for (const binding of templateBindings.filter(
+        ({ key }) => !["format.loading", "format.unavailable", "estimate.not_available"].includes(key),
+      )) {
+        expect(
+          binding.value,
+          `${language}:${binding.key} must update the template ${binding.property}`,
+        ).toBe(sourceTranslator(binding.key));
+      }
+
       const calls = await page.evaluate(() =>
         window.__djconnectDashboardLocalizationCalls(),
       );
@@ -146,6 +179,32 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#promptHistoryDetailModal")).toBeVisible();
     await expect(page.locator("#promptHistoryDetailContent")).toContainText("Engineering Platform");
     await expect(page.locator("dialog[open]")).toHaveCount(1);
+  });
+
+  test("keeps the execution-details modal as compact as the report modal on iPhone", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    const modal = page.locator("#promptHistoryDetailModal");
+    const panel = modal.locator(".prompt-detail-modal__panel");
+
+    await modal.evaluate((element) => {
+      document.querySelector("#promptHistoryDetailContent").innerHTML =
+        "<p>Uitvoeringsbewijs</p>".repeat(100);
+      element.showModal();
+    });
+
+    const box = await panel.boundingBox();
+    expect(box).not.toBeNull();
+    expect(box.x).toBeGreaterThanOrEqual(10);
+    expect(box.width).toBeLessThanOrEqual(390 * 0.94 + 1);
+    expect(box.height).toBeLessThanOrEqual(844 * 0.9 + 1);
+    await expect(panel).toHaveCSS("border-top-left-radius", "18px");
+    await expect(page.locator("#promptHistoryDetailContent")).toHaveCSS("scrollbar-gutter", "stable both-edges");
+    await expect(page.locator("#promptHistoryDetailContent")).toHaveCSS("padding-left", "8px");
+    await expect(page.locator("#promptHistoryDetailContent")).toHaveCSS("padding-right", "8px");
+    expect(await page.locator("#promptHistoryDetailContent").evaluate(
+      (element) => element.scrollHeight > element.clientHeight,
+    )).toBe(true);
   });
 
   test("shows the refresh timestamp in the bottom status bar", async ({ page }) => {
@@ -227,6 +286,10 @@ test.describe("Engineering Status browser smoke", () => {
   });
 
   test("localizes dashboard chrome and dynamic runtime copy for every supported language", async ({ page }) => {
+    await page.route("**/api/events", (route) => route.abort());
+    await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({
+      json: { status: { watcher_state: "IDLE", queue_depth: 0 } },
+    }));
     const expectations = [
       ["en", "Workspace location", "Specialist reviewers", "Input tokens", "Use reset"],
       ["nl", "Werkruimtelocatie", "Specialistische reviewers", "Invoertokens", "Gebruik reset"],
@@ -236,6 +299,14 @@ test.describe("Engineering Status browser smoke", () => {
     ];
     for (const [language, workspaceLocation, reviewers, inputTokens, reset] of expectations) {
       await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+      // Let the deterministic initial snapshot finish before injecting this
+      // test-specific runtime state. This prevents an async snapshot response
+      // from overwriting the localized usage values.
+      await page.waitForFunction(
+        () => document.body.classList.contains("dashboard-ready"),
+        null,
+        { timeout: 5000 },
+      );
       await page.locator("#dashboardLocale").selectOption(language);
       await expect(page.locator("html")).toHaveAttribute("lang", language);
       await page.waitForFunction(() => typeof window.r === "function");
@@ -390,8 +461,9 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#promptHistoryPagination")).toContainText("Page 1 of 11 · 101 prompts");
     await expect(page.locator("#promptHistoryRows tr")).toHaveCount(10);
     expect(await page.locator("#promptHistory .log-table-wrap").evaluate((wrap) => {
-      const style = getComputedStyle(wrap);
-      return style.minHeight === "598px" && style.maxHeight === "none";
+      const style = getComputedStyle(wrap), table = wrap.querySelector("table");
+      return style.minHeight === "0px" && style.maxHeight === "none" &&
+        Math.abs(wrap.getBoundingClientRect().height - table.getBoundingClientRect().height) <= 2;
     })).toBe(true);
     await expect(page.locator("#promptHistoryPagination button").first()).toHaveText("Previous");
     await expect(page.locator("#promptHistoryPagination button").last()).toHaveText("Next");
@@ -430,17 +502,27 @@ test.describe("Engineering Status browser smoke", () => {
 
   test("matches the iPhone portrait dashboard visual reference", async ({ page }, testInfo) => {
     await page.setViewportSize({ width: 390, height: 844 });
-    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
-    await page.locator("#dashboardSplash").evaluate((element) => { element.hidden = true; });
-    await page.evaluate(() => r({
-      watcher_state: "ENGINEERING_RUN_ACTIVE",
-      current_phase: "EXECUTE_AGENT",
-      current_action: "Capability review: validation",
-      run_id: "inbox-iphone-reference",
-      prompt_title: "Mobile dashboard visual reference",
-      submitted_filename: "engineering-iphone-reference.txt",
-      queue_depth: 1,
+    await page.route("**/api/events", (route) => route.abort());
+    await page.route("**/api/log/**", (route) => route.abort());
+    await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({
+      json: {
+        status: {
+          watcher_state: "ENGINEERING_RUN_ACTIVE",
+          current_phase: "EXECUTE_AGENT",
+          current_action: "Capability review: validation",
+          run_id: "inbox-iphone-reference",
+          prompt_title: "Mobile dashboard visual reference",
+          submitted_filename: "engineering-iphone-reference.txt",
+          queue_depth: 1,
+        },
+      },
     }));
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.waitForFunction(
+      () => document.body.classList.contains("dashboard-ready"),
+    );
+    await page.locator("#autoRefresh").uncheck();
+    await page.locator("#dashboardSplash").evaluate((element) => { element.hidden = true; });
     await page.locator("#currentRun").evaluate((element) => { element.open = true; });
     const image = await page.screenshot({ animations: "disabled" });
     await testInfo.attach("iphone-portrait-dashboard", {
@@ -508,6 +590,14 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator(".dashboard-splash__loading")).toHaveText("Gegevens laden…");
     await expect(page.locator(".dashboard-splash__version")).toHaveCSS("color", "rgb(240, 182, 106)");
     await expect(page.locator(".dashboard-splash__spinner")).toHaveCSS("border-top-color", "rgb(240, 182, 106)");
+  });
+
+  test("uses the house-style orange for an active execution spinner", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#indicator").evaluate((element) => {
+      element.className = "indicator indicator--running";
+    });
+    await expect(page.locator("#indicator")).toHaveCSS("border-top-color", "rgb(240, 182, 106)");
   });
 
   test("loads the initial status before serverpush connects", async ({ page }) => {
@@ -1069,6 +1159,7 @@ test.describe("Engineering Status browser smoke", () => {
 
   test("renders log actions in the light category style", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#dashboardSplash").evaluate((element) => { element.hidden = true; });
     await page.getByTestId("theme-toggle").click();
     await page.locator("#componentLogs").evaluate((element) => { element.open = true; });
     await page.evaluate(() => renderLogPagination("inbox", 1, 1));
@@ -1097,9 +1188,11 @@ test.describe("Engineering Status browser smoke", () => {
     }
   });
 
-  test("fills the historical report action red on hover", async ({ page }) => {
+  test("fills the historical report action blue on hover", async ({ page }) => {
     await page.route("**/api/prompt-history", (route) => route.fulfill({ json: { runs: [] } }));
+    const historyLoaded = page.waitForResponse("**/api/prompt-history");
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await historyLoaded;
     await page.locator("#dashboardSplash").evaluate((element) => { element.hidden = true; });
     await page.locator("#promptHistory").evaluate((element) => { element.open = true; });
     await page.evaluate(() => {
@@ -1117,8 +1210,8 @@ test.describe("Engineering Status browser smoke", () => {
     const report = page.locator('[title="Bekijk engineeringrapport voor Rapport hover"]');
 
     await report.hover();
-    await expect(report).toHaveCSS("background-color", "rgb(255, 113, 143)");
-    await expect(report).toHaveCSS("color", "rgb(39, 25, 35)");
+    await expect(report).toHaveCSS("background-color", "rgb(141, 199, 255)");
+    await expect(report).toHaveCSS("color", "rgb(23, 35, 49)");
   });
 
   test("downloads each redacted component log", async ({ page }) => {
@@ -1656,6 +1749,7 @@ test.describe("Engineering Status browser smoke", () => {
     const reportView = page.locator("#promptHistoryRows .prompt-history-report");
     await expect(reportView).toHaveCount(1);
     await expect(reportView).toHaveText("▤");
+    await expect(reportView).toHaveCSS("border-top-color", "rgb(141, 199, 255)");
     await page.route("**/api/prompt-history/**/report", (route) => route.fulfill({
       contentType: "text/markdown",
       body: "# Historisch rapport\n\nDit rapport wordt in een dialoog getoond.",
@@ -1671,7 +1765,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#promptHistoryReportModal")).not.toBeVisible();
     await page.route("**/api/prompt-history/**/details", (route) => route.fulfill({
       json: {
-        history: { run_id: "inbox-history-25", status: "COMPLETE", title: "Geschiedenis prompt 25", executed_at: "2026-08-02T12:25:00Z", execution_mode: "GENESIS", repository: "pcvantol/djconnect", target_repository: "pcvantol/forge", target_checkout_path: "/Users/example/Documents/GitHub/forge", tracked_file_count: 1655 },
+        history: { run_id: "inbox-history-25", status: "COMPLETE", title: "Geschiedenis prompt 25", executed_at: "2026-08-02T12:25:00Z", execution_mode: "GENESIS", repository: "pcvantol/djconnect", target_repository: "pcvantol/forge", target_checkout_path: "/Users/example/Documents/GitHub/forge", tracked_file_count: 1655, target_branch: "forge-phase-evidence" },
         execution: { seconds: 42, total_seconds: 61 },
         runtime: { runtime_provider: "codex_cli", codex_cli_version: "0.146.0" },
         usage: { input_tokens: 120, output_tokens: 45 },
@@ -1691,6 +1785,11 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#promptHistoryDetailContent")).toContainText("/Users/example/Documents/GitHub/forge");
     await expect(page.locator("#promptHistoryDetailContent")).toContainText("Getrackte bestanden");
     await expect(page.locator("#promptHistoryDetailContent")).toContainText("1655");
+    await expect(page.locator("#promptHistoryDetailContent")).toContainText("Uitvoeringsmodus");
+    await expect(page.locator("#promptHistoryDetailContent")).toContainText("GENESIS");
+    await expect(page.locator("#promptHistoryDetailContent")).toContainText("Actieve branch");
+    await expect(page.locator("#promptHistoryDetailContent")).toContainText("forge-phase-evidence");
+    await expect(page.locator("#promptHistoryDetailContent .prompt-detail-status .indicator--green")).toHaveCount(1);
     await expect(page.locator("#promptHistoryDetailContent")).not.toContainText("pcvantol/djconnect");
     await expect(page.locator("#promptHistoryDetailContent")).not.toContainText("Historisch rapport");
     await expect(page.locator("#promptHistoryDetailContent")).not.toContainText("Historische AI-analyse");
@@ -1707,6 +1806,7 @@ test.describe("Engineering Status browser smoke", () => {
     const analysisView = page.locator("#promptHistoryRows .prompt-history-analysis").first();
     await expect(page.locator("#promptHistoryRows .prompt-history-analysis")).toHaveCount(1);
     await expect(page.locator("#promptHistoryRows a.prompt-history-analysis")).toHaveCount(0);
+    await expect(analysisView).toHaveCSS("color", "rgb(141, 199, 255)");
     await page.route("**/api/prompt-history/**/analysis", (route) => route.fulfill({
       contentType: "text/markdown",
       body: "# Historische AI-analyse\n\nDit advies hoort bij precies deze uitvoering.",
@@ -1720,6 +1820,8 @@ test.describe("Engineering Status browser smoke", () => {
     const chat = page.locator("#promptHistoryRows .prompt-history-chat");
     await expect(chat).toHaveCount(1);
     await expect(chat).toHaveText("💬");
+    await expect(chat).toHaveCSS("border-top-color", "rgb(208, 164, 255)");
+    await expect(chat).toHaveCSS("color", "rgb(208, 164, 255)");
     await chat.click();
     await expect(page.locator("#promptHistoryChatModal")).toBeVisible();
     await expect(page.locator("#promptHistoryChatModal")).toBeFocused();
@@ -1729,7 +1831,7 @@ test.describe("Engineering Status browser smoke", () => {
       await route.fulfill({ json: { answer: "Dit advies hoort bij de geselecteerde prompt.", model: "Codex CLI" } });
     });
     await page.locator("#chatInput").fill("Wat is de volgende stap?");
-    await page.locator("#chatSend").click();
+    await page.locator("#chatInput").press("Control+Enter");
     await expect(page.locator("#chatMessages")).toContainText("geselecteerde prompt");
     expect(submittedRun).toBe("inbox-history-25");
     await page.locator("#promptHistoryChatClose").click();
@@ -1785,6 +1887,7 @@ test.describe("Engineering Status browser smoke", () => {
     expect(bounds.input.right).toBeLessThan(bounds.chat.right);
     expect(bounds.model.bottom).toBeLessThanOrEqual(bounds.panel.bottom);
     expect(bounds.status.bottom).toBeLessThanOrEqual(bounds.panel.bottom);
+    expect(bounds.input.y - bounds.status.bottom).toBeGreaterThanOrEqual(12);
   });
 
   test("keeps the thinking status visible above the AI question box after it is resized", async ({ page }) => {
@@ -1808,6 +1911,28 @@ test.describe("Engineering Status browser smoke", () => {
     expect(bounds.status.bottom).toBeLessThanOrEqual(bounds.input.y);
   });
 
+  test("reserves space for the chat model and thinking state in a short viewport", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 500 });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    const modal = page.locator("#promptHistoryChatModal");
+    await modal.evaluate((element) => {
+      document.querySelector("#chatMessages").innerHTML =
+        '<article class="chat-message chat-message--assistant">Lang bericht</article>'.repeat(60);
+      document.querySelector("#chatInput").style.height = "260px";
+      document.querySelector("#chatStatus").textContent = "Codex denkt na…";
+      element.showModal();
+    });
+
+    const bounds = await modal.evaluate((element) => {
+      const rect = (selector) => document.querySelector(selector).getBoundingClientRect();
+      return { panel: rect(".prompt-chat-modal__panel"), input: rect("#chatInput"), model: rect("#chatModel"), status: rect("#chatStatus") };
+    });
+    expect(bounds.input.height).toBeLessThanOrEqual(128);
+    expect(bounds.status.bottom).toBeLessThanOrEqual(bounds.input.y);
+    expect(bounds.input.bottom).toBeLessThanOrEqual(bounds.panel.bottom - 10);
+    expect(bounds.model.bottom).toBeLessThanOrEqual(bounds.panel.bottom - 4);
+  });
+
   test("uses a distinct purple surface for AI answers in a prompt-history conversation", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     const modal = page.locator("#promptHistoryChatModal"),
@@ -1825,6 +1950,16 @@ test.describe("Engineering Status browser smoke", () => {
     )).not.toBe(await panel.evaluate(
       (element) => getComputedStyle(element).backgroundColor,
     ));
+  });
+
+  test("uses the shared neutral surface for prompt-history detail and chat modal shells", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    for (const selector of [
+      ".prompt-detail-modal__panel",
+      ".prompt-chat-modal__panel",
+    ]) {
+      await expect(page.locator(selector)).toHaveCSS("background-color", "rgb(36, 36, 45)");
+    }
   });
 
   test("uses purpose-matched glyphs in modal titles", async ({ page }) => {
@@ -1877,6 +2012,35 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator(".prompt-history-status--complete")).toHaveCSS("color", "rgb(20, 134, 91)");
     await expect(page.locator(".prompt-history-status--blocked")).toHaveCSS("color", "rgb(166, 90, 0)");
     await expect(page.locator(".prompt-history-status--failed")).toHaveCSS("color", "rgb(180, 35, 64)");
+  });
+
+  test("searches prompt history by localized terminal status", async ({ page }) => {
+    await page.route("**/api/prompt-history", (route) => route.fulfill({ json: { runs: [] } }));
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#dashboardLocale").selectOption("nl");
+    await expect(page.locator("html")).toHaveAttribute("lang", "nl");
+    await page.evaluate(() => {
+      promptHistoryEntries = [
+        { run_id: "inbox-complete", status: "COMPLETE", title: "Completed prompt" },
+        { run_id: "inbox-blocked", status: "BLOCKED", title: "Blocked prompt" },
+      ];
+      renderPromptHistory();
+      document.querySelector("#promptHistory").open = true;
+    });
+
+    await page.locator("#promptHistoryFilter").fill("voltooid");
+    await expect(page.locator("#promptHistoryRows tr")).toHaveCount(1);
+    await expect(page.locator("#promptHistoryRows")).toContainText("Voltooid");
+    await page.locator("#promptHistoryFilter").fill("geblokkeerd");
+    await expect(page.locator("#promptHistoryRows tr")).toHaveCount(1);
+    await expect(page.locator("#promptHistoryRows")).toContainText("Geblokkeerd");
+
+    await page.locator("#dashboardLocale").selectOption("en");
+    await expect(page.locator("html")).toHaveAttribute("lang", "en");
+    await page.locator("#promptHistoryFilter").fill("complete");
+    await expect(page.locator("#promptHistoryRows tr")).toHaveCount(1);
+    await page.locator("#promptHistoryFilter").fill("blocked");
+    await expect(page.locator("#promptHistoryRows tr")).toHaveCount(1);
   });
 
   test("retains severity colours in the light component-log table", async ({ page }) => {
@@ -2116,7 +2280,7 @@ test.describe("Engineering Status browser smoke", () => {
     }
     await expect(page.locator("#confirmationModalConfirm")).toHaveCSS("font-size", "13px");
     await expect(page.locator("#confirmationModalConfirm")).toHaveCSS("font-family", await page.locator("#rateLimitReset").evaluate((button) => getComputedStyle(button).fontFamily));
-    await expect(modal).toContainText("Wis de applicatielogs van Engineering Execution Host?");
+    await expect(modal).toContainText("De applicatielogs van Engineering Execution Host wissen?");
     await page.keyboard.press("Escape");
     await expect(modal).not.toBeVisible();
     expect(postCount).toBe(0);

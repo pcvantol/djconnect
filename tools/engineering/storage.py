@@ -17,7 +17,7 @@ import sqlite3
 
 WORKSPACE_DIRECTORY = ".engineering"
 DATABASE_FILENAME = "engineering.db"
-ENGINEERING_STORAGE_SCHEMA_VERSION = 9
+ENGINEERING_STORAGE_SCHEMA_VERSION = 10
 JOURNAL_MODES = frozenset({"DELETE", "MEMORY"})
 
 
@@ -316,6 +316,11 @@ def _schema_v9(connection: sqlite3.Connection) -> None:
         connection.execute(statement)
 
 
+def _schema_v10(connection: sqlite3.Connection) -> None:
+    """Preserve the target branch observed when terminal evidence is written."""
+    connection.execute("ALTER TABLE prompt_execution_history ADD COLUMN target_branch TEXT")
+
+
 MIGRATIONS: dict[int, Migration] = {
     1: _schema_v1,
     2: _schema_v2,
@@ -326,6 +331,7 @@ MIGRATIONS: dict[int, Migration] = {
     7: _schema_v7,
     8: _schema_v8,
     9: _schema_v9,
+    10: _schema_v10,
 }
 
 

@@ -29,6 +29,13 @@ the private dashboard LaunchAgent, and verify both. Submit UTF-8 `.md` or
 stable files one at a time, oldest File Date Modified first, and invokes only
 this repository's `engineering-execution-host`.
 
+After admission, the Engineering runner is detached from the polling watcher.
+The watcher continues to scan the Inbox and updates the dashboard queue during
+the active run, while the admission record enforces exactly one execution at a
+time. A prompt added during a run is therefore visible in **Inbox-wachtrij**
+on the next polling cycle, but remains queued until the active execution is
+terminal.
+
 iCloud is transport only. After a prompt is claimed, the executed prompt copy,
 status, reports, logs and terminal archive live locally under `.engineering/`:
 

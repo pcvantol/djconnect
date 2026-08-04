@@ -649,7 +649,7 @@ class DashboardStatusTest(unittest.TestCase):
 
         self.assertRegex(details["size"], r"^\d+,\d{2} MB$")
         self.assertNotEqual(details["size"], "0,00 MB")
-        self.assertEqual(details["schema_version"], "9")
+        self.assertEqual(details["schema_version"], "10")
 
     @patch("tools.engineering.dashboard.subprocess.run")
     def test_tracked_file_count_counts_recursive_git_index_entries(self, run: object) -> None:
@@ -1068,6 +1068,7 @@ class DashboardStatusTest(unittest.TestCase):
                 report=report,
                 target_checkout_path="/Users/example/Documents/GitHub/forge",
                 tracked_file_count=1655,
+                target_branch="forge-phase-evidence",
             )
             connection = MagicMock()
             connection.execute.return_value.fetchone.return_value = (10, 20, 30)
@@ -1089,6 +1090,7 @@ class DashboardStatusTest(unittest.TestCase):
                 "/Users/example/Documents/GitHub/forge",
             )
             self.assertEqual(detail["history"]["tracked_file_count"], 1655)
+            self.assertEqual(detail["history"]["target_branch"], "forge-phase-evidence")
 
     def test_dashboard_file_projections_reject_malformed_or_missing_data(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

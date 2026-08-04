@@ -84,3 +84,12 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Browser smoke test for Engineering Status
         run: npm run test:engineering-dashboard
+      - name: Upload Engineering Status browser screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: engineering-status-browser-screenshots
+          path: |
+            test-results/**
+            tests/engineering/dashboard.spec.mjs-snapshots/**
+          if-no-files-found: warn
