@@ -304,6 +304,9 @@ html[data-theme="light"] .chat-message__body :is(code,pre){background:#e9eef6;co
 /* AI antwoorden krijgen een eigen paarse laag, los van de chatmodal. */
 .prompt-chat-modal{--prompt-chat-answer-surface:#3c2a4d}.prompt-chat-modal .chat-message--assistant{background:var(--prompt-chat-answer-surface);border-color:#bd8ee8}html[data-theme="light"] .prompt-chat-modal{--prompt-chat-answer-surface:#f3ebff}
 
+/* A short message must keep its natural height; the scroll region owns spare space. */
+.chat-messages{align-content:start;align-items:start}.chat-message{align-self:start}
+
 /* Category colour pairs -----------------------------------------------------
    Every dashboard surface carries a primary accent for its boundary/title and
    a closely related, lighter secondary accent for field labels.  This makes

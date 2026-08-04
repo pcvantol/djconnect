@@ -1395,6 +1395,26 @@ test.describe("Engineering Status browser smoke", () => {
     ));
   });
 
+  test("sizes prompt-history chat bubbles to their content", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#promptHistoryChatModal").evaluate((modal) => {
+      document.querySelector("#chatMessages").innerHTML =
+        '<article class="chat-message chat-message--user"><span class="chat-message__role">Jij</span><div class="chat-message__body">Korte vraag</div></article>';
+      modal.showModal();
+    });
+
+    const sizes = await page.locator("#chatMessages").evaluate((container) => {
+      const message = container.querySelector(".chat-message");
+      return {
+        container: container.getBoundingClientRect().height,
+        message: message.getBoundingClientRect().height,
+      };
+    });
+    expect(sizes.container).toBeGreaterThan(200);
+    expect(sizes.message).toBeLessThan(100);
+  });
+
   test("retains terminal status colours in the light prompt-history table", async ({ page }) => {
     await page.route("**/api/prompt-history", (route) => route.fulfill({ json: { runs: [] } }));
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
