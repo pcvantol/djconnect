@@ -279,6 +279,21 @@ Object.assign(messages.fr, {
 Object.assign(messages.es, {
   "logs.page":"Página {page} de {pages} · {count} entradas", "logs.no_entries":"No hay entradas de registro",
 });
+Object.assign(messages.en, {
+  "logs.inbox_watcher":"Inbox watcher", "logs.status_dashboard":"Status dashboard", "table.number":"#", "table.timestamp":"Timestamp", "table.level":"Level", "table.run_id":"Run ID", "table.details":"Details",
+});
+Object.assign(messages.nl, {
+  "logs.inbox_watcher":"Inbox-watcher", "logs.status_dashboard":"Statusdashboard", "table.number":"#", "table.timestamp":"Tijdstip", "table.level":"Niveau", "table.run_id":"Run-ID", "table.details":"Details",
+});
+Object.assign(messages.de, {
+  "logs.inbox_watcher":"Inbox-Watcher", "logs.status_dashboard":"Status-Dashboard", "table.number":"#", "table.timestamp":"Zeitpunkt", "table.level":"Stufe", "table.run_id":"Run-ID", "table.details":"Details",
+});
+Object.assign(messages.fr, {
+  "logs.inbox_watcher":"Surveillant de la boîte de réception", "logs.status_dashboard":"Tableau de bord de statut", "table.number":"#", "table.timestamp":"Horodatage", "table.level":"Niveau", "table.run_id":"ID d’exécution", "table.details":"Détails",
+});
+Object.assign(messages.es, {
+  "logs.inbox_watcher":"Monitor de bandeja de entrada", "logs.status_dashboard":"Panel de estado", "table.number":"#", "table.timestamp":"Marca de tiempo", "table.level":"Nivel", "table.run_id":"ID de ejecución", "table.details":"Detalles",
+});
 
 export function normalizeLocale(value) {
   const candidate = String(value || "").toLowerCase().split("-")[0];

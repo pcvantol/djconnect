@@ -193,6 +193,23 @@ test.describe("Engineering Status browser smoke", () => {
     }
   });
 
+  test("localizes component log table headings for every supported language", async ({ page }) => {
+    const expectations = [
+      ["en", "Inbox watcher", ["#", "Timestamp", "Level", "Event", "Run ID", "Details"]],
+      ["nl", "Inbox-watcher", ["#", "Tijdstip", "Niveau", "Gebeurtenis", "Run-ID", "Details"]],
+      ["de", "Inbox-Watcher", ["#", "Zeitpunkt", "Stufe", "Ereignis", "Run-ID", "Details"]],
+      ["fr", "Surveillant de la boîte de réception", ["#", "Horodatage", "Niveau", "Événement", "ID d’exécution", "Détails"]],
+      ["es", "Monitor de bandeja de entrada", ["#", "Marca de tiempo", "Nivel", "Evento", "ID de ejecución", "Detalles"]],
+    ];
+    for (const [language, title, headers] of expectations) {
+      await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+      await page.locator("#dashboardLocale").selectOption(language);
+      await expect(page.locator("html")).toHaveAttribute("lang", language);
+      await expect(page.locator("#componentLogs .log-card-header strong").first()).toHaveText(title);
+      await expect(page.locator("#inboxComponentLog").locator("xpath=preceding-sibling::thead[1]/tr/th")).toHaveText(headers);
+    }
+  });
+
   test("localizes prompt history column headings for every supported language", async ({ page }) => {
     const expectations = [
       ["en", ["Status", "Prompt title", "Executed at", "Report", "AI analysis", "AI chat", "Action"]],

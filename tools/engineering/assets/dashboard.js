@@ -1003,6 +1003,17 @@ function localizeLogControls() {
     const option = document.querySelector(`#logLevelFilter option[value="${value}"]`);
     if (option) option.textContent = t(key);
   });
+  const cardTitles = ["logs.inbox_watcher", "logs.status_dashboard"];
+  document.querySelectorAll("#componentLogs .log-card-header strong").forEach((title, index) => {
+    if (cardTitles[index]) title.textContent = t(cardTitles[index]);
+  });
+  const headers = [
+    "table.number", "table.timestamp", "table.level", "table.event",
+    "table.run_id", "table.details",
+  ];
+  document.querySelectorAll("#componentLogs .log-table thead th").forEach((header, index) => {
+    if (headers[index % headers.length]) header.textContent = t(headers[index % headers.length]);
+  });
   const reset = document.querySelector(".reset-log-filters");
   if (reset) {
     const label = t("action.reset_log_filters");
