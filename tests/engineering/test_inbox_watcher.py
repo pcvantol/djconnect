@@ -7,6 +7,7 @@ import os
 from pathlib import Path
 import subprocess
 import tempfile
+import threading
 import time
 import unittest
 from unittest.mock import patch
@@ -298,6 +299,68 @@ class InboxWatcherTest(unittest.TestCase):
             {item["filename"] for item in snapshot["queue_items"]},
             {"later.txt", "running.txt"},
         )
+
+    def test_detached_runner_execution_keeps_scanning_when_a_second_prompt_arrives(self) -> None:
+        """The polling watcher must observe later Inbox work during a real child run."""
+        running = self.inbox / "running.md"
+        running.write_text("# Running prompt", encoding="utf-8")
+        runner_started = threading.Event()
+        release_runner = threading.Event()
+        child_finished = threading.Event()
+        child_results: list[int] = []
+
+        def run_command(arguments: list[str], **_: object) -> subprocess.CompletedProcess[str]:
+            self.assertEqual(arguments[-2:], ["--run-id", "inbox-detached-run"])
+            # The child reads its identity before invoking the host.  Removing
+            # it here lets the concurrently polling parent stay a parent.
+            os.environ.pop(inbox_watcher.BACKGROUND_RUN_ID_ENVIRONMENT, None)
+            os.environ.pop(inbox_watcher.BACKGROUND_JOB_ID_ENVIRONMENT, None)
+            runner_started.set()
+            self.assertTrue(release_runner.wait(timeout=5))
+            checkpoint = self.repo / ".engineering" / "engineering-runs" / "inbox-detached-run.json"
+            checkpoint.parent.mkdir(parents=True, exist_ok=True)
+            checkpoint.write_text(json.dumps({"phase": "COMPLETE"}), encoding="utf-8")
+            report = self.repo / ".engineering" / "reports" / "report_inbox-detached-run.md"
+            report.parent.mkdir(parents=True, exist_ok=True)
+            report.write_text(
+                "- Terminal state: `COMPLETE`\nCOMPLETE — delivered\n",
+                encoding="utf-8",
+            )
+            return subprocess.CompletedProcess(arguments, 0, "", "")
+
+        def detach_runner(*_: object, **kwargs: object) -> object:
+            environment = dict(kwargs["env"])
+
+            def execute_child() -> None:
+                with patch.dict(os.environ, environment, clear=False):
+                    child_results.append(inbox_watcher.once(self.repo, self.root, 0))
+                child_finished.set()
+
+            threading.Thread(target=execute_child, daemon=True).start()
+            return object()
+
+        with (
+            patch("tools.engineering.inbox_watcher._allocate_run_id", return_value="inbox-detached-run"),
+            patch("tools.engineering.inbox_watcher.subprocess.Popen", side_effect=detach_runner),
+            patch("tools.engineering.inbox_watcher.subprocess.run", side_effect=run_command),
+        ):
+            self.assertEqual(inbox_watcher.once(self.repo, self.root, 0, background=True), 0)
+            self.assertTrue(runner_started.wait(timeout=5))
+
+            later = self.inbox / "later.md"
+            later.write_text("# Later prompt", encoding="utf-8")
+            self.assertEqual(inbox_watcher.once(self.repo, self.root, 0, background=True), 0)
+
+            snapshot = json_status(self.repo)
+            self.assertEqual(snapshot["run_id"], "inbox-detached-run")
+            self.assertEqual(snapshot["queue_depth"], 1)
+            self.assertEqual([item["filename"] for item in snapshot["queue_items"]], ["later.md"])
+
+            release_runner.set()
+            self.assertTrue(child_finished.wait(timeout=5))
+
+        self.assertEqual(child_results, [0])
+        self.assertTrue((self.inbox / "later.md").exists())
 
     def test_detached_runner_does_not_hold_the_polling_watcher_lock(self) -> None:
         lock_path = self.repo / ".engineering" / "engineering-inbox.lock"
