@@ -761,6 +761,19 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator(".rate-limit-reset")).toHaveCSS("border-color", "rgb(81, 216, 138)");
   });
 
+  test("keeps the copy toast above an open report modal", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => {
+      document.querySelector("#promptHistoryReportModal").showModal();
+      showCopyToast();
+    });
+    await expect(page.getByTestId("copy-toast")).toHaveClass(/copy-toast--visible/);
+    await expect(page.getByTestId("copy-toast")).toBeVisible();
+    expect(await page.getByTestId("copy-toast").evaluate(
+      (toast) => toast.matches(":popover-open"),
+    )).toBeTruthy();
+  });
+
   test("pads title bar content evenly from both horizontal edges", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     const padding = await page.locator(".dashboard-titlebar").evaluate((element) => {

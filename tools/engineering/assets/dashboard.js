@@ -666,10 +666,14 @@ function showCopyToast() {
   clearTimeout(copyToastTimer);
   toast.textContent = "Gekopieerd naar klembord";
   toast.hidden = false;
+  if (typeof toast.showPopover === "function" && !toast.matches(":popover-open"))
+    toast.showPopover();
   requestAnimationFrame(() => toast.classList.add("copy-toast--visible"));
   copyToastTimer = setTimeout(() => {
     toast.classList.remove("copy-toast--visible");
     setTimeout(() => {
+      if (typeof toast.hidePopover === "function" && toast.matches(":popover-open"))
+        toast.hidePopover();
       toast.hidden = true;
     }, 180);
   }, 2200);
