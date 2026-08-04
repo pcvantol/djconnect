@@ -1376,6 +1376,26 @@ test.describe("Engineering Status browser smoke", () => {
     expect(after.input.y).toBe(before.input.y);
   });
 
+  test("keeps the chat composer and status inside the prompt-history modal", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 760 });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    const modal = page.locator("#promptHistoryChatModal");
+    await modal.evaluate((element) => {
+      document.querySelector("#chatMessages").innerHTML =
+        '<article class="chat-message chat-message--assistant">Lang bericht</article>'.repeat(60);
+      document.querySelector("#chatStatus").textContent = "Codex denkt na…";
+      element.showModal();
+    });
+
+    const bounds = await modal.evaluate((element) => {
+      const rect = (selector) => document.querySelector(selector).getBoundingClientRect();
+      return { panel: rect(".prompt-chat-modal__panel"), input: rect("#chatInput"), model: rect("#chatModel"), status: rect("#chatStatus") };
+    });
+    expect(bounds.input.bottom).toBeLessThanOrEqual(bounds.panel.bottom);
+    expect(bounds.model.bottom).toBeLessThanOrEqual(bounds.panel.bottom);
+    expect(bounds.status.bottom).toBeLessThanOrEqual(bounds.panel.bottom);
+  });
+
   test("uses a distinct purple surface for AI answers in a prompt-history conversation", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     const modal = page.locator("#promptHistoryChatModal"),
