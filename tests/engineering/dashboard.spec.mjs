@@ -1268,6 +1268,9 @@ test.describe("Engineering Status browser smoke", () => {
     });
 
     await expect(page.locator("#promptHistoryRows tr")).toHaveCount(25);
+    await expect(page.locator("#promptHistory th")).toHaveCount(7);
+    await expect(page.locator('#promptHistory th[data-history-sort-key="git_commit"]')).toHaveCount(0);
+    await expect(page.locator("#promptHistoryRows tr").first().locator("td")).toHaveCount(7);
     await expect(page.locator("#promptHistoryPagination")).toContainText("Pagina 1 van 2 · 26 prompts");
     const nextPromptHistoryPage = page.locator("#promptHistoryPagination").getByRole("button", { name: "Volgende" });
     await nextPromptHistoryPage.hover();

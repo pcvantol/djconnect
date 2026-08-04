@@ -2239,7 +2239,7 @@ function renderPromptHistory() {
     const row = document.createElement("tr"),
       cell = document.createElement("td");
     cell.className = "log-empty";
-    cell.colSpan = 8;
+    cell.colSpan = 7;
     cell.textContent = t("history.no_prompts");
     row.append(cell);
     body.append(row);
@@ -2249,7 +2249,6 @@ function renderPromptHistory() {
         status = document.createElement("td"),
         title = document.createElement("td"),
         executed = document.createElement("td"),
-        commit = document.createElement("td"),
         report = document.createElement("td"),
         analysis = document.createElement("td"),
         chat = document.createElement("td"),
@@ -2281,7 +2280,6 @@ function renderPromptHistory() {
       executed.textContent = Number.isFinite(timestamp)
         ? locale.dateTime(new Date(timestamp))
         : String(entry.executed_at || t("format.timestamp_unavailable"));
-      commit.textContent = entry.git_commit || "—";
       if (entry.report_available && entry.run_id) {
         const view = document.createElement("button");
         view.className = "prompt-history-report";
@@ -2333,7 +2331,7 @@ function renderPromptHistory() {
         action.append(dismiss);
       }
       if (!action.childElementCount) action.textContent = "—";
-      row.append(status, title, executed, commit, report, analysis, chat, action);
+      row.append(status, title, executed, report, analysis, chat, action);
       body.append(row);
     }
   navigation.replaceChildren();
