@@ -228,11 +228,11 @@ test.describe("Engineering Status browser smoke", () => {
 
   test("localizes prompt history column headings for every supported language", async ({ page }) => {
     const expectations = [
-      ["en", ["Status", "Prompt title", "Executed at", "Report", "AI analysis", "AI chat", "Action"]],
-      ["nl", ["Status", "Prompttitel", "Uitgevoerd op", "Rapport", "AI-analyse", "AI-gesprek", "Actie"]],
-      ["de", ["Status", "Prompttitel", "Ausgeführt am", "Bericht", "KI-Analyse", "KI-Chat", "Aktion"]],
-      ["fr", ["État", "Titre du prompt", "Exécuté le", "Rapport", "Analyse IA", "Chat IA", "Action"]],
-      ["es", ["Estado", "Título del prompt", "Ejecutado el", "Informe", "Análisis de IA", "Chat de IA", "Acción"]],
+      ["en", ["Status", "Prompt title", "Executed at", "Report", "AI analysis", "AI chat", "Action", "Details"]],
+      ["nl", ["Status", "Prompttitel", "Uitgevoerd op", "Rapport", "AI-analyse", "AI-gesprek", "Actie", "Details"]],
+      ["de", ["Status", "Prompttitel", "Ausgeführt am", "Bericht", "KI-Analyse", "KI-Chat", "Aktion", "Details"]],
+      ["fr", ["État", "Titre du prompt", "Exécuté le", "Rapport", "Analyse IA", "Chat IA", "Action", "Détails"]],
+      ["es", ["Estado", "Título del prompt", "Ejecutado el", "Informe", "Análisis de IA", "Chat de IA", "Acción", "Detalles"]],
     ];
     for (const [language, headers] of expectations) {
       await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
@@ -1442,9 +1442,9 @@ test.describe("Engineering Status browser smoke", () => {
     });
 
     await expect(page.locator("#promptHistoryRows tr")).toHaveCount(25);
-    await expect(page.locator("#promptHistory th")).toHaveCount(7);
+    await expect(page.locator("#promptHistory th")).toHaveCount(8);
     await expect(page.locator('#promptHistory th[data-history-sort-key="git_commit"]')).toHaveCount(0);
-    await expect(page.locator("#promptHistoryRows tr").first().locator("td")).toHaveCount(7);
+    await expect(page.locator("#promptHistoryRows tr").first().locator("td")).toHaveCount(8);
     await expect(page.locator("#promptHistoryPagination")).toContainText("Pagina 1 van 2 · 26 prompts");
     const nextPromptHistoryPage = page.locator("#promptHistoryPagination").getByRole("button", { name: "Volgende" });
     await nextPromptHistoryPage.hover();
@@ -1492,6 +1492,13 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#promptHistoryDetailContent")).not.toContainText("Historisch rapport");
     await expect(page.locator("#promptHistoryDetailContent")).not.toContainText("Historische AI-analyse");
     await expect(page.locator("#promptHistoryReportModal")).not.toBeVisible();
+    await page.locator("#promptHistoryDetailClose").click();
+    await expect(page.locator("#promptHistoryDetailModal")).not.toBeVisible();
+    const detailsView = page.locator("#promptHistoryRows .prompt-history-details");
+    await expect(detailsView).toHaveCount(1);
+    await expect(detailsView).toHaveText("ⓘ");
+    await detailsView.click();
+    await expect(page.locator("#promptHistoryDetailModal")).toBeVisible();
     await page.locator("#promptHistoryDetailClose").click();
     await expect(page.locator("#promptHistoryDetailModal")).not.toBeVisible();
     const analysisView = page.locator("#promptHistoryRows .prompt-history-analysis").first();

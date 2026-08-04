@@ -1025,7 +1025,7 @@ function localizeLogControls() {
 function localizePromptHistoryTable() {
   const headers = [
     "table.status", "table.prompt_title", "table.executed_at", "table.report",
-    "table.analysis", "table.chat", "table.action",
+    "table.analysis", "table.chat", "table.action", "table.details",
   ];
   document.querySelectorAll("#promptHistory .log-table thead th").forEach((header, index) => {
     if (headers[index]) header.textContent = t(headers[index]);
@@ -2306,7 +2306,7 @@ function renderPromptHistory() {
     const row = document.createElement("tr"),
       cell = document.createElement("td");
     cell.className = "log-empty";
-    cell.colSpan = 7;
+    cell.colSpan = 8;
     cell.textContent = t("history.no_prompts");
     row.append(cell);
     body.append(row);
@@ -2320,6 +2320,7 @@ function renderPromptHistory() {
         analysis = document.createElement("td"),
         chat = document.createElement("td"),
         action = document.createElement("td"),
+        details = document.createElement("td"),
         timestamp = Date.parse(String(entry.executed_at || ""));
       row.className = "prompt-history-row";
       row.tabIndex = 0;
@@ -2402,7 +2403,21 @@ function renderPromptHistory() {
         action.append(dismiss);
       }
       if (!action.childElementCount) action.textContent = "—";
-      row.append(status, title, executed, report, analysis, chat, action);
+      if (entry.run_id) {
+        const button = document.createElement("button");
+        button.className = "prompt-history-details";
+        button.type = "button";
+        button.title = t("history.open_details", { title: title.textContent });
+        button.setAttribute("aria-label", button.title);
+        button.textContent = "ⓘ";
+        button.addEventListener("click", (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          openPromptHistoryDetail(entry);
+        });
+        details.append(button);
+      } else details.textContent = "—";
+      row.append(status, title, executed, report, analysis, chat, action, details);
       body.append(row);
     }
   navigation.replaceChildren();
