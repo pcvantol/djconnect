@@ -18,6 +18,7 @@ from tools.engineering.telemetry import (
     persist_execution_async,
     wait_for_pending_telemetry,
 )
+from tools.engineering.producer import ProducerMetadata
 
 
 class ExecutionHostTelemetryTest(unittest.TestCase):
@@ -108,6 +109,49 @@ class ExecutionHostTelemetryTest(unittest.TestCase):
 
             self.assertTrue(observed.is_set())
             self.assertEqual(str(errors[0]), "storage unavailable")
+
+    def test_persists_producer_metadata_and_an_immutable_execution_receipt(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            telemetry = ExecutionTelemetry(
+                **{
+                    **self._record("run-forge", "COMPLETE", datetime.now(timezone.utc)).__dict__,
+                    "producer": ProducerMetadata(
+                        producer_id="forge", producer_type="FORGE", producer_version="2.0",
+                        correlation_id="corr-42", mission_id="MISSION-0003",
+                        engineering_action_id="EA-0042", execution_constraint_version="1.0",
+                    ),
+                }
+            )
+            persist_execution(root, telemetry)
+            with open_storage(root) as connection:
+                self.assertEqual(
+                    connection.execute(
+                        "SELECT producer_id, producer_type, mission_id, engineering_action_id, correlation_id "
+                        "FROM execution_runs WHERE run_id='run-forge'"
+                    ).fetchone(),
+                    ("forge", "FORGE", "MISSION-0003", "EA-0042", "corr-42"),
+                )
+                receipt = connection.execute(
+                    "SELECT producer_id, producer_type, execution_host, execution_outcome "
+                    "FROM execution_receipts WHERE run_id='run-forge'"
+                ).fetchone()
+                self.assertEqual(receipt, ("forge", "FORGE", "Engineering Platform", "COMPLETE"))
+            persist_execution(
+                root,
+                ExecutionTelemetry(
+                    **{**telemetry.__dict__, "producer": ProducerMetadata(producer_id="changed", producer_type="EXTERNAL")}
+                ),
+            )
+            with open_storage(root) as connection:
+                self.assertEqual(
+                    connection.execute("SELECT producer_id FROM execution_runs WHERE run_id='run-forge'").fetchone()[0],
+                    "forge",
+                )
+                self.assertEqual(
+                    connection.execute("SELECT producer_id FROM execution_receipts WHERE run_id='run-forge'").fetchone()[0],
+                    "forge",
+                )
 
     def test_duration_estimate_uses_only_complete_runs_with_the_exact_runtime_profile(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

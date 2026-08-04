@@ -155,6 +155,11 @@ not need iCloud Drive to render a current or completed run:
 iCloud Drive is solely an Inbox transport source for the separate watcher.
 The dashboard does not read iCloud reports, status or archived prompts.
 
+Prompt History and its read-only execution-detail dialog expose the stored
+Producer ID, Type, Version, Correlation ID and optional Mission and Engineering
+Action IDs for the selected run only. Producer metadata is audit evidence: it
+cannot be edited in the dashboard and never affects execution or scheduling.
+
 At every page load, the dashboard first retrieves one complete, read-only
 same-origin status snapshot. This fills all categories even when the
 browser-local **Automatisch vernieuwen** preference is off. The page then

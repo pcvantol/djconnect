@@ -1062,6 +1062,20 @@ class LocalAgentRunnerTest(unittest.TestCase):
         self.assertIn("Configuration Profile: `workspace-write`", body)
         self.assertIn("Codex CLI Version: `0.146.0`", body)
 
+    def test_terminal_report_projects_producer_contract_without_forge_implementation(self) -> None:
+        self.prompt.write_text(
+            "Producer ID: forge\nProducer Type: FORGE\nProducer Version: 2.0\n"
+            "Producer Correlation ID: corr-42\nMission ID: MISSION-0003\n"
+            "Engineering Action ID: EA-0042\nExecution Constraint Version: 1.0\n",
+            encoding="utf-8",
+        )
+        state = TransactionState("producer-report", "pcvantol/djconnect", str(self.prompt), "COMPLETE", terminal=True)
+        body = generate_terminal_report(self.root, state).read_text(encoding="utf-8")
+        self.assertIn("## Producer", body)
+        self.assertIn("- Producer Type: `FORGE`", body)
+        self.assertIn("- Mission ID: `MISSION-0003`", body)
+        self.assertIn("- Engineering Action ID: `EA-0042`", body)
+
     def test_retry_report_records_immutable_execution_lineage(self) -> None:
         self.prompt.write_text(
             "Retry-Of: inbox-original\nOriginal-Run-ID: inbox-original\nRetry-Generation: 1\n"

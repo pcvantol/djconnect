@@ -14,7 +14,7 @@ iCloud Drive remains transport only. It is not an Engineering evidence store.
 ## Versioned schema
 
 The storage contract is independently versioned as **Engineering Storage
-schema `7`**. The required version is declared as `storage_schema` in
+schema `9`**. The required version is declared as `storage_schema` in
 `tools/engineering/ENGINEERING_PLATFORM_VERSION.json` and is validated by the
 runner compatibility contract.
 
@@ -50,6 +50,14 @@ Telemetry is best-effort and is scheduled only after terminal report delivery.
 An unavailable database is logged by the watcher but never changes the
 authoritative engineering checkpoint or its outcome. Token values remain null
 when the provider did not report them; the platform never estimates them.
+
+Schema `9` records producer-neutral provenance alongside each run and creates
+an immutable `execution_receipts` record. A receipt contains Producer ID,
+Producer Type, optional Mission/Engineering Action/Correlation IDs, Execution
+Host identity and version, Run ID, receipt timestamp and terminal outcome.
+Forge owns Producer Contract semantics; Engineering Platform owns these local
+execution receipts. This metadata supports operations and analytics only and
+never affects scheduling or execution.
 
 ## Component logging
 

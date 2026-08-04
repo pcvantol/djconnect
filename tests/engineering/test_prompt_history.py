@@ -49,6 +49,13 @@ class PromptHistoryTest(unittest.TestCase):
                         "tracked_file_count": None,
                         "execution_mode": None,
                         "repository": None,
+                        "producer_id": "legacy",
+                        "producer_type": "HUMAN",
+                        "producer_version": None,
+                        "correlation_id": None,
+                        "mission_id": None,
+                        "engineering_action_id": None,
+                        "execution_constraint_version": None,
                     }
                 ],
             )

@@ -33,6 +33,16 @@ Managed execution normally uses the host repository as its target. Genesis
 execution normally uses a separate local target repository. The host is never
 described as the target merely because it generated the report.
 
+## Producer Contract projection
+
+Forge owns the canonical Producer Contract and all Producer semantics.
+Engineering Platform consumes only its declared, immutable audit metadata:
+Producer ID, Type, Version, Correlation ID, optional Mission ID and Engineering
+Action ID, plus Execution Constraint Version. Reports expose those values in a
+**Producer** section without exposing Forge implementation details. When a
+legacy prompt has no Producer metadata, the report records `HUMAN` and
+`legacy`. Producer metadata never changes execution behaviour.
+
 ## Execution Host and Workspace Preflight evidence
 
 Before an Inbox item is claimed, Execution Host Preflight Level 1 records local

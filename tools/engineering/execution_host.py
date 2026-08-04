@@ -48,6 +48,7 @@ from .platform_version import (
 from .qualification import dashboard, execute_qualification, latest_qualification
 from .repository_handoff import publish as publish_repository_handoff
 from .report_analysis import analyze as analyze_terminal_report
+from .producer import parse_producer_metadata
 from .status_model import build as build_canonical_status, publish as publish_canonical_status
 from .platform_api import PlatformConfiguration, PlatformConfigurationError, provider_registry
 from .platform_bootstrap import migrate_legacy_workspace
@@ -1696,12 +1697,26 @@ def terminal_report_matches_state(body: str, state: TransactionState) -> bool:
 
 def corrected_terminal_report(state: TransactionState) -> str:
     """Generate a minimal replacement when richer report assembly is inconsistent."""
+    try:
+        producer_prompt = Path(state.prompt_path).read_text(encoding="utf-8")
+    except OSError:
+        producer_prompt = ""
+    producer = parse_producer_metadata(producer_prompt)
     return "\n".join(
         (
             "# Engineering Report",
             "",
             f"- Run ID: `{state.run_id}`",
             f"- Terminal state: `{state.phase}`",
+            "",
+            "## Producer",
+            f"- Producer ID: `{producer.producer_id}`",
+            f"- Producer Type: `{producer.producer_type}`",
+            f"- Producer Version: `{producer.producer_version or 'not supplied'}`",
+            f"- Correlation ID: `{producer.correlation_id or 'not supplied'}`",
+            f"- Mission ID: `{producer.mission_id or 'not supplied'}`",
+            f"- Engineering Action ID: `{producer.engineering_action_id or 'not supplied'}`",
+            f"- Execution Constraint Version: `{producer.execution_constraint_version or 'not supplied'}`",
             "",
             "## Execution Target Identity",
             f"- Execution Host Repository: `{state.repository}`",
@@ -1804,6 +1819,7 @@ def generate_terminal_report(
         objective = Path(state.prompt_path).read_text(encoding="utf-8").strip()
     except OSError:
         pass
+    producer = parse_producer_metadata(objective)
     manifest = manifest or EngineeringPlatformManifest.load(
         root / "tools" / "engineering" / "ENGINEERING_PLATFORM_VERSION.json"
     )
@@ -1884,6 +1900,16 @@ def generate_terminal_report(
             f"- Prompt: `{state.prompt_path}`",
             f"- Terminal state: `{state.phase}`",
             f"- Objective: {objective}",
+            "",
+            "## Producer",
+            "Forge owns Producer Contract semantics. Engineering Platform consumes this metadata for auditability only.",
+            f"- Producer ID: `{producer.producer_id}`",
+            f"- Producer Type: `{producer.producer_type}`",
+            f"- Producer Version: `{producer.producer_version or 'not supplied'}`",
+            f"- Correlation ID: `{producer.correlation_id or 'not supplied'}`",
+            f"- Mission ID: `{producer.mission_id or 'not supplied'}`",
+            f"- Engineering Action ID: `{producer.engineering_action_id or 'not supplied'}`",
+            f"- Execution Constraint Version: `{producer.execution_constraint_version or 'not supplied'}`",
             "",
             "## Execution Target Identity",
             "- Execution Host: `Engineering Platform`",

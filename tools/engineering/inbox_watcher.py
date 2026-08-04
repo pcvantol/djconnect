@@ -40,6 +40,7 @@ from .prompt_history import record_prompt_execution
 from .host_preflight import execute as execute_host_preflight
 from .workspace_preflight import execute as execute_workspace_preflight
 from .capability_preflight import execute as execute_capability_preflight
+from .producer import parse_producer_metadata
 
 LABEL = "com.djconnect.engineering-inbox"
 WATCHER_VERSION = "1.1.5"
@@ -982,6 +983,7 @@ def once(repo: Path, root: Path, interval: float = 1.0, *, background: bool = Fa
             execution_seconds, usage, repository = _telemetry_values(repo, run_id)
             lineage = retry_metadata(content)
             runtime_metadata = _report_runtime_metadata(delivered)
+            producer = parse_producer_metadata(content)
             persist_execution_async(
                 repo,
                 ExecutionTelemetry(
@@ -1005,6 +1007,7 @@ def once(repo: Path, root: Path, interval: float = 1.0, *, background: bool = Fa
                     retry_generation=lineage["retry_generation"],
                     retry_timestamp=lineage["retry_timestamp"],
                     prompt_characters=len(content),
+                    producer=producer,
                     **runtime_metadata,
                 ),
                 on_error=lambda error: log_event(

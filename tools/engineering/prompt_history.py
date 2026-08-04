@@ -234,7 +234,10 @@ def prompt_history(root: Path, *, limit: int = 1_000) -> list[dict[str, object]]
             SELECT history.run_id, history.terminal_state, history.prompt_title, history.executed_at,
                 history.git_commit, history.report_path, history.retry_of, history.original_run_id,
                 history.retry_generation, history.retry_timestamp, history.target_checkout_path,
-                history.tracked_file_count, runs.execution_mode, runs.repository
+                history.tracked_file_count, runs.execution_mode, runs.repository,
+                runs.producer_id, runs.producer_type, runs.producer_version,
+                runs.correlation_id, runs.mission_id, runs.engineering_action_id,
+                runs.execution_constraint_version
             FROM prompt_execution_history AS history
             LEFT JOIN execution_runs AS runs ON runs.run_id = history.run_id
             ORDER BY history.executed_at DESC, history.run_id DESC
@@ -260,6 +263,13 @@ def prompt_history(root: Path, *, limit: int = 1_000) -> list[dict[str, object]]
             "tracked_file_count": row[11],
             "execution_mode": row[12],
             "repository": row[13],
+            "producer_id": row[14] or "legacy",
+            "producer_type": row[15] or "HUMAN",
+            "producer_version": row[16],
+            "correlation_id": row[17],
+            "mission_id": row[18],
+            "engineering_action_id": row[19],
+            "execution_constraint_version": row[20],
         }
         for row in rows
     ]

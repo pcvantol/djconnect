@@ -226,6 +226,35 @@ test.describe("Engineering Status browser smoke", () => {
     }
   });
 
+  test("localizes dashboard chrome and dynamic runtime copy for every supported language", async ({ page }) => {
+    const expectations = [
+      ["en", "Workspace location", "Specialist reviewers", "Input tokens", "Use reset"],
+      ["nl", "Werkruimtelocatie", "Specialistische reviewers", "Invoertokens", "Gebruik reset"],
+      ["de", "Arbeitsbereichspfad", "Spezialisierte Reviewer", "Eingabetoken", "Zurücksetzung verwenden"],
+      ["fr", "Emplacement de l’espace de travail", "Évaluateurs spécialisés", "Jetons d’entrée", "Utiliser la réinitialisation"],
+      ["es", "Ubicación del espacio de trabajo", "Revisores especializados", "Tokens de entrada", "Usar restablecimiento"],
+    ];
+    for (const [language, workspaceLocation, reviewers, inputTokens, reset] of expectations) {
+      await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+      await page.locator("#dashboardLocale").selectOption(language);
+      await expect(page.locator("html")).toHaveAttribute("lang", language);
+      await page.waitForFunction(() => typeof window.r === "function");
+      await page.evaluate(() => r({
+        watcher_state: "ENGINEERING_RUN_ACTIVE",
+        run_id: "inbox-localized-runtime",
+        current_phase: "EXECUTE_AGENT",
+        reviewer_agents: [{ reviewer: "validation", capability: "ENGINEERING", status: "running" }],
+      }, {
+        usage: { input_tokens: 42 },
+        rate_limits: { provider: "codex_cli", reset_credits: 1 },
+      }));
+      await expect(page.locator("#workspaceCard .field .label").nth(1)).toHaveText(workspaceLocation);
+      await expect(page.locator("#activeReviewerAgents strong")).toHaveText(reviewers);
+      await expect(page.locator("#usageDetails")).toContainText(inputTokens);
+      await expect(page.locator("#rateLimitReset")).toHaveText(reset);
+    }
+  });
+
   test("formats preflight timestamps through the selected dashboard locale", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     expect(await page.evaluate(() => [
@@ -397,6 +426,31 @@ test.describe("Engineering Status browser smoke", () => {
       clientWidth: wrap.clientWidth,
     }));
     expect(scroll.scrollWidth).toBeGreaterThan(scroll.clientWidth);
+  });
+
+  test("matches the iPhone portrait dashboard visual reference", async ({ page }, testInfo) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#dashboardSplash").evaluate((element) => { element.hidden = true; });
+    await page.evaluate(() => r({
+      watcher_state: "ENGINEERING_RUN_ACTIVE",
+      current_phase: "EXECUTE_AGENT",
+      current_action: "Capability review: validation",
+      run_id: "inbox-iphone-reference",
+      prompt_title: "Mobile dashboard visual reference",
+      submitted_filename: "engineering-iphone-reference.txt",
+      queue_depth: 1,
+    }));
+    await page.locator("#currentRun").evaluate((element) => { element.open = true; });
+    const image = await page.screenshot({ animations: "disabled" });
+    await testInfo.attach("iphone-portrait-dashboard", {
+      body: image,
+      contentType: "image/png",
+    });
+    await expect(page).toHaveScreenshot("iphone-portrait-dashboard.png", {
+      animations: "disabled",
+      maxDiffPixelRatio: 0.005,
+    });
   });
 
   test("localizes capability preflight recommendations", async ({ page }) => {

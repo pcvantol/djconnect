@@ -15,6 +15,7 @@ from typing import Callable
 from statistics import mean
 
 from .storage import open_storage
+from .producer import ProducerMetadata
 
 
 TERMINAL_STATES = frozenset({"COMPLETE", "BLOCKED", "FAILED"})
@@ -46,6 +47,7 @@ class ExecutionTelemetry:
     runtime_model: str | None = None
     reasoning_profile: str | None = None
     configuration_profile: str | None = None
+    producer: ProducerMetadata = ProducerMetadata()
 
 
 def _utc(value: datetime) -> datetime:
@@ -91,13 +93,15 @@ def persist_execution(
     try:
         connection.execute(
             """
-            INSERT OR REPLACE INTO execution_runs(
+            INSERT OR IGNORE INTO execution_runs(
                 run_id, execution_date, arrived_at, execution_started_at, execution_finished_at,
                 queue_wait_seconds, execution_seconds, total_execution_seconds, terminal_state, input_tokens, output_tokens,
                 total_tokens, execution_mode, workspace, repository, execution_host_version, retry_of,
                 original_run_id, retry_generation, retry_timestamp, prompt_characters,
                 runtime_provider, runtime_model, reasoning_profile, configuration_profile
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                , producer_id, producer_type, producer_version, correlation_id, mission_id,
+                engineering_action_id, execution_constraint_version
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 telemetry.run_id,
@@ -125,6 +129,27 @@ def persist_execution(
                 _runtime_value(telemetry.runtime_model),
                 _runtime_value(telemetry.reasoning_profile),
                 _runtime_value(telemetry.configuration_profile),
+                telemetry.producer.producer_id,
+                telemetry.producer.producer_type,
+                telemetry.producer.producer_version,
+                telemetry.producer.correlation_id,
+                telemetry.producer.mission_id,
+                telemetry.producer.engineering_action_id,
+                telemetry.producer.execution_constraint_version,
+            ),
+        )
+        connection.execute(
+            """INSERT OR IGNORE INTO execution_receipts(
+                run_id, producer_id, producer_type, producer_version, mission_id,
+                engineering_action_id, correlation_id, execution_constraint_version,
+                execution_host, execution_host_version, receipt_timestamp, execution_outcome
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            (
+                telemetry.run_id, telemetry.producer.producer_id, telemetry.producer.producer_type,
+                telemetry.producer.producer_version, telemetry.producer.mission_id,
+                telemetry.producer.engineering_action_id, telemetry.producer.correlation_id,
+                telemetry.producer.execution_constraint_version, "Engineering Platform",
+                telemetry.execution_host_version, _timestamp(finished), telemetry.terminal_state,
             ),
         )
         connection.execute(
