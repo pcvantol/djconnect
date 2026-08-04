@@ -815,7 +815,6 @@ function renderHealthStatus(x, snapshot = {}) {
       "currentDiagnostic",
     );
   $("runId").textContent = x.run_id || t("value.none");
-  $("queue").textContent = x.queue_depth ?? 0;
   queueItems(x.queue_items, x.queue_depth);
   $("implementation").textContent = x.implementation_pr || t("value.none");
   $("finalization").textContent = x.finalization_pr || t("value.none");
