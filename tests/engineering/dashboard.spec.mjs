@@ -174,6 +174,25 @@ test.describe("Engineering Status browser smoke", () => {
     }
   });
 
+  test("localizes search and level filter controls for every supported language", async ({ page }) => {
+    const expectations = [
+      ["en", "Search", "Search all fields", "Level", "All levels"],
+      ["nl", "Zoeken", "Zoek in alle velden", "Niveau", "Alle niveaus"],
+      ["de", "Suchen", "Alle Felder durchsuchen", "Stufe", "Alle Stufen"],
+      ["fr", "Rechercher", "Rechercher dans tous les champs", "Niveau", "Tous les niveaux"],
+      ["es", "Buscar", "Buscar en todos los campos", "Nivel", "Todos los niveles"],
+    ];
+    for (const [language, search, placeholder, level, allLevels] of expectations) {
+      await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+      await page.locator("#dashboardLocale").selectOption(language);
+      await expect(page.locator("html")).toHaveAttribute("lang", language);
+      await expect(page.locator("label[for=logFilter]")).toHaveText(search);
+      await expect(page.locator("#logFilter")).toHaveAttribute("placeholder", placeholder);
+      await expect(page.locator("label[for=logLevelFilter]")).toContainText(level);
+      await expect(page.locator("#logLevelFilter option[value='']")).toHaveText(allLevels);
+    }
+  });
+
   test("localizes capability preflight recommendations", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     expect(await page.evaluate(() => capabilityRecommendation("Capability admission passed."))).toBe(

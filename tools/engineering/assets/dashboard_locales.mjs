@@ -234,6 +234,21 @@ Object.assign(messages.fr, {
 Object.assign(messages.es, {
   "footer.platform_version":"Versión de Engineering Platform", "refresh.connecting":"Actualización del servidor: conectando…", "refresh.failed_reconnecting":"No se pudo cargar el estado; reconectando la actualización del servidor…", "refresh.invalid":"Actualización del servidor: actualización no válida", "refresh.reconnecting":"Actualización del servidor: reconectando…",
 });
+Object.assign(messages.en, {
+  "filter.search":"Search", "filter.search_placeholder":"Search all fields", "filter.level":"Level", "filter.all_levels":"All levels", "filter.error":"Error", "filter.warning":"Warning", "filter.info":"Information", "filter.debug":"Debug",
+});
+Object.assign(messages.nl, {
+  "filter.search":"Zoeken", "filter.search_placeholder":"Zoek in alle velden", "filter.level":"Niveau", "filter.all_levels":"Alle niveaus", "filter.error":"Fout", "filter.warning":"Waarschuwing", "filter.info":"Informatie", "filter.debug":"Debug",
+});
+Object.assign(messages.de, {
+  "filter.search":"Suchen", "filter.search_placeholder":"Alle Felder durchsuchen", "filter.level":"Stufe", "filter.all_levels":"Alle Stufen", "filter.error":"Fehler", "filter.warning":"Warnung", "filter.info":"Information", "filter.debug":"Debug",
+});
+Object.assign(messages.fr, {
+  "filter.search":"Rechercher", "filter.search_placeholder":"Rechercher dans tous les champs", "filter.level":"Niveau", "filter.all_levels":"Tous les niveaux", "filter.error":"Erreur", "filter.warning":"Avertissement", "filter.info":"Information", "filter.debug":"Débogage",
+});
+Object.assign(messages.es, {
+  "filter.search":"Buscar", "filter.search_placeholder":"Buscar en todos los campos", "filter.level":"Nivel", "filter.all_levels":"Todos los niveles", "filter.error":"Error", "filter.warning":"Advertencia", "filter.info":"Información", "filter.debug":"Depurar",
+});
 
 export function normalizeLocale(value) {
   const candidate = String(value || "").toLowerCase().split("-")[0];

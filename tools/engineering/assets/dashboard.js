@@ -981,6 +981,28 @@ function localizeTechnicalDetails() {
     if (element) element.textContent = t(key);
   });
 }
+function setControlLabel(selector, key) {
+  const label = document.querySelector(selector);
+  const text = label && [...label.childNodes].find((node) => node.nodeType === Node.TEXT_NODE);
+  if (text) text.nodeValue = t(key);
+}
+function localizeLogControls() {
+  setControlLabel("label[for=promptHistoryFilter]", "filter.search");
+  setControlLabel("label[for=logFilter]", "filter.search");
+  setControlLabel("label[for=logLevelFilter]", "filter.level");
+  ["promptHistoryFilter", "logFilter"].forEach((id) => {
+    const input = $(id);
+    if (input) input.placeholder = t("filter.search_placeholder");
+  });
+  const optionKeys = [
+    ["", "filter.all_levels"], ["ERROR", "filter.error"],
+    ["WARNING", "filter.warning"], ["INFO", "filter.info"], ["DEBUG", "filter.debug"],
+  ];
+  optionKeys.forEach(([value, key]) => {
+    const option = document.querySelector(`#logLevelFilter option[value="${value}"]`);
+    if (option) option.textContent = t(key);
+  });
+}
 function chatMessage(role, text) {
   let item = document.createElement("article"),
     label = document.createElement("span"),
@@ -2484,6 +2506,7 @@ function applyDashboardLocale() {
   setUpdateMode(updateModeKey);
   providerNeutralLabels();
   localizeTechnicalDetails();
+  localizeLogControls();
   addCategoryIcons();
   addCategoryDescriptions();
   arrangeCurrentRunCategory();
