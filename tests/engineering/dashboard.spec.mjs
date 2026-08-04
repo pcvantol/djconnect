@@ -233,8 +233,28 @@ test.describe("Engineering Status browser smoke", () => {
 
     await page.locator("#promptHistoryRows tr td").nth(1).click();
     await expect(page.locator("#promptHistoryDetailModal")).toBeVisible();
+    await expect(page.locator("#promptHistoryDetailModal")).toHaveClass(/dashboard-modal-shell--evidence/);
+    await expect(page.locator("#promptHistoryDetailModal .prompt-detail-modal__panel")).toHaveClass(/dashboard-modal-shell__panel/);
+    await expect(page.locator("#promptHistoryDetailModal .prompt-detail-modal__header")).toHaveClass(/dashboard-modal-shell__header/);
     await expect(page.locator("#promptHistoryDetailContent")).toContainText("Engineering Platform");
     await expect(page.locator("dialog[open]")).toHaveCount(1);
+  });
+
+  test("uses the shared modal shell with contextual accents", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+
+    for (const [selector, modifier, accent] of [
+      ["#promptHistoryReportModal", "dashboard-modal-shell--evidence", "rgb(141, 199, 255)"],
+      ["#promptHistoryDetailModal", "dashboard-modal-shell--evidence", "rgb(141, 199, 255)"],
+      ["#promptHistoryChatModal", "dashboard-modal-shell--chat", "rgb(208, 164, 255)"],
+    ]) {
+      const modal = page.locator(selector);
+      await expect(modal).toHaveClass(new RegExp(modifier));
+      await modal.evaluate((element) => element.showModal());
+      await expect(modal.locator(".dashboard-modal-shell__panel")).toHaveCSS("border-top-color", accent);
+      await expect(modal.locator(".dashboard-modal-shell__close")).toHaveCSS("border-top-color", accent);
+      await modal.evaluate((element) => element.close());
+    }
   });
 
   test("keeps the execution-details modal as compact as the report modal on iPhone", async ({ page }) => {

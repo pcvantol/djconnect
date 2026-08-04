@@ -481,3 +481,21 @@ html[data-theme="light"] .report-view-modal__panel{--report-modal-surface:var(--
    carry the purple conversation tint. */
 .prompt-chat-modal__panel{--prompt-chat-surface:var(--dashboard-modal-surface);padding:var(--dashboard-modal-panel-padding)}
 html[data-theme="light"] .prompt-chat-modal{--prompt-chat-answer-surface:#f3ebff}
+
+/* Shared modal shell -------------------------------------------------------
+   Report, execution detail and AI chat use the same structural contract.
+   Their modifiers intentionally supply only the contextual accent; geometry
+   and modal-surface behaviour live here once. */
+.dashboard-modal-shell{--modal-accent:#8dc7ff;--modal-surface:var(--dashboard-modal-surface);background:transparent;border:0;color:var(--dashboard-modal-ink);padding:0}
+.dashboard-modal-shell--component{--modal-accent:#a3e635}
+.dashboard-modal-shell--confirmation{--modal-accent:var(--house-style)}
+.dashboard-modal-shell--evidence{--modal-accent:#8dc7ff;--category-color:var(--modal-accent)}
+.dashboard-modal-shell--chat{--modal-accent:#d0a4ff;--category-color:var(--modal-accent)}
+.dashboard-modal-shell::backdrop{background:var(--dashboard-modal-backdrop)}
+.dashboard-modal-shell__panel{background:var(--modal-surface);border-color:var(--modal-accent);box-shadow:var(--dashboard-modal-shadow);color:var(--dashboard-modal-ink)}
+.dashboard-modal-shell__header{border-bottom-color:var(--modal-accent)}
+.dashboard-modal-shell__header h2{color:var(--modal-accent)}
+.dashboard-modal-shell__close{background:var(--modal-surface);border-color:var(--modal-accent);color:var(--modal-accent)}
+.dashboard-modal-shell__close:hover{background:var(--modal-accent);border-color:var(--modal-accent);color:#17151a}
+html[data-theme="light"] .dashboard-modal-shell{--modal-surface:var(--dashboard-modal-document-surface);color:#182230}
+html[data-theme="light"] .dashboard-modal-shell__panel{color:#182230}
