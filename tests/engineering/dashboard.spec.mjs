@@ -624,8 +624,8 @@ test.describe("Engineering Status browser smoke", () => {
 
     await expect(input).toHaveCSS("padding-top", "14px");
     await expect(input).toHaveCSS("padding-left", "16px");
-    await expect(input).toHaveCSS("padding-bottom", "64px");
-    await expect(input).toHaveCSS("padding-right", "68px");
+    await expect(input).toHaveCSS("padding-bottom", "58px");
+    await expect(input).toHaveCSS("padding-right", "62px");
   });
 
   test("bounds and sanitizes free-form dashboard input client-side", async ({ page }) => {
@@ -1548,6 +1548,26 @@ test.describe("Engineering Status browser smoke", () => {
       return { panel: rect(".prompt-chat-modal__panel"), input: rect("#chatInput"), model: rect("#chatModel"), status: rect("#chatStatus") };
     });
     expect(bounds.input.bottom).toBeLessThanOrEqual(bounds.panel.bottom);
+    expect(bounds.model.bottom).toBeLessThanOrEqual(bounds.panel.bottom);
+    expect(bounds.status.bottom).toBeLessThanOrEqual(bounds.panel.bottom);
+  });
+
+  test("keeps the model and thinking status visible after the AI question box is resized", async ({ page }) => {
+    await page.setViewportSize({ width: 2048, height: 1152 });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    const modal = page.locator("#promptHistoryChatModal");
+    await modal.evaluate((element) => {
+      document.querySelector("#chatMessages").innerHTML =
+        '<article class="chat-message chat-message--assistant">Antwoord</article>'.repeat(30);
+      document.querySelector("#chatInput").style.height = "260px";
+      document.querySelector("#chatStatus").textContent = "Codex denkt na…";
+      element.showModal();
+    });
+
+    const bounds = await modal.evaluate((element) => {
+      const rect = (selector) => document.querySelector(selector).getBoundingClientRect();
+      return { panel: rect(".prompt-chat-modal__panel"), model: rect("#chatModel"), status: rect("#chatStatus") };
+    });
     expect(bounds.model.bottom).toBeLessThanOrEqual(bounds.panel.bottom);
     expect(bounds.status.bottom).toBeLessThanOrEqual(bounds.panel.bottom);
   });
