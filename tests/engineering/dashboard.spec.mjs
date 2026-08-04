@@ -193,6 +193,22 @@ test.describe("Engineering Status browser smoke", () => {
     }
   });
 
+  test("localizes prompt history column headings for every supported language", async ({ page }) => {
+    const expectations = [
+      ["en", ["Status", "Prompt title", "Executed at", "Report", "AI analysis", "AI chat", "Action"]],
+      ["nl", ["Status", "Prompttitel", "Uitgevoerd op", "Rapport", "AI-analyse", "AI-gesprek", "Actie"]],
+      ["de", ["Status", "Prompttitel", "Ausgeführt am", "Bericht", "KI-Analyse", "KI-Chat", "Aktion"]],
+      ["fr", ["État", "Titre du prompt", "Exécuté le", "Rapport", "Analyse IA", "Chat IA", "Action"]],
+      ["es", ["Estado", "Título del prompt", "Ejecutado el", "Informe", "Análisis de IA", "Chat de IA", "Acción"]],
+    ];
+    for (const [language, headers] of expectations) {
+      await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+      await page.locator("#dashboardLocale").selectOption(language);
+      await expect(page.locator("html")).toHaveAttribute("lang", language);
+      await expect(page.locator("#promptHistory .log-table thead th")).toHaveText(headers);
+    }
+  });
+
   test("localizes capability preflight recommendations", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     expect(await page.evaluate(() => capabilityRecommendation("Capability admission passed."))).toBe(

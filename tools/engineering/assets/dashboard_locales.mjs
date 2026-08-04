@@ -249,6 +249,21 @@ Object.assign(messages.fr, {
 Object.assign(messages.es, {
   "filter.search":"Buscar", "filter.search_placeholder":"Buscar en todos los campos", "filter.level":"Nivel", "filter.all_levels":"Todos los niveles", "filter.error":"Error", "filter.warning":"Advertencia", "filter.info":"Información", "filter.debug":"Depurar",
 });
+Object.assign(messages.en, {
+  "table.status":"Status", "table.prompt_title":"Prompt title", "table.executed_at":"Executed at", "history.table_label":"Prompt history",
+});
+Object.assign(messages.nl, {
+  "table.status":"Status", "table.prompt_title":"Prompttitel", "table.executed_at":"Uitgevoerd op", "history.table_label":"Promptgeschiedenis",
+});
+Object.assign(messages.de, {
+  "table.status":"Status", "table.prompt_title":"Prompttitel", "table.executed_at":"Ausgeführt am", "history.table_label":"Prompt-Verlauf",
+});
+Object.assign(messages.fr, {
+  "table.status":"État", "table.prompt_title":"Titre du prompt", "table.executed_at":"Exécuté le", "history.table_label":"Historique des prompts",
+});
+Object.assign(messages.es, {
+  "table.status":"Estado", "table.prompt_title":"Título del prompt", "table.executed_at":"Ejecutado el", "history.table_label":"Historial de prompts",
+});
 
 export function normalizeLocale(value) {
   const candidate = String(value || "").toLowerCase().split("-")[0];

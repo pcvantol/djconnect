@@ -1003,6 +1003,19 @@ function localizeLogControls() {
     if (option) option.textContent = t(key);
   });
 }
+function localizePromptHistoryTable() {
+  const headers = [
+    "table.status", "table.prompt_title", "table.executed_at", "table.report",
+    "table.analysis", "table.chat", "table.action",
+  ];
+  document.querySelectorAll("#promptHistory .log-table thead th").forEach((header, index) => {
+    if (headers[index]) header.textContent = t(headers[index]);
+  });
+  document.querySelector("#promptHistory .log-table")?.setAttribute(
+    "aria-label",
+    t("history.table_label"),
+  );
+}
 function chatMessage(role, text) {
   let item = document.createElement("article"),
     label = document.createElement("span"),
@@ -2507,6 +2520,7 @@ function applyDashboardLocale() {
   providerNeutralLabels();
   localizeTechnicalDetails();
   localizeLogControls();
+  localizePromptHistoryTable();
   addCategoryIcons();
   addCategoryDescriptions();
   arrangeCurrentRunCategory();
