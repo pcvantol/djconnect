@@ -616,6 +616,18 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#chatInput")).toHaveCSS("resize", "vertical");
   });
 
+  test("keeps comfortable inner padding when the AI question field is focused", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#promptHistoryChatModal").evaluate((element) => element.showModal());
+    const input = page.locator("#chatInput");
+    await input.focus();
+
+    await expect(input).toHaveCSS("padding-top", "14px");
+    await expect(input).toHaveCSS("padding-left", "16px");
+    await expect(input).toHaveCSS("padding-bottom", "64px");
+    await expect(input).toHaveCSS("padding-right", "68px");
+  });
+
   test("bounds and sanitizes free-form dashboard input client-side", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await expect(page.locator("#chatInput")).toHaveAttribute("maxlength", "2000");
