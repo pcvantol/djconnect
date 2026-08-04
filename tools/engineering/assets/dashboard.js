@@ -3178,7 +3178,6 @@ function promptDetailEvidenceSection(evidence) {
   return promptDetailCard(
     t("detail.execution_evidence"),
     [detailField(t("detail.evidence"), evidence.join("\n"), true)],
-    true,
   );
 }
 function promptDetailReviewersSection(reviewers) {
@@ -3215,9 +3214,9 @@ function renderPromptHistoryDetail(payload) {
         promptDetailDurationSection(execution),
         promptDetailRuntimeSection(runtime),
         promptDetailCommitsSection(commits),
+        promptDetailEvidenceSection(evidence),
       ]),
       promptDetailUsageSection(usage),
-      promptDetailEvidenceSection(evidence),
       promptDetailReviewersSection(reviewers),
     ].filter(Boolean),
   );

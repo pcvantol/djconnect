@@ -1857,6 +1857,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#promptHistoryDetailContent > .prompt-detail-sidebar")).toContainText("Doorlooptijd");
     await expect(page.locator("#promptHistoryDetailContent > .prompt-detail-sidebar")).toContainText("Runtime");
     await expect(page.locator("#promptHistoryDetailContent > .prompt-detail-sidebar")).toContainText("Git-commit");
+    await expect(page.locator("#promptHistoryDetailContent > .prompt-detail-sidebar")).toContainText("Uitvoeringsbewijs");
     await expect(page.locator("#promptHistoryDetailContent")).not.toContainText("pcvantol/djconnect");
     await expect(page.locator("#promptHistoryDetailContent")).not.toContainText("Historisch rapport");
     await expect(page.locator("#promptHistoryDetailContent")).not.toContainText("Historische AI-analyse");
