@@ -3428,51 +3428,51 @@ function renderPromptHistoryDetail(payload) {
     timestamp = Date.parse(String(history.executed_at || ""));
   content.replaceChildren();
   content.append(
-    promptDetailCard("Uitvoering", [
-      detailField("Promptstatus", promptHistoryStatus(history.status)),
-      detailField("Prompttitel", history.title),
-      detailField("Run-ID", history.run_id, true),
-      detailField("Uitgevoerd op", Number.isFinite(timestamp) ? locale.dateTime(new Date(timestamp)) : history.executed_at),
-      detailField("Uitvoeringsmodus", history.execution_mode),
-      detailField("Repository", history.repository),
+    promptDetailCard(t("detail.execution"), [
+      detailField(t("detail.prompt_status"), promptHistoryStatus(history.status)),
+      detailField(t("detail.prompt_title"), history.title),
+      detailField(t("detail.run_id"), history.run_id, true),
+      detailField(t("detail.executed_at"), Number.isFinite(timestamp) ? locale.dateTime(new Date(timestamp)) : history.executed_at),
+      detailField(t("detail.execution_mode"), history.execution_mode),
+      detailField(t("detail.repository"), history.repository),
     ]),
-    promptDetailCard("Doorlooptijd", [
-      detailField("Codex CLI-uitvoeringstijd", promptDetailDuration(execution.seconds)),
-      detailField("Totale doorlooptijd", promptDetailDuration(execution.total_seconds)),
+    promptDetailCard(t("detail.duration"), [
+      detailField(t("detail.agent_duration"), promptDetailDuration(execution.seconds)),
+      detailField(t("detail.total_duration"), promptDetailDuration(execution.total_seconds)),
     ]),
   );
   const runtimeFields = [
-    ["Runtimeprovider", runtime.runtime_provider],
-    ["Gebruikt model", runtime.model],
-    ["Reasoning-profiel", runtime.reasoning_profile],
-    ["Configuratieprofiel", runtime.configuration_profile],
-    ["Codex CLI-versie", runtime.codex_cli_version],
+    [t("detail.runtime_provider"), runtime.runtime_provider],
+    [t("detail.model"), runtime.model],
+    [t("detail.reasoning_profile"), runtime.reasoning_profile],
+    [t("detail.configuration_profile"), runtime.configuration_profile],
+    [t("detail.codex_cli_version"), runtime.codex_cli_version],
   ].filter(([, value]) => value);
   if (runtimeFields.length)
-    content.append(promptDetailCard("Runtime", runtimeFields.map(([label, value]) => detailField(label, value))));
+    content.append(promptDetailCard(t("detail.runtime"), runtimeFields.map(([label, value]) => detailField(label, value))));
   const usageFields = Object.entries(usage).map(([key, value]) =>
     detailField(
-      ({ input_tokens: "Invoertokens", output_tokens: "Uitvoertokens", total_tokens: "Totaal tokens" })[key] || key,
+      ({ input_tokens: t("detail.input_tokens"), output_tokens: t("detail.output_tokens"), total_tokens: t("detail.total_tokens") })[key] || key,
       value,
     ),
   );
-  if (usageFields.length) content.append(promptDetailCard("AI-providergebruik", usageFields));
+  if (usageFields.length) content.append(promptDetailCard(t("detail.provider_usage"), usageFields));
   if (Object.keys(commits).length)
-    content.append(promptDetailCard("Git-commit", [detailField("Vastgelegd bewijs", Object.entries(commits).map(([label, value]) => label + ": " + value).join("\n"), true)]));
+    content.append(promptDetailCard(t("detail.git_commit"), [detailField(t("detail.recorded_evidence"), Object.entries(commits).map(([label, value]) => label + ": " + value).join("\n"), true)]));
   if (evidence.length)
-    content.append(promptDetailCard("Uitvoeringsbewijs", [detailField("Bewijs", evidence.join("\n"), true)], true));
+    content.append(promptDetailCard(t("detail.execution_evidence"), [detailField(t("detail.evidence"), evidence.join("\n"), true)], true));
   if (reviewers.length) {
     const reviewerFields = reviewers.map((reviewer) =>
       detailField(
-        String(reviewer.reviewer || "Specialistische review").replaceAll("_", " "),
-        "Capaciteit: " + String(reviewer.capability || "engineering") + " · " +
-          String(reviewer.status || "Uitgevoerd") + " · Gebruikte aanbevelingen: " +
+        String(reviewer.reviewer || t("detail.specialist_review")).replaceAll("_", " "),
+        t("detail.capability") + ": " + String(reviewer.capability || "engineering") + " · " +
+          String(reviewer.status || t("detail.completed")) + " · " + t("detail.accepted_recommendations") + ": " +
           (Number(reviewer.accepted_recommendations) || 0) + "\nGeselecteerd voor: " +
-          String(reviewer.selected_because || "Niet vastgelegd."),
+          String(reviewer.selected_because || t("detail.not_recorded")),
         true,
       ),
     );
-    content.append(promptDetailCard("Specialistische agentreviews", reviewerFields, true));
+    content.append(promptDetailCard(t("detail.specialist_reviews"), reviewerFields, true));
   }
 }
 function closePromptHistoryDetail() {
@@ -3750,6 +3750,7 @@ Object.assign(window, {
   renderComponentLogs,
   renderLogPagination,
   renderMarkdownAnswer,
+  renderPromptHistoryDetail,
   renderPlatformHealth,
   renderPromptHistory,
   showComponentModal,

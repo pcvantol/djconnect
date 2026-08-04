@@ -69,14 +69,14 @@ test.describe("Engineering Status browser smoke", () => {
 
   test("changes visible interface copy for each supported language", async ({ page }) => {
     const expectations = [
-      ["en", "Language", "Refresh automatically", "AI analysis", "Passed"],
-      ["nl", "Taal", "Automatisch vernieuwen", "AI-analyse", "Geslaagd"],
-      ["de", "Sprache", "Automatisch aktualisieren", "KI-Analyse", "Erfolgreich"],
-      ["fr", "Langue", "Actualiser automatiquement", "Analyse IA", "Réussi"],
-      ["es", "Idioma", "Actualizar automáticamente", "Análisis de IA", "Superado"],
+      ["en", "Language", "Refresh automatically", "AI analysis", "Passed", "Execution"],
+      ["nl", "Taal", "Automatisch vernieuwen", "AI-analyse", "Geslaagd", "Uitvoering"],
+      ["de", "Sprache", "Automatisch aktualisieren", "KI-Analyse", "Erfolgreich", "Ausführung"],
+      ["fr", "Langue", "Actualiser automatiquement", "Analyse IA", "Réussi", "Exécution"],
+      ["es", "Idioma", "Actualizar automáticamente", "Análisis de IA", "Superado", "Ejecución"],
     ];
 
-    for (const [language, localeLabel, refreshLabel, analysisLabel, passLabel] of expectations) {
+    for (const [language, localeLabel, refreshLabel, analysisLabel, passLabel, detailTitle] of expectations) {
       await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
       await page.locator("#dashboardLocale").selectOption(language);
       await expect(page.locator("html")).toHaveAttribute("lang", language);
@@ -84,6 +84,10 @@ test.describe("Engineering Status browser smoke", () => {
       await expect(page.locator(".auto-refresh-toggle span")).toHaveText(refreshLabel);
       await expect(page.locator("#promptHistoryAnalysisHeader")).toHaveText(analysisLabel);
       expect(await page.evaluate(() => enumLabel("PASS"))).toBe(passLabel);
+      await page.evaluate(() => renderPromptHistoryDetail({
+        history: { run_id: "inbox-localization", status: "COMPLETE", title: "Prompt", executed_at: "2026-08-03T20:53:29Z" },
+      }));
+      await expect(page.locator("#promptHistoryDetailContent h3").first()).toHaveText(detailTitle);
     }
   });
 
