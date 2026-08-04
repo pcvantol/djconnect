@@ -863,8 +863,11 @@ test.describe("Engineering Status browser smoke", () => {
     const panelBox = await modal.locator(".report-view-modal__panel").boundingBox();
     const actions = modal.locator(".report-view-modal__actions");
     const actionBoxBeforeScroll = await actions.boundingBox();
-    const panel = modal.locator(".report-view-modal__panel");
-    await panel.evaluate((element) => { element.scrollTop = 160; });
+    const header = modal.locator(".report-view-modal__header");
+    const content = modal.locator("#promptHistoryReportContent");
+    const headerBox = await header.boundingBox();
+    const contentBox = await content.boundingBox();
+    await content.evaluate((element) => { element.scrollTop = 160; });
     const actionBoxAfterScroll = await actions.boundingBox();
 
     expect(box.y).toBeGreaterThanOrEqual(18);
@@ -872,7 +875,8 @@ test.describe("Engineering Status browser smoke", () => {
     expect(panelBox.y).toBeGreaterThanOrEqual(18);
     expect(panelBox.y + panelBox.height).toBeLessThanOrEqual(282);
     expect(actionBoxBeforeScroll.x + actionBoxBeforeScroll.width).toBeGreaterThan(panelBox.x + panelBox.width - 44);
-    await expect.poll(() => panel.evaluate((element) => element.scrollTop)).toBe(160);
+    expect(contentBox.y).toBeGreaterThanOrEqual(headerBox.y + headerBox.height);
+    await expect.poll(() => content.evaluate((element) => element.scrollTop)).toBe(160);
     expect(actionBoxAfterScroll.y).toBe(actionBoxBeforeScroll.y);
   });
 
