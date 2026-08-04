@@ -869,6 +869,8 @@ test.describe("Engineering Status browser smoke", () => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     const modal = page.locator("#promptHistoryDetailModal"),
       panel = modal.locator(".prompt-detail-modal__panel"),
+      content = page.locator("#promptHistoryDetailContent"),
+      header = modal.locator(".prompt-detail-modal__header"),
       close = page.locator("#promptHistoryDetailClose");
 
     await modal.evaluate((element) => {
@@ -876,13 +878,20 @@ test.describe("Engineering Status browser smoke", () => {
         "<p>Detailregel</p>".repeat(120);
       element.showModal();
     });
-    const before = await close.boundingBox();
-    await panel.evaluate((element) => { element.scrollTop = 180; });
-    const after = await close.boundingBox(), panelBox = await panel.boundingBox();
+    const before = {
+      close: await close.boundingBox(),
+      header: await header.boundingBox(),
+    };
+    await content.evaluate((element) => { element.scrollTop = 180; });
+    const after = {
+      close: await close.boundingBox(),
+      header: await header.boundingBox(),
+    }, panelBox = await panel.boundingBox();
 
-    await expect.poll(() => panel.evaluate((element) => element.scrollTop)).toBe(180);
-    expect(after.y).toBe(before.y);
-    expect(after.x + after.width).toBeGreaterThan(panelBox.x + panelBox.width - 48);
+    await expect.poll(() => content.evaluate((element) => element.scrollTop)).toBe(180);
+    expect(after.close.y).toBe(before.close.y);
+    expect(after.header.y).toBe(before.header.y);
+    expect(after.close.x + after.close.width).toBeGreaterThan(panelBox.x + panelBox.width - 48);
   });
 
   test("uses light glyphs for all dark report-modal actions", async ({ page }) => {
