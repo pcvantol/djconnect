@@ -117,6 +117,15 @@ body. Its separate report and AI-analysis actions open the matching read-only
 Markdown dialog, not in an editor. It is deliberately an evidence-navigation
 feature rather than an execution or repository-control surface.
 
+The dashboard detail projection is deliberately separate from its storage
+lookup. It reads the selected immutable history row and its bounded companion
+data first, then a small projector creates the response shape. That projector
+may derive only the displayed Evidence Bundle summary and target-repository
+provenance from the report for the same Run ID. It never writes SQLite,
+rewrites the report, or substitutes information from another run. An absent or
+non-readable report produces an empty evidence summary while retaining the
+stored history data.
+
 When no report or analysis was persisted for the selected terminal run, the
 dashboard must say so explicitly. It must not show an unavailable artifact as
 pending, or expose copy/download controls for empty content.

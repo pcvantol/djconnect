@@ -20,6 +20,25 @@ from .telemetry import comparable_duration_estimate
 
 JsonReader = Callable[[Path], bytes]
 RunJsonReader = Callable[[Path, str | None], bytes]
+TERMINAL_PHASES = frozenset({"COMPLETE", "BLOCKED", "FAILED"})
+
+
+def _terminal_checkpoint(root: Path, run_id: object) -> bool:
+    """Return whether a live-status run has already reached a terminal checkpoint.
+
+    ``current.json`` is written by the runner and can briefly outlive its terminal
+    checkpoint.  It must therefore never keep a completed execution visible as
+    an active dashboard prompt.
+    """
+    if not isinstance(run_id, str):
+        return False
+    try:
+        checkpoint = json.loads(
+            (root / ".engineering" / "engineering-runs" / f"{run_id}.json").read_text(encoding="utf-8")
+        )
+    except (OSError, json.JSONDecodeError):
+        return False
+    return checkpoint.get("phase") in TERMINAL_PHASES
 
 
 def unavailable_status() -> bytes:
@@ -97,7 +116,11 @@ def status(root: Path) -> bytes:
         ).encode()
     except (OSError, json.JSONDecodeError):
         live, projection = None, None
-    if live and live.get("phase") not in {"COMPLETE", "BLOCKED", "FAILED"}:
+    if (
+        live
+        and live.get("phase") not in TERMINAL_PHASES
+        and not _terminal_checkpoint(root, live.get("run_id"))
+    ):
         return projection
     try:
         if watcher and (watcher.get("run_id") or watcher.get("last_executed_run")):

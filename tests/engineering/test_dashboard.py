@@ -8,7 +8,7 @@ from pathlib import Path
 import tempfile
 from threading import Thread
 import unittest
-from contextlib import nullcontext
+from contextlib import contextmanager, nullcontext
 from unittest.mock import ANY, MagicMock, patch
 
 from tools.engineering import dashboard
@@ -649,7 +649,7 @@ class DashboardStatusTest(unittest.TestCase):
 
         self.assertRegex(details["size"], r"^\d+,\d{2} MB$")
         self.assertNotEqual(details["size"], "0,00 MB")
-        self.assertEqual(details["schema_version"], "7")
+        self.assertEqual(details["schema_version"], "8")
 
     @patch("tools.engineering.dashboard.subprocess.run")
     def test_tracked_file_count_counts_recursive_git_index_entries(self, run: object) -> None:
@@ -863,6 +863,57 @@ class DashboardStatusTest(unittest.TestCase):
             self.assertEqual(payload["history"]["title"], "Detail prompt")
             self.assertEqual(payload["usage"], {})
             self.assertEqual(_prompt_history_detail(root, "../../other"), b"")
+
+    def test_prompt_history_detail_projector_owns_evidence_and_presentation(self) -> None:
+        entry = {"run_id": "inbox-projector", "target_repository": "stored/repository"}
+
+        payload = json.loads(
+            dashboard._project_prompt_history_detail(
+                entry,
+                execution={"state": "COMPLETE"},
+                runtime={"provider": "codex_cli"},
+                reviewers=[{"reviewer": "validation"}],
+                commits=["abc123"],
+                usage={"input_tokens": 10},
+                report="\n".join(
+                    (
+                        "- Execution Host: `Engineering Platform`",
+                        "- Target Repository: `forge`",
+                        "- Target Commit: `abc123`",
+                        "- Changed file: `one.py`",
+                    )
+                ),
+            )
+        )
+
+        self.assertEqual(entry["target_repository"], "stored/repository")
+        self.assertEqual(payload["history"]["target_repository"], "forge")
+        self.assertEqual(payload["execution"], {"state": "COMPLETE"})
+        self.assertEqual(payload["usage"], {"input_tokens": 10})
+        self.assertEqual(
+            payload["evidence"],
+            [
+                "Execution Host: Engineering Platform",
+                "Target repository: forge",
+                "Target commit: abc123",
+                "Evidence Bundle: 1 gewijzigde bestanden",
+            ],
+        )
+
+        without_report = json.loads(
+            dashboard._project_prompt_history_detail(
+                entry,
+                execution={},
+                runtime={},
+                reviewers=[],
+                commits=[],
+                usage={},
+                report=None,
+            )
+        )
+        self.assertEqual(without_report["history"], entry)
+        self.assertEqual(without_report["evidence"], [])
+
     def test_component_log_is_read_from_canonical_sqlite_storage(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
@@ -990,6 +1041,8 @@ class DashboardStatusTest(unittest.TestCase):
                 prompt_title="Evidence",
                 executed_at="2026-08-04T12:00:00Z",
                 report=report,
+                target_checkout_path="/Users/example/Documents/GitHub/forge",
+                tracked_file_count=1655,
             )
             connection = MagicMock()
             connection.execute.return_value.fetchone.return_value = (10, 20, 30)
@@ -1006,6 +1059,11 @@ class DashboardStatusTest(unittest.TestCase):
                 ],
             )
             self.assertEqual(detail["history"]["target_repository"], "pcvantol/djconnect")
+            self.assertEqual(
+                detail["history"]["target_checkout_path"],
+                "/Users/example/Documents/GitHub/forge",
+            )
+            self.assertEqual(detail["history"]["tracked_file_count"], 1655)
 
     def test_dashboard_file_projections_reject_malformed_or_missing_data(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -1052,13 +1110,23 @@ class DashboardStatusTest(unittest.TestCase):
             with self.assertRaises(ValueError):
                 dashboard._process_elapsed_seconds("1:2:3:4")
 
-    def test_http_dashboard_exposes_status_routes_and_bounded_read_only_chat(self) -> None:
+    @contextmanager
+    def _dashboard_http_connection(self):
         root = Path(__file__).parents[2]
         server = dashboard.DashboardHTTPServer((LOOPBACK_ADDRESS, 0), dashboard.handler(root))
         thread = Thread(target=server.serve_forever, daemon=True)
         thread.start()
         connection = HTTPConnection(LOOPBACK_ADDRESS, server.server_port, timeout=2)
         try:
+            yield root, connection
+        finally:
+            connection.close()
+            server.shutdown()
+            server.server_close()
+            thread.join(timeout=2)
+
+    def test_http_dashboard_status_routes(self) -> None:
+        with self._dashboard_http_connection() as (_, connection):
             for route, content_type in (
                 ("/", "text/html"),
                 ("/assets/engineering-status-icon.svg", "image/svg+xml"),
@@ -1074,7 +1142,6 @@ class DashboardStatusTest(unittest.TestCase):
                 ("/api/usage", "application/json"),
                 ("/api/commits", "application/json"),
                 ("/api/prompt-started", "application/json"),
-                ("/api/prompt-history", "application/json"),
                 ("/api/log/latest", "text/plain"),
                 ("/api/logs/inbox", "text/plain"),
                 ("/api/logs/dashboard", "text/plain"),
@@ -1105,7 +1172,18 @@ class DashboardStatusTest(unittest.TestCase):
                 self.assertEqual(response.status, 200)
                 self.assertEqual(json.loads(response.read())["health"], "ok")
             connection.request("GET", "/missing")
-            self.assertEqual(connection.getresponse().status, 404)
+            response = connection.getresponse()
+            self.assertEqual(response.status, 404)
+            response.read()
+
+    def test_http_dashboard_history_routes(self) -> None:
+        with self._dashboard_http_connection() as (_, connection):
+            connection.request("GET", "/api/prompt-history")
+            response = connection.getresponse()
+            self.assertEqual(response.status, 200)
+            self.assertIn("application/json", response.getheader("Content-Type"))
+            self.assertEqual(response.getheader("Cache-Control"), "no-store")
+            response.read()
             for route in (
                 "/api/report/last-executed?run_id=invalid",
                 "/api/report-analysis/last-executed?run_id=invalid",
@@ -1117,271 +1195,139 @@ class DashboardStatusTest(unittest.TestCase):
                 response = connection.getresponse()
                 self.assertEqual(response.status, 404)
                 response.read()
+
+    def test_http_dashboard_operator_routes(self) -> None:
+        with self._dashboard_http_connection() as (root, connection):
             with (
                 patch("tools.engineering.dashboard._clear_component_log") as clear_log,
                 patch("tools.engineering.dashboard.log_event"),
             ):
-                connection.request(
-                    "POST",
-                    "/api/logs/inbox",
-                    body="{}",
-                    headers={"Content-Type": "application/json"},
-                )
+                connection.request("POST", "/api/logs/inbox", body="{}", headers={"Content-Type": "application/json"})
                 response = connection.getresponse()
                 self.assertEqual(response.status, 200)
                 self.assertEqual(json.loads(response.read()), {"cleared": "inbox"})
                 clear_log.assert_called_once_with(root, "inbox")
-            connection.request(
-                "POST", "/api/logs/not-a-component", body="{}", headers={"Content-Type": "application/json"}
-            )
-            self.assertEqual(connection.getresponse().status, 400)
-            connection.request(
-                "POST", "/api/logs/inbox", body="[]", headers={"Content-Type": "application/json"}
-            )
-            self.assertEqual(connection.getresponse().status, 400)
+            for route, body in (("/api/logs/not-a-component", "{}"), ("/api/logs/inbox", "[]")):
+                connection.request("POST", route, body=body, headers={"Content-Type": "application/json"})
+                response = connection.getresponse()
+                self.assertEqual(response.status, 400)
+                response.read()
             with (
                 patch("tools.engineering.dashboard.Timer") as timer,
                 patch("tools.engineering.dashboard.component_lifecycle_context", return_value={"git_commit": "abc"}),
                 patch("tools.engineering.dashboard.log_event") as log_event,
             ):
-                connection.request(
-                    "POST",
-                    "/api/components/inbox_watcher/restart",
-                    body="{}",
-                    headers={"Content-Type": "application/json"},
-                )
+                connection.request("POST", "/api/components/inbox_watcher/restart", body="{}", headers={"Content-Type": "application/json"})
                 response = connection.getresponse()
                 self.assertEqual(response.status, 202)
                 self.assertEqual(json.loads(response.read()), {"restarting": "inbox_watcher"})
                 timer.assert_called_once()
                 timer.return_value.start.assert_called_once()
-                restart_event = next(
-                    call
-                    for call in log_event.call_args_list
-                    if call.args[2] == "component_restart_trigger_received"
-                )
+                restart_event = next(call for call in log_event.call_args_list if call.args[2] == "component_restart_trigger_received")
                 self.assertEqual(restart_event.kwargs["context"]["target_component"], "inbox_watcher")
-            connection.request(
-                "POST",
-                "/api/components/unknown_component/restart",
-                body="{}",
-                headers={"Content-Type": "application/json"},
-            )
-            self.assertEqual(connection.getresponse().status, 400)
-            with (
-                patch("tools.engineering.dashboard.codex_chat_response", return_value="Veilig advies."),
-                patch("tools.engineering.dashboard.log_event") as chat_log_event,
-            ):
-                connection.request(
-                    "POST",
-                    "/api/codex-chat",
-                    body=json.dumps({"message": "Wat nu?", "history": []}),
-                    headers={"Content-Type": "application/json"},
-                )
-                response = connection.getresponse()
-                self.assertEqual(response.status, 200)
-                self.assertEqual(
-                    json.loads(response.read()),
-                    {"answer": "Veilig advies.", "model": "gpt-5.6-terra"},
-                )
-                chat_log_event.assert_any_call(
-                    ANY,
-                    logging.INFO,
-                    "ai_chat_message_sent",
-                    diagnostic="[REDACTED]",
-                )
-            connection.request(
-                "POST", "/api/codex-chat", body="{}", headers={"Content-Type": "application/json"}
-            )
-            self.assertEqual(connection.getresponse().status, 400)
+            connection.request("POST", "/api/components/unknown_component/restart", body="{}", headers={"Content-Type": "application/json"})
+            response = connection.getresponse()
+            self.assertEqual(response.status, 400)
+            response.read()
             with (
                 patch("tools.engineering.dashboard._consume_codex_rate_limit_reset_credit", return_value="reset"),
                 patch("tools.engineering.dashboard._codex_rate_limits", return_value=b'{"reset_credits":1}'),
                 patch("tools.engineering.dashboard.log_event") as reset_log_event,
             ):
-                connection.request(
-                    "POST",
-                    "/api/rate-limit-reset",
-                    body="{}",
-                    headers={"Content-Type": "application/json"},
-                )
+                connection.request("POST", "/api/rate-limit-reset", body="{}", headers={"Content-Type": "application/json"})
                 response = connection.getresponse()
                 self.assertEqual(response.status, 200)
-                self.assertEqual(
-                    json.loads(response.read()),
-                    {"outcome": "reset", "rate_limits": {"reset_credits": 1}},
-                )
-                reset_log_event.assert_any_call(
-                    ANY,
-                    logging.INFO,
-                    "ai_usage_reset_completed",
-                )
+                self.assertEqual(json.loads(response.read()), {"outcome": "reset", "rate_limits": {"reset_credits": 1}})
+                reset_log_event.assert_any_call(ANY, logging.INFO, "ai_usage_reset_completed")
             with patch("tools.engineering.dashboard.log_event") as audit_log_event:
-                connection.request(
-                    "POST",
-                    "/api/audit/user-action",
-                    body='{"action":"chat_downloaded"}',
-                    headers={"Content-Type": "application/json"},
-                )
+                connection.request("POST", "/api/audit/user-action", body='{"action":"chat_downloaded"}', headers={"Content-Type": "application/json"})
                 response = connection.getresponse()
                 self.assertEqual(response.status, 200)
                 self.assertEqual(json.loads(response.read()), {"logged": True})
-                audit_log_event.assert_any_call(
-                    ANY,
-                    logging.INFO,
-                    "chat_downloaded",
-                )
-            retry_outcome = {
-                "blocking_run_id": "inbox-blocked",
-                "retry_filename": "retry-inbox-blocked.md",
-                "retry_run_id": "inbox-retry",
-            }
+                audit_log_event.assert_any_call(ANY, logging.INFO, "chat_downloaded")
+            retry_outcome = {"blocking_run_id": "inbox-blocked", "retry_filename": "retry-inbox-blocked.md", "retry_run_id": "inbox-retry"}
             with (
                 patch("tools.engineering.dashboard.cloud_root", return_value=root),
-                patch(
-                    "tools.engineering.dashboard.submit_predecessor_retry",
-                    return_value=retry_outcome,
-                ) as submit_retry,
+                patch("tools.engineering.dashboard.submit_predecessor_retry", return_value=retry_outcome) as submit_retry,
                 patch("tools.engineering.dashboard.log_event") as retry_log_event,
             ):
-                connection.request(
-                    "POST",
-                    "/api/predecessor-retry",
-                    body="{}",
-                    headers={"Content-Type": "application/json"},
-                )
+                connection.request("POST", "/api/predecessor-retry", body="{}", headers={"Content-Type": "application/json"})
                 response = connection.getresponse()
                 self.assertEqual(response.status, 202)
                 self.assertEqual(json.loads(response.read()), retry_outcome)
                 submit_retry.assert_called_once_with(root, root)
-                retry_log_event.assert_any_call(
-                    ANY,
-                    logging.INFO,
-                    "predecessor_retry_submission_triggered",
-                    run_id="inbox-blocked",
-                    diagnostic="retry_run_id=inbox-retry",
-                )
-            execution_retry_outcome = {
-                "retry_of": "inbox-blocked",
-                "original_run_id": "inbox-blocked",
-                "retry_generation": 1,
-                "retry_timestamp": "2026-08-03T12:00:00+00:00",
-                "filename": "retry-inbox-blocked.md",
-                "retry_run_id": "inbox-retry",
-            }
+                retry_log_event.assert_any_call(ANY, logging.INFO, "predecessor_retry_submission_triggered", run_id="inbox-blocked", diagnostic="retry_run_id=inbox-retry")
+            execution_retry_outcome = {"retry_of": "inbox-blocked", "original_run_id": "inbox-blocked", "retry_generation": 1, "retry_timestamp": "2026-08-03T12:00:00+00:00", "filename": "retry-inbox-blocked.md", "retry_run_id": "inbox-retry"}
             with (
                 patch("tools.engineering.dashboard.cloud_root", return_value=root),
-                patch(
-                    "tools.engineering.dashboard.submit_execution_retry",
-                    return_value=execution_retry_outcome,
-                ) as submit_execution_retry,
+                patch("tools.engineering.dashboard.submit_execution_retry", return_value=execution_retry_outcome) as submit_execution_retry,
                 patch("tools.engineering.dashboard.log_event") as execution_retry_log,
             ):
-                connection.request(
-                    "POST",
-                    "/api/execution-retry",
-                    body='{"run_id":"inbox-blocked"}',
-                    headers={"Content-Type": "application/json"},
-                )
+                connection.request("POST", "/api/execution-retry", body='{"run_id":"inbox-blocked"}', headers={"Content-Type": "application/json"})
                 response = connection.getresponse()
                 self.assertEqual(response.status, 202)
                 self.assertEqual(json.loads(response.read()), execution_retry_outcome)
                 submit_execution_retry.assert_called_once_with(root, root, "inbox-blocked")
-                execution_retry_log.assert_any_call(
-                    ANY,
-                    logging.INFO,
-                    "execution_retry_triggered",
-                    run_id="inbox-blocked",
-                    diagnostic="retry_run_id=inbox-retry",
-                )
-            connection.request(
-                "POST",
-                "/api/execution-retry",
-                body="{}",
-                headers={"Content-Type": "application/json"},
-            )
-            self.assertEqual(connection.getresponse().status, 400)
-            dismissal = {
-                "run_id": "inbox-blocked",
-                "dismissed": True,
-                "dismissed_at": "2026-08-03T12:01:00+00:00",
-                "dismissed_by": "dashboard_operator",
-            }
+                execution_retry_log.assert_any_call(ANY, logging.INFO, "execution_retry_triggered", run_id="inbox-blocked", diagnostic="retry_run_id=inbox-retry")
+            connection.request("POST", "/api/execution-retry", body="{}", headers={"Content-Type": "application/json"})
+            response = connection.getresponse()
+            self.assertEqual(response.status, 400)
+            response.read()
+            dismissal = {"run_id": "inbox-blocked", "dismissed": True, "dismissed_at": "2026-08-03T12:01:00+00:00", "dismissed_by": "dashboard_operator"}
             with (
                 patch("tools.engineering.dashboard.dismiss_execution", return_value=dismissal) as dismiss,
                 patch("tools.engineering.dashboard.log_event") as dismiss_log_event,
             ):
-                connection.request(
-                    "POST",
-                    "/api/execution-dismiss",
-                    body='{"run_id":"inbox-blocked"}',
-                    headers={"Content-Type": "application/json"},
-                )
+                connection.request("POST", "/api/execution-dismiss", body='{"run_id":"inbox-blocked"}', headers={"Content-Type": "application/json"})
                 response = connection.getresponse()
                 self.assertEqual(response.status, 202)
                 self.assertEqual(json.loads(response.read()), dismissal)
                 dismiss.assert_called_once_with(root, "inbox-blocked")
-                dismiss_log_event.assert_any_call(
-                    ANY,
-                    logging.INFO,
-                    "execution_dismissed",
-                    run_id="inbox-blocked",
-                )
-            with patch(
-                "tools.engineering.dashboard.dismiss_execution",
-                side_effect=dashboard.RetrySubmissionError("De uitvoering is nog actief."),
-            ):
-                connection.request(
-                    "POST",
-                    "/api/execution-dismiss",
-                    body='{"run_id":"inbox-active"}',
-                    headers={"Content-Type": "application/json"},
-                )
+                dismiss_log_event.assert_any_call(ANY, logging.INFO, "execution_dismissed", run_id="inbox-blocked")
+            with patch("tools.engineering.dashboard.dismiss_execution", side_effect=dashboard.RetrySubmissionError("De uitvoering is nog actief.")):
+                connection.request("POST", "/api/execution-dismiss", body='{"run_id":"inbox-active"}', headers={"Content-Type": "application/json"})
                 response = connection.getresponse()
                 self.assertEqual(response.status, 409)
                 self.assertEqual(json.loads(response.read()), {"error": "De uitvoering is nog actief."})
-            for body in ("{}", '[]', '{"run_id":1}', '{"run_id":"inbox-blocked","extra":true}'):
-                connection.request(
-                    "POST",
-                    "/api/execution-dismiss",
-                    body=body,
-                    headers={"Content-Type": "application/json"},
-                )
+            for body in ("{}", "[]", '{"run_id":1}', '{"run_id":"inbox-blocked","extra":true}'):
+                connection.request("POST", "/api/execution-dismiss", body=body, headers={"Content-Type": "application/json"})
                 response = connection.getresponse()
                 self.assertEqual(response.status, 400)
-                self.assertEqual(
-                    json.loads(response.read()),
-                    {"error": "De uitvoering kan nu niet veilig worden bevestigd."},
-                )
-            connection.request(
-                "POST", "/api/rate-limit-reset", body="[]", headers={"Content-Type": "application/json"}
-            )
-            self.assertEqual(connection.getresponse().status, 400)
-            with patch(
-                "tools.engineering.dashboard._consume_codex_rate_limit_reset_credit",
-                side_effect=dashboard.RateLimitResetError("Reset niet beschikbaar."),
-            ):
-                connection.request(
-                    "POST", "/api/rate-limit-reset", body="{}", headers={"Content-Type": "application/json"}
-                )
-                self.assertEqual(connection.getresponse().status, 503)
+                self.assertEqual(json.loads(response.read()), {"error": "De uitvoering kan nu niet veilig worden bevestigd."})
+            connection.request("POST", "/api/rate-limit-reset", body="[]", headers={"Content-Type": "application/json"})
+            response = connection.getresponse()
+            self.assertEqual(response.status, 400)
+            response.read()
+            with patch("tools.engineering.dashboard._consume_codex_rate_limit_reset_credit", side_effect=dashboard.RateLimitResetError("Reset niet beschikbaar.")):
+                connection.request("POST", "/api/rate-limit-reset", body="{}", headers={"Content-Type": "application/json"})
+                response = connection.getresponse()
+                self.assertEqual(response.status, 503)
+                response.read()
             with patch("tools.engineering.dashboard._clear_component_log", side_effect=OSError("Niet beschikbaar.")):
-                connection.request(
-                    "POST", "/api/logs/inbox", body="{}", headers={"Content-Type": "application/json"}
-                )
-                self.assertEqual(connection.getresponse().status, 503)
-            connection.request(
-                "POST",
-                "/api/codex-chat",
-                body=json.dumps({"message": "Wat nu?", "history": []}),
-                headers={"Content-Type": "application/json", "Origin": "https://example.invalid"},
-            )
-            self.assertEqual(connection.getresponse().status, 403)
-        finally:
-            connection.close()
-            server.shutdown()
-            server.server_close()
-            thread.join(timeout=2)
+                connection.request("POST", "/api/logs/inbox", body="{}", headers={"Content-Type": "application/json"})
+                response = connection.getresponse()
+                self.assertEqual(response.status, 503)
+                response.read()
+
+    def test_http_dashboard_chat_routes(self) -> None:
+        with self._dashboard_http_connection() as (_, connection):
+            with (
+                patch("tools.engineering.dashboard.codex_chat_response", return_value="Veilig advies."),
+                patch("tools.engineering.dashboard.log_event") as chat_log_event,
+            ):
+                connection.request("POST", "/api/codex-chat", body=json.dumps({"message": "Wat nu?", "history": []}), headers={"Content-Type": "application/json"})
+                response = connection.getresponse()
+                self.assertEqual(response.status, 200)
+                self.assertEqual(json.loads(response.read()), {"answer": "Veilig advies.", "model": "gpt-5.6-terra"})
+                chat_log_event.assert_any_call(ANY, logging.INFO, "ai_chat_message_sent", diagnostic="[REDACTED]")
+            connection.request("POST", "/api/codex-chat", body="{}", headers={"Content-Type": "application/json"})
+            response = connection.getresponse()
+            self.assertEqual(response.status, 400)
+            response.read()
+            connection.request("POST", "/api/codex-chat", body=json.dumps({"message": "Wat nu?", "history": []}), headers={"Content-Type": "application/json", "Origin": "https://example.invalid"})
+            response = connection.getresponse()
+            self.assertEqual(response.status, 403)
+            response.read()
 
     @patch(
         "tools.engineering.dashboard.build_relay",

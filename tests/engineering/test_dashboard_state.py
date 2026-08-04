@@ -27,6 +27,46 @@ class DashboardStateTest(unittest.TestCase):
         self.assertEqual(payload["run_id"], "run-1")
         self.assertEqual(payload["queue_items"], [{"filename": "later.md"}])
 
+    def test_status_ignores_a_terminal_live_projection_for_active_prompt(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            status = root / ".engineering" / "status"
+            status.mkdir(parents=True)
+            watcher = {
+                "watcher_state": "WAITING_FOR_PREDECESSOR",
+                "run_id": None,
+                "queue_items": [{"filename": "later.md"}],
+                "last_executed_run": "inbox-terminal",
+                "last_executed_phase": "BLOCKED",
+            }
+            (status / "status.json").write_text(json.dumps(watcher), encoding="utf-8")
+            (status / "current.json").write_text(
+                json.dumps({"run_id": "inbox-terminal", "phase": "BLOCKED"}),
+                encoding="utf-8",
+            )
+
+            payload = json.loads(dashboard_state.status(root))
+
+        self.assertEqual(payload, watcher)
+
+    def test_status_ignores_a_stale_nonterminal_live_projection_after_checkpoint(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            status = root / ".engineering" / "status"
+            status.mkdir(parents=True)
+            watcher = {"watcher_state": "WATCHER_IDLE", "run_id": None, "last_executed_run": "inbox-done"}
+            (status / "status.json").write_text(json.dumps(watcher), encoding="utf-8")
+            (status / "current.json").write_text(
+                json.dumps({"run_id": "inbox-done", "phase": "EXECUTE_AGENT"}), encoding="utf-8"
+            )
+            checkpoint = root / ".engineering" / "engineering-runs"
+            checkpoint.mkdir(parents=True)
+            (checkpoint / "inbox-done.json").write_text(json.dumps({"phase": "COMPLETE"}), encoding="utf-8")
+
+            payload = json.loads(dashboard_state.status(root))
+
+        self.assertEqual(payload, watcher)
+
     def test_snapshot_isolated_from_optional_telemetry_failure(self) -> None:
         root = Path("/workspace")
 

@@ -61,6 +61,14 @@ detail dialog. The Engineering Report and AI analysis remain separate actions
 on that same row, so every view stays bound to its exact Run ID. There is no
 separate **Laatst uitgevoerde prompt** card.
 
+The detail dialog is a read-only projection, not a second history store. It
+loads one immutable SQLite history row and its bounded companion data for the
+selected Run ID, then derives only the compact Evidence Bundle and displayed
+target-repository provenance from that run's report. It never modifies a
+report or stored history, and it never falls back to evidence from another
+prompt. If a matching report is absent or cannot be read, the dialog retains
+the history fields and shows no derived evidence.
+
 Do not create or rely on `iCloud Drive/DJConnect Engineering/Reports` or an
 iCloud `status.json`. Existing legacy iCloud archives can be moved safely with
 `python3 -m tools.engineering.inbox_watcher migrate-icloud-archives` after

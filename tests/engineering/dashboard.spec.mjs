@@ -1,7 +1,13 @@
 import { spawn } from "node:child_process";
+import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 import { test, expect } from "@playwright/test";
+import {
+  createTranslator,
+  DASHBOARD_MESSAGES,
+  SUPPORTED_LOCALES,
+} from "../../tools/engineering/assets/dashboard_locales.mjs";
 
 const repository = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const dashboardUrl = "http://127.0.0.1:8876";
@@ -37,6 +43,61 @@ test.afterAll(() => {
 
 test.describe("Engineering Status browser smoke", () => {
   test.use({ viewport: { width: 390, height: 844 }, colorScheme: "dark", locale: "nl-NL", reducedMotion: "reduce" });
+
+  test("keeps every supported UI catalog complete", () => {
+    const canonicalKeys = Object.keys(DASHBOARD_MESSAGES.en).sort();
+    for (const locale of SUPPORTED_LOCALES) {
+      expect(Object.keys(DASHBOARD_MESSAGES[locale]).sort(), locale).toEqual(canonicalKeys);
+      for (const key of canonicalKeys) expect(DASHBOARD_MESSAGES[locale][key], `${locale}:${key}`).toBeTruthy();
+    }
+  });
+
+  test("uses catalogued copy for every UI label in every supported language", async ({ page }) => {
+    const dashboardSource = readFileSync(
+      path.join(repository, "tools/engineering/assets/dashboard.js"),
+      "utf8",
+    );
+    const staticallyRequestedKeys = [
+      ...dashboardSource.matchAll(/\bt\(\s*["']([^"']+)["']\s*(?:,|\))/g),
+    ].map((match) => match[1]);
+
+    for (const language of SUPPORTED_LOCALES) {
+      const sourceTranslator = createTranslator(language);
+      for (const key of staticallyRequestedKeys) {
+        expect(
+          Object.hasOwn(DASHBOARD_MESSAGES[language], key),
+          `${language} is missing the statically requested UI label: ${key}`,
+        ).toBe(true);
+      }
+
+      await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+      await page.locator("#dashboardLocale").selectOption(language);
+      await expect(page.locator("html")).toHaveAttribute("lang", language);
+      await page.waitForFunction(
+        () => typeof window.__djconnectDashboardLocalizationCalls === "function",
+      );
+
+      const calls = await page.evaluate(() =>
+        window.__djconnectDashboardLocalizationCalls(),
+      );
+      expect(calls.length, `${language} should render localized dashboard copy`).toBeGreaterThan(0);
+
+      for (const { key, values, fallback, text } of calls) {
+        expect(
+          Object.hasOwn(DASHBOARD_MESSAGES[language], key),
+          `${language} is missing the UI label used by the dashboard: ${key}`,
+        ).toBe(true);
+        expect(
+          DASHBOARD_MESSAGES[language][key],
+          `${language}:${key} must not be empty`,
+        ).toBeTruthy();
+        expect(
+          text,
+          `${language}:${key} differs from its source-catalogue value`,
+        ).toBe(sourceTranslator(key, values, fallback));
+      }
+    }
+  });
 
   test("places the active prompt category first", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
@@ -169,6 +230,26 @@ test.describe("Engineering Status browser smoke", () => {
     ]);
   });
 
+  test("renders host, workspace and capability preflight fields through one presentation", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => r({}, {
+      host_preflight: { outcome: "PASS", timestamp: "2026-08-03T20:53:29Z" },
+      workspace_preflight: { outcome: "FAIL", timestamp: "2026-08-03T20:53:29Z" },
+      capability_preflight: {
+        outcome: "PASS",
+        recoverability: "RETRYABLE",
+        failure_origin: "CAPABILITY",
+        recommendation: "Capability admission passed.",
+      },
+    }));
+    await expect(page.locator("#hostPreflightStatus")).toHaveText("Geslaagd");
+    await expect(page.locator("#workspacePreflightStatus")).toHaveText("Mislukt");
+    await expect(page.locator("#capabilityPreflightStatus")).toHaveText("Geslaagd");
+    await expect(page.locator("#capabilityRecoverability")).toHaveText("Opnieuw proberen mogelijk");
+    await expect(page.locator("#capabilityFailureOrigin")).toHaveText("Capability");
+    await expect(page.locator("#capabilityRecommendation")).toHaveText("Capabilitytoelating geslaagd.");
+  });
+
   test("localizes dynamically rendered telemetry copy for every supported language", async ({ page }) => {
     const expectations = [
       ["en", "Execution Host telemetry", "Operational trends for the last seven days. Telemetry is not repository evidence."],
@@ -181,6 +262,9 @@ test.describe("Engineering Status browser smoke", () => {
       await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
       await page.locator("#dashboardLocale").selectOption(language);
       await expect(page.locator("html")).toHaveAttribute("lang", language);
+      await page.waitForFunction(
+        () => typeof window.executionTelemetry === "function",
+      );
       await page.evaluate(() => {
         document.querySelector("#executionTelemetry")?.remove();
         window.executionTelemetry([]);
@@ -244,10 +328,16 @@ test.describe("Engineering Status browser smoke", () => {
 
   test("rerenders prompt history pagination in the selected language", async ({ page }) => {
     await page.route("**/api/prompt-history", (route) => route.fulfill({ json: { runs: [] } }));
+    const historyLoaded = page.waitForResponse("**/api/prompt-history");
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await historyLoaded;
     await page.locator("#dashboardLocale").selectOption("en");
     await expect(page.locator("html")).toHaveAttribute("lang", "en");
+    await page.waitForFunction(
+      () => typeof window.renderPromptHistory === "function",
+    );
     await page.evaluate(() => {
+      document.querySelector("#promptHistory").open = true;
       promptHistoryEntries = Array.from({ length: 101 }, (_, index) => ({
         run_id: `inbox-${index}`,
         title: `Prompt ${index}`,
@@ -255,7 +345,12 @@ test.describe("Engineering Status browser smoke", () => {
       }));
       renderPromptHistory();
     });
-    await expect(page.locator("#promptHistoryPagination")).toContainText("Page 1 of 5 · 101 prompts");
+    await expect(page.locator("#promptHistoryPagination")).toContainText("Page 1 of 11 · 101 prompts");
+    await expect(page.locator("#promptHistoryRows tr")).toHaveCount(10);
+    expect(await page.locator("#promptHistory .log-table-wrap").evaluate((wrap) => {
+      const style = getComputedStyle(wrap);
+      return style.minHeight === "598px" && style.maxHeight === "none";
+    })).toBe(true);
     await expect(page.locator("#promptHistoryPagination button").first()).toHaveText("Previous");
     await expect(page.locator("#promptHistoryPagination button").last()).toHaveText("Next");
   });
@@ -276,7 +371,19 @@ test.describe("Engineering Status browser smoke", () => {
       };
     });
     expect(layout.tableWidth).toBeGreaterThanOrEqual(layout.wrapWidth - 2);
+    expect(layout.tableWidth).toBeLessThanOrEqual(layout.wrapWidth + 2);
     expect(layout.titleWidth).toBeGreaterThan(layout.statusWidth * 3);
+  });
+
+  test("keeps prompt history horizontally scrollable only on an iPhone-sized viewport", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => { document.querySelector("#promptHistory").open = true; });
+    const scroll = await page.locator("#promptHistory .log-table-wrap").evaluate((wrap) => ({
+      scrollWidth: wrap.scrollWidth,
+      clientWidth: wrap.clientWidth,
+    }));
+    expect(scroll.scrollWidth).toBeGreaterThan(scroll.clientWidth);
   });
 
   test("localizes capability preflight recommendations", async ({ page }) => {
@@ -500,6 +607,16 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#action")).toHaveText("Codex bewerkt bestanden");
   });
 
+  test("keeps specialist reviewer titles blue in light mode", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#themeToggle").click();
+    await page.evaluate(() => r({
+      watcher_state: "ENGINEERING_RUN_ACTIVE", run_id: "review-run",
+      reviewer_agents: [{ reviewer: "repository_governance", capability: "engineering", status: "completed" }],
+    }, {}));
+    await expect(page.locator(".reviewer-agent__name")).toHaveCSS("color", "rgb(47, 134, 189)");
+  });
+
   test("uses related primary and secondary accents for category titles and field labels", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.evaluate(() => r({
@@ -574,6 +691,17 @@ test.describe("Engineering Status browser smoke", () => {
     );
   });
 
+  test("shows the elapsed duration explanation only once without learned history", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => r({
+      watcher_state: "ENGINEERING_RUN_ACTIVE", current_phase: "EXECUTE_AGENT", run_id: "duration-copy",
+      prompt_characters: 1000,
+    }, { prompt_started: { started_at: new Date().toISOString() }, duration_estimate: {} }));
+    await expect(page.locator("#executionEstimateMeta")).toHaveText(
+      "0 minuten verstreken.\nGebaseerd op promptomvang, fase en verstreken tijd. Geen live Codex-voortgang of tokenverbruik.",
+    );
+  });
+
   test("keeps the active prompt category visible for a blocked predecessor", async ({ page }) => {
     await page.route("**/api/events", (route) => route.abort());
     await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({
@@ -601,7 +729,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#predecessorRun")).toHaveText("blocked-run");
   });
 
-  test("keeps the active prompt category visible for a terminal blocked run", async ({ page }) => {
+  test("keeps a terminal blocked run out of Active Prompt", async ({ page }) => {
     await page.route("**/api/events", (route) => route.abort());
     await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({
       contentType: "application/json",
@@ -619,11 +747,9 @@ test.describe("Engineering Status browser smoke", () => {
       last_executed_phase: "BLOCKED",
     }, {}));
 
-    await expect(page.locator("#currentRun")).toBeVisible();
-    await expect(page.locator("#currentRun")).toHaveAttribute("open", "");
-    await expect(page.locator("#phase")).toHaveText("Geblokkeerd");
-    await expect(page.locator("#runId")).toHaveText("blocked-run");
+    await expect(page.locator("#currentRun")).toBeHidden();
     await expect(page.locator("#predecessorGate")).toBeHidden();
+    await expect(page.locator("#queueItems")).toBeVisible();
   });
 
   test("allows the AI question field to grow only vertically", async ({ page }) => {
@@ -901,6 +1027,7 @@ test.describe("Engineering Status browser smoke", () => {
   });
 
   test("fills the historical report action red on hover", async ({ page }) => {
+    await page.route("**/api/prompt-history", (route) => route.fulfill({ json: { runs: [] } }));
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.locator("#dashboardSplash").evaluate((element) => { element.hidden = true; });
     await page.locator("#promptHistory").evaluate((element) => { element.open = true; });
@@ -1442,11 +1569,11 @@ test.describe("Engineering Status browser smoke", () => {
       renderPromptHistory();
     });
 
-    await expect(page.locator("#promptHistoryRows tr")).toHaveCount(25);
+    await expect(page.locator("#promptHistoryRows tr")).toHaveCount(10);
     await expect(page.locator("#promptHistory th")).toHaveCount(8);
     await expect(page.locator('#promptHistory th[data-history-sort-key="git_commit"]')).toHaveCount(0);
     await expect(page.locator("#promptHistoryRows tr").first().locator("td")).toHaveCount(8);
-    await expect(page.locator("#promptHistoryPagination")).toContainText("Pagina 1 van 2 · 26 prompts");
+    await expect(page.locator("#promptHistoryPagination")).toContainText("Pagina 1 van 3 · 26 prompts");
     const nextPromptHistoryPage = page.locator("#promptHistoryPagination").getByRole("button", { name: "Volgende" });
     await nextPromptHistoryPage.hover();
     await expect(nextPromptHistoryPage).toHaveCSS("background-color", "rgb(255, 113, 143)");
@@ -1473,7 +1600,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#promptHistoryReportModal")).not.toBeVisible();
     await page.route("**/api/prompt-history/**/details", (route) => route.fulfill({
       json: {
-        history: { run_id: "inbox-history-25", status: "COMPLETE", title: "Geschiedenis prompt 25", executed_at: "2026-08-02T12:25:00Z", execution_mode: "GENESIS", repository: "pcvantol/djconnect", target_repository: "pcvantol/forge" },
+        history: { run_id: "inbox-history-25", status: "COMPLETE", title: "Geschiedenis prompt 25", executed_at: "2026-08-02T12:25:00Z", execution_mode: "GENESIS", repository: "pcvantol/djconnect", target_repository: "pcvantol/forge", target_checkout_path: "/Users/example/Documents/GitHub/forge", tracked_file_count: 1655 },
         execution: { seconds: 42, total_seconds: 61 },
         runtime: { runtime_provider: "codex_cli", codex_cli_version: "0.146.0" },
         usage: { input_tokens: 120, output_tokens: 45 },
@@ -1489,6 +1616,10 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#promptHistoryDetailContent")).toContainText("0.146.0");
     await expect(page.locator("#promptHistoryDetailContent")).toContainText("Doelrepository");
     await expect(page.locator("#promptHistoryDetailContent")).toContainText("pcvantol/forge");
+    await expect(page.locator("#promptHistoryDetailContent")).toContainText("Lokale checkout");
+    await expect(page.locator("#promptHistoryDetailContent")).toContainText("/Users/example/Documents/GitHub/forge");
+    await expect(page.locator("#promptHistoryDetailContent")).toContainText("Getrackte bestanden");
+    await expect(page.locator("#promptHistoryDetailContent")).toContainText("1655");
     await expect(page.locator("#promptHistoryDetailContent")).not.toContainText("pcvantol/djconnect");
     await expect(page.locator("#promptHistoryDetailContent")).not.toContainText("Historisch rapport");
     await expect(page.locator("#promptHistoryDetailContent")).not.toContainText("Historische AI-analyse");
@@ -1497,7 +1628,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#promptHistoryDetailModal")).not.toBeVisible();
     const detailsView = page.locator("#promptHistoryRows .prompt-history-details");
     await expect(detailsView).toHaveCount(1);
-    await expect(detailsView).toHaveText("ⓘ");
+    await expect(detailsView).toHaveText("i");
     await detailsView.click();
     await expect(page.locator("#promptHistoryDetailModal")).toBeVisible();
     await page.locator("#promptHistoryDetailClose").click();
@@ -1576,14 +1707,16 @@ test.describe("Engineering Status browser smoke", () => {
 
     const bounds = await modal.evaluate((element) => {
       const rect = (selector) => document.querySelector(selector).getBoundingClientRect();
-      return { panel: rect(".prompt-chat-modal__panel"), input: rect("#chatInput"), model: rect("#chatModel"), status: rect("#chatStatus") };
+      return { panel: rect(".prompt-chat-modal__panel"), chat: rect("#codexChat"), input: rect("#chatInput"), model: rect("#chatModel"), status: rect("#chatStatus") };
     });
     expect(bounds.input.bottom).toBeLessThanOrEqual(bounds.panel.bottom);
+    expect(bounds.input.left).toBeGreaterThan(bounds.chat.left);
+    expect(bounds.input.right).toBeLessThan(bounds.chat.right);
     expect(bounds.model.bottom).toBeLessThanOrEqual(bounds.panel.bottom);
     expect(bounds.status.bottom).toBeLessThanOrEqual(bounds.panel.bottom);
   });
 
-  test("keeps the model and thinking status visible after the AI question box is resized", async ({ page }) => {
+  test("keeps the thinking status visible above the AI question box after it is resized", async ({ page }) => {
     await page.setViewportSize({ width: 2048, height: 1152 });
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     const modal = page.locator("#promptHistoryChatModal");
@@ -1597,10 +1730,11 @@ test.describe("Engineering Status browser smoke", () => {
 
     const bounds = await modal.evaluate((element) => {
       const rect = (selector) => document.querySelector(selector).getBoundingClientRect();
-      return { panel: rect(".prompt-chat-modal__panel"), model: rect("#chatModel"), status: rect("#chatStatus") };
+      return { panel: rect(".prompt-chat-modal__panel"), input: rect("#chatInput"), model: rect("#chatModel"), status: rect("#chatStatus") };
     });
     expect(bounds.model.bottom).toBeLessThanOrEqual(bounds.panel.bottom);
     expect(bounds.status.bottom).toBeLessThanOrEqual(bounds.panel.bottom);
+    expect(bounds.status.bottom).toBeLessThanOrEqual(bounds.input.y);
   });
 
   test("uses a distinct purple surface for AI answers in a prompt-history conversation", async ({ page }) => {
@@ -1628,7 +1762,7 @@ test.describe("Engineering Status browser smoke", () => {
       ["#componentModalTitle", "⚙"],
       ["#confirmationModalTitle", "!"],
       ["#promptHistoryReportModalTitle", "▤"],
-      ["#promptHistoryDetailTitle", "ⓘ"],
+      ["#promptHistoryDetailTitle", "i"],
       ["#promptHistoryChatTitle", "💬"],
     ]) {
       expect(await page.locator(selector).evaluate(
@@ -1924,10 +2058,12 @@ test.describe("Engineering Status browser smoke", () => {
   });
 
   test("clears only the browser-local AI conversation through the in-app modal", async ({ page }) => {
+    await page.route("**/api/prompt-history", (route) => route.fulfill({ json: { runs: [] } }));
     await page.route("**/api/codex-chat", async (route) => {
       await route.fulfill({ contentType: "application/json", body: '{"answer":"De uitvoering is gereed.","model":"Codex CLI"}' });
     });
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#dashboardSplash").evaluate((element) => { element.hidden = true; });
     await page.evaluate(() => {
       document.querySelector("#promptHistory").open = true;
       promptHistoryEntries = [{
@@ -1955,6 +2091,37 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#clearChat")).toBeHidden();
     await expect(page.locator("#downloadChat")).toBeHidden();
     await expect.poll(() => page.evaluate(() => sessionStorage.getItem("djconnect-engineering-chat-history"))).toBeNull();
+  });
+
+  test("refreshes status and prompt history immediately after dismissing an execution", async ({ page }) => {
+    let historyReads = 0;
+    let dismissed = false;
+    await page.route("**/api/prompt-history", async (route) => {
+      historyReads += 1;
+      await route.fulfill({ json: { runs: dismissed ? [{
+        run_id: "inbox-dismiss", status: "BLOCKED", dismissed: true,
+        title: "Dismissed prompt", executed_at: "2026-08-04T12:00:00Z",
+      }] : [{
+        run_id: "inbox-dismiss", status: "BLOCKED",
+        title: "Dismissed prompt", executed_at: "2026-08-04T12:00:00Z",
+      }] } });
+    });
+    await page.route("**/api/execution-dismiss", (route) => {
+      dismissed = true;
+      return route.fulfill({ json: { dismissed: "inbox-dismiss" } });
+    });
+    await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({ json: {
+      status: { watcher_state: "WATCHER_IDLE", last_executed_run: "inbox-dismiss", queue_depth: 0, queue_items: [] },
+      component_versions: {}, telemetry: [], duration_estimate: {}, build_commit: "test",
+    } }));
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => { document.querySelector("#promptHistory").open = true; });
+    const dismissButton = page.getByRole("button", { name: "Uitvoering afsluiten" });
+    await expect(dismissButton).toBeVisible();
+    await dismissButton.click();
+    await page.locator("#confirmationModalConfirm").click();
+    await expect.poll(() => historyReads).toBeGreaterThan(1);
+    await expect(page.getByRole("button", { name: "Uitvoering afsluiten" })).toHaveCount(0);
   });
 
   test("shows the iPhone pull-to-refresh threshold", async ({ page }) => {

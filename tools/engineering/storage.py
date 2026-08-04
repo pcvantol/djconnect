@@ -17,7 +17,7 @@ import sqlite3
 
 WORKSPACE_DIRECTORY = ".engineering"
 DATABASE_FILENAME = "engineering.db"
-ENGINEERING_STORAGE_SCHEMA_VERSION = 7
+ENGINEERING_STORAGE_SCHEMA_VERSION = 8
 JOURNAL_MODES = frozenset({"DELETE", "MEMORY"})
 
 
@@ -278,6 +278,15 @@ def _schema_v7(connection: sqlite3.Connection) -> None:
         )
 
 
+def _schema_v8(connection: sqlite3.Connection) -> None:
+    """Preserve target-workspace facts with each terminal execution."""
+    for statement in (
+        "ALTER TABLE prompt_execution_history ADD COLUMN target_checkout_path TEXT",
+        "ALTER TABLE prompt_execution_history ADD COLUMN tracked_file_count INTEGER",
+    ):
+        connection.execute(statement)
+
+
 MIGRATIONS: dict[int, Migration] = {
     1: _schema_v1,
     2: _schema_v2,
@@ -286,6 +295,7 @@ MIGRATIONS: dict[int, Migration] = {
     5: _schema_v5,
     6: _schema_v6,
     7: _schema_v7,
+    8: _schema_v8,
 }
 
 

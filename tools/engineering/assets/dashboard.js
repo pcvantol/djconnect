@@ -8,7 +8,22 @@ function initialDashboardLocale() {
     return preferredLocale({});
   }
 }
-let dashboardLocale = initialDashboardLocale(), locale = createLocaleService(dashboardLocale), t = locale.t;
+let dashboardLocale = initialDashboardLocale(), locale = createLocaleService(dashboardLocale);
+const localizationCalls = new Map();
+function t(key, values = {}, fallback = key) {
+  const text = locale.t(key, values, fallback);
+  localizationCalls.set(JSON.stringify([key, values, fallback]), {
+    key: String(key),
+    values,
+    fallback,
+    text,
+  });
+  return text;
+}
+// Kept deliberately read-only for the browser regression suite.  It makes
+// every dashboard copy lookup auditable without adding a second translation
+// path or relying on a hand-maintained list of visible labels.
+window.__djconnectDashboardLocalizationCalls = () => [...localizationCalls.values()];
 document.documentElement.lang = dashboardLocale;
 
 const $ = (id) => document.getElementById(id),
@@ -151,6 +166,9 @@ function historicalContext(estimate, fallback) {
     ? t("estimate.historical_context", { count: samples })
     : fallback;
 }
+function hasHistoricalEstimate(estimate) {
+  return (Number(estimate?.sample_count) || 0) >= 2;
+}
 function estimate(x, durationEstimate = {}) {
   const phase = x.current_phase || "";
   if (phase === "INITIALIZE")
@@ -168,9 +186,12 @@ function estimate(x, durationEstimate = {}) {
       ),
       remainingMinimum = Math.max(1, minimum - elapsed),
       remainingMaximum = Math.max(remainingMinimum, maximum - elapsed);
+    const elapsedContext = t("estimate.elapsed", { elapsed, minutes: pluralMinutes(elapsed) });
     return {
       summary: t("estimate.remaining", { minimum: remainingMinimum, maximum: remainingMaximum }),
-      context: `${t("estimate.elapsed", { elapsed, minutes: pluralMinutes(elapsed) })}\n${historicalContext(durationEstimate, t("estimate.total_context"))}`,
+      context: hasHistoricalEstimate(durationEstimate)
+        ? `${elapsedContext}\n${historicalContext(durationEstimate, "")}`
+        : elapsedContext,
     };
   }
   if (phase === "FINALIZE_AGENT")
@@ -201,9 +222,6 @@ function renderEstimate(x, durationEstimate = latestDurationEstimate) {
 }
 function isActiveRun(x) {
   return x.watcher_state === "ENGINEERING_RUN_ACTIVE" && Boolean(x.run_id);
-}
-function isTerminalBlockedRun(x) {
-  return String(x?.last_executed_phase || "").toUpperCase() === "BLOCKED";
 }
 function checkBuild(build) {
   if (build === DASHBOARD_BUILD) {
@@ -599,7 +617,7 @@ function askCodex() {
     message = input.value.trim();
   if (!message || !chatContextRun || $("chatSend").disabled) return;
   $("chatSend").disabled = true;
-  $("chatStatus").textContent = "Codex denkt na…";
+  $("chatStatus").textContent = t("chat.thinking");
   chatHistory.push({ role: "user", text: message });
   chatHistory = chatHistory.slice(-CHAT_HISTORY_LIMIT);
   persistChatHistory();
@@ -697,6 +715,38 @@ function showCopyToast() {
     }, 180);
   }, 2200);
 }
+const PREFLIGHT_PRESENTATIONS = Object.freeze([
+  ["host_preflight", [
+    ["hostPreflightStatus", "outcome"],
+    ["hostPreflightTimestamp", "timestamp", "timestamp"],
+  ]],
+  ["workspace_preflight", [
+    ["workspacePreflightStatus", "outcome"],
+    ["workspacePreflightTimestamp", "timestamp", "timestamp"],
+  ]],
+  ["capability_preflight", [
+    ["capabilityPreflightStatus", "outcome"],
+    ["capabilityRecoverability", "recoverability"],
+    ["capabilityFailureOrigin", "failure_origin"],
+    ["capabilityRecommendation", "recommendation", "recommendation"],
+  ]],
+]);
+function renderPreflightValue(key, value, formatter) {
+  if (formatter === "timestamp")
+    return formatTimestamp(value, t("format.not_available"));
+  if (formatter === "recommendation") return capabilityRecommendation(value);
+  return enumLabel(value, key === "failure_origin" ? "—" : undefined);
+}
+function renderPreflightPresentation(snapshot = {}) {
+  for (const [preflightKey, fields] of PREFLIGHT_PRESENTATIONS) {
+    const preflight = snapshot[preflightKey] || {};
+    for (const [id, key, formatter] of fields) {
+    const element = $(id);
+    if (!element) continue;
+      element.textContent = renderPreflightValue(key, preflight[key], formatter);
+    }
+  }
+}
 function renderHealthStatus(x, snapshot = {}) {
   lastRefresh = new Date();
   clock();
@@ -707,10 +757,11 @@ function renderHealthStatus(x, snapshot = {}) {
     statusTone = tone(x),
     indicator = $("indicator"),
     components = snapshot.component_versions || {},
-    blockedPredecessor = Boolean(x.blocking_predecessor_run),
-    terminalBlocked = isTerminalBlockedRun(x),
-    blocked = blockedPredecessor || terminalBlocked;
-  $("currentRun").hidden = !(active || blocked);
+    blockedPredecessor = Boolean(x.blocking_predecessor_run);
+  // A terminal current.json/status projection is historical evidence, not an
+  // active prompt.  The watcher owns the operational view; history owns the
+  // completed, failed or blocked execution.
+  $("currentRun").hidden = !(active || blockedPredecessor);
   $("predecessorGate").hidden = !blockedPredecessor;
   $("predecessorRun").textContent =
     x.blocking_predecessor_run || "Niet beschikbaar";
@@ -737,54 +788,24 @@ function renderHealthStatus(x, snapshot = {}) {
     x.watcher_state || fallback.watcher_state,
   );
   $("phase").textContent = translate(
-    x.current_phase || (terminalBlocked ? x.last_executed_phase : "idle"),
+    x.current_phase || "idle",
   );
   $("action").textContent = translate(
-    x.current_action ||
-      (terminalBlocked
-        ? "Herstel de geblokkeerde prompt om opnieuw uit te voeren."
-        : "Geen actieve actie"),
+    x.current_action || "Geen actieve actie",
   );
-  const preflight = snapshot.host_preflight || {};
-  const workspacePreflight = snapshot.workspace_preflight || {};
-  const capabilityPreflight = snapshot.capability_preflight || {};
   const executionHost = snapshot.execution_host || {};
   $("executionHostName").textContent = executionHost.name || "Niet beschikbaar";
   $("executionHostVersion").textContent = executionHost.version || "Niet beschikbaar";
   $("executionHostRuntime").textContent = executionHost.runtime || "Niet beschikbaar";
   $("executionHostTransport").textContent = executionHost.runtime_prompt_transport || "Niet beschikbaar";
-  $("hostPreflightStatus").textContent = enumLabel(preflight.outcome);
-  $("hostPreflightTimestamp").textContent = formatTimestamp(
-    preflight.timestamp,
-    t("format.not_available"),
-  );
-  $("workspacePreflightStatus").textContent = enumLabel(workspacePreflight.outcome);
-  $("workspacePreflightTimestamp").textContent = formatTimestamp(
-    workspacePreflight.timestamp,
-    t("format.not_available"),
-  );
   // Older dashboard fixtures and cached shells do not have Level 3 fields.
   // Keep the canonical status renderer backward compatible while they refresh.
-  const capabilityField = (id, value) => {
-    const element = $(id);
-    if (element) element.textContent = value;
-  };
-  capabilityField("capabilityPreflightStatus", enumLabel(capabilityPreflight.outcome));
-  capabilityField("capabilityRecoverability", enumLabel(capabilityPreflight.recoverability));
-  capabilityField("capabilityFailureOrigin", enumLabel(capabilityPreflight.failure_origin, "—"));
-  capabilityField(
-    "capabilityRecommendation",
-    capabilityRecommendation(capabilityPreflight.recommendation),
-  );
+  renderPreflightPresentation(snapshot);
   promptStarted(snapshot.prompt_started);
   renderEstimate(x, latestDurationEstimate);
   processMetrics(active, snapshot.process_metrics);
-  $("currentPrompt").textContent =
-    x.prompt_title || (terminalBlocked ? x.last_executed_title : null) || "Niet beschikbaar";
-  $("currentFile").textContent =
-    x.submitted_filename ||
-    (terminalBlocked ? x.last_executed_filename : null) ||
-    "Niet beschikbaar";
+  $("currentPrompt").textContent = x.prompt_title || "Niet beschikbaar";
+  $("currentFile").textContent = x.submitted_filename || "Niet beschikbaar";
   if (!active || x.run_id !== currentLogRun)
     $("currentDiagnostic").hidden = true;
   if (active)
@@ -795,8 +816,7 @@ function renderHealthStatus(x, snapshot = {}) {
       false,
       "currentDiagnostic",
     );
-  $("runId").textContent =
-    x.run_id || (terminalBlocked ? x.last_executed_run : null) || "geen";
+  $("runId").textContent = x.run_id || "geen";
   $("queue").textContent = x.queue_depth ?? 0;
   queueItems(x.queue_items, x.queue_depth);
   $("implementation").textContent = x.implementation_pr || t("value.none");
@@ -816,19 +836,15 @@ let activePromptCategoryRun;
 function renderRunCategory(x) {
   const active = x && typeof x === "object" && isActiveRun(x),
     blockedPredecessor = Boolean(x?.blocking_predecessor_run),
-    terminalBlocked = isTerminalBlockedRun(x),
-    blocked = blockedPredecessor || terminalBlocked,
     current = $("currentRun");
   const currentRunKey = active
     ? x.run_id
     : blockedPredecessor
       ? x.blocking_predecessor_run
-      : terminalBlocked
-        ? x.last_executed_run
-        : null;
+      : null;
   if (currentRunKey && current && currentRunKey !== activePromptCategoryRun) {
     activePromptCategoryRun = currentRunKey;
-    current.open = blocked;
+    current.open = blockedPredecessor;
   }
 }
 const dashboardStatusStore = createDashboardStatusStore({
@@ -1034,6 +1050,20 @@ function localizePromptHistoryTable() {
     "aria-label",
     t("history.table_label"),
   );
+}
+function localizeTemplateBindings() {
+  document.querySelectorAll("[data-i18n]").forEach((element) => {
+    element.textContent = t(element.dataset.i18n);
+  });
+  document.querySelectorAll("[data-i18n-placeholder]").forEach((element) => {
+    element.placeholder = t(element.dataset.i18nPlaceholder);
+  });
+  document.querySelectorAll("[data-i18n-aria-label]").forEach((element) => {
+    element.setAttribute("aria-label", t(element.dataset.i18nAriaLabel));
+  });
+  document.querySelectorAll("[data-i18n-title]").forEach((element) => {
+    element.title = t(element.dataset.i18nTitle);
+  });
 }
 function chatMessage(role, text) {
   let item = document.createElement("article"),
@@ -1859,6 +1889,7 @@ executionTelemetry = (rows) => {
   arrangeOperationalCategories();
   addCategoryIcons();
 };
+window.executionTelemetry = executionTelemetry;
 function updateFavicon() {
   $("dashboardFavicon").href = "/assets/engineering-status-icon.svg";
 }
@@ -2226,7 +2257,10 @@ function hideDashboardSplash() {
   }, 260);
 }
 setTimeout(hideDashboardSplash, 8e3);
-const PROMPT_HISTORY_PAGE_SIZE = 25;
+// Keep one predictable, scan-friendly history page: ten executions are shown
+// at once and the next set is reached through the paginator rather than an
+// inner vertical scrollbar.
+const PROMPT_HISTORY_PAGE_SIZE = 10;
 let promptHistoryEntries = [],
   promptHistoryPage = 1,
   promptHistorySort = { key: "executed_at", direction: "desc" };
@@ -2394,7 +2428,7 @@ function renderPromptHistory() {
         retry.addEventListener("click", () => submitExecutionRetry(entry));
         action.append(retry);
       }
-      if (["BLOCKED", "FAILED"].includes(entry.status) && entry.run_id && entry.run_id === latestStatus?.last_executed_run && !isActiveRun(latestStatus)) {
+      if (["BLOCKED", "FAILED"].includes(entry.status) && !entry.dismissed && entry.run_id && entry.run_id === latestStatus?.last_executed_run && !isActiveRun(latestStatus)) {
         const dismiss = document.createElement("button");
         dismiss.type = "button";
         dismiss.className = "predecessor-retry execution-history-action";
@@ -2409,7 +2443,7 @@ function renderPromptHistory() {
         button.type = "button";
         button.title = t("history.open_details", { title: title.textContent });
         button.setAttribute("aria-label", button.title);
-        button.textContent = "ⓘ";
+        button.textContent = "i";
         button.addEventListener("click", (event) => {
           event.preventDefault();
           event.stopPropagation();
@@ -2445,7 +2479,7 @@ function renderPromptHistory() {
   updatePromptHistoryHeaders();
 }
 function refreshPromptHistory() {
-  return fetch("/api/prompt-history")
+  return fetch("/api/prompt-history", { cache: "no-store" })
     .then((response) => (response.ok ? response.json() : Promise.reject()))
     .then((payload) => {
       promptHistoryEntries = Array.isArray(payload?.runs) ? payload.runs : [];
@@ -2455,6 +2489,18 @@ function refreshPromptHistory() {
       promptHistoryEntries = [];
       renderPromptHistory();
     });
+}
+async function refreshAfterOperatorAction() {
+  const [snapshot] = await Promise.all([
+    fetch("/api/dashboard-snapshot", { cache: "no-store" })
+      .then((response) => (response.ok ? response.json() : Promise.reject())),
+    refreshPromptHistory(),
+  ]);
+  if (snapshot && typeof snapshot.status === "object") {
+    dashboardStatusStore.update(snapshot.status, snapshot);
+    humanize();
+    checkBuild(snapshot.build_commit);
+  }
 }
 $("promptHistoryFilter").addEventListener("input", () => {
   promptHistoryPage = 1;
@@ -2499,6 +2545,7 @@ function applyDashboardLocale() {
   document.documentElement.lang = dashboardLocale;
   document.title = t("dashboard.title");
   dashboardLocaleSelector.value = dashboardLocale;
+  localizeTemplateBindings();
   const replacements = [
     [".skip-link", "header.skip"],
     [".theme-toggle__label", "header.theme"],
@@ -2568,7 +2615,6 @@ function applyDashboardLocale() {
 dashboardLocaleSelector.addEventListener("change", () => {
   dashboardLocale = normalizeLocale(dashboardLocaleSelector.value);
   locale = createLocaleService(dashboardLocale);
-  t = locale.t;
   dashboardClientState.locale = dashboardLocale;
   saveDashboardClientState();
   window.location.reload();
@@ -3015,6 +3061,8 @@ function promptDetailExecutionSection(history) {
     ),
     detailField(t("detail.execution_mode"), history.execution_mode),
     detailField(t("detail.target_repository"), history.target_repository || t("detail.not_recorded")),
+    detailField(t("detail.target_checkout"), history.target_checkout_path || t("detail.not_recorded"), true),
+    detailField(t("detail.tracked_files"), history.tracked_file_count ?? t("detail.not_recorded")),
   ]);
 }
 function promptDetailDurationSection(execution) {
@@ -3227,7 +3275,7 @@ function submitExecutionRetry(entry) {
       .then(async (response) => ({ ok: response.ok, body: await response.json() }))
       .then((result) => {
         if (!result.ok) throw Error(result.body.error || t("retry.failed"));
-        return refreshPromptHistory();
+        return refreshAfterOperatorAction();
       })
       .catch((error) => window.alert(error.message || t("retry.failed")));
   });
@@ -3242,7 +3290,7 @@ function dismissExecution(entry) {
     if (!confirmed) return;
     fetch("/api/execution-dismiss", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ run_id: entry.run_id }) })
       .then(async (response) => ({ ok: response.ok, body: await response.json() }))
-      .then((result) => { if (!result.ok) throw Error(result.body.error || t("dismiss.failed")); return refreshPromptHistory(); })
+      .then((result) => { if (!result.ok) throw Error(result.body.error || t("dismiss.failed")); return refreshAfterOperatorAction(); })
       .catch((error) => window.alert(error.message || t("dismiss.failed")));
   });
 }

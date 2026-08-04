@@ -45,6 +45,8 @@ LABEL = "com.djconnect.engineering-inbox"
 WATCHER_VERSION = "1.1.5"
 MAX_BYTES = 256_000
 TERMINAL_PHASES = frozenset({"COMPLETE", "BLOCKED", "FAILED"})
+BACKGROUND_RUN_ID_ENVIRONMENT = "DJCONNECT_ENGINEERING_BACKGROUND_RUN_ID"
+BACKGROUND_JOB_ID_ENVIRONMENT = "DJCONNECT_ENGINEERING_BACKGROUND_JOB_ID"
 BLOCKING_PREDECESSOR_PHASES = frozenset({"BLOCKED", "FAILED"})
 RETRY_OF_PATTERN = re.compile(r"(?mi)^retry[ _-]of\s*:\s*(inbox-[a-z0-9-]{6,64})\s*$")
 ORIGINAL_RUN_ID_PATTERN = re.compile(r"(?mi)^original[ _-]run[ _-]id\s*:\s*(inbox-[a-z0-9-]{6,64})\s*$")
@@ -223,6 +225,41 @@ def _terminal_git_commit(repo: Path, run_id: str) -> str | None:
         if isinstance(value, str) and re.fullmatch(r"[0-9a-f]{7,64}", value):
             return value
     return None
+
+
+def _terminal_workspace_snapshot(repo: Path, run_id: str) -> tuple[str | None, int | None]:
+    """Capture target-checkout facts exactly when a run becomes terminal."""
+    try:
+        checkpoint = json.loads(
+            (repo / ".engineering" / "engineering-runs" / f"{run_id}.json").read_text(
+                encoding="utf-8"
+            )
+        )
+    except (OSError, json.JSONDecodeError):
+        return None, None
+    execution_mode = checkpoint.get("execution_mode")
+    if execution_mode not in {"MANAGED", "GENESIS"}:
+        return None, None
+    checkout = repo
+    if execution_mode == "GENESIS":
+        candidate = checkpoint.get("genesis_repository_path")
+        if not isinstance(candidate, str) or not Path(candidate).is_absolute():
+            return None, None
+        checkout = Path(candidate).expanduser()
+    try:
+        observed = subprocess.run(
+            ("git", "-C", str(checkout), "ls-files", "-z"),
+            capture_output=True,
+            check=False,
+        )
+    except OSError:
+        return str(checkout.resolve()), None
+    count = (
+        sum(1 for item in observed.stdout.split(b"\0") if item)
+        if observed.returncode == 0
+        else None
+    )
+    return str(checkout.resolve()), count
 
 
 def _report_matches_terminal_phase(report: Path, phase: str | None) -> bool:
@@ -573,7 +610,7 @@ def _active_transaction(repo: Path) -> bool:
     try:
         payload = json.loads(current.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):
-        return False
+        payload = {}
     phase = payload.get("phase")
     if phase in TERMINAL_PHASES:
         return False
@@ -582,7 +619,22 @@ def _active_transaction(repo: Path) -> bool:
         checkpoint_phase, _ = _runner_result(repo, run_id)
         if checkpoint_phase in TERMINAL_PHASES:
             return False
-    return True
+        return True
+    # The detached runner is admitted before it has written current.json.
+    # Status is therefore the authoritative short-lived admission record.
+    try:
+        watcher = json.loads(
+            (repo / ".engineering" / "status" / "status.json").read_text(encoding="utf-8")
+        )
+    except (OSError, json.JSONDecodeError):
+        return False
+    watcher_run_id = watcher.get("run_id")
+    if watcher.get("watcher_state") not in {"JOB_CLAIMED", "RUNNER_STARTING", "REPORT_PUBLISHING"}:
+        return False
+    if not isinstance(watcher_run_id, str):
+        return False
+    checkpoint_phase, _ = _runner_result(repo, watcher_run_id)
+    return checkpoint_phase not in TERMINAL_PHASES
 
 
 @contextmanager
@@ -628,7 +680,7 @@ def _clear_prior_codex_log(repo: Path, run_id: str) -> None:
     (repo / ".engineering" / "logs" / "codex" / f"{run_id}.log").unlink(missing_ok=True)
 
 
-def once(repo: Path, root: Path, interval: float = 1.0) -> int:
+def once(repo: Path, root: Path, interval: float = 1.0, *, background: bool = False) -> int:
     """Process at most one stable job; all repository mutations remain runner-owned."""
     logger = component_logger(repo, "inbox")
     areas = local_folders(repo)
@@ -640,7 +692,9 @@ def once(repo: Path, root: Path, interval: float = 1.0) -> int:
             log_event(logger, logging.DEBUG, "watcher_idle")
             status(repo, "WATCHER_IDLE", queued_jobs=0, queue_items=[])
             return 0
-        if _active_transaction(repo):
+        child_run_id = os.environ.get(BACKGROUND_RUN_ID_ENVIRONMENT)
+        child_job_id = os.environ.get(BACKGROUND_JOB_ID_ENVIRONMENT)
+        if _active_transaction(repo) and not child_run_id:
             status(
                 repo,
                 "WAITING_FOR_REPOSITORY",
@@ -650,35 +704,54 @@ def once(repo: Path, root: Path, interval: float = 1.0) -> int:
             )
             log_event(logger, logging.WARNING, "waiting_for_active_transaction")
             return 0
-        predecessor = _blocking_predecessor(repo)
-        if predecessor:
-            retries = [
+        if child_job_id:
+            admitted = [
                 (candidate, prompt)
                 for candidate, prompt in candidates
-                if _retry_of(prompt) == predecessor["run_id"]
+                if _job_id(candidate, prompt)[0] == child_job_id
             ]
-            if not retries:
+            if not admitted:
                 status(
                     repo,
-                    "WAITING_FOR_PREDECESSOR",
+                    "JOB_FAILED",
+                    run_id=child_run_id,
                     queued_jobs=len(candidates),
                     queue_items=_queue_items(candidates),
-                    runner_phase="WAITING_FOR_PREDECESSOR",
-                    current_action="Wachtrij gepauzeerd tot de voorafgaande prompt is hersteld.",
-                    diagnostic=(
-                        f"Voorafgaande prompt {predecessor['run_id']} eindigde als "
-                        f"{predecessor['phase']}; geen volgende prompt is geclaimd."
-                    ),
-                    blocking_predecessor_run=predecessor["run_id"],
-                    blocking_predecessor_phase=predecessor["phase"],
-                    blocking_predecessor_filename=predecessor["filename"],
-                    blocking_predecessor_title=predecessor["title"],
-                    predecessor_recovery_action=_predecessor_recovery_action(predecessor["run_id"]),
+                    diagnostic="De toegelaten Inbox-opdracht is niet meer beschikbaar voor de losgestarte runner.",
                 )
-                return 0
-            source, content = retries[0]
+                log_event(logger, logging.ERROR, "detached_runner_job_missing", run_id=child_run_id)
+                return 1
+            source, content = admitted[0]
         else:
-            source, content = candidates[0]
+            predecessor = _blocking_predecessor(repo)
+            if predecessor:
+                retries = [
+                    (candidate, prompt)
+                    for candidate, prompt in candidates
+                    if _retry_of(prompt) == predecessor["run_id"]
+                ]
+                if not retries:
+                    status(
+                        repo,
+                        "WAITING_FOR_PREDECESSOR",
+                        queued_jobs=len(candidates),
+                        queue_items=_queue_items(candidates),
+                        runner_phase="WAITING_FOR_PREDECESSOR",
+                        current_action="Wachtrij gepauzeerd tot de voorafgaande prompt is hersteld.",
+                        diagnostic=(
+                            f"Voorafgaande prompt {predecessor['run_id']} eindigde als "
+                            f"{predecessor['phase']}; geen volgende prompt is geclaimd."
+                        ),
+                        blocking_predecessor_run=predecessor["run_id"],
+                        blocking_predecessor_phase=predecessor["phase"],
+                        blocking_predecessor_filename=predecessor["filename"],
+                        blocking_predecessor_title=predecessor["title"],
+                        predecessor_recovery_action=_predecessor_recovery_action(predecessor["run_id"]),
+                    )
+                    return 0
+                source, content = retries[0]
+            else:
+                source, content = candidates[0]
         job_id, legacy_run_id, digest = _job_id(source, content)
         preflight = execute_host_preflight(repo, run_id=None)
         if preflight.outcome == "FAIL":
@@ -724,7 +797,53 @@ def once(repo: Path, root: Path, interval: float = 1.0) -> int:
             )
             log_event(logger, logging.WARNING, "duplicate_job_ignored", run_id=legacy_run_id)
             return 0
-        run_id = _allocate_run_id()
+        run_id = child_run_id or _allocate_run_id()
+        if background and not child_run_id:
+            status(
+                repo,
+                "RUNNER_STARTING",
+                queued_jobs=len(candidates) - 1,
+                queue_items=_queue_items(candidates, source),
+                job_id=job_id,
+                run_id=run_id,
+                submitted_filename=source.name,
+                prompt_title=_prompt_title(content, source.name),
+                current_action="De Engineering-runner is los gestart; de watcher blijft de Inbox volgen.",
+            )
+            environment = dict(os.environ)
+            environment[BACKGROUND_RUN_ID_ENVIRONMENT] = run_id
+            environment[BACKGROUND_JOB_ID_ENVIRONMENT] = job_id
+            try:
+                subprocess.Popen(
+                    [
+                        sys.executable,
+                        "-m",
+                        "tools.engineering.inbox_watcher",
+                        "once",
+                        "--repo",
+                        str(repo),
+                        "--icloud-root",
+                        str(root),
+                    ],
+                    cwd=repo,
+                    env=environment,
+                    start_new_session=True,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                )
+            except OSError as error:
+                status(
+                    repo,
+                    "JOB_FAILED",
+                    queued_jobs=len(candidates),
+                    queue_items=_queue_items(candidates),
+                    job_id=job_id,
+                    run_id=run_id,
+                    diagnostic=f"De los gestarte Engineering-runner kon niet starten: {error}",
+                )
+                return 1
+            log_event(logger, logging.INFO, "runner_detached", run_id=run_id)
+            return 0
         claimed = _archive_path(areas["Running"], job_id, source)
         title = _prompt_title(content, source.name)
         try:
@@ -838,6 +957,7 @@ def once(repo: Path, root: Path, interval: float = 1.0) -> int:
             diagnostic=reason,
         )
         try:
+            target_checkout_path, tracked_file_count = _terminal_workspace_snapshot(repo, run_id)
             record_prompt_execution(
                 repo,
                 run_id=run_id,
@@ -846,6 +966,8 @@ def once(repo: Path, root: Path, interval: float = 1.0) -> int:
                 executed_at=datetime.now(timezone.utc),
                 report=delivered,
                 git_commit=_terminal_git_commit(repo, run_id),
+                target_checkout_path=target_checkout_path,
+                tracked_file_count=tracked_file_count,
                 **retry_metadata(content),
             )
         except Exception as error:
@@ -1008,7 +1130,7 @@ def main(argv: list[str] | None = None) -> int:
     provision_workspace(repo)
     root = cloud_root(args.icloud_root, repo)
     if args.command == "once":
-        return once(repo, root, 0.0)
+        return once(repo, root, 0.0, background=True)
     if args.command == "run":
         logger = component_logger(repo, "inbox")
         lifecycle_context = component_lifecycle_context(
@@ -1024,7 +1146,7 @@ def main(argv: list[str] | None = None) -> int:
                     try:
                         while True:
                             try:
-                                once(repo, root, 1.0)
+                                once(repo, root, 1.0, background=True)
                             except RuntimeError as error:
                                 status(
                                     repo,

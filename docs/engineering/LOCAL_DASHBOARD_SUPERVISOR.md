@@ -22,6 +22,13 @@ executes the bounded Codex workflow and produces the resulting local reports.
 Its Inbox watcher is the transport and queue-facing part of that host; it has
 no authority beyond the normal Engineering Platform lifecycle.
 
+The watcher admits at most one execution and then starts its runner as a
+separate local process. It does not wait for that runner: subsequent polling
+cycles keep scanning the Inbox and publishing the ordered queue while the
+admission record prevents a second execution from starting. A terminal
+checkpoint clears that admission record; the historical run and its report
+remain the source of evidence.
+
 ## Dashboard module boundaries
 
 `tools/engineering/dashboard.py` is the intentionally thin dashboard façade:
@@ -47,6 +54,14 @@ source-text assertions.
 that single service for UI copy, Amsterdam date/time formatting, numeric
 formatting, casing, pluralisation and collation; they must not select a locale
 or construct an `Intl` formatter themselves.
+
+The Promptgeschiedenis detail endpoint follows the same boundary: its lookup
+reads one immutable terminal history row and bounded companion data, while a
+small dashboard projector owns the JSON presentation and report-derived
+Evidence Bundle summary. The projector works only with data for that selected
+Run ID, copies the stored history before adding display-only provenance, and
+does not write storage or modify a report. A missing or non-readable report
+therefore yields no derived evidence rather than a fallback from another run.
 
 The Execution Host continues to publish stable machine enum values such as
 `PASS`, `RETRYABLE_AFTER_HOST_REPAIR` and `CAPABILITY` in its local status

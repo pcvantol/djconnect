@@ -100,6 +100,11 @@ Missing or unreported runtime fields never create a cross-profile estimate.
 This data remains local operational telemetry; it does not schedule work,
 change an execution outcome or retain prompt contents.
 
+Schema `8` stores the resolved local checkout path of the target repository
+and its Git tracked-file count when a run reaches a terminal state. The
+Promptgeschiedenis detail dialog presents that immutable workspace snapshot;
+it never substitutes a later live repository count for historical evidence.
+
 ## Canonical workspace migration
 
 `.engineering/` is the sole canonical local location for status projections,

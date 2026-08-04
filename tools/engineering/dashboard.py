@@ -150,6 +150,62 @@ def _prompt_history(root: Path) -> bytes:
     return json.dumps(payload, ensure_ascii=False, separators=(",", ":")).encode()
 
 
+def _project_history_evidence(history: dict[str, object], report: str) -> list[str]:
+    """Project bounded report evidence without mixing it into storage access."""
+    target_repository = re.search(
+        r"^- Target Repository: `([^`\n]+)`$", report, re.MULTILINE
+    )
+    if target_repository:
+        history["target_repository"] = target_repository.group(1)
+    evidence: list[str] = []
+    for report_label, display_label in (
+        ("Execution Host", "Execution Host"),
+        ("Target Repository", "Target repository"),
+        ("Target Commit", "Target commit"),
+    ):
+        match = re.search(
+            rf"^- {re.escape(report_label)}: `([^`\n]+)`$", report, re.MULTILINE
+        )
+        if match:
+            evidence.append(f"{display_label}: {match.group(1)}")
+    changed = len(re.findall(r"^- Changed file: `", report, re.MULTILINE))
+    if changed:
+        evidence.append(f"Evidence Bundle: {changed} gewijzigde bestanden")
+    return evidence
+
+
+def _project_prompt_history_detail(
+    entry: dict[str, object],
+    *,
+    execution: object,
+    runtime: object,
+    reviewers: object,
+    commits: object,
+    usage: dict[str, object],
+    report: str | None,
+) -> bytes:
+    """Project one immutable history row into dashboard detail JSON.
+
+    Storage retrieval belongs to the route projection; this function owns the
+    presentation shape and the bounded evidence derived from its report.
+    """
+    history = dict(entry)
+    evidence = _project_history_evidence(history, report) if report is not None else []
+    return json.dumps(
+        {
+            "history": history,
+            "execution": execution,
+            "runtime": runtime,
+            "reviewers": reviewers,
+            "commits": commits,
+            "usage": usage,
+            "evidence": evidence,
+        },
+        ensure_ascii=False,
+        separators=(",", ":"),
+    ).encode()
+
+
 def _prompt_history_detail(root: Path, run_id: str | None) -> bytes:
     """Return private, immutable operational evidence for one history row."""
     if not isinstance(run_id, str) or not re.fullmatch(r"[a-z0-9][a-z0-9-]{0,63}", run_id):
@@ -157,7 +213,6 @@ def _prompt_history_detail(root: Path, run_id: str | None) -> bytes:
     entry = next((item for item in prompt_history(root) if item.get("run_id") == run_id), None)
     if entry is None:
         return b""
-    history = dict(entry)
     execution = json.loads(_last_executed_agent_execution(root, run_id))
     runtime = json.loads(_last_executed_runtime_metadata(root, run_id))
     reviewers = json.loads(_reviewer_agents_for_run(root, run_id))
@@ -178,40 +233,20 @@ def _prompt_history_detail(root: Path, run_id: str | None) -> bytes:
             }
     except Exception:
         usage = {}
-    evidence: list[str] = []
+    report: str | None = None
     try:
         report = _report_for_run(root, run_id).decode("utf-8")
-        target_repository = re.search(
-            r"^- Target Repository: `([^`\n]+)`$", report, re.MULTILINE
-        )
-        if target_repository:
-            history["target_repository"] = target_repository.group(1)
-        for report_label, display_label in (
-            ("Execution Host", "Execution Host"),
-            ("Target Repository", "Target repository"),
-            ("Target Commit", "Target commit"),
-        ):
-            match = re.search(rf"^- {re.escape(report_label)}: `([^`\n]+)`$", report, re.MULTILINE)
-            if match:
-                evidence.append(f"{display_label}: {match.group(1)}")
-        changed = len(re.findall(r"^- Changed file: `", report, re.MULTILINE))
-        if changed:
-            evidence.append(f"Evidence Bundle: {changed} gewijzigde bestanden")
     except UnicodeDecodeError:
         pass
-    return json.dumps(
-        {
-            "history": history,
-            "execution": execution,
-            "runtime": runtime,
-            "reviewers": reviewers,
-            "commits": commits,
-            "usage": usage,
-            "evidence": evidence,
-        },
-        ensure_ascii=False,
-        separators=(",", ":"),
-    ).encode()
+    return _project_prompt_history_detail(
+        entry,
+        execution=execution,
+        runtime=runtime,
+        reviewers=reviewers,
+        commits=commits,
+        usage=usage,
+        report=report,
+    )
 
 
 def _rate_limit_window_label(duration_minutes: int) -> str:
@@ -1046,7 +1081,7 @@ def _dashboard_html(
 ) -> bytes:
     """Render the private dashboard with a server-pushed status stream."""
     page = r"""<!doctype html>
-<html lang="nl">
+<html lang="en">
 <head>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta id="dashboardThemeColor" name="theme-color" content="#15151d">
@@ -1061,15 +1096,15 @@ def _dashboard_html(
 <link rel="stylesheet" href="/assets/dashboard.css">
 </head>
 <body>
-<a class="skip-link" href="#engineering-dashboard-content">Naar dashboardinhoud</a>
-<div id="dashboardSplash" role="status" aria-live="polite" data-testid="dashboard-splash"><div class="dashboard-splash__content"><img class="dashboard-splash__icon" src="/assets/engineering-status-icon.svg" alt="" aria-hidden="true" data-testid="dashboard-splash-icon"><h2 class="dashboard-splash__title" id="dashboardSplashTitle">$TITLE</h2><span class="dashboard-splash__version" id="dashboardSplashVersion" data-platform-version="$PLATFORM_VERSION">Engineering Platform $PLATFORM_VERSION</span><span class="dashboard-splash__spinner" aria-hidden="true"></span><span class="dashboard-splash__loading" id="dashboardSplashLoading">Gegevens laden…</span></div></div>
+<a class="skip-link" href="#engineering-dashboard-content" data-i18n="header.skip"></a>
+<div id="dashboardSplash" role="status" aria-live="polite" data-testid="dashboard-splash"><div class="dashboard-splash__content"><img class="dashboard-splash__icon" src="/assets/engineering-status-icon.svg" alt="" aria-hidden="true" data-testid="dashboard-splash-icon"><h2 class="dashboard-splash__title" id="dashboardSplashTitle">$TITLE</h2><span class="dashboard-splash__version" id="dashboardSplashVersion" data-platform-version="$PLATFORM_VERSION"></span><span class="dashboard-splash__spinner" aria-hidden="true"></span><span class="dashboard-splash__loading" id="dashboardSplashLoading" data-i18n="dashboard.loading"></span></div></div>
 <div id="copyToast" role="status" aria-live="polite" aria-atomic="true" popover="manual" hidden data-testid="copy-toast"></div>
-<div id="pullRefresh" role="status" aria-live="polite" aria-hidden="true" data-testid="pull-refresh">Trek omlaag om te vernieuwen</div>
-<header class="dashboard-titlebar"><div class="dashboard-titlebar__brand"><img class="dashboard-app-icon" src="/assets/engineering-status-icon.svg" alt="" aria-hidden="true" data-testid="dashboard-app-icon"><h1 id="dashboardTitle">$TITLE</h1></div><div class="dashboard-titlebar__actions"><label class="dashboard-locale" for="dashboardLocale"><span>Taal</span><select id="dashboardLocale" aria-label="Dashboardtaal"><option value="nl">Nederlands</option><option value="en">English</option><option value="de">Deutsch</option><option value="fr">Français</option><option value="es">Español</option></select></label><button class="theme-toggle" id="themeToggle" type="button" role="switch" aria-checked="false" aria-label="Lichte modus inschakelen" data-testid="theme-toggle"><span class="theme-toggle__label">Thema</span></button><button class="section-state-toggle" id="toggleAllSections" type="button" role="switch" aria-checked="false" aria-label="Alle secties openen" data-testid="toggle-all-sections"><span class="section-state-toggle__label">Uitklappen</span></button><label class="auto-refresh-toggle" for="autoRefresh"><input id="autoRefresh" type="checkbox" role="switch" checked><span>Automatisch vernieuwen</span></label></div></header>
+<div id="pullRefresh" role="status" aria-live="polite" aria-hidden="true" data-testid="pull-refresh" data-i18n="refresh.pull_to_refresh"></div>
+<header class="dashboard-titlebar"><div class="dashboard-titlebar__brand"><img class="dashboard-app-icon" src="/assets/engineering-status-icon.svg" alt="" aria-hidden="true" data-testid="dashboard-app-icon"><h1 id="dashboardTitle">$TITLE</h1></div><div class="dashboard-titlebar__actions"><label class="dashboard-locale" for="dashboardLocale"><span data-i18n="language.label"></span><select id="dashboardLocale" data-i18n-aria-label="language.label"><option value="nl" data-i18n="language.nl"></option><option value="en" data-i18n="language.en"></option><option value="de" data-i18n="language.de"></option><option value="fr" data-i18n="language.fr"></option><option value="es" data-i18n="language.es"></option></select></label><button class="theme-toggle" id="themeToggle" type="button" role="switch" aria-checked="false" data-i18n-aria-label="header.enable_light" data-testid="theme-toggle"><span class="theme-toggle__label" data-i18n="header.theme"></span></button><button class="section-state-toggle" id="toggleAllSections" type="button" role="switch" aria-checked="false" data-i18n-aria-label="header.open_all" data-testid="toggle-all-sections"><span class="section-state-toggle__label" data-i18n="header.expand"></span></button><label class="auto-refresh-toggle" for="autoRefresh"><input id="autoRefresh" type="checkbox" role="switch" checked><span data-i18n="header.auto_refresh"></span></label></div></header>
 <div class="dashboard-scroll-region">
 <main class="dashboard-grid" id="engineering-dashboard-content" tabindex="-1">
-<details class="inbox-queue" id="queueItems" data-testid="engineering-inbox-queue"><summary><strong>Inbox-wachtrij</strong></summary><p class="category-description">Prompts worden uitgevoerd op volgorde van aanmaakdatum.</p><p class="estimate-meta" id="queueSummary">Wachtrij laden…</p><ol class="queue-list" id="queueList" aria-live="polite"></ol></details>
-<details class="prompt-history" id="promptHistory" data-testid="engineering-prompt-history"><summary><strong>Promptgeschiedenis</strong></summary><p class="category-description">Alle terminale Engineering Platform-uitvoeringen, lokaal gecachet in de Engineering SQLite-opslag.</p><div class="log-controls"><label for="promptHistoryFilter">Zoeken<input id="promptHistoryFilter" type="search" maxlength="160" data-sanitize="single-line" placeholder="Zoek in alle velden"></label></div><div class="log-table-wrap"><table class="log-table" aria-label="Promptgeschiedenis"><thead><tr><th data-history-sort-key="status" scope="col">Status</th><th data-history-sort-key="title" scope="col">Prompttitel</th><th data-history-sort-key="executed_at" scope="col">Uitgevoerd op</th><th scope="col">Rapport</th><th id="promptHistoryAnalysisHeader" scope="col">AI-analyse</th><th id="promptHistoryChatHeader" scope="col">AI-gesprek</th><th scope="col">Actie</th><th id="promptHistoryDetailsHeader" scope="col">Details</th></tr></thead><tbody id="promptHistoryRows"><tr><td class="log-empty" colspan="8">Promptgeschiedenis laden…</td></tr></tbody></table></div><nav class="log-pagination" id="promptHistoryPagination" aria-label="Paginering Promptgeschiedenis"></nav></details>
+<details class="inbox-queue" id="queueItems" data-testid="engineering-inbox-queue"><summary><strong data-i18n="section.inbox_queue"></strong></summary><p class="category-description" data-i18n="description.inbox_queue"></p><p class="estimate-meta" id="queueSummary" data-i18n="logs.loading"></p><ol class="queue-list" id="queueList" aria-live="polite"></ol></details>
+<details class="prompt-history" id="promptHistory" data-testid="engineering-prompt-history"><summary><strong data-i18n="section.prompt_history"></strong></summary><p class="category-description" data-i18n="description.prompt_history"></p><div class="log-controls"><label for="promptHistoryFilter"><span data-i18n="filter.search"></span><input id="promptHistoryFilter" type="search" maxlength="160" data-sanitize="single-line" data-i18n-placeholder="filter.search_placeholder"></label></div><div class="log-table-wrap"><table class="log-table" data-i18n-aria-label="history.table_label"><thead><tr><th data-history-sort-key="status" scope="col" data-i18n="table.status"></th><th data-history-sort-key="title" scope="col" data-i18n="table.prompt_title"></th><th data-history-sort-key="executed_at" scope="col" data-i18n="table.executed_at"></th><th scope="col" data-i18n="table.report"></th><th id="promptHistoryAnalysisHeader" scope="col" data-i18n="table.analysis"></th><th id="promptHistoryChatHeader" scope="col" data-i18n="table.chat"></th><th scope="col" data-i18n="table.action"></th><th id="promptHistoryDetailsHeader" scope="col" data-i18n="table.details"></th></tr></thead><tbody id="promptHistoryRows"><tr><td class="log-empty" colspan="8" data-i18n="logs.loading"></td></tr></tbody></table></div><nav class="log-pagination" id="promptHistoryPagination" data-i18n-aria-label="history.table_label"></nav></details>
 <details class="current-run" id="currentRun" aria-label="Huidige uitvoering" hidden><summary class="current-run__title"><span class="label">Actieve prompt</span></summary><div class="current-run__grid"><div class="field"><span class="label">Prompt</span><h2 id="currentPrompt">Laden…</h2></div><div class="field"><span class="label">Bestandsnaam</span><pre id="currentFile">Laden…</pre></div>
 <div class="card"><div class="status"><span id="indicator" class="indicator" role="status" aria-label="Status onbekend"></span><strong>Promptstatus</strong></div><p class="field"><span class="label">Watcher</span><span id="watcher">Laden…</span></p><p class="field"><span class="label">Fase</span><span id="phase">Laden…</span></p><p class="field"><span class="label">Huidige Codex-activiteit</span><span id="action">Laden…</span></p></div>
 <div class="card" id="predecessorGate" hidden><strong>Wachtrij geblokkeerd</strong><p class="field"><span class="label">Blokkerende run</span><code id="predecessorRun"></code></p><p class="field"><span class="label">Voorafgaande prompt</span><span id="predecessorPrompt"></span></p><p class="field"><span class="label">Eindstatus</span><span id="predecessorPhase"></span></p><div class="field"><span class="label">Herstelactie</span><pre id="predecessorAction"></pre></div><button class="predecessor-retry" id="predecessorRetry" type="button">Resume Queue</button><p class="predecessor-retry-status" id="predecessorRetryStatus" role="status" aria-live="polite"></p></div>
@@ -1086,7 +1121,7 @@ def _dashboard_html(
 <dialog class="confirmation-modal" id="confirmationModal" aria-labelledby="confirmationModalTitle"><section class="confirmation-modal__panel"><h2 id="confirmationModalTitle">Bevestig actie</h2><p id="confirmationModalText"></p><div class="confirmation-modal__actions"><button id="confirmationModalCancel" type="button">Annuleren</button><button id="confirmationModalConfirm" type="button">Bevestigen</button></div></section></dialog>
 <dialog class="report-view-modal" id="promptHistoryReportModal" aria-labelledby="promptHistoryReportModalTitle"><section class="report-view-modal__panel"><header class="report-view-modal__header"><h2 class="report-view-modal__title" id="promptHistoryReportModalTitle">Engineeringrapport</h2><div class="report-view-modal__actions"><button class="download download--glyph" id="promptHistoryReportDownload" type="button" title="Download engineeringrapport" aria-label="Download engineeringrapport" hidden>⇩</button><button class="copy copy--glyph" id="promptHistoryReportCopy" type="button" title="Kopieer engineeringrapport" aria-label="Kopieer engineeringrapport" hidden>⧉</button><button class="report-view-modal__close" id="promptHistoryReportClose" type="button" aria-label="Engineeringrapport sluiten">×</button></div></header><article class="markdown-document report-view-modal__content" id="promptHistoryReportContent">Rapport laden…</article></section></dialog>
 <dialog class="prompt-detail-modal" id="promptHistoryDetailModal" aria-labelledby="promptHistoryDetailTitle"><section class="prompt-detail-modal__panel"><header class="prompt-detail-modal__header"><h2 id="promptHistoryDetailTitle">Promptdetails</h2><button class="report-view-modal__close" id="promptHistoryDetailClose" type="button" aria-label="Promptdetails sluiten">×</button></header><p class="prompt-detail-modal__description" id="promptHistoryDetailDescription"></p><div class="prompt-detail-modal__content" id="promptHistoryDetailContent">Promptdetails laden…</div></section></dialog>
-<dialog class="prompt-chat-modal" id="promptHistoryChatModal" aria-labelledby="promptHistoryChatTitle"><section class="prompt-chat-modal__panel"><header class="prompt-chat-modal__header"><h2 id="promptHistoryChatTitle">AI-gesprek</h2><button class="report-view-modal__close" id="promptHistoryChatClose" type="button" aria-label="AI-gesprek sluiten">×</button></header><p class="prompt-chat-modal__description" id="promptHistoryChatDescription"></p><section class="codex-chat" id="codexChat"><div class="codex-chat__details"><div class="chat-actions"><button class="download download--glyph" id="downloadChat" type="button" title="Download gesprek" aria-label="Download gesprek" hidden>⇩</button><button class="clear-chat" id="clearChat" type="button" title="Chat wissen" aria-label="Chat wissen" hidden>⌫</button></div><div class="chat-messages" id="chatMessages" aria-live="polite" aria-label="Gesprek met AI-assistent"></div><label class="label" for="chatInput">Nieuwe vraag aan AI-assistent</label><div class="chat-compose"><textarea id="chatInput" class="chat-input" rows="5" maxlength="2000" autocomplete="off" data-sanitize="multiline" placeholder=""></textarea><button class="chat-send" id="chatSend" type="button" title="Verstuur vraag" aria-label="Verstuur vraag"><span aria-hidden="true">➤</span></button></div><p class="field"><span class="label">Gebruikt model</span><span id="chatModel">$CHAT_MODEL</span></p><p class="chat-status" id="chatStatus"></p></div></section></section></dialog>
+<dialog class="prompt-chat-modal" id="promptHistoryChatModal" aria-labelledby="promptHistoryChatTitle"><section class="prompt-chat-modal__panel"><header class="prompt-chat-modal__header"><h2 id="promptHistoryChatTitle">AI-gesprek</h2><button class="report-view-modal__close" id="promptHistoryChatClose" type="button" aria-label="AI-gesprek sluiten">×</button></header><p class="prompt-chat-modal__description" id="promptHistoryChatDescription"></p><section class="codex-chat" id="codexChat"><div class="codex-chat__details"><div class="chat-actions"><button class="download download--glyph" id="downloadChat" type="button" title="Download gesprek" aria-label="Download gesprek" hidden>⇩</button><button class="clear-chat" id="clearChat" type="button" title="Chat wissen" aria-label="Chat wissen" hidden>⌫</button></div><div class="chat-messages" id="chatMessages" aria-live="polite" aria-label="Gesprek met AI-assistent"></div><label class="label" for="chatInput">Nieuwe vraag aan AI-assistent</label><p class="chat-status" id="chatStatus"></p><div class="chat-compose"><textarea id="chatInput" class="chat-input" rows="5" maxlength="2000" autocomplete="off" data-sanitize="multiline" placeholder=""></textarea><button class="chat-send" id="chatSend" type="button" title="Verstuur vraag" aria-label="Verstuur vraag"><span aria-hidden="true">➤</span></button></div><p class="field"><span class="label">Gebruikt model</span><span id="chatModel">$CHAT_MODEL</span></p></div></section></section></dialog>
 <button id="loadComponentLogs" type="button" hidden>Logs laden</button>
 <details class="technical-details" id="componentLogs"><summary><strong>Logs</strong></summary><p class="estimate-meta">Geredigeerde, roterende logs van watcher en dashboard. Automatisch bijgewerkt via serverpush.</p><div class="log-controls" id="componentLogControls" hidden><label for="logFilter">Zoeken<input id="logFilter" type="search" maxlength="160" data-sanitize="single-line" placeholder="Zoek in alle velden"></label><label for="logLevelFilter">Niveau<select id="logLevelFilter"><option value="">Alle niveaus</option><option value="ERROR">Fout</option><option value="WARNING">Waarschuwing</option><option value="INFO">Informatie</option><option value="DEBUG">Debug</option></select></label></div><div class="technical-grid"><div class="card"><div class="log-card-header"><strong>Inbox-watcher</strong><div class="log-card-actions"><button class="download download--glyph component-log-download" data-component="inbox" data-testid="download-inbox-log" type="button" title="Download Inbox-watcher-log" aria-label="Download Inbox-watcher-log">⇩</button><button class="clear-component-log" data-component="inbox" data-testid="clear-inbox-log" type="button">Logs wissen</button></div></div><div class="log-table-wrap"><table class="log-table"><thead><tr><th>#</th><th>Tijdstip</th><th>Niveau</th><th>Gebeurtenis</th><th>Run-ID</th><th>Details</th></tr></thead><tbody id="inboxComponentLog"><tr><td class="log-empty" colspan="6">Nog niet geladen.</td></tr></tbody></table></div><nav class="log-pagination" id="inboxLogPagination" aria-label="Paginering Inbox-watcher"></nav></div><div class="card"><div class="log-card-header"><strong>Statusdashboard</strong><div class="log-card-actions"><button class="download download--glyph component-log-download" data-component="dashboard" data-testid="download-dashboard-log" type="button" title="Download Statusdashboard-log" aria-label="Download Statusdashboard-log">⇩</button><button class="clear-component-log" data-component="dashboard" data-testid="clear-dashboard-log" type="button">Logs wissen</button></div></div><div class="log-table-wrap"><table class="log-table"><thead><tr><th>#</th><th>Tijdstip</th><th>Niveau</th><th>Gebeurtenis</th><th>Run-ID</th><th>Details</th></tr></thead><tbody id="dashboardComponentLog"><tr><td class="log-empty" colspan="6">Nog niet geladen.</td></tr></tbody></table></div><nav class="log-pagination" id="dashboardLogPagination" aria-label="Paginering Statusdashboard"></nav></div></div></details>
 <details class="technical-details" id="technicalDetails"><summary><strong>Technische details</strong></summary><div class="technical-grid">
