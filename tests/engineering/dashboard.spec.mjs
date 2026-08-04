@@ -344,9 +344,9 @@ test.describe("Engineering Status browser smoke", () => {
       submitted_filename: "paired-colours.md",
     }, {}));
 
-    await expect(page.locator("#currentRun > summary > .label")).toHaveCSS("color", "rgb(244, 114, 182)");
-    await expect(page.locator("#currentRun .card .label").first()).toHaveCSS("color", "rgb(249, 182, 216)");
-    await expect(page.locator("#technicalDetails .card .label").first()).toHaveCSS("color", "rgb(167, 231, 242)");
+    await expect(page.locator("#currentRun > summary > .label")).toHaveCSS("color", "rgb(101, 197, 217)");
+    await expect(page.locator("#currentRun .card .label").first()).toHaveCSS("color", "rgb(167, 231, 242)");
+    await expect(page.locator("#technicalDetails .card .label").first()).toHaveCSS("color", "rgb(249, 182, 216)");
   });
 
   test("refines the active duration indication with comparable runtime history", async ({ page }) => {

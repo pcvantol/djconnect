@@ -334,3 +334,11 @@ html[data-theme="light"] :is(.technical-details,.prompt-history,.telemetry,.plat
 html[data-theme="light"] :is(.technical-details,.prompt-history,.telemetry,.platform-health) .log-table th{color:color-mix(in srgb,var(--category-secondary,var(--category-color)) 76%,#182230)}
 html[data-theme="light"] #currentRun .card .label,html[data-theme="light"] #currentRun .current-run__grid>.field>.label{color:color-mix(in srgb,var(--category-secondary) 76%,#182230)}
 html[data-theme="light"] #currentRun>.current-run__title>.label{color:color-mix(in srgb,var(--category-color) 82%,#182230)}
+
+/* Swap the active-operation and technical-detail palettes: live execution is
+   monitoring-cyan; static technical evidence is operation-pink. */
+#currentRun{--category-color:#65c5d9;--category-secondary:#a7e7f2;background:#1e2b33}
+#currentRun .card,#currentRun .card:has(#currentTime),#currentRun .card:has(#executionEstimate),#currentRun .card:has(#runId),#currentRun .card:has(#executionMode){--category-color:#65c5d9;--category-secondary:#a7e7f2;background:#1b2931;border-color:#65c5d9}
+#engineering-dashboard-content>#technicalDetails{--category-color:#f472b6;--section-secondary:#f9b6d8;background:#321d2d;border-color:#f472b6}
+html[data-theme="light"] #currentRun{background:#effbfe}
+html[data-theme="light"] #engineering-dashboard-content>#technicalDetails{background:#fff0f8}
