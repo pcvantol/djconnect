@@ -1167,6 +1167,8 @@ test.describe("Engineering Status browser smoke", () => {
     expect(after.close.y).toBe(before.close.y);
     expect(after.header.y).toBe(before.header.y);
     expect(after.close.x + after.close.width).toBeGreaterThan(panelBox.x + panelBox.width - 48);
+    await close.click();
+    await expect(modal).not.toBeVisible();
   });
 
   test("uses light glyphs for all dark report-modal actions", async ({ page }) => {

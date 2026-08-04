@@ -3114,8 +3114,18 @@ function openPromptHistoryDetail(entry) {
     .then(renderPromptHistoryDetail)
     .catch(() => { content.textContent = t("history.details_unavailable"); });
 }
-$("promptHistoryDetailClose").addEventListener("click", closePromptHistoryDetail);
+$("promptHistoryDetailClose").addEventListener("click", (event) => {
+  event.preventDefault();
+  event.stopPropagation();
+  closePromptHistoryDetail();
+});
 $("promptHistoryDetailModal").addEventListener("click", (event) => {
+  if (event.target.closest?.("#promptHistoryDetailClose")) {
+    event.preventDefault();
+    event.stopPropagation();
+    closePromptHistoryDetail();
+    return;
+  }
   if (event.target === $("promptHistoryDetailModal")) closePromptHistoryDetail();
 });
 $("promptHistoryReportClose").addEventListener(

@@ -311,6 +311,9 @@ html[data-theme="light"] .chat-message__body :is(code,pre){background:#e9eef6;co
 /* AI antwoorden krijgen een eigen paarse laag, los van de chatmodal. */
 .prompt-chat-modal{--prompt-chat-answer-surface:#3c2a4d}.prompt-chat-modal .chat-message--assistant{background:var(--prompt-chat-answer-surface);border-color:#bd8ee8}html[data-theme="light"] .prompt-chat-modal{--prompt-chat-answer-surface:#f3ebff}
 
+/* Keep the fixed close control above long detail content on every viewport. */
+.prompt-detail-modal__header .report-view-modal__close{pointer-events:auto;position:relative;z-index:3}
+
 /* The modal footer remains visible even after a visitor enlarges the question box. */
 .prompt-chat-modal .chat-input{max-height:180px}.prompt-chat-modal .chat-status{margin:4px 0 0;min-height:1.25em;overflow-wrap:anywhere}.prompt-chat-modal #codexChat .field{margin:6px 0 0}
 
