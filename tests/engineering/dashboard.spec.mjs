@@ -313,6 +313,8 @@ test.describe("Engineering Status browser smoke", () => {
 
   test("labels the splash screen as loading data", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await expect(page.getByTestId("dashboard-splash-icon")).toHaveAttribute("src", "/assets/engineering-status-icon.svg");
+    await expect(page.getByTestId("dashboard-splash-icon")).toHaveAttribute("aria-hidden", "true");
     await expect(page.locator(".dashboard-splash__loading")).toHaveText("Gegevens laden…");
     await expect(page.locator(".dashboard-splash__version")).toHaveCSS("color", "rgb(240, 182, 106)");
     await expect(page.locator(".dashboard-splash__spinner")).toHaveCSS("border-top-color", "rgb(240, 182, 106)");
