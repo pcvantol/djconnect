@@ -1338,6 +1338,7 @@ test.describe("Engineering Status browser smoke", () => {
     await page.locator("#promptHistoryReportClose").click();
     const chat = page.locator("#promptHistoryRows .prompt-history-chat");
     await expect(chat).toHaveCount(1);
+    await expect(chat).toHaveText("💬");
     await chat.click();
     await expect(page.locator("#promptHistoryChatModal")).toBeVisible();
     await expect(page.locator("#promptHistoryChatModal")).toBeFocused();

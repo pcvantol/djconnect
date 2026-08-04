@@ -2317,7 +2317,7 @@ function renderPromptHistory() {
         button.type = "button";
         button.title = t("history.open_chat", { title: title.textContent });
         button.setAttribute("aria-label", button.title);
-        button.textContent = "✦";
+        button.textContent = "💬";
         button.addEventListener("click", () => openPromptHistoryChat(entry));
         chat.append(button);
       } else chat.textContent = "—";
