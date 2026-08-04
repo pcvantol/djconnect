@@ -3003,7 +3003,7 @@ function promptDetailExecutionSection(history) {
         : history.executed_at,
     ),
     detailField(t("detail.execution_mode"), history.execution_mode),
-    detailField(t("detail.repository"), history.repository),
+    detailField(t("detail.target_repository"), history.target_repository || t("detail.not_recorded")),
   ]);
 }
 function promptDetailDurationSection(execution) {

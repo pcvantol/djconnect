@@ -1005,6 +1005,7 @@ class DashboardStatusTest(unittest.TestCase):
                     "Evidence Bundle: 2 gewijzigde bestanden",
                 ],
             )
+            self.assertEqual(detail["history"]["target_repository"], "pcvantol/djconnect")
 
     def test_dashboard_file_projections_reject_malformed_or_missing_data(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

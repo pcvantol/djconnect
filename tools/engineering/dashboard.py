@@ -157,6 +157,7 @@ def _prompt_history_detail(root: Path, run_id: str | None) -> bytes:
     entry = next((item for item in prompt_history(root) if item.get("run_id") == run_id), None)
     if entry is None:
         return b""
+    history = dict(entry)
     execution = json.loads(_last_executed_agent_execution(root, run_id))
     runtime = json.loads(_last_executed_runtime_metadata(root, run_id))
     reviewers = json.loads(_reviewer_agents_for_run(root, run_id))
@@ -180,6 +181,11 @@ def _prompt_history_detail(root: Path, run_id: str | None) -> bytes:
     evidence: list[str] = []
     try:
         report = _report_for_run(root, run_id).decode("utf-8")
+        target_repository = re.search(
+            r"^- Target Repository: `([^`\n]+)`$", report, re.MULTILINE
+        )
+        if target_repository:
+            history["target_repository"] = target_repository.group(1)
         for report_label, display_label in (
             ("Execution Host", "Execution Host"),
             ("Target Repository", "Target repository"),
@@ -195,7 +201,7 @@ def _prompt_history_detail(root: Path, run_id: str | None) -> bytes:
         pass
     return json.dumps(
         {
-            "history": entry,
+            "history": history,
             "execution": execution,
             "runtime": runtime,
             "reviewers": reviewers,

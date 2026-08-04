@@ -1472,7 +1472,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#promptHistoryReportModal")).not.toBeVisible();
     await page.route("**/api/prompt-history/**/details", (route) => route.fulfill({
       json: {
-        history: { run_id: "inbox-history-25", status: "COMPLETE", title: "Geschiedenis prompt 25", executed_at: "2026-08-02T12:25:00Z", execution_mode: "GENESIS", repository: "pcvantol/djconnect" },
+        history: { run_id: "inbox-history-25", status: "COMPLETE", title: "Geschiedenis prompt 25", executed_at: "2026-08-02T12:25:00Z", execution_mode: "GENESIS", repository: "pcvantol/djconnect", target_repository: "pcvantol/forge" },
         execution: { seconds: 42, total_seconds: 61 },
         runtime: { runtime_provider: "codex_cli", codex_cli_version: "0.146.0" },
         usage: { input_tokens: 120, output_tokens: 45 },
@@ -1486,6 +1486,9 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#promptHistoryDetailModal")).toBeFocused();
     await expect(page.locator("#promptHistoryDetailContent")).toContainText("Engineering Platform");
     await expect(page.locator("#promptHistoryDetailContent")).toContainText("0.146.0");
+    await expect(page.locator("#promptHistoryDetailContent")).toContainText("Doelrepository");
+    await expect(page.locator("#promptHistoryDetailContent")).toContainText("pcvantol/forge");
+    await expect(page.locator("#promptHistoryDetailContent")).not.toContainText("pcvantol/djconnect");
     await expect(page.locator("#promptHistoryDetailContent")).not.toContainText("Historisch rapport");
     await expect(page.locator("#promptHistoryDetailContent")).not.toContainText("Historische AI-analyse");
     await expect(page.locator("#promptHistoryReportModal")).not.toBeVisible();
