@@ -2,7 +2,7 @@
 
 Status: canonical prompt navigation
 
-## PR #734 post-merge finalization
+## PR #734 finalization reconciled
 
 PR [#734](https://github.com/pcvantol/djconnect/pull/734), **Improve Engineering
 Report evidence traceability**, merged as
@@ -11,7 +11,10 @@ history is `docs/history/prompts/2026-08-04-engineering-evidence-2.md`.
 Engineering Evidence 2.0 added self-validating component, requirement,
 validation, commit and branch traceability to Engineering Reports without
 changing Forge or product behaviour. Repository State:
-`MERGED_UNRECONCILED`; Finalization is required.
+`MERGED_RECONCILED`; its Finalization PR
+[#736](https://github.com/pcvantol/djconnect/pull/736) merged as
+`0ea9927aad4ab77132470a6619a3865bec770234`. Workspace State:
+`WORKSPACE_READY` after cleanup.
 
 ## PR #730 merge finalization
 
