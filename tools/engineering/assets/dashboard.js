@@ -2803,6 +2803,7 @@ function applyDashboardTheme(theme) {
     light ? t("theme.enable_dark") : t("theme.enable_light"),
   );
   themeToggle.title = light ? t("theme.dark") : t("theme.light");
+  applyThemeModeAttributes();
 }
 applyDashboardTheme(dashboardClientState.theme === "light" ? "light" : "dark");
 themeToggle.addEventListener("click", () => {
@@ -2821,11 +2822,6 @@ function applyThemeModeAttributes(root = document.body) {
     if (!["SCRIPT", "STYLE"].includes(element.tagName))
       element.dataset.themeMode = theme;
 }
-const applyDashboardThemeWithElementAttributes = applyDashboardTheme;
-applyDashboardTheme = (theme) => {
-  applyDashboardThemeWithElementAttributes(theme);
-  applyThemeModeAttributes();
-};
 applyThemeModeAttributes();
 new MutationObserver((records) => {
   for (const record of records)
