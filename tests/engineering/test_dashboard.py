@@ -9,7 +9,7 @@ import tempfile
 from threading import Thread
 import unittest
 from contextlib import nullcontext
-from unittest.mock import ANY, patch
+from unittest.mock import ANY, MagicMock, patch
 
 from tools.engineering import dashboard
 from tools.engineering.dashboard import DASHBOARD_VERSION, LOOPBACK_ADDRESS, _clear_component_log, _codex_process_metrics, _codex_provider_identity, _codex_usage, _codex_usage_for_run, _component_log, _component_log_versions, _completion_commits, _component_uptime_seconds, _current_codex_log, _dashboard_html, _last_executed_agent_execution, _last_executed_codex_log, _last_executed_commits, _last_executed_runtime_metadata, _latest_codex_log, _normalize_rate_limits, _platform_health, _prompt_history, _prompt_history_detail, _report_analysis_available_for_run, _report_analysis_for_run, _report_for_run, _reviewer_agents_for_run, _sse_snapshot, _sse_status, _status, _tracked_file_count, binding_addresses
@@ -954,6 +954,102 @@ class DashboardStatusTest(unittest.TestCase):
             root = Path(temporary)
             payload = json.loads(_prompt_history(root))
         self.assertEqual(payload, {"runs": []})
+
+    def test_prompt_history_and_detail_fail_closed_when_evidence_is_unavailable(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            with patch("tools.engineering.dashboard.prompt_history", side_effect=OSError("unavailable")):
+                self.assertEqual(json.loads(_prompt_history(root)), {"runs": []})
+
+            record_prompt_execution(
+                root,
+                run_id="inbox-evidence",
+                terminal_state="COMPLETE",
+                prompt_title="Evidence",
+                executed_at="2026-08-04T12:00:00Z",
+            )
+            reports = root / ".engineering" / "reports"
+            reports.mkdir(parents=True)
+            report = reports / "2026-08-04_inbox-evidence.md"
+            report.write_text(
+                "\n".join(
+                    (
+                        "- Execution Host: `Engineering Platform`",
+                        "- Target Repository: `pcvantol/djconnect`",
+                        "- Target Commit: `abc123`",
+                        "- Changed file: `one.py`",
+                        "- Changed file: `two.py`",
+                    )
+                ),
+                encoding="utf-8",
+            )
+            record_prompt_execution(
+                root,
+                run_id="inbox-evidence",
+                terminal_state="COMPLETE",
+                prompt_title="Evidence",
+                executed_at="2026-08-04T12:00:00Z",
+                report=report,
+            )
+            connection = MagicMock()
+            connection.execute.return_value.fetchone.return_value = (10, 20, 30)
+            with patch("tools.engineering.dashboard.open_storage", return_value=connection):
+                detail = json.loads(_prompt_history_detail(root, "inbox-evidence"))
+            self.assertEqual(detail["usage"], {"input_tokens": 10, "output_tokens": 20, "total_tokens": 30})
+            self.assertEqual(
+                detail["evidence"],
+                [
+                    "Execution Host: Engineering Platform",
+                    "Target repository: pcvantol/djconnect",
+                    "Target commit: abc123",
+                    "Evidence Bundle: 2 gewijzigde bestanden",
+                ],
+            )
+
+    def test_dashboard_file_projections_reject_malformed_or_missing_data(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            status = root / ".engineering" / "status"
+            status.mkdir(parents=True)
+            (status / "status.json").write_text("not json", encoding="utf-8")
+            self.assertIn(b"huidige uitvoering", dashboard._current_codex_log(root))
+            self.assertIn(b"laatst uitgevoerde", dashboard._last_executed_codex_log(root))
+            self.assertEqual(dashboard._prompt_started(root), b"{}")
+            self.assertEqual(dashboard._tracked_file_count(root), "Niet beschikbaar")
+
+            (status / "status.json").write_text('{"run_id":"inbox-current"}', encoding="utf-8")
+            jobs = root / ".engineering" / "inbox-processing" / "one"
+            jobs.mkdir(parents=True)
+            (jobs / "job.json").write_text("not json", encoding="utf-8")
+            valid_job = root / ".engineering" / "inbox-processing" / "two"
+            valid_job.mkdir()
+            (valid_job / "job.json").write_text(
+                '{"run_id":"inbox-current","received_at":"2026-08-04T12:00:00Z"}', encoding="utf-8"
+            )
+            self.assertEqual(
+                json.loads(dashboard._prompt_started(root)), {"started_at": "2026-08-04T12:00:00Z"}
+            )
+
+    def test_dashboard_process_and_component_projections_fail_closed(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            status = root / ".engineering" / "status"
+            status.mkdir(parents=True)
+            (status / "current.json").write_text('{"run_id":"inbox-owned"}', encoding="utf-8")
+            (status / "runner_process.json").write_text(
+                '{"run_id":"inbox-owned","pid":9,"process_group":8}', encoding="utf-8"
+            )
+            with patch("tools.engineering.dashboard.subprocess.run") as run:
+                run.return_value = __import__("subprocess").CompletedProcess(
+                    ("ps",), 0, "malformed\n10 8 invalid worker\n", ""
+                )
+                self.assertEqual(json.loads(_codex_process_metrics(root))["process_count"], 0)
+            with patch("tools.engineering.dashboard._platform_health", return_value={"components": {"dashboard_relay": {}}}):
+                details = dashboard._component_details(root, "dashboard_relay")
+            self.assertEqual(details["launchd"]["label"], dashboard.RELAY_LABEL)
+            self.assertEqual(dashboard._process_elapsed_seconds("1:02"), 62)
+            with self.assertRaises(ValueError):
+                dashboard._process_elapsed_seconds("1:2:3:4")
 
     def test_http_dashboard_exposes_status_routes_and_bounded_read_only_chat(self) -> None:
         root = Path(__file__).parents[2]
