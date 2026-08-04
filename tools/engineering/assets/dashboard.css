@@ -356,3 +356,7 @@ html[data-theme="light"] #currentRun>summary>.current-run__category-description{
 
 /* Pull-to-refresh is a transient dashboard notice and shares the orange toast treatment. */
 html[data-theme="light"] #pullRefresh{background:var(--house-style-surface);border-color:var(--house-style);color:var(--house-style-contrast)}
+
+/* Disclosure glyphs reserve the same column in both states. The right edge
+   therefore remains still when the triangle changes from closed to open. */
+:where(.workspace-card,.inbox-queue,.prompt-history,#currentRun,#rateLimits,#componentLogs,#engineering-dashboard-content>.technical-details:not(#componentLogs),.telemetry,.platform-health)>summary::before{box-sizing:border-box;text-align:center;width:1em}
