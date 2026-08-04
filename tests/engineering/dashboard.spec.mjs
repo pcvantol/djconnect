@@ -47,6 +47,39 @@ test.describe("Engineering Status browser smoke", () => {
     ).resolves.toBe("currentRun");
   });
 
+  test("opens execution details from prompt history in its dedicated modal", async ({ page }) => {
+    await page.route("**/api/prompt-history", (route) => route.fulfill({ json: { runs: [] } }));
+    await page.route("**/api/prompt-history/inbox-modal/details", (route) => route.fulfill({
+      json: {
+        history: {
+          run_id: "inbox-modal",
+          status: "COMPLETE",
+          title: "Modal prompt",
+          executed_at: "2026-08-04T08:00:00Z",
+        },
+        execution: { seconds: 42, total_seconds: 61 },
+        evidence: ["Execution Host: Engineering Platform"],
+      },
+    }));
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#autoRefresh").uncheck();
+    await page.evaluate(() => {
+      document.querySelector("#promptHistory").open = true;
+      promptHistoryEntries = [{
+        run_id: "inbox-modal",
+        status: "COMPLETE",
+        title: "Modal prompt",
+        executed_at: "2026-08-04T08:00:00Z",
+      }];
+      renderPromptHistory();
+    });
+
+    await page.locator("#promptHistoryRows tr td").nth(1).click();
+    await expect(page.locator("#promptHistoryDetailModal")).toBeVisible();
+    await expect(page.locator("#promptHistoryDetailContent")).toContainText("Engineering Platform");
+    await expect(page.locator("dialog[open]")).toHaveCount(1);
+  });
+
   test("shows the refresh timestamp in the bottom status bar", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await expect(page.locator("#currentTime")).toHaveCount(0);
