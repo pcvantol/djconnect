@@ -1895,6 +1895,30 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.getByTestId("download-inbox-log")).toHaveCount(1);
   });
 
+  test("retries one transiently empty prompt-history projection", async ({ page }) => {
+    let requests = 0;
+    await page.route("**/api/prompt-history", async (route) => {
+      requests += 1;
+      await route.fulfill({
+        json: requests === 1
+          ? { runs: [] }
+          : {
+              runs: [{
+                run_id: "inbox-recovered-history",
+                status: "COMPLETE",
+                title: "Recovered prompt history",
+                executed_at: "2026-08-04T19:00:00Z",
+              }],
+            },
+      });
+    });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await expect(page.locator("#promptHistoryRows")).toContainText("Recovered prompt history", {
+      timeout: 3_000,
+    });
+    expect(requests).toBe(2);
+  });
+
   test("scrolls only chat bubbles inside a prompt-history conversation", async ({ page }) => {
     await page.setViewportSize({ width: 720, height: 520 });
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });

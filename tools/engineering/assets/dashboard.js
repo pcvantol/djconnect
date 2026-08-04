@@ -2479,16 +2479,33 @@ function renderPromptHistory() {
   navigation.append(summary, previous, next);
   updatePromptHistoryHeaders();
 }
-function refreshPromptHistory() {
+let promptHistoryRefreshRetry = null;
+function refreshPromptHistory({ retryEmptyOnce = true } = {}) {
   return fetch("/api/prompt-history", { cache: "no-store" })
     .then((response) => (response.ok ? response.json() : Promise.reject()))
     .then((payload) => {
-      promptHistoryEntries = Array.isArray(payload?.runs) ? payload.runs : [];
+      if (!Array.isArray(payload?.runs)) throw Error("invalid prompt history");
+      promptHistoryEntries = payload.runs;
       renderPromptHistory();
+      // The history index can be briefly unavailable while the watcher commits
+      // a terminal run. Retry one empty initial projection so a transient
+      // SQLite lock never leaves the visible history blank until a reload.
+      if (!promptHistoryEntries.length && retryEmptyOnce) {
+        clearTimeout(promptHistoryRefreshRetry);
+        promptHistoryRefreshRetry = setTimeout(() => {
+          void refreshPromptHistory({ retryEmptyOnce: false });
+        }, 1_000);
+      }
     })
     .catch(() => {
       promptHistoryEntries = [];
       renderPromptHistory();
+      if (retryEmptyOnce) {
+        clearTimeout(promptHistoryRefreshRetry);
+        promptHistoryRefreshRetry = setTimeout(() => {
+          void refreshPromptHistory({ retryEmptyOnce: false });
+        }, 1_000);
+      }
     });
 }
 async function refreshAfterOperatorAction({ dismissedRunId = null } = {}) {
