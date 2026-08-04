@@ -1578,7 +1578,7 @@ function arrangeCurrentRunCategory() {
     heading.append(prompt);
   }
   heading.append(indicator);
-  let description = current.querySelector(
+  let description = summary.querySelector(
     ":scope>.current-run__category-description",
   );
   if (!description) {

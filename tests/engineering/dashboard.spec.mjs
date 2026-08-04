@@ -1124,6 +1124,7 @@ test.describe("Engineering Status browser smoke", () => {
     expect(arrowGeometry.opened.width).toBe("24px");
     expect(Math.abs(arrowGeometry.closed.arrowRight - arrowGeometry.opened.arrowRight)).toBeLessThanOrEqual(0.1);
     expect(Math.abs(arrowGeometry.closed.arrowTop - arrowGeometry.opened.arrowTop)).toBeLessThanOrEqual(0.1);
+    await expect(page.locator("#currentRun > summary > .current-run__category-description")).toHaveCount(1);
     await expect(page.locator(".current-run__category-description")).toHaveText("De actieve engineeringprompt, met actuele voortgang, uitvoeringstijd en uitvoeringscontext.");
     expect(await page.locator("#indicator").evaluate((element) => element.parentElement.className)).toBe("current-run__prompt-heading");
     await expect(page.locator("#loadComponentLogs")).toHaveCount(0);
