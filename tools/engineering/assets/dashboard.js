@@ -843,6 +843,7 @@ function renderComponentDetails() {
 }
 function renderDashboardStatus(status, snapshot) {
   renderHealthStatus(status, snapshot);
+  localizeTechnicalDetails();
   renderRunCategory(status);
   renderLogsForSnapshot(snapshot);
   renderDashboardTelemetry(snapshot);
@@ -947,6 +948,34 @@ function providerNeutralLabels() {
       if (selector === "#chatMessages")
         element.setAttribute("aria-label", text);
     }
+  });
+}
+function localizeTechnicalDetails() {
+  const labels = [
+    [["#technicalPullRequestsTitle", "#technicalDetails .technical-grid > .card:nth-child(1) > strong"], "technical.pull_requests"],
+    [["#technicalImplementationLabel", "#technicalDetails .technical-grid > .card:nth-child(1) .field:nth-of-type(1) .label"], "technical.implementation"],
+    [["#technicalFinalizationLabel", "#technicalDetails .technical-grid > .card:nth-child(1) .field:nth-of-type(2) .label"], "technical.finalization"],
+    [["#technicalRepositoryTitle", "#technicalDetails .technical-grid > .card:nth-child(2) > strong"], "technical.repository"],
+    [["#technicalRepositoryStateLabel", "#technicalDetails .technical-grid > .card:nth-child(2) .field:nth-of-type(1) .label"], "technical.repository_status"],
+    [["#technicalWorkspaceStateLabel", "#technicalDetails .technical-grid > .card:nth-child(2) .field:nth-of-type(2) .label"], "technical.workspace_status"],
+    [["#technicalHostPreflightTitle", "#technicalDetails .technical-grid > .card:nth-child(3) > strong"], "technical.host_preflight"],
+    [["#technicalExecutionHostLabel", "#technicalDetails .technical-grid > .card:nth-child(3) .field:nth-of-type(1) .label"], "technical.execution_host"],
+    [["#technicalExecutionHostVersionLabel", "#technicalDetails .technical-grid > .card:nth-child(3) .field:nth-of-type(2) .label"], "technical.execution_host_version"],
+    [["#technicalRuntimeLabel", "#technicalDetails .technical-grid > .card:nth-child(3) .field:nth-of-type(3) .label"], "technical.runtime"],
+    [["#technicalRuntimePromptTransportLabel", "#technicalDetails .technical-grid > .card:nth-child(3) .field:nth-of-type(4) .label"], "technical.runtime_prompt_transport"],
+    [["#technicalHostStatusLabel", "#technicalDetails .technical-grid > .card:nth-child(3) .field:nth-of-type(5) .label"], "technical.host_status"],
+    [["#technicalLastCheckLabel", "#technicalDetails .technical-grid > .card:nth-child(3) .field:nth-of-type(6) .label"], "technical.last_check"],
+    [["#technicalWorkspacePreflightStatusLabel", "#technicalDetails .technical-grid > .card:nth-child(3) .field:nth-of-type(7) .label"], "technical.workspace_status"],
+    [["#technicalLastWorkspaceCheckLabel", "#technicalDetails .technical-grid > .card:nth-child(3) .field:nth-of-type(8) .label"], "technical.last_workspace_check"],
+    [["#technicalCapabilityStatusLabel", "#technicalDetails .technical-grid > .card:nth-child(3) .field:nth-of-type(9) .label"], "technical.capability_status"],
+    [["#technicalRecoverabilityLabel", "#technicalDetails .technical-grid > .card:nth-child(3) .field:nth-of-type(10) .label"], "technical.recoverability"],
+    [["#technicalFailureOriginLabel", "#technicalDetails .technical-grid > .card:nth-child(3) .field:nth-of-type(11) .label"], "technical.failure_origin"],
+    [["#technicalRecommendationLabel", "#technicalDetails .technical-grid > .card:nth-child(3) .field:nth-of-type(12) .label"], "technical.recommended_action"],
+    [["#technicalDiagnosticsTitle", "#technicalDetails .technical-grid > .card:nth-child(4) > strong"], "technical.diagnostics"],
+  ];
+  labels.forEach(([selectors, key]) => {
+    const element = selectors.map((selector) => document.querySelector(selector)).find(Boolean);
+    if (element) element.textContent = t(key);
   });
 }
 function chatMessage(role, text) {
@@ -2466,6 +2495,7 @@ function applyDashboardLocale() {
     version: $("dashboardSplashVersion").dataset.platformVersion,
   });
   providerNeutralLabels();
+  localizeTechnicalDetails();
   addCategoryIcons();
   addCategoryDescriptions();
   arrangeCurrentRunCategory();
