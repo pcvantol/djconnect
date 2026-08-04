@@ -349,6 +349,24 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#technicalDetails .card .label").first()).toHaveCSS("color", "rgb(249, 182, 216)");
   });
 
+  test("uses neutral content below the tinted heading of an expanded main category", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => {
+      document.documentElement.dataset.theme = "dark";
+      document.getElementById("workspaceCard").open = true;
+    });
+
+    const surfaces = await page.locator("#workspaceCard").evaluate((element) => {
+      const summary = element.querySelector("summary");
+      return {
+        content: getComputedStyle(element).backgroundColor,
+        heading: getComputedStyle(summary).backgroundColor,
+      };
+    });
+    expect(surfaces.content).toBe("rgb(36, 36, 45)");
+    expect(surfaces.heading).not.toBe(surfaces.content);
+  });
+
   test("refines the active duration indication with comparable runtime history", async ({ page }) => {
     await page.route("**/api/events", (route) => route.abort());
     await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({

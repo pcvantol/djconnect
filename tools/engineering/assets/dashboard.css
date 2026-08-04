@@ -342,3 +342,11 @@ html[data-theme="light"] #currentRun>.current-run__title>.label{color:color-mix(
 #engineering-dashboard-content>#technicalDetails{--category-color:#f472b6;--section-secondary:#f9b6d8;background:#321d2d;border-color:#f472b6}
 html[data-theme="light"] #currentRun{background:#effbfe}
 html[data-theme="light"] #engineering-dashboard-content>#technicalDetails{background:#fff0f8}
+
+/* Expanded main categories separate their coloured heading from neutral content.
+   Collapsed summaries retain their full category surface as a compact cue. */
+:root{--dashboard-expanded-content-surface:#24242d;--dashboard-expanded-header-strength:14%}
+:is(.workspace-card,.inbox-queue,.prompt-history,#currentRun,#rateLimits,.platform-health,.telemetry,#componentLogs,#engineering-dashboard-content>.technical-details:not(#componentLogs))[open]{background:var(--dashboard-expanded-content-surface)!important}
+:is(.workspace-card,.inbox-queue,.prompt-history,#currentRun,#rateLimits,.platform-health,.telemetry,#componentLogs,#engineering-dashboard-content>.technical-details:not(#componentLogs))[open]>summary{background:color-mix(in srgb,var(--category-color) var(--dashboard-expanded-header-strength),var(--dashboard-expanded-content-surface));border-radius:15px 15px 0 0;margin:-14px -14px 12px!important;padding:14px 14px 10px!important}
+html[data-theme="light"]{--dashboard-expanded-content-surface:#fff}
+html[data-theme="light"] :is(.workspace-card,.inbox-queue,.prompt-history,#currentRun,#rateLimits,.platform-health,.telemetry,#componentLogs,#engineering-dashboard-content>.technical-details:not(#componentLogs))[open]>summary{background:color-mix(in srgb,var(--category-color) 12%,#fff)}
