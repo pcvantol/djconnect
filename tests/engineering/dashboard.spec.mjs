@@ -854,6 +854,16 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(modal).toHaveCSS("box-shadow", "none");
   });
 
+  test("keeps prompt-chat shell focusable without a visible selection ring", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    const modal = page.locator("#promptHistoryChatModal");
+
+    await modal.evaluate((element) => { element.showModal(); element.focus(); });
+    await expect(modal).toBeFocused();
+    await expect(modal).toHaveCSS("outline-style", "none");
+    await expect(modal).toHaveCSS("box-shadow", "none");
+  });
+
   test("keeps the prompt-detail close action at the top right while scrolling", async ({ page }) => {
     await page.setViewportSize({ width: 720, height: 360 });
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });

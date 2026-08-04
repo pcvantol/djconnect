@@ -161,6 +161,7 @@ html[data-theme="light"] #rateLimitReset{background:#e8fff5;color:#145a42}
 
 /* Dialog shells may receive programmatic focus, but only their controls need a visible ring. */
 :where(.component-modal,.confirmation-modal,.report-view-modal,.prompt-detail-modal,.prompt-chat-modal):focus,:where(.component-modal,.confirmation-modal,.report-view-modal,.prompt-detail-modal,.prompt-chat-modal):focus-visible{box-shadow:none;outline:none}
+.prompt-detail-modal:focus,.prompt-detail-modal:focus-visible,.prompt-chat-modal:focus,.prompt-chat-modal:focus-visible{box-shadow:none!important;outline:none!important}
 
 /* Keep all report-modal glyphs equally light in the dark report surface, including hover. */
 html[data-theme="dark"] .report-view-modal__actions :is(.copy,.download),html[data-theme="dark"] .report-view-modal__close{color:#f7f3ee!important}
