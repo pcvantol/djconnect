@@ -278,8 +278,8 @@ On desktop and iPad, the title bar and bottom status bar remain visible while
 dashboard categories scroll in one dedicated content area. On iPhone portrait,
 the title bar joins that content area and scrolls out of view to recover
 vertical reading space; the bottom status bar remains visible. Workspace
-metadata remains a top-level, collapsible operational category immediately
-after **Technische details**, preserving its own independent status and
+metadata remains a top-level, collapsible operational category immediately after **Technische
+details**, preserving its own independent status and
 evidence boundary.
 The title-bar section switch persists the deliberate all-open or all-closed
 choice across a browser reload; a later status update cannot reverse it.
