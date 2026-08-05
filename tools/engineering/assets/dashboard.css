@@ -331,6 +331,7 @@ html[data-theme="light"] .report-view-modal__actions :is(.copy,.download){backgr
 /* Header */
 .dashboard-titlebar__brand{align-items:center;display:flex;flex:1 1 260px;gap:10px;min-width:0}
 .dashboard-titlebar__actions{align-items:center;display:flex;flex:none;gap:12px}
+.page-refresh{align-items:center;background:transparent;border:1px solid var(--house-style);border-radius:50%;color:var(--house-style);cursor:pointer;display:inline-flex;font:22px/1 system-ui;height:34px;justify-content:center;min-height:34px;min-width:34px;padding:0;width:34px}.page-refresh:hover{background:var(--house-style);color:var(--button-ink)}.page-refresh:focus-visible{outline:3px solid var(--house-style);outline-offset:3px}
 .dashboard-locale{align-items:center;color:#b9b6c0;display:flex;font:12px system-ui;gap:6px;white-space:nowrap}
 .dashboard-locale select{background:#252530;border:1px solid #747484;border-radius:7px;color:inherit;font:inherit;min-height:32px;padding:4px 7px}
 html[data-theme="light"] :is(body,.dashboard-titlebar,.footer){background:var(--dashboard-page-surface-light)}

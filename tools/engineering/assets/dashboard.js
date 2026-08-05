@@ -2288,13 +2288,15 @@ function endPullRefresh() {
   const refresh = pullRefreshDistance >= 72;
   pullRefreshStart = null;
   updatePullRefresh(0);
-  if (refresh) {
-    pullRefresh.textContent = t("refresh.refreshing");
-    pullRefresh.classList.add("pull-refresh--visible");
-    pullRefresh.setAttribute("aria-hidden", "false");
-    window.location.reload();
-  }
+  if (refresh) refreshDashboard();
 }
+function refreshDashboard() {
+  pullRefresh.textContent = t("refresh.refreshing");
+  pullRefresh.classList.add("pull-refresh--visible");
+  pullRefresh.setAttribute("aria-hidden", "false");
+  window.location.reload();
+}
+$("pageRefresh").addEventListener("click", refreshDashboard);
 document.addEventListener("touchstart", startPullRefresh, { passive: true });
 document.addEventListener("touchmove", movePullRefresh, { passive: false });
 document.addEventListener("touchend", endPullRefresh, { passive: true });
@@ -3581,6 +3583,7 @@ Object.assign(window, {
   queueItems,
   r,
   rateLimits,
+  refreshDashboard,
   refreshOpenComponentDetails,
   renderChatHistory,
   renderComponentLogs,

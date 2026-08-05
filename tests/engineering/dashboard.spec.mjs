@@ -212,6 +212,11 @@ test.describe("Engineering Status browser smoke", () => {
       await expect(page.getByTestId("pull-refresh")).toHaveText(
         DASHBOARD_MESSAGES[language]["refresh.release_to_refresh"],
       );
+      await expect(page.getByTestId("page-refresh")).toHaveAttribute(
+        "aria-label",
+        DASHBOARD_MESSAGES[language]["refresh.page"],
+      );
+      await expect(page.getByTestId("page-refresh")).toHaveText("↻");
       await expect(page.locator("#componentLogs .log-table").first()).toHaveAttribute(
         "aria-label",
         DASHBOARD_MESSAGES[language]["logs.inbox_entries"],
@@ -230,6 +235,9 @@ test.describe("Engineering Status browser smoke", () => {
       await page.keyboard.press("Escape");
       await page.locator("#promptHistoryChatModal").evaluate((modal) => modal.close());
     }
+    expect(dashboardSource).toContain(
+      '$("pageRefresh").addEventListener("click", refreshDashboard)',
+    );
   });
 
   test("copies chat text synchronously for iOS Safari", async ({ page }) => {

@@ -178,6 +178,7 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn("<title>Engineering Status</title>", page)
         self.assertIn('href="/assets/dashboard.css"', page)
         self.assertIn('src="/assets/dashboard.js" type="module"', page)
+        self.assertIn('id="pageRefresh"', page)
         for identifier in (
             "dashboardSplash",
             "engineering-dashboard-content",
