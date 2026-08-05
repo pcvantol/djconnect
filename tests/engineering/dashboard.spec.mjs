@@ -52,6 +52,14 @@ test.describe("Engineering Status browser smoke", () => {
     }
   });
 
+  test("locks the iOS viewport scale to prevent input-focus zoom", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await expect(page.locator('meta[name="viewport"]')).toHaveAttribute(
+      "content",
+      "width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover",
+    );
+  });
+
   test("uses catalogued copy for every UI label in every supported language", async ({ page }) => {
     await page.route("**/api/events", (route) => route.abort());
     await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({

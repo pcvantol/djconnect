@@ -198,7 +198,7 @@ class DashboardStatusTest(unittest.TestCase):
         stylesheet = (root / "dashboard.css").read_text(encoding="utf-8")
         self.assertIn("touch-action:manipulation", stylesheet)
         self.assertIn("height:100lvh;min-height:100dvh", stylesheet)
-        self.assertIn("@supports (-webkit-touch-callout:none){:is(input,select,textarea){font-size:16px}}", stylesheet)
+        self.assertIn(":is(input,select,textarea){font-size:16px}", stylesheet)
         self.assertIn("--report-modal-surface", stylesheet)
         self.assertIn("background:var(--report-modal-surface)", stylesheet)
         self.assertIn(".execution-history-action{background:#4f453c", stylesheet)

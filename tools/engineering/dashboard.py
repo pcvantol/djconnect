@@ -1088,7 +1088,7 @@ def _dashboard_html(
     page = r"""<!doctype html>
 <html lang="en">
 <head>
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta id="dashboardThemeColor" name="theme-color" content="#15151d">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta id="dashboardAppleWebAppTitle" name="apple-mobile-web-app-title" content="$TITLE">
