@@ -848,6 +848,17 @@ test.describe("Engineering Status browser smoke", () => {
     });
   });
 
+  test("keeps execution detail modal borders inside iPhone landscape safe areas", async ({ page }) => {
+    await page.setViewportSize({ width: 844, height: 390 });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    const modal = page.locator("#promptHistoryDetailModal");
+    await modal.evaluate((element) => element.showModal());
+    const box = await modal.boundingBox();
+    expect(box).not.toBeNull();
+    expect(box.x).toBe(12);
+    expect(box.width).toBe(820);
+  });
+
   test("labels the splash screen as loading data", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await expect(page.getByTestId("dashboard-splash-icon")).toHaveAttribute("src", "/assets/engineering-status-icon.svg");

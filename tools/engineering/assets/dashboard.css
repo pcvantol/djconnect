@@ -508,6 +508,18 @@ html[data-theme="light"] .report-view-modal__panel{--report-modal-surface:var(--
    carry the purple conversation tint. */
 .prompt-chat-modal__panel{--prompt-chat-surface:var(--dashboard-modal-surface);padding:var(--dashboard-modal-panel-padding)}
 html[data-theme="light"] .prompt-chat-modal{--prompt-chat-answer-surface:#f3ebff}
+@media (max-height:600px) and (orientation:landscape){
+  /* Landscape iPhones can have unequal left/right safe areas. Anchor dialogs
+     to each real inset so their border never passes under the Dynamic Island. */
+  :is(.report-view-modal,.prompt-detail-modal,.prompt-chat-modal){
+    box-sizing:border-box;
+    inset-inline-start:max(12px,env(safe-area-inset-left));
+    inset-inline-end:max(12px,env(safe-area-inset-right));
+    margin-inline:0;
+    max-width:none;
+    width:auto;
+  }
+}
 
 /* Shared modal shell -------------------------------------------------------
    Report, execution detail and AI chat use the same structural contract.
