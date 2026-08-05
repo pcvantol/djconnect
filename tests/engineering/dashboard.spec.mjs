@@ -857,6 +857,32 @@ test.describe("Engineering Status browser smoke", () => {
     expect(box).not.toBeNull();
     expect(box.x).toBe(12);
     expect(box.width).toBe(820);
+
+    await modal.evaluate((element) => element.close());
+    const confirmation = page.locator("#confirmationModal");
+    await confirmation.evaluate((element) => element.showModal());
+    const confirmationBox = await confirmation.boundingBox();
+    expect(confirmationBox).not.toBeNull();
+    expect(confirmationBox.x).toBe(12);
+    expect(confirmationBox.width).toBe(820);
+
+    await confirmation.evaluate((element) => element.close());
+    for (const selector of ["#promptHistoryReportModal", "#promptHistoryChatModal"]) {
+      const dialog = page.locator(selector);
+      await dialog.evaluate((element) => element.showModal());
+      const dialogBox = await dialog.boundingBox();
+      expect(dialogBox).not.toBeNull();
+      expect(dialogBox.x).toBe(12);
+      expect(dialogBox.width).toBe(820);
+      await dialog.evaluate((element) => element.close());
+    }
+
+    const component = page.locator("#componentModal");
+    await component.evaluate((element) => element.showModal());
+    const panelBox = await component.locator(".component-modal__panel").boundingBox();
+    expect(panelBox).not.toBeNull();
+    expect(panelBox.x).toBeGreaterThanOrEqual(12);
+    expect(panelBox.x + panelBox.width).toBeLessThanOrEqual(832);
   });
 
   test("labels the splash screen as loading data", async ({ page }) => {
