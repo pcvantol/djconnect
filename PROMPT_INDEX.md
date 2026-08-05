@@ -2,7 +2,7 @@
 
 Status: canonical prompt navigation
 
-## PR #740 merge finalization in progress
+## PR #740 finalization reconciled
 
 PR [#740](https://github.com/pcvantol/djconnect/pull/740), **Complete
 Engineering Status dashboard localization**, merged as
@@ -11,8 +11,11 @@ five-language dashboard rendering for static and dynamic copy, including
 chat, modal, refresh, download and accessibility surfaces; it adds no Forge or
 execution behaviour. Its immutable Prompt History record is
 `docs/history/prompts/2026-08-05-complete-engineering-status-dashboard-localization.md`.
-Repository State: `MERGED_UNRECONCILED` pending this governance-only
-Finalization; Workspace State is not asserted by this record.
+Its governance-only Finalization PR
+[#741](https://github.com/pcvantol/djconnect/pull/741) merged as
+`9edab5e601098e17edce010b8f1fe5323f386dfe`. Repository State:
+`MERGED_RECONCILED`; Workspace State: `NOT_READY` pending safe cleanup of the
+retained local implementation and Finalization branches.
 
 ## PR #734 finalization reconciled
 
