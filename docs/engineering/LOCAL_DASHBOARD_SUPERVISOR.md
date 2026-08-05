@@ -101,7 +101,9 @@ Top-level dashboard categories are separated by a `24px` rhythm and do not
 use elevation shadows; their coloured borders and spacing provide hierarchy.
 The Dashboard UI component layer groups header, main-section, scrolling/focus,
 log-control and modal refinements, with shared spacing, focus and surface
-variables rather than late one-off overrides.
+variables rather than late one-off overrides. Its shared modal shell owns the
+header ruler, neutral close control and contextual accent; individual modal
+families provide only their geometry and content layout.
 The dedicated scroll region has a symmetric content gutter. The document body
 alone owns the iOS safe-area inset, so landscape rendering never reserves that
 right-hand space a second time for an overlay scrollbar. On short mobile
@@ -109,7 +111,9 @@ landscape viewports the extra desktop inset is removed: the notch or Dynamic
 Island retains its system safe area plus an `8px` content gap only.
 Every dialog type uses those same left and right safe areas independently in
 landscape, so an asymmetric Dynamic Island can never cover a dialog border or
-its panel padding.
+its panel padding. One compact landscape contract also owns the component
+modal width and the AI chat's single-line composer and action-strip spacing;
+those responsive rules are not repeated as late per-modal overrides.
 The compact confirmation panel is centred within that safe width rather than
 being aligned to the left edge of its full-width dialog shell.
 The read-only AI chat composer uses a single-line input with an adjacent send
@@ -132,12 +136,14 @@ composer, while the transient thinking status is right-aligned beside the
 used-model metadata beneath the send button.
 The chat action strip provides download, copy-to-clipboard and destructive
 clear actions; copying uses the same iOS-safe clipboard fallback as individual
-chat messages. Every download glyph uses the same generic orange transport
-colour, while destructive clear glyphs and their confirmation title, glyph and
-rule use red. Modal close controls are intentionally neutral grey so they do
-not compete with an operational action. Repository and workspace state codes
-are rendered as readable labels through the five-language catalogue; the raw
-protocol values remain unchanged in Engineering data.
+chat messages. These actions use the shared semantic `download`, `copy` and
+`destructive` variants, so reports, chat and component logs cannot drift into
+ID-specific presentation. Every download glyph uses the same generic orange
+transport colour, while destructive clear glyphs and their confirmation title,
+glyph and ruler use red. Modal close controls are intentionally neutral grey
+so they do not compete with an operational action. Repository and workspace
+state codes are rendered as readable labels through the five-language
+catalogue; the raw protocol values remain unchanged in Engineering data.
 At narrower widths the title-bar controls move to their own wrapping row
 before they can overlap the dashboard title. Labels above vertical input and
 select controls retain an `8px` gap before a focus outline. Component logs
@@ -290,11 +296,14 @@ Every state-changing dashboard action uses the in-app confirmation dialog. The
 dialog is modal; a backdrop click does not dismiss it, while **Escape** has the
 same explicit negative result as **Annuleren**. It opens with focus on the
 dialog shell rather than on either action, so neither button is preselected.
-The primary action, its hover fill and the dialog ruler/border use the colour
-of the category that triggered it. This applies to reset-credit use, component
-restarts, log clearing, predecessor retry and clearing the AI conversation.
-Native browser confirmation and alert popups are not part of the supported
-interaction contract.
+For ordinary confirmations, the primary action and dialog ruler/border use the
+triggering category accent. A destructive confirmation switches the shared
+modal-shell accent to red, including its title glyph, ruler, border and action
+hover treatment. The header close control is the same negative result as
+**Annuleren**. This applies to reset-credit use, component restarts, log
+clearing, predecessor retry and clearing the AI conversation. Native browser
+confirmation and alert popups are not part of the supported interaction
+contract.
 
 The AI conversation's **Chat wissen** glyph clears only its browser-session
 view. It never changes Promptgeschiedenis, a delivered report or any Inbox
@@ -402,12 +411,12 @@ pagination, and its own download and confirmed-clear controls. Downloaded logs
 remain redacted NDJSON. A missing log is presented as an empty log, never as an
 invalid JSON record.
 
-All dashboard actions use the same interaction language: circular glyph
-controls retain a visible single-line category border at rest and fill with
-their parent category colour on hover. The log actions have a dedicated light
-resting surface in light mode so they do not inherit the dark log-card surface.
-This is presentation-only and has no effect on the download or clear endpoint
-contracts.
+All dashboard actions use the same interaction language: the shared semantic
+download, copy and destructive glyph variants retain their own readable
+resting surfaces and hover fills across chat, reports and component logs.
+The log actions therefore do not inherit the dark log-card surface in light
+mode. This is presentation-only and has no effect on the download or clear
+endpoint contracts.
 
 ## Codex resetcredit
 
