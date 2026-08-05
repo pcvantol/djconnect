@@ -893,6 +893,20 @@ test.describe("Engineering Status browser smoke", () => {
     expect(panelBox.x + panelBox.width).toBeLessThanOrEqual(832);
   });
 
+  test("uses a one-line AI chat composer on iPhone landscape", async ({ page }) => {
+    await page.setViewportSize({ width: 844, height: 390 });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    const modal = page.locator("#promptHistoryChatModal");
+    await modal.evaluate((element) => element.showModal());
+    const input = page.locator("#chatInput");
+    const send = page.locator("#chatSend");
+    await expect(input).toHaveCSS("height", "44px");
+    await expect(input).toHaveCSS("resize", "none");
+    await expect(send).toHaveCSS("position", "static");
+    expect((await input.boundingBox()).height).toBe(44);
+    expect((await send.boundingBox()).height).toBe(44);
+  });
+
   test("labels the splash screen as loading data", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await expect(page.getByTestId("dashboard-splash-icon")).toHaveAttribute("src", "/assets/engineering-status-icon.svg");

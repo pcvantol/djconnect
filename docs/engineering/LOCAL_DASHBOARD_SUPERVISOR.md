@@ -109,6 +109,9 @@ Island retains its system safe area plus an `8px` content gap only.
 Every dialog type uses those same left and right safe areas independently in
 landscape, so an asymmetric Dynamic Island can never cover a dialog border or
 its panel padding.
+The read-only AI chat composer uses a single-line input with an adjacent send
+button on short iPhone landscape viewports, preserving room for the
+conversation rather than reserving the portrait multi-line composer height.
 At narrower widths the title-bar controls move to their own wrapping row
 before they can overlap the dashboard title. Labels above vertical input and
 select controls retain an `8px` gap before a focus outline. Component logs
