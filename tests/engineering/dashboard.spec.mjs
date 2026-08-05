@@ -856,6 +856,29 @@ test.describe("Engineering Status browser smoke", () => {
     expect(scrollPosition.restored).toBe(scrollPosition.initial);
   });
 
+  test("locks the iPhone background while a modal is open", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    const position = await page.evaluate(async () => {
+      document.querySelector("#engineering-dashboard-content").style.minHeight = "2400px";
+      window.scrollTo(0, 180);
+      const initial = window.scrollY;
+      const modal = document.querySelector("#promptHistoryChatModal");
+      modal.showModal();
+      await new Promise((resolve) => requestAnimationFrame(resolve));
+      const locked = {
+        active: document.body.classList.contains("dashboard-modal-open"),
+        top: getComputedStyle(document.body).top,
+      };
+      window.scrollTo(0, 420);
+      modal.close();
+      await new Promise((resolve) => requestAnimationFrame(resolve));
+      return { initial, locked, restored: window.scrollY };
+    });
+    expect(position.locked).toEqual({ active: true, top: "-180px" });
+    expect(position.restored).toBe(position.initial);
+  });
+
   test("does not reserve a duplicate safe-area gutter in iPhone landscape", async ({ page }) => {
     await page.setViewportSize({ width: 844, height: 390 });
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });

@@ -199,6 +199,7 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn("touch-action:manipulation", stylesheet)
         self.assertIn("height:100lvh;min-height:100dvh", stylesheet)
         self.assertIn(":is(input,select,textarea){font-size:16px}", stylesheet)
+        self.assertIn("body.dashboard-modal-open", stylesheet)
         self.assertIn("--report-modal-surface", stylesheet)
         self.assertIn("background:var(--report-modal-surface)", stylesheet)
         self.assertIn(".execution-history-action{background:#4f453c", stylesheet)

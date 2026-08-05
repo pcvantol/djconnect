@@ -205,6 +205,8 @@ html[data-theme="light"] .log-card-actions .download.download--glyph,html[data-t
 
 /* The dashboard chrome remains visible while its workspace and categories scroll. */
 body{box-sizing:border-box;display:flex;flex-direction:column;height:100vh;height:100lvh;min-height:100dvh;overflow:hidden}
+html:has(body.dashboard-modal-open){overflow:hidden}
+body.dashboard-modal-open{left:0;overflow:hidden!important;position:fixed;right:0;top:var(--dashboard-modal-scroll-top,0);width:100%}
 .dashboard-titlebar{flex:none;position:sticky}
 .dashboard-scroll-region{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:0 4px}
 .footer{background:#121217;flex:none;margin:14px 0 0;padding:12px 16px calc(12px + env(safe-area-inset-bottom));position:relative;z-index:15}

@@ -2247,6 +2247,28 @@ let pullRefreshStart = null,
 const pullRefresh = $("pullRefresh");
 const dashboardScrollRegion = document.querySelector(".dashboard-scroll-region");
 const pullRefreshActivationHeight = 40;
+let modalBackgroundScrollTop = null;
+function syncModalBackgroundScroll() {
+  const hasOpenModal = Boolean(document.querySelector("dialog[open]"));
+  if (hasOpenModal && modalBackgroundScrollTop === null) {
+    modalBackgroundScrollTop = window.scrollY || document.documentElement.scrollTop || 0;
+    document.body.style.setProperty("--dashboard-modal-scroll-top", `-${modalBackgroundScrollTop}px`);
+    document.body.classList.add("dashboard-modal-open");
+    return;
+  }
+  if (!hasOpenModal && modalBackgroundScrollTop !== null) {
+    const scrollTop = modalBackgroundScrollTop;
+    modalBackgroundScrollTop = null;
+    document.body.classList.remove("dashboard-modal-open");
+    document.body.style.removeProperty("--dashboard-modal-scroll-top");
+    window.scrollTo({ top: scrollTop, behavior: "auto" });
+  }
+}
+new MutationObserver(syncModalBackgroundScroll).observe(document.body, {
+  attributes: true,
+  attributeFilter: ["open"],
+  subtree: true,
+});
 function dashboardScrollTop() {
   if (window.matchMedia("(max-width:620px) and (orientation:portrait)").matches)
     return window.scrollY || document.documentElement.scrollTop || 0;

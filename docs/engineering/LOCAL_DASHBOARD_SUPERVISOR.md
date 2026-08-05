@@ -124,6 +124,8 @@ so focusing a field does not leave the dashboard stranded down the page.
 On iPhone portrait the dashboard uses native document scrolling, so the title
 bar scrolls out of view with the content instead of competing with a nested
 scroll region.
+When any dashboard modal is open, its scroll area remains usable while the
+background page is fixed in place and restored to its prior position on close.
 At narrower widths the title-bar controls move to their own wrapping row
 before they can overlap the dashboard title. Labels above vertical input and
 select controls retain an `8px` gap before a focus outline. Component logs
