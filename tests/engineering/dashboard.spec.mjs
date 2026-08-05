@@ -2418,6 +2418,13 @@ test.describe("Engineering Status browser smoke", () => {
   });
 
   test("shows the reset outcome instead of a generic failure for a valid conflict response", async ({ page }) => {
+    await page.route("**/api/events", (route) => route.abort());
+    await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({
+      json: {
+        status: { watcher_state: "WATCHER_IDLE", queue_depth: 0 },
+        rate_limits: { provider: "Codex CLI", provider_version: "0.146.0", windows: [], reset_credits: 1 },
+      },
+    }));
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.locator("#dashboardSplash").evaluate((element) => { element.hidden = true; });
     await page.locator("#rateLimits").evaluate((element) => { element.open = true; });
