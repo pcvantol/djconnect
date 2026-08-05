@@ -118,6 +118,8 @@ Prompt History keeps its terminal status column at a readable fixed width in
 iPhone landscape, including when a Retry or Dismiss action button is visible.
 Touch input controls use a `16px` text size so iOS Safari does not zoom the
 entire dashboard when the keyboard opens; normal pinch zoom remains available.
+The original scroll position is restored after an iPhone keyboard is dismissed,
+so focusing a field does not leave the dashboard stranded down the page.
 On iPhone portrait the dashboard uses native document scrolling, so the title
 bar scrolls out of view with the content instead of competing with a nested
 scroll region.

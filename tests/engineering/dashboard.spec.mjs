@@ -830,6 +830,24 @@ test.describe("Engineering Status browser smoke", () => {
     expect(layout.titleBottom).toBeLessThan(layout.viewportTop);
   });
 
+  test("restores the iPhone page position after an input loses focus", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    const scrollPosition = await page.evaluate(async () => {
+      document.querySelector("#engineering-dashboard-content").style.minHeight = "2400px";
+      document.querySelector("#promptHistory").open = true;
+      window.scrollTo(0, 180);
+      const initial = window.scrollY;
+      const input = document.querySelector("#promptHistoryFilter");
+      input.focus();
+      window.scrollTo(0, 420);
+      input.blur();
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      return { initial, restored: window.scrollY };
+    });
+    expect(scrollPosition.restored).toBe(scrollPosition.initial);
+  });
+
   test("does not reserve a duplicate safe-area gutter in iPhone landscape", async ({ page }) => {
     await page.setViewportSize({ width: 844, height: 390 });
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });

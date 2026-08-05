@@ -2252,6 +2252,27 @@ function dashboardScrollTop() {
     return window.scrollY || document.documentElement.scrollTop || 0;
   return dashboardScrollRegion?.scrollTop || 0;
 }
+let inputFocusScrollTop = null;
+function restoreIPhoneInputScroll() {
+  if (inputFocusScrollTop === null) return;
+  const scrollTop = inputFocusScrollTop;
+  inputFocusScrollTop = null;
+  window.setTimeout(() => window.scrollTo({ top: scrollTop, behavior: "auto" }), 250);
+}
+document.addEventListener("focusin", (event) => {
+  if (
+    !window.matchMedia("(max-width:620px) and (orientation:portrait)").matches ||
+    !(event.target instanceof Element) ||
+    !event.target.matches("input,select,textarea,[contenteditable=true]")
+  ) return;
+  inputFocusScrollTop = window.scrollY || document.documentElement.scrollTop || 0;
+});
+document.addEventListener("focusout", (event) => {
+  if (
+    event.target instanceof Element &&
+    event.target.matches("input,select,textarea,[contenteditable=true]")
+  ) restoreIPhoneInputScroll();
+});
 function updatePullRefresh(distance) {
   pullRefreshDistance = Math.max(0, Math.min(distance, 112));
   const ready = pullRefreshDistance >= 72;
