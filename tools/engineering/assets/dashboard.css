@@ -204,7 +204,7 @@ html[data-theme="light"] .log-card-actions .download.download--glyph,html[data-t
 
 /* The dashboard chrome remains visible while its workspace and categories scroll. */
 body{box-sizing:border-box;display:flex;flex-direction:column;height:100vh;height:100lvh;min-height:100dvh;overflow:hidden}
-.dashboard-titlebar{flex:none;position:relative}
+.dashboard-titlebar{flex:none;position:sticky}
 .dashboard-scroll-region{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:0 4px}
 .footer{background:#121217;flex:none;margin:14px 0 0;padding:12px 16px calc(12px + env(safe-area-inset-bottom));position:relative;z-index:15}
 html[data-theme="light"] .footer{background:#f4f7fb}
@@ -363,6 +363,7 @@ html[data-theme="light"] .dashboard-locale select{background:var(--dashboard-sur
 }
 :where(button,input,select,textarea,summary,[role="button"],[tabindex]):focus-visible{outline-width:var(--dashboard-focus-outline-width);outline-offset:var(--dashboard-focus-outline-offset);box-shadow:0 0 0 var(--dashboard-focus-ring-size) color-mix(in srgb,var(--category-color,#8dc7ff) 24%,transparent)}
 @media (max-width:620px) and (orientation:portrait){
+  .dashboard-titlebar{position:static}
   body{padding-inline: max(12px,env(safe-area-inset-left)) max(12px,env(safe-area-inset-right))}
   .dashboard-scroll-region{padding-inline:6px;scrollbar-gutter:stable both-edges}
   .footer{box-sizing:border-box;display:flex;flex-wrap:wrap;gap:4px 10px;justify-content:center;overflow:visible;padding-inline:6px;text-align:center;white-space:normal}

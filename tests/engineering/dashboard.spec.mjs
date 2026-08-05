@@ -806,6 +806,23 @@ test.describe("Engineering Status browser smoke", () => {
     expect(layout.footerBottom).toBeLessThanOrEqual(layout.viewportBottom);
   });
 
+  test("scrolls the title bar out of view on iPhone portrait", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    const layout = await page.evaluate(() => {
+      const region = document.querySelector(".dashboard-scroll-region");
+      const titleBar = document.querySelector(".dashboard-titlebar");
+      region.scrollTop = titleBar.offsetHeight + 20;
+      return {
+        position: getComputedStyle(titleBar).position,
+        titleBottom: titleBar.getBoundingClientRect().bottom,
+        regionTop: region.getBoundingClientRect().top,
+      };
+    });
+    expect(layout.position).toBe("static");
+    expect(layout.titleBottom).toBeLessThan(layout.regionTop);
+  });
+
   test("does not reserve a duplicate safe-area gutter in iPhone landscape", async ({ page }) => {
     await page.setViewportSize({ width: 844, height: 390 });
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });

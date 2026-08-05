@@ -237,10 +237,13 @@ The bottom status bar contains the Engineering Platform version, the most
 recent refresh timestamp and the server-push connection state. The active
 prompt category contains no separate time card.
 
-The title bar and bottom status bar remain visible; all dashboard categories
-between them scroll in one dedicated content area. Workspace metadata remains
-a top-level, collapsible operational category immediately after **Technische
-details**, preserving its own independent status and evidence boundary.
+On desktop and iPad, the title bar and bottom status bar remain visible while
+dashboard categories scroll in one dedicated content area. On iPhone portrait,
+the title bar joins that content area and scrolls out of view to recover
+vertical reading space; the bottom status bar remains visible. Workspace
+metadata remains a top-level, collapsible operational category immediately
+after **Technische details**, preserving its own independent status and
+evidence boundary.
 The title-bar section switch persists the deliberate all-open or all-closed
 choice across a browser reload; a later status update cannot reverse it.
 
