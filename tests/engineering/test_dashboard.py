@@ -197,6 +197,7 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertTrue((root / "dashboard_status_store.mjs").is_file())
         stylesheet = (root / "dashboard.css").read_text(encoding="utf-8")
         self.assertIn("touch-action:manipulation", stylesheet)
+        self.assertIn("height:100lvh;min-height:100dvh", stylesheet)
         self.assertIn("--report-modal-surface", stylesheet)
         self.assertIn("background:var(--report-modal-surface)", stylesheet)
         self.assertIn(".execution-history-action{background:#4f453c", stylesheet)
