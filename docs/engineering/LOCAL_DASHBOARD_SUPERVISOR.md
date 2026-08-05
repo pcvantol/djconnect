@@ -126,6 +126,9 @@ bar scrolls out of view with the content instead of competing with a nested
 scroll region.
 When any dashboard modal is open, its scroll area remains usable while the
 background page is fixed in place and restored to its prior position on close.
+In the AI conversation modal, the new-question label sits directly above the
+composer, while the transient thinking status is right-aligned beside the
+used-model metadata beneath the send button.
 At narrower widths the title-bar controls move to their own wrapping row
 before they can overlap the dashboard title. Labels above vertical input and
 select controls retain an `8px` gap before a focus outline. Component logs

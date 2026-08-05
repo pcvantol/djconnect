@@ -2347,10 +2347,11 @@ test.describe("Engineering Status browser smoke", () => {
     expect(bounds.input.right).toBeLessThan(bounds.chat.right);
     expect(bounds.model.bottom).toBeLessThanOrEqual(bounds.panel.bottom);
     expect(bounds.status.bottom).toBeLessThanOrEqual(bounds.panel.bottom);
-    expect(bounds.input.y - bounds.status.bottom).toBeGreaterThanOrEqual(12);
+    expect(bounds.status.y).toBeGreaterThanOrEqual(bounds.input.bottom);
+    expect(bounds.status.left).toBeGreaterThan(bounds.model.right);
   });
 
-  test("keeps the thinking status visible above the AI question box after it is resized", async ({ page }) => {
+  test("keeps the thinking status beside the model after the AI question box is resized", async ({ page }) => {
     await page.setViewportSize({ width: 2048, height: 1152 });
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     const modal = page.locator("#promptHistoryChatModal");
@@ -2368,7 +2369,8 @@ test.describe("Engineering Status browser smoke", () => {
     });
     expect(bounds.model.bottom).toBeLessThanOrEqual(bounds.panel.bottom);
     expect(bounds.status.bottom).toBeLessThanOrEqual(bounds.panel.bottom);
-    expect(bounds.status.bottom).toBeLessThanOrEqual(bounds.input.y);
+    expect(bounds.status.y).toBeGreaterThanOrEqual(bounds.input.bottom);
+    expect(Math.abs(bounds.status.y - bounds.model.y)).toBeLessThanOrEqual(8);
   });
 
   test("reserves space for the chat model and thinking state in a short viewport", async ({ page }) => {
@@ -2388,7 +2390,7 @@ test.describe("Engineering Status browser smoke", () => {
       return { panel: rect(".prompt-chat-modal__panel"), input: rect("#chatInput"), model: rect("#chatModel"), status: rect("#chatStatus") };
     });
     expect(bounds.input.height).toBeLessThanOrEqual(128);
-    expect(bounds.status.bottom).toBeLessThanOrEqual(bounds.input.y);
+    expect(bounds.status.y).toBeGreaterThanOrEqual(bounds.input.bottom);
     expect(bounds.input.bottom).toBeLessThanOrEqual(bounds.panel.bottom - 10);
     expect(bounds.model.bottom).toBeLessThanOrEqual(bounds.panel.bottom - 4);
   });
