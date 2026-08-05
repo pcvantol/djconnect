@@ -744,6 +744,14 @@ function renderPreflightPresentation(snapshot = {}) {
       element.textContent = renderPreflightValue(key, preflight[key], formatter);
     }
   }
+  const drift = snapshot.current_drift || {}, card = $("driftDiagnosticsCard");
+  if (card) {
+    card.hidden = !drift.drift_id;
+    const values = [["driftSeverity", drift.severity], ["driftComponent", drift.affected_component],
+      ["driftExpected", drift.expected_value], ["driftObserved", drift.observed_value],
+      ["driftResolution", drift.resolution_recommendation]];
+    for (const [id, value] of values) if ($(id)) $(id).textContent = value || t("format.not_available");
+  }
 }
 function renderHealthStatus(x, snapshot = {}) {
   lastRefresh = new Date();
@@ -3039,10 +3047,25 @@ function openPromptHistoryDocument(runId, title, kind = "report") {
     .then((response) =>
       response.ok
         ? response.text()
-        : Promise.reject(Error("Document is niet beschikbaar.")),
+        : Promise.reject(
+            Error(
+              t(
+                promptHistoryDocumentKind === "analysis"
+                  ? "history.analysis_unavailable"
+                  : "history.report_unavailable",
+              ),
+            ),
+          ),
     )
     .then((text) => {
-      if (!text) throw Error("Document is niet beschikbaar.");
+      if (!text)
+        throw Error(
+          t(
+            promptHistoryDocumentKind === "analysis"
+              ? "history.analysis_unavailable"
+              : "history.report_unavailable",
+          ),
+        );
       promptHistoryReportText = text;
       renderMarkdownDocument(content, text);
       $("promptHistoryReportCopy").hidden = false;

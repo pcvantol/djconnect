@@ -14,6 +14,7 @@ from typing import Any
 from .host_preflight import latest as latest_host_preflight
 from .workspace_preflight import latest as latest_workspace_preflight
 from .capability_preflight import latest as latest_capability_preflight
+from .drift_diagnostics import guidance as drift_guidance
 from .platform_api import PlatformConfigurationError, execution_host_configuration
 from .telemetry import comparable_duration_estimate
 
@@ -201,6 +202,11 @@ def snapshot(
         }
     except PlatformConfigurationError:
         execution_host = {}
+    host_preflight = latest_host_preflight(root)
+    workspace_preflight = latest_workspace_preflight(root)
+    capability_preflight = latest_capability_preflight(root)
+    current_drift = next((item for preflight in (host_preflight, workspace_preflight, capability_preflight)
+                          for item in preflight.get("drift_evidence", []) if isinstance(item, dict)), None)
     return json.dumps(
         {
             "status": status_payload,
@@ -220,9 +226,11 @@ def snapshot(
             "process_metrics": read_json(process_metrics_reader, root, fallback={}) if active else {},
             "component_log_versions": component_log_versions_reader(root),
             "component_versions": {"dashboard": dashboard_version, "worker": worker_version},
-            "host_preflight": latest_host_preflight(root),
-            "workspace_preflight": latest_workspace_preflight(root),
-            "capability_preflight": latest_capability_preflight(root),
+            "host_preflight": host_preflight,
+            "workspace_preflight": workspace_preflight,
+            "capability_preflight": capability_preflight,
+            "current_drift": current_drift or {},
+            "resume_guidance": drift_guidance([current_drift] if current_drift else []),
             "execution_host": execution_host,
         },
         separators=(",", ":"),

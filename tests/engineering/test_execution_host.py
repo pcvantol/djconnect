@@ -1277,6 +1277,27 @@ class LocalAgentRunnerTest(unittest.TestCase):
         self.assertIn("BLOCKED — no engineering changes were executed or delivered.", body)
         self.assertTrue(terminal_report_matches_state(body, state))
 
+    def test_blocked_report_projects_structured_development_host_drift(self) -> None:
+        status = self.root / ".engineering" / "status"
+        status.mkdir(parents=True, exist_ok=True)
+        (status / "host_preflight.json").write_text(json.dumps({
+            "run_id": None,
+            "drift_evidence": [{
+                "drift_id": "drift-report", "category": "Runtime Database", "severity": "BLOCKING",
+                "expected_value": "telemetry_storage: PASS", "observed_value": "Telemetry SQLite storage is unavailable.",
+                "resolution_recommendation": "Restore local SQLite evidence storage before accepting work.",
+                "affected_component": "telemetry_storage", "affected_repository": "/workspace",
+                "affected_runtime": "Engineering Platform",
+            }],
+        }), encoding="utf-8")
+        state = TransactionState("drift-report", "pcvantol/djconnect", str(self.prompt), "BLOCKED", terminal=True)
+        body = generate_terminal_report(self.root, state).read_text(encoding="utf-8")
+        self.assertIn("## Development Host Drift Diagnostics", body)
+        self.assertIn("Expected State: telemetry_storage: PASS", body)
+        self.assertIn("Observed State: Telemetry SQLite storage is unavailable.", body)
+        self.assertIn("Recommended Resolution / Required Action", body)
+        self.assertIn("resume is not appropriate", body)
+
     def test_blocked_and_failed_reports_match_the_terminal_checkpoint(self) -> None:
         manifest = EngineeringPlatformManifest.load(self.root / "tools" / "engineering" / "ENGINEERING_PLATFORM_VERSION.json")
         for phase, expected in (

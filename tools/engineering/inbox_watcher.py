@@ -42,6 +42,7 @@ from .host_preflight import execute as execute_host_preflight
 from .workspace_preflight import execute as execute_workspace_preflight
 from .capability_preflight import execute as execute_capability_preflight
 from .producer import parse_producer_metadata
+from .drift_diagnostics import summary as drift_summary
 
 LABEL = "com.djconnect.engineering-inbox"
 WATCHER_VERSION = "1.1.5"
@@ -926,7 +927,7 @@ def once(repo: Path, root: Path, interval: float = 1.0, *, background: bool = Fa
                 queue_items=_queue_items(candidates),
                 run_id=None,
                 current_action="Execution Host preflight blokkeert het claimen van Inbox-werk.",
-                diagnostic="Execution Host preflight failed; no Inbox item was claimed.",
+                diagnostic=drift_summary(preflight.drift_evidence),
             )
             log_event(logger, logging.ERROR, "host_preflight_failed", run_id=legacy_run_id)
             return 1
@@ -939,7 +940,7 @@ def once(repo: Path, root: Path, interval: float = 1.0, *, background: bool = Fa
                 queue_items=_queue_items(candidates),
                 run_id=None,
                 current_action="Workspace preflight blokkeert het claimen van Inbox-werk.",
-                diagnostic="Workspace preflight failed; no Inbox item was claimed.",
+                diagnostic=drift_summary(workspace_preflight.drift_evidence),
             )
             log_event(logger, logging.ERROR, "workspace_preflight_failed", run_id=legacy_run_id)
             return 1
@@ -947,7 +948,7 @@ def once(repo: Path, root: Path, interval: float = 1.0, *, background: bool = Fa
         if capability_preflight.outcome == "FAIL":
             status(repo, "CAPABILITY_PREFLIGHT_FAILED", queued_jobs=len(candidates), queue_items=_queue_items(candidates), run_id=None,
                    current_action="Capability Preflight blokkeert het claimen van Inbox-werk.",
-                   diagnostic="Capability Preflight failed; no Inbox item was claimed.")
+                   diagnostic=drift_summary(capability_preflight.drift_evidence))
             log_event(logger, logging.ERROR, "capability_preflight_failed", run_id=legacy_run_id)
             return 1
         if _already_seen(areas, job_id):
