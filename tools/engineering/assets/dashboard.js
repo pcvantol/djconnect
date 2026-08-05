@@ -3536,8 +3536,15 @@ function confirmDashboardAction(title, text, confirmLabel) {
 function updateChatActions() {
   const visible = chatHistory.length > 0;
   $("downloadChat").hidden = !visible;
+  $("copyChat").hidden = !visible;
   $("clearChat").hidden = !visible;
 }
+$("copyChat").addEventListener("click", () => {
+  if (!chatHistory.length) return;
+  copyText(chatHistoryMarkdown()).catch(() => {
+    $("chatStatus").textContent = t("copy.failed");
+  });
+});
 $("clearChat").addEventListener("click", () =>
   confirmDashboardAction(
     t("chat.clear_title"),

@@ -196,7 +196,9 @@ html[data-theme="light"] .log-card-actions .download.download--glyph,html[data-t
 /* Advisory-chat controls. */
 .chat-actions{align-items:center;display:flex;gap:8px;justify-content:flex-end;margin:0 0 18px;min-height:44px}
 .chat-actions #downloadChat.download--glyph{position:static}
-.chat-actions #downloadChat[hidden],.chat-actions #clearChat[hidden]{display:none}
+.chat-actions #downloadChat[hidden],.chat-actions #copyChat[hidden],.chat-actions #clearChat[hidden]{display:none}
+.copy-chat{align-items:center;background:#34283f;border:1px solid #d0a4ff;border-radius:50%;color:#eadcff;display:flex;font:18px/1 system-ui;height:34px;justify-content:center;min-height:34px;min-width:34px;padding:0;width:34px}.copy-chat:hover{background:#4b3658}
+html[data-theme="light"] .copy-chat{background:#fff7ff;border-color:#b99ae5;box-shadow:0 2px 8px #6e548e2e;color:#68498a}html[data-theme="light"] .copy-chat:hover{background:#f1e4ff}
 .codex-chat__details>.chat-messages{margin-top:0}
 .clear-chat{align-items:center;background:#34283f;border:1px solid #d0a4ff;border-radius:50%;color:#eadcff;display:flex;height:34px;justify-content:center;min-height:34px;min-width:34px;padding:0;width:34px}
 

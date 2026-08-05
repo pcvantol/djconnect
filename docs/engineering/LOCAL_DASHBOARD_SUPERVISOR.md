@@ -129,6 +129,9 @@ background page is fixed in place and restored to its prior position on close.
 In the AI conversation modal, the new-question label sits directly above the
 composer, while the transient thinking status is right-aligned beside the
 used-model metadata beneath the send button.
+The chat action strip provides download, copy-to-clipboard and destructive
+clear actions; copying uses the same iOS-safe clipboard fallback as individual
+chat messages.
 At narrower widths the title-bar controls move to their own wrapping row
 before they can overlap the dashboard title. Labels above vertical input and
 select controls retain an `8px` gap before a focus outline. Component logs

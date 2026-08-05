@@ -215,6 +215,7 @@ test.describe("Engineering Status browser smoke", () => {
       await page.evaluate(() => {
         updatePullRefresh(80);
         document.querySelector("#promptHistoryChatModal").showModal();
+        document.querySelector("#copyChat").hidden = false;
         document.querySelector("#clearChat").hidden = false;
       });
       await expect(page.getByTestId("pull-refresh")).toHaveText(
@@ -225,6 +226,10 @@ test.describe("Engineering Status browser smoke", () => {
         DASHBOARD_MESSAGES[language]["refresh.page"],
       );
       await expect(page.getByTestId("page-refresh")).toHaveText("↻");
+      await expect(page.locator("#copyChat")).toHaveAttribute(
+        "aria-label",
+        DASHBOARD_MESSAGES[language]["chat.copy_title"],
+      );
       await expect(page.locator("#componentLogs .log-table").first()).toHaveAttribute(
         "aria-label",
         DASHBOARD_MESSAGES[language]["logs.inbox_entries"],
@@ -291,6 +296,26 @@ test.describe("Engineering Status browser smoke", () => {
       clipboard: 0,
       host: "promptHistoryChatModal",
     });
+  });
+
+  test("copies the complete chat conversation", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => {
+      window.__copiedChat = "";
+      Object.defineProperty(navigator, "clipboard", {
+        configurable: true,
+        value: { writeText: (value) => { window.__copiedChat = value; return Promise.resolve(); } },
+      });
+      chatHistory = [
+        { role: "user", text: "First question" },
+        { role: "assistant", text: "First answer" },
+      ];
+      renderChatHistory();
+      document.querySelector("#promptHistoryChatModal").showModal();
+    });
+    await page.locator("#copyChat").click();
+    await expect.poll(() => page.evaluate(() => window.__copiedChat)).toContain("First question");
+    await expect.poll(() => page.evaluate(() => window.__copiedChat)).toContain("First answer");
   });
 
   test("uses the Clipboard API before the legacy fallback in modern browsers", async ({ page }) => {
@@ -2839,6 +2864,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#chatMessages")).toBeEmpty();
     await expect(page.locator("#clearChat")).toBeHidden();
     await expect(page.locator("#downloadChat")).toBeHidden();
+    await expect(page.locator("#copyChat")).toBeHidden();
     await expect.poll(() => page.evaluate(() => sessionStorage.getItem("djconnect-engineering-chat-history"))).toBeNull();
   });
 
