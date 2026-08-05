@@ -76,6 +76,26 @@ report or stored history, and it never falls back to evidence from another
 prompt. If a matching report is absent or cannot be read, the dialog retains
 the history fields and shows no derived evidence.
 
+### Dashboard language verification
+
+Engineering Status supports the canonical five language families `en`, `nl`,
+`de`, `fr` and `es`. Its language selector changes both fixed dashboard chrome
+and dynamic feedback such as AI-chat labels, copy actions and component-status
+messages. When changing any dashboard copy, add the key to all five language
+blocks in `tools/engineering/assets/dashboard_locales.mjs`; do not put a
+user-facing sentence directly in `dashboard.js`.
+
+Before handing off dashboard copy, run:
+
+```sh
+npx playwright test tests/engineering/dashboard.spec.mjs
+```
+
+The suite checks catalogue completeness, scans client-created presentation
+text for unexpected literals, and renders each supported language in the
+browser. It therefore catches a missing translation as well as a label that
+was accidentally left in the source language.
+
 Do not create or rely on `iCloud Drive/DJConnect Engineering/Reports` or an
 iCloud `status.json`. Existing legacy iCloud archives can be moved safely with
 `python3 -m tools.engineering.inbox_watcher migrate-icloud-archives` after

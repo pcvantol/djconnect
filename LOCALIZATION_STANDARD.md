@@ -188,3 +188,28 @@ Required workflow:
 
 No PR should intentionally ship a new user-facing key in only one language
 unless it is explicitly experimental and hidden from release builds.
+
+## Engineering Status Dashboard Verification
+
+The private Engineering Status dashboard uses
+`tools/engineering/assets/dashboard_locales.mjs` as its single client-copy
+catalogue. Its browser code must resolve visible labels, status messages,
+accessibility names and dynamic UI feedback through that catalogue; only
+non-verbal control glyphs and intentionally empty values may be literal in the
+client.
+
+Dashboard changes require both of these checks:
+
+1. catalogue completeness: every key is present and non-empty in `en`, `nl`,
+   `de`, `fr` and `es`;
+2. browser verification: each supported locale is selected in Playwright and
+   the rendered template bindings plus dynamically-created UI copy are matched
+   against the catalogue.
+
+The dashboard browser suite also guards client-side presentation assignments so
+a newly added literal user-facing string fails the test instead of silently
+shipping in the developer's language. Run the focused verification with:
+
+```sh
+npx playwright test tests/engineering/dashboard.spec.mjs
+```

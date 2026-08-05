@@ -156,6 +156,45 @@ test.describe("Engineering Status browser smoke", () => {
     }
   });
 
+  test("keeps client-created dashboard text localized in all five languages", async ({ page }) => {
+    const dashboardSource = readFileSync(
+      path.join(repository, "tools/engineering/assets/dashboard.js"),
+      "utf8",
+    );
+    const staticPresentationLiterals = [
+      ...dashboardSource.matchAll(/(?:\.textContent|\.title)\s*=\s*(["'])(.*?)\1/g),
+    ].map((match) => match[2]);
+
+    // Visible words must come from t(). The remaining literals are deliberate
+    // control glyphs, empty cleanup values, or the neutral empty-table mark.
+    expect(new Set(staticPresentationLiterals)).toEqual(new Set([
+      "", "⧉", "↑", "i", "↺", "⌫", "▤", "✦", "💬", "—",
+    ]));
+
+    for (const language of SUPPORTED_LOCALES) {
+      await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+      await page.locator("#dashboardLocale").selectOption(language);
+      await page.waitForFunction(() => typeof window.chatMessage === "function");
+      await page.evaluate(() => {
+        document.querySelector("#chatMessages").replaceChildren();
+        chatMessage("assistant", "Localized assistant reply");
+      });
+
+      const message = page.locator("#chatMessages .chat-message--assistant");
+      await expect(message.locator(".chat-message__role")).toHaveText(
+        DASHBOARD_MESSAGES[language]["chat.assistant"],
+      );
+      await expect(message.locator(".chat-message__copy")).toHaveAttribute(
+        "title",
+        DASHBOARD_MESSAGES[language]["copy.message"],
+      );
+      await expect(message.locator(".chat-message__copy")).toHaveAttribute(
+        "aria-label",
+        DASHBOARD_MESSAGES[language]["copy.message"],
+      );
+    }
+  });
+
   test("places the active prompt category first", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await expect(

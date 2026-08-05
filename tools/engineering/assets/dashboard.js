@@ -1339,7 +1339,7 @@ chatMessage = (role, text) => {
     body = document.createElement("div");
   item.className = "chat-message chat-message--assistant";
   label.className = "chat-message__role";
-  label.textContent = "AI-assistent";
+  label.textContent = t("chat.assistant");
   body.className = "chat-message__body";
   renderMarkdownAnswer(body, text);
   item.append(label, body);
@@ -1352,14 +1352,14 @@ function addChatMessageCopyButton(item, text) {
   const button = document.createElement("button");
   button.className = "chat-message__copy";
   button.type = "button";
-  button.title = "Kopieer bericht";
-  button.setAttribute("aria-label", "Kopieer bericht");
+  button.title = t("copy.message");
+  button.setAttribute("aria-label", t("copy.message"));
   button.textContent = "⧉";
   button.addEventListener("click", () => {
     copyText(String(text))
       .then(() => void recordUserAction("chat_message_copied"))
       .catch(() => {
-        button.title = "Kopiëren mislukt";
+        button.title = t("copy.failed");
       });
   });
   item.append(button);
@@ -1402,9 +1402,7 @@ function enableLiveComponentLogs() {
   const button = $("loadComponentLogs"),
     description = document.querySelector("#componentLogs .estimate-meta");
   button?.remove();
-  if (description)
-    description.textContent =
-      "Geredigeerde, roterende logs van watcher en dashboard. Automatisch bijgewerkt via serverpush.";
+  if (description) description.textContent = t("description.logs");
   $("componentLogControls").hidden = false;
   refreshComponentLogs();
 }
@@ -1576,9 +1574,7 @@ async function restartDashboardComponent() {
     component = restart.dataset.component;
   if (!component) return;
   if (
-    !legacyConfirmation(
-      "Weet je zeker dat je dit Engineering Platform-onderdeel wilt herstarten?",
-    )
+    !legacyConfirmation(t("ui.component_restart_confirmation"))
   )
     return;
   restart.disabled = true;
@@ -1593,12 +1589,11 @@ async function restartDashboardComponent() {
       ),
       payload = await response.json();
     if (!response.ok)
-      throw Error(payload.error || "Herstarten is niet gelukt.");
-    $("componentModalStatus").textContent =
-      "Herstartverzoek verzonden. De component komt zo opnieuw beschikbaar.";
+      throw Error(payload.error || t("ui.component_restart_failed"));
+    $("componentModalStatus").textContent = t("ui.component_restart_requested");
   } catch (error) {
     $("componentModalStatus").textContent =
-      error.message || "Herstarten is niet gelukt.";
+      error.message || t("ui.component_restart_failed");
   } finally {
     restart.disabled = false;
   }
@@ -1621,8 +1616,7 @@ function renderPlatformHealth(payload) {
   if (!components) {
     const message = document.createElement("p");
     message.className = "platform-health__empty";
-    message.textContent =
-      "De live gezondheidscontrole is tijdelijk niet beschikbaar.";
+    message.textContent = t("ui.component_health_unavailable");
     container.append(message);
     return;
   }
@@ -2240,7 +2234,7 @@ function endPullRefresh() {
   pullRefreshStart = null;
   updatePullRefresh(0);
   if (refresh) {
-    pullRefresh.textContent = "Dashboard vernieuwen…";
+    pullRefresh.textContent = t("refresh.refreshing");
     pullRefresh.classList.add("pull-refresh--visible");
     pullRefresh.setAttribute("aria-hidden", "false");
     window.location.reload();
@@ -2935,15 +2929,13 @@ async function confirmComponentRestart(component) {
       if (response.ok && payload?.components?.[component]?.healthy) {
         restartingPlatformComponents.delete(component);
         renderPlatformHealth(payload);
-        $("componentModalStatus").textContent =
-          "Component is opnieuw beschikbaar.";
+        $("componentModalStatus").textContent = t("ui.component_restart_available");
         return;
       }
       renderPlatformHealth(payload);
     } catch {}
   }
-  $("componentModalStatus").textContent =
-    "De component komt nog niet gezond terug; controle loopt door.";
+  $("componentModalStatus").textContent = t("ui.component_restart_waiting");
 }
 const formatComponentUptimeForMeasuredValues = formatComponentUptime;
 formatComponentUptime = (value) => {
