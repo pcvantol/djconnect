@@ -1,4 +1,5 @@
-html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+/* Prevent iOS/iPadOS double-tap zoom while preserving native pinch zoom. */
+html,body{-webkit-text-size-adjust:100%;text-size-adjust:100%;touch-action:manipulation}
 /* Shared product chrome: change the hue here to retheme controls, notices and status metadata. */
 :root{
   --house-style:#f0b66a;
