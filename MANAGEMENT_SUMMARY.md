@@ -15,7 +15,19 @@
 
 ## Current position
 
-## PR #747 awaiting finalization reconciliation
+## PR #749 awaiting finalization reconciliation
+
+PR [#749](https://github.com/pcvantol/djconnect/pull/749), **Fix dashboard
+live status display**, merged as `46c73ebcf65f9b76e21ef69d5bce4fbee2708a43`.
+The dashboard now exposes the configured platform version during a live run,
+renders the current Codex activity in italic and stabilizes a browser-test
+fixture race. This is bounded operator-interface work: Forge, execution,
+runtime, scheduling and lifecycle behavior are unchanged. Its immutable history
+is `docs/history/prompts/2026-08-05-fix-dashboard-live-status-display.md`.
+Repository State: `MERGED_UNRECONCILED`; Workspace State: `NOT_READY` pending
+this governance-only Finalization and the required Workspace Cleanup.
+
+## PR #747 finalization reconciled
 
 PR [#747](https://github.com/pcvantol/djconnect/pull/747), **Fix browser
 clipboard copy**, merged as `9439ee73596b099e94862044d022e6010a6b1ce1`.
@@ -24,8 +36,10 @@ secure non-iOS contexts and retains the iOS-safe synchronous fallback. This is
 bounded operator-interface compatibility work: Forge, execution, runtime,
 scheduling and lifecycle behavior are unchanged. Its immutable history is
 `docs/history/prompts/2026-08-05-fix-browser-clipboard-copy.md`.
-Repository State: `MERGED_UNRECONCILED`; Workspace State: `NOT_READY` pending
-this governance-only Finalization and the required Workspace Cleanup.
+Its governance-only Finalization PR
+[#748](https://github.com/pcvantol/djconnect/pull/748) merged as
+`09e6b004c0517b8f7b5d85c29d33ef660aaa11c8`. Repository State:
+`MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY` after cleanup.
 
 ## PR #745 finalization reconciled
 
