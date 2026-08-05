@@ -3,7 +3,7 @@
 **Status:** Operational handoff
 **Updated:** 2026-08-05
 
-## PR #751 awaiting finalization reconciliation
+## PR #751 finalization reviewable
 
 PR [#751](https://github.com/pcvantol/djconnect/pull/751), **Improve
 Engineering evidence projections**, merged as
@@ -16,7 +16,11 @@ CLI invocation cannot start. Forge, execution, runtime, scheduling and
 lifecycle behavior remain unchanged. The immutable Prompt History record is
 `docs/history/prompts/2026-08-05-engineering-evidence-projections.md`.
 Repository State: `MERGED_UNRECONCILED`; Workspace State: `NOT_READY` pending
-this governance-only Finalization and the required Workspace Cleanup.
+this governance-only Finalization. Finalization State: `REVIEWABLE_FROZEN`.
+This reviewable Finalization reconciles the
+rolling records only; it does not change Forge, execution, runtime, scheduling
+or lifecycle behavior. After its merge, the required Workspace Cleanup must
+verify `WORKSPACE_READY` before another capability begins.
 
 ## PR #747 finalization reconciled
 
