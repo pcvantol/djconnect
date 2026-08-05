@@ -576,3 +576,9 @@ html[data-theme="light"] .dashboard-modal-shell__panel{color:#182230}
 #downloadChat.download--glyph:hover{background:#f0b66a!important;border-color:#f0b66a!important;color:#201812!important}
 html[data-theme="light"] .download.download--glyph{background:#fff8ef!important;border-color:#d68b23!important;color:#643a13!important}
 html[data-theme="light"] #downloadChat.download--glyph:hover{background:#f0b66a!important;border-color:#f0b66a!important;color:#201812!important}
+
+/* Closing a modal is neutral navigation, independent of its content category. */
+.dashboard-modal-shell__close{background:#24242d!important;border-color:#92919b!important;color:#f7f3ee!important}
+.dashboard-modal-shell__close:hover{background:#4a4a55!important;border-color:#b9b6c0!important;color:#fff!important}
+html[data-theme="light"] .dashboard-modal-shell__close{background:#fff!important;border-color:#728197!important;color:#415168!important}
+html[data-theme="light"] .dashboard-modal-shell__close:hover{background:#e9eef6!important;border-color:#58677b!important;color:#182230!important}

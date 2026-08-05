@@ -410,7 +410,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("dialog[open]")).toHaveCount(1);
   });
 
-  test("uses the shared modal shell with contextual accents", async ({ page }) => {
+  test("uses the shared modal shell with contextual panels and neutral close controls", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
 
     for (const [selector, modifier, accent] of [
@@ -422,7 +422,7 @@ test.describe("Engineering Status browser smoke", () => {
       await expect(modal).toHaveClass(new RegExp(modifier));
       await modal.evaluate((element) => element.showModal());
       await expect(modal.locator(".dashboard-modal-shell__panel")).toHaveCSS("border-top-color", accent);
-      await expect(modal.locator(".dashboard-modal-shell__close")).toHaveCSS("border-top-color", accent);
+      await expect(modal.locator(".dashboard-modal-shell__close")).toHaveCSS("border-top-color", "rgb(146, 145, 155)");
       await modal.evaluate((element) => element.close());
     }
   });
