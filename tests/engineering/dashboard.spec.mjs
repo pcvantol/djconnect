@@ -1682,15 +1682,17 @@ test.describe("Engineering Status browser smoke", () => {
     }
   });
 
-  test("fills the prompt-scoped chat download glyph with its purple category on hover", async ({ page }) => {
+  test("uses the generic orange download glyph in the prompt-scoped chat", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.locator("#promptHistoryChatModal").evaluate((element) => element.showModal());
     const download = page.locator("#downloadChat");
     await page.addStyleTag({ content: "#downloadChat[hidden]{display:flex!important}" });
 
+    await expect(download).toHaveCSS("background-color", "rgb(59, 40, 27)");
+    await expect(download).toHaveCSS("border-color", "rgb(240, 182, 106)");
     await download.hover();
-    await expect(download).toHaveCSS("background-color", "rgb(208, 164, 255)");
-    await expect(download).toHaveCSS("color", "rgb(23, 21, 26)");
+    await expect(download).toHaveCSS("background-color", "rgb(240, 182, 106)");
+    await expect(download).toHaveCSS("color", "rgb(32, 24, 18)");
   });
 
   test("fills the prompt-scoped AI question send action with its purple category on hover", async ({ page }) => {

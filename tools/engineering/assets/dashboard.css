@@ -567,3 +567,10 @@ html[data-theme="light"] .dashboard-modal-shell__panel{color:#182230}
 .predecessor-retry::before{content:"↻";font:700 17px/1 system-ui;margin-right:8px;vertical-align:-1px}
 .execution-dismiss::before{content:"⊘"}
 #componentLogs .log-table{table-layout:auto;width:100%}#componentLogs .log-table th:last-child,#componentLogs .log-table td:last-child{width:100%}
+
+/* Downloads are generic transport actions, not category actions. */
+.download.download--glyph{background:#3b281b!important;border-color:#f0b66a!important;color:#fff0dc!important}
+.download.download--glyph:hover:not(:disabled){background:#f0b66a!important;border-color:#f0b66a!important;color:#201812!important}
+#downloadChat.download--glyph:hover{background:#f0b66a!important;border-color:#f0b66a!important;color:#201812!important}
+html[data-theme="light"] .download.download--glyph{background:#fff8ef!important;border-color:#d68b23!important;color:#643a13!important}
+html[data-theme="light"] #downloadChat.download--glyph:hover{background:#f0b66a!important;border-color:#f0b66a!important;color:#201812!important}
