@@ -225,6 +225,25 @@ Start from [`BOOTSTRAP_CODEX_VERIFICATION.md`](BOOTSTRAP_CODEX_VERIFICATION.md)
 and [`tools/verification/README.md`](tools/verification/README.md) for
 verification work.
 
+## Engineering Platform
+
+Engineering Platform 1.x is `FEATURE_COMPLETE`: a stable, producer-neutral
+execution platform for Forge, Human Architects and future compliant Producers.
+It owns Engineering Action execution, qualification, preflight, Execution
+Evidence, Engineering Reports, Execution Receipts, telemetry, dashboard and
+Prompt History. Producer identity is traceability and audit provenance only;
+execution semantics remain identical for every Producer.
+
+Forge owns Mission planning, Runtime Prompts, Decision Evidence and Runtime
+Instance concepts. Engineering Platform does not implement Forge or introduce
+Forge-specific planning capabilities. Future innovation is expected primarily
+within Forge; Engineering Platform evolution is limited to generic execution
+platform concerns and requires explicit architectural authorization.
+
+Start with the [Architecture Handbook](docs/engineering/ENGINEERING_PLATFORM_ARCHITECTURE_HANDBOOK.md),
+[Execution Host and Producer Contract](docs/engineering/EXECUTION_HOST_CONTRACT.md)
+and [Platform 1.x Completion Report](docs/engineering/ENGINEERING_PLATFORM_1_X_COMPLETION_REPORT.md).
+
 ## Software Assurance Platform
 
 This repository also owns the canonical Software Assurance Platform
