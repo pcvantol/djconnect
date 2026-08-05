@@ -348,7 +348,9 @@ html[data-theme="light"] .dashboard-locale select{background:var(--dashboard-sur
 #currentRun>.current-run__title{border-bottom-color:var(--category-color)}
 
 /* Scrolling and focus */
-.dashboard-scroll-region{padding-inline-start:var(--dashboard-scroll-gutter);padding-inline-end:calc(var(--dashboard-scroll-gutter) + max(8px,env(safe-area-inset-right)));scrollbar-gutter:stable}
+/* The body already owns the iOS safe area. Do not reserve it a second time
+   inside the scrolling region, especially in landscape where it is wide. */
+.dashboard-scroll-region{padding-inline:var(--dashboard-scroll-gutter);scrollbar-gutter:auto}
 .footer__item{align-items:baseline;display:inline-flex;gap:4px;min-width:0}
 .technical-grid>.card,.log-table-wrap{min-width:0}.log-table-wrap{box-sizing:border-box;width:100%}
 #promptHistory .log-table-wrap{

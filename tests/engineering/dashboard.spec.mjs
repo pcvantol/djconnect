@@ -806,6 +806,26 @@ test.describe("Engineering Status browser smoke", () => {
     expect(layout.footerBottom).toBeLessThanOrEqual(layout.viewportBottom);
   });
 
+  test("does not reserve a duplicate safe-area gutter in iPhone landscape", async ({ page }) => {
+    await page.setViewportSize({ width: 844, height: 390 });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    const layout = await page.locator(".dashboard-scroll-region").evaluate(
+      (region) => {
+        const style = getComputedStyle(region);
+        return {
+          paddingLeft: style.paddingLeft,
+          paddingRight: style.paddingRight,
+          scrollbarGutter: style.scrollbarGutter,
+        };
+      },
+    );
+    expect(layout).toEqual({
+      paddingLeft: "14px",
+      paddingRight: "14px",
+      scrollbarGutter: "auto",
+    });
+  });
+
   test("labels the splash screen as loading data", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await expect(page.getByTestId("dashboard-splash-icon")).toHaveAttribute("src", "/assets/engineering-status-icon.svg");
