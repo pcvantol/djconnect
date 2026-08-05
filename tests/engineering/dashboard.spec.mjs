@@ -2163,7 +2163,11 @@ test.describe("Engineering Status browser smoke", () => {
     await page.evaluate(() => rateLimits({ provider: "Codex CLI", provider_version: "0.146.0", windows: [], reset_credits: 1 }));
     const reset = page.locator("#rateLimitReset");
 
-    await reset.hover();
+    // The assertion is about the declared hover treatment.  At a narrow
+    // viewport another disclosure can overlap the button after auto-scroll,
+    // so force the pointer onto the target instead of making this style test
+    // depend on the surrounding disclosure geometry.
+    await reset.hover({ force: true });
     await expect(reset).toHaveCSS("background-color", "rgb(81, 216, 138)");
     await expect(reset).toHaveCSS("color", "rgb(17, 42, 32)");
   });
