@@ -2380,6 +2380,14 @@ function renderPromptHistory() {
     navigation = $("promptHistoryPagination"),
     pageCount = Math.max(1, Math.ceil(rows.length / PROMPT_HISTORY_PAGE_SIZE));
   promptHistoryPage = Math.min(Math.max(1, promptHistoryPage), pageCount);
+  const headerRow = document.querySelector("#promptHistory .log-table thead tr");
+  if (headerRow && !headerRow.querySelector("[data-run-suffix]")) {
+    const header = document.createElement("th");
+    header.dataset.runSuffix = "true";
+    header.scope = "col";
+    header.textContent = t("table.run_suffix");
+    headerRow.children[1]?.before(header);
+  }
   body.replaceChildren();
   const visible = rows.slice(
     (promptHistoryPage - 1) * PROMPT_HISTORY_PAGE_SIZE,
@@ -2389,14 +2397,17 @@ function renderPromptHistory() {
     const row = document.createElement("tr"),
       cell = document.createElement("td");
     cell.className = "log-empty";
-    cell.colSpan = 8;
+    cell.colSpan = 9;
     cell.textContent = t("history.no_prompts");
     row.append(cell);
     body.append(row);
   } else
+    {
+    const retriedParents = new Set(rows.map((entry) => entry.retry_of).filter(Boolean));
     for (const entry of visible) {
       const row = document.createElement("tr"),
         status = document.createElement("td"),
+        runSuffix = document.createElement("td"),
         title = document.createElement("td"),
         executed = document.createElement("td"),
         report = document.createElement("td"),
@@ -2425,6 +2436,7 @@ function renderPromptHistory() {
         "prompt-history-status prompt-history-status--" +
         locale.lower(String(entry.status || ""));
       status.textContent = promptHistoryStatus(entry.status);
+      runSuffix.textContent = String(entry.run_id || "—").slice(-5);
       title.textContent = String(
         entry.title || entry.run_id || t("retry.unavailable_title"),
       );
@@ -2469,7 +2481,7 @@ function renderPromptHistory() {
         button.addEventListener("click", () => openPromptHistoryChat(entry));
         chat.append(button);
       } else chat.textContent = "—";
-      if (entry.status === "BLOCKED" && entry.run_id) {
+      if (entry.status === "BLOCKED" && entry.run_id && !retriedParents.has(entry.run_id)) {
         const retry = document.createElement("button");
         retry.type = "button";
         retry.className = "predecessor-retry execution-history-action";
@@ -2500,8 +2512,9 @@ function renderPromptHistory() {
         });
         details.append(button);
       } else details.textContent = "—";
-      row.append(status, title, executed, report, analysis, chat, action, details);
+      row.append(status, runSuffix, title, executed, report, analysis, chat, action, details);
       body.append(row);
+    }
     }
   navigation.replaceChildren();
   const summary = document.createElement("span"),
@@ -3183,7 +3196,7 @@ function promptDetailExecutionSection(history) {
     ),
     detailField(t("detail.execution_mode"), history.execution_mode || t("detail.not_recorded")),
     detailField(t("detail.producer"), history.producer_id || t("detail.not_recorded")),
-    detailField(t("detail.producer_type"), history.producer_type || t("detail.not_recorded")),
+    detailField(t("detail.producer_type"), history.producer_type ? t(`enum.${history.producer_type}`) : t("detail.not_recorded")),
     detailField(t("detail.producer_version"), history.producer_version || t("detail.not_recorded")),
     detailField(t("detail.mission_id"), history.mission_id || t("detail.not_recorded")),
     detailField(t("detail.engineering_action_id"), history.engineering_action_id || t("detail.not_recorded")),

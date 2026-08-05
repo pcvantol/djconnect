@@ -113,6 +113,7 @@ body{overflow-x:hidden}.dashboard-grid,.dashboard-grid>*{min-width:0}.telemetry,
   #promptHistory .log-table th:nth-child(2),#promptHistory .log-table td:nth-child(2){overflow-wrap:anywhere;white-space:normal;width:auto}
 }
 @media (max-width:620px){#promptHistory .log-table{min-width:1080px;table-layout:auto;width:max-content}}
+@media (min-width:621px) and (max-width:1024px){#promptHistory .log-table{min-width:1120px;table-layout:auto;width:max-content}#promptHistory .log-table th:nth-child(3),#promptHistory .log-table td:nth-child(3){min-width:19rem;overflow-wrap:normal;white-space:normal}}
 /* Keep disclosure arrows at the far edge of top-level dashboard categories. */
 :where(.workspace-card,#queueItems,#rateLimits,#componentLogs,#codexChat,#engineering-dashboard-content>.technical-details:not(#componentLogs),#currentRun,.telemetry,.platform-health)>summary{padding-right:40px;position:relative}:where(.workspace-card,#queueItems,#rateLimits,#componentLogs,#codexChat,#engineering-dashboard-content>.technical-details:not(#componentLogs),#currentRun,.telemetry,.platform-health)>summary::before{margin:0;padding-right:0;position:absolute;right:0;top:0}
 /* Uniform border hierarchy: main categories use 2px all around; nested cards use 1px all around. */
