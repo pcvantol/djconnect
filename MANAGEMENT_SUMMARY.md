@@ -15,6 +15,21 @@
 
 ## Current position
 
+## PR #735 merge finalization in progress
+
+PR [#735](https://github.com/pcvantol/djconnect/pull/735), **Add Execution
+Host Producer Support**, merged as
+`51f2cb2254bd4de0635ee39f4fe6cb1bbff2c77a`; its bounded implementation was
+carried into `main` by PR [#733](https://github.com/pcvantol/djconnect/pull/733),
+merged as `11b50e403fc2794ddca35e81eee983f2ac0f0475`. Producer Support is
+operational: Forge owns Producer semantics, while Engineering Platform owns
+producer-neutral execution semantics. Producer provenance is read-only audit
+metadata and does not influence execution, planning or scheduling. Its
+immutable history is
+`docs/history/prompts/2026-08-05-execution-host-producer-support.md`.
+Repository State: `MERGED_UNRECONCILED` pending this governance-only
+Finalization; Workspace State is not asserted by this record.
+
 ## PR #734 finalization reconciled
 
 PR [#734](https://github.com/pcvantol/djconnect/pull/734), **Improve Engineering
