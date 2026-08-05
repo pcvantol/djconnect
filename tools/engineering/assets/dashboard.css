@@ -293,6 +293,7 @@ html[data-theme="light"] #promptHistory .execution-history-action{background:#ff
 .confirmation-modal::backdrop{background:#000b}
 .confirmation-modal__panel{background:var(--dashboard-modal-surface);border:2px solid var(--confirmation-color);border-radius:16px;box-shadow:0 18px 48px #000a;max-width:30rem;padding:22px}
 .confirmation-modal h2{border-bottom:1px solid var(--confirmation-color);color:var(--house-style)!important;margin:0;padding-bottom:12px}
+.confirmation-modal--destructive h2{color:#ff718f!important}
 .confirmation-modal__panel #confirmationModalText{line-height:1.55;white-space:pre-line}
 .confirmation-modal__actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px}
 .confirmation-modal button{border:1px solid var(--house-style)!important;border-radius:8px;font:13px system-ui;min-height:44px;padding:8px 14px}
@@ -303,6 +304,7 @@ html[data-theme="light"] .confirmation-modal,.confirmation-modal[data-theme-mode
 html[data-theme="light"] .confirmation-modal__panel,.confirmation-modal[data-theme-mode="light"] .confirmation-modal__panel{background:var(--dashboard-modal-document-surface)!important;box-shadow:0 18px 48px #26395540;color:#182230!important}
 html[data-theme="light"] .confirmation-modal :is(h2,p),.confirmation-modal[data-theme-mode="light"] :is(h2,p){color:#182230!important}
 html[data-theme="light"] .confirmation-modal h2,.confirmation-modal[data-theme-mode="light"] h2{color:var(--house-style)!important}
+html[data-theme="light"] .confirmation-modal--destructive h2,.confirmation-modal--destructive[data-theme-mode="light"] h2{color:#b32649!important}
 html[data-theme="light"] .confirmation-modal button:not(:last-child),.confirmation-modal[data-theme-mode="light"] button:not(:last-child){background:#fff!important;border-color:var(--house-style)!important;color:#7a4912!important}
 html[data-theme="light"] .confirmation-modal__actions button:last-child:not(:hover),.confirmation-modal[data-theme-mode="light"] .confirmation-modal__actions button:last-child:not(:hover){background:color-mix(in srgb,var(--house-style) 16%,#fff)!important;border-color:var(--house-style)!important;color:#7a4912!important}
 html[data-theme="light"] .confirmation-modal button:hover:not(:disabled),.confirmation-modal[data-theme-mode="light"] button:hover:not(:disabled){background:var(--house-style)!important;border-color:var(--house-style)!important;color:#201812!important}

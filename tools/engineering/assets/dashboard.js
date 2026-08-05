@@ -2164,6 +2164,7 @@ function clearComponentLog(component, button) {
     t("action.clear_logs"),
     t("logs.clear_description", { component: name }),
     t("action.clear_logs"),
+    { destructive: true },
   ).then(async (confirmed) => {
     if (!confirmed) return;
     button.disabled = true;
@@ -3503,7 +3504,7 @@ function dismissExecution(entry) {
   });
 }
 $("predecessorRetry").addEventListener("click", submitPredecessorRetry);
-function confirmDashboardAction(title, text, confirmLabel) {
+function confirmDashboardAction(title, text, confirmLabel, { destructive = false } = {}) {
   const modal = $("confirmationModal"),
     heading = $("confirmationModalTitle"),
     body = $("confirmationModalText"),
@@ -3512,10 +3513,13 @@ function confirmDashboardAction(title, text, confirmLabel) {
   heading.textContent = title;
   body.textContent = text;
   confirm.textContent = confirmLabel;
-  modal.style.setProperty("--confirmation-color", "#f0b66a");
+  modal.classList.toggle("confirmation-modal--destructive", destructive);
+  modal.style.setProperty("--confirmation-color", destructive ? "#ff718f" : "#f0b66a");
+  modal.style.setProperty("--modal-accent", destructive ? "#ff718f" : "#f0b66a");
   return new Promise((resolve) => {
     const finish = (value) => {
       modal.close();
+      modal.classList.remove("confirmation-modal--destructive");
       cancel.onclick = confirm.onclick = null;
       resolve(value);
     };
@@ -3550,6 +3554,7 @@ $("clearChat").addEventListener("click", () =>
     t("chat.clear_title"),
     t("chat.clear_description"),
     t("chat.clear_title"),
+    { destructive: true },
   ).then((confirmed) => {
     if (!confirmed) return;
     chatHistory = [];

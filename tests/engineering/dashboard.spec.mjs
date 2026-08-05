@@ -2853,8 +2853,10 @@ test.describe("Engineering Status browser smoke", () => {
     const modal = page.locator("#confirmationModal");
     await expect(modal).toBeVisible();
     await expect(modal).toBeFocused();
-    await expect(modal.locator(".confirmation-modal__panel")).toHaveCSS("border-top-color", "rgb(240, 182, 106)");
-    await expect(page.locator("#confirmationModalTitle")).toHaveCSS("border-bottom-color", "rgb(240, 182, 106)");
+    await expect(modal.locator(".confirmation-modal__panel")).toHaveCSS("border-top-color", "rgb(255, 113, 143)");
+    await expect(page.locator("#confirmationModalTitle")).toHaveCSS("border-bottom-color", "rgb(255, 113, 143)");
+    await expect(page.locator("#confirmationModalTitle")).toHaveCSS("color", "rgb(255, 113, 143)");
+    expect(await page.locator("#confirmationModalTitle").evaluate((title) => getComputedStyle(title, "::before").color)).toBe("rgb(255, 113, 143)");
     expect(await page.locator("#confirmationModalConfirm").evaluate((element) => getComputedStyle(element).backgroundColor)).not.toBe("rgb(240, 182, 106)");
     for (const action of [page.locator("#confirmationModalCancel"), page.locator("#confirmationModalConfirm")]) {
       await action.hover();
