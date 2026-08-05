@@ -368,11 +368,6 @@ html[data-theme="light"] .chat-message__body :is(code,pre){background:#e9eef6;co
 
 /* The modal footer remains visible even after a visitor enlarges the question box. */
 .prompt-chat-modal #codexChat{display:grid;grid-template-rows:minmax(0,1fr);min-height:0}.prompt-chat-modal .chat-input{height:clamp(88px,14dvh,128px);max-height:128px;min-height:88px}.prompt-chat-modal #codexChat .codex-chat__details{box-sizing:border-box;grid-template-rows:auto minmax(0,1fr) auto auto auto;min-height:0;padding:0 6px 10px}.prompt-chat-modal .chat-question-label{margin-bottom:6px}.prompt-chat-modal .chat-compose{min-height:0}.prompt-chat-modal .chat-meta{align-items:end;display:flex;gap:16px;justify-content:space-between;min-height:2.5rem}.prompt-chat-modal .chat-meta .chat-status{margin:0 0 2px;min-height:1.25em;overflow-wrap:anywhere;text-align:right}.prompt-chat-modal #codexChat .field{margin:6px 0 0;padding-bottom:2px}
-@media (max-height:600px) and (orientation:landscape){
-  .prompt-chat-modal .chat-compose{align-items:center;display:flex;gap:8px}
-  .prompt-chat-modal .chat-compose .chat-input{flex:1;height:44px;max-height:44px;min-height:44px;padding:10px 12px;resize:none}
-  .prompt-chat-modal .chat-compose .chat-send{flex:none;height:44px;min-height:44px;position:static;width:44px}
-}
 /* iOS Safari zooms the document when a control uses text below 16px. Keep
    every editable dashboard control at that threshold in every renderer. */
 :is(input,select,textarea){font-size:16px}
@@ -479,8 +474,9 @@ html[data-theme="light"] .report-view-modal__panel{--report-modal-surface:var(--
 .prompt-chat-modal__panel{--prompt-chat-surface:var(--dashboard-modal-surface);padding:var(--dashboard-modal-panel-padding)}
 html[data-theme="light"] .prompt-chat-modal{--prompt-chat-answer-surface:#f3ebff}
 @media (max-height:600px) and (orientation:landscape){
-  /* Landscape iPhones can have unequal left/right safe areas. Anchor dialogs
-     to each real inset so their border never passes under the Dynamic Island. */
+  /* One compact landscape contract for iPhone dialogs. Safe-area anchoring,
+     component sizing and the single-line chat composer stay together so a
+     late viewport override cannot silently undo one of the other rules. */
   :is(.confirmation-modal,.report-view-modal,.prompt-detail-modal,.prompt-chat-modal){
     box-sizing:border-box;
     inset-inline-start:max(12px,env(safe-area-inset-left));
@@ -495,6 +491,10 @@ html[data-theme="light"] .prompt-chat-modal{--prompt-chat-answer-surface:#f3ebff
     max-width:calc(100vw - env(safe-area-inset-left) - env(safe-area-inset-right) - 24px);
     width:min(680px,calc(100vw - env(safe-area-inset-left) - env(safe-area-inset-right) - 24px));
   }
+  .prompt-chat-modal .chat-actions{gap:6px;margin-bottom:10px;min-height:34px}
+  .prompt-chat-modal .chat-compose{align-items:center;display:flex;gap:8px}
+  .prompt-chat-modal .chat-compose .chat-input{flex:1;height:44px;max-height:44px;min-height:44px;padding:10px 12px;resize:none}
+  .prompt-chat-modal .chat-compose .chat-send{flex:none;height:44px;min-height:44px;position:static;width:44px}
 }
 
 /* Shared modal shell -------------------------------------------------------

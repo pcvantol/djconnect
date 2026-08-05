@@ -925,11 +925,11 @@ test.describe("Engineering Status browser smoke", () => {
     expect(position.restored).toBe(position.initial);
   });
 
-  test("extends the component-modal header rule beneath its close control", async ({ page }) => {
+  test("extends the shared component-modal header rule beneath its close control", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     const bounds = await page.locator("#componentModal").evaluate((modal) => {
       modal.showModal();
-      const heading = modal.querySelector("h2").getBoundingClientRect();
+      const heading = modal.querySelector(".component-modal__header").getBoundingClientRect();
       const close = modal.querySelector(".component-modal__close").getBoundingClientRect();
       modal.close();
       return { headingRight: heading.right, closeRight: close.right };
