@@ -236,7 +236,7 @@ test.describe("Engineering Status browser smoke", () => {
       await page.locator("#promptHistoryChatModal").evaluate((modal) => modal.close());
     }
     expect(dashboardSource).toContain(
-      '$("pageRefresh").addEventListener("click", refreshDashboard)',
+      '$("pageRefresh")?.addEventListener("click", refreshDashboard)',
     );
   });
 

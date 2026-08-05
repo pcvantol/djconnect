@@ -2296,7 +2296,7 @@ function refreshDashboard() {
   pullRefresh.setAttribute("aria-hidden", "false");
   window.location.reload();
 }
-$("pageRefresh").addEventListener("click", refreshDashboard);
+$("pageRefresh")?.addEventListener("click", refreshDashboard);
 document.addEventListener("touchstart", startPullRefresh, { passive: true });
 document.addEventListener("touchmove", movePullRefresh, { passive: false });
 document.addEventListener("touchend", endPullRefresh, { passive: true });
