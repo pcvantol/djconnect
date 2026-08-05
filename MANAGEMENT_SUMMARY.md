@@ -15,15 +15,17 @@
 
 ## Current position
 
-## PR #749 awaiting finalization reconciliation
+## PR #751 awaiting finalization reconciliation
 
-PR [#749](https://github.com/pcvantol/djconnect/pull/749), **Fix dashboard
-live status display**, merged as `46c73ebcf65f9b76e21ef69d5bce4fbee2708a43`.
-The dashboard now exposes the configured platform version during a live run,
-renders the current Codex activity in italic and stabilizes a browser-test
-fixture race. This is bounded operator-interface work: Forge, execution,
+PR [#751](https://github.com/pcvantol/djconnect/pull/751), **Improve
+Engineering evidence projections**, merged as
+`5947c6d799a95f84f3e3ea7a8ce20e66d4f4700c`. Engineering Reports now expose
+derived delivery, qualification, runtime, receipt, decision-reference and
+statistics evidence. The dashboard provides a five-language, actionable Inbox
+notice for a recorded local Codex CLI invocation failure. This is bounded
+Engineering Platform evidence and operator-interface work: Forge, execution,
 runtime, scheduling and lifecycle behavior are unchanged. Its immutable history
-is `docs/history/prompts/2026-08-05-fix-dashboard-live-status-display.md`.
+is `docs/history/prompts/2026-08-05-engineering-evidence-projections.md`.
 Repository State: `MERGED_UNRECONCILED`; Workspace State: `NOT_READY` pending
 this governance-only Finalization and the required Workspace Cleanup.
 
