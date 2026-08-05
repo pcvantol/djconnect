@@ -856,6 +856,25 @@ test.describe("Engineering Status browser smoke", () => {
     });
   });
 
+  test("keeps the status column readable beside a visible action on iPhone landscape", async ({ page }) => {
+    await page.setViewportSize({ width: 844, height: 390 });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => {
+      document.querySelector("#promptHistory").open = true;
+      promptHistoryEntries = [{
+        run_id: "inbox-landscape-status",
+        title: "Landscape retry action",
+        status: "BLOCKED",
+      }];
+      renderPromptHistory();
+    });
+    const status = page.getByText("Geblokkeerd", { exact: true }).last();
+    await expect(status).toHaveText("Geblokkeerd");
+    await expect(status).toHaveCSS("white-space", "nowrap");
+    expect((await status.boundingBox()).width).toBeGreaterThanOrEqual(120);
+    await expect(page.locator("#promptHistoryRows .execution-history-action")).toBeVisible();
+  });
+
   test("keeps execution detail modal borders inside iPhone landscape safe areas", async ({ page }) => {
     await page.setViewportSize({ width: 844, height: 390 });
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
