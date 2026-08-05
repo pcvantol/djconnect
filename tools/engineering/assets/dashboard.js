@@ -43,6 +43,13 @@ function formatTimestamp(value, fallback = t("format.timestamp_unavailable")) {
   const timestamp = Date.parse(String(value || ""));
   return Number.isFinite(timestamp) ? locale.dateTime(new Date(timestamp)) : fallback;
 }
+function formatPromptHistoryTimestamp(value, fallback = t("format.timestamp_unavailable")) {
+  const timestamp = Date.parse(String(value || ""));
+  if (!Number.isFinite(timestamp)) return fallback;
+  return new Intl.DateTimeFormat(dashboardLocale, {
+    day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit", second: "2-digit",
+  }).format(new Date(timestamp));
+}
 function capabilityRecommendation(value) {
   const key = {
     "Capability admission passed.": "capability.recommendation.admission_passed",
@@ -2228,7 +2235,7 @@ document.querySelectorAll(".component-log-download").forEach((button) =>
 );
 document.querySelectorAll(".clear-component-log").forEach((button) => {
   button.classList.add("clear-component-log--glyph");
-  button.textContent = "⌫";
+  button.textContent = "⌧";
   button.title = t("action.clear_logs");
   button.setAttribute("aria-label", t("action.clear_logs"));
 });
@@ -2380,13 +2387,15 @@ function renderPromptHistory() {
     navigation = $("promptHistoryPagination"),
     pageCount = Math.max(1, Math.ceil(rows.length / PROMPT_HISTORY_PAGE_SIZE));
   promptHistoryPage = Math.min(Math.max(1, promptHistoryPage), pageCount);
-  const headerRow = document.querySelector("#promptHistory .log-table thead tr");
-  if (headerRow && !headerRow.querySelector("[data-run-suffix]")) {
+  const showRunSuffix = window.matchMedia("(min-width: 621px)").matches,
+    headerRow = document.querySelector("#promptHistory .log-table thead tr");
+  if (showRunSuffix && headerRow && !headerRow.querySelector("[data-run-suffix]")) {
     const header = document.createElement("th");
     header.dataset.runSuffix = "true";
+    header.dataset.i18n = "table.run_suffix";
     header.scope = "col";
     header.textContent = t("table.run_suffix");
-    headerRow.children[1]?.before(header);
+    headerRow.children[0]?.before(header);
   }
   body.replaceChildren();
   const visible = rows.slice(
@@ -2440,9 +2449,7 @@ function renderPromptHistory() {
       title.textContent = String(
         entry.title || entry.run_id || t("retry.unavailable_title"),
       );
-      executed.textContent = Number.isFinite(timestamp)
-        ? locale.dateTime(new Date(timestamp))
-        : String(entry.executed_at || t("format.timestamp_unavailable"));
+      executed.textContent = formatPromptHistoryTimestamp(entry.executed_at);
       if (entry.report_available && entry.run_id) {
         const view = document.createElement("button");
         view.className = "prompt-history-report";
@@ -2477,7 +2484,7 @@ function renderPromptHistory() {
         button.type = "button";
         button.title = t("history.open_chat", { title: title.textContent });
         button.setAttribute("aria-label", button.title);
-        button.textContent = "💬";
+        button.textContent = "⋯";
         button.addEventListener("click", () => openPromptHistoryChat(entry));
         chat.append(button);
       } else chat.textContent = "—";
@@ -2492,7 +2499,7 @@ function renderPromptHistory() {
       if (["BLOCKED", "FAILED"].includes(entry.status) && !entry.dismissed && entry.run_id && entry.run_id === latestStatus?.last_executed_run && !isActiveRun(latestStatus)) {
         const dismiss = document.createElement("button");
         dismiss.type = "button";
-        dismiss.className = "predecessor-retry execution-history-action";
+        dismiss.className = "predecessor-retry execution-history-action execution-dismiss";
         dismiss.textContent = t("action.dismiss_execution");
         dismiss.addEventListener("click", () => dismissExecution(entry));
         action.append(dismiss);
@@ -2512,7 +2519,9 @@ function renderPromptHistory() {
         });
         details.append(button);
       } else details.textContent = "—";
-      row.append(status, runSuffix, title, executed, report, analysis, chat, action, details);
+      if (showRunSuffix) row.append(runSuffix);
+      row.append(status);
+      row.append(title, executed, report, analysis, chat, action, details);
       body.append(row);
     }
     }

@@ -627,12 +627,13 @@ test.describe("Engineering Status browser smoke", () => {
   });
 
   test("localizes prompt history column headings for every supported language", async ({ page }) => {
+    await page.setViewportSize({ width: 1024, height: 844 });
     const expectations = [
-      ["en", ["Status", "Prompt title", "Executed at", "Report", "AI analysis", "AI chat", "Action", "Details"]],
-      ["nl", ["Status", "Prompttitel", "Uitgevoerd op", "Rapport", "AI-analyse", "AI-gesprek", "Actie", "Details"]],
-      ["de", ["Status", "Prompttitel", "Ausgeführt am", "Bericht", "KI-Analyse", "KI-Chat", "Aktion", "Details"]],
-      ["fr", ["État", "Titre du prompt", "Exécuté le", "Rapport", "Analyse IA", "Chat IA", "Action", "Détails"]],
-      ["es", ["Estado", "Título del prompt", "Ejecutado el", "Informe", "Análisis de IA", "Chat de IA", "Acción", "Detalles"]],
+      ["en", ["Run ID", "Status", "Prompt title", "Executed at", "Report", "AI analysis", "AI chat", "Action", "Details"]],
+      ["nl", ["Run-ID", "Status", "Prompttitel", "Uitgevoerd op", "Rapport", "AI-analyse", "AI-gesprek", "Actie", "Details"]],
+      ["de", ["Run-ID", "Status", "Prompttitel", "Ausgeführt am", "Bericht", "KI-Analyse", "KI-Chat", "Aktion", "Details"]],
+      ["fr", ["ID exéc.", "État", "Titre du prompt", "Exécuté le", "Rapport", "Analyse IA", "Chat IA", "Action", "Détails"]],
+      ["es", ["ID ejec.", "Estado", "Título del prompt", "Ejecutado el", "Informe", "Análisis de IA", "Chat de IA", "Acción", "Detalles"]],
     ];
     for (const [language, headers] of expectations) {
       await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
@@ -678,7 +679,7 @@ test.describe("Engineering Status browser smoke", () => {
     await page.evaluate(() => { document.querySelector("#promptHistory").open = true; });
     const layout = await page.locator("#promptHistory .log-table-wrap").evaluate((wrap) => {
       const table = wrap.querySelector("table");
-      const titleHeader = table.querySelector("th:nth-child(2)");
+      const titleHeader = table.querySelector("th:nth-child(3)");
       const statusHeader = table.querySelector("th:nth-child(1)");
       return {
         wrapWidth: Math.round(wrap.getBoundingClientRect().width),
@@ -690,6 +691,17 @@ test.describe("Engineering Status browser smoke", () => {
     expect(layout.tableWidth).toBeGreaterThanOrEqual(layout.wrapWidth - 2);
     expect(layout.tableWidth).toBeLessThanOrEqual(layout.wrapWidth + 2);
     expect(layout.titleWidth).toBeGreaterThan(layout.statusWidth * 2.5);
+  });
+
+  test("shows only the final five Run-ID characters on an iPad-sized history table", async ({ page }) => {
+    await page.setViewportSize({ width: 1024, height: 844 });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => {
+      document.querySelector("#promptHistory").open = true;
+      promptHistoryEntries = [{ run_id: "inbox-00557e6587394f67b8b4cbde0748bce7", title: "Retry lineage", status: "COMPLETE" }];
+      renderPromptHistory();
+    });
+    await expect(page.locator("#promptHistoryRows tr td").first()).toHaveText("8bce7");
   });
 
   test("keeps prompt history horizontally scrollable only on an iPhone-sized viewport", async ({ page }) => {
@@ -1856,6 +1868,17 @@ test.describe("Engineering Status browser smoke", () => {
     await dashboardLevel.click();
     await expect(dashboardLevel).toHaveAttribute("aria-sort", "ascending");
     await expect(inboxLevel).toHaveAttribute("aria-sort", "ascending");
+  });
+
+  test("uses the remaining component-log table width for Details", async ({ page }) => {
+    await page.setViewportSize({ width: 1600, height: 900 });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#componentLogs").evaluate((element) => { element.open = true; });
+    const detailsWidth = await page.locator("#componentLogs .log-table").first().evaluate((table) => {
+      const headers = table.querySelectorAll("th");
+      return headers[headers.length - 1].getBoundingClientRect().width;
+    });
+    expect(detailsWidth).toBeGreaterThan(300);
   });
 
   test("keeps each component-log table horizontally scrollable on iPhone", async ({ page }) => {

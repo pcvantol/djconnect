@@ -17,15 +17,19 @@ relationship is present in Prompt History or pending in the Inbox.
   created.
 - The dashboard shows a compact Run-ID suffix and keeps the historical table
   horizontally scrollable on iPad portrait.
+- The five-character column is intentionally tablet/desktop-only, preserving
+  the established iPhone Prompt History layout.
 - Producer type labels are localized for `en`, `nl`, `de`, `fr` and `es`.
+- Prompt History now uses consistently styled glyph actions, compact dates and
+  responsive columns; component-log Details uses remaining table width.
 
 ## Verification
 
-- `python3 -m unittest tests.engineering.test_inbox_watcher
-  tests.engineering.test_prompt_history tests.engineering.test_dashboard`
-  — 106 passed.
-- `node --check tools/engineering/assets/dashboard.js` — passed.
-- `git diff --check` — passed.
+- Focused Python retry, history and dashboard regressions cover the immutable
+  parent/child relationship and duplicate-child rejection.
+- Browser regressions cover all five localized headers and the five-character
+  iPad Run-ID projection, plus the Details-column width allocation.
+- JavaScript syntax and `git diff --check` are required before review.
 
 ## Boundary
 
