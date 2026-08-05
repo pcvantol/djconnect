@@ -158,6 +158,12 @@ status, title, execution time, available commit and a report download when a
 local Engineering Report exists. This projection is convenience metadata; the
 terminal checkpoint and target repository remain authoritative.
 
+Selecting a history row is the sole dashboard route to an execution's
+operational details. It opens the selected Run ID in a read-only detail dialog;
+the engineering report and AI analysis remain separate evidence actions on the
+same row. There is no separate **Laatst uitgevoerde prompt** card, so a terminal
+execution is never represented twice in the dashboard.
+
 Set `DJCONNECT_ENGINEERING_LOG_LEVEL` to `DEBUG`, `INFO`, `WARNING` or `ERROR`
 before installing a watcher or dashboard LaunchAgent; the selected value is
 stored in its LaunchAgent environment. The default is `INFO`; an invalid value

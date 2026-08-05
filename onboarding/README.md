@@ -29,6 +29,13 @@ the private dashboard LaunchAgent, and verify both. Submit UTF-8 `.md` or
 stable files one at a time, oldest File Date Modified first, and invokes only
 this repository's `engineering-execution-host`.
 
+After admission, the Engineering runner is detached from the polling watcher.
+The watcher continues to scan the Inbox and updates the dashboard queue during
+the active run, while the admission record enforces exactly one execution at a
+time. A prompt added during a run is therefore visible in **Inbox-wachtrij**
+on the next polling cycle, but remains queued until the active execution is
+terminal.
+
 iCloud is transport only. After a prompt is claimed, the executed prompt copy,
 status, reports, logs and terminal archive live locally under `.engineering/`:
 
@@ -55,8 +62,39 @@ Each completed Engineering Report also records the execution provenance for
 that exact run: Runtime Provider, reported AI Model, reported Reasoning and
 Configuration Profiles, and detected Codex CLI Version. Values are shown as
 `not reported` when the CLI did not supply them; the runner and Engineering
-Status never guess them. In Engineering Status, these fields appear only with
-the matching **Laatst uitgevoerde prompt** report, not with a later run.
+Status never guess them. In Engineering Status, open the matching
+**Promptgeschiedenis** row to view those fields in its read-only execution
+detail dialog. The Engineering Report and AI analysis remain separate actions
+on that same row, so every view stays bound to its exact Run ID. There is no
+separate **Laatst uitgevoerde prompt** card.
+
+The detail dialog is a read-only projection, not a second history store. It
+loads one immutable SQLite history row and its bounded companion data for the
+selected Run ID, then derives only the compact Evidence Bundle and displayed
+target-repository provenance from that run's report. It never modifies a
+report or stored history, and it never falls back to evidence from another
+prompt. If a matching report is absent or cannot be read, the dialog retains
+the history fields and shows no derived evidence.
+
+### Dashboard language verification
+
+Engineering Status supports the canonical five language families `en`, `nl`,
+`de`, `fr` and `es`. Its language selector changes both fixed dashboard chrome
+and dynamic feedback such as AI-chat labels, copy actions and component-status
+messages. When changing any dashboard copy, add the key to all five language
+blocks in `tools/engineering/assets/dashboard_locales.mjs`; do not put a
+user-facing sentence directly in `dashboard.js`.
+
+Before handing off dashboard copy, run:
+
+```sh
+npx playwright test tests/engineering/dashboard.spec.mjs
+```
+
+The suite checks catalogue completeness, scans client-created presentation
+text for unexpected literals, and renders each supported language in the
+browser. It therefore catches a missing translation as well as a label that
+was accidentally left in the source language.
 
 Do not create or rely on `iCloud Drive/DJConnect Engineering/Reports` or an
 iCloud `status.json`. Existing legacy iCloud archives can be moved safely with

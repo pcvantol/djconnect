@@ -38,6 +38,8 @@ architecture.
   including watcher, dashboard and local-report operation.
 - [Engineering Inbox Protocol](../../tools/engineering/ENGINEERING_INBOX_PROTOCOL.md)
   — accepted prompt files, ordering and iCloud delivery boundaries.
+- [Execution Host Contract](../engineering/EXECUTION_HOST_CONTRACT.md) — the
+  producer-neutral boundary consumed by Engineering Platform.
 - [Engineering Report Evidence Contract](../engineering/ENGINEERING_REPORTING.md)
   — how initial observations, final repository evidence and terminal reports
   are interpreted.
