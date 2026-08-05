@@ -412,6 +412,10 @@ html[data-theme="light"] .chat-message__body :is(code,pre){background:#e9eef6;co
   .prompt-chat-modal .chat-compose .chat-input{flex:1;height:44px;max-height:44px;min-height:44px;padding:10px 12px;resize:none}
   .prompt-chat-modal .chat-compose .chat-send{flex:none;height:44px;min-height:44px;position:static;width:44px}
 }
+/* iOS Safari zooms the document when a touch input uses text below 16px.
+   Keep the readable desktop density, but prevent that disruptive focus zoom
+   for every editable control on touch devices. */
+@media (hover:none) and (pointer:coarse){:is(input,select,textarea){font-size:16px}}
 
 /* A short message must keep its natural height; the scroll region owns spare space. */
 .chat-messages{align-content:start;align-items:start}.chat-message{align-self:start}
