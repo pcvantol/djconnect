@@ -1,7 +1,42 @@
 html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 /* Shared product chrome: change the hue here to retheme controls, notices and status metadata. */
-:root{--house-style:#f0b66a;--house-style-contrast:#fff0dc;--house-style-surface:#4a321f;--house-style-focus:#f0b66a47}
-html[data-theme="light"]{--house-style-contrast:#653a13;--house-style-surface:#fff4e6}
+:root{
+  --house-style:#f0b66a;
+  --house-style-contrast:#fff0dc;
+  --house-style-surface:#4a321f;
+  --house-style-focus:#f0b66a47;
+  --button-ink:#10151d;
+  --dashboard-section-gap:24px;
+  --dashboard-scroll-gutter:14px;
+  --dashboard-control-label-gap:8px;
+  --dashboard-focus-outline-width:3px;
+  --dashboard-focus-outline-offset:3px;
+  --dashboard-focus-ring-size:6px;
+  --dashboard-surface-base:#24242d;
+  --dashboard-surface-light:#fff;
+  --dashboard-page-surface-light:#e8edf4;
+  --dashboard-log-control-surface:#3b281b;
+  --dashboard-log-control-surface-light:#fff8ed;
+  --dashboard-expanded-content-surface:#24242d;
+  --dashboard-expanded-header-strength:14%;
+  --dashboard-modal-surface:#24242d;
+  --dashboard-modal-document-surface:#f7fbff;
+  --dashboard-modal-ink:#f7f3ee;
+  --dashboard-modal-muted:#c9d5e4;
+  --dashboard-modal-backdrop:#0d1018cc;
+  --dashboard-modal-radius:18px;
+  --dashboard-modal-panel-padding:24px;
+  --dashboard-modal-shadow:0 16px 50px #000a;
+}
+html[data-theme="light"]{
+  --house-style-contrast:#653a13;
+  --house-style-surface:#fff4e6;
+  --dashboard-expanded-content-surface:#fff;
+  --dashboard-modal-surface:#fff;
+  --dashboard-modal-document-surface:#f7fbff;
+  --dashboard-modal-ink:#182230;
+  --dashboard-modal-muted:#415168;
+}
 .log-controls label:has(#logSort){display:none}.log-table th.log-sortable{cursor:pointer;user-select:none}.log-table th.log-sortable::after{color:#8dc7ff;content:attr(data-sort-indicator);font-size:11px;margin-left:6px}.log-table th.log-sortable:focus-visible{outline:2px solid #8dc7ff;outline-offset:-2px}
 .current-run .card:has(#indicator){background:#2a2530;border-left:3px solid #c7a6ff}.current-run .card:has(#predecessorRun),#currentDiagnostic,.technical-details--diagnostic{background:#302a24;border-left:3px solid #f0b66a}.current-run .card:has(#queueList),.current-run .card:has(#runId),.current-run .card:has(#executionMode){background:#28263a;border-left:3px solid #a78bfa}.current-run .card:has(#currentTime),.current-run .card:has(#executionEstimate){background:#202b34;border-left:3px solid #65c5d9}#processMetrics,#usage,#rateLimits{background:#20332f;border-left:3px solid #54d6a0}#commits{background:#202a36;border-left:3px solid #8dc7ff}#codexChat{background:#292336;border-left:3px solid #d0a4ff}
 body{margin:0;background:#121217;color:#f7f3ee;font:14px system-ui;padding:max(18px,env(safe-area-inset-top)) calc(28px + env(safe-area-inset-right)) max(18px,env(safe-area-inset-bottom)) calc(28px + env(safe-area-inset-left))}.dashboard-grid{display:grid;gap:10px}h1{font-size:28px;line-height:1.1;margin:0 0 18px}.card,.technical-details{background:#24242d;border-left:3px solid #c7a6ff;border-radius:14px;padding:14px;box-shadow:0 4px 18px #0005}.card p{margin:7px 0}.card--operation{background:#2a2530;border-left:3px solid #c7a6ff}.card--monitoring{background:#202b34;border-left:3px solid #65c5d9}.card--context{background:#28263a;border-left:3px solid #a78bfa}.card--resource{background:#20332f;border-left:3px solid #54d6a0}.card--evidence{background:#202a36;border-left:3px solid #8dc7ff}.card--diagnostic,.technical-details--diagnostic{background:#302a24;border-left:3px solid #f0b66a}.card--conversation{background:#292336;border-left:3px solid #d0a4ff}.current-run{background:#1d1d25;border:1px solid #3d3651;border-left:3px solid #c7a6ff;border-radius:18px;padding:14px;box-shadow:0 5px 24px #0006}.current-run__title{border-bottom:1px solid #3d3651;padding:2px 2px 13px}.current-run__title h2{font-size:18px;line-height:1.25;margin:3px 0 0}.current-run__grid{display:grid;gap:10px;margin-top:10px}.current-run .card{box-shadow:none}.field{margin:8px 0 0}.label{display:block;color:#c7a6ff;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;margin-bottom:2px}.estimate-primary{font-size:18px;font-weight:650;margin:8px 0 0}.estimate-meta{color:#b9b6c0;font-size:12px;line-height:1.35;margin:6px 0 0}.final-status{align-items:center;display:flex;gap:7px;margin:0 0 8px}.final-status .label{margin-bottom:0}.indicator--small{height:9px;width:9px}.footer{color:#b9b6c0;font-size:12px;margin:14px 0 4px;text-align:center}.copy,.chat-send{background:#353541;color:#f7f3ee;border:1px solid #57576a;border-radius:8px;padding:6px 9px;font:13px system-ui}.copy{float:right}.technical-details{cursor:pointer}.technical-details summary{list-style:none}.technical-details summary::-webkit-details-marker{display:none}.technical-details summary::before{content:"▸ ";color:#c7a6ff;display:inline-block;font-size:20px;line-height:1;vertical-align:-2px}.technical-details[open] summary::before{content:"▾ "}.technical-grid{display:grid;gap:10px;margin-top:12px}.codex-chat{grid-column:1 / -1}.chat-messages{display:grid;gap:9px;max-height:420px;overflow:auto;margin:12px 0;padding:2px}.chat-message{border-radius:9px;font-family:"Unispace",ui-monospace,monospace;max-width:min(880px,92%);padding:9px 10px;white-space:pre-wrap}.chat-message--user{background:#353541;justify-self:end}.chat-message--assistant{background:#202a36;border:1px solid #37506a;justify-self:start}.chat-message__role{display:block;font-size:11px;font-weight:700;letter-spacing:.04em;margin-bottom:4px;text-transform:uppercase}.chat-message--user .chat-message__role{color:#c7a6ff}.chat-message--assistant .chat-message__role{color:#8dc7ff}.chat-message__body{line-height:1.4}.chat-input{box-sizing:border-box;width:100%;min-height:110px;border:1px solid #57576a;border-radius:8px;background:#18181f;color:#f7f3ee;padding:8px;font:13px "Unispace",ui-monospace,monospace}.chat-status{color:#b9b6c0;font-size:12px}
@@ -59,7 +94,7 @@ button:not(.theme-toggle):not(.section-state-toggle):hover:not(:disabled){backgr
 #pullRefresh{align-items:center;background:var(--house-style-surface);border:1px solid var(--house-style);border-radius:999px;box-shadow:0 8px 24px #0009;color:var(--house-style-contrast);display:flex;font:13px system-ui;gap:8px;left:50%;opacity:0;padding:8px 13px;pointer-events:none;position:fixed;top:10px;transform:translate(-50%,-80px);transition:opacity .15s ease,transform .15s ease;z-index:20}#pullRefresh.pull-refresh--visible{opacity:1;transform:translate(-50%,0)}#pullRefresh::before{content:"↓";font-size:18px;line-height:1}@media (prefers-reduced-motion:reduce){#pullRefresh{transition:none}}
 #dashboardSplash{align-items:center;background:#101015;display:flex;inset:0;justify-content:center;padding:24px;position:fixed;text-align:center;transition:opacity .25s ease,visibility .25s ease;z-index:100}#dashboardSplash[hidden]{display:none}body.dashboard-ready #dashboardSplash{opacity:0;pointer-events:none;visibility:hidden}.dashboard-splash__content{align-items:center;display:flex;flex-direction:column;gap:12px;max-width:360px}.dashboard-splash__title{color:#f7f3ee;font:700 clamp(28px,8vw,42px)/1.1 system-ui;margin:0}.dashboard-splash__version{color:#b79aff;font:600 14px/1.3 system-ui;letter-spacing:.04em;text-transform:uppercase}.dashboard-splash__loading{color:#c8c4cc;font:14px system-ui}.dashboard-splash__spinner{animation:dashboard-splash-spin .85s linear infinite;border:3px solid #332a44;border-radius:50%;border-top-color:#b79aff;height:34px;width:34px}@keyframes dashboard-splash-spin{to{transform:rotate(360deg)}}
 .dashboard-splash__icon{border-radius:18px;display:block;height:72px;width:72px}
-#copyToast{background:var(--house-style-surface);border:1px solid var(--house-style);border-radius:999px;bottom:max(20px,env(safe-area-inset-bottom));box-shadow:0 8px 24px #0009;color:var(--house-style-contrast);font:600 13px system-ui;inset:auto auto max(20px,env(safe-area-inset-bottom)) 50%;left:auto;margin:0;opacity:0;padding:10px 15px;pointer-events:none;position:fixed;transform:translate(-50%,16px);transition:opacity .16s ease,transform .16s ease;z-index:110}#copyToast.copy-toast--visible{opacity:1;transform:translate(-50%,0)}
+#copyToast{background:var(--house-style-surface);border:1px solid var(--house-style);border-radius:999px;box-shadow:0 8px 24px #0009;box-sizing:border-box;color:var(--house-style-contrast);font:600 13px system-ui;inset:auto;inset-block-end:max(20px,env(safe-area-inset-bottom));inset-inline-start:50%;margin:0;max-width:calc(100vw - 32px);opacity:0;padding:10px 15px;pointer-events:none;position:fixed;transform:translate(-50%,16px);transition:opacity .16s ease,transform .16s ease;z-index:110}#copyToast.copy-toast--visible{opacity:1;transform:translate(-50%,0)}
 body{overflow-x:hidden}.dashboard-grid,.dashboard-grid>*{min-width:0}.telemetry,.platform-health{min-width:0}.telemetry-scroll{max-width:100%;-webkit-overflow-scrolling:touch}.platform-health__component{min-width:0}.platform-health__component-detail{overflow-wrap:anywhere}.dashboard-titlebar{align-items:center;background:#121217;box-shadow:0 10px 18px #121217;box-sizing:border-box;display:flex;gap:14px;justify-content:space-between;margin:0 0 18px;max-width:100%;padding:8px 16px 12px;position:sticky;top:max(8px,env(safe-area-inset-top));width:100%;z-index:15}.dashboard-titlebar__brand{align-items:center;display:flex;flex:1 1 260px;gap:10px;min-width:0}.dashboard-titlebar h1{font-size:28px;line-height:1.1;margin:0;overflow-wrap:anywhere}.dashboard-titlebar__actions{align-items:center;display:flex;flex:none;gap:12px}.auto-refresh-toggle{align-items:center;color:#b9b6c0;cursor:pointer;display:flex;flex:none;font-size:12px;gap:7px;white-space:nowrap}.auto-refresh-toggle input{accent-color:#54d6a0;height:18px;margin:0;width:18px}.section-state-toggle{align-items:center;background:transparent;border:0;color:#b9b6c0;cursor:pointer;display:flex;font:12px system-ui;gap:7px;margin:0;min-height:44px;min-width:44px;padding:0;position:relative}.section-state-toggle::before{background:#4a4a55;border-radius:999px;content:"";height:24px;transition:background .18s ease;width:42px}.section-state-toggle::after{background:#f7f3ee;border-radius:50%;box-shadow:0 1px 3px #0008;content:"";height:18px;left:3px;position:absolute;top:13px;transform:translateX(0);transition:transform .18s ease;width:18px}.section-state-toggle[aria-checked="true"]::before{background:#8dc7ff}.section-state-toggle[aria-checked="true"]::after{transform:translateX(18px)}.section-state-toggle:focus-visible{box-shadow:none;outline:2px solid #8dc7ff;outline-offset:3px}@media (max-width:1400px){.dashboard-titlebar{align-items:flex-start;flex-wrap:wrap}.dashboard-titlebar__actions{flex:1 1 100%;flex-wrap:wrap;justify-content:flex-end}}@media (max-width:760px){.dashboard-titlebar__actions{justify-content:flex-start}}@media (max-width:620px){.dashboard-titlebar h1{font-size:25px}.auto-refresh-toggle span,.section-state-toggle__label{display:none}.dashboard-titlebar__actions{gap:8px}}
 .dashboard-titlebar__brand{align-items:center;display:flex;gap:10px;min-width:0}.dashboard-app-icon{border-radius:9px;display:block;flex:none;height:32px;width:32px}@media (max-width:620px){.dashboard-app-icon{height:28px;width:28px}}
 .inbox-queue{--category-color:#818cf8;background:#25243a;border:2px solid var(--category-color);border-radius:18px;box-shadow:0 5px 24px #0006;cursor:pointer;padding:14px}.inbox-queue>summary{border-bottom:1px solid var(--category-color);box-sizing:border-box;cursor:pointer;display:block;list-style:none;margin-bottom:8px;min-height:35px;padding:0 40px 10px 0;position:relative}.inbox-queue>summary::-webkit-details-marker{display:none}.inbox-queue>summary::before{color:var(--category-color);content:"▸ ";font-size:24px;line-height:1;margin:0;padding:0;position:absolute;right:0;top:0;vertical-align:-2px}.inbox-queue[open]>summary::before{content:"▾ "}.inbox-queue>summary>strong{color:var(--category-color);font-size:17px;font-weight:700;letter-spacing:.04em;line-height:1.25;text-transform:uppercase}.inbox-queue .category-description{color:#c9c7e2;font-size:14px;line-height:1.4;margin:12px 0}.inbox-queue .estimate-meta{color:#c9c7e2}.inbox-queue .queue-item{border-top-color:#48446f}
@@ -138,8 +173,16 @@ html[data-theme="light"] #downloadChat.download--glyph:hover{background:var(--ca
 /* Component-log actions need their own light resting surface, not the dark log-card fill. */
 html[data-theme="light"] .log-card-actions .download.download--glyph,html[data-theme="light"] .log-card-actions .clear-component-log--glyph{background:#fffaf4;border-color:var(--category-color);box-shadow:0 2px 8px #8a57202e;color:#834d12}
 
-/* UX component layer: consistent category fills, actions and modal surfaces. */
-:root{--button-ink:#10151d}.dashboard-grid button:not(.component-modal__close):not(.report-view-modal__close):hover{background:var(--category-color,var(--button-fill,#8dc7ff));border-color:var(--category-color,var(--button-fill,#8dc7ff));color:var(--button-ink)}#rateLimitReset{--button-fill:#51d88a;background:#1f5b42;border-color:#51d88a;color:#effff5}.chat-actions{align-items:center;display:flex;gap:8px;justify-content:flex-end;margin:0 0 18px;min-height:44px}.chat-actions #downloadChat.download--glyph{position:static}.chat-actions #downloadChat[hidden],.chat-actions #clearChat[hidden]{display:none}.codex-chat__details>.chat-messages{margin-top:0}.clear-chat{align-items:center;background:#34283f;border:1px solid #d0a4ff;border-radius:50%;color:#eadcff;display:flex;height:34px;justify-content:center;min-height:34px;min-width:34px;padding:0;width:34px}.confirmation-modal{background:transparent;border:0;color:#f7f3ee;padding:0}.confirmation-modal::backdrop{background:#000b}.confirmation-modal__panel{background:#24242d;border:2px solid #c7a6ff;border-radius:16px;box-shadow:0 18px 48px #000a;max-width:30rem;padding:22px}.confirmation-modal__panel #confirmationModalText{line-height:1.55;white-space:pre-line}.confirmation-modal__actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px}.confirmation-modal button{border:1px solid #77738a;border-radius:8px;font:13px system-ui;min-height:44px;padding:8px 14px}.confirmation-modal__actions button:last-child{background:#c7a6ff;border-color:#c7a6ff;color:#191520}
+/* Shared action controls. */
+.dashboard-grid button:not(.component-modal__close):not(.report-view-modal__close):hover{background:var(--category-color,var(--button-fill,#8dc7ff));border-color:var(--category-color,var(--button-fill,#8dc7ff));color:var(--button-ink)}
+#rateLimitReset{--button-fill:#51d88a;background:#1f5b42;border-color:#51d88a;color:#effff5}
+
+/* Advisory-chat controls. */
+.chat-actions{align-items:center;display:flex;gap:8px;justify-content:flex-end;margin:0 0 18px;min-height:44px}
+.chat-actions #downloadChat.download--glyph{position:static}
+.chat-actions #downloadChat[hidden],.chat-actions #clearChat[hidden]{display:none}
+.codex-chat__details>.chat-messages{margin-top:0}
+.clear-chat{align-items:center;background:#34283f;border:1px solid #d0a4ff;border-radius:50%;color:#eadcff;display:flex;height:34px;justify-content:center;min-height:34px;min-width:34px;padding:0;width:34px}
 
 /* The sticky title bar follows the same outer geometry as the main categories. */
 .dashboard-titlebar{border-radius:18px}
@@ -175,7 +218,7 @@ html[data-theme="light"] #rateLimitReset{background:#e8fff5;color:#145a42}
 .prompt-detail-status{align-items:center;display:inline-flex;gap:7px}.prompt-detail-status .indicator{display:block;flex:none}
 
 /* Historical execution evidence is opened from its table row, not duplicated as a dashboard section. */
-.prompt-history-row{cursor:pointer}.prompt-history-row:focus-visible{outline:2px solid var(--category-color);outline-offset:-2px}.prompt-detail-modal{background:transparent;border:0;height:min(90vh,calc(100dvh - 36px));max-width:min(1000px,94vw);padding:0;width:min(1000px,94vw)}.prompt-detail-modal::backdrop{background:#0d1018cc}.prompt-detail-modal__panel{--category-color:#8dc7ff;--prompt-detail-surface:var(--dashboard-surface-base,#24242d);background:var(--prompt-detail-surface);border:2px solid var(--category-color);border-radius:18px;box-sizing:border-box;color:#f7f3ee;display:grid;grid-template-rows:auto auto minmax(0,1fr);height:100%;overflow:hidden;padding:24px}.prompt-detail-modal__header{align-items:start;background:var(--prompt-detail-surface);border-bottom:1px solid var(--category-color);display:grid;gap:18px;grid-template-columns:minmax(0,1fr) max-content;padding:0 0 14px;position:relative;z-index:2}.prompt-detail-modal__header h2{color:var(--category-color);font-size:24px;margin:0;min-width:0}.prompt-detail-modal__header .report-view-modal__close{grid-column:2;grid-row:1;justify-self:end;position:static}.prompt-detail-modal__description{color:#c9d5e4;font-size:16px;line-height:1.5;margin:16px 0}.prompt-detail-modal__content{box-sizing:border-box;display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));min-height:0;overflow:auto;overscroll-behavior:contain;padding:0 12px 10px;scrollbar-gutter:stable both-edges}.prompt-detail-card{background:#24242d;border:1px solid var(--category-color);border-radius:14px;padding:18px}.prompt-detail-card--wide{grid-column:1/-1}.prompt-detail-card h3{color:var(--category-color);font-size:18px;margin:0 0 14px}.prompt-detail-card .field{margin:0 0 14px}.prompt-detail-card .field:last-child{margin-bottom:0}.prompt-detail-card pre{overflow-wrap:anywhere;white-space:pre-wrap}@media (max-width:620px){.prompt-detail-modal{height:min(90vh,calc(100dvh - 36px));max-width:min(1000px,94vw);width:min(1000px,94vw)}.prompt-detail-modal__panel{border-radius:18px;padding:18px}.prompt-detail-modal__content{grid-template-columns:1fr;padding-inline:8px}.prompt-detail-modal__header h2{font-size:20px}}html[data-theme="light"] .prompt-detail-modal__panel{--prompt-detail-surface:var(--dashboard-surface-light,#fff);color:#182230}html[data-theme="light"] .prompt-detail-modal__description{color:#415168}html[data-theme="light"] .prompt-detail-card{background:#fff}
+.prompt-history-row{cursor:pointer}.prompt-history-row:focus-visible{outline:2px solid var(--category-color);outline-offset:-2px}.prompt-detail-modal{background:transparent;border:0;height:min(90vh,calc(100dvh - 36px));max-width:min(1000px,94vw);padding:0;width:min(1000px,94vw)}.prompt-detail-modal::backdrop{background:#0d1018cc}.prompt-detail-modal__panel{--category-color:#8dc7ff;--prompt-detail-surface:var(--dashboard-surface-base,#24242d);background:var(--prompt-detail-surface);border:2px solid var(--category-color);border-radius:18px;box-sizing:border-box;color:#f7f3ee;display:grid;grid-template-rows:auto auto minmax(0,1fr);height:100%;overflow:hidden;padding:24px}.prompt-detail-modal__header{align-items:start;background:var(--prompt-detail-surface);border-bottom:1px solid var(--category-color);display:grid;gap:18px;grid-template-columns:minmax(0,1fr) max-content;padding:0 0 14px;position:relative;z-index:2}.prompt-detail-modal__header h2{color:var(--category-color);font-size:24px;margin:0;min-width:0}.prompt-detail-modal__header .report-view-modal__close{grid-column:2;grid-row:1;justify-self:end;position:static}.prompt-detail-modal__description{color:#c9d5e4;font-size:16px;line-height:1.5;margin:16px 0}.prompt-detail-modal__content{align-items:start;box-sizing:border-box;display:grid;gap:18px;grid-template-columns:minmax(0,1fr) minmax(280px,.82fr);min-height:0;overflow:auto;overscroll-behavior:contain;padding:0 12px 10px;scrollbar-gutter:stable both-edges}.prompt-detail-sidebar{align-content:start;align-items:start;display:grid;gap:18px}.prompt-detail-card{background:#24242d;border:1px solid var(--category-color);border-radius:14px;padding:18px}.prompt-detail-card--wide{grid-column:1/-1}.prompt-detail-card h3{color:var(--category-color);font-size:18px;margin:0 0 14px}.prompt-detail-card .field{margin:0 0 14px}.prompt-detail-card .field:last-child{margin-bottom:0}.prompt-detail-card pre{overflow-wrap:anywhere;white-space:pre-wrap}@media (max-width:620px){.prompt-detail-modal{height:min(90vh,calc(100dvh - 36px));max-width:min(1000px,94vw);width:min(1000px,94vw)}.prompt-detail-modal__panel{border-radius:18px;padding:18px}.prompt-detail-modal__content{grid-template-columns:1fr;padding-inline:8px}.prompt-detail-modal__header h2{font-size:20px}}html[data-theme="light"] .prompt-detail-modal__panel{--prompt-detail-surface:var(--dashboard-surface-light,#fff);color:#182230}html[data-theme="light"] .prompt-detail-modal__description{color:#415168}html[data-theme="light"] .prompt-detail-card{background:#fff}
 
 /* Dialog shells may receive programmatic focus, but only their controls need a visible ring. */
 :where(.component-modal,.confirmation-modal,.report-view-modal,.prompt-detail-modal,.prompt-chat-modal):focus,:where(.component-modal,.confirmation-modal,.report-view-modal,.prompt-detail-modal,.prompt-chat-modal):focus-visible{box-shadow:none;outline:none}
@@ -216,16 +259,30 @@ html[data-theme="light"] #promptHistory .execution-history-action{background:#ff
 .report-view-modal__panel{--report-modal-surface:#24242d;display:grid;grid-template-rows:auto minmax(0,1fr);height:min(90vh,calc(100dvh - 36px));overflow:hidden}.report-view-modal__header{align-items:flex-start;background:var(--report-modal-surface);display:grid!important;gap:16px;grid-template-columns:minmax(0,1fr) max-content;padding:0 0 14px;position:relative;z-index:1}.report-view-modal__title{margin:0;min-width:0}.report-view-modal__actions{grid-column:2;grid-row:1;justify-self:end;position:static}.report-view-modal__content{min-height:0;overflow:auto;overscroll-behavior:contain;padding:12px}html[data-theme="light"] .report-view-modal__panel{--report-modal-surface:#f7fbff}
 
 /* Modal titles have a consistent category-colored ruler; close glyphs stay compact. */
-.component-modal h2{border-bottom:1px solid #a3e635;padding-bottom:12px}.confirmation-modal h2{border-bottom:1px solid #c7a6ff;margin:0;padding-bottom:12px}.report-view-modal__header{border-bottom:1px solid var(--category-color)}.component-modal__close,.report-view-modal__close{font-size:18px}
+.component-modal h2{border-bottom:1px solid #a3e635;padding-bottom:12px}.report-view-modal__header{border-bottom:1px solid var(--category-color)}.component-modal__close,.report-view-modal__close{font-size:18px}
 
 /* A small, decorative glyph gives each modal title a clear visual purpose. */
 :is(.component-modal h2,.confirmation-modal h2,.report-view-modal__title,.prompt-detail-modal__header h2,.prompt-chat-modal__header h2)::before{display:inline-block;font-size:.84em;line-height:1;margin-right:.42em;vertical-align:-.06em}.component-modal h2::before{content:"⚙"}.confirmation-modal h2::before{content:"!"}.report-view-modal__title::before{content:"▤"}.prompt-detail-modal__header h2::before{content:"i";font-weight:700}.prompt-chat-modal__header h2::before{content:"💬"}
 
-/* A confirmation repeats the category color of the action that requested it. */
-.confirmation-modal{--confirmation-color:#c7a6ff}.confirmation-modal__panel{border-color:var(--confirmation-color)}.confirmation-modal h2{border-bottom-color:var(--confirmation-color)}.confirmation-modal__actions button:last-child{background:var(--confirmation-color);border-color:var(--confirmation-color)}
-
-/* Confirmation actions never fall back to dashboard blue: they fill with their own action color. */
-.confirmation-modal button:hover:not(:disabled){background:var(--confirmation-color)!important;border-color:var(--confirmation-color)!important;color:#17151a!important}
+/* Confirmation modal: one operational surface and one house-style action
+   treatment, regardless of the contextual accent that opened the dialog. */
+.confirmation-modal{--confirmation-color:#c7a6ff;background:transparent;border:0;color:var(--dashboard-modal-ink);padding:0}
+.confirmation-modal::backdrop{background:#000b}
+.confirmation-modal__panel{background:var(--dashboard-modal-surface);border:2px solid var(--confirmation-color);border-radius:16px;box-shadow:0 18px 48px #000a;max-width:30rem;padding:22px}
+.confirmation-modal h2{border-bottom:1px solid var(--confirmation-color);color:var(--house-style)!important;margin:0;padding-bottom:12px}
+.confirmation-modal__panel #confirmationModalText{line-height:1.55;white-space:pre-line}
+.confirmation-modal__actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px}
+.confirmation-modal button{border:1px solid var(--house-style)!important;border-radius:8px;font:13px system-ui;min-height:44px;padding:8px 14px}
+.confirmation-modal__actions button:first-child:not(:hover){background:var(--dashboard-modal-surface)!important;color:var(--dashboard-modal-ink)!important}
+.confirmation-modal__actions button:last-child:not(:hover){background:color-mix(in srgb,var(--house-style) 22%,#24242d)!important;border-color:var(--house-style)!important;color:#f7f3ee!important}
+.confirmation-modal__actions button:hover:not(:disabled){background:var(--house-style)!important;border-color:var(--house-style)!important;color:#201812!important}
+html[data-theme="light"] .confirmation-modal,.confirmation-modal[data-theme-mode="light"]{color:#182230}
+html[data-theme="light"] .confirmation-modal__panel,.confirmation-modal[data-theme-mode="light"] .confirmation-modal__panel{background:var(--dashboard-modal-document-surface)!important;box-shadow:0 18px 48px #26395540;color:#182230!important}
+html[data-theme="light"] .confirmation-modal :is(h2,p),.confirmation-modal[data-theme-mode="light"] :is(h2,p){color:#182230!important}
+html[data-theme="light"] .confirmation-modal h2,.confirmation-modal[data-theme-mode="light"] h2{color:var(--house-style)!important}
+html[data-theme="light"] .confirmation-modal button:not(:last-child),.confirmation-modal[data-theme-mode="light"] button:not(:last-child){background:#fff!important;border-color:var(--house-style)!important;color:#7a4912!important}
+html[data-theme="light"] .confirmation-modal__actions button:last-child:not(:hover),.confirmation-modal[data-theme-mode="light"] .confirmation-modal__actions button:last-child:not(:hover){background:color-mix(in srgb,var(--house-style) 16%,#fff)!important;border-color:var(--house-style)!important;color:#7a4912!important}
+html[data-theme="light"] .confirmation-modal button:hover:not(:disabled),.confirmation-modal[data-theme-mode="light"] button:hover:not(:disabled){background:var(--house-style)!important;border-color:var(--house-style)!important;color:#201812!important}
 
 /* Platform information glyphs use the same compact diameter as round download actions. */
 .component-info{min-height:32px;min-width:32px}
@@ -236,18 +293,6 @@ html[data-theme="light"] #promptHistory .execution-history-action{background:#ff
 /* Light report modals keep actions and markdown code on readable light surfaces. */
 html[data-theme="light"] .report-view-modal__actions :is(.copy,.download){background:#f7fbff;border-color:var(--category-color);box-shadow:0 2px 8px #2639552e;color:#1c4e68}html[data-theme="light"] .report-view-modal__content :is(pre,code){background:#eef4fb;color:#182230}
 
-/* Confirmation dialogs are light surfaces in light mode while retaining their action color. */
-html[data-theme="light"] .confirmation-modal, .confirmation-modal[data-theme-mode="light"]{color:#182230}html[data-theme="light"] .confirmation-modal__panel,.confirmation-modal[data-theme-mode="light"] .confirmation-modal__panel{background:#f7fbff!important;box-shadow:0 18px 48px #26395540;color:#182230!important}html[data-theme="light"] .confirmation-modal :is(h2,p),.confirmation-modal[data-theme-mode="light"] :is(h2,p){color:#182230!important}html[data-theme="light"] .confirmation-modal button:not(:last-child),.confirmation-modal[data-theme-mode="light"] button:not(:last-child){background:#fff!important;border-color:#9aabc3!important;color:#182230!important}
-
-/* The light resting style must yield to the action-colour hover state. */
-html[data-theme="light"] .confirmation-modal button:hover:not(:disabled),.confirmation-modal[data-theme-mode="light"] button:hover:not(:disabled){background:var(--confirmation-color)!important;border-color:var(--confirmation-color)!important;color:#17151a!important}
-
-/* Primary confirmation actions follow the light, outlined resting treatment used by platform actions. */
-.confirmation-modal__actions button:last-child:not(:hover){background:color-mix(in srgb,var(--confirmation-color) 22%,#24242d)!important;border-color:var(--confirmation-color)!important;color:#f7f3ee!important}html[data-theme="light"] .confirmation-modal__actions button:last-child:not(:hover),.confirmation-modal[data-theme-mode="light"] .confirmation-modal__actions button:last-child:not(:hover){background:color-mix(in srgb,var(--confirmation-color) 16%,#fff)!important;color:color-mix(in srgb,var(--confirmation-color) 76%,#182230)!important}
-
-/* Confirmation actions are platform operations, so their controls use the
-   Engineering Platform orange independently of the modal's contextual accent. */
-.confirmation-modal__actions button{border-color:var(--house-style)!important}.confirmation-modal__actions button:last-child:not(:hover){background:color-mix(in srgb,var(--house-style) 22%,#24242d)!important;border-color:var(--house-style)!important}html[data-theme="light"] .confirmation-modal__actions button:hover:not(:disabled),.confirmation-modal[data-theme-mode="light"] .confirmation-modal__actions button:hover:not(:disabled),.confirmation-modal__actions button:hover:not(:disabled){background:var(--house-style)!important;border-color:var(--house-style)!important;color:#201812!important}html[data-theme="light"] .confirmation-modal__actions button:not(:last-child),.confirmation-modal[data-theme-mode="light"] .confirmation-modal__actions button:not(:last-child){border-color:var(--house-style)!important;color:#7a4912!important}html[data-theme="light"] .confirmation-modal__actions button:last-child:not(:hover),.confirmation-modal[data-theme-mode="light"] .confirmation-modal__actions button:last-child:not(:hover){background:color-mix(in srgb,var(--house-style) 16%,#fff)!important;border-color:var(--house-style)!important;color:#7a4912!important}
 
 /* Engineering Platform is a generic platform label and uses the orange house style. */
 .dashboard-splash__version{color:#f0b66a}
@@ -267,19 +312,6 @@ html[data-theme="light"] .confirmation-modal button:hover:not(:disabled),.confir
 /* Dashboard UI component layer ------------------------------------------------
    Shared layout, focus and surface tokens keep late UI refinements out of
    one-off overrides and make the component blocks below safe to maintain. */
-:root{
-  --dashboard-section-gap:24px;
-  --dashboard-scroll-gutter:14px;
-  --dashboard-control-label-gap:8px;
-  --dashboard-focus-outline-width:3px;
-  --dashboard-focus-outline-offset:3px;
-  --dashboard-focus-ring-size:6px;
-  --dashboard-surface-base:#24242d;
-  --dashboard-surface-light:#fff;
-  --dashboard-page-surface-light:#e8edf4;
-  --dashboard-log-control-surface:#3b281b;
-  --dashboard-log-control-surface-light:#fff8ed;
-}
 
 /* Header */
 .dashboard-titlebar__brand{align-items:center;display:flex;flex:1 1 260px;gap:10px;min-width:0}
@@ -327,14 +359,6 @@ label:has(> :is(input,select,textarea)):not(.dashboard-locale):not(.auto-refresh
 html[data-theme="light"] .reset-log-filters{background:var(--dashboard-log-control-surface-light);border-color:#c17a1f;color:#7a4912}
 html[data-theme="light"] .reset-log-filters:hover:not(:disabled){background:#f0b66a;color:#201812}
 
-/* Modal */
-.confirmation-modal__panel{background:var(--dashboard-surface-base)}
-.confirmation-modal__panel #confirmationModalText{line-height:1.55;white-space:pre-line}
-/* Confirmation dialogs are operational actions: keep their title in the orange house style in both themes. */
-.confirmation-modal h2{color:var(--house-style)!important}
-html[data-theme="light"] .confirmation-modal h2,.confirmation-modal[data-theme-mode="light"] h2{color:var(--house-style)!important}
-html[data-theme="light"] .confirmation-modal__panel{background:color-mix(in srgb,var(--dashboard-surface-light) 94%,#eef4fb)!important}
-
 /* Terminal-state meaning must survive the broad light-table text color. */
 html[data-theme="light"] #promptHistoryRows .prompt-history-status--complete{color:#14865b!important}html[data-theme="light"] #promptHistoryRows .prompt-history-status--blocked{color:#a65a00!important}html[data-theme="light"] #promptHistoryRows .prompt-history-status--failed{color:#b42340!important}
 
@@ -346,7 +370,7 @@ html[data-theme="light"] .log-level--error{color:#b42340!important}html[data-the
 html[data-theme="light"] .chat-message__body :is(code,pre){background:#e9eef6;color:#182230}
 
 /* Run-scoped AI conversation is opened from Prompt History, alongside evidence actions. */
-.prompt-history-chat{align-items:center;background:transparent;border:1px solid #d0a4ff;border-radius:50%;color:#d0a4ff;display:inline-flex;font:16px/1 system-ui;justify-content:center;min-height:32px;min-width:32px;padding:0}.prompt-history-chat:hover{background:#d0a4ff;border-color:#d0a4ff;color:#17151a}.prompt-chat-modal{background:transparent;border:0;height:min(94vh,1100px);max-width:min(1500px,96vw);padding:0;width:min(1500px,96vw)}.prompt-chat-modal::backdrop{background:#0d1018cc}.prompt-chat-modal__panel{--category-color:#d0a4ff;--prompt-chat-surface:var(--dashboard-surface-base,#24242d);background:var(--prompt-chat-surface);border:2px solid var(--category-color);border-radius:18px;box-sizing:border-box;color:#f7f3ee;display:grid;grid-template-rows:auto auto minmax(0,1fr);height:100%;overflow:hidden;padding:24px}.prompt-chat-modal__header{align-items:start;background:var(--prompt-chat-surface);border-bottom:1px solid var(--category-color);display:grid;gap:18px;grid-template-columns:minmax(0,1fr) max-content;padding:0 0 14px;position:relative;z-index:2}.prompt-chat-modal__header h2{color:var(--category-color);font-size:24px;margin:0;min-width:0}.prompt-chat-modal__header .report-view-modal__close{grid-column:2;grid-row:1;justify-self:end;position:static}.prompt-chat-modal__description{color:#dacbe6;font-size:16px;line-height:1.5;margin:16px 0}.prompt-chat-modal #codexChat{align-self:stretch;background:transparent;border:0;border-radius:0;box-shadow:none;height:auto;min-height:0;overflow:hidden;padding:0}.prompt-chat-modal #codexChat .codex-chat__details{display:grid;grid-template-rows:auto minmax(0,1fr) auto auto auto auto;height:100%;min-height:0}.prompt-chat-modal .chat-messages{max-height:none;min-height:0;overflow:auto}.prompt-chat-modal .chat-compose,.prompt-chat-modal .chat-status,.prompt-chat-modal #codexChat .field{flex:none}@media (max-width:620px){.prompt-chat-modal{height:100vh;max-width:100vw;width:100vw}.prompt-chat-modal__panel{border-radius:0;padding:16px}.prompt-chat-modal__header h2{font-size:20px}}html[data-theme="light"] .prompt-chat-modal__panel{--prompt-chat-surface:var(--dashboard-surface-light,#fff);color:#182230}html[data-theme="light"] .prompt-chat-modal__description{color:#58677b}html[data-theme="light"] .prompt-chat-modal #codexChat{background:transparent}
+.prompt-history-chat{align-items:center;background:transparent;border:1px solid #d0a4ff;border-radius:50%;color:#d0a4ff;display:inline-flex;font:16px/1 system-ui;justify-content:center;min-height:32px;min-width:32px;padding:0}.prompt-history-chat:hover{background:#d0a4ff;border-color:#d0a4ff;color:#17151a}.prompt-chat-modal{background:transparent;border:0;height:min(94vh,1100px);max-width:min(1500px,96vw);padding:0;width:min(1500px,96vw)}.prompt-chat-modal::backdrop{background:#0d1018cc}.prompt-chat-modal__panel{--category-color:#d0a4ff;--prompt-chat-surface:var(--dashboard-surface-base,#24242d);background:var(--prompt-chat-surface);border:2px solid var(--category-color);border-radius:18px;box-sizing:border-box;color:#f7f3ee;display:grid;grid-template-rows:auto auto minmax(0,1fr);height:100%;overflow:hidden;padding:24px}.prompt-chat-modal__header{align-items:start;background:var(--prompt-chat-surface);border-bottom:1px solid var(--category-color);display:grid;gap:18px;grid-template-columns:minmax(0,1fr) max-content;padding:0 0 14px;position:relative;z-index:2}.prompt-chat-modal__header h2{color:var(--category-color);font-size:24px;margin:0;min-width:0}.prompt-chat-modal__header .report-view-modal__close{grid-column:2;grid-row:1;justify-self:end;position:static}.prompt-chat-modal__description{color:#dacbe6;font-size:16px;line-height:1.5;margin:16px 0}.prompt-chat-modal #codexChat{align-self:stretch;background:transparent;border:0;border-radius:0;box-shadow:none;height:auto;min-height:0;overflow:hidden;padding:0}.prompt-chat-modal #codexChat .codex-chat__details{display:grid;grid-template-rows:auto minmax(0,1fr) auto auto auto auto;height:100%;min-height:0}.prompt-chat-modal .chat-messages{max-height:none;min-height:0;overflow:auto}.prompt-chat-modal .chat-compose,.prompt-chat-modal .chat-status,.prompt-chat-modal #codexChat .field{flex:none}@media (max-width:620px){.prompt-chat-modal{height:min(90vh,calc(100dvh - 36px));max-width:min(1000px,94vw);width:min(1000px,94vw)}.prompt-chat-modal__panel{border-radius:18px;padding:18px}.prompt-chat-modal__header h2{font-size:20px}}html[data-theme="light"] .prompt-chat-modal__panel{--prompt-chat-surface:var(--dashboard-surface-light,#fff);color:#182230}html[data-theme="light"] .prompt-chat-modal__description{color:#58677b}html[data-theme="light"] .prompt-chat-modal #codexChat{background:transparent}
 
 /* AI antwoorden krijgen een eigen paarse laag, los van de chatmodal. */
 .prompt-chat-modal{--prompt-chat-answer-surface:#3c2a4d}.prompt-chat-modal .chat-message--assistant{background:var(--prompt-chat-answer-surface);border-color:#bd8ee8}html[data-theme="light"] .prompt-chat-modal{--prompt-chat-answer-surface:#f3ebff}
@@ -406,11 +430,9 @@ html[data-theme="light"] #engineering-dashboard-content>#technicalDetails{backgr
 
 /* Expanded main categories separate their coloured heading from neutral content.
    Collapsed summaries retain their full category surface as a compact cue. */
-:root{--dashboard-expanded-content-surface:#24242d;--dashboard-expanded-header-strength:14%}
 :is(.workspace-card,.inbox-queue,.prompt-history,#currentRun,#rateLimits,.platform-health,.telemetry,#componentLogs,#engineering-dashboard-content>.technical-details:not(#componentLogs))[open]{background:var(--dashboard-expanded-content-surface)!important}
 :is(.workspace-card,.inbox-queue,.prompt-history,#currentRun,#rateLimits,.platform-health,.telemetry,#componentLogs,#engineering-dashboard-content>.technical-details:not(#componentLogs))[open]>summary{background:color-mix(in srgb,var(--category-color) var(--dashboard-expanded-header-strength),var(--dashboard-expanded-content-surface));border-radius:15px 15px 0 0;margin:-14px -14px 12px!important;padding:14px 54px 10px 14px!important}
 :is(.workspace-card,.inbox-queue,.prompt-history,#currentRun,#rateLimits,.platform-health,.telemetry,#componentLogs,#engineering-dashboard-content>.technical-details:not(#componentLogs))[open]>summary::before{right:14px;top:14px}
-html[data-theme="light"]{--dashboard-expanded-content-surface:#fff}
 html[data-theme="light"] :is(.workspace-card,.inbox-queue,.prompt-history,#currentRun,#rateLimits,.platform-health,.telemetry,#componentLogs,#engineering-dashboard-content>.technical-details:not(#componentLogs))[open]>summary{background:color-mix(in srgb,var(--category-color) 12%,#fff)}
 
 /* A collapsed category is a compact summary, so it has no content divider. */
@@ -434,3 +456,47 @@ html[data-theme="light"] #pullRefresh{background:var(--house-style-surface);bord
    full-screen component backdrop a viewport-sized border box, then centre its
    panel inside it so iPhone side gutters always match. */
 .component-modal{box-sizing:border-box;inset:0;margin:0}
+
+/* Modal components ---------------------------------------------------------
+   All modal families consume this shared surface contract.  Individual
+   components below only define their geometry and contextual accent. */
+:is(.component-modal__panel,.confirmation-modal__panel,.report-view-modal__panel,.prompt-detail-modal__panel,.prompt-chat-modal__panel){
+  background:var(--dashboard-modal-surface);
+  border-radius:var(--dashboard-modal-radius);
+  box-shadow:var(--dashboard-modal-shadow);
+  color:var(--dashboard-modal-ink);
+}
+:is(.report-view-modal,.prompt-detail-modal,.prompt-chat-modal)::backdrop{background:var(--dashboard-modal-backdrop)}
+:is(.report-view-modal__content,.prompt-detail-card){background:var(--dashboard-modal-surface)}
+:is(.prompt-detail-modal__description,.prompt-chat-modal__description){color:var(--dashboard-modal-muted)}
+
+/* Report modal: a fixed header with one scrolling document surface. */
+.report-view-modal__panel{--report-modal-surface:var(--dashboard-modal-surface)}
+html[data-theme="light"] .report-view-modal__panel{--report-modal-surface:var(--dashboard-modal-document-surface)}
+
+/* Historical execution detail: evidence cards share the report surface. */
+.prompt-detail-modal__panel{--prompt-detail-surface:var(--dashboard-modal-surface);padding:var(--dashboard-modal-panel-padding)}
+.prompt-detail-card{background:var(--dashboard-modal-surface)}
+
+/* Run-scoped advisory conversation: the dialog stays neutral; only replies
+   carry the purple conversation tint. */
+.prompt-chat-modal__panel{--prompt-chat-surface:var(--dashboard-modal-surface);padding:var(--dashboard-modal-panel-padding)}
+html[data-theme="light"] .prompt-chat-modal{--prompt-chat-answer-surface:#f3ebff}
+
+/* Shared modal shell -------------------------------------------------------
+   Report, execution detail and AI chat use the same structural contract.
+   Their modifiers intentionally supply only the contextual accent; geometry
+   and modal-surface behaviour live here once. */
+.dashboard-modal-shell{--modal-accent:#8dc7ff;--modal-surface:var(--dashboard-modal-surface);background:transparent;border:0;color:var(--dashboard-modal-ink);padding:0}
+.dashboard-modal-shell--component{--modal-accent:#a3e635}
+.dashboard-modal-shell--confirmation{--modal-accent:var(--house-style)}
+.dashboard-modal-shell--evidence{--modal-accent:#8dc7ff;--category-color:var(--modal-accent)}
+.dashboard-modal-shell--chat{--modal-accent:#d0a4ff;--category-color:var(--modal-accent)}
+.dashboard-modal-shell::backdrop{background:var(--dashboard-modal-backdrop)}
+.dashboard-modal-shell__panel{background:var(--modal-surface);border-color:var(--modal-accent);box-shadow:var(--dashboard-modal-shadow);color:var(--dashboard-modal-ink)}
+.dashboard-modal-shell__header{border-bottom-color:var(--modal-accent)}
+.dashboard-modal-shell__header h2{color:var(--modal-accent)}
+.dashboard-modal-shell__close{background:var(--modal-surface);border-color:var(--modal-accent);color:var(--modal-accent)}
+.dashboard-modal-shell__close:hover{background:var(--modal-accent);border-color:var(--modal-accent);color:#17151a}
+html[data-theme="light"] .dashboard-modal-shell{--modal-surface:var(--dashboard-modal-document-surface);color:#182230}
+html[data-theme="light"] .dashboard-modal-shell__panel{color:#182230}

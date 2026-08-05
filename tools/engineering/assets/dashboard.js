@@ -744,6 +744,14 @@ function renderPreflightPresentation(snapshot = {}) {
       element.textContent = renderPreflightValue(key, preflight[key], formatter);
     }
   }
+  const drift = snapshot.current_drift || {}, card = $("driftDiagnosticsCard");
+  if (card) {
+    card.hidden = !drift.drift_id;
+    const values = [["driftSeverity", drift.severity], ["driftComponent", drift.affected_component],
+      ["driftExpected", drift.expected_value], ["driftObserved", drift.observed_value],
+      ["driftResolution", drift.resolution_recommendation]];
+    for (const [id, value] of values) if ($(id)) $(id).textContent = value || t("format.not_available");
+  }
 }
 function renderHealthStatus(x, snapshot = {}) {
   lastRefresh = new Date();
@@ -2479,16 +2487,33 @@ function renderPromptHistory() {
   navigation.append(summary, previous, next);
   updatePromptHistoryHeaders();
 }
-function refreshPromptHistory() {
+let promptHistoryRefreshRetry = null;
+function refreshPromptHistory({ retryEmptyOnce = true } = {}) {
   return fetch("/api/prompt-history", { cache: "no-store" })
     .then((response) => (response.ok ? response.json() : Promise.reject()))
     .then((payload) => {
-      promptHistoryEntries = Array.isArray(payload?.runs) ? payload.runs : [];
+      if (!Array.isArray(payload?.runs)) throw Error("invalid prompt history");
+      promptHistoryEntries = payload.runs;
       renderPromptHistory();
+      // The history index can be briefly unavailable while the watcher commits
+      // a terminal run. Retry one empty initial projection so a transient
+      // SQLite lock never leaves the visible history blank until a reload.
+      if (!promptHistoryEntries.length && retryEmptyOnce) {
+        clearTimeout(promptHistoryRefreshRetry);
+        promptHistoryRefreshRetry = setTimeout(() => {
+          void refreshPromptHistory({ retryEmptyOnce: false });
+        }, 1_000);
+      }
     })
     .catch(() => {
       promptHistoryEntries = [];
       renderPromptHistory();
+      if (retryEmptyOnce) {
+        clearTimeout(promptHistoryRefreshRetry);
+        promptHistoryRefreshRetry = setTimeout(() => {
+          void refreshPromptHistory({ retryEmptyOnce: false });
+        }, 1_000);
+      }
     });
 }
 async function refreshAfterOperatorAction({ dismissedRunId = null } = {}) {
@@ -3022,10 +3047,25 @@ function openPromptHistoryDocument(runId, title, kind = "report") {
     .then((response) =>
       response.ok
         ? response.text()
-        : Promise.reject(Error("Document is niet beschikbaar.")),
+        : Promise.reject(
+            Error(
+              t(
+                promptHistoryDocumentKind === "analysis"
+                  ? "history.analysis_unavailable"
+                  : "history.report_unavailable",
+              ),
+            ),
+          ),
     )
     .then((text) => {
-      if (!text) throw Error("Document is niet beschikbaar.");
+      if (!text)
+        throw Error(
+          t(
+            promptHistoryDocumentKind === "analysis"
+              ? "history.analysis_unavailable"
+              : "history.report_unavailable",
+          ),
+        );
       promptHistoryReportText = text;
       renderMarkdownDocument(content, text);
       $("promptHistoryReportCopy").hidden = false;
@@ -3076,6 +3116,12 @@ function promptDetailCard(title, fields, wide = false) {
   heading.textContent = title;
   card.append(heading, ...fields);
   return card;
+}
+function promptDetailSidebar(cards) {
+  const sidebar = document.createElement("div");
+  sidebar.className = "prompt-detail-sidebar";
+  sidebar.append(...cards.filter(Boolean));
+  return sidebar;
 }
 function promptDetailDuration(value) {
   const seconds = Number(value);
@@ -3155,7 +3201,6 @@ function promptDetailEvidenceSection(evidence) {
   return promptDetailCard(
     t("detail.execution_evidence"),
     [detailField(t("detail.evidence"), evidence.join("\n"), true)],
-    true,
   );
 }
 function promptDetailReviewersSection(reviewers) {
@@ -3188,11 +3233,13 @@ function renderPromptHistoryDetail(payload) {
   content.append(
     ...[
       promptDetailExecutionSection(history),
-      promptDetailDurationSection(execution),
-      promptDetailRuntimeSection(runtime),
+      promptDetailSidebar([
+        promptDetailDurationSection(execution),
+        promptDetailRuntimeSection(runtime),
+        promptDetailCommitsSection(commits),
+        promptDetailEvidenceSection(evidence),
+      ]),
       promptDetailUsageSection(usage),
-      promptDetailCommitsSection(commits),
-      promptDetailEvidenceSection(evidence),
       promptDetailReviewersSection(reviewers),
     ].filter(Boolean),
   );

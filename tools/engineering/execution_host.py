@@ -56,6 +56,7 @@ from .providers import GitHubProvider, CodexCliProvider
 from .host_preflight import latest as latest_host_preflight
 from .workspace_preflight import latest as latest_workspace_preflight
 from .capability_preflight import latest as latest_capability_preflight
+from .drift_diagnostics import summary as drift_summary
 
 
 class RunnerError(RuntimeError):
@@ -2083,6 +2084,11 @@ def generate_terminal_report(
     capability_preflight = latest_capability_preflight(root)
     if capability_preflight.get("run_id") not in {None, state.run_id}:
         capability_preflight = {}
+    drift_evidence = [
+        item for preflight in (preflight, workspace_preflight, capability_preflight)
+        for item in preflight.get("drift_evidence", [])
+        if isinstance(item, dict)
+    ]
     body = "\n".join(
         (
             "# Engineering Report",
@@ -2156,6 +2162,26 @@ def generate_terminal_report(
             f"- Recoverability: `{capability_preflight.get('recoverability', 'unavailable') if isinstance(capability_preflight, dict) else 'unavailable'}`",
             f"- Failure Origin: `{capability_preflight.get('failure_origin', 'none') if isinstance(capability_preflight, dict) else 'none'}`",
             f"- Recommendation: {capability_preflight.get('recommendation', 'unavailable') if isinstance(capability_preflight, dict) else 'unavailable'}",
+            "",
+            "## Development Host Drift Diagnostics",
+            "- Detected Drift: " + (str(len(drift_evidence)) if drift_evidence else "none"),
+            *(
+                line
+                for item in drift_evidence
+                for line in (
+                    f"- Drift ID: `{item.get('drift_id', 'unavailable')}`",
+                    f"  - Category: `{item.get('category', 'unavailable')}`; Severity: `{item.get('severity', 'unavailable')}`",
+                    f"  - Expected State: {item.get('expected_value', 'unavailable')}",
+                    f"  - Observed State: {item.get('observed_value', 'unavailable')}",
+                    f"  - Blocking Reason: {item.get('affected_component', 'unavailable')}",
+                    f"  - Recommended Resolution / Required Action: {item.get('resolution_recommendation', 'unavailable')}",
+                    f"  - Affected Component: `{item.get('affected_component', 'unavailable')}`; Affected Repository: `{item.get('affected_repository', 'unavailable')}`; Affected Runtime: `{item.get('affected_runtime', 'unavailable')}`",
+                )
+            ),
+            "- Resume Guidance: " + (
+                "Resolve the listed prerequisite, then retry; resume is not appropriate while drift remains."
+                if drift_evidence else "No current development-host drift is recorded."
+            ),
             "",
             "## Authorization",
             f"- Owner authorization: `{state.owner_authorized}`",
@@ -2235,7 +2261,7 @@ def generate_terminal_report(
             format_terminal_management_summary(state),
             "",
             "## Diagnostics",
-            state.diagnostic or "No terminal diagnostic.",
+            state.diagnostic or drift_summary(drift_evidence),
             f"Resume: `engineering-execution-host {state.prompt_path} --run-id {state.run_id} --resume`",
             "",
             "## Metrics",

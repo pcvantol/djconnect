@@ -233,8 +233,28 @@ test.describe("Engineering Status browser smoke", () => {
 
     await page.locator("#promptHistoryRows tr td").nth(1).click();
     await expect(page.locator("#promptHistoryDetailModal")).toBeVisible();
+    await expect(page.locator("#promptHistoryDetailModal")).toHaveClass(/dashboard-modal-shell--evidence/);
+    await expect(page.locator("#promptHistoryDetailModal .prompt-detail-modal__panel")).toHaveClass(/dashboard-modal-shell__panel/);
+    await expect(page.locator("#promptHistoryDetailModal .prompt-detail-modal__header")).toHaveClass(/dashboard-modal-shell__header/);
     await expect(page.locator("#promptHistoryDetailContent")).toContainText("Engineering Platform");
     await expect(page.locator("dialog[open]")).toHaveCount(1);
+  });
+
+  test("uses the shared modal shell with contextual accents", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+
+    for (const [selector, modifier, accent] of [
+      ["#promptHistoryReportModal", "dashboard-modal-shell--evidence", "rgb(141, 199, 255)"],
+      ["#promptHistoryDetailModal", "dashboard-modal-shell--evidence", "rgb(141, 199, 255)"],
+      ["#promptHistoryChatModal", "dashboard-modal-shell--chat", "rgb(208, 164, 255)"],
+    ]) {
+      const modal = page.locator(selector);
+      await expect(modal).toHaveClass(new RegExp(modifier));
+      await modal.evaluate((element) => element.showModal());
+      await expect(modal.locator(".dashboard-modal-shell__panel")).toHaveCSS("border-top-color", accent);
+      await expect(modal.locator(".dashboard-modal-shell__close")).toHaveCSS("border-top-color", accent);
+      await modal.evaluate((element) => element.close());
+    }
   });
 
   test("keeps the execution-details modal as compact as the report modal on iPhone", async ({ page }) => {
@@ -259,6 +279,33 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#promptHistoryDetailContent")).toHaveCSS("padding-left", "8px");
     await expect(page.locator("#promptHistoryDetailContent")).toHaveCSS("padding-right", "8px");
     expect(await page.locator("#promptHistoryDetailContent").evaluate(
+      (element) => element.scrollHeight > element.clientHeight,
+    )).toBe(true);
+  });
+
+  test("keeps the prompt-history AI chat as compact as the detail modal on iPhone", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    const detailModal = page.locator("#promptHistoryDetailModal");
+    const chatModal = page.locator("#promptHistoryChatModal");
+
+    await detailModal.evaluate((element) => element.showModal());
+    const detailBox = await detailModal.locator(".prompt-detail-modal__panel").boundingBox();
+    await detailModal.evaluate((element) => element.close());
+    await chatModal.evaluate((element) => {
+      document.querySelector("#chatMessages").innerHTML =
+        '<article class="chat-message">Bericht</article>'.repeat(100);
+      element.showModal();
+    });
+    const chatBox = await chatModal.locator(".prompt-chat-modal__panel").boundingBox();
+
+    expect(detailBox).not.toBeNull();
+    expect(chatBox).not.toBeNull();
+    expect(chatBox.x).toBeCloseTo(detailBox.x, 0);
+    expect(chatBox.width).toBeCloseTo(detailBox.width, 0);
+    expect(chatBox.height).toBeCloseTo(detailBox.height, 0);
+    expect(chatBox.height).toBeLessThanOrEqual(844 * 0.9 + 1);
+    expect(await page.locator("#chatMessages").evaluate(
       (element) => element.scrollHeight > element.clientHeight,
     )).toBe(true);
   });
@@ -1090,6 +1137,22 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(restart).toHaveCSS("color", "rgb(24, 35, 15)");
   });
 
+  test("keeps the confirmation cancel action dark in dark mode", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => showComponentModal({
+      component: "dashboard",
+      healthy: true,
+      detail: "running",
+      launchd: {},
+      restart_supported: true,
+    }));
+    await page.locator("#componentModalRestart").click();
+    await page.mouse.move(0, 0);
+
+    await expect(page.locator("#confirmationModalCancel")).toHaveCSS("background-color", "rgb(36, 36, 45)");
+    await expect(page.locator("#confirmationModalCancel")).toHaveCSS("color", "rgb(247, 243, 238)");
+  });
+
   test("renders house-orange confirmation dialogs as light surfaces in light mode", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.getByTestId("theme-toggle").click();
@@ -1385,6 +1448,7 @@ test.describe("Engineering Status browser smoke", () => {
   });
 
   test("keeps the copy toast above an open report modal", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.evaluate(() => {
       document.querySelector("#promptHistoryReportModal").showModal();
@@ -1395,6 +1459,12 @@ test.describe("Engineering Status browser smoke", () => {
     expect(await page.getByTestId("copy-toast").evaluate(
       (toast) => toast.matches(":popover-open"),
     )).toBeTruthy();
+    const box = await page.getByTestId("copy-toast").boundingBox();
+    expect(box).not.toBeNull();
+    expect(box.x).toBeGreaterThanOrEqual(0);
+    expect(box.x + box.width).toBeLessThanOrEqual(390);
+    expect(box.y).toBeGreaterThanOrEqual(0);
+    expect(box.y + box.height).toBeLessThanOrEqual(844);
   });
 
   test("pads title bar content evenly from both horizontal edges", async ({ page }) => {
@@ -1846,6 +1916,11 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#promptHistoryDetailContent")).toContainText("Actieve branch");
     await expect(page.locator("#promptHistoryDetailContent")).toContainText("forge-phase-evidence");
     await expect(page.locator("#promptHistoryDetailContent .prompt-detail-status .indicator--green")).toHaveCount(1);
+    await expect(page.locator("#promptHistoryDetailContent > .prompt-detail-sidebar")).toHaveCount(1);
+    await expect(page.locator("#promptHistoryDetailContent > .prompt-detail-sidebar")).toContainText("Doorlooptijd");
+    await expect(page.locator("#promptHistoryDetailContent > .prompt-detail-sidebar")).toContainText("Runtime");
+    await expect(page.locator("#promptHistoryDetailContent > .prompt-detail-sidebar")).toContainText("Git-commit");
+    await expect(page.locator("#promptHistoryDetailContent > .prompt-detail-sidebar")).toContainText("Uitvoeringsbewijs");
     await expect(page.locator("#promptHistoryDetailContent")).not.toContainText("pcvantol/djconnect");
     await expect(page.locator("#promptHistoryDetailContent")).not.toContainText("Historisch rapport");
     await expect(page.locator("#promptHistoryDetailContent")).not.toContainText("Historische AI-analyse");
@@ -1893,6 +1968,30 @@ test.describe("Engineering Status browser smoke", () => {
     await page.locator("#promptHistoryChatClose").click();
     await expect(page.locator("#promptHistoryChatModal")).not.toBeVisible();
     await expect(page.getByTestId("download-inbox-log")).toHaveCount(1);
+  });
+
+  test("retries one transiently empty prompt-history projection", async ({ page }) => {
+    let requests = 0;
+    await page.route("**/api/prompt-history", async (route) => {
+      requests += 1;
+      await route.fulfill({
+        json: requests === 1
+          ? { runs: [] }
+          : {
+              runs: [{
+                run_id: "inbox-recovered-history",
+                status: "COMPLETE",
+                title: "Recovered prompt history",
+                executed_at: "2026-08-04T19:00:00Z",
+              }],
+            },
+      });
+    });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await expect(page.locator("#promptHistoryRows")).toContainText("Recovered prompt history", {
+      timeout: 3_000,
+    });
+    expect(requests).toBe(2);
   });
 
   test("scrolls only chat bubbles inside a prompt-history conversation", async ({ page }) => {
