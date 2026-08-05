@@ -762,6 +762,7 @@ test.describe("Engineering Status browser smoke", () => {
   test("shows only the final five Run-ID characters on an iPad-sized history table", async ({ page }) => {
     await page.setViewportSize({ width: 1024, height: 844 });
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#autoRefresh").uncheck();
     await page.evaluate(() => {
       document.querySelector("#promptHistory").open = true;
       promptHistoryEntries = [{ run_id: "inbox-00557e6587394f67b8b4cbde0748bce7", title: "Retry lineage", status: "COMPLETE" }];
@@ -961,7 +962,11 @@ test.describe("Engineering Status browser smoke", () => {
 
   test("keeps the status column readable beside a visible action on iPhone landscape", async ({ page }) => {
     await page.setViewportSize({ width: 844, height: 390 });
+    await page.route("**/api/prompt-history", (route) => route.fulfill({ json: { runs: [] } }));
+    const historyLoaded = page.waitForResponse("**/api/prompt-history");
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await historyLoaded;
+    await page.locator("#autoRefresh").uncheck();
     await page.evaluate(() => {
       document.querySelector("#promptHistory").open = true;
       promptHistoryEntries = [{
@@ -971,8 +976,9 @@ test.describe("Engineering Status browser smoke", () => {
       }];
       renderPromptHistory();
     });
-    const status = page.getByText("Geblokkeerd", { exact: true }).last();
+    const status = page.locator("#promptHistoryRows .prompt-history-status--blocked");
     await expect(status).toHaveText("Geblokkeerd");
+    await expect(status).toBeVisible();
     await expect(status).toHaveCSS("white-space", "nowrap");
     expect((await status.boundingBox()).width).toBeGreaterThanOrEqual(120);
     await expect(page.locator("#promptHistoryRows .execution-history-action")).toBeVisible();
@@ -1158,7 +1164,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator(".platform-health__component").first()).toHaveAttribute("tabindex", "0");
   });
 
-  test("uses a green hover fill for component information actions", async ({ page }) => {
+  test("uses a green information glyph for component actions", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.locator("#dashboardSplash").evaluate((element) => { element.hidden = true; });
     await page.locator("#platformHealth").evaluate((element) => { element.open = true; });
@@ -1169,9 +1175,8 @@ test.describe("Engineering Status browser smoke", () => {
 
     await expect(info).toHaveCSS("min-height", "32px");
     await expect(info).toHaveCSS("min-width", "32px");
-    await info.hover();
-    await expect(info).toHaveCSS("background-color", "rgb(163, 230, 53)");
-    await expect(info).toHaveCSS("color", "rgb(24, 35, 15)");
+    await expect(info).toHaveCSS("border-top-color", "rgb(163, 230, 53)");
+    await expect(info).toHaveCSS("color", "rgb(163, 230, 53)");
   });
 
   test("uses the execution host title for the core local component", async ({ page }) => {
@@ -1456,7 +1461,7 @@ test.describe("Engineering Status browser smoke", () => {
     expect(Math.abs(geometry.leftGutter - geometry.rightGutter)).toBeLessThanOrEqual(1);
   });
 
-  test("uses a green hover fill for the component-detail close action", async ({ page }) => {
+  test("uses a neutral hover fill for the component-detail close action", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.evaluate(() => showComponentModal({
       component: "inbox_watcher",
@@ -1467,7 +1472,7 @@ test.describe("Engineering Status browser smoke", () => {
     const close = page.locator("#componentModalClose");
 
     await close.hover();
-    await expect(close).toHaveCSS("background-color", "rgb(163, 230, 53)");
+    await expect(close).toHaveCSS("background-color", "rgb(74, 74, 85)");
   });
 
   test("uses a green hover fill for the component restart action", async ({ page }) => {
@@ -1604,10 +1609,10 @@ test.describe("Engineering Status browser smoke", () => {
         "<p><code>inline code</code></p><pre>code block</pre>";
     });
 
-    for (const selector of ["#promptHistoryReportDownload", "#promptHistoryReportCopy"]) {
-      await expect(page.locator(selector)).toHaveCSS("background-color", "rgb(247, 251, 255)");
-      await expect(page.locator(selector)).toHaveCSS("color", "rgb(28, 78, 104)");
-    }
+    await expect(page.locator("#promptHistoryReportDownload")).toHaveCSS("background-color", "rgb(255, 248, 239)");
+    await expect(page.locator("#promptHistoryReportDownload")).toHaveCSS("color", "rgb(100, 58, 19)");
+    await expect(page.locator("#promptHistoryReportCopy")).toHaveCSS("background-color", "rgb(247, 251, 255)");
+    await expect(page.locator("#promptHistoryReportCopy")).toHaveCSS("color", "rgb(28, 78, 104)");
     for (const selector of ["#promptHistoryReportContent code", "#promptHistoryReportContent pre"])
       await expect(page.locator(selector)).toHaveCSS("background-color", "rgb(238, 244, 251)");
   });
@@ -1633,12 +1638,12 @@ test.describe("Engineering Status browser smoke", () => {
     await page.evaluate(() => renderLogPagination("inbox", 1, 1));
 
     await expect(page.getByTestId("clear-inbox-log")).toHaveText("⌧");
-    await expect(page.getByTestId("clear-inbox-log")).toHaveCSS("background-color", "rgb(255, 248, 239)");
-    await expect(page.getByTestId("download-inbox-log")).toHaveCSS("background-color", "rgb(255, 250, 244)");
+    await expect(page.getByTestId("clear-inbox-log")).toHaveCSS("background-color", "rgb(255, 241, 244)");
+    await expect(page.getByTestId("download-inbox-log")).toHaveCSS("background-color", "rgb(255, 248, 239)");
     await expect(page.locator("#inboxLogPagination button").first()).toHaveCSS("background-color", "rgb(255, 243, 226)");
   });
 
-  test("fills component-log actions orange on hover", async ({ page }) => {
+  test("keeps component-log download and destructive clear hover treatments distinct", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.locator("#dashboardSplash").evaluate((element) => { element.hidden = true; });
     await page.locator("#componentLogs").evaluate((element) => { element.open = true; });
@@ -1647,12 +1652,15 @@ test.describe("Engineering Status browser smoke", () => {
     for (const action of [
       page.getByTestId("download-inbox-log"),
       page.getByTestId("download-dashboard-log"),
-      page.getByTestId("clear-inbox-log"),
-      page.getByTestId("clear-dashboard-log"),
     ]) {
       await action.hover();
       await expect(action).toHaveCSS("background-color", "rgb(240, 182, 106)");
       await expect(action).toHaveCSS("color", "rgb(32, 24, 18)");
+    }
+    for (const action of [page.getByTestId("clear-inbox-log"), page.getByTestId("clear-dashboard-log")]) {
+      await action.hover();
+      await expect(action).toHaveCSS("background-color", "rgb(255, 113, 143)");
+      await expect(action).toHaveCSS("color", "rgb(35, 19, 26)");
     }
   });
 
@@ -1661,6 +1669,7 @@ test.describe("Engineering Status browser smoke", () => {
     const historyLoaded = page.waitForResponse("**/api/prompt-history");
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await historyLoaded;
+    await page.locator("#autoRefresh").uncheck();
     await page.locator("#dashboardSplash").evaluate((element) => { element.hidden = true; });
     await page.locator("#promptHistory").evaluate((element) => { element.open = true; });
     await page.evaluate(() => {
@@ -1953,7 +1962,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(modal).not.toBeVisible();
   });
 
-  test("uses light glyphs for all dark report-modal actions", async ({ page }) => {
+  test("keeps report-modal action colours semantically distinct in dark mode", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.evaluate(() => {
       document.querySelector("#promptHistoryReportModal").showModal();
@@ -1963,11 +1972,9 @@ test.describe("Engineering Status browser smoke", () => {
     const download = page.locator("#promptHistoryReportDownload");
 
     await download.hover();
-    for (const action of [
-      download,
-      page.locator("#promptHistoryReportCopy"),
-      page.locator("#promptHistoryReportClose"),
-    ]) await expect(action).toHaveCSS("color", "rgb(247, 243, 238)");
+    await expect(download).toHaveCSS("color", "rgb(32, 24, 18)");
+    await expect(page.locator("#promptHistoryReportCopy")).toHaveCSS("color", "rgb(247, 243, 238)");
+    await expect(page.locator("#promptHistoryReportClose")).toHaveCSS("color", "rgb(247, 243, 238)");
     await expect(page.locator(".report-view-modal__header")).toHaveCSS("border-bottom-color", "rgb(141, 199, 255)");
     await expect(page.locator("#promptHistoryReportClose")).toHaveCSS("font-size", "18px");
   });
@@ -2549,7 +2556,10 @@ test.describe("Engineering Status browser smoke", () => {
 
   test("searches prompt history by localized terminal status", async ({ page }) => {
     await page.route("**/api/prompt-history", (route) => route.fulfill({ json: { runs: [] } }));
+    const historyLoaded = page.waitForResponse("**/api/prompt-history");
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await historyLoaded;
+    await page.locator("#autoRefresh").uncheck();
     await page.locator("#dashboardLocale").selectOption("nl");
     await expect(page.locator("html")).toHaveAttribute("lang", "nl");
     await page.evaluate(() => {
@@ -2884,7 +2894,10 @@ test.describe("Engineering Status browser smoke", () => {
     await page.route("**/api/codex-chat", async (route) => {
       await route.fulfill({ contentType: "application/json", body: '{"answer":"De uitvoering is gereed.","model":"Codex CLI"}' });
     });
+    const historyLoaded = page.waitForResponse("**/api/prompt-history");
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await historyLoaded;
+    await page.locator("#autoRefresh").uncheck();
     await page.locator("#dashboardSplash").evaluate((element) => { element.hidden = true; });
     await page.evaluate(() => {
       document.querySelector("#promptHistory").open = true;
@@ -2937,8 +2950,18 @@ test.describe("Engineering Status browser smoke", () => {
       status: { watcher_state: "WATCHER_IDLE", last_executed_run: "inbox-dismiss", queue_depth: 0, queue_items: [] },
       component_versions: {}, telemetry: [], duration_estimate: {}, build_commit: "",
     } }));
+    const historyLoaded = page.waitForResponse("**/api/prompt-history");
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
-    await page.evaluate(() => { document.querySelector("#promptHistory").open = true; });
+    await historyLoaded;
+    await page.locator("#autoRefresh").uncheck();
+    await page.evaluate(() => {
+      document.querySelector("#promptHistory").open = true;
+      promptHistoryEntries = [{
+        run_id: "inbox-dismiss", status: "BLOCKED",
+        title: "Dismissed prompt", executed_at: "2026-08-04T12:00:00Z",
+      }];
+      renderPromptHistory();
+    });
     const dismissButton = page.getByRole("button", { name: "Uitvoering afsluiten" });
     await expect(dismissButton).toBeVisible();
     await dismissButton.click();
