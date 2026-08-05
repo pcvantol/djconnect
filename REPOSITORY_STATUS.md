@@ -2,18 +2,17 @@
 
 Status: active platform-evolution repository
 
-## PR #735 merge finalization in progress
+## PR #740 merge finalization in progress
 
-PR [#735](https://github.com/pcvantol/djconnect/pull/735), **Add Execution
-Host Producer Support**, merged as
-`51f2cb2254bd4de0635ee39f4fe6cb1bbff2c77a`. Its bounded implementation is
-present on `main` through PR [#733](https://github.com/pcvantol/djconnect/pull/733),
-merged as `11b50e403fc2794ddca35e81eee983f2ac0f0475`. Producer metadata is
-immutable provenance for Engineering Platform evidence, receipts, reports,
-dashboard and telemetry only; it cannot alter execution admission, scheduling
-or behaviour. Forge remains independent and owns the Producer Contract. The
-immutable Prompt History record is
-`docs/history/prompts/2026-08-05-execution-host-producer-support.md`.
+PR [#740](https://github.com/pcvantol/djconnect/pull/740), **Complete
+Engineering Status dashboard localization**, merged as
+`ac173fc358089f8a577fab14d485137e8fa0ffcf`. The read-only Engineering Status
+dashboard now resolves user-facing client copy through the canonical five
+locales (`en`, `nl`, `de`, `fr`, `es`), including dynamic chat, confirmation,
+pull-to-refresh, downloadable-copy and accessibility surfaces. No Forge,
+execution, runtime, scheduling or lifecycle behaviour changed. The immutable
+Prompt History record is
+`docs/history/prompts/2026-08-05-complete-engineering-status-dashboard-localization.md`.
 Repository State: `MERGED_UNRECONCILED` pending this governance-only
 Finalization; Workspace State is not asserted by this record.
 
