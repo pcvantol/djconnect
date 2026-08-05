@@ -94,7 +94,8 @@ the same reload operation and visible refreshing feedback as pull-to-refresh;
 it is a browser-surface refresh only and never changes Engineering execution
 state, scheduling or evidence. Its accessible name is supplied by the
 five-language dashboard catalogue. On iPhone and iPad, `touch-action:
-manipulation` prevents accidental double-tap zoom while preserving pinch zoom.
+manipulation` prevents accidental double-tap zoom; the dashboard viewport is
+also held at its initial scale while handling text input.
 
 Top-level dashboard categories are separated by a `24px` rhythm and do not
 use elevation shadows; their coloured borders and spacing provide hierarchy.
@@ -131,7 +132,12 @@ composer, while the transient thinking status is right-aligned beside the
 used-model metadata beneath the send button.
 The chat action strip provides download, copy-to-clipboard and destructive
 clear actions; copying uses the same iOS-safe clipboard fallback as individual
-chat messages.
+chat messages. Every download glyph uses the same generic orange transport
+colour, while destructive clear glyphs and their confirmation title, glyph and
+rule use red. Modal close controls are intentionally neutral grey so they do
+not compete with an operational action. Repository and workspace state codes
+are rendered as readable labels through the five-language catalogue; the raw
+protocol values remain unchanged in Engineering data.
 At narrower widths the title-bar controls move to their own wrapping row
 before they can overlap the dashboard title. Labels above vertical input and
 select controls retain an `8px` gap before a focus outline. Component logs

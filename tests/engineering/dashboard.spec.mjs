@@ -842,6 +842,7 @@ test.describe("Engineering Status browser smoke", () => {
   });
 
   test("keeps the status bar at the bottom while dashboard content scrolls", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 760 });
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.locator("#engineering-dashboard-content").evaluate((content) => {
       content.style.minHeight = "2000px";
