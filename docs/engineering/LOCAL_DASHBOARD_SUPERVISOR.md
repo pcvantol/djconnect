@@ -227,7 +227,10 @@ run's bounded evidence and cannot start engineering work or alter repository
 state. Its browser-session history is isolated per Run ID.
 When an artifact does not exist, the dashboard states that explicitly and does
 not present its action. Copy confirmation is a local toast only; it does not
-send report content to another service.
+send report content to another service. On iPhone, a legacy clipboard fallback
+places its temporary selection inside the active dialog, because iOS marks the
+page behind a modal as inert; chat, report and detail copy actions therefore
+remain available without changing the evidence data.
 
 When an execution ends as `BLOCKED`, the **Actieve prompt** category remains
 visible and opens with that run's identity and recovery context; it is not

@@ -247,7 +247,10 @@ test.describe("Engineering Status browser smoke", () => {
       window.__copyFallbackCalls = 0;
       window.__clipboardCalls = 0;
       document.execCommand = (command) => {
-        if (command === "copy") window.__copyFallbackCalls += 1;
+        if (command === "copy") {
+          window.__copyFallbackCalls += 1;
+          window.__copyHost = document.activeElement.closest("dialog")?.id;
+        }
         return command === "copy";
       };
       Object.defineProperty(navigator, "clipboard", {
@@ -274,7 +277,12 @@ test.describe("Engineering Status browser smoke", () => {
     await expect.poll(() => page.evaluate(() => ({
       fallback: window.__copyFallbackCalls,
       clipboard: window.__clipboardCalls,
-    }))).toEqual({ fallback: 1, clipboard: 0 });
+      host: window.__copyHost,
+    }))).toEqual({
+      fallback: 1,
+      clipboard: 0,
+      host: "promptHistoryChatModal",
+    });
   });
 
   test("uses the Clipboard API before the legacy fallback in modern browsers", async ({ page }) => {

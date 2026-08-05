@@ -697,7 +697,10 @@ function fallbackCopy(value) {
   area.value = value;
   area.setAttribute("readonly", "");
   area.style.cssText = "position:fixed;top:0;left:0;opacity:0";
-  document.body.append(area);
+  // A modal dialog makes everything outside it inert. iOS Safari then refuses
+  // to focus a temporary body-level textarea, so keep the selection inside the
+  // active dialog when a copy action originates there.
+  (document.querySelector("dialog[open]") || document.body).append(area);
   area.focus();
   area.select();
   area.setSelectionRange(0, area.value.length);
