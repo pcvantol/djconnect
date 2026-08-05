@@ -1110,6 +1110,21 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(restart).toHaveCSS("color", "rgb(24, 35, 15)");
   });
 
+  test("keeps the confirmation cancel action dark in dark mode", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => showComponentModal({
+      component: "dashboard",
+      healthy: true,
+      detail: "running",
+      launchd: {},
+      restart_supported: true,
+    }));
+    await page.locator("#componentModalRestart").click();
+
+    await expect(page.locator("#confirmationModalCancel")).toHaveCSS("background-color", "rgb(36, 36, 45)");
+    await expect(page.locator("#confirmationModalCancel")).toHaveCSS("color", "rgb(247, 243, 238)");
+  });
+
   test("renders house-orange confirmation dialogs as light surfaces in light mode", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.getByTestId("theme-toggle").click();
