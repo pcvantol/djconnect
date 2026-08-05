@@ -685,13 +685,18 @@ function fallbackCopy(value) {
   if (!copied) throw Error(t("copy.failed"));
 }
 function copyText(value) {
-  const copy =
-    navigator.clipboard && window.isSecureContext
-      ? navigator.clipboard.writeText(value).catch(() => fallbackCopy(value))
-      : Promise.resolve().then(() => fallbackCopy(value));
-  return copy.then(() => {
+  // iOS Safari permits the legacy copy command only while the original tap is
+  // still being handled. Do that synchronously, then use the modern API only
+  // when the browser does not support the fallback.
+  try {
+    fallbackCopy(value);
     showCopyToast();
-  });
+    return Promise.resolve();
+  } catch (fallbackError) {
+    if (!navigator.clipboard || !window.isSecureContext)
+      return Promise.reject(fallbackError);
+    return navigator.clipboard.writeText(value).then(() => showCopyToast());
+  }
 }
 let copyToastTimer;
 function showCopyToast() {

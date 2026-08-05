@@ -232,6 +232,39 @@ test.describe("Engineering Status browser smoke", () => {
     }
   });
 
+  test("copies chat text synchronously for iOS Safari", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.waitForFunction(() => typeof window.chatMessage === "function");
+    await page.evaluate(() => {
+      window.__copyFallbackCalls = 0;
+      window.__clipboardCalls = 0;
+      document.execCommand = (command) => {
+        if (command === "copy") window.__copyFallbackCalls += 1;
+        return command === "copy";
+      };
+      Object.defineProperty(navigator, "clipboard", {
+        configurable: true,
+        value: {
+          writeText: () => {
+            window.__clipboardCalls += 1;
+            return Promise.resolve();
+          },
+        },
+      });
+      document.querySelector("#promptHistoryChatModal").showModal();
+      chatMessage("assistant", "Copy this iOS-safe message");
+    });
+
+    await page.locator("#chatMessages .chat-message__copy").click();
+    await expect(page.locator("#copyToast")).toHaveText(
+      DASHBOARD_MESSAGES.nl["copy.success"],
+    );
+    await expect.poll(() => page.evaluate(() => ({
+      fallback: window.__copyFallbackCalls,
+      clipboard: window.__clipboardCalls,
+    }))).toEqual({ fallback: 1, clipboard: 0 });
+  });
+
   test("places the active prompt category first", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await expect(
