@@ -17,6 +17,7 @@ user-facing roadmap progress; the current Product Initiative is recorded in
 | Initiative | Priority | Status | Dependencies | Promotion path |
 | --- | --- | --- | --- | --- |
 | Engineering Platform 1.5 operational hardening | P2 | Completed | EP 1.5 finalization and PRs #689–#699; `tools/engineering/ENGINEERING_QUALIFICATION.md` | `EP_1_5_OPERATIONAL`; private engineering remains repository-owned, qualified and behaviorally separate from DJConnect Product/Runtime/Release/Deployment work |
+| Engineering Platform 1.x feature-complete declaration | P0 | Completed | `docs/engineering/ENGINEERING_PLATFORM_1_X_COMPLETION_REPORT.md`; stable Execution Host and Producer Contract | `ENGINEERING_PLATFORM_1_X_FEATURE_COMPLETE`; future work requires explicit architectural authorization and remains generic execution-platform work |
 | Legacy iCloud Engineering archive migration | P3 | Planned operational maintenance | local `.engineering/` copies verified; `python3 -m tools.engineering.inbox_watcher migrate-icloud-archives` | run only on the owner workstation after local copies are verified; leave `iCloud Drive/DJConnect Engineering/Inbox` as the sole iCloud engineering folder; no product or platform capability change |
 | Capability-profile assessment follow-up | P2 | Completed | PR #539 / `QUALIFICATION_REGISTER.md`; current CMB-05/CMB-06/CMB-07/CMB-09/CMB-12 evidence | `GO_CAPABILITY_PROFILE_FOLLOW_UP_RECONCILED`; seven original items reconciled to six unique active items; no product implementation authorization |
 | Canonical governance Version 2.2 alignment | P0 | Historical | merged governance evidence | retained governance evidence only |
@@ -42,6 +43,32 @@ user-facing roadmap progress; the current Product Initiative is recorded in
 | Future governance improvements | P3 | Planned | governance evidence | governance review |
 
 ## Engineering Platform operational updates
+
+## Backlog detail: Engineering Platform 1.x feature-complete declaration
+
+**Owner:** Platform Evolution / architecture governance
+
+**Priority:** P0
+**Status:** Completed
+
+Engineering Platform 1.x is a stable, producer-neutral execution platform.
+It executes Engineering Actions from Human Architects, Forge and future
+compliant Producers. Producer identity exists only for traceability, audit and
+Execution Evidence; it does not alter execution semantics.
+
+The architecture is frozen at the execution boundary. Forge owns Mission,
+planning, Runtime Prompts, Decision Evidence and Runtime Instance concepts.
+Engineering Platform owns Engineering Action execution, execution lifecycle,
+qualification, preflight, Execution Evidence, Engineering Reports, Execution
+Receipts, telemetry, dashboard and Prompt History. This declaration authorizes
+no runtime, lifecycle, Execution Host, dashboard, telemetry, receipt or report
+change.
+
+Future Engineering Platform work is limited to platform hardening, security,
+performance, operational tooling, generic execution capabilities, Execution
+Host evolution and Forge-driven execution-contract changes. It requires
+explicit architectural authorization. Forge-specific planning capability is
+out of scope for Engineering Platform.
 
 ## Backlog detail: Engineering Platform 1.5 operational hardening
 

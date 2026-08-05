@@ -24,6 +24,7 @@ documents that define each boundary in detail.
 | Session Intelligence Platform | Active Session decisions and their immutable semantic results. | [Runtime Contracts](DJ_SESSION_RUNTIME_CONTRACTS.md), [DJ Presentation Architecture](docs/product/DJ_PRESENTATION_ARCHITECTURE.md) |
 | Presentation Platform | Renderer-safe distribution and local experience. | [Renderer Host Classification](docs/technical/RENDERER_HOST_CLASSIFICATION.md), [Universal Receiver Architecture](docs/technical/UNIVERSAL_RECEIVER_ARCHITECTURE.md) |
 | Verification Platform | Deterministic proof that approved behaviour conforms. | [Verification Architecture](docs/verification/01_VERIFICATION_ARCHITECTURE.md), [Session Intelligence E2E Architecture](docs/verification/SESSION_INTELLIGENCE_E2E_ARCHITECTURE.md) |
+| Engineering Platform | Producer-neutral execution of compliant Engineering Actions. | [Engineering Platform Architecture Handbook](docs/engineering/ENGINEERING_PLATFORM_ARCHITECTURE_HANDBOOK.md), [Execution Host and Producer Contract](docs/engineering/EXECUTION_HOST_CONTRACT.md) |
 
 ## Profile Platform
 
@@ -118,6 +119,21 @@ defines a separate future behavioral contract for immutable Presentation
 composition and renderer-safe Broadcast projection. It remains server-side and
 ends before a Renderer Host; it is not visual, audio or hardware verification.
 
+## Engineering Platform
+
+Engineering Platform is the stable, producer-neutral execution platform for
+compliant Engineering Actions. It owns execution lifecycle, qualification,
+preflight, Execution Evidence, Engineering Reports, Execution Receipts,
+telemetry, dashboard and Prompt History. Its behavior is identical for Human
+Architect, Forge and future Producer actions; Producer identity is only
+traceability and audit provenance.
+
+Forge owns Mission, planning, Runtime Prompts, Decision Evidence and Runtime
+Instance concepts. Engineering Platform does not duplicate these planning
+responsibilities or implement Forge. Engineering Platform 1.x is feature
+complete; future evolution requires explicit architectural authorization and
+remains generic execution-platform work.
+
 ## Platform relationships
 
 The following is a conceptual relationship, not a replacement execution
@@ -152,6 +168,7 @@ without joining this Runtime path.
 | Session Intelligence Platform | Session decisions and immutable semantic output. | Playback execution, Profile persistence or renderer behaviour. |
 | Presentation Platform | Renderer-safe presentation. | Runtime meaning, planning or playback. |
 | Verification Platform | Behavioural proof. | Product Runtime execution or product ownership. |
+| Engineering Platform | Producer-neutral Engineering Action execution and execution evidence. | Forge planning, Decision Evidence or runtime concepts. |
 
 No platform duplicates another platform's responsibility. Existing canonical
 contracts resolve detailed ownership questions.

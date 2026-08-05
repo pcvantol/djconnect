@@ -19,6 +19,26 @@ When documents conflict, use this order:
 9. `INNOVATION_LAB.md`
 10. Repository-local implementation docs
 
+## Engineering Platform governance
+
+Engineering Platform 1.x is a stable, producer-neutral execution platform.
+It owns execution, execution qualification, preflight, Execution Evidence,
+Engineering Reports, Execution Receipts, telemetry, dashboard and Prompt
+History. It executes compliant Engineering Actions from Human Architects,
+Forge and future Producers with identical execution semantics.
+
+Forge owns Mission Planning, Runtime Prompts, Decision Evidence and Runtime
+Instance concepts. Engineering Platform never owns Mission Planning, Business
+Governance, Architecture Governance, Mission Recommendation, Decision
+Evidence, Runtime Planning, Portfolio management or Forge implementation.
+
+Future Engineering Platform capability requires explicit architectural
+authorization. Forge planning concepts do not expand Engineering Platform by
+default. Permitted future work is limited to platform hardening, security,
+performance, operational tooling, generic execution capability, Execution Host
+evolution and explicitly agreed Forge-driven execution-contract changes. No
+Forge-specific planning capability may be introduced into Engineering Platform.
+
 ## Feature lifecycle
 
 ```text
