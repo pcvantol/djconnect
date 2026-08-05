@@ -52,6 +52,23 @@ test.describe("Engineering Status browser smoke", () => {
     }
   });
 
+  test("renders repository and workspace state codes as readable labels", () => {
+    const labels = Object.fromEntries(SUPPORTED_LOCALES.map((locale) => {
+      const translate = createTranslator(locale);
+      return [locale, [
+        translate("state.MERGED_RECONCILED"),
+        translate("state.WORKSPACE_READY"),
+      ]];
+    }));
+    expect(labels).toEqual({
+      en: ["Merged and reconciled", "Workspace ready"],
+      nl: ["Samengevoegd en afgestemd", "Werkruimte gereed"],
+      de: ["Zusammengeführt und abgeglichen", "Arbeitsbereich bereit"],
+      fr: ["Fusionné et rapproché", "Espace de travail prêt"],
+      es: ["Fusionado y conciliado", "Espacio de trabajo listo"],
+    });
+  });
+
   test("locks the iOS viewport scale to prevent input-focus zoom", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await expect(page.locator('meta[name="viewport"]')).toHaveAttribute(
