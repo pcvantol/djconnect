@@ -1611,8 +1611,8 @@ test.describe("Engineering Status browser smoke", () => {
 
     await expect(page.locator("#promptHistoryReportDownload")).toHaveCSS("background-color", "rgb(255, 248, 239)");
     await expect(page.locator("#promptHistoryReportDownload")).toHaveCSS("color", "rgb(100, 58, 19)");
-    await expect(page.locator("#promptHistoryReportCopy")).toHaveCSS("background-color", "rgb(247, 251, 255)");
-    await expect(page.locator("#promptHistoryReportCopy")).toHaveCSS("color", "rgb(28, 78, 104)");
+    await expect(page.locator("#promptHistoryReportCopy")).toHaveCSS("background-color", "rgb(255, 247, 255)");
+    await expect(page.locator("#promptHistoryReportCopy")).toHaveCSS("color", "rgb(104, 73, 138)");
     for (const selector of ["#promptHistoryReportContent code", "#promptHistoryReportContent pre"])
       await expect(page.locator(selector)).toHaveCSS("background-color", "rgb(238, 244, 251)");
   });
@@ -1626,8 +1626,8 @@ test.describe("Engineering Status browser smoke", () => {
     });
     const download = page.locator("#promptHistoryReportDownload");
 
-    for (const action of [download, page.locator("#promptHistoryReportCopy")])
-      await expect(action).toHaveCSS("color", "rgb(247, 243, 238)");
+    await expect(download).toHaveCSS("color", "rgb(255, 240, 220)");
+    await expect(page.locator("#promptHistoryReportCopy")).toHaveCSS("color", "rgb(234, 220, 255)");
   });
 
   test("renders log actions in the light category style", async ({ page }) => {
@@ -1718,6 +1718,19 @@ test.describe("Engineering Status browser smoke", () => {
       await expect(button).toHaveCSS("border-top-width", "1px");
       await expect(button).toHaveCSS("border-top-style", "solid");
       await expect(button).toHaveCSS("border-top-left-radius", "50%");
+    }
+  });
+
+  test("uses shared semantic classes for download, copy and destructive actions", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    for (const selector of ["#downloadChat", "#promptHistoryReportDownload", "#componentLogs .component-log-download"]) {
+      await expect(page.locator(selector).first()).toHaveClass(/dashboard-action--download/);
+    }
+    for (const selector of ["#copyChat", "#promptHistoryReportCopy"]) {
+      await expect(page.locator(selector)).toHaveClass(/dashboard-action--copy/);
+    }
+    for (const selector of ["#clearChat", "#componentLogs .clear-component-log"]) {
+      await expect(page.locator(selector).first()).toHaveClass(/dashboard-action--destructive/);
     }
   });
 
@@ -1973,7 +1986,7 @@ test.describe("Engineering Status browser smoke", () => {
 
     await download.hover();
     await expect(download).toHaveCSS("color", "rgb(32, 24, 18)");
-    await expect(page.locator("#promptHistoryReportCopy")).toHaveCSS("color", "rgb(247, 243, 238)");
+    await expect(page.locator("#promptHistoryReportCopy")).toHaveCSS("color", "rgb(234, 220, 255)");
     await expect(page.locator("#promptHistoryReportClose")).toHaveCSS("color", "rgb(247, 243, 238)");
     await expect(page.locator(".report-view-modal__header")).toHaveCSS("border-bottom-color", "rgb(141, 199, 255)");
     await expect(page.locator("#promptHistoryReportClose")).toHaveCSS("font-size", "18px");

@@ -2238,7 +2238,7 @@ document.querySelectorAll(".component-log-download").forEach((button) =>
   ),
 );
 document.querySelectorAll(".clear-component-log").forEach((button) => {
-  button.classList.add("clear-component-log--glyph");
+  button.classList.add("dashboard-action", "dashboard-action--destructive");
   button.textContent = "⌧";
   button.title = t("action.clear_logs");
   button.setAttribute("aria-label", t("action.clear_logs"));
