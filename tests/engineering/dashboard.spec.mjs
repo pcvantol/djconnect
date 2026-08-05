@@ -904,6 +904,18 @@ test.describe("Engineering Status browser smoke", () => {
     expect(position.restored).toBe(position.initial);
   });
 
+  test("extends the component-modal header rule beneath its close control", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    const bounds = await page.locator("#componentModal").evaluate((modal) => {
+      modal.showModal();
+      const heading = modal.querySelector("h2").getBoundingClientRect();
+      const close = modal.querySelector(".component-modal__close").getBoundingClientRect();
+      modal.close();
+      return { headingRight: heading.right, closeRight: close.right };
+    });
+    expect(bounds.headingRight).toBeGreaterThanOrEqual(bounds.closeRight);
+  });
+
   test("does not reserve a duplicate safe-area gutter in iPhone landscape", async ({ page }) => {
     await page.setViewportSize({ width: 844, height: 390 });
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
