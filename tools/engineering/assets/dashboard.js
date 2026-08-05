@@ -1146,7 +1146,7 @@ function addCategoryIcons() {
     ["#platformHealth", "◈", "section.platform_components"],
     ["#rateLimits", "◔", "section.remaining_usage"],
     ["#executionTelemetry", "▥", "section.execution_host_telemetry"],
-    ["#technicalDetails", "⚙", "section.technical_details"],
+    ["#technicalDetails", "⌘", "section.technical_details"],
     ["#componentLogs", "≡", "section.logs"],
     ["#currentRun", "▤", "section.active_prompt"],
   ]) {
