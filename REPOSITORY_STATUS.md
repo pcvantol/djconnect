@@ -2,6 +2,18 @@
 
 Status: active platform-evolution repository
 
+## PR #745 awaiting finalization reconciliation
+
+PR [#745](https://github.com/pcvantol/djconnect/pull/745), **Fix dashboard
+reset feedback**, merged as `ce6b75e2af480d7ecf9464317efe9dbf2d67d54a`.
+The read-only Engineering Status dashboard now reports valid reset outcomes
+accurately, retains safe app-server failure feedback and writes redacted local
+reset evidence. No Forge, execution, runtime, scheduling or lifecycle behavior
+changed. The immutable Prompt History record is
+`docs/history/prompts/2026-08-05-fix-dashboard-reset-feedback.md`.
+Repository State: `MERGED_UNRECONCILED`; Workspace State: `NOT_READY` pending
+this governance-only Finalization and the required Workspace Cleanup.
+
 ## PR #740 finalization reconciled
 
 PR [#740](https://github.com/pcvantol/djconnect/pull/740), **Complete
