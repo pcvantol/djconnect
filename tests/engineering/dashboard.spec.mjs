@@ -283,6 +283,33 @@ test.describe("Engineering Status browser smoke", () => {
     )).toBe(true);
   });
 
+  test("keeps the prompt-history AI chat as compact as the detail modal on iPhone", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    const detailModal = page.locator("#promptHistoryDetailModal");
+    const chatModal = page.locator("#promptHistoryChatModal");
+
+    await detailModal.evaluate((element) => element.showModal());
+    const detailBox = await detailModal.locator(".prompt-detail-modal__panel").boundingBox();
+    await detailModal.evaluate((element) => element.close());
+    await chatModal.evaluate((element) => {
+      document.querySelector("#chatMessages").innerHTML =
+        '<article class="chat-message">Bericht</article>'.repeat(100);
+      element.showModal();
+    });
+    const chatBox = await chatModal.locator(".prompt-chat-modal__panel").boundingBox();
+
+    expect(detailBox).not.toBeNull();
+    expect(chatBox).not.toBeNull();
+    expect(chatBox.x).toBeCloseTo(detailBox.x, 0);
+    expect(chatBox.width).toBeCloseTo(detailBox.width, 0);
+    expect(chatBox.height).toBeCloseTo(detailBox.height, 0);
+    expect(chatBox.height).toBeLessThanOrEqual(844 * 0.9 + 1);
+    expect(await page.locator("#chatMessages").evaluate(
+      (element) => element.scrollHeight > element.clientHeight,
+    )).toBe(true);
+  });
+
   test("shows the refresh timestamp in the bottom status bar", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await expect(page.locator("#currentTime")).toHaveCount(0);
