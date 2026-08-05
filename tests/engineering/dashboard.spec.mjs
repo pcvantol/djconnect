@@ -178,7 +178,7 @@ test.describe("Engineering Status browser smoke", () => {
     // Visible words must come from t(). The remaining literals are deliberate
     // control glyphs, empty cleanup values, or the neutral empty-table mark.
     expect(new Set(staticPresentationLiterals)).toEqual(new Set([
-      "", "⧉", "↑", "i", "↺", "⌫", "▤", "✦", "💬", "—",
+      "", "⧉", "↑", "i", "↺", "⌧", "▤", "✦", "⋯", "—",
     ]));
     expect(dashboardSource).not.toMatch(/confirmDashboardAction\(\s*["']/);
 
@@ -1398,7 +1398,7 @@ test.describe("Engineering Status browser smoke", () => {
     await page.locator("#componentLogs").evaluate((element) => { element.open = true; });
     await page.evaluate(() => renderLogPagination("inbox", 1, 1));
 
-    await expect(page.getByTestId("clear-inbox-log")).toHaveText("⌫");
+    await expect(page.getByTestId("clear-inbox-log")).toHaveText("⌧");
     await expect(page.getByTestId("clear-inbox-log")).toHaveCSS("background-color", "rgb(255, 248, 239)");
     await expect(page.getByTestId("download-inbox-log")).toHaveCSS("background-color", "rgb(255, 250, 244)");
     await expect(page.locator("#inboxLogPagination button").first()).toHaveCSS("background-color", "rgb(255, 243, 226)");
@@ -2076,7 +2076,7 @@ test.describe("Engineering Status browser smoke", () => {
     await page.locator("#promptHistoryReportClose").click();
     const chat = page.locator("#promptHistoryRows .prompt-history-chat");
     await expect(chat).toHaveCount(1);
-    await expect(chat).toHaveText("💬");
+    await expect(chat).toHaveText("⋯");
     await expect(chat).toHaveCSS("border-top-color", "rgb(208, 164, 255)");
     await expect(chat).toHaveCSS("color", "rgb(208, 164, 255)");
     await chat.click();
@@ -2250,7 +2250,7 @@ test.describe("Engineering Status browser smoke", () => {
       ["#confirmationModalTitle", "!"],
       ["#promptHistoryReportModalTitle", "▤"],
       ["#promptHistoryDetailTitle", "i"],
-      ["#promptHistoryChatTitle", "💬"],
+      ["#promptHistoryChatTitle", "⋯"],
     ]) {
       expect(await page.locator(selector).evaluate(
         (title) => getComputedStyle(title, "::before").content,
