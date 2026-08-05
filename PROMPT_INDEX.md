@@ -2,7 +2,18 @@
 
 Status: canonical prompt navigation
 
-## PR #745 awaiting finalization reconciliation
+## PR #747 awaiting finalization reconciliation
+
+PR [#747](https://github.com/pcvantol/djconnect/pull/747), **Fix browser
+clipboard copy**, merged as `9439ee73596b099e94862044d022e6010a6b1ce1`.
+It restores dependable browser clipboard output through the modern Clipboard
+API while keeping the synchronous iOS Safari fallback, with no Forge or
+execution behavior change. Its immutable Prompt History record is
+`docs/history/prompts/2026-08-05-fix-browser-clipboard-copy.md`.
+Repository State: `MERGED_UNRECONCILED`; Workspace State: `NOT_READY` pending
+this governance-only Finalization and the required Workspace Cleanup.
+
+## PR #745 finalization reconciled
 
 PR [#745](https://github.com/pcvantol/djconnect/pull/745), **Fix dashboard
 reset feedback**, merged as `ce6b75e2af480d7ecf9464317efe9dbf2d67d54a`.
@@ -10,8 +21,10 @@ It makes dashboard reset feedback accurate for valid non-consumption outcomes,
 preserves safe failure feedback and adds redacted reset evidence without
 changing Forge or execution behavior. Its immutable Prompt History record is
 `docs/history/prompts/2026-08-05-fix-dashboard-reset-feedback.md`.
-Repository State: `MERGED_UNRECONCILED`; Workspace State: `NOT_READY` pending
-this governance-only Finalization and the required Workspace Cleanup.
+Its governance-only Finalization PR
+[#746](https://github.com/pcvantol/djconnect/pull/746) merged as
+`796328925bfce340e6e05e79ff555127c8e43deb`. Repository State:
+`MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY` after cleanup.
 
 ## PR #740 finalization reconciled
 
