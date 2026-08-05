@@ -206,9 +206,13 @@ Dashboard changes require both of these checks:
    the rendered template bindings plus dynamically-created UI copy are matched
    against the catalogue.
 
-The dashboard browser suite also guards client-side presentation assignments so
-a newly added literal user-facing string fails the test instead of silently
-shipping in the developer's language. Run the focused verification with:
+The dashboard browser suite enforces a source-to-interface contract: it guards
+client-side presentation assignments, template bindings, document and iOS web
+app titles, dynamic dialog copy, pull-to-refresh feedback, downloadable chat
+labels and accessibility names. A newly added literal user-facing string or a
+catalogue key that does not render in every supported language fails the test
+instead of silently shipping in the developer's language. Run the focused
+verification with:
 
 ```sh
 npx playwright test tests/engineering/dashboard.spec.mjs

@@ -93,8 +93,10 @@ npx playwright test tests/engineering/dashboard.spec.mjs
 
 The suite checks catalogue completeness, scans client-created presentation
 text for unexpected literals, and renders each supported language in the
-browser. It therefore catches a missing translation as well as a label that
-was accidentally left in the source language.
+browser. Its source-to-interface check also covers template bindings, modal
+copy, pull-to-refresh feedback, downloadable chat labels and accessibility
+names. It therefore catches a missing translation as well as a label that was
+accidentally left in the source language.
 
 Do not create or rely on `iCloud Drive/DJConnect Engineering/Reports` or an
 iCloud `status.json`. Existing legacy iCloud archives can be moved safely with
