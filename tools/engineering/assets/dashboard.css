@@ -370,6 +370,12 @@ html[data-theme="light"] .dashboard-locale select{background:var(--dashboard-sur
   .footer__item{justify-content:center}
   .footer__separator{display:none}
 }
+@media (max-height:600px) and (orientation:landscape){
+  /* On an iPhone the horizontal safe area already clears the notch/Dynamic
+     Island. Keep only a small content gap instead of adding desktop padding. */
+  body{padding-inline:max(8px,env(safe-area-inset-left)) max(8px,env(safe-area-inset-right))}
+  .dashboard-scroll-region{padding-inline:6px}
+}
 
 /* Log controls */
 label:has(> :is(input,select,textarea)):not(.dashboard-locale):not(.auto-refresh-toggle),.log-controls label:has(> :is(input,select,textarea)){row-gap:var(--dashboard-control-label-gap)}

@@ -103,7 +103,9 @@ log-control and modal refinements, with shared spacing, focus and surface
 variables rather than late one-off overrides.
 The dedicated scroll region has a symmetric content gutter. The document body
 alone owns the iOS safe-area inset, so landscape rendering never reserves that
-right-hand space a second time for an overlay scrollbar.
+right-hand space a second time for an overlay scrollbar. On short mobile
+landscape viewports the extra desktop inset is removed: the notch or Dynamic
+Island retains its system safe area plus an `8px` content gap only.
 At narrower widths the title-bar controls move to their own wrapping row
 before they can overlap the dashboard title. Labels above vertical input and
 select controls retain an `8px` gap before a focus outline. Component logs

@@ -829,7 +829,10 @@ test.describe("Engineering Status browser smoke", () => {
     const layout = await page.locator(".dashboard-scroll-region").evaluate(
       (region) => {
         const style = getComputedStyle(region);
+        const bodyStyle = getComputedStyle(document.body);
         return {
+          bodyPaddingLeft: bodyStyle.paddingLeft,
+          bodyPaddingRight: bodyStyle.paddingRight,
           paddingLeft: style.paddingLeft,
           paddingRight: style.paddingRight,
           scrollbarGutter: style.scrollbarGutter,
@@ -837,8 +840,10 @@ test.describe("Engineering Status browser smoke", () => {
       },
     );
     expect(layout).toEqual({
-      paddingLeft: "14px",
-      paddingRight: "14px",
+      bodyPaddingLeft: "8px",
+      bodyPaddingRight: "8px",
+      paddingLeft: "6px",
+      paddingRight: "6px",
       scrollbarGutter: "auto",
     });
   });
