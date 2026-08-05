@@ -89,6 +89,13 @@ The Engineering Status SVG and touch PNG are same-origin assets. They are
 served with `no-store` so an actively running local dashboard never needs to
 reuse an outdated visual asset after an upgrade.
 
+The title bar also contains a compact circular **Page refresh** glyph. It uses
+the same reload operation and visible refreshing feedback as pull-to-refresh;
+it is a browser-surface refresh only and never changes Engineering execution
+state, scheduling or evidence. Its accessible name is supplied by the
+five-language dashboard catalogue. On iPhone and iPad, `touch-action:
+manipulation` prevents accidental double-tap zoom while preserving pinch zoom.
+
 Top-level dashboard categories are separated by a `24px` rhythm and do not
 use elevation shadows; their coloured borders and spacing provide hierarchy.
 The Dashboard UI component layer groups header, main-section, scrolling/focus,
@@ -190,12 +197,14 @@ item.
 
 ## Browser state and evidence views
 
-The title bar provides three browser-local controls: theme, section expansion
-and automatic refresh. Their values, open category state, table filters,
-sorting and pagination remain in the browser during a server-pushed status
-update. With automatic refresh disabled, the visible state remains static until
-the maintainer refreshes or re-enables it. These are presentation preferences;
-they never alter an Engineering run or its evidence.
+The title bar provides four browser-local controls: page refresh, theme,
+section expansion and automatic refresh. Page refresh is deliberately the
+same operation as pull-to-refresh, so both paths show the same feedback before
+reloading the current browser page. Their values, open category state, table
+filters, sorting and pagination remain in the browser during a server-pushed
+status update. With automatic refresh disabled, the visible state remains
+static until the maintainer refreshes or re-enables it. These are presentation
+preferences; they never alter an Engineering run or its evidence.
 
 **Promptgeschiedenis** is the sole entry point for terminal execution detail.
 Selecting a table row opens a near-fullscreen, read-only detail dialog with
@@ -310,9 +319,9 @@ test against a locally started dashboard. It uses an iPhone-sized viewport and
 checks the private status surface, workspace category and collapsed completed
 prompt category. Its localization coverage switches through all five supported
 languages and verifies that visible interface copy, template and web-app-title
-bindings, dynamic dialogs, pull-to-refresh feedback, downloadable chat labels,
-accessibility names and rendered preflight enum labels change with the selected
-language. Run the same validation locally with:
+bindings, dynamic dialogs, pull-to-refresh and title-bar refresh feedback,
+downloadable chat labels, accessibility names and rendered preflight enum
+labels change with the selected language. Run the same validation locally with:
 
 ```sh
 npm ci

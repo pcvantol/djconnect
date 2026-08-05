@@ -22,13 +22,17 @@ relationship is present in Prompt History or pending in the Inbox.
 - Producer type labels are localized for `en`, `nl`, `de`, `fr` and `es`.
 - Prompt History now uses consistently styled glyph actions, compact dates and
   responsive columns; component-log Details uses remaining table width.
+- The title bar offers the same safe browser refresh through pull-to-refresh
+  and the localized circular **Page refresh** control. iPhone and iPad prevent
+  accidental double-tap zoom while keeping pinch zoom available.
 
 ## Verification
 
 - Focused Python retry, history and dashboard regressions cover the immutable
   parent/child relationship and duplicate-child rejection.
 - Browser regressions cover all five localized headers and the five-character
-  iPad Run-ID projection, plus the Details-column width allocation.
+  iPad Run-ID projection, Details-column width allocation and the localized
+  Page refresh accessibility label.
 - JavaScript syntax and `git diff --check` are required before review.
 
 ## Boundary
