@@ -1730,6 +1730,19 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator(".chat-message--assistant .chat-message__copy")).toHaveCSS("color", "rgb(104, 73, 138)");
   });
 
+  test("uses a destructive red surface for the component log clear glyph", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#componentLogs").evaluate((details) => { details.open = true; });
+    const clear = page.locator("#componentLogs .clear-component-log").first();
+    await expect(clear).toHaveCSS("background-color", "rgb(58, 32, 40)");
+    await expect(clear).toHaveCSS("border-color", "rgb(255, 113, 143)");
+    await clear.hover();
+    await expect(clear).toHaveCSS("background-color", "rgb(255, 113, 143)");
+    await page.getByTestId("theme-toggle").click();
+    await expect(clear).toHaveCSS("background-color", "rgb(255, 241, 244)");
+    await expect(clear).toHaveCSS("color", "rgb(179, 38, 73)");
+  });
+
   test("uses matching orange iOS-style toggles in the title bar", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     const theme = page.getByTestId("theme-toggle");

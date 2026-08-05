@@ -227,8 +227,11 @@ html[data-theme="light"] #rateLimitReset{background:#e8fff5;color:#145a42}
 /* Component details belong to Platform Health, so their information action fills green. */
 .platform-health .component-info:hover{background:#a3e635!important;border-color:#a3e635!important;color:#18230f!important}
 
-/* Redacted component logs are diagnostic evidence, so both glyph actions fill orange. */
-.log-card-actions :is(.download.download--glyph,.clear-component-log--glyph):hover{background:#f0b66a!important;border-color:#f0b66a!important;color:#201812!important}
+/* Downloads remain diagnostic-orange; clearing logs is destructive red. */
+.log-card-actions .download.download--glyph:hover{background:#f0b66a!important;border-color:#f0b66a!important;color:#201812!important}
+.clear-component-log--glyph{background:#3a2028!important;border-color:#ff718f!important;color:#ffd9e1!important}
+.clear-component-log--glyph:hover:not(:disabled){background:#ff718f!important;border-color:#ff718f!important;color:#23131a!important}
+html[data-theme="light"] #componentLogs .clear-component-log{background:#fff1f4!important;border-color:#ff718f!important;color:#b32649!important}
 
 /* The skip-link target remains programmatically focusable without outlining every category. */
 #engineering-dashboard-content:focus,#engineering-dashboard-content:focus-visible{box-shadow:none;outline:none}
