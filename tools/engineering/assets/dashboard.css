@@ -52,9 +52,8 @@ pre{white-space:pre-wrap;word-break:break-word;margin:5px 0 0;font:12px ui-monos
 .telemetry{--category-color:#fb7185;background:#351f2a;border:1px solid var(--category-color);border-left-width:3px;border-radius:18px;box-shadow:0 5px 24px #0006;cursor:pointer;padding:14px}.telemetry>summary{border-bottom:1px solid var(--category-color);cursor:pointer;display:block;list-style:none;margin-bottom:12px;padding:2px 2px 13px}.telemetry>summary::-webkit-details-marker{display:none}.telemetry>summary::before{color:var(--category-color);content:"▸ ";display:inline-block;font-size:24px;line-height:1;padding-right:8px;vertical-align:-2px}.telemetry[open]>summary::before{content:"▾ "}.telemetry>summary>strong{color:var(--category-color);font-size:17px;font-weight:700;letter-spacing:.04em;line-height:1.25;text-transform:uppercase}.telemetry .category-description{color:#d8c3ca;font-size:14px;line-height:1.4;margin:12px 0}.telemetry-table{border-collapse:collapse;font-size:13px;width:100%}.telemetry-table th,.telemetry-table td{border-bottom:1px solid #fb718555;padding:7px;text-align:left;white-space:nowrap}.telemetry-table th{color:var(--category-color)}.telemetry-scroll{overflow-x:auto}.telemetry-empty{color:#b9b6c0;margin:0}
 .platform-health{--category-color:#a3e635;background:#29331d;border:1px solid var(--category-color);border-left-width:3px;border-radius:18px;box-shadow:0 5px 24px #0006;cursor:pointer;padding:14px}.platform-health>summary{border-bottom:1px solid var(--category-color);cursor:pointer;display:block;list-style:none;margin-bottom:12px;padding:2px 2px 13px}.platform-health>summary::-webkit-details-marker{display:none}.platform-health>summary::before{color:var(--category-color);content:"▸ ";display:inline-block;font-size:24px;line-height:1;padding-right:8px;vertical-align:-2px}.platform-health[open]>summary::before{content:"▾ "}.platform-health>summary>strong{color:var(--category-color);font-size:17px;font-weight:700;letter-spacing:.04em;line-height:1.25;text-transform:uppercase}.platform-health .category-description{color:#d4ddc7;font-size:14px;line-height:1.4;margin:12px 0}.platform-health__summary{color:#d4ddc7;font-size:12px;margin-left:8px}.platform-health__components{display:grid;gap:8px}.platform-health__component{align-items:center;background:#1e2518;border:1px solid color-mix(in srgb,var(--category-color) 64%,transparent);border-radius:9px;column-gap:10px;display:grid;grid-template-columns:auto 1fr;padding:9px 10px;row-gap:3px}.platform-health__component .indicator{grid-row:span 2}.platform-health__component-name{color:var(--category-color);font-weight:700}.platform-health__component-detail{color:#d4ddc7;font-size:12px;grid-column:2;line-height:1.35}.platform-health__empty{color:#d4ddc7;margin:0}.platform-health__component[data-health="false"]{--category-color:#ff8585;background:#351f24}
 #codexChat .chat-input,#codexChat .chat-send{border-color:#d0a4ff}
-.component-modal__panel{color:#f7f3ee}.component-modal__close:hover{background:#a3e63526}.component-modal__close:focus-visible{box-shadow:0 0 0 4px #a3e63540;outline:2px solid #a3e635;outline-offset:3px}
 #codexChat .codex-chat__details{position:relative}#codexChat .codex-chat__details>.estimate-meta{padding-right:52px}
-.component-info{align-items:center;background:transparent;border:1px solid var(--category-color);border-radius:50%;color:var(--category-color);cursor:pointer;display:grid;font:700 15px/1 system-ui;height:32px;justify-items:center;padding:0;width:32px}.component-info:hover{background:color-mix(in srgb,var(--category-color) 16%,transparent)}.platform-health__component{grid-template-columns:auto 1fr auto}.platform-health__component-detail{grid-column:2}.component-modal{background:#15151de8;border:0;height:100dvh;max-height:none;max-width:none;padding:18px;width:100vw}.component-modal[open]{display:grid;place-items:center}.component-modal__panel{background:#22242c;border:2px solid #a3e635;border-radius:16px;box-shadow:0 16px 52px #000c;box-sizing:border-box;max-height:min(700px,calc(100dvh - 36px));max-width:680px;overflow:auto;padding:20px;position:relative;width:min(680px,calc(100vw - 36px))}.component-modal__close{background:transparent;border:1px solid #a3e635;border-radius:50%;color:#d8f7a5;cursor:pointer;font:20px/1 system-ui;height:34px;position:absolute;right:14px;top:14px;width:34px}.component-modal h2{color:#a3e635;margin:0 44px 14px 0}.component-modal dl{display:grid;gap:10px;margin:0}.component-modal dt{color:#a3e635;font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase}.component-modal dd{margin:3px 0 0;overflow-wrap:anywhere}.component-modal__restart{background:#253b17;border:1px solid #a3e635;border-radius:8px;color:#e6ffc0;cursor:pointer;font:14px system-ui;margin-top:18px;padding:9px 12px}.component-modal__restart:disabled{cursor:wait;opacity:.7}.component-modal__status{color:#d4ddc7;font-size:13px;margin:10px 0 0}
+.component-info{align-items:center;background:transparent;border:1px solid var(--category-color);border-radius:50%;color:var(--category-color);cursor:pointer;display:grid;font:700 15px/1 system-ui;height:32px;justify-items:center;padding:0;width:32px}.component-info:hover{background:color-mix(in srgb,var(--category-color) 16%,transparent)}.platform-health__component{grid-template-columns:auto 1fr auto}.platform-health__component-detail{grid-column:2}.component-modal{background:#15151de8;border:0;height:100dvh;max-height:none;max-width:none;padding:18px;width:100vw}.component-modal[open]{display:grid;place-items:center}.component-modal__panel{border:2px solid var(--modal-accent);box-sizing:border-box;max-height:min(700px,calc(100dvh - 36px));max-width:680px;overflow:auto;padding:20px;position:relative;width:min(680px,calc(100vw - 36px))}.component-modal dl{display:grid;gap:10px;margin:0}.component-modal dt{color:var(--modal-accent);font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase}.component-modal dd{margin:3px 0 0;overflow-wrap:anywhere}.component-modal__restart{background:#253b17;border:1px solid var(--modal-accent);border-radius:8px;color:#e6ffc0;cursor:pointer;font:14px system-ui;margin-top:18px;padding:9px 12px}.component-modal__restart:disabled{cursor:wait;opacity:.7}.component-modal__status{color:#d4ddc7;font-size:13px;margin:10px 0 0}
 #chatInput:focus-visible{outline:2px solid #d0a4ff;outline-offset:2px;box-shadow:0 0 0 4px #292336}
 :where(input,select,textarea):focus-visible{outline:2px solid var(--category-color);outline-offset:2px;box-shadow:0 0 0 4px color-mix(in srgb,var(--category-color) 24%,transparent)}
 #reportContent{max-height:50dvh;overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}.technical-details>summary>strong,.codex-chat>summary>strong,#rateLimits>summary>strong,.workspace-card>summary>strong{font-size:17px}
@@ -173,7 +172,6 @@ html[data-theme="light"] .predecessor-retry{background:#fff8ef;border-color:#d68
 .download.download--glyph{border-style:solid;border-width:1px;box-sizing:border-box}
 
 /* The Execution Host detail close action keeps its own green hover state. */
-.component-modal__close:hover{background:#a3e635!important;border-color:#a3e635!important;color:#18230f!important}
 
 /* Component-log actions need their own light resting surface, not the dark log-card fill. */
 
@@ -255,41 +253,18 @@ html[data-theme="light"] #promptHistory .execution-history-action{background:#ff
 #promptHistoryRows .prompt-history-actions{vertical-align:middle}#promptHistoryRows .execution-history-action{margin-top:0}
 
 /* The header owns a fixed row; only the document pane scrolls beneath it. */
-.report-view-modal__panel{--report-modal-surface:#24242d;display:grid;grid-template-rows:auto minmax(0,1fr);height:min(90vh,calc(100dvh - 36px));overflow:hidden}.report-view-modal__header{align-items:flex-start;background:var(--report-modal-surface);display:grid!important;gap:16px;grid-template-columns:minmax(0,1fr) max-content;padding:0 0 14px;position:relative;z-index:1}.report-view-modal__title{margin:0;min-width:0}.report-view-modal__actions{grid-column:2;grid-row:1;justify-self:end;position:static}.report-view-modal__content{min-height:0;overflow:auto;overscroll-behavior:contain;padding:12px}html[data-theme="light"] .report-view-modal__panel{--report-modal-surface:#f7fbff}
-
-/* Modal titles have a consistent category-colored ruler; close glyphs stay compact. */
-.component-modal h2{border-bottom:1px solid #a3e635;margin:0 -6px 14px 0;padding:0 50px 12px 0}.report-view-modal__header{border-bottom:1px solid var(--category-color)}.component-modal__close,.report-view-modal__close{font-size:18px}
+.report-view-modal__panel{--report-modal-surface:#24242d;display:grid;grid-template-rows:auto minmax(0,1fr);height:min(90vh,calc(100dvh - 36px));overflow:hidden}.report-view-modal__header{background:var(--report-modal-surface);z-index:1}.report-view-modal__actions{grid-column:2;grid-row:1;justify-self:end;position:static}.report-view-modal__content{min-height:0;overflow:auto;overscroll-behavior:contain;padding:12px}html[data-theme="light"] .report-view-modal__panel{--report-modal-surface:#f7fbff}
 
 /* A small, decorative glyph gives each modal title a clear visual purpose. */
 :is(.component-modal h2,.confirmation-modal h2,.report-view-modal__title,.prompt-detail-modal__header h2,.prompt-chat-modal__header h2)::before{display:inline-block;font-size:.84em;line-height:1;margin-right:.42em;vertical-align:-.06em}.component-modal h2::before{content:"⚙"}.confirmation-modal h2::before{content:"!"}.report-view-modal__title::before{content:"▤"}.prompt-detail-modal__header h2::before{content:"i";font-weight:700}.prompt-chat-modal__header h2::before{content:"💬"}
 
-/* Confirmation modal: one operational surface and one house-style action
-   treatment, regardless of the contextual accent that opened the dialog. */
-.confirmation-modal{--confirmation-color:#c7a6ff;background:transparent;border:0;color:var(--dashboard-modal-ink);padding:0}
-.confirmation-modal::backdrop{background:#000b}
-.confirmation-modal__panel{background:var(--dashboard-modal-surface);border:2px solid var(--confirmation-color);border-radius:16px;box-shadow:0 18px 48px #000a;max-width:30rem;padding:22px}
-.confirmation-modal h2{border-bottom:1px solid var(--confirmation-color);color:var(--house-style)!important;margin:0;padding-bottom:12px}
-.confirmation-modal--destructive h2{color:#ff718f!important}
+/* Confirmation only supplies its compact geometry; the shell owns the header,
+   close control, accent and destructive state. */
+.confirmation-modal__panel{border:2px solid var(--modal-accent);max-width:30rem;padding:22px}
 .confirmation-modal__panel #confirmationModalText{line-height:1.55;white-space:pre-line}
-.confirmation-modal__actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px}
-.confirmation-modal button{border:1px solid var(--house-style)!important;border-radius:8px;font:13px system-ui;min-height:44px;padding:8px 14px}
-.confirmation-modal__actions button:first-child:not(:hover){background:var(--dashboard-modal-surface)!important;color:var(--dashboard-modal-ink)!important}
-.confirmation-modal__actions button:last-child:not(:hover){background:color-mix(in srgb,var(--house-style) 22%,#24242d)!important;border-color:var(--house-style)!important;color:#f7f3ee!important}
-.confirmation-modal__actions button:hover:not(:disabled){background:var(--house-style)!important;border-color:var(--house-style)!important;color:#201812!important}
-html[data-theme="light"] .confirmation-modal,.confirmation-modal[data-theme-mode="light"]{color:#182230}
-html[data-theme="light"] .confirmation-modal__panel,.confirmation-modal[data-theme-mode="light"] .confirmation-modal__panel{background:var(--dashboard-modal-document-surface)!important;box-shadow:0 18px 48px #26395540;color:#182230!important}
-html[data-theme="light"] .confirmation-modal :is(h2,p),.confirmation-modal[data-theme-mode="light"] :is(h2,p){color:#182230!important}
-html[data-theme="light"] .confirmation-modal h2,.confirmation-modal[data-theme-mode="light"] h2{color:var(--house-style)!important}
-html[data-theme="light"] .confirmation-modal--destructive h2,.confirmation-modal--destructive[data-theme-mode="light"] h2{color:#b32649!important}
-html[data-theme="light"] .confirmation-modal button:not(:last-child),.confirmation-modal[data-theme-mode="light"] button:not(:last-child){background:#fff!important;border-color:var(--house-style)!important;color:#7a4912!important}
-html[data-theme="light"] .confirmation-modal__actions button:last-child:not(:hover),.confirmation-modal[data-theme-mode="light"] .confirmation-modal__actions button:last-child:not(:hover){background:color-mix(in srgb,var(--house-style) 16%,#fff)!important;border-color:var(--house-style)!important;color:#7a4912!important}
-html[data-theme="light"] .confirmation-modal button:hover:not(:disabled),.confirmation-modal[data-theme-mode="light"] button:hover:not(:disabled){background:var(--house-style)!important;border-color:var(--house-style)!important;color:#201812!important}
 
 /* Platform information glyphs use the same compact diameter as round download actions. */
 .component-info{min-height:32px;min-width:32px}
-
-/* Component-modal close action uses the same compact round control size as download glyphs. */
-.component-modal__close{min-height:32px;min-width:32px}
 
 /* Light report modals keep markdown code on readable light surfaces. */
 html[data-theme="light"] .report-view-modal__content :is(pre,code){background:#eef4fb;color:#182230}
@@ -390,7 +365,6 @@ html[data-theme="light"] .chat-message__body :is(code,pre){background:#e9eef6;co
 .prompt-chat-modal{--prompt-chat-answer-surface:#3c2a4d}.prompt-chat-modal .chat-message--assistant{background:var(--prompt-chat-answer-surface);border-color:#bd8ee8}html[data-theme="light"] .prompt-chat-modal{--prompt-chat-answer-surface:#f3ebff}
 
 /* Keep the fixed close control above long detail content on every viewport. */
-.prompt-detail-modal__header .report-view-modal__close{pointer-events:auto;position:relative;z-index:3}
 
 /* The modal footer remains visible even after a visitor enlarges the question box. */
 .prompt-chat-modal #codexChat{display:grid;grid-template-rows:minmax(0,1fr);min-height:0}.prompt-chat-modal .chat-input{height:clamp(88px,14dvh,128px);max-height:128px;min-height:88px}.prompt-chat-modal #codexChat .codex-chat__details{box-sizing:border-box;grid-template-rows:auto minmax(0,1fr) auto auto auto;min-height:0;padding:0 6px 10px}.prompt-chat-modal .chat-question-label{margin-bottom:6px}.prompt-chat-modal .chat-compose{min-height:0}.prompt-chat-modal .chat-meta{align-items:end;display:flex;gap:16px;justify-content:space-between;min-height:2.5rem}.prompt-chat-modal .chat-meta .chat-status{margin:0 0 2px;min-height:1.25em;overflow-wrap:anywhere;text-align:right}.prompt-chat-modal #codexChat .field{margin:6px 0 0;padding-bottom:2px}
@@ -532,14 +506,23 @@ html[data-theme="light"] .prompt-chat-modal{--prompt-chat-answer-surface:#f3ebff
 .dashboard-modal-shell--confirmation{--modal-accent:var(--house-style)}
 .dashboard-modal-shell--evidence{--modal-accent:#8dc7ff;--category-color:var(--modal-accent)}
 .dashboard-modal-shell--chat{--modal-accent:#d0a4ff;--category-color:var(--modal-accent)}
+.dashboard-modal-shell--destructive{--modal-accent:#ff718f}
 .dashboard-modal-shell::backdrop{background:var(--dashboard-modal-backdrop)}
 .dashboard-modal-shell__panel{background:var(--modal-surface);border-color:var(--modal-accent);box-shadow:var(--dashboard-modal-shadow);color:var(--dashboard-modal-ink)}
-.dashboard-modal-shell__header{border-bottom-color:var(--modal-accent)}
-.dashboard-modal-shell__header h2{color:var(--modal-accent)}
-.dashboard-modal-shell__close{background:var(--modal-surface);border-color:var(--modal-accent);color:var(--modal-accent)}
-.dashboard-modal-shell__close:hover{background:var(--modal-accent);border-color:var(--modal-accent);color:#17151a}
+.dashboard-modal-shell__header{align-items:start;border-bottom:1px solid var(--modal-accent);display:grid;gap:16px;grid-template-columns:minmax(0,1fr) max-content;padding:0 0 14px;position:relative;z-index:2}
+.dashboard-modal-shell__header h2{color:var(--modal-accent);margin:0;min-width:0}
+.dashboard-modal-shell__close{align-items:center;background:#24242d!important;border:1px solid #92919b!important;border-radius:50%;color:#f7f3ee!important;cursor:pointer;display:inline-flex;font:18px/1 system-ui;grid-column:2;grid-row:1;height:34px;justify-content:center;min-height:32px;min-width:32px;padding:0;position:static;width:34px}
+.dashboard-modal-shell__close:hover{background:#4a4a55!important;border-color:#b9b6c0!important;color:#fff!important}
+.dashboard-modal-shell__actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px}
+.dashboard-modal-shell__action{background:var(--modal-surface)!important;border:1px solid var(--modal-accent)!important;border-radius:8px;color:var(--dashboard-modal-ink)!important;cursor:pointer;font:13px system-ui;min-height:44px;padding:8px 14px}
+.dashboard-modal-shell__action--primary{background:color-mix(in srgb,var(--modal-accent) 22%,#24242d)!important;color:#f7f3ee!important}
+.dashboard-modal-shell__action:hover:not(:disabled){background:var(--modal-accent)!important;border-color:var(--modal-accent)!important;color:#201812!important}
 html[data-theme="light"] .dashboard-modal-shell{--modal-surface:var(--dashboard-modal-document-surface);color:#182230}
 html[data-theme="light"] .dashboard-modal-shell__panel{color:#182230}
+html[data-theme="light"] .dashboard-modal-shell__close{background:#fff!important;border-color:#728197!important;color:#415168!important}
+html[data-theme="light"] .dashboard-modal-shell__close:hover{background:#e9eef6!important;border-color:#58677b!important;color:#182230!important}
+html[data-theme="light"] .dashboard-modal-shell__action{background:#fff!important;color:#7a4912!important}
+html[data-theme="light"] .dashboard-modal-shell__action--primary{background:color-mix(in srgb,var(--modal-accent) 16%,#fff)!important}
 .component-modal__restart::before{content:"↻";font:700 17px/1 system-ui;margin-right:8px;vertical-align:-1px}
 .rate-limit-reset::before{content:"↻";font:700 17px/1 system-ui;margin-right:8px;vertical-align:-1px}
 .predecessor-retry::before{content:"↻";font:700 17px/1 system-ui;margin-right:8px;vertical-align:-1px}
@@ -557,9 +540,3 @@ html[data-theme="light"] .dashboard-modal-shell__panel{color:#182230}
 html[data-theme="light"] .dashboard-action--download{background:#fff8ef!important;border-color:#d68b23!important;color:#643a13!important}
 html[data-theme="light"] .dashboard-action--copy{background:#fff7ff!important;border-color:#b99ae5!important;color:#68498a!important}
 html[data-theme="light"] .dashboard-action--destructive{background:#fff1f4!important;border-color:#ff718f!important;color:#b32649!important}
-
-/* Closing a modal is neutral navigation, independent of its content category. */
-.dashboard-modal-shell__close{background:#24242d!important;border-color:#92919b!important;color:#f7f3ee!important}
-.dashboard-modal-shell__close:hover{background:#4a4a55!important;border-color:#b9b6c0!important;color:#fff!important}
-html[data-theme="light"] .dashboard-modal-shell__close{background:#fff!important;border-color:#728197!important;color:#415168!important}
-html[data-theme="light"] .dashboard-modal-shell__close:hover{background:#e9eef6!important;border-color:#58677b!important;color:#182230!important}

@@ -3508,22 +3508,22 @@ function confirmDashboardAction(title, text, confirmLabel, { destructive = false
   const modal = $("confirmationModal"),
     heading = $("confirmationModalTitle"),
     body = $("confirmationModalText"),
+    close = $("confirmationModalClose"),
     cancel = $("confirmationModalCancel"),
     confirm = $("confirmationModalConfirm");
   heading.textContent = title;
   body.textContent = text;
   confirm.textContent = confirmLabel;
-  modal.classList.toggle("confirmation-modal--destructive", destructive);
-  modal.style.setProperty("--confirmation-color", destructive ? "#ff718f" : "#f0b66a");
+  modal.classList.toggle("dashboard-modal-shell--destructive", destructive);
   modal.style.setProperty("--modal-accent", destructive ? "#ff718f" : "#f0b66a");
   return new Promise((resolve) => {
     const finish = (value) => {
       modal.close();
-      modal.classList.remove("confirmation-modal--destructive");
-      cancel.onclick = confirm.onclick = null;
+      modal.classList.remove("dashboard-modal-shell--destructive");
+      close.onclick = cancel.onclick = confirm.onclick = null;
       resolve(value);
     };
-    cancel.onclick = () => finish(false);
+    close.onclick = cancel.onclick = () => finish(false);
     confirm.onclick = () => finish(true);
     modal.addEventListener(
       "cancel",

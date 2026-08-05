@@ -414,6 +414,8 @@ test.describe("Engineering Status browser smoke", () => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
 
     for (const [selector, modifier, accent] of [
+      ["#componentModal", "dashboard-modal-shell--component", "rgb(163, 230, 53)"],
+      ["#confirmationModal", "dashboard-modal-shell--confirmation", "rgb(240, 182, 106)"],
       ["#promptHistoryReportModal", "dashboard-modal-shell--evidence", "rgb(141, 199, 255)"],
       ["#promptHistoryDetailModal", "dashboard-modal-shell--evidence", "rgb(141, 199, 255)"],
       ["#promptHistoryChatModal", "dashboard-modal-shell--chat", "rgb(208, 164, 255)"],
@@ -1432,7 +1434,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#componentModal")).toBeFocused();
     await expect(page.locator(".component-modal__panel")).toHaveCSS("background-color", "rgb(255, 255, 255)");
     await expect(page.locator(".component-modal__panel")).toHaveCSS("color", "rgb(24, 34, 48)");
-    await expect(page.locator("#componentModalTitle")).toHaveCSS("border-bottom-color", "rgb(163, 230, 53)");
+    await expect(page.locator(".component-modal__header")).toHaveCSS("border-bottom-color", "rgb(163, 230, 53)");
     await expect(page.locator("#componentModalClose")).toHaveCSS("font-size", "18px");
     await expect(page.locator("#componentModalClose")).toHaveCSS("min-height", "32px");
     await expect(page.locator("#componentModalClose")).toHaveCSS("min-width", "32px");
@@ -2879,14 +2881,14 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(modal).toBeVisible();
     await expect(modal).toBeFocused();
     await expect(modal.locator(".confirmation-modal__panel")).toHaveCSS("border-top-color", "rgb(255, 113, 143)");
-    await expect(page.locator("#confirmationModalTitle")).toHaveCSS("border-bottom-color", "rgb(255, 113, 143)");
+    await expect(page.locator(".confirmation-modal__header")).toHaveCSS("border-bottom-color", "rgb(255, 113, 143)");
     await expect(page.locator("#confirmationModalTitle")).toHaveCSS("color", "rgb(255, 113, 143)");
     expect(await page.locator("#confirmationModalTitle").evaluate((title) => getComputedStyle(title, "::before").color)).toBe("rgb(255, 113, 143)");
     expect(await page.locator("#confirmationModalConfirm").evaluate((element) => getComputedStyle(element).backgroundColor)).not.toBe("rgb(240, 182, 106)");
     for (const action of [page.locator("#confirmationModalCancel"), page.locator("#confirmationModalConfirm")]) {
       await action.hover();
-      await expect(action).toHaveCSS("background-color", "rgb(240, 182, 106)");
-      await expect(action).toHaveCSS("border-top-color", "rgb(240, 182, 106)");
+      await expect(action).toHaveCSS("background-color", "rgb(255, 113, 143)");
+      await expect(action).toHaveCSS("border-top-color", "rgb(255, 113, 143)");
     }
     await expect(page.locator("#confirmationModalConfirm")).toHaveCSS("font-size", "13px");
     await expect(page.locator("#confirmationModalConfirm")).toHaveCSS("font-family", await page.locator("#rateLimitReset").evaluate((button) => getComputedStyle(button).fontFamily));
