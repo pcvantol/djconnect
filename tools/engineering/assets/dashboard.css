@@ -364,9 +364,11 @@ html[data-theme="light"] .dashboard-locale select{background:var(--dashboard-sur
 }
 :where(button,input,select,textarea,summary,[role="button"],[tabindex]):focus-visible{outline-width:var(--dashboard-focus-outline-width);outline-offset:var(--dashboard-focus-outline-offset);box-shadow:0 0 0 var(--dashboard-focus-ring-size) color-mix(in srgb,var(--category-color,#8dc7ff) 24%,transparent)}
 @media (max-width:620px) and (orientation:portrait){
+  /* iOS handles a document scroll more reliably than a nested flex scroller.
+     It also lets the title naturally leave the viewport with the content. */
   .dashboard-titlebar{position:static}
-  body{padding-inline: max(12px,env(safe-area-inset-left)) max(12px,env(safe-area-inset-right))}
-  .dashboard-scroll-region{padding-inline:6px;scrollbar-gutter:stable both-edges}
+  body{display:block;height:auto;min-height:100dvh;overflow-x:hidden;overflow-y:auto;padding-inline:max(12px,env(safe-area-inset-left)) max(12px,env(safe-area-inset-right))}
+  .dashboard-scroll-region{min-height:auto;overflow:visible;padding-inline:6px;scrollbar-gutter:stable both-edges}
   .footer{box-sizing:border-box;display:flex;flex-wrap:wrap;gap:4px 10px;justify-content:center;overflow:visible;padding-inline:6px;text-align:center;white-space:normal}
   .footer__item{justify-content:center}
   .footer__separator{display:none}

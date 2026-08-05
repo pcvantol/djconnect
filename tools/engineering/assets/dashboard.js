@@ -2247,6 +2247,11 @@ let pullRefreshStart = null,
 const pullRefresh = $("pullRefresh");
 const dashboardScrollRegion = document.querySelector(".dashboard-scroll-region");
 const pullRefreshActivationHeight = 40;
+function dashboardScrollTop() {
+  if (window.matchMedia("(max-width:620px) and (orientation:portrait)").matches)
+    return window.scrollY || document.documentElement.scrollTop || 0;
+  return dashboardScrollRegion?.scrollTop || 0;
+}
 function updatePullRefresh(distance) {
   pullRefreshDistance = Math.max(0, Math.min(distance, 112));
   const ready = pullRefreshDistance >= 72;
@@ -2262,7 +2267,7 @@ function updatePullRefresh(distance) {
 function startPullRefresh(event) {
   if (
     event.touches.length !== 1 ||
-    (dashboardScrollRegion && dashboardScrollRegion.scrollTop > 0)
+    dashboardScrollTop() > 0
   )
     return;
   const target = event.target;
