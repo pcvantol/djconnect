@@ -960,6 +960,7 @@ test.describe("Engineering Status browser smoke", () => {
     await page.locator("#autoRefresh").uncheck();
     await page.evaluate(() => r({
       watcher_state: "ENGINEERING_RUN_ACTIVE",
+      platform_version: "1.5.0",
       current_phase: "EXECUTE_AGENT",
       current_action: "Codex bewerkt bestanden",
       run_id: "activity-run",
@@ -968,7 +969,9 @@ test.describe("Engineering Status browser smoke", () => {
     }, {}));
 
     await expect(page.locator("#currentRun")).toBeVisible();
+    await expect(page.locator("#platformVersion")).toHaveText("1.5.0");
     await expect(page.locator("#action")).toHaveText("Codex bewerkt bestanden");
+    await expect(page.locator("#action")).toHaveCSS("font-style", "italic");
   });
 
   test("keeps specialist reviewer titles blue in light mode", async ({ page }) => {
