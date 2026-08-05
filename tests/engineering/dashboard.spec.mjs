@@ -1147,6 +1147,7 @@ test.describe("Engineering Status browser smoke", () => {
       restart_supported: true,
     }));
     await page.locator("#componentModalRestart").click();
+    await page.mouse.move(0, 0);
 
     await expect(page.locator("#confirmationModalCancel")).toHaveCSS("background-color", "rgb(36, 36, 45)");
     await expect(page.locator("#confirmationModalCancel")).toHaveCSS("color", "rgb(247, 243, 238)");
