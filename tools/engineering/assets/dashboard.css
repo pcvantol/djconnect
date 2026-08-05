@@ -153,10 +153,10 @@ html[data-theme="light"] #componentLogs .clear-component-log,html[data-theme="li
 html[data-theme="light"] #reportContent,html[data-theme="light"] #reportAnalysisContent{background:#fff;color:#182230;box-shadow:inset 0 0 0 1px #d8e5f3}html[data-theme="light"] #reportContent :is(p,li,pre,code),html[data-theme="light"] #reportAnalysisContent :is(p,li,pre,code){color:#182230}html[data-theme="light"] #reportContent :is(pre,code),html[data-theme="light"] #reportAnalysisContent :is(pre,code){background:#eef4fb}html[data-theme="light"] .markdown-copy-wrap .copy.copy--glyph,html[data-theme="light"] .markdown-copy-wrap .download.download--glyph{background:#f7fbff;border-color:var(--category-color);box-shadow:0 2px 8px #2639552e;color:#1c4e68}html[data-theme="light"] .markdown-copy-wrap .copy.copy--glyph:hover,html[data-theme="light"] .markdown-copy-wrap .download.download--glyph:hover{background:#e4f0ff}
 html[data-theme="light"] #downloadChat.download--glyph{background:#fff7ff;border-color:#b99ae5;box-shadow:0 2px 8px #6e548e2e;color:#68498a}html[data-theme="light"] #downloadChat.download--glyph:hover{background:#f1e4ff}
 
-/* Chat maintenance glyphs share the light conversation surface. */
-html[data-theme="light"] #clearChat.clear-chat{background:#fff7ff;border-color:#b99ae5;box-shadow:0 2px 8px #6e548e2e;color:#68498a}
-/* The destructive chat-maintenance glyph has the same affirmative hover cue as download. */
-#clearChat.clear-chat:hover{background:var(--category-color)!important;border-color:var(--category-color)!important;color:#17151a!important}
+/* The chat clear action is destructive in both themes. */
+html[data-theme="light"] #clearChat.clear-chat{background:#fff1f4;border-color:#ff718f;box-shadow:0 2px 8px #b326492e;color:#b32649}
+#clearChat.clear-chat{background:#3a2028;border-color:#ff718f;color:#ffd9e1}
+#clearChat.clear-chat:hover{background:#ff718f!important;border-color:#ff718f!important;color:#23131a!important}
 
 /* Resting glyphs need dark category ink on the light dashboard surfaces. */
 html[data-theme="light"] .platform-health .component-info{color:#3c7411}html[data-theme="light"] .chat-message--user .chat-message__copy{color:#1c4e68}html[data-theme="light"] .chat-message--assistant .chat-message__copy{color:#68498a}

@@ -1682,7 +1682,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(send).toHaveCSS("color", "rgb(23, 21, 26)");
   });
 
-  test("uses a light resting surface for the prompt-scoped chat clear glyph in light mode", async ({ page }) => {
+  test("uses a destructive red surface for the prompt-scoped chat clear glyph", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.getByTestId("theme-toggle").click();
     await page.evaluate(() => {
@@ -1692,11 +1692,11 @@ test.describe("Engineering Status browser smoke", () => {
     const clear = page.locator("#clearChat");
 
     await expect(clear).toBeVisible();
-    await expect(clear).toHaveCSS("background-color", "rgb(255, 247, 255)");
-    await expect(clear).toHaveCSS("color", "rgb(104, 73, 138)");
+    await expect(clear).toHaveCSS("background-color", "rgb(255, 241, 244)");
+    await expect(clear).toHaveCSS("color", "rgb(179, 38, 73)");
     await clear.hover();
-    await expect(clear).toHaveCSS("background-color", "rgb(208, 164, 255)");
-    await expect(clear).toHaveCSS("color", "rgb(23, 21, 26)");
+    await expect(clear).toHaveCSS("background-color", "rgb(255, 113, 143)");
+    await expect(clear).toHaveCSS("color", "rgb(35, 19, 26)");
     await page.evaluate(() => {
       chatMessage("user", "Eigen bericht");
       chatMessage("assistant", "AI-antwoord");
