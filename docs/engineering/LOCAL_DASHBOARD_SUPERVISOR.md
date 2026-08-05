@@ -109,6 +109,8 @@ Island retains its system safe area plus an `8px` content gap only.
 Every dialog type uses those same left and right safe areas independently in
 landscape, so an asymmetric Dynamic Island can never cover a dialog border or
 its panel padding.
+The compact confirmation panel is centred within that safe width rather than
+being aligned to the left edge of its full-width dialog shell.
 The read-only AI chat composer uses a single-line input with an adjacent send
 button on short iPhone landscape viewports, preserving room for the
 conversation rather than reserving the portrait multi-line composer height.

@@ -873,6 +873,9 @@ test.describe("Engineering Status browser smoke", () => {
     expect(confirmationBox).not.toBeNull();
     expect(confirmationBox.x).toBe(12);
     expect(confirmationBox.width).toBe(820);
+    const confirmationPanelBox = await confirmation.locator(".confirmation-modal__panel").boundingBox();
+    expect(confirmationPanelBox).not.toBeNull();
+    expect(Math.round(confirmationPanelBox.x + confirmationPanelBox.width / 2)).toBe(422);
 
     await confirmation.evaluate((element) => element.close());
     for (const selector of ["#promptHistoryReportModal", "#promptHistoryChatModal"]) {

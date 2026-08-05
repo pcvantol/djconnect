@@ -524,6 +524,8 @@ html[data-theme="light"] .prompt-chat-modal{--prompt-chat-answer-surface:#f3ebff
     max-width:none;
     width:auto;
   }
+  .confirmation-modal[open]{display:grid;place-items:center}
+  .confirmation-modal__panel{box-sizing:border-box;margin-inline:auto;max-width:100%;width:min(30rem,100%)}
   .component-modal__panel{
     max-width:calc(100vw - env(safe-area-inset-left) - env(safe-area-inset-right) - 24px);
     width:min(680px,calc(100vw - env(safe-area-inset-left) - env(safe-area-inset-right) - 24px));
