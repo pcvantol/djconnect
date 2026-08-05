@@ -2,7 +2,20 @@
 
 Status: active platform-evolution repository
 
-## PR #747 awaiting finalization reconciliation
+## PR #749 awaiting finalization reconciliation
+
+PR [#749](https://github.com/pcvantol/djconnect/pull/749), **Fix dashboard
+live status display**, merged as `46c73ebcf65f9b76e21ef69d5bce4fbee2708a43`.
+The read-only Engineering Status dashboard now retains the platform version in
+its active-run projection and presents the current activity in italic. Its
+reset-feedback browser test has deterministic startup fixtures. No Forge,
+execution, runtime, scheduling or lifecycle behavior changed. The immutable
+Prompt History record is
+`docs/history/prompts/2026-08-05-fix-dashboard-live-status-display.md`.
+Repository State: `MERGED_UNRECONCILED`; Workspace State: `NOT_READY` pending
+this governance-only Finalization and the required Workspace Cleanup.
+
+## PR #747 finalization reconciled
 
 PR [#747](https://github.com/pcvantol/djconnect/pull/747), **Fix browser
 clipboard copy**, merged as `9439ee73596b099e94862044d022e6010a6b1ce1`.
@@ -11,8 +24,10 @@ API where it is supported, while retaining its synchronous iOS Safari fallback.
 No Forge, execution, runtime, scheduling or lifecycle behavior changed. The
 immutable Prompt History record is
 `docs/history/prompts/2026-08-05-fix-browser-clipboard-copy.md`.
-Repository State: `MERGED_UNRECONCILED`; Workspace State: `NOT_READY` pending
-this governance-only Finalization and the required Workspace Cleanup.
+Its governance-only Finalization PR
+[#748](https://github.com/pcvantol/djconnect/pull/748) merged as
+`09e6b004c0517b8f7b5d85c29d33ef660aaa11c8`. Repository State:
+`MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY` after cleanup.
 
 ## PR #745 finalization reconciled
 
