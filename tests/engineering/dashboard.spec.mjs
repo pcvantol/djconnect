@@ -1050,6 +1050,7 @@ test.describe("Engineering Status browser smoke", () => {
   });
 
   test("uses the house-style orange for an active execution spinner", async ({ page }) => {
+    await page.route("**/api/events", (route) => route.abort());
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.waitForFunction(() => document.body.classList.contains("dashboard-ready"));
     await page.locator("#indicator").evaluate((element) => {
@@ -1647,7 +1648,9 @@ test.describe("Engineering Status browser smoke", () => {
   });
 
   test("keeps component-log download and destructive clear hover treatments distinct", async ({ page }) => {
+    await page.route("**/api/events", (route) => route.abort());
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.waitForFunction(() => document.body.classList.contains("dashboard-ready"));
     await page.locator("#dashboardSplash").evaluate((element) => { element.hidden = true; });
     await page.locator("#componentLogs").evaluate((element) => { element.open = true; });
     await page.evaluate(() => renderLogPagination("inbox", 1, 1));
@@ -2699,6 +2702,7 @@ test.describe("Engineering Status browser smoke", () => {
   });
 
   test("fills the reset action with a brighter green on hover", async ({ page }) => {
+    await page.route("**/api/events", (route) => route.abort());
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.waitForFunction(() => document.body.classList.contains("dashboard-ready"));
     await page.locator("#dashboardSplash").evaluate((element) => { element.hidden = true; });
