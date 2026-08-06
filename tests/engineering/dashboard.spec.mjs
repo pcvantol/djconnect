@@ -2949,6 +2949,9 @@ test.describe("Engineering Status browser smoke", () => {
   test("refreshes status and prompt history immediately after dismissing an execution", async ({ page }) => {
     let historyReads = 0;
     let dismissed = false;
+    // Keep the terminal snapshot deterministic: a live server-push event can
+    // otherwise replace its last executed run while the operator acts on it.
+    await page.route("**/api/events", (route) => route.abort());
     await page.route("**/api/prompt-history", async (route) => {
       historyReads += 1;
       await route.fulfill({ json: { runs: dismissed ? [{
