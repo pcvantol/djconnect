@@ -37,6 +37,12 @@ artifact is available before it is read. The reusable workflow rejects direct
 workflow-run head SHA, even if a later commit reaches `main` while
 reconciliation is running. It uploads `post-merge-release-evidence`.
 
+Durable evidence is published under a repository-scoped prerelease tag
+prefix. The Home Assistant integration keeps the `internal-ha` default;
+independent components pass their own stable prefix (for example,
+`internal-api`). This prevents an evidence asset from colliding with a
+component's immutable release artifact while preserving append-only storage.
+
 Workflow-run cleanup is intentionally bounded, but it must preserve the
 completed checks on the exact pull-request head that produced the current
 `main` SHA. Those checks are the only valid pre-merge input for the following

@@ -67,6 +67,17 @@ class EvidencePreservationTest(unittest.TestCase):
         self.assertEqual(first["redaction"]["status"], "REDACTED")  # type: ignore[index]
         self.assertEqual(first["integrity"]["algorithm"], "sha256-canonical-json")  # type: ignore[index]
 
+    def test_repository_scoped_release_tag_prefix_is_preserved(self) -> None:
+        record = build_record(
+            source(),
+            policy_source_revision=POLICY,
+            timestamp="2026-07-27T00:00:00Z",
+            workflow_run_id="456",
+            release_tag_prefix="internal-api",
+        )
+        self.assertEqual(record["release_identifier"], f"internal-api-{SHA}")
+        self.assertEqual(validate_record(record), [])
+
     def test_rejects_sensitive_source_content(self) -> None:
         data = source()
         data["repository"] = "example/djconnect?token=synthetic-only"
