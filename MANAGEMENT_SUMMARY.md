@@ -15,6 +15,18 @@
 
 ## Current position
 
+## PR #767 finalization reviewable
+
+PR [#767](https://github.com/pcvantol/djconnect/pull/767), **Fix active
+Inbox queue counter**, merged as
+`60b9c7f3116544a1a9dd7098eb21428670bffc81`. The Engineering Status dashboard
+now reports the same waiting-prompt count it displays during an active run.
+Its immutable history is
+`docs/history/prompts/2026-08-06-fix-active-inbox-queue-counter.md`. This is
+bounded Engineering Platform projection work: queue admission, execution,
+runtime, scheduling and lifecycle semantics are unchanged. Repository State:
+`MERGED_UNRECONCILED`; governance-only Finalization is reviewable.
+
 ## PR #763 finalization reconciled
 
 PR [#763](https://github.com/pcvantol/djconnect/pull/763), **Project Forge
