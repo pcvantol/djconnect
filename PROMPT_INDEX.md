@@ -2,7 +2,18 @@
 
 Status: canonical prompt navigation
 
-## PR #767 finalization reviewable
+## PR #769 finalization reviewable
+
+PR [#769](https://github.com/pcvantol/djconnect/pull/769), **Show workspace
+free disk space**, merged as `8b67b3de09597974c15e57fc375995cb6d70bae3`.
+It adds a localized free-space value in GB for the volume that contains the
+workspace, refreshed with each dashboard page request. Its immutable Prompt
+History record is `docs/history/prompts/2026-08-06-workspace-free-disk-space.md`.
+Forge, queue admission, execution, runtime, scheduling and lifecycle behavior
+are unchanged. Repository State: `MERGED_UNRECONCILED`; governance-only
+Finalization is reviewable.
+
+## PR #767 finalization reconciled
 
 PR [#767](https://github.com/pcvantol/djconnect/pull/767), **Fix active
 Inbox queue counter**, merged as
@@ -11,8 +22,11 @@ queue count in the active dashboard projection, preventing a zero summary
 above visible waiting prompts. Its immutable Prompt History record is
 `docs/history/prompts/2026-08-06-fix-active-inbox-queue-counter.md`. Queue
 admission, execution, runtime, scheduling and lifecycle behavior are
-unchanged. Repository State: `MERGED_UNRECONCILED`; governance-only
-Finalization is reviewable.
+unchanged. Its governance-only Finalization PR
+[#768](https://github.com/pcvantol/djconnect/pull/768) merged as
+`da47dc58676670f979ed5c26faec5dd04beafed1`. Repository State:
+`MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY` after cleanup. Stale
+local branch result: `none`.
 
 ## PR #763 finalization reconciled
 

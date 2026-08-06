@@ -3,7 +3,20 @@
 **Status:** Operational handoff
 **Updated:** 2026-08-06
 
-## PR #767 finalization reviewable
+## PR #769 finalization reviewable
+
+PR [#769](https://github.com/pcvantol/djconnect/pull/769), **Show workspace
+free disk space**, merged as `8b67b3de09597974c15e57fc375995cb6d70bae3`.
+The private Engineering Status dashboard now shows the free capacity, in GB,
+of the volume that contains the workspace, recalculated for every dashboard
+page request. Its immutable Prompt History record is
+`docs/history/prompts/2026-08-06-workspace-free-disk-space.md`. This is
+bounded dashboard presentation: Forge, queue admission, execution, runtime,
+scheduling and lifecycle behavior are unchanged. Repository State:
+`MERGED_UNRECONCILED`; Workspace State: `NOT_READY` pending this
+governance-only Finalization. Finalization State: `REVIEWABLE_FROZEN`.
+
+## PR #767 finalization reconciled
 
 PR [#767](https://github.com/pcvantol/djconnect/pull/767), **Fix active
 Inbox queue counter**, merged as
@@ -12,10 +25,11 @@ dashboard now preserves the watcher-owned queue depth while a run is active,
 so its summary agrees with the visible waiting Inbox prompts. The immutable
 Prompt History record is
 `docs/history/prompts/2026-08-06-fix-active-inbox-queue-counter.md`.
-Repository State: `MERGED_UNRECONCILED`; Workspace State: `NOT_READY` pending
-this governance-only Finalization. Finalization State: `REVIEWABLE_FROZEN`.
-No queue admission, execution, runtime, scheduling or lifecycle behavior
-changed.
+Its governance-only Finalization PR [#768](https://github.com/pcvantol/djconnect/pull/768)
+merged as `da47dc58676670f979ed5c26faec5dd04beafed1`. Repository State:
+`MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY` after cleanup. Stale
+local branch result: `none`. No queue admission, execution, runtime,
+scheduling or lifecycle behavior changed.
 
 ## PR #763 finalization reconciled
 
