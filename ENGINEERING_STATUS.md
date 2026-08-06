@@ -1,7 +1,20 @@
 # DJConnect Engineering Status
 
 **Status:** Operational handoff
-**Updated:** 2026-08-05
+**Updated:** 2026-08-06
+
+## PR #759 finalization pending
+
+PR [#759](https://github.com/pcvantol/djconnect/pull/759), **Fix retry
+lineage projection**, merged as
+`fd70650702d3ddcb14c0296e3f07f93cec31e073`. Prompt History now projects
+queued, active and terminal retry children from persisted lineage evidence.
+Historical parents become read-only immediately: Retry and Dismiss are hidden,
+while compact localized child lineage remains visible. The immutable Prompt
+History record is
+`docs/history/prompts/2026-08-06-retry-lineage-projection-fix.md`. No Forge,
+retry execution, runtime, scheduling or lifecycle semantics changed. Repository
+State: `MERGED_UNRECONCILED`; a governance-only Finalization PR is pending.
 
 ## PR #751 finalization reconciled
 

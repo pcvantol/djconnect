@@ -2,6 +2,19 @@
 
 Status: active platform-evolution repository
 
+## PR #759 finalization pending
+
+PR [#759](https://github.com/pcvantol/djconnect/pull/759), **Fix retry
+lineage projection**, merged as
+`fd70650702d3ddcb14c0296e3f07f93cec31e073`. The read-only Engineering Status
+dashboard now derives parent retry availability from persisted queued, active
+and terminal child evidence and shows localized compact lineage. Its immutable
+Prompt History record is
+`docs/history/prompts/2026-08-06-retry-lineage-projection-fix.md`. Forge,
+retry execution, runtime, scheduling and lifecycle behavior remain unchanged.
+Repository State: `MERGED_UNRECONCILED`; governance-only Finalization is
+pending.
+
 ## PR #751 finalization reconciled
 
 PR [#751](https://github.com/pcvantol/djconnect/pull/751), **Improve
