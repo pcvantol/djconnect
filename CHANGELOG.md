@@ -1,5 +1,12 @@
 # Changelog
 
+## 4.0.0-rc.1
+
+- Start the coordinated DJConnect Platform 4.0 release-candidate train.
+- Enforce the `4.0` runtime protocol line while accepting the SemVer release
+  candidate identity; incompatible 3.3 clients receive an explicit 426
+  `version_mismatch` response without losing pairing credentials.
+
 ## 3.3.1
 
 - Fix Home Assistant config-entry startup so the DJConnect HTTP routes are
