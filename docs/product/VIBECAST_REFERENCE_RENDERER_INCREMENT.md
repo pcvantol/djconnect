@@ -2,6 +2,21 @@
 
 **Status:** Planned and selected for the next Reference Experience increment.
 
+## Iteration 1 evidence
+
+The first ambient renderer foundation is implemented as a separate, no-store
+`/djconnect/vibecast` page. It reuses only the existing session-scoped Receiver
+Broadcast WebSocket and keeps its projection in memory. The portrait 1200x1920
+Pi is the live reference host; it renders a full-screen idle state and is
+prepared for snapshot-first playback, artwork, mood and current-DJMoment
+presentation. The same page includes a landscape composition for later Cast
+feasibility work.
+
+This is not yet end-to-end reference validation: Apple-owner-to-Pi handoff, an
+active-session capture, reconnect evidence and Runtime-end observation on the
+physical host remain the next work item. The Pi does not retain a Broadcast
+Token and the renderer contains no controls or personal projection.
+
 ## Outcome
 
 Deliver one ambient-first VibeCast web renderer that consumes only the existing
