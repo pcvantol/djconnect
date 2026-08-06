@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "kind": "platform_release_operational_manifest",
+  "status": "APPROVED_DEPLOYMENT_DISPATCH_PENDING",
+  "manifest_id": "release-4.0.0-rc.1-home-assistant-20260806",
+  "platform_version": "4.0",
+  "release_version": "4.0.0-rc.1",
+  "release_profile": "INTERNAL_RELEASE",
+  "generated_at": "2026-08-06",
+  "approval": {
+    "state": "APPROVED",
+    "approved_at": "2026-08-06",
+    "approved_statement": "The maintainer explicitly authorized deployment of DJConnect Home Assistant 4.0.0-rc.1 to the lab and Home Assistant Pi 5 production target, using candidate 44c87cdcff10473f6d3c19968d8c3bf7732389da and its immutable internal artifact, followed by target-scoped smoke verification.",
+    "effect": "This approval authorizes only the Home Assistant integration candidate and the home_assistant_pi5 target. It does not authorize stable publication, a HACS release, OTA promotion, store submission, or any other Platform 4.0 component deployment."
+  },
+  "repositories": [
+    {
+      "repository": "pcvantol/djconnect",
+      "source_sha": "44c87cdcff10473f6d3c19968d8c3bf7732389da",
+      "version": "4.0.0-rc.1",
+      "artifact_run": "31098655516"
+    }
+  ],
+  "required_targets": [
+    {
+      "target": "home_assistant_pi5",
+      "required": true
+    }
+  ],
+  "artifact_bindings": [
+    {
+      "owner": "pcvantol/djconnect",
+      "target": "home_assistant_pi5",
+      "artifact_id": "release-asset:pcvantol/djconnect:internal-ha-44c87cdcff10473f6d3c19968d8c3bf7732389da:djconnect-home-assistant-integration-44c87cdcff10473f6d3c19968d8c3bf7732389da.tar.gz",
+      "artifact_sha256": "29293f672325f5296f99451d7915483953ac0f8b4e1b453a3403624310b7bad7",
+      "artifact_url": "https://github.com/pcvantol/djconnect/releases/download/internal-ha-44c87cdcff10473f6d3c19968d8c3bf7732389da/djconnect-home-assistant-integration-44c87cdcff10473f6d3c19968d8c3bf7732389da.tar.gz"
+    }
+  ],
+  "constraints": [
+    "The candidate is an internal prerelease and must not be published as a HACS stable release.",
+    "The production deployment and smoke operations remain separately dispatched and use the existing private-network credential boundary.",
+    "Runtime protocol compatibility is 4.0 only; 3.3 clients receive the documented version_mismatch response until their 4.0 candidate is deployed."
+  ],
+  "next_authorized_action": "Dispatch the Home Assistant private-network deployment, then its matching post-deployment smoke, for the exact binding above."
+}

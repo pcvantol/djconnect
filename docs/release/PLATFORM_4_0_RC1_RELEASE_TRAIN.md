@@ -57,6 +57,15 @@ checksum and release notes. Distribution repositories remain artifact-only.
 5. No public stable tag, HACS publication, OTA promotion or store submission
    occurs before explicit release authorization.
 
+## Authorized Home Assistant deployment binding
+
+The Home Assistant integration candidate is bound separately in
+[`PLATFORM_4_0_RC1_HOME_ASSISTANT_OPERATIONAL_MANIFEST.json`](PLATFORM_4_0_RC1_HOME_ASSISTANT_OPERATIONAL_MANIFEST.json).
+It authorizes only the immutable `4.0.0-rc.1` integration artifact and the
+`home_assistant_pi5` internal target. It is not a platform-wide release
+approval and does not authorize any client, firmware, HACS stable or store
+publication.
+
 ## Execution order
 
 1. Merge and publish the profile-aware Pi artifact pipeline.
