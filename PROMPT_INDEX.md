@@ -2,6 +2,18 @@
 
 Status: canonical prompt navigation
 
+## PR #767 finalization reviewable
+
+PR [#767](https://github.com/pcvantol/djconnect/pull/767), **Fix active
+Inbox queue counter**, merged as
+`60b9c7f3116544a1a9dd7098eb21428670bffc81`. It preserves the watcher-owned
+queue count in the active dashboard projection, preventing a zero summary
+above visible waiting prompts. Its immutable Prompt History record is
+`docs/history/prompts/2026-08-06-fix-active-inbox-queue-counter.md`. Queue
+admission, execution, runtime, scheduling and lifecycle behavior are
+unchanged. Repository State: `MERGED_UNRECONCILED`; governance-only
+Finalization is reviewable.
+
 ## PR #763 finalization reconciled
 
 PR [#763](https://github.com/pcvantol/djconnect/pull/763), **Project Forge

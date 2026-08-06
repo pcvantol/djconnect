@@ -3,6 +3,20 @@
 **Status:** Operational handoff
 **Updated:** 2026-08-06
 
+## PR #767 finalization reviewable
+
+PR [#767](https://github.com/pcvantol/djconnect/pull/767), **Fix active
+Inbox queue counter**, merged as
+`60b9c7f3116544a1a9dd7098eb21428670bffc81`. The private Engineering Status
+dashboard now preserves the watcher-owned queue depth while a run is active,
+so its summary agrees with the visible waiting Inbox prompts. The immutable
+Prompt History record is
+`docs/history/prompts/2026-08-06-fix-active-inbox-queue-counter.md`.
+Repository State: `MERGED_UNRECONCILED`; Workspace State: `NOT_READY` pending
+this governance-only Finalization. Finalization State: `REVIEWABLE_FROZEN`.
+No queue admission, execution, runtime, scheduling or lifecycle behavior
+changed.
+
 ## PR #763 finalization reconciled
 
 PR [#763](https://github.com/pcvantol/djconnect/pull/763), **Project Forge
