@@ -1051,6 +1051,7 @@ test.describe("Engineering Status browser smoke", () => {
 
   test("uses the house-style orange for an active execution spinner", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.waitForFunction(() => document.body.classList.contains("dashboard-ready"));
     await page.locator("#indicator").evaluate((element) => {
       element.className = "indicator indicator--running";
     });
@@ -2699,16 +2700,16 @@ test.describe("Engineering Status browser smoke", () => {
 
   test("fills the reset action with a brighter green on hover", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.waitForFunction(() => document.body.classList.contains("dashboard-ready"));
     await page.locator("#dashboardSplash").evaluate((element) => { element.hidden = true; });
     await page.locator("#rateLimits").evaluate((element) => { element.open = true; });
     await page.evaluate(() => rateLimits({ provider: "Codex CLI", provider_version: "0.146.0", windows: [], reset_credits: 1 }));
     const reset = page.locator("#rateLimitReset");
 
-    // The assertion is about the declared hover treatment.  At a narrow
-    // viewport another disclosure can overlap the button after auto-scroll,
-    // so force the pointer onto the target instead of making this style test
-    // depend on the surrounding disclosure geometry.
-    await reset.hover({ force: true });
+    // Keep the actual pointer over the target. This verifies the browser's
+    // hover treatment without racing the initial asynchronous dashboard load.
+    await reset.scrollIntoViewIfNeeded();
+    await reset.hover();
     await expect(reset).toHaveCSS("background-color", "rgb(81, 216, 138)");
     await expect(reset).toHaveCSS("color", "rgb(17, 42, 32)");
   });
@@ -2912,6 +2913,7 @@ test.describe("Engineering Status browser smoke", () => {
     const historyLoaded = page.waitForResponse("**/api/prompt-history");
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await historyLoaded;
+    await page.waitForFunction(() => document.body.classList.contains("dashboard-ready"));
     await page.locator("#autoRefresh").uncheck();
     await page.locator("#dashboardSplash").evaluate((element) => { element.hidden = true; });
     await page.evaluate(() => {
@@ -2968,6 +2970,7 @@ test.describe("Engineering Status browser smoke", () => {
     const historyLoaded = page.waitForResponse("**/api/prompt-history");
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await historyLoaded;
+    await page.waitForFunction(() => document.body.classList.contains("dashboard-ready"));
     await page.locator("#autoRefresh").uncheck();
     await page.evaluate(() => {
       document.querySelector("#promptHistory").open = true;
