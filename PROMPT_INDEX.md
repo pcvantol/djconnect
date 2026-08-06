@@ -2,6 +2,18 @@
 
 Status: canonical prompt navigation
 
+## PR #763 finalization reviewable
+
+PR [#763](https://github.com/pcvantol/djconnect/pull/763), **Project Forge
+mission recommendation handoffs**, merged as
+`2a2fdaebee470946c3e9989dda84bfb111bd3f49`. It adds immutable, read-only
+projection of explicit Forge recommendation handoffs to Engineering Reports and
+Prompt History, preserving supplied candidates and ranking without Mission
+governance or execution controls. Its immutable Prompt History record is
+`docs/history/prompts/2026-08-06-forge-mission-recommendation-handoff-projection.md`.
+Repository State: `MERGED_UNRECONCILED`; governance-only Finalization is
+reviewable.
+
 ## PR #759 finalization reconciled
 
 PR [#759](https://github.com/pcvantol/djconnect/pull/759), **Fix retry

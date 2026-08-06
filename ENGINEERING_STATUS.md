@@ -3,6 +3,22 @@
 **Status:** Operational handoff
 **Updated:** 2026-08-06
 
+## PR #763 finalization reviewable
+
+PR [#763](https://github.com/pcvantol/djconnect/pull/763), **Project Forge
+mission recommendation handoffs**, merged as
+`2a2fdaebee470946c3e9989dda84bfb111bd3f49`. Engineering Platform now projects
+only explicit Forge recommendation metadata or declared repository-relative
+Forge artefacts into immutable Engineering Reports and Prompt History. It
+preserves Forge-supplied ranking, alternatives, Decision Evidence references
+and incomplete-data state, without creating, approving, allocating or starting
+a Mission. The immutable Prompt History record is
+`docs/history/prompts/2026-08-06-forge-mission-recommendation-handoff-projection.md`.
+Repository State: `MERGED_UNRECONCILED`; Workspace State: `NOT_READY` pending
+this governance-only Finalization. Finalization State: `REVIEWABLE_FROZEN`.
+This reviewable Finalization reconciles rolling records only; Forge remains the
+owner of recommendation semantics, Business governance and Mission lifecycle.
+
 ## PR #759 finalization reconciled
 
 PR [#759](https://github.com/pcvantol/djconnect/pull/759), **Fix retry
