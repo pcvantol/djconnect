@@ -2,7 +2,7 @@
 
 Status: active platform-evolution repository
 
-## PR #759 finalization pending
+## PR #759 finalization reconciled
 
 PR [#759](https://github.com/pcvantol/djconnect/pull/759), **Fix retry
 lineage projection**, merged as
@@ -12,8 +12,10 @@ and terminal child evidence and shows localized compact lineage. Its immutable
 Prompt History record is
 `docs/history/prompts/2026-08-06-retry-lineage-projection-fix.md`. Forge,
 retry execution, runtime, scheduling and lifecycle behavior remain unchanged.
-Repository State: `MERGED_UNRECONCILED`; governance-only Finalization is
-pending.
+Its governance-only Finalization PR [#761](https://github.com/pcvantol/djconnect/pull/761)
+merged as `d42480dd8abff5acc19628008e5c23ef1956792d`. Repository State:
+`MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY` after cleanup. Stale
+local branch result: `none`.
 
 ## PR #751 finalization reconciled
 
