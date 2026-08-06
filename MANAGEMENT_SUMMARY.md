@@ -15,6 +15,19 @@
 
 ## Current position
 
+## PR #759 finalization pending
+
+PR [#759](https://github.com/pcvantol/djconnect/pull/759), **Fix retry
+lineage projection**, merged as
+`fd70650702d3ddcb14c0296e3f07f93cec31e073`. The private dashboard now uses
+persisted queued, active and terminal child lineage as the authoritative retry
+projection, keeping a historical parent read-only while exposing compact,
+five-language lineage information. Its immutable history is
+`docs/history/prompts/2026-08-06-retry-lineage-projection-fix.md`. This is a
+bounded Engineering Platform presentation correction: Forge and retry execution
+semantics are unchanged. Repository State: `MERGED_UNRECONCILED`; a
+governance-only Finalization PR is pending.
+
 ## PR #751 finalization reconciled
 
 PR [#751](https://github.com/pcvantol/djconnect/pull/751), **Improve

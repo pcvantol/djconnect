@@ -2,6 +2,18 @@
 
 Status: canonical prompt navigation
 
+## PR #759 finalization pending
+
+PR [#759](https://github.com/pcvantol/djconnect/pull/759), **Fix retry
+lineage projection**, merged as
+`fd70650702d3ddcb14c0296e3f07f93cec31e073`. It makes persisted queued, active
+and terminal retry children authoritative for the Prompt History action
+projection; historical parents retain their evidence but no longer expose
+operational Retry or Dismiss actions. Its immutable Prompt History record is
+`docs/history/prompts/2026-08-06-retry-lineage-projection-fix.md`. No Forge or
+retry execution behavior changed. Repository State: `MERGED_UNRECONCILED`;
+governance-only Finalization is pending.
+
 ## PR #751 finalization reconciled
 
 PR [#751](https://github.com/pcvantol/djconnect/pull/751), **Improve
