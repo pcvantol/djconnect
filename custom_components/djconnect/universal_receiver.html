@@ -6,10 +6,20 @@
   <meta name="referrer" content="no-referrer">
   <title>DJConnect Receiver</title>
   <style>
-    body { font-family: system-ui, sans-serif; line-height: 1.4; margin: 2rem; max-width: 52rem; }
+    :root { background: #fff; color: #101114; }
+    html, body { width: 100%; min-height: 100%; margin: 0; }
+    body {
+      box-sizing: border-box;
+      min-height: 100vh;
+      min-height: 100dvh;
+      padding: clamp(1.5rem, 4vh, 4rem) clamp(1.5rem, 5vw, 5rem);
+      font-family: system-ui, sans-serif;
+      font-size: clamp(1rem, 1.6vw, 1.35rem);
+      line-height: 1.4;
+    }
     header { display: flex; justify-content: space-between; gap: 1rem; align-items: baseline; }
     section { border-top: 1px solid #bbb; margin-top: 1rem; padding-top: .75rem; }
-    h1 { font-size: 1.5rem; margin: 0; } h2 { font-size: 1rem; }
+    h1 { font-size: 1.8em; margin: 0; } h2 { font-size: 1.1em; }
     pre { margin: 0; overflow-wrap: anywhere; white-space: pre-wrap; }
     ol { margin: 0; padding-left: 1.5rem; }
     .flow-item { margin: .35rem 0; }
@@ -21,6 +31,11 @@
     .now-playing h3 { margin: .2rem 0; font-size: 1.1rem; }
     .playback-progress { display: flex; gap: .5rem; align-items: center; margin-top: .5rem; }
     .playback-progress progress { flex: 1; }
+    @media (orientation: portrait) {
+      body { padding: clamp(2rem, 5vh, 5rem) clamp(2rem, 6vw, 6rem); }
+      .now-playing { grid-template-columns: 8rem 1fr; gap: 1.5rem; }
+      .now-playing img { width: 8rem; height: 8rem; }
+    }
   </style>
 </head>
 <body>

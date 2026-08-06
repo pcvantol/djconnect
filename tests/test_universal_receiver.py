@@ -38,6 +38,12 @@ class UniversalReceiverTest(unittest.TestCase):
         self.assertIn('data-testid="moment"', result.text)
         self.assertIn('data-testid="flow"', result.text)
 
+    def test_receiver_page_uses_the_full_portrait_viewport(self) -> None:
+        page = RECEIVER_PAGE.read_text(encoding="utf-8")
+
+        self.assertIn("min-height: 100dvh", page)
+        self.assertIn("@media (orientation: portrait)", page)
+
     def test_receiver_uses_only_existing_broadcast_websocket_and_renders_lifecycle(self) -> None:
         node = shutil.which("node")
         if node is None:
