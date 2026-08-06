@@ -52,6 +52,7 @@ from .const import (
     API_SESSION_BROADCAST_TOKEN,
     API_SESSION_BROADCAST_WS,
     UNIVERSAL_RECEIVER_PATH,
+    VIBECAST_RENDERER_PATH,
     API_VOICE,
     CONF_ASSIST_PIPELINE_ID,
     CONF_CLIENT_TYPE,
@@ -2920,6 +2921,22 @@ class DJConnectUniversalReceiverView(HomeAssistantView):
 
     async def get(self, request):
         page = Path(__file__).with_name("universal_receiver.html").read_text(encoding="utf-8")
+        return web.Response(
+            text=page,
+            content_type="text/html",
+            headers={"Cache-Control": "no-store", "Referrer-Policy": "no-referrer"},
+        )
+
+
+class DJConnectVibeCastRendererView(HomeAssistantView):
+    """Serve the ambient VibeCast renderer over the Receiver transport."""
+
+    url = VIBECAST_RENDERER_PATH
+    name = "djconnect:vibecast_renderer"
+    requires_auth = False
+
+    async def get(self, request):
+        page = Path(__file__).with_name("vibecast.html").read_text(encoding="utf-8")
         return web.Response(
             text=page,
             content_type="text/html",
