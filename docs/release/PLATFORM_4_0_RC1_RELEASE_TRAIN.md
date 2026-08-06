@@ -18,6 +18,16 @@ in isolation.
 | Runtime protocol train | `4.0` |
 | Stable successor | `4.0.0` |
 
+### Native package mapping
+
+The public platform candidate identity remains `4.0.0-rc.1` everywhere it can
+be represented: Git tags, GitHub prereleases, release manifests, checksums and
+runtime reporting. Native package formats with numeric-only version fields use
+bundle/display version `4.0.0` and build `40001`; their release metadata must
+still expose the public candidate identity `4.0.0-rc.1`. This applies to Apple
+and Windows package metadata and avoids inventing incompatible platform-local
+pre-release syntax.
+
 The protocol train deliberately excludes the prerelease suffix. Every runtime
 must parse the public SemVer candidate while enforcing compatibility on
 `major.minor == 4.0`. A 3.3 runtime and a 4.0 runtime are incompatible.
