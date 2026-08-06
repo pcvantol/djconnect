@@ -22,7 +22,10 @@ class HacsReleaseMetadataTest(unittest.TestCase):
 
         self.assertIsNotNone(version_match)
         self.assertEqual(version_match["version"], manifest_version)
-        self.assertRegex(manifest_version, r"^\d+\.\d+\.\d+$")
+        self.assertRegex(
+            manifest_version,
+            r"^\d+\.\d+\.\d+(?:-[0-9A-Za-z]+(?:\.[0-9A-Za-z]+)*)?$",
+        )
         self.assertIn(f"## {manifest_version}\n", CHANGELOG.read_text(encoding="utf-8"))
 
 
