@@ -2,10 +2,12 @@
 
 ## Status
 
-Canonical product positioning and deferred implementation architecture.
-VibeCast V1 is not authorized for implementation by this document. It adds no
-Google Cast integration, native television application, Runtime behaviour,
-Broadcast contract, transport, Session command or renderer code.
+Canonical product positioning and implementation boundary. The active
+implementation plan is [VibeCast Reference Renderer Increment](VIBECAST_REFERENCE_RENDERER_INCREMENT.md): first prove the ambient web
+renderer on the portrait Raspberry Pi reference host, then validate the same
+renderer on a landscape Google Cast Custom Web Receiver. This document itself
+does not add Google Cast integration, native television application, Runtime
+behaviour, Broadcast contract, transport or Session-command ownership.
 
 ## Purpose
 

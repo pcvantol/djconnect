@@ -785,11 +785,13 @@ Room Presentation Routing and real-hardware evaluation.
 
 VibeCast is canonically defined in `docs/product/VIBECAST_ARCHITECTURE.md` as
 an ambient-first, minimally interactive web-renderer experience on the
-Universal Receiver Web Platform. Google TV is its primary future target through
-a Google Cast Custom Web Receiver. Cast launches a television-local Renderer
-Host and never streams sender pixels; native television apps and AirPlay are
-out of scope. VibeCast V1 implementation remains deferred behind Custom Web
-Receiver feasibility and receiver-safe Session handoff.
+Universal Receiver Web Platform. Its selected reference increment is
+`docs/product/VIBECAST_REFERENCE_RENDERER_INCREMENT.md`: a paired Apple sender
+hands off an active Session to the portrait Pi reference host using only the
+existing renderer-safe Broadcast boundary. Google TV remains the subsequent
+landscape target through a Google Cast Custom Web Receiver. Cast launches a
+television-local Renderer Host and never streams sender pixels; native
+television apps and AirPlay remain out of scope.
 
 Audience Experience is canonically defined in
 `docs/product/AUDIENCE_EXPERIENCE_ARCHITECTURE.md`. It is the future,

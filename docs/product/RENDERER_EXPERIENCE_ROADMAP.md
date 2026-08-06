@@ -22,7 +22,7 @@ Every Renderer Host consumes only authorized renderer-safe projections.
 | Ask DJ and Discover | HA Conversation / Discovery | Implemented personal projections | Apple and Windows rich; Pi read-heavy where authorized; not guest/ambient defaults. |
 | Native Track Insight sharing | Apple Renderer Host | Implemented reference realization | explicit user action through Apple Share Sheet; no Broadcast, Runtime or API scope. |
 | Universal Receiver interactive web presentation | Web Renderer Host | Implemented | browser Session Flow and Now Playing through existing Broadcast only. |
-| VibeCast ambient experience | VibeCast Renderer Host | Planned | separate Guest + Ambient experience; Custom Web Receiver feasibility precedes implementation. |
+| VibeCast ambient experience | VibeCast Renderer Host | Planned / selected reference increment | separate Guest + Ambient experience; portrait Pi reference validation precedes landscape Custom Web Receiver feasibility. |
 | Pi 4-inch compact appliance profile | Pi Concrete Host | Planned assessment | bounded playback and Current DJMoment; intentional rich-surface absences. |
 | Pi 10-inch wall appliance profile | Pi Concrete Host | Planned assessment | adds Session Flow / Presentation projection; independent from Pi 4-inch. |
 | Apple Watch Moment-First Conversational Companion | Apple Renderer Host / Product Development | Planned assessment | Phase 3 Apple Premium Experience; Current DJMoment, bounded active Session Flow, compact Session projection and Ask DJ PTT are future renderer-safe experience candidates, not Watch parity or implementation authorization. |
@@ -131,7 +131,9 @@ Broadcast snapshots, updates, renderer-safe Now Playing, current DJMoment and
 Session Flow. It owns no Runtime, authorization decision, Planner, Knowledge,
 DJMoment, canonical history or provider access.
 
-VibeCast is a separate, planned **Ambient Renderer experience**. It may reuse
+VibeCast is a separate, planned **Ambient Renderer experience**. Its selected
+reference increment uses the portrait Pi as real-hardware evidence before
+Google Cast feasibility. It may reuse
 the Universal Receiver Web Platform's connection lifecycle, safe projection
 subscription, handoff foundations and design primitives, but owns its ambient
 composition, attention model and television-oriented lifecycle. Google TV is a
@@ -142,7 +144,7 @@ pixel stream.
 | --- | --- | --- | --- |
 | Broadcast subscription, snapshot-first delivery, reconnect and Runtime-end cleanup | Broadcast / Web platform | Implemented | shared infrastructure |
 | Interactive Now Playing, current DJMoment and Session Flow rendering | Universal Receiver | Implemented | Receiver-specific |
-| Ambient composition, minimal interaction and television pacing | VibeCast Renderer Host | Planned | VibeCast-specific |
+| Ambient composition, minimal interaction and adaptive portrait/landscape pacing | VibeCast Renderer Host | Planned / selected reference increment | VibeCast-specific |
 | Session authorization, Planning, Knowledge, Moments and Flow | Runtime / Broadcast | Implemented | neither renderer owns it |
 | Guest participation | Broadcast authorization and Renderer Host classification | existing boundary; detailed lifecycle planned | shared boundary |
 
@@ -157,3 +159,5 @@ No new Broadcast projection is necessary: current and future receiver work must
 reuse existing safe playback, DJMoment, Session Flow and Presentation
 projections. CMB-02 and CMB-03 depend on this distinction for profile and
 divergence validation; CMB-05/CMB-06 remain independent Pi profile assessments.
+The bounded planning and exit criteria for the selected work are recorded in
+[`VibeCast Reference Renderer Increment`](VIBECAST_REFERENCE_RENDERER_INCREMENT.md).

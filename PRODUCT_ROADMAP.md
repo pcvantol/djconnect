@@ -91,6 +91,7 @@ their established scope; this roadmap does not authorize their implementation.
 | 1 | DJ Intelligence Evolution | Current execution | `docs/product/DJ_INTELLIGENCE_CAPABILITY_REVIEW.md`; completed Session Intelligence Runtime and existing maturity boundaries |
 | 1 | Automated Session Intelligence E2E Verification | Current execution | `docs/product/DEVELOPER_EXPERIENCE_ROADMAP.md` |
 | 2 | Universal Receiver Reference Experience | Planned | Minimum DJ Intelligence baseline; `docs/technical/UNIVERSAL_RECEIVER_ARCHITECTURE.md` |
+| 2 | VibeCast Reference Renderer | Planned / selected reference increment | Portrait Pi real-hardware validation, paired Apple sender handoff and existing renderer-safe Broadcast projections; landscape Google Cast feasibility follows the Pi evidence. |
 | 2 | Renderer-safe Session experience and experience validation | Planned | Reference Experience assessment and existing renderer-safe projections |
 | 2 | Interactive DJMoments capability family | Planned | Reference Experience; existing DJMoment, Planner, Knowledge, command/Ask DJ and renderer-safe Presentation boundaries; future assessment-first decision |
 | 2 | Session Continuation capability family | Planned | Canonical DJMoment, active Session Runtime/Flow, Profile privacy and device-authorization boundaries, Renderer Host classification and a future assessment-first decision |
@@ -111,7 +112,7 @@ their established scope; this roadmap does not authorize their implementation.
 | 8 | Personal AI DJ evolution | Deferred | Community Public Release; existing Profile and Planner boundaries |
 | 9 | Future Cloud evolution | Deferred | Long-term product direction; Community local-first foundation remains primary |
 | Deferred | Ambient Light Renderer Host | Deferred | Universal Receiver maturity, Room Presentation Routing and real-hardware evaluation |
-| Assessment | VibeCast release placement | Planned | Phase 3 decision: Community-defining Runtime Readiness or Platform-extending Platform Adoption |
+| Assessment | VibeCast release placement | Planned | After the VibeCast Reference Renderer increment: Phase 3 decision between Community-defining Runtime Readiness and Platform-extending Platform Adoption. |
 | Deferred | Audience Experience and Ambient Reactions | Deferred | Audience validation, privacy policy and bounded renderer design |
 | Deferred | Renderer discovery, pairing and authorization architecture | Deferred | Renderer Host classification and local-first device lifecycle requirements |
 | Deferred | Voice experience delivery | Planned | Stable current/historical Moment contracts and Assist capability validation |
