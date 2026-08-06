@@ -54,3 +54,4 @@ class HttpRouteRegistrationTest(unittest.TestCase):
 
         self.assertEqual(constructors["DJConnectTransportCapabilitiesView"].args, [])
         self.assertEqual(constructors["DJConnectUniversalReceiverView"].args, [])
+        self.assertEqual(constructors["DJConnectVibeCastRendererView"].args, [])
