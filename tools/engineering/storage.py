@@ -830,3 +830,19 @@ def record_readiness_evaluation(root: Path, *, run_id: str, profile_id: str, pro
         )
     finally:
         connection.close()
+
+
+def load_readiness_evaluation(root: Path, run_id: object) -> dict[str, object] | None:
+    """Read one canonical readiness projection for dashboard/report consumers."""
+    if not isinstance(run_id, str):
+        return None
+    connection = open_storage(root)
+    try:
+        row = connection.execute(
+            "SELECT profile_id,profile_version,execution_mode,passed,failed_requirements,evaluated_at,diagnostic FROM execution_readiness_evaluations WHERE run_id=?", (run_id,)
+        ).fetchone()
+    finally:
+        connection.close()
+    if not row:
+        return None
+    return {"profile_id": row[0], "profile_version": row[1], "execution_mode": row[2], "result": "PASS" if row[3] else "BLOCKED", "failed_requirements": json.loads(row[4]), "evaluated_at": row[5], "diagnostic": row[6]}
