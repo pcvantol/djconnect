@@ -24,7 +24,7 @@ import uuid
 from urllib.parse import parse_qs, urlsplit
 from .platform_api import PlatformConfiguration
 from .platform_bootstrap import provision_workspace
-from .providers import GitProvider, LaunchdProvider, TailscaleProvider
+from .providers import CodexCliProvider, GitProvider, LaunchdProvider, TailscaleProvider
 from .inbox_watcher import LABEL as WATCHER_LABEL
 from .inbox_watcher import WATCHER_VERSION
 from .inbox_watcher import RetrySubmissionError, cloud_root, dismiss_execution, queued_retry_children, submit_execution_retry, submit_predecessor_retry
@@ -385,14 +385,7 @@ def _codex_rate_limits() -> bytes:
     identity = _codex_provider_identity()
     process: subprocess.Popen[str] | None = None
     try:
-        process = subprocess.Popen(
-            ("codex", "app-server"),
-            stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.DEVNULL,
-            text=True,
-            bufsize=1,
-        )
+        process = CodexCliProvider().app_server()
         if process.stdin is None or process.stdout is None:
             return json.dumps(identity, separators=(",", ":")).encode()
         process.stdin.write(
@@ -461,14 +454,7 @@ def _consume_codex_rate_limit_reset_credit() -> str:
     global _rate_limit_cache
     process: subprocess.Popen[str] | None = None
     try:
-        process = subprocess.Popen(
-            ("codex", "app-server"),
-            stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.DEVNULL,
-            text=True,
-            bufsize=1,
-        )
+        process = CodexCliProvider().app_server()
         if process.stdin is None or process.stdout is None:
             raise RateLimitResetError("Codex-reset is niet beschikbaar.")
         process.stdin.write(

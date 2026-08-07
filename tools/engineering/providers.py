@@ -81,6 +81,13 @@ class CodexCliProvider(LocalProcessProvider):
     def command(self, *args: str) -> subprocess.CompletedProcess[str]:
         return subprocess.run(("codex", *args), text=True, capture_output=True, check=False)
 
+    def app_server(self) -> subprocess.Popen[str]:
+        """Open the provider-owned interactive Codex app-server channel."""
+        return subprocess.Popen(
+            ("codex", "app-server"), stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL, text=True, bufsize=1,
+        )
+
     def invoke(self, root: Path, arguments: tuple[str, ...], *, timeout: float | None = None) -> subprocess.CompletedProcess[str]:
         """Execute a complete Codex command; callers never spawn its CLI directly."""
         if timeout is None:
