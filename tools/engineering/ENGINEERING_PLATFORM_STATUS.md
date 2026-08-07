@@ -34,7 +34,8 @@ changes execution semantics.
 - Strict sequential Inbox safety: a `BLOCKED` or `FAILED` predecessor holds
   later submissions at `WAITING_FOR_PREDECESSOR` until **Resume Queue** creates
   a corrective `Retry-Of` replacement. **Retry Execution** remains separately
-  available for every terminal `BLOCKED` run and records immutable lineage.
+  available for every terminal `BLOCKED` or `FAILED` run and records immutable
+  lineage.
   This is the safe default until a future
   Engineering Intent dependency model can express finer-grained ordering.
 - Execution Host Preflight Levels 1 and 2 run before every Inbox claim. Level 1 validates
@@ -95,7 +96,7 @@ changes execution semantics.
 - Scrollbars use the console surface and accent palette throughout the site,
   including modal and chat overflow regions. Native browser fallbacks remain
   usable where scrollbar styling is not supported.
-- Engineering Storage schema `9` is versioned and fail-closed in the platform
+- Engineering Storage schema `15` is versioned and fail-closed in the platform
   manifest. `.engineering/engineering.db` and the surrounding `.engineering/`
   workspace are canonical; a verified, fail-closed legacy migration preserves
   prior `.djconnect/` evidence before the legacy directory is removed.

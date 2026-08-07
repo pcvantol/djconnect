@@ -15,6 +15,19 @@
 
 ## Current position
 
+## PR #780 finalization reviewable
+
+PR [#780](https://github.com/pcvantol/djconnect/pull/780), **Make Execution
+datastore canonical**, merged as `f2342ec1`. The Engineering Platform now
+keeps its operational lifecycle and status authority in SQLite while retaining
+only regenerable JSON/Markdown projections and verified immutable artifact
+payloads. Its immutable history is
+`docs/history/prompts/2026-08-07-canonical-execution-host-datastore.md`.
+This is bounded Engineering Platform storage work: Forge ownership, queue
+admission, execution, runtime, scheduling and lifecycle semantics are
+unchanged. Repository State: `MERGED_UNRECONCILED`; governance-only
+Finalization is reviewable.
+
 ## PR #769 finalization reviewable
 
 PR [#769](https://github.com/pcvantol/djconnect/pull/769), **Show workspace

@@ -226,7 +226,7 @@ export const DASHBOARD_MESSAGES = {
     "retry.details": "Run ID: {run_id}\nExecution title: {title}\nRepository: {repository}\nExecution Mode: {mode}\n\nA new engineering execution will start using the current repository state. The original execution remains unchanged. A retry relationship will be recorded.",
     "retry.failed": "Retry Execution could not be started.",
     "retry.current_execution": "Current retry execution: {run_id}",
-    "retry.queued_by": "Retry queued: {run_id}",
+    "retry.queued": "Retry queued",
     "retry.started": "Retry started {timestamp}",
     "retry.superseded_by": "Superseded by: {run_id}",
     "retry.title": "Retry Execution",
@@ -270,6 +270,7 @@ export const DASHBOARD_MESSAGES = {
     "state.REPORT_PUBLISHING": "Report is being published",
     "state.REPOSITORY_CLEANUP": "Cleaning repository",
     "state.RUNNER_STARTING": "Execution is starting",
+    "state.WAIT_FOR_TERMINAL_EVIDENCE": "Waiting for final evidence",
     "state.UNKNOWN": "Unknown",
     "state.WORKSPACE_READY": "Workspace ready",
     "state.WAITING_FOR_PREDECESSOR": "Waiting for previous execution",
@@ -627,7 +628,7 @@ export const DASHBOARD_MESSAGES = {
     "retry.details": "Run-ID: {run_id}\nUitvoeringstitel: {title}\nRepository: {repository}\nUitvoeringsmodus: {mode}\n\nEen nieuwe engineeringuitvoering start met de huidige repositorystatus. De oorspronkelijke uitvoering blijft ongewijzigd. De retry-relatie wordt vastgelegd.",
     "retry.failed": "De uitvoering kon niet opnieuw worden gestart.",
     "retry.current_execution": "Huidige nieuwe uitvoering: {run_id}",
-    "retry.queued_by": "Nieuwe uitvoering in wachtrij: {run_id}",
+    "retry.queued": "Nieuwe uitvoering in wachtrij",
     "retry.started": "Nieuwe uitvoering gestart {timestamp}",
     "retry.superseded_by": "Vervangen door: {run_id}",
     "retry.title": "Uitvoering opnieuw proberen",
@@ -671,6 +672,7 @@ export const DASHBOARD_MESSAGES = {
     "state.REPORT_PUBLISHING": "Rapport wordt gepubliceerd",
     "state.REPOSITORY_CLEANUP": "Opschoning repository",
     "state.RUNNER_STARTING": "Uitvoering wordt gestart",
+    "state.WAIT_FOR_TERMINAL_EVIDENCE": "Wacht op afrondend bewijs",
     "state.UNKNOWN": "Onbekend",
     "state.WORKSPACE_READY": "Werkruimte gereed",
     "state.WAITING_FOR_PREDECESSOR": "Wacht op voorafgaande uitvoering",
@@ -1028,7 +1030,7 @@ export const DASHBOARD_MESSAGES = {
     "retry.details": "Run-ID: {run_id}\nAusführungstitel: {title}\nRepository: {repository}\nAusführungsmodus: {mode}\n\nEine neue Engineering-Ausführung startet mit dem aktuellen Repository-Stand. Die ursprüngliche Ausführung bleibt unverändert. Die Wiederholungsbeziehung wird dokumentiert.",
     "retry.failed": "Die Ausführung konnte nicht wiederholt werden.",
     "retry.current_execution": "Aktuelle Wiederholungsausführung: {run_id}",
-    "retry.queued_by": "Wiederholung in Warteschlange: {run_id}",
+    "retry.queued": "Wiederholung in Warteschlange",
     "retry.started": "Wiederholung gestartet {timestamp}",
     "retry.superseded_by": "Ersetzt durch: {run_id}",
     "retry.title": "Ausführung wiederholen",
@@ -1072,6 +1074,7 @@ export const DASHBOARD_MESSAGES = {
     "state.REPORT_PUBLISHING": "Bericht wird veröffentlicht",
     "state.REPOSITORY_CLEANUP": "Repository wird bereinigt",
     "state.RUNNER_STARTING": "Ausführung wird gestartet",
+    "state.WAIT_FOR_TERMINAL_EVIDENCE": "Warten auf abschließenden Nachweis",
     "state.UNKNOWN": "Unbekannt",
     "state.WORKSPACE_READY": "Arbeitsbereich bereit",
     "state.WAITING_FOR_PREDECESSOR": "Warten auf vorherige Ausführung",
@@ -1378,7 +1381,7 @@ export const DASHBOARD_MESSAGES = {
     "retry.details": "ID d’exécution : {run_id}\nTitre de l’exécution : {title}\nDépôt : {repository}\nMode d’exécution : {mode}\n\nUne nouvelle exécution d’ingénierie démarrera avec l’état actuel du dépôt. L’exécution d’origine reste inchangée. La relation de relance sera enregistrée.",
     "retry.failed": "La relance de l’exécution a échoué.",
     "retry.current_execution": "Exécution de relance actuelle : {run_id}",
-    "retry.queued_by": "Relance en attente : {run_id}",
+    "retry.queued": "Relance en attente",
     "retry.started": "Relance démarrée {timestamp}",
     "retry.superseded_by": "Remplacée par : {run_id}",
     "retry.title": "Relancer l’exécution",
@@ -1422,6 +1425,7 @@ export const DASHBOARD_MESSAGES = {
     "state.REPORT_PUBLISHING": "Publication du rapport",
     "state.REPOSITORY_CLEANUP": "Nettoyage du dépôt",
     "state.RUNNER_STARTING": "L’exécution démarre",
+    "state.WAIT_FOR_TERMINAL_EVIDENCE": "En attente d’une preuve finale",
     "state.UNKNOWN": "Inconnu",
     "state.WORKSPACE_READY": "Espace de travail prêt",
     "state.WAITING_FOR_PREDECESSOR": "En attente du exécution précédente",
@@ -1728,7 +1732,7 @@ export const DASHBOARD_MESSAGES = {
     "retry.details": "ID de ejecución: {run_id}\nTítulo de la ejecución: {title}\nRepositorio: {repository}\nModo de ejecución: {mode}\n\nSe iniciará una nueva ejecución de ingeniería con el estado actual del repositorio. La ejecución original no cambiará. Se registrará la relación de reintento.",
     "retry.failed": "No se pudo reintentar la ejecución.",
     "retry.current_execution": "Ejecución de reintento actual: {run_id}",
-    "retry.queued_by": "Reintento en cola: {run_id}",
+    "retry.queued": "Reintento en cola",
     "retry.started": "Reintento iniciado {timestamp}",
     "retry.superseded_by": "Sustituida por: {run_id}",
     "retry.title": "Reintentar ejecución",
@@ -1772,6 +1776,7 @@ export const DASHBOARD_MESSAGES = {
     "state.REPORT_PUBLISHING": "Publicando informe",
     "state.REPOSITORY_CLEANUP": "Limpiando el repositorio",
     "state.RUNNER_STARTING": "La ejecución está iniciando",
+    "state.WAIT_FOR_TERMINAL_EVIDENCE": "Esperando evidencia final",
     "state.UNKNOWN": "Desconocido",
     "state.WORKSPACE_READY": "Espacio de trabajo listo",
     "state.WAITING_FOR_PREDECESSOR": "Esperando el ejecución anterior",
@@ -1857,6 +1862,15 @@ export const DASHBOARD_MESSAGES = {
     "workspace.database": "Base de datos de ingeniería", "workspace.database_size": "Tamaño de la base de datos", "workspace.free_disk_space": "Espacio libre en disco", "workspace.name": "Nombre", "workspace.schema_version": "Versión del esquema",
   },
 };
+
+Object.assign(DASHBOARD_MESSAGES.en, {"execution_context.mission_title":"Mission title","execution_context.mission_lifecycle":"Mission lifecycle","execution_context.business_summary":"Business summary","execution_context.engineering_summary":"Engineering summary","execution_context.current_intent":"Current intent","execution_context.current_engineering_action":"Current engineering action","execution_context.execution_phase":"Execution phase","execution_context.planning_confidence":"Planning confidence","execution_context.current_iteration":"Current iteration","execution_context.mission_progress":"Mission progress","execution_context.last_runtime_update":"Last runtime update","execution_context.version":"Execution Context version","execution_context.decision_evidence_reference":"Decision Evidence reference","execution_context.decision_type":"Decision type","execution_context.execution_receipt_reference":"Execution Receipt reference","execution_context.dispatcher_state":"Dispatcher state","execution_context.approved_mission_queue_state":"Approved Mission Queue state","execution_context.not_supplied":"Not supplied by Forge"});
+Object.assign(DASHBOARD_MESSAGES.nl, {"execution_context.mission_title":"Missietitel","execution_context.mission_lifecycle":"Missielevenscyclus","execution_context.business_summary":"Zakelijke samenvatting","execution_context.engineering_summary":"Engineering-samenvatting","execution_context.current_intent":"Huidige intent","execution_context.current_engineering_action":"Huidige engineeringactie","execution_context.execution_phase":"Uitvoeringsfase","execution_context.planning_confidence":"Planningszekerheid","execution_context.current_iteration":"Huidige iteratie","execution_context.mission_progress":"Missievoortgang","execution_context.last_runtime_update":"Laatste runtime-update","execution_context.version":"Versie uitvoeringscontext","execution_context.decision_evidence_reference":"Beslisevidence-referentie","execution_context.decision_type":"Beslistype","execution_context.execution_receipt_reference":"Uitvoeringsbewijsreferentie","execution_context.dispatcher_state":"Dispatcherstatus","execution_context.approved_mission_queue_state":"Goedgekeurde missie-wachtrijstatus","execution_context.not_supplied":"Niet geleverd door Forge"});
+Object.assign(DASHBOARD_MESSAGES.de, {"execution_context.mission_progress":"Missionsfortschritt","execution_context.decision_evidence_reference":"Entscheidungsnachweis-Referenz","execution_context.decision_type":"Entscheidungstyp","execution_context.execution_receipt_reference":"Ausführungsbeleg-Referenz","execution_context.dispatcher_state":"Dispatcher-Status","execution_context.approved_mission_queue_state":"Status der genehmigten Missionswarteschlange","execution_context.not_supplied":"Nicht von Forge bereitgestellt"});
+Object.assign(DASHBOARD_MESSAGES.fr, {"execution_context.mission_progress":"Progression de la mission","execution_context.decision_evidence_reference":"Référence de preuve de décision","execution_context.decision_type":"Type de décision","execution_context.execution_receipt_reference":"Référence de reçu d’exécution","execution_context.dispatcher_state":"État du répartiteur","execution_context.approved_mission_queue_state":"État de la file des missions approuvées","execution_context.not_supplied":"Non fourni par Forge"});
+Object.assign(DASHBOARD_MESSAGES.es, {"execution_context.mission_progress":"Progreso de la misión","execution_context.decision_evidence_reference":"Referencia de evidencia de decisión","execution_context.decision_type":"Tipo de decisión","execution_context.execution_receipt_reference":"Referencia de recibo de ejecución","execution_context.dispatcher_state":"Estado del despachador","execution_context.approved_mission_queue_state":"Estado de la cola de misiones aprobadas","execution_context.not_supplied":"No proporcionado por Forge"});
+Object.assign(DASHBOARD_MESSAGES.de, {"execution_context.mission_title":"Missionstitel","execution_context.mission_lifecycle":"Missionslebenszyklus","execution_context.business_summary":"Geschäftszusammenfassung","execution_context.engineering_summary":"Engineering-Zusammenfassung","execution_context.current_intent":"Aktuelle Absicht","execution_context.current_engineering_action":"Aktuelle Engineering-Aktion","execution_context.execution_phase":"Ausführungsphase","execution_context.planning_confidence":"Planungssicherheit","execution_context.current_iteration":"Aktuelle Iteration","execution_context.last_runtime_update":"Letztes Runtime-Update","execution_context.version":"Ausführungskontext-Version"});
+Object.assign(DASHBOARD_MESSAGES.fr, {"execution_context.mission_title":"Titre de la mission","execution_context.mission_lifecycle":"Cycle de vie de la mission","execution_context.business_summary":"Résumé métier","execution_context.engineering_summary":"Résumé d’ingénierie","execution_context.current_intent":"Intention actuelle","execution_context.current_engineering_action":"Action d’ingénierie actuelle","execution_context.execution_phase":"Phase d’exécution","execution_context.planning_confidence":"Confiance de planification","execution_context.current_iteration":"Itération actuelle","execution_context.last_runtime_update":"Dernière mise à jour runtime","execution_context.version":"Version du contexte d’exécution"});
+Object.assign(DASHBOARD_MESSAGES.es, {"execution_context.mission_title":"Título de la misión","execution_context.mission_lifecycle":"Ciclo de vida de la misión","execution_context.business_summary":"Resumen de negocio","execution_context.engineering_summary":"Resumen de ingeniería","execution_context.current_intent":"Intención actual","execution_context.current_engineering_action":"Acción de ingeniería actual","execution_context.execution_phase":"Fase de ejecución","execution_context.planning_confidence":"Confianza de planificación","execution_context.current_iteration":"Iteración actual","execution_context.last_runtime_update":"Última actualización de runtime","execution_context.version":"Versión del contexto de ejecución"});
 
 const messages = DASHBOARD_MESSAGES;
 

@@ -233,6 +233,9 @@ class ClientContractTest(unittest.TestCase):
                 }
                 return values[args]
 
+            def execute(self, _: Path, *args: str) -> subprocess.CompletedProcess[str]:
+                return subprocess.CompletedProcess(args, 0, "", "")
+
         with tempfile.TemporaryDirectory() as temporary, patch("tools.engineering.dj_engineer.subprocess.run") as run:
             root = Path(temporary)
             (root / "BOOTSTRAP.md").write_text("contract", encoding="utf-8")
@@ -385,6 +388,9 @@ class ClientContractTest(unittest.TestCase):
             def command(self, _: Path, *args: str) -> str:
                 return ""
 
+            def execute(self, _: Path, *args: str) -> subprocess.CompletedProcess[str]:
+                return next(run.side_effect)
+
         clean = RepositoryEvidence("pcvantol/djconnect", "main", "a" * 40, True, True)
         inspect.return_value = clean
         run.side_effect = [
@@ -429,7 +435,7 @@ class ClientContractTest(unittest.TestCase):
             self.assertTrue(path.is_file())
             self.assertEqual(module.print_live_status(root), 0)
             path.write_text("not json", encoding="utf-8")
-            self.assertEqual(module.print_live_status(root), 2)
+            self.assertEqual(module.print_live_status(root), 0)
 
     def test_engineering_memory_is_bounded_advisory_metadata(self) -> None:
         module = __import__("tools.engineering.dj_engineer", fromlist=["capture_engineering_memory"])
@@ -1077,6 +1083,9 @@ class LocalAgentRunnerTest(unittest.TestCase):
         self.assertIn("- Producer Type: `FORGE`", body)
         self.assertIn("- Mission ID: `MISSION-0003`", body)
         self.assertIn("- Engineering Action ID: `EA-0042`", body)
+        self.assertIn("- Execution lifecycle: `COMPLETE`", body)
+        self.assertIn("- Execution liveness:", body)
+        self.assertIn("- Recovery action:", body)
 
     def test_terminal_report_projects_forge_recommendation_without_governance_mutation(self) -> None:
         (self.root / "recommendation.json").write_text(

@@ -24,7 +24,7 @@ from .platform_version import EngineeringPlatformManifest
 from .agent_state import redact_diagnostic
 from .platform_api import PlatformConfiguration, PlatformConfigurationError, execution_host_configuration
 from .platform_bootstrap import provision_workspace
-from .providers import LaunchdProvider
+from .providers import GitProvider, LaunchdProvider, LocalProcessProvider
 from .status_model import build, publish
 from .component_logging import (
     DEFAULT_LOG_LEVEL,
@@ -43,6 +43,8 @@ from .workspace_preflight import execute as execute_workspace_preflight
 from .capability_preflight import execute as execute_capability_preflight
 from .producer import parse_producer_metadata
 from .drift_diagnostics import summary as drift_summary
+from .storage import EngineeringStorageError, load_projection, open_storage, record_artifact, record_submission
+from .execution_lease import liveness as lease_liveness, reconcile_stale
 
 LABEL = "com.djconnect.engineering-inbox"
 WATCHER_VERSION = "1.1.5"
@@ -56,6 +58,7 @@ ORIGINAL_RUN_ID_PATTERN = re.compile(r"(?mi)^original[ _-]run[ _-]id\s*:\s*(inbo
 RETRY_GENERATION_PATTERN = re.compile(r"(?mi)^retry[ _-]generation\s*:\s*(\d+)\s*$")
 RETRY_TIMESTAMP_PATTERN = re.compile(r"(?mi)^retry[ _-]timestamp\s*:\s*([^\n]{1,80})\s*$")
 LAUNCH_PATH_FALLBACK = ("/opt/homebrew/bin", "/usr/local/bin", "/usr/bin", "/bin", "/usr/sbin", "/sbin")
+RUNNER_START_GRACE_SECONDS = 90
 
 
 class RetrySubmissionError(ValueError):
@@ -250,21 +253,13 @@ def _terminal_workspace_snapshot(repo: Path, run_id: str) -> tuple[str | None, i
             return None, None, None
         checkout = Path(candidate).expanduser()
     try:
-        observed = subprocess.run(
-            ("git", "-C", str(checkout), "ls-files", "-z"),
-            capture_output=True,
-            check=False,
-        )
-        branch = subprocess.run(
-            ("git", "-C", str(checkout), "branch", "--show-current"),
-            capture_output=True,
-            check=False,
-            text=True,
-        )
+        observed = GitProvider().execute(checkout, "git", "ls-files", "-z")
+        branch = GitProvider().execute(checkout, "git", "branch", "--show-current")
     except OSError:
         return str(checkout.resolve()), None, None
+    separators = b"\0" if isinstance(observed.stdout, bytes) else "\0"
     count = (
-        sum(1 for item in observed.stdout.split(b"\0") if item)
+        sum(1 for item in observed.stdout.split(separators) if item)
         if observed.returncode == 0
         else None
     )
@@ -364,8 +359,8 @@ def _previous_prompt_context(repo: Path) -> dict[str, object]:
         "predecessor_recovery_action",
     )
     try:
-        prior = json.loads((repo / ".engineering" / "status" / "status.json").read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError):
+        prior = load_projection(repo, "watcher_status") or {}
+    except EngineeringStorageError:
         return {}
     return {key: prior[key] for key in keys if prior.get(key) is not None}
 
@@ -389,6 +384,7 @@ def status(repo: Path, state: str, **details: object) -> None:
         watcher_state=state,
         job_id=details.get("job_id"),
         run_id=details.get("run_id"),
+        runner_pid=details.get("runner_pid"),
         queue_depth=details.get("queued_jobs", 0),
         queue_items=details.get("queue_items", []),
         current_phase=details.get("runner_phase"),
@@ -411,10 +407,9 @@ def _publish_active_queue(repo: Path, candidates: list[tuple[Path, str]]) -> Non
     is executing.  That observation is read-only: it must retain the runner's
     run identity and phase rather than publish a competing watcher state.
     """
-    status_path = repo / ".engineering" / "status" / "status.json"
     try:
-        existing = json.loads(status_path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError):
+        existing = load_projection(repo, "watcher_status") or {}
+    except EngineeringStorageError:
         existing = {}
     manifest = EngineeringPlatformManifest.load(
         Path(__file__).with_name("ENGINEERING_PLATFORM_VERSION.json")
@@ -427,7 +422,7 @@ def _publish_active_queue(repo: Path, candidates: list[tuple[Path, str]]) -> Non
             "queue_items": _queue_items(candidates),
         },
     )
-    publish(status_path.parent, payload)
+    publish(repo / ".engineering" / "status", payload)
 
 
 def _job_id(source: Path, content: str) -> tuple[str, str, str]:
@@ -480,7 +475,7 @@ def retry_metadata(content: str) -> dict[str, object]:
 
 
 def queued_retry_children(root: Path) -> list[dict[str, object]]:
-    """Project queued retry lineage from persisted Inbox payloads only."""
+    """Project queued retry lineage without inventing an execution identity."""
     children: list[dict[str, object]] = []
     for path in discover(root, 0.0):
         content = stable_prompt(path, 0.0)
@@ -490,11 +485,9 @@ def queued_retry_children(root: Path) -> list[dict[str, object]]:
         parent = lineage["retry_of"]
         if not isinstance(parent, str):
             continue
-        _, provisional_run_id, _ = _job_id(path, content)
         children.append(
             {
                 "retry_of": parent,
-                "run_id": provisional_run_id,
                 "status": "QUEUED",
                 "retry_timestamp": lineage["retry_timestamp"],
             }
@@ -605,24 +598,24 @@ def dismiss_execution(repo: Path, run_id: str, *, dismissed_by: str = "dashboard
 
 
 def submit_execution_retry(repo: Path, root: Path, run_id: str, *, queue_recovery: bool = False) -> dict[str, object]:
-    """Create one explicitly requested new execution for a terminal BLOCKED run."""
+    """Create one explicitly requested new execution for a retryable terminal run."""
     if not re.fullmatch(r"inbox-[a-z0-9-]{6,64}", run_id):
         raise RetrySubmissionError("De opgegeven run-ID is ongeldig.")
     with _lock(repo):
         terminal_phase = _terminal_phase_for_run(repo, run_id)
-        if terminal_phase != "BLOCKED" and not (queue_recovery and terminal_phase in BLOCKING_PREDECESSOR_PHASES):
-            raise RetrySubmissionError("Alleen een terminal geblokkeerde uitvoering kan opnieuw worden uitgevoerd.")
+        if terminal_phase not in BLOCKING_PREDECESSOR_PHASES:
+            raise RetrySubmissionError("Alleen een terminal geblokkeerde of mislukte uitvoering kan opnieuw worden uitgevoerd.")
         candidates = [(path, stable_prompt(path, 0.0)) for path in discover(root, 0.0)]
         if any(content is not None and _retry_of(content) == run_id for _, content in candidates):
             raise RetrySubmissionError("Een uitvoering opnieuw proberen staat al in de wachtrij.")
         # A completed or active child is immutable lineage evidence too; a
-        # historical blocked run must never mint a second retry execution.
+        # historical terminal run must never mint a second retry execution.
         from .prompt_history import prompt_history
         if any(record.get("retry_of") == run_id for record in prompt_history(repo)):
             raise RetrySubmissionError("Voor deze uitvoering bestaat al een Retry Execution.")
         archived = _archived_prompt_for_run(repo, run_id)
         if archived is None:
-            raise RetrySubmissionError("De oorspronkelijke geblokkeerde prompt is lokaal niet beschikbaar.")
+            raise RetrySubmissionError("De oorspronkelijke terminale prompt is lokaal niet beschikbaar.")
         source, content = archived
         prior = retry_metadata(content)
         original = str(prior["original_run_id"] or run_id)
@@ -674,10 +667,15 @@ def _move(source: Path, destination: Path) -> None:
 
 
 def _active_transaction(repo: Path) -> bool:
-    current = repo / ".engineering" / "status" / "current.json"
+    """Return whether an admitted runner is still demonstrably alive.
+
+    A detached child may be terminated between its admission projection and its
+    first checkpoint.  That must not leave the watcher in ``RUNNER_STARTING``
+    indefinitely and block every later Inbox item.
+    """
     try:
-        payload = json.loads(current.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError):
+        payload = load_projection(repo, "live_status") or {}
+    except EngineeringStorageError:
         payload = {}
     phase = payload.get("phase")
     if phase in TERMINAL_PHASES:
@@ -687,14 +685,36 @@ def _active_transaction(repo: Path) -> bool:
         checkpoint_phase, _ = _runner_result(repo, run_id)
         if checkpoint_phase in TERMINAL_PHASES:
             return False
+        # A transaction lifecycle checkpoint is not liveness evidence. Once
+        # the Execution Host has persisted the transaction, only its canonical
+        # lease may keep later Inbox work gated. This prevents a crashed host
+        # with an old ACTIVE checkpoint from blocking the queue indefinitely.
+        if checkpoint_phase is not None:
+            return lease_liveness(repo, run_id).get("state") == "LIVE"
+        # The runner can stop after publishing its terminal watcher result but
+        # before replacing current.json. The watcher result is authoritative
+        # for that same Run ID, so it must not hold later Inbox work hostage.
+        try:
+            watcher = load_projection(repo, "watcher_status") or {}
+        except EngineeringStorageError:
+            watcher = {}
+        if (
+            watcher.get("last_executed_run") == run_id
+            and watcher.get("last_executed_phase") in TERMINAL_PHASES
+        ):
+            return False
+        if (
+            checkpoint_phase is None
+            and watcher.get("watcher_state") == "RUNNER_STARTING"
+            and watcher.get("run_id") == run_id
+        ):
+            return _detached_runner_is_alive(watcher)
         return True
     # The detached runner is admitted before it has written current.json.
     # Status is therefore the authoritative short-lived admission record.
     try:
-        watcher = json.loads(
-            (repo / ".engineering" / "status" / "status.json").read_text(encoding="utf-8")
-        )
-    except (OSError, json.JSONDecodeError):
+        watcher = load_projection(repo, "watcher_status") or {}
+    except EngineeringStorageError:
         return False
     watcher_run_id = watcher.get("run_id")
     if watcher.get("watcher_state") not in {"JOB_CLAIMED", "RUNNER_STARTING", "REPORT_PUBLISHING"}:
@@ -702,7 +722,30 @@ def _active_transaction(repo: Path) -> bool:
     if not isinstance(watcher_run_id, str):
         return False
     checkpoint_phase, _ = _runner_result(repo, watcher_run_id)
-    return checkpoint_phase not in TERMINAL_PHASES
+    if checkpoint_phase in TERMINAL_PHASES:
+        return False
+    return _detached_runner_is_alive(watcher)
+
+
+def _detached_runner_is_alive(watcher: dict[str, object]) -> bool:
+    """Confirm a detached runner PID, with a bounded legacy-start grace period."""
+    pid = watcher.get("runner_pid")
+    if isinstance(pid, int) and pid > 0:
+        try:
+            os.kill(pid, 0)
+        except OSError:
+            return False
+        return True
+    observed = watcher.get("last_update")
+    if not isinstance(observed, str):
+        return False
+    try:
+        started = datetime.fromisoformat(observed.replace("Z", "+00:00"))
+    except ValueError:
+        return False
+    if started.tzinfo is None:
+        return False
+    return (datetime.now(timezone.utc) - started).total_seconds() <= RUNNER_START_GRACE_SECONDS
 
 
 @contextmanager
@@ -736,12 +779,31 @@ def _lock(repo: Path):
 
 
 def _runner_result(repo: Path, run_id: str) -> tuple[str | None, str | None]:
-    checkpoint = repo / ".engineering" / "engineering-runs" / f"{run_id}.json"
     try:
-        state = json.loads(checkpoint.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError):
+        connection = open_storage(repo)
+        try:
+            row = connection.execute(
+                "SELECT phase,payload FROM engineering_transactions WHERE run_id=?", (run_id,)
+            ).fetchone()
+        finally:
+            connection.close()
+    except EngineeringStorageError:
         return None, None
-    return state.get("phase"), state.get("diagnostic")
+    if not row:
+        # Compatibility import for a pre-datastore runner that completed
+        # between watcher releases. New runners always create the row first.
+        try:
+            legacy = json.loads(
+                (repo / ".engineering" / "engineering-runs" / f"{run_id}.json").read_text(encoding="utf-8")
+            )
+        except (OSError, json.JSONDecodeError):
+            return None, None
+        return legacy.get("phase"), legacy.get("diagnostic") if isinstance(legacy, dict) else None
+    try:
+        payload = json.loads(row[1])
+    except (TypeError, json.JSONDecodeError):
+        return None, None
+    return row[0], payload.get("diagnostic") if isinstance(payload, dict) else None
 
 
 def _report(repo: Path, run_id: str) -> Path | None:
@@ -864,7 +926,8 @@ def _detach_runner(
     environment[BACKGROUND_RUN_ID_ENVIRONMENT] = run_id
     environment[BACKGROUND_JOB_ID_ENVIRONMENT] = job_id
     try:
-        subprocess.Popen(
+        process = LocalProcessProvider().spawn_detached(
+            repo,
             [
                 sys.executable,
                 "-m",
@@ -875,11 +938,7 @@ def _detach_runner(
                 "--icloud-root",
                 str(root),
             ],
-            cwd=repo,
-            env=environment,
-            start_new_session=True,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
+            environment,
         )
     except OSError as error:
         status(
@@ -892,6 +951,19 @@ def _detach_runner(
             diagnostic=f"De los gestarte Engineering-runner kon niet starten: {error}",
         )
         return 1
+    runner_pid = getattr(process, "pid", None)
+    status(
+        repo,
+        "RUNNER_STARTING",
+        queued_jobs=len(candidates) - 1,
+        queue_items=_queue_items(candidates, source),
+        job_id=job_id,
+        run_id=run_id,
+        runner_pid=runner_pid if isinstance(runner_pid, int) and runner_pid > 0 else None,
+        submitted_filename=source.name,
+        prompt_title=_prompt_title(content, source.name),
+        current_action="De Engineering-runner is los gestart; de watcher blijft de Inbox volgen.",
+    )
     log_event(logger, logging.INFO, "runner_detached", run_id=run_id)
     return 0
 
@@ -914,7 +986,7 @@ def _execute_runner_command(
     if phase and phase not in TERMINAL_PHASES:
         arguments.append("--resume")
     execution_started_at = datetime.now(timezone.utc)
-    completed = subprocess.run(arguments, cwd=repo, text=True, capture_output=True, check=False)
+    completed = LocalProcessProvider().execute(repo, arguments)
     return execution_started_at, completed
 
 
@@ -923,6 +995,9 @@ def once(repo: Path, root: Path, interval: float = 1.0, *, background: bool = Fa
     logger = component_logger(repo, "inbox")
     areas = local_folders(repo)
     with _lock(repo):
+        reconciled = reconcile_stale(repo)
+        if reconciled:
+            log_event(logger, logging.WARNING, "active_run_lease_reconciled", diagnostic=f"reconciled_runs={len(reconciled)}")
         candidates = _scan_queue(root, interval)
         log_event(logger, logging.DEBUG, "inbox_scan", diagnostic=f"eligible_jobs={len(candidates)}")
         child_run_id = os.environ.get(BACKGROUND_RUN_ID_ENVIRONMENT)
@@ -1002,6 +1077,27 @@ def once(repo: Path, root: Path, interval: float = 1.0, *, background: bool = Fa
         status(repo, "JOB_CLAIMED", queued_jobs=len(candidates) - 1, queue_items=_queue_items(candidates, source), job_id=job_id, run_id=run_id, submitted_filename=source.name, prompt_title=title,
                blocking_predecessor_run=None, blocking_predecessor_phase=None, blocking_predecessor_filename=None,
                blocking_predecessor_title=None, predecessor_recovery_action=None)
+        producer = parse_producer_metadata(content)
+        try:
+            record_submission(
+                repo,
+                submission_id=job_id,
+                producer_id=producer.producer_id,
+                producer_type=producer.producer_type,
+                producer_version=producer.producer_version,
+                contract_version=producer.execution_constraint_version,
+                prompt_content=content,
+                prompt_metadata={"filename": source.name, "digest": digest, "title": title},
+                target_identity={"repository": repo.name, "path": str(repo.resolve())},
+                original_envelope={"transport": "inbox", "filename": source.name, "content": content},
+                correlation_id=producer.correlation_id,
+                mission_id=producer.mission_id,
+                received_at=arrived_at.isoformat(),
+            )
+        except EngineeringStorageError as error:
+            status(repo, "JOB_FAILED", queued_jobs=len(candidates), queue_items=_queue_items(candidates), diagnostic="De canonieke Execution Host-opslag is niet beschikbaar.")
+            log_event(logger, logging.ERROR, "submission_persist_failed", run_id=run_id, diagnostic=str(error))
+            return 1
         log_event(logger, logging.INFO, "job_claimed", run_id=run_id)
         _move(source, claimed)
         local = repo / ".engineering" / "inbox-processing" / job_id
@@ -1025,7 +1121,7 @@ def once(repo: Path, root: Path, interval: float = 1.0, *, background: bool = Fa
         )
         status(
             repo, "RUNNER_STARTING", job_id=job_id, run_id=run_id, queued_jobs=len(candidates) - 1, queue_items=_queue_items(candidates, source),
-            submitted_filename=source.name, prompt_title=title,
+            runner_pid=os.getpid(), submitted_filename=source.name, prompt_title=title,
         )
         log_event(logger, logging.INFO, "runner_started", run_id=run_id)
         execution_started_at, completed = _execute_runner_command(repo, prompt, run_id)
@@ -1107,6 +1203,17 @@ def once(repo: Path, root: Path, interval: float = 1.0, *, background: bool = Fa
                 tracked_file_count=tracked_file_count,
                 target_branch=target_branch,
                 **retry_metadata(content),
+            )
+            record_artifact(
+                repo,
+                delivered,
+                artifact_id=f"report:{run_id}",
+                artifact_type="TERMINAL_REPORT",
+                content_type="text/markdown",
+                created_at=datetime.now(timezone.utc).isoformat(),
+                run_id=run_id,
+                mission_id=parse_producer_metadata(content).mission_id,
+                producer_id=parse_producer_metadata(content).producer_id,
             )
         except Exception as error:
             log_event(

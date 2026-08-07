@@ -1,7 +1,20 @@
 # DJConnect Engineering Status
 
 **Status:** Operational handoff
-**Updated:** 2026-08-06
+**Updated:** 2026-08-07
+
+## PR #780 finalization reviewable
+
+PR [#780](https://github.com/pcvantol/djconnect/pull/780), **Make Execution
+datastore canonical**, merged as `f2342ec1`. Engineering Platform operational
+state is now SQLite-first for lifecycle, live and watcher status, submissions,
+artifact metadata and migration provenance. JSON and Markdown remain
+regenerable compatibility projections. Its immutable Prompt History record is
+`docs/history/prompts/2026-08-07-canonical-execution-host-datastore.md`.
+Repository State: `MERGED_UNRECONCILED`; Workspace State: `NOT_READY` pending
+this governance-only Finalization. Finalization State: `REVIEWABLE_FROZEN`.
+Forge Mission semantics, queue admission, execution scheduling and runtime
+behavior are unchanged.
 
 ## PR #769 finalization reviewable
 

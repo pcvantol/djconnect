@@ -16,6 +16,7 @@ from tools.engineering import inbox_watcher
 from tools.engineering.host_preflight import HostPreflightResult
 from tools.engineering.workspace_preflight import WorkspacePreflightResult
 from tools.engineering.capability_preflight import CapabilityPreflightResult
+from tools.engineering.storage import open_storage, store_projection
 from tools.engineering.telemetry import wait_for_pending_telemetry
 
 
@@ -191,6 +192,60 @@ class InboxWatcherTest(unittest.TestCase):
         (status / "current.json").write_text('{"run_id":"inbox-stale","phase":"INITIALIZE"}', encoding="utf-8")
         (checkpoint / "inbox-stale.json").write_text('{"phase":"BLOCKED"}', encoding="utf-8")
         self.assertFalse(inbox_watcher._active_transaction(self.repo))
+
+    def test_terminal_watcher_status_overrides_stale_live_checkpoint(self) -> None:
+        status = self.repo / ".engineering/status"
+        status.mkdir(parents=True)
+        (status / "current.json").write_text(
+            '{"run_id":"inbox-stale","phase":"WAIT_FOR_TERMINAL_EVIDENCE"}', encoding="utf-8"
+        )
+        (status / "status.json").write_text(
+            '{"last_executed_run":"inbox-stale","last_executed_phase":"FAILED"}', encoding="utf-8"
+        )
+
+        self.assertFalse(inbox_watcher._active_transaction(self.repo))
+
+    def test_dead_detached_runner_does_not_hold_the_inbox(self) -> None:
+        run_id = "inbox-abandoned"
+        inbox_watcher.status(
+            self.repo,
+            "RUNNER_STARTING",
+            run_id=run_id,
+            runner_pid=12345,
+        )
+        connection = open_storage(self.repo)
+        try:
+            store_projection(
+                connection,
+                "live_status",
+                {"run_id": run_id, "phase": "INITIALIZE"},
+            )
+        finally:
+            connection.close()
+
+        with patch("tools.engineering.inbox_watcher.os.kill", side_effect=ProcessLookupError):
+            self.assertFalse(inbox_watcher._active_transaction(self.repo))
+
+    def test_stale_canonical_transaction_does_not_hold_the_inbox(self) -> None:
+        run_id = "inbox-stale-lease"
+        inbox_watcher.status(self.repo, "ENGINEERING_RUN_ACTIVE", run_id=run_id)
+        connection = open_storage(self.repo)
+        try:
+            store_projection(connection, "live_status", {"run_id": run_id, "phase": "EXECUTE_AGENT"})
+            connection.execute(
+                "INSERT INTO engineering_transactions(run_id,payload,phase,updated_at) VALUES(?,?,?,?)",
+                (run_id, "{}", "EXECUTE_AGENT", "2026-01-01T00:00:00+00:00"),
+            )
+        finally:
+            connection.close()
+        self.assertFalse(inbox_watcher._active_transaction(self.repo))
+
+    def test_expired_legacy_runner_start_does_not_hold_the_inbox(self) -> None:
+        self.assertFalse(
+            inbox_watcher._detached_runner_is_alive(
+                {"last_update": "2020-01-01T00:00:00+00:00"}
+            )
+        )
 
     def test_terminal_workspace_snapshot_uses_the_genesis_checkout_and_git_index(self) -> None:
         target = self.repo.parent / "forge"
@@ -651,7 +706,7 @@ class InboxWatcherTest(unittest.TestCase):
         self.assertEqual(archived.read_text(encoding="utf-8"), original)
         self.assertNotEqual(outcome["retry_run_id"], run_id)
 
-    def test_execution_retry_refuses_non_blocked_or_duplicate_execution(self) -> None:
+    def test_execution_retry_supports_failed_and_refuses_non_retryable_or_duplicate_execution(self) -> None:
         original = "# Failed prompt"
         archived = inbox_watcher.local_folders(self.repo)["Failed"] / "failed__failed.txt"
         archived.write_text(original, encoding="utf-8")
@@ -659,10 +714,12 @@ class InboxWatcherTest(unittest.TestCase):
         checkpoint = self.repo / ".engineering" / "engineering-runs"
         checkpoint.mkdir(parents=True)
         (checkpoint / f"{run_id}.json").write_text(json.dumps({"phase": "FAILED"}), encoding="utf-8")
-        with self.assertRaisesRegex(inbox_watcher.RetrySubmissionError, "Alleen een terminal"):
+        outcome = inbox_watcher.submit_execution_retry(self.repo, self.root, run_id)
+        self.assertTrue((self.inbox / str(outcome["filename"])).is_file())
+        (checkpoint / f"{run_id}.json").write_text(json.dumps({"phase": "COMPLETE"}), encoding="utf-8")
+        with self.assertRaisesRegex(inbox_watcher.RetrySubmissionError, "geblokkeerde of mislukte"):
             inbox_watcher.submit_execution_retry(self.repo, self.root, run_id)
         (checkpoint / f"{run_id}.json").write_text(json.dumps({"phase": "BLOCKED"}), encoding="utf-8")
-        (self.inbox / "pending.md").write_text(f"Retry-Of: {run_id}\n# Pending", encoding="utf-8")
         with self.assertRaisesRegex(inbox_watcher.RetrySubmissionError, "staat al in de wachtrij"):
             inbox_watcher.submit_execution_retry(self.repo, self.root, run_id)
 

@@ -17,6 +17,8 @@ from .capability_preflight import latest as latest_capability_preflight
 from .drift_diagnostics import guidance as drift_guidance
 from .platform_api import PlatformConfigurationError, execution_host_configuration
 from .telemetry import comparable_duration_estimate
+from .storage import EngineeringStorageError, import_legacy_projection_once, load_projection, load_readiness_evaluation, open_storage
+from .execution_lease import liveness as lease_liveness
 
 
 JsonReader = Callable[[Path], bytes]
@@ -34,12 +36,36 @@ def _terminal_checkpoint(root: Path, run_id: object) -> bool:
     if not isinstance(run_id, str):
         return False
     try:
+        connection = open_storage(root)
+        try:
+            row = connection.execute(
+                "SELECT phase FROM engineering_transactions WHERE run_id=?", (run_id,)
+            ).fetchone()
+        finally:
+            connection.close()
+    except EngineeringStorageError:
+        return False
+    if row:
+        return row[0] in TERMINAL_PHASES
+    # Narrow compatibility window for a terminal pre-v12 runner that did not
+    # contain enough fields to be promoted during the one-time migration.
+    try:
         checkpoint = json.loads(
             (root / ".engineering" / "engineering-runs" / f"{run_id}.json").read_text(encoding="utf-8")
         )
     except (OSError, json.JSONDecodeError):
         return False
-    return checkpoint.get("phase") in TERMINAL_PHASES
+    return isinstance(checkpoint, dict) and checkpoint.get("phase") in TERMINAL_PHASES
+
+
+def _watcher_has_terminal_run(watcher: object, run_id: object) -> bool:
+    """Return whether the watcher has already closed the live run."""
+    return (
+        isinstance(watcher, dict)
+        and isinstance(run_id, str)
+        and watcher.get("last_executed_run") == run_id
+        and watcher.get("last_executed_phase") in TERMINAL_PHASES
+    )
 
 
 def unavailable_status() -> bytes:
@@ -76,11 +102,27 @@ def unavailable_status() -> bytes:
 def status(root: Path) -> bytes:
     """Project watcher and live-run state into the stable dashboard contract."""
     try:
-        watcher = json.loads((root / ".engineering" / "status" / "status.json").read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError):
+        watcher = load_projection(root, "watcher_status")
+        live = load_projection(root, "live_status")
+        # One explicit compatibility migration supports upgraded hosts where
+        # status files predate the canonical store. It is not a normal read
+        # path once the row has been imported.
+        if watcher is None:
+            watcher = import_legacy_projection_once(
+                root, "watcher_status", root / ".engineering" / "status" / "status.json"
+            )
+        if live is None:
+            live = import_legacy_projection_once(
+                root, "live_status", root / ".engineering" / "status" / "current.json"
+            )
+        watcher = watcher or {}
+    except EngineeringStorageError:
         watcher = {}
+        live = None
     try:
-        live = json.loads((root / ".engineering" / "status" / "current.json").read_text(encoding="utf-8"))
+        if live is None:
+            raise ValueError("No canonical live status")
+        live_liveness = lease_liveness(root, live.get("run_id"))
         projection = json.dumps(
             {
                 "watcher_state": "ENGINEERING_RUN_ACTIVE",
@@ -115,23 +157,67 @@ def status(root: Path) -> bytes:
                 "active_branch": live.get("active_branch"),
                 "reviewer_agents": live.get("reviewer_agents", []),
                 "runtime_metadata": live.get("runtime_metadata", {}),
+                "execution_liveness": live_liveness,
+                "readiness": load_readiness_evaluation(root, live.get("run_id")),
+                # Forge supplies this immutable, read-only projection. The
+                # dashboard transports and presents it without deriving or
+                # changing Mission semantics.
+                "execution_context": live.get("execution_context") if isinstance(live.get("execution_context"), dict) else None,
             },
             separators=(",", ":"),
         ).encode()
-    except (OSError, json.JSONDecodeError):
+    except (ValueError, TypeError):
         live, projection = None, None
     if (
         live
         and live.get("phase") not in TERMINAL_PHASES
+        and live_liveness.get("state") != "LIVE"
+        and (
+            not watcher
+            or (
+                watcher.get("run_id") == live.get("run_id")
+                and watcher.get("watcher_state") in {"JOB_CLAIMED", "RUNNER_STARTING", "REPORT_PUBLISHING", "ENGINEERING_RUN_ACTIVE"}
+            )
+        )
+    ):
+        # Lifecycle is intentionally retained for auditability, but a stale
+        # lease must never be presented as an actively running execution.
+        stale_projection = json.loads(projection or b"{}")
+        reconciliation = live_liveness.get("reconciliation_outcome")
+        recovery = (
+            "RESUME_AVAILABLE"
+            if reconciliation == "RECOVERABLE"
+            else "TERMINAL_EVIDENCE_RECONCILIATION"
+            if reconciliation == "TERMINAL_EVIDENCE_PRESENT"
+            else "OPERATOR_INTERVENTION_REQUIRED"
+        )
+        stale_projection.update(
+            {
+                "watcher_state": "ENGINEERING_RUN_STALE",
+                "current_action": "Execution Host ownership is stale; no execution is currently running.",
+                "recovery_action": recovery,
+            }
+        )
+        return json.dumps(stale_projection, separators=(",", ":")).encode()
+    if (
+        live
+        and live.get("phase") not in TERMINAL_PHASES
+        and live_liveness.get("state") == "LIVE"
         and not _terminal_checkpoint(root, live.get("run_id"))
+        and not _watcher_has_terminal_run(watcher, live.get("run_id"))
+        and (
+            not watcher
+            or not watcher.get("watcher_state")
+            or (
+                watcher.get("run_id") == live.get("run_id")
+                and watcher.get("watcher_state") in {"JOB_CLAIMED", "RUNNER_STARTING", "REPORT_PUBLISHING"}
+            )
+        )
     ):
         return projection
-    try:
-        if watcher and (watcher.get("run_id") or watcher.get("last_executed_run")):
-            return json.dumps(watcher, separators=(",", ":")).encode()
-        return (root / ".engineering" / "status" / "status.json").read_bytes()
-    except OSError:
-        return projection or unavailable_status()
+    if watcher:
+        return json.dumps(watcher, separators=(",", ":")).encode()
+    return projection or unavailable_status()
 
 
 def sse_status(root: Path) -> bytes:
@@ -176,8 +262,12 @@ def snapshot(
     if not isinstance(status_payload, dict):
         status_payload = read_json(unavailable_reader, fallback={})
     run_id = status_payload.get("last_executed_run")
-    active = status_payload.get("watcher_state") == "ENGINEERING_RUN_ACTIVE" and isinstance(
-        status_payload.get("run_id"), str
+    active_run_id = status_payload.get("run_id")
+    active_liveness = lease_liveness(root, active_run_id)
+    active = (
+        status_payload.get("watcher_state") == "ENGINEERING_RUN_ACTIVE"
+        and isinstance(active_run_id, str)
+        and active_liveness.get("state") == "LIVE"
     )
     try:
         telemetry = telemetry_reader(root)

@@ -13,11 +13,38 @@ from tools.engineering.storage import (
     EngineeringStorageError,
     WORKSPACE_DIRECTORY,
     database_path,
+    load_projection,
     open_storage,
+    record_artifact,
+    record_submission,
+    record_readiness_evaluation,
+    load_readiness_evaluation,
+    regenerate_status_projections,
+    store_projection,
+    verify_artifact_integrity,
 )
+from tools.engineering.agent_state import StateStore, TransactionState
 
 
 class EngineeringStorageTest(unittest.TestCase):
+    def test_persists_run_correlated_readiness_evaluation(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            StateStore(root / ".engineering" / "engineering-runs").save(
+                TransactionState("readiness-run", "repo", "prompt.md", "INITIALIZE")
+            )
+            record_readiness_evaluation(
+                root, run_id="readiness-run", profile_id="managed_repository", profile_version=1,
+                execution_mode="MANAGED", passed=False, failed_requirements=("clean_worktree",),
+                facts={"repository_clean": False}, evaluated_at="2026-08-07T09:00:00+00:00",
+                diagnostic="working tree is not clean",
+            )
+            self.assertEqual(load_readiness_evaluation(root, "readiness-run"), {
+                "profile_id": "managed_repository", "profile_version": 1, "execution_mode": "MANAGED",
+                "result": "BLOCKED", "failed_requirements": ["clean_worktree"],
+                "evaluated_at": "2026-08-07T09:00:00+00:00", "diagnostic": "working tree is not clean",
+            })
+
     def test_creates_private_versioned_schema(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
@@ -145,3 +172,43 @@ class EngineeringStorageTest(unittest.TestCase):
                 )
             with self.assertRaisesRegex(EngineeringStorageError, "newer"):
                 open_storage(root)
+
+    def test_canonical_records_survive_projection_loss_and_verify_artifacts(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            payload = root / ".engineering" / "reports" / "report.md"
+            payload.parent.mkdir(parents=True)
+            payload.write_text("immutable evidence", encoding="utf-8")
+            record_submission(
+                root,
+                submission_id="submission-1",
+                producer_id="producer-1",
+                producer_type="HUMAN",
+                prompt_content="# prompt",
+                prompt_metadata={"filename": "prompt.md"},
+                target_identity={"repository": "djconnect"},
+                original_envelope={"content": "# prompt"},
+                received_at="2026-08-07T08:00:00+00:00",
+            )
+            record_artifact(
+                root,
+                payload,
+                artifact_id="report-1",
+                artifact_type="TERMINAL_REPORT",
+                content_type="text/markdown",
+                created_at="2026-08-07T08:00:01+00:00",
+                submission_id="submission-1",
+            )
+            with open_storage(root) as connection:
+                store_projection(connection, "watcher_status", {"watcher_state": "WATCHER_IDLE"})
+            (root / ".engineering" / "status").mkdir(exist_ok=True)
+            regenerate_status_projections(root)
+            self.assertEqual(load_projection(root, "watcher_status"), {"watcher_state": "WATCHER_IDLE"})
+            self.assertTrue(verify_artifact_integrity(root, "report-1"))
+            payload.write_text("changed", encoding="utf-8")
+            self.assertFalse(verify_artifact_integrity(root, "report-1"))
+            with open_storage(root) as connection:
+                self.assertEqual(
+                    connection.execute("SELECT integrity_status FROM execution_artifact_records WHERE artifact_id='report-1'").fetchone()[0],
+                    "MISMATCH",
+                )

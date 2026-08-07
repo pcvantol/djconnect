@@ -10,6 +10,7 @@ import tempfile
 
 from .agent_state import redact_diagnostic
 from .platform_version import EngineeringPlatformManifest
+from .storage import open_storage, store_projection
 
 SCHEMA_VERSION = 1
 
@@ -27,6 +28,7 @@ def build(manifest: EngineeringPlatformManifest, **values: object) -> dict[str, 
         "current_action": None,
         "run_id": None,
         "job_id": None,
+        "runner_pid": None,
         "submitted_filename": None,
         "prompt_title": None,
         "last_executed_filename": None,
@@ -65,8 +67,22 @@ def build(manifest: EngineeringPlatformManifest, **values: object) -> dict[str, 
 
 
 def publish(root: Path, payload: dict[str, object]) -> None:
-    """Atomically publish synchronized JSON and compact iPhone-readable Markdown."""
+    """Persist canonical watcher state, then publish derived JSON/Markdown."""
     root.mkdir(mode=0o700, parents=True, exist_ok=True)
+    # Production callers pass ``<repository>/.engineering/status``.  Keep
+    # the public projector usable for an isolated status directory too (for
+    # recovery/export tooling), without accidentally resolving its datastore
+    # at filesystem root.
+    repository_root = (
+        root.parent.parent
+        if root.name == "status" and root.parent.name == ".engineering"
+        else root
+    )
+    connection = open_storage(repository_root)
+    try:
+        store_projection(connection, "watcher_status", payload)
+    finally:
+        connection.close()
     markdown = "\n".join(
         (
             "# DJConnect Engineering",
