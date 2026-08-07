@@ -59,8 +59,9 @@ from .workspace_preflight import latest as latest_workspace_preflight
 from .capability_preflight import latest as latest_capability_preflight
 from .drift_diagnostics import summary as drift_summary
 from .execution_lease import Lease, LeaseConflictError, LeaseHeartbeat, acquire as acquire_lease, heartbeat as heartbeat_lease, history as lease_history, host_identity, host_instance_id, reconcile_stale, release as release_lease
-from .execution_readiness import ReadinessProfile, evaluate as evaluate_readiness, selected_profile
+from .execution_readiness import ReadinessFacts, decide as decide_readiness, evaluate as evaluate_readiness, selected_profile
 from .execution_transaction import ExecutionTransaction
+from .storage import record_readiness_evaluation
 
 
 class RunnerError(RuntimeError):
@@ -925,12 +926,25 @@ class EngineeringRunner:
             state=state,
             target_repository=context.target_repository or self.root,
         )
+        # Establish canonical transaction identity before persisting readiness evidence.
+        self.store.save(state)
         readiness = evaluate_readiness(
             selected_profile(context.execution_mode),
             host_root=self.root,
             target_root=context.target_repository,
             managed_clean=lambda candidate: self.repository.inspect(candidate).clean,
             genesis_preflight=genesis_workspace_preflight,
+        )
+        decision = decide_readiness(
+            readiness.profile,
+            ReadinessFacts(True, context.target_repository is not None or self.root.is_dir(), evidence.clean if context.execution_mode == "MANAGED" else True, True),
+        )
+        record_readiness_evaluation(
+            self.root, run_id=state.run_id, profile_id=decision.profile_id, profile_version=decision.profile_version,
+            execution_mode=context.execution_mode, passed=readiness.ready and decision.passed,
+            failed_requirements=decision.failed_requirements,
+            facts={"host_ready": decision.facts.host_ready, "repository_present": decision.facts.repository_present, "repository_clean": decision.facts.repository_clean, "lease_available": decision.facts.lease_available},
+            evaluated_at=decision.evaluated_at, diagnostic=readiness.diagnostic or decision.diagnostic,
         )
         if not readiness.ready:
             if context.execution_mode == "GENESIS":

@@ -18,7 +18,7 @@ import sqlite3
 
 WORKSPACE_DIRECTORY = ".engineering"
 DATABASE_FILENAME = "engineering.db"
-ENGINEERING_STORAGE_SCHEMA_VERSION = 14
+ENGINEERING_STORAGE_SCHEMA_VERSION = 15
 JOURNAL_MODES = frozenset({"DELETE", "MEMORY"})
 
 
@@ -529,6 +529,17 @@ def _schema_v14(connection: sqlite3.Connection) -> None:
             connection.execute(statement)
 
 
+def _schema_v15(connection: sqlite3.Connection) -> None:
+    """Persist typed readiness decisions as canonical run-correlated evidence."""
+    connection.execute(
+        "CREATE TABLE execution_readiness_evaluations ("
+        "run_id TEXT PRIMARY KEY REFERENCES engineering_transactions(run_id) ON DELETE CASCADE,"
+        "profile_id TEXT NOT NULL,profile_version INTEGER NOT NULL,execution_mode TEXT NOT NULL,"
+        "passed INTEGER NOT NULL CHECK(passed IN (0,1)),failed_requirements TEXT NOT NULL,"
+        "facts TEXT NOT NULL,evaluated_at TEXT NOT NULL,diagnostic TEXT)"
+    )
+
+
 MIGRATIONS: dict[int, Migration] = {
     1: _schema_v1,
     2: _schema_v2,
@@ -544,6 +555,7 @@ MIGRATIONS: dict[int, Migration] = {
     12: _schema_v12,
     13: _schema_v13,
     14: _schema_v14,
+    15: _schema_v15,
 }
 
 
@@ -793,7 +805,6 @@ def open_storage(
             )
         connection.execute("COMMIT")
         path.chmod(0o600)
-        return connection
     except (OSError, sqlite3.DatabaseError, EngineeringStorageError) as error:
         try:
             connection.execute("ROLLBACK")
@@ -803,3 +814,19 @@ def open_storage(
         if isinstance(error, EngineeringStorageError):
             raise
         raise EngineeringStorageError("Engineering storage could not be opened safely.") from error
+    return connection
+
+
+def record_readiness_evaluation(root: Path, *, run_id: str, profile_id: str, profile_version: int,
+                                execution_mode: str, passed: bool, failed_requirements: tuple[str, ...],
+                                facts: dict[str, object], evaluated_at: str, diagnostic: str | None) -> None:
+    """Store one deterministic readiness decision for a transaction."""
+    connection = open_storage(root)
+    try:
+        connection.execute(
+            "INSERT INTO execution_readiness_evaluations(run_id,profile_id,profile_version,execution_mode,passed,failed_requirements,facts,evaluated_at,diagnostic) VALUES(?,?,?,?,?,?,?,?,?) "
+            "ON CONFLICT(run_id) DO UPDATE SET profile_id=excluded.profile_id,profile_version=excluded.profile_version,execution_mode=excluded.execution_mode,passed=excluded.passed,failed_requirements=excluded.failed_requirements,facts=excluded.facts,evaluated_at=excluded.evaluated_at,diagnostic=excluded.diagnostic",
+            (run_id, profile_id, profile_version, execution_mode, int(passed), json.dumps(failed_requirements), json.dumps(facts, sort_keys=True), evaluated_at, diagnostic),
+        )
+    finally:
+        connection.close()
