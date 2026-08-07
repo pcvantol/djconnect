@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+import json
 import tempfile
 import unittest
 
@@ -40,6 +41,19 @@ class ExecutionLeaseTest(unittest.TestCase):
         self.assertEqual(outcome[0]["outcome"], "RECOVERABLE")
         with open_storage(self.root) as connection:
             self.assertEqual(connection.execute("SELECT phase FROM engineering_transactions WHERE run_id='inbox-lease'").fetchone()[0], "INITIALIZE")
+
+    def test_reconciles_a_proven_terminal_payload_after_lease_expiry(self) -> None:
+        lease = acquire(self.root, "inbox-lease", identity="host", instance_id="instance-a")
+        with open_storage(self.root) as connection:
+            connection.execute(
+                "UPDATE engineering_transactions SET payload=?,phase='EXECUTE_AGENT' WHERE run_id='inbox-lease'",
+                (json.dumps({"phase": "COMPLETE", "terminal": True}),),
+            )
+            connection.execute("UPDATE execution_run_leases SET expires_at='2020-01-01T00:00:00+00:00' WHERE lease_id=?", (lease.lease_id,))
+        outcome = reconcile_stale(self.root)
+        self.assertEqual(outcome[0]["outcome"], "TERMINAL_EVIDENCE_PRESENT")
+        with open_storage(self.root) as connection:
+            self.assertEqual(connection.execute("SELECT phase FROM engineering_transactions WHERE run_id='inbox-lease'").fetchone()[0], "COMPLETE")
 
     def test_active_transaction_without_lease_is_operator_visible(self) -> None:
         outcomes = reconcile_stale(self.root)

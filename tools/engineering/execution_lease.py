@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
+import json
 import os
 from pathlib import Path
 import socket
@@ -146,8 +147,24 @@ def reconcile_stale(root: Path) -> list[dict[str, str]]:
         connection.execute("BEGIN IMMEDIATE")
         rows = connection.execute("SELECT lease_id,run_id,host_instance_id,last_heartbeat_at FROM execution_run_leases WHERE lease_state='ACTIVE' AND expires_at<?", (now,)).fetchall()
         for lease_id, run_id, instance, heartbeat_at in rows:
-            phase = connection.execute("SELECT phase FROM engineering_transactions WHERE run_id=?", (run_id,)).fetchone()
-            outcome = "TERMINAL_EVIDENCE_PRESENT" if phase and phase[0] in TERMINAL_PHASES else "RECOVERABLE"
+            transaction = connection.execute(
+                "SELECT phase,payload FROM engineering_transactions WHERE run_id=?", (run_id,)
+            ).fetchone()
+            phase = transaction[0] if transaction else None
+            terminal_phase: str | None = phase if phase in TERMINAL_PHASES else None
+            if transaction and terminal_phase is None:
+                try:
+                    payload = json.loads(transaction[1])
+                except (TypeError, json.JSONDecodeError):
+                    payload = {}
+                candidate = payload.get("phase") if isinstance(payload, dict) and payload.get("terminal") is True else None
+                if candidate in TERMINAL_PHASES:
+                    terminal_phase = candidate
+                    connection.execute(
+                        "UPDATE engineering_transactions SET phase=?,updated_at=? WHERE run_id=?",
+                        (terminal_phase, now, run_id),
+                    )
+            outcome = "TERMINAL_EVIDENCE_PRESENT" if terminal_phase else "RECOVERABLE"
             connection.execute("UPDATE execution_run_leases SET lease_state='EXPIRED',updated_at=? WHERE lease_id=?", (now, lease_id))
             _event(connection, lease_id, run_id, "LEASE_EXPIRED")
             _event(connection, lease_id, run_id, "STALE_DETECTED", outcome)
@@ -155,7 +172,7 @@ def reconcile_stale(root: Path) -> list[dict[str, str]]:
             connection.execute(
                 "INSERT INTO execution_run_reconciliations(run_id,outcome,reason,reconciled_at,updated_at) VALUES(?,?,?,?,?) "
                 "ON CONFLICT(run_id) DO UPDATE SET outcome=excluded.outcome,reason=excluded.reason,reconciled_at=excluded.reconciled_at,updated_at=excluded.updated_at",
-                (run_id, outcome, "lease_expired", now, now),
+                (run_id, outcome, f"lease_expired;terminal_phase={terminal_phase or 'none'}", now, now),
             )
             outcomes.append({"run_id": run_id, "host_instance_id": instance, "last_heartbeat": heartbeat_at, "outcome": outcome})
         active_runs = connection.execute(
