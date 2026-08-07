@@ -918,6 +918,16 @@ class EngineeringRunner:
         try:
             self.active_lease = acquire_lease(self.root, state.run_id, identity=self.host_identity, instance_id=self.host_instance_id, process_id=os.getpid())
         except LeaseConflictError as error:
+            blocked = decide_readiness(
+                readiness.profile,
+                ReadinessFacts(True, context.target_repository is not None or self.root.is_dir(), evidence.clean if context.execution_mode == "MANAGED" else True, False),
+            )
+            record_readiness_evaluation(
+                self.root, run_id=state.run_id, profile_id=blocked.profile_id, profile_version=blocked.profile_version,
+                execution_mode=context.execution_mode, passed=False, failed_requirements=blocked.failed_requirements,
+                facts={"host_ready": blocked.facts.host_ready, "repository_present": blocked.facts.repository_present, "repository_clean": blocked.facts.repository_clean, "lease_available": False},
+                evaluated_at=blocked.evaluated_at, diagnostic=blocked.diagnostic,
+            )
             raise RunnerError("active-run ownership conflict; execution is refused") from error
         self.lease_heartbeat = LeaseHeartbeat(self.root, self.active_lease)
         self.transaction = self.transaction.with_lease(self.active_lease)
