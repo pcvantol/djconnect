@@ -63,6 +63,7 @@ RATE_LIMIT_CACHE_SECONDS = 60
 _rate_limit_cache_lock = Lock()
 _rate_limit_cache: tuple[float, bytes] | None = None
 CODEX_IDENTITY_CACHE_SECONDS = 300
+GIT_INDEX_LOCK_STALE_SECONDS = 300
 _codex_identity_cache_lock = Lock()
 _codex_identity_cache: tuple[float, dict[str, str]] | None = None
 
@@ -141,7 +142,7 @@ def _sse_snapshot(root: Path) -> bytes:
     its observable values changes.  This keeps the dashboard event-driven
     without giving the dashboard any transaction authority.
     """
-    return dashboard_state.snapshot(
+    snapshot = dashboard_state.snapshot(
         root,
         status_reader=_sse_status,
         unavailable_reader=_unavailable_status,
@@ -162,6 +163,13 @@ def _sse_snapshot(root: Path) -> bytes:
         dashboard_version=DASHBOARD_VERSION,
         worker_version=WATCHER_VERSION,
     )
+    try:
+        payload = json.loads(snapshot)
+    except json.JSONDecodeError:
+        return snapshot
+    if isinstance(payload, dict):
+        payload["workspace_git_lock"] = _workspace_git_lock(root)
+    return json.dumps(payload, ensure_ascii=False, separators=(",", ":")).encode()
 
 
 def _prompt_history(root: Path) -> bytes:
@@ -719,6 +727,47 @@ def _restore_managed_main_branch(root: Path) -> dict[str, str]:
     return {"previous_branch": previous_branch, "branch": "main", "watcher": "restarted"}
 
 
+def _workspace_git_lock(root: Path, *, now: float | None = None) -> dict[str, object]:
+    """Describe the index lock without offering recovery unless it is provably stale."""
+    lock_path = root / ".git" / "index.lock"
+    try:
+        age_seconds = max(0, int((now if now is not None else time.time()) - lock_path.stat().st_mtime))
+    except OSError:
+        return {"state": "free", "active": False, "stale": False}
+
+    # lsof is the conservative ownership check: if it is unavailable or cannot
+    # determine ownership, recovery remains disabled.  Never guess that a lock
+    # is stale merely because it is old.
+    lsof = shutil.which("lsof")
+    if not lsof:
+        return {"state": "active", "active": True, "stale": False, "age_seconds": age_seconds}
+    try:
+        ownership = LocalProcessProvider().execute(root, (lsof, "-t", str(lock_path)))
+    except OSError:
+        return {"state": "active", "active": True, "stale": False, "age_seconds": age_seconds}
+    owner_pids = [line for line in ownership.stdout.splitlines() if line.strip().isdigit()]
+    stale = ownership.returncode == 1 and not owner_pids and age_seconds >= GIT_INDEX_LOCK_STALE_SECONDS
+    return {
+        "state": "stale" if stale else "active",
+        "active": not stale,
+        "stale": stale,
+        "age_seconds": age_seconds,
+    }
+
+
+def _recover_stale_workspace_git_lock(root: Path) -> dict[str, object]:
+    """Remove only a lock that the read-only inspection proved stale."""
+    lock = _workspace_git_lock(root)
+    if not lock.get("stale"):
+        raise RuntimeError("De Git-vergrendeling is niet aantoonbaar verouderd.")
+    lock_path = root / ".git" / "index.lock"
+    try:
+        lock_path.unlink()
+    except OSError as error:
+        raise RuntimeError("De verouderde Git-vergrendeling kon niet worden verwijderd.") from error
+    return {"state": "free", "recovered": True}
+
+
 def _codex_process_metrics(root: Path) -> bytes:
     """Measure only the process group explicitly recorded by the Execution Host."""
     try:
@@ -1130,6 +1179,7 @@ def _dashboard_html(
 <details class="technical-details" id="technicalDetails"><summary><strong data-i18n="section.technical_details"></strong></summary><p class="category-description" data-i18n="description.technical_details"></p><div class="technical-grid">
 <div class="card"><strong id="technicalPullRequestsTitle" data-i18n="technical.pull_requests"></strong><p class="field"><span class="label" id="technicalImplementationLabel" data-i18n="technical.implementation"></span><span id="implementation"></span></p><p class="field"><span class="label" id="technicalFinalizationLabel" data-i18n="technical.finalization"></span><span id="finalization"></span></p></div>
 <div class="card"><strong id="technicalRepositoryTitle" data-i18n="technical.repository"></strong><p class="field"><span class="label" id="technicalRepositoryStateLabel" data-i18n="technical.repository_status"></span><span id="repositoryState"></span></p><p class="field"><span class="label" id="technicalWorkspaceStateLabel" data-i18n="technical.workspace_status"></span><span id="workspaceState"></span></p></div>
+<div class="card technical-git-lock" id="technicalGitLock"><strong data-i18n="technical.git_lock"></strong><p class="field"><span class="label" data-i18n="technical.git_lock_state"></span><span id="technicalGitLockState" data-i18n="format.loading"></span></p><p class="technical-git-lock__detail" id="technicalGitLockDetail" hidden></p><button class="queue-blocker__repair" id="technicalGitLockRecover" type="button" hidden data-i18n="technical.git_lock_recovery_action"></button><p class="technical-git-lock__status" id="technicalGitLockRecoveryStatus" role="status" aria-live="polite"></p></div>
 <div class="card"><strong id="technicalHostPreflightTitle" data-i18n="technical.host_preflight"></strong><p class="field"><span class="label" id="technicalExecutionHostLabel" data-i18n="technical.execution_host"></span><span id="executionHostName" data-i18n="format.unavailable"></span></p><p class="field"><span class="label" id="technicalExecutionHostVersionLabel" data-i18n="technical.execution_host_version"></span><span id="executionHostVersion" data-i18n="format.unavailable"></span></p><p class="field"><span class="label" id="technicalRuntimeLabel" data-i18n="technical.runtime"></span><span id="executionHostRuntime" data-i18n="format.unavailable"></span></p><p class="field"><span class="label" id="technicalRuntimePromptTransportLabel" data-i18n="technical.runtime_prompt_transport"></span><span id="executionHostTransport" data-i18n="format.unavailable"></span></p><p class="field"><span class="label" id="technicalHostStatusLabel" data-i18n="technical.host_status"></span><span id="hostPreflightStatus" data-i18n="format.unavailable"></span></p><p class="field"><span class="label" id="technicalLastCheckLabel" data-i18n="technical.last_check"></span><span id="hostPreflightTimestamp" data-i18n="format.unavailable"></span></p><p class="field"><span class="label" id="technicalWorkspacePreflightStatusLabel" data-i18n="technical.workspace_status"></span><span id="workspacePreflightStatus" data-i18n="format.unavailable"></span></p><p class="field"><span class="label" id="technicalLastWorkspaceCheckLabel" data-i18n="technical.last_workspace_check"></span><span id="workspacePreflightTimestamp" data-i18n="format.unavailable"></span></p><p class="field"><span class="label" id="technicalCapabilityStatusLabel" data-i18n="technical.capability_status"></span><span id="capabilityPreflightStatus" data-i18n="format.unavailable"></span></p><p class="field"><span class="label" id="technicalRecoverabilityLabel" data-i18n="technical.recoverability"></span><span id="capabilityRecoverability" data-i18n="format.unavailable"></span></p><p class="field"><span class="label" id="technicalFailureOriginLabel" data-i18n="technical.failure_origin"></span><span id="capabilityFailureOrigin" data-i18n="format.unavailable"></span></p><p class="field"><span class="label" id="technicalRecommendationLabel" data-i18n="technical.recommended_action"></span><span id="capabilityRecommendation" data-i18n="format.unavailable"></span></p></div>
 <div class="card" id="driftDiagnosticsCard" hidden><strong data-i18n="technical.current_drift"></strong><p class="field"><span class="label" data-i18n="technical.severity"></span><span id="driftSeverity"></span></p><p class="field"><span class="label" data-i18n="technical.affected_component"></span><span id="driftComponent"></span></p><p class="field"><span class="label" data-i18n="technical.expected_state"></span><span id="driftExpected"></span></p><p class="field"><span class="label" data-i18n="technical.observed_state"></span><span id="driftObserved"></span></p><p class="field"><span class="label" data-i18n="technical.resolution"></span><span id="driftResolution"></span></p></div>
 <div class="card"><strong id="technicalDiagnosticsTitle" data-i18n="technical.diagnostics"></strong><p id="diag"></p></div>
@@ -1309,6 +1359,22 @@ def handler(root: Path, logger: logging.Logger | None = None):
                 except (RuntimeError, ValueError):
                     self._send(
                         b'{"error":"De werkmap kon niet veilig naar main worden hersteld."}',
+                        "application/json; charset=utf-8",
+                        409,
+                    )
+                    return
+                self._send(json.dumps(outcome, ensure_ascii=False).encode(), "application/json; charset=utf-8", 202)
+                return
+            if request_path == "/api/stale-git-lock-recovery":
+                try:
+                    length = int(self.headers.get("Content-Length", "0"))
+                    if length != 2 or self.rfile.read(length) != b"{}":
+                        raise ValueError
+                    outcome = _recover_stale_workspace_git_lock(root)
+                    log_event(logger, logging.INFO, "stale_git_lock_recovered")
+                except (RuntimeError, ValueError):
+                    self._send(
+                        b'{"error":"De Git-vergrendeling is niet veilig herstelbaar."}',
                         "application/json; charset=utf-8",
                         409,
                     )

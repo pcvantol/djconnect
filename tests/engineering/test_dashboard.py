@@ -50,7 +50,8 @@ class DashboardStatusTest(unittest.TestCase):
         for key in (
             "detail.recommended_next_mission", "detail.recommendation_status", "detail.mission_origin",
             "detail.business_value", "detail.confidence", "detail.dependencies", "detail.alternatives",
-            "detail.decision_evidence", "detail.projection_incomplete",
+            "detail.decision_evidence", "detail.projection_incomplete", "technical.git_lock",
+            "technical.git_lock_recovery_action",
         ):
             self.assertEqual(catalog.count(f'"{key}"'), 5)
         self.assertNotIn("Retry Execution", (root / "tools/engineering/assets/dashboard.js").read_text(encoding="utf-8"))
@@ -144,6 +145,48 @@ class DashboardStatusTest(unittest.TestCase):
         ]
         with self.assertRaisesRegex(RuntimeError, "geen lokale wijzigingen"):
             dashboard._restore_managed_main_branch(root)
+
+    @patch("tools.engineering.dashboard.LocalProcessProvider")
+    @patch("tools.engineering.dashboard.shutil.which", return_value="/usr/sbin/lsof")
+    def test_workspace_git_lock_only_becomes_recoverable_when_lsof_proves_it_stale(
+        self, which: object, process_provider: object
+    ) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            lock = root / ".git" / "index.lock"
+            lock.parent.mkdir()
+            lock.write_text("", encoding="utf-8")
+            lock.touch()
+            process_provider.return_value.execute.return_value = __import__("subprocess").CompletedProcess(
+                ("lsof",), 1, "", ""
+            )
+            stale = dashboard._workspace_git_lock(
+                root, now=lock.stat().st_mtime + dashboard.GIT_INDEX_LOCK_STALE_SECONDS
+            )
+            self.assertEqual(stale["state"], "stale")
+            self.assertTrue(stale["stale"])
+
+            process_provider.return_value.execute.return_value = __import__("subprocess").CompletedProcess(
+                ("lsof",), 0, "1234\n", ""
+            )
+            active = dashboard._workspace_git_lock(
+                root, now=lock.stat().st_mtime + dashboard.GIT_INDEX_LOCK_STALE_SECONDS
+            )
+            self.assertEqual(active["state"], "active")
+            self.assertFalse(active["stale"])
+
+    @patch("tools.engineering.dashboard._workspace_git_lock", return_value={"state": "stale", "stale": True})
+    def test_stale_workspace_git_lock_recovery_removes_only_confirmed_lock(self, lock_state: object) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            lock = root / ".git" / "index.lock"
+            lock.parent.mkdir()
+            lock.write_text("", encoding="utf-8")
+            self.assertEqual(
+                dashboard._recover_stale_workspace_git_lock(root),
+                {"state": "free", "recovered": True},
+            )
+            self.assertFalse(lock.exists())
 
     def test_rate_limit_helpers_cover_generic_windows_and_unavailable_provider_version(self) -> None:
         self.assertEqual(dashboard._rate_limit_window_label(1_440), "1-daags venster")

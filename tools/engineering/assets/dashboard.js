@@ -492,6 +492,22 @@ function renderInboxBlocker(status) {
   repair.addEventListener("click", submitManagedBranchRecovery);
   blocker.append(message, repair);
 }
+function renderWorkspaceGitLock(lock) {
+  const state = $("technicalGitLockState"), detail = $("technicalGitLockDetail"),
+    recover = $("technicalGitLockRecover"), recoveryStatus = $("technicalGitLockRecoveryStatus"),
+    active = lock?.state === "active" || lock?.state === "stale",
+    stale = lock?.stale === true;
+  state.textContent = active ? t("technical.git_lock_active") : t("technical.git_lock_free");
+  detail.hidden = !active;
+  detail.textContent = active
+    ? t("technical.git_lock_waiting") + (Number.isFinite(lock?.age_seconds)
+      ? " " + t("technical.git_lock_since", { value: `${Math.max(1, Math.floor(lock.age_seconds / 60))} min` })
+      : "") + (stale ? " " + t("technical.git_lock_stale") : "")
+    : "";
+  recover.hidden = !stale;
+  recover.onclick = stale ? submitStaleGitLockRecovery : null;
+  if (!stale) recoveryStatus.textContent = "";
+}
 function promptStarted(x) {
   promptStartedAt = x?.started_at ? Date.parse(x.started_at) : undefined;
   $("promptStarted").textContent = promptStartedAt
@@ -901,6 +917,7 @@ function renderHealthStatus(x, snapshot = {}) {
   $("executionHostVersion").textContent = executionHost.version || t("format.not_available");
   $("executionHostRuntime").textContent = executionHost.runtime || t("format.not_available");
   $("executionHostTransport").textContent = executionHost.runtime_prompt_transport || t("format.not_available");
+  renderWorkspaceGitLock(snapshot.workspace_git_lock);
   // Older dashboard fixtures and cached shells do not have Level 3 fields.
   // Keep the canonical status renderer backward compatible while they refresh.
   renderPreflightPresentation(snapshot);
@@ -1088,20 +1105,20 @@ function localizeTechnicalDetails() {
     [["#technicalRepositoryTitle", "#technicalDetails .technical-grid > .card:nth-child(2) > strong"], "technical.repository"],
     [["#technicalRepositoryStateLabel", "#technicalDetails .technical-grid > .card:nth-child(2) .field:nth-of-type(1) .label"], "technical.repository_status"],
     [["#technicalWorkspaceStateLabel", "#technicalDetails .technical-grid > .card:nth-child(2) .field:nth-of-type(2) .label"], "technical.workspace_status"],
-    [["#technicalHostPreflightTitle", "#technicalDetails .technical-grid > .card:nth-child(3) > strong"], "technical.host_preflight"],
-    [["#technicalExecutionHostLabel", "#technicalDetails .technical-grid > .card:nth-child(3) .field:nth-of-type(1) .label"], "technical.execution_host"],
-    [["#technicalExecutionHostVersionLabel", "#technicalDetails .technical-grid > .card:nth-child(3) .field:nth-of-type(2) .label"], "technical.execution_host_version"],
-    [["#technicalRuntimeLabel", "#technicalDetails .technical-grid > .card:nth-child(3) .field:nth-of-type(3) .label"], "technical.runtime"],
-    [["#technicalRuntimePromptTransportLabel", "#technicalDetails .technical-grid > .card:nth-child(3) .field:nth-of-type(4) .label"], "technical.runtime_prompt_transport"],
-    [["#technicalHostStatusLabel", "#technicalDetails .technical-grid > .card:nth-child(3) .field:nth-of-type(5) .label"], "technical.host_status"],
-    [["#technicalLastCheckLabel", "#technicalDetails .technical-grid > .card:nth-child(3) .field:nth-of-type(6) .label"], "technical.last_check"],
-    [["#technicalWorkspacePreflightStatusLabel", "#technicalDetails .technical-grid > .card:nth-child(3) .field:nth-of-type(7) .label"], "technical.workspace_status"],
-    [["#technicalLastWorkspaceCheckLabel", "#technicalDetails .technical-grid > .card:nth-child(3) .field:nth-of-type(8) .label"], "technical.last_workspace_check"],
-    [["#technicalCapabilityStatusLabel", "#technicalDetails .technical-grid > .card:nth-child(3) .field:nth-of-type(9) .label"], "technical.capability_status"],
-    [["#technicalRecoverabilityLabel", "#technicalDetails .technical-grid > .card:nth-child(3) .field:nth-of-type(10) .label"], "technical.recoverability"],
-    [["#technicalFailureOriginLabel", "#technicalDetails .technical-grid > .card:nth-child(3) .field:nth-of-type(11) .label"], "technical.failure_origin"],
-    [["#technicalRecommendationLabel", "#technicalDetails .technical-grid > .card:nth-child(3) .field:nth-of-type(12) .label"], "technical.recommended_action"],
-    [["#technicalDiagnosticsTitle", "#technicalDetails .technical-grid > .card:nth-child(4) > strong"], "technical.diagnostics"],
+    [["#technicalHostPreflightTitle", "#technicalDetails .technical-grid > .card:nth-child(4) > strong"], "technical.host_preflight"],
+    [["#technicalExecutionHostLabel", "#technicalDetails .technical-grid > .card:nth-child(4) .field:nth-of-type(1) .label"], "technical.execution_host"],
+    [["#technicalExecutionHostVersionLabel", "#technicalDetails .technical-grid > .card:nth-child(4) .field:nth-of-type(2) .label"], "technical.execution_host_version"],
+    [["#technicalRuntimeLabel", "#technicalDetails .technical-grid > .card:nth-child(4) .field:nth-of-type(3) .label"], "technical.runtime"],
+    [["#technicalRuntimePromptTransportLabel", "#technicalDetails .technical-grid > .card:nth-child(4) .field:nth-of-type(4) .label"], "technical.runtime_prompt_transport"],
+    [["#technicalHostStatusLabel", "#technicalDetails .technical-grid > .card:nth-child(4) .field:nth-of-type(5) .label"], "technical.host_status"],
+    [["#technicalLastCheckLabel", "#technicalDetails .technical-grid > .card:nth-child(4) .field:nth-of-type(6) .label"], "technical.last_check"],
+    [["#technicalWorkspacePreflightStatusLabel", "#technicalDetails .technical-grid > .card:nth-child(4) .field:nth-of-type(7) .label"], "technical.workspace_status"],
+    [["#technicalLastWorkspaceCheckLabel", "#technicalDetails .technical-grid > .card:nth-child(4) .field:nth-of-type(8) .label"], "technical.last_workspace_check"],
+    [["#technicalCapabilityStatusLabel", "#technicalDetails .technical-grid > .card:nth-child(4) .field:nth-of-type(9) .label"], "technical.capability_status"],
+    [["#technicalRecoverabilityLabel", "#technicalDetails .technical-grid > .card:nth-child(4) .field:nth-of-type(10) .label"], "technical.recoverability"],
+    [["#technicalFailureOriginLabel", "#technicalDetails .technical-grid > .card:nth-child(4) .field:nth-of-type(11) .label"], "technical.failure_origin"],
+    [["#technicalRecommendationLabel", "#technicalDetails .technical-grid > .card:nth-child(4) .field:nth-of-type(12) .label"], "technical.recommended_action"],
+    [["#technicalDiagnosticsTitle", "#technicalDetails .technical-grid > .card:nth-child(5) > strong"], "technical.diagnostics"],
   ];
   labels.forEach(([selectors, key]) => {
     const element = selectors.map((selector) => document.querySelector(selector)).find(Boolean);
@@ -3661,6 +3678,32 @@ function submitManagedBranchRecovery() {
       .catch((error) => {
         if (button) button.disabled = false;
         blocker.textContent = error.message || t("queue.managed_branch_recovery_failed");
+      });
+  });
+}
+function submitStaleGitLockRecovery() {
+  confirmDashboardAction(
+    t("technical.git_lock_recovery_title"),
+    t("technical.git_lock_recovery"),
+    t("technical.git_lock_recovery_action"),
+  ).then((confirmed) => {
+    if (!confirmed) return;
+    const button = $("technicalGitLockRecover"), status = $("technicalGitLockRecoveryStatus");
+    button.disabled = true;
+    fetch("/api/stale-git-lock-recovery", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: "{}",
+    })
+      .then(async (response) => ({ ok: response.ok, body: await response.json() }))
+      .then((result) => {
+        if (!result.ok) throw Error(result.body.error || t("technical.git_lock_recovery_failed"));
+        renderWorkspaceGitLock({ state: "free", active: false, stale: false });
+        status.textContent = t("technical.git_lock_recovery_ready");
+      })
+      .catch((error) => {
+        status.textContent = error.message || t("technical.git_lock_recovery_failed");
+        button.disabled = false;
       });
   });
 }

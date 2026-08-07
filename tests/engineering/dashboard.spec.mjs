@@ -3102,6 +3102,37 @@ test.describe("Engineering Status browser smoke", () => {
     expect(repairRequested).toBeTruthy();
   });
 
+  test("shows and safely recovers a confirmed stale Git workspace lock", async ({ page }) => {
+    await page.route("**/api/events", (route) => route.abort());
+    let recoveryRequested = false;
+    await page.route("**/api/stale-git-lock-recovery", async (route) => {
+      recoveryRequested = true;
+      expect(route.request().postData()).toBe("{}");
+      await route.fulfill({ json: { state: "free", recovered: true }, status: 202 });
+    });
+    await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({
+      json: { status: { watcher_state: "WATCHER_IDLE", queue_depth: 0 } },
+    }));
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#autoRefresh").uncheck();
+    await page.evaluate(() => r({ watcher_state: "WATCHER_IDLE", queue_depth: 0 }, {
+      workspace_git_lock: { state: "stale", stale: true, age_seconds: 360 },
+    }));
+
+    await page.locator("#technicalDetails > summary").click();
+    const lock = page.locator("#technicalGitLock");
+    await expect(lock).toContainText("Werkmapvergrendeling");
+    await expect(lock).toContainText("Actief");
+    await expect(lock).toContainText("Git voert een andere actie uit; nieuwe uitvoeringen wachten.");
+    await lock.getByRole("button", { name: "Herstel vergrendeling" }).click();
+    await expect(page.locator("#confirmationModal")).toBeVisible();
+    await expect(page.locator("#confirmationModalText")).toContainText("uitsluitend de verouderde Git-indexvergrendeling");
+    await page.locator("#confirmationModalConfirm").click();
+    await expect(lock).toContainText("Vrij");
+    await expect(lock).toContainText("De verouderde Git-vergrendeling is verwijderd.");
+    expect(recoveryRequested).toBeTruthy();
+  });
+
   test("renders provider limit rows on separate lines", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.locator("#autoRefresh").uncheck();
