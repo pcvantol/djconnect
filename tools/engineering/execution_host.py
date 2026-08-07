@@ -61,7 +61,7 @@ from .drift_diagnostics import summary as drift_summary
 from .execution_lease import Lease, LeaseConflictError, LeaseHeartbeat, acquire as acquire_lease, heartbeat as heartbeat_lease, history as lease_history, host_identity, host_instance_id, reconcile_stale, release as release_lease
 from .execution_readiness import ReadinessFacts, decide as decide_readiness, evaluate as evaluate_readiness, selected_profile
 from .execution_transaction import ExecutionTransaction
-from .storage import record_readiness_evaluation
+from .storage import load_readiness_evaluation, record_readiness_evaluation
 
 
 class RunnerError(RuntimeError):
@@ -202,6 +202,7 @@ class TerminalEvidenceBundle:
     files_removed: tuple[str, ...]
     diff_check: str
     lease: dict[str, object]
+    readiness: dict[str, object] | None
 
 
 REPORT_REQUIREMENT_EXCLUDED_HEADINGS = frozenset({"context", "canonical principle"})
@@ -1649,6 +1650,7 @@ def collect_terminal_evidence(root: Path, state: TransactionState) -> TerminalEv
         files_removed=tuple(removed),
         diff_check=diff_check,
         lease=lease_history(root, state.run_id),
+        readiness=load_readiness_evaluation(root, state.run_id),
     )
 
 
@@ -2279,6 +2281,10 @@ def generate_terminal_report(
             f"- Lease Host: `{bundle.lease.get('host_identity', 'unavailable')}`",
             f"- Lease Instance: `{bundle.lease.get('host_instance_id', 'unavailable')}`",
             f"- Lease State: `{bundle.lease.get('lease_state', 'unavailable')}`",
+            f"- Readiness Profile: `{(bundle.readiness or {}).get('profile_id', 'unavailable')}`",
+            f"- Readiness Profile Version: `{(bundle.readiness or {}).get('profile_version', 'unavailable')}`",
+            f"- Readiness Decision: `{(bundle.readiness or {}).get('result', 'unavailable')}`",
+            f"- Readiness Failed Requirements: `{', '.join((bundle.readiness or {}).get('failed_requirements', [])) or 'none'}`",
             f"- Bootstrap Contract: `{manifest.bootstrap_contract}`",
             f"- Checkpoint Format: `{manifest.checkpoint_format}`",
             "",
