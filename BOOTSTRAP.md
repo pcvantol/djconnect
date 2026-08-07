@@ -10,6 +10,11 @@ git switch main
 git pull --ff-only
 ```
 
+When a Managed transaction is executed through the Engineering Execution Host,
+the host performs these commands under the run lease before it invokes the
+agent. The invoked agent must not repeat them; it verifies the synchronized
+repository state read-only before creating its transaction branch.
+
 `REPOSITORY_SYNCHRONIZATION.md` defines the canonical verification contract.
 
 Immediately verify the checked-out branch, `HEAD`, upstream tracking branch,
