@@ -59,6 +59,7 @@ from .workspace_preflight import latest as latest_workspace_preflight
 from .capability_preflight import latest as latest_capability_preflight
 from .drift_diagnostics import summary as drift_summary
 from .execution_lease import Lease, LeaseConflictError, LeaseHeartbeat, acquire as acquire_lease, heartbeat as heartbeat_lease, host_identity, host_instance_id, reconcile_stale, release as release_lease
+from .execution_readiness import ReadinessProfile, evaluate as evaluate_readiness, selected_profile
 
 
 class RunnerError(RuntimeError):
@@ -917,13 +918,19 @@ class EngineeringRunner:
                 execution_mode=context.execution_mode,
             )
         context = replace(context, run_id=state.run_id)
+        readiness = evaluate_readiness(
+            selected_profile(context.execution_mode),
+            host_root=self.root,
+            target_root=context.target_repository,
+            managed_clean=lambda candidate: self.repository.inspect(candidate).clean,
+            genesis_preflight=genesis_workspace_preflight,
+        )
+        if not readiness.ready:
+            if context.execution_mode == "GENESIS":
+                return self._save_terminal(state, "BLOCKED", "genesis_workspace_preflight", readiness.diagnostic)
+            raise RunnerError(readiness.diagnostic or "Execution readiness failed")
         if context.execution_mode == "GENESIS":
             state = replace(state, genesis_repository_path=str(context.target_repository))
-            preflight = genesis_workspace_preflight(context.target_repository)
-            if preflight:
-                return self._save_terminal(
-                    state, "BLOCKED", "genesis_workspace_preflight", preflight
-                )
             authorization_blocker = target_repository_authorization(self.root, context.target_repository)
             if authorization_blocker:
                 return self._save_terminal(
@@ -940,8 +947,6 @@ class EngineeringRunner:
                     "genesis_workspace_conflict",
                     f"Genesis preflight blocked: target workspace is owned by active run {owner}.",
                 )
-        elif not evidence.clean:
-            raise RunnerError("working tree is not clean; unrelated work will not be touched")
         if not self.agent.available():
             raise RunnerError("Codex CLI is not installed or invokable")
         self._verify_engineering_platform()
