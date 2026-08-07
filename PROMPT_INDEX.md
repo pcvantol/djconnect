@@ -2,6 +2,18 @@
 
 Status: canonical prompt navigation
 
+## PR #780 finalization reviewable
+
+PR [#780](https://github.com/pcvantol/djconnect/pull/780), **Make Execution
+datastore canonical**, merged as `f2342ec1`. It makes SQLite the canonical
+Engineering Platform store for operational state, producer submissions,
+artifact metadata and migration provenance; JSON/Markdown are compatibility
+projections. Its immutable Prompt History record is
+`docs/history/prompts/2026-08-07-canonical-execution-host-datastore.md`.
+Forge, queue admission, execution, runtime, scheduling and lifecycle behavior
+are unchanged. Repository State: `MERGED_UNRECONCILED`; governance-only
+Finalization is reviewable.
+
 ## PR #769 finalization reviewable
 
 PR [#769](https://github.com/pcvantol/djconnect/pull/769), **Show workspace
