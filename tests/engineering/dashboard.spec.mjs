@@ -2845,8 +2845,9 @@ test.describe("Engineering Status browser smoke", () => {
       route.fulfill({ contentType: "application/x-ndjson", body: "" }),
     );
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
-    await page.locator("#loadComponentLogs").click();
-    await expect(page.locator("#componentLogControls")).toBeVisible();
+    const loadComponentLogs = page.locator("#loadComponentLogs");
+    if (await loadComponentLogs.count()) await loadComponentLogs.click();
+    await page.waitForFunction(() => componentLogsLoaded === true);
     await page.locator("#componentLogs").evaluate((element) => { element.open = true; });
     await page.evaluate(() => {
       componentLogEntries.inbox = structuredLogEntries(
