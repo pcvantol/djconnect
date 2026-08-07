@@ -2838,6 +2838,9 @@ test.describe("Engineering Status browser smoke", () => {
   });
 
   test("formats displayed log timestamps as dd-MM-yyyy HH:mm:ss", async ({ page }) => {
+    await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({
+      json: { status: { watcher_state: "WATCHER_IDLE" }, component_log_versions: {} },
+    }));
     await page.route("**/api/logs/**", (route) =>
       route.fulfill({ contentType: "application/x-ndjson", body: "" }),
     );
