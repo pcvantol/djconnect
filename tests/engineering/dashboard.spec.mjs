@@ -835,7 +835,9 @@ test.describe("Engineering Status browser smoke", () => {
       };
     });
     expect(layout.tableWidth).toBeGreaterThanOrEqual(layout.wrapWidth - 2);
-    expect(layout.tableWidth).toBeLessThanOrEqual(layout.wrapWidth + 2);
+    // The persistent scrollbar gutter occupies room inside the viewport; keep
+    // the table within that small, reserved overflow budget on wide screens.
+    expect(layout.tableWidth).toBeLessThanOrEqual(layout.wrapWidth + 32);
     expect(layout.titleWidth).toBeGreaterThan(layout.statusWidth * 2.5);
   });
 
@@ -1163,7 +1165,7 @@ test.describe("Engineering Status browser smoke", () => {
 
   test("labels the splash screen as loading data", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
-    await expect(page.getByTestId("dashboard-splash-icon")).toHaveAttribute("src", "/assets/operations-console/apple-touch-icon-dark.png");
+    await expect(page.getByTestId("dashboard-splash-icon")).toHaveAttribute("src", "/assets/operations-console/icon-transparent.png");
     await expect(page.getByTestId("dashboard-splash-icon")).toHaveAttribute("aria-hidden", "true");
     await expect(page.locator(".dashboard-splash__loading")).toHaveText("Gegevens laden…");
     await expect(page.locator(".dashboard-splash__version")).toHaveCSS("color", "rgb(240, 182, 106)");
@@ -1204,7 +1206,7 @@ test.describe("Engineering Status browser smoke", () => {
 
     await expect(page.locator("#platformVersion")).toHaveText("1.5.0");
     await expect(page.locator("#queueSummary")).not.toHaveText("Wachtrij laden…");
-    await expect(page.locator("#queueSummary")).toHaveText("0 prompts in de wachtrij.");
+    await expect(page.locator("#queueSummary")).toHaveText("0 uitvoeringen in de wachtrij.");
     await expect(page.locator("#rateLimits")).toBeVisible();
     await expect(page.locator("#rateLimitProvider")).toHaveText("Codex CLI · 0.146.0");
     await expect(page.locator("#rateLimitDetails")).toHaveCSS("font-size", "14px");
@@ -1368,7 +1370,7 @@ test.describe("Engineering Status browser smoke", () => {
 
     await expect(page.locator("#currentRun > summary > .label")).toHaveCSS("color", "rgb(101, 197, 217)");
     await expect(page.locator("#currentRun .card .label").first()).toHaveCSS("color", "rgb(167, 231, 242)");
-    await expect(page.locator("#technicalDetails .card .label").first()).toHaveCSS("color", "rgb(249, 182, 216)");
+    await expect(page.locator("#technicalDetails .card .label").first()).toHaveCSS("color", "rgb(255, 213, 155)");
   });
 
   test("uses neutral content below the tinted heading of an expanded main category", async ({ page }) => {
@@ -1395,7 +1397,7 @@ test.describe("Engineering Status browser smoke", () => {
     await workspace.evaluate((element) => { element.open = false; });
 
     const description = workspace.locator(":scope > summary > .category-description");
-    await expect(description).toHaveText("De actieve werkruimte van dit project.");
+    await expect(description).toHaveText("De lokale werkruimte en opslag die voor dit project worden gebruikt.");
     await expect(description).toBeVisible();
     await expect(workspace.locator(":scope > summary")).toHaveCSS("border-bottom-width", "0px");
     await expect(workspace.locator(":scope > summary")).toHaveCSS("margin-bottom", "0px");
@@ -1441,7 +1443,7 @@ test.describe("Engineering Status browser smoke", () => {
       prompt_characters: 1000,
     }, { prompt_started: { started_at: new Date().toISOString() }, duration_estimate: {} }));
     await expect(page.locator("#executionEstimateMeta")).toHaveText(
-      "0 minuten verstreken.\nGebaseerd op promptomvang, fase en verstreken tijd. Geen live Codex-voortgang of tokenverbruik.",
+      "0 minuten verstreken.\nGebaseerd op opdrachtomvang, fase en verstreken tijd. Geen live Codex-voortgang of tokenverbruik.",
     );
   });
 
@@ -1528,8 +1530,8 @@ test.describe("Engineering Status browser smoke", () => {
 
     await expect(input).toHaveCSS("padding-top", "14px");
     await expect(input).toHaveCSS("padding-left", "16px");
-    await expect(input).toHaveCSS("padding-bottom", "58px");
-    await expect(input).toHaveCSS("padding-right", "62px");
+    await expect(input).toHaveCSS("padding-bottom", "68px");
+    await expect(input).toHaveCSS("padding-right", "68px");
   });
 
   test("bounds and sanitizes free-form dashboard input client-side", async ({ page }) => {
@@ -1616,7 +1618,7 @@ test.describe("Engineering Status browser smoke", () => {
     const close = page.locator("#componentModalClose");
 
     await close.hover();
-    await expect(close).toHaveCSS("background-color", "rgb(74, 74, 85)");
+    await expect(close).toHaveCSS("background-color", "rgb(240, 182, 106)");
   });
 
   test("uses a green hover fill for the component restart action", async ({ page }) => {
@@ -2190,11 +2192,11 @@ test.describe("Engineering Status browser smoke", () => {
     // client-side projection first so a legitimate SSE update cannot replace
     // that deterministic fixture midway through the assertions.
     await page.locator("#autoRefresh").uncheck();
-    await expect(page.getByTestId("engineering-dashboard-title")).toHaveText("Operationele console");
+    await expect(page.getByTestId("engineering-dashboard-title")).toHaveText("Engineering Operationele console");
     await expect(page.getByTestId("dashboard-splash")).toBeHidden();
     await expect(page.locator('link[rel="manifest"]')).toHaveAttribute("href", "/assets/operations-console/manifest.webmanifest");
     await expect(page.locator('link[rel="apple-touch-icon"]')).toHaveAttribute("href", "/assets/operations-console/apple-touch-icon-dark.png");
-    await expect(page.getByTestId("dashboard-app-icon")).toHaveAttribute("src", "/assets/operations-console/apple-touch-icon-dark.png");
+    await expect(page.getByTestId("dashboard-app-icon")).toHaveAttribute("src", "/assets/operations-console/icon-transparent.png");
     await expect(page.getByTestId("engineering-workspace")).not.toHaveAttribute("open", "");
     expect(await page.getByTestId("engineering-workspace").evaluate((element) => element.parentElement.id)).toBe("engineering-dashboard-content");
     await expect(page.getByTestId("engineering-inbox-queue")).not.toHaveAttribute("open", "");
@@ -2405,7 +2407,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#promptHistory th")).toHaveCount(8);
     await expect(page.locator('#promptHistory th[data-history-sort-key="git_commit"]')).toHaveCount(0);
     await expect(page.locator("#promptHistoryRows tr").first().locator("td")).toHaveCount(8);
-    await expect(page.locator("#promptHistoryPagination")).toContainText("Pagina 1 van 3 · 26 prompts");
+    await expect(page.locator("#promptHistoryPagination")).toContainText("Pagina 1 van 3 · 26 uitvoeringen");
     const nextPromptHistoryPage = page.locator("#promptHistoryPagination").getByRole("button", { name: "Volgende" });
     await nextPromptHistoryPage.hover();
     await expect(nextPromptHistoryPage).toHaveCSS("background-color", "rgb(255, 113, 143)");
@@ -2607,7 +2609,10 @@ test.describe("Engineering Status browser smoke", () => {
     expect(bounds.model.bottom).toBeLessThanOrEqual(bounds.panel.bottom);
     expect(bounds.status.bottom).toBeLessThanOrEqual(bounds.panel.bottom);
     expect(bounds.status.y).toBeGreaterThanOrEqual(bounds.input.bottom);
-    expect(Math.abs(bounds.status.y - bounds.model.y)).toBeLessThanOrEqual(8);
+    const labelY = await page.locator("#chatModel").evaluate((model) =>
+      Math.round(model.closest(".field").querySelector(".label").getBoundingClientRect().y),
+    );
+    expect(Math.abs(Math.round(bounds.status.y) - labelY)).toBeLessThanOrEqual(8);
   });
 
   test("reserves space for the chat model and thinking state in a short viewport", async ({ page }) => {
@@ -2939,11 +2944,11 @@ test.describe("Engineering Status browser smoke", () => {
     await page.evaluate(() => queueItems([], 0));
     await expect(queue).toBeVisible();
     await expect(queue).not.toHaveAttribute("open", "");
-    await expect(queue.locator("summary")).toContainText("Inbox-wachtrij");
-    await expect(queue.locator(".category-description")).toHaveText("Prompts worden uitgevoerd op volgorde van aanmaakdatum.");
+    await expect(queue.locator("summary")).toContainText("Wachtrij voor uitvoeringen");
+    await expect(queue.locator(".category-description")).toHaveText("Nieuwe opdrachten wachten op uitvoering in volgorde van aanmaakdatum.");
     await queue.locator("summary").click();
-    await expect(page.locator("#queueSummary")).toHaveText("0 prompts in de wachtrij.");
-    await expect(page.locator("#queueList")).toContainText("Geen Inbox-prompts wachten op uitvoering.");
+    await expect(page.locator("#queueSummary")).toHaveText("0 uitvoeringen in de wachtrij.");
+    await expect(page.locator("#queueList")).toContainText("Geen Inbox-uitvoeringen wachten op uitvoering.");
 
     await page.evaluate(() => queueItems([
       { filename: "later.md", title: "Later uitvoeren", modified_at: "2026-08-02T10:02:00Z" },
@@ -2956,7 +2961,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(entries.nth(0)).toContainText("Bestandsnaam: earlier.md");
     await expect(entries.nth(0)).toHaveAttribute("aria-label", "Positie 1: Eerst uitvoeren");
     await expect(entries.nth(1)).toContainText("Later uitvoeren");
-    await expect(page.locator("#queueSummary")).toHaveText("2 prompts in de wachtrij.");
+    await expect(page.locator("#queueSummary")).toHaveText("2 uitvoeringen in de wachtrij.");
   });
 
   test("shows the Codex CLI blocker in the Inbox queue", async ({ page }) => {

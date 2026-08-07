@@ -541,7 +541,7 @@ html[data-theme="light"] .prompt-chat-modal{--prompt-chat-answer-surface:#f3ebff
 .dashboard-titlebar .section-state-toggle::before{background:#d7e9f4}
 .dashboard-titlebar .section-state-toggle::after{background:var(--operations-console-blue)}
 .dashboard-titlebar .section-state-toggle[aria-checked="true"]::before{background:var(--house-style)}
-.dashboard-titlebar .section-state-toggle:focus-visible{outline-color:#fff}
+.dashboard-titlebar .section-state-toggle:focus-visible{outline-color:var(--house-style)}
 
 /* Enabled switches share the Operations Console palette: house-style orange
    track with a blue thumb, regardless of the selected page theme. */

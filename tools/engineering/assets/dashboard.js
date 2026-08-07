@@ -434,7 +434,7 @@ function queueItems(x, queueDepth) {
       ? t("queue.summary_zero")
       : t("queue.summary", {
         count: depth,
-        prompt: locale.plural(depth, "queue.prompt", "queue.prompts"),
+        item: locale.plural(depth, "queue.prompt", "queue.prompts"),
         shown: depth > items.length ? t("queue.shown", { count: items.length }) : "",
       });
   container.replaceChildren();
