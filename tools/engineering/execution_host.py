@@ -61,6 +61,7 @@ from .drift_diagnostics import summary as drift_summary
 from .execution_lease import Lease, LeaseConflictError, LeaseHeartbeat, acquire as acquire_lease, heartbeat as heartbeat_lease, history as lease_history, host_identity, host_instance_id, reconcile_stale, release as release_lease
 from .execution_readiness import ReadinessFacts, decide as decide_readiness, evaluate as evaluate_readiness, selected_profile
 from .execution_transaction import ExecutionTransaction
+from .execution_evidence import TerminalEvidenceBundle
 from .storage import load_readiness_evaluation, record_readiness_evaluation
 
 
@@ -185,24 +186,6 @@ class ExecutionContext:
     lifecycle_policy: str
     selected_preflight: str
     run_id: str | None = None
-
-
-@dataclass(frozen=True)
-class TerminalEvidenceBundle:
-    """Read-only repository evidence rendered into a terminal report."""
-
-    target_workspace: str
-    target_repository: str
-    target_branch: str
-    target_commit: str
-    worktree_state: str
-    changed_files: tuple[str, ...]
-    files_added: tuple[str, ...]
-    files_modified: tuple[str, ...]
-    files_removed: tuple[str, ...]
-    diff_check: str
-    lease: dict[str, object]
-    readiness: dict[str, object] | None
 
 
 REPORT_REQUIREMENT_EXCLUDED_HEADINGS = frozenset({"context", "canonical principle"})
