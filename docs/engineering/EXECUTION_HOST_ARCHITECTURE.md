@@ -7,6 +7,8 @@ evidence. It does not own platform process execution or dashboard projection.
 - `execution_transaction.py` owns transaction-scoped identity and lease context.
 - `execution_repository.py` owns repository and GitHub coordination through the
   canonical Git and GitHub providers.
+- `execution_finalization.py` owns bounded repository-cleanup sequencing.
+- `execution_reporting.py` owns terminal-report validation and delivery.
 - `execution_models.py` and `execution_evidence.py` own shared execution and
   terminal-evidence value types.
 - `execution_lease.py` owns SQLite-backed active-run ownership and liveness.

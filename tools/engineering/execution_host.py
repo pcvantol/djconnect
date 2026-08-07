@@ -80,6 +80,7 @@ from .execution_executor import project_codex_activity as executor_project_codex
 from .execution_executor import redacted_cli_tail as executor_redacted_cli_tail
 from .execution_executor import write_redacted_codex_cli_log as executor_write_redacted_codex_cli_log
 from .execution_finalization import FinalizationCoordinator
+from .execution_reporting import ReportingCoordinator
 from .storage import load_readiness_evaluation, record_readiness_evaluation
 
 RETRY_REPORT_HEADERS = {
@@ -2206,9 +2207,9 @@ def generate_terminal_report(
             "",
         )
     )
-    consistency_errors = report_consistency_errors(body, state, bundle, objective)
-    if not terminal_report_matches_state(body, state) or consistency_errors:
-        details = "; ".join(consistency_errors) or "terminal state validation failed"
-        raise RunnerError(f"Engineering Report consistency validation failed: {details}")
-    path.write_text(body, encoding="utf-8")
-    return path
+    return ReportingCoordinator().deliver(
+        path=path,
+        body=body,
+        validate=lambda value: report_consistency_errors(value, state, bundle, objective),
+        terminal_matches=lambda value: terminal_report_matches_state(value, state),
+    )
