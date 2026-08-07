@@ -64,20 +64,10 @@ from .execution_transaction import ExecutionTransaction
 from .execution_evidence import TerminalEvidenceBundle
 from .execution_context import ExecutionContext
 from .execution_models import AgentResult, PullRequestEvidence, RepositoryEvidence
+from .execution_errors import CodexInvocationError, RunnerError
+from .execution_repository import GitHubClient as ProviderGitHubClient, RepositoryClient as ProviderRepositoryClient
+from .execution_repository import GhCliClient as ProviderGhCliClient, SubprocessRepositoryClient as ProviderRepositoryClientImpl
 from .storage import load_readiness_evaluation, record_readiness_evaluation
-
-
-class RunnerError(RuntimeError):
-    """A fail-closed engineering-runner diagnostic."""
-
-
-class CodexInvocationError(RunnerError):
-    """Separates transient console detail from safe checkpoint diagnostic state."""
-
-    def __init__(self, persistent_diagnostic: str, console_detail: str) -> None:
-        super().__init__(persistent_diagnostic)
-        self.console_detail = console_detail
-
 
 RETRY_REPORT_HEADERS = {
     "retry_of": re.compile(r"(?mi)^retry[ _-]of\s*:\s*(inbox-[a-z0-9-]{6,64})\s*$"),
@@ -669,6 +659,14 @@ class CodexCliClient:
         finally:
             if self._process_callback is not None:
                 self._process_callback(None)
+
+
+# Compatibility exports remain at this façade while default composition now
+# obtains repository and GitHub coordination from its dedicated module.
+RepositoryClient = ProviderRepositoryClient
+GitHubClient = ProviderGitHubClient
+SubprocessRepositoryClient = ProviderRepositoryClientImpl
+GhCliClient = ProviderGhCliClient
 
 
 def _redacted_cli_tail(value: str, prompt: str, *, limit: int = 1_200) -> str:
