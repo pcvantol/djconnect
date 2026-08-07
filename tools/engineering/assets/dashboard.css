@@ -545,6 +545,9 @@ html[data-theme="light"] #pullRefresh{background:var(--house-style-surface);bord
 /* Report modal: a fixed header with one scrolling document surface. */
 .report-view-modal__panel{--report-modal-surface:var(--dashboard-modal-surface)}
 html[data-theme="light"] .report-view-modal__panel{--report-modal-surface:var(--dashboard-modal-document-surface)}
+/* The document belongs to its modal surface; padding must not read as a second panel. */
+.report-view-modal__content,.report-view-modal :is(#reportContent,#reportAnalysisContent){background:var(--report-modal-surface);box-shadow:none}
+html[data-theme="light"] .report-view-modal__content,html[data-theme="light"] .report-view-modal :is(#reportContent,#reportAnalysisContent){background:var(--report-modal-surface);box-shadow:none}
 
 /* Historical execution detail: evidence cards share the report surface. */
 .prompt-detail-modal__panel{--prompt-detail-surface:var(--dashboard-modal-surface);padding:var(--dashboard-modal-panel-padding)}

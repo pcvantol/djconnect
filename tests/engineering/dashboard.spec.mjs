@@ -1996,6 +1996,10 @@ test.describe("Engineering Status browser smoke", () => {
     for (const selector of ["#promptHistoryReportContent", "#promptHistoryReportCopy", "#promptHistoryReportDownload"]) {
       expect(await page.locator(selector).evaluate((element) => getComputedStyle(element).backgroundColor)).not.toBe("rgb(24, 24, 31)");
     }
+    await expect(page.locator("#promptHistoryReportContent")).toHaveCSS(
+      "background-color",
+      await page.locator(".report-view-modal__panel").evaluate((element) => getComputedStyle(element).backgroundColor),
+    );
     await expect(page.locator("#promptHistoryReportDownload")).toHaveText("⇩");
     expect(await page.locator("#promptHistoryReportDownload").evaluate((element) => getComputedStyle(element, "::before").content)).toContain("↓");
   });
