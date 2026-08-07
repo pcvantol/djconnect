@@ -294,8 +294,10 @@ html[data-theme="light"] .report-view-modal__content :is(pre,code){background:#e
 /* The splash spinner belongs to the generic Engineering Platform house style. */
 .dashboard-splash__spinner{border-color:#5a4325;border-top-color:#f0b66a}
 
-/* Active execution uses the same orange house-style spinner as loading states. */
-.indicator--running{border-color:var(--house-style);border-right-color:transparent;box-shadow:0 0 8px var(--house-style-focus)}
+/* Active execution uses the compact GitHub-style activity ring: a rotating
+   orange leading arc over a quiet bronze track, with its centre kept clear. */
+.indicator--running{animation:github-activity-ring .82s linear infinite;background:conic-gradient(from -38deg,var(--house-style) 0deg 92deg,#8c723c 92deg 332deg,var(--house-style) 332deg 360deg);border:0;box-shadow:0 0 8px var(--house-style-focus);-webkit-mask:radial-gradient(farthest-side,#0000 calc(100% - 3px),#000 calc(100% - 2px));mask:radial-gradient(farthest-side,#0000 calc(100% - 3px),#000 calc(100% - 2px))}
+@keyframes github-activity-ring{to{transform:rotate(360deg)}}
 
 /* A sending chat action remains visibly in the conversation category while disabled. */
 .chat-compose .chat-send:disabled:hover{background:#d0a4ff!important;border-color:#d0a4ff!important;color:#17151a!important}
