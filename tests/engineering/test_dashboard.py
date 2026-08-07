@@ -1420,6 +1420,43 @@ class DashboardStatusTest(unittest.TestCase):
                 preflight_retry.assert_called_once_with(root)
                 submit_retry.assert_called_once_with(root, root)
                 retry_log_event.assert_any_call(ANY, logging.INFO, "predecessor_retry_submission_triggered", run_id="inbox-blocked", diagnostic="retry_run_id=inbox-retry")
+            with (
+                patch(
+                    "tools.engineering.dashboard.predecessor_retry_admission_preflight",
+                    side_effect=dashboard.RetrySubmissionError("Preflight mislukt: werkmap is niet schrijfbaar."),
+                ),
+                patch("tools.engineering.dashboard.submit_predecessor_retry") as submit_retry,
+            ):
+                connection.request("POST", "/api/queue-recovery", body="{}", headers={"Content-Type": "application/json"})
+                response = connection.getresponse()
+                self.assertEqual(response.status, 409)
+                self.assertEqual(json.loads(response.read()), {"error": "Preflight mislukt: werkmap is niet schrijfbaar."})
+                submit_retry.assert_not_called()
+            connection.request("POST", "/api/predecessor-retry", body="[]", headers={"Content-Type": "application/json"})
+            response = connection.getresponse()
+            self.assertEqual(response.status, 409)
+            self.assertEqual(json.loads(response.read()), {"error": "De Inbox-watcher verwerkt momenteel een actie. Probeer het opnieuw."})
+            managed_recovery = {"previous_branch": "codex/work", "restored_branch": "main"}
+            with patch("tools.engineering.dashboard._restore_managed_main_branch", return_value=managed_recovery):
+                connection.request("POST", "/api/managed-branch-recovery", body="{}", headers={"Content-Type": "application/json"})
+                response = connection.getresponse()
+                self.assertEqual(response.status, 202)
+                self.assertEqual(json.loads(response.read()), managed_recovery)
+            with patch("tools.engineering.dashboard._restore_managed_main_branch", side_effect=RuntimeError("busy")):
+                connection.request("POST", "/api/managed-branch-recovery", body="{}", headers={"Content-Type": "application/json"})
+                response = connection.getresponse()
+                self.assertEqual(response.status, 409)
+                self.assertEqual(json.loads(response.read()), {"error": "De werkmap kon niet veilig naar main worden hersteld."})
+            with patch("tools.engineering.dashboard._recover_stale_workspace_git_lock", return_value={"recovered": True}):
+                connection.request("POST", "/api/stale-git-lock-recovery", body="{}", headers={"Content-Type": "application/json"})
+                response = connection.getresponse()
+                self.assertEqual(response.status, 202)
+                self.assertEqual(json.loads(response.read()), {"recovered": True})
+            with patch("tools.engineering.dashboard._recover_stale_workspace_git_lock", side_effect=RuntimeError("active")):
+                connection.request("POST", "/api/stale-git-lock-recovery", body="{}", headers={"Content-Type": "application/json"})
+                response = connection.getresponse()
+                self.assertEqual(response.status, 409)
+                self.assertEqual(json.loads(response.read()), {"error": "De Git-vergrendeling is niet veilig herstelbaar."})
             execution_retry_outcome = {"retry_of": "inbox-blocked", "original_run_id": "inbox-blocked", "retry_generation": 1, "retry_timestamp": "2026-08-03T12:00:00+00:00", "filename": "retry-inbox-blocked.md", "retry_run_id": "inbox-retry"}
             with (
                 patch("tools.engineering.dashboard.cloud_root", return_value=root),

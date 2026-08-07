@@ -13,9 +13,9 @@ import unittest
 from unittest.mock import patch
 
 from tools.engineering import inbox_watcher
-from tools.engineering.host_preflight import HostPreflightResult
+from tools.engineering.host_preflight import HostPreflightCheck, HostPreflightResult
 from tools.engineering.workspace_preflight import WorkspacePreflightCheck, WorkspacePreflightResult
-from tools.engineering.capability_preflight import CapabilityPreflightResult
+from tools.engineering.capability_preflight import CapabilityCheck, CapabilityPreflightResult
 from tools.engineering.storage import open_storage, store_projection
 from tools.engineering.telemetry import wait_for_pending_telemetry
 
@@ -724,6 +724,40 @@ class InboxWatcherTest(unittest.TestCase):
                 inbox_watcher.retry_admission_preflight(self.repo, run_id)
 
         self.assertFalse(list(self.inbox.iterdir()))
+
+    def test_retry_admission_preflight_reports_each_preflight_failure_and_keeps_inbox_empty(self) -> None:
+        original = "# Blocked prompt"
+        archived = self.repo / ".engineering" / "inbox" / "Failed" / "blocked__preflight.md"
+        archived.parent.mkdir(parents=True, exist_ok=True)
+        archived.write_text(original, encoding="utf-8")
+        _, run_id, _ = inbox_watcher._job_id(archived, original)
+        host_failure = HostPreflightResult(
+            "FAIL", "Engineering Platform", "1.5.0", "2026.12", "now", 1,
+            (HostPreflightCheck("git_metadata", "FAIL", "Git metadata is read-only.", "Restore write access."),),
+        )
+        capability_failure = CapabilityPreflightResult(
+            "FAIL", "now", 1,
+            (CapabilityCheck("provider", "FAIL", "Required provider is unavailable.", "Repair the provider."),),
+            "RETRYABLE_AFTER_HOST_REPAIR", "CAPABILITY", "Repair the provider.",
+        )
+        with patch("tools.engineering.inbox_watcher.execute_host_preflight", return_value=host_failure):
+            with self.assertRaisesRegex(inbox_watcher.RetrySubmissionError, "Git metadata is read-only"):
+                inbox_watcher.retry_admission_preflight(self.repo, run_id)
+        with patch("tools.engineering.inbox_watcher.execute_capability_preflight", return_value=capability_failure):
+            with self.assertRaisesRegex(inbox_watcher.RetrySubmissionError, "Required provider is unavailable"):
+                inbox_watcher.retry_admission_preflight(self.repo, run_id)
+        self.assertFalse(list(self.inbox.iterdir()))
+
+    def test_predecessor_retry_preflight_requires_a_blocker_and_returns_its_run_id(self) -> None:
+        with self.assertRaisesRegex(inbox_watcher.RetrySubmissionError, "geen geblokkeerde"):
+            inbox_watcher.predecessor_retry_admission_preflight(self.repo)
+        predecessor = {"run_id": "inbox-blocked"}
+        with (
+            patch("tools.engineering.inbox_watcher._blocking_predecessor", return_value=predecessor),
+            patch("tools.engineering.inbox_watcher.retry_admission_preflight") as preflight,
+        ):
+            self.assertEqual(inbox_watcher.predecessor_retry_admission_preflight(self.repo), "inbox-blocked")
+            preflight.assert_called_once_with(self.repo, "inbox-blocked")
 
     def test_execution_retry_supports_failed_and_refuses_non_retryable_or_duplicate_execution(self) -> None:
         original = "# Failed prompt"
