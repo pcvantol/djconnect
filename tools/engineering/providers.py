@@ -88,6 +88,17 @@ class CodexCliProvider(LocalProcessProvider):
             stderr=subprocess.DEVNULL, text=True, bufsize=1,
         )
 
+    def close_app_server(self, process: subprocess.Popen[str]) -> None:
+        process.terminate()
+        try:
+            process.wait(timeout=1)
+        except subprocess.TimeoutExpired:
+            process.kill()
+            process.wait(timeout=1)
+        for stream in (process.stdin, process.stdout):
+            if stream is not None:
+                stream.close()
+
     def invoke(self, root: Path, arguments: tuple[str, ...], *, timeout: float | None = None) -> subprocess.CompletedProcess[str]:
         """Execute a complete Codex command; callers never spawn its CLI directly."""
         if timeout is None:

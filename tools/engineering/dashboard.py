@@ -16,7 +16,7 @@ import shlex
 import shutil
 import sqlite3
 import socket
-import subprocess
+import subprocess  # Compatibility mock target; process execution is provider-owned.
 import sys
 from threading import Lock, Timer
 import time
@@ -377,9 +377,10 @@ def _codex_rate_limits() -> bytes:
         if _rate_limit_cache and now - _rate_limit_cache[0] < RATE_LIMIT_CACHE_SECONDS:
             return _rate_limit_cache[1]
     identity = _codex_provider_identity()
-    process: subprocess.Popen[str] | None = None
+    provider = CodexCliProvider()
+    process = None
     try:
-        process = CodexCliProvider().app_server()
+        process = provider.app_server()
         if process.stdin is None or process.stdout is None:
             return json.dumps(identity, separators=(",", ":")).encode()
         process.stdin.write(
@@ -427,15 +428,7 @@ def _codex_rate_limits() -> bytes:
         return json.dumps(identity, separators=(",", ":")).encode()
     finally:
         if process is not None:
-            process.terminate()
-            try:
-                process.wait(timeout=1)
-            except subprocess.TimeoutExpired:
-                process.kill()
-                process.wait(timeout=1)
-            for stream in (process.stdin, process.stdout):
-                if stream is not None:
-                    stream.close()
+            provider.close_app_server(process)
     return json.dumps(identity, separators=(",", ":")).encode()
 
 
@@ -446,9 +439,10 @@ class RateLimitResetError(RuntimeError):
 def _consume_codex_rate_limit_reset_credit() -> str:
     """Consume exactly one available Codex reset credit through its app-server API."""
     global _rate_limit_cache
-    process: subprocess.Popen[str] | None = None
+    provider = CodexCliProvider()
+    process = None
     try:
-        process = CodexCliProvider().app_server()
+        process = provider.app_server()
         if process.stdin is None or process.stdout is None:
             raise RateLimitResetError("Codex-reset is niet beschikbaar.")
         process.stdin.write(
@@ -504,15 +498,7 @@ def _consume_codex_rate_limit_reset_credit() -> str:
         raise RateLimitResetError("Codex-reset is niet beschikbaar.") from error
     finally:
         if process is not None:
-            process.terminate()
-            try:
-                process.wait(timeout=1)
-            except subprocess.TimeoutExpired:
-                process.kill()
-                process.wait(timeout=1)
-            for stream in (process.stdin, process.stdout):
-                if stream is not None:
-                    stream.close()
+            provider.close_app_server(process)
     raise RateLimitResetError("Codex-reset reageerde niet op tijd.")
 
 
