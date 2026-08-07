@@ -175,6 +175,13 @@ class DashboardStatusTest(unittest.TestCase):
             self.assertEqual(active["state"], "active")
             self.assertFalse(active["stale"])
 
+            which.return_value = None
+            unavailable = dashboard._workspace_git_lock(
+                root, now=lock.stat().st_mtime + dashboard.GIT_INDEX_LOCK_STALE_SECONDS * 2
+            )
+            self.assertEqual(unavailable["state"], "active")
+            self.assertFalse(unavailable["stale"])
+
     @patch("tools.engineering.dashboard._workspace_git_lock", return_value={"state": "stale", "stale": True})
     def test_stale_workspace_git_lock_recovery_removes_only_confirmed_lock(self, lock_state: object) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -779,6 +786,7 @@ class DashboardStatusTest(unittest.TestCase):
         )
         self.assertEqual(snapshot["component_versions"]["dashboard"], DASHBOARD_VERSION)
         self.assertEqual(snapshot["component_versions"]["worker"], WATCHER_VERSION)
+        self.assertEqual(snapshot["workspace_git_lock"], {"state": "free", "active": False, "stale": False})
 
     def test_latest_codex_log_is_local_and_read_only(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

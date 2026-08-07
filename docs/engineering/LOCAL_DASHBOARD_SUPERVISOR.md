@@ -258,6 +258,30 @@ status update. With automatic refresh disabled, the visible state remains
 static until the maintainer refreshes or re-enables it. These are presentation
 preferences; they never alter an Engineering run or its evidence.
 
+On iPhone, the theme, section-expansion and automatic-refresh switches are
+separate direct-touch controls. Each control has `touch-action: manipulation`
+and persists only its own browser-local setting. Playwright covers them with
+real touch input one at a time, checks the visible state after every touch,
+checks the persisted client state and verifies the same state after reload.
+This guards against a visual pressed state that does not actually change the
+Operations Console preference.
+
+## Git workspace lock status
+
+**Operationeel overzicht** exposes the Git index-lock state as a compact,
+read-only operational signal. **Vrij** means no `.git/index.lock` is present.
+**Actief** means a lock exists and new executions may be waiting while Git
+finishes another action. The card is intentionally not a general Git-process
+manager and never exposes process details or arbitrary repository commands.
+
+The optional recovery action appears only when the lock is demonstrably stale:
+it must be at least five minutes old and `lsof` must confirm that no process
+owns that exact lock file. If `lsof` is unavailable or cannot determine
+ownership, the dashboard fails closed: it reports the lock as active and does
+not offer recovery. The confirmation action removes only that stale
+`.git/index.lock`; it does not switch branches, restart a service, mutate an
+Inbox item or alter the queue.
+
 **Promptgeschiedenis** is the sole entry point for terminal execution detail.
 Selecting a table row opens a near-fullscreen, read-only detail dialog with
 the evidence, timing, runtime provenance, token usage, commits and reviewer
