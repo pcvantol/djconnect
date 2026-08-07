@@ -2354,6 +2354,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(content).toBeFocused();
     await expect(content).toHaveCSS("outline-style", "none");
     await expect(content).toHaveCSS("box-shadow", "none");
+    await expect(content).toHaveCSS("border-top-width", "0px");
   });
 
   test("keeps report-modal shell focusable without a visible selection ring", async ({ page }) => {

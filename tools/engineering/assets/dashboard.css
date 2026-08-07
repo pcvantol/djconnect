@@ -232,7 +232,7 @@ html[data-theme="light"] #rateLimitReset{background:#e8fff5;color:#145a42}
 .log-card-actions .download.download--glyph:hover{background:#f0b66a!important;border-color:#f0b66a!important;color:#201812!important}
 
 /* The skip-link target remains programmatically focusable without outlining every category. */
-#engineering-dashboard-content:focus,#engineering-dashboard-content:focus-visible{box-shadow:none;outline:none}
+#engineering-dashboard-content,#engineering-dashboard-content:focus,#engineering-dashboard-content:focus-visible{border:0!important;box-shadow:none!important;outline:0!important}
 
 /* Report and analysis both open blue evidence modals, not the pink history shell. */
 .prompt-history-report,.prompt-history-analysis{border-color:#8dc7ff;color:#8dc7ff}.prompt-history-report:hover,.prompt-history-analysis:hover{background:#8dc7ff!important;border-color:#8dc7ff!important;color:#172331!important}
