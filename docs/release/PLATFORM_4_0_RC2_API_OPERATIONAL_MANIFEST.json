@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "kind": "platform_release_operational_manifest",
+  "status": "APPROVED_DEPLOYMENT_DISPATCH_PENDING",
+  "manifest_id": "release-4.0.0-rc.2-api-20260806",
+  "platform_version": "4.0",
+  "release_version": "4.0.0-rc.2",
+  "release_profile": "INTERNAL_RELEASE",
+  "generated_at": "2026-08-06",
+  "approval": {
+    "state": "APPROVED",
+    "approved_at": "2026-08-06",
+    "approved_statement": "The maintainer explicitly authorized deployment of the DJConnect central API 4.0.0-rc.2 candidate to Cloudflare Workers production, using candidate e8b345eafb3b2c04b60d19ef30a85317be4fc200 and its immutable release artifact, followed by the matching public health smoke verification.",
+    "effect": "This approval authorizes only the API candidate and the cloudflare_workers_production target. It does not authorize a stable release, public product promotion, client-store submission, or deployment of any other Platform 4.0 component."
+  },
+  "repositories": [
+    {
+      "repository": "pcvantol/djconnect-api",
+      "source_sha": "e8b345eafb3b2c04b60d19ef30a85317be4fc200",
+      "version": "4.0.0-rc.2",
+      "artifact_run": "31116395844"
+    }
+  ],
+  "required_targets": [
+    {
+      "target": "cloudflare_workers_production",
+      "required": true
+    }
+  ],
+  "artifact_bindings": [
+    {
+      "owner": "pcvantol/djconnect-api",
+      "target": "cloudflare_workers_production",
+      "artifact_id": "8973718310",
+      "artifact_sha256": "36817e9364df05d44a6e4457a3487fd082fe687ebc687cfae57679c124a4ded1",
+      "artifact_url": "https://github.com/pcvantol/djconnect-api/actions/runs/31116395844"
+    }
+  ],
+  "constraints": [
+    "The candidate is an internal prerelease and must not be represented as a stable or public product release.",
+    "The Cloudflare Worker deployment and public health smoke remain separately dispatched and must use the exact artifact binding above.",
+    "The release is valid only after the matching post-deployment smoke confirms the public health version and release SHA."
+  ],
+  "next_authorized_action": "Dispatch the Cloudflare Workers production deployment, then its matching post-deployment smoke, for the exact binding above."
+}
