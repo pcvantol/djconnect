@@ -10,7 +10,7 @@ import tempfile
 import threading
 import time
 import unittest
-from unittest.mock import patch
+from unittest.mock import ANY, patch
 
 from tools.engineering import inbox_watcher
 from tools.engineering.host_preflight import HostPreflightCheck, HostPreflightResult
@@ -465,15 +465,42 @@ class InboxWatcherTest(unittest.TestCase):
     def test_failed_workspace_preflight_prevents_inbox_claim(self) -> None:
         prompt = self.inbox / "workspace-failure.md"
         prompt.write_text("# Workspace failure", encoding="utf-8")
-        failed = WorkspacePreflightResult("FAIL", "DJConnect", "repo", "main", "MANAGED", "now", 1, ())
+        failed = WorkspacePreflightResult(
+            "FAIL",
+            "DJConnect",
+            "repo",
+            "main",
+            "MANAGED",
+            "now",
+            1,
+            (
+                WorkspacePreflightCheck(
+                    "git_index_lock_transaction",
+                    "FAIL",
+                    "Git index lock already exists.",
+                    "Stop competing Git processes and restore write access to the repository index before retrying.",
+                ),
+            ),
+        )
         with patch("tools.engineering.inbox_watcher.execute_workspace_preflight", return_value=failed), patch(
             "tools.engineering.inbox_watcher.subprocess.run"
-        ) as run:
+        ) as run, patch("tools.engineering.inbox_watcher.log_event") as log_event:
             self.assertEqual(inbox_watcher.once(self.repo, self.root, 0), 1)
         self.assertTrue(prompt.exists())
         self.assertFalse(list(inbox_watcher.local_folders(self.repo)["Running"].iterdir()))
         run.assert_not_called()
         self.assertEqual(json_status(self.repo)["watcher_state"], "WORKSPACE_PREFLIGHT_FAILED")
+        log_event.assert_any_call(
+            ANY,
+            logging.ERROR,
+            "workspace_preflight_failed",
+            run_id=ANY,
+            diagnostic=(
+                "git_index_lock_transaction: Git index lock already exists. "
+                "Required action: Stop competing Git processes and restore write access "
+                "to the repository index before retrying."
+            ),
+        )
 
     def test_failed_capability_preflight_prevents_inbox_claim(self) -> None:
         prompt = self.inbox / "capability-failure.md"

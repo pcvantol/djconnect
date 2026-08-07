@@ -167,6 +167,20 @@ def _runner_failure_detail(completed: subprocess.CompletedProcess[str]) -> str:
     return redact_diagnostic(detail, limit=500)
 
 
+def _preflight_failure_detail(result: object) -> str:
+    """Return the actionable, redacted reasons from a failed admission check."""
+    failed: list[str] = []
+    for check in getattr(result, "checks", ()):
+        if getattr(check, "outcome", None) != "FAIL":
+            continue
+        identifier = str(getattr(check, "identifier", "preflight_check"))
+        reason = str(getattr(check, "reason", "Preflight check failed."))
+        recovery = str(getattr(check, "recovery", "Resolve the preflight issue before retrying."))
+        failed.append(f"{identifier}: {reason} Required action: {recovery}")
+    detail = " | ".join(failed) or "Preflight failed without a specific recorded reason."
+    return redact_diagnostic(detail, limit=500)
+
+
 def _telemetry_values(repo: Path, run_id: str) -> tuple[float | None, dict[str, int | None], str]:
     """Read only local, run-bound evidence for best-effort telemetry."""
     execution_seconds: float | None = None
@@ -1074,7 +1088,13 @@ def once(repo: Path, root: Path, interval: float = 1.0, *, background: bool = Fa
                 current_action="Execution Host preflight blokkeert het claimen van Inbox-werk.",
                 diagnostic=drift_summary(preflight.drift_evidence),
             )
-            log_event(logger, logging.ERROR, "host_preflight_failed", run_id=legacy_run_id)
+            log_event(
+                logger,
+                logging.ERROR,
+                "host_preflight_failed",
+                run_id=legacy_run_id,
+                diagnostic=_preflight_failure_detail(preflight),
+            )
             return 1
         workspace_preflight = execute_workspace_preflight(repo, content, run_id=None)
         if workspace_preflight.outcome == "FAIL":
@@ -1087,14 +1107,26 @@ def once(repo: Path, root: Path, interval: float = 1.0, *, background: bool = Fa
                 current_action="Workspace preflight blokkeert het claimen van Inbox-werk.",
                 diagnostic=drift_summary(workspace_preflight.drift_evidence),
             )
-            log_event(logger, logging.ERROR, "workspace_preflight_failed", run_id=legacy_run_id)
+            log_event(
+                logger,
+                logging.ERROR,
+                "workspace_preflight_failed",
+                run_id=legacy_run_id,
+                diagnostic=_preflight_failure_detail(workspace_preflight),
+            )
             return 1
         capability_preflight = execute_capability_preflight(repo, content, run_id=None)
         if capability_preflight.outcome == "FAIL":
             status(repo, "CAPABILITY_PREFLIGHT_FAILED", queued_jobs=len(candidates), queue_items=_queue_items(candidates), run_id=None,
                    current_action="Capability Preflight blokkeert het claimen van Inbox-werk.",
                    diagnostic=drift_summary(capability_preflight.drift_evidence))
-            log_event(logger, logging.ERROR, "capability_preflight_failed", run_id=legacy_run_id)
+            log_event(
+                logger,
+                logging.ERROR,
+                "capability_preflight_failed",
+                run_id=legacy_run_id,
+                diagnostic=_preflight_failure_detail(capability_preflight),
+            )
             return 1
         if _already_seen(areas, job_id):
             status(
