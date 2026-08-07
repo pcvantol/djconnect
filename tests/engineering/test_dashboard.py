@@ -34,6 +34,7 @@ class DashboardStatusTest(unittest.TestCase):
         ).decode("utf-8")
         self.assertIn('data-i18n="workspace.free_disk_space"', page)
         self.assertIn("12.3 GB", page)
+        self.assertIn("Engineering Platform 1.5.0", page)
 
     def test_dashboard_exposes_the_canonical_five_locale_catalog(self) -> None:
         root = Path(__file__).parents[2]
@@ -119,6 +120,30 @@ class DashboardStatusTest(unittest.TestCase):
             )
             with self.assertRaisesRegex(OSError, "De herstart is niet gelukt"):
                 dashboard._restart_component("dashboard")
+
+    @patch("tools.engineering.dashboard.LaunchdProvider")
+    @patch("tools.engineering.dashboard.GitProvider")
+    def test_managed_branch_recovery_requires_a_clean_workspace_and_restarts_watcher(
+        self, git_provider: object, launchd: object
+    ) -> None:
+        root = Path("/repository")
+        git_provider.return_value.execute.side_effect = [
+            __import__("subprocess").CompletedProcess(("git",), 0, "", ""),
+            __import__("subprocess").CompletedProcess(("git",), 0, "codex/ui-polish\n", ""),
+        ]
+        self.assertEqual(
+            dashboard._restore_managed_main_branch(root),
+            {"previous_branch": "codex/ui-polish", "branch": "main", "watcher": "restarted"},
+        )
+        git_provider.return_value.command.assert_called_once_with(root, "git", "switch", "main")
+        launchd.return_value.restart.assert_called_once_with(dashboard.WATCHER_LABEL)
+
+        git_provider.return_value.execute.side_effect = [
+            __import__("subprocess").CompletedProcess(("git",), 0, "M dashboard.py\n", ""),
+            __import__("subprocess").CompletedProcess(("git",), 0, "codex/ui-polish\n", ""),
+        ]
+        with self.assertRaisesRegex(RuntimeError, "geen lokale wijzigingen"):
+            dashboard._restore_managed_main_branch(root)
 
     def test_rate_limit_helpers_cover_generic_windows_and_unavailable_provider_version(self) -> None:
         self.assertEqual(dashboard._rate_limit_window_label(1_440), "1-daags venster")

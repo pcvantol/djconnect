@@ -82,6 +82,7 @@ pre{white-space:pre-wrap;word-break:break-word;margin:5px 0 0;font:12px ui-monos
 #componentLogs .card{border-left-width:1px}
 .workspace-card>summary,#rateLimits>summary,#componentLogs>summary,#codexChat>summary,#engineering-dashboard-content>.technical-details:not(#componentLogs)>summary{border-bottom:1px solid var(--category-color);margin-bottom:12px;padding-bottom:14px}
 .category-description{color:#b9b6c0;font-size:14px;line-height:1.4;margin:0 0 14px}
+.queue-blocker--error{align-items:center;background:#4a202b;border:1px solid #ff718f;border-radius:10px;color:#ffe9ef;display:flex;gap:12px;justify-content:space-between;margin:0 0 14px;padding:10px 12px}.queue-blocker--error p{color:inherit;font-size:13px;line-height:1.4;margin:0}.queue-blocker__repair{background:#ffe9ef;border:1px solid #ff718f;border-radius:999px;color:#8c243b;flex:none;font:700 13px/1 system-ui;min-height:32px;padding:0 12px}.queue-blocker__repair:hover:not(:disabled){background:#ff718f;color:#271923}.queue-blocker__repair:disabled{cursor:wait;opacity:.7}html[data-theme="light"] .queue-blocker--error{background:#fff0f4;color:#8c243b}html[data-theme="light"] .queue-blocker__repair{background:#fff;color:#8c243b}
 .workspace-card,#rateLimits,#componentLogs,#codexChat,#engineering-dashboard-content>.technical-details:not(#componentLogs){border:1px solid var(--category-color);border-left-width:3px}
 .rate-limit-reset{background:#173c31;border:1px solid #54d6a0;border-radius:8px;color:#d9fff0;font:13px system-ui;margin-top:12px;padding:8px 10px}.rate-limit-reset:disabled{cursor:wait;opacity:.7}.rate-limit-reset-status{color:#b9b6c0;font-size:12px;margin:8px 0 0}
 .predecessor-retry{background:#3b281b;border:1px solid #f0b66a;border-radius:8px;color:#fff0dc;font:13px system-ui;margin-top:12px;padding:8px 10px}.predecessor-retry:hover:not(:disabled){background:#543721}.predecessor-retry:disabled{cursor:wait;opacity:.7}.predecessor-retry-status{color:#d6c5a8;font-size:12px;margin:8px 0 0}
@@ -264,6 +265,7 @@ html[data-theme="light"] #rateLimitReset{background:#e8fff5;color:#145a42}
 #promptHistory .execution-history-action{background:#4f453c;border-color:#e7b876;border-radius:7px;color:#f6f3ef;font:12px system-ui;min-height:32px;min-width:0;padding:5px 9px}#promptHistory .execution-history-action:hover:not(:disabled){background:#e7b876;border-color:#e7b876;color:#17151a}
 html[data-theme="light"] #promptHistory .execution-history-action{background:#fff8ef;border-color:#d68b23;color:#643a13}html[data-theme="light"] #promptHistory .execution-history-action:hover:not(:disabled){background:#e7b876;border-color:#e7b876;color:#17151a}
 #promptHistoryRows .prompt-history-actions{vertical-align:middle}#promptHistoryRows .execution-history-action{margin-top:0}
+#promptHistoryRows .prompt-history-actions{align-items:center;display:flex;flex-wrap:wrap;gap:6px}
 
 /* The header owns a fixed row; only the document pane scrolls beneath it. */
 .report-view-modal__panel{--report-modal-surface:#24242d;display:grid;grid-template-rows:auto minmax(0,1fr);height:min(90vh,calc(100dvh - 36px));overflow:hidden}.report-view-modal__header{background:var(--report-modal-surface);z-index:1}.report-view-modal__actions{grid-column:2;grid-row:1;justify-self:end;position:static}.report-view-modal__content{min-height:0;overflow:auto;overscroll-behavior:contain;padding:12px}html[data-theme="light"] .report-view-modal__panel{--report-modal-surface:#f7fbff}
@@ -305,10 +307,13 @@ html[data-theme="light"] .report-view-modal__content :is(pre,code){background:#e
 /* The splash spinner belongs to the generic Engineering Platform house style. */
 .dashboard-splash__spinner{border-color:#5a4325;border-top-color:#f0b66a}
 
-/* Active execution uses the compact GitHub-style activity ring: a rotating
-   orange leading arc over a quiet bronze track, with its centre kept clear. */
-.indicator--running{animation:github-activity-ring .82s linear infinite;background:conic-gradient(from -38deg,var(--house-style) 0deg 92deg,#8c723c 92deg 332deg,var(--house-style) 332deg 360deg);border:0;box-shadow:0 0 8px var(--house-style-focus);-webkit-mask:radial-gradient(farthest-side,#0000 calc(100% - 3px),#000 calc(100% - 2px));mask:radial-gradient(farthest-side,#0000 calc(100% - 3px),#000 calc(100% - 2px))}
+/* Active execution uses a compositor-friendly GitHub-style activity ring.
+   A native border avoids the conic-gradient mask that can stutter on iPhone. */
+.indicator--running{animation:github-activity-ring 1.1s linear infinite;background:transparent;border:3px solid #8c723c;border-left-color:var(--house-style);border-top-color:var(--house-style);box-shadow:0 0 8px var(--house-style-focus);transform:translateZ(0);will-change:transform}
 @keyframes github-activity-ring{to{transform:rotate(360deg)}}
+/* A running execution is live state, not decorative motion. Keep both
+   progress rings moving even when the device requests reduced transitions. */
+@media (prefers-reduced-motion:reduce){.indicator--running{animation-duration:1.1s!important;animation-iteration-count:infinite!important}.dashboard-splash__spinner{animation-duration:.85s!important;animation-iteration-count:infinite!important}}
 
 /* A sending chat action remains visibly in the conversation category while disabled. */
 .chat-compose .chat-send:disabled:hover{background:#d0a4ff!important;border-color:#d0a4ff!important;color:#17151a!important}
@@ -677,8 +682,16 @@ html[data-theme="light"] ::-webkit-scrollbar-thumb:hover{background:#0a6b9d}
     box-shadow:0 10px 20px rgb(15 23 42 / .34),0 3px 6px rgb(15 23 42 / .22),inset 0 1px 0 rgb(255 255 255 / .58);
   }
   .reset-log-filters:not(:disabled):active{transform:translateX(4px) translateY(-1px) scale(1.045)}
-  /* Title-bar toggles are flat controls; the glass elevation is reserved for
-     discrete action buttons and must not create a dark rectangular surface. */
-  .dashboard-titlebar :is(.theme-toggle,.section-state-toggle){-webkit-backdrop-filter:none;backdrop-filter:none;background-image:none;box-shadow:none;will-change:auto}
-  .dashboard-titlebar :is(.theme-toggle,.section-state-toggle):active{box-shadow:none}
+  /* The title-bar switches already draw their own compact tracks. Applying
+     the generic glass layer to their button housings creates square plates. */
+  .dashboard-titlebar :is(.theme-toggle,.section-state-toggle){
+    -webkit-backdrop-filter:none;
+    backdrop-filter:none;
+    background-image:none;
+    box-shadow:none;
+    will-change:auto;
+  }
+  .dashboard-titlebar :is(.theme-toggle,.section-state-toggle):active{
+    box-shadow:none;
+  }
 }

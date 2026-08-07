@@ -906,6 +906,8 @@ test.describe("Engineering Status browser smoke", () => {
       renderPromptHistory();
     });
     await expect(page.locator("#promptHistoryRows .execution-history-action")).toHaveCount(2);
+    await expect(page.locator("#promptHistoryRows .prompt-history-actions").first()).toHaveCSS("gap", "6px");
+    await expect(page.locator("#promptHistoryRows .prompt-history-actions").first()).toHaveCSS("display", "flex");
     await expect(page.locator("#promptHistoryRows tr").nth(0)).toContainText("Uitvoering opnieuw proberen");
     await expect(page.locator("#promptHistoryRows tr").nth(1)).toContainText("Uitvoering opnieuw proberen");
     await expect(page.locator("#promptHistoryRows tr").nth(2)).toContainText("Nieuwe uitvoering in wachtrij");
@@ -1232,6 +1234,7 @@ test.describe("Engineering Status browser smoke", () => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await expect(page.getByTestId("dashboard-splash-icon")).toHaveAttribute("src", "/assets/operations-console/icon-transparent.png");
     await expect(page.getByTestId("dashboard-splash-icon")).toHaveAttribute("aria-hidden", "true");
+    await expect(page.locator(".dashboard-splash__version")).toContainText("1.5.0");
     await expect(page.locator(".dashboard-splash__loading")).toHaveText("Gegevens laden…");
     await expect(page.locator(".dashboard-splash__version")).toHaveCSS("color", "rgb(240, 182, 106)");
     await expect(page.locator(".dashboard-splash__spinner")).toHaveCSS("border-top-color", "rgb(240, 182, 106)");
@@ -1245,7 +1248,10 @@ test.describe("Engineering Status browser smoke", () => {
       element.className = "indicator indicator--running";
     });
     await expect(page.locator("#indicator")).toHaveCSS("animation-name", "github-activity-ring");
-    await expect(page.locator("#indicator")).toHaveCSS("background-image", /conic-gradient/);
+    await expect(page.locator("#indicator")).toHaveCSS("animation-duration", "1.1s");
+    await expect(page.locator("#indicator")).toHaveCSS("animation-iteration-count", "infinite");
+    await expect(page.locator("#indicator")).toHaveCSS("border-top-color", "rgb(240, 182, 106)");
+    await expect(page.locator("#indicator")).toHaveCSS("will-change", "transform");
   });
 
   test("loads the initial status before serverpush connects", async ({ page }) => {
@@ -2027,6 +2033,18 @@ test.describe("Engineering Status browser smoke", () => {
       await expect(toggle).toHaveAttribute("aria-checked", "true");
       expect(await toggle.evaluate((element) => getComputedStyle(element, "::before").backgroundColor)).toBe("rgb(240, 182, 106)");
     }
+  });
+
+  test("keeps title-bar switch housings free from the generic mobile glass layer", () => {
+    const styles = readFileSync(
+      path.join(repository, "tools/engineering/assets/dashboard.css"),
+      "utf8",
+    );
+    expect(styles).toContain(
+      ".dashboard-titlebar :is(.theme-toggle,.section-state-toggle){",
+    );
+    expect(styles).toContain("background-image:none;");
+    expect(styles).toContain("backdrop-filter:none;");
   });
 
   test("keeps the platform version labels orange in both themes", async ({ page }) => {
@@ -3050,6 +3068,38 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#inboxBlocker")).toHaveText(
       "De Inbox wacht omdat de lokale Codex CLI niet kan starten. Herstel dit handmatig met: npm install -g @openai/codex@latest",
     );
+  });
+
+  test("offers a confirmed repair for a queue blocked on a working branch", async ({ page }) => {
+    await page.route("**/api/events", (route) => route.abort());
+    let repairRequested = false;
+    await page.route("**/api/managed-branch-recovery", async (route) => {
+      repairRequested = true;
+      expect(route.request().postData()).toBe("{}");
+      await route.fulfill({ json: { previous_branch: "codex/ui-polish", branch: "main", watcher: "restarted" }, status: 202 });
+    });
+    await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({
+      json: { status: { watcher_state: "WORKSPACE_PREFLIGHT_FAILED", queue_depth: 1 } },
+    }));
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#autoRefresh").uncheck();
+    await page.evaluate(() => r({
+      watcher_state: "WORKSPACE_PREFLIGHT_FAILED",
+      diagnostic: "Workspace Preflight blocked by managed_expected_branch.",
+      queue_depth: 1,
+      queue_items: [{ filename: "waiting.txt", title: "Waiting prompt" }],
+    }, {}));
+
+    await page.getByTestId("engineering-inbox-queue").locator("summary").click();
+    const blocker = page.locator("#inboxBlocker");
+    await expect(blocker).toHaveClass(/queue-blocker--error/);
+    await expect(blocker).toContainText("Execution Host mag alleen werk vanaf main claimen.");
+    await blocker.getByRole("button", { name: "Herstel" }).click();
+    await expect(page.locator("#confirmationModal")).toBeVisible();
+    await expect(page.locator("#confirmationModalText")).toContainText("herstart de Inbox-watcher");
+    await page.locator("#confirmationModalConfirm").click();
+    await expect(blocker).toHaveText("Werkmap hersteld naar main; de Inbox-watcher draait weer.");
+    expect(repairRequested).toBeTruthy();
   });
 
   test("renders provider limit rows on separate lines", async ({ page }) => {
