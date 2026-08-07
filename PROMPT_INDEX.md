@@ -2,7 +2,7 @@
 
 Status: canonical prompt navigation
 
-## PR #780 finalization reviewable
+## PR #780 finalization reconciled
 
 PR [#780](https://github.com/pcvantol/djconnect/pull/780), **Make Execution
 datastore canonical**, merged as `f2342ec1`. It makes SQLite the canonical
@@ -11,10 +11,12 @@ artifact metadata and migration provenance; JSON/Markdown are compatibility
 projections. Its immutable Prompt History record is
 `docs/history/prompts/2026-08-07-canonical-execution-host-datastore.md`.
 Forge, queue admission, execution, runtime, scheduling and lifecycle behavior
-are unchanged. Repository State: `MERGED_UNRECONCILED`; governance-only
-Finalization is reviewable.
+are unchanged. Its governance-only Finalization PR [#781](https://github.com/pcvantol/djconnect/pull/781)
+merged as `f44df6d0642275ad380b452069033be80ebccddb`. Repository State:
+`MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY` after cleanup. Stale
+local branch result: `none`.
 
-## PR #769 finalization reviewable
+## PR #769 finalization reconciled
 
 PR [#769](https://github.com/pcvantol/djconnect/pull/769), **Show workspace
 free disk space**, merged as `8b67b3de09597974c15e57fc375995cb6d70bae3`.
@@ -22,8 +24,10 @@ It adds a localized free-space value in GB for the volume that contains the
 workspace, refreshed with each dashboard page request. Its immutable Prompt
 History record is `docs/history/prompts/2026-08-06-workspace-free-disk-space.md`.
 Forge, queue admission, execution, runtime, scheduling and lifecycle behavior
-are unchanged. Repository State: `MERGED_UNRECONCILED`; governance-only
-Finalization is reviewable.
+are unchanged. Its governance-only Finalization PR [#770](https://github.com/pcvantol/djconnect/pull/770)
+merged as `b7798e7fb219ce8d5e6e0dddc1d92cc38013fb92`. Repository State:
+`MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY` after cleanup. Stale
+local branch result: `none`.
 
 ## PR #767 finalization reconciled
 
