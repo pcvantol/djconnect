@@ -118,7 +118,7 @@ class GitProvider(LocalProcessProvider):
 
 class GitHubProvider:
     def status(self, root: Path) -> ProviderStatus:
-        remote = subprocess.run(("git", "remote", "get-url", "origin"), cwd=root, text=True, capture_output=True, check=False)
+        remote = GitProvider().execute(root, "git", "remote", "get-url", "origin")
         qualified = remote.returncode == 0 and "github" in remote.stdout.lower()
         return ProviderStatus("github", "configured", qualified, remote.stdout.strip() if qualified else "GitHub origin unavailable")
 
