@@ -130,6 +130,20 @@ class LaunchdProvider:
     def uninstall(self, plist: Path) -> None:
         subprocess.run(("launchctl", "bootout", f"gui/{__import__('os').getuid()}", str(plist)), check=False)
 
+    def inspect(self, label: str) -> bool:
+        executable = shutil.which("launchctl")
+        if not executable:
+            return False
+        return subprocess.run((executable, "print", f"gui/{__import__('os').getuid()}/{label}"), text=True, capture_output=True, check=False).returncode == 0
+
+    def restart(self, label: str) -> None:
+        executable = shutil.which("launchctl")
+        if not executable:
+            raise OSError("launchctl unavailable")
+        completed = subprocess.run((executable, "kickstart", "-k", f"gui/{__import__('os').getuid()}/{label}"), text=True, capture_output=True, check=False)
+        if completed.returncode:
+            raise OSError(completed.stderr.strip() or "launchd restart failed")
+
 
 class ICloudInboxProvider:
     def status(self) -> ProviderStatus:

@@ -548,16 +548,9 @@ def _component_log_versions(root: Path) -> dict[str, str]:
 
 def _launch_agent_health(label: str) -> dict[str, str | bool]:
     """Inspect one owned LaunchAgent without changing its state."""
-    executable = shutil.which("launchctl")
-    if not executable:
+    if not LaunchdProvider().status().qualified:
         return {"healthy": False, "state": "unavailable", "detail": "launchctl ontbreekt"}
-    observed = subprocess.run(
-        (executable, "print", f"gui/{os.getuid()}/{label}"),
-        text=True,
-        capture_output=True,
-        check=False,
-    )
-    if observed.returncode:
+    if not LaunchdProvider().inspect(label):
         return {"healthy": False, "state": "not_running", "detail": "LaunchAgent is niet geladen"}
     return {"healthy": True, "state": "running", "detail": "LaunchAgent is geladen"}
 
@@ -711,17 +704,10 @@ def _restart_component(component: str) -> None:
     """Safely ask launchd to restart one explicitly owned, restartable component."""
     if component not in RESTARTABLE_COMPONENTS:
         raise ValueError("Dit onderdeel kan niet veilig vanuit het dashboard worden herstart.")
-    executable = shutil.which("launchctl")
-    if not executable:
-        raise OSError("launchctl ontbreekt.")
-    observed = subprocess.run(
-        (executable, "kickstart", "-k", f"gui/{os.getuid()}/{COMPONENT_LABELS[component]}"),
-        text=True,
-        capture_output=True,
-        check=False,
-    )
-    if observed.returncode:
-        raise OSError(observed.stderr.strip() or "De herstart is niet gelukt.")
+    try:
+        LaunchdProvider().restart(COMPONENT_LABELS[component])
+    except OSError as error:
+        raise OSError("De herstart is niet gelukt.") from error
 
 
 def _restart_component_after_response(component: str, logger: logging.Logger) -> None:
