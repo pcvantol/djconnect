@@ -15,6 +15,10 @@ Genesis target. A Genesis run only evaluates its target profile; a Managed run
 only evaluates its repository profile. JSON status files are projections, not
 an ownership or lifecycle authority.
 
+Each admitted run persists a typed readiness decision in the canonical
+datastore. The policy defines requirements; preflight and providers acquire
+facts; the Execution Host only responds to the resulting decision.
+
 The current migration inventory intentionally retains process calls in
 dashboard diagnostics, qualification helpers and logging utilities. They are
 read-only/supporting components and are outside the Execution Host lifecycle

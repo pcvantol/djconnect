@@ -14,7 +14,7 @@ iCloud Drive remains transport only. It is not an Engineering evidence store.
 ## Versioned schema
 
 The storage contract is independently versioned as **Engineering Storage
-schema `14`**. The required version is declared as `storage_schema` in
+schema `15`**. The required version is declared as `storage_schema` in
 `tools/engineering/ENGINEERING_PLATFORM_VERSION.json` and is validated by the
 runner compatibility contract.
 
@@ -69,6 +69,11 @@ unbounded event rows. Only acquisition, expiry, stale detection/reconciliation
 and release are recorded. Startup reconciliation treats expired or pre-lease
 active transactions as recoverable/operator-visible datastore facts; it never
 invents terminal evidence and never automatically reruns work.
+
+Schema `15` stores one typed readiness evaluation for each admitted Run ID:
+profile identity and version, execution mode, observed bounded facts, PASS or
+BLOCKED result, failed requirements and a redacted diagnostic. It is local
+datastore evidence; status files and the dashboard only project it.
 
 ## Component logging
 
