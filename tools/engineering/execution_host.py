@@ -58,7 +58,7 @@ from .host_preflight import latest as latest_host_preflight
 from .workspace_preflight import latest as latest_workspace_preflight
 from .capability_preflight import latest as latest_capability_preflight
 from .drift_diagnostics import summary as drift_summary
-from .execution_lease import Lease, LeaseConflictError, LeaseHeartbeat, acquire as acquire_lease, heartbeat as heartbeat_lease, host_identity, host_instance_id, reconcile_stale, release as release_lease
+from .execution_lease import Lease, LeaseConflictError, LeaseHeartbeat, acquire as acquire_lease, heartbeat as heartbeat_lease, history as lease_history, host_identity, host_instance_id, reconcile_stale, release as release_lease
 from .execution_readiness import ReadinessProfile, evaluate as evaluate_readiness, selected_profile
 
 
@@ -199,6 +199,7 @@ class TerminalEvidenceBundle:
     files_modified: tuple[str, ...]
     files_removed: tuple[str, ...]
     diff_check: str
+    lease: dict[str, object]
 
 
 REPORT_REQUIREMENT_EXCLUDED_HEADINGS = frozenset({"context", "canonical principle"})
@@ -1626,6 +1627,7 @@ def collect_terminal_evidence(root: Path, state: TransactionState) -> TerminalEv
         files_modified=tuple(modified),
         files_removed=tuple(removed),
         diff_check=diff_check,
+        lease=lease_history(root, state.run_id),
     )
 
 
@@ -2253,6 +2255,9 @@ def generate_terminal_report(
             f"- Target Commit: `{bundle.target_commit}`",
             f"- Execution Host Version: `{manifest.platform_version}`",
             f"- Runner Version: `{manifest.runner_version}`",
+            f"- Lease Host: `{bundle.lease.get('host_identity', 'unavailable')}`",
+            f"- Lease Instance: `{bundle.lease.get('host_instance_id', 'unavailable')}`",
+            f"- Lease State: `{bundle.lease.get('lease_state', 'unavailable')}`",
             f"- Bootstrap Contract: `{manifest.bootstrap_contract}`",
             f"- Checkpoint Format: `{manifest.checkpoint_format}`",
             "",

@@ -207,3 +207,18 @@ def liveness(root: Path, run_id: object) -> dict[str, object]:
     if reconciliation:
         result.update({"reconciliation_outcome": reconciliation[0], "reconciliation_reason": reconciliation[1], "reconciled_at": reconciliation[2]})
     return result
+
+
+def history(root: Path, run_id: str) -> dict[str, object]:
+    """Return bounded canonical lease evidence for reports and history views."""
+    connection = open_storage(root)
+    try:
+        row = connection.execute(
+            "SELECT host_identity,host_instance_id,acquired_at,last_heartbeat_at,expires_at,lease_state "
+            "FROM execution_run_leases WHERE run_id=? ORDER BY created_at DESC LIMIT 1", (run_id,)
+        ).fetchone()
+    finally:
+        connection.close()
+    if not row:
+        return {"state": "UNAVAILABLE"}
+    return {"host_identity": row[0], "host_instance_id": row[1], "acquired_at": row[2], "last_heartbeat": row[3], "lease_expiry": row[4], "lease_state": row[5]}
