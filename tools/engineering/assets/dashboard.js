@@ -58,6 +58,12 @@ function capabilityRecommendation(value) {
   }[String(value || "").trim()];
   return key ? t(key) : String(value || t("format.not_available"));
 }
+function formatDiagnostic(value) {
+  return translate(value || t("value.no_diagnostics")).replace(
+    /\.\s+(?=(?:Expected|Observed|Required action|Verwacht|Waargenomen|Vereiste actie):)/g,
+    ".\n",
+  );
+}
 function enumLabel(value, fallback = t("format.not_available")) {
   const enumValue = String(value || "").trim();
   if (!enumValue) return fallback;
@@ -943,7 +949,7 @@ function renderHealthStatus(x, snapshot = {}) {
   $("finalization").textContent = x.finalization_pr || t("value.none");
   $("repositoryState").textContent = translate(x.repository_state || "UNKNOWN");
   $("workspaceState").textContent = translate(x.workspace_state || "UNKNOWN");
-  $("diag").textContent = translate(x.diagnostic || t("value.no_diagnostics"));
+  $("diag").textContent = formatDiagnostic(x.diagnostic);
   $("platformVersion").textContent = x.platform_version || t("format.not_available");
   $("dashboardVersion").textContent =
     components.dashboard || t("format.not_available");

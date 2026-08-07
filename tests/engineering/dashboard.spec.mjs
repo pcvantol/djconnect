@@ -794,6 +794,17 @@ test.describe("Engineering Status browser smoke", () => {
     ]);
   });
 
+  test("puts preflight diagnostic clauses on separate lines", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => r({
+      diagnostic: "Workspace Preflight blocked by worktree_unstaged (Repository). Expected: worktree_unstaged: PASS. Observed: Unstaged changes are present. Required action: Commit, stash, or remove unstaged changes before execution.",
+    }, {}));
+    await expect(page.locator("#diag")).toHaveText(
+      "Workspace Preflight blocked by worktree_unstaged (Repository).\nExpected: worktree_unstaged: PASS.\nObserved: Unstaged changes are present.\nRequired action: Commit, stash, or remove unstaged changes before execution.",
+    );
+    await expect(page.locator("#diag")).toHaveCSS("white-space", "pre-line");
+  });
+
   test("renders host, workspace and capability preflight fields through one presentation", async ({ page }) => {
     await page.route("**/api/events", (route) => route.abort());
     await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({
