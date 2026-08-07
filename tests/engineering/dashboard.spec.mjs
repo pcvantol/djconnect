@@ -457,6 +457,32 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("dialog[open]")).toHaveCount(1);
   });
 
+  test("draws the selected prompt-history row border on both table edges", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#autoRefresh").uncheck();
+    await page.evaluate(() => {
+      document.querySelector("#promptHistory").open = true;
+      promptHistoryEntries = [{
+        run_id: "inbox-row-focus",
+        status: "COMPLETE",
+        title: "Focused row",
+        executed_at: "2026-08-04T08:00:00Z",
+      }];
+      renderPromptHistory();
+    });
+    const row = page.locator("#promptHistoryRows .prompt-history-row");
+    await row.focus();
+    await expect(row).toBeFocused();
+    await expect(row.locator("td").first()).toHaveCSS(
+      "box-shadow",
+      "rgb(240, 182, 106) 3px 0px 0px 0px inset",
+    );
+    await expect(row.locator("td").last()).toHaveCSS(
+      "box-shadow",
+      "rgb(240, 182, 106) -3px 0px 0px 0px inset",
+    );
+  });
+
   test("renders a read-only Forge recommendation handoff with expandable alternatives", async ({ page }) => {
     await page.route("**/api/prompt-history", (route) => route.fulfill({ json: { runs: [] } }));
     await page.route("**/api/prompt-history/inbox-handoff/details", (route) => route.fulfill({ json: {
