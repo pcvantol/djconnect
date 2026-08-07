@@ -3262,7 +3262,11 @@ test.describe("Engineering Status browser smoke", () => {
     const blocker = page.locator("#inboxBlocker");
     await expect(blocker).toHaveClass(/queue-blocker--error/);
     await expect(blocker).toContainText("Execution Host mag alleen werk vanaf main claimen.");
-    await blocker.getByRole("button", { name: "Herstel" }).click();
+    const repair = blocker.getByRole("button", { name: "Herstel" });
+    await expect(repair).toHaveCSS("background-color", "rgb(59, 40, 27)");
+    await expect(repair).toHaveCSS("border-color", "rgb(240, 182, 106)");
+    await expect(repair).toHaveCSS("border-radius", "8px");
+    await repair.click();
     await expect(page.locator("#confirmationModal")).toBeVisible();
     await expect(page.locator("#confirmationModalText")).toContainText("herstart de Inbox-watcher");
     await page.locator("#confirmationModalConfirm").click();
