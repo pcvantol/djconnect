@@ -79,6 +79,7 @@ from .execution_executor import format_cli_failure as executor_format_cli_failur
 from .execution_executor import project_codex_activity as executor_project_codex_activity
 from .execution_executor import redacted_cli_tail as executor_redacted_cli_tail
 from .execution_executor import write_redacted_codex_cli_log as executor_write_redacted_codex_cli_log
+from .execution_finalization import FinalizationCoordinator
 from .storage import load_readiness_evaluation, record_readiness_evaluation
 
 RETRY_REPORT_HEADERS = {
@@ -541,6 +542,7 @@ class EngineeringRunner:
         self.active_lease: Lease | None = None
         self.transaction: ExecutionTransaction | None = None
         self.lease_heartbeat: LeaseHeartbeat | None = None
+        self.finalization = FinalizationCoordinator()
 
     def _heartbeat(self) -> None:
         if self.lease_heartbeat is not None and self.lease_heartbeat.error is not None:
@@ -1125,34 +1127,13 @@ class EngineeringRunner:
         return terminal
 
     def _cleanup(self, state: TransactionState) -> TransactionState:
-        cleanup = replace(
-            state,
-            phase="REPOSITORY_CLEANUP",
-            next_action="fetch_prune_and_remove_transaction_branches",
-        )
-        self.store.save(cleanup)
-        write_live_status(self.root, cleanup, "Repository cleanup in progress")
         print("[REPOSITORY_CLEANUP] Repository cleanup in progress")
-        operation = getattr(self.repository, "cleanup_transaction", None)
-        if not callable(operation):
-            return self._save_terminal(
-                cleanup,
-                "BLOCKED",
-                "cleanup_unavailable",
-                "Cleanup client is unavailable; resume with repository cleanup evidence.",
-            )
-        try:
-            result = operation(
-                self.root, (cleanup.implementation_branch, cleanup.finalization_branch)
-            )
-        except RunnerError as error:
-            return self._save_terminal(
-                cleanup, "BLOCKED", "repository_cleanup_required", str(error)
-            )
-        return self._save_terminal(
-            replace(cleanup, latest_repository_evidence=redact_diagnostic(result)),
-            "COMPLETE",
-            "repository_cleanup_reconciled",
+        return self.finalization.cleanup(
+            root=self.root,
+            store=self.store,
+            repository=self.repository,
+            state=state,
+            save_terminal=self._save_terminal,
         )
 
     def _record_merged_evidence(
