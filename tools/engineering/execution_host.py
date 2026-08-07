@@ -63,6 +63,7 @@ from .execution_readiness import ReadinessFacts, decide as decide_readiness, eva
 from .execution_transaction import ExecutionTransaction
 from .execution_evidence import TerminalEvidenceBundle
 from .execution_context import ExecutionContext
+from .execution_models import AgentResult, PullRequestEvidence, RepositoryEvidence
 from .storage import load_readiness_evaluation, record_readiness_evaluation
 
 
@@ -143,38 +144,6 @@ def target_repository_authorization(root: Path, target: Path) -> str | None:
     if authorization.authorized:
         return None
     return f"Genesis preflight blocked: WORKSPACE_TARGET_AUTHORIZED: {authorization.reason} Recovery: {authorization.recovery}"
-
-
-@dataclass(frozen=True)
-class RepositoryEvidence:
-    repository: str
-    branch: str
-    head_sha: str
-    clean: bool
-    main_contains_head: bool = False
-
-
-@dataclass(frozen=True)
-class PullRequestEvidence:
-    number: int
-    state: str
-    checks_terminal: bool
-    checks_passed: bool
-    merge_commit: str | None = None
-    is_draft: bool = False
-    failed_checks: tuple[str, ...] = ()
-
-
-@dataclass(frozen=True)
-class AgentResult:
-    terminal_state: str
-    branch: str | None = None
-    pull_request: int | None = None
-    terminal_condition: str = "repository_reconciled"
-    diagnostic: str | None = None
-    repository_path: str | None = None
-    commit_sha: str | None = None
-    validation_evidence: tuple[dict[str, str], ...] = ()
 
 
 REPORT_REQUIREMENT_EXCLUDED_HEADINGS = frozenset({"context", "canonical principle"})
