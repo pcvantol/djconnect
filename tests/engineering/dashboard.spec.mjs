@@ -1826,6 +1826,29 @@ test.describe("Engineering Status browser smoke", () => {
     }
   });
 
+  test("uses only primary and compact sizes for round controls", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#platformHealth").evaluate((element) => { element.open = true; });
+    await page.evaluate(() => renderPlatformHealth({ components: {
+      dashboard: { healthy: true, detail: "HTTP-dashboard reageert", version: "1.2.87" },
+    }}));
+    await page.evaluate(() => {
+      document.querySelector("#chatMessages").replaceChildren();
+      chatMessage("assistant", "Compact copy action");
+    });
+
+    await expect(page.getByTestId("page-refresh")).toHaveCSS("height", "44px");
+    await expect(page.getByTestId("page-refresh")).toHaveCSS("width", "44px");
+    for (const control of [
+      page.locator(".component-info").first(),
+      page.locator(".chat-message__copy").first(),
+      page.getByTestId("download-inbox-log"),
+    ]) {
+      await expect(control).toHaveCSS("height", "32px");
+      await expect(control).toHaveCSS("width", "32px");
+    }
+  });
+
   test("uses the generic orange download glyph in the prompt-scoped chat", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.locator("#promptHistoryChatModal").evaluate((element) => element.showModal());

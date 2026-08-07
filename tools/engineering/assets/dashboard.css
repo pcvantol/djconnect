@@ -547,3 +547,21 @@ html[data-theme="light"] .dashboard-modal-shell__action--primary{background:colo
 html[data-theme="light"] .dashboard-action--download{background:#fff8ef!important;border-color:#d68b23!important;color:#643a13!important}
 html[data-theme="light"] .dashboard-action--copy{background:#fff7ff!important;border-color:#b99ae5!important;color:#68498a!important}
 html[data-theme="light"] .dashboard-action--destructive{background:#fff1f4!important;border-color:#ff718f!important;color:#b32649!important}
+
+/* Round controls have two deliberate sizes: primary controls receive a
+   comfortable 44px target, while dense evidence and history controls stay
+   compact at 32px.  Keeping the dimensions here prevents individual screens
+   from drifting to incidental 25px or 34px variants. */
+:root{--round-control-primary:44px;--round-control-compact:32px}
+.page-refresh,.dashboard-modal-shell__close{
+  height:var(--round-control-primary);
+  min-height:var(--round-control-primary);
+  min-width:var(--round-control-primary);
+  width:var(--round-control-primary);
+}
+.component-info,.prompt-history-report,.prompt-history-analysis,.prompt-history-chat,.prompt-history-details,.chat-message__copy,.copy.copy--glyph,.download.download--glyph,.dashboard-action,.reset-log-filters{
+  height:var(--round-control-compact);
+  min-height:var(--round-control-compact);
+  min-width:var(--round-control-compact);
+  width:var(--round-control-compact);
+}
