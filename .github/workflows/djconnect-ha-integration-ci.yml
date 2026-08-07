@@ -160,5 +160,9 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v5
       - uses: hacs/action@1ebf01c408f29afcb6406bd431bc98fd8cbb15aa # main governed exception
+        # HACS treats `tags/` in branch names as a tag path while fetching raw files.
+        # A commit SHA is unambiguous for both pull requests and pushes.
+        env:
+          REPOSITORY_REF: ${{ github.event.pull_request.head.sha || github.sha }}
         with:
           category: integration

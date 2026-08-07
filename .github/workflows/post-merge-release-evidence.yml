@@ -29,6 +29,11 @@ on:
         description: Repository Ownership release role.
         required: true
         type: string
+      durable_evidence_release_tag_prefix:
+        description: Repository-scoped prerelease tag prefix for append-only durable evidence.
+        required: false
+        type: string
+        default: internal-ha
 
 permissions:
   actions: read
@@ -135,6 +140,7 @@ jobs:
         env:
           POLICY_SOURCE_REVISION: ${{ inputs.policy_source_ref }}
           PRODUCER_RUN_ID: ${{ github.run_id }}
+          DURABLE_EVIDENCE_RELEASE_TAG_PREFIX: ${{ inputs.durable_evidence_release_tag_prefix }}
         run: |
           python - <<'PY'
           from datetime import UTC, datetime
@@ -150,6 +156,7 @@ jobs:
               policy_source_revision=os.environ["POLICY_SOURCE_REVISION"],
               timestamp=timestamp,
               workflow_run_id=os.environ["PRODUCER_RUN_ID"],
+              release_tag_prefix=os.environ["DURABLE_EVIDENCE_RELEASE_TAG_PREFIX"],
           )
           findings = validate_record(record)
           if findings:
@@ -162,15 +169,17 @@ jobs:
       - name: Publish append-only durable qualification evidence
         env:
           CANDIDATE_SHA: ${{ github.event.workflow_run.head_sha }}
+          DURABLE_EVIDENCE_RELEASE_TAG_PREFIX: ${{ inputs.durable_evidence_release_tag_prefix }}
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
           PYTHONPATH: reconciliation-policy
         run: |
           set -euo pipefail
-          tag="internal-ha-${CANDIDATE_SHA}"
+          printf '%s' "$DURABLE_EVIDENCE_RELEASE_TAG_PREFIX" | grep -Eq '^[a-z0-9]+(-[a-z0-9]+)*$'
+          tag="${DURABLE_EVIDENCE_RELEASE_TAG_PREFIX}-${CANDIDATE_SHA}"
           asset="qualification-evidence-${CANDIDATE_SHA}.json"
           if ! gh release view "$tag" >/dev/null 2>&1; then
-            gh release create "$tag" --target "$CANDIDATE_SHA" --title "DJConnect Home Assistant artifact ${CANDIDATE_SHA}" --prerelease --notes "Immutable internal deployment artifact." || gh release view "$tag" >/dev/null
+            gh release create "$tag" --target "$CANDIDATE_SHA" --title "DJConnect internal qualification evidence ${CANDIDATE_SHA}" --prerelease --notes "Append-only durable qualification evidence." || gh release view "$tag" >/dev/null
           fi
           test "$(gh release view "$tag" --json targetCommitish --jq .targetCommitish)" = "$CANDIDATE_SHA"
           if gh release view "$tag" --json assets --jq '.assets[].name' | grep -Fx "$asset"; then
