@@ -2761,6 +2761,13 @@ function loadDashboardClientState() {
 const dashboardClientState = loadDashboardClientState();
 const dashboardLocaleSelector = $("dashboardLocale");
 const dashboardLocaleButton = $("dashboardLocaleButton"), dashboardLocaleMenu = $("dashboardLocaleMenu");
+const dashboardTitlebarOptions = $("dashboardTitlebarOptions");
+const compactTitlebarMedia = window.matchMedia("(max-width: 620px)");
+function syncTitlebarOptions() {
+  dashboardTitlebarOptions.open = !compactTitlebarMedia.matches;
+}
+compactTitlebarMedia.addEventListener("change", syncTitlebarOptions);
+syncTitlebarOptions();
 function setLocaleMenuOpen(open) {
   dashboardLocaleMenu.hidden = !open;
   dashboardLocaleButton.setAttribute("aria-expanded", String(open));
@@ -2791,6 +2798,7 @@ function applyDashboardLocale() {
     [".theme-toggle__label", "header.theme"],
     [".section-state-toggle__label", "header.expand"],
     [".auto-refresh-toggle span", "header.auto_refresh"],
+    [".dashboard-titlebar__options > summary span", "header.options"],
     [".dashboard-locale span", "language.label"],
     ["#dashboardTitle", "dashboard.title"],
     ["#dashboardSplashTitle", "dashboard.title"],

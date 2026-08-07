@@ -1043,6 +1043,34 @@ test.describe("Engineering Status browser smoke", () => {
     expect(layout.titleBottom).toBeLessThan(layout.viewportTop);
   });
 
+  test("puts every mobile title-bar setting in a labelled expandable panel", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+
+    const options = page.locator("#dashboardTitlebarOptions");
+    const disclosure = page.getByTestId("titlebar-options-toggle");
+    await expect(options).not.toHaveAttribute("open", "");
+    await expect(disclosure).toBeVisible();
+    await expect(page.getByTestId("theme-toggle")).not.toBeVisible();
+
+    await disclosure.click();
+    await expect(options).toHaveAttribute("open", "");
+    for (const label of [
+      ".dashboard-titlebar__options-content .dashboard-locale > span:first-child",
+      ".dashboard-titlebar__options-content .theme-toggle__label",
+      ".dashboard-titlebar__options-content .section-state-toggle__label",
+      ".dashboard-titlebar__options-content .auto-refresh-toggle span",
+    ]) {
+      await expect(page.locator(label)).toBeVisible();
+      expect((await page.locator(label).textContent()).trim()).not.toBe("");
+    }
+
+    const controls = await page.locator(
+      ".dashboard-titlebar__options-content > .dashboard-locale, .dashboard-titlebar__options-content > .theme-toggle, .dashboard-titlebar__options-content > .section-state-toggle, .dashboard-titlebar__options-content > .auto-refresh-toggle",
+    ).evaluateAll((elements) => elements.map((element) => Math.round(element.getBoundingClientRect().top)));
+    expect(controls).toEqual([...controls].sort((first, second) => first - second));
+  });
+
   test("restores the iPhone page position after an input loses focus", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
