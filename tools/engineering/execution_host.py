@@ -53,7 +53,7 @@ from .recommendation_handoff import RecommendationHandoff, parse_forge_recommend
 from .status_model import build as build_canonical_status, publish as publish_canonical_status
 from .platform_api import PlatformConfiguration, PlatformConfigurationError, provider_registry
 from .platform_bootstrap import migrate_legacy_workspace
-from .providers import GitProvider, CodexCliProvider
+from .providers import GitProvider, GitHubProvider, CodexCliProvider
 from .host_preflight import latest as latest_host_preflight
 from .workspace_preflight import latest as latest_workspace_preflight
 from .capability_preflight import latest as latest_capability_preflight
@@ -403,8 +403,8 @@ class SubprocessRepositoryClient:
 
 
 class GhCliClient:
-    def __init__(self, provider: GitProvider | None = None) -> None:
-        self.provider = provider or GitProvider()
+    def __init__(self, provider: GitHubProvider | None = None) -> None:
+        self.provider = provider or GitHubProvider()
 
     def pull_request(self, number: int) -> PullRequestEvidence:
         try:
