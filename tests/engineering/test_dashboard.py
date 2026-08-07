@@ -1409,6 +1409,7 @@ class DashboardStatusTest(unittest.TestCase):
             retry_outcome = {"blocking_run_id": "inbox-blocked", "retry_filename": "retry-inbox-blocked.md", "retry_run_id": "inbox-retry"}
             with (
                 patch("tools.engineering.dashboard.cloud_root", return_value=root),
+                patch("tools.engineering.dashboard.predecessor_retry_admission_preflight", return_value="inbox-blocked") as preflight_retry,
                 patch("tools.engineering.dashboard.submit_predecessor_retry", return_value=retry_outcome) as submit_retry,
                 patch("tools.engineering.dashboard.log_event") as retry_log_event,
             ):
@@ -1416,11 +1417,13 @@ class DashboardStatusTest(unittest.TestCase):
                 response = connection.getresponse()
                 self.assertEqual(response.status, 202)
                 self.assertEqual(json.loads(response.read()), retry_outcome)
+                preflight_retry.assert_called_once_with(root)
                 submit_retry.assert_called_once_with(root, root)
                 retry_log_event.assert_any_call(ANY, logging.INFO, "predecessor_retry_submission_triggered", run_id="inbox-blocked", diagnostic="retry_run_id=inbox-retry")
             execution_retry_outcome = {"retry_of": "inbox-blocked", "original_run_id": "inbox-blocked", "retry_generation": 1, "retry_timestamp": "2026-08-03T12:00:00+00:00", "filename": "retry-inbox-blocked.md", "retry_run_id": "inbox-retry"}
             with (
                 patch("tools.engineering.dashboard.cloud_root", return_value=root),
+                patch("tools.engineering.dashboard.retry_admission_preflight") as retry_preflight,
                 patch("tools.engineering.dashboard.submit_execution_retry", return_value=execution_retry_outcome) as submit_execution_retry,
                 patch("tools.engineering.dashboard.log_event") as execution_retry_log,
             ):
@@ -1428,8 +1431,18 @@ class DashboardStatusTest(unittest.TestCase):
                 response = connection.getresponse()
                 self.assertEqual(response.status, 202)
                 self.assertEqual(json.loads(response.read()), execution_retry_outcome)
+                retry_preflight.assert_called_once_with(root, "inbox-blocked")
                 submit_execution_retry.assert_called_once_with(root, root, "inbox-blocked")
                 execution_retry_log.assert_any_call(ANY, logging.INFO, "execution_retry_triggered", run_id="inbox-blocked", diagnostic="retry_run_id=inbox-retry")
+            with (
+                patch("tools.engineering.dashboard.retry_admission_preflight", side_effect=dashboard.RetrySubmissionError("Preflight mislukt: Git kan geen index-lock aanmaken.")),
+                patch("tools.engineering.dashboard.submit_execution_retry") as submit_execution_retry,
+            ):
+                connection.request("POST", "/api/execution-retry", body='{"run_id":"inbox-blocked"}', headers={"Content-Type": "application/json"})
+                response = connection.getresponse()
+                self.assertEqual(response.status, 409)
+                self.assertEqual(json.loads(response.read()), {"error": "Preflight mislukt: Git kan geen index-lock aanmaken."})
+                submit_execution_retry.assert_not_called()
             connection.request("POST", "/api/execution-retry", body="{}", headers={"Content-Type": "application/json"})
             response = connection.getresponse()
             self.assertEqual(response.status, 400)

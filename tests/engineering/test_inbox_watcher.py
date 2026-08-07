@@ -14,7 +14,7 @@ from unittest.mock import patch
 
 from tools.engineering import inbox_watcher
 from tools.engineering.host_preflight import HostPreflightResult
-from tools.engineering.workspace_preflight import WorkspacePreflightResult
+from tools.engineering.workspace_preflight import WorkspacePreflightCheck, WorkspacePreflightResult
 from tools.engineering.capability_preflight import CapabilityPreflightResult
 from tools.engineering.storage import open_storage, store_projection
 from tools.engineering.telemetry import wait_for_pending_telemetry
@@ -705,6 +705,25 @@ class InboxWatcherTest(unittest.TestCase):
         self.assertIn(original, retry)
         self.assertEqual(archived.read_text(encoding="utf-8"), original)
         self.assertNotEqual(outcome["retry_run_id"], run_id)
+
+    def test_retry_admission_preflight_blocks_before_queue_submission_and_reports_recovery(self) -> None:
+        original = "# Blocked prompt\n\nKeep this evidence immutable."
+        archived = self.repo / ".engineering" / "inbox" / "Failed" / "blocked__preflight.md"
+        archived.parent.mkdir(parents=True, exist_ok=True)
+        archived.write_text(original, encoding="utf-8")
+        _, run_id, _ = inbox_watcher._job_id(archived, original)
+        failed = WorkspacePreflightResult(
+            "FAIL", "DJConnect", "repo", "main", "MANAGED", "now", 1,
+            (WorkspacePreflightCheck(
+                "git_index_lock_transaction", "FAIL", "Git cannot create the repository index lock.", "Restore Git metadata write access."
+            ),),
+        )
+
+        with patch("tools.engineering.inbox_watcher.execute_workspace_preflight", return_value=failed):
+            with self.assertRaisesRegex(inbox_watcher.RetrySubmissionError, "Preflight mislukt.*index lock"):
+                inbox_watcher.retry_admission_preflight(self.repo, run_id)
+
+        self.assertFalse(list(self.inbox.iterdir()))
 
     def test_execution_retry_supports_failed_and_refuses_non_retryable_or_duplicate_execution(self) -> None:
         original = "# Failed prompt"

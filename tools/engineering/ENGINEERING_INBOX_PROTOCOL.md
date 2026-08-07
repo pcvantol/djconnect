@@ -54,6 +54,10 @@ symlink policy. The stable `WORKSPACE_TARGET_AUTHORIZED` check fails closed
 before a claim when no policy authorizes the target. It then verifies Git metadata access and
 write access, requires a clean staged/unstaged/untracked worktree, and rejects
 index locks or unfinished merge, rebase, cherry-pick, revert and bisect work.
+It also performs the exact Git index-lock transaction used by Git: atomically
+create `index.lock`, read repository status through the locked index, then
+remove only the lock it created. This prevents a generic directory write check
+from passing when Git itself cannot safely use its index.
 Managed execution also requires the configured branch, a valid origin and an
 in-sync upstream; Genesis requires only a local target repository and does not
 require a remote. It never changes repository state.
@@ -104,6 +108,13 @@ separate engineering action available for every terminal `BLOCKED` or `FAILED` r
 whether or not later Inbox work is waiting. It always creates a new immutable
 engineering execution using current repository state; it never changes the
 original run.
+
+Before either dashboard action creates a corrective Inbox prompt, it repeats
+all three non-mutating admission preflights. A failed preflight returns its
+bounded reason and recovery recommendation immediately, creates no retry
+entry and leaves the same action enabled for a later attempt. The watcher
+repeats preflight again when it later claims an accepted retry, so this early
+operator feedback never weakens admission safety.
 
 Both actions create a corrective prompt with explicit lineage metadata:
 

@@ -27,7 +27,7 @@ from .platform_bootstrap import provision_workspace
 from .providers import CodexCliProvider, GitProvider, LaunchdProvider, LocalProcessProvider, TailscaleProvider
 from .inbox_watcher import LABEL as WATCHER_LABEL
 from .inbox_watcher import WATCHER_VERSION
-from .inbox_watcher import RetrySubmissionError, cloud_root, dismiss_execution, queued_retry_children, submit_execution_retry, submit_predecessor_retry
+from .inbox_watcher import RetrySubmissionError, cloud_root, dismiss_execution, predecessor_retry_admission_preflight, queued_retry_children, retry_admission_preflight, submit_execution_retry, submit_predecessor_retry
 from .component_logging import (
     DEFAULT_LOG_LEVEL,
     LOG_LEVEL_ENVIRONMENT,
@@ -1319,6 +1319,7 @@ def handler(root: Path, logger: logging.Logger | None = None):
                     length = int(self.headers.get("Content-Length", "0"))
                     if length != 2 or self.rfile.read(length) != b"{}":
                         raise ValueError
+                    predecessor_retry_admission_preflight(root)
                     outcome = submit_predecessor_retry(root, cloud_root(repo=root))
                     log_event(
                         logger,
@@ -1387,6 +1388,7 @@ def handler(root: Path, logger: logging.Logger | None = None):
                     payload = json.loads(self.rfile.read(length).decode("utf-8"))
                     if not isinstance(payload, dict) or set(payload) != {"run_id"} or not isinstance(payload["run_id"], str):
                         raise ValueError
+                    retry_admission_preflight(root, payload["run_id"])
                     outcome = submit_execution_retry(root, cloud_root(repo=root), payload["run_id"])
                     log_event(logger, logging.INFO, "execution_retry_triggered", run_id=payload["run_id"], diagnostic=f"retry_run_id={outcome['retry_run_id']}")
                 except RetrySubmissionError as error:

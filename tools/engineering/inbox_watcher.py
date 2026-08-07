@@ -555,6 +555,48 @@ def _terminal_phase_for_run(repo: Path, run_id: str) -> str | None:
     return None
 
 
+def retry_admission_preflight(repo: Path, run_id: str) -> None:
+    """Fail a dashboard retry before it enters the Inbox when admission fails.
+
+    The watcher repeats these checks when it claims the new prompt.  This
+    early pass is solely operator feedback: it prevents a known-bad retry from
+    creating confusing queue lineage while preserving the original retry
+    action for a later attempt.
+    """
+    if not re.fullmatch(r"inbox-[a-z0-9-]{6,64}", run_id):
+        raise RetrySubmissionError("De opgegeven run-ID is ongeldig.")
+    archived = _archived_prompt_for_run(repo, run_id)
+    if archived is None:
+        raise RetrySubmissionError("De oorspronkelijke terminale prompt is lokaal niet beschikbaar.")
+    _, content = archived
+    results = (
+        execute_host_preflight(repo, run_id=run_id),
+        execute_workspace_preflight(repo, content, run_id=run_id),
+        execute_capability_preflight(repo, content, run_id=run_id),
+    )
+    failures = [
+        check
+        for result in results
+        for check in result.checks
+        if check.outcome == "FAIL"
+    ]
+    if not failures:
+        return
+    primary = failures[0]
+    raise RetrySubmissionError(
+        f"Preflight mislukt: {primary.reason} Herstel: {primary.recovery}"
+    )
+
+
+def predecessor_retry_admission_preflight(repo: Path) -> str:
+    """Validate the blocking predecessor before queue recovery submits it."""
+    predecessor = _blocking_predecessor(repo)
+    if predecessor is None:
+        raise RetrySubmissionError("Er is geen geblokkeerde voorafgaande prompt om de wachtrij te hervatten.")
+    retry_admission_preflight(repo, predecessor["run_id"])
+    return predecessor["run_id"]
+
+
 def dismiss_execution(repo: Path, run_id: str, *, dismissed_by: str = "dashboard_operator") -> dict[str, object]:
     """Acknowledge one terminal execution without changing engineering evidence."""
     if not re.fullmatch(r"inbox-[a-z0-9-]{6,64}", run_id):
