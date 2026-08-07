@@ -2,6 +2,22 @@
 
 Status: active platform-evolution repository
 
+## PR #790 finalization pending
+
+PR [#790](https://github.com/pcvantol/djconnect/pull/790), **Persist Producer
+Submission Envelope**, merged as `60203472d220a75982e501e5844c6a934dd2f3ef`.
+Engineering Platform now accepts a versioned producer submission envelope and
+persists normalized immutable context for dashboard, Prompt History and report
+projections, without deriving producer context from prompt text or accessing
+Forge runtime internals. Legacy plain-text producers remain supported. The
+immutable Prompt History record is
+`docs/history/prompts/2026-08-07-producer-submission-envelope.md`. Its
+governance-only Finalization PR [#791](https://github.com/pcvantol/djconnect/pull/791)
+reconciles the rolling records; its merge restores
+Repository State `MERGED_RECONCILED` and Workspace State `WORKSPACE_READY`
+after cleanup. Forge, queue admission, execution, runtime and product behavior
+are unchanged.
+
 ## PR #780 finalization reconciled
 
 PR [#780](https://github.com/pcvantol/djconnect/pull/780), **Make Execution
