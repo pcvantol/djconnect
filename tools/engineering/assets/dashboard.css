@@ -620,6 +620,9 @@ html[data-theme="light"] ::-webkit-scrollbar-track{background:#edf2f8}
 html[data-theme="light"] ::-webkit-scrollbar-thumb{background:#8b9aae;border-color:#edf2f8}
 html[data-theme="light"] ::-webkit-scrollbar-thumb:hover{background:#0a6b9d}
 
+/* Button labels and glyphs are controls, not selectable page content. */
+:where(button,[role="button"]),:where(button,[role="button"]) *{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+
 /* Direct-touch controls intentionally sit as a small glass layer above their
    surface. The pressed state lasts for the touch itself, giving iPhone users
    immediate tactile confirmation without changing desktop pointer behaviour. */
@@ -639,4 +642,8 @@ html[data-theme="light"] ::-webkit-scrollbar-thumb:hover{background:#0a6b9d}
     box-shadow:0 10px 20px rgb(15 23 42 / .34),0 3px 6px rgb(15 23 42 / .22),inset 0 1px 0 rgb(255 255 255 / .58);
   }
   .reset-log-filters:not(:disabled):active{transform:translateX(4px) translateY(-1px) scale(1.045)}
+  /* Title-bar toggles are flat controls; the glass elevation is reserved for
+     discrete action buttons and must not create a dark rectangular surface. */
+  .dashboard-titlebar :is(.theme-toggle,.section-state-toggle){-webkit-backdrop-filter:none;backdrop-filter:none;background-image:none;box-shadow:none;will-change:auto}
+  .dashboard-titlebar :is(.theme-toggle,.section-state-toggle):active{box-shadow:none}
 }

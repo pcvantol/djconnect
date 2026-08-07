@@ -515,6 +515,8 @@ test.describe("Engineering Status browser smoke", () => {
     expect(styles).toContain("backdrop-filter:blur(12px)");
     expect(styles).toContain("background-image:linear-gradient");
     expect(styles).toContain("scale(1.045)");
+    expect(styles).toContain("-webkit-user-select:none");
+    expect(styles).toContain(".dashboard-titlebar :is(.theme-toggle,.section-state-toggle)");
   });
 
   test("keeps the execution-details modal as compact as the report modal on iPhone", async ({ page }) => {
