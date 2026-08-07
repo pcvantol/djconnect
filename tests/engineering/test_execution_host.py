@@ -1083,6 +1083,9 @@ class LocalAgentRunnerTest(unittest.TestCase):
         self.assertIn("- Producer Type: `FORGE`", body)
         self.assertIn("- Mission ID: `MISSION-0003`", body)
         self.assertIn("- Engineering Action ID: `EA-0042`", body)
+        self.assertIn("- Execution lifecycle: `COMPLETE`", body)
+        self.assertIn("- Execution liveness:", body)
+        self.assertIn("- Recovery action:", body)
 
     def test_terminal_report_projects_forge_recommendation_without_governance_mutation(self) -> None:
         (self.root / "recommendation.json").write_text(

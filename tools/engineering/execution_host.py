@@ -58,7 +58,7 @@ from .host_preflight import latest as latest_host_preflight
 from .workspace_preflight import latest as latest_workspace_preflight
 from .capability_preflight import latest as latest_capability_preflight
 from .drift_diagnostics import summary as drift_summary
-from .execution_lease import Lease, LeaseConflictError, LeaseHeartbeat, acquire as acquire_lease, heartbeat as heartbeat_lease, history as lease_history, host_identity, host_instance_id, reconcile_stale, release as release_lease
+from .execution_lease import Lease, LeaseConflictError, LeaseHeartbeat, acquire as acquire_lease, heartbeat as heartbeat_lease, history as lease_history, host_identity, host_instance_id, liveness as lease_liveness, reconcile_stale, release as release_lease
 from .execution_readiness import ReadinessFacts, decide as decide_readiness, evaluate as evaluate_readiness, selected_profile
 from .execution_transaction import ExecutionTransaction
 from .execution_evidence import TerminalEvidenceBundle
@@ -2005,6 +2005,14 @@ def generate_terminal_report(
         for item in preflight.get("drift_evidence", [])
         if isinstance(item, dict)
     ]
+    liveness = lease_liveness(root, state.run_id)
+    recovery = (
+        "Resume available under the existing lifecycle policy."
+        if liveness.get("reconciliation_outcome") == "RECOVERABLE"
+        else "Terminal evidence reconciled."
+        if liveness.get("reconciliation_outcome") == "TERMINAL_EVIDENCE_PRESENT"
+        else "No recovery action is required."
+    )
     body = "\n".join(
         (
             "# Engineering Report",
@@ -2013,6 +2021,9 @@ def generate_terminal_report(
             f"- Run ID: `{state.run_id}`",
             f"- Prompt: `{state.prompt_path}`",
             f"- Terminal state: `{state.phase}`",
+            f"- Execution lifecycle: `{state.phase}`",
+            f"- Execution liveness: `{liveness.get('state', 'UNAVAILABLE')}`",
+            f"- Recovery action: {recovery}",
             f"- Objective: {objective}",
             "",
             "## Producer",
