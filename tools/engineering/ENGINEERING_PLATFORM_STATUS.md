@@ -93,6 +93,10 @@ changes execution semantics.
   and `44px` for the primary send action. They share a shadow and semantic
   hover treatment: orange for close/download, purple for copy/send, and red
   for destructive actions.
+- On direct-touch devices, buttons render as a subtle frosted glass layer over
+  their surface and expand briefly while pressed. The effect is temporary,
+  respects disabled controls and deliberately leaves desktop pointer behaviour
+  unchanged.
 - Scrollbars use the console surface and accent palette throughout the site,
   including modal and chat overflow regions. Native browser fallbacks remain
   usable where scrollbar styling is not supported.
