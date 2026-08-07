@@ -4,6 +4,11 @@ The Execution Host owns the Engineering lifecycle, checkpoints and terminal
 evidence. It does not own platform process execution or dashboard projection.
 
 - `execution_host.py` coordinates a single bounded lifecycle.
+- `execution_transaction.py` owns transaction-scoped identity and lease context.
+- `execution_repository.py` owns repository and GitHub coordination through the
+  canonical Git and GitHub providers.
+- `execution_models.py` and `execution_evidence.py` own shared execution and
+  terminal-evidence value types.
 - `execution_lease.py` owns SQLite-backed active-run ownership and liveness.
 - `execution_readiness.py` selects and evaluates one typed readiness profile.
 - `providers.py` is the process/platform boundary. Codex, local Git, launchd,
@@ -19,8 +24,15 @@ Each admitted run persists a typed readiness decision in the canonical
 datastore. The policy defines requirements; preflight and providers acquire
 facts; the Execution Host only responds to the resulting decision.
 
-The current migration inventory intentionally retains process calls in
-dashboard diagnostics, qualification helpers and logging utilities. They are
-read-only/supporting components and are outside the Execution Host lifecycle
-boundary; future provider migration must preserve that separation rather than
-moving lifecycle decisions into providers.
+The provider inventory is intentionally narrow: `CodexCliProvider` owns Codex
+CLI invocation, `GitProvider` local Git, `GitHubProvider` GitHub CLI,
+`LaunchdProvider` service control, `ICloudProvider` Inbox transport facts and
+`TailscaleProvider` network identity. `LocalProcessProvider` is the sole
+generic process implementation. Core orchestration consumes their typed
+results and owns neither process invocation nor lifecycle policy.
+
+Lease reconciliation is datastore-only. A stale lifecycle checkpoint is
+projected separately as `STALE`, never as an active run; the Inbox watcher only
+gates later work on a valid live lease after a transaction exists. Recovery
+continues through the existing Resume/Retry/Dismiss semantics and retains the
+previous lease history.
