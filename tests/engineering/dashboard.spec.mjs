@@ -2195,6 +2195,29 @@ test.describe("Engineering Status browser smoke", () => {
     expect(box.y + box.height).toBeLessThanOrEqual(844);
   });
 
+  test("uses the house-orange focus contract and a light mobile options surface", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+
+    const styles = await page.evaluate(() => {
+      const root = document.documentElement;
+      root.dataset.theme = "light";
+      const summary = document.querySelector("#dashboardTitlebarOptions > summary");
+      document.querySelector("#dashboardTitlebarOptions").open = true;
+      const input = document.querySelector("#autoRefresh");
+      input.focus({ preventScroll: true });
+      return {
+        focusOutline: getComputedStyle(input).outlineColor,
+        summaryBackground: getComputedStyle(summary).backgroundColor,
+        summaryColor: getComputedStyle(summary).color,
+      };
+    });
+
+    expect(styles.focusOutline).toBe("rgb(240, 182, 106)");
+    expect(styles.summaryBackground).not.toBe("rgb(17, 19, 29)");
+    expect(styles.summaryColor).toBe("rgb(24, 34, 48)");
+  });
+
   test("keeps the sticky title bar square while padding content evenly", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     const padding = await page.locator(".dashboard-titlebar").evaluate((element) => {

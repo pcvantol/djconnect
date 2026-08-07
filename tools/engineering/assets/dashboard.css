@@ -13,6 +13,8 @@ html,body{-webkit-text-size-adjust:100%;text-size-adjust:100%;touch-action:manip
   --dashboard-focus-outline-width:3px;
   --dashboard-focus-outline-offset:3px;
   --dashboard-focus-ring-size:6px;
+  --dashboard-input-focus-border:var(--house-style);
+  --dashboard-input-focus-ring:color-mix(in srgb,var(--house-style) 30%,transparent);
   --dashboard-surface-base:#24242d;
   --dashboard-surface-light:#fff;
   --dashboard-page-surface-light:#e8edf4;
@@ -41,6 +43,8 @@ html[data-theme="light"]{
   --dashboard-modal-document-surface:#f7fbff;
   --dashboard-modal-ink:#182230;
   --dashboard-modal-muted:#415168;
+  --operations-console-icon-surface:#e8edf4;
+  --operations-console-blue-ink:#182230;
 }
 .log-controls label:has(#logSort){display:none}.log-table th.log-sortable{cursor:pointer;user-select:none}.log-table th.log-sortable::after{color:#8dc7ff;content:attr(data-sort-indicator);font-size:11px;margin-left:6px}.log-table th.log-sortable:focus-visible{outline:2px solid #8dc7ff;outline-offset:-2px}
 .current-run .card:has(#indicator){background:#2a2530;border-left:3px solid #c7a6ff}.current-run .card:has(#predecessorRun),#currentDiagnostic,.technical-details--diagnostic{background:#302a24;border-left:3px solid #f0b66a}.current-run .card:has(#queueList),.current-run .card:has(#runId),.current-run .card:has(#executionMode){background:#28263a;border-left:3px solid #a78bfa}.current-run .card:has(#currentTime),.current-run .card:has(#executionEstimate){background:#202b34;border-left:3px solid #65c5d9}#processMetrics,#usage,#rateLimits{background:#20332f;border-left:3px solid #54d6a0}#commits{background:#202a36;border-left:3px solid #8dc7ff}#codexChat{background:#292336;border-left:3px solid #d0a4ff}
@@ -361,7 +365,6 @@ html[data-theme="light"] .dashboard-locale select{background:var(--dashboard-sur
   min-height:0;
   overflow-y:hidden;
 }
-:where(button,input,select,textarea,summary,[role="button"],[tabindex]):focus-visible{outline-width:var(--dashboard-focus-outline-width);outline-offset:var(--dashboard-focus-outline-offset);box-shadow:0 0 0 var(--dashboard-focus-ring-size) color-mix(in srgb,var(--category-color,#8dc7ff) 24%,transparent)}
 @media (max-width:620px) and (orientation:portrait){
   /* iOS handles a document scroll more reliably than a nested flex scroller.
      It also lets the title naturally leave the viewport with the content. */
@@ -706,3 +709,8 @@ html[data-theme="light"] ::-webkit-scrollbar-thumb:hover{background:#0a6b9d}
     box-shadow:none;
   }
 }
+
+/* Keep the input contract last: individual cards may colour their content,
+   but they must never replace the selected-control border. */
+:where(input,select,textarea):is(:focus,:focus-visible){border-color:var(--dashboard-input-focus-border)!important;outline:var(--dashboard-focus-outline-width) solid var(--dashboard-input-focus-border)!important;outline-offset:var(--dashboard-focus-outline-offset)!important;box-shadow:0 0 0 var(--dashboard-focus-ring-size) var(--dashboard-input-focus-ring)!important}
+:where(button,summary,[role="button"],[tabindex]):focus-visible{outline:var(--dashboard-focus-outline-width) solid var(--dashboard-input-focus-border)!important;outline-offset:var(--dashboard-focus-outline-offset)!important;box-shadow:0 0 0 var(--dashboard-focus-ring-size) var(--dashboard-input-focus-ring)!important}
