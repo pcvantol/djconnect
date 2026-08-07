@@ -226,6 +226,20 @@ class InboxWatcherTest(unittest.TestCase):
         with patch("tools.engineering.inbox_watcher.os.kill", side_effect=ProcessLookupError):
             self.assertFalse(inbox_watcher._active_transaction(self.repo))
 
+    def test_stale_canonical_transaction_does_not_hold_the_inbox(self) -> None:
+        run_id = "inbox-stale-lease"
+        inbox_watcher.status(self.repo, "ENGINEERING_RUN_ACTIVE", run_id=run_id)
+        connection = open_storage(self.repo)
+        try:
+            store_projection(connection, "live_status", {"run_id": run_id, "phase": "EXECUTE_AGENT"})
+            connection.execute(
+                "INSERT INTO engineering_transactions(run_id,payload,phase,updated_at) VALUES(?,?,?,?)",
+                (run_id, "{}", "EXECUTE_AGENT", "2026-01-01T00:00:00+00:00"),
+            )
+        finally:
+            connection.close()
+        self.assertFalse(inbox_watcher._active_transaction(self.repo))
+
     def test_expired_legacy_runner_start_does_not_hold_the_inbox(self) -> None:
         self.assertFalse(
             inbox_watcher._detached_runner_is_alive(

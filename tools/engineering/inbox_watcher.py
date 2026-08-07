@@ -44,7 +44,7 @@ from .capability_preflight import execute as execute_capability_preflight
 from .producer import parse_producer_metadata
 from .drift_diagnostics import summary as drift_summary
 from .storage import EngineeringStorageError, load_projection, open_storage, record_artifact, record_submission
-from .execution_lease import reconcile_stale
+from .execution_lease import liveness as lease_liveness, reconcile_stale
 
 LABEL = "com.djconnect.engineering-inbox"
 WATCHER_VERSION = "1.1.5"
@@ -685,6 +685,12 @@ def _active_transaction(repo: Path) -> bool:
         checkpoint_phase, _ = _runner_result(repo, run_id)
         if checkpoint_phase in TERMINAL_PHASES:
             return False
+        # A transaction lifecycle checkpoint is not liveness evidence. Once
+        # the Execution Host has persisted the transaction, only its canonical
+        # lease may keep later Inbox work gated. This prevents a crashed host
+        # with an old ACTIVE checkpoint from blocking the queue indefinitely.
+        if checkpoint_phase is not None:
+            return lease_liveness(repo, run_id).get("state") == "LIVE"
         # The runner can stop after publishing its terminal watcher result but
         # before replacing current.json. The watcher result is authoritative
         # for that same Run ID, so it must not hold later Inbox work hostage.

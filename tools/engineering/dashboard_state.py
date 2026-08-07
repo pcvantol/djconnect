@@ -171,6 +171,37 @@ def status(root: Path) -> bytes:
     if (
         live
         and live.get("phase") not in TERMINAL_PHASES
+        and live_liveness.get("state") != "LIVE"
+        and (
+            not watcher
+            or (
+                watcher.get("run_id") == live.get("run_id")
+                and watcher.get("watcher_state") in {"JOB_CLAIMED", "RUNNER_STARTING", "REPORT_PUBLISHING", "ENGINEERING_RUN_ACTIVE"}
+            )
+        )
+    ):
+        # Lifecycle is intentionally retained for auditability, but a stale
+        # lease must never be presented as an actively running execution.
+        stale_projection = json.loads(projection or b"{}")
+        reconciliation = live_liveness.get("reconciliation_outcome")
+        recovery = (
+            "RESUME_AVAILABLE"
+            if reconciliation == "RECOVERABLE"
+            else "TERMINAL_EVIDENCE_RECONCILIATION"
+            if reconciliation == "TERMINAL_EVIDENCE_PRESENT"
+            else "OPERATOR_INTERVENTION_REQUIRED"
+        )
+        stale_projection.update(
+            {
+                "watcher_state": "ENGINEERING_RUN_STALE",
+                "current_action": "Execution Host ownership is stale; no execution is currently running.",
+                "recovery_action": recovery,
+            }
+        )
+        return json.dumps(stale_projection, separators=(",", ":")).encode()
+    if (
+        live
+        and live.get("phase") not in TERMINAL_PHASES
         and live_liveness.get("state") == "LIVE"
         and not _terminal_checkpoint(root, live.get("run_id"))
         and not _watcher_has_terminal_run(watcher, live.get("run_id"))
