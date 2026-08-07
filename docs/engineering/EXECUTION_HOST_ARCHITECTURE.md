@@ -20,6 +20,11 @@ Genesis target. A Genesis run only evaluates its target profile; a Managed run
 only evaluates its repository profile. JSON status files are projections, not
 an ownership or lifecycle authority.
 
+The immutable profile lists repository, remote, upstream, clean-worktree,
+branch, workspace authorization, host and capability qualification, providers,
+datastore, active-lease and Producer Contract requirements. Facts are observed
+separately; an unknown required fact blocks admission.
+
 Each admitted run persists a typed readiness decision in the canonical
 datastore. The policy defines requirements; preflight and providers acquire
 facts; the Execution Host only responds to the resulting decision.
