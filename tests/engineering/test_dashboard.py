@@ -629,8 +629,8 @@ class DashboardStatusTest(unittest.TestCase):
             )
             status = json.loads(_status(Path(temporary)))
 
-        self.assertEqual(status["current_phase"], "INITIALIZE")
-        self.assertEqual(status["run_id"], "inbox-new")
+        self.assertEqual(status["current_phase"], "BLOCKED")
+        self.assertIsNone(status.get("run_id"))
 
     def test_live_runner_status_preserves_the_watcher_queue_projection(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -675,7 +675,7 @@ class DashboardStatusTest(unittest.TestCase):
 
         self.assertRegex(details["size"], r"^\d+,\d{2} MB$")
         self.assertNotEqual(details["size"], "0,00 MB")
-        self.assertEqual(details["schema_version"], "13")
+        self.assertEqual(details["schema_version"], "15")
 
     @patch("tools.engineering.dashboard.subprocess.run")
     def test_tracked_file_count_counts_recursive_git_index_entries(self, run: object) -> None:

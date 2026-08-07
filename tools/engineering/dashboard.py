@@ -24,8 +24,7 @@ import uuid
 from urllib.parse import parse_qs, urlsplit
 from .platform_api import PlatformConfiguration
 from .platform_bootstrap import provision_workspace
-from .providers import TailscaleProvider
-from .providers import LaunchdProvider
+from .providers import GitProvider, LaunchdProvider, TailscaleProvider
 from .inbox_watcher import LABEL as WATCHER_LABEL
 from .inbox_watcher import WATCHER_VERSION
 from .inbox_watcher import RetrySubmissionError, cloud_root, dismiss_execution, queued_retry_children, submit_execution_retry, submit_predecessor_retry
@@ -1048,28 +1047,23 @@ def _prompt_started(root: Path) -> bytes:
 
 def _build_commit(root: Path) -> str:
     """Return the local checked-out revision for read-only dashboard identification."""
-    observed = subprocess.run(
-        ("git", "-C", str(root), "rev-parse", "--short=12", "HEAD"),
-        text=True,
-        capture_output=True,
-        check=False,
-    )
+    try:
+        observed = GitProvider().execute(root, "git", "rev-parse", "--short=12", "HEAD")
+    except OSError:
+        return "onbekend"
     return observed.stdout.strip() if observed.returncode == 0 else "onbekend"
 
 
 def _tracked_file_count(root: Path) -> str:
     """Return the recursive count of files tracked by the workspace Git repository."""
     try:
-        observed = subprocess.run(
-            ("git", "-C", str(root), "ls-files", "-z"),
-            capture_output=True,
-            check=False,
-        )
+        observed = GitProvider().execute(root, "git", "ls-files", "-z")
     except OSError:
         return "Niet beschikbaar"
     if observed.returncode != 0:
         return "Niet beschikbaar"
-    return str(sum(1 for path in observed.stdout.split(b"\0") if path))
+    separator = b"\0" if isinstance(observed.stdout, bytes) else "\0"
+    return str(sum(1 for path in observed.stdout.split(separator) if path))
 
 
 def _workspace_free_disk_space(root: Path) -> str:
