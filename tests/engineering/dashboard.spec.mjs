@@ -545,6 +545,29 @@ test.describe("Engineering Status browser smoke", () => {
     )).toBe(true);
   });
 
+  test("keeps confirmation actions above iPhone browser chrome for long copy", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    const modal = page.locator("#confirmationModal");
+    await modal.evaluate((element) => {
+      element.querySelector("#confirmationModalText").textContent = "Deze bevestiging bevat extra toelichting. ".repeat(80);
+      element.showModal();
+    });
+
+    const actions = modal.locator("#confirmationModalCancel, #confirmationModalConfirm");
+    await expect(actions).toHaveCount(2);
+    await expect(actions.nth(0)).toBeVisible();
+    await expect(actions.nth(1)).toBeVisible();
+    const placement = await actions.evaluateAll((buttons) => ({
+      viewportHeight: window.visualViewport?.height ?? window.innerHeight,
+      bottoms: buttons.map((button) => button.getBoundingClientRect().bottom),
+      panelBottom: document.querySelector(".confirmation-modal__panel").getBoundingClientRect().bottom,
+    }));
+    expect(Math.max(...placement.bottoms)).toBeLessThanOrEqual(placement.viewportHeight);
+    expect(Math.max(...placement.bottoms)).toBeLessThanOrEqual(placement.panelBottom);
+    await modal.evaluate((element) => element.close());
+  });
+
   test("keeps the prompt-history AI chat as compact as the detail modal on iPhone", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
