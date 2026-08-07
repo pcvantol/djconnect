@@ -12,6 +12,7 @@ from threading import Lock
 from typing import Any
 
 from .prompt_history import prompt_history
+from .providers import GitProvider
 
 
 MAX_MESSAGE_CHARACTERS = 2_000
@@ -59,12 +60,7 @@ def _report(root: Path, run_id: str) -> str:
 
 
 def _repository_summary(root: Path) -> str:
-    observed = subprocess.run(
-        ("git", "-C", str(root), "status", "--short", "--branch"),
-        text=True,
-        capture_output=True,
-        check=False,
-    )
+    observed = GitProvider().execute(root, "git", "status", "--short", "--branch")
     return observed.stdout[:2_000] if observed.returncode == 0 else "Niet beschikbaar."
 
 
