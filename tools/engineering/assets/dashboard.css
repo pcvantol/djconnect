@@ -540,7 +540,7 @@ html[data-theme="light"] #pullRefresh{background:var(--house-style-surface);bord
 }
 :is(.report-view-modal,.prompt-detail-modal,.prompt-chat-modal)::backdrop{background:var(--dashboard-modal-backdrop)}
 :is(.report-view-modal__content,.prompt-detail-card){background:var(--dashboard-modal-surface)}
-:is(.prompt-detail-modal__description,.prompt-chat-modal__description){color:var(--dashboard-modal-muted)}
+:is(.prompt-detail-modal__description,.prompt-chat-modal__description){border-bottom:1px solid var(--category-color);color:var(--dashboard-modal-muted);margin:16px 0 18px;padding-bottom:18px}
 
 /* Report modal: a fixed header with one scrolling document surface. */
 .report-view-modal__panel{--report-modal-surface:var(--dashboard-modal-surface)}

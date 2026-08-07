@@ -453,6 +453,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#promptHistoryDetailModal")).toHaveClass(/dashboard-modal-shell--evidence/);
     await expect(page.locator("#promptHistoryDetailModal .prompt-detail-modal__panel")).toHaveClass(/dashboard-modal-shell__panel/);
     await expect(page.locator("#promptHistoryDetailModal .prompt-detail-modal__header")).toHaveClass(/dashboard-modal-shell__header/);
+    await expect(page.locator("#promptHistoryDetailDescription")).toHaveCSS("border-bottom-color", "rgb(141, 199, 255)");
     await expect(page.locator("#promptHistoryDetailContent")).toContainText("Engineering Platform");
     await expect(page.locator("dialog[open]")).toHaveCount(1);
   });
