@@ -489,7 +489,9 @@ test.describe("Engineering Status browser smoke", () => {
   });
 
   test("renders a read-only Forge recommendation handoff with expandable alternatives", async ({ page }) => {
-    await page.route("**/api/prompt-history", (route) => route.fulfill({ json: { runs: [] } }));
+    await page.route("**/api/prompt-history", (route) => route.fulfill({ json: { runs: [{
+      run_id: "inbox-handoff", status: "COMPLETE", title: "Forge handoff", executed_at: "2026-08-04T08:00:00Z",
+    }] } }));
     await page.route("**/api/prompt-history/inbox-handoff/details", (route) => route.fulfill({ json: {
       history: { run_id: "inbox-handoff", status: "COMPLETE", title: "Forge handoff", executed_at: "2026-08-04T08:00:00Z" },
       recommendation_handoff: {
@@ -500,7 +502,8 @@ test.describe("Engineering Status browser smoke", () => {
     } }));
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.locator("#autoRefresh").uncheck();
-    await page.evaluate(() => { document.querySelector("#promptHistory").open = true; promptHistoryEntries = [{ run_id: "inbox-handoff", status: "COMPLETE", title: "Forge handoff", executed_at: "2026-08-04T08:00:00Z" }]; renderPromptHistory(); });
+    await page.locator("#promptHistoryRows .prompt-history-row").waitFor();
+    await page.evaluate(() => { document.querySelector("#promptHistory").open = true; });
     await page.locator("#promptHistoryRows tr td").nth(1).click();
     await expect(page.locator("#promptHistoryDetailContent")).toContainText("Mission Aurora");
     const alternatives = page.locator(".recommendation-alternatives");
