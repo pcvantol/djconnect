@@ -5,7 +5,7 @@ import tempfile
 import unittest
 
 from tools.engineering.agent_state import StateStore, TransactionState
-from tools.engineering.execution_lease import LeaseConflictError, LeaseHeartbeat, acquire, heartbeat, liveness, reconcile_stale, release
+from tools.engineering.execution_lease import LeaseConflictError, LeaseHeartbeat, acquire, heartbeat, history, liveness, reconcile_stale, release
 from tools.engineering.storage import open_storage
 
 
@@ -58,3 +58,10 @@ class ExecutionLeaseTest(unittest.TestCase):
         stopped = pulse.stop()
         self.assertIsNone(pulse.error)
         self.assertEqual(stopped.lease_id, lease.lease_id)
+
+    def test_history_retains_released_lease_evidence(self) -> None:
+        lease = acquire(self.root, "inbox-lease", identity="host", instance_id="instance-a")
+        release(self.root, lease)
+        evidence = history(self.root, "inbox-lease")
+        self.assertEqual(evidence["lease_state"], "RELEASED")
+        self.assertEqual(evidence["host_instance_id"], "instance-a")
