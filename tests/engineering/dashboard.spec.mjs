@@ -1547,7 +1547,7 @@ test.describe("Engineering Status browser smoke", () => {
       dashboard: { healthy: true, detail: "HTTP-dashboard reageert", version: "1.2.87", uptime_seconds: 1440 },
     }}));
 
-    const alignment = await page.locator(".platform-health__component").evaluate((card) => {
+    const alignment = await page.locator(".platform-health__component").first().evaluate((card) => {
       const box = card.getBoundingClientRect();
       const name = card.querySelector(".platform-health__component-name").getBoundingClientRect();
       const detail = card.querySelector(".platform-health__component-detail").getBoundingClientRect();
