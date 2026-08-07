@@ -24,7 +24,7 @@ import uuid
 from urllib.parse import parse_qs, urlsplit
 from .platform_api import PlatformConfiguration
 from .platform_bootstrap import provision_workspace
-from .providers import CodexCliProvider, GitProvider, LaunchdProvider, TailscaleProvider
+from .providers import CodexCliProvider, GitProvider, LaunchdProvider, LocalProcessProvider, TailscaleProvider
 from .inbox_watcher import LABEL as WATCHER_LABEL
 from .inbox_watcher import WATCHER_VERSION
 from .inbox_watcher import RetrySubmissionError, cloud_root, dismiss_execution, queued_retry_children, submit_execution_retry, submit_predecessor_retry
@@ -354,14 +354,8 @@ def _codex_provider_identity() -> dict[str, str]:
     executable = shutil.which("codex")
     if executable:
         try:
-            completed = subprocess.run(
-                (executable, "--version"),
-                text=True,
-                capture_output=True,
-                check=False,
-                timeout=3,
-            )
-        except (OSError, subprocess.TimeoutExpired):
+            completed = LocalProcessProvider().execute(Path.cwd(), (executable, "--version"))
+        except OSError:
             completed = None
         if completed and completed.returncode == 0:
             match = re.search(
@@ -615,12 +609,7 @@ def _component_processes(component: str) -> list[dict[str, int | str]]:
     if not patterns:
         return []
     try:
-        observed = subprocess.run(
-            ("ps", "-axo", "pid=,rss=,etime=,command="),
-            text=True,
-            capture_output=True,
-            check=False,
-        )
+        observed = LocalProcessProvider().execute(Path.cwd(), ("ps", "-axo", "pid=,rss=,etime=,command="))
     except OSError:
         return []
     if observed.returncode:
@@ -730,12 +719,7 @@ def _codex_process_metrics(root: Path) -> bytes:
     if not isinstance(process_group, int) or process_group <= 0 or not isinstance(runner_pid, int) or runner_pid <= 0:
         return json.dumps({"process_count": 0, "cpu_percent": 0, "gpu_status": "Niet beschikbaar: geen actieve Execution Host-runner."}, separators=(",", ":")).encode()
     try:
-        observed = subprocess.run(
-            ("ps", "-axo", "pid=,pgid=,pcpu=,command="),
-            text=True,
-            capture_output=True,
-            check=False,
-        )
+        observed = LocalProcessProvider().execute(Path.cwd(), ("ps", "-axo", "pid=,pgid=,pcpu=,command="))
     except OSError:
         observed = None
     processes: list[dict[str, int | float]] = []
@@ -1664,7 +1648,9 @@ def build_relay(repo: Path) -> Path:
         raise RuntimeError("Swift compiler ontbreekt; de private dashboardrelay kan niet starten.")
     binary = relay_binary(repo)
     binary.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
-    subprocess.run((compiler, str(repo / "tools/engineering/dashboard_supervisor.swift"), "-o", str(binary)), check=True)
+    compiled = LocalProcessProvider().execute(repo, (compiler, str(repo / "tools/engineering/dashboard_supervisor.swift"), "-o", str(binary)))
+    if compiled.returncode:
+        raise RuntimeError("Dashboardrelay compilation failed.")
     binary.chmod(0o700)
     return binary
 
