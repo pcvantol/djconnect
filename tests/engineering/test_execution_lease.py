@@ -12,7 +12,8 @@ from tools.engineering.storage import open_storage
 
 class ExecutionLeaseTest(unittest.TestCase):
     def setUp(self) -> None:
-        self.temp = tempfile.TemporaryDirectory(); self.root = Path(self.temp.name)
+        self.temp = tempfile.TemporaryDirectory()
+        self.root = Path(self.temp.name)
         StateStore(self.root / ".engineering" / "engineering-runs").save(
             TransactionState("inbox-lease", "repo", "prompt.md", "INITIALIZE")
         )
