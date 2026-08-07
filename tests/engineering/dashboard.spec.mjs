@@ -1094,6 +1094,8 @@ test.describe("Engineering Status browser smoke", () => {
 
     await disclosure.click();
     await expect(options).toHaveAttribute("open", "");
+    await expect(page.locator("#dashboardLocaleButton")).toBeVisible();
+    await expect(page.locator("#dashboardLocaleButton")).toContainText("Nederlands");
     for (const label of [
       ".dashboard-titlebar__options-content .dashboard-locale > span:first-child",
       ".dashboard-titlebar__options-content .theme-toggle__label",
@@ -1108,6 +1110,12 @@ test.describe("Engineering Status browser smoke", () => {
       ".dashboard-titlebar__options-content > .dashboard-locale, .dashboard-titlebar__options-content > .theme-toggle, .dashboard-titlebar__options-content > .section-state-toggle, .dashboard-titlebar__options-content > .auto-refresh-toggle",
     ).evaluateAll((elements) => elements.map((element) => Math.round(element.getBoundingClientRect().top)));
     expect(controls).toEqual([...controls].sort((first, second) => first - second));
+    const titlebarLayout = await page.evaluate(() => {
+      const refresh = document.querySelector("#pageRefresh").getBoundingClientRect();
+      const options = document.querySelector("#dashboardTitlebarOptions").getBoundingClientRect();
+      return { refreshBottom: Math.round(refresh.bottom), optionsTop: Math.round(options.top) };
+    });
+    expect(titlebarLayout.refreshBottom).toBeLessThanOrEqual(titlebarLayout.optionsTop);
   });
 
   test("keeps each iPhone title-bar switch thumb inside its track", async ({ page }) => {
