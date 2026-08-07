@@ -452,6 +452,59 @@ test.describe("Engineering Status browser smoke", () => {
     }
   });
 
+  test("applies the compact header and standard action scale to every modal", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 760 });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+
+    const titles = [];
+    for (const selector of [
+      "#componentModal",
+      "#confirmationModal",
+      "#promptHistoryReportModal",
+      "#promptHistoryDetailModal",
+      "#promptHistoryChatModal",
+    ]) {
+      const modal = page.locator(selector);
+      await modal.evaluate((element) => element.showModal());
+      const metrics = await modal.evaluate((element) => {
+        const panel = element.querySelector(".dashboard-modal-shell__panel");
+        const header = element.querySelector(".dashboard-modal-shell__header");
+        const title = header.querySelector("h2");
+        const close = header.querySelector(".dashboard-modal-shell__close");
+        const headerStyle = getComputedStyle(header);
+        const closeBox = close.getBoundingClientRect();
+        return {
+          panelBackground: getComputedStyle(panel).backgroundColor,
+          headerBackground: headerStyle.backgroundColor,
+          paddingTop: headerStyle.paddingTop,
+          paddingBottom: headerStyle.paddingBottom,
+          titleSize: getComputedStyle(title).fontSize,
+          closeWidth: Math.round(closeBox.width),
+          closeHeight: Math.round(closeBox.height),
+        };
+      });
+      expect(metrics.headerBackground).not.toBe(metrics.panelBackground);
+      expect(metrics.paddingTop).toBe(metrics.paddingBottom);
+      expect(metrics.closeWidth).toBe(32);
+      expect(metrics.closeHeight).toBe(32);
+      titles.push(metrics.titleSize);
+      await modal.evaluate((element) => element.close());
+    }
+    expect(new Set(titles)).toEqual(new Set(["20px"]));
+  });
+
+  test("keeps the site-wide scrollbar and action-size tokens explicit", () => {
+    const styles = readFileSync(
+      path.join(repository, "tools/engineering/assets/dashboard.css"),
+      "utf8",
+    );
+    expect(styles).toContain("::-webkit-scrollbar-thumb");
+    expect(styles).toContain("scrollbar-color:");
+    expect(styles).toMatch(/\.dashboard-action\s*\{[\s\S]*?height:\s*32px/);
+    expect(styles).toMatch(/\.chat-message__copy\s*\{[\s\S]*?height:\s*25px/);
+    expect(styles).toMatch(/\.chat-compose \.chat-send\s*\{[\s\S]*?height:\s*44px/);
+  });
+
   test("keeps the execution-details modal as compact as the report modal on iPhone", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
@@ -527,18 +580,18 @@ test.describe("Engineering Status browser smoke", () => {
 
   test("changes visible interface copy for each supported language", async ({ page }) => {
     const expectations = [
-      ["en", "Language", "Refresh automatically", "AI analysis", "Passed", "Execution", "Resume Queue", "Active prompt", "Inbox queue", "Prompts are executed in order of creation date.", "Engineering Status", "Loading data…", "Pull requests", "Implementation", "None", "Engineering Platform version", "Automatic refresh is off"],
-      ["nl", "Taal", "Automatisch vernieuwen", "AI-analyse", "Geslaagd", "Uitvoering", "Wachtrij hervatten", "Actieve prompt", "Inbox-wachtrij", "Prompts worden uitgevoerd op volgorde van aanmaakdatum.", "Engineeringstatus", "Gegevens laden…", "Pull requests", "Implementatie", "geen", "Engineering Platform-versie", "Automatisch vernieuwen is uit"],
-      ["de", "Sprache", "Automatisch aktualisieren", "KI-Analyse", "Erfolgreich", "Ausführung", "Warteschlange fortsetzen", "Aktiver Prompt", "Inbox-Warteschlange", "Prompts werden in der Reihenfolge ihres Erstellungsdatums ausgeführt.", "Engineering-Status", "Daten werden geladen…", "Pull Requests", "Implementierung", "Keine", "Engineering-Plattformversion", "Automatische Aktualisierung ist aus"],
-      ["fr", "Langue", "Actualiser automatiquement", "Analyse IA", "Réussi", "Exécution", "Reprendre la file", "Prompt actif", "File de réception", "Les prompts sont exécutés dans l’ordre de leur date de création.", "État de l’ingénierie", "Chargement des données…", "Pull requests", "Implémentation", "Aucun", "Version d’Engineering Platform", "Actualisation automatique désactivée"],
-      ["es", "Idioma", "Actualizar automáticamente", "Análisis de IA", "Superado", "Ejecución", "Reanudar cola", "Prompt activo", "Cola de entrada", "Los prompts se ejecutan por orden de fecha de creación.", "Estado de ingeniería", "Cargando datos…", "Solicitudes de extracción", "Implementación", "Ninguno", "Versión de Engineering Platform", "Actualización automática desactivada"],
+      ["en", "Language", "Refresh automatically", "AI analysis", "Passed", "Execution", "Resume Queue", "Active execution", "Execution queue", "New assignments wait for execution in order of creation date.", "Engineering Operations Console", "Loading data…", "Pull requests", "Implementation", "None", "Engineering Platform version", "Automatic refresh is off"],
+      ["nl", "Taal", "Automatisch vernieuwen", "AI-analyse", "Geslaagd", "Uitvoering", "Wachtrij hervatten", "Lopende uitvoering", "Wachtrij voor uitvoeringen", "Nieuwe opdrachten wachten op uitvoering in volgorde van aanmaakdatum.", "Engineering Operationele console", "Gegevens laden…", "Pull requests", "Implementatie", "geen", "Engineering Platform-versie", "Automatisch vernieuwen is uit"],
+      ["de", "Sprache", "Automatisch aktualisieren", "KI-Analyse", "Erfolgreich", "Ausführung", "Warteschlange fortsetzen", "Laufende Ausführung", "Ausführungswarteschlange", "Neue Aufträge warten in der Reihenfolge ihres Erstellungsdatums auf die Ausführung.", "Engineering-Betriebskonsole", "Daten werden geladen…", "Pull Requests", "Implementierung", "Keine", "Engineering-Plattformversion", "Automatische Aktualisierung ist aus"],
+      ["fr", "Langue", "Actualiser automatiquement", "Analyse IA", "Réussi", "Exécution", "Reprendre la file", "Exécution en cours", "File d’exécution", "Les nouvelles tâches attendent leur exécution dans l’ordre de leur création.", "Console des opérations d’ingénierie", "Chargement des données…", "Pull requests", "Implémentation", "Aucun", "Version d’Engineering Platform", "Actualisation automatique désactivée"],
+      ["es", "Idioma", "Actualizar automáticamente", "Análisis de IA", "Superado", "Ejecución", "Reanudar cola", "Ejecución en curso", "Cola de ejecuciones", "Las nuevas tareas esperan ejecución por orden de fecha de creación.", "Consola de operaciones de ingeniería", "Cargando datos…", "Solicitudes de extracción", "Implementación", "Ninguno", "Versión de Engineering Platform", "Actualización automática desactivada"],
     ];
 
     for (const [language, localeLabel, refreshLabel, analysisLabel, passLabel, detailTitle, queueAction, activePrompt, queueTitle, queueDescription, dashboardTitle, splashLoading, pullRequestsTitle, implementationLabel, noneLabel, platformVersionLabel, refreshOffLabel] of expectations) {
       await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
       await page.locator("#dashboardLocale").selectOption(language);
       await expect(page.locator("html")).toHaveAttribute("lang", language);
-      await expect(page.locator(".dashboard-locale span")).toHaveText(localeLabel);
+      await expect(page.locator('.dashboard-locale > span[data-i18n="language.label"]')).toHaveText(localeLabel);
       await expect(page.locator(".auto-refresh-toggle span")).toHaveText(refreshLabel);
       await expect(page.locator("#promptHistoryAnalysisHeader")).toHaveText(analysisLabel);
       await expect(page.locator("#predecessorRetry")).toHaveText(queueAction);
@@ -720,11 +773,11 @@ test.describe("Engineering Status browser smoke", () => {
   test("localizes prompt history column headings for every supported language", async ({ page }) => {
     await page.setViewportSize({ width: 1024, height: 844 });
     const expectations = [
-      ["en", ["Run ID", "Status", "Prompt title", "Executed at", "Report", "AI analysis", "AI chat", "Action", "Details"]],
-      ["nl", ["Run-ID", "Status", "Prompttitel", "Uitgevoerd op", "Rapport", "AI-analyse", "AI-gesprek", "Actie", "Details"]],
-      ["de", ["Run-ID", "Status", "Prompttitel", "Ausgeführt am", "Bericht", "KI-Analyse", "KI-Chat", "Aktion", "Details"]],
-      ["fr", ["ID exéc.", "État", "Titre du prompt", "Exécuté le", "Rapport", "Analyse IA", "Chat IA", "Action", "Détails"]],
-      ["es", ["ID ejec.", "Estado", "Título del prompt", "Ejecutado el", "Informe", "Análisis de IA", "Chat de IA", "Acción", "Detalles"]],
+      ["en", ["Run ID", "Status", "Execution title", "Executed at", "Report", "AI analysis", "AI chat", "Action", "Details"]],
+      ["nl", ["Run-ID", "Status", "Uitvoeringstitel", "Uitgevoerd op", "Rapport", "AI-analyse", "AI-gesprek", "Actie", "Details"]],
+      ["de", ["Run-ID", "Status", "Ausführungstitel", "Ausgeführt am", "Bericht", "KI-Analyse", "KI-Chat", "Aktion", "Details"]],
+      ["fr", ["ID exéc.", "État", "Titre de l’exécution", "Exécuté le", "Rapport", "Analyse IA", "Chat IA", "Action", "Détails"]],
+      ["es", ["ID ejec.", "Estado", "Título de la ejecución", "Ejecutado el", "Informe", "Análisis de IA", "Chat de IA", "Acción", "Detalles"]],
     ];
     for (const [language, headers] of expectations) {
       await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
@@ -739,6 +792,7 @@ test.describe("Engineering Status browser smoke", () => {
     const historyLoaded = page.waitForResponse("**/api/prompt-history");
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await historyLoaded;
+    await page.locator("#autoRefresh").uncheck();
     await page.locator("#dashboardLocale").selectOption("en");
     await expect(page.locator("html")).toHaveAttribute("lang", "en");
     await page.waitForFunction(
@@ -753,7 +807,7 @@ test.describe("Engineering Status browser smoke", () => {
       }));
       renderPromptHistory();
     });
-    await expect(page.locator("#promptHistoryPagination")).toContainText("Page 1 of 11 · 101 prompts");
+    await expect(page.locator("#promptHistoryPagination")).toContainText("Page 1 of 11 · 101 executions");
     await expect(page.locator("#promptHistoryRows tr")).toHaveCount(10);
     expect(await page.locator("#promptHistory .log-table-wrap").evaluate((wrap) => {
       const style = getComputedStyle(wrap), table = wrap.querySelector("table");
@@ -1087,7 +1141,7 @@ test.describe("Engineering Status browser smoke", () => {
 
   test("labels the splash screen as loading data", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
-    await expect(page.getByTestId("dashboard-splash-icon")).toHaveAttribute("src", "/assets/engineering-status-icon.svg");
+    await expect(page.getByTestId("dashboard-splash-icon")).toHaveAttribute("src", "/assets/operations-console/apple-touch-icon-dark.png");
     await expect(page.getByTestId("dashboard-splash-icon")).toHaveAttribute("aria-hidden", "true");
     await expect(page.locator(".dashboard-splash__loading")).toHaveText("Gegevens laden…");
     await expect(page.locator(".dashboard-splash__version")).toHaveCSS("color", "rgb(240, 182, 106)");
@@ -2095,11 +2149,11 @@ test.describe("Engineering Status browser smoke", () => {
     // client-side projection first so a legitimate SSE update cannot replace
     // that deterministic fixture midway through the assertions.
     await page.locator("#autoRefresh").uncheck();
-    await expect(page.getByTestId("engineering-dashboard-title")).toHaveText("Engineeringstatus");
+    await expect(page.getByTestId("engineering-dashboard-title")).toHaveText("Operationele console");
     await expect(page.getByTestId("dashboard-splash")).toBeHidden();
-    await expect(page.locator("#dashboardFavicon")).toHaveAttribute("href", "/assets/engineering-status-icon.svg");
-    await expect(page.locator('link[rel="apple-touch-icon"]')).toHaveAttribute("href", "/assets/engineering-status-icon-180.png");
-    await expect(page.getByTestId("dashboard-app-icon")).toHaveAttribute("src", "/assets/engineering-status-icon.svg");
+    await expect(page.locator('link[rel="manifest"]')).toHaveAttribute("href", "/assets/operations-console/manifest.webmanifest");
+    await expect(page.locator('link[rel="apple-touch-icon"]')).toHaveAttribute("href", "/assets/operations-console/apple-touch-icon-dark.png");
+    await expect(page.getByTestId("dashboard-app-icon")).toHaveAttribute("src", "/assets/operations-console/apple-touch-icon-dark.png");
     await expect(page.getByTestId("engineering-workspace")).not.toHaveAttribute("open", "");
     expect(await page.getByTestId("engineering-workspace").evaluate((element) => element.parentElement.id)).toBe("engineering-dashboard-content");
     await expect(page.getByTestId("engineering-inbox-queue")).not.toHaveAttribute("open", "");
@@ -2133,7 +2187,7 @@ test.describe("Engineering Status browser smoke", () => {
     expect(Math.abs(arrowGeometry.closed.arrowRight - arrowGeometry.opened.arrowRight)).toBeLessThanOrEqual(0.1);
     expect(Math.abs(arrowGeometry.closed.arrowTop - arrowGeometry.opened.arrowTop)).toBeLessThanOrEqual(0.1);
     await expect(page.locator("#currentRun > summary > .current-run__category-description")).toHaveCount(1);
-    await expect(page.locator(".current-run__category-description")).toHaveText("De actieve engineeringprompt, met actuele voortgang, uitvoeringstijd en uitvoeringscontext.");
+    await expect(page.locator(".current-run__category-description")).toHaveText("Voortgang, doorlooptijd en context van de uitvoering die nu actief is.");
     expect(await page.locator("#indicator").evaluate((element) => element.parentElement.className)).toBe("current-run__prompt-heading");
     await expect(page.locator("#loadComponentLogs")).toHaveCount(0);
     await expect(page.getByTestId("pull-refresh")).toHaveText("Trek omlaag om te vernieuwen");

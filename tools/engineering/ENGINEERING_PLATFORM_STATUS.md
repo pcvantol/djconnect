@@ -79,6 +79,22 @@ changes execution semantics.
   per-run provenance (for example, `AI-provider: Codex CLI`). It offers
   server-pushed status, category-coded evidence cards, client-side structured
   log filtering/sorting and browser-session-local read-only advice history.
+- The Operations Console has one shared visual interaction contract across
+  dark and light themes. The transparent console mark is used in the title
+  bar and splash screen; packaged icon variants and their intended contexts
+  are recorded in `assets/operations-console/ASSET_CATALOG.md`.
+- Every modal uses the same full-width, context-tinted header inside its
+  rounded panel. Header content keeps equal vertical spacing, all modal titles
+  use the same compact `18–20px` scale and the category accent remains the
+  semantic cue (including green for platform health).
+- Circular controls are intentionally limited to three visual sizes: `25px`
+  for message-local actions, `32px` for standard actions and modal controls,
+  and `44px` for the primary send action. They share a shadow and semantic
+  hover treatment: orange for close/download, purple for copy/send, and red
+  for destructive actions.
+- Scrollbars use the console surface and accent palette throughout the site,
+  including modal and chat overflow regions. Native browser fallbacks remain
+  usable where scrollbar styling is not supported.
 - Engineering Storage schema `9` is versioned and fail-closed in the platform
   manifest. `.engineering/engineering.db` and the surrounding `.engineering/`
   workspace are canonical; a verified, fail-closed legacy migration preserves

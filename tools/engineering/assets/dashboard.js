@@ -1948,7 +1948,11 @@ executionTelemetry = (rows) => {
 };
 window.executionTelemetry = executionTelemetry;
 function updateFavicon() {
-  $("dashboardFavicon").href = "/assets/engineering-status-icon.svg";
+  const icon =
+    document.documentElement.dataset.theme === "light"
+      ? "/assets/operations-console/apple-touch-icon-light.png"
+      : "/assets/operations-console/apple-touch-icon-dark.png";
+  $("dashboardAppleTouchIcon")?.setAttribute("href", icon);
 }
 function renderDashboardTelemetry(snapshot) {
   updateFavicon();
@@ -2715,6 +2719,26 @@ function loadDashboardClientState() {
 }
 const dashboardClientState = loadDashboardClientState();
 const dashboardLocaleSelector = $("dashboardLocale");
+const dashboardLocaleButton = $("dashboardLocaleButton"), dashboardLocaleMenu = $("dashboardLocaleMenu");
+function setLocaleMenuOpen(open) {
+  dashboardLocaleMenu.hidden = !open;
+  dashboardLocaleButton.setAttribute("aria-expanded", String(open));
+}
+function updateLocalePicker() {
+  $("dashboardLocaleValue").textContent = t("language." + dashboardLocale);
+  document.querySelectorAll("[data-dashboard-locale]").forEach((option) => {
+    const selected = option.dataset.dashboardLocale === dashboardLocale;
+    option.textContent = t("language." + option.dataset.dashboardLocale);
+    option.setAttribute("aria-selected", String(selected));
+  });
+}
+function changeDashboardLocale(value) {
+  dashboardLocale = normalizeLocale(value);
+  locale = createLocaleService(dashboardLocale);
+  dashboardClientState.locale = dashboardLocale;
+  saveDashboardClientState();
+  window.location.reload();
+}
 function applyDashboardLocale() {
   document.documentElement.lang = dashboardLocale;
   document.title = t("dashboard.title");
@@ -2780,6 +2804,7 @@ function applyDashboardLocale() {
   document.querySelectorAll("#dashboardLocale option").forEach((option) => {
     option.textContent = t("language." + option.value);
   });
+  updateLocalePicker();
   $("themeToggle").setAttribute("aria-label", t("header.enable_light"));
   $("toggleAllSections").setAttribute("aria-label", t("header.open_all"));
   $("dashboardSplashVersion").textContent = t("dashboard.platform_version", {
@@ -2797,11 +2822,20 @@ function applyDashboardLocale() {
   arrangeCurrentRunCategory();
 }
 dashboardLocaleSelector.addEventListener("change", () => {
-  dashboardLocale = normalizeLocale(dashboardLocaleSelector.value);
-  locale = createLocaleService(dashboardLocale);
-  dashboardClientState.locale = dashboardLocale;
-  saveDashboardClientState();
-  window.location.reload();
+  changeDashboardLocale(dashboardLocaleSelector.value);
+});
+dashboardLocaleButton.addEventListener("click", () => setLocaleMenuOpen(dashboardLocaleMenu.hidden));
+dashboardLocaleButton.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") setLocaleMenuOpen(false);
+});
+dashboardLocaleMenu.addEventListener("click", (event) => {
+  const option = event.target.closest("[data-dashboard-locale]");
+  if (!option) return;
+  dashboardLocaleSelector.value = option.dataset.dashboardLocale;
+  changeDashboardLocale(option.dataset.dashboardLocale);
+});
+document.addEventListener("pointerdown", (event) => {
+  if (!event.target.closest(".dashboard-locale__picker")) setLocaleMenuOpen(false);
 });
 applyDashboardLocale();
 function loadAllSectionsIntent() {
@@ -3025,14 +3059,25 @@ const themeToggle = $("themeToggle"),
   themeColor = $("dashboardThemeColor");
 function applyDashboardTheme(theme) {
   const light = theme === "light";
+  const icon = light
+    ? "/assets/operations-console/apple-touch-icon-light.png"
+    : "/assets/operations-console/apple-touch-icon-dark.png";
+  const chromeIcon = "/assets/operations-console/icon-transparent.png";
   document.documentElement.dataset.theme = light ? "light" : "dark";
   themeColor.content = light ? "#f4f7fb" : "#15151d";
+  document
+    .querySelectorAll(".dashboard-app-icon,.dashboard-splash__icon")
+    .forEach((image) => {
+      image.src = chromeIcon;
+    });
+  $("dashboardAppleTouchIcon")?.setAttribute("href", icon);
   themeToggle.setAttribute("aria-checked", String(light));
   themeToggle.setAttribute(
     "aria-label",
     light ? t("theme.enable_dark") : t("theme.enable_light"),
   );
   themeToggle.title = light ? t("theme.dark") : t("theme.light");
+  updateFavicon();
   applyThemeModeAttributes();
 }
 applyDashboardTheme(dashboardClientState.theme === "light" ? "light" : "dark");
