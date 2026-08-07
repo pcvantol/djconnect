@@ -421,13 +421,13 @@ npm run test:engineering-dashboard-logic
 
 The same workflow also runs the Engineering Python suite under branch coverage.
 The required core files are `dashboard.py`, `platform_bootstrap.py`,
-`providers.py`, `dj_engineer.py` and `inbox_watcher.py`. Each must remain
+`providers.py` and `inbox_watcher.py`. Each must remain
 strictly above 80%; an exactly 80.00% result fails the quality gate. To
 reproduce the measurement locally:
 
 ```sh
 coverage run --branch -m unittest discover -s tests/engineering
-coverage report --include='tools/engineering/dashboard.py,tools/engineering/platform_bootstrap.py,tools/engineering/providers.py,tools/engineering/dj_engineer.py,tools/engineering/inbox_watcher.py'
+coverage report --include='tools/engineering/dashboard.py,tools/engineering/platform_bootstrap.py,tools/engineering/providers.py,tools/engineering/inbox_watcher.py'
 ```
 
 ## Dashboard interpretation and interaction
