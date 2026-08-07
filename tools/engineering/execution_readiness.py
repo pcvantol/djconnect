@@ -51,6 +51,16 @@ class ReadinessFacts:
     repository_clean: bool | None
     lease_available: bool
 
+    @classmethod
+    def from_preflight(cls, *, host: object, workspace: object, capability: object, lease_available: bool) -> "ReadinessFacts":
+        """Adapt already-observed preflight outcomes without performing any probe."""
+        host_ready = getattr(host, "outcome", None) == "PASS"
+        workspace_checks = getattr(workspace, "checks", ())
+        repository_present = any(getattr(item, "identifier", None) == "target_repository" and getattr(item, "outcome", None) == "PASS" for item in workspace_checks)
+        repository_clean = next((getattr(item, "outcome", None) == "PASS" for item in workspace_checks if getattr(item, "identifier", None) == "clean_worktree"), None)
+        capabilities_ready = getattr(capability, "outcome", None) == "PASS"
+        return cls(host_ready and capabilities_ready, repository_present, repository_clean, lease_available)
+
 
 @dataclass(frozen=True)
 class ReadinessDecision:

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 import unittest
+from types import SimpleNamespace
 
 from tools.engineering.execution_readiness import ReadinessFacts, Requirement, decide, evaluate, selected_profile
 
@@ -30,3 +31,8 @@ class ExecutionReadinessTest(unittest.TestCase):
         decision = decide(selected_profile("MANAGED"), ReadinessFacts(True, True, False, True))
         self.assertFalse(decision.passed)
         self.assertEqual(decision.failed_requirements, ("clean_worktree",))
+
+    def test_preflight_adapter_uses_existing_observed_outcomes(self) -> None:
+        workspace = SimpleNamespace(checks=(SimpleNamespace(identifier="target_repository", outcome="PASS"), SimpleNamespace(identifier="clean_worktree", outcome="PASS")))
+        facts = ReadinessFacts.from_preflight(host=SimpleNamespace(outcome="PASS"), workspace=workspace, capability=SimpleNamespace(outcome="PASS"), lease_available=True)
+        self.assertEqual(facts, ReadinessFacts(True, True, True, True))
