@@ -87,6 +87,17 @@ test.describe("Engineering Status browser smoke", () => {
     }
   });
 
+  test("lists English first in both language selectors", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#dashboardLocaleButton").click();
+    expect(await page.locator("#dashboardLocale option").evaluateAll(
+      (options) => options.map((option) => option.value),
+    )).toEqual(["en", "nl", "de", "fr", "es"]);
+    expect(await page.locator("[data-dashboard-locale]").evaluateAll(
+      (options) => options.map((option) => option.dataset.dashboardLocale),
+    )).toEqual(["en", "nl", "de", "fr", "es"]);
+  });
+
   test("renders repository and workspace state codes as readable labels", () => {
     const labels = Object.fromEntries(SUPPORTED_LOCALES.map((locale) => {
       const translate = createTranslator(locale);
