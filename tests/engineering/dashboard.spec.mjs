@@ -1440,6 +1440,25 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#queueItems")).toBeVisible();
   });
 
+  test("keeps a watcher-failed stale live run out of Active Prompt", async ({ page }) => {
+    await page.route("**/api/events", (route) => route.abort());
+    await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({
+      contentType: "application/json",
+      body: JSON.stringify({ status: { watcher_state: "WATCHER_IDLE" } }),
+    }));
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => r({
+      watcher_state: "JOB_FAILED",
+      run_id: "inbox-failed",
+      current_phase: "WAIT_FOR_TERMINAL_EVIDENCE",
+      current_action: "poll_required_checks",
+      last_executed_run: "inbox-failed",
+      last_executed_phase: "FAILED",
+    }, {}));
+
+    await expect(page.locator("#currentRun")).toBeHidden();
+  });
+
   test("allows the AI question field to grow only vertically", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.locator("#promptHistoryChatModal").evaluate((element) => element.showModal());
