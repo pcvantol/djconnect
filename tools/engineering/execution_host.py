@@ -63,6 +63,14 @@ from .execution_readiness import ReadinessFacts, decide as decide_readiness, eva
 from .execution_transaction import ExecutionTransaction
 from .execution_evidence import TerminalEvidenceBundle
 from .execution_context import ExecutionContext
+from .execution_context import (
+    additional_workspace_write_roots as context_workspace_write_roots,
+    execution_mode_for as context_execution_mode_for,
+    genesis_target_for as context_genesis_target_for,
+    genesis_workspace_preflight as context_genesis_workspace_preflight,
+    resolve_execution_context as context_resolve_execution_context,
+    target_repository_authorization as context_target_repository_authorization,
+)
 from .execution_models import AgentResult, PullRequestEvidence, RepositoryEvidence
 from .execution_errors import CodexInvocationError, RunnerError
 from .execution_repository import GitHubClient as ProviderGitHubClient, RepositoryClient as ProviderRepositoryClient
@@ -540,6 +548,12 @@ RepositoryClient = ProviderRepositoryClient
 GitHubClient = ProviderGitHubClient
 SubprocessRepositoryClient = ProviderRepositoryClientImpl
 GhCliClient = ProviderGhCliClient
+additional_workspace_write_roots = context_workspace_write_roots
+target_repository_authorization = context_target_repository_authorization
+resolve_execution_context = context_resolve_execution_context
+execution_mode_for = context_execution_mode_for
+genesis_target_for = context_genesis_target_for
+genesis_workspace_preflight = context_genesis_workspace_preflight
 
 
 def _redacted_cli_tail(value: str, prompt: str, *, limit: int = 1_200) -> str:
