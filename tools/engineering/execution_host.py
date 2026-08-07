@@ -877,15 +877,37 @@ class EngineeringRunner:
             managed_clean=lambda candidate: self.repository.inspect(candidate).clean,
             genesis_preflight=genesis_workspace_preflight,
         )
-        decision = decide_readiness(
-            readiness.profile,
-            ReadinessFacts(True, context.target_repository is not None or self.root.is_dir(), evidence.clean if context.execution_mode == "MANAGED" else True, True),
+        observed_host = latest_host_preflight(self.root)
+        observed_workspace = latest_workspace_preflight(self.root)
+        observed_capability = latest_capability_preflight(self.root)
+        preflight_facts = ReadinessFacts.from_preflight(
+            host=observed_host,
+            workspace=observed_workspace,
+            capability=observed_capability,
+            lease_available=True,
         )
+        # Direct runner callers predate admission preflights. Preserve that
+        # public compatibility path while the watcher supplies the complete
+        # observed preflight facts for normal Inbox execution.
+        facts = replace(
+            preflight_facts,
+            host_ready=preflight_facts.host_ready or not observed_host,
+            repository_present=preflight_facts.repository_present or context.target_repository is not None or self.root.is_dir(),
+            repository_clean=preflight_facts.repository_clean if preflight_facts.repository_clean is not None else (evidence.clean if context.execution_mode == "MANAGED" else True),
+            remote_present=preflight_facts.remote_present if preflight_facts.remote_present is not None else True,
+            upstream_present=preflight_facts.upstream_present if preflight_facts.upstream_present is not None else True,
+            branch_present=preflight_facts.branch_present if preflight_facts.branch_present is not None else True,
+            workspace_authorized=preflight_facts.workspace_authorized if preflight_facts.workspace_authorized is not None else True,
+            capabilities_available=preflight_facts.capabilities_available if preflight_facts.capabilities_available is not None else True,
+            datastore_healthy=preflight_facts.datastore_healthy if preflight_facts.datastore_healthy is not None else True,
+            producer_contract_valid=preflight_facts.producer_contract_valid if preflight_facts.producer_contract_valid is not None else True,
+        )
+        decision = decide_readiness(readiness.profile, facts)
         record_readiness_evaluation(
             self.root, run_id=state.run_id, profile_id=decision.profile_id, profile_version=decision.profile_version,
             execution_mode=context.execution_mode, passed=readiness.ready and decision.passed,
             failed_requirements=decision.failed_requirements,
-            facts={"host_ready": decision.facts.host_ready, "repository_present": decision.facts.repository_present, "repository_clean": decision.facts.repository_clean, "lease_available": decision.facts.lease_available},
+            facts=vars(decision.facts),
             evaluated_at=decision.evaluated_at, diagnostic=readiness.diagnostic or decision.diagnostic,
         )
         if not readiness.ready:
@@ -920,12 +942,12 @@ class EngineeringRunner:
         except LeaseConflictError as error:
             blocked = decide_readiness(
                 readiness.profile,
-                ReadinessFacts(True, context.target_repository is not None or self.root.is_dir(), evidence.clean if context.execution_mode == "MANAGED" else True, False),
+                replace(facts, lease_available=False),
             )
             record_readiness_evaluation(
                 self.root, run_id=state.run_id, profile_id=blocked.profile_id, profile_version=blocked.profile_version,
                 execution_mode=context.execution_mode, passed=False, failed_requirements=blocked.failed_requirements,
-                facts={"host_ready": blocked.facts.host_ready, "repository_present": blocked.facts.repository_present, "repository_clean": blocked.facts.repository_clean, "lease_available": False},
+                facts=vars(blocked.facts),
                 evaluated_at=blocked.evaluated_at, diagnostic=blocked.diagnostic,
             )
             raise RunnerError("active-run ownership conflict; execution is refused") from error
