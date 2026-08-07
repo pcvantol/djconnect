@@ -396,6 +396,11 @@ html[data-theme="light"] .dashboard-locale select{background:var(--dashboard-sur
   .dashboard-titlebar__options-content>.dashboard-locale{font:600 13px/1 system-ui}
   .dashboard-titlebar__options-content>.dashboard-locale>span:first-child{display:block}
   .dashboard-titlebar__options-content>.theme-toggle,.dashboard-titlebar__options-content>.section-state-toggle{flex-direction:row-reverse;gap:12px;padding:0}
+  /* Keep both pseudo-elements on the same end of the full-width row. Without
+     this, the track follows the reversed flex layout while its absolute thumb
+     remains at the left edge next to the label on iPhone. */
+  .dashboard-titlebar__options-content>:is(.theme-toggle,.section-state-toggle)::before{position:absolute;right:0;top:10px}
+  .dashboard-titlebar__options-content>:is(.theme-toggle,.section-state-toggle)::after{left:auto;right:21px}
   .dashboard-titlebar__options-content>.theme-toggle .theme-toggle__label,.dashboard-titlebar__options-content>.section-state-toggle .section-state-toggle__label,.dashboard-titlebar__options-content>.auto-refresh-toggle span{display:block}
   .dashboard-titlebar__options-content>.auto-refresh-toggle{flex-direction:row-reverse;gap:12px;white-space:normal}
   .dashboard-titlebar__options-content>.auto-refresh-toggle input{flex:none}

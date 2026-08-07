@@ -1073,6 +1073,24 @@ test.describe("Engineering Status browser smoke", () => {
     expect(controls).toEqual([...controls].sort((first, second) => first - second));
   });
 
+  test("keeps each iPhone title-bar switch thumb inside its track", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.getByTestId("titlebar-options-toggle").click();
+    for (const toggle of [page.getByTestId("theme-toggle"), page.getByTestId("toggle-all-sections")]) {
+      const pseudo = await toggle.evaluate((element) => ({
+        trackPosition: getComputedStyle(element, "::before").position,
+        trackRight: getComputedStyle(element, "::before").right,
+        thumbRight: getComputedStyle(element, "::after").right,
+      }));
+      expect(pseudo).toEqual({
+        trackPosition: "absolute",
+        trackRight: "0px",
+        thumbRight: "21px",
+      });
+    }
+  });
+
   test.describe("iPhone direct touch", () => {
     test.use({ hasTouch: true, isMobile: true });
 
