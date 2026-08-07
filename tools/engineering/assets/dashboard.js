@@ -2565,7 +2565,8 @@ function renderPromptHistory() {
           openDetails(event);
         }
       });
-      action.className = "prompt-history-actions";
+      const actionControls = document.createElement("div");
+      actionControls.className = "prompt-history-actions";
       status.className =
         "prompt-history-status prompt-history-status--" +
         locale.lower(String(entry.status || ""));
@@ -2644,7 +2645,7 @@ function renderPromptHistory() {
         retry.className = "predecessor-retry execution-history-action";
         retry.textContent = t("action.retry_execution");
         retry.addEventListener("click", () => submitExecutionRetry(entry));
-        action.append(retry);
+        actionControls.append(retry);
       }
       if (["BLOCKED", "FAILED"].includes(entry.status) && !entry.dismissed && !entry.retry_child_run_id && entry.run_id && entry.run_id === latestStatus?.last_executed_run && !isActiveRun(latestStatus)) {
         const dismiss = document.createElement("button");
@@ -2652,9 +2653,10 @@ function renderPromptHistory() {
         dismiss.className = "predecessor-retry execution-history-action execution-dismiss";
         dismiss.textContent = t("action.dismiss_execution");
         dismiss.addEventListener("click", () => dismissExecution(entry));
-        action.append(dismiss);
+        actionControls.append(dismiss);
       }
-      if (!action.childElementCount) action.textContent = "—";
+      if (actionControls.childElementCount) action.append(actionControls);
+      else action.textContent = "—";
       if (entry.run_id) {
         const button = document.createElement("button");
         button.className = "prompt-history-details";

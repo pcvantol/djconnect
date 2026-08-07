@@ -264,7 +264,7 @@ html[data-theme="light"] #rateLimitReset{background:#e8fff5;color:#145a42}
 /* Terminal execution actions use the explicit operational acknowledgement palette. */
 #promptHistory .execution-history-action{background:#4f453c;border-color:#e7b876;border-radius:7px;color:#f6f3ef;font:12px system-ui;min-height:32px;min-width:0;padding:5px 9px}#promptHistory .execution-history-action:hover:not(:disabled){background:#e7b876;border-color:#e7b876;color:#17151a}
 html[data-theme="light"] #promptHistory .execution-history-action{background:#fff8ef;border-color:#d68b23;color:#643a13}html[data-theme="light"] #promptHistory .execution-history-action:hover:not(:disabled){background:#e7b876;border-color:#e7b876;color:#17151a}
-#promptHistoryRows .prompt-history-actions{vertical-align:middle}#promptHistoryRows .execution-history-action{margin-top:0}
+#promptHistoryRows td:has(.prompt-history-actions){vertical-align:middle}#promptHistoryRows .execution-history-action{margin-top:0}
 #promptHistoryRows .prompt-history-actions{align-items:center;display:flex;flex-wrap:wrap;gap:6px}
 @media (min-width:621px){#promptHistory .log-table:has(.execution-history-action) th:nth-child(8),#promptHistory .log-table:has(.execution-history-action) td:nth-child(8){min-width:26rem;width:26rem}#promptHistoryRows .prompt-history-actions{flex-wrap:nowrap;white-space:nowrap}}
 @media (min-width:621px){#promptHistory .log-table{table-layout:fixed}}

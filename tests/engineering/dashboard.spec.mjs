@@ -904,10 +904,15 @@ test.describe("Engineering Status browser smoke", () => {
       firstTop: Math.round(element.children[0].getBoundingClientRect().top),
       secondTop: Math.round(element.children[1].getBoundingClientRect().top),
       titleWidth: Math.round(element.closest("tr").children[2].getBoundingClientRect().width),
+      actionCellDisplay: getComputedStyle(element.parentElement).display,
+      actionCellBottom: Math.round(element.parentElement.getBoundingClientRect().bottom),
+      titleCellBottom: Math.round(element.closest("tr").children[2].getBoundingClientRect().bottom),
     }));
     expect(layout.firstTop).toBe(layout.secondTop);
     expect(layout.height).toBeLessThanOrEqual(46);
     expect(layout.titleWidth).toBeLessThanOrEqual(384);
+    expect(layout.actionCellDisplay).toBe("table-cell");
+    expect(layout.actionCellBottom).toBe(layout.titleCellBottom);
   });
 
   test("shows only the final five Run-ID characters on an iPad-sized history table", async ({ page }) => {
