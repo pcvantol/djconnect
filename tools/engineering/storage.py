@@ -18,7 +18,7 @@ import sqlite3
 
 WORKSPACE_DIRECTORY = ".engineering"
 DATABASE_FILENAME = "engineering.db"
-ENGINEERING_STORAGE_SCHEMA_VERSION = 13
+ENGINEERING_STORAGE_SCHEMA_VERSION = 14
 JOURNAL_MODES = frozenset({"DELETE", "MEMORY"})
 
 
@@ -485,6 +485,43 @@ def _schema_v13(connection: sqlite3.Connection) -> None:
         )
 
 
+def _schema_v14(connection: sqlite3.Connection) -> None:
+    """Add canonical, bounded ownership leases without assuming old ACTIVE runs live."""
+    for statement in """
+        CREATE TABLE execution_run_leases (
+            lease_id TEXT PRIMARY KEY,
+            run_id TEXT NOT NULL REFERENCES engineering_transactions(run_id) ON DELETE CASCADE,
+            host_identity TEXT NOT NULL,
+            host_instance_id TEXT NOT NULL,
+            process_id INTEGER,
+            acquired_at TEXT NOT NULL,
+            last_heartbeat_at TEXT NOT NULL,
+            expires_at TEXT NOT NULL,
+            lease_state TEXT NOT NULL CHECK(lease_state IN ('ACTIVE','EXPIRED','RELEASED')),
+            lease_version INTEGER NOT NULL,
+            created_at TEXT NOT NULL,
+            updated_at TEXT NOT NULL
+        );
+        CREATE UNIQUE INDEX execution_run_one_active_lease
+            ON execution_run_leases(run_id) WHERE lease_state='ACTIVE';
+        CREATE INDEX execution_run_leases_expiry_lookup
+            ON execution_run_leases(lease_state, expires_at);
+        CREATE TABLE execution_lease_events (
+            id INTEGER PRIMARY KEY,
+            lease_id TEXT NOT NULL REFERENCES execution_run_leases(lease_id) ON DELETE CASCADE,
+            run_id TEXT NOT NULL,
+            event_type TEXT NOT NULL CHECK(event_type IN ('LEASE_ACQUIRED','LEASE_EXPIRED','STALE_DETECTED','STALE_RECONCILED','LEASE_RELEASED')),
+            outcome TEXT,
+            recorded_at TEXT NOT NULL,
+            UNIQUE(lease_id, event_type, outcome)
+        );
+        CREATE INDEX execution_lease_events_run_lookup
+            ON execution_lease_events(run_id, id DESC);
+    """.split(";"):
+        if statement.strip():
+            connection.execute(statement)
+
+
 MIGRATIONS: dict[int, Migration] = {
     1: _schema_v1,
     2: _schema_v2,
@@ -499,6 +536,7 @@ MIGRATIONS: dict[int, Migration] = {
     11: _schema_v11,
     12: _schema_v12,
     13: _schema_v13,
+    14: _schema_v14,
 }
 
 

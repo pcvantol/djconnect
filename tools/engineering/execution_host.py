@@ -58,6 +58,7 @@ from .host_preflight import latest as latest_host_preflight
 from .workspace_preflight import latest as latest_workspace_preflight
 from .capability_preflight import latest as latest_capability_preflight
 from .drift_diagnostics import summary as drift_summary
+from .execution_lease import Lease, LeaseConflictError, acquire as acquire_lease, heartbeat as heartbeat_lease, host_identity, host_instance_id, reconcile_stale, release as release_lease
 
 
 class RunnerError(RuntimeError):
@@ -843,6 +844,13 @@ class EngineeringRunner:
         self.reviewer_runtime: list[dict[str, object]] = []
         self._reviewer_runtime_lock = Lock()
         self.console_detail: str | None = None
+        self.host_identity = host_identity()
+        self.host_instance_id = host_instance_id()
+        self.active_lease: Lease | None = None
+
+    def _heartbeat(self) -> None:
+        if self.active_lease is not None:
+            self.active_lease = heartbeat_lease(self.root, self.active_lease)
 
     def _publish_reviewer_progress(
         self,
@@ -852,6 +860,7 @@ class EngineeringRunner:
         result: ReviewerResult | None = None,
     ) -> None:
         """Publish bounded reviewer lifecycle status without granting reviewer authority."""
+        self._heartbeat()
         status_by_event = {"started": "running", "completed": "completed", "failed": "failed"}
         status = status_by_event.get(event)
         if status is None:
@@ -968,6 +977,12 @@ class EngineeringRunner:
         if not self.agent.available():
             raise RunnerError("Codex CLI is not installed or invokable")
         self._verify_engineering_platform()
+        reconcile_stale(self.root)
+        self.store.save(state)
+        try:
+            self.active_lease = acquire_lease(self.root, state.run_id, identity=self.host_identity, instance_id=self.host_instance_id, process_id=os.getpid())
+        except LeaseConflictError as error:
+            raise RunnerError("active-run ownership conflict; execution is refused") from error
         memory = retrieve_engineering_memory(self.root, prompt_path)
         selections = select_reviewers(
             objective,
@@ -1027,7 +1042,7 @@ class EngineeringRunner:
         try:
             if hasattr(self.agent, "set_activity_callback"):
                 self.agent.set_activity_callback(
-                    lambda activity: write_live_status(self.root, state, activity)
+                    lambda activity: (self._heartbeat(), write_live_status(self.root, state, activity))[1]
                 )
             if hasattr(self.agent, "set_process_callback"):
                 self.agent.set_process_callback(
@@ -1341,6 +1356,9 @@ class EngineeringRunner:
             diagnostic=redact_diagnostic(diagnostic) if diagnostic else None,
         )
         self.store.save(terminal)
+        if self.active_lease is not None and self.active_lease.run_id == terminal.run_id:
+            release_lease(self.root, self.active_lease)
+            self.active_lease = None
         if phase == "COMPLETE":
             capture_engineering_memory(self.root, terminal, self.reviewer_records)
         write_live_status(self.root, terminal, action)
