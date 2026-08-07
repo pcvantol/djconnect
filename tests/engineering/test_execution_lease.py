@@ -33,6 +33,22 @@ class ExecutionLeaseTest(unittest.TestCase):
         with self.assertRaises(LeaseConflictError):
             acquire(self.root, "inbox-lease", identity="host", instance_id="instance-b")
 
+    def test_recovery_owner_gets_a_new_lease_after_expiry(self) -> None:
+        original = acquire(self.root, "inbox-lease", identity="host", instance_id="instance-a")
+        with open_storage(self.root) as connection:
+            connection.execute(
+                "UPDATE execution_run_leases SET expires_at='2020-01-01T00:00:00+00:00' WHERE lease_id=?",
+                (original.lease_id,),
+            )
+        recovered = acquire(self.root, "inbox-lease", identity="host", instance_id="instance-b")
+        self.assertNotEqual(recovered.lease_id, original.lease_id)
+        with open_storage(self.root) as connection:
+            states = connection.execute(
+                "SELECT host_instance_id,lease_state FROM execution_run_leases WHERE run_id=? ORDER BY created_at",
+                ("inbox-lease",),
+            ).fetchall()
+        self.assertEqual(states, [("instance-a", "EXPIRED"), ("instance-b", "ACTIVE")])
+
     def test_expired_active_run_is_reconciled_without_terminal_fabrication(self) -> None:
         lease = acquire(self.root, "inbox-lease", identity="host", instance_id="instance-a")
         with open_storage(self.root) as connection:
