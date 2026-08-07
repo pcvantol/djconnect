@@ -1157,6 +1157,11 @@ function localizeLogControls() {
   document.querySelectorAll("#componentLogs .log-card-header strong").forEach((title, index) => {
     if (cardTitles[index]) title.textContent = t(cardTitles[index]);
   });
+  document.querySelectorAll(".component-log-copy").forEach((button) => {
+    const label = t("logs.copy_visible");
+    button.title = label;
+    button.setAttribute("aria-label", label);
+  });
   const headers = [
     "table.number", "table.timestamp", "table.level", "table.event",
     "table.run_id", "table.details",
@@ -2115,6 +2120,16 @@ function filteredComponentLogEntries(component) {
       return state.direction === "asc" ? result : -result;
     });
 }
+function visibleComponentLogEntries(component) {
+  const rows = filteredComponentLogEntries(component),
+    pageCount = Math.max(1, Math.ceil(rows.length / LOG_PAGE_SIZE)),
+    page = Math.min(
+      Math.max(1, independentLogPageStates[component]),
+      pageCount,
+    );
+  independentLogPageStates[component] = page;
+  return rows.slice((page - 1) * LOG_PAGE_SIZE, page * LOG_PAGE_SIZE);
+}
 function updateLogValueFilters() {
   const entries = [...componentLogEntries.inbox, ...componentLogEntries.dashboard];
   for (const [id, key] of [["logEventFilter", "event"]]) {
@@ -2162,12 +2177,9 @@ function renderComponentLogs() {
     const rows = filteredComponentLogEntries(component),
       body = $(component + "ComponentLog"),
       pageCount = Math.max(1, Math.ceil(rows.length / LOG_PAGE_SIZE)),
-      page = Math.min(
-        Math.max(1, independentLogPageStates[component]),
-        pageCount,
-      ),
-      visible = rows.slice((page - 1) * LOG_PAGE_SIZE, page * LOG_PAGE_SIZE);
-    independentLogPageStates[component] = page;
+      visible = visibleComponentLogEntries(component);
+    const copy = document.querySelector(`.component-log-copy[data-component="${component}"]`);
+    if (copy) copy.disabled = !visible.length;
     body.replaceChildren();
     if (!visible.length) {
       const cell = document.createElement("td"),
@@ -2315,6 +2327,46 @@ document.querySelectorAll(".component-log-download").forEach((button) =>
     }),
   ),
 );
+function visibleComponentLogText(component) {
+  const header = [
+      t("table.number"),
+      t("table.timestamp"),
+      t("table.level"),
+      t("table.event"),
+      t("table.run_id"),
+      t("table.details"),
+    ].join("\t"),
+    rows = visibleComponentLogEntries(component).map((entry) => [
+      entry.line,
+      logTimestampText(entry.timestamp),
+      entry.level,
+      entry.event,
+      entry.runId || "—",
+      entry.details || "—",
+    ].join("\t"));
+  return [header, ...rows].join("\n");
+}
+function addComponentLogCopyButtons() {
+  document.querySelectorAll(".component-log-download").forEach((download) => {
+    if (download.parentElement.querySelector(".component-log-copy")) return;
+    const button = document.createElement("button");
+    button.className = "dashboard-action dashboard-action--copy component-log-copy";
+    button.dataset.component = download.dataset.component;
+    button.dataset.testid = "copy-" + download.dataset.component + "-visible-log";
+    button.type = "button";
+    button.textContent = "⧉";
+    button.disabled = !visibleComponentLogEntries(button.dataset.component).length;
+    button.title = t("logs.copy_visible");
+    button.setAttribute("aria-label", t("logs.copy_visible"));
+    button.addEventListener("click", () => {
+      copyText(visibleComponentLogText(button.dataset.component))
+        .then(() => void recordUserAction("component_visible_log_copied"))
+        .catch(() => { button.title = t("copy.failed"); });
+    });
+    download.before(button);
+  });
+}
+addComponentLogCopyButtons();
 document.querySelectorAll(".clear-component-log").forEach((button) => {
   button.classList.add("dashboard-action", "dashboard-action--destructive");
   button.textContent = "⌧";

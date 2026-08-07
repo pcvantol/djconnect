@@ -302,6 +302,10 @@ test.describe("Engineering Status browser smoke", () => {
         "aria-label",
         DASHBOARD_MESSAGES[language]["logs.dashboard_entries"],
       );
+      await expect(page.getByTestId("copy-inbox-visible-log")).toHaveAttribute(
+        "aria-label",
+        DASHBOARD_MESSAGES[language]["logs.copy_visible"],
+      );
       await page.locator("#clearChat").click();
       await expect(page.locator("#confirmationModalTitle")).toHaveText(
         DASHBOARD_MESSAGES[language]["chat.clear_title"],
@@ -2127,6 +2131,37 @@ test.describe("Engineering Status browser smoke", () => {
     }
   });
 
+  test("copies only the visible filtered component-log entries", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#componentLogs").evaluate((element) => { element.open = true; });
+    await page.evaluate(() => {
+      window.__copiedVisibleLog = "";
+      Object.defineProperty(navigator, "clipboard", {
+        configurable: true,
+        value: {
+          writeText: (value) => {
+            window.__copiedVisibleLog = value;
+            return Promise.resolve();
+          },
+        },
+      });
+      componentLogEntries.inbox = [
+        { line: 1, timestamp: "2026-08-07T10:00:00Z", level: "INFO", event: "retain_me", runId: "visible-run", details: "visible detail" },
+        { line: 2, timestamp: "2026-08-07T10:01:00Z", level: "ERROR", event: "exclude_me", runId: "hidden-run", details: "hidden detail" },
+      ];
+      document.querySelector("#logFilter").value = "retain_me";
+      independentLogPageStates.inbox = 1;
+      renderComponentLogs();
+    });
+
+    await expect(page.locator("#inboxComponentLog tr")).toHaveCount(1);
+    await page.getByTestId("copy-inbox-visible-log").click();
+    await expect.poll(() => page.evaluate(() => window.__copiedVisibleLog)).toContain("retain_me");
+    await expect.poll(() => page.evaluate(() => window.__copiedVisibleLog)).toContain("visible-run");
+    await expect.poll(() => page.evaluate(() => window.__copiedVisibleLog)).not.toContain("exclude_me");
+    await expect.poll(() => page.evaluate(() => window.__copiedVisibleLog)).not.toContain("hidden-run");
+  });
+
   test("uses the shared single-line circular border for download glyphs", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
 
@@ -2145,8 +2180,8 @@ test.describe("Engineering Status browser smoke", () => {
     for (const selector of ["#downloadChat", "#promptHistoryReportDownload", "#componentLogs .component-log-download"]) {
       await expect(page.locator(selector).first()).toHaveClass(/dashboard-action--download/);
     }
-    for (const selector of ["#copyChat", "#promptHistoryReportCopy"]) {
-      await expect(page.locator(selector)).toHaveClass(/dashboard-action--copy/);
+    for (const selector of ["#copyChat", "#promptHistoryReportCopy", "#componentLogs .component-log-copy"]) {
+      await expect(page.locator(selector).first()).toHaveClass(/dashboard-action--copy/);
     }
     for (const selector of ["#clearChat", "#componentLogs .clear-component-log"]) {
       await expect(page.locator(selector).first()).toHaveClass(/dashboard-action--destructive/);
