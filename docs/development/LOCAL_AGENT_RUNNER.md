@@ -18,10 +18,10 @@ local responsibilities are kept outside that orchestrator:
 - `live_status.py` atomically projects the current local status consumed by
   Engineering Status.
 
-The deprecated `tools.engineering.dj_engineer` import and `dj-engineer` command
-remain compatibility aliases; new integrations use the Execution Host names.
-The aliases do not alter lifecycle authority, repository truth or the runner
-command contract.
+The Execution Host has one canonical Python module and command:
+`tools.engineering.execution_host` and `engineering-execution-host`.
+They are the only supported integration points and own the lifecycle authority,
+repository truth and runner command contract.
 
 ## Engineering Platform versioning
 
