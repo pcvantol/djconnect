@@ -426,7 +426,9 @@ test.describe("Engineering Status browser smoke", () => {
   });
 
   test("opens execution details from prompt history in its dedicated modal", async ({ page }) => {
-    await page.route("**/api/prompt-history", (route) => route.fulfill({ json: { runs: [] } }));
+    await page.route("**/api/prompt-history", (route) => route.fulfill({ json: { runs: [{
+      run_id: "inbox-modal", status: "COMPLETE", title: "Modal prompt", executed_at: "2026-08-04T08:00:00Z",
+    }] } }));
     await page.route("**/api/prompt-history/inbox-modal/details", (route) => route.fulfill({
       json: {
         history: {
@@ -443,16 +445,11 @@ test.describe("Engineering Status browser smoke", () => {
     await page.locator("#autoRefresh").uncheck();
     await page.evaluate(() => {
       document.querySelector("#promptHistory").open = true;
-      promptHistoryEntries = [{
-        run_id: "inbox-modal",
-        status: "COMPLETE",
-        title: "Modal prompt",
-        executed_at: "2026-08-04T08:00:00Z",
-      }];
-      renderPromptHistory();
     });
 
-    await page.locator("#promptHistoryRows tr td").nth(1).click();
+    const historyRow = page.locator("#promptHistoryRows .prompt-history-row");
+    await historyRow.waitFor({ state: "visible" });
+    await historyRow.click();
     await expect(page.locator("#promptHistoryDetailModal")).toBeVisible();
     await expect(page.locator("#promptHistoryDetailModal")).toHaveClass(/dashboard-modal-shell--evidence/);
     await expect(page.locator("#promptHistoryDetailModal .prompt-detail-modal__panel")).toHaveClass(/dashboard-modal-shell__panel/);
@@ -502,9 +499,10 @@ test.describe("Engineering Status browser smoke", () => {
     } }));
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.locator("#autoRefresh").uncheck();
-    await page.locator("#promptHistoryRows .prompt-history-row").waitFor();
     await page.evaluate(() => { document.querySelector("#promptHistory").open = true; });
-    await page.locator("#promptHistoryRows tr td").nth(1).click();
+    const historyRow = page.locator("#promptHistoryRows .prompt-history-row");
+    await historyRow.waitFor({ state: "visible" });
+    await historyRow.click();
     await expect(page.locator("#promptHistoryDetailContent")).toContainText("Mission Aurora");
     const alternatives = page.locator(".recommendation-alternatives");
     await alternatives.locator("summary").focus();
