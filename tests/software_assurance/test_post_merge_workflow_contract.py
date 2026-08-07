@@ -31,6 +31,8 @@ class PostMergeWorkflowContractTest(unittest.TestCase):
         self.assertIn("contents: write", dispatch)
         self.assertIn("Produce redacted durable qualification evidence", workflow)
         self.assertIn("Publish append-only durable qualification evidence", workflow)
+        self.assertIn("durable_evidence_release_tag_prefix", workflow)
+        self.assertIn('tag="${DURABLE_EVIDENCE_RELEASE_TAG_PREFIX}-${CANDIDATE_SHA}"', workflow)
         self.assertIn("durable evidence collision: existing record will not be overwritten", workflow)
         self.assertIn("gh release download", workflow)
         self.assertLess(

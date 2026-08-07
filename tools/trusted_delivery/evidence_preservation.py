@@ -15,6 +15,7 @@ from typing import Any
 _SHA = re.compile(r"^[0-9a-f]{40}$")
 _DIGEST = re.compile(r"^[0-9a-f]{64}$")
 _RUN_ID = re.compile(r"^[0-9]+$")
+_RELEASE_TAG_PREFIX = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 _FORBIDDEN = re.compile(
     r"(?i)(?:gh[pousr]_[a-z0-9_]+|github_pat_[a-z0-9_]+|bearer\s+\S+|"
     r"(?:token|password|secret|credential|authorization)\s*[:=])"
@@ -55,6 +56,7 @@ def build_record(
     policy_source_revision: str,
     timestamp: str,
     workflow_run_id: str,
+    release_tag_prefix: str = "internal-ha",
 ) -> dict[str, Any]:
     """Create one minimal, redacted, SHA-bound durable record.
 
@@ -67,6 +69,8 @@ def build_record(
     _required_sha({"value": policy_source_revision}, "value")
     if not _RUN_ID.fullmatch(workflow_run_id):
         raise EvidencePreservationError("workflow run ID is invalid")
+    if not _RELEASE_TAG_PREFIX.fullmatch(release_tag_prefix):
+        raise EvidencePreservationError("release tag prefix is invalid")
     if source.get("decision") != _QUALIFIED:
         raise EvidencePreservationError("only qualified post-merge evidence is publishable")
     source_digest = source.get("evidence_digest")
@@ -120,7 +124,7 @@ def build_record(
         "repository_role": source.get("repository_role"),
         "commit_sha": main_sha,
         "source_revision": policy_source_revision,
-        "release_identifier": f"internal-ha-{main_sha}",
+        "release_identifier": f"{release_tag_prefix}-{main_sha}",
         "qualification": {
             "profile": "post_merge_release_evidence",
             "outcome": source["decision"],
