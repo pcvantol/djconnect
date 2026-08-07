@@ -3306,6 +3306,36 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#queueSummary")).toHaveText("2 uitvoeringen in de wachtrij.");
   });
 
+  test("defers one waiting Inbox item through a confirmed reversible action", async ({ page }) => {
+    let deferred = false;
+    const queued = [
+      { filename: "defer-me.md", title: "Later uitvoeren", modified_at: "2026-08-02T10:01:00Z" },
+      { filename: "keep-waiting.md", title: "Blijft wachten", modified_at: "2026-08-02T10:02:00Z" },
+    ];
+    await page.route("**/api/events", (route) => route.abort());
+    await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({ json: {
+      status: { watcher_state: "WATCHER_IDLE", queue_depth: deferred ? 1 : 2, queue_items: deferred ? queued.slice(1) : queued },
+      component_versions: {}, telemetry: [], duration_estimate: {}, build_commit: "",
+    } }));
+    await page.route("**/api/queue-defer", async (route) => {
+      expect(JSON.parse(route.request().postData() || "{}")).toEqual({ filename: "defer-me.md" });
+      deferred = true;
+      await route.fulfill({ status: 202, json: { filename: "defer-me.md", deferred_filename: "defer-me.md" } });
+    });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#dashboardSplash").evaluate((element) => { element.hidden = true; });
+    await page.locator("#queueItems").evaluate((element) => { element.open = true; });
+
+    await page.getByRole("button", { name: "Stel uit" }).first().click();
+    await expect(page.locator("#confirmationModalTitle")).toHaveText("Uitvoering uitstellen");
+    await expect(page.locator("#confirmationModalText")).toContainText("Inbox/_deferred");
+    await page.locator("#confirmationModalConfirm").click();
+
+    await expect(page.locator("#queueList .queue-item")).toHaveCount(1);
+    await expect(page.locator("#queueList")).toContainText("Blijft wachten");
+    await expect(page.locator("#queueList")).not.toContainText("Later uitvoeren");
+  });
+
   test("shows the Codex CLI blocker in the Inbox queue", async ({ page }) => {
     await page.route("**/api/events", (route) => route.abort());
     await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({

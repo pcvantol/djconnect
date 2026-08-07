@@ -116,6 +116,12 @@ entry and leaves the same action enabled for a later attempt. The watcher
 repeats preflight again when it later claims an accepted retry, so this early
 operator feedback never weakens admission safety.
 
+An operator can **Defer execution** for a still-waiting Inbox item from the
+dashboard. After confirmation, the watcher lock atomically moves only that
+source file to `Inbox/_deferred/`; it is retained intact, excluded from active
+Inbox discovery and can be returned manually later. The action never deletes,
+edits or claims an execution, and refuses an item that is no longer waiting.
+
 Both actions create a corrective prompt with explicit lineage metadata:
 
 ```text

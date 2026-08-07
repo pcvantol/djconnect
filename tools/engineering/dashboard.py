@@ -27,7 +27,7 @@ from .platform_bootstrap import provision_workspace
 from .providers import CodexCliProvider, GitProvider, LaunchdProvider, LocalProcessProvider, TailscaleProvider
 from .inbox_watcher import LABEL as WATCHER_LABEL
 from .inbox_watcher import WATCHER_VERSION
-from .inbox_watcher import RetrySubmissionError, cloud_root, dismiss_execution, predecessor_retry_admission_preflight, queued_retry_children, retry_admission_preflight, submit_execution_retry, submit_predecessor_retry
+from .inbox_watcher import RetrySubmissionError, cloud_root, defer_queued_prompt, dismiss_execution, predecessor_retry_admission_preflight, queued_retry_children, retry_admission_preflight, submit_execution_retry, submit_predecessor_retry
 from .component_logging import (
     DEFAULT_LOG_LEVEL,
     LOG_LEVEL_ENVIRONMENT,
@@ -1412,6 +1412,27 @@ def handler(root: Path, logger: logging.Logger | None = None):
                     return
                 except (RuntimeError, ValueError, UnicodeDecodeError, json.JSONDecodeError):
                     self._send(b'{"error":"De uitvoering kan nu niet veilig worden bevestigd."}', "application/json; charset=utf-8", 400)
+                    return
+                self._send(json.dumps(outcome, ensure_ascii=False).encode(), "application/json; charset=utf-8", 202)
+                return
+            if request_path == "/api/queue-defer":
+                try:
+                    length = int(self.headers.get("Content-Length", "0"))
+                    payload = json.loads(self.rfile.read(length).decode("utf-8"))
+                    if not isinstance(payload, dict) or set(payload) != {"filename"} or not isinstance(payload["filename"], str):
+                        raise ValueError
+                    outcome = defer_queued_prompt(root, cloud_root(repo=root), payload["filename"])
+                    log_event(
+                        logger,
+                        logging.INFO,
+                        "queue_item_deferred",
+                        diagnostic=f"filename={outcome['filename']}; deferred_filename={outcome['deferred_filename']}",
+                    )
+                except RetrySubmissionError as error:
+                    self._send(json.dumps({"error": str(error)}, ensure_ascii=False).encode(), "application/json; charset=utf-8", 409)
+                    return
+                except (RuntimeError, ValueError, UnicodeDecodeError, json.JSONDecodeError):
+                    self._send(b'{"error":"De Inbox-opdracht kan nu niet veilig worden uitgesteld."}', "application/json; charset=utf-8", 400)
                     return
                 self._send(json.dumps(outcome, ensure_ascii=False).encode(), "application/json; charset=utf-8", 202)
                 return

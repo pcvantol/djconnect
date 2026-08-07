@@ -1484,6 +1484,23 @@ class DashboardStatusTest(unittest.TestCase):
             response = connection.getresponse()
             self.assertEqual(response.status, 400)
             response.read()
+            deferred = {"filename": "later.md", "deferred_filename": "later.md", "deferred_at": "2026-08-07T16:00:00+00:00"}
+            with (
+                patch("tools.engineering.dashboard.cloud_root", return_value=root),
+                patch("tools.engineering.dashboard.defer_queued_prompt", return_value=deferred) as defer_prompt,
+                patch("tools.engineering.dashboard.log_event") as defer_log_event,
+            ):
+                connection.request("POST", "/api/queue-defer", body='{"filename":"later.md"}', headers={"Content-Type": "application/json"})
+                response = connection.getresponse()
+                self.assertEqual(response.status, 202)
+                self.assertEqual(json.loads(response.read()), deferred)
+                defer_prompt.assert_called_once_with(root, root, "later.md")
+                defer_log_event.assert_any_call(ANY, logging.INFO, "queue_item_deferred", diagnostic="filename=later.md; deferred_filename=later.md")
+            for body in ("{}", "[]", '{"filename":1}', '{"filename":"later.md","extra":true}'):
+                connection.request("POST", "/api/queue-defer", body=body, headers={"Content-Type": "application/json"})
+                response = connection.getresponse()
+                self.assertEqual(response.status, 400)
+                response.read()
             dismissal = {"run_id": "inbox-blocked", "dismissed": True, "dismissed_at": "2026-08-03T12:01:00+00:00", "dismissed_by": "dashboard_operator"}
             with (
                 patch("tools.engineering.dashboard.dismiss_execution", return_value=dismissal) as dismiss,

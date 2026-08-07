@@ -180,6 +180,25 @@ class InboxWatcherTest(unittest.TestCase):
         self.assertIn("T", items[0]["modified_at"])
         self.assertNotIn("Sensitive prompt body", str(items))
 
+    def test_defer_queued_prompt_moves_only_the_selected_waiting_inbox_file(self) -> None:
+        selected = self.inbox / "defer-me.md"
+        selected.write_text("# Later uitvoeren\n", encoding="utf-8")
+        waiting = self.inbox / "keep-waiting.md"
+        waiting.write_text("# Blijft actief\n", encoding="utf-8")
+
+        outcome = inbox_watcher.defer_queued_prompt(self.repo, self.root, selected.name)
+
+        self.assertFalse(selected.exists())
+        deferred = self.inbox / "_deferred" / outcome["deferred_filename"]
+        self.assertTrue(deferred.exists())
+        self.assertEqual(deferred.read_text(encoding="utf-8"), "# Later uitvoeren\n")
+        self.assertEqual([path.name for path in inbox_watcher.discover(self.root)], [waiting.name])
+
+    def test_defer_queued_prompt_rejects_paths_and_missing_items(self) -> None:
+        for filename in ("../outside.md", "missing.md"):
+            with self.assertRaises(inbox_watcher.RetrySubmissionError):
+                inbox_watcher.defer_queued_prompt(self.repo, self.root, filename)
+
     def test_launch_path_preserves_codex_location(self) -> None:
         with patch("tools.engineering.inbox_watcher.shutil.which", return_value="/opt/homebrew/bin/codex"):
             self.assertEqual(inbox_watcher.launch_path().split(":")[0], "/opt/homebrew/bin")

@@ -153,6 +153,35 @@ def discover(root: Path, interval: float = 0.0) -> list[Path]:
     return [path for _, _, path in sorted(candidates)]
 
 
+def defer_queued_prompt(repo: Path, root: Path, filename: str) -> dict[str, str]:
+    """Move one still-waiting Inbox prompt into the reversible deferred area."""
+    candidate = Path(filename)
+    if not filename or candidate.name != filename or filename in {".", ".."}:
+        raise RetrySubmissionError("De gekozen Inbox-opdracht is ongeldig.")
+    inbox = folders(root)["Inbox"]
+    source = inbox / filename
+    deferred = inbox / "_deferred"
+    with _lock(repo):
+        content = stable_prompt(source, 0.0)
+        if content is None:
+            raise RetrySubmissionError("De gekozen Inbox-opdracht wacht niet meer op uitvoering.")
+        deferred.mkdir(mode=0o700, parents=True, exist_ok=True)
+        destination = deferred / source.name
+        if destination.exists():
+            timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+            destination = deferred / f"{source.stem}-{timestamp}-{uuid.uuid4().hex[:8]}{source.suffix}"
+        try:
+            os.replace(source, destination)
+        except OSError as error:
+            raise RetrySubmissionError("De Inbox-opdracht kon niet veilig worden uitgesteld.") from error
+        _publish_active_queue(repo, _scan_queue(root, 0.0))
+    return {
+        "filename": redact_diagnostic(filename, limit=240),
+        "deferred_filename": redact_diagnostic(destination.name, limit=240),
+        "deferred_at": datetime.now(timezone.utc).isoformat(),
+    }
+
+
 def _safe_detail(value: object) -> object:
     if isinstance(value, str):
         return value[:500].replace("\n", " ")

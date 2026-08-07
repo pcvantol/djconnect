@@ -475,9 +475,49 @@ function queueItems(x, queueDepth) {
         ? locale.dateTime(new Date(modified))
         : t("format.timestamp_unavailable"),
     });
+    const defer = document.createElement("button");
+    defer.className = "queue-defer";
+    defer.type = "button";
+    defer.textContent = t("queue.defer_action");
+    defer.title = t("queue.defer_action");
+    defer.setAttribute("aria-label", t("queue.defer_action"));
+    defer.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      deferQueueItem(item, defer);
+    });
     body.append(title, meta);
-    row.append(number, body);
+    row.append(number, body, defer);
     container.append(row);
+  });
+}
+function deferQueueItem(item, button) {
+  const filename = String(item?.filename || "");
+  if (!filename) return;
+  confirmDashboardAction(
+    t("queue.defer_title"),
+    t("queue.defer_description", { title: String(item.title || filename) }),
+    t("queue.defer_action"),
+  ).then((confirmed) => {
+    if (!confirmed) return;
+    button.disabled = true;
+    fetch("/api/queue-defer", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ filename }),
+    })
+      .then(async (response) => ({ ok: response.ok, body: await response.json().catch(() => ({})) }))
+      .then((result) => {
+        if (!result.ok) throw Error(result.body.error || t("queue.defer_failed"));
+        if (latestStatus) {
+          const items = (latestStatus.queue_items || []).filter((entry) => entry?.filename !== filename);
+          latestStatus = { ...latestStatus, queue_items: items, queue_depth: Math.max(0, Number(latestStatus.queue_depth || items.length + 1) - 1) };
+          queueItems(items, latestStatus.queue_depth);
+        }
+        return refreshDashboard();
+      })
+      .catch((error) => window.alert(error.message || t("queue.defer_failed")))
+      .finally(() => { button.disabled = false; });
   });
 }
 function renderInboxBlocker(status) {
