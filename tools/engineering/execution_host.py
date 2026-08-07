@@ -60,6 +60,7 @@ from .capability_preflight import latest as latest_capability_preflight
 from .drift_diagnostics import summary as drift_summary
 from .execution_lease import Lease, LeaseConflictError, LeaseHeartbeat, acquire as acquire_lease, heartbeat as heartbeat_lease, history as lease_history, host_identity, host_instance_id, reconcile_stale, release as release_lease
 from .execution_readiness import ReadinessProfile, evaluate as evaluate_readiness, selected_profile
+from .execution_transaction import ExecutionTransaction
 
 
 class RunnerError(RuntimeError):
@@ -812,6 +813,7 @@ class EngineeringRunner:
         self.host_identity = host_identity()
         self.host_instance_id = host_instance_id()
         self.active_lease: Lease | None = None
+        self.transaction: ExecutionTransaction | None = None
         self.lease_heartbeat: LeaseHeartbeat | None = None
 
     def _heartbeat(self) -> None:
@@ -919,6 +921,10 @@ class EngineeringRunner:
                 execution_mode=context.execution_mode,
             )
         context = replace(context, run_id=state.run_id)
+        self.transaction = ExecutionTransaction(
+            state=state,
+            target_repository=context.target_repository or self.root,
+        )
         readiness = evaluate_readiness(
             selected_profile(context.execution_mode),
             host_root=self.root,
@@ -958,6 +964,7 @@ class EngineeringRunner:
         except LeaseConflictError as error:
             raise RunnerError("active-run ownership conflict; execution is refused") from error
         self.lease_heartbeat = LeaseHeartbeat(self.root, self.active_lease)
+        self.transaction = self.transaction.with_lease(self.active_lease)
         self.lease_heartbeat.start()
         memory = retrieve_engineering_memory(self.root, prompt_path)
         selections = select_reviewers(
