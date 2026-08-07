@@ -15,6 +15,9 @@ authorization and a stable run ID. Reports remain under `.engineering/reports/`
 and status under `.engineering/status/`. iCloud is transport only; it retains no
 reports, status or prompt archive after a job is claimed.
 
+The private presentation contract for the dashboard is defined in
+[`OPERATIONS_CONSOLE_DESIGN_SYSTEM.md`](OPERATIONS_CONSOLE_DESIGN_SYSTEM.md).
+
 ## Producer Contract
 
 The Execution Host consumes declared Producer metadata as immutable provenance:
