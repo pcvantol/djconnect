@@ -1073,6 +1073,52 @@ test.describe("Engineering Status browser smoke", () => {
     expect(controls).toEqual([...controls].sort((first, second) => first - second));
   });
 
+  test.describe("iPhone direct touch", () => {
+    test.use({ hasTouch: true, isMobile: true });
+
+    test("persists every iPhone title-bar toggle after one direct touch at a time", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.getByTestId("titlebar-options-toggle").click();
+
+    const touch = async (locator) => {
+      const box = await locator.boundingBox();
+      expect(box).not.toBeNull();
+      await page.touchscreen.tap(box.x + box.width / 2, box.y + box.height / 2);
+    };
+    const storedState = () => page.evaluate(() =>
+      JSON.parse(localStorage.getItem("engineering-dashboard-client-state-v1") || "{}"),
+    );
+    const theme = page.getByTestId("theme-toggle");
+    const allSections = page.getByTestId("toggle-all-sections");
+    const autoRefresh = page.locator("#autoRefresh");
+
+    await expect(theme).toHaveAttribute("aria-checked", "false");
+    await touch(theme);
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+    await expect(theme).toHaveAttribute("aria-checked", "true");
+    await expect.poll(storedState).toMatchObject({ theme: "light" });
+
+    await expect(allSections).toHaveAttribute("aria-checked", "false");
+    await touch(allSections);
+    await expect(allSections).toHaveAttribute("aria-checked", "true");
+    for (const id of ["workspaceCard", "queueItems", "promptHistory", "platformHealth", "technicalDetails", "componentLogs"])
+      await expect(page.locator(`#${id}`)).toHaveAttribute("open", "");
+    await expect.poll(storedState).toMatchObject({ allSectionsOpen: true });
+    await expect.poll(() => page.evaluate(() => localStorage.getItem("engineering-dashboard-all-sections-open-v1"))).toBe("true");
+
+    await expect(autoRefresh).toBeChecked();
+    await touch(autoRefresh);
+    await expect(autoRefresh).not.toBeChecked();
+    await expect.poll(storedState).toMatchObject({ autoRefresh: false });
+
+    await page.reload({ waitUntil: "domcontentloaded" });
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+    await expect(page.getByTestId("toggle-all-sections")).toHaveAttribute("aria-checked", "true");
+      await expect(page.locator("#autoRefresh")).not.toBeChecked();
+    });
+  });
+
   test("restores the iPhone page position after an input loses focus", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });

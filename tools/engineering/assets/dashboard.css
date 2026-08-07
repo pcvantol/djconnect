@@ -667,6 +667,7 @@ html[data-theme="light"] ::-webkit-scrollbar-thumb:hover{background:#0a6b9d}
    surface. The pressed state lasts for the touch itself, giving iPhone users
    immediate tactile confirmation without changing desktop pointer behaviour. */
 @media (hover:none) and (pointer:coarse){
+  .dashboard-titlebar :is(.theme-toggle,.section-state-toggle,.auto-refresh-toggle,.auto-refresh-toggle input){touch-action:manipulation}
   button:not(:disabled),[role="button"]:not([aria-disabled="true"]){
     -webkit-tap-highlight-color:transparent;
     -webkit-backdrop-filter:blur(12px) saturate(150%);
