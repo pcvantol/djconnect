@@ -913,7 +913,8 @@ test.describe("Engineering Status browser smoke", () => {
   });
 
   test("rerenders prompt history pagination in the selected language", async ({ page }) => {
-    await page.route("**/api/prompt-history", (route) => route.fulfill({ json: { runs: [] } }));
+    let historyRuns = [];
+    await page.route("**/api/prompt-history", (route) => route.fulfill({ json: { runs: historyRuns } }));
     const historyLoaded = page.waitForResponse("**/api/prompt-history");
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await historyLoaded;
@@ -924,15 +925,16 @@ test.describe("Engineering Status browser smoke", () => {
     await page.waitForFunction(
       () => typeof window.renderPromptHistory === "function",
     );
-    await page.evaluate(() => {
-      document.querySelector("#promptHistory").open = true;
-      promptHistoryEntries = Array.from({ length: 101 }, (_, index) => ({
+    historyRuns = Array.from({ length: 101 }, (_, index) => ({
         run_id: `inbox-${index}`,
         title: `Prompt ${index}`,
         status: "COMPLETE",
       }));
+    await page.evaluate((fixture) => {
+      document.querySelector("#promptHistory").open = true;
+      promptHistoryEntries = fixture;
       renderPromptHistory();
-    });
+    }, historyRuns);
     await expect(page.locator("#promptHistoryPagination")).toContainText("Page 1 of 11 · 101 executions");
     await expect(page.locator("#promptHistoryRows tr")).toHaveCount(10);
     expect(await page.locator("#promptHistory .log-table-wrap").evaluate((wrap) => {
@@ -2718,12 +2720,22 @@ test.describe("Engineering Status browser smoke", () => {
   });
 
   test("shows a searchable, sortable and paginated prompt history", async ({ page }) => {
+    let historyRuns = [];
     await page.route("**/api/prompt-history", async (route) => {
-      await route.fulfill({ json: { runs: [] } });
+      await route.fulfill({ json: { runs: historyRuns } });
     });
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.locator("#autoRefresh").uncheck();
     await page.locator("#promptHistory").evaluate((element) => { element.open = true; });
+    historyRuns = Array.from({ length: 26 }, (_, index) => ({
+      run_id: `inbox-history-${index}`,
+      status: index % 2 ? "COMPLETE" : "FAILED",
+      title: `Geschiedenis prompt ${String(index).padStart(2, "0")}`,
+      executed_at: `2026-08-02T12:${String(index).padStart(2, "0")}:00Z`,
+      git_commit: index % 2 ? "abcdef1" : null,
+      report_available: index % 2 === 1,
+      analysis_available: index % 2 === 1,
+    }));
     await page.evaluate(() => {
       const legacyCommitHeader = document.createElement("th");
       legacyCommitHeader.dataset.historySortKey = "git_commit";
@@ -2733,17 +2745,11 @@ test.describe("Engineering Status browser smoke", () => {
         document.querySelector("#promptHistory thead tr").children[3],
       );
       document.querySelector("#promptHistory").open = true;
-      promptHistoryEntries = Array.from({ length: 26 }, (_, index) => ({
-        run_id: `inbox-history-${index}`,
-        status: index % 2 ? "COMPLETE" : "FAILED",
-        title: `Geschiedenis prompt ${String(index).padStart(2, "0")}`,
-        executed_at: `2026-08-02T12:${String(index).padStart(2, "0")}:00Z`,
-        git_commit: index % 2 ? "abcdef1" : null,
-        report_available: index % 2 === 1,
-        analysis_available: index % 2 === 1,
-      }));
-      renderPromptHistory();
     });
+    await page.evaluate((fixture) => {
+      promptHistoryEntries = fixture;
+      renderPromptHistory();
+    }, historyRuns);
 
     await expect(page.locator("#promptHistoryRows tr")).toHaveCount(10);
     await expect(page.locator("#promptHistory th")).toHaveCount(8);
