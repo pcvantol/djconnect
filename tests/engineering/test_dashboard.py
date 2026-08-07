@@ -17,6 +17,8 @@ from tools.engineering.inbox_watcher import WATCHER_VERSION
 from tools.engineering.platform_version import EngineeringPlatformManifest
 from tools.engineering.prompt_history import record_prompt_execution
 from tools.engineering.storage import open_storage, store_projection
+from tools.engineering.agent_state import StateStore, TransactionState
+from tools.engineering.execution_lease import acquire
 
 
 class DashboardStatusTest(unittest.TestCase):
@@ -611,6 +613,11 @@ class DashboardStatusTest(unittest.TestCase):
                 ),
                 encoding="utf-8",
             )
+            root = Path(temporary)
+            StateStore(root / ".engineering" / "engineering-runs").save(
+                TransactionState("inbox-123", "repo", "prompt.md", "INITIALIZE")
+            )
+            acquire(root, "inbox-123", identity="test-host", instance_id="test-instance")
             status = json.loads(_status(Path(temporary)))
 
         self.assertEqual(status["watcher_state"], "ENGINEERING_RUN_ACTIVE")
