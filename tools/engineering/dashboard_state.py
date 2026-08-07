@@ -122,6 +122,7 @@ def status(root: Path) -> bytes:
     try:
         if live is None:
             raise ValueError("No canonical live status")
+        live_liveness = lease_liveness(root, live.get("run_id"))
         projection = json.dumps(
             {
                 "watcher_state": "ENGINEERING_RUN_ACTIVE",
@@ -156,7 +157,7 @@ def status(root: Path) -> bytes:
                 "active_branch": live.get("active_branch"),
                 "reviewer_agents": live.get("reviewer_agents", []),
                 "runtime_metadata": live.get("runtime_metadata", {}),
-                "execution_liveness": lease_liveness(root, live.get("run_id")),
+                "execution_liveness": live_liveness,
                 # Forge supplies this immutable, read-only projection. The
                 # dashboard transports and presents it without deriving or
                 # changing Mission semantics.
@@ -169,6 +170,7 @@ def status(root: Path) -> bytes:
     if (
         live
         and live.get("phase") not in TERMINAL_PHASES
+        and live_liveness.get("state") == "LIVE"
         and not _terminal_checkpoint(root, live.get("run_id"))
         and not _watcher_has_terminal_run(watcher, live.get("run_id"))
         and (
@@ -228,8 +230,12 @@ def snapshot(
     if not isinstance(status_payload, dict):
         status_payload = read_json(unavailable_reader, fallback={})
     run_id = status_payload.get("last_executed_run")
-    active = status_payload.get("watcher_state") == "ENGINEERING_RUN_ACTIVE" and isinstance(
-        status_payload.get("run_id"), str
+    active_run_id = status_payload.get("run_id")
+    active_liveness = lease_liveness(root, active_run_id)
+    active = (
+        status_payload.get("watcher_state") == "ENGINEERING_RUN_ACTIVE"
+        and isinstance(active_run_id, str)
+        and active_liveness.get("state") == "LIVE"
     )
     try:
         telemetry = telemetry_reader(root)

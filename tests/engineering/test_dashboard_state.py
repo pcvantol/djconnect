@@ -6,6 +6,8 @@ import tempfile
 import unittest
 
 from tools.engineering import dashboard_state
+from tools.engineering.agent_state import StateStore, TransactionState
+from tools.engineering.execution_lease import acquire
 
 
 class DashboardStateTest(unittest.TestCase):
@@ -27,6 +29,10 @@ class DashboardStateTest(unittest.TestCase):
             (status / "current.json").write_text(
                 json.dumps({"run_id": "run-1", "phase": "EXECUTE_AGENT"}), encoding="utf-8"
             )
+            StateStore(root / ".engineering" / "engineering-runs").save(
+                TransactionState("run-1", "repo", "prompt.md", "EXECUTE_AGENT")
+            )
+            acquire(root, "run-1", identity="test-host", instance_id="test-instance")
 
             payload = json.loads(dashboard_state.status(root))
 

@@ -511,12 +511,19 @@ def _schema_v14(connection: sqlite3.Connection) -> None:
             lease_id TEXT NOT NULL REFERENCES execution_run_leases(lease_id) ON DELETE CASCADE,
             run_id TEXT NOT NULL,
             event_type TEXT NOT NULL CHECK(event_type IN ('LEASE_ACQUIRED','LEASE_EXPIRED','STALE_DETECTED','STALE_RECONCILED','LEASE_RELEASED')),
-            outcome TEXT,
+            outcome TEXT NOT NULL DEFAULT '',
             recorded_at TEXT NOT NULL,
             UNIQUE(lease_id, event_type, outcome)
         );
         CREATE INDEX execution_lease_events_run_lookup
             ON execution_lease_events(run_id, id DESC);
+        CREATE TABLE execution_run_reconciliations (
+            run_id TEXT PRIMARY KEY REFERENCES engineering_transactions(run_id) ON DELETE CASCADE,
+            outcome TEXT NOT NULL CHECK(outcome IN ('RECOVERABLE','OPERATOR_INTERVENTION_REQUIRED','TERMINAL_EVIDENCE_PRESENT','INCONSISTENT')),
+            reason TEXT NOT NULL,
+            reconciled_at TEXT NOT NULL,
+            updated_at TEXT NOT NULL
+        );
     """.split(";"):
         if statement.strip():
             connection.execute(statement)

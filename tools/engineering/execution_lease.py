@@ -6,6 +6,7 @@ from datetime import datetime, timedelta, timezone
 import os
 from pathlib import Path
 import socket
+from threading import Event, Thread
 import uuid
 
 from .storage import EngineeringStorageError, open_storage
@@ -47,8 +48,40 @@ def _now() -> datetime:
 def _event(connection: object, lease_id: str, run_id: str, event: str, outcome: str | None = None) -> None:
     connection.execute(
         "INSERT OR IGNORE INTO execution_lease_events(lease_id,run_id,event_type,outcome,recorded_at) VALUES(?,?,?,?,?)",
-        (lease_id, run_id, event, outcome, _now().isoformat()),
+        (lease_id, run_id, event, outcome or "", _now().isoformat()),
     )
+
+
+class LeaseHeartbeat:
+    """Bounded background heartbeat; lifecycle state remains runner-owned."""
+
+    def __init__(self, root: Path, lease: Lease, *, interval_seconds: int = HEARTBEAT_INTERVAL_SECONDS) -> None:
+        self.root = root
+        self.lease = lease
+        self.interval_seconds = interval_seconds
+        self._stop = Event()
+        self._thread: Thread | None = None
+        self.error: Exception | None = None
+
+    def start(self) -> None:
+        if self._thread is not None:
+            return
+        self._thread = Thread(target=self._run, name=f"engineering-lease-{self.lease.run_id}", daemon=True)
+        self._thread.start()
+
+    def _run(self) -> None:
+        while not self._stop.wait(self.interval_seconds):
+            try:
+                self.lease = heartbeat(self.root, self.lease)
+            except Exception as error:  # The expiry boundary remains fail-closed.
+                self.error = error
+                return
+
+    def stop(self) -> Lease:
+        self._stop.set()
+        if self._thread is not None:
+            self._thread.join(timeout=max(1, self.interval_seconds))
+        return self.lease
 
 
 def acquire(root: Path, run_id: str, *, identity: str, instance_id: str, process_id: int | None = None, timeout_seconds: int = LEASE_TIMEOUT_SECONDS) -> Lease:
@@ -106,7 +139,7 @@ def release(root: Path, lease: Lease) -> None:
 
 
 def reconcile_stale(root: Path) -> list[dict[str, str]]:
-    """Expire only stale nonterminal ownership; never fabricate a terminal state."""
+    """Reconcile datastore ownership only; never fabricate a terminal lifecycle state."""
     now = _now().isoformat(); outcomes: list[dict[str, str]] = []
     connection = open_storage(root)
     try:
@@ -119,7 +152,33 @@ def reconcile_stale(root: Path) -> list[dict[str, str]]:
             _event(connection, lease_id, run_id, "LEASE_EXPIRED")
             _event(connection, lease_id, run_id, "STALE_DETECTED", outcome)
             _event(connection, lease_id, run_id, "STALE_RECONCILED", outcome)
+            connection.execute(
+                "INSERT INTO execution_run_reconciliations(run_id,outcome,reason,reconciled_at,updated_at) VALUES(?,?,?,?,?) "
+                "ON CONFLICT(run_id) DO UPDATE SET outcome=excluded.outcome,reason=excluded.reason,reconciled_at=excluded.reconciled_at,updated_at=excluded.updated_at",
+                (run_id, outcome, "lease_expired", now, now),
+            )
             outcomes.append({"run_id": run_id, "host_instance_id": instance, "last_heartbeat": heartbeat_at, "outcome": outcome})
+        active_runs = connection.execute(
+            "SELECT run_id,phase FROM engineering_transactions WHERE phase NOT IN ('COMPLETE','BLOCKED','FAILED')"
+        ).fetchall()
+        for run_id, phase in active_runs:
+            has_live_lease = connection.execute(
+                "SELECT 1 FROM execution_run_leases WHERE run_id=? AND lease_state='ACTIVE' AND expires_at>=?",
+                (run_id, now),
+            ).fetchone()
+            if has_live_lease:
+                continue
+            prior = connection.execute(
+                "SELECT 1 FROM execution_run_reconciliations WHERE run_id=?", (run_id,)
+            ).fetchone()
+            if prior:
+                continue
+            outcome = "INCONSISTENT" if phase in TERMINAL_PHASES else "OPERATOR_INTERVENTION_REQUIRED"
+            connection.execute(
+                "INSERT INTO execution_run_reconciliations(run_id,outcome,reason,reconciled_at,updated_at) VALUES(?,?,?,?,?)",
+                (run_id, outcome, "active_transaction_without_live_lease", now, now),
+            )
+            outcomes.append({"run_id": run_id, "host_instance_id": "unknown", "last_heartbeat": "unknown", "outcome": outcome})
         connection.execute("COMMIT")
     finally:
         connection.close()
@@ -133,9 +192,18 @@ def liveness(root: Path, run_id: object) -> dict[str, object]:
     now = _now().isoformat(); connection = open_storage(root)
     try:
         row = connection.execute("SELECT host_identity,host_instance_id,last_heartbeat_at,expires_at,lease_state FROM execution_run_leases WHERE run_id=? ORDER BY created_at DESC LIMIT 1", (run_id,)).fetchone()
+        reconciliation = connection.execute(
+            "SELECT outcome,reason,reconciled_at FROM execution_run_reconciliations WHERE run_id=?", (run_id,)
+        ).fetchone()
     finally:
         connection.close()
     if not row:
-        return {"state": "STALE"}
+        result: dict[str, object] = {"state": "STALE"}
+        if reconciliation:
+            result.update({"reconciliation_outcome": reconciliation[0], "reconciliation_reason": reconciliation[1], "reconciled_at": reconciliation[2]})
+        return result
     identity, instance, heartbeat_at, expires_at, state = row
-    return {"state": "LIVE" if state == "ACTIVE" and expires_at >= now else "STALE", "lease_state": state, "host_identity": identity, "host_instance_id": instance, "last_heartbeat": heartbeat_at, "lease_expiry": expires_at}
+    result = {"state": "LIVE" if state == "ACTIVE" and expires_at >= now else "STALE", "lease_state": state, "host_identity": identity, "host_instance_id": instance, "last_heartbeat": heartbeat_at, "lease_expiry": expires_at}
+    if reconciliation:
+        result.update({"reconciliation_outcome": reconciliation[0], "reconciliation_reason": reconciliation[1], "reconciled_at": reconciliation[2]})
+    return result

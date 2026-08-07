@@ -233,6 +233,9 @@ class ClientContractTest(unittest.TestCase):
                 }
                 return values[args]
 
+            def execute(self, _: Path, *args: str) -> subprocess.CompletedProcess[str]:
+                return subprocess.CompletedProcess(args, 0, "", "")
+
         with tempfile.TemporaryDirectory() as temporary, patch("tools.engineering.dj_engineer.subprocess.run") as run:
             root = Path(temporary)
             (root / "BOOTSTRAP.md").write_text("contract", encoding="utf-8")
@@ -384,6 +387,9 @@ class ClientContractTest(unittest.TestCase):
         class Provider:
             def command(self, _: Path, *args: str) -> str:
                 return ""
+
+            def execute(self, _: Path, *args: str) -> subprocess.CompletedProcess[str]:
+                return next(run.side_effect)
 
         clean = RepositoryEvidence("pcvantol/djconnect", "main", "a" * 40, True, True)
         inspect.return_value = clean

@@ -53,12 +53,12 @@ from .recommendation_handoff import RecommendationHandoff, parse_forge_recommend
 from .status_model import build as build_canonical_status, publish as publish_canonical_status
 from .platform_api import PlatformConfiguration, PlatformConfigurationError, provider_registry
 from .platform_bootstrap import migrate_legacy_workspace
-from .providers import GitHubProvider, CodexCliProvider
+from .providers import GitProvider, CodexCliProvider
 from .host_preflight import latest as latest_host_preflight
 from .workspace_preflight import latest as latest_workspace_preflight
 from .capability_preflight import latest as latest_capability_preflight
 from .drift_diagnostics import summary as drift_summary
-from .execution_lease import Lease, LeaseConflictError, acquire as acquire_lease, heartbeat as heartbeat_lease, host_identity, host_instance_id, reconcile_stale, release as release_lease
+from .execution_lease import Lease, LeaseConflictError, LeaseHeartbeat, acquire as acquire_lease, heartbeat as heartbeat_lease, host_identity, host_instance_id, reconcile_stale, release as release_lease
 
 
 class RunnerError(RuntimeError):
@@ -319,12 +319,7 @@ def genesis_workspace_preflight(target: Path | None) -> str | None:
         return "Genesis preflight blocked: prompt must declare an absolute Target repository path."
     if not target.is_absolute() or not target.is_dir():
         return "Genesis preflight blocked: Target repository path is absent or not a directory."
-    observed = subprocess.run(
-        ("git", "-C", str(target), "rev-parse", "--git-dir"),
-        text=True,
-        capture_output=True,
-        check=False,
-    )
+    observed = GitProvider().execute(target, "git", "rev-parse", "--git-dir")
     if observed.returncode:
         return "Genesis preflight blocked: Target repository is not an accessible Git repository."
     git_dir = Path(observed.stdout.strip())
@@ -335,12 +330,7 @@ def genesis_workspace_preflight(target: Path | None) -> str | None:
         return f"Genesis preflight blocked: Git index lock exists at {lock}; it is not removed automatically."
     if not os.access(git_dir, os.W_OK):
         return f"Genesis preflight blocked: Git metadata directory is not writable: {git_dir}."
-    status = subprocess.run(
-        ("git", "-C", str(target), "status", "--porcelain", "--untracked-files=all"),
-        text=True,
-        capture_output=True,
-        check=False,
-    )
+    status = GitProvider().execute(target, "git", "status", "--porcelain", "--untracked-files=all")
     if status.returncode:
         return "Genesis preflight blocked: Target repository status could not be inspected."
     if status.stdout.strip():
@@ -393,8 +383,8 @@ def project_codex_activity(event: object) -> str | None:
 
 
 class SubprocessRepositoryClient:
-    def __init__(self, provider: GitHubProvider | None = None) -> None:
-        self.provider = provider or GitHubProvider()
+    def __init__(self, provider: GitProvider | None = None) -> None:
+        self.provider = provider or GitProvider()
 
     def _run(self, root: Path, *args: str) -> str:
         try:
@@ -411,8 +401,8 @@ class SubprocessRepositoryClient:
         head_sha = self._run(root, "git", "rev-parse", "HEAD")
         clean = not self._run(root, "git", "status", "--porcelain", "--untracked-files=all")
         main_contains_head = (
-            subprocess.run(
-                ("git", "merge-base", "--is-ancestor", head_sha, "main"), cwd=root, check=False
+            self.provider.execute(
+                root, "git", "merge-base", "--is-ancestor", head_sha, "main"
             ).returncode
             == 0
         )
@@ -420,8 +410,8 @@ class SubprocessRepositoryClient:
 
     def main_contains(self, root: Path, sha: str) -> bool:
         return (
-            subprocess.run(
-                ("git", "merge-base", "--is-ancestor", sha, "main"), cwd=root, check=False
+            self.provider.execute(
+                root, "git", "merge-base", "--is-ancestor", sha, "main"
             ).returncode
             == 0
         )
@@ -441,33 +431,16 @@ class SubprocessRepositoryClient:
         for branch in dict.fromkeys(branch for branch in branches if branch):
             if branch == "main":
                 raise RunnerError("Cleanup blocked: transaction branch resolves to main.")
-            exists = (
-                subprocess.run(
-                    ("git", "show-ref", "--verify", "--quiet", f"refs/heads/{branch}"),
-                    cwd=root,
-                    check=False,
-                ).returncode
-                == 0
-            )
+            exists = self.provider.execute(
+                root, "git", "show-ref", "--verify", "--quiet", f"refs/heads/{branch}"
+            ).returncode == 0
             if not exists:
                 continue
-            deletion = subprocess.run(
-                ("git", "branch", "-d", branch),
-                cwd=root,
-                text=True,
-                capture_output=True,
-                check=False,
-            )
+            deletion = self.provider.execute(root, "git", "branch", "-d", branch)
             if deletion.returncode:
                 # A squash merge intentionally makes the branch non-ancestral.
                 # The caller reaches cleanup only after merged PR and main-containment evidence.
-                force = subprocess.run(
-                    ("git", "branch", "-D", branch),
-                    cwd=root,
-                    text=True,
-                    capture_output=True,
-                    check=False,
-                )
+                force = self.provider.execute(root, "git", "branch", "-D", branch)
                 if force.returncode:
                     raise RunnerError(
                         f"Cleanup blocked: transaction branch {branch} could not be safely removed."
@@ -484,8 +457,8 @@ class SubprocessRepositoryClient:
 
 
 class GhCliClient:
-    def __init__(self, provider: GitHubProvider | None = None) -> None:
-        self.provider = provider or GitHubProvider()
+    def __init__(self, provider: GitProvider | None = None) -> None:
+        self.provider = provider or GitProvider()
 
     def pull_request(self, number: int) -> PullRequestEvidence:
         try:
@@ -578,7 +551,8 @@ class CodexCliClient:
             json.dump(schema, handle)
             schema_path = Path(handle.name)
         try:
-            completed = subprocess.run(
+            completed = self.provider.invoke(
+                root,
                 (
                     "codex",
                     "exec",
@@ -591,10 +565,6 @@ class CodexCliClient:
                     str(schema_path),
                     reviewer_prompt(selection, objective),
                 ),
-                cwd=root,
-                text=True,
-                capture_output=True,
-                check=False,
             )
             self.last_usage = extract_codex_usage(completed.stdout, completed.stderr)
         finally:
@@ -726,15 +696,8 @@ class CodexCliClient:
     ) -> subprocess.CompletedProcess[str]:
         """Run Codex, streaming only the approved activity projection when enabled."""
         if self._activity_callback is None:
-            return subprocess.run(command, cwd=root, text=True, capture_output=True, check=False)
-        process = subprocess.Popen(
-            command,
-            cwd=root,
-            text=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            start_new_session=True,
-        )
+            return self.provider.invoke(root, command)
+        process = self.provider.spawn(root, command)
         if self._process_callback is not None:
             try:
                 self._process_callback({"pid": process.pid, "process_group": os.getpgid(process.pid)})
@@ -847,10 +810,15 @@ class EngineeringRunner:
         self.host_identity = host_identity()
         self.host_instance_id = host_instance_id()
         self.active_lease: Lease | None = None
+        self.lease_heartbeat: LeaseHeartbeat | None = None
 
     def _heartbeat(self) -> None:
+        if self.lease_heartbeat is not None and self.lease_heartbeat.error is not None:
+            raise RunnerError("active-run lease heartbeat was lost") from self.lease_heartbeat.error
         if self.active_lease is not None:
             self.active_lease = heartbeat_lease(self.root, self.active_lease)
+            if self.lease_heartbeat is not None:
+                self.lease_heartbeat.lease = self.active_lease
 
     def _publish_reviewer_progress(
         self,
@@ -983,6 +951,8 @@ class EngineeringRunner:
             self.active_lease = acquire_lease(self.root, state.run_id, identity=self.host_identity, instance_id=self.host_instance_id, process_id=os.getpid())
         except LeaseConflictError as error:
             raise RunnerError("active-run ownership conflict; execution is refused") from error
+        self.lease_heartbeat = LeaseHeartbeat(self.root, self.active_lease)
+        self.lease_heartbeat.start()
         memory = retrieve_engineering_memory(self.root, prompt_path)
         selections = select_reviewers(
             objective,
@@ -1109,8 +1079,9 @@ class EngineeringRunner:
         if not target.is_absolute() or authorization_blocker:
             return self._save_terminal(state, "BLOCKED", "genesis_repository_scope", authorization_blocker or "Genesis preflight blocked: WORKSPACE_TARGET_AUTHORIZED: target path must be absolute.")
         try:
-            head = subprocess.run(("git", "rev-parse", "HEAD"), cwd=target, text=True, capture_output=True, check=False)
-            clean = subprocess.run(("git", "status", "--porcelain", "--untracked-files=all"), cwd=target, text=True, capture_output=True, check=False)
+            git = getattr(self.repository, "provider", GitProvider())
+            head = git.execute(target, "git", "rev-parse", "HEAD")
+            clean = git.execute(target, "git", "status", "--porcelain", "--untracked-files=all")
         except OSError as error:
             return self._save_terminal(state, "BLOCKED", "genesis_local_repository_required", str(error))
         actual_head = head.stdout.strip()
@@ -1357,6 +1328,9 @@ class EngineeringRunner:
         )
         self.store.save(terminal)
         if self.active_lease is not None and self.active_lease.run_id == terminal.run_id:
+            if self.lease_heartbeat is not None:
+                self.active_lease = self.lease_heartbeat.stop()
+                self.lease_heartbeat = None
             release_lease(self.root, self.active_lease)
             self.active_lease = None
         if phase == "COMPLETE":
@@ -1559,9 +1533,7 @@ def _pull_request_summary(evidence: PullRequestEvidence) -> str:
 def _git_output(root: Path, *args: str) -> str | None:
     """Return bounded Git output without allowing evidence collection to affect a run."""
     try:
-        result = subprocess.run(
-            ("git", "-C", str(root), *args), text=True, capture_output=True, check=False
-        )
+        result = GitProvider().execute(root, "git", *args)
     except OSError:
         return None
     return result.stdout.strip() if result.returncode == 0 else None

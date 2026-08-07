@@ -5,7 +5,7 @@ import tempfile
 import unittest
 
 from tools.engineering.agent_state import StateStore, TransactionState
-from tools.engineering.execution_lease import LeaseConflictError, acquire, heartbeat, reconcile_stale, release
+from tools.engineering.execution_lease import LeaseConflictError, LeaseHeartbeat, acquire, heartbeat, liveness, reconcile_stale, release
 from tools.engineering.storage import open_storage
 
 
@@ -40,3 +40,21 @@ class ExecutionLeaseTest(unittest.TestCase):
         self.assertEqual(outcome[0]["outcome"], "RECOVERABLE")
         with open_storage(self.root) as connection:
             self.assertEqual(connection.execute("SELECT phase FROM engineering_transactions WHERE run_id='inbox-lease'").fetchone()[0], "INITIALIZE")
+
+    def test_active_transaction_without_lease_is_operator_visible(self) -> None:
+        outcomes = reconcile_stale(self.root)
+        self.assertEqual(outcomes[0]["outcome"], "OPERATOR_INTERVENTION_REQUIRED")
+        self.assertEqual(liveness(self.root, "inbox-lease")["state"], "STALE")
+        with open_storage(self.root) as connection:
+            self.assertEqual(
+                connection.execute("SELECT outcome FROM execution_run_reconciliations WHERE run_id='inbox-lease'").fetchone()[0],
+                "OPERATOR_INTERVENTION_REQUIRED",
+            )
+
+    def test_background_heartbeat_stops_without_releasing_ownership(self) -> None:
+        lease = acquire(self.root, "inbox-lease", identity="host", instance_id="instance-a")
+        pulse = LeaseHeartbeat(self.root, lease, interval_seconds=1)
+        pulse.start()
+        stopped = pulse.stop()
+        self.assertIsNone(pulse.error)
+        self.assertEqual(stopped.lease_id, lease.lease_id)

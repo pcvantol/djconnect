@@ -24,7 +24,7 @@ from .platform_version import EngineeringPlatformManifest
 from .agent_state import redact_diagnostic
 from .platform_api import PlatformConfiguration, PlatformConfigurationError, execution_host_configuration
 from .platform_bootstrap import provision_workspace
-from .providers import LaunchdProvider
+from .providers import GitProvider, LaunchdProvider, LocalProcessProvider
 from .status_model import build, publish
 from .component_logging import (
     DEFAULT_LOG_LEVEL,
@@ -44,6 +44,7 @@ from .capability_preflight import execute as execute_capability_preflight
 from .producer import parse_producer_metadata
 from .drift_diagnostics import summary as drift_summary
 from .storage import EngineeringStorageError, load_projection, open_storage, record_artifact, record_submission
+from .execution_lease import reconcile_stale
 
 LABEL = "com.djconnect.engineering-inbox"
 WATCHER_VERSION = "1.1.5"
@@ -252,21 +253,13 @@ def _terminal_workspace_snapshot(repo: Path, run_id: str) -> tuple[str | None, i
             return None, None, None
         checkout = Path(candidate).expanduser()
     try:
-        observed = subprocess.run(
-            ("git", "-C", str(checkout), "ls-files", "-z"),
-            capture_output=True,
-            check=False,
-        )
-        branch = subprocess.run(
-            ("git", "-C", str(checkout), "branch", "--show-current"),
-            capture_output=True,
-            check=False,
-            text=True,
-        )
+        observed = GitProvider().execute(checkout, "git", "ls-files", "-z")
+        branch = GitProvider().execute(checkout, "git", "branch", "--show-current")
     except OSError:
         return str(checkout.resolve()), None, None
+    separators = b"\0" if isinstance(observed.stdout, bytes) else "\0"
     count = (
-        sum(1 for item in observed.stdout.split(b"\0") if item)
+        sum(1 for item in observed.stdout.split(separators) if item)
         if observed.returncode == 0
         else None
     )
@@ -927,7 +920,8 @@ def _detach_runner(
     environment[BACKGROUND_RUN_ID_ENVIRONMENT] = run_id
     environment[BACKGROUND_JOB_ID_ENVIRONMENT] = job_id
     try:
-        process = subprocess.Popen(
+        process = LocalProcessProvider().spawn_detached(
+            repo,
             [
                 sys.executable,
                 "-m",
@@ -938,11 +932,7 @@ def _detach_runner(
                 "--icloud-root",
                 str(root),
             ],
-            cwd=repo,
-            env=environment,
-            start_new_session=True,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
+            environment,
         )
     except OSError as error:
         status(
@@ -990,7 +980,7 @@ def _execute_runner_command(
     if phase and phase not in TERMINAL_PHASES:
         arguments.append("--resume")
     execution_started_at = datetime.now(timezone.utc)
-    completed = subprocess.run(arguments, cwd=repo, text=True, capture_output=True, check=False)
+    completed = LocalProcessProvider().execute(repo, arguments)
     return execution_started_at, completed
 
 
@@ -999,6 +989,9 @@ def once(repo: Path, root: Path, interval: float = 1.0, *, background: bool = Fa
     logger = component_logger(repo, "inbox")
     areas = local_folders(repo)
     with _lock(repo):
+        reconciled = reconcile_stale(repo)
+        if reconciled:
+            log_event(logger, logging.WARNING, "active_run_lease_reconciled", diagnostic=f"reconciled_runs={len(reconciled)}")
         candidates = _scan_queue(root, interval)
         log_event(logger, logging.DEBUG, "inbox_scan", diagnostic=f"eligible_jobs={len(candidates)}")
         child_run_id = os.environ.get(BACKGROUND_RUN_ID_ENVIRONMENT)

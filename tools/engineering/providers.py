@@ -10,7 +10,7 @@ from ipaddress import IPv4Address, IPv4Network
 from pathlib import Path
 import shutil
 import subprocess
-from typing import Protocol
+from typing import Mapping, Protocol, Sequence
 
 
 @dataclass(frozen=True)
@@ -23,6 +23,35 @@ class ProviderStatus:
 
 class RuntimeProvider(Protocol):
     def status(self) -> ProviderStatus: ...
+
+
+class ProcessProvider(Protocol):
+    """The sole boundary for local child-process execution."""
+
+    def execute(self, root: Path, arguments: Sequence[str]) -> subprocess.CompletedProcess[str]: ...
+
+    def spawn(self, root: Path, arguments: Sequence[str]) -> subprocess.Popen[str]: ...
+
+    def spawn_detached(self, root: Path, arguments: Sequence[str], environment: Mapping[str, str]) -> subprocess.Popen[bytes]: ...
+
+
+class LocalProcessProvider:
+    """Default local process adapter; orchestration code never imports subprocess for work."""
+
+    def execute(self, root: Path, arguments: Sequence[str]) -> subprocess.CompletedProcess[str]:
+        return subprocess.run(arguments, cwd=root, text=True, capture_output=True, check=False)
+
+    def spawn(self, root: Path, arguments: Sequence[str]) -> subprocess.Popen[str]:
+        return subprocess.Popen(
+            tuple(arguments), cwd=root, text=True, stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT, start_new_session=True,
+        )
+
+    def spawn_detached(self, root: Path, arguments: Sequence[str], environment: Mapping[str, str]) -> subprocess.Popen[bytes]:
+        return subprocess.Popen(
+            tuple(arguments), cwd=root, env=dict(environment), start_new_session=True,
+            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+        )
 
 
 class RepositoryProvider(Protocol):
@@ -44,7 +73,7 @@ class PrivateRemoteAccessProvider(Protocol):
     def status(self) -> ProviderStatus: ...
 
 
-class CodexCliProvider:
+class CodexCliProvider(LocalProcessProvider):
     def status(self) -> ProviderStatus:
         available = shutil.which("codex") is not None
         return ProviderStatus("codex_cli", "configured", available, "available" if available else "codex unavailable")
@@ -52,18 +81,23 @@ class CodexCliProvider:
     def command(self, *args: str) -> subprocess.CompletedProcess[str]:
         return subprocess.run(("codex", *args), text=True, capture_output=True, check=False)
 
+    def invoke(self, root: Path, arguments: tuple[str, ...]) -> subprocess.CompletedProcess[str]:
+        """Execute a complete Codex command; callers never spawn its CLI directly."""
+        return self.execute(root, arguments)
+
+
+class GitProvider(LocalProcessProvider):
+    """Local Git provider, deliberately separate from the GitHub API provider."""
+
+    def execute(self, root: Path, *args: str) -> subprocess.CompletedProcess[str]:
+        return super().execute(root, args)
+
 
 class GitHubProvider:
     def status(self, root: Path) -> ProviderStatus:
         remote = subprocess.run(("git", "remote", "get-url", "origin"), cwd=root, text=True, capture_output=True, check=False)
         qualified = remote.returncode == 0 and "github" in remote.stdout.lower()
         return ProviderStatus("github", "configured", qualified, remote.stdout.strip() if qualified else "GitHub origin unavailable")
-
-    def command(self, root: Path, *args: str) -> str:
-        completed = subprocess.run(args, cwd=root, text=True, capture_output=True, check=False)
-        if completed.returncode:
-            raise RuntimeError(completed.stderr.strip() or "repository provider command failed")
-        return completed.stdout.strip()
 
     def github(self, *args: str) -> str:
         completed = subprocess.run(("gh", *args), text=True, capture_output=True, check=False)
