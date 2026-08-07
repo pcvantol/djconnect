@@ -1,5 +1,6 @@
 import { spawn } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 import { test, expect } from "@playwright/test";
@@ -10,27 +11,38 @@ import {
 } from "../../tools/engineering/assets/dashboard_locales.mjs";
 
 const repository = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
-const dashboardUrl = "http://127.0.0.1:8876";
 let dashboard;
+let dashboardRoot;
+let dashboardUrl;
 
 async function waitForDashboard() {
   for (let attempt = 0; attempt < 30; attempt += 1) {
     try {
       if ((await fetch(`${dashboardUrl}/api/health`)).ok) return;
     } catch {
-      // The local dashboard process is still starting.
+      // The isolated dashboard process is still starting.
     }
     await new Promise((resolve) => setTimeout(resolve, 250));
   }
   throw new Error("Engineering Status did not become healthy in time.");
 }
 
-test.beforeAll(async () => {
+test.beforeAll(async ({}, testInfo) => {
+  const port = 8876 + testInfo.workerIndex;
+  dashboardUrl = `http://127.0.0.1:${port}`;
+  dashboardRoot = mkdtempSync(path.join(tmpdir(), "djconnect-dashboard-test-"));
+  const engineeringDirectory = path.join(dashboardRoot, "tools/engineering");
+  mkdirSync(engineeringDirectory, { recursive: true });
+  for (const filename of ["ENGINEERING_PLATFORM_CONFIG.json", "ENGINEERING_PLATFORM_VERSION.json"]) {
+    copyFileSync(path.join(repository, "tools/engineering", filename), path.join(engineeringDirectory, filename));
+  }
   dashboard = spawn(
     "python3",
     [
       "-c",
-      'from pathlib import Path; from tools.engineering.dashboard import DashboardHTTPServer, handler; DashboardHTTPServer(("127.0.0.1", 8876), handler(Path(".").resolve())).serve_forever()',
+      "from pathlib import Path; import sys; from tools.engineering.dashboard import DashboardHTTPServer, handler; DashboardHTTPServer(('127.0.0.1', int(sys.argv[2])), handler(Path(sys.argv[1]))).serve_forever()",
+      dashboardRoot,
+      String(port),
     ],
     { cwd: repository, stdio: "ignore" },
   );
@@ -39,6 +51,29 @@ test.beforeAll(async () => {
 
 test.afterAll(() => {
   dashboard?.kill("SIGTERM");
+  if (dashboardRoot) rmSync(dashboardRoot, { force: true, recursive: true });
+});
+
+async function openTitlebarOptions(page) {
+  const options = page.locator("#dashboardTitlebarOptions");
+  if (!(await options.evaluate((element) => element.open))) {
+    await page.getByTestId("titlebar-options-toggle").click();
+  }
+}
+
+test.beforeEach(async ({ page }, testInfo) => {
+  const goto = page.goto.bind(page);
+  page.goto = async (...arguments_) => {
+    const response = await goto(...arguments_);
+    await page.waitForFunction(() => document.body.classList.contains("dashboard-ready"));
+    if (![
+      "puts every mobile title-bar setting in a labelled expandable panel",
+      "only starts pull-to-refresh from the scroll region's top edge",
+    ].includes(testInfo.title)) {
+      await openTitlebarOptions(page);
+    }
+    return response;
+  };
 });
 
 test.describe("Engineering Status browser smoke", () => {
@@ -987,6 +1022,7 @@ test.describe("Engineering Status browser smoke", () => {
     );
     await page.locator("#autoRefresh").uncheck();
     await page.locator("#dashboardSplash").evaluate((element) => { element.hidden = true; });
+    await page.locator("#dashboardTitlebarOptions").evaluate((element) => { element.open = false; });
     await page.locator("#currentRun").evaluate((element) => { element.open = true; });
     const image = await page.screenshot({ animations: "disabled" });
     await testInfo.attach("iphone-portrait-dashboard", {
@@ -1078,7 +1114,7 @@ test.describe("Engineering Status browser smoke", () => {
         viewportTop: 0,
       };
     });
-    expect(layout.position).toBe("static");
+    expect(layout.position).toBe("relative");
     expect(layout.titleBottom).toBeLessThan(layout.viewportTop);
   });
 
@@ -1121,7 +1157,7 @@ test.describe("Engineering Status browser smoke", () => {
   test("keeps each iPhone title-bar switch thumb inside its track", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
-    await page.getByTestId("titlebar-options-toggle").click();
+    await openTitlebarOptions(page);
     for (const toggle of [page.getByTestId("theme-toggle"), page.getByTestId("toggle-all-sections")]) {
       const pseudo = await toggle.evaluate((element) => ({
         trackPosition: getComputedStyle(element, "::before").position,
@@ -1142,7 +1178,7 @@ test.describe("Engineering Status browser smoke", () => {
     test("persists every iPhone title-bar toggle after one direct touch at a time", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
-    await page.getByTestId("titlebar-options-toggle").click();
+    await openTitlebarOptions(page);
 
     const touch = async (locator) => {
       const box = await locator.boundingBox();

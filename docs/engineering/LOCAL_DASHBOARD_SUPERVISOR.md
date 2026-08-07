@@ -419,6 +419,11 @@ npm run test:engineering-dashboard
 npm run test:engineering-dashboard-logic
 ```
 
+CI runs the browser suite with four isolated workers. Each worker starts its
+own temporary dashboard root and local server, so status fixtures, browser
+preferences and retry projections never leak between tests. Local runs retain
+Playwright's default worker count for straightforward debugging.
+
 The same workflow also runs the Engineering Python suite under branch coverage.
 The required core files are `dashboard.py`, `platform_bootstrap.py`,
 `providers.py` and `inbox_watcher.py`. Each must remain
