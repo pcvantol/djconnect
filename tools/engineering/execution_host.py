@@ -75,6 +75,10 @@ from .execution_models import AgentResult, PullRequestEvidence, RepositoryEviden
 from .execution_errors import CodexInvocationError, RunnerError
 from .execution_repository import GitHubClient as ProviderGitHubClient, RepositoryClient as ProviderRepositoryClient
 from .execution_repository import GhCliClient as ProviderGhCliClient, SubprocessRepositoryClient as ProviderRepositoryClientImpl
+from .execution_executor import format_cli_failure as executor_format_cli_failure
+from .execution_executor import project_codex_activity as executor_project_codex_activity
+from .execution_executor import redacted_cli_tail as executor_redacted_cli_tail
+from .execution_executor import write_redacted_codex_cli_log as executor_write_redacted_codex_cli_log
 from .storage import load_readiness_evaluation, record_readiness_evaluation
 
 RETRY_REPORT_HEADERS = {
@@ -478,6 +482,12 @@ def write_redacted_codex_cli_log(root: Path, run_id: str, detail: str) -> Path:
     finally:
         Path(temporary).unlink(missing_ok=True)
     return path
+
+
+project_codex_activity = executor_project_codex_activity
+_redacted_cli_tail = executor_redacted_cli_tail
+_format_cli_failure = executor_format_cli_failure
+write_redacted_codex_cli_log = executor_write_redacted_codex_cli_log
 
 
 def assemble_prompt(prompt_path: Path, state: TransactionState | None) -> str:
