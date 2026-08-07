@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from enum import StrEnum
 from pathlib import Path
 from typing import Callable
+from datetime import datetime, timezone
 
 
 class Requirement(StrEnum):
@@ -43,6 +44,26 @@ class ReadinessResult:
     diagnostic: str | None = None
 
 
+@dataclass(frozen=True)
+class ReadinessFacts:
+    host_ready: bool
+    repository_present: bool
+    repository_clean: bool | None
+    lease_available: bool
+
+
+@dataclass(frozen=True)
+class ReadinessDecision:
+    passed: bool
+    profile_id: str
+    profile_version: int
+    execution_mode: str
+    failed_requirements: tuple[str, ...]
+    facts: ReadinessFacts
+    evaluated_at: str
+    diagnostic: str | None = None
+
+
 def selected_profile(execution_mode: str) -> ReadinessProfile:
     if execution_mode == "GENESIS":
         return GENESIS_TARGET
@@ -66,3 +87,21 @@ def evaluate(
     if managed_clean(host_root):
         return ReadinessResult(profile, True)
     return ReadinessResult(profile, False, "working tree is not clean; unrelated work will not be touched")
+
+
+def decide(profile: ReadinessProfile, facts: ReadinessFacts) -> ReadinessDecision:
+    """Fail-closed policy evaluation over facts; it never probes the environment."""
+    failed: list[str] = []
+    if profile.host_qualification is Requirement.REQUIRED and not facts.host_ready:
+        failed.append("host_qualification")
+    if profile.repository is Requirement.REQUIRED and not facts.repository_present:
+        failed.append("repository")
+    if profile.clean_worktree is Requirement.REQUIRED and facts.repository_clean is not True:
+        failed.append("clean_worktree")
+    if profile.active_run_lease is Requirement.REQUIRED and not facts.lease_available:
+        failed.append("active_run_lease")
+    return ReadinessDecision(
+        not failed, profile.profile_id, profile.version, profile.execution_mode,
+        tuple(failed), facts, datetime.now(timezone.utc).isoformat(),
+        None if not failed else "Readiness requirements are not satisfied: " + ", ".join(failed),
+    )

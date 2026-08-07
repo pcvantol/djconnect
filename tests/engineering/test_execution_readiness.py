@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 import unittest
 
-from tools.engineering.execution_readiness import Requirement, evaluate, selected_profile
+from tools.engineering.execution_readiness import ReadinessFacts, Requirement, decide, evaluate, selected_profile
 
 
 class ExecutionReadinessTest(unittest.TestCase):
@@ -25,3 +25,8 @@ class ExecutionReadinessTest(unittest.TestCase):
         self.assertFalse(result.ready)
         self.assertEqual(result.profile.profile_id, "managed_repository")
         self.assertEqual(result.profile.remote, Requirement.REQUIRED)
+
+    def test_decision_lists_failed_typed_requirements(self) -> None:
+        decision = decide(selected_profile("MANAGED"), ReadinessFacts(True, True, False, True))
+        self.assertFalse(decision.passed)
+        self.assertEqual(decision.failed_requirements, ("clean_worktree",))
