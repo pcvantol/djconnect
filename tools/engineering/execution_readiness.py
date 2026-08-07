@@ -27,15 +27,16 @@ class ReadinessProfile:
     workspace_authorization: Requirement
     host_qualification: Requirement
     capability_qualification: Requirement
+    providers: Requirement
     datastore: Requirement
     active_run_lease: Requirement
     producer_contract: Requirement
     additional_constraints: tuple[str, ...] = ()
 
 
-PLATFORM_HOST = ReadinessProfile("platform_host", 1, "ANY", Requirement.NOT_APPLICABLE, Requirement.NOT_APPLICABLE, Requirement.NOT_APPLICABLE, Requirement.NOT_APPLICABLE, Requirement.NOT_APPLICABLE, Requirement.NOT_APPLICABLE, Requirement.REQUIRED, Requirement.NOT_APPLICABLE, Requirement.REQUIRED, Requirement.NOT_APPLICABLE, Requirement.NOT_APPLICABLE)
-MANAGED_REPOSITORY = ReadinessProfile("managed_repository", 1, "MANAGED", Requirement.REQUIRED, Requirement.REQUIRED, Requirement.REQUIRED, Requirement.REQUIRED, Requirement.REQUIRED, Requirement.REQUIRED, Requirement.REQUIRED, Requirement.REQUIRED, Requirement.REQUIRED, Requirement.REQUIRED, Requirement.REQUIRED)
-GENESIS_TARGET = ReadinessProfile("genesis_target", 1, "GENESIS", Requirement.REQUIRED, Requirement.NOT_APPLICABLE, Requirement.NOT_APPLICABLE, Requirement.REQUIRED, Requirement.REQUIRED, Requirement.REQUIRED, Requirement.REQUIRED, Requirement.REQUIRED, Requirement.REQUIRED, Requirement.REQUIRED, Requirement.REQUIRED)
+PLATFORM_HOST = ReadinessProfile("platform_host", 1, "ANY", Requirement.NOT_APPLICABLE, Requirement.NOT_APPLICABLE, Requirement.NOT_APPLICABLE, Requirement.NOT_APPLICABLE, Requirement.NOT_APPLICABLE, Requirement.NOT_APPLICABLE, Requirement.REQUIRED, Requirement.NOT_APPLICABLE, Requirement.REQUIRED, Requirement.REQUIRED, Requirement.NOT_APPLICABLE, Requirement.NOT_APPLICABLE)
+MANAGED_REPOSITORY = ReadinessProfile("managed_repository", 1, "MANAGED", Requirement.REQUIRED, Requirement.REQUIRED, Requirement.REQUIRED, Requirement.REQUIRED, Requirement.REQUIRED, Requirement.REQUIRED, Requirement.REQUIRED, Requirement.REQUIRED, Requirement.REQUIRED, Requirement.REQUIRED, Requirement.REQUIRED, Requirement.REQUIRED)
+GENESIS_TARGET = ReadinessProfile("genesis_target", 1, "GENESIS", Requirement.REQUIRED, Requirement.NOT_APPLICABLE, Requirement.NOT_APPLICABLE, Requirement.REQUIRED, Requirement.REQUIRED, Requirement.REQUIRED, Requirement.REQUIRED, Requirement.REQUIRED, Requirement.REQUIRED, Requirement.REQUIRED, Requirement.REQUIRED, Requirement.REQUIRED)
 
 
 @dataclass(frozen=True)
@@ -56,6 +57,7 @@ class ReadinessFacts:
     branch_present: bool | None = None
     workspace_authorized: bool | None = None
     capabilities_available: bool | None = None
+    providers_available: bool | None = None
     datastore_healthy: bool | None = None
     producer_contract_valid: bool | None = None
 
@@ -92,6 +94,7 @@ class ReadinessFacts:
             else outcome(workspace, "genesis_local_repository"),
             workspace_authorized=outcome(workspace, "WORKSPACE_TARGET_AUTHORIZED"),
             capabilities_available=capabilities_ready,
+            providers_available=outcome(capability, "provider_support"),
             datastore_healthy=outcome(host, "telemetry_storage"),
             producer_contract_valid=outcome(capability, "producer_contract"),
         )
@@ -148,6 +151,7 @@ def decide(profile: ReadinessProfile, facts: ReadinessFacts) -> ReadinessDecisio
         ("branch", profile.branch, facts.branch_present),
         ("workspace_authorization", profile.workspace_authorization, facts.workspace_authorized),
         ("capability_qualification", profile.capability_qualification, facts.capabilities_available),
+        ("providers", profile.providers, facts.providers_available),
         ("datastore", profile.datastore, facts.datastore_healthy),
         ("active_run_lease", profile.active_run_lease, facts.lease_available),
         ("producer_contract", profile.producer_contract, facts.producer_contract_valid),

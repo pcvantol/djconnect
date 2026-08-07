@@ -784,6 +784,7 @@ class EngineeringRunner:
             branch_present=preflight_facts.branch_present if preflight_facts.branch_present is not None else True,
             workspace_authorized=preflight_facts.workspace_authorized if preflight_facts.workspace_authorized is not None else True,
             capabilities_available=preflight_facts.capabilities_available if preflight_facts.capabilities_available is not None else True,
+            providers_available=preflight_facts.providers_available if preflight_facts.providers_available is not None else True,
             datastore_healthy=preflight_facts.datastore_healthy if preflight_facts.datastore_healthy is not None else True,
             producer_contract_valid=preflight_facts.producer_contract_valid if preflight_facts.producer_contract_valid is not None else True,
         )

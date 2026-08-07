@@ -34,7 +34,7 @@ class ExecutionReadinessTest(unittest.TestCase):
                 True, True, False, True,
                 remote_present=True, upstream_present=True, branch_present=True,
                 workspace_authorized=True, capabilities_available=True,
-                datastore_healthy=True, producer_contract_valid=True,
+                providers_available=True, datastore_healthy=True, producer_contract_valid=True,
             ),
         )
         self.assertFalse(decision.passed)
@@ -45,6 +45,16 @@ class ExecutionReadinessTest(unittest.TestCase):
         self.assertFalse(decision.passed)
         self.assertIn("remote", decision.failed_requirements)
         self.assertIn("datastore", decision.failed_requirements)
+
+    def test_provider_requirement_is_explicit_and_fail_closed(self) -> None:
+        facts = ReadinessFacts(
+            True, True, True, True, remote_present=True, upstream_present=True,
+            branch_present=True, workspace_authorized=True, capabilities_available=True,
+            providers_available=False, datastore_healthy=True, producer_contract_valid=True,
+        )
+        decision = decide(selected_profile("MANAGED"), facts)
+        self.assertFalse(decision.passed)
+        self.assertEqual(decision.failed_requirements, ("providers",))
 
     def test_preflight_adapter_uses_existing_observed_outcomes(self) -> None:
         workspace = SimpleNamespace(checks=(SimpleNamespace(identifier="target_repository", outcome="PASS"), SimpleNamespace(identifier="clean_worktree", outcome="PASS")))
