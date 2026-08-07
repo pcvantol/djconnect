@@ -57,6 +57,7 @@ ORIGINAL_RUN_ID_PATTERN = re.compile(r"(?mi)^original[ _-]run[ _-]id\s*:\s*(inbo
 RETRY_GENERATION_PATTERN = re.compile(r"(?mi)^retry[ _-]generation\s*:\s*(\d+)\s*$")
 RETRY_TIMESTAMP_PATTERN = re.compile(r"(?mi)^retry[ _-]timestamp\s*:\s*([^\n]{1,80})\s*$")
 LAUNCH_PATH_FALLBACK = ("/opt/homebrew/bin", "/usr/local/bin", "/usr/bin", "/bin", "/usr/sbin", "/sbin")
+RUNNER_START_GRACE_SECONDS = 90
 
 
 class RetrySubmissionError(ValueError):
@@ -390,6 +391,7 @@ def status(repo: Path, state: str, **details: object) -> None:
         watcher_state=state,
         job_id=details.get("job_id"),
         run_id=details.get("run_id"),
+        runner_pid=details.get("runner_pid"),
         queue_depth=details.get("queued_jobs", 0),
         queue_items=details.get("queue_items", []),
         current_phase=details.get("runner_phase"),
@@ -672,6 +674,12 @@ def _move(source: Path, destination: Path) -> None:
 
 
 def _active_transaction(repo: Path) -> bool:
+    """Return whether an admitted runner is still demonstrably alive.
+
+    A detached child may be terminated between its admission projection and its
+    first checkpoint.  That must not leave the watcher in ``RUNNER_STARTING``
+    indefinitely and block every later Inbox item.
+    """
     try:
         payload = load_projection(repo, "live_status") or {}
     except EngineeringStorageError:
@@ -696,6 +704,12 @@ def _active_transaction(repo: Path) -> bool:
             and watcher.get("last_executed_phase") in TERMINAL_PHASES
         ):
             return False
+        if (
+            checkpoint_phase is None
+            and watcher.get("watcher_state") == "RUNNER_STARTING"
+            and watcher.get("run_id") == run_id
+        ):
+            return _detached_runner_is_alive(watcher)
         return True
     # The detached runner is admitted before it has written current.json.
     # Status is therefore the authoritative short-lived admission record.
@@ -709,7 +723,30 @@ def _active_transaction(repo: Path) -> bool:
     if not isinstance(watcher_run_id, str):
         return False
     checkpoint_phase, _ = _runner_result(repo, watcher_run_id)
-    return checkpoint_phase not in TERMINAL_PHASES
+    if checkpoint_phase in TERMINAL_PHASES:
+        return False
+    return _detached_runner_is_alive(watcher)
+
+
+def _detached_runner_is_alive(watcher: dict[str, object]) -> bool:
+    """Confirm a detached runner PID, with a bounded legacy-start grace period."""
+    pid = watcher.get("runner_pid")
+    if isinstance(pid, int) and pid > 0:
+        try:
+            os.kill(pid, 0)
+        except OSError:
+            return False
+        return True
+    observed = watcher.get("last_update")
+    if not isinstance(observed, str):
+        return False
+    try:
+        started = datetime.fromisoformat(observed.replace("Z", "+00:00"))
+    except ValueError:
+        return False
+    if started.tzinfo is None:
+        return False
+    return (datetime.now(timezone.utc) - started).total_seconds() <= RUNNER_START_GRACE_SECONDS
 
 
 @contextmanager
@@ -890,7 +927,7 @@ def _detach_runner(
     environment[BACKGROUND_RUN_ID_ENVIRONMENT] = run_id
     environment[BACKGROUND_JOB_ID_ENVIRONMENT] = job_id
     try:
-        subprocess.Popen(
+        process = subprocess.Popen(
             [
                 sys.executable,
                 "-m",
@@ -918,6 +955,19 @@ def _detach_runner(
             diagnostic=f"De los gestarte Engineering-runner kon niet starten: {error}",
         )
         return 1
+    runner_pid = getattr(process, "pid", None)
+    status(
+        repo,
+        "RUNNER_STARTING",
+        queued_jobs=len(candidates) - 1,
+        queue_items=_queue_items(candidates, source),
+        job_id=job_id,
+        run_id=run_id,
+        runner_pid=runner_pid if isinstance(runner_pid, int) and runner_pid > 0 else None,
+        submitted_filename=source.name,
+        prompt_title=_prompt_title(content, source.name),
+        current_action="De Engineering-runner is los gestart; de watcher blijft de Inbox volgen.",
+    )
     log_event(logger, logging.INFO, "runner_detached", run_id=run_id)
     return 0
 
@@ -1072,7 +1122,7 @@ def once(repo: Path, root: Path, interval: float = 1.0, *, background: bool = Fa
         )
         status(
             repo, "RUNNER_STARTING", job_id=job_id, run_id=run_id, queued_jobs=len(candidates) - 1, queue_items=_queue_items(candidates, source),
-            submitted_filename=source.name, prompt_title=title,
+            runner_pid=os.getpid(), submitted_filename=source.name, prompt_title=title,
         )
         log_event(logger, logging.INFO, "runner_started", run_id=run_id)
         execution_started_at, completed = _execute_runner_command(repo, prompt, run_id)

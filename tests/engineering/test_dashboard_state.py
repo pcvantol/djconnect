@@ -117,6 +117,22 @@ class DashboardStateTest(unittest.TestCase):
 
         self.assertEqual(payload, watcher)
 
+    def test_status_ignores_a_live_projection_for_a_different_watcher_run(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            status = root / ".engineering" / "status"
+            status.mkdir(parents=True)
+            watcher = {"watcher_state": "RUNNER_STARTING", "run_id": "inbox-current"}
+            (status / "status.json").write_text(json.dumps(watcher), encoding="utf-8")
+            (status / "current.json").write_text(
+                json.dumps({"run_id": "inbox-stale", "phase": "INITIALIZE"}),
+                encoding="utf-8",
+            )
+
+            payload = json.loads(dashboard_state.status(root))
+
+        self.assertEqual(payload, watcher)
+
     def test_snapshot_isolated_from_optional_telemetry_failure(self) -> None:
         root = Path("/workspace")
 
