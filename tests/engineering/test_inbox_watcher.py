@@ -194,6 +194,24 @@ class InboxWatcherTest(unittest.TestCase):
         self.assertEqual(deferred.read_text(encoding="utf-8"), "# Later uitvoeren\n")
         self.assertEqual([path.name for path in inbox_watcher.discover(self.root)], [waiting.name])
 
+    def test_defer_queued_prompt_preserves_an_existing_deferred_file(self) -> None:
+        selected = self.inbox / "defer-me.md"
+        selected.write_text("# Nieuwe uitvoering\n", encoding="utf-8")
+        deferred_folder = self.inbox / "_deferred"
+        deferred_folder.mkdir()
+        original = deferred_folder / selected.name
+        original.write_text("# Eerder uitgestelde uitvoering\n", encoding="utf-8")
+
+        outcome = inbox_watcher.defer_queued_prompt(self.repo, self.root, selected.name)
+
+        self.assertFalse(selected.exists())
+        self.assertNotEqual(outcome["deferred_filename"], selected.name)
+        self.assertEqual(original.read_text(encoding="utf-8"), "# Eerder uitgestelde uitvoering\n")
+        self.assertEqual(
+            (deferred_folder / outcome["deferred_filename"]).read_text(encoding="utf-8"),
+            "# Nieuwe uitvoering\n",
+        )
+
     def test_defer_queued_prompt_rejects_paths_and_missing_items(self) -> None:
         for filename in ("../outside.md", "missing.md"):
             with self.assertRaises(inbox_watcher.RetrySubmissionError):

@@ -124,6 +124,25 @@ dashboard. After confirmation, the watcher lock atomically moves only that
 source file to `Inbox/_deferred/`; it is retained intact, excluded from active
 Inbox discovery and can be returned manually later. The action never deletes,
 edits or claims an execution, and refuses an item that is no longer waiting.
+Name collisions in `_deferred` are resolved without overwriting the earlier
+file. The queue log records only bounded filenames and the outcome, never a
+prompt body. A failed admission likewise records the failed preflight check,
+safe recovery and bounded diagnostic in the component-log **Details** column;
+it must not expose a secret or prompt content.
+
+### Queue intervention acceptance criteria
+
+Changes to retry, resume or defer behavior must prove all of the following:
+
+- the request accepts only a basename for a still-waiting item; paths, missing
+  items and claimed work are rejected;
+- moving an item is atomic, retains its content and never overwrites an
+  existing deferred filename;
+- only the selected queue item leaves the active projection;
+- the dashboard asks for confirmation before it sends a mutation; cancelling
+  leaves the queue unchanged;
+- operator log events contain actionable, bounded diagnostics without prompt
+  content or credentials.
 
 Both actions create a corrective prompt with explicit lineage metadata:
 

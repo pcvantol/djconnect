@@ -232,6 +232,16 @@ CI=1 npm run test:engineering-dashboard -- --reporter=line
 git diff --check
 ```
 
+The current regression layers are deliberately complementary:
+
+- `tests/engineering/test_inbox_watcher.py` verifies the safe filesystem and
+  queue projection contract, including collision-safe deferral.
+- `tests/engineering/test_dashboard.py` verifies dashboard HTTP validation,
+  response codes and audit-log payloads.
+- `tests/engineering/dashboard.spec.mjs` verifies the rendered interaction:
+  confirmation, cancellation, localization, responsive/touch behavior and the
+  state the operator can actually see.
+
 Add or extend Playwright coverage for the changed state and, when applicable:
 
 - dark and light rendering;
@@ -255,4 +265,3 @@ does not override an obvious visual regression.
 4. Review against sections 7–10.
 5. If a stable new pattern is introduced, amend this document in the same
    change. Otherwise, remove the one-off pattern before merge.
-

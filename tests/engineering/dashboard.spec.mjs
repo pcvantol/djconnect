@@ -3336,6 +3336,33 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#queueList")).not.toContainText("Later uitvoeren");
   });
 
+  test("keeps a waiting Inbox item when deferring is cancelled", async ({ page }) => {
+    let deferRequests = 0;
+    await page.route("**/api/events", (route) => route.abort());
+    await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({ json: {
+      status: {
+        watcher_state: "WATCHER_IDLE",
+        queue_depth: 1,
+        queue_items: [{ filename: "keep-me.md", title: "Blijf actief", modified_at: "2026-08-02T10:01:00Z" }],
+      },
+      component_versions: {}, telemetry: [], duration_estimate: {}, build_commit: "",
+    } }));
+    await page.route("**/api/queue-defer", async (route) => {
+      deferRequests += 1;
+      await route.fulfill({ status: 500, json: { error: "niet verwacht" } });
+    });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#dashboardSplash").evaluate((element) => { element.hidden = true; });
+    await page.locator("#queueItems").evaluate((element) => { element.open = true; });
+
+    await page.getByRole("button", { name: "Stel uit" }).click();
+    await page.locator("#confirmationModalCancel").click();
+
+    await expect(page.locator("#queueList .queue-item")).toHaveCount(1);
+    await expect(page.locator("#queueList")).toContainText("Blijf actief");
+    expect(deferRequests).toBe(0);
+  });
+
   test("shows the Codex CLI blocker in the Inbox queue", async ({ page }) => {
     await page.route("**/api/events", (route) => route.abort());
     await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({
