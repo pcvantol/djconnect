@@ -62,6 +62,7 @@ from .execution_lease import Lease, LeaseConflictError, LeaseHeartbeat, acquire 
 from .execution_readiness import ReadinessFacts, decide as decide_readiness, evaluate as evaluate_readiness, selected_profile
 from .execution_transaction import ExecutionTransaction
 from .execution_evidence import TerminalEvidenceBundle
+from .execution_context import ExecutionContext
 from .storage import load_readiness_evaluation, record_readiness_evaluation
 
 
@@ -174,18 +175,6 @@ class AgentResult:
     repository_path: str | None = None
     commit_sha: str | None = None
     validation_evidence: tuple[dict[str, str], ...] = ()
-
-
-@dataclass(frozen=True)
-class ExecutionContext:
-    """Resolved lifecycle selection before any mode-specific readiness check."""
-
-    execution_mode: str
-    host_repository: Path
-    target_repository: Path | None
-    lifecycle_policy: str
-    selected_preflight: str
-    run_id: str | None = None
 
 
 REPORT_REQUIREMENT_EXCLUDED_HEADINGS = frozenset({"context", "canonical principle"})
