@@ -1642,6 +1642,25 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator(".reviewer-agent__name")).toHaveCSS("color", "rgb(47, 134, 189)");
   });
 
+  test("wraps specialist reviewers into compact responsive tiles", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    const reviewer_agents = ["repository_governance", "validation", "documentation", "finalization"]
+      .map((reviewer) => ({ reviewer, capability: "engineering", status: "completed" }));
+    await page.evaluate((reviewers) => r({
+      watcher_state: "ENGINEERING_RUN_ACTIVE", run_id: "review-grid", reviewer_agents: reviewers,
+    }, {}), reviewer_agents);
+
+    const tiles = page.locator(".reviewer-agent");
+    await expect(tiles).toHaveCount(4);
+    const wideRows = await tiles.evaluateAll((elements) => elements.map((element) => Math.round(element.getBoundingClientRect().y)));
+    expect(new Set(wideRows).size).toBe(1);
+
+    await page.setViewportSize({ width: 390, height: 844 });
+    const narrowRows = await tiles.evaluateAll((elements) => elements.map((element) => Math.round(element.getBoundingClientRect().y)));
+    expect(new Set(narrowRows).size).toBe(4);
+  });
+
   test("uses related primary and secondary accents for category titles and field labels", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.evaluate(() => r({
