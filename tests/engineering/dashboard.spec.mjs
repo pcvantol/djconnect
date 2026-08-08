@@ -2370,15 +2370,25 @@ test.describe("Engineering Status browser smoke", () => {
       const summary = document.querySelector("#dashboardTitlebarOptions > summary");
       document.querySelector("#dashboardTitlebarOptions").open = true;
       const input = document.querySelector("#autoRefresh");
+      const refresh = document.querySelector("#pageRefresh");
       input.focus({ preventScroll: true });
+      const inputStyle = getComputedStyle(input);
+      const focusOutline = inputStyle.outlineColor;
+      const focusOutlineWidth = inputStyle.outlineWidth;
+      refresh.focus({ preventScroll: true });
+      const refreshStyle = getComputedStyle(refresh);
       return {
-        focusOutline: getComputedStyle(input).outlineColor,
+        focusOutline,
+        focusOutlineWidth,
+        refreshOutlineWidth: refreshStyle.outlineWidth,
         summaryBackground: getComputedStyle(summary).backgroundColor,
         summaryColor: getComputedStyle(summary).color,
       };
     });
 
     expect(styles.focusOutline).toBe("rgb(240, 182, 106)");
+    expect(styles.focusOutlineWidth).toBe("2px");
+    expect(styles.refreshOutlineWidth).toBe("2px");
     expect(styles.summaryBackground).not.toBe("rgb(17, 19, 29)");
     expect(styles.summaryColor).toBe("rgb(24, 34, 48)");
   });
