@@ -1,7 +1,19 @@
 # DJConnect Engineering Status
 
 **Status:** Operational handoff
-**Updated:** 2026-08-07
+**Updated:** 2026-08-08
+
+## PR #793 finalization reconciled
+
+PR [#793](https://github.com/pcvantol/djconnect/pull/793), **Project live
+runs over an idle watcher state**, merged as
+`7436b0a9f18c8550e3f4dba0de98160c7c912807`. The Engineering Status dashboard
+now projects a live, leased execution even after the watcher has become idle
+for an older run. The immutable Prompt History record is
+`docs/history/prompts/2026-08-08-live-run-dashboard-projection.md`. This
+governance-only Finalization records the completed reconciliation: Repository
+State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY` after cleanup.
+No queue admission, execution, runtime, Forge or product behavior changed.
 
 ## PR #790 finalization pending
 
