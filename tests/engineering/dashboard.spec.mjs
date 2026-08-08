@@ -998,23 +998,25 @@ test.describe("Engineering Status browser smoke", () => {
   });
 
   test("keeps terminal history actions on one wide-screen row beside a compact title", async ({ page }) => {
+    const history = [{
+      run_id: "inbox-actions",
+      title: "Engineering Platform Increment — Producer Submission Envelope",
+      status: "BLOCKED",
+      can_retry: true,
+    }];
     await page.setViewportSize({ width: 2048, height: 900 });
     await page.route("**/api/events", (route) => route.abort());
+    await page.route("**/api/prompt-history", (route) => route.fulfill({ json: { runs: history } }));
     await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({
       json: { status: { watcher_state: "WATCHER_IDLE", queue_depth: 0, last_executed_run: "inbox-actions" } },
     }));
+    const historyLoaded = page.waitForResponse("**/api/prompt-history");
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await historyLoaded;
     await page.locator("#autoRefresh").uncheck();
     await page.evaluate(() => {
       document.querySelector("#promptHistory").open = true;
       r({ last_executed_run: "inbox-actions", watcher_state: "WATCHER_IDLE" }, {});
-      promptHistoryEntries = [{
-        run_id: "inbox-actions",
-        title: "Engineering Platform Increment — Producer Submission Envelope",
-        status: "BLOCKED",
-        can_retry: true,
-      }];
-      renderPromptHistory();
     });
     const actions = page.locator("#promptHistoryRows .prompt-history-actions").first();
     await expect(actions).toHaveCSS("flex-wrap", "nowrap");
