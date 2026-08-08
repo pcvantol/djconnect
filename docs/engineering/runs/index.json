@@ -1,4 +1,11 @@
 {
+  "completed_at": "2026-08-08T07:18:46.613436+00:00",
+  "finalization_pr": 794,
+  "implementation_pr": 793,
+  "latest_run_id": "inbox-08853facf13b4d9395b1884ded802ff5",
+  "platform_version": "1.5.0",
+  "report_path": "docs/engineering/runs/2026/2026-08-08-inbox-08853facf13b4d9395b1884ded802ff5.md",
+  "repository_state": "MERGED_RECONCILED",
   "schema_version": 1,
-  "latest_run_id": null
+  "workspace_state": "WORKSPACE_READY"
 }
