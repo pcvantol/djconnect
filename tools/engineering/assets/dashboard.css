@@ -728,3 +728,6 @@ html[data-theme="light"] ::-webkit-scrollbar-thumb:hover{background:#0a6b9d}
 #promptHistoryRows .prompt-history-row:is(:focus,:focus-visible)>td{box-shadow:inset 0 1px var(--dashboard-input-focus-border),inset 0 -1px var(--dashboard-input-focus-border)}
 #promptHistoryRows .prompt-history-row:is(:focus,:focus-visible)>td:first-child{box-shadow:inset 1px 0 var(--dashboard-input-focus-border),inset 0 1px var(--dashboard-input-focus-border),inset 0 -1px var(--dashboard-input-focus-border)}
 #promptHistoryRows .prompt-history-row:is(:focus,:focus-visible)>td:last-child{box-shadow:inset -1px 0 var(--dashboard-input-focus-border),inset 0 1px var(--dashboard-input-focus-border),inset 0 -1px var(--dashboard-input-focus-border)}
+/* Sort headers stay within their own cell, even when sticky at the top of a
+   scroll container. This matches the thin selected-table-row edge. */
+#engineering-dashboard-content .log-table th.log-sortable:focus,#engineering-dashboard-content .log-table th.log-sortable:focus-visible{box-shadow:none!important;outline:1px solid var(--dashboard-input-focus-border)!important;outline-offset:-1px!important;z-index:2}

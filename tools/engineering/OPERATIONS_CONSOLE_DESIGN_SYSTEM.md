@@ -116,9 +116,10 @@ orange border for actual inputs, selects and text areas.
 
 Cards group one coherent evidence type. Tables retain headers, sortable states
 and horizontal scrolling at narrow widths; they are not squeezed into
-illegible columns. Selected history rows show a thin, unbroken `1px` selected
-edge on all four sides, including both horizontal edges and the first row
-directly under the table header.
+illegible columns. Selected history rows and sortable table headers show a
+thin, unbroken `1px` selected edge inside their own cells. This keeps the
+first row directly under the table header and sticky headers fully bounded
+without drawing across adjacent cells.
 
 Repeated compact evidence, such as specialist reviewer status, uses an
 auto-fitting grid of at least `180px` tiles. It fills a row when space permits

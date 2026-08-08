@@ -486,6 +486,16 @@ test.describe("Engineering Status browser smoke", () => {
     expect(edgeShadows.at(-1)).toContain("-1px 0px 0px 0px inset");
   });
 
+  test("keeps selected sortable headers within a thin cell edge", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#componentLogs").evaluate((element) => { element.open = true; });
+    const header = page.locator("#componentLogs .log-table th.log-sortable").first();
+    await header.focus();
+    await expect(header).toHaveCSS("outline-width", "1px");
+    await expect(header).toHaveCSS("outline-offset", "-1px");
+    await expect(header).toHaveCSS("box-shadow", "none");
+  });
+
   test("renders a read-only Forge recommendation handoff with expandable alternatives", async ({ page }) => {
     await page.route("**/api/prompt-history", (route) => route.fulfill({ json: { runs: [{
       run_id: "inbox-handoff", status: "COMPLETE", title: "Forge handoff", executed_at: "2026-08-04T08:00:00Z",
