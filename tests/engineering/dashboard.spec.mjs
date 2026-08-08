@@ -2356,6 +2356,19 @@ test.describe("Engineering Status browser smoke", () => {
     expect(styles.summaryColor).toBe("rgb(24, 34, 48)");
   });
 
+  test("keeps category summaries out of the selected-input focus treatment", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+
+    const styles = await page.locator("#currentRun > summary").evaluate((summary) => {
+      summary.focus({ preventScroll: true });
+      const style = getComputedStyle(summary);
+      return { outlineStyle: style.outlineStyle, shadow: style.boxShadow };
+    });
+
+    expect(styles.outlineStyle).toBe("none");
+    expect(styles.shadow).toBe("none");
+  });
+
   test("keeps the sticky title bar square while padding content evenly", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     const padding = await page.locator(".dashboard-titlebar").evaluate((element) => {
