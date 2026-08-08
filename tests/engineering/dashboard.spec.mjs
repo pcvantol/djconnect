@@ -1034,8 +1034,11 @@ test.describe("Engineering Status browser smoke", () => {
   });
 
   test("uses the server retry projection for historical parent actions and lineage", async ({ page }) => {
+    await page.route("**/api/prompt-history", (route) => route.fulfill({ json: { runs: [] } }));
     await page.setViewportSize({ width: 1024, height: 844 });
+    const historyLoaded = page.waitForResponse("**/api/prompt-history");
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await historyLoaded;
     await page.locator("#autoRefresh").uncheck();
     await page.evaluate(() => {
       document.querySelector("#promptHistory").open = true;
@@ -1651,16 +1654,26 @@ test.describe("Engineering Status browser smoke", () => {
   });
 
   test("wraps specialist reviewers into compact responsive tiles", async ({ page }) => {
+    await page.route("**/api/events", (route) => route.abort());
+    await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({
+      contentType: "application/json",
+      body: JSON.stringify({ status: { watcher_state: "WATCHER_IDLE" } }),
+    }));
     await page.setViewportSize({ width: 1440, height: 900 });
+    const statusLoaded = page.waitForResponse("**/api/dashboard-snapshot");
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await statusLoaded;
+    await page.locator("#autoRefresh").uncheck();
     const reviewer_agents = ["repository_governance", "validation", "documentation", "finalization"]
       .map((reviewer) => ({ reviewer, capability: "engineering", status: "completed" }));
     await page.evaluate((reviewers) => r({
       watcher_state: "ENGINEERING_RUN_ACTIVE", run_id: "review-grid", reviewer_agents: reviewers,
     }, {}), reviewer_agents);
+    await page.locator("#currentRun").evaluate((element) => { element.open = true; });
 
     const tiles = page.locator(".reviewer-agent");
     await expect(tiles).toHaveCount(4);
+    await expect(tiles.first()).toBeVisible();
     const wideRows = await tiles.evaluateAll((elements) => elements.map((element) => Math.round(element.getBoundingClientRect().y)));
     expect(new Set(wideRows).size).toBe(1);
 
