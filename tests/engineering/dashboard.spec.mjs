@@ -1531,6 +1531,9 @@ test.describe("Engineering Status browser smoke", () => {
   });
 
   test("shows uptime only for locally owned processes", async ({ page }) => {
+    // Keep the initial asynchronous health request from replacing the
+    // deliberately rendered fixture while this presentation-only test runs.
+    await page.route("**/health", (route) => route.fulfill({ json: { components: {} } }));
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.locator("#autoRefresh").uncheck();
     await page.evaluate(() => renderPlatformHealth({ components: {
