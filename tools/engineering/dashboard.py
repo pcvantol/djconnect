@@ -1139,9 +1139,8 @@ def _dashboard_html(
 <meta id="dashboardAppleWebAppTitle" name="apple-mobile-web-app-title" content="$TITLE">
 <title>$TITLE</title>
 <link rel="manifest" href="/assets/operations-console/manifest.webmanifest">
-<link rel="icon" type="image/png" sizes="180x180" media="(prefers-color-scheme: dark)" href="/assets/operations-console/apple-touch-icon-dark.png">
-<link rel="icon" type="image/png" sizes="180x180" media="(prefers-color-scheme: light)" href="/assets/operations-console/apple-touch-icon-light.png">
-<link id="dashboardAppleTouchIcon" rel="apple-touch-icon" sizes="180x180" href="/assets/operations-console/apple-touch-icon-dark.png">
+<link id="dashboardFavicon" rel="icon" type="image/png" sizes="180x180" href="/assets/operations-console/apple-touch-icon-dark.png?v=operations-console-2">
+<link id="dashboardAppleTouchIcon" rel="apple-touch-icon" sizes="180x180" href="/assets/operations-console/apple-touch-icon-dark.png?v=operations-console-2">
 <script>try{const state=JSON.parse(localStorage.getItem("engineering-dashboard-client-state-v1")||"{}");document.documentElement.dataset.theme=state.theme==="light"?"light":"dark"}catch{document.documentElement.dataset.theme="dark"}</script>
 
 

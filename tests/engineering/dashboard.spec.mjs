@@ -2583,7 +2583,8 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.getByTestId("engineering-dashboard-title")).toHaveText("Engineering Operationele console");
     await expect(page.getByTestId("dashboard-splash")).toBeHidden();
     await expect(page.locator('link[rel="manifest"]')).toHaveAttribute("href", "/assets/operations-console/manifest.webmanifest");
-    await expect(page.locator('link[rel="apple-touch-icon"]')).toHaveAttribute("href", "/assets/operations-console/apple-touch-icon-dark.png");
+    await expect(page.locator('#dashboardFavicon')).toHaveAttribute("href", "/assets/operations-console/apple-touch-icon-dark.png?v=operations-console-2");
+    await expect(page.locator('link[rel="apple-touch-icon"]')).toHaveAttribute("href", "/assets/operations-console/apple-touch-icon-dark.png?v=operations-console-2");
     await expect(page.getByTestId("dashboard-app-icon")).toHaveAttribute("src", "/assets/operations-console/icon-transparent.png");
     await expect(page.getByTestId("engineering-workspace")).not.toHaveAttribute("open", "");
     expect(await page.getByTestId("engineering-workspace").evaluate((element) => element.parentElement.id)).toBe("engineering-dashboard-content");
