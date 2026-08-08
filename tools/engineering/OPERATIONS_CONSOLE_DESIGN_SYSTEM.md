@@ -46,6 +46,7 @@ near-duplicates in a component.
 | Standard content surface | `#24242d` | `#fff` |
 | Modal surface | `--dashboard-modal-surface` | White; document surface is `#f7fbff` |
 | Modal radius / shadow | `18px` / `0 16px 50px #000a` | Same geometry, theme-appropriate shadow |
+| Selected-control border | `2px` orange outline with a `4px` soft ring | Inputs, selects and text areas only |
 | Console blue | `--operations-console-blue: #0a6b9d` | Header/identity accent, not a replacement for semantic category colour |
 | Mark blue | `--operations-console-mark-blue: #00b8f4` | Product mark only |
 
@@ -115,8 +116,9 @@ orange border for actual inputs, selects and text areas.
 
 Cards group one coherent evidence type. Tables retain headers, sortable states
 and horizontal scrolling at narrow widths; they are not squeezed into
-illegible columns. Selected history rows show an unbroken selected edge on all
-four sides, including both horizontal edges.
+illegible columns. Selected history rows show a thin, unbroken `1px` selected
+edge on all four sides, including both horizontal edges and the first row
+directly under the table header.
 
 Repeated compact evidence, such as specialist reviewer status, uses an
 auto-fitting grid of at least `180px` tiles. It fills a row when space permits

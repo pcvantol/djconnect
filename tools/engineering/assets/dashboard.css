@@ -10,9 +10,9 @@ html,body{-webkit-text-size-adjust:100%;text-size-adjust:100%;touch-action:manip
   --dashboard-section-gap:24px;
   --dashboard-scroll-gutter:14px;
   --dashboard-control-label-gap:8px;
-  --dashboard-focus-outline-width:3px;
-  --dashboard-focus-outline-offset:3px;
-  --dashboard-focus-ring-size:6px;
+  --dashboard-focus-outline-width:2px;
+  --dashboard-focus-outline-offset:2px;
+  --dashboard-focus-ring-size:4px;
   --dashboard-input-focus-border:var(--house-style);
   --dashboard-input-focus-ring:color-mix(in srgb,var(--house-style) 30%,transparent);
   --dashboard-surface-base:#24242d;
@@ -722,3 +722,9 @@ html[data-theme="light"] ::-webkit-scrollbar-thumb:hover{background:#0a6b9d}
 /* Categories are navigation surfaces, not selected inputs. Their disclosure
    state is already communicated by the open/closed glyph and header surface. */
 :is(.workspace-card,.inbox-queue,.prompt-history,#currentRun,#rateLimits,.platform-health,.telemetry,#componentLogs,#codexChat,#engineering-dashboard-content>.technical-details:not(#componentLogs))>summary:is(:focus,:focus-visible){box-shadow:none!important;outline:0!important;outline-offset:0!important}
+/* Table rows cannot reliably paint an outline over a collapsed table header.
+   Paint the complete, thin selection edge on the cells instead. */
+#promptHistoryRows .prompt-history-row:is(:focus,:focus-visible){box-shadow:none!important;outline:0!important}
+#promptHistoryRows .prompt-history-row:is(:focus,:focus-visible)>td{box-shadow:inset 0 1px var(--dashboard-input-focus-border),inset 0 -1px var(--dashboard-input-focus-border)}
+#promptHistoryRows .prompt-history-row:is(:focus,:focus-visible)>td:first-child{box-shadow:inset 1px 0 var(--dashboard-input-focus-border),inset 0 1px var(--dashboard-input-focus-border),inset 0 -1px var(--dashboard-input-focus-border)}
+#promptHistoryRows .prompt-history-row:is(:focus,:focus-visible)>td:last-child{box-shadow:inset -1px 0 var(--dashboard-input-focus-border),inset 0 1px var(--dashboard-input-focus-border),inset 0 -1px var(--dashboard-input-focus-border)}

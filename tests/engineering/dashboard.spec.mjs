@@ -459,7 +459,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("dialog[open]")).toHaveCount(1);
   });
 
-  test("draws the selected prompt-history row border on both table edges", async ({ page }) => {
+  test("draws a complete thin selected prompt-history row border", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.locator("#autoRefresh").uncheck();
     await page.evaluate(() => {
@@ -475,14 +475,15 @@ test.describe("Engineering Status browser smoke", () => {
     const row = page.locator("#promptHistoryRows .prompt-history-row");
     await row.focus();
     await expect(row).toBeFocused();
-    await expect(row.locator("td").first()).toHaveCSS(
-      "box-shadow",
-      "rgb(240, 182, 106) 3px 0px 0px 0px inset",
-    );
-    await expect(row.locator("td").last()).toHaveCSS(
-      "box-shadow",
-      "rgb(240, 182, 106) -3px 0px 0px 0px inset",
-    );
+    const edgeShadows = await row.locator("td").evaluateAll((cells) => [
+      getComputedStyle(cells[0]).boxShadow,
+      getComputedStyle(cells[Math.floor(cells.length / 2)]).boxShadow,
+      getComputedStyle(cells.at(-1)).boxShadow,
+    ]);
+    expect(edgeShadows[0]).toContain("1px 0px 0px 0px inset");
+    expect(edgeShadows[0]).toContain("0px 1px 0px 0px inset");
+    expect(edgeShadows[1]).toContain("0px 1px 0px 0px inset");
+    expect(edgeShadows.at(-1)).toContain("-1px 0px 0px 0px inset");
   });
 
   test("renders a read-only Forge recommendation handoff with expandable alternatives", async ({ page }) => {
