@@ -2,6 +2,19 @@
 
 Status: active platform-evolution repository
 
+## PR #793 finalization reconciled
+
+PR [#793](https://github.com/pcvantol/djconnect/pull/793), **Project live
+runs over an idle watcher state**, merged as
+`7436b0a9f18c8550e3f4dba0de98160c7c912807`. The Engineering Status dashboard
+now keeps a live execution visible where its lease is live, even when the
+watcher has already detached from an older terminal run. The immutable Prompt
+History record is
+`docs/history/prompts/2026-08-08-live-run-dashboard-projection.md`. This
+governance-only Finalization records the completed reconciliation: Repository
+State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY` after cleanup.
+Queue admission, execution, runtime, Forge and product behavior are unchanged.
+
 ## PR #790 finalization pending
 
 PR [#790](https://github.com/pcvantol/djconnect/pull/790), **Persist Producer
