@@ -1510,12 +1510,9 @@ test.describe("Engineering Status browser smoke", () => {
     expect(health.components.dashboard_relay).toHaveProperty("uptime_seconds");
     expect(health.components).not.toHaveProperty("private_remote_access");
 
-    const favicon = await request.get(`${dashboardUrl}/assets/engineering-status-icon.svg`);
+    const favicon = await request.get(`${dashboardUrl}/assets/operations-console/apple-touch-icon-dark.png`);
     expect(favicon.status()).toBe(200);
-    expect(favicon.headers()["content-type"]).toContain("image/svg+xml");
-    const homescreenIcon = await request.get(`${dashboardUrl}/assets/engineering-status-icon-180.png`);
-    expect(homescreenIcon.status()).toBe(200);
-    expect(homescreenIcon.headers()["content-type"]).toContain("image/png");
+    expect(favicon.headers()["content-type"]).toContain("image/png");
     const stylesheet = await request.get(`${dashboardUrl}/assets/dashboard.css`);
     expect(stylesheet.status()).toBe(200);
     expect(stylesheet.headers()["content-type"]).toContain("text/css");

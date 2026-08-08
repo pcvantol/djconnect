@@ -1514,10 +1514,6 @@ def handler(root: Path, logger: logging.Logger | None = None):
                 "/assets/dashboard.js": ("dashboard.js", "text/javascript; charset=utf-8"),
                 "/assets/dashboard_locales.mjs": ("dashboard_locales.mjs", "text/javascript; charset=utf-8"),
                 "/assets/dashboard_status_store.mjs": ("dashboard_status_store.mjs", "text/javascript; charset=utf-8"),
-                # Legacy paths keep the first paint intact while the dashboard
-                # selects the themed Operations Console icon after startup.
-                "/assets/engineering-status-icon.svg": ("engineering-status-icon.svg", "image/svg+xml; charset=utf-8"),
-                "/assets/engineering-status-icon-180.png": ("engineering-status-icon-180.png", "image/png"),
                 "/assets/operations-console/icon-dark.png": ("operations-console/icon-dark.png", "image/png"),
                 "/assets/operations-console/icon-light.png": ("operations-console/icon-light.png", "image/png"),
                 "/assets/operations-console/icon-transparent.png": ("operations-console/icon-transparent.png", "image/png"),
