@@ -18,8 +18,9 @@ import sqlite3
 
 WORKSPACE_DIRECTORY = ".engineering"
 DATABASE_FILENAME = "engineering.db"
-ENGINEERING_STORAGE_SCHEMA_VERSION = 17
+ENGINEERING_STORAGE_SCHEMA_VERSION = 18
 JOURNAL_MODES = frozenset({"DELETE", "MEMORY"})
+LEGACY_DISMISSALS_PATH = Path(".engineering/status/execution_dismissals.json")
 
 
 class EngineeringStorageError(RuntimeError):
@@ -556,6 +557,73 @@ def _schema_v17(connection: sqlite3.Connection) -> None:
     connection.execute("ALTER TABLE execution_submissions ADD COLUMN engineering_action_id TEXT")
 
 
+def _schema_v18(connection: sqlite3.Connection) -> None:
+    """Persist immutable operator handling separately from terminal outcome."""
+    connection.execute(
+        "CREATE TABLE execution_dismissals ("
+        "run_id TEXT PRIMARY KEY REFERENCES prompt_execution_history(run_id) ON DELETE RESTRICT,"
+        "terminal_state TEXT NOT NULL CHECK(terminal_state IN ('COMPLETE','BLOCKED','FAILED')) ,"
+        "handling_state TEXT NOT NULL CHECK(handling_state='DISMISSED'),"
+        "dismissed_at TEXT NOT NULL,dismissed_by TEXT NOT NULL)"
+    )
+    connection.execute(
+        "CREATE TRIGGER execution_dismissals_immutable_update "
+        "BEFORE UPDATE ON execution_dismissals BEGIN "
+        "SELECT RAISE(ABORT, 'Execution dismissal evidence is immutable.'); END"
+    )
+    connection.execute(
+        "CREATE TRIGGER execution_dismissals_immutable_delete "
+        "BEFORE DELETE ON execution_dismissals BEGIN "
+        "SELECT RAISE(ABORT, 'Execution dismissal evidence is immutable.'); END"
+    )
+
+
+def _import_legacy_execution_dismissals(root: Path, connection: sqlite3.Connection) -> None:
+    """Copy valid legacy dismissal evidence into the canonical datastore.
+
+    The former JSON audit is retained as source evidence, but never consulted
+    by projections after its records have been copied to SQLite. Repeating the
+    import is safe: the canonical run key makes it idempotent and permits a
+    record whose history was backfilled later to be imported on a later open.
+    """
+    path = root / LEGACY_DISMISSALS_PATH
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except FileNotFoundError:
+        return
+    except (OSError, json.JSONDecodeError):
+        return
+    if not isinstance(payload, list):
+        return
+    for record in payload:
+        if not isinstance(record, dict) or record.get("dismissed") is not True:
+            continue
+        run_id = record.get("run_id")
+        terminal_state = record.get("terminal_state")
+        dismissed_at = record.get("dismissed_at")
+        dismissed_by = record.get("dismissed_by")
+        if (
+            not isinstance(run_id, str)
+            or not re.fullmatch(r"[a-z0-9][a-z0-9-]{0,63}", run_id)
+            or terminal_state not in {"COMPLETE", "BLOCKED", "FAILED"}
+            or not isinstance(dismissed_at, str)
+            or not dismissed_at.strip()
+            or not isinstance(dismissed_by, str)
+            or not dismissed_by.strip()
+        ):
+            continue
+        history_exists = connection.execute(
+            "SELECT 1 FROM prompt_execution_history WHERE run_id=?", (run_id,)
+        ).fetchone()
+        if history_exists is None:
+            continue
+        connection.execute(
+            "INSERT OR IGNORE INTO execution_dismissals(run_id,terminal_state,handling_state,dismissed_at,dismissed_by) "
+            "VALUES(?,?,?,?,?)",
+            (run_id, terminal_state, "DISMISSED", dismissed_at.strip(), dismissed_by.strip()),
+        )
+
+
 MIGRATIONS: dict[int, Migration] = {
     1: _schema_v1,
     2: _schema_v2,
@@ -574,7 +642,54 @@ MIGRATIONS: dict[int, Migration] = {
     15: _schema_v15,
     16: _schema_v16,
     17: _schema_v17,
+    18: _schema_v18,
 }
+
+
+def dismissal_for_run(root: Path, run_id: object) -> dict[str, object] | None:
+    """Return immutable operator-handling evidence from canonical SQLite."""
+    if not isinstance(run_id, str) or not re.fullmatch(r"[a-z0-9][a-z0-9-]{0,63}", run_id):
+        return None
+    connection = open_storage(root)
+    try:
+        row = connection.execute(
+            "SELECT terminal_state,handling_state,dismissed_at,dismissed_by "
+            "FROM execution_dismissals WHERE run_id=?", (run_id,)
+        ).fetchone()
+    finally:
+        connection.close()
+    if row is None:
+        return None
+    return {
+        "run_id": run_id,
+        "terminal_state": row[0],
+        "dismissed": True,
+        "handling_state": row[1],
+        "dismissed_at": row[2],
+        "dismissed_by": row[3],
+    }
+
+
+def record_execution_dismissal(root: Path, *, run_id: str, terminal_state: str,
+                               dismissed_at: str, dismissed_by: str) -> dict[str, object]:
+    """Record one immutable dismissal after its terminal history row exists."""
+    if terminal_state not in {"COMPLETE", "BLOCKED", "FAILED"}:
+        raise EngineeringStorageError("Dismissal requires a terminal execution outcome.")
+    connection = open_storage(root)
+    try:
+        connection.execute(
+            "INSERT INTO execution_dismissals(run_id,terminal_state,handling_state,dismissed_at,dismissed_by) "
+            "VALUES(?,?,?,?,?)",
+            (run_id, terminal_state, "DISMISSED", dismissed_at, dismissed_by),
+        )
+    except sqlite3.IntegrityError as error:
+        raise EngineeringStorageError("Execution dismissal is already recorded or has no terminal history.") from error
+    finally:
+        connection.close()
+    return {
+        "run_id": run_id, "terminal_state": terminal_state, "dismissed": True,
+        "handling_state": "DISMISSED", "dismissed_at": dismissed_at, "dismissed_by": dismissed_by,
+    }
 
 
 def _encoded_payload(payload: dict[str, object]) -> str:
@@ -886,6 +1001,7 @@ def open_storage(
             connection.execute(
                 "INSERT INTO engineering_schema_migrations(version) VALUES(?)", (version,)
             )
+        _import_legacy_execution_dismissals(root, connection)
         connection.execute("COMMIT")
         path.chmod(0o600)
     except (OSError, sqlite3.DatabaseError, EngineeringStorageError) as error:

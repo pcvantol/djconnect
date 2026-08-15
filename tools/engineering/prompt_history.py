@@ -16,6 +16,7 @@ REPORT_STATE = re.compile(r"^- Terminal state: `(COMPLETE|BLOCKED|FAILED)`$", re
 REPORT_TIMESTAMP = re.compile(r"^- Timestamp: ([^\n]{1,80})$", re.MULTILINE)
 REPORT_OBJECTIVE = re.compile(r"^- Objective: (.+)$", re.MULTILINE)
 REPORT_TITLE = re.compile(r"^# (.+)$", re.MULTILINE)
+REPORT_INCREMENT_TITLE = re.compile(r"^# Engineering Platform Increment\s+—\s+(.+)$", re.MULTILINE)
 REPORT_COMMIT = re.compile(
     r"^- (?:Target Commit|Genesis-commit|Implementation Merge Commit|Finalization Merge Commit): `?([0-9a-f]{7,64})`?$",
     re.MULTILINE | re.IGNORECASE,
@@ -169,6 +170,7 @@ def _report_record(root: Path, report: Path) -> dict[str, object] | None:
     if run is None or state is None:
         return None
     title = REPORT_TITLE.search(content)
+    increment_title = REPORT_INCREMENT_TITLE.search(content)
     objective = REPORT_OBJECTIVE.search(content)
     timestamp = REPORT_TIMESTAMP.search(content)
     commit = REPORT_COMMIT.search(content)
@@ -181,7 +183,9 @@ def _report_record(root: Path, report: Path) -> dict[str, object] | None:
         "run_id": run.group(1),
         "terminal_state": state.group(1),
         "prompt_title": (
-            objective.group(1).strip()
+            increment_title.group(1).strip()
+            if increment_title and increment_title.group(1).strip()
+            else objective.group(1).strip()
             if objective and objective.group(1).strip()
             else title.group(1).strip()
             if title
@@ -198,6 +202,20 @@ def _report_record(root: Path, report: Path) -> dict[str, object] | None:
         "retry_timestamp": retry_timestamp.group(1) if retry_timestamp else None,
         "target_branch": target_branch.group(1) if target_branch else None,
     }
+
+
+def record_terminal_report(root: Path, report: Path) -> None:
+    """Project one authoritative terminal report into prompt history.
+
+    Direct execution-host invocations do not pass through the inbox watcher.
+    Keeping this projection here makes the terminal report the shared source
+    for both paths and lets a later reconciled report correct an older,
+    incomplete history row for the same run.
+    """
+    record = _report_record(root, report)
+    if record is None:
+        raise ValueError("terminal report cannot be projected into prompt history")
+    record_prompt_execution(root, **record)
 
 
 def backfill_prompt_history(root: Path) -> None:
@@ -219,7 +237,7 @@ def backfill_prompt_history(root: Path) -> None:
             # legacy fallback can share a Run ID with a later, real report;
             # never let a filesystem scan replace that explicit reference.
             if record is not None and record["run_id"] not in indexed_run_ids:
-                record_prompt_execution(root, **record)
+                record_terminal_report(root, report)
                 indexed_run_ids.add(record["run_id"])
     connection = open_storage(root)
     try:
@@ -313,6 +331,22 @@ def prompt_history(
                 history.git_commit, history.report_path, history.retry_of, history.original_run_id,
                 history.retry_generation, history.retry_timestamp, history.target_checkout_path,
                 history.tracked_file_count, history.target_branch, runs.execution_mode, runs.repository,
+                COALESCE(
+                    runs.total_execution_seconds,
+                    ROUND((
+                        SELECT MAX(
+                            0.0,
+                            (julianday(MAX(CASE
+                                WHEN json_extract(log.payload, '$.event') IN ('job_completed', 'job_failed')
+                                THEN log.created_at END)) - julianday(MIN(CASE
+                                WHEN json_extract(log.payload, '$.event') = 'runner_started'
+                                THEN log.created_at END))) * 86400.0
+                        )
+                        FROM engineering_component_logs AS log
+                        WHERE log.component = 'inbox'
+                          AND json_extract(log.payload, '$.run_id') = history.run_id
+                    ), 3)
+                ) AS total_execution_seconds,
                 COALESCE(submission.producer_id, runs.producer_id),
                 COALESCE(submission.producer_type, runs.producer_type),
                 COALESCE(submission.producer_version, runs.producer_version),
@@ -321,11 +355,13 @@ def prompt_history(
                 COALESCE(submission.engineering_action_id, runs.engineering_action_id),
                 runs.execution_constraint_version, submission.submission_id,
                 submission.contract_version, submission.execution_context_version,
-                submission.execution_context_snapshot
+                submission.execution_context_snapshot, dismissal.terminal_state,
+                dismissal.handling_state, dismissal.dismissed_at, dismissal.dismissed_by
             FROM prompt_execution_history AS history
             LEFT JOIN execution_runs AS runs ON runs.run_id = history.run_id
             LEFT JOIN execution_submission_links AS submission_link ON submission_link.run_id = history.run_id
             LEFT JOIN execution_submissions AS submission ON submission.submission_id = submission_link.submission_id
+            LEFT JOIN execution_dismissals AS dismissal ON dismissal.run_id = history.run_id
             ORDER BY history.executed_at DESC, history.run_id DESC
             LIMIT ?
             """,
@@ -350,17 +386,22 @@ def prompt_history(
             "target_branch": row[12],
             "execution_mode": row[13],
             "repository": row[14],
-            "producer_id": row[15] or "legacy",
-            "producer_type": row[16] or "HUMAN",
-            "producer_version": row[17],
-            "correlation_id": row[18],
-            "mission_id": row[19],
-            "engineering_action_id": row[20],
-            "execution_constraint_version": row[21],
-            "submission_id": row[22],
-            "producer_submission_contract_version": row[23],
-            "execution_context_version": row[24],
-            "execution_context": json.loads(row[25]) if isinstance(row[25], str) else None,
+            "total_execution_seconds": row[15],
+            "producer_id": row[16] or "legacy",
+            "producer_type": row[17] or "HUMAN",
+            "producer_version": row[18],
+            "correlation_id": row[19],
+            "mission_id": row[20],
+            "engineering_action_id": row[21],
+            "execution_constraint_version": row[22],
+            "submission_id": row[23],
+            "producer_submission_contract_version": row[24],
+            "execution_context_version": row[25],
+            "execution_context": json.loads(row[26]) if isinstance(row[26], str) else None,
+            "dismissed": row[27] is not None,
+            "handling_state": row[28] or "OPEN",
+            "dismissed_at": row[29],
+            "dismissed_by": row[30],
         }
         for row in rows
     ]
@@ -383,7 +424,7 @@ def prompt_history(
         record["retry_timestamp"] = child.get("retry_timestamp") if child else record["retry_timestamp"]
         record["queued_retry_child"] = bool(child and child.get("status") == "QUEUED")
         record["active_retry_child"] = bool(child and child.get("status") == "ACTIVE")
-        record["can_retry"] = record.get("status") in {"BLOCKED", "FAILED"} and child is None
+        record["can_retry"] = record.get("status") in {"BLOCKED", "FAILED"} and child is None and not record["dismissed"]
         chain = [record["run_id"]]
         cursor = record
         while cursor.get("retry_of") and cursor["retry_of"] not in chain:

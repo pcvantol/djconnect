@@ -860,6 +860,35 @@ class LocalAgentRunnerTest(unittest.TestCase):
         with self.assertRaisesRegex(RunnerError, "conflicts"):
             runner.run(self.prompt, run_id="resume-run", resume=True)
 
+    def test_resume_rejects_a_dismissed_execution_without_invoking_the_agent(self) -> None:
+        from tools.engineering.prompt_history import record_prompt_execution
+        from tools.engineering.storage import record_execution_dismissal
+
+        run_id = "dismissed-resume-run"
+        self.store.save(TransactionState(run_id, "pcvantol/djconnect", str(self.prompt), "EXECUTE_AGENT"))
+        record_prompt_execution(
+            self.root,
+            run_id=run_id,
+            terminal_state="BLOCKED",
+            prompt_title="Dismissed blocked execution",
+            executed_at="2026-08-08T10:00:00+00:00",
+        )
+        record_execution_dismissal(
+            self.root,
+            run_id=run_id,
+            terminal_state="BLOCKED",
+            dismissed_at="2026-08-08T10:01:00+00:00",
+            dismissed_by="test_operator",
+        )
+        agent = FakeAgent(AgentResult("COMPLETE"))
+        runner = EngineeringRunner(self.root, self.store, FakeRepository(), FakeGitHub([]), agent, lambda _: None)
+
+        with self.assertRaisesRegex(RunnerError, "already been dismissed"):
+            runner.run(self.prompt, run_id=run_id, resume=True)
+
+        self.assertEqual(agent.prompts, [])
+        self.assertEqual(self.store.load(run_id).phase, "EXECUTE_AGENT")
+
     def test_resume_recomputes_waiting_phase_from_pr_evidence(self) -> None:
         self.store.save(TransactionState("resume-run", "pcvantol/djconnect", str(self.prompt), "EXECUTE_AGENT", pull_request=11, diagnostic="Prior waiting diagnostic."))
         pending = PullRequestEvidence(11, "OPEN", False, False)
@@ -1108,6 +1137,25 @@ class LocalAgentRunnerTest(unittest.TestCase):
         self.assertIn("mandatory governance-only Finalization", agent.prompts[0])
         self.assertIn("tools.engineering.repository_handoff", agent.prompts[0])
         self.assertIn("handoff records to that same Finalization branch", agent.prompts[0])
+
+    def test_merged_finalization_returned_by_agent_is_reconciled_without_ready(self) -> None:
+        implementation = PullRequestEvidence(21, "MERGED", True, True, "b" * 40)
+        final_merged = PullRequestEvidence(22, "MERGED", True, True, "c" * 40)
+        agent = SequencedFakeAgent([AgentResult("WAITING", "codex/final", 22)])
+        state = TransactionState(
+            "already-finalized", "pcvantol/djconnect", str(self.prompt),
+            "WAIT_FOR_TERMINAL_EVIDENCE", branch="codex/implementation",
+            pull_request=21, owner_authorized=True,
+        )
+        github = FakeGitHub([implementation, final_merged])
+        result = EngineeringRunner(
+            self.root, self.store, FakeRepository(), github, agent, lambda _: None,
+        )._poll(state)
+
+        self.assertEqual(result.phase, "COMPLETE")
+        self.assertEqual(result.finalization_pull_request, 22)
+        self.assertEqual(result.finalization_merge_commit, "c" * 40)
+        self.assertEqual(github.ready_calls, [])
 
     def test_finalization_checkpoint_prevents_duplicate_generation(self) -> None:
         state = TransactionState("no-duplicate", "pcvantol/djconnect", str(self.prompt), "FINALIZE_AGENT", owner_authorized=True, transaction_kind="FINALIZATION", finalization_branch="codex/final", finalization_pull_request=23)

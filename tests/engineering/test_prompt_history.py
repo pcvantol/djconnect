@@ -2,19 +2,65 @@
 
 from __future__ import annotations
 
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 import tempfile
 import unittest
 
 from tools.engineering.prompt_history import (
     prompt_history,
+    record_terminal_report,
     record_prompt_execution,
     report_for_prompt_history,
 )
 from tools.engineering.storage import record_submission
+from tools.engineering.telemetry import ExecutionTelemetry, persist_execution
 
 
 class PromptHistoryTest(unittest.TestCase):
+    def test_projects_total_execution_duration_from_host_telemetry(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            finished_at = datetime(2026, 8, 15, 12, 0, 0, tzinfo=timezone.utc)
+            persist_execution(
+                root,
+                ExecutionTelemetry(
+                    run_id="inbox-duration", arrived_at=finished_at - timedelta(seconds=125),
+                    execution_started_at=finished_at - timedelta(seconds=120),
+                    execution_finished_at=finished_at, terminal_state="COMPLETE",
+                    execution_seconds=120, input_tokens=None, output_tokens=None, total_tokens=None,
+                    execution_mode="GENESIS", workspace="/workspace", repository="djconnect",
+                    execution_host_version="1.5.0",
+                ),
+            )
+            record_prompt_execution(
+                root, run_id="inbox-duration", terminal_state="COMPLETE", prompt_title="Timed execution",
+                executed_at="2026-08-15T12:00:00Z",
+            )
+
+            self.assertEqual(prompt_history(root)[0]["total_execution_seconds"], 125.0)
+
+    def test_projects_total_execution_duration_from_run_bound_component_evidence(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            from tools.engineering.storage import open_storage
+
+            with open_storage(root) as connection:
+                for timestamp, event in (
+                    ("2026-08-15T12:00:00+00:00", "runner_started"),
+                    ("2026-08-15T12:02:05+00:00", "job_completed"),
+                ):
+                    connection.execute(
+                        "INSERT INTO engineering_component_logs(component,payload,created_at) VALUES(?,?,?)",
+                        ("inbox", f'{{"event":"{event}","run_id":"inbox-log-duration"}}', timestamp),
+                    )
+            record_prompt_execution(
+                root, run_id="inbox-log-duration", terminal_state="COMPLETE",
+                prompt_title="Measured from component evidence", executed_at="2026-08-15T12:02:05Z",
+            )
+
+            self.assertEqual(prompt_history(root)[0]["total_execution_seconds"], 125.0)
+
     def test_projects_persisted_submission_and_execution_context_snapshot(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
@@ -34,6 +80,33 @@ class PromptHistoryTest(unittest.TestCase):
             self.assertEqual(entry["producer_submission_contract_version"], "1.0")
             self.assertEqual(entry["execution_context_version"], "1.0")
             self.assertEqual(entry["execution_context"], {"context_version": "1.0", "mission_title": "Aurora"})
+
+    def test_imports_legacy_dismissal_evidence_once_into_canonical_storage(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            record_prompt_execution(
+                root, run_id="inbox-legacy-dismissal", terminal_state="BLOCKED",
+                prompt_title="Previously dismissed execution", executed_at="2026-08-08T10:00:00Z",
+            )
+            audit = root / ".engineering" / "status" / "execution_dismissals.json"
+            audit.parent.mkdir(parents=True, exist_ok=True)
+            audit.write_text(
+                '[{"run_id":"inbox-legacy-dismissal","terminal_state":"BLOCKED",'
+                '"dismissed":true,"dismissed_at":"2026-08-08T10:01:00Z",'
+                '"dismissed_by":"dashboard_operator"}]',
+                encoding="utf-8",
+            )
+
+            imported = prompt_history(root)[0]
+            self.assertTrue(imported["dismissed"])
+            self.assertEqual(imported["handling_state"], "DISMISSED")
+            self.assertFalse(imported["can_retry"])
+
+            audit.unlink()
+            persisted = prompt_history(root)[0]
+            self.assertTrue(persisted["dismissed"])
+            self.assertEqual(persisted["dismissed_at"], "2026-08-08T10:01:00Z")
+
     def test_records_terminal_run_and_serves_only_its_local_report(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
@@ -70,6 +143,7 @@ class PromptHistoryTest(unittest.TestCase):
                         "target_branch": None,
                         "execution_mode": None,
                         "repository": None,
+                        "total_execution_seconds": None,
                         "producer_id": "legacy",
                         "producer_type": "HUMAN",
                         "producer_version": None,
@@ -81,6 +155,10 @@ class PromptHistoryTest(unittest.TestCase):
                         "producer_submission_contract_version": None,
                         "execution_context_version": None,
                         "execution_context": None,
+                        "dismissed": False,
+                        "handling_state": "OPEN",
+                        "dismissed_at": None,
+                        "dismissed_by": None,
                         "retry_child_run_id": None,
                         "retry_status": None,
                         "queued_retry_child": False,
@@ -147,6 +225,42 @@ class PromptHistoryTest(unittest.TestCase):
 
             self.assertEqual(prompt_history(root)[0]["report_available"], True)
             self.assertEqual(report_for_prompt_history(root, "inbox-duplicate"), actual.read_bytes())
+
+    def test_terminal_report_reconciles_an_earlier_history_projection(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            report = root / ".engineering" / "reports" / "complete.md"
+            report.parent.mkdir(parents=True)
+            report.write_text(
+                "\n".join(
+                    (
+                        "# Engineering Report",
+                        "# Engineering Platform Increment — Reconciled Producer Submission Envelope",
+                        "- Objective: Reconciled Producer Submission Envelope",
+                        "- Timestamp: 2026-08-08T08-06-11Z",
+                        "- Run ID: `inbox-reconciled`",
+                        "- Terminal state: `COMPLETE`",
+                        "- Finalization Merge Commit: `abcdef1`",
+                    )
+                ),
+                encoding="utf-8",
+            )
+            record_prompt_execution(
+                root,
+                run_id="inbox-reconciled",
+                terminal_state="FAILED",
+                prompt_title="Earlier incomplete projection",
+                executed_at="2026-08-08T07:00:00Z",
+            )
+
+            record_terminal_report(root, report)
+
+            entry = prompt_history(root)[0]
+            self.assertEqual(entry["status"], "COMPLETE")
+            self.assertEqual(entry["title"], "Reconciled Producer Submission Envelope")
+            self.assertEqual(entry["executed_at"], "2026-08-08T08:06:11Z")
+            self.assertEqual(entry["git_commit"], "abcdef1")
+            self.assertTrue(entry["report_available"])
 
     def test_rejects_non_terminal_or_invalid_runs(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

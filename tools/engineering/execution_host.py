@@ -47,6 +47,7 @@ from .platform_version import (
 )
 from .qualification import dashboard, execute_qualification, latest_qualification
 from .report_analysis import analyze as analyze_terminal_report
+from .prompt_history import record_terminal_report
 from .producer import ProducerMetadata, parse_producer_metadata
 from .recommendation_handoff import RecommendationHandoff, parse_forge_recommendation_handoff, report_lines as recommendation_handoff_report_lines
 from .status_model import build as build_canonical_status, publish as publish_canonical_status
@@ -82,6 +83,7 @@ from .execution_executor import CodexCliClient
 from .execution_finalization import FinalizationCoordinator
 from .execution_reporting import ReportingCoordinator
 from .storage import load_readiness_evaluation, record_readiness_evaluation
+from .storage import dismissal_for_run
 
 # Compatibility exports remain at this façade while implementation resides in
 # the dedicated context, repository and executor modules.
@@ -319,6 +321,8 @@ class EngineeringRunner:
     ) -> TransactionState:
         objective = prompt_path.read_text(encoding="utf-8")
         state = self.store.load(run_id) if resume else None
+        if resume and state is not None and dismissal_for_run(self.root, state.run_id):
+            raise RunnerError("This execution has already been dismissed and cannot be resumed.")
         try:
             context = resolve_execution_context(objective, self.root)
         except RunnerError as error:
@@ -842,6 +846,14 @@ class EngineeringRunner:
         )
         self.store.save(finalization)
         write_live_status(self.root, finalization, finalization.next_action)
+        # A resumed transaction can discover that its mandatory Finalization
+        # PR was already merged before the agent returned it.  It is valid
+        # evidence for this same transaction, so reconcile it through the
+        # normal merge/cleanup path instead of trying to mark a closed PR
+        # ready for review.
+        finalization_evidence = self.github.pull_request(result.pull_request)
+        if finalization_evidence.state == "MERGED":
+            return self._poll(finalization, result)
         self.github.ready(result.pull_request)
         return self._poll(finalization, result)
 
@@ -962,6 +974,7 @@ def main(argv: list[str] | None = None) -> int:
         else None
     )
     if report_path:
+        record_terminal_report(root, report_path)
         analyze_terminal_report(root, state.run_id, report_path)
     if runner.platform_manifest:
         publish_canonical_status(

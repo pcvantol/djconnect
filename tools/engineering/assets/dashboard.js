@@ -50,6 +50,15 @@ function formatPromptHistoryTimestamp(value, fallback = t("format.timestamp_unav
     day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit", second: "2-digit",
   }).format(new Date(timestamp));
 }
+function formatPromptHistoryDuration(value) {
+  const seconds = Number(value);
+  if (!Number.isFinite(seconds) || seconds < 0) return "";
+  return t("history.total_duration_minutes", {
+    minutes: new Intl.NumberFormat(dashboardLocale, { maximumFractionDigits: 0 }).format(
+      Math.ceil(seconds / 60),
+    ),
+  });
+}
 function capabilityRecommendation(value) {
   const key = {
     "Capability admission passed.": "capability.recommendation.admission_passed",
@@ -165,11 +174,13 @@ function historicalRange(estimate, fallback) {
   if (samples < 2 || !Number.isFinite(lower) || !Number.isFinite(upper)) return fallback;
   const learnedMinimum = Math.max(1, Math.round(lower / 60)),
     learnedMaximum = Math.max(learnedMinimum, Math.ceil(upper / 60));
-  // Prompt size is represented both in the static range and in the
-  // size-adjusted history.  Retain a conservative static contribution.
+  // The exact runtime profile's size-adjusted history is more informative
+  // than the coarse static table. Keep a small safety contribution from the
+  // latter, with confidence increasing as more comparable runs exist.
+  const historyWeight = samples >= 8 ? 0.9 : samples >= 4 ? 0.85 : 0.8;
   return [
-    Math.max(1, Math.round(fallback[0] * 0.35 + learnedMinimum * 0.65)),
-    Math.max(1, Math.round(fallback[1] * 0.35 + learnedMaximum * 0.65)),
+    Math.max(1, Math.round(fallback[0] * (1 - historyWeight) + learnedMinimum * historyWeight)),
+    Math.max(1, Math.round(fallback[1] * (1 - historyWeight) + learnedMaximum * historyWeight)),
   ];
 }
 function historicalContext(estimate, fallback) {
@@ -2134,6 +2145,7 @@ function setIndependentLogSort(component, key) {
       ? { key: key, direction: state.direction === "asc" ? "desc" : "asc" }
       : { key: key, direction: key === "timestamp" ? "desc" : "asc" };
   independentLogPageStates[component] = 1;
+  clearComponentLogSelection(component);
   renderComponentLogs();
 }
 document.querySelectorAll(".log-table").forEach((table) => {
@@ -2157,7 +2169,85 @@ document.querySelectorAll(".log-table").forEach((table) => {
 });
 updateIndependentLogSortHeaders();
 const LOG_PAGE_SIZE = 50,
-  independentLogPageStates = { inbox: 1, dashboard: 1 };
+  independentLogPageStates = { inbox: 1, dashboard: 1 },
+  selectedComponentLogRows = { inbox: new Set(), dashboard: new Set() },
+  componentLogSelectionAnchor = { inbox: null, dashboard: null };
+function componentLogRowKey(entry) {
+  return [entry.line, entry.timestamp, entry.level, entry.event, entry.runId, entry.details]
+    .map((value) => String(value ?? ""))
+    .join("\u001f");
+}
+function componentLogText(entries) {
+  const header = [
+      t("table.number"),
+      t("table.timestamp"),
+      t("table.level"),
+      t("table.event"),
+      t("table.run_id"),
+      t("table.details"),
+    ].join("\t"),
+    rows = entries.map((entry) => [
+      entry.line,
+      logTimestampText(entry.timestamp),
+      entry.level,
+      entry.event,
+      entry.runId || "—",
+      entry.details || "—",
+    ].join("\t"));
+  return [header, ...rows].join("\n");
+}
+function selectedComponentLogEntries(component) {
+  const selected = selectedComponentLogRows[component];
+  return componentLogEntries[component].filter((entry) => selected.has(componentLogRowKey(entry)));
+}
+function clearComponentLogSelection(component) {
+  selectedComponentLogRows[component].clear();
+  componentLogSelectionAnchor[component] = null;
+}
+function clearAllComponentLogSelections() {
+  clearComponentLogSelection("inbox");
+  clearComponentLogSelection("dashboard");
+}
+function selectComponentLogRow(component, key, event) {
+  const selected = selectedComponentLogRows[component], visible = visibleComponentLogEntries(component),
+    clickedIndex = visible.findIndex((entry) => componentLogRowKey(entry) === key),
+    modifier = event.metaKey || event.ctrlKey;
+  if (event.shiftKey && componentLogSelectionAnchor[component]) {
+    const anchorIndex = visible.findIndex((entry) => componentLogRowKey(entry) === componentLogSelectionAnchor[component]);
+    if (!modifier) selected.clear();
+    for (const entry of visible.slice(Math.min(anchorIndex < 0 ? clickedIndex : anchorIndex, clickedIndex), Math.max(anchorIndex < 0 ? clickedIndex : anchorIndex, clickedIndex) + 1))
+      selected.add(componentLogRowKey(entry));
+  } else if (modifier) {
+    if (selected.has(key)) selected.delete(key); else selected.add(key);
+    componentLogSelectionAnchor[component] = key;
+  } else {
+    selected.clear();
+    selected.add(key);
+    componentLogSelectionAnchor[component] = key;
+  }
+  renderComponentLogs();
+}
+document.querySelectorAll(".log-table tbody").forEach((body) => {
+  body.addEventListener("click", (event) => {
+    const row = event.target.closest("tr[data-component-log-row]");
+    if (row) selectComponentLogRow(row.dataset.component, row.dataset.componentLogRow, event);
+  });
+  body.addEventListener("keydown", (event) => {
+    const row = event.target.closest("tr[data-component-log-row]");
+    if (row && (event.key === "Enter" || event.key === " ")) {
+      event.preventDefault();
+      selectComponentLogRow(row.dataset.component, row.dataset.componentLogRow, event);
+    }
+  });
+});
+document.addEventListener("copy", (event) => {
+  if (window.getSelection()?.toString()) return;
+  const entries = ["inbox", "dashboard"].flatMap((component) => selectedComponentLogEntries(component));
+  if (!entries.length || !event.clipboardData) return;
+  event.clipboardData.setData("text/plain", componentLogText(entries));
+  event.preventDefault();
+  void recordUserAction("component_log_rows_copied");
+});
 function filteredComponentLogEntries(component) {
   const needle = locale.lower($("logFilter").value.trim()),
     level = $("logLevelFilter").value,
@@ -2223,10 +2313,12 @@ function renderLogPagination(component, total, pageCount) {
   next.disabled = page >= pageCount;
   previous.addEventListener("click", () => {
     independentLogPageStates[component] = page - 1;
+    clearComponentLogSelection(component);
     renderComponentLogs();
   });
   next.addEventListener("click", () => {
     independentLogPageStates[component] = page + 1;
+    clearComponentLogSelection(component);
     renderComponentLogs();
   });
   navigation.append(summary, previous, next);
@@ -2254,7 +2346,12 @@ function renderComponentLogs() {
       body.append(row);
     } else
       for (const entry of visible) {
-        const row = document.createElement("tr");
+        const key = componentLogRowKey(entry), row = document.createElement("tr");
+        row.className = "component-log-row";
+        row.dataset.component = component;
+        row.dataset.componentLogRow = key;
+        row.tabIndex = 0;
+        row.setAttribute("aria-selected", String(selectedComponentLogRows[component].has(key)));
         for (const [name, value] of [
           ["log-line-number", entry.line],
           ["", logTimestampText(entry.timestamp)],
@@ -2282,7 +2379,7 @@ for (const [id, label] of [["logEventFilter", t("table.event")]]) {
   const control = document.createElement("label"), select = document.createElement("select");
   select.id = id; select.multiple = true; select.setAttribute("aria-label", label);
   control.htmlFor = id; control.append(label, select); $("componentLogControls").append(control);
-  select.addEventListener("change", () => { independentLogPageStates.inbox = independentLogPageStates.dashboard = 1; renderComponentLogs(); });
+  select.addEventListener("change", () => { independentLogPageStates.inbox = independentLogPageStates.dashboard = 1; clearAllComponentLogSelections(); renderComponentLogs(); });
 }
 const resetLogFiltersButton = document.createElement("button");
 resetLogFiltersButton.className = "reset-log-filters";
@@ -2296,15 +2393,18 @@ resetLogFiltersButton.addEventListener("click", () => {
   $("logLevelFilter").value = "";
   [...$("logEventFilter").options].forEach((option) => { option.selected = false; });
   independentLogPageStates.inbox = independentLogPageStates.dashboard = 1;
+  clearAllComponentLogSelections();
   renderComponentLogs();
 });
 $("componentLogControls").append(resetLogFiltersButton);
 $("logFilter").addEventListener("input", () => {
   independentLogPageStates.inbox = independentLogPageStates.dashboard = 1;
+  clearAllComponentLogSelections();
   renderComponentLogs();
 });
 $("logLevelFilter").addEventListener("change", () => {
   independentLogPageStates.inbox = independentLogPageStates.dashboard = 1;
+  clearAllComponentLogSelections();
   renderComponentLogs();
 });
 renderComponentLogs();
@@ -2389,23 +2489,7 @@ document.querySelectorAll(".component-log-download").forEach((button) =>
   ),
 );
 function visibleComponentLogText(component) {
-  const header = [
-      t("table.number"),
-      t("table.timestamp"),
-      t("table.level"),
-      t("table.event"),
-      t("table.run_id"),
-      t("table.details"),
-    ].join("\t"),
-    rows = visibleComponentLogEntries(component).map((entry) => [
-      entry.line,
-      logTimestampText(entry.timestamp),
-      entry.level,
-      entry.event,
-      entry.runId || "—",
-      entry.details || "—",
-    ].join("\t"));
-  return [header, ...rows].join("\n");
+  return componentLogText(visibleComponentLogEntries(component));
 }
 function addComponentLogCopyButtons() {
   document.querySelectorAll(".component-log-download").forEach((download) => {
@@ -2577,7 +2661,7 @@ function filteredPromptHistory() {
         !needle ||
         locale
           .lower(
-            [...Object.values(entry), promptHistoryStatus(entry.status)].join(" "),
+            [...Object.values(entry), promptHistoryDisplayStatus(entry)].join(" "),
           )
           .includes(needle),
     )
@@ -2593,6 +2677,10 @@ function filteredPromptHistory() {
 }
 function promptHistoryStatus(value) {
   return t("status." + String(value || "unknown").toLowerCase());
+}
+function promptHistoryDisplayStatus(entry) {
+  const outcome = promptHistoryStatus(entry?.status);
+  return entry?.dismissed ? `${outcome} · ${t("handling.dismissed")}` : outcome;
 }
 function updatePromptHistoryHeaders() {
   document
@@ -2689,7 +2777,7 @@ function renderPromptHistory() {
       status.className =
         "prompt-history-status prompt-history-status--" +
         locale.lower(String(entry.status || ""));
-      status.textContent = promptHistoryStatus(entry.status);
+      status.textContent = promptHistoryDisplayStatus(entry);
       runSuffix.textContent = String(entry.run_id || "—").slice(-5);
       const titleText = document.createElement("span");
       titleText.textContent = String(
@@ -2719,7 +2807,8 @@ function renderPromptHistory() {
         }
         title.append(lineage);
       }
-      executed.textContent = formatPromptHistoryTimestamp(entry.executed_at);
+      executed.textContent = formatPromptHistoryTimestamp(entry.executed_at) +
+        formatPromptHistoryDuration(entry.total_execution_seconds);
       if (entry.report_available && entry.run_id) {
         const view = document.createElement("button");
         view.className = "prompt-history-report";
@@ -2758,7 +2847,7 @@ function renderPromptHistory() {
         button.addEventListener("click", () => openPromptHistoryChat(entry));
         chat.append(button);
       } else chat.textContent = "—";
-      if (entry.can_retry === true && entry.run_id) {
+      if (entry.can_retry === true && !entry.dismissed && entry.run_id) {
         const retry = document.createElement("button");
         retry.type = "button";
         retry.className = "predecessor-retry execution-history-action";
@@ -3523,6 +3612,8 @@ function promptDetailExecutionSection(history) {
   ] : [detailField(t("execution_context.snapshot"), t("execution_context.not_supplied"))];
   return promptDetailCard(t("detail.execution"), [
     promptDetailStatusField(history.status),
+    detailField(t("detail.operator_handling"), history.dismissed ? t("handling.dismissed") : t("handling.open")),
+    ...(history.dismissed_at ? [detailField(t("detail.dismissed_at"), history.dismissed_at)] : []),
     detailField(t("detail.prompt_title"), history.title),
     detailField(t("detail.run_id"), history.run_id, true),
     detailField(
