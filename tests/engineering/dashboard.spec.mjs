@@ -3825,7 +3825,7 @@ test.describe("Engineering Status browser smoke", () => {
       return route.fulfill({ json: { dismissed: "inbox-dismiss" } });
     });
     await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({ json: {
-      status: { watcher_state: "WATCHER_IDLE", last_executed_run: "inbox-dismiss", queue_depth: 0, queue_items: [] },
+      status: { watcher_state: "WATCHER_IDLE", last_executed_run: "inbox-newer-terminal", queue_depth: 0, queue_items: [] },
       component_versions: {}, telemetry: [], duration_estimate: {}, build_commit: "",
     } }));
     const historyLoaded = page.waitForResponse("**/api/prompt-history");
