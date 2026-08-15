@@ -1015,6 +1015,10 @@ test.describe("Engineering Status browser smoke", () => {
   });
 
   test("uses human-friendly localized event labels in component logs and their filter", async ({ page }) => {
+    await page.route("**/api/logs/**", (route) => route.fulfill({
+      contentType: "application/x-ndjson",
+      body: "",
+    }));
     const expectations = [
       ["en", "Inbox watcher started", "Stale Git lock recovered"],
       ["nl", "Inbox-watcher gestart", "Verouderde Git-vergrendeling hersteld"],
@@ -1033,6 +1037,7 @@ test.describe("Engineering Status browser smoke", () => {
       await page.waitForFunction(() => document.body.classList.contains("dashboard-ready"));
       await page.locator("#componentLogs").evaluate((element) => { element.open = true; });
       await page.waitForFunction(() => componentLogsLoaded);
+      await page.locator("#autoRefresh").uncheck();
       await page.evaluate(() => {
         refreshComponentLogs = async () => {};
         componentLogEntries.inbox = [
@@ -3453,7 +3458,10 @@ test.describe("Engineering Status browser smoke", () => {
 
   test("retains terminal status colours in the light prompt-history table", async ({ page }) => {
     await page.route("**/api/prompt-history", (route) => route.fulfill({ json: { runs: [] } }));
+    const historyLoaded = page.waitForResponse("**/api/prompt-history");
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await historyLoaded;
+    await page.locator("#autoRefresh").uncheck();
     await page.locator("#themeToggle").click();
     await page.evaluate(() => {
       promptHistoryEntries = [
