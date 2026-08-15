@@ -4066,17 +4066,55 @@ function localizedDashboardError(message, fallback) {
       reason: t("preflight.branch_reason", { branch: branch[1] }),
       recovery: t("preflight.branch_recovery", { branch: branch[1] }),
     });
+  if (/^Managed target is not synchronized with its upstream\.?$/iu.test(reason))
+    return t("preflight.sync", {
+      reason: t("preflight.sync_reason"),
+      recovery: t("preflight.sync_recovery"),
+    });
   return t("preflight.generic", { reason, recovery });
 }
+function dashboardErrorRecovery(message) {
+  const raw = String(message || "").trim();
+  return /^Preflight (?:mislukt|failed):\s*Managed target is not synchronized with its upstream\.?\s+(?:Herstel|Recovery):/iu.test(raw)
+    ? "managed_branch_synchronization"
+    : null;
+}
 function showDashboardError(message, fallback) {
-  const modal = $("dashboardErrorModal"), close = $("dashboardErrorModalClose"), dismiss = $("dashboardErrorModalDismiss");
+  const modal = $("dashboardErrorModal"),
+    close = $("dashboardErrorModalClose"),
+    dismiss = $("dashboardErrorModalDismiss"),
+    recover = $("dashboardErrorModalRecover"),
+    recovery = dashboardErrorRecovery(message);
   $("dashboardErrorModalTitle").textContent = t("ui.action_failed");
   $("dashboardErrorModalText").textContent = localizedDashboardError(message, fallback);
+  recover.hidden = !recovery;
+  recover.disabled = false;
+  recover.textContent = t("action.recover");
   const finish = () => {
     if (modal.open) modal.close();
-    close.onclick = dismiss.onclick = null;
+    close.onclick = dismiss.onclick = recover.onclick = null;
   };
   close.onclick = dismiss.onclick = finish;
+  recover.onclick = recovery === "managed_branch_synchronization"
+    ? () => {
+      recover.disabled = true;
+      fetch("/api/managed-branch-synchronization", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: "{}",
+      })
+        .then(async (response) => ({ ok: response.ok, body: await response.json() }))
+        .then((result) => {
+          if (!result.ok) throw Error(result.body.error || t("preflight.sync_failed"));
+          finish();
+          return refreshAfterOperatorAction();
+        })
+        .catch(() => {
+          $("dashboardErrorModalText").textContent = t("preflight.sync_failed");
+          recover.disabled = false;
+        });
+    }
+    : null;
   modal.addEventListener("cancel", (event) => {
     event.preventDefault();
     finish();

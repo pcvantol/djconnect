@@ -2136,6 +2136,46 @@ Object.assign(DASHBOARD_MESSAGES.es, {
   "log_event.terminal_report_corrected":"Informe final corregido", "log_event.active_run_lease_reconciled":"Arrendamiento de ejecución activa conciliado", "log_event.detached_runner_job_missing":"Falta la tarea de ejecución desconectada", "log_event.inbox_scan":"Bandeja de entrada analizada", "log_event.active_transaction_queue_refreshed":"Cola de ejecución activa actualizada",
   "log_event.inbox_log_unavailable":"Registro del monitor de bandeja de entrada no disponible", "log_event.dashboard_log_unavailable":"Registro del panel de estado no disponible"
 });
+Object.assign(DASHBOARD_MESSAGES.en, {
+  "action.recover": "Recover",
+  "preflight.sync": "Preflight failed: {reason}\nRecovery: {recovery}",
+  "preflight.sync_reason": "Managed target is not synchronized with its upstream.",
+  "preflight.sync_recovery": "Synchronize the expected branch with its configured upstream.",
+  "preflight.sync_failed": "The expected branch could not be synchronized safely.",
+  "log_event.managed_branch_synchronization_completed": "Workspace branch synchronized"
+});
+Object.assign(DASHBOARD_MESSAGES.nl, {
+  "action.recover": "Herstel",
+  "preflight.sync": "Preflight mislukt: {reason}\nHerstel: {recovery}",
+  "preflight.sync_reason": "Het beheerde doel is niet gesynchroniseerd met de upstream.",
+  "preflight.sync_recovery": "Synchroniseer de verwachte branch met de geconfigureerde upstream.",
+  "preflight.sync_failed": "De verwachte branch kon niet veilig worden gesynchroniseerd.",
+  "log_event.managed_branch_synchronization_completed": "Werkruimtebranch gesynchroniseerd"
+});
+Object.assign(DASHBOARD_MESSAGES.de, {
+  "action.recover": "Wiederherstellen",
+  "preflight.sync": "Preflight fehlgeschlagen: {reason}\nWiederherstellung: {recovery}",
+  "preflight.sync_reason": "Das verwaltete Ziel ist nicht mit seinem Upstream synchronisiert.",
+  "preflight.sync_recovery": "Synchronisieren Sie den erwarteten Branch mit seinem konfigurierten Upstream.",
+  "preflight.sync_failed": "Der erwartete Branch konnte nicht sicher synchronisiert werden.",
+  "log_event.managed_branch_synchronization_completed": "Arbeitsbereichsbranch synchronisiert"
+});
+Object.assign(DASHBOARD_MESSAGES.fr, {
+  "action.recover": "Corriger",
+  "preflight.sync": "Pré-vérification échouée : {reason}\nCorrectif : {recovery}",
+  "preflight.sync_reason": "La cible gérée n’est pas synchronisée avec sa branche amont.",
+  "preflight.sync_recovery": "Synchronisez la branche attendue avec sa branche amont configurée.",
+  "preflight.sync_failed": "La branche attendue n’a pas pu être synchronisée en toute sécurité.",
+  "log_event.managed_branch_synchronization_completed": "Branche de l’espace de travail synchronisée"
+});
+Object.assign(DASHBOARD_MESSAGES.es, {
+  "action.recover": "Recuperar",
+  "preflight.sync": "La comprobación previa falló: {reason}\nRecuperación: {recovery}",
+  "preflight.sync_reason": "El destino gestionado no está sincronizado con su rama ascendente.",
+  "preflight.sync_recovery": "Sincroniza la rama esperada con su rama ascendente configurada.",
+  "preflight.sync_failed": "La rama esperada no se pudo sincronizar de forma segura.",
+  "log_event.managed_branch_synchronization_completed": "Rama del espacio de trabajo sincronizada"
+});
 
 const messages = DASHBOARD_MESSAGES;
 

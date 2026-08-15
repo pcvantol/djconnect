@@ -653,6 +653,26 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(modal).not.toBeVisible();
   });
 
+  test("offers a safe branch synchronization recovery in a preflight error", async ({ page }) => {
+    let recoveryRequested = false;
+    await page.route("**/api/managed-branch-synchronization", async (route) => {
+      recoveryRequested = true;
+      await route.fulfill({ json: { branch: "main", upstream: "origin/main", watcher: "restarted" } });
+    });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => window.showDashboardError(
+      "Preflight failed: Managed target is not synchronized with its upstream. Recovery: Synchronize the expected branch with its configured upstream.",
+    ));
+    const modal = page.locator("#dashboardErrorModal");
+    await expect(modal).toBeVisible();
+    await expect(page.locator("#dashboardErrorModalText")).toContainText("gesynchroniseerd met de upstream");
+    await expect(page.locator("#dashboardErrorModalRecover")).toBeVisible();
+    await expect(page.locator("#dashboardErrorModalRecover")).toHaveText(DASHBOARD_MESSAGES.nl["action.recover"]);
+    await page.locator("#dashboardErrorModalRecover").click();
+    await expect.poll(() => recoveryRequested).toBe(true);
+    await expect(modal).not.toBeVisible();
+  });
+
   test("keeps the site-wide scrollbar and action-size tokens explicit", () => {
     const styles = readFileSync(
       path.join(repository, "tools/engineering/assets/dashboard.css"),
