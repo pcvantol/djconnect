@@ -335,6 +335,32 @@ class InboxWatcherTest(unittest.TestCase):
         )
         self.assertTrue(inbox_watcher._report_matches_terminal_phase(report, "COMPLETE"))
 
+    def test_reconciles_a_corrected_terminal_report_missing_from_history(self) -> None:
+        """A prior schema mismatch must not hide its terminal failure forever."""
+        report = self.repo / ".engineering" / "reports" / "corrected_inbox-schema-skew.md"
+        report.parent.mkdir(parents=True)
+        report.write_text(
+            "\n".join(
+                (
+                    "# Engineering Report",
+                    "- Run ID: `inbox-schema-skew`",
+                    "- Terminal state: `FAILED`",
+                    "",
+                    "## Diagnostics",
+                    "Engineering storage schema is newer than this Engineering Platform supports.",
+                )
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+
+        self.assertEqual(inbox_watcher.once(self.repo, self.root, 0), 0)
+
+        history = __import__("tools.engineering.prompt_history", fromlist=["prompt_history"]).prompt_history(self.repo)
+        entry = next(item for item in history if item["run_id"] == "inbox-schema-skew")
+        self.assertEqual(entry["status"], "FAILED")
+        self.assertTrue(entry["report_available"])
+
     def test_complete_job_is_serialized_and_archived(self) -> None:
         (self.inbox / "job.txt").write_text("# prompt", encoding="utf-8")
         run_id = "inbox-0cff9d624c2412db"
@@ -890,6 +916,41 @@ class InboxWatcherTest(unittest.TestCase):
         history = __import__("tools.engineering.prompt_history", fromlist=["prompt_history"]).prompt_history(self.repo)
         self.assertTrue(history[0]["dismissed"])
         self.assertEqual(history[0]["status"], "BLOCKED")
+
+    def test_dismisses_an_older_terminal_execution_without_erasing_newer_status(self) -> None:
+        from tools.engineering.prompt_history import record_prompt_execution
+
+        older_run = "inbox-historical-failed"
+        newer_run = "inbox-newer-complete"
+        record_prompt_execution(
+            self.repo, run_id=older_run, terminal_state="FAILED",
+            prompt_title="Historical failure", executed_at="2026-08-15T20:00:00Z",
+        )
+        status = self.repo / ".engineering" / "status"
+        status.mkdir(parents=True, exist_ok=True)
+        (status / "status.json").write_text(
+            json.dumps(
+                {
+                    "watcher_state": "WATCHER_IDLE",
+                    "last_executed_run": newer_run,
+                    "last_executed_phase": "COMPLETE",
+                    "last_executed_title": "Newer complete execution",
+                    "queue_depth": 0,
+                    "queue_items": [],
+                }
+            ),
+            encoding="utf-8",
+        )
+
+        outcome = inbox_watcher.dismiss_execution(self.repo, older_run)
+
+        self.assertTrue(outcome["dismissed"])
+        snapshot = json_status(self.repo)
+        self.assertEqual(snapshot["last_executed_run"], newer_run)
+        history = __import__("tools.engineering.prompt_history", fromlist=["prompt_history"]).prompt_history(self.repo)
+        older = next(item for item in history if item["run_id"] == older_run)
+        self.assertTrue(older["dismissed"])
+        self.assertFalse(older["can_retry"])
 
     def test_migration_moves_legacy_archives_and_removes_iCloud_status(self) -> None:
         (self.root / "Completed").mkdir()

@@ -284,6 +284,7 @@ class DashboardStatusTest(unittest.TestCase):
             "componentLogs",
             "codexChat",
             "confirmationModal",
+            "dashboardErrorModal",
         ):
             self.assertIn(f'id="{identifier}"', page)
 
@@ -1622,8 +1623,12 @@ class DashboardStatusTest(unittest.TestCase):
             self.assertIn(dashboard.LABEL, rendered)
             self.assertIn("KeepAlive", rendered)
             self.assertIn(str(root), rendered)
+            self.assertIn("<key>PYTHONPATH</key><string>" + str(root) + "</string>", rendered)
+            self.assertIn("<key>WorkingDirectory</key><string>/</string>", rendered)
             self.assertIn("/bin/zsh", rendered)
             self.assertIn("-lc", rendered)
+            self.assertIn(" -P -m tools.engineering.dashboard ", rendered)
+            self.assertIn("cd / &amp;&amp; exec", rendered)
             self.assertIn("exec", rendered)
             self.assertNotIn("StandardOutPath", rendered)
             self.assertNotIn("StandardErrorPath", rendered)

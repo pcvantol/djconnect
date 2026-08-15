@@ -37,7 +37,7 @@ from .component_logging import (
 )
 from .component_lock import DuplicateComponentInstanceError, single_instance
 from .telemetry import ExecutionTelemetry, persist_execution_async
-from .prompt_history import record_prompt_execution
+from .prompt_history import backfill_prompt_history, record_prompt_execution
 from .host_preflight import execute as execute_host_preflight
 from .workspace_preflight import execute as execute_workspace_preflight
 from .capability_preflight import execute as execute_capability_preflight
@@ -656,8 +656,8 @@ def dismiss_execution(repo: Path, run_id: str, *, dismissed_by: str = "dashboard
         if current.get("watcher_state") == "ENGINEERING_RUN_ACTIVE" or current.get("run_id"):
             raise RetrySubmissionError("Een actieve uitvoering kan niet worden bevestigd.")
         phase = _terminal_phase_for_run(repo, run_id)
-        if phase not in TERMINAL_PHASES or current.get("last_executed_run") != run_id:
-            raise RetrySubmissionError("Alleen de huidige terminale uitvoering kan worden bevestigd.")
+        if phase not in TERMINAL_PHASES:
+            raise RetrySubmissionError("Alleen een terminale uitvoering kan worden bevestigd.")
         if dismissal_for_run(repo, run_id):
             raise RetrySubmissionError("Deze uitvoering is al afgesloten.")
         timestamp = datetime.now(timezone.utc).isoformat()
@@ -679,17 +679,20 @@ def dismiss_execution(repo: Path, run_id: str, *, dismissed_by: str = "dashboard
             )
         except EngineeringStorageError as error:
             raise RetrySubmissionError("De dismissal-audit is niet veilig beschikbaar.") from error
-        status(
-            repo,
-            "WATCHER_IDLE",
-            queued_jobs=current.get("queue_depth", 0),
-            queue_items=current.get("queue_items", []),
-            last_executed_filename=None,
-            last_executed_title=None,
-            last_executed_run=None,
-            last_executed_phase=None,
-            current_action="Execution Host Idle",
-        )
+        # Dismissing an older terminal record must not erase the watcher
+        # context of a newer terminal execution.
+        if current.get("last_executed_run") == run_id:
+            status(
+                repo,
+                "WATCHER_IDLE",
+                queued_jobs=current.get("queue_depth", 0),
+                queue_items=current.get("queue_items", []),
+                last_executed_filename=None,
+                last_executed_title=None,
+                last_executed_run=None,
+                last_executed_phase=None,
+                current_action="Execution Host Idle",
+            )
         return record
 
 
@@ -1095,6 +1098,22 @@ def once(repo: Path, root: Path, interval: float = 1.0, *, background: bool = Fa
     logger = component_logger(repo, "inbox")
     areas = local_folders(repo)
     with _lock(repo):
+        # A terminal report can be written by a runner that lost storage access
+        # before it could publish its history projection.  Reconcile those
+        # immutable reports before presenting or admitting the next job.  The
+        # operation is idempotent and never changes an existing projection.
+        try:
+            backfill_prompt_history(repo)
+        except EngineeringStorageError as error:
+            status(
+                repo,
+                "JOB_FAILED",
+                queued_jobs=0,
+                queue_items=[],
+                diagnostic="De canonieke Execution Host-opslag is niet beschikbaar.",
+            )
+            log_event(logger, logging.ERROR, "prompt_history_reconciliation_failed", diagnostic=str(error))
+            return 1
         reconciled = reconcile_stale(repo)
         if reconciled:
             log_event(logger, logging.WARNING, "active_run_lease_reconciled", diagnostic=f"reconciled_runs={len(reconciled)}")

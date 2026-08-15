@@ -30,6 +30,17 @@ The database records every applied change in
 Schema upgrades use a controlled SQLite transaction and rollback-journal mode.
 The latter avoids persistent WAL sidecar files in `.engineering/`.
 
+### Execution admission guard
+
+An Inbox-admitted execution inherits the storage schema understood by the
+watcher that admitted it. If that execution changes Engineering source files
+to introduce a newer schema, its child processes may validate the new schema
+against temporary workspaces, but they cannot migrate the canonical
+`.engineering/engineering.db` yet. The migration is deferred until the
+updated Engineering Platform has been merged and its components are restarted.
+This prevents a running prompt from upgrading the live datastore beyond the
+code that is currently publishing dashboard and watcher state.
+
 ## Execution Host telemetry
 
 Schema `2` adds the generic, local-only Execution Host telemetry model. Schema
@@ -74,6 +85,17 @@ Schema `15` stores one typed readiness evaluation for each admitted Run ID:
 profile identity and version, execution mode, observed bounded facts, PASS or
 BLOCKED result, failed requirements and a redacted diagnostic. It is local
 datastore evidence; status files and the dashboard only project it.
+
+Schema `16` persists an immutable Producer Envelope execution-context
+snapshot and its version with the submission, and links each submission to its
+Run ID. Schema `17` retains declared Engineering Action provenance with that
+submission. Schema `18` adds immutable operator dismissal evidence separately
+from the terminal outcome, so the dashboard can distinguish a failed or
+blocked execution that an operator has deliberately closed from one still
+requiring action. Schema `19` persists the supplied Forge governance handoff
+snapshot and version with the submission. These additions remain local
+Engineering evidence; they do not grant the Execution Host ownership of Forge
+planning or decision state.
 
 Schema `20` adds `execution_phase_spans`, the canonical, immutable per-run
 phase-timing evidence. Each observed span records an ID, canonical phase name
