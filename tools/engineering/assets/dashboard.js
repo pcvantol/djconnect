@@ -638,6 +638,14 @@ function structuredLogEntries(text) {
       }
     });
 }
+function logEventLabel(value) {
+  const event = String(value || "").trim();
+  if (!event) return t("logs.unknown_event");
+  const readable = event
+    .replaceAll("_", " ")
+    .replace(/\b\w/g, (character) => character.toUpperCase());
+  return t(`log_event.${event}`, {}, t("logs.event_fallback", { event: readable }));
+}
 function logTimestamp(entry) {
   const value = Date.parse(entry.timestamp);
   return Number.isFinite(value) ? value : 0;
@@ -2268,7 +2276,7 @@ function filteredComponentLogEntries(component) {
     .filter(
       (entry) =>
         !needle ||
-        locale.lower(Object.values(entry).join(" ")).includes(needle),
+        locale.lower([...Object.values(entry), logEventLabel(entry.event)].join(" ")).includes(needle),
     )
     .sort((left, right) => {
       const first = logValue(left, state.key),
@@ -2295,8 +2303,8 @@ function updateLogValueFilters() {
   for (const [id, key] of [["logEventFilter", "event"]]) {
     const select = $(id), selected = new Set([...select.selectedOptions].map((option) => option.value));
     select.replaceChildren();
-    [...new Set(entries.map((entry) => String(entry[key] || "")).filter(Boolean))].sort((a, b) => locale.compare(a, b)).forEach((value) => {
-      const option = new Option(value, value, false, selected.has(value)); select.add(option);
+    [...new Set(entries.map((entry) => String(entry[key] || "")).filter(Boolean))].sort((a, b) => locale.compare(logEventLabel(a), logEventLabel(b))).forEach((value) => {
+      const option = new Option(logEventLabel(value), value, false, selected.has(value)); select.add(option);
     });
   }
 }
@@ -2369,7 +2377,7 @@ function renderComponentLogs() {
               locale.lower(entry.level).replaceAll(" ", "-"),
             entry.level,
           ],
-          ["", entry.event],
+          ["", logEventLabel(entry.event)],
           ["", entry.runId || "—"],
           ["", entry.details || "—"],
         ]) {
@@ -4182,6 +4190,7 @@ Object.assign(window, {
   enumLabel,
   executionTelemetry,
   formatTimestamp,
+  logEventLabel,
   queueItems,
   r,
   rateLimits,

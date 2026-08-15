@@ -994,6 +994,41 @@ test.describe("Engineering Status browser smoke", () => {
     }
   });
 
+  test("uses human-friendly localized event labels in component logs and their filter", async ({ page }) => {
+    const expectations = [
+      ["en", "Inbox watcher started", "Stale Git lock recovered"],
+      ["nl", "Inbox-watcher gestart", "Verouderde Git-vergrendeling hersteld"],
+      ["de", "Inbox-Watcher gestartet", "Veraltete Git-Sperre wiederhergestellt"],
+      ["fr", "Surveillant de boîte de réception démarré", "Verrou Git obsolète récupéré"],
+      ["es", "Monitor de bandeja de entrada iniciado", "Bloqueo Git obsoleto recuperado"],
+    ];
+    for (const [language, watcherStarted, staleLockRecovered] of expectations) {
+      await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+      const localeReload = page.waitForEvent(
+        "framenavigated",
+        (frame) => frame === page.mainFrame(),
+      );
+      await page.locator("#dashboardLocale").selectOption(language);
+      await localeReload;
+      await page.waitForFunction(() => document.body.classList.contains("dashboard-ready"));
+      await page.locator("#componentLogs").evaluate((element) => { element.open = true; });
+      await page.waitForFunction(() => componentLogsLoaded);
+      await page.evaluate(() => {
+        refreshComponentLogs = async () => {};
+        componentLogEntries.inbox = [
+          { line: 1, timestamp: "2026-08-16T09:00:00Z", level: "INFO", event: "watcher_started", runId: "run-1", details: "" },
+          { line: 2, timestamp: "2026-08-16T09:01:00Z", level: "INFO", event: "stale_git_lock_recovered", runId: "run-2", details: "" },
+        ];
+        componentLogEntries.dashboard = [];
+        renderComponentLogs();
+      });
+      await expect(page.locator("#inboxComponentLog")).toContainText(watcherStarted);
+      await expect(page.locator("#inboxComponentLog")).toContainText(staleLockRecovered);
+      await expect(page.locator("#logEventFilter option[value=watcher_started]")).toHaveText(watcherStarted);
+      await expect(page.locator("#logEventFilter option[value=stale_git_lock_recovered]")).toHaveText(staleLockRecovered);
+    }
+  });
+
   test("localizes prompt history column headings for every supported language", async ({ page }) => {
     await page.setViewportSize({ width: 1024, height: 844 });
     const expectations = [
