@@ -6,6 +6,7 @@ import argparse
 from datetime import datetime, timezone
 from dataclasses import dataclass, replace
 import json
+import logging
 import os
 from pathlib import Path
 import subprocess
@@ -81,9 +82,54 @@ from .execution_executor import write_redacted_codex_cli_log as executor_write_r
 from .execution_executor import CodexCliClient
 from .execution_finalization import FinalizationCoordinator
 from .execution_reporting import ReportingCoordinator
-from .storage import load_readiness_evaluation, record_readiness_evaluation
+from .storage import EngineeringStorageError, load_readiness_evaluation, record_readiness_evaluation
 from .storage import dismissal_for_run
-from .execution_timing import ActivePhase, complete_active_phase, complete_phase, start_or_resume_phase, start_phase
+from .execution_timing import ActivePhase
+from .execution_timing import complete_active_phase as _complete_active_phase
+from .execution_timing import complete_phase as _complete_phase
+from .execution_timing import start_or_resume_phase as _start_or_resume_phase
+from .execution_timing import start_phase as _start_phase
+
+
+LOGGER = logging.getLogger(__name__)
+
+
+def _timing_unavailable(error: EngineeringStorageError) -> None:
+    """Keep optional phase telemetry from changing the run outcome."""
+    LOGGER.warning("Execution phase telemetry is unavailable: %s", error)
+
+
+def start_phase(root: Path, run_id: str, phase_name: str, **kwargs: object) -> ActivePhase | None:
+    try:
+        return _start_phase(root, run_id, phase_name, **kwargs)
+    except EngineeringStorageError as error:
+        _timing_unavailable(error)
+        return None
+
+
+def start_or_resume_phase(root: Path, run_id: str, phase_name: str, **kwargs: object) -> ActivePhase | None:
+    try:
+        return _start_or_resume_phase(root, run_id, phase_name, **kwargs)
+    except EngineeringStorageError as error:
+        _timing_unavailable(error)
+        return None
+
+
+def complete_phase(root: Path, active: ActivePhase | None, **kwargs: object) -> None:
+    if active is None:
+        return
+    try:
+        _complete_phase(root, active, **kwargs)
+    except EngineeringStorageError as error:
+        _timing_unavailable(error)
+
+
+def complete_active_phase(root: Path, run_id: str, phase_name: str, **kwargs: object) -> bool:
+    try:
+        return _complete_active_phase(root, run_id, phase_name, **kwargs)
+    except EngineeringStorageError as error:
+        _timing_unavailable(error)
+        return False
 
 # Compatibility exports remain at this façade while implementation resides in
 # the dedicated context, repository and executor modules.
