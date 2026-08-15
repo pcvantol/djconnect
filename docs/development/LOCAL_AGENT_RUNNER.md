@@ -208,6 +208,11 @@ Then install it for the current local user:
 ./tools/engineering/dj-engineering-dashboard install
 ```
 
+The dashboard LaunchAgent starts from the neutral filesystem root and receives
+the selected repository only through its explicit module path and `--repo`
+argument. This avoids relying on an interactive shell or a protected working
+directory while preserving the repository-owned execution boundary.
+
 Tailscale may provide private reachability, but this repository never enables
 Funnel, public binding, ACL changes, port forwarding or remote command
 execution. `docs/engineering/runs/latest.md` and `index.json` are the durable,
