@@ -243,7 +243,7 @@ function renderEstimate(x, durationEstimate = latestDurationEstimate) {
   $("executionEstimateMeta").textContent = value.context;
   $("executionEstimateMeta").hidden = !value.context;
 }
-function isActiveRun(x) {
+function isActiveRun(x = {}) {
   return x.watcher_state === "ENGINEERING_RUN_ACTIVE" && Boolean(x.run_id);
 }
 function checkBuild(build) {
