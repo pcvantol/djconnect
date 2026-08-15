@@ -210,8 +210,10 @@ Then install it for the current local user:
 
 The dashboard LaunchAgent starts from the neutral filesystem root and receives
 the selected repository only through its explicit module path and `--repo`
-argument. This avoids relying on an interactive shell or a protected working
-directory while preserving the repository-owned execution boundary.
+argument. It also uses Python safe-path mode (`-P`), so Python does not derive
+imports from the LaunchAgent working directory. This avoids relying on an
+interactive shell or a protected working directory while preserving the
+repository-owned execution boundary.
 
 Tailscale may provide private reachability, but this repository never enables
 Funnel, public binding, ACL changes, port forwarding or remote command
