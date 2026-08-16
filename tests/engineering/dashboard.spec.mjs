@@ -4243,7 +4243,10 @@ test.describe("Engineering Status browser smoke", () => {
     expect(Math.abs(arrowGeometry.closed.arrowTop - arrowGeometry.opened.arrowTop)).toBeLessThanOrEqual(0.1);
     await expect(page.locator("#currentRun > summary > .current-run__category-description")).toHaveCount(1);
     await expect(page.locator(".current-run__category-description")).toHaveText("Voortgang, doorlooptijd en context van de uitvoering die nu actief is.");
-    expect(await page.locator("#indicator").evaluate((element) => element.parentElement.className)).toBe("current-run__prompt-heading");
+    expect(await page.locator("#indicator").evaluate((element) => ({
+      parentClass: element.parentElement.className,
+      previousSiblingId: element.previousElementSibling?.id,
+    }))).toEqual({ parentClass: "field execution-identity__run-id", previousSiblingId: "runId" });
     await expect(page.locator("#loadComponentLogs")).toHaveCount(0);
     await expect(page.getByTestId("pull-refresh")).toHaveText("Trek omlaag om te vernieuwen");
     await page.evaluate(() => showCopyToast());

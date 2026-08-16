@@ -2252,8 +2252,9 @@ function arrangeCurrentRunCategory() {
   const current = $("currentRun"),
     summary = current?.querySelector(":scope>summary"),
     prompt = $("currentPrompt"),
-    indicator = $("indicator");
-  if (!current || !summary || !prompt || !indicator) return;
+    indicator = $("indicator"),
+    runId = $("runId");
+  if (!current || !summary || !prompt || !indicator || !runId) return;
   let heading = summary.querySelector(".current-run__prompt-heading");
   if (!heading) {
     heading = document.createElement("div");
@@ -2261,7 +2262,9 @@ function arrangeCurrentRunCategory() {
     prompt.replaceWith(heading);
     heading.append(prompt);
   }
-  heading.append(indicator);
+  const runIdField = runId.closest(".field");
+  runIdField?.classList.add("execution-identity__run-id");
+  runId.after(indicator);
   let description = summary.querySelector(
     ":scope>.current-run__category-description",
   );
