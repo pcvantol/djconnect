@@ -159,6 +159,11 @@ In the active-execution card, identify the run first: **Execution title** and
 status, execution context, and local Codex processes in that order, keeping
 the sequence adjacent to the artifact it explains.
 
+Within the active-execution container, the lifecycle and execution-context
+blocks use the same card surface as status and operational blocks. Their
+turquoise border and headings provide the distinction; a lighter inner fill is
+not used.
+
 Lifecycle steps use fixed-width slots, a visible connector element on a layer
 behind the circular nodes, and equal connector length between every adjacent
 pair. The connector centre aligns exactly with the circle centre. Long labels

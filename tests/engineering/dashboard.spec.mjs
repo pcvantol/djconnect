@@ -584,6 +584,40 @@ test.describe("Engineering Status browser smoke", () => {
     expect(styles).not.toContain(".execution-context--primary>strong{column-span:all}");
   });
 
+  test("uses the active-execution card surface for lifecycle and execution context", async ({ page }) => {
+    await page.route("**/api/events", (route) => route.abort());
+    await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({ json: { status: {} } }));
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => r({
+      watcher_state: "ENGINEERING_RUN_ACTIVE",
+      current_phase: "EXECUTE_AGENT",
+      run_id: "consistent-active-run-surface",
+      execution_mode: "MANAGED",
+      target_repository: "pcvantol/djconnect",
+      checkout_path: "/Users/example/Documents/GitHub/djconnect",
+      active_branch: "main",
+      lifecycle: {
+        available: true,
+        run_id: "consistent-active-run-surface",
+        terminal_state: "ACTIVE",
+        steps: [
+          { id: "start", presentation_key: "lifecycle.step.start", state: "COMPLETED" },
+          { id: "execute", presentation_key: "lifecycle.step.execute", state: "ACTIVE" },
+        ],
+      },
+    }, {}));
+    await page.locator("#currentRun").evaluate((element) => { element.open = true; });
+    await expect(page.locator(".execution-lifecycle")).toHaveCount(1);
+    await expect(page.locator("#executionContext")).toHaveCount(1);
+
+    await expect(page.locator(".execution-lifecycle")).toHaveCSS("background-color", "rgb(27, 41, 49)");
+    await expect(page.locator("#executionContext")).toHaveCSS("background-color", "rgb(27, 41, 49)");
+
+    await page.evaluate(() => { document.documentElement.dataset.theme = "light"; });
+    await expect(page.locator(".execution-lifecycle")).toHaveCSS("background-color", "rgb(255, 255, 255)");
+    await expect(page.locator("#executionContext")).toHaveCSS("background-color", "rgb(255, 255, 255)");
+  });
+
   test("explains the managed and Genesis execution modes from the active execution", async ({ page }) => {
     await page.route("**/api/events", (route) => route.abort());
     await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({
