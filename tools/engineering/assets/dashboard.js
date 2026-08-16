@@ -1069,13 +1069,20 @@ function renderCodexUsageLimitBanner(x) {
   banner.hidden = String(x?.terminal_condition || "") !== "codex_usage_limit_reached";
 }
 
-// Browsers otherwise put initial dialog focus on the first close button. Only
-// an explicit primary action may receive initial focus; evidence-only modals
-// deliberately leave focus outside the dialog so no control looks selected.
+// Browsers otherwise put initial dialog focus on the first close button.
+// Confirmation dialogs focus their primary action, except when that action is
+// destructive: then the safe secondary action is the deliberate default.
+// Evidence-only modals deliberately leave focus outside the dialog so no
+// control looks selected.
 function resetDashboardModalInitialFocus(modal) {
   requestAnimationFrame(() => {
     if (!modal?.open) return;
+    const secondary = modal.querySelector("button.dashboard-modal-shell__action:not(.dashboard-modal-shell__action--primary):not([disabled]), a.dashboard-modal-shell__action:not(.dashboard-modal-shell__action--primary)[href]");
     const primary = modal.querySelector("button.dashboard-modal-shell__action--primary:not([disabled]), a.dashboard-modal-shell__action--primary[href]");
+    if (modal.classList.contains("dashboard-modal-shell--destructive") && secondary) {
+      secondary.focus({ preventScroll: true });
+      return;
+    }
     if (primary) {
       primary.focus({ preventScroll: true });
       return;

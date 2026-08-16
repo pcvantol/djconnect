@@ -5036,7 +5036,7 @@ test.describe("Engineering Status browser smoke", () => {
     await page.getByTestId("clear-inbox-log").click();
     const modal = page.locator("#confirmationModal");
     await expect(modal).toBeVisible();
-    await expect(page.locator("#confirmationModalConfirm")).toBeFocused();
+    await expect(page.locator("#confirmationModalCancel")).toBeFocused();
     await expect(modal.locator(".confirmation-modal__panel")).toHaveCSS("border-top-color", "rgb(255, 113, 143)");
     await expect(page.locator("#confirmationModal .confirmation-modal__header")).toHaveCSS("border-bottom-color", "rgb(255, 113, 143)");
     await expect(page.locator("#confirmationModalTitle")).toHaveCSS("color", "rgb(255, 113, 143)");

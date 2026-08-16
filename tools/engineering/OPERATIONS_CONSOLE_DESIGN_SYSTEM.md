@@ -192,6 +192,10 @@ The neutral **Start** boundary uses one decorative rocket glyph. Its accessible
 name remains the localized Start label, so the glyph adds a friendly visual
 cue without adding a second spoken state.
 
+Destructive confirmation dialogs make the safe secondary action the initial
+keyboard focus. Standard confirmations may focus their explicit primary action;
+informational dialogs open without a selected control.
+
 The flow is part of its enclosing category, not an independent blue surface.
 Its title, border, non-terminal completed circles and connectors leading to a
 reached step inherit the containing category accent. Connectors leading to an
