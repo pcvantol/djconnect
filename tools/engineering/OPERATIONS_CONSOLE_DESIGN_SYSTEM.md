@@ -170,8 +170,9 @@ their dedicated semantic colours; the active circle alone remains
 house-style orange. Lifecycle state, connector geometry, node interaction and
 the touch-safe no-glass treatment are maintained as one stylesheet bundle.
 The lifecycle step-detail modal uses that same monitoring-cyan accent for its
-header, divider, border and phase evidence; it is not a generic blue evidence
-modal.
+header, divider and border. Its field labels and phase names use the related
+light-turquoise secondary accent, never the default purple label colour; it is
+not a generic blue evidence modal.
 
 The flow renders the server lifecycle projection as one coherent update: the
 server-reported current step is the sole active circle. During an operator

@@ -771,6 +771,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(modal).toBeVisible();
     await expect(modal).toContainText("Implementatie");
     await expect(modal).toContainText(DASHBOARD_MESSAGES.nl["telemetry.phase.provider_execution"]);
+    await expect(modal.locator(".lifecycle-detail-modal__phase-list strong")).toHaveCSS("color", "rgb(167, 231, 242)");
     await expect(modal).toContainText("12 sec");
     await page.locator("#lifecycleDetailClose").click();
     await expect(modal).not.toBeVisible();
