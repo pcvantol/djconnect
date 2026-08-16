@@ -1202,12 +1202,16 @@ def main(argv: list[str] | None = None) -> int:
         if args.admitted_storage_schema is not None
         else RunnerCompatibility()
     )
+    try:
+        runtime = PlatformConfiguration.load(root).resolver(root).resolve_runtime()
+    except PlatformConfigurationError:
+        runtime = None
     runner = EngineeringRunner(
         root,
         StateStore(root / ".engineering" / "engineering-runs"),
         SubprocessRepositoryClient(),
         GhCliClient(),
-        CodexCliClient(),
+        CodexCliClient(CodexCliProvider(str(runtime)) if runtime is not None else CodexCliProvider()),
         compatibility=compatibility,
     )
     try:

@@ -105,6 +105,7 @@ class InboxWatcherTest(unittest.TestCase):
         self.assertIn("-lc", rendered)
         self.assertIn("exec", rendered)
         self.assertIn(str(self.repo), rendered)
+        self.assertIn("DJCONNECT_ENGINEERING_CODEX_EXECUTABLE", rendered)
         self.assertNotIn("StandardOutPath", rendered)
         self.assertNotIn("StandardErrorPath", rendered)
 
