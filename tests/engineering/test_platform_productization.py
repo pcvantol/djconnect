@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from pathlib import Path
 import json
 import tempfile
@@ -17,10 +18,12 @@ from tools.engineering.platform_bootstrap import (
     _merge_legacy_workspace,
     _validate_legacy_merge,
     migrate_legacy_workspace,
+    migrate_worktree_workspace,
     provision_workspace,
     render_template,
     validate_repository,
 )
+from tools.engineering.storage import open_storage
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -86,6 +89,62 @@ class PlatformProductizationTest(unittest.TestCase):
             second = provision_workspace(root)
             self.assertEqual(first, second)
             self.assertTrue(first["status"].is_dir())
+
+    def test_linked_worktrees_share_and_merge_engineering_history(self) -> None:
+        """A dashboard worktree must retain history recorded from a source worktree."""
+        with tempfile.TemporaryDirectory() as temporary:
+            repository = Path(temporary) / "repository"
+            runtime = Path(temporary) / "runtime"
+            common = repository / ".git"
+            worktree_git = common / "worktrees" / "runtime"
+            common.mkdir(parents=True)
+            runtime.mkdir()
+            (runtime / ".git").write_text(f"gitdir: {worktree_git}\n", encoding="utf-8")
+            worktree_git.mkdir(parents=True)
+            (worktree_git / "commondir").write_text("../..\n", encoding="utf-8")
+            for root in (repository, runtime):
+                target = root / "tools/engineering"
+                target.mkdir(parents=True)
+                (target / "ENGINEERING_PLATFORM_CONFIG.json").write_text(
+                    (ROOT / "tools/engineering/ENGINEERING_PLATFORM_CONFIG.json").read_text(encoding="utf-8"),
+                    encoding="utf-8",
+                )
+            for root, run_id in ((repository, "source-run"), (runtime, "runtime-run")):
+                with open_storage(root) as connection:
+                    connection.execute(
+                        "INSERT INTO prompt_execution_history(run_id,terminal_state,prompt_title,executed_at,updated_at) VALUES(?,?,?,?,?)",
+                        (run_id, "COMPLETE", run_id, "2026-08-16T08:00:00+00:00", "2026-08-16T08:00:00+00:00"),
+                    )
+
+            workspace = migrate_worktree_workspace(runtime)
+
+            self.assertEqual(workspace, (common / "engineering-platform").resolve())
+            self.assertTrue((repository / ".engineering").is_symlink())
+            self.assertTrue((runtime / ".engineering").is_symlink())
+            with open_storage(runtime) as connection:
+                run_ids = [row[0] for row in connection.execute(
+                    "SELECT run_id FROM prompt_execution_history ORDER BY run_id"
+                )]
+            self.assertEqual(run_ids, ["runtime-run", "source-run"])
+            self.assertEqual((repository / ".engineering").resolve(), workspace)
+
+    def test_linked_worktree_migration_refuses_live_component_locks(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            repository = Path(temporary) / "repository"
+            runtime = Path(temporary) / "runtime"
+            common = repository / ".git"
+            worktree_git = common / "worktrees" / "runtime"
+            common.mkdir(parents=True)
+            runtime.mkdir()
+            (runtime / ".git").write_text(f"gitdir: {worktree_git}\n", encoding="utf-8")
+            worktree_git.mkdir(parents=True)
+            (worktree_git / "commondir").write_text("../..\n", encoding="utf-8")
+            lock = runtime / ".engineering" / "locks" / "dashboard.lock"
+            lock.parent.mkdir(parents=True)
+            lock.write_text(json.dumps({"component": "dashboard", "pid": os.getpid()}), encoding="utf-8")
+
+            with self.assertRaisesRegex(RuntimeError, "running components to stop"):
+                migrate_worktree_workspace(runtime)
 
     def test_legacy_workspace_migrates_without_losing_evidence(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
