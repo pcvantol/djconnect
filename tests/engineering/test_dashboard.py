@@ -66,6 +66,28 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertNotIn('"nl-NL"', dashboard_script)
         self.assertNotIn("localeCompare(", dashboard_script)
 
+    def test_prompt_authoring_contract_and_template_are_canonical_and_producer_neutral(self) -> None:
+        root = Path(__file__).parents[2]
+        contract = (root / "docs/engineering/EP_PROMPT_AUTHORING_CONTRACT.md").read_text(encoding="utf-8")
+        template = (root / "docs/engineering/EP_PROMPT_TEMPLATE.md").read_text(encoding="utf-8")
+
+        self.assertIn("Prompt Authoring Contract Version:** 1", contract)
+        self.assertIn("EP Prompt Authoring Contract: 1", template)
+        self.assertIn("Template Version: 1", template)
+        self.assertIn("Execution Mode: <Managed | Genesis>", template)
+        self.assertNotIn("Forge", template)
+        self.assertNotIn("DJConnect", template)
+        self.assertNotIn("/Users/", template)
+        for section in (
+            "# Context", "# Objective", "# Architecture / Ownership Boundaries",
+            "# Required Behavior", "# Compatibility / Invariants", "# Tests",
+            "# Validation", "# Explicitly Out of Scope", "# Final Report",
+        ):
+            self.assertIn(section, template)
+        dashboard_source = (root / "tools/engineering/dashboard.py").read_text(encoding="utf-8")
+        self.assertIn("PROMPT_TEMPLATE_PATH", dashboard_source)
+        self.assertNotIn("# <Capability / Increment Name>", dashboard_source)
+
     def test_dashboard_run_logs_startup_and_graceful_shutdown_identity(self) -> None:
         class InterruptingServer:
             server_address = (LOOPBACK_ADDRESS, 8765)
@@ -1371,6 +1393,18 @@ class DashboardStatusTest(unittest.TestCase):
                 self.assertIn(content_type, response.getheader("Content-Type"))
                 self.assertEqual(response.getheader("Cache-Control"), "no-store")
                 response.read()
+            connection.request("GET", "/api/prompt-template")
+            response = connection.getresponse()
+            self.assertEqual(response.status, 200)
+            self.assertEqual(response.getheader("Content-Type"), "text/markdown; charset=utf-8")
+            self.assertEqual(
+                response.getheader("Content-Disposition"),
+                'attachment; filename="engineering-platform-prompt-template.md"',
+            )
+            self.assertEqual(
+                response.read(),
+                (Path(__file__).parents[2] / "docs/engineering/EP_PROMPT_TEMPLATE.md").read_bytes(),
+            )
             with patch("tools.engineering.dashboard._codex_rate_limits", return_value=b"{}"):
                 connection.request("GET", "/api/dashboard-snapshot")
                 response = connection.getresponse()

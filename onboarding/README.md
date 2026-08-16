@@ -116,6 +116,19 @@ Engineering prompts require Engineering Platform `>= 1.5.0`. An older platform
 is incompatible: upgrade it before starting a prompt; do not bypass bootstrap
 compatibility validation.
 
+## Authoring a prompt without Forge
+
+Engineering Platform accepts producer-neutral prompts. In the Operations
+Console, use **Download Prompt Template** to obtain the canonical English
+Markdown starter template for a new or existing project. A human or any GPT can
+complete it, then submit it through a supported mechanism. The canonical
+[Prompt Authoring Contract](../docs/engineering/EP_PROMPT_AUTHORING_CONTRACT.md)
+explains the authoring rules, the distinction from the Producer Submission and
+Execution Host contracts, execution-mode guidance, versioning and the no-runtime-
+enforcement boundary. The downloaded artifact is the canonical
+[starter template](../docs/engineering/EP_PROMPT_TEMPLATE.md), not a
+dashboard-maintained copy.
+
 ## Raspberry Pi Pico 2 W development (macOS)
 
 Pico 2 W is a first-class profile of this canonical onboarding package. It is a
