@@ -2225,6 +2225,28 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#queueItems")).toBeVisible();
   });
 
+  test("shows a sticky localized banner for a Codex usage-limit block", async ({ page }) => {
+    await page.route("**/api/events", (route) => route.abort());
+    await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({
+      contentType: "application/json",
+      body: JSON.stringify({ status: { watcher_state: "WATCHER_IDLE" } }),
+    }));
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => r({
+      watcher_state: "WATCHER_IDLE",
+      current_phase: "BLOCKED",
+      terminal_condition: "codex_usage_limit_reached",
+    }, {}));
+    const banner = page.getByTestId("codex-usage-limit-banner");
+    await expect(banner).toBeVisible();
+    await expect(banner).toContainText(DASHBOARD_MESSAGES.nl["notification.codex_usage_limit.title"]);
+    await expect(banner).toContainText(DASHBOARD_MESSAGES.nl["notification.codex_usage_limit.body"]);
+    await expect(banner).toHaveCSS("position", "sticky");
+
+    await page.evaluate(() => r({ watcher_state: "WATCHER_IDLE" }, {}));
+    await expect(banner).toBeHidden();
+  });
+
   test("keeps a watcher-failed stale live run out of Active Prompt", async ({ page }) => {
     await page.route("**/api/events", (route) => route.abort());
     await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({
