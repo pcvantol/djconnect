@@ -866,7 +866,9 @@ test.describe("Engineering Status browser smoke", () => {
     const placement = await actions.evaluateAll((buttons) => ({
       viewportHeight: window.visualViewport?.height ?? window.innerHeight,
       bottoms: buttons.map((button) => button.getBoundingClientRect().bottom),
-      panelBottom: document.querySelector(".confirmation-modal__panel").getBoundingClientRect().bottom,
+      // The operator merge-wait dialog shares this panel class but is closed
+      // here. Scope the measurement to the open confirmation dialog.
+      panelBottom: buttons[0].closest("#confirmationModal").querySelector(".confirmation-modal__panel").getBoundingClientRect().bottom,
     }));
     expect(Math.max(...placement.bottoms)).toBeLessThanOrEqual(placement.viewportHeight);
     expect(Math.max(...placement.bottoms)).toBeLessThanOrEqual(placement.panelBottom);
