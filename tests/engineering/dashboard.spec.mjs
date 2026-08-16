@@ -580,18 +580,22 @@ test.describe("Engineering Status browser smoke", () => {
   });
 
   test("explains the managed and Genesis execution modes from the active execution", async ({ page }) => {
-    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
-    await page.evaluate(() => r({
-      watcher_state: "ENGINEERING_RUN_ACTIVE",
-      execution_mode: "MANAGED",
-      target_repository: "pcvantol/djconnect",
-      checkout_path: "/Users/example/Documents/GitHub/djconnect",
-      active_branch: "main",
+    await page.route("**/api/events", (route) => route.abort());
+    await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({
+      json: { status: {
+        watcher_state: "ENGINEERING_RUN_ACTIVE",
+        run_id: "inbox-execution-mode",
+        prompt_title: "Execution mode fixture",
+        execution_mode: "MANAGED",
+        target_repository: "pcvantol/djconnect",
+        checkout_path: "/Users/example/Documents/GitHub/djconnect",
+        active_branch: "main",
+      } },
     }));
-    await page.locator("#currentRun").evaluate((element) => {
-      element.hidden = false;
-      element.open = true;
-    });
+    const statusLoaded = page.waitForResponse("**/api/dashboard-snapshot");
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await statusLoaded;
+    await page.locator("#currentRun").evaluate((element) => { element.open = true; });
     const modeField = page.locator("#executionContext .execution-mode-field");
     await expect(modeField).toContainText("MANAGED");
     const info = modeField.locator(".execution-mode-info");
