@@ -4008,8 +4008,8 @@ function renderPromptHistoryDetail(payload) {
   content.replaceChildren();
   content.append(
     ...[
-      lifecycleFlow(payload?.lifecycle, { historical: true }),
       promptDetailExecutionSection(history),
+      lifecycleFlow(payload?.lifecycle, { historical: true }),
       promptDetailSidebar([
         promptDetailDurationSection(execution),
         promptDetailRuntimeSection(runtime),
