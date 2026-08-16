@@ -506,7 +506,11 @@ test.describe("Engineering Status browser smoke", () => {
     // Keep the client-side fixture stable: the initial history refresh can
     // otherwise replace this row after it has been rendered in CI.
     await page.route("**/api/events", (route) => route.abort());
-    await page.route("**/api/prompt-history", (route) => route.fulfill({ json: { runs: [] } }));
+    // A non-empty initial response prevents the production empty-history retry
+    // from re-rendering this isolated fixture after it has been seeded below.
+    await page.route("**/api/prompt-history", (route) => route.fulfill({ json: {
+      runs: [{ run_id: "inbox-fixture", status: "COMPLETE", title: "Fixture" }],
+    } }));
     await page.route("**/api/prompt-history/inbox-row-focus/details", (route) => route.fulfill({
       json: { history: { run_id: "inbox-row-focus", status: "COMPLETE", title: "Focused row" } },
     }));
@@ -1587,7 +1591,10 @@ test.describe("Engineering Status browser smoke", () => {
 
   test("keeps the status column readable beside a visible action on iPhone landscape", async ({ page }) => {
     await page.setViewportSize({ width: 844, height: 390 });
-    await page.route("**/api/prompt-history", (route) => route.fulfill({ json: { runs: [] } }));
+    // Avoid the production empty-history retry racing this visual fixture.
+    await page.route("**/api/prompt-history", (route) => route.fulfill({ json: {
+      runs: [{ run_id: "inbox-fixture", status: "COMPLETE", title: "Fixture" }],
+    } }));
     const historyLoaded = page.waitForResponse("**/api/prompt-history");
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await historyLoaded;
@@ -1611,7 +1618,10 @@ test.describe("Engineering Status browser smoke", () => {
   });
 
   test("projects dismissed handling beside the immutable terminal outcome", async ({ page }) => {
-    await page.route("**/api/prompt-history", (route) => route.fulfill({ json: { runs: [] } }));
+    // Keep the injected terminal-state fixture stable across parallel runs.
+    await page.route("**/api/prompt-history", (route) => route.fulfill({ json: {
+      runs: [{ run_id: "inbox-fixture", status: "COMPLETE", title: "Fixture" }],
+    } }));
     const historyLoaded = page.waitForResponse("**/api/prompt-history");
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await historyLoaded;
@@ -3496,7 +3506,10 @@ test.describe("Engineering Status browser smoke", () => {
 
   test("retains terminal status colours in the light prompt-history table", async ({ page }) => {
     await page.route("**/api/events", (route) => route.abort());
-    await page.route("**/api/prompt-history", (route) => route.fulfill({ json: { runs: [] } }));
+    // Avoid the production empty-history retry racing this visual fixture.
+    await page.route("**/api/prompt-history", (route) => route.fulfill({ json: {
+      runs: [{ run_id: "inbox-fixture", status: "COMPLETE", title: "Fixture" }],
+    } }));
     const historyLoaded = page.waitForResponse("**/api/prompt-history");
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await historyLoaded;
@@ -3980,7 +3993,10 @@ test.describe("Engineering Status browser smoke", () => {
   });
 
   test("clears only the browser-local AI conversation through the in-app modal", async ({ page }) => {
-    await page.route("**/api/prompt-history", (route) => route.fulfill({ json: { runs: [] } }));
+    // Avoid the production empty-history retry detaching the chat action.
+    await page.route("**/api/prompt-history", (route) => route.fulfill({ json: {
+      runs: [{ run_id: "inbox-fixture", status: "COMPLETE", title: "Fixture" }],
+    } }));
     await page.route("**/api/codex-chat", async (route) => {
       await route.fulfill({ contentType: "application/json", body: '{"answer":"De uitvoering is gereed.","model":"Codex CLI"}' });
     });
