@@ -1396,13 +1396,13 @@ test.describe("Engineering Status browser smoke", () => {
       "#operatorMergeWaitModalTitle",
       "#confirmationModalTitle",
       "#promptHistoryReportModalTitle",
-      "#promptHistoryDetailTitle",
       "#promptHistoryChatTitle",
     ]) {
       expect(await page.locator(selector).evaluate(
         (heading) => getComputedStyle(heading, "::before").fontSize,
       )).toBe("20px");
     }
+    expect(await glyph("#promptHistoryDetailTitle")).toBe("none");
     await expect(page.locator("#promptHistoryReportModalTitle")).toHaveCSS("border-top-width", "0px");
     expect(await page.locator("#promptHistoryReportModalTitle").evaluate(
       (heading) => getComputedStyle(heading, "::before").borderTopWidth,
@@ -4860,13 +4860,15 @@ test.describe("Engineering Status browser smoke", () => {
       ["#componentModalTitle", "⚙︎"],
       ["#confirmationModalTitle", "ⓘ"],
       ["#promptHistoryReportModalTitle", "▤"],
-      ["#promptHistoryDetailTitle", "i"],
       ["#promptHistoryChatTitle", "⋯"],
     ]) {
       expect(await page.locator(selector).evaluate(
         (title) => getComputedStyle(title, "::before").content,
       )).toContain(glyph);
     }
+    expect(await page.locator("#promptHistoryDetailTitle").evaluate(
+      (title) => getComputedStyle(title, "::before").content,
+    )).toBe("none");
   });
 
   test("sizes prompt-history chat bubbles to their content", async ({ page }) => {
