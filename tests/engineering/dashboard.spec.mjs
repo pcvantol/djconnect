@@ -88,8 +88,8 @@ async function openTitlebarOptions(page) {
 
 test.beforeEach(async ({ page }, testInfo) => {
   const goto = page.goto.bind(page);
-  page.goto = async (...arguments_) => {
-    const response = await goto(...arguments_);
+  const reload = page.reload.bind(page);
+  const prepareDashboard = async () => {
     await page.waitForFunction(() => document.body.classList.contains("dashboard-ready"));
     if (![
       "puts every mobile title-bar setting in a labelled expandable panel",
@@ -98,6 +98,15 @@ test.beforeEach(async ({ page }, testInfo) => {
     ].includes(testInfo.title)) {
       await openTitlebarOptions(page);
     }
+  };
+  page.goto = async (...arguments_) => {
+    const response = await goto(...arguments_);
+    await prepareDashboard();
+    return response;
+  };
+  page.reload = async (...arguments_) => {
+    const response = await reload(...arguments_);
+    await prepareDashboard();
     return response;
   };
 });
@@ -2500,6 +2509,9 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(content).toBeVisible();
     await expect(page.locator("#dashboardLocaleButton")).toBeVisible();
     await expect(page.locator("#dashboardLocaleButton")).toContainText("Nederlands");
+    await page.reload({ waitUntil: "domcontentloaded" });
+    await expect(disclosure).toHaveAttribute("aria-expanded", "true");
+    await expect(content).toBeVisible();
     for (const label of [
       ".dashboard-titlebar__options-content .dashboard-locale > span:first-child",
       ".dashboard-titlebar__options-content .theme-toggle__label",
@@ -4126,7 +4138,7 @@ test.describe("Engineering Status browser smoke", () => {
   test("keeps title-bar switch focus on the compact track", () => {
     const stylesheet = readFileSync(path.join(repository, "tools/engineering/assets/dashboard.css"), "utf8");
     expect(stylesheet).toContain(".execution-lifecycle__node,.theme-toggle,.section-state-toggle,.auto-refresh-toggle");
-    expect(stylesheet).toContain(".dashboard-titlebar .theme-toggle:is(:focus,:focus-visible),.dashboard-titlebar .section-state-toggle:is(:focus,:focus-visible){box-shadow:none!important;outline:0!important}");
+    expect(stylesheet).toContain(".dashboard-titlebar .theme-toggle:is(:focus,:focus-visible),.dashboard-titlebar .section-state-toggle:is(:focus,:focus-visible){box-shadow:none!important;outline:0!important;outline-color:var(--house-style)!important}");
     expect(stylesheet).toContain(".dashboard-titlebar .theme-toggle:is(:focus,:focus-visible)::before,.dashboard-titlebar .section-state-toggle:is(:focus,:focus-visible)::before{box-shadow:0 0 0 5px var(--house-style-focus);outline:2px solid var(--house-style);outline-offset:3px}");
     expect(stylesheet).toContain(".auto-refresh-toggle input:focus-visible{box-shadow:0 0 0 5px var(--house-style-focus);outline:3px solid var(--house-style);outline-offset:3px}");
   });

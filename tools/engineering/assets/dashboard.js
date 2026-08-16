@@ -3549,16 +3549,18 @@ const dashboardTitlebarOptionsContent = $("dashboardTitlebarOptionsContent");
 const compactTitlebarMedia = window.matchMedia("(max-width: 620px)");
 function syncTitlebarOptions() {
   const compact = compactTitlebarMedia.matches;
+  const expanded = !compact || dashboardClientState.titlebarOptionsOpen === true;
   dashboardTitlebarOptionsToggle.hidden = !compact;
-  dashboardTitlebarOptionsContent.hidden = compact;
-  dashboardTitlebarOptionsToggle.setAttribute("aria-expanded", String(!compact));
+  dashboardTitlebarOptionsContent.hidden = !expanded;
+  dashboardTitlebarOptionsToggle.setAttribute("aria-expanded", String(expanded));
 }
 compactTitlebarMedia.addEventListener("change", syncTitlebarOptions);
 syncTitlebarOptions();
 dashboardTitlebarOptionsToggle.addEventListener("click", () => {
   const expanded = dashboardTitlebarOptionsToggle.getAttribute("aria-expanded") === "true";
-  dashboardTitlebarOptionsToggle.setAttribute("aria-expanded", String(!expanded));
-  dashboardTitlebarOptionsContent.hidden = expanded;
+  dashboardClientState.titlebarOptionsOpen = !expanded;
+  saveDashboardClientState();
+  syncTitlebarOptions();
 });
 function setLocaleMenuOpen(open) {
   dashboardLocaleMenu.hidden = !open;
