@@ -4594,6 +4594,8 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#promptHistoryReportModal")).toBeVisible();
     await expect(page.locator("#promptHistoryReportModal")).not.toBeFocused();
     await expect(page.locator("#promptHistoryDetailModal")).not.toBeVisible();
+    await expect(page.locator("#promptHistoryReportModalTitle"))
+      .toHaveText(DASHBOARD_MESSAGES.nl["history.execution_report_title"]);
     await expect(page.locator("#promptHistoryReportContent")).toContainText("Historisch rapport");
     await expect(page.locator("#promptHistoryReportDownload")).toBeVisible();
     await expect(page.locator("#promptHistoryReportCopy")).toBeVisible();

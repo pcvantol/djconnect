@@ -3355,7 +3355,7 @@ function renderPromptHistory() {
         view.addEventListener("click", (event) => {
           event.preventDefault();
           event.stopPropagation();
-          openPromptHistoryDocument(entry.run_id, title.textContent, "report");
+          openPromptHistoryDocument(entry.run_id, "report");
         });
         report.append(view);
       } else report.textContent = "—";
@@ -3369,7 +3369,7 @@ function renderPromptHistory() {
         view.addEventListener("click", (event) => {
           event.preventDefault();
           event.stopPropagation();
-          openPromptHistoryDocument(entry.run_id, title.textContent, "analysis");
+          openPromptHistoryDocument(entry.run_id, "analysis");
         });
         analysis.append(view);
       } else analysis.textContent = "—";
@@ -4039,7 +4039,7 @@ function downloadPromptHistoryReport() {
       : "prompt_history_report_downloaded",
   );
 }
-function openPromptHistoryDocument(runId, title, kind = "report") {
+function openPromptHistoryDocument(runId, kind = "report") {
   const modal = $("promptHistoryReportModal"),
     content = $("promptHistoryReportContent");
   promptHistoryReportRun = String(runId || "");
@@ -4049,7 +4049,7 @@ function openPromptHistoryDocument(runId, title, kind = "report") {
   $("promptHistoryReportModalTitle").textContent =
     promptHistoryDocumentKind === "analysis"
       ? t("table.analysis")
-      : title || t("history.report_title");
+      : t("history.execution_report_title");
   $("promptHistoryReportCopy").hidden = true;
   $("promptHistoryReportDownload").hidden = true;
   content.replaceChildren();
