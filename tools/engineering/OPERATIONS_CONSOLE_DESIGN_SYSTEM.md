@@ -162,6 +162,14 @@ inherit the standard interface text colour and weight; only the active circle
 uses house-style orange, with a dark glyph, so state is clear without turning
 ordinary step names into status colour.
 
+The flow is part of its enclosing category, not an independent blue surface.
+Its title, border, non-terminal completed circles and connector lines inherit
+the containing category accent. In the active-execution container this is its
+monitoring cyan (`#65c5d9`). Terminal success, blocked and failed states keep
+their dedicated semantic colours; the active circle alone remains
+house-style orange. Lifecycle state, connector geometry, node interaction and
+the touch-safe no-glass treatment are maintained as one stylesheet bundle.
+
 The flow renders the server lifecycle projection as one coherent update: the
 server-reported current step is the sole active circle. During an operator
 merge wait, **Merge** is the active circle and the summary states the same
@@ -252,8 +260,10 @@ Use the shared modal shell and contextual panel. Modal rules are:
    what changes, what remains, and any safe recovery path.
 5. On an iPhone, every modal shell supplies at least `16px` outer padding
    (or the larger safe-area inset), its panel stays inside that area and its
-   actions cannot fall below browser chrome. Background scrolling is locked
-   while open.
+   actions cannot fall below browser chrome. A family may widen that outer
+   gutter only through a shell token (telemetry uses `24px`); it must not
+   recreate a separate viewport, panel or header implementation. Background
+   scrolling is locked while open.
 6. Opening an evidence-only modal puts no control in focus. Only an available
    primary action may receive initial programmatic focus; close controls,
    titles and dialog shells never do. The orange selected-control treatment is
@@ -362,10 +372,11 @@ Add or extend Playwright coverage for the changed state and, when applicable:
 - all modal close controls and title/disclosure glyphs: verify the shared bold
   glyph weight in both themes;
 - lifecycle flow geometry: verify connector visibility, its layer behind the
-  node, fixed connector length, exact vertical centre alignment, standard
-  label colour and a coherent active/completed/pending projection, including
-  that an open operator merge wait renders Merge as active rather than
-  completed;
+  node, fixed connector length, exact vertical centre alignment, inherited
+  containing-category accent, standard label colour and a coherent
+  active/completed/pending projection, including that an open operator merge
+  wait renders Merge as active rather than completed and lifecycle nodes stay
+  free of generic touch glass/transitions;
 - AI conversation modals: verify the purple descriptive divider remains and
   no inherited secondary divider is rendered;
 - numeric precision: verify locale-aware percentage output with exactly one
