@@ -797,7 +797,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(merge.locator("span").first()).not.toHaveText("✓");
   });
 
-  test("places the active execution lifecycle directly below execution identity", async ({ page }) => {
+  test("places the estimate directly below execution identity and before the lifecycle", async ({ page }) => {
     await page.route("**/api/events", (route) => route.abort());
     await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({ json: { status: {} } }));
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
@@ -821,8 +821,12 @@ test.describe("Engineering Status browser smoke", () => {
       },
     }, {}));
 
-    await expect(page.locator("#executionIdentity").locator("xpath=following-sibling::*[1]"))
-      .toHaveClass(/execution-lifecycle/);
+    const activeOrder = await page.locator("#currentRun .current-run__grid").evaluate((grid) =>
+      [...grid.children].filter((item) => item.matches(".card,.execution-lifecycle")).map((item) => item.id === "executionIdentity" ? "identity"
+        : item.querySelector("#executionEstimate") ? "estimate"
+          : item.classList.contains("execution-lifecycle") ? "lifecycle" : item.id || "card"),
+    );
+    expect(activeOrder.slice(0, 3)).toEqual(["identity", "estimate", "lifecycle"]);
   });
 
   test("returns active-execution blocks to two columns when their container permits it", async ({ page }) => {

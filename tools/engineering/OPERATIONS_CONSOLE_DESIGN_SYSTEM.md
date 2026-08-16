@@ -164,9 +164,9 @@ promise or scheduler input.
 
 In the active-execution card, identify the run first: **Execution title** and
 **Filename** precede the **Execution** identity card (Run-ID and start time).
-The lifecycle flow follows identity, then execution status, execution context
-and local Codex processes, keeping the sequence adjacent to the artifact it
-explains.
+The **Estimated execution time** card follows identity, then the lifecycle
+flow, execution status, execution context and local Codex processes. This
+keeps the estimate adjacent to the run it describes.
 
 Step labels name their operational boundary rather than only its generic
 phase: **PR-controleherstel** identifies bounded repair of failed PR checks,

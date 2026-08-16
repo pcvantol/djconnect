@@ -1251,10 +1251,12 @@ function renderActiveLifecycle(projection) {
   previous?.remove();
   if (projection?.run_id) {
     const lifecycle = lifecycleFlow(projection);
-    const identity = $("executionIdentity");
-    // Keep run identity ahead of its read-only lifecycle projection. The
-    // fallback preserves compatibility with an older dashboard shell.
-    if (identity?.parentElement === current) identity.after(lifecycle);
+    const identity = $("executionIdentity"), estimate = $("executionEstimate")?.closest(".card");
+    placeExecutionEstimate();
+    // Keep run identity and its phase-aware estimate ahead of the read-only
+    // lifecycle projection. The fallback preserves older dashboard shells.
+    if (estimate?.parentElement === current) estimate.after(lifecycle);
+    else if (identity?.parentElement === current) identity.after(lifecycle);
     else current.prepend(lifecycle);
     placeOperatorMergeWait();
     if (preservedScrollLeft) {
@@ -1263,6 +1265,13 @@ function renderActiveLifecycle(projection) {
       // the user's independent horizontal review position.
       requestAnimationFrame(() => { nextScroll.scrollLeft = preservedScrollLeft; });
     }
+  }
+}
+function placeExecutionEstimate() {
+  const current = $("currentRun")?.querySelector(".current-run__grid"),
+    identity = $("executionIdentity"), estimate = $("executionEstimate")?.closest(".card");
+  if (current && identity?.parentElement === current && estimate?.parentElement === current) {
+    identity.after(estimate);
   }
 }
 function placeOperatorMergeWait() {
