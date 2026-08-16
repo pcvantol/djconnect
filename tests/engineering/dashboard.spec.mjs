@@ -587,6 +587,7 @@ test.describe("Engineering Status browser smoke", () => {
   test("uses the active-execution card surface for lifecycle and execution context", async ({ page }) => {
     await page.route("**/api/events", (route) => route.abort());
     await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({ json: { status: {} } }));
+    await page.setViewportSize({ width: 920, height: 844 });
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.evaluate(() => r({
       watcher_state: "ENGINEERING_RUN_ACTIVE",
@@ -609,6 +610,17 @@ test.describe("Engineering Status browser smoke", () => {
     await page.locator("#currentRun").evaluate((element) => { element.open = true; });
     await expect(page.locator(".execution-lifecycle")).toHaveCount(1);
     await expect(page.locator("#executionContext")).toHaveCount(1);
+
+    const statusAndContext = await page.locator("#currentRun .current-run__grid").evaluate((grid) => {
+      const status = [...grid.children].find((child) => child.querySelector?.("#watcher"));
+      const context = grid.querySelector("#executionContext");
+      if (!status || !context) return null;
+      const statusBox = status.getBoundingClientRect(), contextBox = context.getBoundingClientRect();
+      return { statusX: statusBox.x, statusY: statusBox.y, contextX: contextBox.x, contextY: contextBox.y };
+    });
+    expect(statusAndContext).not.toBeNull();
+    expect(statusAndContext.statusY).toBe(statusAndContext.contextY);
+    expect(statusAndContext.statusX).toBeLessThan(statusAndContext.contextX);
 
     await expect(page.locator(".execution-lifecycle")).toHaveCSS("background-color", "rgb(27, 41, 49)");
     await expect(page.locator("#executionContext")).toHaveCSS("background-color", "rgb(27, 41, 49)");
