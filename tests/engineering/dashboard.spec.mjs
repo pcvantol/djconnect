@@ -1045,6 +1045,10 @@ test.describe("Engineering Status browser smoke", () => {
     const modal = page.locator("#lifecycleDetailModal");
     await expect(modal).toBeVisible();
     await expect(modal).toContainText("Implementatie");
+    await expect(modal.locator("#lifecycleDetailTitle")).toHaveAttribute("data-lifecycle-status", "active");
+    expect(await modal.locator("#lifecycleDetailTitle").evaluate(
+      (title) => getComputedStyle(title, "::before").content,
+    )).toBe('"●"');
     await expect(modal.locator(".lifecycle-detail-modal__content .field > span:last-child").first()).toHaveCSS("color", "rgb(247, 243, 238)");
     await expect(modal).toContainText(DASHBOARD_MESSAGES.nl["telemetry.phase.provider_execution"]);
     const phaseSecondary = await modal.evaluate((element) => {

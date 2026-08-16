@@ -1155,12 +1155,18 @@ function closeLifecycleDetail() {
   const modal = $("lifecycleDetailModal");
   if (modal?.open) modal.close();
 }
+function lifecycleDetailStatusKey(step) {
+  const state = String(step?.state || "UNKNOWN").toLowerCase();
+  return state === "active" && isOperatorMergeStep(step) ? "operator-wait" : state;
+}
 function openLifecycleDetail(step, trigger) {
   const modal = $("lifecycleDetailModal"), content = $("lifecycleDetailContent");
   if (!modal || !content) return;
   lifecycleDetailTrigger = trigger || document.activeElement;
   const timing = step?.timing && typeof step.timing === "object" ? step.timing : {};
-  $("lifecycleDetailTitle").textContent = t("lifecycle.detail_title", { step: lifecycleLabel(step) });
+  const title = $("lifecycleDetailTitle");
+  title.dataset.lifecycleStatus = lifecycleDetailStatusKey(step);
+  title.textContent = t("lifecycle.detail_title", { step: lifecycleLabel(step) });
   content.replaceChildren();
   const overview = document.createElement("section"), grid = document.createElement("div");
   grid.className = "technical-grid";
