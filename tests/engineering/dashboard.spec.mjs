@@ -993,7 +993,15 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(modal).toContainText("Implementatie");
     await expect(modal.locator(".lifecycle-detail-modal__content .field > span:last-child").first()).toHaveCSS("color", "rgb(247, 243, 238)");
     await expect(modal).toContainText(DASHBOARD_MESSAGES.nl["telemetry.phase.provider_execution"]);
-    await expect(modal.locator(".lifecycle-detail-modal__phase-list strong")).toHaveCSS("color", "rgb(167, 231, 242)");
+    const phaseSecondary = await modal.evaluate((element) => {
+      const expected = document.createElement("span");
+      expected.style.color = "var(--modal-secondary-accent)";
+      element.append(expected);
+      const colour = getComputedStyle(expected).color;
+      expected.remove();
+      return colour;
+    });
+    await expect(modal.locator(".lifecycle-detail-modal__phase-list strong")).toHaveCSS("color", phaseSecondary);
     await expect(modal).toContainText("12 sec");
     await page.locator("#lifecycleDetailClose").click();
     await expect(modal).not.toBeVisible();
