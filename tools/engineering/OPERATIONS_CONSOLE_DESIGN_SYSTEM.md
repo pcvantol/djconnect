@@ -130,6 +130,11 @@ auto-fitting grid of at least `180px` tiles. It fills a row when space permits
 and wraps cleanly at narrower widths; never hard-code a single wide tile per
 reviewer.
 
+Interactive data rows use their parent table's category tint across every
+cell on hover and selection, with only the shared leading selection marker.
+Text actions inside such a row do not add an underline or a separate hover
+colour: the row itself is the affordance.
+
 Prompt-history status width is measured from the rendered status labels on the
 current visible page. It must accommodate the longest localized state,
 including an operator-dismissed terminal state, without colliding with the

@@ -2513,7 +2513,35 @@ function renderTelemetryDetail(detail, content) {
   const runSection = document.createElement("section"), runs = Array.isArray(detail?.runs) ? detail.runs : [];
   runSection.append(Object.assign(document.createElement("h3"), { textContent: t("telemetry.runs") }));
   const runTable = document.createElement("table"); runTable.className = "telemetry-table"; runTable.innerHTML = `<thead><tr>${["telemetry.run_id", "telemetry.status", "telemetry.average_total", "telemetry.average_wait", "telemetry.provider", "telemetry.validation", "telemetry.external_wait", "telemetry.largest_phase"].map((key) => `<th>${t(key)}</th>`).join("")}</tr></thead>`; const runBody = document.createElement("tbody");
-  for (const run of runs) { const row = document.createElement("tr"), id = document.createElement("button"); id.type = "button"; id.className = "telemetry-run-link"; id.textContent = run.run_id; id.addEventListener("click", () => openPromptHistoryDetail({ run_id: run.run_id, title: run.run_id })); const values = [id, run.status, telemetryMs(run.total_duration_ms), telemetryMs(run.queue_wait_ms), telemetryMs(run.provider_duration_ms), telemetryMs(run.validation_duration_ms), telemetryMs(run.external_wait_ms), telemetryLabel(run.largest_phase)]; values.forEach((value) => { const cell = document.createElement("td"); if (value instanceof Element) cell.append(value); else cell.textContent = String(value); row.append(cell); }); runBody.append(row); } runTable.append(runBody); runSection.append(runTable); content.append(runSection);
+  for (const run of runs) {
+    const row = document.createElement("tr"), id = document.createElement("button");
+    row.className = "telemetry-row";
+    row.tabIndex = 0;
+    row.setAttribute("role", "button");
+    row.setAttribute("aria-label", String(run.run_id || t("format.unavailable")));
+    id.type = "button";
+    id.className = "telemetry-run-link";
+    id.textContent = run.run_id;
+    const open = () => {
+      runBody.querySelectorAll('.telemetry-row[data-selected="true"]')
+        .forEach((candidate) => { candidate.dataset.selected = "false"; });
+      row.dataset.selected = "true";
+      openPromptHistoryDetail({ run_id: run.run_id, title: run.run_id });
+    };
+    row.addEventListener("click", open);
+    row.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" || event.key === " ") { event.preventDefault(); open(); }
+    });
+    id.addEventListener("click", (event) => { event.stopPropagation(); open(); });
+    const values = [id, run.status, telemetryMs(run.total_duration_ms), telemetryMs(run.queue_wait_ms), telemetryMs(run.provider_duration_ms), telemetryMs(run.validation_duration_ms), telemetryMs(run.external_wait_ms), telemetryLabel(run.largest_phase)];
+    values.forEach((value) => {
+      const cell = document.createElement("td");
+      if (value instanceof Element) cell.append(value); else cell.textContent = String(value);
+      row.append(cell);
+    });
+    runBody.append(row);
+  }
+  runTable.append(runBody); runSection.append(runTable); content.append(runSection);
 }
 $("telemetryDetailClose").addEventListener("click", closeTelemetryDetail);
 $("telemetryDetailModal").addEventListener("close", () => { telemetryDetailTrigger?.focus?.(); telemetryDetailTrigger = null; });

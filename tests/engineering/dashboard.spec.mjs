@@ -1838,8 +1838,41 @@ test.describe("Engineering Status browser smoke", () => {
     expect(script).not.toContain('id.className = "dashboard-action"; id.textContent = run.run_id');
     expect(stylesheet).toContain(".telemetry-run-link{");
     expect(stylesheet).toContain("min-height:0;min-width:0");
+    expect(stylesheet).toContain("text-decoration:none");
     expect(stylesheet).toContain(".telemetry-detail-modal .telemetry-run-link{");
     expect(stylesheet).toContain("Telemetry run IDs are text links in a data table");
+  });
+
+  test("uses the full rose row treatment for telemetry runs in the detail modal", async ({ page }) => {
+    await page.route("**/api/events", (route) => route.abort());
+    await page.route("**/api/telemetry/2026-08-16", (route) => route.fulfill({ json: {
+      summary: {}, phases: [], bottlenecks: { top_time_consumers: [] }, runs: [{
+        run_id: "inbox-telemetry-row", status: "COMPLETE", total_duration_ms: 1000,
+        queue_wait_ms: 0, provider_duration_ms: 500, validation_duration_ms: 200,
+        external_wait_ms: 0, largest_phase: "PROVIDER_EXECUTION",
+      }],
+    } }));
+    await page.route("**/api/prompt-history/**/details", (route) => route.fulfill({ json: { history: { run_id: "inbox-telemetry-row" } } }));
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => window.executionTelemetry([{
+      date: "2026-08-16", prompt_count: 1, average_execution_seconds: 0,
+      average_total_execution_seconds: 0, average_queue_wait_seconds: 0,
+      complete_count: 1, blocked_count: 0, failed_count: 0,
+    }]));
+    await page.locator("#executionTelemetry > summary").click();
+    await page.locator("#executionTelemetryRows .telemetry-row").click();
+    const runRow = page.locator("#telemetryDetailContent .telemetry-row");
+    await expect(runRow).toHaveCount(1);
+    await expect(runRow.locator(".telemetry-run-link")).toHaveCSS("text-decoration-line", "none");
+    await runRow.hover();
+    const hoverBackgrounds = await runRow.locator("td").evaluateAll((cells) => cells.map((cell) => getComputedStyle(cell).backgroundColor));
+    expect(new Set(hoverBackgrounds).size).toBe(1);
+    expect(hoverBackgrounds[0]).not.toBe("rgba(0, 0, 0, 0)");
+    await runRow.click();
+    await expect(runRow).toHaveAttribute("data-selected", "true");
+    const selectedBackgrounds = await runRow.locator("td").evaluateAll((cells) => cells.map((cell) => getComputedStyle(cell).backgroundColor));
+    expect(new Set(selectedBackgrounds).size).toBe(1);
+    await expect(page.locator("#promptHistoryDetailModal")).toBeVisible();
   });
 
   test("uses the rose telemetry accent throughout the telemetry detail modal", async ({ page }) => {
