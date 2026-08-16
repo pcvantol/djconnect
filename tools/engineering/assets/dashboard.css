@@ -407,19 +407,18 @@ html[data-theme="light"] .dashboard-locale select{background:var(--dashboard-sur
 /* The title bar stays compact on phones: its controls are available from one
    labelled disclosure, then presented as full-width rows rather than unlabeled
    switch glyphs. Desktop keeps the existing inline control strip. */
-.dashboard-titlebar__options{align-items:center;display:flex;min-width:0}.dashboard-titlebar__options>summary{display:none}.dashboard-titlebar__options-content{align-items:center;display:flex;gap:12px}
+.dashboard-titlebar__options{align-items:center;display:flex;flex:0 0 auto;min-width:0}.dashboard-titlebar__options-toggle{display:none}.dashboard-titlebar__options-content{align-items:center;display:flex;flex:0 0 auto;gap:12px}
 @media (max-width:620px){
   .dashboard-titlebar{align-items:flex-start;flex-wrap:wrap;position:relative}
   .dashboard-titlebar__brand{flex-basis:100%;padding-right:48px}
   .dashboard-titlebar__actions{align-items:center;flex:1 1 100%;justify-content:flex-start;width:100%}
   .page-refresh{position:absolute;right:16px;top:16px}
   .dashboard-titlebar__options{display:block;flex:1 1 100%;min-width:0;width:100%}
-  .dashboard-titlebar__options>summary{align-items:center;background:color-mix(in srgb,var(--operations-console-icon-surface) 82%,#fff 18%);border:1px solid var(--house-style);border-radius:999px;color:var(--operations-console-blue-ink);cursor:pointer;display:flex;font:600 13px/1 system-ui;justify-content:space-between;list-style:none;min-height:44px;padding:0 14px}
-  .dashboard-titlebar__options>summary::-webkit-details-marker{display:none}
-  .dashboard-titlebar__options>summary::after{content:"▾";font-size:16px;line-height:1;transition:transform .18s ease}
-  .dashboard-titlebar__options[open]>summary::after{transform:rotate(180deg)}
+  .dashboard-titlebar__options-toggle{align-items:center;background:color-mix(in srgb,var(--operations-console-icon-surface) 82%,#fff 18%);border:1px solid var(--house-style);border-radius:999px;color:var(--operations-console-blue-ink)!important;cursor:pointer;display:flex;font:600 13px/1 system-ui;justify-content:space-between;min-height:44px;padding:0 14px;width:100%}
+  .dashboard-titlebar__options-toggle::after{content:"▾";font-size:16px;line-height:1;transition:transform .18s ease}
+  .dashboard-titlebar__options-toggle[aria-expanded="true"]::after{transform:rotate(180deg)}
   .dashboard-titlebar__options-content{border-top:1px solid color-mix(in srgb,var(--operations-console-blue-ink) 35%,transparent);display:grid;gap:8px;margin-top:10px;padding-top:10px}
-  .dashboard-titlebar__options:not([open])>.dashboard-titlebar__options-content{display:none}
+  .dashboard-titlebar__options-content[hidden]{display:none}
   .dashboard-titlebar__options-content>.dashboard-locale,.dashboard-titlebar__options-content>.theme-toggle,.dashboard-titlebar__options-content>.section-state-toggle,.dashboard-titlebar__options-content>.auto-refresh-toggle{align-items:center;box-sizing:border-box;display:flex;justify-content:space-between;min-height:44px;width:100%}
   .dashboard-titlebar__options-content>.dashboard-locale{font:600 13px/1 system-ui}
   .dashboard-titlebar__options-content>.dashboard-locale>span:first-child{display:block}

@@ -80,8 +80,8 @@ test.afterAll(() => {
 });
 
 async function openTitlebarOptions(page) {
-  const options = page.locator("#dashboardTitlebarOptions");
-  if (!(await options.evaluate((element) => element.open))) {
+  const content = page.locator("#dashboardTitlebarOptionsContent");
+  if (await content.isHidden()) {
     await page.getByTestId("titlebar-options-toggle").click();
   }
 }
@@ -2374,7 +2374,7 @@ test.describe("Engineering Status browser smoke", () => {
     );
     await page.locator("#autoRefresh").uncheck();
     await page.locator("#dashboardSplash").evaluate((element) => { element.hidden = true; });
-    await page.locator("#dashboardTitlebarOptions").evaluate((element) => { element.open = false; });
+    await page.locator("#dashboardTitlebarOptionsContent").evaluate((element) => { element.hidden = true; });
     await page.locator("#currentRun").evaluate((element) => { element.open = true; });
     const image = await page.screenshot({ animations: "disabled" });
     await testInfo.attach("iphone-portrait-dashboard", {
@@ -2474,14 +2474,15 @@ test.describe("Engineering Status browser smoke", () => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
 
-    const options = page.locator("#dashboardTitlebarOptions");
     const disclosure = page.getByTestId("titlebar-options-toggle");
-    await expect(options).not.toHaveAttribute("open", "");
+    const content = page.locator("#dashboardTitlebarOptionsContent");
+    await expect(disclosure).toHaveAttribute("aria-expanded", "false");
     await expect(disclosure).toBeVisible();
     await expect(page.getByTestId("theme-toggle")).not.toBeVisible();
 
     await disclosure.click();
-    await expect(options).toHaveAttribute("open", "");
+    await expect(disclosure).toHaveAttribute("aria-expanded", "true");
+    await expect(content).toBeVisible();
     await expect(page.locator("#dashboardLocaleButton")).toBeVisible();
     await expect(page.locator("#dashboardLocaleButton")).toContainText("Nederlands");
     for (const label of [
@@ -2506,12 +2507,17 @@ test.describe("Engineering Status browser smoke", () => {
     expect(titlebarLayout.refreshBottom).toBeLessThanOrEqual(titlebarLayout.optionsTop);
   });
 
-  test("keeps the title-bar options in a real wrapper for Safari", async ({ page }) => {
+  test("keeps title-bar options visible in a real laptop wrapper", async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 844 });
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await expect(page.locator("#dashboardTitlebarOptions")).toHaveCSS("display", "flex");
-    await expect(page.getByTestId("titlebar-options-toggle")).toHaveCSS("display", "none");
+    await expect(page.getByTestId("titlebar-options-toggle")).toBeHidden();
+    await expect(page.locator("#dashboardTitlebarOptionsContent")).toBeVisible();
     await expect(page.getByTestId("theme-toggle")).toBeVisible();
+    const width = await page.locator("#dashboardTitlebarOptionsContent").evaluate(
+      (element) => element.getBoundingClientRect().width,
+    );
+    expect(width).toBeGreaterThan(200);
   });
 
   test("keeps each iPhone title-bar switch thumb inside its track", async ({ page }) => {
@@ -4035,8 +4041,10 @@ test.describe("Engineering Status browser smoke", () => {
     const styles = await page.evaluate(() => {
       const root = document.documentElement;
       root.dataset.theme = "light";
-      const summary = document.querySelector("#dashboardTitlebarOptions > summary");
-      document.querySelector("#dashboardTitlebarOptions").open = true;
+      const summary = document.querySelector("#dashboardTitlebarOptionsToggle");
+      const optionsContent = document.querySelector("#dashboardTitlebarOptionsContent");
+      summary.setAttribute("aria-expanded", "true");
+      optionsContent.hidden = false;
       const input = document.querySelector("#autoRefresh");
       const refresh = document.querySelector("#pageRefresh");
       input.focus({ preventScroll: true });
