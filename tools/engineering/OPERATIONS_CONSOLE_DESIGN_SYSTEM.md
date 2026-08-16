@@ -172,7 +172,8 @@ the touch-safe no-glass treatment are maintained as one stylesheet bundle.
 The lifecycle step-detail modal uses that same monitoring-cyan accent for its
 header, divider and border. Its field labels and phase names use the related
 light-turquoise secondary accent, never the default purple label colour; it is
-not a generic blue evidence modal.
+not a generic blue evidence modal. In dark mode, factual field values use the
+shared modal ink, so they remain clearly readable against the dark surface.
 
 The flow renders the server lifecycle projection as one coherent update: the
 server-reported current step is the sole active circle. During an operator
