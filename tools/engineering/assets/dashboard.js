@@ -942,9 +942,16 @@ function executionContextField(label, value, badge = false) {
   field.append(caption, content);
   return field;
 }
-function openExecutionModeModal() {
+function inheritModalAccent(modal, trigger) {
+  const source = trigger?.closest(".current-run,[data-modal-accent-source]");
+  const accent = source ? getComputedStyle(source).getPropertyValue("--category-color").trim() : "";
+  if (accent) modal.style.setProperty("--modal-parent-accent", accent);
+  else modal.style.removeProperty("--modal-parent-accent");
+}
+function openExecutionModeModal(event) {
   const modal = $("executionModeModal");
   if (!modal) return;
+  inheritModalAccent(modal, event?.currentTarget);
   if (!modal.open) modal.showModal();
   resetDashboardModalInitialFocus(modal);
 }

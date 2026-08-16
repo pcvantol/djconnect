@@ -608,6 +608,7 @@ test.describe("Engineering Status browser smoke", () => {
     await info.click();
     const modal = page.locator("#executionModeModal");
     await expect(modal).toBeVisible();
+    await expect(modal.locator(".dashboard-modal-shell__panel")).toHaveCSS("border-top-color", "rgb(101, 197, 217)");
     await expect(modal).toContainText(DASHBOARD_MESSAGES.nl["execution_mode_info.managed_body"]);
     await expect(modal).toContainText(DASHBOARD_MESSAGES.nl["execution_mode_info.genesis_body"]);
     await page.locator("#executionModeModalClose").click();

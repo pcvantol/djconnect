@@ -254,6 +254,11 @@ Use the shared modal shell and contextual panel. Modal rules are:
 
 1. The header is a tinted category surface with equal top and bottom visual
    padding, a category divider and the standard close control.
+   A modal launched from a category must use that category's accent through
+   the shared `--modal-parent-accent` contract. Dialogs are promoted outside
+   their source DOM, so they cannot rely on CSS inheritance; the opening
+   control resolves and supplies the source accent. A modal without a source
+   retains its contextual default accent.
 2. The document/content surface exactly matches the modal content surface;
    no contrasting “padding frame” may appear around an otherwise white or dark
    document.

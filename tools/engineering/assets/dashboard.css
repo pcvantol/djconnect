@@ -589,10 +589,10 @@ html[data-theme="light"] .report-view-modal__content,html[data-theme="light"] .r
    Report, execution detail and AI chat use the same structural contract.
    Their modifiers intentionally supply only the contextual accent; geometry
    and modal-surface behaviour live here once. */
-.dashboard-modal-shell{--modal-accent:#8dc7ff;--modal-surface:var(--dashboard-modal-surface);--modal-header-inset:24px;--modal-header-bottom:var(--modal-header-inset);--modal-header-surface:color-mix(in srgb,var(--modal-accent) 12%,var(--modal-surface));--modal-outer-gutter:16px;--modal-shell-inset:0px;--modal-shell-padding:max(var(--modal-outer-gutter),env(safe-area-inset-top)) max(var(--modal-outer-gutter),env(safe-area-inset-right)) max(var(--modal-outer-gutter),env(safe-area-inset-bottom)) max(var(--modal-outer-gutter),env(safe-area-inset-left));background:transparent;border:0;box-sizing:border-box;color:var(--dashboard-modal-ink);height:calc(100dvh - (var(--modal-shell-inset) * 2));inset:var(--modal-shell-inset);margin:0;max-height:none;max-width:none;padding:var(--modal-shell-padding);position:fixed;width:calc(100vw - (var(--modal-shell-inset) * 2))}
-.dashboard-modal-shell--component{--modal-accent:#a3e635}
-.dashboard-modal-shell--confirmation{--modal-accent:var(--house-style)}
-.dashboard-modal-shell--evidence{--modal-accent:#8dc7ff;--category-color:var(--modal-accent)}
+.dashboard-modal-shell{--modal-default-accent:#8dc7ff;--modal-accent:var(--modal-parent-accent,var(--modal-default-accent));--modal-surface:var(--dashboard-modal-surface);--modal-header-inset:24px;--modal-header-bottom:var(--modal-header-inset);--modal-header-surface:color-mix(in srgb,var(--modal-accent) 12%,var(--modal-surface));--modal-outer-gutter:16px;--modal-shell-inset:0px;--modal-shell-padding:max(var(--modal-outer-gutter),env(safe-area-inset-top)) max(var(--modal-outer-gutter),env(safe-area-inset-right)) max(var(--modal-outer-gutter),env(safe-area-inset-bottom)) max(var(--modal-outer-gutter),env(safe-area-inset-left));background:transparent;border:0;box-sizing:border-box;color:var(--dashboard-modal-ink);height:calc(100dvh - (var(--modal-shell-inset) * 2));inset:var(--modal-shell-inset);margin:0;max-height:none;max-width:none;padding:var(--modal-shell-padding);position:fixed;width:calc(100vw - (var(--modal-shell-inset) * 2))}
+.dashboard-modal-shell--component{--modal-default-accent:#a3e635}
+.dashboard-modal-shell--confirmation{--modal-default-accent:var(--house-style)}
+.dashboard-modal-shell--evidence{--modal-default-accent:#8dc7ff;--category-color:var(--modal-accent)}
 .execution-mode-modal__panel{max-height:min(700px,100%);overflow:auto;width:min(680px,100%)}.execution-mode-modal__content{display:grid;gap:16px;padding-top:18px}.execution-mode-modal__content>p{color:var(--dashboard-modal-muted);line-height:1.5;margin:0}.execution-mode-modal__definition{background:color-mix(in srgb,var(--modal-accent) 8%,var(--modal-surface));border:1px solid color-mix(in srgb,var(--modal-accent) 55%,transparent);border-radius:12px;padding:14px}.execution-mode-modal__definition h3{color:var(--modal-accent);font-size:16px;margin:0 0 7px}.execution-mode-modal__definition p{line-height:1.5;margin:0}
 
 /* Operations Console chrome: the blue title bar distinguishes the persistent
@@ -612,8 +612,8 @@ html[data-theme="light"] .report-view-modal__content,html[data-theme="light"] .r
 .auto-refresh-toggle input:checked::after{background:var(--operations-console-blue);color:#fff}
 .theme-toggle[aria-checked="false"]::after{color:var(--house-style)}
 .theme-toggle[aria-checked="true"]::after{color:#fff}
-.dashboard-modal-shell--chat{--modal-accent:#d0a4ff;--category-color:var(--modal-accent)}
-.dashboard-modal-shell--destructive{--modal-accent:#ff718f}
+.dashboard-modal-shell--chat{--modal-default-accent:#d0a4ff;--category-color:var(--modal-accent)}
+.dashboard-modal-shell--destructive{--modal-default-accent:#ff718f}
 .dashboard-modal-shell::backdrop{background:var(--dashboard-modal-backdrop)}
 .dashboard-modal-shell__panel{background:var(--modal-surface);border:2px solid var(--modal-accent);border-radius:var(--dashboard-modal-radius);box-shadow:var(--dashboard-modal-shadow);box-sizing:border-box;color:var(--dashboard-modal-ink);max-height:min(90dvh,100%);max-width:calc(100vw - max(var(--modal-outer-gutter),env(safe-area-inset-left)) - max(var(--modal-outer-gutter),env(safe-area-inset-right)))!important;min-height:0;padding:var(--dashboard-modal-panel-padding)}
 .dashboard-modal-shell__header{align-items:start;background:var(--modal-header-surface);border-bottom:1px solid var(--modal-accent);display:grid;gap:16px;grid-template-columns:minmax(0,1fr) max-content;margin:calc(-1 * var(--modal-header-inset)) calc(-1 * var(--modal-header-inset)) 0;padding:var(--modal-header-bottom) var(--modal-header-inset);position:relative;z-index:2}
