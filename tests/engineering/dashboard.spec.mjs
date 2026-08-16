@@ -707,6 +707,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(wait.locator(".execution-lifecycle__node").first()).toHaveClass(/operator-wait/);
     await expect(wait.locator("span").first()).toHaveCSS("background-color", "rgb(240, 182, 106)");
     await expect(wait.locator("span").first()).toHaveText("⌛");
+    await expect(wait.locator("span").first()).toHaveCSS("font-size", "20px");
     await expect(page.locator(".execution-lifecycle__summary")).toContainText(
       DASHBOARD_MESSAGES.nl["lifecycle.state.waiting_for_operator_merge"],
     );

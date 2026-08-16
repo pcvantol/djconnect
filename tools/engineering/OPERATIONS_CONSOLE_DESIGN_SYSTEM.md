@@ -192,6 +192,10 @@ The neutral **Start** boundary uses one decorative rocket glyph. Its accessible
 name remains the localized Start label, so the glyph adds a friendly visual
 cue without adding a second spoken state.
 
+Lifecycle status glyphs use a deliberate `20px` size inside the fixed circles;
+the decorative Start rocket is `22px`. Neither changes the circle or connector
+geometry.
+
 Destructive confirmation dialogs make the safe secondary action the initial
 keyboard focus. Standard confirmations may focus their explicit primary action;
 informational dialogs open without a selected control.
