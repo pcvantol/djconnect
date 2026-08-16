@@ -2398,7 +2398,11 @@ test.describe("Engineering Status browser smoke", () => {
     );
     await page.locator("#autoRefresh").uncheck();
     await page.locator("#dashboardSplash").evaluate((element) => { element.hidden = true; });
-    await page.locator("#dashboardTitlebarOptionsContent").evaluate((element) => { element.hidden = true; });
+    await page.evaluate(() => {
+      document.querySelector("#dashboardTitlebarOptionsContent").hidden = true;
+      document.querySelector("#dashboardTitlebarOptionsToggle").setAttribute("aria-expanded", "false");
+      window.scrollTo(0, 0);
+    });
     await page.locator("#currentRun").evaluate((element) => { element.open = true; });
     const image = await page.screenshot({ animations: "disabled" });
     await testInfo.attach("iphone-portrait-dashboard", {
