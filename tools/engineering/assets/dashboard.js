@@ -432,7 +432,13 @@ function processMetrics(active, x) {
   $("codexProcesses").textContent = x?.process_count ?? 0;
   $("codexGpu").textContent = x?.gpu_status || t("format.not_available");
 }
-function activeReviewerAgents(items) {
+function reviewerPresentationState(status = {}) {
+  const watcherState = String(status?.watcher_state || "").toUpperCase();
+  if (watcherState === "WAITING_FOR_OPERATOR_MERGE") return "waiting_operator";
+  if (watcherState === "ENGINEERING_RUN_STALE") return "stale";
+  return "active";
+}
+function activeReviewerAgents(items, executionStatus = {}) {
   const agents = Array.isArray(items) ? items : [];
   let card = $("activeReviewerAgents");
   if (!card) {
@@ -444,18 +450,24 @@ function activeReviewerAgents(items) {
   }
   card.hidden = !agents.length;
   if (!agents.length) return;
-  const running = agents.filter((agent) => agent?.status === "running").length,
+  const presentation = reviewerPresentationState(executionStatus),
+    running = agents.filter((agent) => agent?.status === "running").length,
     completed = agents.filter((agent) => ["completed", "failed"].includes(agent?.status)).length,
     summary = $("activeReviewerSummary"),
     list = $("activeReviewerList");
-  summary.textContent = running
-    ? t("ui.reviewer_running", { running, count: agents.length })
-    : t("ui.reviewer_completed", { completed, count: agents.length });
+  summary.textContent = presentation === "waiting_operator"
+    ? t("ui.reviewer_waiting_operator", { count: agents.length })
+    : presentation === "stale"
+      ? t("ui.reviewer_stale", { count: agents.length })
+      : running
+        ? t("ui.reviewer_running", { running, count: agents.length })
+        : t("ui.reviewer_completed", { completed, count: agents.length });
   list.replaceChildren();
   for (const agent of agents) {
     const row = document.createElement("article"), header = document.createElement("div"),
       name = document.createElement("p"), meta = document.createElement("p"),
-      indicator = document.createElement("span"), status = String(agent?.status || "").toLowerCase();
+      indicator = document.createElement("span"), rawStatus = String(agent?.status || "").toLowerCase(),
+      status = rawStatus === "running" && presentation !== "active" ? presentation : rawStatus;
     const isRunning = status === "running";
     const isCompleted = ["completed", "uitgevoerd"].includes(status);
     row.className = "reviewer-agent";
@@ -463,7 +475,7 @@ function activeReviewerAgents(items) {
     name.className = "reviewer-agent__name";
     meta.className = "reviewer-agent__meta";
     name.textContent = reviewerLabel(agent.reviewer);
-    meta.textContent = `${reviewerCapabilityLabel(agent.capability || "ENGINEERING")} · ${reviewerStatusLabel(agent.status || "selected")}`;
+    meta.textContent = `${reviewerCapabilityLabel(agent.capability || "ENGINEERING")} · ${reviewerStatusLabel(status || "selected")}`;
     if (isRunning || isCompleted) {
       indicator.className = `reviewer-agent__status reviewer-agent__status--${isRunning ? "running" : "completed"}`;
       indicator.setAttribute("role", "status");
@@ -1385,7 +1397,7 @@ function renderHealthStatus(x, snapshot = {}) {
   $("workerVersion").textContent = components.worker || t("format.not_available");
   usage(snapshot.usage);
   rateLimits(snapshot.rate_limits);
-  activeReviewerAgents(x.reviewer_agents);
+  activeReviewerAgents(x.reviewer_agents, x);
 }
 let activePromptCategoryRun;
 function renderRunCategory(x) {
@@ -4023,6 +4035,7 @@ function openPromptHistoryDocument(runId, title, kind = "report") {
   promptHistoryReportRun = String(runId || "");
   promptHistoryDocumentKind = kind === "analysis" ? "analysis" : "report";
   promptHistoryReportText = "";
+  $("promptHistoryReportModalTitle").dataset.modalGlyph = promptHistoryDocumentKind;
   $("promptHistoryReportModalTitle").textContent =
     promptHistoryDocumentKind === "analysis"
       ? t("history.analysis_title", { title })
@@ -4531,6 +4544,7 @@ function confirmDashboardAction(title, text, confirmLabel, { destructive = false
     cancel = $("confirmationModalCancel"),
     confirm = $("confirmationModalConfirm");
   heading.textContent = title;
+  heading.dataset.modalGlyph = destructive ? "warning" : "question";
   body.textContent = text;
   confirm.textContent = confirmLabel;
   modal.classList.toggle("dashboard-modal-shell--destructive", destructive);
@@ -4539,6 +4553,7 @@ function confirmDashboardAction(title, text, confirmLabel, { destructive = false
     const finish = (value) => {
       modal.close();
       modal.classList.remove("dashboard-modal-shell--destructive");
+      delete heading.dataset.modalGlyph;
       close.onclick = cancel.onclick = confirm.onclick = null;
       resolve(value);
     };

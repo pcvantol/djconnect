@@ -1360,7 +1360,7 @@ test.describe("Engineering Status browser smoke", () => {
     }
   });
 
-  test("uses a neutral information glyph for confirmation and merge hand-off modals", async ({ page }) => {
+  test("uses purpose-matched glyphs for confirmation and merge hand-off modals", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     const glyph = async (selector) => page.locator(selector).evaluate(
       (heading) => getComputedStyle(heading, "::before").content,
@@ -1368,6 +1368,22 @@ test.describe("Engineering Status browser smoke", () => {
     await expect.poll(() => glyph("#operatorMergeWaitModalTitle")).toBe('"ⓘ"');
     await expect.poll(() => glyph("#confirmationModalTitle")).toBe('"ⓘ"');
     await expect.poll(() => glyph("#dashboardErrorModalTitle")).toBe('"×"');
+    await page.evaluate(() => {
+      document.querySelector("#confirmationModalTitle").dataset.modalGlyph = "question";
+    });
+    await expect.poll(() => glyph("#confirmationModalTitle")).toBe('"?"');
+    await page.evaluate(() => {
+      document.querySelector("#confirmationModalTitle").dataset.modalGlyph = "warning";
+    });
+    await expect.poll(() => glyph("#confirmationModalTitle")).toBe('"⚠"');
+    await page.evaluate(() => {
+      document.querySelector("#promptHistoryReportModalTitle").dataset.modalGlyph = "analysis";
+    });
+    await expect.poll(() => glyph("#promptHistoryReportModalTitle")).toBe('"✦"');
+    await expect(page.locator("#promptHistoryReportModalTitle")).toHaveCSS("border-top-width", "0px");
+    expect(await page.locator("#promptHistoryReportModalTitle").evaluate(
+      (heading) => getComputedStyle(heading, "::before").borderTopWidth,
+    )).toBe("2px");
   });
 
   test("keeps every modal close control visible in light mode", async ({ page }) => {
@@ -1459,6 +1475,8 @@ test.describe("Engineering Status browser smoke", () => {
         const title = header.querySelector("h2");
         const close = header.querySelector(".dashboard-modal-shell__close");
         const headerStyle = getComputedStyle(header);
+        const panelBox = panel.getBoundingClientRect();
+        const headerBox = header.getBoundingClientRect();
         const closeBox = close.getBoundingClientRect();
         return {
           panelBackground: getComputedStyle(panel).backgroundColor,
@@ -1468,12 +1486,16 @@ test.describe("Engineering Status browser smoke", () => {
           titleSize: getComputedStyle(title).fontSize,
           closeWidth: Math.round(closeBox.width),
           closeHeight: Math.round(closeBox.height),
+          headerStart: Math.abs(headerBox.left - (panelBox.left + parseFloat(getComputedStyle(panel).borderLeftWidth))),
+          headerEnd: Math.abs((panelBox.right - parseFloat(getComputedStyle(panel).borderRightWidth)) - headerBox.right),
         };
       });
       expect(metrics.headerBackground).not.toBe(metrics.panelBackground);
       expect(metrics.paddingTop).toBe(metrics.paddingBottom);
       expect(metrics.closeWidth).toBe(32);
       expect(metrics.closeHeight).toBe(32);
+      expect(metrics.headerStart).toBeLessThanOrEqual(1);
+      expect(metrics.headerEnd).toBeLessThanOrEqual(1);
       titles.push(metrics.titleSize);
       await modal.evaluate((element) => element.close());
     }
@@ -3014,6 +3036,27 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(cards.nth(1).locator(".reviewer-agent__status--completed")).toHaveAttribute(
       "aria-label", /.+/,
     );
+  });
+
+  test("does not project reviewers as running while an operator wait or stale lease owns the run", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    const reviewerAgents = [
+      { reviewer: "validation", capability: "engineering", status: "running" },
+      { reviewer: "documentation", capability: "engineering", status: "running" },
+    ];
+    for (const [watcher_state, summaryKey, statusText] of [
+      ["WAITING_FOR_OPERATOR_MERGE", "ui.reviewer_waiting_operator", "Wacht op operator"],
+      ["ENGINEERING_RUN_STALE", "ui.reviewer_stale", "Uitvoering is niet langer actief"],
+    ]) {
+      await page.evaluate(({ watcher_state, reviewer_agents }) => r({
+        watcher_state, run_id: "reviewer-paused-run", reviewer_agents,
+      }, {}), { watcher_state, reviewer_agents: reviewerAgents });
+      await expect(page.locator("#activeReviewerSummary")).toHaveText(
+        DASHBOARD_MESSAGES.nl[summaryKey].replace("{count}", "2"),
+      );
+      await expect(page.locator(".reviewer-agent__status--running")).toHaveCount(0);
+      await expect(page.locator(".reviewer-agent__meta").first()).toContainText(statusText);
+    }
   });
 
   test("localizes specialist reviewer names and lifecycle status", async ({ page }) => {
@@ -4774,7 +4817,7 @@ test.describe("Engineering Status browser smoke", () => {
       ["#componentModalTitle", "⚙︎"],
       ["#confirmationModalTitle", "ⓘ"],
       ["#promptHistoryReportModalTitle", "▤"],
-      ["#promptHistoryDetailTitle", "i"],
+      ["#promptHistoryDetailTitle", "ⓘ"],
       ["#promptHistoryChatTitle", "⋯"],
     ]) {
       expect(await page.locator(selector).evaluate(

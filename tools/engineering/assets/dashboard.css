@@ -295,6 +295,11 @@ html[data-theme="light"] #promptHistory .execution-history-action{background:#ff
 /* A small, decorative glyph gives each modal title a clear visual purpose. */
 :is(.component-modal h2,.confirmation-modal h2,.report-view-modal__title,.prompt-detail-modal__header h2,.prompt-chat-modal__header h2)::before{display:inline-block;font-size:1.2em;line-height:1;margin-right:.42em;vertical-align:-.06em}.component-modal h2::before{content:"⚙︎"}.confirmation-modal h2::before{content:"ⓘ"}.confirmation-modal#dashboardErrorModal h2::before{content:"×"}.report-view-modal__title::before{content:"▤"}.prompt-detail-modal__header h2::before{content:"i";font-weight:700}.prompt-chat-modal__header h2::before{content:"💬"}
 /* Modal titles use one responsive type scale across every modal family. */
+:is(.confirmation-modal h2[data-modal-glyph="question"],.report-view-modal__title[data-modal-glyph="analysis"])::before{align-items:center;border:2px solid currentColor;border-radius:50%;box-sizing:border-box;display:inline-flex;height:1.5em;justify-content:center;width:1.5em;vertical-align:-.22em}
+.confirmation-modal h2[data-modal-glyph="question"]::before{content:"?"}
+.confirmation-modal h2[data-modal-glyph="warning"]::before{content:"⚠"}
+.report-view-modal__title[data-modal-glyph="analysis"]::before{content:"✦"}
+.prompt-detail-modal__header h2::before{content:"ⓘ"}
 :is(.component-modal h2,.confirmation-modal h2,.report-view-modal__title,.prompt-detail-modal__header h2,.prompt-chat-modal__header h2){font-size:clamp(18px,2vw,20px);line-height:1.2}
 
 /* Confirmation only supplies its compact geometry; the shell owns the header,
@@ -616,7 +621,7 @@ html[data-theme="light"] .report-view-modal__content,html[data-theme="light"] .r
    Report, execution detail and AI chat use the same structural contract.
    Their modifiers intentionally supply only the contextual accent; geometry
    and modal-surface behaviour live here once. */
-.dashboard-modal-shell{--modal-default-accent:#8dc7ff;--modal-accent:var(--modal-parent-accent,var(--modal-default-accent));--modal-secondary-accent:color-mix(in srgb,var(--modal-accent) 62%,#fff);--modal-subcontainer-surface:color-mix(in srgb,var(--modal-accent) 8%,var(--modal-surface));--modal-subcontainer-border:color-mix(in srgb,var(--modal-accent) 55%,transparent);--modal-surface:var(--dashboard-modal-surface);--modal-header-inset:24px;--modal-header-bottom:var(--modal-header-inset);--modal-header-surface:color-mix(in srgb,var(--modal-accent) 12%,var(--modal-surface));--modal-outer-gutter:16px;--modal-shell-inset:0px;--modal-shell-padding:max(var(--modal-outer-gutter),env(safe-area-inset-top)) max(var(--modal-outer-gutter),env(safe-area-inset-right)) max(var(--modal-outer-gutter),env(safe-area-inset-bottom)) max(var(--modal-outer-gutter),env(safe-area-inset-left));background:transparent;border:0;box-sizing:border-box;color:var(--dashboard-modal-ink);height:calc(100dvh - (var(--modal-shell-inset) * 2));inset:var(--modal-shell-inset);margin:0;max-height:none;max-width:none;padding:var(--modal-shell-padding);position:fixed;width:calc(100vw - (var(--modal-shell-inset) * 2))}
+.dashboard-modal-shell{--modal-default-accent:#8dc7ff;--modal-accent:var(--modal-parent-accent,var(--modal-default-accent));--modal-secondary-accent:color-mix(in srgb,var(--modal-accent) 62%,#fff);--modal-subcontainer-surface:color-mix(in srgb,var(--modal-accent) 8%,var(--modal-surface));--modal-subcontainer-border:color-mix(in srgb,var(--modal-accent) 55%,transparent);--modal-surface:var(--dashboard-modal-surface);--modal-header-inset:var(--modal-panel-padding,var(--dashboard-modal-panel-padding));--modal-header-bottom:var(--modal-header-inset);--modal-header-surface:color-mix(in srgb,var(--modal-accent) 12%,var(--modal-surface));--modal-outer-gutter:16px;--modal-shell-inset:0px;--modal-shell-padding:max(var(--modal-outer-gutter),env(safe-area-inset-top)) max(var(--modal-outer-gutter),env(safe-area-inset-right)) max(var(--modal-outer-gutter),env(safe-area-inset-bottom)) max(var(--modal-outer-gutter),env(safe-area-inset-left));background:transparent;border:0;box-sizing:border-box;color:var(--dashboard-modal-ink);height:calc(100dvh - (var(--modal-shell-inset) * 2));inset:var(--modal-shell-inset);margin:0;max-height:none;max-width:none;padding:var(--modal-shell-padding);position:fixed;width:calc(100vw - (var(--modal-shell-inset) * 2))}
 .dashboard-modal-shell--component{--modal-default-accent:#a3e635}
 .dashboard-modal-shell--confirmation{--modal-default-accent:var(--house-style)}
 .dashboard-modal-shell--evidence{--modal-default-accent:#8dc7ff;--category-color:var(--modal-accent)}
@@ -642,7 +647,7 @@ html[data-theme="light"] .report-view-modal__content,html[data-theme="light"] .r
 .dashboard-modal-shell--chat{--modal-default-accent:#d0a4ff;--category-color:var(--modal-accent)}
 .dashboard-modal-shell--destructive{--modal-default-accent:#ff718f}
 .dashboard-modal-shell::backdrop{background:var(--dashboard-modal-backdrop)}
-.dashboard-modal-shell__panel{background:var(--modal-surface);border:2px solid var(--modal-accent);border-radius:var(--dashboard-modal-radius);box-shadow:var(--dashboard-modal-shadow);box-sizing:border-box;color:var(--dashboard-modal-ink);max-height:min(90dvh,100%);max-width:calc(100vw - max(var(--modal-outer-gutter),env(safe-area-inset-left)) - max(var(--modal-outer-gutter),env(safe-area-inset-right)))!important;min-height:0;padding:var(--dashboard-modal-panel-padding)}
+.dashboard-modal-shell__panel{--modal-panel-padding:var(--dashboard-modal-panel-padding);background:var(--modal-surface);border:2px solid var(--modal-accent);border-radius:var(--dashboard-modal-radius);box-shadow:var(--dashboard-modal-shadow);box-sizing:border-box;color:var(--dashboard-modal-ink);max-height:min(90dvh,100%);max-width:calc(100vw - max(var(--modal-outer-gutter),env(safe-area-inset-left)) - max(var(--modal-outer-gutter),env(safe-area-inset-right)))!important;min-height:0;padding:var(--modal-panel-padding)}
 .dashboard-modal-shell__header{align-items:start;background:var(--modal-header-surface);border-bottom:1px solid var(--modal-accent);display:grid;gap:16px;grid-template-columns:minmax(0,1fr) max-content;margin:calc(-1 * var(--modal-header-inset)) calc(-1 * var(--modal-header-inset)) 0;padding:var(--modal-header-bottom) var(--modal-header-inset);position:relative;z-index:2}
 .dashboard-modal-shell__header h2{color:var(--modal-accent);margin:0;min-width:0}
 .dashboard-modal-shell__close{align-items:center;background:#24242d!important;border:1px solid #92919b!important;border-radius:50%;color:#f7f3ee!important;cursor:pointer;display:inline-flex;font:18px/1 system-ui;grid-column:2;grid-row:1;height:32px;justify-content:center;min-height:32px;min-width:32px;padding:0;position:static;width:32px}
@@ -676,12 +681,8 @@ html[data-theme="light"] .dashboard-modal-shell :is(.label,.field>.label){color:
 /* Every modal uses a header tint derived from its own accent.  The component
    modal retains the same structure, with extra space below its ruler. */
 html:not([data-theme="light"]) .dashboard-modal-shell{--modal-header-surface:color-mix(in srgb,var(--modal-accent) 18%,var(--modal-surface))}
-.component-modal__panel{--modal-header-inset:20px}
-.confirmation-modal__panel{--modal-header-inset:22px}
 .confirmation-modal__panel{overflow:hidden}
 .merge-wait-context{border-top:1px solid color-mix(in srgb,var(--modal-accent) 45%,transparent);display:grid;gap:10px;margin:18px 0 0;padding-top:16px}.merge-wait-context>p{color:var(--dashboard-modal-ink);margin:0}.merge-wait-context dl{display:grid;gap:10px;margin:0}.merge-wait-context dl>div{display:grid;gap:3px;min-width:0}.merge-wait-context dt{color:var(--modal-secondary-accent);font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase}.merge-wait-context dd{color:var(--dashboard-modal-ink);margin:0;overflow-wrap:anywhere}html[data-theme="light"] .merge-wait-context dt{color:color-mix(in srgb,var(--modal-secondary-accent) 76%,#182230)}
-.report-view-modal__panel{--modal-header-inset:18px}
-.prompt-detail-modal__panel,.prompt-chat-modal__panel{--modal-header-inset:24px}
 #componentModalContent{padding-top:22px}
 /* Keep a small visual gutter before a scroll track begins below a modal ruler. */
 :is(.report-view-modal__content,.prompt-detail-modal__content){margin-top:12px}

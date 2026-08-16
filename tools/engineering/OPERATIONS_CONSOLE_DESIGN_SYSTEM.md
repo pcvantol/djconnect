@@ -56,6 +56,20 @@ The accent belongs to the information domain and is used consistently for the
 category border, heading/glyph and divider. Keyboard focus is always
 house-style orange; a category accent never becomes a competing focus colour.
 
+### Modal geometry and glyphs
+
+Every modal header is a full-width inner panel surface: its background and
+divider begin and end exactly at the panel's inner border edge. Header inset
+and panel padding share one token, so a modal family cannot leave an unfilled
+rim beside its title bar. Browser coverage verifies that alignment for every
+shared modal family.
+
+Title glyphs describe purpose rather than severity: historical details use a
+circled information glyph, AI analysis uses a circled sparkle, ordinary action
+confirmations use a circled question mark, and destructive confirmations use a
+warning triangle. Errors retain their close/error glyph. These glyphs are
+decorative; the localized title remains the accessible name.
+
 | Domain | Accent | Typical surface |
 | --- | --- | --- |
 | Active execution | pink `#f472b6` | `#321d2d` |
