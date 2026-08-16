@@ -1192,10 +1192,10 @@ function renderActiveLifecycle(projection) {
   previous?.remove();
   if (projection?.run_id) {
     const lifecycle = lifecycleFlow(projection);
-    const filename = $("currentFile")?.closest(".field");
-    // Identify the run before displaying its read-only lifecycle projection.
-    // The fallback preserves compatibility with an older dashboard shell.
-    if (filename?.parentElement === current) filename.after(lifecycle);
+    const identity = $("executionIdentity");
+    // Keep run identity ahead of its read-only lifecycle projection. The
+    // fallback preserves compatibility with an older dashboard shell.
+    if (identity?.parentElement === current) identity.after(lifecycle);
     else current.prepend(lifecycle);
     if (preservedScrollLeft) {
       const nextScroll = lifecycle.querySelector(".execution-lifecycle__scroll");

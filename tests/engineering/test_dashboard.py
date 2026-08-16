@@ -326,7 +326,8 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn('href="/assets/dashboard.css"', page)
         self.assertIn('src="/assets/dashboard.js" type="module"', page)
         self.assertIn('id="pageRefresh"', page)
-        self.assertLess(page.index('id="currentFile"'), page.index('id="indicator"'))
+        self.assertLess(page.index('id="currentFile"'), page.index('id="executionIdentity"'))
+        self.assertLess(page.index('id="executionIdentity"'), page.index('id="indicator"'))
         self.assertLess(page.index('id="indicator"'), page.index('id="executionContext"'))
         self.assertLess(page.index('id="executionContext"'), page.index('id="processMetrics"'))
 

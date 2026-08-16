@@ -679,7 +679,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(nodes.nth(1).locator("span").first()).toHaveCSS("background-color", "rgb(240, 182, 106)");
   });
 
-  test("places the active execution lifecycle directly below the filename", async ({ page }) => {
+  test("places the active execution lifecycle directly below execution identity", async ({ page }) => {
     await page.route("**/api/events", (route) => route.abort());
     await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({ json: { status: {} } }));
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
@@ -694,7 +694,7 @@ test.describe("Engineering Status browser smoke", () => {
       },
     }, {}));
 
-    await expect(page.locator("#currentFile").locator("xpath=ancestor::*[contains(@class, 'field')][1]/following-sibling::*[1]"))
+    await expect(page.locator("#executionIdentity").locator("xpath=following-sibling::*[1]"))
       .toHaveClass(/execution-lifecycle/);
   });
 

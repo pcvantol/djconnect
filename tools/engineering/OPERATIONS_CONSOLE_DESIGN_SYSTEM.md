@@ -155,9 +155,10 @@ vary by panel or by refresh.
 ### Execution lifecycle flow
 
 In the active-execution card, identify the run first: **Execution title** and
-**Filename** precede the lifecycle flow. The flow then precedes execution
-status, execution context, and local Codex processes in that order, keeping
-the sequence adjacent to the artifact it explains.
+**Filename** precede the **Execution** identity card (Run-ID and start time).
+The lifecycle flow follows identity, then execution status, execution context
+and local Codex processes, keeping the sequence adjacent to the artifact it
+explains.
 
 Within the active-execution container, the lifecycle and execution-context
 blocks use the same card surface as status and operational blocks. Their
