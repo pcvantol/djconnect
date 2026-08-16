@@ -1045,6 +1045,16 @@ function renderOperatorMergeWait(x) {
   $("operatorMergeWaitDescription").textContent = t("merge_wait.description", { number: pullRequest });
   const modal = $("operatorMergeWaitModal");
   $("operatorMergeWaitModalDescription").textContent = t("merge_wait.description", { number: pullRequest });
+  const mergeKey = Number(x.finalization_pr) === pullRequest
+    ? "lifecycle.step.wait_for_finalization_merge"
+    : "lifecycle.step.wait_for_operator_merge";
+  $("operatorMergeWaitModalContextIntro").textContent = t("merge_wait.context_intro", {
+    merge: t(mergeKey), number: pullRequest,
+  });
+  $("operatorMergeWaitModalRunId").textContent = String(x.run_id || t("format.not_available"));
+  $("operatorMergeWaitModalPrompt").textContent = String(
+    x.prompt_title || x.submitted_filename || t("format.not_available"),
+  );
   $("operatorMergeWaitModalPullRequest").href = href;
   $("operatorMergeWaitModalPullRequest").textContent = t("merge_wait.open_pull_request", { number: pullRequest });
   const handoffKey = `${x.run_id || ""}:${pullRequest}`;

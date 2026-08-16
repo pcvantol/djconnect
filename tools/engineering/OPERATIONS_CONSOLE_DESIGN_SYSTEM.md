@@ -220,6 +220,11 @@ or running: internal `WAIT_FOR_TERMINAL_EVIDENCE` polling is presented as
 request** and **Abort execution** controls must not disappear or flicker
 between status updates. The handoff modal may open once per run and may be
 dismissed by the operator; that does not hide the persistent card or controls.
+The modal identifies the exact hand-off before its actions: whether it is the
+implementation or finalization merge, its pull-request number, the run ID and
+the submitted prompt title (with filename only as a fallback). This context is
+compact, wraps safely on phone widths and uses the same localized terminology
+as the lifecycle flow.
 
 Each lifecycle node is an accessible detail control, not a glass or raised
 card. Its modal presents only

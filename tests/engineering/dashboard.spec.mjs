@@ -969,6 +969,11 @@ test.describe("Engineering Status browser smoke", () => {
     const modalPullRequest = page.locator("#operatorMergeWaitModalPullRequest");
     const modalAbort = page.locator("#operatorMergeWaitModalAbort");
     await expect(modalPullRequest).toHaveAttribute("href", "https://github.com/pcvantol/djconnect/pull/832");
+    await expect(mergeModal.locator("#operatorMergeWaitModalContextIntro")).toHaveText(
+      `Deze hand-off is de ${DASHBOARD_MESSAGES.nl["lifecycle.step.wait_for_operator_merge"]} voor pull request #832.`,
+    );
+    await expect(mergeModal.locator("#operatorMergeWaitModalRunId")).toHaveText("inbox-merge-wait");
+    await expect(mergeModal.locator("#operatorMergeWaitModalPrompt")).toHaveText("Merge wait fixture");
     await expect(modalPullRequest).toHaveCSS("text-decoration-line", "none");
     await expect(modalPullRequest).toHaveCSS("border-top-color", "rgb(240, 182, 106)");
     await expect(modalAbort).toHaveCSS("border-top-color", "rgb(255, 113, 143)");
@@ -1019,6 +1024,9 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(modal).toBeVisible();
     await expect(page.locator("#operatorMergeWaitModalPullRequest"))
       .toHaveAttribute("href", "https://github.com/pcvantol/djconnect/pull/841");
+    await expect(page.locator("#operatorMergeWaitModalContextIntro")).toHaveText(
+      `Deze hand-off is de ${DASHBOARD_MESSAGES.nl["lifecycle.step.wait_for_finalization_merge"]} voor pull request #841.`,
+    );
     await expect(page.locator(".execution-lifecycle__item")).toHaveCount(3);
     await expect(page.locator(".execution-lifecycle__item--active .execution-lifecycle__node"))
       .toContainText(DASHBOARD_MESSAGES.nl["lifecycle.step.wait_for_finalization_merge"]);

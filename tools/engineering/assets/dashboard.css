@@ -659,6 +659,7 @@ html:not([data-theme="light"]) .dashboard-modal-shell{--modal-header-surface:col
 .component-modal__panel{--modal-header-inset:20px}
 .confirmation-modal__panel{--modal-header-inset:22px}
 .confirmation-modal__panel{overflow:hidden}
+.merge-wait-context{border-top:1px solid color-mix(in srgb,var(--modal-accent) 45%,transparent);display:grid;gap:10px;margin:18px 0 0;padding-top:16px}.merge-wait-context>p{color:var(--dashboard-modal-ink);margin:0}.merge-wait-context dl{display:grid;gap:10px;margin:0}.merge-wait-context dl>div{display:grid;gap:3px;min-width:0}.merge-wait-context dt{color:var(--modal-secondary-accent);font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase}.merge-wait-context dd{color:var(--dashboard-modal-ink);margin:0;overflow-wrap:anywhere}html[data-theme="light"] .merge-wait-context dt{color:color-mix(in srgb,var(--modal-secondary-accent) 76%,#182230)}
 .report-view-modal__panel{--modal-header-inset:18px}
 .prompt-detail-modal__panel,.prompt-chat-modal__panel{--modal-header-inset:24px}
 #componentModalContent{padding-top:22px}
