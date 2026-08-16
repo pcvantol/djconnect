@@ -1922,8 +1922,7 @@ test.describe("Engineering Status browser smoke", () => {
     expect(stylesheet).toContain("min-height:0;min-width:0");
     expect(stylesheet).toContain("text-decoration:none");
     expect(stylesheet).toContain(".telemetry-run-link:is(:hover,:active){background:transparent!important;color:inherit!important}");
-    expect(stylesheet).toContain(".telemetry-run-link:focus-visible{outline:0!important;box-shadow:none!important}");
-    expect(stylesheet).toContain(".telemetry-detail-modal .telemetry-run-link:is(:focus,:focus-visible){border-color:transparent!important;box-shadow:none!important;outline:0!important}");
+    expect(stylesheet).toContain(".telemetry-run-link:is(:focus,:focus-visible){border-color:transparent!important;box-shadow:none!important;outline:0!important}");
     expect(stylesheet).toContain(".telemetry-detail-modal .telemetry-run-link{");
     expect(stylesheet).toContain("Telemetry run IDs are text links in a data table");
   });
@@ -1957,6 +1956,10 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(runRow).toHaveAttribute("data-selected", "true");
     const selectedBackgrounds = await runRow.locator("td").evaluateAll((cells) => cells.map((cell) => getComputedStyle(cell).backgroundColor));
     expect(new Set(selectedBackgrounds).size).toBe(1);
+    const runId = runRow.locator(".telemetry-run-link");
+    await runId.focus();
+    await expect(runId).toHaveCSS("outline-style", "none");
+    await expect(runId).toHaveCSS("box-shadow", "none");
     await expect(page.locator("#promptHistoryDetailModal")).toBeVisible();
   });
 
