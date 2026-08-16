@@ -817,7 +817,7 @@ function openPromptHistoryChat(entry) {
   updateChatActions();
   const modal = $("promptHistoryChatModal");
   if (!modal.open) modal.showModal();
-  modal.focus();
+  resetDashboardModalInitialFocus(modal);
 }
 function fallbackCopy(value) {
   const area = document.createElement("textarea");
@@ -946,7 +946,7 @@ function openExecutionModeModal() {
   const modal = $("executionModeModal");
   if (!modal) return;
   if (!modal.open) modal.showModal();
-  modal.focus();
+  resetDashboardModalInitialFocus(modal);
 }
 function executionModeField(value) {
   const field = executionContextField(t("field.execution_mode"), value);
@@ -1036,14 +1036,18 @@ function renderCodexUsageLimitBanner(x) {
   banner.hidden = String(x?.terminal_condition || "") !== "codex_usage_limit_reached";
 }
 
-// Browsers otherwise put initial dialog focus on the first close button.  A
-// modal itself is the neutral initial focus target; close remains keyboard
-// reachable, but is never presented as an already-selected destructive edge.
+// Browsers otherwise put initial dialog focus on the first close button. Only
+// an explicit primary action may receive initial focus; evidence-only modals
+// deliberately leave focus outside the dialog so no control looks selected.
 function resetDashboardModalInitialFocus(modal) {
   requestAnimationFrame(() => {
-    if (!modal?.open || !document.activeElement?.matches(".dashboard-modal-shell__close")) return;
-    modal.tabIndex = -1;
-    modal.focus({ preventScroll: true });
+    if (!modal?.open) return;
+    const primary = modal.querySelector("button.dashboard-modal-shell__action--primary:not([disabled]), a.dashboard-modal-shell__action--primary[href]");
+    if (primary) {
+      primary.focus({ preventScroll: true });
+      return;
+    }
+    if (modal.contains(document.activeElement)) document.activeElement.blur();
   });
 }
 document.querySelectorAll("dialog.dashboard-modal-shell").forEach((modal) => {
@@ -1136,9 +1140,6 @@ function lifecycleFlow(projection, { historical = false } = {}) {
     node.setAttribute("aria-hidden", "true"); node.textContent = state === "completed" ? "✓" : state === "complete" ? "✓" : state === "blocked" ? "!" : state === "failed" ? "×" : "";
     label.textContent = name;
     button.append(node, label);
-    if (Number.isInteger(step?.iteration_count) && step.iteration_count > 0) {
-      const badge = document.createElement("span"); badge.className = "execution-lifecycle__badge"; badge.textContent = String(step.iteration_count); badge.setAttribute("aria-label", t("lifecycle.repair_count", { count: step.iteration_count })); button.append(badge);
-    }
     item.append(button);
     if (index < steps.length - 1) {
       const connector = document.createElement("span");
@@ -1970,7 +1971,7 @@ function showComponentModal(payload) {
   if (!modal.open) {
     status.textContent = "";
     modal.showModal();
-    modal.focus();
+    resetDashboardModalInitialFocus(modal);
   }
 }
 async function requestComponentDetails(component, showError = true) {
@@ -2382,7 +2383,7 @@ function openTelemetryDetail(date, trigger) {
   $("telemetryDetailTitle").textContent = t("telemetry.detail_title", { date: telemetryDate(date) });
   $("telemetryDetailDescription").textContent = t("telemetry.detail_description");
   content.textContent = t("format.loading");
-  if (!modal.open) modal.showModal(); modal.focus();
+  if (!modal.open) modal.showModal(); resetDashboardModalInitialFocus(modal);
   fetch("/api/telemetry/" + encodeURIComponent(date), { cache: "no-store" })
     .then((response) => response.ok ? response.json() : Promise.reject())
     .then((detail) => renderTelemetryDetail(detail, content))
@@ -3884,7 +3885,7 @@ function openPromptHistoryDocument(runId, title, kind = "report") {
       : "history.report_loading",
   );
   if (!modal.open) modal.showModal();
-  modal.focus();
+  resetDashboardModalInitialFocus(modal);
   fetch(
     "/api/prompt-history/" +
       encodeURIComponent(promptHistoryReportRun) +
@@ -4160,7 +4161,7 @@ function openPromptHistoryDetail(entry) {
   $("promptHistoryDetailDescription").textContent = t("history.details_description");
   content.textContent = t("history.details_loading");
   if (!modal.open) modal.showModal();
-  modal.focus();
+  resetDashboardModalInitialFocus(modal);
   fetch("/api/prompt-history/" + encodeURIComponent(entry.run_id) + "/details", { cache: "no-store" })
     .then((response) => response.ok ? response.json() : Promise.reject())
     .then(renderPromptHistoryDetail)
@@ -4395,7 +4396,7 @@ function confirmDashboardAction(title, text, confirmLabel, { destructive = false
       { once: true },
     );
     modal.showModal();
-    modal.focus();
+    resetDashboardModalInitialFocus(modal);
   });
 }
 function localizedDashboardError(message, fallback) {
@@ -4469,7 +4470,7 @@ function showDashboardError(message, fallback) {
     finish();
   }, { once: true });
   if (!modal.open) modal.showModal();
-  modal.focus();
+  resetDashboardModalInitialFocus(modal);
 }
 function updateChatActions() {
   const visible = chatHistory.length > 0;

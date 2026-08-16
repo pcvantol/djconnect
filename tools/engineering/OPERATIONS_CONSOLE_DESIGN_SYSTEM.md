@@ -160,12 +160,14 @@ The active circle and its progression label use house-style orange with a dark
 glyph so the current position remains readable against both light and dark
 execution surfaces.
 
-Each lifecycle node is an accessible detail control. Its modal presents only
+Each lifecycle node is an accessible detail control, not a glass or raised
+card. Its modal presents only
 persisted, run-scoped evidence: lifecycle state, observed start and finish
 timestamps, repair iterations where recorded, and a split of the recorded
 Execution Host phase durations. Missing evidence is explicitly shown as
 unavailable; the console never derives an end time or duration from prompt
-content, polling cadence or UI state.
+content, polling cadence or UI state. Repair iterations appear in this detail
+modal, never as a floating badge on the flow itself.
 
 ## 5. Controls
 
@@ -234,9 +236,15 @@ Use the shared modal shell and contextual panel. Modal rules are:
    header divider, not against the modal top edge.
 4. A state-changing action uses the shared confirmation dialog. Its copy says
    what changes, what remains, and any safe recovery path.
-5. On an iPhone, the modal stays within safe areas and its actions cannot fall
-   below browser chrome. Background scrolling is locked while open.
-6. User-facing errors use the shared dashboard error dialog. Do not use a
+5. On an iPhone, every modal shell supplies at least `16px` outer padding
+   (or the larger safe-area inset), its panel stays inside that area and its
+   actions cannot fall below browser chrome. Background scrolling is locked
+   while open.
+6. Opening an evidence-only modal puts no control in focus. Only an available
+   primary action may receive initial programmatic focus; close controls,
+   titles and dialog shells never do. The orange selected-control treatment is
+   reserved for actual form inputs, selects and text areas.
+7. User-facing errors use the shared dashboard error dialog. Do not use a
    browser-native `alert`, `confirm` or `prompt`: those surfaces are not
    themed, localizable or consistent with the operational focus contract.
    The dialog provides a localized title, error and recovery text, plus a

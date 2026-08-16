@@ -503,7 +503,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("dialog[open]")).toHaveCount(1);
   });
 
-  test("uses one uninterrupted orange selected-row treatment for prompt history on touch devices", async ({ page }) => {
+  test("uses one uninterrupted category-colour selected-row treatment for prompt history on touch devices", async ({ page }) => {
     // Keep the client-side fixture stable: the initial history refresh can
     // otherwise replace this row after it has been rendered in CI.
     await page.route("**/api/events", (route) => route.abort());
@@ -642,6 +642,45 @@ test.describe("Engineering Status browser smoke", () => {
       await expect(node.locator("span").first()).toHaveCSS("border-top-width", "3px");
     }
     await expect(nodes.nth(1).locator("span").first()).toHaveCSS("background-color", "rgb(240, 182, 106)");
+  });
+
+  test("keeps lifecycle steps transparent on iPhone and puts repair counts in their details", async ({ browser }) => {
+    const context = await browser.newContext({ hasTouch: true, isMobile: true, viewport: { width: 390, height: 844 } });
+    const page = await context.newPage();
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => r({ watcher_state: "ENGINEERING_RUN_ACTIVE", lifecycle: {
+      available: true,
+      run_id: "lifecycle-touch-contract",
+      terminal_state: "ACTIVE",
+      steps: [
+        { id: "implement", presentation_key: "lifecycle.step.implement", state: "COMPLETED", iteration_count: 1 },
+        { id: "merge", presentation_key: "lifecycle.step.merge", state: "ACTIVE" },
+      ],
+    } }, {}));
+    await page.locator("#currentRun").evaluate((element) => { element.open = true; });
+
+    const node = page.locator(".execution-lifecycle__node").first();
+    await expect(node).toHaveCSS("background-image", "none");
+    await expect(node).toHaveCSS("backdrop-filter", "none");
+    await node.focus();
+    await expect(node).toHaveCSS("outline-style", "none");
+    await expect(node).toHaveCSS("box-shadow", "none");
+    await expect(page.locator(".execution-lifecycle__badge")).toHaveCount(0);
+    await expect(page.locator(".execution-lifecycle__connector")).toHaveCount(1);
+    await expect(page.locator(".execution-lifecycle__connector")).toHaveCSS("display", "block");
+    await context.close();
+  });
+
+  test("gives the lifecycle detail modal the shared panel surface on iPhone", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    const modal = page.locator("#lifecycleDetailModal");
+    await modal.evaluate((element) => element.showModal());
+    const panel = modal.locator(".lifecycle-detail-modal__panel");
+    await expect(panel).toHaveCSS("border-top-width", "2px");
+    await expect(panel).toHaveCSS("border-top-left-radius", "18px");
+    await expect(panel).toHaveCSS("overflow-y", "hidden");
+    await expect(modal.locator("#lifecycleDetailContent")).toHaveCSS("overflow-y", "auto");
   });
 
   test("keeps execution-lifecycle connector lengths fixed for long labels", async ({ page }) => {
@@ -845,8 +884,7 @@ test.describe("Engineering Status browser smoke", () => {
     await historyRow.click();
     await expect(page.locator("#promptHistoryDetailContent")).toContainText("Mission Aurora");
     const alternatives = page.locator(".recommendation-alternatives");
-    await alternatives.locator("summary").focus();
-    await page.keyboard.press("Enter");
+    await alternatives.locator("summary").click();
     await expect(alternatives).toHaveAttribute("open", "");
     await expect(alternatives).toContainText("Mission Borealis");
     await expect(page.locator("#promptHistoryDetailContent button")).toHaveCount(0);
@@ -933,7 +971,6 @@ test.describe("Engineering Status browser smoke", () => {
       const shell = shells.nth(index);
       await shell.evaluate((element) => {
         element.showModal();
-        element.focus();
       });
       await expect(shell).toHaveCSS("outline-width", "0px");
       await expect(shell).toHaveCSS("outline-style", "none");
@@ -1098,7 +1135,7 @@ test.describe("Engineering Status browser smoke", () => {
     await modal.evaluate((element) => element.close());
   });
 
-  test("keeps the prompt-history AI chat as compact as the detail modal on iPhone", async ({ page }) => {
+  test("keeps the prompt-history AI chat inside the shared iPhone safe area", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     const detailModal = page.locator("#promptHistoryDetailModal");
@@ -1116,9 +1153,12 @@ test.describe("Engineering Status browser smoke", () => {
 
     expect(detailBox).not.toBeNull();
     expect(chatBox).not.toBeNull();
-    expect(chatBox.x).toBeCloseTo(detailBox.x, 0);
-    expect(chatBox.width).toBeCloseTo(detailBox.width, 0);
-    expect(chatBox.height).toBeCloseTo(detailBox.height, 0);
+    for (const box of [detailBox, chatBox]) {
+      expect(box.x).toBeGreaterThanOrEqual(16);
+      expect(box.x + box.width).toBeLessThanOrEqual(374);
+      expect(box.y).toBeGreaterThanOrEqual(16);
+      expect(box.y + box.height).toBeLessThanOrEqual(828);
+    }
     expect(chatBox.height).toBeLessThanOrEqual(844 * 0.9 + 1);
     expect(await page.locator("#chatMessages").evaluate(
       (element) => element.scrollHeight > element.clientHeight,
@@ -1428,6 +1468,7 @@ test.describe("Engineering Status browser smoke", () => {
       getComputedStyle(cells[0]).boxShadow,
       getComputedStyle(cells[Math.floor(cells.length / 2)]).boxShadow,
       getComputedStyle(cells.at(-1)).boxShadow,
+      getComputedStyle(cells[0]).backgroundColor,
       getComputedStyle(cells[0]).outlineStyle,
       getComputedStyle(cells[Math.floor(cells.length / 2)]).outlineStyle,
       getComputedStyle(cells.at(-1)).outlineStyle,
@@ -1435,7 +1476,11 @@ test.describe("Engineering Status browser smoke", () => {
     expect(selection[0]).toContain("2px 0px 0px 0px inset");
     expect(selection[1]).toBe("none");
     expect(selection[2]).toBe("none");
-    expect(selection.slice(3)).toEqual(["none", "none", "none"]);
+    expect(selection[3]).not.toBe("rgba(0, 0, 0, 0)");
+    expect(selection.slice(4)).toEqual(["none", "none", "none"]);
+    await row.focus();
+    await expect(row).toHaveCSS("outline-style", "none");
+    await expect(row).toHaveCSS("box-shadow", "none");
   });
 
   test("localizes search and level filter controls for every supported language", async ({ page }) => {
@@ -2067,41 +2112,15 @@ test.describe("Engineering Status browser smoke", () => {
   test("keeps execution detail modal borders inside iPhone landscape safe areas", async ({ page }) => {
     await page.setViewportSize({ width: 844, height: 390 });
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
-    const modal = page.locator("#promptHistoryDetailModal");
-    await modal.evaluate((element) => element.showModal());
-    const box = await modal.boundingBox();
-    expect(box).not.toBeNull();
-    expect(box.x).toBe(12);
-    expect(box.width).toBe(820);
-
-    await modal.evaluate((element) => element.close());
-    const confirmation = page.locator("#confirmationModal");
-    await confirmation.evaluate((element) => element.showModal());
-    const confirmationBox = await confirmation.boundingBox();
-    expect(confirmationBox).not.toBeNull();
-    expect(confirmationBox.x).toBe(12);
-    expect(confirmationBox.width).toBe(820);
-    const confirmationPanelBox = await confirmation.locator(".confirmation-modal__panel").boundingBox();
-    expect(confirmationPanelBox).not.toBeNull();
-    expect(Math.round(confirmationPanelBox.x + confirmationPanelBox.width / 2)).toBe(422);
-
-    await confirmation.evaluate((element) => element.close());
-    for (const selector of ["#promptHistoryReportModal", "#promptHistoryChatModal"]) {
+    for (const selector of ["#promptHistoryDetailModal", "#confirmationModal", "#promptHistoryReportModal", "#promptHistoryChatModal", "#componentModal"]) {
       const dialog = page.locator(selector);
       await dialog.evaluate((element) => element.showModal());
-      const dialogBox = await dialog.boundingBox();
-      expect(dialogBox).not.toBeNull();
-      expect(dialogBox.x).toBe(12);
-      expect(dialogBox.width).toBe(820);
+      const panelBox = await dialog.locator(".dashboard-modal-shell__panel").boundingBox();
+      expect(panelBox).not.toBeNull();
+      expect(panelBox.x).toBeGreaterThanOrEqual(16);
+      expect(panelBox.x + panelBox.width).toBeLessThanOrEqual(828);
       await dialog.evaluate((element) => element.close());
     }
-
-    const component = page.locator("#componentModal");
-    await component.evaluate((element) => element.showModal());
-    const panelBox = await component.locator(".component-modal__panel").boundingBox();
-    expect(panelBox).not.toBeNull();
-    expect(panelBox.x).toBeGreaterThanOrEqual(12);
-    expect(panelBox.x + panelBox.width).toBeLessThanOrEqual(832);
   });
 
   test("centres the pull-request wait modal inside the iPhone portrait viewport", async ({ page }) => {
@@ -2120,6 +2139,36 @@ test.describe("Engineering Status browser smoke", () => {
     expect(box.y + box.height).toBeLessThanOrEqual(832);
     expect(Math.round(box.x + box.width / 2)).toBe(195);
     expect(Math.round(box.y + box.height / 2)).toBe(422);
+  });
+
+  test("keeps every modal panel inside iPhone safe outer padding and focuses only a primary action", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+
+    const selectors = await page.locator("dialog.dashboard-modal-shell").evaluateAll(
+      (dialogs) => dialogs.map((dialog) => "#" + dialog.id),
+    );
+    for (const selector of selectors) {
+      const modal = page.locator(selector);
+      await modal.evaluate((element) => element.showModal());
+      await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(resolve)));
+      const layout = await modal.evaluate((element) => {
+        const panel = element.querySelector(".dashboard-modal-shell__panel");
+        const primary = element.querySelector("button.dashboard-modal-shell__action--primary:not([disabled]), a.dashboard-modal-shell__action--primary[href]");
+        const panelBox = panel.getBoundingClientRect();
+        return {
+          focusedPrimary: primary ? document.activeElement === primary : false,
+          focusedWithinModal: element.contains(document.activeElement),
+          panel: { bottom: panelBox.bottom, left: panelBox.left, right: panelBox.right, top: panelBox.top },
+        };
+      });
+      expect(layout.focusedWithinModal, selector).toBe(layout.focusedPrimary);
+      expect(layout.panel.left, selector).toBeGreaterThanOrEqual(16);
+      expect(layout.panel.right, selector).toBeLessThanOrEqual(374);
+      expect(layout.panel.top, selector).toBeGreaterThanOrEqual(16);
+      expect(layout.panel.bottom, selector).toBeLessThanOrEqual(828);
+      await modal.evaluate((element) => element.close());
+    }
   });
 
   test("uses a one-line AI chat composer on iPhone landscape", async ({ page }) => {
@@ -2698,7 +2747,7 @@ test.describe("Engineering Status browser smoke", () => {
     await page.locator(".platform-health__component").first().click();
 
     await expect(page.locator("#componentModal")).toHaveAttribute("open", "");
-    await expect(page.locator("#componentModal")).toBeFocused();
+    await expect(page.locator("#componentModal")).not.toBeFocused();
     await expect(page.locator(".component-modal__panel")).toHaveCSS("background-color", "rgb(255, 255, 255)");
     await expect(page.locator(".component-modal__panel")).toHaveCSS("color", "rgb(24, 34, 48)");
     await expect(page.locator(".component-modal__header")).toHaveCSS("border-bottom-color", "rgb(163, 230, 53)");
@@ -3378,32 +3427,32 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(content).toHaveCSS("border-top-width", "0px");
   });
 
-  test("keeps report-modal shell focusable without a visible selection ring", async ({ page }) => {
+  test("does not initially focus a report-modal shell", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     const modal = page.locator("#promptHistoryReportModal");
 
-    await modal.evaluate((element) => { element.showModal(); element.focus(); });
-    await expect(modal).toBeFocused();
+    await modal.evaluate((element) => element.showModal());
+    await expect(modal).not.toBeFocused();
     await expect(modal).toHaveCSS("outline-style", "none");
     await expect(modal).toHaveCSS("box-shadow", "none");
   });
 
-  test("keeps prompt-detail shell focusable without a visible selection ring", async ({ page }) => {
+  test("does not initially focus a prompt-detail shell", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     const modal = page.locator("#promptHistoryDetailModal");
 
-    await modal.evaluate((element) => { element.showModal(); element.focus(); });
-    await expect(modal).toBeFocused();
+    await modal.evaluate((element) => element.showModal());
+    await expect(modal).not.toBeFocused();
     await expect(modal).toHaveCSS("outline-style", "none");
     await expect(modal).toHaveCSS("box-shadow", "none");
   });
 
-  test("keeps prompt-chat shell focusable without a visible selection ring", async ({ page }) => {
+  test("does not initially focus a prompt-chat shell", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     const modal = page.locator("#promptHistoryChatModal");
 
-    await modal.evaluate((element) => { element.showModal(); element.focus(); });
-    await expect(modal).toBeFocused();
+    await modal.evaluate((element) => element.showModal());
+    await expect(modal).not.toBeFocused();
     await expect(modal).toHaveCSS("outline-style", "none");
     await expect(modal).toHaveCSS("box-shadow", "none");
   });
@@ -3477,8 +3526,8 @@ test.describe("Engineering Status browser smoke", () => {
     await content.evaluate((element) => { element.scrollTop = 160; });
     const actionBoxAfterScroll = await actions.boundingBox();
 
-    expect(box.y).toBeGreaterThanOrEqual(18);
-    expect(box.y + box.height).toBeLessThanOrEqual(282);
+    expect(box.y).toBe(0);
+    expect(box.height).toBe(300);
     expect(panelBox.y).toBeGreaterThanOrEqual(18);
     expect(panelBox.y + panelBox.height).toBeLessThanOrEqual(282);
     expect(actionBoxBeforeScroll.x + actionBoxBeforeScroll.width).toBeGreaterThan(panelBox.x + panelBox.width - 44);
@@ -3748,7 +3797,7 @@ test.describe("Engineering Status browser smoke", () => {
     }));
     await reportView.click();
     await expect(page.locator("#promptHistoryReportModal")).toBeVisible();
-    await expect(page.locator("#promptHistoryReportModal")).toBeFocused();
+    await expect(page.locator("#promptHistoryReportModal")).not.toBeFocused();
     await expect(page.locator("#promptHistoryDetailModal")).not.toBeVisible();
     await expect(page.locator("#promptHistoryReportContent")).toContainText("Historisch rapport");
     await expect(page.locator("#promptHistoryReportDownload")).toBeVisible();
@@ -3768,7 +3817,7 @@ test.describe("Engineering Status browser smoke", () => {
     }));
     await page.locator("#promptHistoryRows tr td").nth(1).click();
     await expect(page.locator("#promptHistoryDetailModal")).toBeVisible();
-    await expect(page.locator("#promptHistoryDetailModal")).toBeFocused();
+    await expect(page.locator("#promptHistoryDetailModal")).not.toBeFocused();
     await expect(page.locator("#promptHistoryDetailContent")).toContainText("Engineering Platform");
     await expect(page.locator("#promptHistoryDetailContent")).toContainText("0.146.0");
     await expect(page.locator("#promptHistoryDetailContent")).toContainText("Doelrepository");
@@ -3824,7 +3873,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(chat).toHaveCSS("color", "rgb(208, 164, 255)");
     await chat.click();
     await expect(page.locator("#promptHistoryChatModal")).toBeVisible();
-    await expect(page.locator("#promptHistoryChatModal")).toBeFocused();
+    await expect(page.locator("#promptHistoryChatModal")).not.toBeFocused();
     let submittedRun;
     await page.route("**/api/codex-chat", async (route) => {
       submittedRun = route.request().postDataJSON().run_id;
@@ -4489,7 +4538,7 @@ test.describe("Engineering Status browser smoke", () => {
     await page.getByTestId("clear-inbox-log").click();
     const modal = page.locator("#confirmationModal");
     await expect(modal).toBeVisible();
-    await expect(modal).toBeFocused();
+    await expect(page.locator("#confirmationModalConfirm")).toBeFocused();
     await expect(modal.locator(".confirmation-modal__panel")).toHaveCSS("border-top-color", "rgb(255, 113, 143)");
     await expect(page.locator("#confirmationModal .confirmation-modal__header")).toHaveCSS("border-bottom-color", "rgb(255, 113, 143)");
     await expect(page.locator("#confirmationModalTitle")).toHaveCSS("color", "rgb(255, 113, 143)");
