@@ -207,6 +207,39 @@ class DashboardStateTest(unittest.TestCase):
         self.assertEqual(payload["watcher_state"], "ENGINEERING_RUN_ACTIVE")
         self.assertEqual(payload["run_id"], "inbox-live")
 
+    def test_status_keeps_pr_handoff_visible_while_checks_are_polled(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            status = root / ".engineering" / "status"
+            status.mkdir(parents=True)
+            (status / "status.json").write_text(
+                json.dumps({"watcher_state": "WATCHER_IDLE", "run_id": None}), encoding="utf-8"
+            )
+            (status / "current.json").write_text(
+                json.dumps(
+                    {
+                        "run_id": "inbox-pr-checks",
+                        "phase": "WAIT_FOR_TERMINAL_EVIDENCE",
+                        "pull_request": 840,
+                        "transaction_kind": "IMPLEMENTATION",
+                    }
+                ),
+                encoding="utf-8",
+            )
+            StateStore(root / ".engineering" / "engineering-runs").save(
+                TransactionState(
+                    "inbox-pr-checks", "pcvantol/djconnect", "prompt.md",
+                    "WAIT_FOR_TERMINAL_EVIDENCE", pull_request=840,
+                )
+            )
+            acquire(root, "inbox-pr-checks", identity="test-host", instance_id="test-instance")
+
+            payload = json.loads(dashboard_state.status(root))
+
+        self.assertEqual(payload["watcher_state"], "WAITING_FOR_OPERATOR_MERGE")
+        self.assertEqual(payload["current_phase"], "WAIT_FOR_OPERATOR_MERGE")
+        self.assertEqual(payload["pull_request"], 840)
+
     def test_snapshot_isolated_from_optional_telemetry_failure(self) -> None:
         root = Path("/workspace")
 

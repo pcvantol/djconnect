@@ -81,6 +81,30 @@ def _watcher_has_terminal_run(watcher: object, run_id: object) -> bool:
     )
 
 
+def _is_operator_merge_wait(live: object, lifecycle: object) -> bool:
+    """Keep the durable PR hand-off visible during internal check polling.
+
+    ``WAIT_FOR_TERMINAL_EVIDENCE`` is an implementation detail used while an
+    open implementation PR is polled.  Its lifecycle projection deliberately
+    presents that interval as ``WAIT_FOR_OPERATOR_MERGE``.  The dashboard
+    status must use the same presentation phase even when a short-lived live
+    lease wins over the watcher projection; otherwise the operator's PR
+    controls flicker away between polling updates.
+    """
+    if not isinstance(live, dict) or not isinstance(lifecycle, dict):
+        return False
+    phase = live.get("phase")
+    if phase == "WAIT_FOR_OPERATOR_MERGE":
+        return True
+    return (
+        phase == "WAIT_FOR_TERMINAL_EVIDENCE"
+        and lifecycle.get("current_step") == "WAIT_FOR_OPERATOR_MERGE"
+        and isinstance(live.get("pull_request"), int)
+        and not isinstance(live.get("pull_request"), bool)
+        and live["pull_request"] > 0
+    )
+
+
 def unavailable_status() -> bytes:
     """Return the complete, safe status shape when no projection exists yet."""
     return json.dumps(
@@ -137,6 +161,7 @@ def status(root: Path) -> bytes:
             raise ValueError("No canonical live status")
         live_liveness = lease_liveness(root, live.get("run_id"))
         transient_action = _transient_live_action(root, live.get("run_id"))
+        lifecycle = lifecycle_projection(root, live.get("run_id"))
         projection = json.dumps(
             {
                 "watcher_state": "ENGINEERING_RUN_ACTIVE",
@@ -181,21 +206,22 @@ def status(root: Path) -> bytes:
                 # become an Execution Context source.
                 "execution_context": load_execution_context_snapshot(root, str(live.get("run_id"))),
                 "forge_governance_handoff": load_forge_governance_handoff_snapshot(root, str(live.get("run_id"))),
-                "lifecycle": lifecycle_projection(root, live.get("run_id")),
+                "lifecycle": lifecycle,
             },
             separators=(",", ":"),
         ).encode()
     except (ValueError, TypeError):
-        live, projection = None, None
+        live, projection, lifecycle = None, None, None
     if (
         live
-        and live.get("phase") == "WAIT_FOR_OPERATOR_MERGE"
+        and _is_operator_merge_wait(live, lifecycle)
         and not _terminal_checkpoint(root, live.get("run_id"))
     ):
         waiting_projection = json.loads(projection or b"{}")
         waiting_projection.update(
             {
                 "watcher_state": "WAITING_FOR_OPERATOR_MERGE",
+                "current_phase": "WAIT_FOR_OPERATOR_MERGE",
                 "current_action": "Waiting for the operator to merge the pull request.",
                 "pull_request": live.get("pull_request"),
                 "waiting_for_merge_since": live.get("waiting_for_merge_since"),
