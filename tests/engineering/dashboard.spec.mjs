@@ -548,7 +548,13 @@ test.describe("Engineering Status browser smoke", () => {
       path.join(repository, "tools/engineering/assets/dashboard.css"),
       "utf8",
     );
-    expect(styles).toContain(".prompt-history-row,.prompt-history-row *{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}");
+    const script = readFileSync(
+      path.join(repository, "tools/engineering/assets/dashboard.js"),
+      "utf8",
+    );
+    expect(styles).toContain(".prompt-history-row,.prompt-history-row *{-webkit-touch-callout:none;-webkit-user-select:none;touch-action:manipulation;user-select:none}");
+    expect(script).toContain('row.addEventListener("contextmenu", (event) => event.preventDefault());');
+    expect(script).toContain('row.addEventListener("selectstart", (event) => event.preventDefault());');
   });
 
   test("keeps sortable table headers opaque on iOS", () => {

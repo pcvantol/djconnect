@@ -2816,6 +2816,8 @@ function renderPromptHistory() {
       row.setAttribute("role", "button");
       row.dataset.selected = String(entry.run_id === promptHistorySelectedRunId);
       row.setAttribute("aria-label", t("history.open_details", { title: entry.title || entry.run_id }));
+      row.addEventListener("contextmenu", (event) => event.preventDefault());
+      row.addEventListener("selectstart", (event) => event.preventDefault());
       const openDetails = (event) => {
         if (event?.target?.closest("button,a")) return;
         promptHistorySelectedRunId = entry.run_id || null;
