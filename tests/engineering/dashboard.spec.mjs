@@ -666,6 +666,7 @@ test.describe("Engineering Status browser smoke", () => {
       const circleBox = item.querySelector(".execution-lifecycle__node > span")?.getBoundingClientRect();
       const connectorElement = item.querySelector(".execution-lifecycle__connector");
       const connector = connectorElement ? getComputedStyle(connectorElement) : null;
+      const connectorBox = connectorElement?.getBoundingClientRect();
       return {
         itemWidth: itemBox.width,
         centre: circleBox ? circleBox.left + (circleBox.width / 2) : null,
@@ -673,6 +674,8 @@ test.describe("Engineering Status browser smoke", () => {
         connectorWidth: Number.parseFloat(connector?.width),
         connectorColor: connector?.backgroundColor,
         connectorLayer: connector?.zIndex,
+        connectorRenderedWidth: connectorBox?.width,
+        connectorRenderedHeight: connectorBox?.height,
         selectedLabelColor: getComputedStyle(item.querySelector(".execution-lifecycle__node > span:last-child")).color,
       };
     }));
@@ -689,6 +692,8 @@ test.describe("Engineering Status browser smoke", () => {
     );
     expect(spacing[0].connectorColor).not.toBe("rgba(0, 0, 0, 0)");
     expect(spacing[0].connectorLayer).toBe("3");
+    expect(spacing[0].connectorRenderedWidth).toBeGreaterThan(0);
+    expect(spacing[0].connectorRenderedHeight).toBeGreaterThan(0);
     expect(spacing[2].connectorColor).toBeUndefined();
     expect(spacing[0].selectedLabelColor).toBe("rgb(240, 182, 106)");
   });

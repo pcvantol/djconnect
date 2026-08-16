@@ -153,11 +153,12 @@ vary by panel or by refresh.
 
 ### Execution lifecycle flow
 
-Lifecycle steps use fixed-width slots, a visible connector on a layer behind
-the circular nodes, and equal connector length between every adjacent pair.
-Long labels wrap within their own slot rather than changing the topology.
-The active or selected progression label uses house-style orange so it remains
-readable against both light and dark execution surfaces.
+Lifecycle steps use fixed-width slots, a visible connector element on a layer
+behind the circular nodes, and equal connector length between every adjacent
+pair. Long labels wrap within their own slot rather than changing the topology.
+The active circle and its progression label use house-style orange with a dark
+glyph so the current position remains readable against both light and dark
+execution surfaces.
 
 Each lifecycle node is an accessible detail control. Its modal presents only
 persisted, run-scoped evidence: lifecycle state, observed start and finish
