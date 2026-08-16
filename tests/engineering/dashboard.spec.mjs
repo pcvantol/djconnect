@@ -725,7 +725,9 @@ test.describe("Engineering Status browser smoke", () => {
   });
 
   test("preserves the active lifecycle horizontal position across server refreshes", async ({ page }) => {
+    await page.setViewportSize({ width: 640, height: 900 });
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.addStyleTag({ content: ".execution-lifecycle__scroll { width: 300px !important; }" });
     const lifecycle = {
       available: true,
       run_id: "lifecycle-scroll",
@@ -736,9 +738,12 @@ test.describe("Engineering Status browser smoke", () => {
         { id: "execute", presentation_key: "lifecycle.step.execute_agent", state: "ACTIVE" },
         { id: "repair", presentation_key: "lifecycle.step.repair_agent", state: "PENDING" },
         { id: "merge", presentation_key: "lifecycle.step.wait_for_operator_merge", state: "PENDING" },
+        { id: "finalize", presentation_key: "lifecycle.step.finalization", state: "PENDING" },
+        { id: "cleanup", presentation_key: "lifecycle.step.repository_cleanup", state: "PENDING" },
       ],
     };
     await page.evaluate((fixture) => r({ watcher_state: "ENGINEERING_RUN_ACTIVE", run_id: fixture.run_id, lifecycle: fixture }, {}), lifecycle);
+    await page.locator("#currentRun").evaluate((element) => { element.open = true; });
     const scroll = page.locator(".execution-lifecycle__scroll");
     await scroll.evaluate((element) => { element.scrollLeft = 80; });
     await expect.poll(() => scroll.evaluate((element) => element.scrollLeft)).toBe(80);
@@ -4454,7 +4459,7 @@ test.describe("Engineering Status browser smoke", () => {
       reset_credits: 2,
     }));
     await expect(page.locator("#rateLimitProvider")).toHaveText("Codex CLI · 0.146.0");
-    await expect(page.locator("#rateLimitDetails")).toHaveText(/Weekvenster: 76% beschikbaar.*Beschikbare resets: 2/s);
+    await expect(page.locator("#rateLimitDetails")).toHaveText(/Weekvenster: 76,0% beschikbaar.*Beschikbare resets: 2/s);
     expect(await page.locator("#rateLimitDetails").evaluate((element) => element.textContent)).toContain("\n");
   });
 
