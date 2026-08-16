@@ -518,6 +518,11 @@ html[data-theme="light"] :is(.technical-details,.prompt-history,.telemetry,.plat
 html[data-theme="light"] #currentRun .card .label,html[data-theme="light"] #currentRun .current-run__grid>.field>.label{color:color-mix(in srgb,var(--category-secondary) 76%,#182230)}
 html[data-theme="light"] #currentRun>.current-run__title>.label{color:color-mix(in srgb,var(--category-color) 82%,#182230)}
 
+/* Table separators are subordinate structure, so every table derives them
+   from its parent category's secondary accent rather than a neutral black. */
+:is(.log-table,.telemetry-table){--dashboard-table-divider:color-mix(in srgb,var(--modal-secondary-accent,var(--category-secondary,var(--category-color,#9aabc3))) 52%,transparent)}
+:is(.log-table,.telemetry-table) th,:is(.log-table,.telemetry-table) tbody tr:not(:last-child)>td{border-bottom-color:var(--dashboard-table-divider)!important}
+
 /* Swap the active-operation and technical-detail palettes: live execution is
    monitoring-cyan; static technical evidence is operation-pink. */
 #currentRun{--category-color:#65c5d9;--category-secondary:#a7e7f2;background:#1e2b33}

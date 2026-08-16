@@ -135,6 +135,10 @@ cell on hover and selection, with only the shared leading selection marker.
 Text actions inside such a row do not add an underline or a separate hover
 colour: the row itself is the affordance.
 
+Every table row divider uses the parent category's **secondary** accent at a
+subtle opacity. Neutral black or unrelated grey dividers are not permitted;
+the divider is supporting structure, not a separate visual language.
+
 Prompt-history status width is measured from the rendered status labels on the
 current visible page. It must accommodate the longest localized state,
 including an operator-dismissed terminal state, without colliding with the

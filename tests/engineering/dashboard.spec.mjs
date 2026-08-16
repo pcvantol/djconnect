@@ -3623,6 +3623,9 @@ test.describe("Engineering Status browser smoke", () => {
 
     const rows = page.locator("#inboxComponentLog tr");
     await expect(rows).toHaveCount(3);
+    const divider = await rows.nth(0).locator("td").first().evaluate((cell) => getComputedStyle(cell).borderBottomColor);
+    expect(divider).not.toBe("rgb(61, 54, 81)");
+    expect(divider).not.toBe("rgb(212, 222, 235)");
     await rows.nth(1).hover();
     const hoverRowSurface = await rows.nth(1).locator("td").evaluateAll((cells) => cells.map((cell) => getComputedStyle(cell).backgroundColor));
     expect(new Set(hoverRowSurface).size).toBe(1);
