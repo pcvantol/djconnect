@@ -689,6 +689,11 @@ test.describe("Engineering Status browser smoke", () => {
   });
 
   test("keeps execution-lifecycle connector lengths fixed for long labels", async ({ page }) => {
+    // Isolate the layout fixture from the server-push stream. A live status
+    // update may otherwise replace the injected lifecycle while measurements
+    // are pending, making this visual contract nondeterministic.
+    await page.route("**/api/events", (route) => route.abort());
+    await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({ json: { status: {} } }));
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.evaluate(() => r({
       watcher_state: "ENGINEERING_RUN_ACTIVE",
