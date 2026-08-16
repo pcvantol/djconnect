@@ -1183,6 +1183,7 @@ test.describe("Engineering Status browser smoke", () => {
       const [first, second] = Array.from(container.children).map((action) => action.getBoundingClientRect());
       return { first: { right: first.right, bottom: first.bottom }, second: { left: second.left, top: second.top } };
     });
+    await expect(wait.locator(".operator-merge-wait__actions")).toHaveCSS("margin-top", "12px");
     expect(
       actionLayout.first.bottom <= actionLayout.second.top || actionLayout.first.right <= actionLayout.second.left,
     ).toBe(true);
