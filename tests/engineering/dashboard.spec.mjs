@@ -1281,8 +1281,16 @@ test.describe("Engineering Status browser smoke", () => {
 
   test("uses the selected locale service for copy and date formatting", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
-    await page.locator("#dashboardLocale").selectOption("de");
-    await page.waitForLoadState("domcontentloaded");
+    const localeSelect = page.locator("#dashboardLocale");
+    if (await localeSelect.inputValue() !== "de") {
+      const localeReload = page.waitForEvent(
+        "framenavigated",
+        (frame) => frame === page.mainFrame(),
+      );
+      await localeSelect.selectOption("de");
+      await localeReload;
+    }
+    await page.waitForFunction(() => document.body.classList.contains("dashboard-ready"));
     await expect(page.locator("html")).toHaveAttribute("lang", "de");
     await expect(page.locator(".footer #lastRefresh")).toContainText("Zuletzt aktualisiert:");
     await expect(page.locator("#dashboardLocale option:checked")).toHaveText("Deutsch");
@@ -1649,7 +1657,7 @@ test.describe("Engineering Status browser smoke", () => {
       await page.locator("#componentLogs").evaluate((element) => { element.open = true; });
       await page.waitForFunction(() => componentLogsLoaded);
       await page.locator("#autoRefresh").uncheck();
-      await page.evaluate(() => {
+      const rendered = await page.evaluate(() => {
         refreshComponentLogs = async () => {};
         componentLogEntries.inbox = [
           { line: 1, timestamp: "2026-08-16T09:00:00Z", level: "INFO", event: "watcher_started", runId: "run-1", details: "" },
@@ -1657,11 +1665,17 @@ test.describe("Engineering Status browser smoke", () => {
         ];
         componentLogEntries.dashboard = [];
         renderComponentLogs();
+        return {
+          inbox: document.querySelector("#inboxComponentLog")?.textContent || "",
+          events: Object.fromEntries(
+            [...document.querySelectorAll("#logEventFilter option")].map((option) => [option.value, option.textContent || ""]),
+          ),
+        };
       });
-      await expect(page.locator("#inboxComponentLog")).toContainText(watcherStarted);
-      await expect(page.locator("#inboxComponentLog")).toContainText(staleLockRecovered);
-      await expect(page.locator("#logEventFilter option[value=watcher_started]")).toHaveText(watcherStarted);
-      await expect(page.locator("#logEventFilter option[value=stale_git_lock_recovered]")).toHaveText(staleLockRecovered);
+      expect(rendered.inbox).toContain(watcherStarted);
+      expect(rendered.inbox).toContain(staleLockRecovered);
+      expect(rendered.events.watcher_started).toBe(watcherStarted);
+      expect(rendered.events.stale_git_lock_recovered).toBe(staleLockRecovered);
     }
   });
 
