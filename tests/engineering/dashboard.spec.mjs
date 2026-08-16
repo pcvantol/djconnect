@@ -1986,6 +1986,9 @@ test.describe("Engineering Status browser smoke", () => {
     await page.locator("#executionTelemetryRows tr").click();
     const modal = page.locator("#telemetryDetailModal");
     await expect(modal.locator("#telemetryDetailTitle")).toHaveCSS("color", "rgb(251, 113, 133)");
+    expect(await modal.locator("#telemetryDetailTitle").evaluate(
+      (title) => getComputedStyle(title, "::before").content,
+    )).toBe('"▥"');
     await expect(modal.locator(".dashboard-modal-shell__header")).toHaveCSS("border-bottom-color", "rgb(251, 113, 133)");
     const metricLabel = modal.locator(".telemetry-detail-metrics .label").first();
     await expect(metricLabel).toBeVisible();
