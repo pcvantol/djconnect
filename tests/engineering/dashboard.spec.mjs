@@ -15,6 +15,40 @@ let dashboard;
 let dashboardRoot;
 let dashboardUrl;
 
+async function startDashboard(root) {
+  return new Promise((resolve, reject) => {
+    const process = spawn(
+      "python3",
+      [
+        "-c",
+        "from pathlib import Path; import sys; from tools.engineering.dashboard import DashboardHTTPServer, handler; server = DashboardHTTPServer(('127.0.0.1', 0), handler(Path(sys.argv[1]))); print(server.server_address[1], flush=True); server.serve_forever()",
+        root,
+      ],
+      { cwd: repository, stdio: ["ignore", "pipe", "ignore"] },
+    );
+    let output = "";
+    const timeout = setTimeout(() => {
+      process.kill("SIGTERM");
+      reject(new Error("Engineering Status test server did not report a port in time."));
+    }, 10_000);
+    process.once("error", (error) => {
+      clearTimeout(timeout);
+      reject(error);
+    });
+    process.once("exit", (code) => {
+      clearTimeout(timeout);
+      reject(new Error(`Engineering Status test server exited before startup (code ${code}).`));
+    });
+    process.stdout.on("data", (chunk) => {
+      output += chunk;
+      const port = Number.parseInt(output, 10);
+      if (!Number.isInteger(port) || port <= 0) return;
+      clearTimeout(timeout);
+      resolve({ process, url: `http://127.0.0.1:${port}` });
+    });
+  });
+}
+
 async function waitForDashboard() {
   for (let attempt = 0; attempt < 30; attempt += 1) {
     try {
@@ -27,25 +61,16 @@ async function waitForDashboard() {
   throw new Error("Engineering Status did not become healthy in time.");
 }
 
-test.beforeAll(async ({}, testInfo) => {
-  const port = 8876 + testInfo.workerIndex;
-  dashboardUrl = `http://127.0.0.1:${port}`;
+test.beforeAll(async () => {
   dashboardRoot = mkdtempSync(path.join(tmpdir(), "djconnect-dashboard-test-"));
   const engineeringDirectory = path.join(dashboardRoot, "tools/engineering");
   mkdirSync(engineeringDirectory, { recursive: true });
   for (const filename of ["ENGINEERING_PLATFORM_CONFIG.json", "ENGINEERING_PLATFORM_VERSION.json"]) {
     copyFileSync(path.join(repository, "tools/engineering", filename), path.join(engineeringDirectory, filename));
   }
-  dashboard = spawn(
-    "python3",
-    [
-      "-c",
-      "from pathlib import Path; import sys; from tools.engineering.dashboard import DashboardHTTPServer, handler; DashboardHTTPServer(('127.0.0.1', int(sys.argv[2])), handler(Path(sys.argv[1]))).serve_forever()",
-      dashboardRoot,
-      String(port),
-    ],
-    { cwd: repository, stdio: "ignore" },
-  );
+  const server = await startDashboard(dashboardRoot);
+  dashboard = server.process;
+  dashboardUrl = server.url;
   await waitForDashboard();
 });
 
