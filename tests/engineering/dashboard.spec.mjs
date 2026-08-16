@@ -142,7 +142,7 @@ test.describe("Engineering Status browser smoke", () => {
     });
   });
 
-test("locks the iOS viewport scale to prevent input-focus zoom", async ({ page }) => {
+  test("locks the iOS viewport scale to prevent input-focus zoom", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await expect(page.locator('meta[name="viewport"]')).toHaveAttribute(
       "content",
