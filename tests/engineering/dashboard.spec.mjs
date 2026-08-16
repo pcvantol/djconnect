@@ -93,6 +93,7 @@ test.beforeEach(async ({ page }, testInfo) => {
     await page.waitForFunction(() => document.body.classList.contains("dashboard-ready"));
     if (![
       "puts every mobile title-bar setting in a labelled expandable panel",
+      "matches the iPhone portrait dashboard visual reference",
       "only starts pull-to-refresh from the scroll region's top edge",
       "keeps a green pull request visible until the operator merges or aborts it",
     ].includes(testInfo.title)) {
@@ -2396,15 +2397,18 @@ test.describe("Engineering Status browser smoke", () => {
     await page.waitForFunction(
       () => document.body.classList.contains("dashboard-ready"),
     );
-    await page.locator("#autoRefresh").uncheck();
-    await page.waitForTimeout(300);
     await page.locator("#dashboardSplash").evaluate((element) => { element.hidden = true; });
-    await page.evaluate(() => {
+    await page.evaluate(async () => {
       document.querySelector("#dashboardTitlebarOptionsContent").hidden = true;
       document.querySelector("#dashboardTitlebarOptionsToggle").setAttribute("aria-expanded", "false");
       document.activeElement?.blur();
       window.scrollTo(0, 0);
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      document.querySelector(".dashboard-scroll-region").scrollTop = 0;
+      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
     });
+    await expect.poll(() => page.evaluate(() => Math.round(window.scrollY || document.documentElement.scrollTop || document.body.scrollTop || 0))).toBe(0);
     await page.locator("#currentRun").evaluate((element) => { element.open = true; });
     const image = await page.screenshot({ animations: "disabled" });
     await testInfo.attach("iphone-portrait-dashboard", {
