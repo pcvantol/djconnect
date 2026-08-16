@@ -1953,12 +1953,14 @@ test.describe("Engineering Status browser smoke", () => {
       run_id: "activity-run",
       prompt_title: "Veilige voortgang",
       submitted_filename: "activity.md",
+      workspace_progress: { modified: 3, created: 2, deleted: 1 },
     }, {}));
 
     await expect(page.locator("#currentRun")).toBeVisible();
     await expect(page.locator("#platformVersion")).toHaveText("1.5.0");
     await expect(page.locator("#action")).toHaveText("Codex bewerkt bestanden");
     await expect(page.locator("#action")).toHaveCSS("font-style", "italic");
+    await expect(page.locator("#workspaceProgressValue")).toHaveText("3 gewijzigd · 2 nieuw · 1 verwijderd");
   });
 
   test("keeps specialist reviewer titles blue in light mode", async ({ page }) => {

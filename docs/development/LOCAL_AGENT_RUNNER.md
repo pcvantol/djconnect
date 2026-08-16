@@ -382,6 +382,11 @@ archives. Run
 `./tools/engineering/engineering-execution-host status` to display the current phase, PRs,
 repair count and action.
 
+During Codex execution, the live status also includes aggregate worktree
+progress: changed, new and deleted file counts. It never includes filenames,
+paths, command output or prompt content, and is advisory only rather than
+repository evidence.
+
 ## Engineering Memory
 
 Successful transactions store bounded metadata under `.engineering/memory/`,
