@@ -1372,6 +1372,9 @@ test.describe("Engineering Status browser smoke", () => {
       document.querySelector("#confirmationModalTitle").dataset.modalGlyph = "question";
     });
     await expect.poll(() => glyph("#confirmationModalTitle")).toBe('"?"');
+    expect(await page.locator("#confirmationModalTitle").evaluate(
+      (heading) => getComputedStyle(heading, "::before").width,
+    )).toBe("21.6px");
     await page.evaluate(() => {
       document.querySelector("#confirmationModalTitle").dataset.modalGlyph = "warning";
     });
