@@ -534,7 +534,7 @@ html[data-theme="light"] #currentRun>.current-run__title>.label{color:color-mix(
 @container active-execution (min-width:760px){#currentRun .current-run__grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 #currentRun .card,#currentRun .card:has(#currentTime),#currentRun .card:has(#executionEstimate),#currentRun .card:has(#runId),#currentRun .card:has(#executionMode){--category-color:#65c5d9;--category-secondary:#a7e7f2;background:#1b2931;border-color:#65c5d9}
 #currentRun :is(.execution-lifecycle,.execution-context--primary){background:#1b2931!important}
-#engineering-dashboard-content>#technicalDetails{--category-color:var(--house-style);--section-secondary:#ffd59b;background:#302a24;border-color:var(--house-style)}
+#engineering-dashboard-content>#technicalDetails{--category-color:var(--house-style);--section-secondary:#a7e7f2;background:#302a24;border-color:var(--house-style)}
 html[data-theme="light"] #currentRun{background:#effbfe}
 html[data-theme="light"] #currentRun :is(.execution-lifecycle,.execution-context--primary){background:#fff!important}
 html[data-theme="light"] #engineering-dashboard-content>#technicalDetails{background:#fff6e9}

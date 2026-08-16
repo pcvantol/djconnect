@@ -129,6 +129,8 @@ The **Operationeel overzicht** card grid is one column by default. Once its
 own container reaches **760px**, it uses two equal columns. This container
 query keeps individual evidence cards readable in narrow side-by-side layouts
 without tying their layout to the full browser width.
+Its captions use the related light-turquoise secondary accent, never the
+orange diagnostic secondary tone.
 
 Repeated compact evidence, such as specialist reviewer status, uses an
 auto-fitting grid of at least `180px` tiles. It fills a row when space permits

@@ -3102,7 +3102,7 @@ test.describe("Engineering Status browser smoke", () => {
 
     await expect(page.locator("#currentRun > summary > .label")).toHaveCSS("color", "rgb(101, 197, 217)");
     await expect(page.locator("#currentRun .card .label").first()).toHaveCSS("color", "rgb(167, 231, 242)");
-    await expect(page.locator("#technicalDetails .card .label").first()).toHaveCSS("color", "rgb(255, 213, 155)");
+    await expect(page.locator("#technicalDetails .card .label").first()).toHaveCSS("color", "rgb(167, 231, 242)");
   });
 
   test("uses neutral content below the tinted heading of an expanded main category", async ({ page }) => {
