@@ -2,18 +2,19 @@
 
 Status: canonical prompt navigation
 
-## PR #827 finalization pending
+## PR #833 finalization pending
 
-PR [#827](https://github.com/pcvantol/djconnect/pull/827), **Fix execution
-phase timing accounting**, merged as
-`a1c211a4533d7332b7da187a8850cf392e8ea750`. The completed Engineering
-Platform increment records corrected queue and validation timing directly at
-runtime boundaries. Its immutable Prompt History record is
-`docs/history/prompts/2026-08-16-execution-phase-timing-accounting.md`.
+PR [#833](https://github.com/pcvantol/djconnect/pull/833), **Reconcile
+execution telemetry semantics**, merged as
+`e9eed31ead43d72439b5a7f9395d216b25251d98`. The completed Engineering
+Platform increment gives reports and read-model consumers one canonical
+projection for total wall time, phase aggregates, individual spans, validation
+evidence and terminal timing. Its immutable Prompt History record is
+`docs/history/prompts/2026-08-16-execution-telemetry-semantics.md`.
 The dedicated governance-only Finalization restores Repository State
 `MERGED_RECONCILED` and Workspace State `WORKSPACE_READY` after cleanup when
-merged. No Forge Mission, producer, retry/resume, validation-policy or
-execution-policy semantics changed.
+merged. No Forge Mission, lifecycle, queue, retry/resume/dismiss,
+validation-policy or execution-policy semantics changed.
 
 ## PR #793 finalization reconciled
 

@@ -2,18 +2,19 @@
 
 Status: active platform-evolution repository
 
-## PR #827 finalization pending
+## PR #833 finalization pending
 
-PR [#827](https://github.com/pcvantol/djconnect/pull/827), **Fix execution
-phase timing accounting**, merged as
-`a1c211a4533d7332b7da187a8850cf392e8ea750`. The implementation corrects
-runtime attribution for queue and validation boundaries while retaining the
-canonical SQLite timing evidence model. The immutable Prompt History record is
-`docs/history/prompts/2026-08-16-execution-phase-timing-accounting.md`.
+PR [#833](https://github.com/pcvantol/djconnect/pull/833), **Reconcile
+execution telemetry semantics**, merged as
+`e9eed31ead43d72439b5a7f9395d216b25251d98`. The implementation makes the
+canonical timing read model distinguish wall time, phase aggregates and
+individual spans, with explicit validation-evidence and terminal
+report/evidence-persistence coverage. The immutable Prompt History record is
+`docs/history/prompts/2026-08-16-execution-telemetry-semantics.md`.
 This dedicated Finalization is governance-only; when merged, Repository State
 is `MERGED_RECONCILED` and Workspace State is `WORKSPACE_READY` after cleanup.
-No Forge, producer, retry/resume, validation-policy or execution-policy
-semantics changed.
+No Forge, lifecycle, queue, retry/resume/dismiss, validation-policy or
+execution-policy semantics changed.
 
 ## PR #793 finalization reconciled
 
