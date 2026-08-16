@@ -847,6 +847,10 @@ dialog.dashboard-modal-shell,dialog.dashboard-modal-shell:is(:focus,:focus-visib
    including anchor actions inside dialogs. Deliberately non-focusing shells,
    table-row selection surfaces and lifecycle geometry remain excluded above. */
 :where(a[href],button,input,select,textarea,[role="button"],[tabindex]):not(:where(.dashboard-modal-shell,.component-log-row,.prompt-history-row,.telemetry-row,.execution-lifecycle__node)):is(:focus,:focus-visible){border-color:var(--house-style)!important;outline-color:var(--house-style)!important;box-shadow:0 0 0 var(--dashboard-focus-ring-size) var(--dashboard-input-focus-ring)!important}
+/* Title-bar labels are part of their switch control, not a separate focus
+   target. Keep the compact house-style ring on the track for all three. */
+.dashboard-titlebar .theme-toggle:is(:focus,:focus-visible),.dashboard-titlebar .section-state-toggle:is(:focus,:focus-visible){box-shadow:none!important;outline:0!important}
+.dashboard-titlebar .theme-toggle:is(:focus,:focus-visible)::before,.dashboard-titlebar .section-state-toggle:is(:focus,:focus-visible)::before{box-shadow:0 0 0 5px var(--house-style-focus);outline:2px solid var(--house-style);outline-offset:3px}
 /* A telemetry Run-ID is a redundant activator inside an interactive row.
    The row owns its continuous rose selection surface, never the text itself. */
 .telemetry-detail-modal .telemetry-run-link:is(:focus,:focus-visible){border-color:transparent!important;box-shadow:none!important;outline:0!important}

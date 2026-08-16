@@ -348,7 +348,8 @@ Inputs, selects and text areas use the shared surface, border, orange focus
 border and orange focus ring. Selected native select options should use the
 house orange where platform styling permits. On phone widths, global options
 live in the expandable title-bar panel; rows keep labels visible and switches
-stack vertically.
+stack vertically. Switches draw their orange focus ring around the compact
+track only, never around the full label row.
 
 ## 6. Modals and confirmations
 
