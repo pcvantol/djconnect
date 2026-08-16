@@ -15,6 +15,20 @@
 
 ## Current position
 
+## PR #827 finalization pending
+
+PR [#827](https://github.com/pcvantol/djconnect/pull/827), **Fix execution
+phase timing accounting**, merged as
+`a1c211a4533d7332b7da187a8850cf392e8ea750`. Engineering Platform now
+measures corrected queue and validation runtime boundaries as execution
+evidence, complementing provider and external-wait attribution. Its immutable
+Prompt History record is
+`docs/history/prompts/2026-08-16-execution-phase-timing-accounting.md`.
+This governance-only Finalization restores Repository State:
+`MERGED_RECONCILED` and Workspace State: `WORKSPACE_READY` after cleanup when
+merged. No dashboard telemetry UI, Forge Mission, producer, retry/resume,
+validation-policy or execution-policy semantics changed.
+
 ## PR #793 finalization reconciled
 
 PR [#793](https://github.com/pcvantol/djconnect/pull/793), **Project live
