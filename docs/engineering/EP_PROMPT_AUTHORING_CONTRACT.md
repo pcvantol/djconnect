@@ -153,9 +153,9 @@ shape or its guidance changes. Pure typo or editorial fixes need not change
 either version unless they change meaning.
 
 The canonical starter artifact is
-[EP_PROMPT_TEMPLATE.md](EP_PROMPT_TEMPLATE.md). It is the exact English
-Markdown source exported by the Operations Console. Existing manually authored
-or plain-text prompts remain valid: this contract is authoring guidance, not a
+[EP_PROMPT_TEMPLATE.md](EP_PROMPT_TEMPLATE.md). It is Repository Truth and the
+single reusable English Markdown source. Existing manually authored or
+plain-text prompts remain valid: this contract is authoring guidance, not a
 retroactive ingress rule. Engineering Platform does not parse headings,
 enforce a prompt schema, lint prompt semantics, or reject legacy submissions as
 part of this contract.
@@ -163,11 +163,18 @@ part of this contract.
 ## New-Project Bootstrap
 
 The no-Forge path is: prepare a target repository; authorize/configure it under
-the existing Engineering Platform bootstrap rules; open the Operations Console;
-download the template; complete it manually or with any GPT; submit it through
-a supported producer submission mechanism; and let Engineering Platform perform
-normal admission, preflight and execution. Refer to the existing bootstrap and
-submission contracts for their details rather than duplicating them here.
+the existing Engineering Platform bootstrap rules; obtain the canonical
+template from Repository Truth; complete it manually or with any GPT; submit it
+through a supported producer submission mechanism; and let Engineering Platform
+perform normal admission, preflight and execution. Refer to the existing
+bootstrap and submission contracts for their details rather than duplicating
+them here.
+
+The Operations Console is an execution-centric operational surface and is not
+a prompt-authoring entry point. Future prompt-authoring and project-development
+experiences, including Project Workspace, Architect Chat and Prompt Workbench,
+may reuse this contract and template without changing their normative content.
+Those future capabilities are intentionally outside this contract increment.
 
 ## Arbitrary GPT Authoring Instruction
 

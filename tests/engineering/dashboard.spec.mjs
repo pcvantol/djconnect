@@ -68,12 +68,6 @@ test.beforeAll(async () => {
   for (const filename of ["ENGINEERING_PLATFORM_CONFIG.json", "ENGINEERING_PLATFORM_VERSION.json"]) {
     copyFileSync(path.join(repository, "tools/engineering", filename), path.join(engineeringDirectory, filename));
   }
-  const documentationDirectory = path.join(dashboardRoot, "docs/engineering");
-  mkdirSync(documentationDirectory, { recursive: true });
-  copyFileSync(
-    path.join(repository, "docs/engineering/EP_PROMPT_TEMPLATE.md"),
-    path.join(documentationDirectory, "EP_PROMPT_TEMPLATE.md"),
-  );
   const server = await startDashboard(dashboardRoot);
   dashboard = server.process;
   dashboardUrl = server.url;
@@ -4254,27 +4248,4 @@ test("locks the iOS viewport scale to prevent input-focus zoom", async ({ page }
     await expect(page.locator(".dashboard-scroll-region")).toHaveCSS("padding-left", "6px");
     await expect(page.locator(".dashboard-scroll-region")).toHaveCSS("padding-right", "6px");
   });
-});
-
-test("downloads the canonical prompt template from a localized, touch-safe action", async ({ page }) => {
-  await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
-  const action = page.locator("#downloadPromptTemplate");
-  await expect(action).toHaveText("Download Prompt Template");
-  await expect(action).toHaveAttribute("href", "/api/prompt-template");
-  await expect(action).toHaveAttribute("download", "engineering-platform-prompt-template.md");
-  await expect(action).toHaveAttribute("aria-label", "Download Prompt Template");
-  await expect(action).toHaveCSS("min-height", "44px");
-
-  const response = await page.request.get(`${dashboardUrl}/api/prompt-template`);
-  expect(response.status()).toBe(200);
-  expect(response.headers()["content-type"]).toContain("text/markdown");
-  expect(response.headers()["content-disposition"]).toContain("engineering-platform-prompt-template.md");
-  expect(await response.text()).toBe(
-    readFileSync(path.join(repository, "docs/engineering/EP_PROMPT_TEMPLATE.md"), "utf8"),
-  );
-
-  const localeReload = page.waitForEvent("framenavigated", (frame) => frame === page.mainFrame());
-  await page.locator("#dashboardLocale").selectOption("nl");
-  await localeReload;
-  await expect(page.locator("#downloadPromptTemplate")).toHaveText("Prompttemplate downloaden");
 });

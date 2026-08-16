@@ -51,14 +51,12 @@ from . import dashboard_state
 
 LABEL = "com.djconnect.engineering-dashboard"
 RELAY_LABEL = "com.djconnect.engineering-dashboard-relay"
-DASHBOARD_VERSION = "1.2.91"
+DASHBOARD_VERSION = "1.2.90"
 DASHBOARD_STARTED_AT = time.monotonic()
 ASSET_DIRECTORY = Path(__file__).with_name("assets")
 APP_ICON_DARK = "operations-console/apple-touch-icon-dark.png"
 APP_ICON_LIGHT = "operations-console/apple-touch-icon-light.png"
 WEB_MANIFEST = "operations-console/manifest.webmanifest"
-PROMPT_TEMPLATE_PATH = Path("docs/engineering/EP_PROMPT_TEMPLATE.md")
-PROMPT_TEMPLATE_FILENAME = "engineering-platform-prompt-template.md"
 LOOPBACK_ADDRESS = "127.0.0.1"
 CODEX_PROCESS = re.compile(r"(?:^|\s)(?:\S*/)?codex(?:\s|$)")
 RATE_LIMIT_CACHE_SECONDS = 60
@@ -1206,7 +1204,6 @@ def _dashboard_html(
 <main class="dashboard-grid" id="engineering-dashboard-content" tabindex="-1">
 <details class="inbox-queue" id="queueItems" data-testid="engineering-inbox-queue"><summary><strong data-i18n="section.inbox_queue"></strong></summary><p class="category-description" data-i18n="description.inbox_queue"></p><div class="queue-blocker" id="inboxBlocker" role="alert" hidden></div><p class="estimate-meta" id="queueSummary" data-i18n="logs.loading"></p><ol class="queue-list" id="queueList" aria-live="polite"></ol></details>
 <details class="prompt-history" id="promptHistory" data-testid="engineering-prompt-history"><summary><strong data-i18n="section.prompt_history"></strong></summary><p class="category-description" data-i18n="description.prompt_history"></p><div class="log-controls"><label for="promptHistoryFilter"><span data-i18n="filter.search"></span><input id="promptHistoryFilter" type="search" maxlength="160" data-sanitize="single-line" data-i18n-placeholder="filter.search_placeholder"></label></div><div class="log-table-wrap"><table class="log-table" data-i18n-aria-label="history.table_label"><thead><tr><th data-history-sort-key="status" scope="col" data-i18n="table.status"></th><th data-history-sort-key="title" scope="col" data-i18n="table.prompt_title"></th><th data-history-sort-key="executed_at" scope="col" data-i18n="table.executed_at"></th><th scope="col" data-i18n="table.report"></th><th id="promptHistoryAnalysisHeader" scope="col" data-i18n="table.analysis"></th><th id="promptHistoryChatHeader" scope="col" data-i18n="table.chat"></th><th scope="col" data-i18n="table.action"></th><th id="promptHistoryDetailsHeader" scope="col" data-i18n="table.details"></th></tr></thead><tbody id="promptHistoryRows"><tr><td class="log-empty" colspan="8" data-i18n="logs.loading"></td></tr></tbody></table></div><nav class="log-pagination" id="promptHistoryPagination" data-i18n-aria-label="history.table_label"></nav></details>
-<details class="card card--context" id="promptAuthoring" data-testid="prompt-authoring"><summary><strong data-i18n="prompt_authoring.title"></strong></summary><p class="category-description" data-i18n="prompt_authoring.description"></p><a class="dashboard-action prompt-authoring__download" id="downloadPromptTemplate" href="/api/prompt-template" download="engineering-platform-prompt-template.md" data-i18n="prompt_authoring.download" data-i18n-aria-label="prompt_authoring.download"></a></details>
 <details class="current-run" id="currentRun" data-i18n-aria-label="detail.execution" hidden><summary class="current-run__title"><span class="label" data-i18n="section.active_prompt"></span></summary><div class="current-run__grid"><div class="field"><span class="label" data-i18n="detail.prompt_title"></span><h2 id="currentPrompt" data-i18n="format.loading"></h2></div><div class="field"><span class="label" data-i18n="ui.filename"></span><pre id="currentFile" data-i18n="format.loading"></pre></div>
 <div class="card execution-context" id="executionContext" hidden><strong data-i18n="ui.execution_context"></strong><p class="field"><span class="label" data-i18n="field.execution_mode"></span><span id="executionMode"></span></p><p class="field"><span class="label" data-i18n="field.repository"></span><span id="targetRepository"></span></p><div class="field"><span class="label" data-i18n="detail.target_checkout"></span><pre id="checkoutPath"></pre></div><p class="field"><span class="label" data-i18n="ui.active_branch"></span><span id="activeBranch"></span></p></div>
 <div class="card"><div class="status"><span id="indicator" class="indicator" role="status" data-i18n-aria-label="status.unknown"></span><strong data-i18n="detail.prompt_status"></strong></div><p class="field"><span class="label" data-i18n="ui.watcher"></span><span id="watcher" data-i18n="format.loading"></span></p><p class="field"><span class="label" data-i18n="ui.phase"></span><span id="phase" data-i18n="format.loading"></span></p><p class="field"><span class="label" data-i18n="ui.current_activity"></span><span id="action" data-i18n="format.loading"></span></p></div>
@@ -1631,26 +1628,6 @@ def handler(root: Path, logger: logging.Logger | None = None):
                 return self._send(content, content_type)
             if request.path == "/api/prompt-history":
                 return self._send(_prompt_history(root), "application/json; charset=utf-8")
-            if request.path == "/api/prompt-template":
-                try:
-                    content = (root / PROMPT_TEMPLATE_PATH).read_bytes()
-                except OSError:
-                    self.send_error(404)
-                    return
-                self.send_response(200)
-                self.send_header("Content-Type", "text/markdown; charset=utf-8")
-                self.send_header("Content-Disposition", f'attachment; filename="{PROMPT_TEMPLATE_FILENAME}"')
-                self.send_header("Content-Length", str(len(content)))
-                self.send_header("Cache-Control", "no-store")
-                self.send_header("X-Content-Type-Options", "nosniff")
-                self.send_header("X-Frame-Options", "DENY")
-                self.send_header(
-                    "Content-Security-Policy",
-                    "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'",
-                )
-                self.end_headers()
-                self.wfile.write(content)
-                return
             if request.path.startswith("/api/prompt-history/") and request.path.endswith("/details"):
                 run_id = request.path.removeprefix("/api/prompt-history/").removesuffix("/details").strip("/")
                 detail = _prompt_history_detail(root, run_id)

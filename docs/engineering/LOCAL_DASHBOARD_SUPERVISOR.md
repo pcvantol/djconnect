@@ -223,19 +223,6 @@ not need iCloud Drive to render a current or completed run:
 iCloud Drive is solely an Inbox transport source for the separate watcher.
 The dashboard does not read iCloud reports, status or archived prompts.
 
-## Prompt authoring bootstrap
-
-The Operations Console includes a generic, localized **Download Prompt
-Template** action for first-time use, new-project bootstrap and existing
-projects. It downloads the canonical English Markdown
-[`EP_PROMPT_TEMPLATE.md`](EP_PROMPT_TEMPLATE.md) directly from Repository
-Truth; the dashboard holds no separately hard-coded template copy. The action
-is a normal keyboard- and touch-accessible link and remains available on the
-iPhone console. The adjacent help text directs authors to the producer-neutral
-[`EP_PROMPT_AUTHORING_CONTRACT.md`](EP_PROMPT_AUTHORING_CONTRACT.md). It does
-not expose local execution state, configuration, telemetry, prompt history or
-any credentials.
-
 Prompt History and its read-only execution-detail dialog expose the stored
 Producer ID, Type, Version, Correlation ID and optional Mission and Engineering
 Action IDs for the selected run only. Producer metadata is audit evidence: it
