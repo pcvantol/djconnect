@@ -2397,10 +2397,12 @@ test.describe("Engineering Status browser smoke", () => {
       () => document.body.classList.contains("dashboard-ready"),
     );
     await page.locator("#autoRefresh").uncheck();
+    await page.waitForTimeout(300);
     await page.locator("#dashboardSplash").evaluate((element) => { element.hidden = true; });
     await page.evaluate(() => {
       document.querySelector("#dashboardTitlebarOptionsContent").hidden = true;
       document.querySelector("#dashboardTitlebarOptionsToggle").setAttribute("aria-expanded", "false");
+      document.activeElement?.blur();
       window.scrollTo(0, 0);
     });
     await page.locator("#currentRun").evaluate((element) => { element.open = true; });
