@@ -735,6 +735,7 @@ test.describe("Engineering Status browser smoke", () => {
       spacing[0].itemWidth + ((spacing[0].itemWidth / 2) - 26),
     );
     expect(spacing[0].connectorColor).not.toBe("rgba(0, 0, 0, 0)");
+    expect(spacing[0].connectorColor).toBe("rgb(101, 197, 217)");
     expect(spacing[0].connectorLayer).toBe("3");
     expect(spacing[0].connectorRenderedWidth).toBeGreaterThan(0);
     expect(spacing[0].connectorRenderedHeight).toBeGreaterThan(0);
