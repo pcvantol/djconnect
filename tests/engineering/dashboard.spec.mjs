@@ -2949,24 +2949,19 @@ test.describe("Engineering Status browser smoke", () => {
       );
     });
     await page.route("**/api/events", (route) => route.abort());
-    await page.route("**/api/prompt-history", (route) => route.fulfill({ json: { runs: [] } }));
+    await page.route("**/api/prompt-history", (route) => route.fulfill({ json: { runs: [{
+      run_id: "report-hover",
+      status: "COMPLETE",
+      title: "Rapport hover",
+      executed_at: "2026-08-02T10:00:00+00:00",
+      git_commit: "abc1234",
+      report_available: true,
+    }] } }));
     const historyLoaded = page.waitForResponse("**/api/prompt-history");
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await historyLoaded;
     await page.locator("#dashboardSplash").evaluate((element) => { element.hidden = true; });
     await page.locator("#promptHistory").evaluate((element) => { element.open = true; });
-    await page.evaluate(() => {
-      promptHistoryEntries = [{
-        run_id: "report-hover",
-        status: "COMPLETE",
-        title: "Rapport hover",
-        executed_at: "2026-08-02T10:00:00+00:00",
-        git_commit: "abc1234",
-        report_available: true,
-      }];
-      promptHistoryPage = 1;
-      renderPromptHistory();
-    });
     const report = page.locator('[title="Bekijk engineeringrapport voor Rapport hover"]');
 
     await report.hover();
