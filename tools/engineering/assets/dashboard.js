@@ -1029,6 +1029,7 @@ function renderHealthStatus(x, snapshot = {}) {
     x.current_action || t("ui.no_active_action"),
   );
   const workspaceProgress = x.workspace_progress || {};
+  $("workspaceProgress").hidden = !x.workspace_progress;
   $("workspaceProgressValue").textContent = [
     t("workspace_progress.modified", { count: Number(workspaceProgress.modified) || 0 }),
     t("workspace_progress.created", { count: Number(workspaceProgress.created) || 0 }),
