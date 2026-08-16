@@ -328,6 +328,7 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn('id="pageRefresh"', page)
         self.assertLess(page.index('id="currentFile"'), page.index('id="indicator"'))
         self.assertLess(page.index('id="indicator"'), page.index('id="executionContext"'))
+        self.assertLess(page.index('id="executionContext"'), page.index('id="processMetrics"'))
 
         for identifier in (
             "dashboardSplash",
