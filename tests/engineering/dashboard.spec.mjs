@@ -1210,6 +1210,10 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(modalPullRequest).toHaveCSS("justify-content", "center");
     await expect(modalPullRequest).toHaveCSS("font-weight", "400");
     await expect(modalAbort).toHaveCSS("font-weight", "400");
+    const mergeActionHeights = await mergeModal.locator(".dashboard-modal-shell__action").evaluateAll(
+      (actions) => actions.map((action) => action.getBoundingClientRect().height),
+    );
+    expect(mergeActionHeights).toEqual([44, 44]);
     expect(await modalPullRequest.evaluate((element) => getComputedStyle(element, "::before").content)).toBe('"↗"');
     expect(await modalAbort.evaluate((element) => getComputedStyle(element, "::before").content)).toBe('"⊘"');
     expect(await modalAbort.evaluate((element) => getComputedStyle(element, "::before").fontWeight)).toBe("700");
@@ -1217,6 +1221,10 @@ test.describe("Engineering Status browser smoke", () => {
     await page.locator("#operatorMergeWaitModalClose").click();
     await abort.click();
     await expect(page.locator("#confirmationModal")).toBeVisible();
+    const confirmationActionHeights = await page.locator("#confirmationModal .dashboard-modal-shell__action").evaluateAll(
+      (actions) => actions.map((action) => action.getBoundingClientRect().height),
+    );
+    expect(confirmationActionHeights).toEqual(mergeActionHeights);
     await page.locator("#confirmationModalConfirm").click();
     await expect.poll(() => abortRequested).toBe(true);
   });
