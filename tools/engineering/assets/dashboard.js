@@ -4249,13 +4249,13 @@ function renderPromptHistoryDetail(payload) {
   content.append(
     ...[
       ...promptDetailExecutionSections(history),
-      lifecycleFlow(payload?.lifecycle, { historical: true }),
       promptDetailSidebar([
         promptDetailDurationSection(execution),
         promptDetailRuntimeSection(runtime),
         promptDetailCommitsSection(commits),
         promptDetailEvidenceSection(evidence),
       ]),
+      lifecycleFlow(payload?.lifecycle, { historical: true }),
       promptDetailUsageSection(usage),
       promptDetailRecommendationHandoff(recommendationHandoff),
       promptDetailReviewersSection(reviewers),
