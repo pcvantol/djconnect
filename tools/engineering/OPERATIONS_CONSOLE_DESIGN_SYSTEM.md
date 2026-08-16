@@ -343,6 +343,9 @@ Use the shared modal shell and contextual panel. Modal rules are:
    document.
 3. Long content scrolls **below** the header. The scrollbar begins after the
    header divider, not against the modal top edge.
+   Historical execution evidence is split into an **Execution** summary card
+   and an **Execution context** card. They occupy the two available columns on
+   laptop/desktop widths and stack in source order at phone widths.
 4. A state-changing action uses the shared confirmation dialog. Its copy says
    what changes, what remains, and any safe recovery path.
 5. On an iPhone, every modal shell supplies at least `16px` outer padding

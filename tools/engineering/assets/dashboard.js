@@ -4064,9 +4064,9 @@ function promptDetailStatusField(value) {
   output.replaceChildren(indicator, text);
   return field;
 }
-function promptDetailCard(title, fields, wide = false) {
+function promptDetailCard(title, fields, wide = false, modifier = "") {
   const card = document.createElement("section"), heading = document.createElement("h3");
-  card.className = "prompt-detail-card" + (wide ? " prompt-detail-card--wide" : "");
+  card.className = "prompt-detail-card" + (wide ? " prompt-detail-card--wide" : "") + (modifier ? " " + modifier : "");
   heading.textContent = title;
   card.append(heading, ...fields);
   return card;
@@ -4081,7 +4081,7 @@ function promptDetailDuration(value) {
   const seconds = Number(value);
   return Number.isFinite(seconds) && seconds >= 0 ? durationText(seconds) : "—";
 }
-function promptDetailExecutionSection(history) {
+function promptDetailExecutionSections(history) {
   const timestamp = Date.parse(String(history.executed_at || ""));
   const context = history.execution_context && typeof history.execution_context === "object" ? history.execution_context : null;
   const contextFields = context ? [
@@ -4094,7 +4094,7 @@ function promptDetailExecutionSection(history) {
     detailField(t("execution_context.execution_receipt_reference"), executionContextValue(context.execution_receipt_reference || context.last_execution_receipt) || t("execution_context.not_supplied")),
     detailField(t("execution_context.snapshot"), JSON.stringify(context)),
   ] : [detailField(t("execution_context.snapshot"), t("execution_context.not_supplied"))];
-  return promptDetailCard(t("detail.execution"), [
+  const summaryFields = [
     promptDetailStatusField(history.status),
     detailField(t("detail.operator_handling"), history.dismissed ? t("handling.dismissed") : t("handling.open")),
     ...(history.dismissed_at ? [detailField(t("detail.dismissed_at"), history.dismissed_at)] : []),
@@ -4106,6 +4106,8 @@ function promptDetailExecutionSection(history) {
         ? locale.dateTime(new Date(timestamp))
         : history.executed_at,
     ),
+  ];
+  const contextMetadataFields = [
     detailField(t("detail.execution_mode"), history.execution_mode || t("detail.not_recorded")),
     detailField(t("detail.producer"), history.producer_id || t("detail.not_recorded")),
     detailField(t("detail.producer_type"), history.producer_type ? t(`enum.${history.producer_type}`) : t("detail.not_recorded")),
@@ -4125,7 +4127,11 @@ function promptDetailExecutionSection(history) {
     detailField(t("detail.files_deleted"), history.execution_metadata?.deleted ?? t("detail.not_recorded")),
     detailField(t("detail.codex_commands"), history.execution_metadata?.codex_commands_executed ?? t("detail.not_recorded")),
     ...contextFields,
-  ]);
+  ];
+  return [
+    promptDetailCard(t("detail.execution"), summaryFields, false, "prompt-detail-card--execution-summary"),
+    promptDetailCard(t("ui.execution_context"), contextMetadataFields, false, "prompt-detail-card--execution-context"),
+  ];
 }
 function promptDetailDurationSection(execution) {
   return promptDetailCard(t("detail.duration"), [
@@ -4242,7 +4248,7 @@ function renderPromptHistoryDetail(payload) {
   content.replaceChildren();
   content.append(
     ...[
-      promptDetailExecutionSection(history),
+      ...promptDetailExecutionSections(history),
       lifecycleFlow(payload?.lifecycle, { historical: true }),
       promptDetailSidebar([
         promptDetailDurationSection(execution),
