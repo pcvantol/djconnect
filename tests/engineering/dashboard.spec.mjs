@@ -3016,6 +3016,12 @@ test.describe("Engineering Status browser smoke", () => {
     const tiles = page.locator(".reviewer-agent");
     await expect(tiles).toHaveCount(4);
     await expect(tiles.first()).toBeVisible();
+    const reviewerGrid = page.locator("#currentRun .current-run__grid");
+    const reviewerCard = page.locator("#activeReviewerAgents");
+    const [gridBounds, cardBounds] = await Promise.all([reviewerGrid.boundingBox(), reviewerCard.boundingBox()]);
+    expect(gridBounds).not.toBeNull();
+    expect(cardBounds).not.toBeNull();
+    expect(Math.abs(cardBounds.width - gridBounds.width)).toBeLessThanOrEqual(1);
     const wideRows = await tiles.evaluateAll((elements) => elements.map((element) => Math.round(element.getBoundingClientRect().y)));
     expect(new Set(wideRows).size).toBe(1);
 
