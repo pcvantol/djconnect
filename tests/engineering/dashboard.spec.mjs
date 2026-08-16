@@ -837,6 +837,10 @@ test.describe("Engineering Status browser smoke", () => {
   });
 
   test("changes visible interface copy for each supported language", async ({ page }) => {
+    await page.route("**/api/events", (route) => route.abort());
+    await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({
+      json: { status: { watcher_state: "WATCHER_IDLE", queue_depth: 0 } },
+    }));
     const expectations = [
       ["en", "Language", "Refresh automatically", "AI analysis", "Passed", "Execution", "Resume Queue", "Active execution", "Execution queue", "New assignments wait for execution in order of creation date.", "Engineering Operations Console", "Loading data…", "Pull requests", "Implementation", "None", "Engineering Platform version", "Automatic refresh is off"],
       ["nl", "Taal", "Automatisch vernieuwen", "AI-analyse", "Geslaagd", "Uitvoering", "Wachtrij hervatten", "Lopende uitvoering", "Wachtrij voor uitvoeringen", "Nieuwe opdrachten wachten op uitvoering in volgorde van aanmaakdatum.", "Engineering Operationele console", "Gegevens laden…", "Pull requests", "Implementatie", "geen", "Engineering Platform-versie", "Automatisch vernieuwen is uit"],
@@ -846,7 +850,10 @@ test.describe("Engineering Status browser smoke", () => {
     ];
 
     for (const [language, localeLabel, refreshLabel, analysisLabel, passLabel, detailTitle, queueAction, activePrompt, queueTitle, queueDescription, dashboardTitle, splashLoading, pullRequestsTitle, implementationLabel, noneLabel, platformVersionLabel, refreshOffLabel] of expectations) {
+      const statusLoaded = page.waitForResponse("**/api/dashboard-snapshot");
       await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+      await statusLoaded;
+      await page.waitForTimeout(0);
       await page.locator("#dashboardLocale").selectOption(language);
       await expect(page.locator("html")).toHaveAttribute("lang", language);
       await expect(page.locator('.dashboard-locale > span[data-i18n="language.label"]')).toHaveText(localeLabel);
@@ -2171,7 +2178,7 @@ test.describe("Engineering Status browser smoke", () => {
       dashboard: { healthy: true, detail: "HTTP-dashboard reageert", version: "1.2.87" },
     }}));
 
-    await expect(page.locator(".platform-health__component-detail")).toHaveCSS("color", "rgb(24, 34, 48)");
+    await expect(page.locator(".platform-health__component-detail").first()).toHaveCSS("color", "rgb(24, 34, 48)");
   });
 
   test("renders component details in the light modal theme", async ({ page }) => {
