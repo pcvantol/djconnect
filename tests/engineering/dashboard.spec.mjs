@@ -2937,6 +2937,20 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#workspaceProgressValue")).toHaveText("3 gewijzigd · 2 nieuw · 1 verwijderd · 17 Codex-opdrachten uitgevoerd");
   });
 
+  test("lays out operational-overview cards in two columns only when its container has room", async ({ page }) => {
+    await page.setViewportSize({ width: 920, height: 844 });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#technicalDetails > summary").click();
+
+    const columns = async () => page.locator("#technicalDetails .technical-grid").evaluate((element) =>
+      getComputedStyle(element).gridTemplateColumns.split(" ").length,
+    );
+    await expect.poll(columns).toBe(2);
+
+    await page.setViewportSize({ width: 760, height: 844 });
+    await expect.poll(columns).toBe(1);
+  });
+
   test("keeps specialist reviewer titles in the active-execution turquoise scale in light mode", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.locator("#themeToggle").click();

@@ -500,6 +500,9 @@ html[data-theme="light"] .chat-message__body :is(code,pre){background:#e9eef6;co
 .telemetry{--category-secondary:#ffb0bc}
 .platform-health{--category-secondary:#c8f27f}
 #technicalDetails{--section-secondary:#a7e7f2}
+#technicalDetails{container-name:operational-overview;container-type:inline-size}
+#technicalDetails .technical-grid{grid-template-columns:minmax(0,1fr)}
+@container operational-overview (min-width:760px){#technicalDetails .technical-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 #componentLogs{--section-secondary:#ffd59b}
 #technicalDetails .card,#componentLogs .card{--category-secondary:var(--section-secondary)}
 #currentRun .card{--category-secondary:#f9b6d8}

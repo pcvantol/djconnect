@@ -125,6 +125,11 @@ separate focus or selection border around individual cells. Sortable headers
 may use their own thin focus edge because they are independently interactive;
 that edge must remain contained inside the sticky header cell.
 
+The **Operationeel overzicht** card grid is one column by default. Once its
+own container reaches **760px**, it uses two equal columns. This container
+query keeps individual evidence cards readable in narrow side-by-side layouts
+without tying their layout to the full browser width.
+
 Repeated compact evidence, such as specialist reviewer status, uses an
 auto-fitting grid of at least `180px` tiles. It fills a row when space permits
 and wraps cleanly at narrower widths; never hard-code a single wide tile per
