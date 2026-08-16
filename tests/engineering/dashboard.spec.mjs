@@ -878,6 +878,14 @@ test.describe("Engineering Status browser smoke", () => {
       getComputedStyle(element).gridTemplateColumns.split(" ").length,
     );
     await expect.poll(columns).toBe(2);
+    const [executionIdentity, executionEstimate] = await Promise.all([
+      page.locator("#executionIdentity").boundingBox(),
+      page.locator("#executionEstimate").locator("xpath=..").boundingBox(),
+    ]);
+    expect(executionIdentity).not.toBeNull();
+    expect(executionEstimate).not.toBeNull();
+    expect(executionIdentity.y).toBe(executionEstimate.y);
+    expect(executionIdentity.x).toBeLessThan(executionEstimate.x);
 
     const contained = async () => page.locator("#currentRun").evaluate((run) => {
       const runRight = run.getBoundingClientRect().right;
