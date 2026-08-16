@@ -678,6 +678,7 @@ test.describe("Engineering Status browser smoke", () => {
       await expect(node).toHaveCSS("box-shadow", "none");
       await expect(node.locator("span").first()).toHaveCSS("border-top-width", "3px");
     }
+    await expect(nodes.nth(0).locator("span").first()).toHaveCSS("background-color", "rgb(81, 216, 138)");
     await nodes.nth(0).hover({ force: true });
     await expect(nodes.nth(0).locator("span").first()).toHaveCSS("border-top-color", "rgb(240, 182, 106)");
     await expect(nodes.nth(0).locator("span").last()).toHaveCSS("color", "rgb(247, 243, 238)");
