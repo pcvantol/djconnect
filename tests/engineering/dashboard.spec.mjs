@@ -669,6 +669,7 @@ test.describe("Engineering Status browser smoke", () => {
 
     const nodes = page.locator(".execution-lifecycle__node");
     await expect(nodes).toHaveCount(2);
+    await page.locator("#currentRun").evaluate((element) => { element.open = true; });
     await expect(page.locator(".execution-lifecycle h3")).toHaveCSS("font-size", "14px");
     for (let index = 0; index < await nodes.count(); index += 1) {
       const node = nodes.nth(index);
@@ -677,6 +678,8 @@ test.describe("Engineering Status browser smoke", () => {
       await expect(node).toHaveCSS("box-shadow", "none");
       await expect(node.locator("span").first()).toHaveCSS("border-top-width", "3px");
     }
+    await nodes.nth(0).hover({ force: true });
+    await expect(nodes.nth(0).locator("span").last()).toHaveCSS("color", "rgb(247, 243, 238)");
     await expect(nodes.nth(1).locator("span").first()).toHaveCSS("background-color", "rgb(240, 182, 106)");
   });
 
