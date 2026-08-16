@@ -717,6 +717,9 @@ test.describe("Engineering Status browser smoke", () => {
         connectorLayer: connector?.zIndex,
         connectorRenderedWidth: connectorBox?.width,
         connectorRenderedHeight: connectorBox?.height,
+        connectorCentreY: connectorBox ? connectorBox.top + (connectorBox.height / 2) : null,
+        circleCentreY: circleBox ? circleBox.top + (circleBox.height / 2) : null,
+        nodeTextColor: getComputedStyle(item.querySelector(".execution-lifecycle__node")).color,
         selectedLabelColor: getComputedStyle(item.querySelector(".execution-lifecycle__node > span:last-child")).color,
       };
     }));
@@ -735,8 +738,11 @@ test.describe("Engineering Status browser smoke", () => {
     expect(spacing[0].connectorLayer).toBe("3");
     expect(spacing[0].connectorRenderedWidth).toBeGreaterThan(0);
     expect(spacing[0].connectorRenderedHeight).toBeGreaterThan(0);
+    expect(spacing[0].connectorCentreY).toBeCloseTo(spacing[0].circleCentreY, 5);
+    expect(spacing[1].connectorCentreY).toBeCloseTo(spacing[1].circleCentreY, 5);
     expect(spacing[2].connectorColor).toBeUndefined();
-    expect(spacing[0].selectedLabelColor).toBe("rgb(240, 182, 106)");
+    expect(spacing[0].selectedLabelColor).toBe(spacing[0].nodeTextColor);
+    expect(spacing[1].selectedLabelColor).toBe(spacing[1].nodeTextColor);
   });
 
   test("opens a native lifecycle step detail with persisted phase timing", async ({ page }) => {
@@ -767,6 +773,8 @@ test.describe("Engineering Status browser smoke", () => {
 
   test("preserves the active lifecycle horizontal position across server refreshes", async ({ page }) => {
     await page.setViewportSize({ width: 640, height: 900 });
+    await page.route("**/api/events", (route) => route.abort());
+    await page.route("**/api/dashboard-snapshot", (route) => route.abort());
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.addStyleTag({ content: ".execution-lifecycle__scroll { width: 300px !important; }" });
     const lifecycle = {
