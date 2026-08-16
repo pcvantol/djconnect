@@ -156,7 +156,7 @@ vary by panel or by refresh.
 
 In the active-execution card, identify the run first: **Execution title** and
 **Filename** precede the lifecycle flow. The flow then precedes execution
-context and status, keeping the sequence adjacent to the artifact it explains.
+status and context, keeping the sequence adjacent to the artifact it explains.
 
 Lifecycle steps use fixed-width slots, a visible connector element on a layer
 behind the circular nodes, and equal connector length between every adjacent
