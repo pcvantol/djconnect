@@ -27,7 +27,9 @@ lifecycle detail is unavailable rather than inventing phase completion.
 The flow is horizontal at every viewport size and is independently
 horizontally scrollable on phones and desktop browsers, including Safari with
 native momentum. The page and enclosing card must not gain horizontal
-overflow. Active-node animation respects reduced-motion.
+overflow. A connector is turquoise only when it leads to a reached active or
+completed step; it is neutral grey when it leads to a future, pending or
+blocked step. Active-node animation respects reduced-motion.
 
 Lifecycle state and Execution Phase Telemetry are separate: timing may enrich
 details but cannot establish progression. Retry children each have their own

@@ -1206,6 +1206,10 @@ function lifecycleFlow(projection, { historical = false } = {}) {
     if (index < steps.length - 1) {
       const connector = document.createElement("span");
       connector.className = "execution-lifecycle__connector";
+      const nextState = String(steps[index + 1]?.state || "UNKNOWN").toLowerCase();
+      if (["active", "completed", "complete"].includes(nextState)) {
+        connector.classList.add("execution-lifecycle__connector--reached");
+      }
       connector.setAttribute("aria-hidden", "true");
       item.append(connector);
     }

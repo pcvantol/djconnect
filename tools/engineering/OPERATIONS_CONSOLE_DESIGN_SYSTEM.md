@@ -189,12 +189,13 @@ operator merge wait uses house-style orange with a dark glyph, so it retains
 the same warning meaning as a blocked historical result.
 
 The flow is part of its enclosing category, not an independent blue surface.
-Its title, border, non-terminal completed circles and connector lines inherit
-the containing category accent. In the active-execution container this is its
-monitoring cyan (`#65c5d9`). Terminal success, blocked and failed states keep
-their dedicated semantic colours. Lifecycle state, connector geometry, node
-interaction and the touch-safe no-glass treatment are maintained as one
-stylesheet bundle.
+Its title, border, non-terminal completed circles and connectors leading to a
+reached step inherit the containing category accent. Connectors leading to an
+unreached, blocked or pending step remain neutral grey. In the
+active-execution container the accent is monitoring cyan (`#65c5d9`). Terminal
+success, blocked and failed states keep their dedicated semantic colours.
+Lifecycle state, connector geometry, node interaction and the touch-safe
+no-glass treatment are maintained as one stylesheet bundle.
 
 The surrounding active-execution blocks remain one column while their own
 container is narrower than **760px**. From that available width onward they

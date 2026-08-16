@@ -711,6 +711,34 @@ test.describe("Engineering Status browser smoke", () => {
     );
   });
 
+  test("uses neutral connectors for lifecycle steps not yet reached", async ({ page }) => {
+    await page.route("**/api/events", (route) => route.abort());
+    await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({ json: { status: {} } }));
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => r({
+      watcher_state: "ENGINEERING_RUN_ACTIVE",
+      run_id: "lifecycle-neutral-connectors",
+      lifecycle: {
+        available: true,
+        run_id: "lifecycle-neutral-connectors",
+        terminal_state: "ACTIVE",
+        steps: [
+          { id: "initialize", presentation_key: "lifecycle.step.initialize", state: "COMPLETED" },
+          { id: "implement", presentation_key: "lifecycle.step.execute_agent", state: "ACTIVE" },
+          { id: "finalize", presentation_key: "lifecycle.step.finalize_agent", state: "PENDING" },
+        ],
+      },
+    }, {}));
+    await page.locator("#currentRun").evaluate((element) => { element.open = true; });
+
+    const connectors = page.locator(".execution-lifecycle__connector");
+    await expect(connectors).toHaveCount(2);
+    await expect(connectors.nth(0)).toHaveClass(/connector--reached/);
+    await expect(connectors.nth(0)).toHaveCSS("background-color", "rgb(101, 197, 217)");
+    await expect(connectors.nth(1)).not.toHaveClass(/connector--reached/);
+    await expect(connectors.nth(1)).toHaveCSS("background-color", "rgb(154, 154, 163)");
+  });
+
   test("shows pull-request check repair and keeps Merge visibly blocked", async ({ page }) => {
     await page.route("**/api/events", (route) => route.abort());
     await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({ json: { status: {} } }));
