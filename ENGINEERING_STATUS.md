@@ -3,19 +3,19 @@
 **Status:** Operational handoff
 **Updated:** 2026-08-08
 
-## PR #827 finalization pending
+## PR #833 finalization pending
 
-PR [#827](https://github.com/pcvantol/djconnect/pull/827), **Fix execution
-phase timing accounting**, merged as
-`a1c211a4533d7332b7da187a8850cf392e8ea750`. Engineering Platform execution
-timing now records validation and corrected queue timing at their runtime
-boundaries, preserving independent provider, validation and external-wait
-attribution. The immutable Prompt History record is
-`docs/history/prompts/2026-08-16-execution-phase-timing-accounting.md`.
-This governance-only Finalization reconciles the rolling records; its merge
-restores Repository State: `MERGED_RECONCILED` and Workspace State:
-`WORKSPACE_READY` after cleanup. No Forge Mission, producer, retry/resume,
-validation-policy or execution-policy semantics changed.
+PR [#833](https://github.com/pcvantol/djconnect/pull/833), **Reconcile
+execution telemetry semantics**, merged as
+`e9eed31ead43d72439b5a7f9395d216b25251d98`. Engineering Platform telemetry
+now distinguishes total wall time, non-overlapping phase-category aggregates
+and individual spans; it also projects explicit validation evidence and
+terminal report/evidence timing. The immutable Prompt History record is
+`docs/history/prompts/2026-08-16-execution-telemetry-semantics.md`.
+This dedicated governance-only Finalization reconciles the rolling records;
+its merge restores Repository State: `MERGED_RECONCILED` and Workspace State:
+`WORKSPACE_READY` after cleanup. Forge, lifecycle, queue, retry/resume/dismiss,
+validation-policy and execution-policy semantics are unchanged.
 
 ## PR #793 finalization reconciled
 
