@@ -1089,6 +1089,31 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(phaseRows.nth(1)).toContainText(DASHBOARD_MESSAGES.nl["telemetry.phase.provider_execution"]);
   });
 
+  test("reveals an initially off-screen active lifecycle step after page load", async ({ page }) => {
+    await page.setViewportSize({ width: 640, height: 900 });
+    await page.route("**/api/events", (route) => route.abort());
+    await page.route("**/api/dashboard-snapshot", (route) => route.abort());
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.addStyleTag({ content: ".execution-lifecycle__scroll { width: 300px !important; }" });
+    await page.evaluate(() => r({ watcher_state: "ENGINEERING_RUN_ACTIVE", run_id: "lifecycle-reveal", lifecycle: {
+      available: true, run_id: "lifecycle-reveal", terminal_state: "ACTIVE", steps: [
+        { id: "start", presentation_key: "lifecycle.step.start", state: "COMPLETED" },
+        { id: "initialize", presentation_key: "lifecycle.step.initialize", state: "COMPLETED" },
+        { id: "execute", presentation_key: "lifecycle.step.execute_agent", state: "COMPLETED" },
+        { id: "repair", presentation_key: "lifecycle.step.repair_agent", state: "COMPLETED" },
+        { id: "finalization-merge", presentation_key: "lifecycle.step.wait_for_finalization_merge", state: "ACTIVE" },
+        { id: "cleanup", presentation_key: "lifecycle.step.repository_cleanup", state: "PENDING" },
+      ],
+    } }, {}));
+    await page.locator("#currentRun").evaluate((element) => { element.open = true; });
+    const scroll = page.locator(".execution-lifecycle__scroll"), active = page.locator(".execution-lifecycle__node--active");
+    await expect.poll(() => scroll.evaluate((element) => element.scrollLeft)).toBeGreaterThan(0);
+    expect(await active.evaluate((element) => {
+      const node = element.getBoundingClientRect(), container = element.closest(".execution-lifecycle__scroll").getBoundingClientRect();
+      return node.left >= container.left && node.right <= container.right;
+    })).toBe(true);
+  });
+
   test("preserves the active lifecycle horizontal position across server refreshes", async ({ page }) => {
     await page.setViewportSize({ width: 640, height: 900 });
     await page.route("**/api/events", (route) => route.abort());

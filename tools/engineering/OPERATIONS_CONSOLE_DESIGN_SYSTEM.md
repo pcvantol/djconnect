@@ -217,6 +217,10 @@ Each lifecycle circle is an interactive detail control. On pointer hover its
 circle border switches to house-style orange, without changing its diameter or
 the connector alignment.
 
+On the first render of an active run, a horizontally clipped current step is
+centred in the lifecycle scroller. Subsequent server refreshes preserve the
+operator's own horizontal position instead of pulling the flow back.
+
 Destructive confirmation dialogs make the safe secondary action the initial
 keyboard focus. Standard confirmations may focus their explicit primary action;
 informational dialogs open without a selected control.

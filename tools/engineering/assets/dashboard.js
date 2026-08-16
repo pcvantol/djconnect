@@ -1245,7 +1245,8 @@ function renderActiveLifecycle(projection) {
   const current = $("currentRun")?.querySelector(".current-run__grid"); if (!current) return;
   const previous = current.querySelector(".execution-lifecycle"),
     previousScroll = previous?.querySelector(".execution-lifecycle__scroll"),
-    preservedScrollLeft = previous?.dataset.runId === String(projection?.run_id || "")
+    sameRun = previous?.dataset.runId === String(projection?.run_id || ""),
+    preservedScrollLeft = sameRun
       ? previousScroll?.scrollLeft || 0
       : 0;
   previous?.remove();
@@ -1264,8 +1265,21 @@ function renderActiveLifecycle(projection) {
       // Wait for the replacement path to take part in layout before restoring
       // the user's independent horizontal review position.
       requestAnimationFrame(() => { nextScroll.scrollLeft = preservedScrollLeft; });
+    } else if (!sameRun) {
+      revealActiveLifecycleStep(lifecycle.querySelector(".execution-lifecycle__scroll"));
     }
   }
+}
+function revealActiveLifecycleStep(scroll) {
+  requestAnimationFrame(() => {
+    const active = scroll?.querySelector(".execution-lifecycle__node--active");
+    if (!active || scroll.scrollWidth <= scroll.clientWidth) return;
+    const scrollBox = scroll.getBoundingClientRect(), activeBox = active.getBoundingClientRect();
+    if (activeBox.left >= scrollBox.left && activeBox.right <= scrollBox.right) return;
+    const desired = scroll.scrollLeft + activeBox.left - scrollBox.left
+      - ((scroll.clientWidth - activeBox.width) / 2);
+    scroll.scrollLeft = Math.max(0, Math.min(desired, scroll.scrollWidth - scroll.clientWidth));
+  });
 }
 function placeExecutionEstimate() {
   const current = $("currentRun")?.querySelector(".current-run__grid"),
