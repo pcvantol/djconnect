@@ -56,6 +56,17 @@ def _nonnegative_int(value: object) -> int:
     return value if isinstance(value, int) and not isinstance(value, bool) and value >= 0 else 0
 
 
+def _display_phase(phase: str, checkpoint: dict[str, object]) -> str:
+    """Map internal evidence polling onto its visible lifecycle boundary."""
+    if phase != "WAIT_FOR_TERMINAL_EVIDENCE":
+        return phase
+    # Required-check polling happens before the operator merge hand-off.  It
+    # is not a completed merge, even though its PR timing evidence exists.
+    # A finalization transaction uses the same internal polling phase after
+    # the implementation merge, so it remains on its own visible step.
+    return "FINALIZE_AGENT" if checkpoint.get("transaction_kind") == "FINALIZATION" else "WAIT_FOR_OPERATOR_MERGE"
+
+
 def projection(root: Path, run_id: str | None) -> dict[str, object]:
     """Project persisted lifecycle evidence for exactly one ``run_id``.
 
@@ -93,6 +104,7 @@ def projection(root: Path, run_id: str | None) -> dict[str, object]:
     phase = str(row[1])
     mode = checkpoint.get("execution_mode") or (mode_row[0] if mode_row else None) or "MANAGED"
     path = intended_path(mode)
+    display_phase = _display_phase(phase, checkpoint)
     observed: dict[str, dict[str, object]] = {}
     repair_iterations = 0
     for event_phase, event_checkpoint, recorded_at in events:
@@ -121,7 +133,9 @@ def projection(root: Path, run_id: str | None) -> dict[str, object]:
                 step["terminal_outcome"] = terminal_state
         elif step_id in observed:
             step.update(observed[step_id])
-            step["state"] = "ACTIVE" if phase == step_id and terminal_state is None else "COMPLETED"
+            step["state"] = "ACTIVE" if display_phase == step_id and terminal_state is None else "COMPLETED"
+        elif step_id == display_phase and terminal_state is None:
+            step["state"] = "ACTIVE"
         if step_id == "REPAIR_AGENT" and repair_iterations:
             step["iteration_count"] = repair_iterations
         phase_names = _STEP_PHASES.get(step_id, frozenset())
@@ -149,6 +163,6 @@ def projection(root: Path, run_id: str | None) -> dict[str, object]:
         "execution_mode": mode,
         "available": evidence_available,
         "terminal_state": terminal_state,
-        "current_step": phase if phase in path else None,
+        "current_step": display_phase if display_phase in path else None,
         "steps": steps,
     }

@@ -47,6 +47,25 @@ class ExecutionLifecycleProjectionTests(unittest.TestCase):
         self.assertNotIn("WAIT_FOR_OPERATOR_MERGE", intended_path("GENESIS"))
         self.assertIn("WAIT_FOR_OPERATOR_MERGE", intended_path("MANAGED"))
 
+    def test_required_check_polling_stays_on_the_visible_merge_step(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            self._state(root, "EXECUTE_AGENT")
+            self._state(root, "WAIT_FOR_TERMINAL_EVIDENCE", pull_request=840)
+            value = projection(root, "inbox-flow")
+        by_id = {step["id"]: step for step in value["steps"]}
+        self.assertEqual(value["current_step"], "WAIT_FOR_OPERATOR_MERGE")
+        self.assertEqual(by_id["WAIT_FOR_OPERATOR_MERGE"]["state"], "ACTIVE")
+
+    def test_finalization_check_polling_stays_on_the_visible_finalization_step(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            self._state(root, "WAIT_FOR_TERMINAL_EVIDENCE", transaction_kind="FINALIZATION", pull_request=841)
+            value = projection(root, "inbox-flow")
+        by_id = {step["id"]: step for step in value["steps"]}
+        self.assertEqual(value["current_step"], "FINALIZE_AGENT")
+        self.assertEqual(by_id["FINALIZE_AGENT"]["state"], "ACTIVE")
+
     def test_projection_exposes_only_persisted_step_phase_timing(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
