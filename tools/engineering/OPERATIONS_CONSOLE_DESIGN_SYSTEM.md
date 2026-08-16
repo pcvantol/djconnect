@@ -69,7 +69,9 @@ house-style orange; a category accent never becomes a competing focus colour.
 | Platform health | lime `#a3e635` | `#29331d` |
 
 Terminal status remains distinct from category colour: success green, warning
-yellow/orange, failure red/rose and activity as the orange animated ring.
+yellow/orange and failure red/rose. Ordinary lifecycle activity uses the
+containing turquoise accent and its animated ring; orange is reserved there
+for an operator action or blocked/waiting condition.
 
 ## 3. Typography, spacing and geometry
 
@@ -181,17 +183,18 @@ Lifecycle steps use fixed-width slots, a visible connector element on a layer
 behind the circular nodes, and equal connector length between every adjacent
 pair. The connector centre aligns exactly with the circle centre. Long labels
 wrap within their own slot rather than changing the topology. Labels always
-inherit the standard interface text colour and weight; only the active circle
-uses house-style orange, with a dark glyph, so state is clear without turning
-ordinary step names into status colour.
+inherit the standard interface text colour and weight. An ordinary active
+circle uses the containing turquoise with a restrained pulse; only an active
+operator merge wait uses house-style orange with a dark glyph, so it retains
+the same warning meaning as a blocked historical result.
 
 The flow is part of its enclosing category, not an independent blue surface.
 Its title, border, non-terminal completed circles and connector lines inherit
 the containing category accent. In the active-execution container this is its
 monitoring cyan (`#65c5d9`). Terminal success, blocked and failed states keep
-their dedicated semantic colours; the active circle alone remains
-house-style orange. Lifecycle state, connector geometry, node interaction and
-the touch-safe no-glass treatment are maintained as one stylesheet bundle.
+their dedicated semantic colours. Lifecycle state, connector geometry, node
+interaction and the touch-safe no-glass treatment are maintained as one
+stylesheet bundle.
 
 The surrounding active-execution blocks remain one column while their own
 container is narrower than **760px**. From that available width onward they
@@ -221,8 +224,9 @@ must apply them atomically and discard an older revision from the same source,
 so it cannot retain a completed-state glyph from an older snapshot. Until GitHub
 reports the pull request as merged and the Execution Host advances, an open
 operator merge wait therefore renders **Merge** as the orange active circle,
-never as a completed check. This remains true while GitHub checks are queued
-or running: internal `WAIT_FOR_TERMINAL_EVIDENCE` polling is presented as
+with the summary explicitly saying that it waits for an operator merge, never
+as a completed check or generically “active”. This remains true while GitHub
+checks are queued or running: internal `WAIT_FOR_TERMINAL_EVIDENCE` polling is presented as
 `WAIT_FOR_OPERATOR_MERGE`, and the persistent handoff card, **Open pull
 request** and **Abort execution** controls must not disappear or flicker
 between status updates. The handoff modal may open once per run and may be

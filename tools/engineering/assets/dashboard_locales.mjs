@@ -2360,6 +2360,11 @@ Object.assign(DASHBOARD_MESSAGES.nl, {"lifecycle.step.repair_agent":"PR-controle
 Object.assign(DASHBOARD_MESSAGES.de, {"lifecycle.step.repair_agent":"PR-Prüfungsreparatur","lifecycle.step.wait_for_operator_merge":"Implementierungs-Merge","lifecycle.step.wait_for_finalization_merge":"Finalisierungs-Merge"});
 Object.assign(DASHBOARD_MESSAGES.fr, {"lifecycle.step.repair_agent":"Correction des contrôles de PR","lifecycle.step.wait_for_operator_merge":"Fusion d’implémentation","lifecycle.step.wait_for_finalization_merge":"Fusion de finalisation"});
 Object.assign(DASHBOARD_MESSAGES.es, {"lifecycle.step.repair_agent":"Corrección de controles de PR","lifecycle.step.wait_for_operator_merge":"Fusión de implementación","lifecycle.step.wait_for_finalization_merge":"Fusión de finalización"});
+Object.assign(DASHBOARD_MESSAGES.en, {"lifecycle.state.waiting_for_operator_merge":"waiting for operator merge"});
+Object.assign(DASHBOARD_MESSAGES.nl, {"lifecycle.state.waiting_for_operator_merge":"wacht op operator-merge"});
+Object.assign(DASHBOARD_MESSAGES.de, {"lifecycle.state.waiting_for_operator_merge":"warten auf Operator-Merge"});
+Object.assign(DASHBOARD_MESSAGES.fr, {"lifecycle.state.waiting_for_operator_merge":"en attente de la fusion par l’opérateur"});
+Object.assign(DASHBOARD_MESSAGES.es, {"lifecycle.state.waiting_for_operator_merge":"esperando la fusión del operador"});
 Object.assign(DASHBOARD_MESSAGES.en, {"merge_wait.context_label":"Merge context","merge_wait.context_intro":"This hand-off is the {merge} for pull request #{number}.","merge_wait.context_run":"Run ID","merge_wait.context_prompt":"Prompt"});
 Object.assign(DASHBOARD_MESSAGES.nl, {"merge_wait.context_label":"Mergecontext","merge_wait.context_intro":"Deze hand-off is de {merge} voor pull request #{number}.","merge_wait.context_run":"Run-ID","merge_wait.context_prompt":"Opdracht"});
 Object.assign(DASHBOARD_MESSAGES.de, {"merge_wait.context_label":"Merge-Kontext","merge_wait.context_intro":"Diese Übergabe ist der {merge} für Pull Request #{number}.","merge_wait.context_run":"Run-ID","merge_wait.context_prompt":"Auftrag"});

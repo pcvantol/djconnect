@@ -1094,6 +1094,12 @@ function lifecycleLabel(step) {
 function lifecycleStateLabel(state) {
   return t("lifecycle.state." + String(state || "UNKNOWN").toLowerCase(), {}, String(state || "UNKNOWN"));
 }
+function isOperatorMergeStep(step) {
+  const id = String(step?.id || "").toUpperCase();
+  const key = String(step?.presentation_key || "");
+  return ["WAIT_FOR_OPERATOR_MERGE", "WAIT_FOR_FINALIZATION_MERGE"].includes(id)
+    || ["lifecycle.step.wait_for_operator_merge", "lifecycle.step.wait_for_finalization_merge"].includes(key);
+}
 function lifecycleDetailField(label, value) {
   const field = document.createElement("div"); field.className = "field";
   field.append(
@@ -1183,10 +1189,13 @@ function lifecycleFlow(projection, { historical = false } = {}) {
   const steps = Array.isArray(projection.steps) ? projection.steps : [];
   for (const [index, step] of steps.entries()) {
     const state = String(step?.state || "UNKNOWN").toLowerCase();
+    const operatorWait = state === "active" && !historical && isOperatorMergeStep(step);
     const item = document.createElement("li"), button = document.createElement("button"), node = document.createElement("span"), label = document.createElement("span");
     item.className = "execution-lifecycle__item execution-lifecycle__item--" + state;
+    if (operatorWait) item.classList.add("execution-lifecycle__item--operator-wait");
     button.type = "button"; button.className = "execution-lifecycle__node";
     if (state === "active" && !historical) button.classList.add("execution-lifecycle__node--active");
+    if (operatorWait) button.classList.add("execution-lifecycle__node--operator-wait");
     const name = lifecycleLabel(step), status = lifecycleStateLabel(step?.state);
     button.setAttribute("aria-label", name + " — " + status);
     button.addEventListener("click", () => openLifecycleDetail(step, button));
@@ -1204,7 +1213,14 @@ function lifecycleFlow(projection, { historical = false } = {}) {
   }
   scroll.append(list); section.append(scroll);
   const summary = document.createElement("p"); summary.className = "execution-lifecycle__summary";
-  summary.textContent = t("lifecycle.summary", { step: lifecycleLabel((projection.steps || []).find((step) => step?.state === "ACTIVE") || (projection.steps || []).find((step) => step?.state === projection?.terminal_state) || {}), status: lifecycleStateLabel(projection.terminal_state || "ACTIVE") });
+  const currentStep = (projection.steps || []).find((step) => step?.state === "ACTIVE")
+    || (projection.steps || []).find((step) => step?.state === projection?.terminal_state) || {};
+  summary.textContent = t("lifecycle.summary", {
+    step: lifecycleLabel(currentStep),
+    status: isOperatorMergeStep(currentStep)
+      ? t("lifecycle.state.waiting_for_operator_merge")
+      : lifecycleStateLabel(projection.terminal_state || "ACTIVE"),
+  });
   section.append(summary);
   return section;
 }

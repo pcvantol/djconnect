@@ -680,7 +680,35 @@ test.describe("Engineering Status browser smoke", () => {
     }
     await nodes.nth(0).hover({ force: true });
     await expect(nodes.nth(0).locator("span").last()).toHaveCSS("color", "rgb(247, 243, 238)");
-    await expect(nodes.nth(1).locator("span").first()).toHaveCSS("background-color", "rgb(240, 182, 106)");
+    await expect(nodes.nth(1).locator("span").first()).toHaveCSS("background-color", "rgb(101, 197, 217)");
+  });
+
+  test("uses amber only for an operator merge wait, not ordinary active work", async ({ page }) => {
+    await page.route("**/api/events", (route) => route.abort());
+    await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({ json: { status: {} } }));
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => r({
+      watcher_state: "WAITING_FOR_OPERATOR_MERGE",
+      run_id: "lifecycle-operator-wait",
+      lifecycle: {
+        available: true,
+        run_id: "lifecycle-operator-wait",
+        terminal_state: "ACTIVE",
+        steps: [
+          { id: "implement", presentation_key: "lifecycle.step.execute_agent", state: "COMPLETED" },
+          { id: "finalization-merge", presentation_key: "lifecycle.step.wait_for_finalization_merge", state: "ACTIVE" },
+        ],
+      },
+    }, {}));
+    await page.locator("#currentRun").evaluate((element) => { element.open = true; });
+
+    const wait = page.locator(".execution-lifecycle__item--operator-wait");
+    await expect(wait).toHaveCount(1);
+    await expect(wait.locator(".execution-lifecycle__node").first()).toHaveClass(/operator-wait/);
+    await expect(wait.locator("span").first()).toHaveCSS("background-color", "rgb(240, 182, 106)");
+    await expect(page.locator(".execution-lifecycle__summary")).toContainText(
+      DASHBOARD_MESSAGES.nl["lifecycle.state.waiting_for_operator_merge"],
+    );
   });
 
   test("shows pull-request check repair and keeps Merge visibly blocked", async ({ page }) => {
