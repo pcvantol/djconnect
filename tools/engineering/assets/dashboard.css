@@ -295,8 +295,8 @@ html[data-theme="light"] #promptHistory .execution-history-action{background:#ff
 @media (max-width:620px){
   .confirmation-modal{box-sizing:border-box;height:100dvh;inset:0;margin:0;max-height:none;max-width:none;padding:max(12px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));width:100vw}
   .confirmation-modal[open]{display:grid;place-items:center}
-  .confirmation-modal__panel{box-sizing:border-box;display:grid;grid-template-rows:auto minmax(0,1fr) auto;max-height:100%;overflow:hidden;width:min(30rem,100%)}
-  .confirmation-modal__panel #confirmationModalText{min-height:0;overflow:auto}
+  .confirmation-modal__panel{box-sizing:border-box;display:grid;grid-template-rows:auto minmax(0,1fr) auto;max-height:100%;max-width:30rem;overflow:hidden;width:calc(100vw - 24px)}
+  .confirmation-modal__panel>p{min-height:0;overflow:auto}
   .confirmation-modal__actions{background:var(--modal-surface);margin-bottom:0;padding-top:20px;position:relative;z-index:1}
 }
 

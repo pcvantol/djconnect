@@ -1779,6 +1779,24 @@ test.describe("Engineering Status browser smoke", () => {
     expect(panelBox.x + panelBox.width).toBeLessThanOrEqual(832);
   });
 
+  test("centres the pull-request wait modal inside the iPhone portrait viewport", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+
+    const modal = page.locator("#operatorMergeWaitModal");
+    await modal.evaluate((element) => element.showModal());
+    const panel = modal.locator(".confirmation-modal__panel");
+    const box = await panel.boundingBox();
+
+    expect(box).not.toBeNull();
+    expect(box.x).toBeGreaterThanOrEqual(12);
+    expect(box.x + box.width).toBeLessThanOrEqual(378);
+    expect(box.y).toBeGreaterThanOrEqual(12);
+    expect(box.y + box.height).toBeLessThanOrEqual(832);
+    expect(Math.round(box.x + box.width / 2)).toBe(195);
+    expect(Math.round(box.y + box.height / 2)).toBe(422);
+  });
+
   test("uses a one-line AI chat composer on iPhone landscape", async ({ page }) => {
     await page.setViewportSize({ width: 844, height: 390 });
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
