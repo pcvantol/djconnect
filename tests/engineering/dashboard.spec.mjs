@@ -1583,12 +1583,15 @@ test.describe("Engineering Status browser smoke", () => {
     ];
     for (const [language, watcherStarted, staleLockRecovered] of expectations) {
       await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
-      const localeReload = page.waitForEvent(
-        "framenavigated",
-        (frame) => frame === page.mainFrame(),
-      );
-      await page.locator("#dashboardLocale").selectOption(language);
-      await localeReload;
+      const localeSelect = page.locator("#dashboardLocale");
+      if (await localeSelect.inputValue() !== language) {
+        const localeReload = page.waitForEvent(
+          "framenavigated",
+          (frame) => frame === page.mainFrame(),
+        );
+        await localeSelect.selectOption(language);
+        await localeReload;
+      }
       await page.waitForFunction(() => document.body.classList.contains("dashboard-ready"));
       await page.locator("#componentLogs").evaluate((element) => { element.open = true; });
       await page.waitForFunction(() => componentLogsLoaded);
