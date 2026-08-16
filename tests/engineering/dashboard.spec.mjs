@@ -669,6 +669,7 @@ test.describe("Engineering Status browser smoke", () => {
 
     const nodes = page.locator(".execution-lifecycle__node");
     await expect(nodes).toHaveCount(2);
+    await expect(page.locator(".execution-lifecycle h3")).toHaveCSS("font-size", "14px");
     for (let index = 0; index < await nodes.count(); index += 1) {
       const node = nodes.nth(index);
       await expect(node).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
