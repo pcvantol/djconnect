@@ -1100,6 +1100,10 @@ function isOperatorMergeStep(step) {
   return ["WAIT_FOR_OPERATOR_MERGE", "WAIT_FOR_FINALIZATION_MERGE"].includes(id)
     || ["lifecycle.step.wait_for_operator_merge", "lifecycle.step.wait_for_finalization_merge"].includes(key);
 }
+function isLifecycleStartStep(step) {
+  return String(step?.id || "").toUpperCase() === "START"
+    || String(step?.presentation_key || "") === "lifecycle.step.start";
+}
 function lifecycleDetailField(label, value) {
   const field = document.createElement("div"); field.className = "field";
   field.append(
@@ -1196,10 +1200,11 @@ function lifecycleFlow(projection, { historical = false } = {}) {
     button.type = "button"; button.className = "execution-lifecycle__node";
     if (state === "active" && !historical) button.classList.add("execution-lifecycle__node--active");
     if (operatorWait) button.classList.add("execution-lifecycle__node--operator-wait");
+    if (isLifecycleStartStep(step)) button.classList.add("execution-lifecycle__node--start");
     const name = lifecycleLabel(step), status = lifecycleStateLabel(step?.state);
     button.setAttribute("aria-label", name + " — " + status);
     button.addEventListener("click", () => openLifecycleDetail(step, button));
-    node.setAttribute("aria-hidden", "true"); node.textContent = state === "completed" ? "✓" : state === "complete" ? "✓" : state === "blocked" ? "!" : state === "failed" ? "×" : "";
+    node.setAttribute("aria-hidden", "true"); node.textContent = state === "completed" ? "✓" : state === "complete" ? "✓" : state === "blocked" ? "!" : state === "failed" ? "×" : isLifecycleStartStep(step) ? "🚀" : "";
     label.textContent = name;
     button.append(node, label);
     item.append(button);

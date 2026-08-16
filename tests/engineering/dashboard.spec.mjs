@@ -739,6 +739,31 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(connectors.nth(1)).toHaveCSS("background-color", "rgb(154, 154, 163)");
   });
 
+  test("uses a decorative rocket only for the lifecycle start boundary", async ({ page }) => {
+    await page.route("**/api/events", (route) => route.abort());
+    await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({ json: { status: {} } }));
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => r({
+      watcher_state: "ENGINEERING_RUN_ACTIVE",
+      run_id: "lifecycle-start-glyph",
+      lifecycle: {
+        available: true,
+        run_id: "lifecycle-start-glyph",
+        terminal_state: "ACTIVE",
+        steps: [
+          { id: "START", presentation_key: "lifecycle.step.start", state: "START" },
+          { id: "initialize", presentation_key: "lifecycle.step.initialize", state: "PENDING" },
+        ],
+      },
+    }, {}));
+    await page.locator("#currentRun").evaluate((element) => { element.open = true; });
+
+    const start = page.locator(".execution-lifecycle__node--start");
+    await expect(start).toHaveCount(1);
+    await expect(start.locator("span").first()).toHaveText("🚀");
+    await expect(start).toHaveAttribute("aria-label", /Start/);
+  });
+
   test("shows pull-request check repair and keeps Merge visibly blocked", async ({ page }) => {
     await page.route("**/api/events", (route) => route.abort());
     await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({ json: { status: {} } }));

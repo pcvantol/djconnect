@@ -188,6 +188,10 @@ circle uses the containing turquoise with a restrained pulse; only an active
 operator merge wait uses house-style orange with a dark glyph, so it retains
 the same warning meaning as a blocked historical result.
 
+The neutral **Start** boundary uses one decorative rocket glyph. Its accessible
+name remains the localized Start label, so the glyph adds a friendly visual
+cue without adding a second spoken state.
+
 The flow is part of its enclosing category, not an independent blue surface.
 Its title, border, non-terminal completed circles and connectors leading to a
 reached step inherit the containing category accent. Connectors leading to an
