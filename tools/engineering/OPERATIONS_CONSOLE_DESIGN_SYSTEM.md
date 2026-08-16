@@ -202,6 +202,9 @@ reached step inherit the containing category accent. Connectors leading to an
 unreached, blocked or pending step remain neutral grey. In the
 active-execution container the accent is monitoring cyan (`#65c5d9`). Terminal
 success, blocked and failed states keep their dedicated semantic colours.
+When an operator merge is pending, its persistent pull-request handoff card
+spans the active-execution grid and sits directly below the lifecycle flow;
+status, context and local-process cards follow it.
 Lifecycle state, connector geometry, node interaction and the touch-safe
 no-glass treatment are maintained as one stylesheet bundle.
 

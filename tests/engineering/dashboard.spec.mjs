@@ -1075,6 +1075,13 @@ test.describe("Engineering Status browser smoke", () => {
         pull_request: 832,
         target_repository: "pcvantol/djconnect",
         prompt_title: "Merge wait fixture",
+        lifecycle: {
+          available: true, run_id: "inbox-merge-wait", terminal_state: "ACTIVE",
+          steps: [
+            { id: "start", presentation_key: "lifecycle.step.start", state: "COMPLETED" },
+            { id: "merge", presentation_key: "lifecycle.step.wait_for_operator_merge", state: "ACTIVE" },
+          ],
+        },
       } },
     }));
     let abortRequested = false;
@@ -1087,6 +1094,7 @@ test.describe("Engineering Status browser smoke", () => {
     await page.locator("#currentRun").evaluate((element) => { element.open = true; });
     const wait = page.locator("#operatorMergeWait");
     await expect(wait).toBeVisible();
+    await expect(page.locator(".execution-lifecycle + #operatorMergeWait")).toBeVisible();
     const mergeLink = wait.locator("a");
     const abort = wait.getByRole("button", { name: DASHBOARD_MESSAGES.nl["action.abort_execution"] });
     await expect(mergeLink).toHaveAttribute("href", "https://github.com/pcvantol/djconnect/pull/832");

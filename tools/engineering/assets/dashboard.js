@@ -1037,6 +1037,7 @@ function renderOperatorMergeWait(x) {
   const waiting = x.current_phase === "WAIT_FOR_OPERATOR_MERGE" && Number.isInteger(pullRequest) && pullRequest > 0;
   card.hidden = !waiting;
   if (!waiting) return;
+  placeOperatorMergeWait();
   const repository = String(x.target_repository || "").trim();
   const href = repository ? `https://github.com/${repository.split("/").map(encodeURIComponent).join("/")}/pull/${pullRequest}` : "#";
   const link = $("operatorMergePullRequest");
@@ -1255,6 +1256,7 @@ function renderActiveLifecycle(projection) {
     // fallback preserves compatibility with an older dashboard shell.
     if (identity?.parentElement === current) identity.after(lifecycle);
     else current.prepend(lifecycle);
+    placeOperatorMergeWait();
     if (preservedScrollLeft) {
       const nextScroll = lifecycle.querySelector(".execution-lifecycle__scroll");
       // Wait for the replacement path to take part in layout before restoring
@@ -1262,6 +1264,12 @@ function renderActiveLifecycle(projection) {
       requestAnimationFrame(() => { nextScroll.scrollLeft = preservedScrollLeft; });
     }
   }
+}
+function placeOperatorMergeWait() {
+  const current = $("currentRun")?.querySelector(".current-run__grid"),
+    lifecycle = current?.querySelector(".execution-lifecycle"),
+    wait = $("operatorMergeWait");
+  if (current && lifecycle && wait?.parentElement === current) lifecycle.after(wait);
 }
 function renderHealthStatus(x, snapshot = {}) {
   lastRefresh = new Date();
