@@ -166,6 +166,12 @@ The lifecycle flow follows identity, then execution status, execution context
 and local Codex processes, keeping the sequence adjacent to the artifact it
 explains.
 
+Step labels name their operational boundary rather than only its generic
+phase: **PR-controleherstel** identifies bounded repair of failed PR checks,
+**Implementatie-merge** identifies the implementation PR hand-off, and
+**Finalisatie-merge** identifies the separate finalization PR hand-off. These
+three labels are localized as a related set in every supported language.
+
 Within the active-execution container, the lifecycle and execution-context
 blocks use the same card surface as status and operational blocks. Their
 turquoise border and headings provide the distinction; a lighter inner fill is

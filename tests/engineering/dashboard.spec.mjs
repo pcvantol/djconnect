@@ -1050,6 +1050,26 @@ test.describe("Engineering Status browser smoke", () => {
     ]);
   });
 
+  test("uses explicit localized labels for PR repair and both merge hand-offs", async ({ page }) => {
+    await page.route("**/api/events", (route) => route.abort());
+    await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({ json: { status: {} } }));
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => r({ watcher_state: "ENGINEERING_RUN_ACTIVE", lifecycle: {
+      available: true, run_id: "lifecycle-explicit-labels", terminal_state: "ACTIVE",
+      steps: [
+        { id: "repair", presentation_key: "lifecycle.step.repair_agent", state: "COMPLETED" },
+        { id: "implementation-merge", presentation_key: "lifecycle.step.wait_for_operator_merge", state: "COMPLETED" },
+        { id: "finalization-merge", presentation_key: "lifecycle.step.wait_for_finalization_merge", state: "ACTIVE" },
+      ],
+    } }, {}));
+    await page.locator("#currentRun").evaluate((element) => { element.open = true; });
+    await expect(page.locator(".execution-lifecycle__node")).toContainText([
+      DASHBOARD_MESSAGES.nl["lifecycle.step.repair_agent"],
+      DASHBOARD_MESSAGES.nl["lifecycle.step.wait_for_operator_merge"],
+      DASHBOARD_MESSAGES.nl["lifecycle.step.wait_for_finalization_merge"],
+    ]);
+  });
+
   test("keeps selected sortable headers within a thin cell edge", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.locator("#componentLogs").evaluate((element) => { element.open = true; });
