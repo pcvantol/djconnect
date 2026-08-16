@@ -3002,7 +3002,7 @@ function addComponentLogCopyButtons() {
         .then(() => void recordUserAction("component_visible_log_copied"))
         .catch(() => { button.title = t("copy.failed"); });
     });
-    download.before(button);
+    download.after(button);
   });
 }
 addComponentLogCopyButtons();

@@ -3894,6 +3894,13 @@ test.describe("Engineering Status browser smoke", () => {
     for (const selector of ["#clearChat", "#componentLogs .clear-component-log"]) {
       await expect(page.locator(selector).first()).toHaveClass(/dashboard-action--destructive/);
     }
+    expect(await page.locator("#componentLogs .log-card-actions").evaluateAll((actions) => actions.map(
+      (action) => Array.from(action.children).map((button) => {
+        if (button.classList.contains("component-log-download")) return "download";
+        if (button.classList.contains("component-log-copy")) return "copy";
+        return "clear";
+      }),
+    ))).toEqual([["download", "copy", "clear"], ["download", "copy", "clear"]]);
   });
 
   test("uses the generic orange download glyph in the prompt-scoped chat", async ({ page }) => {
