@@ -1,10 +1,10 @@
-# Version: 1.3.2
+# Version: 1.3.3
 # Phase lifecycle, progress reporting, reboot continuation and repair flow.
 phase_section_id() {
   local phase_id="$1"
   case "$phase_id" in
     macos-preflight) printf '%s' 'host-qualification' ;;
-    sudo|tooling|xcode|parallels) printf '%s' 'host-provisioning' ;;
+    sudo|tooling|xcode) printf '%s' 'host-provisioning' ;;
     github-auth|permissions-audit|repositories) printf '%s' 'repository-access' ;;
     developer-workstation|docker-auth|home-assistant-lab) printf '%s' 'developer-workstation' ;;
     runner-apple|runner-private-network|runner-esp32|runner-pi) printf '%s' 'runner-provisioning' ;;
@@ -62,7 +62,7 @@ all_section_ids() {
 section_phase_ids() {
   case "$1" in
     host-qualification) printf '%s\n' macos-preflight ;;
-    host-provisioning) printf '%s\n' sudo tooling xcode parallels ;;
+    host-provisioning) printf '%s\n' sudo tooling xcode ;;
     repository-access) printf '%s\n' github-auth permissions-audit repositories ;;
     developer-workstation) printf '%s\n' developer-workstation docker-auth home-assistant-lab ;;
     runner-provisioning) printf '%s\n' runner-apple runner-private-network runner-esp32 runner-pi ;;
@@ -291,7 +291,9 @@ get_phase_state() {
 
 all_phase_ids() {
   local profile
-  printf '%s\n' macos-preflight sudo tooling xcode parallels github-auth permissions-audit repositories developer-workstation docker-auth home-assistant-lab
+  # TEMPORARY: Windows is outside the current DJConnect scope, so the retained
+  # Parallels phase is excluded from active lifecycle and progress accounting.
+  printf '%s\n' macos-preflight sudo tooling xcode github-auth permissions-audit repositories developer-workstation docker-auth home-assistant-lab
   for profile in "${DESIRED_PROFILES[@]}"; do
     profile_is_local_macos "$profile" || continue
     printf 'runner-%s\n' "$profile"
@@ -330,7 +332,7 @@ print_phase_catalog() {
   local phase_id
   printf '%-26s | %-31s | %s\n' 'PHASE ID' 'EXECUTION CAPABILITY' 'NOTES'
   printf '%-26s-+-%-31s-+-%s\n' "$(printf '%*s' 26 '' | tr ' ' '-')" "$(printf '%*s' 31 '' | tr ' ' '-')" "$(printf '%*s' 65 '' | tr ' ' '-')"
-  for phase_id in macos-preflight sudo tooling xcode parallels github-auth repositories developer-workstation docker-auth home-assistant-lab runner-apple runner-private-network runner-esp32 runner-pi maintenance tooling-refresh reboot-check services apple-signing apple-readiness credential-expiry-audit apple-github-audit initial-verification; do
+  for phase_id in macos-preflight sudo tooling xcode github-auth repositories developer-workstation docker-auth home-assistant-lab runner-apple runner-private-network runner-esp32 runner-pi maintenance tooling-refresh reboot-check services apple-signing apple-readiness credential-expiry-audit apple-github-audit initial-verification; do
     printf '%-26s | %-31s | %s\n' "$phase_id" "$(phase_execution_capability "$phase_id")" "$(phase_execution_note "$phase_id")"
   done
 }

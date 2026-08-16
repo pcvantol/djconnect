@@ -33,7 +33,11 @@ engineering.status_relative_path: .engineering/status/status.json
 engineering.reports_relative_path: .engineering/reports
 
 tooling.formulas: git,gh,jq,node,python@3.12,xcodegen,swiftlint,xcbeautify,create-dmg,mas,xcodes,platformio,picotool
-tooling.required_casks: docker,dotnet-sdk,parallels,ngrok
+# TEMPORARY: Windows is outside the current DJConnect scope. Keep Parallels in
+# this commented desired-state entry so the Windows qualification can be
+# restored by re-adding it to the active cask list.
+# tooling.required_casks: docker,dotnet-sdk,parallels,ngrok
+tooling.required_casks: docker,dotnet-sdk,ngrok
 tooling.optional_casks:
 
 lab.home_assistant.service: homeassistant
@@ -65,7 +69,10 @@ network.tailscale.shields_up: disabled
 # unattended Homebrew cask upgrade when the app was installed independently.
 network.tailscale.auto_update: enabled
 
-runner.profiles: apple,private-network,esp32,pi,windows
+# TEMPORARY: Windows is outside the current DJConnect scope. Retain the
+# Windows profile definition below for a deliberate future re-enable.
+# runner.profiles: apple,private-network,esp32,pi,windows
+runner.profiles: apple,private-network,esp32,pi
 profile.apple.repository: djconnect-app
 profile.apple.runner_name: djconnect-apple-macos
 profile.apple.labels: internal-release,qualification,apple
