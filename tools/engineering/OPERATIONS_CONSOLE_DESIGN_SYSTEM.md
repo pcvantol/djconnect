@@ -116,10 +116,11 @@ orange border for actual inputs, selects and text areas.
 
 Cards group one coherent evidence type. Tables retain headers, sortable states
 and horizontal scrolling at narrow widths; they are not squeezed into
-illegible columns. Selected history rows and sortable table headers show a
-thin, unbroken `1px` selected edge inside their own cells. This keeps the
-first row directly under the table header and sticky headers fully bounded
-without drawing across adjacent cells.
+illegible columns. A selected data row is one contiguous treatment: a shared
+tinted row surface with only its leading selection marker. Never draw a
+separate focus or selection border around individual cells. Sortable headers
+may use their own thin focus edge because they are independently interactive;
+that edge must remain contained inside the sticky header cell.
 
 Repeated compact evidence, such as specialist reviewer status, uses an
 auto-fitting grid of at least `180px` tiles. It fills a row when space permits
@@ -146,6 +147,25 @@ count and never report a live Codex-progress or token signal it does not have.
 Log copy means the **currently visible result set**: after filtering, sorting
 and current-page pagination. It includes headers and no hidden rows.
 
+Percentages are locale-formatted with exactly **one fractional digit**. This
+applies to live metrics, limits and telemetry alike, so precision does not
+vary by panel or by refresh.
+
+### Execution lifecycle flow
+
+Lifecycle steps use fixed-width slots, a visible connector on a layer behind
+the circular nodes, and equal connector length between every adjacent pair.
+Long labels wrap within their own slot rather than changing the topology.
+The active or selected progression label uses house-style orange so it remains
+readable against both light and dark execution surfaces.
+
+Each lifecycle node is an accessible detail control. Its modal presents only
+persisted, run-scoped evidence: lifecycle state, observed start and finish
+timestamps, repair iterations where recorded, and a split of the recorded
+Execution Host phase durations. Missing evidence is explicitly shown as
+unavailable; the console never derives an end time or duration from prompt
+content, polling cadence or UI state.
+
 ## 5. Controls
 
 ### Size and form
@@ -161,6 +181,20 @@ There are only three circular control sizes:
 All round controls have the shared elevation shadow. Glyphs and button text
 are non-selectable. A button uses a semantic class (`--download`, `--copy`,
 `--destructive`, etc.) rather than a one-off colour override.
+
+### Glyphs
+
+Glyphs are a shared control language, not ordinary body text. Every
+icon-only action, close control, category glyph, disclosure arrow and
+decorative modal-title glyph uses the shared **bold** glyph weight. This makes
+compact controls equally legible in both themes and at phone scale.
+
+Keep the glyph weight scoped to the glyph itself: the adjacent action label
+stays at its normal text weight. When an action has both a glyph and a label,
+they form one horizontally and vertically centred group; the glyph may create
+only the small leading gap required for recognition. Do not use a glyph alone
+for a non-obvious action, and never make a text label bold merely because it
+sits next to a glyph.
 
 ### Meaning and interaction
 
@@ -296,6 +330,15 @@ Add or extend Playwright coverage for the changed state and, when applicable:
 - sorting/filtering/pagination semantics for tables and logs.
 - the prompt-history page with its longest rendered status, ensuring the
   status column fits and the title contracts before it overlaps.
+- selected rows in every affected table: verify the contiguous row treatment,
+  the single leading marker and the absence of per-cell focus/selection
+  outlines;
+- all modal close controls and title/disclosure glyphs: verify the shared bold
+  glyph weight in both themes;
+- lifecycle flow geometry: verify connector visibility, its layer behind the
+  node, fixed connector length and readable selected-label contrast;
+- numeric precision: verify locale-aware percentage output with exactly one
+  fractional digit.
 
 For a visual change, capture and review at minimum: desktop dark, desktop
 light, iPhone dark expanded, and iPhone light expanded. A passing test suite

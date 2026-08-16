@@ -28,7 +28,19 @@ class DashboardStateTest(unittest.TestCase):
                 encoding="utf-8",
             )
             (status / "current.json").write_text(
-                json.dumps({"run_id": "run-1", "phase": "EXECUTE_AGENT"}), encoding="utf-8"
+                json.dumps(
+                    {
+                        "run_id": "run-1",
+                        "phase": "EXECUTE_AGENT",
+                        "workspace_progress": {
+                            "modified": 3,
+                            "created": 2,
+                            "deleted": 1,
+                            "codex_commands_executed": 17,
+                        },
+                    }
+                ),
+                encoding="utf-8",
             )
             StateStore(root / ".engineering" / "engineering-runs").save(
                 TransactionState("run-1", "repo", "prompt.md", "EXECUTE_AGENT")
@@ -42,6 +54,10 @@ class DashboardStateTest(unittest.TestCase):
         self.assertEqual(payload["run_id"], "run-1")
         self.assertEqual(payload["queue_depth"], 1)
         self.assertEqual(payload["queue_items"], [{"filename": "later.md"}])
+        self.assertEqual(
+            payload["workspace_progress"],
+            {"modified": 3, "created": 2, "deleted": 1, "codex_commands_executed": 17},
+        )
 
     def test_status_projects_only_the_persisted_execution_context_snapshot(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

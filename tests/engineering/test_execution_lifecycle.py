@@ -4,8 +4,10 @@ from __future__ import annotations
 from pathlib import Path
 import tempfile
 import unittest
+from datetime import datetime, timedelta, timezone
 
 from tools.engineering.agent_state import StateStore, TransactionState
+from tools.engineering.execution_timing import complete_phase, start_phase
 from tools.engineering.execution_lifecycle import intended_path, projection
 
 
@@ -44,6 +46,29 @@ class ExecutionLifecycleProjectionTests(unittest.TestCase):
     def test_genesis_has_its_own_canonical_path(self) -> None:
         self.assertNotIn("WAIT_FOR_OPERATOR_MERGE", intended_path("GENESIS"))
         self.assertIn("WAIT_FOR_OPERATOR_MERGE", intended_path("MANAGED"))
+
+    def test_projection_exposes_only_persisted_step_phase_timing(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            self._state(root, "EXECUTE_AGENT")
+            started = datetime(2026, 8, 16, 14, 0, tzinfo=timezone.utc)
+            phase = start_phase(
+                root, "inbox-flow", "PROVIDER_EXECUTION", started_at=started, monotonic_clock=10.0,
+            )
+            complete_phase(
+                root, phase, completed_at=started + timedelta(seconds=12), monotonic_clock=22.0,
+            )
+            value = projection(root, "inbox-flow")
+        by_id = {step["id"]: step for step in value["steps"]}
+        timing = by_id["EXECUTE_AGENT"]["timing"]
+        self.assertEqual(timing["started_at"], "2026-08-16T14:00:00+00:00")
+        self.assertEqual(timing["finished_at"], "2026-08-16T14:00:12+00:00")
+        self.assertEqual(timing["spans"], [{
+            "phase": "PROVIDER_EXECUTION", "attempt": 1,
+            "started_at": "2026-08-16T14:00:00+00:00",
+            "finished_at": "2026-08-16T14:00:12+00:00",
+            "duration_ms": 12000, "outcome": "COMPLETE",
+        }])
 
     def test_missing_run_never_infers_historical_progress(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

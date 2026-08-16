@@ -23,6 +23,19 @@ _GENESIS_PATH = (
     "FINALIZE_AGENT", "REPOSITORY_CLEANUP", "TERMINAL",
 )
 
+# This is a presentation-only association. The Execution Host stays the
+# authority for phase timing; this projection only groups persisted evidence
+# under the corresponding visible lifecycle step.
+_STEP_PHASES = {
+    "START": frozenset({"QUEUE_WAIT", "SUBMISSION_CLAIM"}),
+    "INITIALIZE": frozenset({"INITIALIZATION", "HOST_PREFLIGHT", "WORKSPACE_PREFLIGHT", "CAPABILITY_PREFLIGHT"}),
+    "EXECUTE_AGENT": frozenset({"EXECUTION_PREPARATION", "PROVIDER_EXECUTION", "VALIDATION"}),
+    "REPAIR_AGENT": frozenset({"REPAIR"}),
+    "WAIT_FOR_OPERATOR_MERGE": frozenset({"PR_OR_MERGE", "EXTERNAL_CI_WAIT"}),
+    "FINALIZE_AGENT": frozenset({"REPOSITORY_FINALIZATION", "FINALIZATION", "REPORT_GENERATION", "EVIDENCE_PERSISTENCE", "RECONCILIATION"}),
+    "REPOSITORY_CLEANUP": frozenset({"REPOSITORY_CLEANUP"}),
+}
+
 
 def intended_path(execution_mode: object) -> tuple[str, ...]:
     """Return the canonical display path for one existing execution mode."""
@@ -65,6 +78,11 @@ def projection(root: Path, run_id: str | None) -> dict[str, object]:
             mode_row = connection.execute(
                 "SELECT execution_mode FROM execution_runs WHERE run_id=?", (run_id,)
             ).fetchone()
+            phase_spans = connection.execute(
+                "SELECT phase_name,attempt,started_at,completed_at,duration_ms,outcome "
+                "FROM execution_phase_spans WHERE run_id=? ORDER BY ordinal",
+                (run_id,),
+            ).fetchall()
         finally:
             connection.close()
     except EngineeringStorageError:
@@ -80,7 +98,7 @@ def projection(root: Path, run_id: str | None) -> dict[str, object]:
     for event_phase, event_checkpoint, recorded_at in events:
         event = _checkpoint(event_checkpoint)
         if event_phase in path and event_phase not in {"START", "TERMINAL"}:
-            observed[str(event_phase)] = {"started_at": recorded_at}
+            observed.setdefault(str(event_phase), {"started_at": recorded_at})
         if event_phase == "REPAIR_AGENT":
             repair_iterations = max(repair_iterations, _nonnegative_int(event.get("repair_iterations")))
     repair_iterations = max(repair_iterations, _nonnegative_int(checkpoint.get("repair_iterations")))
@@ -106,6 +124,25 @@ def projection(root: Path, run_id: str | None) -> dict[str, object]:
             step["state"] = "ACTIVE" if phase == step_id and terminal_state is None else "COMPLETED"
         if step_id == "REPAIR_AGENT" and repair_iterations:
             step["iteration_count"] = repair_iterations
+        phase_names = _STEP_PHASES.get(step_id, frozenset())
+        spans = [
+            {
+                "phase": phase_name,
+                "attempt": attempt,
+                "started_at": started_at,
+                "finished_at": completed_at,
+                "duration_ms": duration_ms,
+                "outcome": outcome,
+            }
+            for phase_name, attempt, started_at, completed_at, duration_ms, outcome in phase_spans
+            if phase_name in phase_names
+        ]
+        if spans:
+            step["timing"] = {
+                "started_at": min(str(span["started_at"]) for span in spans if span["started_at"]),
+                "finished_at": max((str(span["finished_at"]) for span in spans if span["finished_at"]), default=None),
+                "spans": spans,
+            }
         steps.append(step)
     return {
         "run_id": run_id,

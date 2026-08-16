@@ -173,6 +173,7 @@ def status(root: Path) -> bytes:
                 "active_branch": live.get("active_branch"),
                 "reviewer_agents": live.get("reviewer_agents", []),
                 "runtime_metadata": live.get("runtime_metadata", {}),
+                "workspace_progress": live.get("workspace_progress"),
                 "execution_liveness": live_liveness,
                 "readiness": load_readiness_evaluation(root, live.get("run_id")),
                 # The dashboard consumes only the immutable context snapshot

@@ -503,7 +503,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("dialog[open]")).toHaveCount(1);
   });
 
-  test("keeps the orange selected-row treatment visible for prompt history on touch devices", async ({ page }) => {
+  test("uses one uninterrupted orange selected-row treatment for prompt history on touch devices", async ({ page }) => {
     // Keep the client-side fixture stable: the initial history refresh can
     // otherwise replace this row after it has been rendered in CI.
     await page.route("**/api/events", (route) => route.abort());
@@ -538,11 +538,15 @@ test.describe("Engineering Status browser smoke", () => {
       getComputedStyle(cells[Math.floor(cells.length / 2)]).boxShadow,
       getComputedStyle(cells.at(-1)).boxShadow,
       getComputedStyle(cells[0]).backgroundColor,
+      getComputedStyle(cells[0]).outlineStyle,
+      getComputedStyle(cells[Math.floor(cells.length / 2)]).outlineStyle,
+      getComputedStyle(cells.at(-1)).outlineStyle,
     ]);
     expect(selection[0]).toContain("2px 0px 0px 0px inset");
     expect(selection[1]).toBe("none");
     expect(selection[2]).toBe("none");
     expect(selection[3]).not.toBe("rgba(0, 0, 0, 0)");
+    expect(selection.slice(4)).toEqual(["none", "none", "none"]);
     await page.locator("#promptHistoryDetailClose").click();
     await page.locator("#promptHistoryFilter").fill("Focused");
     await expect(row).toHaveAttribute("data-selected", "false");
@@ -610,6 +614,134 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(modal).not.toBeVisible();
   });
 
+  test("renders execution-lifecycle nodes without button chrome", async ({ page }) => {
+    await page.route("**/api/events", (route) => route.abort());
+    await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({ json: { status: {} } }));
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => r({
+      watcher_state: "ENGINEERING_RUN_ACTIVE",
+      run_id: "lifecycle-chrome",
+      lifecycle: {
+        available: true,
+        run_id: "lifecycle-chrome",
+        terminal_state: "ACTIVE",
+        steps: [
+          { id: "start", presentation_key: "lifecycle.step.start", state: "COMPLETED" },
+          { id: "execute", presentation_key: "lifecycle.step.execute", state: "ACTIVE" },
+        ],
+      },
+    }, {}));
+
+    const nodes = page.locator(".execution-lifecycle__node");
+    await expect(nodes).toHaveCount(2);
+    for (let index = 0; index < await nodes.count(); index += 1) {
+      const node = nodes.nth(index);
+      await expect(node).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
+      await expect(node).toHaveCSS("border-top-width", "0px");
+      await expect(node).toHaveCSS("box-shadow", "none");
+      await expect(node.locator("span").first()).toHaveCSS("border-top-width", "3px");
+    }
+    await expect(nodes.nth(1).locator("span").first()).toHaveCSS("background-color", "rgb(240, 182, 106)");
+  });
+
+  test("keeps execution-lifecycle connector lengths fixed for long labels", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => r({
+      watcher_state: "ENGINEERING_RUN_ACTIVE",
+      run_id: "lifecycle-spacing",
+      lifecycle: {
+        available: true,
+        run_id: "lifecycle-spacing",
+        terminal_state: "ACTIVE",
+        steps: [
+          { id: "initialize", presentation_key: "lifecycle.step.initialize", state: "COMPLETED" },
+          { id: "repository_cleanup", presentation_key: "lifecycle.step.repository_cleanup", state: "COMPLETED" },
+          { id: "terminal", presentation_key: "lifecycle.step.terminal", state: "ACTIVE" },
+        ],
+      },
+    }, {}));
+
+    const spacing = await page.locator(".execution-lifecycle__item").evaluateAll((items) => items.map((item) => {
+      const itemBox = item.getBoundingClientRect();
+      const circleBox = item.querySelector(".execution-lifecycle__node > span")?.getBoundingClientRect();
+      const connectorElement = item.querySelector(".execution-lifecycle__connector");
+      const connector = connectorElement ? getComputedStyle(connectorElement) : null;
+      return {
+        itemWidth: itemBox.width,
+        centre: circleBox ? circleBox.left + (circleBox.width / 2) : null,
+        connectorLeft: Number.parseFloat(connector?.left),
+        connectorWidth: Number.parseFloat(connector?.width),
+        connectorColor: connector?.backgroundColor,
+        connectorLayer: connector?.zIndex,
+        selectedLabelColor: getComputedStyle(item.querySelector(".execution-lifecycle__node > span:last-child")).color,
+      };
+    }));
+
+    expect(spacing[0].itemWidth).toBeGreaterThan(0);
+    expect(spacing[1].itemWidth).toBe(spacing[0].itemWidth);
+    expect(spacing[2].itemWidth).toBe(spacing[0].itemWidth);
+    expect(spacing[1].centre - spacing[0].centre).toBe(spacing[0].itemWidth);
+    expect(spacing[2].centre - spacing[1].centre).toBe(spacing[0].itemWidth);
+    // The connector starts at the right edge of one 52px circle and ends at
+    // the left edge of the next; it must not end at the current item boundary.
+    expect(spacing[0].connectorLeft + spacing[0].connectorWidth).toBe(
+      spacing[0].itemWidth + ((spacing[0].itemWidth / 2) - 26),
+    );
+    expect(spacing[0].connectorColor).not.toBe("rgba(0, 0, 0, 0)");
+    expect(spacing[0].connectorLayer).toBe("3");
+    expect(spacing[2].connectorColor).toBeUndefined();
+    expect(spacing[0].selectedLabelColor).toBe("rgb(240, 182, 106)");
+  });
+
+  test("opens a native lifecycle step detail with persisted phase timing", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => r({
+      watcher_state: "ENGINEERING_RUN_ACTIVE",
+      run_id: "lifecycle-detail",
+      lifecycle: {
+        available: true, run_id: "lifecycle-detail", terminal_state: "ACTIVE",
+        steps: [{
+          id: "execute", presentation_key: "lifecycle.step.execute_agent", state: "ACTIVE",
+          timing: { started_at: "2026-08-16T14:00:00Z", finished_at: "2026-08-16T14:03:00Z", spans: [{
+            phase: "PROVIDER_EXECUTION", duration_ms: 12000, outcome: "COMPLETE",
+          }] },
+        }],
+      },
+    }, {}));
+    await page.locator("#currentRun").evaluate((element) => { element.open = true; });
+    await page.locator(".execution-lifecycle__node").click();
+    const modal = page.locator("#lifecycleDetailModal");
+    await expect(modal).toBeVisible();
+    await expect(modal).toContainText("Implementatie");
+    await expect(modal).toContainText(DASHBOARD_MESSAGES.nl["telemetry.phase.provider_execution"]);
+    await expect(modal).toContainText("12 sec");
+    await page.locator("#lifecycleDetailClose").click();
+    await expect(modal).not.toBeVisible();
+  });
+
+  test("preserves the active lifecycle horizontal position across server refreshes", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    const lifecycle = {
+      available: true,
+      run_id: "lifecycle-scroll",
+      terminal_state: "ACTIVE",
+      steps: [
+        { id: "start", presentation_key: "lifecycle.step.start", state: "COMPLETED" },
+        { id: "initialize", presentation_key: "lifecycle.step.initialize", state: "COMPLETED" },
+        { id: "execute", presentation_key: "lifecycle.step.execute_agent", state: "ACTIVE" },
+        { id: "repair", presentation_key: "lifecycle.step.repair_agent", state: "PENDING" },
+        { id: "merge", presentation_key: "lifecycle.step.wait_for_operator_merge", state: "PENDING" },
+      ],
+    };
+    await page.evaluate((fixture) => r({ watcher_state: "ENGINEERING_RUN_ACTIVE", run_id: fixture.run_id, lifecycle: fixture }, {}), lifecycle);
+    const scroll = page.locator(".execution-lifecycle__scroll");
+    await scroll.evaluate((element) => { element.scrollLeft = 80; });
+    await expect.poll(() => scroll.evaluate((element) => element.scrollLeft)).toBe(80);
+
+    await page.evaluate((fixture) => r({ watcher_state: "ENGINEERING_RUN_ACTIVE", run_id: fixture.run_id, lifecycle: fixture }, {}), lifecycle);
+    await expect(scroll).toHaveJSProperty("scrollLeft", 80);
+  });
+
   test("keeps a green pull request visible until the operator merges or aborts it", async ({ page }) => {
     await page.route("**/api/events", (route) => route.abort());
     await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({
@@ -632,11 +764,42 @@ test.describe("Engineering Status browser smoke", () => {
     await page.locator("#currentRun").evaluate((element) => { element.open = true; });
     const wait = page.locator("#operatorMergeWait");
     await expect(wait).toBeVisible();
-    await expect(wait.locator("a")).toHaveAttribute("href", "https://github.com/pcvantol/djconnect/pull/832");
+    const mergeLink = wait.locator("a");
+    const abort = wait.getByRole("button", { name: DASHBOARD_MESSAGES.nl["action.abort_execution"] });
+    await expect(mergeLink).toHaveAttribute("href", "https://github.com/pcvantol/djconnect/pull/832");
+    await expect(mergeLink).toHaveCSS("border-top-left-radius", "10px");
+    await expect(abort).toHaveCSS("border-top-left-radius", "10px");
+    const actionLayout = await wait.locator(".operator-merge-wait__actions").evaluate((container) => {
+      const [first, second] = Array.from(container.children).map((action) => action.getBoundingClientRect());
+      return { first: { right: first.right, bottom: first.bottom }, second: { left: second.left, top: second.top } };
+    });
+    expect(
+      actionLayout.first.bottom <= actionLayout.second.top || actionLayout.first.right <= actionLayout.second.left,
+    ).toBe(true);
+    expect(await mergeLink.evaluate((element) => getComputedStyle(element, "::before").content)).toBe('"↗"');
+    expect(await abort.evaluate((element) => getComputedStyle(element, "::before").content)).toBe('"⊘"');
     await expect(page.locator("#operatorMergeWaitModal")).toBeVisible();
-    await expect(page.locator("#operatorMergeWaitModalPullRequest")).toHaveAttribute("href", "https://github.com/pcvantol/djconnect/pull/832");
+    const mergeModal = page.locator("#operatorMergeWaitModal");
+    const modalPullRequest = page.locator("#operatorMergeWaitModalPullRequest");
+    const modalAbort = page.locator("#operatorMergeWaitModalAbort");
+    await expect(modalPullRequest).toHaveAttribute("href", "https://github.com/pcvantol/djconnect/pull/832");
+    await expect(modalPullRequest).toHaveCSS("text-decoration-line", "none");
+    await expect(modalPullRequest).toHaveCSS("border-top-color", "rgb(240, 182, 106)");
+    await expect(modalAbort).toHaveCSS("border-top-color", "rgb(255, 113, 143)");
+    await expect(modalPullRequest).toHaveCSS("background-color", "rgb(59, 40, 27)");
+    await expect(modalAbort).toHaveCSS("background-color", "rgb(58, 32, 40)");
+    await expect(modalAbort).toHaveCSS("color", "rgb(255, 217, 225)");
+    await expect(modalPullRequest).toHaveCSS("display", "flex");
+    await expect(modalPullRequest).toHaveCSS("align-items", "center");
+    await expect(modalPullRequest).toHaveCSS("justify-content", "center");
+    await expect(modalPullRequest).toHaveCSS("font-weight", "400");
+    await expect(modalAbort).toHaveCSS("font-weight", "400");
+    expect(await modalPullRequest.evaluate((element) => getComputedStyle(element, "::before").content)).toBe('"↗"');
+    expect(await modalAbort.evaluate((element) => getComputedStyle(element, "::before").content)).toBe('"⊘"');
+    expect(await modalAbort.evaluate((element) => getComputedStyle(element, "::before").fontWeight)).toBe("700");
+    expect(await modalAbort.evaluate((element) => getComputedStyle(element, "::before").textShadow)).not.toBe("none");
     await page.locator("#operatorMergeWaitModalClose").click();
-    await wait.getByRole("button", { name: DASHBOARD_MESSAGES.nl["action.abort_execution"] }).click();
+    await abort.click();
     await expect(page.locator("#confirmationModal")).toBeVisible();
     await page.locator("#confirmationModalConfirm").click();
     await expect.poll(() => abortRequested).toBe(true);
@@ -699,6 +862,56 @@ test.describe("Engineering Status browser smoke", () => {
       await expect(modal.locator(".dashboard-modal-shell__close")).toHaveCSS("border-top-color", "rgb(146, 145, 155)");
       await modal.evaluate((element) => element.close());
     }
+  });
+
+  test("keeps every modal close control visible in light mode", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#themeToggle").click();
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+
+    const shells = page.locator("dialog.dashboard-modal-shell");
+    expect(await shells.count()).toBeGreaterThan(0);
+    for (let index = 0; index < await shells.count(); index += 1) {
+      const shell = shells.nth(index);
+      await shell.evaluate((element) => element.showModal());
+      const close = shell.locator(".dashboard-modal-shell__close");
+      await expect(close).toBeVisible();
+      await expect(close).toHaveCSS("background-color", "rgb(247, 251, 255)");
+      await expect(close).toHaveCSS("color", "rgb(39, 54, 74)");
+      await expect(close).toHaveCSS("border-top-color", "rgb(114, 129, 151)");
+      await shell.evaluate((element) => element.close());
+    }
+  });
+
+  test("never gives a modal close control the initial focus", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    const shells = page.locator("dialog.dashboard-modal-shell");
+    for (let index = 0; index < await shells.count(); index += 1) {
+      const shell = shells.nth(index);
+      await shell.evaluate((element) => element.showModal());
+      const close = shell.locator(".dashboard-modal-shell__close");
+      await expect.poll(() => close.evaluate((element) => document.activeElement !== element)).toBe(true);
+      await expect(close).not.toBeFocused();
+      await shell.evaluate((element) => element.close());
+    }
+  });
+
+  test("uses the shared bold glyph weight for action and disclosure glyphs", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await expect(page.locator("#pageRefresh span")).toHaveCSS("font-weight", "700");
+    const modalCloses = page.locator("dialog.dashboard-modal-shell .dashboard-modal-shell__close");
+    expect(await modalCloses.count()).toBeGreaterThan(0);
+    for (let index = 0; index < await modalCloses.count(); index += 1) {
+      await expect(modalCloses.nth(index)).toHaveCSS("font-weight", "700");
+    }
+    const modalTitleGlyphWeights = await page.locator(
+      "dialog.dashboard-modal-shell :is(.component-modal h2,.confirmation-modal h2,.report-view-modal__title,.prompt-detail-modal__header h2,.prompt-chat-modal__header h2)",
+    ).evaluateAll((titles) => titles.map((title) => getComputedStyle(title, "::before").fontWeight));
+    expect(modalTitleGlyphWeights.every((weight) => weight === "700")).toBe(true);
+    const disclosureWeight = await page.locator("#currentRun > summary").evaluate(
+      (element) => getComputedStyle(element, "::before").fontWeight,
+    );
+    expect(disclosureWeight).toBe("700");
   });
 
   test("never draws a selected focus border around a modal shell", async ({ page }) => {
@@ -1111,6 +1324,108 @@ test.describe("Engineering Status browser smoke", () => {
       await expect(page.locator("#executionTelemetry summary strong")).toHaveText(title);
       await expect(page.locator("#executionTelemetry .category-description")).toHaveText(description);
     }
+  });
+
+  test("keeps the telemetry detail modal within a mobile portrait viewport", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    const modal = page.locator("#telemetryDetailModal");
+    await modal.evaluate((element) => {
+      const content = element.querySelector("#telemetryDetailContent");
+      content.innerHTML = "<section style='height: 1800px'>Long telemetry evidence</section>";
+      element.showModal();
+    });
+    const layout = await modal.evaluate((element) => {
+      const panel = element.querySelector(".telemetry-detail-modal__panel");
+      const content = element.querySelector("#telemetryDetailContent");
+      const bounds = element.getBoundingClientRect();
+      return {
+        left: bounds.left,
+        right: bounds.right,
+        top: bounds.top,
+        bottom: bounds.bottom,
+        viewportWidth: window.innerWidth,
+        viewportHeight: window.innerHeight,
+        panelHeight: panel.getBoundingClientRect().height,
+        contentClientHeight: content.clientHeight,
+        contentScrollHeight: content.scrollHeight,
+      };
+    });
+    expect(layout.left).toBeGreaterThanOrEqual(24);
+    expect(layout.right).toBeLessThanOrEqual(layout.viewportWidth - 24);
+    expect(layout.top).toBeGreaterThanOrEqual(24);
+    expect(layout.bottom).toBeLessThanOrEqual(layout.viewportHeight - 24);
+    expect(layout.panelHeight).toBeLessThanOrEqual(layout.viewportHeight - 48);
+    expect(layout.contentScrollHeight).toBeGreaterThan(layout.contentClientHeight);
+    await modal.evaluate((element) => element.close());
+  });
+
+  test("renders telemetry run IDs as text actions instead of round icon buttons", () => {
+    const script = readFileSync(path.join(repository, "tools/engineering/assets/dashboard.js"), "utf8");
+    const stylesheet = readFileSync(path.join(repository, "tools/engineering/assets/dashboard.css"), "utf8");
+    expect(script).toContain('id.className = "telemetry-run-link"');
+    expect(script).not.toContain('id.className = "dashboard-action"; id.textContent = run.run_id');
+    expect(stylesheet).toContain(".telemetry-run-link{");
+    expect(stylesheet).toContain("min-height:0;min-width:0");
+    expect(stylesheet).toContain(".telemetry-detail-modal .telemetry-run-link{");
+    expect(stylesheet).toContain("Telemetry run IDs are text links in a data table");
+  });
+
+  test("uses the rose telemetry accent throughout the telemetry detail modal", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    const modal = page.locator("#telemetryDetailModal");
+    await modal.evaluate((element) => element.showModal());
+    await expect(modal.locator("#telemetryDetailTitle")).toHaveCSS("color", "rgb(251, 113, 133)");
+    await expect(modal.locator(".dashboard-modal-shell__header")).toHaveCSS("border-bottom-color", "rgb(251, 113, 133)");
+    await modal.evaluate((element) => element.close());
+  });
+
+  test("formats telemetry percentages with one localized decimal place", async ({ page }) => {
+    await page.route("**/api/events", (route) => route.abort());
+    await page.route("**/api/telemetry/2026-08-16", (route) => route.fulfill({ json: {
+      summary: {},
+      phases: [],
+      bottlenecks: { top_time_consumers: [{ phase: "PROVIDER_EXECUTION", share_percent: 61.848 }] },
+      runs: [],
+    } }));
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => window.executionTelemetry([{
+      date: "2026-08-16", prompt_count: 1, average_execution_seconds: 0,
+      average_total_execution_seconds: 0, average_queue_wait_seconds: 0,
+      complete_count: 0, blocked_count: 1, failed_count: 0,
+    }]));
+    await page.locator("#executionTelemetry > summary").click();
+    await page.locator("#executionTelemetryRows tr").click();
+    await expect(page.locator("#telemetryDetailContent")).toContainText("61,8%");
+  });
+
+  test("uses one uninterrupted selected-row treatment for telemetry rows", async ({ page }) => {
+    await page.route("**/api/events", (route) => route.abort());
+    await page.route("**/api/telemetry/2026-08-16", (route) => route.fulfill({ json: {
+      summary: {}, phases: [], bottlenecks: { top_time_consumers: [] }, runs: [],
+    } }));
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => window.executionTelemetry([{
+      date: "2026-08-16", prompt_count: 1, average_execution_seconds: 0,
+      average_total_execution_seconds: 0, average_queue_wait_seconds: 0,
+      complete_count: 0, blocked_count: 1, failed_count: 0,
+    }]));
+    await page.locator("#executionTelemetry > summary").click();
+    const row = page.locator("#executionTelemetryRows .telemetry-row");
+    await row.click();
+    await expect(row).toHaveAttribute("data-selected", "true");
+    const selection = await row.locator("td").evaluateAll((cells) => [
+      getComputedStyle(cells[0]).boxShadow,
+      getComputedStyle(cells[Math.floor(cells.length / 2)]).boxShadow,
+      getComputedStyle(cells.at(-1)).boxShadow,
+      getComputedStyle(cells[0]).outlineStyle,
+      getComputedStyle(cells[Math.floor(cells.length / 2)]).outlineStyle,
+      getComputedStyle(cells.at(-1)).outlineStyle,
+    ]);
+    expect(selection[0]).toContain("2px 0px 0px 0px inset");
+    expect(selection[1]).toBe("none");
+    expect(selection[2]).toBe("none");
+    expect(selection.slice(3)).toEqual(["none", "none", "none"]);
   });
 
   test("localizes search and level filter controls for every supported language", async ({ page }) => {
@@ -2054,6 +2369,54 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(cards.nth(1).locator(".reviewer-agent__status--completed")).toHaveAttribute(
       "aria-label", /.+/,
     );
+  });
+
+  test("localizes specialist reviewer names and lifecycle status", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    const reviewerAgents = [
+      { reviewer: "repository_governance", capability: "engineering", status: "completed" },
+      { reviewer: "validation", capability: "engineering", status: "running" },
+    ];
+    const renderReviewers = () => page.evaluate((reviewer_agents) => r({
+      watcher_state: "ENGINEERING_RUN_ACTIVE", run_id: "localized-reviewers",
+      reviewer_agents,
+    }, {}), reviewerAgents);
+    const selectLocale = async (language) => {
+      const localeReload = page.waitForEvent(
+        "framenavigated",
+        (frame) => frame === page.mainFrame(),
+      );
+      await page.locator("#dashboardLocale").selectOption(language);
+      await localeReload;
+      await page.waitForLoadState("domcontentloaded");
+      await page.waitForFunction(() => document.body.classList.contains("dashboard-ready"));
+      await renderReviewers();
+    };
+
+    await selectLocale("en");
+    const cards = page.locator(".reviewer-agent");
+    await expect(cards.nth(0).locator(".reviewer-agent__name")).toHaveText("Repository governance");
+    await expect(cards.nth(0).locator(".reviewer-agent__meta")).toHaveText("Engineering · Completed");
+
+    await selectLocale("nl");
+    await expect(cards.nth(0).locator(".reviewer-agent__name")).toHaveText("Repositorygovernance");
+    await expect(cards.nth(0).locator(".reviewer-agent__meta")).toHaveText("Engineering · Uitgevoerd");
+    await expect(cards.nth(1).locator(".reviewer-agent__name")).toHaveText("Validatie");
+    await expect(cards.nth(1).locator(".reviewer-agent__meta")).toHaveText("Engineering · Bezig");
+
+    await selectLocale("de");
+    await expect(cards.nth(0).locator(".reviewer-agent__name")).toHaveText("Repository-Governance");
+    await expect(cards.nth(0).locator(".reviewer-agent__meta")).toHaveText("Engineering · Abgeschlossen");
+    await expect(cards.nth(1).locator(".reviewer-agent__name")).toHaveText("Validierung");
+    await expect(cards.nth(1).locator(".reviewer-agent__meta")).toHaveText("Engineering · Wird ausgeführt");
+
+    await selectLocale("fr");
+    await expect(cards.nth(0).locator(".reviewer-agent__name")).toHaveText("Gouvernance du dépôt");
+    await expect(cards.nth(1).locator(".reviewer-agent__meta")).toHaveText("Ingénierie · En cours");
+
+    await selectLocale("es");
+    await expect(cards.nth(0).locator(".reviewer-agent__name")).toHaveText("Gobernanza del repositorio");
+    await expect(cards.nth(1).locator(".reviewer-agent__meta")).toHaveText("Ingeniería · En curso");
   });
 
   test("wraps specialist reviewers into compact responsive tiles", async ({ page }) => {

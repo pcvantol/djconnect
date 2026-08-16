@@ -80,6 +80,28 @@ function enumLabel(value, fallback = t("format.not_available")) {
   const key = `enum.${enumValue}`;
   return t(key, {}, enumValue);
 }
+function reviewerKey(value) {
+  return String(value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "");
+}
+function reviewerLabel(value, fallback = t("ui.reviewer_default")) {
+  const raw = String(value || "").trim();
+  if (!raw) return fallback;
+  return t(`reviewer.${reviewerKey(raw)}`, {}, raw.replaceAll("_", " "));
+}
+function reviewerStatusLabel(value, fallback = t("format.not_available")) {
+  const raw = String(value || "").trim();
+  if (!raw) return fallback;
+  const normalized = reviewerKey(raw) === "uitgevoerd" ? "completed" : reviewerKey(raw);
+  return t(`reviewer.status.${normalized}`, {}, raw.replaceAll("_", " "));
+}
+function reviewerCapabilityLabel(value, fallback = t("format.not_available")) {
+  const raw = String(value || "").trim();
+  return raw ? enumLabel(raw.toUpperCase(), raw) : fallback;
+}
 function sanitizeFreeText(value, maximumLength, multiline = false) {
   const normalized = String(value ?? "")
     .normalize("NFC")
@@ -330,7 +352,7 @@ function rateLimits(x) {
     return (
       window.label +
       ": " +
-      t("rate_limit.available_reset", { remaining }) + " " +
+      t("rate_limit.available_reset", { remaining: locale.number(remaining, { minimumFractionDigits: 1, maximumFractionDigits: 1 }) }) + " " +
       (Number.isFinite(reset)
         ? locale.dateTime(new Date(reset * 1e3))
         : t("format.unknown"))
@@ -391,7 +413,7 @@ function processMetrics(active, x) {
   $("processMetrics").hidden = !active;
   if (!active) return;
   $("codexCpu").textContent =
-    locale.number(Number(x?.cpu_percent || 0), { maximumFractionDigits: 1 }) + "%";
+    locale.number(Number(x?.cpu_percent || 0), { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + "%";
   $("codexProcesses").textContent = x?.process_count ?? 0;
   $("codexGpu").textContent = x?.gpu_status || t("format.not_available");
 }
@@ -425,8 +447,8 @@ function activeReviewerAgents(items) {
     header.className = "reviewer-agent__header";
     name.className = "reviewer-agent__name";
     meta.className = "reviewer-agent__meta";
-    name.textContent = String(agent.reviewer || t("ui.reviewer_default")).replaceAll("_", " ");
-    meta.textContent = `${enumLabel(agent.capability || "ENGINEERING")} · ${enumLabel(agent.status || "SELECTED")}`;
+    name.textContent = reviewerLabel(agent.reviewer);
+    meta.textContent = `${reviewerCapabilityLabel(agent.capability || "ENGINEERING")} · ${reviewerStatusLabel(agent.status || "selected")}`;
     if (isRunning || isCompleted) {
       indicator.className = `reviewer-agent__status reviewer-agent__status--${isRunning ? "running" : "completed"}`;
       indicator.setAttribute("role", "status");
@@ -1013,15 +1035,86 @@ function renderCodexUsageLimitBanner(x) {
   if (!banner) return;
   banner.hidden = String(x?.terminal_condition || "") !== "codex_usage_limit_reached";
 }
+
+// Browsers otherwise put initial dialog focus on the first close button.  A
+// modal itself is the neutral initial focus target; close remains keyboard
+// reachable, but is never presented as an already-selected destructive edge.
+function resetDashboardModalInitialFocus(modal) {
+  requestAnimationFrame(() => {
+    if (!modal?.open || !document.activeElement?.matches(".dashboard-modal-shell__close")) return;
+    modal.tabIndex = -1;
+    modal.focus({ preventScroll: true });
+  });
+}
+document.querySelectorAll("dialog.dashboard-modal-shell").forEach((modal) => {
+  modal.addEventListener("toggle", () => {
+    if (modal.open) resetDashboardModalInitialFocus(modal);
+  });
+});
 function lifecycleLabel(step) {
   return t(step?.presentation_key || "lifecycle.step.unknown", {}, String(step?.id || t("format.unknown")));
 }
 function lifecycleStateLabel(state) {
   return t("lifecycle.state." + String(state || "UNKNOWN").toLowerCase(), {}, String(state || "UNKNOWN"));
 }
+function lifecycleDetailField(label, value) {
+  const field = document.createElement("div"); field.className = "field";
+  field.append(
+    Object.assign(document.createElement("span"), { className: "label", textContent: label }),
+    Object.assign(document.createElement("span"), { textContent: value || t("format.unavailable") }),
+  );
+  return field;
+}
+let lifecycleDetailTrigger = null;
+function closeLifecycleDetail() {
+  const modal = $("lifecycleDetailModal");
+  if (modal?.open) modal.close();
+}
+function openLifecycleDetail(step, trigger) {
+  const modal = $("lifecycleDetailModal"), content = $("lifecycleDetailContent");
+  if (!modal || !content) return;
+  lifecycleDetailTrigger = trigger || document.activeElement;
+  const timing = step?.timing && typeof step.timing === "object" ? step.timing : {};
+  $("lifecycleDetailTitle").textContent = t("lifecycle.detail_title", { step: lifecycleLabel(step) });
+  content.replaceChildren();
+  const overview = document.createElement("section"), grid = document.createElement("div");
+  grid.className = "technical-grid";
+  grid.append(
+    lifecycleDetailField(t("lifecycle.detail_state"), lifecycleStateLabel(step?.state)),
+    lifecycleDetailField(t("lifecycle.detail_started_at"), formatTimestamp(timing.started_at || step?.started_at)),
+    lifecycleDetailField(t("lifecycle.detail_finished_at"), formatTimestamp(timing.finished_at, t("format.unavailable"))),
+  );
+  if (Number.isInteger(step?.iteration_count) && step.iteration_count > 0) {
+    grid.append(lifecycleDetailField(t("lifecycle.detail_iterations"), String(step.iteration_count)));
+  }
+  overview.append(grid); content.append(overview);
+  const spans = Array.isArray(timing.spans) ? timing.spans : [];
+  const phaseTiming = document.createElement("section");
+  phaseTiming.append(Object.assign(document.createElement("h3"), { textContent: t("lifecycle.detail_phase_timing") }));
+  if (!spans.length) {
+    phaseTiming.append(Object.assign(document.createElement("p"), { textContent: t("lifecycle.detail_no_phase_timing") }));
+  } else {
+    const list = document.createElement("ol"); list.className = "lifecycle-detail-modal__phase-list";
+    for (const span of spans) {
+      const item = document.createElement("li"), heading = document.createElement("strong"), meta = document.createElement("span");
+      heading.textContent = telemetryLabel(span.phase);
+      meta.textContent = t("lifecycle.detail_phase_meta", {
+        duration: telemetryMs(span.duration_ms), outcome: lifecycleStateLabel(span.outcome),
+      });
+      item.append(heading, meta); list.append(item);
+    }
+    phaseTiming.append(list);
+  }
+  content.append(phaseTiming);
+  if (!modal.open) modal.showModal();
+  resetDashboardModalInitialFocus(modal);
+}
+$("lifecycleDetailClose")?.addEventListener("click", closeLifecycleDetail);
+$("lifecycleDetailModal")?.addEventListener("close", () => { lifecycleDetailTrigger?.focus?.(); lifecycleDetailTrigger = null; });
 function lifecycleFlow(projection, { historical = false } = {}) {
   const section = document.createElement("section");
   section.className = "execution-lifecycle" + (historical ? " execution-lifecycle--historical" : "");
+  if (projection?.run_id) section.dataset.runId = projection.run_id;
   section.setAttribute("aria-label", t("lifecycle.title"));
   const heading = document.createElement("h3"); heading.textContent = t("lifecycle.title"); section.append(heading);
   if (!projection?.available) {
@@ -1030,7 +1123,8 @@ function lifecycleFlow(projection, { historical = false } = {}) {
   }
   const scroll = document.createElement("div"), list = document.createElement("ol");
   scroll.className = "execution-lifecycle__scroll"; list.className = "execution-lifecycle__path";
-  for (const step of Array.isArray(projection.steps) ? projection.steps : []) {
+  const steps = Array.isArray(projection.steps) ? projection.steps : [];
+  for (const [index, step] of steps.entries()) {
     const state = String(step?.state || "UNKNOWN").toLowerCase();
     const item = document.createElement("li"), button = document.createElement("button"), node = document.createElement("span"), label = document.createElement("span");
     item.className = "execution-lifecycle__item execution-lifecycle__item--" + state;
@@ -1038,13 +1132,21 @@ function lifecycleFlow(projection, { historical = false } = {}) {
     if (state === "active" && !historical) button.classList.add("execution-lifecycle__node--active");
     const name = lifecycleLabel(step), status = lifecycleStateLabel(step?.state);
     button.setAttribute("aria-label", name + " — " + status);
+    button.addEventListener("click", () => openLifecycleDetail(step, button));
     node.setAttribute("aria-hidden", "true"); node.textContent = state === "completed" ? "✓" : state === "complete" ? "✓" : state === "blocked" ? "!" : state === "failed" ? "×" : "";
     label.textContent = name;
     button.append(node, label);
     if (Number.isInteger(step?.iteration_count) && step.iteration_count > 0) {
       const badge = document.createElement("span"); badge.className = "execution-lifecycle__badge"; badge.textContent = String(step.iteration_count); badge.setAttribute("aria-label", t("lifecycle.repair_count", { count: step.iteration_count })); button.append(badge);
     }
-    item.append(button); list.append(item);
+    item.append(button);
+    if (index < steps.length - 1) {
+      const connector = document.createElement("span");
+      connector.className = "execution-lifecycle__connector";
+      connector.setAttribute("aria-hidden", "true");
+      item.append(connector);
+    }
+    list.append(item);
   }
   scroll.append(list); section.append(scroll);
   const summary = document.createElement("p"); summary.className = "execution-lifecycle__summary";
@@ -1054,8 +1156,17 @@ function lifecycleFlow(projection, { historical = false } = {}) {
 }
 function renderActiveLifecycle(projection) {
   const current = $("currentRun")?.querySelector(".current-run__grid"); if (!current) return;
-  current.querySelector(".execution-lifecycle")?.remove();
-  if (projection?.run_id) current.prepend(lifecycleFlow(projection));
+  const previous = current.querySelector(".execution-lifecycle"),
+    previousScroll = previous?.querySelector(".execution-lifecycle__scroll"),
+    preservedScrollLeft = previous?.dataset.runId === String(projection?.run_id || "")
+      ? previousScroll?.scrollLeft || 0
+      : 0;
+  previous?.remove();
+  if (projection?.run_id) {
+    const lifecycle = lifecycleFlow(projection);
+    current.prepend(lifecycle);
+    if (preservedScrollLeft) lifecycle.querySelector(".execution-lifecycle__scroll").scrollLeft = preservedScrollLeft;
+  }
 }
 function renderHealthStatus(x, snapshot = {}) {
   lastRefresh = new Date();
@@ -2204,7 +2315,12 @@ function executionTelemetry(rows) {
     line.tabIndex = 0;
     line.setAttribute("role", "button");
     line.setAttribute("aria-label", t("telemetry.open_details", { date: telemetryDate(row.date) }));
-    const open = () => openTelemetryDetail(row.date, line);
+    const open = () => {
+      body.querySelectorAll(".telemetry-row[data-selected=\"true\"]")
+        .forEach((candidate) => candidate.dataset.selected = "false");
+      line.dataset.selected = "true";
+      openTelemetryDetail(row.date, line);
+    };
     line.addEventListener("click", open);
     line.addEventListener("keydown", (event) => {
       if (event.key === "Enter" || event.key === " ") { event.preventDefault(); open(); }
@@ -2241,6 +2357,12 @@ function executionTelemetry(rows) {
 }
 let telemetryDetailTrigger = null;
 function telemetryMs(value) { return typeof value === "number" && value >= 0 ? telemetryDuration(value / 1000) : t("format.unavailable"); }
+function telemetryPercent(value) {
+  const percent = Number(value);
+  return Number.isFinite(percent)
+    ? locale.number(percent, { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + "%"
+    : t("format.unavailable");
+}
 function telemetryMetric(label, value) {
   const field = document.createElement("div"); field.className = "field";
   field.append(Object.assign(document.createElement("span"), { className: "label", textContent: label }), Object.assign(document.createElement("strong"), { textContent: telemetryMs(value) }));
@@ -2275,11 +2397,11 @@ function renderTelemetryDetail(detail, content) {
   else { const table = document.createElement("table"); table.className = "telemetry-table"; table.innerHTML = `<thead><tr>${["telemetry.phase", "telemetry.average", "telemetry.median", "telemetry.accumulated", "telemetry.runs"].map((key) => `<th>${t(key)}</th>`).join("")}</tr></thead>`; const body = document.createElement("tbody"); for (const phase of phases) { const row = document.createElement("tr"); [telemetryLabel(phase.phase), telemetryMs(phase.average_ms), telemetryMs(phase.median_ms), telemetryMs(phase.total_ms), phase.runs].forEach((value) => row.append(Object.assign(document.createElement("td"), { textContent: String(value) }))); body.append(row); } table.append(body); phaseSection.append(table); } content.append(phaseSection);
   const bottlenecks = document.createElement("section"), top = detail?.bottlenecks?.top_time_consumers || [];
   bottlenecks.append(Object.assign(document.createElement("h3"), { textContent: t("telemetry.bottlenecks") }));
-  const list = document.createElement("ol"); for (const item of top) list.append(Object.assign(document.createElement("li"), { textContent: `${telemetryLabel(item.phase)} — ${item.share_percent ?? "—"}%` })); bottlenecks.append(list); content.append(bottlenecks);
+  const list = document.createElement("ol"); for (const item of top) list.append(Object.assign(document.createElement("li"), { textContent: `${telemetryLabel(item.phase)} — ${telemetryPercent(item.share_percent)}` })); bottlenecks.append(list); content.append(bottlenecks);
   const runSection = document.createElement("section"), runs = Array.isArray(detail?.runs) ? detail.runs : [];
   runSection.append(Object.assign(document.createElement("h3"), { textContent: t("telemetry.runs") }));
   const runTable = document.createElement("table"); runTable.className = "telemetry-table"; runTable.innerHTML = `<thead><tr>${["telemetry.run_id", "telemetry.status", "telemetry.average_total", "telemetry.average_wait", "telemetry.provider", "telemetry.validation", "telemetry.external_wait", "telemetry.largest_phase"].map((key) => `<th>${t(key)}</th>`).join("")}</tr></thead>`; const runBody = document.createElement("tbody");
-  for (const run of runs) { const row = document.createElement("tr"), id = document.createElement("button"); id.type = "button"; id.className = "dashboard-action"; id.textContent = run.run_id; id.addEventListener("click", () => openPromptHistoryDetail({ run_id: run.run_id, title: run.run_id })); const values = [id, run.status, telemetryMs(run.total_duration_ms), telemetryMs(run.queue_wait_ms), telemetryMs(run.provider_duration_ms), telemetryMs(run.validation_duration_ms), telemetryMs(run.external_wait_ms), telemetryLabel(run.largest_phase)]; values.forEach((value) => { const cell = document.createElement("td"); if (value instanceof Element) cell.append(value); else cell.textContent = String(value); row.append(cell); }); runBody.append(row); } runTable.append(runBody); runSection.append(runTable); content.append(runSection);
+  for (const run of runs) { const row = document.createElement("tr"), id = document.createElement("button"); id.type = "button"; id.className = "telemetry-run-link"; id.textContent = run.run_id; id.addEventListener("click", () => openPromptHistoryDetail({ run_id: run.run_id, title: run.run_id })); const values = [id, run.status, telemetryMs(run.total_duration_ms), telemetryMs(run.queue_wait_ms), telemetryMs(run.provider_duration_ms), telemetryMs(run.validation_duration_ms), telemetryMs(run.external_wait_ms), telemetryLabel(run.largest_phase)]; values.forEach((value) => { const cell = document.createElement("td"); if (value instanceof Element) cell.append(value); else cell.textContent = String(value); row.append(cell); }); runBody.append(row); } runTable.append(runBody); runSection.append(runTable); content.append(runSection);
 }
 $("telemetryDetailClose").addEventListener("click", closeTelemetryDetail);
 $("telemetryDetailModal").addEventListener("close", () => { telemetryDetailTrigger?.focus?.(); telemetryDetailTrigger = null; });
@@ -3982,10 +4104,10 @@ function promptDetailReviewersSection(reviewers) {
   if (!reviewers.length) return null;
   const fields = reviewers.map((reviewer) =>
     detailField(
-      String(reviewer.reviewer || t("detail.specialist_review")).replaceAll("_", " "),
+      reviewerLabel(reviewer.reviewer, t("detail.specialist_review")),
       t("detail.capability") + ": " +
-        String(reviewer.capability || "engineering") + " · " +
-        String(reviewer.status || t("detail.completed")) + " · " +
+        reviewerCapabilityLabel(reviewer.capability || "ENGINEERING") + " · " +
+        reviewerStatusLabel(reviewer.status || "completed") + " · " +
         t("detail.accepted_recommendations") + ": " +
         (Number(reviewer.accepted_recommendations) || 0) + "\n" +
         t("detail.selected_because") + ": " +
