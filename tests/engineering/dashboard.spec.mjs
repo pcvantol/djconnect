@@ -4162,21 +4162,27 @@ test.describe("Engineering Status browser smoke", () => {
   });
 
   test("searches prompt history by localized terminal status", async ({ page }) => {
-    await page.route("**/api/prompt-history", (route) => route.fulfill({ json: { runs: [] } }));
+    // Keep this fixture non-empty. The production empty-history retry is
+    // intentional, but its delayed response can otherwise overwrite the
+    // localized rows while this test is exercising the client-side filter.
+    await page.route("**/api/prompt-history", (route) => route.fulfill({ json: { runs: [
+      { run_id: "inbox-complete", status: "COMPLETE", title: "Completed prompt" },
+      { run_id: "inbox-blocked", status: "BLOCKED", title: "Blocked prompt" },
+    ] } }));
     const historyLoaded = page.waitForResponse("**/api/prompt-history");
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await historyLoaded;
     await page.locator("#autoRefresh").uncheck();
+    const localeReload = page.waitForEvent(
+      "framenavigated",
+      (frame) => frame === page.mainFrame(),
+    );
     await page.locator("#dashboardLocale").selectOption("nl");
+    await localeReload;
+    await page.waitForLoadState("domcontentloaded");
+    await page.waitForFunction(() => document.body.classList.contains("dashboard-ready"));
     await expect(page.locator("html")).toHaveAttribute("lang", "nl");
-    await page.evaluate(() => {
-      promptHistoryEntries = [
-        { run_id: "inbox-complete", status: "COMPLETE", title: "Completed prompt" },
-        { run_id: "inbox-blocked", status: "BLOCKED", title: "Blocked prompt" },
-      ];
-      renderPromptHistory();
-      document.querySelector("#promptHistory").open = true;
-    });
+    await page.locator("#promptHistory").evaluate((element) => { element.open = true; });
 
     await page.locator("#promptHistoryFilter").fill("voltooid");
     await expect(page.locator("#promptHistoryRows tr")).toHaveCount(1);
@@ -4185,7 +4191,14 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#promptHistoryRows tr")).toHaveCount(1);
     await expect(page.locator("#promptHistoryRows")).toContainText("Geblokkeerd");
 
+    const englishLocaleReload = page.waitForEvent(
+      "framenavigated",
+      (frame) => frame === page.mainFrame(),
+    );
     await page.locator("#dashboardLocale").selectOption("en");
+    await englishLocaleReload;
+    await page.waitForLoadState("domcontentloaded");
+    await page.waitForFunction(() => document.body.classList.contains("dashboard-ready"));
     await expect(page.locator("html")).toHaveAttribute("lang", "en");
     await page.locator("#promptHistoryFilter").fill("complete");
     await expect(page.locator("#promptHistoryRows tr")).toHaveCount(1);
