@@ -335,7 +335,9 @@ Use the shared modal shell and contextual panel. Modal rules are:
    `--modal-subcontainer-border`); it must never fall back to the global
    purple label colour. Thus a telemetry popup uses rose/pink secondary
    details, a monitoring popup turquoise details, and a conversation popup
-   purple details.
+   purple details. These secondary colours are exclusively for captions,
+   dividers and subordinate surfaces: factual field values always use the
+   standard modal document ink (dark in light mode, light in dark mode).
 2. The document/content surface exactly matches the modal content surface;
    no contrasting “padding frame” may appear around an otherwise white or dark
    document.

@@ -656,6 +656,9 @@ html[data-theme="light"] .dashboard-modal-shell__action--primary{background:colo
    accent family; no modal may fall back to the dashboard's purple label. */
 .dashboard-modal-shell :is(.label,.field>.label){color:var(--modal-secondary-accent)}
 html[data-theme="light"] .dashboard-modal-shell :is(.label,.field>.label){color:color-mix(in srgb,var(--modal-secondary-accent) 76%,#182230)}
+/* Labels carry the parent accent family; factual values retain the document
+   ink so operational evidence never reads as a second semantic state. */
+.dashboard-modal-shell .field>:not(.label){color:var(--dashboard-modal-ink)}
 
 /* Waiting for a merge is an operator action, not evidence content: its two
    actions therefore use the shared orange action language rather than blue. */

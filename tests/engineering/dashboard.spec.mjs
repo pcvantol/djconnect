@@ -1822,13 +1822,22 @@ test.describe("Engineering Status browser smoke", () => {
       average_total_execution_seconds: 0, average_queue_wait_seconds: 0,
       complete_count: 1, blocked_count: 0, failed_count: 0,
     }]));
-    await page.locator("#executionTelemetry > summary").click();
+    await page.locator("#executionTelemetry").evaluate((element) => { element.open = true; });
     await page.locator("#executionTelemetryRows tr").click();
     const modal = page.locator("#telemetryDetailModal");
     await expect(modal.locator("#telemetryDetailTitle")).toHaveCSS("color", "rgb(251, 113, 133)");
     await expect(modal.locator(".dashboard-modal-shell__header")).toHaveCSS("border-bottom-color", "rgb(251, 113, 133)");
     const metricLabel = modal.locator(".telemetry-detail-metrics .label").first();
     await expect(metricLabel).toBeVisible();
+    const metricInk = await modal.evaluate((element) => {
+      const expected = document.createElement("span");
+      expected.style.color = "var(--dashboard-modal-ink)";
+      element.append(expected);
+      const colour = getComputedStyle(expected).color;
+      expected.remove();
+      return colour;
+    });
+    await expect(modal.locator(".telemetry-detail-metrics .field > strong").first()).toHaveCSS("color", metricInk);
     const secondaryColours = await modal.evaluate((element) => {
       const sample = document.createElement("span");
       sample.style.color = "#c7a6ff";
