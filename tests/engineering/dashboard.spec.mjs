@@ -3351,6 +3351,38 @@ test.describe("Engineering Status browser smoke", () => {
     expect(styles.summaryColor).toBe("rgb(24, 34, 48)");
   });
 
+  test("uses house-style orange for every interactive focus family", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    const focusColours = await page.evaluate(() => {
+      document.querySelector("#componentLogs").open = true;
+      const mergeModal = document.querySelector("#operatorMergeWaitModal");
+      const mergeLink = document.querySelector("#operatorMergeWaitModalPullRequest");
+      const chatModal = document.querySelector("#promptHistoryChatModal");
+      const chatInput = document.querySelector("#chatInput");
+      mergeLink.href = "https://github.com/pcvantol/djconnect/pull/840";
+      const targets = [
+        document.querySelector("#autoRefresh"),
+        document.querySelector("#pageRefresh"),
+        document.querySelector("#logFilter"),
+        document.querySelector("#componentLogs .log-table th.log-sortable"),
+      ];
+      const colours = targets.map((target) => {
+        target.focus({ preventScroll: true });
+        return getComputedStyle(target).outlineColor;
+      });
+      chatModal.showModal();
+      chatInput.focus({ preventScroll: true });
+      colours.push(getComputedStyle(chatInput).outlineColor);
+      chatModal.close();
+      mergeModal.showModal();
+      mergeLink.focus({ preventScroll: true });
+      colours.push(getComputedStyle(mergeLink).outlineColor);
+      mergeModal.close();
+      return colours;
+    });
+    expect(focusColours).toEqual(Array(6).fill("rgb(240, 182, 106)"));
+  });
+
   test("uses a dark locale picker surface in dark mode", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
 
