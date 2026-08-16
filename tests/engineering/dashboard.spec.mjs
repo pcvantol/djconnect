@@ -1793,12 +1793,47 @@ test.describe("Engineering Status browser smoke", () => {
   });
 
   test("uses the rose telemetry accent throughout the telemetry detail modal", async ({ page }) => {
+    await page.route("**/api/telemetry/2026-08-16", (route) => route.fulfill({ json: {
+      summary: { executions: 1, completed: 1, blocked: 0, failed: 0 }, phases: [], bottlenecks: {}, runs: [],
+    } }));
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => window.executionTelemetry([{
+      date: "2026-08-16", prompt_count: 1, average_execution_seconds: 0,
+      average_total_execution_seconds: 0, average_queue_wait_seconds: 0,
+      complete_count: 1, blocked_count: 0, failed_count: 0,
+    }]));
+    await page.locator("#executionTelemetry > summary").click();
+    await page.locator("#executionTelemetryRows tr").click();
     const modal = page.locator("#telemetryDetailModal");
-    await modal.evaluate((element) => element.showModal());
     await expect(modal.locator("#telemetryDetailTitle")).toHaveCSS("color", "rgb(251, 113, 133)");
     await expect(modal.locator(".dashboard-modal-shell__header")).toHaveCSS("border-bottom-color", "rgb(251, 113, 133)");
+    const metricLabel = modal.locator(".telemetry-detail-metrics .label").first();
+    await expect(metricLabel).toBeVisible();
+    const secondaryColours = await modal.evaluate((element) => {
+      const sample = document.createElement("span");
+      sample.style.color = "#c7a6ff";
+      const expected = document.createElement("span");
+      expected.style.color = "var(--modal-secondary-accent)";
+      element.append(sample, expected);
+      const result = {
+        expected: getComputedStyle(expected).color,
+        label: getComputedStyle(element.querySelector(".telemetry-detail-metrics .label")).color,
+        legacyPurple: getComputedStyle(sample).color,
+      };
+      sample.remove(); expected.remove();
+      return result;
+    });
+    expect(secondaryColours.label).toBe(secondaryColours.expected);
+    expect(secondaryColours.label).not.toBe(secondaryColours.legacyPurple);
     await modal.evaluate((element) => element.close());
+  });
+
+  test("derives secondary modal tokens from the modal accent instead of a category-specific fallback", () => {
+    const stylesheet = readFileSync(path.join(repository, "tools/engineering/assets/dashboard.css"), "utf8");
+    expect(stylesheet).toContain("--modal-secondary-accent:color-mix(in srgb,var(--modal-accent) 62%,#fff)");
+    expect(stylesheet).toContain("--modal-subcontainer-surface:color-mix(in srgb,var(--modal-accent) 8%,var(--modal-surface))");
+    expect(stylesheet).toContain(".dashboard-modal-shell :is(.label,.field>.label){color:var(--modal-secondary-accent)}");
+    expect(stylesheet).not.toContain(".lifecycle-detail-modal{--modal-accent:#65c5d9;--modal-secondary-accent:");
   });
 
   test("formats telemetry percentages with one localized decimal place", async ({ page }) => {

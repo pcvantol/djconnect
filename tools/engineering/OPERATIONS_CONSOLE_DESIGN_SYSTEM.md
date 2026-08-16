@@ -326,7 +326,13 @@ Use the shared modal shell and contextual panel. Modal rules are:
    the shared `--modal-parent-accent` contract. Dialogs are promoted outside
    their source DOM, so they cannot rely on CSS inheritance; the opening
    control resolves and supplies the source accent. A modal without a source
-   retains its contextual default accent.
+   retains its contextual default accent. The shared shell derives its
+   secondary text and subcontainer surface/border colours from that same
+   accent (`--modal-secondary-accent`, `--modal-subcontainer-surface` and
+   `--modal-subcontainer-border`); it must never fall back to the global
+   purple label colour. Thus a telemetry popup uses rose/pink secondary
+   details, a monitoring popup turquoise details, and a conversation popup
+   purple details.
 2. The document/content surface exactly matches the modal content surface;
    no contrasting “padding frame” may appear around an otherwise white or dark
    document.
@@ -340,10 +346,11 @@ Use the shared modal shell and contextual panel. Modal rules are:
    gutter only through a shell token (telemetry uses `24px`); it must not
    recreate a separate viewport, panel or header implementation. Background
    scrolling is locked while open.
-6. Opening an evidence-only modal puts no control in focus. Only an available
-   primary action may receive initial programmatic focus; close controls,
-   titles and dialog shells never do. The orange selected-control treatment is
-   reserved for actual form inputs, selects and text areas.
+6. Opening an evidence-only modal puts no control in focus. A standard
+   confirmation may focus its available primary action, but a destructive
+   confirmation focuses its safe secondary action. Close controls, titles and
+   dialog shells never receive initial focus. The orange selected-control
+   treatment is reserved for actual form inputs, selects and text areas.
 7. User-facing errors use the shared dashboard error dialog. Do not use a
    browser-native `alert`, `confirm` or `prompt`: those surfaces are not
    themed, localizable or consistent with the operational focus contract.
