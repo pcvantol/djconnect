@@ -4400,7 +4400,7 @@ test.describe("Engineering Status browser smoke", () => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     for (const [selector, glyph] of [
       ["#componentModalTitle", "⚙︎"],
-      ["#confirmationModalTitle", "!"],
+      ["#confirmationModalTitle", "ⓘ"],
       ["#promptHistoryReportModalTitle", "▤"],
       ["#promptHistoryDetailTitle", "i"],
       ["#promptHistoryChatTitle", "⋯"],
