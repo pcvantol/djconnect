@@ -1165,7 +1165,12 @@ function renderActiveLifecycle(projection) {
   if (projection?.run_id) {
     const lifecycle = lifecycleFlow(projection);
     current.prepend(lifecycle);
-    if (preservedScrollLeft) lifecycle.querySelector(".execution-lifecycle__scroll").scrollLeft = preservedScrollLeft;
+    if (preservedScrollLeft) {
+      const nextScroll = lifecycle.querySelector(".execution-lifecycle__scroll");
+      // Wait for the replacement path to take part in layout before restoring
+      // the user's independent horizontal review position.
+      requestAnimationFrame(() => { nextScroll.scrollLeft = preservedScrollLeft; });
+    }
   }
 }
 function renderHealthStatus(x, snapshot = {}) {
