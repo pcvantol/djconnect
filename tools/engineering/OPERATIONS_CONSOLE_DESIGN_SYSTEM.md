@@ -196,6 +196,10 @@ Lifecycle status glyphs use a deliberate `20px` size inside the fixed circles;
 the decorative Start rocket is `22px`. Neither changes the circle or connector
 geometry.
 
+Each lifecycle circle is an interactive detail control. On pointer hover its
+circle border switches to house-style orange, without changing its diameter or
+the connector alignment.
+
 Destructive confirmation dialogs make the safe secondary action the initial
 keyboard focus. Standard confirmations may focus their explicit primary action;
 informational dialogs open without a selected control.
