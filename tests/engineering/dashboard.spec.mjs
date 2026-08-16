@@ -3623,6 +3623,10 @@ test.describe("Engineering Status browser smoke", () => {
 
     const rows = page.locator("#inboxComponentLog tr");
     await expect(rows).toHaveCount(3);
+    await rows.nth(1).hover();
+    const hoverRowSurface = await rows.nth(1).locator("td").evaluateAll((cells) => cells.map((cell) => getComputedStyle(cell).backgroundColor));
+    expect(new Set(hoverRowSurface).size).toBe(1);
+    expect(hoverRowSurface[0]).not.toBe("rgba(0, 0, 0, 0)");
     await rows.nth(0).click();
     await rows.nth(2).click({ modifiers: ["Meta"] });
     await expect(rows.nth(0)).toHaveAttribute("aria-selected", "true");
