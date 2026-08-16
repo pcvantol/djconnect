@@ -183,7 +183,12 @@ must apply them atomically and discard an older revision from the same source,
 so it cannot retain a completed-state glyph from an older snapshot. Until GitHub
 reports the pull request as merged and the Execution Host advances, an open
 operator merge wait therefore renders **Merge** as the orange active circle,
-never as a completed check.
+never as a completed check. This remains true while GitHub checks are queued
+or running: internal `WAIT_FOR_TERMINAL_EVIDENCE` polling is presented as
+`WAIT_FOR_OPERATOR_MERGE`, and the persistent handoff card, **Open pull
+request** and **Abort execution** controls must not disappear or flicker
+between status updates. The handoff modal may open once per run and may be
+dismissed by the operator; that does not hide the persistent card or controls.
 
 Each lifecycle node is an accessible detail control, not a glass or raised
 card. Its modal presents only
@@ -388,8 +393,9 @@ Add or extend Playwright coverage for the changed state and, when applicable:
   node, fixed connector length, exact vertical centre alignment, inherited
   containing-category accent, standard label colour and a coherent
   active/completed/pending projection, including that an open operator merge
-  wait renders Merge as active rather than completed and lifecycle nodes stay
-  free of generic touch glass/transitions;
+  wait renders Merge as active rather than completed, retains its handoff
+  controls while checks are queued or running, and lifecycle nodes stay free
+  of generic touch glass/transitions;
 - AI conversation modals: verify the purple descriptive divider remains and
   no inherited secondary divider is rendered;
 - numeric precision: verify locale-aware percentage output with exactly one
