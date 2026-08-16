@@ -4677,6 +4677,8 @@ test.describe("Engineering Status browser smoke", () => {
     await analysisView.click();
     await expect(page.locator("#promptHistoryReportModal")).toBeVisible();
     await expect(page.locator("#promptHistoryDetailModal")).not.toBeVisible();
+    await expect(page.locator("#promptHistoryReportModalTitle"))
+      .toHaveText(DASHBOARD_MESSAGES.nl["table.analysis"]);
     await expect(page.locator("#promptHistoryReportContent")).toContainText("Historische AI-analyse");
     await expect(page.locator("#promptHistoryReportDownload")).toBeVisible();
     await page.locator("#promptHistoryReportClose").click();

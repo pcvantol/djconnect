@@ -4048,7 +4048,7 @@ function openPromptHistoryDocument(runId, title, kind = "report") {
   $("promptHistoryReportModalTitle").dataset.modalGlyph = promptHistoryDocumentKind;
   $("promptHistoryReportModalTitle").textContent =
     promptHistoryDocumentKind === "analysis"
-      ? t("history.analysis_title", { title })
+      ? t("table.analysis")
       : title || t("history.report_title");
   $("promptHistoryReportCopy").hidden = true;
   $("promptHistoryReportDownload").hidden = true;

@@ -293,13 +293,13 @@ html[data-theme="light"] #promptHistory .execution-history-action{background:#ff
 .report-view-modal__panel{--report-modal-surface:#24242d;display:grid;grid-template-rows:auto minmax(0,1fr);height:min(90vh,calc(100dvh - 36px));overflow:hidden}.report-view-modal__header{background:var(--report-modal-surface);z-index:1}.report-view-modal__actions{grid-column:2;grid-row:1;justify-self:end;position:static}.report-view-modal__content{min-height:0;overflow:auto;overscroll-behavior:contain;padding:12px}html[data-theme="light"] .report-view-modal__panel{--report-modal-surface:#f7fbff}
 
 /* A small, decorative glyph gives each modal title a clear visual purpose. */
-:is(.component-modal h2,.confirmation-modal h2,.report-view-modal__title,.prompt-chat-modal__header h2){--modal-title-glyph-size:20px}:is(.component-modal h2,.confirmation-modal h2,.report-view-modal__title,.prompt-chat-modal__header h2)::before{display:inline-block;font-size:var(--modal-title-glyph-size);line-height:1;margin-right:.42em;vertical-align:-.04em}.component-modal h2::before{content:"⚙︎"}.confirmation-modal h2::before{content:"ⓘ"}.confirmation-modal#dashboardErrorModal h2::before{content:"×"}.report-view-modal__title::before{content:"▤"}.prompt-chat-modal__header h2::before{content:"💬"}
+:is(.component-modal h2,.confirmation-modal h2,.report-view-modal__title,.prompt-detail-modal__header h2,.prompt-chat-modal__header h2){--modal-title-glyph-size:20px}:is(.component-modal h2,.confirmation-modal h2,.report-view-modal__title,.prompt-chat-modal__header h2)::before{display:inline-block;font-size:var(--modal-title-glyph-size);line-height:1;margin-right:.42em;vertical-align:-.04em}.component-modal h2::before{content:"⚙︎"}.confirmation-modal h2::before{content:"ⓘ"}.confirmation-modal#dashboardErrorModal h2::before{content:"×"}.report-view-modal__title::before{content:"▤"}.prompt-chat-modal__header h2::before{content:"💬"}
 /* Modal titles use one responsive type scale across every modal family. */
 .confirmation-modal h2[data-modal-glyph="question"]::before{align-items:center;border:2px solid currentColor;border-radius:50%;box-sizing:border-box;display:inline-flex;height:var(--modal-title-glyph-size);justify-content:center;width:var(--modal-title-glyph-size);vertical-align:-.12em}
 .confirmation-modal h2[data-modal-glyph="question"]::before{content:"?"}
 .confirmation-modal h2[data-modal-glyph="warning"]::before{content:"⚠"}
 .report-view-modal__title[data-modal-glyph="analysis"]::before{content:"✦"}
-:is(.component-modal h2,.confirmation-modal h2,.report-view-modal__title,.prompt-chat-modal__header h2){font-size:clamp(18px,2vw,20px);line-height:1.2}
+:is(.component-modal h2,.confirmation-modal h2,.report-view-modal__title,.prompt-detail-modal__header h2,.prompt-chat-modal__header h2){font-size:clamp(18px,2vw,20px);line-height:1.2}
 
 /* Confirmation only supplies its compact geometry; the shell owns the header,
    close control, accent and destructive state. */
@@ -712,7 +712,7 @@ html[data-theme="light"] .dashboard-action--copy:hover:not(:disabled){background
 html[data-theme="light"] .dashboard-action--destructive{background:#fff1f4!important;border-color:#ff718f!important;color:#b32649!important}
 
 /* Keep late modal-family rules from drifting the shared title scale. */
-.dashboard-modal-shell :is(.component-modal h2,.execution-mode-modal h2,.confirmation-modal h2,.report-view-modal__title,.prompt-chat-modal__header h2){font-size:clamp(18px,2vw,20px)!important;line-height:1.2}
+.dashboard-modal-shell :is(.component-modal h2,.execution-mode-modal h2,.confirmation-modal h2,.report-view-modal__title,.prompt-detail-modal__header h2,.prompt-chat-modal__header h2){font-size:clamp(18px,2vw,20px)!important;line-height:1.2}
 
 /* Scrollbars use the same quiet chrome as the dashboard surfaces instead of
    the browser's high-contrast default rail. */
