@@ -192,6 +192,13 @@ monitoring cyan (`#65c5d9`). Terminal success, blocked and failed states keep
 their dedicated semantic colours; the active circle alone remains
 house-style orange. Lifecycle state, connector geometry, node interaction and
 the touch-safe no-glass treatment are maintained as one stylesheet bundle.
+
+The surrounding active-execution blocks remain one column while their own
+container is narrower than **760px**. From that available width onward they
+use two equal columns; the lifecycle still spans both columns. This is a
+container query rather than a page-width rule, so the cards return to their
+desktop layout as soon as their actual parent has room, including beside other
+dashboard content.
 The lifecycle step-detail modal uses that same monitoring-cyan accent for its
 header, divider and border. Its field labels and phase names use the related
 light-turquoise secondary accent, never the default purple label colour; it is

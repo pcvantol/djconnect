@@ -735,6 +735,32 @@ test.describe("Engineering Status browser smoke", () => {
       .toHaveClass(/execution-lifecycle/);
   });
 
+  test("returns active-execution blocks to two columns when their container permits it", async ({ page }) => {
+    await page.route("**/api/events", (route) => route.abort());
+    await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({ json: { status: {} } }));
+    await page.setViewportSize({ width: 920, height: 844 });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => r({
+      watcher_state: "ENGINEERING_RUN_ACTIVE",
+      run_id: "responsive-current-run",
+      lifecycle: {
+        available: true,
+        run_id: "responsive-current-run",
+        terminal_state: "ACTIVE",
+        steps: [{ id: "implement", presentation_key: "lifecycle.step.implement", state: "ACTIVE" }],
+      },
+    }, {}));
+    await page.locator("#currentRun").evaluate((element) => { element.open = true; });
+
+    const columns = async () => page.locator("#currentRun .current-run__grid").evaluate((element) =>
+      getComputedStyle(element).gridTemplateColumns.split(" ").length,
+    );
+    await expect.poll(columns).toBe(2);
+
+    await page.setViewportSize({ width: 760, height: 844 });
+    await expect.poll(columns).toBe(1);
+  });
+
   test("keeps lifecycle steps transparent on iPhone and puts repair counts in their details", async ({ browser }) => {
     const context = await browser.newContext({ hasTouch: true, isMobile: true, viewport: { width: 390, height: 844 } });
     const page = await context.newPage();
