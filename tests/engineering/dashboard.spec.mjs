@@ -771,6 +771,34 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(modal).not.toBeVisible();
   });
 
+  test("summarizes repeated lifecycle phase timing records by phase", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => r({
+      watcher_state: "ENGINEERING_RUN_ACTIVE",
+      run_id: "lifecycle-phase-summary",
+      lifecycle: {
+        available: true, run_id: "lifecycle-phase-summary", terminal_state: "ACTIVE",
+        steps: [{
+          id: "initialize", presentation_key: "lifecycle.step.initialize", state: "COMPLETED",
+          timing: { started_at: "2026-08-16T14:00:00Z", finished_at: "2026-08-16T14:03:00Z", spans: [
+            { phase: "INITIALIZATION", duration_ms: 0, outcome: "COMPLETE" },
+            { phase: "INITIALIZATION", duration_ms: 1000, outcome: "COMPLETE" },
+            { phase: "INITIALIZATION", duration_ms: 2000, outcome: "COMPLETE" },
+            { phase: "PROVIDER_EXECUTION", duration_ms: 12000, outcome: "COMPLETE" },
+          ] },
+        }],
+      },
+    }, {}));
+    await page.locator("#currentRun").evaluate((element) => { element.open = true; });
+    await page.locator(".execution-lifecycle__node").click();
+
+    const phaseRows = page.locator("#lifecycleDetailModal .lifecycle-detail-modal__phase-list li");
+    await expect(phaseRows).toHaveCount(2);
+    await expect(phaseRows.nth(0)).toContainText(DASHBOARD_MESSAGES.nl["telemetry.phase.initialization"]);
+    await expect(phaseRows.nth(0)).toContainText("3 sec");
+    await expect(phaseRows.nth(1)).toContainText(DASHBOARD_MESSAGES.nl["telemetry.phase.provider_execution"]);
+  });
+
   test("preserves the active lifecycle horizontal position across server refreshes", async ({ page }) => {
     await page.setViewportSize({ width: 640, height: 900 });
     await page.route("**/api/events", (route) => route.abort());

@@ -1069,6 +1069,26 @@ function lifecycleDetailField(label, value) {
   );
   return field;
 }
+function lifecyclePhaseTiming(spans) {
+  const phases = new Map();
+  for (const span of spans) {
+    if (!span || typeof span !== "object") continue;
+    const phase = String(span.phase || "").trim();
+    if (!phase) continue;
+    const previous = phases.get(phase) || { phase, duration_ms: 0, hasDuration: true, outcome: "UNKNOWN" };
+    const duration = Number(span.duration_ms);
+    if (Number.isFinite(duration) && duration >= 0) previous.duration_ms += duration;
+    else previous.hasDuration = false;
+    // Spans are stored in runtime order, so the final outcome is the one the
+    // operator needs in the compact lifecycle view.
+    previous.outcome = span.outcome;
+    phases.set(phase, previous);
+  }
+  return [...phases.values()].map(({ hasDuration, ...phase }) => ({
+    ...phase,
+    duration_ms: hasDuration ? phase.duration_ms : null,
+  }));
+}
 let lifecycleDetailTrigger = null;
 function closeLifecycleDetail() {
   const modal = $("lifecycleDetailModal");
@@ -1092,7 +1112,7 @@ function openLifecycleDetail(step, trigger) {
     grid.append(lifecycleDetailField(t("lifecycle.detail_iterations"), String(step.iteration_count)));
   }
   overview.append(grid); content.append(overview);
-  const spans = Array.isArray(timing.spans) ? timing.spans : [];
+  const spans = lifecyclePhaseTiming(Array.isArray(timing.spans) ? timing.spans : []);
   const phaseTiming = document.createElement("section");
   phaseTiming.append(Object.assign(document.createElement("h3"), { textContent: t("lifecycle.detail_phase_timing") }));
   if (!spans.length) {
