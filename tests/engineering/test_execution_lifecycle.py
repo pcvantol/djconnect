@@ -106,6 +106,28 @@ class ExecutionLifecycleProjectionTests(unittest.TestCase):
         self.assertEqual(by_id["FINALIZE_AGENT"]["state"], "COMPLETED")
         self.assertEqual(by_id["WAIT_FOR_FINALIZATION_MERGE"]["state"], "ACTIVE")
 
+    def test_completed_managed_run_omits_merge_steps_without_pull_requests(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            self._state(root, "EXECUTE_AGENT")
+            self._state(root, "COMPLETE")
+            value = projection(root, "inbox-flow")
+        step_ids = {step["id"] for step in value["steps"]}
+        self.assertNotIn("WAIT_FOR_OPERATOR_MERGE", step_ids)
+        self.assertNotIn("WAIT_FOR_FINALIZATION_MERGE", step_ids)
+
+    def test_completed_managed_run_omits_only_unused_finalization_merge(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            self._state(root, "WAIT_FOR_TERMINAL_EVIDENCE", pull_request=840)
+            self._state(root, "FINALIZE_AGENT", implementation_pull_request=840)
+            self._state(root, "REPOSITORY_CLEANUP", implementation_pull_request=840)
+            self._state(root, "COMPLETE", implementation_pull_request=840)
+            value = projection(root, "inbox-flow")
+        step_ids = {step["id"] for step in value["steps"]}
+        self.assertIn("WAIT_FOR_OPERATOR_MERGE", step_ids)
+        self.assertNotIn("WAIT_FOR_FINALIZATION_MERGE", step_ids)
+
     def test_projection_exposes_only_persisted_step_phase_timing(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)

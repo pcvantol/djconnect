@@ -1024,6 +1024,32 @@ test.describe("Engineering Status browser smoke", () => {
       .toContainText(DASHBOARD_MESSAGES.nl["lifecycle.step.wait_for_finalization_merge"]);
   });
 
+  test("renders only the merge boundaries recorded for the lifecycle", async ({ page }) => {
+    await page.route("**/api/events", (route) => route.abort());
+    await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({ json: { status: {} } }));
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    const render = (steps) => r({ watcher_state: "ENGINEERING_RUN_ACTIVE", lifecycle: {
+      available: true, run_id: "lifecycle-conditional-merges", terminal_state: "ACTIVE", steps,
+    } }, {});
+    await page.evaluate(render, [
+      { id: "start", presentation_key: "lifecycle.step.start", state: "COMPLETED" },
+      { id: "finalization", presentation_key: "lifecycle.step.finalize_agent", state: "ACTIVE" },
+    ]);
+    await page.locator("#currentRun").evaluate((element) => { element.open = true; });
+    await expect(page.locator(".execution-lifecycle__item")).toHaveCount(2);
+    await page.evaluate(render, [
+      { id: "start", presentation_key: "lifecycle.step.start", state: "COMPLETED" },
+      { id: "merge", presentation_key: "lifecycle.step.wait_for_operator_merge", state: "COMPLETED" },
+      { id: "finalization", presentation_key: "lifecycle.step.finalize_agent", state: "ACTIVE" },
+    ]);
+    await expect(page.locator(".execution-lifecycle__item")).toHaveCount(3);
+    await expect(page.locator(".execution-lifecycle__node")).toContainText([
+      DASHBOARD_MESSAGES.nl["lifecycle.step.start"],
+      DASHBOARD_MESSAGES.nl["lifecycle.step.wait_for_operator_merge"],
+      DASHBOARD_MESSAGES.nl["lifecycle.step.finalize_agent"],
+    ]);
+  });
+
   test("keeps selected sortable headers within a thin cell edge", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.locator("#componentLogs").evaluate((element) => { element.open = true; });

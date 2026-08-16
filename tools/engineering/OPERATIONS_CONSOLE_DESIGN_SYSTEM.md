@@ -199,8 +199,11 @@ current step. An owner-authorized managed run has two distinct merge hand-offs:
 the implementation PR's **Merge** circle, then, after **Finalization**, a
 separate **Finalization merge** circle for its finalization PR. Each hand-off
 uses its own pull-request number and reopens the handoff modal for that PR,
-even though both belong to the same run. Snapshots carry a source-scoped
-monotone revision; the client
+even though both belong to the same run. The projection omits merge circles
+when persisted lifecycle evidence proves that the run did not require that
+pull request: a no-PR run has none, an implementation-only run has one, and a
+run with a finalization PR has two. Snapshots carry a source-scoped monotone
+revision; the client
 must apply them atomically and discard an older revision from the same source,
 so it cannot retain a completed-state glyph from an older snapshot. Until GitHub
 reports the pull request as merged and the Execution Host advances, an open
