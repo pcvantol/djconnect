@@ -773,6 +773,8 @@ test.describe("Engineering Status browser smoke", () => {
       );
     });
     await expect.poll(contained).toBe(true);
+    const lifecycleScroll = page.locator("#currentRun .execution-lifecycle__scroll");
+    await expect(lifecycleScroll).toHaveCSS("overflow-x", "auto");
 
     await page.setViewportSize({ width: 760, height: 844 });
     await expect.poll(columns).toBe(1);
