@@ -86,6 +86,11 @@ selected UI language, keeps the Merge lifecycle node blocked without a
 checkmark, and returns it to active only when the PR is again awaiting an
 operator merge. A Merge completion is projected only from subsequent
 finalization evidence or a successful terminal outcome.
+When finalization creates its own pull request, that is a second, distinct
+operator merge handoff: the implementation Merge node remains completed,
+Finalization remains completed, and the console shows a separate active
+Finalization merge node with the finalization PR's Open pull request and Abort
+execution controls.
 
 `workspace-write` is intentionally not used for managed transactions because
 it denies Git index writes. It is suitable for edit-only work, but would leave

@@ -195,7 +195,12 @@ shared modal ink, so they remain clearly readable against the dark surface.
 The flow renders the server lifecycle projection as one coherent update: the
 server-reported current step is the sole active circle. During an operator
 merge wait, **Merge** is the active circle and the summary states the same
-current step. Snapshots carry a source-scoped monotone revision; the client
+current step. An owner-authorized managed run has two distinct merge hand-offs:
+the implementation PR's **Merge** circle, then, after **Finalization**, a
+separate **Finalization merge** circle for its finalization PR. Each hand-off
+uses its own pull-request number and reopens the handoff modal for that PR,
+even though both belong to the same run. Snapshots carry a source-scoped
+monotone revision; the client
 must apply them atomically and discard an older revision from the same source,
 so it cannot retain a completed-state glyph from an older snapshot. Until GitHub
 reports the pull request as merged and the Execution Host advances, an open
@@ -410,7 +415,7 @@ Add or extend Playwright coverage for the changed state and, when applicable:
   node, fixed connector length, exact vertical centre alignment, inherited
   containing-category accent, standard label colour and a coherent
   active/completed/pending projection, including that an open operator merge
-  wait renders Merge as active rather than completed, retains its handoff
+  wait renders the applicable Merge circle as active rather than completed, retains its handoff
   controls while checks are queued or running, and lifecycle nodes stay free
   of generic touch glass/transitions;
 - AI conversation modals: verify the purple descriptive divider remains and

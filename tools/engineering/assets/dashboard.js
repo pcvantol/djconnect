@@ -1047,8 +1047,9 @@ function renderOperatorMergeWait(x) {
   $("operatorMergeWaitModalDescription").textContent = t("merge_wait.description", { number: pullRequest });
   $("operatorMergeWaitModalPullRequest").href = href;
   $("operatorMergeWaitModalPullRequest").textContent = t("merge_wait.open_pull_request", { number: pullRequest });
-  if (shownOperatorMergeWaitRun !== x.run_id) {
-    shownOperatorMergeWaitRun = x.run_id;
+  const handoffKey = `${x.run_id || ""}:${pullRequest}`;
+  if (shownOperatorMergeWaitRun !== handoffKey) {
+    shownOperatorMergeWaitRun = handoffKey;
     if (!modal.open) modal.showModal();
   }
 }

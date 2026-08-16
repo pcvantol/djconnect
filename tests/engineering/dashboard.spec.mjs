@@ -991,6 +991,39 @@ test.describe("Engineering Status browser smoke", () => {
     await expect.poll(() => abortRequested).toBe(true);
   });
 
+  test("opens a new handoff modal for the finalization pull request in the same run", async ({ page }) => {
+    await page.route("**/api/events", (route) => route.abort());
+    await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({ json: { status: {} } }));
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => r({
+      watcher_state: "WAITING_FOR_OPERATOR_MERGE", current_phase: "WAIT_FOR_OPERATOR_MERGE",
+      run_id: "inbox-two-merges", pull_request: 840, target_repository: "pcvantol/djconnect",
+    }, {}));
+    const modal = page.locator("#operatorMergeWaitModal");
+    await expect(modal).toBeVisible();
+    await page.locator("#operatorMergeWaitModalClose").click();
+    await page.evaluate(() => r({
+      watcher_state: "WAITING_FOR_OPERATOR_MERGE", current_phase: "WAIT_FOR_OPERATOR_MERGE",
+      run_id: "inbox-two-merges", pull_request: 841, finalization_pr: 841,
+      target_repository: "pcvantol/djconnect",
+      lifecycle: {
+        available: true, run_id: "inbox-two-merges", terminal_state: "ACTIVE",
+        steps: [
+          { id: "implementation-merge", presentation_key: "lifecycle.step.wait_for_operator_merge", state: "COMPLETED" },
+          { id: "finalization", presentation_key: "lifecycle.step.finalize_agent", state: "COMPLETED" },
+          { id: "finalization-merge", presentation_key: "lifecycle.step.wait_for_finalization_merge", state: "ACTIVE" },
+        ],
+      },
+    }, {}));
+    await page.locator("#currentRun").evaluate((element) => { element.open = true; });
+    await expect(modal).toBeVisible();
+    await expect(page.locator("#operatorMergeWaitModalPullRequest"))
+      .toHaveAttribute("href", "https://github.com/pcvantol/djconnect/pull/841");
+    await expect(page.locator(".execution-lifecycle__item")).toHaveCount(3);
+    await expect(page.locator(".execution-lifecycle__item--active .execution-lifecycle__node"))
+      .toContainText(DASHBOARD_MESSAGES.nl["lifecycle.step.wait_for_finalization_merge"]);
+  });
+
   test("keeps selected sortable headers within a thin cell edge", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.locator("#componentLogs").evaluate((element) => { element.open = true; });
