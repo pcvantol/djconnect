@@ -23,10 +23,11 @@ lifecycle flow projection**, merged as
 Operations Console now makes the canonical intended lifecycle and actual
 run-scoped execution progress visible together for active and historical runs.
 Its immutable Prompt History record is
-`docs/history/prompts/2026-08-16-execution-lifecycle-flow.md`. This
-governance-only Finalization restores Repository State:
-`MERGED_RECONCILED` and Workspace State: `WORKSPACE_READY` after cleanup when
-merged. No Forge Mission, execution sequencing, lifecycle authority,
+`docs/history/prompts/2026-08-16-execution-lifecycle-flow.md`. Its
+governance-only Finalization PR [#841](https://github.com/pcvantol/djconnect/pull/841)
+restores Repository State: `MERGED_RECONCILED` and Workspace State:
+`WORKSPACE_READY` after cleanup when merged. No Forge Mission, execution
+sequencing, lifecycle authority,
 telemetry, retry/resume/dismiss, validation, Producer or model-selection
 semantics changed.
 

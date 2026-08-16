@@ -11,10 +11,11 @@ Platform projection supplies a canonical intended lifecycle path and maps only
 persisted execution evidence onto that path for one Run ID at a time. The
 Operations Console reuses it for active and historical detail without changing
 execution authority or behavior. The immutable Prompt History record is
-`docs/history/prompts/2026-08-16-execution-lifecycle-flow.md`. This dedicated
-Finalization is governance-only; when merged, Repository State is
-`MERGED_RECONCILED` and Workspace State is `WORKSPACE_READY` after cleanup. No
-Forge, execution, lifecycle, telemetry, retry/resume/dismiss, validation,
+`docs/history/prompts/2026-08-16-execution-lifecycle-flow.md`. Its dedicated
+governance-only Finalization PR [#841](https://github.com/pcvantol/djconnect/pull/841)
+reconciles the rolling records; when merged, Repository State is
+`MERGED_RECONCILED` and Workspace State is `WORKSPACE_READY` after cleanup.
+No Forge, execution, lifecycle, telemetry, retry/resume/dismiss, validation,
 Producer or model-selection semantics changed.
 
 ## PR #833 finalization pending

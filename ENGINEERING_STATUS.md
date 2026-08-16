@@ -12,10 +12,11 @@ projects one canonical, run-scoped execution lifecycle path for active and
 historical executions, including mode-specific intended paths, actual progress,
 terminal outcome, repair iteration evidence, accessibility and mobile
 horizontal scrolling. The immutable Prompt History record is
-`docs/history/prompts/2026-08-16-execution-lifecycle-flow.md`. This dedicated
-governance-only Finalization reconciles the rolling records; its merge restores
-Repository State: `MERGED_RECONCILED` and Workspace State: `WORKSPACE_READY`
-after cleanup. Forge, execution sequencing, lifecycle authority, telemetry,
+`docs/history/prompts/2026-08-16-execution-lifecycle-flow.md`. Its dedicated
+governance-only Finalization PR [#841](https://github.com/pcvantol/djconnect/pull/841)
+reconciles the rolling records; its merge restores Repository State:
+`MERGED_RECONCILED` and Workspace State: `WORKSPACE_READY` after cleanup.
+Forge, execution sequencing, lifecycle authority, telemetry,
 retry/resume/dismiss, validation, Producer and model-selection semantics are
 unchanged.
 
