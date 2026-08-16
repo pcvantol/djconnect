@@ -647,6 +647,8 @@ test.describe("Engineering Status browser smoke", () => {
   test("keeps lifecycle steps transparent on iPhone and puts repair counts in their details", async ({ browser }) => {
     const context = await browser.newContext({ hasTouch: true, isMobile: true, viewport: { width: 390, height: 844 } });
     const page = await context.newPage();
+    await page.route("**/api/events", (route) => route.abort());
+    await page.route("**/api/dashboard-snapshot", (route) => route.abort());
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.evaluate(() => r({ watcher_state: "ENGINEERING_RUN_ACTIVE", lifecycle: {
       available: true,
@@ -3088,6 +3090,26 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(rows.nth(0)).toHaveAttribute("aria-selected", "true");
     await expect(rows.nth(1)).toHaveAttribute("aria-selected", "false");
     await expect(rows.nth(2)).toHaveAttribute("aria-selected", "true");
+    const selectedRowSurface = await rows.nth(0).evaluate((row) => {
+      const cells = Array.from(row.cells);
+      return {
+        firstCellBackground: getComputedStyle(cells[0]).backgroundColor,
+        firstCellShadow: getComputedStyle(cells[0]).boxShadow,
+        rowOutline: getComputedStyle(row).outlineStyle,
+        rowShadow: getComputedStyle(row).boxShadow,
+        otherCellOutlines: cells.slice(1).map((cell) => getComputedStyle(cell).outlineStyle),
+        otherCellShadows: cells.slice(1).map((cell) => getComputedStyle(cell).boxShadow),
+      };
+    });
+    expect(selectedRowSurface.firstCellBackground).not.toBe("rgba(0, 0, 0, 0)");
+    expect(selectedRowSurface.firstCellShadow).toContain("2px 0px 0px 0px inset");
+    expect(selectedRowSurface.rowOutline).toBe("none");
+    expect(selectedRowSurface.rowShadow).toBe("none");
+    expect(selectedRowSurface.otherCellOutlines.every((outline) => outline === "none")).toBe(true);
+    expect(selectedRowSurface.otherCellShadows.every((shadow) => shadow === "none")).toBe(true);
+    await rows.nth(0).focus();
+    await expect(rows.nth(0)).toHaveCSS("outline-style", "none");
+    await expect(rows.nth(0)).toHaveCSS("box-shadow", "none");
 
     const copied = await page.evaluate(() => {
       const data = new DataTransfer();
