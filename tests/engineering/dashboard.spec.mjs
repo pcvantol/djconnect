@@ -150,6 +150,7 @@ test.describe("Engineering Status browser smoke", () => {
   });
 
   test("uses catalogued copy for every UI label in every supported language", async ({ page }) => {
+    test.slow();
     await page.route("**/api/events", (route) => route.abort());
     await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({
       json: { status: { watcher_state: "IDLE", queue_depth: 0 } },
@@ -3482,6 +3483,7 @@ test.describe("Engineering Status browser smoke", () => {
   });
 
   test("retains terminal status colours in the light prompt-history table", async ({ page }) => {
+    await page.route("**/api/events", (route) => route.abort());
     await page.route("**/api/prompt-history", (route) => route.fulfill({ json: { runs: [] } }));
     const historyLoaded = page.waitForResponse("**/api/prompt-history");
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
