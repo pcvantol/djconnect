@@ -295,7 +295,7 @@ html[data-theme="light"] #promptHistory .execution-history-action{background:#ff
 /* A small, decorative glyph gives each modal title a clear visual purpose. */
 :is(.component-modal h2,.confirmation-modal h2,.report-view-modal__title,.prompt-chat-modal__header h2){--modal-title-glyph-size:20px}:is(.component-modal h2,.confirmation-modal h2,.report-view-modal__title,.prompt-chat-modal__header h2)::before{display:inline-block;font-size:var(--modal-title-glyph-size);line-height:1;margin-right:.42em;vertical-align:-.04em}.component-modal h2::before{content:"⚙︎"}.confirmation-modal h2::before{content:"ⓘ"}.confirmation-modal#dashboardErrorModal h2::before{content:"×"}.report-view-modal__title::before{content:"▤"}.prompt-chat-modal__header h2::before{content:"💬"}
 /* Modal titles use one responsive type scale across every modal family. */
-:is(.confirmation-modal h2[data-modal-glyph="question"],.report-view-modal__title[data-modal-glyph="analysis"])::before{align-items:center;border:2px solid currentColor;border-radius:50%;box-sizing:border-box;display:inline-flex;height:var(--modal-title-glyph-size);justify-content:center;width:var(--modal-title-glyph-size);vertical-align:-.12em}
+.confirmation-modal h2[data-modal-glyph="question"]::before{align-items:center;border:2px solid currentColor;border-radius:50%;box-sizing:border-box;display:inline-flex;height:var(--modal-title-glyph-size);justify-content:center;width:var(--modal-title-glyph-size);vertical-align:-.12em}
 .confirmation-modal h2[data-modal-glyph="question"]::before{content:"?"}
 .confirmation-modal h2[data-modal-glyph="warning"]::before{content:"⚠"}
 .report-view-modal__title[data-modal-glyph="analysis"]::before{content:"✦"}

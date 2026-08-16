@@ -1406,7 +1406,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#promptHistoryReportModalTitle")).toHaveCSS("border-top-width", "0px");
     expect(await page.locator("#promptHistoryReportModalTitle").evaluate(
       (heading) => getComputedStyle(heading, "::before").borderTopWidth,
-    )).toBe("2px");
+    )).toBe("0px");
   });
 
   test("keeps every modal close control visible in light mode", async ({ page }) => {
