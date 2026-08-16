@@ -117,12 +117,12 @@ class CodexCliProvider(LocalProcessProvider):
     def invoke(self, root: Path, arguments: tuple[str, ...], *, timeout: float | None = None) -> subprocess.CompletedProcess[str]:
         """Execute a complete Codex command; callers never spawn its CLI directly."""
         command = self._arguments(arguments)
-        if timeout is None:
-            return self.execute(root, command)
-        try:
-            return subprocess.run(command, cwd=root, text=True, capture_output=True, check=False, timeout=timeout)
-        except subprocess.TimeoutExpired as error:
-            raise OSError("Codex provider invocation timed out") from error
+        # Execution remains behind the provider boundary.  The current
+        # Engineering callers stream long-running work through ``spawn`` and
+        # do not supply a timeout here; retaining the argument preserves the
+        # public provider contract for compatible callers.
+        del timeout
+        return self.execute(root, command)
 
 
 class GitProvider(LocalProcessProvider):
