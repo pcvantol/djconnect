@@ -260,6 +260,11 @@ icon-only action, close control, category glyph, disclosure arrow and
 decorative modal-title glyph uses the shared **bold** glyph weight. This makes
 compact controls equally legible in both themes and at phone scale.
 
+Neutral confirmation and evidence dialogs use the subdued information glyph
+`ⓘ`, never an error-like exclamation mark. A real error dialog uses its own
+`×` glyph, so error severity stays semantic rather than leaking into normal
+operator hand-offs.
+
 Keep the glyph weight scoped to the glyph itself: the adjacent action label
 stays at its normal text weight. When an action has both a glyph and a label,
 they form one horizontally and vertically centred group; the glyph may create

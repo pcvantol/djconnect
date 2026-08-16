@@ -1136,6 +1136,16 @@ test.describe("Engineering Status browser smoke", () => {
     }
   });
 
+  test("uses a neutral information glyph for confirmation and merge hand-off modals", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    const glyph = async (selector) => page.locator(selector).evaluate(
+      (heading) => getComputedStyle(heading, "::before").content,
+    );
+    await expect.poll(() => glyph("#operatorMergeWaitModalTitle")).toBe('"ⓘ"');
+    await expect.poll(() => glyph("#confirmationModalTitle")).toBe('"ⓘ"');
+    await expect.poll(() => glyph("#dashboardErrorModalTitle")).toBe('"×"');
+  });
+
   test("keeps every modal close control visible in light mode", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.locator("#themeToggle").click();
