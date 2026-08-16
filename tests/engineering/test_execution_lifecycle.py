@@ -66,6 +66,30 @@ class ExecutionLifecycleProjectionTests(unittest.TestCase):
         self.assertEqual(value["current_step"], "FINALIZE_AGENT")
         self.assertEqual(by_id["FINALIZE_AGENT"]["state"], "ACTIVE")
 
+    def test_failed_pr_checks_block_merge_and_identify_the_required_action(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            self._state(root, "WAIT_FOR_TERMINAL_EVIDENCE", pull_request=840)
+            self._state(root, "REPAIR_AGENT", pull_request=840,
+                        next_action="repair_bounded_validation_failure")
+            value = projection(root, "inbox-flow")
+        by_id = {step["id"]: step for step in value["steps"]}
+        self.assertEqual(value["current_step"], "REPAIR_AGENT")
+        self.assertEqual(by_id["WAIT_FOR_OPERATOR_MERGE"]["state"], "BLOCKED")
+        self.assertEqual(
+            by_id["WAIT_FOR_OPERATOR_MERGE"]["action_key"],
+            "state.repair_bounded_validation_failure",
+        )
+
+    def test_merge_is_completed_only_after_finalization_evidence(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            self._state(root, "WAIT_FOR_TERMINAL_EVIDENCE", pull_request=840)
+            self._state(root, "FINALIZE_AGENT", transaction_kind="FINALIZATION", pull_request=840)
+            value = projection(root, "inbox-flow")
+        by_id = {step["id"]: step for step in value["steps"]}
+        self.assertEqual(by_id["WAIT_FOR_OPERATOR_MERGE"]["state"], "COMPLETED")
+
     def test_projection_exposes_only_persisted_step_phase_timing(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)

@@ -32,3 +32,11 @@ to a run rather than a repository deployment, so it remains valid for future
 Execution Projects, repository components, producers and a multi-repository
 Engineering Action. Such an action still has one top-level flow per Run ID;
 repository subflows remain out of scope.
+
+For managed executions, reaching the pull-request hand-off is not merge
+evidence. The Merge node becomes completed only after persisted finalization
+evidence (or a successful terminal outcome). If required pull-request checks
+fail and the Execution Host enters bounded validation repair, Merge is blocked
+without a checkmark and the current action explicitly instructs the operator to
+fix the pull-request checks. This keeps the visible lifecycle aligned with the
+action that must happen next.

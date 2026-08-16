@@ -109,13 +109,22 @@ def projection(root: Path, run_id: str | None) -> dict[str, object]:
     repair_iterations = 0
     for event_phase, event_checkpoint, recorded_at in events:
         event = _checkpoint(event_checkpoint)
-        if event_phase in path and event_phase not in {"START", "TERMINAL"}:
-            observed.setdefault(str(event_phase), {"started_at": recorded_at})
+        event_step = _display_phase(str(event_phase), event)
+        if event_step in path and event_step not in {"START", "TERMINAL"}:
+            observed.setdefault(event_step, {"started_at": recorded_at})
         if event_phase == "REPAIR_AGENT":
             repair_iterations = max(repair_iterations, _nonnegative_int(event.get("repair_iterations")))
     repair_iterations = max(repair_iterations, _nonnegative_int(checkpoint.get("repair_iterations")))
     evidence_available = bool(events)
     terminal_state = phase if phase in TERMINAL else None
+    # Reaching the pull-request hand-off is not evidence that the pull request
+    # was merged. A later finalization step (or a successful terminal state)
+    # is the first lifecycle evidence that can make the merge node complete.
+    merge_completed = (
+        terminal_state == "COMPLETE"
+        or "FINALIZE_AGENT" in observed
+        or "REPOSITORY_CLEANUP" in observed
+    )
     steps: list[dict[str, object]] = []
     for order, step_id in enumerate(path):
         state = "PENDING"
@@ -131,6 +140,19 @@ def projection(root: Path, run_id: str | None) -> dict[str, object]:
             step["state"] = terminal_state or "PENDING"
             if terminal_state:
                 step["terminal_outcome"] = terminal_state
+        elif step_id == "WAIT_FOR_OPERATOR_MERGE" and step_id in observed:
+            step.update(observed[step_id])
+            if merge_completed:
+                step["state"] = "COMPLETED"
+            elif display_phase == "WAIT_FOR_OPERATOR_MERGE" and terminal_state is None:
+                step["state"] = "ACTIVE"
+            else:
+                # The PR exists, but it has not been merged. In particular,
+                # bounded validation repair must leave the merge visibly
+                # blocked and must not render a completion checkmark.
+                step["state"] = "BLOCKED"
+                if display_phase == "REPAIR_AGENT":
+                    step["action_key"] = "state.repair_bounded_validation_failure"
         elif step_id in observed:
             step.update(observed[step_id])
             step["state"] = "ACTIVE" if display_phase == step_id and terminal_state is None else "COMPLETED"

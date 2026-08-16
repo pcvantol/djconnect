@@ -680,6 +680,39 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(nodes.nth(1).locator("span").first()).toHaveCSS("background-color", "rgb(240, 182, 106)");
   });
 
+  test("shows pull-request check repair and keeps Merge visibly blocked", async ({ page }) => {
+    await page.route("**/api/events", (route) => route.abort());
+    await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({ json: { status: {} } }));
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => r({
+      watcher_state: "ENGINEERING_RUN_ACTIVE",
+      run_id: "lifecycle-pr-check-repair",
+      current_phase: "REPAIR_AGENT",
+      current_action: "repair_bounded_validation_failure",
+      lifecycle: {
+        available: true,
+        run_id: "lifecycle-pr-check-repair",
+        terminal_state: "ACTIVE",
+        steps: [
+          { id: "repair", presentation_key: "lifecycle.step.repair_agent", state: "ACTIVE" },
+          {
+            id: "merge", presentation_key: "lifecycle.step.wait_for_operator_merge", state: "BLOCKED",
+            action_key: "state.repair_bounded_validation_failure",
+          },
+        ],
+      },
+    }, {}));
+    await page.locator("#currentRun").evaluate((element) => { element.open = true; });
+
+    await expect(page.locator("#action")).toHaveText(
+      DASHBOARD_MESSAGES.nl["state.repair_bounded_validation_failure"],
+    );
+    const merge = page.locator(".execution-lifecycle__item--blocked .execution-lifecycle__node");
+    await expect(merge).toHaveCount(1);
+    await expect(merge.locator("span").first()).toHaveText("!");
+    await expect(merge.locator("span").first()).not.toHaveText("✓");
+  });
+
   test("places the active execution lifecycle directly below execution identity", async ({ page }) => {
     await page.route("**/api/events", (route) => route.abort());
     await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({ json: { status: {} } }));
