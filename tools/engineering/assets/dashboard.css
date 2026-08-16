@@ -299,7 +299,7 @@ html[data-theme="light"] #promptHistory .execution-history-action{background:#ff
 .confirmation-modal h2[data-modal-glyph="question"]::before{content:"?"}
 .confirmation-modal h2[data-modal-glyph="warning"]::before{content:"⚠"}
 .report-view-modal__title[data-modal-glyph="analysis"]::before{content:"✦"}
-.prompt-detail-modal__header h2::before{content:"ⓘ"}
+.prompt-detail-modal__header h2::before{content:"i";font-size:1em}
 :is(.component-modal h2,.confirmation-modal h2,.report-view-modal__title,.prompt-detail-modal__header h2,.prompt-chat-modal__header h2){font-size:clamp(18px,2vw,20px);line-height:1.2}
 
 /* Confirmation only supplies its compact geometry; the shell owns the header,

@@ -4817,7 +4817,7 @@ test.describe("Engineering Status browser smoke", () => {
       ["#componentModalTitle", "⚙︎"],
       ["#confirmationModalTitle", "ⓘ"],
       ["#promptHistoryReportModalTitle", "▤"],
-      ["#promptHistoryDetailTitle", "ⓘ"],
+      ["#promptHistoryDetailTitle", "i"],
       ["#promptHistoryChatTitle", "⋯"],
     ]) {
       expect(await page.locator(selector).evaluate(
