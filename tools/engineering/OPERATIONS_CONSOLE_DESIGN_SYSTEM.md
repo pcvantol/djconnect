@@ -152,6 +152,12 @@ Percentages are locale-formatted with exactly **one fractional digit**. This
 applies to live metrics, limits and telemetry alike, so precision does not
 vary by panel or by refresh.
 
+Estimated execution time is advisory. When at least two completed runs share
+the exact reported runtime profile, the dashboard may use their persisted
+phase timings for the current and remaining operational phases. Operator merge
+and external-check waiting are excluded; the result remains a range, never a
+promise or scheduler input.
+
 ### Execution lifecycle flow
 
 In the active-execution card, identify the run first: **Execution title** and

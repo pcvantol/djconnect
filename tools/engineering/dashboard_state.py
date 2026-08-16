@@ -334,6 +334,9 @@ def snapshot(
                 root,
                 prompt_characters=status_payload.get("prompt_characters"),
                 runtime_metadata=status_payload.get("runtime_metadata"),
+                run_id=active_run_id,
+                current_phase=status_payload.get("current_phase"),
+                execution_mode=status_payload.get("execution_mode"),
             )
             if active
             else {}

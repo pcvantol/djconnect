@@ -215,8 +215,23 @@ function historicalContext(estimate, fallback) {
 function hasHistoricalEstimate(estimate) {
   return (Number(estimate?.sample_count) || 0) >= 2;
 }
+function phaseAwareRange(estimate) {
+  const samples = Number(estimate?.phase_sample_count) || 0,
+    lower = Number(estimate?.remaining_lower_seconds),
+    upper = Number(estimate?.remaining_upper_seconds);
+  if (estimate?.phase_aware !== true || samples < 2 || !Number.isFinite(lower) || !Number.isFinite(upper)) return null;
+  return [Math.max(1, Math.round(lower / 60)), Math.max(1, Math.ceil(upper / 60))];
+}
 function estimate(x, durationEstimate = {}) {
   const phase = x.current_phase || "";
+  const phaseRange = phaseAwareRange(durationEstimate);
+  if (["INITIALIZE", "EXECUTE_AGENT", "REPAIR_AGENT", "FINALIZE_AGENT", "REPOSITORY_CLEANUP"].includes(phase) && phaseRange) {
+    const [minimum, maximum] = phaseRange;
+    return {
+      summary: t("estimate.remaining", { minimum, maximum }),
+      context: historicalContext(durationEstimate, t("estimate.total_context")),
+    };
+  }
   if (phase === "INITIALIZE")
     return { summary: t("estimate.initializing"), context: "" };
   if (["EXECUTE_AGENT", "REPAIR_AGENT"].includes(phase)) {

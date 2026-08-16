@@ -2711,6 +2711,29 @@ test.describe("Engineering Status browser smoke", () => {
     );
   });
 
+  test("uses phase-aware comparable telemetry for the remaining duration", async ({ page }) => {
+    await page.route("**/api/events", (route) => route.abort());
+    await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({ json: { status: { watcher_state: "WATCHER_IDLE" } } }));
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => r({
+      watcher_state: "ENGINEERING_RUN_ACTIVE",
+      current_phase: "FINALIZE_AGENT",
+      run_id: "phase-aware-duration-run",
+      prompt_characters: 1000,
+    }, {
+      duration_estimate: {
+        sample_count: 3,
+        phase_aware: true,
+        phase_sample_count: 3,
+        remaining_lower_seconds: 600,
+        remaining_upper_seconds: 900,
+      },
+    }));
+
+    await expect(page.locator("#executionEstimate")).toHaveText("Indicatief resterend: 10–15 minuten");
+    await expect(page.locator("#executionEstimateMeta")).toContainText("3 vergelijkbare voltooide uitvoeringen");
+  });
+
   test("shows the elapsed duration explanation only once without learned history", async ({ page }) => {
     await page.route("**/api/events", (route) => route.abort());
     await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({
