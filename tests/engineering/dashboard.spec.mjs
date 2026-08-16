@@ -1375,7 +1375,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect.poll(() => glyph("#confirmationModalTitle")).toBe('"?"');
     expect(await page.locator("#confirmationModalTitle").evaluate(
       (heading) => getComputedStyle(heading, "::before").width,
-    )).toBe("21.6px");
+    )).toBe("20px");
     await page.evaluate(() => {
       document.querySelector("#confirmationModalTitle").dataset.modalGlyph = "warning";
     });
@@ -1384,6 +1384,17 @@ test.describe("Engineering Status browser smoke", () => {
       document.querySelector("#promptHistoryReportModalTitle").dataset.modalGlyph = "analysis";
     });
     await expect.poll(() => glyph("#promptHistoryReportModalTitle")).toBe('"✦"');
+    for (const selector of [
+      "#operatorMergeWaitModalTitle",
+      "#confirmationModalTitle",
+      "#promptHistoryReportModalTitle",
+      "#promptHistoryDetailTitle",
+      "#promptHistoryChatTitle",
+    ]) {
+      expect(await page.locator(selector).evaluate(
+        (heading) => getComputedStyle(heading, "::before").fontSize,
+      )).toBe("20px");
+    }
     await expect(page.locator("#promptHistoryReportModalTitle")).toHaveCSS("border-top-width", "0px");
     expect(await page.locator("#promptHistoryReportModalTitle").evaluate(
       (heading) => getComputedStyle(heading, "::before").borderTopWidth,
