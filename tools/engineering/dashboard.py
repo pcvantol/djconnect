@@ -46,6 +46,7 @@ from .telemetry import daily_statistics, daily_timing_detail, execution_timing
 from .prompt_history import prompt_history, report_for_prompt_history
 from .recommendation_handoff import handoff_from_report
 from .storage import EngineeringStorageError, open_storage
+from .execution_lifecycle import projection as lifecycle_projection
 from .platform_version import EngineeringPlatformManifest
 from . import dashboard_state
 
@@ -230,6 +231,7 @@ def _project_prompt_history_detail(
     commits: object,
     usage: dict[str, object],
     report: str | None,
+    lifecycle: dict[str, object] | None = None,
 ) -> bytes:
     """Project one immutable history row into dashboard detail JSON.
 
@@ -249,6 +251,7 @@ def _project_prompt_history_detail(
             "usage": usage,
             "evidence": evidence,
             "recommendation_handoff": handoff,
+            "lifecycle": lifecycle or {},
         },
         ensure_ascii=False,
         separators=(",", ":"),
@@ -295,6 +298,7 @@ def _prompt_history_detail(root: Path, run_id: str | None) -> bytes:
         commits=commits,
         usage=usage,
         report=report,
+        lifecycle=lifecycle_projection(root, run_id),
     )
 
 

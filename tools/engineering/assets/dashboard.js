@@ -1013,6 +1013,50 @@ function renderCodexUsageLimitBanner(x) {
   if (!banner) return;
   banner.hidden = String(x?.terminal_condition || "") !== "codex_usage_limit_reached";
 }
+function lifecycleLabel(step) {
+  return t(step?.presentation_key || "lifecycle.step.unknown", {}, String(step?.id || t("format.unknown")));
+}
+function lifecycleStateLabel(state) {
+  return t("lifecycle.state." + String(state || "UNKNOWN").toLowerCase(), {}, String(state || "UNKNOWN"));
+}
+function lifecycleFlow(projection, { historical = false } = {}) {
+  const section = document.createElement("section");
+  section.className = "execution-lifecycle" + (historical ? " execution-lifecycle--historical" : "");
+  section.setAttribute("aria-label", t("lifecycle.title"));
+  const heading = document.createElement("h3"); heading.textContent = t("lifecycle.title"); section.append(heading);
+  if (!projection?.available) {
+    section.append(Object.assign(document.createElement("p"), { className: "execution-lifecycle__unavailable", textContent: t("lifecycle.unavailable") }));
+    return section;
+  }
+  const scroll = document.createElement("div"), list = document.createElement("ol");
+  scroll.className = "execution-lifecycle__scroll"; list.className = "execution-lifecycle__path";
+  for (const step of Array.isArray(projection.steps) ? projection.steps : []) {
+    const state = String(step?.state || "UNKNOWN").toLowerCase();
+    const item = document.createElement("li"), button = document.createElement("button"), node = document.createElement("span"), label = document.createElement("span");
+    item.className = "execution-lifecycle__item execution-lifecycle__item--" + state;
+    button.type = "button"; button.className = "execution-lifecycle__node";
+    if (state === "active" && !historical) button.classList.add("execution-lifecycle__node--active");
+    const name = lifecycleLabel(step), status = lifecycleStateLabel(step?.state);
+    button.setAttribute("aria-label", name + " — " + status);
+    node.setAttribute("aria-hidden", "true"); node.textContent = state === "completed" ? "✓" : state === "complete" ? "✓" : state === "blocked" ? "!" : state === "failed" ? "×" : "";
+    label.textContent = name;
+    button.append(node, label);
+    if (Number.isInteger(step?.iteration_count) && step.iteration_count > 0) {
+      const badge = document.createElement("span"); badge.className = "execution-lifecycle__badge"; badge.textContent = String(step.iteration_count); badge.setAttribute("aria-label", t("lifecycle.repair_count", { count: step.iteration_count })); button.append(badge);
+    }
+    item.append(button); list.append(item);
+  }
+  scroll.append(list); section.append(scroll);
+  const summary = document.createElement("p"); summary.className = "execution-lifecycle__summary";
+  summary.textContent = t("lifecycle.summary", { step: lifecycleLabel((projection.steps || []).find((step) => step?.state === "ACTIVE") || (projection.steps || []).find((step) => step?.state === projection?.terminal_state) || {}), status: lifecycleStateLabel(projection.terminal_state || "ACTIVE") });
+  section.append(summary);
+  return section;
+}
+function renderActiveLifecycle(projection) {
+  const current = $("currentRun")?.querySelector(".current-run__grid"); if (!current) return;
+  current.querySelector(".execution-lifecycle")?.remove();
+  if (projection?.run_id) current.prepend(lifecycleFlow(projection));
+}
 function renderHealthStatus(x, snapshot = {}) {
   lastRefresh = new Date();
   clock();
@@ -1041,6 +1085,7 @@ function renderHealthStatus(x, snapshot = {}) {
   $("predecessorAction").textContent =
     x.predecessor_recovery_action || t("format.not_available");
   renderExecutionContext(x.execution_context, x);
+  renderActiveLifecycle(x.lifecycle);
   renderOperatorMergeWait(x);
   renderCodexUsageLimitBanner(x);
   indicator.className =
@@ -3963,6 +4008,7 @@ function renderPromptHistoryDetail(payload) {
   content.replaceChildren();
   content.append(
     ...[
+      lifecycleFlow(payload?.lifecycle, { historical: true }),
       promptDetailExecutionSection(history),
       promptDetailSidebar([
         promptDetailDurationSection(execution),

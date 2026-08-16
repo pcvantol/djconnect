@@ -19,6 +19,7 @@ from .platform_api import PlatformConfigurationError, execution_host_configurati
 from .telemetry import comparable_duration_estimate
 from .storage import EngineeringStorageError, import_legacy_projection_once, load_execution_context_snapshot, load_forge_governance_handoff_snapshot, load_projection, load_readiness_evaluation, open_storage
 from .execution_lease import liveness as lease_liveness
+from .execution_lifecycle import projection as lifecycle_projection
 
 
 JsonReader = Callable[[Path], bytes]
@@ -179,6 +180,7 @@ def status(root: Path) -> bytes:
                 # become an Execution Context source.
                 "execution_context": load_execution_context_snapshot(root, str(live.get("run_id"))),
                 "forge_governance_handoff": load_forge_governance_handoff_snapshot(root, str(live.get("run_id"))),
+                "lifecycle": lifecycle_projection(root, live.get("run_id")),
             },
             separators=(",", ":"),
         ).encode()
