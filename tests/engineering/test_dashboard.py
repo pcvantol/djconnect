@@ -848,6 +848,8 @@ class DashboardStatusTest(unittest.TestCase):
 
         self.assertEqual(snapshot["status"]["watcher_state"], "WATCHER_IDLE")
         self.assertIn("build_commit", snapshot)
+        self.assertIsInstance(snapshot["snapshot_source"], str)
+        self.assertGreater(snapshot["snapshot_revision"], 0)
         self.assertEqual(snapshot["prompt_started"], {})
         self.assertEqual(snapshot["usage"], {})
         self.assertEqual(snapshot["rate_limits"], {})

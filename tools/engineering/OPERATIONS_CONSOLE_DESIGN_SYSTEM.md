@@ -165,8 +165,9 @@ ordinary step names into status colour.
 The flow renders the server lifecycle projection as one coherent update: the
 server-reported current step is the sole active circle. During an operator
 merge wait, **Merge** is the active circle and the summary states the same
-current step. The client must apply a lifecycle snapshot atomically and may
-not retain a completed-state glyph from an older snapshot. Until GitHub
+current step. Snapshots carry a source-scoped monotone revision; the client
+must apply them atomically and discard an older revision from the same source,
+so it cannot retain a completed-state glyph from an older snapshot. Until GitHub
 reports the pull request as merged and the Execution Host advances, an open
 operator merge wait therefore renders **Merge** as the orange active circle,
 never as a completed check.

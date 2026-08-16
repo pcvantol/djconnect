@@ -54,6 +54,7 @@ LABEL = "com.djconnect.engineering-dashboard"
 RELAY_LABEL = "com.djconnect.engineering-dashboard-relay"
 DASHBOARD_VERSION = "1.2.90"
 DASHBOARD_STARTED_AT = time.monotonic()
+DASHBOARD_SNAPSHOT_SOURCE = str(uuid.uuid4())
 ASSET_DIRECTORY = Path(__file__).with_name("assets")
 APP_ICON_DARK = "operations-console/apple-touch-icon-dark.png"
 APP_ICON_LIGHT = "operations-console/apple-touch-icon-light.png"
@@ -67,6 +68,9 @@ CODEX_IDENTITY_CACHE_SECONDS = 300
 GIT_INDEX_LOCK_STALE_SECONDS = 300
 _codex_identity_cache_lock = Lock()
 _codex_identity_cache: tuple[float, dict[str, str]] | None = None
+_snapshot_revision_lock = Lock()
+_snapshot_fingerprint: bytes | None = None
+_snapshot_revision = 0
 
 COMPONENT_LABELS = {
     "dashboard": LABEL,
@@ -168,8 +172,20 @@ def _sse_snapshot(root: Path) -> bytes:
         payload = json.loads(snapshot)
     except json.JSONDecodeError:
         return snapshot
-    if isinstance(payload, dict):
-        payload["workspace_git_lock"] = _workspace_git_lock(root)
+    if not isinstance(payload, dict):
+        return snapshot
+    payload["workspace_git_lock"] = _workspace_git_lock(root)
+    fingerprint = json.dumps(payload, ensure_ascii=False, separators=(",", ":")).encode()
+    # HTTP refreshes and SSE delivery can complete out of order in a browser.
+    # Attach one process-scoped monotone revision to every changed projection,
+    # so the client can retain the newest coherent lifecycle snapshot.
+    global _snapshot_fingerprint, _snapshot_revision
+    with _snapshot_revision_lock:
+        if fingerprint != _snapshot_fingerprint:
+            _snapshot_fingerprint = fingerprint
+            _snapshot_revision += 1
+        payload["snapshot_source"] = DASHBOARD_SNAPSHOT_SOURCE
+        payload["snapshot_revision"] = _snapshot_revision
     return json.dumps(payload, ensure_ascii=False, separators=(",", ":")).encode()
 
 
