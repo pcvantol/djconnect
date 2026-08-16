@@ -727,7 +727,16 @@ test.describe("Engineering Status browser smoke", () => {
         available: true,
         run_id: "lifecycle-placement",
         terminal_state: "ACTIVE",
-        steps: [{ id: "implement", presentation_key: "lifecycle.step.implement", state: "ACTIVE" }],
+        steps: [
+          { id: "start", presentation_key: "lifecycle.step.start", state: "COMPLETED" },
+          { id: "initialize", presentation_key: "lifecycle.step.initialize", state: "COMPLETED" },
+          { id: "implement", presentation_key: "lifecycle.step.implement", state: "ACTIVE" },
+          { id: "repair", presentation_key: "lifecycle.step.repair_agent", state: "PENDING" },
+          { id: "merge", presentation_key: "lifecycle.step.wait_for_operator_merge", state: "PENDING" },
+          { id: "finalize", presentation_key: "lifecycle.step.finalize_agent", state: "PENDING" },
+          { id: "cleanup", presentation_key: "lifecycle.step.repository_cleanup", state: "PENDING" },
+          { id: "terminal", presentation_key: "lifecycle.step.terminal", state: "PENDING" },
+        ],
       },
     }, {}));
 
@@ -756,6 +765,14 @@ test.describe("Engineering Status browser smoke", () => {
       getComputedStyle(element).gridTemplateColumns.split(" ").length,
     );
     await expect.poll(columns).toBe(2);
+
+    const contained = async () => page.locator("#currentRun").evaluate((run) => {
+      const runRight = run.getBoundingClientRect().right;
+      return [...run.querySelectorAll(".current-run__grid > *")].every((item) =>
+        item.getBoundingClientRect().right <= runRight,
+      );
+    });
+    await expect.poll(contained).toBe(true);
 
     await page.setViewportSize({ width: 760, height: 844 });
     await expect.poll(columns).toBe(1);
