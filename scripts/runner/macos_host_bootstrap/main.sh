@@ -1,4 +1,4 @@
-# Version: 1.3.0
+# Version: 1.3.1
 # CLI parsing and top-level recovery orchestration.
 djconnect_macos_host_bootstrap_main() {
 while [[ "$#" -gt 0 ]]; do
@@ -96,7 +96,10 @@ run_phase macos-preflight 'macOS host preflight' ensure_macos_arm64
 run_phase sudo 'Administrator sudo gate' warm_sudo
 run_phase tooling 'Host tooling setup' ensure_tooling
 run_phase xcode 'Xcode qualification' ensure_xcode
-run_phase parallels 'Parallels Desktop availability' ensure_parallels
+# TEMPORARY: Windows is outside the current DJConnect scope. Keep
+# ensure_parallels available for a deliberate future re-enable of the Windows
+# runner profile, but do not make Parallels a host-readiness gate meanwhile.
+# run_phase parallels 'Parallels Desktop availability' ensure_parallels
 run_phase github-auth 'GitHub CLI authentication' ensure_github_auth
 run_phase permissions-audit 'Least-privilege permissions audit' audit_least_privilege
 run_phase repositories 'Repository preparation' prepare_repositories
