@@ -183,11 +183,11 @@ Lifecycle steps use fixed-width slots, a visible connector element on a layer
 behind the circular nodes, and equal connector length between every adjacent
 pair. The connector centre aligns exactly with the circle centre. Long labels
 wrap within their own slot rather than changing the topology. Labels always
-inherit the standard interface text colour and weight. An ordinary active
-circle uses the containing turquoise with a restrained pulse; a completed
-circle uses semantic green with its check glyph. Only an active operator merge
-wait uses house-style orange with a dark `⌛` glyph, so it retains the same
-warning meaning as a blocked historical result.
+inherit the standard interface text colour and weight. Ordinary active and
+previously completed intermediate circles use the containing turquoise; only
+the terminal **complete** result uses semantic green with its check glyph. An
+active operator merge wait uses house-style orange with a dark `⌛` glyph, so
+it retains the same warning meaning as a blocked historical result.
 
 The neutral **Start** boundary uses one decorative rocket glyph. Its accessible
 name remains the localized Start label, so the glyph adds a friendly visual

@@ -678,11 +678,35 @@ test.describe("Engineering Status browser smoke", () => {
       await expect(node).toHaveCSS("box-shadow", "none");
       await expect(node.locator("span").first()).toHaveCSS("border-top-width", "3px");
     }
-    await expect(nodes.nth(0).locator("span").first()).toHaveCSS("background-color", "rgb(81, 216, 138)");
+    await expect(nodes.nth(0).locator("span").first()).toHaveCSS("background-color", "rgb(101, 197, 217)");
     await nodes.nth(0).hover({ force: true });
     await expect(nodes.nth(0).locator("span").first()).toHaveCSS("border-top-color", "rgb(240, 182, 106)");
     await expect(nodes.nth(0).locator("span").last()).toHaveCSS("color", "rgb(247, 243, 238)");
     await expect(nodes.nth(1).locator("span").first()).toHaveCSS("background-color", "rgb(101, 197, 217)");
+  });
+
+  test("uses green only for the terminal complete lifecycle result", async ({ page }) => {
+    await page.route("**/api/events", (route) => route.abort());
+    await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({ json: { status: {} } }));
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => r({
+      watcher_state: "JOB_COMPLETED",
+      run_id: "lifecycle-terminal-complete",
+      lifecycle: {
+        available: true,
+        run_id: "lifecycle-terminal-complete",
+        terminal_state: "COMPLETE",
+        steps: [
+          { id: "start", presentation_key: "lifecycle.step.start", state: "COMPLETED" },
+          { id: "result", presentation_key: "lifecycle.step.result", state: "COMPLETE" },
+        ],
+      },
+    }, {}));
+
+    const nodes = page.locator(".execution-lifecycle__node");
+    await expect(nodes).toHaveCount(2);
+    await expect(nodes.nth(0).locator("span").first()).toHaveCSS("background-color", "rgb(101, 197, 217)");
+    await expect(nodes.nth(1).locator("span").first()).toHaveCSS("background-color", "rgb(81, 216, 138)");
   });
 
   test("uses amber only for an operator merge wait, not ordinary active work", async ({ page }) => {
