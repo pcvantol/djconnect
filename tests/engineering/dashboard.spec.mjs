@@ -664,6 +664,7 @@ test.describe("Engineering Status browser smoke", () => {
     const node = page.locator(".execution-lifecycle__node").first();
     await expect(node).toHaveCSS("background-image", "none");
     await expect(node).toHaveCSS("backdrop-filter", "none");
+    await expect(node).toHaveCSS("transition-property", "none");
     await node.focus();
     await expect(node).toHaveCSS("outline-style", "none");
     await expect(node).toHaveCSS("box-shadow", "none");
