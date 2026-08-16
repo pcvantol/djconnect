@@ -854,3 +854,8 @@ dialog.dashboard-modal-shell,dialog.dashboard-modal-shell:is(:focus,:focus-visib
    target. Keep the compact house-style ring on the track for all three. */
 .dashboard-titlebar .theme-toggle:is(:focus,:focus-visible),.dashboard-titlebar .section-state-toggle:is(:focus,:focus-visible){box-shadow:none!important;outline:0!important}
 .dashboard-titlebar .theme-toggle:is(:focus,:focus-visible)::before,.dashboard-titlebar .section-state-toggle:is(:focus,:focus-visible)::before{box-shadow:0 0 0 5px var(--house-style-focus);outline:2px solid var(--house-style);outline-offset:3px}
+/* The Run-ID button delegates selection to its table row.  This final
+   override also neutralises WebKit's touch/focus paint after all shared
+   focus rules have been applied. */
+#telemetryDetailContent .telemetry-run-link{-webkit-tap-highlight-color:transparent;user-select:none}
+#telemetryDetailContent .telemetry-run-link:is(:focus,:focus-visible,:active){border-color:transparent!important;box-shadow:none!important;outline:0!important}

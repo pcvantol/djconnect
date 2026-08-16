@@ -1923,6 +1923,7 @@ test.describe("Engineering Status browser smoke", () => {
     expect(stylesheet).toContain("text-decoration:none");
     expect(stylesheet).toContain(".telemetry-run-link:is(:hover,:active){background:transparent!important;color:inherit!important}");
     expect(stylesheet).toContain(".telemetry-run-link:is(:focus,:focus-visible){border-color:transparent!important;box-shadow:none!important;outline:0!important}");
+    expect(stylesheet).toContain("#telemetryDetailContent .telemetry-run-link:is(:focus,:focus-visible,:active){border-color:transparent!important;box-shadow:none!important;outline:0!important}");
     expect(stylesheet).toContain(".telemetry-detail-modal .telemetry-run-link{");
     expect(stylesheet).toContain("Telemetry run IDs are text links in a data table");
   });
