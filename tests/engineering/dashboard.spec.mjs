@@ -932,6 +932,8 @@ test.describe("Engineering Status browser smoke", () => {
     }, {}));
 
     await expect(page.locator(".execution-lifecycle__item")).toHaveCount(3);
+    await expect(page.locator(".execution-lifecycle__item").nth(1).locator(".execution-lifecycle__node > span").last())
+      .toHaveText("Repository opschoning");
     const spacing = await page.locator(".execution-lifecycle__item").evaluateAll((items) => items.map((item) => {
       const itemBox = item.getBoundingClientRect();
       const circleBox = item.querySelector(".execution-lifecycle__node > span")?.getBoundingClientRect();
