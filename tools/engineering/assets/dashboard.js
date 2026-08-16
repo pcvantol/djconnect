@@ -1192,7 +1192,11 @@ function renderActiveLifecycle(projection) {
   previous?.remove();
   if (projection?.run_id) {
     const lifecycle = lifecycleFlow(projection);
-    current.prepend(lifecycle);
+    const filename = $("currentFile")?.closest(".field");
+    // Identify the run before displaying its read-only lifecycle projection.
+    // The fallback preserves compatibility with an older dashboard shell.
+    if (filename?.parentElement === current) filename.after(lifecycle);
+    else current.prepend(lifecycle);
     if (preservedScrollLeft) {
       const nextScroll = lifecycle.querySelector(".execution-lifecycle__scroll");
       // Wait for the replacement path to take part in layout before restoring

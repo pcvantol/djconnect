@@ -645,6 +645,25 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(nodes.nth(1).locator("span").first()).toHaveCSS("background-color", "rgb(240, 182, 106)");
   });
 
+  test("places the active execution lifecycle directly below the filename", async ({ page }) => {
+    await page.route("**/api/events", (route) => route.abort());
+    await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({ json: { status: {} } }));
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => r({
+      watcher_state: "ENGINEERING_RUN_ACTIVE",
+      run_id: "lifecycle-placement",
+      lifecycle: {
+        available: true,
+        run_id: "lifecycle-placement",
+        terminal_state: "ACTIVE",
+        steps: [{ id: "implement", presentation_key: "lifecycle.step.implement", state: "ACTIVE" }],
+      },
+    }, {}));
+
+    await expect(page.locator("#currentFile").locator("xpath=ancestor::*[contains(@class, 'field')][1]/following-sibling::*[1]"))
+      .toHaveClass(/execution-lifecycle/);
+  });
+
   test("keeps lifecycle steps transparent on iPhone and puts repair counts in their details", async ({ browser }) => {
     const context = await browser.newContext({ hasTouch: true, isMobile: true, viewport: { width: 390, height: 844 } });
     const page = await context.newPage();
