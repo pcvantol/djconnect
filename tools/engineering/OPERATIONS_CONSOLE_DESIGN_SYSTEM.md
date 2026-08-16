@@ -53,7 +53,8 @@ near-duplicates in a component.
 ### Category accents
 
 The accent belongs to the information domain and is used consistently for the
-category border, heading/glyph, divider and focus treatment.
+category border, heading/glyph and divider. Keyboard focus is always
+house-style orange; a category accent never becomes a competing focus colour.
 
 | Domain | Accent | Typical surface |
 | --- | --- | --- |
@@ -155,19 +156,27 @@ vary by panel or by refresh.
 
 Lifecycle steps use fixed-width slots, a visible connector element on a layer
 behind the circular nodes, and equal connector length between every adjacent
-pair. Long labels wrap within their own slot rather than changing the topology.
-The active circle and its progression label use house-style orange with a dark
-glyph so the current position remains readable against both light and dark
-execution surfaces.
+pair. The connector centre aligns exactly with the circle centre. Long labels
+wrap within their own slot rather than changing the topology. Labels always
+inherit the standard interface text colour and weight; only the active circle
+uses house-style orange, with a dark glyph, so state is clear without turning
+ordinary step names into status colour.
+
+The flow renders the server lifecycle projection as one coherent update: the
+server-reported current step is the sole active circle. During an operator
+merge wait, **Merge** is the active circle and the summary states the same
+current step.
 
 Each lifecycle node is an accessible detail control, not a glass or raised
 card. Its modal presents only
 persisted, run-scoped evidence: lifecycle state, observed start and finish
 timestamps, repair iterations where recorded, and a split of the recorded
-Execution Host phase durations. Missing evidence is explicitly shown as
-unavailable; the console never derives an end time or duration from prompt
-content, polling cadence or UI state. Repair iterations appear in this detail
-modal, never as a floating badge on the flow itself.
+Execution Host phase durations. Repeated runtime spans are compacted to one
+row per phase, with the accumulated duration and final recorded outcome; raw
+span evidence remains available to telemetry and audits. Missing evidence is
+explicitly shown as unavailable; the console never derives an end time or
+duration from prompt content, polling cadence or UI state. Repair iterations
+appear in this detail modal, never as a floating badge on the flow itself.
 
 ## 5. Controls
 
@@ -251,6 +260,9 @@ Use the shared modal shell and contextual panel. Modal rules are:
    standard dismiss control. Known preflight failures are translated by their
    meaning; unexpected redacted diagnostics use the generic localized error
    template.
+8. An AI conversation modal has one purple divider beneath its descriptive
+   copy. The embedded conversation component must not reintroduce its generic
+   dark top border, margin or secondary ruler inside that modal.
 
 ## 7. Responsive and accessibility contract
 
@@ -345,7 +357,10 @@ Add or extend Playwright coverage for the changed state and, when applicable:
 - all modal close controls and title/disclosure glyphs: verify the shared bold
   glyph weight in both themes;
 - lifecycle flow geometry: verify connector visibility, its layer behind the
-  node, fixed connector length and readable selected-label contrast;
+  node, fixed connector length, exact vertical centre alignment, standard
+  label colour and a coherent active/completed/pending projection;
+- AI conversation modals: verify the purple descriptive divider remains and
+  no inherited secondary divider is rendered;
 - numeric precision: verify locale-aware percentage output with exactly one
   fractional digit.
 
