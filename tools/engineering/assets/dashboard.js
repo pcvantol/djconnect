@@ -1212,7 +1212,7 @@ function lifecycleFlow(projection, { historical = false } = {}) {
     const name = lifecycleLabel(step), status = lifecycleStateLabel(step?.state);
     button.setAttribute("aria-label", name + " — " + status);
     button.addEventListener("click", () => openLifecycleDetail(step, button));
-    node.setAttribute("aria-hidden", "true"); node.textContent = state === "completed" ? "✓" : state === "complete" ? "✓" : state === "blocked" ? "!" : state === "failed" ? "×" : isLifecycleStartStep(step) ? "🚀" : "";
+    node.setAttribute("aria-hidden", "true"); node.textContent = state === "completed" ? "✓" : state === "complete" ? "✓" : state === "blocked" ? "!" : state === "failed" ? "×" : operatorWait ? "⌛" : isLifecycleStartStep(step) ? "🚀" : "";
     label.textContent = name;
     button.append(node, label);
     item.append(button);
