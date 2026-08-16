@@ -2973,6 +2973,13 @@ test.describe("Engineering Status browser smoke", () => {
       getComputedStyle(element).gridTemplateColumns.split(" ").length,
     );
     await expect.poll(columns).toBe(2);
+    const [gridBounds, diagnosisBounds] = await Promise.all([
+      page.locator("#technicalDetails .technical-grid").boundingBox(),
+      page.locator("#technicalDiagnosticsCard").boundingBox(),
+    ]);
+    expect(diagnosisBounds).not.toBeNull();
+    expect(gridBounds).not.toBeNull();
+    expect(Math.abs(diagnosisBounds.width - gridBounds.width)).toBeLessThanOrEqual(1);
 
     await page.setViewportSize({ width: 760, height: 844 });
     await expect.poll(columns).toBe(1);

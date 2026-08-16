@@ -128,7 +128,9 @@ that edge must remain contained inside the sticky header cell.
 The **Operationeel overzicht** card grid is one column by default. Once its
 own container reaches **760px**, it uses two equal columns. This container
 query keeps individual evidence cards readable in narrow side-by-side layouts
-without tying their layout to the full browser width.
+without tying their layout to the full browser width. The **Diagnose** card
+spans both columns at that breakpoint so its operational recommendation is not
+artificially constrained.
 Its captions use the related light-turquoise secondary accent, never the
 orange diagnostic secondary tone.
 
