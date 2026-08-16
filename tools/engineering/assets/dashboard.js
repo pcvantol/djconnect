@@ -835,9 +835,7 @@ function openPromptHistoryChat(entry) {
   if (!entry?.run_id) return;
   chatContextRun = String(entry.run_id);
   chatHistory = loadChatHistory(chatContextRun);
-  $("promptHistoryChatTitle").textContent = t("history.chat_title", {
-    title: entry.title || entry.run_id,
-  });
+  $("promptHistoryChatTitle").textContent = t("history.execution_chat_title");
   $("promptHistoryChatDescription").textContent = t("history.chat_description");
   $("chatStatus").textContent = "";
   renderChatHistory();

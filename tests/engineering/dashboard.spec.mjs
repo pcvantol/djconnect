@@ -4692,6 +4692,8 @@ test.describe("Engineering Status browser smoke", () => {
     await chat.click();
     await expect(page.locator("#promptHistoryChatModal")).toBeVisible();
     await expect(page.locator("#promptHistoryChatModal")).not.toBeFocused();
+    await expect(page.locator("#promptHistoryChatTitle"))
+      .toHaveText(DASHBOARD_MESSAGES.nl["history.execution_chat_title"]);
     let submittedRun;
     await page.route("**/api/codex-chat", async (route) => {
       submittedRun = route.request().postDataJSON().run_id;
