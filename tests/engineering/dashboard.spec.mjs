@@ -2209,6 +2209,16 @@ test.describe("Engineering Status browser smoke", () => {
     }
   });
 
+  test("uses only the chat category divider inside the prompt-history AI modal", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    const modal = page.locator("#promptHistoryChatModal");
+    await modal.evaluate((element) => element.showModal());
+
+    await expect(modal.locator(".prompt-chat-modal__description")).toHaveCSS("border-bottom-color", "rgb(208, 164, 255)");
+    await expect(modal.locator(".codex-chat__details")).toHaveCSS("border-top-width", "0px");
+  });
+
   test("uses a one-line AI chat composer on iPhone landscape", async ({ page }) => {
     await page.setViewportSize({ width: 844, height: 390 });
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
