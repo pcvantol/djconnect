@@ -3,6 +3,22 @@
 **Status:** Operational handoff
 **Updated:** 2026-08-08
 
+## PR #840 finalization in progress
+
+PR [#840](https://github.com/pcvantol/djconnect/pull/840), **Add execution
+lifecycle flow projection**, merged as
+`6f2d5bc102a886e6855f2a9d581ec9eff6d69a71`. The Operations Console now
+projects one canonical, run-scoped execution lifecycle path for active and
+historical executions, including mode-specific intended paths, actual progress,
+terminal outcome, repair iteration evidence, accessibility and mobile
+horizontal scrolling. The immutable Prompt History record is
+`docs/history/prompts/2026-08-16-execution-lifecycle-flow.md`. This dedicated
+governance-only Finalization reconciles the rolling records; its merge restores
+Repository State: `MERGED_RECONCILED` and Workspace State: `WORKSPACE_READY`
+after cleanup. Forge, execution sequencing, lifecycle authority, telemetry,
+retry/resume/dismiss, validation, Producer and model-selection semantics are
+unchanged.
+
 ## PR #833 finalization pending
 
 PR [#833](https://github.com/pcvantol/djconnect/pull/833), **Reconcile

@@ -2,6 +2,20 @@
 
 Status: canonical prompt navigation
 
+## PR #840 finalization in progress
+
+PR [#840](https://github.com/pcvantol/djconnect/pull/840), **Add execution
+lifecycle flow projection**, merged as
+`6f2d5bc102a886e6855f2a9d581ec9eff6d69a71`. The completed Engineering
+Platform increment projects canonical, mode-specific lifecycle evidence for
+exactly one Execution Run ID into the active Operations Console and historical
+execution detail. Its immutable Prompt History record is
+`docs/history/prompts/2026-08-16-execution-lifecycle-flow.md`. The dedicated
+governance-only Finalization restores Repository State
+`MERGED_RECONCILED` and Workspace State `WORKSPACE_READY` after cleanup when
+merged. No Forge Mission, execution, lifecycle, telemetry, retry/resume/dismiss,
+validation, Producer or model-selection semantics changed.
+
 ## PR #833 finalization pending
 
 PR [#833](https://github.com/pcvantol/djconnect/pull/833), **Reconcile
