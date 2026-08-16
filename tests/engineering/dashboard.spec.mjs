@@ -2561,7 +2561,9 @@ test.describe("Engineering Status browser smoke", () => {
   });
 
   test("selects multiple component-log rows and copies the selected rows", async ({ page }) => {
+    await page.route("**/api/events", (route) => route.abort());
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#autoRefresh").uncheck();
     await page.locator("#componentLogs").evaluate((element) => { element.open = true; });
     await page.evaluate(() => {
       componentLogEntries.inbox = [
@@ -2574,6 +2576,7 @@ test.describe("Engineering Status browser smoke", () => {
     });
 
     const rows = page.locator("#inboxComponentLog tr");
+    await expect(rows).toHaveCount(3);
     await rows.nth(0).click();
     await rows.nth(2).click({ modifiers: ["Meta"] });
     await expect(rows.nth(0)).toHaveAttribute("aria-selected", "true");
