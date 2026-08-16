@@ -165,7 +165,11 @@ ordinary step names into status colour.
 The flow renders the server lifecycle projection as one coherent update: the
 server-reported current step is the sole active circle. During an operator
 merge wait, **Merge** is the active circle and the summary states the same
-current step.
+current step. The client must apply a lifecycle snapshot atomically and may
+not retain a completed-state glyph from an older snapshot. Until GitHub
+reports the pull request as merged and the Execution Host advances, an open
+operator merge wait therefore renders **Merge** as the orange active circle,
+never as a completed check.
 
 Each lifecycle node is an accessible detail control, not a glass or raised
 card. Its modal presents only
@@ -358,7 +362,9 @@ Add or extend Playwright coverage for the changed state and, when applicable:
   glyph weight in both themes;
 - lifecycle flow geometry: verify connector visibility, its layer behind the
   node, fixed connector length, exact vertical centre alignment, standard
-  label colour and a coherent active/completed/pending projection;
+  label colour and a coherent active/completed/pending projection, including
+  that an open operator merge wait renders Merge as active rather than
+  completed;
 - AI conversation modals: verify the purple descriptive divider remains and
   no inherited secondary divider is rendered;
 - numeric precision: verify locale-aware percentage output with exactly one
