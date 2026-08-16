@@ -169,6 +169,9 @@ monitoring cyan (`#65c5d9`). Terminal success, blocked and failed states keep
 their dedicated semantic colours; the active circle alone remains
 house-style orange. Lifecycle state, connector geometry, node interaction and
 the touch-safe no-glass treatment are maintained as one stylesheet bundle.
+The lifecycle step-detail modal uses that same monitoring-cyan accent for its
+header, divider, border and phase evidence; it is not a generic blue evidence
+modal.
 
 The flow renders the server lifecycle projection as one coherent update: the
 server-reported current step is the sole active circle. During an operator

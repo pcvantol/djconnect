@@ -681,6 +681,7 @@ test.describe("Engineering Status browser smoke", () => {
     await modal.evaluate((element) => element.showModal());
     const panel = modal.locator(".lifecycle-detail-modal__panel");
     await expect(panel).toHaveCSS("border-top-width", "2px");
+    await expect(panel).toHaveCSS("border-top-color", "rgb(101, 197, 217)");
     await expect(panel).toHaveCSS("border-top-left-radius", "18px");
     await expect(panel).toHaveCSS("overflow-y", "hidden");
     await expect(modal.locator("#lifecycleDetailContent")).toHaveCSS("overflow-y", "auto");
@@ -703,6 +704,7 @@ test.describe("Engineering Status browser smoke", () => {
       },
     }, {}));
 
+    await expect(page.locator(".execution-lifecycle__item")).toHaveCount(3);
     const spacing = await page.locator(".execution-lifecycle__item").evaluateAll((items) => items.map((item) => {
       const itemBox = item.getBoundingClientRect();
       const circleBox = item.querySelector(".execution-lifecycle__node > span")?.getBoundingClientRect();
