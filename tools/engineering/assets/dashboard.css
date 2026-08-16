@@ -407,7 +407,7 @@ html[data-theme="light"] .dashboard-locale select{background:var(--dashboard-sur
 /* The title bar stays compact on phones: its controls are available from one
    labelled disclosure, then presented as full-width rows rather than unlabeled
    switch glyphs. Desktop keeps the existing inline control strip. */
-.dashboard-titlebar__options{display:contents}.dashboard-titlebar__options>summary{display:none}.dashboard-titlebar__options-content{align-items:center;display:flex;gap:12px}
+.dashboard-titlebar__options{align-items:center;display:flex;min-width:0}.dashboard-titlebar__options>summary{display:none}.dashboard-titlebar__options-content{align-items:center;display:flex;gap:12px}
 @media (max-width:620px){
   .dashboard-titlebar{align-items:flex-start;flex-wrap:wrap;position:relative}
   .dashboard-titlebar__brand{flex-basis:100%;padding-right:48px}

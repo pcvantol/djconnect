@@ -2502,6 +2502,14 @@ test.describe("Engineering Status browser smoke", () => {
     expect(titlebarLayout.refreshBottom).toBeLessThanOrEqual(titlebarLayout.optionsTop);
   });
 
+  test("keeps the title-bar options in a real wrapper for Safari", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 844 });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await expect(page.locator("#dashboardTitlebarOptions")).toHaveCSS("display", "flex");
+    await expect(page.getByTestId("titlebar-options-toggle")).toHaveCSS("display", "none");
+    await expect(page.getByTestId("theme-toggle")).toBeVisible();
+  });
+
   test("keeps each iPhone title-bar switch thumb inside its track", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
