@@ -128,7 +128,9 @@ that edge must remain contained inside the sticky header cell.
 Repeated compact evidence, such as specialist reviewer status, uses an
 auto-fitting grid of at least `180px` tiles. It fills a row when space permits
 and wraps cleanly at narrower widths; never hard-code a single wide tile per
-reviewer.
+reviewer. In the live-execution area, reviewer captions use the same turquoise
+accent family as the parent container; light mode uses its accessible dark
+turquoise ink rather than an unrelated evidence-blue.
 
 Interactive data rows use their parent table's category tint across every
 cell on hover and selection, with only the shared leading selection marker.

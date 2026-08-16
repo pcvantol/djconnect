@@ -2937,14 +2937,14 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#workspaceProgressValue")).toHaveText("3 gewijzigd · 2 nieuw · 1 verwijderd · 17 Codex-opdrachten uitgevoerd");
   });
 
-  test("keeps specialist reviewer titles blue in light mode", async ({ page }) => {
+  test("keeps specialist reviewer titles in the active-execution turquoise scale in light mode", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.locator("#themeToggle").click();
     await page.evaluate(() => r({
       watcher_state: "ENGINEERING_RUN_ACTIVE", run_id: "review-run",
       reviewer_agents: [{ reviewer: "repository_governance", capability: "engineering", status: "completed" }],
     }, {}));
-    await expect(page.locator(".reviewer-agent__name")).toHaveCSS("color", "rgb(47, 134, 189)");
+    await expect(page.locator(".reviewer-agent__name")).toHaveCSS("color", "rgb(24, 120, 132)");
   });
 
   test("shows live and completed reviewer status indicators", async ({ page }) => {
