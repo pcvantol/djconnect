@@ -4393,6 +4393,11 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#promptHistoryRows tr")).toHaveCount(10);
     await expect(page.locator("#promptHistory th")).toHaveCount(8);
     await expect(page.locator('#promptHistory th[data-history-sort-key="git_commit"]')).toHaveCount(0);
+    const firstPromptHistoryRow = page.locator("#promptHistoryRows .prompt-history-row").first();
+    await firstPromptHistoryRow.hover();
+    const promptHistoryHover = await firstPromptHistoryRow.locator("td").evaluateAll((cells) => cells.map((cell) => getComputedStyle(cell).backgroundColor));
+    expect(new Set(promptHistoryHover).size).toBe(1);
+    expect(promptHistoryHover[0]).not.toBe("rgba(0, 0, 0, 0)");
     await expect(page.locator("#promptHistoryRows tr").first().locator("td")).toHaveCount(8);
     await expect(page.locator("#promptHistoryPagination")).toContainText("Pagina 1 van 3 · 26 uitvoeringen");
     const nextPromptHistoryPage = page.locator("#promptHistoryPagination").getByRole("button", { name: "Volgende" });
