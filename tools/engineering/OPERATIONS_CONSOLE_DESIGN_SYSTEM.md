@@ -294,6 +294,9 @@ At narrow widths (the implementation breakpoint is generally `620px`):
 
 - Preserve readable labels and at least 44px touch targets for primary
   actions; use the mobile title-bar options disclosure for global settings.
+- The expanded mobile title-bar options are flat rows. They and the locale
+  picker never receive the generic direct-touch glass/card shadow; only the
+  switch thumb retains its compact control elevation.
 - Tables use a deliberate horizontal scroll region with styled scrollbars,
   rather than collapsing identifiers or action columns beyond recognition.
 - Avoid fixed viewport-height panels that hide action buttons. Modals must

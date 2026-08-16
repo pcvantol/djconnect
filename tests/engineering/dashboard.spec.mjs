@@ -3331,6 +3331,26 @@ test.describe("Engineering Status browser smoke", () => {
     expect(styles).toContain("backdrop-filter:none;");
   });
 
+  test("keeps iPhone title-bar option rows and locale picker free of card shadows", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("html").evaluate((element) => { element.dataset.theme = "light"; });
+    await openTitlebarOptions(page);
+
+    const styles = await page.evaluate(() => ({
+      rows: [...document.querySelectorAll(".dashboard-titlebar__options-content > .dashboard-locale, .dashboard-titlebar__options-content > .theme-toggle, .dashboard-titlebar__options-content > .section-state-toggle, .dashboard-titlebar__options-content > .auto-refresh-toggle")]
+        .map((element) => getComputedStyle(element).boxShadow),
+      localePicker: getComputedStyle(document.querySelector("#dashboardLocaleButton")).boxShadow,
+      themeThumb: getComputedStyle(document.querySelector("#themeToggle"), "::after").boxShadow,
+      refreshThumb: getComputedStyle(document.querySelector("#autoRefresh"), "::after").boxShadow,
+    }));
+
+    expect(styles.rows).toEqual(["none", "none", "none", "none"]);
+    expect(styles.localePicker).toBe("none");
+    expect(styles.themeThumb).not.toBe("none");
+    expect(styles.refreshThumb).not.toBe("none");
+  });
+
   test("keeps the platform version labels orange in both themes", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     const platformLabel = page.locator(".footer .label").first();

@@ -427,6 +427,18 @@ html[data-theme="light"] .dashboard-locale select{background:var(--dashboard-sur
   .dashboard-titlebar__options-content>.theme-toggle .theme-toggle__label,.dashboard-titlebar__options-content>.section-state-toggle .section-state-toggle__label,.dashboard-titlebar__options-content>.auto-refresh-toggle span{display:block}
   .dashboard-titlebar__options-content>.auto-refresh-toggle{flex-direction:row-reverse;gap:12px;white-space:normal}
   .dashboard-titlebar__options-content>.auto-refresh-toggle input{flex:none}
+  /* Option rows are flat navigation controls, not raised cards. A direct-touch
+     browser may otherwise apply the generic glass shadow to a full-width row
+     or locale picker. The switch thumbs keep their own compact elevation. */
+  .dashboard-titlebar__options-content>:is(.dashboard-locale,.theme-toggle,.section-state-toggle,.auto-refresh-toggle),
+  .dashboard-titlebar__options-content .dashboard-locale__button{
+    -webkit-backdrop-filter:none!important;
+    backdrop-filter:none!important;
+    background-image:none!important;
+    box-shadow:none!important;
+    filter:none!important;
+  }
+  .dashboard-titlebar__options-content>:is(.theme-toggle,.section-state-toggle):active{transform:none!important}
 }
 
 /* Log controls */
