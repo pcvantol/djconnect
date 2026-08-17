@@ -56,6 +56,9 @@ BACKGROUND_RUN_ID_ENVIRONMENT = "DJCONNECT_ENGINEERING_BACKGROUND_RUN_ID"
 BACKGROUND_JOB_ID_ENVIRONMENT = "DJCONNECT_ENGINEERING_BACKGROUND_JOB_ID"
 BLOCKING_PREDECESSOR_PHASES = frozenset({"BLOCKED", "FAILED"})
 RETRY_OF_PATTERN = re.compile(r"(?mi)^retry[ _-]of\s*:\s*(inbox-[a-z0-9-]{6,64})\s*$")
+STATUS_RECONCILIATION_OF_PATTERN = re.compile(
+    r"(?mi)^status[ _-]reconciliation[ _-]of\s*:\s*(inbox-[a-z0-9-]{6,64})\s*$"
+)
 ORIGINAL_RUN_ID_PATTERN = re.compile(r"(?mi)^original[ _-]run[ _-]id\s*:\s*(inbox-[a-z0-9-]{6,64})\s*$")
 RETRY_GENERATION_PATTERN = re.compile(r"(?mi)^retry[ _-]generation\s*:\s*(\d+)\s*$")
 RETRY_TIMESTAMP_PATTERN = re.compile(r"(?mi)^retry[ _-]timestamp\s*:\s*([^\n]{1,80})\s*$")
@@ -764,6 +767,26 @@ def status_reconciliation_preview(repo: Path, run_id: str) -> dict[str, str]:
     return {"run_id": run_id, "reason": "merged_status_records_stale"}
 
 
+def _is_verified_status_reconciliation(
+    repo: Path, content: str, predecessor_run_id: str
+) -> bool:
+    """Allow only the narrowly proved reconciliation past its own predecessor gate.
+
+    The marker alone is deliberately insufficient: an Inbox author must not be
+    able to bypass the predecessor gate by adding a lookalike header.  The
+    referenced run must still satisfy the same immutable, governance-only
+    status-drift proof used by the dashboard action.
+    """
+    marker = STATUS_RECONCILIATION_OF_PATTERN.search(content)
+    if marker is None or marker.group(1) != predecessor_run_id:
+        return False
+    try:
+        status_reconciliation_preview(repo, predecessor_run_id)
+    except RetrySubmissionError:
+        return False
+    return True
+
+
 def submit_status_reconciliation(repo: Path, root: Path, run_id: str) -> dict[str, str]:
     """Queue exactly one dedicated Finalization prompt after a verified preview."""
     preview = status_reconciliation_preview(repo, run_id)
@@ -1231,6 +1254,15 @@ def _admit_queue_candidate(
     ]
     if retries:
         source, content = retries[0]
+        return QueueAdmission(source, content)
+
+    reconciliations = [
+        (candidate, prompt)
+        for candidate, prompt in candidates
+        if _is_verified_status_reconciliation(repo, prompt, predecessor["run_id"])
+    ]
+    if reconciliations:
+        source, content = reconciliations[0]
         return QueueAdmission(source, content)
 
     status(
