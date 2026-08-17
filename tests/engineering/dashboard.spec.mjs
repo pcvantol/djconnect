@@ -5415,7 +5415,11 @@ test.describe("Engineering Status browser smoke", () => {
     await page.locator("#dashboardSplash").evaluate((element) => { element.hidden = true; });
     await page.locator("#queueItems").evaluate((element) => { element.open = true; });
 
-    await page.getByRole("button", { name: "Stel uit" }).first().click();
+    const deferButton = page.getByRole("button", { name: "Stel uit" }).first();
+    await deferButton.hover();
+    await expect(deferButton).toHaveCSS("background-color", "rgb(240, 182, 106)");
+
+    await deferButton.click();
     await expect(page.locator("#confirmationModalTitle")).toHaveText("Uitvoering uitstellen");
     await expect(page.locator("#confirmationModalText")).toContainText("Inbox/_deferred");
     await page.locator("#confirmationModalConfirm").click();
