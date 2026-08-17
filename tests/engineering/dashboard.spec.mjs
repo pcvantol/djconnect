@@ -96,6 +96,7 @@ test.beforeEach(async ({ page }, testInfo) => {
       "matches the iPhone portrait dashboard visual reference",
       "only starts pull-to-refresh from the scroll region's top edge",
       "keeps a green pull request visible until the operator merges or aborts it",
+      "opens, closes and navigates prompt-history deeplinks without reloading",
     ].includes(testInfo.title)) {
       await openTitlebarOptions(page);
     }
@@ -511,6 +512,42 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#promptHistoryDetailDescription")).toHaveCSS("border-bottom-color", "rgb(141, 199, 255)");
     await expect(page.locator("#promptHistoryDetailContent")).toContainText("Engineering Platform");
     await expect(page.locator("dialog[open]")).toHaveCount(1);
+  });
+
+  test("opens, closes and navigates prompt-history deeplinks without reloading", async ({ page }) => {
+    const runId = "inbox-deeplink";
+    await page.route("**/api/prompt-history", (route) => route.fulfill({ json: { runs: [{
+      run_id: runId, status: "COMPLETE", title: "Deeplink prompt", executed_at: "2026-08-04T08:00:00Z",
+    }] } }));
+    await page.route(`**/api/prompt-history/${runId}/details`, (route) => route.fulfill({ json: {
+      history: { run_id: runId, status: "COMPLETE", title: "Deeplink prompt" }, execution: {}, evidence: [],
+    } }));
+
+    await page.goto(`${dashboardUrl}/?prompt=${runId}`, { waitUntil: "domcontentloaded" });
+    const modal = page.locator("#promptHistoryDetailModal");
+    await expect(modal).toBeVisible();
+    await expect(page).toHaveURL(new RegExp(`\\?prompt=${runId}$`));
+    await expect(page.locator("#promptHistoryRows .prompt-history-open-link")).toHaveAttribute(
+      "href", `${dashboardUrl}/?prompt=${runId}`,
+    );
+
+    await page.locator("#promptHistoryDetailClose").click();
+    await expect(modal).not.toBeVisible();
+    await expect(page).toHaveURL(dashboardUrl);
+    await page.goBack();
+    await expect(modal).toBeVisible();
+    await page.goForward();
+    await expect(modal).not.toBeVisible();
+  });
+
+  test("normalizes an unknown prompt-history deeplink without opening a modal", async ({ page }) => {
+    await page.route("**/api/prompt-history", (route) => route.fulfill({ json: { runs: [{
+      run_id: "inbox-known", status: "COMPLETE", title: "Known prompt",
+    }] } }));
+
+    await page.goto(`${dashboardUrl}/?prompt=unknown-run`, { waitUntil: "domcontentloaded" });
+    await expect(page.locator("#promptHistoryDetailModal")).not.toBeVisible();
+    await expect(page).toHaveURL(dashboardUrl);
   });
 
   test("uses one uninterrupted category-colour selected-row treatment for prompt history on touch devices", async ({ page }) => {
