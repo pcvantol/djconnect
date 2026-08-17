@@ -70,6 +70,10 @@ yellow actions are deliberately separate from terminal-status colours:
   local commits on `main`; it switches only to the configured `main` branch
   and fast-forwards only. A yellow result modal reports either the completed
   switch or the precise safe refusal.
+- **Open pull requests** appears as a compact Workspace subblock only when
+  GitHub reports open PRs for the repository. Each entry preserves its PR
+  link, title and source branch as read-only operator context. If GitHub
+  context is unavailable or no PR is open, the subblock is omitted.
 
 Neither control rewrites history, stashes work, or deletes a branch without
 the explicit second confirmation.
