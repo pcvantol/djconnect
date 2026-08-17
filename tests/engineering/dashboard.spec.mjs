@@ -3471,6 +3471,15 @@ test.describe("Engineering Status browser smoke", () => {
       blocking_predecessor_title: "Geblokkeerde voorganger",
       blocking_predecessor_phase: "BLOCKED",
       predecessor_recovery_action: "Dien de herstelde prompt opnieuw in.",
+      lifecycle: {
+        available: true,
+        run_id: "blocked-run",
+        terminal_state: "BLOCKED",
+        steps: [
+          { id: "start", presentation_key: "lifecycle.step.start", state: "COMPLETED" },
+          { id: "terminal", presentation_key: "lifecycle.step.terminal", state: "BLOCKED" },
+        ],
+      },
     }, {}));
 
     await expect(page.locator("#currentRun")).toBeVisible();
@@ -3479,6 +3488,8 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#predecessorGate")).toHaveCSS("border-top-color", "rgb(240, 182, 106)");
     await expect(page.locator("#predecessorGate")).toHaveCSS("border-right-color", "rgb(240, 182, 106)");
     await expect(page.locator("#predecessorRun")).toHaveText("blocked-run");
+    await expect(page.locator("#currentRun .execution-lifecycle")).toHaveAttribute("data-run-id", "blocked-run");
+    await expect(page.locator("#currentRun .execution-lifecycle__item--blocked")).toHaveCount(1);
   });
 
   test("keeps a terminal blocked run out of Active Prompt", async ({ page }) => {
