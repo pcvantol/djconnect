@@ -5418,6 +5418,7 @@ test.describe("Engineering Status browser smoke", () => {
     const deferButton = page.getByRole("button", { name: "Stel uit" }).first();
     await deferButton.hover();
     await expect(deferButton).toHaveCSS("background-color", "rgb(240, 182, 106)");
+    await expect(deferButton).toHaveCSS("border-top-color", "rgb(240, 182, 106)");
 
     await deferButton.click();
     await expect(page.locator("#confirmationModalTitle")).toHaveText("Uitvoering uitstellen");
