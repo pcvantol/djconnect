@@ -2401,6 +2401,11 @@ Object.assign(DASHBOARD_MESSAGES.nl, {"workspace.branch_cleanup_empty_in_modal":
 Object.assign(DASHBOARD_MESSAGES.de, {"workspace.branch_cleanup_empty_in_modal":"Keine veralteten lokalen Branches gefunden."});
 Object.assign(DASHBOARD_MESSAGES.fr, {"workspace.branch_cleanup_empty_in_modal":"Aucune branche locale obsolète trouvée."});
 Object.assign(DASHBOARD_MESSAGES.es, {"workspace.branch_cleanup_empty_in_modal":"No se encontraron ramas locales obsoletas."});
+Object.assign(DASHBOARD_MESSAGES.en, {"workspace.current_commit":"Git commit"});
+Object.assign(DASHBOARD_MESSAGES.nl, {"workspace.current_commit":"Git commit"});
+Object.assign(DASHBOARD_MESSAGES.de, {"workspace.current_commit":"Git-Commit"});
+Object.assign(DASHBOARD_MESSAGES.fr, {"workspace.current_commit":"Commit Git"});
+Object.assign(DASHBOARD_MESSAGES.es, {"workspace.current_commit":"Commit de Git"});
 
 const messages = DASHBOARD_MESSAGES;
 
