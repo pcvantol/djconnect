@@ -2391,6 +2391,11 @@ Object.assign(DASHBOARD_MESSAGES.nl, {"workspace.branch_main_action":"Switch naa
 Object.assign(DASHBOARD_MESSAGES.de, {"workspace.branch_main_action":"Zu FF main wechseln","workspace.branch_main_title":"Zu synchronisiertem main wechseln","workspace.branch_main_confirmation":"Dies wechselt nur, wenn der Arbeitsbereich sauber ist und main von origin fast-forwarden kann.","workspace.branch_main_confirm_action":"Zu main wechseln","workspace.branch_main_success":"Von {previous_branch} zu synchronisiertem {branch} gewechselt.","workspace.branch_main_failed":"Der Wechsel zu synchronisiertem main war nicht sicher."});
 Object.assign(DASHBOARD_MESSAGES.fr, {"workspace.branch_main_action":"Basculer vers main FF","workspace.branch_main_title":"Basculer vers main synchronisée","workspace.branch_main_confirmation":"Cette action bascule uniquement si l’espace de travail est propre et que main peut avancer rapidement depuis origin.","workspace.branch_main_confirm_action":"Basculer vers main","workspace.branch_main_success":"Basculement de {previous_branch} vers {branch} synchronisée.","workspace.branch_main_failed":"Le basculement vers main synchronisée n’était pas sûr."});
 Object.assign(DASHBOARD_MESSAGES.es, {"workspace.branch_main_action":"Cambiar a main FF","workspace.branch_main_title":"Cambiar a main sincronizada","workspace.branch_main_confirmation":"Solo cambia si el espacio de trabajo está limpio y main puede avanzar rápido desde origin.","workspace.branch_main_confirm_action":"Cambiar a main","workspace.branch_main_success":"Se cambió de {previous_branch} a {branch} sincronizada.","workspace.branch_main_failed":"No era seguro cambiar a main sincronizada."});
+Object.assign(DASHBOARD_MESSAGES.en, {"workspace.current_branch":"Current branch"});
+Object.assign(DASHBOARD_MESSAGES.nl, {"workspace.current_branch":"Huidige branch"});
+Object.assign(DASHBOARD_MESSAGES.de, {"workspace.current_branch":"Aktueller Branch"});
+Object.assign(DASHBOARD_MESSAGES.fr, {"workspace.current_branch":"Branche actuelle"});
+Object.assign(DASHBOARD_MESSAGES.es, {"workspace.current_branch":"Rama actual"});
 
 const messages = DASHBOARD_MESSAGES;
 

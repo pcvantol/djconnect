@@ -52,7 +52,7 @@ from . import dashboard_state
 
 LABEL = "com.djconnect.engineering-dashboard"
 RELAY_LABEL = "com.djconnect.engineering-dashboard-relay"
-DASHBOARD_VERSION = "1.2.95"
+DASHBOARD_VERSION = "1.2.96"
 DASHBOARD_STARTED_AT = time.monotonic()
 DASHBOARD_SNAPSHOT_SOURCE = str(uuid.uuid4())
 ASSET_DIRECTORY = Path(__file__).with_name("assets")
@@ -1325,6 +1325,8 @@ def _dashboard_html(
     engineering_database_path: str = "Niet beschikbaar",
     engineering_database_size: str = "Niet beschikbaar",
     engineering_database_schema_version: str = "Niet beschikbaar",
+    workspace_branch: str = "Niet beschikbaar",
+    workspace_main_action_hidden: bool = True,
     platform_version: str = "1.5.0",
 ) -> bytes:
     """Render the private dashboard with a server-pushed status stream."""
@@ -1390,7 +1392,7 @@ def _dashboard_html(
 <div class="card" id="driftDiagnosticsCard" hidden><strong data-i18n="technical.current_drift"></strong><p class="field"><span class="label" data-i18n="technical.severity"></span><span id="driftSeverity"></span></p><p class="field"><span class="label" data-i18n="technical.affected_component"></span><span id="driftComponent"></span></p><p class="field"><span class="label" data-i18n="technical.expected_state"></span><span id="driftExpected"></span></p><p class="field"><span class="label" data-i18n="technical.observed_state"></span><span id="driftObserved"></span></p><p class="field"><span class="label" data-i18n="technical.resolution"></span><span id="driftResolution"></span></p></div>
 <div class="card" id="technicalDiagnosticsCard"><strong id="technicalDiagnosticsTitle" data-i18n="technical.diagnostics"></strong><p id="diag"></p></div>
 </div></details>
-<details class="card card--context workspace-card" id="workspaceCard" data-testid="engineering-workspace"><summary><strong data-i18n="section.workspace"></strong></summary><p class="field"><span class="label" data-i18n="workspace.name"></span><span>$WORKSPACE_ID</span></p><div class="field"><span class="label" data-i18n="ui.workspace_location"></span><pre>$WORKSPACE_LOCATION</pre></div><p class="field"><span class="label" data-i18n="workspace.free_disk_space"></span><span>$WORKSPACE_FREE_DISK_SPACE</span></p><p class="field"><span class="label" data-i18n="detail.tracked_files"></span><span>$TRACKED_FILES</span></p><div class="field"><span class="label" data-i18n="workspace.database"></span><pre>$ENGINEERING_DATABASE_PATH</pre></div><p class="field"><span class="label" data-i18n="workspace.database_size"></span><span>$ENGINEERING_DATABASE_SIZE</span></p><p class="field"><span class="label" data-i18n="workspace.schema_version"></span><span>$ENGINEERING_DATABASE_SCHEMA_VERSION</span></p><div class="workspace-branch-actions"><button class="workspace-branch-cleanup" id="workspaceBranchCleanup" type="button" data-i18n="workspace.branch_cleanup_scan_action"></button><button class="workspace-branch-main" id="workspaceBranchMain" type="button" data-i18n="workspace.branch_main_action"></button></div></details>
+<details class="card card--context workspace-card" id="workspaceCard" data-testid="engineering-workspace"><summary><strong data-i18n="section.workspace"></strong></summary><p class="field"><span class="label" data-i18n="workspace.name"></span><span>$WORKSPACE_ID</span></p><div class="field"><span class="label" data-i18n="ui.workspace_location"></span><pre>$WORKSPACE_LOCATION</pre></div><p class="field"><span class="label" data-i18n="workspace.free_disk_space"></span><span>$WORKSPACE_FREE_DISK_SPACE</span></p><p class="field"><span class="label" data-i18n="detail.tracked_files"></span><span>$TRACKED_FILES</span></p><div class="field"><span class="label" data-i18n="workspace.database"></span><pre>$ENGINEERING_DATABASE_PATH</pre></div><p class="field"><span class="label" data-i18n="workspace.database_size"></span><span>$ENGINEERING_DATABASE_SIZE</span></p><p class="field"><span class="label" data-i18n="workspace.schema_version"></span><span>$ENGINEERING_DATABASE_SCHEMA_VERSION</span></p><p class="field"><span class="label" data-i18n="workspace.current_branch"></span><code>$WORKSPACE_BRANCH</code></p><div class="workspace-branch-actions"><button class="workspace-branch-cleanup" id="workspaceBranchCleanup" type="button" data-i18n="workspace.branch_cleanup_scan_action"></button><button class="workspace-branch-main" id="workspaceBranchMain" type="button" $WORKSPACE_MAIN_ACTION_HIDDEN data-i18n="workspace.branch_main_action"></button></div></details>
 </main></div>
 <footer class="footer" aria-live="polite"><span class="footer__item"><span class="label" id="platformVersionLabel" data-i18n="footer.platform_version"></span><span id="platformVersion" data-i18n="format.loading"></span></span><span class="footer__separator" aria-hidden="true">·</span><span class="footer__item" id="lastRefresh" data-i18n="format.loading"></span><span class="footer__separator" aria-hidden="true">·</span><span class="footer__item" id="updateMode" data-i18n="format.loading"></span></footer><span id="dashboardVersion" hidden></span><span id="workerVersion" hidden></span>
 <script>window.DJCONNECT_DASHBOARD_BUILD="$BUILD_COMMIT";</script>
@@ -1409,6 +1411,8 @@ def _dashboard_html(
         .replace("$ENGINEERING_DATABASE_PATH", escape(engineering_database_path))
         .replace("$ENGINEERING_DATABASE_SIZE", escape(engineering_database_size))
         .replace("$ENGINEERING_DATABASE_SCHEMA_VERSION", escape(engineering_database_schema_version))
+        .replace("$WORKSPACE_BRANCH", escape(workspace_branch))
+        .replace("$WORKSPACE_MAIN_ACTION_HIDDEN", "hidden" if workspace_main_action_hidden else "")
         .replace("$PLATFORM_VERSION", escape(platform_version))
         .encode()
     )
@@ -1957,6 +1961,11 @@ def handler(root: Path, logger: logging.Logger | None = None):
             if self.path == "/":
                 engineering_database = _engineering_database_details(root)
                 workspace_free_disk_space = _workspace_free_disk_space(root)
+                branch = GitProvider().execute(root, "git", "branch", "--show-current")
+                workspace_branch = branch.stdout.strip() if branch.returncode == 0 and branch.stdout.strip() else "Niet beschikbaar"
+                revisions = GitProvider().execute(root, "git", "rev-parse", "HEAD", "origin/main")
+                revision_lines = revisions.stdout.splitlines() if revisions.returncode == 0 else []
+                workspace_main_action_hidden = len(revision_lines) != 2 or revision_lines[0] == revision_lines[1]
                 return self._send(
                     _dashboard_html(
                         title,
@@ -1968,6 +1977,8 @@ def handler(root: Path, logger: logging.Logger | None = None):
                         engineering_database["path"],
                         engineering_database["size"],
                         engineering_database["schema_version"],
+                        workspace_branch,
+                        workspace_main_action_hidden,
                         platform_version,
                     ),
                     "text/html; charset=utf-8",
