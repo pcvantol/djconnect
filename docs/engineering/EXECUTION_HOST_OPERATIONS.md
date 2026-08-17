@@ -53,3 +53,23 @@ receives its path or any dashboard, launchd or local-storage detail.
 
 Repository truth and engineering history are immutable under all three actions.
 Only a new retry performs engineering work.
+
+## Workspace branch controls
+
+The Operations Console Workspace card shows the current local branch. Its
+yellow actions are deliberately separate from terminal-status colours:
+
+- **Scan branches for cleanup** opens its modal immediately, shows a waiting
+  spinner while it checks, and lists only local branches that no longer exist
+  on `origin` and are patch-equivalent to synchronized `main`. Matching merged
+  GitHub pull requests are linked as operator context only. The red removal
+  action stays disabled until the reviewed list is loaded. If no candidates
+  exist, the modal remains open with that result and only a close action.
+- **Switch to FF main** is shown only when `HEAD` differs from `origin/main`.
+  After confirmation it refuses dirty workspaces, unavailable `origin`, or
+  local commits on `main`; it switches only to the configured `main` branch
+  and fast-forwards only. A yellow result modal reports either the completed
+  switch or the precise safe refusal.
+
+Neither control rewrites history, stashes work, or deletes a branch without
+the explicit second confirmation.
