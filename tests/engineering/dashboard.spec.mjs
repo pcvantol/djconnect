@@ -4396,13 +4396,16 @@ test.describe("Engineering Status browser smoke", () => {
     await expect.poll(() => content.evaluate(
       (element) => element.scrollHeight >= element.clientHeight + 180,
     )).toBe(true);
-    await content.evaluate((element) => { element.scrollTo(0, 180); });
+    const scrollTop = await content.evaluate((element) => {
+      element.scrollTo(0, 180);
+      return element.scrollTop;
+    });
+    expect(scrollTop).toBeGreaterThan(0);
     const after = {
       close: await close.boundingBox(),
       header: await header.boundingBox(),
     }, panelBox = await panel.boundingBox();
 
-    await expect.poll(() => content.evaluate((element) => element.scrollTop)).toBeGreaterThan(0);
     expect(after.close.y).toBe(before.close.y);
     expect(after.header.y).toBe(before.header.y);
     expect(after.close.x + after.close.width).toBeGreaterThan(panelBox.x + panelBox.width - 48);
