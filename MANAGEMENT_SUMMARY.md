@@ -15,6 +15,21 @@
 
 ## Current position
 
+## PR #855 finalization in progress
+
+PR [#855](https://github.com/pcvantol/djconnect/pull/855), **Add execution
+telemetry dashboard detail**, merged as
+`3ea9f1821ad9d79831794d27ac2449e902757600`. The Operations Console now
+projects bounded canonical Execution Phase Telemetry through the existing
+compact daily card and a read-only date modal, including phase aggregates,
+bottlenecks and individual executions without making telemetry repository
+evidence. Its immutable Prompt History record is
+`docs/history/prompts/2026-08-17-execution-telemetry-dashboard-phase-detail.md`.
+This governance-only Finalization restores Repository State:
+`MERGED_RECONCILED` and Workspace State: `WORKSPACE_READY` after cleanup when
+merged. No Forge Mission, execution, validation, lifecycle, queue,
+retry/resume/dismiss, telemetry ownership or timing semantics changed.
+
 ## PR #840 finalization reconciled
 
 PR [#840](https://github.com/pcvantol/djconnect/pull/840), **Add execution

@@ -3,6 +3,21 @@
 **Status:** Operational handoff
 **Updated:** 2026-08-08
 
+## PR #855 finalization in progress
+
+PR [#855](https://github.com/pcvantol/djconnect/pull/855), **Add execution
+telemetry dashboard detail**, merged as
+`3ea9f1821ad9d79831794d27ac2449e902757600`. The existing Execution Host
+Telemetry card now remains a compact seven-day operational trend while its
+date rows open a read-only, canonical phase-detail modal with daily and
+per-run timing evidence. The immutable Prompt History record is
+`docs/history/prompts/2026-08-17-execution-telemetry-dashboard-phase-detail.md`.
+This dedicated governance-only Finalization reconciles the rolling records;
+its merge restores Repository State: `MERGED_RECONCILED` and Workspace State:
+`WORKSPACE_READY` after cleanup. Forge, telemetry ownership and timing
+semantics, execution sequencing, validation policy, and retry/resume/dismiss
+behavior are unchanged.
+
 ## PR #840 finalization reconciled
 
 PR [#840](https://github.com/pcvantol/djconnect/pull/840), **Add execution
