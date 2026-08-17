@@ -527,8 +527,9 @@ test.describe("Engineering Status browser smoke", () => {
     const modal = page.locator("#promptHistoryDetailModal");
     await expect(modal).toBeVisible();
     await expect(page).toHaveURL(new RegExp(`\\?prompt=${runId}$`));
-    await expect(page.locator("#promptHistoryRows .prompt-history-open-link")).toHaveAttribute(
-      "href", `${dashboardUrl}/?prompt=${runId}`,
+    await expect(page.locator("#promptHistoryRows .prompt-history-open-link, #promptHistoryRows .prompt-history-copy-link")).toHaveCount(0);
+    await expect(modal.locator(".prompt-history-run-id-copy")).toHaveAttribute(
+      "aria-label", DASHBOARD_MESSAGES.nl["history.copy_link"].replace("{title}", runId),
     );
 
     await page.locator("#promptHistoryDetailClose").click();

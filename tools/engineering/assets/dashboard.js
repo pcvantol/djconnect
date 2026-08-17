@@ -3167,9 +3167,6 @@ function updatePromptHistoryDetailUrl(runId, mode = "push") {
   if (url.href === window.location.href) return;
   history[mode === "replace" ? "replaceState" : "pushState"]({}, "", url);
 }
-function promptHistoryDetailLink(entry) {
-  return promptHistoryDetailUrl(entry?.run_id).href;
-}
 function promptHistoryValue(entry, key) {
   const value = entry?.[key];
   if (key === "executed_at") {
@@ -3408,25 +3405,6 @@ function renderPromptHistory() {
         analysis.append(view);
       } else analysis.textContent = "—";
       if (entry.run_id) {
-        const openLink = document.createElement("a");
-        openLink.className = "prompt-history-open-link";
-        openLink.href = promptHistoryDetailLink(entry);
-        openLink.title = t("history.open_link", { title: title.textContent });
-        openLink.setAttribute("aria-label", openLink.title);
-        openLink.textContent = "↗";
-        details.append(openLink);
-        const copyLink = document.createElement("button");
-        copyLink.className = "prompt-history-copy-link";
-        copyLink.type = "button";
-        copyLink.title = t("history.copy_link", { title: title.textContent });
-        copyLink.setAttribute("aria-label", copyLink.title);
-        copyLink.textContent = "⧉";
-        copyLink.addEventListener("click", (event) => {
-          event.preventDefault();
-          event.stopPropagation();
-          void copyText(promptHistoryDetailLink(entry));
-        });
-        details.append(copyLink);
         const button = document.createElement("button");
         button.className = "prompt-history-chat";
         button.type = "button";
@@ -4169,6 +4147,21 @@ function detailField(label, value, preformatted = false) {
   field.append(name, output);
   return field;
 }
+function promptHistoryRunIdField(runId) {
+  const field = detailField(t("detail.run_id"), runId, true);
+  field.classList.add("prompt-history-run-id-field");
+  const copyLink = document.createElement("button");
+  copyLink.className = "prompt-history-run-id-copy";
+  copyLink.type = "button";
+  copyLink.title = t("history.copy_link", { title: runId });
+  copyLink.setAttribute("aria-label", copyLink.title);
+  copyLink.textContent = "⧉";
+  copyLink.addEventListener("click", () => {
+    void copyText(promptHistoryDetailUrl(runId).href);
+  });
+  field.append(copyLink);
+  return field;
+}
 function promptHistoryStatusTone(value) {
   switch (String(value || "").toUpperCase()) {
     case "COMPLETE": return "green";
@@ -4224,7 +4217,7 @@ function promptDetailExecutionSections(history) {
     detailField(t("detail.operator_handling"), history.dismissed ? t("handling.dismissed") : t("handling.open")),
     ...(history.dismissed_at ? [detailField(t("detail.dismissed_at"), history.dismissed_at)] : []),
     detailField(t("detail.prompt_title"), history.title),
-    detailField(t("detail.run_id"), history.run_id, true),
+    promptHistoryRunIdField(history.run_id),
     detailField(
       t("detail.executed_at"),
       Number.isFinite(timestamp)
