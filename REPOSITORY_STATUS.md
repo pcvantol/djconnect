@@ -2,6 +2,21 @@
 
 Status: active platform-evolution repository
 
+## PR #855 finalization in progress
+
+PR [#855](https://github.com/pcvantol/djconnect/pull/855), **Add execution
+telemetry dashboard detail**, merged as
+`3ea9f1821ad9d79831794d27ac2449e902757600`. The existing Execution Host
+Telemetry card is the single Operations Console entry point for the canonical
+Execution Phase Telemetry read model: compact, bounded daily trends lead to a
+read-only date detail and per-run projection. The immutable Prompt History
+record is
+`docs/history/prompts/2026-08-17-execution-telemetry-dashboard-phase-detail.md`.
+This dedicated Finalization is governance-only; when merged, Repository State
+is `MERGED_RECONCILED` and Workspace State is `WORKSPACE_READY` after cleanup.
+No Forge, telemetry ownership or timing semantics, execution, validation,
+lifecycle, or retry/resume/dismiss behavior changed.
+
 ## PR #840 finalization reconciled
 
 PR [#840](https://github.com/pcvantol/djconnect/pull/840), **Add execution
