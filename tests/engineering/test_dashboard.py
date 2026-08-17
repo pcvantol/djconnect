@@ -401,6 +401,37 @@ class DashboardStatusTest(unittest.TestCase):
         github_provider.return_value.github.side_effect = RuntimeError("offline")
         self.assertEqual(dashboard._workspace_open_pull_requests(root), [])
 
+        github_provider.return_value.github.side_effect = None
+        git_provider.return_value.execute.return_value = completed(("git",), 1, "", "")
+        self.assertEqual(dashboard._workspace_open_pull_requests(root), [])
+
+        git_provider.return_value.execute.return_value = completed(
+            ("git",), 0, "https://github.com/pcvantol/djconnect.git\n", ""
+        )
+        github_provider.return_value.github.return_value = "{}"
+        self.assertEqual(dashboard._workspace_open_pull_requests(root), [])
+
+    @patch("tools.engineering.dashboard.GitHubProvider")
+    @patch("tools.engineering.dashboard.GitProvider")
+    def test_stale_branch_pull_request_context_never_affects_cleanup_safety(
+        self, git_provider: object, github_provider: object
+    ) -> None:
+        root = Path(__file__).parents[2]
+        completed = __import__("subprocess").CompletedProcess
+        git_provider.return_value.execute.return_value = completed(("git",), 1, "", "")
+        self.assertIsNone(dashboard._stale_local_branch_pull_request(root, "codex/stale"))
+
+        git_provider.return_value.execute.return_value = completed(
+            ("git",), 0, "https://example.invalid/repository.git\n", ""
+        )
+        self.assertIsNone(dashboard._stale_local_branch_pull_request(root, "codex/stale"))
+
+        git_provider.return_value.execute.return_value = completed(
+            ("git",), 0, "git@github.com:pcvantol/djconnect.git\n", ""
+        )
+        github_provider.return_value.github.return_value = "not-json"
+        self.assertIsNone(dashboard._stale_local_branch_pull_request(root, "codex/stale"))
+
     def test_rate_limit_helpers_cover_generic_windows_and_unavailable_provider_version(self) -> None:
         self.assertEqual(dashboard._rate_limit_window_label(1_440), "1-daags venster")
         self.assertEqual(dashboard._rate_limit_window_label(120), "2-uursvenster")
