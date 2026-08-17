@@ -5423,8 +5423,13 @@ test.describe("Engineering Status browser smoke", () => {
       reason: "remote_absent_and_matches_main",
     }));
     branches[0].pull_request = { number: 847, url: "https://github.com/pcvantol/djconnect/pull/847" };
+    let releasePreview;
+    let previewRequested;
+    const previewRequest = new Promise((resolve) => { previewRequested = resolve; });
     await page.route("**/api/stale-local-branch-cleanup-preview", async (route) => {
       expect(route.request().postData()).toBe("{}");
+      previewRequested();
+      await new Promise((resolve) => { releasePreview = resolve; });
       await route.fulfill({ json: { branches } });
     });
     await page.route("**/api/stale-local-branch-cleanup", async (route) => {
@@ -5444,8 +5449,14 @@ test.describe("Engineering Status browser smoke", () => {
     await page.getByRole("button", { name: "Scan branches voor opruiming" }).click();
 
     const confirmation = page.locator("#confirmationModal");
+    await previewRequest;
     await expect(confirmation).toBeVisible();
     await expect(confirmation.locator(".confirmation-modal__panel")).toHaveCSS("border-top-color", "rgb(243, 211, 106)");
+    await expect(confirmation.locator(".workspace-branch-cleanup__spinner")).toBeVisible();
+    await expect(page.locator("#confirmationModalConfirm")).toBeDisabled();
+    releasePreview();
+    await expect(confirmation.locator(".workspace-branch-cleanup__spinner")).toHaveCount(0);
+    await expect(page.locator("#confirmationModalConfirm")).toBeEnabled();
     await expect(page.locator("#confirmationModalConfirm")).toHaveCSS("background-color", "rgb(58, 32, 40)");
     const candidates = confirmation.locator(".workspace-branch-cleanup__preview-list");
     await expect(candidates).toHaveCount(1);

@@ -2381,6 +2381,11 @@ Object.assign(DASHBOARD_MESSAGES.nl, {"workspace.branch_cleanup_pr_link":"PR #{n
 Object.assign(DASHBOARD_MESSAGES.de, {"workspace.branch_cleanup_pr_link":"PR #{number}"});
 Object.assign(DASHBOARD_MESSAGES.fr, {"workspace.branch_cleanup_pr_link":"PR nº {number}"});
 Object.assign(DASHBOARD_MESSAGES.es, {"workspace.branch_cleanup_pr_link":"PR n.º {number}"});
+Object.assign(DASHBOARD_MESSAGES.en, {"workspace.branch_cleanup_scanning":"Scanning local branches safely…"});
+Object.assign(DASHBOARD_MESSAGES.nl, {"workspace.branch_cleanup_scanning":"Lokale branches worden veilig gescand…"});
+Object.assign(DASHBOARD_MESSAGES.de, {"workspace.branch_cleanup_scanning":"Lokale Branches werden sicher geprüft…"});
+Object.assign(DASHBOARD_MESSAGES.fr, {"workspace.branch_cleanup_scanning":"Analyse sécurisée des branches locales…"});
+Object.assign(DASHBOARD_MESSAGES.es, {"workspace.branch_cleanup_scanning":"Analizando de forma segura las ramas locales…"});
 
 const messages = DASHBOARD_MESSAGES;
 
