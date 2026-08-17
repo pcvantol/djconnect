@@ -2076,11 +2076,13 @@ test.describe("Engineering Status browser smoke", () => {
     const hoverBackgrounds = await runRow.locator("td").evaluateAll((cells) => cells.map((cell) => getComputedStyle(cell).backgroundColor));
     expect(new Set(hoverBackgrounds).size).toBe(1);
     expect(hoverBackgrounds[0]).not.toBe("rgba(0, 0, 0, 0)");
-    await runRow.click();
+    const runId = runRow.locator(".telemetry-run-link");
+    const promptDetailLoaded = page.waitForResponse("**/api/prompt-history/inbox-telemetry-row/details");
+    await runId.click();
+    await promptDetailLoaded;
     await expect(runRow).toHaveAttribute("data-selected", "true");
     const selectedBackgrounds = await runRow.locator("td").evaluateAll((cells) => cells.map((cell) => getComputedStyle(cell).backgroundColor));
     expect(new Set(selectedBackgrounds).size).toBe(1);
-    const runId = runRow.locator(".telemetry-run-link");
     await runId.focus();
     await expect(runId).toHaveCSS("outline-style", "none");
     await expect(runId).toHaveCSS("box-shadow", "none");
