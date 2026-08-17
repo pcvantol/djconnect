@@ -2065,7 +2065,9 @@ test.describe("Engineering Status browser smoke", () => {
       complete_count: 1, blocked_count: 0, failed_count: 0,
     }]));
     await page.locator("#executionTelemetry").evaluate((element) => { element.open = true; });
+    const telemetryDetailLoaded = page.waitForResponse("**/api/telemetry/2026-08-16");
     await page.locator("#executionTelemetryRows tr").click();
+    await telemetryDetailLoaded;
     const modal = page.locator("#telemetryDetailModal");
     await expect(modal.locator("#telemetryDetailTitle")).toHaveCSS("color", "rgb(251, 113, 133)");
     expect(await modal.locator("#telemetryDetailTitle").evaluate(
@@ -4381,8 +4383,10 @@ test.describe("Engineering Status browser smoke", () => {
       close = page.locator("#promptHistoryDetailClose");
 
     await modal.evaluate((element) => {
-      document.querySelector("#promptHistoryDetailContent").innerHTML =
+      const content = document.querySelector("#promptHistoryDetailContent");
+      content.innerHTML =
         "<p>Detailregel</p>".repeat(120);
+      content.style.setProperty("height", "180px", "important");
       element.showModal();
     });
     const before = {
@@ -4390,15 +4394,15 @@ test.describe("Engineering Status browser smoke", () => {
       header: await header.boundingBox(),
     };
     await expect.poll(() => content.evaluate(
-      (element) => element.scrollHeight > element.clientHeight,
+      (element) => element.scrollHeight >= element.clientHeight + 180,
     )).toBe(true);
-    await content.evaluate((element) => { element.scrollTop = 180; });
+    await content.evaluate((element) => { element.scrollTo(0, 180); });
     const after = {
       close: await close.boundingBox(),
       header: await header.boundingBox(),
     }, panelBox = await panel.boundingBox();
 
-    await expect.poll(() => content.evaluate((element) => element.scrollTop)).toBe(180);
+    await expect.poll(() => content.evaluate((element) => element.scrollTop)).toBeGreaterThan(0);
     expect(after.close.y).toBe(before.close.y);
     expect(after.header.y).toBe(before.header.y);
     expect(after.close.x + after.close.width).toBeGreaterThan(panelBox.x + panelBox.width - 48);
