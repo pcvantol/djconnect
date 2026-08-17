@@ -491,6 +491,7 @@ test.describe("Engineering Status browser smoke", () => {
           status: "COMPLETE",
           title: "Modal prompt",
           executed_at: "2026-08-04T08:00:00Z",
+          execution_diagnostic: "The verified execution diagnostic belongs to this run.",
         },
         execution: { seconds: 42, total_seconds: 61 },
         evidence: ["Execution Host: Engineering Platform"],
@@ -511,6 +512,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#promptHistoryDetailModal .prompt-detail-modal__header")).toHaveClass(/dashboard-modal-shell__header/);
     await expect(page.locator("#promptHistoryDetailDescription")).toHaveCSS("border-bottom-color", "rgb(141, 199, 255)");
     await expect(page.locator("#promptHistoryDetailContent")).toContainText("Engineering Platform");
+    await expect(page.locator("#promptHistoryDetailContent")).toContainText("The verified execution diagnostic belongs to this run.");
     await expect(page.locator("dialog[open]")).toHaveCount(1);
   });
 

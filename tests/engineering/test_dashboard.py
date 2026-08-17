@@ -107,7 +107,7 @@ class DashboardStatusTest(unittest.TestCase):
             "detail.recommended_next_mission", "detail.recommendation_status", "detail.mission_origin",
             "detail.business_value", "detail.confidence", "detail.dependencies", "detail.alternatives",
             "detail.decision_evidence", "detail.projection_incomplete", "technical.git_lock",
-            "technical.git_lock_recovery_action",
+            "technical.git_lock_recovery_action", "detail.execution_diagnostic",
         ):
             self.assertEqual(catalog.count(f'"{key}"'), 5)
         self.assertNotIn("Retry Execution", (root / "tools/engineering/assets/dashboard.js").read_text(encoding="utf-8"))
@@ -1285,6 +1285,50 @@ class DashboardStatusTest(unittest.TestCase):
             self.assertEqual(payload["history"]["title"], "Detail prompt")
             self.assertEqual(payload["usage"], {})
             self.assertEqual(_prompt_history_detail(root, "../../other"), b"")
+
+    def test_prompt_history_detail_includes_only_its_own_terminal_failure_diagnostic(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            run_id = "inbox-diagnostic"
+            record_prompt_execution(
+                root,
+                run_id=run_id,
+                terminal_state="BLOCKED",
+                prompt_title="Blocked prompt",
+                executed_at="2026-08-17T05:42:43Z",
+            )
+            with open_storage(root) as connection:
+                connection.execute(
+                    "INSERT INTO engineering_component_logs(component,payload,created_at) VALUES(?,?,?)",
+                    (
+                        "inbox",
+                        json.dumps({
+                            "event": "job_failed",
+                            "run_id": run_id,
+                            "diagnostic": "Pre-flight is NO-GO: rolling status records are stale.",
+                        }),
+                        "2026-08-17T05:42:43Z",
+                    ),
+                )
+                connection.execute(
+                    "INSERT INTO engineering_component_logs(component,payload,created_at) VALUES(?,?,?)",
+                    (
+                        "inbox",
+                        json.dumps({
+                            "event": "job_failed",
+                            "run_id": "inbox-other-run",
+                            "diagnostic": "This diagnostic belongs to another run.",
+                        }),
+                        "2026-08-17T05:42:44Z",
+                    ),
+                )
+
+            payload = json.loads(_prompt_history_detail(root, run_id))
+
+            self.assertEqual(
+                payload["history"]["execution_diagnostic"],
+                "Pre-flight is NO-GO: rolling status records are stale.",
+            )
 
     def test_prompt_history_detail_projector_owns_evidence_and_presentation(self) -> None:
         entry = {"run_id": "inbox-projector", "target_repository": "stored/repository"}

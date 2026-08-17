@@ -4274,6 +4274,9 @@ function promptDetailExecutionSections(history) {
         ? locale.dateTime(new Date(timestamp))
         : history.executed_at,
     ),
+    ...(executionContextValue(history.execution_diagnostic)
+      ? [detailField(t("detail.execution_diagnostic"), history.execution_diagnostic, true)]
+      : []),
   ];
   const contextMetadataFields = [
     detailField(t("detail.execution_mode"), history.execution_mode || t("detail.not_recorded")),

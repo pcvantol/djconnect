@@ -41,6 +41,7 @@ from .component_logging import (
     shutdown_signal_logging,
 )
 from .component_lock import DuplicateComponentInstanceError, single_instance
+from .agent_state import redact_diagnostic
 from .codex_chat import CodexChatError, chat_model, respond as codex_chat_response
 from .telemetry import daily_statistics, daily_timing_detail, execution_timing
 from .prompt_history import prompt_history, report_for_prompt_history
@@ -278,6 +279,34 @@ def _project_prompt_history_detail(
     ).encode()
 
 
+def _terminal_run_diagnostic(root: Path, run_id: str | None) -> str | None:
+    """Return the latest bounded failure detail only when its log owns this run."""
+    if not isinstance(run_id, str) or not re.fullmatch(r"[a-z0-9][a-z0-9-]{0,63}", run_id):
+        return None
+    try:
+        connection = open_storage(root)
+        try:
+            rows = connection.execute(
+                "SELECT payload FROM engineering_component_logs "
+                "WHERE component='inbox' ORDER BY id DESC LIMIT 200"
+            ).fetchall()
+        finally:
+            connection.close()
+    except (EngineeringStorageError, OSError, sqlite3.DatabaseError):
+        return None
+    for row in rows:
+        try:
+            event = json.loads(row[0])
+        except (TypeError, json.JSONDecodeError):
+            continue
+        if not isinstance(event, dict) or event.get("run_id") != run_id or event.get("event") != "job_failed":
+            continue
+        diagnostic = event.get("diagnostic")
+        if isinstance(diagnostic, str) and diagnostic.strip():
+            return redact_diagnostic(diagnostic, limit=500)
+    return None
+
+
 def _prompt_history_detail(root: Path, run_id: str | None) -> bytes:
     """Return private, immutable operational evidence for one history row."""
     if not isinstance(run_id, str) or not re.fullmatch(r"[a-z0-9][a-z0-9-]{0,63}", run_id):
@@ -310,6 +339,8 @@ def _prompt_history_detail(root: Path, run_id: str | None) -> bytes:
         report = _report_for_run(root, run_id).decode("utf-8")
     except UnicodeDecodeError:
         pass
+    if diagnostic := _terminal_run_diagnostic(root, run_id):
+        entry["execution_diagnostic"] = diagnostic
     return _project_prompt_history_detail(
         entry,
         execution=execution,
