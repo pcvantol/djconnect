@@ -2406,6 +2406,11 @@ Object.assign(DASHBOARD_MESSAGES.nl, {"workspace.current_commit":"Git commit"});
 Object.assign(DASHBOARD_MESSAGES.de, {"workspace.current_commit":"Git-Commit"});
 Object.assign(DASHBOARD_MESSAGES.fr, {"workspace.current_commit":"Commit Git"});
 Object.assign(DASHBOARD_MESSAGES.es, {"workspace.current_commit":"Commit de Git"});
+Object.assign(DASHBOARD_MESSAGES.en, {"workspace.origin_main_commit":"origin/main commit"});
+Object.assign(DASHBOARD_MESSAGES.nl, {"workspace.origin_main_commit":"origin/main commit"});
+Object.assign(DASHBOARD_MESSAGES.de, {"workspace.origin_main_commit":"origin/main-Commit"});
+Object.assign(DASHBOARD_MESSAGES.fr, {"workspace.origin_main_commit":"Commit origin/main"});
+Object.assign(DASHBOARD_MESSAGES.es, {"workspace.origin_main_commit":"Commit de origin/main"});
 
 const messages = DASHBOARD_MESSAGES;
 
