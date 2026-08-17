@@ -4408,7 +4408,14 @@ function openPromptHistoryDetail(entry, { updateUrl = true } = {}) {
 function reconcilePromptHistoryDetailFromUrl() {
   const runId = promptHistoryDetailRunFromUrl();
   const entry = promptHistoryEntries.find((candidate) => String(candidate?.run_id || "") === runId);
-  if (!runId || !entry) {
+  if (!runId) {
+    if (!promptHistoryDetailRunId) return;
+    promptHistoryDetailLocationSyncing = true;
+    closePromptHistoryDetail();
+    promptHistoryDetailLocationSyncing = false;
+    return;
+  }
+  if (!entry) {
     if (runId) updatePromptHistoryDetailUrl("", "replace");
     promptHistoryDetailLocationSyncing = true;
     closePromptHistoryDetail();
