@@ -2396,6 +2396,11 @@ Object.assign(DASHBOARD_MESSAGES.nl, {"workspace.current_branch":"Huidige branch
 Object.assign(DASHBOARD_MESSAGES.de, {"workspace.current_branch":"Aktueller Branch"});
 Object.assign(DASHBOARD_MESSAGES.fr, {"workspace.current_branch":"Branche actuelle"});
 Object.assign(DASHBOARD_MESSAGES.es, {"workspace.current_branch":"Rama actual"});
+Object.assign(DASHBOARD_MESSAGES.en, {"workspace.branch_cleanup_empty_in_modal":"No stale local branches were found."});
+Object.assign(DASHBOARD_MESSAGES.nl, {"workspace.branch_cleanup_empty_in_modal":"Geen verouderde lokale branches gevonden."});
+Object.assign(DASHBOARD_MESSAGES.de, {"workspace.branch_cleanup_empty_in_modal":"Keine veralteten lokalen Branches gefunden."});
+Object.assign(DASHBOARD_MESSAGES.fr, {"workspace.branch_cleanup_empty_in_modal":"Aucune branche locale obsolète trouvée."});
+Object.assign(DASHBOARD_MESSAGES.es, {"workspace.branch_cleanup_empty_in_modal":"No se encontraron ramas locales obsoletas."});
 
 const messages = DASHBOARD_MESSAGES;
 

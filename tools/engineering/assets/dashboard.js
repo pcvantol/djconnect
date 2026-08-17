@@ -4576,9 +4576,16 @@ async function cleanupStaleLocalBranches() {
     if (!previewResponse.ok) throw Error(preview.error || t("workspace.branch_cleanup_failed"));
     const branches = Array.isArray(preview?.branches) ? preview.branches : [];
     if (!branches.length) {
-      if (modal.open) modal.close();
+      if (modal.open) {
+        body.replaceChildren(Object.assign(document.createElement("p"), {
+          textContent: t("workspace.branch_cleanup_empty_in_modal"),
+        }));
+        confirm.textContent = t("action.close");
+        confirm.disabled = false;
+        confirm.classList.remove("dashboard-modal-shell__action--destructive");
+        confirm.classList.add("dashboard-modal-shell__action--primary");
+      }
       await confirmation;
-      showWorkspaceBranchCleanupResult({ removed: [] });
       return;
     }
     if (!modal.open) {
