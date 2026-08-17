@@ -4582,6 +4582,7 @@ async function cleanupStaleLocalBranches() {
         }));
         confirm.textContent = t("action.close");
         confirm.disabled = false;
+        $("confirmationModalCancel").hidden = true;
         confirm.classList.remove("dashboard-modal-shell__action--destructive");
         confirm.classList.add("dashboard-modal-shell__action--primary");
       }
@@ -4726,6 +4727,7 @@ function confirmDashboardAction(title, text, confirmLabel, { destructive = false
   }
   confirm.textContent = confirmLabel;
   confirm.disabled = loading;
+  cancel.hidden = false;
   confirm.classList.toggle("dashboard-modal-shell__action--primary", !destructive);
   confirm.classList.toggle("dashboard-modal-shell__action--destructive", destructive);
   modal.classList.toggle("dashboard-modal-shell--destructive", destructive);
@@ -4737,6 +4739,7 @@ function confirmDashboardAction(title, text, confirmLabel, { destructive = false
       confirm.classList.add("dashboard-modal-shell__action--primary");
       confirm.classList.remove("dashboard-modal-shell__action--destructive");
       confirm.disabled = false;
+      cancel.hidden = false;
       delete heading.dataset.modalGlyph;
       close.onclick = cancel.onclick = confirm.onclick = null;
       resolve(value);
