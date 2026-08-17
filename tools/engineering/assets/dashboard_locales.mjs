@@ -2411,6 +2411,11 @@ Object.assign(DASHBOARD_MESSAGES.nl, {"workspace.origin_main_commit":"origin/mai
 Object.assign(DASHBOARD_MESSAGES.de, {"workspace.origin_main_commit":"origin/main-Commit"});
 Object.assign(DASHBOARD_MESSAGES.fr, {"workspace.origin_main_commit":"Commit origin/main"});
 Object.assign(DASHBOARD_MESSAGES.es, {"workspace.origin_main_commit":"Commit de origin/main"});
+Object.assign(DASHBOARD_MESSAGES.en, {"workspace.open_pull_requests":"Open pull requests"});
+Object.assign(DASHBOARD_MESSAGES.nl, {"workspace.open_pull_requests":"Openstaande pull requests"});
+Object.assign(DASHBOARD_MESSAGES.de, {"workspace.open_pull_requests":"Offene Pull Requests"});
+Object.assign(DASHBOARD_MESSAGES.fr, {"workspace.open_pull_requests":"Pull requests ouverts"});
+Object.assign(DASHBOARD_MESSAGES.es, {"workspace.open_pull_requests":"Solicitudes de extracción abiertas"});
 
 const messages = DASHBOARD_MESSAGES;
 

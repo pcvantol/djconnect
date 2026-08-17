@@ -52,7 +52,7 @@ from . import dashboard_state
 
 LABEL = "com.djconnect.engineering-dashboard"
 RELAY_LABEL = "com.djconnect.engineering-dashboard-relay"
-DASHBOARD_VERSION = "1.2.99"
+DASHBOARD_VERSION = "1.3.0"
 DASHBOARD_STARTED_AT = time.monotonic()
 DASHBOARD_SNAPSHOT_SOURCE = str(uuid.uuid4())
 ASSET_DIRECTORY = Path(__file__).with_name("assets")
@@ -945,6 +945,32 @@ def _stale_local_branch_pull_request(root: Path, branch: str) -> dict[str, objec
     return None
 
 
+def _workspace_open_pull_requests(root: Path) -> list[dict[str, object]]:
+    """Return bounded, display-safe GitHub PR context without affecting operations."""
+    try:
+        remote = GitProvider().execute(root, "git", "remote", "get-url", "origin")
+        match = re.search(r"github\.com[:/]([^/\s]+)/([^/\s]+?)(?:\.git)?$", remote.stdout.strip()) if remote.returncode == 0 else None
+        if not match:
+            return []
+        payload = GitHubProvider().github(
+            "pr", "list", "--repo", f"{match.group(1)}/{match.group(2)}", "--state", "open",
+            "--json", "number,title,url,headRefName", "--limit", "20",
+        )
+        candidates = json.loads(payload)
+    except (OSError, RuntimeError, json.JSONDecodeError):
+        return []
+    if not isinstance(candidates, list):
+        return []
+    result: list[dict[str, object]] = []
+    for candidate in candidates:
+        if not isinstance(candidate, dict):
+            continue
+        number, title, url, branch = candidate.get("number"), candidate.get("title"), candidate.get("url"), candidate.get("headRefName")
+        if isinstance(number, int) and number > 0 and all(isinstance(value, str) for value in (title, url, branch)) and url.startswith("https://github.com/"):
+            result.append({"number": number, "title": title, "url": url, "branch": branch})
+    return result
+
+
 def _cleanup_stale_local_branches(root: Path, expected_branches: list[str]) -> dict[str, object]:
     """Remove exactly the stale branch set which the operator just reviewed."""
     if not expected_branches or any(not isinstance(branch, str) or not branch for branch in expected_branches):
@@ -1329,6 +1355,7 @@ def _dashboard_html(
     workspace_commit: str = "Niet beschikbaar",
     origin_main_commit: str = "Niet beschikbaar",
     origin_main_available: bool = False,
+    workspace_open_pull_requests: list[dict[str, object]] | None = None,
     workspace_main_action_hidden: bool = True,
     platform_version: str = "1.5.0",
 ) -> bytes:
@@ -1395,7 +1422,7 @@ def _dashboard_html(
 <div class="card" id="driftDiagnosticsCard" hidden><strong data-i18n="technical.current_drift"></strong><p class="field"><span class="label" data-i18n="technical.severity"></span><span id="driftSeverity"></span></p><p class="field"><span class="label" data-i18n="technical.affected_component"></span><span id="driftComponent"></span></p><p class="field"><span class="label" data-i18n="technical.expected_state"></span><span id="driftExpected"></span></p><p class="field"><span class="label" data-i18n="technical.observed_state"></span><span id="driftObserved"></span></p><p class="field"><span class="label" data-i18n="technical.resolution"></span><span id="driftResolution"></span></p></div>
 <div class="card" id="technicalDiagnosticsCard"><strong id="technicalDiagnosticsTitle" data-i18n="technical.diagnostics"></strong><p id="diag"></p></div>
 </div></details>
-<details class="card card--context workspace-card" id="workspaceCard" data-testid="engineering-workspace"><summary><strong data-i18n="section.workspace"></strong></summary><p class="field"><span class="label" data-i18n="workspace.name"></span><span>$WORKSPACE_ID</span></p><div class="field"><span class="label" data-i18n="ui.workspace_location"></span><pre>$WORKSPACE_LOCATION</pre></div><p class="field"><span class="label" data-i18n="workspace.free_disk_space"></span><span>$WORKSPACE_FREE_DISK_SPACE</span></p><p class="field"><span class="label" data-i18n="detail.tracked_files"></span><span>$TRACKED_FILES</span></p><div class="field"><span class="label" data-i18n="workspace.database"></span><pre>$ENGINEERING_DATABASE_PATH</pre></div><p class="field"><span class="label" data-i18n="workspace.database_size"></span><span>$ENGINEERING_DATABASE_SIZE</span></p><p class="field"><span class="label" data-i18n="workspace.schema_version"></span><span>$ENGINEERING_DATABASE_SCHEMA_VERSION</span></p><p class="field"><span class="label" data-i18n="workspace.current_branch"></span><code>$WORKSPACE_BRANCH</code></p><p class="field"><span class="label" data-i18n="workspace.current_commit"></span><code>$WORKSPACE_COMMIT</code></p><p class="field" $ORIGIN_MAIN_HIDDEN><span class="label" data-i18n="workspace.origin_main_commit"></span><code>$ORIGIN_MAIN_COMMIT</code></p><div class="workspace-branch-actions"><button class="workspace-branch-cleanup" id="workspaceBranchCleanup" type="button" data-i18n="workspace.branch_cleanup_scan_action"></button><button class="workspace-branch-main" id="workspaceBranchMain" type="button" $WORKSPACE_MAIN_ACTION_HIDDEN data-i18n="workspace.branch_main_action"></button></div></details>
+<details class="card card--context workspace-card" id="workspaceCard" data-testid="engineering-workspace"><summary><strong data-i18n="section.workspace"></strong></summary><p class="field"><span class="label" data-i18n="workspace.name"></span><span>$WORKSPACE_ID</span></p><div class="field"><span class="label" data-i18n="ui.workspace_location"></span><pre>$WORKSPACE_LOCATION</pre></div><p class="field"><span class="label" data-i18n="workspace.free_disk_space"></span><span>$WORKSPACE_FREE_DISK_SPACE</span></p><p class="field"><span class="label" data-i18n="detail.tracked_files"></span><span>$TRACKED_FILES</span></p><div class="field"><span class="label" data-i18n="workspace.database"></span><pre>$ENGINEERING_DATABASE_PATH</pre></div><p class="field"><span class="label" data-i18n="workspace.database_size"></span><span>$ENGINEERING_DATABASE_SIZE</span></p><p class="field"><span class="label" data-i18n="workspace.schema_version"></span><span>$ENGINEERING_DATABASE_SCHEMA_VERSION</span></p><p class="field"><span class="label" data-i18n="workspace.current_branch"></span><code>$WORKSPACE_BRANCH</code></p><p class="field"><span class="label" data-i18n="workspace.current_commit"></span><code>$WORKSPACE_COMMIT</code></p><p class="field" $ORIGIN_MAIN_HIDDEN><span class="label" data-i18n="workspace.origin_main_commit"></span><code>$ORIGIN_MAIN_COMMIT</code></p>$WORKSPACE_OPEN_PULL_REQUESTS<div class="workspace-branch-actions"><button class="workspace-branch-cleanup" id="workspaceBranchCleanup" type="button" data-i18n="workspace.branch_cleanup_scan_action"></button><button class="workspace-branch-main" id="workspaceBranchMain" type="button" $WORKSPACE_MAIN_ACTION_HIDDEN data-i18n="workspace.branch_main_action"></button></div></details>
 </main></div>
 <footer class="footer" aria-live="polite"><span class="footer__item"><span class="label" id="platformVersionLabel" data-i18n="footer.platform_version"></span><span id="platformVersion" data-i18n="format.loading"></span></span><span class="footer__separator" aria-hidden="true">·</span><span class="footer__item" id="lastRefresh" data-i18n="format.loading"></span><span class="footer__separator" aria-hidden="true">·</span><span class="footer__item" id="updateMode" data-i18n="format.loading"></span></footer><span id="dashboardVersion" hidden></span><span id="workerVersion" hidden></span>
 <script>window.DJCONNECT_DASHBOARD_BUILD="$BUILD_COMMIT";</script>
@@ -1403,6 +1430,14 @@ def _dashboard_html(
 
 </body>
 </html>"""
+    pull_request_items = "".join(
+        f'<li><a href="{escape(str(pull_request["url"]), quote=True)}" target="_blank" rel="noreferrer">PR #{pull_request["number"]} — {escape(str(pull_request["title"]))}</a><code>{escape(str(pull_request["branch"]))}</code></li>'
+        for pull_request in workspace_open_pull_requests or []
+    )
+    workspace_open_pull_requests_html = (
+        f'<section class="workspace-open-prs"><strong data-i18n="workspace.open_pull_requests"></strong><ul>{pull_request_items}</ul></section>'
+        if pull_request_items else ""
+    )
     return (
         page.replace("$TITLE", escape(title))
         .replace("$BUILD_COMMIT", escape(build_commit))
@@ -1418,6 +1453,7 @@ def _dashboard_html(
         .replace("$WORKSPACE_COMMIT", escape(workspace_commit))
         .replace("$ORIGIN_MAIN_COMMIT", escape(origin_main_commit))
         .replace("$ORIGIN_MAIN_HIDDEN", "" if origin_main_available else "hidden")
+        .replace("$WORKSPACE_OPEN_PULL_REQUESTS", workspace_open_pull_requests_html)
         .replace("$WORKSPACE_MAIN_ACTION_HIDDEN", "hidden" if workspace_main_action_hidden else "")
         .replace("$PLATFORM_VERSION", escape(platform_version))
         .encode()
@@ -1974,6 +2010,7 @@ def handler(root: Path, logger: logging.Logger | None = None):
                 workspace_commit = revision_lines[0][:12] if revision_lines else "Niet beschikbaar"
                 origin_main_commit = revision_lines[1][:12] if len(revision_lines) == 2 else "Niet beschikbaar"
                 origin_main_available = len(revision_lines) == 2
+                workspace_open_pull_requests = _workspace_open_pull_requests(root)
                 workspace_main_action_hidden = len(revision_lines) != 2 or revision_lines[0] == revision_lines[1]
                 return self._send(
                     _dashboard_html(
@@ -1990,6 +2027,7 @@ def handler(root: Path, logger: logging.Logger | None = None):
                         workspace_commit,
                         origin_main_commit,
                         origin_main_available,
+                        workspace_open_pull_requests,
                         workspace_main_action_hidden,
                         platform_version,
                     ),
