@@ -1396,7 +1396,8 @@ test.describe("Engineering Status browser smoke", () => {
     await alternatives.locator("summary").click();
     await expect(alternatives).toHaveAttribute("open", "");
     await expect(alternatives).toContainText("Mission Borealis");
-    await expect(page.locator("#promptHistoryDetailContent button")).toHaveCount(0);
+    await expect(page.locator("#promptHistoryDetailContent button")).toHaveCount(1);
+    await expect(page.locator("#promptHistoryDetailContent .prompt-history-run-id-copy")).toHaveCount(1);
   });
 
   test("uses the shared modal shell with contextual panels and neutral close controls", async ({ page }) => {
