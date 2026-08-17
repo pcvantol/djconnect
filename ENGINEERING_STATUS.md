@@ -3,7 +3,7 @@
 **Status:** Operational handoff
 **Updated:** 2026-08-08
 
-## PR #840 finalization in progress
+## PR #840 finalization reconciled
 
 PR [#840](https://github.com/pcvantol/djconnect/pull/840), **Add execution
 lifecycle flow projection**, merged as
@@ -14,9 +14,11 @@ terminal outcome, repair iteration evidence, accessibility and mobile
 horizontal scrolling. The immutable Prompt History record is
 `docs/history/prompts/2026-08-16-execution-lifecycle-flow.md`. Its dedicated
 governance-only Finalization PR [#841](https://github.com/pcvantol/djconnect/pull/841)
-reconciles the rolling records; its merge restores Repository State:
-`MERGED_RECONCILED` and Workspace State: `WORKSPACE_READY` after cleanup.
-Forge, execution sequencing, lifecycle authority, telemetry,
+merged as `f44395cd2df8c709f576851f5962e8735bae6bdc`. Current `main` also
+contains the subsequent safe status-reconciliation work from PR #850. This
+record reconciles the verified PR #840 Finalization only. Repository State:
+`MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY` after cleanup. Forge,
+execution sequencing, lifecycle authority, telemetry,
 retry/resume/dismiss, validation, Producer and model-selection semantics are
 unchanged.
 
