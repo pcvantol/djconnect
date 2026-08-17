@@ -24,7 +24,7 @@ import uuid
 from urllib.parse import parse_qs, urlsplit
 from .platform_api import PlatformConfiguration
 from .platform_bootstrap import provision_workspace
-from .providers import CodexCliProvider, GitProvider, LaunchdProvider, LocalProcessProvider, TailscaleProvider
+from .providers import CodexCliProvider, GitHubProvider, GitProvider, LaunchdProvider, LocalProcessProvider, TailscaleProvider
 from .inbox_watcher import LABEL as WATCHER_LABEL
 from .inbox_watcher import WATCHER_VERSION
 from .inbox_watcher import RetrySubmissionError, abort_operator_merge_wait, cloud_root, defer_queued_prompt, dismiss_execution, predecessor_retry_admission_preflight, queued_retry_children, retry_admission_preflight, submit_execution_retry, submit_predecessor_retry
@@ -52,7 +52,7 @@ from . import dashboard_state
 
 LABEL = "com.djconnect.engineering-dashboard"
 RELAY_LABEL = "com.djconnect.engineering-dashboard-relay"
-DASHBOARD_VERSION = "1.2.92"
+DASHBOARD_VERSION = "1.2.93"
 DASHBOARD_STARTED_AT = time.monotonic()
 DASHBOARD_SNAPSHOT_SOURCE = str(uuid.uuid4())
 ASSET_DIRECTORY = Path(__file__).with_name("assets")
@@ -870,12 +870,52 @@ def _stale_local_branch_candidates(root: Path) -> list[str]:
 
 def _stale_local_branch_preview(root: Path) -> dict[str, object]:
     branches = _stale_local_branch_candidates(root)
+    pull_requests = {
+        branch: _stale_local_branch_pull_request(root, branch)
+        for branch in branches
+    }
     return {
         "branches": [
-            {"name": branch, "reason": "remote_absent_and_matches_main"}
+            {
+                "name": branch,
+                "reason": "remote_absent_and_matches_main",
+                **({"pull_request": pull_requests[branch]} if pull_requests[branch] else {}),
+            }
             for branch in branches
         ],
     }
+
+
+def _stale_local_branch_pull_request(root: Path, branch: str) -> dict[str, object] | None:
+    """Return a merged GitHub PR for an exact former head branch, if available.
+
+    The cleanup decision remains entirely Git-based.  GitHub metadata only
+    provides an optional operator link and cannot make a branch removable.
+    """
+    try:
+        remote = GitProvider().execute(root, "git", "remote", "get-url", "origin")
+        if remote.returncode:
+            return None
+        match = re.search(r"github\.com[:/]([^/\s]+)/([^/\s]+?)(?:\.git)?$", remote.stdout.strip())
+        if not match:
+            return None
+        repository = f"{match.group(1)}/{match.group(2)}"
+        payload = GitHubProvider().github(
+            "pr", "list", "--repo", repository, "--state", "merged", "--head", branch,
+            "--json", "number,url,headRefName", "--limit", "2",
+        )
+        pull_requests = json.loads(payload)
+    except (OSError, RuntimeError, json.JSONDecodeError):
+        return None
+    if not isinstance(pull_requests, list):
+        return None
+    for pull_request in pull_requests:
+        if not isinstance(pull_request, dict) or pull_request.get("headRefName") != branch:
+            continue
+        number, url = pull_request.get("number"), pull_request.get("url")
+        if isinstance(number, int) and number > 0 and isinstance(url, str) and url.startswith("https://github.com/"):
+            return {"number": number, "url": url}
+    return None
 
 
 def _cleanup_stale_local_branches(root: Path, expected_branches: list[str]) -> dict[str, object]:

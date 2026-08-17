@@ -4541,6 +4541,7 @@ async function cleanupStaleLocalBranches() {
       { destructive: true, accent: workspaceModalAccent(), details: branches.map((branch) => ({
         name: String(branch?.name || ""),
         reason: t("workspace.branch_cleanup_reason." + String(branch?.reason || "")),
+        pull_request: branch?.pull_request,
       })) },
     );
     if (!confirmed) return;
@@ -4642,6 +4643,14 @@ function confirmDashboardAction(title, text, confirmLabel, { destructive = false
         Object.assign(document.createElement("code"), { textContent: detail.name }),
         Object.assign(document.createElement("span"), { textContent: detail.reason }),
       );
+      if (detail.pull_request?.url && Number.isInteger(detail.pull_request.number)) {
+        item.append(Object.assign(document.createElement("a"), {
+          href: detail.pull_request.url,
+          rel: "noreferrer",
+          target: "_blank",
+          textContent: t("workspace.branch_cleanup_pr_link", { number: detail.pull_request.number }),
+        }));
+      }
       list.append(item);
     }
     body.append(list);

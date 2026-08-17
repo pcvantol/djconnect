@@ -5422,6 +5422,7 @@ test.describe("Engineering Status browser smoke", () => {
       name: `codex/stale-${String(index + 1).padStart(2, "0")}`,
       reason: "remote_absent_and_matches_main",
     }));
+    branches[0].pull_request = { number: 847, url: "https://github.com/pcvantol/djconnect/pull/847" };
     await page.route("**/api/stale-local-branch-cleanup-preview", async (route) => {
       expect(route.request().postData()).toBe("{}");
       await route.fulfill({ json: { branches } });
@@ -5451,6 +5452,9 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(candidates.locator("li")).toHaveCount(28);
     await expect(candidates.first()).toContainText("codex/stale-01");
     await expect(candidates.first()).toContainText("Bestaat niet meer op origin; inhoud is exact gelijk aan main.");
+    await expect(candidates.first().getByRole("link", { name: "PR #847" })).toHaveAttribute(
+      "href", "https://github.com/pcvantol/djconnect/pull/847",
+    );
     await expect(candidates).toHaveCSS("overflow-y", "auto");
     await page.locator("#confirmationModalConfirm").click();
 

@@ -246,9 +246,10 @@ class DashboardStatusTest(unittest.TestCase):
             )
             self.assertFalse(lock.exists())
 
+    @patch("tools.engineering.dashboard._stale_local_branch_pull_request", return_value=None)
     @patch("tools.engineering.dashboard.GitProvider")
     def test_stale_local_branch_cleanup_removes_only_reviewed_patch_equivalent_branches(
-        self, git_provider: object
+        self, git_provider: object, _: object
     ) -> None:
         root = Path(__file__).parents[2]
         completed = __import__("subprocess").CompletedProcess
@@ -289,6 +290,36 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertEqual(
             git_provider.return_value.execute.call_args_list[-1],
             call(root, "git", "branch", "-D", "--", "codex/stale"),
+        )
+
+    @patch("tools.engineering.dashboard.GitHubProvider")
+    @patch("tools.engineering.dashboard.GitProvider")
+    def test_stale_local_branch_preview_adds_an_exact_merged_pull_request_link_when_available(
+        self, git_provider: object, github_provider: object
+    ) -> None:
+        root = Path(__file__).parents[2]
+        completed = __import__("subprocess").CompletedProcess
+        git_provider.return_value.execute.side_effect = [
+            completed(("git",), 0, "", ""),
+            completed(("git",), 0, "main\n", ""),
+            completed(("git",), 0, "", ""),
+            completed(("git",), 0, "0\t0\n", ""),
+            completed(("git",), 0, "codex/stale\nmain\n", ""),
+            completed(("git",), 1, "", ""),
+            completed(("git",), 0, "", ""),
+            completed(("git",), 0, "git@github.com:pcvantol/djconnect.git\n", ""),
+        ]
+        github_provider.return_value.github.return_value = json.dumps([
+            {"number": 847, "url": "https://github.com/pcvantol/djconnect/pull/847", "headRefName": "codex/stale"},
+        ])
+
+        self.assertEqual(
+            dashboard._stale_local_branch_preview(root),
+            {"branches": [{
+                "name": "codex/stale",
+                "reason": "remote_absent_and_matches_main",
+                "pull_request": {"number": 847, "url": "https://github.com/pcvantol/djconnect/pull/847"},
+            }]},
         )
 
     def test_rate_limit_helpers_cover_generic_windows_and_unavailable_provider_version(self) -> None:
