@@ -4517,6 +4517,44 @@ function showWorkspaceBranchCleanupResult(outcome) {
 function workspaceModalAccent() {
   return getComputedStyle($("workspaceCard")).getPropertyValue("--category-color").trim() || "#f3d36a";
 }
+function showWorkspaceBranchMainResult(message) {
+  const modal = $("workspaceBranchMainResultModal"), content = $("workspaceBranchMainResultContent"),
+    close = $("workspaceBranchMainResultClose"), dismiss = $("workspaceBranchMainResultDismiss");
+  modal.style.setProperty("--modal-parent-accent", workspaceModalAccent());
+  content.replaceChildren(Object.assign(document.createElement("p"), { textContent: message }));
+  const finish = () => {
+    if (modal.open) modal.close();
+    modal.style.removeProperty("--modal-parent-accent");
+    close.onclick = dismiss.onclick = null;
+  };
+  close.onclick = dismiss.onclick = finish;
+  modal.addEventListener("cancel", (event) => { event.preventDefault(); finish(); }, { once: true });
+  modal.showModal();
+  resetDashboardModalInitialFocus(modal);
+}
+async function switchToFastForwardMain() {
+  const button = $("workspaceBranchMain");
+  if (!button || button.disabled) return;
+  const confirmed = await confirmDashboardAction(
+    t("workspace.branch_main_title"), t("workspace.branch_main_confirmation"), t("workspace.branch_main_confirm_action"),
+    { accent: workspaceModalAccent() },
+  );
+  if (!confirmed) return;
+  button.disabled = true;
+  try {
+    const response = await fetch("/api/workspace-switch-to-main", {
+      method: "POST", headers: { "Content-Type": "application/json" }, body: "{}",
+    });
+    const outcome = await response.json();
+    showWorkspaceBranchMainResult(response.ok
+      ? t("workspace.branch_main_success", { previous_branch: outcome.previous_branch, branch: outcome.branch })
+      : outcome.error || t("workspace.branch_main_failed"));
+  } catch (error) {
+    showWorkspaceBranchMainResult(error.message || t("workspace.branch_main_failed"));
+  } finally {
+    button.disabled = false;
+  }
+}
 async function cleanupStaleLocalBranches() {
   const button = $("workspaceBranchCleanup");
   if (!button || button.disabled) return;
@@ -4639,6 +4677,7 @@ $("predecessorRetry").addEventListener("click", submitPredecessorRetry);
 $("operatorMergeAbort").addEventListener("click", abortOperatorMergeWait);
 $("operatorMergeWaitModalAbort").addEventListener("click", abortOperatorMergeWait);
 $("workspaceBranchCleanup")?.addEventListener("click", cleanupStaleLocalBranches);
+$("workspaceBranchMain")?.addEventListener("click", switchToFastForwardMain);
 function workspaceBranchCleanupDetails(details) {
   const list = document.createElement("ul");
   list.className = "workspace-branch-cleanup__preview-list";
