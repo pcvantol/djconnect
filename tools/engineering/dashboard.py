@@ -52,7 +52,7 @@ from . import dashboard_state
 
 LABEL = "com.djconnect.engineering-dashboard"
 RELAY_LABEL = "com.djconnect.engineering-dashboard-relay"
-DASHBOARD_VERSION = "1.2.91"
+DASHBOARD_VERSION = "1.2.92"
 DASHBOARD_STARTED_AT = time.monotonic()
 DASHBOARD_SNAPSHOT_SOURCE = str(uuid.uuid4())
 ASSET_DIRECTORY = Path(__file__).with_name("assets")
