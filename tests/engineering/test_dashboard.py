@@ -1826,6 +1826,39 @@ class DashboardStatusTest(unittest.TestCase):
             response = connection.getresponse()
             self.assertEqual(response.status, 400)
             response.read()
+            reconciliation_preview = {"run_id": "inbox-status-drift", "reason": "merged_status_records_stale"}
+            with patch("tools.engineering.dashboard.status_reconciliation_preview", return_value=reconciliation_preview) as preview:
+                connection.request("POST", "/api/status-reconciliation-preview", body='{"run_id":"inbox-status-drift"}', headers={"Content-Type": "application/json"})
+                response = connection.getresponse()
+                self.assertEqual(response.status, 200)
+                self.assertEqual(json.loads(response.read()), reconciliation_preview)
+                preview.assert_called_once_with(root, "inbox-status-drift")
+            with patch("tools.engineering.dashboard.status_reconciliation_preview", side_effect=dashboard.RetrySubmissionError("Geen veilige statusreconciliatie.")):
+                connection.request("POST", "/api/status-reconciliation-preview", body='{"run_id":"inbox-status-drift"}', headers={"Content-Type": "application/json"})
+                response = connection.getresponse()
+                self.assertEqual(response.status, 409)
+                self.assertEqual(json.loads(response.read()), {"error": "Geen veilige statusreconciliatie."})
+            reconciliation_outcome = {**reconciliation_preview, "filename": "status-reconciliation-inbox-status-drift.md"}
+            with (
+                patch("tools.engineering.dashboard.cloud_root", return_value=root),
+                patch("tools.engineering.dashboard.submit_status_reconciliation", return_value=reconciliation_outcome) as submit_reconciliation,
+                patch("tools.engineering.dashboard.log_event") as reconciliation_log,
+            ):
+                connection.request("POST", "/api/status-reconciliation", body='{"run_id":"inbox-status-drift"}', headers={"Content-Type": "application/json"})
+                response = connection.getresponse()
+                self.assertEqual(response.status, 202)
+                self.assertEqual(json.loads(response.read()), reconciliation_outcome)
+                submit_reconciliation.assert_called_once_with(root, root, "inbox-status-drift")
+                reconciliation_log.assert_any_call(ANY, logging.INFO, "status_reconciliation_requested", run_id="inbox-status-drift")
+            with patch("tools.engineering.dashboard.submit_status_reconciliation", side_effect=dashboard.RetrySubmissionError("Statusherstel is niet beschikbaar.")):
+                connection.request("POST", "/api/status-reconciliation", body='{"run_id":"inbox-status-drift"}', headers={"Content-Type": "application/json"})
+                response = connection.getresponse()
+                self.assertEqual(response.status, 409)
+                self.assertEqual(json.loads(response.read()), {"error": "Statusherstel is niet beschikbaar."})
+            connection.request("POST", "/api/status-reconciliation", body="{}", headers={"Content-Type": "application/json"})
+            response = connection.getresponse()
+            self.assertEqual(response.status, 409)
+            response.read()
             deferred = {"filename": "later.md", "deferred_filename": "later.md", "deferred_at": "2026-08-07T16:00:00+00:00"}
             with (
                 patch("tools.engineering.dashboard.cloud_root", return_value=root),
