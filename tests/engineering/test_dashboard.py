@@ -322,6 +322,85 @@ class DashboardStatusTest(unittest.TestCase):
             }]},
         )
 
+    @patch("tools.engineering.dashboard.GitProvider")
+    def test_switch_to_fast_forward_main_only_switches_a_clean_branch_and_fast_forwards(
+        self, git_provider: object
+    ) -> None:
+        root = Path(__file__).parents[2]
+        completed = __import__("subprocess").CompletedProcess
+        git_provider.return_value.execute.side_effect = [
+            completed(("git",), 0, "", ""),
+            completed(("git",), 0, "codex/work\n", ""),
+            completed(("git",), 0, "", ""),
+            completed(("git",), 0, "2\t0\n", ""),
+        ]
+
+        self.assertEqual(
+            dashboard._switch_to_fast_forward_main(root),
+            {"previous_branch": "codex/work", "branch": "main", "synchronized": "true"},
+        )
+        self.assertEqual(
+            git_provider.return_value.command.call_args_list,
+            [
+                call(root, "git", "switch", "main"),
+                call(root, "git", "merge", "--ff-only", "origin/main"),
+            ],
+        )
+
+    @patch("tools.engineering.dashboard.GitProvider")
+    def test_switch_to_fast_forward_main_refuses_dirty_or_ahead_workspaces(self, git_provider: object) -> None:
+        root = Path(__file__).parents[2]
+        completed = __import__("subprocess").CompletedProcess
+        git_provider.return_value.execute.side_effect = [
+            completed(("git",), 0, " M dashboard.py\n", ""),
+            completed(("git",), 0, "codex/work\n", ""),
+        ]
+        with self.assertRaisesRegex(RuntimeError, "werkmap moet schoon"):
+            dashboard._switch_to_fast_forward_main(root)
+
+        git_provider.return_value.execute.side_effect = [
+            completed(("git",), 0, "", ""),
+            completed(("git",), 0, "main\n", ""),
+            completed(("git",), 0, "", ""),
+            completed(("git",), 0, "0\t1\n", ""),
+        ]
+        with self.assertRaisesRegex(RuntimeError, "Lokale commits"):
+            dashboard._switch_to_fast_forward_main(root)
+        git_provider.return_value.command.assert_not_called()
+
+    @patch("tools.engineering.dashboard.GitHubProvider")
+    @patch("tools.engineering.dashboard.GitProvider")
+    def test_workspace_open_pull_requests_are_bounded_display_safe_context(
+        self, git_provider: object, github_provider: object
+    ) -> None:
+        root = Path(__file__).parents[2]
+        completed = __import__("subprocess").CompletedProcess
+        git_provider.return_value.execute.return_value = completed(
+            ("git",), 0, "git@github.com:pcvantol/djconnect.git\n", ""
+        )
+        github_provider.return_value.github.return_value = json.dumps([
+            {"number": 849, "title": "Cleanup <safe>", "url": "https://github.com/pcvantol/djconnect/pull/849", "headRefName": "codex/cleanup"},
+            {"number": "invalid", "title": "Ignored", "url": "https://github.com/pcvantol/djconnect/pull/0", "headRefName": "codex/ignored"},
+        ])
+
+        pull_requests = dashboard._workspace_open_pull_requests(root)
+
+        self.assertEqual(pull_requests, [{
+            "number": 849, "title": "Cleanup <safe>", "url": "https://github.com/pcvantol/djconnect/pull/849", "branch": "codex/cleanup",
+        }])
+        page = _dashboard_html(
+            "Engineering Status", workspace_branch="codex/cleanup", workspace_commit="123456789abc",
+            origin_main_commit="abcdef123456", origin_main_available=True,
+            workspace_open_pull_requests=pull_requests, workspace_main_action_hidden=False,
+        ).decode()
+        self.assertIn('data-i18n="workspace.open_pull_requests"', page)
+        self.assertIn('PR #849 — Cleanup &lt;safe&gt;', page)
+        self.assertIn("codex/cleanup", page)
+        self.assertNotIn('id="workspaceBranchMain" type="button" hidden', page)
+
+        github_provider.return_value.github.side_effect = RuntimeError("offline")
+        self.assertEqual(dashboard._workspace_open_pull_requests(root), [])
+
     def test_rate_limit_helpers_cover_generic_windows_and_unavailable_provider_version(self) -> None:
         self.assertEqual(dashboard._rate_limit_window_label(1_440), "1-daags venster")
         self.assertEqual(dashboard._rate_limit_window_label(120), "2-uursvenster")
