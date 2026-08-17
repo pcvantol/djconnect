@@ -514,6 +514,34 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("dialog[open]")).toHaveCount(1);
   });
 
+  test("renders terminal status recovery as a historical detail card", async ({ page }) => {
+    const runId = "inbox-status-recovery";
+    await page.route("**/api/prompt-history", (route) => route.fulfill({ json: { runs: [{
+      run_id: runId, status: "BLOCKED", title: "Status recovery", executed_at: "2026-08-17T05:42:00Z",
+    }] } }));
+    await page.route(`**/api/prompt-history/${runId}/details`, (route) => route.fulfill({ json: {
+      history: { run_id: runId, status: "BLOCKED", title: "Status recovery" },
+      lifecycle: {
+        run_id: runId,
+        available: true,
+        terminal_state: "BLOCKED",
+        recovery: { kind: "status_reconciliation", run_id: runId },
+        steps: [],
+      },
+    } }));
+
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#autoRefresh").uncheck();
+    await page.evaluate(() => { document.querySelector("#promptHistory").open = true; });
+    await page.locator("#promptHistoryRows .prompt-history-row").click();
+
+    const card = page.locator("#promptHistoryDetailContent .status-reconciliation-card");
+    await expect(card).toBeVisible();
+    await expect(card).toHaveClass(/prompt-detail-card/);
+    await expect(card).not.toHaveClass(/operator-merge-wait/);
+    await expect(card.locator("h3")).toHaveText(DASHBOARD_MESSAGES.nl["status_reconciliation.title"]);
+  });
+
   test("opens, closes and navigates prompt-history deeplinks without reloading", async ({ page }) => {
     const runId = "inbox-deeplink";
     await page.route("**/api/prompt-history", (route) => route.fulfill({ json: { runs: [{

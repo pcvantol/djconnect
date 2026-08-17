@@ -1303,8 +1303,8 @@ function renderActiveLifecycle(projection) {
 }
 function statusReconciliationCard(recovery) {
   if (recovery?.kind !== "status_reconciliation" || !recovery.run_id) return null;
-  const card = document.createElement("section"), title = document.createElement("strong"), description = document.createElement("p"), actions = document.createElement("div"), button = document.createElement("button"), result = document.createElement("p");
-  card.className = "card operator-merge-wait";
+  const card = document.createElement("section"), title = document.createElement("h3"), description = document.createElement("p"), actions = document.createElement("div"), button = document.createElement("button"), result = document.createElement("p");
+  card.className = "prompt-detail-card prompt-detail-card--wide status-reconciliation-card";
   title.textContent = t("status_reconciliation.title");
   description.textContent = t("status_reconciliation.description");
   actions.className = "operator-merge-wait__actions";
