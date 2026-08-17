@@ -118,12 +118,20 @@ def projection(root: Path, run_id: str | None) -> dict[str, object]:
     repair_iterations = 0
     implementation_merge_required = _pull_request_recorded(checkpoint.get("implementation_pull_request"))
     finalization_merge_required = _pull_request_recorded(checkpoint.get("finalization_pull_request"))
+    recorded_pull_request = any(
+        _pull_request_recorded(checkpoint.get(field))
+        for field in ("pull_request", "implementation_pull_request", "finalization_pull_request")
+    )
     if checkpoint.get("transaction_kind") == "FINALIZATION":
         finalization_merge_required = finalization_merge_required or _pull_request_recorded(checkpoint.get("pull_request"))
     else:
         implementation_merge_required = implementation_merge_required or _pull_request_recorded(checkpoint.get("pull_request"))
     for event_phase, event_checkpoint, recorded_at in events:
         event = _checkpoint(event_checkpoint)
+        recorded_pull_request = recorded_pull_request or any(
+            _pull_request_recorded(event.get(field))
+            for field in ("pull_request", "implementation_pull_request", "finalization_pull_request")
+        )
         event_step = _display_phase(str(event_phase), event)
         if event_step in path and event_step not in {"START", "TERMINAL"}:
             observed.setdefault(event_step, {"started_at": recorded_at})
@@ -141,8 +149,7 @@ def projection(root: Path, run_id: str | None) -> dict[str, object]:
     status_reconciliation_block = (
         terminal_state == "BLOCKED"
         and checkpoint.get("terminal_condition") == "external_blocked"
-        and not implementation_merge_required
-        and not finalization_merge_required
+        and not recorded_pull_request
         and isinstance(checkpoint.get("diagnostic"), str)
         and "rolling status records" in checkpoint["diagnostic"].lower()
     )
@@ -163,12 +170,12 @@ def projection(root: Path, run_id: str | None) -> dict[str, object]:
             step_id for step_id in path
             if not (
                 step_id == "WAIT_FOR_OPERATOR_MERGE"
-                and not implementation_merge_required
+                and (not implementation_merge_required or status_reconciliation_block)
                 and ("FINALIZE_AGENT" in observed or "REPOSITORY_CLEANUP" in observed or terminal_state == "COMPLETE" or status_reconciliation_block)
             )
             and not (
                 step_id == "WAIT_FOR_FINALIZATION_MERGE"
-                and not finalization_merge_required
+                and (not finalization_merge_required or status_reconciliation_block)
                 and ("REPOSITORY_CLEANUP" in observed or terminal_state == "COMPLETE" or status_reconciliation_block)
             )
         )
