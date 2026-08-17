@@ -744,6 +744,55 @@ def submit_execution_retry(repo: Path, root: Path, run_id: str, *, queue_recover
                 "retry_timestamp": timestamp, "filename": filename, "retry_run_id": retry_run_id}
 
 
+def status_reconciliation_preview(repo: Path, run_id: str) -> dict[str, str]:
+    """Prove one blocked run needs a governance-only status reconciliation."""
+    if not re.fullmatch(r"inbox-[a-z0-9-]{6,64}", run_id):
+        raise RetrySubmissionError("De opgegeven run-ID is ongeldig.")
+    try:
+        state = StateStore(repo / ".engineering" / "engineering-runs").load(run_id)
+    except StateError as error:
+        raise RetrySubmissionError("De geblokkeerde uitvoering is niet beschikbaar.") from error
+    diagnostic = state.diagnostic or ""
+    if not (
+        state.phase == "BLOCKED"
+        and state.terminal_condition == "external_blocked"
+        and state.implementation_pull_request is None
+        and state.finalization_pull_request is None
+        and "rolling status records" in diagnostic.lower()
+    ):
+        raise RetrySubmissionError("Deze uitvoering komt niet in aanmerking voor veilig statusherstel.")
+    return {"run_id": run_id, "reason": "merged_status_records_stale"}
+
+
+def submit_status_reconciliation(repo: Path, root: Path, run_id: str) -> dict[str, str]:
+    """Queue exactly one dedicated Finalization prompt after a verified preview."""
+    preview = status_reconciliation_preview(repo, run_id)
+    with _lock(repo):
+        marker = f"Status-Reconciliation-Of: {run_id}"
+        if any(content is not None and marker in content for _, content in ((path, stable_prompt(path, 0.0)) for path in discover(root, 0.0))):
+            raise RetrySubmissionError("Een statusherstel staat al in de wachtrij.")
+        content = (
+            f"{marker}\n\n"
+            "# Engineering Platform — Reconcile merged status records\n\n"
+            "Required Engineering Platform: >= 1.5.0\n\n"
+            "Execute only the dedicated governance-only Finalization reconciliation for the "
+            "verified merged predecessor of the referenced blocked run. Reconcile the four "
+            "rolling records required by PROMPT_INITIALIZATION.md with current main. Do not "
+            "rewrite Prompt History or change product, execution, validation, retry, merge, "
+            "or lifecycle semantics. Create one reviewable Finalization pull request.\n"
+        )
+        inbox = folders(root)["Inbox"]
+        filename = f"status-reconciliation-{run_id}-{uuid.uuid4().hex[:8]}.md"
+        destination, temporary = inbox / filename, inbox / f".{filename}.tmp"
+        try:
+            temporary.write_text(content, encoding="utf-8")
+            os.replace(temporary, destination)
+        except OSError as error:
+            temporary.unlink(missing_ok=True)
+            raise RetrySubmissionError("De Finalization-herstelopdracht kon niet veilig in de Inbox worden geplaatst.") from error
+    return {**preview, "filename": filename}
+
+
 def submit_predecessor_retry(repo: Path, root: Path) -> dict[str, str]:
     """Explicitly resubmit the current blocking prompt through the Inbox transport.
 

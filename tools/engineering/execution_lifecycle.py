@@ -138,6 +138,14 @@ def projection(root: Path, run_id: str | None) -> dict[str, object]:
     repair_iterations = max(repair_iterations, _nonnegative_int(checkpoint.get("repair_iterations")))
     evidence_available = bool(events)
     terminal_state = phase if phase in TERMINAL else None
+    status_reconciliation_block = (
+        terminal_state == "BLOCKED"
+        and checkpoint.get("terminal_condition") == "external_blocked"
+        and not implementation_merge_required
+        and not finalization_merge_required
+        and isinstance(checkpoint.get("diagnostic"), str)
+        and "rolling status records" in checkpoint["diagnostic"].lower()
+    )
     # Reaching the pull-request hand-off is not evidence that the pull request
     # was merged. A later finalization step (or a successful terminal state)
     # is the first lifecycle evidence that can make the merge node complete.
@@ -148,20 +156,20 @@ def projection(root: Path, run_id: str | None) -> dict[str, object]:
     )
     finalization_merge_completed = terminal_state == "COMPLETE" or "REPOSITORY_CLEANUP" in observed
     # The managed contract permits a no-PR path and a single implementation-PR
-    # path. Once persisted evidence proves that a merge boundary was skipped,
-    # omit that node instead of rendering a misleading unused circle.
+    # path. A terminal pre-flight block is not merge evidence. Omit boundaries
+    # that have no persisted PR evidence instead of inventing an operator wait.
     if mode != "GENESIS":
         path = tuple(
             step_id for step_id in path
             if not (
                 step_id == "WAIT_FOR_OPERATOR_MERGE"
                 and not implementation_merge_required
-                and ("FINALIZE_AGENT" in observed or "REPOSITORY_CLEANUP" in observed or terminal_state == "COMPLETE")
+                and ("FINALIZE_AGENT" in observed or "REPOSITORY_CLEANUP" in observed or terminal_state == "COMPLETE" or status_reconciliation_block)
             )
             and not (
                 step_id == "WAIT_FOR_FINALIZATION_MERGE"
                 and not finalization_merge_required
-                and ("REPOSITORY_CLEANUP" in observed or terminal_state == "COMPLETE")
+                and ("REPOSITORY_CLEANUP" in observed or terminal_state == "COMPLETE" or status_reconciliation_block)
             )
         )
     steps: list[dict[str, object]] = []
@@ -224,6 +232,9 @@ def projection(root: Path, run_id: str | None) -> dict[str, object]:
                 "spans": spans,
             }
         steps.append(step)
+    recovery = None
+    if status_reconciliation_block:
+        recovery = {"kind": "status_reconciliation", "run_id": run_id}
     return {
         "run_id": run_id,
         "execution_mode": mode,
@@ -231,4 +242,5 @@ def projection(root: Path, run_id: str | None) -> dict[str, object]:
         "terminal_state": terminal_state,
         "current_step": display_phase if display_phase in path else None,
         "steps": steps,
+        "recovery": recovery,
     }

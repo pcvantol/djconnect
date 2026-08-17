@@ -1285,6 +1285,12 @@ function renderActiveLifecycle(projection) {
     else if (identity?.parentElement === current) identity.after(lifecycle);
     else current.prepend(lifecycle);
     placeOperatorMergeWait();
+    const reconciliation = $("statusReconciliation");
+    if (reconciliation) {
+      const eligible = projection?.recovery?.kind === "status_reconciliation" && $("operatorMergeWait")?.hidden;
+      reconciliation.hidden = !eligible;
+      if (eligible && reconciliation.parentElement === current) lifecycle.after(reconciliation);
+    }
     if (preservedScrollLeft) {
       const nextScroll = lifecycle.querySelector(".execution-lifecycle__scroll");
       // Wait for the replacement path to take part in layout before restoring
@@ -1294,6 +1300,37 @@ function renderActiveLifecycle(projection) {
       revealActiveLifecycleStep(lifecycle.querySelector(".execution-lifecycle__scroll"));
     }
   }
+}
+function statusReconciliationCard(recovery) {
+  if (recovery?.kind !== "status_reconciliation" || !recovery.run_id) return null;
+  const card = document.createElement("section"), title = document.createElement("strong"), description = document.createElement("p"), actions = document.createElement("div"), button = document.createElement("button"), result = document.createElement("p");
+  card.className = "card operator-merge-wait";
+  title.textContent = t("status_reconciliation.title");
+  description.textContent = t("status_reconciliation.description");
+  actions.className = "operator-merge-wait__actions";
+  button.type = "button"; button.className = "dashboard-action dashboard-action--primary";
+  button.textContent = t("status_reconciliation.action");
+  result.setAttribute("role", "status"); result.setAttribute("aria-live", "polite");
+  button.addEventListener("click", () => requestStatusReconciliation(recovery, button, result));
+  actions.append(button); card.append(title, description, actions, result);
+  return card;
+}
+async function requestStatusReconciliation(recovery = latestStatus?.lifecycle?.recovery, button = $("statusReconciliationStart"), result = $("statusReconciliationResult")) {
+  if (recovery?.kind !== "status_reconciliation" || !recovery.run_id) return;
+  button.disabled = true;
+  try {
+    const previewResponse = await fetch("/api/status-reconciliation-preview", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ run_id: recovery.run_id }) });
+    const preview = await previewResponse.json();
+    if (!previewResponse.ok) throw Error(preview.error || t("status_reconciliation.failed"));
+    const confirmed = await confirmDashboardAction(t("status_reconciliation.title"), t("status_reconciliation.confirmation"), t("status_reconciliation.action"));
+    if (!confirmed) return;
+    const response = await fetch("/api/status-reconciliation", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ run_id: preview.run_id }) });
+    const outcome = await response.json();
+    if (!response.ok) throw Error(outcome.error || t("status_reconciliation.failed"));
+    result.textContent = t("status_reconciliation.queued");
+  } catch (error) {
+    result.textContent = error.message || t("status_reconciliation.failed");
+  } finally { button.disabled = false; }
 }
 function revealActiveLifecycleStep(scroll) {
   requestAnimationFrame(() => {
@@ -4374,6 +4411,7 @@ function renderPromptHistoryDetail(payload) {
         promptDetailEvidenceSection(evidence),
       ]),
       lifecycleFlow(payload?.lifecycle, { historical: true }),
+      statusReconciliationCard(payload?.lifecycle?.recovery),
       promptDetailUsageSection(usage),
       promptDetailRecommendationHandoff(recommendationHandoff),
       promptDetailReviewersSection(reviewers),
@@ -4762,6 +4800,7 @@ function abortOperatorMergeWait() {
 $("predecessorRetry").addEventListener("click", submitPredecessorRetry);
 $("operatorMergeAbort").addEventListener("click", abortOperatorMergeWait);
 $("operatorMergeWaitModalAbort").addEventListener("click", abortOperatorMergeWait);
+$("statusReconciliationStart")?.addEventListener("click", requestStatusReconciliation);
 $("workspaceBranchCleanup")?.addEventListener("click", cleanupStaleLocalBranches);
 $("workspaceBranchMain")?.addEventListener("click", switchToFastForwardMain);
 function workspaceBranchCleanupDetails(details) {

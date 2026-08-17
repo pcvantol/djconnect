@@ -116,6 +116,20 @@ class ExecutionLifecycleProjectionTests(unittest.TestCase):
         self.assertNotIn("WAIT_FOR_OPERATOR_MERGE", step_ids)
         self.assertNotIn("WAIT_FOR_FINALIZATION_MERGE", step_ids)
 
+    def test_preflight_status_drift_block_never_invents_a_merge_wait(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            self._state(root, "INITIALIZE")
+            self._state(
+                root, "BLOCKED", terminal_condition="external_blocked",
+                diagnostic="Pre-flight is NO-GO: rolling status records still describe Finalization as in progress.",
+            )
+            value = projection(root, "inbox-flow")
+        step_ids = {step["id"] for step in value["steps"]}
+        self.assertNotIn("WAIT_FOR_OPERATOR_MERGE", step_ids)
+        self.assertNotIn("WAIT_FOR_FINALIZATION_MERGE", step_ids)
+        self.assertEqual(value["recovery"], {"kind": "status_reconciliation", "run_id": "inbox-flow"})
+
     def test_completed_managed_run_omits_only_unused_finalization_merge(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
