@@ -1380,6 +1380,26 @@ class LocalAgentRunnerTest(unittest.TestCase):
             for span in phase_spans(self.root, state.run_id)
         ))
 
+    def test_merged_pull_request_synchronizes_main_before_containment_check(self) -> None:
+        state = TransactionState(
+            "merged-main-refresh", "pcvantol/djconnect", str(self.prompt),
+            "WAIT_FOR_OPERATOR_MERGE", branch="codex/merged", pull_request=12,
+            transaction_kind="FINALIZATION", owner_authorized=True,
+        )
+        repository = FakeRepository(contains=True)
+
+        result = EngineeringRunner(
+            self.root,
+            self.store,
+            repository,
+            FakeGitHub([PullRequestEvidence(12, "MERGED", True, True, "b" * 40)]),
+            FakeAgent(AgentResult("WAITING")),
+            lambda _: None,
+        )._poll(state)
+
+        self.assertEqual(result.phase, "COMPLETE")
+        self.assertEqual(repository.synchronize_calls, [self.root])
+
     def test_agent_cannot_reuse_main_or_an_unbranched_pr_as_transaction_evidence(self) -> None:
         state = TransactionState(
             "invalid-pr-evidence",

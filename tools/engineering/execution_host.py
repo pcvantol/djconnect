@@ -969,7 +969,15 @@ class EngineeringRunner:
                     state, "FAILED", "required_checks_failed", "Required CI check failed."
                 )
             if pr.state == "MERGED":
-                evidence = self.repository.inspect(self.root)
+                # A merge is remote evidence. Refresh main once before
+                # requiring local ancestry evidence, otherwise a freshly
+                # merged PR remains indistinguishable from an unobserved
+                # merge until an unrelated full execution preparation runs.
+                try:
+                    self.repository.synchronize_main(self.root)
+                    evidence = self.repository.inspect(self.root)
+                except RunnerError:
+                    return self._save_operator_merge_wait(state)
                 if pr.merge_commit and self.repository.main_contains(self.root, pr.merge_commit):
                     state = self._record_merged_evidence(state, pr, evidence)
                     if state.owner_authorized and state.transaction_kind == "IMPLEMENTATION":
