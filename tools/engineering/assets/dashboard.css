@@ -869,3 +869,7 @@ dialog.dashboard-modal-shell,dialog.dashboard-modal-shell:is(:focus,:focus-visib
 .prompt-detail-modal__content .execution-lifecycle--historical{background:var(--dashboard-surface-base);padding:18px}
 .prompt-detail-modal__content .execution-lifecycle--historical h3{font-size:18px;margin:0 0 14px}
 html[data-theme="light"] .prompt-detail-modal__content .execution-lifecycle--historical{background:#fff}
+
+/* A blocked predecessor is a terminal warning, not a monitoring-cyan active
+   execution card. Its amber boundary must stay continuous on all four sides. */
+#currentRun #predecessorGate{--category-color:var(--house-style);border-color:var(--house-style)}

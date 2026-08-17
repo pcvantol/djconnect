@@ -3472,6 +3472,8 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#currentRun")).toBeVisible();
     await expect(page.locator("#currentRun")).toHaveAttribute("open", "");
     await expect(page.locator("#predecessorGate")).toBeVisible();
+    await expect(page.locator("#predecessorGate")).toHaveCSS("border-top-color", "rgb(240, 182, 106)");
+    await expect(page.locator("#predecessorGate")).toHaveCSS("border-right-color", "rgb(240, 182, 106)");
     await expect(page.locator("#predecessorRun")).toHaveText("blocked-run");
   });
 
