@@ -5416,6 +5416,46 @@ test.describe("Engineering Status browser smoke", () => {
     expect(recoveryRequested).toBeTruthy();
   });
 
+  test("scans stale local branches before confirming their cleanup", async ({ page }) => {
+    await page.route("**/api/events", (route) => route.abort());
+    const branches = Array.from({ length: 28 }, (_, index) => ({
+      name: `codex/stale-${String(index + 1).padStart(2, "0")}`,
+      reason: "remote_absent_and_matches_main",
+    }));
+    await page.route("**/api/stale-local-branch-cleanup-preview", async (route) => {
+      expect(route.request().postData()).toBe("{}");
+      await route.fulfill({ json: { branches } });
+    });
+    await page.route("**/api/stale-local-branch-cleanup", async (route) => {
+      expect(JSON.parse(route.request().postData())).toEqual({ branches: branches.map((branch) => branch.name) });
+      await route.fulfill({ json: { removed: branches.map((branch) => branch.name), removed_count: branches.length }, status: 202 });
+    });
+    await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({
+      json: { status: { watcher_state: "WATCHER_IDLE", queue_depth: 0 } },
+    }));
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#workspaceCard > summary").click();
+    await page.getByRole("button", { name: "Scan branches voor opruiming" }).click();
+
+    const confirmation = page.locator("#confirmationModal");
+    await expect(confirmation).toBeVisible();
+    await expect(confirmation.locator(".confirmation-modal__panel")).toHaveCSS("border-top-color", "rgb(243, 211, 106)");
+    await expect(page.locator("#confirmationModalConfirm")).toHaveCSS("background-color", "rgb(58, 32, 40)");
+    const candidates = confirmation.locator(".workspace-branch-cleanup__preview-list");
+    await expect(candidates).toHaveCount(1);
+    await expect(candidates.locator("li")).toHaveCount(28);
+    await expect(candidates.first()).toContainText("codex/stale-01");
+    await expect(candidates.first()).toContainText("Bestaat niet meer op origin; inhoud is exact gelijk aan main.");
+    await expect(candidates).toHaveCSS("overflow-y", "auto");
+    await page.locator("#confirmationModalConfirm").click();
+
+    const result = page.locator("#workspaceBranchCleanupResultModal");
+    await expect(result).toBeVisible();
+    await expect(result.locator(".confirmation-modal__panel")).toHaveCSS("border-top-color", "rgb(243, 211, 106)");
+    await expect(result).toContainText("28 verouderde lokale branch(es) verwijderd.");
+    await expect(result.locator(".workspace-branch-cleanup__result-list li")).toHaveCount(28);
+  });
+
   test("renders provider limit rows on separate lines", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.locator("#autoRefresh").uncheck();

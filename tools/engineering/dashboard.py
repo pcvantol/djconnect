@@ -52,7 +52,7 @@ from . import dashboard_state
 
 LABEL = "com.djconnect.engineering-dashboard"
 RELAY_LABEL = "com.djconnect.engineering-dashboard-relay"
-DASHBOARD_VERSION = "1.2.90"
+DASHBOARD_VERSION = "1.2.91"
 DASHBOARD_STARTED_AT = time.monotonic()
 DASHBOARD_SNAPSHOT_SOURCE = str(uuid.uuid4())
 ASSET_DIRECTORY = Path(__file__).with_name("assets")
@@ -836,6 +836,69 @@ def _recover_stale_workspace_git_lock(root: Path) -> dict[str, object]:
     return {"state": "free", "recovered": True}
 
 
+def _stale_local_branch_candidates(root: Path) -> list[str]:
+    """Return branches that are absent remotely and content-equivalent to main."""
+    provider = GitProvider()
+    expected_branch = PlatformConfiguration.load(root).workspace.default_branch
+    try:
+        status = provider.execute(root, "git", "status", "--porcelain", "--untracked-files=all")
+        active = provider.execute(root, "git", "branch", "--show-current")
+        if status.returncode or active.returncode or status.stdout.strip() or active.stdout.strip() != expected_branch:
+            raise RuntimeError("De werkmap moet schoon en op main staan.")
+        if provider.execute(root, "git", "fetch", "--prune", "origin").returncode:
+            raise RuntimeError("Remote-branches konden niet veilig worden ververst.")
+        divergence = provider.execute(root, "git", "rev-list", "--left-right", "--count", f"origin/{expected_branch}...{expected_branch}")
+        if divergence.returncode or divergence.stdout.strip() != "0\t0":
+            raise RuntimeError("main moet eerst met origin worden gesynchroniseerd.")
+        branches = provider.execute(root, "git", "for-each-ref", "--format=%(refname:short)", "refs/heads")
+        if branches.returncode:
+            raise RuntimeError("Lokale branches konden niet veilig worden gelezen.")
+        removable: list[str] = []
+        for branch in sorted(name for name in branches.stdout.splitlines() if name and name != expected_branch):
+            remote = provider.execute(root, "git", "show-ref", "--verify", "--quiet", f"refs/remotes/origin/{branch}")
+            if remote.returncode == 0:
+                continue
+            comparison = provider.execute(root, "git", "diff", "--quiet", expected_branch, branch)
+            if comparison.returncode == 0:
+                removable.append(branch)
+            elif comparison.returncode != 1:
+                raise RuntimeError(f"Branch {branch} kon niet veilig worden vergeleken.")
+    except OSError as error:
+        raise RuntimeError("Lokale branch-opruiming is niet beschikbaar.") from error
+    return removable
+
+
+def _stale_local_branch_preview(root: Path) -> dict[str, object]:
+    branches = _stale_local_branch_candidates(root)
+    return {
+        "branches": [
+            {"name": branch, "reason": "remote_absent_and_matches_main"}
+            for branch in branches
+        ],
+    }
+
+
+def _cleanup_stale_local_branches(root: Path, expected_branches: list[str]) -> dict[str, object]:
+    """Remove exactly the stale branch set which the operator just reviewed."""
+    if not expected_branches or any(not isinstance(branch, str) or not branch for branch in expected_branches):
+        raise RuntimeError("De geselecteerde branches zijn ongeldig.")
+    if len(expected_branches) != len(set(expected_branches)):
+        raise RuntimeError("De geselecteerde branches zijn ongeldig.")
+    candidates = _stale_local_branch_candidates(root)
+    if sorted(expected_branches) != candidates:
+        raise RuntimeError("De branchscan is gewijzigd; controleer de lijst opnieuw.")
+    provider = GitProvider()
+    removed: list[str] = []
+    try:
+        for branch in candidates:
+            if provider.execute(root, "git", "branch", "-D", "--", branch).returncode:
+                raise RuntimeError(f"Branch {branch} kon niet veilig worden verwijderd.")
+            removed.append(branch)
+    except OSError as error:
+        raise RuntimeError("Lokale branch-opruiming is niet beschikbaar.") from error
+    return {"removed": removed, "removed_count": len(removed)}
+
+
 def _codex_process_metrics(root: Path) -> bytes:
     """Measure only the process group explicitly recorded by the Execution Host."""
     try:
@@ -1245,6 +1308,7 @@ def _dashboard_html(
 <dialog class="dashboard-modal-shell dashboard-modal-shell--evidence confirmation-modal" id="operatorMergeWaitModal" aria-labelledby="operatorMergeWaitModalTitle"><section class="dashboard-modal-shell__panel confirmation-modal__panel"><header class="dashboard-modal-shell__header confirmation-modal__header"><h2 id="operatorMergeWaitModalTitle" data-i18n="merge_wait.title"></h2><button class="dashboard-modal-shell__close" id="operatorMergeWaitModalClose" type="button" data-i18n-aria-label="sections.close">×</button></header><p id="operatorMergeWaitModalDescription"></p><section class="merge-wait-context" data-i18n-aria-label="merge_wait.context_label"><p id="operatorMergeWaitModalContextIntro"></p><dl><div><dt data-i18n="merge_wait.context_run"></dt><dd id="operatorMergeWaitModalRunId"></dd></div><div><dt data-i18n="merge_wait.context_prompt"></dt><dd id="operatorMergeWaitModalPrompt"></dd></div></dl></section><div class="dashboard-modal-shell__actions confirmation-modal__actions"><button class="dashboard-modal-shell__action dashboard-modal-shell__action--destructive" id="operatorMergeWaitModalAbort" type="button" data-i18n="action.abort_execution"></button><a class="dashboard-modal-shell__action dashboard-modal-shell__action--primary" id="operatorMergeWaitModalPullRequest" target="_blank" rel="noopener noreferrer"></a></div></section></dialog>
 <dialog class="dashboard-modal-shell dashboard-modal-shell--confirmation confirmation-modal" id="confirmationModal" aria-labelledby="confirmationModalTitle"><section class="dashboard-modal-shell__panel confirmation-modal__panel"><header class="dashboard-modal-shell__header confirmation-modal__header"><h2 id="confirmationModalTitle" data-i18n="ui.confirm_action"></h2><button class="dashboard-modal-shell__close confirmation-modal__close" id="confirmationModalClose" type="button" data-i18n-aria-label="sections.close">×</button></header><p id="confirmationModalText"></p><div class="dashboard-modal-shell__actions confirmation-modal__actions"><button class="dashboard-modal-shell__action" id="confirmationModalCancel" type="button" data-i18n="action.cancel"></button><button class="dashboard-modal-shell__action dashboard-modal-shell__action--primary" id="confirmationModalConfirm" type="button" data-i18n="action.confirm"></button></div></section></dialog>
 <dialog class="dashboard-modal-shell dashboard-modal-shell--confirmation confirmation-modal" id="dashboardErrorModal" aria-labelledby="dashboardErrorModalTitle"><section class="dashboard-modal-shell__panel confirmation-modal__panel"><header class="dashboard-modal-shell__header confirmation-modal__header"><h2 id="dashboardErrorModalTitle" data-i18n="ui.action_failed"></h2><button class="dashboard-modal-shell__close confirmation-modal__close" id="dashboardErrorModalClose" type="button" data-i18n-aria-label="action.close">×</button></header><p id="dashboardErrorModalText" aria-live="assertive"></p><div class="dashboard-modal-shell__actions confirmation-modal__actions"><button class="dashboard-modal-shell__action" id="dashboardErrorModalRecover" type="button" hidden></button><button class="dashboard-modal-shell__action dashboard-modal-shell__action--primary" id="dashboardErrorModalDismiss" type="button" data-i18n="action.close"></button></div></section></dialog>
+<dialog class="dashboard-modal-shell dashboard-modal-shell--confirmation confirmation-modal" id="workspaceBranchCleanupResultModal" aria-labelledby="workspaceBranchCleanupResultTitle"><section class="dashboard-modal-shell__panel confirmation-modal__panel"><header class="dashboard-modal-shell__header confirmation-modal__header"><h2 id="workspaceBranchCleanupResultTitle" data-i18n="workspace.branch_cleanup_result_title"></h2><button class="dashboard-modal-shell__close confirmation-modal__close" id="workspaceBranchCleanupResultClose" type="button" data-i18n-aria-label="action.close">×</button></header><div id="workspaceBranchCleanupResultContent" aria-live="polite"></div><div class="dashboard-modal-shell__actions confirmation-modal__actions"><button class="dashboard-modal-shell__action dashboard-modal-shell__action--primary" id="workspaceBranchCleanupResultDismiss" type="button" data-i18n="action.close"></button></div></section></dialog>
 <dialog class="dashboard-modal-shell dashboard-modal-shell--evidence report-view-modal" id="promptHistoryReportModal" aria-labelledby="promptHistoryReportModalTitle"><section class="dashboard-modal-shell__panel report-view-modal__panel"><header class="dashboard-modal-shell__header report-view-modal__header"><h2 class="report-view-modal__title" id="promptHistoryReportModalTitle" data-modal-glyph="report" data-i18n="history.report_title"></h2><div class="report-view-modal__actions"><button class="dashboard-action dashboard-action--download download download--glyph" id="promptHistoryReportDownload" type="button" hidden>⇩</button><button class="dashboard-action dashboard-action--copy copy copy--glyph" id="promptHistoryReportCopy" type="button" hidden>⧉</button><button class="dashboard-modal-shell__close report-view-modal__close" id="promptHistoryReportClose" type="button" data-i18n-aria-label="sections.close">×</button></div></header><article class="markdown-document report-view-modal__content" id="promptHistoryReportContent" data-i18n="history.report_loading"></article></section></dialog>
 <dialog class="dashboard-modal-shell dashboard-modal-shell--evidence prompt-detail-modal" id="promptHistoryDetailModal" aria-labelledby="promptHistoryDetailTitle"><section class="dashboard-modal-shell__panel prompt-detail-modal__panel"><header class="dashboard-modal-shell__header prompt-detail-modal__header"><h2 id="promptHistoryDetailTitle" data-i18n="history.details_loading"></h2><button class="dashboard-modal-shell__close prompt-detail-modal__close" id="promptHistoryDetailClose" type="button" data-i18n-aria-label="sections.close">×</button></header><p class="prompt-detail-modal__description" id="promptHistoryDetailDescription"></p><div class="prompt-detail-modal__content" id="promptHistoryDetailContent" data-i18n="history.details_loading"></div></section></dialog>
 <dialog class="dashboard-modal-shell dashboard-modal-shell--chat prompt-chat-modal" id="promptHistoryChatModal" aria-labelledby="promptHistoryChatTitle"><section class="dashboard-modal-shell__panel prompt-chat-modal__panel"><header class="dashboard-modal-shell__header prompt-chat-modal__header"><h2 id="promptHistoryChatTitle" data-i18n="section.ai_conversation"></h2><button class="dashboard-modal-shell__close prompt-chat-modal__close" id="promptHistoryChatClose" type="button" data-i18n-aria-label="sections.close">×</button></header><p class="prompt-chat-modal__description" id="promptHistoryChatDescription"></p><section class="codex-chat" id="codexChat"><div class="codex-chat__details"><div class="chat-actions"><button class="dashboard-action dashboard-action--download download download--glyph" id="downloadChat" type="button" hidden>⇩</button><button class="dashboard-action dashboard-action--copy" id="copyChat" type="button" hidden data-i18n-title="chat.copy_title" data-i18n-aria-label="chat.copy_title">⧉</button><button class="dashboard-action dashboard-action--destructive" id="clearChat" type="button" hidden>⌫</button></div><div class="chat-messages" id="chatMessages" aria-live="polite" data-i18n-aria-label="section.ai_conversation"></div><label class="label chat-question-label" for="chatInput" data-i18n="section.new_ai_question"></label><div class="chat-compose"><textarea id="chatInput" class="chat-input" rows="5" maxlength="2000" autocomplete="off" data-sanitize="multiline" data-i18n-placeholder="history.chat_placeholder"></textarea><button class="chat-send" id="chatSend" type="button" data-i18n-aria-label="action.confirm"><span aria-hidden="true">➤</span></button></div><div class="chat-meta"><p class="field"><span class="label" data-i18n="detail.model"></span><span id="chatModel">$CHAT_MODEL</span></p><p class="chat-status" id="chatStatus"></p></div></div></section></section></dialog>
@@ -1258,7 +1322,7 @@ def _dashboard_html(
 <div class="card" id="driftDiagnosticsCard" hidden><strong data-i18n="technical.current_drift"></strong><p class="field"><span class="label" data-i18n="technical.severity"></span><span id="driftSeverity"></span></p><p class="field"><span class="label" data-i18n="technical.affected_component"></span><span id="driftComponent"></span></p><p class="field"><span class="label" data-i18n="technical.expected_state"></span><span id="driftExpected"></span></p><p class="field"><span class="label" data-i18n="technical.observed_state"></span><span id="driftObserved"></span></p><p class="field"><span class="label" data-i18n="technical.resolution"></span><span id="driftResolution"></span></p></div>
 <div class="card" id="technicalDiagnosticsCard"><strong id="technicalDiagnosticsTitle" data-i18n="technical.diagnostics"></strong><p id="diag"></p></div>
 </div></details>
-<details class="card card--context workspace-card" id="workspaceCard" data-testid="engineering-workspace"><summary><strong data-i18n="section.workspace"></strong></summary><p class="field"><span class="label" data-i18n="workspace.name"></span><span>$WORKSPACE_ID</span></p><div class="field"><span class="label" data-i18n="ui.workspace_location"></span><pre>$WORKSPACE_LOCATION</pre></div><p class="field"><span class="label" data-i18n="workspace.free_disk_space"></span><span>$WORKSPACE_FREE_DISK_SPACE</span></p><p class="field"><span class="label" data-i18n="detail.tracked_files"></span><span>$TRACKED_FILES</span></p><div class="field"><span class="label" data-i18n="workspace.database"></span><pre>$ENGINEERING_DATABASE_PATH</pre></div><p class="field"><span class="label" data-i18n="workspace.database_size"></span><span>$ENGINEERING_DATABASE_SIZE</span></p><p class="field"><span class="label" data-i18n="workspace.schema_version"></span><span>$ENGINEERING_DATABASE_SCHEMA_VERSION</span></p></details>
+<details class="card card--context workspace-card" id="workspaceCard" data-testid="engineering-workspace"><summary><strong data-i18n="section.workspace"></strong></summary><p class="field"><span class="label" data-i18n="workspace.name"></span><span>$WORKSPACE_ID</span></p><div class="field"><span class="label" data-i18n="ui.workspace_location"></span><pre>$WORKSPACE_LOCATION</pre></div><p class="field"><span class="label" data-i18n="workspace.free_disk_space"></span><span>$WORKSPACE_FREE_DISK_SPACE</span></p><p class="field"><span class="label" data-i18n="detail.tracked_files"></span><span>$TRACKED_FILES</span></p><div class="field"><span class="label" data-i18n="workspace.database"></span><pre>$ENGINEERING_DATABASE_PATH</pre></div><p class="field"><span class="label" data-i18n="workspace.database_size"></span><span>$ENGINEERING_DATABASE_SIZE</span></p><p class="field"><span class="label" data-i18n="workspace.schema_version"></span><span>$ENGINEERING_DATABASE_SCHEMA_VERSION</span></p><button class="workspace-branch-cleanup" id="workspaceBranchCleanup" type="button" data-i18n="workspace.branch_cleanup_scan_action"></button></details>
 </main></div>
 <footer class="footer" aria-live="polite"><span class="footer__item"><span class="label" id="platformVersionLabel" data-i18n="footer.platform_version"></span><span id="platformVersion" data-i18n="format.loading"></span></span><span class="footer__separator" aria-hidden="true">·</span><span class="footer__item" id="lastRefresh" data-i18n="format.loading"></span><span class="footer__separator" aria-hidden="true">·</span><span class="footer__item" id="updateMode" data-i18n="format.loading"></span></footer><span id="dashboardVersion" hidden></span><span id="workerVersion" hidden></span>
 <script>window.DJCONNECT_DASHBOARD_BUILD="$BUILD_COMMIT";</script>
@@ -1476,6 +1540,39 @@ def handler(root: Path, logger: logging.Logger | None = None):
                     )
                     return
                 self._send(json.dumps(outcome, ensure_ascii=False).encode(), "application/json; charset=utf-8", 202)
+                return
+            if request_path == "/api/stale-local-branch-cleanup":
+                try:
+                    length = int(self.headers.get("Content-Length", "0"))
+                    payload = json.loads(self.rfile.read(length).decode("utf-8"))
+                    branches = payload.get("branches") if isinstance(payload, dict) and set(payload) == {"branches"} else None
+                    if not isinstance(branches, list):
+                        raise ValueError
+                    outcome = _cleanup_stale_local_branches(root, branches)
+                    log_event(logger, logging.INFO, "stale_local_branches_cleaned", diagnostic=f"removed={outcome['removed_count']}")
+                except (RuntimeError, ValueError, UnicodeDecodeError, json.JSONDecodeError):
+                    self._send(
+                        b'{"error":"Lokale branches konden niet veilig worden opgeruimd."}',
+                        "application/json; charset=utf-8",
+                        409,
+                    )
+                    return
+                self._send(json.dumps(outcome, ensure_ascii=False).encode(), "application/json; charset=utf-8", 202)
+                return
+            if request_path == "/api/stale-local-branch-cleanup-preview":
+                try:
+                    length = int(self.headers.get("Content-Length", "0"))
+                    if length != 2 or self.rfile.read(length) != b"{}":
+                        raise ValueError
+                    outcome = _stale_local_branch_preview(root)
+                except (RuntimeError, ValueError):
+                    self._send(
+                        b'{"error":"Lokale branches konden niet veilig worden gescand."}',
+                        "application/json; charset=utf-8",
+                        409,
+                    )
+                    return
+                self._send(json.dumps(outcome, ensure_ascii=False).encode(), "application/json; charset=utf-8", 200)
                 return
             if request_path == "/api/execution-retry":
                 try:
