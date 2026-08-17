@@ -1316,6 +1316,19 @@ class DashboardStatusTest(unittest.TestCase):
             self.assertEqual(payload["usage"], {})
             self.assertEqual(_prompt_history_detail(root, "../../other"), b"")
 
+    def test_prompt_history_detail_includes_run_scoped_repair_audit(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            run_id = "inbox-repair-audit"
+            record_prompt_execution(root, run_id=run_id, terminal_state="BLOCKED", prompt_title="Audit", executed_at="2026-08-03T12:00:00Z")
+            StateStore(root / ".engineering" / "engineering-runs").save(TransactionState(
+                run_id, "pcvantol/djconnect", "prompt.md", "BLOCKED", terminal=True,
+                repair_iterations=1,
+                repair_audit=({"iteration": "1", "observed_at": "2026-08-03T12:00:00+00:00", "failed_checks": "Ruff", "proposed_action": "Repair Ruff.", "agent_summary": "Updated lint configuration.", "commit_sha": "a" * 40, "outcome": "submitted_for_recheck"},),
+            ))
+            payload = json.loads(_prompt_history_detail(root, run_id))
+            self.assertEqual(payload["repair_audit"][0]["failed_checks"], "Ruff")
+
     def test_prompt_history_detail_includes_only_its_own_terminal_failure_diagnostic(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
