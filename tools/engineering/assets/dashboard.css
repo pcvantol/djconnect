@@ -862,3 +862,10 @@ dialog.dashboard-modal-shell,dialog.dashboard-modal-shell:is(:focus,:focus-visib
    focus rules have been applied. */
 #telemetryDetailContent .telemetry-run-link{-webkit-tap-highlight-color:transparent;user-select:none}
 #telemetryDetailContent .telemetry-run-link:is(:focus,:focus-visible,:active){border-color:transparent!important;box-shadow:none!important;outline:0!important}
+
+/* Historical lifecycle evidence belongs to the same neutral card family as
+   the other prompt-detail evidence. The active execution lifecycle keeps its
+   separate monitoring surface above. */
+.prompt-detail-modal__content .execution-lifecycle--historical{background:var(--dashboard-surface-base);padding:18px}
+.prompt-detail-modal__content .execution-lifecycle--historical h3{font-size:18px;margin:0 0 14px}
+html[data-theme="light"] .prompt-detail-modal__content .execution-lifecycle--historical{background:#fff}

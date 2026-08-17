@@ -540,6 +540,9 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(card).toHaveClass(/prompt-detail-card/);
     await expect(card).not.toHaveClass(/operator-merge-wait/);
     await expect(card.locator("h3")).toHaveText(DASHBOARD_MESSAGES.nl["status_reconciliation.title"]);
+    const lifecycle = page.locator("#promptHistoryDetailContent .execution-lifecycle--historical");
+    await expect(lifecycle).toHaveCSS("background-color", "rgb(36, 36, 45)");
+    await expect(lifecycle.locator("h3")).toHaveCSS("font-size", "18px");
   });
 
   test("opens, closes and navigates prompt-history deeplinks without reloading", async ({ page }) => {
