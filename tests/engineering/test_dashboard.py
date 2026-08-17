@@ -308,6 +308,7 @@ class DashboardStatusTest(unittest.TestCase):
             completed(("git",), 0, "main\n", ""),
             completed(("git",), 0, "", ""),
             completed(("git",), 0, "0\t0\n", ""),
+            completed(("git",), 0, "worktree /workspace\nHEAD a\nbranch refs/heads/main\n", ""),
             completed(("git",), 0, "codex/different\ncodex/remote\ncodex/stale\nmain\n", ""),
             completed(("git",), 1, "", ""),
             completed(("git",), 1, "", ""),
@@ -325,6 +326,7 @@ class DashboardStatusTest(unittest.TestCase):
             completed(("git",), 0, "main\n", ""),
             completed(("git",), 0, "", ""),
             completed(("git",), 0, "0\t0\n", ""),
+            completed(("git",), 0, "worktree /workspace\nHEAD a\nbranch refs/heads/main\n", ""),
             completed(("git",), 0, "codex/different\ncodex/remote\ncodex/stale\nmain\n", ""),
             completed(("git",), 1, "", ""),
             completed(("git",), 1, "", ""),
@@ -342,6 +344,33 @@ class DashboardStatusTest(unittest.TestCase):
             call(root, "git", "branch", "-D", "--", "codex/stale"),
         )
 
+    @patch("tools.engineering.dashboard._stale_local_branch_pull_request", return_value=None)
+    @patch("tools.engineering.dashboard.GitProvider")
+    def test_stale_local_branch_preview_excludes_branches_used_by_active_worktrees(
+        self, git_provider: object, _: object
+    ) -> None:
+        root = Path(__file__).parents[2]
+        completed = __import__("subprocess").CompletedProcess
+        git_provider.return_value.execute.side_effect = [
+            completed(("git",), 0, "", ""),
+            completed(("git",), 0, "main\n", ""),
+            completed(("git",), 0, "", ""),
+            completed(("git",), 0, "0\t0\n", ""),
+            completed(("git",), 0, "worktree /workspace\nHEAD a\nbranch refs/heads/main\n\nworktree /tmp/review\nHEAD b\nbranch refs/heads/codex/in-use\n", ""),
+            completed(("git",), 0, "codex/in-use\ncodex/stale\nmain\n", ""),
+            completed(("git",), 1, "", ""),
+            completed(("git",), 0, "", ""),
+        ]
+
+        self.assertEqual(
+            dashboard._stale_local_branch_preview(root),
+            {"branches": [{"name": "codex/stale", "reason": "remote_absent_and_matches_main"}]},
+        )
+        self.assertNotIn(
+            call(root, "git", "show-ref", "--verify", "--quiet", "refs/remotes/origin/codex/in-use"),
+            git_provider.return_value.execute.call_args_list,
+        )
+
     @patch("tools.engineering.dashboard.GitHubProvider")
     @patch("tools.engineering.dashboard.GitProvider")
     def test_stale_local_branch_preview_adds_an_exact_merged_pull_request_link_when_available(
@@ -354,6 +383,7 @@ class DashboardStatusTest(unittest.TestCase):
             completed(("git",), 0, "main\n", ""),
             completed(("git",), 0, "", ""),
             completed(("git",), 0, "0\t0\n", ""),
+            completed(("git",), 0, "worktree /workspace\nHEAD a\nbranch refs/heads/main\n", ""),
             completed(("git",), 0, "codex/stale\nmain\n", ""),
             completed(("git",), 1, "", ""),
             completed(("git",), 0, "", ""),

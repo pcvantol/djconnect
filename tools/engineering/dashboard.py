@@ -912,11 +912,21 @@ def _stale_local_branch_candidates(root: Path) -> list[str]:
         divergence = provider.execute(root, "git", "rev-list", "--left-right", "--count", f"origin/{expected_branch}...{expected_branch}")
         if divergence.returncode or divergence.stdout.strip() != "0\t0":
             raise RuntimeError("main moet eerst met origin worden gesynchroniseerd.")
+        worktrees = provider.execute(root, "git", "worktree", "list", "--porcelain")
+        if worktrees.returncode:
+            raise RuntimeError("Actieve Git-worktrees konden niet veilig worden gelezen.")
+        active_worktree_branches = {
+            line.removeprefix("branch refs/heads/")
+            for line in worktrees.stdout.splitlines()
+            if line.startswith("branch refs/heads/")
+        }
         branches = provider.execute(root, "git", "for-each-ref", "--format=%(refname:short)", "refs/heads")
         if branches.returncode:
             raise RuntimeError("Lokale branches konden niet veilig worden gelezen.")
         removable: list[str] = []
         for branch in sorted(name for name in branches.stdout.splitlines() if name and name != expected_branch):
+            if branch in active_worktree_branches:
+                continue
             remote = provider.execute(root, "git", "show-ref", "--verify", "--quiet", f"refs/remotes/origin/{branch}")
             if remote.returncode == 0:
                 continue
