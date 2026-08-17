@@ -4389,6 +4389,9 @@ test.describe("Engineering Status browser smoke", () => {
       close: await close.boundingBox(),
       header: await header.boundingBox(),
     };
+    await expect.poll(() => content.evaluate(
+      (element) => element.scrollHeight > element.clientHeight,
+    )).toBe(true);
     await content.evaluate((element) => { element.scrollTop = 180; });
     const after = {
       close: await close.boundingBox(),
