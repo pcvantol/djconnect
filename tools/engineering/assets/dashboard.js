@@ -1490,6 +1490,17 @@ function renderDashboardStatus(status, snapshot) {
 function r(status, snapshot = {}) {
   dashboardStatusStore.update(status, snapshot);
 }
+function renderWorkspaceGit(workspaceGit) {
+  if (!workspaceGit || typeof workspaceGit !== "object") return;
+  $("workspaceBranch").textContent =
+    workspaceGit.branch || t("format.not_available");
+  $("workspaceCommit").textContent =
+    workspaceGit.commit || t("format.not_available");
+  $("workspaceOriginMainCommit").textContent =
+    workspaceGit.origin_main_commit || t("format.not_available");
+  $("workspaceOriginMain").hidden = !workspaceGit.origin_main_available;
+  $("workspaceBranchMain").hidden = !workspaceGit.main_action_available;
+}
 let receivedDashboardServerPush = false, updateModeKey = "refresh.connecting";
 function setUpdateMode(key) {
   updateModeKey = key;
@@ -1506,6 +1517,7 @@ async function loadInitialDashboardStatus() {
       throw Error(t("dashboard.status_invalid"));
     if (receivedDashboardServerPush) return;
     dashboardStatusStore.update(snapshot.status, snapshot);
+    renderWorkspaceGit(snapshot.workspace_git);
     humanize();
     checkBuild(snapshot.build_commit);
     setUpdateMode("refresh.connecting");
@@ -1529,6 +1541,7 @@ function startDashboardUpdates() {
       let snapshot = JSON.parse(x.data);
       receivedDashboardServerPush = true;
       dashboardStatusStore.update(snapshot.status, snapshot);
+      renderWorkspaceGit(snapshot.workspace_git);
       const terminalRun = snapshot.status?.last_executed_run;
       if (terminalRun && terminalRun !== promptHistoryTerminalRun) {
         promptHistoryTerminalRun = terminalRun;

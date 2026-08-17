@@ -12,7 +12,7 @@ from contextlib import contextmanager, nullcontext
 from unittest.mock import ANY, MagicMock, call, patch
 
 from tools.engineering import dashboard
-from tools.engineering.dashboard import DASHBOARD_VERSION, LOOPBACK_ADDRESS, _clear_component_log, _codex_process_metrics, _codex_provider_identity, _codex_usage, _codex_usage_for_run, _component_log, _component_log_versions, _completion_commits, _component_uptime_seconds, _current_codex_log, _dashboard_html, _last_executed_agent_execution, _last_executed_codex_log, _last_executed_commits, _last_executed_runtime_metadata, _latest_codex_log, _normalize_rate_limits, _platform_health, _prompt_history, _prompt_history_detail, _report_analysis_available_for_run, _report_analysis_for_run, _report_for_run, _reviewer_agents_for_run, _sse_snapshot, _sse_status, _status, _tracked_file_count, _workspace_free_disk_space, binding_addresses
+from tools.engineering.dashboard import DASHBOARD_VERSION, LOOPBACK_ADDRESS, _clear_component_log, _codex_process_metrics, _codex_provider_identity, _codex_usage, _codex_usage_for_run, _component_log, _component_log_versions, _completion_commits, _component_uptime_seconds, _current_codex_log, _dashboard_html, _last_executed_agent_execution, _last_executed_codex_log, _last_executed_commits, _last_executed_runtime_metadata, _latest_codex_log, _normalize_rate_limits, _platform_health, _prompt_history, _prompt_history_detail, _report_analysis_available_for_run, _report_analysis_for_run, _report_for_run, _reviewer_agents_for_run, _sse_snapshot, _sse_status, _status, _tracked_file_count, _workspace_free_disk_space, _workspace_git_projection, binding_addresses
 from tools.engineering.inbox_watcher import WATCHER_VERSION
 from tools.engineering.platform_version import EngineeringPlatformManifest
 from tools.engineering.prompt_history import record_prompt_execution
@@ -41,6 +41,56 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn('data-i18n="workspace.free_disk_space"', page)
         self.assertIn("12.3 GB", page)
         self.assertIn("Engineering Platform 1.5.0", page)
+
+    @patch("tools.engineering.dashboard.GitProvider")
+    def test_workspace_git_projection_is_safe_and_sse_ready(self, git_provider: object) -> None:
+        completed = __import__("subprocess").CompletedProcess
+        git_provider.return_value.execute.side_effect = [
+            completed(("git",), 0, "codex/live-branch\n", ""),
+            completed(("git",), 0, "123456789abcde\nabcdef12345678\n", ""),
+        ]
+
+        projection = _workspace_git_projection(Path("/workspace"))
+
+        self.assertEqual(projection, {
+            "branch": "codex/live-branch",
+            "commit": "123456789abc",
+            "origin_main_commit": "abcdef123456",
+            "origin_main_available": True,
+            "main_action_available": True,
+        })
+
+    @patch("tools.engineering.dashboard.GitProvider")
+    def test_workspace_git_projection_hides_main_action_when_origin_is_unavailable(self, git_provider: object) -> None:
+        completed = __import__("subprocess").CompletedProcess
+        git_provider.return_value.execute.side_effect = [
+            completed(("git",), 0, "main\n", ""),
+            completed(("git",), 0, "123456789abcde\n", ""),
+        ]
+
+        projection = _workspace_git_projection(Path("/workspace"))
+
+        self.assertEqual(projection, {
+            "branch": "main",
+            "commit": "123456789abc",
+            "origin_main_commit": "Niet beschikbaar",
+            "origin_main_available": False,
+            "main_action_available": False,
+        })
+
+    @patch("tools.engineering.dashboard.GitProvider")
+    def test_workspace_git_projection_is_safe_when_git_cannot_start(self, git_provider: object) -> None:
+        git_provider.return_value.execute.side_effect = OSError("Git unavailable")
+
+        projection = _workspace_git_projection(Path("/workspace"))
+
+        self.assertEqual(projection, {
+            "branch": "Niet beschikbaar",
+            "commit": "Niet beschikbaar",
+            "origin_main_commit": "Niet beschikbaar",
+            "origin_main_available": False,
+            "main_action_available": False,
+        })
 
     def test_dashboard_exposes_the_canonical_five_locale_catalog(self) -> None:
         root = Path(__file__).parents[2]
@@ -1049,6 +1099,7 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertEqual(snapshot["component_versions"]["dashboard"], DASHBOARD_VERSION)
         self.assertEqual(snapshot["component_versions"]["worker"], WATCHER_VERSION)
         self.assertEqual(snapshot["workspace_git_lock"], {"state": "free", "active": False, "stale": False})
+        self.assertEqual(snapshot["workspace_git"]["branch"], "Niet beschikbaar")
 
     def test_latest_codex_log_is_local_and_read_only(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
