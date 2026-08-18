@@ -15,7 +15,7 @@
 
 ## Current position
 
-## PR #881 finalization pending
+## PR #881 finalization reconciled
 
 PR [#881](https://github.com/pcvantol/djconnect/pull/881), **Guard provider
 invocation terminology**, merged as
@@ -23,13 +23,13 @@ invocation terminology**, merged as
 regression guard proves user-facing provider-invocation cumulative input is not
 misleadingly relabelled as context size, active context or request context.
 It preserves the canonical **Provider Invocation Cumulative Input** term and
-the explicit `Actual Single-Request Context: UNAVAILABLE` boundary. This
-dedicated, governance-only Finalization reconciles the rolling records and
-immutable Prompt History; its merge restores Repository State:
-`MERGED_RECONCILED` and Workspace State: `WORKSPACE_READY` after cleanup.
-Lifecycle, retry/resume/dismiss, validation policy, reviewer independence,
-model selection, provider routing/accounting, credit rates, Forge and delivery
-authority are unchanged.
+the explicit `Actual Single-Request Context: UNAVAILABLE` boundary. Its
+governance-only Finalization PR [#882](https://github.com/pcvantol/djconnect/pull/882)
+merged as `3db8a71f2761ac8f179af09e668b0a4cd03a0ca9`; this record reconciles
+the verified finalization. Repository State: `MERGED_RECONCILED`; Workspace
+State: `WORKSPACE_READY` after cleanup. Lifecycle, retry/resume/dismiss,
+validation policy, reviewer independence, model selection, provider
+routing/accounting, credit rates, Forge and delivery authority are unchanged.
 
 ## PR #879 finalization pending
 
