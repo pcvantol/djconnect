@@ -2,7 +2,7 @@
 
 Status: canonical prompt navigation
 
-## PR #855 finalization in progress
+## PR #855 finalization reconciled
 
 PR [#855](https://github.com/pcvantol/djconnect/pull/855), **Add execution
 telemetry dashboard detail**, merged as
@@ -11,9 +11,11 @@ Platform increment keeps the existing Execution Host Telemetry card compact
 while providing a read-only, date-scoped canonical timing projection and
 per-run drilldown. Its immutable Prompt History record is
 `docs/history/prompts/2026-08-17-execution-telemetry-dashboard-phase-detail.md`.
-The dedicated governance-only Finalization restores Repository State
-`MERGED_RECONCILED` and Workspace State `WORKSPACE_READY` after cleanup when
-merged. No Forge Mission, execution, lifecycle, validation, telemetry
+Its dedicated governance-only Finalization PR [#856](https://github.com/pcvantol/djconnect/pull/856)
+merged as `0008002bb2a2690b667aeeb57bbe01dac1bb4eca`. This record reconciles
+the verified finalization. Repository State: `MERGED_RECONCILED`; Workspace
+State: `WORKSPACE_READY` after cleanup. No Forge Mission, execution,
+lifecycle, validation, telemetry
 ownership or timing semantics, or retry/resume/dismiss behavior changed.
 
 ## PR #840 finalization reconciled
