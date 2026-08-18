@@ -15,6 +15,20 @@
 
 ## Current position
 
+## PR #862 finalization pending
+
+PR [#862](https://github.com/pcvantol/djconnect/pull/862), **Cover provider
+usage run detail**, merged as `5b47075f7dddd2ca7682281826725a36f044f682`.
+The Engineering Platform now has focused regression coverage for the existing
+Prompt History run-detail provider-usage projection, preserving persisted
+unavailable invocation detail rather than manufacturing zero-valued metrics.
+Its immutable Prompt History record is
+`docs/history/prompts/2026-08-18-provider-usage-run-detail-regression-coverage.md`.
+This governance-only Finalization restores Repository State:
+`MERGED_RECONCILED` and Workspace State: `WORKSPACE_READY` after cleanup when
+merged. No production telemetry, Forge, lifecycle, queue, validation,
+retry/resume/dismiss or model-selection semantics changed.
+
 ## PR #855 finalization reconciled
 
 PR [#855](https://github.com/pcvantol/djconnect/pull/855), **Add execution
