@@ -29,9 +29,9 @@ class RuntimeProvider(Protocol):
 class ProcessProvider(Protocol):
     """The sole boundary for local child-process execution."""
 
-    def execute(self, root: Path, arguments: Sequence[str]) -> subprocess.CompletedProcess[str]: ...
+    def execute(self, root: Path, arguments: Sequence[str], *, environment: Mapping[str, str] | None = None) -> subprocess.CompletedProcess[str]: ...
 
-    def spawn(self, root: Path, arguments: Sequence[str]) -> subprocess.Popen[str]: ...
+    def spawn(self, root: Path, arguments: Sequence[str], *, environment: Mapping[str, str] | None = None) -> subprocess.Popen[str]: ...
 
     def spawn_detached(self, root: Path, arguments: Sequence[str], environment: Mapping[str, str]) -> subprocess.Popen[bytes]: ...
 
@@ -39,12 +39,12 @@ class ProcessProvider(Protocol):
 class LocalProcessProvider:
     """Default local process adapter; orchestration code never imports subprocess for work."""
 
-    def execute(self, root: Path, arguments: Sequence[str]) -> subprocess.CompletedProcess[str]:
-        return subprocess.run(arguments, cwd=root, text=True, capture_output=True, check=False)
+    def execute(self, root: Path, arguments: Sequence[str], *, environment: Mapping[str, str] | None = None) -> subprocess.CompletedProcess[str]:
+        return subprocess.run(arguments, cwd=root, env=None if environment is None else dict(environment), text=True, capture_output=True, check=False)
 
-    def spawn(self, root: Path, arguments: Sequence[str]) -> subprocess.Popen[str]:
+    def spawn(self, root: Path, arguments: Sequence[str], *, environment: Mapping[str, str] | None = None) -> subprocess.Popen[str]:
         return subprocess.Popen(
-            tuple(arguments), cwd=root, text=True, stdout=subprocess.PIPE,
+            tuple(arguments), cwd=root, env=None if environment is None else dict(environment), text=True, stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT, start_new_session=True,
         )
 
@@ -114,7 +114,7 @@ class CodexCliProvider(LocalProcessProvider):
             if stream is not None:
                 stream.close()
 
-    def invoke(self, root: Path, arguments: tuple[str, ...], *, timeout: float | None = None) -> subprocess.CompletedProcess[str]:
+    def invoke(self, root: Path, arguments: tuple[str, ...], *, timeout: float | None = None, environment: Mapping[str, str] | None = None) -> subprocess.CompletedProcess[str]:
         """Execute a complete Codex command; callers never spawn its CLI directly."""
         command = self._arguments(arguments)
         # Execution remains behind the provider boundary.  The current
@@ -122,7 +122,7 @@ class CodexCliProvider(LocalProcessProvider):
         # do not supply a timeout here; retaining the argument preserves the
         # public provider contract for compatible callers.
         del timeout
-        return self.execute(root, command)
+        return self.execute(root, command, environment=environment)
 
 
 class GitProvider(LocalProcessProvider):
