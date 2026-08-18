@@ -436,7 +436,7 @@ class CodexCliClient:
             and self._workspace_progress_callback is None
         ):
             return self.provider.invoke(root, command, environment=environment)
-        process = self.provider.spawn(root, command, environment=environment)
+        process = self.provider.spawn_invocation(root, command, environment=environment)
         if self._process_callback is not None:
             try:
                 self._process_callback({"pid": process.pid, "process_group": os.getpgid(process.pid)})
