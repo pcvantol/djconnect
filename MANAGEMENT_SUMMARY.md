@@ -15,6 +15,20 @@
 
 ## Current position
 
+## PR #866 finalization pending
+
+PR [#866](https://github.com/pcvantol/djconnect/pull/866), **Cover reviewer
+context isolation**, merged as `872ae673a829abdf2e48647599c1bc46a3d408e1`.
+The Engineering Platform now has a focused regression proving that normal
+reviewer execution gives the primary provider run-scoped repository facts
+without merging reviewer recommendations into its prompt. Its immutable Prompt
+History record is
+`docs/history/prompts/2026-08-18-context-churn-measurement-regression-coverage.md`.
+This governance-only Finalization restores Repository State:
+`MERGED_RECONCILED` and Workspace State: `WORKSPACE_READY` after cleanup when
+merged. Reviewer independence, lifecycle authority, Forge, validation,
+retry/resume/dismiss, model selection and provider accounting are unchanged.
+
 ## PR #862 finalization pending
 
 PR [#862](https://github.com/pcvantol/djconnect/pull/862), **Cover provider

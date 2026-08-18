@@ -3,6 +3,21 @@
 **Status:** Operational handoff
 **Updated:** 2026-08-18
 
+## PR #866 finalization pending
+
+PR [#866](https://github.com/pcvantol/djconnect/pull/866), **Cover reviewer
+context isolation**, merged as `872ae673a829abdf2e48647599c1bc46a3d408e1`.
+The Engineering Runner reviewer path now has focused regression coverage that
+proves the primary provider receives run-scoped repository facts while a
+distinctive reviewer recommendation remains reviewer-only. The immutable Prompt
+History record is
+`docs/history/prompts/2026-08-18-context-churn-measurement-regression-coverage.md`.
+This dedicated governance-only Finalization reconciles the rolling records; its
+merge restores Repository State: `MERGED_RECONCILED` and Workspace State:
+`WORKSPACE_READY` after cleanup. Reviewer independence, lifecycle authority,
+Forge, validation policy, retry/resume/dismiss behavior, model selection and
+provider accounting are unchanged.
+
 ## PR #862 finalization pending
 
 PR [#862](https://github.com/pcvantol/djconnect/pull/862), **Cover provider
