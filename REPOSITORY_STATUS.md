@@ -2,6 +2,22 @@
 
 Status: active platform-evolution repository
 
+## PR #879 finalization pending
+
+PR [#879](https://github.com/pcvantol/djconnect/pull/879), **Reduce primary
+agent tool-loop churn**, merged as
+`9196497397ee68ae98948f8e05d149ad260b2d5e`. The bounded Platform Evolution
+increment adds a primary-only, invocation-local investigation ledger and
+derived tool-loop operation telemetry without persisting source, prompt or
+tool-output content. Its deterministic fixture retains validation and final
+repository checks while reducing redundant operations by 75%. This dedicated,
+governance-only Finalization reconciles the rolling records and immutable
+Prompt History; its merge restores Repository State: `MERGED_RECONCILED` and
+Workspace State: `WORKSPACE_READY` after cleanup. Lifecycle,
+retry/resume/dismiss, validation policy, reviewer independence, model
+selection, provider routing/accounting, credit rates, Forge and delivery
+authority are unchanged.
+
 ## PR #877 finalization pending
 
 PR [#877](https://github.com/pcvantol/djconnect/pull/877), **Guard provider
