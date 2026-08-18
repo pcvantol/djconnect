@@ -2,23 +2,21 @@
 
 Status: active platform-evolution repository
 
-## PR #870 finalization pending
+## PR #870 finalization reconciled
 
 PR [#870](https://github.com/pcvantol/djconnect/pull/870), **Fix stale
 rolling-record reconciliation**, merged as
-`b293c78ef47cdb21179a6c50b8b5f13bbe0c2b0a`. The repair recognizes the
-persisted stale-record diagnostic only for the existing no-PR,
-governance-only Finalization route; ambiguous state and run-scoped PR evidence
-remain fail-closed. Repository State: `MERGED_UNRECONCILED` until this
-Finalization merges. Historical run
+`b293c78ef47cdb21179a6c50b8b5f13bbe0c2b0a`. Its governance-only Finalization
+PR [#871](https://github.com/pcvantol/djconnect/pull/871) merged as
+`34e7b9e0d454d77f0d0f28ef98d08de56276d446`; this record reconciles the
+verified finalization. Repository State: `MERGED_RECONCILED`; Workspace State:
+`WORKSPACE_READY` after cleanup. Historical run
 `inbox-4eecc0c39d0a48dda7b9c38fd40f211d` remains `BLOCKED` and operator
 `CLOSED/DISMISSED`, without delivery lineage.
 
-Structural Git/GitHub and repeated-file-read reuse is merged, while real
-COMPLETE-run performance verification remains pending. No benchmark or
-provider-token/credit-savings claim was made. Lifecycle, retry/resume/dismiss,
-validation, reviewer independence, model selection, Forge and delivery
-authority are unchanged.
+No benchmark or provider-token/credit-savings claim was made. Lifecycle,
+retry/resume/dismiss, validation, reviewer independence, model selection,
+Forge and delivery authority are unchanged.
 
 ## PR #866 finalization pending
 
