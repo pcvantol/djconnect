@@ -15,7 +15,7 @@
 
 ## Current position
 
-## PR #855 finalization in progress
+## PR #855 finalization reconciled
 
 PR [#855](https://github.com/pcvantol/djconnect/pull/855), **Add execution
 telemetry dashboard detail**, merged as
@@ -25,9 +25,11 @@ compact daily card and a read-only date modal, including phase aggregates,
 bottlenecks and individual executions without making telemetry repository
 evidence. Its immutable Prompt History record is
 `docs/history/prompts/2026-08-17-execution-telemetry-dashboard-phase-detail.md`.
-This governance-only Finalization restores Repository State:
-`MERGED_RECONCILED` and Workspace State: `WORKSPACE_READY` after cleanup when
-merged. No Forge Mission, execution, validation, lifecycle, queue,
+Its dedicated governance-only Finalization PR [#856](https://github.com/pcvantol/djconnect/pull/856)
+merged as `0008002bb2a2690b667aeeb57bbe01dac1bb4eca`. This record reconciles
+the verified finalization. Repository State: `MERGED_RECONCILED`; Workspace
+State: `WORKSPACE_READY` after cleanup. No Forge Mission, execution,
+validation, lifecycle, queue,
 retry/resume/dismiss, telemetry ownership or timing semantics changed.
 
 ## PR #840 finalization reconciled
