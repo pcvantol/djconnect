@@ -15,6 +15,20 @@
 
 ## Current position
 
+## PR #873 finalization pending
+
+PR [#873](https://github.com/pcvantol/djconnect/pull/873), **Stop dismissed
+runs blocking Inbox admission**, merged as
+`5daf113d91f9d01421fcac9cdd82f485ba3035ca`. It centralizes the SQLite-backed
+active-blocking-predecessor predicate across admission, status reconciliation
+and the Operations Console read model. Repository State:
+`MERGED_UNRECONCILED` until this governance-only Finalization merges.
+
+The historical blocked run remains `BLOCKED` and `CLOSED/DISMISSED`; no retry
+lineage, benchmark execution or historical-report rewrite was created. No
+lifecycle, retry/resume/dismiss, validation, reviewer-independence,
+model-selection, Forge or delivery-authority behavior changed.
+
 ## PR #870 finalization reconciled
 
 PR [#870](https://github.com/pcvantol/djconnect/pull/870), **Fix stale
