@@ -35,14 +35,25 @@ def _number(value: object) -> int | None:
 
 def speed_state(metadata: Mapping[str, object] | None) -> str:
     """Return only a runtime-observed speed state; UI preferences are irrelevant."""
-    text = " ".join(str(value).casefold() for value in (metadata or {}).values())
-    if not text:
-        return "UNKNOWN"
-    if re.search(r"\bfast(?:\s+mode)?\b", text):
-        return "FAST"
-    if re.search(r"\b(?:normal|default)\b", text):
-        return "NORMAL_DEFAULT"
-    return "OTHER" if "speed" in text or "mode" in text else "UNKNOWN"
+    known_fields = {
+        "speed_state",
+        "speed_mode",
+        "execution_speed",
+        "codex_speed_mode",
+        "configuration_profile",
+        "codex_configuration_profile",
+    }
+    for key, value in (metadata or {}).items():
+        normalized_key = str(key).casefold().replace("-", "_")
+        if normalized_key not in known_fields or not isinstance(value, str):
+            continue
+        normalized_value = value.casefold().strip()
+        if re.search(r"\bfast(?:\s+mode)?\b", normalized_value):
+            return "FAST"
+        if re.search(r"\b(?:normal|default)\b", normalized_value):
+            return "NORMAL_DEFAULT"
+        return "OTHER"
+    return "UNKNOWN"
 
 
 def _usage_from_event(event: object) -> dict[str, int]:
@@ -159,18 +170,15 @@ def credit_estimate(model: object, usage: Mapping[str, object]) -> dict[str, flo
     rates = RATE_TABLE.get(key)
     if rates is None:
         return {"rate_table_version": RATE_TABLE_VERSION, "credits": None, "eur": None}
-    uncached = _number(usage.get("uncached_input_tokens")) or 0
-    cached = _number(usage.get("cached_input_tokens")) or 0
-    output = _number(usage.get("output_tokens")) or 0
-    if not any(
-        _number(usage.get(key)) is not None
-        for key in ("uncached_input_tokens", "cached_input_tokens", "output_tokens")
-    ):
+    uncached = _number(usage.get("uncached_input_tokens"))
+    cached = _number(usage.get("cached_input_tokens"))
+    output = _number(usage.get("output_tokens"))
+    if any(value is None for value in (uncached, cached, output)):
         return {"rate_table_version": RATE_TABLE_VERSION, "credits": None, "eur": None}
     credits = (
-        uncached * rates["uncached_input"]
-        + cached * rates["cached_input"]
-        + output * rates["output"]
+        int(uncached) * rates["uncached_input"]
+        + int(cached) * rates["cached_input"]
+        + int(output) * rates["output"]
     ) / 1_000_000
     return {
         "rate_table_version": RATE_TABLE_VERSION,

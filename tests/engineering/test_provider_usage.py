@@ -97,9 +97,24 @@ class ProviderUsageTests(unittest.TestCase):
         self.assertEqual((sol["credits"], sol["eur"]), (887.5, 35.5))
         self.assertEqual((luna["credits"], luna["eur"]), (35.5, 1.42))
 
+    def test_incomplete_billing_usage_never_becomes_a_partial_credit_total(self) -> None:
+        for usage in (
+            {"output_tokens": 1_000_000},
+            {"uncached_input_tokens": 1_000_000},
+            {"uncached_input_tokens": 1_000_000, "output_tokens": 1_000_000},
+            {"uncached_input_tokens": 1_000_000, "cached_input_tokens": 1_000_000},
+        ):
+            with self.subTest(usage=usage):
+                estimate = credit_estimate("gpt-5.6-terra", usage)
+                self.assertIsNone(estimate["credits"])
+                self.assertIsNone(estimate["eur"])
+
     def test_speed_state_is_runtime_observed_or_unknown(self) -> None:
         self.assertEqual(speed_state({"configuration_profile": "Fast Mode"}), "FAST")
+        self.assertEqual(speed_state({"speed_mode": "normal"}), "NORMAL_DEFAULT")
         self.assertEqual(speed_state({}), "UNKNOWN")
+        self.assertEqual(speed_state({"note": "fast"}), "UNKNOWN")
+        self.assertEqual(speed_state({"note": "default"}), "UNKNOWN")
 
     def test_churn_is_bounded_and_does_not_keep_command_output(self) -> None:
         line = '{"type":"item.completed","item":{"type":"command_execution","id":"c1","command":"pytest tests/test_x.py","exit_code":0,"aggregated_output":"ok"}}'
