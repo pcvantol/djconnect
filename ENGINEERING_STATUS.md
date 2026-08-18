@@ -1,7 +1,22 @@
 # DJConnect Engineering Status
 
 **Status:** Operational handoff
-**Updated:** 2026-08-08
+**Updated:** 2026-08-18
+
+## PR #862 finalization pending
+
+PR [#862](https://github.com/pcvantol/djconnect/pull/862), **Cover provider
+usage run detail**, merged as `5b47075f7dddd2ca7682281826725a36f044f682`.
+The existing Prompt History run-detail projection now has focused regression
+coverage for persisted provider-usage summaries, including unavailable
+invocation detail without fabricated zero-valued metrics. The immutable Prompt
+History record is
+`docs/history/prompts/2026-08-18-provider-usage-run-detail-regression-coverage.md`.
+This dedicated governance-only Finalization reconciles the rolling records;
+its merge restores Repository State: `MERGED_RECONCILED` and Workspace State:
+`WORKSPACE_READY` after cleanup. Provider-usage storage and summary semantics,
+Forge, execution lifecycle, validation, retry/resume/dismiss and
+model-selection behavior are unchanged.
 
 ## PR #855 finalization reconciled
 

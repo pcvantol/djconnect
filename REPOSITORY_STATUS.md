@@ -2,6 +2,21 @@
 
 Status: active platform-evolution repository
 
+## PR #862 finalization pending
+
+PR [#862](https://github.com/pcvantol/djconnect/pull/862), **Cover provider
+usage run detail**, merged as `5b47075f7dddd2ca7682281826725a36f044f682`.
+Focused regression coverage now protects the existing exact-run Prompt History
+provider-usage projection, including cached and uncached input, invocation
+count, estimates, maximum input, speed state and unavailable invocation
+detail. The immutable Prompt History record is
+`docs/history/prompts/2026-08-18-provider-usage-run-detail-regression-coverage.md`.
+This dedicated governance-only Finalization reconciles the four rolling
+records; its merge restores Repository State: `MERGED_RECONCILED` and
+Workspace State: `WORKSPACE_READY` after cleanup. No provider-usage storage,
+telemetry, Forge, execution, validation, lifecycle, retry/resume/dismiss or
+model-selection behavior changed.
+
 ## PR #855 finalization reconciled
 
 PR [#855](https://github.com/pcvantol/djconnect/pull/855), **Add execution
