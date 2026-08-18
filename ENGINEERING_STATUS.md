@@ -3,6 +3,25 @@
 **Status:** Operational handoff
 **Updated:** 2026-08-18
 
+## PR #870 finalization pending
+
+PR [#870](https://github.com/pcvantol/djconnect/pull/870), **Fix stale
+rolling-record reconciliation**, merged as
+`b293c78ef47cdb21179a6c50b8b5f13bbe0c2b0a`. The bounded repair now
+recognizes the persisted stale rolling-record diagnostic through the existing
+fail-closed governance-only Finalization route; run-scoped PR evidence still
+prevents that recovery path. Repository State: `MERGED_UNRECONCILED` until
+this Finalization merges. The historical run
+`inbox-4eecc0c39d0a48dda7b9c38fd40f211d` remains `BLOCKED` and
+operator `CLOSED/DISMISSED`; it was not upgraded or given delivery lineage.
+
+Provider usage keeps cumulative invocation terminology without fabricated
+request/active-context attribution. Git/GitHub structural reuse and repeated
+file-read reuse are merged, but the historical partial measurement is
+non-terminal: clean COMPLETE-run performance verification, including the
+Git/GitHub >=50% target, remains pending. No benchmark, provider-token or
+credit-savings claim was made.
+
 ## PR #866 finalization pending
 
 PR [#866](https://github.com/pcvantol/djconnect/pull/866), **Cover reviewer
