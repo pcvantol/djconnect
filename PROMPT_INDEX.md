@@ -2,7 +2,7 @@
 
 Status: canonical prompt navigation
 
-## PR #884 finalization pending
+## PR #884 finalization reconciled
 
 PR [#884](https://github.com/pcvantol/djconnect/pull/884), **Bound provider
 tool evidence output**, merged as `8303dea0ce313b36a3a68b15e2c3616338b66e4f`.
@@ -10,10 +10,14 @@ The Engineering Platform now bounds oversized Git, GitHub, search and test
 tool output inside one Codex provider invocation, while retaining exact source
 reads, failed-test diagnostics and explicit expansion. Its deterministic
 fixture reduces projected output by 64.97%; no live benchmark or provider-token
-or credit-savings claim was made. Dedicated governance-only Finalization and
-safe Workspace Cleanup remain required. Lifecycle, retry/resume/dismiss,
-validation policy, reviewer count/independence, model selection, provider
-routing/accounting, credit rates, Forge and delivery authority are unchanged.
+or credit-savings claim was made. Its governance-only Finalization PR
+[#885](https://github.com/pcvantol/djconnect/pull/885) merged as
+`9ca6100bc3398ebf68639ec3259e3cc17bd85780`; this record reconciles the
+verified finalization. Repository State: `MERGED_RECONCILED`. Workspace
+Cleanup remains blocked by the preserved implementation branch. Lifecycle,
+retry/resume/dismiss, validation policy, reviewer count/independence, model
+selection, provider routing/accounting, credit rates, Forge and delivery
+authority are unchanged.
 
 ## PR #881 finalization reconciled
 
