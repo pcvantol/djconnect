@@ -2,14 +2,15 @@
 
 Status: canonical prompt navigation
 
-## PR #873 finalization pending
+## PR #873 finalization reconciled
 
 PR [#873](https://github.com/pcvantol/djconnect/pull/873), **Stop dismissed
 runs blocking Inbox admission**, merged as
-`5daf113d91f9d01421fcac9cdd82f485ba3035ca`. The bounded repair centralizes
-the SQLite-backed active-blocking-predecessor predicate for watcher admission,
-status reconciliation and the Operations Console read model. Repository State:
-`MERGED_UNRECONCILED` until this governance-only Finalization merges.
+`5daf113d91f9d01421fcac9cdd82f485ba3035ca`. Its governance-only Finalization
+PR [#874](https://github.com/pcvantol/djconnect/pull/874) merged as
+`da7b98bc2b536bed270a37ee3c6c0bcff509e6ad`; this record reconciles the
+verified finalization. Repository State: `MERGED_RECONCILED`; Workspace State:
+`WORKSPACE_READY` after cleanup.
 
 Historical run `inbox-4eecc0c39d0a48dda7b9c38fd40f211d` remains `BLOCKED` and
 operator `CLOSED/DISMISSED`; no retry lineage, benchmark execution or
