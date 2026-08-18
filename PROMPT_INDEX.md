@@ -2,6 +2,21 @@
 
 Status: canonical prompt navigation
 
+## PR #877 finalization pending
+
+PR [#877](https://github.com/pcvantol/djconnect/pull/877), **Guard provider
+usage terminology projections**, merged as
+`ecb94b3ab4095e308fd08e42f7e0580048967c1c`. The bounded regression guard
+protects the canonical **Provider Invocation Cumulative Input** terminology in
+the user-facing Engineering Report and Operations Console, without fabricating
+actual single-request context. Its immutable Prompt History remains the
+host-owned record for run `inbox-8f84b832d39c486d983af009f2fa022a`. This
+dedicated governance-only Finalization reconciles the four rolling records;
+its merge restores Repository State: `MERGED_RECONCILED` and Workspace State:
+`WORKSPACE_READY` after cleanup. Provider accounting, lifecycle,
+retry/resume/dismiss, validation, reviewer independence, model selection,
+provider routing, Forge and delivery/finalization authority are unchanged.
+
 ## PR #873 finalization reconciled
 
 PR [#873](https://github.com/pcvantol/djconnect/pull/873), **Stop dismissed
