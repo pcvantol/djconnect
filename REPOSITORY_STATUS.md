@@ -2,7 +2,7 @@
 
 Status: active platform-evolution repository
 
-## PR #890 finalization pending
+## PR #890 finalization reconciled
 
 PR [#890](https://github.com/pcvantol/djconnect/pull/890), **test: cover
 bounded evidence expansion**, merged as
@@ -12,10 +12,12 @@ regression now proves bounded search evidence advertises
 evidence, and the temporary proxy is removed. Its portable fixture no longer
 assumes a system `rg` binary in CI. The historical benchmark run
 `inbox-5a6400d181f84ece93e131c49b5fd9a7` remains failed and was not retried;
-no new benchmark or efficiency measurement was submitted. Dedicated
-governance-only Finalization is required. Repository State:
-`MERGED_UNRECONCILED`; Workspace State: `NOT_READY` pending Finalization and
-safe cleanup. Lifecycle, retry/resume/dismiss, validation policy, reviewer
+no new benchmark or efficiency measurement was submitted. Its governance-only
+Finalization PR [#891](https://github.com/pcvantol/djconnect/pull/891) merged
+as `454f57de11d7859a6af3e33fd6b20af670e94acb`; this record reconciles the
+verified Finalization. Repository State: `MERGED_RECONCILED`; Workspace State:
+`WORKSPACE_READY` after cleanup. Stale local branch result: `none`. Lifecycle,
+retry/resume/dismiss, validation policy, reviewer
 count/independence, model selection, provider routing/accounting, credit rates,
 Forge and delivery authority are unchanged.
 
