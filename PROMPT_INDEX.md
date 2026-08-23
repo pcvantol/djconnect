@@ -2,6 +2,23 @@
 
 Status: canonical prompt navigation
 
+## PR #890 finalization pending
+
+PR [#890](https://github.com/pcvantol/djconnect/pull/890), **test: cover
+bounded evidence expansion**, merged as
+`9f25f15ed207f5e41071c52c37a57e24193a1a5c`. The focused Engineering Platform
+regression now proves bounded search evidence advertises
+`MORE_EVIDENCE_AVAILABLE`, an invocation-local explicit expansion returns exact
+evidence, and the temporary proxy is removed. Its portable fixture no longer
+assumes a system `rg` binary in CI. The historical benchmark run
+`inbox-5a6400d181f84ece93e131c49b5fd9a7` remains failed and was not retried;
+no new benchmark or efficiency measurement was submitted. Dedicated
+governance-only Finalization is required. Repository State:
+`MERGED_UNRECONCILED`; Workspace State: `NOT_READY` pending Finalization and
+safe cleanup. Lifecycle, retry/resume/dismiss, validation policy, reviewer
+count/independence, model selection, provider routing/accounting, credit rates,
+Forge and delivery authority are unchanged.
+
 ## PR #884 finalization reconciled
 
 PR [#884](https://github.com/pcvantol/djconnect/pull/884), **Bound provider
