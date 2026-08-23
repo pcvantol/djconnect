@@ -1,10 +1,15 @@
 from __future__ import annotations
 
+import os
+from pathlib import Path
+import subprocess
+from tempfile import TemporaryDirectory
 import unittest
 
 from tools.engineering.evidence_projection import (
     FAILED_DIAGNOSTIC_LIMIT,
     PASSING_TEST_LIMIT,
+    ToolProxyEnvironment,
     deterministic_fixture,
     project_output,
 )
@@ -35,6 +40,33 @@ class EvidenceProjectionTests(unittest.TestCase):
         self.assertIn("MATCHES_BOUNDED", projected.text)
         self.assertIn("MORE_EVIDENCE_AVAILABLE", projected.text)
         self.assertTrue(projected.more_evidence_available)
+
+    def test_proxy_expansion_returns_search_evidence_and_cleans_up(self) -> None:
+        with TemporaryDirectory() as temporary:
+            source = Path(temporary) / "evidence.txt"
+            source.write_text("".join(f"needle {item}\n" for item in range(80)), encoding="utf-8")
+            expected = "".join(f"needle {item}\n" for item in range(80))
+            with ToolProxyEnvironment() as environment:
+                proxy_directory = Path(environment["PATH"].split(os.pathsep, 1)[0])
+                bounded = subprocess.run(
+                    ("rg", "needle", str(source)),
+                    capture_output=True,
+                    check=False,
+                    env=environment,
+                    text=True,
+                )
+                expanded = subprocess.run(
+                    ("rg", "needle", str(source)),
+                    capture_output=True,
+                    check=False,
+                    env={**environment, "DJCONNECT_EVIDENCE_EXPAND": "1"},
+                    text=True,
+                )
+            self.assertEqual(bounded.returncode, 0)
+            self.assertIn("MORE_EVIDENCE_AVAILABLE", bounded.stdout)
+            self.assertEqual(expanded.returncode, 0)
+            self.assertEqual(expanded.stdout, expected)
+            self.assertFalse(proxy_directory.exists())
 
     def test_broad_git_and_github_outputs_become_bounded_facts(self) -> None:
         git = project_output(("git", "log"), "commit\n" * 1000, 0)
