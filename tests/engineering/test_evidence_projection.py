@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-import subprocess
+# This test invokes only its temporary controlled fixture.
+import subprocess  # nosec B404
+import sys
 from tempfile import TemporaryDirectory
 import unittest
 
@@ -44,18 +46,34 @@ class EvidenceProjectionTests(unittest.TestCase):
     def test_proxy_expansion_returns_search_evidence_and_cleans_up(self) -> None:
         with TemporaryDirectory() as temporary:
             source = Path(temporary) / "evidence.txt"
+            executable_directory = Path(temporary) / "bin"
+            executable_directory.mkdir()
+            executable = executable_directory / "rg"
+            executable.write_text(
+                f"#!{sys.executable}\n"
+                "from pathlib import Path\n"
+                "import sys\n"
+                "needle, source = sys.argv[1:]\n"
+                "for line in Path(source).read_text(encoding='utf-8').splitlines():\n"
+                "    if needle in line:\n"
+                "        print(line)\n",
+                encoding="utf-8",
+            )
+            executable.chmod(0o700)
             source.write_text("".join(f"needle {item}\n" for item in range(80)), encoding="utf-8")
             expected = "".join(f"needle {item}\n" for item in range(80))
             with ToolProxyEnvironment() as environment:
                 proxy_directory = Path(environment["PATH"].split(os.pathsep, 1)[0])
-                bounded = subprocess.run(
+                environment["DJCONNECT_EVIDENCE_ORIGINAL_PATH"] = str(executable_directory)
+                # Command and fixture path are test-controlled.
+                bounded = subprocess.run(  # nosec B603
                     ("rg", "needle", str(source)),
                     capture_output=True,
                     check=False,
                     env=environment,
                     text=True,
                 )
-                expanded = subprocess.run(
+                expanded = subprocess.run(  # nosec B603
                     ("rg", "needle", str(source)),
                     capture_output=True,
                     check=False,
