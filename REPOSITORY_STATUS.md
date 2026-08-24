@@ -2,9 +2,9 @@
 
 Status: active platform-evolution repository
 
-## PR #909 finalization pending
+## PR #909 finalized by PR #910
 
-PR [#909](https://github.com/pcvantol/djconnect/pull/909), **feat: show reviewer command activity**, merged as `8850a724c6f78a0d1a472097036bea488511febc`. Repository State: `MERGED_UNRECONCILED`; only governance-only Finalization PR [#910](https://github.com/pcvantol/djconnect/pull/910) may proceed.
+PR [#909](https://github.com/pcvantol/djconnect/pull/909), **feat: show reviewer command activity**, merged as `8850a724c6f78a0d1a472097036bea488511febc`. Finalization PR [#910](https://github.com/pcvantol/djconnect/pull/910) merged as `e272ad13e5e0b3d1bd0b7c421280074de213eb9a`; automatic reconciliation complete. Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`; Finalization Pending: `NO`.
 
 ## PR #913 reconciled by PR #914
 
