@@ -4930,7 +4930,6 @@ test.describe("Engineering Status browser smoke", () => {
       componentLogsLoaded = true;
       renderComponentLogs();
     });
-
     await expect(page.locator("#inboxComponentLog tr")).toHaveCount(50);
     await expect(page.locator("#inboxLogPagination")).toContainText("Pagina 1 van 2 · 51 regels");
     await expect(page.locator("#dashboardLogPagination")).toContainText("Pagina 1 van 1 · 2 regels");
@@ -5434,8 +5433,11 @@ test.describe("Engineering Status browser smoke", () => {
     await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({
       json: { status: { watcher_state: "IDLE", queue_depth: 0 } },
     }));
+    const snapshotLoaded = page.waitForResponse("**/api/dashboard-snapshot");
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await snapshotLoaded;
     await page.waitForFunction(() => document.body.classList.contains("dashboard-ready"));
+    await page.locator("#autoRefresh").uncheck();
     await page.locator("#themeToggle").click();
     await page.evaluate(() => {
       document.querySelector("#inboxComponentLog").innerHTML =
