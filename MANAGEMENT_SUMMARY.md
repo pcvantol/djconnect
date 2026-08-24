@@ -1,5 +1,15 @@
 # DJConnect Generation 2 Management Summary
 
+## PR #901 finalization pending
+
+PR [#901](https://github.com/pcvantol/djconnect/pull/901), **fix: admit
+storage schema 26 for retries**, merged as
+`c9e1572733fa8dc7815d3c5204997978b0028d53`. The retry admission contract now
+tracks schema 26 consistently and prevents the manifest from being skipped by
+future database upgrades. No Managed authority, lifecycle, queue, retry
+semantics, provider behavior or qualification was changed. This Finalization
+reconciles current records only.
+
 ## PR #898 finalized by PR #899
 
 PR [#898](https://github.com/pcvantol/djconnect/pull/898), **feat: harden
