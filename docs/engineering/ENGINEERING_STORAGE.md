@@ -41,7 +41,7 @@ effect.
 ## Versioned schema
 
 The storage contract is independently versioned as **Engineering Storage
-schema `23`**. The required version is declared as `storage_schema` in
+schema `28`**. The required version is declared as `storage_schema` in
 `tools/engineering/ENGINEERING_PLATFORM_VERSION.json` and is validated by the
 runner compatibility contract.
 
@@ -181,6 +181,15 @@ runs retain their prior total duration from `execution_runs` but have no
 fabricated phase spans and must be labelled phase telemetry incomplete. Lease
 reconciliation closes an active span only at the actual reconciliation boundary
 with `STALE`/`INTERRUPTED` outcome.
+
+Phase duration and phase share are deliberately separate projections. Raw
+category duration retains the complete persisted span for audit, including a
+`STALE` tail observed after terminal reconciliation. A displayed share uses
+only the phase interval that overlaps the `TOTAL_EXECUTION` envelope; where
+the UTC boundaries are not comparable, it is conservatively capped at that
+envelope. Thus an individual phase share cannot exceed 100%, without rewriting
+or discarding the underlying timing evidence. Nested categories may still
+overlap each other, so their shares are not a partition and must not be summed.
 
 Execution phase timing belongs solely to Engineering Platform execution
 evidence. Forge remains the authority for Mission and planning intelligence.

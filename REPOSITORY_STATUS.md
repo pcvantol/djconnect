@@ -2,6 +2,19 @@
 
 Status: active platform-evolution repository
 
+## PR #923 finalization pending
+
+PR [#923](https://github.com/pcvantol/djconnect/pull/923), **Add emergency
+execution rollback control**, merged as
+`f16b2daf41461ea1423478c15df0997f78832d6d` and is contained in current
+`main`. The bounded dashboard improvement provides an audited emergency-stop
+and rollback path for the current execution, cancelled-history projection and
+early Codex-capacity warnings. This governance-only Finalization is the only
+permitted increment while Repository State is `MERGED_UNRECONCILED`; its merge
+restores `MERGED_RECONCILED` and Workspace State `WORKSPACE_READY` after
+cleanup. Runtime, lifecycle, validation, reviewer, provider, delivery and
+operator merge authority remain unchanged.
+
 ## PR #921 finalized by PR #922
 
 PR [#921](https://github.com/pcvantol/djconnect/pull/921), **Localize
