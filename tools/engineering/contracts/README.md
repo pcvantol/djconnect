@@ -14,6 +14,8 @@ versions fail closed.
 The boundary never projects raw prompts, credentials, command/provider output,
 reviewer reasoning, absolute local paths or executable commands. Missing
 evidence remains `UNAVAILABLE`; it is not converted to success or zero.
+Unsafe objective metadata is omitted as `UNAVAILABLE`, rather than redacted
+into a new representation of immutable prompt content.
 
 Only read-only inspection descriptors are exposed in this increment. Future
 mutating actions must be re-evaluated against fresh canonical evidence by an

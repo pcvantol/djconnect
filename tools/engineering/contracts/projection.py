@@ -10,9 +10,17 @@ from datetime import datetime, timezone
 import hashlib
 import json
 from pathlib import Path
+import re
 import sqlite3
 
-from .models import ActionPolicyDecision, AllowedAction, CONTRACT_VERSION, EvidenceReference
+from .models import (
+    ActionPolicyDecision,
+    AllowedAction,
+    CONTRACT_VERSION,
+    ContractVersionError,
+    EvidenceReference,
+    require_compatible_version,
+)
 from ..storage import EngineeringStorageError, database_path
 
 
@@ -20,6 +28,9 @@ UNAVAILABLE = "UNAVAILABLE"
 PROJECTION_AUTHORITY = "DERIVED_FROM_CANONICAL_EVIDENCE"
 POLICY_VERSION = "1.0"
 _SAFE_OBJECTIVE_KEYS = frozenset({"objective_summary", "scope_summary", "constraints", "acceptance_summary", "prohibited_changes_summary"})
+_UNSAFE_OBJECTIVE_TEXT = re.compile(
+    r"(?i)(?:\b(?:api[_ -]?key|access[_ -]?token|refresh[_ -]?token|secret|cookie|authorization|password)\b|\bbearer\b|(?:^|\s)/(?:\S+)|\b[a-z]:[\\/])"
+)
 _READ_ACTIONS = (
     ("run.inspect.context", "run.inspect.*", "READ_CANONICAL_EVIDENCE"),
     ("delivery.inspect.status", "delivery.inspect.*", "READ_DELIVERY_EVIDENCE"),
@@ -58,9 +69,9 @@ def _safe_objective(metadata: object) -> dict[str, object]:
     result: dict[str, object] = {}
     for key in _SAFE_OBJECTIVE_KEYS:
         value = raw.get(key)
-        if isinstance(value, str) and value and len(value) <= 500 and "\n" not in value:
+        if isinstance(value, str) and value and len(value) <= 500 and "\n" not in value and not _UNSAFE_OBJECTIVE_TEXT.search(value):
             result[key] = value
-        elif isinstance(value, list) and len(value) <= 12 and all(isinstance(item, str) and len(item) <= 160 and "\n" not in item for item in value):
+        elif isinstance(value, list) and len(value) <= 12 and all(isinstance(item, str) and len(item) <= 160 and "\n" not in item and not _UNSAFE_OBJECTIVE_TEXT.search(item) for item in value):
             result[key] = value
         else:
             result[key] = UNAVAILABLE
@@ -283,10 +294,16 @@ def evaluate_action(root: Path, run_id: str, action: AllowedAction | dict[str, o
     descriptor = action.to_dict() if isinstance(action, AllowedAction) else dict(action) if isinstance(action, dict) else {}
     context = get_run_context(root, run_id)
     fresh = str(context["evidence_version"])
+    known_action_ids = {action_id for action_id, _, _ in _READ_ACTIONS}
+    action_id = str(descriptor.get("action_id")) if descriptor.get("action_id") in known_action_ids else UNAVAILABLE
+    try:
+        require_compatible_version(descriptor.get("contract_version"))
+    except ContractVersionError:
+        return ActionPolicyDecision(action_id=action_id, run_id=run_id, decision="UNAVAILABLE", reason_code="INCOMPATIBLE_CONTRACT_VERSION", policy_version=POLICY_VERSION, evaluated_at=_now(), evidence_version=fresh).to_dict()
     if descriptor.get("run_id") != run_id or descriptor.get("evidence_version") != fresh:
-        return ActionPolicyDecision(action_id=str(descriptor.get("action_id", "")), run_id=run_id, decision="STALE_REVALIDATION_REQUIRED", reason_code="EVIDENCE_VERSION_CHANGED", policy_version=POLICY_VERSION, evaluated_at=_now(), evidence_version=fresh).to_dict()
+        return ActionPolicyDecision(action_id=action_id, run_id=run_id, decision="STALE_REVALIDATION_REQUIRED", reason_code="EVIDENCE_VERSION_CHANGED", policy_version=POLICY_VERSION, evaluated_at=_now(), evidence_version=fresh).to_dict()
     permitted = {item["action_id"] for item in get_allowed_actions(root, run_id, context=context) if item["allowed"] is True}
-    decision = "ALLOWED" if descriptor.get("action_id") in permitted and descriptor.get("classification") == "READ_ONLY" else "DENIED"
-    return ActionPolicyDecision(action_id=str(descriptor.get("action_id", "")), run_id=run_id, decision=decision,
+    decision = "ALLOWED" if action_id in permitted and descriptor.get("classification") == "READ_ONLY" else "DENIED"
+    return ActionPolicyDecision(action_id=action_id, run_id=run_id, decision=decision,
                                 reason_code="READ_ONLY_INSPECTION_AVAILABLE" if decision == "ALLOWED" else "ACTION_NOT_CURRENTLY_ALLOWED",
                                 policy_version=POLICY_VERSION, evaluated_at=_now(), evidence_version=fresh).to_dict()

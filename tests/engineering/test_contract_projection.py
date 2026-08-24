@@ -52,6 +52,21 @@ class ContractProjectionTests(unittest.TestCase):
             self.assertNotIn("absolute/private", payload)
             self.assertNotIn('"implementation_pr": 99', payload)
 
+    def test_unsafe_objective_metadata_is_omitted_instead_of_redacted(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            state = self._state(root)
+            record_submission(root, submission_id="submission-objective", producer_id="producer", producer_type="HUMAN",
+                              prompt_content="bounded", prompt_metadata={
+                                  "objective_summary": "Inspect current evidence",
+                                  "scope_summary": "Review /private/workspace only",
+                                  "constraints": ["Never expose authorization: Bearer secret-value"],
+                              }, target_identity={}, original_envelope={}, received_at="2026-08-24T00:00:00+00:00", link_run_id=state.run_id)
+            objective = get_run_context(root, state.run_id)["objective"]
+            self.assertEqual(objective["objective_summary"], "Inspect current evidence")
+            self.assertEqual(objective["scope_summary"], "UNAVAILABLE")
+            self.assertEqual(objective["constraints"], "UNAVAILABLE")
+
     def test_operator_gate_and_failed_required_check_are_projected_without_auto_merge(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
@@ -72,6 +87,10 @@ class ContractProjectionTests(unittest.TestCase):
             self.assertEqual(evaluate_action(root, state.run_id, stale)["decision"], "STALE_REVALIDATION_REQUIRED")
             unknown = AllowedAction(action_id="delivery.recovery.auto_merge", action_namespace="delivery.recovery.*", run_id=state.run_id, evidence_version=get_run_context(root, state.run_id)["evidence_version"], classification="MUTATING_RECOVERY")
             self.assertEqual(evaluate_action(root, state.run_id, unknown)["decision"], "DENIED")
+            incompatible = {**current, "contract_version": "2.0"}
+            decision = evaluate_action(root, state.run_id, incompatible)
+            self.assertEqual(decision["decision"], "UNAVAILABLE")
+            self.assertEqual(decision["reason_code"], "INCOMPATIBLE_CONTRACT_VERSION")
 
     def test_named_lifecycle_fixtures_stay_read_only(self) -> None:
         fixtures = {
