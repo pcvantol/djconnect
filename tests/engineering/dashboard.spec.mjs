@@ -138,7 +138,7 @@ test.describe("Engineering Status browser smoke", () => {
         title: "Check projection",
         url: "https://github.com/pcvantol/djconnect/pull/925",
         branch: "codex/check-projection",
-        status: "busy",
+        status: "waiting_for_checks",
       }]);
       const originalSetTimeout = window.setTimeout;
       let delay = null;
@@ -146,12 +146,12 @@ test.describe("Engineering Status browser smoke", () => {
         delay = value;
         return 1;
       };
-      scheduleOpenPullRequestMonitor([{ status: "busy" }]);
+      scheduleOpenPullRequestMonitor([{ status: "waiting_for_checks" }]);
       window.setTimeout = originalSetTimeout;
       return delay;
     });
-    await expect(page.locator(".open-pr-status")).toHaveClass(/open-pr-status--busy/);
-    await expect(page.locator(".open-pr-status")).toHaveText("Controles worden uitgevoerd");
+    await expect(page.locator(".open-pr-status")).toHaveClass(/open-pr-status--waiting_for_checks/);
+    await expect(page.locator(".open-pr-status")).toHaveText("Wacht op afronden van controles");
     expect(timerDelay).toBe(30_000);
     await page.evaluate(() => renderOpenPullRequests([{
       number: 925,
@@ -162,6 +162,24 @@ test.describe("Engineering Status browser smoke", () => {
     }]));
     await expect(page.locator(".open-pr-status")).toHaveClass(/open-pr-status--issues/);
     await expect(page.locator(".open-pr-status")).toHaveText("Pull request heeft problemen");
+    await page.evaluate(() => renderOpenPullRequests([{
+      number: 925,
+      title: "Check projection",
+      url: "https://github.com/pcvantol/djconnect/pull/925",
+      branch: "codex/check-projection",
+      status: "ready_for_review",
+    }]));
+    await expect(page.locator(".open-pr-status")).toHaveClass(/open-pr-status--ready_for_review/);
+    await expect(page.locator(".open-pr-status")).toHaveText("Klaar voor review");
+    await page.evaluate(() => renderOpenPullRequests([{
+      number: 925,
+      title: "Check projection",
+      url: "https://github.com/pcvantol/djconnect/pull/925",
+      branch: "codex/check-projection",
+      status: "ready_to_merge",
+    }]));
+    await expect(page.locator(".open-pr-status")).toHaveClass(/open-pr-status--ready_to_merge/);
+    await expect(page.locator(".open-pr-status")).toHaveText("Klaar om te mergen");
   });
 
   test("translates every operational phase and status in every supported locale", () => {

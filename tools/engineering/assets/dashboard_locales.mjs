@@ -2536,11 +2536,16 @@ Object.assign(DASHBOARD_MESSAGES.nl, {"workspace.open_pull_requests":"Openstaand
 Object.assign(DASHBOARD_MESSAGES.de, {"workspace.open_pull_requests":"Offene Pull Requests"});
 Object.assign(DASHBOARD_MESSAGES.fr, {"workspace.open_pull_requests":"Pull requests ouverts"});
 Object.assign(DASHBOARD_MESSAGES.es, {"workspace.open_pull_requests":"Solicitudes de extracción abiertas"});
-Object.assign(DASHBOARD_MESSAGES.en, {"workspace.open_pull_request.merge_ready":"Merge ready", "workspace.open_pull_request.checks_running":"Checks in progress", "workspace.open_pull_request.issues":"Pull request issues"});
-Object.assign(DASHBOARD_MESSAGES.nl, {"workspace.open_pull_request.merge_ready":"Klaar om te mergen", "workspace.open_pull_request.checks_running":"Controles worden uitgevoerd", "workspace.open_pull_request.issues":"Pull request heeft problemen"});
-Object.assign(DASHBOARD_MESSAGES.de, {"workspace.open_pull_request.merge_ready":"Bereit zum Zusammenführen", "workspace.open_pull_request.checks_running":"Prüfungen laufen", "workspace.open_pull_request.issues":"Pull-Request-Probleme"});
-Object.assign(DASHBOARD_MESSAGES.fr, {"workspace.open_pull_request.merge_ready":"Prête à fusionner", "workspace.open_pull_request.checks_running":"Vérifications en cours", "workspace.open_pull_request.issues":"Problèmes de pull request"});
-Object.assign(DASHBOARD_MESSAGES.es, {"workspace.open_pull_request.merge_ready":"Lista para fusionar", "workspace.open_pull_request.checks_running":"Comprobaciones en curso", "workspace.open_pull_request.issues":"Problemas de la solicitud de extracción"});
+Object.assign(DASHBOARD_MESSAGES.en, {"workspace.open_pull_request.draft":"Draft", "workspace.open_pull_request.waiting_for_checks":"Waiting for checks to complete", "workspace.open_pull_request.ready_for_review":"Ready for review", "workspace.open_pull_request.ready_to_merge":"Ready to merge"});
+Object.assign(DASHBOARD_MESSAGES.nl, {"workspace.open_pull_request.draft":"Concept", "workspace.open_pull_request.waiting_for_checks":"Wacht op afronden van controles", "workspace.open_pull_request.ready_for_review":"Klaar voor review", "workspace.open_pull_request.ready_to_merge":"Klaar om te mergen"});
+Object.assign(DASHBOARD_MESSAGES.de, {"workspace.open_pull_request.draft":"Entwurf", "workspace.open_pull_request.waiting_for_checks":"Warten auf Abschluss der Prüfungen", "workspace.open_pull_request.ready_for_review":"Bereit zur Überprüfung", "workspace.open_pull_request.ready_to_merge":"Bereit zum Zusammenführen"});
+Object.assign(DASHBOARD_MESSAGES.fr, {"workspace.open_pull_request.draft":"Brouillon", "workspace.open_pull_request.waiting_for_checks":"En attente de la fin des vérifications", "workspace.open_pull_request.ready_for_review":"Prête pour la révision", "workspace.open_pull_request.ready_to_merge":"Prête à fusionner"});
+Object.assign(DASHBOARD_MESSAGES.es, {"workspace.open_pull_request.draft":"Borrador", "workspace.open_pull_request.waiting_for_checks":"Esperando a que terminen las comprobaciones", "workspace.open_pull_request.ready_for_review":"Lista para revisión", "workspace.open_pull_request.ready_to_merge":"Lista para fusionar"});
+Object.assign(DASHBOARD_MESSAGES.en, {"workspace.open_pull_request.issues":"Pull request issues"});
+Object.assign(DASHBOARD_MESSAGES.nl, {"workspace.open_pull_request.issues":"Pull request heeft problemen"});
+Object.assign(DASHBOARD_MESSAGES.de, {"workspace.open_pull_request.issues":"Pull-Request-Probleme"});
+Object.assign(DASHBOARD_MESSAGES.fr, {"workspace.open_pull_request.issues":"Problèmes de pull request"});
+Object.assign(DASHBOARD_MESSAGES.es, {"workspace.open_pull_request.issues":"Problemas de la solicitud de extracción"});
 
 const messages = DASHBOARD_MESSAGES;
 

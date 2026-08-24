@@ -461,14 +461,14 @@ class DashboardStatusTest(unittest.TestCase):
             ("git",), 0, "git@github.com:pcvantol/djconnect.git\n", ""
         )
         github_provider.return_value.github.return_value = json.dumps([
-            {"number": 849, "title": "Cleanup <safe>", "url": "https://github.com/pcvantol/djconnect/pull/849", "headRefName": "codex/cleanup", "isDraft": False, "mergeStateStatus": "CLEAN", "statusCheckRollup": [{"status": "COMPLETED", "conclusion": "SUCCESS"}]},
+            {"number": 849, "title": "Cleanup <safe>", "url": "https://github.com/pcvantol/djconnect/pull/849", "headRefName": "codex/cleanup", "isDraft": False, "mergeStateStatus": "CLEAN", "reviewDecision": "APPROVED", "statusCheckRollup": [{"status": "COMPLETED", "conclusion": "SUCCESS"}]},
             {"number": "invalid", "title": "Ignored", "url": "https://github.com/pcvantol/djconnect/pull/0", "headRefName": "codex/ignored"},
         ])
 
         pull_requests = dashboard._workspace_open_pull_requests(root)
 
         self.assertEqual(pull_requests, [{
-            "number": 849, "title": "Cleanup <safe>", "url": "https://github.com/pcvantol/djconnect/pull/849", "branch": "codex/cleanup", "status": "ready",
+            "number": 849, "title": "Cleanup <safe>", "url": "https://github.com/pcvantol/djconnect/pull/849", "branch": "codex/cleanup", "status": "ready_to_merge",
         }])
         page = _dashboard_html(
             "Engineering Status", workspace_branch="codex/cleanup", workspace_commit="123456789abc",
@@ -494,11 +494,11 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertEqual(dashboard._workspace_open_pull_requests(root), [])
 
     def test_open_pull_request_status_is_fail_closed_and_terminal(self) -> None:
-        self.assertEqual(dashboard._open_pull_request_status({}), "busy")
-        self.assertEqual(dashboard._open_pull_request_status({"isDraft": True}), "busy")
+        self.assertEqual(dashboard._open_pull_request_status({}), "waiting_for_checks")
+        self.assertEqual(dashboard._open_pull_request_status({"isDraft": True}), "draft")
         self.assertEqual(dashboard._open_pull_request_status({
             "mergeStateStatus": "CLEAN", "statusCheckRollup": [{"status": "IN_PROGRESS", "conclusion": None}],
-        }), "busy")
+        }), "waiting_for_checks")
         self.assertEqual(dashboard._open_pull_request_status({
             "mergeStateStatus": "CLEAN", "statusCheckRollup": [{"status": "COMPLETED", "conclusion": "FAILURE"}],
         }), "issues")
@@ -507,7 +507,18 @@ class DashboardStatusTest(unittest.TestCase):
         }), "issues")
         self.assertEqual(dashboard._open_pull_request_status({
             "mergeStateStatus": "CLEAN", "statusCheckRollup": [],
-        }), "ready")
+        }), "ready_to_merge")
+        self.assertEqual(dashboard._open_pull_request_status({
+            "mergeStateStatus": "CLEAN", "reviewDecision": "REVIEW_REQUIRED",
+            "statusCheckRollup": [{"status": "COMPLETED", "conclusion": "SUCCESS"}],
+        }), "ready_for_review")
+        self.assertEqual(dashboard._open_pull_request_status({
+            "mergeStateStatus": "CLEAN", "statusCheckRollup": [{"state": "SUCCESS"}],
+        }), "ready_to_merge")
+        self.assertEqual(dashboard._open_pull_request_status({
+            "mergeStateStatus": "CLEAN", "reviewDecision": "CHANGES_REQUESTED",
+            "statusCheckRollup": [{"status": "COMPLETED", "conclusion": "SUCCESS"}],
+        }), "issues")
 
     @patch("tools.engineering.dashboard.GitHubProvider")
     @patch("tools.engineering.dashboard.GitProvider")

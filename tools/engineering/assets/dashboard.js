@@ -1685,15 +1685,17 @@ const OPEN_PULL_REQUEST_MONITOR_INTERVAL_MS = 30_000;
 let openPullRequestMonitorTimer = null, openPullRequestMonitorInFlight = false;
 function openPullRequestStatusKey(status) {
   return {
-    ready: "workspace.open_pull_request.merge_ready",
-    busy: "workspace.open_pull_request.checks_running",
+    draft: "workspace.open_pull_request.draft",
+    waiting_for_checks: "workspace.open_pull_request.waiting_for_checks",
+    ready_for_review: "workspace.open_pull_request.ready_for_review",
+    ready_to_merge: "workspace.open_pull_request.ready_to_merge",
     issues: "workspace.open_pull_request.issues",
-  }[status] || "workspace.open_pull_request.checks_running";
+  }[status] || "workspace.open_pull_request.waiting_for_checks";
 }
 function localizeOpenPullRequestStatuses() {
   document.querySelectorAll(".open-pr-status").forEach((element) => {
-    const status = element.classList.contains("open-pr-status--ready") ? "ready"
-      : element.classList.contains("open-pr-status--issues") ? "issues" : "busy";
+    const status = ["draft", "waiting_for_checks", "ready_for_review", "ready_to_merge", "issues"]
+      .find((candidate) => element.classList.contains(`open-pr-status--${candidate}`)) || "waiting_for_checks";
     const label = t(openPullRequestStatusKey(status));
     element.querySelector(".open-pr-status__label").textContent = label;
     element.setAttribute("aria-label", label);
@@ -1706,7 +1708,7 @@ function renderOpenPullRequests(pullRequests) {
   if (!list) return;
   list.replaceChildren(...pullRequests.map((pullRequest) => {
     const item = document.createElement("li"), link = document.createElement("a"), status = document.createElement("span"), dot = document.createElement("span"), label = document.createElement("span"), branch = document.createElement("code");
-    const state = ["ready", "busy", "issues"].includes(pullRequest.status) ? pullRequest.status : "busy";
+    const state = ["draft", "waiting_for_checks", "ready_for_review", "ready_to_merge", "issues"].includes(pullRequest.status) ? pullRequest.status : "waiting_for_checks";
     item.dataset.openPullRequest = String(pullRequest.number || "");
     link.href = String(pullRequest.url || "");
     link.target = "_blank";
@@ -1726,7 +1728,7 @@ function renderOpenPullRequests(pullRequests) {
 function scheduleOpenPullRequestMonitor(pullRequests) {
   clearTimeout(openPullRequestMonitorTimer);
   openPullRequestMonitorTimer = null;
-  if (Array.isArray(pullRequests) && pullRequests.some((pullRequest) => pullRequest.status === "busy")) {
+  if (Array.isArray(pullRequests) && pullRequests.some((pullRequest) => pullRequest.status === "waiting_for_checks")) {
     openPullRequestMonitorTimer = setTimeout(() => void refreshOpenPullRequests(), OPEN_PULL_REQUEST_MONITOR_INTERVAL_MS);
   }
 }
@@ -1743,7 +1745,7 @@ async function refreshOpenPullRequests() {
   } catch {
     // Keep the last known, non-authoritative projection visible and retry only
     // while it says that GitHub checks are still in progress.
-    scheduleOpenPullRequestMonitor([...document.querySelectorAll(".open-pr-status--busy")].map(() => ({ status: "busy" })));
+    scheduleOpenPullRequestMonitor([...document.querySelectorAll(".open-pr-status--waiting_for_checks")].map(() => ({ status: "waiting_for_checks" })));
   } finally {
     openPullRequestMonitorInFlight = false;
   }
