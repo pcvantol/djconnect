@@ -2,14 +2,17 @@
 
 Status: canonical prompt navigation
 
-## PR #901 finalization pending
+## PR #901 finalization reconciled
 
 PR [#901](https://github.com/pcvantol/djconnect/pull/901), **fix: admit
 storage schema 26 for retries**, merged as
 `c9e1572733fa8dc7815d3c5204997978b0028d53`. This bounded fix aligns the
 manifest and current storage schema and adds a guard for future upgrades; retry
-semantics are unchanged. This governance-only Finalization is the only
-permitted increment while the repository is `MERGED_UNRECONCILED`.
+semantics are unchanged. Its governance-only Finalization PR
+[#902](https://github.com/pcvantol/djconnect/pull/902) merged as
+`26fbbd1e64237fa781e0949d68b81729460f3e57`. Repository State:
+`MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`; Finalization Pending:
+`NO`.
 
 ## PR #898 finalized by PR #899
 
