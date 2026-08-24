@@ -1178,6 +1178,7 @@ test.describe("Engineering Status browser smoke", () => {
     const modal = page.locator("#lifecycleDetailModal");
     await expect(modal).toBeVisible();
     await expect(modal).toContainText(DASHBOARD_MESSAGES.nl["lifecycle.step.quality_control_agent"]);
+    await expect(modal).toContainText(DASHBOARD_MESSAGES.nl["telemetry.phase.quality_control"]);
     await expect(modal.locator(".lifecycle-detail-modal__status-indicator")).toHaveClass(/indicator--blue/);
   });
 
