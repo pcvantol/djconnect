@@ -2335,6 +2335,7 @@ test.describe("Engineering Status browser smoke", () => {
   test("uses the full rose row treatment for telemetry runs in the detail modal", async ({ page }) => {
     await page.route("**/api/events", (route) => route.abort());
     await page.route("**/api/dashboard-snapshot", (route) => route.abort());
+    await page.route("**/api/prompt-history**", (route) => route.abort());
     await page.route("**/api/telemetry/2026-08-16", (route) => route.fulfill({ json: {
       summary: {}, phases: [], bottlenecks: { top_time_consumers: [] }, runs: [{
         run_id: "inbox-telemetry-row", status: "COMPLETE", total_duration_ms: 1000,
