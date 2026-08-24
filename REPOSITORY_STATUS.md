@@ -2,6 +2,20 @@
 
 Status: active platform-evolution repository
 
+## PR #913 finalization pending
+
+PR [#913](https://github.com/pcvantol/djconnect/pull/913), **fix: harden
+managed autonomy evidence projection**, merged as
+`3f0b801156a140225c3724ac0f0a54ebba17f55a`. This bounded reporting correction
+projects canonical submission lineage, required-check terminal state, authority
+counts, delivery-file semantics and validation traceability without rewriting
+the historical V2 qualification. Its immutable Prompt History record is
+`docs/history/prompts/2026-08-24-managed-autonomy-evidence-projection.md`.
+The implementation merge is an `EXPECTED_OPERATOR_GATE`; only this
+governance-only Finalization may proceed. Repository State:
+`MERGED_UNRECONCILED`; Workspace State: `WORKSPACE_READY`; Finalization
+Pending: `YES`.
+
 ## PR #911 finalized by PR #912
 
 PR [#911](https://github.com/pcvantol/djconnect/pull/911), **test: guard
