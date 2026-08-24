@@ -213,6 +213,23 @@ class ExecutionLifecycleProjectionTests(unittest.TestCase):
             "duration_ms": 12000, "outcome": "COMPLETE",
         }])
 
+    def test_unreached_step_does_not_project_completed_timing_from_admission_evidence(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            started = datetime(2026, 8, 24, 20, 5, 21, tzinfo=timezone.utc)
+            self._state(root, "EXECUTE_AGENT")
+            reconciliation = start_phase(
+                root, "inbox-flow", "RECONCILIATION", started_at=started, monotonic_clock=10.0,
+            )
+            complete_phase(
+                root, reconciliation, completed_at=started, monotonic_clock=10.0,
+            )
+            value = projection(root, "inbox-flow")
+
+        by_id = {step["id"]: step for step in value["steps"]}
+        self.assertEqual(by_id["RECONCILE_AGENT"]["state"], "PENDING")
+        self.assertNotIn("timing", by_id["RECONCILE_AGENT"])
+
     def test_quality_control_owns_its_nested_provider_timing_and_terminal_has_total_timing(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
@@ -236,6 +253,7 @@ class ExecutionLifecycleProjectionTests(unittest.TestCase):
             )
             complete_phase(root, quality_validation, completed_at=started + timedelta(seconds=25), monotonic_clock=35.0)
             complete_phase(root, quality, completed_at=started + timedelta(seconds=26), monotonic_clock=36.0)
+            self._state(root, "QUALITY_CONTROL_AGENT")
             total = start_phase(
                 root, "inbox-flow", "TOTAL_EXECUTION", started_at=started, monotonic_clock=10.0,
             )

@@ -316,7 +316,12 @@ def projection(root: Path, run_id: str | None) -> dict[str, object]:
             for _, parent_phase_id, phase_name, attempt, started_at, completed_at, duration_ms, outcome in phase_spans
             if belongs_to_step(step_id, parent_phase_id, phase_name)
         ]
-        if spans:
+        # Timing is supporting evidence, not lifecycle authority.  In
+        # particular, admission can record a short reconciliation span before
+        # the end-reconciliation lifecycle step is ever reached.  Do not let
+        # that span invent start/end timestamps or a completed phase for a
+        # pending (or explicitly skipped) step.
+        if spans and step["state"] not in {"PENDING", "SKIPPED"}:
             step["timing"] = {
                 "started_at": min(str(span["started_at"]) for span in spans if span["started_at"]),
                 "finished_at": max((str(span["finished_at"]) for span in spans if span["finished_at"]), default=None),
