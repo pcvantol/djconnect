@@ -419,6 +419,13 @@ npm run test:engineering-dashboard
 npm run test:engineering-dashboard-logic
 ```
 
+Dynamic operational labels are part of that same five-language contract. Every
+phase rendered from execution timing or lifecycle state, watcher status and
+Execution Host activity must resolve through a catalog key; raw identifiers and
+English fallback sentences are not permitted on the operator surface. The
+browser suite maintains an explicit operational-key inventory so that adding a
+new phase or status without all five translations fails CI.
+
 The dashboard suite also covers the managed PR hand-off semantics: a failed
 required PR check leaves Merge blocked without a completion checkmark and
 renders the localized “Fix pull request checks” current action. This guards
