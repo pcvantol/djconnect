@@ -135,6 +135,7 @@ document
 const OPERATIONAL_PRESENTATION_KEYS = {
   ENGINEERING_RUN_STALE: "operational.stale_run",
   CAPABILITY_REVIEW: "telemetry.phase.capability_review",
+  invoke_agent: "operational.activity_invoke_agent",
   RECONCILE_AGENT: "lifecycle.step.reconcile_agent",
   WAIT_FOR_OPERATOR_MERGE: "lifecycle.step.wait_for_operator_merge",
   WAIT_FOR_FINALIZATION_MERGE: "lifecycle.step.wait_for_finalization_merge",

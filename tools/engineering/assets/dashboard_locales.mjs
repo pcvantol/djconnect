@@ -2584,6 +2584,11 @@ Object.assign(DASHBOARD_MESSAGES.nl, {"operational.activity_capability_review":"
 Object.assign(DASHBOARD_MESSAGES.de, {"operational.activity_capability_review":"{reviewer} führt eine spezialisierte Überprüfung durch"});
 Object.assign(DASHBOARD_MESSAGES.fr, {"operational.activity_capability_review":"{reviewer} effectue une évaluation spécialisée"});
 Object.assign(DASHBOARD_MESSAGES.es, {"operational.activity_capability_review":"{reviewer} está realizando una revisión especializada"});
+Object.assign(DASHBOARD_MESSAGES.en, {"operational.activity_invoke_agent":"Codex is performing the execution"});
+Object.assign(DASHBOARD_MESSAGES.nl, {"operational.activity_invoke_agent":"Codex voert de uitvoering uit"});
+Object.assign(DASHBOARD_MESSAGES.de, {"operational.activity_invoke_agent":"Codex führt die Ausführung durch"});
+Object.assign(DASHBOARD_MESSAGES.fr, {"operational.activity_invoke_agent":"Codex réalise l’exécution"});
+Object.assign(DASHBOARD_MESSAGES.es, {"operational.activity_invoke_agent":"Codex está realizando la ejecución"});
 Object.assign(DASHBOARD_MESSAGES.en, {"telemetry.phase.quality_control":"Quality control"});
 Object.assign(DASHBOARD_MESSAGES.nl, {"telemetry.phase.quality_control":"Kwaliteitscontrole"});
 Object.assign(DASHBOARD_MESSAGES.de, {"telemetry.phase.quality_control":"Qualitätskontrolle"});

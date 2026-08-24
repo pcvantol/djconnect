@@ -3334,6 +3334,16 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#action")).toHaveText("Documentatie voert een specialistenreview uit");
     await expect(page.locator("#action")).toHaveCSS("font-style", "italic");
     await expect(page.locator("#workspaceProgressValue")).toHaveText("3 gewijzigd · 2 nieuw · 1 verwijderd · 17 primaire Codex-opdrachten uitgevoerd · 0 reviewer-Codex-opdrachten uitgevoerd");
+
+    await page.evaluate(() => r({
+      watcher_state: "ENGINEERING_RUN_ACTIVE",
+      current_phase: "EXECUTE_AGENT",
+      current_action: "invoke_agent",
+      run_id: "activity-run",
+      prompt_title: "Veilige voortgang",
+      submitted_filename: "activity.md",
+    }, {}));
+    await expect(page.locator("#action")).toHaveText("Codex voert de uitvoering uit");
   });
 
   test("lays out operational-overview cards in two columns only when its container has room", async ({ page }) => {
