@@ -2,21 +2,18 @@
 
 Status: active platform-evolution repository
 
-## PR #895 finalization pending
+## PR #898 finalization pending
 
-PR [#895](https://github.com/pcvantol/djconnect/pull/895), **test: cover
-autonomous lifecycle reconciliation**, merged as
-`168e0f99642021e06af5393a22458cdcf1c356f8`. The focused Engineering Platform
-regression covers the existing autonomous happy path from verified
-implementation merge through Finalization admission, repository reconciliation
-and Workspace Cleanup to `COMPLETE`, `MERGED_RECONCILED` and
-`WORKSPACE_READY`. The immutable Prompt History record is
-`docs/history/prompts/2026-08-24-autonomous-loop-qualification-regression.md`.
-This governance-only Finalization reconciles the four rolling records and
-handoff metadata; its merge restores Repository State: `MERGED_RECONCILED` and
-Workspace State: `WORKSPACE_READY` after cleanup. Existing lifecycle,
-retry/resume/dismiss, validation, reviewer, provider, Forge and delivery
-authority semantics are unchanged.
+PR [#898](https://github.com/pcvantol/djconnect/pull/898), **feat: harden
+Managed autonomy evidence contract**, merged as
+`4f68237af04142c5247fc435743ecd5b24c3fa44`. Append-only action authority,
+operator merge-gate and validation evidence now support a fail-closed Managed
+autonomy read model. Managed merge authority remains operator-owned; automatic
+merge was not introduced. No real autonomy qualification was submitted.
+`main == origin/main`; worktree clean; the implementation branch was removed
+through the squash-merge patch-equivalence exception. Repository State:
+`MERGED_UNRECONCILED`; Workspace State: `WORKSPACE_READY`. Only this dedicated
+governance-only Finalization may proceed.
 
 ## PR #893 finalization pending
 
