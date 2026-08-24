@@ -2,17 +2,18 @@
 
 Status: canonical prompt navigation
 
-## PR #898 finalization pending
+## PR #898 finalized by PR #899
 
 PR [#898](https://github.com/pcvantol/djconnect/pull/898), **feat: harden
 Managed autonomy evidence contract**, merged as
 `4f68237af04142c5247fc435743ecd5b24c3fa44`. The increment adds append-only
 Managed action/gate/validation evidence and a fail-closed qualification read
 model without changing execution authority. Managed merge remains operator-owned
-and no real autonomy qualification was submitted. This governance-only
-Finalization is the only permitted increment while the repository is
-`MERGED_UNRECONCILED`; its merge restores `MERGED_RECONCILED` and
-`WORKSPACE_READY` after cleanup.
+and no real autonomy qualification was submitted. Its governance-only
+Finalization PR [#899](https://github.com/pcvantol/djconnect/pull/899) merged
+as `37cdd87509e6eaca6688f652d621b3b185c89ffd`. Repository State:
+`MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`; Finalization Pending:
+`NO`.
 
 ## PR #893 finalization pending
 
