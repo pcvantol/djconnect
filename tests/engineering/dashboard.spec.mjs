@@ -1307,6 +1307,9 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(modalPullRequest).toHaveCSS("font-weight", "400");
     await expect(modalAbort).toHaveCSS("font-weight", "400");
     await expect(modalStatusCheck).toHaveText(DASHBOARD_MESSAGES.nl["merge_wait.check_status"]);
+    await expect(modalStatusCheck).toHaveCSS("display", "flex");
+    await expect(modalStatusCheck).toHaveCSS("justify-content", "center");
+    expect(await modalStatusCheck.evaluate((element) => getComputedStyle(element, "::before").content)).toBe('"↻"');
     const mergeActionHeights = await mergeModal.locator(".dashboard-modal-shell__action").evaluateAll(
       (actions) => actions.map((action) => action.getBoundingClientRect().height),
     );
