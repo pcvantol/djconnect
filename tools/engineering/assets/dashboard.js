@@ -1107,10 +1107,33 @@ function renderOperatorMergeWait(x) {
     if (!modal.open) modal.showModal();
   }
 }
-function renderCodexUsageLimitBanner(x) {
+function codexLimitRemainingPercent(rateLimits) {
+  const remaining = (Array.isArray(rateLimits?.windows) ? rateLimits.windows : [])
+    .map((window) => Number(window?.used_percent))
+    .filter(Number.isFinite)
+    .map((used) => Math.max(0, Math.min(100, 100 - used)));
+  return remaining.length ? Math.min(...remaining) : null;
+}
+function renderCodexUsageLimitBanner(x, rateLimits) {
   const banner = $("codexUsageLimitBanner");
   if (!banner) return;
-  banner.hidden = String(x?.terminal_condition || "") !== "codex_usage_limit_reached";
+  const terminalLimit = String(x?.terminal_condition || "") === "codex_usage_limit_reached";
+  const remaining = codexLimitRemainingPercent(rateLimits);
+  const critical = !terminalLimit && remaining !== null && remaining < 5;
+  const warning = !terminalLimit && remaining !== null && remaining < 10;
+  const state = terminalLimit ? "limit" : critical ? "critical" : warning ? "warning" : null;
+  banner.hidden = !state;
+  banner.className = "dashboard-status-banner dashboard-status-banner--usage-" + (state || "limit");
+  if (!state) return;
+  const title = banner.querySelector("strong"), body = banner.querySelector("span");
+  if (terminalLimit) {
+    title.textContent = t("notification.codex_usage_limit.title");
+    body.textContent = t("notification.codex_usage_limit.body");
+    return;
+  }
+  const percent = locale.number(remaining, { maximumFractionDigits: 0 });
+  title.textContent = t("notification.codex_usage_" + state + ".title");
+  body.textContent = t("notification.codex_usage_" + state + ".body", { percent });
 }
 
 // Browsers otherwise put initial dialog focus on the first close button.
@@ -1528,7 +1551,7 @@ function renderHealthStatus(x, snapshot = {}) {
   renderActiveLifecycle(x.lifecycle);
   renderOperatorMergeWait(x);
   renderEmergencyRecovery(snapshot.emergency_recovery, x);
-  renderCodexUsageLimitBanner(x);
+  renderCodexUsageLimitBanner(x, snapshot.rate_limits);
   indicator.className =
     "indicator indicator--" +
     statusTone +
