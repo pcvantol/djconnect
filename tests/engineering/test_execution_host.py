@@ -2178,6 +2178,31 @@ class LocalAgentRunnerTest(unittest.TestCase):
         self.assertIn("BLOCKED — no engineering changes were executed or delivered.", body)
         self.assertTrue(terminal_report_matches_state(body, state))
 
+    def test_blocked_post_merge_report_does_not_discard_verified_implementation_evidence(self) -> None:
+        state = TransactionState(
+            "post-merge-blocked",
+            "pcvantol/djconnect",
+            str(self.prompt),
+            "BLOCKED",
+            implementation_pull_request=908,
+            implementation_merge_commit="a" * 40,
+            diagnostic="Finalization requires a clean, synchronized main checkout.",
+            terminal=True,
+        )
+
+        body = generate_terminal_report(self.root, state).read_text(encoding="utf-8")
+
+        self.assertIn(
+            "BLOCKED — implementation merge was verified, but Finalization and end reconciliation did not complete.",
+            body,
+        )
+        self.assertIn(
+            "Completed work: implementation merge was verified; this is not a complete delivery.",
+            body,
+        )
+        self.assertNotIn("BLOCKED — no engineering changes were executed or delivered.", body)
+        self.assertTrue(terminal_report_matches_state(body, state))
+
     def test_blocked_report_projects_structured_development_host_drift(self) -> None:
         status = self.root / ".engineering" / "status"
         status.mkdir(parents=True, exist_ok=True)
