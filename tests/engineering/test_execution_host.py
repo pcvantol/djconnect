@@ -761,7 +761,10 @@ class LocalAgentRunnerTest(unittest.TestCase):
         self.assertIn("do not rerun the development-host bootstrap", agent.prompts[0])
         self.assertIn(f"The only repository checkout for this transaction is `{self.root.resolve()}`", agent.prompts[0])
         self.assertIn("producer provenance only", agent.prompts[0])
-        self.assertEqual(agent.roots, [self.root])
+        self.assertEqual(agent.roots, [self.root, self.root])
+        self.assertIn("Mandatory autonomous refactor and quality-control stage", agent.prompts[1])
+        self.assertIn("Assess test coverage for every changed behavior", agent.prompts[1])
+        self.assertIn("Assess the applicable operator, contract, and implementation documentation", agent.prompts[1])
         self.assertEqual(repository.synchronize_calls, [self.root])
 
     def test_reviewer_recommendations_do_not_enter_the_primary_prompt(self) -> None:
@@ -794,7 +797,7 @@ class LocalAgentRunnerTest(unittest.TestCase):
             self.root, self.store, FakeRepository(), FakeGitHub([]), agent, lambda _: None
         ).run(self.prompt, run_id="managed-target-boundary")
 
-        self.assertEqual(agent.roots, [self.root])
+        self.assertEqual(agent.roots, [self.root, self.root])
         self.assertIn(
             f"The only repository checkout for this transaction is `{self.root.resolve()}`",
             agent.prompts[0],
@@ -836,9 +839,21 @@ class LocalAgentRunnerTest(unittest.TestCase):
         agent = LiveStatusFakeAgent(AgentResult("COMPLETE"))
         runner = EngineeringRunner(self.root, self.store, FakeRepository(), FakeGitHub([]), agent, lambda _: None)
         runner.run(self.prompt, run_id="live-phase-run")
-        self.assertEqual(agent.live_phase, "EXECUTE_AGENT")
-        self.assertEqual(agent.live_action, "invoke_agent")
+        self.assertEqual(agent.live_phase, "QUALITY_CONTROL_AGENT")
+        self.assertEqual(agent.live_action, "autonomous_refactor_and_quality_control")
         self.assertEqual(agent.activity_action, "Codex bewerkt bestanden")
+
+    def test_autonomous_quality_control_cannot_replace_the_implementation_pr(self) -> None:
+        agent = SequencedFakeAgent([
+            AgentResult("COMPLETE", "codex/implementation", 701),
+            AgentResult("COMPLETE", "codex/implementation", 702),
+        ])
+        state = EngineeringRunner(
+            self.root, self.store, FakeRepository(), FakeGitHub([]), agent, lambda _: None
+        ).run(self.prompt, run_id="quality-scope-run")
+
+        self.assertEqual(state.phase, "BLOCKED")
+        self.assertEqual(state.next_action, "autonomous_quality_control_scope")
 
     def test_runtime_failure_replaces_a_stale_operator_merge_terminal_condition(self) -> None:
         class UsageLimitedAgent:
@@ -1485,13 +1500,13 @@ class LocalAgentRunnerTest(unittest.TestCase):
             self.store,
             repository,
             FakeGitHub([PullRequestEvidence(12, "MERGED", True, True, "b" * 40)]),
-            FakeAgent(AgentResult("WAITING")),
+            FakeAgent(AgentResult("COMPLETE", terminal_condition="repository_reconciled", commit_sha="a" * 40)),
             lambda _: None,
         )._poll(state)
 
         self.assertEqual(result.phase, "COMPLETE")
         self.assertEqual(repository.refresh_main_reference_calls, [self.root])
-        self.assertEqual(repository.synchronize_calls, [])
+        self.assertEqual(repository.synchronize_calls, [self.root])
 
     def test_agent_cannot_reuse_main_or_an_unbranched_pr_as_transaction_evidence(self) -> None:
         state = TransactionState(
@@ -1617,7 +1632,7 @@ class LocalAgentRunnerTest(unittest.TestCase):
         ])
         runner = EngineeringRunner(
             self.root, self.store, FakeRepository(), github,
-            SequencedFakeAgent([AgentResult("WAITING", "codex/final", 22)]), lambda _: None,
+            SequencedFakeAgent([AgentResult("WAITING", "codex/final", 22), AgentResult("COMPLETE", terminal_condition="repository_reconciled", commit_sha="a" * 40)]), lambda _: None,
         )
 
         result = runner._poll(state)
@@ -1630,7 +1645,7 @@ class LocalAgentRunnerTest(unittest.TestCase):
         implementation = PullRequestEvidence(21, "MERGED", True, True, "b" * 40)
         final_open = PullRequestEvidence(22, "OPEN", True, True)
         final_merged = PullRequestEvidence(22, "MERGED", True, True, "c" * 40)
-        agent = SequencedFakeAgent([AgentResult("WAITING", "codex/final", 22)])
+        agent = SequencedFakeAgent([AgentResult("WAITING", "codex/final", 22), AgentResult("COMPLETE", terminal_condition="repository_reconciled", commit_sha="a" * 40)])
         state = TransactionState("full-run", "pcvantol/djconnect", str(self.prompt), "WAIT_FOR_TERMINAL_EVIDENCE", branch="codex/implementation", pull_request=21, owner_authorized=True)
         runner = EngineeringRunner(self.root, self.store, FakeRepository(), FakeGitHub([implementation, final_open, final_merged]), agent, lambda _: None)
         result = runner._poll(state)
@@ -1642,10 +1657,34 @@ class LocalAgentRunnerTest(unittest.TestCase):
         self.assertIn("tools.engineering.repository_handoff", agent.prompts[0])
         self.assertIn("handoff records to that same Finalization branch", agent.prompts[0])
 
+    def test_owner_authorized_merged_lifecycle_reconciles_and_cleans_up(self) -> None:
+        """A verified two-PR happy path completes without a runner merge call."""
+        implementation = PullRequestEvidence(21, "MERGED", True, True, "b" * 40)
+        final_open = PullRequestEvidence(22, "OPEN", True, True)
+        final_merged = PullRequestEvidence(22, "MERGED", True, True, "c" * 40)
+        repository = FakeRepository()
+        github = FakeGitHub([implementation, final_open, final_merged])
+        state = TransactionState(
+            "autonomous-happy-path", "pcvantol/djconnect", str(self.prompt),
+            "WAIT_FOR_TERMINAL_EVIDENCE", branch="codex/implementation",
+            pull_request=21, owner_authorized=True,
+        )
+        result = EngineeringRunner(
+            self.root, self.store, repository, github,
+            SequencedFakeAgent([AgentResult("WAITING", "codex/final", 22), AgentResult("COMPLETE", terminal_condition="repository_reconciled", commit_sha="a" * 40)]), lambda _: None,
+        )._poll(state)
+
+        self.assertEqual(result.phase, "COMPLETE")
+        self.assertTrue(result.terminal)
+        self.assertEqual(result.implementation_merge_commit, "b" * 40)
+        self.assertEqual(result.finalization_merge_commit, "c" * 40)
+        self.assertEqual(repository.cleanup_calls, [("codex/implementation", "codex/final")])
+        self.assertEqual(github.merge_calls, [])
+
     def test_merged_finalization_returned_by_agent_is_reconciled_without_ready(self) -> None:
         implementation = PullRequestEvidence(21, "MERGED", True, True, "b" * 40)
         final_merged = PullRequestEvidence(22, "MERGED", True, True, "c" * 40)
-        agent = SequencedFakeAgent([AgentResult("WAITING", "codex/final", 22)])
+        agent = SequencedFakeAgent([AgentResult("WAITING", "codex/final", 22), AgentResult("COMPLETE", terminal_condition="repository_reconciled", commit_sha="a" * 40)])
         state = TransactionState(
             "already-finalized", "pcvantol/djconnect", str(self.prompt),
             "WAIT_FOR_TERMINAL_EVIDENCE", branch="codex/implementation",
@@ -1718,7 +1757,7 @@ class LocalAgentRunnerTest(unittest.TestCase):
         repository = FakeRepository()
         state = TransactionState("cleanup-run", "pcvantol/djconnect", str(self.prompt), "WAIT_FOR_TERMINAL_EVIDENCE", transaction_kind="FINALIZATION", owner_authorized=True, implementation_branch="codex/implementation", finalization_branch="codex/final", finalization_merge_commit="c" * 40, pull_request=25)
         github = FakeGitHub([PullRequestEvidence(25, "MERGED", True, True, "c" * 40)])
-        result = EngineeringRunner(self.root, self.store, repository, github, FakeAgent(AgentResult("WAITING")), lambda _: None)._poll(state)
+        result = EngineeringRunner(self.root, self.store, repository, github, FakeAgent(AgentResult("COMPLETE", terminal_condition="repository_reconciled", commit_sha="a" * 40)), lambda _: None)._poll(state)
         self.assertEqual(result.phase, "COMPLETE")
         self.assertEqual(repository.cleanup_calls, [("codex/implementation", "codex/final")])
 
@@ -1756,6 +1795,16 @@ class LocalAgentRunnerTest(unittest.TestCase):
             root / "tools" / "engineering" / "ENGINEERING_PLATFORM_VERSION.json"
         )
         validate_compatibility(manifest, RunnerCompatibility(), "0.146.0")
+
+    def test_current_storage_schema_is_admitted_for_retry_children(self) -> None:
+        root = Path(__file__).parents[2]
+        manifest = EngineeringPlatformManifest.load(
+            root / "tools" / "engineering" / "ENGINEERING_PLATFORM_VERSION.json"
+        )
+        self.assertEqual(manifest.storage_schema, 27)
+        validate_compatibility(
+            manifest, RunnerCompatibility(storage_schemas=frozenset({27})), "0.146.0"
+        )
 
     def test_incompatible_admitted_storage_schema_is_rejected_before_state_is_saved(self) -> None:
         compatibility = RunnerCompatibility(
@@ -2071,7 +2120,7 @@ class LocalAgentRunnerTest(unittest.TestCase):
         self.assertIn("Execution Status: `COMPLETE`", body)
         self.assertIn("Receipt ID: `evidence-2`", body)
         self.assertIn("### Mission Statistics", body)
-        self.assertIn("Executed validation: `Documentation validation`", body)
+        self.assertIn("Executed Validation Command: `Documentation validation`", body)
         self.assertIn('"deliverable_answer": "YES / PASS / GO', body)
 
     def test_component_inventory_is_derived_from_implementation_evidence(self) -> None:
@@ -2102,6 +2151,19 @@ class LocalAgentRunnerTest(unittest.TestCase):
         self.assertIn("missing required section: ## Qualification Projection", errors)
         self.assertIn("missing required section: ## Statistics Projection", errors)
         self.assertIn("explicit deliverable answer is missing", errors)
+
+    def test_report_consistency_rejects_contradictory_fresh_submission(self) -> None:
+        state = TransactionState("lineage-conflict", "pcvantol/djconnect", str(self.prompt), "COMPLETE", terminal=True)
+        bundle = collect_terminal_evidence(self.root, state)
+        body = "\n".join((
+            "## Component Inventory", "## Deliverable Projection", "## Qualification Projection",
+            "## Runtime Projection", "## Execution Receipt Projection", "## Decision Evidence Projection",
+            "## Statistics Projection", "## Commit Strategy", "## Branch Traceability", "## Requirement Traceability",
+            "## Validation Traceability", "## Execution Statistics", "## Engineering Evidence Summary",
+            "## Evidence Bundle", f"{bundle.target_commit}", "- Fresh Submission: `YES`",
+            "- Retry Parent: `inbox-parent`", "- Resume Parent: `NONE`",
+        ))
+        self.assertIn("fresh submission conflicts with retry or resume parent", report_consistency_errors(body, state, bundle, ""))
 
     def test_complete_genesis_report_keeps_host_and_target_identities_distinct(self) -> None:
         target = self.root / "genesis-report-target"
@@ -2143,6 +2205,49 @@ class LocalAgentRunnerTest(unittest.TestCase):
         self.assertIn("Completed work: no successful engineering delivery is claimed.", body)
         self.assertIn("BLOCKED — no engineering changes were executed or delivered.", body)
         self.assertTrue(terminal_report_matches_state(body, state))
+
+    def test_blocked_post_merge_report_does_not_discard_verified_implementation_evidence(self) -> None:
+        state = TransactionState(
+            "post-merge-blocked",
+            "pcvantol/djconnect",
+            str(self.prompt),
+            "BLOCKED",
+            implementation_pull_request=908,
+            implementation_merge_commit="a" * 40,
+            diagnostic="Finalization requires a clean, synchronized main checkout.",
+            terminal=True,
+        )
+
+        body = generate_terminal_report(self.root, state).read_text(encoding="utf-8")
+
+        self.assertIn(
+            "BLOCKED — implementation merge was verified, but Finalization and end reconciliation did not complete.",
+            body,
+        )
+        self.assertIn(
+            "Completed work: implementation merge was verified; this is not a complete delivery.",
+            body,
+        )
+        self.assertNotIn("BLOCKED — no engineering changes were executed or delivered.", body)
+        self.assertTrue(terminal_report_matches_state(body, state))
+
+    def test_post_merge_workspace_drift_waits_for_safe_finalization_retry(self) -> None:
+        repository = FakeRepository(clean=False, branch="feature/other")
+        runner = EngineeringRunner(
+            self.root, self.store, repository, FakeGitHub([]), FakeAgent(AgentResult("COMPLETE")), lambda _: None
+        )
+        state = TransactionState(
+            "post-merge-sync-wait", "pcvantol/djconnect", str(self.prompt), "WAIT_FOR_OPERATOR_MERGE",
+            owner_authorized=True, implementation_pull_request=908,
+            implementation_merge_commit="a" * 40,
+        )
+
+        result = runner._start_finalization(state, 908)
+
+        self.assertEqual(result.phase, "WAIT_FOR_OPERATOR_MERGE")
+        self.assertFalse(result.terminal)
+        self.assertEqual(result.next_action, "await_clean_synchronized_main")
+        self.assertEqual(result.terminal_condition, "post_merge_workspace_sync_required")
 
     def test_blocked_report_projects_structured_development_host_drift(self) -> None:
         status = self.root / ".engineering" / "status"
@@ -2199,6 +2304,17 @@ class LocalAgentRunnerTest(unittest.TestCase):
         self.assertEqual(reconciled_recommendations(results), ("Use canonical wording.",))
         records = records_for_storage(selections, results)
         self.assertEqual(records[0]["accepted_recommendations"], 1)
+        self.assertEqual(records[0]["codex_commands_executed"], 0)
+
+    def test_reviewer_record_keeps_its_own_safe_command_count(self) -> None:
+        selection = select_reviewers("documentation", self.prompt, "IMPLEMENTATION", {})
+        result = ReviewerResult(
+            "documentation", "Review complete.", churn={"tool_loop_operations": 4}
+        )
+
+        records = records_for_storage(selection, (result,))
+
+        self.assertEqual(records[0]["codex_commands_executed"], 4)
 
     def test_reviewer_prompt_reuses_bounded_run_scoped_facts_without_conclusions(self) -> None:
         selection = select_reviewers("validation", self.prompt, "IMPLEMENTATION", {})[0]

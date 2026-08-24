@@ -2,6 +2,117 @@
 
 Status: active platform-evolution repository
 
+## PR #915 finalized by PR #916
+
+PR [#915](https://github.com/pcvantol/djconnect/pull/915), **Improve dashboard
+workflow visibility and merge handoffs**, merged as
+`9668ffc33659842a791910ad36e93947b03928c3` and is contained in current
+`main`. The implementation adds dashboard visibility and evidence projection
+only: it preserves operator-owned merges and all lifecycle, retry/resume,
+validation, reviewer, provider, Forge and delivery authority boundaries. This
+Governance-only Finalization PR
+[#916](https://github.com/pcvantol/djconnect/pull/916) merged as
+`a9739cb3519724a6ddeb211e132be2c4a987b9bb`; automatic end reconciliation is
+complete. Repository State: `MERGED_RECONCILED`; Workspace State: `NOT_READY`
+because the separately checked-out implementation branch has not passed the
+required safe-cleanup evidence. Finalization Pending: `NO`.
+
+## PR #909 finalized by PR #910
+
+PR [#909](https://github.com/pcvantol/djconnect/pull/909), **feat: show reviewer command activity**, merged as `8850a724c6f78a0d1a472097036bea488511febc`. Finalization PR [#910](https://github.com/pcvantol/djconnect/pull/910) merged as `e272ad13e5e0b3d1bd0b7c421280074de213eb9a`; automatic reconciliation complete. Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`; Finalization Pending: `NO`.
+
+## PR #913 reconciled by PR #914
+
+PR [#913](https://github.com/pcvantol/djconnect/pull/913), **fix: harden
+managed autonomy evidence projection**, merged as
+`3f0b801156a140225c3724ac0f0a54ebba17f55a`. This bounded reporting correction
+projects canonical submission lineage, required-check terminal state, authority
+counts, delivery-file semantics and validation traceability without rewriting
+the historical V2 qualification. Its immutable Prompt History record is
+`docs/history/prompts/2026-08-24-managed-autonomy-evidence-projection.md`.
+The implementation merge is an `EXPECTED_OPERATOR_GATE`. Its governance-only
+Finalization PR [#914](https://github.com/pcvantol/djconnect/pull/914) merged
+as `1b74d19e169e0e18430299dbfdb51446995fad40`; terminal required checks are
+successful. This one direct-on-`main` reconciliation updates only the canonical
+rolling records. Repository State: `MERGED_RECONCILED`; Workspace State:
+`WORKSPACE_READY`; Finalization Pending: `NO`.
+
+## PR #911 finalized by PR #912
+
+PR [#911](https://github.com/pcvantol/djconnect/pull/911), **test: guard
+managed resume lineage**, merged as
+`39eaa4aa2f80e672c86a674f509a3e749687cd71`. The fresh Managed qualification
+run contributes only a resume-lineage regression guard; no lifecycle,
+validation, reviewer-selection, retry/resume, merge-authority or delivery
+semantics changed. Its immutable Prompt History record is
+`docs/history/prompts/2026-08-24-managed-autonomy-v2-qualification.md`.
+The implementation and Finalization merges are recorded as
+`EXPECTED_OPERATOR_GATE`s. Its governance-only Finalization PR
+[#912](https://github.com/pcvantol/djconnect/pull/912) merged as
+`8c948ac8321013c719f7b714961285b14799a7af`; autonomous reconciliation is
+complete. Repository State: `MERGED_RECONCILED`; Workspace State:
+`WORKSPACE_READY`; Finalization Pending: `NO`.
+
+## PR #906 finalized by PR #907
+
+PR [#906](https://github.com/pcvantol/djconnect/pull/906), **fix: show automatic reconciliation in managed flow**, merged as `b0f599f14e61e2f46acca4a057668a70cfd2778b`. Finalization PR #907 merged as `ad35f42ac099fa60cf30b45315338cc80f64b039`; automatic reconciliation complete. Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`; Finalization Pending: `NO`.
+
+## PR #904 finalized by PR #905
+
+PR [#904](https://github.com/pcvantol/djconnect/pull/904), **feat: automate
+post-finalization reconciliation**, merged as
+`bc60d55c09edea79d67da1c595efbc3850ee96f2`. The platform now applies only the
+four canonical rolling-record updates directly to synchronized `main` after a
+verified Finalization merge. Its governance-only Finalization PR
+[#905](https://github.com/pcvantol/djconnect/pull/905) merged as
+`baa180a23b06cb0ff5d0a1ae37e36bae9668fbc0`. Implementation and Finalization
+merge authority remain operator-owned. Repository State: `MERGED_RECONCILED`;
+Workspace State: `WORKSPACE_READY`; Finalization Pending: `NO`.
+
+## PR #901 finalization reconciled
+
+PR [#901](https://github.com/pcvantol/djconnect/pull/901), **fix: admit
+storage schema 26 for retries**, merged as
+`c9e1572733fa8dc7815d3c5204997978b0028d53`. Manifest and active storage schema
+now agree at `26`, and regression coverage prevents future schema migrations
+from omitting the manifest update. Retry semantics are unchanged. Its
+governance-only Finalization PR [#902](https://github.com/pcvantol/djconnect/pull/902)
+merged as `26fbbd1e64237fa781e0949d68b81729460f3e57`. Repository State:
+`MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`; Finalization Pending:
+`NO`.
+
+## PR #898 finalized by PR #899
+
+PR [#898](https://github.com/pcvantol/djconnect/pull/898), **feat: harden
+Managed autonomy evidence contract**, merged as
+`4f68237af04142c5247fc435743ecd5b24c3fa44`. Append-only action authority,
+operator merge-gate and validation evidence now support a fail-closed Managed
+autonomy read model. Managed merge authority remains operator-owned; automatic
+merge was not introduced. No real autonomy qualification was submitted.
+`main == origin/main`; worktree clean; the implementation branch was removed
+through the squash-merge patch-equivalence exception. Its governance-only
+Finalization PR [#899](https://github.com/pcvantol/djconnect/pull/899) merged as
+`37cdd87509e6eaca6688f652d621b3b185c89ffd`. Repository State:
+`MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`; Finalization Pending:
+`NO`.
+
+## PR #893 finalization pending
+
+PR [#893](https://github.com/pcvantol/djconnect/pull/893), **test: expand
+bounded failed diagnostics**, merged as
+`b393fafc55cd25cf4792eae2af0b7cada35b077a`. The focused Engineering Platform
+regression now proves that explicitly expanded bounded failed-test evidence
+retains an actionable failing identity, assertion and diagnostic context,
+while raw tool output is not persisted merely to support expansion. The
+immutable Prompt History record is
+`docs/history/prompts/2026-08-24-bounded-failed-evidence-expansion.md`.
+This dedicated governance-only Finalization reconciles the four rolling records
+and handoff metadata; its merge restores Repository State:
+`MERGED_RECONCILED` and Workspace State: `WORKSPACE_READY` after cleanup. No
+lifecycle, retry/resume/dismiss, validation policy, reviewer count or
+independence, model selection, provider routing/accounting, credit rates, Forge
+or delivery authority behavior changed.
+
 ## PR #890 finalization reconciled
 
 PR [#890](https://github.com/pcvantol/djconnect/pull/890), **test: cover

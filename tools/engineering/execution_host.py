@@ -95,6 +95,12 @@ from .execution_timing import complete_active_phase as _complete_active_phase
 from .execution_timing import complete_phase as _complete_phase
 from .execution_timing import start_or_resume_phase as _start_or_resume_phase
 from .execution_timing import start_phase as _start_phase
+from .managed_autonomy import (
+    append_action as record_managed_action,
+    append_pr_check_observation as record_managed_pr_check,
+    append_validation_observation as record_managed_validation,
+    record_gate as record_managed_gate,
+)
 
 
 LOGGER = logging.getLogger(__name__)
@@ -245,6 +251,14 @@ def assemble_prompt(
         else json.dumps(state.to_dict(), sort_keys=True)
     )
     authority = (
+        """This is the sole automatic post-Finalization reconciliation. You may only update
+the four canonical rolling records, commit them directly to the already synchronized `main`,
+and push that one commit. Do not create a branch or pull request. Do not change runtime code,
+authority, lifecycle, retry, validation, provider, Forge, queue, or delivery semantics. Return
+`COMPLETE`, `repository_reconciled`, and the pushed main commit SHA only after verifying a clean
+workspace and that `main` contains that exact commit."""
+        if state and state.transaction_kind == "RECONCILIATION"
+        else
         """The runner holds explicit owner authorization for this exact bounded transaction. You may create, commit and push one bounded branch and draft pull request, or repair that same pull request. The runner may mark that pull request ready for review, but only the human operator may merge it. Do not merge, release, deploy, tag, publish, upload, change repository settings, bypass protection, or expand the objective."""
         if state and state.owner_authorized
         else "Do not create a merge, release, deployment, daemon, remote-control, or architecture authority beyond the supplied objective."
@@ -382,6 +396,13 @@ class EngineeringRunner:
                 else:
                     reviewer["finished_at"] = datetime.now(timezone.utc).isoformat()
                     reviewer["failed"] = bool(result and result.failed)
+                    churn = result.churn if result is not None and isinstance(result.churn, dict) else {}
+                    command_count = churn.get("tool_loop_operations", 0)
+                    reviewer["codex_commands_executed"] = (
+                        command_count
+                        if isinstance(command_count, int) and not isinstance(command_count, bool)
+                        else 0
+                    )
                 break
             write_live_status(self.root, state, "Capability review: " + selection.reviewer, self.reviewer_runtime)
 
@@ -441,7 +462,50 @@ class EngineeringRunner:
         """Persist only bounded report evidence; it has no lifecycle authority."""
         if not result.validation_evidence:
             return state
+        for item in result.validation_evidence:
+            command, summary = item.get("command", ""), item.get("result", "")
+            kind = self._validation_kind(command)
+            if kind is None:
+                continue
+            normalized = summary.casefold()
+            status = "FAIL" if any(token in normalized for token in ("fail", "error", "blocked")) else "PASS"
+            try:
+                record_managed_validation(
+                    self.root, run_id=state.run_id, control=f"validation_{kind}", state=status,
+                    required=True, currentness=state.repair_iterations,
+                )
+            except EngineeringStorageError:
+                LOGGER.warning("Managed validation evidence is unavailable for run %s", state.run_id)
         return replace(state, validation_evidence=result.validation_evidence)
+
+    def _managed_action(self, state: TransactionState, action: str, authority: str = "AUTONOMOUS_EP_ACTION", *, actor: str = "execution_host", evidence_ref: str = "runtime") -> None:
+        """Best-effort evidence instrumentation; it never changes lifecycle outcome."""
+        try:
+            record_managed_action(self.root, run_id=state.run_id, action=action, authority=authority, actor=actor, evidence_ref=evidence_ref)
+        except EngineeringStorageError:
+            LOGGER.warning("Managed-autonomy evidence is unavailable for run %s", state.run_id)
+
+    def _managed_gate(self, state: TransactionState, gate_type: str, status: str, pr: int, *, resolved: bool = False) -> None:
+        try:
+            record_managed_gate(self.root, run_id=state.run_id, gate_type=gate_type, status=status, related_pr=pr, phase=state.phase, resolution_actor="operator" if resolved else None, resolved_at=datetime.now(timezone.utc).isoformat() if resolved else None)
+        except EngineeringStorageError:
+            LOGGER.warning("Managed governance-gate evidence is unavailable for run %s", state.run_id)
+
+    def _managed_pr_check(self, state: TransactionState, pr: PullRequestEvidence) -> None:
+        """Persist current GitHub required-check evidence separately from historical waits."""
+        role = state.transaction_kind
+        if role not in {"IMPLEMENTATION", "FINALIZATION"}:
+            return
+        check_state = "PASS" if pr.checks_terminal and pr.checks_passed else "FAIL" if pr.checks_terminal else "WAITING"
+        try:
+            record_managed_pr_check(
+                self.root, run_id=state.run_id, pr_number=pr.number, pr_role=role,
+                pr_state=pr.state, merge_commit=pr.merge_commit,
+                required_checks_state=check_state, evidence_ref="github_pr_status_check_rollup",
+                currentness=state.repair_iterations,
+            )
+        except EngineeringStorageError:
+            LOGGER.warning("Managed PR check evidence is unavailable for run %s", state.run_id)
 
     def _record_repair_audit(self, state: TransactionState, *, failed_checks: str, objective: str, result: AgentResult | None, outcome: str) -> TransactionState:
         """Append bounded per-repair evidence; never overwrite prior attempts."""
@@ -473,9 +537,12 @@ class EngineeringRunner:
             return "tests"
         return None
 
-    def _invoke_agent_with_timing(self, state: TransactionState, prompt: str, *, repair: bool = False) -> AgentResult:
+    def _invoke_agent_with_timing(self, state: TransactionState, prompt: str, *, repair: bool = False, quality: bool = False) -> AgentResult:
         """Measure only the bounded runtime-provider process interval."""
-        parent = start_phase(self.root, state.run_id, "REPAIR", attempt=state.repair_iterations, metadata={"iteration": state.repair_iterations}) if repair else None
+        parent = (
+            start_phase(self.root, state.run_id, "REPAIR", attempt=state.repair_iterations, metadata={"iteration": state.repair_iterations})
+            if repair else start_phase(self.root, state.run_id, "QUALITY_CONTROL", metadata={"kind": "autonomous_refactor_quality"}) if quality else None
+        )
         provider = start_phase(
             self.root, state.run_id, "PROVIDER_EXECUTION", parent_phase_id=parent.phase_id if parent else None,
             attempt=max(1, state.repair_iterations + 1), metadata={"provider": "codex_cli"},
@@ -505,7 +572,7 @@ class EngineeringRunner:
         try:
             result = self.agent.invoke(self.root, prompt)
         except Exception:
-            self._persist_provider_invocation(state, phase="REPAIR" if repair else "PROVIDER_EXECUTION", started_at=invocation_started)
+            self._persist_provider_invocation(state, phase="REPAIR" if repair else "QUALITY_CONTROL" if quality else "PROVIDER_EXECUTION", started_at=invocation_started)
             for active in validation_spans.values():
                 complete_phase(self.root, active, outcome="INTERRUPTED")
             complete_phase(self.root, provider, outcome="FAILED")
@@ -515,11 +582,71 @@ class EngineeringRunner:
         finally:
             if callable(command_callback):
                 command_callback(None)
-        self._persist_provider_invocation(state, phase="REPAIR" if repair else "PROVIDER_EXECUTION", started_at=invocation_started)
+        self._persist_provider_invocation(state, phase="REPAIR" if repair else "QUALITY_CONTROL" if quality else "PROVIDER_EXECUTION", started_at=invocation_started)
         complete_phase(self.root, provider)
         if parent:
             complete_phase(self.root, parent)
         return result
+
+    def _run_autonomous_quality_control(
+        self, state: TransactionState, implementation: AgentResult
+    ) -> tuple[TransactionState, AgentResult]:
+        """Run the required post-implementation refactor and quality boundary.
+
+        The controller is autonomous but cannot widen delivery scope: it may
+        amend only the current transaction branch and its existing PR.
+        """
+        quality = replace(
+            state,
+            phase="QUALITY_CONTROL_AGENT",
+            branch=implementation.branch or state.branch,
+            pull_request=implementation.pull_request or state.pull_request,
+            next_action="autonomous_refactor_and_quality_control",
+        )
+        self.store.save(quality)
+        write_live_status(self.root, quality, quality.next_action)
+        prompt = assemble_prompt(
+            Path(quality.prompt_path), quality,
+            managed_target=self.root if quality.execution_mode == "MANAGED" else None,
+        ) + """
+
+Mandatory autonomous refactor and quality-control stage:
+- Inspect the implementation now present on this transaction branch.
+- Autonomously make only demonstrable maintainability, clarity, safety, or
+  test-coverage improvements within the original bounded objective.
+- Assess test coverage for every changed behavior. Add or strengthen focused
+  regression tests whenever existing coverage does not prove that behavior.
+- Assess the applicable operator, contract, and implementation documentation.
+  Update it whenever the bounded change affects documented behavior; only
+  leave documentation unchanged when the inspection proves it is unaffected.
+- Run the relevant focused validation, including the added or affected tests,
+  and `git diff --check`.
+- Preserve the existing transaction branch and pull request. If changes are
+  needed, commit and push them to that same branch; do not create another PR,
+  merge, alter authority, or expand scope.
+- Return the same pull-request number and branch after the quality boundary.
+"""
+        try:
+            result = self._invoke_agent_with_timing(quality, prompt, quality=True)
+            quality = self._record_agent_execution_time(quality)
+            quality = self._record_validation_evidence(quality, result)
+            self._persist_agent_usage(quality.run_id)
+        except CodexInvocationError as error:
+            quality = self._record_agent_execution_time(quality)
+            self.console_detail = error.console_detail
+            return self._save_terminal(quality, "BLOCKED", error.next_action, str(error), terminal_condition=error.terminal_condition), implementation
+        if result.terminal_state in {"BLOCKED", "FAILED"}:
+            return self._save_terminal(quality, result.terminal_state, "autonomous_quality_control_failed", result.diagnostic or "Autonomous quality control did not complete."), implementation
+        if implementation.pull_request and result.pull_request and result.pull_request != implementation.pull_request:
+            return self._save_terminal(quality, "BLOCKED", "autonomous_quality_control_scope", "Autonomous quality control returned a different pull request."), implementation
+        if implementation.branch and result.branch and result.branch != implementation.branch:
+            return self._save_terminal(quality, "BLOCKED", "autonomous_quality_control_scope", "Autonomous quality control returned a different branch."), implementation
+        return quality, replace(
+            implementation,
+            branch=result.branch or implementation.branch,
+            pull_request=result.pull_request or implementation.pull_request,
+            validation_evidence=implementation.validation_evidence + result.validation_evidence,
+        )
 
     def _reject_historical_agent_pull_request(
         self, state: TransactionState
@@ -649,6 +776,8 @@ class EngineeringRunner:
         self._verify_engineering_platform()
         # Establish canonical transaction identity before persisting readiness evidence.
         self.store.save(state)
+        if context.execution_mode == "MANAGED":
+            self._managed_action(state, "IMPLEMENTATION")
         # This envelope is deliberately persisted once and can be resumed
         # after process restart.  It is excluded from bottleneck ranking.
         self._total_phase = start_or_resume_phase(
@@ -758,7 +887,9 @@ class EngineeringRunner:
                     "repository_synchronization",
                     f"Repository synchronization failed: {redact_diagnostic(str(error))}",
                 )
-        preparation = start_phase(self.root, state.run_id, "EXECUTION_PREPARATION")
+        state = replace(state, phase="CAPABILITY_REVIEW", next_action="capability_review")
+        self.store.save(state)
+        capability_review = start_phase(self.root, state.run_id, "CAPABILITY_REVIEW")
         reviewer_evidence = (
             ReviewerEvidence.from_repository(state.run_id, state.execution_mode, evidence)
             if state.execution_mode == "MANAGED"
@@ -824,7 +955,7 @@ class EngineeringRunner:
         )
         self.store.save(state)
         write_live_status(self.root, state, state.next_action)
-        complete_phase(self.root, preparation)
+        complete_phase(self.root, capability_review)
         if state.terminal or state.phase == "WAIT_FOR_TERMINAL_EVIDENCE":
             return self._poll(state)
         try:
@@ -885,6 +1016,10 @@ class EngineeringRunner:
             )
         if state.execution_mode == "GENESIS":
             return self._reconcile_genesis_result(state, result)
+        if state.transaction_kind == "IMPLEMENTATION" and result.terminal_state not in {"BLOCKED", "FAILED"}:
+            state, result = self._run_autonomous_quality_control(state, result)
+            if state.terminal:
+                return state
         state = replace(
             state,
             phase="WAIT_FOR_TERMINAL_EVIDENCE",
@@ -896,6 +1031,8 @@ class EngineeringRunner:
             if state.transaction_kind == "FINALIZATION" else state.finalization_branch,
             finalization_pull_request=result.pull_request
             if state.transaction_kind == "FINALIZATION" else state.finalization_pull_request,
+            reconciliation_pull_request=result.pull_request
+            if state.transaction_kind == "RECONCILIATION" else state.reconciliation_pull_request,
         )
         self.store.save(state)
         write_live_status(self.root, state, state.next_action)
@@ -993,6 +1130,11 @@ class EngineeringRunner:
                 last_verified_sha=evidence.head_sha,
                 next_action="create_finalization",
             )
+        if state.transaction_kind == "RECONCILIATION" and not state.reconciliation_pull_request:
+            return replace(
+                state, phase="RECONCILE_AGENT", last_verified_sha=evidence.head_sha,
+                next_action="create_reconciliation",
+            )
         if (
             state.transaction_kind == "FINALIZATION"
             and state.finalization_merge_commit
@@ -1026,6 +1168,26 @@ class EngineeringRunner:
                 "Agent result referenced a pull request without a transaction branch; the current main branch cannot be reused as execution evidence.",
             )
         if not state.pull_request:
+            if state.transaction_kind == "RECONCILIATION" and result and result.pull_request:
+                return self._save_terminal(
+                    state, "BLOCKED", "reconciliation_pull_request_forbidden",
+                    "Automatic reconciliation must commit directly to main and must not create a pull request.",
+                )
+            if state.transaction_kind == "RECONCILIATION" and result and result.terminal_state == "COMPLETE":
+                evidence = self.repository.inspect(self.root)
+                if (
+                    result.terminal_condition == "repository_reconciled"
+                    and result.commit_sha
+                    and evidence.clean
+                    and evidence.branch == "main"
+                    and evidence.head_sha == result.commit_sha
+                    and evidence.main_contains_head
+                ):
+                    return self._cleanup(replace(state, last_verified_sha=result.commit_sha))
+                return self._save_terminal(
+                    state, "BLOCKED", "automatic_reconciliation_evidence_required",
+                    "Automatic reconciliation requires a clean main checkout containing its reported commit.",
+                )
             if result and result.terminal_state == "COMPLETE":
                 evidence = self.repository.inspect(self.root)
                 if evidence.clean and evidence.main_contains_head:
@@ -1052,7 +1214,9 @@ class EngineeringRunner:
                 complete_phase(self.root, wait)
                 continue
             complete_phase(self.root, pr_operation)
+            self._managed_pr_check(state, pr)
             if not pr.checks_terminal:
+                self._managed_action(state, "GITHUB_REQUIRED_CHECK", "EXTERNAL_PLATFORM_EVENT", actor="github", evidence_ref="required_check_waiting")
                 wait = start_phase(self.root, state.run_id, "EXTERNAL_CI_WAIT", metadata={"reason": "github_checks"})
                 self.sleep(15)
                 complete_phase(self.root, wait)
@@ -1088,9 +1252,15 @@ class EngineeringRunner:
                 except RunnerError:
                     return self._save_operator_merge_wait(state)
                 if pr.merge_commit and self.repository.remote_main_contains(self.root, pr.merge_commit):
+                    gate_type = {"IMPLEMENTATION": "IMPLEMENTATION_MERGE_APPROVAL", "FINALIZATION": "FINALIZATION_MERGE_APPROVAL", "RECONCILIATION": "RECONCILIATION_MERGE_APPROVAL"}[state.transaction_kind]
+                    self._managed_gate(state, gate_type, "SATISFIED", pr.number, resolved=True)
+                    action = {"IMPLEMENTATION": "IMPLEMENTATION_MERGE", "FINALIZATION": "FINALIZATION_MERGE", "RECONCILIATION": "RECONCILIATION_MERGE"}[state.transaction_kind]
+                    self._managed_action(state, action, "EXPECTED_OPERATOR_GATE", actor="operator", evidence_ref="github_merge")
                     state = self._record_merged_evidence(state, pr, evidence)
                     if state.owner_authorized and state.transaction_kind == "IMPLEMENTATION":
                         return self._start_finalization(state, pr.number)
+                    if state.owner_authorized and state.transaction_kind == "FINALIZATION":
+                        return self._start_automatic_reconciliation(state)
                     return self._cleanup(state)
             # A green PR is an explicit hand-off to the operator.  The runner
             # must not turn that durable waiting state into a synthetic failure
@@ -1104,6 +1274,8 @@ class EngineeringRunner:
                 waiting_for_merge_since=state.waiting_for_merge_since
                 or datetime.now(timezone.utc).isoformat(),
             )
+            gate_type = {"IMPLEMENTATION": "IMPLEMENTATION_MERGE_APPROVAL", "FINALIZATION": "FINALIZATION_MERGE_APPROVAL", "RECONCILIATION": "RECONCILIATION_MERGE_APPROVAL"}[state.transaction_kind]
+            self._managed_gate(waiting, gate_type, "WAITING", state.pull_request)
             return self._save_operator_merge_wait(waiting)
 
     def _repair(self, state: TransactionState, objective: str) -> TransactionState:
@@ -1165,6 +1337,7 @@ class EngineeringRunner:
     def _start_finalization(
         self, state: TransactionState, implementation_pr: int
     ) -> TransactionState:
+        self._managed_action(state, "POST_IMPLEMENTATION_MERGE")
         if state.finalization_pull_request:
             return replace(
                 state,
@@ -1181,11 +1354,9 @@ class EngineeringRunner:
         evidence = self.repository.inspect(self.root)
         if not evidence.clean or evidence.branch != "main":
             complete_phase(self.root, finalization_phase, outcome="FAILED")
-            return self._save_terminal(
+            return self._save_post_merge_sync_wait(
                 state,
-                "BLOCKED",
-                "synchronize_main",
-                "Finalization requires a clean, synchronized main checkout.",
+                "Finalization is waiting for a clean, synchronized main checkout.",
             )
         finalization = replace(
             state,
@@ -1198,6 +1369,7 @@ class EngineeringRunner:
             latest_repository_evidence=_repository_summary(evidence),
             waiting_for_merge_since=None,
         )
+        self._managed_action(finalization, "FINALIZATION")
         self.store.save(finalization)
         write_live_status(self.root, finalization, finalization.next_action)
         complete_phase(self.root, finalization_phase)
@@ -1269,6 +1441,48 @@ class EngineeringRunner:
         self.github.ready(result.pull_request)
         return self._poll(finalization, result)
 
+    def _start_automatic_reconciliation(self, state: TransactionState) -> TransactionState:
+        """Apply the bounded rolling-record update after Finalization merges.
+
+        This is deliberately a direct, post-merge `main` commit: it has no PR,
+        review, approval, or operator merge boundary. Its scope is enforced by
+        the supplied reconciliation prompt and the exact commit evidence below.
+        """
+        synchronize = getattr(self.repository, "synchronize_main", None)
+        if callable(synchronize):
+            synchronize(self.root)
+        evidence = self.repository.inspect(self.root)
+        if not evidence.clean or evidence.branch != "main":
+            return self._save_post_merge_sync_wait(
+                state,
+                "End reconciliation is waiting for a clean, synchronized main checkout.",
+            )
+        reconciliation = replace(
+            state, phase="RECONCILE_AGENT", transaction_kind="RECONCILIATION",
+            branch=None, pull_request=None, reconciliation_pull_request=None,
+            next_action="reconcile_rolling_records_on_main", waiting_for_merge_since=None,
+            latest_repository_evidence=_repository_summary(evidence),
+        )
+        self._managed_action(reconciliation, "AUTOMATIC_RECONCILIATION")
+        self.store.save(reconciliation)
+        write_live_status(self.root, reconciliation, reconciliation.next_action)
+        try:
+            result = self._invoke_agent_with_timing(
+                reconciliation,
+                assemble_prompt(
+                    Path(reconciliation.prompt_path), reconciliation,
+                    managed_target=self.root if reconciliation.execution_mode == "MANAGED" else None,
+                ) + "\n\nReconcile only the four canonical rolling current-state records after the verified Finalization merge. Preserve immutable Prompt History.",
+            )
+            reconciliation = self._record_agent_execution_time(reconciliation)
+            reconciliation = self._record_validation_evidence(reconciliation, result)
+            self._persist_agent_usage(reconciliation.run_id)
+        except CodexInvocationError as error:
+            reconciliation = self._record_agent_execution_time(reconciliation)
+            self.console_detail = error.console_detail
+            return self._save_terminal(reconciliation, "BLOCKED", error.next_action, str(error), terminal_condition=error.terminal_condition)
+        return self._poll(reconciliation, result)
+
     def _save_terminal(
         self,
         state: TransactionState,
@@ -1316,8 +1530,30 @@ class EngineeringRunner:
         write_live_status(self.root, state, state.next_action)
         return state
 
+    def _save_post_merge_sync_wait(
+        self, state: TransactionState, diagnostic: str
+    ) -> TransactionState:
+        """Keep post-merge closure resumable when the shared checkout is busy.
+
+        A dirty or non-main checkout is never force-cleaned.  The verified
+        merge remains durable evidence and the watcher retries the same
+        transaction through its normal merge-poll path once the checkout is
+        available again.
+        """
+        waiting = replace(
+            state,
+            phase="WAIT_FOR_OPERATOR_MERGE",
+            terminal=False,
+            next_action="await_clean_synchronized_main",
+            terminal_condition="post_merge_workspace_sync_required",
+            diagnostic=redact_diagnostic(diagnostic),
+        )
+        return self._save_operator_merge_wait(waiting)
+
     def _cleanup(self, state: TransactionState) -> TransactionState:
         print("[REPOSITORY_CLEANUP] Repository cleanup in progress")
+        self._managed_action(state, "RECONCILIATION")
+        self._managed_action(state, "CLEANUP")
         cleanup = start_phase(self.root, state.run_id, "REPOSITORY_CLEANUP")
         try:
             result = self.finalization.cleanup(
@@ -1350,6 +1586,8 @@ class EngineeringRunner:
                 implementation_merge_commit=pr.merge_commit,
                 **common,
             )
+        if state.transaction_kind == "RECONCILIATION":
+            return replace(state, reconciliation_pull_request=pr.number, **common)
         return replace(
             state,
             finalization_branch=state.branch or state.finalization_branch,
@@ -1369,7 +1607,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--run-id")
     parser.add_argument(
         "--transaction-kind",
-        choices=("IMPLEMENTATION", "FINALIZATION"),
+        choices=("IMPLEMENTATION", "FINALIZATION", "RECONCILIATION"),
         default="IMPLEMENTATION",
         help="internal watcher-selected transaction kind",
     )

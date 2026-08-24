@@ -52,6 +52,7 @@ function formatPromptHistoryTimestamp(value, fallback = t("format.timestamp_unav
   }).format(new Date(timestamp));
 }
 function formatPromptHistoryDuration(value) {
+  if (value === null || value === undefined || value === "") return "";
   const seconds = Number(value);
   if (!Number.isFinite(seconds) || seconds < 0) return "";
   return t("history.total_duration_minutes", {
@@ -131,8 +132,19 @@ document
   .forEach((element) =>
     element.addEventListener("input", () => sanitizeDeclaredFreeInput(element)),
   );
+const OPERATIONAL_PRESENTATION_KEYS = {
+  ENGINEERING_RUN_STALE: "operational.stale_run",
+  RECONCILE_AGENT: "lifecycle.step.reconcile_agent",
+  WAIT_FOR_OPERATOR_MERGE: "lifecycle.step.wait_for_operator_merge",
+  WAIT_FOR_FINALIZATION_MERGE: "lifecycle.step.wait_for_finalization_merge",
+  WAIT_FOR_RECONCILIATION_MERGE: "lifecycle.step.wait_for_reconciliation_merge",
+  "Waiting for the operator to merge the pull request.": "operational.waiting_for_operator_merge",
+  "Execution Host ownership is stale; no execution is currently running.": "operational.stale_host_ownership",
+};
 function translate(value) {
-  return t("state." + value, {}, value);
+  const raw = String(value || "");
+  const presentationKey = OPERATIONAL_PRESENTATION_KEYS[raw];
+  return presentationKey ? t(presentationKey) : t("state." + raw, {}, raw);
 }
 function humanize() {
   for (const id of [
@@ -283,6 +295,11 @@ function renderEstimate(x, durationEstimate = latestDurationEstimate) {
 }
 function isActiveRun(x = {}) {
   return ["ENGINEERING_RUN_ACTIVE", "WAITING_FOR_OPERATOR_MERGE"].includes(x.watcher_state) && Boolean(x.run_id);
+}
+function hasVisibleStaleLifecycle(x = {}) {
+  return x.watcher_state === "ENGINEERING_RUN_STALE" && Boolean(x.run_id) &&
+    x.current_phase !== "COMPLETE" && x.current_phase !== "BLOCKED" && x.current_phase !== "FAILED" &&
+    x.lifecycle?.available === true;
 }
 function checkBuild(build) {
   if (build === DASHBOARD_BUILD) {
@@ -1062,9 +1079,11 @@ function renderOperatorMergeWait(x) {
   $("operatorMergeWaitDescription").textContent = t("merge_wait.description", { number: pullRequest });
   const modal = $("operatorMergeWaitModal");
   $("operatorMergeWaitModalDescription").textContent = t("merge_wait.description", { number: pullRequest });
-  const mergeKey = Number(x.finalization_pr) === pullRequest
-    ? "lifecycle.step.wait_for_finalization_merge"
-    : "lifecycle.step.wait_for_operator_merge";
+  const mergeKey = Number(x.reconciliation_pr) === pullRequest
+    ? "lifecycle.step.wait_for_reconciliation_merge"
+    : Number(x.finalization_pr) === pullRequest
+      ? "lifecycle.step.wait_for_finalization_merge"
+      : "lifecycle.step.wait_for_operator_merge";
   $("operatorMergeWaitModalContextIntro").textContent = t("merge_wait.context_intro", {
     merge: t(mergeKey), number: pullRequest,
   });
@@ -1121,8 +1140,8 @@ function lifecycleStateLabel(state) {
 function isOperatorMergeStep(step) {
   const id = String(step?.id || "").toUpperCase();
   const key = String(step?.presentation_key || "");
-  return ["WAIT_FOR_OPERATOR_MERGE", "WAIT_FOR_FINALIZATION_MERGE"].includes(id)
-    || ["lifecycle.step.wait_for_operator_merge", "lifecycle.step.wait_for_finalization_merge"].includes(key);
+  return ["WAIT_FOR_OPERATOR_MERGE", "WAIT_FOR_FINALIZATION_MERGE", "WAIT_FOR_RECONCILIATION_MERGE"].includes(id)
+    || ["lifecycle.step.wait_for_operator_merge", "lifecycle.step.wait_for_finalization_merge", "lifecycle.step.wait_for_reconciliation_merge"].includes(key);
 }
 function isLifecycleStartStep(step) {
   return String(step?.id || "").toUpperCase() === "START"
@@ -1260,7 +1279,7 @@ function lifecycleFlow(projection, { historical = false } = {}) {
   summary.textContent = t("lifecycle.summary", {
     step: lifecycleLabel(currentStep),
     status: isOperatorMergeStep(currentStep)
-      ? t("lifecycle.state.waiting_for_operator_merge")
+      ? lifecycleLabel(currentStep)
       : lifecycleStateLabel(projection.terminal_state || "ACTIVE"),
   });
   section.append(summary);
@@ -1363,6 +1382,7 @@ function renderHealthStatus(x, snapshot = {}) {
   latestStatus = x;
   latestDurationEstimate = snapshot.duration_estimate || {};
   let active = isActiveRun(x),
+    visibleStaleLifecycle = hasVisibleStaleLifecycle(x),
     statusTone = tone(x),
     indicator = $("indicator"),
     components = snapshot.component_versions || {},
@@ -1370,7 +1390,7 @@ function renderHealthStatus(x, snapshot = {}) {
   // A terminal current.json/status projection is historical evidence, not an
   // active prompt.  The watcher owns the operational view; history owns the
   // completed, failed or blocked execution.
-  $("currentRun").hidden = !(active || blockedPredecessor);
+  $("currentRun").hidden = !(active || visibleStaleLifecycle || blockedPredecessor);
   $("predecessorGate").hidden = !blockedPredecessor;
   $("predecessorRun").textContent =
     x.blocking_predecessor_run || t("format.not_available");
@@ -1402,12 +1422,17 @@ function renderHealthStatus(x, snapshot = {}) {
     x.current_action || t("ui.no_active_action"),
   );
   const workspaceProgress = x.workspace_progress || {};
+  const reviewerCommands = Array.isArray(x.reviewer_agents)
+    ? x.reviewer_agents.reduce((total, reviewer) =>
+      total + Math.max(0, Number(reviewer?.codex_commands_executed) || 0), 0)
+    : 0;
   $("workspaceProgress").hidden = !x.workspace_progress;
   $("workspaceProgressValue").textContent = [
     t("workspace_progress.modified", { count: Number(workspaceProgress.modified) || 0 }),
     t("workspace_progress.created", { count: Number(workspaceProgress.created) || 0 }),
     t("workspace_progress.deleted", { count: Number(workspaceProgress.deleted) || 0 }),
-    t("workspace_progress.codex_commands", { count: Number(workspaceProgress.codex_commands_executed) || 0 }),
+    t("workspace_progress.primary_codex_commands", { count: Number(workspaceProgress.codex_commands_executed) || 0 }),
+    t("workspace_progress.reviewer_codex_commands", { count: reviewerCommands }),
   ].join(" · ");
   const executionHost = snapshot.execution_host || {};
   $("executionHostName").textContent = executionHost.name || t("format.not_available");
@@ -4852,9 +4877,28 @@ function abortOperatorMergeWait() {
       .catch((error) => showDashboardError(error.message, t("merge_wait.abort_failed")));
   });
 }
+function checkOperatorMergeStatus(button) {
+  const runId = latestStatus?.run_id;
+  if (!runId) return;
+  button.disabled = true;
+  fetch("/api/execution-merge-status-check", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ run_id: runId }) })
+    .then(async (response) => ({ ok: response.ok, body: await response.json() }))
+    .then((result) => {
+      const reason = String(result.body?.reason || "github_evidence_unavailable");
+      if (result.body?.verified) {
+        if ($("operatorMergeWaitModal").open) $("operatorMergeWaitModal").close();
+        return refreshAfterOperatorAction();
+      }
+      showDashboardError(t(`merge_wait.reason.${reason}`), t("merge_wait.status_check_failed"));
+    })
+    .catch((error) => showDashboardError(error.message, t("merge_wait.status_check_failed")))
+    .finally(() => { button.disabled = false; });
+}
 $("predecessorRetry").addEventListener("click", submitPredecessorRetry);
 $("operatorMergeAbort").addEventListener("click", abortOperatorMergeWait);
 $("operatorMergeWaitModalAbort").addEventListener("click", abortOperatorMergeWait);
+$("operatorMergeStatusCheck").addEventListener("click", (event) => checkOperatorMergeStatus(event.currentTarget));
+$("operatorMergeWaitModalStatusCheck").addEventListener("click", (event) => checkOperatorMergeStatus(event.currentTarget));
 $("statusReconciliationStart")?.addEventListener("click", requestStatusReconciliation);
 $("workspaceBranchCleanup")?.addEventListener("click", cleanupStaleLocalBranches);
 $("workspaceBranchMain")?.addEventListener("click", switchToFastForwardMain);

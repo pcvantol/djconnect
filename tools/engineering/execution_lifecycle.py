@@ -15,20 +15,20 @@ from .status_reconciliation import is_stale_rolling_status_block
 
 TERMINAL = frozenset({"COMPLETE", "BLOCKED", "FAILED"})
 _MANAGED_PATH = (
-    "START", "INITIALIZE", "EXECUTE_AGENT", "REPAIR_AGENT",
+    "START", "INITIALIZE", "CAPABILITY_REVIEW", "EXECUTE_AGENT", "QUALITY_CONTROL_AGENT", "REPAIR_AGENT",
     "WAIT_FOR_OPERATOR_MERGE", "FINALIZE_AGENT", "WAIT_FOR_FINALIZATION_MERGE",
-    "REPOSITORY_CLEANUP", "TERMINAL",
+    "RECONCILE_AGENT", "REPOSITORY_CLEANUP", "TERMINAL",
 )
 # Genesis has no pull-request merge boundary.  This is presentation of the
 # existing mode contract, not a new execution sequence.
 _GENESIS_PATH = (
-    "START", "INITIALIZE", "EXECUTE_AGENT", "REPAIR_AGENT",
+    "START", "INITIALIZE", "CAPABILITY_REVIEW", "EXECUTE_AGENT", "QUALITY_CONTROL_AGENT", "REPAIR_AGENT",
     "FINALIZE_AGENT", "REPOSITORY_CLEANUP", "TERMINAL",
 )
-_STATUS_RECONCILIATION_PATH = (
-    "START", "INITIALIZE", "FINALIZE_AGENT", "WAIT_FOR_FINALIZATION_MERGE",
-    "REPOSITORY_CLEANUP", "TERMINAL",
-)
+# A reconciliation-only run remains part of the full delivery narrative.  Its
+# earlier delivery phases are explicitly skipped rather than silently omitted,
+# so the dashboard never renders a misleading half-workflow.
+_STATUS_RECONCILIATION_PATH = _MANAGED_PATH
 
 # This is a presentation-only association. The Execution Host stays the
 # authority for phase timing; this projection only groups persisted evidence
@@ -36,10 +36,13 @@ _STATUS_RECONCILIATION_PATH = (
 _STEP_PHASES = {
     "START": frozenset({"QUEUE_WAIT", "SUBMISSION_CLAIM"}),
     "INITIALIZE": frozenset({"INITIALIZATION", "HOST_PREFLIGHT", "WORKSPACE_PREFLIGHT", "CAPABILITY_PREFLIGHT"}),
+    "CAPABILITY_REVIEW": frozenset({"CAPABILITY_REVIEW"}),
     "EXECUTE_AGENT": frozenset({"EXECUTION_PREPARATION", "PROVIDER_EXECUTION", "VALIDATION"}),
+    "QUALITY_CONTROL_AGENT": frozenset({"QUALITY_CONTROL"}),
     "REPAIR_AGENT": frozenset({"REPAIR"}),
     "WAIT_FOR_OPERATOR_MERGE": frozenset({"PR_OR_MERGE", "EXTERNAL_CI_WAIT"}),
-    "FINALIZE_AGENT": frozenset({"REPOSITORY_FINALIZATION", "FINALIZATION", "REPORT_GENERATION", "EVIDENCE_PERSISTENCE", "RECONCILIATION"}),
+    "FINALIZE_AGENT": frozenset({"REPOSITORY_FINALIZATION", "FINALIZATION"}),
+    "RECONCILE_AGENT": frozenset({"RECONCILIATION", "REPORT_GENERATION", "EVIDENCE_PERSISTENCE"}),
     "REPOSITORY_CLEANUP": frozenset({"REPOSITORY_CLEANUP"}),
 }
 
@@ -50,7 +53,9 @@ def intended_path(
     implementation_pull_request: object = None,
 ) -> tuple[str, ...]:
     """Return the canonical display path for one existing execution mode."""
-    if transaction_kind == "FINALIZATION" and implementation_pull_request is None:
+    if transaction_kind == "RECONCILIATION" or (
+        transaction_kind == "FINALIZATION" and implementation_pull_request is None
+    ):
         return _STATUS_RECONCILIATION_PATH
     return _GENESIS_PATH if execution_mode == "GENESIS" else _MANAGED_PATH
 
@@ -78,14 +83,24 @@ def _display_phase(phase: str, checkpoint: dict[str, object]) -> str:
     # Finalization has its own PR hand-off. Do not project it back onto the
     # implementation merge once that implementation PR is already merged.
     if phase == "WAIT_FOR_OPERATOR_MERGE" and checkpoint.get("transaction_kind") == "FINALIZATION":
-        return "WAIT_FOR_FINALIZATION_MERGE"
+        return (
+            "WAIT_FOR_RECONCILIATION_MERGE"
+            if checkpoint.get("implementation_pull_request") is None
+            else "WAIT_FOR_FINALIZATION_MERGE"
+        )
+    if phase == "WAIT_FOR_OPERATOR_MERGE" and checkpoint.get("transaction_kind") == "RECONCILIATION":
+        return "WAIT_FOR_RECONCILIATION_MERGE"
     if phase != "WAIT_FOR_TERMINAL_EVIDENCE":
         return phase
     # Required-check polling happens before the operator merge hand-off.  It
     # is not a completed merge, even though its PR timing evidence exists.
     # A finalization transaction uses the same internal polling phase after
     # the implementation merge, so it remains on its own visible step.
-    return "FINALIZE_AGENT" if checkpoint.get("transaction_kind") == "FINALIZATION" else "WAIT_FOR_OPERATOR_MERGE"
+    if checkpoint.get("transaction_kind") == "FINALIZATION":
+        return "RECONCILE_AGENT" if checkpoint.get("implementation_pull_request") is None else "FINALIZE_AGENT"
+    if checkpoint.get("transaction_kind") == "RECONCILIATION":
+        return "RECONCILE_AGENT"
+    return "WAIT_FOR_OPERATOR_MERGE"
 
 
 def projection(root: Path, run_id: str | None) -> dict[str, object]:
@@ -131,19 +146,22 @@ def projection(root: Path, run_id: str | None) -> dict[str, object]:
     repair_iterations = 0
     implementation_merge_required = _pull_request_recorded(checkpoint.get("implementation_pull_request"))
     finalization_merge_required = _pull_request_recorded(checkpoint.get("finalization_pull_request"))
+    reconciliation_merge_required = _pull_request_recorded(checkpoint.get("reconciliation_pull_request"))
     recorded_pull_request = any(
         _pull_request_recorded(checkpoint.get(field))
-        for field in ("pull_request", "implementation_pull_request", "finalization_pull_request")
+        for field in ("pull_request", "implementation_pull_request", "finalization_pull_request", "reconciliation_pull_request")
     )
     if checkpoint.get("transaction_kind") == "FINALIZATION":
         finalization_merge_required = finalization_merge_required or _pull_request_recorded(checkpoint.get("pull_request"))
+    if checkpoint.get("transaction_kind") == "RECONCILIATION":
+        reconciliation_merge_required = reconciliation_merge_required or _pull_request_recorded(checkpoint.get("pull_request"))
     else:
         implementation_merge_required = implementation_merge_required or _pull_request_recorded(checkpoint.get("pull_request"))
     for event_phase, event_checkpoint, recorded_at in events:
         event = _checkpoint(event_checkpoint)
         recorded_pull_request = recorded_pull_request or any(
             _pull_request_recorded(event.get(field))
-            for field in ("pull_request", "implementation_pull_request", "finalization_pull_request")
+            for field in ("pull_request", "implementation_pull_request", "finalization_pull_request", "reconciliation_pull_request")
         )
         event_step = _display_phase(str(event_phase), event)
         if event_step in path and event_step not in {"START", "TERMINAL"}:
@@ -155,6 +173,9 @@ def projection(root: Path, run_id: str | None) -> dict[str, object]:
         )
         finalization_merge_required = (
             finalization_merge_required or event_step == "WAIT_FOR_FINALIZATION_MERGE"
+        )
+        reconciliation_merge_required = (
+            reconciliation_merge_required or event_step == "WAIT_FOR_RECONCILIATION_MERGE"
         )
     repair_iterations = max(repair_iterations, _nonnegative_int(checkpoint.get("repair_iterations")))
     evidence_available = bool(events)
@@ -174,6 +195,7 @@ def projection(root: Path, run_id: str | None) -> dict[str, object]:
         or "REPOSITORY_CLEANUP" in observed
     )
     finalization_merge_completed = terminal_state == "COMPLETE" or "REPOSITORY_CLEANUP" in observed
+    reconciliation_merge_completed = terminal_state == "COMPLETE" or "REPOSITORY_CLEANUP" in observed
     # The managed contract permits a no-PR path and a single implementation-PR
     # path. A terminal pre-flight block is not merge evidence. Omit boundaries
     # that have no persisted PR evidence instead of inventing an operator wait.
@@ -188,6 +210,11 @@ def projection(root: Path, run_id: str | None) -> dict[str, object]:
             and not (
                 step_id == "WAIT_FOR_FINALIZATION_MERGE"
                 and (not finalization_merge_required or status_reconciliation_block)
+                and ("REPOSITORY_CLEANUP" in observed or terminal_state == "COMPLETE" or status_reconciliation_block)
+            )
+            and not (
+                step_id == "WAIT_FOR_RECONCILIATION_MERGE"
+                and (not reconciliation_merge_required or status_reconciliation_block)
                 and ("REPOSITORY_CLEANUP" in observed or terminal_state == "COMPLETE" or status_reconciliation_block)
             )
         )
@@ -206,12 +233,12 @@ def projection(root: Path, run_id: str | None) -> dict[str, object]:
             step["state"] = terminal_state or "PENDING"
             if terminal_state:
                 step["terminal_outcome"] = terminal_state
-        elif step_id in {"WAIT_FOR_OPERATOR_MERGE", "WAIT_FOR_FINALIZATION_MERGE"} and step_id in observed:
+        elif step_id in {"WAIT_FOR_OPERATOR_MERGE", "WAIT_FOR_FINALIZATION_MERGE", "WAIT_FOR_RECONCILIATION_MERGE"} and step_id in observed:
             step.update(observed[step_id])
             merge_completed = (
                 implementation_merge_completed
                 if step_id == "WAIT_FOR_OPERATOR_MERGE"
-                else finalization_merge_completed
+                else finalization_merge_completed if step_id == "WAIT_FOR_FINALIZATION_MERGE" else reconciliation_merge_completed
             )
             if merge_completed:
                 step["state"] = "COMPLETED"
@@ -229,6 +256,13 @@ def projection(root: Path, run_id: str | None) -> dict[str, object]:
             step["state"] = "ACTIVE" if display_phase == step_id and terminal_state is None else "COMPLETED"
         elif step_id == display_phase and terminal_state is None:
             step["state"] = "ACTIVE"
+        if (
+            transaction_kind == "RECONCILIATION"
+            and step_id in {"EXECUTE_AGENT", "QUALITY_CONTROL_AGENT", "REPAIR_AGENT", "WAIT_FOR_OPERATOR_MERGE", "FINALIZE_AGENT", "WAIT_FOR_FINALIZATION_MERGE"}
+            and step_id not in observed
+        ):
+            step["state"] = "SKIPPED"
+            step["presentation_detail_key"] = "lifecycle.detail.not_part_of_reconciliation"
         if step_id == "REPAIR_AGENT" and repair_iterations:
             step["iteration_count"] = repair_iterations
         phase_names = _STEP_PHASES.get(step_id, frozenset())

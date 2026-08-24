@@ -45,6 +45,7 @@ from .producer import ProducerSubmissionError, parse_producer_metadata, parse_pr
 from .drift_diagnostics import summary as drift_summary
 from .storage import ENGINEERING_STORAGE_SCHEMA_VERSION, EngineeringStorageError, dismissal_for_run, is_active_blocking_predecessor, load_projection, open_storage, record_artifact, record_execution_dismissal, record_submission
 from .execution_lease import liveness as lease_liveness, reconcile_stale
+from .execution_repository import GhCliClient, SubprocessRepositoryClient
 from .execution_timing import complete_active_phase, complete_phase, record_queue_wait_from_submission, start_or_resume_phase, start_phase
 from .status_reconciliation import is_stale_rolling_status_block
 
@@ -795,7 +796,7 @@ def _is_verified_status_reconciliation(
 
 
 def submit_status_reconciliation(repo: Path, root: Path, run_id: str) -> dict[str, str]:
-    """Queue exactly one dedicated Finalization prompt after a verified preview."""
+    """Queue exactly one dedicated Reconciliation prompt after a verified preview."""
     preview = status_reconciliation_preview(repo, run_id)
     with _lock(repo):
         marker = f"Status-Reconciliation-Of: {run_id}"
@@ -806,11 +807,11 @@ def submit_status_reconciliation(repo: Path, root: Path, run_id: str) -> dict[st
             f"{marker}\nStatus-Reconciliation-Request: {request_id}\n\n"
             "# Engineering Platform — Reconcile merged status records\n\n"
             "Required Engineering Platform: >= 1.5.0\n\n"
-            "Execute only the dedicated governance-only Finalization reconciliation for the "
+            "Execute only the dedicated governance-only Reconciliation for the "
             "verified merged predecessor of the referenced blocked run. Reconcile the four "
             "rolling records required by PROMPT_INITIALIZATION.md with current main. Do not "
             "rewrite Prompt History or change product, execution, validation, retry, merge, "
-            "or lifecycle semantics. Create one reviewable Finalization pull request.\n"
+            "or lifecycle semantics. Commit and push the verified rolling-record reconciliation directly to main; do not create a pull request.\n"
         )
         inbox = folders(root)["Inbox"]
         filename = f"status-reconciliation-{run_id}-{uuid.uuid4().hex[:8]}.md"
@@ -1039,15 +1040,19 @@ def _publish_operator_merge_wait(repo: Path, state: TransactionState, *, queue_i
         job_id = job_id or (prior.get("job_id") if isinstance(prior.get("job_id"), str) else None)
         filename = filename or (prior.get("submitted_filename") if isinstance(prior.get("submitted_filename"), str) else None)
         title = title or (prior.get("prompt_title") if isinstance(prior.get("prompt_title"), str) else None)
+    post_merge_sync = state.next_action == "await_clean_synchronized_main"
     status(
         repo,
-        "WAITING_FOR_OPERATOR_MERGE",
+        "WAITING_FOR_POST_MERGE_SYNCHRONIZATION" if post_merge_sync else "WAITING_FOR_OPERATOR_MERGE",
         job_id=job_id,
         run_id=state.run_id,
         queued_jobs=queue_depth,
         queue_items=queue_items or [],
         runner_phase=state.phase,
-        current_action="Wacht op de operator om de pull request te mergen.",
+        current_action=(
+            "Wacht op een schone, gesynchroniseerde main-checkout voor automatische afronding."
+            if post_merge_sync else "Wacht op de operator om de pull request te mergen."
+        ),
         implementation_pr=state.implementation_pull_request,
         finalization_pr=state.finalization_pull_request,
         submitted_filename=filename,
@@ -1146,6 +1151,50 @@ def abort_operator_merge_wait(repo: Path, run_id: str, *, dismissed_by: str = "d
             last_executed_phase="FAILED",
         )
         return record
+
+
+def check_operator_merge_status(repo: Path, run_id: str) -> dict[str, object]:
+    """Verify a waiting PR hand-off now and schedule its normal continuation.
+
+    This is deliberately evidence-only: it never merges a pull request and it
+    only starts the existing, owner-authorized resume path after GitHub's merge
+    commit is proven to be reachable from ``origin/main``.
+    """
+    if not re.fullmatch(r"inbox-[a-z0-9-]{6,64}", run_id):
+        raise RetrySubmissionError("De opgegeven run-ID is ongeldig.")
+    with _lock(repo):
+        state = _operator_merge_wait(repo)
+        if state is None or state.run_id != run_id:
+            return {"verified": False, "reason": "not_waiting"}
+        pull_request = (
+            state.pull_request
+            or state.reconciliation_pull_request
+            or state.finalization_pull_request
+            or state.implementation_pull_request
+        )
+        if not isinstance(pull_request, int) or pull_request <= 0:
+            return {"verified": False, "reason": "pull_request_unavailable"}
+        try:
+            evidence = GhCliClient().pull_request(pull_request)
+        except Exception:
+            return {"verified": False, "reason": "github_evidence_unavailable", "pull_request": pull_request}
+        if evidence.state != "MERGED":
+            return {"verified": False, "reason": "pull_request_not_merged", "pull_request": pull_request}
+        if not evidence.merge_commit:
+            return {"verified": False, "reason": "merge_commit_unavailable", "pull_request": pull_request}
+        try:
+            repository = SubprocessRepositoryClient()
+            repository.refresh_main_reference(repo)
+            merged_to_main = repository.remote_main_contains(repo, evidence.merge_commit)
+        except Exception:
+            return {"verified": False, "reason": "main_ancestry_unavailable", "pull_request": pull_request}
+        if not merged_to_main:
+            return {"verified": False, "reason": "merge_not_in_origin_main", "pull_request": pull_request}
+        # The browser returns immediately. The regular runner still owns all
+        # state transitions, finalization and reconciliation.
+        from threading import Timer
+        Timer(0.25, _execute_runner_command, args=(repo, Path(state.prompt_path), run_id)).start()
+        return {"verified": True, "continuation": "scheduled", "pull_request": pull_request}
 
 
 def _finalize_operator_merge_wait(repo: Path, state: TransactionState) -> None:
@@ -1388,10 +1437,10 @@ def _execute_runner_command(
         str(ENGINEERING_STORAGE_SCHEMA_VERSION),
     ]
     # This marker is admitted only after the immutable predecessor proof.  It
-    # must also select the Finalization transaction in the Execution Host;
+    # must also select the Reconciliation transaction in the Execution Host;
     # otherwise the host defaults to an implementation pipeline.
     if STATUS_RECONCILIATION_OF_PATTERN.search(prompt.read_text(encoding="utf-8")):
-        arguments.extend(("--transaction-kind", "FINALIZATION"))
+        arguments.extend(("--transaction-kind", "RECONCILIATION"))
     if phase and phase not in TERMINAL_PHASES:
         arguments.append("--resume")
     execution_started_at = datetime.now(timezone.utc)

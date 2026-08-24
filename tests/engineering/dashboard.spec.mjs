@@ -7,6 +7,7 @@ import { test, expect } from "@playwright/test";
 import {
   createTranslator,
   DASHBOARD_MESSAGES,
+  OPERATIONAL_TRANSLATION_KEYS,
   SUPPORTED_LOCALES,
 } from "../../tools/engineering/assets/dashboard_locales.mjs";
 
@@ -121,6 +122,14 @@ test.describe("Engineering Status browser smoke", () => {
     for (const locale of SUPPORTED_LOCALES) {
       expect(Object.keys(DASHBOARD_MESSAGES[locale]).sort(), locale).toEqual(canonicalKeys);
       for (const key of canonicalKeys) expect(DASHBOARD_MESSAGES[locale][key], `${locale}:${key}`).toBeTruthy();
+    }
+  });
+
+  test("translates every operational phase and status in every supported locale", () => {
+    for (const locale of SUPPORTED_LOCALES) {
+      for (const key of OPERATIONAL_TRANSLATION_KEYS) {
+        expect(DASHBOARD_MESSAGES[locale][key], `${locale}:${key}`).toBeTruthy();
+      }
     }
   });
 
@@ -828,7 +837,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(wait.locator("span").first()).toHaveText("⌛");
     await expect(wait.locator("span").first()).toHaveCSS("font-size", "20px");
     await expect(page.locator(".execution-lifecycle__summary")).toContainText(
-      DASHBOARD_MESSAGES.nl["lifecycle.state.waiting_for_operator_merge"],
+      DASHBOARD_MESSAGES.nl["lifecycle.step.wait_for_finalization_merge"],
     );
   });
 
@@ -1279,6 +1288,7 @@ test.describe("Engineering Status browser smoke", () => {
     const mergeModal = page.locator("#operatorMergeWaitModal");
     const modalPullRequest = page.locator("#operatorMergeWaitModalPullRequest");
     const modalAbort = page.locator("#operatorMergeWaitModalAbort");
+    const modalStatusCheck = page.locator("#operatorMergeWaitModalStatusCheck");
     await expect(modalPullRequest).toHaveAttribute("href", "https://github.com/pcvantol/djconnect/pull/832");
     await expect(mergeModal.locator("#operatorMergeWaitModalContextIntro")).toHaveText(
       `Deze hand-off is de ${DASHBOARD_MESSAGES.nl["lifecycle.step.wait_for_operator_merge"]} voor pull request #832.`,
@@ -1296,10 +1306,14 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(modalPullRequest).toHaveCSS("justify-content", "center");
     await expect(modalPullRequest).toHaveCSS("font-weight", "400");
     await expect(modalAbort).toHaveCSS("font-weight", "400");
+    await expect(modalStatusCheck).toHaveText(DASHBOARD_MESSAGES.nl["merge_wait.check_status"]);
+    await expect(modalStatusCheck).toHaveCSS("display", "flex");
+    await expect(modalStatusCheck).toHaveCSS("justify-content", "center");
+    expect(await modalStatusCheck.evaluate((element) => getComputedStyle(element, "::before").content)).toBe('"↻"');
     const mergeActionHeights = await mergeModal.locator(".dashboard-modal-shell__action").evaluateAll(
       (actions) => actions.map((action) => action.getBoundingClientRect().height),
     );
-    expect(mergeActionHeights).toEqual([44, 44]);
+    expect(mergeActionHeights).toEqual([44, 44, 44]);
     expect(await modalPullRequest.evaluate((element) => getComputedStyle(element, "::before").content)).toBe('"↗"');
     expect(await modalAbort.evaluate((element) => getComputedStyle(element, "::before").content)).toBe('"⊘"');
     expect(await modalAbort.evaluate((element) => getComputedStyle(element, "::before").fontWeight)).toBe("700");
@@ -1310,7 +1324,7 @@ test.describe("Engineering Status browser smoke", () => {
     const confirmationActionHeights = await page.locator("#confirmationModal .dashboard-modal-shell__action").evaluateAll(
       (actions) => actions.map((action) => action.getBoundingClientRect().height),
     );
-    expect(confirmationActionHeights).toEqual(mergeActionHeights);
+    expect(confirmationActionHeights).toEqual([44, 44]);
     await page.locator("#confirmationModalConfirm").click();
     await expect.poll(() => abortRequested).toBe(true);
   });
@@ -1349,6 +1363,28 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator(".execution-lifecycle__item")).toHaveCount(3);
     await expect(page.locator(".execution-lifecycle__item--active .execution-lifecycle__node"))
       .toContainText(DASHBOARD_MESSAGES.nl["lifecycle.step.wait_for_finalization_merge"]);
+  });
+
+  test("renders automatic reconciliation without an operator handoff", async ({ page }) => {
+    await page.route("**/api/events", (route) => route.abort());
+    await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({ json: { status: {} } }));
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => r({
+      watcher_state: "ENGINEERING_RUN_ACTIVE", current_phase: "RECONCILE_AGENT",
+      run_id: "inbox-reconciliation",
+      target_repository: "pcvantol/djconnect",
+      lifecycle: {
+        available: true, run_id: "inbox-reconciliation", terminal_state: "ACTIVE",
+        steps: [
+          { id: "RECONCILE_AGENT", presentation_key: "lifecycle.step.reconcile_agent", state: "ACTIVE" },
+        ],
+      },
+    }, {}));
+    const modal = page.locator("#operatorMergeWaitModal");
+    await expect(modal).toBeHidden();
+    await page.locator("#currentRun").evaluate((element) => { element.open = true; });
+    await page.locator(".execution-lifecycle__item--active .execution-lifecycle__node").click();
+    await expect(page.locator("#lifecycleDetailModal")).toBeVisible();
   });
 
   test("renders only the merge boundaries recorded for the lifecycle", async ({ page }) => {
@@ -2125,10 +2161,19 @@ test.describe("Engineering Status browser smoke", () => {
   });
 
   test("uses the rose telemetry accent throughout the telemetry detail modal", async ({ page }) => {
+    // Keep the fixture-owned telemetry row from being replaced by the
+    // asynchronous initial dashboard snapshot while this modal is opened.
+    await page.route("**/api/events", (route) => route.abort());
+    await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({
+      json: { status: { watcher_state: "WATCHER_IDLE" } },
+    }));
     await page.route("**/api/telemetry/2026-08-16", (route) => route.fulfill({ json: {
       summary: { executions: 1, completed: 1, blocked: 0, failed: 0 }, phases: [], bottlenecks: {}, runs: [],
     } }));
+    const snapshotLoaded = page.waitForResponse("**/api/dashboard-snapshot");
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await snapshotLoaded;
+    await page.locator("#autoRefresh").uncheck();
     await page.evaluate(() => window.executionTelemetry([{
       date: "2026-08-16", prompt_count: 1, average_execution_seconds: 0,
       average_total_execution_seconds: 0, average_queue_wait_seconds: 0,
@@ -2419,7 +2464,15 @@ test.describe("Engineering Status browser smoke", () => {
 
   test("sizes the visible status column before narrowing the prompt title", async ({ page }) => {
     await page.setViewportSize({ width: 1600, height: 900 });
+    // Wait for the initial history request before replacing its fixture. Without
+    // this, the asynchronous response can replace the row under measurement.
+    await page.route("**/api/prompt-history", (route) => route.fulfill({ json: {
+      runs: [{ run_id: "inbox-fixture", status: "COMPLETE", title: "Fixture" }],
+    } }));
+    const historyLoaded = page.waitForResponse("**/api/prompt-history");
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await historyLoaded;
+    await page.locator("#autoRefresh").uncheck();
     await page.evaluate(() => {
       document.querySelector("#promptHistory").open = true;
       promptHistoryEntries = [{
@@ -2918,6 +2971,14 @@ test.describe("Engineering Status browser smoke", () => {
       .toHaveText("Geblokkeerd · Afgesloten");
     await expect(page.locator("#promptHistoryRows .prompt-history-row")).toContainText("(3 min)");
     await expect(page.locator("#promptHistoryRows .execution-history-action")).toHaveCount(0);
+    await page.evaluate(() => {
+      promptHistoryEntries = [{
+        run_id: "inbox-missing-duration", title: "Missing duration", status: "BLOCKED",
+        executed_at: "2026-08-08T10:00:00Z", total_execution_seconds: null,
+      }];
+      renderPromptHistory();
+    });
+    await expect(page.locator("#promptHistoryRows .prompt-history-row")).not.toContainText("(0 min)");
   });
 
   test("keeps execution detail modal borders inside iPhone landscape safe areas", async ({ page }) => {
@@ -3239,7 +3300,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#platformVersion")).toHaveText("1.5.0");
     await expect(page.locator("#action")).toHaveText("Codex bewerkt bestanden");
     await expect(page.locator("#action")).toHaveCSS("font-style", "italic");
-    await expect(page.locator("#workspaceProgressValue")).toHaveText("3 gewijzigd · 2 nieuw · 1 verwijderd · 17 Codex-opdrachten uitgevoerd");
+    await expect(page.locator("#workspaceProgressValue")).toHaveText("3 gewijzigd · 2 nieuw · 1 verwijderd · 17 primaire Codex-opdrachten uitgevoerd · 0 reviewer-Codex-opdrachten uitgevoerd");
   });
 
   test("lays out operational-overview cards in two columns only when its container has room", async ({ page }) => {
@@ -3613,6 +3674,33 @@ test.describe("Engineering Status browser smoke", () => {
     }, {}));
 
     await expect(page.locator("#currentRun")).toBeHidden();
+  });
+
+  test("keeps a stale finalization lifecycle visible without claiming an active runner", async ({ page }) => {
+    await page.route("**/api/events", (route) => route.abort());
+    await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({
+      contentType: "application/json",
+      body: JSON.stringify({ status: { watcher_state: "WATCHER_IDLE" } }),
+    }));
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => r({
+      watcher_state: "ENGINEERING_RUN_STALE",
+      run_id: "inbox-finalization-stale",
+      current_phase: "FINALIZE_AGENT",
+      current_action: "Execution Host ownership is stale; no execution is currently running.",
+      lifecycle: {
+        available: true,
+        run_id: "inbox-finalization-stale",
+        current_step: "FINALIZE_AGENT",
+        steps: [{ id: "FINALIZE_AGENT", presentation_key: "lifecycle.step.finalize_agent", state: "ACTIVE" }],
+      },
+    }, {}));
+
+    await expect(page.locator("#currentRun")).toBeVisible();
+    await page.locator("#currentRun").evaluate((element) => { element.open = true; });
+    await expect(page.locator("#currentRun .execution-lifecycle")).toBeVisible();
+    await expect(page.locator("#currentRun .execution-lifecycle__node--active")).toHaveCount(1);
+    await expect(page.locator("#indicator")).not.toHaveClass(/indicator--running/);
   });
 
   test("allows the AI question field to grow only vertically", async ({ page }) => {
