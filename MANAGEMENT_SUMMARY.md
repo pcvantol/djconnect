@@ -135,6 +135,17 @@ Forge and delivery authority are unchanged.
 `PLATFORM_RELEASE_3_3_RELEASE_COMPLETION_POSTMERGE_RECONCILED`
 **Basis:** Objective repository evidence recorded in the linked documents.
 
+## PR #915 Finalization pending
+
+PR [#915](https://github.com/pcvantol/djconnect/pull/915), **Improve dashboard
+workflow visibility and merge handoffs**, merged as
+`9668ffc33659842a791910ad36e93947b03928c3`. The Operations Console now makes
+the managed workflow, review activity and PR hand-off easier to inspect, while
+the status check remains evidence-only and operator merge authority is
+unchanged. Finalization is the sole remaining governance step; no product or
+runtime scope is introduced. Repository State: `MERGED_UNRECONCILED`;
+Workspace State: `NOT_READY`; Finalization Pending: `YES`.
+
 ## Current position
 
 ## PR #884 finalization reconciled

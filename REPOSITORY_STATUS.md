@@ -2,6 +2,18 @@
 
 Status: active platform-evolution repository
 
+## PR #915 Finalization pending
+
+PR [#915](https://github.com/pcvantol/djconnect/pull/915), **Improve dashboard
+workflow visibility and merge handoffs**, merged as
+`9668ffc33659842a791910ad36e93947b03928c3` and is contained in current
+`main`. The implementation adds dashboard visibility and evidence projection
+only: it preserves operator-owned merges and all lifecycle, retry/resume,
+validation, reviewer, provider, Forge and delivery authority boundaries. This
+Finalization is governance-only and changes the four rolling records only.
+Repository State: `MERGED_UNRECONCILED`; Workspace State: `NOT_READY`;
+Finalization Pending: `YES`.
+
 ## PR #909 finalized by PR #910
 
 PR [#909](https://github.com/pcvantol/djconnect/pull/909), **feat: show reviewer command activity**, merged as `8850a724c6f78a0d1a472097036bea488511febc`. Finalization PR [#910](https://github.com/pcvantol/djconnect/pull/910) merged as `e272ad13e5e0b3d1bd0b7c421280074de213eb9a`; automatic reconciliation complete. Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`; Finalization Pending: `NO`.

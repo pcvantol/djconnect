@@ -3,6 +3,19 @@
 **Status:** Operational handoff
 **Updated:** 2026-08-24
 
+## PR #915 Finalization pending
+
+PR [#915](https://github.com/pcvantol/djconnect/pull/915), **Improve dashboard
+workflow visibility and merge handoffs**, merged as
+`9668ffc33659842a791910ad36e93947b03928c3`. It adds the visible autonomous
+quality-control step, five-language operational labels, accurate duration and
+reviewer activity projections, and an evidence-only operator PR-status check
+with a refresh affordance. It does not change merge authority, lifecycle,
+retry/resume/dismiss, validation, reviewer independence, provider routing,
+Forge or delivery semantics. This governance-only Finalization updates the
+four rolling records only. Repository State: `MERGED_UNRECONCILED`; Workspace
+State: `NOT_READY`; Finalization Pending: `YES`.
+
 ## PR #909 finalized by PR #910
 
 PR [#909](https://github.com/pcvantol/djconnect/pull/909), **feat: show reviewer command activity**, merged as `8850a724c6f78a0d1a472097036bea488511febc`. Finalization PR [#910](https://github.com/pcvantol/djconnect/pull/910) merged as `e272ad13e5e0b3d1bd0b7c421280074de213eb9a`; automatic reconciliation complete. `MERGED_RECONCILED`; `WORKSPACE_READY`; Finalization Pending: `NO`.
