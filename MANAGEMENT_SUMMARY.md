@@ -1,5 +1,22 @@
 # DJConnect Generation 2 Management Summary
 
+## PR #893 finalization pending
+
+PR [#893](https://github.com/pcvantol/djconnect/pull/893), **test: expand
+bounded failed diagnostics**, merged as
+`b393fafc55cd25cf4792eae2af0b7cada35b077a`. The focused Engineering Platform
+regression now proves that explicitly expanded bounded failed-test evidence
+retains an actionable failing identity, assertion and diagnostic context,
+while raw tool output is not persisted merely to support expansion. The
+immutable Prompt History record is
+`docs/history/prompts/2026-08-24-bounded-failed-evidence-expansion.md`.
+This dedicated governance-only Finalization reconciles the four rolling records
+and handoff metadata; its merge restores Repository State:
+`MERGED_RECONCILED` and Workspace State: `WORKSPACE_READY` after cleanup. No
+lifecycle, retry/resume/dismiss, validation policy, reviewer count or
+independence, model selection, provider routing/accounting, credit rates, Forge
+or delivery authority behavior changed.
+
 ## PR #890 finalization reconciled
 
 PR [#890](https://github.com/pcvantol/djconnect/pull/890), **test: cover
