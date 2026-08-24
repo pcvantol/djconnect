@@ -2,6 +2,16 @@
 
 Status: active platform-evolution repository
 
+## PR #904 finalization pending
+
+PR [#904](https://github.com/pcvantol/djconnect/pull/904), **feat: automate
+post-finalization reconciliation**, merged as
+`bc60d55c09edea79d67da1c595efbc3850ee96f2`. The platform now applies only the
+four canonical rolling-record updates directly to synchronized `main` after a
+verified Finalization merge. Implementation and Finalization merge authority
+remain operator-owned. Repository State: `MERGED_UNRECONCILED`; Workspace
+State: `WORKSPACE_READY`. Only this governance-only Finalization may proceed.
+
 ## PR #901 finalization reconciled
 
 PR [#901](https://github.com/pcvantol/djconnect/pull/901), **fix: admit

@@ -1,5 +1,15 @@
 # DJConnect Generation 2 Management Summary
 
+## PR #904 finalization pending
+
+PR [#904](https://github.com/pcvantol/djconnect/pull/904), **feat: automate
+post-finalization reconciliation**, merged as
+`bc60d55c09edea79d67da1c595efbc3850ee96f2`. Management retains two explicit
+human merge decisions: implementation and Finalization. The bounded
+rolling-record reconciliation then completes automatically on `main`, without
+a reconciliation PR, approval or merge action. This Finalization changes
+current governance records only.
+
 ## PR #901 finalization reconciled
 
 PR [#901](https://github.com/pcvantol/djconnect/pull/901), **fix: admit

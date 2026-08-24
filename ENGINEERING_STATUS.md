@@ -3,6 +3,16 @@
 **Status:** Operational handoff
 **Updated:** 2026-08-24
 
+## PR #904 finalization pending
+
+PR [#904](https://github.com/pcvantol/djconnect/pull/904), **feat: automate
+post-finalization reconciliation**, merged as
+`bc60d55c09edea79d67da1c595efbc3850ee96f2`. It retains the two
+operator-owned implementation and Finalization merge gates, then performs the
+strictly bounded rolling-record reconciliation directly on synchronized
+`main`. No reconciliation PR, approval, or operator merge is created. This
+governance-only Finalization is the permitted next increment.
+
 ## PR #901 finalization reconciled
 
 PR [#901](https://github.com/pcvantol/djconnect/pull/901), **fix: admit
