@@ -4489,7 +4489,7 @@ function promptDetailRecommendationHandoff(handoff) {
   }
   return promptDetailCard(t("detail.recommendation_handoff"), fields, true);
 }
-function promptDetailReviewersSection(reviewers) {
+function promptDetailReviewersSection(reviewers, { wide = true } = {}) {
   if (!reviewers.length) return null;
   const fields = reviewers.map((reviewer) =>
     detailField(
@@ -4504,7 +4504,17 @@ function promptDetailReviewersSection(reviewers) {
       true,
     ),
   );
-  return promptDetailCard(t("detail.specialist_reviews"), fields, true);
+  return promptDetailCard(t("detail.specialist_reviews"), fields, wide, "prompt-detail-card--reviewers");
+}
+function promptDetailProviderReviewSections(usage, reviewers) {
+  const usageCard = promptDetailUsageSection(usage);
+  const reviewerCard = promptDetailReviewersSection(reviewers, { wide: false });
+  if (!usageCard) return reviewerCard;
+  if (!reviewerCard) return usageCard;
+  const pair = document.createElement("section");
+  pair.className = "prompt-detail-provider-review";
+  pair.append(usageCard, reviewerCard);
+  return pair;
 }
 function renderPromptHistoryDetail(payload) {
   const content = $("promptHistoryDetailContent"),
@@ -4529,9 +4539,8 @@ function renderPromptHistoryDetail(payload) {
       ]),
       lifecycleFlow(payload?.lifecycle, { historical: true }),
       statusReconciliationCard(payload?.lifecycle?.recovery),
-      promptDetailUsageSection(usage),
+      promptDetailProviderReviewSections(usage, reviewers),
       promptDetailRecommendationHandoff(recommendationHandoff),
-      promptDetailReviewersSection(reviewers),
     ].filter(Boolean),
   );
 }

@@ -2033,6 +2033,43 @@ test.describe("Engineering Status browser smoke", () => {
       ]);
   });
 
+  test("pairs specialist reviews beside the wider provider usage card on wide prompt details", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => {
+      renderPromptHistoryDetail({
+        history: { run_id: "inbox-provider-review-layout", status: "COMPLETE", title: "Provider and reviews", executed_at: "2026-08-24T20:00:00Z" },
+        usage: { input_tokens: 400, output_tokens: 40, provider_invocation_count: 8 },
+        reviewers: [
+          { reviewer: "validation", capability: "ENGINEERING", status: "completed", accepted_recommendations: 2, selected_because: "validation-related objective" },
+          { reviewer: "documentation", capability: "ENGINEERING", status: "completed", accepted_recommendations: 1, selected_because: "documentation-oriented objective" },
+        ],
+      });
+      document.querySelector("#promptHistoryDetailModal").showModal();
+    });
+
+    const pair = page.locator("#promptHistoryDetailContent .prompt-detail-provider-review");
+    const cards = pair.locator(".prompt-detail-card");
+    await expect(cards).toHaveCount(2);
+    const [usageBounds, reviewerBounds] = await Promise.all([
+      cards.nth(0).boundingBox(), cards.nth(1).boundingBox(),
+    ]);
+    expect(usageBounds).not.toBeNull();
+    expect(reviewerBounds).not.toBeNull();
+    expect(reviewerBounds.x).toBeGreaterThan(usageBounds.x);
+    expect(reviewerBounds.width).toBeLessThan(usageBounds.width);
+    expect(Math.abs(reviewerBounds.y - usageBounds.y)).toBeLessThanOrEqual(1);
+
+    await page.setViewportSize({ width: 390, height: 844 });
+    const [narrowUsage, narrowReviewers] = await Promise.all([
+      cards.nth(0).boundingBox(), cards.nth(1).boundingBox(),
+    ]);
+    expect(narrowUsage).not.toBeNull();
+    expect(narrowReviewers).not.toBeNull();
+    expect(Math.abs(narrowReviewers.x - narrowUsage.x)).toBeLessThanOrEqual(1);
+    expect(narrowReviewers.y).toBeGreaterThan(narrowUsage.y);
+  });
+
   test("formats preflight timestamps through the selected dashboard locale", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     expect(await page.evaluate(() => [
