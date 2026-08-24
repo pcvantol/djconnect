@@ -3,13 +3,21 @@
 **Status:** Operational handoff
 **Updated:** 2026-08-24
 
-## PR #927 finalization pending
+## PRs #924, #925 and #927 finalization pending
 
 PR [#923](https://github.com/pcvantol/djconnect/pull/923) is finalized by its
 governance-only PR [#926](https://github.com/pcvantol/djconnect/pull/926),
 merged as `e223c1f7cddcafc316bb243142fa95be164047a2` and contained in current
 `main`. Its historical rolling-record lag is reconciled without recreating
 Prompt History.
+
+PR [#924](https://github.com/pcvantol/djconnect/pull/924), **Improve merge
+status diagnostics**, merged as `4c57c8b5` and is contained in current `main`.
+PR [#925](https://github.com/pcvantol/djconnect/pull/925), **Cap telemetry
+phase shares to execution envelope**, merged as
+`23d52ea13ab2bfd9b3bcce08c92a86a3965de1c7` and is contained in current
+`main`. Their bounded dashboard corrections preserve raw audit evidence and
+all lifecycle and authority semantics.
 
 PR [#927](https://github.com/pcvantol/djconnect/pull/927), **Show open pull
 request check status**, merged as `7235edb7a148c1be645c2053f8ce7209778adf87`
