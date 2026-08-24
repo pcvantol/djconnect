@@ -2957,6 +2957,14 @@ test.describe("Engineering Status browser smoke", () => {
       .toHaveText("Geblokkeerd · Afgesloten");
     await expect(page.locator("#promptHistoryRows .prompt-history-row")).toContainText("(3 min)");
     await expect(page.locator("#promptHistoryRows .execution-history-action")).toHaveCount(0);
+    await page.evaluate(() => {
+      promptHistoryEntries = [{
+        run_id: "inbox-missing-duration", title: "Missing duration", status: "BLOCKED",
+        executed_at: "2026-08-08T10:00:00Z", total_execution_seconds: null,
+      }];
+      renderPromptHistory();
+    });
+    await expect(page.locator("#promptHistoryRows .prompt-history-row")).not.toContainText("(0 min)");
   });
 
   test("keeps execution detail modal borders inside iPhone landscape safe areas", async ({ page }) => {

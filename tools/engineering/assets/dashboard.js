@@ -52,6 +52,7 @@ function formatPromptHistoryTimestamp(value, fallback = t("format.timestamp_unav
   }).format(new Date(timestamp));
 }
 function formatPromptHistoryDuration(value) {
+  if (value === null || value === undefined || value === "") return "";
   const seconds = Number(value);
   if (!Number.isFinite(seconds) || seconds < 0) return "";
   return t("history.total_duration_minutes", {
