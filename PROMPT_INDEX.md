@@ -2,14 +2,17 @@
 
 Status: canonical prompt navigation
 
-## PR #904 finalization pending
+## PR #904 finalized by PR #905
 
 PR [#904](https://github.com/pcvantol/djconnect/pull/904), **feat: automate
 post-finalization reconciliation**, merged as
 `bc60d55c09edea79d67da1c595efbc3850ee96f2`. The two operator-owned merge
 gates remain; a verified Finalization merge now triggers a bounded automatic
-reconciliation on `main`. This governance-only Finalization is the only
-permitted increment while the repository is `MERGED_UNRECONCILED`.
+reconciliation on `main`. Its governance-only Finalization PR
+[#905](https://github.com/pcvantol/djconnect/pull/905) merged as
+`baa180a23b06cb0ff5d0a1ae37e36bae9668fbc0`. Repository State:
+`MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`; Finalization Pending:
+`NO`.
 
 ## PR #901 finalization reconciled
 
