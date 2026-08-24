@@ -2,7 +2,7 @@
 
 Status: active platform-evolution repository
 
-## PR #898 finalization pending
+## PR #898 finalized by PR #899
 
 PR [#898](https://github.com/pcvantol/djconnect/pull/898), **feat: harden
 Managed autonomy evidence contract**, merged as
@@ -11,9 +11,11 @@ operator merge-gate and validation evidence now support a fail-closed Managed
 autonomy read model. Managed merge authority remains operator-owned; automatic
 merge was not introduced. No real autonomy qualification was submitted.
 `main == origin/main`; worktree clean; the implementation branch was removed
-through the squash-merge patch-equivalence exception. Repository State:
-`MERGED_UNRECONCILED`; Workspace State: `WORKSPACE_READY`. Only this dedicated
-governance-only Finalization may proceed.
+through the squash-merge patch-equivalence exception. Its governance-only
+Finalization PR [#899](https://github.com/pcvantol/djconnect/pull/899) merged as
+`37cdd87509e6eaca6688f652d621b3b185c89ffd`. Repository State:
+`MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`; Finalization Pending:
+`NO`.
 
 ## PR #893 finalization pending
 
