@@ -3,7 +3,7 @@
 **Status:** Operational handoff
 **Updated:** 2026-08-24
 
-## PR #919 finalization pending
+## PR #919 finalized by PR #920
 
 PR [#919](https://github.com/pcvantol/djconnect/pull/919), **Fix dashboard
 lifecycle evidence projection**, merged as
@@ -12,9 +12,12 @@ lifecycle evidence projection**, merged as
 makes the terminal result duration evidence-based, adds matching lifecycle
 detail status indicators and closes localized dashboard projection gaps. It
 preserves lifecycle authority, validation, reviewer, provider, delivery and
-operator-owned merge authority. Governance-only Finalization is pending.
-Repository State: `MERGED_UNRECONCILED`; Workspace State: `NOT_READY`;
-Finalization Pending: `YES`.
+operator-owned merge authority. Governance-only Finalization PR
+[#920](https://github.com/pcvantol/djconnect/pull/920) merged as
+`b0e8d8006eacffa5c9c26be61ede3cddee32b7d3`. This direct-on-`main`
+reconciliation updates only the four canonical rolling records. Repository
+State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`; Finalization
+Pending: `NO`.
 
 ## PR #917 finalized by PR #918
 

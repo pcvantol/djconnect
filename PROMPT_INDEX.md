@@ -2,17 +2,19 @@
 
 Status: canonical prompt navigation
 
-## PR #919 finalization pending
+## PR #919 finalized by PR #920
 
 PR [#919](https://github.com/pcvantol/djconnect/pull/919), **Fix dashboard
 lifecycle evidence projection**, merged as
 `2732dff6679cdf8ac30bad057205cce635468a17` and is contained in current
 `main`. This bounded dashboard repair preserves the operator-owned
 implementation and Finalization merge gates, lifecycle authority, validation,
-reviewer, provider and delivery semantics. The dedicated governance-only
-Finalization is the only permitted increment while the repository is
-`MERGED_UNRECONCILED`; Workspace State is `NOT_READY`; Finalization Pending:
-`YES`.
+reviewer, provider and delivery semantics. Governance-only Finalization PR
+[#920](https://github.com/pcvantol/djconnect/pull/920) merged as
+`b0e8d8006eacffa5c9c26be61ede3cddee32b7d3`. This direct-on-`main`
+reconciliation updates only the four canonical rolling records. Repository
+State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`; Finalization
+Pending: `NO`.
 
 ## PR #917 finalized by PR #918
 
