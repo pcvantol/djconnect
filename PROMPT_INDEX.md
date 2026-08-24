@@ -11,8 +11,8 @@ workflow visibility and merge handoffs**, merged as
 `a9739cb3519724a6ddeb211e132be2c4a987b9bb`; automatic end reconciliation is
 complete. Runtime behavior, lifecycle, validation, reviewer, provider, Forge,
 delivery and operator merge authority are unchanged. Repository State:
-`MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`; Finalization Pending:
-`NO`.
+`MERGED_RECONCILED`; Workspace State: `NOT_READY` pending safe cleanup of the
+separately checked-out implementation branch. Finalization Pending: `NO`.
 
 ## PR #909 finalized by PR #910
 

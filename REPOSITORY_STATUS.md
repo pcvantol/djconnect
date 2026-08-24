@@ -13,8 +13,9 @@ validation, reviewer, provider, Forge and delivery authority boundaries. This
 Governance-only Finalization PR
 [#916](https://github.com/pcvantol/djconnect/pull/916) merged as
 `a9739cb3519724a6ddeb211e132be2c4a987b9bb`; automatic end reconciliation is
-complete. Repository State: `MERGED_RECONCILED`; Workspace State:
-`WORKSPACE_READY`; Finalization Pending: `NO`.
+complete. Repository State: `MERGED_RECONCILED`; Workspace State: `NOT_READY`
+because the separately checked-out implementation branch has not passed the
+required safe-cleanup evidence. Finalization Pending: `NO`.
 
 ## PR #909 finalized by PR #910
 
