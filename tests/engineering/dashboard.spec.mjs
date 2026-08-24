@@ -1195,6 +1195,7 @@ test.describe("Engineering Status browser smoke", () => {
             { phase: "INITIALIZATION", duration_ms: 1000, outcome: "COMPLETE" },
             { phase: "INITIALIZATION", duration_ms: 2000, outcome: "COMPLETE" },
             { phase: "PROVIDER_EXECUTION", duration_ms: 12000, outcome: "COMPLETE" },
+            { phase: "TOTAL_EXECUTION", duration_ms: 15000, outcome: "COMPLETE" },
           ] },
         }],
       },
@@ -1203,10 +1204,11 @@ test.describe("Engineering Status browser smoke", () => {
     await page.locator(".execution-lifecycle__node").click();
 
     const phaseRows = page.locator("#lifecycleDetailModal .lifecycle-detail-modal__phase-list li");
-    await expect(phaseRows).toHaveCount(2);
+    await expect(phaseRows).toHaveCount(3);
     await expect(phaseRows.nth(0)).toContainText(DASHBOARD_MESSAGES.nl["telemetry.phase.initialization"]);
     await expect(phaseRows.nth(0)).toContainText("3 sec");
     await expect(phaseRows.nth(1)).toContainText(DASHBOARD_MESSAGES.nl["telemetry.phase.provider_execution"]);
+    await expect(phaseRows.nth(2)).toContainText(DASHBOARD_MESSAGES.nl["telemetry.phase.total_execution"]);
   });
 
   test("reveals an initially off-screen active lifecycle step after page load", async ({ page }) => {
