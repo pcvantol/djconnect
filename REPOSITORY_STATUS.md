@@ -2,7 +2,7 @@
 
 Status: active platform-evolution repository
 
-## PR #917 finalization pending
+## PR #917 finalized by PR #918
 
 PR [#917](https://github.com/pcvantol/djconnect/pull/917), **add Engineering
 Platform run context contracts**, merged as
@@ -13,9 +13,13 @@ new action-execution surface. Lifecycle, validation, reviewer, provider,
 delivery and operator merge authority remain unchanged. Its immutable Prompt
 History record is
 `docs/history/prompts/2026-08-24-run-context-contract-foundation.md`.
-Governance-only Finalization is pending. Repository State:
-`MERGED_UNRECONCILED`; Workspace State: `NOT_READY`; Finalization Pending:
-`YES`.
+Governance-only Finalization PR
+[#918](https://github.com/pcvantol/djconnect/pull/918) merged as
+`4152e752692d8ebfdb91674ea56738ea643454bb`; its terminal required checks
+passed with expected non-applicable skips. This one direct-on-`main`
+reconciliation updates only the four canonical rolling records. Repository
+State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`; Finalization
+Pending: `NO`.
 
 ## PR #915 finalized by PR #916
 
