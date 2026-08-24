@@ -1,6 +1,6 @@
 # DJConnect Generation 2 Management Summary
 
-## PR #921 finalization pending
+## PR #921 finalized by PR #922
 
 PR [#921](https://github.com/pcvantol/djconnect/pull/921), **Localize
 capability review status projection**, merged as
@@ -9,9 +9,12 @@ capability review status projection**, merged as
 quality-control and PR-check-repair evidence in the relevant workflow popup,
 and has a stable browser-validation fixture. No lifecycle, validation,
 reviewer, provider, delivery or merge-authority semantics changed.
-Governance-only Finalization is pending. Repository State:
-`MERGED_UNRECONCILED`; Workspace State: `NOT_READY`; Finalization Pending:
-`YES`.
+Governance-only Finalization PR
+[#922](https://github.com/pcvantol/djconnect/pull/922) merged as
+`0c27f1b7f0ff755d028a97729747c33521a45d3a`. This direct-on-`main`
+reconciliation updates only the four canonical rolling records. Repository
+State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`; Finalization
+Pending: `NO`.
 
 ## PR #919 finalized by PR #920
 
