@@ -1,5 +1,18 @@
 # DJConnect Generation 2 Management Summary
 
+## PR #919 finalization pending
+
+PR [#919](https://github.com/pcvantol/djconnect/pull/919), **Fix dashboard
+lifecycle evidence projection**, merged as
+`2732dff6679cdf8ac30bad057205cce635468a17` and is contained in current
+`main`. The dashboard now separates autonomous quality-control work from
+implementation timing, shows evidence-based terminal duration, and renders
+matching status indicators and localized provider values. It does not change
+lifecycle, validation, reviewer, provider, delivery or operator merge
+authority. Governance-only Finalization is pending. Repository State:
+`MERGED_UNRECONCILED`; Workspace State: `NOT_READY`; Finalization Pending:
+`YES`.
+
 ## PR #909 finalized by PR #910
 
 PR [#909](https://github.com/pcvantol/djconnect/pull/909), **feat: show reviewer command activity**, merged as `8850a724c6f78a0d1a472097036bea488511febc`. Finalization PR [#910](https://github.com/pcvantol/djconnect/pull/910) merged as `e272ad13e5e0b3d1bd0b7c421280074de213eb9a`; automatic reconciliation complete. `MERGED_RECONCILED`; `WORKSPACE_READY`; Finalization Pending: `NO`.
