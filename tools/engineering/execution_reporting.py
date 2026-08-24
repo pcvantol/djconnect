@@ -1181,7 +1181,7 @@ def generate_terminal_report(
             "- Ready for Review, merge and Finalization authority remain runner-controlled.",
             "",
             "## Lifecycle Timeline",
-            f"`INITIALIZE → IMPLEMENTATION → VALIDATION → REPAIR ({state.repair_iterations}) → MERGE → FINALIZATION → REPOSITORY_CLEANUP → {state.phase}`",
+            f"`INITIALIZE → CAPABILITY_REVIEW → IMPLEMENTATION → VALIDATION → REPAIR ({state.repair_iterations}) → MERGE → FINALIZATION → REPOSITORY_CLEANUP → {state.phase}`",
             "",
             *timing_lines,
             "",

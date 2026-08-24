@@ -807,7 +807,9 @@ class EngineeringRunner:
                     "repository_synchronization",
                     f"Repository synchronization failed: {redact_diagnostic(str(error))}",
                 )
-        preparation = start_phase(self.root, state.run_id, "EXECUTION_PREPARATION")
+        state = replace(state, phase="CAPABILITY_REVIEW", next_action="capability_review")
+        self.store.save(state)
+        capability_review = start_phase(self.root, state.run_id, "CAPABILITY_REVIEW")
         reviewer_evidence = (
             ReviewerEvidence.from_repository(state.run_id, state.execution_mode, evidence)
             if state.execution_mode == "MANAGED"
@@ -873,7 +875,7 @@ class EngineeringRunner:
         )
         self.store.save(state)
         write_live_status(self.root, state, state.next_action)
-        complete_phase(self.root, preparation)
+        complete_phase(self.root, capability_review)
         if state.terminal or state.phase == "WAIT_FOR_TERMINAL_EVIDENCE":
             return self._poll(state)
         try:
