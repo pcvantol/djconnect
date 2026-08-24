@@ -3,6 +3,10 @@
 **Status:** Operational handoff
 **Updated:** 2026-08-24
 
+## PR #909 finalization pending
+
+PR [#909](https://github.com/pcvantol/djconnect/pull/909), **feat: show reviewer command activity**, merged as `8850a724c6f78a0d1a472097036bea488511febc`. Its governance-only Finalization PR [#910](https://github.com/pcvantol/djconnect/pull/910) is the permitted next increment.
+
 ## PR #913 reconciled by PR #914
 
 PR [#913](https://github.com/pcvantol/djconnect/pull/913), **fix: harden

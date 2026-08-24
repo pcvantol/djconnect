@@ -2,6 +2,10 @@
 
 Status: canonical prompt navigation
 
+## PR #909 finalization pending
+
+PR [#909](https://github.com/pcvantol/djconnect/pull/909), **feat: show reviewer command activity**, merged as `8850a724c6f78a0d1a472097036bea488511febc`. Governance-only Finalization PR [#910](https://github.com/pcvantol/djconnect/pull/910) is the only permitted increment while the repository is `MERGED_UNRECONCILED`.
+
 ## PR #913 reconciled by PR #914
 
 PR [#913](https://github.com/pcvantol/djconnect/pull/913), **fix: harden
