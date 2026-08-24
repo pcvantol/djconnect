@@ -442,6 +442,10 @@ after implementation and before the pull-request checks and operator merge
 handoff. It may refactor and improve tests only within the original bounded
 objective, and it must retain the same branch and pull request; a different
 branch or PR blocks the run. The step does not merge or grant new authority.
+It must assess changed-behavior test coverage and add or strengthen focused
+regressions when needed. It must also assess applicable operator, contract and
+implementation documentation, updating it whenever the bounded change affects
+documented behavior.
 
 CI runs the browser suite with four isolated workers. Each worker starts its
 own temporary dashboard root and local server, so status fixtures, browser

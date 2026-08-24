@@ -614,7 +614,13 @@ Mandatory autonomous refactor and quality-control stage:
 - Inspect the implementation now present on this transaction branch.
 - Autonomously make only demonstrable maintainability, clarity, safety, or
   test-coverage improvements within the original bounded objective.
-- Run the relevant focused validation and `git diff --check`.
+- Assess test coverage for every changed behavior. Add or strengthen focused
+  regression tests whenever existing coverage does not prove that behavior.
+- Assess the applicable operator, contract, and implementation documentation.
+  Update it whenever the bounded change affects documented behavior; only
+  leave documentation unchanged when the inspection proves it is unaffected.
+- Run the relevant focused validation, including the added or affected tests,
+  and `git diff --check`.
 - Preserve the existing transaction branch and pull request. If changes are
   needed, commit and push them to that same branch; do not create another PR,
   merge, alter authority, or expand scope.

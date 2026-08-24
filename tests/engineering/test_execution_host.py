@@ -763,6 +763,8 @@ class LocalAgentRunnerTest(unittest.TestCase):
         self.assertIn("producer provenance only", agent.prompts[0])
         self.assertEqual(agent.roots, [self.root, self.root])
         self.assertIn("Mandatory autonomous refactor and quality-control stage", agent.prompts[1])
+        self.assertIn("Assess test coverage for every changed behavior", agent.prompts[1])
+        self.assertIn("Assess the applicable operator, contract, and implementation documentation", agent.prompts[1])
         self.assertEqual(repository.synchronize_calls, [self.root])
 
     def test_reviewer_recommendations_do_not_enter_the_primary_prompt(self) -> None:
