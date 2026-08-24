@@ -506,6 +506,9 @@ class DashboardStatusTest(unittest.TestCase):
             "mergeStateStatus": "DIRTY", "statusCheckRollup": [{"status": "COMPLETED", "conclusion": "SUCCESS"}],
         }), "issues")
         self.assertEqual(dashboard._open_pull_request_status({
+            "mergeStateStatus": "BEHIND", "statusCheckRollup": [{"status": "COMPLETED", "conclusion": "SUCCESS"}],
+        }), "branch_update_required")
+        self.assertEqual(dashboard._open_pull_request_status({
             "mergeStateStatus": "CLEAN", "statusCheckRollup": [],
         }), "ready_to_merge")
         self.assertEqual(dashboard._open_pull_request_status({
@@ -789,6 +792,19 @@ class DashboardStatusTest(unittest.TestCase):
             ),
             {},
         )
+
+    @patch("tools.engineering.dashboard.GitHubProvider")
+    def test_github_rate_limit_status_only_reports_exhausted_or_explicit_limits(self, github_provider: object) -> None:
+        github_provider.return_value.github.return_value = json.dumps({
+            "resources": {"core": {"remaining": 0, "reset": 1_786_162_124}, "graphql": {"remaining": 4, "reset": 0}},
+        })
+        self.assertEqual(dashboard._github_rate_limit_status(), {"limited": True, "reset_at": 1_786_162_124})
+        github_provider.return_value.github.return_value = json.dumps({"resources": {"core": {"remaining": 1, "reset": 1}}})
+        self.assertEqual(dashboard._github_rate_limit_status(), {"limited": False})
+        github_provider.return_value.github.side_effect = RuntimeError("API rate limit exceeded")
+        self.assertEqual(dashboard._github_rate_limit_status(), {"limited": True})
+        github_provider.return_value.github.side_effect = RuntimeError("authentication failed")
+        self.assertEqual(dashboard._github_rate_limit_status(), {"limited": False})
 
     @patch("tools.engineering.dashboard.subprocess.run")
     @patch("tools.engineering.dashboard.shutil.which", return_value="/usr/local/bin/codex")

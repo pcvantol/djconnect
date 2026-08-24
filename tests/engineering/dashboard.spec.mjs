@@ -126,6 +126,20 @@ test.describe("Engineering Status browser smoke", () => {
     }
   });
 
+  test("shows a GitHub rate-limit banner on page load and clears it on refresh", async ({ page }) => {
+    let limited = true;
+    await page.route("**/api/github-rate-limit", (route) => route.fulfill({
+      json: limited ? { limited: true, reset_at: 1_786_162_124 } : { limited: false },
+    }));
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    const banner = page.getByTestId("github-rate-limit-banner");
+    await expect(banner).toBeVisible();
+    await expect(banner).toContainText("GitHub-ratelimiet bereikt");
+    limited = false;
+    await banner.getByRole("button", { name: "GitHub-status opnieuw controleren" }).click();
+    await expect(banner).toBeHidden();
+  });
+
   test("shows and monitors the bounded open pull-request check status", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     const timerDelay = await page.evaluate(() => {
@@ -150,8 +164,9 @@ test.describe("Engineering Status browser smoke", () => {
       window.setTimeout = originalSetTimeout;
       return delay;
     });
-    await expect(page.locator(".open-pr-status")).toHaveClass(/open-pr-status--waiting_for_checks/);
-    await expect(page.locator(".open-pr-status")).toHaveText("Wacht op afronden van controles");
+    const openPullRequestStatus = page.locator("#workspaceOpenPullRequests .open-pr-status");
+    await expect(openPullRequestStatus).toHaveClass(/open-pr-status--waiting_for_checks/);
+    await expect(openPullRequestStatus).toHaveText("Wacht op afronden van controles");
     expect(timerDelay).toBe(30_000);
     await page.evaluate(() => renderOpenPullRequests([{
       number: 925,
@@ -160,8 +175,17 @@ test.describe("Engineering Status browser smoke", () => {
       branch: "codex/check-projection",
       status: "issues",
     }]));
-    await expect(page.locator(".open-pr-status")).toHaveClass(/open-pr-status--issues/);
-    await expect(page.locator(".open-pr-status")).toHaveText("Pull request heeft problemen");
+    await expect(openPullRequestStatus).toHaveClass(/open-pr-status--issues/);
+    await expect(openPullRequestStatus).toHaveText("Pull request heeft problemen");
+    await page.evaluate(() => renderOpenPullRequests([{
+      number: 925,
+      title: "Check projection",
+      url: "https://github.com/pcvantol/djconnect/pull/925",
+      branch: "codex/check-projection",
+      status: "branch_update_required",
+    }]));
+    await expect(openPullRequestStatus).toHaveClass(/open-pr-status--branch_update_required/);
+    await expect(openPullRequestStatus).toHaveText("Branch bijwerken vereist");
     await page.evaluate(() => renderOpenPullRequests([{
       number: 925,
       title: "Check projection",
@@ -169,8 +193,8 @@ test.describe("Engineering Status browser smoke", () => {
       branch: "codex/check-projection",
       status: "ready_for_review",
     }]));
-    await expect(page.locator(".open-pr-status")).toHaveClass(/open-pr-status--ready_for_review/);
-    await expect(page.locator(".open-pr-status")).toHaveText("Klaar voor review");
+    await expect(openPullRequestStatus).toHaveClass(/open-pr-status--ready_for_review/);
+    await expect(openPullRequestStatus).toHaveText("Klaar voor review");
     await page.evaluate(() => renderOpenPullRequests([{
       number: 925,
       title: "Check projection",
@@ -178,8 +202,8 @@ test.describe("Engineering Status browser smoke", () => {
       branch: "codex/check-projection",
       status: "ready_to_merge",
     }]));
-    await expect(page.locator(".open-pr-status")).toHaveClass(/open-pr-status--ready_to_merge/);
-    await expect(page.locator(".open-pr-status")).toHaveText("Klaar om te mergen");
+    await expect(openPullRequestStatus).toHaveClass(/open-pr-status--ready_to_merge/);
+    await expect(openPullRequestStatus).toHaveText("Klaar om te mergen");
   });
 
   test("translates every operational phase and status in every supported locale", () => {

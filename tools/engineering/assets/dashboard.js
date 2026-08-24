@@ -1156,6 +1156,31 @@ function renderCodexUsageLimitBanner(x, rateLimits) {
   title.textContent = t("notification.codex_usage_" + state + ".title");
   body.textContent = t("notification.codex_usage_" + state + ".body", { percent });
 }
+let githubRateLimitRefreshInFlight = false;
+async function refreshGithubRateLimit() {
+  const banner = $("githubRateLimitBanner"), message = $("githubRateLimitMessage"), button = $("githubRateLimitRefresh");
+  if (!banner || !message || !button || githubRateLimitRefreshInFlight) return;
+  githubRateLimitRefreshInFlight = true;
+  button.disabled = true;
+  try {
+    const response = await fetch("/api/github-rate-limit", { cache: "no-store" });
+    const status = response.ok ? await response.json() : null;
+    const limited = status?.limited === true;
+    banner.hidden = !limited;
+    if (limited) {
+      const resetAt = Number(status?.reset_at);
+      message.textContent = Number.isFinite(resetAt) && resetAt > 0
+        ? t("notification.github_rate_limit.body_reset", { reset: locale.dateTime(new Date(resetAt * 1e3)) })
+        : t("notification.github_rate_limit.body");
+    }
+  } catch {
+    // A failed diagnostics poll is not proof of a GitHub quota condition.
+    banner.hidden = true;
+  } finally {
+    button.disabled = false;
+    githubRateLimitRefreshInFlight = false;
+  }
+}
 
 // Browsers otherwise put initial dialog focus on the first close button.
 // Confirmation dialogs focus their primary action, except when that action is
@@ -1695,13 +1720,14 @@ function renderWorkspaceGit(workspaceGit) {
 const OPEN_PULL_REQUEST_MONITOR_INTERVAL_MS = 30_000;
 let openPullRequestMonitorTimer = null, openPullRequestMonitorInFlight = false;
 const openPullRequestStatusByNumber = new Map();
-const OPEN_PULL_REQUEST_STATES = ["draft", "waiting_for_checks", "ready_for_review", "ready_to_merge", "issues"];
+const OPEN_PULL_REQUEST_STATES = ["draft", "waiting_for_checks", "ready_for_review", "ready_to_merge", "branch_update_required", "issues"];
 function openPullRequestStatusKey(status) {
   return {
     draft: "workspace.open_pull_request.draft",
     waiting_for_checks: "workspace.open_pull_request.waiting_for_checks",
     ready_for_review: "workspace.open_pull_request.ready_for_review",
     ready_to_merge: "workspace.open_pull_request.ready_to_merge",
+    branch_update_required: "workspace.open_pull_request.branch_update_required",
     issues: "workspace.open_pull_request.issues",
   }[status] || "workspace.open_pull_request.waiting_for_checks";
 }
@@ -3461,6 +3487,7 @@ function refreshDashboard() {
   window.location.reload();
 }
 $("pageRefresh")?.addEventListener("click", refreshDashboard);
+$("githubRateLimitRefresh")?.addEventListener("click", () => void refreshGithubRateLimit());
 document.addEventListener("touchstart", startPullRefresh, { passive: true });
 document.addEventListener("touchmove", movePullRefresh, { passive: false });
 document.addEventListener("touchend", endPullRefresh, { passive: true });
@@ -5507,4 +5534,5 @@ for (const binding of [
 // Start after every DOM-dependent dashboard feature has completed setup.
 localizeOpenPullRequestStatuses();
 void refreshOpenPullRequests();
+void refreshGithubRateLimit();
 startDashboardUpdates();
