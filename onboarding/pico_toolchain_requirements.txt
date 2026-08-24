@@ -3,4 +3,4 @@
 # developer-tool virtual environment, never in a Pico firmware image.
 mpremote>=1.28.0,<2
 micropython-stubber>=1.28.5,<2
-ruff==0.16.2
+ruff==0.16.3
