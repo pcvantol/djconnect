@@ -35,12 +35,14 @@ class ExecutionLifecycleProjectionTests(unittest.TestCase):
     def test_terminal_outcome_keeps_later_steps_pending_and_repairs_bounded(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
+            repair_audit = ({"iteration": "2", "observed_at": "2026-08-24T20:10:00+00:00", "failed_checks": "Ruff", "proposed_action": "Repair Ruff.", "agent_summary": "Updated lint configuration.", "commit_sha": "a" * 40, "outcome": "submitted_for_recheck"},)
             self._state(root, "INITIALIZE")
-            self._state(root, "REPAIR_AGENT", repair_iterations=2)
-            self._state(root, "BLOCKED", repair_iterations=2)
+            self._state(root, "REPAIR_AGENT", repair_iterations=2, repair_audit=repair_audit)
+            self._state(root, "BLOCKED", repair_iterations=2, repair_audit=repair_audit)
             value = projection(root, "inbox-flow")
         by_id = {step["id"]: step for step in value["steps"]}
         self.assertEqual(by_id["REPAIR_AGENT"]["iteration_count"], 2)
+        self.assertEqual(by_id["REPAIR_AGENT"]["repair_audit"], list(repair_audit))
         self.assertEqual(by_id["WAIT_FOR_OPERATOR_MERGE"]["state"], "PENDING")
         self.assertEqual(by_id["TERMINAL"]["state"], "BLOCKED")
 

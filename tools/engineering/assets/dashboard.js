@@ -1232,6 +1232,34 @@ function lifecycleQualityEvidence(step) {
   section.append(list);
   return section;
 }
+function lifecycleRepairEvidence(step) {
+  const audit = Array.isArray(step?.repair_audit) ? step.repair_audit : [];
+  if (!audit.length) return null;
+  const section = document.createElement("section");
+  section.className = "lifecycle-detail-modal__repair-evidence";
+  section.append(Object.assign(document.createElement("h3"), {
+    textContent: t("lifecycle.detail_repair_evidence"),
+  }));
+  for (const item of audit) {
+    if (!item || typeof item !== "object") continue;
+    const iteration = String(item.iteration || "").trim();
+    if (!iteration) continue;
+    const heading = document.createElement("h4");
+    heading.textContent = t("lifecycle.detail_repair_iteration", { iteration });
+    const grid = document.createElement("div");
+    grid.className = "technical-grid";
+    const outcome = String(item.outcome || "").trim();
+    grid.append(
+      lifecycleDetailField(t("detail.failed_checks"), String(item.failed_checks || t("detail.not_recorded"))),
+      lifecycleDetailField(t("detail.proposed_action"), String(item.proposed_action || t("detail.not_recorded"))),
+      lifecycleDetailField(t("detail.ai_repair_summary"), String(item.agent_summary || t("detail.not_recorded"))),
+      lifecycleDetailField(t("detail.commit"), String(item.commit_sha || t("detail.not_recorded"))),
+      lifecycleDetailField(t("detail.outcome"), t("lifecycle.repair_outcome." + outcome, {}, outcome || t("detail.not_recorded"))),
+    );
+    section.append(heading, grid);
+  }
+  return section.childElementCount > 1 ? section : null;
+}
 let lifecycleDetailTrigger = null;
 function closeLifecycleDetail() {
   const modal = $("lifecycleDetailModal");
@@ -1284,6 +1312,8 @@ function openLifecycleDetail(step, trigger) {
   content.append(phaseTiming);
   const qualityEvidence = lifecycleQualityEvidence(step);
   if (qualityEvidence) content.append(qualityEvidence);
+  const repairEvidence = lifecycleRepairEvidence(step);
+  if (repairEvidence) content.append(repairEvidence);
   if (!modal.open) modal.showModal();
   resetDashboardModalInitialFocus(modal);
 }
@@ -4473,18 +4503,6 @@ function promptDetailEvidenceSection(evidence) {
     [detailField(t("detail.evidence"), evidence.join("\n"), true)],
   );
 }
-function promptDetailRepairAuditSection(audit) {
-  if (!Array.isArray(audit) || !audit.length) return null;
-  const text = audit.map((item) => [
-    t("detail.repair_iteration") + ": " + String(item.iteration || "—"),
-    t("detail.failed_checks") + ": " + String(item.failed_checks || "—"),
-    t("detail.proposed_action") + ": " + String(item.proposed_action || "—"),
-    t("detail.ai_repair_summary") + ": " + String(item.agent_summary || "—"),
-    t("detail.commit") + ": " + String(item.commit_sha || "—"),
-    t("detail.outcome") + ": " + String(item.outcome || "—"),
-  ].join("\n")).join("\n\n");
-  return promptDetailCard(t("detail.repair_history"), [detailField(t("detail.audit_evidence"), text, true)], true);
-}
 function promptDetailRecommendationHandoff(handoff) {
   if (!handoff || typeof handoff !== "object") return null;
   const recommendation = handoff.recommendation || {}, alternatives = Array.isArray(handoff.alternatives) ? handoff.alternatives : [];
@@ -4565,7 +4583,6 @@ function renderPromptHistoryDetail(payload) {
         promptDetailRuntimeSection(runtime),
         promptDetailCommitsSection(commits),
       promptDetailEvidenceSection(evidence),
-      promptDetailRepairAuditSection(payload?.repair_audit),
       ]),
       lifecycleFlow(payload?.lifecycle, { historical: true }),
       statusReconciliationCard(payload?.lifecycle?.recovery),

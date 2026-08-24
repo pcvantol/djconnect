@@ -5038,6 +5038,7 @@ test.describe("Engineering Status browser smoke", () => {
               finished_at: "2026-08-02T12:25:12Z",
               spans: [{ phase: "REPAIR", duration_ms: 12000, outcome: "COMPLETED" }],
             },
+            repair_audit: [{ iteration: "1", failed_checks: "Ruff", proposed_action: "Repair Ruff.", agent_summary: "Updated lint configuration.", commit_sha: "abcdef1", outcome: "submitted_for_recheck" }],
           }],
         },
       },
@@ -5048,6 +5049,10 @@ test.describe("Engineering Status browser smoke", () => {
     await page.locator("#promptHistoryDetailContent .execution-lifecycle__node").click();
     const lifecycleDetail = page.locator("#lifecycleDetailModal");
     await expect(lifecycleDetail).toBeVisible();
+    await expect(lifecycleDetail).toContainText(DASHBOARD_MESSAGES.nl["lifecycle.detail_repair_evidence"]);
+    await expect(lifecycleDetail).toContainText(DASHBOARD_MESSAGES.nl["lifecycle.detail_repair_iteration"].replace("{iteration}", "1"));
+    await expect(lifecycleDetail).toContainText("Updated lint configuration.");
+    await expect(page.locator("#promptHistoryDetailContent")).not.toContainText(DASHBOARD_MESSAGES.nl["detail.repair_history"]);
     await expect(lifecycleDetail.locator(".lifecycle-detail-modal__panel")).toHaveCSS("border-top-color", "rgb(141, 199, 255)");
     await expect(lifecycleDetail.locator("#lifecycleDetailTitle")).toHaveCSS("color", "rgb(141, 199, 255)");
     await expect(lifecycleDetail.locator("#lifecycleDetailTitle")).toHaveAttribute("data-lifecycle-status", "completed");

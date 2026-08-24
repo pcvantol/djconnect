@@ -304,6 +304,10 @@ def projection(root: Path, run_id: str | None) -> dict[str, object]:
             step["presentation_detail_key"] = "lifecycle.detail.not_part_of_reconciliation"
         if step_id == "REPAIR_AGENT" and repair_iterations:
             step["iteration_count"] = repair_iterations
+        if step_id == "REPAIR_AGENT" and step["state"] not in {"PENDING", "SKIPPED"}:
+            audit = checkpoint.get("repair_audit")
+            if isinstance(audit, (list, tuple)) and audit:
+                step["repair_audit"] = list(audit)
         if step_id == "QUALITY_CONTROL_AGENT" and step["state"] not in {"PENDING", "SKIPPED"}:
             evidence = checkpoint.get("quality_evidence")
             if isinstance(evidence, (list, tuple)) and evidence:
