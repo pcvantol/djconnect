@@ -3,6 +3,22 @@
 **Status:** Operational handoff
 **Updated:** 2026-08-24
 
+## PR #917 finalization pending
+
+PR [#917](https://github.com/pcvantol/djconnect/pull/917), **add Engineering
+Platform run context contracts**, merged as
+`6a45f8b805c08d4021668741681d742ce6ab865e` and is contained in current
+`main`. It adds versioned, deterministic, redacted run-context, evidence,
+allowed-action, policy-decision and action-audit contracts plus focused
+projection coverage. It preserves lifecycle, validation, reviewer, provider,
+delivery and operator-owned merge authority; it adds no Workspace App,
+Architect chat, HTTP API, action execution or repair behavior. Its immutable
+Prompt History record is
+`docs/history/prompts/2026-08-24-run-context-contract-foundation.md`.
+Governance-only Finalization is pending. Repository State:
+`MERGED_UNRECONCILED`; Workspace State: `NOT_READY`; Finalization Pending:
+`YES`.
+
 ## PR #915 finalized by PR #916
 
 PR [#915](https://github.com/pcvantol/djconnect/pull/915), **Improve dashboard

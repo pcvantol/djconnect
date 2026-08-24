@@ -2,6 +2,21 @@
 
 Status: canonical prompt navigation
 
+## PR #917 finalization pending
+
+PR [#917](https://github.com/pcvantol/djconnect/pull/917), **add Engineering
+Platform run context contracts**, merged as
+`6a45f8b805c08d4021668741681d742ce6ab865e` and is contained in current
+`main`. This bounded foundation adds deterministic, versioned and redacted
+Engineering Platform contracts for future consumers while preserving the
+operator-owned implementation and Finalization merge gates. It adds no
+Workspace UI, Architect chat, HTTP API, action execution, repair behavior or
+lifecycle change. Its immutable Prompt History record is
+`docs/history/prompts/2026-08-24-run-context-contract-foundation.md`.
+The dedicated governance-only Finalization is the only permitted increment
+while the repository is `MERGED_UNRECONCILED`; Workspace State is `NOT_READY`;
+Finalization Pending: `YES`.
+
 ## PR #915 finalized by PR #916
 
 PR [#915](https://github.com/pcvantol/djconnect/pull/915), **Improve dashboard
