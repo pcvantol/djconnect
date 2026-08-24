@@ -2,18 +2,30 @@
 
 Status: active platform-evolution repository
 
-## PR #923 finalization pending
+## PRs #924, #925 and #927 finalization pending
 
-PR [#923](https://github.com/pcvantol/djconnect/pull/923), **Add emergency
-execution rollback control**, merged as
-`f16b2daf41461ea1423478c15df0997f78832d6d` and is contained in current
-`main`. The bounded dashboard improvement provides an audited emergency-stop
-and rollback path for the current execution, cancelled-history projection and
-early Codex-capacity warnings. This governance-only Finalization is the only
-permitted increment while Repository State is `MERGED_UNRECONCILED`; its merge
-restores `MERGED_RECONCILED` and Workspace State `WORKSPACE_READY` after
-cleanup. Runtime, lifecycle, validation, reviewer, provider, delivery and
-operator merge authority remain unchanged.
+PR [#923](https://github.com/pcvantol/djconnect/pull/923) is finalized by
+governance-only PR [#926](https://github.com/pcvantol/djconnect/pull/926),
+merged as `e223c1f7cddcafc316bb243142fa95be164047a2` and contained in current
+`main`; its historical rolling-record lag is reconciled only.
+
+PR [#924](https://github.com/pcvantol/djconnect/pull/924), **Improve merge
+status diagnostics**, merged as `4c57c8b5` and is contained in current `main`.
+PR [#925](https://github.com/pcvantol/djconnect/pull/925), **Cap telemetry
+phase shares to execution envelope**, merged as
+`23d52ea13ab2bfd9b3bcce08c92a86a3965de1c7` and is contained in current
+`main`. These bounded dashboard corrections preserve audit evidence, runtime
+behavior, lifecycle and authority boundaries.
+
+PR [#927](https://github.com/pcvantol/djconnect/pull/927), **Show open pull
+request check status**, merged as `7235edb7a148c1be645c2053f8ce7209778adf87`
+and is contained in current `main`. The bounded dashboard projection is
+read-only, localized and polls only while GitHub checks are non-terminal. Its
+governance-only Finalization remains the only permitted follow-up while
+Repository State is `MERGED_UNRECONCILED`; its merge restores
+`MERGED_RECONCILED` and Workspace State `WORKSPACE_READY` after cleanup.
+Runtime, lifecycle, validation, reviewer, provider, delivery and operator
+merge authority remain unchanged.
 
 ## PR #921 finalized by PR #922
 
