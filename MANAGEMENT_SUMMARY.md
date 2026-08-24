@@ -135,6 +135,22 @@ Forge and delivery authority are unchanged.
 `PLATFORM_RELEASE_3_3_RELEASE_COMPLETION_POSTMERGE_RECONCILED`
 **Basis:** Objective repository evidence recorded in the linked documents.
 
+## PR #917 finalization pending
+
+PR [#917](https://github.com/pcvantol/djconnect/pull/917), **add Engineering
+Platform run context contracts**, merged as
+`6a45f8b805c08d4021668741681d742ce6ab865e` and is contained in current
+`main`. The Engineering Platform now has deterministic, versioned and redacted
+run-context, evidence and governed-action contracts for a future Workspace and
+Platform Architect consumer. The increment does not create those consumers,
+nor add lifecycle authority, HTTP, execution or repair behavior. Operator-owned
+merge authority and all existing validation, reviewer, provider and delivery
+semantics remain intact. Its immutable Prompt History record is
+`docs/history/prompts/2026-08-24-run-context-contract-foundation.md`.
+Governance-only Finalization is pending. Repository State:
+`MERGED_UNRECONCILED`; Workspace State: `NOT_READY`; Finalization Pending:
+`YES`.
+
 ## PR #915 finalized by PR #916
 
 PR [#915](https://github.com/pcvantol/djconnect/pull/915), **Improve dashboard
