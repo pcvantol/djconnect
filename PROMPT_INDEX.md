@@ -2,6 +2,18 @@
 
 Status: canonical prompt navigation
 
+## PR #921 finalization pending
+
+PR [#921](https://github.com/pcvantol/djconnect/pull/921), **Localize
+capability review status projection**, merged as
+`f78c37413532030e1d775881718aff5edf145718` and is contained in current
+`main`. This bounded dashboard correction preserves lifecycle, validation,
+reviewer, provider, delivery and merge authority while localizing remaining
+operational projections and placing bounded quality and repair evidence in the
+corresponding lifecycle popup. Governance-only Finalization is pending.
+Repository State: `MERGED_UNRECONCILED`; Workspace State: `NOT_READY`;
+Finalization Pending: `YES`.
+
 ## PR #919 finalized by PR #920
 
 PR [#919](https://github.com/pcvantol/djconnect/pull/919), **Fix dashboard

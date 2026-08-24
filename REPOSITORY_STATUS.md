@@ -2,6 +2,19 @@
 
 Status: active platform-evolution repository
 
+## PR #921 finalization pending
+
+PR [#921](https://github.com/pcvantol/djconnect/pull/921), **Localize
+capability review status projection**, merged as
+`f78c37413532030e1d775881718aff5edf145718` and is contained in current
+`main`. The bounded dashboard correction localizes remaining lifecycle and
+activity projections, records autonomous quality and PR-check-repair evidence
+at their lifecycle step, and stabilizes browser validation. Lifecycle,
+validation, reviewer, provider, delivery and merge authority remain unchanged.
+Governance-only Finalization is pending. Repository State:
+`MERGED_UNRECONCILED`; Workspace State: `NOT_READY`; Finalization Pending:
+`YES`.
+
 ## PR #919 finalized by PR #920
 
 PR [#919](https://github.com/pcvantol/djconnect/pull/919), **Fix dashboard
