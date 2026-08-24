@@ -134,6 +134,7 @@ document
   );
 const OPERATIONAL_PRESENTATION_KEYS = {
   ENGINEERING_RUN_STALE: "operational.stale_run",
+  CAPABILITY_REVIEW: "telemetry.phase.capability_review",
   RECONCILE_AGENT: "lifecycle.step.reconcile_agent",
   WAIT_FOR_OPERATOR_MERGE: "lifecycle.step.wait_for_operator_merge",
   WAIT_FOR_FINALIZATION_MERGE: "lifecycle.step.wait_for_finalization_merge",
@@ -143,6 +144,12 @@ const OPERATIONAL_PRESENTATION_KEYS = {
 };
 function translate(value) {
   const raw = String(value || "");
+  const capabilityReview = /^Capability review:\s*(.+)$/i.exec(raw);
+  if (capabilityReview) {
+    return t("operational.activity_capability_review", {
+      reviewer: reviewerLabel(capabilityReview[1]),
+    });
+  }
   const presentationKey = OPERATIONAL_PRESENTATION_KEYS[raw];
   return presentationKey ? t(presentationKey) : t("state." + raw, {}, raw);
 }

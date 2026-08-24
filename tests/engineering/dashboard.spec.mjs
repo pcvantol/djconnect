@@ -3317,8 +3317,8 @@ test.describe("Engineering Status browser smoke", () => {
     await page.evaluate(() => r({
       watcher_state: "ENGINEERING_RUN_ACTIVE",
       platform_version: "1.5.0",
-      current_phase: "EXECUTE_AGENT",
-      current_action: "Codex bewerkt bestanden",
+      current_phase: "CAPABILITY_REVIEW",
+      current_action: "Capability review: documentation",
       run_id: "activity-run",
       prompt_title: "Veilige voortgang",
       submitted_filename: "activity.md",
@@ -3327,7 +3327,8 @@ test.describe("Engineering Status browser smoke", () => {
 
     await expect(page.locator("#currentRun")).toBeVisible();
     await expect(page.locator("#platformVersion")).toHaveText("1.5.0");
-    await expect(page.locator("#action")).toHaveText("Codex bewerkt bestanden");
+    await expect(page.locator("#phase")).toHaveText("Specialistenreview");
+    await expect(page.locator("#action")).toHaveText("Documentatie voert een specialistenreview uit");
     await expect(page.locator("#action")).toHaveCSS("font-style", "italic");
     await expect(page.locator("#workspaceProgressValue")).toHaveText("3 gewijzigd · 2 nieuw · 1 verwijderd · 17 primaire Codex-opdrachten uitgevoerd · 0 reviewer-Codex-opdrachten uitgevoerd");
   });
