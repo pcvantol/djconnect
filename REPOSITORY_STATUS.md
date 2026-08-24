@@ -2,7 +2,7 @@
 
 Status: active platform-evolution repository
 
-## PR #911 finalization pending
+## PR #911 finalized by PR #912
 
 PR [#911](https://github.com/pcvantol/djconnect/pull/911), **test: guard
 managed resume lineage**, merged as
@@ -11,10 +11,12 @@ run contributes only a resume-lineage regression guard; no lifecycle,
 validation, reviewer-selection, retry/resume, merge-authority or delivery
 semantics changed. Its immutable Prompt History record is
 `docs/history/prompts/2026-08-24-managed-autonomy-v2-qualification.md`.
-The implementation merge is recorded as an `EXPECTED_OPERATOR_GATE`; only this
-governance-only Finalization may proceed. Repository State:
-`MERGED_UNRECONCILED`; Workspace State: `WORKSPACE_READY`; Finalization
-Pending: `YES`.
+The implementation and Finalization merges are recorded as
+`EXPECTED_OPERATOR_GATE`s. Its governance-only Finalization PR
+[#912](https://github.com/pcvantol/djconnect/pull/912) merged as
+`8c948ac8321013c719f7b714961285b14799a7af`; autonomous reconciliation is
+complete. Repository State: `MERGED_RECONCILED`; Workspace State:
+`WORKSPACE_READY`; Finalization Pending: `NO`.
 
 ## PR #906 finalized by PR #907
 

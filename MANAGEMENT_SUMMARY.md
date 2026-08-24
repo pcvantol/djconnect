@@ -1,6 +1,6 @@
 # DJConnect Generation 2 Management Summary
 
-## PR #911 finalization pending
+## PR #911 finalized by PR #912
 
 PR [#911](https://github.com/pcvantol/djconnect/pull/911), **test: guard
 managed resume lineage**, merged as
@@ -9,10 +9,13 @@ qualification run protects resume-lineage evidence while preserving
 operator-owned merge authority and all existing lifecycle, validation,
 reviewer-selection and retry/resume semantics. Its immutable Prompt History
 record is `docs/history/prompts/2026-08-24-managed-autonomy-v2-qualification.md`.
-The implementation merge is an `EXPECTED_OPERATOR_GATE`; the dedicated
-governance-only Finalization is the sole permitted next increment. Repository
-State: `MERGED_UNRECONCILED`; Workspace State: `WORKSPACE_READY`; Finalization
-Pending: `YES`.
+The implementation and Finalization merges are `EXPECTED_OPERATOR_GATE`s.
+Its governance-only Finalization PR
+[#912](https://github.com/pcvantol/djconnect/pull/912) merged as
+`8c948ac8321013c719f7b714961285b14799a7af`; Engineering Platform
+autonomously reconciled the rolling records. Repository State:
+`MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`; Finalization Pending:
+`NO`.
 
 ## PR #906 finalized by PR #907
 
