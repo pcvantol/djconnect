@@ -3,7 +3,7 @@
 **Status:** Operational handoff
 **Updated:** 2026-08-24
 
-## PR #913 finalization pending
+## PR #913 reconciled by PR #914
 
 PR [#913](https://github.com/pcvantol/djconnect/pull/913), **fix: harden
 managed autonomy evidence projection**, merged as
@@ -15,10 +15,12 @@ qualification and makes no lifecycle, retry/resume/dismiss, validation,
 reviewer-selection, provider, Forge, delivery-authority or merge-authority
 change. Its immutable Prompt History record is
 `docs/history/prompts/2026-08-24-managed-autonomy-evidence-projection.md`.
-The implementation merge is an `EXPECTED_OPERATOR_GATE`; this dedicated
-governance-only Finalization is the only permitted increment. Repository State:
-`MERGED_UNRECONCILED`; Workspace State: `WORKSPACE_READY`; Finalization Pending:
-`YES`.
+The implementation merge is an `EXPECTED_OPERATOR_GATE`. Its governance-only
+Finalization PR [#914](https://github.com/pcvantol/djconnect/pull/914) merged
+as `1b74d19e169e0e18430299dbfdb51446995fad40`; terminal required checks are
+successful. This one direct-on-`main` reconciliation updates only the canonical
+rolling records. Repository State: `MERGED_RECONCILED`; Workspace State:
+`WORKSPACE_READY`; Finalization Pending: `NO`.
 
 ## PR #911 finalized by PR #912
 

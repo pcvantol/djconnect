@@ -2,7 +2,7 @@
 
 Status: canonical prompt navigation
 
-## PR #913 finalization pending
+## PR #913 reconciled by PR #914
 
 PR [#913](https://github.com/pcvantol/djconnect/pull/913), **fix: harden
 managed autonomy evidence projection**, merged as
@@ -11,8 +11,12 @@ adds auditable projections for canonical submission lineage, terminal required
 checks, authority counts, delivery-file semantics and validation traceability.
 The historical V2 qualification is preserved. Its immutable Prompt History
 record is `docs/history/prompts/2026-08-24-managed-autonomy-evidence-projection.md`.
-This is `MERGED_UNRECONCILED`; only its dedicated governance-only Finalization
-may proceed. Workspace State: `WORKSPACE_READY`; Finalization Pending: `YES`.
+Its governance-only Finalization PR
+[#914](https://github.com/pcvantol/djconnect/pull/914) merged as
+`1b74d19e169e0e18430299dbfdb51446995fad40`; terminal required checks are
+successful. This one direct-on-`main` reconciliation updates only the canonical
+rolling records. Repository State: `MERGED_RECONCILED`; Workspace State:
+`WORKSPACE_READY`; Finalization Pending: `NO`.
 
 ## PR #911 finalized by PR #912
 
