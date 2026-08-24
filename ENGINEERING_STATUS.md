@@ -3,9 +3,9 @@
 **Status:** Operational handoff
 **Updated:** 2026-08-24
 
-## PR #906 finalization pending
+## PR #906 finalized by PR #907
 
-PR [#906](https://github.com/pcvantol/djconnect/pull/906), **fix: show automatic reconciliation in managed flow**, merged as `b0f599f14e61e2f46acca4a057668a70cfd2778b`. Its governance-only Finalization is the permitted next increment.
+PR [#906](https://github.com/pcvantol/djconnect/pull/906), **fix: show automatic reconciliation in managed flow**, merged as `b0f599f14e61e2f46acca4a057668a70cfd2778b`. Finalization PR #907 merged as `ad35f42ac099fa60cf30b45315338cc80f64b039`; automatic reconciliation complete. `MERGED_RECONCILED`; `WORKSPACE_READY`; Finalization Pending: `NO`.
 
 ## PR #904 finalized by PR #905
 
