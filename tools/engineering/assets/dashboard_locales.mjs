@@ -2546,6 +2546,11 @@ Object.assign(DASHBOARD_MESSAGES.nl, {"workspace.open_pull_request.issues":"Pull
 Object.assign(DASHBOARD_MESSAGES.de, {"workspace.open_pull_request.issues":"Pull-Request-Probleme"});
 Object.assign(DASHBOARD_MESSAGES.fr, {"workspace.open_pull_request.issues":"Problèmes de pull request"});
 Object.assign(DASHBOARD_MESSAGES.es, {"workspace.open_pull_request.issues":"Problemas de la solicitud de extracción"});
+Object.assign(DASHBOARD_MESSAGES.en, {"merge_wait.title.implementation":"Waiting for implementation merge", "merge_wait.title.finalization":"Waiting for Finalization merge", "merge_wait.title.reconciliation":"Waiting for reconciliation merge", "merge_wait.pull_request_status":"Pull request status"});
+Object.assign(DASHBOARD_MESSAGES.nl, {"merge_wait.title.implementation":"Wacht op implementatie-merge", "merge_wait.title.finalization":"Wacht op Finalization-merge", "merge_wait.title.reconciliation":"Wacht op reconciliatie-merge", "merge_wait.pull_request_status":"Pull request-status"});
+Object.assign(DASHBOARD_MESSAGES.de, {"merge_wait.title.implementation":"Warten auf Implementierungs-Merge", "merge_wait.title.finalization":"Warten auf Finalisierungs-Merge", "merge_wait.title.reconciliation":"Warten auf Abgleich-Merge", "merge_wait.pull_request_status":"Pull-Request-Status"});
+Object.assign(DASHBOARD_MESSAGES.fr, {"merge_wait.title.implementation":"En attente de la fusion d’implémentation", "merge_wait.title.finalization":"En attente de la fusion de finalisation", "merge_wait.title.reconciliation":"En attente de la fusion de rapprochement", "merge_wait.pull_request_status":"Statut de la pull request"});
+Object.assign(DASHBOARD_MESSAGES.es, {"merge_wait.title.implementation":"Esperando la fusión de implementación", "merge_wait.title.finalization":"Esperando la fusión de finalización", "merge_wait.title.reconciliation":"Esperando la fusión de conciliación", "merge_wait.pull_request_status":"Estado de la solicitud de extracción"});
 
 const messages = DASHBOARD_MESSAGES;
 

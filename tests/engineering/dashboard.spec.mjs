@@ -1330,6 +1330,10 @@ test.describe("Engineering Status browser smoke", () => {
 
   test("keeps a green pull request visible until the operator merges or aborts it", async ({ page }) => {
     await page.route("**/api/events", (route) => route.abort());
+    await page.route("**/api/open-pull-requests", (route) => route.fulfill({ json: { pull_requests: [{
+      number: 832, title: "Merge wait fixture", url: "https://github.com/pcvantol/djconnect/pull/832",
+      branch: "codex/merge-wait", status: "ready_to_merge",
+    }] } }));
     await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({
       json: { status: {
         watcher_state: "WAITING_FOR_OPERATOR_MERGE",
@@ -1357,6 +1361,9 @@ test.describe("Engineering Status browser smoke", () => {
     await page.locator("#currentRun").evaluate((element) => { element.open = true; });
     const wait = page.locator("#operatorMergeWait");
     await expect(wait).toBeVisible();
+    await expect(wait.locator("#operatorMergeWaitTitle")).toHaveText(DASHBOARD_MESSAGES.nl["merge_wait.title.implementation"]);
+    await expect(wait.locator("#operatorMergeWaitPullRequestStatus")).toHaveClass(/open-pr-status--ready_to_merge/);
+    await expect(wait.locator("#operatorMergeWaitPullRequestStatus")).toHaveText(DASHBOARD_MESSAGES.nl["workspace.open_pull_request.ready_to_merge"]);
     await expect(page.locator(".execution-lifecycle + #operatorMergeWait")).toBeVisible();
     const mergeLink = wait.locator("a");
     const abort = wait.getByRole("button", { name: DASHBOARD_MESSAGES.nl["action.abort_execution"] });
@@ -1384,6 +1391,8 @@ test.describe("Engineering Status browser smoke", () => {
     );
     await expect(mergeModal.locator("#operatorMergeWaitModalRunId")).toHaveText("inbox-merge-wait");
     await expect(mergeModal.locator("#operatorMergeWaitModalPrompt")).toHaveText("Merge wait fixture");
+    await expect(mergeModal.locator("#operatorMergeWaitModalPullRequestStatus")).toHaveClass(/open-pr-status--ready_to_merge/);
+    await expect(mergeModal.locator("#operatorMergeWaitModalPullRequestStatus")).toHaveText(DASHBOARD_MESSAGES.nl["workspace.open_pull_request.ready_to_merge"]);
     await expect(modalPullRequest).toHaveCSS("text-decoration-line", "none");
     await expect(modalPullRequest).toHaveCSS("border-top-color", "rgb(240, 182, 106)");
     await expect(modalAbort).toHaveCSS("border-top-color", "rgb(255, 113, 143)");
@@ -1453,6 +1462,10 @@ test.describe("Engineering Status browser smoke", () => {
 
   test("opens a new handoff modal for the finalization pull request in the same run", async ({ page }) => {
     await page.route("**/api/events", (route) => route.abort());
+    await page.route("**/api/open-pull-requests", (route) => route.fulfill({ json: { pull_requests: [{
+      number: 841, title: "Finalization merge", url: "https://github.com/pcvantol/djconnect/pull/841",
+      branch: "codex/finalization", status: "ready_for_review",
+    }] } }));
     await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({ json: { status: {} } }));
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.evaluate(() => r({
@@ -1482,6 +1495,9 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#operatorMergeWaitModalContextIntro")).toHaveText(
       `Deze hand-off is de ${DASHBOARD_MESSAGES.nl["lifecycle.step.wait_for_finalization_merge"]} voor pull request #841.`,
     );
+    await expect(page.locator("#operatorMergeWaitTitle")).toHaveText(DASHBOARD_MESSAGES.nl["merge_wait.title.finalization"]);
+    await expect(page.locator("#operatorMergeWaitPullRequestStatus")).toHaveClass(/open-pr-status--ready_for_review/);
+    await expect(page.locator("#operatorMergeWaitModalPullRequestStatus")).toHaveText(DASHBOARD_MESSAGES.nl["workspace.open_pull_request.ready_for_review"]);
     await expect(page.locator(".execution-lifecycle__item")).toHaveCount(3);
     await expect(page.locator(".execution-lifecycle__item--active .execution-lifecycle__node"))
       .toContainText(DASHBOARD_MESSAGES.nl["lifecycle.step.wait_for_finalization_merge"]);

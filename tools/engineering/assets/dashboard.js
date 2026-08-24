@@ -1102,6 +1102,17 @@ function renderOperatorMergeWait(x) {
     : Number(x.finalization_pr) === pullRequest
       ? "lifecycle.step.wait_for_finalization_merge"
       : "lifecycle.step.wait_for_operator_merge";
+  const mergeTitleKey = mergeKey === "lifecycle.step.wait_for_finalization_merge"
+    ? "merge_wait.title.finalization"
+    : mergeKey === "lifecycle.step.wait_for_reconciliation_merge"
+      ? "merge_wait.title.reconciliation"
+      : "merge_wait.title.implementation";
+  $("operatorMergeWaitTitle").textContent = t(mergeTitleKey);
+  $("operatorMergeWaitModalTitle").textContent = t(mergeTitleKey);
+  const pullRequestStatus = openPullRequestStatusByNumber.get(pullRequest) || "waiting_for_checks";
+  for (const id of ["operatorMergeWaitPullRequestStatus", "operatorMergeWaitModalPullRequestStatus"]) {
+    setOpenPullRequestStatus($(id), pullRequestStatus);
+  }
   $("operatorMergeWaitModalContextIntro").textContent = t("merge_wait.context_intro", {
     merge: t(mergeKey), number: pullRequest,
   });
@@ -1683,6 +1694,8 @@ function renderWorkspaceGit(workspaceGit) {
 }
 const OPEN_PULL_REQUEST_MONITOR_INTERVAL_MS = 30_000;
 let openPullRequestMonitorTimer = null, openPullRequestMonitorInFlight = false;
+const openPullRequestStatusByNumber = new Map();
+const OPEN_PULL_REQUEST_STATES = ["draft", "waiting_for_checks", "ready_for_review", "ready_to_merge", "issues"];
 function openPullRequestStatusKey(status) {
   return {
     draft: "workspace.open_pull_request.draft",
@@ -1694,21 +1707,36 @@ function openPullRequestStatusKey(status) {
 }
 function localizeOpenPullRequestStatuses() {
   document.querySelectorAll(".open-pr-status").forEach((element) => {
-    const status = ["draft", "waiting_for_checks", "ready_for_review", "ready_to_merge", "issues"]
+    const status = OPEN_PULL_REQUEST_STATES
       .find((candidate) => element.classList.contains(`open-pr-status--${candidate}`)) || "waiting_for_checks";
-    const label = t(openPullRequestStatusKey(status));
-    element.querySelector(".open-pr-status__label").textContent = label;
-    element.setAttribute("aria-label", label);
+    setOpenPullRequestStatus(element, status);
   });
 }
+function setOpenPullRequestStatus(element, status) {
+  if (!element) return;
+  const state = OPEN_PULL_REQUEST_STATES.includes(status) ? status : "waiting_for_checks";
+  element.classList.remove(...OPEN_PULL_REQUEST_STATES.map((candidate) => `open-pr-status--${candidate}`));
+  element.classList.add(`open-pr-status--${state}`);
+  const label = t(openPullRequestStatusKey(state));
+  element.querySelector(".open-pr-status__label").textContent = label;
+  element.setAttribute("aria-label", label);
+}
 function renderOpenPullRequests(pullRequests) {
+  if (!Array.isArray(pullRequests)) return;
+  openPullRequestStatusByNumber.clear();
+  pullRequests.forEach((pullRequest) => {
+    if (Number.isInteger(pullRequest?.number) && pullRequest.number > 0) {
+      openPullRequestStatusByNumber.set(pullRequest.number, OPEN_PULL_REQUEST_STATES.includes(pullRequest.status) ? pullRequest.status : "waiting_for_checks");
+    }
+  });
+  if (latestStatus) renderOperatorMergeWait(latestStatus);
   const section = $("workspaceOpenPullRequests");
-  if (!section || !Array.isArray(pullRequests)) return;
+  if (!section) return;
   const list = section.querySelector("ul");
   if (!list) return;
   list.replaceChildren(...pullRequests.map((pullRequest) => {
     const item = document.createElement("li"), link = document.createElement("a"), status = document.createElement("span"), dot = document.createElement("span"), label = document.createElement("span"), branch = document.createElement("code");
-    const state = ["draft", "waiting_for_checks", "ready_for_review", "ready_to_merge", "issues"].includes(pullRequest.status) ? pullRequest.status : "waiting_for_checks";
+    const state = OPEN_PULL_REQUEST_STATES.includes(pullRequest.status) ? pullRequest.status : "waiting_for_checks";
     item.dataset.openPullRequest = String(pullRequest.number || "");
     link.href = String(pullRequest.url || "");
     link.target = "_blank";
