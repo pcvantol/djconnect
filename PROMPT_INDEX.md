@@ -2,16 +2,17 @@
 
 Status: canonical prompt navigation
 
-## PR #915 Finalization pending
+## PR #915 finalized by PR #916
 
 PR [#915](https://github.com/pcvantol/djconnect/pull/915), **Improve dashboard
 workflow visibility and merge handoffs**, merged as
-`9668ffc33659842a791910ad36e93947b03928c3`. This governance-only Finalization
-reconciles the four canonical rolling records after the verified implementation
-merge. It does not change runtime behavior, lifecycle, validation, reviewer,
-provider, Forge, delivery or operator merge authority. Repository State:
-`MERGED_UNRECONCILED`; Workspace State: `NOT_READY`; Finalization Pending:
-`YES`.
+`9668ffc33659842a791910ad36e93947b03928c3`. Governance-only Finalization PR
+[#916](https://github.com/pcvantol/djconnect/pull/916) merged as
+`a9739cb3519724a6ddeb211e132be2c4a987b9bb`; automatic end reconciliation is
+complete. Runtime behavior, lifecycle, validation, reviewer, provider, Forge,
+delivery and operator merge authority are unchanged. Repository State:
+`MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`; Finalization Pending:
+`NO`.
 
 ## PR #909 finalized by PR #910
 
