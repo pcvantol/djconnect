@@ -1269,11 +1269,9 @@ class EngineeringRunner:
         evidence = self.repository.inspect(self.root)
         if not evidence.clean or evidence.branch != "main":
             complete_phase(self.root, finalization_phase, outcome="FAILED")
-            return self._save_terminal(
+            return self._save_post_merge_sync_wait(
                 state,
-                "BLOCKED",
-                "synchronize_main",
-                "Finalization requires a clean, synchronized main checkout.",
+                "Finalization is waiting for a clean, synchronized main checkout.",
             )
         finalization = replace(
             state,
@@ -1370,9 +1368,9 @@ class EngineeringRunner:
             synchronize(self.root)
         evidence = self.repository.inspect(self.root)
         if not evidence.clean or evidence.branch != "main":
-            return self._save_terminal(
-                state, "BLOCKED", "synchronize_main",
-                "Automatic reconciliation requires a clean, synchronized main checkout.",
+            return self._save_post_merge_sync_wait(
+                state,
+                "End reconciliation is waiting for a clean, synchronized main checkout.",
             )
         reconciliation = replace(
             state, phase="RECONCILE_AGENT", transaction_kind="RECONCILIATION",
@@ -1446,6 +1444,26 @@ class EngineeringRunner:
             self.active_lease = None
         write_live_status(self.root, state, state.next_action)
         return state
+
+    def _save_post_merge_sync_wait(
+        self, state: TransactionState, diagnostic: str
+    ) -> TransactionState:
+        """Keep post-merge closure resumable when the shared checkout is busy.
+
+        A dirty or non-main checkout is never force-cleaned.  The verified
+        merge remains durable evidence and the watcher retries the same
+        transaction through its normal merge-poll path once the checkout is
+        available again.
+        """
+        waiting = replace(
+            state,
+            phase="WAIT_FOR_OPERATOR_MERGE",
+            terminal=False,
+            next_action="await_clean_synchronized_main",
+            terminal_condition="post_merge_workspace_sync_required",
+            diagnostic=redact_diagnostic(diagnostic),
+        )
+        return self._save_operator_merge_wait(waiting)
 
     def _cleanup(self, state: TransactionState) -> TransactionState:
         print("[REPOSITORY_CLEANUP] Repository cleanup in progress")

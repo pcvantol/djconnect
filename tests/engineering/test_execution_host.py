@@ -2203,6 +2203,24 @@ class LocalAgentRunnerTest(unittest.TestCase):
         self.assertNotIn("BLOCKED — no engineering changes were executed or delivered.", body)
         self.assertTrue(terminal_report_matches_state(body, state))
 
+    def test_post_merge_workspace_drift_waits_for_safe_finalization_retry(self) -> None:
+        repository = FakeRepository(clean=False, branch="feature/other")
+        runner = EngineeringRunner(
+            self.root, self.store, repository, FakeGitHub([]), FakeAgent(AgentResult("COMPLETE")), lambda _: None
+        )
+        state = TransactionState(
+            "post-merge-sync-wait", "pcvantol/djconnect", str(self.prompt), "WAIT_FOR_OPERATOR_MERGE",
+            owner_authorized=True, implementation_pull_request=908,
+            implementation_merge_commit="a" * 40,
+        )
+
+        result = runner._start_finalization(state, 908)
+
+        self.assertEqual(result.phase, "WAIT_FOR_OPERATOR_MERGE")
+        self.assertFalse(result.terminal)
+        self.assertEqual(result.next_action, "await_clean_synchronized_main")
+        self.assertEqual(result.terminal_condition, "post_merge_workspace_sync_required")
+
     def test_blocked_report_projects_structured_development_host_drift(self) -> None:
         status = self.root / ".engineering" / "status"
         status.mkdir(parents=True, exist_ok=True)
