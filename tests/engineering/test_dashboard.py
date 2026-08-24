@@ -109,6 +109,7 @@ class DashboardStatusTest(unittest.TestCase):
             "detail.business_value", "detail.confidence", "detail.dependencies", "detail.alternatives",
             "detail.decision_evidence", "detail.projection_incomplete", "technical.git_lock",
             "technical.git_lock_recovery_action", "detail.execution_diagnostic",
+            "lifecycle.detail_quality_evidence", "lifecycle.quality_evidence.test_coverage",
         ):
             self.assertEqual(catalog.count(f'"{key}"'), 5)
         self.assertNotIn("Retry Execution", (root / "tools/engineering/assets/dashboard.js").read_text(encoding="utf-8"))

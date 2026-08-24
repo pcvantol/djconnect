@@ -1167,7 +1167,8 @@ test.describe("Engineering Status browser smoke", () => {
         steps: [
           { id: "execute", presentation_key: "lifecycle.step.execute_agent", state: "COMPLETED" },
           { id: "quality", presentation_key: "lifecycle.step.quality_control_agent", state: "ACTIVE",
-            timing: { started_at: "2026-08-16T14:00:00Z", spans: [{ phase: "QUALITY_CONTROL", duration_ms: 1000, outcome: "ACTIVE" }] } },
+            timing: { started_at: "2026-08-16T14:00:00Z", spans: [{ phase: "QUALITY_CONTROL", duration_ms: 1000, outcome: "ACTIVE" }] },
+            quality_evidence: [{ activity: "TEST_COVERAGE", result: "Gerichte regressietest toegevoegd." }] },
         ],
       },
     }, {}));
@@ -1179,6 +1180,9 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(modal).toBeVisible();
     await expect(modal).toContainText(DASHBOARD_MESSAGES.nl["lifecycle.step.quality_control_agent"]);
     await expect(modal).toContainText(DASHBOARD_MESSAGES.nl["telemetry.phase.quality_control"]);
+    await expect(modal).toContainText(DASHBOARD_MESSAGES.nl["lifecycle.detail_quality_evidence"]);
+    await expect(modal).toContainText(DASHBOARD_MESSAGES.nl["lifecycle.quality_evidence.test_coverage"]);
+    await expect(modal).toContainText("Gerichte regressietest toegevoegd.");
     await expect(modal.locator(".lifecycle-detail-modal__status-indicator")).toHaveClass(/indicator--blue/);
   });
 

@@ -47,6 +47,13 @@ execution span when present, so its detail view reports its real interval. If
 no authoritative span exists, the console presents timing as unavailable
 rather than zero.
 
+The quality-control checkpoint also preserves bounded, structured evidence of
+work actually performed in that stage: refactoring, test-coverage work,
+documentation work, validation, or a verified no-change result. The detail
+view renders that evidence only for a reached quality-control step. It never
+stores or displays raw prompts, source content, commands, output, paths,
+secrets, or model reasoning.
+
 Each lifecycle detail view repeats the node status with the same colored
 indicator: green for completed, cyan for active, grey for pending or skipped,
 and orange for blocked. This is a display aid only; the persisted lifecycle

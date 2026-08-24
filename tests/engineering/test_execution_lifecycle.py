@@ -258,12 +258,13 @@ class ExecutionLifecycleProjectionTests(unittest.TestCase):
             )
             complete_phase(root, quality_validation, completed_at=started + timedelta(seconds=25), monotonic_clock=35.0)
             complete_phase(root, quality, completed_at=started + timedelta(seconds=26), monotonic_clock=36.0)
-            self._state(root, "QUALITY_CONTROL_AGENT")
+            quality_evidence = ({"activity": "TEST_COVERAGE", "result": "Added focused regression coverage."},)
+            self._state(root, "QUALITY_CONTROL_AGENT", quality_evidence=quality_evidence)
             total = start_phase(
                 root, "inbox-flow", "TOTAL_EXECUTION", started_at=started, monotonic_clock=10.0,
             )
             complete_phase(root, total, completed_at=started + timedelta(seconds=30), monotonic_clock=40.0)
-            self._state(root, "COMPLETE")
+            self._state(root, "COMPLETE", quality_evidence=quality_evidence)
             value = projection(root, "inbox-flow")
         by_id = {step["id"]: step for step in value["steps"]}
         self.assertEqual(
@@ -274,6 +275,7 @@ class ExecutionLifecycleProjectionTests(unittest.TestCase):
             [span["phase"] for span in by_id["QUALITY_CONTROL_AGENT"]["timing"]["spans"]],
             ["QUALITY_CONTROL", "PROVIDER_EXECUTION", "VALIDATION"],
         )
+        self.assertEqual(by_id["QUALITY_CONTROL_AGENT"]["quality_evidence"], list(quality_evidence))
         terminal = by_id["TERMINAL"]["timing"]
         self.assertEqual(terminal["started_at"], "2026-08-16T14:00:00+00:00")
         self.assertEqual(terminal["finished_at"], "2026-08-16T14:00:30+00:00")

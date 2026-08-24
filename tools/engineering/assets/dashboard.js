@@ -1204,6 +1204,34 @@ function lifecyclePhaseTiming(spans) {
     duration_ms: hasDuration ? phase.duration_ms : null,
   }));
 }
+function lifecycleQualityEvidence(step) {
+  const evidence = Array.isArray(step?.quality_evidence) ? step.quality_evidence : [];
+  if (!evidence.length) return null;
+  const section = document.createElement("section");
+  section.className = "lifecycle-detail-modal__quality-evidence";
+  section.append(Object.assign(document.createElement("h3"), {
+    textContent: t("lifecycle.detail_quality_evidence"),
+  }));
+  const list = document.createElement("ol");
+  list.className = "lifecycle-detail-modal__phase-list";
+  for (const item of evidence) {
+    if (!item || typeof item !== "object") continue;
+    const activity = String(item.activity || "").trim();
+    const result = String(item.result || "").trim();
+    if (!activity || !result) continue;
+    const row = document.createElement("li");
+    row.append(
+      Object.assign(document.createElement("strong"), {
+        textContent: t("lifecycle.quality_evidence." + activity.toLowerCase(), {}, activity),
+      }),
+      Object.assign(document.createElement("span"), { textContent: result }),
+    );
+    list.append(row);
+  }
+  if (!list.childElementCount) return null;
+  section.append(list);
+  return section;
+}
 let lifecycleDetailTrigger = null;
 function closeLifecycleDetail() {
   const modal = $("lifecycleDetailModal");
@@ -1254,6 +1282,8 @@ function openLifecycleDetail(step, trigger) {
     phaseTiming.append(list);
   }
   content.append(phaseTiming);
+  const qualityEvidence = lifecycleQualityEvidence(step);
+  if (qualityEvidence) content.append(qualityEvidence);
   if (!modal.open) modal.showModal();
   resetDashboardModalInitialFocus(modal);
 }
