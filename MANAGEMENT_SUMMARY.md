@@ -1,5 +1,9 @@
 # DJConnect Generation 2 Management Summary
 
+## PR #906 finalization pending
+
+PR [#906](https://github.com/pcvantol/djconnect/pull/906), **fix: show automatic reconciliation in managed flow**, merged as `b0f599f14e61e2f46acca4a057668a70cfd2778b`. This Finalization updates current governance records only.
+
 ## PR #904 finalized by PR #905
 
 PR [#904](https://github.com/pcvantol/djconnect/pull/904), **feat: automate
