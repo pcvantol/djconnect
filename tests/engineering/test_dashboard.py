@@ -461,14 +461,14 @@ class DashboardStatusTest(unittest.TestCase):
             ("git",), 0, "git@github.com:pcvantol/djconnect.git\n", ""
         )
         github_provider.return_value.github.return_value = json.dumps([
-            {"number": 849, "title": "Cleanup <safe>", "url": "https://github.com/pcvantol/djconnect/pull/849", "headRefName": "codex/cleanup", "isDraft": False, "mergeStateStatus": "CLEAN", "reviewDecision": "APPROVED", "statusCheckRollup": [{"status": "COMPLETED", "conclusion": "SUCCESS"}]},
+            {"number": 849, "title": "Cleanup <safe>", "url": "https://github.com/pcvantol/djconnect/pull/849", "headRefName": "codex/cleanup", "isDraft": False, "mergeStateStatus": "CLEAN", "reviewDecision": "APPROVED", "reviews": [{"author": {"login": "pcvantol"}, "state": "APPROVED", "submittedAt": "2026-08-24T12:00:00Z"}], "statusCheckRollup": [{"status": "COMPLETED", "conclusion": "SUCCESS"}]},
             {"number": "invalid", "title": "Ignored", "url": "https://github.com/pcvantol/djconnect/pull/0", "headRefName": "codex/ignored"},
         ])
 
         pull_requests = dashboard._workspace_open_pull_requests(root)
 
         self.assertEqual(pull_requests, [{
-            "number": 849, "title": "Cleanup <safe>", "url": "https://github.com/pcvantol/djconnect/pull/849", "branch": "codex/cleanup", "status": "ready_to_merge",
+            "number": 849, "title": "Cleanup <safe>", "url": "https://github.com/pcvantol/djconnect/pull/849", "branch": "codex/cleanup", "status": "ready_to_merge", "owner_approval": "approved",
         }])
         page = _dashboard_html(
             "Engineering Status", workspace_branch="codex/cleanup", workspace_commit="123456789abc",
@@ -522,6 +522,11 @@ class DashboardStatusTest(unittest.TestCase):
             "mergeStateStatus": "CLEAN", "reviewDecision": "CHANGES_REQUESTED",
             "statusCheckRollup": [{"status": "COMPLETED", "conclusion": "SUCCESS"}],
         }), "issues")
+        self.assertEqual(dashboard._owner_approval_status({"reviews": []}, "pcvantol"), "pending")
+        self.assertEqual(dashboard._owner_approval_status({"reviews": [
+            {"author": {"login": "pcvantol"}, "state": "APPROVED", "submittedAt": "2026-08-24T12:00:00Z"},
+            {"author": {"login": "pcvantol"}, "state": "CHANGES_REQUESTED", "submittedAt": "2026-08-24T12:01:00Z"},
+        ]}, "pcvantol"), "changes_requested")
 
     @patch("tools.engineering.dashboard.GitHubProvider")
     @patch("tools.engineering.dashboard.GitProvider")

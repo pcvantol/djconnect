@@ -153,6 +153,7 @@ test.describe("Engineering Status browser smoke", () => {
         url: "https://github.com/pcvantol/djconnect/pull/925",
         branch: "codex/check-projection",
         status: "waiting_for_checks",
+        owner_approval: "pending",
       }]);
       const originalSetTimeout = window.setTimeout;
       let delay = null;
@@ -167,6 +168,7 @@ test.describe("Engineering Status browser smoke", () => {
     const openPullRequestStatus = page.locator("#workspaceOpenPullRequests .open-pr-status");
     await expect(openPullRequestStatus).toHaveClass(/open-pr-status--waiting_for_checks/);
     await expect(openPullRequestStatus).toHaveText("Wacht op afronden van controles");
+    await expect(page.locator("#workspaceOpenPullRequests .open-pr-approval")).toHaveText("Owner approval wacht");
     expect(timerDelay).toBe(30_000);
     await page.evaluate(() => renderOpenPullRequests([{
       number: 925,
@@ -1357,6 +1359,7 @@ test.describe("Engineering Status browser smoke", () => {
     await page.route("**/api/open-pull-requests", (route) => route.fulfill({ json: { pull_requests: [{
       number: 832, title: "Merge wait fixture", url: "https://github.com/pcvantol/djconnect/pull/832",
       branch: "codex/merge-wait", status: "ready_to_merge",
+      owner_approval: "approved",
     }] } }));
     await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({
       json: { status: {
@@ -1388,6 +1391,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(wait.locator("#operatorMergeWaitTitle")).toHaveText(DASHBOARD_MESSAGES.nl["merge_wait.title.implementation"]);
     await expect(wait.locator("#operatorMergeWaitPullRequestStatus")).toHaveClass(/open-pr-status--ready_to_merge/);
     await expect(wait.locator("#operatorMergeWaitPullRequestStatus")).toHaveText(DASHBOARD_MESSAGES.nl["workspace.open_pull_request.ready_to_merge"]);
+    await expect(wait.locator("#operatorMergeWaitOwnerApproval")).toHaveText(DASHBOARD_MESSAGES.nl["workspace.open_pull_request.owner_approval_approved"]);
     await expect(page.locator(".execution-lifecycle + #operatorMergeWait")).toBeVisible();
     const mergeLink = wait.locator("a");
     const abort = wait.getByRole("button", { name: DASHBOARD_MESSAGES.nl["action.abort_execution"] });
@@ -1417,6 +1421,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(mergeModal.locator("#operatorMergeWaitModalPrompt")).toHaveText("Merge wait fixture");
     await expect(mergeModal.locator("#operatorMergeWaitModalPullRequestStatus")).toHaveClass(/open-pr-status--ready_to_merge/);
     await expect(mergeModal.locator("#operatorMergeWaitModalPullRequestStatus")).toHaveText(DASHBOARD_MESSAGES.nl["workspace.open_pull_request.ready_to_merge"]);
+    await expect(mergeModal.locator("#operatorMergeWaitModalOwnerApproval")).toHaveText(DASHBOARD_MESSAGES.nl["workspace.open_pull_request.owner_approval_approved"]);
     await expect(modalPullRequest).toHaveCSS("text-decoration-line", "none");
     await expect(modalPullRequest).toHaveCSS("border-top-color", "rgb(240, 182, 106)");
     await expect(modalAbort).toHaveCSS("border-top-color", "rgb(255, 113, 143)");

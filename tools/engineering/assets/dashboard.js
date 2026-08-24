@@ -1113,6 +1113,10 @@ function renderOperatorMergeWait(x) {
   for (const id of ["operatorMergeWaitPullRequestStatus", "operatorMergeWaitModalPullRequestStatus"]) {
     setOpenPullRequestStatus($(id), pullRequestStatus);
   }
+  const ownerApproval = openPullRequestOwnerApprovalByNumber.get(pullRequest) || "pending";
+  for (const id of ["operatorMergeWaitOwnerApproval", "operatorMergeWaitModalOwnerApproval"]) {
+    setOpenPullRequestOwnerApproval($(id), ownerApproval);
+  }
   $("operatorMergeWaitModalContextIntro").textContent = t("merge_wait.context_intro", {
     merge: t(mergeKey), number: pullRequest,
   });
@@ -1720,7 +1724,9 @@ function renderWorkspaceGit(workspaceGit) {
 const OPEN_PULL_REQUEST_MONITOR_INTERVAL_MS = 30_000;
 let openPullRequestMonitorTimer = null, openPullRequestMonitorInFlight = false;
 const openPullRequestStatusByNumber = new Map();
+const openPullRequestOwnerApprovalByNumber = new Map();
 const OPEN_PULL_REQUEST_STATES = ["draft", "waiting_for_checks", "ready_for_review", "ready_to_merge", "branch_update_required", "issues"];
+const OPEN_PULL_REQUEST_OWNER_APPROVAL_STATES = ["pending", "approved", "changes_requested"];
 function openPullRequestStatusKey(status) {
   return {
     draft: "workspace.open_pull_request.draft",
@@ -1747,12 +1753,23 @@ function setOpenPullRequestStatus(element, status) {
   element.querySelector(".open-pr-status__label").textContent = label;
   element.setAttribute("aria-label", label);
 }
+function setOpenPullRequestOwnerApproval(element, approval) {
+  if (!element) return;
+  const state = OPEN_PULL_REQUEST_OWNER_APPROVAL_STATES.includes(approval) ? approval : "pending";
+  element.classList.remove(...OPEN_PULL_REQUEST_OWNER_APPROVAL_STATES.map((candidate) => `open-pr-approval--${candidate}`));
+  element.classList.add(`open-pr-approval--${state}`);
+  const label = t(`workspace.open_pull_request.owner_approval_${state}`);
+  element.textContent = label;
+  element.setAttribute("aria-label", label);
+}
 function renderOpenPullRequests(pullRequests) {
   if (!Array.isArray(pullRequests)) return;
   openPullRequestStatusByNumber.clear();
+  openPullRequestOwnerApprovalByNumber.clear();
   pullRequests.forEach((pullRequest) => {
     if (Number.isInteger(pullRequest?.number) && pullRequest.number > 0) {
       openPullRequestStatusByNumber.set(pullRequest.number, OPEN_PULL_REQUEST_STATES.includes(pullRequest.status) ? pullRequest.status : "waiting_for_checks");
+      openPullRequestOwnerApprovalByNumber.set(pullRequest.number, OPEN_PULL_REQUEST_OWNER_APPROVAL_STATES.includes(pullRequest.owner_approval) ? pullRequest.owner_approval : "pending");
     }
   });
   if (latestStatus) renderOperatorMergeWait(latestStatus);
@@ -1761,7 +1778,7 @@ function renderOpenPullRequests(pullRequests) {
   const list = section.querySelector("ul");
   if (!list) return;
   list.replaceChildren(...pullRequests.map((pullRequest) => {
-    const item = document.createElement("li"), link = document.createElement("a"), status = document.createElement("span"), dot = document.createElement("span"), label = document.createElement("span"), branch = document.createElement("code");
+    const item = document.createElement("li"), link = document.createElement("a"), status = document.createElement("span"), dot = document.createElement("span"), label = document.createElement("span"), approval = document.createElement("span"), branch = document.createElement("code");
     const state = OPEN_PULL_REQUEST_STATES.includes(pullRequest.status) ? pullRequest.status : "waiting_for_checks";
     item.dataset.openPullRequest = String(pullRequest.number || "");
     link.href = String(pullRequest.url || "");
@@ -1773,8 +1790,10 @@ function renderOpenPullRequests(pullRequests) {
     dot.setAttribute("aria-hidden", "true");
     label.className = "open-pr-status__label";
     status.append(dot, label);
+    approval.className = "open-pr-approval";
+    setOpenPullRequestOwnerApproval(approval, pullRequest.owner_approval);
     branch.textContent = String(pullRequest.branch || "");
-    item.append(link, status, branch);
+    item.append(link, status, approval, branch);
     return item;
   }));
   localizeOpenPullRequestStatuses();
