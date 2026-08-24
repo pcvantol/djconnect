@@ -4877,9 +4877,28 @@ function abortOperatorMergeWait() {
       .catch((error) => showDashboardError(error.message, t("merge_wait.abort_failed")));
   });
 }
+function checkOperatorMergeStatus(button) {
+  const runId = latestStatus?.run_id;
+  if (!runId) return;
+  button.disabled = true;
+  fetch("/api/execution-merge-status-check", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ run_id: runId }) })
+    .then(async (response) => ({ ok: response.ok, body: await response.json() }))
+    .then((result) => {
+      const reason = String(result.body?.reason || "github_evidence_unavailable");
+      if (result.body?.verified) {
+        if ($("operatorMergeWaitModal").open) $("operatorMergeWaitModal").close();
+        return refreshAfterOperatorAction();
+      }
+      showDashboardError(t(`merge_wait.reason.${reason}`), t("merge_wait.status_check_failed"));
+    })
+    .catch((error) => showDashboardError(error.message, t("merge_wait.status_check_failed")))
+    .finally(() => { button.disabled = false; });
+}
 $("predecessorRetry").addEventListener("click", submitPredecessorRetry);
 $("operatorMergeAbort").addEventListener("click", abortOperatorMergeWait);
 $("operatorMergeWaitModalAbort").addEventListener("click", abortOperatorMergeWait);
+$("operatorMergeStatusCheck").addEventListener("click", (event) => checkOperatorMergeStatus(event.currentTarget));
+$("operatorMergeWaitModalStatusCheck").addEventListener("click", (event) => checkOperatorMergeStatus(event.currentTarget));
 $("statusReconciliationStart")?.addEventListener("click", requestStatusReconciliation);
 $("workspaceBranchCleanup")?.addEventListener("click", cleanupStaleLocalBranches);
 $("workspaceBranchMain")?.addEventListener("click", switchToFastForwardMain);

@@ -431,6 +431,12 @@ required PR check leaves Merge blocked without a completion checkmark and
 renders the localized “Fix pull request checks” current action. This guards
 against presenting a reached PR wait as an already completed merge.
 
+At an operator merge hand-off, **Check pull request status** performs an
+immediate read-only GitHub check. Continuation is scheduled only after the PR
+is merged and its merge commit is proven reachable from `origin/main`; it never
+merges a PR. Any missing proof is shown as a localized reason and leaves the
+button available for a later check.
+
 CI runs the browser suite with four isolated workers. Each worker starts its
 own temporary dashboard root and local server, so status fixtures, browser
 preferences and retry projections never leak between tests. Local runs retain
