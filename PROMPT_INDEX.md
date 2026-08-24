@@ -2,6 +2,22 @@
 
 Status: canonical prompt navigation
 
+## PR #895 finalization pending
+
+PR [#895](https://github.com/pcvantol/djconnect/pull/895), **test: cover
+autonomous lifecycle reconciliation**, merged as
+`168e0f99642021e06af5393a22458cdcf1c356f8`. The focused Engineering Platform
+regression protects the existing autonomous path from verified implementation
+merge through Finalization admission, repository reconciliation and Workspace
+Cleanup to `COMPLETE`, `MERGED_RECONCILED` and `WORKSPACE_READY`. The immutable
+Prompt History record is
+`docs/history/prompts/2026-08-24-autonomous-loop-qualification-regression.md`.
+This dedicated governance-only Finalization is the only permitted increment
+while the repository is `MERGED_UNRECONCILED`; its merge restores
+`MERGED_RECONCILED` and Workspace State `WORKSPACE_READY` after cleanup. No
+lifecycle, retry/resume/dismiss, validation, reviewer, provider, Forge or
+delivery-authority behavior changed.
+
 ## PR #893 finalization pending
 
 PR [#893](https://github.com/pcvantol/djconnect/pull/893), **test: expand

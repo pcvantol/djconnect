@@ -2,6 +2,22 @@
 
 Status: active platform-evolution repository
 
+## PR #895 finalization pending
+
+PR [#895](https://github.com/pcvantol/djconnect/pull/895), **test: cover
+autonomous lifecycle reconciliation**, merged as
+`168e0f99642021e06af5393a22458cdcf1c356f8`. The focused Engineering Platform
+regression covers the existing autonomous happy path from verified
+implementation merge through Finalization admission, repository reconciliation
+and Workspace Cleanup to `COMPLETE`, `MERGED_RECONCILED` and
+`WORKSPACE_READY`. The immutable Prompt History record is
+`docs/history/prompts/2026-08-24-autonomous-loop-qualification-regression.md`.
+This governance-only Finalization reconciles the four rolling records and
+handoff metadata; its merge restores Repository State: `MERGED_RECONCILED` and
+Workspace State: `WORKSPACE_READY` after cleanup. Existing lifecycle,
+retry/resume/dismiss, validation, reviewer, provider, Forge and delivery
+authority semantics are unchanged.
+
 ## PR #893 finalization pending
 
 PR [#893](https://github.com/pcvantol/djconnect/pull/893), **test: expand
