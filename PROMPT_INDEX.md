@@ -2,6 +2,18 @@
 
 Status: canonical prompt navigation
 
+## PR #911 finalization pending
+
+PR [#911](https://github.com/pcvantol/djconnect/pull/911), **test: guard
+managed resume lineage**, merged as
+`39eaa4aa2f80e672c86a674f509a3e749687cd71`. The single fresh Managed
+qualification run adds only a resume-lineage regression guard; lifecycle,
+validation, reviewer selection, retry/resume and operator-owned merge authority
+are unchanged. Its immutable Prompt History record is
+`docs/history/prompts/2026-08-24-managed-autonomy-v2-qualification.md`.
+This is `MERGED_UNRECONCILED`; only its dedicated governance-only Finalization
+may proceed. Workspace State: `WORKSPACE_READY`; Finalization Pending: `YES`.
+
 ## PR #906 finalized by PR #907
 
 PR [#906](https://github.com/pcvantol/djconnect/pull/906), **fix: show automatic reconciliation in managed flow**, merged as `b0f599f14e61e2f46acca4a057668a70cfd2778b`. Finalization PR #907 merged as `ad35f42ac099fa60cf30b45315338cc80f64b039`; automatic reconciliation complete. `MERGED_RECONCILED`; `WORKSPACE_READY`; Finalization Pending: `NO`.
