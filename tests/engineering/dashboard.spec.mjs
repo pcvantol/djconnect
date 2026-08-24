@@ -3278,7 +3278,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#platformVersion")).toHaveText("1.5.0");
     await expect(page.locator("#action")).toHaveText("Codex bewerkt bestanden");
     await expect(page.locator("#action")).toHaveCSS("font-style", "italic");
-    await expect(page.locator("#workspaceProgressValue")).toHaveText("3 gewijzigd · 2 nieuw · 1 verwijderd · 17 Codex-opdrachten uitgevoerd");
+    await expect(page.locator("#workspaceProgressValue")).toHaveText("3 gewijzigd · 2 nieuw · 1 verwijderd · 17 Codex-opdrachten uitgevoerd · 0 reviewer-Codex-opdrachten uitgevoerd");
   });
 
   test("lays out operational-overview cards in two columns only when its container has room", async ({ page }) => {
