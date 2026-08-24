@@ -2576,6 +2576,23 @@ for (const locale of ["nl", "de", "fr", "es"]) for (const [key, value] of Object
   if (key.startsWith("telemetry.phase.") && !Object.hasOwn(DASHBOARD_MESSAGES[locale], key)) DASHBOARD_MESSAGES[locale][key] = value;
 }
 
+// Dynamic operational copy is not discoverable from static dashboard markup.
+// Keep its CI inventory next to the catalogs so renderers and tests share one
+// source of truth when a lifecycle phase or watcher state is added.
+export const OPERATIONAL_TRANSLATION_KEYS = Object.freeze([
+  "workspace_progress.primary_codex_commands",
+  "workspace_progress.reviewer_codex_commands",
+  "telemetry.phase.capability_review",
+  "lifecycle.step.capability_review",
+  "lifecycle.step.reconcile_agent",
+  "lifecycle.step.wait_for_operator_merge",
+  "lifecycle.step.wait_for_finalization_merge",
+  "lifecycle.step.wait_for_reconciliation_merge",
+  "operational.stale_run",
+  "operational.waiting_for_operator_merge",
+  "operational.stale_host_ownership",
+]);
+
 export function normalizeLocale(value) {
   const candidate = String(value || "").toLowerCase().split("-")[0];
   return SUPPORTED_LOCALES.includes(candidate) ? candidate : "en";

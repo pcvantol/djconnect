@@ -7,6 +7,7 @@ import { test, expect } from "@playwright/test";
 import {
   createTranslator,
   DASHBOARD_MESSAGES,
+  OPERATIONAL_TRANSLATION_KEYS,
   SUPPORTED_LOCALES,
 } from "../../tools/engineering/assets/dashboard_locales.mjs";
 
@@ -125,21 +126,8 @@ test.describe("Engineering Status browser smoke", () => {
   });
 
   test("translates every operational phase and status in every supported locale", () => {
-    const requiredKeys = [
-      "workspace_progress.primary_codex_commands",
-      "workspace_progress.reviewer_codex_commands",
-      "telemetry.phase.capability_review",
-      "lifecycle.step.capability_review",
-      "lifecycle.step.reconcile_agent",
-      "lifecycle.step.wait_for_operator_merge",
-      "lifecycle.step.wait_for_finalization_merge",
-      "lifecycle.step.wait_for_reconciliation_merge",
-      "operational.stale_run",
-      "operational.waiting_for_operator_merge",
-      "operational.stale_host_ownership",
-    ];
     for (const locale of SUPPORTED_LOCALES) {
-      for (const key of requiredKeys) {
+      for (const key of OPERATIONAL_TRANSLATION_KEYS) {
         expect(DASHBOARD_MESSAGES[locale][key], `${locale}:${key}`).toBeTruthy();
       }
     }
