@@ -2233,6 +2233,17 @@ class LocalAgentRunnerTest(unittest.TestCase):
         self.assertEqual(reconciled_recommendations(results), ("Use canonical wording.",))
         records = records_for_storage(selections, results)
         self.assertEqual(records[0]["accepted_recommendations"], 1)
+        self.assertEqual(records[0]["codex_commands_executed"], 0)
+
+    def test_reviewer_record_keeps_its_own_safe_command_count(self) -> None:
+        selection = select_reviewers("documentation", self.prompt, "IMPLEMENTATION", {})
+        result = ReviewerResult(
+            "documentation", "Review complete.", churn={"tool_loop_operations": 4}
+        )
+
+        records = records_for_storage(selection, (result,))
+
+        self.assertEqual(records[0]["codex_commands_executed"], 4)
 
     def test_reviewer_prompt_reuses_bounded_run_scoped_facts_without_conclusions(self) -> None:
         selection = select_reviewers("validation", self.prompt, "IMPLEMENTATION", {})[0]

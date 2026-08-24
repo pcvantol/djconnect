@@ -395,6 +395,13 @@ class EngineeringRunner:
                 else:
                     reviewer["finished_at"] = datetime.now(timezone.utc).isoformat()
                     reviewer["failed"] = bool(result and result.failed)
+                    churn = result.churn if result is not None and isinstance(result.churn, dict) else {}
+                    command_count = churn.get("tool_loop_operations", 0)
+                    reviewer["codex_commands_executed"] = (
+                        command_count
+                        if isinstance(command_count, int) and not isinstance(command_count, bool)
+                        else 0
+                    )
                 break
             write_live_status(self.root, state, "Capability review: " + selection.reviewer, self.reviewer_runtime)
 
