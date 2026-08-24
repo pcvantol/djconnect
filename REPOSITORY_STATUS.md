@@ -2,6 +2,10 @@
 
 Status: active platform-evolution repository
 
+## PR #906 finalization pending
+
+PR [#906](https://github.com/pcvantol/djconnect/pull/906), **fix: show automatic reconciliation in managed flow**, merged as `b0f599f14e61e2f46acca4a057668a70cfd2778b`. Repository State: `MERGED_UNRECONCILED`; only this governance-only Finalization may proceed.
+
 ## PR #904 finalized by PR #905
 
 PR [#904](https://github.com/pcvantol/djconnect/pull/904), **feat: automate

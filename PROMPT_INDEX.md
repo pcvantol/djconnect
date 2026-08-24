@@ -2,6 +2,10 @@
 
 Status: canonical prompt navigation
 
+## PR #906 finalization pending
+
+PR [#906](https://github.com/pcvantol/djconnect/pull/906), **fix: show automatic reconciliation in managed flow**, merged as `b0f599f14e61e2f46acca4a057668a70cfd2778b`. This governance-only Finalization is the only permitted increment while the repository is `MERGED_UNRECONCILED`.
+
 ## PR #904 finalized by PR #905
 
 PR [#904](https://github.com/pcvantol/djconnect/pull/904), **feat: automate
