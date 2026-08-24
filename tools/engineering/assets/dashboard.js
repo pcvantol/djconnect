@@ -132,8 +132,19 @@ document
   .forEach((element) =>
     element.addEventListener("input", () => sanitizeDeclaredFreeInput(element)),
   );
+const OPERATIONAL_PRESENTATION_KEYS = {
+  ENGINEERING_RUN_STALE: "operational.stale_run",
+  RECONCILE_AGENT: "lifecycle.step.reconcile_agent",
+  WAIT_FOR_OPERATOR_MERGE: "lifecycle.step.wait_for_operator_merge",
+  WAIT_FOR_FINALIZATION_MERGE: "lifecycle.step.wait_for_finalization_merge",
+  WAIT_FOR_RECONCILIATION_MERGE: "lifecycle.step.wait_for_reconciliation_merge",
+  "Waiting for the operator to merge the pull request.": "operational.waiting_for_operator_merge",
+  "Execution Host ownership is stale; no execution is currently running.": "operational.stale_host_ownership",
+};
 function translate(value) {
-  return t("state." + value, {}, value);
+  const raw = String(value || "");
+  const presentationKey = OPERATIONAL_PRESENTATION_KEYS[raw];
+  return presentationKey ? t(presentationKey) : t("state." + raw, {}, raw);
 }
 function humanize() {
   for (const id of [
@@ -1268,7 +1279,7 @@ function lifecycleFlow(projection, { historical = false } = {}) {
   summary.textContent = t("lifecycle.summary", {
     step: lifecycleLabel(currentStep),
     status: isOperatorMergeStep(currentStep)
-      ? t("lifecycle.state.waiting_for_operator_merge")
+      ? lifecycleLabel(currentStep)
       : lifecycleStateLabel(projection.terminal_state || "ACTIVE"),
   });
   section.append(summary);
@@ -1420,7 +1431,7 @@ function renderHealthStatus(x, snapshot = {}) {
     t("workspace_progress.modified", { count: Number(workspaceProgress.modified) || 0 }),
     t("workspace_progress.created", { count: Number(workspaceProgress.created) || 0 }),
     t("workspace_progress.deleted", { count: Number(workspaceProgress.deleted) || 0 }),
-    t("workspace_progress.codex_commands", { count: Number(workspaceProgress.codex_commands_executed) || 0 }),
+    t("workspace_progress.primary_codex_commands", { count: Number(workspaceProgress.codex_commands_executed) || 0 }),
     t("workspace_progress.reviewer_codex_commands", { count: reviewerCommands }),
   ].join(" · ");
   const executionHost = snapshot.execution_host || {};
