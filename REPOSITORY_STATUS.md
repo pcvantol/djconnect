@@ -2,6 +2,19 @@
 
 Status: active platform-evolution repository
 
+## PR #919 finalization pending
+
+PR [#919](https://github.com/pcvantol/djconnect/pull/919), **Fix dashboard
+lifecycle evidence projection**, merged as
+`2732dff6679cdf8ac30bad057205cce635468a17` and is contained in current
+`main`. This bounded dashboard and evidence-projection repair separates
+autonomous quality-control timing from implementation, presents terminal timing
+from persisted total execution evidence, and closes localized UI projection
+gaps. Lifecycle, validation, reviewer, provider, delivery and operator merge
+authority remain unchanged. Governance-only Finalization is pending. Repository
+State: `MERGED_UNRECONCILED`; Workspace State: `NOT_READY`; Finalization
+Pending: `YES`.
+
 ## PR #917 finalized by PR #918
 
 PR [#917](https://github.com/pcvantol/djconnect/pull/917), **add Engineering

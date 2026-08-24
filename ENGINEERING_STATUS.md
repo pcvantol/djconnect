@@ -3,6 +3,19 @@
 **Status:** Operational handoff
 **Updated:** 2026-08-24
 
+## PR #919 finalization pending
+
+PR [#919](https://github.com/pcvantol/djconnect/pull/919), **Fix dashboard
+lifecycle evidence projection**, merged as
+`2732dff6679cdf8ac30bad057205cce635468a17` and is contained in current
+`main`. It separates autonomous quality-control timing from implementation,
+makes the terminal result duration evidence-based, adds matching lifecycle
+detail status indicators and closes localized dashboard projection gaps. It
+preserves lifecycle authority, validation, reviewer, provider, delivery and
+operator-owned merge authority. Governance-only Finalization is pending.
+Repository State: `MERGED_UNRECONCILED`; Workspace State: `NOT_READY`;
+Finalization Pending: `YES`.
+
 ## PR #917 finalized by PR #918
 
 PR [#917](https://github.com/pcvantol/djconnect/pull/917), **add Engineering
