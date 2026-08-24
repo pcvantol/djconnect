@@ -3,6 +3,16 @@
 **Status:** Operational handoff
 **Updated:** 2026-08-24
 
+## PR #901 finalization pending
+
+PR [#901](https://github.com/pcvantol/djconnect/pull/901), **fix: admit
+storage schema 26 for retries**, merged as
+`c9e1572733fa8dc7815d3c5204997978b0028d53`. It aligns the platform manifest
+with schema 26, derives runner schema support from the local storage contract,
+and protects the alignment with regression coverage. Retry semantics are
+unchanged. This governance-only Finalization is the only permitted next
+increment and restores `MERGED_RECONCILED` and `WORKSPACE_READY` after merge.
+
 ## PR #898 finalized by PR #899
 
 PR [#898](https://github.com/pcvantol/djconnect/pull/898), **feat: harden
