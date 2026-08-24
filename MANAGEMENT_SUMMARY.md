@@ -1,5 +1,24 @@
 # DJConnect Generation 2 Management Summary
 
+## PR #890 finalization reconciled
+
+PR [#890](https://github.com/pcvantol/djconnect/pull/890), **test: cover
+bounded evidence expansion**, merged as
+`9f25f15ed207f5e41071c52c37a57e24193a1a5c`. The focused Engineering Platform
+regression now proves bounded search evidence advertises
+`MORE_EVIDENCE_AVAILABLE`, an invocation-local explicit expansion returns exact
+evidence, and the temporary proxy is removed. Its portable fixture no longer
+assumes a system `rg` binary in CI. The historical benchmark run
+`inbox-5a6400d181f84ece93e131c49b5fd9a7` remains failed and was not retried;
+no new benchmark or efficiency measurement was submitted. Its governance-only
+Finalization PR [#891](https://github.com/pcvantol/djconnect/pull/891) merged
+as `454f57de11d7859a6af3e33fd6b20af670e94acb`; this record reconciles the
+verified Finalization. Repository State: `MERGED_RECONCILED`; Workspace State:
+`WORKSPACE_READY` after cleanup. Stale local branch result: `none`. Lifecycle,
+retry/resume/dismiss, validation policy, reviewer
+count/independence, model selection, provider routing/accounting, credit rates,
+Forge and delivery authority are unchanged.
+
 **Decisions:** `DJCONNECT_GENERATION_1_COMPLETED`,
 `DJCONNECT_GENERATION_2_ESTABLISHED`,
 `ENGINEERING_WORKFLOW_ALIGNED`, `ENGINEERING_METHOD_V2_ESTABLISHED`,
@@ -26,8 +45,8 @@ fixture reduces projected output by 64.97%; no live benchmark or provider-token
 or credit-savings claim was made. Its governance-only Finalization PR
 [#885](https://github.com/pcvantol/djconnect/pull/885) merged as
 `9ca6100bc3398ebf68639ec3259e3cc17bd85780`; this record reconciles the
-verified finalization. Repository State: `MERGED_RECONCILED`. Workspace
-Cleanup remains blocked by the preserved implementation branch. Lifecycle,
+verified finalization. Repository State: `MERGED_RECONCILED`; Workspace State:
+`WORKSPACE_READY` after cleanup of the merged implementation branch. Lifecycle,
 retry/resume/dismiss, validation policy, reviewer count/independence, model
 selection, provider routing/accounting, credit rates, Forge and delivery
 authority are unchanged.
