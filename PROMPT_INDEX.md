@@ -2,15 +2,18 @@
 
 Status: canonical prompt navigation
 
-## PR #923 finalization pending
+## PR #927 finalization pending
 
-PR [#923](https://github.com/pcvantol/djconnect/pull/923), **Add emergency
-execution rollback control**, merged as
-`f16b2daf41461ea1423478c15df0997f78832d6d` and is contained in current
-`main`. It adds bounded emergency-recovery and capacity-warning projections
-without changing prompt authority, lifecycle, validation, reviewer, provider,
-Forge, queue, delivery or operator-owned merge semantics. This dedicated
-governance-only Finalization is the only permitted increment while the
+PR [#923](https://github.com/pcvantol/djconnect/pull/923) is finalized by
+governance-only PR [#926](https://github.com/pcvantol/djconnect/pull/926),
+merged as `e223c1f7cddcafc316bb243142fa95be164047a2`; only its stale rolling
+record is reconciled and immutable Prompt History is preserved.
+
+PR [#927](https://github.com/pcvantol/djconnect/pull/927), **Show open pull
+request check status**, merged as `7235edb7a148c1be645c2053f8ce7209778adf87`.
+It preserves prompt authority, lifecycle, validation, reviewer, provider,
+Forge, queue, delivery and operator-owned merge semantics. This dedicated
+governance-only Finalization is the only permitted follow-up while the
 repository is `MERGED_UNRECONCILED`; its merge restores
 `MERGED_RECONCILED` and Workspace State `WORKSPACE_READY` after cleanup.
 
