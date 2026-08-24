@@ -918,11 +918,11 @@ function copyText(value) {
   }
 }
 let copyToastTimer;
-function showCopyToast() {
+function showDashboardToast(message) {
   const toast = $("copyToast");
   if (!toast) return;
   clearTimeout(copyToastTimer);
-  toast.textContent = t("copy.success");
+  toast.textContent = message;
   toast.hidden = false;
   if (typeof toast.showPopover === "function" && !toast.matches(":popover-open"))
     toast.showPopover();
@@ -936,6 +936,7 @@ function showCopyToast() {
     }, 180);
   }, 2200);
 }
+function showCopyToast() { showDashboardToast(t("copy.success")); }
 const PREFLIGHT_PRESENTATIONS = Object.freeze([
   ["host_preflight", [
     ["hostPreflightStatus", "outcome"],
@@ -1085,6 +1086,15 @@ function renderOperatorMergeWait(x) {
   link.href = href;
   link.textContent = t("merge_wait.open_pull_request", { number: pullRequest });
   $("operatorMergeWaitDescription").textContent = t("merge_wait.description", { number: pullRequest });
+  const lastCheck = x.merge_status_check?.last_successful_github_check_at;
+  const lastCheckText = typeof lastCheck === "string"
+    ? t("merge_wait.last_successful_check", { timestamp: formatTimestamp(lastCheck) })
+    : "";
+  for (const id of ["operatorMergeWaitLastCheck", "operatorMergeWaitModalLastCheck"]) {
+    const field = $(id);
+    field.hidden = !lastCheckText;
+    field.textContent = lastCheckText;
+  }
   const modal = $("operatorMergeWaitModal");
   $("operatorMergeWaitModalDescription").textContent = t("merge_wait.description", { number: pullRequest });
   const mergeKey = Number(x.reconciliation_pr) === pullRequest
@@ -1695,6 +1705,73 @@ function renderWorkspaceGit(workspaceGit) {
     workspaceGit.origin_main_commit || t("format.not_available");
   $("workspaceOriginMain").hidden = !workspaceGit.origin_main_available;
   $("workspaceBranchMain").hidden = !workspaceGit.main_action_available;
+}
+const OPEN_PULL_REQUEST_MONITOR_INTERVAL_MS = 30_000;
+let openPullRequestMonitorTimer = null, openPullRequestMonitorInFlight = false;
+function openPullRequestStatusKey(status) {
+  return {
+    ready: "workspace.open_pull_request.merge_ready",
+    busy: "workspace.open_pull_request.checks_running",
+    issues: "workspace.open_pull_request.issues",
+  }[status] || "workspace.open_pull_request.checks_running";
+}
+function localizeOpenPullRequestStatuses() {
+  document.querySelectorAll(".open-pr-status").forEach((element) => {
+    const status = element.classList.contains("open-pr-status--ready") ? "ready"
+      : element.classList.contains("open-pr-status--issues") ? "issues" : "busy";
+    const label = t(openPullRequestStatusKey(status));
+    element.querySelector(".open-pr-status__label").textContent = label;
+    element.setAttribute("aria-label", label);
+  });
+}
+function renderOpenPullRequests(pullRequests) {
+  const section = $("workspaceOpenPullRequests");
+  if (!section || !Array.isArray(pullRequests)) return;
+  const list = section.querySelector("ul");
+  if (!list) return;
+  list.replaceChildren(...pullRequests.map((pullRequest) => {
+    const item = document.createElement("li"), link = document.createElement("a"), status = document.createElement("span"), dot = document.createElement("span"), label = document.createElement("span"), branch = document.createElement("code");
+    const state = ["ready", "busy", "issues"].includes(pullRequest.status) ? pullRequest.status : "busy";
+    item.dataset.openPullRequest = String(pullRequest.number || "");
+    link.href = String(pullRequest.url || "");
+    link.target = "_blank";
+    link.rel = "noreferrer";
+    link.textContent = `PR #${pullRequest.number} — ${pullRequest.title || ""}`;
+    status.className = `open-pr-status open-pr-status--${state}`;
+    dot.className = "open-pr-status__dot";
+    dot.setAttribute("aria-hidden", "true");
+    label.className = "open-pr-status__label";
+    status.append(dot, label);
+    branch.textContent = String(pullRequest.branch || "");
+    item.append(link, status, branch);
+    return item;
+  }));
+  localizeOpenPullRequestStatuses();
+}
+function scheduleOpenPullRequestMonitor(pullRequests) {
+  clearTimeout(openPullRequestMonitorTimer);
+  openPullRequestMonitorTimer = null;
+  if (Array.isArray(pullRequests) && pullRequests.some((pullRequest) => pullRequest.status === "busy")) {
+    openPullRequestMonitorTimer = setTimeout(() => void refreshOpenPullRequests(), OPEN_PULL_REQUEST_MONITOR_INTERVAL_MS);
+  }
+}
+async function refreshOpenPullRequests() {
+  if (openPullRequestMonitorInFlight) return;
+  openPullRequestMonitorInFlight = true;
+  try {
+    const response = await fetch("/api/open-pull-requests", { cache: "no-store" });
+    const payload = response.ok ? await response.json() : null;
+    const pullRequests = payload && Array.isArray(payload.pull_requests) ? payload.pull_requests : null;
+    if (!pullRequests) return;
+    renderOpenPullRequests(pullRequests);
+    scheduleOpenPullRequestMonitor(pullRequests);
+  } catch {
+    // Keep the last known, non-authoritative projection visible and retry only
+    // while it says that GitHub checks are still in progress.
+    scheduleOpenPullRequestMonitor([...document.querySelectorAll(".open-pr-status--busy")].map(() => ({ status: "busy" })));
+  } finally {
+    openPullRequestMonitorInFlight = false;
+  }
 }
 let receivedDashboardServerPush = false, updateModeKey = "refresh.connecting";
 function setUpdateMode(key) {
@@ -3938,6 +4015,7 @@ function applyDashboardLocale() {
   });
   setUpdateMode(updateModeKey);
   providerNeutralLabels();
+  localizeOpenPullRequestStatuses();
   localizeTechnicalDetails();
   localizeLogControls();
   localizePromptHistoryTable();
@@ -5063,19 +5141,39 @@ function checkOperatorMergeStatus(button) {
       const reason = String(result.body?.reason || "github_evidence_unavailable");
       if (result.body?.verified) {
         if ($("operatorMergeWaitModal").open) $("operatorMergeWaitModal").close();
-        return refreshAfterOperatorAction();
+        showDashboardToast(t("merge_wait.continuation_scheduled"));
+        return refreshMergeContinuation();
       }
       // Re-read the authoritative snapshot before retaining a failure modal:
       // a background watcher can advance the same hand-off while this request
       // is in flight. The control remains available when it is still waiting.
       return refreshAfterOperatorAction().finally(() => {
         if (latestStatus?.current_phase === "WAIT_FOR_OPERATOR_MERGE") {
-          showDashboardError(t(`merge_wait.reason.${reason}`), t("merge_wait.status_check_failed"));
+          showMergeStatusCheckError(reason);
         }
       });
     })
-    .catch((error) => showDashboardError(error.message, t("merge_wait.status_check_failed")))
+    .catch(() => showMergeStatusCheckError("github_cli_unavailable"))
     .finally(() => { button.disabled = false; });
+}
+async function refreshMergeContinuation() {
+  for (const delay of [0, 300, 900, 1800]) {
+    if (delay) await new Promise((resolve) => setTimeout(resolve, delay));
+    await refreshAfterOperatorAction();
+    if (latestStatus?.current_phase !== "WAIT_FOR_OPERATOR_MERGE") return;
+  }
+}
+function showMergeStatusCheckError(reason) {
+  const lastCheck = latestStatus?.merge_status_check?.last_successful_github_check_at;
+  const timestamp = typeof lastCheck === "string" ? formatTimestamp(lastCheck) : "";
+  const detail = [
+    t(`merge_wait.reason.${reason}`),
+    timestamp ? t("merge_wait.last_successful_check", { timestamp }) : "",
+  ].filter(Boolean).join(" ");
+  showDashboardError(detail, t("merge_wait.status_check_failed"), {
+    label: t("merge_wait.check_again"),
+    run: () => checkOperatorMergeStatus($("operatorMergeWaitModalStatusCheck")),
+  });
 }
 $("predecessorRetry").addEventListener("click", submitPredecessorRetry);
 $("operatorMergeAbort").addEventListener("click", abortOperatorMergeWait);
@@ -5193,23 +5291,26 @@ function dashboardErrorRecovery(message) {
     ? "managed_branch_synchronization"
     : null;
 }
-function showDashboardError(message, fallback) {
+function showDashboardError(message, fallback, action = null) {
   const modal = $("dashboardErrorModal"),
     close = $("dashboardErrorModalClose"),
     dismiss = $("dashboardErrorModalDismiss"),
     recover = $("dashboardErrorModalRecover"),
-    recovery = dashboardErrorRecovery(message);
+    recovery = dashboardErrorRecovery(message),
+    followUp = action || (recovery ? { label: t("action.recover") } : null);
   $("dashboardErrorModalTitle").textContent = t("ui.action_failed");
   $("dashboardErrorModalText").textContent = localizedDashboardError(message, fallback);
-  recover.hidden = !recovery;
+  recover.hidden = !followUp;
   recover.disabled = false;
-  recover.textContent = t("action.recover");
+  recover.textContent = followUp?.label || "";
   const finish = () => {
     if (modal.open) modal.close();
     close.onclick = dismiss.onclick = recover.onclick = null;
   };
   close.onclick = dismiss.onclick = finish;
-  recover.onclick = recovery === "managed_branch_synchronization"
+  recover.onclick = action
+    ? () => { finish(); action.run(); }
+    : recovery === "managed_branch_synchronization"
     ? () => {
       recover.disabled = true;
       fetch("/api/managed-branch-synchronization", {
@@ -5355,6 +5456,9 @@ Object.assign(window, {
   renderPromptHistoryDetail,
   renderPlatformHealth,
   renderPromptHistory,
+  refreshOpenPullRequests,
+  renderOpenPullRequests,
+  scheduleOpenPullRequestMonitor,
   showComponentModal,
   showDashboardError,
   showCopyToast,
@@ -5397,5 +5501,7 @@ for (const binding of [
 }
 
 // Start after every DOM-dependent dashboard feature has completed setup.
+localizeOpenPullRequestStatuses();
+void refreshOpenPullRequests();
 void refreshGithubRateLimit();
 startDashboardUpdates();
