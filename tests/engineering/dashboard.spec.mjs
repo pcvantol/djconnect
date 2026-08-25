@@ -2323,6 +2323,32 @@ test.describe("Engineering Status browser smoke", () => {
     }
   });
 
+  test("gives every table a coloured first column and sorts telemetry columns", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => window.executionTelemetry([
+      { date: "2026-08-16", prompt_count: 4, average_total_execution_seconds: 80, average_queue_wait_seconds: 8, input_tokens: 400, output_tokens: 40, total_tokens: 440, complete_count: 4, blocked_count: 0, failed_count: 0 },
+      { date: "2026-08-15", prompt_count: 1, average_total_execution_seconds: 40, average_queue_wait_seconds: 4, input_tokens: 100, output_tokens: 10, total_tokens: 110, complete_count: 1, blocked_count: 0, failed_count: 0 },
+    ]));
+    await page.getByTestId("theme-toggle").click();
+    await page.locator("#executionTelemetry").evaluate((element) => { element.open = true; });
+
+    const firstColumnSurfaces = await page.locator(":is(.log-table,.telemetry-table) th:first-child").evaluateAll(
+      (cells) => cells.map((cell) => getComputedStyle(cell).backgroundColor),
+    );
+    expect(firstColumnSurfaces.length).toBeGreaterThan(2);
+    expect(firstColumnSurfaces.every((colour) => colour !== "rgba(0, 0, 0, 0)")).toBe(true);
+
+    const date = page.locator('#executionTelemetry th[data-sort-key="date"]');
+    await expect(page.locator("#executionTelemetryRows tr td").first()).toHaveText("16-08-2026");
+    await date.click();
+    await expect(date).toHaveAttribute("aria-sort", "ascending");
+    await expect(page.locator("#executionTelemetryRows tr td").first()).toHaveText("15-08-2026");
+    const prompts = page.locator('#executionTelemetry th[data-sort-key="prompt_count"]');
+    await prompts.click();
+    await expect(prompts).toHaveAttribute("aria-sort", "ascending");
+    await expect(page.locator("#executionTelemetryRows tr td").first()).toHaveText("15-08-2026");
+  });
+
   test("keeps the telemetry detail modal within a mobile portrait viewport", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });

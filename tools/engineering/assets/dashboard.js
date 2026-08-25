@@ -2796,6 +2796,41 @@ function telemetryDate(value) {
   const match = typeof value === "string" && value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
   return match ? match[3] + "-" + match[2] + "-" + match[1] : String(value ?? "—");
 }
+const executionTelemetryColumns = [
+  ["date", "telemetry.day"], ["prompt_count", "telemetry.prompts"],
+  ["average_total_execution_seconds", "telemetry.average_total"],
+  ["average_queue_wait_seconds", "telemetry.average_wait"],
+  ["input_tokens", "telemetry.input"], ["output_tokens", "telemetry.output"],
+  ["total_tokens", "telemetry.total"], ["complete_count", "telemetry.complete"],
+  ["blocked_count", "telemetry.blocked"], ["failed_count", "telemetry.failed"],
+];
+let executionTelemetryRows = [], executionTelemetrySort = { key: "date", direction: "desc" };
+function telemetryComparableValue(row, key) {
+  const value = row?.[key];
+  return key === "date" ? String(value || "") : Number.isFinite(Number(value)) ? Number(value) : -1;
+}
+function sortedExecutionTelemetryRows() {
+  const { key, direction } = executionTelemetrySort, multiplier = direction === "asc" ? 1 : -1;
+  return [...executionTelemetryRows].sort((left, right) => {
+    const leftValue = telemetryComparableValue(left, key), rightValue = telemetryComparableValue(right, key);
+    return typeof leftValue === "number"
+      ? (leftValue - rightValue) * multiplier
+      : (leftValue < rightValue ? -1 : leftValue > rightValue ? 1 : 0) * multiplier;
+  });
+}
+function updateExecutionTelemetrySortHeaders() {
+  document.querySelectorAll("#executionTelemetry .telemetry-table th[data-sort-key]").forEach((header) => {
+    const active = header.dataset.sortKey === executionTelemetrySort.key;
+    header.dataset.sortIndicator = active ? executionTelemetrySort.direction === "asc" ? "↑" : "↓" : "↕";
+    header.setAttribute("aria-sort", active ? executionTelemetrySort.direction === "asc" ? "ascending" : "descending" : "none");
+  });
+}
+function setExecutionTelemetrySort(key) {
+  executionTelemetrySort = executionTelemetrySort.key === key
+    ? { key, direction: executionTelemetrySort.direction === "asc" ? "desc" : "asc" }
+    : { key, direction: key === "date" ? "desc" : "asc" };
+  executionTelemetry(executionTelemetryRows);
+}
 function executionTelemetry(rows) {
   let panel = $("executionTelemetry"),
     body = $("executionTelemetryRows");
@@ -2817,15 +2852,18 @@ function executionTelemetry(rows) {
     scroll.className = "telemetry-scroll";
     table.className = "telemetry-table";
     table.setAttribute("aria-label", t("telemetry.table_label"));
-    for (const label of [
-      "telemetry.day", "telemetry.prompts", "telemetry.average_total",
-      "telemetry.average_wait",
-      "telemetry.input", "telemetry.output", "telemetry.total", "telemetry.complete",
-      "telemetry.blocked", "telemetry.failed",
-    ].map((key) => t(key))) {
+    for (const [key, label] of executionTelemetryColumns) {
       const cell = document.createElement("th");
       cell.scope = "col";
-      cell.textContent = label;
+      cell.className = "log-sortable";
+      cell.dataset.sortKey = key;
+      cell.tabIndex = 0;
+      cell.textContent = t(label);
+      cell.setAttribute("aria-label", t("table.sort_by", { column: cell.textContent }));
+      cell.addEventListener("click", () => setExecutionTelemetrySort(key));
+      cell.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") { event.preventDefault(); setExecutionTelemetrySort(key); }
+      });
       headRow.append(cell);
     }
     head.append(headRow);
@@ -2838,9 +2876,9 @@ function executionTelemetry(rows) {
     rate?.insertAdjacentElement("afterend", panel);
     body = tableBody;
   }
+  executionTelemetryRows = (Array.isArray(rows) ? rows : []).filter((row) => row && typeof row === "object");
   body.replaceChildren();
-  for (const row of Array.isArray(rows) ? rows : []) {
-    if (!row || typeof row !== "object") continue;
+  for (const row of sortedExecutionTelemetryRows()) {
     const line = document.createElement("tr");
     line.className = "telemetry-row";
     line.tabIndex = 0;
@@ -2883,6 +2921,7 @@ function executionTelemetry(rows) {
     line.append(cell);
     body.append(line);
   }
+  updateExecutionTelemetrySortHeaders();
 }
 let telemetryDetailTrigger = null;
 function telemetryMs(value) { return typeof value === "number" && value >= 0 ? telemetryDuration(value / 1000) : t("format.unavailable"); }
