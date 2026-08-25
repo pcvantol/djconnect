@@ -2011,7 +2011,7 @@ function renderOpenPullRequests(pullRequests) {
 function scheduleOpenPullRequestMonitor(pullRequests) {
   clearTimeout(openPullRequestMonitorTimer);
   openPullRequestMonitorTimer = null;
-  if (Array.isArray(pullRequests) && pullRequests.some((pullRequest) => pullRequest.status === "waiting_for_checks")) {
+  if (Array.isArray(pullRequests) && pullRequests.length > 0) {
     openPullRequestMonitorTimer = setTimeout(() => void refreshOpenPullRequests(), openPullRequestMonitorIntervalMs);
   }
 }
@@ -2028,9 +2028,9 @@ async function refreshOpenPullRequests() {
     renderOpenPullRequests(pullRequests);
     scheduleOpenPullRequestMonitor(pullRequests);
   } catch {
-    // Keep the last known, non-authoritative projection visible and retry only
-    // while it says that GitHub checks are still in progress.
-    scheduleOpenPullRequestMonitor([...document.querySelectorAll(".open-pr-status--waiting_for_checks")].map(() => ({ status: "waiting_for_checks" })));
+    // Keep the last known, non-authoritative projection visible and continue
+    // checking every open PR: a new push can change a green status at any time.
+    scheduleOpenPullRequestMonitor([...document.querySelectorAll(".open-pr-status")]);
   } finally {
     openPullRequestMonitorInFlight = false;
     if (refreshButton) refreshButton.disabled = false;

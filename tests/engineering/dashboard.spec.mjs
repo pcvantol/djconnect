@@ -496,6 +496,19 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(openPullRequestStatus).toHaveText("Wacht op afronden van controles");
     await expect(page.locator("#workspaceOpenPullRequests .open-pr-approval")).toHaveText("Owner approval wacht");
     expect(timerDelay).toBe(30_000);
+    const allStatusTimerDelays = await page.evaluate(() => {
+      const originalSetTimeout = window.setTimeout;
+      const delays = [];
+      window.setTimeout = (_, value) => {
+        delays.push(value);
+        return 1;
+      };
+      scheduleOpenPullRequestMonitor([{ status: "ready_to_merge" }]);
+      scheduleOpenPullRequestMonitor([{ status: "issues" }]);
+      window.setTimeout = originalSetTimeout;
+      return delays;
+    });
+    expect(allStatusTimerDelays).toEqual([30_000, 30_000]);
     await page.evaluate(() => renderOpenPullRequests([{
       number: 925,
       title: "Check projection",
