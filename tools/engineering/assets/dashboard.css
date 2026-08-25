@@ -675,6 +675,8 @@ html[data-theme="light"] .report-view-modal__content,html[data-theme="light"] .r
      direct-touch screens. This prevents the controls from squeezing into—or
      visually overlapping—the label column. */
   .configuration-controls label{grid-template-columns:minmax(0,1fr)}
+  .configuration-inbox-field{grid-template-columns:minmax(0,1fr)}
+  .configuration-inbox-open{grid-column:1;grid-row:auto;justify-self:stretch;width:100%}
   .configuration-controls .dashboard-select-picker{max-width:none;width:100%}
   .configuration-controls .dashboard-locale__button{
     -webkit-backdrop-filter:none!important;

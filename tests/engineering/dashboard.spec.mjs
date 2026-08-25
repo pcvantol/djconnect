@@ -271,6 +271,30 @@ test.describe("Engineering Status browser smoke", () => {
     expect(layout.boxShadow).toBe("none");
   });
 
+  test("stacks the Inbox location action below its long path on iPhone", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#queueItems").evaluate((element) => { element.open = true; });
+
+    const layout = await page.evaluate(() => {
+      const field = document.querySelector(".configuration-inbox-field");
+      const location = document.querySelector("#configurationInboxLocation");
+      const action = document.querySelector("#configurationInboxOpen");
+      const fieldBounds = field.getBoundingClientRect();
+      const locationBounds = location.getBoundingClientRect();
+      const actionBounds = action.getBoundingClientRect();
+      return {
+        actionTop: Math.round(actionBounds.top),
+        locationBottom: Math.round(locationBounds.bottom),
+        actionWidth: Math.round(actionBounds.width),
+        fieldWidth: Math.round(fieldBounds.width),
+      };
+    });
+
+    expect(layout.actionTop).toBeGreaterThanOrEqual(layout.locationBottom);
+    expect(layout.actionWidth).toBe(layout.fieldWidth);
+  });
+
   test("persists a log-level pulldown choice exactly once", async ({ page }) => {
     const writes = [];
     await page.route("**/api/configuration", async (route) => {
