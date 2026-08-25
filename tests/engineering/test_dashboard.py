@@ -559,6 +559,8 @@ class DashboardStatusTest(unittest.TestCase):
             workspace_branch_cleanup_hidden=True,
         ).decode()
         self.assertIn('data-i18n="workspace.open_pull_requests"', page)
+        self.assertIn('id="workspaceOpenPullRequestsRefresh"', page)
+        self.assertIn('data-i18n-aria-label="workspace.open_pull_requests_refresh"', page)
         self.assertIn('PR #849 — Cleanup &lt;safe&gt;', page)
         self.assertIn("codex/cleanup", page)
         self.assertNotIn('id="workspaceBranchMain" type="button" hidden', page)

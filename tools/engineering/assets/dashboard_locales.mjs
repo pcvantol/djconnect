@@ -2954,6 +2954,11 @@ Object.assign(DASHBOARD_MESSAGES.nl, {"ui.codex_cli_update_execution_active":"De
 Object.assign(DASHBOARD_MESSAGES.de, {"ui.codex_cli_update_execution_active":"Das Codex-CLI-Update ist verfügbar, kann aber erst installiert werden, wenn keine Ausführung aktiv ist."});
 Object.assign(DASHBOARD_MESSAGES.fr, {"ui.codex_cli_update_execution_active":"La mise à jour de Codex CLI est disponible, mais ne peut être installée lorsqu’aucune exécution n’est active."});
 Object.assign(DASHBOARD_MESSAGES.es, {"ui.codex_cli_update_execution_active":"La actualización de Codex CLI está disponible, pero solo se puede instalar cuando no hay ninguna ejecución activa."});
+Object.assign(DASHBOARD_MESSAGES.en, {"workspace.open_pull_requests_refresh":"Refresh pull request status"});
+Object.assign(DASHBOARD_MESSAGES.nl, {"workspace.open_pull_requests_refresh":"Pullrequeststatus vernieuwen"});
+Object.assign(DASHBOARD_MESSAGES.de, {"workspace.open_pull_requests_refresh":"Pull-Request-Status aktualisieren"});
+Object.assign(DASHBOARD_MESSAGES.fr, {"workspace.open_pull_requests_refresh":"Actualiser l’état des pull requests"});
+Object.assign(DASHBOARD_MESSAGES.es, {"workspace.open_pull_requests_refresh":"Actualizar el estado de las solicitudes de extracción"});
 for (const locale of ["nl", "de", "fr", "es"]) for (const [key, value] of Object.entries(DASHBOARD_MESSAGES.en)) {
   if (key.startsWith("telemetry.phase.") && !Object.hasOwn(DASHBOARD_MESSAGES[locale], key)) DASHBOARD_MESSAGES[locale][key] = value;
 }

@@ -384,6 +384,35 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(openPullRequestStatus).toHaveCSS("color", "rgb(24, 120, 67)");
   });
 
+  test("manually refreshes every open pull request, including a previously green one", async ({ page }) => {
+    let refreshes = 0;
+    await page.route("**/api/open-pull-requests", async (route) => {
+      refreshes += 1;
+      await route.fulfill({ json: { pull_requests: [{
+        number: 940, title: "Fresh GitHub state", url: "https://github.com/pcvantol/djconnect/pull/940",
+        branch: "codex/ep-dashboard-polish", status: "waiting_for_checks", owner_approval: "not_required",
+      }] } });
+    });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => {
+      const section = document.createElement("section");
+      section.id = "workspaceOpenPullRequests";
+      section.className = "workspace-open-prs";
+      section.innerHTML = '<div class="workspace-open-prs__header"><strong>Openstaande pull requests</strong><button id="workspaceOpenPullRequestsRefresh" type="button">↻</button></div><ul></ul>';
+      document.body.append(section);
+      renderOpenPullRequests([{
+        number: 940, title: "Previously green", url: "https://github.com/pcvantol/djconnect/pull/940",
+        branch: "codex/ep-dashboard-polish", status: "ready_to_merge", owner_approval: "not_required",
+      }]);
+    });
+    const refresh = page.locator("#workspaceOpenPullRequestsRefresh");
+    await expect(refresh).toHaveText("↻");
+    const refreshesBeforeClick = refreshes;
+    await refresh.click();
+    await expect.poll(() => refreshes).toBe(refreshesBeforeClick + 1);
+    await expect(page.locator("#workspaceOpenPullRequests .open-pr-status")).toHaveClass(/open-pr-status--waiting_for_checks/);
+  });
+
   test("translates every operational phase and status in every supported locale", () => {
     for (const locale of SUPPORTED_LOCALES) {
       for (const key of OPERATIONAL_TRANSLATION_KEYS) {

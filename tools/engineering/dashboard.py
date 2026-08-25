@@ -1774,7 +1774,7 @@ def _dashboard_html(
         for pull_request in workspace_open_pull_requests or []
     )
     workspace_open_pull_requests_html = (
-        f'<section id="workspaceOpenPullRequests" class="workspace-open-prs" aria-live="polite"><strong data-i18n="workspace.open_pull_requests"></strong><ul>{pull_request_items}</ul></section>'
+        f'<section id="workspaceOpenPullRequests" class="workspace-open-prs" aria-live="polite"><div class="workspace-open-prs__header"><strong data-i18n="workspace.open_pull_requests"></strong><button class="workspace-open-prs__refresh" id="workspaceOpenPullRequestsRefresh" type="button" data-i18n-title="workspace.open_pull_requests_refresh" data-i18n-aria-label="workspace.open_pull_requests_refresh">↻</button></div><ul>{pull_request_items}</ul></section>'
         if pull_request_items else ""
     )
     return (

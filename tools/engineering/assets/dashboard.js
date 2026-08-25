@@ -1887,6 +1887,8 @@ function scheduleOpenPullRequestMonitor(pullRequests) {
 async function refreshOpenPullRequests() {
   if (openPullRequestMonitorInFlight) return;
   openPullRequestMonitorInFlight = true;
+  const refreshButton = $("workspaceOpenPullRequestsRefresh");
+  if (refreshButton) refreshButton.disabled = true;
   try {
     const response = await fetch("/api/open-pull-requests", { cache: "no-store" });
     const payload = response.ok ? await response.json() : null;
@@ -1900,8 +1902,12 @@ async function refreshOpenPullRequests() {
     scheduleOpenPullRequestMonitor([...document.querySelectorAll(".open-pr-status--waiting_for_checks")].map(() => ({ status: "waiting_for_checks" })));
   } finally {
     openPullRequestMonitorInFlight = false;
+    if (refreshButton) refreshButton.disabled = false;
   }
 }
+document.addEventListener("click", (event) => {
+  if (event.target.closest("#workspaceOpenPullRequestsRefresh")) void refreshOpenPullRequests();
+});
 let receivedDashboardServerPush = false, updateModeKey = "refresh.connecting";
 function setUpdateMode(key) {
   updateModeKey = key;
