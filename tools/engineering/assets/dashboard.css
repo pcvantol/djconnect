@@ -880,6 +880,9 @@ dialog.dashboard-modal-shell,dialog.dashboard-modal-shell:is(:focus,:focus-visib
 /* Run IDs are compact identifiers.  Fixing their width keeps the first mobile
    column narrow while the execution title receives the remaining table space. */
 #promptHistory .log-table{--prompt-history-run-id-width:7rem}#promptHistory .log-table th:nth-child(1),#promptHistory .log-table td:nth-child(1){max-width:var(--prompt-history-run-id-width);min-width:var(--prompt-history-run-id-width);overflow:hidden;text-overflow:ellipsis;width:var(--prompt-history-run-id-width)}
+/* Actions communicate through their shape, colour and iconography.  Button
+   labels stay at the normal text weight across every dashboard surface. */
+:is(button,input[type="button"],input[type="submit"],input[type="reset"],.dashboard-action,.dashboard-modal-shell__action){font-weight:400!important}
 
 /* Historical lifecycle evidence belongs to the same neutral card family as
    the other prompt-detail evidence. The active execution lifecycle keeps its

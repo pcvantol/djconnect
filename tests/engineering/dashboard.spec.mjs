@@ -131,6 +131,14 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#configurationAuditLogging")).toHaveCount(0);
   });
 
+  test("uses normal-weight labels for every dashboard button", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    const weights = await page.locator("button").evaluateAll(
+      (buttons) => [...new Set(buttons.map((button) => getComputedStyle(button).fontWeight))],
+    );
+    expect(weights).toEqual(["400"]);
+  });
+
   test("shows a GitHub rate-limit banner on page load and clears it on refresh", async ({ page }) => {
     let limited = true;
     await page.route("**/api/github-rate-limit", (route) => route.fulfill({
