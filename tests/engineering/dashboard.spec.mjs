@@ -3722,6 +3722,17 @@ test.describe("Engineering Status browser smoke", () => {
     expect(titlebarLayout.refreshBottom).toBeLessThanOrEqual(titlebarLayout.optionsTop);
   });
 
+  test("uses one dark-mode ink colour for title-bar option labels", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await openTitlebarOptions(page);
+    const colours = await page.locator([
+      ".dashboard-titlebar__options-content .dashboard-locale > span:first-child",
+      ".dashboard-titlebar__options-content .theme-toggle__label",
+      ".dashboard-titlebar__options-content .section-state-toggle__label",
+    ].join(", ")).evaluateAll((elements) => elements.map((element) => getComputedStyle(element).color));
+    expect(new Set(colours).size).toBe(1);
+  });
+
   test("opens title-bar pulldowns in the narrow mobile options panel", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });

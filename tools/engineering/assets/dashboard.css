@@ -713,7 +713,7 @@ html[data-theme="light"] .report-view-modal__content,html[data-theme="light"] .r
    application controls from the execution cards below it in both themes. */
 .dashboard-titlebar{background:var(--operations-console-icon-surface);box-shadow:0 10px 18px rgb(4 52 78 / .38)}
 .dashboard-titlebar h1{color:var(--operations-console-blue-ink)}
-.dashboard-titlebar .auto-refresh-toggle,.dashboard-titlebar .section-state-toggle,.dashboard-titlebar :is(.dashboard-locale,.dashboard-project){color:var(--operations-console-blue-ink)}
+.dashboard-titlebar .auto-refresh-toggle,.dashboard-titlebar .theme-toggle,.dashboard-titlebar .section-state-toggle,.dashboard-titlebar :is(.dashboard-locale,.dashboard-project){color:var(--operations-console-blue-ink)}
 .dashboard-titlebar select{background:#fff;color:#1b2b38}
 .dashboard-titlebar .section-state-toggle::before{background:#4a4a55}
 .dashboard-titlebar .section-state-toggle::after{background:#f7f3ee}
