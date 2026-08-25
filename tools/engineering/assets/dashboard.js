@@ -414,11 +414,17 @@ function renderCapacityTrend(history) {
   title.textContent = t("rate_limit.trend_aria", { percent: latestPercent });
   svg.append(title);
   const innerWidth = width - padding.left - padding.right, innerHeight = height - padding.top - padding.bottom;
-  for (const fraction of [0, 0.5, 1]) {
+  for (const fraction of [0, 0.25, 0.5, 0.75, 1]) {
     const grid = document.createElementNS(namespace, "line"), y = padding.top + innerHeight * fraction;
     grid.setAttribute("class", "rate-limit-trend__grid");
     grid.setAttribute("x1", String(padding.left)); grid.setAttribute("x2", String(width - padding.right));
     grid.setAttribute("y1", String(y)); grid.setAttribute("y2", String(y)); svg.append(grid);
+  }
+  for (let day = 0; day <= 7; day += 1) {
+    const grid = document.createElementNS(namespace, "line"), x = padding.left + innerWidth * (day / 7);
+    grid.setAttribute("class", "rate-limit-trend__grid");
+    grid.setAttribute("x1", String(x)); grid.setAttribute("x2", String(x));
+    grid.setAttribute("y1", String(padding.top)); grid.setAttribute("y2", String(height - padding.bottom)); svg.append(grid);
   }
   const coordinates = points.map((point) => ({
     ...point,

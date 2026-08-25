@@ -6958,6 +6958,7 @@ test.describe("Engineering Status browser smoke", () => {
     const trend = page.locator("#rateLimitTrend");
     await expect(trend).toContainText("Verloop beschikbare capaciteit");
     await expect(trend.locator("svg[role='img']")).toHaveAttribute("aria-labelledby", "rateLimitTrendSvgTitle");
+    await expect(trend.locator(".rate-limit-trend__grid")).toHaveCount(13);
     await expect(trend.locator(".rate-limit-trend__line")).toHaveCount(1);
     await expect(trend.locator(".rate-limit-trend__point")).toHaveCount(2);
     await expect(trend).toContainText("Nu 86,0% beschikbaar");
