@@ -913,7 +913,7 @@ def _restart_component(component: str) -> None:
 def _choose_local_directory(root: Path) -> str | None:
     """Open the host's native directory picker after an explicit dashboard action."""
     if sys.platform != "darwin":
-        raise RuntimeError("Een lokale mapkiezer is alleen op deze Mac beschikbaar.")
+        raise RuntimeError("Een lokale mapkiezer is alleen op deze machine beschikbaar.")
     result = LocalProcessProvider().execute(
         root, ("osascript", "-e", "POSIX path of (choose folder)")
     )

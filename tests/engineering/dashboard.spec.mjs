@@ -3991,6 +3991,8 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#codexCliUpdate")).toHaveCSS("background-color", "rgb(31, 91, 66)");
     await expect(page.locator("#codexCliUpdate")).toContainText("Update");
     await page.locator("#codexCliUpdate").click();
+    await expect(page.locator("#confirmationModalText")).toContainText("deze machine");
+    await expect(page.locator("#confirmationModalText")).not.toContainText("deze Mac");
     await page.locator("#confirmationModalConfirm").click();
     await expect(page.locator("#rateLimitProvider")).toHaveText("Codex CLI · 0.150.0");
     await expect(page.locator("#codexCliUpdate")).toBeHidden();
