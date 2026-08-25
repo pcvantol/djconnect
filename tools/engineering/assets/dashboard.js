@@ -443,7 +443,8 @@ function renderCapacityTrend(history) {
     marker.setAttribute("class", "rate-limit-trend__point"); marker.setAttribute("cx", point.x.toFixed(2)); marker.setAttribute("cy", point.y.toFixed(2)); marker.setAttribute("r", "2.4"); svg.append(marker);
   }
   const dayFormatter = new Intl.DateTimeFormat(dashboardLocale, { weekday: "short" });
-  for (const day of [0, 2, 4, 6, 7]) {
+  // Label every day boundary: the rolling window runs from seven days ago through now.
+  for (let day = 0; day <= 7; day += 1) {
     const label = document.createElementNS(namespace, "text"), x = padding.left + innerWidth * (day / 7);
     label.setAttribute("class", "rate-limit-trend__axis-label");
     if (day === 7) label.setAttribute("text-anchor", "end");
