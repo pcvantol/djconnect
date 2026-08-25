@@ -413,6 +413,24 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#workspaceOpenPullRequests .open-pr-status")).toHaveClass(/open-pr-status--waiting_for_checks/);
   });
 
+  test("keeps the last known open pull requests visible when GitHub refresh is unavailable", async ({ page }) => {
+    await page.route("**/api/open-pull-requests", (route) => route.fulfill({ status: 503, json: { error: "temporarily unavailable" } }));
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => {
+      const section = document.createElement("section");
+      section.id = "workspaceOpenPullRequests";
+      section.className = "workspace-open-prs";
+      section.innerHTML = '<div class="workspace-open-prs__header"><strong>Openstaande pull requests</strong><button id="workspaceOpenPullRequestsRefresh" type="button">↻</button></div><ul></ul>';
+      document.body.append(section);
+      renderOpenPullRequests([{
+        number: 940, title: "Last known pull request", url: "https://github.com/pcvantol/djconnect/pull/940",
+        branch: "codex/ep-dashboard-polish", status: "waiting_for_checks", owner_approval: "not_required",
+      }]);
+    });
+    await page.locator("#workspaceOpenPullRequestsRefresh").click();
+    await expect(page.locator("#workspaceOpenPullRequests a")).toHaveText("PR #940 — Last known pull request");
+  });
+
   test("translates every operational phase and status in every supported locale", () => {
     for (const locale of SUPPORTED_LOCALES) {
       for (const key of OPERATIONAL_TRANSLATION_KEYS) {

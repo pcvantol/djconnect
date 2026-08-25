@@ -3050,7 +3050,7 @@ function telemetryDetailSortableTable(columns, rows, initialSort, appendRow) {
   table.className = "telemetry-table";
   const compare = (left, right) => {
     if (typeof left === "number" && typeof right === "number") return left - right;
-    return String(left ?? "").localeCompare(String(right ?? ""), dashboardLocale);
+    return locale.compare(String(left ?? ""), String(right ?? ""));
   };
   const updateHeaders = () => headers.forEach((header, key) => {
     const active = sort.key === key;

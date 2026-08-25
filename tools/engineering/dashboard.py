@@ -1168,22 +1168,22 @@ def _stale_local_branch_pull_request(root: Path, branch: str) -> dict[str, objec
     return None
 
 
-def _workspace_open_pull_requests(root: Path) -> list[dict[str, object]]:
-    """Return bounded, display-safe GitHub PR context without affecting operations."""
+def _workspace_open_pull_requests(root: Path) -> list[dict[str, object]] | None:
+    """Return PR context, or ``None`` when GitHub cannot authoritatively answer."""
     try:
         remote = GitProvider().execute(root, "git", "remote", "get-url", "origin")
         match = re.search(r"github\.com[:/]([^/\s]+)/([^/\s]+?)(?:\.git)?$", remote.stdout.strip()) if remote.returncode == 0 else None
         if not match:
-            return []
+            return None
         payload = GitHubProvider().github(
             "pr", "list", "--repo", f"{match.group(1)}/{match.group(2)}", "--state", "open",
             "--json", "number,title,url,headRefName,isDraft,mergeStateStatus,reviewDecision,reviews,statusCheckRollup", "--limit", "20",
         )
         candidates = json.loads(payload)
     except (OSError, RuntimeError, json.JSONDecodeError):
-        return []
+        return None
     if not isinstance(candidates, list):
-        return []
+        return None
     result: list[dict[str, object]] = []
     for candidate in candidates:
         if not isinstance(candidate, dict):
@@ -2408,8 +2408,15 @@ def handler(root: Path, logger: logging.Logger | None = None):
                     "application/json; charset=utf-8",
                 )
             if self.path == "/api/open-pull-requests":
+                pull_requests = _workspace_open_pull_requests(root)
+                if pull_requests is None:
+                    return self._send(
+                        b'{"error":"GitHub pull-requeststatus is tijdelijk niet beschikbaar."}',
+                        "application/json; charset=utf-8",
+                        503,
+                    )
                 return self._send(
-                    json.dumps({"pull_requests": _workspace_open_pull_requests(root)}, ensure_ascii=False, separators=(",", ":")).encode(),
+                    json.dumps({"pull_requests": pull_requests}, ensure_ascii=False, separators=(",", ":")).encode(),
                     "application/json; charset=utf-8",
                 )
             if request.path.startswith("/api/telemetry/"):

@@ -567,17 +567,17 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn('id="workspaceBranchCleanup" type="button" hidden', page)
 
         github_provider.return_value.github.side_effect = RuntimeError("offline")
-        self.assertEqual(dashboard._workspace_open_pull_requests(root), [])
+        self.assertIsNone(dashboard._workspace_open_pull_requests(root))
 
         github_provider.return_value.github.side_effect = None
         git_provider.return_value.execute.return_value = completed(("git",), 1, "", "")
-        self.assertEqual(dashboard._workspace_open_pull_requests(root), [])
+        self.assertIsNone(dashboard._workspace_open_pull_requests(root))
 
         git_provider.return_value.execute.return_value = completed(
             ("git",), 0, "https://github.com/pcvantol/djconnect.git\n", ""
         )
         github_provider.return_value.github.return_value = "{}"
-        self.assertEqual(dashboard._workspace_open_pull_requests(root), [])
+        self.assertIsNone(dashboard._workspace_open_pull_requests(root))
 
     def test_open_pull_request_status_is_fail_closed_and_terminal(self) -> None:
         self.assertEqual(dashboard._open_pull_request_status({}), "waiting_for_checks")
@@ -2008,6 +2008,19 @@ class DashboardStatusTest(unittest.TestCase):
                 self.assertIn(content_type, response.getheader("Content-Type"))
                 self.assertEqual(response.getheader("Cache-Control"), "no-store")
                 response.read()
+
+    @patch("tools.engineering.dashboard._workspace_open_pull_requests", return_value=None)
+    def test_http_open_pull_requests_keeps_unknown_github_state_distinct_from_an_empty_list(
+        self, _open_pull_requests: object
+    ) -> None:
+        with self._dashboard_http_connection() as (_, connection):
+            connection.request("GET", "/api/open-pull-requests")
+            response = connection.getresponse()
+            self.assertEqual(response.status, 503)
+            self.assertEqual(
+                json.loads(response.read()),
+                {"error": "GitHub pull-requeststatus is tijdelijk niet beschikbaar."},
+            )
 
     def test_http_codex_cli_update_routes_only_install_after_post(self) -> None:
         with self._dashboard_http_connection() as (_, connection), patch(
