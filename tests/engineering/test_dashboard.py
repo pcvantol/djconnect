@@ -114,6 +114,7 @@ class DashboardStatusTest(unittest.TestCase):
             "origin_main_commit": "abcdef123456",
             "origin_main_available": True,
             "main_action_available": True,
+            "branch_cleanup_available": False,
         })
 
     @patch("tools.engineering.dashboard.GitProvider")
@@ -132,6 +133,7 @@ class DashboardStatusTest(unittest.TestCase):
             "origin_main_commit": "Niet beschikbaar",
             "origin_main_available": False,
             "main_action_available": False,
+            "branch_cleanup_available": True,
         })
 
     @patch("tools.engineering.dashboard.GitProvider")
@@ -146,6 +148,7 @@ class DashboardStatusTest(unittest.TestCase):
             "origin_main_commit": "Niet beschikbaar",
             "origin_main_available": False,
             "main_action_available": False,
+            "branch_cleanup_available": False,
         })
 
     def test_dashboard_exposes_the_canonical_five_locale_catalog(self) -> None:
@@ -553,11 +556,13 @@ class DashboardStatusTest(unittest.TestCase):
             "Engineering Status", workspace_branch="codex/cleanup", workspace_commit="123456789abc",
             origin_main_commit="abcdef123456", origin_main_available=True,
             workspace_open_pull_requests=pull_requests, workspace_main_action_hidden=False,
+            workspace_branch_cleanup_hidden=True,
         ).decode()
         self.assertIn('data-i18n="workspace.open_pull_requests"', page)
         self.assertIn('PR #849 — Cleanup &lt;safe&gt;', page)
         self.assertIn("codex/cleanup", page)
         self.assertNotIn('id="workspaceBranchMain" type="button" hidden', page)
+        self.assertIn('id="workspaceBranchCleanup" type="button" hidden', page)
 
         github_provider.return_value.github.side_effect = RuntimeError("offline")
         self.assertEqual(dashboard._workspace_open_pull_requests(root), [])

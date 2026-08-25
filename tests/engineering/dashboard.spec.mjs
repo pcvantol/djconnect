@@ -6336,6 +6336,7 @@ test.describe("Engineering Status browser smoke", () => {
     }));
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.locator("#workspaceCard > summary").click();
+    await page.locator("#workspaceBranchCleanup").evaluate((button) => { button.hidden = false; });
     await expect(page.locator("#workspaceBranchCleanup")).toHaveCSS("border-color", "rgb(243, 211, 106)");
     await expect(page.locator("#workspaceBranchCleanup")).toHaveCSS("background-color", "rgb(60, 53, 31)");
     expect(await page.locator("#workspaceBranchCleanup").evaluate(
