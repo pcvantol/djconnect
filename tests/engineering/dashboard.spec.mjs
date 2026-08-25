@@ -296,6 +296,12 @@ test.describe("Engineering Status browser smoke", () => {
     )).toEqual(["en", "nl", "de", "fr", "es"]);
   });
 
+  test("shows only the custom language pulldown", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await expect(page.locator("#dashboardLocale")).toBeHidden();
+    await expect(page.locator("#dashboardLocaleButton")).toBeVisible();
+  });
+
   test("renders repository and workspace state codes as readable labels", () => {
     const labels = Object.fromEntries(SUPPORTED_LOCALES.map((locale) => {
       const translate = createTranslator(locale);
