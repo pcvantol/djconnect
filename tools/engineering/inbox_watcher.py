@@ -52,7 +52,7 @@ from .dependabot_admission import (
     publish_envelope as publish_dependabot_envelope,
     record_enqueued as record_dependabot_enqueued,
 )
-from .storage import ENGINEERING_STORAGE_SCHEMA_VERSION, EngineeringStorageError, dismissal_for_run, is_active_blocking_predecessor, load_projection, open_storage, record_artifact, record_execution_dismissal, record_submission
+from .storage import ENGINEERING_STORAGE_SCHEMA_VERSION, EngineeringStorageError, dismissal_for_run, is_active_blocking_predecessor, load_projection, open_storage, record_artifact, record_execution_dismissal, record_submission, store_projection
 from .execution_lease import reconcile_stale
 from .dashboard_configuration import get as dashboard_configuration
 from .execution_repository import GhCliClient, SubprocessRepositoryClient
@@ -77,6 +77,26 @@ RETRY_TIMESTAMP_PATTERN = re.compile(r"(?mi)^retry[ _-]timestamp\s*:\s*([^\n]{1,
 LAUNCH_PATH_FALLBACK = ("/opt/homebrew/bin", "/usr/local/bin", "/usr/bin", "/bin", "/usr/sbin", "/sbin")
 RUNNER_START_GRACE_SECONDS = 90
 OPERATOR_MERGE_POLL_SECONDS = 60
+WATCHER_READY_PROJECTION = "inbox_watcher_ready"
+
+
+def publish_ready_record(repo: Path, root: Path) -> None:
+    """Publish the resolved Inbox used by this watcher process at startup."""
+    connection = open_storage(repo)
+    try:
+        store_projection(
+            connection,
+            WATCHER_READY_PROJECTION,
+            {
+                "pid": os.getpid(),
+                "inbox_path": str((root / "Inbox").resolve()),
+                "started_at": datetime.now(timezone.utc).isoformat(),
+                "watcher_version": WATCHER_VERSION,
+            },
+            classification="OBSERVABILITY",
+        )
+    finally:
+        connection.close()
 
 
 def _configured_scan_interval(repo: Path, fallback: float) -> float:
@@ -2168,6 +2188,7 @@ def main(argv: list[str] | None = None) -> int:
         try:
             with single_instance(repo, "inbox-watcher"):
                 with shutdown_signal_logging(logger, lifecycle_context):
+                    publish_ready_record(repo, root)
                     log_event(logger, logging.INFO, "watcher_started", context=lifecycle_context)
                     try:
                         while True:

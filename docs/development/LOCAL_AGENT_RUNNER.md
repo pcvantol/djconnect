@@ -170,9 +170,13 @@ to the append-only audit log. Audit logging itself is always enabled. The
 The Inbox location has a separate confirmation flow: it accepts only an
 existing absolute Engineering root that already contains a writable `Inbox`
 folder, refuses a change while an execution is active, writes the local
-host-owned override and restarts the Inbox watcher. Browser file pickers do
-not receive arbitrary filesystem access; the modal therefore accepts the
-local folder path and validates it server-side before it is applied.
+host-owned override and restarts the Inbox watcher. The current Inbox must be
+empty before a route change is admitted. The dashboard reports the
+change as successful only after a fresh watcher process records the resolved
+new Inbox path; a restart or route-verification failure restores the previous
+configuration and restarts that previous route. Browser file pickers do not
+receive arbitrary filesystem access; the modal therefore accepts the local
+folder path and validates it server-side before it is applied.
 
 The existing `inbox.out.log`, `inbox.err.log`, `dashboard.out.log` and
 `dashboard.err.log` remain the LaunchAgent process streams. They complement,

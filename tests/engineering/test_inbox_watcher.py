@@ -91,6 +91,15 @@ class InboxWatcherTest(unittest.TestCase):
         self.assertIn("--transaction-kind", arguments)
         self.assertEqual(arguments[arguments.index("--transaction-kind") + 1], "RECONCILIATION")
 
+    def test_watcher_ready_record_identifies_the_resolved_inbox_route(self) -> None:
+        inbox_watcher.publish_ready_record(self.repo, self.root)
+
+        ready = inbox_watcher.load_projection(self.repo, inbox_watcher.WATCHER_READY_PROJECTION)
+
+        self.assertEqual(ready["inbox_path"], str((self.root / "Inbox").resolve()))
+        self.assertEqual(ready["pid"], os.getpid())
+        self.assertIsInstance(ready["started_at"], str)
+
     def test_preflight_failure_keeps_the_specific_bounded_runner_reason(self) -> None:
         completed = subprocess.CompletedProcess(("engineering-execution-host",), 2, "BLOCKED: working tree is not clean\n", "")
 
