@@ -150,6 +150,7 @@ test.describe("Engineering Status browser smoke", () => {
     const timerDelay = await page.evaluate(() => {
       const section = document.createElement("section");
       section.id = "workspaceOpenPullRequests";
+      section.className = "workspace-open-prs";
       section.innerHTML = "<ul></ul>";
       document.body.append(section);
       renderOpenPullRequests([{
@@ -211,6 +212,10 @@ test.describe("Engineering Status browser smoke", () => {
     }]));
     await expect(openPullRequestStatus).toHaveClass(/open-pr-status--ready_to_merge/);
     await expect(openPullRequestStatus).toHaveText("Klaar om te mergen");
+    await page.getByTestId("theme-toggle").click();
+    await expect(page.locator("#workspaceOpenPullRequests")).toHaveCSS("background-color", "rgb(255, 253, 243)");
+    await expect(page.locator("#workspaceOpenPullRequests a")).toHaveCSS("color", "rgb(114, 83, 17)");
+    await expect(openPullRequestStatus).toHaveCSS("color", "rgb(24, 120, 67)");
   });
 
   test("translates every operational phase and status in every supported locale", () => {
