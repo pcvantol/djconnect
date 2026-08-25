@@ -2954,13 +2954,18 @@ test.describe("Engineering Status browser smoke", () => {
     const layout = await page.evaluate(() => {
       const region = document.querySelector(".dashboard-scroll-region");
       const titleBar = document.querySelector(".dashboard-titlebar");
+      const banner = document.querySelector("#githubRateLimitBanner");
+      banner.hidden = false;
       region.scrollTop = 160;
       return {
         regionTop: Math.round(region.getBoundingClientRect().top),
         titleBarTop: Math.round(titleBar.getBoundingClientRect().top),
+        bannerTop: Math.round(banner.getBoundingClientRect().top),
+        titleBarBottom: Math.round(titleBar.getBoundingClientRect().bottom),
       };
     });
     expect(layout.titleBarTop).toBe(layout.regionTop);
+    expect(layout.bannerTop).toBe(layout.titleBarBottom);
   });
 
   test("scrolls the title bar out of view on iPhone portrait", async ({ page }) => {
