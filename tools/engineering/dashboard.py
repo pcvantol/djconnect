@@ -24,7 +24,7 @@ import uuid
 from urllib.parse import parse_qs, urlsplit
 from .platform_api import PlatformConfiguration
 from .platform_bootstrap import provision_workspace
-from .providers import CodexCliProvider, GitHubProvider, GitProvider, LaunchdProvider, LocalProcessProvider, TailscaleProvider
+from .providers import CodexCliProvider, GitHubProvider, GitProvider, LaunchdProvider, LocalProcessProvider, TailscaleProvider, codex_cli_executable, engineering_platform_codex_cli_prefix
 from .inbox_watcher import LABEL as WATCHER_LABEL
 from .inbox_watcher import WATCHER_VERSION
 from .inbox_watcher import RetrySubmissionError, abort_operator_merge_wait, check_operator_merge_status, cloud_root, defer_queued_prompt, dismiss_execution, predecessor_retry_admission_preflight, queued_retry_children, retry_admission_preflight, status_reconciliation_preview, submit_execution_retry, submit_predecessor_retry, submit_status_reconciliation
@@ -440,7 +440,7 @@ def _codex_provider_identity(*, refresh: bool = False) -> dict[str, str]:
             return dict(_codex_identity_cache[1])
 
     identity = {"provider": "Codex CLI", "provider_version": "versie niet beschikbaar"}
-    executable = shutil.which("codex")
+    executable = codex_cli_executable()
     if executable:
         try:
             completed = LocalProcessProvider().execute(Path.cwd(), (executable, "--version"))
@@ -646,10 +646,16 @@ def _install_codex_cli_update(root: Path) -> dict[str, object]:
         if not isinstance(latest, str) or npm is None:
             raise CodexCliUpdateError("codex_cli_update_unavailable")
         try:
-            completed = LocalProcessProvider().execute(root, (npm, "install", "--global", f"{CODEX_CLI_PACKAGE}@{latest}"))
+            completed = LocalProcessProvider().execute(
+                root,
+                (npm, "install", "--global", "--prefix", str(engineering_platform_codex_cli_prefix()), f"{CODEX_CLI_PACKAGE}@{latest}"),
+            )
         except OSError as error:
             raise CodexCliUpdateError("codex_cli_update_failed") from error
         if completed.returncode:
+            diagnostic = f"{completed.stdout}\n{completed.stderr}".lower()
+            if "eacces" in diagnostic or "permission denied" in diagnostic:
+                raise CodexCliUpdateError("codex_cli_update_permissions_required")
             raise CodexCliUpdateError("codex_cli_update_failed")
         with _codex_identity_cache_lock:
             _codex_identity_cache = None

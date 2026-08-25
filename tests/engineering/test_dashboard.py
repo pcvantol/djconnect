@@ -684,7 +684,10 @@ class DashboardStatusTest(unittest.TestCase):
             ]) as execute,
         ):
             self.assertEqual(dashboard._install_codex_cli_update(root), {"updated": True, "current_version": "0.150.0"})
-            self.assertEqual(execute.call_args_list[2].args[1], ("/usr/local/bin/npm", "install", "--global", "@openai/codex@0.150.0"))
+            self.assertEqual(
+                execute.call_args_list[2].args[1],
+                ("/usr/local/bin/npm", "install", "--global", "--prefix", str(dashboard.engineering_platform_codex_cli_prefix()), "@openai/codex@0.150.0"),
+            )
         dashboard._codex_identity_cache = None
         dashboard._codex_update_cache = None
 
@@ -723,6 +726,16 @@ class DashboardStatusTest(unittest.TestCase):
             return_value={"state": "update_available", "update_available": True, "latest_version": "0.150.0"},
         ), patch("tools.engineering.dashboard._npm_executable", return_value=None):
             with self.assertRaisesRegex(dashboard.CodexCliUpdateError, "codex_cli_update_unavailable"):
+                dashboard._install_codex_cli_update(root)
+
+        with patch("tools.engineering.dashboard._execution_active", return_value=False), patch(
+            "tools.engineering.dashboard._codex_cli_update_status",
+            return_value={"state": "update_available", "update_available": True, "latest_version": "0.150.0"},
+        ), patch("tools.engineering.dashboard._npm_executable", return_value="/usr/local/bin/npm"), patch(
+            "tools.engineering.dashboard.LocalProcessProvider.execute",
+            return_value=__import__("subprocess").CompletedProcess(("npm",), 1, "", "npm error code EACCES: permission denied"),
+        ):
+            with self.assertRaisesRegex(dashboard.CodexCliUpdateError, "codex_cli_update_permissions_required"):
                 dashboard._install_codex_cli_update(root)
 
     def test_component_processes_and_metrics_ignore_invalid_process_rows(self) -> None:
