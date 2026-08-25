@@ -688,6 +688,9 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn('href="/assets/dashboard.css"', page)
         self.assertIn('src="/assets/dashboard.js" type="module"', page)
         self.assertIn('id="pageRefresh"', page)
+        self.assertIn('id="promptHistoryScrollHint"', page)
+        self.assertIn('aria-describedby="promptHistoryScrollHint"', page)
+        self.assertIn('role="region" tabindex="0"', page)
         self.assertLess(page.index('id="currentFile"'), page.index('id="executionIdentity"'))
         self.assertLess(page.index('id="executionIdentity"'), page.index('id="indicator"'))
         self.assertLess(page.index('id="indicator"'), page.index('id="executionContext"'))
@@ -726,6 +729,8 @@ class DashboardStatusTest(unittest.TestCase):
         )
         self.assertIn("Dashboard UI component layer", stylesheet)
         self.assertIn("--dashboard-section-gap:24px", stylesheet)
+        self.assertIn(".history-scroll-hint", stylesheet)
+        self.assertIn("#promptHistory .log-table th:first-child", stylesheet)
 
     def test_execution_context_keeps_host_verified_target_details(self) -> None:
         script = (Path(__file__).parents[2] / "tools" / "engineering" / "assets" / "dashboard.js").read_text()

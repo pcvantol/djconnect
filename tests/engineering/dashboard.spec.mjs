@@ -2804,6 +2804,27 @@ test.describe("Engineering Status browser smoke", () => {
     expect(scroll.scrollWidth).toBeGreaterThan(scroll.clientWidth);
   });
 
+  test("explains and preserves history-table horizontal access on an iPhone", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => { document.querySelector("#promptHistory").open = true; });
+    const wrap = page.locator("#promptHistory .log-table-wrap");
+    await expect(page.locator("#promptHistoryScrollHint")).toHaveText(
+      "Veeg zijwaarts om alle geschiedeniskolommen te zien.",
+    );
+    await expect(wrap).toHaveAttribute("aria-describedby", "promptHistoryScrollHint");
+    await expect(wrap).toHaveAttribute("tabindex", "0");
+    const layout = await wrap.evaluate((element) => {
+      element.scrollLeft = 240;
+      const status = element.querySelector("thead th:first-child");
+      return {
+        wrapLeft: Math.round(element.getBoundingClientRect().left),
+        statusLeft: Math.round(status.getBoundingClientRect().left),
+      };
+    });
+    expect(Math.abs(layout.statusLeft - layout.wrapLeft)).toBeLessThanOrEqual(2);
+  });
+
   test("matches the iPhone portrait dashboard visual reference", async ({ page }, testInfo) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.route("**/api/events", (route) => route.abort());
