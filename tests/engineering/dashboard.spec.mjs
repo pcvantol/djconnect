@@ -3146,6 +3146,7 @@ test.describe("Engineering Status browser smoke", () => {
     }));
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await expect(page.getByTestId("github-rate-limit-banner")).toBeVisible();
+    await expect(page.locator(".dashboard-sticky-header")).toHaveCSS("padding-bottom", "7px");
     const layout = await page.evaluate(() => {
       const region = document.querySelector(".dashboard-scroll-region");
       const stickyHeader = document.querySelector(".dashboard-sticky-header");
