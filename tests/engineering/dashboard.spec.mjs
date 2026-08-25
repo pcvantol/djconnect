@@ -6982,10 +6982,14 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(trend).toContainText("Verloop beschikbare capaciteit");
     await expect(trend.locator("svg[role='img']")).toHaveAttribute("aria-labelledby", "rateLimitTrendSvgTitle");
     await expect(trend.locator(".rate-limit-trend__grid")).toHaveCount(13);
-    await expect(trend.locator(".rate-limit-trend__axis-label")).toHaveCount(10);
+    const axisLabels = trend.locator(".rate-limit-trend__axis-label");
+    await expect(axisLabels).toHaveCount(10);
+    await expect(axisLabels.first()).toHaveCSS("fill", "rgb(247, 243, 238)");
     await expect(trend.locator(".rate-limit-trend__line")).toHaveCount(1);
     await expect(trend.locator(".rate-limit-trend__point")).toHaveCount(2);
     await expect(trend).toContainText("Nu 86,0% beschikbaar");
+    await page.getByTestId("theme-toggle").click();
+    await expect(axisLabels.first()).toHaveCSS("fill", "rgb(24, 34, 48)");
   });
 
   test("keeps dashboard view preferences in the browser", async ({ page }) => {
