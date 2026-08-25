@@ -373,21 +373,19 @@ html[data-theme="light"] .report-view-modal__content :is(pre,code){background:#e
 .dashboard-titlebar__brand{align-items:center;display:flex;flex:1 1 260px;gap:10px;min-width:0}
 .dashboard-titlebar__actions{align-items:center;display:flex;flex:none;gap:12px}
 .page-refresh{align-items:center;background:transparent;border:1px solid var(--house-style);border-radius:50%;color:var(--house-style);cursor:pointer;display:inline-flex;font:22px/1 system-ui;height:32px;justify-content:center;min-height:32px;min-width:32px;padding:0;width:32px}.page-refresh:hover{background:var(--house-style);color:var(--button-ink)}.page-refresh:focus-visible{outline:3px solid var(--house-style);outline-offset:3px}
-.dashboard-locale{align-items:center;color:#b9b6c0;display:flex;font:12px system-ui;gap:6px;white-space:nowrap}
-.dashboard-locale select{background:#252530;border:1px solid #747484;border-radius:7px;color:inherit;font:inherit;min-height:32px;padding:4px 7px}
+.dashboard-locale,.dashboard-project{align-items:center;color:#b9b6c0;display:flex;font:12px system-ui;gap:6px;white-space:nowrap}.dashboard-locale select,.dashboard-project select{background:#252530;border:1px solid #747484;border-radius:7px;color:inherit;font:inherit;min-height:32px;padding:4px 7px}
 .dashboard-locale__native{display:none!important}
 .dashboard-select__native{height:1px!important;margin:-1px!important;opacity:0!important;pointer-events:none!important;position:absolute!important;width:1px!important}.dashboard-select-picker{min-width:132px;position:relative}.dashboard-select-picker .dashboard-locale__button{width:100%}.configuration-controls .dashboard-select-picker{max-width:14rem}.log-controls .dashboard-select-picker{min-width:132px}
 .dashboard-locale__picker{position:relative}.dashboard-locale__button{align-items:center;background:#fff;border:1px solid #9aabc3;border-radius:7px;color:#1b2b38;cursor:pointer;display:flex;font:inherit;gap:14px;justify-content:space-between;min-height:32px;min-width:132px;padding:4px 10px}.dashboard-locale__button:focus-visible{outline:3px solid var(--house-style);outline-offset:3px}.dashboard-locale__menu{background:#fff;border:1px solid #9aabc3;border-radius:0 0 7px 7px;box-shadow:0 8px 18px #0003;display:grid;left:0;min-width:100%;overflow:hidden;position:absolute;top:calc(100% + 2px);z-index:20}.dashboard-locale__menu[hidden]{display:none}.dashboard-locale__menu button{background:#fff;border:0;color:#1b2b38;cursor:pointer;font:inherit;padding:8px 10px;text-align:left}.dashboard-locale__menu button[aria-selected="true"]{background:var(--house-style);color:var(--button-ink)}.dashboard-locale__menu button:hover,.dashboard-locale__menu button:focus-visible{background:var(--operations-console-mark-blue);color:var(--button-ink);outline:0}
 html[data-theme="dark"] .dashboard-locale__button{background:#252530;border-color:#747484;color:#f7f3ee;color-scheme:dark}html[data-theme="dark"] .dashboard-locale__menu{background:#252530;border-color:#747484;box-shadow:0 10px 22px #0009;color-scheme:dark}html[data-theme="dark"] .dashboard-locale__menu button{background:#252530;color:#f7f3ee}
 html[data-theme="light"] :is(body,.dashboard-titlebar,.footer){background:var(--dashboard-page-surface-light)}
-html[data-theme="light"] .dashboard-locale{color:#415168}
-html[data-theme="light"] .dashboard-locale select{background:var(--dashboard-surface-light);border-color:#9aabc3}
+html[data-theme="light"] :is(.dashboard-locale,.dashboard-project){color:#415168}html[data-theme="light"] :is(.dashboard-locale,.dashboard-project) select{background:var(--dashboard-surface-light);border-color:#9aabc3}
 @media (max-width:1400px){.dashboard-titlebar{align-items:flex-start;flex-wrap:wrap}.dashboard-titlebar__actions{flex:1 1 100%;flex-wrap:wrap;justify-content:flex-end}}
 /* The compact desktop title bar wraps its settings below the brand. Lift the
    refresh action slightly so it remains optically aligned with that brand. */
 @media (min-width:621px) and (max-width:1400px){.page-refresh{transform:translateY(-8px)}}
 @media (max-width:760px){.dashboard-titlebar__actions{justify-content:flex-start}}
-@media (max-width:620px){.dashboard-titlebar h1{font-size:25px}.dashboard-titlebar__actions{gap:8px}.dashboard-locale span{display:none}}
+@media (max-width:620px){.dashboard-titlebar h1{font-size:25px}.dashboard-titlebar__actions{gap:8px}:is(.dashboard-locale,.dashboard-project) span{display:none}}
 
 /* Main sections */
 .dashboard-grid{gap:var(--dashboard-section-gap)}
@@ -444,10 +442,10 @@ html[data-theme="light"] .dashboard-locale select{background:var(--dashboard-sur
   .dashboard-titlebar__options-toggle[aria-expanded="true"]::after{transform:rotate(180deg)}
   .dashboard-titlebar__options-content{border-top:1px solid color-mix(in srgb,var(--operations-console-blue-ink) 35%,transparent);display:grid;gap:8px;margin-top:10px;padding-top:10px}
   .dashboard-titlebar__options-content[hidden]{display:none}
-  .dashboard-titlebar__options-content>.dashboard-locale,.dashboard-titlebar__options-content>.theme-toggle,.dashboard-titlebar__options-content>.section-state-toggle,.dashboard-titlebar__options-content>.auto-refresh-toggle{align-items:center;box-sizing:border-box;display:flex;justify-content:space-between;min-height:44px;width:100%}
-  .dashboard-titlebar__options-content>.dashboard-locale{font:600 13px/1 system-ui}
-  .dashboard-titlebar__options-content>.dashboard-locale>span:first-child{display:block}
-  .dashboard-titlebar__options-content>.dashboard-locale>.dashboard-locale__picker{display:flex}
+  .dashboard-titlebar__options-content>:is(.dashboard-locale,.dashboard-project),.dashboard-titlebar__options-content>.theme-toggle,.dashboard-titlebar__options-content>.section-state-toggle,.dashboard-titlebar__options-content>.auto-refresh-toggle{align-items:center;box-sizing:border-box;display:flex;justify-content:space-between;min-height:44px;width:100%}
+  .dashboard-titlebar__options-content>:is(.dashboard-locale,.dashboard-project){font:600 13px/1 system-ui}
+  .dashboard-titlebar__options-content>:is(.dashboard-locale,.dashboard-project)>span:first-child{display:block}
+  .dashboard-titlebar__options-content>:is(.dashboard-locale,.dashboard-project)>.dashboard-locale__picker{display:flex}
   .dashboard-titlebar__options-content>.dashboard-locale>.dashboard-locale__picker :is(#dashboardLocaleValue,[aria-hidden]){display:inline}
   .dashboard-titlebar__options-content>.theme-toggle,.dashboard-titlebar__options-content>.section-state-toggle{flex-direction:row;gap:12px;padding:0}
   /* Keep both pseudo-elements on the same end of the full-width row. Without
@@ -461,7 +459,7 @@ html[data-theme="light"] .dashboard-locale select{background:var(--dashboard-sur
   /* Option rows are flat navigation controls, not raised cards. A direct-touch
      browser may otherwise apply the generic glass shadow to a full-width row
      or locale picker. The switch thumbs keep their own compact elevation. */
-  .dashboard-titlebar__options-content>:is(.dashboard-locale,.theme-toggle,.section-state-toggle,.auto-refresh-toggle),
+  .dashboard-titlebar__options-content>:is(.dashboard-locale,.dashboard-project,.theme-toggle,.section-state-toggle,.auto-refresh-toggle),
   .dashboard-titlebar__options-content .dashboard-locale__button{
     -webkit-backdrop-filter:none!important;
     backdrop-filter:none!important;
@@ -674,7 +672,7 @@ html[data-theme="light"] .report-view-modal__content,html[data-theme="light"] .r
    application controls from the execution cards below it in both themes. */
 .dashboard-titlebar{background:var(--operations-console-icon-surface);box-shadow:0 10px 18px rgb(4 52 78 / .38)}
 .dashboard-titlebar h1{color:var(--operations-console-blue-ink)}
-.dashboard-titlebar .auto-refresh-toggle,.dashboard-titlebar .section-state-toggle,.dashboard-titlebar .dashboard-locale{color:var(--operations-console-blue-ink)}
+.dashboard-titlebar .auto-refresh-toggle,.dashboard-titlebar .section-state-toggle,.dashboard-titlebar :is(.dashboard-locale,.dashboard-project){color:var(--operations-console-blue-ink)}
 .dashboard-titlebar select{background:#fff;color:#1b2b38}
 .dashboard-titlebar .section-state-toggle::before{background:#4a4a55}
 .dashboard-titlebar .section-state-toggle::after{background:#f7f3ee}

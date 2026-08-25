@@ -205,7 +205,7 @@ test.describe("Engineering Status browser smoke", () => {
 
   test("uses the language pulldown style for every single-choice select", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
-    for (const id of ["configurationLogRetention", "configurationLogLevel", "logLevelFilter"]) {
+    for (const id of ["dashboardProject", "configurationLogRetention", "configurationLogLevel", "logLevelFilter"]) {
       const select = page.locator(`#${id}`);
       const picker = select.locator("+ .dashboard-select-picker");
       await expect(picker).toHaveCount(1);
@@ -589,7 +589,14 @@ test.describe("Engineering Status browser smoke", () => {
         element.dataset.i18n && {
           key: element.dataset.i18n,
           property: "textContent",
-          value: element.textContent,
+          // Some localized labels contain a separately translated info control.
+          // Validate the label's own text rather than concatenating that control's
+          // visible "i" glyph onto it.
+          value: [...element.childNodes]
+            .filter((node) => node.nodeType === Node.TEXT_NODE)
+            .map((node) => node.textContent)
+            .join("")
+            .trim() || element.textContent,
         },
         element.dataset.i18nPlaceholder && {
           key: element.dataset.i18nPlaceholder,
@@ -3527,10 +3534,14 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(content).toBeVisible();
     await expect(page.locator("#dashboardLocaleButton")).toBeVisible();
     await expect(page.locator("#dashboardLocaleButton")).toContainText("Nederlands");
+    await expect(page.locator("#dashboardProject + .dashboard-select-picker")).toBeVisible();
+    await expect(page.locator("#dashboardProject + .dashboard-select-picker .dashboard-locale__button")).not.toHaveText("");
+    expect(await page.evaluate(() => document.querySelector(".dashboard-project")?.nextElementSibling?.matches(".dashboard-locale"))).toBe(true);
     await page.reload({ waitUntil: "domcontentloaded" });
     await expect(disclosure).toHaveAttribute("aria-expanded", "true");
     await expect(content).toBeVisible();
     for (const label of [
+      ".dashboard-titlebar__options-content .dashboard-project > span:first-child",
       ".dashboard-titlebar__options-content .dashboard-locale > span:first-child",
       ".dashboard-titlebar__options-content .theme-toggle__label",
       ".dashboard-titlebar__options-content .section-state-toggle__label",
@@ -3541,7 +3552,7 @@ test.describe("Engineering Status browser smoke", () => {
     }
 
     const controls = await page.locator(
-      ".dashboard-titlebar__options-content > .dashboard-locale, .dashboard-titlebar__options-content > .theme-toggle, .dashboard-titlebar__options-content > .section-state-toggle, .dashboard-titlebar__options-content > .auto-refresh-toggle",
+      ".dashboard-titlebar__options-content > .dashboard-project, .dashboard-titlebar__options-content > .dashboard-locale, .dashboard-titlebar__options-content > .theme-toggle, .dashboard-titlebar__options-content > .section-state-toggle, .dashboard-titlebar__options-content > .auto-refresh-toggle",
     ).evaluateAll((elements) => elements.map((element) => Math.round(element.getBoundingClientRect().top)));
     expect(controls).toEqual([...controls].sort((first, second) => first - second));
     const titlebarLayout = await page.evaluate(() => {

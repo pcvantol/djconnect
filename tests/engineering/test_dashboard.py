@@ -157,6 +157,7 @@ class DashboardStatusTest(unittest.TestCase):
         page = _dashboard_html("Engineering Status").decode("utf-8")
 
         self.assertIn('id="dashboardLocale"', page)
+        self.assertIn('data-project-id="onbekend" data-project-name="Project"', page)
         self.assertIn('"/assets/dashboard_locales.mjs"', (root / "tools/engineering/dashboard.py").read_text(encoding="utf-8"))
         for locale in ("en", "nl", "de", "fr", "es"):
             self.assertIn(f"  {locale}: {{", catalog)
@@ -164,6 +165,7 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn('"retry.details"', catalog)
         self.assertNotIn('"configuration.audit_logging"', catalog)
         for key in (
+            "project.label",
             "detail.recommended_next_mission", "detail.recommendation_status", "detail.mission_origin",
             "detail.business_value", "detail.confidence", "detail.dependencies", "detail.alternatives",
             "detail.decision_evidence", "detail.projection_incomplete", "technical.git_lock",

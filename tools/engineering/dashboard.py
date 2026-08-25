@@ -1675,6 +1675,7 @@ def _dashboard_html(
     title: str,
     build_commit: str = "onbekend",
     workspace_id: str = "onbekend",
+    project_name: str = "Project",
     workspace_location: str = ".",
     workspace_free_disk_space: str = "Niet beschikbaar",
     tracked_files: str = "Niet beschikbaar",
@@ -1708,7 +1709,7 @@ def _dashboard_html(
 
 <link rel="stylesheet" href="/assets/dashboard.css">
 </head>
-<body>
+<body data-project-id="$WORKSPACE_ID" data-project-name="$PROJECT_NAME">
 <a class="skip-link" href="#engineering-dashboard-content" data-i18n="header.skip"></a>
 <div id="dashboardSplash" role="status" aria-live="polite" data-testid="dashboard-splash"><div class="dashboard-splash__content"><img class="dashboard-splash__icon" src="/assets/operations-console/icon-transparent.png" alt="" aria-hidden="true" data-testid="dashboard-splash-icon"><h2 class="dashboard-splash__title" id="dashboardSplashTitle" data-i18n="dashboard.title">$TITLE</h2><span class="dashboard-splash__version" id="dashboardSplashVersion" data-platform-version="$PLATFORM_VERSION">Engineering Platform $PLATFORM_VERSION</span><span class="dashboard-splash__spinner" aria-hidden="true"></span><span class="dashboard-splash__loading" id="dashboardSplashLoading" data-i18n="dashboard.loading"></span></div></div>
 <div id="copyToast" role="status" aria-live="polite" aria-atomic="true" popover="manual" hidden data-testid="copy-toast"></div>
@@ -1782,6 +1783,7 @@ def _dashboard_html(
         .replace("$BUILD_COMMIT", escape(build_commit))
         .replace("$CHAT_MODEL", escape(chat_model()))
         .replace("$WORKSPACE_ID", escape(workspace_id))
+        .replace("$PROJECT_NAME", escape(project_name))
         .replace("$WORKSPACE_LOCATION", escape(workspace_location))
         .replace("$WORKSPACE_FREE_DISK_SPACE", escape(workspace_free_disk_space))
         .replace("$TRACKED_FILES", escape(tracked_files))
@@ -1805,6 +1807,7 @@ def handler(root: Path, logger: logging.Logger | None = None):
     configuration = PlatformConfiguration.load(root)
     title = configuration.workspace.dashboard_title
     workspace_id = configuration.workspace.id
+    project_name = configuration.workspace.name
     workspace_location = str(root)
     tracked_files = _tracked_file_count(root)
     platform_version = EngineeringPlatformManifest.load(
@@ -2518,6 +2521,7 @@ def handler(root: Path, logger: logging.Logger | None = None):
                         title,
                         _build_commit(root),
                         workspace_id,
+                        project_name,
                         workspace_location,
                         workspace_free_disk_space,
                         tracked_files,

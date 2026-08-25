@@ -4166,6 +4166,29 @@ function loadDashboardClientState() {
   }
 }
 const dashboardClientState = loadDashboardClientState();
+function installDashboardProjectSelector() {
+  const options = $("dashboardTitlebarOptionsContent");
+  const localeLabel = $("dashboardLocale")?.closest("label");
+  if (!options || !localeLabel || $("dashboardProject")) return;
+  const projectName = document.body.dataset.projectName?.trim() || "—";
+  const projectId = document.body.dataset.projectId?.trim() || "legacy";
+  const label = document.createElement("label");
+  label.className = "dashboard-project";
+  label.htmlFor = "dashboardProject";
+  const text = document.createElement("span");
+  text.dataset.i18n = "project.label";
+  const select = document.createElement("select");
+  select.id = "dashboardProject";
+  select.dataset.i18nAriaLabel = "project.label";
+  select.setAttribute("aria-label", t("project.label"));
+  const option = document.createElement("option");
+  option.value = projectId;
+  option.textContent = projectName;
+  select.append(option);
+  label.append(text, select);
+  options.insertBefore(label, localeLabel);
+}
+installDashboardProjectSelector();
 const dashboardLocaleSelector = $("dashboardLocale");
 const dashboardLocaleButton = $("dashboardLocaleButton"), dashboardLocaleMenu = $("dashboardLocaleMenu");
 const dashboardTitlebarOptions = $("dashboardTitlebarOptions");
@@ -4218,6 +4241,7 @@ function applyDashboardLocale() {
     [".section-state-toggle__label", "header.expand"],
     [".auto-refresh-toggle span", "header.auto_refresh"],
     [".dashboard-titlebar__options > summary span", "header.options"],
+    [".dashboard-project > span", "project.label"],
     [".dashboard-locale span", "language.label"],
     ["#dashboardTitle", "dashboard.title"],
     ["#dashboardSplashTitle", "dashboard.title"],
