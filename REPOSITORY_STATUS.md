@@ -2,30 +2,26 @@
 
 Status: active platform-evolution repository
 
-## PRs #924, #925 and #927 finalization pending
-
-PR [#923](https://github.com/pcvantol/djconnect/pull/923) is finalized by
-governance-only PR [#926](https://github.com/pcvantol/djconnect/pull/926),
-merged as `e223c1f7cddcafc316bb243142fa95be164047a2` and contained in current
-`main`; its historical rolling-record lag is reconciled only.
+## PRs #924, #925, #927 and #928 finalized
 
 PR [#924](https://github.com/pcvantol/djconnect/pull/924), **Improve merge
-status diagnostics**, merged as `4c57c8b5` and is contained in current `main`.
+status diagnostics**, merged as `4c57c8b5e0444a71c27a7a58dcf5b4431a68ac75`.
 PR [#925](https://github.com/pcvantol/djconnect/pull/925), **Cap telemetry
 phase shares to execution envelope**, merged as
-`23d52ea13ab2bfd9b3bcce08c92a86a3965de1c7` and is contained in current
-`main`. These bounded dashboard corrections preserve audit evidence, runtime
-behavior, lifecycle and authority boundaries.
+`23d52ea13ab2bfd9b3bcce08c92a86a3965de1c7`. PR
+[#927](https://github.com/pcvantol/djconnect/pull/927), **Show open pull
+request check status**, merged as
+`7235edb7a148c1be645c2053f8ce7209778adf87`. PR
+[#928](https://github.com/pcvantol/djconnect/pull/928), **Show GitHub rate
+limit banner**, merged as `914b64f2da53de94f138719e38d24ef32c101b80`.
 
-PR [#927](https://github.com/pcvantol/djconnect/pull/927), **Show open pull
-request check status**, merged as `7235edb7a148c1be645c2053f8ce7209778adf87`
-and is contained in current `main`. The bounded dashboard projection is
-read-only, localized and polls only while GitHub checks are non-terminal. Its
-governance-only Finalization remains the only permitted follow-up while
-Repository State is `MERGED_UNRECONCILED`; its merge restores
-`MERGED_RECONCILED` and Workspace State `WORKSPACE_READY` after cleanup.
-Runtime, lifecycle, validation, reviewer, provider, delivery and operator
-merge authority remain unchanged.
+All four implementation merge commits are contained in current `main`. Their
+bounded dashboard and telemetry corrections preserve raw audit evidence,
+runtime behavior, lifecycle, validation, reviewer, provider, queue, delivery
+and operator-owned merge authority. This governance-only Finalization changes
+only the four canonical rolling records and preserves immutable Prompt History.
+Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`;
+Finalization Pending: `NO`.
 
 ## PR #921 finalized by PR #922
 
