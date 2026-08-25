@@ -152,8 +152,8 @@ test.describe("Engineering Status browser smoke", () => {
     const selectedRoot = path.join(dashboardRoot, "selected-engineering-root");
     mkdirSync(path.join(selectedRoot, "Inbox"), { recursive: true });
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
-    const configuration = page.locator("#configuration");
-    await configuration.evaluate((element) => { element.open = true; });
+    const queue = page.locator("#queueItems");
+    await queue.evaluate((element) => { element.open = true; });
     const location = page.locator("#configurationInboxLocation");
     await expect(location).toHaveText(/Inbox/);
     await expect(location).toHaveClass(/configuration-inbox-location/);
@@ -182,6 +182,17 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#configurationInboxStatus")).not.toBeEmpty();
     await expect(page.locator("#configurationInboxModal")).not.toBeVisible({ timeout: 2_000 });
     await expect(location).toHaveText(/selected-engineering-root\/Inbox$/);
+  });
+
+  test("keeps project-scoped Inbox settings with the project queue", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    const queue = page.locator("#queueItems");
+    await queue.evaluate((element) => { element.open = true; });
+    for (const id of ["configurationInboxOpen", "configurationInboxScanInterval", "configurationOpenPrInterval"]) {
+      await expect(queue.locator(`#${id}`)).toHaveCount(1);
+      await expect(page.locator(`#configuration #${id}`)).toHaveCount(0);
+    }
+    await expect(queue.locator(".queue-project-settings")).toHaveCount(1);
   });
 
   test("uses normal-weight labels for every dashboard button", async ({ page }) => {
@@ -227,7 +238,7 @@ test.describe("Engineering Status browser smoke", () => {
     await picker.locator(".dashboard-locale__button").click();
     await picker.locator('[role=option][data-dashboard-select-value="DEBUG"]').click();
     expect(await page.evaluate(() => window.__dashboardSelectFocusOptions)).toEqual([]);
-    await expect(page.locator("#configuration .configuration-field")).toHaveCount(7);
+    await expect(page.locator("#configuration .configuration-field")).toHaveCount(6);
   });
 
   test("persists a log-level pulldown choice exactly once", async ({ page }) => {

@@ -40,6 +40,11 @@ The central store contains EP-owned operational data, scoped by `project_id`:
   Execution Receipts;
 - project-scoped dashboard preferences, logs and status projections.
 
+Project-scoped configuration includes Inbox routing, Inbox scan cadence and
+open-pull-request check cadence. Installation-wide configuration includes
+logging and dashboard refresh behavior. Lifecycle safety, leases and retry
+policy remain EP runtime safeguards rather than per-project controls.
+
 Installation-wide configuration (EP version, provider capabilities and update
 state) remains unscoped. Workspace/Forge planning data and the Workspace
 database remain consumer-owned and are never written by EP.

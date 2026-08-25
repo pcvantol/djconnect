@@ -4434,7 +4434,32 @@ function renderConfigurationInboxLocation() {
   }
   value.textContent = location || "—";
 }
+function moveProjectScopedConfiguration() {
+  const queue = $("queueItems");
+  const inboxButton = $("configurationInboxOpen");
+  if (!queue || !inboxButton) return;
+
+  const inboxField = inboxButton.closest(".configuration-field");
+  if (inboxField) queue.append(inboxField);
+
+  let controls = queue.querySelector(".queue-project-settings");
+  if (!controls) {
+    controls = document.createElement("div");
+    controls.className = "configuration-controls queue-project-settings";
+    const status = document.createElement("p");
+    status.id = "queueProjectSettingsStatus";
+    status.setAttribute("role", "status");
+    status.setAttribute("aria-live", "polite");
+    controls.append(status);
+    queue.append(controls);
+  }
+  ["configurationInboxScanInterval", "configurationOpenPrInterval"].forEach((id) => {
+    const label = $(id)?.closest("label");
+    if (label) controls.insertBefore(label, $("queueProjectSettingsStatus"));
+  });
+}
 function localizeConfigurationOptions() {
+  moveProjectScopedConfiguration();
   addConfigurationControlInfo();
   renderConfigurationInboxLocation();
   document.querySelectorAll("#configurationLogRetention option").forEach((option) => {
@@ -4503,9 +4528,11 @@ async function saveDashboardConfiguration(control) {
       componentDetailsRefreshIntervalMs = Number(value) * 1e3;
       if (activeComponentDetails) startComponentDetailsRefresh(activeComponentDetails);
     }
-    $("configurationStatus").textContent = t("configuration.saved");
+    const status = control.closest(".queue-project-settings") ? $("queueProjectSettingsStatus") : $("configurationStatus");
+    status.textContent = t("configuration.saved");
   } catch {
-    $("configurationStatus").textContent = t("configuration.save_failed");
+    const status = control.closest(".queue-project-settings") ? $("queueProjectSettingsStatus") : $("configurationStatus");
+    status.textContent = t("configuration.save_failed");
   } finally {
     control.disabled = false;
   }

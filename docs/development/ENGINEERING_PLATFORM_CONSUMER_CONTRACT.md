@@ -54,6 +54,15 @@ of execution lifecycle, telemetry, evidence, dashboard, Inbox and Prompt
 History. The physical Inbox transport and Workspace API route remain parallel
 ways to admit a prompt for the same registered project.
 
+### Settings scope
+
+The registered Inbox root, Inbox scan interval and open-pull-request check
+interval are project settings. They belong to the selected project's queue,
+never to installation-wide EP configuration. Log retention, log level,
+platform-health refresh and component-detail refresh remain installation-wide
+settings. Fixed lifecycle, lease and retry safeguards remain EP runtime
+defaults rather than consumer-editable project settings.
+
 ## Upgrade and compatibility
 
 The local upgrade runs before the installed EP process becomes the writer:
