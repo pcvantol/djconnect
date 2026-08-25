@@ -148,6 +148,11 @@ They are never loaded or streamed outside the private dashboard.
 
 The final **Configuration** disclosure in the private dashboard makes the
 effective local Inbox location, Dependabot admission scan and fixed monitoring intervals observable.
+It also presents the local machine diagnostics — free disk space, Engineering
+database path, database size and schema version — rather than presenting them
+as project-specific **Workspace** metadata. The database remains in its current
+workspace-owned location for the 2.0 installation; this is a presentation
+boundary that already matches the planned central-installation migration.
 The language picker and automatic-refresh toggle remain direct controls in the
 title bar and are therefore not duplicated here. The current entries cover Inbox scanning,
 operator-merge verification, required GitHub checks, open-pull-request status,
@@ -189,10 +194,11 @@ the engineering report and AI analysis remain separate evidence actions on the
 same row. There is no separate **Laatst uitgevoerde prompt** card, so a terminal
 execution is never represented twice in the dashboard.
 
-Set `DJCONNECT_ENGINEERING_LOG_LEVEL` to `DEBUG`, `INFO`, `WARNING` or `ERROR`
-before installing a watcher or dashboard LaunchAgent; the selected value is
-stored in its LaunchAgent environment. The default is `INFO`; an invalid value
-fails closed to `INFO`. Reinstall the relevant LaunchAgent after changing it.
+The dashboard's saved log-level preference is authoritative for the dashboard
+and Inbox watcher, including after their LaunchAgents are regenerated. The
+LaunchAgent environment is retained only as a bootstrap fallback when the local
+preference store is unavailable. The default is `INFO`; invalid fallback values
+fail closed to `INFO`.
 
 When a component does not start or terminate cleanly, inspect **Logs** in the
 private dashboard first. If that is unavailable, inspect the owned LaunchAgent

@@ -41,6 +41,71 @@ follow-on work until repository-extraction readiness is qualified. The version
 bump alone does not move the platform out of this repository or change
 authority.
 
+## 2.x — Standalone Execution Operations Platform
+
+Planned. The 2.x extraction turns Engineering Platform into an installed,
+provider- and consumer-neutral local Execution Host. The dashboard is
+positioned internally as the **Execution Operations Console**: it presents
+host operations and a selected Workspace project, but is never a second source
+of lifecycle, planning or repository authority.
+
+The extraction sequence is deliberately incremental and reversible:
+
+1. **Boundary and consumer contract — complete.** ADR-0019 and the EP consumer
+   contract establish one installation-owned store, the canonical
+   Workspace-provided `project_id`, and the mutable Workspace-provided
+   `project_name` used for display.
+2. **Data-root and multi-project migration.** Install one EP data root and one
+   SQLite database per local user/machine, outside all consumer repositories.
+   Register projects before admission; scope every EP-owned Inbox route, queue,
+   lease, lifecycle record, receipt, report, Prompt History, telemetry and
+   dashboard projection by the immutable `project_id`. A project name is a
+   label only and can be refreshed without rewriting historical evidence.
+3. **Settings and diagnostics placement.** Keep Inbox routing, Inbox scan
+   cadence and open-PR check cadence in the selected project's queue settings.
+   Keep log retention, log level and dashboard/component refresh preferences
+   installation-wide. Move free disk space, database path, database size and
+   schema version into a machine/platform diagnostic block; they do not belong
+   to a Workspace project.
+4. **Datastore governance and recovery.** Ship forward-only, transactional
+   migrations with a pre-migration backup, startup integrity check, explicit
+   compatibility gate and documented recovery procedure. Prove the backup with
+   periodic restore tests. The upgrade registers the legacy workspace, backfills
+   project scope atomically, then ensures that only the installed EP process is
+   a writer.
+5. **Server-side API contracts.** Define typed, bounded host API contracts per
+   endpoint: accepted fields and enums, unknown-field rejection, Unicode and
+   newline rules, stable error codes and redacted diagnostics. The server stays
+   authoritative; browser-side normalization is defense in depth only. The
+   read-only AI chat must not allow supplied text to override host configuration,
+   repository paths or system context.
+6. **Internal service boundaries.** Preserve one local host process unless an
+   operational need proves otherwise, while separating the HTTP/API facade,
+   application services, status projection, operational controls and datastore
+   repositories. The Operations Console remains a thin presentation consumer.
+7. **Forge-native host integration.** Forge/Workspace remains the owner of
+   planning, Runtime Prompts and the canonical project registry; EP owns
+   admission, execution lifecycle, telemetry, evidence, Inbox and Prompt
+   History. Retain a fail-closed serial FIFO queue per project. When Forge later
+   supplies `depends_on`, EP validates and enforces it without becoming a
+   planner. The physical Inbox route and Workspace API route remain parallel
+   admission paths.
+8. **Advisory telemetry.** Retain telemetry only as operational observation,
+   never as repository or lifecycle evidence. Add median/p50 and p95 views,
+   then segment by execution mode, target repository, terminal state and
+   model/provider when that metadata is supplied by the consumer contract.
+9. **Package, release and consumer cutover.** Extract relevant history into the
+   EP repository; publish an immutable pinned wheel with dedicated CI,
+   supply-chain evidence and releases. Update DJConnect and Forge/Workspace to
+   install that wheel only, provide a local backup/compatibility/migration/
+   launch-service upgrade path, and remove `tools/engineering` only after the
+   packaged paths have been proven.
+
+The central-store and project-scope decision is specified in
+[ADR-0019](../adr/0019-engineering-platform-central-installation-store.md);
+the concrete registration and ownership boundary is specified in the
+[EP consumer contract](ENGINEERING_PLATFORM_CONSUMER_CONTRACT.md).
+
 ## Policy
 
 Platform code must not acquire DJConnect runtime, Home Assistant, branding or
