@@ -4092,6 +4092,78 @@ document.addEventListener("pointerdown", (event) => {
   if (!event.target.closest(".dashboard-locale__picker")) setLocaleMenuOpen(false);
 });
 applyDashboardLocale();
+const configurationFields = Object.freeze({
+  configurationLogRetention: ["log_retention_days", Number],
+  configurationLogLevel: ["log_level", String],
+});
+function localizeConfigurationOptions() {
+  document.querySelectorAll("#configurationLogRetention option").forEach((option) => {
+    option.textContent = t("configuration.days", { days: option.value });
+  });
+}
+async function saveDashboardConfiguration(control) {
+  const [key, normalizer] = configurationFields[control.id] || [];
+  if (!key) return;
+  const value = normalizer(control.type === "checkbox" ? control.checked : control.value);
+  if (key === "log_retention_days" && Number(value) < Number(control.dataset.savedValue || value)) {
+    const confirmed = await confirmDashboardAction(
+      t("configuration.log_retention"),
+      t("configuration.retention_confirm"),
+      t("action.confirm"),
+      { destructive: true },
+    );
+    if (!confirmed) {
+      control.value = control.dataset.savedValue || String(value);
+      return;
+    }
+  }
+  control.disabled = true;
+  try {
+    const response = await fetch("/api/configuration", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ key, value }),
+    });
+    if (!response.ok) throw Error();
+    control.dataset.savedValue = String(value);
+    $("configurationStatus").textContent = t("configuration.saved");
+  } catch {
+    $("configurationStatus").textContent = t("configuration.save_failed");
+  } finally {
+    control.disabled = false;
+  }
+}
+async function initializeDashboardConfiguration() {
+  localizeConfigurationOptions();
+  try {
+    const response = await fetch("/api/configuration", { cache: "no-store" });
+    if (!response.ok) throw Error();
+    const configuration = await response.json();
+    Object.entries(configurationFields).forEach(([id, [key]]) => {
+      const control = $(id);
+      if (control.type === "checkbox") control.checked = configuration[key] === true;
+      else {
+        control.value = String(configuration[key]);
+        control.dataset.savedValue = control.value;
+      }
+    });
+  } catch {
+    $("configurationStatus").textContent = t("configuration.load_failed");
+  }
+}
+Object.keys(configurationFields).forEach((id) => {
+  $(id)?.addEventListener("change", (event) => void saveDashboardConfiguration(event.currentTarget));
+});
+$("configurationInboxOpen")?.addEventListener("click", () => {
+  const modal = $("configurationInboxModal");
+  if (!modal.open) modal.showModal();
+  resetDashboardModalInitialFocus(modal);
+});
+$("configurationInboxModalClose")?.addEventListener("click", () => $("configurationInboxModal").close());
+$("configurationInboxModal")?.addEventListener("click", (event) => {
+  if (event.target === event.currentTarget) event.currentTarget.close();
+});
+initializeDashboardConfiguration();
 function loadAllSectionsIntent() {
   try {
     const stored = localStorage.getItem(ALL_SECTIONS_STATE_KEY);

@@ -148,18 +148,23 @@ They are never loaded or streamed outside the private dashboard.
 
 The final **Configuration** disclosure in the private dashboard makes the
 effective local Inbox location, Dependabot admission scan and fixed monitoring intervals observable.
-It is an explanation surface, not a second control plane: the language picker
-and automatic-refresh toggle remain direct controls in the title bar, and are
-therefore not duplicated here. The current entries cover Inbox scanning,
+The language picker and automatic-refresh toggle remain direct controls in the
+title bar and are therefore not duplicated here. The current entries cover Inbox scanning,
 operator-merge verification, required GitHub checks, open-pull-request status,
 dashboard status streaming, platform health, open component details, execution
 lease heartbeat/timeout and bounded GitHub-evidence retry backoff.
 
 Every entry includes a keyboard-accessible information glyph with localized
 explanation in English, Dutch, German, French and Spanish. Workflow safety
-limits remain read-only. Future mutable local preferences, such as component
-log retention, must be bounded, persist only locally, state precisely what is
-affected and require confirmation before an existing record can be removed.
+limits remain read-only. Two bounded local preferences are directly editable
+and save immediately: component-log retention (30, 60, 90, 120, 180 or 360
+days) and dashboard log level (`INFO` or `DEBUG`). Reducing retention first
+requires a confirmation because it prunes only expired local component-log
+rows. Each change is persisted only in local Engineering storage and is added
+to the append-only audit log. Audit logging itself is always enabled. The
+Inbox location remains an Execution Host-owned, read-only path disclosed in a
+modal; changing that transport is deliberately outside the dashboard control
+plane until a validated host-reconfiguration flow exists.
 
 The existing `inbox.out.log`, `inbox.err.log`, `dashboard.out.log` and
 `dashboard.err.log` remain the LaunchAgent process streams. They complement,

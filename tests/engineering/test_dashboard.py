@@ -52,10 +52,11 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn('id="configuration"', page)
         self.assertIn('data-i18n="section.configuration"', page)
         self.assertIn("/private/engineering/inbox", page)
-        self.assertIn('data-i18n="configuration.dependabot_scan_interval"', page)
-        self.assertIn('data-i18n-title="configuration.dependabot_scan_interval_help"', page)
-        self.assertEqual(page.count('class="configuration-info"'), 12)
-        self.assertEqual(page.count("data-i18n-title=\"configuration."), 12)
+        self.assertIn('id="configurationInboxModal"', page)
+        self.assertIn('id="configurationLogRetention"', page)
+        self.assertIn('id="configurationLogLevel"', page)
+        self.assertEqual(page.count('class="configuration-info"'), 11)
+        self.assertEqual(page.count("data-i18n-title=\"configuration."), 11)
         for key, value in (
             ("configuration.inbox_scan_interval", "configuration.seconds_15"),
             ("configuration.operator_merge_interval", "configuration.seconds_60"),
@@ -160,7 +161,10 @@ class DashboardStatusTest(unittest.TestCase):
             "configuration.github_retry_backoff", "configuration.github_retry_backoff_help",
             "configuration.seconds_5", "configuration.seconds_60", "configuration.seconds_90",
             "configuration.github_retry_backoff_value",
-            "configuration.dependabot_scan_interval", "configuration.dependabot_scan_interval_help",
+            "configuration.inbox_location_open", "configuration.inbox_location_modal_description",
+            "configuration.safe_settings", "configuration.log_retention", "configuration.log_level", "configuration.retention_confirm",
+            "configuration.days",
+            "configuration.saved", "configuration.save_failed", "configuration.load_failed",
         ):
             self.assertEqual(catalog.count(f'"{key}"'), 5)
         self.assertNotIn("Retry Execution", (root / "tools/engineering/assets/dashboard.js").read_text(encoding="utf-8"))
@@ -168,6 +172,7 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn("createLocaleService", dashboard_script)
         self.assertNotIn('"nl-NL"', dashboard_script)
         self.assertNotIn("localeCompare(", dashboard_script)
+        self.assertIn("initializeDashboardConfiguration", dashboard_script)
 
     def test_dashboard_run_logs_startup_and_graceful_shutdown_identity(self) -> None:
         class InterruptingServer:
