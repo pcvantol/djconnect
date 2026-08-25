@@ -3,12 +3,15 @@
 ## PRs #936, #937 and #938 finalized
 
 PR [#936](https://github.com/pcvantol/djconnect/pull/936), **Add Forge
-Workspace Inbox submission API**, PR
+Workspace Inbox submission API**, merged as
+`a42b59e9dff31e0a1707e97f924c74f8f715bf5c`. PR
 [#937](https://github.com/pcvantol/djconnect/pull/937), **Show live Codex
-activity on active workflow step**, and PR
+activity on active workflow step**, merged as
+`9502ebd9317d736a52287b7be96d409bee6b5e97`. PR
 [#938](https://github.com/pcvantol/djconnect/pull/938), **Bump Engineering
-Platform to 2.0.0**, are merged and their merge commits are contained in
-current `main`, with no terminal check failures.
+Platform to 2.0.0**, merged as
+`bef1c0c27910c7a895eaa3cad1ab2780f4363f0e`. All three merge commits are
+contained in current `main`, with no terminal check failures.
 
 The changes add a bounded Forge-to-Inbox submission boundary, transient live
 Codex activity on the active workflow step, and a 2.0.0 platform compatibility
