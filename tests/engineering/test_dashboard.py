@@ -52,6 +52,8 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn('id="configuration"', page)
         self.assertIn('data-i18n="section.configuration"', page)
         self.assertIn("/private/engineering/inbox", page)
+        self.assertEqual(page.count('class="configuration-info"'), 11)
+        self.assertEqual(page.count("data-i18n-title=\"configuration."), 11)
         self.assertLess(
             page.index('id="workspaceCard"'),
             page.index('id="configuration"'),
@@ -129,6 +131,17 @@ class DashboardStatusTest(unittest.TestCase):
             "configuration.inbox_scan_interval", "configuration.open_pr_interval",
             "configuration.dashboard_stream_interval", "configuration.seconds_15",
             "configuration.seconds_30", "configuration.second_1",
+            "configuration.inbox_location_help", "configuration.inbox_scan_interval_help",
+            "configuration.operator_merge_interval", "configuration.operator_merge_interval_help",
+            "configuration.required_checks_interval", "configuration.required_checks_interval_help",
+            "configuration.open_pr_interval_help", "configuration.dashboard_stream_interval_help",
+            "configuration.platform_health_interval", "configuration.platform_health_interval_help",
+            "configuration.component_details_interval", "configuration.component_details_interval_help",
+            "configuration.lease_heartbeat_interval", "configuration.lease_heartbeat_interval_help",
+            "configuration.lease_timeout", "configuration.lease_timeout_help",
+            "configuration.github_retry_backoff", "configuration.github_retry_backoff_help",
+            "configuration.seconds_5", "configuration.seconds_60", "configuration.seconds_90",
+            "configuration.github_retry_backoff_value",
         ):
             self.assertEqual(catalog.count(f'"{key}"'), 5)
         self.assertNotIn("Retry Execution", (root / "tools/engineering/assets/dashboard.js").read_text(encoding="utf-8"))
