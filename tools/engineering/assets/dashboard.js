@@ -406,7 +406,7 @@ function renderCapacityTrend(history) {
   }
   const latest = points.at(-1), latestPercent = locale.number(latest.remaining, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
   summary.textContent = t("rate_limit.trend_current", { percent: latestPercent });
-  const namespace = "http://www.w3.org/2000/svg", svg = document.createElementNS(namespace, "svg"), title = document.createElementNS(namespace, "title"), width = 336, height = 112, padding = { top: 10, right: 8, bottom: 18, left: 8 }, now = Date.now(), start = now - 7 * 24 * 60 * 60 * 1000;
+  const namespace = "http://www.w3.org/2000/svg", svg = document.createElementNS(namespace, "svg"), title = document.createElementNS(namespace, "title"), width = 336, height = 120, padding = { top: 10, right: 8, bottom: 22, left: 32 }, now = Date.now(), start = now - 7 * 24 * 60 * 60 * 1000;
   svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
   svg.setAttribute("role", "img");
   svg.setAttribute("aria-labelledby", "rateLimitTrendSvgTitle");
@@ -419,6 +419,10 @@ function renderCapacityTrend(history) {
     grid.setAttribute("class", "rate-limit-trend__grid");
     grid.setAttribute("x1", String(padding.left)); grid.setAttribute("x2", String(width - padding.right));
     grid.setAttribute("y1", String(y)); grid.setAttribute("y2", String(y)); svg.append(grid);
+    const label = document.createElementNS(namespace, "text");
+    label.setAttribute("class", "rate-limit-trend__axis-label"); label.setAttribute("text-anchor", "end");
+    label.setAttribute("x", String(padding.left - 5)); label.setAttribute("y", String(y + 3));
+    label.textContent = `${locale.number((1 - fraction) * 100, { maximumFractionDigits: 0 })}%`; svg.append(label);
   }
   for (let day = 0; day <= 7; day += 1) {
     const grid = document.createElementNS(namespace, "line"), x = padding.left + innerWidth * (day / 7);
@@ -444,10 +448,16 @@ function renderCapacityTrend(history) {
     const marker = document.createElementNS(namespace, "circle");
     marker.setAttribute("class", "rate-limit-trend__point"); marker.setAttribute("cx", point.x.toFixed(2)); marker.setAttribute("cy", point.y.toFixed(2)); marker.setAttribute("r", "2.4"); svg.append(marker);
   }
-  const startLabel = document.createElementNS(namespace, "text"), endLabel = document.createElementNS(namespace, "text");
-  startLabel.setAttribute("class", "rate-limit-trend__axis-label"); startLabel.setAttribute("x", String(padding.left)); startLabel.setAttribute("y", String(height - 3)); startLabel.textContent = t("rate_limit.trend_start");
-  endLabel.setAttribute("class", "rate-limit-trend__axis-label"); endLabel.setAttribute("text-anchor", "end"); endLabel.setAttribute("x", String(width - padding.right)); endLabel.setAttribute("y", String(height - 3)); endLabel.textContent = t("rate_limit.trend_now");
-  svg.append(startLabel, endLabel); chart.append(svg);
+  const dayFormatter = new Intl.DateTimeFormat(dashboardLocale, { weekday: "short" });
+  for (const day of [0, 2, 4, 6, 7]) {
+    const label = document.createElementNS(namespace, "text"), x = padding.left + innerWidth * (day / 7);
+    label.setAttribute("class", "rate-limit-trend__axis-label");
+    if (day === 7) label.setAttribute("text-anchor", "end");
+    else if (day > 0) label.setAttribute("text-anchor", "middle");
+    label.setAttribute("x", String(x)); label.setAttribute("y", String(height - 4));
+    label.textContent = dayFormatter.format(new Date(start + day * 24 * 60 * 60 * 1000)); svg.append(label);
+  }
+  chart.append(svg);
 }
 function rateLimits(x, history = latestDashboardSnapshot?.ai_capacity_history) {
   const windows = Array.isArray(x?.windows) ? x.windows : [],
