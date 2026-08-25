@@ -937,6 +937,7 @@ test.describe("Engineering Status browser smoke", () => {
     await page.goto(`${dashboardUrl}/?prompt=${runId}`, { waitUntil: "domcontentloaded" });
     const modal = page.locator("#promptHistoryDetailModal");
     await expect(modal).toBeVisible();
+    await expect(page.locator("#promptHistoryDetailTitle")).toHaveText("Deeplink prompt");
     await expect(page).toHaveURL(new RegExp(`\\?prompt=${runId}$`));
     await expect(page.locator("#promptHistoryRows .prompt-history-open-link, #promptHistoryRows .prompt-history-copy-link")).toHaveCount(0);
     await expect(modal.locator(".prompt-history-run-id-copy")).toHaveAttribute(

@@ -5357,6 +5357,8 @@ function renderPromptHistoryDetail(payload) {
     evidence = Array.isArray(payload?.evidence) ? payload.evidence : [],
     reviewers = Array.isArray(payload?.reviewers) ? payload.reviewers : [],
     recommendationHandoff = payload?.recommendation_handoff;
+  if (typeof history.title === "string" && history.title.trim())
+    $("promptHistoryDetailTitle").textContent = history.title.trim();
   content.replaceChildren();
   content.append(
     ...[
@@ -5384,7 +5386,10 @@ function openPromptHistoryDetail(entry, { updateUrl = true } = {}) {
   if (updateUrl) updatePromptHistoryDetailUrl(runId);
   promptHistoryDetailRunId = runId;
   const modal = $("promptHistoryDetailModal"), content = $("promptHistoryDetailContent");
-  $("promptHistoryDetailTitle").textContent = String(entry.title || runId);
+  const title = typeof entry.title === "string" ? entry.title.trim() : "";
+  $("promptHistoryDetailTitle").textContent = title && title !== runId
+    ? title
+    : t("history.details_loading");
   $("promptHistoryDetailDescription").textContent = t("history.details_description");
   content.textContent = t("history.details_loading");
   if (!modal.open) modal.showModal();
