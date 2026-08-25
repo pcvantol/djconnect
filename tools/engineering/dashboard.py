@@ -74,9 +74,14 @@ RATE_LIMIT_CACHE_SECONDS = 60
 _rate_limit_cache_lock = Lock()
 _rate_limit_cache: tuple[float, bytes] | None = None
 CODEX_IDENTITY_CACHE_SECONDS = 300
+CODEX_UPDATE_CACHE_SECONDS = 900
+CODEX_CLI_PACKAGE = "@openai/codex"
 GIT_INDEX_LOCK_STALE_SECONDS = 300
 _codex_identity_cache_lock = Lock()
 _codex_identity_cache: tuple[float, dict[str, str]] | None = None
+_codex_update_cache_lock = Lock()
+_codex_update_cache: tuple[float, dict[str, object]] | None = None
+_codex_update_install_lock = Lock()
 _snapshot_revision_lock = Lock()
 _snapshot_fingerprint: bytes | None = None
 _snapshot_revision = 0
@@ -426,12 +431,12 @@ def _normalize_rate_limits(payload: object) -> dict[str, object]:
     return normalized if windows or "reset_credits" in normalized else {}
 
 
-def _codex_provider_identity() -> dict[str, str]:
+def _codex_provider_identity(*, refresh: bool = False) -> dict[str, str]:
     """Return the active provider identity without exposing local paths or account data."""
     global _codex_identity_cache
     now = time.monotonic()
     with _codex_identity_cache_lock:
-        if _codex_identity_cache and now - _codex_identity_cache[0] < CODEX_IDENTITY_CACHE_SECONDS:
+        if not refresh and _codex_identity_cache and now - _codex_identity_cache[0] < CODEX_IDENTITY_CACHE_SECONDS:
             return dict(_codex_identity_cache[1])
 
     identity = {"provider": "Codex CLI", "provider_version": "versie niet beschikbaar"}
@@ -543,6 +548,101 @@ def _github_rate_limit_status() -> dict[str, object]:
 
 class RateLimitResetError(RuntimeError):
     """Raised when Codex cannot safely consume a reset credit."""
+
+
+class CodexCliUpdateError(RuntimeError):
+    """Raised when the local Codex CLI cannot be updated and verified safely."""
+
+
+_CODEX_CLI_VERSION = re.compile(r"^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$")
+
+
+def _codex_cli_version(value: object) -> str | None:
+    candidate = str(value or "").strip().removeprefix("v")
+    return candidate if _CODEX_CLI_VERSION.fullmatch(candidate) else None
+
+
+def _codex_cli_version_key(value: str) -> tuple[int, int, int, int, str]:
+    """Compare normal releases above prereleases without accepting arbitrary text."""
+    base, separator, prerelease = value.partition("-")
+    major, minor, patch = (int(part) for part in base.split("."))
+    return major, minor, patch, 1 if not separator else 0, prerelease
+
+
+def _npm_executable() -> str | None:
+    """Resolve npm from PATH or beside the admitted local Codex executable."""
+    if npm := shutil.which("npm"):
+        return npm
+    if codex := shutil.which("codex"):
+        sibling = Path(codex).with_name("npm")
+        if sibling.is_file() and os.access(sibling, os.X_OK):
+            return str(sibling)
+    return None
+
+
+def _codex_cli_update_status(root: Path, *, refresh: bool = False) -> dict[str, object]:
+    """Read the published Codex CLI version without exposing account or npm output."""
+    global _codex_update_cache
+    now = time.monotonic()
+    with _codex_update_cache_lock:
+        if not refresh and _codex_update_cache and now - _codex_update_cache[0] < CODEX_UPDATE_CACHE_SECONDS:
+            return dict(_codex_update_cache[1])
+
+    current = _codex_cli_version(_codex_provider_identity(refresh=refresh).get("provider_version"))
+    npm = _npm_executable()
+    if current is None or npm is None:
+        status: dict[str, object] = {"state": "unavailable", "update_available": False}
+    else:
+        try:
+            completed = LocalProcessProvider().execute(root, (npm, "view", CODEX_CLI_PACKAGE, "version", "--json"))
+            latest_raw = json.loads(completed.stdout) if completed.returncode == 0 else None
+            candidates = latest_raw if isinstance(latest_raw, list) else [latest_raw]
+            versions = [version for value in candidates if (version := _codex_cli_version(value)) is not None]
+            latest = max(versions, key=_codex_cli_version_key, default=None)
+        except (OSError, ValueError, json.JSONDecodeError):
+            latest = None
+        if latest is None:
+            status = {"state": "unavailable", "update_available": False, "current_version": current}
+        else:
+            update_available = _codex_cli_version_key(latest) > _codex_cli_version_key(current)
+            status = {
+                "state": "update_available" if update_available else "current",
+                "update_available": update_available,
+                "current_version": current,
+                "latest_version": latest,
+            }
+    with _codex_update_cache_lock:
+        _codex_update_cache = (now, status)
+    return dict(status)
+
+
+def _install_codex_cli_update(root: Path) -> dict[str, object]:
+    """Install the exact checked release, then verify the executable's version."""
+    global _codex_identity_cache, _codex_update_cache
+    with _codex_update_install_lock:
+        status = _codex_cli_update_status(root, refresh=True)
+        if status.get("state") == "unavailable":
+            raise CodexCliUpdateError("codex_cli_update_unavailable")
+        if not status.get("update_available"):
+            return {"updated": False, "current_version": status.get("current_version")}
+        latest = status.get("latest_version")
+        npm = _npm_executable()
+        if not isinstance(latest, str) or npm is None:
+            raise CodexCliUpdateError("codex_cli_update_unavailable")
+        try:
+            completed = LocalProcessProvider().execute(root, (npm, "install", "--global", f"{CODEX_CLI_PACKAGE}@{latest}"))
+        except OSError as error:
+            raise CodexCliUpdateError("codex_cli_update_failed") from error
+        if completed.returncode:
+            raise CodexCliUpdateError("codex_cli_update_failed")
+        with _codex_identity_cache_lock:
+            _codex_identity_cache = None
+        with _codex_update_cache_lock:
+            _codex_update_cache = None
+        installed = _codex_cli_version(_codex_provider_identity(refresh=True).get("provider_version"))
+        if installed is None or _codex_cli_version_key(installed) < _codex_cli_version_key(latest):
+            raise CodexCliUpdateError("codex_cli_update_failed")
+        return {"updated": True, "current_version": installed}
 
 
 def _consume_codex_rate_limit_reset_credit() -> str:
@@ -1619,7 +1719,7 @@ def _dashboard_html(
 <div class="card" id="usage" hidden><strong>Codex CLI</strong><div class="field"><span class="label" data-i18n="ui.reported_usage"></span><pre id="usageDetails"></pre></div></div>
 <div class="card" id="currentDiagnostic" hidden><strong>Codex CLI</strong><pre id="currentLog" data-i18n="format.loading"></pre></div>
 </div></details>
-<details class="card card--resource" id="rateLimits" hidden><summary><strong data-i18n="section.remaining_usage"></strong></summary><div class="field"><span class="label" data-i18n="ui.current_ai_provider"></span><span id="rateLimitProvider" data-i18n="format.loading"></span></div><div class="field"><span class="label" id="rateLimitLabel">Codex CLI</span><pre id="rateLimitDetails"></pre></div><button class="rate-limit-reset" id="rateLimitReset" type="button" hidden data-i18n="ui.reset_ready"></button><p class="rate-limit-reset-status" id="rateLimitResetStatus" role="status" aria-live="polite"></p></details>
+<details class="card card--resource" id="rateLimits" hidden><summary><strong data-i18n="section.remaining_usage"></strong></summary><div class="field"><span class="label" data-i18n="ui.current_ai_provider"></span><span id="rateLimitProvider" data-i18n="format.loading"></span></div><p class="rate-limit-update-status" id="codexCliUpdateStatus" role="status" aria-live="polite"></p><button class="rate-limit-reset" id="codexCliUpdate" type="button" hidden data-i18n="ui.codex_cli_update"></button><div class="field"><span class="label" id="rateLimitLabel">Codex CLI</span><pre id="rateLimitDetails"></pre></div><button class="rate-limit-reset" id="rateLimitReset" type="button" hidden data-i18n="ui.reset_ready"></button><p class="rate-limit-reset-status" id="rateLimitResetStatus" role="status" aria-live="polite"></p></details>
 <details class="platform-health" id="platformHealth" data-testid="platform-health"><summary><strong data-i18n="section.platform_components"></strong></summary><p class="category-description" data-i18n="description.platform_components"></p><div class="platform-health__components" id="platformHealthComponents" aria-live="polite"><p class="platform-health__empty" data-i18n="ui.component_health_loading"></p></div></details>
 <dialog class="dashboard-modal-shell dashboard-modal-shell--component component-modal" id="componentModal" aria-labelledby="componentModalTitle"><section class="dashboard-modal-shell__panel component-modal__panel"><header class="dashboard-modal-shell__header component-modal__header"><h2 id="componentModalTitle" data-i18n="ui.component_information"></h2><button class="dashboard-modal-shell__close component-modal__close" id="componentModalClose" type="button" data-i18n-aria-label="sections.close">×</button></header><div id="componentModalContent"></div><button class="component-modal__restart" id="componentModalRestart" type="button" hidden data-i18n="ui.component_restart"></button><p class="component-modal__status" id="componentModalStatus" aria-live="polite"></p></section></dialog>
 <dialog class="dashboard-modal-shell dashboard-modal-shell--evidence telemetry-detail-modal" id="telemetryDetailModal" aria-labelledby="telemetryDetailTitle"><section class="dashboard-modal-shell__panel telemetry-detail-modal__panel"><header class="dashboard-modal-shell__header"><h2 id="telemetryDetailTitle"></h2><button class="dashboard-modal-shell__close" id="telemetryDetailClose" type="button" data-i18n-aria-label="sections.close">×</button></header><p id="telemetryDetailDescription" class="prompt-detail-modal__description"></p><div id="telemetryDetailContent" class="telemetry-detail-modal__content" aria-live="polite"></div></section></dialog>
@@ -1791,6 +1891,27 @@ def handler(root: Path, logger: logging.Logger | None = None):
                     "application/json; charset=utf-8",
                     status_code,
                 )
+                return
+            if request_path == "/api/codex-cli-update":
+                try:
+                    length = int(self.headers.get("Content-Length", "0"))
+                    if length != 2 or self.rfile.read(length) != b"{}":
+                        raise ValueError
+                    result = _install_codex_cli_update(root)
+                    log_event(
+                        logger,
+                        logging.INFO,
+                        "codex_cli_update_completed" if result["updated"] else "codex_cli_update_not_needed",
+                        diagnostic=f"updated={result['updated']}",
+                    )
+                except CodexCliUpdateError as error:
+                    log_event(logger, logging.WARNING, "codex_cli_update_failed", diagnostic=str(error))
+                    self._send(json.dumps({"error": str(error)}).encode(), "application/json; charset=utf-8", 503)
+                    return
+                except ValueError:
+                    self._send(b'{"error":"invalid_request"}', "application/json; charset=utf-8", 400)
+                    return
+                self._send(json.dumps(result).encode(), "application/json; charset=utf-8")
                 return
             if request_path in {"/api/queue-recovery", "/api/predecessor-retry"}:
                 try:
@@ -2259,6 +2380,11 @@ def handler(root: Path, logger: logging.Logger | None = None):
             if self.path == "/api/github-rate-limit":
                 return self._send(
                     json.dumps(_github_rate_limit_status(), separators=(",", ":")).encode(),
+                    "application/json; charset=utf-8",
+                )
+            if self.path == "/api/codex-cli-update":
+                return self._send(
+                    json.dumps(_codex_cli_update_status(root), separators=(",", ":")).encode(),
                     "application/json; charset=utf-8",
                 )
             if self.path == "/api/open-pull-requests":

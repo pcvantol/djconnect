@@ -403,6 +403,63 @@ function rateLimits(x) {
   button.hidden = !(credits > 0);
   button.disabled = false;
 }
+function renderCodexCliUpdate(status) {
+  const button = $("codexCliUpdate"), message = $("codexCliUpdateStatus");
+  if (!button || !message) return;
+  const current = typeof status?.current_version === "string" ? status.current_version : null,
+    latest = typeof status?.latest_version === "string" ? status.latest_version : null;
+  button.hidden = !status?.update_available;
+  button.disabled = false;
+  if (status?.update_available && latest) {
+    message.textContent = t("ui.codex_cli_update_available", { version: latest });
+  } else if (status?.state === "current" && current) {
+    message.textContent = t("ui.codex_cli_current", { version: current });
+  } else {
+    message.textContent = t("ui.codex_cli_update_unavailable");
+  }
+}
+async function checkCodexCliUpdate() {
+  try {
+    const response = await fetch("/api/codex-cli-update", { cache: "no-store" });
+    if (!response.ok) throw Error();
+    renderCodexCliUpdate(await response.json());
+  } catch {
+    renderCodexCliUpdate({ state: "unavailable", update_available: false });
+  }
+}
+function installCodexCliUpdate() {
+  const button = $("codexCliUpdate"), message = $("codexCliUpdateStatus");
+  if (!button || button.hidden || button.disabled) return;
+  confirmDashboardAction(
+    t("ui.codex_cli_update"),
+    t("ui.codex_cli_update_confirmation"),
+    t("ui.codex_cli_update"),
+  ).then((confirmed) => {
+    if (!confirmed) return;
+    button.disabled = true;
+    message.textContent = t("ui.codex_cli_update_installing");
+    fetch("/api/codex-cli-update", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: "{}",
+    })
+      .then(async (response) => ({ ok: response.ok, body: await response.json() }))
+      .then((result) => {
+        if (!result.ok) throw Error(result.body?.error || "codex_cli_update_failed");
+        const version = typeof result.body?.current_version === "string" ? result.body.current_version : "";
+        if (version) $("rateLimitProvider").textContent = t("ui.codex_cli_provider", { version });
+        button.hidden = true;
+        message.textContent = result.body?.updated
+          ? t("ui.codex_cli_updated", { version })
+          : t("ui.codex_cli_current", { version });
+      })
+      .catch((error) => {
+        const key = error instanceof Error ? error.message : "codex_cli_update_failed";
+        message.textContent = t("ui." + key, {}, t("ui.codex_cli_update_failed"));
+      })
+      .finally(() => { button.disabled = false; });
+  });
+}
 function consumeRateLimitReset() {
   const button = $("rateLimitReset"),
     status = $("rateLimitResetStatus");
@@ -2146,6 +2203,10 @@ function arrangeOperationalCategories() {
 }
 arrangeOperationalCategories();
 $("rateLimitReset").addEventListener("click", consumeRateLimitReset);
+$("codexCliUpdate")?.addEventListener("click", installCodexCliUpdate);
+$("rateLimits")?.addEventListener("toggle", () => {
+  if ($("rateLimits").open) void checkCodexCliUpdate();
+});
 function addTestIds() {
   const toTestId = (value) =>
     "engineering-" +

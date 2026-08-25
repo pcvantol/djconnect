@@ -538,7 +538,7 @@ test.describe("Engineering Status browser smoke", () => {
     // Visible words must come from t(). The remaining literals are deliberate
     // control glyphs, empty cleanup values, or the neutral empty-table mark.
     expect(new Set(staticPresentationLiterals)).toEqual(new Set([
-      "", "⧉", "↑", "i", "↺", "⌧", "▤", "✓", "✦", "⋯", "—",
+      "", "⧉", "↑", "i", "↺", "⌧", "▤", "✓", "✦", "⋯", "—", "⌄",
     ]));
     expect(dashboardSource).not.toMatch(/confirmDashboardAction\(\s*["']/);
     // Dashboard feedback must remain inside the shared modal system.  A
@@ -3769,6 +3769,31 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#rateLimits")).toBeVisible();
     await expect(page.locator("#rateLimitProvider")).toHaveText("Codex CLI · 0.146.0");
     await expect(page.locator("#rateLimitDetails")).toHaveCSS("font-size", "14px");
+  });
+
+  test("offers an explicit, version-pinned Codex CLI update only when one is available", async ({ page }) => {
+    await page.route("**/api/events", (route) => route.abort());
+    await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({
+      json: { status: { watcher_state: "WATCHER_IDLE", queue_depth: 0, queue_items: [] }, rate_limits: { provider: "Codex CLI", provider_version: "0.149.0", windows: [], reset_credits: 0 } },
+    }));
+    await page.route("**/api/codex-cli-update", async (route) => {
+      if (route.request().method() === "POST") {
+        await route.fulfill({ json: { updated: true, current_version: "0.150.0" } });
+        return;
+      }
+      await route.fulfill({ json: { state: "update_available", update_available: true, current_version: "0.149.0", latest_version: "0.150.0" } });
+    });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    const updateCheck = page.waitForResponse("**/api/codex-cli-update");
+    await page.locator("#rateLimits").evaluate((element) => { element.open = true; });
+    await updateCheck;
+    await expect(page.locator("#codexCliUpdateStatus")).toHaveText("Update beschikbaar: 0.150.0");
+    await expect(page.locator("#codexCliUpdate")).toBeVisible();
+    await page.locator("#codexCliUpdate").click();
+    await page.locator("#confirmationModalConfirm").click();
+    await expect(page.locator("#rateLimitProvider")).toHaveText("Codex CLI · 0.150.0");
+    await expect(page.locator("#codexCliUpdate")).toBeHidden();
+    await expect(page.locator("#codexCliUpdateStatus")).toHaveText("Codex CLI is bijgewerkt naar 0.150.0.");
   });
 
   test("exposes the structured Engineering Platform health projection", async ({ request }) => {

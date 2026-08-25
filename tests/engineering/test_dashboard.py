@@ -649,6 +649,40 @@ class DashboardStatusTest(unittest.TestCase):
                 {"provider": "Codex CLI", "provider_version": "versie niet beschikbaar"},
             )
 
+    def test_codex_cli_update_check_and_install_are_version_pinned_and_verified(self) -> None:
+        completed = __import__("subprocess").CompletedProcess
+        root = Path("/workspace")
+        dashboard._codex_identity_cache = None
+        dashboard._codex_update_cache = None
+        with (
+            patch("tools.engineering.dashboard.shutil.which", side_effect=lambda name: f"/usr/local/bin/{name}"),
+            patch("tools.engineering.dashboard.LocalProcessProvider.execute", side_effect=[
+                completed(("codex", "--version"), 0, "codex-cli 0.149.0", ""),
+                completed(("npm", "view"), 0, '"0.150.0"', ""),
+            ]) as execute,
+        ):
+            self.assertEqual(
+                dashboard._codex_cli_update_status(root, refresh=True),
+                {"state": "update_available", "update_available": True, "current_version": "0.149.0", "latest_version": "0.150.0"},
+            )
+            self.assertEqual(execute.call_args_list[1].args[1], ("/usr/local/bin/npm", "view", "@openai/codex", "version", "--json"))
+
+        dashboard._codex_identity_cache = None
+        dashboard._codex_update_cache = None
+        with (
+            patch("tools.engineering.dashboard.shutil.which", side_effect=lambda name: f"/usr/local/bin/{name}"),
+            patch("tools.engineering.dashboard.LocalProcessProvider.execute", side_effect=[
+                completed(("codex", "--version"), 0, "codex-cli 0.149.0", ""),
+                completed(("npm", "view"), 0, '"0.150.0"', ""),
+                completed(("npm", "install"), 0, "installed", ""),
+                completed(("codex", "--version"), 0, "codex-cli 0.150.0", ""),
+            ]) as execute,
+        ):
+            self.assertEqual(dashboard._install_codex_cli_update(root), {"updated": True, "current_version": "0.150.0"})
+            self.assertEqual(execute.call_args_list[2].args[1], ("/usr/local/bin/npm", "install", "--global", "@openai/codex@0.150.0"))
+        dashboard._codex_identity_cache = None
+        dashboard._codex_update_cache = None
+
     def test_component_processes_and_metrics_ignore_invalid_process_rows(self) -> None:
         self.assertEqual(dashboard._component_processes("unknown"), [])
         with patch("tools.engineering.dashboard.subprocess.run", side_effect=OSError):
@@ -1934,6 +1968,26 @@ class DashboardStatusTest(unittest.TestCase):
                 self.assertIn(content_type, response.getheader("Content-Type"))
                 self.assertEqual(response.getheader("Cache-Control"), "no-store")
                 response.read()
+
+    def test_http_codex_cli_update_routes_only_install_after_post(self) -> None:
+        with self._dashboard_http_connection() as (_, connection), patch(
+            "tools.engineering.dashboard._codex_cli_update_status",
+            return_value={"state": "update_available", "update_available": True, "current_version": "0.149.0", "latest_version": "0.150.0"},
+        ) as check, patch(
+            "tools.engineering.dashboard._install_codex_cli_update",
+            return_value={"updated": True, "current_version": "0.150.0"},
+        ) as install:
+            connection.request("GET", "/api/codex-cli-update")
+            response = connection.getresponse()
+            self.assertEqual(response.status, 200)
+            self.assertEqual(json.loads(response.read())["latest_version"], "0.150.0")
+            check.assert_called_once()
+            install.assert_not_called()
+            connection.request("POST", "/api/codex-cli-update", body="{}", headers={"Content-Type": "application/json"})
+            response = connection.getresponse()
+            self.assertEqual(response.status, 200)
+            self.assertEqual(json.loads(response.read()), {"updated": True, "current_version": "0.150.0"})
+            install.assert_called_once()
             with patch("tools.engineering.dashboard._codex_rate_limits", return_value=b"{}"):
                 connection.request("GET", "/api/dashboard-snapshot")
                 response = connection.getresponse()
