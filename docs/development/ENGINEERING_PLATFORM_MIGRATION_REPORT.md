@@ -51,5 +51,20 @@ state. The extraction upgrade must back up legacy state, register the existing
 workspace as a project, migrate records atomically and ensure only the
 installation-owned EP process writes the central database.
 
+### Machine/platform diagnostics placement
+
+When the central installation database is introduced, the dashboard must move
+the following diagnostics out of the project-scoped **Workspace** block into a
+separate EP machine/platform block:
+
+- free disk space;
+- Engineering database path;
+- Engineering database size; and
+- database schema version.
+
+They describe the one local EP installation rather than a registered Workspace
+project. Project name, workspace/repository location, tracked files, branch
+and commit remain project-scoped.
+
 See [ADR-0019](../adr/0019-engineering-platform-central-installation-store.md)
 and the [consumer contract](ENGINEERING_PLATFORM_CONSUMER_CONTRACT.md).
