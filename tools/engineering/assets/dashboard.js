@@ -2051,6 +2051,15 @@ function ownerAuthorizationErrorMessage(error) {
   const key = `workspace.open_pull_request.${code}`;
   return DASHBOARD_MESSAGES[dashboardLocale]?.[key] || t("ui.action_failed");
 }
+function refreshOpenPullRequestsAfterOwnerAuthorization() {
+  void refreshOpenPullRequests();
+  // GitHub dispatch is accepted before its status check is materialized.  Read
+  // the authoritative projection again shortly afterwards instead of leaving
+  // an owner-approval control stale until the normal polling interval.
+  for (const delay of [900, 2500, 6000]) {
+    setTimeout(() => void refreshOpenPullRequests(), delay);
+  }
+}
 async function requestOpenPullRequestOwnerAuthorization(button) {
   const number = Number(button?.dataset.openPullRequestOwnerAuthorization);
   if (!Number.isInteger(number) || number < 1) return;
@@ -2069,7 +2078,7 @@ async function requestOpenPullRequestOwnerAuthorization(button) {
     const payload = await response.json().catch(() => null);
     if (!response.ok) throw Error(payload?.error);
     showDashboardToast(t("workspace.open_pull_request.owner_authorization_queued"));
-    await refreshOpenPullRequests();
+    refreshOpenPullRequestsAfterOwnerAuthorization();
   } catch (error) {
     showDashboardToast(ownerAuthorizationErrorMessage(error?.message));
   } finally {

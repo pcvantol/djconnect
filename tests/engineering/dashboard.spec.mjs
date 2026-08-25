@@ -608,11 +608,15 @@ test.describe("Engineering Status browser smoke", () => {
 
   test("dispatches owner authorization only after an explicit confirmation", async ({ page }) => {
     let dispatched = null;
+    let refreshes = 0;
     await page.route("**/api/open-pull-requests/940/owner-authorization", async (route) => {
       dispatched = { method: route.request().method(), body: route.request().postData() };
       await route.fulfill({ status: 202, json: { queued: true, pull_request: 940 } });
     });
-    await page.route("**/api/open-pull-requests", (route) => route.fulfill({ json: { pull_requests: [] } }));
+    await page.route("**/api/open-pull-requests", (route) => {
+      refreshes += 1;
+      return route.fulfill({ json: { pull_requests: [] } });
+    });
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.evaluate(() => {
       const section = document.createElement("section");
@@ -640,8 +644,10 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#confirmationModal .confirmation-modal__panel")).toHaveCSS("border-top-color", "rgb(243, 211, 106)");
     await expect(page.locator("#confirmationModalConfirm")).toHaveCSS("border-top-color", "rgb(243, 211, 106)");
     expect(dispatched).toBeNull();
+    const refreshesBeforeAuthorization = refreshes;
     await page.locator("#confirmationModalConfirm").click();
     await expect.poll(() => dispatched).toEqual({ method: "POST", body: "{}" });
+    await expect.poll(() => refreshes).toBeGreaterThan(refreshesBeforeAuthorization);
   });
 
   test("keeps the last known open pull requests visible when GitHub refresh is unavailable", async ({ page }) => {
