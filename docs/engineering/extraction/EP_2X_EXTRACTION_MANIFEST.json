@@ -12,6 +12,7 @@
   },
   "classifications": ["CONSUMER_ADAPTER", "DJCONNECT_RETAINED", "EP_DOCUMENTATION", "EP_PRODUCT_SOURCE", "EP_RELEASE_ASSET", "EP_TEST", "EP_WORKFLOW", "EXCLUDED", "GENERATED_LOCAL_ONLY"],
   "candidate_universe_digest": "10daaf423079298b088bdd122a258ae6a5e01a352dbd7f766b3bf4b724aa7be1",
+  "manifest_semantic_digest": "4dc3d56a05333888015e03ed731be3e810b35a7afe38f3c4fad03f20ab4c78ee",
   "path_rules": [
     {"path":"tools/engineering","classification":"EP_PRODUCT_SOURCE","reason_code":"EP_RUNTIME","ownership":"EP","extraction_target":"engineering_platform","dependency_notes":"Runtime, providers, watcher, reporting and Operations Console source move only after later boundary work."},
     {"path":"tools/engineering/ENGINEERING_PLATFORM_VERSION.json","classification":"EP_RELEASE_ASSET","reason_code":"VERSION_MANIFEST","ownership":"EP","extraction_target":"package_data","dependency_notes":"Canonical EP version and compatibility metadata."},

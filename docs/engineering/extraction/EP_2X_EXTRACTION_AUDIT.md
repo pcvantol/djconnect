@@ -5,7 +5,9 @@
 ## Completeness and exclusivity control
 
 The audit independently walks the fixed Phase-0 roots and explicit entry-point
-files, then compares their sorted digest with the manifest. Manifest rules are
+files, then compares their sorted digest with the manifest. A separate semantic
+manifest digest binds the vocabulary and all classification rules, so a valid
+but changed classification cannot silently redefine the frozen control. Manifest rules are
 resolved by most-specific path. A candidate with no winning rule or more than
 one equally-specific winning rule fails. Rules also fail for duplicate paths,
 unsafe paths, missing required paths, invalid classifications, malformed

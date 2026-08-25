@@ -60,6 +60,7 @@ class ExtractionBaselineAuditTests(unittest.TestCase):
         self.assertEqual(first.stdout, second.stdout)
         projection = json.loads(first.stdout)
         self.assertEqual(projection["candidate_universe_count"], 263)
+        self.assertEqual(projection["manifest_semantic_digest"], self.manifest["manifest_semantic_digest"])
         self.assertEqual(projection["classified_exactly_once"], projection["candidate_universe_count"])
         self.assertEqual(projection["unclassified"], 0)
         self.assertEqual(projection["ambiguous"], 0)
@@ -83,6 +84,11 @@ class ExtractionBaselineAuditTests(unittest.TestCase):
         missing = copy.deepcopy(self.manifest)
         missing["path_rules"][0]["path"] = "tools/engineering/does-not-exist"
         self.assertTrue(any("missing required classified path" in error for error in AUDIT_MODULE.validate(missing, ROOT)))
+
+    def test_valid_classification_change_requires_manifest_reconciliation(self) -> None:
+        changed = copy.deepcopy(self.manifest)
+        changed["path_rules"][0]["classification"] = "DJCONNECT_RETAINED"
+        self.assertTrue(any("manifest semantic drift" in error for error in AUDIT_MODULE.validate(changed, ROOT)))
 
     def test_deleted_required_classified_path_and_blocking_import_are_detected(self) -> None:
         temporary, root, manifest = self._fixture_root()

@@ -21,6 +21,7 @@ BASELINE_FIELDS = {
     "engineering_platform_version", "storage_schema_version", "consumer_contract_version",
     "bootstrap_contract_version", "operations_console_version",
 }
+SEMANTIC_MANIFEST_FIELDS = ("manifest_version", "classifications", "path_rules")
 RULE_FIELDS = {"path", "classification", "reason_code", "ownership", "extraction_target", "dependency_notes"}
 
 # These roots are deliberately owned by the audit, rather than inferred from
@@ -76,6 +77,13 @@ def universe_digest(candidates: list[str]) -> str:
     return hashlib.sha256("\n".join(candidates).encode("utf-8")).hexdigest()
 
 
+def manifest_semantic_digest(manifest: dict) -> str:
+    """Hash the classification control separately from repository discovery."""
+    control = {field: manifest.get(field) for field in SEMANTIC_MANIFEST_FIELDS}
+    encoded = json.dumps(control, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()
+
+
 def path_matches(path: str, rule_path: str) -> bool:
     return path == rule_path or path.startswith(f"{rule_path}/")
 
@@ -94,6 +102,8 @@ def validate(manifest: dict, root: Path) -> list[str]:
     errors: list[str] = []
     if manifest.get("manifest_version") != 2:
         errors.append("manifest_version must be 2")
+    if manifest.get("manifest_semantic_digest") != manifest_semantic_digest(manifest):
+        errors.append("manifest semantic drift")
     baseline = manifest.get("baseline")
     if not isinstance(baseline, dict) or set(baseline) != BASELINE_FIELDS:
         errors.append("baseline does not have the required fields")
@@ -174,6 +184,7 @@ def projection(manifest: dict, root: Path) -> dict:
     return {
         "baseline": manifest["baseline"], "candidate_universe_count": len(candidates),
         "candidate_universe_digest": universe_digest(candidates),
+        "manifest_semantic_digest": manifest["manifest_semantic_digest"],
         "classified_exactly_once": sum(rule is not None for rule in effective),
         "unclassified": sum(rule is None and not effective_rule(path, rules)[1] for path, rule in zip(candidates, effective)),
         "ambiguous": sum(rule is None and bool(effective_rule(path, rules)[1]) for path, rule in zip(candidates, effective)),

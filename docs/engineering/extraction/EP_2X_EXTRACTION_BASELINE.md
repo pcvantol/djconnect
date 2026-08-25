@@ -44,8 +44,10 @@ governance exception; neither was supplied here.
 The audit independently discovers 263 candidate files from EP runtime,
 Operations Console assets/tests, EP documentation/ADR, extraction tooling,
 onboarding/runner adapters and every workflow. The manifest does not define
-this discovery set. It freezes digest
-`10daaf423079298b088bdd122a258ae6a5e01a352dbd7f766b3bf4b724aa7be1`.
+this discovery set. It freezes discovery digest
+`10daaf423079298b088bdd122a258ae6a5e01a352dbd7f766b3bf4b724aa7be1` and
+semantic-manifest digest
+`4dc3d56a05333888015e03ed731be3e810b35a7afe38f3c4fad03f20ab4c78ee`.
 
 Rules resolve by **most-specific path wins**. Equal-specificity overlap is an
 error. Every candidate must resolve exactly once; an added candidate changes
