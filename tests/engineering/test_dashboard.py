@@ -654,6 +654,7 @@ class DashboardStatusTest(unittest.TestCase):
         root = Path("/workspace")
         dashboard._codex_identity_cache = None
         dashboard._codex_update_cache = None
+
         with (
             patch("tools.engineering.dashboard.shutil.which", side_effect=lambda name: f"/usr/local/bin/{name}"),
             patch("tools.engineering.dashboard.LocalProcessProvider.execute", side_effect=[
@@ -682,6 +683,15 @@ class DashboardStatusTest(unittest.TestCase):
             self.assertEqual(execute.call_args_list[2].args[1], ("/usr/local/bin/npm", "install", "--global", "@openai/codex@0.150.0"))
         dashboard._codex_identity_cache = None
         dashboard._codex_update_cache = None
+
+    def test_codex_cli_update_installation_is_blocked_during_an_active_execution(self) -> None:
+        with patch(
+            "tools.engineering.dashboard._status",
+            return_value=b'{"watcher_state":"ENGINEERING_RUN_ACTIVE","run_id":"inbox-active"}',
+        ), patch("tools.engineering.dashboard._codex_cli_update_status") as check:
+            with self.assertRaisesRegex(dashboard.CodexCliUpdateError, "codex_cli_update_execution_active"):
+                dashboard._install_codex_cli_update(Path("/workspace"))
+            check.assert_not_called()
 
     def test_component_processes_and_metrics_ignore_invalid_process_rows(self) -> None:
         self.assertEqual(dashboard._component_processes("unknown"), [])

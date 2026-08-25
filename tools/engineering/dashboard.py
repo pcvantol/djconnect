@@ -580,6 +580,20 @@ def _npm_executable() -> str | None:
     return None
 
 
+def _codex_cli_update_execution_active(root: Path) -> bool:
+    """Keep global CLI changes out of an active Execution Host lifecycle."""
+    try:
+        status = json.loads(_status(root))
+    except (OSError, TypeError, ValueError, json.JSONDecodeError):
+        return False
+    return (
+        isinstance(status, dict)
+        and status.get("watcher_state") in {"ENGINEERING_RUN_ACTIVE", "WAITING_FOR_OPERATOR_MERGE"}
+        and isinstance(status.get("run_id"), str)
+        and bool(status["run_id"])
+    )
+
+
 def _codex_cli_update_status(root: Path, *, refresh: bool = False) -> dict[str, object]:
     """Read the published Codex CLI version without exposing account or npm output."""
     global _codex_update_cache
@@ -620,6 +634,8 @@ def _install_codex_cli_update(root: Path) -> dict[str, object]:
     """Install the exact checked release, then verify the executable's version."""
     global _codex_identity_cache, _codex_update_cache
     with _codex_update_install_lock:
+        if _codex_cli_update_execution_active(root):
+            raise CodexCliUpdateError("codex_cli_update_execution_active")
         status = _codex_cli_update_status(root, refresh=True)
         if status.get("state") == "unavailable":
             raise CodexCliUpdateError("codex_cli_update_unavailable")
@@ -1906,7 +1922,8 @@ def handler(root: Path, logger: logging.Logger | None = None):
                     )
                 except CodexCliUpdateError as error:
                     log_event(logger, logging.WARNING, "codex_cli_update_failed", diagnostic=str(error))
-                    self._send(json.dumps({"error": str(error)}).encode(), "application/json; charset=utf-8", 503)
+                    status_code = 409 if str(error) == "codex_cli_update_execution_active" else 503
+                    self._send(json.dumps({"error": str(error)}).encode(), "application/json; charset=utf-8", status_code)
                     return
                 except ValueError:
                     self._send(b'{"error":"invalid_request"}', "application/json; charset=utf-8", 400)

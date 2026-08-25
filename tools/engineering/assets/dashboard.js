@@ -403,14 +403,20 @@ function rateLimits(x) {
   button.hidden = !(credits > 0);
   button.disabled = false;
 }
+let latestCodexCliUpdateStatus = null;
 function renderCodexCliUpdate(status) {
   const button = $("codexCliUpdate"), message = $("codexCliUpdateStatus");
   if (!button || !message) return;
+  latestCodexCliUpdateStatus = status;
   const current = typeof status?.current_version === "string" ? status.current_version : null,
-    latest = typeof status?.latest_version === "string" ? status.latest_version : null;
+    latest = typeof status?.latest_version === "string" ? status.latest_version : null,
+    executionActive = isActiveRun(latestStatus || {});
   button.hidden = !status?.update_available;
-  button.disabled = false;
-  if (status?.update_available && latest) {
+  button.disabled = Boolean(status?.update_available && executionActive);
+  button.title = button.disabled ? t("ui.codex_cli_update_execution_active") : "";
+  if (status?.update_available && executionActive) {
+    message.textContent = t("ui.codex_cli_update_execution_active");
+  } else if (status?.update_available && latest) {
     message.textContent = t("ui.codex_cli_update_available", { version: latest });
   } else if (status?.state === "current" && current) {
     message.textContent = t("ui.codex_cli_current", { version: current });
@@ -1645,6 +1651,7 @@ function renderHealthStatus(x, snapshot = {}) {
   clock();
   x = x && typeof x === "object" ? x : fallback;
   latestStatus = x;
+  if (latestCodexCliUpdateStatus) renderCodexCliUpdate(latestCodexCliUpdateStatus);
   latestDashboardSnapshot = snapshot;
   latestDurationEstimate = snapshot.duration_estimate || {};
   let active = isActiveRun(x),
