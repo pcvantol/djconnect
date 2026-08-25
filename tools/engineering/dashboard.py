@@ -1912,7 +1912,6 @@ def handler(root: Path, logger: logging.Logger | None = None):
     platform_version = EngineeringPlatformManifest.load(
         root / "tools/engineering/ENGINEERING_PLATFORM_VERSION.json"
     ).platform_version
-    configuration_inbox = str(configuration.resolver(root).resolve_runtime_prompt_transport().inbox)
     logger = logger or component_logger(root, "dashboard")
     class DashboardHandler(BaseHTTPRequestHandler):
         def _send(self, content: bytes, content_type: str, status_code: int = 200) -> None:
@@ -2656,7 +2655,11 @@ def handler(root: Path, logger: logging.Logger | None = None):
                         not bool(workspace_git["main_action_available"]),
                         not bool(workspace_git["branch_cleanup_available"]),
                         platform_version,
-                        configuration_inbox,
+                        # The Inbox root is a durable local preference that may be
+                        # changed while this server remains running.  Resolve it for
+                        # each document request instead of retaining the startup
+                        # fallback in the rendered page.
+                        str(configuration.resolver(root).resolve_runtime_prompt_transport().inbox),
                     ),
                     "text/html; charset=utf-8",
                 )

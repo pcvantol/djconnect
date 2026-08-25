@@ -2088,6 +2088,26 @@ class DashboardStatusTest(unittest.TestCase):
                 self.assertEqual(response.getheader("Cache-Control"), "no-store")
                 response.read()
 
+    @patch("tools.engineering.dashboard._workspace_open_pull_requests", return_value=[])
+    def test_dashboard_document_reresolves_the_saved_inbox_location(
+        self, _open_pull_requests: object
+    ) -> None:
+        first = Path("/private/engineering/first")
+        second = Path("/private/engineering/second")
+        with patch(
+            "tools.engineering.platform_api.configured_inbox_root", return_value=first
+        ) as configured_inbox:
+            with self._dashboard_http_connection() as (_, connection):
+                connection.request("GET", "/")
+                first_page = connection.getresponse().read().decode("utf-8")
+                self.assertIn(f"{first}/Inbox", first_page)
+
+                configured_inbox.return_value = second
+                connection.request("GET", "/")
+                second_page = connection.getresponse().read().decode("utf-8")
+                self.assertIn(f"{second}/Inbox", second_page)
+                self.assertNotIn(f"{first}/Inbox", second_page)
+
     @patch("tools.engineering.dashboard._workspace_open_pull_requests", return_value=None)
     def test_http_open_pull_requests_keeps_unknown_github_state_distinct_from_an_empty_list(
         self, _open_pull_requests: object
@@ -2266,12 +2286,22 @@ class DashboardStatusTest(unittest.TestCase):
                     return_value=b'{"watcher_state":"WATCHER_IDLE","run_id":null,"current_phase":"COMPLETE"}',
                 ),
                 patch("tools.engineering.dashboard._inbox_has_items", return_value=False),
+                patch(
+                    "tools.engineering.dashboard.update_inbox_root",
+                    return_value={
+                        "key": "inbox_root",
+                        "previous": None,
+                        "value": str(transport.resolve()),
+                        "changed_at": "2026-08-25T00:00:00+00:00",
+                    },
+                ) as update_inbox_root,
                 patch("tools.engineering.dashboard.Timer") as restart_timer,
             ):
                 connection.request("POST", "/api/configuration/inbox-location", body=json.dumps({"inbox_root": str(transport)}), headers={"Content-Type": "application/json"})
                 response = connection.getresponse()
                 self.assertEqual(response.status, 200)
                 self.assertEqual(json.loads(response.read())["value"], str(transport.resolve()))
+                update_inbox_root.assert_called_with(root, str(transport))
                 restart_timer.assert_called_once_with(0.25, dashboard._restart_component_after_response, args=("inbox", ANY))
                 restart_timer.return_value.start.assert_called_once_with()
                 restart_timer.reset_mock()
@@ -2279,6 +2309,7 @@ class DashboardStatusTest(unittest.TestCase):
                 response = connection.getresponse()
                 self.assertEqual(response.status, 200)
                 self.assertEqual(json.loads(response.read())["value"], str(transport.resolve()))
+                update_inbox_root.assert_called_with(root, str(transport / "Inbox"))
                 restart_timer.assert_called_once_with(0.25, dashboard._restart_component_after_response, args=("inbox", ANY))
             with patch("tools.engineering.dashboard._inbox_has_items", return_value=True):
                 connection.request("POST", "/api/configuration/inbox-location", body=json.dumps({"inbox_root": str(root / "another-transport")}), headers={"Content-Type": "application/json"})
