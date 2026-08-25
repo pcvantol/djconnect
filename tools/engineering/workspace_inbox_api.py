@@ -16,6 +16,10 @@ from .storage import EngineeringStorageError, record_submission
 class WorkspaceInboxSubmissionError(ValueError):
     """Raised when a Forge/Workspace submission cannot enter the Inbox safely."""
 
+    def __init__(self, code: str, message: str) -> None:
+        self.code = code
+        super().__init__(message)
+
 
 @dataclass(frozen=True)
 class WorkspaceInboxReceipt:
@@ -34,13 +38,19 @@ def publish(root: Path, envelope: str) -> WorkspaceInboxReceipt:
     try:
         submission = parse_producer_submission(envelope)
     except ProducerSubmissionError as error:
-        raise WorkspaceInboxSubmissionError("Forge-opdracht heeft geen geldig producer-envelope.") from error
+        raise WorkspaceInboxSubmissionError(
+            "invalid_forge_envelope", "Forge submission does not contain a valid producer envelope."
+        ) from error
     if submission.is_legacy or submission.producer.producer_type != "FORGE" or not submission.submission_id:
-        raise WorkspaceInboxSubmissionError("Alleen een volledig Forge producer-envelope kan via deze API worden ingediend.")
+        raise WorkspaceInboxSubmissionError(
+            "forge_envelope_required", "This API accepts only a complete Forge producer envelope."
+        )
     transport = execution_host_configuration(root).resolve_runtime_prompt_transport()
     inbox = transport.inbox
     if not inbox.is_dir() or not os.access(inbox, os.W_OK):
-        raise WorkspaceInboxSubmissionError("De geconfigureerde Engineering Inbox is niet schrijfbaar.")
+        raise WorkspaceInboxSubmissionError(
+            "inbox_unavailable", "The configured Engineering Inbox is not writable."
+        )
     received_at = datetime.now(timezone.utc).isoformat()
     try:
         record_submission(
@@ -62,7 +72,9 @@ def publish(root: Path, envelope: str) -> WorkspaceInboxReceipt:
             received_at=received_at,
         )
     except EngineeringStorageError as error:
-        raise WorkspaceInboxSubmissionError("Het Inbox-auditbewijs kon niet veilig worden opgeslagen.") from error
+        raise WorkspaceInboxSubmissionError(
+            "submission_audit_unavailable", "Inbox submission audit evidence could not be stored safely."
+        ) from error
     filename = f"forge-{submission.submission_id}-{uuid.uuid4().hex[:12]}.json"
     target = inbox / filename
     partial = inbox / f".{filename}.partial"
@@ -72,5 +84,7 @@ def publish(root: Path, envelope: str) -> WorkspaceInboxReceipt:
         partial.replace(target)
     except OSError as error:
         partial.unlink(missing_ok=True)
-        raise WorkspaceInboxSubmissionError("De Forge-opdracht kon niet atomair in de Inbox worden geplaatst.") from error
+        raise WorkspaceInboxSubmissionError(
+            "inbox_publication_failed", "Forge submission could not be published atomically to the Inbox."
+        ) from error
     return WorkspaceInboxReceipt(submission.submission_id, filename, inbox, received_at)

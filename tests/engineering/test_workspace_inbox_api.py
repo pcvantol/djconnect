@@ -53,5 +53,6 @@ class WorkspaceInboxApiTest(unittest.TestCase):
     def test_rejects_non_forge_and_invalid_envelopes(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = self._root(directory)
-            with self.assertRaises(WorkspaceInboxSubmissionError):
+            with self.assertRaisesRegex(WorkspaceInboxSubmissionError, "complete Forge producer envelope") as error:
                 publish(root, "plain text is not a Forge envelope")
+            self.assertEqual(error.exception.code, "forge_envelope_required")
