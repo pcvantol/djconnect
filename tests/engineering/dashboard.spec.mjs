@@ -2427,6 +2427,11 @@ test.describe("Engineering Status browser smoke", () => {
     );
     expect(firstColumnSurfaces.length).toBeGreaterThan(2);
     expect(firstColumnSurfaces.every((colour) => colour !== "rgba(0, 0, 0, 0)")).toBe(true);
+    const telemetryHeaderSurfaces = await page.locator("#executionTelemetry .telemetry-table th:not(:first-child)").evaluateAll(
+      (cells) => cells.map((cell) => getComputedStyle(cell).backgroundColor),
+    );
+    expect(telemetryHeaderSurfaces.length).toBeGreaterThan(1);
+    expect(telemetryHeaderSurfaces.every((colour) => colour === "rgb(234, 240, 248)")).toBe(true);
 
     const date = page.locator('#executionTelemetry th[data-sort-key="date"]');
     await expect(page.locator("#executionTelemetryRows tr td").first()).toHaveText("16-08-2026");

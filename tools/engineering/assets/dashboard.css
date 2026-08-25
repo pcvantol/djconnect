@@ -553,6 +553,10 @@ html[data-theme="light"] #currentRun>.current-run__title>.label{color:color-mix(
    from its parent category's secondary accent rather than a neutral black. */
 :is(.log-table,.telemetry-table){--dashboard-table-divider:color-mix(in srgb,var(--modal-secondary-accent,var(--category-secondary,var(--category-color,#9aabc3))) 52%,transparent)}
 :is(.log-table,.telemetry-table) th,:is(.log-table,.telemetry-table) tbody tr:not(:last-child)>td{border-bottom-color:var(--dashboard-table-divider)!important}
+/* Tables share a neutral header band; the first-column rule below deliberately
+   replaces it with the category tint to preserve the anchored identifier. */
+:is(.log-table,.telemetry-table) th:not(:first-child){background:#2d2d38}
+html[data-theme="light"] :is(.log-table,.telemetry-table) th:not(:first-child){background:#eaf0f8}
 /* Each table keeps its first field visually anchored to its own category.
    Prompt History supplies its stronger rose variant above; the shared rule
    gives logs and telemetry the same readable column structure. */
