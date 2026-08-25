@@ -810,6 +810,19 @@ class DashboardStatusTest(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "Onbekend Engineering Platform-onderdeel"):
                 dashboard._component_details(Path("/missing"), "missing")
 
+    def test_dashboard_launch_agent_discovers_its_module_from_the_selected_checkout(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary, patch(
+            "tools.engineering.dashboard.Path.home", return_value=Path(temporary)
+        ):
+            repository = Path(temporary) / "project"
+            repository.mkdir()
+            rendered = dashboard.launch_agent(repository).read_text(encoding="utf-8")
+        self.assertIn(f"cd {repository} &amp;&amp; exec", rendered)
+        self.assertIn("-m tools.engineering.dashboard", rendered)
+        self.assertIn(f"<key>WorkingDirectory</key><string>{repository}</string>", rendered)
+        self.assertNotIn("-P", rendered)
+        self.assertNotIn("PYTHONPATH", rendered)
+
     def test_local_dashboard_supervisor_preserves_private_and_resilient_boundaries(self) -> None:
         source = (Path(__file__).parents[2] / "tools/engineering/dashboard_supervisor.swift").read_text(encoding="utf-8")
         self.assertIn("tailscale", source)
