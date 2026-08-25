@@ -2647,6 +2647,22 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#executionTelemetryRows tr td").first()).toHaveText("15-08-2026");
   });
 
+  test("paginates execution telemetry at seven days per page", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => window.executionTelemetry(Array.from({ length: 8 }, (_, index) => ({
+      date: `2026-08-${String(24 - index).padStart(2, "0")}`,
+      prompt_count: index + 1,
+    }))));
+    await page.locator("#executionTelemetry").evaluate((element) => { element.open = true; });
+    const rows = page.locator("#executionTelemetryRows .telemetry-row");
+    await expect(rows).toHaveCount(7);
+    const pagination = page.locator("#executionTelemetryPagination");
+    await expect(pagination).toHaveText(/Pagina 1 van 2 · 8 dagen/);
+    await pagination.getByRole("button", { name: "Volgende" }).click();
+    await expect(rows).toHaveCount(1);
+    await expect(pagination).toHaveText(/Pagina 2 van 2 · 8 dagen/);
+  });
+
   test("sorts telemetry detail tables with the same header treatment as logs", async ({ page }) => {
     await page.route("**/api/telemetry/2026-08-16", (route) => route.fulfill({ json: {
       summary: {},

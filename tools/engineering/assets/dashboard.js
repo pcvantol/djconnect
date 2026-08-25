@@ -2894,7 +2894,8 @@ const executionTelemetryColumns = [
   ["total_tokens", "telemetry.total"], ["complete_count", "telemetry.complete"],
   ["blocked_count", "telemetry.blocked"], ["failed_count", "telemetry.failed"],
 ];
-let executionTelemetryRows = [], executionTelemetrySort = { key: "date", direction: "desc" };
+const EXECUTION_TELEMETRY_PAGE_SIZE = 7;
+let executionTelemetryRows = [], executionTelemetryPage = 1, executionTelemetrySort = { key: "date", direction: "desc" };
 function telemetryComparableValue(row, key) {
   const value = row?.[key];
   return key === "date" ? String(value || "") : Number.isFinite(Number(value)) ? Number(value) : -1;
@@ -2929,11 +2930,13 @@ function setExecutionTelemetrySort(key) {
   executionTelemetrySort = executionTelemetrySort.key === key
     ? { key, direction: executionTelemetrySort.direction === "asc" ? "desc" : "asc" }
     : { key, direction: key === "date" ? "desc" : "asc" };
+  executionTelemetryPage = 1;
   executionTelemetry(executionTelemetryRows);
 }
 function executionTelemetry(rows) {
   let panel = $("executionTelemetry"),
-    body = $("executionTelemetryRows");
+    body = $("executionTelemetryRows"),
+    pagination = $("executionTelemetryPagination");
   if (!panel) {
     panel = document.createElement("details");
     panel.id = "executionTelemetry";
@@ -2945,7 +2948,8 @@ function executionTelemetry(rows) {
       table = document.createElement("table"),
       head = document.createElement("thead"),
       headRow = document.createElement("tr"),
-      tableBody = document.createElement("tbody");
+      tableBody = document.createElement("tbody"),
+      navigation = document.createElement("nav");
     title.textContent = t("telemetry.title");
     description.className = "category-description";
     description.textContent = t("telemetry.description");
@@ -2973,15 +2977,25 @@ function executionTelemetry(rows) {
     tableBody.id = "executionTelemetryRows";
     table.append(head, tableBody);
     scroll.append(table);
+    navigation.id = "executionTelemetryPagination";
+    navigation.className = "log-pagination telemetry-pagination";
+    navigation.setAttribute("aria-label", t("telemetry.pagination_label"));
     summary.append(title, description);
-    panel.append(summary, scroll);
+    panel.append(summary, scroll, navigation);
     const rate = $("rateLimits");
     rate?.insertAdjacentElement("afterend", panel);
     body = tableBody;
+    pagination = navigation;
   }
   executionTelemetryRows = (Array.isArray(rows) ? rows : []).filter((row) => row && typeof row === "object");
+  const sorted = sortedExecutionTelemetryRows(), pageCount = Math.max(1, Math.ceil(sorted.length / EXECUTION_TELEMETRY_PAGE_SIZE));
+  executionTelemetryPage = Math.min(Math.max(1, executionTelemetryPage), pageCount);
+  const visibleRows = sorted.slice(
+    (executionTelemetryPage - 1) * EXECUTION_TELEMETRY_PAGE_SIZE,
+    executionTelemetryPage * EXECUTION_TELEMETRY_PAGE_SIZE,
+  );
   body.replaceChildren();
-  for (const row of sortedExecutionTelemetryRows()) {
+  for (const row of visibleRows) {
     const line = document.createElement("tr");
     line.className = "telemetry-row";
     line.tabIndex = 0;
@@ -3023,6 +3037,20 @@ function executionTelemetry(rows) {
     cell.textContent = t("telemetry.empty");
     line.append(cell);
     body.append(line);
+  }
+  pagination.replaceChildren();
+  if (sorted.length > EXECUTION_TELEMETRY_PAGE_SIZE) {
+    const summary = document.createElement("span"), previous = document.createElement("button"), next = document.createElement("button");
+    summary.className = "log-pagination__summary";
+    summary.textContent = t("telemetry.page", { page: executionTelemetryPage, pages: pageCount, count: sorted.length });
+    previous.type = next.type = "button";
+    previous.textContent = t("history.previous");
+    next.textContent = t("history.next");
+    previous.disabled = executionTelemetryPage <= 1;
+    next.disabled = executionTelemetryPage >= pageCount;
+    previous.addEventListener("click", () => { executionTelemetryPage -= 1; executionTelemetry(executionTelemetryRows); });
+    next.addEventListener("click", () => { executionTelemetryPage += 1; executionTelemetry(executionTelemetryRows); });
+    pagination.append(summary, previous, next);
   }
   updateExecutionTelemetrySortHeaders();
 }
