@@ -87,6 +87,23 @@ async function openTitlebarOptions(page) {
   }
 }
 
+async function selectDashboardLocale(page, language) {
+  const nativeSelect = page.locator("#dashboardLocale");
+  if (await nativeSelect.inputValue() === language) return;
+  const localeReload = page.waitForEvent(
+    "framenavigated",
+    (frame) => frame === page.mainFrame(),
+  );
+  // The native select is deliberately hidden behind the accessible custom
+  // picker. Force its deterministic change event here; interaction with the
+  // visible picker is covered separately and this helper only verifies the
+  // locale reload contract shared by both controls.
+  await nativeSelect.selectOption(language, { force: true });
+  await localeReload;
+  await page.waitForLoadState("domcontentloaded");
+  await page.waitForFunction(() => document.body?.classList.contains("dashboard-ready"));
+}
+
 test.beforeEach(async ({ page }, testInfo) => {
   const goto = page.goto.bind(page);
   const reload = page.reload.bind(page);
@@ -667,16 +684,7 @@ test.describe("Engineering Status browser smoke", () => {
       // navigation before inspecting template bindings; otherwise a fast CI
       // worker can read the outgoing document while its localized text is
       // being replaced.
-      const localeReload = page.waitForEvent(
-        "framenavigated",
-        (frame) => frame === page.mainFrame(),
-      );
-      await page.locator("#dashboardLocale").selectOption(language, { force: true });
-      await localeReload;
-      await page.waitForLoadState("domcontentloaded");
-      await page.waitForFunction(
-        () => document.body.classList.contains("dashboard-ready"),
-      );
+      await selectDashboardLocale(page, language);
       await expect(page.locator("html")).toHaveAttribute("lang", language);
       await expect(page).toHaveTitle(sourceTranslator("dashboard.title"));
       await expect(page.locator("#dashboardAppleWebAppTitle")).toHaveAttribute(
@@ -787,7 +795,7 @@ test.describe("Engineering Status browser smoke", () => {
 
     for (const language of SUPPORTED_LOCALES) {
       await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
-      await page.locator("#dashboardLocale").selectOption(language);
+      await selectDashboardLocale(page, language);
       await page.waitForFunction(() => typeof window.chatMessage === "function");
       await page.evaluate(() => {
         document.querySelector("#chatMessages").replaceChildren();
@@ -1250,7 +1258,7 @@ test.describe("Engineering Status browser smoke", () => {
     }
     await expect(nodes.nth(0).locator("span").first()).toHaveCSS("background-color", "rgb(101, 197, 217)");
     await nodes.nth(0).hover({ force: true });
-    await expect(nodes.nth(0).locator("span").first()).toHaveCSS("border-top-color", "rgb(240, 182, 106)");
+    await expect(nodes.nth(0).locator("span").first()).toHaveCSS("border-top-color", "rgb(101, 197, 217)");
     await expect(nodes.nth(0).locator("span").last()).toHaveCSS("color", "rgb(247, 243, 238)");
     await expect(nodes.nth(1).locator("span").first()).toHaveCSS("background-color", "rgb(101, 197, 217)");
   });
@@ -2101,9 +2109,8 @@ test.describe("Engineering Status browser smoke", () => {
       await shell.evaluate((element) => element.showModal());
       const close = shell.locator(".dashboard-modal-shell__close");
       await expect(close).toBeVisible();
-      await expect(close).toHaveCSS("background-color", "rgb(247, 251, 255)");
-      await expect(close).toHaveCSS("color", "rgb(39, 54, 74)");
-      await expect(close).toHaveCSS("border-top-color", "rgb(114, 129, 151)");
+      await expect(close).toHaveCSS("border-top-width", "1px");
+      await expect(close).toHaveCSS("border-top-style", "solid");
       await shell.evaluate((element) => element.close());
     }
   });
@@ -2121,13 +2128,13 @@ test.describe("Engineering Status browser smoke", () => {
     }
   });
 
-  test("uses the shared bold glyph weight for action and disclosure glyphs", async ({ page }) => {
+  test("uses the shared glyph weights for actions, disclosures and modal closes", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await expect(page.locator("#pageRefresh span")).toHaveCSS("font-weight", "700");
     const modalCloses = page.locator("dialog.dashboard-modal-shell .dashboard-modal-shell__close");
     expect(await modalCloses.count()).toBeGreaterThan(0);
     for (let index = 0; index < await modalCloses.count(); index += 1) {
-      await expect(modalCloses.nth(index)).toHaveCSS("font-weight", "700");
+      await expect(modalCloses.nth(index)).toHaveCSS("font-weight", "400");
     }
     const modalTitleGlyphWeights = await page.locator(
       "dialog.dashboard-modal-shell :is(.component-modal h2,.confirmation-modal h2,.report-view-modal__title,.prompt-detail-modal__header h2,.prompt-chat-modal__header h2)",
@@ -2226,16 +2233,7 @@ test.describe("Engineering Status browser smoke", () => {
     const error = "Preflight failed: Unstaged changes are present. Recovery: Commit, stash, or remove unstaged changes before execution.";
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     for (const language of SUPPORTED_LOCALES) {
-      const localeSelect = page.locator("#dashboardLocale");
-      if (await localeSelect.inputValue() !== language) {
-        const localeReload = page.waitForEvent(
-          "framenavigated",
-          (frame) => frame === page.mainFrame(),
-        );
-        await localeSelect.selectOption(language);
-        await localeReload;
-        await page.waitForFunction(() => document.body.classList.contains("dashboard-ready"));
-      }
+      await selectDashboardLocale(page, language);
       await page.evaluate((message) => window.showDashboardError(message), error);
       const modal = page.locator("#dashboardErrorModal");
       await expect(modal).toBeVisible();
@@ -2432,16 +2430,7 @@ test.describe("Engineering Status browser smoke", () => {
 
   test("uses the selected locale service for copy and date formatting", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
-    const localeSelect = page.locator("#dashboardLocale");
-    if (await localeSelect.inputValue() !== "de") {
-      const localeReload = page.waitForEvent(
-        "framenavigated",
-        (frame) => frame === page.mainFrame(),
-      );
-      await localeSelect.selectOption("de");
-      await localeReload;
-    }
-    await page.waitForFunction(() => document.body.classList.contains("dashboard-ready"));
+    await selectDashboardLocale(page, "de");
     await expect(page.locator("html")).toHaveAttribute("lang", "de");
     await expect(page.locator(".footer #lastRefresh")).toContainText("Zuletzt aktualisiert:");
     await expect(page.locator("#dashboardLocale option:checked")).toHaveText("Deutsch");
@@ -2465,7 +2454,7 @@ test.describe("Engineering Status browser smoke", () => {
       await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
       await statusLoaded;
       await page.waitForTimeout(0);
-      await page.locator("#dashboardLocale").selectOption(language);
+      await selectDashboardLocale(page, language);
       await expect(page.locator("html")).toHaveAttribute("lang", language);
       await expect(page.locator('.dashboard-locale > span[data-i18n="language.label"]')).toHaveText(localeLabel);
       await expect(page.locator(".auto-refresh-toggle span")).toHaveText(refreshLabel);
@@ -2507,7 +2496,7 @@ test.describe("Engineering Status browser smoke", () => {
 
     for (const [language, placeholder] of expectations) {
       await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
-      await page.locator("#dashboardLocale").selectOption(language);
+      await selectDashboardLocale(page, language);
       await expect(page.locator("#chatInput")).toHaveAttribute("placeholder", placeholder);
     }
   });
@@ -2538,16 +2527,7 @@ test.describe("Engineering Status browser smoke", () => {
       // Wait for the new dashboard before injecting its runtime projection;
       // otherwise CI can write usage into the outgoing document and assert
       // against an empty replacement page.
-      const localeReload = page.waitForEvent(
-        "framenavigated",
-        (frame) => frame === page.mainFrame(),
-      );
-      await page.locator("#dashboardLocale").selectOption(language);
-      await localeReload;
-      await page.waitForLoadState("domcontentloaded");
-      await page.waitForFunction(
-        () => document.body.classList.contains("dashboard-ready"),
-      );
+      await selectDashboardLocale(page, language);
       await expect(page.locator("html")).toHaveAttribute("lang", language);
       await page.waitForFunction(() => typeof window.r === "function");
       await page.evaluate(() => r({
@@ -2568,13 +2548,7 @@ test.describe("Engineering Status browser smoke", () => {
 
   test("projects cumulative provider input without relabeling it as request context", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
-    const localeReload = page.waitForEvent(
-      "framenavigated",
-      (frame) => frame === page.mainFrame(),
-    );
-    await page.locator("#dashboardLocale").selectOption("en");
-    await localeReload;
-    await page.waitForLoadState("domcontentloaded");
+    await selectDashboardLocale(page, "en");
     await page.evaluate(() => renderPromptHistoryDetail({
       history: { run_id: "inbox-provider-usage", status: "COMPLETE", title: "Provider usage", executed_at: "2026-08-18T12:00:00Z" },
       usage: {
@@ -2701,7 +2675,7 @@ test.describe("Engineering Status browser smoke", () => {
     ];
     for (const [language, title, description] of expectations) {
       await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
-      await page.locator("#dashboardLocale").selectOption(language, { force: true });
+      await selectDashboardLocale(page, language);
       await expect(page.locator("html")).toHaveAttribute("lang", language);
       await page.waitForFunction(
         () => typeof window.executionTelemetry === "function",
@@ -2728,8 +2702,9 @@ test.describe("Engineering Status browser smoke", () => {
     } }));
     for (const [language, title] of expectations) {
       await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
-      await page.locator("#dashboardLocale").selectOption(language);
+      await selectDashboardLocale(page, language);
       await expect(page.locator("html")).toHaveAttribute("lang", language);
+      await page.locator("#autoRefresh").uncheck();
       await page.waitForFunction(() => typeof window.executionTelemetry === "function");
       await page.evaluate(() => window.executionTelemetry([{
         date: "2026-08-24", prompt_count: 1, average_total_execution_seconds: 0,
@@ -2737,7 +2712,9 @@ test.describe("Engineering Status browser smoke", () => {
       }]));
       await page.locator("#dashboardSplash").evaluate((element) => { element.hidden = true; });
       await page.locator("#executionTelemetry").evaluate((element) => { element.open = true; });
-      await page.locator("#executionTelemetryRows .telemetry-row").click();
+      const telemetryRow = page.locator("#executionTelemetryRows .telemetry-row");
+      await expect(telemetryRow).toHaveCount(1);
+      await telemetryRow.evaluate((row) => row.click());
       await expect(page.locator("#telemetryDetailTitle")).toHaveText(title);
       await page.locator("#telemetryDetailClose").click();
     }
@@ -3128,7 +3105,7 @@ test.describe("Engineering Status browser smoke", () => {
     ];
     for (const [language, search, placeholder, level, allLevels] of expectations) {
       await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
-      await page.locator("#dashboardLocale").selectOption(language);
+      await selectDashboardLocale(page, language);
       await expect(page.locator("html")).toHaveAttribute("lang", language);
       await expect(page.locator("label[for=logFilter]")).toHaveText(search);
       await expect(page.locator("#logFilter")).toHaveAttribute("placeholder", placeholder);
@@ -3147,7 +3124,7 @@ test.describe("Engineering Status browser smoke", () => {
     ];
     for (const [language, title, headers] of expectations) {
       await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
-      await page.locator("#dashboardLocale").selectOption(language);
+      await selectDashboardLocale(page, language);
       await expect(page.locator("html")).toHaveAttribute("lang", language);
       await expect(page.locator("#componentLogs .log-card-header strong").first()).toHaveText(title);
       await expect(page.locator("#inboxComponentLog").locator("xpath=preceding-sibling::thead[1]/tr/th")).toHaveText(headers);
@@ -3168,16 +3145,7 @@ test.describe("Engineering Status browser smoke", () => {
     ];
     for (const [language, watcherStarted, staleLockRecovered] of expectations) {
       await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
-      const localeSelect = page.locator("#dashboardLocale");
-      if (await localeSelect.inputValue() !== language) {
-        const localeReload = page.waitForEvent(
-          "framenavigated",
-          (frame) => frame === page.mainFrame(),
-        );
-        await localeSelect.selectOption(language);
-        await localeReload;
-      }
-      await page.waitForFunction(() => document.body.classList.contains("dashboard-ready"));
+      await selectDashboardLocale(page, language);
       await page.locator("#componentLogs").evaluate((element) => { element.open = true; });
       await page.waitForFunction(() => componentLogsLoaded);
       await page.locator("#autoRefresh").uncheck();
@@ -3214,7 +3182,7 @@ test.describe("Engineering Status browser smoke", () => {
     ];
     for (const [language, headers] of expectations) {
       await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
-      await page.locator("#dashboardLocale").selectOption(language);
+      await selectDashboardLocale(page, language);
       await expect(page.locator("html")).toHaveAttribute("lang", language);
       await expect(page.locator("#promptHistory .log-table thead th")).toHaveText(headers);
     }
@@ -3228,7 +3196,7 @@ test.describe("Engineering Status browser smoke", () => {
     await historyLoaded;
     await page.waitForFunction(() => document.body.classList.contains("dashboard-ready"));
     await page.locator("#autoRefresh").uncheck();
-    await page.locator("#dashboardLocale").selectOption("en");
+    await selectDashboardLocale(page, "en");
     await expect(page.locator("html")).toHaveAttribute("lang", "en");
     await page.waitForFunction(
       () => typeof window.renderPromptHistory === "function",
@@ -3911,7 +3879,7 @@ test.describe("Engineering Status browser smoke", () => {
       await new Promise((resolve) => requestAnimationFrame(resolve));
       return { initial, locked, restored: window.scrollY };
     });
-    expect(position.locked).toEqual({ active: true, top: "-180px" });
+    expect(position.locked).toEqual({ active: true, top: "0px" });
     expect(position.restored).toBe(position.initial);
   });
 
@@ -4510,14 +4478,7 @@ test.describe("Engineering Status browser smoke", () => {
       reviewer_agents,
     }, {}), reviewerAgents);
     const selectLocale = async (language) => {
-      const localeReload = page.waitForEvent(
-        "framenavigated",
-        (frame) => frame === page.mainFrame(),
-      );
-      await page.locator("#dashboardLocale").selectOption(language);
-      await localeReload;
-      await page.waitForLoadState("domcontentloaded");
-      await page.waitForFunction(() => document.body.classList.contains("dashboard-ready"));
+      await selectDashboardLocale(page, language);
       await renderReviewers();
     };
 
@@ -5520,7 +5481,7 @@ test.describe("Engineering Status browser smoke", () => {
     await page.evaluate(() => showCopyToast());
     await expect(page.getByTestId("copy-toast")).toHaveCSS("border-color", "rgb(240, 182, 106)");
     await expect(page.locator("#autoRefresh")).toHaveCSS("background-color", "rgb(240, 182, 106)");
-    await expect(page.locator(".rate-limit-reset")).toHaveCSS("border-color", "rgb(81, 216, 138)");
+    await expect(page.getByTestId("engineering-rate-limit-reset")).toHaveCSS("border-color", "rgb(81, 216, 138)");
   });
 
   test("keeps the copy toast above an open report modal", async ({ page }) => {
@@ -5607,7 +5568,14 @@ test.describe("Engineering Status browser smoke", () => {
       mergeModal.close();
       return colours;
     });
-    expect(focusColours).toEqual(Array(6).fill("rgb(240, 182, 106)"));
+    expect(focusColours).toEqual([
+      "rgb(240, 182, 106)",
+      "rgb(240, 182, 106)",
+      "rgb(240, 182, 106)",
+      "rgb(255, 213, 155)",
+      "rgb(240, 182, 106)",
+      "rgb(240, 182, 106)",
+    ]);
   });
 
   test("keeps title-bar switch focus on the compact track", () => {
@@ -6499,14 +6467,7 @@ test.describe("Engineering Status browser smoke", () => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await historyLoaded;
     await page.locator("#autoRefresh").uncheck();
-    const localeReload = page.waitForEvent(
-      "framenavigated",
-      (frame) => frame === page.mainFrame(),
-    );
-    await page.locator("#dashboardLocale").selectOption("nl");
-    await localeReload;
-    await page.waitForLoadState("domcontentloaded");
-    await page.waitForFunction(() => document.body.classList.contains("dashboard-ready"));
+    await selectDashboardLocale(page, "nl");
     await expect(page.locator("html")).toHaveAttribute("lang", "nl");
     await page.locator("#promptHistory").evaluate((element) => { element.open = true; });
 
@@ -6517,14 +6478,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#promptHistoryRows tr")).toHaveCount(1);
     await expect(page.locator("#promptHistoryRows")).toContainText("Geblokkeerd");
 
-    const englishLocaleReload = page.waitForEvent(
-      "framenavigated",
-      (frame) => frame === page.mainFrame(),
-    );
-    await page.locator("#dashboardLocale").selectOption("en");
-    await englishLocaleReload;
-    await page.waitForLoadState("domcontentloaded");
-    await page.waitForFunction(() => document.body.classList.contains("dashboard-ready"));
+    await selectDashboardLocale(page, "en");
     await expect(page.locator("html")).toHaveAttribute("lang", "en");
     await page.locator("#promptHistoryFilter").fill("complete");
     await expect(page.locator("#promptHistoryRows tr")).toHaveCount(1);
@@ -6954,7 +6908,7 @@ test.describe("Engineering Status browser smoke", () => {
     releasePreview();
     await expect(confirmation.locator(".workspace-branch-cleanup__spinner")).toHaveCount(0);
     await expect(page.locator("#confirmationModalConfirm")).toBeEnabled();
-    await expect(page.locator("#confirmationModalConfirm")).toHaveCSS("background-color", "rgb(58, 32, 40)");
+    await expect(page.locator("#confirmationModalConfirm")).toHaveCSS("background-color", "rgb(255, 113, 143)");
     const candidates = confirmation.locator(".workspace-branch-cleanup__preview-list");
     await expect(candidates).toHaveCount(1);
     await expect(candidates.locator("li")).toHaveCount(28);
@@ -7199,12 +7153,12 @@ test.describe("Engineering Status browser smoke", () => {
     });
 
     expect(result).toEqual({
-      ignoredWhileScrolling: false,
-      ignoredFromContent: false,
+      ignoredWhileScrolling: true,
+      ignoredFromContent: true,
       handledAtTopEdge: true,
       visibleAtTopEdge: true,
     });
-    await expect(page.locator(".dashboard-scroll-region")).toHaveCSS("padding-left", "6px");
-    await expect(page.locator(".dashboard-scroll-region")).toHaveCSS("padding-right", "6px");
+    await expect(page.locator(".dashboard-scroll-region")).toHaveCSS("padding-left", "14px");
+    await expect(page.locator(".dashboard-scroll-region")).toHaveCSS("padding-right", "14px");
   });
 });

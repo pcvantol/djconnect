@@ -4585,7 +4585,6 @@ function syncInboxLocationChangeAvailability(queueDepth) {
     notice.id = "configurationInboxUnavailable";
     notice.className = "configuration-inbox-unavailable";
     notice.setAttribute("role", "status");
-    notice.dataset.i18n = "configuration.inbox_location_queue_not_empty";
     button.after(notice);
   }
   const inboxIsEmpty = Number.isInteger(queueDepth) && queueDepth === 0;
