@@ -187,6 +187,7 @@ class DashboardStatusTest(unittest.TestCase):
             "configuration.seconds_5", "configuration.seconds_60", "configuration.seconds_90",
             "configuration.github_retry_backoff_value",
             "configuration.inbox_location_open", "configuration.inbox_location_modal_description",
+            "configuration.inbox_location_queue_not_empty",
             "configuration.inbox_location_input", "configuration.inbox_location_browse", "configuration.inbox_location_requirement",
             "configuration.inbox_location_save", "configuration.inbox_location_confirm",
             "configuration.inbox_location_saved", "configuration.inbox_location_failed",
@@ -2201,6 +2202,7 @@ class DashboardStatusTest(unittest.TestCase):
                     "tools.engineering.dashboard._status",
                     return_value=b'{"watcher_state":"WATCHER_IDLE","run_id":null,"current_phase":"COMPLETE"}',
                 ),
+                patch("tools.engineering.dashboard._inbox_has_items", return_value=False),
                 patch("tools.engineering.dashboard.Timer") as restart_timer,
             ):
                 connection.request("POST", "/api/configuration/inbox-location", body=json.dumps({"inbox_root": str(transport)}), headers={"Content-Type": "application/json"})
@@ -2215,6 +2217,11 @@ class DashboardStatusTest(unittest.TestCase):
                 self.assertEqual(response.status, 200)
                 self.assertEqual(json.loads(response.read())["value"], str(transport.resolve()))
                 restart_timer.assert_called_once_with(0.25, dashboard._restart_component_after_response, args=("inbox", ANY))
+            with patch("tools.engineering.dashboard._inbox_has_items", return_value=True):
+                connection.request("POST", "/api/configuration/inbox-location", body=json.dumps({"inbox_root": str(root / "another-transport")}), headers={"Content-Type": "application/json"})
+                response = connection.getresponse()
+                self.assertEqual(response.status, 409)
+                self.assertEqual(json.loads(response.read()), {"error_code": "inbox_not_empty"})
             with patch(
                 "tools.engineering.dashboard._status",
                 return_value=b'{"watcher_state":"ENGINEERING_RUN_ACTIVE","run_id":"inbox-running","current_phase":"COMPLETE"}',

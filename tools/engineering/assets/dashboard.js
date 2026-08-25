@@ -597,6 +597,7 @@ function queueItems(x, queueDepth) {
       Number.isInteger(queueDepth) && queueDepth >= 0
         ? queueDepth
         : items.length;
+  syncInboxLocationChangeAvailability(depth);
   $("queueSummary").textContent =
     depth === 0
       ? t("queue.summary_zero")
@@ -4453,6 +4454,27 @@ function enhanceDashboardSelectPicker(select) {
   });
   refresh();
 }
+function syncInboxLocationChangeAvailability(queueDepth) {
+  const button = $("configurationInboxOpen");
+  if (!button) return;
+  const field = button.closest(".configuration-field");
+  let notice = $("configurationInboxUnavailable");
+  if (!notice && field) {
+    notice = document.createElement("p");
+    notice.id = "configurationInboxUnavailable";
+    notice.className = "configuration-inbox-unavailable";
+    notice.setAttribute("role", "status");
+    notice.dataset.i18n = "configuration.inbox_location_queue_not_empty";
+    button.after(notice);
+  }
+  const inboxIsEmpty = Number.isInteger(queueDepth) && queueDepth === 0;
+  button.disabled = !inboxIsEmpty;
+  if (notice) {
+    notice.hidden = inboxIsEmpty;
+    notice.textContent = inboxIsEmpty ? "" : t("configuration.inbox_location_queue_not_empty");
+    button.setAttribute("aria-describedby", notice.id);
+  }
+}
 function enhanceDashboardSelectPickers() {
   document.querySelectorAll("select:not([multiple]):not(#dashboardLocale)").forEach(enhanceDashboardSelectPicker);
 }
@@ -4664,6 +4686,7 @@ $("configurationInboxOpen")?.addEventListener("click", () => {
   if (!modal.open) modal.showModal();
   resetDashboardModalInitialFocus(modal);
 });
+syncInboxLocationChangeAvailability();
 $("configurationInboxModalClose")?.addEventListener("click", () => $("configurationInboxModal").close());
 $("configurationInboxModalCloseAction")?.addEventListener("click", () => $("configurationInboxModal").close());
 $("configurationInboxModal")?.addEventListener("click", (event) => {
@@ -4706,7 +4729,11 @@ $("configurationInboxSave")?.addEventListener("click", async (event) => {
       body: JSON.stringify({ inbox_root: root }),
     });
     const payload = await response.json();
-    if (!response.ok) throw Error(payload.error || t("configuration.inbox_location_failed"));
+    if (!response.ok) throw Error(
+      payload.error_code === "inbox_not_empty"
+        ? t("configuration.inbox_location_queue_not_empty")
+        : payload.error || t("configuration.inbox_location_failed"),
+    );
     $("configurationInbox").textContent = `${payload.value}/Inbox`;
     renderConfigurationInboxLocation();
     $("configurationInboxStatus").textContent = t("configuration.inbox_location_saved");

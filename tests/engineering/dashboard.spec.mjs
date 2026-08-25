@@ -159,6 +159,8 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(location).toHaveClass(/configuration-inbox-location/);
     const button = page.locator("#configurationInboxOpen");
     await expect(button).toHaveText("Locatie wijzigen");
+    await expect(button).toBeEnabled();
+    await expect(page.locator("#configurationInboxUnavailable")).toBeHidden();
     await expect(button).toHaveCSS("border-top-color", "rgb(129, 140, 248)");
     await page.route("**/api/configuration/inbox-location/browse", (route) => route.fulfill({
       json: { cancelled: false, value: selectedRoot },
@@ -174,6 +176,9 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(browse).toHaveText("Lokale map kiezen");
     await browse.click();
     await expect(root).toHaveValue(selectedRoot);
+    await page.route("**/api/configuration/inbox-location", (route) => route.fulfill({
+      json: { key: "inbox_root", value: selectedRoot },
+    }));
     const saveRequested = page.waitForRequest((request) => request.url().endsWith("/api/configuration/inbox-location"));
     const saved = page.waitForResponse((response) => response.url().endsWith("/api/configuration/inbox-location"));
     await page.locator("#configurationInboxSave").click();
@@ -186,6 +191,18 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#configurationInboxModal")).not.toBeVisible({ timeout: 2_000 });
     await expect(location).toHaveText(/selected-engineering-root\/Inbox$/);
     await expect(page.locator("#configurationInboxStatus")).toHaveClass(/configuration-status--saved/);
+  });
+
+  test("disables the Inbox location action while the project queue has items", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => window.queueItems([
+      { filename: "waiting-assignment.md", title: "Waiting assignment" },
+    ], 1));
+    const button = page.locator("#configurationInboxOpen");
+    const notice = page.locator("#configurationInboxUnavailable");
+    await expect(button).toBeDisabled();
+    await expect(button).toHaveAttribute("aria-describedby", "configurationInboxUnavailable");
+    await expect(notice).toHaveText("Maak de Inbox eerst leeg voordat je de locatie wijzigt.");
   });
 
   test("keeps project-scoped Inbox settings with the project queue", async ({ page }) => {

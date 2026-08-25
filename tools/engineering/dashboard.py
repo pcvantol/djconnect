@@ -595,6 +595,14 @@ def _execution_active(root: Path) -> bool:
     )
 
 
+def _inbox_has_items(inbox: Path) -> bool:
+    """Return whether the active Inbox contains work, conservatively on errors."""
+    try:
+        return any(not item.name.startswith(".") for item in inbox.iterdir())
+    except OSError:
+        return True
+
+
 def _codex_cli_update_status(root: Path, *, refresh: bool = False) -> dict[str, object]:
     """Read the published Codex CLI version without exposing account or npm output."""
     global _codex_update_cache
@@ -2257,6 +2265,14 @@ def handler(root: Path, logger: logging.Logger | None = None):
                         raise ValueError
                     if _execution_active(root):
                         raise RuntimeError("Wijzig de Inbox-locatie pas wanneer geen uitvoering actief is.")
+                    active_inbox = PlatformConfiguration.load(root).resolver(root).resolve_runtime_prompt_transport().inbox
+                    if _inbox_has_items(active_inbox):
+                        self._send(
+                            b'{"error_code":"inbox_not_empty"}',
+                            "application/json; charset=utf-8",
+                            409,
+                        )
+                        return
                     event = update_inbox_root(root, payload["inbox_root"])
                     log_event(
                         logger, logging.INFO, "dashboard_configuration_changed",
