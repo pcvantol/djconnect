@@ -159,7 +159,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(location).toHaveClass(/configuration-inbox-location/);
     const button = page.locator("#configurationInboxOpen");
     await expect(button).toHaveText("Locatie wijzigen");
-    await expect(button).toHaveCSS("border-top-color", "rgb(240, 182, 106)");
+    await expect(button).toHaveCSS("border-top-color", "rgb(201, 164, 255)");
     await page.route("**/api/configuration/inbox-location/browse", (route) => route.fulfill({
       json: { cancelled: false, value: selectedRoot },
     }));
