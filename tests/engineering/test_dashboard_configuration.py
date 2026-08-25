@@ -4,7 +4,7 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from tools.engineering.dashboard_configuration import DEFAULTS, get, update
+from tools.engineering.dashboard_configuration import DEFAULTS, get, inbox_root, update, update_inbox_root
 from tools.engineering.component_logging import prune_component_logs
 from tools.engineering.storage import open_storage
 
@@ -51,3 +51,15 @@ class DashboardConfigurationTest(unittest.TestCase):
                 )
             finally:
                 connection.close()
+
+    def test_inbox_root_requires_an_existing_writable_inbox(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            candidate = root / "transport"
+            candidate.mkdir()
+            with self.assertRaises(ValueError):
+                update_inbox_root(root, str(candidate))
+            (candidate / "Inbox").mkdir()
+            event = update_inbox_root(root, str(candidate))
+            self.assertEqual(event["value"], str(candidate.resolve()))
+            self.assertEqual(inbox_root(root), candidate.resolve())

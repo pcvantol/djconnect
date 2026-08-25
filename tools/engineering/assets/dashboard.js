@@ -4156,12 +4156,42 @@ Object.keys(configurationFields).forEach((id) => {
 });
 $("configurationInboxOpen")?.addEventListener("click", () => {
   const modal = $("configurationInboxModal");
+  $("configurationInboxRoot").value = $("configurationInbox").textContent.trim();
+  $("configurationInboxStatus").textContent = "";
   if (!modal.open) modal.showModal();
   resetDashboardModalInitialFocus(modal);
 });
 $("configurationInboxModalClose")?.addEventListener("click", () => $("configurationInboxModal").close());
+$("configurationInboxModalCloseAction")?.addEventListener("click", () => $("configurationInboxModal").close());
 $("configurationInboxModal")?.addEventListener("click", (event) => {
   if (event.target === event.currentTarget) event.currentTarget.close();
+});
+$("configurationInboxSave")?.addEventListener("click", async (event) => {
+  const root = $("configurationInboxRoot").value.trim();
+  const confirmed = await confirmDashboardAction(
+    t("configuration.inbox_location"),
+    t("configuration.inbox_location_confirm", { path: root }),
+    t("configuration.inbox_location_save"),
+  );
+  if (!confirmed) return;
+  const button = event.currentTarget;
+  button.disabled = true;
+  try {
+    const response = await fetch("/api/configuration/inbox-location", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ inbox_root: root }),
+    });
+    const payload = await response.json();
+    if (!response.ok) throw Error(payload.error || t("configuration.inbox_location_failed"));
+    $("configurationInbox").textContent = `${payload.value}/Inbox`;
+    $("configurationInboxStatus").textContent = t("configuration.inbox_location_saved");
+    setTimeout(() => $("configurationInboxModal").close(), 700);
+  } catch (error) {
+    $("configurationInboxStatus").textContent = error.message || t("configuration.inbox_location_failed");
+  } finally {
+    button.disabled = false;
+  }
 });
 initializeDashboardConfiguration();
 function loadAllSectionsIntent() {

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
+import os
 from pathlib import Path
 import json
 
@@ -18,6 +19,7 @@ OPTIONS = {
     "log_level": frozenset({"INFO", "DEBUG"}),
 }
 PREFIX = "dashboard_configuration."
+INBOX_ROOT_KEY = PREFIX + "inbox_root"
 
 
 def get(root: Path) -> dict[str, object]:
@@ -64,3 +66,55 @@ def update(root: Path, key: str, value: object) -> dict[str, object]:
                 "changed_at": datetime.now(timezone.utc).isoformat()}
     finally:
         connection.close()
+
+
+def inbox_root(root: Path) -> Path | None:
+    """Return the validated host-owned Inbox root override, when configured."""
+    connection = open_storage(root)
+    try:
+        row = connection.execute(
+            "SELECT value FROM engineering_metadata WHERE key=?", (INBOX_ROOT_KEY,)
+        ).fetchone()
+    finally:
+        connection.close()
+    if row is None:
+        return None
+    try:
+        raw = json.loads(row[0])
+    except (TypeError, json.JSONDecodeError):
+        return None
+    if not isinstance(raw, str):
+        return None
+    candidate = Path(raw).expanduser()
+    if not candidate.is_absolute():
+        return None
+    return candidate.resolve()
+
+
+def update_inbox_root(root: Path, value: object) -> dict[str, object]:
+    """Persist a writable existing Inbox root only after local validation."""
+    if not isinstance(value, str) or not value.strip():
+        raise ValueError("Kies een bestaande lokale Inbox-map.")
+    candidate = Path(value).expanduser()
+    if not candidate.is_absolute():
+        raise ValueError("De Inbox-locatie moet een absoluut lokaal pad zijn.")
+    candidate = candidate.resolve()
+    inbox = candidate / "Inbox"
+    if not candidate.is_dir() or not inbox.is_dir() or not os.access(inbox, os.W_OK):
+        raise ValueError("De gekozen map bevat geen beschrijfbare Inbox-map.")
+    previous = inbox_root(root)
+    connection = open_storage(root)
+    try:
+        connection.execute(
+            "INSERT INTO engineering_metadata(key,value) VALUES(?,?) "
+            "ON CONFLICT(key) DO UPDATE SET value=excluded.value",
+            (INBOX_ROOT_KEY, json.dumps(str(candidate))),
+        )
+    finally:
+        connection.close()
+    return {
+        "key": "inbox_root",
+        "previous": str(previous) if previous else None,
+        "value": str(candidate),
+        "changed_at": datetime.now(timezone.utc).isoformat(),
+    }
