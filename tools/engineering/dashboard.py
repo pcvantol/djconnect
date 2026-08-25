@@ -467,7 +467,7 @@ def _remaining_rate_limit_capacity(rate_limits: dict[str, object]) -> float | No
 
 
 def _codex_provider_identity(*, refresh: bool = False) -> dict[str, str]:
-    """Return the active provider identity without exposing local paths or account data."""
+    """Return the active provider identity and its locally resolved executable path."""
     global _codex_identity_cache
     now = time.monotonic()
     with _codex_identity_cache_lock:
@@ -477,6 +477,17 @@ def _codex_provider_identity(*, refresh: bool = False) -> dict[str, str]:
     identity = {"provider": "Codex CLI", "provider_version": "versie niet beschikbaar"}
     executable = codex_cli_executable()
     if executable:
+        managed_prefix = engineering_platform_codex_cli_prefix()
+        managed_executable = managed_prefix / "bin" / "codex"
+        if Path(executable).expanduser() == managed_executable:
+            identity["provider_path"] = str(managed_prefix)
+        else:
+            resolved_executable = shutil.which(executable)
+            if resolved_executable:
+                try:
+                    identity["provider_path"] = str(Path(resolved_executable).resolve())
+                except OSError:
+                    identity["provider_path"] = resolved_executable
         try:
             completed = LocalProcessProvider().execute(Path.cwd(), (executable, "--version"))
         except OSError:
@@ -1817,7 +1828,7 @@ def _dashboard_html(
 <div class="card" id="usage" hidden><strong>Codex CLI</strong><div class="field"><span class="label" data-i18n="ui.reported_usage"></span><pre id="usageDetails"></pre></div></div>
 <div class="card" id="currentDiagnostic" hidden><strong>Codex CLI</strong><pre id="currentLog" data-i18n="format.loading"></pre></div>
 </div></details>
-<details class="card card--resource" id="rateLimits" hidden><summary><strong data-i18n="section.remaining_usage"></strong></summary><div class="field"><span class="label" data-i18n="ui.current_ai_provider"></span><span id="rateLimitProvider" data-i18n="format.loading"></span></div><p class="rate-limit-update-status" id="codexCliUpdateStatus" role="status" aria-live="polite"></p><button class="rate-limit-reset" id="codexCliUpdate" type="button" hidden data-i18n="ui.codex_cli_update"></button><div class="field"><span class="label" id="rateLimitLabel">Codex CLI</span><pre id="rateLimitDetails"></pre></div><button class="rate-limit-reset" id="rateLimitReset" type="button" hidden data-i18n="ui.reset_ready"></button><p class="rate-limit-reset-status" id="rateLimitResetStatus" role="status" aria-live="polite"></p></details>
+<details class="card card--resource" id="rateLimits" hidden><summary><strong data-i18n="section.remaining_usage"></strong></summary><div class="field"><span class="label" data-i18n="ui.current_ai_provider"></span><span id="rateLimitProvider" data-i18n="format.loading"></span></div><div class="field rate-limit-provider-path"><span class="label" data-i18n="ui.installation_path"></span><code id="rateLimitProviderPath" data-i18n="format.not_available"></code></div><p class="rate-limit-update-status" id="codexCliUpdateStatus" role="status" aria-live="polite"></p><button class="rate-limit-reset" id="codexCliUpdate" type="button" hidden data-i18n="ui.codex_cli_update"></button><div class="field"><span class="label" id="rateLimitLabel">Codex CLI</span><pre id="rateLimitDetails"></pre></div><button class="rate-limit-reset" id="rateLimitReset" type="button" hidden data-i18n="ui.reset_ready"></button><p class="rate-limit-reset-status" id="rateLimitResetStatus" role="status" aria-live="polite"></p></details>
 <details class="platform-health" id="platformHealth" data-testid="platform-health"><summary><strong data-i18n="section.platform_components"></strong></summary><p class="category-description" data-i18n="description.platform_components"></p><div class="platform-health__components" id="platformHealthComponents" aria-live="polite"><p class="platform-health__empty" data-i18n="ui.component_health_loading"></p></div></details>
 <dialog class="dashboard-modal-shell dashboard-modal-shell--component component-modal" id="componentModal" aria-labelledby="componentModalTitle"><section class="dashboard-modal-shell__panel component-modal__panel"><header class="dashboard-modal-shell__header component-modal__header"><h2 id="componentModalTitle" data-i18n="ui.component_information"></h2><button class="dashboard-modal-shell__close component-modal__close" id="componentModalClose" type="button" data-i18n-aria-label="sections.close">×</button></header><div id="componentModalContent"></div><button class="component-modal__restart" id="componentModalRestart" type="button" hidden data-i18n="ui.component_restart"></button><p class="component-modal__status" id="componentModalStatus" aria-live="polite"></p></section></dialog>
 <dialog class="dashboard-modal-shell dashboard-modal-shell--evidence telemetry-detail-modal" id="telemetryDetailModal" aria-labelledby="telemetryDetailTitle"><section class="dashboard-modal-shell__panel telemetry-detail-modal__panel"><header class="dashboard-modal-shell__header"><h2 id="telemetryDetailTitle"></h2><button class="dashboard-modal-shell__close" id="telemetryDetailClose" type="button" data-i18n-aria-label="sections.close">×</button></header><p id="telemetryDetailDescription" class="prompt-detail-modal__description"></p><div id="telemetryDetailContent" class="telemetry-detail-modal__content" aria-live="polite"></div></section></dialog>

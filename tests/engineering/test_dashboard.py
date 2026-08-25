@@ -1026,8 +1026,9 @@ class DashboardStatusTest(unittest.TestCase):
 
     @patch("tools.engineering.dashboard.subprocess.run")
     @patch("tools.engineering.dashboard.shutil.which", return_value="/usr/local/bin/codex")
-    def test_codex_provider_identity_keeps_only_the_cli_version(
-        self, _: object, run: object
+    @patch("tools.engineering.dashboard.codex_cli_executable", return_value="/usr/local/bin/codex")
+    def test_codex_provider_identity_includes_the_resolved_cli_path(
+        self, _: object, __: object, run: object
     ) -> None:
         run.return_value = __import__("subprocess").CompletedProcess(
             ("codex", "--version"), 0, "OpenAI Codex v0.146.0", ""
@@ -1035,7 +1036,11 @@ class DashboardStatusTest(unittest.TestCase):
         dashboard._codex_identity_cache = None
         self.assertEqual(
             _codex_provider_identity(),
-            {"provider": "Codex CLI", "provider_version": "0.146.0"},
+            {
+                "provider": "Codex CLI",
+                "provider_version": "0.146.0",
+                "provider_path": "/usr/local/bin/codex",
+            },
         )
         dashboard._codex_identity_cache = None
 
@@ -1124,20 +1129,20 @@ class DashboardStatusTest(unittest.TestCase):
         process = FakeProcess()
         with patch("tools.engineering.dashboard.subprocess.Popen", return_value=process):
             dashboard._rate_limit_cache = None
-            self.assertEqual(
-                json.loads(dashboard._codex_rate_limits()),
-                {"provider": "Codex CLI", "provider_version": "versie niet beschikbaar"},
-            )
+            result = json.loads(dashboard._codex_rate_limits())
+            self.assertEqual(result["provider"], "Codex CLI")
+            self.assertEqual(result["provider_version"], "versie niet beschikbaar")
+            self.assertIsInstance(result.get("provider_path"), str)
             dashboard._rate_limit_cache = None
         self.assertTrue(process.terminated)
 
     def test_codex_rate_limits_fails_closed_when_app_server_cannot_start(self) -> None:
         with patch("tools.engineering.dashboard.subprocess.Popen", side_effect=OSError):
             dashboard._rate_limit_cache = None
-            self.assertEqual(
-                json.loads(dashboard._codex_rate_limits()),
-                {"provider": "Codex CLI", "provider_version": "versie niet beschikbaar"},
-            )
+            result = json.loads(dashboard._codex_rate_limits())
+            self.assertEqual(result["provider"], "Codex CLI")
+            self.assertEqual(result["provider_version"], "versie niet beschikbaar")
+            self.assertIsInstance(result.get("provider_path"), str)
             dashboard._rate_limit_cache = None
 
     def test_codex_rate_limit_reset_consumes_one_credit_with_an_idempotency_key(self) -> None:
@@ -2601,12 +2606,12 @@ class DashboardStatusTest(unittest.TestCase):
             self.assertIn(dashboard.LABEL, rendered)
             self.assertIn("KeepAlive", rendered)
             self.assertIn(str(root), rendered)
-            self.assertIn("<key>PYTHONPATH</key><string>" + str(root) + "</string>", rendered)
-            self.assertIn("<key>WorkingDirectory</key><string>/</string>", rendered)
+            self.assertNotIn("<key>PYTHONPATH</key>", rendered)
+            self.assertIn("<key>WorkingDirectory</key><string>" + str(root) + "</string>", rendered)
             self.assertIn("/bin/zsh", rendered)
             self.assertIn("-lc", rendered)
-            self.assertIn(" -P -m tools.engineering.dashboard ", rendered)
-            self.assertIn("cd / &amp;&amp; exec", rendered)
+            self.assertNotIn(" -P -m tools.engineering.dashboard ", rendered)
+            self.assertIn("cd " + str(root) + " &amp;&amp; exec", rendered)
             self.assertIn("exec", rendered)
             self.assertNotIn("StandardOutPath", rendered)
             self.assertNotIn("StandardErrorPath", rendered)

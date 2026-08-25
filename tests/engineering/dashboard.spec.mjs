@@ -4178,9 +4178,10 @@ test.describe("Engineering Status browser smoke", () => {
           queue_depth: 0,
           queue_items: [],
         },
-        rate_limits: {
+      rate_limits: {
           provider: "Codex CLI",
           provider_version: "0.146.0",
+          provider_path: "/opt/homebrew/bin/codex",
           windows: [],
           reset_credits: 0,
         },
@@ -4194,6 +4195,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#queueSummary")).toHaveText("0 uitvoeringen in de wachtrij.");
     await expect(page.locator("#rateLimits")).toBeVisible();
     await expect(page.locator("#rateLimitProvider")).toHaveText("Codex CLI · 0.146.0");
+    await expect(page.locator("#rateLimitProviderPath")).toHaveText("/opt/homebrew/bin/codex");
     await expect(page.locator("#rateLimitDetails")).toHaveCSS("font-size", "14px");
   });
 
@@ -6977,10 +6979,12 @@ test.describe("Engineering Status browser smoke", () => {
     await page.evaluate(() => rateLimits({
       provider: "Codex CLI",
       provider_version: "0.146.0",
+      provider_path: "/opt/homebrew/bin/codex",
       windows: [{ label: "Weekvenster", used_percent: 24, resets_at: 0 }],
       reset_credits: 2,
     }));
     await expect(page.locator("#rateLimitProvider")).toHaveText("Codex CLI · 0.146.0");
+    await expect(page.locator("#rateLimitProviderPath")).toHaveText("/opt/homebrew/bin/codex");
     await expect(page.locator("#rateLimitDetails")).toHaveText(/Weekvenster: 76,0% beschikbaar.*Beschikbare resets: 2/s);
     expect(await page.locator("#rateLimitDetails").evaluate((element) => element.textContent)).toContain("\n");
   });

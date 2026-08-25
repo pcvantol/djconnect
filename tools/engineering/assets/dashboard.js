@@ -452,10 +452,15 @@ function rateLimits(x, history = latestDashboardSnapshot?.ai_capacity_history) {
       typeof x?.provider_version === "string"
         ? x.provider_version
         : t("format.version_unavailable"),
+    providerPath =
+      typeof x?.provider_path === "string" && x.provider_path.trim()
+        ? x.provider_path.trim()
+        : t("format.not_available"),
     button = $("rateLimitReset");
   $("rateLimits").hidden =
     !windows.length && credits === null && provider === t("format.not_available");
   $("rateLimitProvider").textContent = provider + " · " + version;
+  $("rateLimitProviderPath").textContent = providerPath;
   let lines = windows.map((window) => {
     const remaining = Math.max(0, 100 - Number(window.used_percent || 0)),
       reset = Number(window.resets_at);
