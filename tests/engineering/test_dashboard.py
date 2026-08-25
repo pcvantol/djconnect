@@ -695,6 +695,34 @@ class DashboardStatusTest(unittest.TestCase):
                 dashboard._install_codex_cli_update(Path("/workspace"))
             check.assert_not_called()
 
+    def test_codex_cli_update_reports_unavailable_current_and_failed_install_states(self) -> None:
+        root = Path("/workspace")
+        dashboard._codex_update_cache = None
+        with (
+            patch("tools.engineering.dashboard._codex_provider_identity", return_value={"provider_version": "not-a-version"}),
+            patch("tools.engineering.dashboard._npm_executable", return_value=None),
+        ):
+            self.assertEqual(
+                dashboard._codex_cli_update_status(root, refresh=True),
+                {"state": "unavailable", "update_available": False},
+            )
+
+        with patch("tools.engineering.dashboard._execution_active", return_value=False), patch(
+            "tools.engineering.dashboard._codex_cli_update_status",
+            return_value={"state": "current", "update_available": False, "current_version": "0.150.0"},
+        ):
+            self.assertEqual(
+                dashboard._install_codex_cli_update(root),
+                {"updated": False, "current_version": "0.150.0"},
+            )
+
+        with patch("tools.engineering.dashboard._execution_active", return_value=False), patch(
+            "tools.engineering.dashboard._codex_cli_update_status",
+            return_value={"state": "update_available", "update_available": True, "latest_version": "0.150.0"},
+        ), patch("tools.engineering.dashboard._npm_executable", return_value=None):
+            with self.assertRaisesRegex(dashboard.CodexCliUpdateError, "codex_cli_update_unavailable"):
+                dashboard._install_codex_cli_update(root)
+
     def test_component_processes_and_metrics_ignore_invalid_process_rows(self) -> None:
         self.assertEqual(dashboard._component_processes("unknown"), [])
         with patch("tools.engineering.dashboard.subprocess.run", side_effect=OSError):
@@ -2021,6 +2049,25 @@ class DashboardStatusTest(unittest.TestCase):
             response = connection.getresponse()
             self.assertEqual(response.status, 404)
             response.read()
+
+    def test_http_codex_cli_update_rejects_invalid_requests_and_reports_update_errors(self) -> None:
+        with self._dashboard_http_connection() as (_, connection):
+            connection.request("POST", "/api/codex-cli-update", body="[]", headers={"Content-Type": "application/json"})
+            response = connection.getresponse()
+            self.assertEqual(response.status, 400)
+            self.assertEqual(json.loads(response.read()), {"error": "invalid_request"})
+
+            with patch(
+                "tools.engineering.dashboard._install_codex_cli_update",
+                side_effect=dashboard.CodexCliUpdateError("codex_cli_update_execution_active"),
+            ):
+                connection.request("POST", "/api/codex-cli-update", body="{}", headers={"Content-Type": "application/json"})
+                response = connection.getresponse()
+                self.assertEqual(response.status, 409)
+                self.assertEqual(
+                    json.loads(response.read()),
+                    {"error": "codex_cli_update_execution_active"},
+                )
 
     def test_http_dashboard_history_routes(self) -> None:
         with self._dashboard_http_connection() as (_, connection):
