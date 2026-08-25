@@ -369,6 +369,9 @@ html[data-theme="light"] :is(body,.dashboard-titlebar,.footer){background:var(--
 html[data-theme="light"] .dashboard-locale{color:#415168}
 html[data-theme="light"] .dashboard-locale select{background:var(--dashboard-surface-light);border-color:#9aabc3}
 @media (max-width:1400px){.dashboard-titlebar{align-items:flex-start;flex-wrap:wrap}.dashboard-titlebar__actions{flex:1 1 100%;flex-wrap:wrap;justify-content:flex-end}}
+/* The compact desktop title bar wraps its settings below the brand. Lift the
+   refresh action slightly so it remains optically aligned with that brand. */
+@media (min-width:621px) and (max-width:1400px){.page-refresh{transform:translateY(-8px)}}
 @media (max-width:760px){.dashboard-titlebar__actions{justify-content:flex-start}}
 @media (max-width:620px){.dashboard-titlebar h1{font-size:25px}.dashboard-titlebar__actions{gap:8px}.dashboard-locale span{display:none}}
 

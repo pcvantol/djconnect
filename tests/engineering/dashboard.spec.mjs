@@ -3121,6 +3121,13 @@ test.describe("Engineering Status browser smoke", () => {
     expect(titlebarLayout.refreshBottom).toBeLessThanOrEqual(titlebarLayout.optionsTop);
   });
 
+  test("raises the refresh action above the compact desktop options row", async ({ page }) => {
+    await page.setViewportSize({ width: 1024, height: 844 });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+
+    await expect(page.locator("#pageRefresh")).toHaveCSS("transform", "matrix(1, 0, 0, 1, 0, -8)");
+  });
+
   test("keeps title-bar options visible in a real laptop wrapper", async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 844 });
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
