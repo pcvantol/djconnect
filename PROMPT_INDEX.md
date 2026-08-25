@@ -2,27 +2,25 @@
 
 Status: canonical prompt navigation
 
-## PRs #924, #925 and #927 finalization pending
-
-PR [#923](https://github.com/pcvantol/djconnect/pull/923) is finalized by
-governance-only PR [#926](https://github.com/pcvantol/djconnect/pull/926),
-merged as `e223c1f7cddcafc316bb243142fa95be164047a2`; only its stale rolling
-record is reconciled and immutable Prompt History is preserved.
+## PRs #924, #925, #927 and #928 finalized
 
 PR [#924](https://github.com/pcvantol/djconnect/pull/924), **Improve merge
-status diagnostics**, merged as `4c57c8b5`; PR
-[#925](https://github.com/pcvantol/djconnect/pull/925), **Cap telemetry phase
-shares to execution envelope**, merged as
-`23d52ea13ab2bfd9b3bcce08c92a86a3965de1c7`. They preserve prompt authority,
-lifecycle, validation, reviewer, provider, Forge, queue and delivery semantics.
+status diagnostics**, merged as `4c57c8b5e0444a71c27a7a58dcf5b4431a68ac75`.
+PR [#925](https://github.com/pcvantol/djconnect/pull/925), **Cap telemetry
+phase shares to execution envelope**, merged as
+`23d52ea13ab2bfd9b3bcce08c92a86a3965de1c7`. PR
+[#927](https://github.com/pcvantol/djconnect/pull/927), **Show open pull
+request check status**, merged as
+`7235edb7a148c1be645c2053f8ce7209778adf87`. PR
+[#928](https://github.com/pcvantol/djconnect/pull/928), **Show GitHub rate
+limit banner**, merged as `914b64f2da53de94f138719e38d24ef32c101b80`.
 
-PR [#927](https://github.com/pcvantol/djconnect/pull/927), **Show open pull
-request check status**, merged as `7235edb7a148c1be645c2053f8ce7209778adf87`.
-It preserves prompt authority, lifecycle, validation, reviewer, provider,
-Forge, queue, delivery and operator-owned merge semantics. This dedicated
-governance-only Finalization is the only permitted follow-up while the
-repository is `MERGED_UNRECONCILED`; its merge restores
-`MERGED_RECONCILED` and Workspace State `WORKSPACE_READY` after cleanup.
+All four implementation merge commits are in current `main`. This
+governance-only Finalization reconciles the four canonical rolling records
+only; immutable Prompt History and prompt authority remain unchanged. Lifecycle,
+validation, reviewer, provider, Forge, queue, delivery and operator-owned
+merge semantics are preserved. Repository State: `MERGED_RECONCILED`;
+Workspace State: `WORKSPACE_READY`; Finalization Pending: `NO`.
 
 ## PR #921 finalized by PR #922
 
