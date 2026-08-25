@@ -235,10 +235,10 @@ def wait_for_pending_telemetry(*, timeout: float = 5.0) -> None:
             worker.join(timeout=remaining)
 
 
-def daily_statistics(root: Path, *, days: int = 7) -> list[dict[str, object]]:
+def daily_statistics(root: Path, *, days: int = 90) -> list[dict[str, object]]:
     """Return generic daily aggregates, newest day first, for the private dashboard."""
-    if not 1 <= days <= 31:
-        raise ValueError("telemetry days must be between 1 and 31")
+    if not 1 <= days <= 90:
+        raise ValueError("telemetry days must be between 1 and 90")
     connection = open_storage(root)
     try:
         rows = connection.execute(
@@ -262,7 +262,7 @@ def daily_statistics(root: Path, *, days: int = 7) -> list[dict[str, object]]:
     )
     result = [dict(zip(keys, row, strict=True)) for row in rows]
     # Phase detail remains on demand. Keep the legacy trend shape stable
-    # without expanding the seven-day refresh into per-day run projections.
+    # without expanding the ninety-day refresh into per-day run projections.
     for row in result:
         row["average_provider_execution_seconds"] = None
         row["average_validation_seconds"] = None

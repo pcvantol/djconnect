@@ -175,7 +175,7 @@ def _sse_snapshot(root: Path) -> bytes:
         execution_reader=_last_executed_agent_execution,
         runtime_metadata_reader=_last_executed_runtime_metadata,
         report_analysis_available_reader=_report_analysis_available_for_run,
-        telemetry_reader=lambda workspace: daily_statistics(workspace, days=7),
+        telemetry_reader=lambda workspace: daily_statistics(workspace, days=90),
         process_metrics_reader=_codex_process_metrics,
         build_commit_reader=_build_commit,
         component_log_versions_reader=_component_log_versions,

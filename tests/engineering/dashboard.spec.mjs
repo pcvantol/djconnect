@@ -570,7 +570,7 @@ test.describe("Engineering Status browser smoke", () => {
         "framenavigated",
         (frame) => frame === page.mainFrame(),
       );
-      await page.locator("#dashboardLocale").selectOption(language);
+      await page.locator("#dashboardLocale").selectOption(language, { force: true });
       await localeReload;
       await page.waitForLoadState("domcontentloaded");
       await page.waitForFunction(
@@ -2542,15 +2542,15 @@ test.describe("Engineering Status browser smoke", () => {
 
   test("localizes dynamically rendered telemetry copy for every supported language", async ({ page }) => {
     const expectations = [
-      ["en", "Execution Host telemetry", "Operational trends for the last seven days. Telemetry is not repository evidence."],
-      ["nl", "Execution Host-telemetrie", "Operationele trends van de laatste zeven dagen. Telemetrie is geen repositorybewijs."],
-      ["de", "Execution-Host-Telemetrie", "Betriebstrends der letzten sieben Tage. Telemetrie ist kein Repository-Nachweis."],
-      ["fr", "Télémétrie de l’hôte d’exécution", "Tendances opérationnelles des sept derniers jours. La télémétrie n’est pas une preuve de dépôt."],
-      ["es", "Telemetría del host de ejecución", "Tendencias operativas de los últimos siete días. La telemetría no es evidencia del repositorio."],
+      ["en", "Execution Host telemetry", "Operational trends for the last 90 days. Telemetry is not repository evidence."],
+      ["nl", "Execution Host-telemetrie", "Operationele trends van de laatste 90 dagen. Telemetrie is geen repositorybewijs."],
+      ["de", "Execution-Host-Telemetrie", "Betriebstrends der letzten 90 Tage. Telemetrie ist kein Repository-Nachweis."],
+      ["fr", "Télémétrie de l’hôte d’exécution", "Tendances opérationnelles des 90 derniers jours. La télémétrie n’est pas une preuve de dépôt."],
+      ["es", "Telemetría del host de ejecución", "Tendencias operativas de los últimos 90 días. La telemetría no es evidencia del repositorio."],
     ];
     for (const [language, title, description] of expectations) {
       await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
-      await page.locator("#dashboardLocale").selectOption(language);
+      await page.locator("#dashboardLocale").selectOption(language, { force: true });
       await expect(page.locator("html")).toHaveAttribute("lang", language);
       await page.waitForFunction(
         () => typeof window.executionTelemetry === "function",

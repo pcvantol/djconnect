@@ -104,6 +104,13 @@ class ExecutionHostTelemetryTest(unittest.TestCase):
         self.assertEqual(rows[0]["average_provider_execution_seconds"], None)
         self.assertEqual(rows[0]["average_validation_seconds"], None)
 
+    def test_daily_statistics_allows_the_ninety_day_dashboard_window(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            self.assertEqual(daily_statistics(root, days=90), [])
+            with self.assertRaises(ValueError):
+                daily_statistics(root, days=91)
+
     def test_persists_only_aggregate_execution_metadata(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
