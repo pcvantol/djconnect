@@ -148,8 +148,12 @@ test.describe("Engineering Status browser smoke", () => {
     const banner = page.getByTestId("github-rate-limit-banner");
     await expect(banner).toBeVisible();
     await expect(banner).toContainText("GitHub-ratelimiet bereikt");
+    const refresh = banner.getByRole("button");
+    await expect(refresh).toHaveCSS("background-color", "rgb(122, 34, 48)");
+    await refresh.hover();
+    await expect(refresh).toHaveCSS("background-color", "rgb(169, 43, 64)");
     limited = false;
-    await banner.getByRole("button", { name: "GitHub-status opnieuw controleren" }).click();
+    await refresh.click();
     await expect(banner).toBeHidden();
   });
 
