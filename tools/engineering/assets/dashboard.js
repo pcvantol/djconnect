@@ -4592,9 +4592,11 @@ async function saveDashboardConfiguration(control) {
     }
     const status = control.closest(".queue-project-settings") ? $("queueProjectSettingsStatus") : $("configurationStatus");
     status.textContent = t("configuration.saved");
+    status.classList.add("configuration-status--saved");
   } catch {
     const status = control.closest(".queue-project-settings") ? $("queueProjectSettingsStatus") : $("configurationStatus");
     status.textContent = t("configuration.save_failed");
+    status.classList.remove("configuration-status--saved");
   } finally {
     control.disabled = false;
     syncDashboardSelectPicker(control);
@@ -4622,6 +4624,7 @@ async function initializeDashboardConfiguration() {
     schedulePlatformHealthRefresh();
   } catch {
     $("configurationStatus").textContent = t("configuration.load_failed");
+    $("configurationStatus").classList.remove("configuration-status--saved");
   } finally {
     setDashboardConfigurationControlsDisabled(false);
   }
@@ -4683,9 +4686,11 @@ $("configurationInboxSave")?.addEventListener("click", async (event) => {
     $("configurationInbox").textContent = `${payload.value}/Inbox`;
     renderConfigurationInboxLocation();
     $("configurationInboxStatus").textContent = t("configuration.inbox_location_saved");
+    $("configurationInboxStatus").classList.add("configuration-status--saved");
     setTimeout(() => $("configurationInboxModal").close(), 700);
   } catch (error) {
     $("configurationInboxStatus").textContent = error.message || t("configuration.inbox_location_failed");
+    $("configurationInboxStatus").classList.remove("configuration-status--saved");
   } finally {
     button.disabled = false;
   }

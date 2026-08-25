@@ -185,6 +185,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#configurationInboxStatus")).not.toBeEmpty();
     await expect(page.locator("#configurationInboxModal")).not.toBeVisible({ timeout: 2_000 });
     await expect(location).toHaveText(/selected-engineering-root\/Inbox$/);
+    await expect(page.locator("#configurationInboxStatus")).toHaveClass(/configuration-status--saved/);
   });
 
   test("keeps project-scoped Inbox settings with the project queue", async ({ page }) => {
