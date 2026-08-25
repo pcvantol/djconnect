@@ -666,6 +666,14 @@ function renderMarkdownDocument(target, value) {
 }
 let componentLogsLoaded = false,
   componentLogEntries = { inbox: [], dashboard: [] };
+function isUnhelpfulHttpServerDebugLog(entry) {
+  return (
+    String(entry?.level || "").toUpperCase() === "DEBUG" &&
+    String(entry?.event || "").trim().toLowerCase() ===
+      "http_server_message" &&
+    String(entry?.diagnostic || "").trim() === '"%s" %s %s'
+  );
+}
 function structuredLogEntries(text) {
   const normalized = String(text ?? "").trim();
   if (!normalized || !normalized.startsWith("{")) return [];
@@ -677,6 +685,7 @@ function structuredLogEntries(text) {
         const entry = JSON.parse(line);
         if (!entry || typeof entry !== "object" || Array.isArray(entry))
           throw Error("not an object");
+        if (isUnhelpfulHttpServerDebugLog(entry)) return null;
         const known = new Set([
             "timestamp",
             "level",
@@ -711,7 +720,8 @@ function structuredLogEntries(text) {
           details: line,
         };
       }
-    });
+    })
+    .filter(Boolean);
 }
 function logEventLabel(value) {
   const event = String(value || "").trim();

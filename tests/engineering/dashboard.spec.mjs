@@ -6002,6 +6002,16 @@ test.describe("Engineering Status browser smoke", () => {
     expect(entries.map((entry) => entry.level)).toEqual(["INFO", "WARNING"]);
   });
 
+  test("hides empty HTTP-server placeholder debug messages", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    const entries = await page.evaluate(() => structuredLogEntries(
+      '{"level":"DEBUG","event":"http_server_message","diagnostic":"\\"%s\\" %s %s"}\n'
+      + '{"level":"DEBUG","event":"http_request","diagnostic":"/health"}',
+    ));
+    expect(entries).toHaveLength(1);
+    expect(entries[0]).toMatchObject({ event: "http_request", details: "diagnostic: /health" });
+  });
+
   test("formats displayed log timestamps as dd-MM-yyyy HH:mm:ss", async ({ page }) => {
     // Keep the entries injected below stable: a later server-push snapshot can
     // legitimately replace the component log with its empty-state projection.
