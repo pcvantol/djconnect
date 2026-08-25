@@ -4321,10 +4321,11 @@ function syncDashboardSelectPicker(select) {
   if (!picker) return;
   const selected = select.selectedOptions[0];
   picker.value.textContent = selected?.textContent || "";
+  picker.button.disabled = select.disabled;
   picker.menu.querySelectorAll("[data-dashboard-select-value]").forEach((option, index) => {
     const nativeOption = select.options[index];
     option.textContent = nativeOption?.textContent || "";
-    option.disabled = nativeOption?.disabled === true;
+    option.disabled = select.disabled || nativeOption?.disabled === true;
     option.setAttribute("aria-selected", String(option.dataset.dashboardSelectValue === select.value));
   });
 }
@@ -4467,6 +4468,14 @@ function localizeConfigurationOptions() {
   });
   dashboardSelectPickers.forEach((_, select) => syncDashboardSelectPicker(select));
 }
+function setDashboardConfigurationControlsDisabled(disabled) {
+  Object.keys(configurationFields).forEach((id) => {
+    const control = $(id);
+    if (!control) return;
+    control.disabled = disabled;
+    syncDashboardSelectPicker(control);
+  });
+}
 function positionConfigurationTooltip(info) {
   if (!window.matchMedia("(max-width:620px)").matches) {
     info.removeAttribute("data-tooltip-side");
@@ -4508,6 +4517,7 @@ async function saveDashboardConfiguration(control) {
     }
   }
   control.disabled = true;
+  syncDashboardSelectPicker(control);
   try {
     const response = await fetch("/api/configuration", {
       method: "POST",
@@ -4535,10 +4545,12 @@ async function saveDashboardConfiguration(control) {
     status.textContent = t("configuration.save_failed");
   } finally {
     control.disabled = false;
+    syncDashboardSelectPicker(control);
   }
 }
 async function initializeDashboardConfiguration() {
   localizeConfigurationOptions();
+  setDashboardConfigurationControlsDisabled(true);
   try {
     const response = await fetch("/api/configuration", { cache: "no-store" });
     if (!response.ok) throw Error();
@@ -4558,6 +4570,8 @@ async function initializeDashboardConfiguration() {
     schedulePlatformHealthRefresh();
   } catch {
     $("configurationStatus").textContent = t("configuration.load_failed");
+  } finally {
+    setDashboardConfigurationControlsDisabled(false);
   }
 }
 Object.keys(configurationFields).forEach((id) => {

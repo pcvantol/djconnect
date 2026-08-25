@@ -267,6 +267,41 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(picker.locator(".dashboard-locale__button > span").first()).toHaveText("Informatie");
   });
 
+  test("locks the visible log-level pulldown until its saved value is loaded or written", async ({ page }) => {
+    let releaseInitialLoad;
+    let releaseSave;
+    const initialLoad = new Promise((resolve) => { releaseInitialLoad = resolve; });
+    const save = new Promise((resolve) => { releaseSave = resolve; });
+    await page.route("**/api/configuration", async (route) => {
+      if (route.request().method() === "GET") {
+        await initialLoad;
+        await route.fulfill({ json: {
+          log_retention_days: 90, log_level: "DEBUG", inbox_scan_interval_seconds: 15,
+          open_pr_check_interval_seconds: 30, platform_health_refresh_seconds: 15,
+          component_details_refresh_seconds: 5,
+        } });
+        return;
+      }
+      await save;
+      await route.fulfill({ json: { key: "log_level", previous: "DEBUG", value: "INFO" } });
+    });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    const select = page.locator("#configurationLogLevel");
+    const picker = select.locator("+ .dashboard-select-picker");
+    await expect(select).toBeDisabled();
+    await expect(picker.locator(".dashboard-locale__button")).toBeDisabled();
+    releaseInitialLoad();
+    await expect(select).toBeEnabled();
+    await page.locator("#configuration").evaluate((element) => { element.open = true; });
+    await picker.locator(".dashboard-locale__button").click();
+    await picker.locator('[role=option][data-dashboard-select-value="INFO"]').click();
+    await expect(select).toBeDisabled();
+    await expect(picker.locator(".dashboard-locale__button")).toBeDisabled();
+    releaseSave();
+    await expect(select).toBeEnabled();
+    await expect(picker.locator(".dashboard-locale__button")).toBeEnabled();
+  });
+
   test("restores the log retention pulldown without saving when its removal warning is cancelled", async ({ page }) => {
     let configurationSaved = false;
     await page.route("**/api/configuration", async (route) => {
