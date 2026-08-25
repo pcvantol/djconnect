@@ -2807,7 +2807,10 @@ test.describe("Engineering Status browser smoke", () => {
   test("shows and pins the Run-ID while preserving history-table horizontal access on an iPhone", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.route("**/api/prompt-history", (route) => route.fulfill({ json: {
-      runs: [{ run_id: "inbox-00557e6587394f67b8b4cbde0748bce7", title: "Mobiele Run-ID", status: "COMPLETE" }],
+      runs: [
+        { run_id: "inbox-zzzzz", title: "Mobiele Run-ID", status: "COMPLETE" },
+        { run_id: "inbox-aaaaa", title: "Mobiele Run-ID", status: "COMPLETE" },
+      ],
     } }));
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.evaluate(() => { document.querySelector("#promptHistory").open = true; });
@@ -2817,7 +2820,11 @@ test.describe("Engineering Status browser smoke", () => {
     );
     await expect(wrap).toHaveAttribute("aria-describedby", "promptHistoryScrollHint");
     await expect(wrap).toHaveAttribute("tabindex", "0");
-    await expect(page.locator("#promptHistoryRows tr td").first()).toHaveText("8bce7");
+    const runIdHeader = page.locator('#promptHistory th[data-history-sort-key="run_id"]');
+    await expect(page.locator("#promptHistoryRows tr td").first()).toHaveText("zzzzz");
+    await runIdHeader.click();
+    await expect(runIdHeader).toHaveAttribute("aria-sort", "ascending");
+    await expect(page.locator("#promptHistoryRows tr td").first()).toHaveText("aaaaa");
     const layout = await wrap.evaluate((element) => {
       element.scrollLeft = 240;
       const runId = element.querySelector("thead th:first-child");
