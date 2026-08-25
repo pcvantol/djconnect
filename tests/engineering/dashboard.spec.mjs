@@ -149,6 +149,8 @@ test.describe("Engineering Status browser smoke", () => {
   });
 
   test("shows the Inbox location below its label with a matching change action", async ({ page }) => {
+    const selectedRoot = path.join(dashboardRoot, "selected-engineering-root");
+    mkdirSync(path.join(selectedRoot, "Inbox"), { recursive: true });
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     const configuration = page.locator("#configuration");
     await configuration.evaluate((element) => { element.open = true; });
@@ -159,7 +161,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(button).toHaveText("Locatie wijzigen");
     await expect(button).toHaveCSS("border-top-color", "rgb(240, 182, 106)");
     await page.route("**/api/configuration/inbox-location/browse", (route) => route.fulfill({
-      json: { cancelled: false, value: "/private/selected-engineering-root" },
+      json: { cancelled: false, value: selectedRoot },
     }));
     await button.click();
     const root = page.locator("#configurationInboxRoot");
@@ -168,7 +170,18 @@ test.describe("Engineering Status browser smoke", () => {
     const browse = page.locator("#configurationInboxBrowse");
     await expect(browse).toHaveText("Lokale map kiezen");
     await browse.click();
-    await expect(root).toHaveValue("/private/selected-engineering-root");
+    await expect(root).toHaveValue(selectedRoot);
+    const saveRequested = page.waitForRequest((request) => request.url().endsWith("/api/configuration/inbox-location"));
+    const saved = page.waitForResponse((response) => response.url().endsWith("/api/configuration/inbox-location"));
+    await page.locator("#configurationInboxSave").click();
+    await expect(page.locator("#confirmationModal")).toBeVisible();
+    await page.locator("#confirmationModalConfirm").click();
+    await expect(page.locator("#confirmationModal")).not.toBeVisible();
+    await saveRequested;
+    expect((await saved).ok()).toBeTruthy();
+    await expect(page.locator("#configurationInboxStatus")).not.toBeEmpty();
+    await expect(page.locator("#configurationInboxModal")).not.toBeVisible({ timeout: 2_000 });
+    await expect(location).toHaveText(/selected-engineering-root\/Inbox$/);
   });
 
   test("uses normal-weight labels for every dashboard button", async ({ page }) => {

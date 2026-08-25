@@ -580,8 +580,8 @@ def _npm_executable() -> str | None:
     return None
 
 
-def _codex_cli_update_execution_active(root: Path) -> bool:
-    """Keep global CLI changes out of an active Execution Host lifecycle."""
+def _execution_active(root: Path) -> bool:
+    """Return whether an Execution Host lifecycle is actively using this installation."""
     try:
         status = json.loads(_status(root))
     except (OSError, TypeError, ValueError, json.JSONDecodeError):
@@ -634,7 +634,7 @@ def _install_codex_cli_update(root: Path) -> dict[str, object]:
     """Install the exact checked release, then verify the executable's version."""
     global _codex_identity_cache, _codex_update_cache
     with _codex_update_install_lock:
-        if _codex_cli_update_execution_active(root):
+        if _execution_active(root):
             raise CodexCliUpdateError("codex_cli_update_execution_active")
         status = _codex_cli_update_status(root, refresh=True)
         if status.get("state") == "unavailable":
@@ -2232,10 +2232,9 @@ def handler(root: Path, logger: logging.Logger | None = None):
                     payload = json.loads(self.rfile.read(length).decode("utf-8"))
                     if not isinstance(payload, dict) or set(payload) != {"inbox_root"}:
                         raise ValueError
-                    if json.loads(_status(root)).get("current_phase"):
+                    if _execution_active(root):
                         raise RuntimeError("Wijzig de Inbox-locatie pas wanneer geen uitvoering actief is.")
                     event = update_inbox_root(root, payload["inbox_root"])
-                    _restart_component("inbox")
                     log_event(
                         logger, logging.INFO, "dashboard_configuration_changed",
                         diagnostic=f"key={event['key']}; previous={event['previous']}; value={event['value']}",
@@ -2247,6 +2246,10 @@ def handler(root: Path, logger: logging.Logger | None = None):
                     self._send(b'{"error":"Inbox-locatie kon niet veilig worden gewijzigd."}', "application/json; charset=utf-8", 400)
                     return
                 self._send(json.dumps(event).encode(), "application/json; charset=utf-8")
+                # The preference is already durable.  Restart after replying so a
+                # launchd failure never makes the browser treat the saved location
+                # as an unsuccessful change.
+                Timer(0.25, _restart_component_after_response, args=("inbox", logger)).start()
                 return
             if request_path == "/api/configuration/inbox-location/browse":
                 try:

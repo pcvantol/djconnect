@@ -2111,14 +2111,26 @@ class DashboardStatusTest(unittest.TestCase):
             transport = root / "configured-transport"
             (transport / "Inbox").mkdir(parents=True, exist_ok=True)
             with (
-                patch("tools.engineering.dashboard._status", return_value=b"{}"),
-                patch("tools.engineering.dashboard._restart_component") as restart,
+                patch(
+                    "tools.engineering.dashboard._status",
+                    return_value=b'{"watcher_state":"WATCHER_IDLE","run_id":null,"current_phase":"COMPLETE"}',
+                ),
+                patch("tools.engineering.dashboard.Timer") as restart_timer,
             ):
                 connection.request("POST", "/api/configuration/inbox-location", body=json.dumps({"inbox_root": str(transport)}), headers={"Content-Type": "application/json"})
                 response = connection.getresponse()
                 self.assertEqual(response.status, 200)
                 self.assertEqual(json.loads(response.read())["value"], str(transport.resolve()))
-                restart.assert_called_once_with("inbox")
+                restart_timer.assert_called_once_with(0.25, dashboard._restart_component_after_response, args=("inbox", ANY))
+                restart_timer.return_value.start.assert_called_once_with()
+            with patch(
+                "tools.engineering.dashboard._status",
+                return_value=b'{"watcher_state":"ENGINEERING_RUN_ACTIVE","run_id":"inbox-running","current_phase":"COMPLETE"}',
+            ):
+                connection.request("POST", "/api/configuration/inbox-location", body=json.dumps({"inbox_root": str(transport)}), headers={"Content-Type": "application/json"})
+                response = connection.getresponse()
+                self.assertEqual(response.status, 409)
+                self.assertEqual(json.loads(response.read()), {"error": "Wijzig de Inbox-locatie pas wanneer geen uitvoering actief is."})
             retry_outcome = {"blocking_run_id": "inbox-blocked", "retry_filename": "retry-inbox-blocked.md", "retry_run_id": "inbox-retry"}
             with (
                 patch("tools.engineering.dashboard.cloud_root", return_value=root),

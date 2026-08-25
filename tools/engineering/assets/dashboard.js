@@ -4496,6 +4496,7 @@ $("configurationInboxBrowse")?.addEventListener("click", async (event) => {
   }
 });
 $("configurationInboxSave")?.addEventListener("click", async (event) => {
+  const button = event.currentTarget;
   const root = $("configurationInboxRoot").value.trim();
   const confirmed = await confirmDashboardAction(
     t("configuration.inbox_location"),
@@ -4503,7 +4504,6 @@ $("configurationInboxSave")?.addEventListener("click", async (event) => {
     t("configuration.inbox_location_save"),
   );
   if (!confirmed) return;
-  const button = event.currentTarget;
   button.disabled = true;
   try {
     const response = await fetch("/api/configuration/inbox-location", {
