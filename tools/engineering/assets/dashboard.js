@@ -2837,11 +2837,11 @@ function sortedExecutionTelemetryRows() {
 function updateExecutionTelemetrySortHeaders() {
   document.querySelectorAll("#executionTelemetry .telemetry-table th[data-sort-key]").forEach((header) => {
     const active = header.dataset.sortKey === executionTelemetrySort.key;
-    // U+FE0E keeps iOS from substituting the coloured emoji-arrow glyphs.
-    // The telemetry header thereby uses the same text treatment as log tables.
+    // Keep exactly the same text arrows as the component log table. Unlike
+    // emoji variation glyphs, these inherit the header's mono font and baseline.
     header.dataset.sortIndicator = active
-      ? executionTelemetrySort.direction === "asc" ? "↑︎" : "↓︎"
-      : "↕︎";
+      ? executionTelemetrySort.direction === "asc" ? "↑" : "↓"
+      : "↕";
     header.setAttribute("aria-sort", active ? executionTelemetrySort.direction === "asc" ? "ascending" : "descending" : "none");
   });
 }

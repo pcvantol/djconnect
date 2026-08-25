@@ -2480,12 +2480,22 @@ test.describe("Engineering Status browser smoke", () => {
     expect(telemetryHeaderSurfaces.every((colour) => colour === "rgb(234, 240, 248)")).toBe(true);
 
     const date = page.locator('#executionTelemetry th[data-sort-key="date"]');
-    await expect(date).toHaveAttribute("data-sort-indicator", "↓︎");
-    expect(await date.evaluate((header) => getComputedStyle(header, "::after").fontFamily)).toContain("ui-monospace");
+    await expect(date).toHaveAttribute("data-sort-indicator", "↓");
+    const [telemetryHeader, logHeader] = await Promise.all([
+      date.evaluate((header) => {
+        const icon = getComputedStyle(header, "::after"), text = getComputedStyle(header);
+        return { fontFamily: text.fontFamily, fontSize: text.fontSize, iconFontFamily: icon.fontFamily, iconFontSize: icon.fontSize, iconFontWeight: icon.fontWeight, iconLineHeight: icon.lineHeight };
+      }),
+      page.locator("#componentLogs .log-table th.log-sortable").first().evaluate((header) => {
+        const icon = getComputedStyle(header, "::after"), text = getComputedStyle(header);
+        return { fontFamily: text.fontFamily, fontSize: text.fontSize, iconFontFamily: icon.fontFamily, iconFontSize: icon.fontSize, iconFontWeight: icon.fontWeight, iconLineHeight: icon.lineHeight };
+      }),
+    ]);
+    expect(telemetryHeader).toEqual(logHeader);
     await expect(page.locator("#executionTelemetryRows tr td").first()).toHaveText("16-08-2026");
     await date.click();
     await expect(date).toHaveAttribute("aria-sort", "ascending");
-    await expect(date).toHaveAttribute("data-sort-indicator", "↑︎");
+    await expect(date).toHaveAttribute("data-sort-indicator", "↑");
     await expect(page.locator("#executionTelemetryRows tr td").first()).toHaveText("15-08-2026");
     const prompts = page.locator('#executionTelemetry th[data-sort-key="prompt_count"]');
     await prompts.click();
