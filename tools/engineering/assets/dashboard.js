@@ -4345,7 +4345,15 @@ function applyDashboardLocale() {
 dashboardLocaleSelector.addEventListener("change", () => {
   changeDashboardLocale(dashboardLocaleSelector.value);
 });
-dashboardLocaleButton.addEventListener("click", () => setLocaleMenuOpen(dashboardLocaleMenu.hidden));
+dashboardLocaleButton.addEventListener("click", (event) => {
+  // The picker is deliberately nested in its label so the native select keeps
+  // an accessible name. Prevent the label's default activation from reopening
+  // its visually-hidden native control and immediately dismissing the menu on
+  // narrow direct-touch browsers.
+  event.preventDefault();
+  event.stopPropagation();
+  setLocaleMenuOpen(dashboardLocaleMenu.hidden);
+});
 dashboardLocaleButton.addEventListener("keydown", (event) => {
   if (event.key === "Escape") setLocaleMenuOpen(false);
 });
@@ -4420,7 +4428,13 @@ function enhanceDashboardSelectPicker(select) {
   dashboardSelectPickers.set(select, state);
   const refresh = () => syncDashboardSelectPicker(select);
   select.addEventListener("change", refresh);
-  button.addEventListener("click", () => setDashboardSelectPickerOpen(state, menu.hidden));
+  button.addEventListener("click", (event) => {
+    // Avoid the parent label activating the visually-hidden native select on
+    // mobile Safari after the custom button has opened its listbox.
+    event.preventDefault();
+    event.stopPropagation();
+    setDashboardSelectPickerOpen(state, menu.hidden);
+  });
   button.addEventListener("keydown", (event) => {
     if (event.key === "Escape") setDashboardSelectPickerOpen(state, false);
   });

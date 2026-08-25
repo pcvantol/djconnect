@@ -3584,6 +3584,21 @@ test.describe("Engineering Status browser smoke", () => {
     expect(titlebarLayout.refreshBottom).toBeLessThanOrEqual(titlebarLayout.optionsTop);
   });
 
+  test("opens title-bar pulldowns in the narrow mobile options panel", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await openTitlebarOptions(page);
+
+    const projectPicker = page.locator("#dashboardProject + .dashboard-select-picker");
+    await projectPicker.locator(".dashboard-locale__button").click();
+    await expect(projectPicker.locator("[role=listbox]")).toBeVisible();
+    await projectPicker.locator(".dashboard-locale__button").click();
+    await expect(projectPicker.locator("[role=listbox]")).toBeHidden();
+
+    await page.locator("#dashboardLocaleButton").click();
+    await expect(page.locator("#dashboardLocaleMenu")).toBeVisible();
+  });
+
   test("raises the refresh action above the compact desktop options row", async ({ page }) => {
     await page.setViewportSize({ width: 1024, height: 844 });
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
