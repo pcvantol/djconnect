@@ -18,6 +18,7 @@ import sqlite3
 import socket
 import subprocess  # Compatibility mock target; process execution is provider-owned.
 import sys
+import tempfile
 from threading import Lock, Timer
 import time
 import uuid
@@ -111,6 +112,7 @@ AUDITABLE_USER_ACTIONS = frozenset(
         "prompt_history_analysis_downloaded",
         "prompt_history_details_json_downloaded",
         "prompt_history_details_markdown_downloaded",
+        "engineering_database_downloaded",
         "report_copied",
         "report_analysis_copied",
     }
@@ -1867,6 +1869,29 @@ def _engineering_database_details(root: Path) -> dict[str, str]:
     return details
 
 
+def _engineering_database_snapshot(root: Path) -> bytes | None:
+    """Create a consistent SQLite backup without modifying the source database."""
+    database = root.resolve() / ".engineering" / "engineering.db"
+    if not database.is_file():
+        return None
+    temporary_path: Path | None = None
+    try:
+        with tempfile.NamedTemporaryFile(prefix="engineering-backup-", suffix=".db", delete=False) as temporary:
+            temporary_path = Path(temporary.name)
+        with sqlite3.connect(f"{database.resolve().as_uri()}?mode=ro", uri=True) as source:
+            with sqlite3.connect(temporary_path) as backup:
+                source.backup(backup)
+        return temporary_path.read_bytes()
+    except (OSError, sqlite3.DatabaseError):
+        return None
+    finally:
+        if temporary_path is not None:
+            try:
+                temporary_path.unlink(missing_ok=True)
+            except OSError:
+                pass
+
+
 def _dashboard_html(
     title: str,
     build_commit: str = "onbekend",
@@ -2634,6 +2659,22 @@ def handler(root: Path, logger: logging.Logger | None = None):
                 return self._send(content, content_type)
             if request.path == "/api/prompt-history":
                 return self._send(_prompt_history(root), "application/json; charset=utf-8")
+            if request.path == "/api/engineering-database/download":
+                snapshot = _engineering_database_snapshot(root)
+                if snapshot is None:
+                    self._send(b'{"error":"Engineering-database is niet beschikbaar."}', "application/json; charset=utf-8", 404)
+                    return
+                if parse_qs(request.query).get("audit") == ["download"]:
+                    log_event(logger, logging.INFO, "engineering_database_downloaded")
+                filename = f"engineering-database-backup-{time.strftime('%Y%m%dT%H%M%SZ', time.gmtime())}.db"
+                self.send_response(200)
+                self.send_header("Content-Type", "application/vnd.sqlite3")
+                self.send_header("Content-Disposition", f'attachment; filename="{filename}"')
+                self.send_header("Cache-Control", "no-store")
+                self.send_header("X-Content-Type-Options", "nosniff")
+                self.end_headers()
+                self.wfile.write(snapshot)
+                return
             if request.path.startswith("/api/prompt-history/") and request.path.endswith("/details"):
                 run_id = request.path.removeprefix("/api/prompt-history/").removesuffix("/details").strip("/")
                 detail = _prompt_history_detail(root, run_id)

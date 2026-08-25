@@ -871,7 +871,7 @@ test.describe("Engineering Status browser smoke", () => {
     // Visible words must come from t(). The remaining literals are deliberate
     // control glyphs, empty cleanup values, or the neutral empty-table mark.
     expect(new Set(staticPresentationLiterals)).toEqual(new Set([
-      "", "⧉", "↑", "i", "↺", "⌧", "▤", "✓", "✦", "⋯", "—", "⌄",
+      "", "⧉", "⇩", "↑", "i", "↺", "⌧", "▤", "✓", "✦", "⋯", "—", "⌄",
     ]));
     expect(dashboardSource).not.toMatch(/confirmDashboardAction\(\s*["']/);
     // Dashboard feedback must remain inside the shared modal system.  A
@@ -7004,6 +7004,15 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(lock).toContainText("Vrij");
     await expect(lock).toContainText("De verouderde Git-vergrendeling is verwijderd.");
     expect(recoveryRequested).toBeTruthy();
+  });
+
+  test("offers a downloadable offline backup for the engineering database", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#workspaceCard > summary").click();
+    const download = page.locator("#workspaceDatabaseDownload");
+    await expect(download).toBeVisible();
+    await expect(download).toHaveAttribute("href", "/api/engineering-database/download?audit=download");
+    await expect(download).toHaveAttribute("aria-label", "Databaseback-up downloaden");
   });
 
   test("scans stale local branches before confirming their cleanup", async ({ page }) => {

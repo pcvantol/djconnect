@@ -3,6 +3,7 @@ from __future__ import annotations
 import io
 import json
 import logging
+import sqlite3
 from http.client import HTTPConnection
 from pathlib import Path
 import tempfile
@@ -1594,6 +1595,22 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertNotEqual(details["size"], "0,00 MB")
         self.assertEqual(details["schema_version"], str(ENGINEERING_STORAGE_SCHEMA_VERSION))
 
+    def test_engineering_database_snapshot_is_a_consistent_read_only_backup(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            with open_storage(root) as connection:
+                connection.execute("CREATE TABLE backup_probe (value TEXT)")
+                connection.execute("INSERT INTO backup_probe VALUES ('preserved')")
+
+            snapshot = dashboard._engineering_database_snapshot(root)
+
+        self.assertIsNotNone(snapshot)
+        with tempfile.NamedTemporaryFile(suffix=".db") as backup:
+            backup.write(snapshot or b"")
+            backup.flush()
+            with sqlite3.connect(backup.name) as connection:
+                self.assertEqual(connection.execute("SELECT value FROM backup_probe").fetchone(), ("preserved",))
+
     @patch("tools.engineering.dashboard.subprocess.run")
     def test_tracked_file_count_counts_recursive_git_index_entries(self, run: object) -> None:
         run.return_value = __import__("subprocess").CompletedProcess(
@@ -2485,6 +2502,7 @@ class DashboardStatusTest(unittest.TestCase):
             patches.enter_context(patch("tools.engineering.dashboard._codex_cli_update_status", return_value={"state": "current"}))
             patches.enter_context(patch("tools.engineering.dashboard.daily_timing_detail", return_value={"date": "2026-08-25"}))
             patches.enter_context(patch("tools.engineering.dashboard._component_details", return_value={"component": "dashboard"}))
+            patches.enter_context(patch("tools.engineering.dashboard._engineering_database_snapshot", return_value=b"SQLite format 3\x00backup"))
             patches.enter_context(patch("tools.engineering.dashboard.log_event"))
             with self._dashboard_http_connection() as (_, connection):
                 for route, content_type in (
@@ -2495,11 +2513,14 @@ class DashboardStatusTest(unittest.TestCase):
                     ("/api/codex-cli-update", "application/json"),
                     ("/api/telemetry/2026-08-25", "application/json"),
                     ("/api/components/dashboard/details", "application/json"),
+                    ("/api/engineering-database/download?audit=download", "application/vnd.sqlite3"),
                 ):
                     connection.request("GET", route)
                     response = connection.getresponse()
                     self.assertEqual(response.status, 200, route)
                     self.assertIn(content_type, response.getheader("Content-Type"))
+                    if route.startswith("/api/engineering-database/"):
+                        self.assertRegex(response.getheader("Content-Disposition") or "", r'^attachment; filename="engineering-database-backup-\d{8}T\d{6}Z\.db"$')
                     response.read()
 
     def test_http_read_only_evidence_routes_return_explicit_not_found_or_invalid_responses(self) -> None:
@@ -2509,6 +2530,8 @@ class DashboardStatusTest(unittest.TestCase):
             "tools.engineering.dashboard.report_for_prompt_history", return_value=None
         ), patch(
             "tools.engineering.dashboard._report_analysis_for_run", return_value=b""
+        ), patch(
+            "tools.engineering.dashboard._engineering_database_snapshot", return_value=None
         ), patch(
             "tools.engineering.dashboard.daily_timing_detail", side_effect=ValueError("bad date")
         ), patch(
@@ -2520,6 +2543,7 @@ class DashboardStatusTest(unittest.TestCase):
                 ("/api/prompt-history/missing/analysis", 404),
                 ("/api/telemetry/nope", 400),
                 ("/api/components/nope/details", 404),
+                ("/api/engineering-database/download", 404),
             ):
                 connection.request("GET", route)
                 response = connection.getresponse()

@@ -4647,6 +4647,22 @@ dashboardLocaleMenu.addEventListener("click", (event) => {
 document.addEventListener("pointerdown", (event) => {
   if (!event.target.closest(".dashboard-locale__picker")) setLocaleMenuOpen(false);
 });
+const workspaceDatabaseField = document.querySelectorAll("#workspaceCard .field")[4];
+if (workspaceDatabaseField) {
+  const content = document.createElement("div"), download = document.createElement("a");
+  content.className = "workspace-database__content";
+  const path = workspaceDatabaseField.querySelector("pre");
+  if (path) content.append(path);
+  download.className = "dashboard-action dashboard-action--download workspace-database__download";
+  download.id = "workspaceDatabaseDownload";
+  download.href = "/api/engineering-database/download?audit=download";
+  download.download = "";
+  download.dataset.i18nTitle = "workspace.download_database";
+  download.dataset.i18nAriaLabel = "workspace.download_database";
+  download.textContent = "⇩";
+  content.append(download);
+  workspaceDatabaseField.append(content);
+}
 applyDashboardLocale();
 const configurationFields = Object.freeze({
   configurationLogRetention: ["log_retention_days", Number],
