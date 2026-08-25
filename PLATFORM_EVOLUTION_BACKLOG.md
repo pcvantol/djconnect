@@ -16,6 +16,7 @@ user-facing roadmap progress; the current Product Initiative is recorded in
 
 | Initiative | Priority | Status | Dependencies | Promotion path |
 | --- | --- | --- | --- | --- |
+| Engineering Platform 2.0 versioned boundary | P0 | Current execution | `tools/engineering/ENGINEERING_PLATFORM_VERSION.json`, compatibility tests and host desired state | `EP_2_0_VERSION_BOUNDARY`; platform, runner, watcher and dashboard move to 2.0.0 together; no storage/protocol migration, standalone extraction or authority expansion |
 | Engineering Platform 1.5 operational hardening | P2 | Completed | EP 1.5 finalization and PRs #689–#699; `tools/engineering/ENGINEERING_QUALIFICATION.md` | `EP_1_5_OPERATIONAL`; private engineering remains repository-owned, qualified and behaviorally separate from DJConnect Product/Runtime/Release/Deployment work |
 | Engineering Platform 1.x feature-complete declaration | P0 | Completed | `docs/engineering/ENGINEERING_PLATFORM_1_X_COMPLETION_REPORT.md`; stable Execution Host and Producer Contract | `ENGINEERING_PLATFORM_1_X_FEATURE_COMPLETE`; future work requires explicit architectural authorization and remains generic execution-platform work |
 | Legacy iCloud Engineering archive migration | P3 | Planned operational maintenance | local `.engineering/` copies verified; `python3 -m tools.engineering.inbox_watcher migrate-icloud-archives` | run only on the owner workstation after local copies are verified; leave `iCloud Drive/DJConnect Engineering/Inbox` as the sole iCloud engineering folder; no product or platform capability change |
@@ -77,8 +78,8 @@ out of scope for Engineering Platform.
 **Priority:** P2
 **Status:** Completed
 
-Engineering Platform 1.5 remains the minimum supported platform. Its completed
-operational hardening adds no DJConnect product capability and no remote
+Engineering Platform 1.5 was the minimum supported platform for this completed
+operational hardening. It added no DJConnect product capability and no remote
 execution authority. The completed evidence covers versioned watcher and
 dashboard components, strict predecessor-aware Inbox sequencing, local
 canonical engineering evidence, bounded redacted component logging, advisory
@@ -87,6 +88,23 @@ contract checks. The local qualification registry records 39 scenarios.
 
 This entry does not authorize standalone extraction, a generic CLI, new
 providers, public exposure, release automation or a 1.6 implementation.
+
+## Backlog detail: Engineering Platform 2.0 versioned boundary
+
+**Owner:** Platform Evolution / local maintainer
+
+**Priority:** P0
+**Status:** Current execution
+
+Engineering Platform 2.0.0 establishes one major-version boundary across the
+platform, runner, Inbox watcher and private dashboard. New engineering prompts
+require `>= 2.0.0`; older platform versions fail closed before repository
+mutation. Storage schema, Inbox Protocol, checkpoint, memory, report and
+status-model formats remain unchanged.
+
+This increment does not authorize standalone extraction, generic distribution,
+new providers, release automation, remote execution authority or a product
+change. Those remain subject to the repository-extraction readiness work.
 
 ## Backlog detail: Legacy iCloud Engineering archive migration
 

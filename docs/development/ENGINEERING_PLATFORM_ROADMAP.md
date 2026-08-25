@@ -29,10 +29,17 @@ core execution files and requires each to remain strictly above 80%; exactly
 Planned. Dependency, namespace, import and public-API audits will demonstrate
 that extraction is primarily repository movement, not a redesign.
 
-## 2.0 — Standalone Engineering Platform
+## 2.0 — Versioned Platform Boundary
 
-Planned. Standalone packaging, repository templates and a generic CLI remain
-out of scope until 1.6 qualification succeeds.
+In review. Engineering Platform `2.0.0` aligns the platform, runner, Inbox
+watcher and private dashboard at one major version and raises the fail-closed
+minimum version for new engineering prompts. Storage, protocol and lifecycle
+formats remain unchanged.
+
+Standalone packaging, repository templates and a generic CLI remain separate
+follow-on work until repository-extraction readiness is qualified. The version
+bump alone does not move the platform out of this repository or change
+authority.
 
 ## Policy
 
