@@ -1370,6 +1370,26 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#executionContext")).toHaveCSS("background-color", "rgb(255, 255, 255)");
   });
 
+  test("keeps lease-lost finalization visible for safe recovery", async ({ page }) => {
+    await page.route("**/api/events", (route) => route.abort());
+    await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({ json: { status: {} } }));
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => r({
+      watcher_state: "ENGINEERING_RUN_STALE",
+      current_phase: "FINALIZE_AGENT",
+      run_id: "inbox-lease-lost-finalization",
+      execution_mode: "MANAGED",
+      implementation_pr: 944,
+      finalization_pr: 945,
+    }, {}));
+
+    await page.locator("#currentRun").evaluate((element) => { element.open = true; });
+    await expect(page.locator("#currentRun")).toBeVisible();
+    await expect(page.locator("#watcher")).toContainText(DASHBOARD_MESSAGES.nl["operational.stale_run"]);
+    await expect(page.locator("#currentRun")).toContainText("inbox-lease-lost-finalization");
+    await expect(page.locator("#currentRun")).not.toContainText("WATCHER_IDLE");
+  });
+
   test("explains the managed and Genesis execution modes from the active execution", async ({ page }) => {
     await page.route("**/api/events", (route) => route.abort());
     await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({

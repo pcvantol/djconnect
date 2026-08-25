@@ -306,8 +306,7 @@ function isActiveRun(x = {}) {
 }
 function hasVisibleStaleLifecycle(x = {}) {
   return x.watcher_state === "ENGINEERING_RUN_STALE" && Boolean(x.run_id) &&
-    x.current_phase !== "COMPLETE" && x.current_phase !== "BLOCKED" && x.current_phase !== "FAILED" &&
-    x.lifecycle?.available === true;
+    x.current_phase !== "COMPLETE" && x.current_phase !== "BLOCKED" && x.current_phase !== "FAILED";
 }
 function checkBuild(build) {
   if (build === DASHBOARD_BUILD) {
