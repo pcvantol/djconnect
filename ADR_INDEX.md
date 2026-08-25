@@ -110,6 +110,15 @@ DJConnect contracts and the source/distribution repository boundary.
 Decision to use one standalone, product-first Device Installer and one
 artifact-truth repository for ESP, RP2 and Raspberry Pi device distribution.
 
+### ADR-0019 — Engineering Platform uses one central installation store
+
+**Status:** Accepted for Engineering Platform 2.x extraction
+**File:** `docs/adr/0019-engineering-platform-central-installation-store.md`
+
+Decision to install EP once per local user/machine, use one central
+installation-owned database, and scope all EP operational data by the canonical
+Workspace project ID.
+
 ## ADR backlog
 
 ### ADR-0013 — Platform Baseline v1.0 certification boundary
