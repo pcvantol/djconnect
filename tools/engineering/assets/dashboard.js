@@ -4188,7 +4188,9 @@ function setDashboardSelectPickerOpen(picker, open) {
   picker.button.setAttribute("aria-expanded", String(open));
 }
 function enhanceDashboardSelectPicker(select) {
-  if (!(select instanceof HTMLSelectElement) || select.multiple || dashboardSelectPickers.has(select)) return;
+  // The locale control already has its own accessible custom picker in the
+  // title bar.  Treating it as a generic select would render a second one.
+  if (!(select instanceof HTMLSelectElement) || select.id === "dashboardLocale" || select.multiple || dashboardSelectPickers.has(select)) return;
   select.classList.add("dashboard-select__native");
   const picker = document.createElement("span"), button = document.createElement("button"), value = document.createElement("span"), arrow = document.createElement("span"), menu = document.createElement("span");
   const menuId = `${select.id}Menu`;
@@ -4235,7 +4237,7 @@ function enhanceDashboardSelectPicker(select) {
   refresh();
 }
 function enhanceDashboardSelectPickers() {
-  document.querySelectorAll("select:not([multiple])").forEach(enhanceDashboardSelectPicker);
+  document.querySelectorAll("select:not([multiple]):not(#dashboardLocale)").forEach(enhanceDashboardSelectPicker);
 }
 document.addEventListener("pointerdown", (event) => {
   dashboardSelectPickers.forEach((picker) => {

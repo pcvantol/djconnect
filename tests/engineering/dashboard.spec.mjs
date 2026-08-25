@@ -321,6 +321,7 @@ test.describe("Engineering Status browser smoke", () => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await expect(page.locator("#dashboardLocale")).toBeHidden();
     await expect(page.locator("#dashboardLocaleButton")).toBeVisible();
+    await expect(page.locator("#dashboardLocale + .dashboard-select-picker")).toHaveCount(0);
   });
 
   test("renders repository and workspace state codes as readable labels", () => {
