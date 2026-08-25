@@ -381,15 +381,13 @@ function renderCapacityTrend(history) {
     trend = document.createElement("section");
     trend.className = "rate-limit-trend";
     trend.id = "rateLimitTrend";
-    const heading = document.createElement("h3"), description = document.createElement("p"), summary = document.createElement("p"), chart = document.createElement("div");
+    const heading = document.createElement("h3"), description = document.createElement("p"), chart = document.createElement("div");
     heading.className = "rate-limit-trend__title";
     heading.id = "rateLimitTrendTitle";
     description.className = "rate-limit-trend__description";
-    summary.className = "rate-limit-trend__summary";
-    summary.id = "rateLimitTrendSummary";
     chart.className = "rate-limit-trend__chart";
     chart.id = "rateLimitTrendChart";
-    trend.append(heading, description, chart, summary);
+    trend.append(heading, description, chart);
     details.closest(".field")?.after(trend);
   }
   $("rateLimitTrendTitle").textContent = t("rate_limit.trend_title");
@@ -398,14 +396,10 @@ function renderCapacityTrend(history) {
     .map((point) => ({ at: Date.parse(String(point?.at || "")), remaining: Number(point?.remaining_percent) }))
     .filter((point) => Number.isFinite(point.at) && Number.isFinite(point.remaining) && point.remaining >= 0 && point.remaining <= 100)
     .sort((left, right) => left.at - right.at);
-  const chart = $("rateLimitTrendChart"), summary = $("rateLimitTrendSummary");
+  const chart = $("rateLimitTrendChart");
   chart.replaceChildren();
-  if (!points.length) {
-    summary.textContent = t("rate_limit.trend_building");
-    return;
-  }
+  if (!points.length) return;
   const latest = points.at(-1), latestPercent = locale.number(latest.remaining, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
-  summary.textContent = t("rate_limit.trend_current", { percent: latestPercent });
   const namespace = "http://www.w3.org/2000/svg", svg = document.createElementNS(namespace, "svg"), title = document.createElementNS(namespace, "title"), width = 336, height = 120, padding = { top: 10, right: 8, bottom: 22, left: 32 }, now = Date.now(), start = now - 7 * 24 * 60 * 60 * 1000;
   svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
   svg.setAttribute("role", "img");

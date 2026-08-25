@@ -6987,7 +6987,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(axisLabels.first()).toHaveCSS("fill", "rgb(247, 243, 238)");
     await expect(trend.locator(".rate-limit-trend__line")).toHaveCount(1);
     await expect(trend.locator(".rate-limit-trend__point")).toHaveCount(2);
-    await expect(trend).toContainText("Nu 86,0% beschikbaar");
+    await expect(trend).not.toContainText("Nu 86,0% beschikbaar");
     await page.getByTestId("theme-toggle").click();
     await expect(axisLabels.first()).toHaveCSS("fill", "rgb(24, 34, 48)");
   });
