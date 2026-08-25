@@ -2004,6 +2004,25 @@ class DashboardStatusTest(unittest.TestCase):
                 self.assertEqual(response.status, 200)
                 self.assertEqual(json.loads(response.read()), {"logged": True})
                 audit_log_event.assert_any_call(ANY, logging.INFO, "chat_downloaded")
+            connection.request("POST", "/api/configuration", body='{"key":"log_level","value":"DEBUG"}', headers={"Content-Type": "application/json"})
+            response = connection.getresponse()
+            self.assertEqual(response.status, 200)
+            self.assertEqual(json.loads(response.read())["value"], "DEBUG")
+            connection.request("POST", "/api/configuration", body='{"key":"unknown","value":1}', headers={"Content-Type": "application/json"})
+            response = connection.getresponse()
+            self.assertEqual(response.status, 400)
+            response.read()
+            transport = root / "configured-transport"
+            (transport / "Inbox").mkdir(parents=True, exist_ok=True)
+            with (
+                patch("tools.engineering.dashboard._status", return_value=b"{}"),
+                patch("tools.engineering.dashboard._restart_component") as restart,
+            ):
+                connection.request("POST", "/api/configuration/inbox-location", body=json.dumps({"inbox_root": str(transport)}), headers={"Content-Type": "application/json"})
+                response = connection.getresponse()
+                self.assertEqual(response.status, 200)
+                self.assertEqual(json.loads(response.read())["value"], str(transport.resolve()))
+                restart.assert_called_once_with("inbox")
             retry_outcome = {"blocking_run_id": "inbox-blocked", "retry_filename": "retry-inbox-blocked.md", "retry_run_id": "inbox-retry"}
             with (
                 patch("tools.engineering.dashboard.cloud_root", return_value=root),
