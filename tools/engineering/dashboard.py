@@ -466,6 +466,22 @@ def _remaining_rate_limit_capacity(rate_limits: dict[str, object]) -> float | No
     return min(remaining_values) if remaining_values else None
 
 
+def _codex_cli_installation_path(executable: str | None) -> str | None:
+    """Return the managed prefix or resolved executable used by the active CLI."""
+    if not executable:
+        return None
+    managed_prefix = engineering_platform_codex_cli_prefix()
+    if Path(executable).expanduser() == managed_prefix / "bin" / "codex":
+        return str(managed_prefix)
+    resolved_executable = shutil.which(executable)
+    if not resolved_executable:
+        return None
+    try:
+        return str(Path(resolved_executable).resolve())
+    except OSError:
+        return resolved_executable
+
+
 def _codex_provider_identity(*, refresh: bool = False) -> dict[str, str]:
     """Return the active provider identity and its locally resolved executable path."""
     global _codex_identity_cache
@@ -477,17 +493,8 @@ def _codex_provider_identity(*, refresh: bool = False) -> dict[str, str]:
     identity = {"provider": "Codex CLI", "provider_version": "versie niet beschikbaar"}
     executable = codex_cli_executable()
     if executable:
-        managed_prefix = engineering_platform_codex_cli_prefix()
-        managed_executable = managed_prefix / "bin" / "codex"
-        if Path(executable).expanduser() == managed_executable:
-            identity["provider_path"] = str(managed_prefix)
-        else:
-            resolved_executable = shutil.which(executable)
-            if resolved_executable:
-                try:
-                    identity["provider_path"] = str(Path(resolved_executable).resolve())
-                except OSError:
-                    identity["provider_path"] = resolved_executable
+        if installation_path := _codex_cli_installation_path(executable):
+            identity["provider_path"] = installation_path
         try:
             completed = LocalProcessProvider().execute(Path.cwd(), (executable, "--version"))
         except OSError:
