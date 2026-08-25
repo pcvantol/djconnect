@@ -53,6 +53,7 @@ from .execution_lifecycle import projection as lifecycle_projection
 from .emergency_recovery import EmergencyRecoveryError, execute as execute_emergency_recovery, preview as emergency_recovery_preview
 from .platform_version import EngineeringPlatformManifest
 from .dashboard_configuration import (
+    DashboardConfigurationConflict,
     get as dashboard_configuration,
     update as update_dashboard_configuration,
     update_inbox_root,
@@ -2217,9 +2218,14 @@ def handler(root: Path, logger: logging.Logger | None = None):
                     if not 0 < length <= 256:
                         raise ValueError
                     payload = json.loads(self.rfile.read(length).decode("utf-8"))
-                    if not isinstance(payload, dict) or set(payload) != {"key", "value"}:
+                    if not isinstance(payload, dict) or set(payload) != {"key", "value", "previous"}:
                         raise ValueError
-                    event = update_dashboard_configuration(root, payload["key"], payload["value"])
+                    event = update_dashboard_configuration(
+                        root,
+                        payload["key"],
+                        payload["value"],
+                        expected_previous=payload["previous"],
+                    )
                     if event["key"] == "log_retention_days":
                         prune_component_logs(root, int(event["value"]))
                     if event["key"] == "log_level":
@@ -2228,6 +2234,14 @@ def handler(root: Path, logger: logging.Logger | None = None):
                             log_handler.setLevel(logger.level)
                     log_event(logger, logging.INFO, "dashboard_configuration_changed",
                               diagnostic=f"key={event['key']}; previous={event['previous']}; value={event['value']}")
+                except DashboardConfigurationConflict as error:
+                    current = dashboard_configuration(root).get(payload.get("key"))
+                    self._send(
+                        json.dumps({"error": str(error), "value": current}).encode(),
+                        "application/json; charset=utf-8",
+                        409,
+                    )
+                    return
                 except (ValueError, UnicodeDecodeError, json.JSONDecodeError):
                     self._send(b'{"error":"Ongeldige dashboardinstelling."}', "application/json; charset=utf-8", 400)
                     return
@@ -2635,7 +2649,12 @@ def launch_agent(repo: Path) -> Path:
     launcher = (sys.executable, "-P", "-m", "tools.engineering.dashboard", "run", "--repo", str(repo))
     command = "cd / && exec " + " ".join(shlex.quote(value) for value in launcher)
     arguments = f"<string>/bin/zsh</string><string>-lc</string><string>{escape(command)}</string>"
-    log_level = os.environ.get(LOG_LEVEL_ENVIRONMENT, DEFAULT_LOG_LEVEL).upper()
+    try:
+        # The dashboard preference is durable across service regeneration.  An
+        # inherited shell value is only a fallback for an unavailable store.
+        log_level = str(dashboard_configuration(repo)["log_level"]).upper()
+    except (EngineeringStorageError, KeyError, TypeError, ValueError):
+        log_level = os.environ.get(LOG_LEVEL_ENVIRONMENT, DEFAULT_LOG_LEVEL).upper()
     if log_level not in VALID_LEVELS:
         log_level = DEFAULT_LOG_LEVEL
     destination.write_text(

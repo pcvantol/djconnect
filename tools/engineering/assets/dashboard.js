@@ -4569,6 +4569,7 @@ async function saveDashboardConfiguration(control) {
   const [key, normalizer] = configurationFields[control.id] || [];
   if (!key) return;
   const value = normalizer(control.type === "checkbox" ? control.checked : control.value);
+  const previous = control.dataset.savedValue || String(value);
   if (key === "log_retention_days" && Number(value) < Number(control.dataset.savedValue || value)) {
     const confirmed = await confirmDashboardAction(
       t("configuration.log_retention"),
@@ -4588,10 +4589,19 @@ async function saveDashboardConfiguration(control) {
     const response = await fetch("/api/configuration", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ key, value }),
+      body: JSON.stringify({ key, value, previous: normalizer(previous) }),
     });
-    if (!response.ok) throw Error();
-    control.dataset.savedValue = String(value);
+    const payload = await response.json();
+    if (!response.ok) {
+      if (response.status === 409 && payload.value !== undefined) {
+        control.value = String(payload.value);
+        control.dataset.savedValue = control.value;
+        syncDashboardSelectPicker(control);
+      }
+      throw Error(payload.error || "");
+    }
+    control.value = String(payload.value);
+    control.dataset.savedValue = control.value;
     if (key === "open_pr_check_interval_seconds") {
       openPullRequestMonitorIntervalMs = Number(value) * 1e3;
       scheduleOpenPullRequestMonitor([...openPullRequestStatusByNumber.values()].map((status) => ({ status })));

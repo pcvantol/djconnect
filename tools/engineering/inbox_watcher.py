@@ -2010,7 +2010,12 @@ def launch_agent(repo: Path) -> Path:
     runtime_environment = execution_host_configuration(repo).runtime_environment()
     environment = runtime_environment["PATH"]
     runtime_executable = runtime_environment[RUNTIME_EXECUTABLE_ENVIRONMENT]
-    log_level = os.environ.get(LOG_LEVEL_ENVIRONMENT, DEFAULT_LOG_LEVEL).upper()
+    try:
+        # Keep the watcher aligned with the durable dashboard preference when
+        # its LaunchAgent is regenerated during setup or an upgrade.
+        log_level = str(dashboard_configuration(repo)["log_level"]).upper()
+    except (EngineeringStorageError, KeyError, TypeError, ValueError):
+        log_level = os.environ.get(LOG_LEVEL_ENVIRONMENT, DEFAULT_LOG_LEVEL).upper()
     if log_level not in VALID_LEVELS:
         log_level = DEFAULT_LOG_LEVEL
     destination.write_text(

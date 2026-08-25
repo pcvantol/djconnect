@@ -292,7 +292,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(picker.locator(".dashboard-locale__button > span").first()).toHaveText("Debug");
     await picker.locator(".dashboard-locale__button").click();
     await picker.locator('[role=option][data-dashboard-select-value="INFO"]').click();
-    await expect.poll(() => writes).toEqual([{ key: "log_level", value: "INFO" }]);
+    await expect.poll(() => writes).toEqual([{ key: "log_level", value: "INFO", previous: "DEBUG" }]);
     await expect(select).toHaveValue("INFO");
     await expect(picker.locator(".dashboard-locale__button > span").first()).toHaveText("Informatie");
   });

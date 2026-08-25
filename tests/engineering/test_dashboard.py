@@ -2177,11 +2177,20 @@ class DashboardStatusTest(unittest.TestCase):
                 self.assertEqual(response.status, 200)
                 self.assertEqual(json.loads(response.read()), {"logged": True})
                 audit_log_event.assert_any_call(ANY, logging.INFO, "chat_downloaded")
-            connection.request("POST", "/api/configuration", body='{"key":"log_level","value":"DEBUG"}', headers={"Content-Type": "application/json"})
+            dashboard.update_dashboard_configuration(root, "log_level", "INFO")
+            connection.request("POST", "/api/configuration", body='{"key":"log_level","value":"DEBUG","previous":"INFO"}', headers={"Content-Type": "application/json"})
             response = connection.getresponse()
             self.assertEqual(response.status, 200)
             self.assertEqual(json.loads(response.read())["value"], "DEBUG")
-            connection.request("POST", "/api/configuration", body='{"key":"unknown","value":1}', headers={"Content-Type": "application/json"})
+            connection.request("POST", "/api/configuration", body='{"key":"log_level","value":"INFO","previous":"DEBUG"}', headers={"Content-Type": "application/json"})
+            response = connection.getresponse()
+            self.assertEqual(response.status, 200)
+            response.read()
+            connection.request("POST", "/api/configuration", body='{"key":"log_level","value":"DEBUG","previous":"DEBUG"}', headers={"Content-Type": "application/json"})
+            response = connection.getresponse()
+            self.assertEqual(response.status, 409)
+            self.assertEqual(json.loads(response.read())["value"], "INFO")
+            connection.request("POST", "/api/configuration", body='{"key":"unknown","value":1,"previous":1}', headers={"Content-Type": "application/json"})
             response = connection.getresponse()
             self.assertEqual(response.status, 400)
             response.read()
@@ -2561,6 +2570,21 @@ class DashboardStatusTest(unittest.TestCase):
             self.assertIn("exec", rendered)
             self.assertNotIn("StandardOutPath", rendered)
             self.assertNotIn("StandardErrorPath", rendered)
+
+    def test_launch_agent_keeps_the_persisted_log_level_over_an_inherited_value(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary, patch(
+            "tools.engineering.dashboard.Path.home", return_value=Path(temporary)
+        ), patch.dict("os.environ", {dashboard.LOG_LEVEL_ENVIRONMENT: "DEBUG"}):
+            root = Path(temporary) / "repository"
+            root.mkdir()
+            dashboard.update_dashboard_configuration(root, "log_level", "INFO")
+
+            rendered = dashboard.launch_agent(root).read_text(encoding="utf-8")
+
+        self.assertIn(
+            f"<key>{dashboard.LOG_LEVEL_ENVIRONMENT}</key><string>INFO</string>",
+            rendered,
+        )
 
     @patch("tools.engineering.dashboard._last_executed_commits", return_value=b"not-json")
     @patch("tools.engineering.dashboard._completion_commits", return_value=b"not-json")

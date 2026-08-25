@@ -189,10 +189,11 @@ the engineering report and AI analysis remain separate evidence actions on the
 same row. There is no separate **Laatst uitgevoerde prompt** card, so a terminal
 execution is never represented twice in the dashboard.
 
-Set `DJCONNECT_ENGINEERING_LOG_LEVEL` to `DEBUG`, `INFO`, `WARNING` or `ERROR`
-before installing a watcher or dashboard LaunchAgent; the selected value is
-stored in its LaunchAgent environment. The default is `INFO`; an invalid value
-fails closed to `INFO`. Reinstall the relevant LaunchAgent after changing it.
+The dashboard's saved log-level preference is authoritative for the dashboard
+and Inbox watcher, including after their LaunchAgents are regenerated. The
+LaunchAgent environment is retained only as a bootstrap fallback when the local
+preference store is unavailable. The default is `INFO`; invalid fallback values
+fail closed to `INFO`.
 
 When a component does not start or terminate cleanly, inspect **Logs** in the
 private dashboard first. If that is unavailable, inspect the owned LaunchAgent

@@ -28,6 +28,11 @@ OPTIONS = {
 }
 PREFIX = "dashboard_configuration."
 INBOX_ROOT_KEY = PREFIX + "inbox_root"
+_UNSET = object()
+
+
+class DashboardConfigurationConflict(ValueError):
+    """Raised when a client tries to save over a newer local preference."""
 
 
 def get(root: Path) -> dict[str, object]:
@@ -49,7 +54,13 @@ def get(root: Path) -> dict[str, object]:
         connection.close()
 
 
-def update(root: Path, key: str, value: object) -> dict[str, object]:
+def update(
+    root: Path,
+    key: str,
+    value: object,
+    *,
+    expected_previous: object = _UNSET,
+) -> dict[str, object]:
     if key not in OPTIONS or value not in OPTIONS[key]:
         raise ValueError("Ongeldige dashboardinstelling.")
     connection = open_storage(root)
@@ -65,6 +76,8 @@ def update(root: Path, key: str, value: object) -> dict[str, object]:
                 stored = previous
             if stored in OPTIONS[key]:
                 previous = stored
+        if expected_previous is not _UNSET and expected_previous != previous:
+            raise DashboardConfigurationConflict("De instelling is in een ander dashboardvenster gewijzigd.")
         connection.execute(
             "INSERT INTO engineering_metadata(key,value) VALUES(?,?) "
             "ON CONFLICT(key) DO UPDATE SET value=excluded.value",
