@@ -124,12 +124,11 @@ this file is the canonical repository-state entry point.
 
 The local AI-assisted engineering environment is independently versioned by
 `tools/engineering/ENGINEERING_PLATFORM_VERSION.json`. Its current canonical
-contract is Engineering Platform `1.5.0`, runner `1.5.0`, Bootstrap Contract
+contract is Engineering Platform `2.0.0`, runner `2.0.0`, Bootstrap Contract
 `2026.12`, Checkpoint Format `1`, Engineering Memory Format `2`, Report Format
-`2`, Engineering Inbox watcher `1.1.5` (Inbox Protocol `1`), private dashboard
-`1.2.80`, Platform Identity
-generation `2`, Workspace Identity schema `1`, Engineering Storage schema `9`, provider model `1`, configuration
-schema `1`, qualification registry `1` and minimum
+`2`, Engineering Inbox watcher `2.0.0` (Inbox Protocol `1`), private dashboard
+`2.0.0`, Platform Identity generation `2`, Workspace Identity schema `1`, Engineering Storage schema `29`, provider model `1`, configuration
+schema `2`, qualification registry `1` and minimum
 supported Codex CLI `0.146.0`. On supported macOS workstations, the watcher
 and its per-user LaunchAgent must satisfy this same contract before accepting
 iCloud inbox work; incompatibility is blocked with corrective diagnostics.
@@ -137,14 +136,14 @@ iCloud inbox work; incompatibility is blocked with corrective diagnostics.
 Every future Platform Engineering prompt requires:
 
 ```text
-Required Engineering Platform: >= 1.5.0
+Required Engineering Platform: >= 2.0.0
 ```
 
-Engineering Platform 1.5 is the minimum supported platform for future
+Engineering Platform 2.0 is the minimum supported platform for future
 engineering prompts. Older versions are incompatible and compatibility
 validation fails closed. The repository bootstrap is the authoritative
 compatibility contract. Product & Platform Architect prompts require
-Engineering Platform `1.5.0` or newer. The generated prompt
+Engineering Platform `2.0.0` or newer. The generated prompt
 must state this minimum explicitly. `engineering-execution-host` must fail closed before any
 repository mutation when the detected Engineering Platform is older than the
 prompt's declared minimum.
@@ -159,7 +158,7 @@ Engineering Platform detected:
 
 Required:
 
->= 1.5.0
+>= 2.0.0
 
 Status:
 

@@ -262,7 +262,7 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("schema_version: 1", desired_state)
         self.assertIn("host.minimum_free_disk_gb: 80", desired_state)
         self.assertIn("onboarding.package_version: 4.5.0", desired_state)
-        self.assertIn("engineering.platform_version: 1.5.0", desired_state)
+        self.assertIn("engineering.platform_version: 2.0.0", desired_state)
         self.assertIn("engineering.watcher_launch_agent: com.djconnect.engineering-inbox", desired_state)
         self.assertIn("engineering.dashboard_launch_agent: com.djconnect.engineering-dashboard", desired_state)
         self.assertIn("engineering.dashboard_health_url: http://127.0.0.1:8765/api/health", desired_state)

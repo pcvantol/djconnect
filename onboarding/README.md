@@ -19,7 +19,7 @@ artifacts, and does not require a matching platform version to run or verify.
 
 ## Engineering Inbox (macOS)
 
-Engineering Platform `1.5.0` provides a local iCloud Engineering Inbox through
+Engineering Platform `2.0.0` provides a local iCloud Engineering Inbox through
 the configured Remote Submission Provider. Run
 `./onboarding/dev_onboarding_macos.sh --steps 31 --yes` to create the private
 workspace, install the per-user `com.djconnect.engineering-inbox` watcher and
@@ -112,7 +112,7 @@ Submit the repaired prompt with `Retry-Of:
 <blocking-run-id>` on its own line to release the sequence after that retry
 completes. The dashboard identifies the blocking prompt and recovery action.
 
-Engineering prompts require Engineering Platform `>= 1.5.0`. An older platform
+Engineering prompts require Engineering Platform `>= 2.0.0`. An older platform
 is incompatible: upgrade it before starting a prompt; do not bypass bootstrap
 compatibility validation.
 

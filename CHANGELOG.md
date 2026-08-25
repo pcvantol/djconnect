@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+- Bump the Engineering Platform release boundary to `2.0.0`: platform, runner,
+  Inbox watcher and private dashboard now share the same major version.
+- Raise the fail-closed Execution Host requirement to Engineering Platform
+  `>= 2.0.0` in bootstrap, generated prompts and development-host readiness.
+- Keep storage, protocol, checkpoint, memory and report formats unchanged; this
+  is a version-boundary release, not a data migration or authority change.
+
 ## 4.0.0-rc.1
 
 - Start the coordinated DJConnect Platform 4.0 release-candidate train.
