@@ -30,11 +30,11 @@ deterministic Engineering Platform manifest. It versions the engineering
 environment independently from the repository and declares the platform,
 runner, watcher and dashboard versions; Bootstrap Contract; checkpoint,
 memory, report, status-model and Inbox Protocol formats; and the minimum Codex
-CLI version. Engineering Platform `1.5.0` is the current minimum supported
+CLI version. Engineering Platform `2.0.0` is the current minimum supported
 platform for future engineering prompts.
 
 The local Inbox worker and private Dashboard are separately versioned
-components of Engineering Platform 1.5. Their current versions are the
+components of Engineering Platform 2.0. Their current versions are the
 canonical `watcher_version` and `dashboard_version` manifest fields; neither
 is a separate Engineering Platform release. The private dashboard displays
 them with the corresponding live components, while its status bar displays the
@@ -203,7 +203,7 @@ dashboard restart paths.
 
 ## Remote Engineering Experience
 
-Engineering Platform 1.5 projects canonical watcher status as bounded, atomic
+Engineering Platform 2.0 projects canonical watcher status as bounded, atomic
 `status.json` and an iPhone-readable private dashboard. The dashboard is
 status- and evidence-first. Its only local operational control is an explicit,
 confirmed restart of one of its own per-user LaunchAgents (dashboard,
