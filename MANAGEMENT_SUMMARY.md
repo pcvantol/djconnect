@@ -1,5 +1,23 @@
 # DJConnect Generation 2 Management Summary
 
+## PRs #936, #937 and #938 finalized
+
+PR [#936](https://github.com/pcvantol/djconnect/pull/936), **Add Forge
+Workspace Inbox submission API**, PR
+[#937](https://github.com/pcvantol/djconnect/pull/937), **Show live Codex
+activity on active workflow step**, and PR
+[#938](https://github.com/pcvantol/djconnect/pull/938), **Bump Engineering
+Platform to 2.0.0**, are merged and their merge commits are contained in
+current `main`, with no terminal check failures.
+
+The changes add a bounded Forge-to-Inbox submission boundary, transient live
+Codex activity on the active workflow step, and a 2.0.0 platform compatibility
+boundary. They do not change execution authority, runtime delivery or product
+behavior. This governance-only Finalization updates only the four canonical
+rolling records and leaves immutable Prompt History untouched. With its merge,
+Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`;
+Finalization Pending: `NO`.
+
 ## PRs #930, #931 and #933 finalized
 
 PR [#930](https://github.com/pcvantol/djconnect/pull/930), **Show pull request
