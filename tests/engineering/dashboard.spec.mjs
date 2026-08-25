@@ -139,6 +139,24 @@ test.describe("Engineering Status browser smoke", () => {
     expect(weights).toEqual(["400"]);
   });
 
+  test("uses the language pulldown style for every single-choice select", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    for (const id of ["configurationLogRetention", "configurationLogLevel", "logLevelFilter"]) {
+      const select = page.locator(`#${id}`);
+      const picker = select.locator("+ .dashboard-select-picker");
+      await expect(picker).toHaveCount(1);
+      await expect(picker.locator(".dashboard-locale__button")).toHaveCSS(
+        "background-color",
+        await page.locator("#dashboardLocaleButton").evaluate((button) => getComputedStyle(button).backgroundColor),
+      );
+    }
+    await page.locator("#configuration").evaluate((element) => { element.open = true; });
+    const picker = page.locator("#configurationLogLevel + .dashboard-select-picker");
+    await picker.locator(".dashboard-locale__button").click();
+    await expect(picker.locator("[role=listbox]")).toBeVisible();
+    await expect(picker.locator("[role=option]")).toHaveText(["Informatie", "Debug"]);
+  });
+
   test("shows a GitHub rate-limit banner on page load and clears it on refresh", async ({ page }) => {
     let limited = true;
     await page.route("**/api/github-rate-limit", (route) => route.fulfill({

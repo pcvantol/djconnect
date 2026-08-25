@@ -3278,6 +3278,7 @@ resetLogFiltersButton.setAttribute("aria-label", resetLogFiltersLabel);
 resetLogFiltersButton.addEventListener("click", () => {
   $("logFilter").value = "";
   $("logLevelFilter").value = "";
+  syncDashboardSelectPicker($("logLevelFilter"));
   [...($("logEventFilter")?.options || [])].forEach((option) => { option.selected = false; });
   independentLogPageStates.inbox = independentLogPageStates.dashboard = 1;
   clearAllComponentLogSelections();
@@ -4097,10 +4098,83 @@ const configurationFields = Object.freeze({
   configurationLogRetention: ["log_retention_days", Number],
   configurationLogLevel: ["log_level", String],
 });
+const dashboardSelectPickers = new Map();
+function syncDashboardSelectPicker(select) {
+  const picker = dashboardSelectPickers.get(select);
+  if (!picker) return;
+  const selected = select.selectedOptions[0];
+  picker.value.textContent = selected?.textContent || "";
+  picker.menu.querySelectorAll("[data-dashboard-select-value]").forEach((option, index) => {
+    const nativeOption = select.options[index];
+    option.textContent = nativeOption?.textContent || "";
+    option.disabled = nativeOption?.disabled === true;
+    option.setAttribute("aria-selected", String(option.dataset.dashboardSelectValue === select.value));
+  });
+}
+function setDashboardSelectPickerOpen(picker, open) {
+  picker.menu.hidden = !open;
+  picker.button.setAttribute("aria-expanded", String(open));
+}
+function enhanceDashboardSelectPicker(select) {
+  if (!(select instanceof HTMLSelectElement) || select.multiple || dashboardSelectPickers.has(select)) return;
+  select.classList.add("dashboard-select__native");
+  const picker = document.createElement("span"), button = document.createElement("button"), value = document.createElement("span"), arrow = document.createElement("span"), menu = document.createElement("span");
+  const menuId = `${select.id}Menu`;
+  picker.className = "dashboard-locale__picker dashboard-select-picker";
+  button.className = "dashboard-locale__button";
+  button.type = "button";
+  button.setAttribute("aria-haspopup", "listbox");
+  button.setAttribute("aria-expanded", "false");
+  button.setAttribute("aria-controls", menuId);
+  button.setAttribute("aria-label", select.getAttribute("aria-label") || select.labels?.[0]?.textContent?.trim() || "");
+  arrow.setAttribute("aria-hidden", "true");
+  arrow.textContent = "⌄";
+  button.append(value, arrow);
+  menu.className = "dashboard-locale__menu";
+  menu.id = menuId;
+  menu.setAttribute("role", "listbox");
+  menu.hidden = true;
+  [...select.options].forEach((nativeOption) => {
+    const option = document.createElement("button");
+    option.type = "button";
+    option.setAttribute("role", "option");
+    option.dataset.dashboardSelectValue = nativeOption.value;
+    option.disabled = nativeOption.disabled;
+    menu.append(option);
+  });
+  picker.append(button, menu);
+  select.after(picker);
+  const state = { picker, button, value, menu };
+  dashboardSelectPickers.set(select, state);
+  const refresh = () => syncDashboardSelectPicker(select);
+  select.addEventListener("change", refresh);
+  button.addEventListener("click", () => setDashboardSelectPickerOpen(state, menu.hidden));
+  button.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") setDashboardSelectPickerOpen(state, false);
+  });
+  menu.addEventListener("click", (event) => {
+    const option = event.target.closest("[data-dashboard-select-value]");
+    if (!option || option.disabled) return;
+    select.value = option.dataset.dashboardSelectValue;
+    select.dispatchEvent(new Event("change", { bubbles: true }));
+    setDashboardSelectPickerOpen(state, false);
+    button.focus();
+  });
+  refresh();
+}
+function enhanceDashboardSelectPickers() {
+  document.querySelectorAll("select:not([multiple])").forEach(enhanceDashboardSelectPicker);
+}
+document.addEventListener("pointerdown", (event) => {
+  dashboardSelectPickers.forEach((picker) => {
+    if (!event.target.closest(".dashboard-select-picker")) setDashboardSelectPickerOpen(picker, false);
+  });
+});
 function localizeConfigurationOptions() {
   document.querySelectorAll("#configurationLogRetention option").forEach((option) => {
     option.textContent = t("configuration.days", { days: option.value });
   });
+  dashboardSelectPickers.forEach((_, select) => syncDashboardSelectPicker(select));
 }
 function positionConfigurationTooltip(info) {
   if (!window.matchMedia("(max-width:620px)").matches) {
@@ -4169,6 +4243,7 @@ async function initializeDashboardConfiguration() {
         control.value = String(configuration[key]);
         control.dataset.savedValue = control.value;
       }
+      syncDashboardSelectPicker(control);
     });
   } catch {
     $("configurationStatus").textContent = t("configuration.load_failed");
@@ -4216,6 +4291,7 @@ $("configurationInboxSave")?.addEventListener("click", async (event) => {
     button.disabled = false;
   }
 });
+enhanceDashboardSelectPickers();
 initializeDashboardConfiguration();
 function loadAllSectionsIntent() {
   try {
