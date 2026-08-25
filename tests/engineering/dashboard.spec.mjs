@@ -230,6 +230,32 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#configuration .configuration-field")).toHaveCount(7);
   });
 
+  test("persists a log-level pulldown choice exactly once", async ({ page }) => {
+    const writes = [];
+    await page.route("**/api/configuration", async (route) => {
+      if (route.request().method() === "GET") {
+        await route.fulfill({ json: {
+          log_retention_days: 90, log_level: "DEBUG", inbox_scan_interval_seconds: 15,
+          open_pr_check_interval_seconds: 30, platform_health_refresh_seconds: 15,
+          component_details_refresh_seconds: 5,
+        } });
+        return;
+      }
+      writes.push(JSON.parse(route.request().postData() || "{}"));
+      await route.fulfill({ json: { key: "log_level", previous: "DEBUG", value: "INFO" } });
+    });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#configuration").evaluate((element) => { element.open = true; });
+    const select = page.locator("#configurationLogLevel");
+    const picker = select.locator("+ .dashboard-select-picker");
+    await expect(picker.locator(".dashboard-locale__button > span").first()).toHaveText("Debug");
+    await picker.locator(".dashboard-locale__button").click();
+    await picker.locator('[role=option][data-dashboard-select-value="INFO"]').click();
+    await expect.poll(() => writes).toEqual([{ key: "log_level", value: "INFO" }]);
+    await expect(select).toHaveValue("INFO");
+    await expect(picker.locator(".dashboard-locale__button > span").first()).toHaveText("Informatie");
+  });
+
   test("restores the log retention pulldown without saving when its removal warning is cancelled", async ({ page }) => {
     let configurationSaved = false;
     await page.route("**/api/configuration", async (route) => {
