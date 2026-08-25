@@ -13,10 +13,18 @@ from .storage import open_storage
 DEFAULTS = {
     "log_retention_days": 30,
     "log_level": "INFO",
+    "inbox_scan_interval_seconds": 15,
+    "open_pr_check_interval_seconds": 30,
+    "platform_health_refresh_seconds": 15,
+    "component_details_refresh_seconds": 5,
 }
 OPTIONS = {
     "log_retention_days": frozenset({30, 60, 90, 120, 180, 360}),
     "log_level": frozenset({"INFO", "DEBUG"}),
+    "inbox_scan_interval_seconds": frozenset({5, 15, 30, 60}),
+    "open_pr_check_interval_seconds": frozenset({30, 60}),
+    "platform_health_refresh_seconds": frozenset({5, 15, 30, 60}),
+    "component_details_refresh_seconds": frozenset({5, 15, 30, 60}),
 }
 PREFIX = "dashboard_configuration."
 INBOX_ROOT_KEY = PREFIX + "inbox_root"

@@ -58,8 +58,13 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn('id="configurationLogLevel"', page)
         self.assertNotIn('id="configurationAuditLogging"', page)
         self.assertNotIn('configuration.audit_logging', page)
-        self.assertEqual(page.count('class="configuration-info"'), 11)
-        self.assertEqual(page.count("data-i18n-title=\"configuration."), 11)
+        self.assertEqual(page.count('class="configuration-info"'), 7)
+        self.assertEqual(page.count("data-i18n-title=\"configuration."), 7)
+        for control in (
+            "configurationInboxScanInterval", "configurationOpenPrInterval",
+            "configurationPlatformHealthInterval", "configurationComponentDetailsInterval",
+        ):
+            self.assertIn(f'id="{control}"', page)
         for key, value in (
             ("configuration.inbox_scan_interval", "configuration.seconds_15"),
             ("configuration.operator_merge_interval", "configuration.seconds_60"),

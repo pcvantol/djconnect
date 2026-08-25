@@ -1736,7 +1736,7 @@ function renderWorkspaceGit(workspaceGit) {
   $("workspaceOriginMain").hidden = !workspaceGit.origin_main_available;
   $("workspaceBranchMain").hidden = !workspaceGit.main_action_available;
 }
-const OPEN_PULL_REQUEST_MONITOR_INTERVAL_MS = 30_000;
+let openPullRequestMonitorIntervalMs = 30_000;
 let openPullRequestMonitorTimer = null, openPullRequestMonitorInFlight = false;
 const openPullRequestStatusByNumber = new Map();
 const openPullRequestOwnerApprovalByNumber = new Map();
@@ -1817,7 +1817,7 @@ function scheduleOpenPullRequestMonitor(pullRequests) {
   clearTimeout(openPullRequestMonitorTimer);
   openPullRequestMonitorTimer = null;
   if (Array.isArray(pullRequests) && pullRequests.some((pullRequest) => pullRequest.status === "waiting_for_checks")) {
-    openPullRequestMonitorTimer = setTimeout(() => void refreshOpenPullRequests(), OPEN_PULL_REQUEST_MONITOR_INTERVAL_MS);
+    openPullRequestMonitorTimer = setTimeout(() => void refreshOpenPullRequests(), openPullRequestMonitorIntervalMs);
   }
 }
 async function refreshOpenPullRequests() {
@@ -2402,8 +2402,8 @@ function healthComponentLabel(component) {
     dashboard_relay: t("component.dashboard_relay"),
   }[component] || component;
 }
-let healthRequestInFlight = false;
-const componentDetailsRefreshIntervalMs = 5e3;
+let healthRequestInFlight = false, platformHealthRefreshIntervalMs = 15e3, platformHealthRefreshTimer = null;
+let componentDetailsRefreshIntervalMs = 5e3;
 let activeComponentDetails = null,
   componentDetailsRefreshTimer = null,
   componentDetailsRefreshInFlight = false;
@@ -2675,7 +2675,11 @@ async function refreshPlatformHealth() {
   }
 }
 refreshPlatformHealth();
-window.setInterval(refreshPlatformHealth, 15e3);
+function schedulePlatformHealthRefresh() {
+  if (platformHealthRefreshTimer !== null) window.clearInterval(platformHealthRefreshTimer);
+  platformHealthRefreshTimer = window.setInterval(refreshPlatformHealth, platformHealthRefreshIntervalMs);
+}
+schedulePlatformHealthRefresh();
 function arrangeCurrentRunCategory() {
   const current = $("currentRun"),
     summary = current?.querySelector(":scope>summary"),
@@ -4161,6 +4165,10 @@ applyDashboardLocale();
 const configurationFields = Object.freeze({
   configurationLogRetention: ["log_retention_days", Number],
   configurationLogLevel: ["log_level", String],
+  configurationInboxScanInterval: ["inbox_scan_interval_seconds", Number],
+  configurationOpenPrInterval: ["open_pr_check_interval_seconds", Number],
+  configurationPlatformHealthInterval: ["platform_health_refresh_seconds", Number],
+  configurationComponentDetailsInterval: ["component_details_refresh_seconds", Number],
 });
 const dashboardSelectPickers = new Map();
 function syncDashboardSelectPicker(select) {
@@ -4238,6 +4246,10 @@ function addConfigurationControlInfo() {
   for (const [id, helpKey] of [
     ["configurationLogRetention", "configuration.log_retention_help"],
     ["configurationLogLevel", "configuration.log_level_help"],
+    ["configurationInboxScanInterval", "configuration.inbox_scan_interval_help"],
+    ["configurationOpenPrInterval", "configuration.open_pr_interval_help"],
+    ["configurationPlatformHealthInterval", "configuration.platform_health_interval_help"],
+    ["configurationComponentDetailsInterval", "configuration.component_details_interval_help"],
   ]) {
     const control = $(id), label = control?.closest("label"), text = label?.querySelector(":scope > span");
     if (!text) continue;
@@ -4326,6 +4338,18 @@ async function saveDashboardConfiguration(control) {
     });
     if (!response.ok) throw Error();
     control.dataset.savedValue = String(value);
+    if (key === "open_pr_check_interval_seconds") {
+      openPullRequestMonitorIntervalMs = Number(value) * 1e3;
+      scheduleOpenPullRequestMonitor([...openPullRequestStatusByNumber.values()].map((status) => ({ status })));
+    }
+    if (key === "platform_health_refresh_seconds") {
+      platformHealthRefreshIntervalMs = Number(value) * 1e3;
+      schedulePlatformHealthRefresh();
+    }
+    if (key === "component_details_refresh_seconds") {
+      componentDetailsRefreshIntervalMs = Number(value) * 1e3;
+      if (activeComponentDetails) startComponentDetailsRefresh(activeComponentDetails);
+    }
     $("configurationStatus").textContent = t("configuration.saved");
   } catch {
     $("configurationStatus").textContent = t("configuration.save_failed");
@@ -4348,6 +4372,10 @@ async function initializeDashboardConfiguration() {
       }
       syncDashboardSelectPicker(control);
     });
+    openPullRequestMonitorIntervalMs = Number(configuration.open_pr_check_interval_seconds) * 1e3;
+    platformHealthRefreshIntervalMs = Number(configuration.platform_health_refresh_seconds) * 1e3;
+    componentDetailsRefreshIntervalMs = Number(configuration.component_details_refresh_seconds) * 1e3;
+    schedulePlatformHealthRefresh();
   } catch {
     $("configurationStatus").textContent = t("configuration.load_failed");
   }

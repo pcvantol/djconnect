@@ -18,6 +18,13 @@ class DashboardConfigurationTest(unittest.TestCase):
             self.assertEqual(event["previous"], 30)
             self.assertEqual(event["value"], 180)
             self.assertEqual(get(root)["log_retention_days"], 180)
+            for key, value in (
+                ("inbox_scan_interval_seconds", 30),
+                ("open_pr_check_interval_seconds", 60),
+                ("platform_health_refresh_seconds", 60),
+                ("component_details_refresh_seconds", 15),
+            ):
+                self.assertEqual(update(root, key, value)["value"], value)
 
     def test_rejects_unknown_or_unbounded_values(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
