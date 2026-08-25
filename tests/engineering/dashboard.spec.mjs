@@ -2883,6 +2883,25 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(pagination).toHaveText(/Pagina 2 van 2 · 8 dagen/);
   });
 
+  test("offers download, copy and confirmed clear actions for telemetry", async ({ page }) => {
+    await page.route("**/api/telemetry/clear", (route) => route.fulfill({ json: { cleared: true, execution_runs: 1, daily_statistics: 1 } }));
+    await page.route("**/api/events", (route) => route.fulfill({ json: {} }));
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => window.executionTelemetry([{
+      date: "2026-08-24", prompt_count: 1, average_total_execution_seconds: 60,
+      average_queue_wait_seconds: 5, complete_count: 1, blocked_count: 0, failed_count: 0,
+    }]));
+    await page.locator("#executionTelemetry").evaluate((element) => { element.open = true; });
+    const actions = page.locator("#executionTelemetry .telemetry-actions");
+    await expect(actions.getByRole("button", { name: "Telemetrie downloaden" })).toBeEnabled();
+    await expect(actions.getByRole("button", { name: "Telemetrie kopiëren" })).toBeEnabled();
+    await actions.getByRole("button", { name: "Telemetrie wissen" }).click();
+    await expect(page.locator("#confirmationModal")).toBeVisible();
+    await page.locator("#confirmationModalConfirm").click();
+    await expect(page.locator("#executionTelemetryRows .telemetry-empty")).toBeVisible();
+    await expect(actions.getByRole("button", { name: "Telemetrie wissen" })).toBeDisabled();
+  });
+
   test("sorts telemetry detail tables with the same header treatment as logs", async ({ page }) => {
     await page.route("**/api/telemetry/2026-08-16", (route) => route.fulfill({ json: {
       summary: {},

@@ -11,6 +11,7 @@ from unittest.mock import patch
 from tools.engineering.storage import ENGINEERING_STORAGE_SCHEMA_VERSION, open_storage
 from tools.engineering.telemetry import (
     ExecutionTelemetry,
+    clear_telemetry,
     daily_statistics,
     daily_timing_detail,
     execution_timing,
@@ -110,6 +111,20 @@ class ExecutionHostTelemetryTest(unittest.TestCase):
             self.assertEqual(daily_statistics(root, days=90), [])
             with self.assertRaises(ValueError):
                 daily_statistics(root, days=91)
+
+    def test_clear_telemetry_preserves_execution_receipts_and_timing_evidence(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            started = datetime(2026, 8, 1, 10, tzinfo=timezone.utc)
+            persist_execution(root, self._record("run-clear", "COMPLETE", started))
+            record_phase(root, "run-clear", "PROVIDER_EXECUTION", started_at=started, completed_at=started + timedelta(seconds=30))
+
+            self.assertEqual(clear_telemetry(root), {"daily_statistics": 1, "execution_runs": 1})
+            self.assertEqual(daily_statistics(root), [])
+            with open_storage(root) as connection:
+                self.assertEqual(connection.execute("SELECT COUNT(*) FROM execution_runs").fetchone()[0], 0)
+                self.assertEqual(connection.execute("SELECT COUNT(*) FROM execution_receipts").fetchone()[0], 1)
+                self.assertEqual(connection.execute("SELECT COUNT(*) FROM execution_phase_spans").fetchone()[0], 1)
 
     def test_persists_only_aggregate_execution_metadata(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

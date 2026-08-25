@@ -3117,6 +3117,50 @@ function setExecutionTelemetrySort(key) {
   executionTelemetryPage = 1;
   executionTelemetry(executionTelemetryRows);
 }
+function executionTelemetryText(rows = sortedExecutionTelemetryRows()) {
+  const headings = executionTelemetryColumns.map(([, label]) => t(label));
+  const values = rows.map((row) => [
+    telemetryDate(row.date), row.prompt_count, telemetryDuration(row.average_total_execution_seconds),
+    telemetryDuration(row.average_queue_wait_seconds), row.input_tokens ?? "—", row.output_tokens ?? "—",
+    row.total_tokens ?? "—", row.complete_count, row.blocked_count, row.failed_count,
+  ]);
+  return [headings, ...values].map((line) => line.map((value) => String(value ?? "—").replaceAll("\t", " ").replaceAll("\n", " ")).join("\t")).join("\n");
+}
+function downloadExecutionTelemetry() {
+  if (!executionTelemetryRows.length) return;
+  const blob = new Blob([executionTelemetryText()], { type: "text/tab-separated-values;charset=utf-8" });
+  const url = URL.createObjectURL(blob), link = document.createElement("a");
+  link.href = url;
+  link.download = "execution-host-telemetry.tsv";
+  link.click();
+  URL.revokeObjectURL(url);
+  void recordUserAction("telemetry_downloaded");
+}
+async function copyExecutionTelemetry() {
+  if (!executionTelemetryRows.length) return;
+  await copyText(executionTelemetryText());
+  void recordUserAction("telemetry_copied");
+}
+async function clearExecutionTelemetry() {
+  if (!executionTelemetryRows.length) return;
+  const confirmed = await confirmDashboardAction(
+    t("telemetry.clear_title"), t("telemetry.clear_description"), t("telemetry.clear_title"),
+    { destructive: true, accent: "#fb7185" },
+  );
+  if (!confirmed) return;
+  try {
+    const response = await fetch("/api/telemetry/clear", {
+      method: "POST", headers: { "Content-Type": "application/json" }, body: "{}",
+    });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok || !payload.cleared) throw new Error(payload.error || t("telemetry.clear_failed"));
+    executionTelemetryPage = 1;
+    executionTelemetry([]);
+    void recordUserAction("telemetry_cleared");
+  } catch (error) {
+    showDashboardToast(error instanceof Error && error.message ? error.message : t("telemetry.clear_failed"));
+  }
+}
 function executionTelemetry(rows) {
   let panel = $("executionTelemetry"),
     body = $("executionTelemetryRows"),
@@ -3133,7 +3177,11 @@ function executionTelemetry(rows) {
       head = document.createElement("thead"),
       headRow = document.createElement("tr"),
       tableBody = document.createElement("tbody"),
-      navigation = document.createElement("nav");
+      navigation = document.createElement("nav"),
+      actions = document.createElement("div"),
+      download = document.createElement("button"),
+      copy = document.createElement("button"),
+      clear = document.createElement("button");
     title.textContent = t("telemetry.title");
     description.className = "category-description";
     description.textContent = t("telemetry.description");
@@ -3164,14 +3212,29 @@ function executionTelemetry(rows) {
     navigation.id = "executionTelemetryPagination";
     navigation.className = "log-pagination telemetry-pagination";
     navigation.setAttribute("aria-label", t("telemetry.pagination_label"));
+    actions.className = "log-card-actions telemetry-actions";
+    for (const [button, className, glyph, label, handler] of [
+      [download, "dashboard-action dashboard-action--download telemetry-download", "↓", "telemetry.download", downloadExecutionTelemetry],
+      [copy, "dashboard-action dashboard-action--copy telemetry-copy", "⧉", "telemetry.copy", copyExecutionTelemetry],
+      [clear, "dashboard-action dashboard-action--destructive telemetry-clear", "⊠", "telemetry.clear_title", clearExecutionTelemetry],
+    ]) {
+      button.type = "button";
+      button.className = className;
+      button.textContent = glyph;
+      button.title = t(label);
+      button.setAttribute("aria-label", t(label));
+      button.addEventListener("click", handler);
+      actions.append(button);
+    }
     summary.append(title, description);
-    panel.append(summary, scroll, navigation);
+    panel.append(summary, actions, scroll, navigation);
     const rate = $("rateLimits");
     rate?.insertAdjacentElement("afterend", panel);
     body = tableBody;
     pagination = navigation;
   }
   executionTelemetryRows = (Array.isArray(rows) ? rows : []).filter((row) => row && typeof row === "object");
+  panel.querySelectorAll(".telemetry-actions button").forEach((button) => button.disabled = !executionTelemetryRows.length);
   const sorted = sortedExecutionTelemetryRows(), pageCount = Math.max(1, Math.ceil(sorted.length / EXECUTION_TELEMETRY_PAGE_SIZE));
   executionTelemetryPage = Math.min(Math.max(1, executionTelemetryPage), pageCount);
   const visibleRows = sorted.slice(

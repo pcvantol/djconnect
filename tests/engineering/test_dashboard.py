@@ -2609,6 +2609,22 @@ class DashboardStatusTest(unittest.TestCase):
     def test_http_dashboard_operator_routes(self) -> None:
         with self._dashboard_http_connection() as (root, connection):
             with (
+                patch("tools.engineering.dashboard.clear_telemetry", return_value={"execution_runs": 3, "daily_statistics": 2}) as clear_telemetry,
+                patch("tools.engineering.dashboard.log_event"),
+            ):
+                connection.request("POST", "/api/telemetry/clear", body="{}", headers={"Content-Type": "application/json"})
+                response = connection.getresponse()
+                self.assertEqual(response.status, 200)
+                self.assertEqual(
+                    json.loads(response.read()),
+                    {"cleared": True, "execution_runs": 3, "daily_statistics": 2},
+                )
+                clear_telemetry.assert_called_once_with(root)
+            connection.request("POST", "/api/telemetry/clear", body="[]", headers={"Content-Type": "application/json"})
+            response = connection.getresponse()
+            self.assertEqual(response.status, 400)
+            response.read()
+            with (
                 patch("tools.engineering.dashboard._clear_component_log") as clear_log,
                 patch("tools.engineering.dashboard.log_event"),
             ):

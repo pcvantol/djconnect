@@ -44,7 +44,7 @@ from .component_logging import (
 from .component_lock import DuplicateComponentInstanceError, single_instance
 from .agent_state import redact_diagnostic
 from .codex_chat import CodexChatError, chat_model, respond as codex_chat_response
-from .telemetry import daily_statistics, daily_timing_detail, execution_timing
+from .telemetry import clear_telemetry, daily_statistics, daily_timing_detail, execution_timing
 from .prompt_history import prompt_history, report_for_prompt_history
 from .recommendation_handoff import handoff_from_report
 from .storage import (
@@ -102,6 +102,9 @@ AUDITABLE_USER_ACTIONS = frozenset(
     {
         "chat_downloaded",
         "component_log_downloaded",
+        "telemetry_cleared",
+        "telemetry_copied",
+        "telemetry_downloaded",
         "prompt_history_report_copied",
         "prompt_history_report_downloaded",
         "prompt_history_analysis_copied",
@@ -2044,6 +2047,33 @@ def handler(root: Path, logger: logging.Logger | None = None):
                 self._send(b'{"error":"Ongeldige herkomst."}', "application/json; charset=utf-8", 403)
                 return
             request_path = urlsplit(self.path).path
+            if request_path == "/api/telemetry/clear":
+                try:
+                    length = int(self.headers.get("Content-Length", "0"))
+                    if length != 2 or self.rfile.read(length) != b"{}":
+                        raise ValueError
+                    outcome = clear_telemetry(root)
+                    log_event(
+                        logger,
+                        logging.INFO,
+                        "telemetry_cleared",
+                        diagnostic=(
+                            f"execution_runs={outcome['execution_runs']}; "
+                            f"daily_statistics={outcome['daily_statistics']}"
+                        ),
+                    )
+                except ValueError:
+                    self._send(b'{"error":"invalid_telemetry_clear_request"}', "application/json; charset=utf-8", 400)
+                    return
+                except OSError as error:
+                    self._send(
+                        json.dumps({"error": str(error)}, ensure_ascii=False).encode(),
+                        "application/json; charset=utf-8",
+                        503,
+                    )
+                    return
+                self._send(json.dumps({"cleared": True, **outcome}).encode(), "application/json; charset=utf-8")
+                return
             owner_authorization_match = re.fullmatch(r"/api/open-pull-requests/([1-9][0-9]*)/owner-authorization", request_path)
             if owner_authorization_match:
                 try:

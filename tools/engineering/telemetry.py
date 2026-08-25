@@ -269,6 +269,26 @@ def daily_statistics(root: Path, *, days: int = 90) -> list[dict[str, object]]:
     return result
 
 
+def clear_telemetry(root: Path) -> dict[str, int]:
+    """Clear rebuildable telemetry projections without touching execution evidence.
+
+    Execution receipts, reports, prompt history and lifecycle checkpoints are
+    evidence records. They are intentionally outside this operator control;
+    only the local telemetry projections displayed by the dashboard are reset.
+    """
+    connection = open_storage(root)
+    try:
+        with connection:
+            daily_rows = connection.execute("DELETE FROM daily_execution_statistics").rowcount
+            run_rows = connection.execute("DELETE FROM execution_runs").rowcount
+    finally:
+        connection.close()
+    return {
+        "daily_statistics": max(0, int(daily_rows or 0)),
+        "execution_runs": max(0, int(run_rows or 0)),
+    }
+
+
 _DASHBOARD_PHASES = (
     "QUEUE_WAIT", "SUBMISSION_CLAIM", "INITIALIZATION", "HOST_PREFLIGHT",
     "WORKSPACE_PREFLIGHT", "CAPABILITY_PREFLIGHT", "EXECUTION_PREPARATION",
