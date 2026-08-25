@@ -89,6 +89,10 @@ async function openTitlebarOptions(page) {
 
 async function selectDashboardLocale(page, language) {
   const nativeSelect = page.locator("#dashboardLocale");
+  // Do not replace the page while its first snapshot is still hydrating.
+  // Under the ten-worker CI profile that otherwise races the initial locale
+  // read with a reload and can leave the splash state behind.
+  await page.waitForFunction(() => document.body?.classList.contains("dashboard-ready"));
   if (await nativeSelect.inputValue() === language) return;
   const localeReload = page.waitForEvent(
     "framenavigated",
@@ -169,16 +173,35 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#configurationControlsTitle")).toHaveCount(0);
   });
 
-  test("styles writable configuration labels like the read-only settings and explains them", async ({ page }) => {
+  test("places writable log settings in Logs and explains them", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
-    const configuration = page.locator("#configuration");
-    await configuration.evaluate((element) => { element.open = true; });
+    const logs = page.locator("#componentLogs");
+    await logs.evaluate((element) => { element.open = true; });
     for (const id of ["configurationLogRetention", "configurationLogLevel"]) {
-      const label = page.locator(`#${id}`).locator("xpath=preceding-sibling::span");
+      const control = page.locator(`#${id}`);
+      await expect(control).toBeVisible();
+      await expect(control.locator("xpath=ancestor::details[1]")).toHaveAttribute("id", "componentLogs");
+      const label = control.locator("xpath=preceding-sibling::span");
       await expect(label).toHaveClass(/label/);
       await expect(label.locator(".configuration-info")).toHaveCount(1);
       await expect(label.locator(".configuration-info")).toHaveAttribute("aria-label", /.+/);
     }
+  });
+
+  test("places the platform-health refresh interval above platform components", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    const platform = page.locator("#platformHealth");
+    await platform.evaluate((element) => { element.open = true; });
+    const control = page.locator("#configurationPlatformHealthInterval");
+    await expect(control).toBeVisible();
+    await expect(control.locator("xpath=ancestor::details[1]")).toHaveAttribute("id", "platformHealth");
+    await expect(platform.locator(".platform-settings")).toHaveCount(1);
+    const order = await platform.evaluate((element) => {
+      const settings = element.querySelector(".platform-settings");
+      const components = element.querySelector("#platformHealthComponents");
+      return Boolean(settings.compareDocumentPosition(components) & Node.DOCUMENT_POSITION_FOLLOWING);
+    });
+    expect(order).toBe(true);
   });
 
   test("shows the Inbox location below its label with a matching change action", async ({ page }) => {
@@ -240,6 +263,7 @@ test.describe("Engineering Status browser smoke", () => {
 
   test("projects local worktrees above open pull requests and refreshes their rows", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#autoRefresh").uncheck();
     await page.evaluate(() => {
       const workspace = document.querySelector("#workspaceCard");
       if (!document.querySelector("#workspaceOpenPullRequests")) {
@@ -298,16 +322,16 @@ test.describe("Engineering Status browser smoke", () => {
         await page.locator("#dashboardLocaleButton").evaluate((button) => getComputedStyle(button).backgroundColor),
       );
     }
-    await page.locator("#configuration").evaluate((element) => { element.open = true; });
+    await page.locator("#componentLogs").evaluate((element) => { element.open = true; });
     const picker = page.locator("#configurationLogLevel + .dashboard-select-picker");
     await picker.locator(".dashboard-locale__button").click();
     await expect(picker.locator("[role=listbox]")).toBeVisible();
     await expect(picker.locator("[role=option]")).toHaveText(["Informatie", "Debug"]);
   });
 
-  test("does not move focus after a pointer chooses a configuration pulldown value", async ({ page }) => {
+  test("does not move focus after a pointer chooses a log-settings pulldown value", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
-    await page.locator("#configuration").evaluate((element) => { element.open = true; });
+    await page.locator("#componentLogs").evaluate((element) => { element.open = true; });
     await page.evaluate(() => {
       const originalFocus = HTMLElement.prototype.focus;
       window.__dashboardSelectFocusOptions = [];
@@ -325,10 +349,10 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#configuration .configuration-field")).toHaveCount(6);
   });
 
-  test("stacks flat configuration pulldowns below their labels on iPhone", async ({ page }) => {
+  test("stacks flat log settings pulldowns below their labels on iPhone", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
-    await page.locator("#configuration").evaluate((element) => { element.open = true; });
+    await page.locator("#componentLogs").evaluate((element) => { element.open = true; });
 
     const picker = page.locator("#configurationLogRetention + .dashboard-select-picker");
     const layout = await picker.evaluate((element) => {
@@ -390,7 +414,7 @@ test.describe("Engineering Status browser smoke", () => {
       await route.fulfill({ json: { key: "log_level", previous: "DEBUG", value: "INFO" } });
     });
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
-    await page.locator("#configuration").evaluate((element) => { element.open = true; });
+    await page.locator("#componentLogs").evaluate((element) => { element.open = true; });
     const select = page.locator("#configurationLogLevel");
     const picker = select.locator("+ .dashboard-select-picker");
     await expect(picker.locator(".dashboard-locale__button > span").first()).toHaveText("Debug");
@@ -426,7 +450,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(picker.locator(".dashboard-locale__button")).toBeDisabled();
     releaseInitialLoad();
     await expect(select).toBeEnabled();
-    await page.locator("#configuration").evaluate((element) => { element.open = true; });
+    await page.locator("#componentLogs").evaluate((element) => { element.open = true; });
     await picker.locator(".dashboard-locale__button").click();
     await picker.locator('[role=option][data-dashboard-select-value="INFO"]').click();
     await expect(select).toBeDisabled();
@@ -451,7 +475,7 @@ test.describe("Engineering Status browser smoke", () => {
       await route.fulfill({ json: { key: "log_retention_days", value: 60 } });
     });
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
-    await page.locator("#configuration").evaluate((element) => { element.open = true; });
+    await page.locator("#componentLogs").evaluate((element) => { element.open = true; });
     const retention = page.locator("#configurationLogRetention");
     const picker = retention.locator("+ .dashboard-select-picker");
     await expect(picker.locator(".dashboard-locale__button > span").first()).toHaveText("90 dagen");
@@ -461,6 +485,49 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(retention).toHaveValue("90");
     await expect(picker.locator(".dashboard-locale__button > span").first()).toHaveText("90 dagen");
     expect(configurationSaved).toBe(false);
+  });
+
+  test("restores telemetry retention without saving when its data-removal warning is cancelled", async ({ page }) => {
+    let configurationSaved = false;
+    await page.route("**/api/configuration", async (route) => {
+      if (route.request().method() === "GET") {
+        await route.fulfill({ json: {
+          log_retention_days: 90, telemetry_retention_days: 90, log_level: "INFO", inbox_scan_interval_seconds: 15,
+          open_pr_check_interval_seconds: 30, platform_health_refresh_seconds: 15,
+          component_details_refresh_seconds: 5,
+        } });
+        return;
+      }
+      configurationSaved = true;
+      await route.fulfill({ json: { key: "telemetry_retention_days", value: 60 } });
+    });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => window.executionTelemetry([{ date: "2026-08-25", prompt_count: 1 }]));
+    await page.locator("#executionTelemetry").evaluate((element) => { element.open = true; });
+    const retention = page.locator("#configurationTelemetryRetention");
+    await expect(retention).toHaveValue("90");
+    await expect(retention).toBeEnabled();
+    const picker = retention.locator("+ .dashboard-select-picker");
+    await picker.locator(".dashboard-locale__button").click();
+    await picker.locator('[role=option][data-dashboard-select-value="60"]').click();
+    await expect(page.locator("#confirmationModal")).toBeVisible();
+    await page.locator("#confirmationModalCancel").click();
+    await expect(retention).toHaveValue("90");
+    expect(configurationSaved).toBe(false);
+  });
+
+  test("describes telemetry with the actually configured retention period", async ({ page }) => {
+    await page.route("**/api/configuration", (route) => route.fulfill({ json: {
+      log_retention_days: 90, telemetry_retention_days: 180, log_level: "INFO", inbox_scan_interval_seconds: 15,
+      open_pr_check_interval_seconds: 30, platform_health_refresh_seconds: 15,
+      component_details_refresh_seconds: 5,
+    } }));
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => window.executionTelemetry([{ date: "2026-08-25", prompt_count: 1 }]));
+    await expect(page.locator("#executionTelemetry .category-description")).toHaveText(
+      "Operationele trends van de laatste 180 dagen. Telemetrie is geen repositorybewijs.",
+    );
+    await expect(page.locator("#configurationTelemetryRetention")).toHaveValue("180");
   });
 
   test("shows a GitHub rate-limit banner on page load and clears it on refresh", async ({ page }) => {
@@ -648,6 +715,8 @@ test.describe("Engineering Status browser smoke", () => {
     await page.locator("#confirmationModalConfirm").click();
     await expect.poll(() => dispatched).toEqual({ method: "POST", body: "{}" });
     await expect.poll(() => refreshes).toBeGreaterThan(refreshesBeforeAuthorization);
+    expect(readFileSync(path.join(repository, "tools/engineering/assets/dashboard.js"), "utf8"))
+      .toContain("for (const delay of [900, 2500, 6000, 12000])");
   });
 
   test("keeps the last known open pull requests visible when GitHub refresh is unavailable", async ({ page }) => {
@@ -871,7 +940,7 @@ test.describe("Engineering Status browser smoke", () => {
     // Visible words must come from t(). The remaining literals are deliberate
     // control glyphs, empty cleanup values, or the neutral empty-table mark.
     expect(new Set(staticPresentationLiterals)).toEqual(new Set([
-      "", "⧉", "⇩", "↑", "i", "↺", "⌧", "▤", "✓", "✦", "⋯", "—", "⌄",
+      "", "⧉", "↓", "↑", "i", "↺", "⌧", "▤", "✓", "✦", "⋯", "—", "⌄",
     ]));
     expect(dashboardSource).not.toMatch(/confirmDashboardAction\(\s*["']/);
     // Dashboard feedback must remain inside the shared modal system.  A
@@ -1086,12 +1155,22 @@ test.describe("Engineering Status browser smoke", () => {
     const json = page.locator("#promptHistoryDetailDownloadJson");
     await expect(markdown).toHaveAttribute("aria-label", "Uitvoeringsdetails als Markdown downloaden voor Modal prompt");
     await expect(json).toHaveAttribute("aria-label", "Uitvoeringsdetails als JSON downloaden voor Modal prompt");
+    await expect(json).toHaveText("{ }");
     const markdownDownload = page.waitForEvent("download");
     await markdown.click();
-    expect((await markdownDownload).suggestedFilename()).toBe("execution-details-inbox-modal.md");
+    const downloadedMarkdown = await markdownDownload;
+    expect(downloadedMarkdown.suggestedFilename()).toBe("execution-details-inbox-modal.md");
+    const markdownContent = readFileSync(await downloadedMarkdown.path(), "utf8");
+    expect(markdownContent).toContain("# Modal prompt");
+    expect(markdownContent).toContain("## Uitvoering");
+    expect(markdownContent).toContain("| Veld | Waarde |");
+    expect(markdownContent).toContain("The verified execution diagnostic belongs to this run.");
+    expect(markdownContent).not.toContain("```json");
     const jsonDownload = page.waitForEvent("download");
     await json.click();
-    expect((await jsonDownload).suggestedFilename()).toBe("execution-details-inbox-modal.json");
+    const downloadedJson = await jsonDownload;
+    expect(downloadedJson.suggestedFilename()).toBe("execution-details-inbox-modal.json");
+    expect(readFileSync(await downloadedJson.path(), "utf8")).toContain('"run_id": "inbox-modal"');
     await expect(page.locator("dialog[open]")).toHaveCount(1);
   });
 
@@ -1351,11 +1430,19 @@ test.describe("Engineering Status browser smoke", () => {
       await expect(node).toHaveCSS("box-shadow", "none");
       await expect(node.locator("span").first()).toHaveCSS("border-top-width", "3px");
     }
-    await expect(nodes.nth(0).locator("span").first()).toHaveCSS("background-color", "rgb(101, 197, 217)");
+    // The lifecycle inherits the accent of its enclosing execution surface.
+    // Keep this assertion tied to that rendered accent instead of a stale
+    // hard-coded palette value.
+    const lifecycleAccent = await page.locator(".execution-lifecycle h3").evaluate(
+      (element) => getComputedStyle(element).color,
+    );
+    await expect(nodes.nth(0).locator("span").first()).toHaveCSS("background-color", lifecycleAccent);
     await nodes.nth(0).hover({ force: true });
-    await expect(nodes.nth(0).locator("span").first()).toHaveCSS("border-top-color", "rgb(101, 197, 217)");
+    // Hover communicates an available detail through the shared house-style
+    // border, while the node fill keeps the execution accent.
+    await expect(nodes.nth(0).locator("span").first()).toHaveCSS("border-top-color", "rgb(240, 182, 106)");
     await expect(nodes.nth(0).locator("span").last()).toHaveCSS("color", "rgb(247, 243, 238)");
-    await expect(nodes.nth(1).locator("span").first()).toHaveCSS("background-color", "rgb(101, 197, 217)");
+    await expect(nodes.nth(1).locator("span").first()).toHaveCSS("background-color", lifecycleAccent);
   });
 
   test("uses green only for the terminal complete lifecycle result", async ({ page }) => {
@@ -1703,7 +1790,7 @@ test.describe("Engineering Status browser smoke", () => {
       },
     }, {}));
     await page.locator("#currentRun").evaluate((element) => { element.open = true; });
-    await page.locator(".execution-lifecycle__node").click();
+    await page.locator(".execution-lifecycle__node").click({ force: true });
     const modal = page.locator("#lifecycleDetailModal");
     await expect(modal).toBeVisible();
     await expect(modal).toContainText("Implementatie");
@@ -2879,6 +2966,7 @@ test.describe("Engineering Status browser smoke", () => {
 
   test("paginates execution telemetry at seven days per page", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#autoRefresh").uncheck();
     await page.evaluate(() => window.executionTelemetry(Array.from({ length: 8 }, (_, index) => ({
       date: `2026-08-${String(24 - index).padStart(2, "0")}`,
       prompt_count: index + 1,
@@ -2903,6 +2991,7 @@ test.describe("Engineering Status browser smoke", () => {
     }]));
     await page.locator("#executionTelemetry").evaluate((element) => { element.open = true; });
     const actions = page.locator("#executionTelemetry .telemetry-actions");
+    await expect(actions).toHaveCSS("justify-content", "flex-end");
     await expect(actions.getByRole("button", { name: "Telemetrie downloaden" })).toBeEnabled();
     await expect(actions.getByRole("button", { name: "Telemetrie kopiëren" })).toBeEnabled();
     await actions.getByRole("button", { name: "Telemetrie wissen" }).click();
@@ -2937,6 +3026,20 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(phaseTable).toHaveClass(/telemetry-phase-table/);
     await expect(phaseTable.locator("th.log-sortable")).toHaveCount(6);
     await expect(runTable.locator("th.log-sortable")).toHaveCount(12);
+    const runScroll = runTable.locator("xpath=..");
+    await expect(runScroll).toHaveClass(/telemetry-detail-table-scroll/);
+    await expect(runScroll).toHaveAttribute("role", "region");
+    await expect(runScroll).not.toHaveAttribute("tabindex");
+    const runScrollGeometry = await runScroll.evaluate((element) => {
+      const modalContent = element.closest(".telemetry-detail-modal__content");
+      return {
+        clientWidth: element.clientWidth,
+        scrollWidth: element.scrollWidth,
+        modalOverflowX: modalContent ? getComputedStyle(modalContent).overflowX : null,
+      };
+    });
+    expect(runScrollGeometry.scrollWidth).toBeGreaterThan(runScrollGeometry.clientWidth);
+    expect(runScrollGeometry.modalOverflowX).toBe("hidden");
     const phaseAverage = phaseTable.locator('th[data-sort-key="average_ms"]');
     await expect(phaseAverage).toHaveAttribute("data-sort-indicator", "↕");
     await phaseAverage.click();
@@ -5476,8 +5579,11 @@ test.describe("Engineering Status browser smoke", () => {
 
   test("uses shared semantic classes for download, copy and destructive actions", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
-    for (const selector of ["#downloadChat", "#promptHistoryReportDownload", "#componentLogs .component-log-download"]) {
-      await expect(page.locator(selector).first()).toHaveClass(/dashboard-action--download/);
+    for (const selector of ["#downloadChat", "#promptHistoryReportDownload", "#componentLogs .component-log-download", "#workspaceDatabaseDownload"]) {
+      const action = page.locator(selector).first();
+      await expect(action).toHaveClass(/dashboard-action--download/);
+      await expect(action).toHaveCSS("font-size", "0px");
+      await expect(action.evaluate((element) => getComputedStyle(element, "::before").content)).resolves.toBe('"↓"');
     }
     for (const selector of ["#copyChat", "#promptHistoryReportCopy", "#componentLogs .component-log-copy"]) {
       await expect(page.locator(selector).first()).toHaveClass(/dashboard-action--copy/);
@@ -6670,7 +6776,7 @@ test.describe("Engineering Status browser smoke", () => {
     await toggle.evaluate((button) => button.click());
     await expect(toggle).toHaveAttribute("aria-checked", "true");
     await expect(toggle).toHaveAttribute("aria-label", "Alle secties sluiten");
-    for (const id of ["workspaceCard", "promptHistory", "platformHealth", "technicalDetails", "componentLogs"]) {
+    for (const id of ["workspaceCard", "configuration", "promptHistory", "platformHealth", "technicalDetails", "componentLogs"]) {
       await expect(page.locator(`#${id}`)).toHaveAttribute("open", "");
     }
 
@@ -6680,7 +6786,7 @@ test.describe("Engineering Status browser smoke", () => {
 
     await toggle.evaluate((button) => button.click());
     await expect(toggle).toHaveAttribute("aria-checked", "false");
-    for (const id of ["workspaceCard", "platformHealth", "technicalDetails", "componentLogs"]) {
+    for (const id of ["workspaceCard", "configuration", "platformHealth", "technicalDetails", "componentLogs"]) {
       await expect(page.locator(`#${id}`)).not.toHaveAttribute("open", "");
     }
   });
@@ -7008,7 +7114,12 @@ test.describe("Engineering Status browser smoke", () => {
 
   test("offers a downloadable offline backup for the engineering database", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
-    await page.locator("#workspaceCard > summary").click();
+    await page.locator("#configuration > summary").click();
+    for (const id of ["workspaceFreeDiskSpace", "workspaceDatabaseField", "workspaceDatabaseSize", "workspaceSchemaVersion"]) {
+      await expect(page.locator(`#${id}`)).toHaveCount(1);
+      await expect(page.locator(`#${id}`).locator("xpath=..")).toHaveAttribute("id", "configuration");
+    }
+    await expect(page.locator("#workspaceCard #workspaceDatabaseField")).toHaveCount(0);
     const download = page.locator("#workspaceDatabaseDownload");
     await expect(download).toBeVisible();
     await expect(download).toHaveAttribute("href", "/api/engineering-database/download?audit=download");
@@ -7094,7 +7205,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#rateLimitProviderPath")).toHaveText("Niet beschikbaar");
   });
 
-  test("renders an accessible rolling hourly capacity trend", async ({ page }) => {
+  test("renders an accessible rolling two-hour capacity trend", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.locator("#autoRefresh").uncheck();
     await page.evaluate(() => rateLimits(
@@ -7106,6 +7217,7 @@ test.describe("Engineering Status browser smoke", () => {
     ));
     const trend = page.locator("#rateLimitTrend");
     await expect(trend).toContainText("Verloop beschikbare capaciteit");
+    await expect(trend).toContainText("elke twee uur één opgeslagen meting");
     await expect(trend.locator(".rate-limit-trend__title")).toHaveCSS("font-size", "11px");
     await expect(trend.locator(".rate-limit-trend__title")).toHaveCSS("font-weight", "700");
     await expect(trend.locator("svg[role='img']")).toHaveAttribute("aria-labelledby", "rateLimitTrendSvgTitle");

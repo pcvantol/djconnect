@@ -18,6 +18,9 @@ class DashboardConfigurationTest(unittest.TestCase):
             self.assertEqual(event["previous"], 30)
             self.assertEqual(event["value"], 180)
             self.assertEqual(get(root)["log_retention_days"], 180)
+            telemetry_event = update(root, "telemetry_retention_days", 180)
+            self.assertEqual(telemetry_event["previous"], 90)
+            self.assertEqual(telemetry_event["value"], 180)
             for key, value in (
                 ("inbox_scan_interval_seconds", 30),
                 ("open_pr_check_interval_seconds", 60),

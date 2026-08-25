@@ -2056,7 +2056,11 @@ function refreshOpenPullRequestsAfterOwnerAuthorization() {
   // GitHub dispatch is accepted before its status check is materialized.  Read
   // the authoritative projection again shortly afterwards instead of leaving
   // an owner-approval control stale until the normal polling interval.
-  for (const delay of [900, 2500, 6000]) {
+  // The workflow dispatch is asynchronous: GitHub can accept it while the
+  // exact-SHA status is still one projection cycle away. Keep a final retry at
+  // twice the previous wait so the user does not see a false failure at the
+  // edge of that propagation window.
+  for (const delay of [900, 2500, 6000, 12000]) {
     setTimeout(() => void refreshOpenPullRequests(), delay);
   }
 }
@@ -3002,7 +3006,7 @@ function renderLegacyExecutionTelemetry(rows) {
       tableBody = document.createElement("tbody");
     title.textContent = t("telemetry.title");
     description.className = "category-description";
-    description.textContent = t("telemetry.description");
+    description.textContent = t("telemetry.description", { days: dashboardConfiguration.telemetry_retention_days || 90 });
     scroll.className = "telemetry-scroll";
     table.className = "telemetry-table";
     table.setAttribute("aria-label", t("telemetry.table_label"));
@@ -3181,10 +3185,35 @@ function executionTelemetry(rows) {
       actions = document.createElement("div"),
       download = document.createElement("button"),
       copy = document.createElement("button"),
-      clear = document.createElement("button");
+      clear = document.createElement("button"),
+      retention = document.createElement("div"),
+      retentionLabel = document.createElement("label"),
+      retentionText = document.createElement("span"),
+      retentionSelect = document.createElement("select"),
+      retentionStatus = document.createElement("p");
     title.textContent = t("telemetry.title");
     description.className = "category-description";
-    description.textContent = t("telemetry.description");
+    description.textContent = t("telemetry.description", { days: dashboardConfiguration.telemetry_retention_days || 90 });
+    retention.className = "configuration-controls telemetry-retention";
+    retentionText.className = "label";
+    retentionText.textContent = t("configuration.telemetry_retention");
+    retentionSelect.id = "configurationTelemetryRetention";
+    retentionSelect.setAttribute("aria-label", t("configuration.telemetry_retention"));
+    for (const days of [30, 60, 90, 120, 180, 360]) {
+      const option = document.createElement("option");
+      option.value = String(days);
+      option.textContent = t("configuration.days", { days });
+      retentionSelect.append(option);
+    }
+    retentionSelect.value = String(dashboardConfiguration.telemetry_retention_days || 90);
+    retentionSelect.dataset.savedValue = retentionSelect.value;
+    retentionSelect.disabled = !dashboardConfigurationLoaded;
+    retentionSelect.addEventListener("change", (event) => void saveDashboardConfiguration(event.currentTarget));
+    retentionLabel.append(retentionText, retentionSelect);
+    retentionStatus.id = "telemetryRetentionStatus";
+    retentionStatus.setAttribute("role", "status");
+    retentionStatus.setAttribute("aria-live", "polite");
+    retention.append(retentionLabel, retentionStatus);
     scroll.className = "telemetry-scroll";
     table.className = "telemetry-table";
     table.setAttribute("aria-label", t("telemetry.table_label"));
@@ -3227,12 +3256,23 @@ function executionTelemetry(rows) {
       actions.append(button);
     }
     summary.append(title, description);
-    panel.append(summary, actions, scroll, navigation);
+    panel.append(summary, retention, actions, scroll, navigation);
     const rate = $("rateLimits");
     rate?.insertAdjacentElement("afterend", panel);
     body = tableBody;
     pagination = navigation;
+    enhanceDashboardSelectPicker(retentionSelect);
+    addConfigurationControlInfo();
   }
+  const telemetryRetention = $("configurationTelemetryRetention");
+  if (telemetryRetention) {
+    telemetryRetention.value = String(dashboardConfiguration.telemetry_retention_days || 90);
+    telemetryRetention.dataset.savedValue = telemetryRetention.value;
+    syncDashboardSelectPicker(telemetryRetention);
+  }
+  panel.querySelector(".category-description").textContent = t(
+    "telemetry.description", { days: dashboardConfiguration.telemetry_retention_days || 90 },
+  );
   executionTelemetryRows = (Array.isArray(rows) ? rows : []).filter((row) => row && typeof row === "object");
   panel.querySelectorAll(".telemetry-actions button").forEach((button) => button.disabled = !executionTelemetryRows.length);
   const sorted = sortedExecutionTelemetryRows(), pageCount = Math.max(1, Math.ceil(sorted.length / EXECUTION_TELEMETRY_PAGE_SIZE));
@@ -3451,7 +3491,12 @@ function renderTelemetryDetail(detail, content) {
     });
     runBody.append(row);
   });
-  runSection.append(runTable); content.append(runSection);
+  const runScroll = document.createElement("div");
+  runScroll.className = "telemetry-detail-table-scroll";
+  runScroll.setAttribute("role", "region");
+  runScroll.setAttribute("aria-label", t("telemetry.runs"));
+  runScroll.append(runTable);
+  runSection.append(runScroll); content.append(runSection);
 }
 $("telemetryDetailClose").addEventListener("click", closeTelemetryDetail);
 $("telemetryDetailModal").addEventListener("close", () => { telemetryDetailTrigger?.focus?.(); telemetryDetailTrigger = null; });
@@ -4027,12 +4072,92 @@ let promptHistoryEntries = [],
 function promptHistoryDetailFilename(extension) {
   return "execution-details-" + String(promptHistoryDetailRunId || "unknown").replace(/[^a-z0-9._-]+/gi, "-") + "." + extension;
 }
+function promptHistoryMarkdownText(value) {
+  if (value === null || value === undefined || value === "") return "—";
+  if (Array.isArray(value)) return value.map(promptHistoryMarkdownText).join(", ");
+  if (typeof value === "object") return Object.entries(value)
+    .map(([key, item]) => `${promptHistoryMarkdownLabel(key)}: ${promptHistoryMarkdownText(item)}`)
+    .join("; ");
+  return String(value).replace(/\r?\n/g, "<br>").replace(/\|/g, "\\|");
+}
+function promptHistoryMarkdownLabel(key) {
+  return String(key || "")
+    .replace(/_/g, " ")
+    .replace(/([a-z])([A-Z])/g, "$1 $2")
+    .replace(/^./, (letter) => letter.toUpperCase());
+}
+function promptHistoryMarkdownTable(fields) {
+  const rows = fields.filter(([, value]) => value !== null && value !== undefined && value !== "");
+  if (!rows.length) return "";
+  return ["| " + t("history.markdown_field") + " | " + t("history.markdown_value") + " |", "| --- | --- |", ...rows.map(([label, value]) => `| ${promptHistoryMarkdownText(label)} | ${promptHistoryMarkdownText(value)} |`)].join("\n") + "\n";
+}
+function promptHistoryMarkdownSection(title, fields) {
+  const table = promptHistoryMarkdownTable(fields);
+  return table ? `## ${promptHistoryMarkdownText(title)}\n\n${table}\n` : "";
+}
+function promptHistoryMarkdownList(title, values) {
+  const items = Array.isArray(values) ? values.filter((value) => value !== null && value !== undefined && value !== "") : [];
+  return items.length
+    ? `## ${promptHistoryMarkdownText(title)}\n\n${items.map((value) => `- ${promptHistoryMarkdownText(value)}`).join("\n")}\n`
+    : "";
+}
+function promptHistoryDetailMarkdown(payload, title) {
+  const history = payload?.history && typeof payload.history === "object" ? payload.history : {};
+  const execution = payload?.execution && typeof payload.execution === "object" ? payload.execution : {};
+  const runtime = payload?.runtime && typeof payload.runtime === "object" ? payload.runtime : {};
+  const usage = payload?.usage && typeof payload.usage === "object" ? payload.usage : {};
+  const metadata = history.execution_metadata && typeof history.execution_metadata === "object" ? history.execution_metadata : {};
+  const context = history.execution_context && typeof history.execution_context === "object" ? history.execution_context : {};
+  const timestamp = Date.parse(String(history.executed_at || ""));
+  const sections = [
+    promptHistoryMarkdownSection(t("detail.execution"), [
+      [t("detail.prompt_title"), history.title || title],
+      [t("detail.run_id"), history.run_id || promptHistoryDetailRunId],
+      [t("detail.prompt_status"), promptHistoryStatus(history.status)],
+      [t("detail.executed_at"), Number.isFinite(timestamp) ? locale.dateTime(new Date(timestamp)) : history.executed_at],
+      [t("detail.execution_mode"), history.execution_mode],
+      [t("detail.operator_handling"), history.emergency_cancelled_at ? t("handling.cancelled") : history.dismissed ? t("handling.dismissed") : t("handling.open")],
+      [t("detail.execution_diagnostic"), history.execution_diagnostic],
+    ]),
+    promptHistoryMarkdownSection(t("detail.duration"), [
+      [t("detail.agent_duration"), Number.isFinite(Number(execution.seconds)) ? durationText(Number(execution.seconds)) : null],
+      [t("detail.total_duration"), Number.isFinite(Number(execution.total_seconds)) ? durationText(Number(execution.total_seconds)) : null],
+    ]),
+    promptHistoryMarkdownSection(t("ui.execution_context"), [
+      [t("detail.producer"), history.producer_id],
+      [t("detail.producer_type"), history.producer_type ? t(`enum.${history.producer_type}`) : null],
+      [t("detail.producer_version"), history.producer_version],
+      [t("detail.target_repository"), history.target_repository],
+      [t("ui.active_branch"), history.target_branch],
+      [t("detail.target_checkout"), history.target_checkout_path],
+      [t("detail.tracked_files"), history.tracked_file_count],
+      [t("detail.files_modified"), metadata.modified],
+      [t("detail.files_created"), metadata.created],
+      [t("detail.files_deleted"), metadata.deleted],
+      [t("detail.codex_commands"), metadata.codex_commands_executed],
+      ...Object.entries(context).map(([key, value]) => [promptHistoryMarkdownLabel(key), value]),
+    ]),
+    promptHistoryMarkdownSection(t("detail.runtime"), [
+      [t("detail.runtime_provider"), runtime.runtime_provider],
+      [t("detail.model"), runtime.model],
+      [t("detail.reasoning_profile"), runtime.reasoning_profile],
+      [t("detail.configuration_profile"), runtime.configuration_profile],
+      [t("detail.codex_cli_version"), runtime.codex_cli_version],
+    ]),
+    promptHistoryMarkdownSection(t("detail.provider_usage"), Object.entries(usage)
+      .filter(([, value]) => value !== null && typeof value !== "object")
+      .map(([key, value]) => [promptHistoryMarkdownLabel(key), value])),
+    promptHistoryMarkdownSection(t("detail.git_commit"), Object.entries(payload?.commits || {})),
+    promptHistoryMarkdownList(t("detail.execution_evidence"), payload?.evidence),
+  ].filter(Boolean);
+  return [`# ${promptHistoryMarkdownText(history.title || title || promptHistoryDetailRunId)}`, "", t("history.details_description"), "", ...sections].join("\n").trimEnd() + "\n";
+}
 function downloadPromptHistoryDetail(format) {
   if (!promptHistoryDetailPayload || !promptHistoryDetailRunId) return;
   const json = JSON.stringify(promptHistoryDetailPayload, null, 2);
   const title = String($("promptHistoryDetailTitle").textContent || promptHistoryDetailRunId).trim();
   const isMarkdown = format === "markdown";
-  const content = isMarkdown ? "# " + title + "\n\n```json\n" + json + "\n```\n" : json + "\n";
+  const content = isMarkdown ? promptHistoryDetailMarkdown(promptHistoryDetailPayload, title) : json + "\n";
   const url = URL.createObjectURL(new Blob([content], {
     type: isMarkdown ? "text/markdown;charset=utf-8" : "application/json;charset=utf-8",
   }));
@@ -4594,13 +4719,8 @@ function applyDashboardLocale() {
     const element = document.querySelector(selector);
     if (element) element.textContent = t(key);
   });
-  const workspaceKeys = [
-    "workspace.name", "ui.workspace_location",
-    "workspace.free_disk_space", "detail.tracked_files", "workspace.database",
-    "workspace.database_size", "workspace.schema_version", "workspace.current_branch", "workspace.current_commit", "workspace.origin_main_commit",
-  ];
-  document.querySelectorAll("#workspaceCard .field .label").forEach((label, index) => {
-    if (workspaceKeys[index]) label.textContent = t(workspaceKeys[index]);
+  document.querySelectorAll("[data-workspace-label]").forEach((label) => {
+    label.textContent = t(label.dataset.workspaceLabel);
   });
   document.querySelectorAll("#dashboardLocale option").forEach((option) => {
     option.textContent = t("language." + option.value);
@@ -4647,7 +4767,7 @@ dashboardLocaleMenu.addEventListener("click", (event) => {
 document.addEventListener("pointerdown", (event) => {
   if (!event.target.closest(".dashboard-locale__picker")) setLocaleMenuOpen(false);
 });
-const workspaceDatabaseField = document.querySelectorAll("#workspaceCard .field")[4];
+const workspaceDatabaseField = $("workspaceDatabaseField");
 if (workspaceDatabaseField) {
   const content = document.createElement("div"), download = document.createElement("a");
   content.className = "workspace-database__content";
@@ -4659,13 +4779,15 @@ if (workspaceDatabaseField) {
   download.download = "";
   download.dataset.i18nTitle = "workspace.download_database";
   download.dataset.i18nAriaLabel = "workspace.download_database";
-  download.textContent = "⇩";
+  download.textContent = "↓";
   content.append(download);
   workspaceDatabaseField.append(content);
 }
 applyDashboardLocale();
+let dashboardConfiguration = {}, dashboardConfigurationLoaded = false;
 const configurationFields = Object.freeze({
   configurationLogRetention: ["log_retention_days", Number],
+  configurationTelemetryRetention: ["telemetry_retention_days", Number],
   configurationLogLevel: ["log_level", String],
   configurationInboxScanInterval: ["inbox_scan_interval_seconds", Number],
   configurationOpenPrInterval: ["open_pr_check_interval_seconds", Number],
@@ -4781,6 +4903,7 @@ document.addEventListener("pointerdown", (event) => {
 function addConfigurationControlInfo() {
   for (const [id, helpKey] of [
     ["configurationLogRetention", "configuration.log_retention_help"],
+    ["configurationTelemetryRetention", "configuration.telemetry_retention_help"],
     ["configurationLogLevel", "configuration.log_level_help"],
     ["configurationInboxScanInterval", "configuration.inbox_scan_interval_help"],
     ["configurationOpenPrInterval", "configuration.open_pr_interval_help"],
@@ -4818,35 +4941,76 @@ function renderConfigurationInboxLocation() {
   }
   value.textContent = location || "—";
 }
-function moveProjectScopedConfiguration() {
-  const queue = $("queueItems");
-  const inboxButton = $("configurationInboxOpen");
-  if (!queue || !inboxButton) return;
-
-  const inboxField = inboxButton.closest(".configuration-field");
-  if (inboxField) queue.append(inboxField);
-
-  let controls = queue.querySelector(".queue-project-settings");
+const MACHINE_SCOPED_WORKSPACE_FIELD_IDS = Object.freeze([
+  "workspaceFreeDiskSpace",
+  "workspaceDatabaseField",
+  "workspaceDatabaseSize",
+  "workspaceSchemaVersion",
+]);
+const CONFIGURATION_CONTROL_SCOPES = Object.freeze([
+  {
+    containerClass: "queue-project-settings",
+    fieldIds: ["configurationInboxScanInterval", "configurationOpenPrInterval"],
+    parentId: "queueItems",
+    statusId: "queueProjectSettingsStatus",
+  },
+  {
+    beforeId: "componentLogControls",
+    containerClass: "log-settings",
+    fieldIds: ["configurationLogRetention", "configurationLogLevel"],
+    parentId: "componentLogs",
+    statusId: "logSettingsStatus",
+  },
+  {
+    beforeId: "platformHealthComponents",
+    containerClass: "platform-settings",
+    fieldIds: ["configurationPlatformHealthInterval"],
+    parentId: "platformHealth",
+    statusId: "platformSettingsStatus",
+  },
+]);
+function moveConfigurationControls({ beforeId, containerClass, fieldIds, parentId, statusId }) {
+  const parent = $(parentId), before = beforeId ? $(beforeId) : null;
+  if (!parent || (beforeId && !before)) return;
+  let controls = parent.querySelector(`.${containerClass}`);
   if (!controls) {
     controls = document.createElement("div");
-    controls.className = "configuration-controls queue-project-settings";
+    controls.className = `configuration-controls ${containerClass}`;
     const status = document.createElement("p");
-    status.id = "queueProjectSettingsStatus";
+    status.id = statusId;
     status.setAttribute("role", "status");
     status.setAttribute("aria-live", "polite");
     controls.append(status);
-    queue.append(controls);
+    parent.insertBefore(controls, before);
   }
-  ["configurationInboxScanInterval", "configurationOpenPrInterval"].forEach((id) => {
+  const status = $(statusId);
+  fieldIds.forEach((id) => {
     const label = $(id)?.closest("label");
-    if (label) controls.insertBefore(label, $("queueProjectSettingsStatus"));
+    if (label) controls.insertBefore(label, status);
+  });
+}
+function moveProjectScopedConfiguration() {
+  const queue = $("queueItems");
+  const inboxField = $("configurationInboxOpen")?.closest(".configuration-field");
+  if (!queue || !inboxField) return;
+  queue.append(inboxField);
+  moveConfigurationControls(CONFIGURATION_CONTROL_SCOPES[0]);
+}
+function moveMachineScopedWorkspaceDetails() {
+  const configuration = $("configuration"), controls = configuration?.querySelector(".configuration-controls");
+  if (!configuration || !controls) return;
+  MACHINE_SCOPED_WORKSPACE_FIELD_IDS.forEach((id) => {
+    const field = $(id);
+    if (field) configuration.insertBefore(field, controls);
   });
 }
 function localizeConfigurationOptions() {
+  moveMachineScopedWorkspaceDetails();
   moveProjectScopedConfiguration();
+  CONFIGURATION_CONTROL_SCOPES.slice(1).forEach(moveConfigurationControls);
   addConfigurationControlInfo();
   renderConfigurationInboxLocation();
-  document.querySelectorAll("#configurationLogRetention option").forEach((option) => {
+  document.querySelectorAll("#configurationLogRetention option, #configurationTelemetryRetention option").forEach((option) => {
     option.textContent = t("configuration.days", { days: option.value });
   });
   dashboardSelectPickers.forEach((_, select) => syncDashboardSelectPicker(select));
@@ -4887,10 +5051,11 @@ async function saveDashboardConfiguration(control) {
   if (!key) return;
   const value = normalizer(control.type === "checkbox" ? control.checked : control.value);
   const previous = control.dataset.savedValue || String(value);
-  if (key === "log_retention_days" && Number(value) < Number(control.dataset.savedValue || value)) {
+  const retentionKey = key === "log_retention_days" || key === "telemetry_retention_days";
+  if (retentionKey && Number(value) < Number(control.dataset.savedValue || value)) {
     const confirmed = await confirmDashboardAction(
-      t("configuration.log_retention"),
-      t("configuration.retention_confirm"),
+      t(key === "telemetry_retention_days" ? "configuration.telemetry_retention" : "configuration.log_retention"),
+      t(key === "telemetry_retention_days" ? "configuration.telemetry_retention_confirm" : "configuration.retention_confirm"),
       t("action.confirm"),
       { destructive: true },
     );
@@ -4919,6 +5084,7 @@ async function saveDashboardConfiguration(control) {
     }
     control.value = String(payload.value);
     control.dataset.savedValue = control.value;
+    dashboardConfiguration = { ...dashboardConfiguration, [key]: payload.value };
     if (key === "open_pr_check_interval_seconds") {
       openPullRequestMonitorIntervalMs = Number(value) * 1e3;
       scheduleOpenPullRequestMonitor([...openPullRequestStatusByNumber.values()].map((status) => ({ status })));
@@ -4931,13 +5097,18 @@ async function saveDashboardConfiguration(control) {
       componentDetailsRefreshIntervalMs = Number(value) * 1e3;
       if (activeComponentDetails) startComponentDetailsRefresh(activeComponentDetails);
     }
-    const status = control.closest(".queue-project-settings") ? $("queueProjectSettingsStatus") : $("configurationStatus");
-    status.textContent = t("configuration.saved");
-    status.classList.add("configuration-status--saved");
+    const status = control.closest(".queue-project-settings") ? $("queueProjectSettingsStatus") : control.closest(".log-settings") ? $("logSettingsStatus") : control.closest(".platform-settings") ? $("platformSettingsStatus") : $("telemetryRetentionStatus") || $("configurationStatus");
+    if (status) {
+      status.textContent = t("configuration.saved");
+      status.classList.add("configuration-status--saved");
+    }
+    if (key === "telemetry_retention_days") refreshDashboard();
   } catch {
-    const status = control.closest(".queue-project-settings") ? $("queueProjectSettingsStatus") : $("configurationStatus");
-    status.textContent = t("configuration.save_failed");
-    status.classList.remove("configuration-status--saved");
+    const status = control.closest(".queue-project-settings") ? $("queueProjectSettingsStatus") : control.closest(".log-settings") ? $("logSettingsStatus") : control.closest(".platform-settings") ? $("platformSettingsStatus") : $("telemetryRetentionStatus") || $("configurationStatus");
+    if (status) {
+      status.textContent = t("configuration.save_failed");
+      status.classList.remove("configuration-status--saved");
+    }
   } finally {
     control.disabled = false;
     syncDashboardSelectPicker(control);
@@ -4950,8 +5121,10 @@ async function initializeDashboardConfiguration() {
     const response = await fetch("/api/configuration", { cache: "no-store" });
     if (!response.ok) throw Error();
     const configuration = await response.json();
+    dashboardConfiguration = configuration;
     Object.entries(configurationFields).forEach(([id, [key]]) => {
       const control = $(id);
+      if (!control || configuration[key] === undefined) return;
       if (control.type === "checkbox") control.checked = configuration[key] === true;
       else {
         control.value = String(configuration[key]);
@@ -4967,6 +5140,7 @@ async function initializeDashboardConfiguration() {
     $("configurationStatus").textContent = t("configuration.load_failed");
     $("configurationStatus").classList.remove("configuration-status--saved");
   } finally {
+    dashboardConfigurationLoaded = true;
     setDashboardConfigurationControlsDisabled(false);
   }
 }
@@ -5088,6 +5262,7 @@ const autoRefreshToggle = $("autoRefresh"),
   allSectionsToggle = $("toggleAllSections"),
   dashboardCategoryIds = [
     "workspaceCard",
+    "configuration",
     "queueItems",
     "currentRun",
     "rateLimits",

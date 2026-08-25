@@ -148,6 +148,11 @@ They are never loaded or streamed outside the private dashboard.
 
 The final **Configuration** disclosure in the private dashboard makes the
 effective local Inbox location, Dependabot admission scan and fixed monitoring intervals observable.
+It also presents the local machine diagnostics — free disk space, Engineering
+database path, database size and schema version — rather than presenting them
+as project-specific **Workspace** metadata. The database remains in its current
+workspace-owned location for the 2.0 installation; this is a presentation
+boundary that already matches the planned central-installation migration.
 The language picker and automatic-refresh toggle remain direct controls in the
 title bar and are therefore not duplicated here. The current entries cover Inbox scanning,
 operator-merge verification, required GitHub checks, open-pull-request status,

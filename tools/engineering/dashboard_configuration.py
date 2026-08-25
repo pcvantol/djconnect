@@ -12,6 +12,7 @@ from .storage import open_storage
 
 DEFAULTS = {
     "log_retention_days": 30,
+    "telemetry_retention_days": 90,
     "log_level": "INFO",
     "inbox_scan_interval_seconds": 15,
     "open_pr_check_interval_seconds": 30,
@@ -20,6 +21,7 @@ DEFAULTS = {
 }
 OPTIONS = {
     "log_retention_days": frozenset({30, 60, 90, 120, 180, 360}),
+    "telemetry_retention_days": frozenset({30, 60, 90, 120, 180, 360}),
     "log_level": frozenset({"INFO", "DEBUG"}),
     "inbox_scan_interval_seconds": frozenset({5, 15, 30, 60}),
     "open_pr_check_interval_seconds": frozenset({30, 60}),

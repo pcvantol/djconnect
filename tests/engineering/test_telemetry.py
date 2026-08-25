@@ -18,6 +18,7 @@ from tools.engineering.telemetry import (
     comparable_duration_estimate,
     persist_execution,
     persist_execution_async,
+    prune_telemetry,
     wait_for_pending_telemetry,
 )
 from tools.engineering.producer import ProducerMetadata
@@ -105,12 +106,26 @@ class ExecutionHostTelemetryTest(unittest.TestCase):
         self.assertEqual(rows[0]["average_provider_execution_seconds"], None)
         self.assertEqual(rows[0]["average_validation_seconds"], None)
 
-    def test_daily_statistics_allows_the_ninety_day_dashboard_window(self) -> None:
+    def test_daily_statistics_allows_the_configurable_dashboard_window(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            self.assertEqual(daily_statistics(root, days=90), [])
+            self.assertEqual(daily_statistics(root, days=360), [])
             with self.assertRaises(ValueError):
-                daily_statistics(root, days=91)
+                daily_statistics(root, days=361)
+
+    def test_prune_telemetry_removes_only_expired_projections(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            old = datetime.now(timezone.utc) - timedelta(days=91)
+            recent = datetime.now(timezone.utc) - timedelta(days=1)
+            persist_execution(root, self._record("run-old", "COMPLETE", old))
+            persist_execution(root, self._record("run-recent", "COMPLETE", recent))
+
+            self.assertEqual(prune_telemetry(root, 90), {"daily_statistics": 1, "execution_runs": 1})
+            with open_storage(root) as connection:
+                self.assertEqual(connection.execute("SELECT COUNT(*) FROM execution_runs").fetchone()[0], 1)
+                self.assertEqual(connection.execute("SELECT COUNT(*) FROM daily_execution_statistics").fetchone()[0], 1)
+                self.assertEqual(connection.execute("SELECT COUNT(*) FROM execution_receipts").fetchone()[0], 2)
 
     def test_clear_telemetry_preserves_execution_receipts_and_timing_evidence(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

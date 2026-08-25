@@ -212,6 +212,7 @@ class DashboardStatusTest(unittest.TestCase):
             "configuration.inbox_location_save", "configuration.inbox_location_confirm",
             "configuration.inbox_location_saved", "configuration.inbox_location_failed",
             "configuration.safe_settings", "configuration.log_retention", "configuration.log_level", "configuration.retention_confirm",
+            "configuration.telemetry_retention", "configuration.telemetry_retention_help", "configuration.telemetry_retention_confirm",
             "configuration.days",
             "configuration.saved", "configuration.save_failed", "configuration.load_failed",
         ):
@@ -2334,6 +2335,8 @@ class DashboardStatusTest(unittest.TestCase):
         ) as update, patch(
             "tools.engineering.dashboard.prune_component_logs"
         ) as prune, patch(
+            "tools.engineering.dashboard.prune_telemetry"
+        ) as prune_telemetry, patch(
             "tools.engineering.dashboard.log_event"
         ), patch(
             "tools.engineering.dashboard.PlatformConfiguration.load", return_value=configuration
@@ -2360,6 +2363,20 @@ class DashboardStatusTest(unittest.TestCase):
             self.assertEqual(json.loads(response.read()), event)
             update.assert_called_once_with(root, "log_retention_days", 30, expected_previous=90)
             prune.assert_called_once_with(root, 30)
+
+            telemetry_event = {"key": "telemetry_retention_days", "previous": 90, "value": 60}
+            update.reset_mock()
+            update.return_value = telemetry_event
+            connection.request(
+                "POST", "/api/configuration",
+                body=json.dumps({"key": "telemetry_retention_days", "value": 60, "previous": 90}),
+                headers={"Content-Type": "application/json"},
+            )
+            response = connection.getresponse()
+            self.assertEqual(response.status, 200)
+            self.assertEqual(json.loads(response.read()), telemetry_event)
+            update.assert_called_once_with(root, "telemetry_retention_days", 60, expected_previous=90)
+            prune_telemetry.assert_called_once_with(root, 60)
 
             connection.request(
                 "POST", "/api/configuration/inbox-location",

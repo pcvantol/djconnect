@@ -877,10 +877,13 @@ MIGRATIONS: dict[int, Migration] = {
 }
 
 
-def record_ai_capacity_hourly(
+AI_CAPACITY_HISTORY_BUCKET_HOURS = 2
+
+
+def record_ai_capacity_bi_hourly(
     root: Path, *, provider: str, remaining_percent: float, observed_at: datetime | None = None
 ) -> None:
-    """Keep the lowest observed remaining capacity for the current UTC hour.
+    """Keep the lowest remaining capacity in each two-hour UTC bucket.
 
     This intentionally stores only a percentage and a provider label: no
     account, credit, or request detail is retained. The bounded series uses
@@ -897,7 +900,12 @@ def record_ai_capacity_hourly(
     if not 0 <= remaining <= 100:
         return
     timestamp = (observed_at or datetime.now(timezone.utc)).astimezone(timezone.utc)
-    hour = timestamp.replace(minute=0, second=0, microsecond=0)
+    bucket = timestamp.replace(
+        hour=timestamp.hour - (timestamp.hour % AI_CAPACITY_HISTORY_BUCKET_HOURS),
+        minute=0,
+        second=0,
+        microsecond=0,
+    )
     connection = open_storage(root, journal_mode="MEMORY")
     try:
         row = connection.execute(
@@ -911,14 +919,14 @@ def record_ai_capacity_hourly(
         providers = providers if isinstance(providers, dict) else {}
         samples = providers.get(normalized_provider)
         samples = samples if isinstance(samples, dict) else {}
-        hour_key = hour.isoformat()
-        existing = samples.get(hour_key)
+        bucket_key = bucket.isoformat()
+        existing = samples.get(bucket_key)
         if isinstance(existing, (int, float)) and not isinstance(existing, bool):
             remaining = min(remaining, float(existing))
             if remaining == float(existing):
                 return
-        samples[hour_key] = remaining
-        cutoff = hour.timestamp() - 7 * 24 * 3600
+        samples[bucket_key] = remaining
+        cutoff = bucket.timestamp() - 7 * 24 * 3600
         providers[normalized_provider] = {
             key: value
             for key, value in samples.items()
@@ -937,7 +945,7 @@ def record_ai_capacity_hourly(
 
 
 def ai_capacity_history(root: Path, *, provider: str, hours: int = 168) -> list[dict[str, object]]:
-    """Return the rolling, hourly local capacity series for a provider."""
+    """Return the rolling two-hour local capacity series for a provider."""
     normalized_provider = provider.strip()[:120]
     if not normalized_provider or hours < 1:
         return []
@@ -965,6 +973,7 @@ def ai_capacity_history(root: Path, *, provider: str, hours: int = 168) -> list[
         and not isinstance(value, bool)
         and 0 <= float(value) <= 100
         and (_capacity_timestamp(key) or 0) >= earliest
+        and int((_capacity_timestamp(key) or 0) // 3600) % AI_CAPACITY_HISTORY_BUCKET_HOURS == 0
     ]
 
 

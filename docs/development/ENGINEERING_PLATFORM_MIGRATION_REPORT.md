@@ -53,9 +53,10 @@ installation-owned EP process writes the central database.
 
 ### Machine/platform diagnostics placement
 
-When the central installation database is introduced, the dashboard must move
-the following diagnostics out of the project-scoped **Workspace** block into a
-separate EP machine/platform block:
+The 2.0 dashboard already presents the following diagnostics outside the
+project-scoped **Workspace** block, in **Configuration**. When the central
+installation database is introduced, that interim presentation becomes its
+own EP machine/platform block:
 
 - free disk space;
 - Engineering database path;
