@@ -3,6 +3,20 @@
 **Status:** Operational handoff
 **Updated:** 2026-08-25
 
+## PR #940 finalized
+
+PR [#940](https://github.com/pcvantol/djconnect/pull/940), **polish: improve
+mobile history navigation**, merged as
+`b5bbfdf33b6274bfe8fee0c9f7d0f891cd3211df` and is contained in current
+`main`. Its completed required checks have no failures. The bounded dashboard
+polish improves responsive history navigation and operational presentation; it
+does not change lifecycle, validation, reviewer, provider, queue, delivery,
+repository-evidence or operator-owned merge authority. This governance-only
+Finalization reconciles only the four canonical rolling records and leaves
+immutable Prompt History unchanged. With this Finalization merge, Repository
+State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`; Finalization
+Pending: `NO`.
+
 ## PRs #936, #937 and #938 finalized
 
 PR [#936](https://github.com/pcvantol/djconnect/pull/936), **Add Forge
