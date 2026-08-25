@@ -100,7 +100,7 @@ def inbox_root(root: Path) -> Path | None:
 
 
 def update_inbox_root(root: Path, value: object) -> dict[str, object]:
-    """Persist a writable existing Inbox root only after local validation."""
+    """Persist a writable Inbox root, accepting either the root or its Inbox child."""
     if not isinstance(value, str) or not value.strip():
         raise ValueError("Kies een bestaande lokale Inbox-map.")
     candidate = Path(value).expanduser()
@@ -108,6 +108,8 @@ def update_inbox_root(root: Path, value: object) -> dict[str, object]:
         raise ValueError("De Inbox-locatie moet een absoluut lokaal pad zijn.")
     candidate = candidate.resolve()
     inbox = candidate / "Inbox"
+    if candidate.name == "Inbox" and candidate.is_dir() and os.access(candidate, os.W_OK):
+        candidate, inbox = candidate.parent, candidate
     if not candidate.is_dir() or not inbox.is_dir() or not os.access(inbox, os.W_OK):
         raise ValueError("De gekozen map bevat geen beschrijfbare Inbox-map.")
     previous = inbox_root(root)

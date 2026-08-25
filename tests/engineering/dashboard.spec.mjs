@@ -167,6 +167,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#configurationInboxModal .dashboard-modal-shell__panel")).toHaveCSS("border-top-color", "rgb(201, 164, 255)");
     await expect(page.locator("#configurationInboxSave")).toHaveCSS("background-color", "rgb(59, 41, 79)");
     const root = page.locator("#configurationInboxRoot");
+    await expect(root).not.toHaveValue(/\/Inbox$/);
     await expect(root).toHaveCSS("width", /px/);
     await expect(root).toHaveCSS("display", "block");
     const browse = page.locator("#configurationInboxBrowse");

@@ -4603,7 +4603,8 @@ Object.keys(configurationFields).forEach((id) => {
 });
 $("configurationInboxOpen")?.addEventListener("click", () => {
   const modal = $("configurationInboxModal");
-  $("configurationInboxRoot").value = $("configurationInbox").textContent.trim();
+  const inbox = $("configurationInbox").textContent.trim();
+  $("configurationInboxRoot").value = inbox.endsWith("/Inbox") ? inbox.slice(0, -"/Inbox".length) : inbox;
   $("configurationInboxStatus").textContent = "";
   if (!modal.open) modal.showModal();
   resetDashboardModalInitialFocus(modal);

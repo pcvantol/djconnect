@@ -70,3 +70,6 @@ class DashboardConfigurationTest(unittest.TestCase):
             event = update_inbox_root(root, str(candidate))
             self.assertEqual(event["value"], str(candidate.resolve()))
             self.assertEqual(inbox_root(root), candidate.resolve())
+            event = update_inbox_root(root, str(candidate / "Inbox"))
+            self.assertEqual(event["value"], str(candidate.resolve()))
+            self.assertEqual(inbox_root(root), candidate.resolve())

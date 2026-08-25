@@ -647,7 +647,7 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertEqual(dashboard._normalize_rate_limits({"rateLimits": []}), {})
 
         dashboard._codex_identity_cache = None
-        with patch("tools.engineering.dashboard.shutil.which", return_value=None):
+        with patch("tools.engineering.dashboard.codex_cli_executable", return_value=None):
             self.assertEqual(
                 dashboard._codex_provider_identity(),
                 {"provider": "Codex CLI", "provider_version": "versie niet beschikbaar"},
@@ -2200,6 +2200,12 @@ class DashboardStatusTest(unittest.TestCase):
                 self.assertEqual(json.loads(response.read())["value"], str(transport.resolve()))
                 restart_timer.assert_called_once_with(0.25, dashboard._restart_component_after_response, args=("inbox", ANY))
                 restart_timer.return_value.start.assert_called_once_with()
+                restart_timer.reset_mock()
+                connection.request("POST", "/api/configuration/inbox-location", body=json.dumps({"inbox_root": str(transport / "Inbox")}), headers={"Content-Type": "application/json"})
+                response = connection.getresponse()
+                self.assertEqual(response.status, 200)
+                self.assertEqual(json.loads(response.read())["value"], str(transport.resolve()))
+                restart_timer.assert_called_once_with(0.25, dashboard._restart_component_after_response, args=("inbox", ANY))
             with patch(
                 "tools.engineering.dashboard._status",
                 return_value=b'{"watcher_state":"ENGINEERING_RUN_ACTIVE","run_id":"inbox-running","current_phase":"COMPLETE"}',
