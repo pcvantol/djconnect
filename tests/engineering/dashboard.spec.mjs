@@ -6984,6 +6984,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(trend.locator(".rate-limit-trend__grid")).toHaveCount(13);
     const axisLabels = trend.locator(".rate-limit-trend__axis-label");
     await expect(axisLabels).toHaveCount(13);
+    await expect(axisLabels.first()).toHaveCSS("font-size", "7px");
     await expect(axisLabels.first()).toHaveCSS("fill", "rgb(247, 243, 238)");
     await expect(trend.locator(".rate-limit-trend__line")).toHaveCount(1);
     await expect(trend.locator(".rate-limit-trend__point")).toHaveCount(2);
