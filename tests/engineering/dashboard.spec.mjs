@@ -2881,6 +2881,24 @@ test.describe("Engineering Status browser smoke", () => {
     expect(layout.titleWidth).toBeGreaterThan(layout.runIdWidth);
   });
 
+  test("uses the rose Run-ID surface throughout a wide light history table", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 844 });
+    await page.route("**/api/prompt-history", (route) => route.fulfill({ json: {
+      runs: [
+        { run_id: "inbox-rose-one", title: "Eerste uitvoering", status: "FAILED" },
+        { run_id: "inbox-rose-two", title: "Tweede uitvoering", status: "FAILED" },
+      ],
+    } }));
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.getByTestId("theme-toggle").click();
+    await page.locator("#promptHistory").evaluate((element) => { element.open = true; });
+
+    const runIds = page.locator("#promptHistoryRows tr td:first-child");
+    await expect(runIds).toHaveCount(2);
+    await expect(runIds.nth(0)).toHaveCSS("background-color", "rgb(255, 241, 245)");
+    await expect(runIds.nth(1)).toHaveCSS("background-color", "rgb(255, 241, 245)");
+  });
+
   test("matches the iPhone portrait dashboard visual reference", async ({ page }, testInfo) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.route("**/api/events", (route) => route.abort());
