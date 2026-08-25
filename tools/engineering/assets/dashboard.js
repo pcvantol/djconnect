@@ -2073,7 +2073,7 @@ function addCategoryIcons() {
     ["#executionTelemetry", "▥", "section.execution_host_telemetry"],
     ["#technicalDetails", "⌘", "section.technical_details"],
     ["#componentLogs", "≡", "section.logs"],
-    ["#configuration", "⚙", "section.configuration"],
+    ["#configuration", "⚙︎", "section.configuration"],
     ["#currentRun", "▤", "section.active_prompt"],
   ]) {
     const summary = document.querySelector(selector + ">summary"),

@@ -5345,7 +5345,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#rateLimits > summary .category-icon")).toHaveText("◔");
     await expect(page.locator("#technicalDetails > summary .category-icon")).toHaveText("⌘");
     await expect(page.locator("#componentLogs > summary .category-icon")).toHaveText("≡");
-    await expect(page.locator("#configuration > summary .category-icon")).toHaveText("⚙");
+    await expect(page.locator("#configuration > summary .category-icon")).toHaveText("⚙︎");
     await expect(page.locator("#configuration > summary .category-description")).toHaveText("Huidige lokale instellingen en controle-intervallen van het Engineering Platform.");
     for (const selector of ["#workspaceCard > summary", "#queueItems > summary", "#rateLimits > summary", "#componentLogs > summary"]) {
       expect(await page.locator(selector).evaluate((summary) => getComputedStyle(summary, "::before").right)).toBe("0px");
