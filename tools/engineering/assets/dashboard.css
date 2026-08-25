@@ -96,7 +96,7 @@ pre{white-space:pre-wrap;word-break:break-word;margin:5px 0 0;font:12px ui-monos
 .queue-blocker--error{align-items:center;background:#4a202b;border:1px solid #ff718f;border-radius:10px;color:#ffe9ef;display:flex;gap:12px;justify-content:space-between;margin:0 0 14px;padding:10px 12px}.queue-blocker--error p{color:inherit;font-size:13px;line-height:1.4;margin:0}.queue-blocker__repair{background:#3b281b;border:1px solid #f0b66a;border-radius:8px;color:#fff0dc;flex:none;font:13px system-ui;min-height:32px;padding:8px 10px}.queue-blocker__repair:hover:not(:disabled){background:#543721;color:#fff0dc}.queue-blocker__repair:disabled{cursor:wait;opacity:.7}html[data-theme="light"] .queue-blocker--error{background:#fff0f4;color:#8c243b}html[data-theme="light"] .queue-blocker__repair{background:#fff8ef;border-color:#d68b23;color:#643a13}html[data-theme="light"] .queue-blocker__repair:hover:not(:disabled){background:#fff0dc;color:#643a13}
 .workspace-card,#rateLimits,#componentLogs,#codexChat,#engineering-dashboard-content>.technical-details:not(#componentLogs){border:1px solid var(--category-color);border-left-width:3px}
 .rate-limit-reset{background:#173c31;border:1px solid #54d6a0;border-radius:8px;color:#d9fff0;font:13px system-ui;margin-top:12px;padding:8px 10px}.rate-limit-reset:disabled{cursor:wait;opacity:.7}.rate-limit-reset-status{color:#b9b6c0;font-size:12px;margin:8px 0 0}
-.rate-limit-update-status{color:#b9b6c0;font-size:12px;margin:8px 0 0}#codexCliUpdate::before{content:none}
+.rate-limit-update-status{color:#b9b6c0;font-size:12px;margin:8px 0 0}
 .predecessor-retry{background:#3b281b;border:1px solid #f0b66a;border-radius:8px;color:#fff0dc;font:13px system-ui;margin-top:12px;padding:8px 10px}.predecessor-retry:hover:not(:disabled){background:#543721}.predecessor-retry:disabled{cursor:wait;opacity:.7}.predecessor-retry-status{color:#d6c5a8;font-size:12px;margin:8px 0 0}
 .estimate-primary{font-size:inherit}#executionEstimateMeta{white-space:pre-line}
 .workspace-card>summary>strong,#rateLimits>summary>strong,#componentLogs>summary>strong,#codexChat>summary>strong,#engineering-dashboard-content>.technical-details:not(#componentLogs)>summary>strong{font-size:17px;line-height:1.25}.workspace-card>summary,#rateLimits>summary,#componentLogs>summary,#codexChat>summary,#engineering-dashboard-content>.technical-details:not(#componentLogs)>summary{margin-bottom:8px;padding-bottom:10px}
@@ -212,7 +212,7 @@ html[data-theme="light"] .predecessor-retry{background:#fff8ef;border-color:#d68
 
 /* Shared action controls. */
 .dashboard-grid button:not(.component-modal__close):not(.report-view-modal__close):hover{background:var(--category-color,var(--button-fill,#8dc7ff));border-color:var(--category-color,var(--button-fill,#8dc7ff));color:var(--button-ink)}
-#rateLimitReset{--button-fill:#51d88a;background:#1f5b42;border-color:#51d88a;color:#effff5}
+#rateLimitReset,#codexCliUpdate{--button-fill:#51d88a;background:#1f5b42;border-color:#51d88a;color:#effff5}
 
 /* Advisory-chat controls. */
 .chat-actions{align-items:center;display:flex;gap:8px;justify-content:flex-end;margin:0 0 18px;min-height:44px;padding-top:12px}
@@ -235,7 +235,7 @@ html[data-theme="light"] .footer{background:#f4f7fb}
 html[data-theme="light"] body,html[data-theme="light"] .dashboard-titlebar,html[data-theme="light"] .footer{background:#e8edf4}
 
 /* Keep the reset action light in the light theme while preserving its green affordance. */
-html[data-theme="light"] #rateLimitReset{background:#e8fff5;color:#145a42}
+html[data-theme="light"] :is(#rateLimitReset,#codexCliUpdate){background:#e8fff5;color:#145a42}
 
 /* The advisory conversation's send action always fills with its purple category. */
 .chat-compose .chat-send:hover:not(:disabled){background:#d0a4ff!important;border-color:#d0a4ff!important;color:#17151a!important}
@@ -272,7 +272,7 @@ html[data-theme="light"] #rateLimitReset{background:#e8fff5;color:#145a42}
 .report-view-modal,.report-view-modal__panel{box-sizing:border-box;max-height:min(90vh,calc(100dvh - 36px))}.report-view-modal{overflow:hidden}.report-view-modal__panel{overflow:auto}
 
 /* Reset consumption is available only intentionally; its hover state must remain unmistakable. */
-#rateLimitReset:hover:not(:disabled){background:#51d88a!important;border-color:#51d88a!important;color:#112a20!important}
+:is(#rateLimitReset,#codexCliUpdate):hover:not(:disabled){background:#51d88a!important;border-color:#51d88a!important;color:#112a20!important}
 
 /* Report disclosures use the same right-aligned affordance as the main categories. */
 
