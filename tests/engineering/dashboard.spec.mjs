@@ -6985,6 +6985,24 @@ test.describe("Engineering Status browser smoke", () => {
     expect(await page.locator("#rateLimitDetails").evaluate((element) => element.textContent)).toContain("\n");
   });
 
+  test("renders an accessible rolling hourly capacity trend", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#autoRefresh").uncheck();
+    await page.evaluate(() => rateLimits(
+      { provider: "Codex CLI", provider_version: "0.149.1", windows: [{ label: "Weekvenster", used_percent: 14, resets_at: 0 }] },
+      [
+        { at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), remaining_percent: 92 },
+        { at: new Date(Date.now() - 60 * 60 * 1000).toISOString(), remaining_percent: 86 },
+      ],
+    ));
+    const trend = page.locator("#rateLimitTrend");
+    await expect(trend).toContainText("Verloop beschikbare capaciteit");
+    await expect(trend.locator("svg[role='img']")).toHaveAttribute("aria-labelledby", "rateLimitTrendSvgTitle");
+    await expect(trend.locator(".rate-limit-trend__line")).toHaveCount(1);
+    await expect(trend.locator(".rate-limit-trend__point")).toHaveCount(2);
+    await expect(trend).toContainText("Nu 86,0% beschikbaar");
+  });
+
   test("keeps dashboard view preferences in the browser", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     const autoRefresh = page.locator("#autoRefresh");

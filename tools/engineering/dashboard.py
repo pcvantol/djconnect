@@ -47,7 +47,12 @@ from .codex_chat import CodexChatError, chat_model, respond as codex_chat_respon
 from .telemetry import daily_statistics, daily_timing_detail, execution_timing
 from .prompt_history import prompt_history, report_for_prompt_history
 from .recommendation_handoff import handoff_from_report
-from .storage import EngineeringStorageError, open_storage
+from .storage import (
+    EngineeringStorageError,
+    ai_capacity_history,
+    open_storage,
+    record_ai_capacity_hourly,
+)
 from .provider_usage import provider_usage_summary
 from .execution_lifecycle import projection as lifecycle_projection
 from .emergency_recovery import EmergencyRecoveryError, execute as execute_emergency_recovery, preview as emergency_recovery_preview
@@ -199,6 +204,18 @@ def _sse_snapshot(root: Path) -> bytes:
     # to its transaction branch after the operator opens the dashboard.
     payload["workspace_git"] = _workspace_git_projection(root)
     payload["workspace_worktrees"] = _workspace_worktrees(root)
+    rate_limits = payload.get("rate_limits")
+    if isinstance(rate_limits, dict):
+        provider = rate_limits.get("provider")
+        remaining = _remaining_rate_limit_capacity(rate_limits)
+        if isinstance(provider, str) and remaining is not None:
+            try:
+                record_ai_capacity_hourly(root, provider=provider, remaining_percent=remaining)
+                payload["ai_capacity_history"] = ai_capacity_history(root, provider=provider)
+            except (EngineeringStorageError, OSError, sqlite3.DatabaseError):
+                # The live quota status remains useful if local history is
+                # temporarily unavailable; a chart must never block it.
+                payload["ai_capacity_history"] = []
     fingerprint = json.dumps(payload, ensure_ascii=False, separators=(",", ":")).encode()
     # HTTP refreshes and SSE delivery can complete out of order in a browser.
     # Attach one process-scoped monotone revision to every changed projection,
@@ -431,6 +448,22 @@ def _normalize_rate_limits(payload: object) -> dict[str, object]:
     if isinstance(available, int) and not isinstance(available, bool) and available >= 0:
         normalized["reset_credits"] = available
     return normalized if windows or "reset_credits" in normalized else {}
+
+
+def _remaining_rate_limit_capacity(rate_limits: dict[str, object]) -> float | None:
+    """Return the most restrictive safe remaining quota percentage."""
+    windows = rate_limits.get("windows")
+    if not isinstance(windows, list):
+        return None
+    remaining_values: list[float] = []
+    for window in windows:
+        if not isinstance(window, dict):
+            continue
+        used = window.get("used_percent")
+        if not isinstance(used, (int, float)) or isinstance(used, bool):
+            continue
+        remaining_values.append(max(0.0, min(100.0, 100.0 - float(used))))
+    return min(remaining_values) if remaining_values else None
 
 
 def _codex_provider_identity(*, refresh: bool = False) -> dict[str, str]:

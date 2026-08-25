@@ -373,7 +373,77 @@ function usage(x) {
     )
     .join(String.fromCharCode(10));
 }
-function rateLimits(x) {
+function renderCapacityTrend(history) {
+  const card = $("rateLimits"), details = $("rateLimitDetails");
+  if (!card || !details) return;
+  let trend = $("rateLimitTrend");
+  if (!trend) {
+    trend = document.createElement("section");
+    trend.className = "rate-limit-trend";
+    trend.id = "rateLimitTrend";
+    const heading = document.createElement("h3"), description = document.createElement("p"), summary = document.createElement("p"), chart = document.createElement("div");
+    heading.className = "rate-limit-trend__title";
+    heading.id = "rateLimitTrendTitle";
+    description.className = "rate-limit-trend__description";
+    summary.className = "rate-limit-trend__summary";
+    summary.id = "rateLimitTrendSummary";
+    chart.className = "rate-limit-trend__chart";
+    chart.id = "rateLimitTrendChart";
+    trend.append(heading, description, chart, summary);
+    details.closest(".field")?.after(trend);
+  }
+  $("rateLimitTrendTitle").textContent = t("rate_limit.trend_title");
+  trend.querySelector(".rate-limit-trend__description").textContent = t("rate_limit.trend_description");
+  const points = (Array.isArray(history) ? history : [])
+    .map((point) => ({ at: Date.parse(String(point?.at || "")), remaining: Number(point?.remaining_percent) }))
+    .filter((point) => Number.isFinite(point.at) && Number.isFinite(point.remaining) && point.remaining >= 0 && point.remaining <= 100)
+    .sort((left, right) => left.at - right.at);
+  const chart = $("rateLimitTrendChart"), summary = $("rateLimitTrendSummary");
+  chart.replaceChildren();
+  if (!points.length) {
+    summary.textContent = t("rate_limit.trend_building");
+    return;
+  }
+  const latest = points.at(-1), latestPercent = locale.number(latest.remaining, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  summary.textContent = t("rate_limit.trend_current", { percent: latestPercent });
+  const namespace = "http://www.w3.org/2000/svg", svg = document.createElementNS(namespace, "svg"), title = document.createElementNS(namespace, "title"), width = 336, height = 112, padding = { top: 10, right: 8, bottom: 18, left: 8 }, now = Date.now(), start = now - 7 * 24 * 60 * 60 * 1000;
+  svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+  svg.setAttribute("role", "img");
+  svg.setAttribute("aria-labelledby", "rateLimitTrendSvgTitle");
+  title.id = "rateLimitTrendSvgTitle";
+  title.textContent = t("rate_limit.trend_aria", { percent: latestPercent });
+  svg.append(title);
+  const innerWidth = width - padding.left - padding.right, innerHeight = height - padding.top - padding.bottom;
+  for (const fraction of [0, 0.5, 1]) {
+    const grid = document.createElementNS(namespace, "line"), y = padding.top + innerHeight * fraction;
+    grid.setAttribute("class", "rate-limit-trend__grid");
+    grid.setAttribute("x1", String(padding.left)); grid.setAttribute("x2", String(width - padding.right));
+    grid.setAttribute("y1", String(y)); grid.setAttribute("y2", String(y)); svg.append(grid);
+  }
+  const coordinates = points.map((point) => ({
+    ...point,
+    x: padding.left + Math.max(0, Math.min(1, (point.at - start) / (now - start))) * innerWidth,
+    y: padding.top + (1 - point.remaining / 100) * innerHeight,
+  }));
+  let pathData = "", previous;
+  for (const point of coordinates) {
+    pathData += !previous || point.at - previous.at > 90 * 60 * 1000
+      ? `M ${point.x.toFixed(2)} ${point.y.toFixed(2)}`
+      : ` L ${point.x.toFixed(2)} ${point.y.toFixed(2)}`;
+    previous = point;
+  }
+  const path = document.createElementNS(namespace, "path");
+  path.setAttribute("class", "rate-limit-trend__line"); path.setAttribute("d", pathData); svg.append(path);
+  for (const point of coordinates) {
+    const marker = document.createElementNS(namespace, "circle");
+    marker.setAttribute("class", "rate-limit-trend__point"); marker.setAttribute("cx", point.x.toFixed(2)); marker.setAttribute("cy", point.y.toFixed(2)); marker.setAttribute("r", "2.4"); svg.append(marker);
+  }
+  const startLabel = document.createElementNS(namespace, "text"), endLabel = document.createElementNS(namespace, "text");
+  startLabel.setAttribute("class", "rate-limit-trend__axis-label"); startLabel.setAttribute("x", String(padding.left)); startLabel.setAttribute("y", String(height - 3)); startLabel.textContent = t("rate_limit.trend_start");
+  endLabel.setAttribute("class", "rate-limit-trend__axis-label"); endLabel.setAttribute("text-anchor", "end"); endLabel.setAttribute("x", String(width - padding.right)); endLabel.setAttribute("y", String(height - 3)); endLabel.textContent = t("rate_limit.trend_now");
+  svg.append(startLabel, endLabel); chart.append(svg);
+}
+function rateLimits(x, history = latestDashboardSnapshot?.ai_capacity_history) {
   const windows = Array.isArray(x?.windows) ? x.windows : [],
     credits = Number.isInteger(x?.reset_credits) ? x.reset_credits : null,
     provider =
@@ -400,6 +470,7 @@ function rateLimits(x) {
   });
   if (credits !== null) lines.push(t("ui.available_resets", { count: credits }));
   $("rateLimitDetails").textContent = lines.join(String.fromCharCode(10));
+  renderCapacityTrend(history);
   button.hidden = !(credits > 0);
   button.disabled = false;
 }
@@ -1746,7 +1817,7 @@ function renderHealthStatus(x, snapshot = {}) {
     components.dashboard || t("format.not_available");
   $("workerVersion").textContent = components.worker || t("format.not_available");
   usage(snapshot.usage);
-  rateLimits(snapshot.rate_limits);
+  rateLimits(snapshot.rate_limits, snapshot.ai_capacity_history);
   activeReviewerAgents(x.reviewer_agents, x);
 }
 let activePromptCategoryRun;
