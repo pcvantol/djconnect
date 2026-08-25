@@ -1,25 +1,24 @@
 # DJConnect Generation 2 Management Summary
 
-## PRs #924, #925, #927 and #928 finalized
+## PRs #930, #931 and #933 finalized
 
-PR [#924](https://github.com/pcvantol/djconnect/pull/924), **Improve merge
-status diagnostics**, merged as `4c57c8b5e0444a71c27a7a58dcf5b4431a68ac75`.
-PR [#925](https://github.com/pcvantol/djconnect/pull/925), **Cap telemetry
-phase shares to execution envelope**, merged as
-`23d52ea13ab2bfd9b3bcce08c92a86a3965de1c7`. PR
-[#927](https://github.com/pcvantol/djconnect/pull/927), **Show open pull
-request check status**, merged as
-`7235edb7a148c1be645c2053f8ce7209778adf87`. PR
-[#928](https://github.com/pcvantol/djconnect/pull/928), **Show GitHub rate
-limit banner**, merged as `914b64f2da53de94f138719e38d24ef32c101b80`.
+PR [#930](https://github.com/pcvantol/djconnect/pull/930), **Show pull request
+readiness in merge handoffs**, merged as
+`f7b32922303c03cb7c1e0f119c644cf87da7f884`. PR
+[#931](https://github.com/pcvantol/djconnect/pull/931), **Admit Dependabot
+pull requests into Engineering Inbox**, merged as
+`7e56608989b527099f81011ac2605b60f709bbdb`. PR
+[#933](https://github.com/pcvantol/djconnect/pull/933), **Stabilize post-merge
+dashboard browser validation**, merged as
+`cb4b53ee1fe63eee47480b0f133c306c9c3a9a68`.
 
-All four bounded dashboard and telemetry corrections are verified on current
-`main`. This governance-only Finalization reconciles only their rolling
-current-state records and retains raw audit evidence and immutable Prompt
-History. Lifecycle, validation, reviewer, provider, delivery and
-operator-owned merge authority are unchanged. Repository State:
-`MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`; Finalization Pending:
-`NO`.
+All three bounded dashboard, workflow and browser-validation corrections are
+verified on current `main`, with no terminal check failures. This
+governance-only Finalization reconciles only their rolling current-state
+records and retains raw audit evidence and immutable Prompt History. Lifecycle,
+validation, reviewer, provider, queue, delivery and operator-owned merge
+authority are unchanged. Repository State: `MERGED_RECONCILED`; Workspace
+State: `WORKSPACE_READY`; Finalization Pending: `NO`.
 
 ## PR #921 finalized by PR #922
 
