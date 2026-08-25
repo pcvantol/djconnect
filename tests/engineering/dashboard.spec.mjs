@@ -2669,10 +2669,16 @@ test.describe("Engineering Status browser smoke", () => {
     const runTotal = runTable.locator('th[data-sort-key="total_duration_ms"]');
     await runTotal.click();
     await expect(runTable.locator("tbody tr td").first()).toHaveText("run-faster");
-    const phaseRowBackgrounds = await phaseTable.locator("tbody tr").first().locator("td").evaluateAll(
+    const phaseRow = phaseTable.locator("tbody tr").first();
+    const phaseRowBackgrounds = await phaseRow.locator("td").evaluateAll(
       (cells) => cells.map((cell) => getComputedStyle(cell).backgroundColor),
     );
-    expect(new Set(phaseRowBackgrounds).size).toBe(1);
+    expect(new Set(phaseRowBackgrounds).size).toBeGreaterThan(1);
+    await phaseRow.hover();
+    const hoveredPhaseRowBackgrounds = await phaseRow.locator("td").evaluateAll(
+      (cells) => cells.map((cell) => getComputedStyle(cell).backgroundColor),
+    );
+    expect(new Set(hoveredPhaseRowBackgrounds).size).toBe(1);
     const [detailHeader, logHeader] = await Promise.all([
       phaseAverage.evaluate((header) => {
         const icon = getComputedStyle(header, "::after"), text = getComputedStyle(header);
