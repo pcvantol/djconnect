@@ -6980,6 +6980,8 @@ test.describe("Engineering Status browser smoke", () => {
     ));
     const trend = page.locator("#rateLimitTrend");
     await expect(trend).toContainText("Verloop beschikbare capaciteit");
+    await expect(trend.locator(".rate-limit-trend__title")).toHaveCSS("font-size", "11px");
+    await expect(trend.locator(".rate-limit-trend__title")).toHaveCSS("font-weight", "700");
     await expect(trend.locator("svg[role='img']")).toHaveAttribute("aria-labelledby", "rateLimitTrendSvgTitle");
     await expect(trend.locator(".rate-limit-trend__grid")).toHaveCount(13);
     const axisLabels = trend.locator(".rate-limit-trend__axis-label");
