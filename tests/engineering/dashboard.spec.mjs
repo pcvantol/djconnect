@@ -2976,6 +2976,25 @@ test.describe("Engineering Status browser smoke", () => {
     expect(layout.bannerTop).toBe(layout.titleBarBottom);
   });
 
+  test("does not move the dashboard scroll position when live content changes above it", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 760 });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    const layout = await page.evaluate(async () => {
+      const region = document.querySelector(".dashboard-scroll-region");
+      const content = document.querySelector("#engineering-dashboard-content");
+      content.style.minHeight = "2600px";
+      region.scrollTop = 600;
+      const before = region.scrollTop;
+      const update = document.createElement("div");
+      update.style.height = "240px";
+      content.prepend(update);
+      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      return { before, after: region.scrollTop };
+    });
+    expect(layout.before).toBeGreaterThan(0);
+    expect(layout.after).toBe(layout.before);
+  });
+
   test("scrolls the title bar out of view on iPhone portrait", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });

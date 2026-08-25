@@ -383,6 +383,7 @@ html[data-theme="light"] .dashboard-locale select{background:var(--dashboard-sur
 /* The body already owns the iOS safe area. Do not reserve it a second time
    inside the scrolling region, especially in landscape where it is wide. */
 .dashboard-scroll-region{padding-inline:var(--dashboard-scroll-gutter);scrollbar-gutter:auto}
+#engineering-dashboard-content{overflow-anchor:none}
 .footer__item{align-items:baseline;display:inline-flex;gap:4px;min-width:0}
 .technical-grid>.card,.log-table-wrap{min-width:0}.log-table-wrap{box-sizing:border-box;width:100%}
 #promptHistory .log-table-wrap{
