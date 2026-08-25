@@ -147,7 +147,7 @@ They are never loaded or streamed outside the private dashboard.
 ### Dashboard configuration
 
 The final **Configuration** disclosure in the private dashboard makes the
-effective local Inbox location and the fixed monitoring intervals observable.
+effective local Inbox location, Dependabot admission scan and fixed monitoring intervals observable.
 It is an explanation surface, not a second control plane: the language picker
 and automatic-refresh toggle remain direct controls in the title bar, and are
 therefore not duplicated here. The current entries cover Inbox scanning,

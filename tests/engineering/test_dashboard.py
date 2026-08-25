@@ -52,8 +52,10 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn('id="configuration"', page)
         self.assertIn('data-i18n="section.configuration"', page)
         self.assertIn("/private/engineering/inbox", page)
-        self.assertEqual(page.count('class="configuration-info"'), 11)
-        self.assertEqual(page.count("data-i18n-title=\"configuration."), 11)
+        self.assertIn('data-i18n="configuration.dependabot_scan_interval"', page)
+        self.assertIn('data-i18n-title="configuration.dependabot_scan_interval_help"', page)
+        self.assertEqual(page.count('class="configuration-info"'), 12)
+        self.assertEqual(page.count("data-i18n-title=\"configuration."), 12)
         for key, value in (
             ("configuration.inbox_scan_interval", "configuration.seconds_15"),
             ("configuration.operator_merge_interval", "configuration.seconds_60"),
@@ -158,6 +160,7 @@ class DashboardStatusTest(unittest.TestCase):
             "configuration.github_retry_backoff", "configuration.github_retry_backoff_help",
             "configuration.seconds_5", "configuration.seconds_60", "configuration.seconds_90",
             "configuration.github_retry_backoff_value",
+            "configuration.dependabot_scan_interval", "configuration.dependabot_scan_interval_help",
         ):
             self.assertEqual(catalog.count(f'"{key}"'), 5)
         self.assertNotIn("Retry Execution", (root / "tools/engineering/assets/dashboard.js").read_text(encoding="utf-8"))

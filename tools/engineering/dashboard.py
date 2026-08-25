@@ -1645,7 +1645,11 @@ def _dashboard_html(
         .replace("$WORKSPACE_OPEN_PULL_REQUESTS", workspace_open_pull_requests_html)
         .replace("$WORKSPACE_MAIN_ACTION_HIDDEN", "hidden" if workspace_main_action_hidden else "")
         .replace("$PLATFORM_VERSION", escape(platform_version))
-        .replace("$CONFIGURATION_INBOX", escape(configuration_inbox))
+        .replace(
+            "$CONFIGURATION_INBOX</pre></div>",
+            escape(configuration_inbox)
+            + '</pre></div><p class="field configuration-field"><span class="label"><span data-i18n="configuration.dependabot_scan_interval"></span><span class="configuration-info" role="img" tabindex="0" data-i18n-title="configuration.dependabot_scan_interval_help" data-i18n-aria-label="configuration.dependabot_scan_interval_help">i</span></span><span data-i18n="configuration.seconds_15"></span></p>',
+        )
         .encode()
     )
 
