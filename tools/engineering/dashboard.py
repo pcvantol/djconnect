@@ -1269,7 +1269,22 @@ def _workspace_open_pull_requests(root: Path) -> list[dict[str, object]] | None:
 
 
 def _owner_approval_status(pull_request: dict[str, object], repository_owner: str) -> str:
-    """Project owner approval without presenting optional approval as a blocker."""
+    """Project owner approval, including GitHub's exact-SHA authorization check."""
+    # ``reviewDecision`` only represents GitHub reviews.  The policy gate for
+    # high-risk work is published as a legacy commit StatusContext instead, so
+    # it must take precedence over the optional-review fallback below.
+    checks = pull_request.get("statusCheckRollup")
+    if isinstance(checks, list):
+        for check in checks:
+            if not isinstance(check, dict):
+                continue
+            name = str(check.get("name") or check.get("context") or "").casefold()
+            if name != "owner authorization":
+                continue
+            state = str(check.get("state") or check.get("status") or "").upper()
+            conclusion = str(check.get("conclusion") or "").upper()
+            if state not in {"SUCCESS", "COMPLETED"} or conclusion not in {"", "SUCCESS", "NEUTRAL", "SKIPPED"}:
+                return "pending"
     reviews = pull_request.get("reviews")
     if not isinstance(reviews, list) or not repository_owner:
         return "pending"
