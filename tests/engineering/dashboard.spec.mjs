@@ -3065,20 +3065,31 @@ test.describe("Engineering Status browser smoke", () => {
     expect(bounds.right).toBeLessThanOrEqual(bounds.viewportWidth + 1);
   });
 
-  test("scrolls the title bar out of view on iPhone portrait", async ({ page }) => {
+  test("keeps the title bar and banner sticky in a very narrow desktop window", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
+    await page.route("**/api/github-rate-limit", (route) => route.fulfill({
+      json: { limited: true, reset_at: 1_786_162_124 },
+    }));
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await expect(page.getByTestId("github-rate-limit-banner")).toBeVisible();
     const layout = await page.evaluate(() => {
+      const region = document.querySelector(".dashboard-scroll-region");
+      const stickyHeader = document.querySelector(".dashboard-sticky-header");
       const titleBar = document.querySelector(".dashboard-titlebar");
-      window.scrollTo(0, titleBar.offsetHeight + 20);
+      const banner = document.querySelector("#githubRateLimitBanner");
+      document.querySelector("#engineering-dashboard-content").style.minHeight = "2600px";
+      region.scrollTop = 180;
       return {
-        position: getComputedStyle(titleBar).position,
-        titleBottom: titleBar.getBoundingClientRect().bottom,
-        viewportTop: 0,
+        regionTop: Math.round(region.getBoundingClientRect().top),
+        stickyTop: Math.round(stickyHeader.getBoundingClientRect().top),
+        titleTop: Math.round(titleBar.getBoundingClientRect().top),
+        titleBottom: Math.round(titleBar.getBoundingClientRect().bottom),
+        bannerTop: Math.round(banner.getBoundingClientRect().top),
       };
     });
-    expect(layout.position).toBe("relative");
-    expect(layout.titleBottom).toBeLessThan(layout.viewportTop);
+    expect(layout.stickyTop).toBe(layout.regionTop);
+    expect(layout.titleTop).toBe(layout.regionTop);
+    expect(layout.bannerTop).toBe(layout.titleBottom);
   });
 
   test("puts every mobile title-bar setting in a labelled expandable panel", async ({ page }) => {
