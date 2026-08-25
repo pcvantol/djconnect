@@ -2543,7 +2543,10 @@ test.describe("Engineering Status browser smoke", () => {
       json: { status: { watcher_state: "WATCHER_IDLE" } },
     }));
     await page.route("**/api/telemetry/2026-08-16", (route) => route.fulfill({ json: {
-      summary: { executions: 1, completed: 1, blocked: 0, failed: 0 }, phases: [], bottlenecks: {}, runs: [],
+      summary: { executions: 1, completed: 1, blocked: 0, failed: 0 },
+      phases: [{ phase: "PROVIDER_EXECUTION", average_ms: 5000, median_ms: 5000, total_ms: 5000, share_percent: 100, runs: 1 }],
+      bottlenecks: {},
+      runs: [{ run_id: "modal-header-surface", status: "COMPLETE", total_duration_ms: 5000, queue_wait_ms: 0 }],
     } }));
     const snapshotLoaded = page.waitForResponse("**/api/dashboard-snapshot");
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
@@ -2590,6 +2593,12 @@ test.describe("Engineering Status browser smoke", () => {
     });
     expect(secondaryColours.label).toBe(secondaryColours.expected);
     expect(secondaryColours.label).not.toBe(secondaryColours.legacyPurple);
+    await modal.evaluate(() => { document.documentElement.dataset.theme = "light"; });
+    const detailHeaderSurfaces = await modal.locator(".telemetry-table th:not(:first-child)").evaluateAll(
+      (cells) => cells.map((cell) => getComputedStyle(cell).backgroundColor),
+    );
+    expect(detailHeaderSurfaces.length).toBeGreaterThan(2);
+    expect(detailHeaderSurfaces.every((colour) => colour === "rgb(234, 240, 248)")).toBe(true);
     await modal.evaluate((element) => element.close());
   });
 

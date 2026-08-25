@@ -557,6 +557,11 @@ html[data-theme="light"] #currentRun>.current-run__title>.label{color:color-mix(
    replaces it with the category tint to preserve the anchored identifier. */
 :is(.log-table,.telemetry-table) th:not(:first-child){background:#2d2d38}
 html[data-theme="light"] :is(.log-table,.telemetry-table) th:not(:first-child){background:#eaf0f8}
+/* Detail telemetry is rendered inside a modal with its own surface tokens.
+   Keep every non-identifier header on the same opaque grey band as its
+   dashboard counterpart, rather than inheriting the modal body surface. */
+.telemetry-detail-modal .telemetry-table th:not(:first-child){background-color:#2d2d38!important}
+html[data-theme="light"] .telemetry-detail-modal .telemetry-table th:not(:first-child){background-color:#eaf0f8!important}
 /* Each table keeps its first field visually anchored to its own category.
    Prompt History supplies its stronger rose variant above; the shared rule
    gives logs and telemetry the same readable column structure. */
