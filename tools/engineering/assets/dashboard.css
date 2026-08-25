@@ -1,5 +1,10 @@
 /* Prevent iOS/iPadOS double-tap zoom while preserving native pinch zoom. */
 html,body{-webkit-text-size-adjust:100%;text-size-adjust:100%;touch-action:manipulation}
+/* Tables use horizontal swipe navigation on small screens. Explicit pan
+   gestures keep that navigation while preventing WebKit's tap-to-zoom paint
+   and text-callout overlay from being captured by the scrolling surface. */
+:is(.log-table-wrap,.telemetry-scroll){-webkit-overflow-scrolling:auto;overscroll-behavior:contain;touch-action:pan-x pan-y}
+:is(.log-table,.telemetry-table){-webkit-tap-highlight-color:transparent;-webkit-text-size-adjust:100%;-webkit-touch-callout:none;text-size-adjust:100%;touch-action:manipulation}
 /* Shared product chrome: change the hue here to retheme controls, notices and status metadata. */
 :root{
   --house-style:#f0b66a;

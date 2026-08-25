@@ -2957,6 +2957,7 @@ test.describe("Engineering Status browser smoke", () => {
       clientWidth: wrap.clientWidth,
     }));
     expect(scroll.scrollWidth).toBeGreaterThan(scroll.clientWidth);
+    await expect(page.locator("#promptHistory .log-table-wrap")).toHaveCSS("touch-action", "pan-x pan-y");
   });
 
   test("shows and pins the Run-ID while preserving history-table horizontal access on an iPhone", async ({ page }) => {
