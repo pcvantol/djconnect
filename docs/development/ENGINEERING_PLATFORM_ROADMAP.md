@@ -104,7 +104,9 @@ The extraction sequence is deliberately incremental and reversible:
 The central-store and project-scope decision is specified in
 [ADR-0019](../adr/0019-engineering-platform-central-installation-store.md);
 the concrete registration and ownership boundary is specified in the
-[EP consumer contract](ENGINEERING_PLATFORM_CONSUMER_CONTRACT.md).
+[EP consumer contract](ENGINEERING_PLATFORM_CONSUMER_CONTRACT.md). The
+phase-level delivery, safety gates and architect review questions are in the
+[EP extraction and migration plan](ENGINEERING_PLATFORM_EXTRACTION_MIGRATION_PLAN.md).
 
 ## Policy
 
