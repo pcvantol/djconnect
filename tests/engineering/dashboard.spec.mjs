@@ -240,6 +240,16 @@ test.describe("Engineering Status browser smoke", () => {
       title: "Check projection",
       url: "https://github.com/pcvantol/djconnect/pull/925",
       branch: "codex/check-projection",
+      status: "ready_to_merge",
+      owner_approval: "not_required",
+    }]));
+    await expect(page.locator("#workspaceOpenPullRequests .open-pr-approval")).toHaveText("Owner approval niet vereist");
+    await expect(page.locator("#workspaceOpenPullRequests .open-pr-approval")).toHaveClass(/open-pr-approval--not_required/);
+    await page.evaluate(() => renderOpenPullRequests([{
+      number: 925,
+      title: "Check projection",
+      url: "https://github.com/pcvantol/djconnect/pull/925",
+      branch: "codex/check-projection",
       status: "issues",
     }]));
     await expect(openPullRequestStatus).toHaveClass(/open-pr-status--issues/);

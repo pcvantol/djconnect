@@ -1741,7 +1741,7 @@ let openPullRequestMonitorTimer = null, openPullRequestMonitorInFlight = false;
 const openPullRequestStatusByNumber = new Map();
 const openPullRequestOwnerApprovalByNumber = new Map();
 const OPEN_PULL_REQUEST_STATES = ["draft", "waiting_for_checks", "ready_for_review", "ready_to_merge", "branch_update_required", "issues"];
-const OPEN_PULL_REQUEST_OWNER_APPROVAL_STATES = ["pending", "approved", "changes_requested"];
+const OPEN_PULL_REQUEST_OWNER_APPROVAL_STATES = ["not_required", "pending", "approved", "changes_requested"];
 function openPullRequestStatusKey(status) {
   return {
     draft: "workspace.open_pull_request.draft",
@@ -4120,7 +4120,6 @@ function applyDashboardLocale() {
   providerNeutralLabels();
   localizeOpenPullRequestStatuses();
   localizeTechnicalDetails();
-  localizeConfigurationOptions();
   localizeLogControls();
   localizePromptHistoryTable();
   applyAccessibility();

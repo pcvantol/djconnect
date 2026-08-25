@@ -1069,7 +1069,7 @@ def _workspace_open_pull_requests(root: Path) -> list[dict[str, object]]:
 
 
 def _owner_approval_status(pull_request: dict[str, object], repository_owner: str) -> str:
-    """Project the latest repository-owner review without changing merge authority."""
+    """Project owner approval without presenting optional approval as a blocker."""
     reviews = pull_request.get("reviews")
     if not isinstance(reviews, list) or not repository_owner:
         return "pending"
@@ -1079,6 +1079,11 @@ def _owner_approval_status(pull_request: dict[str, object], repository_owner: st
         and str(review["author"].get("login") or "").casefold() == repository_owner.casefold()
     ]
     if not owner_reviews:
+        # GitHub reports ``null`` when its branch policy does not require a
+        # review.  Preserve ``pending`` for an unavailable projection, but do
+        # not turn the absence of an optional owner review into a false wait.
+        if "reviewDecision" in pull_request and str(pull_request.get("reviewDecision") or "").upper() != "REVIEW_REQUIRED":
+            return "not_required"
         return "pending"
     latest = max(owner_reviews, key=lambda review: str(review.get("submittedAt") or ""))
     state = str(latest.get("state") or "").upper()

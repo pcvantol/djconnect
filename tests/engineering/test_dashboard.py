@@ -585,6 +585,8 @@ class DashboardStatusTest(unittest.TestCase):
             "statusCheckRollup": [{"status": "COMPLETED", "conclusion": "SUCCESS"}],
         }), "issues")
         self.assertEqual(dashboard._owner_approval_status({"reviews": []}, "pcvantol"), "pending")
+        self.assertEqual(dashboard._owner_approval_status({"reviews": [], "reviewDecision": None}, "pcvantol"), "not_required")
+        self.assertEqual(dashboard._owner_approval_status({"reviews": [], "reviewDecision": "REVIEW_REQUIRED"}, "pcvantol"), "pending")
         self.assertEqual(dashboard._owner_approval_status({"reviews": [
             {"author": {"login": "pcvantol"}, "state": "APPROVED", "submittedAt": "2026-08-24T12:00:00Z"},
             {"author": {"login": "pcvantol"}, "state": "CHANGES_REQUESTED", "submittedAt": "2026-08-24T12:01:00Z"},
