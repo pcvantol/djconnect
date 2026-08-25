@@ -4262,6 +4262,31 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(info).toHaveCSS("color", "rgb(163, 230, 53)");
   });
 
+  test("keeps iPhone platform component cards on opaque, flat surfaces", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#platformHealth").evaluate((element) => { element.open = true; });
+    await page.evaluate(() => renderPlatformHealth({ components: {
+      dashboard: { healthy: true, detail: "HTTP-dashboard reageert", version: "2.0.0" },
+      inbox_watcher: { healthy: true, detail: "LaunchAgent is geladen", version: "2.0.0" },
+    }}));
+
+    const surfaces = await page.locator("#platformHealth > summary, .platform-health__component").evaluateAll(
+      (elements) => elements.map((element) => {
+        const style = getComputedStyle(element);
+        return {
+          backgroundColor: style.backgroundColor,
+          backgroundImage: style.backgroundImage,
+          backdropFilter: style.backdropFilter,
+        };
+      }),
+    );
+    expect(surfaces.length).toBeGreaterThan(2);
+    expect(surfaces.every((surface) => surface.backgroundColor !== "rgba(0, 0, 0, 0)")).toBe(true);
+    expect(surfaces.every((surface) => surface.backgroundImage === "none")).toBe(true);
+    expect(surfaces.every((surface) => surface.backdropFilter === "none")).toBe(true);
+  });
+
   test("uses the execution host title for the core local component", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.evaluate(() => showComponentModal({

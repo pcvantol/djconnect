@@ -597,6 +597,11 @@ html[data-theme="light"] #engineering-dashboard-content>#technicalDetails{backgr
 html:not([data-theme="light"]) .platform-health__component,
 html:not([data-theme="light"]) .platform-health__component[data-health="false"]{background:#202126}
 html:not([data-theme="light"]) .platform-health[open]>summary{background:color-mix(in srgb,var(--category-color) 6%,var(--dashboard-expanded-content-surface))}
+/* Health components are status cards, not glass tiles. Give Safari explicit
+   opaque paint layers so the parent section cannot bleed through them while
+   the page is scrolled on a narrow touch screen. */
+.platform-health,.platform-health>summary,.platform-health__component{background-image:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+.platform-health__component{isolation:isolate}
 
 /* Expanded main categories separate their coloured heading from neutral content.
    Collapsed summaries retain their full category surface as a compact cue. */
