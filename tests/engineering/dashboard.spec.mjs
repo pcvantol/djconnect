@@ -2572,6 +2572,51 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#executionTelemetryRows tr td").first()).toHaveText("15-08-2026");
   });
 
+  test("sorts telemetry detail tables with the same header treatment as logs", async ({ page }) => {
+    await page.route("**/api/telemetry/2026-08-16", (route) => route.fulfill({ json: {
+      summary: {},
+      phases: [
+        { phase: "QUEUE_WAIT", average_ms: 6000, median_ms: 1000, total_ms: 17000, share_percent: 20, runs: 3 },
+        { phase: "INITIALIZE", average_ms: 0, median_ms: 0, total_ms: 0, share_percent: 0, runs: 3 },
+      ],
+      bottlenecks: { top_time_consumers: [] },
+      runs: [
+        { run_id: "run-slower", started_at: "2026-08-16T14:33:31Z", status: "FAILED", total_duration_ms: 272000 },
+        { run_id: "run-faster", started_at: "2026-08-16T14:30:31Z", status: "COMPLETE", total_duration_ms: 1000 },
+      ],
+    } }));
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => window.executionTelemetry([{
+      date: "2026-08-16", prompt_count: 1, average_total_execution_seconds: 0,
+      average_queue_wait_seconds: 0, complete_count: 1, blocked_count: 0, failed_count: 0,
+    }]));
+    await page.locator("#executionTelemetry").evaluate((element) => { element.open = true; });
+    await page.locator("#executionTelemetryRows .telemetry-row").click();
+    const tables = page.locator("#telemetryDetailContent .telemetry-table");
+    const phaseTable = tables.nth(0), runTable = tables.nth(1);
+    await expect(phaseTable.locator("th.log-sortable")).toHaveCount(6);
+    await expect(runTable.locator("th.log-sortable")).toHaveCount(12);
+    const phaseAverage = phaseTable.locator('th[data-sort-key="average_ms"]');
+    await expect(phaseAverage).toHaveAttribute("data-sort-indicator", "↕");
+    await phaseAverage.click();
+    await expect(phaseAverage).toHaveAttribute("aria-sort", "ascending");
+    await expect(phaseTable.locator("tbody tr td").first()).toHaveText("INITIALIZE");
+    const runTotal = runTable.locator('th[data-sort-key="total_duration_ms"]');
+    await runTotal.click();
+    await expect(runTable.locator("tbody tr td").first()).toHaveText("run-faster");
+    const [detailHeader, logHeader] = await Promise.all([
+      phaseAverage.evaluate((header) => {
+        const icon = getComputedStyle(header, "::after"), text = getComputedStyle(header);
+        return { fontFamily: text.fontFamily, fontSize: text.fontSize, iconFontFamily: icon.fontFamily, iconFontSize: icon.fontSize, iconFontWeight: icon.fontWeight, iconLineHeight: icon.lineHeight };
+      }),
+      page.locator("#componentLogs .log-table th.log-sortable").first().evaluate((header) => {
+        const icon = getComputedStyle(header, "::after"), text = getComputedStyle(header);
+        return { fontFamily: text.fontFamily, fontSize: text.fontSize, iconFontFamily: icon.fontFamily, iconFontSize: icon.fontSize, iconFontWeight: icon.fontWeight, iconLineHeight: icon.lineHeight };
+      }),
+    ]);
+    expect(detailHeader).toEqual(logHeader);
+  });
+
   test("keeps the telemetry detail modal within a mobile portrait viewport", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
