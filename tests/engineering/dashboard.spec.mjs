@@ -126,6 +126,11 @@ test.describe("Engineering Status browser smoke", () => {
     }
   });
 
+  test("does not show the fixed local audit-log setting", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await expect(page.locator("#configurationAuditLogging")).toHaveCount(0);
+  });
+
   test("shows a GitHub rate-limit banner on page load and clears it on refresh", async ({ page }) => {
     let limited = true;
     await page.route("**/api/github-rate-limit", (route) => route.fulfill({

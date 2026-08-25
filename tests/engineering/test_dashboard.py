@@ -55,6 +55,8 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn('id="configurationInboxModal"', page)
         self.assertIn('id="configurationLogRetention"', page)
         self.assertIn('id="configurationLogLevel"', page)
+        self.assertNotIn('id="configurationAuditLogging"', page)
+        self.assertNotIn('configuration.audit_logging', page)
         self.assertEqual(page.count('class="configuration-info"'), 11)
         self.assertEqual(page.count("data-i18n-title=\"configuration."), 11)
         for key, value in (
@@ -140,6 +142,7 @@ class DashboardStatusTest(unittest.TestCase):
             self.assertIn(f"  {locale}: {{", catalog)
             self.assertIn(f'"language.{locale}"', catalog)
         self.assertIn('"retry.details"', catalog)
+        self.assertNotIn('"configuration.audit_logging"', catalog)
         for key in (
             "detail.recommended_next_mission", "detail.recommendation_status", "detail.mission_origin",
             "detail.business_value", "detail.confidence", "detail.dependencies", "detail.alternatives",
