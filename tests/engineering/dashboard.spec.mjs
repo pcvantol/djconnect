@@ -2980,6 +2980,33 @@ test.describe("Engineering Status browser smoke", () => {
     expect(layout.bannerTop).toBe(layout.titleBarBottom);
   });
 
+  test("keeps the wrapped desktop title bar and banner sticky in a narrow window", async ({ page }) => {
+    await page.setViewportSize({ width: 1136, height: 458 });
+    await page.route("**/api/github-rate-limit", (route) => route.fulfill({
+      json: { limited: true, reset_at: 1_786_162_124 },
+    }));
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await expect(page.getByTestId("github-rate-limit-banner")).toBeVisible();
+    const layout = await page.evaluate(() => {
+      const region = document.querySelector(".dashboard-scroll-region");
+      const stickyHeader = document.querySelector(".dashboard-sticky-header");
+      const titleBar = document.querySelector(".dashboard-titlebar");
+      const banner = document.querySelector("#githubRateLimitBanner");
+      document.querySelector("#engineering-dashboard-content").style.minHeight = "2600px";
+      region.scrollTop = 180;
+      return {
+        regionTop: Math.round(region.getBoundingClientRect().top),
+        stickyTop: Math.round(stickyHeader.getBoundingClientRect().top),
+        titleTop: Math.round(titleBar.getBoundingClientRect().top),
+        bannerTop: Math.round(banner.getBoundingClientRect().top),
+        titleBottom: Math.round(titleBar.getBoundingClientRect().bottom),
+      };
+    });
+    expect(layout.stickyTop).toBe(layout.regionTop);
+    expect(layout.titleTop).toBe(layout.regionTop);
+    expect(layout.bannerTop).toBe(layout.titleBottom);
+  });
+
   test("does not move the dashboard scroll position when live content changes above it", async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 760 });
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
