@@ -144,6 +144,23 @@ redacted records. Each table keeps its own sort order and shows 50 matching
 records per page; filters apply across all loaded records before pagination.
 They are never loaded or streamed outside the private dashboard.
 
+### Dashboard configuration
+
+The final **Configuration** disclosure in the private dashboard makes the
+effective local Inbox location and the fixed monitoring intervals observable.
+It is an explanation surface, not a second control plane: the language picker
+and automatic-refresh toggle remain direct controls in the title bar, and are
+therefore not duplicated here. The current entries cover Inbox scanning,
+operator-merge verification, required GitHub checks, open-pull-request status,
+dashboard status streaming, platform health, open component details, execution
+lease heartbeat/timeout and bounded GitHub-evidence retry backoff.
+
+Every entry includes a keyboard-accessible information glyph with localized
+explanation in English, Dutch, German, French and Spanish. Workflow safety
+limits remain read-only. Future mutable local preferences, such as component
+log retention, must be bounded, persist only locally, state precisely what is
+affected and require confirmation before an existing record can be removed.
+
 The existing `inbox.out.log`, `inbox.err.log`, `dashboard.out.log` and
 `dashboard.err.log` remain the LaunchAgent process streams. They complement,
 rather than replace, the application logs. Rotating `.engineering/logs/*.log`

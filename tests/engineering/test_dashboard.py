@@ -54,6 +54,22 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn("/private/engineering/inbox", page)
         self.assertEqual(page.count('class="configuration-info"'), 11)
         self.assertEqual(page.count("data-i18n-title=\"configuration."), 11)
+        for key, value in (
+            ("configuration.inbox_scan_interval", "configuration.seconds_15"),
+            ("configuration.operator_merge_interval", "configuration.seconds_60"),
+            ("configuration.required_checks_interval", "configuration.seconds_15"),
+            ("configuration.open_pr_interval", "configuration.seconds_30"),
+            ("configuration.dashboard_stream_interval", "configuration.second_1"),
+            ("configuration.platform_health_interval", "configuration.seconds_15"),
+            ("configuration.component_details_interval", "configuration.seconds_5"),
+            ("configuration.lease_heartbeat_interval", "configuration.seconds_15"),
+            ("configuration.lease_timeout", "configuration.seconds_90"),
+            ("configuration.github_retry_backoff", "configuration.github_retry_backoff_value"),
+        ):
+            self.assertIn(f'data-i18n="{key}"', page)
+            self.assertIn(f'data-i18n="{value}"', page)
+        self.assertNotIn('id="dashboardLocale"', page[page.index('id="configuration"'):])
+        self.assertNotIn('id="autoRefresh"', page[page.index('id="configuration"'):])
         self.assertLess(
             page.index('id="workspaceCard"'),
             page.index('id="configuration"'),
