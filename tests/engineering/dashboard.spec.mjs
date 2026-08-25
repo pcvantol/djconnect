@@ -158,6 +158,17 @@ test.describe("Engineering Status browser smoke", () => {
     const button = page.locator("#configurationInboxOpen");
     await expect(button).toHaveText("Locatie wijzigen");
     await expect(button).toHaveCSS("border-top-color", "rgb(240, 182, 106)");
+    await page.route("**/api/configuration/inbox-location/browse", (route) => route.fulfill({
+      json: { cancelled: false, value: "/private/selected-engineering-root" },
+    }));
+    await button.click();
+    const root = page.locator("#configurationInboxRoot");
+    await expect(root).toHaveCSS("width", /px/);
+    await expect(root).toHaveCSS("display", "block");
+    const browse = page.locator("#configurationInboxBrowse");
+    await expect(browse).toHaveText("Lokale map kiezen");
+    await browse.click();
+    await expect(root).toHaveValue("/private/selected-engineering-root");
   });
 
   test("uses normal-weight labels for every dashboard button", async ({ page }) => {

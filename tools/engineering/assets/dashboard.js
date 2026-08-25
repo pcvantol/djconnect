@@ -4367,6 +4367,26 @@ $("configurationInboxModalCloseAction")?.addEventListener("click", () => $("conf
 $("configurationInboxModal")?.addEventListener("click", (event) => {
   if (event.target === event.currentTarget) event.currentTarget.close();
 });
+$("configurationInboxBrowse")?.addEventListener("click", async (event) => {
+  const button = event.currentTarget;
+  button.disabled = true;
+  $("configurationInboxStatus").textContent = "";
+  try {
+    const response = await fetch("/api/configuration/inbox-location/browse", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: "{}",
+    });
+    const payload = await response.json();
+    if (!response.ok) throw Error(payload.error || t("configuration.inbox_location_failed"));
+    if (!payload.cancelled && typeof payload.value === "string")
+      $("configurationInboxRoot").value = payload.value;
+  } catch (error) {
+    $("configurationInboxStatus").textContent = error.message || t("configuration.inbox_location_failed");
+  } finally {
+    button.disabled = false;
+  }
+});
 $("configurationInboxSave")?.addEventListener("click", async (event) => {
   const root = $("configurationInboxRoot").value.trim();
   const confirmed = await confirmDashboardAction(

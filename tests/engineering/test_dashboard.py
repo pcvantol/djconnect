@@ -53,6 +53,7 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn('data-i18n="section.configuration"', page)
         self.assertIn("/private/engineering/inbox", page)
         self.assertIn('id="configurationInboxModal"', page)
+        self.assertIn('id="configurationInboxBrowse"', page)
         self.assertIn('id="configurationLogRetention"', page)
         self.assertIn('id="configurationLogLevel"', page)
         self.assertNotIn('id="configurationAuditLogging"', page)
@@ -80,6 +81,17 @@ class DashboardStatusTest(unittest.TestCase):
             page.index('id="configuration"'),
         )
         self.assertLess(page.index('id="configuration"'), page.index("</main>"))
+
+    @patch("tools.engineering.dashboard.LocalProcessProvider")
+    @patch("tools.engineering.dashboard.sys.platform", "darwin")
+    def test_local_directory_picker_returns_a_selected_mac_folder(self, provider: MagicMock) -> None:
+        completed = __import__("subprocess").CompletedProcess
+        with tempfile.TemporaryDirectory() as temporary:
+            provider.return_value.execute.return_value = completed(
+                ("osascript",), 0, f"{temporary}\n", ""
+            )
+            self.assertEqual(dashboard._choose_local_directory(Path(temporary)), temporary)
+        provider.return_value.execute.assert_called_once()
 
     @patch("tools.engineering.dashboard.GitProvider")
     def test_workspace_git_projection_is_safe_and_sse_ready(self, git_provider: object) -> None:
@@ -165,7 +177,7 @@ class DashboardStatusTest(unittest.TestCase):
             "configuration.seconds_5", "configuration.seconds_60", "configuration.seconds_90",
             "configuration.github_retry_backoff_value",
             "configuration.inbox_location_open", "configuration.inbox_location_modal_description",
-            "configuration.inbox_location_input", "configuration.inbox_location_requirement",
+            "configuration.inbox_location_input", "configuration.inbox_location_browse", "configuration.inbox_location_requirement",
             "configuration.inbox_location_save", "configuration.inbox_location_confirm",
             "configuration.inbox_location_saved", "configuration.inbox_location_failed",
             "configuration.safe_settings", "configuration.log_retention", "configuration.log_level", "configuration.retention_confirm",
