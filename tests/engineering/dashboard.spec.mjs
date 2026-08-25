@@ -2266,6 +2266,15 @@ test.describe("Engineering Status browser smoke", () => {
     expect(surfaces.length).toBeGreaterThan(0);
     expect(surfaces.every((surface) => surface.backgroundImage === "none")).toBe(true);
     expect(surfaces.every((surface) => surface.backdropFilter === "none")).toBe(true);
+    const optionsToggle = await page.getByTestId("titlebar-options-toggle").evaluate((element) => {
+      const style = getComputedStyle(element);
+      return {
+        appearance: style.appearance,
+        backgroundImage: style.backgroundImage,
+      };
+    });
+    expect(optionsToggle.appearance).toBe("none");
+    expect(optionsToggle.backgroundImage).toBe("none");
   });
 
   test("keeps the execution-details modal as compact as the report modal on iPhone", async ({ page }) => {
@@ -2689,6 +2698,9 @@ test.describe("Engineering Status browser smoke", () => {
 
   test("gives every table a coloured first column and sorts telemetry columns", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
+    await page.route("**/api/telemetry*", (route) => route.abort());
+    await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({ json: { status: {} } }));
+    await page.route("**/api/events", (route) => route.abort());
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.evaluate(() => window.executionTelemetry([
       { date: "2026-08-16", prompt_count: 4, average_total_execution_seconds: 80, average_queue_wait_seconds: 8, input_tokens: 400, output_tokens: 40, total_tokens: 440, complete_count: 4, blocked_count: 0, failed_count: 0 },
