@@ -245,6 +245,32 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#configuration .configuration-field")).toHaveCount(6);
   });
 
+  test("stacks flat configuration pulldowns below their labels on iPhone", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#configuration").evaluate((element) => { element.open = true; });
+
+    const picker = page.locator("#configurationLogRetention + .dashboard-select-picker");
+    const layout = await picker.evaluate((element) => {
+      const label = element.parentElement.querySelector(":scope > .label");
+      const labelBounds = label.getBoundingClientRect();
+      const pickerBounds = element.getBoundingClientRect();
+      const buttonStyle = getComputedStyle(element.querySelector("button"));
+      return {
+        labelBottom: Math.round(labelBounds.bottom),
+        pickerTop: Math.round(pickerBounds.top),
+        width: Math.round(pickerBounds.width),
+        parentWidth: Math.round(element.parentElement.getBoundingClientRect().width),
+        backgroundImage: buttonStyle.backgroundImage,
+        boxShadow: buttonStyle.boxShadow,
+      };
+    });
+    expect(layout.pickerTop).toBeGreaterThanOrEqual(layout.labelBottom);
+    expect(layout.width).toBe(layout.parentWidth);
+    expect(layout.backgroundImage).toBe("none");
+    expect(layout.boxShadow).toBe("none");
+  });
+
   test("persists a log-level pulldown choice exactly once", async ({ page }) => {
     const writes = [];
     await page.route("**/api/configuration", async (route) => {
