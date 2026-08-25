@@ -2014,7 +2014,7 @@ function localizeLogControls() {
 }
 function localizePromptHistoryTable() {
   const headers = [
-    "table.status", "table.prompt_title", "table.executed_at", "table.report",
+    "table.run_suffix", "table.status", "table.prompt_title", "table.executed_at", "table.report",
     "table.analysis", "table.chat", "table.action", "table.details",
   ];
   document.querySelectorAll("#promptHistory .log-table thead th").forEach((header, index) => {
@@ -3664,16 +3664,6 @@ function renderPromptHistory() {
     navigation = $("promptHistoryPagination"),
     pageCount = Math.max(1, Math.ceil(rows.length / PROMPT_HISTORY_PAGE_SIZE));
   promptHistoryPage = Math.min(Math.max(1, promptHistoryPage), pageCount);
-  const showRunSuffix = window.matchMedia("(min-width: 621px)").matches,
-    headerRow = document.querySelector("#promptHistory .log-table thead tr");
-  if (showRunSuffix && headerRow && !headerRow.querySelector("[data-run-suffix]")) {
-    const header = document.createElement("th");
-    header.dataset.runSuffix = "true";
-    header.dataset.i18n = "table.run_suffix";
-    header.scope = "col";
-    header.textContent = t("table.run_suffix");
-    headerRow.children[0]?.before(header);
-  }
   body.replaceChildren();
   const visible = rows.slice(
     (promptHistoryPage - 1) * PROMPT_HISTORY_PAGE_SIZE,
@@ -3832,7 +3822,7 @@ function renderPromptHistory() {
         });
         details.append(button);
       } else details.textContent = "—";
-      if (showRunSuffix) row.append(runSuffix);
+      row.append(runSuffix);
       row.append(status);
       row.append(title, executed, report, analysis, chat, action, details);
       body.append(row);
