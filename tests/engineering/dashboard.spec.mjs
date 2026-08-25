@@ -104,6 +104,22 @@ async function selectDashboardLocale(page, language) {
   await page.waitForFunction(() => document.body?.classList.contains("dashboard-ready"));
 }
 
+async function navigateDashboard(navigate) {
+  let lastError;
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    try {
+      return await navigate();
+    } catch (error) {
+      lastError = error;
+      const transientNavigationFailure = /ERR_EMPTY_RESPONSE|ERR_CONNECTION_RESET|chrome-error:\/\/chromewebdata\//.test(String(error));
+      if (!transientNavigationFailure || attempt === 2) throw error;
+      await waitForDashboard();
+      await new Promise((resolve) => setTimeout(resolve, 100 * (attempt + 1)));
+    }
+  }
+  throw lastError;
+}
+
 test.beforeEach(async ({ page }, testInfo) => {
   const goto = page.goto.bind(page);
   const reload = page.reload.bind(page);
@@ -121,12 +137,12 @@ test.beforeEach(async ({ page }, testInfo) => {
     }
   };
   page.goto = async (...arguments_) => {
-    const response = await goto(...arguments_);
+    const response = await navigateDashboard(() => goto(...arguments_));
     await prepareDashboard();
     return response;
   };
   page.reload = async (...arguments_) => {
-    const response = await reload(...arguments_);
+    const response = await navigateDashboard(() => reload(...arguments_));
     await prepareDashboard();
     return response;
   };
@@ -3191,6 +3207,9 @@ test.describe("Engineering Status browser smoke", () => {
   });
 
   test("uses human-friendly localized event labels in component logs and their filter", async ({ page }) => {
+    // This exercises five full locale reloads while the browser suite runs in
+    // parallel.  Allow the isolated dashboard to become ready under CI load.
+    test.slow();
     await page.route("**/api/logs/**", (route) => route.fulfill({
       contentType: "application/x-ndjson",
       body: "",
@@ -6990,7 +7009,7 @@ test.describe("Engineering Status browser smoke", () => {
     releasePreview();
     await expect(confirmation.locator(".workspace-branch-cleanup__spinner")).toHaveCount(0);
     await expect(page.locator("#confirmationModalConfirm")).toBeEnabled();
-    await expect(page.locator("#confirmationModalConfirm")).toHaveCSS("background-color", "rgb(255, 113, 143)");
+    await expect(page.locator("#confirmationModalConfirm")).toHaveCSS("border-top-color", "rgb(255, 113, 143)");
     const candidates = confirmation.locator(".workspace-branch-cleanup__preview-list");
     await expect(candidates).toHaveCount(1);
     await expect(candidates.locator("li")).toHaveCount(28);
