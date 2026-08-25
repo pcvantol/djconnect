@@ -4120,6 +4120,7 @@ function applyDashboardLocale() {
   providerNeutralLabels();
   localizeOpenPullRequestStatuses();
   localizeTechnicalDetails();
+  localizeConfigurationOptions();
   localizeLogControls();
   localizePromptHistoryTable();
   applyAccessibility();
@@ -4221,7 +4222,30 @@ document.addEventListener("pointerdown", (event) => {
     if (!event.target.closest(".dashboard-select-picker")) setDashboardSelectPickerOpen(picker, false);
   });
 });
+function addConfigurationControlInfo() {
+  for (const [id, helpKey] of [
+    ["configurationLogRetention", "configuration.log_retention_help"],
+    ["configurationLogLevel", "configuration.log_level_help"],
+  ]) {
+    const control = $(id), label = control?.closest("label"), text = label?.querySelector(":scope > span");
+    if (!text) continue;
+    text.classList.add("label");
+    let info = text.querySelector(".configuration-info");
+    if (!info) {
+      info = document.createElement("span");
+      info.className = "configuration-info";
+      info.setAttribute("role", "img");
+      info.tabIndex = 0;
+      info.textContent = "i";
+      text.append(info);
+    }
+    const help = t(helpKey);
+    info.title = help;
+    info.setAttribute("aria-label", help);
+  }
+}
 function localizeConfigurationOptions() {
+  addConfigurationControlInfo();
   document.querySelectorAll("#configurationLogRetention option").forEach((option) => {
     option.textContent = t("configuration.days", { days: option.value });
   });
@@ -4241,6 +4265,7 @@ function positionConfigurationTooltip(info) {
   info.dataset.tooltipSide = side;
   info.style.setProperty("--configuration-tooltip-width", `${width}px`);
 }
+addConfigurationControlInfo();
 const configurationInfoTooltips = [...document.querySelectorAll(".configuration-info")];
 configurationInfoTooltips.forEach((info) => {
   info.addEventListener("pointerenter", () => positionConfigurationTooltip(info));

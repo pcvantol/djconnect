@@ -136,6 +136,18 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#configurationControlsTitle")).toHaveCount(0);
   });
 
+  test("styles writable configuration labels like the read-only settings and explains them", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    const configuration = page.locator("#configuration");
+    await configuration.evaluate((element) => { element.open = true; });
+    for (const id of ["configurationLogRetention", "configurationLogLevel"]) {
+      const label = page.locator(`#${id}`).locator("xpath=preceding-sibling::span");
+      await expect(label).toHaveClass(/label/);
+      await expect(label.locator(".configuration-info")).toHaveCount(1);
+      await expect(label.locator(".configuration-info")).toHaveAttribute("aria-label", /.+/);
+    }
+  });
+
   test("uses normal-weight labels for every dashboard button", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     const weights = await page.locator("button").evaluateAll(
