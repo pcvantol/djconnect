@@ -2688,6 +2688,7 @@ test.describe("Engineering Status browser smoke", () => {
   });
 
   test("gives every table a coloured first column and sorts telemetry columns", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.evaluate(() => window.executionTelemetry([
       { date: "2026-08-16", prompt_count: 4, average_total_execution_seconds: 80, average_queue_wait_seconds: 8, input_tokens: 400, output_tokens: 40, total_tokens: 440, complete_count: 4, blocked_count: 0, failed_count: 0 },
@@ -2706,6 +2707,20 @@ test.describe("Engineering Status browser smoke", () => {
     );
     expect(telemetryHeaderSurfaces.length).toBeGreaterThan(1);
     expect(telemetryHeaderSurfaces.every((colour) => colour === "rgb(234, 240, 248)")).toBe(true);
+    const telemetryCellSurfaces = await page.locator("#executionTelemetry .telemetry-table tbody td").evaluateAll(
+      (cells) => cells.map((cell) => {
+        const style = getComputedStyle(cell);
+        return {
+          backgroundColor: style.backgroundColor,
+          backgroundImage: style.backgroundImage,
+          backdropFilter: style.backdropFilter,
+        };
+      }),
+    );
+    expect(telemetryCellSurfaces.length).toBeGreaterThan(0);
+    expect(telemetryCellSurfaces.every((surface) => surface.backgroundColor !== "rgba(0, 0, 0, 0)")).toBe(true);
+    expect(telemetryCellSurfaces.every((surface) => surface.backgroundImage === "none")).toBe(true);
+    expect(telemetryCellSurfaces.every((surface) => surface.backdropFilter === "none")).toBe(true);
 
     const date = page.locator('#executionTelemetry th[data-sort-key="date"]');
     await expect(date).toHaveAttribute("data-sort-indicator", "↓");
