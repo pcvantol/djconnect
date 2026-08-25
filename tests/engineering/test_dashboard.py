@@ -1114,6 +1114,10 @@ class DashboardStatusTest(unittest.TestCase):
         with (
             patch("tools.engineering.dashboard.subprocess.Popen", return_value=process),
             patch("tools.engineering.dashboard.select.select", return_value=([process.stdout], [], [])),
+            patch(
+                "tools.engineering.dashboard._codex_provider_identity",
+                return_value={"provider": "Codex CLI", "provider_version": "0.146.0"},
+            ),
         ):
             dashboard._rate_limit_cache = None
             result = json.loads(dashboard._codex_rate_limits())
@@ -1140,22 +1144,30 @@ class DashboardStatusTest(unittest.TestCase):
                 return None
 
         process = FakeProcess()
-        with patch("tools.engineering.dashboard.subprocess.Popen", return_value=process):
+        with (
+            patch("tools.engineering.dashboard.subprocess.Popen", return_value=process),
+            patch(
+                "tools.engineering.dashboard._codex_provider_identity",
+                return_value={"provider": "Codex CLI", "provider_version": "versie niet beschikbaar"},
+            ),
+        ):
             dashboard._rate_limit_cache = None
             result = json.loads(dashboard._codex_rate_limits())
-            self.assertEqual(result["provider"], "Codex CLI")
-            self.assertEqual(result["provider_version"], "versie niet beschikbaar")
-            self.assertIsInstance(result.get("provider_path"), str)
+            self.assertEqual(result, {"provider": "Codex CLI", "provider_version": "versie niet beschikbaar"})
             dashboard._rate_limit_cache = None
         self.assertTrue(process.terminated)
 
     def test_codex_rate_limits_fails_closed_when_app_server_cannot_start(self) -> None:
-        with patch("tools.engineering.dashboard.subprocess.Popen", side_effect=OSError):
+        with (
+            patch("tools.engineering.dashboard.subprocess.Popen", side_effect=OSError),
+            patch(
+                "tools.engineering.dashboard._codex_provider_identity",
+                return_value={"provider": "Codex CLI", "provider_version": "versie niet beschikbaar"},
+            ),
+        ):
             dashboard._rate_limit_cache = None
             result = json.loads(dashboard._codex_rate_limits())
-            self.assertEqual(result["provider"], "Codex CLI")
-            self.assertEqual(result["provider_version"], "versie niet beschikbaar")
-            self.assertIsInstance(result.get("provider_path"), str)
+            self.assertEqual(result, {"provider": "Codex CLI", "provider_version": "versie niet beschikbaar"})
             dashboard._rate_limit_cache = None
 
     def test_codex_rate_limit_reset_consumes_one_credit_with_an_idempotency_key(self) -> None:
