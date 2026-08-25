@@ -2594,6 +2594,7 @@ test.describe("Engineering Status browser smoke", () => {
     await page.locator("#executionTelemetryRows .telemetry-row").click();
     const tables = page.locator("#telemetryDetailContent .telemetry-table");
     const phaseTable = tables.nth(0), runTable = tables.nth(1);
+    await expect(phaseTable).toHaveClass(/telemetry-phase-table/);
     await expect(phaseTable.locator("th.log-sortable")).toHaveCount(6);
     await expect(runTable.locator("th.log-sortable")).toHaveCount(12);
     const phaseAverage = phaseTable.locator('th[data-sort-key="average_ms"]');
@@ -2604,6 +2605,10 @@ test.describe("Engineering Status browser smoke", () => {
     const runTotal = runTable.locator('th[data-sort-key="total_duration_ms"]');
     await runTotal.click();
     await expect(runTable.locator("tbody tr td").first()).toHaveText("run-faster");
+    const phaseRowBackgrounds = await phaseTable.locator("tbody tr").first().locator("td").evaluateAll(
+      (cells) => cells.map((cell) => getComputedStyle(cell).backgroundColor),
+    );
+    expect(new Set(phaseRowBackgrounds).size).toBe(1);
     const [detailHeader, logHeader] = await Promise.all([
       phaseAverage.evaluate((header) => {
         const icon = getComputedStyle(header, "::after"), text = getComputedStyle(header);

@@ -913,6 +913,11 @@ dialog.dashboard-modal-shell,dialog.dashboard-modal-shell:is(:focus,:focus-visib
    focus rules have been applied. */
 #telemetryDetailContent .telemetry-run-link{-webkit-tap-highlight-color:transparent;user-select:none}
 #telemetryDetailContent .telemetry-run-link:is(:focus,:focus-visible,:active){border-color:transparent!important;box-shadow:none!important;outline:0!important}
+/* Phase timing is comparative evidence rather than a row activator. Keep a
+   single rose surface across each complete data row; the Runs table below
+   remains neutral until its interactive row is selected. */
+.telemetry-detail-modal .telemetry-phase-table tbody td{background:color-mix(in srgb,var(--category-color,#fb7185) 12%,var(--dashboard-expanded-content-surface))!important}
+html[data-theme="light"] .telemetry-detail-modal .telemetry-phase-table tbody td{background:color-mix(in srgb,var(--category-color,#fb7185) 12%,#fff)!important}
 /* Run IDs are compact identifiers.  Fixing their width keeps the first mobile
    column narrow while the execution title receives the remaining table space. */
 #promptHistory .log-table{--prompt-history-run-id-width:7rem}#promptHistory .log-table th:nth-child(1),#promptHistory .log-table td:nth-child(1){max-width:var(--prompt-history-run-id-width);min-width:var(--prompt-history-run-id-width);overflow:hidden;text-overflow:ellipsis;width:var(--prompt-history-run-id-width)}

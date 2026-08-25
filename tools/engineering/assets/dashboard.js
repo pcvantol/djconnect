@@ -3122,12 +3122,14 @@ function renderTelemetryDetail(detail, content) {
       ["phase", "telemetry.phase"], ["average_ms", "telemetry.average"], ["median_ms", "telemetry.median"],
       ["total_ms", "telemetry.accumulated"], ["share_percent", "telemetry.share"], ["runs", "telemetry.runs"],
     ].map(([key, label]) => ({ key, label, value: (phase) => key === "phase" ? telemetryLabel(phase.phase) : Number(phase[key]) || 0 }));
-    phaseSection.append(telemetryDetailSortableTable(phaseColumns, phases, { key: "phase", direction: "asc" }, (phase, body) => {
+    const phaseTable = telemetryDetailSortableTable(phaseColumns, phases, { key: "phase", direction: "asc" }, (phase, body) => {
       const row = document.createElement("tr");
       [telemetryLabel(phase.phase), telemetryMs(phase.average_ms), telemetryMs(phase.median_ms), telemetryMs(phase.total_ms), telemetryPercent(phase.share_percent), phase.runs]
         .forEach((value) => row.append(Object.assign(document.createElement("td"), { textContent: String(value) })));
       body.append(row);
-    }));
+    });
+    phaseTable.classList.add("telemetry-phase-table");
+    phaseSection.append(phaseTable);
   }
   content.append(phaseSection);
   const bottlenecks = document.createElement("section"), top = detail?.bottlenecks?.top_time_consumers || [];
