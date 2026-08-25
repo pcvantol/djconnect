@@ -5649,6 +5649,14 @@ test.describe("Engineering Status browser smoke", () => {
     }
   });
 
+  test("keeps the empty AI conversation surface neutral in light mode", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.getByTestId("theme-toggle").click();
+    await page.locator("#promptHistoryChatModal").evaluate((element) => element.showModal());
+
+    await expect(page.locator("#codexChat")).toHaveCSS("background-color", "rgb(247, 251, 255)");
+  });
+
   test("uses purpose-matched glyphs in modal titles", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     for (const [selector, glyph] of [
