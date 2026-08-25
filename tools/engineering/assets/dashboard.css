@@ -683,6 +683,13 @@ html[data-theme="light"] .report-view-modal__content,html[data-theme="light"] .r
   }
   .configuration-controls .dashboard-locale__menu{box-shadow:none}
 }
+@media (max-width:900px){
+  /* The version, refresh time and connection state are independent status
+     facts. Stack them before the narrow layout can make their text overlap. */
+  .footer{display:grid;gap:4px;justify-items:center;overflow:visible;white-space:normal}
+  .footer__item{justify-content:center;max-width:100%;overflow-wrap:anywhere;text-align:center}
+  .footer__separator{display:none}
+}
 .execution-mode-modal__panel{max-height:min(700px,100%);overflow:auto;width:min(680px,100%)}.execution-mode-modal__content{display:grid;gap:16px;padding-top:18px}.execution-mode-modal__content>p{color:var(--dashboard-modal-muted);line-height:1.5;margin:0}.execution-mode-modal__definition{background:var(--modal-subcontainer-surface);border:1px solid var(--modal-subcontainer-border);border-radius:12px;padding:14px}.execution-mode-modal__definition h3{color:var(--modal-accent);font-size:16px;margin:0 0 7px}.execution-mode-modal__definition p{line-height:1.5;margin:0}
 
 /* Operations Console chrome: the blue title bar distinguishes the persistent

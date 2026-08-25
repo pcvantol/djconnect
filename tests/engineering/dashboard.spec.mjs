@@ -2317,6 +2317,20 @@ test.describe("Engineering Status browser smoke", () => {
     );
   });
 
+  test("stacks footer status facts without overlap in narrow layouts", async ({ page }) => {
+    for (const viewport of [{ width: 820, height: 760 }, { width: 390, height: 844 }]) {
+      await page.setViewportSize(viewport);
+      await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+      const rows = await page.locator(".footer__item").evaluateAll((items) => items.map((item) => {
+        const bounds = item.getBoundingClientRect();
+        return { top: Math.round(bounds.top), bottom: Math.round(bounds.bottom) };
+      }));
+      expect(rows).toHaveLength(3);
+      expect(rows[1].top).toBeGreaterThanOrEqual(rows[0].bottom);
+      expect(rows[2].top).toBeGreaterThanOrEqual(rows[1].bottom);
+    }
+  });
+
   test("uses the selected locale service for copy and date formatting", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     const localeSelect = page.locator("#dashboardLocale");
