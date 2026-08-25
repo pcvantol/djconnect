@@ -41,7 +41,9 @@ central installation database outside consumer repositories. Every EP-owned
 operational record is scoped by the canonical Workspace `project_id`, including
 Inbox routing, queue, lease, lifecycle, telemetry, Prompt History, Engineering
 Reports and Execution Receipts. The dashboard will select an active project and
-filter all project data accordingly.
+filter all project data accordingly. Workspace also supplies a mutable,
+human-friendly `project_name` for that selector; the immutable `project_id`
+remains the only data and queue identity.
 
 Workspace remains the source of truth for project identity and planning state;
 EP never creates a competing project identity or writes Workspace planning

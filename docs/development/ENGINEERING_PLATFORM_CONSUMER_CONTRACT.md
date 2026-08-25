@@ -12,12 +12,28 @@ Before a consumer submits an Engineering Action, it registers one active
 Workspace project with the local EP installation. Registration contains:
 
 - `project_id`: immutable, opaque and canonical in Workspace;
+- `project_name`: current human-friendly Workspace label, required for normal
+  dashboard presentation but never used as identity;
 - the validated local repository/workspace path;
 - the project-specific writable Inbox root;
-- consumer display metadata only, such as project name.
+- optional consumer display metadata.
 
 `project_id` is mandatory on every consumer-to-EP operation. Paths, repository
 names and display names are not identities and cannot substitute for it.
+
+### Registration projection
+
+EP stores a single current registration record per `project_id`, including at
+least `project_id`, `project_name`, repository/workspace path, Inbox root and
+the last registration update time. `project_name` is a mutable label supplied
+by Workspace. Registering the same canonical ID with a new name is an atomic
+label update, not a new project and not a migration of execution data.
+
+The dashboard's project selector renders `project_name` as its primary text.
+It may expose `project_id` as secondary diagnostic information, but it must
+not make the technical ID the normal label. If a legacy registration has no
+name, EP uses a clearly marked temporary fallback until Workspace refreshes
+that registration; it must never infer a name from a repository path.
 
 ## Ownership and isolation
 
@@ -25,6 +41,12 @@ EP keeps one installation-wide SQLite database. All EP execution data carries
 `project_id` and is queried, queued, leased and displayed within that project
 scope. Each project has an independent Inbox route and queue; an execution for
 one project can never consume another project's prompt.
+
+Project names are deliberately not copied into project-scoped lifecycle,
+receipt, report, telemetry or Prompt History rows. Their stable relation is
+always the canonical `project_id`; selector and dashboard labels are resolved
+from the current registration so a Workspace rename is immediately reflected
+without rewriting historical evidence.
 
 Workspace keeps its own planning state and canonical project registry.
 Forge remains the owner of planning and Runtime Prompts. EP remains the owner

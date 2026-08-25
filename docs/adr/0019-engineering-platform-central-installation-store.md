@@ -26,12 +26,15 @@ outside every consumer repository and outside the published wheel.
 Workspace remains the authority for the canonical `project_id`. EP records
 that opaque ID as `project_id` on every project-scoped operational record; it
 does not mint, translate or infer a competing project identity. The consumer
-contract registers the project ID, repository/workspace location and validated
-Inbox root before EP accepts work for that project.
+contract registers the project ID, a human-friendly `project_name`,
+repository/workspace location and validated Inbox root before EP accepts work
+for that project. `project_name` is Workspace-owned display metadata: it can
+change over time without changing identity, history or queue ownership.
 
 The central store contains EP-owned operational data, scoped by `project_id`:
 
-- project registration and Inbox routing;
+- project registration (`project_id`, current `project_name`, name-update
+  metadata) and Inbox routing;
 - one queue and one execution lease domain per project;
 - execution lifecycle, telemetry, Prompt History, Engineering Reports and
   Execution Receipts;
@@ -41,10 +44,12 @@ Installation-wide configuration (EP version, provider capabilities and update
 state) remains unscoped. Workspace/Forge planning data and the Workspace
 database remain consumer-owned and are never written by EP.
 
-The dashboard presents a project selector above project-scoped views. Every
-queue, Inbox, execution, report, receipt, telemetry and Prompt History query
-is filtered by the selected canonical `project_id`; no project has implicit
-access to another project's records.
+The dashboard presents a project selector above project-scoped views. Its
+primary label is the current Workspace-provided `project_name`; the canonical
+`project_id` is available as secondary diagnostic context, never as the normal
+user-facing name. Every queue, Inbox, execution, report, receipt, telemetry
+and Prompt History query is filtered by the selected canonical `project_id`;
+no project has implicit access to another project's records.
 
 The migration creates a backup, registers the legacy workspace as one project,
 backfills `project_id` atomically, validates Inbox ownership and then starts
@@ -60,6 +65,9 @@ recoverable from its backup.
   workspaces without embedding EP source in those repositories.
 - Consumer integrations must pass a canonical Workspace `project_id`; a path
   or repository name is insufficient identity.
+- Workspace can rename a project by registering the same `project_id` with a
+  new `project_name`. EP updates only the current project label; historical
+  records remain bound to the immutable ID and are not duplicated or moved.
 - Existing 1.x local state requires an explicit, reversible upgrade rather
   than silent discovery from the current directory.
 
