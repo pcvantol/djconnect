@@ -3191,6 +3191,21 @@ test.describe("Engineering Status browser smoke", () => {
     expect(layout.footerBottom).toBeLessThanOrEqual(layout.viewportBottom);
   });
 
+  test("resizes the dashboard scroll shell with the active viewport", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 760 });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.setViewportSize({ width: 1280, height: 560 });
+    const layout = await page.evaluate(() => ({
+      bodyHeight: Math.round(document.body.getBoundingClientRect().height),
+      viewportHeight: window.innerHeight,
+      scrollHeight: document.querySelector(".dashboard-scroll-region").clientHeight,
+      footerBottom: Math.round(document.querySelector(".footer").getBoundingClientRect().bottom),
+    }));
+    expect(layout.bodyHeight).toBe(layout.viewportHeight);
+    expect(layout.footerBottom).toBeLessThanOrEqual(layout.viewportHeight);
+    expect(layout.scrollHeight).toBeGreaterThan(0);
+  });
+
   test("keeps the desktop title bar flush with the scrolling region", async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 760 });
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });

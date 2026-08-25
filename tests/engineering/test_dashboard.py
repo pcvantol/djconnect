@@ -742,7 +742,7 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertTrue((root / "dashboard_status_store.mjs").is_file())
         stylesheet = (root / "dashboard.css").read_text(encoding="utf-8")
         self.assertIn("touch-action:manipulation", stylesheet)
-        self.assertIn("height:100lvh;min-height:100dvh", stylesheet)
+        self.assertIn("height:100dvh;min-height:100dvh", stylesheet)
         self.assertIn(":is(input,select,textarea){font-size:16px}", stylesheet)
         self.assertIn("body.dashboard-modal-open", stylesheet)
         self.assertIn("--report-modal-surface", stylesheet)
