@@ -2837,7 +2837,11 @@ function sortedExecutionTelemetryRows() {
 function updateExecutionTelemetrySortHeaders() {
   document.querySelectorAll("#executionTelemetry .telemetry-table th[data-sort-key]").forEach((header) => {
     const active = header.dataset.sortKey === executionTelemetrySort.key;
-    header.dataset.sortIndicator = active ? executionTelemetrySort.direction === "asc" ? "↑" : "↓" : "↕";
+    // U+FE0E keeps iOS from substituting the coloured emoji-arrow glyphs.
+    // The telemetry header thereby uses the same text treatment as log tables.
+    header.dataset.sortIndicator = active
+      ? executionTelemetrySort.direction === "asc" ? "↑︎" : "↓︎"
+      : "↕︎";
     header.setAttribute("aria-sort", active ? executionTelemetrySort.direction === "asc" ? "ascending" : "descending" : "none");
   });
 }

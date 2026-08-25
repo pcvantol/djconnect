@@ -2434,9 +2434,12 @@ test.describe("Engineering Status browser smoke", () => {
     expect(telemetryHeaderSurfaces.every((colour) => colour === "rgb(234, 240, 248)")).toBe(true);
 
     const date = page.locator('#executionTelemetry th[data-sort-key="date"]');
+    await expect(date).toHaveAttribute("data-sort-indicator", "↓︎");
+    expect(await date.evaluate((header) => getComputedStyle(header, "::after").fontFamily)).toContain("ui-monospace");
     await expect(page.locator("#executionTelemetryRows tr td").first()).toHaveText("16-08-2026");
     await date.click();
     await expect(date).toHaveAttribute("aria-sort", "ascending");
+    await expect(date).toHaveAttribute("data-sort-indicator", "↑︎");
     await expect(page.locator("#executionTelemetryRows tr td").first()).toHaveText("15-08-2026");
     const prompts = page.locator('#executionTelemetry th[data-sort-key="prompt_count"]');
     await prompts.click();

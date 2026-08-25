@@ -564,7 +564,7 @@ html[data-theme="light"] :is(.log-table,.telemetry-table) th:not(:first-child){b
 html[data-theme="light"] :is(.log-table,.telemetry-table) th:first-child,html[data-theme="light"] :is(.log-table,.telemetry-table) td:first-child:not([colspan]){background:color-mix(in srgb,var(--category-color,#9aabc3) 12%,#fff)}
 :is(.log-table,.telemetry-table) tbody tr:hover>td:first-child:not([colspan]){background:color-mix(in srgb,var(--category-color,#9aabc3) 18%,var(--dashboard-expanded-content-surface))}
 html[data-theme="light"] :is(.log-table,.telemetry-table) tbody tr:hover>td:first-child:not([colspan]){background:color-mix(in srgb,var(--category-color,#9aabc3) 18%,#fff)}
-.telemetry-table th.log-sortable{cursor:pointer;user-select:none}.telemetry-table th.log-sortable::after{color:var(--category-color,#fb7185);content:attr(data-sort-indicator);font-size:11px;margin-left:6px}.telemetry-table th.log-sortable:focus-visible{outline:2px solid var(--category-color,#fb7185);outline-offset:-2px}
+.telemetry-table th.log-sortable{cursor:pointer;user-select:none}.telemetry-table th.log-sortable::after{color:var(--category-color,#fb7185);content:attr(data-sort-indicator);font:11px ui-monospace,SFMono-Regular,Menlo,monospace;font-variant-emoji:text;margin-left:6px}.telemetry-table th.log-sortable:focus-visible{outline:2px solid var(--category-color,#fb7185);outline-offset:-2px}
 
 /* Swap the active-operation and technical-detail palettes: live execution is
    monitoring-cyan; static technical evidence is operation-pink. */
