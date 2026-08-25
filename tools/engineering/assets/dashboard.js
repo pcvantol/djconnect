@@ -2073,6 +2073,7 @@ function addCategoryIcons() {
     ["#executionTelemetry", "▥", "section.execution_host_telemetry"],
     ["#technicalDetails", "⌘", "section.technical_details"],
     ["#componentLogs", "≡", "section.logs"],
+    ["#configuration", "⚙", "section.configuration"],
     ["#currentRun", "▤", "section.active_prompt"],
   ]) {
     const summary = document.querySelector(selector + ">summary"),
@@ -2099,6 +2100,7 @@ function addCategoryDescriptions() {
     ["#promptHistory", "description.prompt_history"],
     ["#rateLimits", "description.remaining_usage"],
     ["#componentLogs", "description.logs"],
+    ["#configuration", "description.configuration"],
     ["#engineering-dashboard-content>.technical-details:not(#componentLogs)", "description.technical_details"],
     ["#platformHealth", "description.platform_components"],
   ];
