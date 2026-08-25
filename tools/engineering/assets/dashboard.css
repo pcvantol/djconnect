@@ -442,9 +442,12 @@ html[data-theme="light"] :is(.dashboard-locale,.dashboard-project){color:#415168
   .dashboard-titlebar__options-toggle[aria-expanded="true"]::after{transform:rotate(180deg)}
   .dashboard-titlebar__options-content{border-top:1px solid color-mix(in srgb,var(--operations-console-blue-ink) 35%,transparent);display:grid;gap:8px;margin-top:10px;padding-top:10px}
   .dashboard-titlebar__options-content[hidden]{display:none}
-  .dashboard-titlebar__options-content>:is(.dashboard-locale,.dashboard-project),.dashboard-titlebar__options-content>.theme-toggle,.dashboard-titlebar__options-content>.section-state-toggle,.dashboard-titlebar__options-content>.auto-refresh-toggle{align-items:center;box-sizing:border-box;display:flex;justify-content:space-between;min-height:44px;width:100%}
-  .dashboard-titlebar__options-content>:is(.dashboard-locale,.dashboard-project){font:600 13px/1 system-ui}
+  .dashboard-titlebar__options-content>:is(.dashboard-locale,.dashboard-project),.dashboard-titlebar__options-content>.theme-toggle,.dashboard-titlebar__options-content>.section-state-toggle,.dashboard-titlebar__options-content>.auto-refresh-toggle{align-items:center;box-sizing:border-box;display:flex;font:600 13px/1 system-ui;justify-content:space-between;min-height:44px;width:100%}
   .dashboard-titlebar__options-content>:is(.dashboard-locale,.dashboard-project)>span:first-child{display:block}
+  .dashboard-titlebar__options-content>:is(.dashboard-locale,.dashboard-project)>span:first-child,
+  .dashboard-titlebar__options-content>.theme-toggle .theme-toggle__label,
+  .dashboard-titlebar__options-content>.section-state-toggle .section-state-toggle__label,
+  .dashboard-titlebar__options-content>.auto-refresh-toggle span{font:600 13px/1 system-ui}
   .dashboard-titlebar__options-content>:is(.dashboard-locale,.dashboard-project)>.dashboard-locale__picker{display:flex}
   .dashboard-titlebar__options-content>.dashboard-locale>.dashboard-locale__picker :is(#dashboardLocaleValue,[aria-hidden]){display:inline}
   .dashboard-titlebar__options-content>.theme-toggle,.dashboard-titlebar__options-content>.section-state-toggle{flex-direction:row;gap:12px;padding:0}

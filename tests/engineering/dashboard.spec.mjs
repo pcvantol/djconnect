@@ -3616,6 +3616,17 @@ test.describe("Engineering Status browser smoke", () => {
       ".dashboard-titlebar__options-content > .dashboard-project, .dashboard-titlebar__options-content > .dashboard-locale, .dashboard-titlebar__options-content > .theme-toggle, .dashboard-titlebar__options-content > .section-state-toggle, .dashboard-titlebar__options-content > .auto-refresh-toggle",
     ).evaluateAll((elements) => elements.map((element) => Math.round(element.getBoundingClientRect().top)));
     expect(controls).toEqual([...controls].sort((first, second) => first - second));
+    const labelFonts = await page.locator([
+      ".dashboard-titlebar__options-content .dashboard-project > span:first-child",
+      ".dashboard-titlebar__options-content .dashboard-locale > span:first-child",
+      ".dashboard-titlebar__options-content .theme-toggle__label",
+      ".dashboard-titlebar__options-content .section-state-toggle__label",
+      ".dashboard-titlebar__options-content .auto-refresh-toggle span",
+    ].join(", ")).evaluateAll((elements) => elements.map((element) => {
+      const style = getComputedStyle(element);
+      return `${style.fontFamily}|${style.fontSize}|${style.fontWeight}|${style.lineHeight}`;
+    }));
+    expect(new Set(labelFonts).size).toBe(1);
     const titlebarLayout = await page.evaluate(() => {
       const refresh = document.querySelector("#pageRefresh").getBoundingClientRect();
       const options = document.querySelector("#dashboardTitlebarOptions").getBoundingClientRect();
