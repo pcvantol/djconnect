@@ -1082,6 +1082,16 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#promptHistoryDetailDescription")).toHaveCSS("border-bottom-color", "rgb(141, 199, 255)");
     await expect(page.locator("#promptHistoryDetailContent")).toContainText("Engineering Platform");
     await expect(page.locator("#promptHistoryDetailContent")).toContainText("The verified execution diagnostic belongs to this run.");
+    const markdown = page.locator("#promptHistoryDetailDownloadMarkdown");
+    const json = page.locator("#promptHistoryDetailDownloadJson");
+    await expect(markdown).toHaveAttribute("aria-label", "Uitvoeringsdetails als Markdown downloaden voor Modal prompt");
+    await expect(json).toHaveAttribute("aria-label", "Uitvoeringsdetails als JSON downloaden voor Modal prompt");
+    const markdownDownload = page.waitForEvent("download");
+    await markdown.click();
+    expect((await markdownDownload).suggestedFilename()).toBe("execution-details-inbox-modal.md");
+    const jsonDownload = page.waitForEvent("download");
+    await json.click();
+    expect((await jsonDownload).suggestedFilename()).toBe("execution-details-inbox-modal.json");
     await expect(page.locator("dialog[open]")).toHaveCount(1);
   });
 

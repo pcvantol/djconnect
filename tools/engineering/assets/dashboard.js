@@ -4022,7 +4022,41 @@ let promptHistoryEntries = [],
   promptHistorySelectedRunId = null,
   promptHistorySort = { key: "executed_at", direction: "desc" },
   promptHistoryDetailRunId = "",
-  promptHistoryDetailLocationSyncing = false;
+  promptHistoryDetailLocationSyncing = false,
+  promptHistoryDetailPayload = null;
+function promptHistoryDetailFilename(extension) {
+  return "execution-details-" + String(promptHistoryDetailRunId || "unknown").replace(/[^a-z0-9._-]+/gi, "-") + "." + extension;
+}
+function downloadPromptHistoryDetail(format) {
+  if (!promptHistoryDetailPayload || !promptHistoryDetailRunId) return;
+  const json = JSON.stringify(promptHistoryDetailPayload, null, 2);
+  const title = String($("promptHistoryDetailTitle").textContent || promptHistoryDetailRunId).trim();
+  const isMarkdown = format === "markdown";
+  const content = isMarkdown ? "# " + title + "\n\n```json\n" + json + "\n```\n" : json + "\n";
+  const url = URL.createObjectURL(new Blob([content], {
+    type: isMarkdown ? "text/markdown;charset=utf-8" : "application/json;charset=utf-8",
+  }));
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = promptHistoryDetailFilename(isMarkdown ? "md" : "json");
+  link.hidden = true;
+  document.body.append(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 0);
+  void recordUserAction(isMarkdown ? "prompt_history_details_markdown_downloaded" : "prompt_history_details_json_downloaded");
+}
+function setPromptHistoryDetailDownloads(payload) {
+  promptHistoryDetailPayload = payload && typeof payload === "object" ? payload : null;
+  const title = String($("promptHistoryDetailTitle").textContent || promptHistoryDetailRunId).trim();
+  const markdown = $("promptHistoryDetailDownloadMarkdown"), json = $("promptHistoryDetailDownloadJson");
+  for (const [button, label] of [[markdown, "history.download_details_markdown"], [json, "history.download_details_json"]]) {
+    button.hidden = !promptHistoryDetailPayload;
+    button.disabled = !promptHistoryDetailPayload;
+    button.title = t(label, { title });
+    button.setAttribute("aria-label", t(label, { title }));
+  }
+}
 function promptHistoryDetailUrl(runId = "") {
   const url = new URL(window.location.href);
   if (runId) url.searchParams.set(PROMPT_HISTORY_DEEPLINK_PARAMETER, String(runId));
@@ -5688,6 +5722,7 @@ function renderPromptHistoryDetail(payload) {
     recommendationHandoff = payload?.recommendation_handoff;
   if (typeof history.title === "string" && history.title.trim())
     $("promptHistoryDetailTitle").textContent = history.title.trim();
+  setPromptHistoryDetailDownloads(payload);
   content.replaceChildren();
   content.append(
     ...[
@@ -5720,6 +5755,7 @@ function openPromptHistoryDetail(entry, { updateUrl = true } = {}) {
     ? title
     : t("history.details_loading");
   $("promptHistoryDetailDescription").textContent = t("history.details_description");
+  setPromptHistoryDetailDownloads(null);
   content.textContent = t("history.details_loading");
   if (!modal.open) modal.showModal();
   resetDashboardModalInitialFocus(modal);
@@ -5758,6 +5794,8 @@ $("promptHistoryDetailClose").addEventListener("click", (event) => {
   event.stopPropagation();
   closePromptHistoryDetail();
 });
+$("promptHistoryDetailDownloadMarkdown").addEventListener("click", () => downloadPromptHistoryDetail("markdown"));
+$("promptHistoryDetailDownloadJson").addEventListener("click", () => downloadPromptHistoryDetail("json"));
 $("promptHistoryDetailModal").addEventListener("click", (event) => {
   if (event.target.closest?.("#promptHistoryDetailClose")) {
     event.preventDefault();
@@ -5769,6 +5807,7 @@ $("promptHistoryDetailModal").addEventListener("click", (event) => {
 });
 $("promptHistoryDetailModal").addEventListener("close", () => {
   promptHistoryDetailRunId = "";
+  setPromptHistoryDetailDownloads(null);
   if (!promptHistoryDetailLocationSyncing && promptHistoryDetailRunFromUrl())
     updatePromptHistoryDetailUrl("");
 });
