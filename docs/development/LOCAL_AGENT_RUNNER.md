@@ -144,6 +144,31 @@ redacted records. Each table keeps its own sort order and shows 50 matching
 records per page; filters apply across all loaded records before pagination.
 They are never loaded or streamed outside the private dashboard.
 
+### Dashboard configuration
+
+The final **Configuration** disclosure in the private dashboard makes the
+effective local Inbox location, Dependabot admission scan and fixed monitoring intervals observable.
+The language picker and automatic-refresh toggle remain direct controls in the
+title bar and are therefore not duplicated here. The current entries cover Inbox scanning,
+operator-merge verification, required GitHub checks, open-pull-request status,
+dashboard status streaming, platform health, open component details, execution
+lease heartbeat/timeout and bounded GitHub-evidence retry backoff.
+
+Every entry includes a keyboard-accessible information glyph with localized
+explanation in English, Dutch, German, French and Spanish. Workflow safety
+limits remain read-only. Two bounded local preferences are directly editable
+and save immediately: component-log retention (30, 60, 90, 120, 180 or 360
+days) and dashboard log level (`INFO` or `DEBUG`). Reducing retention first
+requires a confirmation because it prunes only expired local component-log
+rows. Each change is persisted only in local Engineering storage and is added
+to the append-only audit log. Audit logging itself is always enabled. The
+The Inbox location has a separate confirmation flow: it accepts only an
+existing absolute Engineering root that already contains a writable `Inbox`
+folder, refuses a change while an execution is active, writes the local
+host-owned override and restarts the Inbox watcher. Browser file pickers do
+not receive arbitrary filesystem access; the modal therefore accepts the
+local folder path and validates it server-side before it is applied.
+
 The existing `inbox.out.log`, `inbox.err.log`, `dashboard.out.log` and
 `dashboard.err.log` remain the LaunchAgent process streams. They complement,
 rather than replace, the application logs. Rotating `.engineering/logs/*.log`
