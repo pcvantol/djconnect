@@ -4244,8 +4244,23 @@ function addConfigurationControlInfo() {
     info.setAttribute("aria-label", help);
   }
 }
+function renderConfigurationInboxLocation() {
+  const button = $("configurationInboxOpen"), location = $("configurationInbox")?.textContent.trim();
+  const field = button?.closest(".configuration-field"), label = field?.querySelector(".label");
+  if (!field || !label) return;
+  field.classList.add("configuration-inbox-field");
+  let value = $("configurationInboxLocation");
+  if (!value) {
+    value = document.createElement("code");
+    value.id = "configurationInboxLocation";
+    value.className = "configuration-inbox-location";
+    label.after(value);
+  }
+  value.textContent = location || "—";
+}
 function localizeConfigurationOptions() {
   addConfigurationControlInfo();
+  renderConfigurationInboxLocation();
   document.querySelectorAll("#configurationLogRetention option").forEach((option) => {
     option.textContent = t("configuration.days", { days: option.value });
   });
@@ -4359,6 +4374,7 @@ $("configurationInboxSave")?.addEventListener("click", async (event) => {
     const payload = await response.json();
     if (!response.ok) throw Error(payload.error || t("configuration.inbox_location_failed"));
     $("configurationInbox").textContent = `${payload.value}/Inbox`;
+    renderConfigurationInboxLocation();
     $("configurationInboxStatus").textContent = t("configuration.inbox_location_saved");
     setTimeout(() => $("configurationInboxModal").close(), 700);
   } catch (error) {

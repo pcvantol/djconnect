@@ -148,6 +148,18 @@ test.describe("Engineering Status browser smoke", () => {
     }
   });
 
+  test("shows the Inbox location below its label with a matching change action", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    const configuration = page.locator("#configuration");
+    await configuration.evaluate((element) => { element.open = true; });
+    const location = page.locator("#configurationInboxLocation");
+    await expect(location).toHaveText(/Inbox/);
+    await expect(location).toHaveClass(/configuration-inbox-location/);
+    const button = page.locator("#configurationInboxOpen");
+    await expect(button).toHaveText("Locatie wijzigen");
+    await expect(button).toHaveCSS("border-top-color", "rgb(240, 182, 106)");
+  });
+
   test("uses normal-weight labels for every dashboard button", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     const weights = await page.locator("button").evaluateAll(
