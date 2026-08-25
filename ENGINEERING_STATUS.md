@@ -1,7 +1,28 @@
 # DJConnect Engineering Status
 
 **Status:** Operational handoff
-**Updated:** 2026-08-24
+**Updated:** 2026-08-25
+
+## PRs #936, #937 and #938 finalized
+
+PR [#936](https://github.com/pcvantol/djconnect/pull/936), **Add Forge
+Workspace Inbox submission API**, merged as
+`a42b59e9dff31e0a1707e97f924c74f8f715bf5c`. PR
+[#937](https://github.com/pcvantol/djconnect/pull/937), **Show live Codex
+activity on active workflow step**, merged as
+`9502ebd9317d736a52287b7be96d409bee6b5e97`. PR
+[#938](https://github.com/pcvantol/djconnect/pull/938), **Bump Engineering
+Platform to 2.0.0**, merged as
+`bef1c0c27910c7a895eaa3cad1ab2780f4363f0e`.
+
+All three merge commits are contained in current `main`; their terminal checks
+have no failures. Their bounded Inbox, active-workflow projection and version
+boundary changes preserve lifecycle, validation, reviewer, provider, queue,
+delivery and operator-owned merge authority. This governance-only Finalization
+reconciles only the four canonical rolling records; immutable Prompt History is
+unchanged. With this Finalization merge, Repository State:
+`MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`; Finalization Pending:
+`NO`.
 
 ## PRs #930, #931 and #933 finalized
 
