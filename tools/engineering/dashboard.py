@@ -1542,6 +1542,7 @@ def _dashboard_html(
     workspace_open_pull_requests: list[dict[str, object]] | None = None,
     workspace_main_action_hidden: bool = True,
     platform_version: str = "1.5.0",
+    configuration_inbox: str = "Niet beschikbaar",
 ) -> bytes:
     """Render the private dashboard with a server-pushed status stream."""
     page = r"""<!doctype html>
@@ -1610,6 +1611,7 @@ def _dashboard_html(
 <div class="card" id="technicalDiagnosticsCard"><strong id="technicalDiagnosticsTitle" data-i18n="technical.diagnostics"></strong><p id="diag"></p></div>
 </div></details>
 <details class="card card--context workspace-card" id="workspaceCard" data-testid="engineering-workspace"><summary><strong data-i18n="section.workspace"></strong></summary><p class="field"><span class="label" data-i18n="workspace.name"></span><span>$WORKSPACE_ID</span></p><div class="field"><span class="label" data-i18n="ui.workspace_location"></span><pre>$WORKSPACE_LOCATION</pre></div><p class="field"><span class="label" data-i18n="workspace.free_disk_space"></span><span>$WORKSPACE_FREE_DISK_SPACE</span></p><p class="field"><span class="label" data-i18n="detail.tracked_files"></span><span>$TRACKED_FILES</span></p><div class="field"><span class="label" data-i18n="workspace.database"></span><pre>$ENGINEERING_DATABASE_PATH</pre></div><p class="field"><span class="label" data-i18n="workspace.database_size"></span><span>$ENGINEERING_DATABASE_SIZE</span></p><p class="field"><span class="label" data-i18n="workspace.schema_version"></span><span>$ENGINEERING_DATABASE_SCHEMA_VERSION</span></p><p class="field"><span class="label" data-i18n="workspace.current_branch"></span><code id="workspaceBranch">$WORKSPACE_BRANCH</code></p><p class="field"><span class="label" data-i18n="workspace.current_commit"></span><code id="workspaceCommit">$WORKSPACE_COMMIT</code></p><p class="field" id="workspaceOriginMain" $ORIGIN_MAIN_HIDDEN><span class="label" data-i18n="workspace.origin_main_commit"></span><code id="workspaceOriginMainCommit">$ORIGIN_MAIN_COMMIT</code></p>$WORKSPACE_OPEN_PULL_REQUESTS<div class="workspace-branch-actions"><button class="workspace-branch-cleanup" id="workspaceBranchCleanup" type="button" data-i18n="workspace.branch_cleanup_scan_action"></button><button class="workspace-branch-main" id="workspaceBranchMain" type="button" $WORKSPACE_MAIN_ACTION_HIDDEN data-i18n="workspace.branch_main_action"></button></div></details>
+<details class="card card--context workspace-card configuration-card" id="configuration" data-testid="dashboard-configuration"><summary><strong data-i18n="section.configuration"></strong></summary><p class="category-description" data-i18n="description.configuration"></p><div class="field"><span class="label" data-i18n="configuration.inbox_location"></span><pre id="configurationInbox">$CONFIGURATION_INBOX</pre></div><p class="field"><span class="label" data-i18n="configuration.inbox_scan_interval"></span><span data-i18n="configuration.seconds_15"></span></p><p class="field"><span class="label" data-i18n="configuration.open_pr_interval"></span><span data-i18n="configuration.seconds_30"></span></p><p class="field"><span class="label" data-i18n="configuration.dashboard_stream_interval"></span><span data-i18n="configuration.second_1"></span></p></details>
 </main></div>
 <footer class="footer" aria-live="polite"><span class="footer__item"><span class="label" id="platformVersionLabel" data-i18n="footer.platform_version"></span><span id="platformVersion" data-i18n="format.loading"></span></span><span class="footer__separator" aria-hidden="true">·</span><span class="footer__item" id="lastRefresh" data-i18n="format.loading"></span><span class="footer__separator" aria-hidden="true">·</span><span class="footer__item" id="updateMode" data-i18n="format.loading"></span></footer><span id="dashboardVersion" hidden></span><span id="workerVersion" hidden></span>
 <script>window.DJCONNECT_DASHBOARD_BUILD="$BUILD_COMMIT";</script>
@@ -1643,6 +1645,7 @@ def _dashboard_html(
         .replace("$WORKSPACE_OPEN_PULL_REQUESTS", workspace_open_pull_requests_html)
         .replace("$WORKSPACE_MAIN_ACTION_HIDDEN", "hidden" if workspace_main_action_hidden else "")
         .replace("$PLATFORM_VERSION", escape(platform_version))
+        .replace("$CONFIGURATION_INBOX", escape(configuration_inbox))
         .encode()
     )
 
@@ -1656,6 +1659,7 @@ def handler(root: Path, logger: logging.Logger | None = None):
     platform_version = EngineeringPlatformManifest.load(
         root / "tools/engineering/ENGINEERING_PLATFORM_VERSION.json"
     ).platform_version
+    configuration_inbox = str(configuration.resolver(root).resolve_runtime_prompt_transport().inbox)
     logger = logger or component_logger(root, "dashboard")
     class DashboardHandler(BaseHTTPRequestHandler):
         def _send(self, content: bytes, content_type: str, status_code: int = 200) -> None:
@@ -2274,6 +2278,7 @@ def handler(root: Path, logger: logging.Logger | None = None):
                         workspace_open_pull_requests,
                         not bool(workspace_git["main_action_available"]),
                         platform_version,
+                        configuration_inbox,
                     ),
                     "text/html; charset=utf-8",
                 )

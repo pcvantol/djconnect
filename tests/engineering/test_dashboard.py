@@ -43,6 +43,21 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn("12.3 GB", page)
         self.assertIn("Engineering Platform 1.5.0", page)
 
+    def test_configuration_section_is_the_final_dashboard_block(self) -> None:
+        page = _dashboard_html(
+            "Engineering Status",
+            configuration_inbox="/private/engineering/inbox",
+        ).decode("utf-8")
+
+        self.assertIn('id="configuration"', page)
+        self.assertIn('data-i18n="section.configuration"', page)
+        self.assertIn("/private/engineering/inbox", page)
+        self.assertLess(
+            page.index('id="workspaceCard"'),
+            page.index('id="configuration"'),
+        )
+        self.assertLess(page.index('id="configuration"'), page.index("</main>"))
+
     @patch("tools.engineering.dashboard.GitProvider")
     def test_workspace_git_projection_is_safe_and_sse_ready(self, git_provider: object) -> None:
         completed = __import__("subprocess").CompletedProcess
@@ -110,6 +125,10 @@ class DashboardStatusTest(unittest.TestCase):
             "detail.decision_evidence", "detail.projection_incomplete", "technical.git_lock",
             "technical.git_lock_recovery_action", "detail.execution_diagnostic",
             "lifecycle.detail_quality_evidence", "lifecycle.quality_evidence.test_coverage",
+            "section.configuration", "description.configuration", "configuration.inbox_location",
+            "configuration.inbox_scan_interval", "configuration.open_pr_interval",
+            "configuration.dashboard_stream_interval", "configuration.seconds_15",
+            "configuration.seconds_30", "configuration.second_1",
         ):
             self.assertEqual(catalog.count(f'"{key}"'), 5)
         self.assertNotIn("Retry Execution", (root / "tools/engineering/assets/dashboard.js").read_text(encoding="utf-8"))
