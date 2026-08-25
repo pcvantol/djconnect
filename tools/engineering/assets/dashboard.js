@@ -3603,6 +3603,8 @@ function updatePromptHistoryColumnWidths(entries) {
   // space first, so a long terminal/dismissed status never paints into it.
   const statusWidth = Math.max(120, Math.ceil(widestStatus + 16));
   const titleWidth = Math.max(144, 288 - Math.max(0, statusWidth - 120));
+  const runIdWidth = 112;
+  table.style.setProperty("--prompt-history-run-id-width", `${runIdWidth}px`);
   table.style.setProperty("--prompt-history-status-width", `${statusWidth}px`);
   table.style.setProperty("--prompt-history-title-width", `${titleWidth}px`);
   const header = table.tHead?.rows[0];
@@ -3620,9 +3622,13 @@ function updatePromptHistoryColumnWidths(entries) {
   const statusIndex = headers.findIndex(
     (cell) => cell.dataset.historySortKey === "status",
   );
+  const runIdIndex = headers.findIndex(
+    (cell) => cell.dataset.historySortKey === "run_id",
+  );
   const titleIndex = headers.findIndex(
     (cell) => cell.dataset.historySortKey === "title",
   );
+  if (runIdIndex >= 0) columns.children[runIdIndex].style.width = `${runIdWidth}px`;
   if (statusIndex >= 0) columns.children[statusIndex].style.width = `${statusWidth}px`;
   if (titleIndex >= 0) columns.children[titleIndex].style.width = `${titleWidth}px`;
 }

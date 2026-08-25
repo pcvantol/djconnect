@@ -2838,12 +2838,17 @@ test.describe("Engineering Status browser smoke", () => {
     const layout = await wrap.evaluate((element) => {
       element.scrollLeft = 240;
       const runId = element.querySelector("thead th:first-child");
+      const title = element.querySelector("thead th:nth-child(3)");
       return {
         wrapLeft: Math.round(element.getBoundingClientRect().left),
         runIdLeft: Math.round(runId.getBoundingClientRect().left),
+        runIdWidth: Math.round(runId.getBoundingClientRect().width),
+        titleWidth: Math.round(title.getBoundingClientRect().width),
       };
     });
     expect(Math.abs(layout.runIdLeft - layout.wrapLeft)).toBeLessThanOrEqual(2);
+    expect(layout.runIdWidth).toBe(128);
+    expect(layout.titleWidth).toBeGreaterThan(layout.runIdWidth);
   });
 
   test("matches the iPhone portrait dashboard visual reference", async ({ page }, testInfo) => {
