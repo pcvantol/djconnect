@@ -6987,6 +6987,8 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#rateLimitProviderPath")).toHaveText("/opt/homebrew/bin/codex");
     await expect(page.locator("#rateLimitDetails")).toHaveText(/Weekvenster: 76,0% beschikbaar.*Beschikbare resets: 2/s);
     expect(await page.locator("#rateLimitDetails").evaluate((element) => element.textContent)).toContain("\n");
+    await page.evaluate(() => rateLimits({ provider: "Codex CLI", provider_version: "0.146.0", windows: [], reset_credits: 0 }));
+    await expect(page.locator("#rateLimitProviderPath")).toHaveText("Niet beschikbaar");
   });
 
   test("renders an accessible rolling hourly capacity trend", async ({ page }) => {

@@ -1051,6 +1051,12 @@ class DashboardStatusTest(unittest.TestCase):
             str(managed_prefix),
         )
 
+    @patch("tools.engineering.dashboard.shutil.which", return_value=None)
+    def test_codex_cli_installation_path_is_unavailable_when_no_executable_resolves(
+        self, _: object
+    ) -> None:
+        self.assertIsNone(_codex_cli_installation_path("codex"))
+
     def test_codex_rate_limits_reads_a_deterministic_app_server_response(self) -> None:
         class RecordingInput:
             def __init__(self) -> None:
