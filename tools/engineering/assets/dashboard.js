@@ -4236,7 +4236,12 @@ function enhanceDashboardSelectPicker(select) {
     select.value = option.dataset.dashboardSelectValue;
     select.dispatchEvent(new Event("change", { bubbles: true }));
     setDashboardSelectPickerOpen(state, false);
-    button.focus({ preventScroll: true });
+    // Mobile Safari may still change the visual viewport when focus returns
+    // to this control after a pointer selection, despite preventScroll.
+    // A pointer user does not need a new focus target; keyboard activation
+    // does, and retains the accessible, scroll-safe return target.
+    if (event.detail === 0) button.focus({ preventScroll: true });
+    else option.blur();
   });
   refresh();
 }

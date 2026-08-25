@@ -197,7 +197,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(picker.locator("[role=option]")).toHaveText(["Informatie", "Debug"]);
   });
 
-  test("keeps the viewport stable after choosing a configuration pulldown value", async ({ page }) => {
+  test("does not move focus after a pointer chooses a configuration pulldown value", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.locator("#configuration").evaluate((element) => { element.open = true; });
     await page.evaluate(() => {
@@ -213,7 +213,8 @@ test.describe("Engineering Status browser smoke", () => {
     const picker = page.locator("#configurationLogLevel + .dashboard-select-picker");
     await picker.locator(".dashboard-locale__button").click();
     await picker.locator('[role=option][data-dashboard-select-value="DEBUG"]').click();
-    expect(await page.evaluate(() => window.__dashboardSelectFocusOptions)).toContainEqual({ preventScroll: true });
+    expect(await page.evaluate(() => window.__dashboardSelectFocusOptions)).toEqual([]);
+    await expect(page.locator("#configuration .configuration-field")).toHaveCount(7);
   });
 
   test("restores the log retention pulldown without saving when its removal warning is cancelled", async ({ page }) => {
