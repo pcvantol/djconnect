@@ -573,6 +573,7 @@ class DashboardStatusTest(unittest.TestCase):
 
         self.assertEqual(pull_requests, [{
             "number": 849, "title": "Cleanup <safe>", "url": "https://github.com/pcvantol/djconnect/pull/849", "branch": "codex/cleanup", "status": "ready_to_merge", "owner_approval": "approved",
+            "owner_authorization_requested": False,
         }])
         page = _dashboard_html(
             "Engineering Status", workspace_branch="codex/cleanup", workspace_commit="123456789abc",
@@ -643,6 +644,50 @@ class DashboardStatusTest(unittest.TestCase):
             {"author": {"login": "pcvantol"}, "state": "APPROVED", "submittedAt": "2026-08-24T12:00:00Z"},
             {"author": {"login": "pcvantol"}, "state": "CHANGES_REQUESTED", "submittedAt": "2026-08-24T12:01:00Z"},
         ]}, "pcvantol"), "changes_requested")
+
+    @patch("tools.engineering.dashboard.GitHubProvider")
+    @patch("tools.engineering.dashboard.GitProvider")
+    def test_owner_authorization_dispatches_only_current_qualified_high_risk_sha(
+        self, git_provider: object, github_provider: object
+    ) -> None:
+        root = Path(__file__).parents[2]
+        completed = __import__("subprocess").CompletedProcess
+        candidate_sha = "a" * 40
+        git_provider.return_value.execute.return_value = completed(
+            ("git",), 0, "git@github.com:pcvantol/djconnect.git\n", ""
+        )
+        github_provider.return_value.github.side_effect = [
+            json.dumps({
+                "number": 940,
+                "state": "OPEN",
+                "headRefOid": candidate_sha,
+                "baseRefName": "main",
+                "statusCheckRollup": [
+                    {"__typename": "StatusContext", "context": "Owner Authorization", "state": "FAILURE"},
+                    {"__typename": "CheckRun", "name": "Trusted Delivery qualification / Qualify trusted delivery", "status": "COMPLETED", "conclusion": "SUCCESS"},
+                ],
+            }),
+            "",
+        ]
+
+        self.assertEqual(
+            dashboard._request_owner_authorization(root, 940),
+            {"queued": True, "pull_request": 940},
+        )
+        self.assertEqual(
+            github_provider.return_value.github.call_args_list,
+            [
+                call(
+                    "pr", "view", "940", "--repo", "pcvantol/djconnect",
+                    "--json", "number,state,headRefOid,baseRefName,statusCheckRollup",
+                ),
+                call(
+                    "workflow", "run", "owner-authorization.yml", "--repo", "pcvantol/djconnect",
+                    "-f", "repository=pcvantol/djconnect", "-f", "pr_number=940",
+                    "-f", f"candidate_sha={candidate_sha}", "-f", "branch=main",
+                ),
+            ],
+        )
 
     @patch("tools.engineering.dashboard.GitHubProvider")
     @patch("tools.engineering.dashboard.GitProvider")
@@ -2093,6 +2138,21 @@ class DashboardStatusTest(unittest.TestCase):
                 self.assertIn(content_type, response.getheader("Content-Type"))
                 self.assertEqual(response.getheader("Cache-Control"), "no-store")
                 response.read()
+
+    @patch("tools.engineering.dashboard._request_owner_authorization", return_value={"queued": True, "pull_request": 940})
+    @patch("tools.engineering.dashboard._workspace_open_pull_requests", return_value=[])
+    def test_http_owner_authorization_dispatch_uses_only_the_pull_request_number(
+        self, _open_pull_requests: object, request_authorization: object
+    ) -> None:
+        with self._dashboard_http_connection() as (root, connection):
+            connection.request(
+                "POST", "/api/open-pull-requests/940/owner-authorization",
+                body=b"{}", headers={"Content-Type": "application/json"},
+            )
+            response = connection.getresponse()
+            self.assertEqual(response.status, 202)
+            self.assertEqual(json.loads(response.read()), {"queued": True, "pull_request": 940})
+        request_authorization.assert_called_once_with(root, 940)
 
     @patch("tools.engineering.dashboard._workspace_open_pull_requests", return_value=[])
     def test_dashboard_document_reresolves_the_saved_inbox_location(

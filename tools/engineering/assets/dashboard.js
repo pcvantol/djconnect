@@ -2003,7 +2003,17 @@ function renderOpenPullRequests(pullRequests) {
     approval.className = "open-pr-approval";
     setOpenPullRequestOwnerApproval(approval, pullRequest.owner_approval);
     branch.textContent = String(pullRequest.branch || "");
-    item.append(link, status, approval, branch);
+    item.append(link, status, approval);
+    if (pullRequest.owner_authorization_requested === true) {
+      const authorize = document.createElement("button");
+      authorize.className = "open-pr-owner-authorization";
+      authorize.dataset.openPullRequestOwnerAuthorization = String(pullRequest.number || "");
+      authorize.type = "button";
+      authorize.textContent = t("workspace.open_pull_request.authorize_owner");
+      authorize.title = t("workspace.open_pull_request.authorize_owner");
+      item.append(authorize);
+    }
+    item.append(branch);
     return item;
   }));
   localizeOpenPullRequestStatuses();
@@ -2036,8 +2046,40 @@ async function refreshOpenPullRequests() {
     if (refreshButton) refreshButton.disabled = false;
   }
 }
+function ownerAuthorizationErrorMessage(error) {
+  const code = String(error || "").trim();
+  const key = `workspace.open_pull_request.${code}`;
+  return DASHBOARD_MESSAGES[dashboardLocale]?.[key] || t("ui.action_failed");
+}
+async function requestOpenPullRequestOwnerAuthorization(button) {
+  const number = Number(button?.dataset.openPullRequestOwnerAuthorization);
+  if (!Number.isInteger(number) || number < 1) return;
+  const confirmed = await confirmDashboardAction(
+    t("workspace.open_pull_request.authorize_owner"),
+    t("workspace.open_pull_request.authorize_owner_confirmation"),
+    t("workspace.open_pull_request.authorize_owner"),
+    { accent: "#54d6a0" },
+  );
+  if (!confirmed) return;
+  button.disabled = true;
+  try {
+    const response = await fetch(`/api/open-pull-requests/${number}/owner-authorization`, {
+      method: "POST", headers: { "Content-Type": "application/json" }, body: "{}",
+    });
+    const payload = await response.json().catch(() => null);
+    if (!response.ok) throw Error(payload?.error);
+    showDashboardToast(t("workspace.open_pull_request.owner_authorization_queued"));
+    await refreshOpenPullRequests();
+  } catch (error) {
+    showDashboardToast(ownerAuthorizationErrorMessage(error?.message));
+  } finally {
+    button.disabled = false;
+  }
+}
 document.addEventListener("click", (event) => {
-  if (event.target.closest("#workspaceOpenPullRequestsRefresh")) void refreshOpenPullRequests();
+  const authorize = event.target.closest("[data-open-pull-request-owner-authorization]");
+  if (authorize) void requestOpenPullRequestOwnerAuthorization(authorize);
+  else if (event.target.closest("#workspaceOpenPullRequestsRefresh")) void refreshOpenPullRequests();
 });
 let receivedDashboardServerPush = false, updateModeKey = "refresh.connecting";
 function setUpdateMode(key) {

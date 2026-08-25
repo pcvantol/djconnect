@@ -1264,6 +1264,7 @@ def _workspace_open_pull_requests(root: Path) -> list[dict[str, object]] | None:
                 "branch": branch,
                 "status": _open_pull_request_status(candidate),
                 "owner_approval": _owner_approval_status(candidate, match.group(1)),
+                "owner_authorization_requested": _owner_authorization_requested(candidate),
             })
     return result
 
@@ -1307,6 +1308,82 @@ def _owner_approval_status(pull_request: dict[str, object], repository_owner: st
     if state == "CHANGES_REQUESTED":
         return "changes_requested"
     return "pending"
+
+
+def _owner_authorization_requested(pull_request: dict[str, object]) -> bool:
+    """Whether GitHub has requested exact-SHA HIGH_RISK authorization."""
+    checks = pull_request.get("statusCheckRollup")
+    if not isinstance(checks, list):
+        return False
+    return any(
+        isinstance(check, dict)
+        and str(check.get("name") or check.get("context") or "").casefold() == "owner authorization"
+        and str(check.get("state") or check.get("status") or "").upper() == "FAILURE"
+        for check in checks
+    )
+
+
+class OwnerAuthorizationRequestError(RuntimeError):
+    """The exact-SHA Owner Authorization workflow cannot safely be dispatched."""
+
+
+def _request_owner_authorization(root: Path, pull_request_number: int) -> dict[str, object]:
+    """Dispatch the canonical owner workflow for the current HIGH_RISK PR SHA.
+
+    The browser supplies only a PR number. Repository, target branch and SHA
+    are read afresh from GitHub so this endpoint cannot authorize a stale or
+    caller-selected commit. The workflow remains the sole publisher of the
+    ``Owner Authorization`` status.
+    """
+    if isinstance(pull_request_number, bool) or pull_request_number < 1:
+        raise OwnerAuthorizationRequestError("owner_authorization_invalid_request")
+    try:
+        remote = GitProvider().execute(root, "git", "remote", "get-url", "origin")
+        match = re.search(r"github\.com[:/]([^/\s]+)/([^/\s]+?)(?:\.git)?$", remote.stdout.strip()) if remote.returncode == 0 else None
+        if not match:
+            raise OwnerAuthorizationRequestError("owner_authorization_unavailable")
+        repository = f"{match.group(1)}/{match.group(2)}"
+        payload = GitHubProvider().github(
+            "pr", "view", str(pull_request_number), "--repo", repository,
+            "--json", "number,state,headRefOid,baseRefName,statusCheckRollup",
+        )
+        pull_request = json.loads(payload)
+    except OwnerAuthorizationRequestError:
+        raise
+    except (OSError, RuntimeError, json.JSONDecodeError) as error:
+        raise OwnerAuthorizationRequestError("owner_authorization_unavailable") from error
+    if not isinstance(pull_request, dict) or pull_request.get("number") != pull_request_number:
+        raise OwnerAuthorizationRequestError("owner_authorization_unavailable")
+    candidate_sha = pull_request.get("headRefOid")
+    target_branch = pull_request.get("baseRefName")
+    if (
+        str(pull_request.get("state") or "").upper() != "OPEN"
+        or not isinstance(candidate_sha, str)
+        or not re.fullmatch(r"[0-9a-f]{40}", candidate_sha)
+        or not isinstance(target_branch, str)
+        or not target_branch
+        or not _owner_authorization_requested(pull_request)
+    ):
+        raise OwnerAuthorizationRequestError("owner_authorization_not_requested")
+    checks = pull_request.get("statusCheckRollup")
+    trusted_delivery_passed = isinstance(checks, list) and any(
+        isinstance(check, dict)
+        and str(check.get("name") or "") == "Trusted Delivery qualification / Qualify trusted delivery"
+        and str(check.get("status") or "").upper() == "COMPLETED"
+        and str(check.get("conclusion") or "").upper() == "SUCCESS"
+        for check in checks
+    )
+    if not trusted_delivery_passed:
+        raise OwnerAuthorizationRequestError("owner_authorization_qualification_pending")
+    try:
+        GitHubProvider().github(
+            "workflow", "run", "owner-authorization.yml", "--repo", repository,
+            "-f", f"repository={repository}", "-f", f"pr_number={pull_request_number}",
+            "-f", f"candidate_sha={candidate_sha}", "-f", f"branch={target_branch}",
+        )
+    except RuntimeError as error:
+        raise OwnerAuthorizationRequestError("owner_authorization_dispatch_failed") from error
+    return {"queued": True, "pull_request": pull_request_number}
 
 
 def _open_pull_request_status(pull_request: dict[str, object]) -> str:
@@ -1884,8 +1961,23 @@ def _dashboard_html(
 
 </body>
 </html>"""
+    def open_pull_request_item(pull_request: dict[str, object]) -> str:
+        authorization = (
+            f'<button class="open-pr-owner-authorization" '
+            f'data-open-pull-request-owner-authorization="{pull_request["number"]}" '
+            f'type="button" data-i18n="workspace.open_pull_request.authorize_owner"></button>'
+            if pull_request.get("owner_authorization_requested") is True else ""
+        )
+        return (
+            f'<li data-open-pull-request="{pull_request["number"]}"><a href="{escape(str(pull_request["url"]), quote=True)}" '
+            f'target="_blank" rel="noreferrer">PR #{pull_request["number"]} — {escape(str(pull_request["title"]))}</a>'
+            f'<span class="open-pr-status open-pr-status--{escape(str(pull_request.get("status", "waiting_for_checks")), quote=True)}">'
+            f'<span class="open-pr-status__dot" aria-hidden="true"></span><span class="open-pr-status__label"></span></span>'
+            f'{authorization}<code>{escape(str(pull_request["branch"]))}</code></li>'
+        )
+
     pull_request_items = "".join(
-        f'<li data-open-pull-request="{pull_request["number"]}"><a href="{escape(str(pull_request["url"]), quote=True)}" target="_blank" rel="noreferrer">PR #{pull_request["number"]} — {escape(str(pull_request["title"]))}</a><span class="open-pr-status open-pr-status--{escape(str(pull_request.get("status", "waiting_for_checks")), quote=True)}"><span class="open-pr-status__dot" aria-hidden="true"></span><span class="open-pr-status__label"></span></span><code>{escape(str(pull_request["branch"]))}</code></li>'
+        open_pull_request_item(pull_request)
         for pull_request in workspace_open_pull_requests or []
     )
     workspace_open_pull_requests_html = (
@@ -1952,6 +2044,27 @@ def handler(root: Path, logger: logging.Logger | None = None):
                 self._send(b'{"error":"Ongeldige herkomst."}', "application/json; charset=utf-8", 403)
                 return
             request_path = urlsplit(self.path).path
+            owner_authorization_match = re.fullmatch(r"/api/open-pull-requests/([1-9][0-9]*)/owner-authorization", request_path)
+            if owner_authorization_match:
+                try:
+                    length = int(self.headers.get("Content-Length", "0"))
+                    if length != 2 or self.rfile.read(length) != b"{}":
+                        raise ValueError
+                    outcome = _request_owner_authorization(root, int(owner_authorization_match.group(1)))
+                    log_event(
+                        logger,
+                        logging.INFO,
+                        "owner_authorization_dispatched",
+                        diagnostic=f"pull_request={outcome['pull_request']}",
+                    )
+                except OwnerAuthorizationRequestError as error:
+                    self._send(json.dumps({"error": str(error)}).encode(), "application/json; charset=utf-8", 409)
+                    return
+                except ValueError:
+                    self._send(b'{"error":"owner_authorization_invalid_request"}', "application/json; charset=utf-8", 400)
+                    return
+                self._send(json.dumps(outcome).encode(), "application/json; charset=utf-8", 202)
+                return
             if request_path.startswith("/api/components/") and request_path.endswith("/restart"):
                 component = request_path.removeprefix("/api/components/").removesuffix("/restart").rstrip("/")
                 try:

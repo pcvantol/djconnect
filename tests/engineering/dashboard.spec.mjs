@@ -590,6 +590,40 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#workspaceOpenPullRequests .open-pr-status")).toHaveClass(/open-pr-status--waiting_for_checks/);
   });
 
+  test("dispatches owner authorization only after an explicit confirmation", async ({ page }) => {
+    let dispatched = null;
+    await page.route("**/api/open-pull-requests/940/owner-authorization", async (route) => {
+      dispatched = { method: route.request().method(), body: route.request().postData() };
+      await route.fulfill({ status: 202, json: { queued: true, pull_request: 940 } });
+    });
+    await page.route("**/api/open-pull-requests", (route) => route.fulfill({ json: { pull_requests: [] } }));
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => {
+      const section = document.createElement("section");
+      section.id = "workspaceOpenPullRequests";
+      section.className = "workspace-open-prs";
+      section.innerHTML = "<ul></ul>";
+      document.body.append(section);
+      renderOpenPullRequests([{
+        number: 940,
+        title: "High-risk delivery",
+        url: "https://github.com/pcvantol/djconnect/pull/940",
+        branch: "codex/ep-dashboard-polish",
+        status: "waiting_for_checks",
+        owner_approval: "pending",
+        owner_authorization_requested: true,
+      }]);
+    });
+
+    const authorize = page.locator("[data-open-pull-request-owner-authorization='940']");
+    await expect(authorize).toHaveText(DASHBOARD_MESSAGES.nl["workspace.open_pull_request.authorize_owner"]);
+    await authorize.click();
+    await expect(page.locator("#confirmationModal")).toBeVisible();
+    expect(dispatched).toBeNull();
+    await page.locator("#confirmationModalConfirm").click();
+    await expect.poll(() => dispatched).toEqual({ method: "POST", body: "{}" });
+  });
+
   test("keeps the last known open pull requests visible when GitHub refresh is unavailable", async ({ page }) => {
     await page.route("**/api/open-pull-requests", (route) => route.fulfill({ status: 503, json: { error: "temporarily unavailable" } }));
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
@@ -613,6 +647,18 @@ test.describe("Engineering Status browser smoke", () => {
       for (const key of OPERATIONAL_TRANSLATION_KEYS) {
         expect(DASHBOARD_MESSAGES[locale][key], `${locale}:${key}`).toBeTruthy();
       }
+    }
+  });
+
+  test("translates the owner-authorization control in every supported locale", () => {
+    const keys = [
+      "workspace.open_pull_request.authorize_owner",
+      "workspace.open_pull_request.authorize_owner_confirmation",
+      "workspace.open_pull_request.owner_authorization_queued",
+      "workspace.open_pull_request.owner_authorization_qualification_pending",
+    ];
+    for (const locale of SUPPORTED_LOCALES) {
+      for (const key of keys) expect(DASHBOARD_MESSAGES[locale][key], `${locale}:${key}`).toBeTruthy();
     }
   });
 
