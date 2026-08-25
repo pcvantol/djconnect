@@ -9,6 +9,7 @@ from unittest.mock import patch
 
 from tools.engineering.producer import ENVELOPE_CONTRACT_NAME, ENVELOPE_CONTRACT_VERSION
 from tools.engineering.workspace_inbox_api import WorkspaceInboxSubmissionError, publish
+from tools.engineering.storage import open_storage
 
 
 class WorkspaceInboxApiTest(unittest.TestCase):
@@ -39,6 +40,15 @@ class WorkspaceInboxApiTest(unittest.TestCase):
             self.assertEqual(receipt.inbox, inbox)
             self.assertTrue((inbox / receipt.filename).is_file())
             self.assertFalse(any(inbox.glob(".*.partial")))
+            connection = open_storage(root)
+            try:
+                row = connection.execute(
+                    "SELECT producer_type,prompt_content FROM execution_submissions WHERE submission_id=?",
+                    (receipt.submission_id,),
+                ).fetchone()
+            finally:
+                connection.close()
+            self.assertEqual(row, ("FORGE", "Execution Mode: Managed\n\nValidate this bounded request."))
 
     def test_rejects_non_forge_and_invalid_envelopes(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
