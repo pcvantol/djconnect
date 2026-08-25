@@ -4335,7 +4335,17 @@ test.describe("Engineering Status browser smoke", () => {
 
   test("selects multiple component-log rows and copies the selected rows", async ({ page }) => {
     await page.route("**/api/events", (route) => route.abort());
+    await page.route("**/api/logs/inbox", (route) => route.fulfill({ body: "" }));
+    await page.route("**/api/logs/dashboard", (route) => route.fulfill({ body: "" }));
+    // The dashboard loads persisted logs asynchronously.  Wait until that
+    // initial projection is settled before installing this test's fixture;
+    // otherwise it can replace the fixture halfway through the selection.
+    const initialLogsLoaded = Promise.all([
+      page.waitForResponse("**/api/logs/inbox"),
+      page.waitForResponse("**/api/logs/dashboard"),
+    ]);
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await initialLogsLoaded;
     await page.locator("#autoRefresh").uncheck();
     await page.locator("#componentLogs").evaluate((element) => { element.open = true; });
     await page.evaluate(() => {
