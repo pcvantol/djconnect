@@ -4222,7 +4222,7 @@ const dashboardLocaleButton = $("dashboardLocaleButton"), dashboardLocaleMenu = 
 const dashboardTitlebarOptions = $("dashboardTitlebarOptions");
 const dashboardTitlebarOptionsToggle = $("dashboardTitlebarOptionsToggle");
 const dashboardTitlebarOptionsContent = $("dashboardTitlebarOptionsContent");
-const compactTitlebarMedia = window.matchMedia("(max-width: 620px)");
+const compactTitlebarMedia = window.matchMedia("(max-width: 1240px)");
 function syncTitlebarOptions() {
   const compact = compactTitlebarMedia.matches;
   const expanded = !compact || dashboardClientState.titlebarOptionsOpen === true;

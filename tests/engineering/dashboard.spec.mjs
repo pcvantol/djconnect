@@ -3727,6 +3727,18 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#pageRefresh")).toHaveCSS("transform", "matrix(1, 0, 0, 1, 0, -8)");
   });
 
+  test("uses the compact options disclosure before a narrow desktop crowds the title bar", async ({ page }) => {
+    await page.setViewportSize({ width: 1200, height: 844 });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+
+    const disclosure = page.getByTestId("titlebar-options-toggle");
+    const content = page.locator("#dashboardTitlebarOptionsContent");
+    await expect(disclosure).toBeVisible();
+    await expect(disclosure).toHaveAttribute("aria-controls", "dashboardTitlebarOptionsContent");
+    if (await disclosure.getAttribute("aria-expanded") === "true") await expect(content).toBeVisible();
+    else await expect(content).toBeHidden();
+  });
+
   test("keeps title-bar options visible in a real laptop wrapper", async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 844 });
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });

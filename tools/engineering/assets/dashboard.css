@@ -431,7 +431,7 @@ html[data-theme="light"] :is(.dashboard-locale,.dashboard-project){color:#415168
    labelled disclosure, then presented as full-width rows rather than unlabeled
    switch glyphs. Desktop keeps the existing inline control strip. */
 .dashboard-titlebar__options{align-items:center;display:flex;flex:0 0 auto;min-width:0}.dashboard-titlebar__options-toggle{display:none}.dashboard-titlebar__options-content{align-items:center;display:flex;flex:0 0 auto;gap:12px}
-@media (max-width:620px){
+@media (max-width:1240px){
   .dashboard-titlebar{align-items:flex-start;flex-wrap:wrap;position:relative}
   .dashboard-titlebar__brand{flex-basis:100%;padding-right:48px}
   .dashboard-titlebar__actions{align-items:center;flex:1 1 100%;justify-content:flex-start;width:100%}
