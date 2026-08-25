@@ -50,3 +50,10 @@ class ExtractionBaselineAuditTests(unittest.TestCase):
         invalid = json.loads(json.dumps(manifest))
         invalid["paths"][0]["classification"] = "NOT_A_CLASSIFICATION"
         self.assertTrue(any("unknown classification" in error for error in AUDIT_MODULE.validate(invalid, ROOT)))
+
+    def test_portable_absolute_and_parent_paths_are_rejected(self) -> None:
+        manifest = json.loads((ROOT / "docs/engineering/extraction/EP_2X_EXTRACTION_MANIFEST.json").read_text())
+        for unsafe_path in ("/private/path", "C:\\Users\\person", "\\\\server\\share", "../outside"):
+            invalid = json.loads(json.dumps(manifest))
+            invalid["paths"][0]["path"] = unsafe_path
+            self.assertTrue(any("unsafe path" in error for error in AUDIT_MODULE.validate(invalid, ROOT)))

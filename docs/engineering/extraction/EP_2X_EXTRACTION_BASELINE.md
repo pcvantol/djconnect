@@ -65,11 +65,11 @@ python3 scripts/engineering/audit_ep_extraction_baseline.py --projection
 ```
 
 The audit is read-only, repository-relative and deterministic. It fails for
-duplicate, missing or unsafe paths, unknown classifications and malformed
-entries. The sorted projection can be compared with a later commit to expose
-added/removed/classification-changed candidate paths. The accompanying audit
-records import and filesystem assumptions so future changes can also be
-reviewed for new extraction blockers.
+duplicate, missing or unsafe paths (including POSIX and Windows absolute
+paths), unknown classifications and malformed entries. The sorted projection
+can be compared with a later commit to expose added/removed/classification-
+changed candidate paths. The accompanying audit records import and filesystem
+assumptions so future changes can also be reviewed for new extraction blockers.
 
 ## Readiness projection
 

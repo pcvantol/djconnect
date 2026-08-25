@@ -5,11 +5,20 @@ from __future__ import annotations
 
 import argparse
 import json
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 import sys
 
 
 REQUIRED = {"path", "classification", "reason_code", "ownership", "extraction_target", "dependency_notes"}
+
+
+def is_safe_relative_path(value: object) -> bool:
+    """Accept only portable, repository-relative manifest paths."""
+    if not isinstance(value, str) or not value:
+        return False
+    path = Path(value)
+    windows_path = PureWindowsPath(value)
+    return not path.is_absolute() and not windows_path.is_absolute() and ".." not in path.parts
 
 
 def repository_root() -> Path:
@@ -31,7 +40,7 @@ def validate(manifest: dict, root: Path) -> list[str]:
             errors.append(f"entry {index} does not have the required fields")
             continue
         path = item["path"]
-        if not isinstance(path, str) or not path or path.startswith("/") or ".." in Path(path).parts:
+        if not is_safe_relative_path(path):
             errors.append(f"entry {index} has an unsafe path")
         elif path in seen:
             errors.append(f"duplicate path: {path}")
