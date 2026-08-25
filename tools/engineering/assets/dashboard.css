@@ -128,6 +128,9 @@ body{overflow-x:hidden}.dashboard-grid,.dashboard-grid>*{min-width:0}.telemetry,
    They must not inherit the neutral or alternating row surface on wide screens. */
 #promptHistory .log-table th:first-child{background:#36232d}
 #promptHistory .log-table td:first-child{background:#36232d}
+/* A sticky cell needs an opaque surface while its row is hovered; transparent
+   colour mixing otherwise lets scrolled columns show through the Run-ID. */
+@media (max-width:620px){#promptHistory .prompt-history-row:hover>td:first-child{background:color-mix(in srgb,var(--dashboard-selected-row-color) 16%,#36232d)!important}html[data-theme="light"] #promptHistory .prompt-history-row:hover>td:first-child{background:color-mix(in srgb,var(--dashboard-selected-row-color) 16%,#fff1f5)!important}}
 html[data-theme="light"] #promptHistory .log-table th:first-child,html[data-theme="light"] #promptHistory .log-table td:first-child{background:#fff1f5}
 @media (min-width:621px) and (max-width:1024px){#promptHistory .log-table{min-width:1120px;table-layout:auto;width:max-content}#promptHistory .log-table th:nth-child(3),#promptHistory .log-table td:nth-child(3){min-width:19rem;overflow-wrap:normal;white-space:normal}}
 /* A Run-ID column adds a ninth field.  Keep all operational columns at their

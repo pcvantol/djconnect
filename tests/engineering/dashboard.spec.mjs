@@ -2968,6 +2968,12 @@ test.describe("Engineering Status browser smoke", () => {
     expect(Math.abs(layout.runIdLeft - layout.wrapLeft)).toBeLessThanOrEqual(2);
     expect(layout.runIdWidth).toBe(128);
     expect(layout.titleWidth).toBeGreaterThan(layout.runIdWidth);
+    const runIdCell = page.locator("#promptHistoryRows tr td:first-child").first();
+    await runIdCell.hover();
+    expect(await runIdCell.evaluate((cell) => getComputedStyle(cell).backgroundColor)).not.toContain("/");
+    await page.getByTestId("theme-toggle").click();
+    await runIdCell.hover();
+    expect(await runIdCell.evaluate((cell) => getComputedStyle(cell).backgroundColor)).not.toContain("/");
   });
 
   test("uses the rose Run-ID surface throughout a wide light history table", async ({ page }) => {
