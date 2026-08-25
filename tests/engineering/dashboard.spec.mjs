@@ -2323,6 +2323,34 @@ test.describe("Engineering Status browser smoke", () => {
     }
   });
 
+  test("localizes the telemetry detail title for every supported language", async ({ page }) => {
+    const expectations = [
+      ["en", "Execution Telemetry — 24-08-2026"],
+      ["nl", "Uitvoeringstelemetrie — 24-08-2026"],
+      ["de", "Ausführungstelemetrie — 24-08-2026"],
+      ["fr", "Télémétrie d’exécution — 24-08-2026"],
+      ["es", "Telemetría de ejecución — 24-08-2026"],
+    ];
+    await page.route("**/api/telemetry/**", (route) => route.fulfill({ json: {
+      summary: {}, phases: [], bottlenecks: { top_time_consumers: [] }, runs: [],
+    } }));
+    for (const [language, title] of expectations) {
+      await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+      await page.locator("#dashboardLocale").selectOption(language);
+      await expect(page.locator("html")).toHaveAttribute("lang", language);
+      await page.waitForFunction(() => typeof window.executionTelemetry === "function");
+      await page.evaluate(() => window.executionTelemetry([{
+        date: "2026-08-24", prompt_count: 1, average_total_execution_seconds: 0,
+        average_queue_wait_seconds: 0, complete_count: 1, blocked_count: 0, failed_count: 0,
+      }]));
+      await page.locator("#dashboardSplash").evaluate((element) => { element.hidden = true; });
+      await page.locator("#executionTelemetry").evaluate((element) => { element.open = true; });
+      await page.locator("#executionTelemetryRows .telemetry-row").click();
+      await expect(page.locator("#telemetryDetailTitle")).toHaveText(title);
+      await page.locator("#telemetryDetailClose").click();
+    }
+  });
+
   test("gives every table a coloured first column and sorts telemetry columns", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.evaluate(() => window.executionTelemetry([
