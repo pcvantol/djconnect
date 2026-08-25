@@ -2837,6 +2837,12 @@ function updateExecutionTelemetrySortHeaders() {
     header.setAttribute("aria-sort", active ? executionTelemetrySort.direction === "asc" ? "ascending" : "descending" : "none");
   });
 }
+function blurSortableHeaderAfterPointerClick(event) {
+  // Pointer activation should not leave a visual selection behind. Keyboard
+  // activation keeps focus so the header remains operable and discoverable.
+  if (event.detail > 0 && event.currentTarget instanceof HTMLElement)
+    event.currentTarget.blur();
+}
 function setExecutionTelemetrySort(key) {
   executionTelemetrySort = executionTelemetrySort.key === key
     ? { key, direction: executionTelemetrySort.direction === "asc" ? "desc" : "asc" }
@@ -2872,7 +2878,10 @@ function executionTelemetry(rows) {
       cell.tabIndex = 0;
       cell.textContent = t(label);
       cell.setAttribute("aria-label", t("table.sort_by", { column: cell.textContent }));
-      cell.addEventListener("click", () => setExecutionTelemetrySort(key));
+      cell.addEventListener("click", (event) => {
+        setExecutionTelemetrySort(key);
+        blurSortableHeaderAfterPointerClick(event);
+      });
       cell.addEventListener("keydown", (event) => {
         if (event.key === "Enter" || event.key === " ") { event.preventDefault(); setExecutionTelemetrySort(key); }
       });
@@ -3088,9 +3097,10 @@ document.querySelectorAll(".log-table").forEach((table) => {
     header.classList.add("log-sortable");
     header.dataset.sortKey = key;
     header.tabIndex = 0;
-    header.addEventListener("click", () =>
-      setIndependentLogSort(component, key),
-    );
+    header.addEventListener("click", (event) => {
+      setIndependentLogSort(component, key);
+      blurSortableHeaderAfterPointerClick(event);
+    });
     header.addEventListener("keydown", (event) => {
       if (event.key === "Enter" || event.key === " ") {
         event.preventDefault();
@@ -3982,7 +3992,10 @@ document
       promptHistoryPage = 1;
       renderPromptHistory();
     };
-    header.addEventListener("click", sort);
+    header.addEventListener("click", (event) => {
+      sort();
+      blurSortableHeaderAfterPointerClick(event);
+    });
     header.addEventListener("keydown", (event) => {
       if (event.key === "Enter" || event.key === " ") {
         event.preventDefault();

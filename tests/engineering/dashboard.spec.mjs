@@ -1685,14 +1685,19 @@ test.describe("Engineering Status browser smoke", () => {
     ]);
   });
 
-  test("keeps selected sortable headers within a thin cell edge", async ({ page }) => {
+  test("keeps sortable headers within one complete orange cell edge in every table", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.locator("#componentLogs").evaluate((element) => { element.open = true; });
-    const header = page.locator("#componentLogs .log-table th.log-sortable").first();
-    await header.focus();
-    await expect(header).toHaveCSS("outline-width", "1px");
-    await expect(header).toHaveCSS("outline-offset", "-1px");
-    await expect(header).toHaveCSS("box-shadow", "none");
+    await page.evaluate(() => window.executionTelemetry([
+      { date: "2026-08-16", prompt_count: 4 },
+    ]));
+    const focusRule = await page.evaluate(() => [...document.styleSheets]
+      .flatMap((sheet) => [...sheet.cssRules])
+      .map((rule) => rule.cssText)
+      .filter((cssText) => cssText.includes(".telemetry-table th.log-sortable:focus"))
+      .at(-1));
+    expect(focusRule).toContain("inset 0 0 0 1px");
+    expect(focusRule).toContain("outline: 0px !important");
   });
 
   test("renders a read-only Forge recommendation handoff with expandable alternatives", async ({ page }) => {
@@ -2963,6 +2968,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#promptHistoryRows tr td").first()).toHaveText("zzzzz");
     await runIdHeader.click();
     await expect(runIdHeader).toHaveAttribute("aria-sort", "ascending");
+    await expect(runIdHeader).not.toBeFocused();
     await expect(page.locator("#promptHistoryRows tr td").first()).toHaveText("aaaaa");
     const layout = await wrap.evaluate((element) => {
       element.scrollLeft = 240;
