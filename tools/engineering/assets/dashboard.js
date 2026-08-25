@@ -2058,7 +2058,7 @@ async function requestOpenPullRequestOwnerAuthorization(button) {
     t("workspace.open_pull_request.authorize_owner"),
     t("workspace.open_pull_request.authorize_owner_confirmation"),
     t("workspace.open_pull_request.authorize_owner"),
-    { accent: "#54d6a0" },
+    { accent: "#f3d36a", variant: "owner-authorization" },
   );
   if (!confirmed) return;
   button.disabled = true;
@@ -6089,7 +6089,7 @@ function workspaceBranchCleanupDetails(details) {
   }
   return list;
 }
-function confirmDashboardAction(title, text, confirmLabel, { destructive = false, accent = "", details = [], loading = false } = {}) {
+function confirmDashboardAction(title, text, confirmLabel, { destructive = false, accent = "", details = [], loading = false, variant = "" } = {}) {
   const modal = $("confirmationModal"),
     heading = $("confirmationModalTitle"),
     body = $("confirmationModalText"),
@@ -6113,11 +6113,13 @@ function confirmDashboardAction(title, text, confirmLabel, { destructive = false
   confirm.classList.toggle("dashboard-modal-shell__action--primary", !destructive);
   confirm.classList.toggle("dashboard-modal-shell__action--destructive", destructive);
   modal.classList.toggle("dashboard-modal-shell--destructive", destructive);
+  modal.classList.toggle("dashboard-modal-shell--owner-authorization", variant === "owner-authorization");
   modal.style.setProperty("--modal-accent", accent || (destructive ? "#ff718f" : "#f0b66a"));
   return new Promise((resolve) => {
     const finish = (value) => {
       modal.close();
       modal.classList.remove("dashboard-modal-shell--destructive");
+      modal.classList.remove("dashboard-modal-shell--owner-authorization");
       confirm.classList.add("dashboard-modal-shell__action--primary");
       confirm.classList.remove("dashboard-modal-shell__action--destructive");
       confirm.disabled = false;
