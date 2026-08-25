@@ -4200,7 +4200,25 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(banner).toBeVisible();
     await expect(banner).toContainText(DASHBOARD_MESSAGES.nl["notification.codex_usage_limit.title"]);
     await expect(banner).toContainText(DASHBOARD_MESSAGES.nl["notification.codex_usage_limit.body"]);
-    await expect(banner).toHaveCSS("position", "sticky");
+    // The shared header owns the sticky geometry for both limit banners.
+    await expect(banner).toHaveCSS("position", "relative");
+    await expect(banner).toHaveCSS("background-color", "rgb(91, 29, 39)");
+    await expect(page.locator(".dashboard-sticky-header")).toHaveCSS("padding-bottom", "7px");
+    const layout = await page.evaluate(() => {
+      const region = document.querySelector(".dashboard-scroll-region");
+      const titleBar = document.querySelector(".dashboard-titlebar");
+      const banner = document.querySelector("#codexUsageLimitBanner");
+      document.querySelector("#engineering-dashboard-content").style.minHeight = "2600px";
+      region.scrollTop = 180;
+      return {
+        regionTop: Math.round(region.getBoundingClientRect().top),
+        titleTop: Math.round(titleBar.getBoundingClientRect().top),
+        titleBottom: Math.round(titleBar.getBoundingClientRect().bottom),
+        bannerTop: Math.round(banner.getBoundingClientRect().top),
+      };
+    });
+    expect(layout.titleTop).toBe(layout.regionTop);
+    expect(layout.bannerTop).toBe(layout.titleBottom);
 
     await page.evaluate(() => r({ watcher_state: "WATCHER_IDLE" }, {}));
     await expect(banner).toBeHidden();
