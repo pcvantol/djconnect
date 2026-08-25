@@ -731,6 +731,7 @@ html:not([data-theme="light"]) .dashboard-modal-shell{--modal-header-surface:col
 :is(.report-view-modal__content,.prompt-detail-modal__content){margin-top:12px}
 .component-modal__restart::before{content:"↻";font:700 17px/1 system-ui;margin-right:8px;vertical-align:-1px}
 .rate-limit-reset::before{content:"↻";font:700 17px/1 system-ui;margin-right:8px;vertical-align:-1px}
+#codexCliUpdate::before{content:"↓";font-size:21px}
 .predecessor-retry::before{content:"↻";font:700 17px/1 system-ui;margin-right:8px;vertical-align:-1px}
 .execution-dismiss::before{content:"⊘"}
 #componentLogs .log-table{table-layout:auto;width:100%}#componentLogs .log-table th:last-child,#componentLogs .log-table td:last-child{width:100%}

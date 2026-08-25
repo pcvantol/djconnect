@@ -3990,6 +3990,9 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#codexCliUpdate")).toBeVisible();
     await expect(page.locator("#codexCliUpdate")).toHaveCSS("background-color", "rgb(31, 91, 66)");
     await expect(page.locator("#codexCliUpdate")).toContainText("Update");
+    expect(await page.locator("#codexCliUpdate").evaluate(
+      (button) => getComputedStyle(button, "::before").content,
+    )).toBe('"↓"');
     await page.locator("#codexCliUpdate").click();
     await expect(page.locator("#confirmationModalText")).toContainText("deze machine");
     await expect(page.locator("#confirmationModalText")).not.toContainText("deze Mac");
