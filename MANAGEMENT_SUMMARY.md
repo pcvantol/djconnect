@@ -1,5 +1,24 @@
 # DJConnect Generation 2 Management Summary
 
+## PR #944 finalized by PR #945
+
+PR [#944](https://github.com/pcvantol/djconnect/pull/944),
+**docs(engineering): freeze EP extraction baseline**, merged as
+`a2e38ea8f49752c15413fc30f730cd60214b3dc3` and is contained in current
+`main`. Its completed required checks have no failures. The bounded Phase 0 /
+Increment 1 control artifact freezes a deterministic repository-local
+Engineering Platform 2.x extraction baseline, manifest, audit and focused
+regression coverage. It does not extract source, create a standalone
+repository, migrate SQLite, alter active writer, launchd, Inbox routing,
+consumer authentication, runtime behavior, lifecycle, validation, reviewer,
+provider, queue, delivery, repository-evidence or operator-owned merge
+authority. Its immutable Prompt History record remains unchanged. Governance-only
+Finalization PR [#945](https://github.com/pcvantol/djconnect/pull/945) merged as
+`565c618328be1b60c102f07661433ea15536e828`; its terminal required checks
+have no failures. This one direct-on-`main` reconciliation updates only the
+four canonical rolling records. Repository State: `MERGED_RECONCILED`;
+Workspace State: `WORKSPACE_READY`; Finalization Pending: `NO`.
+
 ## PR #942 finalized
 
 PR [#942](https://github.com/pcvantol/djconnect/pull/942),
