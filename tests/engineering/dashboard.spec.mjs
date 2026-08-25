@@ -2236,17 +2236,36 @@ test.describe("Engineering Status browser smoke", () => {
     expect(styles).toMatch(/\.chat-compose \.chat-send\s*\{[\s\S]*?height:\s*44px/);
   });
 
-  test("gives direct-touch controls a temporary elevated glass press state", () => {
+  test("keeps direct-touch controls free from a shared glass gradient", () => {
     const styles = readFileSync(
       path.join(repository, "tools/engineering/assets/dashboard.css"),
       "utf8",
     );
     expect(styles).toContain("@media (hover:none) and (pointer:coarse)");
-    expect(styles).toContain("backdrop-filter:blur(12px)");
-    expect(styles).toContain("background-image:linear-gradient");
-    expect(styles).toContain("scale(1.045)");
+    expect(styles).not.toContain("backdrop-filter:blur(12px)");
+    expect(styles).not.toContain("background-image:linear-gradient");
     expect(styles).toContain("-webkit-user-select:none");
-    expect(styles).toContain(".dashboard-titlebar :is(.theme-toggle,.section-state-toggle)");
+  });
+
+  test("keeps every visible iPhone button and pulldown on an opaque surface", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await openTitlebarOptions(page);
+
+    const surfaces = await page.evaluate(() => [...document.querySelectorAll("button, select")]
+      .filter((element) => {
+        const bounds = element.getBoundingClientRect();
+        const style = getComputedStyle(element);
+        return bounds.width > 0 && bounds.height > 0 && style.visibility !== "hidden";
+      })
+      .map((element) => {
+        const style = getComputedStyle(element);
+        return { backgroundImage: style.backgroundImage, backdropFilter: style.backdropFilter };
+      }));
+
+    expect(surfaces.length).toBeGreaterThan(0);
+    expect(surfaces.every((surface) => surface.backgroundImage === "none")).toBe(true);
+    expect(surfaces.every((surface) => surface.backdropFilter === "none")).toBe(true);
   });
 
   test("keeps the execution-details modal as compact as the report modal on iPhone", async ({ page }) => {
@@ -5332,16 +5351,13 @@ test.describe("Engineering Status browser smoke", () => {
     }
   });
 
-  test("keeps title-bar switch housings free from the generic mobile glass layer", () => {
+  test("keeps title-bar switch housings free from shared mobile glass styling", () => {
     const styles = readFileSync(
       path.join(repository, "tools/engineering/assets/dashboard.css"),
       "utf8",
     );
-    expect(styles).toContain(
-      ".dashboard-titlebar :is(.theme-toggle,.section-state-toggle){",
-    );
-    expect(styles).toContain("background-image:none;");
-    expect(styles).toContain("backdrop-filter:none;");
+    expect(styles).not.toContain("backdrop-filter:blur(12px)");
+    expect(styles).not.toContain("background-image:linear-gradient");
   });
 
   test("keeps iPhone title-bar option rows and locale picker free of card shadows", async ({ page }) => {
