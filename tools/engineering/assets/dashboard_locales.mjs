@@ -2979,6 +2979,11 @@ Object.assign(DASHBOARD_MESSAGES.nl, {"workspace.open_pull_requests_refresh":"Pu
 Object.assign(DASHBOARD_MESSAGES.de, {"workspace.open_pull_requests_refresh":"Pull-Request-Status aktualisieren"});
 Object.assign(DASHBOARD_MESSAGES.fr, {"workspace.open_pull_requests_refresh":"Actualiser l’état des pull requests"});
 Object.assign(DASHBOARD_MESSAGES.es, {"workspace.open_pull_requests_refresh":"Actualizar el estado de las solicitudes de extracción"});
+Object.assign(DASHBOARD_MESSAGES.en, {"workspace.local_worktrees":"Local worktrees and branches","workspace.no_local_worktrees":"No local worktrees found.","workspace.worktrees_unavailable":"Local worktrees are currently unavailable.","workspace.detached_head":"Detached HEAD"});
+Object.assign(DASHBOARD_MESSAGES.nl, {"workspace.local_worktrees":"Lokale worktrees en branches","workspace.no_local_worktrees":"Geen lokale worktrees gevonden.","workspace.worktrees_unavailable":"Lokale worktrees zijn nu niet beschikbaar.","workspace.detached_head":"Losgekoppelde HEAD"});
+Object.assign(DASHBOARD_MESSAGES.de, {"workspace.local_worktrees":"Lokale Worktrees und Branches","workspace.no_local_worktrees":"Keine lokalen Worktrees gefunden.","workspace.worktrees_unavailable":"Lokale Worktrees sind derzeit nicht verfügbar.","workspace.detached_head":"Losgelöster HEAD"});
+Object.assign(DASHBOARD_MESSAGES.fr, {"workspace.local_worktrees":"Arborescences de travail et branches locales","workspace.no_local_worktrees":"Aucune arborescence de travail locale trouvée.","workspace.worktrees_unavailable":"Les arborescences de travail locales sont actuellement indisponibles.","workspace.detached_head":"HEAD détachée"});
+Object.assign(DASHBOARD_MESSAGES.es, {"workspace.local_worktrees":"Árboles de trabajo y ramas locales","workspace.no_local_worktrees":"No se encontraron árboles de trabajo locales.","workspace.worktrees_unavailable":"Los árboles de trabajo locales no están disponibles ahora.","workspace.detached_head":"HEAD desacoplado"});
 for (const locale of ["nl", "de", "fr", "es"]) for (const [key, value] of Object.entries(DASHBOARD_MESSAGES.en)) {
   if (key.startsWith("telemetry.phase.") && !Object.hasOwn(DASHBOARD_MESSAGES[locale], key)) DASHBOARD_MESSAGES[locale][key] = value;
 }

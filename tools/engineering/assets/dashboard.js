@@ -1801,6 +1801,49 @@ function renderWorkspaceGit(workspaceGit) {
   $("workspaceOriginMain").hidden = !workspaceGit.origin_main_available;
   $("workspaceBranchMain").hidden = !workspaceGit.main_action_available;
 }
+function renderWorkspaceWorktrees(projection) {
+  const workspace = $("workspaceCard");
+  if (!workspace) return;
+  let section = $("workspaceWorktrees");
+  if (!section) {
+    section = document.createElement("section");
+    section.id = "workspaceWorktrees";
+    section.className = "workspace-worktrees";
+    const anchor = $("workspaceOpenPullRequests") || workspace.querySelector(".workspace-branch-actions");
+    workspace.insertBefore(section, anchor || null);
+  }
+  section.replaceChildren();
+  const heading = document.createElement("strong");
+  heading.textContent = t("workspace.local_worktrees");
+  section.append(heading);
+  const available = projection?.available === true;
+  const worktrees = Array.isArray(projection?.worktrees) ? projection.worktrees : [];
+  if (!available || !worktrees.length) {
+    const empty = document.createElement("p");
+    empty.className = "workspace-worktrees__empty";
+    empty.textContent = available
+      ? t("workspace.no_local_worktrees")
+      : t("workspace.worktrees_unavailable");
+    section.append(empty);
+    return;
+  }
+  const list = document.createElement("ul");
+  worktrees.forEach((worktree) => {
+    const item = document.createElement("li");
+    const branch = document.createElement("code");
+    const path = document.createElement("code");
+    const commit = document.createElement("code");
+    branch.className = "workspace-worktrees__branch";
+    path.className = "workspace-worktrees__path";
+    commit.className = "workspace-worktrees__commit";
+    branch.textContent = worktree?.branch || t("workspace.detached_head");
+    path.textContent = String(worktree?.path || t("format.not_available"));
+    commit.textContent = String(worktree?.commit || t("format.not_available"));
+    item.append(branch, path, commit);
+    list.append(item);
+  });
+  section.append(list);
+}
 let openPullRequestMonitorIntervalMs = 30_000;
 let openPullRequestMonitorTimer = null, openPullRequestMonitorInFlight = false;
 const openPullRequestStatusByNumber = new Map();
@@ -1926,6 +1969,7 @@ async function loadInitialDashboardStatus() {
     if (receivedDashboardServerPush) return;
     dashboardStatusStore.update(snapshot.status, snapshot);
     renderWorkspaceGit(snapshot.workspace_git);
+    renderWorkspaceWorktrees(snapshot.workspace_worktrees);
     humanize();
     checkBuild(snapshot.build_commit);
     setUpdateMode("refresh.connecting");
@@ -1950,6 +1994,7 @@ function startDashboardUpdates() {
       receivedDashboardServerPush = true;
       dashboardStatusStore.update(snapshot.status, snapshot);
       renderWorkspaceGit(snapshot.workspace_git);
+      renderWorkspaceWorktrees(snapshot.workspace_worktrees);
       const terminalRun = snapshot.status?.last_executed_run;
       if (terminalRun && terminalRun !== promptHistoryTerminalRun) {
         promptHistoryTerminalRun = terminalRun;
@@ -6169,6 +6214,7 @@ Object.assign(window, {
   renderPromptHistory,
   refreshOpenPullRequests,
   renderOpenPullRequests,
+  renderWorkspaceWorktrees,
   scheduleOpenPullRequestMonitor,
   showComponentModal,
   showDashboardError,

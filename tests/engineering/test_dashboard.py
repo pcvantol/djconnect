@@ -12,7 +12,7 @@ from contextlib import contextmanager, nullcontext
 from unittest.mock import ANY, MagicMock, call, patch
 
 from tools.engineering import dashboard
-from tools.engineering.dashboard import DASHBOARD_VERSION, LOOPBACK_ADDRESS, _clear_component_log, _codex_process_metrics, _codex_provider_identity, _codex_usage, _codex_usage_for_run, _component_log, _component_log_versions, _completion_commits, _component_uptime_seconds, _current_codex_log, _dashboard_html, _last_executed_agent_execution, _last_executed_codex_log, _last_executed_commits, _last_executed_runtime_metadata, _latest_codex_log, _normalize_rate_limits, _platform_health, _prompt_history, _prompt_history_detail, _report_analysis_available_for_run, _report_analysis_for_run, _report_for_run, _reviewer_agents_for_run, _sse_snapshot, _sse_status, _status, _tracked_file_count, _workspace_free_disk_space, _workspace_git_projection, binding_addresses
+from tools.engineering.dashboard import DASHBOARD_VERSION, LOOPBACK_ADDRESS, _clear_component_log, _codex_process_metrics, _codex_provider_identity, _codex_usage, _codex_usage_for_run, _component_log, _component_log_versions, _completion_commits, _component_uptime_seconds, _current_codex_log, _dashboard_html, _last_executed_agent_execution, _last_executed_codex_log, _last_executed_commits, _last_executed_runtime_metadata, _latest_codex_log, _normalize_rate_limits, _platform_health, _prompt_history, _prompt_history_detail, _report_analysis_available_for_run, _report_analysis_for_run, _report_for_run, _reviewer_agents_for_run, _sse_snapshot, _sse_status, _status, _tracked_file_count, _workspace_free_disk_space, _workspace_git_projection, _workspace_worktrees, binding_addresses
 from tools.engineering.inbox_watcher import WATCHER_VERSION
 from tools.engineering.platform_version import EngineeringPlatformManifest
 from tools.engineering.prompt_history import record_prompt_execution
@@ -150,6 +150,25 @@ class DashboardStatusTest(unittest.TestCase):
             "main_action_available": False,
             "branch_cleanup_available": False,
         })
+
+    @patch("tools.engineering.dashboard.GitProvider")
+    def test_workspace_worktrees_projection_lists_each_local_branch(self, git_provider: object) -> None:
+        completed = __import__("subprocess").CompletedProcess
+        git_provider.return_value.execute.return_value = completed(
+            ("git",), 0,
+            "worktree /workspace\nHEAD 123456789abcde\nbranch refs/heads/main\n\n"
+            "worktree /tmp/polish\nHEAD abcdef12345678\nbranch refs/heads/codex/polish\n\n"
+            "worktree /tmp/detached\nHEAD ffffff12345678\ndetached\n",
+            "",
+        )
+
+        projection = _workspace_worktrees(Path("/workspace"))
+
+        self.assertEqual(projection, {"available": True, "worktrees": [
+            {"path": "/workspace", "branch": "main", "commit": "123456789abc", "detached": False},
+            {"path": "/tmp/polish", "branch": "codex/polish", "commit": "abcdef123456", "detached": False},
+            {"path": "/tmp/detached", "branch": None, "commit": "ffffff123456", "detached": True},
+        ]})
 
     def test_dashboard_exposes_the_canonical_five_locale_catalog(self) -> None:
         root = Path(__file__).parents[2]
@@ -1361,6 +1380,7 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertEqual(snapshot["component_versions"]["worker"], WATCHER_VERSION)
         self.assertEqual(snapshot["workspace_git_lock"], {"state": "free", "active": False, "stale": False})
         self.assertEqual(snapshot["workspace_git"]["branch"], "Niet beschikbaar")
+        self.assertIn("workspace_worktrees", snapshot)
 
     def test_latest_codex_log_is_local_and_read_only(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

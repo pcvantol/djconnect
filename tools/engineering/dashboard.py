@@ -198,6 +198,7 @@ def _sse_snapshot(root: Path) -> bytes:
     # being fixed in the initial HTML response. A managed execution can switch
     # to its transaction branch after the operator opens the dashboard.
     payload["workspace_git"] = _workspace_git_projection(root)
+    payload["workspace_worktrees"] = _workspace_worktrees(root)
     fingerprint = json.dumps(payload, ensure_ascii=False, separators=(",", ":")).encode()
     # HTTP refreshes and SSE delivery can complete out of order in a browser.
     # Attach one process-scoped monotone revision to every changed projection,
@@ -1659,6 +1660,38 @@ def _workspace_git_projection(root: Path) -> dict[str, object]:
         "main_action_available": origin_main_available and commit != origin_main_commit,
         "branch_cleanup_available": branch_name == "main",
     }
+
+
+def _workspace_worktrees(root: Path) -> dict[str, object]:
+    """Project local Git worktrees without depending on GitHub or mutations."""
+    try:
+        observed = GitProvider().execute(root, "git", "worktree", "list", "--porcelain")
+    except OSError:
+        return {"available": False, "worktrees": []}
+    if observed.returncode != 0:
+        return {"available": False, "worktrees": []}
+
+    worktrees: list[dict[str, object]] = []
+    record: dict[str, str | bool] = {}
+    for line in [*str(observed.stdout or "").splitlines(), ""]:
+        if line:
+            key, _, value = line.partition(" ")
+            if key in {"worktree", "HEAD", "branch"}:
+                record[key] = value
+            elif key == "detached":
+                record[key] = True
+            continue
+        path = str(record.get("worktree") or "").strip()
+        if path:
+            reference = str(record.get("branch") or "")
+            worktrees.append({
+                "path": path,
+                "branch": reference.removeprefix("refs/heads/") or None,
+                "commit": str(record.get("HEAD") or "")[:12] or None,
+                "detached": bool(record.get("detached")),
+            })
+        record = {}
+    return {"available": True, "worktrees": worktrees}
 
 
 def _engineering_database_details(root: Path) -> dict[str, str]:

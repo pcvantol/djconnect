@@ -205,6 +205,36 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(notice).toHaveText("Maak de Inbox eerst leeg voordat je de locatie wijzigt.");
   });
 
+  test("projects local worktrees above open pull requests and refreshes their rows", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => {
+      const workspace = document.querySelector("#workspaceCard");
+      if (!document.querySelector("#workspaceOpenPullRequests")) {
+        const pullRequests = document.createElement("section");
+        pullRequests.id = "workspaceOpenPullRequests";
+        workspace.querySelector(".workspace-branch-actions").before(pullRequests);
+      }
+      window.renderWorkspaceWorktrees({ available: true, worktrees: [
+        { path: "/workspace", branch: "main", commit: "123456789abc" },
+        { path: "/tmp/polish", branch: "codex/polish", commit: "abcdef123456" },
+      ] });
+    });
+    const worktrees = page.locator("#workspaceWorktrees");
+    await expect(worktrees).toContainText("Lokale worktrees en branches");
+    await expect(worktrees).toContainText("codex/polish");
+    await expect(worktrees).toContainText("/tmp/polish");
+    expect(await page.evaluate(() => {
+      const worktrees = document.querySelector("#workspaceWorktrees");
+      const pullRequests = document.querySelector("#workspaceOpenPullRequests");
+      return Boolean(worktrees.compareDocumentPosition(pullRequests) & Node.DOCUMENT_POSITION_FOLLOWING);
+    })).toBe(true);
+    await page.evaluate(() => window.renderWorkspaceWorktrees({ available: true, worktrees: [
+      { path: "/workspace", branch: "codex/refreshed", commit: "fedcba987654" },
+    ] }));
+    await expect(worktrees).toContainText("codex/refreshed");
+    await expect(worktrees).not.toContainText("codex/polish");
+  });
+
   test("keeps project-scoped Inbox settings with the project queue", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     const queue = page.locator("#queueItems");
