@@ -2999,12 +2999,15 @@ test.describe("Engineering Status browser smoke", () => {
         stickyTop: Math.round(stickyHeader.getBoundingClientRect().top),
         titleTop: Math.round(titleBar.getBoundingClientRect().top),
         bannerTop: Math.round(banner.getBoundingClientRect().top),
+        bannerBottom: Math.round(banner.getBoundingClientRect().bottom),
         titleBottom: Math.round(titleBar.getBoundingClientRect().bottom),
+        stickyBottom: Math.round(stickyHeader.getBoundingClientRect().bottom),
       };
     });
     expect(layout.stickyTop).toBe(layout.regionTop);
     expect(layout.titleTop).toBe(layout.regionTop);
     expect(layout.bannerTop).toBe(layout.titleBottom);
+    expect(layout.stickyBottom - layout.bannerBottom).toBeGreaterThanOrEqual(14);
   });
 
   test("does not move the dashboard scroll position when live content changes above it", async ({ page }) => {
