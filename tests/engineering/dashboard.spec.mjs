@@ -131,6 +131,11 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#configurationAuditLogging")).toHaveCount(0);
   });
 
+  test("does not show a separate safe-local-settings label", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await expect(page.locator("#configurationControlsTitle")).toHaveCount(0);
+  });
+
   test("uses normal-weight labels for every dashboard button", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     const weights = await page.locator("button").evaluateAll(
