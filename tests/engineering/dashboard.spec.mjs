@@ -3438,6 +3438,29 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(runIds.nth(1)).toHaveCSS("background-color", "rgb(255, 241, 245)");
   });
 
+  test("keeps every interactive table-row hover light in light mode", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.getByTestId("theme-toggle").click();
+    await page.evaluate(() => {
+      document.querySelector("main").insertAdjacentHTML("beforeend", `
+        <section id="lightTableHoverRegression" style="--category-color:#f29ab2">
+          <table class="log-table"><tbody><tr class="component-log-row"><td>log</td><td>entry</td></tr></tbody></table>
+          <table class="log-table"><tbody><tr class="prompt-history-row"><td>run</td><td>history</td></tr></tbody></table>
+          <table class="telemetry-table"><tbody><tr class="telemetry-row"><td>day</td><td>telemetry</td></tr></tbody></table>
+        </section>
+      `);
+    });
+    for (const row of await page.locator("#lightTableHoverRegression tbody tr").all()) {
+      await row.hover();
+      const backgrounds = await row.locator("td").evaluateAll(
+        (cells) => cells.map((cell) => getComputedStyle(cell).backgroundColor),
+      );
+      // The anchored first column may retain its own light category tint, but
+      // no hover cell may fall back to the dark default table surface.
+      expect(backgrounds).not.toContain("rgb(36, 36, 45)");
+    }
+  });
+
   test("matches the iPhone portrait dashboard visual reference", async ({ page }, testInfo) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.route("**/api/events", (route) => route.abort());

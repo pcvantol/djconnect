@@ -43,6 +43,7 @@ html,body{-webkit-text-size-adjust:100%;text-size-adjust:100%;touch-action:manip
 html[data-theme="light"]{
   --house-style-contrast:#653a13;
   --house-style-surface:#fff4e6;
+  --dashboard-surface-base:#fff;
   --dashboard-expanded-content-surface:#fff;
   --dashboard-modal-surface:#fff;
   --dashboard-modal-document-surface:#f7fbff;
