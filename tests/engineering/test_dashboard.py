@@ -691,6 +691,60 @@ class DashboardStatusTest(unittest.TestCase):
 
     @patch("tools.engineering.dashboard.GitHubProvider")
     @patch("tools.engineering.dashboard.GitProvider")
+    def test_owner_authorization_refuses_incomplete_or_stale_github_evidence(
+        self, git_provider: object, github_provider: object
+    ) -> None:
+        root = Path(__file__).parents[2]
+        completed = __import__("subprocess").CompletedProcess
+        candidate_sha = "b" * 40
+        git_provider.return_value.execute.return_value = completed(
+            ("git",), 0, "git@github.com:pcvantol/djconnect.git\n", ""
+        )
+        qualified = {
+            "number": 940,
+            "state": "OPEN",
+            "headRefOid": candidate_sha,
+            "baseRefName": "main",
+            "statusCheckRollup": [
+                {"__typename": "StatusContext", "context": "Owner Authorization", "state": "FAILURE"},
+                {"__typename": "CheckRun", "name": "Trusted Delivery qualification / Qualify trusted delivery", "status": "COMPLETED", "conclusion": "SUCCESS"},
+            ],
+        }
+
+        with self.assertRaisesRegex(dashboard.OwnerAuthorizationRequestError, "invalid_request"):
+            dashboard._request_owner_authorization(root, 0)
+
+        git_provider.return_value.execute.return_value = completed(("git",), 0, "https://example.invalid/repo.git\n", "")
+        with self.assertRaisesRegex(dashboard.OwnerAuthorizationRequestError, "unavailable"):
+            dashboard._request_owner_authorization(root, 940)
+
+        git_provider.return_value.execute.return_value = completed(
+            ("git",), 0, "git@github.com:pcvantol/djconnect.git\n", ""
+        )
+        github_provider.return_value.github.side_effect = RuntimeError("offline")
+        with self.assertRaisesRegex(dashboard.OwnerAuthorizationRequestError, "unavailable"):
+            dashboard._request_owner_authorization(root, 940)
+
+        github_provider.return_value.github.side_effect = None
+        github_provider.return_value.github.return_value = "[]"
+        with self.assertRaisesRegex(dashboard.OwnerAuthorizationRequestError, "unavailable"):
+            dashboard._request_owner_authorization(root, 940)
+
+        github_provider.return_value.github.return_value = json.dumps({"number": 940})
+        with self.assertRaisesRegex(dashboard.OwnerAuthorizationRequestError, "not_requested"):
+            dashboard._request_owner_authorization(root, 940)
+
+        missing_qualification = {**qualified, "statusCheckRollup": qualified["statusCheckRollup"][:1]}
+        github_provider.return_value.github.return_value = json.dumps(missing_qualification)
+        with self.assertRaisesRegex(dashboard.OwnerAuthorizationRequestError, "qualification_pending"):
+            dashboard._request_owner_authorization(root, 940)
+
+        github_provider.return_value.github.side_effect = [json.dumps(qualified), RuntimeError("dispatch failed")]
+        with self.assertRaisesRegex(dashboard.OwnerAuthorizationRequestError, "dispatch_failed"):
+            dashboard._request_owner_authorization(root, 940)
+
+    @patch("tools.engineering.dashboard.GitHubProvider")
+    @patch("tools.engineering.dashboard.GitProvider")
     def test_stale_branch_pull_request_context_never_affects_cleanup_safety(
         self, git_provider: object, github_provider: object
     ) -> None:
