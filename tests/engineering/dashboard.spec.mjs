@@ -197,6 +197,33 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(picker.locator("[role=option]")).toHaveText(["Informatie", "Debug"]);
   });
 
+  test("restores the log retention pulldown without saving when its removal warning is cancelled", async ({ page }) => {
+    let configurationSaved = false;
+    await page.route("**/api/configuration", async (route) => {
+      if (route.request().method() === "GET") {
+        await route.fulfill({ json: {
+          log_retention_days: 90, log_level: "INFO", inbox_scan_interval_seconds: 15,
+          open_pr_check_interval_seconds: 30, platform_health_refresh_seconds: 15,
+          component_details_refresh_seconds: 5,
+        } });
+        return;
+      }
+      configurationSaved = true;
+      await route.fulfill({ json: { key: "log_retention_days", value: 60 } });
+    });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#configuration").evaluate((element) => { element.open = true; });
+    const retention = page.locator("#configurationLogRetention");
+    const picker = retention.locator("+ .dashboard-select-picker");
+    await expect(picker.locator(".dashboard-locale__button > span").first()).toHaveText("90 dagen");
+    await retention.selectOption("60");
+    await expect(page.locator("#confirmationModal")).toBeVisible();
+    await page.locator("#confirmationModalCancel").click();
+    await expect(retention).toHaveValue("90");
+    await expect(picker.locator(".dashboard-locale__button > span").first()).toHaveText("90 dagen");
+    expect(configurationSaved).toBe(false);
+  });
+
   test("shows a GitHub rate-limit banner on page load and clears it on refresh", async ({ page }) => {
     let limited = true;
     await page.route("**/api/github-rate-limit", (route) => route.fulfill({

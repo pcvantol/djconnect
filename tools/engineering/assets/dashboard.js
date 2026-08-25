@@ -4332,6 +4332,7 @@ async function saveDashboardConfiguration(control) {
     );
     if (!confirmed) {
       control.value = control.dataset.savedValue || String(value);
+      syncDashboardSelectPicker(control);
       return;
     }
   }
