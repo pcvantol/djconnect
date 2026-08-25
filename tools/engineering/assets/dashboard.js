@@ -4102,6 +4102,28 @@ function localizeConfigurationOptions() {
     option.textContent = t("configuration.days", { days: option.value });
   });
 }
+function positionConfigurationTooltip(info) {
+  if (!window.matchMedia("(max-width:620px)").matches) {
+    info.removeAttribute("data-tooltip-side");
+    info.style.removeProperty("--configuration-tooltip-width");
+    return;
+  }
+  const rect = info.getBoundingClientRect();
+  const leftSpace = rect.left, rightSpace = window.innerWidth - rect.right;
+  const side = leftSpace >= rightSpace ? "left" : "right";
+  const available = Math.max(leftSpace, rightSpace) - 22;
+  const width = Math.max(160, Math.min(280, window.innerWidth - 32, available));
+  info.dataset.tooltipSide = side;
+  info.style.setProperty("--configuration-tooltip-width", `${width}px`);
+}
+const configurationInfoTooltips = [...document.querySelectorAll(".configuration-info")];
+configurationInfoTooltips.forEach((info) => {
+  info.addEventListener("pointerenter", () => positionConfigurationTooltip(info));
+  info.addEventListener("focus", () => positionConfigurationTooltip(info));
+});
+window.addEventListener("resize", () => {
+  configurationInfoTooltips.forEach((info) => positionConfigurationTooltip(info));
+});
 async function saveDashboardConfiguration(control) {
   const [key, normalizer] = configurationFields[control.id] || [];
   if (!key) return;

@@ -2999,6 +2999,24 @@ test.describe("Engineering Status browser smoke", () => {
     expect(layout.after).toBe(layout.before);
   });
 
+  test("keeps iPhone configuration tooltips within the viewport", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#configuration").evaluate((element) => { element.open = true; });
+    const tooltip = page.locator(".configuration-info").last();
+    await tooltip.focus();
+    const bounds = await tooltip.evaluate((element) => {
+      const rect = element.getBoundingClientRect(), style = getComputedStyle(element, "::after");
+      const width = Number.parseFloat(style.width);
+      const left = element.dataset.tooltipSide === "left"
+        ? rect.right - Number.parseFloat(style.right) - width
+        : rect.left + Number.parseFloat(style.left);
+      return { left, right: left + width, viewportWidth: window.innerWidth };
+    });
+    expect(bounds.left).toBeGreaterThanOrEqual(-1);
+    expect(bounds.right).toBeLessThanOrEqual(bounds.viewportWidth + 1);
+  });
+
   test("scrolls the title bar out of view on iPhone portrait", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
