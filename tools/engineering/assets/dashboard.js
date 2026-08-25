@@ -4236,7 +4236,7 @@ function enhanceDashboardSelectPicker(select) {
     select.value = option.dataset.dashboardSelectValue;
     select.dispatchEvent(new Event("change", { bubbles: true }));
     setDashboardSelectPickerOpen(state, false);
-    button.focus();
+    button.focus({ preventScroll: true });
   });
   refresh();
 }
