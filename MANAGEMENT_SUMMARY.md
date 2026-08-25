@@ -1,5 +1,20 @@
 # DJConnect Generation 2 Management Summary
 
+## PR #942 finalized
+
+PR [#942](https://github.com/pcvantol/djconnect/pull/942),
+**docs(engineering): harden EP extraction migration plan**, merged as
+`e3305c148100a7ccc91e25af7224cfdb84e9e86a` and is contained in current
+`main`. Its completed required checks have no failures. The bounded
+documentation increment defines the reviewed EP 2.x extraction roadmap; it
+does not change runtime behavior, lifecycle, validation, reviewer, provider,
+queue, delivery, repository-evidence or operator-owned merge authority. This
+governance-only Finalization reconciles only the four canonical rolling
+records and leaves immutable Prompt History unchanged. With this Finalization
+merge, Repository State: `MERGED_RECONCILED`; Workspace State:
+`WORKSPACE_READY`; Finalization Pending: `NO`.
+
+
 ## PR #940 finalized
 
 PR [#940](https://github.com/pcvantol/djconnect/pull/940), **polish: improve
