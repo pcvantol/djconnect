@@ -310,9 +310,13 @@ an independently releasable package.
 5. Build a dedicated EP CI pipeline: unit, browser, localisation and package
    installation tests; migration/recovery tests; SBOM/provenance/checksum
    evidence; release signing/publication policy; and immutable wheel release.
-6. Publish a first pinned 2.x wheel only after package install, clean-machine
-   bootstrap and rollback proof succeed.
-7. Define compatibility explicitly across EP version, Consumer Contract
+6. Deliver a signed, notarized native macOS **Engineering Platform** installer
+   application alongside the wheel. It is the supported first-install and
+   repair experience for a local EP host; command-line installation remains a
+   documented administrator alternative, not a separate runtime.
+7. Publish a first pinned 2.x wheel only after package install, native
+   clean-machine installation and rollback proof succeed.
+8. Define compatibility explicitly across EP version, Consumer Contract
    version, storage schema, DJConnect adapter, Forge adapter and Workspace
    adapter/BFF. Unknown or incompatible major versions fail closed; successful
    imports are insufficient proof.
@@ -324,6 +328,98 @@ an independently releasable package.
 - dedicated EP CI and release evidence;
 - all five locales verified from the installed package; and
 - history and license provenance review of the new repository.
+
+#### Native macOS installation and first-run contract
+
+The native installer is an EP product surface, not a DJConnect bootstrap
+adapter. It packages or retrieves only the verified, pinned EP release and
+performs the following sequence under an explicit local-user confirmation:
+
+1. inspect any existing EP installation and acquire an installation-wide
+   installer lock, so two installers or a running writer cannot race;
+2. verify the signed/notarized application, the pinned wheel and every
+   supported dependency installer before invoking it;
+3. install or upgrade the EP wheel and the supported Codex CLI and GitHub CLI
+   dependencies when absent, using only EP-approved installers and explicit
+   privilege elevation where macOS requires it;
+4. create the per-user EP application-data root, an empty installation-owned
+   SQLite database, backups/log/runtime directories and OS credential-store
+   entries with restrictive permissions;
+5. install and load the EP dashboard and watcher LaunchAgents, configured
+   only with the new installation root and installed EP commands;
+6. verify the installed command versions, database integrity/schema, service
+   health, one-writer ownership and the watcher ready record including its
+   resolved Inbox root; and
+7. only after all checks pass, open the loopback Operations Console for the
+   initial provider setup.
+
+The first-run Console guides the operator through explicit Codex and GitHub
+browser login. It stores no token in browser state, dashboard payloads, logs
+or the project repository. A missing CLI, failed install, failed service
+verification or failed provider login leaves the installation in a clearly
+diagnosed repair state: it does not claim Inbox work, mutate a consumer
+repository or consume Codex credits. The installer is idempotent; an upgrade
+backs up the installation database before a migration, and uninstall offers a
+separate, explicit retained-data/backup decision rather than silently deleting
+execution evidence.
+
+EP ships its own generic `engineering-platform-host --verify` and explicit
+`--repair` host-doctor commands. They verify the installed application,
+commands, services, data root, database and token-free provider readiness.
+They do not recreate DJConnect's Apple-signing, Home Assistant lab, device or
+other product-development requirements. The normal per-execution Host,
+Workspace and Capability Preflights remain the second gate; an apparently
+healthy installation is never authority to admit unsafe work.
+
+#### Registering a project after installation
+
+The installer creates an empty EP installation, not an inferred project. The
+initial Console therefore presents a guided **Connect project** flow for both
+new and existing Git repositories:
+
+1. the Workspace consumer supplies its immutable canonical `project_id` and
+   current display name; EP never derives either from a path, repository name
+   or remote;
+2. the operator selects the local Git checkout; EP resolves it, verifies it is
+   an allowed workspace and records the registration without copying EP source
+   or an EP database into that repository;
+3. the operator chooses or accepts the project-specific Inbox root created
+   below the installation data root; EP proves that its `Inbox` directory is
+   writable and empty before activation;
+4. EP verifies the requested execution mode. A Managed project additionally
+   proves its remote, upstream, clean-worktree and GitHub repository-access
+   requirements before it may accept work; and
+5. EP starts the isolated project queue only after the registration, Inbox
+   route and watcher ready record agree. The Console then shows the project as
+   connected.
+
+For a **new repository**, create the repository and its intended remote first,
+then register it through this flow before submitting the first Engineering
+Action. For an **existing repository**, registration is non-destructive: it
+never copies, deletes or relocates repository files, creates a branch, or
+imports legacy records without the separate audited migration procedure.
+
+#### Consumer and CI wheel integration
+
+Consumers integrate EP through the versioned Local Consumer API and a pinned,
+immutable EP wheel. They must not vendor EP source, invoke the native installer
+from CI, write the installation SQLite database or construct EP data-root
+paths. A consumer change carries:
+
+- the exact wheel version, checksum/provenance reference and supported
+  Consumer Contract version;
+- a thin adapter that registers/refreshes explicit canonical project identity
+  and calls the scoped API using its own OS-stored credential;
+- CI that installs the pinned wheel into an ephemeral environment and runs
+  contract/adapter compatibility tests against an ephemeral EP store; and
+- a separate release check that rejects an unpinned wheel, incompatible
+  contract, missing project scope or direct database/filesystem coupling.
+
+Consumer CI never attempts an interactive Codex or GitHub login, starts a
+LaunchAgent, accesses a developer's installation database or spends provider
+credits. Repository-local validation remains the responsibility of a real EP
+execution after project registration; CI proves only the consumer integration
+and contract boundary.
 
 ### Phase 4 — Consumer cutover and local upgrade
 
@@ -356,6 +452,13 @@ an independently releasable package.
    references and the required execution condition without discovering
    dependencies, creating a planning graph, scheduling prerequisites,
    reordering Missions or mutating Forge dependency truth.
+
+The local-upgrade UI uses the same native Installer and Connect-project flow
+as a fresh installation. It must show the discovered legacy state, selected
+canonical project identity, backup location, service cutover result and final
+watcher resolved Inbox root. It must stop rather than guess when project
+identity, legacy-store cardinality, repository evidence or writer ownership is
+ambiguous.
 
 **Exit evidence**
 

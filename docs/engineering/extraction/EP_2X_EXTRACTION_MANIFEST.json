@@ -11,7 +11,7 @@
     "operations_console_version": "2.0.0"
   },
   "classifications": ["CONSUMER_ADAPTER", "DJCONNECT_RETAINED", "EP_DOCUMENTATION", "EP_PRODUCT_SOURCE", "EP_RELEASE_ASSET", "EP_TEST", "EP_WORKFLOW", "EXCLUDED", "GENERATED_LOCAL_ONLY"],
-  "candidate_universe_digest": "7a82281c3cf756704a86887e7928a8321c893f6364b3eb27a0bccbca1f3bc21a",
+  "candidate_universe_digest": "f44b961d486e750df2345a6a2132135fcee24f52cc624acfa1f50f20b51355ca",
   "manifest_semantic_digest": "4dc3d56a05333888015e03ed731be3e810b35a7afe38f3c4fad03f20ab4c78ee",
   "path_rules": [
     {"path":"tools/engineering","classification":"EP_PRODUCT_SOURCE","reason_code":"EP_RUNTIME","ownership":"EP","extraction_target":"engineering_platform","dependency_notes":"Runtime, providers, watcher, reporting and Operations Console source move only after later boundary work."},

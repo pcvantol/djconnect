@@ -124,6 +124,23 @@ Forge / Human Architect / future Producer
 The dashboard can explain state and expose expressly allowed operator actions,
 but it never becomes a second lifecycle, planning or repository authority.
 
+### Standalone installation boundary
+
+The extracted EP product provides a signed native macOS installer for its
+own host runtime. It installs the pinned EP package and supported provider
+CLIs, creates an empty installation-owned data root/database, configures the
+dashboard and watcher services, verifies one-writer health and opens the
+loopback Console for explicit first-run provider login. This is distinct from
+DJConnect developer-machine bootstrap: EP does not inherit Apple signing,
+Home Assistant lab or product-specific runner requirements.
+
+The installer creates no project by inference. A Workspace consumer connects a
+new or existing Git checkout only by supplying canonical project identity; EP
+then validates the selected checkout and project Inbox route. Consumers pin the
+wheel and use the Local Consumer API, while their CI exercises that adapter
+against an ephemeral EP store. They never install a user host, manipulate EP
+SQLite, start LaunchAgents or authenticate Codex/GitHub in CI.
+
 ### Common lifecycle invariants
 
 Every run is admitted only after host, workspace and capability preflight.
