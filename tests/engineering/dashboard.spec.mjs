@@ -3976,7 +3976,7 @@ test.describe("Engineering Status browser smoke", () => {
       complete_count: 1, blocked_count: 0, failed_count: 0,
     }]));
     await page.locator("#executionTelemetry").evaluate((element) => { element.open = true; });
-    await page.locator("#executionTelemetryRows tr").click();
+    await dispatchDashboardPointerClick(page.locator("#executionTelemetryRows tr"));
     const modal = page.locator("#telemetryDetailModal");
     await expect(modal).toBeVisible();
     await expect(modal.locator("#telemetryDetailTitle")).toHaveCSS("color", "rgb(251, 113, 133)");
@@ -4043,7 +4043,7 @@ test.describe("Engineering Status browser smoke", () => {
       complete_count: 0, blocked_count: 1, failed_count: 0,
     }]));
     await page.locator("#executionTelemetry > summary").click();
-    await page.locator("#executionTelemetryRows tr").click();
+    await dispatchDashboardPointerClick(page.locator("#executionTelemetryRows tr"));
     await expect(page.locator("#telemetryDetailContent")).toContainText("61,8%");
   });
 
@@ -4059,7 +4059,7 @@ test.describe("Engineering Status browser smoke", () => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.evaluate(() => window.executionTelemetry([{ date: "2026-08-16", prompt_count: 1, average_total_execution_seconds: 120, average_queue_wait_seconds: 12, complete_count: 1, blocked_count: 0, failed_count: 0 }]));
     await page.locator("#executionTelemetry > summary").click();
-    await page.locator("#executionTelemetryRows .telemetry-row").click();
+    await dispatchDashboardPointerClick(page.locator("#executionTelemetryRows .telemetry-row"));
     const content = page.locator("#telemetryDetailContent");
     await expect(content).toContainText(DASHBOARD_MESSAGES.nl["telemetry.longest_average_phase"]);
     await expect(content).toContainText(DASHBOARD_MESSAGES.nl["telemetry.largest_accumulated_phase"]);
