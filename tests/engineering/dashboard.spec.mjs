@@ -1597,7 +1597,7 @@ test.describe("Engineering Status browser smoke", () => {
     const json = page.locator("#promptHistoryDetailDownloadJson");
     await expect(markdown).toHaveAttribute("aria-label", "Uitvoeringsdetails als Markdown downloaden voor Modal prompt");
     await expect(json).toHaveAttribute("aria-label", "Uitvoeringsdetails als JSON downloaden voor Modal prompt");
-    await expect(json).toHaveText("{ }");
+    await expect(json).toHaveText("{}");
     const markdownDownload = page.waitForEvent("download");
     await markdown.click();
     const downloadedMarkdown = await markdownDownload;
