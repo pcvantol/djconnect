@@ -3795,6 +3795,7 @@ test.describe("Engineering Status browser smoke", () => {
       await expect(scroll).not.toHaveAttribute("tabindex");
       await expect(scroll).toHaveCSS("border-top-style", "solid");
       await expect(scroll).toHaveCSS("border-top-left-radius", "9px");
+      expect(await scroll.evaluate((element) => getComputedStyle(element).borderTopColor)).not.toBe("rgba(0, 0, 0, 0)");
     }
     const runScrollGeometry = await runScroll.evaluate((element) => {
       const modalContent = element.closest(".telemetry-detail-modal__content");
