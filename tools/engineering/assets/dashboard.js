@@ -188,6 +188,7 @@ function tone(x) {
     [
       "INITIALIZE",
       "EXECUTE_AGENT",
+      "LOCAL_REPOSITORY_VALIDATION",
       "REPAIR_AGENT",
       "FINALIZATION_REPAIR_AGENT",
       "FINALIZE_AGENT",
@@ -1485,7 +1486,7 @@ function lifecycleRepairEvidence(step) {
   const section = document.createElement("section");
   section.className = "lifecycle-detail-modal__repair-evidence";
   section.append(Object.assign(document.createElement("h3"), {
-    textContent: t("lifecycle.detail_repair_evidence"),
+    textContent: t(step?.id === "LOCAL_REPOSITORY_VALIDATION" ? "lifecycle.detail_local_validation_evidence" : "lifecycle.detail_repair_evidence"),
   }));
   for (const item of audit) {
     if (!item || typeof item !== "object") continue;

@@ -111,6 +111,7 @@ REPAIR_AGENT_MAX_SECONDS = 15 * 60
 # attempt budget. This prevents a persistently failing required check from
 # repeatedly invoking the provider without an operator decision.
 MAX_PR_CHECK_REPAIR_ATTEMPTS = 3
+MAX_LOCAL_REPOSITORY_VALIDATION_ATTEMPTS = 3
 
 
 def _timing_unavailable(error: EngineeringStorageError) -> None:
@@ -338,9 +339,16 @@ PR hand-off boundary (host-owned and non-negotiable):
   or any other external terminal evidence. The Execution Host alone records
   the pull request, polls checks, and schedules at most three bounded repairs.
 """
+    local_gate = "" if not state or not (
+        state.execution_mode == "MANAGED" and state.transaction_kind == "IMPLEMENTATION" and state.phase == "EXECUTE_AGENT"
+    ) else """
+Local validation hand-off boundary:
+- Create, commit and push the bounded implementation branch, but do not create a pull request yet.
+- Return that branch with `pull_request: null` after relevant focused validation. The host owns the next local repository validation gate and only that gate may create the implementation PR after the canonical suite passes.
+"""
     return f"""You are executing one bounded DJConnect engineering transaction.
 Read BOOTSTRAP.md, ENGINEERING_METHOD.md, PROMPT_INITIALIZATION.md and AGENTS.md from the actual repository before acting. Repository and GitHub evidence override this checkpoint: {resume}
-{authority}{genesis}{managed_synchronization}{managed_admission}{shared_evidence}{invocation_read_reuse}{primary_tool_loop}{pr_handoff}
+{authority}{genesis}{managed_synchronization}{managed_admission}{shared_evidence}{invocation_read_reuse}{primary_tool_loop}{local_gate}{pr_handoff}
 Supplied bounded objective follows:\n\n{objective}\n{managed_boundary}\n\nReturn only one JSON object with terminal_state (COMPLETE, WAITING, BLOCKED, or FAILED), branch, pull_request, terminal_condition (repository_reconciled, open_pr_checks_terminal, external_blocked, or local_commit_reconciled), diagnostic, repository_path, commit_sha, validation_evidence and quality_evidence. validation_evidence is a bounded list of executed validation {{command, result}} summaries; use [] when none ran. quality_evidence is [] except for the autonomous quality-control stage, where it contains only bounded, executed {{activity, result}} records. Never include secrets, tokens, headers, environment values, prompts, repository file contents, stack traces, or raw command output. Use null for other fields that do not apply. The diagnostic must be a short human-readable reason without secrets, tokens, headers, environment values, prompt content, repository file content, stack traces, or raw command output."""
 
 
@@ -530,6 +538,17 @@ class EngineeringRunner:
         }
         return replace(state, repair_audit=state.repair_audit + (record,))
 
+    def _record_local_validation_audit(self, state: TransactionState, *, result: AgentResult | None, outcome: str) -> TransactionState:
+        """Append one bounded local-validation iteration without sharing PR repair budget."""
+        record = {
+            "iteration": str(state.local_validation_iterations), "observed_at": datetime.now(timezone.utc).isoformat(),
+            "failed_checks": redact_diagnostic((result.diagnostic if result else None) or "Local repository validation did not return a passing result."),
+            "proposed_action": "Run the canonical repository validation and repair only the bounded implementation or its tests.",
+            "agent_summary": redact_diagnostic((result.diagnostic if result else None) or "Agent invocation did not return a validation summary."),
+            "commit_sha": result.commit_sha if result and result.commit_sha else "not_recorded", "outcome": outcome,
+        }
+        return replace(state, local_validation_audit=state.local_validation_audit + (record,))
+
     @staticmethod
     def _validation_kind(command: str) -> str | None:
         """Classify only known validation commands at their live boundary.
@@ -611,6 +630,63 @@ class EngineeringRunner:
         if parent:
             complete_phase(self.root, parent)
         return result
+
+    def _run_local_repository_validation(
+        self, state: TransactionState, implementation: AgentResult
+    ) -> tuple[TransactionState, AgentResult]:
+        """Run the bounded, mutable local gate before an implementation PR exists."""
+        branch = implementation.branch or state.branch
+        # Legacy/resumed checkpoints can already carry their implementation PR.
+        # Never rewrite that evidence; new managed prompts are instructed to
+        # stop before PR creation and therefore enter this gate normally.
+        if implementation.pull_request:
+            return state, implementation
+        if not branch:
+            return self._save_terminal(
+                state, "BLOCKED", "local_validation_scope", "Implementation must return one branch and no pull request before local validation."
+            ), implementation
+        validation = replace(
+            state, phase="LOCAL_REPOSITORY_VALIDATION", branch=branch, pull_request=None,
+            next_action="run_local_repository_validation", local_validation_iterations=0,
+            local_validation_audit=(),
+        )
+        for iteration in range(1, MAX_LOCAL_REPOSITORY_VALIDATION_ATTEMPTS + 1):
+            validation = replace(validation, local_validation_iterations=iteration)
+            self.store.save(validation)
+            write_live_status(self.root, validation, validation.next_action)
+            instruction = f"""
+
+Local repository validation gate — iteration {iteration} of {MAX_LOCAL_REPOSITORY_VALIDATION_ATTEMPTS}:
+- Stay on exactly `{branch}`. Do not merge or change scope.
+- Discover and run the target repository's canonical required local validation, including its full relevant regression suite; do not substitute only focused tests when a broader repository suite applies.
+- You may correct only the bounded production code and its tests, commit and push those corrections, then rerun the required validation.
+- If validation still fails, return `WAITING` with a concise safe diagnostic; the host may allow the next bounded iteration.
+- Create one draft implementation pull request only after the required local validation passes. Return that same branch and PR number. Never poll remote checks.
+"""
+            try:
+                result = self._invoke_agent_with_timing(
+                    validation,
+                    assemble_prompt(Path(validation.prompt_path), validation, managed_target=self.root) + instruction,
+                )
+                validation = self._record_agent_execution_time(validation)
+                validation = self._record_validation_evidence(validation, result)
+                self._persist_agent_usage(validation.run_id)
+            except CodexInvocationError as error:
+                validation = self._record_agent_execution_time(validation)
+                self.console_detail = error.console_detail
+                validation = self._record_local_validation_audit(validation, result=None, outcome="agent_failed")
+                return self._save_terminal(validation, "BLOCKED", error.next_action, str(error)), implementation
+            if result.terminal_state in {"BLOCKED", "FAILED"}:
+                validation = self._record_local_validation_audit(validation, result=result, outcome="agent_failed")
+                return self._save_terminal(validation, result.terminal_state, "local_repository_validation_failed", result.diagnostic or "Local repository validation failed."), implementation
+            if result.branch and result.branch != branch:
+                return self._save_terminal(validation, "BLOCKED", "local_validation_scope", "Local validation changed the bounded implementation branch."), implementation
+            if result.pull_request:
+                validation = self._record_local_validation_audit(validation, result=result, outcome="validated")
+                return validation, replace(implementation, branch=branch, pull_request=result.pull_request,
+                                           validation_evidence=implementation.validation_evidence + result.validation_evidence)
+            validation = self._record_local_validation_audit(validation, result=result, outcome="validation_failed")
+        return self._save_terminal(validation, "BLOCKED", "local_validation_attempt_limit_reached", "Required local repository validation did not pass after 3 bounded iterations."), implementation
 
     def _run_autonomous_quality_control(
         self, state: TransactionState, implementation: AgentResult
@@ -1072,6 +1148,10 @@ Mandatory autonomous refactor and quality-control stage:
         if state.execution_mode == "GENESIS":
             return self._reconcile_genesis_result(state, result)
         if state.transaction_kind == "IMPLEMENTATION" and result.terminal_state not in {"BLOCKED", "FAILED"}:
+            if state.owner_authorized:
+                state, result = self._run_local_repository_validation(state, result)
+                if state.terminal:
+                    return state
             state, result = self._run_autonomous_quality_control(state, result)
             if state.terminal:
                 return state

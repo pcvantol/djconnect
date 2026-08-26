@@ -63,6 +63,17 @@ terminal date, and a repeated recovery cannot add a second run or count.
 
 ## Operator actions
 
+## Local repository validation gate
+
+For a Managed implementation, the Execution Host first creates and pushes the
+bounded branch without creating a pull request. The visible **Local repository
+validation** step discovers and runs the target repository's canonical required
+local validation. It may make scoped production-code and test corrections on
+that same branch and retries at most three times. Each attempt records its safe
+problem, corrective action, result and commit evidence. Only a passing attempt
+may create the draft implementation pull request. Remote GitHub check repair
+remains a separate, later bounded gate.
+
 - **Pull-request merge hand-off** is shown as a persistent, dashboard-native
   wait state with a direct GitHub link once required checks are green. Closing
   the browser does not cancel it: the watcher polls the persisted run and

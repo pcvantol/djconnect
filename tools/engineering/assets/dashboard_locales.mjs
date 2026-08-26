@@ -3079,6 +3079,37 @@ Object.assign(DASHBOARD_MESSAGES.nl, {"workspace.local_worktrees":"Lokale worktr
 Object.assign(DASHBOARD_MESSAGES.de, {"workspace.local_worktrees":"Lokale Worktrees und Branches","workspace.no_local_worktrees":"Keine lokalen Worktrees gefunden.","workspace.worktrees_unavailable":"Lokale Worktrees sind derzeit nicht verfügbar.","workspace.detached_head":"Losgelöster HEAD"});
 Object.assign(DASHBOARD_MESSAGES.fr, {"workspace.local_worktrees":"Arborescences de travail et branches locales","workspace.no_local_worktrees":"Aucune arborescence de travail locale trouvée.","workspace.worktrees_unavailable":"Les arborescences de travail locales sont actuellement indisponibles.","workspace.detached_head":"HEAD détachée"});
 Object.assign(DASHBOARD_MESSAGES.es, {"workspace.local_worktrees":"Árboles de trabajo y ramas locales","workspace.no_local_worktrees":"No se encontraron árboles de trabajo locales.","workspace.worktrees_unavailable":"Los árboles de trabajo locales no están disponibles ahora.","workspace.detached_head":"HEAD desacoplado"});
+Object.assign(DASHBOARD_MESSAGES.en, {
+  "state.LOCAL_REPOSITORY_VALIDATION": "Local repository validation",
+  "lifecycle.step.local_repository_validation": "Local repository validation",
+  "state.local_validation_attempt_limit_reached": "Local repository validation did not pass after three attempts",
+  "lifecycle.detail_local_validation_evidence": "Local validation iterations",
+});
+Object.assign(DASHBOARD_MESSAGES.nl, {
+  "state.LOCAL_REPOSITORY_VALIDATION": "Lokale repositoryvalidatie",
+  "lifecycle.step.local_repository_validation": "Lokale repositoryvalidatie",
+  "state.local_validation_attempt_limit_reached": "Lokale repositoryvalidatie is na drie pogingen niet geslaagd",
+  "lifecycle.detail_local_validation_evidence": "Lokale validatie-iteraties",
+});
+Object.assign(DASHBOARD_MESSAGES.de, {
+  "state.LOCAL_REPOSITORY_VALIDATION": "Lokale Repositoryvalidierung",
+  "lifecycle.step.local_repository_validation": "Lokale Repositoryvalidierung",
+  "state.local_validation_attempt_limit_reached": "Lokale Repositoryvalidierung ist nach drei Versuchen nicht erfolgreich",
+  "lifecycle.detail_local_validation_evidence": "Lokale Validierungsiterationen",
+});
+Object.assign(DASHBOARD_MESSAGES.fr, {
+  "state.LOCAL_REPOSITORY_VALIDATION": "Validation locale du dépôt",
+  "lifecycle.step.local_repository_validation": "Validation locale du dépôt",
+  "state.local_validation_attempt_limit_reached": "La validation locale du dépôt a échoué après trois tentatives",
+  "lifecycle.detail_local_validation_evidence": "Itérations de validation locale",
+});
+Object.assign(DASHBOARD_MESSAGES.es, {
+  "state.LOCAL_REPOSITORY_VALIDATION": "Validación local del repositorio",
+  "lifecycle.step.local_repository_validation": "Validación local del repositorio",
+  "state.local_validation_attempt_limit_reached": "La validación local del repositorio no superó tres intentos",
+  "lifecycle.detail_local_validation_evidence": "Iteraciones de validación local",
+});
+
 for (const locale of ["nl", "de", "fr", "es"]) for (const [key, value] of Object.entries(DASHBOARD_MESSAGES.en)) {
   if (key.startsWith("telemetry.phase.") && !Object.hasOwn(DASHBOARD_MESSAGES[locale], key)) DASHBOARD_MESSAGES[locale][key] = value;
 }

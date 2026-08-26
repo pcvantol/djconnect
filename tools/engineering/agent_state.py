@@ -13,7 +13,7 @@ from .storage import EngineeringStorageError, open_storage
 
 
 SCHEMA_VERSION = 1
-PHASES = frozenset({"INITIALIZE", "CAPABILITY_REVIEW", "EXECUTE_AGENT", "QUALITY_CONTROL_AGENT", "REPAIR_AGENT", "FINALIZE_AGENT", "RECONCILE_AGENT", "WAIT_FOR_TERMINAL_EVIDENCE", "WAIT_FOR_OPERATOR_MERGE", "REPOSITORY_CLEANUP", "COMPLETE", "BLOCKED", "FAILED"})
+PHASES = frozenset({"INITIALIZE", "CAPABILITY_REVIEW", "EXECUTE_AGENT", "LOCAL_REPOSITORY_VALIDATION", "QUALITY_CONTROL_AGENT", "REPAIR_AGENT", "FINALIZE_AGENT", "RECONCILE_AGENT", "WAIT_FOR_TERMINAL_EVIDENCE", "WAIT_FOR_OPERATOR_MERGE", "REPOSITORY_CLEANUP", "COMPLETE", "BLOCKED", "FAILED"})
 RUN_ID_PATTERN = re.compile(r"^[a-z0-9][a-z0-9-]{0,63}$")
 MAX_DIAGNOSTIC_LENGTH = 500
 SENSITIVE_DIAGNOSTIC_PATTERN = re.compile(
@@ -67,6 +67,8 @@ class TransactionState:
     quality_evidence: tuple[dict[str, str], ...] = ()
     repair_iterations: int = 0
     repair_audit: tuple[dict[str, str], ...] = ()
+    local_validation_iterations: int = 0
+    local_validation_audit: tuple[dict[str, str], ...] = ()
     waiting_for_merge_since: str | None = None
     terminal: bool = False
     schema_version: int = SCHEMA_VERSION
@@ -90,6 +92,8 @@ class TransactionState:
             "quality_evidence": (),
             "repair_iterations": 0,
             "repair_audit": (),
+            "local_validation_iterations": 0,
+            "local_validation_audit": (),
             "waiting_for_merge_since": None,
         }
         if set(raw).issubset(expected) and set(raw) | set(defaults) == expected:
@@ -102,6 +106,8 @@ class TransactionState:
             raw = {**raw, "quality_evidence": tuple(raw["quality_evidence"])}
         if isinstance(raw.get("repair_audit"), list):
             raw = {**raw, "repair_audit": tuple(raw["repair_audit"])}
+        if isinstance(raw.get("local_validation_audit"), list):
+            raw = {**raw, "local_validation_audit": tuple(raw["local_validation_audit"])}
         try:
             state = cls(**raw)
         except TypeError as error:
@@ -135,6 +141,21 @@ class TransactionState:
         if not isinstance(state.repair_iterations, int) or state.repair_iterations < 0:
             raise StateError("checkpoint repair iteration count is invalid")
         audit_fields = {"iteration", "observed_at", "failed_checks", "proposed_action", "agent_summary", "commit_sha", "outcome"}
+        if not isinstance(state.local_validation_iterations, int) or not 0 <= state.local_validation_iterations <= 3:
+            raise StateError("checkpoint local validation iteration count is invalid")
+        if (
+            not isinstance(state.local_validation_audit, tuple)
+            or len(state.local_validation_audit) > 3
+            or any(
+                not isinstance(item, dict) or set(item) != audit_fields
+                or not all(isinstance(value, str) and value and len(value) <= MAX_DIAGNOSTIC_LENGTH and value == redact_diagnostic(value) for value in item.values())
+                or not item["iteration"].isdigit() or int(item["iteration"]) < 1
+                or item["outcome"] not in {"validated", "validation_failed", "agent_failed"}
+                or (item["commit_sha"] != "not_recorded" and not re.fullmatch(r"[0-9a-f]{40}", item["commit_sha"]))
+                for item in state.local_validation_audit
+            )
+        ):
+            raise StateError("checkpoint local validation audit is invalid or unsafe")
         if (
             not isinstance(state.repair_audit, tuple)
             or len(state.repair_audit) > 3

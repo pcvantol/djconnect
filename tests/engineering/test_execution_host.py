@@ -891,6 +891,26 @@ class LocalAgentRunnerTest(unittest.TestCase):
         self.assertEqual(state.phase, "BLOCKED")
         self.assertEqual(state.next_action, "autonomous_quality_control_scope")
 
+    def test_local_repository_validation_iterates_before_creating_the_implementation_pr(self) -> None:
+        agent = SequencedFakeAgent([
+            AgentResult("WAITING", "codex/implementation", diagnostic="Canonical tests still fail."),
+            AgentResult("COMPLETE", "codex/implementation", 701, diagnostic="Canonical tests passed."),
+        ])
+        runner = EngineeringRunner(self.root, self.store, FakeRepository(), FakeGitHub([]), agent, lambda _: None)
+        state = TransactionState(
+            "local-validation-run", "pcvantol/djconnect", str(self.prompt), "EXECUTE_AGENT",
+            branch="codex/implementation", owner_authorized=True,
+        )
+        validated, result = runner._run_local_repository_validation(
+            state, AgentResult("COMPLETE", "codex/implementation")
+        )
+        self.assertEqual(validated.phase, "LOCAL_REPOSITORY_VALIDATION")
+        self.assertEqual(validated.local_validation_iterations, 2)
+        self.assertEqual([item["outcome"] for item in validated.local_validation_audit], ["validation_failed", "validated"])
+        self.assertEqual(result.pull_request, 701)
+        self.assertIn("iteration 1 of 3", agent.prompts[0])
+        self.assertIn("Create one draft implementation pull request only after", agent.prompts[0])
+
     def test_runtime_failure_replaces_a_stale_operator_merge_terminal_condition(self) -> None:
         class UsageLimitedAgent:
             def available(self) -> bool:
