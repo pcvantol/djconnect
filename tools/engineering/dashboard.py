@@ -1867,6 +1867,23 @@ def _provider_login_status(root: Path) -> dict[str, dict[str, str]]:
     }
 
 
+def _logout_provider(root: Path, provider: str) -> None:
+    """Remove one locally stored provider session; never expose credentials."""
+    if provider == "CODEX":
+        completed = CodexCliProvider().command("logout")
+    elif provider == "GITHUB":
+        process = LocalProcessProvider()
+        account = process.execute(root, ("gh", "api", "user", "--jq", ".login"))
+        username = account.stdout.strip()
+        if account.returncode or not username or not re.fullmatch(r"[A-Za-z0-9-]+", username):
+            raise ValueError("GitHub session cannot be safely identified for logout.")
+        completed = process.execute(root, ("gh", "auth", "logout", "--hostname", "github.com", "--user", username))
+    else:
+        raise ValueError("Unsupported provider logout request.")
+    if completed.returncode:
+        raise ValueError("Provider logout did not complete.")
+
+
 def _workspace_git_projection(root: Path) -> dict[str, object]:
     """Return the small, read-only Git projection shown in Workspace."""
     unavailable = "Niet beschikbaar"
@@ -2160,6 +2177,16 @@ def handler(root: Path, logger: logging.Logger | None = None):
                 self._send(b'{"error":"Ongeldige herkomst."}', "application/json; charset=utf-8", 403)
                 return
             request_path = urlsplit(self.path).path
+            if request_path == "/api/provider-login/logout":
+                try:
+                    length = int(self.headers.get("Content-Length", "0"))
+                    payload = json.loads(self.rfile.read(length))
+                    _logout_provider(root, str(payload.get("provider", "")))
+                except (OSError, ValueError, json.JSONDecodeError):
+                    self._send(b'{"error":"Provider logout did not complete."}', "application/json; charset=utf-8", 400)
+                    return
+                self._send(b'{"logged_out":true}', "application/json; charset=utf-8")
+                return
             if request_path == "/api/telemetry/clear":
                 try:
                     length = int(self.headers.get("Content-Length", "0"))

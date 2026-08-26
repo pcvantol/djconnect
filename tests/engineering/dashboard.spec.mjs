@@ -264,6 +264,7 @@ test.describe("Engineering Status browser smoke", () => {
       },
     } }));
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.waitForFunction(() => document.body?.classList.contains("dashboard-ready"));
     await page.locator("#configuration").evaluate((element) => { element.open = true; });
     const block = page.locator("#configurationProviderLoginStatus");
     await expect(block).toBeVisible();

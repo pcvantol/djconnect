@@ -4980,14 +4980,17 @@ function providerLoginStatusBlock() {
       const row = document.createElement("div");
       row.className = "configuration-provider-status__row";
       row.dataset.provider = provider;
+      const logout = Object.assign(document.createElement("button"), { className: "configuration-provider-status__logout", type: "button", textContent: t("configuration.provider_logout") });
+      logout.dataset.providerLogout = provider;
       row.append(
         Object.assign(document.createElement("span"), { className: "configuration-provider-status__dot", ariaHidden: "true" }),
         Object.assign(document.createElement("strong"), { textContent: provider === "CODEX" ? "Codex" : "GitHub" }),
         Object.assign(document.createElement("span"), { className: "configuration-provider-status__label" }),
+        logout,
       );
       block.append(row);
     }
-    configuration.querySelector(".category-description")?.after(block);
+    configuration.querySelector("summary")?.after(block);
   }
   return block;
 }
@@ -5002,14 +5005,30 @@ async function refreshProviderLoginStatus() {
       const state = String(payload.providers?.[row.dataset.provider.toLowerCase()]?.state || "CHECK_FAILED");
       row.dataset.providerState = state;
       row.querySelector(".configuration-provider-status__label").textContent = t(`configuration.provider_status.${state}`, {}, t("configuration.provider_status.CHECK_FAILED"));
+      row.querySelector("[data-provider-logout]").disabled = state !== "READY";
     });
   } catch {
     block.querySelectorAll("[data-provider]").forEach((row) => {
       row.dataset.providerState = "CHECK_FAILED";
       row.querySelector(".configuration-provider-status__label").textContent = t("configuration.provider_status.CHECK_FAILED");
+      row.querySelector("[data-provider-logout]").disabled = true;
     });
   }
 }
+document.addEventListener("click", async (event) => {
+  const button = event.target.closest("[data-provider-logout]");
+  if (!button || button.disabled) return;
+  const provider = String(button.dataset.providerLogout || "");
+  const confirmed = await confirmDashboardAction(t("configuration.provider_logout"), t("configuration.provider_logout_confirm", { provider: provider === "CODEX" ? "Codex" : "GitHub" }), t("configuration.provider_logout"), { destructive: true });
+  if (!confirmed) return;
+  button.disabled = true;
+  try {
+    const response = await fetch("/api/provider-login/logout", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ provider }) });
+    if (!response.ok) throw Error();
+  } finally {
+    await refreshProviderLoginStatus();
+  }
+});
 const MACHINE_SCOPED_WORKSPACE_FIELD_IDS = Object.freeze([
   "workspaceFreeDiskSpace",
   "workspaceDatabaseField",
