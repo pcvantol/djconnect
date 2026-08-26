@@ -7009,6 +7009,7 @@ test.describe("Engineering Status browser smoke", () => {
   });
 
   test("sorts the two component-log tables independently", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.locator("#componentLogs").evaluate((element) => { element.open = true; });
     const tables = page.locator("#componentLogs .log-table");
@@ -7069,6 +7070,7 @@ test.describe("Engineering Status browser smoke", () => {
   });
 
   test("paginates the two component-log tables independently", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.locator("#componentLogs").evaluate((element) => { element.open = true; });
     await page.locator("#autoRefresh").uncheck();
@@ -7115,6 +7117,7 @@ test.describe("Engineering Status browser smoke", () => {
   });
 
   test("shows a searchable, sortable and paginated prompt history", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
     let historyRuns = [];
     await page.route("**/api/prompt-history", async (route) => {
       await route.fulfill({ json: { runs: historyRuns } });
