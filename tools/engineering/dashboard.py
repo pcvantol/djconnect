@@ -94,6 +94,7 @@ _codex_identity_cache: tuple[float, dict[str, str]] | None = None
 _codex_update_cache_lock = Lock()
 _codex_update_cache: tuple[float, dict[str, object]] | None = None
 _codex_update_install_lock = Lock()
+_provider_install_lock = Lock()
 _snapshot_revision_lock = Lock()
 _snapshot_fingerprint: bytes | None = None
 _snapshot_revision = 0
@@ -1867,26 +1868,35 @@ def _start_provider_login(root: Path, provider: str) -> None:
 
 def _install_provider(root: Path, provider: str) -> None:
     """Install a missing CLI only after an explicit dashboard request."""
-    if _execution_active(root):
-        raise ValueError("Provider installation is unavailable while an execution is active.")
-    if provider == "CODEX":
-        npm = _npm_executable()
-        if npm is None:
-            raise ValueError("npm is required to install Codex CLI.")
-        latest = LocalProcessProvider().execute(root, (npm, "view", CODEX_CLI_PACKAGE, "version", "--json"))
-        version = _codex_cli_version(json.loads(latest.stdout)) if latest.returncode == 0 else None
-        if version is None:
-            raise ValueError("Codex CLI version could not be verified.")
-        completed = LocalProcessProvider().execute(root, (npm, "install", "--global", "--prefix", str(engineering_platform_codex_cli_prefix()), f"{CODEX_CLI_PACKAGE}@{version}"))
-    elif provider == "GITHUB":
-        brew = shutil.which("brew")
-        if brew is None:
-            raise ValueError("GitHub CLI installation requires Homebrew on this host.")
-        completed = LocalProcessProvider().execute(root, (brew, "install", "gh"))
-    else:
-        raise ValueError("Unsupported provider installation request.")
-    if completed.returncode:
-        raise ValueError("Provider installation did not complete.")
+    if not _provider_install_lock.acquire(blocking=False):
+        raise ValueError("Another provider installation is already in progress.")
+    try:
+        if _execution_active(root):
+            raise ValueError("Provider installation is unavailable while an execution is active.")
+        if provider == "CODEX":
+            npm = _npm_executable()
+            if npm is None:
+                raise ValueError("npm is required to install Codex CLI.")
+            latest = LocalProcessProvider().execute(root, (npm, "view", CODEX_CLI_PACKAGE, "version", "--json"))
+            version = _codex_cli_version(json.loads(latest.stdout)) if latest.returncode == 0 else None
+            if version is None:
+                raise ValueError("Codex CLI version could not be verified.")
+            completed = LocalProcessProvider().execute(root, (npm, "install", "--global", "--prefix", str(engineering_platform_codex_cli_prefix()), f"{CODEX_CLI_PACKAGE}@{version}"))
+            verification = CodexCliProvider().command("--version")
+            key = "codex"
+        elif provider == "GITHUB":
+            brew = shutil.which("brew")
+            if brew is None:
+                raise ValueError("GitHub CLI installation requires Homebrew on this host.")
+            completed = LocalProcessProvider().execute(root, (brew, "install", "gh"))
+            verification = LocalProcessProvider().execute(root, ("gh", "--version"))
+            key = "github"
+        else:
+            raise ValueError("Unsupported provider installation request.")
+        if completed.returncode or verification.returncode or _provider_login_status(root).get(key, {}).get("state") == "UNAVAILABLE":
+            raise ValueError("Provider installation could not be verified.")
+    finally:
+        _provider_install_lock.release()
 
 
 def _logout_provider(root: Path, provider: str) -> None:

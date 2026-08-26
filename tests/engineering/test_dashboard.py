@@ -106,6 +106,24 @@ class DashboardStatusTest(unittest.TestCase):
         })
         readiness.assert_called_once_with(Path("/workspace"))
 
+    @patch("tools.engineering.dashboard._provider_login_status", return_value={"codex": {"state": "AUTH_REQUIRED"}})
+    @patch("tools.engineering.dashboard.CodexCliProvider")
+    @patch("tools.engineering.dashboard.LocalProcessProvider")
+    @patch("tools.engineering.dashboard._npm_executable", return_value="/usr/local/bin/npm")
+    @patch("tools.engineering.dashboard._execution_active", return_value=False)
+    def test_codex_install_is_serialized_and_verifies_the_cli_before_login(
+        self, _active: MagicMock, _npm: MagicMock, process: MagicMock, codex: MagicMock, _status: MagicMock,
+    ) -> None:
+        completed = __import__("subprocess").CompletedProcess
+        process.return_value.execute.side_effect = [
+            completed(("npm", "view"), 0, '"0.150.0"', ""),
+            completed(("npm", "install"), 0, "", ""),
+        ]
+        codex.return_value.command.return_value = completed(("codex", "--version"), 0, "0.150.0", "")
+        dashboard._install_provider(Path("/workspace"), "CODEX")
+        self.assertEqual(codex.return_value.command.call_args.args, ("--version",))
+        self.assertEqual(process.return_value.execute.call_count, 2)
+
     @patch("tools.engineering.dashboard.LocalProcessProvider")
     @patch("tools.engineering.dashboard.sys.platform", "darwin")
     def test_local_directory_picker_returns_a_selected_mac_folder(self, provider: MagicMock) -> None:

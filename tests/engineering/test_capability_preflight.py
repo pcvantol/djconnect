@@ -73,4 +73,4 @@ class CapabilityPreflightTest(unittest.TestCase):
                 completed(("gh", "repo"), 1, "", "repository access denied"),
             ]
             status = provider_readiness.status(self.root)
-        self.assertEqual(status["github"]["state"], "CHECK_FAILED")
+        self.assertEqual(status["github"]["state"], "AUTH_REQUIRED")

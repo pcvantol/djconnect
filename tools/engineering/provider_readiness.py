@@ -22,6 +22,18 @@ def _classify(result: subprocess.CompletedProcess[str] | None) -> str:
     return "AUTH_REQUIRED" if any(word in detail for word in ("login", "auth", "credential", "token")) else "CHECK_FAILED"
 
 
+def _repository_classify(result: subprocess.CompletedProcess[str] | None) -> str:
+    """Treat denied repository access as an explicit GitHub-session repair."""
+    if result is None:
+        return "CHECK_FAILED"
+    if result.returncode == 0:
+        return "READY"
+    detail = f"{result.stdout}\n{result.stderr}".casefold()
+    if any(word in detail for word in ("network", "timed out", "timeout", "resolve host", "connection")):
+        return "CHECK_FAILED"
+    return "AUTH_REQUIRED"
+
+
 def status(root: Path, *, require_github: bool = True) -> dict[str, dict[str, str]]:
     """Return provider readiness without session details, tokens, or diagnostics."""
     codex = CodexCliProvider()
@@ -48,7 +60,7 @@ def status(root: Path, *, require_github: bool = True) -> dict[str, dict[str, st
             repository_result = LocalProcessProvider().execute(root, ("gh", "repo", "view", "--json", "nameWithOwner"))
         except OSError:
             repository_result = None
-        github_state = _classify(repository_result)
+        github_state = _repository_classify(repository_result)
     result["github"] = {"provider": "GITHUB", "state": github_state}
     return result
 
