@@ -136,6 +136,17 @@ opens the loopback Console for explicit first-run provider login. This is
 distinct from DJConnect developer-machine bootstrap: EP does not inherit Apple
 signing, Home Assistant lab or product-specific runner requirements.
 
+One macOS user has one EP installation. The engine acquires an
+installation-wide lock and detects any existing installation marker, writer and
+database before changing host state. It requires an explicit non-destructive
+choice to reuse existing data, replace it only after a verified backup, or
+remove the exact EP data root and start clean after a second confirmation.
+`engineering-platform-host --verify` is read-only and returns token-free,
+structured diagnostics for the native installer: it either offers a confirmed
+EP-managed repair or an official external help link for matters EP cannot fix.
+It never treats missing provider login as a successful installation or admits
+work while that condition remains unresolved.
+
 The installer creates no project by inference. A Workspace consumer connects a
 new or existing Git checkout only by supplying canonical project identity; EP
 then validates the selected checkout and project Inbox route. Consumers pin the

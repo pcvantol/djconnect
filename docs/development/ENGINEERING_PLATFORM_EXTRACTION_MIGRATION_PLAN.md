@@ -357,6 +357,61 @@ sequence:
 7. only after all checks pass, open the loopback Operations Console for the
    initial provider setup.
 
+##### Single-installation and existing-data decision
+
+EP permits exactly one installation for one local macOS user. Before any
+write, `engineering-platform-host --install` resolves the canonical
+installation data root, acquires an installation-wide exclusive lock and
+checks its signed installation marker, database, service labels and active
+writer lease. A second native app, a command-line invocation, or an already
+running writer must therefore fail closed rather than create a second database
+or a competing watcher.
+
+When a previous EP data root or database is found, the native installer must
+stop before changing it and present one explicit choice:
+
+| Choice | Required behaviour |
+| --- | --- |
+| **Use existing data** | Retain the installation identity and database; make a verified backup before any schema/package upgrade, then verify and reuse the existing services. |
+| **Replace after backup** | Stop the verified writer, create and verify a dated backup, then atomically replace the installation database and runtime state with a new empty installation. |
+| **Remove and start clean** | Show the exact data-root path and require a second destructive confirmation; stop the verified writer, remove only the detected EP data root, then create a new empty installation. No repository, project Inbox or external account is removed. |
+
+The app never preselects a destructive choice. If existing-state inspection,
+lock acquisition, active-writer shutdown or backup verification fails, it shows
+the failure and makes no data-root mutation. Uninstall uses the same three-way
+decision: retain data, make a verified backup and remove, or explicitly remove
+the exact EP data root. It must never silently erase execution evidence.
+
+##### Installer verification and repair contract
+
+`engineering-platform-host --verify` is a read-only, token-free command. It
+emits structured check records with `id`, `outcome`, `summary`, `repair_kind`
+and optional `repair_url`; the native app renders those records in all five
+supported languages. It verifies the singleton marker/lock, installed EP
+command and version, data-root ownership and permissions, SQLite integrity and
+schema, dashboard/watcher services, one-writer ownership, watcher ready record
+and resolved Inbox path, plus Codex and GitHub CLI availability/readiness.
+
+Each failed check is classified before the UI offers a button:
+
+- **EP-managed repair**: the installer can safely perform it itself (package
+  repair, data-root creation, database initialization, supported CLI install,
+  or LaunchAgent installation). The app explains the scope and asks for
+  confirmation, including administrator permission when macOS requires it;
+  exactly one repair/install runs at a time, followed by `--verify`.
+- **Operator action required**: the installer cannot safely repair it (for
+  example internet access, an unavailable approved package source, an Apple
+  system requirement, or provider browser sign-in). The app leaves the
+  installation non-admitting, gives a concise reason and offers only an
+  official external help/install link. It never displays tokens, command
+  output containing credentials, or a fake success state.
+
+The approved external destinations are the official Codex CLI installation
+documentation (`https://developers.openai.com/codex/cli/`) and GitHub CLI
+installation documentation (`https://cli.github.com/`). Provider browser login
+is never part of `--verify` or automatic repair: it remains a separate,
+operator-triggered action after the host and its services are verified.
+
 The first-run Console guides the operator through explicit Codex and GitHub
 browser login. It stores no token in browser state, dashboard payloads, logs
 or the project repository. A missing CLI, failed install, failed service
