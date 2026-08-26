@@ -714,6 +714,12 @@ class DashboardStatusTest(unittest.TestCase):
                 "__typename": "StatusContext", "context": "Owner Authorization", "state": "FAILURE",
             }],
         }, "pcvantol"), "pending")
+        self.assertEqual(dashboard._owner_approval_status({
+            "reviews": [], "reviewDecision": None,
+            "statusCheckRollup": [{
+                "__typename": "StatusContext", "context": "Owner Authorization", "state": "SUCCESS",
+            }],
+        }, "pcvantol"), "approved")
         self.assertEqual(dashboard._owner_approval_status({"reviews": [], "reviewDecision": "REVIEW_REQUIRED"}, "pcvantol"), "pending")
         self.assertEqual(dashboard._owner_approval_status({"reviews": [
             {"author": {"login": "pcvantol"}, "state": "APPROVED", "submittedAt": "2026-08-24T12:00:00Z"},

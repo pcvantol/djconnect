@@ -1414,6 +1414,13 @@ def _owner_approval_status(pull_request: dict[str, object], repository_owner: st
             conclusion = str(check.get("conclusion") or "").upper()
             if state not in {"SUCCESS", "COMPLETED"} or conclusion not in {"", "SUCCESS", "NEUTRAL", "SKIPPED"}:
                 return "pending"
+            # This check exists only when the HIGH_RISK owner-authorization
+            # gate applied to this exact commit.  A successful result is an
+            # affirmative owner decision, not the absence of a requirement.
+            # Do not fall through to GitHub's optional-review fallback: the
+            # owner may have authorized with the dashboard control rather
+            # than submitted a conventional PR review.
+            return "approved"
     reviews = pull_request.get("reviews")
     if not isinstance(reviews, list) or not repository_owner:
         return "pending"
