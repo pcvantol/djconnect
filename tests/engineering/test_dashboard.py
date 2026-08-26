@@ -2499,6 +2499,65 @@ class DashboardStatusTest(unittest.TestCase):
             self.assertEqual(response.status, 400)
             self.assertEqual(json.loads(response.read()), {"error": "Ongeldige dashboardinstelling."})
 
+    def test_http_configuration_refuses_unsafe_codex_capacity_reserve_increases(self) -> None:
+        settings = {"codex_capacity_reserve_percent": 0}
+
+        def update_reserve(_root: Path, key: str, value: int, *, expected_previous: int) -> dict[str, object]:
+            self.assertEqual(key, "codex_capacity_reserve_percent")
+            self.assertEqual(expected_previous, settings[key])
+            previous = settings[key]
+            settings[key] = value
+            return {"key": key, "previous": previous, "value": value}
+
+        with self._dashboard_http_connection() as (_, connection), patch(
+            "tools.engineering.dashboard.dashboard_configuration", return_value=settings,
+        ), patch("tools.engineering.dashboard.update_dashboard_configuration", side_effect=update_reserve):
+            with patch("tools.engineering.dashboard.read_remaining_percent", return_value=47):
+                connection.request(
+                    "POST", "/api/configuration",
+                    body=json.dumps({"key": "codex_capacity_reserve_percent", "value": 50, "previous": 0}),
+                    headers={"Content-Type": "application/json"},
+                )
+                response = connection.getresponse()
+                self.assertEqual(response.status, 409)
+                self.assertEqual(json.loads(response.read()), {
+                    "error_code": "codex_capacity_reserve_exceeds_remaining",
+                    "value": 0,
+                    "remaining_percent": 47,
+                })
+
+                connection.request(
+                    "POST", "/api/configuration",
+                    body=json.dumps({"key": "codex_capacity_reserve_percent", "value": 25, "previous": 0}),
+                    headers={"Content-Type": "application/json"},
+                )
+                response = connection.getresponse()
+                self.assertEqual(response.status, 200)
+                self.assertEqual(json.loads(response.read())["value"], 25)
+
+            with patch("tools.engineering.dashboard.read_remaining_percent", return_value=None):
+                connection.request(
+                    "POST", "/api/configuration",
+                    body=json.dumps({"key": "codex_capacity_reserve_percent", "value": 75, "previous": 25}),
+                    headers={"Content-Type": "application/json"},
+                )
+                response = connection.getresponse()
+                self.assertEqual(response.status, 409)
+                self.assertEqual(json.loads(response.read()), {
+                    "error_code": "codex_capacity_reserve_unavailable",
+                    "value": 25,
+                    "remaining_percent": None,
+                })
+
+                connection.request(
+                    "POST", "/api/configuration",
+                    body=json.dumps({"key": "codex_capacity_reserve_percent", "value": 20, "previous": 25}),
+                    headers={"Content-Type": "application/json"},
+                )
+                response = connection.getresponse()
+                self.assertEqual(response.status, 200)
+                self.assertEqual(json.loads(response.read())["value"], 20)
+
     def test_inbox_location_change_requires_restart_and_route_confirmation(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

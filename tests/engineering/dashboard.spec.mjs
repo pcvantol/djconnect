@@ -696,7 +696,7 @@ test.describe("Engineering Status browser smoke", () => {
   test("persists the Codex capacity reserve from Available AI capacity", async ({ page }) => {
     const writes = [];
     await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({ json: {
-      status: {}, rate_limits: { provider: "Codex CLI", provider_version: "0.149.0", windows: [{ label: "5-hour window", used_percent: 50, resets_at: 1 }], reset_credits: 0 },
+      status: {}, rate_limits: { provider: "Codex CLI", provider_version: "0.149.0", windows: [{ label: "5-hour window", used_percent: 20, resets_at: 1 }], reset_credits: 0 },
     } }));
     await page.route("**/api/configuration", async (route) => {
       if (route.request().method() === "GET") {
@@ -715,12 +715,31 @@ test.describe("Engineering Status browser smoke", () => {
     const select = page.locator("#configurationCodexCapacityReserve");
     await expect(select).toHaveValue("0");
     await expect(select.locator("option[value='25']")).toHaveText("25% reserve");
+    await expect(select.locator("option[value='75']")).toHaveText("75% reserve");
     await expect(select.locator("xpath=ancestor::details[1]")).toHaveAttribute("id", "rateLimits");
     await select.selectOption("25", { force: true });
     await expect.poll(() => writes).toEqual([{
       key: "codex_capacity_reserve_percent", value: 25, previous: 0,
     }]);
     await expect(select.locator("xpath=ancestor::label[1]").locator(".configuration-field-status")).toHaveText(DASHBOARD_MESSAGES.nl["configuration.saved"]);
+  });
+
+  test("only offers Codex reserve values that fit the observed remaining capacity", async ({ page }) => {
+    await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({ json: {
+      status: { watcher_state: "WATCHER_IDLE" }, rate_limits: { windows: [{ used_percent: 53 }] },
+    } }));
+    await page.route("**/api/configuration", (route) => route.fulfill({ json: {
+      log_retention_days: 90, telemetry_retention_days: 90, log_level: "INFO", inbox_scan_interval_seconds: 15,
+      open_pr_check_interval_seconds: 30, platform_health_refresh_seconds: 15, component_details_refresh_seconds: 5,
+      provider_readiness_refresh_seconds: 300, codex_capacity_reserve_percent: 0,
+    } }));
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.waitForFunction(() => document.body?.classList.contains("dashboard-ready"));
+    const select = page.locator("#configurationCodexCapacityReserve");
+    await expect(select.locator("option")).toHaveCount(6);
+    expect(await select.locator("option").evaluateAll((options) => options.map((option) => option.value))).toEqual(["0", "5", "10", "15", "20", "25"]);
+    await expect(select.locator("option[value='50']")).toHaveCount(0);
+    await expect(select.locator("option[value='75']")).toHaveCount(0);
   });
 
   test("shows the capacity reserve banner and hides it immediately after lowering the reserve", async ({ page }) => {

@@ -17,7 +17,7 @@ import shlex
 import shutil
 import sqlite3
 import socket
-import subprocess  # Compatibility mock target; process execution is provider-owned.
+import subprocess  # noqa: F401 - Compatibility mock target; process execution is provider-owned.
 import sys
 import tempfile
 from threading import Lock, Timer
@@ -47,6 +47,7 @@ from .component_logging import (
 from .component_lock import DuplicateComponentInstanceError, single_instance
 from .agent_state import redact_diagnostic
 from .codex_chat import CodexChatError, chat_model, respond as codex_chat_response
+from .codex_capacity import read_remaining_percent
 from .telemetry import clear_telemetry, daily_statistics, daily_timing_detail, execution_timing, prune_telemetry
 from .prompt_history import prompt_history, report_for_prompt_history
 from .recommendation_handoff import handoff_from_report
@@ -83,6 +84,31 @@ WEB_MANIFEST = "operations-console/manifest.webmanifest"
 LOOPBACK_ADDRESS = "127.0.0.1"
 CODEX_PROCESS = re.compile(r"(?:^|\s)(?:\S*/)?codex(?:\s|$)")
 RATE_LIMIT_CACHE_SECONDS = 60
+
+
+class CodexCapacityReserveConflict(ValueError):
+    """A new reserve exceeds fresh capacity or cannot be safely verified."""
+
+    def __init__(self, code: str, *, remaining_percent: float | None = None) -> None:
+        super().__init__(code)
+        self.code = code
+        self.remaining_percent = remaining_percent
+
+
+def _validate_codex_capacity_reserve_update(root: Path, key: object, value: object) -> None:
+    """Fail closed before a reserve increase can make future admission impossible."""
+    if key != "codex_capacity_reserve_percent" or not isinstance(value, int) or isinstance(value, bool):
+        return
+    previous = int(dashboard_configuration(root)["codex_capacity_reserve_percent"])
+    if value <= previous:
+        return
+    remaining = read_remaining_percent()
+    if remaining is None:
+        raise CodexCapacityReserveConflict("codex_capacity_reserve_unavailable")
+    if value > remaining:
+        raise CodexCapacityReserveConflict(
+            "codex_capacity_reserve_exceeds_remaining", remaining_percent=remaining,
+        )
 _rate_limit_cache_lock = Lock()
 _rate_limit_cache: tuple[float, bytes] | None = None
 CODEX_IDENTITY_CACHE_SECONDS = 300
@@ -2731,6 +2757,7 @@ def handler(root: Path, logger: logging.Logger | None = None):
                     payload = json.loads(self.rfile.read(length).decode("utf-8"))
                     if not isinstance(payload, dict) or set(payload) != {"key", "value", "previous"}:
                         raise ValueError
+                    _validate_codex_capacity_reserve_update(root, payload["key"], payload["value"])
                     event = update_dashboard_configuration(
                         root,
                         payload["key"],
@@ -2747,6 +2774,18 @@ def handler(root: Path, logger: logging.Logger | None = None):
                             log_handler.setLevel(logger.level)
                     log_event(logger, logging.INFO, "dashboard_configuration_changed",
                               diagnostic=f"key={event['key']}; previous={event['previous']}; value={event['value']}")
+                except CodexCapacityReserveConflict as error:
+                    current = dashboard_configuration(root).get(payload.get("key"))
+                    self._send(
+                        json.dumps({
+                            "error_code": error.code,
+                            "value": current,
+                            "remaining_percent": error.remaining_percent,
+                        }).encode(),
+                        "application/json; charset=utf-8",
+                        409,
+                    )
+                    return
                 except DashboardConfigurationConflict as error:
                     current = dashboard_configuration(root).get(payload.get("key"))
                     self._send(

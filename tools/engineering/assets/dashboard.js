@@ -1348,6 +1348,23 @@ function renderCodexCapacityReserveBanner(rateLimits) {
     reserve: locale.number(reserve, { maximumFractionDigits: 0 }),
   });
 }
+const CODEX_CAPACITY_RESERVE_OPTIONS = Object.freeze([0, 5, 10, 15, 20, 25, 50, 75]);
+function syncCodexCapacityReserveOptions(rateLimits = latestDashboardSnapshot?.rate_limits) {
+  const select = $("configurationCodexCapacityReserve");
+  if (!select) return;
+  const remaining = codexLimitRemainingPercent(rateLimits);
+  const selected = String(dashboardConfiguration.codex_capacity_reserve_percent ?? select.dataset.savedValue ?? 0);
+  const allowed = CODEX_CAPACITY_RESERVE_OPTIONS.filter((value) => value === 0 || (remaining !== null && value <= remaining));
+  select.replaceChildren(...allowed.map((value) => {
+    const option = document.createElement("option");
+    option.value = String(value);
+    option.dataset.capacityReserveTemplate = value ? "configuration.capacity_reserve_percent" : "configuration.capacity_reserve_none";
+    option.textContent = value ? t(option.dataset.capacityReserveTemplate, { percent: value }) : t(option.dataset.capacityReserveTemplate);
+    return option;
+  }));
+  if (allowed.includes(Number(selected))) select.value = selected;
+  syncDashboardSelectPicker(select);
+}
 let githubRateLimitRefreshInFlight = false;
 async function refreshGithubRateLimit() {
   const banner = $("githubRateLimitBanner"), message = $("githubRateLimitMessage"), button = $("githubRateLimitRefresh");
@@ -1806,6 +1823,7 @@ function renderHealthStatus(x, snapshot = {}) {
   renderEmergencyRecovery(snapshot.emergency_recovery, x);
   renderCodexUsageLimitBanner(x, snapshot.rate_limits);
   renderCodexCapacityReserveBanner(snapshot.rate_limits);
+  syncCodexCapacityReserveOptions(snapshot.rate_limits);
   indicator.className =
     "indicator indicator--" +
     statusTone +
@@ -4854,11 +4872,22 @@ const dashboardSelectPickers = new Map();
 function syncDashboardSelectPicker(select) {
   const picker = dashboardSelectPickers.get(select);
   if (!picker) return;
+  const nativeOptions = [...select.options];
+  const menuOptions = [...picker.menu.querySelectorAll("[data-dashboard-select-value]")];
+  if (menuOptions.length !== nativeOptions.length || menuOptions.some((option, index) => option.dataset.dashboardSelectValue !== nativeOptions[index]?.value)) {
+    picker.menu.replaceChildren(...nativeOptions.map((nativeOption) => {
+      const option = document.createElement("button");
+      option.type = "button";
+      option.setAttribute("role", "option");
+      option.dataset.dashboardSelectValue = nativeOption.value;
+      return option;
+    }));
+  }
   const selected = select.selectedOptions[0];
   picker.value.textContent = selected?.textContent || "";
   picker.button.disabled = select.disabled;
   picker.menu.querySelectorAll("[data-dashboard-select-value]").forEach((option, index) => {
-    const nativeOption = select.options[index];
+    const nativeOption = nativeOptions[index];
     option.textContent = nativeOption?.textContent || "";
     option.disabled = select.disabled || nativeOption?.disabled === true;
     option.setAttribute("aria-selected", String(option.dataset.dashboardSelectValue === select.value));
@@ -5235,18 +5264,12 @@ function ensureCodexCapacityReserveConfigurationControl() {
   text.className = "label";
   text.textContent = t("configuration.codex_capacity_reserve");
   select.id = "configurationCodexCapacityReserve";
-  [["0", "configuration.capacity_reserve_none"], ["5", "configuration.capacity_reserve_percent"], ["10", "configuration.capacity_reserve_percent"], ["15", "configuration.capacity_reserve_percent"], ["20", "configuration.capacity_reserve_percent"], ["25", "configuration.capacity_reserve_percent"], ["50", "configuration.capacity_reserve_percent"]].forEach(([value, key]) => {
-    const option = document.createElement("option");
-    option.value = value;
-    option.dataset.capacityReserveTemplate = key;
-    option.textContent = key === "configuration.capacity_reserve_percent" ? t(key, { percent: value }) : t(key);
-    select.append(option);
-  });
   label.htmlFor = select.id;
   label.append(text, select);
   controls.append(label);
   status.after(controls);
   enhanceDashboardSelectPicker(select);
+  syncCodexCapacityReserveOptions();
 }
 function localizeConfigurationOptions() {
   ensureProviderReadinessConfigurationControl();
@@ -5265,10 +5288,7 @@ function localizeConfigurationOptions() {
   document.querySelectorAll("#configurationProviderReadinessInterval option").forEach((option) => {
     option.textContent = t(option.dataset.i18n);
   });
-  document.querySelectorAll("#configurationCodexCapacityReserve option").forEach((option) => {
-    option.textContent = option.dataset.capacityReserveTemplate === "configuration.capacity_reserve_percent"
-      ? t(option.dataset.capacityReserveTemplate, { percent: option.value }) : t(option.dataset.capacityReserveTemplate);
-  });
+  syncCodexCapacityReserveOptions();
   dashboardSelectPickers.forEach((_, select) => syncDashboardSelectPicker(select));
 }
 function setDashboardConfigurationControlsDisabled(disabled) {
@@ -5345,17 +5365,26 @@ async function saveDashboardConfiguration(control) {
     const payload = await response.json();
     if (!response.ok) {
       if (response.status === 409 && payload.value !== undefined) {
-        control.value = String(payload.value);
-        control.dataset.savedValue = control.value;
-        syncDashboardSelectPicker(control);
+        const savedValue = String(payload.value);
+        control.value = savedValue;
+        control.dataset.savedValue = savedValue;
+        dashboardConfiguration = { ...dashboardConfiguration, [key]: payload.value };
+        if (key === "codex_capacity_reserve_percent" && Number.isFinite(Number(payload.remaining_percent))) {
+          syncCodexCapacityReserveOptions({ windows: [{ used_percent: 100 - Number(payload.remaining_percent) }] });
+        } else {
+          syncDashboardSelectPicker(control);
+        }
       }
-      throw Error(payload.error || "");
+      const error = Error(payload.error_code || payload.error || "");
+      error.remainingPercent = Number(payload.remaining_percent);
+      throw error;
     }
     control.value = String(payload.value);
     control.dataset.savedValue = control.value;
     dashboardConfiguration = { ...dashboardConfiguration, [key]: payload.value };
     if (key === "codex_capacity_reserve_percent") {
       renderCodexCapacityReserveBanner(latestDashboardSnapshot?.rate_limits);
+      syncCodexCapacityReserveOptions();
     }
     if (key === "open_pr_check_interval_seconds") {
       openPullRequestMonitorIntervalMs = Number(value) * 1e3;
@@ -5379,10 +5408,19 @@ async function saveDashboardConfiguration(control) {
       status.classList.add("configuration-status--saved");
     }
     if (key === "telemetry_retention_days") refreshDashboard();
-  } catch {
+  } catch (error) {
     const status = configurationFieldStatus(control) || (control.closest(".queue-project-settings") ? $("queueProjectSettingsStatus") : control.closest(".log-settings") ? $("logSettingsStatus") : control.closest(".platform-settings") ? $("platformSettingsStatus") : $("telemetryRetentionStatus") || $("configurationStatus"));
     if (status) {
-      status.textContent = t("configuration.save_failed");
+      const code = String(error?.message || "");
+      if (code === "codex_capacity_reserve_exceeds_remaining") {
+        status.textContent = t("configuration.codex_capacity_reserve_exceeds_remaining", {
+          remaining: locale.number(error.remainingPercent, { maximumFractionDigits: 0 }),
+        });
+      } else if (code === "codex_capacity_reserve_unavailable") {
+        status.textContent = t("configuration.codex_capacity_reserve_unavailable");
+      } else {
+        status.textContent = t("configuration.save_failed");
+      }
       status.classList.remove("configuration-status--saved");
     }
   } finally {
@@ -5400,16 +5438,19 @@ async function initializeDashboardConfiguration() {
     const configuration = await response.json();
     dashboardConfiguration = configuration;
     renderCodexCapacityReserveBanner(latestDashboardSnapshot?.rate_limits);
+    syncCodexCapacityReserveOptions();
     Object.entries(configurationFields).forEach(([id, [key]]) => {
       const control = $(id);
       if (!control || configuration[key] === undefined) return;
       if (control.type === "checkbox") control.checked = configuration[key] === true;
       else {
-        control.value = String(configuration[key]);
-        control.dataset.savedValue = control.value;
+        const savedValue = String(configuration[key]);
+        control.value = savedValue;
+        control.dataset.savedValue = savedValue;
       }
       syncDashboardSelectPicker(control);
     });
+    syncCodexCapacityReserveOptions();
     openPullRequestMonitorIntervalMs = Number(configuration.open_pr_check_interval_seconds) * 1e3;
     providerReadinessRefreshIntervalMs = Math.max(60_000, Number(configuration.provider_readiness_refresh_seconds) * 1e3 || 300_000);
     platformHealthRefreshIntervalMs = Number(configuration.platform_health_refresh_seconds) * 1e3;

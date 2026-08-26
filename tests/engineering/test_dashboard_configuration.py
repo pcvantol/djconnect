@@ -43,9 +43,11 @@ class DashboardConfigurationTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             self.assertEqual(get(root)["codex_capacity_reserve_percent"], 0)
-            self.assertEqual(update(root, "codex_capacity_reserve_percent", 25)["value"], 25)
+            self.assertEqual(update(root, "codex_capacity_reserve_percent", 75)["value"], 75)
             with self.assertRaises(ValueError):
                 update(root, "codex_capacity_reserve_percent", 30)
+            with self.assertRaises(ValueError):
+                update(root, "codex_capacity_reserve_percent", 75.0)
 
     def test_rejects_unknown_or_unbounded_values(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

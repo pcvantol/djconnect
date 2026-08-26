@@ -56,13 +56,21 @@ polling interval.
 ## Codex capacity reserve for new work
 
 The local **Available AI capacity** panel has a bounded optional reserve of
-`0`, `5`, `10`, `15`, `20`, `25` or `50` percent (default `0`). When a reserve
-is configured, Capability Preflight obtains fresh, read-only Codex quota
-evidence before an Inbox claim. If the lowest remaining quota window is below
-the reserve—or cannot safely be read—the item remains unclaimed in Inbox and
-the admission record reports the capacity-reserve failure. No agent is started
-and no Codex credit is consumed by a retry loop. This is an admission-only
-guard: an execution that was already claimed remains eligible to finish.
+`0`, `5`, `10`, `15`, `20`, `25`, `50` or `75` percent (default `0`). Its
+pulldown only offers values that are at or below the currently observed
+remaining capacity. The dashboard also obtains fresh, read-only Codex quota
+evidence before it persists an increased reserve: a direct API request above
+the fresh value is rejected, and an unavailable reading never permits an
+increase. Lowering an existing reserve remains possible when the reading is
+temporarily unavailable.
+
+When a reserve is configured, Capability Preflight obtains fresh, read-only
+Codex quota evidence before an Inbox claim. If the lowest remaining quota
+window is below the reserve—or cannot safely be read—the item remains
+unclaimed in Inbox and the admission record reports the capacity-reserve
+failure. No agent is started and no Codex credit is consumed by a retry loop.
+This is an admission-only guard: an execution that was already claimed remains
+eligible to finish.
 
 The same gate applies when an existing execution resumes. A failed check is a
 non-terminal, durable `provider_auth_repair_required` checkpoint: it preserves
