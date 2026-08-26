@@ -8041,6 +8041,8 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(repair).toHaveCSS("background-color", "rgb(59, 40, 27)");
     await expect(repair).toHaveCSS("border-color", "rgb(240, 182, 106)");
     await expect(repair).toHaveCSS("border-radius", "8px");
+    await repair.hover();
+    await expect(repair).toHaveCSS("background-color", "rgb(240, 182, 106)");
     await dispatchDashboardPointerClick(repair);
     await expect(page.locator("#confirmationModal")).toBeVisible();
     await expect(page.locator("#confirmationModalText")).toContainText("herstart de Inbox-watcher");
