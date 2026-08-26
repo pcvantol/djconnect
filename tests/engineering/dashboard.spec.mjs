@@ -764,6 +764,7 @@ test.describe("Engineering Status browser smoke", () => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await Promise.all([configurationLoaded, snapshotLoaded]);
     await page.waitForFunction(() => document.body?.classList.contains("dashboard-ready"));
+    await expect(page.locator("#rateLimitDetails")).toContainText("5-hour window");
     const select = page.locator("#configurationCodexCapacityReserve");
     await expect(select).toHaveValue("0");
     await expect(select.locator("option[value='25']")).toHaveText("25% reserve");
@@ -778,7 +779,7 @@ test.describe("Engineering Status browser smoke", () => {
 
   test("only offers Codex reserve values that fit the observed remaining capacity", async ({ page }) => {
     await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({ json: {
-      status: { watcher_state: "WATCHER_IDLE" }, rate_limits: { windows: [{ used_percent: 53 }] },
+      status: { watcher_state: "WATCHER_IDLE" }, rate_limits: { windows: [{ label: "5-hour window", used_percent: 53 }] },
     } }));
     await page.route("**/api/configuration", (route) => route.fulfill({ json: {
       log_retention_days: 90, telemetry_retention_days: 90, log_level: "INFO", inbox_scan_interval_seconds: 15,
@@ -790,6 +791,7 @@ test.describe("Engineering Status browser smoke", () => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await Promise.all([configurationLoaded, snapshotLoaded]);
     await page.waitForFunction(() => document.body?.classList.contains("dashboard-ready"));
+    await expect(page.locator("#rateLimitDetails")).toContainText("5-hour window");
     const select = page.locator("#configurationCodexCapacityReserve");
     await expect(select.locator("option")).toHaveCount(6);
     expect(await select.locator("option").evaluateAll((options) => options.map((option) => option.value))).toEqual(["0", "5", "10", "15", "20", "25"]);
@@ -1780,7 +1782,7 @@ test.describe("Engineering Status browser smoke", () => {
       renderPromptHistory();
     });
     const row = page.locator("#promptHistoryRows .prompt-history-row");
-    await row.click();
+    await dispatchDashboardPointerClick(row);
     await expect(row).toHaveAttribute("data-selected", "true");
     const selection = await row.locator("td").evaluateAll((cells) => [
       getComputedStyle(cells[0]).boxShadow,
@@ -1920,7 +1922,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(modeField).toContainText("MANAGED");
     const info = modeField.locator(".execution-mode-info");
     await expect(info).toHaveAttribute("aria-label", DASHBOARD_MESSAGES.nl["execution_mode_info.open"]);
-    await info.click();
+    await dispatchDashboardPointerClick(info);
     const modal = page.locator("#executionModeModal");
     await expect(modal).toBeVisible();
     await expect(modal.locator(".dashboard-modal-shell__panel")).toHaveCSS("border-top-color", "rgb(101, 197, 217)");
@@ -7240,7 +7242,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(chat).toHaveText("⋯");
     await expect(chat).toHaveCSS("border-top-color", "rgb(208, 164, 255)");
     await expect(chat).toHaveCSS("color", "rgb(208, 164, 255)");
-    await chat.click();
+    await dispatchDashboardPointerClick(chat);
     await expect(page.locator("#promptHistoryChatModal")).toBeVisible();
     await expect(page.locator("#promptHistoryChatModal")).not.toBeFocused();
     await expect(page.locator("#promptHistoryChatTitle"))
@@ -7255,7 +7257,7 @@ test.describe("Engineering Status browser smoke", () => {
       response.url().includes("/api/codex-chat")
       && response.request().method() === "POST"
     ));
-    await page.locator("#chatInput").press("Control+Enter");
+    await dispatchDashboardPointerClick(page.locator("#chatSend"));
     await chatSubmittedResponse;
     await expect(page.locator("#chatMessages")).toContainText("geselecteerde prompt");
     expect(submittedRun).toBe("inbox-history-25");
