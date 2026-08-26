@@ -7866,7 +7866,7 @@ test.describe("Engineering Status browser smoke", () => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.locator("#configuration > summary").click();
     await expect(page.locator("#workspaceFreeDiskSpace")).toHaveCount(1);
-    await expect(page.locator("#workspaceFreeDiskSpace").locator("xpath=..")).toHaveAttribute("id", "configuration");
+    await expect(page.locator("#workspaceFreeDiskSpace").locator("xpath=..")).toHaveAttribute("id", "configurationHostComponents");
     const databaseSection = page.locator(".workspace-database-section");
     await expect(databaseSection).toHaveCount(1);
     await expect(databaseSection.locator("xpath=..")).toHaveAttribute("id", "configuration");
