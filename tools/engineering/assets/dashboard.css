@@ -250,7 +250,7 @@ html[data-theme="light"] :is(#rateLimitReset,#codexCliUpdate){background:#e8fff5
 .platform-health .component-info:hover{background:#a3e635!important;border-color:#a3e635!important;color:#18230f!important}
 
 /* Downloads remain diagnostic-orange; clearing logs is destructive red. */
-.log-card-actions .download.download--glyph:hover{background:#f0b66a!important;border-color:#f0b66a!important;color:#201812!important}
+#componentLogs .component-log-download:hover:not(:disabled){background:#f0b66a!important;border-color:#f0b66a!important;color:#201812!important}
 
 /* The skip-link target remains programmatically focusable without outlining every category. */
 #engineering-dashboard-content,#engineering-dashboard-content:focus,#engineering-dashboard-content:focus-visible{border:0!important;box-shadow:none!important;outline:0!important}
