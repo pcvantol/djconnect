@@ -772,6 +772,7 @@ html[data-theme="light"] .report-view-modal__content,html[data-theme="light"] .r
 .dashboard-modal-shell__action{align-self:center;background:var(--modal-surface)!important;border:1px solid var(--modal-accent)!important;border-radius:8px;box-sizing:border-box;color:var(--dashboard-modal-ink)!important;cursor:pointer;font:13px system-ui;height:var(--modal-action-height);min-height:var(--modal-action-height);padding:8px 14px}
 .dashboard-modal-shell__action--primary{background:color-mix(in srgb,var(--modal-accent) 22%,#24242d)!important;color:#f7f3ee!important}
 .dashboard-modal-shell__action:hover:not(:disabled){background:var(--modal-accent)!important;border-color:var(--modal-accent)!important;color:#201812!important}
+#dashboardErrorModalRecover:hover:not(:disabled){background:#f0b66a!important;border-color:#f0b66a!important;color:#201812!important}
 html[data-theme="light"] .dashboard-modal-shell{--modal-surface:var(--dashboard-modal-document-surface);color:#182230}
 html[data-theme="light"] .dashboard-modal-shell__panel{color:#182230}
 html[data-theme="light"] .dashboard-modal-shell__close{background:#f7fbff!important;border-color:#728197!important;color:#27364a!important}

@@ -3166,6 +3166,8 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#dashboardErrorModalText")).toContainText("gesynchroniseerd met de upstream");
     await expect(page.locator("#dashboardErrorModalRecover")).toBeVisible();
     await expect(page.locator("#dashboardErrorModalRecover")).toHaveText(DASHBOARD_MESSAGES.nl["action.recover"]);
+    await page.locator("#dashboardErrorModalRecover").hover();
+    await expect(page.locator("#dashboardErrorModalRecover")).toHaveCSS("background-color", "rgb(240, 182, 106)");
     await page.locator("#dashboardErrorModalRecover").click();
     await expect.poll(() => recoveryRequested).toBe(true);
     await expect(modal).not.toBeVisible();
