@@ -167,6 +167,14 @@ reviewer. In the live-execution area, reviewer captions use the same turquoise
 accent family as the parent container; light mode uses its accessible dark
 turquoise ink rather than an unrelated evidence-blue.
 
+Configuration status rows use the same compact-row contract: health glyph,
+provider/name, localized state and any action stay on one desktop row. A
+state-changing action uses the existing semantic compact button treatment;
+browser-default button chrome is prohibited. On phone widths the action may
+move to an explicit second row, never an implicit grid row. Every new
+configuration status/action surface needs a Playwright visual-contract test
+for both its compact desktop geometry and its semantic action treatment.
+
 Interactive data rows use their parent table's category tint across every
 cell on hover and selection, with only the shared leading selection marker.
 Text actions inside such a row do not add an underline or a separate hover

@@ -275,6 +275,35 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(block.locator('[data-provider="GITHUB"]')).toHaveAttribute("data-provider-state", "AUTH_REQUIRED");
   });
 
+  test("uses the compact destructive action contract for provider sign-out", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.route("**/api/provider-login-status", (route) => route.fulfill({ json: {
+      providers: {
+        codex: { provider: "CODEX", state: "READY" },
+        github: { provider: "GITHUB", state: "READY" },
+      },
+    } }));
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.waitForFunction(() => document.body?.classList.contains("dashboard-ready"));
+    await page.locator("#configuration").evaluate((element) => { element.open = true; });
+    const row = page.locator('[data-provider="CODEX"]');
+    const logout = row.locator("[data-provider-logout]");
+    await expect(logout).toHaveCSS("min-height", "32px");
+    await expect(logout).toHaveCSS("border-top-color", "rgb(255, 120, 153)");
+    await expect(logout).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
+    const geometry = await row.evaluate((element) => {
+      const logoutBox = element.querySelector("[data-provider-logout]")?.getBoundingClientRect();
+      const labelBox = element.querySelector(".configuration-provider-status__label")?.getBoundingClientRect();
+      return {
+        height: element.getBoundingClientRect().height,
+        logoutCentre: logoutBox ? logoutBox.top + (logoutBox.height / 2) : null,
+        labelCentre: labelBox ? labelBox.top + (labelBox.height / 2) : null,
+      };
+    });
+    expect(geometry.height).toBeLessThanOrEqual(36);
+    expect(geometry.logoutCentre).toBe(geometry.labelCentre);
+  });
+
   test("shows a sticky provider repair banner and never reports it as resolved before recheck", async ({ page }) => {
     let readinessCalls = 0;
     await page.route("**/api/provider-login-status", (route) => route.fulfill({ json: {
