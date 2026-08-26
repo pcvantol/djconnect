@@ -1679,6 +1679,41 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(merge.locator("span").first()).not.toHaveText("✓");
   });
 
+  test("shows localized local-validation iterations as lifecycle evidence", async ({ page }) => {
+    await page.route("**/api/events", (route) => route.abort());
+    await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({ json: { status: {} } }));
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => r({
+      watcher_state: "ENGINEERING_RUN_ACTIVE",
+      run_id: "lifecycle-local-validation",
+      lifecycle: {
+        available: true,
+        run_id: "lifecycle-local-validation",
+        terminal_state: "ACTIVE",
+        steps: [{
+          id: "LOCAL_REPOSITORY_VALIDATION",
+          presentation_key: "lifecycle.step.local_repository_validation",
+          state: "ACTIVE",
+          iteration_count: 2,
+          repair_audit: [{
+            iteration: "2", failed_checks: "Canonical tests", proposed_action: "Fix the bounded test.",
+            agent_summary: "Validation passes.", commit_sha: "abcdef1", outcome: "validated",
+          }],
+        }],
+      },
+    }, {}));
+    await page.locator("#currentRun").evaluate((element) => { element.open = true; });
+
+    const node = page.locator(".execution-lifecycle__node");
+    await expect(node).toContainText(DASHBOARD_MESSAGES.nl["lifecycle.step.local_repository_validation"]);
+    await node.click();
+    const detail = page.locator("#lifecycleDetailModal");
+    await expect(detail).toBeVisible();
+    await expect(detail).toContainText(DASHBOARD_MESSAGES.nl["lifecycle.detail_local_validation_evidence"]);
+    await expect(detail).toContainText(DASHBOARD_MESSAGES.nl["lifecycle.detail_repair_iteration"].replace("{iteration}", "2"));
+    await expect(detail).toContainText("Validation passes.");
+  });
+
   test("places finalization pull-request repair after Finalization and before its merge", async ({ page }) => {
     await page.route("**/api/events", (route) => route.abort());
     await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({ json: { status: {} } }));

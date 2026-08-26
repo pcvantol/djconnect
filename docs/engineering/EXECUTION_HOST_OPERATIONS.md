@@ -74,6 +74,16 @@ problem, corrective action, result and commit evidence. Only a passing attempt
 may create the draft implementation pull request. Remote GitHub check repair
 remains a separate, later bounded gate.
 
+Both bounded gates preserve the same immutable per-attempt shape: iteration,
+observation time, observed problem, proposed action, safe agent summary,
+commit evidence and outcome. Local validation uses `validated`,
+`validation_failed` or `agent_failed`; PR repair uses
+`submitted_for_recheck`, `agent_failed` or `agent_timed_out`. The latter is a
+host-owned deadline outcome, not an invitation to start another repair: the
+run is blocked with its evidence intact and requires a new explicit recovery
+decision. The Console renders these records as iteration evidence and uses
+the same five-language status contract as the rest of the lifecycle.
+
 - **Pull-request merge hand-off** is shown as a persistent, dashboard-native
   wait state with a direct GitHub link once required checks are green. Closing
   the browser does not cancel it: the watcher polls the persisted run and
