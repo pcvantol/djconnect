@@ -5326,7 +5326,10 @@ function groupHostComponentConfiguration() {
     hostControls.className = "configuration-controls";
     section.append(hostControls);
   }
-  section.append(diskSpace);
+  // Keep the disk reading directly above the host-detail picker on every
+  // refresh. `append()` would move it below an existing control group on the
+  // second dashboard projection.
+  section.insertBefore(diskSpace, hostControls);
   hostControls.append(componentDetails);
 }
 function ensureProviderReadinessConfigurationControl() {

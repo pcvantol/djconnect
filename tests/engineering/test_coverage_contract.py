@@ -17,3 +17,13 @@ class EngineeringPlatformCoverageContractTests(unittest.TestCase):
         self.assertIn("minimum = 80.20", workflow)
         self.assertIn('minimum 80.20%', workflow)
         self.assertIn("covered is None or covered < minimum", workflow)
+
+    def test_browser_dashboard_validation_uses_two_parallel_shards(self) -> None:
+        workflow = Path(".github/workflows/engineering-platform-validation.yml").read_text(
+            encoding="utf-8"
+        )
+
+        self.assertIn('shard: ["1/2", "2/2"]', workflow)
+        self.assertIn("max-parallel: 2", workflow)
+        self.assertIn("--shard=${{ matrix.shard }}", workflow)
+        self.assertIn("engineering-status-browser-screenshots-${{ matrix.shard }}", workflow)

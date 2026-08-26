@@ -446,6 +446,11 @@ npm run test:engineering-dashboard
 npm run test:engineering-dashboard-logic
 ```
 
+For Engineering Platform pull requests, GitHub executes the full browser suite
+as two deterministic Playwright shards in parallel. This preserves the complete
+suite while making each shard's result and failure diagnostics independently
+visible.
+
 Dynamic operational labels are part of that same five-language contract. Every
 phase rendered from execution timing or lifecycle state, watcher status and
 Execution Host activity must resolve through a catalog key; raw identifiers and

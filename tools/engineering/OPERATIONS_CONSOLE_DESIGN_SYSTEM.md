@@ -513,6 +513,11 @@ CI=1 npm run test:engineering-dashboard -- --reporter=line
 git diff --check
 ```
 
+On GitHub, the complete dashboard suite runs as two deterministic Playwright
+shards in parallel. Both `browser-dashboard` shard checks are required for a
+non-documentation Engineering Platform change; sharding reduces elapsed time
+without reducing coverage.
+
 The current regression layers are deliberately complementary:
 
 - `tests/engineering/test_inbox_watcher.py` verifies the safe filesystem and
