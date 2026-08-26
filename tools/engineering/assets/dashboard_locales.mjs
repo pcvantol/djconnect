@@ -3096,9 +3096,14 @@ export const OPERATIONAL_TRANSLATION_KEYS = Object.freeze([
   "lifecycle.step.wait_for_operator_merge",
   "lifecycle.step.wait_for_finalization_merge",
   "lifecycle.step.wait_for_reconciliation_merge",
+  "lifecycle.state.stale",
+  "lifecycle.detail_terminal_timing_stale",
   "operational.stale_run",
   "operational.waiting_for_operator_merge",
   "operational.stale_host_ownership",
+  "operational.poll_required_checks",
+  "operational.reconcile_rolling_records_on_main",
+  "reviewer.home_assistant_integration",
   "merge_wait.check_status",
   "merge_wait.status_check_failed",
   "merge_wait.reason.not_waiting",
@@ -3109,6 +3114,53 @@ export const OPERATIONAL_TRANSLATION_KEYS = Object.freeze([
   "merge_wait.reason.merge_not_in_origin_main",
   "merge_wait.reason.github_evidence_unavailable",
 ]);
+
+Object.assign(DASHBOARD_MESSAGES.en, {
+  "reviewer.home_assistant_integration": "Home Assistant integration",
+  "operational.poll_required_checks": "Checking required pull request checks",
+  "operational.reconcile_rolling_records_on_main": "Reconciling rolling records on main",
+});
+Object.assign(DASHBOARD_MESSAGES.nl, {
+  "reviewer.home_assistant_integration": "Home Assistant-integratie",
+  "operational.poll_required_checks": "Vereiste pullrequestcontroles controleren",
+  "operational.reconcile_rolling_records_on_main": "Doorlopende registraties op main reconciliëren",
+});
+Object.assign(DASHBOARD_MESSAGES.de, {
+  "reviewer.home_assistant_integration": "Home-Assistant-Integration",
+  "operational.poll_required_checks": "Erforderliche Pull-Request-Prüfungen werden überprüft",
+  "operational.reconcile_rolling_records_on_main": "Fortlaufende Einträge auf main werden abgeglichen",
+});
+Object.assign(DASHBOARD_MESSAGES.fr, {
+  "reviewer.home_assistant_integration": "Intégration Home Assistant",
+  "operational.poll_required_checks": "Vérification des contrôles requis de la pull request",
+  "operational.reconcile_rolling_records_on_main": "Rapprochement des enregistrements courants sur main",
+});
+Object.assign(DASHBOARD_MESSAGES.es, {
+  "reviewer.home_assistant_integration": "Integración de Home Assistant",
+  "operational.poll_required_checks": "Comprobando las verificaciones obligatorias de la solicitud de extracción",
+  "operational.reconcile_rolling_records_on_main": "Conciliando los registros continuos en main",
+});
+
+Object.assign(DASHBOARD_MESSAGES.en, {
+  "lifecycle.state.stale": "stale",
+  "lifecycle.detail_terminal_timing_stale": "A recorded timing segment became stale after an interruption. It does not change the execution result.",
+});
+Object.assign(DASHBOARD_MESSAGES.nl, {
+  "lifecycle.state.stale": "verouderd",
+  "lifecycle.detail_terminal_timing_stale": "Een geregistreerd timingsegment is na een onderbreking verouderd geraakt. Dit wijzigt het uitvoeringsresultaat niet.",
+});
+Object.assign(DASHBOARD_MESSAGES.de, {
+  "lifecycle.state.stale": "veraltet",
+  "lifecycle.detail_terminal_timing_stale": "Ein erfasstes Zeitsegment ist nach einer Unterbrechung veraltet. Das Ausführungsergebnis ändert sich dadurch nicht.",
+});
+Object.assign(DASHBOARD_MESSAGES.fr, {
+  "lifecycle.state.stale": "obsolète",
+  "lifecycle.detail_terminal_timing_stale": "Un segment temporel enregistré est devenu obsolète après une interruption. Cela ne modifie pas le résultat de l’exécution.",
+});
+Object.assign(DASHBOARD_MESSAGES.es, {
+  "lifecycle.state.stale": "obsoleto",
+  "lifecycle.detail_terminal_timing_stale": "Un segmento de tiempo registrado quedó obsoleto tras una interrupción. Esto no cambia el resultado de la ejecución.",
+});
 
 Object.assign(DASHBOARD_MESSAGES.en, {"configuration.inbox_location_restarting":"Restarting and verifying the Inbox watcher…","configuration.inbox_location_restart_failed":"The Inbox watcher could not confirm the new location. The previous location was restored."});
 Object.assign(DASHBOARD_MESSAGES.nl, {"configuration.inbox_location_restarting":"Inbox-watcher wordt herstart en geverifieerd…","configuration.inbox_location_restart_failed":"De Inbox-watcher kon de nieuwe locatie niet bevestigen. De vorige locatie is hersteld."});
