@@ -3193,6 +3193,8 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(card.locator("a")).toHaveCount(2);
     await expect(card.locator("a").nth(0)).toHaveAttribute("href", "https://github.com/pcvantol/djconnect/pull/948");
     await expect(card.locator("a").nth(0)).toHaveText("#948 ↗");
+    await card.locator("a").nth(0).hover();
+    await expect(card.locator("a").nth(0)).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
     await expect(card.locator("a").nth(1)).toHaveAttribute("href", "https://github.com/pcvantol/djconnect/pull/949");
     const [contextBounds, cardBounds] = await Promise.all([
       page.locator("#promptHistoryDetailContent .prompt-detail-card--execution-context").boundingBox(),
