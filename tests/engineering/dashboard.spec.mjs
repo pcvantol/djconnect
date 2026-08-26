@@ -4111,13 +4111,13 @@ test.describe("Engineering Status browser smoke", () => {
     // timeout independent from unrelated worker contention in the full run.
     testInfo.setTimeout(60_000);
     const expectations = [
-      ["en", "Search", "Search all fields", "Level", "All levels"],
-      ["nl", "Zoeken", "Zoek in alle velden", "Niveau", "Alle niveaus"],
-      ["de", "Suchen", "Alle Felder durchsuchen", "Stufe", "Alle Stufen"],
-      ["fr", "Rechercher", "Rechercher dans tous les champs", "Niveau", "Tous les niveaux"],
-      ["es", "Buscar", "Buscar en todos los campos", "Nivel", "Todos los niveles"],
+      ["en", "Search", "Search all fields", "Level", "All levels", "Time period", ["All dates", "Today", "Yesterday", "Specific day", "Custom range"]],
+      ["nl", "Zoeken", "Zoek in alle velden", "Niveau", "Alle niveaus", "Tijdvenster", ["Alle datums", "Vandaag", "Gisteren", "Specifieke dag", "Aangepast bereik"]],
+      ["de", "Suchen", "Alle Felder durchsuchen", "Stufe", "Alle Stufen", "Zeitraum", ["Alle Daten", "Heute", "Gestern", "Bestimmter Tag", "Benutzerdefinierter Zeitraum"]],
+      ["fr", "Rechercher", "Rechercher dans tous les champs", "Niveau", "Tous les niveaux", "Période", ["Toutes les dates", "Aujourd’hui", "Hier", "Jour précis", "Plage personnalisée"]],
+      ["es", "Buscar", "Buscar en todos los campos", "Nivel", "Todos los niveles", "Periodo", ["Todas las fechas", "Hoy", "Ayer", "Día específico", "Intervalo personalizado"]],
     ];
-    for (const [language, search, placeholder, level, allLevels] of expectations) {
+    for (const [language, search, placeholder, level, allLevels, timePeriod, timeOptions] of expectations) {
       await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
       await selectDashboardLocale(page, language);
       await expect(page.locator("html")).toHaveAttribute("lang", language);
@@ -4125,7 +4125,39 @@ test.describe("Engineering Status browser smoke", () => {
       await expect(page.locator("#logFilter")).toHaveAttribute("placeholder", placeholder);
       await expect(page.locator("label[for=logLevelFilter]")).toContainText(level);
       await expect(page.locator("#logLevelFilter option[value='']")).toHaveText(allLevels);
+      await expect(page.locator("label[for=logTimePreset]")).toContainText(timePeriod);
+      await expect(page.locator("#logTimePreset option")).toHaveText(timeOptions);
     }
+  });
+
+  test("filters component logs by a specific day and an exact local time range", async ({ page }) => {
+    await page.route("**/api/logs/**", (route) => route.fulfill({ contentType: "application/x-ndjson", body: "" }));
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#componentLogs").evaluate((element) => { element.open = true; });
+    await page.waitForFunction(() => componentLogsLoaded);
+    await page.evaluate(() => {
+      componentLogEntries.inbox = [
+        { line: 1, timestamp: new Date(2026, 7, 16, 9, 0).toISOString(), level: "INFO", event: "watcher_started", runId: "day", details: "early-entry" },
+        { line: 2, timestamp: new Date(2026, 7, 16, 11, 0).toISOString(), level: "INFO", event: "watcher_started", runId: "range", details: "range-entry" },
+        { line: 3, timestamp: new Date(2026, 7, 17, 9, 0).toISOString(), level: "INFO", event: "watcher_started", runId: "other", details: "other day" },
+      ];
+      componentLogEntries.dashboard = [];
+      renderComponentLogs();
+    });
+    await page.locator("#logTimePreset").selectOption("day");
+    await expect(page.locator("#logSpecificDateControl")).toBeVisible();
+    await page.locator("#logSpecificDate").fill("2026-08-16");
+    await expect(page.locator("#inboxComponentLog")).toContainText("early-entry");
+    await expect(page.locator("#inboxComponentLog")).toContainText("range-entry");
+    await expect(page.locator("#inboxComponentLog")).not.toContainText("other day");
+
+    await page.locator("#logTimePreset").selectOption("range");
+    await expect(page.locator("#logDateFromControl")).toBeVisible();
+    await page.locator("#logDateFrom").fill("2026-08-16T10:30");
+    await page.locator("#logDateTo").fill("2026-08-16T11:30");
+    await expect(page.locator("#inboxComponentLog")).not.toContainText("early-entry");
+    await expect(page.locator("#inboxComponentLog")).toContainText("range-entry");
+    await expect(page.locator("#inboxComponentLog")).not.toContainText("other day");
   });
 
   test("localizes component log table headings for every supported language", async ({ page }) => {
