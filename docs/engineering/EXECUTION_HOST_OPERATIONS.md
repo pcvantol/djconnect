@@ -43,6 +43,12 @@ execution, never exposes credentials, and does not resolve its banner until a
 new check confirms readiness. Per-provider sign-out remains available to test
 a fresh session deliberately.
 
+The dashboard checks both providers immediately when it opens, then rechecks
+while its tab is visible at a configurable **1, 5 or 10 minute** interval
+(five minutes by default). These are read-only local readiness checks: they
+never reveal credentials, claim queue work, start an execution or consume
+Codex credits.
+
 The same gate applies when an existing execution resumes. A failed check is a
 non-terminal, durable `provider_auth_repair_required` checkpoint: it preserves
 the original phase and next action, and records only the affected provider

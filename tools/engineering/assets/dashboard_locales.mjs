@@ -3244,6 +3244,12 @@ export function preferredLocale(state) {
   return normalizeLocale(state?.locale || navigator.languages?.[0] || navigator.language);
 }
 
+Object.assign(DASHBOARD_MESSAGES.en, {"configuration.provider_readiness_interval":"Provider readiness check interval","configuration.provider_readiness_interval_help":"How often this open dashboard rechecks the local Codex and GitHub readiness without starting an execution.","configuration.minute_1":"1 minute","configuration.minutes_5":"5 minutes","configuration.minutes_10":"10 minutes"});
+Object.assign(DASHBOARD_MESSAGES.nl, {"configuration.provider_readiness_interval":"Controle-interval providergereedheid","configuration.provider_readiness_interval_help":"Hoe vaak dit geopende dashboard de lokale gereedheid van Codex en GitHub opnieuw controleert zonder een uitvoering te starten.","configuration.minute_1":"1 minuut","configuration.minutes_5":"5 minuten","configuration.minutes_10":"10 minuten"});
+Object.assign(DASHBOARD_MESSAGES.de, {"configuration.provider_readiness_interval":"Prüfintervall für Provider-Bereitschaft","configuration.provider_readiness_interval_help":"Wie oft dieses geöffnete Dashboard die lokale Bereitschaft von Codex und GitHub erneut prüft, ohne eine Ausführung zu starten.","configuration.minute_1":"1 Minute","configuration.minutes_5":"5 Minuten","configuration.minutes_10":"10 Minuten"});
+Object.assign(DASHBOARD_MESSAGES.fr, {"configuration.provider_readiness_interval":"Intervalle de vérification de disponibilité des fournisseurs","configuration.provider_readiness_interval_help":"À quelle fréquence ce tableau de bord ouvert revérifie la disponibilité locale de Codex et GitHub sans démarrer d’exécution.","configuration.minute_1":"1 minute","configuration.minutes_5":"5 minutes","configuration.minutes_10":"10 minutes"});
+Object.assign(DASHBOARD_MESSAGES.es, {"configuration.provider_readiness_interval":"Intervalo de comprobación de disponibilidad de proveedores","configuration.provider_readiness_interval_help":"Con qué frecuencia este panel abierto vuelve a comprobar la disponibilidad local de Codex y GitHub sin iniciar una ejecución.","configuration.minute_1":"1 minuto","configuration.minutes_5":"5 minutos","configuration.minutes_10":"10 minutos"});
+
 export function createTranslator(locale) {
   const active = normalizeLocale(locale);
   return (key, values = {}, fallback = key) => String(messages[active]?.[key] ?? messages.en[key] ?? fallback)

@@ -256,10 +256,12 @@ class DashboardStatusTest(unittest.TestCase):
             "configuration.open_pr_interval_help", "configuration.dashboard_stream_interval_help",
             "configuration.platform_health_interval", "configuration.platform_health_interval_help",
             "configuration.component_details_interval", "configuration.component_details_interval_help",
+            "configuration.provider_readiness_interval", "configuration.provider_readiness_interval_help",
             "configuration.lease_heartbeat_interval", "configuration.lease_heartbeat_interval_help",
             "configuration.lease_timeout", "configuration.lease_timeout_help",
             "configuration.github_retry_backoff", "configuration.github_retry_backoff_help",
             "configuration.seconds_5", "configuration.seconds_60", "configuration.seconds_90",
+            "configuration.minute_1", "configuration.minutes_5", "configuration.minutes_10",
             "configuration.github_retry_backoff_value",
             "configuration.inbox_location_open", "configuration.inbox_location_modal_description",
             "configuration.inbox_location_queue_not_empty",
@@ -278,6 +280,7 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertNotIn('"nl-NL"', dashboard_script)
         self.assertNotIn("localeCompare(", dashboard_script)
         self.assertIn("initializeDashboardConfiguration", dashboard_script)
+        self.assertIn("scheduleProviderReadinessRefresh", dashboard_script)
 
     def test_dashboard_run_logs_startup_and_graceful_shutdown_identity(self) -> None:
         class InterruptingServer:

@@ -548,6 +548,41 @@ test.describe("Engineering Status browser smoke", () => {
     expect(layout.actionWidth).toBe(layout.fieldWidth);
   });
 
+  test("checks provider readiness on open and exposes the bounded refresh interval", async ({ page }) => {
+    let readinessChecks = 0;
+    const writes = [];
+    await page.route("**/api/provider-login-status", async (route) => {
+      readinessChecks += 1;
+      await route.fulfill({ json: { providers: {
+        codex: { provider: "CODEX", state: "READY" },
+        github: { provider: "GITHUB", state: "READY" },
+      } } });
+    });
+    await page.route("**/api/configuration", async (route) => {
+      if (route.request().method() === "GET") {
+        await route.fulfill({ json: {
+          log_retention_days: 90, telemetry_retention_days: 90, log_level: "INFO", inbox_scan_interval_seconds: 15,
+          open_pr_check_interval_seconds: 30, platform_health_refresh_seconds: 15,
+          component_details_refresh_seconds: 5, provider_readiness_refresh_seconds: 300,
+        } });
+        return;
+      }
+      writes.push(JSON.parse(route.request().postData() || "{}"));
+      await route.fulfill({ json: { key: "provider_readiness_refresh_seconds", previous: 300, value: 600 } });
+    });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.waitForFunction(() => document.body?.classList.contains("dashboard-ready"));
+    await page.locator("#configuration").evaluate((element) => { element.open = true; });
+    const select = page.locator("#configurationProviderReadinessInterval");
+    await expect(select).toHaveValue("300");
+    await expect(select.locator("option[value='300']")).toHaveText("5 minuten");
+    expect(readinessChecks).toBeGreaterThanOrEqual(1);
+    await select.selectOption("600");
+    await expect.poll(() => writes).toEqual([{
+      key: "provider_readiness_refresh_seconds", value: 600, previous: 300,
+    }]);
+  });
+
   test("persists a log-level pulldown choice exactly once", async ({ page }) => {
     const writes = [];
     await page.route("**/api/configuration", async (route) => {

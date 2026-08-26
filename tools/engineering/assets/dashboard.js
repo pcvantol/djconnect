@@ -4814,6 +4814,7 @@ const configurationFields = Object.freeze({
   configurationLogLevel: ["log_level", String],
   configurationInboxScanInterval: ["inbox_scan_interval_seconds", Number],
   configurationOpenPrInterval: ["open_pr_check_interval_seconds", Number],
+  configurationProviderReadinessInterval: ["provider_readiness_refresh_seconds", Number],
   configurationPlatformHealthInterval: ["platform_health_refresh_seconds", Number],
   configurationComponentDetailsInterval: ["component_details_refresh_seconds", Number],
 });
@@ -4930,6 +4931,7 @@ function addConfigurationControlInfo() {
     ["configurationLogLevel", "configuration.log_level_help"],
     ["configurationInboxScanInterval", "configuration.inbox_scan_interval_help"],
     ["configurationOpenPrInterval", "configuration.open_pr_interval_help"],
+    ["configurationProviderReadinessInterval", "configuration.provider_readiness_interval_help"],
     ["configurationPlatformHealthInterval", "configuration.platform_health_interval_help"],
     ["configurationComponentDetailsInterval", "configuration.component_details_interval_help"],
   ]) {
@@ -5016,6 +5018,14 @@ async function refreshProviderLoginStatus() {
       row.querySelector("[data-provider-logout]").disabled = true;
     });
   }
+}
+let providerReadinessRefreshIntervalMs = 300_000, providerReadinessRefreshTimer = null;
+function scheduleProviderReadinessRefresh() {
+  if (providerReadinessRefreshTimer !== null) window.clearTimeout(providerReadinessRefreshTimer);
+  providerReadinessRefreshTimer = window.setTimeout(async () => {
+    if (document.visibilityState === "visible") await refreshProviderLoginStatus();
+    scheduleProviderReadinessRefresh();
+  }, providerReadinessRefreshIntervalMs);
 }
 const providerReadinessActions = new Map();
 let providerInteractiveRepairInProgress = false;
@@ -5140,7 +5150,31 @@ function moveMachineScopedWorkspaceDetails() {
     if (field) configuration.insertBefore(field, controls);
   });
 }
+function ensureProviderReadinessConfigurationControl() {
+  if ($("configurationProviderReadinessInterval")) return;
+  const controls = document.querySelector("#configuration .configuration-controls");
+  const before = $("configurationPlatformHealthInterval")?.closest("label");
+  if (!controls || !before) return;
+  const label = document.createElement("label"), text = document.createElement("span"), select = document.createElement("select");
+  text.className = "label";
+  text.textContent = t("configuration.provider_readiness_interval");
+  select.id = "configurationProviderReadinessInterval";
+  [["60", "configuration.minute_1"], ["300", "configuration.minutes_5"], ["600", "configuration.minutes_10"]].forEach(([value, key]) => {
+    const option = document.createElement("option");
+    option.value = value;
+    option.dataset.i18n = key;
+    option.textContent = t(key);
+    select.append(option);
+  });
+  label.htmlFor = select.id;
+  label.append(text, select);
+  controls.insertBefore(label, before);
+  enhanceDashboardSelectPicker(select);
+}
 function localizeConfigurationOptions() {
+  ensureProviderReadinessConfigurationControl();
+  const providerReadinessLabel = $("configurationProviderReadinessInterval")?.closest("label")?.querySelector(":scope > span");
+  if (providerReadinessLabel) providerReadinessLabel.textContent = t("configuration.provider_readiness_interval");
   moveMachineScopedWorkspaceDetails();
   moveProjectScopedConfiguration();
   CONFIGURATION_CONTROL_SCOPES.slice(1).forEach(moveConfigurationControls);
@@ -5149,6 +5183,9 @@ function localizeConfigurationOptions() {
   providerLoginStatusBlock();
   document.querySelectorAll("#configurationLogRetention option, #configurationTelemetryRetention option").forEach((option) => {
     option.textContent = t("configuration.days", { days: option.value });
+  });
+  document.querySelectorAll("#configurationProviderReadinessInterval option").forEach((option) => {
+    option.textContent = t(option.dataset.i18n);
   });
   dashboardSelectPickers.forEach((_, select) => syncDashboardSelectPicker(select));
 }
@@ -5226,6 +5263,10 @@ async function saveDashboardConfiguration(control) {
       openPullRequestMonitorIntervalMs = Number(value) * 1e3;
       scheduleOpenPullRequestMonitor([...openPullRequestStatusByNumber.values()].map((status) => ({ status })));
     }
+    if (key === "provider_readiness_refresh_seconds") {
+      providerReadinessRefreshIntervalMs = Math.max(60_000, Number(value) * 1e3 || 300_000);
+      scheduleProviderReadinessRefresh();
+    }
     if (key === "platform_health_refresh_seconds") {
       platformHealthRefreshIntervalMs = Number(value) * 1e3;
       schedulePlatformHealthRefresh();
@@ -5271,9 +5312,11 @@ async function initializeDashboardConfiguration() {
       syncDashboardSelectPicker(control);
     });
     openPullRequestMonitorIntervalMs = Number(configuration.open_pr_check_interval_seconds) * 1e3;
+    providerReadinessRefreshIntervalMs = Math.max(60_000, Number(configuration.provider_readiness_refresh_seconds) * 1e3 || 300_000);
     platformHealthRefreshIntervalMs = Number(configuration.platform_health_refresh_seconds) * 1e3;
     componentDetailsRefreshIntervalMs = Number(configuration.component_details_refresh_seconds) * 1e3;
     schedulePlatformHealthRefresh();
+    scheduleProviderReadinessRefresh();
   } catch {
     $("configurationStatus").textContent = t("configuration.load_failed");
     $("configurationStatus").classList.remove("configuration-status--saved");
@@ -5282,6 +5325,7 @@ async function initializeDashboardConfiguration() {
     setDashboardConfigurationControlsDisabled(false);
   }
 }
+ensureProviderReadinessConfigurationControl();
 Object.keys(configurationFields).forEach((id) => {
   $(id)?.addEventListener("change", (event) => void saveDashboardConfiguration(event.currentTarget));
 });
