@@ -293,6 +293,9 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(logout).toHaveCSS("min-height", "32px");
     await expect(logout).toHaveCSS("border-top-color", "rgb(255, 120, 153)");
     await expect(logout).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
+    await logout.hover();
+    await expect(logout).toHaveCSS("background-color", "rgb(255, 113, 143)");
+    await expect(logout).toHaveCSS("color", "rgb(35, 19, 26)");
     const geometry = await row.evaluate((element) => {
       const logoutBox = element.querySelector("[data-provider-logout]")?.getBoundingClientRect();
       const labelBox = element.querySelector(".configuration-provider-status__label")?.getBoundingClientRect();
