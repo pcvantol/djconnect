@@ -785,12 +785,18 @@ test.describe("Engineering Status browser smoke", () => {
   });
 
   test("translates reviewer and operational machine codes in every supported locale", async ({ page }) => {
+    await page.route("**/api/events", (route) => route.abort());
+    await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({
+      json: { status: { watcher_state: "WATCHER_IDLE" } },
+    }));
     for (const language of SUPPORTED_LOCALES) {
       await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
       await selectDashboardLocale(page, language);
+      await page.locator("#autoRefresh").uncheck();
       await page.evaluate(() => r({
         watcher_state: "ENGINEERING_RUN_ACTIVE",
         run_id: "localized-operational-codes",
+        current_phase: "CAPABILITY_REVIEW",
         current_action: "poll_required_checks",
         reviewer_agents: [{
           reviewer: "HOME_ASSISTANT_INTEGRATION", capability: "ENGINEERING", status: "running",
@@ -2842,7 +2848,7 @@ test.describe("Engineering Status browser smoke", () => {
       await page.evaluate(() => r({
         watcher_state: "ENGINEERING_RUN_ACTIVE",
         run_id: "inbox-localized-runtime",
-        current_phase: "EXECUTE_AGENT",
+        current_phase: "CAPABILITY_REVIEW",
         reviewer_agents: [{ reviewer: "validation", capability: "ENGINEERING", status: "running" }],
       }, {
         usage: { input_tokens: 42 },
@@ -4792,7 +4798,7 @@ test.describe("Engineering Status browser smoke", () => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.locator("#themeToggle").click();
     await page.evaluate(() => r({
-      watcher_state: "ENGINEERING_RUN_ACTIVE", run_id: "review-run",
+      watcher_state: "ENGINEERING_RUN_ACTIVE", run_id: "review-run", current_phase: "CAPABILITY_REVIEW",
       reviewer_agents: [{ reviewer: "repository_governance", capability: "engineering", status: "completed" }],
     }, {}));
     await expect(page.locator(".reviewer-agent__name")).toHaveCSS("color", "rgb(24, 120, 132)");
@@ -4801,7 +4807,7 @@ test.describe("Engineering Status browser smoke", () => {
   test("shows live and completed reviewer status indicators", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.evaluate(() => r({
-      watcher_state: "ENGINEERING_RUN_ACTIVE", run_id: "reviewer-status-run",
+      watcher_state: "ENGINEERING_RUN_ACTIVE", run_id: "reviewer-status-run", current_phase: "CAPABILITY_REVIEW",
       reviewer_agents: [
         { reviewer: "validation", capability: "engineering", status: "running" },
         { reviewer: "documentation", capability: "engineering", status: "completed" },
@@ -4819,39 +4825,46 @@ test.describe("Engineering Status browser smoke", () => {
     );
   });
 
-  test("does not project reviewers as running while an operator wait or stale lease owns the run", async ({ page }) => {
+  test("hides stale reviewer projections outside capability review", async ({ page }) => {
+    await page.route("**/api/events", (route) => route.abort());
+    await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({
+      json: { status: { watcher_state: "WATCHER_IDLE" } },
+    }));
+    const statusLoaded = page.waitForResponse("**/api/dashboard-snapshot");
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await statusLoaded;
+    await page.locator("#autoRefresh").uncheck();
     const reviewerAgents = [
       { reviewer: "validation", capability: "engineering", status: "running" },
       { reviewer: "documentation", capability: "engineering", status: "running" },
     ];
-    for (const [watcher_state, summaryKey, statusText] of [
-      ["WAITING_FOR_OPERATOR_MERGE", "ui.reviewer_waiting_operator", "Wacht op operator"],
-      ["ENGINEERING_RUN_STALE", "ui.reviewer_stale", "Uitvoering is niet langer actief"],
-    ]) {
-      await page.evaluate(({ watcher_state, reviewer_agents }) => r({
-        watcher_state, run_id: "reviewer-paused-run", reviewer_agents,
-      }, {}), { watcher_state, reviewer_agents: reviewerAgents });
-      await expect(page.locator("#activeReviewerSummary")).toHaveText(
-        DASHBOARD_MESSAGES.nl[summaryKey].replace("{count}", "2"),
-      );
-      await expect(page.locator(".reviewer-agent__status--running")).toHaveCount(0);
-      await expect(page.locator(".reviewer-agent__meta").first()).toContainText(statusText);
+    for (const current_phase of ["FINALIZE_AGENT", "RECONCILE_AGENT"]) {
+      await page.evaluate(({ current_phase, reviewer_agents }) => r({
+        watcher_state: "ENGINEERING_RUN_ACTIVE", current_phase,
+        run_id: "reviewer-paused-run", reviewer_agents,
+      }, {}), { current_phase, reviewer_agents: reviewerAgents });
+      await expect(page.locator("#activeReviewerAgents")).toBeHidden();
+      await expect(page.locator(".reviewer-agent")).toHaveCount(0);
     }
   });
 
   test("localizes specialist reviewer names and lifecycle status", async ({ page }) => {
+    await page.route("**/api/events", (route) => route.abort());
+    await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({
+      json: { status: { watcher_state: "WATCHER_IDLE" } },
+    }));
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     const reviewerAgents = [
       { reviewer: "repository_governance", capability: "engineering", status: "completed" },
       { reviewer: "validation", capability: "engineering", status: "running" },
     ];
     const renderReviewers = () => page.evaluate((reviewer_agents) => r({
-      watcher_state: "ENGINEERING_RUN_ACTIVE", run_id: "localized-reviewers",
+      watcher_state: "ENGINEERING_RUN_ACTIVE", run_id: "localized-reviewers", current_phase: "CAPABILITY_REVIEW",
       reviewer_agents,
     }, {}), reviewerAgents);
     const selectLocale = async (language) => {
       await selectDashboardLocale(page, language);
+      await page.locator("#autoRefresh").uncheck();
       await renderReviewers();
     };
 
@@ -4895,7 +4908,7 @@ test.describe("Engineering Status browser smoke", () => {
     const reviewer_agents = ["repository_governance", "validation", "documentation", "finalization"]
       .map((reviewer) => ({ reviewer, capability: "engineering", status: "completed" }));
     await page.evaluate((reviewers) => r({
-      watcher_state: "ENGINEERING_RUN_ACTIVE", run_id: "review-grid", reviewer_agents: reviewers,
+      watcher_state: "ENGINEERING_RUN_ACTIVE", run_id: "review-grid", current_phase: "CAPABILITY_REVIEW", reviewer_agents: reviewers,
     }, {}), reviewer_agents);
     await page.locator("#currentRun").evaluate((element) => { element.open = true; });
 
