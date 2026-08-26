@@ -266,6 +266,21 @@ checks the persisted client state and verifies the same state after reload.
 This guards against a visual pressed state that does not actually change the
 Operations Console preference.
 
+## Configuration projection
+
+Configuration is grouped by the operational component that owns the setting,
+rather than by its storage key. Provider readiness is shown in the same
+yellow-outlined subcontainer style as the database, fixed platform settings
+and local host components. The latter keeps the read-only free disk-space
+signal directly above the writable refresh interval for an opened component
+detail, so the related host context is read together.
+
+The Codex capacity trend is an accessible seven-day SVG projection of the
+stored measurements. It connects consecutive samples with one continuous
+green line and renders each sample as a compact filled green point. A missing
+chart means there is no trustworthy measurement yet; it is not shown as a
+synthetic zero-capacity value.
+
 ## Git workspace lock status
 
 **Operationeel overzicht** exposes the Git index-lock state as a compact,

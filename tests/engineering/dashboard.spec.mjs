@@ -705,6 +705,11 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(select).toHaveValue("300");
     await expect(select.locator("option[value='300']")).toHaveText("5 minuten");
     await expect(select.locator("xpath=ancestor::section[@id='configurationProviderLoginStatus'][1]")).toBeVisible();
+    const providerStatus = page.locator("#configurationProviderLoginStatus");
+    const hostComponents = page.locator("#configurationHostComponents");
+    expect(await providerStatus.evaluate((element) => getComputedStyle(element).borderTopColor)).toBe(
+      await hostComponents.evaluate((element) => getComputedStyle(element).borderTopColor),
+    );
     expect(readinessChecks).toBeGreaterThanOrEqual(1);
     await select.selectOption("600");
     await expect.poll(() => writes).toEqual([{
