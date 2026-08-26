@@ -20,9 +20,10 @@ transport, stores canonical prompt archives, status, reports and logs under
 provides bounded redacted component logs, report analysis and read-only private
 Codex advice. Qualification covers 39 registered scenarios. These are
 compatible 1.5 maintenance and evidence improvements, not a 1.6 requirement.
-The Engineering Platform CI quality gate measures branch coverage for its five
-core execution files and requires each to remain strictly above 80%; exactly
-80.00% does not satisfy the contract.
+The Engineering Platform CI quality gate measures branch coverage for its four
+protected core execution files and requires each to remain at least 80.20%; the
+authoritative requirement matrix is
+[Engineering Platform non-functional requirements](../engineering/ENGINEERING_PLATFORM_NON_FUNCTIONAL_REQUIREMENTS.md).
 
 ## 1.6 — Repository Extraction Readiness
 

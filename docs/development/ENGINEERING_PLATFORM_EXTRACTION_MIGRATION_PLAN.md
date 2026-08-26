@@ -314,6 +314,10 @@ an independently releasable package.
    release signing/publication policy; and immutable wheel release. A failed,
    skipped or unavailable required security check blocks publication rather
    than being treated as advisory evidence.
+   The extracted repository carries the canonical
+   [EP non-functional requirements](../engineering/ENGINEERING_PLATFORM_NON_FUNCTIONAL_REQUIREMENTS.md)
+   matrix and turns every standalone release-gate requirement into a dedicated
+   CI/qualification check.
 6. Deliver a signed, notarized native macOS **Engineering Platform** installer
    application alongside the wheel. It is the supported first-install and
    repair experience for a local EP host; command-line installation remains a
