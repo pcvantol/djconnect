@@ -103,6 +103,29 @@ function reviewerCapabilityLabel(value, fallback = t("format.not_available")) {
   const raw = String(value || "").trim();
   return raw ? enumLabel(raw.toUpperCase(), raw) : fallback;
 }
+function driftPresentationValue(field, drift = {}) {
+  const value = String(drift?.[field] || "").trim();
+  if (!value) return t("format.not_available");
+  const component = String(drift?.affected_component || "").trim();
+  if (field === "severity" && value === "BLOCKING") return t("technical.drift.severity.blocking");
+  if (component !== "managed_expected_branch") return value;
+  const branch = (
+    /^Managed target is not on the expected branch\s+(.+)\.$/.exec(String(drift.observed_value || ""))?.[1] ||
+    /^Switch the repository to\s+(.+)\s+before submitting work\.$/.exec(String(drift.resolution_recommendation || ""))?.[1] ||
+    "main"
+  );
+  if (field === "affected_component") return t("technical.drift.component.managed_expected_branch");
+  if (field === "expected_value" && /^managed_expected_branch:\s*PASS$/i.test(value)) {
+    return t("technical.drift.expected.managed_expected_branch", { branch });
+  }
+  if (field === "observed_value" && /^Managed target is not on the expected branch\s+.+\.$/.test(value)) {
+    return t("technical.drift.observed.managed_expected_branch", { branch });
+  }
+  if (field === "resolution_recommendation" && /^Switch the repository to\s+.+\s+before submitting work\.$/.test(value)) {
+    return t("technical.drift.resolution.managed_expected_branch", { branch });
+  }
+  return value;
+}
 function sanitizeFreeText(value, maximumLength, multiline = false) {
   const normalized = String(value ?? "")
     .normalize("NFC")
@@ -1145,10 +1168,10 @@ function renderPreflightPresentation(snapshot = {}) {
   const drift = snapshot.current_drift || {}, card = $("driftDiagnosticsCard");
   if (card) {
     card.hidden = !drift.drift_id;
-    const values = [["driftSeverity", drift.severity], ["driftComponent", drift.affected_component],
-      ["driftExpected", drift.expected_value], ["driftObserved", drift.observed_value],
-      ["driftResolution", drift.resolution_recommendation]];
-    for (const [id, value] of values) if ($(id)) $(id).textContent = value || t("format.not_available");
+    const values = [["driftSeverity", "severity"], ["driftComponent", "affected_component"],
+      ["driftExpected", "expected_value"], ["driftObserved", "observed_value"],
+      ["driftResolution", "resolution_recommendation"]];
+    for (const [id, field] of values) if ($(id)) $(id).textContent = driftPresentationValue(field, drift);
   }
 }
 function preflightNeedsAttention(preflight) {

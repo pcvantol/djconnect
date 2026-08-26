@@ -5507,6 +5507,43 @@ test.describe("Engineering Status browser smoke", () => {
     await expect.poll(columns).toBe(1);
   });
 
+  test("localizes projected managed-branch drift in every supported locale", async ({ page }) => {
+    const drift = {
+      drift_id: "managed-branch-drift",
+      severity: "BLOCKING",
+      affected_component: "managed_expected_branch",
+      expected_value: "managed_expected_branch: PASS",
+      observed_value: "Managed target is not on the expected branch main.",
+      resolution_recommendation: "Switch the repository to main before submitting work.",
+    };
+    for (const language of SUPPORTED_LOCALES) {
+      await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+      await waitForDashboardReady(page);
+      await selectDashboardLocale(page, language);
+      await page.locator("#autoRefresh").uncheck();
+      await page.evaluate((currentDrift) => r({
+        watcher_state: "WORKSPACE_PREFLIGHT_FAILED",
+        current_phase: "INITIALIZE",
+        diagnostic: "Workspace preflight blocked by managed_expected_branch.",
+      }, { current_drift: currentDrift }), drift);
+      await expect(page.locator("#driftSeverity")).toHaveText(
+        DASHBOARD_MESSAGES[language]["technical.drift.severity.blocking"],
+      );
+      await expect(page.locator("#driftComponent")).toHaveText(
+        DASHBOARD_MESSAGES[language]["technical.drift.component.managed_expected_branch"],
+      );
+      await expect(page.locator("#driftExpected")).toHaveText(
+        DASHBOARD_MESSAGES[language]["technical.drift.expected.managed_expected_branch"].replace("{branch}", "main"),
+      );
+      await expect(page.locator("#driftObserved")).toHaveText(
+        DASHBOARD_MESSAGES[language]["technical.drift.observed.managed_expected_branch"].replace("{branch}", "main"),
+      );
+      await expect(page.locator("#driftResolution")).toHaveText(
+        DASHBOARD_MESSAGES[language]["technical.drift.resolution.managed_expected_branch"].replace("{branch}", "main"),
+      );
+    }
+  });
+
   test("shows technical diagnosis only for active or attention-needing executions", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     const diagnosis = page.locator("#technicalDetails");
