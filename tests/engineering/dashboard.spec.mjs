@@ -4085,7 +4085,7 @@ test.describe("Engineering Status browser smoke", () => {
     }]));
     await page.locator("#executionTelemetry > summary").click();
     const row = page.locator("#executionTelemetryRows .telemetry-row");
-    await row.click();
+    await dispatchDashboardPointerClick(row);
     await expect(row).toHaveAttribute("data-selected", "true");
     const selection = await row.locator("td").evaluateAll((cells) => [
       getComputedStyle(cells[0]).boxShadow,
@@ -4412,7 +4412,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(wrap).toHaveAttribute("tabindex", "0");
     const runIdHeader = page.locator('#promptHistory th[data-history-sort-key="run_id"]');
     await expect(page.locator("#promptHistoryRows tr td").first()).toHaveText("zzzzz");
-    await runIdHeader.click();
+    await dispatchDashboardPointerClick(runIdHeader);
     await expect(runIdHeader).toHaveAttribute("aria-sort", "ascending");
     await expect(runIdHeader).not.toBeFocused();
     await expect(page.locator("#promptHistoryRows tr td").first()).toHaveText("aaaaa");
@@ -4431,10 +4431,11 @@ test.describe("Engineering Status browser smoke", () => {
     expect(layout.runIdWidth).toBe(128);
     expect(layout.titleWidth).toBeGreaterThan(layout.runIdWidth);
     const runIdCell = page.locator("#promptHistoryRows tr td:first-child").first();
-    await runIdCell.hover();
+    await scrollDashboardElementIntoView(runIdCell);
+    await runIdCell.hover({ force: true });
     expect(await runIdCell.evaluate((cell) => getComputedStyle(cell).backgroundColor)).not.toContain("/");
     await page.getByTestId("theme-toggle").click();
-    await runIdCell.hover();
+    await runIdCell.hover({ force: true });
     expect(await runIdCell.evaluate((cell) => getComputedStyle(cell).backgroundColor)).not.toContain("/");
   });
 
@@ -4457,6 +4458,7 @@ test.describe("Engineering Status browser smoke", () => {
   });
 
   test("keeps every interactive table-row hover light in light mode", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.getByTestId("theme-toggle").click();
     await page.evaluate(() => {
@@ -7949,7 +7951,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(repair).toHaveCSS("background-color", "rgb(59, 40, 27)");
     await expect(repair).toHaveCSS("border-color", "rgb(240, 182, 106)");
     await expect(repair).toHaveCSS("border-radius", "8px");
-    await repair.click();
+    await dispatchDashboardPointerClick(repair);
     await expect(page.locator("#confirmationModal")).toBeVisible();
     await expect(page.locator("#confirmationModalText")).toContainText("herstart de Inbox-watcher");
     await page.locator("#confirmationModalConfirm").click();
@@ -8051,7 +8053,7 @@ test.describe("Engineering Status browser smoke", () => {
     expect(await page.locator("#workspaceBranchCleanup").evaluate(
       (button) => getComputedStyle(button, "::before").content,
     )).toBe('"⌕"');
-    await page.getByRole("button", { name: "Scan branches voor opruiming" }).click();
+    await dispatchDashboardPointerClick(page.getByRole("button", { name: "Scan branches voor opruiming" }));
 
     const confirmation = page.locator("#confirmationModal");
     await previewRequest;
@@ -8275,7 +8277,7 @@ test.describe("Engineering Status browser smoke", () => {
     });
     const dismissButton = page.getByRole("button", { name: "Uitvoering afsluiten" });
     await expect(dismissButton).toBeVisible();
-    await dismissButton.click();
+    await dispatchDashboardPointerClick(dismissButton);
     await page.locator("#confirmationModalConfirm").click();
     await expect.poll(() => historyReads).toBeGreaterThan(1);
     await expect(page.getByRole("button", { name: "Uitvoering afsluiten" })).toHaveCount(0);
