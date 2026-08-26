@@ -1914,6 +1914,10 @@ function renderWorkspaceGit(workspaceGit) {
 function renderWorkspaceWorktrees(projection) {
   const workspace = $("workspaceCard");
   if (!workspace) return;
+  // Branch actions operate on the same local Git topology as this projection.
+  // Keep them with that evidence instead of visually separating them below
+  // open pull requests.
+  const branchActions = workspace.querySelector(".workspace-branch-actions");
   let section = $("workspaceWorktrees");
   if (!section) {
     section = document.createElement("section");
@@ -1935,6 +1939,7 @@ function renderWorkspaceWorktrees(projection) {
       ? t("workspace.no_local_worktrees")
       : t("workspace.worktrees_unavailable");
     section.append(empty);
+    if (branchActions) section.append(branchActions);
     return;
   }
   const list = document.createElement("ul");
@@ -1953,6 +1958,7 @@ function renderWorkspaceWorktrees(projection) {
     list.append(item);
   });
   section.append(list);
+  if (branchActions) section.append(branchActions);
 }
 let openPullRequestMonitorIntervalMs = 30_000;
 let openPullRequestMonitorTimer = null, openPullRequestMonitorInFlight = false;

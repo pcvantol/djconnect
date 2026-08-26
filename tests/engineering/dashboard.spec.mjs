@@ -503,25 +503,32 @@ test.describe("Engineering Status browser smoke", () => {
     await page.locator("#autoRefresh").uncheck();
     await page.evaluate(() => {
       const workspace = document.querySelector("#workspaceCard");
-      if (!document.querySelector("#workspaceOpenPullRequests")) {
-        const pullRequests = document.createElement("section");
-        pullRequests.id = "workspaceOpenPullRequests";
-        workspace.querySelector(".workspace-branch-actions").before(pullRequests);
-      }
       window.renderWorkspaceWorktrees({ available: true, worktrees: [
         { path: "/workspace", branch: "main", commit: "123456789abc" },
         { path: "/tmp/polish", branch: "codex/polish", commit: "abcdef123456" },
       ] });
+      if (!document.querySelector("#workspaceOpenPullRequests")) {
+        const pullRequests = document.createElement("section");
+        pullRequests.id = "workspaceOpenPullRequests";
+        workspace.append(pullRequests);
+      }
     });
     const worktrees = page.locator("#workspaceWorktrees");
     await expect(worktrees).toContainText("Lokale worktrees en branches");
     await expect(worktrees).toContainText("codex/polish");
     await expect(worktrees).toContainText("/tmp/polish");
+    await expect(worktrees.locator(".workspace-branch-actions")).toContainText("Scan branches voor opruiming");
+    await expect(worktrees.locator(".workspace-branch-actions")).toContainText("Switch naar FF main");
     expect(await page.evaluate(() => {
       const worktrees = document.querySelector("#workspaceWorktrees");
       const pullRequests = document.querySelector("#workspaceOpenPullRequests");
       return Boolean(worktrees.compareDocumentPosition(pullRequests) & Node.DOCUMENT_POSITION_FOLLOWING);
     })).toBe(true);
+    expect(await page.evaluate(() => {
+      const worktrees = document.querySelector("#workspaceWorktrees");
+      const actions = worktrees?.querySelector(".workspace-branch-actions");
+      return actions?.previousElementSibling?.tagName;
+    })).toBe("UL");
     await page.evaluate(() => window.renderWorkspaceWorktrees({ available: true, worktrees: [
       { path: "/workspace", branch: "codex/refreshed", commit: "fedcba987654" },
     ] }));
