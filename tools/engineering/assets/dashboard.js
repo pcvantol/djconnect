@@ -1335,6 +1335,19 @@ function renderCodexUsageLimitBanner(x, rateLimits) {
   title.textContent = t("notification.codex_usage_" + state + ".title");
   body.textContent = t("notification.codex_usage_" + state + ".body", { percent });
 }
+function renderCodexCapacityReserveBanner(rateLimits) {
+  const banner = $("codexCapacityReserveBanner"), message = $("codexCapacityReserveMessage");
+  if (!banner || !message) return;
+  const reserve = Number(dashboardConfiguration.codex_capacity_reserve_percent || 0);
+  const remaining = codexLimitRemainingPercent(rateLimits);
+  const reached = reserve > 0 && remaining !== null && remaining < reserve;
+  banner.hidden = !reached;
+  if (!reached) return;
+  message.textContent = t("notification.codex_capacity_reserve.body", {
+    remaining: locale.number(remaining, { maximumFractionDigits: 0 }),
+    reserve: locale.number(reserve, { maximumFractionDigits: 0 }),
+  });
+}
 let githubRateLimitRefreshInFlight = false;
 async function refreshGithubRateLimit() {
   const banner = $("githubRateLimitBanner"), message = $("githubRateLimitMessage"), button = $("githubRateLimitRefresh");
@@ -1792,6 +1805,7 @@ function renderHealthStatus(x, snapshot = {}) {
   renderOperatorMergeWait(x);
   renderEmergencyRecovery(snapshot.emergency_recovery, x);
   renderCodexUsageLimitBanner(x, snapshot.rate_limits);
+  renderCodexCapacityReserveBanner(snapshot.rate_limits);
   indicator.className =
     "indicator indicator--" +
     statusTone +
@@ -2437,6 +2451,14 @@ $("rateLimitReset").addEventListener("click", consumeRateLimitReset);
 $("codexCliUpdate")?.addEventListener("click", installCodexCliUpdate);
 $("rateLimits")?.addEventListener("toggle", () => {
   if ($("rateLimits").open) void checkCodexCliUpdate();
+});
+$("codexCapacityReserveAction")?.addEventListener("click", (event) => {
+  event.preventDefault();
+  const section = $("rateLimits"), control = $("configurationCodexCapacityReserve");
+  if (!section) return;
+  section.open = true;
+  section.scrollIntoView({ behavior: "smooth", block: "start" });
+  control?.focus({ preventScroll: true });
 });
 function addTestIds() {
   const toTestId = (value) =>
@@ -5332,6 +5354,9 @@ async function saveDashboardConfiguration(control) {
     control.value = String(payload.value);
     control.dataset.savedValue = control.value;
     dashboardConfiguration = { ...dashboardConfiguration, [key]: payload.value };
+    if (key === "codex_capacity_reserve_percent") {
+      renderCodexCapacityReserveBanner(latestDashboardSnapshot?.rate_limits);
+    }
     if (key === "open_pr_check_interval_seconds") {
       openPullRequestMonitorIntervalMs = Number(value) * 1e3;
       scheduleOpenPullRequestMonitor([...openPullRequestStatusByNumber.values()].map((status) => ({ status })));
@@ -5374,6 +5399,7 @@ async function initializeDashboardConfiguration() {
     if (!response.ok) throw Error();
     const configuration = await response.json();
     dashboardConfiguration = configuration;
+    renderCodexCapacityReserveBanner(latestDashboardSnapshot?.rate_limits);
     Object.entries(configurationFields).forEach(([id, [key]]) => {
       const control = $(id);
       if (!control || configuration[key] === undefined) return;

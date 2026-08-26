@@ -723,6 +723,43 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(select.locator("xpath=ancestor::label[1]").locator(".configuration-field-status")).toHaveText(DASHBOARD_MESSAGES.nl["configuration.saved"]);
   });
 
+  test("shows the capacity reserve banner and hides it immediately after lowering the reserve", async ({ page }) => {
+    const writes = [];
+    await page.route("**/api/events", (route) => route.abort());
+    await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({ json: {
+      status: { watcher_state: "WATCHER_IDLE" },
+      rate_limits: { windows: [{ label: "5-hour window", used_percent: 80 }] },
+    } }));
+    await page.route("**/api/configuration", async (route) => {
+      if (route.request().method() === "GET") {
+        await route.fulfill({ json: {
+          log_retention_days: 90, telemetry_retention_days: 90, log_level: "INFO", inbox_scan_interval_seconds: 15,
+          open_pr_check_interval_seconds: 30, platform_health_refresh_seconds: 15, component_details_refresh_seconds: 5,
+          provider_readiness_refresh_seconds: 300, codex_capacity_reserve_percent: 25,
+        } });
+        return;
+      }
+      writes.push(JSON.parse(route.request().postData() || "{}"));
+      await route.fulfill({ json: { key: "codex_capacity_reserve_percent", previous: 25, value: 20 } });
+    });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.waitForFunction(() => document.body?.classList.contains("dashboard-ready"));
+    const banner = page.getByTestId("codex-capacity-reserve-banner");
+    const select = page.locator("#configurationCodexCapacityReserve");
+    await expect(banner).toBeVisible();
+    await expect(banner).toContainText(DASHBOARD_MESSAGES.nl["notification.codex_capacity_reserve.title"]);
+    await expect(banner).toContainText("20%");
+    await expect(banner).toContainText("25%");
+    await banner.getByRole("link", { name: DASHBOARD_MESSAGES.nl["notification.codex_capacity_reserve.action"] }).click();
+    await expect(page.locator("#rateLimits")).toHaveAttribute("open", "");
+    await expect(select).toBeFocused();
+    await select.selectOption("20", { force: true });
+    await expect.poll(() => writes).toEqual([{
+      key: "codex_capacity_reserve_percent", value: 20, previous: 25,
+    }]);
+    await expect(banner).toBeHidden();
+  });
+
   test("persists a log-level pulldown choice exactly once", async ({ page }) => {
     const writes = [];
     await page.route("**/api/configuration", async (route) => {
