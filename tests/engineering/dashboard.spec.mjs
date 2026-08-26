@@ -1563,8 +1563,8 @@ test.describe("Engineering Status browser smoke", () => {
         execution: { seconds: 42, total_seconds: 61 },
         evidence: ["Execution Host: Engineering Platform"],
         pull_requests: [
-          { role: "implementation", number: 948, url: "https://github.com/pcvantol/djconnect/pull/948" },
-          { role: "finalization", number: 949, url: "https://github.com/pcvantol/djconnect/pull/949" },
+          { role: "implementation", number: 948, url: "https://github.com/pcvantol/djconnect/pull/948", commit_count: 2, check_count: 1, changed_file_count: 5 },
+          { role: "finalization", number: 949, url: "https://github.com/pcvantol/djconnect/pull/949", commit_count: 1, check_count: 3, changed_file_count: 2 },
         ],
         commit_timeline: [{
           phase: "FINALIZE_AGENT",
@@ -1590,6 +1590,9 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#promptHistoryDetailDescription")).toHaveCSS("border-bottom-color", "rgb(141, 199, 255)");
     await expect(page.locator("#promptHistoryDetailContent")).toContainText("Engineering Platform");
     await expect(page.locator("#promptHistoryDetailContent")).toContainText("The verified execution diagnostic belongs to this run.");
+    await expect(page.locator("#promptHistoryDetailContent .prompt-detail-card--pull-requests")).toContainText("Commits: 2");
+    await expect(page.locator("#promptHistoryDetailContent .prompt-detail-card--pull-requests")).toContainText("GitHub-controles: 1");
+    await expect(page.locator("#promptHistoryDetailContent .prompt-detail-card--pull-requests")).toContainText("Gewijzigde bestanden: 5");
     const markdown = page.locator("#promptHistoryDetailDownloadMarkdown");
     const json = page.locator("#promptHistoryDetailDownloadJson");
     await expect(markdown).toHaveAttribute("aria-label", "Uitvoeringsdetails als Markdown downloaden voor Modal prompt");

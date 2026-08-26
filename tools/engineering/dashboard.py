@@ -381,12 +381,52 @@ def _pull_requests_for_run(root: Path, run_id: str | None) -> list[dict[str, obj
     ):
         number = checkpoint.get(field)
         if isinstance(number, int) and not isinstance(number, bool) and number > 0:
-            links.append({
+            link: dict[str, object] = {
                 "role": role,
                 "number": number,
                 "url": f"https://github.com/{repository}/pull/{number}",
-            })
+            }
+            link.update(_pull_request_github_metrics(root, repository, number))
+            links.append(link)
     return links
+
+
+def _pull_request_github_metrics(root: Path, repository: str, number: int) -> dict[str, int]:
+    """Read bounded, display-only GitHub counts for already-linked PR evidence.
+
+    The checkpoint remains the authority for the PR link. These metrics enrich
+    its detail view only when the local checkout still proves that it belongs
+    to the same GitHub repository; unavailable evidence is omitted rather than
+    represented as a misleading zero.
+    """
+    try:
+        remote = GitProvider().execute(root, "git", "remote", "get-url", "origin")
+        match = re.search(r"github\.com[:/]([^/\s]+)/([^/\s]+?)(?:\.git)?$", remote.stdout.strip()) if remote.returncode == 0 else None
+        if not match or f"{match.group(1)}/{match.group(2)}" != repository:
+            return {}
+        payload = GitHubProvider().github(
+            "pr", "view", str(number), "--repo", repository,
+            "--json", "number,commits,changedFiles,statusCheckRollup",
+        )
+        pull_request = json.loads(payload)
+    except (OSError, RuntimeError, json.JSONDecodeError):
+        return {}
+    if not isinstance(pull_request, dict) or pull_request.get("number") != number:
+        return {}
+    metrics: dict[str, int] = {}
+    commits = pull_request.get("commits")
+    if isinstance(commits, list):
+        metrics["commit_count"] = len(commits)
+    changed_files = pull_request.get("changedFiles")
+    if isinstance(changed_files, int) and not isinstance(changed_files, bool) and changed_files >= 0:
+        metrics["changed_file_count"] = changed_files
+    checks = pull_request.get("statusCheckRollup")
+    if isinstance(checks, list):
+        metrics["check_count"] = sum(
+            1 for check in checks
+            if isinstance(check, dict) and str(check.get("name") or check.get("context") or "").strip()
+        )
+    return metrics
 
 
 def _terminal_run_diagnostic(root: Path, run_id: str | None) -> str | None:

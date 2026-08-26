@@ -4178,9 +4178,12 @@ function promptHistoryMarkdownPullRequests(pullRequests) {
     implementation: t("detail.implementation_pull_request"),
     finalization: t("detail.finalization_pull_request"),
   };
-  const items = promptDetailPullRequestEntries(pullRequests).map((item) =>
-    `- ${promptHistoryMarkdownText(labels[item.role])}: [#${item.number}](${item.url})`,
-  );
+  const items = promptDetailPullRequestEntries(pullRequests).map((item) => {
+    const metrics = promptDetailPullRequestMetrics(item)
+      .map(([label, value]) => `${promptHistoryMarkdownText(label)}: ${promptHistoryMarkdownText(value)}`)
+      .join("; ");
+    return `- ${promptHistoryMarkdownText(labels[item.role])}: [#${item.number}](${item.url})${metrics ? ` — ${metrics}` : ""}`;
+  });
   return items.length ? `## ${promptHistoryMarkdownText(t("detail.pull_requests"))}\n\n${items.join("\n")}\n` : "";
 }
 function promptHistoryMarkdownCommitTimeline(entries) {
@@ -6303,6 +6306,16 @@ function promptDetailPullRequestEntries(pullRequests) {
     /^https:\/\/github\.com\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+\/pull\/\d+$/.test(item.url),
   ) : [];
 }
+function promptDetailPullRequestMetrics(pullRequest) {
+  const counts = [
+    ["commit_count", "detail.pull_request_commits"],
+    ["check_count", "detail.pull_request_checks"],
+    ["changed_file_count", "detail.pull_request_changed_files"],
+  ];
+  return counts
+    .filter(([key]) => Number.isInteger(pullRequest?.[key]) && pullRequest[key] >= 0)
+    .map(([key, label]) => [t(label), locale.number(pullRequest[key])]);
+}
 function promptDetailPullRequestsSection(pullRequests) {
   const links = promptDetailPullRequestEntries(pullRequests);
   if (!links.length) return null;
@@ -6320,6 +6333,18 @@ function promptDetailPullRequestsSection(pullRequests) {
     link.textContent = `#${item.number} ↗`;
     link.setAttribute("aria-label", `${label} #${item.number}`);
     field.lastElementChild.replaceChildren(link);
+    const metrics = promptDetailPullRequestMetrics(item);
+    if (metrics.length) {
+      const summary = document.createElement("span");
+      summary.className = "prompt-detail-pr-metrics";
+      metrics.forEach(([metricLabel, value]) => {
+        const metric = document.createElement("span");
+        metric.className = "prompt-detail-pr-metric";
+        metric.textContent = `${metricLabel}: ${value}`;
+        summary.append(metric);
+      });
+      field.append(summary);
+    }
     return field;
   });
   return promptDetailCard(t("detail.pull_requests"), fields, false, "prompt-detail-card--pull-requests");

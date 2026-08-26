@@ -1917,6 +1917,44 @@ class DashboardStatusTest(unittest.TestCase):
             ])
             self.assertEqual(_prompt_history_detail(root, "../../other"), b"")
 
+    @patch("tools.engineering.dashboard.GitHubProvider")
+    @patch("tools.engineering.dashboard.GitProvider")
+    def test_managed_pull_request_evidence_includes_verified_github_counts(
+        self, git_provider: MagicMock, github_provider: MagicMock,
+    ) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            StateStore(root / ".engineering" / "engineering-runs").save(TransactionState(
+                "inbox-pr-counts", "pcvantol/djconnect", "prompt.md", "COMPLETE", terminal=True,
+                implementation_pull_request=948, finalization_pull_request=949,
+            ))
+            git_provider.return_value.execute.return_value = __import__("subprocess").CompletedProcess(
+                ("git",), 0, "git@github.com:pcvantol/djconnect.git\n", "",
+            )
+
+            def github(*args: str) -> str:
+                number = int(args[2])
+                return json.dumps({
+                    "number": number,
+                    "commits": [{"oid": "a"}, {"oid": "b"}],
+                    "changedFiles": 5,
+                    "statusCheckRollup": [{"name": "validate"}, {"context": "Owner Authorization"}, {}],
+                })
+
+            github_provider.return_value.github.side_effect = github
+            self.assertEqual(dashboard._pull_requests_for_run(root, "inbox-pr-counts"), [
+                {
+                    "role": "implementation", "number": 948,
+                    "url": "https://github.com/pcvantol/djconnect/pull/948",
+                    "commit_count": 2, "check_count": 2, "changed_file_count": 5,
+                },
+                {
+                    "role": "finalization", "number": 949,
+                    "url": "https://github.com/pcvantol/djconnect/pull/949",
+                    "commit_count": 2, "check_count": 2, "changed_file_count": 5,
+                },
+            ])
+
     def test_prompt_history_detail_omits_pr_links_without_managed_checkpoint_evidence(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
