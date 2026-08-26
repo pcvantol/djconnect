@@ -2,6 +2,23 @@
 
 Status: active platform-evolution repository
 
+## PR #948 finalization pending
+
+PR [#948](https://github.com/pcvantol/djconnect/pull/948),
+**docs(engineering): reconcile EP extraction baseline control**, merged as
+`a017030c3817795cc3d78b67cb1dfe1e6b139834` and is contained in current
+`main`. Its completed required checks have no failures. The bounded Phase 0 /
+Increment 2 reconciliation makes the extraction baseline an authoritative,
+deterministic control: candidate-universe closure, exactly-one effective
+classification, semantic-manifest drift protection and focused regression
+coverage are recorded without extracting source or changing EP product/runtime
+behavior. The immutable Prompt History record
+`docs/history/prompts/2026-08-25-ep-2x-extraction-baseline.md` is retained
+unchanged. This governance-only Finalization reconciles only the four canonical
+rolling records and durable handoff metadata. Repository State:
+`MERGED_UNRECONCILED`; Workspace State: `WORKSPACE_READY`; Finalization
+Pending: `YES`.
+
 ## PR #944 finalized by PR #945
 
 PR [#944](https://github.com/pcvantol/djconnect/pull/944),
