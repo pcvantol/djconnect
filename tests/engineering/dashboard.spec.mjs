@@ -6615,6 +6615,8 @@ test.describe("Engineering Status browser smoke", () => {
           steps: [{
             id: "REPAIR_AGENT",
             state: "COMPLETED",
+            presentation_key: "lifecycle.step.autonomous_quality_repair",
+            repair_evidence_key: "lifecycle.detail_autonomous_quality_repair_evidence",
             timing: {
               started_at: "2026-08-02T12:25:00Z",
               finished_at: "2026-08-02T12:25:12Z",
@@ -6631,7 +6633,7 @@ test.describe("Engineering Status browser smoke", () => {
     await page.locator("#promptHistoryDetailContent .execution-lifecycle__node").click();
     const lifecycleDetail = page.locator("#lifecycleDetailModal");
     await expect(lifecycleDetail).toBeVisible();
-    await expect(lifecycleDetail).toContainText(DASHBOARD_MESSAGES.nl["lifecycle.detail_repair_evidence"]);
+    await expect(lifecycleDetail).toContainText(DASHBOARD_MESSAGES.nl["lifecycle.detail_autonomous_quality_repair_evidence"]);
     await expect(lifecycleDetail).toContainText(DASHBOARD_MESSAGES.nl["lifecycle.detail_repair_iteration"].replace("{iteration}", "1"));
     await expect(lifecycleDetail).toContainText("Updated lint configuration.");
     await expect(page.locator("#promptHistoryDetailContent")).not.toContainText(DASHBOARD_MESSAGES.nl["detail.repair_history"]);

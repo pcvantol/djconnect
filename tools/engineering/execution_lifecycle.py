@@ -275,6 +275,9 @@ def projection(root: Path, run_id: str | None) -> dict[str, object]:
             "id": step_id,
             "order": order,
             "presentation_key": (
+                "lifecycle.step.autonomous_quality_repair"
+                if mode == "GENESIS" and step_id == "REPAIR_AGENT"
+                else
                 "lifecycle.step.repair_agent"
                 if step_id == "FINALIZATION_REPAIR_AGENT"
                 else f"lifecycle.step.{step_id.lower()}"
@@ -327,6 +330,11 @@ def projection(root: Path, run_id: str | None) -> dict[str, object]:
         if step_id in {"REPAIR_AGENT", "FINALIZATION_REPAIR_AGENT"} and repair_iterations:
             step["iteration_count"] = repair_iterations
         if step_id in {"REPAIR_AGENT", "FINALIZATION_REPAIR_AGENT"} and step["state"] not in {"PENDING", "SKIPPED"}:
+            step["repair_evidence_key"] = (
+                "lifecycle.detail_autonomous_quality_repair_evidence"
+                if mode == "GENESIS" and step_id == "REPAIR_AGENT"
+                else "lifecycle.detail_repair_evidence"
+            )
             audit = checkpoint.get("repair_audit")
             if isinstance(audit, (list, tuple)) and audit:
                 step["repair_audit"] = list(audit)

@@ -28,6 +28,11 @@ Genesis target. A Genesis run only evaluates its target profile; a Managed run
 only evaluates its repository profile. JSON status files are projections, not
 an ownership or lifecycle authority.
 
+Lifecycle phase identifiers are compatibility contracts. Their presentation is
+mode-aware: the shared `REPAIR_AGENT` phase is projected as pull-request check
+repair for Managed work and autonomous quality repair for Genesis. This is a
+display-only distinction; no checkpoint or transaction state is translated.
+
 The immutable profile lists repository, remote, upstream, clean-worktree,
 branch, workspace authorization, host and capability qualification, providers,
 datastore, active-lease and Producer Contract requirements. Facts are observed

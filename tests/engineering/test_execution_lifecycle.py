@@ -72,6 +72,17 @@ class ExecutionLifecycleProjectionTests(unittest.TestCase):
         self.assertNotIn("WAIT_FOR_OPERATOR_MERGE", intended_path("GENESIS"))
         self.assertIn("WAIT_FOR_OPERATOR_MERGE", intended_path("MANAGED"))
 
+    def test_genesis_repair_uses_a_quality_presentation_without_changing_its_phase(self) -> None:
+        audit = ({"iteration": "1", "failed_checks": "lint", "outcome": "submitted_for_recheck"},)
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            self._state(root, "REPAIR_AGENT", execution_mode="GENESIS", repair_iterations=1, repair_audit=audit)
+            value = projection(root, "inbox-flow")
+        repair = next(step for step in value["steps"] if step["id"] == "REPAIR_AGENT")
+        self.assertEqual(value["current_step"], "REPAIR_AGENT")
+        self.assertEqual(repair["presentation_key"], "lifecycle.step.autonomous_quality_repair")
+        self.assertEqual(repair["repair_evidence_key"], "lifecycle.detail_autonomous_quality_repair_evidence")
+
     def test_managed_path_always_shows_automatic_reconciliation_before_cleanup(self) -> None:
         path = intended_path("MANAGED")
         self.assertLess(path.index("WAIT_FOR_FINALIZATION_MERGE"), path.index("RECONCILE_AGENT"))
