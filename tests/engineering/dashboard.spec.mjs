@@ -5706,6 +5706,7 @@ test.describe("Engineering Status browser smoke", () => {
       dashboard: { healthy: true, detail: "HTTP-dashboard reageert", version: "1.2.87" },
     }}));
 
+    await expect(page.locator(".platform-health__component").first()).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
     await expect(page.locator(".platform-health__component-detail").first()).toHaveCSS("color", "rgb(24, 34, 48)");
   });
 

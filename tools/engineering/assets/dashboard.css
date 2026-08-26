@@ -601,6 +601,7 @@ html[data-theme="light"] #engineering-dashboard-content>#technicalDetails{backgr
    information while green is reserved for health state, borders and actions. */
 html:not([data-theme="light"]) .platform-health__component,
 html:not([data-theme="light"]) .platform-health__component[data-health="false"]{background:#202126}
+html[data-theme="light"] .platform-health__component{background:transparent}
 html:not([data-theme="light"]) .platform-health[open]>summary{background:color-mix(in srgb,var(--category-color) 6%,var(--dashboard-expanded-content-surface))}
 /* Health components are status cards, not glass tiles. Give Safari explicit
    opaque paint layers so the parent section cannot bleed through them while
