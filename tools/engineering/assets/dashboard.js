@@ -2017,7 +2017,7 @@ function renderOpenPullRequests(pullRequests) {
     link.href = String(pullRequest.url || "");
     link.target = "_blank";
     link.rel = "noreferrer";
-    link.textContent = `PR #${pullRequest.number} — ${pullRequest.title || ""}`;
+    link.textContent = `PR #${pullRequest.number} — ${pullRequest.title || ""} ↗`;
     status.className = `open-pr-status open-pr-status--${state}`;
     dot.className = "open-pr-status__dot";
     dot.setAttribute("aria-hidden", "true");

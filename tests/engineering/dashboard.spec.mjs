@@ -827,6 +827,7 @@ test.describe("Engineering Status browser smoke", () => {
       return delay;
     });
     const openPullRequestStatus = page.locator("#workspaceOpenPullRequests .open-pr-status");
+    await expect(page.locator("#workspaceOpenPullRequests a")).toHaveText("PR #925 — Check projection ↗");
     await expect(openPullRequestStatus).toHaveClass(/open-pr-status--waiting_for_checks/);
     await expect(openPullRequestStatus).toHaveText("Wacht op afronden van controles");
     await expect(page.locator("#workspaceOpenPullRequests .open-pr-approval")).toHaveText("Owner approval wacht");
