@@ -5932,6 +5932,18 @@ function promptDetailSidebar(cards) {
   sidebar.append(...cards.filter(Boolean));
   return sidebar;
 }
+function promptDetailLeftbar(cards) {
+  const sidebar = document.createElement("div");
+  sidebar.className = "prompt-detail-leftbar";
+  sidebar.append(...cards.filter(Boolean));
+  return sidebar;
+}
+function promptDetailRightbar(cards) {
+  const sidebar = document.createElement("div");
+  sidebar.className = "prompt-detail-rightbar";
+  sidebar.append(...cards.filter(Boolean));
+  return sidebar;
+}
 function promptDetailDuration(value) {
   const seconds = Number(value);
   return Number.isFinite(seconds) && seconds >= 0 ? durationText(seconds) : "—";
@@ -6167,20 +6179,23 @@ function renderPromptHistoryDetail(payload) {
     evidence = Array.isArray(payload?.evidence) ? payload.evidence : [],
     reviewers = Array.isArray(payload?.reviewers) ? payload.reviewers : [],
     recommendationHandoff = payload?.recommendation_handoff;
+  const [executionSummary, executionContext] = promptDetailExecutionSections(history);
   if (typeof history.title === "string" && history.title.trim())
     $("promptHistoryDetailTitle").textContent = history.title.trim();
   setPromptHistoryDetailDownloads(payload);
   content.replaceChildren();
   content.append(
     ...[
-      ...promptDetailExecutionSections(history),
-      promptDetailPullRequestsSection(pullRequests),
-      promptDetailSidebar([
-        promptDetailDurationSection(execution),
-        promptDetailRuntimeSection(runtime),
-        promptDetailCommitsSection(commits),
-      promptDetailEvidenceSection(evidence),
+      promptDetailLeftbar([
+        executionSummary,
+        promptDetailSidebar([
+          promptDetailDurationSection(execution),
+          promptDetailRuntimeSection(runtime),
+          promptDetailCommitsSection(commits),
+          promptDetailEvidenceSection(evidence),
+        ]),
       ]),
+      promptDetailRightbar([executionContext, promptDetailPullRequestsSection(pullRequests)]),
       lifecycleFlow(payload?.lifecycle, { historical: true }),
       statusReconciliationCard(payload?.lifecycle?.recovery),
       promptDetailProviderReviewSections(usage, reviewers),

@@ -6874,8 +6874,8 @@ test.describe("Engineering Status browser smoke", () => {
     expect(inheritedDetailTokens.label).toBe(inheritedDetailTokens.secondary);
     expect(inheritedDetailTokens.phaseDivider).toBe(inheritedDetailTokens.divider);
     await page.locator("#lifecycleDetailClose").click();
-    const executionSummary = page.locator("#promptHistoryDetailContent > .prompt-detail-card--execution-summary");
-    const executionContext = page.locator("#promptHistoryDetailContent > .prompt-detail-card--execution-context");
+    const executionSummary = page.locator("#promptHistoryDetailContent > .prompt-detail-leftbar > .prompt-detail-card--execution-summary");
+    const executionContext = page.locator("#promptHistoryDetailContent > .prompt-detail-rightbar > .prompt-detail-card--execution-context");
     await expect(executionSummary).toHaveCount(1);
     await expect(executionContext).toHaveCount(1);
     await page.setViewportSize({ width: 1280, height: 900 });
@@ -6884,7 +6884,9 @@ test.describe("Engineering Status browser smoke", () => {
     expect(desktopExecutionCards[1]).not.toBeNull();
     expect(desktopExecutionCards[0].x).toBeLessThan(desktopExecutionCards[1].x);
     expect(desktopExecutionCards[0].y).toBe(desktopExecutionCards[1].y);
-    const detailSidebar = page.locator("#promptHistoryDetailContent > .prompt-detail-sidebar");
+    const detailSidebar = page.locator("#promptHistoryDetailContent > .prompt-detail-leftbar > .prompt-detail-sidebar");
+    await expect(page.locator("#promptHistoryDetailContent > .prompt-detail-leftbar")).toHaveCount(1);
+    await expect(page.locator("#promptHistoryDetailContent > .prompt-detail-rightbar")).toHaveCount(1);
     const desktopEvidenceCards = await Promise.all([executionSummary.boundingBox(), executionContext.boundingBox(), detailSidebar.boundingBox()]);
     expect(desktopEvidenceCards[2]).not.toBeNull();
     expect(desktopEvidenceCards[2].x).toBe(desktopEvidenceCards[0].x);
