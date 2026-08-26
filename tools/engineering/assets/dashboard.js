@@ -2026,7 +2026,7 @@ function renderOpenPullRequests(pullRequests) {
     approval.className = "open-pr-approval";
     setOpenPullRequestOwnerApproval(approval, pullRequest.owner_approval);
     branch.textContent = String(pullRequest.branch || "");
-    item.append(link, status, approval);
+    item.append(link, branch, status, approval);
     if (pullRequest.owner_authorization_requested === true) {
       const authorize = document.createElement("button");
       authorize.className = "open-pr-owner-authorization";
@@ -2036,7 +2036,6 @@ function renderOpenPullRequests(pullRequests) {
       authorize.title = t("workspace.open_pull_request.authorize_owner");
       item.append(authorize);
     }
-    item.append(branch);
     return item;
   }));
   localizeOpenPullRequestStatuses();
