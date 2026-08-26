@@ -644,6 +644,9 @@ test.describe("Engineering Status browser smoke", () => {
     await expect.poll(() => writes).toEqual([{
       key: "provider_readiness_refresh_seconds", value: 600, previous: 300,
     }]);
+    const saved = select.locator("xpath=ancestor::label[1]").locator(".configuration-field-status");
+    await expect(saved).toHaveText(DASHBOARD_MESSAGES.nl["configuration.saved"]);
+    await expect(saved).toHaveClass(/configuration-status--saved/);
   });
 
   test("persists a log-level pulldown choice exactly once", async ({ page }) => {

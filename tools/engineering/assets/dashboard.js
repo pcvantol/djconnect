@@ -5244,6 +5244,19 @@ configurationInfoTooltips.forEach((info) => {
 window.addEventListener("resize", () => {
   configurationInfoTooltips.forEach((info) => positionConfigurationTooltip(info));
 });
+function configurationFieldStatus(control) {
+  const field = control.closest("label");
+  if (!field) return null;
+  let status = field.querySelector(".configuration-field-status");
+  if (!status) {
+    status = document.createElement("span");
+    status.className = "configuration-field-status";
+    status.setAttribute("role", "status");
+    status.setAttribute("aria-live", "polite");
+    field.append(status);
+  }
+  return status;
+}
 async function saveDashboardConfiguration(control) {
   const [key, normalizer] = configurationFields[control.id] || [];
   if (!key) return;
@@ -5299,14 +5312,14 @@ async function saveDashboardConfiguration(control) {
       componentDetailsRefreshIntervalMs = Number(value) * 1e3;
       if (activeComponentDetails) startComponentDetailsRefresh(activeComponentDetails);
     }
-    const status = control.closest(".queue-project-settings") ? $("queueProjectSettingsStatus") : control.closest(".log-settings") ? $("logSettingsStatus") : control.closest(".platform-settings") ? $("platformSettingsStatus") : $("telemetryRetentionStatus") || $("configurationStatus");
+    const status = configurationFieldStatus(control) || (control.closest(".queue-project-settings") ? $("queueProjectSettingsStatus") : control.closest(".log-settings") ? $("logSettingsStatus") : control.closest(".platform-settings") ? $("platformSettingsStatus") : $("telemetryRetentionStatus") || $("configurationStatus"));
     if (status) {
       status.textContent = t("configuration.saved");
       status.classList.add("configuration-status--saved");
     }
     if (key === "telemetry_retention_days") refreshDashboard();
   } catch {
-    const status = control.closest(".queue-project-settings") ? $("queueProjectSettingsStatus") : control.closest(".log-settings") ? $("logSettingsStatus") : control.closest(".platform-settings") ? $("platformSettingsStatus") : $("telemetryRetentionStatus") || $("configurationStatus");
+    const status = configurationFieldStatus(control) || (control.closest(".queue-project-settings") ? $("queueProjectSettingsStatus") : control.closest(".log-settings") ? $("logSettingsStatus") : control.closest(".platform-settings") ? $("platformSettingsStatus") : $("telemetryRetentionStatus") || $("configurationStatus"));
     if (status) {
       status.textContent = t("configuration.save_failed");
       status.classList.remove("configuration-status--saved");
