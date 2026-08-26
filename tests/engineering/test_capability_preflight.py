@@ -4,6 +4,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 from tools.engineering import capability_preflight
+from tools.engineering import provider_readiness
 
 
 class CapabilityPreflightTest(unittest.TestCase):
@@ -59,3 +60,17 @@ class CapabilityPreflightTest(unittest.TestCase):
         failed = {check.identifier: check for check in result.checks if check.outcome == "FAIL"}
         self.assertIn("provider_readiness", failed)
         self.assertIn("CODEX, GITHUB", failed["provider_readiness"].reason)
+
+    def test_github_readiness_requires_repository_access_after_authentication(self) -> None:
+        completed = __import__("subprocess").CompletedProcess
+        with patch("tools.engineering.provider_readiness.shutil.which", return_value="/usr/local/bin/gh"), patch(
+            "tools.engineering.provider_readiness.CodexCliProvider"
+        ) as codex, patch("tools.engineering.provider_readiness.LocalProcessProvider") as process:
+            codex.return_value.status.return_value.qualified = True
+            codex.return_value.command.return_value = completed(("codex",), 0, "", "")
+            process.return_value.execute.side_effect = [
+                completed(("gh", "auth"), 0, "", ""),
+                completed(("gh", "repo"), 1, "", "repository access denied"),
+            ]
+            status = provider_readiness.status(self.root)
+        self.assertEqual(status["github"]["state"], "CHECK_FAILED")

@@ -42,7 +42,14 @@ def status(root: Path, *, require_github: bool = True) -> dict[str, dict[str, st
         github_result = LocalProcessProvider().execute(root, ("gh", "auth", "status", "--hostname", "github.com"))
     except OSError:
         github_result = None
-    result["github"] = {"provider": "GITHUB", "state": _classify(github_result)}
+    github_state = _classify(github_result)
+    if github_state == "READY":
+        try:
+            repository_result = LocalProcessProvider().execute(root, ("gh", "repo", "view", "--json", "nameWithOwner"))
+        except OSError:
+            repository_result = None
+        github_state = _classify(repository_result)
+    result["github"] = {"provider": "GITHUB", "state": github_state}
     return result
 
 
