@@ -6185,19 +6185,35 @@ function promptDetailCommitTimelineSection(entries) {
   }
   const list = document.createElement("ol");
   list.className = "prompt-detail-commit-timeline__list";
-  for (const item of timeline) {
-    const row = document.createElement("li");
-    row.className = "prompt-detail-commit-timeline__item";
-    const timestamp = Date.parse(item.observed_at);
-    const meta = document.createElement("div");
-    meta.className = "prompt-detail-commit-timeline__meta";
-    meta.textContent = `${Number.isFinite(timestamp) ? locale.dateTime(new Date(timestamp)) : item.observed_at} · ${t("state." + item.phase, {}, item.phase)}`;
-    const commit = document.createElement("code");
-    commit.textContent = item.commit_sha;
-    const description = document.createElement("span");
-    description.textContent = t("detail.commit_description." + item.description, {}, item.description);
-    row.append(meta, commit, description);
-    list.append(row);
+  const groups = timeline.reduce((current, item) => {
+    const previous = current.at(-1);
+    if (!previous || previous.phase !== item.phase) current.push({ phase: item.phase, entries: [] });
+    current.at(-1).entries.push(item);
+    return current;
+  }, []);
+  for (const group of groups) {
+    const section = document.createElement("li");
+    section.className = "prompt-detail-commit-timeline__phase";
+    const caption = document.createElement("h4");
+    caption.textContent = t("state." + group.phase, {}, group.phase);
+    const entries = document.createElement("ol");
+    entries.className = "prompt-detail-commit-timeline__phase-entries";
+    for (const item of group.entries) {
+      const row = document.createElement("li");
+      row.className = "prompt-detail-commit-timeline__item";
+      const timestamp = Date.parse(item.observed_at);
+      const meta = document.createElement("div");
+      meta.className = "prompt-detail-commit-timeline__meta";
+      meta.textContent = Number.isFinite(timestamp) ? locale.dateTime(new Date(timestamp)) : item.observed_at;
+      const commit = document.createElement("code");
+      commit.textContent = item.commit_sha;
+      const description = document.createElement("span");
+      description.textContent = t("detail.commit_description." + item.description, {}, item.description);
+      row.append(meta, commit, description);
+      entries.append(row);
+    }
+    section.append(caption, entries);
+    list.append(section);
   }
   card.append(list);
   return card;

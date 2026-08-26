@@ -3362,6 +3362,7 @@ test.describe("Engineering Status browser smoke", () => {
   test("pairs the verified commit timeline beside provider usage without extending the lifecycle", async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await selectDashboardLocale(page, "nl");
     await page.evaluate(() => {
       renderPromptHistoryDetail({
         history: { run_id: "inbox-provider-review-layout", status: "COMPLETE", title: "Provider and reviews", executed_at: "2026-08-24T20:00:00Z" },
@@ -3391,6 +3392,7 @@ test.describe("Engineering Status browser smoke", () => {
     expect(timelineBounds.x).toBeGreaterThan(usageBounds.x);
     expect(Math.abs(timelineBounds.y - usageBounds.y)).toBeLessThanOrEqual(1);
     await expect(cards.nth(1).locator(".prompt-detail-commit-timeline__list")).toHaveCSS("overflow-y", "auto");
+    await expect(cards.nth(1).locator(".prompt-detail-commit-timeline__phase h4")).toHaveText(DASHBOARD_MESSAGES.nl["state.REPAIR_AGENT"]);
     await expect(page.locator("#promptHistoryDetailContent .prompt-detail-provider-review-stack .prompt-detail-card--reviewers")).toHaveCount(1);
 
     await page.setViewportSize({ width: 390, height: 844 });
