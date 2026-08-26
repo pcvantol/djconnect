@@ -4999,6 +4999,34 @@ function providerLoginStatusBlock() {
   }
   return block;
 }
+const PROVIDER_READINESS_KEYS = Object.freeze(["codex", "github"]);
+const CHECK_FAILED_PROVIDERS = Object.freeze({
+  codex: { state: "CHECK_FAILED" },
+  github: { state: "CHECK_FAILED" },
+});
+const providerReadinessActions = new Map();
+let providerInteractiveRepairInProgress = false;
+function providerDisplayName(provider) {
+  return provider === "CODEX" || provider === "codex" ? "Codex" : "GitHub";
+}
+function providerReadinessState(providers, provider) {
+  return String(providers?.[provider]?.state || "CHECK_FAILED");
+}
+function renderProviderLoginStatus(block, providers) {
+  renderProviderReadinessBanner(providers);
+  block.querySelectorAll("[data-provider]").forEach((row) => {
+    const provider = String(row.dataset.provider || "").toLowerCase();
+    const state = providerReadinessState(providers, provider);
+    const logout = row.querySelector("[data-provider-logout]"), repair = row.querySelector("[data-provider-repair]");
+    row.dataset.providerState = state;
+    row.querySelector(".configuration-provider-status__label").textContent = t(`configuration.provider_status.${state}`, {}, t("configuration.provider_status.CHECK_FAILED"));
+    logout.hidden = state !== "READY";
+    logout.disabled = state !== "READY";
+    repair.hidden = state !== "UNAVAILABLE";
+    repair.disabled = providerInteractiveRepairInProgress;
+    repair.textContent = t("notification.provider_readiness.install", { provider: providerDisplayName(provider) });
+  });
+}
 async function refreshProviderLoginStatus() {
   const block = providerLoginStatusBlock();
   if (!block) return;
@@ -5006,29 +5034,9 @@ async function refreshProviderLoginStatus() {
     const response = await fetch("/api/provider-login-status", { cache: "no-store" });
     const payload = await response.json();
     if (!response.ok || !payload || typeof payload.providers !== "object") throw Error();
-    renderProviderReadinessBanner(payload.providers);
-    block.querySelectorAll("[data-provider]").forEach((row) => {
-      const state = String(payload.providers?.[row.dataset.provider.toLowerCase()]?.state || "CHECK_FAILED");
-      row.dataset.providerState = state;
-      row.querySelector(".configuration-provider-status__label").textContent = t(`configuration.provider_status.${state}`, {}, t("configuration.provider_status.CHECK_FAILED"));
-      const logout = row.querySelector("[data-provider-logout]"), repair = row.querySelector("[data-provider-repair]");
-      logout.hidden = state !== "READY";
-      logout.disabled = state !== "READY";
-      repair.hidden = state !== "UNAVAILABLE";
-      repair.disabled = providerInteractiveRepairInProgress;
-      repair.textContent = t("notification.provider_readiness.install", { provider: row.dataset.provider === "CODEX" ? "Codex" : "GitHub" });
-    });
+    renderProviderLoginStatus(block, payload.providers);
   } catch {
-    renderProviderReadinessBanner({ codex: { state: "CHECK_FAILED" }, github: { state: "CHECK_FAILED" } });
-    block.querySelectorAll("[data-provider]").forEach((row) => {
-      row.dataset.providerState = "CHECK_FAILED";
-      row.querySelector(".configuration-provider-status__label").textContent = t("configuration.provider_status.CHECK_FAILED");
-      const logout = row.querySelector("[data-provider-logout]"), repair = row.querySelector("[data-provider-repair]");
-      logout.hidden = true;
-      logout.disabled = true;
-      repair.hidden = true;
-      repair.disabled = true;
-    });
+    renderProviderLoginStatus(block, CHECK_FAILED_PROVIDERS);
   }
 }
 let providerReadinessRefreshIntervalMs = 300_000, providerReadinessRefreshTimer = null;
@@ -5044,15 +5052,13 @@ document.addEventListener("visibilitychange", () => {
   void refreshProviderLoginStatus();
   scheduleProviderReadinessRefresh();
 });
-const providerReadinessActions = new Map();
-let providerInteractiveRepairInProgress = false;
 function renderProviderReadinessBanner(providers) {
-  ["codex", "github"].forEach((key) => {
+  PROVIDER_READINESS_KEYS.forEach((key) => {
     const prefix = key === "codex" ? "codex" : "github";
     const banner = $(`${prefix}ProviderReadinessBanner`), title = $(`${prefix}ProviderReadinessTitle`), message = $(`${prefix}ProviderReadinessMessage`), button = $(`${prefix}ProviderReadinessAction`);
     if (!banner || !title || !message || !button) return;
     const state = String(providers?.[key]?.state || "CHECK_FAILED");
-    const provider = key === "codex" ? "Codex" : "GitHub";
+    const provider = providerDisplayName(key);
     const action = state === "UNAVAILABLE" ? "install" : state === "AUTH_REQUIRED" ? "login" : null;
     banner.hidden = state === "READY";
     providerReadinessActions.set(key, action ? { provider: key.toUpperCase(), action } : null);
