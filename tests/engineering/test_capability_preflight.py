@@ -2,6 +2,7 @@ from __future__ import annotations
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
 from tools.engineering import capability_preflight
 
 
@@ -25,8 +26,9 @@ class CapabilityPreflightTest(unittest.TestCase):
 
     def test_compatible_declaration_is_deterministic(self) -> None:
         prompt = "Execution Host Version: 2.0.0\nRunner Version: 2.0.0\nEngineering Database Schema: 6\nRequired Capabilities: capability_preflight\n"
-        first = capability_preflight.execute(self.root, prompt, run_id="inbox-one")
-        second = capability_preflight.execute(self.root, prompt, run_id="inbox-two")
+        with patch("tools.engineering.capability_preflight.provider_readiness_failures", return_value=()):
+            first = capability_preflight.execute(self.root, prompt, run_id="inbox-one")
+            second = capability_preflight.execute(self.root, prompt, run_id="inbox-two")
         self.assertEqual(first.outcome, "PASS")
         self.assertEqual(first.recoverability, "RETRYABLE")
         self.assertEqual(
@@ -35,9 +37,10 @@ class CapabilityPreflightTest(unittest.TestCase):
         self.assertEqual(capability_preflight.latest(self.root)["run_id"], "inbox-two")
 
     def test_unsupported_requirement_fails_closed_with_evidence(self) -> None:
-        result = capability_preflight.execute(
-            self.root, "Report Format: 99\nRequired Provider Support: sqlite\n"
-        )
+        with patch("tools.engineering.capability_preflight.provider_readiness_failures", return_value=()):
+            result = capability_preflight.execute(
+                self.root, "Report Format: 99\nRequired Provider Support: sqlite\n"
+            )
         self.assertEqual(result.outcome, "FAIL")
         self.assertEqual(result.failure_origin, "CAPABILITY")
         self.assertEqual(result.recoverability, "RETRYABLE_AFTER_HOST_REPAIR")
@@ -49,3 +52,10 @@ class CapabilityPreflightTest(unittest.TestCase):
             "provider_support",
             {check.identifier for check in result.checks if check.outcome == "FAIL"},
         )
+
+    def test_provider_readiness_blocks_managed_admission_before_execution(self) -> None:
+        with patch("tools.engineering.capability_preflight.provider_readiness_failures", return_value=("CODEX", "GITHUB")):
+            result = capability_preflight.execute(self.root, "Execution Mode: MANAGED\n")
+        failed = {check.identifier: check for check in result.checks if check.outcome == "FAIL"}
+        self.assertIn("provider_readiness", failed)
+        self.assertIn("CODEX, GITHUB", failed["provider_readiness"].reason)

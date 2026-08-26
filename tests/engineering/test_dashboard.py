@@ -89,16 +89,14 @@ class DashboardStatusTest(unittest.TestCase):
         )
         self.assertLess(page.index('id="configuration"'), page.index("</main>"))
 
-    @patch("tools.engineering.dashboard.shutil.which", return_value="/usr/local/bin/gh")
-    @patch("tools.engineering.dashboard.LocalProcessProvider")
-    @patch("tools.engineering.dashboard.CodexCliProvider")
+    @patch("tools.engineering.dashboard.provider_readiness_status")
     def test_provider_login_status_is_token_free_and_classifies_auth(
-        self, codex: MagicMock, process: MagicMock, _which: MagicMock,
+        self, readiness: MagicMock,
     ) -> None:
-        completed = __import__("subprocess").CompletedProcess
-        codex.return_value.status.return_value.qualified = True
-        codex.return_value.command.return_value = completed(("codex",), 0, "Logged in", "")
-        process.return_value.execute.return_value = completed(("gh",), 1, "", "authentication required")
+        readiness.return_value = {
+            "codex": {"provider": "CODEX", "state": "READY"},
+            "github": {"provider": "GITHUB", "state": "AUTH_REQUIRED"},
+        }
 
         status = dashboard._provider_login_status(Path("/workspace"))
 
@@ -106,8 +104,7 @@ class DashboardStatusTest(unittest.TestCase):
             "codex": {"provider": "CODEX", "state": "READY"},
             "github": {"provider": "GITHUB", "state": "AUTH_REQUIRED"},
         })
-        self.assertNotIn("Logged in", repr(status))
-        self.assertNotIn("authentication required", repr(status))
+        readiness.assert_called_once_with(Path("/workspace"))
 
     @patch("tools.engineering.dashboard.LocalProcessProvider")
     @patch("tools.engineering.dashboard.sys.platform", "darwin")

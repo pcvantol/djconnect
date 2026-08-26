@@ -275,6 +275,32 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(block.locator('[data-provider="GITHUB"]')).toHaveAttribute("data-provider-state", "AUTH_REQUIRED");
   });
 
+  test("shows a sticky provider repair banner and never reports it as resolved before recheck", async ({ page }) => {
+    let readinessCalls = 0;
+    await page.route("**/api/provider-login-status", (route) => route.fulfill({ json: {
+      providers: {
+        codex: { provider: "CODEX", state: "AUTH_REQUIRED" },
+        github: { provider: "GITHUB", state: "READY" },
+      },
+    } }));
+    await page.route("**/api/provider-login/repair", async (route) => {
+      readinessCalls += 1;
+      await route.fulfill({ status: 202, json: { started: true } });
+    });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.waitForFunction(() => document.body?.classList.contains("dashboard-ready"));
+    const banner = page.locator("#providerReadinessBanner");
+    await expect(banner).toBeVisible();
+    await expect(banner).toContainText(DASHBOARD_MESSAGES.nl["notification.provider_readiness.auth_required"].replace("{provider}", "Codex"));
+    await expect(page.locator("#providerReadinessAction")).toHaveText(DASHBOARD_MESSAGES.nl["notification.provider_readiness.login"].replace("{provider}", "Codex"));
+    await page.locator("#providerReadinessAction").click();
+    await expect(page.locator("#confirmationModal")).toBeVisible();
+    await page.locator("#confirmationModalConfirm").click();
+    await page.waitForTimeout(100);
+    expect(readinessCalls).toBe(1);
+    await expect(banner).toBeVisible();
+  });
+
   test("disables the Inbox location action while the project queue has items", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.evaluate(() => window.queueItems([

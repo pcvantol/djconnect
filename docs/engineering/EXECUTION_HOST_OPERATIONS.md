@@ -26,6 +26,22 @@ requirements. Workspace authorization is trusted host configuration: roots,
 scopes and repository allow/deny lists are evaluated fail-closed. Managed
 execution remains subject to its branch, remote and upstream requirements.
 
+## Provider readiness and explicit repair
+
+Before an Inbox item is claimed, capability preflight verifies the local Codex
+session for every execution and the GitHub CLI session for Managed execution.
+Genesis does not require GitHub until a future transaction explicitly declares
+that dependency. A missing CLI, expired login or indeterminate provider check
+fails closed before an agent starts, so it cannot consume credits in an
+authentication retry loop.
+
+The dashboard projects the same token-free evidence in Configuration and in a
+sticky notification. An operator can explicitly install a missing CLI or open
+its browser-backed terminal login. A repair never runs from an execution,
+never exposes credentials, and does not resolve the banner until a new check
+confirms readiness. Per-provider sign-out remains available to test a fresh
+session deliberately.
+
 ## Configuration and transport
 
 The Execution Host Configuration Resolver is the only host-specific location

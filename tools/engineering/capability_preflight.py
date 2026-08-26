@@ -23,6 +23,7 @@ from .platform_version import (
     _semver,
 )
 from .drift_diagnostics import evidence_for_checks, guidance, persist as persist_drift_evidence
+from .provider_readiness import failures as provider_readiness_failures
 
 RECOVERABILITY = frozenset(
     {
@@ -113,6 +114,16 @@ def execute(root: Path, prompt: str, *, run_id: str | None = None) -> Capability
     """Evaluate declared requirements before claim; absent declarations are compatible."""
     started, checks = monotonic(), []
     requirements = _requirements(prompt)
+    mode = requirements.get("execution_mode", "MANAGED").strip().upper()
+    required_providers = provider_readiness_failures(root, require_github=mode != "GENESIS")
+    checks.append(
+        _check(
+            "provider_readiness",
+            not required_providers,
+            "Required provider sessions are ready." if not required_providers else "Required provider sessions need attention: " + ", ".join(required_providers) + ".",
+            "Use the Engineering dashboard provider notification to install or sign in, then retry admission.",
+        )
+    )
     try:
         manifest = EngineeringPlatformManifest.load(
             root / "tools/engineering/ENGINEERING_PLATFORM_VERSION.json"
