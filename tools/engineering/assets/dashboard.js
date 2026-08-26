@@ -5208,7 +5208,7 @@ function ensureCodexCapacityReserveConfigurationControl() {
   [["0", "configuration.capacity_reserve_none"], ["5", "configuration.capacity_reserve_percent"], ["10", "configuration.capacity_reserve_percent"], ["15", "configuration.capacity_reserve_percent"], ["20", "configuration.capacity_reserve_percent"], ["25", "configuration.capacity_reserve_percent"], ["50", "configuration.capacity_reserve_percent"]].forEach(([value, key]) => {
     const option = document.createElement("option");
     option.value = value;
-    option.dataset.i18n = key;
+    option.dataset.capacityReserveTemplate = key;
     option.textContent = key === "configuration.capacity_reserve_percent" ? t(key, { percent: value }) : t(key);
     select.append(option);
   });
@@ -5236,8 +5236,8 @@ function localizeConfigurationOptions() {
     option.textContent = t(option.dataset.i18n);
   });
   document.querySelectorAll("#configurationCodexCapacityReserve option").forEach((option) => {
-    option.textContent = option.dataset.i18n === "configuration.capacity_reserve_percent"
-      ? t(option.dataset.i18n, { percent: option.value }) : t(option.dataset.i18n);
+    option.textContent = option.dataset.capacityReserveTemplate === "configuration.capacity_reserve_percent"
+      ? t(option.dataset.capacityReserveTemplate, { percent: option.value }) : t(option.dataset.capacityReserveTemplate);
   });
   dashboardSelectPickers.forEach((_, select) => syncDashboardSelectPicker(select));
 }

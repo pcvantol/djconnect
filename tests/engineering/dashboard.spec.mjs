@@ -92,7 +92,7 @@ async function selectDashboardLocale(page, language) {
   // Do not replace the page while its first snapshot is still hydrating.
   // Under the ten-worker CI profile that otherwise races the initial locale
   // read with a reload and can leave the splash state behind.
-  await page.waitForFunction(() => document.body?.classList.contains("dashboard-ready"));
+  await waitForDashboardReady(page);
   if (await nativeSelect.inputValue() === language) return;
   const localeReload = page.waitForEvent(
     "framenavigated",
@@ -105,7 +105,28 @@ async function selectDashboardLocale(page, language) {
   await nativeSelect.selectOption(language, { force: true });
   await localeReload;
   await page.waitForLoadState("domcontentloaded");
-  await page.waitForFunction(() => document.body?.classList.contains("dashboard-ready"));
+  await waitForDashboardReady(page);
+}
+
+async function waitForDashboardReady(page) {
+  // Under a fully-parallel browser run a dashboard reload can lose its first
+  // local snapshot connection. Retry that read-only reload once instead of
+  // waiting for the full test timeout and then repeating the entire test.
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    try {
+      await page.waitForFunction(
+        () => document.body?.classList.contains("dashboard-ready"),
+        { timeout: 10_000 },
+      );
+      return;
+    } catch (error) {
+      if (attempt === 1) throw error;
+      const navigation = page.waitForEvent("framenavigated", (frame) => frame === page.mainFrame());
+      await page.evaluate(() => window.location.reload());
+      await navigation;
+      await page.waitForLoadState("domcontentloaded");
+    }
+  }
 }
 
 async function navigateDashboard(navigate) {
@@ -276,6 +297,8 @@ test.describe("Engineering Status browser smoke", () => {
     const login = block.locator('[data-provider="GITHUB"] [data-provider-repair]');
     await expect(login).toBeVisible();
     await expect(login).toHaveText(DASHBOARD_MESSAGES.nl["notification.provider_readiness.login"].replace("{provider}", "GitHub"));
+    await expect(login).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
+    await login.hover();
     await expect(login).toHaveCSS("background-color", "rgb(244, 195, 79)");
     await expect(block.locator('[data-provider="GITHUB"] [data-provider-logout]')).toBeHidden();
   });
@@ -1020,7 +1043,7 @@ test.describe("Engineering Status browser smoke", () => {
       }]);
     });
     await page.locator("#workspaceOpenPullRequestsRefresh").click();
-    await expect(page.locator("#workspaceOpenPullRequests a")).toHaveText("PR #940 — Last known pull request");
+    await expect(page.locator("#workspaceOpenPullRequests a")).toHaveText("PR #940 — Last known pull request ↗");
   });
 
   test("translates every operational phase and status in every supported locale", () => {
@@ -2266,6 +2289,10 @@ test.describe("Engineering Status browser smoke", () => {
   });
 
   test("shows autonomous quality control as its own workflow node and detail modal", async ({ page }) => {
+    // This fixture owns the lifecycle projection; an asynchronous server
+    // snapshot must not replace its node while the click is being asserted.
+    await page.route("**/api/events", (route) => route.abort());
+    await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({ json: { status: {} } }));
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.evaluate(() => r({
       watcher_state: "ENGINEERING_RUN_ACTIVE",
@@ -2862,6 +2889,10 @@ test.describe("Engineering Status browser smoke", () => {
   });
 
   test("localizes unstaged-change preflight failures for every supported language", async ({ page }) => {
+    // The modal assertions own their projection; avoid a live snapshot racing
+    // one of the locale-triggered page reloads under the parallel CI suite.
+    await page.route("**/api/events", (route) => route.abort());
+    await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({ json: { status: {} } }));
     const error = "Preflight failed: Unstaged changes are present. Recovery: Commit, stash, or remove unstaged changes before execution.";
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     for (const language of SUPPORTED_LOCALES) {
