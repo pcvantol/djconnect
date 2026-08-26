@@ -379,6 +379,28 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#codexProviderReadinessAction")).toBeHidden();
   });
 
+  test("clears a transient provider check failure when the dashboard becomes visible", async ({ page }) => {
+    let checks = 0;
+    await page.route("**/api/provider-login-status", async (route) => {
+      checks += 1;
+      if (checks === 1) {
+        await route.abort("failed");
+        return;
+      }
+      await route.fulfill({ json: { providers: {
+        codex: { provider: "CODEX", state: "READY" },
+        github: { provider: "GITHUB", state: "READY" },
+      } } });
+    });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.waitForFunction(() => document.body?.classList.contains("dashboard-ready"));
+    await expect(page.locator("#codexProviderReadinessBanner")).toBeVisible();
+    await page.evaluate(() => document.dispatchEvent(new Event("visibilitychange")));
+    await expect(page.locator("#codexProviderReadinessBanner")).toBeHidden();
+    await expect(page.locator("#githubProviderReadinessBanner")).toBeHidden();
+    expect(checks).toBeGreaterThanOrEqual(2);
+  });
+
   test("shows each unavailable provider separately and serializes interactive repair", async ({ page }) => {
     await page.route("**/api/provider-login-status", (route) => route.fulfill({ json: {
       providers: {

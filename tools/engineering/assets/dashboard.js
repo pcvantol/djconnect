@@ -5039,6 +5039,11 @@ function scheduleProviderReadinessRefresh() {
     scheduleProviderReadinessRefresh();
   }, providerReadinessRefreshIntervalMs);
 }
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState !== "visible") return;
+  void refreshProviderLoginStatus();
+  scheduleProviderReadinessRefresh();
+});
 const providerReadinessActions = new Map();
 let providerInteractiveRepairInProgress = false;
 function renderProviderReadinessBanner(providers) {
@@ -6898,5 +6903,4 @@ for (const binding of [
 localizeOpenPullRequestStatuses();
 void refreshOpenPullRequests();
 void refreshGithubRateLimit();
-void refreshProviderLoginStatus();
 startDashboardUpdates();
