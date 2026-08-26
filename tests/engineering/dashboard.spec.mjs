@@ -332,6 +332,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(install).toHaveText(DASHBOARD_MESSAGES.nl["notification.provider_readiness.install"].replace("{provider}", "Codex"));
     await expect(row.locator("[data-provider-logout]")).toBeHidden();
     await expect(install).toHaveCSS("min-height", "32px");
+    await expect(install).toHaveCSS("font-weight", "400");
     await expect(install).toHaveCSS("border-top-color", "rgb(240, 182, 106)");
     await install.click();
     await expect(page.locator("#confirmationModal")).toBeVisible();
