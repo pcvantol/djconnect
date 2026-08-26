@@ -332,8 +332,12 @@ an independently releasable package.
 #### Native macOS installation and first-run contract
 
 The native installer is an EP product surface, not a DJConnect bootstrap
-adapter. It packages or retrieves only the verified, pinned EP release and
-performs the following sequence under an explicit local-user confirmation:
+adapter. Its signed macOS application is a user-friendly wrapper around the
+idempotent installed command `engineering-platform-host --install`; it does
+not maintain a second installation implementation. The application packages
+or retrieves only the verified, pinned EP release, obtains the operator's
+explicit confirmation and then invokes that command to perform the following
+sequence:
 
 1. inspect any existing EP installation and acquire an installation-wide
    installer lock, so two installers or a running writer cannot race;
@@ -363,13 +367,18 @@ backs up the installation database before a migration, and uninstall offers a
 separate, explicit retained-data/backup decision rather than silently deleting
 execution evidence.
 
-EP ships its own generic `engineering-platform-host --verify` and explicit
-`--repair` host-doctor commands. They verify the installed application,
-commands, services, data root, database and token-free provider readiness.
-They do not recreate DJConnect's Apple-signing, Home Assistant lab, device or
-other product-development requirements. The normal per-execution Host,
-Workspace and Capability Preflights remain the second gate; an apparently
-healthy installation is never authority to admit unsafe work.
+EP ships its own generic `engineering-platform-host --install`, `--verify`
+and explicit `--repair` commands. `--install` is the single, idempotent
+installation engine used by both the native application and documented
+administrator setup; it returns structured, token-free progress/result
+evidence that the app renders. `--verify` and `--repair` verify or repair the
+installed application, commands, services, data root, database and token-free
+provider readiness. None recreates DJConnect's Apple-signing, Home Assistant
+lab, device or other product-development requirements. Browser login remains a
+separate explicit Console action after installation; the command never starts
+an automatic login or retry loop. The normal per-execution Host, Workspace and
+Capability Preflights remain the second gate; an apparently healthy
+installation is never authority to admit unsafe work.
 
 #### Registering a project after installation
 

@@ -127,12 +127,14 @@ but it never becomes a second lifecycle, planning or repository authority.
 ### Standalone installation boundary
 
 The extracted EP product provides a signed native macOS installer for its
-own host runtime. It installs the pinned EP package and supported provider
-CLIs, creates an empty installation-owned data root/database, configures the
-dashboard and watcher services, verifies one-writer health and opens the
-loopback Console for explicit first-run provider login. This is distinct from
-DJConnect developer-machine bootstrap: EP does not inherit Apple signing,
-Home Assistant lab or product-specific runner requirements.
+own host runtime. The app is a user-facing wrapper around the one idempotent
+`engineering-platform-host --install` engine; it does not duplicate host
+mutation logic. That engine installs the pinned EP package and supported
+provider CLIs, creates an empty installation-owned data root/database,
+configures dashboard and watcher services, verifies one-writer health and then
+opens the loopback Console for explicit first-run provider login. This is
+distinct from DJConnect developer-machine bootstrap: EP does not inherit Apple
+signing, Home Assistant lab or product-specific runner requirements.
 
 The installer creates no project by inference. A Workspace consumer connects a
 new or existing Git checkout only by supplying canonical project identity; EP
