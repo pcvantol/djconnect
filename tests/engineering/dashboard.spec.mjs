@@ -145,6 +145,18 @@ async function dispatchDashboardPointerClick(locator) {
   await locator.dispatchEvent("click", { detail: 1 });
 }
 
+async function scrollDashboardElementIntoView(locator) {
+  await locator.evaluate((element) => {
+    const region = document.querySelector(".dashboard-scroll-region");
+    if (!(region instanceof HTMLElement) || getComputedStyle(region).overflowY === "visible") {
+      element.scrollIntoView({ block: "center", inline: "nearest" });
+      return;
+    }
+    const target = element.getBoundingClientRect(), container = region.getBoundingClientRect();
+    region.scrollTop += target.top - container.top - (container.height - target.height) / 2;
+  });
+}
+
 async function navigateDashboard(navigate) {
   let lastError;
   for (let attempt = 0; attempt < 3; attempt += 1) {
@@ -6115,7 +6127,7 @@ test.describe("Engineering Status browser smoke", () => {
     });
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.locator("#platformHealth").evaluate((element) => { element.open = true; });
-    await page.locator(".component-info").first().click();
+    await dispatchDashboardPointerClick(page.locator(".component-info").first());
 
     await expect(page.locator("#componentModalContent")).toContainText("Uptime10s");
     await expect(page.locator("#componentModalContent")).toContainText("PID 42: 1.0 MiB");
@@ -6216,6 +6228,9 @@ test.describe("Engineering Status browser smoke", () => {
   });
 
   test("fills the historical report action blue on hover", async ({ page }) => {
+    // This verifies desktop pointer hover styling.  Keep it outside the
+    // compact phone title-bar geometry covered by the dedicated mobile tests.
+    await page.setViewportSize({ width: 1280, height: 900 });
     // Keep the fixture stable during the hover assertion. A live dashboard
     // event can legitimately rebuild the prompt-history row mid-hover.
     await page.addInitScript(() => {
@@ -6240,7 +6255,8 @@ test.describe("Engineering Status browser smoke", () => {
     await page.locator("#promptHistory").evaluate((element) => { element.open = true; });
     const report = page.locator('[title="Bekijk engineeringrapport voor Rapport hover"]');
 
-    await report.hover();
+    await scrollDashboardElementIntoView(report);
+    await report.hover({ force: true });
     await expect(report).toHaveCSS("background-color", "rgb(141, 199, 255)");
     await expect(report).toHaveCSS("color", "rgb(23, 35, 49)");
   });
@@ -6258,7 +6274,7 @@ test.describe("Engineering Status browser smoke", () => {
       HTMLAnchorElement.prototype.click = function click() { window.__componentLogDownload = this.download; };
     });
     for (const [testId, filename] of [["download-inbox-log", "inbox-watcher-log-"], ["download-dashboard-log", "statusdashboard-log-"]]) {
-      await page.getByTestId(testId).click();
+      await dispatchDashboardPointerClick(page.getByTestId(testId));
       await expect.poll(() => page.evaluate(() => window.__componentLogDownload)).toMatch(new RegExp(`^${filename}.*\\.ndjson$`));
     }
   });
