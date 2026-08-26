@@ -5230,9 +5230,6 @@ document.addEventListener("click", async (event) => {
 });
 const MACHINE_SCOPED_WORKSPACE_FIELD_IDS = Object.freeze([
   "workspaceFreeDiskSpace",
-  "workspaceDatabaseField",
-  "workspaceDatabaseSize",
-  "workspaceSchemaVersion",
 ]);
 const CONFIGURATION_CONTROL_SCOPES = Object.freeze([
   {
@@ -5290,6 +5287,8 @@ function moveMachineScopedWorkspaceDetails() {
     const field = $(id);
     if (field) configuration.insertBefore(field, controls);
   });
+  const databaseSection = configuration.querySelector(".workspace-database-section") || $("workspaceDatabaseField")?.closest(".workspace-database-section");
+  if (databaseSection) configuration.insertBefore(databaseSection, controls);
 }
 function ensureProviderReadinessConfigurationControl() {
   if ($("configurationProviderReadinessInterval")) return;

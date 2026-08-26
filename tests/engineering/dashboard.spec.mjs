@@ -7841,10 +7841,15 @@ test.describe("Engineering Status browser smoke", () => {
   test("offers a downloadable offline backup for the engineering database", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.locator("#configuration > summary").click();
-    for (const id of ["workspaceFreeDiskSpace", "workspaceDatabaseField", "workspaceDatabaseSize", "workspaceSchemaVersion"]) {
-      await expect(page.locator(`#${id}`)).toHaveCount(1);
-      await expect(page.locator(`#${id}`).locator("xpath=..")).toHaveAttribute("id", "configuration");
-    }
+    await expect(page.locator("#workspaceFreeDiskSpace")).toHaveCount(1);
+    await expect(page.locator("#workspaceFreeDiskSpace").locator("xpath=..")).toHaveAttribute("id", "configuration");
+    const databaseSection = page.locator(".workspace-database-section");
+    await expect(databaseSection).toHaveCount(1);
+    await expect(databaseSection.locator("xpath=..")).toHaveAttribute("id", "configuration");
+    await expect(databaseSection).toHaveCSS("border-top-color", "rgb(240, 182, 106)");
+    await expect(databaseSection.locator("#workspaceDatabaseHeading")).toHaveText("Engineering-database");
+    for (const id of ["workspaceDatabaseField", "workspaceDatabaseSize", "workspaceSchemaVersion"])
+      await expect(databaseSection.locator(`#${id}`)).toHaveCount(1);
     await expect(page.locator("#workspaceCard #workspaceDatabaseField")).toHaveCount(0);
     const download = page.locator("#workspaceDatabaseDownload");
     await expect(download).toBeVisible();
