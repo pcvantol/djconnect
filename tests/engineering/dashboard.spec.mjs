@@ -4993,6 +4993,14 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#codexCliUpdate")).toBeVisible();
     await expect(page.locator("#codexCliUpdate")).toHaveCSS("background-color", "rgb(31, 91, 66)");
     await expect(page.locator("#codexCliUpdate")).toContainText("Update");
+    expect(await page.evaluate(() => {
+      const provider = document.querySelector("#rateLimitProvider");
+      const status = document.querySelector("#codexCliUpdateStatus");
+      return Boolean(provider?.compareDocumentPosition(status) & Node.DOCUMENT_POSITION_FOLLOWING);
+    })).toBe(true);
+    expect(await page.locator("#codexCliUpdate").evaluate(
+      (button) => button.nextElementSibling?.classList.contains("rate-limit-provider-path"),
+    )).toBe(true);
     expect(await page.locator("#codexCliUpdate").evaluate(
       (button) => getComputedStyle(button, "::before").content,
     )).toBe('"↓"');
