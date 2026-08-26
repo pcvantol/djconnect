@@ -5134,7 +5134,6 @@ const CONFIGURATION_CONTROL_SCOPES = Object.freeze([
     statusId: "queueProjectSettingsStatus",
   },
   {
-    beforeId: "componentLogControls",
     containerClass: "log-settings",
     fieldIds: ["configurationLogRetention", "configurationLogLevel"],
     parentId: "componentLogs",

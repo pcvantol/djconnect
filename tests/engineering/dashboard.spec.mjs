@@ -207,6 +207,10 @@ test.describe("Engineering Status browser smoke", () => {
       await expect(label.locator(".configuration-info")).toHaveCount(1);
       await expect(label.locator(".configuration-info")).toHaveAttribute("aria-label", /.+/);
     }
+    const settings = logs.locator(":scope > .log-settings");
+    await expect(settings).toHaveCount(1);
+    expect(await settings.evaluate((element) => element.previousElementSibling?.className)).toBe("technical-grid");
+    await expect(settings).toHaveCSS("border-top-style", "solid");
   });
 
   test("places the platform-health refresh interval above platform components", async ({ page }) => {
