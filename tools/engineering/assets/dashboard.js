@@ -4173,6 +4173,27 @@ function promptHistoryMarkdownList(title, values) {
     ? `## ${promptHistoryMarkdownText(title)}\n\n${items.map((value) => `- ${promptHistoryMarkdownText(value)}`).join("\n")}\n`
     : "";
 }
+function promptHistoryMarkdownPullRequests(pullRequests) {
+  const labels = {
+    implementation: t("detail.implementation_pull_request"),
+    finalization: t("detail.finalization_pull_request"),
+  };
+  const items = promptDetailPullRequestEntries(pullRequests).map((item) =>
+    `- ${promptHistoryMarkdownText(labels[item.role])}: [#${item.number}](${item.url})`,
+  );
+  return items.length ? `## ${promptHistoryMarkdownText(t("detail.pull_requests"))}\n\n${items.join("\n")}\n` : "";
+}
+function promptHistoryMarkdownCommitTimeline(entries) {
+  const items = promptDetailCommitTimelineEntries(entries).map((item) => {
+    const timestamp = Date.parse(item.observed_at);
+    const observedAt = Number.isFinite(timestamp) ? locale.dateTime(new Date(timestamp)) : item.observed_at;
+    const phase = t("state." + item.phase, {}, item.phase);
+    const kind = t("detail.commit_type." + commitTimelineKind(item), {}, commitTimelineKind(item));
+    const description = t("detail.commit_description." + item.description, {}, item.description);
+    return `- ${promptHistoryMarkdownText(observedAt)} — ${promptHistoryMarkdownText(phase)} (${promptHistoryMarkdownText(kind)}) — \`${item.commit_sha}\` — ${promptHistoryMarkdownText(description)}`;
+  });
+  return items.length ? `## ${promptHistoryMarkdownText(t("detail.commit_timeline"))}\n\n${items.join("\n")}\n` : "";
+}
 function promptHistoryDetailMarkdown(payload, title) {
   const history = payload?.history && typeof payload.history === "object" ? payload.history : {};
   const execution = payload?.execution && typeof payload.execution === "object" ? payload.execution : {};
@@ -4220,6 +4241,8 @@ function promptHistoryDetailMarkdown(payload, title) {
       .filter(([, value]) => value !== null && typeof value !== "object")
       .map(([key, value]) => [promptHistoryMarkdownLabel(key), value])),
     promptHistoryMarkdownSection(t("detail.git_commit"), Object.entries(payload?.commits || {})),
+    promptHistoryMarkdownPullRequests(payload?.pull_requests),
+    promptHistoryMarkdownCommitTimeline(payload?.commit_timeline),
     promptHistoryMarkdownList(t("detail.execution_evidence"), payload?.evidence),
   ].filter(Boolean);
   return [`# ${promptHistoryMarkdownText(history.title || title || promptHistoryDetailRunId)}`, "", t("history.details_description"), "", ...sections].join("\n").trimEnd() + "\n";
@@ -6186,14 +6209,17 @@ function commitTimelineKind(item) {
     RECONCILE_AGENT: "reconciliation",
   }[item.phase] || "other";
 }
-function promptDetailCommitTimelineSection(entries) {
-  const timeline = Array.isArray(entries) ? entries.filter((item) =>
+function promptDetailCommitTimelineEntries(entries) {
+  return Array.isArray(entries) ? entries.filter((item) =>
     item && typeof item === "object" &&
     typeof item.phase === "string" &&
     typeof item.observed_at === "string" &&
     typeof item.commit_sha === "string" && /^[0-9a-f]{40}$/.test(item.commit_sha) &&
     typeof item.description === "string",
   ) : [];
+}
+function promptDetailCommitTimelineSection(entries) {
+  const timeline = promptDetailCommitTimelineEntries(entries);
   const card = promptDetailCard(t("detail.commit_timeline"), [], false, "prompt-detail-card--commit-timeline");
   if (!timeline.length) {
     card.append(detailField(t("detail.recorded_evidence"), t("detail.commit_timeline_empty")));
@@ -6252,13 +6278,16 @@ function promptDetailCommitsSection(commits) {
     detailField(t("detail.recorded_evidence"), evidence, true),
   ]);
 }
-function promptDetailPullRequestsSection(pullRequests) {
-  const links = Array.isArray(pullRequests) ? pullRequests.filter((item) =>
+function promptDetailPullRequestEntries(pullRequests) {
+  return Array.isArray(pullRequests) ? pullRequests.filter((item) =>
     item && ["implementation", "finalization"].includes(item.role) &&
     Number.isInteger(item.number) && item.number > 0 &&
     typeof item.url === "string" &&
     /^https:\/\/github\.com\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+\/pull\/\d+$/.test(item.url),
   ) : [];
+}
+function promptDetailPullRequestsSection(pullRequests) {
+  const links = promptDetailPullRequestEntries(pullRequests);
   if (!links.length) return null;
   const labels = {
     implementation: t("detail.implementation_pull_request"),

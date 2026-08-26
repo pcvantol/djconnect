@@ -102,6 +102,13 @@ Execution Receipts, Engineering Reports, Prompt History, retry lineage or
 repository evidence. Operators can export telemetry and download a consistent
 database snapshot for offline backup before changing retention.
 
+Execution-detail downloads are projections of the same durable run evidence as
+the dashboard: both Markdown and JSON include linked implementation/finalization
+pull requests when present, plus the verified phase-commit timeline. The JSON
+retains the structured `pull_requests` and `commit_timeline` records; Markdown
+renders their GitHub links and localized phase, commit-type and description
+labels for human review.
+
 The daily telemetry detail keeps wide per-run evidence in its own horizontally
 scrollable table region. This prevents a wide table from making the complete
 detail dialog scroll sideways, while retaining access to every column on narrow

@@ -1559,6 +1559,16 @@ test.describe("Engineering Status browser smoke", () => {
         },
         execution: { seconds: 42, total_seconds: 61 },
         evidence: ["Execution Host: Engineering Platform"],
+        pull_requests: [
+          { role: "implementation", number: 948, url: "https://github.com/pcvantol/djconnect/pull/948" },
+          { role: "finalization", number: 949, url: "https://github.com/pcvantol/djconnect/pull/949" },
+        ],
+        commit_timeline: [{
+          phase: "FINALIZE_AGENT",
+          observed_at: "2026-08-04T08:01:00Z",
+          commit_sha: "a".repeat(40),
+          description: "finalization_commit_verified",
+        }],
       },
     }));
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
@@ -1591,12 +1601,26 @@ test.describe("Engineering Status browser smoke", () => {
     expect(markdownContent).toContain("## Uitvoering");
     expect(markdownContent).toContain("| Veld | Waarde |");
     expect(markdownContent).toContain("The verified execution diagnostic belongs to this run.");
+    expect(markdownContent).toContain("## Pull requests");
+    expect(markdownContent).toContain("[#948](https://github.com/pcvantol/djconnect/pull/948)");
+    expect(markdownContent).toContain("[#949](https://github.com/pcvantol/djconnect/pull/949)");
+    expect(markdownContent).toContain("## Geverifieerde commit-tijdlijn");
+    expect(markdownContent).toContain("`" + "a".repeat(40) + "`");
+    expect(markdownContent).toContain("Finalisatiecommit geverifieerd");
     expect(markdownContent).not.toContain("```json");
     const jsonDownload = page.waitForEvent("download");
     await json.click();
     const downloadedJson = await jsonDownload;
     expect(downloadedJson.suggestedFilename()).toBe("execution-details-inbox-modal.json");
-    expect(readFileSync(await downloadedJson.path(), "utf8")).toContain('"run_id": "inbox-modal"');
+    const jsonContent = JSON.parse(readFileSync(await downloadedJson.path(), "utf8"));
+    expect(jsonContent.history.run_id).toBe("inbox-modal");
+    expect(jsonContent.pull_requests).toEqual(expect.arrayContaining([
+      expect.objectContaining({ role: "implementation", number: 948 }),
+      expect.objectContaining({ role: "finalization", number: 949 }),
+    ]));
+    expect(jsonContent.commit_timeline).toEqual(expect.arrayContaining([
+      expect.objectContaining({ phase: "FINALIZE_AGENT", commit_sha: "a".repeat(40) }),
+    ]));
     await expect(page.locator("dialog[open]")).toHaveCount(1);
   });
 
