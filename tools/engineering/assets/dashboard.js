@@ -433,18 +433,17 @@ function renderCapacityTrend(history) {
     x: padding.left + Math.max(0, Math.min(1, (point.at - start) / (now - start))) * innerWidth,
     y: padding.top + (1 - point.remaining / 100) * innerHeight,
   }));
-  let pathData = "", previous;
+  let pathData = "";
   for (const point of coordinates) {
-    pathData += !previous || point.at - previous.at > 90 * 60 * 1000
+    pathData += !pathData
       ? `M ${point.x.toFixed(2)} ${point.y.toFixed(2)}`
       : ` L ${point.x.toFixed(2)} ${point.y.toFixed(2)}`;
-    previous = point;
   }
   const path = document.createElementNS(namespace, "path");
   path.setAttribute("class", "rate-limit-trend__line"); path.setAttribute("d", pathData); svg.append(path);
   for (const point of coordinates) {
     const marker = document.createElementNS(namespace, "circle");
-    marker.setAttribute("class", "rate-limit-trend__point"); marker.setAttribute("cx", point.x.toFixed(2)); marker.setAttribute("cy", point.y.toFixed(2)); marker.setAttribute("r", "2.4"); svg.append(marker);
+    marker.setAttribute("class", "rate-limit-trend__point"); marker.setAttribute("cx", point.x.toFixed(2)); marker.setAttribute("cy", point.y.toFixed(2)); marker.setAttribute("r", "1.6"); svg.append(marker);
   }
   const dayFormatter = new Intl.DateTimeFormat(dashboardLocale, { weekday: "short" });
   // Label every day boundary: the rolling window runs from seven days ago through now.
