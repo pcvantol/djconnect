@@ -605,7 +605,7 @@ test.describe("Engineering Status browser smoke", () => {
   test("uses the language pulldown style for every single-choice select", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await waitForDashboardReady(page);
-    for (const id of ["dashboardProject", "configurationLogRetention", "configurationLogLevel", "logLevelFilter"]) {
+    for (const id of ["dashboardProject", "configurationLogRetention", "configurationLogLevel", "configurationComponentDetailsInterval", "logLevelFilter"]) {
       const select = page.locator(`#${id}`);
       const picker = select.locator("+ .dashboard-select-picker");
       await expect(picker).toHaveCount(1);
@@ -679,6 +679,7 @@ test.describe("Engineering Status browser smoke", () => {
 
     const picker = page.locator("#configurationComponentDetailsInterval + .dashboard-select-picker");
     await expect(picker).toBeVisible();
+    await expect(picker.locator("xpath=../..")).toHaveClass(/configuration-controls/);
     const layout = await picker.evaluate((element) => ({
       pickerWidth: Math.round(element.getBoundingClientRect().width),
       sectionWidth: Math.round(element.closest(".configuration-host-components").getBoundingClientRect().width),

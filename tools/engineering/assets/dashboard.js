@@ -5320,7 +5320,14 @@ function groupHostComponentConfiguration() {
     configuration.insertBefore(section, controls);
   }
   section.querySelector("h2").textContent = t("section.platform_components");
-  section.append(diskSpace, componentDetails);
+  let hostControls = section.querySelector(":scope > .configuration-controls");
+  if (!hostControls) {
+    hostControls = document.createElement("div");
+    hostControls.className = "configuration-controls";
+    section.append(hostControls);
+  }
+  section.append(diskSpace);
+  hostControls.append(componentDetails);
 }
 function ensureProviderReadinessConfigurationControl() {
   if ($("configurationProviderReadinessInterval")) return;
