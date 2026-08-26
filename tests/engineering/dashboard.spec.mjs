@@ -7857,6 +7857,16 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(download).toHaveAttribute("aria-label", "Databaseback-up downloaden");
   });
 
+  test("groups fixed platform settings in a read-only configuration subsection", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#configuration > summary").click();
+    const settings = page.locator(".configuration-readonly-settings");
+    await expect(settings).toHaveCount(1);
+    await expect(settings).toHaveCSS("border-top-color", "rgb(240, 182, 106)");
+    await expect(settings.locator("#configurationReadonlySettingsTitle")).toHaveText("Vaste platforminstellingen");
+    await expect(settings.locator(".configuration-field")).toHaveCount(6);
+  });
+
   test("scans stale local branches before confirming their cleanup", async ({ page }) => {
     await page.route("**/api/events", (route) => route.abort());
     const branches = Array.from({ length: 28 }, (_, index) => ({

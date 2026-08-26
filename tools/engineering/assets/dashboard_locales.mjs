@@ -3277,6 +3277,12 @@ Object.assign(DASHBOARD_MESSAGES.de, {"workspace.database_location":"Datenbankpf
 Object.assign(DASHBOARD_MESSAGES.fr, {"workspace.database_location":"Emplacement de la base de données"});
 Object.assign(DASHBOARD_MESSAGES.es, {"workspace.database_location":"Ubicación de la base de datos"});
 
+Object.assign(DASHBOARD_MESSAGES.en, {"configuration.readonly_platform_settings":"Fixed platform settings"});
+Object.assign(DASHBOARD_MESSAGES.nl, {"configuration.readonly_platform_settings":"Vaste platforminstellingen"});
+Object.assign(DASHBOARD_MESSAGES.de, {"configuration.readonly_platform_settings":"Feste Plattformeinstellungen"});
+Object.assign(DASHBOARD_MESSAGES.fr, {"configuration.readonly_platform_settings":"Paramètres fixes de la plateforme"});
+Object.assign(DASHBOARD_MESSAGES.es, {"configuration.readonly_platform_settings":"Ajustes fijos de la plataforma"});
+
 Object.assign(DASHBOARD_MESSAGES.en, {"configuration.codex_capacity_reserve":"Codex capacity reserve for new work","configuration.codex_capacity_reserve_help":"EP does not claim new Inbox work below this remaining Codex capacity. An execution that is already running may finish.","configuration.capacity_reserve_none":"No reserve (0%)","configuration.capacity_reserve_percent":"{percent}% reserve"});
 Object.assign(DASHBOARD_MESSAGES.nl, {"configuration.codex_capacity_reserve":"Codex-capaciteitsreserve voor nieuw werk","configuration.codex_capacity_reserve_help":"EP claimt geen nieuw Inbox-werk onder deze resterende Codex-capaciteit. Een al lopende uitvoering mag afronden.","configuration.capacity_reserve_none":"Geen reserve (0%)","configuration.capacity_reserve_percent":"{percent}% reserve"});
 Object.assign(DASHBOARD_MESSAGES.de, {"configuration.codex_capacity_reserve":"Codex-Kapazitätsreserve für neue Arbeit","configuration.codex_capacity_reserve_help":"EP übernimmt keine neue Inbox-Arbeit unter dieser verbleibenden Codex-Kapazität. Eine bereits laufende Ausführung darf beendet werden.","configuration.capacity_reserve_none":"Keine Reserve (0%)","configuration.capacity_reserve_percent":"{percent}% Reserve"});
