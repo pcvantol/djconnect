@@ -933,6 +933,46 @@ function logTimestampText(value) {
   if (!Number.isFinite(parsed)) return value ? String(value) : "—";
   return locale.logDateTime(new Date(parsed));
 }
+function localDayStart(value = new Date()) {
+  return new Date(value.getFullYear(), value.getMonth(), value.getDate()).getTime();
+}
+function selectedLogTimeRange() {
+  const preset = $("logTimePreset")?.value || "";
+  if (preset === "today" || preset === "yesterday") {
+    const now = new Date(), offset = preset === "yesterday" ? -1 : 0,
+      start = localDayStart(new Date(now.getFullYear(), now.getMonth(), now.getDate() + offset));
+    return { start, end: start + 24 * 60 * 60 * 1000 };
+  }
+  if (preset === "day") {
+    const value = $("logSpecificDate")?.value;
+    if (!value) return null;
+    const start = Date.parse(`${value}T00:00`);
+    return Number.isFinite(start) ? { start, end: start + 24 * 60 * 60 * 1000 } : null;
+  }
+  if (preset === "range") {
+    const from = Date.parse($("logDateFrom")?.value || ""), to = Date.parse($("logDateTo")?.value || "");
+    if (!Number.isFinite(from) && !Number.isFinite(to)) return null;
+    return {
+      start: Number.isFinite(from) ? from : Number.NEGATIVE_INFINITY,
+      end: Number.isFinite(to) ? to : Number.POSITIVE_INFINITY,
+      inclusiveEnd: true,
+    };
+  }
+  return null;
+}
+function updateLogTimeFilterControls() {
+  const preset = $("logTimePreset")?.value || "";
+  $("logSpecificDateControl").hidden = preset !== "day";
+  $("logDateFromControl").hidden = preset !== "range";
+  $("logDateToControl").hidden = preset !== "range";
+}
+function entryMatchesLogTimeRange(entry) {
+  const range = selectedLogTimeRange();
+  if (!range) return true;
+  const timestamp = logTimestamp(entry);
+  if (!timestamp) return false;
+  return timestamp >= range.start && (range.inclusiveEnd ? timestamp <= range.end : timestamp < range.end);
+}
 function loadComponentLogs() {
   if (componentLogsLoaded) return;
   $("loadComponentLogs").disabled = true;
@@ -3793,6 +3833,7 @@ function filteredComponentLogEntries(component) {
   return componentLogEntries[component]
     .filter((entry) => !level || entry.level === level)
     .filter((entry) => !events.size || events.has(String(entry.event || "")))
+    .filter(entryMatchesLogTimeRange)
     .filter(
       (entry) =>
         !needle ||
@@ -3930,8 +3971,14 @@ resetLogFiltersButton.setAttribute("aria-label", resetLogFiltersLabel);
 resetLogFiltersButton.addEventListener("click", () => {
   $("logFilter").value = "";
   $("logLevelFilter").value = "";
+  $("logTimePreset").value = "";
+  $("logSpecificDate").value = "";
+  $("logDateFrom").value = "";
+  $("logDateTo").value = "";
   syncDashboardSelectPicker($("logLevelFilter"));
+  syncDashboardSelectPicker($("logTimePreset"));
   [...($("logEventFilter")?.options || [])].forEach((option) => { option.selected = false; });
+  updateLogTimeFilterControls();
   independentLogPageStates.inbox = independentLogPageStates.dashboard = 1;
   clearAllComponentLogSelections();
   renderComponentLogs();
@@ -3947,6 +3994,15 @@ $("logLevelFilter").addEventListener("change", () => {
   clearAllComponentLogSelections();
   renderComponentLogs();
 });
+for (const id of ["logTimePreset", "logSpecificDate", "logDateFrom", "logDateTo"]) {
+  $(id).addEventListener("change", () => {
+    updateLogTimeFilterControls();
+    independentLogPageStates.inbox = independentLogPageStates.dashboard = 1;
+    clearAllComponentLogSelections();
+    renderComponentLogs();
+  });
+}
+updateLogTimeFilterControls();
 renderComponentLogs();
 function clearComponentLog(component, button) {
   const name =

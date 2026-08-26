@@ -3405,3 +3405,29 @@ export function createLocaleService(locale) {
     ),
   });
 }
+
+Object.assign(DASHBOARD_MESSAGES.en, {
+  "filter.time_period": "Time period", "filter.all_time": "All dates", "filter.today": "Today",
+  "filter.yesterday": "Yesterday", "filter.specific_day": "Specific day", "filter.custom_range": "Custom range",
+  "filter.from": "From", "filter.to": "To",
+});
+Object.assign(DASHBOARD_MESSAGES.nl, {
+  "filter.time_period": "Tijdvenster", "filter.all_time": "Alle datums", "filter.today": "Vandaag",
+  "filter.yesterday": "Gisteren", "filter.specific_day": "Specifieke dag", "filter.custom_range": "Aangepast bereik",
+  "filter.from": "Van", "filter.to": "Tot",
+});
+Object.assign(DASHBOARD_MESSAGES.de, {
+  "filter.time_period": "Zeitraum", "filter.all_time": "Alle Daten", "filter.today": "Heute",
+  "filter.yesterday": "Gestern", "filter.specific_day": "Bestimmter Tag", "filter.custom_range": "Benutzerdefinierter Zeitraum",
+  "filter.from": "Von", "filter.to": "Bis",
+});
+Object.assign(DASHBOARD_MESSAGES.fr, {
+  "filter.time_period": "Période", "filter.all_time": "Toutes les dates", "filter.today": "Aujourd’hui",
+  "filter.yesterday": "Hier", "filter.specific_day": "Jour précis", "filter.custom_range": "Plage personnalisée",
+  "filter.from": "Du", "filter.to": "Au",
+});
+Object.assign(DASHBOARD_MESSAGES.es, {
+  "filter.time_period": "Periodo", "filter.all_time": "Todas las fechas", "filter.today": "Hoy",
+  "filter.yesterday": "Ayer", "filter.specific_day": "Día específico", "filter.custom_range": "Intervalo personalizado",
+  "filter.from": "Desde", "filter.to": "Hasta",
+});

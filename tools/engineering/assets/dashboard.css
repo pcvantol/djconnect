@@ -730,6 +730,8 @@ html[data-theme="light"] .report-view-modal__content,html[data-theme="light"] .r
   #componentLogControls>label{min-width:0}
   #componentLogControls>label:has(#logEventFilter){grid-column:1 / -1;width:100%}
   #componentLogControls #logEventFilter{box-sizing:border-box;max-width:100%;min-width:0;width:100%}
+  #componentLogControls>label:has(:is(#logSpecificDate,#logDateFrom,#logDateTo)){grid-column:1 / -1}
+  #componentLogControls :is(#logSpecificDate,#logDateFrom,#logDateTo){box-sizing:border-box;min-width:0;width:100%}
   #componentLogControls .reset-log-filters{justify-self:start;margin-left:0}
 }
 @media (max-width:900px){
