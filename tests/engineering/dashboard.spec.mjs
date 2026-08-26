@@ -288,6 +288,8 @@ test.describe("Engineering Status browser smoke", () => {
     await page.locator("#configuration").evaluate((element) => { element.open = true; });
     const row = page.locator('[data-provider="CODEX"]');
     const logout = row.locator("[data-provider-logout]");
+    const name = row.locator("strong");
+    await expect(name).toHaveCSS("color", "rgb(247, 243, 238)");
     await expect(logout).toHaveCSS("min-height", "32px");
     await expect(logout).toHaveCSS("border-top-color", "rgb(255, 120, 153)");
     await expect(logout).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
@@ -298,10 +300,13 @@ test.describe("Engineering Status browser smoke", () => {
         height: element.getBoundingClientRect().height,
         logoutCentre: logoutBox ? logoutBox.top + (logoutBox.height / 2) : null,
         labelCentre: labelBox ? labelBox.top + (labelBox.height / 2) : null,
+        dotRight: element.querySelector(".configuration-provider-status__dot")?.getBoundingClientRect().right,
+        nameLeft: element.querySelector("strong")?.getBoundingClientRect().left,
       };
     });
     expect(geometry.height).toBeLessThanOrEqual(36);
     expect(geometry.logoutCentre).toBe(geometry.labelCentre);
+    expect(geometry.nameLeft - geometry.dotRight).toBeLessThanOrEqual(12);
   });
 
   test("shows a sticky provider repair banner and never reports it as resolved before recheck", async ({ page }) => {
