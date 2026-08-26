@@ -134,11 +134,15 @@ async function openDashboardPicker(picker) {
   // click directly so picker behaviour tests do not depend on the headless
   // browser's document-level hit-testing outside that region. The dedicated
   // scroll-shell tests continue to cover physical positioning.
-  await picker.locator(".dashboard-locale__button").dispatchEvent("click", { detail: 1 });
+  await dispatchDashboardPointerClick(picker.locator(".dashboard-locale__button"));
 }
 
 async function chooseDashboardPickerOption(picker, value) {
-  await picker.locator(`[role=option][data-dashboard-select-value="${value}"]`).dispatchEvent("click", { detail: 1 });
+  await dispatchDashboardPointerClick(picker.locator(`[role=option][data-dashboard-select-value="${value}"]`));
+}
+
+async function dispatchDashboardPointerClick(locator) {
+  await locator.dispatchEvent("click", { detail: 1 });
 }
 
 async function navigateDashboard(navigate) {
@@ -641,8 +645,9 @@ test.describe("Engineering Status browser smoke", () => {
   test("stacks flat log settings pulldowns below their labels on iPhone", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     const configurationLoaded = page.waitForResponse("**/api/configuration");
+    const snapshotLoaded = page.waitForResponse("**/api/dashboard-snapshot");
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
-    await configurationLoaded;
+    await Promise.all([configurationLoaded, snapshotLoaded]);
     await page.locator("#componentLogs").evaluate((element) => { element.open = true; });
 
     const picker = page.locator("#configurationLogRetention + .dashboard-select-picker");
@@ -668,7 +673,10 @@ test.describe("Engineering Status browser smoke", () => {
 
   test("stacks the Inbox location action below its long path on iPhone", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
+    const configurationLoaded = page.waitForResponse("**/api/configuration");
+    const snapshotLoaded = page.waitForResponse("**/api/dashboard-snapshot");
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await Promise.all([configurationLoaded, snapshotLoaded]);
     await page.locator("#queueItems").evaluate((element) => { element.open = true; });
 
     const layout = await page.evaluate(() => {
@@ -752,8 +760,9 @@ test.describe("Engineering Status browser smoke", () => {
       await route.fulfill({ json: { key: "codex_capacity_reserve_percent", previous: 0, value: 25 } });
     });
     const configurationLoaded = page.waitForResponse("**/api/configuration");
+    const snapshotLoaded = page.waitForResponse("**/api/dashboard-snapshot");
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
-    await configurationLoaded;
+    await Promise.all([configurationLoaded, snapshotLoaded]);
     await page.waitForFunction(() => document.body?.classList.contains("dashboard-ready"));
     const select = page.locator("#configurationCodexCapacityReserve");
     await expect(select).toHaveValue("0");
@@ -776,7 +785,10 @@ test.describe("Engineering Status browser smoke", () => {
       open_pr_check_interval_seconds: 30, platform_health_refresh_seconds: 15, component_details_refresh_seconds: 5,
       provider_readiness_refresh_seconds: 300, codex_capacity_reserve_percent: 0,
     } }));
+    const configurationLoaded = page.waitForResponse("**/api/configuration");
+    const snapshotLoaded = page.waitForResponse("**/api/dashboard-snapshot");
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await Promise.all([configurationLoaded, snapshotLoaded]);
     await page.waitForFunction(() => document.body?.classList.contains("dashboard-ready"));
     const select = page.locator("#configurationCodexCapacityReserve");
     await expect(select.locator("option")).toHaveCount(6);
@@ -1623,7 +1635,7 @@ test.describe("Engineering Status browser smoke", () => {
 
     const historyRow = page.locator("#promptHistoryRows .prompt-history-row");
     await historyRow.waitFor({ state: "visible" });
-    await historyRow.click();
+    await dispatchDashboardPointerClick(historyRow);
     await expect(page.locator("#promptHistoryDetailModal")).toBeVisible();
     await expect(page.locator("#promptHistoryDetailModal")).toHaveClass(/dashboard-modal-shell--evidence/);
     await expect(page.locator("#promptHistoryDetailModal .prompt-detail-modal__panel")).toHaveClass(/dashboard-modal-shell__panel/);
@@ -1690,7 +1702,7 @@ test.describe("Engineering Status browser smoke", () => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.locator("#autoRefresh").uncheck();
     await page.evaluate(() => { document.querySelector("#promptHistory").open = true; });
-    await page.locator("#promptHistoryRows .prompt-history-row").click();
+    await dispatchDashboardPointerClick(page.locator("#promptHistoryRows .prompt-history-row"));
 
     const card = page.locator("#promptHistoryDetailContent .status-reconciliation-card");
     await expect(card).toBeVisible();
@@ -2838,7 +2850,7 @@ test.describe("Engineering Status browser smoke", () => {
     await page.evaluate(() => { document.querySelector("#promptHistory").open = true; });
     const historyRow = page.locator("#promptHistoryRows .prompt-history-row");
     await historyRow.waitFor({ state: "visible" });
-    await historyRow.click();
+    await dispatchDashboardPointerClick(historyRow);
     await expect(page.locator("#promptHistoryDetailContent")).toContainText("Mission Aurora");
     const alternatives = page.locator(".recommendation-alternatives");
     await alternatives.locator("summary").click();
@@ -7114,7 +7126,7 @@ test.describe("Engineering Status browser smoke", () => {
         },
       },
     }));
-    await page.locator("#promptHistoryRows tr td").nth(1).click();
+    await dispatchDashboardPointerClick(page.locator("#promptHistoryRows tr td").nth(1));
     await expect(page.locator("#promptHistoryDetailModal")).toBeVisible();
     await expect(page.locator("#promptHistoryDetailModal")).not.toBeFocused();
     await page.locator("#promptHistoryDetailContent .execution-lifecycle__node").click();
@@ -8116,7 +8128,7 @@ test.describe("Engineering Status browser smoke", () => {
       }];
       renderPromptHistory();
     });
-    await page.locator("#promptHistoryRows .prompt-history-chat").click();
+    await dispatchDashboardPointerClick(page.locator("#promptHistoryRows .prompt-history-chat"));
     await page.locator("#chatInput").fill("Wat is de status?");
     await page.locator("#chatSend").click();
 
