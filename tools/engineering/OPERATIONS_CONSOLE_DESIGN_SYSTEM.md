@@ -518,6 +518,16 @@ shards in parallel. All `browser-dashboard` shard checks are required for a
 non-documentation Engineering Platform change; sharding reduces elapsed time
 without reducing coverage.
 
+The suite has an explicit CI-parity contract. GitHub executes clean
+dependencies on Linux Chromium, whereas a local run can use a different
+browser engine build, operating system, timing and nested-scroll behaviour.
+Before review, reproduce a browser change with `CI=1` and every shard, not just
+an unconstrained local full-suite run. Keep responsive touch evidence on the
+narrow viewport; test desktop hover and modifier interactions at a desktop
+viewport. Fixtures that own a snapshot or provider-capacity state must block
+the live SSE replacement for that assertion. This keeps a test focused on its
+operator-visible contract rather than on accidental header/viewport geometry.
+
 The current regression layers are deliberately complementary:
 
 - `tests/engineering/test_inbox_watcher.py` verifies the safe filesystem and

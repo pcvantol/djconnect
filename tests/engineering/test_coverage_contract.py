@@ -28,3 +28,16 @@ class EngineeringPlatformCoverageContractTests(unittest.TestCase):
         self.assertIn("max-parallel: 4", workflow)
         self.assertIn("--shard=${{ matrix.shard }}", workflow)
         self.assertIn("engineering-status-browser-screenshots-${{ matrix.artifact_suffix }}", workflow)
+
+    def test_browser_ci_parity_contract_is_documented(self) -> None:
+        supervisor = Path(
+            "docs/engineering/LOCAL_DASHBOARD_SUPERVISOR.md"
+        ).read_text(encoding="utf-8")
+        design_system = Path(
+            "tools/engineering/OPERATIONS_CONSOLE_DESIGN_SYSTEM.md"
+        ).read_text(encoding="utf-8")
+
+        self.assertIn("CI-pariteit en reproduceerbare browserfouten", supervisor)
+        self.assertIn('CI=1 npm run test:engineering-dashboard -- --reporter=dot --shard="$shard"', supervisor)
+        self.assertIn("Linux Chromium", supervisor)
+        self.assertIn("CI-parity contract", design_system)

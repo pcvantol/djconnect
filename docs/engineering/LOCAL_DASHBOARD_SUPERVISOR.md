@@ -451,6 +451,32 @@ as four deterministic Playwright shards in parallel. This preserves the complete
 suite while making each shard's result and failure diagnostics independently
 visible.
 
+### CI-pariteit en reproduceerbare browserfouten
+
+Een lokaal geslaagde browserrun is geen vervanging voor de vereiste GitHub
+controle. GitHub draait schone dependencies en Linux Chromium; lokaal kan de
+browser, het besturingssysteem, de timing en het scrollgedrag verschillen.
+Reproduceer daarom een dashboardwijziging vóór push ten minste met dezelfde
+CI-modus en alle vier de shards:
+
+```sh
+npm ci
+npx playwright install chromium
+for shard in 1/4 2/4 3/4 4/4; do
+  CI=1 npm run test:engineering-dashboard -- --reporter=dot --shard="$shard"
+done
+```
+
+Elke shard start één geïsoleerde browserworker met een eigen tijdelijke
+dashboard-root. Een testfixture die een snapshot, SSE-stream of
+capaciteitsstatus vervangt, moet die fixture gedurende de test autoritatief
+houden; live events mogen de verwachte toestand niet tussentijds overschrijven.
+Mobiele lay-out- en directe-touchtests blijven op de smalle viewport. Tests
+voor desktop-hover, modifier-selectie of een logische data-actie gebruiken
+daarentegen een passende desktopviewport of de gecontroleerde testpointeractie;
+zij mogen niet alleen toevallig slagen doordat een open mobiele titelbalk net
+wel of niet ruimte inneemt.
+
 Dynamic operational labels are part of that same five-language contract. Every
 phase rendered from execution timing or lifecycle state, watcher status and
 Execution Host activity must resolve through a catalog key; raw identifiers and
@@ -495,10 +521,11 @@ The same placement rule applies to PR-check repair: its recorded repair audit
 is shown only in the reached **PR check repair** lifecycle popup, rather than
 as a duplicate card in prompt details.
 
-CI runs the browser suite with one isolated worker. The worker starts its
+Each of the four CI shards runs with one isolated worker. A worker starts its
 own temporary dashboard root and local server, so status fixtures, browser
 preferences and retry projections never leak between tests. Local runs retain
-Playwright's default worker count for straightforward debugging.
+Playwright's default worker count for straightforward debugging; use `CI=1`
+and the four-shard loop above when diagnosing GitHub-specific behaviour.
 CI keeps one clean retry per browser interaction, but stops after three final
 test failures. This fail-closed limit preserves actionable diagnostics without
 letting one shared layout regression consume the full job timeout.
