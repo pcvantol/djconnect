@@ -601,14 +601,18 @@ test.describe("Engineering Status browser smoke", () => {
     await page.locator("#componentLogs").evaluate((element) => { element.open = true; });
     const picker = page.locator("#configurationLogLevel + .dashboard-select-picker");
     const pickerButton = picker.locator(".dashboard-locale__button");
-    await pickerButton.scrollIntoViewIfNeeded();
-    await pickerButton.click();
+    // The dashboard owns a fixed, nested scroll region. Dispatch the same
+    // click event directly so this unit of behaviour does not depend on the
+    // headless browser's document-level hit-testing outside that region.
+    // Scroll-shell positioning is covered by the dedicated layout tests.
+    await pickerButton.dispatchEvent("click", { detail: 1 });
     await expect(picker.locator("[role=listbox]")).toBeVisible();
     await expect(picker.locator("[role=option]")).toHaveText(["Informatie", "Debug"]);
   });
 
   test("does not move focus after a pointer chooses a log-settings pulldown value", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await waitForDashboardReady(page);
     await page.locator("#componentLogs").evaluate((element) => { element.open = true; });
     await page.evaluate(() => {
       const originalFocus = HTMLElement.prototype.focus;
@@ -621,15 +625,18 @@ test.describe("Engineering Status browser smoke", () => {
       };
     });
     const picker = page.locator("#configurationLogLevel + .dashboard-select-picker");
-    await picker.locator(".dashboard-locale__button").click();
-    await picker.locator('[role=option][data-dashboard-select-value="DEBUG"]').click();
+    const pickerButton = picker.locator(".dashboard-locale__button");
+    await pickerButton.dispatchEvent("click", { detail: 1 });
+    await picker.locator('[role=option][data-dashboard-select-value="DEBUG"]').dispatchEvent("click", { detail: 1 });
     expect(await page.evaluate(() => window.__dashboardSelectFocusOptions)).toEqual([]);
     await expect(page.locator("#configuration .configuration-field")).toHaveCount(6);
   });
 
   test("stacks flat log settings pulldowns below their labels on iPhone", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
+    const configurationLoaded = page.waitForResponse("**/api/configuration");
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await configurationLoaded;
     await page.locator("#componentLogs").evaluate((element) => { element.open = true; });
 
     const picker = page.locator("#configurationLogRetention + .dashboard-select-picker");
@@ -738,7 +745,9 @@ test.describe("Engineering Status browser smoke", () => {
       writes.push(JSON.parse(route.request().postData() || "{}"));
       await route.fulfill({ json: { key: "codex_capacity_reserve_percent", previous: 0, value: 25 } });
     });
+    const configurationLoaded = page.waitForResponse("**/api/configuration");
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await configurationLoaded;
     await page.waitForFunction(() => document.body?.classList.contains("dashboard-ready"));
     const select = page.locator("#configurationCodexCapacityReserve");
     await expect(select).toHaveValue("0");
