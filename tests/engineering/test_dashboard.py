@@ -1938,7 +1938,11 @@ class DashboardStatusTest(unittest.TestCase):
                     "number": number,
                     "commits": [{"oid": "a"}, {"oid": "b"}],
                     "changedFiles": 5,
-                    "statusCheckRollup": [{"name": "validate"}, {"context": "Owner Authorization"}, {}],
+                    "statusCheckRollup": [
+                        {"__typename": "CheckRun", "name": "validate"},
+                        {"__typename": "StatusContext", "context": "Owner Authorization"},
+                        {},
+                    ],
                 })
 
             github_provider.return_value.github.side_effect = github
@@ -1946,12 +1950,12 @@ class DashboardStatusTest(unittest.TestCase):
                 {
                     "role": "implementation", "number": 948,
                     "url": "https://github.com/pcvantol/djconnect/pull/948",
-                    "commit_count": 2, "check_count": 2, "changed_file_count": 5,
+                    "commit_count": 2, "check_count": 1, "changed_file_count": 5,
                 },
                 {
                     "role": "finalization", "number": 949,
                     "url": "https://github.com/pcvantol/djconnect/pull/949",
-                    "commit_count": 2, "check_count": 2, "changed_file_count": 5,
+                    "commit_count": 2, "check_count": 1, "changed_file_count": 5,
                 },
             ])
 

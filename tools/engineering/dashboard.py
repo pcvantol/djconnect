@@ -422,9 +422,14 @@ def _pull_request_github_metrics(root: Path, repository: str, number: int) -> di
         metrics["changed_file_count"] = changed_files
     checks = pull_request.get("statusCheckRollup")
     if isinstance(checks, list):
+        # GitHub's Checks tab counts check runs.  `statusCheckRollup` also
+        # contains legacy status contexts such as Owner Authorization; those
+        # belong to commit status, not the visible Checks count.
         metrics["check_count"] = sum(
             1 for check in checks
-            if isinstance(check, dict) and str(check.get("name") or check.get("context") or "").strip()
+            if isinstance(check, dict)
+            and check.get("__typename") == "CheckRun"
+            and str(check.get("name") or "").strip()
         )
     return metrics
 
