@@ -6885,6 +6885,9 @@ test.describe("Engineering Status browser smoke", () => {
     expect(desktopEvidenceCards[2]).not.toBeNull();
     expect(desktopEvidenceCards[2].x).toBe(desktopEvidenceCards[0].x);
     expect(desktopEvidenceCards[2].y).toBeGreaterThan(desktopEvidenceCards[0].y);
+    expect(desktopEvidenceCards[2].y).toBeLessThanOrEqual(
+      desktopEvidenceCards[0].y + desktopEvidenceCards[0].height + 48,
+    );
     expect(desktopEvidenceCards[2].y).toBeLessThanOrEqual(desktopEvidenceCards[1].y + desktopEvidenceCards[1].height);
     await page.setViewportSize({ width: 390, height: 844 });
     const mobileExecutionCards = await Promise.all([executionSummary.boundingBox(), executionContext.boundingBox()]);
