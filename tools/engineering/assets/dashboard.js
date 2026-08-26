@@ -523,21 +523,35 @@ function rateLimits(x, history = latestDashboardSnapshot?.ai_capacity_history) {
   button.disabled = false;
 }
 let latestCodexCliUpdateStatus = null;
+function codexCliVersionParts(value) {
+  const match = typeof value === "string" && /^(\d+)\.(\d+)\.(\d+)(?:-[0-9A-Za-z.-]+)?$/.exec(value);
+  return match ? match.slice(1, 4).map(Number) : null;
+}
+function codexCliUpdateIsNewer(current, latest) {
+  const currentParts = codexCliVersionParts(current), latestParts = codexCliVersionParts(latest);
+  if (!currentParts || !latestParts) return false;
+  return latestParts.some((part, index) => part !== currentParts[index]
+    && latestParts.slice(0, index).every((previous, previousIndex) => previous === currentParts[previousIndex])
+    && part > currentParts[index]);
+}
 function renderCodexCliUpdate(status) {
   const button = $("codexCliUpdate"), message = $("codexCliUpdateStatus");
   if (!button || !message) return;
-  latestCodexCliUpdateStatus = status;
   const current = typeof status?.current_version === "string" ? status.current_version : null,
     latest = typeof status?.latest_version === "string" ? status.latest_version : null,
+    updateAvailable = Boolean(status?.update_available && codexCliUpdateIsNewer(current, latest)),
     executionActive = isActiveRun(latestStatus || {});
-  button.hidden = !status?.update_available;
-  button.disabled = Boolean(status?.update_available && executionActive);
+  // A pre-install polling response can arrive after the verified install response.
+  // Never present an update unless its version is strictly newer than the active CLI.
+  latestCodexCliUpdateStatus = { ...status, update_available: updateAvailable };
+  button.hidden = !updateAvailable;
+  button.disabled = Boolean(updateAvailable && executionActive);
   button.title = button.disabled ? t("ui.codex_cli_update_execution_active") : "";
-  if (status?.update_available && executionActive) {
+  if (updateAvailable && executionActive) {
     message.textContent = t("ui.codex_cli_update_execution_active");
-  } else if (status?.update_available && latest) {
+  } else if (updateAvailable && latest) {
     message.textContent = t("ui.codex_cli_update_available", { version: latest });
-  } else if (status?.state === "current" && current) {
+  } else if (current) {
     message.textContent = t("ui.codex_cli_current", { version: current });
   } else {
     message.textContent = t("ui.codex_cli_update_unavailable");
@@ -573,6 +587,9 @@ function installCodexCliUpdate() {
         if (!result.ok) throw Error(result.body?.error || "codex_cli_update_failed");
         const version = typeof result.body?.current_version === "string" ? result.body.current_version : "";
         if (version) $("rateLimitProvider").textContent = t("ui.codex_cli_provider", { version });
+        latestCodexCliUpdateStatus = version
+          ? { state: "current", update_available: false, current_version: version, latest_version: version }
+          : null;
         button.hidden = true;
         message.textContent = result.body?.updated
           ? t("ui.codex_cli_updated", { version })
