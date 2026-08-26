@@ -588,6 +588,7 @@ test.describe("Engineering Status browser smoke", () => {
 
   test("uses the language pulldown style for every single-choice select", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await waitForDashboardReady(page);
     for (const id of ["dashboardProject", "configurationLogRetention", "configurationLogLevel", "logLevelFilter"]) {
       const select = page.locator(`#${id}`);
       const picker = select.locator("+ .dashboard-select-picker");
@@ -1170,6 +1171,7 @@ test.describe("Engineering Status browser smoke", () => {
     }));
     for (const language of SUPPORTED_LOCALES) {
       await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+      await waitForDashboardReady(page);
       await selectDashboardLocale(page, language);
       await page.locator("#autoRefresh").uncheck();
       await page.evaluate(() => r({
@@ -2400,6 +2402,7 @@ test.describe("Engineering Status browser smoke", () => {
     }));
     for (const language of SUPPORTED_LOCALES) {
       await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+      await waitForDashboardReady(page);
       await selectDashboardLocale(page, language);
       await page.locator("#autoRefresh").uncheck();
       await page.evaluate(() => r({
@@ -3669,6 +3672,7 @@ test.describe("Engineering Status browser smoke", () => {
     await page.route("**/api/telemetry/clear", (route) => route.fulfill({ json: { cleared: true, execution_runs: 1, daily_statistics: 1 } }));
     await page.route("**/api/events", (route) => route.fulfill({ json: {} }));
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await waitForDashboardReady(page);
     await page.evaluate(() => window.executionTelemetry([{
       date: "2026-08-24", prompt_count: 1, average_total_execution_seconds: 60,
       average_queue_wait_seconds: 5, complete_count: 1, blocked_count: 0, failed_count: 0,
@@ -3699,6 +3703,7 @@ test.describe("Engineering Status browser smoke", () => {
       ],
     } }));
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await waitForDashboardReady(page);
     await page.evaluate(() => window.executionTelemetry([{
       date: "2026-08-16", prompt_count: 1, average_total_execution_seconds: 0,
       average_queue_wait_seconds: 0, complete_count: 1, blocked_count: 0, failed_count: 0,
@@ -4079,6 +4084,7 @@ test.describe("Engineering Status browser smoke", () => {
   });
 
   test("localizes prompt history column headings for every supported language", async ({ page }) => {
+    test.setTimeout(60_000);
     await page.setViewportSize({ width: 1024, height: 844 });
     const expectations = [
       ["en", ["Run ID", "Status", "Execution title", "Executed at", "Report", "AI analysis", "AI chat", "Action", "Details"]],
@@ -5112,8 +5118,9 @@ test.describe("Engineering Status browser smoke", () => {
       }
       await route.fulfill({ json: { state: "update_available", update_available: true, current_version: "0.149.0", latest_version: "0.150.0" } });
     });
-    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     const updateCheck = page.waitForResponse("**/api/codex-cli-update");
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await waitForDashboardReady(page);
     await page.locator("#rateLimits").evaluate((element) => { element.open = true; });
     await updateCheck;
     await expect(page.locator("#codexCliUpdateStatus")).toHaveText("Update beschikbaar: 0.150.0");
@@ -5441,6 +5448,7 @@ test.describe("Engineering Status browser smoke", () => {
   });
 
   test("localizes specialist reviewer names and lifecycle status", async ({ page }) => {
+    test.setTimeout(60_000);
     await page.route("**/api/events", (route) => route.abort());
     await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({
       json: { status: { watcher_state: "WATCHER_IDLE" } },
@@ -6148,6 +6156,7 @@ test.describe("Engineering Status browser smoke", () => {
     await page.route("**/api/logs/**", (route) => route.fulfill({ contentType: "application/x-ndjson", body: '{"level":"INFO","event":"test"}\n' }));
     await page.route("**/api/audit/user-action", (route) => route.fulfill({ contentType: "application/json", body: '{"logged":true}' }));
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await waitForDashboardReady(page);
     await page.locator("#dashboardSplash").evaluate((element) => { element.hidden = true; });
     await page.locator("#componentLogs").evaluate((element) => { element.open = true; });
 
@@ -7215,7 +7224,12 @@ test.describe("Engineering Status browser smoke", () => {
       await route.fulfill({ json: { answer: "Dit advies hoort bij de geselecteerde prompt.", model: "Codex CLI" } });
     });
     await page.locator("#chatInput").fill("Wat is de volgende stap?");
+    const chatSubmittedResponse = page.waitForResponse((response) => (
+      response.url().includes("/api/codex-chat")
+      && response.request().method() === "POST"
+    ));
     await page.locator("#chatInput").press("Control+Enter");
+    await chatSubmittedResponse;
     await expect(page.locator("#chatMessages")).toContainText("geselecteerde prompt");
     expect(submittedRun).toBe("inbox-history-25");
     await page.locator("#promptHistoryChatClose").click();

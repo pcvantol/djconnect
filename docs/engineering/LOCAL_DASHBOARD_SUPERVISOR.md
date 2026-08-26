@@ -490,7 +490,7 @@ The same placement rule applies to PR-check repair: its recorded repair audit
 is shown only in the reached **PR check repair** lifecycle popup, rather than
 as a duplicate card in prompt details.
 
-CI runs the browser suite with four isolated workers. Each worker starts its
+CI runs the browser suite with one isolated worker. The worker starts its
 own temporary dashboard root and local server, so status fixtures, browser
 preferences and retry projections never leak between tests. Local runs retain
 Playwright's default worker count for straightforward debugging.
