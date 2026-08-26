@@ -3722,12 +3722,12 @@ test.describe("Engineering Status browser smoke", () => {
     ]);
     expect(telemetryHeader).toEqual(logHeader);
     await expect(page.locator("#executionTelemetryRows tr td").first()).toHaveText("16-08-2026");
-    await date.click();
+    await dispatchDashboardPointerClick(date);
     await expect(date).toHaveAttribute("aria-sort", "ascending");
     await expect(date).toHaveAttribute("data-sort-indicator", "↑");
     await expect(page.locator("#executionTelemetryRows tr td").first()).toHaveText("15-08-2026");
     const prompts = page.locator('#executionTelemetry th[data-sort-key="prompt_count"]');
-    await prompts.click();
+    await dispatchDashboardPointerClick(prompts);
     await expect(prompts).toHaveAttribute("aria-sort", "ascending");
     await expect(page.locator("#executionTelemetryRows tr td").first()).toHaveText("15-08-2026");
   });
@@ -3790,7 +3790,7 @@ test.describe("Engineering Status browser smoke", () => {
       average_queue_wait_seconds: 0, complete_count: 1, blocked_count: 0, failed_count: 0,
     }]));
     await page.locator("#executionTelemetry").evaluate((element) => { element.open = true; });
-    await page.locator("#executionTelemetryRows .telemetry-row").click();
+    await dispatchDashboardPointerClick(page.locator("#executionTelemetryRows .telemetry-row"));
     const tables = page.locator("#telemetryDetailContent .telemetry-table");
     const phaseTable = tables.nth(0), runTable = tables.nth(1);
     await expect(phaseTable).toHaveClass(/telemetry-phase-table/);
@@ -3920,7 +3920,7 @@ test.describe("Engineering Status browser smoke", () => {
       complete_count: 1, blocked_count: 0, failed_count: 0,
     }]));
     await page.locator("#executionTelemetry").evaluate((element) => { element.open = true; });
-    await page.locator("#executionTelemetryRows .telemetry-row").click();
+    await dispatchDashboardPointerClick(page.locator("#executionTelemetryRows .telemetry-row"));
     const runRow = page.locator("#telemetryDetailContent .telemetry-row");
     await expect(runRow).toHaveCount(1);
     await expect(runRow.locator(".telemetry-run-link")).toHaveCSS("text-decoration-line", "none");
