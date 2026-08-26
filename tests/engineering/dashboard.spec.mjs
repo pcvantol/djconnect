@@ -6303,7 +6303,7 @@ test.describe("Engineering Status browser smoke", () => {
     });
 
     await expect(page.locator("#inboxComponentLog tr")).toHaveCount(1);
-    await page.getByTestId("copy-inbox-visible-log").click();
+    await dispatchDashboardPointerClick(page.getByTestId("copy-inbox-visible-log"));
     await expect.poll(() => page.evaluate(() => window.__copiedVisibleLog)).toContain("retain_me");
     await expect.poll(() => page.evaluate(() => window.__copiedVisibleLog)).toContain("visible-run");
     await expect.poll(() => page.evaluate(() => window.__copiedVisibleLog)).not.toContain("exclude_me");
@@ -6311,6 +6311,9 @@ test.describe("Engineering Status browser smoke", () => {
   });
 
   test("selects multiple component-log rows and copies the selected rows", async ({ page }) => {
+    // This verifies desktop pointer hover and modifier selection.  Responsive
+    // touch selection has dedicated mobile coverage elsewhere.
+    await page.setViewportSize({ width: 1280, height: 900 });
     await page.route("**/api/events", (route) => route.abort());
     await page.route("**/api/logs/inbox", (route) => route.fulfill({ body: "" }));
     await page.route("**/api/logs/dashboard", (route) => route.fulfill({ body: "" }));
@@ -6976,7 +6979,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.getByTestId("copy-toast")).toHaveClass(/copy-toast--visible/);
     await page.locator("#platformHealth").evaluate((element) => { element.open = true; });
     await expect(page.locator(".component-info").first()).toBeVisible();
-    await page.locator(".component-info").first().click();
+    await dispatchDashboardPointerClick(page.locator(".component-info").first());
     await expect(page.locator("#componentModal")).toHaveAttribute("open", "");
     await expect(page.locator("#componentModalTitle")).not.toHaveText("Componentinformatie");
     await page.locator("#componentModalClose").click();
