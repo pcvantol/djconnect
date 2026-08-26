@@ -25,11 +25,12 @@ from tools.engineering.execution_lease import acquire
 
 
 class DashboardStatusTest(unittest.TestCase):
-    def test_browser_dashboard_validation_uses_ten_parallel_ci_workers(self) -> None:
+    def test_browser_dashboard_validation_uses_bounded_ci_workers(self) -> None:
         config = (Path(__file__).parents[2] / "playwright.config.mjs").read_text(encoding="utf-8")
 
         self.assertIn("fullyParallel: true", config)
-        self.assertIn("workers: process.env.CI ? 10 : undefined", config)
+        self.assertIn("workers: process.env.CI ? 4 : undefined", config)
+        self.assertIn("maxFailures: process.env.CI ? 3 : undefined", config)
 
     def test_workspace_card_shows_free_space_on_its_volume(self) -> None:
         with patch(
