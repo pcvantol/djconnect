@@ -5140,7 +5140,6 @@ const CONFIGURATION_CONTROL_SCOPES = Object.freeze([
     statusId: "logSettingsStatus",
   },
   {
-    beforeId: "platformHealthComponents",
     containerClass: "platform-settings",
     fieldIds: ["configurationPlatformHealthInterval"],
     parentId: "platformHealth",

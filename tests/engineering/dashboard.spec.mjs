@@ -213,7 +213,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(settings).toHaveCSS("border-top-style", "solid");
   });
 
-  test("places the platform-health refresh interval above platform components", async ({ page }) => {
+  test("places the platform-health refresh interval below platform components", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     const platform = page.locator("#platformHealth");
     await platform.evaluate((element) => { element.open = true; });
@@ -221,10 +221,14 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(control).toBeVisible();
     await expect(control.locator("xpath=ancestor::details[1]")).toHaveAttribute("id", "platformHealth");
     await expect(platform.locator(".platform-settings")).toHaveCount(1);
+    expect(await platform.locator(".platform-settings").evaluate(
+      (settings) => settings.previousElementSibling?.id,
+    )).toBe("platformHealthComponents");
+    await expect(platform.locator(".platform-settings")).toHaveCSS("border-top-style", "solid");
     const order = await platform.evaluate((element) => {
       const settings = element.querySelector(".platform-settings");
       const components = element.querySelector("#platformHealthComponents");
-      return Boolean(settings.compareDocumentPosition(components) & Node.DOCUMENT_POSITION_FOLLOWING);
+      return Boolean(components.compareDocumentPosition(settings) & Node.DOCUMENT_POSITION_FOLLOWING);
     });
     expect(order).toBe(true);
   });
