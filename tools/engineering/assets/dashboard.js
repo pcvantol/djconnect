@@ -3498,6 +3498,14 @@ function telemetryDetailSortableTable(columns, rows, initialSort, appendRow) {
   return table;
 }
 function closeTelemetryDetail() { const modal = $("telemetryDetailModal"); if (modal.open) modal.close(); }
+function telemetryDetailTableScroll(table, label) {
+  const scroll = document.createElement("div");
+  scroll.className = "telemetry-detail-table-scroll";
+  scroll.setAttribute("role", "region");
+  scroll.setAttribute("aria-label", label);
+  scroll.append(table);
+  return scroll;
+}
 function openTelemetryDetail(date, trigger) {
   if (!date) return;
   telemetryDetailTrigger = trigger || document.activeElement;
@@ -3534,7 +3542,7 @@ function renderTelemetryDetail(detail, content) {
       body.append(row);
     });
     phaseTable.classList.add("telemetry-phase-table");
-    phaseSection.append(phaseTable);
+    phaseSection.append(telemetryDetailTableScroll(phaseTable, t("telemetry.phase_timing")));
   }
   content.append(phaseSection);
   const bottlenecks = document.createElement("section"), top = detail?.bottlenecks?.top_time_consumers || [];
@@ -3581,12 +3589,7 @@ function renderTelemetryDetail(detail, content) {
     });
     runBody.append(row);
   });
-  const runScroll = document.createElement("div");
-  runScroll.className = "telemetry-detail-table-scroll";
-  runScroll.setAttribute("role", "region");
-  runScroll.setAttribute("aria-label", t("telemetry.runs"));
-  runScroll.append(runTable);
-  runSection.append(runScroll); content.append(runSection);
+  runSection.append(telemetryDetailTableScroll(runTable, t("telemetry.runs"))); content.append(runSection);
 }
 $("telemetryDetailClose").addEventListener("click", closeTelemetryDetail);
 $("telemetryDetailModal").addEventListener("close", () => { telemetryDetailTrigger?.focus?.(); telemetryDetailTrigger = null; });

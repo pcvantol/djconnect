@@ -3788,10 +3788,14 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(phaseTable).toHaveClass(/telemetry-phase-table/);
     await expect(phaseTable.locator("th.log-sortable")).toHaveCount(6);
     await expect(runTable.locator("th.log-sortable")).toHaveCount(12);
-    const runScroll = runTable.locator("xpath=..");
-    await expect(runScroll).toHaveClass(/telemetry-detail-table-scroll/);
-    await expect(runScroll).toHaveAttribute("role", "region");
-    await expect(runScroll).not.toHaveAttribute("tabindex");
+    const phaseScroll = phaseTable.locator("xpath=.."), runScroll = runTable.locator("xpath=..");
+    for (const scroll of [phaseScroll, runScroll]) {
+      await expect(scroll).toHaveClass(/telemetry-detail-table-scroll/);
+      await expect(scroll).toHaveAttribute("role", "region");
+      await expect(scroll).not.toHaveAttribute("tabindex");
+      await expect(scroll).toHaveCSS("border-top-style", "solid");
+      await expect(scroll).toHaveCSS("border-top-left-radius", "9px");
+    }
     const runScrollGeometry = await runScroll.evaluate((element) => {
       const modalContent = element.closest(".telemetry-detail-modal__content");
       return {
@@ -3831,6 +3835,13 @@ test.describe("Engineering Status browser smoke", () => {
       }),
     ]);
     expect(detailHeader).toEqual(logHeader);
+    await page.setViewportSize({ width: 390, height: 844 });
+    const phaseScrollGeometry = await phaseScroll.evaluate((element) => {
+      element.scrollLeft = 80;
+      return { clientWidth: element.clientWidth, scrollLeft: element.scrollLeft, scrollWidth: element.scrollWidth };
+    });
+    expect(phaseScrollGeometry.scrollWidth).toBeGreaterThan(phaseScrollGeometry.clientWidth);
+    expect(phaseScrollGeometry.scrollLeft).toBeGreaterThan(0);
   });
 
   test("keeps the telemetry detail modal within a mobile portrait viewport", async ({ page }) => {
