@@ -74,3 +74,13 @@ class CapabilityPreflightTest(unittest.TestCase):
             ]
             status = provider_readiness.status(self.root)
         self.assertEqual(status["github"]["state"], "AUTH_REQUIRED")
+
+    def test_codex_not_logged_in_is_an_explicit_authentication_repair(self) -> None:
+        completed = __import__("subprocess").CompletedProcess
+        with patch("tools.engineering.provider_readiness.CodexCliProvider") as codex:
+            codex.return_value.status.return_value.qualified = True
+            codex.return_value.command.return_value = completed(
+                ("codex", "login", "status"), 1, "Not logged in\n", ""
+            )
+            status = provider_readiness.status(self.root, require_github=False)
+        self.assertEqual(status["codex"]["state"], "AUTH_REQUIRED")

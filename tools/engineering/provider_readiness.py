@@ -19,7 +19,9 @@ def _classify(result: subprocess.CompletedProcess[str] | None) -> str:
     if result.returncode == 0:
         return "READY"
     detail = f"{result.stdout}\n{result.stderr}".casefold()
-    return "AUTH_REQUIRED" if any(word in detail for word in ("login", "auth", "credential", "token")) else "CHECK_FAILED"
+    return "AUTH_REQUIRED" if any(word in detail for word in (
+        "login", "auth", "credential", "token", "not logged in", "logged out", "not signed in",
+    )) else "CHECK_FAILED"
 
 
 def _repository_classify(result: subprocess.CompletedProcess[str] | None) -> str:
