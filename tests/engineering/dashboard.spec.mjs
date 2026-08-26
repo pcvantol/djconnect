@@ -582,7 +582,9 @@ test.describe("Engineering Status browser smoke", () => {
     }
     await page.locator("#componentLogs").evaluate((element) => { element.open = true; });
     const picker = page.locator("#configurationLogLevel + .dashboard-select-picker");
-    await picker.locator(".dashboard-locale__button").click();
+    const pickerButton = picker.locator(".dashboard-locale__button");
+    await pickerButton.scrollIntoViewIfNeeded();
+    await pickerButton.click();
     await expect(picker.locator("[role=listbox]")).toBeVisible();
     await expect(picker.locator("[role=option]")).toHaveText(["Informatie", "Debug"]);
   });
@@ -1913,7 +1915,7 @@ test.describe("Engineering Status browser smoke", () => {
       (element) => getComputedStyle(element).color,
     );
     await expect(nodes.nth(0).locator("span").first()).toHaveCSS("background-color", lifecycleAccent);
-    await nodes.nth(0).hover({ force: true });
+    await nodes.nth(0).hover();
     // Hover communicates an available detail through the shared house-style
     // border, while the node fill keeps the execution accent.
     await expect(nodes.nth(0).locator("span").first()).toHaveCSS("border-top-color", "rgb(240, 182, 106)");
@@ -2344,7 +2346,7 @@ test.describe("Engineering Status browser smoke", () => {
       },
     }, {}));
     await page.locator("#currentRun").evaluate((element) => { element.open = true; });
-    await page.locator(".execution-lifecycle__node").click({ force: true });
+    await page.locator(".execution-lifecycle__node").click();
     const modal = page.locator("#lifecycleDetailModal");
     await expect(modal).toBeVisible();
     await expect(modal).toContainText("Implementatie");
@@ -2390,7 +2392,7 @@ test.describe("Engineering Status browser smoke", () => {
         },
       }, {}));
       await page.locator("#currentRun").evaluate((element) => { element.open = true; });
-      await page.locator(".execution-lifecycle__node").click({ force: true });
+      await page.locator(".execution-lifecycle__node").click();
       const modal = page.locator("#lifecycleDetailModal");
       await expect(modal).toContainText(DASHBOARD_MESSAGES[language]["lifecycle.state.complete"]);
       await expect(modal).toContainText(DASHBOARD_MESSAGES[language]["lifecycle.state.stale"]);

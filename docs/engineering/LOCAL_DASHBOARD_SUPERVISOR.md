@@ -479,6 +479,9 @@ CI runs the browser suite with four isolated workers. Each worker starts its
 own temporary dashboard root and local server, so status fixtures, browser
 preferences and retry projections never leak between tests. Local runs retain
 Playwright's default worker count for straightforward debugging.
+CI keeps one clean retry per browser interaction, but stops after three final
+test failures. This fail-closed limit preserves actionable diagnostics without
+letting one shared layout regression consume the full job timeout.
 
 The same workflow also runs the Engineering Python suite under branch coverage.
 The required core files are `dashboard.py`, `platform_bootstrap.py`,

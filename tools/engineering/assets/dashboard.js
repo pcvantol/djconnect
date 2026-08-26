@@ -5115,11 +5115,24 @@ function syncStickyHeaderOffset() {
     `${Math.ceil(header.getBoundingClientRect().height)}px`,
   );
 }
+function syncFooterOffset() {
+  const footer = document.querySelector(".footer");
+  if (!footer) return;
+  document.documentElement.style.setProperty(
+    "--dashboard-footer-height",
+    `${Math.ceil(footer.getBoundingClientRect().height)}px`,
+  );
+}
 const stickyHeader = document.querySelector(".dashboard-sticky-header");
 if (stickyHeader && typeof ResizeObserver === "function") {
   new ResizeObserver(syncStickyHeaderOffset).observe(stickyHeader);
 }
+const dashboardFooter = document.querySelector(".footer");
+if (dashboardFooter && typeof ResizeObserver === "function") {
+  new ResizeObserver(syncFooterOffset).observe(dashboardFooter);
+}
 syncStickyHeaderOffset();
+syncFooterOffset();
 const providerReadinessActions = new Map();
 let providerInteractiveRepairInProgress = false;
 function providerDisplayName(provider) {
