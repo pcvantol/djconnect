@@ -1968,6 +1968,13 @@ test.describe("Engineering Status browser smoke", () => {
       (element) => getComputedStyle(element).color,
     );
     await expect(nodes.nth(0).locator("span").first()).toHaveCSS("background-color", lifecycleAccent);
+    await nodes.nth(0).evaluate((node) => {
+      const region = document.querySelector(".dashboard-scroll-region");
+      if (!region) return;
+      const nodeRect = node.getBoundingClientRect();
+      const regionRect = region.getBoundingClientRect();
+      region.scrollTop += nodeRect.top - regionRect.top - 48;
+    });
     await nodes.nth(0).hover();
     // Hover communicates an available detail through the shared house-style
     // border, while the node fill keeps the execution accent.
@@ -2143,7 +2150,7 @@ test.describe("Engineering Status browser smoke", () => {
 
     const node = page.locator(".execution-lifecycle__node");
     await expect(node).toContainText(DASHBOARD_MESSAGES.nl["lifecycle.step.local_repository_validation"]);
-    await node.click();
+    await dispatchDashboardPointerClick(node);
     const detail = page.locator("#lifecycleDetailModal");
     await expect(detail).toBeVisible();
     await expect(detail).toContainText(DASHBOARD_MESSAGES.nl["lifecycle.detail_local_validation_evidence"]);
@@ -2399,7 +2406,7 @@ test.describe("Engineering Status browser smoke", () => {
       },
     }, {}));
     await page.locator("#currentRun").evaluate((element) => { element.open = true; });
-    await page.locator(".execution-lifecycle__node").click();
+    await dispatchDashboardPointerClick(page.locator(".execution-lifecycle__node"));
     const modal = page.locator("#lifecycleDetailModal");
     await expect(modal).toBeVisible();
     await expect(modal).toContainText("Implementatie");
@@ -3631,6 +3638,9 @@ test.describe("Engineering Status browser smoke", () => {
     await page.getByTestId("theme-toggle").click();
     await page.locator("#executionTelemetry").evaluate((element) => { element.open = true; });
 
+    const telemetryScroll = page.locator("#executionTelemetry .telemetry-scroll");
+    await expect(telemetryScroll).toHaveCSS("border-top-style", "solid");
+    await expect(telemetryScroll).toHaveCSS("border-top-left-radius", "9px");
     const firstColumnSurfaces = await page.locator(":is(.log-table,.telemetry-table) th:first-child").evaluateAll(
       (cells) => cells.map((cell) => getComputedStyle(cell).backgroundColor),
     );
