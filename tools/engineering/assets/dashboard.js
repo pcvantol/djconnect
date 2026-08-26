@@ -1556,6 +1556,15 @@ function openLifecycleDetail(step, trigger) {
     }
     phaseTiming.append(list);
   }
+  if (
+    String(step?.id || "").toUpperCase() === "TERMINAL"
+    && spans.some((span) => String(span.outcome || "").toUpperCase() === "STALE")
+  ) {
+    phaseTiming.append(Object.assign(document.createElement("p"), {
+      className: "estimate-meta",
+      textContent: t("lifecycle.detail_terminal_timing_stale"),
+    }));
+  }
   content.append(phaseTiming);
   const qualityEvidence = lifecycleQualityEvidence(step);
   if (qualityEvidence) content.append(qualityEvidence);

@@ -1948,6 +1948,37 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(modal).not.toBeVisible();
   });
 
+  test("explains translated stale timing without downgrading a completed execution result", async ({ page }) => {
+    await page.route("**/api/events", (route) => route.abort());
+    await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({
+      json: { status: { watcher_state: "WATCHER_IDLE" } },
+    }));
+    for (const language of SUPPORTED_LOCALES) {
+      await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+      await selectDashboardLocale(page, language);
+      await page.locator("#autoRefresh").uncheck();
+      await page.evaluate(() => r({
+        watcher_state: "ENGINEERING_RUN_ACTIVE", current_phase: "COMPLETE", run_id: "terminal-stale-timing",
+        lifecycle: {
+          available: true, run_id: "terminal-stale-timing", terminal_state: "COMPLETE", steps: [{
+            id: "TERMINAL", presentation_key: "lifecycle.step.terminal", state: "COMPLETE",
+            timing: { started_at: "2026-08-16T14:00:00Z", finished_at: "2026-08-16T14:03:00Z", spans: [{
+              phase: "TOTAL_EXECUTION", duration_ms: 180000, outcome: "STALE",
+            }] },
+          }],
+        },
+      }, {}));
+      await page.locator("#currentRun").evaluate((element) => { element.open = true; });
+      await page.locator(".execution-lifecycle__node").click({ force: true });
+      const modal = page.locator("#lifecycleDetailModal");
+      await expect(modal).toContainText(DASHBOARD_MESSAGES[language]["lifecycle.state.complete"]);
+      await expect(modal).toContainText(DASHBOARD_MESSAGES[language]["lifecycle.state.stale"]);
+      await expect(modal).toContainText(DASHBOARD_MESSAGES[language]["lifecycle.detail_terminal_timing_stale"]);
+      await expect(modal).not.toContainText("STALE");
+      await page.locator("#lifecycleDetailClose").click();
+    }
+  });
+
   test("shows autonomous quality control as its own workflow node and detail modal", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.evaluate(() => r({
