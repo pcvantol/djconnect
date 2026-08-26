@@ -308,8 +308,12 @@ an independently releasable package.
    source-tree dependency. Data-root resolution and consumer registration are
    explicit.
 5. Build a dedicated EP CI pipeline: unit, browser, localisation and package
-   installation tests; migration/recovery tests; SBOM/provenance/checksum
-   evidence; release signing/publication policy; and immutable wheel release.
+   installation tests; migration/recovery tests; **required security gates**
+   for dependency vulnerability scanning, static analysis, secret scanning,
+   package/SBOM provenance and installer checksum/signature verification;
+   release signing/publication policy; and immutable wheel release. A failed,
+   skipped or unavailable required security check blocks publication rather
+   than being treated as advisory evidence.
 6. Deliver a signed, notarized native macOS **Engineering Platform** installer
    application alongside the wheel. It is the supported first-install and
    repair experience for a local EP host; command-line installation remains a
@@ -326,6 +330,8 @@ an independently releasable package.
 - a reproducible wheel installed into a clean environment without DJConnect
   source;
 - dedicated EP CI and release evidence;
+- passing, non-skipped required security-check evidence for the wheel and
+  native installer; and
 - all five locales verified from the installed package; and
 - history and license provenance review of the new repository.
 
@@ -559,7 +565,7 @@ packaged path is proven.
 | --- | --- |
 | Contract gate | Versioned consumer API, project identity semantics and error/redaction rules approved. |
 | Data gate | Transactional central-store migration, backup/restore and no-dual-writer proof pass. |
-| Package gate | Installed wheel works from a clean environment with dedicated EP CI and supply-chain evidence. |
+| Package gate | Installed wheel works from a clean environment with dedicated EP CI, required security gates and supply-chain evidence. |
 | Consumer gate | DJConnect and Forge/Workspace use only the pinned wheel and complete registration. |
 | Retirement gate | Supported upgrade, rollback and launch-service cutover are proven; source removal is then safe. |
 
