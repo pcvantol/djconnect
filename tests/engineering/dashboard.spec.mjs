@@ -5470,26 +5470,38 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#action")).toHaveText("Codex voert de uitvoering uit");
   });
 
-  test("lays out operational-overview cards in two columns only when its container has room", async ({ page }) => {
+  test("places diagnosis beside the current deviation when its container has room", async ({ page }) => {
     await page.setViewportSize({ width: 920, height: 844 });
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.evaluate(() => r({
       watcher_state: "HOST_PREFLIGHT_FAILED",
       current_phase: "INITIALIZE",
       diagnostic: "Host preflight failed",
-    }, { host_preflight: { outcome: "FAILED" } }));
+    }, {
+      host_preflight: { outcome: "FAILED" },
+      current_drift: {
+        drift_id: "managed_expected_branch",
+        severity: "BLOCKING",
+        affected_component: "managed_expected_branch",
+        expected_value: "managed_expected_branch: PASS",
+        observed_value: "Managed target is not on the expected branch main.",
+        resolution_recommendation: "Switch the repository to main before submitting work.",
+      },
+    }));
 
     const columns = async () => page.locator("#technicalDetails .technical-grid").evaluate((element) =>
       getComputedStyle(element).gridTemplateColumns.split(" ").length,
     );
     await expect.poll(columns).toBe(2);
-    const [gridBounds, diagnosisBounds] = await Promise.all([
-      page.locator("#technicalDetails .technical-grid").boundingBox(),
+    const [driftBounds, diagnosisBounds] = await Promise.all([
+      page.locator("#driftDiagnosticsCard").boundingBox(),
       page.locator("#technicalDiagnosticsCard").boundingBox(),
     ]);
     expect(diagnosisBounds).not.toBeNull();
-    expect(gridBounds).not.toBeNull();
-    expect(Math.abs(diagnosisBounds.width - gridBounds.width)).toBeLessThanOrEqual(1);
+    expect(driftBounds).not.toBeNull();
+    expect(Math.abs(diagnosisBounds.width - driftBounds.width)).toBeLessThanOrEqual(1);
+    expect(diagnosisBounds.x).toBeGreaterThan(driftBounds.x);
+    expect(Math.abs(diagnosisBounds.y - driftBounds.y)).toBeLessThanOrEqual(1);
 
     await page.setViewportSize({ width: 760, height: 844 });
     await expect.poll(columns).toBe(1);
