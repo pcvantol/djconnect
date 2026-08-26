@@ -129,6 +129,18 @@ async function waitForDashboardReady(page) {
   }
 }
 
+async function openDashboardPicker(picker) {
+  // The dashboard owns a fixed, nested scroll region. Dispatch a pointer-like
+  // click directly so picker behaviour tests do not depend on the headless
+  // browser's document-level hit-testing outside that region. The dedicated
+  // scroll-shell tests continue to cover physical positioning.
+  await picker.locator(".dashboard-locale__button").dispatchEvent("click", { detail: 1 });
+}
+
+async function chooseDashboardPickerOption(picker, value) {
+  await picker.locator(`[role=option][data-dashboard-select-value="${value}"]`).dispatchEvent("click", { detail: 1 });
+}
+
 async function navigateDashboard(navigate) {
   let lastError;
   for (let attempt = 0; attempt < 3; attempt += 1) {
@@ -600,12 +612,7 @@ test.describe("Engineering Status browser smoke", () => {
     }
     await page.locator("#componentLogs").evaluate((element) => { element.open = true; });
     const picker = page.locator("#configurationLogLevel + .dashboard-select-picker");
-    const pickerButton = picker.locator(".dashboard-locale__button");
-    // The dashboard owns a fixed, nested scroll region. Dispatch the same
-    // click event directly so this unit of behaviour does not depend on the
-    // headless browser's document-level hit-testing outside that region.
-    // Scroll-shell positioning is covered by the dedicated layout tests.
-    await pickerButton.dispatchEvent("click", { detail: 1 });
+    await openDashboardPicker(picker);
     await expect(picker.locator("[role=listbox]")).toBeVisible();
     await expect(picker.locator("[role=option]")).toHaveText(["Informatie", "Debug"]);
   });
@@ -625,9 +632,8 @@ test.describe("Engineering Status browser smoke", () => {
       };
     });
     const picker = page.locator("#configurationLogLevel + .dashboard-select-picker");
-    const pickerButton = picker.locator(".dashboard-locale__button");
-    await pickerButton.dispatchEvent("click", { detail: 1 });
-    await picker.locator('[role=option][data-dashboard-select-value="DEBUG"]').dispatchEvent("click", { detail: 1 });
+    await openDashboardPicker(picker);
+    await chooseDashboardPickerOption(picker, "DEBUG");
     expect(await page.evaluate(() => window.__dashboardSelectFocusOptions)).toEqual([]);
     await expect(page.locator("#configuration .configuration-field")).toHaveCount(6);
   });
@@ -835,8 +841,8 @@ test.describe("Engineering Status browser smoke", () => {
     const select = page.locator("#configurationLogLevel");
     const picker = select.locator("+ .dashboard-select-picker");
     await expect(picker.locator(".dashboard-locale__button > span").first()).toHaveText("Debug");
-    await picker.locator(".dashboard-locale__button").click();
-    await picker.locator('[role=option][data-dashboard-select-value="INFO"]').click();
+    await openDashboardPicker(picker);
+    await chooseDashboardPickerOption(picker, "INFO");
     await expect.poll(() => writes).toEqual([{ key: "log_level", value: "INFO", previous: "DEBUG" }]);
     await expect(select).toHaveValue("INFO");
     await expect(picker.locator(".dashboard-locale__button > span").first()).toHaveText("Informatie");
@@ -868,8 +874,8 @@ test.describe("Engineering Status browser smoke", () => {
     releaseInitialLoad();
     await expect(select).toBeEnabled();
     await page.locator("#componentLogs").evaluate((element) => { element.open = true; });
-    await picker.locator(".dashboard-locale__button").click();
-    await picker.locator('[role=option][data-dashboard-select-value="INFO"]').click();
+    await openDashboardPicker(picker);
+    await chooseDashboardPickerOption(picker, "INFO");
     await expect(select).toBeDisabled();
     await expect(picker.locator(".dashboard-locale__button")).toBeDisabled();
     releaseSave();
@@ -925,8 +931,8 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(retention).toHaveValue("90");
     await expect(retention).toBeEnabled();
     const picker = retention.locator("+ .dashboard-select-picker");
-    await picker.locator(".dashboard-locale__button").click();
-    await picker.locator('[role=option][data-dashboard-select-value="60"]').click();
+    await openDashboardPicker(picker);
+    await chooseDashboardPickerOption(picker, "60");
     await expect(page.locator("#confirmationModal")).toBeVisible();
     await page.locator("#confirmationModalCancel").click();
     await expect(retention).toHaveValue("90");
@@ -4685,9 +4691,9 @@ test.describe("Engineering Status browser smoke", () => {
     await openTitlebarOptions(page);
 
     const projectPicker = page.locator("#dashboardProject + .dashboard-select-picker");
-    await projectPicker.locator(".dashboard-locale__button").click();
+    await openDashboardPicker(projectPicker);
     await expect(projectPicker.locator("[role=listbox]")).toBeVisible();
-    await projectPicker.locator(".dashboard-locale__button").click();
+    await openDashboardPicker(projectPicker);
     await expect(projectPicker.locator("[role=listbox]")).toBeHidden();
 
     await page.locator("#dashboardLocaleButton").click();
