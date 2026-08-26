@@ -840,6 +840,12 @@ test.describe("Engineering Status browser smoke", () => {
       "Operationele trends van de laatste 180 dagen. Telemetrie is geen repositorybewijs.",
     );
     await expect(page.locator("#configurationTelemetryRetention")).toHaveValue("180");
+    await expect(page.locator("#executionTelemetry > #configurationTelemetryRetention")).toHaveCount(0);
+    await expect(page.locator("#executionTelemetry > .telemetry-retention")).toHaveCount(1);
+    expect(await page.locator("#executionTelemetry > .telemetry-retention").evaluate(
+      (retention) => retention.previousElementSibling?.id,
+    )).toBe("executionTelemetryPagination");
+    await expect(page.locator("#executionTelemetry > .telemetry-retention")).toHaveCSS("border-top-style", "solid");
   });
 
   test("shows a GitHub rate-limit banner on page load and clears it on refresh", async ({ page }) => {

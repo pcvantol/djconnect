@@ -3284,7 +3284,9 @@ function executionTelemetry(rows) {
       actions.append(button);
     }
     summary.append(title, description);
-    panel.append(summary, retention, actions, scroll, navigation);
+    // Retention governs the historical data shown in the table, so keep it
+    // directly below that table instead of separating it from its effect.
+    panel.append(summary, actions, scroll, navigation, retention);
     const rate = $("rateLimits");
     rate?.insertAdjacentElement("afterend", panel);
     body = tableBody;
