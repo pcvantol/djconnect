@@ -1882,11 +1882,35 @@ class DashboardStatusTest(unittest.TestCase):
                 prompt_title="Detail prompt",
                 executed_at="2026-08-03T12:00:00Z",
             )
+            StateStore(root / ".engineering" / "engineering-runs").save(TransactionState(
+                "inbox-detail", "pcvantol/djconnect", "prompt.md", "COMPLETE", terminal=True,
+                implementation_pull_request=948, finalization_pull_request=949,
+            ))
             payload = json.loads(_prompt_history_detail(root, "inbox-detail"))
             self.assertEqual(payload["history"]["run_id"], "inbox-detail")
             self.assertEqual(payload["history"]["title"], "Detail prompt")
             self.assertEqual(payload["usage"], {"invocation_detail": "UNAVAILABLE"})
+            self.assertEqual(payload["pull_requests"], [
+                {"role": "implementation", "number": 948, "url": "https://github.com/pcvantol/djconnect/pull/948"},
+                {"role": "finalization", "number": 949, "url": "https://github.com/pcvantol/djconnect/pull/949"},
+            ])
             self.assertEqual(_prompt_history_detail(root, "../../other"), b"")
+
+    def test_prompt_history_detail_omits_pr_links_without_managed_checkpoint_evidence(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            record_prompt_execution(
+                root, run_id="inbox-genesis-detail", terminal_state="COMPLETE",
+                prompt_title="Genesis detail", executed_at="2026-08-03T12:00:00Z",
+            )
+            StateStore(root / ".engineering" / "engineering-runs").save(TransactionState(
+                "inbox-genesis-detail", "pcvantol/djconnect", "prompt.md", "COMPLETE",
+                execution_mode="GENESIS", implementation_pull_request=948,
+                finalization_pull_request=949, terminal=True,
+            ))
+            self.assertEqual(
+                json.loads(_prompt_history_detail(root, "inbox-genesis-detail"))["pull_requests"], []
+            )
 
     def test_prompt_history_detail_projects_run_scoped_provider_usage_without_fabricating_legacy_detail(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

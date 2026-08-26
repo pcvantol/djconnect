@@ -6063,6 +6063,32 @@ function promptDetailCommitsSection(commits) {
     detailField(t("detail.recorded_evidence"), evidence, true),
   ]);
 }
+function promptDetailPullRequestsSection(pullRequests) {
+  const links = Array.isArray(pullRequests) ? pullRequests.filter((item) =>
+    item && ["implementation", "finalization"].includes(item.role) &&
+    Number.isInteger(item.number) && item.number > 0 &&
+    typeof item.url === "string" &&
+    /^https:\/\/github\.com\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+\/pull\/\d+$/.test(item.url),
+  ) : [];
+  if (!links.length) return null;
+  const labels = {
+    implementation: t("detail.implementation_pull_request"),
+    finalization: t("detail.finalization_pull_request"),
+  };
+  const fields = links.map((item) => {
+    const label = labels[item.role], field = detailField(label, "");
+    const link = document.createElement("a");
+    link.className = "prompt-detail-pr-link";
+    link.href = item.url;
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    link.textContent = `#${item.number} ↗`;
+    link.setAttribute("aria-label", `${label} #${item.number}`);
+    field.lastElementChild.replaceChildren(link);
+    return field;
+  });
+  return promptDetailCard(t("detail.pull_requests"), fields, false, "prompt-detail-card--pull-requests");
+}
 function promptDetailEvidenceSection(evidence) {
   if (!evidence.length) return null;
   return promptDetailCard(
@@ -6138,6 +6164,7 @@ function renderPromptHistoryDetail(payload) {
     runtime = payload?.runtime || {},
     usage = payload?.usage || {},
     commits = payload?.commits || {},
+    pullRequests = payload?.pull_requests || [],
     evidence = Array.isArray(payload?.evidence) ? payload.evidence : [],
     reviewers = Array.isArray(payload?.reviewers) ? payload.reviewers : [],
     recommendationHandoff = payload?.recommendation_handoff;
@@ -6148,6 +6175,7 @@ function renderPromptHistoryDetail(payload) {
   content.append(
     ...[
       ...promptDetailExecutionSections(history),
+      promptDetailPullRequestsSection(pullRequests),
       promptDetailSidebar([
         promptDetailDurationSection(execution),
         promptDetailRuntimeSection(runtime),

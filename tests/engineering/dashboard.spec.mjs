@@ -3176,6 +3176,40 @@ test.describe("Engineering Status browser smoke", () => {
       ]);
   });
 
+  test("shows linked Managed implementation and finalization PR evidence in execution details", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await selectDashboardLocale(page, "nl");
+    await page.evaluate(() => renderPromptHistoryDetail({
+      history: { run_id: "inbox-pr-evidence", status: "COMPLETE", title: "PR-evidence", executed_at: "2026-08-26T12:00:00Z", execution_mode: "MANAGED" },
+      pull_requests: [
+        { role: "implementation", number: 948, url: "https://github.com/pcvantol/djconnect/pull/948" },
+        { role: "finalization", number: 949, url: "https://github.com/pcvantol/djconnect/pull/949" },
+      ],
+    }));
+    await page.locator("#promptHistoryDetailModal").evaluate((modal) => modal.showModal());
+    const card = page.locator("#promptHistoryDetailContent .prompt-detail-card--pull-requests");
+    await expect(card.locator("h3")).toHaveText(DASHBOARD_MESSAGES.nl["detail.pull_requests"]);
+    await expect(card.locator("a")).toHaveCount(2);
+    await expect(card.locator("a").nth(0)).toHaveAttribute("href", "https://github.com/pcvantol/djconnect/pull/948");
+    await expect(card.locator("a").nth(0)).toHaveText("#948 ↗");
+    await expect(card.locator("a").nth(1)).toHaveAttribute("href", "https://github.com/pcvantol/djconnect/pull/949");
+    const [contextBounds, cardBounds] = await Promise.all([
+      page.locator("#promptHistoryDetailContent .prompt-detail-card--execution-context").boundingBox(),
+      card.boundingBox(),
+    ]);
+    expect(contextBounds).not.toBeNull();
+    expect(cardBounds).not.toBeNull();
+    expect(cardBounds.x).toBeGreaterThan(contextBounds.x - 1);
+    expect(cardBounds.y).toBeGreaterThan(contextBounds.y);
+
+    await page.evaluate(() => renderPromptHistoryDetail({
+      history: { run_id: "inbox-genesis-evidence", status: "COMPLETE", title: "Genesis", executed_at: "2026-08-26T12:00:00Z", execution_mode: "GENESIS" },
+      pull_requests: [],
+    }));
+    await expect(page.locator("#promptHistoryDetailContent .prompt-detail-card--pull-requests")).toHaveCount(0);
+  });
+
   test("pairs specialist reviews beside the wider provider usage card on wide prompt details", async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });

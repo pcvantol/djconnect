@@ -308,6 +308,7 @@ def _project_prompt_history_detail(
     usage: dict[str, object],
     report: str | None,
     lifecycle: dict[str, object] | None = None,
+    pull_requests: object = (),
 ) -> bytes:
     """Project one immutable history row into dashboard detail JSON.
 
@@ -324,6 +325,7 @@ def _project_prompt_history_detail(
             "runtime": runtime,
             "reviewers": reviewers,
             "commits": commits,
+            "pull_requests": pull_requests,
             "usage": usage,
             "evidence": evidence,
             "recommendation_handoff": handoff,
@@ -332,6 +334,31 @@ def _project_prompt_history_detail(
         ensure_ascii=False,
         separators=(",", ":"),
     ).encode()
+
+
+def _pull_requests_for_run(root: Path, run_id: str | None) -> list[dict[str, object]]:
+    """Project only checkpoint-owned Managed pull-request evidence as links."""
+    checkpoint = _canonical_checkpoint(root, run_id)
+    repository = checkpoint.get("repository")
+    if (
+        checkpoint.get("execution_mode") != "MANAGED"
+        or not isinstance(repository, str)
+        or not re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", repository)
+    ):
+        return []
+    links: list[dict[str, object]] = []
+    for role, field in (
+        ("implementation", "implementation_pull_request"),
+        ("finalization", "finalization_pull_request"),
+    ):
+        number = checkpoint.get(field)
+        if isinstance(number, int) and not isinstance(number, bool) and number > 0:
+            links.append({
+                "role": role,
+                "number": number,
+                "url": f"https://github.com/{repository}/pull/{number}",
+            })
+    return links
 
 
 def _terminal_run_diagnostic(root: Path, run_id: str | None) -> str | None:
@@ -373,6 +400,7 @@ def _prompt_history_detail(root: Path, run_id: str | None) -> bytes:
     runtime = json.loads(_last_executed_runtime_metadata(root, run_id))
     reviewers = json.loads(_reviewer_agents_for_run(root, run_id))
     commits = _commits_for_run(root, run_id)
+    pull_requests = _pull_requests_for_run(root, run_id)
     usage: dict[str, object] = {}
     try:
         provider_summary = provider_usage_summary(root, run_id)
@@ -410,6 +438,7 @@ def _prompt_history_detail(root: Path, run_id: str | None) -> bytes:
         runtime=runtime,
         reviewers=reviewers,
         commits=commits,
+        pull_requests=pull_requests,
         usage=usage,
         report=report,
         lifecycle=lifecycle_projection(root, run_id),

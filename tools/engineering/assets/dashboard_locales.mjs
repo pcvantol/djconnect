@@ -3250,6 +3250,12 @@ Object.assign(DASHBOARD_MESSAGES.de, {"configuration.provider_readiness_interval
 Object.assign(DASHBOARD_MESSAGES.fr, {"configuration.provider_readiness_interval":"Intervalle de vérification de disponibilité des fournisseurs","configuration.provider_readiness_interval_help":"À quelle fréquence ce tableau de bord ouvert revérifie la disponibilité locale de Codex et GitHub sans démarrer d’exécution.","configuration.minute_1":"1 minute","configuration.minutes_5":"5 minutes","configuration.minutes_10":"10 minutes"});
 Object.assign(DASHBOARD_MESSAGES.es, {"configuration.provider_readiness_interval":"Intervalo de comprobación de disponibilidad de proveedores","configuration.provider_readiness_interval_help":"Con qué frecuencia este panel abierto vuelve a comprobar la disponibilidad local de Codex y GitHub sin iniciar una ejecución.","configuration.minute_1":"1 minuto","configuration.minutes_5":"5 minutos","configuration.minutes_10":"10 minutos"});
 
+Object.assign(DASHBOARD_MESSAGES.en, {"detail.pull_requests":"Pull requests","detail.implementation_pull_request":"Implementation pull request","detail.finalization_pull_request":"Finalization pull request"});
+Object.assign(DASHBOARD_MESSAGES.nl, {"detail.pull_requests":"Pull requests","detail.implementation_pull_request":"Implementatie-pullrequest","detail.finalization_pull_request":"Finalisatie-pullrequest"});
+Object.assign(DASHBOARD_MESSAGES.de, {"detail.pull_requests":"Pull Requests","detail.implementation_pull_request":"Implementierungs-Pull-Request","detail.finalization_pull_request":"Finalisierungs-Pull-Request"});
+Object.assign(DASHBOARD_MESSAGES.fr, {"detail.pull_requests":"Pull requests","detail.implementation_pull_request":"Pull request d’implémentation","detail.finalization_pull_request":"Pull request de finalisation"});
+Object.assign(DASHBOARD_MESSAGES.es, {"detail.pull_requests":"Solicitudes de extracción","detail.implementation_pull_request":"Solicitud de extracción de implementación","detail.finalization_pull_request":"Solicitud de extracción de finalización"});
+
 export function createTranslator(locale) {
   const active = normalizeLocale(locale);
   return (key, values = {}, fallback = key) => String(messages[active]?.[key] ?? messages.en[key] ?? fallback)
