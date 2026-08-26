@@ -3392,7 +3392,9 @@ test.describe("Engineering Status browser smoke", () => {
     expect(timelineBounds.x).toBeGreaterThan(usageBounds.x);
     expect(Math.abs(timelineBounds.y - usageBounds.y)).toBeLessThanOrEqual(1);
     await expect(cards.nth(1).locator(".prompt-detail-commit-timeline__list")).toHaveCSS("overflow-y", "auto");
-    await expect(cards.nth(1).locator(".prompt-detail-commit-timeline__phase h4")).toHaveText(DASHBOARD_MESSAGES.nl["state.REPAIR_AGENT"]);
+    const phaseCaption = cards.nth(1).locator(".prompt-detail-commit-timeline__phase h4");
+    await expect(phaseCaption.locator(".prompt-detail-commit-timeline__kind")).toHaveText(DASHBOARD_MESSAGES.nl["detail.commit_type.repair"]);
+    await expect(phaseCaption.locator(".prompt-detail-commit-timeline__phase-name")).toHaveText(DASHBOARD_MESSAGES.nl["state.REPAIR_AGENT"]);
     await expect(page.locator("#promptHistoryDetailContent .prompt-detail-provider-review-stack .prompt-detail-card--reviewers")).toHaveCount(1);
 
     await page.setViewportSize({ width: 390, height: 844 });

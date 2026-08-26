@@ -6170,6 +6170,22 @@ function promptDetailUsageSection(usage) {
   );
   return fields.length ? promptDetailCard(t("detail.provider_usage"), fields) : null;
 }
+function commitTimelineKind(item) {
+  const mergeKinds = {
+    implementation_merge_verified: "implementation_merge",
+    finalization_merge_verified: "finalization_merge",
+    reconciliation_merge_verified: "reconciliation_merge",
+  };
+  if (mergeKinds[item.description]) return mergeKinds[item.description];
+  return {
+    EXECUTE_AGENT: "implementation",
+    LOCAL_REPOSITORY_VALIDATION: "validation",
+    QUALITY_CONTROL_AGENT: "quality",
+    REPAIR_AGENT: "repair",
+    FINALIZE_AGENT: "finalization",
+    RECONCILE_AGENT: "reconciliation",
+  }[item.phase] || "other";
+}
 function promptDetailCommitTimelineSection(entries) {
   const timeline = Array.isArray(entries) ? entries.filter((item) =>
     item && typeof item === "object" &&
@@ -6187,15 +6203,24 @@ function promptDetailCommitTimelineSection(entries) {
   list.className = "prompt-detail-commit-timeline__list";
   const groups = timeline.reduce((current, item) => {
     const previous = current.at(-1);
-    if (!previous || previous.phase !== item.phase) current.push({ phase: item.phase, entries: [] });
+    const kind = commitTimelineKind(item);
+    if (!previous || previous.phase !== item.phase || previous.kind !== kind)
+      current.push({ phase: item.phase, kind, entries: [] });
     current.at(-1).entries.push(item);
     return current;
   }, []);
   for (const group of groups) {
     const section = document.createElement("li");
-    section.className = "prompt-detail-commit-timeline__phase";
+    section.className = "prompt-detail-commit-timeline__phase prompt-detail-commit-timeline__phase--" + group.kind;
+    section.dataset.commitKind = group.kind;
     const caption = document.createElement("h4");
-    caption.textContent = t("state." + group.phase, {}, group.phase);
+    const kindBadge = document.createElement("span");
+    kindBadge.className = "prompt-detail-commit-timeline__kind";
+    kindBadge.textContent = t("detail.commit_type." + group.kind, {}, group.kind);
+    const phaseName = document.createElement("span");
+    phaseName.className = "prompt-detail-commit-timeline__phase-name";
+    phaseName.textContent = t("state." + group.phase, {}, group.phase);
+    caption.append(kindBadge, phaseName);
     const entries = document.createElement("ol");
     entries.className = "prompt-detail-commit-timeline__phase-entries";
     for (const item of group.entries) {
