@@ -5280,6 +5280,23 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#codexCliUpdateStatus")).toHaveText("De Codex CLI-update is beschikbaar, maar kan pas worden geïnstalleerd wanneer geen uitvoering actief is.");
   });
 
+  test("never renders a stale Codex CLI update response for the installed version", async ({ page }) => {
+    await page.route("**/api/events", (route) => route.abort());
+    await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({
+      json: { status: { watcher_state: "WATCHER_IDLE", queue_depth: 0, queue_items: [] }, rate_limits: { provider: "Codex CLI", provider_version: "0.150.0", windows: [], reset_credits: 0 } },
+    }));
+    await page.route("**/api/codex-cli-update", (route) => route.fulfill({
+      // This is the old poll response that may arrive just after an install.
+      json: { state: "update_available", update_available: true, current_version: "0.150.0", latest_version: "0.150.0" },
+    }));
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    const updateCheck = page.waitForResponse("**/api/codex-cli-update");
+    await page.locator("#rateLimits").evaluate((element) => { element.open = true; });
+    await updateCheck;
+    await expect(page.locator("#codexCliUpdate")).toBeHidden();
+    await expect(page.locator("#codexCliUpdateStatus")).toHaveText("Codex CLI is actueel (0.150.0).");
+  });
+
   test("exposes the structured Engineering Platform health projection", async ({ request }) => {
     const response = await request.get(`${dashboardUrl}/health`);
     expect([200, 503]).toContain(response.status());
