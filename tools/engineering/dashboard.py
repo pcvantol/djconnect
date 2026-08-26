@@ -95,6 +95,10 @@ _codex_update_cache_lock = Lock()
 _codex_update_cache: tuple[float, dict[str, object]] | None = None
 _codex_update_install_lock = Lock()
 _provider_install_lock = Lock()
+_provider_login_lock = Lock()
+_provider_login_active: str | None = None
+_provider_login_started_at = 0.0
+_PROVIDER_LOGIN_TIMEOUT_SECONDS = 300.0
 _snapshot_revision_lock = Lock()
 _snapshot_fingerprint: bytes | None = None
 _snapshot_revision = 0
@@ -1841,7 +1845,15 @@ def _workspace_free_disk_space(root: Path) -> str:
 
 def _provider_login_status(root: Path) -> dict[str, dict[str, str]]:
     """Dashboard projection of the shared token-free provider readiness check."""
-    return provider_readiness_status(root)
+    global _provider_login_active, _provider_login_started_at
+    statuses = provider_readiness_status(root)
+    with _provider_login_lock:
+        active = _provider_login_active
+        expired = time.monotonic() - _provider_login_started_at >= _PROVIDER_LOGIN_TIMEOUT_SECONDS
+        if active and (expired or statuses.get(active.lower(), {}).get("state") == "READY"):
+            _provider_login_active = None
+            _provider_login_started_at = 0.0
+    return statuses
 
 
 def _start_provider_login(root: Path, provider: str) -> None:
@@ -1850,6 +1862,7 @@ def _start_provider_login(root: Path, provider: str) -> None:
         "CODEX": (CodexCliProvider()._executable, "login", "--device-auth"),
         "GITHUB": ("gh", "auth", "login", "--hostname", "github.com", "--web"),
     }
+    global _provider_login_active, _provider_login_started_at
     command = commands.get(provider)
     if command is None:
         raise ValueError("Unsupported provider login request.")
@@ -1859,11 +1872,17 @@ def _start_provider_login(root: Path, provider: str) -> None:
         raise ValueError("GitHub CLI is not installed.")
     if sys.platform != "darwin":
         raise ValueError("Interactive provider login is supported from the local macOS dashboard only.")
+    with _provider_login_lock:
+        if _provider_login_active and time.monotonic() - _provider_login_started_at < _PROVIDER_LOGIN_TIMEOUT_SECONDS:
+            raise ValueError("Another provider sign-in is already in progress.")
     shell_command = "exec " + " ".join(shlex.quote(part) for part in command)
     apple_script = f'tell application "Terminal" to do script {json.dumps(shell_command)}'
     completed = LocalProcessProvider().execute(root, ("/usr/bin/osascript", "-e", apple_script))
     if completed.returncode:
         raise ValueError("Provider login window could not be opened.")
+    with _provider_login_lock:
+        _provider_login_active = provider
+        _provider_login_started_at = time.monotonic()
 
 
 def _install_provider(root: Path, provider: str) -> None:
@@ -2074,7 +2093,8 @@ def _dashboard_html(
 <div class="dashboard-sticky-header">
 <header class="dashboard-titlebar"><div class="dashboard-titlebar__brand"><img class="dashboard-app-icon" src="/assets/operations-console/icon-transparent.png" alt="" aria-hidden="true" data-testid="dashboard-app-icon"><h1 id="dashboardTitle" data-i18n="dashboard.title">$TITLE</h1></div><div class="dashboard-titlebar__actions"><button class="page-refresh" id="pageRefresh" type="button" data-testid="page-refresh" data-i18n-title="refresh.page" data-i18n-aria-label="refresh.page"><span aria-hidden="true">↻</span></button><div class="dashboard-titlebar__options" id="dashboardTitlebarOptions"><button class="dashboard-titlebar__options-toggle" id="dashboardTitlebarOptionsToggle" type="button" aria-expanded="false" aria-controls="dashboardTitlebarOptionsContent" data-testid="titlebar-options-toggle"><span data-i18n="header.options"></span></button><div class="dashboard-titlebar__options-content" id="dashboardTitlebarOptionsContent"><label class="dashboard-locale" for="dashboardLocale"><span data-i18n="language.label"></span><select id="dashboardLocale" class="dashboard-locale__native" data-i18n-aria-label="language.label"><option value="en" data-i18n="language.en"></option><option value="nl" data-i18n="language.nl"></option><option value="de" data-i18n="language.de"></option><option value="fr" data-i18n="language.fr"></option><option value="es" data-i18n="language.es"></option></select><span class="dashboard-locale__picker"><button class="dashboard-locale__button" id="dashboardLocaleButton" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="dashboardLocaleMenu"><span id="dashboardLocaleValue"></span><span aria-hidden="true">⌄</span></button><span class="dashboard-locale__menu" id="dashboardLocaleMenu" role="listbox" hidden><button type="button" role="option" data-dashboard-locale="en"></button><button type="button" role="option" data-dashboard-locale="nl"></button><button type="button" role="option" data-dashboard-locale="de"></button><button type="button" role="option" data-dashboard-locale="fr"></button><button type="button" role="option" data-dashboard-locale="es"></button></span></span></label><button class="theme-toggle" id="themeToggle" type="button" role="switch" aria-checked="false" data-i18n-aria-label="header.enable_light" data-testid="theme-toggle"><span class="theme-toggle__label" data-i18n="header.theme"></span></button><button class="section-state-toggle" id="toggleAllSections" type="button" role="switch" aria-checked="false" data-i18n-aria-label="header.open_all" data-testid="toggle-all-sections"><span class="section-state-toggle__label" data-i18n="header.expand"></span></button><label class="auto-refresh-toggle" for="autoRefresh"><input id="autoRefresh" type="checkbox" role="switch" checked><span data-i18n="header.auto_refresh"></span></label></div></div></div></header><aside class="dashboard-status-banner dashboard-status-banner--usage-limit" id="codexUsageLimitBanner" role="alert" aria-live="assertive" hidden data-testid="codex-usage-limit-banner"><strong data-i18n="notification.codex_usage_limit.title"></strong><span data-i18n="notification.codex_usage_limit.body"></span></aside>
 <aside class="dashboard-status-banner dashboard-status-banner--github-rate-limit" id="githubRateLimitBanner" role="alert" aria-live="assertive" hidden data-testid="github-rate-limit-banner"><strong data-i18n="notification.github_rate_limit.title"></strong><span id="githubRateLimitMessage"></span><button class="github-rate-limit-banner__refresh" id="githubRateLimitRefresh" type="button" data-i18n-aria-label="notification.github_rate_limit.refresh" data-i18n-title="notification.github_rate_limit.refresh"><span aria-hidden="true">↻</span></button></aside>
-<aside class="dashboard-status-banner dashboard-status-banner--provider-readiness" id="providerReadinessBanner" role="alert" aria-live="assertive" hidden data-testid="provider-readiness-banner"><strong id="providerReadinessTitle"></strong><span id="providerReadinessMessage"></span><button class="provider-readiness-banner__action" id="providerReadinessAction" type="button" hidden></button></aside>
+<aside class="dashboard-status-banner dashboard-status-banner--provider-readiness" id="codexProviderReadinessBanner" role="alert" aria-live="assertive" hidden data-testid="codex-provider-readiness-banner"><strong id="codexProviderReadinessTitle"></strong><span id="codexProviderReadinessMessage"></span><button class="provider-readiness-banner__action" id="codexProviderReadinessAction" type="button" hidden></button></aside>
+<aside class="dashboard-status-banner dashboard-status-banner--provider-readiness" id="githubProviderReadinessBanner" role="alert" aria-live="assertive" hidden data-testid="github-provider-readiness-banner"><strong id="githubProviderReadinessTitle"></strong><span id="githubProviderReadinessMessage"></span><button class="provider-readiness-banner__action" id="githubProviderReadinessAction" type="button" hidden></button></aside>
 </div>
 <main class="dashboard-grid" id="engineering-dashboard-content" tabindex="-1">
 <details class="inbox-queue" id="queueItems" data-testid="engineering-inbox-queue"><summary><strong data-i18n="section.inbox_queue"></strong></summary><p class="category-description" data-i18n="description.inbox_queue"></p><div class="queue-blocker" id="inboxBlocker" role="alert" hidden></div><p class="estimate-meta" id="queueSummary" data-i18n="logs.loading"></p><ol class="queue-list" id="queueList" aria-live="polite"></ol></details>

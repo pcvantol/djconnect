@@ -70,6 +70,9 @@ class TransactionState:
     local_validation_iterations: int = 0
     local_validation_audit: tuple[dict[str, str], ...] = ()
     waiting_for_merge_since: str | None = None
+    auth_recovery_phase: str | None = None
+    auth_recovery_next_action: str | None = None
+    auth_recovery_providers: tuple[str, ...] = ()
     terminal: bool = False
     schema_version: int = SCHEMA_VERSION
 
@@ -95,6 +98,9 @@ class TransactionState:
             "local_validation_iterations": 0,
             "local_validation_audit": (),
             "waiting_for_merge_since": None,
+            "auth_recovery_phase": None,
+            "auth_recovery_next_action": None,
+            "auth_recovery_providers": (),
         }
         if set(raw).issubset(expected) and set(raw) | set(defaults) == expected:
             raw = {**defaults, **raw}
@@ -108,6 +114,8 @@ class TransactionState:
             raw = {**raw, "repair_audit": tuple(raw["repair_audit"])}
         if isinstance(raw.get("local_validation_audit"), list):
             raw = {**raw, "local_validation_audit": tuple(raw["local_validation_audit"])}
+        if isinstance(raw.get("auth_recovery_providers"), list):
+            raw = {**raw, "auth_recovery_providers": tuple(raw["auth_recovery_providers"])}
         try:
             state = cls(**raw)
         except TypeError as error:
@@ -174,6 +182,19 @@ class TransactionState:
             or len(state.waiting_for_merge_since) > 80
         ):
             raise StateError("checkpoint merge wait timestamp is invalid")
+        if state.auth_recovery_phase is not None and state.auth_recovery_phase not in PHASES:
+            raise StateError("checkpoint auth recovery phase is invalid")
+        if state.auth_recovery_next_action is not None and (
+            not isinstance(state.auth_recovery_next_action, str) or not state.auth_recovery_next_action
+        ):
+            raise StateError("checkpoint auth recovery action is invalid")
+        if (
+            not isinstance(state.auth_recovery_providers, tuple)
+            or any(provider not in {"CODEX", "GITHUB"} for provider in state.auth_recovery_providers)
+            or len(set(state.auth_recovery_providers)) != len(state.auth_recovery_providers)
+            or (state.auth_recovery_phase is None) != (not state.auth_recovery_providers)
+        ):
+            raise StateError("checkpoint auth recovery providers are invalid")
         for value in (state.latest_repository_evidence, state.latest_github_evidence):
             if value is not None and (not isinstance(value, str) or len(value) > MAX_DIAGNOSTIC_LENGTH or value != redact_diagnostic(value)):
                 raise StateError("checkpoint evidence is invalid or unsafe")

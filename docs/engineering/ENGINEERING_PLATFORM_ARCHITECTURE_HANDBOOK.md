@@ -133,6 +133,14 @@ state. A restart or recovery never blindly continues from an old checkpoint:
 it revalidates the checkpoint together with current repository and, where
 applicable, GitHub evidence.
 
+Provider readiness is phase-aware and token-free. A new Managed admission
+requires Codex and GitHub readiness; a resumed execution uses the same durable
+gate. Passive PR observation requires GitHub alone, while agent work requires
+Codex too. Failed readiness is persisted as a non-terminal recovery block with
+the original phase/action, rather than a retry loop or terminal failure. The
+dashboard may offer one explicit local provider repair at a time, but cannot
+start a repair agent or consume credits until fresh readiness evidence passes.
+
 Reviewer selection is policy-driven and may select zero reviewers. When it
 does select reviewers, they receive bounded, fresh, read-only repository facts
 and produce advisory observations only. The primary runner retains lifecycle

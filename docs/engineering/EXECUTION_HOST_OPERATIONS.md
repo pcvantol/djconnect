@@ -35,12 +35,21 @@ that dependency. A missing CLI, expired login or indeterminate provider check
 fails closed before an agent starts, so it cannot consume credits in an
 authentication retry loop.
 
-The dashboard projects the same token-free evidence in Configuration and in a
-sticky notification. An operator can explicitly install a missing CLI or open
-its browser-backed terminal login. A repair never runs from an execution,
-never exposes credentials, and does not resolve the banner until a new check
-confirms readiness. Per-provider sign-out remains available to test a fresh
-session deliberately.
+The dashboard projects the same token-free evidence in Configuration and in
+separate sticky notifications for Codex and GitHub. An operator can explicitly
+install a missing CLI or open its browser-backed terminal login. At most one
+interactive provider repair may be active at once. A repair never runs from an
+execution, never exposes credentials, and does not resolve its banner until a
+new check confirms readiness. Per-provider sign-out remains available to test
+a fresh session deliberately.
+
+The same gate applies when an existing execution resumes. A failed check is a
+non-terminal, durable `provider_auth_repair_required` checkpoint: it preserves
+the original phase and next action, and records only the affected provider
+names. A green verification restores that action. Passive Managed PR waiting
+requires GitHub only; Codex is required immediately before an agent repair,
+finalization, reconciliation, or other agent action can start. This prevents
+both accidental credit use and needless blocking of passive merge observation.
 
 ## Configuration and transport
 

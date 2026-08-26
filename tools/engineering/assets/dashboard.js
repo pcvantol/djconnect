@@ -5017,37 +5017,50 @@ async function refreshProviderLoginStatus() {
     });
   }
 }
-let providerReadinessAction = null;
+const providerReadinessActions = new Map();
+let providerInteractiveRepairInProgress = false;
 function renderProviderReadinessBanner(providers) {
-  const banner = $("providerReadinessBanner"), title = $("providerReadinessTitle"), message = $("providerReadinessMessage"), button = $("providerReadinessAction");
-  if (!banner || !title || !message || !button) return;
-  const pending = ["codex", "github"].map((key) => ({ key, state: String(providers?.[key]?.state || "CHECK_FAILED") })).find((item) => item.state !== "READY");
-  banner.hidden = !pending;
-  if (!pending) return;
-  const provider = pending.key === "codex" ? "Codex" : "GitHub";
-  const action = pending.state === "UNAVAILABLE" ? "install" : pending.state === "AUTH_REQUIRED" ? "login" : null;
-  providerReadinessAction = action ? { provider: pending.key.toUpperCase(), action } : null;
-  banner.className = `dashboard-status-banner dashboard-status-banner--provider-readiness dashboard-status-banner--provider-${pending.state.toLowerCase()}`;
-  title.textContent = t("notification.provider_readiness.title", { provider });
-  message.textContent = t(`notification.provider_readiness.${pending.state.toLowerCase()}`, { provider });
-  button.hidden = !action;
-  button.disabled = false;
-  button.textContent = action ? t(`notification.provider_readiness.${action}`, { provider }) : "";
+  ["codex", "github"].forEach((key) => {
+    const prefix = key === "codex" ? "codex" : "github";
+    const banner = $(`${prefix}ProviderReadinessBanner`), title = $(`${prefix}ProviderReadinessTitle`), message = $(`${prefix}ProviderReadinessMessage`), button = $(`${prefix}ProviderReadinessAction`);
+    if (!banner || !title || !message || !button) return;
+    const state = String(providers?.[key]?.state || "CHECK_FAILED");
+    const provider = key === "codex" ? "Codex" : "GitHub";
+    const action = state === "UNAVAILABLE" ? "install" : state === "AUTH_REQUIRED" ? "login" : null;
+    banner.hidden = state === "READY";
+    providerReadinessActions.set(key, action ? { provider: key.toUpperCase(), action } : null);
+    if (banner.hidden) return;
+    banner.className = `dashboard-status-banner dashboard-status-banner--provider-readiness dashboard-status-banner--provider-${state.toLowerCase()}`;
+    title.textContent = t("notification.provider_readiness.title", { provider });
+    message.textContent = t(`notification.provider_readiness.${state.toLowerCase()}`, { provider });
+    button.hidden = !action;
+    button.disabled = providerInteractiveRepairInProgress;
+    button.textContent = action ? t(`notification.provider_readiness.${action}`, { provider }) : "";
+  });
 }
-$("providerReadinessAction")?.addEventListener("click", async () => {
-  if (!providerReadinessAction) return;
-  const { provider, action } = providerReadinessAction;
-  const button = $("providerReadinessAction"), providerName = provider === "CODEX" ? "Codex" : "GitHub";
+document.addEventListener("click", async (event) => {
+  const button = event.target.closest("[id$='ProviderReadinessAction']");
+  if (!button || providerInteractiveRepairInProgress) return;
+  const key = button.id.startsWith("codex") ? "codex" : "github";
+  const pending = providerReadinessActions.get(key);
+  if (!pending) return;
+  const { provider, action } = pending;
+  const providerName = provider === "CODEX" ? "Codex" : "GitHub";
   const confirmed = await confirmDashboardAction(t("notification.provider_readiness.title", { provider: providerName }), t(`notification.provider_readiness.${action}_confirm`, { provider: providerName }), t(`notification.provider_readiness.${action}`, { provider: providerName }));
   if (!confirmed) return;
+  providerInteractiveRepairInProgress = true;
+  document.querySelectorAll("[id$='ProviderReadinessAction']").forEach((candidate) => { candidate.disabled = true; });
   button.disabled = true;
   try {
     const response = await fetch("/api/provider-login/repair", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ provider, action }) });
     if (!response.ok) throw Error();
   } catch {
-    $("providerReadinessMessage").textContent = t("notification.provider_readiness.repair_failed", { provider: providerName });
+    $(`${key}ProviderReadinessMessage`).textContent = t("notification.provider_readiness.repair_failed", { provider: providerName });
   } finally {
-    window.setTimeout(() => void refreshProviderLoginStatus(), 1200);
+    window.setTimeout(async () => {
+      providerInteractiveRepairInProgress = false;
+      await refreshProviderLoginStatus();
+    }, 1200);
   }
 });
 document.addEventListener("click", async (event) => {

@@ -76,6 +76,8 @@ from .validation_profile import ValidationProfile, changed_paths, classify
 from .reviewer_evidence import ReviewerEvidence
 from .investigation_ledger import InvocationInvestigationLedger
 from .execution_errors import CodexHandoffTimeout, CodexInvocationError, RunnerError
+from .execution_errors import ProviderReadinessBlocked
+from .provider_readiness import failures as provider_readiness_failures
 from .execution_repository import GitHubClient as ProviderGitHubClient, RepositoryClient as ProviderRepositoryClient
 from .execution_repository import GhCliClient as ProviderGhCliClient, SubprocessRepositoryClient as ProviderRepositoryClientImpl
 from .execution_executor import format_cli_failure as executor_format_cli_failure
@@ -397,6 +399,54 @@ class EngineeringRunner:
             if self.lease_heartbeat is not None:
                 self.lease_heartbeat.lease = self.active_lease
 
+    def _provider_readiness_gate(
+        self, state: TransactionState, *, require_codex: bool, require_github: bool
+    ) -> TransactionState:
+        """Persist a fail-closed provider block without losing the original phase.
+
+        A waiting pull request is passive GitHub observation, whereas every
+        agent action requires Codex too.  The saved original action lets a
+        verified resume continue exactly where it stopped.
+        """
+        missing = provider_readiness_failures(self.root, require_github=require_github)
+        if not require_codex:
+            missing = tuple(provider for provider in missing if provider != "CODEX")
+        if missing:
+            blocked = replace(
+                state,
+                next_action="provider_auth_repair_required",
+                diagnostic=redact_diagnostic(
+                    "Provider readiness required before "
+                    f"{state.auth_recovery_phase or state.phase}: {', '.join(missing)}."
+                ),
+                auth_recovery_phase=state.auth_recovery_phase or state.phase,
+                auth_recovery_next_action=state.auth_recovery_next_action or state.next_action,
+                auth_recovery_providers=tuple(missing),
+            )
+            self.store.save(blocked)
+            write_live_status(self.root, blocked, blocked.next_action)
+            return blocked
+        if state.auth_recovery_phase is not None:
+            restored = replace(
+                state,
+                next_action=state.auth_recovery_next_action or state.next_action,
+                diagnostic=None,
+                auth_recovery_phase=None,
+                auth_recovery_next_action=None,
+                auth_recovery_providers=(),
+            )
+            self.store.save(restored)
+            write_live_status(self.root, restored, restored.next_action)
+            return restored
+        return state
+
+    def _require_agent_readiness(self, state: TransactionState) -> None:
+        checked = self._provider_readiness_gate(
+            state, require_codex=True, require_github=state.execution_mode == "MANAGED"
+        )
+        if checked.next_action == "provider_auth_repair_required":
+            raise ProviderReadinessBlocked(checked)
+
     def _publish_reviewer_progress(
         self,
         state: TransactionState,
@@ -592,6 +642,7 @@ class EngineeringRunner:
 
     def _invoke_agent_with_timing(self, state: TransactionState, prompt: str, *, repair: bool = False, quality: bool = False, attempt: int | None = None) -> AgentResult:
         """Measure only the bounded runtime-provider process interval."""
+        self._require_agent_readiness(state)
         parent = (
             start_phase(self.root, state.run_id, "REPAIR", attempt=state.repair_iterations, metadata={"iteration": state.repair_iterations})
             if repair else start_phase(self.root, state.run_id, "QUALITY_CONTROL", metadata={"kind": "autonomous_refactor_quality"}) if quality else None
@@ -698,6 +749,8 @@ Local repository validation gate — iteration {iteration} of {MAX_LOCAL_REPOSIT
                 validation = self._record_agent_execution_time(validation)
                 validation = self._record_validation_evidence(validation, result)
                 self._persist_agent_usage(validation.run_id)
+            except ProviderReadinessBlocked as blocked:
+                return blocked.state, implementation
             except CodexInvocationError as error:
                 validation = self._record_agent_execution_time(validation)
                 self.console_detail = error.console_detail
@@ -764,6 +817,8 @@ Mandatory autonomous refactor and quality-control stage:
             quality = self._record_validation_evidence(quality, result)
             quality = replace(quality, quality_evidence=result.quality_evidence)
             self._persist_agent_usage(quality.run_id)
+        except ProviderReadinessBlocked as blocked:
+            return blocked.state, implementation
         except CodexInvocationError as error:
             quality = self._record_agent_execution_time(quality)
             self.console_detail = error.console_detail
@@ -839,20 +894,22 @@ Mandatory autonomous refactor and quality-control stage:
             raise RunnerError("This execution has already been dismissed and cannot be resumed.")
         if (
             state is not None
-            and state.phase == "WAIT_FOR_OPERATOR_MERGE"
+            and state.phase in {"WAIT_FOR_TERMINAL_EVIDENCE", "WAIT_FOR_OPERATOR_MERGE"}
             and state.pull_request is not None
         ):
-            # A green pull request is deliberately operator-owned.  Resuming
-            # that wait must therefore only re-read the remote pull-request
-            # state.  Re-running workspace admission, repository
+            # A pull-request wait is deliberately passive. Resuming it must
+            # therefore only re-read the remote pull-request state. Re-running workspace admission, repository
             # synchronization, reviewer selection and memory retrieval here
             # creates expensive local churn while there is no new work to do.
             # Once a merge is observed, _poll performs the required
             # repository reconciliation before cleanup or Finalization.
             if Path(state.prompt_path) != prompt_path:
                 raise RunnerError("checkpoint conflicts with current prompt")
-            if not self.agent.available():
-                raise RunnerError("Codex CLI is not installed or invokable")
+            state = self._provider_readiness_gate(
+                state, require_codex=False, require_github=True
+            )
+            if state.next_action == "provider_auth_repair_required":
+                return state
             self._verify_engineering_platform()
             # Fresh PR evidence can transition this wait into a bounded
             # same-PR repair.  Reacquire the lease before polling, so that a
@@ -921,6 +978,16 @@ Mandatory autonomous refactor and quality-control stage:
                 execution_mode=context.execution_mode,
             )
         context = replace(context, run_id=state.run_id)
+        passive_pr_wait = state.pull_request is not None and state.phase in {
+            "WAIT_FOR_TERMINAL_EVIDENCE", "WAIT_FOR_OPERATOR_MERGE"
+        }
+        state = self._provider_readiness_gate(
+            state,
+            require_codex=not passive_pr_wait,
+            require_github=context.execution_mode == "MANAGED",
+        )
+        if state.next_action == "provider_auth_repair_required":
+            return state
         self.transaction = ExecutionTransaction(
             state=state,
             target_repository=context.target_repository or self.root,
@@ -930,7 +997,7 @@ Mandatory autonomous refactor and quality-control stage:
         # observe a newer manifest and migrate the database while the watcher
         # still runs the older code.  Verify that compatibility boundary before
         # StateStore.save() opens (and could migrate) the datastore.
-        if not self.agent.available():
+        if not passive_pr_wait and not self.agent.available():
             raise RunnerError("Codex CLI is not installed or invokable")
         self._verify_engineering_platform()
         # Establish canonical transaction identity before persisting readiness evidence.
@@ -1163,6 +1230,8 @@ Mandatory autonomous refactor and quality-control stage:
             state = self._record_agent_execution_time(state)
             state = self._record_validation_evidence(state, result)
             self._persist_agent_usage(state.run_id)
+        except ProviderReadinessBlocked as blocked:
+            return blocked.state
         except CodexInvocationError as error:
             state = self._record_agent_execution_time(state)
             self.console_detail = error.console_detail
@@ -1379,6 +1448,12 @@ Mandatory autonomous refactor and quality-control stage:
         return self._poll(recovered)
 
     def _poll(self, state: TransactionState, result: AgentResult | None = None) -> TransactionState:
+        if state.pull_request:
+            state = self._provider_readiness_gate(
+                state, require_codex=False, require_github=True
+            )
+            if state.next_action == "provider_auth_repair_required":
+                return state
         if result and result.terminal_state in {"BLOCKED", "FAILED"}:
             return self._save_terminal(
                 state, result.terminal_state, "external_action_required", result.diagnostic
@@ -1548,6 +1623,8 @@ Mandatory autonomous refactor and quality-control stage:
                 "Repair agent exceeded the host-owned deadline; no further repair was started.",
                 terminal_condition="repair_agent_timeout",
             )
+        except ProviderReadinessBlocked as blocked:
+            return blocked.state
         except CodexInvocationError as error:
             repair = self._record_agent_execution_time(repair)
             self.console_detail = error.console_detail
@@ -1651,6 +1728,9 @@ Mandatory autonomous refactor and quality-control stage:
             # PR that current evidence proves already exists; otherwise the
             # recovery helper blocks fail-closed without another invocation.
             return self._recover_finalization_pull_request(finalization, self.repository.inspect(self.root))
+        except ProviderReadinessBlocked as blocked:
+            complete_phase(self.root, finalization_span, outcome="BLOCKED")
+            return blocked.state
         except CodexInvocationError as error:
             complete_phase(self.root, finalization_span, outcome="FAILED")
             finalization = self._record_agent_execution_time(finalization)
@@ -1735,6 +1815,8 @@ Mandatory autonomous refactor and quality-control stage:
             reconciliation = self._record_agent_execution_time(reconciliation)
             reconciliation = self._record_validation_evidence(reconciliation, result)
             self._persist_agent_usage(reconciliation.run_id)
+        except ProviderReadinessBlocked as blocked:
+            return blocked.state
         except CodexInvocationError as error:
             reconciliation = self._record_agent_execution_time(reconciliation)
             self.console_detail = error.console_detail

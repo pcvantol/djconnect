@@ -289,11 +289,12 @@ test.describe("Engineering Status browser smoke", () => {
     });
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.waitForFunction(() => document.body?.classList.contains("dashboard-ready"));
-    const banner = page.locator("#providerReadinessBanner");
+    const banner = page.locator("#codexProviderReadinessBanner");
     await expect(banner).toBeVisible();
     await expect(banner).toContainText(DASHBOARD_MESSAGES.nl["notification.provider_readiness.auth_required"].replace("{provider}", "Codex"));
-    await expect(page.locator("#providerReadinessAction")).toHaveText(DASHBOARD_MESSAGES.nl["notification.provider_readiness.login"].replace("{provider}", "Codex"));
-    await page.locator("#providerReadinessAction").click();
+    await expect(page.locator("#githubProviderReadinessBanner")).toBeHidden();
+    await expect(page.locator("#codexProviderReadinessAction")).toHaveText(DASHBOARD_MESSAGES.nl["notification.provider_readiness.login"].replace("{provider}", "Codex"));
+    await page.locator("#codexProviderReadinessAction").click();
     await expect(page.locator("#confirmationModal")).toBeVisible();
     await page.locator("#confirmationModalConfirm").click();
     await page.waitForTimeout(100);
@@ -310,8 +311,25 @@ test.describe("Engineering Status browser smoke", () => {
     } }));
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.waitForFunction(() => document.body?.classList.contains("dashboard-ready"));
-    await expect(page.locator("#providerReadinessBanner")).toBeVisible();
-    await expect(page.locator("#providerReadinessAction")).toBeHidden();
+    await expect(page.locator("#codexProviderReadinessBanner")).toBeVisible();
+    await expect(page.locator("#codexProviderReadinessAction")).toBeHidden();
+  });
+
+  test("shows each unavailable provider separately and serializes interactive repair", async ({ page }) => {
+    await page.route("**/api/provider-login-status", (route) => route.fulfill({ json: {
+      providers: {
+        codex: { provider: "CODEX", state: "AUTH_REQUIRED" },
+        github: { provider: "GITHUB", state: "UNAVAILABLE" },
+      },
+    } }));
+    await page.route("**/api/provider-login/repair", (route) => route.fulfill({ status: 202, json: { started: true } }));
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.waitForFunction(() => document.body?.classList.contains("dashboard-ready"));
+    await expect(page.locator("#codexProviderReadinessBanner")).toBeVisible();
+    await expect(page.locator("#githubProviderReadinessBanner")).toBeVisible();
+    await page.locator("#codexProviderReadinessAction").click();
+    await page.locator("#confirmationModalConfirm").click();
+    await expect(page.locator("#githubProviderReadinessAction")).toBeDisabled();
   });
 
   test("disables the Inbox location action while the project queue has items", async ({ page }) => {
@@ -2001,6 +2019,10 @@ test.describe("Engineering Status browser smoke", () => {
   });
 
   test("opens a native lifecycle step detail with persisted phase timing", async ({ page }) => {
+    // The fixture owns this lifecycle; a delayed server-push snapshot must not
+    // replace it between injection and the interaction assertion.
+    await page.route("**/api/events", (route) => route.abort());
+    await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({ json: { status: {} } }));
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.evaluate(() => r({
       watcher_state: "ENGINEERING_RUN_ACTIVE",

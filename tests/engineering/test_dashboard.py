@@ -125,6 +125,25 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertEqual(process.return_value.execute.call_count, 2)
 
     @patch("tools.engineering.dashboard.LocalProcessProvider")
+    @patch("tools.engineering.dashboard.CodexCliProvider")
+    @patch("tools.engineering.dashboard.shutil.which", return_value="/usr/local/bin/gh")
+    @patch("tools.engineering.dashboard.sys.platform", "darwin")
+    def test_provider_login_allows_only_one_interactive_repair(
+        self, _which: MagicMock, codex: MagicMock, process: MagicMock,
+    ) -> None:
+        completed = __import__("subprocess").CompletedProcess
+        codex.return_value.status.return_value.qualified = True
+        codex.return_value._executable = "/usr/local/bin/codex"
+        process.return_value.execute.return_value = completed(("osascript",), 0, "", "")
+        with patch.object(dashboard, "_provider_login_active", None), patch.object(
+            dashboard, "_provider_login_started_at", 0.0
+        ):
+            dashboard._start_provider_login(Path("/workspace"), "CODEX")
+            with self.assertRaisesRegex(ValueError, "already in progress"):
+                dashboard._start_provider_login(Path("/workspace"), "GITHUB")
+        self.assertEqual(process.return_value.execute.call_count, 1)
+
+    @patch("tools.engineering.dashboard.LocalProcessProvider")
     @patch("tools.engineering.dashboard.sys.platform", "darwin")
     def test_local_directory_picker_returns_a_selected_mac_folder(self, provider: MagicMock) -> None:
         completed = __import__("subprocess").CompletedProcess

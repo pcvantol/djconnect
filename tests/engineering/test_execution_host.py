@@ -798,8 +798,13 @@ class LocalAgentRunnerTest(unittest.TestCase):
             encoding="utf-8",
         )
         self.store = StateStore(self.root / ".engineering" / "engineering-runs")
+        self.provider_readiness = patch(
+            "tools.engineering.execution_host.provider_readiness_failures", return_value=()
+        )
+        self.provider_readiness.start()
 
     def tearDown(self) -> None:
+        self.provider_readiness.stop()
         self.temporary.cleanup()
 
     def test_new_run_initializes_and_records_canonical_prompt(self) -> None:
@@ -1592,6 +1597,37 @@ class LocalAgentRunnerTest(unittest.TestCase):
         self.assertEqual(result.next_action, "await_operator_pr_merge")
         self.assertFalse(result.terminal)
         self.assertEqual(self.store.load("pending-run").phase, "WAIT_FOR_OPERATOR_MERGE")
+
+    def test_pr_wait_blocks_durably_on_github_without_requiring_codex(self) -> None:
+        state = TransactionState(
+            "github-auth-wait", "pcvantol/djconnect", str(self.prompt),
+            "WAIT_FOR_TERMINAL_EVIDENCE", pull_request=12,
+        )
+        github = FakeGitHub([PullRequestEvidence(12, "OPEN", True, True)])
+        with patch("tools.engineering.execution_host.provider_readiness_failures", return_value=("GITHUB",)):
+            result = EngineeringRunner(
+                self.root, self.store, FakeRepository(), github,
+                FakeAgent(AgentResult("WAITING")), lambda _: None,
+            )._poll(state)
+        self.assertEqual(result.phase, "WAIT_FOR_TERMINAL_EVIDENCE")
+        self.assertFalse(result.terminal)
+        self.assertEqual(result.next_action, "provider_auth_repair_required")
+        self.assertEqual(result.auth_recovery_phase, "WAIT_FOR_TERMINAL_EVIDENCE")
+        self.assertEqual(result.auth_recovery_providers, ("GITHUB",))
+        self.assertEqual(github.calls, 0)
+
+    def test_agent_readiness_block_preserves_original_phase_without_invocation(self) -> None:
+        state = TransactionState("codex-auth-run", "pcvantol/djconnect", str(self.prompt), "FINALIZE_AGENT")
+        agent = FakeAgent(AgentResult("COMPLETE"))
+        runner = EngineeringRunner(self.root, self.store, FakeRepository(), FakeGitHub([]), agent, lambda _: None)
+        with patch("tools.engineering.execution_host.provider_readiness_failures", return_value=("CODEX", "GITHUB")):
+            with self.assertRaisesRegex(Exception, "Provider readiness"):
+                runner._invoke_agent_with_timing(state, "bounded work")
+        blocked = self.store.load(state.run_id)
+        self.assertEqual(blocked.phase, "FINALIZE_AGENT")
+        self.assertEqual(blocked.next_action, "provider_auth_repair_required")
+        self.assertEqual(blocked.auth_recovery_providers, ("CODEX", "GITHUB"))
+        self.assertEqual(agent.prompts, [])
 
     def test_operator_merge_wait_resume_only_polls_the_pull_request(self) -> None:
         state = TransactionState(
