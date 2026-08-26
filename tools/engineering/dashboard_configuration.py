@@ -19,6 +19,7 @@ DEFAULTS = {
     "platform_health_refresh_seconds": 15,
     "component_details_refresh_seconds": 5,
     "provider_readiness_refresh_seconds": 300,
+    "codex_capacity_reserve_percent": 0,
 }
 OPTIONS = {
     "log_retention_days": frozenset({30, 60, 90, 120, 180, 360}),
@@ -29,6 +30,7 @@ OPTIONS = {
     "platform_health_refresh_seconds": frozenset({5, 15, 30, 60}),
     "component_details_refresh_seconds": frozenset({5, 15, 30, 60}),
     "provider_readiness_refresh_seconds": frozenset({60, 300, 600}),
+    "codex_capacity_reserve_percent": frozenset({0, 5, 10, 15, 20, 25, 50}),
 }
 PREFIX = "dashboard_configuration."
 INBOX_ROOT_KEY = PREFIX + "inbox_root"

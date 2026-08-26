@@ -142,6 +142,13 @@ Version** and **Runner Version**, configuration/storage schema, checkpoint,
 memory and report format, execution mode, required runtime components, provider
 support and named capabilities. The host contract remains authoritative.
 
+When the local dashboard configures a non-zero Codex capacity reserve,
+Capability Preflight also reads fresh, token-free Codex quota evidence. A
+remaining capacity below the selected reserve, or an unreadable capacity
+response, blocks the **new** Inbox claim fail-closed. It never stops or
+invalidates an execution that has already been claimed; that execution may
+complete without a second capacity admission.
+
 Failure leaves the Inbox item in place: no Run ID is allocated, no target
 repository is changed, no execution telemetry is created and no Engineering
 Report is generated. Instead the host writes bounded capability evidence to

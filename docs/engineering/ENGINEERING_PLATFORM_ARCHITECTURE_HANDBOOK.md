@@ -160,6 +160,14 @@ the original phase/action, rather than a retry loop or terminal failure. The
 dashboard may offer one explicit local provider repair at a time, but cannot
 start a repair agent or consume credits until fresh readiness evidence passes.
 
+Codex capacity can additionally have an operator-selected admission reserve.
+The reserve is local host configuration, is bounded to supported percentage
+choices, and is checked only before a new Inbox claim using fresh read-only
+quota evidence. Below the reserve (or when that evidence cannot be verified),
+EP retains the queue item unclaimed. A claimed run is not interrupted by this
+protection, which prevents a capacity guard from corrupting in-flight durable
+state while reserving capacity for the operator.
+
 Reviewer selection is policy-driven and may select zero reviewers. When it
 does select reviewers, they receive bounded, fresh, read-only repository facts
 and produce advisory observations only. The primary runner retains lifecycle

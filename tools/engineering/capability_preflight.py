@@ -24,6 +24,8 @@ from .platform_version import (
 )
 from .drift_diagnostics import evidence_for_checks, guidance, persist as persist_drift_evidence
 from .provider_readiness import failures as provider_readiness_failures
+from .dashboard_configuration import get as dashboard_configuration
+from .codex_capacity import read_remaining_percent
 
 RECOVERABILITY = frozenset(
     {
@@ -124,6 +126,22 @@ def execute(root: Path, prompt: str, *, run_id: str | None = None) -> Capability
             "Use the Engineering dashboard provider notification to install or sign in, then retry admission.",
         )
     )
+    reserve_percent = int(dashboard_configuration(root)["codex_capacity_reserve_percent"])
+    if reserve_percent:
+        remaining = read_remaining_percent()
+        capacity_ready = remaining is not None and remaining >= reserve_percent
+        checks.append(
+            _check(
+                "codex_capacity_reserve",
+                capacity_ready,
+                (
+                    f"Codex has {remaining:.0f}% remaining; the configured reserve is {reserve_percent}%."
+                    if remaining is not None
+                    else "Codex capacity could not be verified for the configured admission reserve."
+                ),
+                "Wait for Codex capacity to recover or lower the reserve in Available AI capacity before retrying admission.",
+            )
+        )
     try:
         manifest = EngineeringPlatformManifest.load(
             root / "tools/engineering/ENGINEERING_PLATFORM_VERSION.json"

@@ -5,6 +5,7 @@ import unittest
 from unittest.mock import patch
 from tools.engineering import capability_preflight
 from tools.engineering import provider_readiness
+from tools.engineering.dashboard_configuration import update as update_dashboard_configuration
 
 
 class CapabilityPreflightTest(unittest.TestCase):
@@ -60,6 +61,24 @@ class CapabilityPreflightTest(unittest.TestCase):
         failed = {check.identifier: check for check in result.checks if check.outcome == "FAIL"}
         self.assertIn("provider_readiness", failed)
         self.assertIn("CODEX, GITHUB", failed["provider_readiness"].reason)
+
+    def test_capacity_reserve_blocks_only_new_admission_when_remaining_capacity_is_low(self) -> None:
+        update_dashboard_configuration(self.root, "codex_capacity_reserve_percent", 25)
+        with patch("tools.engineering.capability_preflight.provider_readiness_failures", return_value=()), patch(
+            "tools.engineering.capability_preflight.read_remaining_percent", return_value=24
+        ):
+            result = capability_preflight.execute(self.root, "Execution Mode: MANAGED\n")
+        failed = {check.identifier: check for check in result.checks if check.outcome == "FAIL"}
+        self.assertIn("codex_capacity_reserve", failed)
+        self.assertIn("24% remaining", failed["codex_capacity_reserve"].reason)
+
+    def test_capacity_reserve_allows_admission_at_the_configured_boundary(self) -> None:
+        update_dashboard_configuration(self.root, "codex_capacity_reserve_percent", 25)
+        with patch("tools.engineering.capability_preflight.provider_readiness_failures", return_value=()), patch(
+            "tools.engineering.capability_preflight.read_remaining_percent", return_value=25
+        ):
+            result = capability_preflight.execute(self.root, "Execution Mode: MANAGED\n")
+        self.assertEqual(result.outcome, "PASS")
 
     def test_github_readiness_requires_repository_access_after_authentication(self) -> None:
         completed = __import__("subprocess").CompletedProcess

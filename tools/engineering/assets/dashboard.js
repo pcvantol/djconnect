@@ -4814,6 +4814,7 @@ const configurationFields = Object.freeze({
   configurationInboxScanInterval: ["inbox_scan_interval_seconds", Number],
   configurationOpenPrInterval: ["open_pr_check_interval_seconds", Number],
   configurationProviderReadinessInterval: ["provider_readiness_refresh_seconds", Number],
+  configurationCodexCapacityReserve: ["codex_capacity_reserve_percent", Number],
   configurationPlatformHealthInterval: ["platform_health_refresh_seconds", Number],
   configurationComponentDetailsInterval: ["component_details_refresh_seconds", Number],
 });
@@ -4931,6 +4932,7 @@ function addConfigurationControlInfo() {
     ["configurationInboxScanInterval", "configuration.inbox_scan_interval_help"],
     ["configurationOpenPrInterval", "configuration.open_pr_interval_help"],
     ["configurationProviderReadinessInterval", "configuration.provider_readiness_interval_help"],
+    ["configurationCodexCapacityReserve", "configuration.codex_capacity_reserve_help"],
     ["configurationPlatformHealthInterval", "configuration.platform_health_interval_help"],
     ["configurationComponentDetailsInterval", "configuration.component_details_interval_help"],
   ]) {
@@ -5194,8 +5196,31 @@ function ensureProviderReadinessConfigurationControl() {
   controls.insertBefore(label, before);
   enhanceDashboardSelectPicker(select);
 }
+function ensureCodexCapacityReserveConfigurationControl() {
+  if ($("configurationCodexCapacityReserve")) return;
+  const rateLimits = $("rateLimits"), status = $("rateLimitResetStatus");
+  if (!rateLimits || !status) return;
+  const controls = document.createElement("div"), label = document.createElement("label"), text = document.createElement("span"), select = document.createElement("select");
+  controls.className = "configuration-controls capacity-reserve-configuration";
+  text.className = "label";
+  text.textContent = t("configuration.codex_capacity_reserve");
+  select.id = "configurationCodexCapacityReserve";
+  [["0", "configuration.capacity_reserve_none"], ["5", "configuration.capacity_reserve_percent"], ["10", "configuration.capacity_reserve_percent"], ["15", "configuration.capacity_reserve_percent"], ["20", "configuration.capacity_reserve_percent"], ["25", "configuration.capacity_reserve_percent"], ["50", "configuration.capacity_reserve_percent"]].forEach(([value, key]) => {
+    const option = document.createElement("option");
+    option.value = value;
+    option.dataset.i18n = key;
+    option.textContent = key === "configuration.capacity_reserve_percent" ? t(key, { percent: value }) : t(key);
+    select.append(option);
+  });
+  label.htmlFor = select.id;
+  label.append(text, select);
+  controls.append(label);
+  status.after(controls);
+  enhanceDashboardSelectPicker(select);
+}
 function localizeConfigurationOptions() {
   ensureProviderReadinessConfigurationControl();
+  ensureCodexCapacityReserveConfigurationControl();
   const providerReadinessLabel = $("configurationProviderReadinessInterval")?.closest("label")?.querySelector(":scope > span");
   if (providerReadinessLabel) providerReadinessLabel.textContent = t("configuration.provider_readiness_interval");
   moveMachineScopedWorkspaceDetails();
@@ -5209,6 +5234,10 @@ function localizeConfigurationOptions() {
   });
   document.querySelectorAll("#configurationProviderReadinessInterval option").forEach((option) => {
     option.textContent = t(option.dataset.i18n);
+  });
+  document.querySelectorAll("#configurationCodexCapacityReserve option").forEach((option) => {
+    option.textContent = option.dataset.i18n === "configuration.capacity_reserve_percent"
+      ? t(option.dataset.i18n, { percent: option.value }) : t(option.dataset.i18n);
   });
   dashboardSelectPickers.forEach((_, select) => syncDashboardSelectPicker(select));
 }
@@ -5362,6 +5391,7 @@ async function initializeDashboardConfiguration() {
   }
 }
 ensureProviderReadinessConfigurationControl();
+ensureCodexCapacityReserveConfigurationControl();
 Object.keys(configurationFields).forEach((id) => {
   $(id)?.addEventListener("change", (event) => void saveDashboardConfiguration(event.currentTarget));
 });
