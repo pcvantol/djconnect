@@ -18,7 +18,7 @@ import uuid
 import re
 import sqlite3
 
-from .agent_state import MAX_COMMIT_EVIDENCE_RECORDS, StateError, StateStore, TransactionState, redact_diagnostic
+from .agent_state import MAX_COMMIT_EVIDENCE_RECORDS, StateError, StateStore, TransactionState, redact_diagnostic, verified_commit_evidence_record
 from .capability_review import (
     ReviewerResult,
     ReviewerSelection,
@@ -636,15 +636,16 @@ class EngineeringRunner:
             return state
         if any(item["phase"] == phase and item["commit_sha"] == commit_sha for item in state.commit_evidence):
             return state
-        return replace(
-            state,
-            commit_evidence=state.commit_evidence + ({
-                "phase": phase,
-                "observed_at": datetime.now(timezone.utc).isoformat(),
-                "commit_sha": commit_sha,
-                "description": redact_diagnostic(description),
-            },),
-        )
+        try:
+            record = verified_commit_evidence_record(
+                phase=phase,
+                observed_at=datetime.now(timezone.utc).isoformat(),
+                commit_sha=commit_sha,
+                description=redact_diagnostic(description),
+            )
+        except StateError:
+            return state
+        return replace(state, commit_evidence=state.commit_evidence + (record,))
 
     def _record_verified_result_commit(
         self, state: TransactionState, result: AgentResult, *, phase: str, description: str

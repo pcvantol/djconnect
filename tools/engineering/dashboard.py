@@ -45,7 +45,7 @@ from .component_logging import (
     shutdown_signal_logging,
 )
 from .component_lock import DuplicateComponentInstanceError, single_instance
-from .agent_state import COMMIT_EVIDENCE_DESCRIPTIONS, redact_diagnostic
+from .agent_state import is_valid_commit_evidence_record, redact_diagnostic
 from .codex_chat import CodexChatError, chat_model, respond as codex_chat_response
 from .codex_capacity import read_remaining_percent
 from .telemetry import clear_telemetry, daily_statistics, daily_timing_detail, execution_timing, prune_telemetry
@@ -1815,16 +1815,7 @@ def _commit_timeline_for_run(root: Path, run_id: str | None) -> list[dict[str, s
         phase, observed_at, commit_sha, description = (
             item.get("phase"), item.get("observed_at"), item.get("commit_sha"), item.get("description"),
         )
-        if not (
-            isinstance(phase, str)
-            and isinstance(observed_at, str)
-            and isinstance(commit_sha, str)
-            and isinstance(description, str)
-            and re.fullmatch(r"[0-9a-f]{40}", commit_sha)
-            and re.fullmatch(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?\+00:00", observed_at)
-            and description in COMMIT_EVIDENCE_DESCRIPTIONS
-            and description == redact_diagnostic(description)
-        ):
+        if not is_valid_commit_evidence_record(item):
             continue
         events.append({
             "phase": phase,

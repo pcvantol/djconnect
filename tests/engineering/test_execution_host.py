@@ -10,7 +10,7 @@ import time
 import unittest
 from unittest.mock import call, patch
 
-from tools.engineering.agent_state import StateError, StateStore, TransactionState, redact_diagnostic
+from tools.engineering.agent_state import StateError, StateStore, TransactionState, is_valid_commit_evidence_record, redact_diagnostic
 from tools.engineering.storage import ENGINEERING_STORAGE_SCHEMA_VERSION, load_projection
 from tools.engineering.execution_errors import CodexHandoffTimeout
 from tools.engineering.execution_host import (
@@ -1978,6 +1978,10 @@ class LocalAgentRunnerTest(unittest.TestCase):
         )
         self.assertEqual(len(recorded.commit_evidence), 1)
         self.assertEqual(recorded.commit_evidence[0]["commit_sha"], "b" * 40)
+        self.assertTrue(is_valid_commit_evidence_record(recorded.commit_evidence[0]))
+        self.assertFalse(is_valid_commit_evidence_record({
+            **recorded.commit_evidence[0], "description": "unverified arbitrary text",
+        }))
         self.store.save(recorded)
         self.assertEqual(self.store.load("commit-evidence").commit_evidence, recorded.commit_evidence)
 
