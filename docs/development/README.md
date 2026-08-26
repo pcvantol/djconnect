@@ -42,6 +42,9 @@ architecture.
   producer-neutral boundary consumed by Engineering Platform.
 - [Engineering Platform Architecture Handbook](../engineering/ENGINEERING_PLATFORM_ARCHITECTURE_HANDBOOK.md)
   — the stable 1.x execution boundary and future-evolution policy.
+- [EP extraction and migration plan](ENGINEERING_PLATFORM_EXTRACTION_MIGRATION_PLAN.md)
+  — staged standalone extraction, including the native macOS installer,
+  first-run provider setup and project/CI wheel integration.
 - [Engineering Report Evidence Contract](../engineering/ENGINEERING_REPORTING.md)
   — how initial observations, final repository evidence and terminal reports
   are interpreted.
