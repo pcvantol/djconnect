@@ -4485,6 +4485,15 @@ test.describe("Engineering Status browser smoke", () => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.route("**/api/events", (route) => route.abort());
     await page.route("**/api/log/**", (route) => route.abort());
+    // This visual reference is for the running-execution surface. Keep the
+    // machine-specific provider checks out of the fixture; their banners have
+    // dedicated behavioural coverage elsewhere in this suite.
+    await page.route("**/api/provider-login-status", (route) => route.fulfill({ json: {
+      providers: {
+        codex: { provider: "CODEX", state: "READY" },
+        github: { provider: "GITHUB", state: "READY" },
+      },
+    } }));
     await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({
       json: {
         status: {
