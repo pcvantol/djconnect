@@ -273,6 +273,11 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(block.locator('[data-provider="GITHUB"]')).toContainText(DASHBOARD_MESSAGES.nl["configuration.provider_status.AUTH_REQUIRED"]);
     await expect(block.locator('[data-provider="CODEX"]')).toHaveAttribute("data-provider-state", "READY");
     await expect(block.locator('[data-provider="GITHUB"]')).toHaveAttribute("data-provider-state", "AUTH_REQUIRED");
+    const login = block.locator('[data-provider="GITHUB"] [data-provider-repair]');
+    await expect(login).toBeVisible();
+    await expect(login).toHaveText(DASHBOARD_MESSAGES.nl["notification.provider_readiness.login"].replace("{provider}", "GitHub"));
+    await expect(login).toHaveCSS("background-color", "rgb(244, 195, 79)");
+    await expect(block.locator('[data-provider="GITHUB"] [data-provider-logout]')).toBeHidden();
   });
 
   test("uses the compact destructive action contract for provider sign-out", async ({ page }) => {

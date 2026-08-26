@@ -5022,9 +5022,10 @@ function renderProviderLoginStatus(block, providers) {
     row.querySelector(".configuration-provider-status__label").textContent = t(`configuration.provider_status.${state}`, {}, t("configuration.provider_status.CHECK_FAILED"));
     logout.hidden = state !== "READY";
     logout.disabled = state !== "READY";
-    repair.hidden = state !== "UNAVAILABLE";
+    const action = state === "UNAVAILABLE" ? "install" : state === "AUTH_REQUIRED" ? "login" : null;
+    repair.hidden = !action;
     repair.disabled = providerInteractiveRepairInProgress;
-    repair.textContent = t("notification.provider_readiness.install", { provider: providerDisplayName(provider) });
+    repair.textContent = action ? t(`notification.provider_readiness.${action}`, { provider: providerDisplayName(provider) }) : "";
   });
 }
 async function refreshProviderLoginStatus() {
@@ -5076,7 +5077,7 @@ document.addEventListener("click", async (event) => {
   if (!button || providerInteractiveRepairInProgress) return;
   const key = button.dataset.providerRepair?.toLowerCase() || (button.id.startsWith("codex") ? "codex" : "github");
   const pending = providerReadinessActions.get(key);
-  if (!pending || (button.dataset.providerRepair && pending.action !== "install")) return;
+  if (!pending) return;
   const { provider, action } = pending;
   const providerName = provider === "CODEX" ? "Codex" : "GitHub";
   const confirmed = await confirmDashboardAction(t("notification.provider_readiness.title", { provider: providerName }), t(`notification.provider_readiness.${action}_confirm`, { provider: providerName }), t(`notification.provider_readiness.${action}`, { provider: providerName }));
