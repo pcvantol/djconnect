@@ -5544,6 +5544,26 @@ test.describe("Engineering Status browser smoke", () => {
     }
   });
 
+  test("localizes runtime and transport machine codes in every supported locale", async ({ page }) => {
+    for (const language of SUPPORTED_LOCALES) {
+      await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+      await waitForDashboardReady(page);
+      await selectDashboardLocale(page, language);
+      await page.locator("#autoRefresh").uncheck();
+      await page.evaluate(() => r({ watcher_state: "ENGINEERING_RUN_ACTIVE" }, {
+        execution_host: { runtime: "codex_cli", runtime_prompt_transport: "icloud_inbox" },
+      }));
+      await expect(page.locator("#executionHostRuntime")).toHaveText(
+        DASHBOARD_MESSAGES[language]["technical.runtime_value.codex_cli"],
+      );
+      await expect(page.locator("#executionHostTransport")).toHaveText(
+        DASHBOARD_MESSAGES[language]["technical.runtime_transport_value.icloud_inbox"],
+      );
+      await expect(page.locator("#executionHostRuntime")).toHaveAttribute("title", "codex_cli");
+      await expect(page.locator("#executionHostTransport")).toHaveAttribute("title", "icloud_inbox");
+    }
+  });
+
   test("shows technical diagnosis only for active or attention-needing executions", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     const diagnosis = page.locator("#technicalDetails");

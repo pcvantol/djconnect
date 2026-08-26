@@ -126,6 +126,12 @@ function driftPresentationValue(field, drift = {}) {
   }
   return value;
 }
+function technicalMachineLabel(id, value, keyPrefix) {
+  const element = $(id), raw = String(value || "").trim();
+  if (!element) return;
+  element.textContent = raw ? t(`${keyPrefix}.${raw}`, {}, raw) : t("format.not_available");
+  element.title = raw;
+}
 function sanitizeFreeText(value, maximumLength, multiline = false) {
   const normalized = String(value ?? "")
     .normalize("NFC")
@@ -1900,8 +1906,8 @@ function renderHealthStatus(x, snapshot = {}) {
   const executionHost = snapshot.execution_host || {};
   $("executionHostName").textContent = executionHost.name || t("format.not_available");
   $("executionHostVersion").textContent = executionHost.version || t("format.not_available");
-  $("executionHostRuntime").textContent = executionHost.runtime || t("format.not_available");
-  $("executionHostTransport").textContent = executionHost.runtime_prompt_transport || t("format.not_available");
+  technicalMachineLabel("executionHostRuntime", executionHost.runtime, "technical.runtime_value");
+  technicalMachineLabel("executionHostTransport", executionHost.runtime_prompt_transport, "technical.runtime_transport_value");
   renderWorkspaceGitLock(snapshot.workspace_git_lock);
   // Older dashboard fixtures and cached shells do not have Level 3 fields.
   // Keep the canonical status renderer backward compatible while they refresh.
