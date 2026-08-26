@@ -11,7 +11,7 @@ import unittest
 from unittest.mock import call, patch
 
 from tools.engineering.agent_state import StateError, StateStore, TransactionState, redact_diagnostic
-from tools.engineering.storage import load_projection
+from tools.engineering.storage import ENGINEERING_STORAGE_SCHEMA_VERSION, load_projection
 from tools.engineering.execution_errors import CodexHandoffTimeout
 from tools.engineering.execution_host import (
     AgentResult,
@@ -1989,9 +1989,9 @@ class LocalAgentRunnerTest(unittest.TestCase):
         manifest = EngineeringPlatformManifest.load(
             root / "tools" / "engineering" / "ENGINEERING_PLATFORM_VERSION.json"
         )
-        self.assertEqual(manifest.storage_schema, 29)
+        self.assertEqual(manifest.storage_schema, ENGINEERING_STORAGE_SCHEMA_VERSION)
         validate_compatibility(
-            manifest, RunnerCompatibility(storage_schemas=frozenset({29})), "0.146.0"
+            manifest, RunnerCompatibility(storage_schemas=frozenset({ENGINEERING_STORAGE_SCHEMA_VERSION})), "0.146.0"
         )
 
     def test_incompatible_admitted_storage_schema_is_rejected_before_state_is_saved(self) -> None:
