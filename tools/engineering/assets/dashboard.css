@@ -723,6 +723,14 @@ html[data-theme="light"] .report-view-modal__content,html[data-theme="light"] .r
     transform:none!important;
   }
   .configuration-controls .dashboard-locale__menu{box-shadow:none}
+  /* The native multi-select remains the accessible event filter.  Constrain
+     its label and control as one grid item so iOS cannot size it past the
+     Logs card when it displays the selected-item summary. */
+  #componentLogControls{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+  #componentLogControls>label{min-width:0}
+  #componentLogControls>label:has(#logEventFilter){grid-column:1 / -1;width:100%}
+  #componentLogControls #logEventFilter{box-sizing:border-box;max-width:100%;min-width:0;width:100%}
+  #componentLogControls .reset-log-filters{justify-self:start;margin-left:0}
 }
 @media (max-width:900px){
   /* The version, refresh time and connection state are independent status

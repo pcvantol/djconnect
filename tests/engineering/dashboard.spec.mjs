@@ -689,6 +689,22 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(picker.locator("[role=option]")).toHaveText(["5 seconden", "15 seconden", "30 seconden", "60 seconden"]);
   });
 
+  test("keeps the multi-select event filter inside the Logs card on iPhone", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await waitForDashboardReady(page);
+    await page.locator("#componentLogs").evaluate((element) => { element.open = true; });
+    await expect(page.locator("#componentLogControls")).not.toHaveAttribute("hidden", "");
+
+    const bounds = await page.locator("#logEventFilter").evaluate((element) => {
+      const filter = element.getBoundingClientRect();
+      const card = element.closest("#componentLogs").getBoundingClientRect();
+      return { cardLeft: Math.round(card.left), cardRight: Math.round(card.right), left: Math.round(filter.left), right: Math.round(filter.right) };
+    });
+    expect(bounds.left).toBeGreaterThanOrEqual(bounds.cardLeft);
+    expect(bounds.right).toBeLessThanOrEqual(bounds.cardRight);
+  });
+
   test("stacks the Inbox location action below its long path on iPhone", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     const configurationLoaded = page.waitForResponse("**/api/configuration");
