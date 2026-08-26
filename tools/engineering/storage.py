@@ -19,7 +19,7 @@ import sqlite3
 
 WORKSPACE_DIRECTORY = ".engineering"
 DATABASE_FILENAME = "engineering.db"
-ENGINEERING_STORAGE_SCHEMA_VERSION = 29
+ENGINEERING_STORAGE_SCHEMA_VERSION = 30
 JOURNAL_MODES = frozenset({"DELETE", "MEMORY"})
 LEGACY_DISMISSALS_PATH = Path(".engineering/status/execution_dismissals.json")
 ADMITTED_STORAGE_SCHEMA_ENVIRONMENT = "DJCONNECT_ENGINEERING_ADMITTED_STORAGE_SCHEMA"
@@ -798,6 +798,32 @@ def _schema_v29(connection: sqlite3.Connection) -> None:
     )
 
 
+def _schema_v30(connection: sqlite3.Connection) -> None:
+    """Durably stage terminal telemetry before its rebuildable projection.
+
+    The outbox is deliberately independent of lifecycle authority.  A terminal
+    checkpoint remains authoritative; this table only makes its operational
+    telemetry projection recoverable after a watcher or process loss.
+    """
+    connection.execute(
+        "CREATE TABLE IF NOT EXISTS terminal_telemetry_outbox ("
+        "run_id TEXT PRIMARY KEY, payload TEXT NOT NULL, source TEXT NOT NULL "
+        "CHECK(source IN ('LIVE_TERMINAL','RECOVERY','BACKFILL')),"
+        "state TEXT NOT NULL CHECK(state IN ('PENDING','PROCESSED','FAILED_RETRYABLE')) "
+        "DEFAULT 'PENDING', attempt_count INTEGER NOT NULL DEFAULT 0, last_error TEXT,"
+        "created_at TEXT NOT NULL, processed_at TEXT)"
+    )
+    connection.execute(
+        "CREATE INDEX IF NOT EXISTS terminal_telemetry_outbox_pending_lookup "
+        "ON terminal_telemetry_outbox(state,created_at,run_id)"
+    )
+    connection.execute(
+        "CREATE TRIGGER IF NOT EXISTS terminal_telemetry_outbox_payload_immutable "
+        "BEFORE UPDATE OF run_id,payload,source,created_at ON terminal_telemetry_outbox BEGIN "
+        "SELECT RAISE(ABORT, 'Terminal telemetry intent is immutable.'); END"
+    )
+
+
 def _import_legacy_execution_dismissals(root: Path, connection: sqlite3.Connection) -> None:
     """Copy valid legacy dismissal evidence into the canonical datastore.
 
@@ -874,6 +900,7 @@ MIGRATIONS: dict[int, Migration] = {
     27: _schema_v27,
     28: _schema_v28,
     29: _schema_v29,
+    30: _schema_v30,
 }
 
 

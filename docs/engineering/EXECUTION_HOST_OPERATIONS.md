@@ -53,6 +53,14 @@ scrollable table region. This prevents a wide table from making the complete
 detail dialog scroll sideways, while retaining access to every column on narrow
 screens.
 
+Terminal telemetry is durable but non-authoritative. On watcher startup it
+first drains its local telemetry outbox, then performs a bounded, fail-closed
+recovery for a terminal run missing from telemetry. Recovery verifies the
+canonical checkpoint, Prompt History and recorded terminal timing before it
+creates the projection; it never restarts or mutates an execution, rewrites a
+report, or changes repository state. A recovered run keeps its original
+terminal date, and a repeated recovery cannot add a second run or count.
+
 ## Operator actions
 
 - **Pull-request merge hand-off** is shown as a persistent, dashboard-native

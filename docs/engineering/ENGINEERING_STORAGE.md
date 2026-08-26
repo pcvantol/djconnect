@@ -84,7 +84,22 @@ first upgrade:
   average Codex CLI, total elapsed and queue waiting times, explicitly reported token totals,
   and COMPLETE/BLOCKED/FAILED distribution.
 
-Telemetry is best-effort and is scheduled only after terminal report delivery.
+Telemetry is a rebuildable operational projection and is never lifecycle
+authority. Schema `30` writes one immutable, run-keyed terminal telemetry
+intent to `terminal_telemetry_outbox` before materializing `execution_runs`.
+The watcher drains pending intents at startup and before new Inbox work. A
+process loss can therefore delay telemetry but cannot silently lose a terminal
+run or double-count a daily aggregate: materialization is idempotent by Run ID
+and each aggregate is recomputed from unique execution rows. Failures remain
+`FAILED_RETRYABLE`; no terminal checkpoint, report, Prompt History entry or
+repository evidence is modified by telemetry recovery.
+
+When older terminal evidence has no telemetry intent, the bounded recovery
+path accepts only matching structured checkpoint, Prompt History and terminal
+timing evidence. It uses the recorded terminal timestamp for the historical
+day, leaves unavailable optional fields unknown, and fails closed rather than
+parsing report prose or inventing duration/token data. Outbox provenance is
+`LIVE_TERMINAL`, `RECOVERY` or `BACKFILL`.
 An unavailable database is logged by the watcher but never changes the
 authoritative engineering checkpoint or its outcome. Token values remain null
 when the provider did not report them; the platform never estimates them.

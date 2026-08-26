@@ -3035,6 +3035,25 @@ test.describe("Engineering Status browser smoke", () => {
     }
   });
 
+  test("shows one recovered terminal run on its original telemetry date", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#autoRefresh").uncheck();
+    await page.waitForFunction(() => typeof window.executionTelemetry === "function");
+    await page.evaluate(() => {
+      document.querySelector("#executionTelemetry")?.remove();
+      // This is the idempotent API projection after terminal recovery: the
+      // browser receives a single daily count, never a recovery event stream.
+      window.executionTelemetry([{
+        date: "2026-08-25", prompt_count: 1, average_total_execution_seconds: 1443.574,
+        average_queue_wait_seconds: 1.074, complete_count: 1, blocked_count: 0, failed_count: 0,
+      }]);
+    });
+    const row = page.locator("#executionTelemetryRows .telemetry-row");
+    await expect(row).toHaveCount(1);
+    await expect(row).toContainText("25-08-2026");
+    await expect(row).toContainText("1");
+  });
+
   test("localizes the telemetry detail title for every supported language", async ({ page }) => {
     const expectations = [
       ["en", "Execution Telemetry — 24-08-2026"],
