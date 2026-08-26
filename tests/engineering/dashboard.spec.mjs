@@ -301,6 +301,19 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(banner).toBeVisible();
   });
 
+  test("does not leave an empty provider action button for an indeterminate check", async ({ page }) => {
+    await page.route("**/api/provider-login-status", (route) => route.fulfill({ json: {
+      providers: {
+        codex: { provider: "CODEX", state: "CHECK_FAILED" },
+        github: { provider: "GITHUB", state: "READY" },
+      },
+    } }));
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.waitForFunction(() => document.body?.classList.contains("dashboard-ready"));
+    await expect(page.locator("#providerReadinessBanner")).toBeVisible();
+    await expect(page.locator("#providerReadinessAction")).toBeHidden();
+  });
+
   test("disables the Inbox location action while the project queue has items", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.evaluate(() => window.queueItems([
