@@ -239,7 +239,7 @@ test.describe("Engineering Status browser smoke", () => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     const queue = page.locator("#queueItems");
     await queue.evaluate((element) => { element.open = true; });
-    await page.locator("#configuration").evaluate((element) => { element.open = true; });
+    await page.locator("#queueItems").evaluate((element) => { element.open = true; });
     const location = page.locator("#configurationInboxLocation");
     await expect(location).toHaveText(/Inbox/);
     await expect(location).toHaveClass(/configuration-inbox-location/);
@@ -464,6 +464,7 @@ test.describe("Engineering Status browser smoke", () => {
 
   test("disables the Inbox location action while the project queue has items", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await waitForDashboardReady(page);
     await page.evaluate(() => window.queueItems([
       { filename: "waiting-assignment.md", title: "Waiting assignment" },
     ], 1));
@@ -561,6 +562,7 @@ test.describe("Engineering Status browser smoke", () => {
 
   test("uses normal-weight labels for every dashboard button", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await waitForDashboardReady(page);
     const weights = await page.locator("button").evaluateAll(
       (buttons) => [...new Set(buttons.map((button) => getComputedStyle(button).fontWeight))],
     );
@@ -3481,7 +3483,11 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#capabilityRecommendation")).toHaveText("Capabilitytoelating geslaagd.");
   });
 
-  test("localizes dynamically rendered telemetry copy for every supported language", async ({ page }) => {
+  test("localizes dynamically rendered telemetry copy for every supported language", async ({ page }, testInfo) => {
+    // This contract deliberately reloads the dashboard once per supported
+    // locale. Give that bounded five-reload sequence room on a busy CI host;
+    // it prevents a worker teardown from masquerading as a browser failure.
+    testInfo.setTimeout(60_000);
     const expectations = [
       ["en", "Execution Host telemetry", "Operational trends for the last 90 days. Telemetry is not repository evidence."],
       ["nl", "Execution Host-telemetrie", "Operationele trends van de laatste 90 dagen. Telemetrie is geen repositorybewijs."],
@@ -3965,7 +3971,10 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(row).toHaveCSS("box-shadow", "none");
   });
 
-  test("localizes search and level filter controls for every supported language", async ({ page }) => {
+  test("localizes search and level filter controls for every supported language", async ({ page }, testInfo) => {
+    // This contract performs five controlled locale reloads. Keep its
+    // timeout independent from unrelated worker contention in the full run.
+    testInfo.setTimeout(60_000);
     const expectations = [
       ["en", "Search", "Search all fields", "Level", "All levels"],
       ["nl", "Zoeken", "Zoek in alle velden", "Niveau", "Alle niveaus"],

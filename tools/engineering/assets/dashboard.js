@@ -5089,6 +5089,19 @@ const CHECK_FAILED_PROVIDERS = Object.freeze({
   codex: { state: "CHECK_FAILED" },
   github: { state: "CHECK_FAILED" },
 });
+function syncStickyHeaderOffset() {
+  const header = document.querySelector(".dashboard-sticky-header");
+  if (!header) return;
+  document.documentElement.style.setProperty(
+    "--dashboard-sticky-header-height",
+    `${Math.ceil(header.getBoundingClientRect().height)}px`,
+  );
+}
+const stickyHeader = document.querySelector(".dashboard-sticky-header");
+if (stickyHeader && typeof ResizeObserver === "function") {
+  new ResizeObserver(syncStickyHeaderOffset).observe(stickyHeader);
+}
+syncStickyHeaderOffset();
 const providerReadinessActions = new Map();
 let providerInteractiveRepairInProgress = false;
 function providerDisplayName(provider) {
@@ -5156,6 +5169,7 @@ function renderProviderReadinessBanner(providers) {
     button.disabled = providerInteractiveRepairInProgress;
     button.textContent = action ? t(`notification.provider_readiness.${action}`, { provider }) : "";
   });
+  syncStickyHeaderOffset();
 }
 document.addEventListener("click", async (event) => {
   const button = event.target.closest("[id$='ProviderReadinessAction'], [data-provider-repair]");
