@@ -1952,7 +1952,9 @@ function renderWorkspaceWorktrees(projection) {
     path.className = "workspace-worktrees__path";
     commit.className = "workspace-worktrees__commit";
     branch.textContent = worktree?.branch || t("workspace.detached_head");
-    path.textContent = String(worktree?.path || t("format.not_available"));
+    path.textContent = worktree?.checked_out === false
+      ? t("workspace.not_checked_out")
+      : String(worktree?.path || t("format.not_available"));
     commit.textContent = String(worktree?.commit || t("format.not_available"));
     item.append(branch, path, commit);
     list.append(item);

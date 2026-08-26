@@ -1996,9 +1996,10 @@ def _workspace_git_projection(root: Path) -> dict[str, object]:
 
 
 def _workspace_worktrees(root: Path) -> dict[str, object]:
-    """Project local Git worktrees without depending on GitHub or mutations."""
+    """Project local worktrees plus the protected main branch, read-only."""
     try:
-        observed = GitProvider().execute(root, "git", "worktree", "list", "--porcelain")
+        provider = GitProvider()
+        observed = provider.execute(root, "git", "worktree", "list", "--porcelain")
     except OSError:
         return {"available": False, "worktrees": []}
     if observed.returncode != 0:
@@ -2024,6 +2025,25 @@ def _workspace_worktrees(root: Path) -> dict[str, object]:
                 "detached": bool(record.get("detached")),
             })
         record = {}
+    # `main` is the repository's stable baseline even when it is not currently
+    # checked out in a worktree.  The Workspace heading promises branches as
+    # well as worktrees, so project it explicitly instead of hiding it.
+    if not any(item.get("branch") == "main" for item in worktrees):
+        try:
+            main = provider.execute(root, "git", "rev-parse", "--verify", "refs/heads/main")
+        except OSError:
+            main = None
+        if main is not None and main.returncode == 0 and main.stdout.strip():
+            worktrees.append({
+                "path": None,
+                "branch": "main",
+                "commit": main.stdout.strip()[:12],
+                "detached": False,
+                "checked_out": False,
+            })
+    # Stable sorting keeps Git's worktree order intact while pinning main as
+    # the first, recognisable baseline entry.
+    worktrees.sort(key=lambda item: item.get("branch") != "main")
     return {"available": True, "worktrees": worktrees}
 
 

@@ -538,8 +538,11 @@ test.describe("Engineering Status browser smoke", () => {
       return actions?.previousElementSibling?.tagName;
     })).toBe("UL");
     await page.evaluate(() => window.renderWorkspaceWorktrees({ available: true, worktrees: [
+      { path: null, branch: "main", commit: "fedcba987654", checked_out: false },
       { path: "/workspace", branch: "codex/refreshed", commit: "fedcba987654" },
     ] }));
+    await expect(worktrees).toContainText("main");
+    await expect(worktrees).toContainText("Niet lokaal uitgecheckt");
     await expect(worktrees).toContainText("codex/refreshed");
     await expect(worktrees).not.toContainText("codex/polish");
   });

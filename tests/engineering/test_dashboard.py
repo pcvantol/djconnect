@@ -226,6 +226,21 @@ class DashboardStatusTest(unittest.TestCase):
             {"path": "/tmp/detached", "branch": None, "commit": "ffffff123456", "detached": True},
         ]})
 
+    @patch("tools.engineering.dashboard.GitProvider")
+    def test_workspace_worktrees_projection_includes_unchecked_out_main(self, git_provider: object) -> None:
+        completed = __import__("subprocess").CompletedProcess
+        git_provider.return_value.execute.side_effect = [
+            completed(("git",), 0, "worktree /workspace\nHEAD 123456789abcde\nbranch refs/heads/codex/feature\n", ""),
+            completed(("git",), 0, "abcdef1234567890\n", ""),
+        ]
+
+        projection = _workspace_worktrees(Path("/workspace"))
+
+        self.assertEqual(projection, {"available": True, "worktrees": [
+            {"path": None, "branch": "main", "commit": "abcdef123456", "detached": False, "checked_out": False},
+            {"path": "/workspace", "branch": "codex/feature", "commit": "123456789abc", "detached": False},
+        ]})
+
     def test_dashboard_exposes_the_canonical_five_locale_catalog(self) -> None:
         root = Path(__file__).parents[2]
         catalog = (root / "tools/engineering/assets/dashboard_locales.mjs").read_text(encoding="utf-8")
