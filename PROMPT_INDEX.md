@@ -2,7 +2,7 @@
 
 Status: canonical prompt navigation
 
-## PR #948 finalization pending
+## PR #948 finalized by PR #949
 
 PR [#948](https://github.com/pcvantol/djconnect/pull/948),
 **docs(engineering): reconcile EP extraction baseline control**, merged as
@@ -14,10 +14,12 @@ classification, semantic-manifest drift protection and focused regression
 coverage are recorded without extracting source or changing EP product/runtime
 behavior. The immutable Prompt History record
 `docs/history/prompts/2026-08-25-ep-2x-extraction-baseline.md` is retained
-unchanged. This governance-only Finalization reconciles only the four canonical
-rolling records and durable handoff metadata. Repository State:
-`MERGED_UNRECONCILED`; Workspace State: `WORKSPACE_READY`; Finalization
-Pending: `YES`.
+unchanged. Governance-only Finalization PR
+[#949](https://github.com/pcvantol/djconnect/pull/949) merged as
+`676abafc5703195ba344f6255106ccbb193cc1ba`; its completed required checks
+have no failures. This direct-on-`main` reconciliation updates only the four
+canonical rolling records. Repository State: `MERGED_RECONCILED`; Workspace
+State: `WORKSPACE_READY`; Finalization Pending: `NO`.
 
 ## PR #944 finalized by PR #945
 
