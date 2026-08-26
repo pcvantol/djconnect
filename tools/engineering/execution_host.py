@@ -528,26 +528,44 @@ class EngineeringRunner:
         except EngineeringStorageError:
             LOGGER.warning("Managed PR check evidence is unavailable for run %s", state.run_id)
 
+    @staticmethod
+    def _audit_record(
+        *, iteration: int, failed_checks: str, proposed_action: str,
+        result: AgentResult | None, outcome: str, empty_summary: str,
+    ) -> dict[str, str]:
+        """Build one safe, schema-compatible bounded-attempt record."""
+        summary = (result.diagnostic if result else None) or empty_summary
+        return {
+            "iteration": str(iteration),
+            "observed_at": datetime.now(timezone.utc).isoformat(),
+            "failed_checks": redact_diagnostic(failed_checks),
+            "proposed_action": redact_diagnostic(proposed_action),
+            "agent_summary": redact_diagnostic(summary),
+            "commit_sha": result.commit_sha if result and result.commit_sha else "not_recorded",
+            "outcome": outcome,
+        }
+
     def _record_repair_audit(self, state: TransactionState, *, failed_checks: str, objective: str, result: AgentResult | None, outcome: str) -> TransactionState:
         """Append bounded per-repair evidence; never overwrite prior attempts."""
-        record = {
-            "iteration": str(state.repair_iterations), "observed_at": datetime.now(timezone.utc).isoformat(),
-            "failed_checks": redact_diagnostic(failed_checks), "proposed_action": redact_diagnostic(objective),
-            "agent_summary": redact_diagnostic((result.diagnostic if result else None) or "Agent invocation did not return a repair summary."),
-            "commit_sha": result.commit_sha if result and result.commit_sha else "not_recorded", "outcome": outcome,
-        }
-        return replace(state, repair_audit=state.repair_audit + (record,))
+        return replace(state, repair_audit=state.repair_audit + (self._audit_record(
+            iteration=state.repair_iterations,
+            failed_checks=failed_checks,
+            proposed_action=objective,
+            result=result,
+            outcome=outcome,
+            empty_summary="Agent invocation did not return a repair summary.",
+        ),))
 
     def _record_local_validation_audit(self, state: TransactionState, *, result: AgentResult | None, outcome: str) -> TransactionState:
         """Append one bounded local-validation iteration without sharing PR repair budget."""
-        record = {
-            "iteration": str(state.local_validation_iterations), "observed_at": datetime.now(timezone.utc).isoformat(),
-            "failed_checks": redact_diagnostic((result.diagnostic if result else None) or "Local repository validation did not return a passing result."),
-            "proposed_action": "Run the canonical repository validation and repair only the bounded implementation or its tests.",
-            "agent_summary": redact_diagnostic((result.diagnostic if result else None) or "Agent invocation did not return a validation summary."),
-            "commit_sha": result.commit_sha if result and result.commit_sha else "not_recorded", "outcome": outcome,
-        }
-        return replace(state, local_validation_audit=state.local_validation_audit + (record,))
+        return replace(state, local_validation_audit=state.local_validation_audit + (self._audit_record(
+            iteration=state.local_validation_iterations,
+            failed_checks=(result.diagnostic if result else None) or "Local repository validation did not return a passing result.",
+            proposed_action="Run the canonical repository validation and repair only the bounded implementation or its tests.",
+            result=result,
+            outcome=outcome,
+            empty_summary="Agent invocation did not return a validation summary.",
+        ),))
 
     @staticmethod
     def _validation_kind(command: str) -> str | None:
@@ -569,15 +587,16 @@ class EngineeringRunner:
             return "tests"
         return None
 
-    def _invoke_agent_with_timing(self, state: TransactionState, prompt: str, *, repair: bool = False, quality: bool = False) -> AgentResult:
+    def _invoke_agent_with_timing(self, state: TransactionState, prompt: str, *, repair: bool = False, quality: bool = False, attempt: int | None = None) -> AgentResult:
         """Measure only the bounded runtime-provider process interval."""
         parent = (
             start_phase(self.root, state.run_id, "REPAIR", attempt=state.repair_iterations, metadata={"iteration": state.repair_iterations})
             if repair else start_phase(self.root, state.run_id, "QUALITY_CONTROL", metadata={"kind": "autonomous_refactor_quality"}) if quality else None
         )
+        provider_attempt = attempt if attempt is not None else max(1, state.repair_iterations + 1)
         provider = start_phase(
             self.root, state.run_id, "PROVIDER_EXECUTION", parent_phase_id=parent.phase_id if parent else None,
-            attempt=max(1, state.repair_iterations + 1), metadata={"provider": "codex_cli"},
+            attempt=provider_attempt, metadata={"provider": "codex_cli"},
         )
         validation_spans: dict[str, ActivePhase | None] = {}
 
@@ -590,7 +609,7 @@ class EngineeringRunner:
                         state.run_id,
                         "VALIDATION",
                         parent_phase_id=provider.phase_id if provider else None,
-                        attempt=max(1, state.repair_iterations + 1),
+                        attempt=provider_attempt,
                         metadata={"validation_kind": kind},
                     )
             elif event == "completed":
@@ -667,6 +686,7 @@ Local repository validation gate — iteration {iteration} of {MAX_LOCAL_REPOSIT
                 result = self._invoke_agent_with_timing(
                     validation,
                     assemble_prompt(Path(validation.prompt_path), validation, managed_target=self.root) + instruction,
+                    attempt=iteration,
                 )
                 validation = self._record_agent_execution_time(validation)
                 validation = self._record_validation_evidence(validation, result)
@@ -680,6 +700,7 @@ Local repository validation gate — iteration {iteration} of {MAX_LOCAL_REPOSIT
                 validation = self._record_local_validation_audit(validation, result=result, outcome="agent_failed")
                 return self._save_terminal(validation, result.terminal_state, "local_repository_validation_failed", result.diagnostic or "Local repository validation failed."), implementation
             if result.branch and result.branch != branch:
+                validation = self._record_local_validation_audit(validation, result=result, outcome="agent_failed")
                 return self._save_terminal(validation, "BLOCKED", "local_validation_scope", "Local validation changed the bounded implementation branch."), implementation
             if result.pull_request:
                 validation = self._record_local_validation_audit(validation, result=result, outcome="validated")

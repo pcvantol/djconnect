@@ -163,7 +163,7 @@ class TransactionState:
                 not isinstance(item, dict) or set(item) != audit_fields
                 or not all(isinstance(value, str) and value and len(value) <= MAX_DIAGNOSTIC_LENGTH and value == redact_diagnostic(value) for value in item.values())
                 or not item["iteration"].isdigit() or int(item["iteration"]) < 1
-                or item["outcome"] not in {"submitted_for_recheck", "agent_failed"}
+                or item["outcome"] not in {"submitted_for_recheck", "agent_failed", "agent_timed_out"}
                 or (item["commit_sha"] != "not_recorded" and not re.fullmatch(r"[0-9a-f]{40}", item["commit_sha"]))
                 for item in state.repair_audit
             )

@@ -1893,6 +1893,23 @@ class LocalAgentRunnerTest(unittest.TestCase):
         self.assertEqual(repaired.repair_audit[0]["outcome"], "agent_failed")
         self.assertEqual(repaired.repair_audit[0]["agent_summary"], "External review required.")
 
+    def test_repair_timeout_is_a_valid_durable_audit_outcome(self) -> None:
+        state = TransactionState(
+            "repair-timeout", "pcvantol/djconnect", str(self.prompt),
+            "WAIT_FOR_TERMINAL_EVIDENCE", branch="codex/repair-timeout",
+            pull_request=24, owner_authorized=True,
+        )
+        runner = EngineeringRunner(
+            self.root, self.store, FakeRepository(), FakeGitHub([]), DeadlineFakeAgent(), lambda _: None,
+        )
+
+        blocked = runner._repair(state, "Ruff failed. Repair only the bounded transaction defects.")
+
+        self.assertEqual(blocked.phase, "BLOCKED")
+        self.assertEqual(blocked.next_action, "repair_agent_timeout")
+        self.assertEqual(blocked.repair_audit[0]["outcome"], "agent_timed_out")
+        self.assertEqual(self.store.load("repair-timeout").repair_audit[0]["outcome"], "agent_timed_out")
+
     def test_finalization_pr_behind_main_enters_same_bounded_repair_loop(self) -> None:
         state = TransactionState(
             "behind-finalization", "pcvantol/djconnect", str(self.prompt), "WAIT_FOR_TERMINAL_EVIDENCE",
