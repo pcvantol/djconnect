@@ -1837,6 +1837,36 @@ def _workspace_free_disk_space(root: Path) -> str:
     return f"{free_gigabytes:.1f} GB"
 
 
+def _provider_login_status(root: Path) -> dict[str, dict[str, str]]:
+    """Return token-free, read-only readiness for the local provider sessions."""
+    def classify(completed: subprocess.CompletedProcess[str] | None) -> str:
+        if completed is None:
+            return "CHECK_FAILED"
+        if completed.returncode == 0:
+            return "READY"
+        detail = f"{completed.stdout}\n{completed.stderr}".casefold()
+        return "AUTH_REQUIRED" if any(token in detail for token in ("login", "auth", "credential", "token")) else "CHECK_FAILED"
+
+    def github_status(*, installed: bool) -> str:
+        if not installed:
+            return "UNAVAILABLE"
+        try:
+            completed = LocalProcessProvider().execute(root, ("gh", "auth", "status", "--hostname", "github.com"))
+        except OSError:
+            completed = None
+        return classify(completed)
+
+    codex = CodexCliProvider()
+    try:
+        codex_result = codex.command("login", "status") if codex.status().qualified else None
+    except OSError:
+        codex_result = None
+    return {
+        "codex": {"provider": "CODEX", "state": "UNAVAILABLE" if not codex.status().qualified else classify(codex_result)},
+        "github": {"provider": "GITHUB", "state": github_status(installed=shutil.which("gh") is not None)},
+    }
+
+
 def _workspace_git_projection(root: Path) -> dict[str, object]:
     """Return the small, read-only Git projection shown in Workspace."""
     unavailable = "Niet beschikbaar"
@@ -2883,6 +2913,11 @@ def handler(root: Path, logger: logging.Logger | None = None):
                 return self._send(_current_codex_log(root), "text/plain; charset=utf-8")
             if self.path == "/api/usage":
                 return self._send(_codex_usage(root), "application/json; charset=utf-8")
+            if self.path == "/api/provider-login-status":
+                return self._send(
+                    json.dumps({"providers": _provider_login_status(root)}, separators=(",", ":")).encode(),
+                    "application/json; charset=utf-8",
+                )
             if request.path == "/api/configuration":
                 return self._send(
                     json.dumps(dashboard_configuration(root)).encode(),

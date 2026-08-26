@@ -256,6 +256,24 @@ test.describe("Engineering Status browser smoke", () => {
     );
   });
 
+  test("shows localized provider login states in Configuration", async ({ page }) => {
+    await page.route("**/api/provider-login-status", (route) => route.fulfill({ json: {
+      providers: {
+        codex: { provider: "CODEX", state: "READY" },
+        github: { provider: "GITHUB", state: "AUTH_REQUIRED" },
+      },
+    } }));
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#configuration").evaluate((element) => { element.open = true; });
+    const block = page.locator("#configurationProviderLoginStatus");
+    await expect(block).toBeVisible();
+    await expect(block).toContainText(DASHBOARD_MESSAGES.nl["configuration.provider_login_status"]);
+    await expect(block.locator('[data-provider="CODEX"]')).toContainText(DASHBOARD_MESSAGES.nl["configuration.provider_status.READY"]);
+    await expect(block.locator('[data-provider="GITHUB"]')).toContainText(DASHBOARD_MESSAGES.nl["configuration.provider_status.AUTH_REQUIRED"]);
+    await expect(block.locator('[data-provider="CODEX"]')).toHaveAttribute("data-provider-state", "READY");
+    await expect(block.locator('[data-provider="GITHUB"]')).toHaveAttribute("data-provider-state", "AUTH_REQUIRED");
+  });
+
   test("disables the Inbox location action while the project queue has items", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.evaluate(() => window.queueItems([

@@ -89,6 +89,26 @@ class DashboardStatusTest(unittest.TestCase):
         )
         self.assertLess(page.index('id="configuration"'), page.index("</main>"))
 
+    @patch("tools.engineering.dashboard.shutil.which", return_value="/usr/local/bin/gh")
+    @patch("tools.engineering.dashboard.LocalProcessProvider")
+    @patch("tools.engineering.dashboard.CodexCliProvider")
+    def test_provider_login_status_is_token_free_and_classifies_auth(
+        self, codex: MagicMock, process: MagicMock, _which: MagicMock,
+    ) -> None:
+        completed = __import__("subprocess").CompletedProcess
+        codex.return_value.status.return_value.qualified = True
+        codex.return_value.command.return_value = completed(("codex",), 0, "Logged in", "")
+        process.return_value.execute.return_value = completed(("gh",), 1, "", "authentication required")
+
+        status = dashboard._provider_login_status(Path("/workspace"))
+
+        self.assertEqual(status, {
+            "codex": {"provider": "CODEX", "state": "READY"},
+            "github": {"provider": "GITHUB", "state": "AUTH_REQUIRED"},
+        })
+        self.assertNotIn("Logged in", repr(status))
+        self.assertNotIn("authentication required", repr(status))
+
     @patch("tools.engineering.dashboard.LocalProcessProvider")
     @patch("tools.engineering.dashboard.sys.platform", "darwin")
     def test_local_directory_picker_returns_a_selected_mac_folder(self, provider: MagicMock) -> None:

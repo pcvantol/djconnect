@@ -4964,6 +4964,52 @@ function renderConfigurationInboxLocation() {
   }
   value.textContent = location || "—";
 }
+function providerLoginStatusBlock() {
+  const configuration = $("configuration");
+  if (!configuration) return null;
+  let block = $("configurationProviderLoginStatus");
+  if (!block) {
+    block = document.createElement("section");
+    block.id = "configurationProviderLoginStatus";
+    block.className = "configuration-provider-status";
+    block.setAttribute("aria-live", "polite");
+    const title = document.createElement("h2");
+    title.textContent = t("configuration.provider_login_status");
+    block.append(title);
+    for (const provider of ["CODEX", "GITHUB"]) {
+      const row = document.createElement("div");
+      row.className = "configuration-provider-status__row";
+      row.dataset.provider = provider;
+      row.append(
+        Object.assign(document.createElement("span"), { className: "configuration-provider-status__dot", ariaHidden: "true" }),
+        Object.assign(document.createElement("strong"), { textContent: provider === "CODEX" ? "Codex" : "GitHub" }),
+        Object.assign(document.createElement("span"), { className: "configuration-provider-status__label" }),
+      );
+      block.append(row);
+    }
+    configuration.querySelector(".category-description")?.after(block);
+  }
+  return block;
+}
+async function refreshProviderLoginStatus() {
+  const block = providerLoginStatusBlock();
+  if (!block) return;
+  try {
+    const response = await fetch("/api/provider-login-status", { cache: "no-store" });
+    const payload = await response.json();
+    if (!response.ok || !payload || typeof payload.providers !== "object") throw Error();
+    block.querySelectorAll("[data-provider]").forEach((row) => {
+      const state = String(payload.providers?.[row.dataset.provider.toLowerCase()]?.state || "CHECK_FAILED");
+      row.dataset.providerState = state;
+      row.querySelector(".configuration-provider-status__label").textContent = t(`configuration.provider_status.${state}`, {}, t("configuration.provider_status.CHECK_FAILED"));
+    });
+  } catch {
+    block.querySelectorAll("[data-provider]").forEach((row) => {
+      row.dataset.providerState = "CHECK_FAILED";
+      row.querySelector(".configuration-provider-status__label").textContent = t("configuration.provider_status.CHECK_FAILED");
+    });
+  }
+}
 const MACHINE_SCOPED_WORKSPACE_FIELD_IDS = Object.freeze([
   "workspaceFreeDiskSpace",
   "workspaceDatabaseField",
@@ -5033,6 +5079,7 @@ function localizeConfigurationOptions() {
   CONFIGURATION_CONTROL_SCOPES.slice(1).forEach(moveConfigurationControls);
   addConfigurationControlInfo();
   renderConfigurationInboxLocation();
+  providerLoginStatusBlock();
   document.querySelectorAll("#configurationLogRetention option, #configurationTelemetryRetention option").forEach((option) => {
     option.textContent = t("configuration.days", { days: option.value });
   });
@@ -5139,6 +5186,7 @@ async function saveDashboardConfiguration(control) {
 }
 async function initializeDashboardConfiguration() {
   localizeConfigurationOptions();
+  void refreshProviderLoginStatus();
   setDashboardConfigurationControlsDisabled(true);
   try {
     const response = await fetch("/api/configuration", { cache: "no-store" });
