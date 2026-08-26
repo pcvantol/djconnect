@@ -5303,6 +5303,23 @@ function moveMachineScopedWorkspaceDetails() {
   const databaseSection = configuration.querySelector(".workspace-database-section") || $("workspaceDatabaseField")?.closest(".workspace-database-section");
   if (databaseSection) configuration.insertBefore(databaseSection, controls);
 }
+function groupHostComponentConfiguration() {
+  const configuration = $("configuration"), controls = configuration?.querySelector(":scope > .configuration-controls");
+  const diskSpace = $("workspaceFreeDiskSpace"), componentDetails = $("configurationComponentDetailsInterval")?.closest("label");
+  if (!configuration || !controls || !diskSpace || !componentDetails) return;
+  let section = $("configurationHostComponents");
+  if (!section) {
+    section = document.createElement("section");
+    section.id = "configurationHostComponents";
+    section.className = "configuration-host-components";
+    const title = document.createElement("h2");
+    title.dataset.i18n = "section.platform_components";
+    section.append(title);
+    configuration.insertBefore(section, controls);
+  }
+  section.querySelector("h2").textContent = t("section.platform_components");
+  section.append(diskSpace, componentDetails);
+}
 function ensureProviderReadinessConfigurationControl() {
   if ($("configurationProviderReadinessInterval")) return;
   const block = providerLoginStatusBlock();
@@ -5347,6 +5364,7 @@ function localizeConfigurationOptions() {
   const providerReadinessLabel = $("configurationProviderReadinessInterval")?.closest("label")?.querySelector(":scope > span");
   if (providerReadinessLabel) providerReadinessLabel.textContent = t("configuration.provider_readiness_interval");
   moveMachineScopedWorkspaceDetails();
+  groupHostComponentConfiguration();
   moveProjectScopedConfiguration();
   CONFIGURATION_CONTROL_SCOPES.slice(1).forEach(moveConfigurationControls);
   addConfigurationControlInfo();

@@ -194,6 +194,23 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#configurationControlsTitle")).toHaveCount(0);
   });
 
+  test("groups free disk space above the component-detail refresh interval", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    const configuration = page.locator("#configuration");
+    await configuration.evaluate((element) => { element.open = true; });
+    const section = configuration.locator("#configurationHostComponents");
+    await expect(section).toHaveCount(1);
+    await expect(section).toContainText("Lokale hostonderdelen");
+    await expect(section.locator("#workspaceFreeDiskSpace")).toHaveCount(1);
+    await expect(section.locator("#configurationComponentDetailsInterval")).toHaveCount(1);
+    await expect(section).toHaveCSS("border-top-style", "solid");
+    expect(await section.evaluate((element) => {
+      const disk = element.querySelector("#workspaceFreeDiskSpace");
+      const interval = element.querySelector("#configurationComponentDetailsInterval")?.closest("label");
+      return Boolean(disk.compareDocumentPosition(interval) & Node.DOCUMENT_POSITION_FOLLOWING);
+    })).toBe(true);
+  });
+
   test("places writable log settings in Logs and explains them", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     const logs = page.locator("#componentLogs");
