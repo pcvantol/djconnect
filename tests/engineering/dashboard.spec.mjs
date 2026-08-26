@@ -4172,6 +4172,34 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#inboxComponentLog")).not.toContainText("other day");
   });
 
+  test("filters component logs by the local today and yesterday presets", async ({ page }) => {
+    await page.route("**/api/logs/**", (route) => route.fulfill({ contentType: "application/x-ndjson", body: "" }));
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#componentLogs").evaluate((element) => { element.open = true; });
+    await page.waitForFunction(() => componentLogsLoaded);
+    await page.evaluate(() => {
+      const now = new Date(), today = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 9),
+        yesterday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1, 9),
+        older = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 2, 9);
+      componentLogEntries.inbox = [
+        { line: 1, timestamp: today.toISOString(), level: "INFO", event: "watcher_started", runId: "today", details: "today-entry" },
+        { line: 2, timestamp: yesterday.toISOString(), level: "INFO", event: "watcher_started", runId: "yesterday", details: "yesterday-entry" },
+        { line: 3, timestamp: older.toISOString(), level: "INFO", event: "watcher_started", runId: "older", details: "older-entry" },
+      ];
+      componentLogEntries.dashboard = [];
+      renderComponentLogs();
+    });
+    await page.locator("#logTimePreset").selectOption("today");
+    await expect(page.locator("#inboxComponentLog")).toContainText("today-entry");
+    await expect(page.locator("#inboxComponentLog")).not.toContainText("yesterday-entry");
+    await expect(page.locator("#inboxComponentLog")).not.toContainText("older-entry");
+
+    await page.locator("#logTimePreset").selectOption("yesterday");
+    await expect(page.locator("#inboxComponentLog")).not.toContainText("today-entry");
+    await expect(page.locator("#inboxComponentLog")).toContainText("yesterday-entry");
+    await expect(page.locator("#inboxComponentLog")).not.toContainText("older-entry");
+  });
+
   test("localizes component log table headings for every supported language", async ({ page }) => {
     const expectations = [
       ["en", "Inbox watcher", ["#", "Timestamp", "Level", "Event", "Run ID", "Details"]],
