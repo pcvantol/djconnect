@@ -72,6 +72,7 @@ from .execution_context import (
     target_repository_authorization as context_target_repository_authorization,
 )
 from .execution_models import AgentResult, PullRequestEvidence, RepositoryEvidence
+from .validation_profile import ValidationProfile, changed_paths, classify
 from .reviewer_evidence import ReviewerEvidence
 from .investigation_ledger import InvocationInvestigationLedger
 from .execution_errors import CodexHandoffTimeout, CodexInvocationError, RunnerError
@@ -558,12 +559,12 @@ class EngineeringRunner:
             empty_summary="Agent invocation did not return a repair summary.",
         ),))
 
-    def _record_local_validation_audit(self, state: TransactionState, *, result: AgentResult | None, outcome: str) -> TransactionState:
+    def _record_local_validation_audit(self, state: TransactionState, *, result: AgentResult | None, outcome: str, profile: ValidationProfile) -> TransactionState:
         """Append one bounded local-validation iteration without sharing PR repair budget."""
         return replace(state, local_validation_audit=state.local_validation_audit + (self._audit_record(
             iteration=state.local_validation_iterations,
             failed_checks=(result.diagnostic if result else None) or "Local repository validation did not return a passing result.",
-            proposed_action="Run the canonical repository validation and repair only the bounded implementation or its tests.",
+            proposed_action=f"{profile.tier}: {'; '.join(profile.commands)}",
             result=result,
             outcome=outcome,
             empty_summary="Agent invocation did not return a validation summary.",
@@ -672,6 +673,10 @@ class EngineeringRunner:
             local_validation_audit=(),
         )
         for iteration in range(1, MAX_LOCAL_REPOSITORY_VALIDATION_ATTEMPTS + 1):
+            try:
+                profile = classify(changed_paths(self.root, "main"))
+            except OSError:
+                profile = classify(())
             validation = replace(validation, local_validation_iterations=iteration)
             self.store.save(validation)
             write_live_status(self.root, validation, validation.next_action)
@@ -679,7 +684,7 @@ class EngineeringRunner:
 
 Local repository validation gate — iteration {iteration} of {MAX_LOCAL_REPOSITORY_VALIDATION_ATTEMPTS}:
 - Stay on exactly `{branch}`. Do not merge or change scope.
-- Discover and run the target repository's canonical required local validation, including its full relevant regression suite; do not substitute only focused tests when a broader repository suite applies.
+- Diff-derived validation profile: `{profile.tier}`. Required evidence: {"; ".join(profile.commands)}. If the diff is unavailable or scope becomes mixed, use the full required suite.
 - You may correct only the bounded production code and its tests, commit and push those corrections, then rerun the required validation.
 - If validation still fails, return `WAITING` with a concise safe diagnostic; the host may allow the next bounded iteration.
 - Create one draft implementation pull request only after the required local validation passes. Return that same branch and PR number. Never poll remote checks.
@@ -696,19 +701,19 @@ Local repository validation gate — iteration {iteration} of {MAX_LOCAL_REPOSIT
             except CodexInvocationError as error:
                 validation = self._record_agent_execution_time(validation)
                 self.console_detail = error.console_detail
-                validation = self._record_local_validation_audit(validation, result=None, outcome="agent_failed")
+                validation = self._record_local_validation_audit(validation, result=None, outcome="agent_failed", profile=profile)
                 return self._save_terminal(validation, "BLOCKED", error.next_action, str(error)), implementation
             if result.terminal_state in {"BLOCKED", "FAILED"}:
-                validation = self._record_local_validation_audit(validation, result=result, outcome="agent_failed")
+                validation = self._record_local_validation_audit(validation, result=result, outcome="agent_failed", profile=profile)
                 return self._save_terminal(validation, result.terminal_state, "local_repository_validation_failed", result.diagnostic or "Local repository validation failed."), implementation
             if result.branch and result.branch != branch:
-                validation = self._record_local_validation_audit(validation, result=result, outcome="agent_failed")
+                validation = self._record_local_validation_audit(validation, result=result, outcome="agent_failed", profile=profile)
                 return self._save_terminal(validation, "BLOCKED", "local_validation_scope", "Local validation changed the bounded implementation branch."), implementation
             if result.pull_request:
-                validation = self._record_local_validation_audit(validation, result=result, outcome="validated")
+                validation = self._record_local_validation_audit(validation, result=result, outcome="validated", profile=profile)
                 return validation, replace(implementation, branch=branch, pull_request=result.pull_request,
                                            validation_evidence=implementation.validation_evidence + result.validation_evidence)
-            validation = self._record_local_validation_audit(validation, result=result, outcome="validation_failed")
+            validation = self._record_local_validation_audit(validation, result=result, outcome="validation_failed", profile=profile)
         return self._save_terminal(validation, "BLOCKED", "local_validation_attempt_limit_reached", "Required local repository validation did not pass after 3 bounded iterations."), implementation
 
     def _run_autonomous_quality_control(

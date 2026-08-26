@@ -300,3 +300,13 @@ and interaction consumer, and only repository/GitHub evidence proves delivery.
 - [Platform 1.x Completion Report](ENGINEERING_PLATFORM_1_X_COMPLETION_REPORT.md)
 - [Platform Governance](../../PLATFORM_GOVERNANCE.md)
 - [Platform Evolution Backlog](../../PLATFORM_EVOLUTION_BACKLOG.md)
+
+## Diff-derived validation profiles
+
+The Execution Host owns one conservative validation-profile classifier for both
+local validation and CI. It derives scope from the bounded branch diff:
+documentation/run evidence, dashboard, runtime, or full. Unknown and mixed
+changes always select the full suite. The local validation audit records the
+chosen tier and required command categories; CI retains its required check and
+skips only the expensive browser execution for an unambiguous documentation
+profile.
