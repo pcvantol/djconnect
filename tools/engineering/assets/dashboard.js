@@ -1152,6 +1152,30 @@ function renderPreflightPresentation(snapshot = {}) {
     for (const [id, value] of values) if ($(id)) $(id).textContent = value || t("format.not_available");
   }
 }
+function preflightNeedsAttention(preflight) {
+  const outcome = String(preflight?.outcome || "").toUpperCase();
+  return ["FAILED", "BLOCKED", "UNAVAILABLE"].includes(outcome);
+}
+function renderTechnicalDiagnosis(status = {}, snapshot = {}) {
+  const section = $("technicalDetails"), summary = $("technicalHealthySummary"), grid = $("technicalDiagnosisDetails"), description = $("technicalDetailsDescription");
+  if (!section || !summary || !grid || !description) return;
+  const phase = String(status?.current_phase || "").toUpperCase();
+  const watcher = String(status?.watcher_state || "").toUpperCase();
+  const needsAttention = ["BLOCKED", "FAILED", "PAUSED"].includes(phase) ||
+    ["JOB_BLOCKED", "JOB_FAILED", "HOST_PREFLIGHT_FAILED", "PAUSED"].includes(watcher) ||
+    hasVisibleStaleLifecycle(status) ||
+    Boolean(snapshot?.current_drift?.drift_id) ||
+    snapshot?.workspace_git_lock?.stale === true ||
+    [snapshot.host_preflight, snapshot.workspace_preflight, snapshot.capability_preflight].some(preflightNeedsAttention) ||
+    Boolean(String(status?.diagnostic || "").trim());
+  const active = isActiveRun(status);
+  section.hidden = !active && !needsAttention;
+  grid.hidden = !needsAttention;
+  summary.hidden = !(active && !needsAttention);
+  summary.textContent = active && !needsAttention ? t("technical.host_check_passed") : "";
+  description.textContent = t(needsAttention ? "description.technical_details_attention" : "description.technical_details");
+  section.open = !section.hidden;
+}
 function executionContextValue(value) {
   if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") return String(value);
   if (value && typeof value === "object") return value.title || value.objective || value.id || value.message || value.reference || value.value || "";
@@ -1860,6 +1884,7 @@ function renderHealthStatus(x, snapshot = {}) {
   // Older dashboard fixtures and cached shells do not have Level 3 fields.
   // Keep the canonical status renderer backward compatible while they refresh.
   renderPreflightPresentation(snapshot);
+  renderTechnicalDiagnosis(x, snapshot);
   promptStarted(snapshot.prompt_started);
   renderEstimate(x, latestDurationEstimate);
   processMetrics(active, snapshot.process_metrics);
@@ -1878,8 +1903,6 @@ function renderHealthStatus(x, snapshot = {}) {
   $("runId").textContent = x.run_id || t("value.none");
   renderInboxBlocker(x);
   queueItems(x.queue_items, x.queue_depth);
-  $("implementation").textContent = x.implementation_pr || t("value.none");
-  $("finalization").textContent = x.finalization_pr || t("value.none");
   $("repositoryState").textContent = translate(x.repository_state || "UNKNOWN");
   $("workspaceState").textContent = translate(x.workspace_state || "UNKNOWN");
   $("diag").textContent = formatDiagnostic(x.diagnostic);
@@ -2271,25 +2294,22 @@ function providerNeutralLabels() {
 }
 function localizeTechnicalDetails() {
   const labels = [
-    [["#technicalPullRequestsTitle", "#technicalDetails .technical-grid > .card:nth-child(1) > strong"], "technical.pull_requests"],
-    [["#technicalImplementationLabel", "#technicalDetails .technical-grid > .card:nth-child(1) .field:nth-of-type(1) .label"], "technical.implementation"],
-    [["#technicalFinalizationLabel", "#technicalDetails .technical-grid > .card:nth-child(1) .field:nth-of-type(2) .label"], "technical.finalization"],
-    [["#technicalRepositoryTitle", "#technicalDetails .technical-grid > .card:nth-child(2) > strong"], "technical.repository"],
-    [["#technicalRepositoryStateLabel", "#technicalDetails .technical-grid > .card:nth-child(2) .field:nth-of-type(1) .label"], "technical.repository_status"],
-    [["#technicalHostPreflightTitle", "#technicalDetails .technical-grid > .card:nth-child(4) > strong"], "technical.host_preflight"],
-    [["#technicalExecutionHostLabel", "#technicalDetails .technical-grid > .card:nth-child(4) .field:nth-of-type(1) .label"], "technical.execution_host"],
-    [["#technicalExecutionHostVersionLabel", "#technicalDetails .technical-grid > .card:nth-child(4) .field:nth-of-type(2) .label"], "technical.execution_host_version"],
-    [["#technicalRuntimeLabel", "#technicalDetails .technical-grid > .card:nth-child(4) .field:nth-of-type(3) .label"], "technical.runtime"],
-    [["#technicalRuntimePromptTransportLabel", "#technicalDetails .technical-grid > .card:nth-child(4) .field:nth-of-type(4) .label"], "technical.runtime_prompt_transport"],
-    [["#technicalHostStatusLabel", "#technicalDetails .technical-grid > .card:nth-child(4) .field:nth-of-type(5) .label"], "technical.host_status"],
-    [["#technicalLastCheckLabel", "#technicalDetails .technical-grid > .card:nth-child(4) .field:nth-of-type(6) .label"], "technical.last_check"],
-    [["#technicalWorkspacePreflightStatusLabel", "#technicalDetails .technical-grid > .card:nth-child(4) .field:nth-of-type(7) .label"], "technical.workspace_status"],
-    [["#technicalLastWorkspaceCheckLabel", "#technicalDetails .technical-grid > .card:nth-child(4) .field:nth-of-type(8) .label"], "technical.last_workspace_check"],
-    [["#technicalCapabilityStatusLabel", "#technicalDetails .technical-grid > .card:nth-child(4) .field:nth-of-type(9) .label"], "technical.capability_status"],
-    [["#technicalRecoverabilityLabel", "#technicalDetails .technical-grid > .card:nth-child(4) .field:nth-of-type(10) .label"], "technical.recoverability"],
-    [["#technicalFailureOriginLabel", "#technicalDetails .technical-grid > .card:nth-child(4) .field:nth-of-type(11) .label"], "technical.failure_origin"],
-    [["#technicalRecommendationLabel", "#technicalDetails .technical-grid > .card:nth-child(4) .field:nth-of-type(12) .label"], "technical.recommended_action"],
-    [["#technicalDiagnosticsTitle", "#technicalDetails .technical-grid > .card:nth-child(5) > strong"], "technical.diagnostics"],
+    [["#technicalRepositoryTitle"], "technical.repository"],
+    [["#technicalRepositoryStateLabel"], "technical.repository_status"],
+    [["#technicalHostPreflightTitle"], "technical.host_preflight"],
+    [["#technicalExecutionHostLabel"], "technical.execution_host"],
+    [["#technicalExecutionHostVersionLabel"], "technical.execution_host_version"],
+    [["#technicalRuntimeLabel"], "technical.runtime"],
+    [["#technicalRuntimePromptTransportLabel"], "technical.runtime_prompt_transport"],
+    [["#technicalHostStatusLabel"], "technical.host_status"],
+    [["#technicalLastCheckLabel"], "technical.last_check"],
+    [["#technicalWorkspacePreflightStatusLabel"], "technical.workspace_status"],
+    [["#technicalLastWorkspaceCheckLabel"], "technical.last_workspace_check"],
+    [["#technicalCapabilityStatusLabel"], "technical.capability_status"],
+    [["#technicalRecoverabilityLabel"], "technical.recoverability"],
+    [["#technicalFailureOriginLabel"], "technical.failure_origin"],
+    [["#technicalRecommendationLabel"], "technical.recommended_action"],
+    [["#technicalDiagnosticsTitle"], "technical.diagnostics"],
   ];
   labels.forEach(([selectors, key]) => {
     const element = selectors.map((selector) => document.querySelector(selector)).find(Boolean);
@@ -4788,9 +4808,6 @@ function applyDashboardLocale() {
     ["#platformHealth > summary > strong", "section.platform_components"],
     ["#componentLogs > summary > strong", "section.logs"],
     ["#technicalDetails > summary > strong", "section.technical_details"],
-    ["#technicalPullRequestsTitle", "technical.pull_requests"],
-    ["#technicalImplementationLabel", "technical.implementation"],
-    ["#technicalFinalizationLabel", "technical.finalization"],
     ["#technicalRepositoryTitle", "technical.repository"],
     ["#technicalRepositoryStateLabel", "technical.repository_status"],
     ["#technicalHostPreflightTitle", "technical.host_preflight"],

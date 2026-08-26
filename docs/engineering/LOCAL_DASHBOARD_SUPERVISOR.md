@@ -500,6 +500,15 @@ context, technical details and the advisory conversation. A colour never
 changes lifecycle meaning; the prompt status indicator remains the authoritative
 visual outcome.
 
+The **Diagnostics** section is contextual rather than permanent dashboard
+chrome. It expands with repository, host, workspace and recovery evidence when
+an execution is blocked, failed, paused, recoverable, or prevented by
+preflight. A healthy active execution shows only the compact `Host check
+passed` confirmation. A normally completed historical execution keeps the
+same evidence in its detail view and exports, but does not show a diagnostics
+section in the main dashboard. Pull-request evidence is likewise shown with
+the associated active or historical execution, not duplicated in Diagnostics.
+
 The **Logs** section automatically keeps the redacted JSON records current
 through server-push revisions and parses them locally into selectable, copyable
 tables. Search and level filtering are client-side. Clicking a column heading

@@ -3217,14 +3217,14 @@ test.describe("Engineering Status browser smoke", () => {
       json: { status: { watcher_state: "WATCHER_IDLE", queue_depth: 0 } },
     }));
     const expectations = [
-      ["en", "Language", "Refresh automatically", "AI analysis", "Passed", "Execution", "Resume Queue", "Active execution", "Execution queue", "New assignments wait for execution in order of creation date.", "Engineering Operations Console", "Loading data…", "Pull requests", "Implementation", "None", "Engineering Platform version", "Automatic refresh is off"],
-      ["nl", "Taal", "Automatisch vernieuwen", "AI-analyse", "Geslaagd", "Uitvoering", "Wachtrij hervatten", "Lopende uitvoering", "Wachtrij voor uitvoeringen", "Nieuwe opdrachten wachten op uitvoering in volgorde van aanmaakdatum.", "Engineering Operationele console", "Gegevens laden…", "Pull requests", "Implementatie", "geen", "Engineering Platform-versie", "Automatisch vernieuwen is uit"],
-      ["de", "Sprache", "Automatisch aktualisieren", "KI-Analyse", "Erfolgreich", "Ausführung", "Warteschlange fortsetzen", "Laufende Ausführung", "Ausführungswarteschlange", "Neue Aufträge warten in der Reihenfolge ihres Erstellungsdatums auf die Ausführung.", "Engineering-Betriebskonsole", "Daten werden geladen…", "Pull Requests", "Implementierung", "Keine", "Engineering-Plattformversion", "Automatische Aktualisierung ist aus"],
-      ["fr", "Langue", "Actualiser automatiquement", "Analyse IA", "Réussi", "Exécution", "Reprendre la file", "Exécution en cours", "File d’exécution", "Les nouvelles tâches attendent leur exécution dans l’ordre de leur création.", "Console des opérations d’ingénierie", "Chargement des données…", "Pull requests", "Implémentation", "Aucun", "Version d’Engineering Platform", "Actualisation automatique désactivée"],
-      ["es", "Idioma", "Actualizar automáticamente", "Análisis de IA", "Superado", "Ejecución", "Reanudar cola", "Ejecución en curso", "Cola de ejecuciones", "Las nuevas tareas esperan ejecución por orden de fecha de creación.", "Consola de operaciones de ingeniería", "Cargando datos…", "Solicitudes de extracción", "Implementación", "Ninguno", "Versión de Engineering Platform", "Actualización automática desactivada"],
+      ["en", "Language", "Refresh automatically", "AI analysis", "Passed", "Execution", "Resume Queue", "Active execution", "Execution queue", "New assignments wait for execution in order of creation date.", "Engineering Operations Console", "Loading data…", "Diagnostics", "Engineering Platform version", "Automatic refresh is off"],
+      ["nl", "Taal", "Automatisch vernieuwen", "AI-analyse", "Geslaagd", "Uitvoering", "Wachtrij hervatten", "Lopende uitvoering", "Wachtrij voor uitvoeringen", "Nieuwe opdrachten wachten op uitvoering in volgorde van aanmaakdatum.", "Engineering Operationele console", "Gegevens laden…", "Diagnose", "Engineering Platform-versie", "Automatisch vernieuwen is uit"],
+      ["de", "Sprache", "Automatisch aktualisieren", "KI-Analyse", "Erfolgreich", "Ausführung", "Warteschlange fortsetzen", "Laufende Ausführung", "Ausführungswarteschlange", "Neue Aufträge warten in der Reihenfolge ihres Erstellungsdatums auf die Ausführung.", "Engineering-Betriebskonsole", "Daten werden geladen…", "Diagnose", "Engineering-Plattformversion", "Automatische Aktualisierung ist aus"],
+      ["fr", "Langue", "Actualiser automatiquement", "Analyse IA", "Réussi", "Exécution", "Reprendre la file", "Exécution en cours", "File d’exécution", "Les nouvelles tâches attendent leur exécution dans l’ordre de leur création.", "Console des opérations d’ingénierie", "Chargement des données…", "Diagnostic", "Version d’Engineering Platform", "Actualisation automatique désactivée"],
+      ["es", "Idioma", "Actualizar automáticamente", "Análisis de IA", "Superado", "Ejecución", "Reanudar cola", "Ejecución en curso", "Cola de ejecuciones", "Las nuevas tareas esperan ejecución por orden de fecha de creación.", "Consola de operaciones de ingeniería", "Cargando datos…", "Diagnóstico", "Versión de Engineering Platform", "Actualización automática desactivada"],
     ];
 
-    for (const [language, localeLabel, refreshLabel, analysisLabel, passLabel, detailTitle, queueAction, activePrompt, queueTitle, queueDescription, dashboardTitle, splashLoading, pullRequestsTitle, implementationLabel, noneLabel, platformVersionLabel, refreshOffLabel] of expectations) {
+    for (const [language, localeLabel, refreshLabel, analysisLabel, passLabel, detailTitle, queueAction, activePrompt, queueTitle, queueDescription, dashboardTitle, splashLoading, diagnosticsTitle, platformVersionLabel, refreshOffLabel] of expectations) {
       const statusLoaded = page.waitForResponse("**/api/dashboard-snapshot");
       await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
       await statusLoaded;
@@ -3243,10 +3243,7 @@ test.describe("Engineering Status browser smoke", () => {
       await expect(page.locator("#dashboardTitle")).toHaveText(dashboardTitle);
       await expect(page.locator("#dashboardSplashTitle")).toHaveText(dashboardTitle);
       await expect(page.locator("#dashboardSplashLoading")).toHaveText(splashLoading);
-      await expect(page.locator("#technicalPullRequestsTitle")).toHaveText(pullRequestsTitle);
-      await expect(page.locator("#technicalImplementationLabel")).toHaveText(implementationLabel);
-      await page.evaluate(() => r({}));
-      await expect(page.locator("#implementation")).toHaveText(noneLabel);
+      await expect(page.locator("#technicalDetails > summary > strong")).toHaveText(diagnosticsTitle);
       await expect(page.locator("#platformVersionLabel")).toHaveText(platformVersionLabel);
       await page.locator("#autoRefresh").check();
       await page.locator("#autoRefresh").uncheck();
@@ -5317,7 +5314,11 @@ test.describe("Engineering Status browser smoke", () => {
   test("lays out operational-overview cards in two columns only when its container has room", async ({ page }) => {
     await page.setViewportSize({ width: 920, height: 844 });
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
-    await page.locator("#technicalDetails > summary").click();
+    await page.evaluate(() => r({
+      watcher_state: "HOST_PREFLIGHT_FAILED",
+      current_phase: "INITIALIZE",
+      diagnostic: "Host preflight failed",
+    }, { host_preflight: { outcome: "FAILED" } }));
 
     const columns = async () => page.locator("#technicalDetails .technical-grid").evaluate((element) =>
       getComputedStyle(element).gridTemplateColumns.split(" ").length,
@@ -5333,6 +5334,32 @@ test.describe("Engineering Status browser smoke", () => {
 
     await page.setViewportSize({ width: 760, height: 844 });
     await expect.poll(columns).toBe(1);
+  });
+
+  test("shows technical diagnosis only for active or attention-needing executions", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    const diagnosis = page.locator("#technicalDetails");
+    await page.evaluate(() => r({ watcher_state: "WATCHER_IDLE", queue_depth: 0 }, {}));
+    await expect(diagnosis).toBeHidden();
+
+    await page.evaluate(() => r({
+      watcher_state: "ENGINEERING_RUN_ACTIVE",
+      current_phase: "EXECUTE_AGENT",
+      run_id: "healthy-run",
+    }, {}));
+    await expect(diagnosis).toBeVisible();
+    await expect(page.locator("#technicalHealthySummary")).toHaveText("Hostcontrole geslaagd");
+    await expect(page.locator("#technicalDiagnosisDetails")).toBeHidden();
+
+    await page.evaluate(() => r({
+      watcher_state: "HOST_PREFLIGHT_FAILED",
+      current_phase: "INITIALIZE",
+      diagnostic: "Host preflight failed",
+    }, { host_preflight: { outcome: "FAILED" } }));
+    await expect(diagnosis).toBeVisible();
+    await expect(page.locator("#technicalHealthySummary")).toBeHidden();
+    await expect(page.locator("#technicalDiagnosisDetails")).toBeVisible();
+    await expect(page.locator("#technicalDetailsDescription")).toContainText("herstelbewijs");
   });
 
   test("keeps specialist reviewer titles in the active-execution turquoise scale in light mode", async ({ page }) => {
@@ -7468,17 +7495,16 @@ test.describe("Engineering Status browser smoke", () => {
     await toggle.evaluate((button) => button.click());
     await expect(toggle).toHaveAttribute("aria-checked", "true");
     await expect(toggle).toHaveAttribute("aria-label", "Alle secties sluiten");
-    for (const id of ["workspaceCard", "configuration", "promptHistory", "platformHealth", "technicalDetails", "componentLogs"]) {
+    for (const id of ["workspaceCard", "configuration", "promptHistory", "platformHealth", "componentLogs"]) {
       await expect(page.locator(`#${id}`)).toHaveAttribute("open", "");
     }
-
     await page.reload({ waitUntil: "domcontentloaded" });
     await expect(toggle).toHaveAttribute("aria-checked", "true");
     await expect(page.locator("#workspaceCard")).toHaveAttribute("open", "");
 
     await toggle.evaluate((button) => button.click());
     await expect(toggle).toHaveAttribute("aria-checked", "false");
-    for (const id of ["workspaceCard", "configuration", "platformHealth", "technicalDetails", "componentLogs"]) {
+    for (const id of ["workspaceCard", "configuration", "platformHealth", "componentLogs"]) {
       await expect(page.locator(`#${id}`)).not.toHaveAttribute("open", "");
     }
   });
@@ -7498,6 +7524,11 @@ test.describe("Engineering Status browser smoke", () => {
     await page.evaluate(() => rateLimits({ provider: "Codex CLI", provider_version: "0.146.0", windows: [], reset_credits: 1 }));
     await expect(page.locator("#rateLimitReset")).toHaveCSS("background-color", "rgb(232, 255, 245)");
     await expect(page.locator("#rateLimitReset")).toHaveCSS("color", "rgb(20, 90, 66)");
+    await page.evaluate(() => r({
+      watcher_state: "HOST_PREFLIGHT_FAILED",
+      current_phase: "INITIALIZE",
+      diagnostic: "Host preflight failed",
+    }, { host_preflight: { outcome: "FAILED" } }));
     await expect(page.locator("#technicalDetails .technical-grid > .card").first()).toHaveCSS("background-color", "rgb(255, 255, 255)");
     await page.evaluate(() => {
       document.querySelector("#promptHistory").open = true;
@@ -7790,7 +7821,6 @@ test.describe("Engineering Status browser smoke", () => {
       workspace_git_lock: { state: "stale", stale: true, age_seconds: 360 },
     }));
 
-    await page.locator("#technicalDetails > summary").click();
     const lock = page.locator("#technicalGitLock");
     const repository = page.locator("#technicalRepositoryTitle").locator("xpath=ancestor::div[contains(@class, 'card')][1]");
     await expect(lock).toContainText("Werkmapvergrendeling");
@@ -7933,6 +7963,12 @@ test.describe("Engineering Status browser smoke", () => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     const autoRefresh = page.locator("#autoRefresh");
     await expect(autoRefresh).toBeChecked();
+    await page.evaluate(() => r({
+      watcher_state: "HOST_PREFLIGHT_FAILED",
+      current_phase: "INITIALIZE",
+      diagnostic: "Host preflight failed",
+    }, { host_preflight: { outcome: "FAILED" } }));
+    await page.locator("#technicalDetails").evaluate((element) => { element.open = false; });
     await page.locator("#technicalDetails > summary").click();
     await page.locator("#autoRefresh").uncheck();
     await page.reload({ waitUntil: "domcontentloaded" });
