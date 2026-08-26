@@ -338,6 +338,8 @@ PR hand-off boundary (host-owned and non-negotiable):
   poll or wait for GitHub checks, review, merge, Finalization, reconciliation,
   or any other external terminal evidence. The Execution Host alone records
   the pull request, polls checks, and schedules at most three bounded repairs.
+- Write pull-request Markdown with real line breaks. Never serialize a line
+  break as the literal characters `\\n`.
 """
     local_gate = "" if not state or not (
         state.execution_mode == "MANAGED" and state.transaction_kind == "IMPLEMENTATION" and state.phase == "EXECUTE_AGENT"
@@ -1196,6 +1198,7 @@ Mandatory autonomous refactor and quality-control stage:
             historical = self._reject_historical_agent_pull_request(state)
             if historical is not None:
                 return historical
+            self.github.normalize_markdown_body(state.pull_request)
             self.github.ready(state.pull_request)
         return self._poll(state, result)
 
@@ -1687,6 +1690,7 @@ Mandatory autonomous refactor and quality-control stage:
         finalization_evidence = self.github.pull_request(result.pull_request)
         if finalization_evidence.state == "MERGED":
             return self._poll(finalization, result)
+        self.github.normalize_markdown_body(result.pull_request)
         self.github.ready(result.pull_request)
         return self._poll(finalization, result)
 

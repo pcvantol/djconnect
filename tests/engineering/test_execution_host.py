@@ -114,6 +114,7 @@ class FakeGitHub:
         self.branch_calls: list[str] = []
         self.ready_calls: list[int] = []
         self.merge_calls: list[int] = []
+        self.markdown_normalization_calls: list[int] = []
 
     def pull_request(self, number: int) -> PullRequestEvidence:
         response = self.responses[min(self.calls, len(self.responses) - 1)]
@@ -128,6 +129,10 @@ class FakeGitHub:
 
     def ready(self, number: int) -> None:
         self.ready_calls.append(number)
+
+    def normalize_markdown_body(self, number: int) -> bool:
+        self.markdown_normalization_calls.append(number)
+        return False
 
     def merge(self, number: int) -> None:
         self.merge_calls.append(number)
@@ -391,6 +396,23 @@ class ClientContractTest(unittest.TestCase):
 
         with self.assertRaisesRegex(RunnerError, "service unavailable"):
             GhCliClient(FailingProvider()).merge(42)
+
+    def test_github_client_normalizes_only_a_fully_escaped_markdown_body(self) -> None:
+        class Provider:
+            def __init__(self, body: str) -> None:
+                self.body, self.calls = body, []
+            def github(self, *args: str) -> str:
+                self.calls.append(args)
+                if args[0:2] == ("pr", "view"):
+                    return json.dumps({"body": self.body})
+                return ""
+
+        provider = Provider("## Summary\\n- first\\n- second")
+        self.assertTrue(GhCliClient(provider).normalize_markdown_body(42))
+        self.assertEqual(provider.calls[-1], ("pr", "edit", "42", "--body", "## Summary\n- first\n- second"))
+        real_markdown = Provider("## Summary\n\n- code: `\\n`")
+        self.assertFalse(GhCliClient(real_markdown).normalize_markdown_body(42))
+        self.assertEqual(len(real_markdown.calls), 1)
 
     def test_codex_client_availability_and_version_fail_closed(self) -> None:
         class Provider:
