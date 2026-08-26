@@ -779,6 +779,10 @@ test.describe("Engineering Status browser smoke", () => {
 
   test("persists the Codex capacity reserve from Available AI capacity", async ({ page }) => {
     const writes = [];
+    // This fixture asserts a deliberately mocked capacity snapshot.  Do not
+    // let the live event stream replace it with the test dashboard's own
+    // (usually empty) background snapshot while the page is hydrating.
+    await page.route("**/api/events", (route) => route.abort());
     await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({ json: {
       status: {}, rate_limits: { provider: "Codex CLI", provider_version: "0.149.0", windows: [{ label: "5-hour window", used_percent: 20, resets_at: 1 }], reset_credits: 0 },
     } }));
@@ -813,6 +817,9 @@ test.describe("Engineering Status browser smoke", () => {
   });
 
   test("only offers Codex reserve values that fit the observed remaining capacity", async ({ page }) => {
+    // Keep the controlled quota fixture authoritative for this test; the
+    // production SSE stream is covered independently by stream tests.
+    await page.route("**/api/events", (route) => route.abort());
     await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({ json: {
       status: { watcher_state: "WATCHER_IDLE" }, rate_limits: { windows: [{ label: "5-hour window", used_percent: 53 }] },
     } }));
