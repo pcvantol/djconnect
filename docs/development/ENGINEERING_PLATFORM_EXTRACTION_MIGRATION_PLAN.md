@@ -311,9 +311,23 @@ an independently releasable package.
    installation tests; migration/recovery tests; **required security gates**
    for dependency vulnerability scanning, static analysis, secret scanning,
    package/SBOM provenance and installer checksum/signature verification;
-   release signing/publication policy; and immutable wheel release. A failed,
-   skipped or unavailable required security check blocks publication rather
-   than being treated as advisory evidence.
+   release signing/publication policy; and immutable wheel release. The
+   publication job builds from a clean, tagged checkout in explicit production
+   release mode, never from a developer worktree or a CI test environment. It
+   must install the resulting wheel into a fresh environment and verify both
+   its runtime manifest and its installed contents against an allowlist:
+   production package code, required static runtime assets, license/notices,
+   package metadata and explicitly approved operational templates only. Tests,
+   test fixtures/results, browser traces/screenshots, coverage data, source
+   checkout metadata, local databases/logs, development documentation, build
+   caches, `node_modules`, debug tooling and development-only dependencies are
+   rejected from the published wheel. Debug endpoints, development defaults
+   and verbose diagnostic instrumentation are disabled or excluded by the
+   production build configuration. CI stores the manifest/SBOM/checksum as
+   release evidence and rejects publication on any unexpected file, package
+   dependency or debug/release-mode mismatch. A failed, skipped or unavailable
+   required security or release-artifact check blocks publication rather than
+   being treated as advisory evidence.
    The extracted repository carries the canonical
    [EP non-functional requirements](../engineering/ENGINEERING_PLATFORM_NON_FUNCTIONAL_REQUIREMENTS.md)
    matrix and turns every standalone release-gate requirement into a dedicated
@@ -335,6 +349,8 @@ an independently releasable package.
 
 - a reproducible wheel installed into a clean environment without DJConnect
   source;
+- production-release-mode evidence: the installed wheel's allowlisted file
+  manifest, runtime dependency set, disabled debug profile, SBOM and checksum;
 - dedicated EP CI and release evidence;
 - passing, non-skipped required security-check evidence for the wheel and
   native installer; and
@@ -571,7 +587,7 @@ packaged path is proven.
 | --- | --- |
 | Contract gate | Versioned consumer API, project identity semantics and error/redaction rules approved. |
 | Data gate | Transactional central-store migration, backup/restore and no-dual-writer proof pass. |
-| Package gate | Installed wheel works from a clean environment with dedicated EP CI, required security gates and supply-chain evidence. |
+| Package gate | A clean-environment, production-release-mode wheel passes install/smoke checks; its allowlisted contents exclude tests, debug/development assets and development-only dependencies; dedicated EP CI, required security gates and supply-chain evidence pass. |
 | Consumer gate | DJConnect and Forge/Workspace use only the pinned wheel and complete registration. |
 | Retirement gate | Supported upgrade, rollback and launch-service cutover are proven; source removal is then safe. |
 
