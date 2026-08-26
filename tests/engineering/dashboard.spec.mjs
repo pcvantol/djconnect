@@ -7792,7 +7792,11 @@ test.describe("Engineering Status browser smoke", () => {
 
     await page.locator("#technicalDetails > summary").click();
     const lock = page.locator("#technicalGitLock");
+    const repository = page.locator("#technicalRepositoryTitle").locator("xpath=ancestor::div[contains(@class, 'card')][1]");
     await expect(lock).toContainText("Werkmapvergrendeling");
+    await expect(repository).toContainText("Werkmapvergrendeling");
+    await expect(page.locator("#technicalWorkspaceStateInfo")).toHaveAttribute("aria-label", DASHBOARD_MESSAGES.nl["technical.workspace_status_help"]);
+    await expect(page.locator("#technicalGitLockInfo")).toHaveAttribute("aria-label", DASHBOARD_MESSAGES.nl["technical.git_lock_help"]);
     await expect(lock).toContainText("Actief");
     await expect(lock).toContainText("Git voert een andere actie uit; nieuwe uitvoeringen wachten.");
     await lock.getByRole("button", { name: "Herstel vergrendeling" }).click();
