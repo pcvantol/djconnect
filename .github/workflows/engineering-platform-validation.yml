@@ -25,7 +25,17 @@ on:
       - 'BOOTSTRAP.md'
 
 jobs:
+  validation-profile:
+    runs-on: ubuntu-latest
+    outputs:
+      tier: ${{ steps.profile.outputs.tier }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v5
+        with: {fetch-depth: 0}
+      - id: profile
+        run: python3 -m tools.engineering.validation_profile --base "${{ github.event.pull_request.base.sha || github.event.before }}" --github-output "$GITHUB_OUTPUT"
   validate:
+    needs: validation-profile
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v5
@@ -70,6 +80,8 @@ jobs:
               raise SystemExit("Engineering Platform coverage contract failed:\n" + "\n".join(failures))
           PY
   browser-dashboard:
+    needs: validation-profile
+    if: needs.validation-profile.outputs.tier != 'DOCUMENTATION'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v5
