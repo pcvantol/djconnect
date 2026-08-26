@@ -19,7 +19,7 @@ import sqlite3
 
 WORKSPACE_DIRECTORY = ".engineering"
 DATABASE_FILENAME = "engineering.db"
-ENGINEERING_STORAGE_SCHEMA_VERSION = 30
+ENGINEERING_STORAGE_SCHEMA_VERSION = 31
 JOURNAL_MODES = frozenset({"DELETE", "MEMORY"})
 LEGACY_DISMISSALS_PATH = Path(".engineering/status/execution_dismissals.json")
 ADMITTED_STORAGE_SCHEMA_ENVIRONMENT = "DJCONNECT_ENGINEERING_ADMITTED_STORAGE_SCHEMA"
@@ -824,6 +824,39 @@ def _schema_v30(connection: sqlite3.Connection) -> None:
     )
 
 
+def _schema_v31(connection: sqlite3.Connection) -> None:
+    """Keep immutable, operator-invoked PR-evidence backfill decisions.
+
+    A backfill can amend a legacy checkpoint only after live GitHub evidence
+    has been verified.  This table retains both applied and deliberately
+    skipped decisions, so historical state never gains an unexplained PR.
+    """
+    connection.execute(
+        "CREATE TABLE IF NOT EXISTS execution_pr_evidence_backfills ("
+        "id INTEGER PRIMARY KEY,run_id TEXT NOT NULL REFERENCES engineering_transactions(run_id) ON DELETE RESTRICT,"
+        "pr_role TEXT NOT NULL CHECK(pr_role IN ('IMPLEMENTATION','FINALIZATION')),"
+        "outcome TEXT NOT NULL CHECK(outcome IN ('APPLIED','SKIPPED')),"
+        "reason TEXT NOT NULL,pr_number INTEGER,expected_branch TEXT,expected_merge_commit TEXT,"
+        "observed_at TEXT NOT NULL,actor TEXT NOT NULL,"
+        "CHECK((outcome='APPLIED' AND pr_number IS NOT NULL) OR outcome='SKIPPED')"
+        ")"
+    )
+    connection.execute(
+        "CREATE INDEX IF NOT EXISTS execution_pr_evidence_backfills_run_lookup "
+        "ON execution_pr_evidence_backfills(run_id,id)"
+    )
+    connection.execute(
+        "CREATE TRIGGER IF NOT EXISTS execution_pr_evidence_backfills_immutable_update "
+        "BEFORE UPDATE ON execution_pr_evidence_backfills BEGIN "
+        "SELECT RAISE(ABORT, 'Pull-request evidence backfill audit is immutable.'); END"
+    )
+    connection.execute(
+        "CREATE TRIGGER IF NOT EXISTS execution_pr_evidence_backfills_immutable_delete "
+        "BEFORE DELETE ON execution_pr_evidence_backfills BEGIN "
+        "SELECT RAISE(ABORT, 'Pull-request evidence backfill audit is immutable.'); END"
+    )
+
+
 def _import_legacy_execution_dismissals(root: Path, connection: sqlite3.Connection) -> None:
     """Copy valid legacy dismissal evidence into the canonical datastore.
 
@@ -901,6 +934,7 @@ MIGRATIONS: dict[int, Migration] = {
     28: _schema_v28,
     29: _schema_v29,
     30: _schema_v30,
+    31: _schema_v31,
 }
 
 

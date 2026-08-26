@@ -259,6 +259,18 @@ was merged while it was running.
 Any missing or mismatched condition remains a hard block. A retry must never
 adopt an unrelated historical merged pull request as its own evidence.
 
+### Historical PR-evidence backfill
+
+For legacy terminal Managed records with a missing role-specific PR field, the
+operator may use `python -m tools.engineering.pr_evidence_backfill` to inspect
+the exact recovery candidates. It is a dry run unless `--apply` is supplied.
+The recovery requires the checkpointed role branch and merge commit to match a
+single current GitHub PR whose head is that branch, base is `main`, state is
+merged and merge commit is identical. It also verifies that commit against
+refreshed `origin/main` without switching the workspace branch. It records
+each applied or skipped decision immutably; it never creates a substitute PR
+or changes non-terminal execution state.
+
 ## Development Host Drift Diagnostics
 
 Development Host Qualification remains fail-closed and its admission behavior is
