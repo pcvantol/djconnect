@@ -359,6 +359,8 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(banner).toContainText(DASHBOARD_MESSAGES.nl["notification.provider_readiness.auth_required"].replace("{provider}", "Codex"));
     await expect(page.locator("#githubProviderReadinessBanner")).toBeHidden();
     await expect(page.locator("#codexProviderReadinessAction")).toHaveText(DASHBOARD_MESSAGES.nl["notification.provider_readiness.login"].replace("{provider}", "Codex"));
+    await expect(page.locator("#codexProviderReadinessAction")).toHaveCSS("background-color", "rgb(244, 195, 79)");
+    await expect(page.locator("#codexProviderReadinessAction")).toHaveCSS("color", "rgb(42, 36, 21)");
     await page.locator("#codexProviderReadinessAction").click();
     await expect(page.locator("#confirmationModal")).toBeVisible();
     await page.locator("#confirmationModalConfirm").click();
