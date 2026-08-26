@@ -447,7 +447,7 @@ npm run test:engineering-dashboard-logic
 ```
 
 For Engineering Platform pull requests, GitHub executes the full browser suite
-as two deterministic Playwright shards in parallel. This preserves the complete
+as four deterministic Playwright shards in parallel. This preserves the complete
 suite while making each shard's result and failure diagnostics independently
 visible.
 
