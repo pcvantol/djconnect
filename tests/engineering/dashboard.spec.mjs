@@ -525,6 +525,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(worktrees).toContainText("Lokale worktrees en branches");
     await expect(worktrees).toContainText("codex/polish");
     await expect(worktrees).toContainText("/tmp/polish");
+    await expect(worktrees).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
     await expect(worktrees.locator(".workspace-branch-actions")).toContainText("Scan branches voor opruiming");
     await expect(worktrees.locator(".workspace-branch-actions")).toContainText("Switch naar FF main");
     expect(await page.evaluate(() => {
@@ -903,6 +904,7 @@ test.describe("Engineering Status browser smoke", () => {
       window.setTimeout = originalSetTimeout;
       return delay;
     });
+    await expect(page.locator("#workspaceOpenPullRequests")).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
     const openPullRequestStatus = page.locator("#workspaceOpenPullRequests .open-pr-status");
     await expect(page.locator("#workspaceOpenPullRequests a")).toHaveText("PR #925 — Check projection ↗");
     expect(await page.locator("#workspaceOpenPullRequests li").evaluate((item) =>
@@ -972,7 +974,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(openPullRequestStatus).toHaveClass(/open-pr-status--ready_to_merge/);
     await expect(openPullRequestStatus).toHaveText("Klaar om te mergen");
     await page.getByTestId("theme-toggle").click();
-    await expect(page.locator("#workspaceOpenPullRequests")).toHaveCSS("background-color", "rgb(255, 253, 243)");
+    await expect(page.locator("#workspaceOpenPullRequests")).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
     await expect(page.locator("#workspaceOpenPullRequests a")).toHaveCSS("color", "rgb(114, 83, 17)");
     await expect(openPullRequestStatus).toHaveCSS("color", "rgb(24, 120, 67)");
   });
