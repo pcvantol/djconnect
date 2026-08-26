@@ -685,6 +685,7 @@ test.describe("Engineering Status browser smoke", () => {
     const select = page.locator("#configurationProviderReadinessInterval");
     await expect(select).toHaveValue("300");
     await expect(select.locator("option[value='300']")).toHaveText("5 minuten");
+    await expect(select.locator("xpath=ancestor::section[@id='configurationProviderLoginStatus'][1]")).toBeVisible();
     expect(readinessChecks).toBeGreaterThanOrEqual(1);
     await select.selectOption("600");
     await expect.poll(() => writes).toEqual([{

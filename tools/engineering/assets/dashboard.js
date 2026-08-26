@@ -5264,7 +5264,9 @@ function moveProjectScopedConfiguration() {
   moveConfigurationControls(CONFIGURATION_CONTROL_SCOPES[0]);
 }
 function moveMachineScopedWorkspaceDetails() {
-  const configuration = $("configuration"), controls = configuration?.querySelector(".configuration-controls");
+  // Only a direct child is a valid insertion anchor for the machine-scoped
+  // fields. Provider readiness owns a nested configuration group of its own.
+  const configuration = $("configuration"), controls = configuration?.querySelector(":scope > .configuration-controls");
   if (!configuration || !controls) return;
   MACHINE_SCOPED_WORKSPACE_FIELD_IDS.forEach((id) => {
     const field = $(id);
@@ -5273,10 +5275,10 @@ function moveMachineScopedWorkspaceDetails() {
 }
 function ensureProviderReadinessConfigurationControl() {
   if ($("configurationProviderReadinessInterval")) return;
-  const controls = document.querySelector("#configuration .configuration-controls");
-  const before = $("configurationPlatformHealthInterval")?.closest("label");
-  if (!controls || !before) return;
-  const label = document.createElement("label"), text = document.createElement("span"), select = document.createElement("select");
+  const block = providerLoginStatusBlock();
+  if (!block) return;
+  const controls = document.createElement("div"), label = document.createElement("label"), text = document.createElement("span"), select = document.createElement("select");
+  controls.className = "configuration-controls configuration-provider-readiness-settings";
   text.className = "label";
   text.textContent = t("configuration.provider_readiness_interval");
   select.id = "configurationProviderReadinessInterval";
@@ -5289,7 +5291,8 @@ function ensureProviderReadinessConfigurationControl() {
   });
   label.htmlFor = select.id;
   label.append(text, select);
-  controls.insertBefore(label, before);
+  controls.append(label);
+  block.append(controls);
   enhanceDashboardSelectPicker(select);
 }
 function ensureCodexCapacityReserveConfigurationControl() {
