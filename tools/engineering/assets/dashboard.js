@@ -4982,12 +4982,15 @@ function providerLoginStatusBlock() {
       const row = document.createElement("div");
       row.className = "configuration-provider-status__row";
       row.dataset.provider = provider;
+      const repair = Object.assign(document.createElement("button"), { className: "configuration-provider-status__repair", type: "button", hidden: true });
+      repair.dataset.providerRepair = provider;
       const logout = Object.assign(document.createElement("button"), { className: "configuration-provider-status__logout", type: "button", textContent: t("configuration.provider_logout") });
       logout.dataset.providerLogout = provider;
       row.append(
         Object.assign(document.createElement("span"), { className: "configuration-provider-status__dot", ariaHidden: "true" }),
         Object.assign(document.createElement("strong"), { textContent: provider === "CODEX" ? "Codex" : "GitHub" }),
         Object.assign(document.createElement("span"), { className: "configuration-provider-status__label" }),
+        repair,
         logout,
       );
       block.append(row);
@@ -5008,14 +5011,23 @@ async function refreshProviderLoginStatus() {
       const state = String(payload.providers?.[row.dataset.provider.toLowerCase()]?.state || "CHECK_FAILED");
       row.dataset.providerState = state;
       row.querySelector(".configuration-provider-status__label").textContent = t(`configuration.provider_status.${state}`, {}, t("configuration.provider_status.CHECK_FAILED"));
-      row.querySelector("[data-provider-logout]").disabled = state !== "READY";
+      const logout = row.querySelector("[data-provider-logout]"), repair = row.querySelector("[data-provider-repair]");
+      logout.hidden = state !== "READY";
+      logout.disabled = state !== "READY";
+      repair.hidden = state !== "UNAVAILABLE";
+      repair.disabled = providerInteractiveRepairInProgress;
+      repair.textContent = t("notification.provider_readiness.install", { provider: row.dataset.provider === "CODEX" ? "Codex" : "GitHub" });
     });
   } catch {
     renderProviderReadinessBanner({ codex: { state: "CHECK_FAILED" }, github: { state: "CHECK_FAILED" } });
     block.querySelectorAll("[data-provider]").forEach((row) => {
       row.dataset.providerState = "CHECK_FAILED";
       row.querySelector(".configuration-provider-status__label").textContent = t("configuration.provider_status.CHECK_FAILED");
-      row.querySelector("[data-provider-logout]").disabled = true;
+      const logout = row.querySelector("[data-provider-logout]"), repair = row.querySelector("[data-provider-repair]");
+      logout.hidden = true;
+      logout.disabled = true;
+      repair.hidden = true;
+      repair.disabled = true;
     });
   }
 }
@@ -5049,17 +5061,17 @@ function renderProviderReadinessBanner(providers) {
   });
 }
 document.addEventListener("click", async (event) => {
-  const button = event.target.closest("[id$='ProviderReadinessAction']");
+  const button = event.target.closest("[id$='ProviderReadinessAction'], [data-provider-repair]");
   if (!button || providerInteractiveRepairInProgress) return;
-  const key = button.id.startsWith("codex") ? "codex" : "github";
+  const key = button.dataset.providerRepair?.toLowerCase() || (button.id.startsWith("codex") ? "codex" : "github");
   const pending = providerReadinessActions.get(key);
-  if (!pending) return;
+  if (!pending || (button.dataset.providerRepair && pending.action !== "install")) return;
   const { provider, action } = pending;
   const providerName = provider === "CODEX" ? "Codex" : "GitHub";
   const confirmed = await confirmDashboardAction(t("notification.provider_readiness.title", { provider: providerName }), t(`notification.provider_readiness.${action}_confirm`, { provider: providerName }), t(`notification.provider_readiness.${action}`, { provider: providerName }));
   if (!confirmed) return;
   providerInteractiveRepairInProgress = true;
-  document.querySelectorAll("[id$='ProviderReadinessAction']").forEach((candidate) => { candidate.disabled = true; });
+  document.querySelectorAll("[id$='ProviderReadinessAction'], [data-provider-repair]").forEach((candidate) => { candidate.disabled = true; });
   button.disabled = true;
   try {
     const response = await fetch("/api/provider-login/repair", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ provider, action }) });

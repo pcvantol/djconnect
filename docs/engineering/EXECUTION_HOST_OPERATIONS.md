@@ -40,8 +40,9 @@ separate sticky notifications for Codex and GitHub. An operator can explicitly
 install a missing CLI or open its browser-backed terminal login. At most one
 interactive provider repair may be active at once. A repair never runs from an
 execution, never exposes credentials, and does not resolve its banner until a
-new check confirms readiness. Per-provider sign-out remains available to test
-a fresh session deliberately.
+new check confirms readiness. The same installation action is available beside
+the affected provider in Configuration; per-provider sign-out remains available
+there to test a fresh session deliberately.
 
 The dashboard checks both providers immediately when it opens, then rechecks
 while its tab is visible at a configurable **1, 5 or 10 minute** interval

@@ -309,6 +309,36 @@ test.describe("Engineering Status browser smoke", () => {
     expect(geometry.nameLeft - geometry.dotRight).toBeLessThanOrEqual(12);
   });
 
+  test("offers the confirmed compact install action beside an unavailable provider", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    let repairs = 0;
+    await page.route("**/api/provider-login-status", (route) => route.fulfill({ json: {
+      providers: {
+        codex: { provider: "CODEX", state: "UNAVAILABLE" },
+        github: { provider: "GITHUB", state: "READY" },
+      },
+    } }));
+    await page.route("**/api/provider-login/repair", async (route) => {
+      repairs += 1;
+      expect(JSON.parse(route.request().postData() || "{}")).toEqual({ provider: "CODEX", action: "install" });
+      await route.fulfill({ status: 202, json: { started: true } });
+    });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.waitForFunction(() => document.body?.classList.contains("dashboard-ready"));
+    await page.locator("#configuration").evaluate((element) => { element.open = true; });
+    const row = page.locator('[data-provider="CODEX"]');
+    const install = row.locator("[data-provider-repair]");
+    await expect(install).toBeVisible();
+    await expect(install).toHaveText(DASHBOARD_MESSAGES.nl["notification.provider_readiness.install"].replace("{provider}", "Codex"));
+    await expect(row.locator("[data-provider-logout]")).toBeHidden();
+    await expect(install).toHaveCSS("min-height", "32px");
+    await expect(install).toHaveCSS("border-top-color", "rgb(240, 182, 106)");
+    await install.click();
+    await expect(page.locator("#confirmationModal")).toBeVisible();
+    await page.locator("#confirmationModalConfirm").click();
+    await expect.poll(() => repairs).toBe(1);
+  });
+
   test("shows a sticky provider repair banner and never reports it as resolved before recheck", async ({ page }) => {
     let readinessCalls = 0;
     await page.route("**/api/provider-login-status", (route) => route.fulfill({ json: {

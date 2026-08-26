@@ -174,6 +174,9 @@ browser-default button chrome is prohibited. On phone widths the action may
 move to an explicit second row, never an implicit grid row. Every new
 configuration status/action surface needs a Playwright visual-contract test
 for both its compact desktop geometry and its semantic action treatment.
+Provider installation is a confirmed operational action and uses the compact
+orange treatment; provider sign-out remains the distinct compact rose
+destructive treatment.
 
 Interactive data rows use their parent table's category tint across every
 cell on hover and selection, with only the shared leading selection marker.
