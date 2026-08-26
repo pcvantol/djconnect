@@ -318,8 +318,10 @@ an independently releasable package.
    application alongside the wheel. It is the supported first-install and
    repair experience for a local EP host; command-line installation remains a
    documented administrator alternative, not a separate runtime.
-7. Publish a first pinned 2.x wheel only after package install, native
-   clean-machine installation and rollback proof succeed.
+7. Publish the first pinned standalone EP wheel as **`2.0.0`** only after
+   package install, native clean-machine installation and rollback proof
+   succeed. The initial consumer pins must reference that exact version; no
+   floating `2.x` range is permitted for the first release.
 8. Define compatibility explicitly across EP version, Consumer Contract
    version, storage schema, DJConnect adapter, Forge adapter and Workspace
    adapter/BFF. Unknown or incompatible major versions fail closed; successful
