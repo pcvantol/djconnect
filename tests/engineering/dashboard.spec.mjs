@@ -666,9 +666,27 @@ test.describe("Engineering Status browser smoke", () => {
       };
     });
     expect(layout.pickerTop).toBeGreaterThanOrEqual(layout.labelBottom);
-    expect(layout.width).toBe(layout.parentWidth);
+    expect(layout.width).toBeLessThanOrEqual(224);
     expect(layout.backgroundImage).toBe("none");
     expect(layout.boxShadow).toBe("none");
+  });
+
+  test("keeps the host-detail refresh picker compact and interactive on iPhone", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await waitForDashboardReady(page);
+    await page.locator("#configuration").evaluate((element) => { element.open = true; });
+
+    const picker = page.locator("#configurationComponentDetailsInterval + .dashboard-select-picker");
+    await expect(picker).toBeVisible();
+    const layout = await picker.evaluate((element) => ({
+      pickerWidth: Math.round(element.getBoundingClientRect().width),
+      sectionWidth: Math.round(element.closest(".configuration-host-components").getBoundingClientRect().width),
+    }));
+    expect(layout.pickerWidth).toBeLessThan(layout.sectionWidth);
+    await openDashboardPicker(picker);
+    await expect(picker.locator("[role=listbox]")).toBeVisible();
+    await expect(picker.locator("[role=option]")).toHaveText(["5 seconden", "15 seconden", "30 seconden", "60 seconden"]);
   });
 
   test("stacks the Inbox location action below its long path on iPhone", async ({ page }) => {

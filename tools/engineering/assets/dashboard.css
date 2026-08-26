@@ -709,7 +709,11 @@ html[data-theme="light"] .report-view-modal__content,html[data-theme="light"] .r
   .configuration-inbox-field{grid-template-columns:minmax(0,1fr)}
   .configuration-inbox-open{grid-column:1;grid-row:auto;justify-self:stretch;width:100%}
   .configuration-provider-status__row{grid-template-columns:auto minmax(0,1fr) auto}.configuration-provider-status__logout{grid-column:2 / -1;justify-self:start}
-  .configuration-controls .dashboard-select-picker{max-width:none;width:100%}
+  /* A value control may use its own row on a phone, but it remains a compact
+     picker.  Full-width controls make the configuration scan poorly and used
+     to leave the listbox visually detached from its trigger. */
+  .configuration-controls .dashboard-select-picker{justify-self:start;max-width:14rem;width:min(100%,14rem)}
+  .configuration-controls .dashboard-select-picker:has(.dashboard-locale__button[aria-expanded="true"]){z-index:30}
   .configuration-controls .dashboard-locale__button{
     -webkit-backdrop-filter:none!important;
     backdrop-filter:none!important;
