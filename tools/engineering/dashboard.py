@@ -45,7 +45,7 @@ from .component_logging import (
     shutdown_signal_logging,
 )
 from .component_lock import DuplicateComponentInstanceError, single_instance
-from .agent_state import redact_diagnostic
+from .agent_state import COMMIT_EVIDENCE_DESCRIPTIONS, redact_diagnostic
 from .codex_chat import CodexChatError, chat_model, respond as codex_chat_response
 from .codex_capacity import read_remaining_percent
 from .telemetry import clear_telemetry, daily_statistics, daily_timing_detail, execution_timing, prune_telemetry
@@ -335,6 +335,7 @@ def _project_prompt_history_detail(
     report: str | None,
     lifecycle: dict[str, object] | None = None,
     pull_requests: object = (),
+    commit_timeline: object = (),
 ) -> bytes:
     """Project one immutable history row into dashboard detail JSON.
 
@@ -351,6 +352,7 @@ def _project_prompt_history_detail(
             "runtime": runtime,
             "reviewers": reviewers,
             "commits": commits,
+            "commit_timeline": commit_timeline,
             "pull_requests": pull_requests,
             "usage": usage,
             "evidence": evidence,
@@ -427,6 +429,7 @@ def _prompt_history_detail(root: Path, run_id: str | None) -> bytes:
     reviewers = json.loads(_reviewer_agents_for_run(root, run_id))
     commits = _commits_for_run(root, run_id)
     pull_requests = _pull_requests_for_run(root, run_id)
+    commit_timeline = _commit_timeline_for_run(root, run_id)
     usage: dict[str, object] = {}
     try:
         provider_summary = provider_usage_summary(root, run_id)
@@ -465,6 +468,7 @@ def _prompt_history_detail(root: Path, run_id: str | None) -> bytes:
         reviewers=reviewers,
         commits=commits,
         pull_requests=pull_requests,
+        commit_timeline=commit_timeline,
         usage=usage,
         report=report,
         lifecycle=lifecycle_projection(root, run_id),
@@ -1790,6 +1794,45 @@ def _commits_for_run(root: Path, run_id: str | None) -> dict[str, str]:
         "finalization_merge_commit": "Finalisatie-mergecommit",
     }
     return {labels[key]: checkpoint[key] for key in labels if isinstance(checkpoint.get(key), str)}
+
+
+def _commit_timeline_for_run(root: Path, run_id: str | None) -> list[dict[str, str]]:
+    """Project only strict, checkpoint-owned verified commit events.
+
+    This is intentionally a read-only projection: old or malformed
+    checkpoint values never become dashboard evidence.
+    """
+    if not isinstance(run_id, str) or not re.fullmatch(r"[a-z0-9][a-z0-9-]{0,63}", run_id):
+        return []
+    checkpoint = _canonical_checkpoint(root, run_id)
+    raw = checkpoint.get("commit_evidence")
+    if not isinstance(raw, list):
+        return []
+    events: list[dict[str, str]] = []
+    for item in raw:
+        if not isinstance(item, dict):
+            continue
+        phase, observed_at, commit_sha, description = (
+            item.get("phase"), item.get("observed_at"), item.get("commit_sha"), item.get("description"),
+        )
+        if not (
+            isinstance(phase, str)
+            and isinstance(observed_at, str)
+            and isinstance(commit_sha, str)
+            and isinstance(description, str)
+            and re.fullmatch(r"[0-9a-f]{40}", commit_sha)
+            and re.fullmatch(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?\+00:00", observed_at)
+            and description in COMMIT_EVIDENCE_DESCRIPTIONS
+            and description == redact_diagnostic(description)
+        ):
+            continue
+        events.append({
+            "phase": phase,
+            "observed_at": observed_at,
+            "commit_sha": commit_sha,
+            "description": description,
+        })
+    return sorted(events, key=lambda item: item["observed_at"])
 
 
 def _last_executed_commits(root: Path) -> bytes:

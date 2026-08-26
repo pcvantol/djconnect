@@ -238,6 +238,16 @@ durably associated with the corresponding transaction before the lifecycle can
 advance. A finalization PR therefore remains distinct from the implementation
 PR, including when an interrupted process is recovered.
 
+For every mutating lifecycle phase, EP also maintains an append-only commit
+timeline in the transaction checkpoint. An event contains the UTC observation
+time, lifecycle phase, full commit SHA and a bounded safe description. It is
+written in the same SQLite checkpoint transaction only after the active
+repository proves a clean transaction branch at the exact reported SHA, or,
+for an operator merge, after GitHub merge evidence and `origin/main` ancestry
+are proven. A missing, dirty or mismatched repository never produces timeline
+evidence. The execution-detail view projects this history beside provider
+usage in a scrollable card, so audit volume cannot expand the lifecycle view.
+
 For either PR, EP can enter bounded PR-control repair when current GitHub
 evidence shows failed required checks or a repairable merge condition such as
 an out-of-date (`BEHIND`), dirty or unstable branch. Repair stays on the

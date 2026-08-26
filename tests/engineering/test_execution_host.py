@@ -1959,6 +1959,39 @@ class LocalAgentRunnerTest(unittest.TestCase):
         self.assertEqual(repaired.repair_audit[0]["outcome"], "agent_failed")
         self.assertEqual(repaired.repair_audit[0]["agent_summary"], "External review required.")
 
+    def test_verified_phase_commit_evidence_requires_exact_clean_branch_and_sha(self) -> None:
+        repository = FakeRepository(branch="codex/verified-commit")
+        repository.evidence = RepositoryEvidence(
+            "pcvantol/djconnect", "codex/verified-commit", "b" * 40, True, False
+        )
+        runner = EngineeringRunner(
+            self.root, self.store, repository, FakeGitHub([]), FakeAgent(AgentResult("WAITING")), lambda _: None,
+        )
+        state = TransactionState(
+            "commit-evidence", "pcvantol/djconnect", str(self.prompt), "REPAIR_AGENT", branch="codex/verified-commit"
+        )
+        recorded = runner._record_verified_result_commit(
+            state,
+            AgentResult("WAITING", branch="codex/verified-commit", commit_sha="b" * 40),
+            phase="REPAIR_AGENT",
+            description="pull_request_repair_commit_verified",
+        )
+        self.assertEqual(len(recorded.commit_evidence), 1)
+        self.assertEqual(recorded.commit_evidence[0]["commit_sha"], "b" * 40)
+        self.store.save(recorded)
+        self.assertEqual(self.store.load("commit-evidence").commit_evidence, recorded.commit_evidence)
+
+        repository.evidence = RepositoryEvidence(
+            "pcvantol/djconnect", "codex/verified-commit", "c" * 40, True, False
+        )
+        rejected = runner._record_verified_result_commit(
+            recorded,
+            AgentResult("WAITING", branch="codex/verified-commit", commit_sha="b" * 40),
+            phase="QUALITY_CONTROL_AGENT",
+            description="quality_control_commit_verified",
+        )
+        self.assertEqual(len(rejected.commit_evidence), 1)
+
     def test_repair_timeout_is_a_valid_durable_audit_outcome(self) -> None:
         state = TransactionState(
             "repair-timeout", "pcvantol/djconnect", str(self.prompt),

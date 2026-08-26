@@ -18,7 +18,7 @@ import uuid
 import re
 import sqlite3
 
-from .agent_state import StateError, StateStore, TransactionState, redact_diagnostic
+from .agent_state import MAX_COMMIT_EVIDENCE_RECORDS, StateError, StateStore, TransactionState, redact_diagnostic
 from .capability_review import (
     ReviewerResult,
     ReviewerSelection,
@@ -621,6 +621,56 @@ class EngineeringRunner:
         ),))
 
     @staticmethod
+    def _append_verified_commit_evidence(
+        state: TransactionState, *, phase: str, commit_sha: str, description: str
+    ) -> TransactionState:
+        """Append immutable, compact commit evidence after its caller verified it.
+
+        The checkpoint save is the transaction boundary.  Deduplication by
+        phase and SHA makes retries idempotent without rewriting earlier
+        operational evidence.
+        """
+        if not re.fullmatch(r"[0-9a-f]{40}", commit_sha):
+            return state
+        if len(state.commit_evidence) >= MAX_COMMIT_EVIDENCE_RECORDS:
+            return state
+        if any(item["phase"] == phase and item["commit_sha"] == commit_sha for item in state.commit_evidence):
+            return state
+        return replace(
+            state,
+            commit_evidence=state.commit_evidence + ({
+                "phase": phase,
+                "observed_at": datetime.now(timezone.utc).isoformat(),
+                "commit_sha": commit_sha,
+                "description": redact_diagnostic(description),
+            },),
+        )
+
+    def _record_verified_result_commit(
+        self, state: TransactionState, result: AgentResult, *, phase: str, description: str
+    ) -> TransactionState:
+        """Record an agent commit only when the checked-out repository proves it.
+
+        A reported SHA is intentionally insufficient: the live repository must
+        be clean, on the reported transaction branch, and at that exact SHA.
+        Any unavailable or mismatched evidence is simply not recorded.
+        """
+        if not result.commit_sha or not re.fullmatch(r"[0-9a-f]{40}", result.commit_sha):
+            return state
+        expected_branch = result.branch or state.branch
+        if not expected_branch or expected_branch == "main":
+            return state
+        try:
+            evidence = self.repository.inspect(self.root)
+        except RunnerError:
+            return state
+        if not (evidence.clean and evidence.branch == expected_branch and evidence.head_sha == result.commit_sha):
+            return state
+        return self._append_verified_commit_evidence(
+            state, phase=phase, commit_sha=result.commit_sha, description=description,
+        )
+
+    @staticmethod
     def _validation_kind(command: str) -> str | None:
         """Classify only known validation commands at their live boundary.
 
@@ -748,6 +798,12 @@ Local repository validation gate — iteration {iteration} of {MAX_LOCAL_REPOSIT
                 )
                 validation = self._record_agent_execution_time(validation)
                 validation = self._record_validation_evidence(validation, result)
+                validation = self._record_verified_result_commit(
+                    validation,
+                    result,
+                    phase="LOCAL_REPOSITORY_VALIDATION",
+                    description="local_repository_validation_commit_verified",
+                )
                 self._persist_agent_usage(validation.run_id)
             except ProviderReadinessBlocked as blocked:
                 return blocked.state, implementation
@@ -816,6 +872,12 @@ Mandatory autonomous refactor and quality-control stage:
             quality = self._record_agent_execution_time(quality)
             quality = self._record_validation_evidence(quality, result)
             quality = replace(quality, quality_evidence=result.quality_evidence)
+            quality = self._record_verified_result_commit(
+                quality,
+                result,
+                phase="QUALITY_CONTROL_AGENT",
+                description="quality_control_commit_verified",
+            )
             self._persist_agent_usage(quality.run_id)
         except ProviderReadinessBlocked as blocked:
             return blocked.state, implementation
@@ -1229,6 +1291,12 @@ Mandatory autonomous refactor and quality-control stage:
             )
             state = self._record_agent_execution_time(state)
             state = self._record_validation_evidence(state, result)
+            state = self._record_verified_result_commit(
+                state,
+                result,
+                phase="EXECUTE_AGENT",
+                description="implementation_agent_commit_verified",
+            )
             self._persist_agent_usage(state.run_id)
         except ProviderReadinessBlocked as blocked:
             return blocked.state
@@ -1320,6 +1388,12 @@ Mandatory autonomous refactor and quality-control stage:
             )
             return self._save_terminal(state, "BLOCKED", "genesis_reconciliation_required", diagnostic)
         reconciled = replace(state, genesis_repository_path=str(target), genesis_commit_sha=result.commit_sha, latest_repository_evidence=f"local genesis commit {result.commit_sha}")
+        reconciled = self._append_verified_commit_evidence(
+            reconciled,
+            phase="EXECUTE_AGENT",
+            commit_sha=result.commit_sha,
+            description="genesis_implementation_commit_verified",
+        )
         return self._save_terminal(reconciled, "COMPLETE", "genesis_local_commit_reconciled")
 
     def _verify_engineering_platform(self) -> None:
@@ -1481,7 +1555,14 @@ Mandatory autonomous refactor and quality-control stage:
                     and evidence.head_sha == result.commit_sha
                     and evidence.main_contains_head
                 ):
-                    return self._cleanup(replace(state, last_verified_sha=result.commit_sha))
+                    reconciled = replace(state, last_verified_sha=result.commit_sha)
+                    reconciled = self._append_verified_commit_evidence(
+                        reconciled,
+                        phase="RECONCILE_AGENT",
+                        commit_sha=result.commit_sha,
+                        description="end_reconciliation_commit_verified",
+                    )
+                    return self._cleanup(reconciled)
                 return self._save_terminal(
                     state, "BLOCKED", "automatic_reconciliation_evidence_required",
                     "Automatic reconciliation requires a clean main checkout containing its reported commit.",
@@ -1604,6 +1685,12 @@ Mandatory autonomous refactor and quality-control stage:
             )
             repair = self._record_agent_execution_time(repair)
             repair = self._record_validation_evidence(repair, result)
+            repair = self._record_verified_result_commit(
+                repair,
+                result,
+                phase="REPAIR_AGENT",
+                description="pull_request_repair_commit_verified",
+            )
             repair = self._record_repair_audit(
                 repair, failed_checks=failed_checks, objective=objective, result=result,
                 outcome="agent_failed" if result.terminal_state in {"BLOCKED", "FAILED"} else "submitted_for_recheck",
@@ -1720,6 +1807,12 @@ Mandatory autonomous refactor and quality-control stage:
             )
             finalization = self._record_agent_execution_time(finalization)
             finalization = self._record_validation_evidence(finalization, result)
+            finalization = self._record_verified_result_commit(
+                finalization,
+                result,
+                phase="FINALIZE_AGENT",
+                description="finalization_commit_verified",
+            )
             self._persist_agent_usage(finalization.run_id)
         except CodexHandoffTimeout:
             complete_phase(self.root, finalization_span, outcome="FAILED")
@@ -1814,6 +1907,12 @@ Mandatory autonomous refactor and quality-control stage:
             )
             reconciliation = self._record_agent_execution_time(reconciliation)
             reconciliation = self._record_validation_evidence(reconciliation, result)
+            reconciliation = self._record_verified_result_commit(
+                reconciliation,
+                result,
+                phase="RECONCILE_AGENT",
+                description="end_reconciliation_commit_verified",
+            )
             self._persist_agent_usage(reconciliation.run_id)
         except ProviderReadinessBlocked as blocked:
             return blocked.state
@@ -1918,7 +2017,7 @@ Mandatory autonomous refactor and quality-control stage:
             "latest_github_evidence": _pull_request_summary(pr),
         }
         if state.transaction_kind == "IMPLEMENTATION":
-            return replace(
+            recorded = replace(
                 state,
                 implementation_branch=state.branch,
                 implementation_pull_request=pr.number,
@@ -1926,15 +2025,25 @@ Mandatory autonomous refactor and quality-control stage:
                 implementation_merge_commit=pr.merge_commit,
                 **common,
             )
-        if state.transaction_kind == "RECONCILIATION":
-            return replace(state, reconciliation_pull_request=pr.number, **common)
-        return replace(
-            state,
-            finalization_branch=state.branch or state.finalization_branch,
-            finalization_pull_request=pr.number,
-            finalization_head_sha=state.last_verified_sha,
-            finalization_merge_commit=pr.merge_commit,
-            **common,
+            description = "implementation_merge_verified"
+        elif state.transaction_kind == "RECONCILIATION":
+            recorded = replace(state, reconciliation_pull_request=pr.number, **common)
+            description = "reconciliation_merge_verified"
+        else:
+            recorded = replace(
+                state,
+                finalization_branch=state.branch or state.finalization_branch,
+                finalization_pull_request=pr.number,
+                finalization_head_sha=state.last_verified_sha,
+                finalization_merge_commit=pr.merge_commit,
+                **common,
+            )
+            description = "finalization_merge_verified"
+        return self._append_verified_commit_evidence(
+            recorded,
+            phase="WAIT_FOR_OPERATOR_MERGE",
+            commit_sha=pr.merge_commit or "",
+            description=description,
         )
 
 

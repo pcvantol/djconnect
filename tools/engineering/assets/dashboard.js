@@ -6170,6 +6170,38 @@ function promptDetailUsageSection(usage) {
   );
   return fields.length ? promptDetailCard(t("detail.provider_usage"), fields) : null;
 }
+function promptDetailCommitTimelineSection(entries) {
+  const timeline = Array.isArray(entries) ? entries.filter((item) =>
+    item && typeof item === "object" &&
+    typeof item.phase === "string" &&
+    typeof item.observed_at === "string" &&
+    typeof item.commit_sha === "string" && /^[0-9a-f]{40}$/.test(item.commit_sha) &&
+    typeof item.description === "string",
+  ) : [];
+  const card = promptDetailCard(t("detail.commit_timeline"), [], false, "prompt-detail-card--commit-timeline");
+  if (!timeline.length) {
+    card.append(detailField(t("detail.recorded_evidence"), t("detail.commit_timeline_empty")));
+    return card;
+  }
+  const list = document.createElement("ol");
+  list.className = "prompt-detail-commit-timeline__list";
+  for (const item of timeline) {
+    const row = document.createElement("li");
+    row.className = "prompt-detail-commit-timeline__item";
+    const timestamp = Date.parse(item.observed_at);
+    const meta = document.createElement("div");
+    meta.className = "prompt-detail-commit-timeline__meta";
+    meta.textContent = `${Number.isFinite(timestamp) ? locale.dateTime(new Date(timestamp)) : item.observed_at} · ${t("state." + item.phase, {}, item.phase)}`;
+    const commit = document.createElement("code");
+    commit.textContent = item.commit_sha;
+    const description = document.createElement("span");
+    description.textContent = t("detail.commit_description." + item.description, {}, item.description);
+    row.append(meta, commit, description);
+    list.append(row);
+  }
+  card.append(list);
+  return card;
+}
 function promptDetailCommitsSection(commits) {
   if (!Object.keys(commits).length) return null;
   const evidence = Object.entries(commits)
@@ -6263,9 +6295,21 @@ function promptDetailReviewersSection(reviewers, { wide = true } = {}) {
   );
   return promptDetailCard(t("detail.specialist_reviews"), fields, wide, "prompt-detail-card--reviewers");
 }
-function promptDetailProviderReviewSections(usage, reviewers) {
+function promptDetailProviderReviewSections(usage, reviewers, commitTimeline) {
   const usageCard = promptDetailUsageSection(usage);
   const reviewerCard = promptDetailReviewersSection(reviewers, { wide: false });
+  const timelineCard = promptDetailCommitTimelineSection(commitTimeline);
+  if (timelineCard && usageCard) {
+    const pair = document.createElement("section");
+    pair.className = "prompt-detail-provider-review";
+    pair.append(usageCard, timelineCard);
+    if (!reviewerCard) return pair;
+    const stack = document.createElement("section");
+    stack.className = "prompt-detail-provider-review-stack";
+    stack.append(pair, reviewerCard);
+    return stack;
+  }
+  if (timelineCard) return timelineCard;
   if (!usageCard) return reviewerCard;
   if (!reviewerCard) return usageCard;
   const pair = document.createElement("section");
@@ -6281,6 +6325,7 @@ function renderPromptHistoryDetail(payload) {
     usage = payload?.usage || {},
     commits = payload?.commits || {},
     pullRequests = payload?.pull_requests || [],
+    commitTimeline = payload?.commit_timeline || [],
     evidence = Array.isArray(payload?.evidence) ? payload.evidence : [],
     reviewers = Array.isArray(payload?.reviewers) ? payload.reviewers : [],
     recommendationHandoff = payload?.recommendation_handoff;
@@ -6303,7 +6348,7 @@ function renderPromptHistoryDetail(payload) {
       promptDetailRightbar([executionContext, promptDetailPullRequestsSection(pullRequests)]),
       lifecycleFlow(payload?.lifecycle, { historical: true }),
       statusReconciliationCard(payload?.lifecycle?.recovery),
-      promptDetailProviderReviewSections(usage, reviewers),
+      promptDetailProviderReviewSections(usage, reviewers, commitTimeline),
       promptDetailRecommendationHandoff(recommendationHandoff),
     ].filter(Boolean),
   );

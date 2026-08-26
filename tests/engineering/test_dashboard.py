@@ -2114,6 +2114,30 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertEqual(without_report["history"], entry)
         self.assertEqual(without_report["evidence"], [])
 
+    def test_prompt_history_detail_projects_only_verified_phase_commit_timeline(self) -> None:
+        checkpoint = {
+            "commit_evidence": [
+                {
+                    "phase": "REPAIR_AGENT",
+                    "observed_at": "2026-08-26T12:02:00+00:00",
+                    "commit_sha": "b" * 40,
+                    "description": "pull_request_repair_commit_verified",
+                },
+                {
+                    "phase": "EXECUTE_AGENT",
+                    "observed_at": "2026-08-26T12:01:00+00:00",
+                    "commit_sha": "a" * 40,
+                    "description": "implementation_agent_commit_verified",
+                },
+                {"phase": "REPAIR_AGENT", "observed_at": "not-a-date", "commit_sha": "not-a-sha", "description": "Unsafe"},
+            ]
+        }
+        with patch("tools.engineering.dashboard._canonical_checkpoint", return_value=checkpoint):
+            timeline = dashboard._commit_timeline_for_run(Path("/workspace"), "inbox-commit-evidence")
+
+        self.assertEqual([event["commit_sha"] for event in timeline], ["a" * 40, "b" * 40])
+        self.assertEqual(timeline[0]["phase"], "EXECUTE_AGENT")
+
     def test_dashboard_projects_producer_metadata_from_the_exact_execution(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)

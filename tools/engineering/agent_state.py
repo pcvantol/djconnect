@@ -16,6 +16,29 @@ SCHEMA_VERSION = 1
 PHASES = frozenset({"INITIALIZE", "CAPABILITY_REVIEW", "EXECUTE_AGENT", "LOCAL_REPOSITORY_VALIDATION", "QUALITY_CONTROL_AGENT", "REPAIR_AGENT", "FINALIZE_AGENT", "RECONCILE_AGENT", "WAIT_FOR_TERMINAL_EVIDENCE", "WAIT_FOR_OPERATOR_MERGE", "REPOSITORY_CLEANUP", "COMPLETE", "BLOCKED", "FAILED"})
 RUN_ID_PATTERN = re.compile(r"^[a-z0-9][a-z0-9-]{0,63}$")
 MAX_DIAGNOSTIC_LENGTH = 500
+MAX_COMMIT_EVIDENCE_RECORDS = 48
+COMMIT_EVIDENCE_FIELDS = frozenset({"phase", "observed_at", "commit_sha", "description"})
+MUTATING_COMMIT_PHASES = frozenset({
+    "EXECUTE_AGENT",
+    "LOCAL_REPOSITORY_VALIDATION",
+    "QUALITY_CONTROL_AGENT",
+    "REPAIR_AGENT",
+    "FINALIZE_AGENT",
+    "RECONCILE_AGENT",
+    "WAIT_FOR_OPERATOR_MERGE",
+})
+COMMIT_EVIDENCE_DESCRIPTIONS = frozenset({
+    "implementation_agent_commit_verified",
+    "genesis_implementation_commit_verified",
+    "local_repository_validation_commit_verified",
+    "quality_control_commit_verified",
+    "pull_request_repair_commit_verified",
+    "finalization_commit_verified",
+    "end_reconciliation_commit_verified",
+    "implementation_merge_verified",
+    "finalization_merge_verified",
+    "reconciliation_merge_verified",
+})
 SENSITIVE_DIAGNOSTIC_PATTERN = re.compile(
     r"(?i)\b(api[_ -]?key|oauth|access[_ -]?token|refresh[_ -]?token|secret|cookie|authorization|password)\b\s*[:=]\s*\S+|\bbearer\s+\S+|\b[A-Z][A-Z0-9_]{2,}\s*=\s*\S+"
 )
@@ -69,6 +92,7 @@ class TransactionState:
     repair_audit: tuple[dict[str, str], ...] = ()
     local_validation_iterations: int = 0
     local_validation_audit: tuple[dict[str, str], ...] = ()
+    commit_evidence: tuple[dict[str, str], ...] = ()
     waiting_for_merge_since: str | None = None
     auth_recovery_phase: str | None = None
     auth_recovery_next_action: str | None = None
@@ -97,6 +121,7 @@ class TransactionState:
             "repair_audit": (),
             "local_validation_iterations": 0,
             "local_validation_audit": (),
+            "commit_evidence": (),
             "waiting_for_merge_since": None,
             "auth_recovery_phase": None,
             "auth_recovery_next_action": None,
@@ -114,6 +139,8 @@ class TransactionState:
             raw = {**raw, "repair_audit": tuple(raw["repair_audit"])}
         if isinstance(raw.get("local_validation_audit"), list):
             raw = {**raw, "local_validation_audit": tuple(raw["local_validation_audit"])}
+        if isinstance(raw.get("commit_evidence"), list):
+            raw = {**raw, "commit_evidence": tuple(raw["commit_evidence"])}
         if isinstance(raw.get("auth_recovery_providers"), list):
             raw = {**raw, "auth_recovery_providers": tuple(raw["auth_recovery_providers"])}
         try:
@@ -177,6 +204,27 @@ class TransactionState:
             )
         ):
             raise StateError("checkpoint repair audit is invalid or unsafe")
+        if (
+            not isinstance(state.commit_evidence, tuple)
+            or len(state.commit_evidence) > MAX_COMMIT_EVIDENCE_RECORDS
+            or any(
+                not isinstance(item, dict)
+                or set(item) != COMMIT_EVIDENCE_FIELDS
+                or item["phase"] not in MUTATING_COMMIT_PHASES
+                or not isinstance(item["observed_at"], str)
+                or not re.fullmatch(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?\+00:00", item["observed_at"])
+                or not isinstance(item["commit_sha"], str)
+                or not re.fullmatch(r"[0-9a-f]{40}", item["commit_sha"])
+                or not isinstance(item["description"], str)
+                or not item["description"]
+                or item["description"] not in COMMIT_EVIDENCE_DESCRIPTIONS
+                or len(item["description"]) > MAX_DIAGNOSTIC_LENGTH
+                or item["description"] != redact_diagnostic(item["description"])
+                for item in state.commit_evidence
+            )
+            or len({(item["phase"], item["commit_sha"]) for item in state.commit_evidence}) != len(state.commit_evidence)
+        ):
+            raise StateError("checkpoint commit evidence is invalid or unsafe")
         if state.waiting_for_merge_since is not None and (
             not isinstance(state.waiting_for_merge_since, str)
             or len(state.waiting_for_merge_since) > 80

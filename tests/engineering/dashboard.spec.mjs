@@ -3359,13 +3359,19 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#promptHistoryDetailContent .prompt-detail-card--pull-requests")).toHaveCount(0);
   });
 
-  test("pairs specialist reviews beside the wider provider usage card on wide prompt details", async ({ page }) => {
+  test("pairs the verified commit timeline beside provider usage without extending the lifecycle", async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.evaluate(() => {
       renderPromptHistoryDetail({
         history: { run_id: "inbox-provider-review-layout", status: "COMPLETE", title: "Provider and reviews", executed_at: "2026-08-24T20:00:00Z" },
         usage: { input_tokens: 400, output_tokens: 40, provider_invocation_count: 8 },
+        commit_timeline: Array.from({ length: 16 }, (_, index) => ({
+          phase: "REPAIR_AGENT",
+          observed_at: `2026-08-24T20:${String(index).padStart(2, "0")}:00+00:00`,
+          commit_sha: String(index + 1).padStart(40, "a"),
+          description: "pull_request_repair_commit_verified",
+        })),
         reviewers: [
           { reviewer: "validation", capability: "ENGINEERING", status: "completed", accepted_recommendations: 2, selected_because: "validation-related objective" },
           { reviewer: "documentation", capability: "ENGINEERING", status: "completed", accepted_recommendations: 1, selected_because: "documentation-oriented objective" },
@@ -3377,23 +3383,24 @@ test.describe("Engineering Status browser smoke", () => {
     const pair = page.locator("#promptHistoryDetailContent .prompt-detail-provider-review");
     const cards = pair.locator(".prompt-detail-card");
     await expect(cards).toHaveCount(2);
-    const [usageBounds, reviewerBounds] = await Promise.all([
+    const [usageBounds, timelineBounds] = await Promise.all([
       cards.nth(0).boundingBox(), cards.nth(1).boundingBox(),
     ]);
     expect(usageBounds).not.toBeNull();
-    expect(reviewerBounds).not.toBeNull();
-    expect(reviewerBounds.x).toBeGreaterThan(usageBounds.x);
-    expect(reviewerBounds.width).toBeLessThan(usageBounds.width);
-    expect(Math.abs(reviewerBounds.y - usageBounds.y)).toBeLessThanOrEqual(1);
+    expect(timelineBounds).not.toBeNull();
+    expect(timelineBounds.x).toBeGreaterThan(usageBounds.x);
+    expect(Math.abs(timelineBounds.y - usageBounds.y)).toBeLessThanOrEqual(1);
+    await expect(cards.nth(1).locator(".prompt-detail-commit-timeline__list")).toHaveCSS("overflow-y", "auto");
+    await expect(page.locator("#promptHistoryDetailContent .prompt-detail-provider-review-stack .prompt-detail-card--reviewers")).toHaveCount(1);
 
     await page.setViewportSize({ width: 390, height: 844 });
-    const [narrowUsage, narrowReviewers] = await Promise.all([
+    const [narrowUsage, narrowTimeline] = await Promise.all([
       cards.nth(0).boundingBox(), cards.nth(1).boundingBox(),
     ]);
     expect(narrowUsage).not.toBeNull();
-    expect(narrowReviewers).not.toBeNull();
-    expect(Math.abs(narrowReviewers.x - narrowUsage.x)).toBeLessThanOrEqual(1);
-    expect(narrowReviewers.y).toBeGreaterThan(narrowUsage.y);
+    expect(narrowTimeline).not.toBeNull();
+    expect(Math.abs(narrowTimeline.x - narrowUsage.x)).toBeLessThanOrEqual(1);
+    expect(narrowTimeline.y).toBeGreaterThan(narrowUsage.y);
   });
 
   test("formats preflight timestamps through the selected dashboard locale", async ({ page }) => {

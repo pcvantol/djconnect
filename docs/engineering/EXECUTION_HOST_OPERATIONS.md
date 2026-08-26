@@ -147,6 +147,18 @@ run is blocked with its evidence intact and requires a new explicit recovery
 decision. The Console renders these records as iteration evidence and uses
 the same five-language status contract as the rest of the lifecycle.
 
+## Verified phase-commit timeline
+
+Alongside the per-attempt records, each mutating execution phase may append a
+verified commit event: UTC observation time, phase, full SHA and a bounded
+description. The host records it only after a clean local repository proves
+the exact branch/SHA reported by the agent. Operator merge events require the
+separate GitHub merge and `origin/main` ancestry proof. Events are append-only,
+deduplicated by phase and SHA, and saved atomically with the transaction
+checkpoint. The execution-details modal renders them chronologically in a
+bounded, vertically scrollable card beside AI-provider usage; missing evidence
+is shown as missing rather than reconstructed from report text.
+
 - **Pull-request merge hand-off** is shown as a persistent, dashboard-native
   wait state with a direct GitHub link once required checks are green. Closing
   the browser does not cancel it: the watcher polls the persisted run and
