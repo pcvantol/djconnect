@@ -315,6 +315,7 @@ The Execution Host owns one conservative validation-profile classifier for both
 local validation and CI. It derives scope from the bounded branch diff:
 documentation/run evidence, dashboard, runtime, or full. Unknown and mixed
 changes always select the full suite. The local validation audit records the
-chosen tier and required command categories; CI retains its required check and
-skips only the expensive browser execution for an unambiguous documentation
-profile.
+chosen tier and required command categories, while the separate bounded
+validation evidence records the executed command summaries. CI retains its
+required check and skips only the expensive browser execution for an
+unambiguous documentation profile.

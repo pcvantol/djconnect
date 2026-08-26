@@ -920,8 +920,14 @@ class LocalAgentRunnerTest(unittest.TestCase):
 
     def test_local_repository_validation_iterates_before_creating_the_implementation_pr(self) -> None:
         agent = SequencedFakeAgent([
-            AgentResult("WAITING", "codex/implementation", diagnostic="Canonical tests still fail."),
-            AgentResult("COMPLETE", "codex/implementation", 701, diagnostic="Canonical tests passed."),
+            AgentResult(
+                "WAITING", "codex/implementation", diagnostic="Canonical tests still fail.",
+                validation_evidence=({"command": "python -m unittest tests.engineering", "result": "failed"},),
+            ),
+            AgentResult(
+                "COMPLETE", "codex/implementation", 701, diagnostic="Canonical tests passed.",
+                validation_evidence=({"command": "python -m unittest tests.engineering", "result": "passed"},),
+            ),
         ])
         runner = EngineeringRunner(self.root, self.store, FakeRepository(), FakeGitHub([]), agent, lambda _: None)
         state = TransactionState(
@@ -934,6 +940,8 @@ class LocalAgentRunnerTest(unittest.TestCase):
         self.assertEqual(validated.phase, "LOCAL_REPOSITORY_VALIDATION")
         self.assertEqual(validated.local_validation_iterations, 2)
         self.assertEqual([item["outcome"] for item in validated.local_validation_audit], ["validation_failed", "validated"])
+        self.assertEqual(validated.local_validation_audit[0]["proposed_action"], "FULL: full required repository suite")
+        self.assertEqual(validated.validation_evidence, ({"command": "python -m unittest tests.engineering", "result": "passed"},))
         self.assertEqual(result.pull_request, 701)
         self.assertIn("iteration 1 of 3", agent.prompts[0])
         self.assertIn("Create one draft implementation pull request only after", agent.prompts[0])

@@ -101,8 +101,10 @@ Validation is selected from the actual bounded-branch diff. Documentation and
 run-evidence-only changes use document/link/contract validation; dashboard and
 runtime changes retain their relevant Python and browser coverage; mixed or
 unknown scope always selects the full required suite. The selected tier and
-commands are execution evidence. GitHub keeps the required validation check;
-only its costly browser work is skipped for an unambiguous documentation tier.
+command categories are iteration evidence; bounded validation evidence
+separately records the executed command summaries. GitHub keeps the required
+validation check; only its costly browser work is skipped for an unambiguous
+documentation tier.
 
 For a Managed implementation, the Execution Host first creates and pushes the
 bounded branch without creating a pull request. The visible **Local repository
