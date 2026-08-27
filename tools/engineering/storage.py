@@ -9,6 +9,8 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from datetime import datetime, timezone
+import argparse
+import fcntl
 import json
 import hashlib
 import os
@@ -1530,6 +1532,53 @@ def database_path(root: Path) -> Path:
     return root.resolve() / WORKSPACE_DIRECTORY / DATABASE_FILENAME
 
 
+def _assert_controlled_schema_activation(root: Path, path: Path) -> None:
+    """Refuse an upgrade while any EP execution or durable component is live.
+
+    This is intentionally independent of the execution-host environment. A
+    provider child can otherwise escape its admission environment and import
+    newer source against the shared database directly.
+    """
+    if path.is_file():
+        try:
+            connection = sqlite3.connect(f"file:{path}?mode=ro", uri=True)
+            try:
+                tables = {
+                    str(row[0])
+                    for row in connection.execute("SELECT name FROM sqlite_master WHERE type='table'")
+                }
+                if "execution_run_leases" in tables:
+                    active = connection.execute(
+                        "SELECT 1 FROM execution_run_leases WHERE lease_state='ACTIVE' AND expires_at>=? LIMIT 1",
+                        (datetime.now(timezone.utc).isoformat(),),
+                    ).fetchone()
+                    if active is not None:
+                        raise EngineeringStorageError(
+                            "Engineering storage activation requires no active execution lease."
+                        )
+            finally:
+                connection.close()
+        except sqlite3.DatabaseError as error:
+            raise EngineeringStorageError("Engineering storage activation cannot inspect the shared database.") from error
+    locks = root.resolve() / WORKSPACE_DIRECTORY / "locks"
+    for component in ("inbox-watcher", "dashboard"):
+        lock = locks / f"{component}.lock"
+        if not lock.exists():
+            continue
+        try:
+            with lock.open("a+", encoding="utf-8") as handle:
+                try:
+                    fcntl.flock(handle.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+                except BlockingIOError as error:
+                    raise EngineeringStorageError(
+                        f"Engineering storage activation requires {component} to stop first."
+                    ) from error
+                finally:
+                    fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+        except OSError as error:
+            raise EngineeringStorageError("Engineering storage activation cannot verify component ownership.") from error
+
+
 def _schema_version(connection: sqlite3.Connection) -> int:
     tables = {
         str(row[0])
@@ -1546,18 +1595,22 @@ def _schema_version(connection: sqlite3.Connection) -> int:
 
 
 def open_storage(
-    root: Path, *, create: bool = True, journal_mode: str = "DELETE"
+    root: Path, *, create: bool = True, journal_mode: str = "DELETE", allow_schema_upgrade: bool = False
 ) -> sqlite3.Connection:
     """Open, upgrade and validate the private SQLite evidence database.
 
-    Schema upgrades run in one immediate transaction. SQLite rollback-journal
-    mode intentionally avoids persistent WAL sidecars in `.engineering`.
-    Background best-effort writers may request an in-memory journal so their
-    temporary transaction files cannot race workspace cleanup.
+    New private stores are initialized transactionally. An existing shared
+    store never upgrades implicitly: version changes require
+    :func:`activate_storage_schema` after all persistent EP components have
+    stopped. SQLite rollback-journal mode intentionally avoids persistent WAL
+    sidecars in `.engineering`. Background best-effort writers may request an
+    in-memory journal so their temporary transaction files cannot race
+    workspace cleanup.
     """
     if journal_mode not in JOURNAL_MODES:
         raise ValueError("Unsupported SQLite journal mode.")
     path = database_path(root)
+    new_store = not path.exists()
     if create:
         path.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
     elif not path.parent.is_dir():
@@ -1592,6 +1645,10 @@ def open_storage(
             raise EngineeringStorageError(
                 "Engineering storage migration is deferred until the Execution Host is upgraded."
             )
+        if current < ENGINEERING_STORAGE_SCHEMA_VERSION and not (new_store or allow_schema_upgrade):
+            raise EngineeringStorageError(
+                "Engineering storage migration requires controlled post-merge activation."
+            )
         connection.execute("BEGIN IMMEDIATE")
         for version in range(current + 1, ENGINEERING_STORAGE_SCHEMA_VERSION + 1):
             migration = MIGRATIONS.get(version)
@@ -1614,6 +1671,30 @@ def open_storage(
             raise
         raise EngineeringStorageError("Engineering storage could not be opened safely.") from error
     return connection
+
+
+def activate_storage_schema(root: Path) -> sqlite3.Connection:
+    """Upgrade a shared EP database only at a controlled post-merge boundary."""
+    root = root.resolve()
+    path = database_path(root)
+    _assert_controlled_schema_activation(root, path)
+    return open_storage(root, allow_schema_upgrade=True)
+
+
+def main(argv: list[str] | None = None) -> int:
+    """Run the narrow, operator-owned shared-storage activation command."""
+    parser = argparse.ArgumentParser(prog="engineering-storage")
+    parser.add_argument("command", choices=("activate",))
+    parser.add_argument("--repo", type=Path, default=Path.cwd())
+    args = parser.parse_args(argv)
+    try:
+        with activate_storage_schema(args.repo.resolve()) as connection:
+            version = connection.execute("SELECT MAX(version) FROM engineering_schema_migrations").fetchone()[0]
+    except EngineeringStorageError as error:
+        print(f"BLOCKED: {error}")
+        return 2
+    print(f"ACTIVATED: engineering storage schema {version}")
+    return 0
 
 
 def record_readiness_evaluation(root: Path, *, run_id: str, profile_id: str, profile_version: int,
@@ -1645,3 +1726,7 @@ def load_readiness_evaluation(root: Path, run_id: object) -> dict[str, object] |
     if not row:
         return None
     return {"profile_id": row[0], "profile_version": row[1], "execution_mode": row[2], "result": "PASS" if row[3] else "BLOCKED", "failed_requirements": json.loads(row[4]), "evaluated_at": row[5], "diagnostic": row[6]}
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
