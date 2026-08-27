@@ -1,9 +1,9 @@
 # DJConnect Engineering Status
 
 **Status:** Operational handoff
-**Updated:** 2026-08-26
+**Updated:** 2026-08-27
 
-## PR #961 finalization pending
+## PR #961 finalized by PR #963
 
 PR [#961](https://github.com/pcvantol/djconnect/pull/961),
 **docs(engineering): align extraction audit projection**, merged as
@@ -14,9 +14,12 @@ documentation and its focused regression coverage without changing runtime,
 lifecycle, reviewer, provider, queue, delivery or operator-owned merge
 authority. Its immutable Prompt History record is
 `docs/history/prompts/2026-08-27-post-hardening-managed-qualification.md`.
-This governance-only Finalization reconciles only the four canonical rolling
-records and durable handoff metadata. Repository State: `MERGED_UNRECONCILED`;
-Workspace State: `WORKSPACE_READY`; Finalization Pending: `YES`.
+The immutable Prompt History record remains unchanged. Governance-only
+Finalization PR [#963](https://github.com/pcvantol/djconnect/pull/963) merged
+as `9f803f4873c4695dddf9825da1a224e86c6f72e8`; its completed required checks
+have no failures. This direct-on-`main` reconciliation updates only the four
+canonical rolling records. Repository State: `MERGED_RECONCILED`; Workspace
+State: `WORKSPACE_READY`; Finalization Pending: `NO`.
 
 ## PR #948 finalized by PR #949
 
