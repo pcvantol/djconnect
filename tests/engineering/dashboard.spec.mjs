@@ -9134,6 +9134,20 @@ test.describe("Engineering Status browser smoke", () => {
     expect(bounds.right).toBeLessThanOrEqual(bounds.viewportWidth);
   });
 
+  test("anchors the desktop health popout below the status indicator", async ({ page }) => {
+    await page.setViewportSize({ width: 1600, height: 900 });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    const indicator = page.getByTestId("dashboard-health-indicator");
+    await indicator.click();
+    const layout = await page.evaluate(() => {
+      const health = document.querySelector("#dashboardHealth").getBoundingClientRect();
+      const tooltip = document.querySelector("#dashboardHealthTooltip").getBoundingClientRect();
+      return { healthLeft: health.left, healthBottom: health.bottom, tooltipLeft: tooltip.left, tooltipTop: tooltip.top };
+    });
+    expect(Math.abs(layout.tooltipLeft - layout.healthLeft)).toBeLessThanOrEqual(2);
+    expect(layout.tooltipTop).toBeGreaterThan(layout.healthBottom);
+  });
+
   test("keeps the compact titlebar health tooltip above dashboard content", async ({ page }) => {
     await page.setViewportSize({ width: 1136, height: 768 });
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });

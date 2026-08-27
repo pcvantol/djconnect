@@ -1112,6 +1112,9 @@ html[data-theme="light"] .prompt-detail-modal__content .execution-lifecycle--his
    the same titlebar flow as Options, so dashboard cards can never cover it. */
 .dashboard-health__tooltip{display:none}
 .dashboard-health.dashboard-health--open + .dashboard-health__tooltip{display:block}
+@media (min-width:1241px){
+  .dashboard-titlebar__actions>.dashboard-health__tooltip{left:0;right:auto;top:calc(100% + 8px)}
+}
 @media (max-width:1240px){
   .dashboard-titlebar__actions{grid-template-columns:36px 32px minmax(0,1fr);justify-content:stretch}
   .dashboard-titlebar__actions>.dashboard-health{grid-column:1;grid-row:1}
