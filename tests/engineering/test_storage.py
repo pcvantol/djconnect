@@ -24,6 +24,8 @@ from tools.engineering.storage import (
     record_ai_capacity_bi_hourly,
     record_artifact,
     record_submission,
+    record_admission_decision,
+    load_admission_decision,
     record_readiness_evaluation,
     load_readiness_evaluation,
     regenerate_status_projections,
@@ -41,6 +43,28 @@ class EngineeringStorageTest(unittest.TestCase):
             root / "tools" / "engineering" / "ENGINEERING_PLATFORM_VERSION.json"
         )
         self.assertEqual(manifest.storage_schema, ENGINEERING_STORAGE_SCHEMA_VERSION)
+
+    def test_provider_free_admission_decision_is_immutable_and_renderable(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            record_submission(
+                root, submission_id="submission-admission", producer_id="test", producer_type="HUMAN",
+                prompt_content="bounded", prompt_metadata={}, target_identity={}, original_envelope={},
+                received_at="2026-08-27T00:00:00+00:00", link_run_id="inbox-admission",
+            )
+            record_admission_decision(
+                root, run_id="inbox-admission", submission_id="submission-admission", execution_mode="MANAGED",
+                decision="FAIL", failed_gate_ids=("worktree_untracked",),
+                evidence=({"gate_id": "worktree_untracked", "expected": "PASS", "observed": "FAIL", "verified_at": "2026-08-27T00:00:00+00:00"},),
+                observed_at="2026-08-27T00:00:00+00:00",
+            )
+            decision = load_admission_decision(root, "inbox-admission")
+            self.assertEqual(decision["decision"], "FAIL")
+            self.assertEqual(decision["failed_gate_ids"], ["worktree_untracked"])
+            connection = open_storage(root)
+            with self.assertRaises(sqlite3.DatabaseError):
+                connection.execute("UPDATE execution_admission_decisions SET decision='PASS'")
+            connection.close()
 
     def test_ai_capacity_history_keeps_one_lowest_measurement_per_two_hour_bucket(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -203,6 +227,9 @@ class EngineeringStorageTest(unittest.TestCase):
                 )
                 connection.execute(
                     "DELETE FROM engineering_schema_migrations WHERE version=31"
+                )
+                connection.execute(
+                    "DELETE FROM engineering_schema_migrations WHERE version=32"
                 )
             with open_storage(root) as connection:
                 columns = {

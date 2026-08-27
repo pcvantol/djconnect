@@ -19,7 +19,7 @@ import sqlite3
 
 WORKSPACE_DIRECTORY = ".engineering"
 DATABASE_FILENAME = "engineering.db"
-ENGINEERING_STORAGE_SCHEMA_VERSION = 31
+ENGINEERING_STORAGE_SCHEMA_VERSION = 32
 JOURNAL_MODES = frozenset({"DELETE", "MEMORY"})
 LEGACY_DISMISSALS_PATH = Path(".engineering/status/execution_dismissals.json")
 ADMITTED_STORAGE_SCHEMA_ENVIRONMENT = "DJCONNECT_ENGINEERING_ADMITTED_STORAGE_SCHEMA"
@@ -857,6 +857,22 @@ def _schema_v31(connection: sqlite3.Connection) -> None:
     )
 
 
+def _schema_v32(connection: sqlite3.Connection) -> None:
+    """Persist immutable, provider-free admission decisions for every candidate run."""
+    connection.execute(
+        "CREATE TABLE IF NOT EXISTS execution_admission_decisions ("
+        "run_id TEXT PRIMARY KEY,submission_id TEXT NOT NULL REFERENCES execution_submissions(submission_id),"
+        "execution_mode TEXT NOT NULL,decision TEXT NOT NULL CHECK(decision IN ('PASS','FAIL')),"
+        "failed_gate_ids TEXT NOT NULL,evidence TEXT NOT NULL,observed_at TEXT NOT NULL)"
+    )
+    for operation in ("UPDATE", "DELETE"):
+        connection.execute(
+            f"CREATE TRIGGER IF NOT EXISTS execution_admission_decisions_immutable_{operation.casefold()} "
+            f"BEFORE {operation} ON execution_admission_decisions BEGIN "
+            "SELECT RAISE(ABORT, 'Admission decision evidence is immutable.'); END"
+        )
+
+
 def _import_legacy_execution_dismissals(root: Path, connection: sqlite3.Connection) -> None:
     """Copy valid legacy dismissal evidence into the canonical datastore.
 
@@ -935,6 +951,7 @@ MIGRATIONS: dict[int, Migration] = {
     29: _schema_v29,
     30: _schema_v30,
     31: _schema_v31,
+    32: _schema_v32,
 }
 
 
@@ -1225,6 +1242,75 @@ def record_submission(
             )
     finally:
         connection.close()
+
+
+def record_admission_decision(
+    root: Path,
+    *,
+    run_id: str,
+    submission_id: str,
+    execution_mode: str,
+    decision: str,
+    failed_gate_ids: tuple[str, ...],
+    evidence: tuple[dict[str, object], ...],
+    observed_at: str,
+) -> None:
+    """Persist one bounded admission outcome before any provider-backed work.
+
+    Admission evidence intentionally contains only gate identifiers, expected and
+    observed states, and timestamps.  Prompt content, provider output and
+    diagnostics remain outside this projection.
+    """
+    if decision not in {"PASS", "FAIL"} or not run_id or not submission_id:
+        raise EngineeringStorageError("Admission decision identity is invalid.")
+    connection = open_storage(root)
+    try:
+        connection.execute(
+            "INSERT OR IGNORE INTO execution_admission_decisions(run_id,submission_id,execution_mode,decision,failed_gate_ids,evidence,observed_at) "
+            "VALUES(?,?,?,?,?,?,?)",
+            (
+                run_id,
+                submission_id,
+                execution_mode,
+                decision,
+                _encoded_payload({"gate_ids": list(failed_gate_ids)}),
+                _encoded_payload({"gates": list(evidence)}),
+                observed_at,
+            ),
+        )
+    finally:
+        connection.close()
+
+
+def load_admission_decision(root: Path, run_id: str) -> dict[str, object] | None:
+    """Load one structured provider-free admission decision for rendering."""
+    connection = open_storage(root)
+    try:
+        row = connection.execute(
+            "SELECT submission_id,execution_mode,decision,failed_gate_ids,evidence,observed_at "
+            "FROM execution_admission_decisions WHERE run_id=?",
+            (run_id,),
+        ).fetchone()
+    finally:
+        connection.close()
+    if not row:
+        return None
+    try:
+        failed = json.loads(row[3])
+        evidence = json.loads(row[4])
+    except (TypeError, json.JSONDecodeError) as error:
+        raise EngineeringStorageError("Admission decision evidence is corrupt.") from error
+    if not isinstance(failed, dict) or not isinstance(evidence, dict):
+        raise EngineeringStorageError("Admission decision evidence is invalid.")
+    return {
+        "run_id": run_id,
+        "submission_id": row[0],
+        "execution_mode": row[1],
+        "decision": row[2],
+        "failed_gate_ids": failed.get("gate_ids", []),
+        "gates": evidence.get("gates", []),
+        "observed_at": row[5],
+    }
 
 
 def load_execution_context_snapshot(root: Path, run_id: str) -> dict[str, object] | None:
