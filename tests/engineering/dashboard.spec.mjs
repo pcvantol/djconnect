@@ -4591,6 +4591,20 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#inboxComponentLog")).not.toContainText("other day");
   });
 
+  test("keeps the log range end at or after its selected start", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#componentLogs").evaluate((element) => { element.open = true; });
+    await page.locator("#logTimePreset").selectOption("range");
+    const from = page.locator("#logDateFrom"), to = page.locator("#logDateTo");
+    await from.fill("2026-08-20T18:52");
+    await expect(to).toHaveAttribute("min", "2026-08-20T18:52");
+    await to.evaluate((input) => {
+      input.value = "2026-08-01T18:52";
+      input.dispatchEvent(new Event("change", { bubbles: true }));
+    });
+    await expect(to).toHaveValue("2026-08-20T18:52");
+  });
+
   test("filters component logs by the local today and yesterday presets", async ({ page }) => {
     await page.route("**/api/logs/**", (route) => route.fulfill({ contentType: "application/x-ndjson", body: "" }));
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });

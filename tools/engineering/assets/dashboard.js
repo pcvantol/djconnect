@@ -1042,6 +1042,15 @@ function updateLogTimeFilterControls() {
   $("logSpecificDateControl").hidden = preset !== "day";
   $("logDateFromControl").hidden = preset !== "range";
   $("logDateToControl").hidden = preset !== "range";
+  synchronizeLogRangeBounds();
+}
+function synchronizeLogRangeBounds() {
+  const from = $("logDateFrom"), to = $("logDateTo");
+  if (!from || !to) return;
+  // datetime-local values use an order-preserving ISO-like representation.
+  // Keep the native picker and any already entered end value valid together.
+  to.min = from.value;
+  if (from.value && to.value && to.value < from.value) to.value = from.value;
 }
 function entryMatchesLogTimeRange(entry) {
   const range = selectedLogTimeRange();
@@ -4353,6 +4362,7 @@ for (const id of ["logTimePreset", "logSpecificDate", "logDateFrom", "logDateTo"
     refreshComponentLogsForFilters();
   });
 }
+$("logDateFrom").addEventListener("input", synchronizeLogRangeBounds);
 updateLogTimeFilterControls();
 renderComponentLogs();
 function clearComponentLog(component, button) {

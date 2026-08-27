@@ -955,13 +955,17 @@ def _component_log_page(root: Path, component: str, query: dict[str, list[str]])
         page_size = int(single("page_size", "50"))
     except ValueError as error:
         raise ValueError("Ongeldige logpagina.") from error
+    start_at = timestamp("start")
+    end_at = timestamp("end")
+    if start_at and end_at and end_at < start_at:
+        raise ValueError("Eindtijd van het logtijdvenster ligt vóór de begintijd.")
     return stored_component_log_page(
         root,
         component,
         page=page,
         page_size=page_size,
-        start_at=timestamp("start"),
-        end_at=timestamp("end"),
+        start_at=start_at,
+        end_at=end_at,
         inclusive_end=single("inclusive_end") == "1",
         search=single("search"),
         level=single("level"),
