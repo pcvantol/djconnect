@@ -692,6 +692,9 @@ test.describe("Engineering Status browser smoke", () => {
     expect(readFileSync(path.join(repository, "tools/engineering/assets/dashboard.css"), "utf8")).toContain(
       ".workspace-worktrees .workspace-worktrees__remove:hover:not(:disabled){background:#ff718f!important;border-color:#ff718f!important;color:#23131a!important}",
     );
+    const dashboardScript = readFileSync(path.join(repository, "tools/engineering/assets/dashboard.js"), "utf8");
+    expect(dashboardScript).toContain("void refreshAfterOperatorAction();");
+    expect(dashboardScript).not.toContain("void refresh();");
     await dispatchDashboardPointerClick(remove);
     const confirmation = page.locator("#confirmationModal");
     await expect(confirmation).toBeVisible();
@@ -8450,7 +8453,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(candidates).toHaveCount(1);
     await expect(candidates.locator("li")).toHaveCount(28);
     await expect(candidates.first()).toContainText("codex/stale-01");
-    await expect(candidates.first()).toContainText("Bestaat niet meer op origin; inhoud is exact gelijk aan main.");
+    await expect(candidates.first()).toContainText("Bestaat niet meer op origin; de inhoud is aantoonbaar in main gemergd.");
     await expect(candidates.first().getByRole("link", { name: "PR #847" })).toHaveAttribute(
       "href", "https://github.com/pcvantol/djconnect/pull/847",
     );

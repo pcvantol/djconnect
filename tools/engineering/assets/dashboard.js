@@ -7106,7 +7106,7 @@ async function removeSafeWorktree(worktree) {
       t("workspace.worktree_remove_success", { branch }),
       "workspace.worktree_remove_result_title",
     );
-    void refresh();
+    void refreshAfterOperatorAction();
   } catch (error) {
     showDashboardError(error.message || t("workspace.worktree_remove_failed"), t("workspace.worktree_remove_failed"));
   }

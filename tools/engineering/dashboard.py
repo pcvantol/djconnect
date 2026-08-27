@@ -1352,7 +1352,7 @@ def _recover_stale_workspace_git_lock(root: Path) -> dict[str, object]:
 
 
 def _stale_local_branch_candidates(root: Path) -> list[str]:
-    """Return branches that are absent remotely and content-equivalent to main."""
+    """Return remote-absent branches proven equivalent or merged into main."""
     provider = GitProvider()
     expected_branch = PlatformConfiguration.load(root).workspace.default_branch
     try:
@@ -1386,11 +1386,59 @@ def _stale_local_branch_candidates(root: Path) -> list[str]:
             comparison = provider.execute(root, "git", "diff", "--quiet", expected_branch, branch)
             if comparison.returncode == 0:
                 removable.append(branch)
+            elif comparison.returncode == 1 and _branch_is_verified_merged_into_main(root, expected_branch, branch, provider):
+                removable.append(branch)
             elif comparison.returncode != 1:
                 raise RuntimeError(f"Branch {branch} kon niet veilig worden vergeleken.")
     except OSError as error:
         raise RuntimeError("Lokale branch-opruiming is niet beschikbaar.") from error
     return removable
+
+
+def _branch_is_verified_merged_into_main(
+    root: Path, expected_branch: str, branch: str, provider: GitProvider
+) -> bool:
+    """Accept an older local head only when a merged PR proves it reached main."""
+    try:
+        remote = provider.execute(root, "git", "remote", "get-url", "origin")
+        match = re.search(r"github\.com[:/]([^/\s]+)/([^/\s]+?)(?:\.git)?$", remote.stdout.strip()) if remote.returncode == 0 else None
+        if not match:
+            return False
+        payload = GitHubProvider().github(
+            "pr", "list", "--repo", f"{match.group(1)}/{match.group(2)}", "--state", "merged", "--head", branch,
+            "--json", "number,headRefName,headRefOid,mergeCommit", "--limit", "2",
+        )
+        pull_requests = json.loads(payload)
+        if not isinstance(pull_requests, list):
+            return False
+        pull_request = next((item for item in pull_requests if isinstance(item, dict) and item.get("headRefName") == branch), None)
+        number = pull_request.get("number") if isinstance(pull_request, dict) else None
+        merge_commit = pull_request.get("mergeCommit") if isinstance(pull_request, dict) else None
+        merge_oid = merge_commit.get("oid") if isinstance(merge_commit, dict) else None
+        local_head = provider.execute(root, "git", "rev-parse", "--verify", branch)
+        if not isinstance(number, int) or not isinstance(merge_oid, str) or local_head.returncode or not local_head.stdout.strip():
+            return False
+        merged_into_main = provider.execute(root, "git", "merge-base", "--is-ancestor", merge_oid, expected_branch)
+        return (
+            merged_into_main.returncode == 0
+            and _github_pull_request_contains_commit(f"{match.group(1)}/{match.group(2)}", number, local_head.stdout.strip())
+        )
+    except (OSError, RuntimeError, ValueError, json.JSONDecodeError):
+        return False
+
+
+def _github_pull_request_contains_commit(repository: str, number: int, commit_sha: str) -> bool:
+    """Use GitHub's immutable PR commit record when a deleted head is not local."""
+    try:
+        payload = GitHubProvider().github("pr", "view", str(number), "--repo", repository, "--json", "commits")
+        pull_request = json.loads(payload)
+    except (OSError, RuntimeError, ValueError, json.JSONDecodeError):
+        return False
+    commits = pull_request.get("commits") if isinstance(pull_request, dict) else None
+    return isinstance(commits, list) and any(
+        isinstance(item, dict) and isinstance(item.get("oid"), str) and item["oid"] == commit_sha
+        for item in commits
+    )
 
 
 def _stale_local_branch_preview(root: Path) -> dict[str, object]:
@@ -1751,6 +1799,13 @@ def _worktree_removal_analysis(root: Path) -> dict[str, object]:
             if merged.returncode not in {0, 1}:
                 raise RuntimeError("De squash-merge kon niet veilig worden gecontroleerd.")
             squash_merged_head = merged.returncode == 0
+        elif pr_state == "MERGED" and isinstance(merge_oid, str) and isinstance(pull_request.get("number"), int) and match:
+            merged = provider.execute(root, "git", "merge-base", "--is-ancestor", merge_oid, expected_branch)
+            if merged.returncode not in {0, 1}:
+                raise RuntimeError("De squash-merge kon niet veilig worden gecontroleerd.")
+            squash_merged_head = merged.returncode == 0 and _github_pull_request_contains_commit(
+                f"{match.group(1)}/{match.group(2)}", pull_request["number"], head,
+            )
         equivalent_or_verified_squash = (
             comparison.returncode == 0 and pr_state in {"MERGED", "CLOSED"}
         ) or squash_merged_head

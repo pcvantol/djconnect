@@ -497,10 +497,11 @@ class DashboardStatusTest(unittest.TestCase):
             )
             self.assertFalse(lock.exists())
 
+    @patch("tools.engineering.dashboard._branch_is_verified_merged_into_main", return_value=False)
     @patch("tools.engineering.dashboard._stale_local_branch_pull_request", return_value=None)
     @patch("tools.engineering.dashboard.GitProvider")
     def test_stale_local_branch_cleanup_removes_only_reviewed_patch_equivalent_branches(
-        self, git_provider: object, _: object
+        self, git_provider: object, _: object, __: object
     ) -> None:
         root = Path(__file__).parents[2]
         completed = __import__("subprocess").CompletedProcess
@@ -617,24 +618,60 @@ class DashboardStatusTest(unittest.TestCase):
             completed(("git",), 0, "0\t0\n", ""),
             completed(("git",), 0, "\n".join((
                 "worktree /repository", "HEAD main-head", "branch refs/heads/main", "",
-                "worktree /worktrees/squash", "HEAD source-head", "branch refs/heads/codex/squash", "",
+                "worktree /worktrees/squash", "HEAD older-source-head", "branch refs/heads/codex/squash", "",
             )), ""),
             completed(("git",), 0, "git@github.com:pcvantol/djconnect.git\n", ""),
             completed(("git",), 0, "", ""),
             completed(("git",), 1, "", ""),
             completed(("git",), 1, "", ""),
             completed(("git",), 0, "", ""),
+            completed(("git",), 0, "", ""),
         ]
-        github_provider.return_value.github.return_value = json.dumps([{
-            "number": 123, "url": "https://github.com/pcvantol/djconnect/pull/123",
-            "headRefName": "codex/squash", "headRefOid": "source-head", "state": "MERGED",
-            "mergedAt": "2026-08-27T00:00:00Z", "mergeCommit": {"oid": "squash-commit"},
-        }])
+        github_provider.return_value.github.side_effect = [
+            json.dumps([{
+                "number": 123, "url": "https://github.com/pcvantol/djconnect/pull/123",
+                "headRefName": "codex/squash", "headRefOid": "source-head", "state": "MERGED",
+                "mergedAt": "2026-08-27T00:00:00Z", "mergeCommit": {"oid": "squash-commit"},
+            }]),
+            json.dumps({"commits": [{"oid": "older-source-head"}]}),
+        ]
 
         self.assertEqual(
             dashboard._safe_worktree_removal_candidates(root),
             [{"path": "/worktrees/squash", "branch": "codex/squash"}],
         )
+
+    @patch("tools.engineering.dashboard.PlatformConfiguration.load")
+    @patch("tools.engineering.dashboard.GitHubProvider")
+    @patch("tools.engineering.dashboard.GitProvider")
+    def test_stale_branch_scan_accepts_an_older_head_in_a_verified_merged_pull_request(
+        self, git_provider: object, github_provider: object, configuration: object
+    ) -> None:
+        root = Path("/repository")
+        configuration.return_value.workspace.default_branch = "main"
+        completed = __import__("subprocess").CompletedProcess
+        git_provider.return_value.execute.side_effect = [
+            completed(("git",), 0, "", ""),
+            completed(("git",), 0, "main\n", ""),
+            completed(("git",), 0, "", ""),
+            completed(("git",), 0, "0\t0\n", ""),
+            completed(("git",), 0, "worktree /repository\nHEAD main-head\nbranch refs/heads/main\n", ""),
+            completed(("git",), 0, "codex/squash\nmain\n", ""),
+            completed(("git",), 1, "", ""),
+            completed(("git",), 1, "", ""),
+            completed(("git",), 0, "git@github.com:pcvantol/djconnect.git\n", ""),
+            completed(("git",), 0, "older-source-head\n", ""),
+            completed(("git",), 0, "", ""),
+            completed(("git",), 0, "", ""),
+        ]
+        github_provider.return_value.github.side_effect = [
+            json.dumps([{
+                "number": 123, "headRefName": "codex/squash", "headRefOid": "source-head", "mergeCommit": {"oid": "squash-commit"},
+            }]),
+            json.dumps({"commits": [{"oid": "older-source-head"}]}),
+        ]
+
+        self.assertEqual(dashboard._stale_local_branch_candidates(root), ["codex/squash"])
 
     @patch("tools.engineering.dashboard._stale_local_branch_pull_request", return_value=None)
     @patch("tools.engineering.dashboard.GitProvider")
