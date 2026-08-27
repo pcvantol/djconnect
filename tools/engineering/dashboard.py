@@ -601,19 +601,13 @@ def _remaining_rate_limit_capacity(rate_limits: dict[str, object]) -> float | No
 
 
 def _codex_cli_installation_path(executable: str | None) -> str | None:
-    """Return the managed prefix or resolved executable used by the active CLI."""
+    """Return EP's managed CLI prefix, never a PATH-resolved alternative."""
     if not executable:
         return None
     managed_prefix = engineering_platform_codex_cli_prefix()
     if Path(executable).expanduser() == managed_prefix / "bin" / "codex":
         return str(managed_prefix)
-    resolved_executable = shutil.which(executable)
-    if not resolved_executable:
-        return None
-    try:
-        return str(Path(resolved_executable).resolve())
-    except OSError:
-        return resolved_executable
+    return None
 
 
 def _codex_provider_identity(*, refresh: bool = False) -> dict[str, str]:

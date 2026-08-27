@@ -1172,6 +1172,7 @@ class DashboardStatusTest(unittest.TestCase):
 
         with (
             patch("tools.engineering.dashboard.shutil.which", side_effect=lambda name: f"/usr/local/bin/{name}"),
+            patch("tools.engineering.dashboard.codex_cli_executable", return_value="/managed/bin/codex"),
             patch("tools.engineering.dashboard.LocalProcessProvider.execute", side_effect=[
                 completed(("codex", "--version"), 0, "codex-cli 0.149.0", ""),
                 completed(("npm", "view"), 0, '"0.150.0"', ""),
@@ -1187,6 +1188,7 @@ class DashboardStatusTest(unittest.TestCase):
         dashboard._codex_update_cache = None
         with (
             patch("tools.engineering.dashboard.shutil.which", side_effect=lambda name: f"/usr/local/bin/{name}"),
+            patch("tools.engineering.dashboard.codex_cli_executable", return_value="/managed/bin/codex"),
             patch("tools.engineering.dashboard.LocalProcessProvider.execute", side_effect=[
                 completed(("codex", "--version"), 0, "codex-cli 0.149.0", ""),
                 completed(("npm", "view"), 0, '"0.150.0"', ""),
@@ -1516,9 +1518,9 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertEqual(dashboard._github_rate_limit_status(), {"limited": False})
 
     @patch("tools.engineering.dashboard.subprocess.run")
-    @patch("tools.engineering.dashboard.shutil.which", return_value="/usr/local/bin/codex")
-    @patch("tools.engineering.dashboard.codex_cli_executable", return_value="/usr/local/bin/codex")
-    def test_codex_provider_identity_includes_the_resolved_cli_path(
+    @patch("tools.engineering.dashboard.engineering_platform_codex_cli_prefix", return_value=Path("/managed/codex-cli"))
+    @patch("tools.engineering.dashboard.codex_cli_executable", return_value="/managed/codex-cli/bin/codex")
+    def test_codex_provider_identity_includes_the_managed_cli_path(
         self, _: object, __: object, run: object
     ) -> None:
         run.return_value = __import__("subprocess").CompletedProcess(
@@ -1530,7 +1532,7 @@ class DashboardStatusTest(unittest.TestCase):
             {
                 "provider": "Codex CLI",
                 "provider_version": "0.146.0",
-                "provider_path": "/usr/local/bin/codex",
+                "provider_path": "/managed/codex-cli",
             },
         )
         dashboard._codex_identity_cache = None
@@ -1542,11 +1544,9 @@ class DashboardStatusTest(unittest.TestCase):
             str(managed_prefix),
         )
 
-    @patch("tools.engineering.dashboard.shutil.which", return_value=None)
-    def test_codex_cli_installation_path_is_unavailable_when_no_executable_resolves(
-        self, _: object
-    ) -> None:
+    def test_codex_cli_installation_path_rejects_non_managed_executables(self) -> None:
         self.assertIsNone(_codex_cli_installation_path("codex"))
+        self.assertIsNone(_codex_cli_installation_path("/opt/homebrew/bin/codex"))
 
     def test_codex_rate_limits_reads_a_deterministic_app_server_response(self) -> None:
         class RecordingInput:
@@ -1605,6 +1605,7 @@ class DashboardStatusTest(unittest.TestCase):
         with (
             patch("tools.engineering.dashboard.subprocess.Popen", return_value=process),
             patch("tools.engineering.dashboard.select.select", return_value=([process.stdout], [], [])),
+            patch("tools.engineering.providers.codex_cli_executable", return_value="/managed/bin/codex"),
             patch(
                 "tools.engineering.dashboard._codex_provider_identity",
                 return_value={"provider": "Codex CLI", "provider_version": "0.146.0"},
@@ -1637,6 +1638,7 @@ class DashboardStatusTest(unittest.TestCase):
         process = FakeProcess()
         with (
             patch("tools.engineering.dashboard.subprocess.Popen", return_value=process),
+            patch("tools.engineering.providers.codex_cli_executable", return_value="/managed/bin/codex"),
             patch(
                 "tools.engineering.dashboard._codex_provider_identity",
                 return_value={"provider": "Codex CLI", "provider_version": "versie niet beschikbaar"},
@@ -1651,6 +1653,7 @@ class DashboardStatusTest(unittest.TestCase):
     def test_codex_rate_limits_fails_closed_when_app_server_cannot_start(self) -> None:
         with (
             patch("tools.engineering.dashboard.subprocess.Popen", side_effect=OSError),
+            patch("tools.engineering.providers.codex_cli_executable", return_value="/managed/bin/codex"),
             patch(
                 "tools.engineering.dashboard._codex_provider_identity",
                 return_value={"provider": "Codex CLI", "provider_version": "versie niet beschikbaar"},
@@ -1700,6 +1703,7 @@ class DashboardStatusTest(unittest.TestCase):
         with (
             patch("tools.engineering.dashboard.subprocess.Popen", return_value=process),
             patch("tools.engineering.dashboard.select.select", return_value=([process.stdout], [], [])),
+            patch("tools.engineering.providers.codex_cli_executable", return_value="/managed/bin/codex"),
         ):
             self.assertEqual(dashboard._consume_codex_rate_limit_reset_credit(), "reset")
         request = "".join(process.stdin.chunks)
