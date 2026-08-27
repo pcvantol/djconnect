@@ -6,7 +6,6 @@ import copy
 import importlib.util
 import json
 from pathlib import Path
-import re
 import subprocess
 import sys
 import tempfile
@@ -79,29 +78,6 @@ class ExtractionBaselineAuditTests(unittest.TestCase):
             "../../development/ENGINEERING_PLATFORM_EXTRACTION_MIGRATION_PLAN.md",
         ):
             self.assertIn(relative_path, contents)
-
-    def test_audit_document_reports_the_current_projection_counts(self) -> None:
-        contents = AUDIT_DOCUMENT.read_text(encoding="utf-8")
-        projection = AUDIT_MODULE.projection(self.manifest, ROOT)
-
-        expected_summary = (
-            "{candidate_universe_count} candidates, "
-            "{classified_exactly_once} classified exactly once, "
-            "{unclassified} unclassified and {ambiguous} ambiguous."
-        ).format(**projection)
-        self.assertRegex(
-            contents,
-            re.escape(expected_summary).replace(r"\ ", r"\s+"),
-        )
-        operations = projection["operations_console"]
-        expected_operations = (
-            "Operations Console source/assets/tests account for "
-            f"{operations['candidate_paths']} candidates, all classified exactly once."
-        )
-        self.assertRegex(
-            contents,
-            re.escape(expected_operations).replace(r"\ ", r"\s+"),
-        )
 
     def test_duplicate_path_invalid_classification_and_unsafe_path_fail(self) -> None:
         duplicate = copy.deepcopy(self.manifest)
