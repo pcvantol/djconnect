@@ -4159,8 +4159,11 @@ test.describe("Engineering Status browser smoke", () => {
       await expect(scroll).toHaveAttribute("role", "region");
       await expect(scroll).not.toHaveAttribute("tabindex");
       await expect(scroll).toHaveCSS("border-top-style", "solid");
+      await expect(scroll).toHaveCSS("border-top-width", "1px");
       await expect(scroll).toHaveCSS("border-top-left-radius", "9px");
-      expect(await scroll.evaluate((element) => getComputedStyle(element).borderTopColor)).not.toBe("rgba(0, 0, 0, 0)");
+      expect(await scroll.evaluate((element) => getComputedStyle(element).borderTopColor)).toBe(
+        await page.locator("#executionTelemetry .telemetry-table th").first().evaluate((element) => getComputedStyle(element).borderBottomColor),
+      );
     }
     const runScrollGeometry = await runScroll.evaluate((element) => {
       const modalContent = element.closest(".telemetry-detail-modal__content");
