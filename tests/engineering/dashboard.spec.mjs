@@ -659,6 +659,18 @@ test.describe("Engineering Status browser smoke", () => {
     await dispatchDashboardPointerClick(workspace);
     await expect.poll(() => requestedDirectories).toEqual([workspacePath]);
 
+    await page.evaluate(() => rateLimits({
+      provider: "Codex CLI", provider_version: "0.150.1",
+      provider_path: "/Users/example/.local/share/engineering-platform/codex-cli",
+      windows: [], reset_credits: 0,
+    }));
+    const installationPath = page.locator("#rateLimitProviderPath");
+    await dispatchDashboardPointerClick(installationPath);
+    await expect.poll(() => requestedDirectories).toEqual([
+      workspacePath,
+      "/Users/example/.local/share/engineering-platform/codex-cli",
+    ]);
+
     await page.evaluate(() => r({
       watcher_state: "ENGINEERING_RUN_ACTIVE",
       current_phase: "EXECUTE_AGENT",
@@ -673,6 +685,7 @@ test.describe("Engineering Status browser smoke", () => {
     await dispatchDashboardPointerClick(checkout);
     await expect.poll(() => requestedDirectories).toEqual([
       workspacePath,
+      "/Users/example/.local/share/engineering-platform/codex-cli",
       "/Users/example/Documents/GitHub/djconnect",
     ]);
   });

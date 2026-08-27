@@ -558,7 +558,11 @@ function rateLimits(x, history = latestDashboardSnapshot?.ai_capacity_history) {
   $("rateLimits").hidden =
     !windows.length && credits === null && provider === t("format.not_available");
   $("rateLimitProvider").textContent = provider + " · " + version;
-  $("rateLimitProviderPath").textContent = providerPath;
+  let providerPathElement = $("rateLimitProviderPath");
+  if (!(providerPathElement instanceof HTMLButtonElement)) {
+    providerPathElement = replaceWithLocalFolderButton(providerPathElement);
+  }
+  configureLocalFolderButton(providerPathElement, providerPath);
   let lines = windows.map((window) => {
     const remaining = Math.max(0, 100 - Number(window.used_percent || 0)),
       reset = Number(window.resets_at);
@@ -1350,15 +1354,17 @@ async function openLocalFolder(directoryPath) {
     );
   }
 }
-function localFolderButton(value, { containingFolder = false } = {}) {
+function configureLocalFolderButton(button, value, { containingFolder = false } = {}) {
   const path = localFolderPath(value);
-  const button = document.createElement("button");
-  button.className = "local-folder-link";
+  button.classList.add("local-folder-link");
   button.type = "button";
   button.textContent = String(value || t("format.not_available"));
+  button.disabled = !path;
+  button.onclick = null;
+  button.removeAttribute("title");
+  button.removeAttribute("aria-label");
   if (!path) {
-    button.disabled = true;
-    return button;
+    return;
   }
   const directoryPath = containingFolder ? path.replace(/\/[^/]+$/, "") : path;
   const label = t(
@@ -1367,7 +1373,11 @@ function localFolderButton(value, { containingFolder = false } = {}) {
   );
   button.title = label;
   button.setAttribute("aria-label", label);
-  button.addEventListener("click", () => void openLocalFolder(directoryPath));
+  button.onclick = () => void openLocalFolder(directoryPath);
+}
+function localFolderButton(value, options = {}) {
+  const button = document.createElement("button");
+  configureLocalFolderButton(button, value, options);
   return button;
 }
 function replaceWithLocalFolderButton(element, options = {}) {
