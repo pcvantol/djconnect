@@ -2,6 +2,21 @@
 
 Status: canonical prompt navigation
 
+## PR #973 finalization pending
+
+PR [#973](https://github.com/pcvantol/djconnect/pull/973), **test: guard root
+documentation validation tier**, merged as
+`01fb1f0c67b4d21f88de62a7f5d77cc59374b136` and is contained in current
+`main`. Its completed required checks have no failures. This small Managed
+post-#972 qualification adds regression coverage that root Engineering Markdown
+files remain in the documentation validation tier; it does not change runtime,
+lifecycle, storage schema, reviewer, provider, queue, delivery or
+operator-owned merge authority. Its immutable Prompt History record is
+`docs/history/prompts/2026-08-27-post-972-fresh-managed-qualification.md`.
+This governance-only Finalization reconciles only the four canonical rolling
+records and durable handoff metadata. Repository State: `MERGED_UNRECONCILED`;
+Workspace State: `WORKSPACE_READY`; Finalization Pending: `YES`.
+
 ## PR #961 finalized by PR #963
 
 PR [#961](https://github.com/pcvantol/djconnect/pull/961),
