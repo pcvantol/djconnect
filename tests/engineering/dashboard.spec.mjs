@@ -719,6 +719,44 @@ test.describe("Engineering Status browser smoke", () => {
     expect(removalRequests).toBe(1);
   });
 
+  test("schedules a safe Engineering Platform switch to a registered worktree", async ({ page }) => {
+    await page.route("**/api/events", (route) => route.abort());
+    const projection = { available: true, worktrees: [
+      { path: "/workspace", branch: "main", commit: "123456789abc" },
+      { path: "/tmp/selected-worktree", branch: "codex/selected-worktree", commit: "abcdef123456" },
+    ] };
+    await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({ json: { workspace_worktrees: projection } }));
+    let switchPayload = null;
+    await page.route("**/api/workspace-switch-to-worktree", async (route) => {
+      switchPayload = JSON.parse(route.request().postData());
+      await route.fulfill({ status: 202, json: {
+        branch: "codex/selected-worktree",
+        worktree_path: "/tmp/selected-worktree",
+        engineering_platform: "restart_scheduled",
+      } });
+    });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#workspaceCard").evaluate((element) => { element.open = true; });
+    await page.locator("#autoRefresh").uncheck();
+    await page.evaluate((fixture) => window.renderWorkspaceWorktrees(fixture), projection);
+
+    const switchWorktree = page.getByRole("button", { name: "Schakel naar worktree" });
+    await expect(switchWorktree).toBeVisible();
+    await dispatchDashboardPointerClick(switchWorktree);
+    await expect(page.locator("#confirmationModalTitle")).toHaveText("Naar worktree schakelen");
+    await expect(page.locator("#confirmationModalText")).toContainText("de Inbox-queue is leeg");
+    await page.locator("#confirmationModalConfirm").click();
+    await expect.poll(() => switchPayload).toEqual({
+      worktree_path: "/tmp/selected-worktree",
+      branch: "codex/selected-worktree",
+    });
+    await expect(page.locator("#workspaceBranchMainResultModal")).toBeVisible();
+    await expect(page.locator("#workspaceBranchMainResultTitle")).toHaveText("Worktree-switch gepland");
+    await expect(page.locator("#workspaceBranchMainResultContent")).toContainText(
+      "Engineering Platform start opnieuw vanuit codex/selected-worktree.",
+    );
+  });
+
   test("keeps project-scoped Inbox settings with the project queue", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     const queue = page.locator("#queueItems");

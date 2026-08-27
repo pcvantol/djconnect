@@ -31,6 +31,7 @@ from .provider_readiness import status as provider_readiness_status
 from .inbox_watcher import LABEL as WATCHER_LABEL
 from .inbox_watcher import WATCHER_READY_PROJECTION, WATCHER_VERSION
 from .inbox_watcher import RetrySubmissionError, abort_operator_merge_wait, check_operator_merge_status, cloud_root, defer_queued_prompt, dismiss_execution, predecessor_retry_admission_preflight, queued_retry_children, retry_admission_preflight, status_reconciliation_preview, submit_execution_retry, submit_predecessor_retry, submit_status_reconciliation
+from . import inbox_watcher
 from .component_logging import (
     DEFAULT_LOG_LEVEL,
     LOG_LEVEL_ENVIRONMENT,
@@ -1146,6 +1147,67 @@ def _restart_engineering_platform_after_main_switch(root: Path, logger: logging.
         "engineering_platform_restart_completed" if not failed else "engineering_platform_restart_failed",
         diagnostic="components=" + (",".join(failed) if failed else "inbox_watcher,dashboard_relay,dashboard"),
     )
+
+
+def _registered_worktree_switch_target(root: Path, worktree_path: object, branch: object) -> Path:
+    """Return one clean, currently registered non-main worktree or fail closed."""
+    if not isinstance(worktree_path, str) or not isinstance(branch, str) or not worktree_path or not branch:
+        raise ValueError("De gekozen worktree is ongeldig.")
+    requested = Path(worktree_path)
+    if not requested.is_absolute():
+        raise ValueError("De gekozen worktree is ongeldig.")
+    target = requested.resolve()
+    projection = _workspace_worktrees(root)
+    candidates = [
+        item for item in projection.get("worktrees", [])
+        if isinstance(item, dict)
+        and item.get("branch") == branch
+        and isinstance(item.get("path"), str)
+        and Path(str(item["path"])).resolve() == target
+    ]
+    if len(candidates) != 1 or branch == PlatformConfiguration.load(root).workspace.default_branch:
+        raise RuntimeError("De gekozen worktree is niet beschikbaar voor een veilige switch.")
+    if not target.is_dir() or not (target / "tools" / "engineering" / "dashboard.py").is_file() or not (target / "tools" / "engineering" / "inbox_watcher.py").is_file():
+        raise RuntimeError("De gekozen worktree bevat geen complete Engineering Platform-installatie.")
+    provider = GitProvider()
+    try:
+        status = provider.execute(target, "git", "status", "--porcelain", "--untracked-files=all")
+        active = provider.execute(target, "git", "branch", "--show-current")
+    except OSError as error:
+        raise RuntimeError("De gekozen worktree kon niet worden gecontroleerd.") from error
+    if status.returncode or active.returncode or status.stdout.strip() or active.stdout.strip() != branch:
+        raise RuntimeError("De gekozen worktree moet schoon zijn en exact op de geregistreerde branch staan.")
+    return target
+
+
+def _worktree_switch_target_when_idle(root: Path, worktree_path: object, branch: object) -> Path:
+    """Gate a worktree switch on authoritative run and Inbox state."""
+    if _execution_active(root):
+        raise RuntimeError("Naar een worktree schakelen kan alleen wanneer geen uitvoering actief is.")
+    active_inbox = PlatformConfiguration.load(root).resolver(root).resolve_runtime_prompt_transport().inbox
+    if _inbox_has_items(active_inbox):
+        raise RuntimeError("Naar een worktree schakelen kan alleen wanneer de Inbox-queue leeg is.")
+    return _registered_worktree_switch_target(root, worktree_path, branch)
+
+
+def _activate_engineering_platform_worktree(root: Path, worktree_path: str, branch: str, logger: logging.Logger) -> None:
+    """Revalidate and move the owned services to a selected clean worktree."""
+    try:
+        target = _worktree_switch_target_when_idle(root, worktree_path, branch)
+        relay = build_relay(target)
+        watcher_agent = inbox_watcher.launch_agent(target)
+        relay_agent = relay_launch_agent(target, relay)
+        dashboard_agent = launch_agent(target)
+        launchd = LaunchdProvider()
+        launchd.install(WATCHER_LABEL, watcher_agent)
+        launchd.install(RELAY_LABEL, relay_agent)
+        # Dashboard is deliberately last: its replacement terminates the
+        # current process only after watcher and relay point at the same root.
+        launchd.install(LABEL, dashboard_agent)
+    except (OSError, RuntimeError, ValueError) as error:
+        log_event(logger, logging.ERROR, "workspace_switch_failed", diagnostic=str(error))
+        return
+    log_event(logger, logging.INFO, "workspace_switch_completed", diagnostic=f"branch={branch}")
 
 
 class InboxLocationChangeError(RuntimeError):
@@ -3023,6 +3085,21 @@ def handler(root: Path, logger: logging.Logger | None = None):
                 Timer(0.25, _restart_engineering_platform_after_main_switch, args=(root, logger)).start()
                 outcome["engineering_platform"] = "restart_scheduled"
                 self._send(json.dumps(outcome, ensure_ascii=False).encode(), "application/json; charset=utf-8", 202)
+                return
+            if request_path == "/api/workspace-switch-to-worktree":
+                try:
+                    length = int(self.headers.get("Content-Length", "0"))
+                    payload = json.loads(self.rfile.read(length).decode("utf-8"))
+                    if not isinstance(payload, dict) or set(payload) != {"worktree_path", "branch"}:
+                        raise ValueError
+                    target = _worktree_switch_target_when_idle(root, payload["worktree_path"], payload["branch"])
+                except (OSError, RuntimeError, ValueError, UnicodeDecodeError, json.JSONDecodeError) as error:
+                    self._send(json.dumps({"error": str(error) or "Naar de worktree schakelen is niet veilig gelukt."}, ensure_ascii=False).encode(), "application/json; charset=utf-8", 409)
+                    return
+                # Validate again after this response: a newly claimed run or
+                # Inbox item always wins over a requested service relocation.
+                Timer(0.25, _activate_engineering_platform_worktree, args=(root, str(target), str(payload["branch"]), logger)).start()
+                self._send(json.dumps({"branch": payload["branch"], "worktree_path": str(target), "engineering_platform": "restart_scheduled"}, ensure_ascii=False).encode(), "application/json; charset=utf-8", 202)
                 return
             if request_path == "/api/stale-local-branch-cleanup-preview":
                 try:

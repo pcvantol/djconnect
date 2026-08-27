@@ -2148,6 +2148,18 @@ function renderWorkspaceWorktrees(projection) {
       conclusion.textContent = t("workspace.worktree_analysis_not_run");
       item.append(conclusion);
     }
+    if (
+      worktree?.branch !== "main"
+      && typeof worktree?.path === "string" && worktree.path
+      && typeof worktree?.branch === "string" && worktree.branch
+    ) {
+      const switchWorktree = document.createElement("button");
+      switchWorktree.className = "workspace-worktrees__switch";
+      switchWorktree.type = "button";
+      switchWorktree.textContent = t("workspace.worktree_switch_action");
+      switchWorktree.addEventListener("click", () => void switchEngineeringPlatformToWorktree(worktree));
+      item.append(switchWorktree);
+    }
     if (analysis?.removable === true && typeof worktree?.path === "string" && typeof worktree?.branch === "string") {
       const remove = document.createElement("button");
       remove.className = "workspace-worktrees__remove";
@@ -7018,6 +7030,35 @@ async function switchToFastForwardMain() {
     showWorkspaceBranchMainResult(error.message || t("workspace.branch_main_failed"));
   } finally {
     button.disabled = false;
+  }
+}
+async function switchEngineeringPlatformToWorktree(worktree) {
+  const path = String(worktree?.path || ""), branch = String(worktree?.branch || "");
+  if (!path || !branch || branch === "main") return;
+  const confirmed = await confirmDashboardAction(
+    t("workspace.worktree_switch_title"),
+    t("workspace.worktree_switch_confirmation", { branch, path }),
+    t("workspace.worktree_switch_action"),
+    { accent: workspaceModalAccent() },
+  );
+  if (!confirmed) return;
+  try {
+    const response = await fetch("/api/workspace-switch-to-worktree", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ worktree_path: path, branch }),
+    });
+    const outcome = await response.json();
+    showWorkspaceBranchMainResult(
+      response.ok
+        ? t("workspace.worktree_switch_scheduled", { branch })
+        : outcome?.error || t("workspace.worktree_switch_failed"),
+      "workspace.worktree_switch_result_title",
+    );
+  } catch (error) {
+    showWorkspaceBranchMainResult(
+      error.message || t("workspace.worktree_switch_failed"),
+      "workspace.worktree_switch_result_title",
+    );
   }
 }
 async function cleanupStaleLocalBranches() {

@@ -823,6 +823,90 @@ class DashboardStatusTest(unittest.TestCase):
             diagnostic="components=inbox_watcher,dashboard_relay,dashboard",
         )
 
+    @patch("tools.engineering.dashboard.PlatformConfiguration.load")
+    @patch("tools.engineering.dashboard._workspace_worktrees")
+    @patch("tools.engineering.dashboard.GitProvider")
+    def test_registered_worktree_switch_target_requires_the_exact_clean_registered_worktree(
+        self, git_provider: object, worktrees: object, configuration: object
+    ) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary) / "root"
+            target = Path(temporary) / "target"
+            (target / "tools" / "engineering").mkdir(parents=True)
+            (target / "tools" / "engineering" / "dashboard.py").touch()
+            (target / "tools" / "engineering" / "inbox_watcher.py").touch()
+            configuration.return_value.workspace.default_branch = "main"
+            worktrees.return_value = {"worktrees": [
+                {"path": str(root), "branch": "main"},
+                {"path": str(target), "branch": "codex/selected"},
+            ]}
+            completed = __import__("subprocess").CompletedProcess
+            git_provider.return_value.execute.side_effect = [
+                completed(("git",), 0, "", ""),
+                completed(("git",), 0, "codex/selected\n", ""),
+            ]
+
+            self.assertEqual(
+                dashboard._registered_worktree_switch_target(root, str(target), "codex/selected"),
+                target.resolve(),
+            )
+
+            git_provider.return_value.execute.side_effect = [
+                completed(("git",), 0, " M dashboard.py\n", ""),
+                completed(("git",), 0, "codex/selected\n", ""),
+            ]
+            with self.assertRaisesRegex(RuntimeError, "moet schoon"):
+                dashboard._registered_worktree_switch_target(root, str(target), "codex/selected")
+
+    @patch("tools.engineering.dashboard._registered_worktree_switch_target")
+    @patch("tools.engineering.dashboard._inbox_has_items")
+    @patch("tools.engineering.dashboard.PlatformConfiguration.load")
+    @patch("tools.engineering.dashboard._execution_active")
+    def test_worktree_switch_gate_requires_idle_execution_and_empty_inbox(
+        self, execution_active: object, configuration: object, inbox_has_items: object, _: object
+    ) -> None:
+        root = Path("/repository")
+        execution_active.return_value = True
+        with self.assertRaisesRegex(RuntimeError, "geen uitvoering actief"):
+            dashboard._worktree_switch_target_when_idle(root, "/worktrees/selected", "codex/selected")
+
+        execution_active.return_value = False
+        runtime = MagicMock()
+        runtime.resolve_runtime_prompt_transport.return_value.inbox = Path("/private/inbox")
+        configuration.return_value.resolver.return_value = runtime
+        inbox_has_items.return_value = True
+        with self.assertRaisesRegex(RuntimeError, "Inbox-queue leeg"):
+            dashboard._worktree_switch_target_when_idle(root, "/worktrees/selected", "codex/selected")
+
+    @patch("tools.engineering.dashboard.log_event")
+    @patch("tools.engineering.dashboard.LaunchdProvider")
+    @patch("tools.engineering.dashboard.launch_agent")
+    @patch("tools.engineering.dashboard.relay_launch_agent")
+    @patch("tools.engineering.dashboard.inbox_watcher.launch_agent")
+    @patch("tools.engineering.dashboard.build_relay")
+    @patch("tools.engineering.dashboard._worktree_switch_target_when_idle")
+    def test_worktree_switch_reinstalls_all_owned_services_from_target(
+        self, target_when_idle: object, build: object, watcher_agent: object, relay_agent: object,
+        dashboard_agent: object, launchd: object, log_event: object,
+    ) -> None:
+        root, target = Path("/repository"), Path("/worktrees/selected")
+        target_when_idle.return_value = target
+        build.return_value = Path("/worktrees/selected/bin/relay")
+        watcher_agent.return_value = Path("/tmp/watcher.plist")
+        relay_agent.return_value = Path("/tmp/relay.plist")
+        dashboard_agent.return_value = Path("/tmp/dashboard.plist")
+
+        dashboard._activate_engineering_platform_worktree(root, str(target), "codex/selected", logging.getLogger("test"))
+
+        self.assertEqual(launchd.return_value.install.call_args_list, [
+            call(dashboard.WATCHER_LABEL, watcher_agent.return_value),
+            call(dashboard.RELAY_LABEL, relay_agent.return_value),
+            call(dashboard.LABEL, dashboard_agent.return_value),
+        ])
+        log_event.assert_called_once_with(
+            ANY, logging.INFO, "workspace_switch_completed", diagnostic="branch=codex/selected",
+        )
+
     @patch("tools.engineering.dashboard.log_event")
     @patch("tools.engineering.dashboard._execution_active", return_value=True)
     @patch("tools.engineering.dashboard._restart_component")
@@ -2983,6 +3067,7 @@ class DashboardStatusTest(unittest.TestCase):
             ("/api/safe-worktree-removal", {"worktree_path": "/worktrees/stale", "branch": "codex/stale"}, 202),
             ("/api/worktree-removal-analysis", {}, 200),
             ("/api/workspace-switch-to-main", {}, 202),
+            ("/api/workspace-switch-to-worktree", {"worktree_path": "/worktrees/selected", "branch": "codex/selected"}, 202),
             ("/api/stale-local-branch-cleanup-preview", {}, 200),
             ("/api/execution-retry", {"run_id": "run-1"}, 202),
             ("/api/status-reconciliation-preview", {"run_id": "run-1"}, 200),
@@ -3004,6 +3089,7 @@ class DashboardStatusTest(unittest.TestCase):
             patches.enter_context(patch("tools.engineering.dashboard._remove_safe_worktree", return_value={"removed_worktree": "/worktrees/stale", "branch": "codex/stale", "branch_pending_cleanup": True}))
             patches.enter_context(patch("tools.engineering.dashboard._worktree_removal_analysis", return_value={"available": True, "worktrees": []}))
             patches.enter_context(patch("tools.engineering.dashboard._switch_to_fast_forward_main", return_value={"previous_branch": "feature", "branch": "main", "synchronized": "true"}))
+            patches.enter_context(patch("tools.engineering.dashboard._worktree_switch_target_when_idle", return_value=Path("/worktrees/selected")))
             patches.enter_context(patch("tools.engineering.dashboard._execution_active", return_value=False))
             patches.enter_context(patch("tools.engineering.dashboard._stale_local_branch_preview", return_value={"branches": []}))
             patches.enter_context(patch("tools.engineering.dashboard.retry_admission_preflight"))
