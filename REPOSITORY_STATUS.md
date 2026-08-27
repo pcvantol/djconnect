@@ -2,6 +2,21 @@
 
 Status: active platform-evolution repository
 
+## PR #961 finalization pending
+
+PR [#961](https://github.com/pcvantol/djconnect/pull/961),
+**docs(engineering): align extraction audit projection**, merged as
+`b4369d52fe5a6e553ae98bf52c3da71bcc31ee50` and is contained in current
+`main`. Its completed required checks have no failures. This small Managed
+post-hardening qualification aligns the canonical extraction-audit projection
+documentation and its focused regression coverage without changing runtime,
+lifecycle, reviewer, provider, queue, delivery or operator-owned merge
+authority. Its immutable Prompt History record is
+`docs/history/prompts/2026-08-27-post-hardening-managed-qualification.md`.
+This governance-only Finalization reconciles only the four canonical rolling
+records and durable handoff metadata. Repository State: `MERGED_UNRECONCILED`;
+Workspace State: `WORKSPACE_READY`; Finalization Pending: `YES`.
+
 ## PR #948 finalized by PR #949
 
 PR [#948](https://github.com/pcvantol/djconnect/pull/948),
