@@ -141,7 +141,13 @@ run checkpoint nor authorizes runner, Inbox, repository or release work.
 
 In Engineering Status, open **Logs** to inspect a bounded, live view of these
 redacted records. Each table keeps its own sort order and shows 50 matching
-records per page; filters apply across all loaded records before pagination.
+records per page. The dashboard sends the selected search term, level,
+event, time window and sort order to the local API; SQLite applies all of
+those filters before it counts and paginates the retained records. A record
+from an earlier retained day can therefore be found even when more than 100
+newer records exist. The **Specific day** control is shown only for that
+time-window choice, and **From**/**To** only for a custom range. Each entered
+date can be cleared independently; an entered **To** cannot precede **From**.
 They are never loaded or streamed outside the private dashboard.
 
 ### Dashboard configuration
