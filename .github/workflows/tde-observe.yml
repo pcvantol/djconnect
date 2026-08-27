@@ -52,7 +52,10 @@ jobs:
             sleep 15
           done
           mkdir -p "$RUNNER_TEMP/tde-tools"
-          curl --fail --silent --show-error --location \
+          # GitHub Releases can intermittently reset a runner connection. Keep
+          # the pinned asset and checksum, but retry transport-only failures.
+          curl --fail --silent --show-error --location --connect-timeout 20 \
+            --retry 5 --retry-delay 5 --retry-all-errors \
             https://github.com/AlDanial/cloc/releases/download/v2.10/cloc-2.10.pl \
             --output "$RUNNER_TEMP/tde-tools/cloc"
           echo "bf59272455172108072a0a106379f7509fd4349bdcfd85203bac038ccd286d83  $RUNNER_TEMP/tde-tools/cloc" | sha256sum --check
