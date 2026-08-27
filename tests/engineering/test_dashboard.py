@@ -618,6 +618,26 @@ class DashboardStatusTest(unittest.TestCase):
             with self.assertRaisesRegex(RuntimeError, "kon niet veilig worden verwijderd"):
                 dashboard._remove_safe_worktree(root, str(Path(temporary) / "missing"), selected["branch"])
 
+    @patch("tools.engineering.dashboard.GitProvider")
+    @patch("tools.engineering.dashboard._safe_worktree_removal_candidates")
+    def test_safe_worktree_removal_accepts_only_the_reviewed_detached_head(
+        self, candidates: object, git_provider: object
+    ) -> None:
+        root = Path("/repository")
+        with tempfile.TemporaryDirectory() as temporary:
+            selected = {"path": temporary, "head": "a0496fea7ef1"}
+            candidates.return_value = [selected]
+
+            self.assertEqual(
+                dashboard._remove_safe_worktree(root, selected["path"], head=selected["head"]),
+                {"removed_worktree": str(Path(temporary).resolve()), "head": "a0496fea7ef1"},
+            )
+            git_provider.return_value.command.assert_called_once_with(
+                root, "git", "worktree", "remove", "--", str(Path(temporary).resolve())
+            )
+            with self.assertRaisesRegex(RuntimeError, "controle is gewijzigd"):
+                dashboard._remove_safe_worktree(root, selected["path"], head="other-head")
+
     @patch("tools.engineering.dashboard.PlatformConfiguration.load")
     @patch("tools.engineering.dashboard.GitHubProvider")
     @patch("tools.engineering.dashboard.GitProvider")
