@@ -6594,7 +6594,10 @@ function promptDetailExecutionSections(history) {
       true,
     )] : []),
     detailField(t("detail.operator_handling"), history.emergency_cancelled_at ? t("handling.cancelled") : history.dismissed ? t("handling.dismissed") : t("handling.open")),
-    ...(history.dismissed_at ? [detailField(t("detail.dismissed_at"), history.dismissed_at)] : []),
+    ...(history.dismissed_at ? [detailField(
+      t("detail.dismissed_at"),
+      formatTimestamp(history.dismissed_at, String(history.dismissed_at)),
+    )] : []),
     detailField(t("detail.prompt_title"), history.title),
     promptHistoryRunIdField(history.run_id),
     detailField(

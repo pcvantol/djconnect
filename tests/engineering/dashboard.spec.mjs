@@ -2019,6 +2019,8 @@ test.describe("Engineering Status browser smoke", () => {
           status: "BLOCKED",
           title: "Modal prompt",
           executed_at: "2026-08-04T08:00:00Z",
+          dismissed: true,
+          dismissed_at: "2026-08-27T14:08:24.218289+00:00",
           blocking_reason: "The verified blocking reason belongs to this run.",
         },
         execution: { seconds: 42, total_seconds: 61 },
@@ -2052,6 +2054,13 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#promptHistoryDetailContent")).toContainText("Engineering Platform");
     await expect(page.locator("#promptHistoryDetailContent")).toContainText("Blokkadereden");
     await expect(page.locator("#promptHistoryDetailContent")).toContainText("The verified blocking reason belongs to this run.");
+    const localizedDismissedAt = await page.evaluate(
+      () => formatTimestamp("2026-08-27T14:08:24.218289+00:00"),
+    );
+    await expect(page.locator("#promptHistoryDetailContent")).toContainText("Afgesloten op");
+    await expect(page.locator("#promptHistoryDetailContent")).toContainText(localizedDismissedAt);
+    await expect(page.locator("#promptHistoryDetailContent"))
+      .not.toContainText("2026-08-27T14:08:24.218289+00:00");
     await expect(page.locator("#promptHistoryDetailContent .prompt-detail-card--pull-requests")).toContainText("Commits: 2");
     await expect(page.locator("#promptHistoryDetailContent .prompt-detail-card--pull-requests")).toContainText("GitHub-controles: 1");
     await expect(page.locator("#promptHistoryDetailContent .prompt-detail-card--pull-requests")).toContainText("Gewijzigde bestanden: 5");
