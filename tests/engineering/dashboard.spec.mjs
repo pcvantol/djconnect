@@ -9104,4 +9104,21 @@ test.describe("Engineering Status browser smoke", () => {
     });
     expect(visible.visible, JSON.stringify(visible)).toBe(true);
   });
+
+  test("keeps the compact titlebar health tooltip visible while reading it", async ({ page }) => {
+    await page.setViewportSize({ width: 1136, height: 768 });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    const indicator = page.getByTestId("dashboard-health-indicator");
+    const tooltip = page.locator("#dashboardHealthTooltip");
+    await indicator.hover();
+    await expect(tooltip).toBeVisible();
+    await tooltip.hover();
+    await expect(tooltip).toBeVisible();
+    const frontmost = await tooltip.evaluate((element) => {
+      const rect = element.getBoundingClientRect();
+      const target = document.elementsFromPoint(rect.left + 20, rect.top + 20)[0];
+      return target === element || element.contains(target);
+    });
+    expect(frontmost).toBe(true);
+  });
 });

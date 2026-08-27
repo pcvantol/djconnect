@@ -1096,5 +1096,11 @@ html[data-theme="light"] .prompt-detail-modal__content .execution-lifecycle--his
 
 /* The sticky titlebar disables hit testing by default. The health popover is
    deliberately interactive so its hover state survives moving from the dot
-   into the status text. */
-.dashboard-health,.dashboard-health__tooltip{pointer-events:auto}
+   into the status text. Give the titlebar its own stacking context and raise
+   this control within it: compact layouts place cards immediately below the
+   header, which must never paint over the status explanation. */
+.dashboard-sticky-header{isolation:isolate}
+.dashboard-titlebar__actions{position:relative;z-index:2}
+.dashboard-health{isolation:isolate;pointer-events:auto;z-index:3}
+.dashboard-health:is(:hover,:focus-within),.dashboard-health.dashboard-health--open{z-index:4}
+.dashboard-health__tooltip{pointer-events:auto;z-index:1}
