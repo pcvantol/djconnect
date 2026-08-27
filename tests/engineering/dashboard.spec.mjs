@@ -340,6 +340,20 @@ test.describe("Engineering Status browser smoke", () => {
     );
   });
 
+  test("opens the displayed Engineering Inbox location through the approved Finder route", async ({ page }) => {
+    let requestedDirectory = null;
+    await page.route("**/api/open-local-directory", async (route) => {
+      requestedDirectory = JSON.parse(route.request().postData()).directory_path;
+      await route.fulfill({ status: 202, json: { opened_directory: requestedDirectory } });
+    });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#queueItems").evaluate((element) => { element.open = true; });
+    const location = page.locator("#configurationInboxLocation");
+    const inboxPath = await location.textContent();
+    await dispatchDashboardPointerClick(location);
+    await expect.poll(() => requestedDirectory).toBe(inboxPath?.trim());
+  });
+
   test("shows localized provider login states in Configuration", async ({ page }) => {
     await page.route("**/api/provider-login-status", (route) => route.fulfill({ json: {
       providers: {

@@ -1325,15 +1325,29 @@ function localFolderPath(value) {
   return typeof value === "string" && value.startsWith("/") ? value.trim() : "";
 }
 async function openLocalFolder(directoryPath) {
+  const path = localFolderPath(directoryPath);
+  if (!path) {
+    showDashboardError(t("workspace.open_local_folder_failed"), t("workspace.open_local_folder_failed"));
+    return;
+  }
   try {
     const response = await fetch("/api/open-local-directory", {
       method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ directory_path: directoryPath }),
+      body: JSON.stringify({ directory_path: path }),
     });
-    const outcome = await response.json();
+    // A reverse proxy or a temporarily restarting dashboard can return a
+    // non-JSON error page.  Do not surface a browser parser exception to the
+    // operator; the route has one clear, actionable fallback instead.
+    const outcome = await response.json().catch(() => ({}));
     if (!response.ok) throw Error(outcome?.error || t("workspace.open_local_folder_failed"));
   } catch (error) {
-    showDashboardError(error.message || t("workspace.open_local_folder_failed"), t("workspace.open_local_folder_failed"));
+    const message = error instanceof Error ? error.message : "";
+    showDashboardError(
+      message === "The string did not match the expected pattern."
+        ? t("workspace.open_local_folder_failed")
+        : message || t("workspace.open_local_folder_failed"),
+      t("workspace.open_local_folder_failed"),
+    );
   }
 }
 function localFolderButton(value, { containingFolder = false } = {}) {
