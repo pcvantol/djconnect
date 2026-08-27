@@ -5287,8 +5287,8 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#dashboardLocaleMenu")).toBeVisible();
   });
 
-  test("aligns the refresh action with status at medium desktop widths", async ({ page }) => {
-    await page.setViewportSize({ width: 1280, height: 844 });
+  test("aligns the refresh action with status at compact desktop widths", async ({ page }) => {
+    await page.setViewportSize({ width: 1250, height: 844 });
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
 
     const layout = await page.evaluate(() => {
@@ -5301,6 +5301,7 @@ test.describe("Engineering Status browser smoke", () => {
     });
     expect(Math.abs(layout.healthCenter - layout.refreshCenter)).toBeLessThanOrEqual(2);
     await expect(page.locator("#pageRefresh")).toHaveCSS("transform", "none");
+    await expect(page.locator(".dashboard-titlebar__actions")).toHaveCSS("display", "grid");
   });
 
   test("uses the compact options disclosure before a narrow desktop crowds the title bar", async ({ page }) => {

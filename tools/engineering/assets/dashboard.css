@@ -443,6 +443,13 @@ html[data-theme="light"] :is(.dashboard-locale,.dashboard-project){color:#415168
    labelled disclosure, then presented as full-width rows rather than unlabeled
    switch glyphs. Desktop keeps the existing inline control strip. */
 .dashboard-titlebar__options{align-items:center;display:flex;flex:0 0 auto;min-width:0}.dashboard-titlebar__options-toggle{display:none}.dashboard-titlebar__options-content{align-items:center;display:flex;flex:0 0 auto;gap:12px}
+/* At the intermediate desktop width the title owns the first row while the
+   status, refresh and inline options share the next.  A grid prevents the
+   refresh button from acquiring a different flex baseline than the status. */
+@media (min-width:1241px) and (max-width:1400px){
+  .dashboard-titlebar__actions{align-items:center;display:grid;grid-template-columns:auto auto max-content;justify-content:end}
+  .dashboard-titlebar__actions>:is(.dashboard-health,.page-refresh,.dashboard-titlebar__options){align-self:center;margin-block:0}
+}
 @media (max-width:1240px){
   .dashboard-titlebar{align-items:flex-start;flex-wrap:wrap;position:relative}
   .dashboard-titlebar__brand{flex-basis:100%;padding-right:0}
