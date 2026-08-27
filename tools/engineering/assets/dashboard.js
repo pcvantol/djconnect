@@ -2487,20 +2487,16 @@ async function refreshOpenPullRequests() {
     if (refreshButton) refreshButton.disabled = false;
   }
 }
-function ownerAuthorizationErrorMessage(error) {
+function openPullRequestActionErrorMessage(error) {
   const code = String(error || "").trim();
   const key = `workspace.open_pull_request.${code}`;
   return DASHBOARD_MESSAGES[dashboardLocale]?.[key] || t("ui.action_failed");
 }
-function refreshOpenPullRequestsAfterOwnerAuthorization() {
+function refreshOpenPullRequestsAfterAction() {
   void refreshOpenPullRequests();
-  // GitHub dispatch is accepted before its status check is materialized.  Read
-  // the authoritative projection again shortly afterwards instead of leaving
-  // an owner-approval control stale until the normal polling interval.
-  // The workflow dispatch is asynchronous: GitHub can accept it while the
-  // exact-SHA status is still one projection cycle away. Keep a final retry at
-  // twice the previous wait so the user does not see a false failure at the
-  // edge of that propagation window.
+  // Both owner authorization and one-shot repair are asynchronous GitHub
+  // actions. Re-read their authoritative PR projection during the propagation
+  // window instead of keeping a stale button until the normal polling interval.
   for (const delay of [900, 2500, 6000, 12000]) {
     setTimeout(() => void refreshOpenPullRequests(), delay);
   }
@@ -2523,25 +2519,27 @@ async function requestOpenPullRequestOwnerAuthorization(button) {
     const payload = await response.json().catch(() => null);
     if (!response.ok) throw Error(payload?.error);
     showDashboardToast(t("workspace.open_pull_request.owner_authorization_queued"));
-    refreshOpenPullRequestsAfterOwnerAuthorization();
+    refreshOpenPullRequestsAfterAction();
   } catch (error) {
-    showDashboardToast(ownerAuthorizationErrorMessage(error?.message));
+    showDashboardToast(openPullRequestActionErrorMessage(error?.message));
   } finally {
     button.disabled = false;
+  }
+}
+function failedCheckNamesFromButton(button) {
+  try {
+    const values = JSON.parse(button?.dataset.openPullRequestFailedChecks || "[]");
+    return Array.isArray(values)
+      ? values.filter((value) => typeof value === "string" && value.trim()).map((value) => value.trim())
+      : [];
+  } catch {
+    return [];
   }
 }
 async function requestOpenPullRequestCheckRepair(button) {
   const number = Number(button?.dataset.openPullRequestCheckRepair);
   if (!Number.isInteger(number) || number < 1) return;
-  let failedChecks = [];
-  try {
-    const values = JSON.parse(button.dataset.openPullRequestFailedChecks || "[]");
-    failedChecks = Array.isArray(values)
-      ? values.filter((value) => typeof value === "string" && value.trim()).map((value) => value.trim())
-      : [];
-  } catch {
-    failedChecks = [];
-  }
+  const failedChecks = failedCheckNamesFromButton(button);
   const confirmed = await confirmDashboardAction(
     t("workspace.open_pull_request.repair_failed_checks"),
     t("workspace.open_pull_request.repair_failed_checks_confirmation"),
@@ -2562,9 +2560,9 @@ async function requestOpenPullRequestCheckRepair(button) {
     const payload = await response.json().catch(() => null);
     if (!response.ok) throw Error(payload?.error);
     showDashboardToast(t("workspace.open_pull_request.repair_failed_checks_queued"));
-    refreshOpenPullRequestsAfterOwnerAuthorization();
+    refreshOpenPullRequestsAfterAction();
   } catch (error) {
-    showDashboardToast(ownerAuthorizationErrorMessage(error?.message));
+    showDashboardToast(openPullRequestActionErrorMessage(error?.message));
   } finally {
     button.disabled = false;
   }
