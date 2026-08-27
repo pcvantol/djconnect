@@ -8572,6 +8572,7 @@ test.describe("Engineering Status browser smoke", () => {
     const branches = Array.from({ length: 28 }, (_, index) => ({
       name: `codex/stale-${String(index + 1).padStart(2, "0")}`,
       reason: "remote_absent_and_matches_main",
+      removable: true,
     }));
     branches[0].pull_request = { number: 847, url: "https://github.com/pcvantol/djconnect/pull/847" };
     let releasePreview;
@@ -8581,7 +8582,7 @@ test.describe("Engineering Status browser smoke", () => {
       expect(route.request().postData()).toBe("{}");
       previewRequested();
       await new Promise((resolve) => { releasePreview = resolve; });
-      await route.fulfill({ json: { branches } });
+      await route.fulfill({ json: { branches, removable_branches: branches.map((branch) => branch.name) } });
     });
     await page.route("**/api/stale-local-branch-cleanup", async (route) => {
       expect(JSON.parse(route.request().postData())).toEqual({ branches: branches.map((branch) => branch.name) });
@@ -8628,6 +8629,31 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(result.locator(".confirmation-modal__panel")).toHaveCSS("border-top-color", "rgb(243, 211, 106)");
     await expect(result).toContainText("28 losse lokale branch(es) verwijderd.");
     await expect(result.locator(".workspace-branch-cleanup__result-list li")).toHaveCount(28);
+  });
+
+  test("shows retained standalone branches without offering destructive cleanup", async ({ page }) => {
+    await page.route("**/api/events", (route) => route.abort());
+    await page.route("**/api/stale-local-branch-cleanup-preview", (route) => route.fulfill({ json: {
+      branches: [
+        { name: "codex/remote", reason: "remote_branch_exists", removable: false },
+        { name: "codex/different", reason: "content_differs_from_main", removable: false },
+      ],
+      removable_branches: [],
+    } }));
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#workspaceCard > summary").click();
+    await page.locator("#workspaceBranchCleanup").evaluate((button) => { button.hidden = false; });
+    await dispatchDashboardPointerClick(page.getByRole("button", { name: "Beoordeel losse lokale branches" }));
+
+    const confirmation = page.locator("#confirmationModal");
+    await expect(confirmation).toBeVisible();
+    await expect(confirmation).toContainText("Geen losse lokale branches zijn veilig te verwijderen.");
+    await expect(confirmation.locator(".workspace-branch-cleanup__preview-list")).toContainText("codex/remote");
+    await expect(confirmation.locator(".workspace-branch-cleanup__preview-list")).toContainText("de branch bestaat nog op origin");
+    await expect(confirmation.locator(".workspace-branch-cleanup__preview-list")).toContainText("codex/different");
+    await expect(confirmation.locator(".workspace-branch-cleanup__preview-list")).toContainText("de inhoud verschilt nog van main");
+    await expect(page.locator("#confirmationModalConfirm")).toHaveText("Sluiten");
+    await expect(page.locator("#confirmationModalCancel")).toBeHidden();
   });
 
   test("renders provider limit rows on separate lines", async ({ page }) => {

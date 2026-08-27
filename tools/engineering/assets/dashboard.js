@@ -7263,6 +7263,9 @@ async function cleanupStaleLocalBranches() {
     const preview = await previewResponse.json();
     if (!previewResponse.ok) throw Error(preview.error || t("workspace.branch_cleanup_failed"));
     const branches = Array.isArray(preview?.branches) ? preview.branches : [];
+    const removableBranches = Array.isArray(preview?.removable_branches)
+      ? preview.removable_branches.map(String).filter(Boolean)
+      : branches.filter((branch) => branch?.removable === true).map((branch) => String(branch?.name || "")).filter(Boolean);
     if (!branches.length) {
       if (modal.open) {
         body.replaceChildren(Object.assign(document.createElement("p"), {
@@ -7287,16 +7290,29 @@ async function cleanupStaleLocalBranches() {
       pull_request: branch?.pull_request,
     }));
     body.replaceChildren(
-      Object.assign(document.createElement("p"), { textContent: t("workspace.branch_cleanup_confirmation") }),
+      Object.assign(document.createElement("p"), {
+        textContent: removableBranches.length
+          ? t("workspace.branch_cleanup_confirmation")
+          : t("workspace.branch_cleanup_no_safe_in_modal"),
+      }),
       workspaceBranchCleanupDetails(details),
     );
+    if (!removableBranches.length) {
+      confirm.textContent = t("action.close");
+      confirm.disabled = false;
+      $("confirmationModalCancel").hidden = true;
+      confirm.classList.remove("dashboard-modal-shell__action--destructive");
+      confirm.classList.add("dashboard-modal-shell__action--primary");
+      await confirmation;
+      return;
+    }
     confirm.disabled = false;
     const confirmed = await confirmation;
     if (!confirmed) return;
     const response = await fetch("/api/stale-local-branch-cleanup", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ branches: branches.map((branch) => String(branch?.name || "")) }),
+      body: JSON.stringify({ branches: removableBranches }),
     });
     const result = await response.json();
     if (!response.ok) throw Error(result.error || t("workspace.branch_cleanup_failed"));

@@ -568,7 +568,14 @@ class DashboardStatusTest(unittest.TestCase):
         ]
 
         preview = dashboard._stale_local_branch_preview(root)
-        self.assertEqual(preview, {"branches": [{"name": "codex/stale", "reason": "remote_absent_and_matches_main"}]})
+        self.assertEqual(preview, {
+            "branches": [
+                {"name": "codex/different", "reason": "content_differs_from_main", "removable": False},
+                {"name": "codex/remote", "reason": "remote_branch_exists", "removable": False},
+                {"name": "codex/stale", "reason": "remote_absent_and_matches_main", "removable": True},
+            ],
+            "removable_branches": ["codex/stale"],
+        })
 
         git_provider.return_value.execute.side_effect = [
             completed(("git",), 0, "", ""),
@@ -884,7 +891,7 @@ class DashboardStatusTest(unittest.TestCase):
 
         self.assertEqual(
             dashboard._stale_local_branch_preview(root),
-            {"branches": [{"name": "codex/stale", "reason": "remote_absent_and_matches_main"}]},
+            {"branches": [{"name": "codex/stale", "reason": "remote_absent_and_matches_main", "removable": True}], "removable_branches": ["codex/stale"]},
         )
         self.assertNotIn(
             call(root, "git", "show-ref", "--verify", "--quiet", "refs/remotes/origin/codex/in-use"),
@@ -918,8 +925,9 @@ class DashboardStatusTest(unittest.TestCase):
             {"branches": [{
                 "name": "codex/stale",
                 "reason": "remote_absent_and_matches_main",
+                "removable": True,
                 "pull_request": {"number": 847, "url": "https://github.com/pcvantol/djconnect/pull/847"},
-            }]},
+            }], "removable_branches": ["codex/stale"]},
         )
 
     @patch("tools.engineering.dashboard.GitProvider")

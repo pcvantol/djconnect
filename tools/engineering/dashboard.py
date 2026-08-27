@@ -1410,8 +1410,13 @@ def _recover_stale_workspace_git_lock(root: Path) -> dict[str, object]:
     return {"state": "free", "recovered": True}
 
 
-def _stale_local_branch_candidates(root: Path) -> list[str]:
-    """Return remote-absent branches proven equivalent or merged into main."""
+def _loose_local_branch_analysis(root: Path) -> list[dict[str, object]]:
+    """Assess every standalone local branch without making any change.
+
+    The dashboard must distinguish an empty inventory from an inventory with
+    branches that are deliberately retained.  Only entries marked removable
+    may reach the destructive cleanup endpoint.
+    """
     provider = GitProvider()
     expected_branch = PlatformConfiguration.load(root).workspace.default_branch
     try:
@@ -1435,23 +1440,37 @@ def _stale_local_branch_candidates(root: Path) -> list[str]:
         branches = provider.execute(root, "git", "for-each-ref", "--format=%(refname:short)", "refs/heads")
         if branches.returncode:
             raise RuntimeError("Lokale branches konden niet veilig worden gelezen.")
-        removable: list[str] = []
+        analysis: list[dict[str, object]] = []
         for branch in sorted(name for name in branches.stdout.splitlines() if name and name != expected_branch):
             if branch in active_worktree_branches:
                 continue
             remote = provider.execute(root, "git", "show-ref", "--verify", "--quiet", f"refs/remotes/origin/{branch}")
             if remote.returncode == 0:
+                analysis.append({"name": branch, "reason": "remote_branch_exists", "removable": False})
                 continue
+            if remote.returncode != 1:
+                raise RuntimeError(f"Remote-branch van {branch} kon niet veilig worden gecontroleerd.")
             comparison = provider.execute(root, "git", "diff", "--quiet", expected_branch, branch)
             if comparison.returncode == 0:
-                removable.append(branch)
+                analysis.append({"name": branch, "reason": "remote_absent_and_matches_main", "removable": True})
             elif comparison.returncode == 1 and _branch_is_verified_merged_into_main(root, expected_branch, branch, provider):
-                removable.append(branch)
+                analysis.append({"name": branch, "reason": "remote_absent_verified_merged_pull_request", "removable": True})
             elif comparison.returncode != 1:
                 raise RuntimeError(f"Branch {branch} kon niet veilig worden vergeleken.")
+            else:
+                analysis.append({"name": branch, "reason": "content_differs_from_main", "removable": False})
     except OSError as error:
         raise RuntimeError("Lokale branch-opruiming is niet beschikbaar.") from error
-    return removable
+    return analysis
+
+
+def _stale_local_branch_candidates(root: Path) -> list[str]:
+    """Return only analysis entries that are proven safe to remove."""
+    return [
+        str(entry["name"])
+        for entry in _loose_local_branch_analysis(root)
+        if entry.get("removable") is True and isinstance(entry.get("name"), str)
+    ]
 
 
 def _branch_is_verified_merged_into_main(
@@ -1531,20 +1550,24 @@ def _github_pull_request_for_detached_commit(
 
 
 def _stale_local_branch_preview(root: Path) -> dict[str, object]:
-    branches = _stale_local_branch_candidates(root)
+    analysis = _loose_local_branch_analysis(root)
+    removable = [str(entry["name"]) for entry in analysis if entry.get("removable") is True]
     pull_requests = {
         branch: _stale_local_branch_pull_request(root, branch)
-        for branch in branches
+        for branch in removable
     }
     return {
         "branches": [
             {
-                "name": branch,
-                "reason": "remote_absent_and_matches_main",
-                **({"pull_request": pull_requests[branch]} if pull_requests[branch] else {}),
+                "name": str(entry["name"]),
+                "reason": str(entry["reason"]),
+                "removable": entry.get("removable") is True,
+                **({"pull_request": pull_requests[str(entry["name"])]}
+                   if entry.get("removable") is True and pull_requests[str(entry["name"])] else {}),
             }
-            for branch in branches
+            for entry in analysis
         ],
+        "removable_branches": removable,
     }
 
 
