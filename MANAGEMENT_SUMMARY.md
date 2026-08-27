@@ -1,6 +1,6 @@
 # DJConnect Generation 2 Management Summary
 
-## PR #973 finalization pending
+## PR #973 finalized by PR #974
 
 PR [#973](https://github.com/pcvantol/djconnect/pull/973), **test: guard root
 documentation validation tier**, merged as
@@ -11,9 +11,11 @@ files remain in the documentation validation tier; it does not change runtime,
 lifecycle, storage schema, reviewer, provider, queue, delivery or
 operator-owned merge authority. Its immutable Prompt History record is
 `docs/history/prompts/2026-08-27-post-972-fresh-managed-qualification.md`.
-This governance-only Finalization reconciles only the four canonical rolling
-records and durable handoff metadata. Repository State: `MERGED_UNRECONCILED`;
-Workspace State: `WORKSPACE_READY`; Finalization Pending: `YES`.
+Governance-only Finalization PR [#974](https://github.com/pcvantol/djconnect/pull/974)
+merged as `a1df847fcaf1b4bccef037a53e91c2b140807fb6`; its completed required
+checks have no failures. This direct-on-`main` reconciliation updates only the
+four canonical rolling records. Repository State: `MERGED_RECONCILED`;
+Workspace State: `WORKSPACE_READY`; Finalization Pending: `NO`.
 
 ## PR #961 finalized by PR #963
 
