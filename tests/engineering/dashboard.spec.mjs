@@ -569,7 +569,7 @@ test.describe("Engineering Status browser smoke", () => {
       const workspace = document.querySelector("#workspaceCard");
       window.renderWorkspaceWorktrees({ available: true, worktrees: [
         { path: "/workspace", branch: "main", commit: "123456789abc" },
-        { path: "/tmp/polish", branch: "codex/polish", commit: "abcdef123456" },
+        { path: "/tmp/polish", branch: "codex/polish", commit: "abcdef123456", removable: true },
       ] });
       if (!document.querySelector("#workspaceOpenPullRequests")) {
         const pullRequests = document.createElement("section");
@@ -581,6 +581,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(worktrees).toContainText("Lokale worktrees en branches");
     await expect(worktrees).toContainText("codex/polish");
     await expect(worktrees).toContainText("/tmp/polish");
+    await expect(worktrees.locator(".workspace-worktrees__remove")).toHaveText("Verwijder worktree");
     await expect(worktrees).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
     await expect(worktrees.locator(".workspace-branch-actions")).toContainText("Scan branches voor opruiming");
     await expect(worktrees.locator(".workspace-branch-actions")).toContainText("Switch naar FF main");

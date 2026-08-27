@@ -2103,6 +2103,14 @@ function renderWorkspaceWorktrees(projection) {
       : String(worktree?.path || t("format.not_available"));
     commit.textContent = String(worktree?.commit || t("format.not_available"));
     item.append(branch, path, commit);
+    if (worktree?.removable === true && typeof worktree?.path === "string" && typeof worktree?.branch === "string") {
+      const remove = document.createElement("button");
+      remove.className = "workspace-worktrees__remove";
+      remove.type = "button";
+      remove.textContent = t("workspace.worktree_remove_action");
+      remove.addEventListener("click", () => removeSafeWorktree(worktree));
+      item.append(remove);
+    }
     list.append(item);
   });
   section.append(list);
@@ -6963,6 +6971,29 @@ async function cleanupStaleLocalBranches() {
     showDashboardError(error.message, t("workspace.branch_cleanup_failed"));
   } finally {
     button.disabled = false;
+  }
+}
+async function removeSafeWorktree(worktree) {
+  const path = String(worktree?.path || ""), branch = String(worktree?.branch || "");
+  if (!path || !branch) return;
+  const confirmed = await confirmDashboardAction(
+    t("workspace.worktree_remove_title"),
+    t("workspace.worktree_remove_confirmation", { branch, path }),
+    t("workspace.worktree_remove_action"),
+    { destructive: true, accent: workspaceModalAccent() },
+  );
+  if (!confirmed) return;
+  try {
+    const response = await fetch("/api/safe-worktree-removal", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ worktree_path: path, branch }),
+    });
+    const outcome = await response.json();
+    if (!response.ok) throw Error(outcome.error || t("workspace.worktree_remove_failed"));
+    showWorkspaceBranchMainResult(t("workspace.worktree_remove_success", { branch }));
+    void refresh();
+  } catch (error) {
+    showDashboardError(error.message || t("workspace.worktree_remove_failed"), t("workspace.worktree_remove_failed"));
   }
 }
 function submitExecutionRetry(entry) {
