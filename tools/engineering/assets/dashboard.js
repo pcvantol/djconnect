@@ -6870,9 +6870,10 @@ function showWorkspaceBranchCleanupResult(outcome) {
 function workspaceModalAccent() {
   return getComputedStyle($("workspaceCard")).getPropertyValue("--category-color").trim() || "#f3d36a";
 }
-function showWorkspaceBranchMainResult(message) {
+function showWorkspaceBranchMainResult(message, titleKey = "workspace.branch_main_result_title") {
   const modal = $("workspaceBranchMainResultModal"), content = $("workspaceBranchMainResultContent"),
     close = $("workspaceBranchMainResultClose"), dismiss = $("workspaceBranchMainResultDismiss");
+  $("workspaceBranchMainResultTitle").textContent = t(titleKey);
   modal.style.setProperty("--modal-parent-accent", workspaceModalAccent());
   content.replaceChildren(Object.assign(document.createElement("p"), { textContent: message }));
   const finish = () => {
@@ -6990,7 +6991,10 @@ async function removeSafeWorktree(worktree) {
     });
     const outcome = await response.json();
     if (!response.ok) throw Error(outcome.error || t("workspace.worktree_remove_failed"));
-    showWorkspaceBranchMainResult(t("workspace.worktree_remove_success", { branch }));
+    showWorkspaceBranchMainResult(
+      t("workspace.worktree_remove_success", { branch }),
+      "workspace.worktree_remove_result_title",
+    );
     void refresh();
   } catch (error) {
     showDashboardError(error.message || t("workspace.worktree_remove_failed"), t("workspace.worktree_remove_failed"));
