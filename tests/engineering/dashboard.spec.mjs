@@ -654,6 +654,8 @@ test.describe("Engineering Status browser smoke", () => {
     const workspacePath = await workspace.textContent();
     await workspace.hover();
     await expect(workspace).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
+    await workspace.focus();
+    await expect(workspace).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
     await dispatchDashboardPointerClick(workspace);
     await expect.poll(() => requestedDirectories).toEqual([workspacePath]);
 
