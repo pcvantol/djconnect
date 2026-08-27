@@ -5248,7 +5248,7 @@ test.describe("Engineering Status browser smoke", () => {
     const titlebarLayout = await page.evaluate(() => {
       const health = document.querySelector("#dashboardHealth").getBoundingClientRect();
       const refresh = document.querySelector("#pageRefresh").getBoundingClientRect();
-      const options = document.querySelector("#dashboardTitlebarOptions").getBoundingClientRect();
+      const options = document.querySelector("#dashboardTitlebarOptionsToggle").getBoundingClientRect();
       return {
         healthTop: Math.round(health.top), healthLeft: Math.round(health.left),
         refreshTop: Math.round(refresh.top), refreshLeft: Math.round(refresh.left),
@@ -5259,6 +5259,36 @@ test.describe("Engineering Status browser smoke", () => {
     expect(Math.abs(titlebarLayout.refreshTop - titlebarLayout.optionsTop)).toBeLessThanOrEqual(2);
     expect(titlebarLayout.healthLeft).toBeLessThan(titlebarLayout.refreshLeft);
     expect(titlebarLayout.refreshLeft).toBeLessThan(titlebarLayout.optionsLeft);
+
+    const panelLayout = await page.evaluate(() => {
+      const titlebar = document.querySelector(".dashboard-titlebar").getBoundingClientRect();
+      const panel = document.querySelector("#dashboardTitlebarOptionsContent").getBoundingClientRect();
+      return {
+        panelTop: Math.round(panel.top),
+        titlebarBottom: Math.round(titlebar.bottom),
+      };
+    });
+    expect(panelLayout.titlebarBottom).toBeGreaterThanOrEqual(panelLayout.panelTop);
+  });
+
+  test("keeps expanded compact options in the titlebar flow", async ({ page }) => {
+    for (const viewport of [{ width: 390, height: 844 }, { width: 1024, height: 844 }]) {
+      await page.setViewportSize(viewport);
+      await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+      await openTitlebarOptions(page);
+      const layout = await page.evaluate(() => {
+        const titlebar = document.querySelector(".dashboard-titlebar").getBoundingClientRect();
+        const options = document.querySelector("#dashboardTitlebarOptionsContent").getBoundingClientRect();
+        const queue = document.querySelector("#queueItems").getBoundingClientRect();
+        return {
+          optionsBottom: Math.round(options.bottom),
+          titlebarBottom: Math.round(titlebar.bottom),
+          queueTop: Math.round(queue.top),
+        };
+      });
+      expect(layout.titlebarBottom).toBeGreaterThanOrEqual(layout.optionsBottom);
+      expect(layout.queueTop).toBeGreaterThanOrEqual(layout.titlebarBottom);
+    }
   });
 
   test("uses one dark-mode ink colour for title-bar option labels", async ({ page }) => {
