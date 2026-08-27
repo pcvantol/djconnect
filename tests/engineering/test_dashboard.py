@@ -13,7 +13,7 @@ from contextlib import ExitStack, contextmanager, nullcontext
 from unittest.mock import ANY, MagicMock, call, patch
 
 from tools.engineering import dashboard
-from tools.engineering.dashboard import DASHBOARD_VERSION, LOOPBACK_ADDRESS, _clear_component_log, _codex_cli_installation_path, _codex_process_metrics, _codex_provider_identity, _codex_usage, _codex_usage_for_run, _component_log, _component_log_versions, _completion_commits, _component_uptime_seconds, _current_codex_log, _dashboard_html, _last_executed_agent_execution, _last_executed_codex_log, _last_executed_commits, _last_executed_runtime_metadata, _latest_codex_log, _normalize_rate_limits, _platform_health, _prompt_history, _prompt_history_detail, _report_analysis_available_for_run, _report_analysis_for_run, _report_for_run, _reviewer_agents_for_run, _sse_snapshot, _sse_status, _status, _tracked_file_count, _workspace_free_disk_space, _workspace_git_projection, _workspace_worktrees, binding_addresses
+from tools.engineering.dashboard import DASHBOARD_VERSION, LOOPBACK_ADDRESS, _clear_component_log, _codex_cli_installation_path, _codex_process_metrics, _codex_provider_identity, _codex_usage, _codex_usage_for_run, _component_log, _component_log_versions, _completion_commits, _component_uptime_seconds, _current_codex_log, _dashboard_html, _last_executed_agent_execution, _last_executed_codex_log, _last_executed_commits, _last_executed_runtime_metadata, _latest_codex_log, _normalize_rate_limits, _open_worktree_in_finder, _platform_health, _prompt_history, _prompt_history_detail, _report_analysis_available_for_run, _report_analysis_for_run, _report_for_run, _reviewer_agents_for_run, _sse_snapshot, _sse_status, _status, _tracked_file_count, _workspace_free_disk_space, _workspace_git_projection, _workspace_worktrees, binding_addresses
 from tools.engineering.inbox_watcher import WATCHER_VERSION
 from tools.engineering.platform_version import EngineeringPlatformManifest
 from tools.engineering.prompt_history import record_prompt_execution
@@ -241,6 +241,25 @@ class DashboardStatusTest(unittest.TestCase):
             {"path": None, "branch": "main", "commit": "abcdef123456", "detached": False, "checked_out": False},
         {"path": "/workspace", "branch": "codex/feature", "commit": "123456789abc", "detached": False, "removable": True},
         ]})
+
+    def test_open_worktree_in_finder_accepts_only_a_current_worktree(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            worktree = root / "worktree"
+            worktree.mkdir()
+            completed = __import__("subprocess").CompletedProcess(("open",), 0, "", "")
+            with (
+                patch("tools.engineering.dashboard.sys.platform", "darwin"),
+                patch("tools.engineering.dashboard._workspace_worktrees", return_value={"available": True, "worktrees": [{"path": str(worktree)}]}),
+                patch("tools.engineering.dashboard.LocalProcessProvider.execute", return_value=completed) as execute,
+            ):
+                self.assertEqual(_open_worktree_in_finder(root, str(worktree)), {"opened_worktree": str(worktree.resolve())})
+                execute.assert_called_once_with(root, ("open", str(worktree.resolve())))
+            with patch("tools.engineering.dashboard.sys.platform", "darwin"), patch(
+                "tools.engineering.dashboard._workspace_worktrees", return_value={"available": True, "worktrees": []},
+            ):
+                with self.assertRaises(RuntimeError):
+                    _open_worktree_in_finder(root, str(worktree))
 
     def test_dashboard_exposes_the_canonical_five_locale_catalog(self) -> None:
         root = Path(__file__).parents[2]
@@ -3326,6 +3345,12 @@ class DashboardStatusTest(unittest.TestCase):
                 self.assertEqual(response.status, 202)
                 self.assertEqual(json.loads(response.read())["branch"], "codex/stale")
                 remove.assert_called_once_with(root, "/worktrees/stale", "codex/stale")
+            with patch("tools.engineering.dashboard._open_worktree_in_finder", return_value={"opened_worktree": "/worktrees/stale"}) as open_folder:
+                connection.request("POST", "/api/open-worktree-folder", body='{"worktree_path":"/worktrees/stale"}', headers={"Content-Type": "application/json"})
+                response = connection.getresponse()
+                self.assertEqual(response.status, 202)
+                self.assertEqual(json.loads(response.read()), {"opened_worktree": "/worktrees/stale"})
+                open_folder.assert_called_once_with(root, "/worktrees/stale")
             execution_retry_outcome = {"retry_of": "inbox-blocked", "original_run_id": "inbox-blocked", "retry_generation": 1, "retry_timestamp": "2026-08-03T12:00:00+00:00", "filename": "retry-inbox-blocked.md", "retry_run_id": "inbox-retry"}
             with (
                 patch("tools.engineering.dashboard.cloud_root", return_value=root),

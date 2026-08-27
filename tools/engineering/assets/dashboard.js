@@ -2108,15 +2108,23 @@ function renderWorkspaceWorktrees(projection) {
   worktrees.forEach((worktree) => {
     const item = document.createElement("li");
     const branch = document.createElement("code");
-    const path = document.createElement("code");
+    const path = document.createElement("button");
     const commit = document.createElement("code");
     branch.className = "workspace-worktrees__branch";
-    path.className = "workspace-worktrees__path";
+    path.className = "workspace-worktrees__path workspace-worktrees__path--open";
+    path.type = "button";
     commit.className = "workspace-worktrees__commit";
     branch.textContent = worktree?.branch || t("workspace.detached_head");
     path.textContent = worktree?.checked_out === false
       ? t("workspace.not_checked_out")
       : String(worktree?.path || t("format.not_available"));
+    if (typeof worktree?.path === "string" && worktree.path) {
+      path.title = t("workspace.open_worktree_folder", { path: worktree.path });
+      path.setAttribute("aria-label", t("workspace.open_worktree_folder", { path: worktree.path }));
+      path.addEventListener("click", () => void openWorktreeFolder(worktree.path));
+    } else {
+      path.disabled = true;
+    }
     commit.textContent = String(worktree?.commit || t("format.not_available"));
     item.append(branch, path, commit);
     const analysis = analyses.get(worktreeAnalysisKey(worktree));
@@ -2152,6 +2160,18 @@ function renderWorkspaceWorktrees(projection) {
   });
   section.append(list);
   if (branchActions) section.append(branchActions);
+}
+async function openWorktreeFolder(worktreePath) {
+  try {
+    const response = await fetch("/api/open-worktree-folder", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ worktree_path: worktreePath }),
+    });
+    const outcome = await response.json();
+    if (!response.ok) throw Error(outcome?.error || t("workspace.open_worktree_folder_failed"));
+  } catch (error) {
+    showDashboardError(error.message || t("workspace.open_worktree_folder_failed"), t("workspace.open_worktree_folder_failed"));
+  }
 }
 async function refreshWorktreeRemovalAnalysis(button) {
   button.disabled = true;

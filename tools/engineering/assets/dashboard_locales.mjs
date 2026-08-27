@@ -2941,6 +2941,11 @@ Object.assign(DASHBOARD_MESSAGES.nl, {"workspace.branch_cleanup_empty_in_modal":
 Object.assign(DASHBOARD_MESSAGES.de, {"workspace.branch_cleanup_empty_in_modal":"Keine eigenständigen lokalen Branches gefunden."});
 Object.assign(DASHBOARD_MESSAGES.fr, {"workspace.branch_cleanup_empty_in_modal":"Aucune branche locale autonome trouvée."});
 Object.assign(DASHBOARD_MESSAGES.es, {"workspace.branch_cleanup_empty_in_modal":"No se encontraron ramas locales independientes."});
+Object.assign(DASHBOARD_MESSAGES.en, {"workspace.open_worktree_folder":"Open {path} in Finder","workspace.open_worktree_folder_failed":"The local worktree folder could not be opened."});
+Object.assign(DASHBOARD_MESSAGES.nl, {"workspace.open_worktree_folder":"Open {path} in Finder","workspace.open_worktree_folder_failed":"De lokale worktreemap kon niet worden geopend."});
+Object.assign(DASHBOARD_MESSAGES.de, {"workspace.open_worktree_folder":"{path} im Finder öffnen","workspace.open_worktree_folder_failed":"Der lokale Worktree-Ordner konnte nicht geöffnet werden."});
+Object.assign(DASHBOARD_MESSAGES.fr, {"workspace.open_worktree_folder":"Ouvrir {path} dans le Finder","workspace.open_worktree_folder_failed":"Le dossier worktree local n’a pas pu être ouvert."});
+Object.assign(DASHBOARD_MESSAGES.es, {"workspace.open_worktree_folder":"Abrir {path} en Finder","workspace.open_worktree_folder_failed":"No se pudo abrir la carpeta local del worktree."});
 Object.assign(DASHBOARD_MESSAGES.en, {"workspace.current_commit":"Git commit"});
 Object.assign(DASHBOARD_MESSAGES.nl, {"workspace.current_commit":"Git commit"});
 Object.assign(DASHBOARD_MESSAGES.de, {"workspace.current_commit":"Git-Commit"});

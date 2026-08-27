@@ -583,6 +583,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(worktrees).toContainText("/tmp/polish");
     await expect(worktrees.locator(".workspace-worktrees__refresh")).toHaveCount(1);
     await expect(worktrees.locator(".workspace-worktrees__remove")).toHaveCount(0);
+    await expect(worktrees.locator(".workspace-worktrees__path--open")).toHaveCount(2);
     await expect(worktrees).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
     await expect(worktrees.locator("ul")).toHaveCSS("overflow-y", "auto");
     await expect(worktrees.locator("ul").first().locator("li").first()).toHaveCSS("padding-bottom", "16px");
@@ -606,6 +607,23 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(worktrees).toContainText("Niet lokaal uitgecheckt");
     await expect(worktrees).toContainText("codex/refreshed");
     await expect(worktrees).not.toContainText("codex/polish");
+  });
+
+  test("opens a current worktree folder in Finder from its path", async ({ page }) => {
+    const projection = { available: true, worktrees: [
+      { path: "/tmp/finder-worktree", branch: "codex/finder", commit: "abcdef123456" },
+    ] };
+    let requestedPath = null;
+    await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({ json: { workspace_worktrees: projection } }));
+    await page.route("**/api/open-worktree-folder", async (route) => {
+      requestedPath = JSON.parse(route.request().postData()).worktree_path;
+      await route.fulfill({ status: 202, json: { opened_worktree: requestedPath } });
+    });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#autoRefresh").uncheck();
+    await page.evaluate((fixture) => window.renderWorkspaceWorktrees(fixture), projection);
+    await dispatchDashboardPointerClick(page.locator(".workspace-worktrees__path--open"));
+    await expect.poll(() => requestedPath).toBe("/tmp/finder-worktree");
   });
 
   test("analyses every worktree before showing a safe removal action", async ({ page }) => {

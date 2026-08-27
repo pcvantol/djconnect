@@ -1804,6 +1804,30 @@ def _remove_safe_worktree(root: Path, worktree_path: str, branch: str) -> dict[s
     return {"removed_worktree": worktree_path, "branch": branch, "branch_pending_cleanup": True}
 
 
+def _open_worktree_in_finder(root: Path, worktree_path: str) -> dict[str, str]:
+    """Open only a currently registered local worktree in macOS Finder."""
+    if sys.platform != "darwin" or not isinstance(worktree_path, str) or not worktree_path:
+        raise RuntimeError("De lokale worktreemap kan niet veilig worden geopend.")
+    try:
+        requested = Path(worktree_path).expanduser().resolve(strict=True)
+        registered = {
+            Path(str(item["path"])).resolve(strict=True)
+            for item in _workspace_worktrees(root).get("worktrees", [])
+            if isinstance(item, dict) and isinstance(item.get("path"), str)
+        }
+    except OSError as error:
+        raise RuntimeError("De lokale worktreemap kan niet veilig worden geopend.") from error
+    if requested not in registered:
+        raise RuntimeError("De geselecteerde map is geen actuele lokale worktree.")
+    try:
+        outcome = LocalProcessProvider().execute(root, ("open", str(requested)))
+    except OSError as error:
+        raise RuntimeError("Finder kon de lokale worktreemap niet openen.") from error
+    if outcome.returncode:
+        raise RuntimeError("Finder kon de lokale worktreemap niet openen.")
+    return {"opened_worktree": str(requested)}
+
+
 def _codex_process_metrics(root: Path) -> bytes:
     """Measure only the process group explicitly recorded by the Execution Host."""
     try:
@@ -2895,6 +2919,19 @@ def handler(root: Path, logger: logging.Logger | None = None):
                     log_event(logger, logging.INFO, "safe_worktree_removed", diagnostic=f"branch={outcome['branch']}")
                 except (RuntimeError, ValueError, UnicodeDecodeError, json.JSONDecodeError):
                     self._send(b'{"error":"De worktree kon niet veilig worden verwijderd."}', "application/json; charset=utf-8", 409)
+                    return
+                self._send(json.dumps(outcome, ensure_ascii=False).encode(), "application/json; charset=utf-8", 202)
+                return
+            if request_path == "/api/open-worktree-folder":
+                try:
+                    length = int(self.headers.get("Content-Length", "0"))
+                    payload = json.loads(self.rfile.read(length).decode("utf-8"))
+                    if not isinstance(payload, dict) or set(payload) != {"worktree_path"}:
+                        raise ValueError
+                    outcome = _open_worktree_in_finder(root, payload["worktree_path"])
+                    log_event(logger, logging.INFO, "worktree_folder_opened", diagnostic=f"path={outcome['opened_worktree']}")
+                except (RuntimeError, ValueError, UnicodeDecodeError, json.JSONDecodeError):
+                    self._send(b'{"error":"De lokale worktreemap kon niet veilig worden geopend."}', "application/json; charset=utf-8", 409)
                     return
                 self._send(json.dumps(outcome, ensure_ascii=False).encode(), "application/json; charset=utf-8", 202)
                 return
