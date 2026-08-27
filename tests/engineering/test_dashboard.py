@@ -25,6 +25,9 @@ from tools.engineering.execution_lease import acquire
 
 
 class DashboardStatusTest(unittest.TestCase):
+    def test_canonical_checkpoint_rejects_an_invalid_run_identifier(self) -> None:
+        self.assertEqual(dashboard._canonical_checkpoint(Path("/repository"), "../outside"), {})
+
     def test_browser_dashboard_validation_uses_bounded_ci_workers(self) -> None:
         config = (Path(__file__).parents[2] / "playwright.config.mjs").read_text(encoding="utf-8")
 
