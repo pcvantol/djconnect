@@ -652,10 +652,13 @@ test.describe("Engineering Status browser smoke", () => {
     await page.locator("#workspaceCard").evaluate((element) => { element.open = true; });
     const workspace = page.locator("#workspaceCard .local-folder-link").first();
     const workspacePath = await workspace.textContent();
+    const restingLinkColor = await workspace.evaluate((element) => getComputedStyle(element).color);
     await workspace.hover();
     await expect(workspace).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
+    await expect(workspace).toHaveCSS("color", restingLinkColor);
     await workspace.focus();
     await expect(workspace).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
+    await expect(workspace).toHaveCSS("color", restingLinkColor);
     await dispatchDashboardPointerClick(workspace);
     await expect.poll(() => requestedDirectories).toEqual([workspacePath]);
 
