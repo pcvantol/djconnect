@@ -5247,11 +5247,20 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#dashboardLocaleMenu")).toBeVisible();
   });
 
-  test("raises the refresh action above the compact desktop options row", async ({ page }) => {
-    await page.setViewportSize({ width: 1024, height: 844 });
+  test("aligns the refresh action with status at medium desktop widths", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 844 });
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
 
-    await expect(page.locator("#pageRefresh")).toHaveCSS("transform", "matrix(1, 0, 0, 1, 0, -8)");
+    const layout = await page.evaluate(() => {
+      const health = document.querySelector("#dashboardHealth").getBoundingClientRect();
+      const refresh = document.querySelector("#pageRefresh").getBoundingClientRect();
+      return {
+        healthCenter: health.top + health.height / 2,
+        refreshCenter: refresh.top + refresh.height / 2,
+      };
+    });
+    expect(Math.abs(layout.healthCenter - layout.refreshCenter)).toBeLessThanOrEqual(2);
+    await expect(page.locator("#pageRefresh")).toHaveCSS("transform", "none");
   });
 
   test("uses the compact options disclosure before a narrow desktop crowds the title bar", async ({ page }) => {
