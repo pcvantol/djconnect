@@ -7418,10 +7418,15 @@ test.describe("Engineering Status browser smoke", () => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.locator("#componentLogs").evaluate((element) => { element.open = true; });
     await page.locator("#componentLogControls").evaluate((element) => { element.hidden = false; });
+    await page.locator("#logTimePreset").selectOption("range");
+    await page.locator("#logDateFrom").fill("2026-08-27T12:30");
 
     await expect(page.locator("#logSpecificDate")).toHaveCSS("color", "rgb(247, 243, 238)");
     await expect(page.locator("#logDateFrom")).toHaveCSS("color", "rgb(247, 243, 238)");
     await expect(page.locator("#logDateTo")).toHaveCSS("color", "rgb(247, 243, 238)");
+    expect(await page.locator("#logDateFrom").evaluate((element) =>
+      getComputedStyle(element, "::-webkit-datetime-edit-fields-wrapper").color,
+    )).toBe("rgb(247, 243, 238)");
   });
 
   test("uses neutral ink for ordinary Markdown emphasis", async ({ page }) => {

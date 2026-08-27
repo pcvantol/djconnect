@@ -1153,6 +1153,7 @@ html[data-theme="light"] .prompt-detail-modal__content .execution-lifecycle--his
   color-scheme:dark;
 }
 #componentLogControls :is(input[type="date"],input[type="datetime-local"])::-webkit-datetime-edit,
+#componentLogControls :is(input[type="date"],input[type="datetime-local"])::-webkit-datetime-edit-fields-wrapper,
 #componentLogControls :is(input[type="date"],input[type="datetime-local"])::-webkit-datetime-edit-text,
 #componentLogControls :is(input[type="date"],input[type="datetime-local"])::-webkit-datetime-edit-year-field,
 #componentLogControls :is(input[type="date"],input[type="datetime-local"])::-webkit-datetime-edit-month-field,
@@ -1166,6 +1167,7 @@ html[data-theme="light"] #componentLogControls :is(input[type="date"],input[type
   color-scheme:light;
 }
 html[data-theme="light"] #componentLogControls :is(input[type="date"],input[type="datetime-local"])::-webkit-datetime-edit,
+html[data-theme="light"] #componentLogControls :is(input[type="date"],input[type="datetime-local"])::-webkit-datetime-edit-fields-wrapper,
 html[data-theme="light"] #componentLogControls :is(input[type="date"],input[type="datetime-local"])::-webkit-datetime-edit-text,
 html[data-theme="light"] #componentLogControls :is(input[type="date"],input[type="datetime-local"])::-webkit-datetime-edit-year-field,
 html[data-theme="light"] #componentLogControls :is(input[type="date"],input[type="datetime-local"])::-webkit-datetime-edit-month-field,
