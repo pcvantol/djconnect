@@ -1849,14 +1849,24 @@ def _remove_safe_worktree(root: Path, worktree_path: str, branch: str) -> dict[s
     """Remove exactly one freshly verified stale worktree, never its branch."""
     if not isinstance(worktree_path, str) or not isinstance(branch, str) or not worktree_path or not branch:
         raise RuntimeError("De geselecteerde worktree is ongeldig.")
-    selected = {"path": worktree_path, "branch": branch}
-    if selected not in _safe_worktree_removal_candidates(root):
+    selected = next(
+        (
+            candidate
+            for candidate in _safe_worktree_removal_candidates(root)
+            if candidate["path"] == worktree_path and candidate["branch"] == branch
+        ),
+        None,
+    )
+    if selected is None:
         raise RuntimeError("De worktree-controle is gewijzigd; controleer de lijst opnieuw.")
     try:
-        GitProvider().command(root, "git", "worktree", "remove", "--", worktree_path)
+        # The request path is only a selector.  Git receives the independently
+        # revalidated path returned by the current worktree analysis.
+        verified_path = Path(selected["path"]).resolve(strict=True)
+        GitProvider().command(root, "git", "worktree", "remove", "--", str(verified_path))
     except OSError as error:
         raise RuntimeError("De worktree kon niet veilig worden verwijderd.") from error
-    return {"removed_worktree": worktree_path, "branch": branch, "branch_pending_cleanup": True}
+    return {"removed_worktree": str(verified_path), "branch": selected["branch"], "branch_pending_cleanup": True}
 
 
 def _open_worktree_in_finder(root: Path, worktree_path: str) -> dict[str, str]:

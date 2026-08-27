@@ -552,18 +552,19 @@ class DashboardStatusTest(unittest.TestCase):
         self, candidates: object, git_provider: object
     ) -> None:
         root = Path("/repository")
-        selected = {"path": "/worktrees/stale", "branch": "codex/stale"}
-        candidates.return_value = [selected]
+        with tempfile.TemporaryDirectory() as temporary:
+            selected = {"path": temporary, "branch": "codex/stale"}
+            candidates.return_value = [selected]
 
-        self.assertEqual(
-            dashboard._remove_safe_worktree(root, selected["path"], selected["branch"]),
-            {"removed_worktree": "/worktrees/stale", "branch": "codex/stale", "branch_pending_cleanup": True},
-        )
-        git_provider.return_value.command.assert_called_once_with(
-            root, "git", "worktree", "remove", "--", "/worktrees/stale"
-        )
-        with self.assertRaisesRegex(RuntimeError, "controle is gewijzigd"):
-            dashboard._remove_safe_worktree(root, "/worktrees/other", "codex/other")
+            self.assertEqual(
+                dashboard._remove_safe_worktree(root, selected["path"], selected["branch"]),
+                {"removed_worktree": str(Path(temporary).resolve()), "branch": "codex/stale", "branch_pending_cleanup": True},
+            )
+            git_provider.return_value.command.assert_called_once_with(
+                root, "git", "worktree", "remove", "--", str(Path(temporary).resolve())
+            )
+            with self.assertRaisesRegex(RuntimeError, "controle is gewijzigd"):
+                dashboard._remove_safe_worktree(root, "/worktrees/other", "codex/other")
 
     @patch("tools.engineering.dashboard.PlatformConfiguration.load")
     @patch("tools.engineering.dashboard.GitHubProvider")
