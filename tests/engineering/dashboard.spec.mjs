@@ -699,8 +699,10 @@ test.describe("Engineering Status browser smoke", () => {
     const confirmation = page.locator("#confirmationModal");
     await expect(confirmation).toBeVisible();
     await expect(page.locator("#confirmationModalTitle")).toHaveText("Veilige worktree verwijderen");
-    await expect(page.locator("#confirmationModalText")).toContainText("main schoon en gesynchroniseerd");
+    await expect(page.locator("#confirmationModalText")).toContainText("main is schoon en gesynchroniseerd");
     await expect(page.locator("#confirmationModalText")).toContainText("codex/merged-worktree");
+    await expect(page.locator("#confirmationModalText")).toContainText("Engineering Platform controleert opnieuw:");
+    expect(await page.locator("#confirmationModalText").textContent()).toContain("\n\nDe branch blijft beschikbaar");
     await expect(page.locator("#confirmationModalConfirm")).toHaveClass(/dashboard-modal-shell__action--destructive/);
     await expect(confirmation.locator(".confirmation-modal__panel")).toHaveCSS("border-top-color", "rgb(255, 113, 143)");
     await page.locator("#confirmationModalCancel").click();
