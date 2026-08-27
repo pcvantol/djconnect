@@ -652,6 +652,8 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(worktrees.getByRole("link", { name: "Pull request #964 · MERGED" })).toBeVisible();
     await expect(worktrees.getByRole("link", { name: "Pull request #967 · OPEN" })).toBeVisible();
     await expect(worktrees.getByRole("button", { name: "Verwijder worktree" })).toHaveCount(1);
+    await page.locator("#themeToggle").click();
+    await expect(worktrees.locator(".workspace-worktrees__analysis--keep")).toHaveCSS("color", "rgb(143, 87, 0)");
   });
 
   test("confirms a safe per-worktree removal in the shared destructive modal", async ({ page }) => {
