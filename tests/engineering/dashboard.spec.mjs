@@ -584,6 +584,8 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(worktrees.locator(".workspace-worktrees__refresh")).toHaveCount(1);
     await expect(worktrees.locator(".workspace-worktrees__remove")).toHaveCount(0);
     await expect(worktrees).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
+    await expect(worktrees.locator("ul")).toHaveCSS("overflow-y", "auto");
+    await expect(worktrees.locator("ul").first().locator("li").first()).toHaveCSS("padding-bottom", "16px");
     await expect(worktrees.locator(".workspace-branch-actions")).toContainText("Beoordeel losse lokale branches");
     await expect(worktrees.locator(".workspace-branch-actions")).toContainText("Switch naar FF main");
     expect(await page.evaluate(() => {
