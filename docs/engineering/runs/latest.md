@@ -1,9 +1,9 @@
 # Latest Engineering Run
 
-- Run ID: `inbox-99cb9ba3945c40cc9c2f05c76e32fb7b`
+- Run ID: `inbox-d9e33d5847f64c3382c46debd0370f31`
 - Engineering Platform: `2.0.0`
-- Implementation PR: `#948`
-- Finalization PR: `#949`
+- Implementation PR: `#961`
+- Finalization PR: `#963`
 - Repository State: `MERGED_RECONCILED`
 - Workspace State: `WORKSPACE_READY`
-- Handoff: `docs/engineering/runs/2026/2026-08-25-inbox-99cb9ba3945c40cc9c2f05c76e32fb7b.md`
+- Handoff: `docs/engineering/runs/2026/2026-08-27-inbox-d9e33d5847f64c3382c46debd0370f31.md`

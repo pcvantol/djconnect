@@ -1,10 +1,10 @@
 {
-  "completed_at": "2026-08-25T20:58:28.178744+00:00",
-  "finalization_pr": 949,
-  "implementation_pr": 948,
-  "latest_run_id": "inbox-99cb9ba3945c40cc9c2f05c76e32fb7b",
+  "completed_at": "2026-08-27T05:49:12.623702+00:00",
+  "finalization_pr": 963,
+  "implementation_pr": 961,
+  "latest_run_id": "inbox-d9e33d5847f64c3382c46debd0370f31",
   "platform_version": "2.0.0",
-  "report_path": "docs/engineering/runs/2026/2026-08-25-inbox-99cb9ba3945c40cc9c2f05c76e32fb7b.md",
+  "report_path": "docs/engineering/runs/2026/2026-08-27-inbox-d9e33d5847f64c3382c46debd0370f31.md",
   "repository_state": "MERGED_RECONCILED",
   "schema_version": 1,
   "workspace_state": "WORKSPACE_READY"
