@@ -757,14 +757,8 @@ def _codex_cli_version_key(value: str) -> tuple[int, int, int, int, str]:
 
 
 def _npm_executable() -> str | None:
-    """Resolve npm from PATH or beside the admitted local Codex executable."""
-    if npm := shutil.which("npm"):
-        return npm
-    if codex := shutil.which("codex"):
-        sibling = Path(codex).with_name("npm")
-        if sibling.is_file() and os.access(sibling, os.X_OK):
-            return str(sibling)
-    return None
+    """Resolve npm for managed-CLI installation without selecting another CLI."""
+    return shutil.which("npm")
 
 
 def _execution_active(root: Path) -> bool:
