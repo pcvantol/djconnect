@@ -3552,7 +3552,16 @@ test.describe("Engineering Status browser smoke", () => {
     const phaseCaption = cards.nth(1).locator(".prompt-detail-commit-timeline__phase h4");
     await expect(phaseCaption.locator(".prompt-detail-commit-timeline__kind")).toHaveText(DASHBOARD_MESSAGES.nl["detail.commit_type.repair"]);
     await expect(phaseCaption.locator(".prompt-detail-commit-timeline__phase-name")).toHaveText(DASHBOARD_MESSAGES.nl["state.REPAIR_AGENT"]);
-    await expect(page.locator("#promptHistoryDetailContent .prompt-detail-provider-review-stack .prompt-detail-card--reviewers")).toHaveCount(1);
+    const stack = page.locator("#promptHistoryDetailContent .prompt-detail-provider-review-stack");
+    const reviewersCard = stack.locator(".prompt-detail-card--reviewers");
+    await expect(reviewersCard).toHaveCount(1);
+    const [stackBounds, reviewerBounds] = await Promise.all([
+      stack.boundingBox(), reviewersCard.boundingBox(),
+    ]);
+    expect(stackBounds).not.toBeNull();
+    expect(reviewerBounds).not.toBeNull();
+    expect(reviewerBounds.x).toBeGreaterThanOrEqual(stackBounds.x - 1);
+    expect(reviewerBounds.x + reviewerBounds.width).toBeLessThanOrEqual(stackBounds.x + stackBounds.width + 1);
 
     await page.setViewportSize({ width: 390, height: 844 });
     const [narrowUsage, narrowTimeline] = await Promise.all([
