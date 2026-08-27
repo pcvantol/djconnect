@@ -1409,6 +1409,8 @@ test.describe("Engineering Status browser smoke", () => {
     const repair = page.locator("[data-open-pull-request-check-repair='941']");
     await expect(repair).toHaveText(DASHBOARD_MESSAGES.nl["workspace.open_pull_request.repair_failed_checks"]);
     await expect(repair).toHaveCSS("border-top-color", "rgb(243, 211, 106)");
+    await expect(repair).toHaveCSS("padding-top", "9px");
+    await expect(repair).toHaveCSS("font-size", "13px");
     await expect(page.locator("#workspaceOpenPullRequests ul")).toHaveCSS("overflow-y", "auto");
     await expect(page.locator("#workspaceOpenPullRequests li")).toHaveCSS("padding-bottom", "16px");
     await expect(page.locator("#workspaceOpenPullRequests li")).toHaveCSS("border-bottom-style", "solid");
