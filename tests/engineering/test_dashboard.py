@@ -2990,6 +2990,27 @@ class DashboardStatusTest(unittest.TestCase):
                 self.assertEqual(response.getheader("Cache-Control"), "no-store")
                 response.read()
 
+    @patch("tools.engineering.dashboard._workspace_open_pull_requests", return_value=[])
+    def test_http_component_log_json_route_accepts_server_side_filters(
+        self, _open_pull_requests: object,
+    ) -> None:
+        with self._dashboard_http_connection() as (_, connection):
+            connection.request(
+                "GET",
+                "/api/logs/inbox?format=json&page=1&page_size=50"
+                "&start=2026-08-26T00%3A00%3A00.000Z"
+                "&end=2026-08-27T00%3A00%3A00.000Z&level=INFO",
+            )
+            response = connection.getresponse()
+            self.assertEqual(response.status, 200)
+            self.assertIn("application/json", response.getheader("Content-Type"))
+            payload = json.loads(response.read())
+            self.assertEqual(payload["page"], 1)
+            self.assertEqual(payload["page_size"], 50)
+            self.assertIsInstance(payload["entries"], list)
+            self.assertIsInstance(payload["events"], list)
+            self.assertIsInstance(payload["total"], int)
+
     @patch("tools.engineering.dashboard._request_owner_authorization", return_value={"queued": True, "pull_request": 940})
     @patch("tools.engineering.dashboard._workspace_open_pull_requests", return_value=[])
     def test_http_owner_authorization_dispatch_uses_only_the_pull_request_number(

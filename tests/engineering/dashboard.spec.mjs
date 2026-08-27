@@ -4619,6 +4619,43 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#inboxComponentLog")).not.toContainText("older-entry");
   });
 
+  test("queries the complete retained component log before applying filters", async ({ page }) => {
+    const inboxQueries = [];
+    await page.route("**/api/logs/**", async (route) => {
+      const url = new URL(route.request().url()), component = url.pathname.split("/").at(-1);
+      if (component === "inbox") inboxQueries.push(url.searchParams);
+      const historical = url.searchParams.has("start");
+      await route.fulfill({ json: {
+        entries: component === "inbox" ? [{
+          line: historical ? 17 : 999,
+          timestamp: historical ? "2026-08-26T09:00:00.000Z" : "2026-08-27T09:00:00.000Z",
+          level: historical ? "WARNING" : "INFO",
+          event: historical ? "historical_warning" : "newest_record",
+          diagnostic: historical ? "needle from yesterday" : "newest record",
+        }] : [],
+        total: component === "inbox" ? 121 : 0,
+        events: ["historical_warning", "newest_record"],
+      } });
+    });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#componentLogs").evaluate((element) => { element.open = true; });
+    await page.waitForFunction(() => componentLogsLoaded);
+
+    await page.locator("#logTimePreset").selectOption("yesterday");
+    await expect(page.locator("#inboxComponentLog")).toContainText("needle from yesterday");
+    await page.locator("#logFilter").fill("needle");
+    await page.locator("#logLevelFilter").selectOption("WARNING");
+    await page.locator("#logEventFilter").selectOption("historical_warning");
+    await expect.poll(() => inboxQueries.some((query) =>
+      query.get("format") === "json"
+      && query.has("start")
+      && query.has("end")
+      && query.get("search") === "needle"
+      && query.get("level") === "WARNING"
+      && query.getAll("event").includes("historical_warning"),
+    )).toBe(true);
+  });
+
   test("localizes component log table headings for every supported language", async ({ page }) => {
     const expectations = [
       ["en", "Inbox watcher", ["#", "Timestamp", "Level", "Event", "Run ID", "Details"]],

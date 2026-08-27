@@ -38,6 +38,7 @@ from .component_logging import (
     VALID_LEVELS,
     clear_component_log as clear_stored_component_log,
     component_log as stored_component_log,
+    component_log_page as stored_component_log_page,
     component_log_version,
     component_lifecycle_context,
     component_logger,
@@ -47,7 +48,7 @@ from .component_logging import (
 )
 from .component_lock import DuplicateComponentInstanceError, single_instance
 from .agent_state import is_valid_commit_evidence_record, redact_diagnostic
-from .pr_check_repair import PullRequestCheckRepairError, admit as admit_pr_check_repair, attempted as pr_check_repair_attempted, check_summary as pr_check_repair_check_summary, failed_check_names, mark_dispatch_failed as mark_pr_check_repair_dispatch_failed, repair_state as pr_check_repair_state
+from .pr_check_repair import PullRequestCheckRepairError, admit as admit_pr_check_repair, attempted as pr_check_repair_attempted, check_summary as pr_check_repair_check_summary, mark_dispatch_failed as mark_pr_check_repair_dispatch_failed, repair_state as pr_check_repair_state
 from .codex_chat import CodexChatError, chat_model, respond as codex_chat_response
 from .codex_capacity import read_remaining_percent
 from .telemetry import clear_telemetry, daily_statistics, daily_timing_detail, execution_timing, prune_telemetry
@@ -930,6 +931,44 @@ def _latest_codex_log(root: Path) -> bytes:
 def _component_log(root: Path, component: str) -> bytes:
     """Return canonical SQLite logs with the file-only fallback retained in logging."""
     return stored_component_log(root, component)
+
+
+def _component_log_page(root: Path, component: str, query: dict[str, list[str]]) -> dict[str, object]:
+    """Validate the browser's bounded filter contract before querying SQLite."""
+    def single(name: str, default: str = "") -> str:
+        values = query.get(name, [])
+        if len(values) > 1:
+            raise ValueError("Ongeldig logfilter.")
+        return values[0] if values else default
+
+    def timestamp(name: str) -> str | None:
+        value = single(name).strip()
+        if not value:
+            return None
+        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        if parsed.tzinfo is None:
+            raise ValueError("Ongeldig logtijdvenster.")
+        return parsed.astimezone(timezone.utc).isoformat()
+
+    try:
+        page = int(single("page", "1"))
+        page_size = int(single("page_size", "50"))
+    except ValueError as error:
+        raise ValueError("Ongeldige logpagina.") from error
+    return stored_component_log_page(
+        root,
+        component,
+        page=page,
+        page_size=page_size,
+        start_at=timestamp("start"),
+        end_at=timestamp("end"),
+        inclusive_end=single("inclusive_end") == "1",
+        search=single("search"),
+        level=single("level"),
+        events=query.get("event", []),
+        sort_key=single("sort", "timestamp"),
+        direction=single("direction", "desc"),
+    )
 
 
 def _clear_component_log(root: Path, component: str) -> None:
@@ -3783,8 +3822,23 @@ def handler(root: Path, logger: logging.Logger | None = None):
             if self.path == "/api/log/latest":
                 return self._send(_latest_codex_log(root), "text/plain; charset=utf-8")
             if request.path in {"/api/logs/inbox", "/api/logs/dashboard"}:
+                component = request.path.rsplit("/", 1)[-1]
+                query = parse_qs(request.query, keep_blank_values=True)
+                if query.get("format") == ["json"]:
+                    try:
+                        payload = _component_log_page(root, component, query)
+                    except ValueError as error:
+                        return self._send(
+                            json.dumps({"error": str(error)}, ensure_ascii=False).encode(),
+                            "application/json; charset=utf-8",
+                            400,
+                        )
+                    return self._send(
+                        json.dumps(payload, ensure_ascii=False, separators=(",", ":")).encode(),
+                        "application/json; charset=utf-8",
+                    )
                 return self._send(
-                    _component_log(root, request.path.rsplit("/", 1)[-1]),
+                    _component_log(root, component),
                     "text/plain; charset=utf-8",
                 )
             if self.path == "/api/log/current":
