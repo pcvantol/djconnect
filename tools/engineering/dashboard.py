@@ -1508,6 +1508,7 @@ def _github_pull_request_for_detached_commit(
         payload = json.loads(GitHubProvider().github("api", f"repos/{repository}/commits/{commit_sha}/pulls"))
         if not isinstance(payload, list):
             return None
+        fallback: dict[str, object] | None = None
         for item in payload:
             if not isinstance(item, dict) or not isinstance(item.get("number"), int) or not isinstance(item.get("html_url"), str):
                 continue
@@ -1519,10 +1520,14 @@ def _github_pull_request_for_detached_commit(
                 if merged.returncode not in {0, 1}:
                     continue
                 verified = merged.returncode == 0
-            return {"number": item["number"], "url": item["html_url"], "state": state, "verified": verified}
+            evidence = {"number": item["number"], "url": item["html_url"], "state": state, "verified": verified}
+            if verified:
+                return evidence
+            if fallback is None or (state == "OPEN" and fallback.get("state") != "OPEN"):
+                fallback = evidence
     except (OSError, RuntimeError, ValueError, json.JSONDecodeError):
         return None
-    return None
+    return fallback
 
 
 def _stale_local_branch_preview(root: Path) -> dict[str, object]:
@@ -1994,10 +1999,9 @@ def _open_worktree_in_finder(root: Path, worktree_path: str) -> dict[str, str]:
     try:
         # The HTTP value only selects a current Git worktree.  Finder receives
         # the independently registered path, never the request value itself.
-        try:
-            requested = _registered_worktree_path(root, worktree_path).resolve(strict=True)
-        except (RuntimeError, ValueError) as error:
-            raise RuntimeError("De geselecteerde map is geen actuele lokale worktree.") from error
+        requested = _registered_worktree_path(root, worktree_path).resolve(strict=True)
+    except (RuntimeError, ValueError) as error:
+        raise RuntimeError("De geselecteerde map is geen actuele lokale worktree.") from error
     except OSError as error:
         raise RuntimeError("De lokale worktreemap kan niet veilig worden geopend.") from error
     try:

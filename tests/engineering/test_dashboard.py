@@ -753,6 +753,25 @@ class DashboardStatusTest(unittest.TestCase):
             "pull_request": {"number": 969, "url": "https://github.com/pcvantol/djconnect/pull/969", "state": "OPEN"},
         }]})
 
+    @patch("tools.engineering.dashboard.GitHubProvider")
+    @patch("tools.engineering.dashboard.GitProvider")
+    def test_detached_commit_evidence_prefers_a_verified_merged_pull_request(
+        self, git_provider: object, github_provider: object
+    ) -> None:
+        completed = __import__("subprocess").CompletedProcess
+        git_provider.return_value.execute.return_value = completed(("git",), 0, "", "")
+        github_provider.return_value.github.return_value = json.dumps([
+            {"number": 1, "html_url": "https://example.test/pull/1", "state": "closed", "merged_at": None, "merge_commit_sha": None},
+            {"number": 2, "html_url": "https://example.test/pull/2", "state": "closed", "merged_at": "2026-08-27T00:00:00Z", "merge_commit_sha": "merge-head"},
+        ])
+
+        self.assertEqual(
+            dashboard._github_pull_request_for_detached_commit(
+                Path("/repository"), "pcvantol/djconnect", "a0496fea7ef1", "main", git_provider.return_value,
+            ),
+            {"number": 2, "url": "https://example.test/pull/2", "state": "MERGED", "verified": True},
+        )
+
     @patch("tools.engineering.dashboard._github_pull_request_for_detached_commit", return_value=None)
     @patch("tools.engineering.dashboard.PlatformConfiguration.load")
     @patch("tools.engineering.dashboard.GitHubProvider")
