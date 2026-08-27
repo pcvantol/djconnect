@@ -9044,4 +9044,18 @@ test.describe("Engineering Status browser smoke", () => {
     await page.evaluate(() => r({ watcher_state: "HOST_PREFLIGHT_FAILED", workspace_state: "WORKSPACE_READY", queue_depth: 0 }, {}));
     await expect(indicator).toHaveAttribute("data-health-state", "error");
   });
+
+  test("keeps the titlebar health tooltip inside a narrow viewport", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.waitForFunction(() => document.body.classList.contains("dashboard-ready"));
+    const indicator = page.getByTestId("dashboard-health-indicator");
+    await indicator.hover();
+    const bounds = await page.locator("#dashboardHealthTooltip").evaluate((element) => {
+      const rect = element.getBoundingClientRect();
+      return { left: rect.left, right: rect.right, viewportWidth: window.innerWidth };
+    });
+    expect(bounds.left).toBeGreaterThanOrEqual(0);
+    expect(bounds.right).toBeLessThanOrEqual(bounds.viewportWidth);
+  });
 });
