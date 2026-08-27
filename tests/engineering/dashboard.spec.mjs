@@ -671,6 +671,9 @@ test.describe("Engineering Status browser smoke", () => {
 
     const remove = page.getByRole("button", { name: "Verwijder worktree" });
     await expect(remove).toHaveCSS("border-color", "rgb(240, 128, 149)");
+    expect(readFileSync(path.join(repository, "tools/engineering/assets/dashboard.css"), "utf8")).toContain(
+      ".workspace-worktrees .workspace-worktrees__remove:hover:not(:disabled){background:#ff718f!important;border-color:#ff718f!important;color:#23131a!important}",
+    );
     await dispatchDashboardPointerClick(remove);
     const confirmation = page.locator("#confirmationModal");
     await expect(confirmation).toBeVisible();
