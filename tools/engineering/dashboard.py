@@ -1491,6 +1491,31 @@ def _github_pull_request_contains_commit(repository: str, number: int, commit_sh
     )
 
 
+def _github_pull_request_for_detached_commit(
+    root: Path, repository: str, commit_sha: str, expected_branch: str, provider: GitProvider,
+) -> dict[str, object] | None:
+    """Return immutable PR evidence for one detached commit, if GitHub can prove it."""
+    try:
+        payload = json.loads(GitHubProvider().github("api", f"repos/{repository}/commits/{commit_sha}/pulls"))
+        if not isinstance(payload, list):
+            return None
+        for item in payload:
+            if not isinstance(item, dict) or not isinstance(item.get("number"), int) or not isinstance(item.get("html_url"), str):
+                continue
+            state = "MERGED" if item.get("merged_at") else str(item.get("state") or "").upper()
+            merge_oid = item.get("merge_commit_sha")
+            verified = False
+            if state == "MERGED" and isinstance(merge_oid, str) and merge_oid:
+                merged = provider.execute(root, "git", "merge-base", "--is-ancestor", merge_oid, expected_branch)
+                if merged.returncode not in {0, 1}:
+                    continue
+                verified = merged.returncode == 0
+            return {"number": item["number"], "url": item["html_url"], "state": state, "verified": verified}
+    except (OSError, RuntimeError, ValueError, json.JSONDecodeError):
+        return None
+    return None
+
+
 def _stale_local_branch_preview(root: Path) -> dict[str, object]:
     branches = _stale_local_branch_candidates(root)
     pull_requests = {
@@ -1822,18 +1847,50 @@ def _worktree_removal_analysis(root: Path) -> dict[str, object]:
             key, _, value = line.partition(" ")
             if key in {"worktree", "HEAD", "branch"}:
                 record[key] = value
+            elif key == "detached":
+                record["detached"] = "true"
             continue
         path = record.get("worktree", "").strip()
         branch = record.get("branch", "").removeprefix("refs/heads/").strip()
         head = record.get("HEAD", "").strip()
+        detached = record.get("detached") == "true"
         record = {}
-        if not path or not branch:
+        if not path or (not branch and not detached):
             continue
         worktree = Path(path)
         if branch == expected_branch or worktree.resolve() == root:
-            worktrees.append({"path": str(worktree), "branch": branch, "decision": "baseline", "reason": "main_baseline", "removable": False})
+            worktrees.append({"path": str(worktree), "branch": branch or None, "head": head or None, "decision": "baseline", "reason": "main_baseline", "removable": False})
             continue
         status = provider.execute(worktree, "git", "status", "--porcelain", "--untracked-files=all")
+        if detached:
+            merged_into_main = provider.execute(root, "git", "merge-base", "--is-ancestor", head, expected_branch)
+            if status.returncode not in {0, 1} or merged_into_main.returncode not in {0, 1}:
+                raise RuntimeError("Een losgekoppelde worktree kon niet veilig worden gecontroleerd.")
+            pull_request = _github_pull_request_for_detached_commit(
+                root, f"{match.group(1)}/{match.group(2)}", head, expected_branch, provider,
+            ) if github_available and match and head else None
+            verified_pull_request = isinstance(pull_request, dict) and pull_request.get("verified") is True
+            removable = root_ready and status.returncode == 0 and not status.stdout.strip() and (
+                merged_into_main.returncode == 0 or verified_pull_request
+            )
+            if removable:
+                reason = "safe_to_remove"
+            elif status.returncode != 0 or status.stdout.strip():
+                reason = "worktree_dirty"
+            elif isinstance(pull_request, dict) and pull_request.get("state") == "OPEN":
+                reason = "detached_head_pull_request_open"
+            elif not root_ready:
+                reason = root_reason
+            elif not github_available:
+                reason = "github_unavailable"
+            else:
+                reason = "detached_head_unverified"
+            worktrees.append({
+                "path": str(worktree), "branch": None, "head": head, "detached": True,
+                "decision": "removable" if removable else "keep", "reason": reason, "removable": removable,
+                **({"pull_request": {key: pull_request[key] for key in ("number", "url", "state")}} if isinstance(pull_request, dict) else {}),
+            })
+            continue
         remote_branch = provider.execute(root, "git", "show-ref", "--verify", "--quiet", f"refs/remotes/origin/{branch}")
         comparison = provider.execute(root, "git", "diff", "--quiet", expected_branch, branch)
         if status.returncode not in {0, 1} or remote_branch.returncode not in {0, 1} or comparison.returncode not in {0, 1}:
@@ -1884,26 +1941,26 @@ def _worktree_removal_analysis(root: Path) -> dict[str, object]:
     return {"available": True, "worktrees": worktrees}
 
 
-def _safe_worktree_removal_candidates(root: Path) -> list[dict[str, str]]:
+def _safe_worktree_removal_candidates(root: Path) -> list[dict[str, object]]:
     """Return the freshly analysed, GitHub-verified worktrees safe to remove."""
     analysis = _worktree_removal_analysis(root)
     return [
-        {"path": item["path"], "branch": item["branch"]}
+        {key: item[key] for key in ("path", "branch", "head") if item.get(key) is not None}
         for item in analysis["worktrees"]
         if isinstance(item, dict) and item.get("removable") is True
-        and isinstance(item.get("path"), str) and isinstance(item.get("branch"), str)
+        and isinstance(item.get("path"), str) and (isinstance(item.get("branch"), str) or isinstance(item.get("head"), str))
     ]
 
 
-def _remove_safe_worktree(root: Path, worktree_path: str, branch: str) -> dict[str, object]:
+def _remove_safe_worktree(root: Path, worktree_path: str, branch: str | None = None, head: str | None = None) -> dict[str, object]:
     """Remove exactly one freshly verified stale worktree, never its branch."""
-    if not isinstance(worktree_path, str) or not isinstance(branch, str) or not worktree_path or not branch:
+    if not isinstance(worktree_path, str) or not worktree_path or (not isinstance(branch, str) and not isinstance(head, str)):
         raise RuntimeError("De geselecteerde worktree is ongeldig.")
     selected = next(
         (
             candidate
             for candidate in _safe_worktree_removal_candidates(root)
-            if candidate["path"] == worktree_path and candidate["branch"] == branch
+            if candidate.get("path") == worktree_path and candidate.get("branch") == branch and candidate.get("head") == head
         ),
         None,
     )
@@ -1916,7 +1973,9 @@ def _remove_safe_worktree(root: Path, worktree_path: str, branch: str) -> dict[s
         GitProvider().command(root, "git", "worktree", "remove", "--", str(verified_path))
     except OSError as error:
         raise RuntimeError("De worktree kon niet veilig worden verwijderd.") from error
-    return {"removed_worktree": str(verified_path), "branch": selected["branch"], "branch_pending_cleanup": True}
+    if isinstance(selected.get("branch"), str):
+        return {"removed_worktree": str(verified_path), "branch": selected["branch"], "branch_pending_cleanup": True}
+    return {"removed_worktree": str(verified_path), "head": selected.get("head")}
 
 
 def _open_worktree_in_finder(root: Path, worktree_path: str) -> dict[str, str]:
@@ -3092,10 +3151,13 @@ def handler(root: Path, logger: logging.Logger | None = None):
                 try:
                     length = int(self.headers.get("Content-Length", "0"))
                     payload = json.loads(self.rfile.read(length).decode("utf-8"))
-                    if not isinstance(payload, dict) or set(payload) != {"worktree_path", "branch"}:
+                    if not isinstance(payload, dict) or set(payload) not in ({"worktree_path", "branch"}, {"worktree_path", "head"}):
                         raise ValueError
-                    outcome = _remove_safe_worktree(root, payload["worktree_path"], payload["branch"])
-                    log_event(logger, logging.INFO, "safe_worktree_removed", diagnostic=f"branch={outcome['branch']}")
+                    outcome = (
+                        _remove_safe_worktree(root, payload["worktree_path"], payload["branch"])
+                        if "branch" in payload else _remove_safe_worktree(root, payload["worktree_path"], head=payload["head"])
+                    )
+                    log_event(logger, logging.INFO, "safe_worktree_removed", diagnostic=f"target={outcome.get('branch') or outcome.get('head')}")
                 except (RuntimeError, ValueError, UnicodeDecodeError, json.JSONDecodeError):
                     self._send(b'{"error":"De worktree kon niet veilig worden verwijderd."}', "application/json; charset=utf-8", 409)
                     return

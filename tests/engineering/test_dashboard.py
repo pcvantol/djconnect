@@ -697,6 +697,45 @@ class DashboardStatusTest(unittest.TestCase):
     @patch("tools.engineering.dashboard.PlatformConfiguration.load")
     @patch("tools.engineering.dashboard.GitHubProvider")
     @patch("tools.engineering.dashboard.GitProvider")
+    def test_worktree_removal_analysis_explains_a_detached_head_in_an_open_pull_request(
+        self, git_provider: object, github_provider: object, configuration: object
+    ) -> None:
+        root = Path("/repository")
+        configuration.return_value.workspace.default_branch = "main"
+        completed = __import__("subprocess").CompletedProcess
+        git_provider.return_value.execute.side_effect = [
+            completed(("git",), 0, "", ""),
+            completed(("git",), 0, "main\n", ""),
+            completed(("git",), 0, "", ""),
+            completed(("git",), 0, "0\t0\n", ""),
+            completed(("git",), 0, "\n".join((
+                "worktree /repository", "HEAD main-head", "branch refs/heads/main", "",
+                "worktree /worktrees/detached", "HEAD a0496fea7ef1", "detached", "",
+            )), ""),
+            completed(("git",), 0, "git@github.com:pcvantol/djconnect.git\n", ""),
+            completed(("git",), 0, "", ""),
+            completed(("git",), 1, "", ""),
+        ]
+        github_provider.return_value.github.side_effect = [
+            "[]",
+            json.dumps([{
+                "number": 969, "html_url": "https://github.com/pcvantol/djconnect/pull/969",
+                "state": "open", "merged_at": None, "merge_commit_sha": None,
+            }]),
+        ]
+
+        self.assertEqual(dashboard._worktree_removal_analysis(root), {"available": True, "worktrees": [{
+            "path": "/repository", "branch": "main", "head": "main-head",
+            "decision": "baseline", "reason": "main_baseline", "removable": False,
+        }, {
+            "path": "/worktrees/detached", "branch": None, "head": "a0496fea7ef1", "detached": True,
+            "decision": "keep", "reason": "detached_head_pull_request_open", "removable": False,
+            "pull_request": {"number": 969, "url": "https://github.com/pcvantol/djconnect/pull/969", "state": "OPEN"},
+        }]})
+
+    @patch("tools.engineering.dashboard.PlatformConfiguration.load")
+    @patch("tools.engineering.dashboard.GitHubProvider")
+    @patch("tools.engineering.dashboard.GitProvider")
     def test_stale_branch_scan_accepts_an_older_head_in_a_verified_merged_pull_request(
         self, git_provider: object, github_provider: object, configuration: object
     ) -> None:

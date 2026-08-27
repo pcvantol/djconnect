@@ -2289,12 +2289,12 @@ function renderWorkspaceWorktrees(projection) {
       switchWorktree.addEventListener("click", () => void switchEngineeringPlatformToWorktree(worktree));
       item.append(switchWorktree);
     }
-    if (analysis?.removable === true && typeof worktree?.path === "string" && typeof worktree?.branch === "string") {
+    if (analysis?.removable === true && typeof worktree?.path === "string" && (typeof worktree?.branch === "string" || typeof analysis?.head === "string")) {
       const remove = document.createElement("button");
       remove.className = "workspace-worktrees__remove";
       remove.type = "button";
       remove.textContent = t("workspace.worktree_remove_action");
-      remove.addEventListener("click", () => removeSafeWorktree(worktree));
+      remove.addEventListener("click", () => removeSafeWorktree(worktree, analysis));
       item.append(remove);
     }
     list.append(item);
@@ -7293,12 +7293,13 @@ async function cleanupStaleLocalBranches() {
     button.disabled = false;
   }
 }
-async function removeSafeWorktree(worktree) {
-  const path = String(worktree?.path || ""), branch = String(worktree?.branch || "");
-  if (!path || !branch) return;
+async function removeSafeWorktree(worktree, analysis = null) {
+  const path = String(worktree?.path || ""), branch = String(worktree?.branch || ""), head = String(analysis?.head || "");
+  if (!path || (!branch && !head)) return;
+  const target = branch || `${t("workspace.detached_head")} ${head.slice(0, 12)}`;
   const confirmed = await confirmDashboardAction(
     t("workspace.worktree_remove_title"),
-    t("workspace.worktree_remove_confirmation", { branch, path }),
+    t("workspace.worktree_remove_confirmation", { branch: target, path }),
     t("workspace.worktree_remove_action"),
     { destructive: true },
   );
@@ -7306,12 +7307,12 @@ async function removeSafeWorktree(worktree) {
   try {
     const response = await fetch("/api/safe-worktree-removal", {
       method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ worktree_path: path, branch }),
+      body: JSON.stringify(branch ? { worktree_path: path, branch } : { worktree_path: path, head }),
     });
     const outcome = await response.json();
     if (!response.ok) throw Error(outcome.error || t("workspace.worktree_remove_failed"));
     showWorkspaceBranchMainResult(
-      t("workspace.worktree_remove_success", { branch }),
+      t("workspace.worktree_remove_success", { branch: target }),
       "workspace.worktree_remove_result_title",
     );
     void refreshAfterOperatorAction();
