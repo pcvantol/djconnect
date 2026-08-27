@@ -4605,6 +4605,21 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(to).toHaveValue("2026-08-20T18:52");
   });
 
+  test("clears an individual log date value with its date-field close glyph", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#componentLogs").evaluate((element) => { element.open = true; });
+    await page.locator("#logTimePreset").selectOption("range");
+    const from = page.locator("#logDateFrom"), to = page.locator("#logDateTo"),
+      clearEnd = page.locator('[data-clear-log-date="logDateTo"]');
+    await from.fill("2026-08-20T18:52");
+    await to.fill("2026-08-20T19:52");
+    await expect(clearEnd).toBeVisible();
+    await clearEnd.click();
+    await expect(to).toHaveValue("");
+    await expect(clearEnd).toBeHidden();
+    await expect(to).toHaveAttribute("min", "2026-08-20T18:52");
+  });
+
   test("filters component logs by the local today and yesterday presets", async ({ page }) => {
     await page.route("**/api/logs/**", (route) => route.fulfill({ contentType: "application/x-ndjson", body: "" }));
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });

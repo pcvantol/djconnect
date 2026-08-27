@@ -510,6 +510,7 @@ label:has(> :is(input,select,textarea)):not(.dashboard-locale):not(.auto-refresh
 .reset-log-filters:hover:not(:disabled){background:#f0b66a;color:#201812}
 html[data-theme="light"] .reset-log-filters{background:var(--dashboard-log-control-surface-light);border-color:#c17a1f;color:#7a4912}
 html[data-theme="light"] .reset-log-filters:hover:not(:disabled){background:#f0b66a;color:#201812}
+.log-date-control__field{display:block;position:relative}.log-date-control__field input{padding-right:58px}.log-date-control__clear{align-items:center;background:transparent;border:0;border-radius:50%;color:#c8c4cc;cursor:pointer;display:flex;font:21px/1 system-ui;height:24px;justify-content:center;margin:0;min-height:24px;min-width:24px;padding:0;position:absolute;right:32px;top:50%;transform:translateY(-50%);width:24px}.log-date-control__clear[hidden]{display:none}.log-date-control__clear:hover{background:#f0b66a;color:#201812}.log-date-control__clear:focus-visible{outline-offset:1px}html[data-theme="light"] .log-date-control__clear{color:#58677b}html[data-theme="light"] .log-date-control__clear:hover{background:#f0b66a;color:#201812}
 
 /* Terminal-state meaning must survive the broad light-table text color. */
 html[data-theme="light"] #promptHistoryRows .prompt-history-status--complete{color:#14865b!important}html[data-theme="light"] #promptHistoryRows .prompt-history-status--blocked{color:#a65a00!important}html[data-theme="light"] #promptHistoryRows .prompt-history-status--failed{color:#b42340!important}

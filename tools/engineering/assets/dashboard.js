@@ -1052,6 +1052,45 @@ function synchronizeLogRangeBounds() {
   to.min = from.value;
   if (from.value && to.value && to.value < from.value) to.value = from.value;
 }
+function updateLogDateClearButtons() {
+  for (const input of document.querySelectorAll(
+    "#logSpecificDate, #logDateFrom, #logDateTo",
+  )) {
+    const button = document.querySelector(
+      `[data-clear-log-date="${input.id}"]`,
+    );
+    if (button) button.hidden = !input.value;
+  }
+}
+function installLogDateClearButtons() {
+  const label = t("action.clear_date");
+  for (const input of document.querySelectorAll(
+    "#logSpecificDate, #logDateFrom, #logDateTo",
+  )) {
+    const field = document.createElement("span"), button = document.createElement("button");
+    field.className = "log-date-control__field";
+    input.replaceWith(field);
+    field.append(input);
+    button.className = "log-date-control__clear";
+    button.type = "button";
+    button.hidden = !input.value;
+    button.textContent = "×";
+    button.title = label;
+    button.setAttribute("aria-label", label);
+    button.setAttribute("data-i18n-title", "action.clear_date");
+    button.setAttribute("data-i18n-aria-label", "action.clear_date");
+    button.dataset.clearLogDate = input.id;
+    button.addEventListener("click", (event) => {
+      event.preventDefault();
+      input.value = "";
+      synchronizeLogRangeBounds();
+      updateLogDateClearButtons();
+      refreshComponentLogsForFilters();
+    });
+    field.append(button);
+    input.addEventListener("input", updateLogDateClearButtons);
+  }
+}
 function entryMatchesLogTimeRange(entry) {
   const range = selectedLogTimeRange();
   if (!range) return true;
@@ -4363,6 +4402,7 @@ for (const id of ["logTimePreset", "logSpecificDate", "logDateFrom", "logDateTo"
   });
 }
 $("logDateFrom").addEventListener("input", synchronizeLogRangeBounds);
+installLogDateClearButtons();
 updateLogTimeFilterControls();
 renderComponentLogs();
 function clearComponentLog(component, button) {
