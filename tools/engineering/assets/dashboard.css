@@ -15,7 +15,7 @@ html,body{-webkit-text-size-adjust:100%;text-size-adjust:100%;touch-action:manip
   --dashboard-section-gap:24px;
   --dashboard-scroll-gutter:14px;
   --dashboard-control-label-gap:8px;
-  --dashboard-focus-outline-width:2px;
+  --dashboard-focus-outline-width:1px;
   --dashboard-focus-outline-offset:2px;
   --dashboard-focus-ring-size:4px;
   --dashboard-input-focus-border:var(--house-style);
@@ -1124,4 +1124,14 @@ html[data-theme="light"] .prompt-detail-modal__content .execution-lifecycle--his
   .dashboard-titlebar__actions>.dashboard-health__tooltip{box-sizing:border-box;grid-column:1 / -1;grid-row:2;max-width:100%;min-width:0;position:static;width:auto}
   .dashboard-health__tooltip li,.dashboard-health__tooltip li span{min-width:0;overflow-wrap:anywhere}
   .dashboard-health.dashboard-health--open~.dashboard-titlebar__options .dashboard-titlebar__options-content{grid-row:3}
+}
+
+/* Orange focus is a single-pixel product border.  These older component
+   exceptions predate the shared focus token, so normalize their width here
+   rather than allowing controls to grow a second, heavier selected edge. */
+:is(#chatInput,.auto-refresh-toggle input,.execution-lifecycle__node,.page-refresh,.dashboard-locale__button,.dashboard-health__button,.configuration-provider-status__repair):focus-visible{
+  outline-width:var(--dashboard-focus-outline-width)!important;
+}
+.dashboard-titlebar :is(.theme-toggle,.section-state-toggle):focus-visible::before{
+  outline-width:var(--dashboard-focus-outline-width)!important;
 }

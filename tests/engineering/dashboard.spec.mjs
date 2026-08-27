@@ -7354,8 +7354,8 @@ test.describe("Engineering Status browser smoke", () => {
     });
 
     expect(styles.focusOutline).toBe("rgb(240, 182, 106)");
-    expect(styles.focusOutlineWidth).toBe("2px");
-    expect(styles.refreshOutlineWidth).toBe("2px");
+    expect(styles.focusOutlineWidth).toBe("1px");
+    expect(styles.refreshOutlineWidth).toBe("1px");
     expect(styles.summaryBackground).not.toBe("rgb(17, 19, 29)");
     expect(styles.summaryColor).toBe("rgb(24, 34, 48)");
   });
@@ -7403,8 +7403,9 @@ test.describe("Engineering Status browser smoke", () => {
     const stylesheet = readFileSync(path.join(repository, "tools/engineering/assets/dashboard.css"), "utf8");
     expect(stylesheet).toContain(".execution-lifecycle__node,.theme-toggle,.section-state-toggle,.auto-refresh-toggle");
     expect(stylesheet).toContain(".dashboard-titlebar .theme-toggle:is(:focus,:focus-visible),.dashboard-titlebar .section-state-toggle:is(:focus,:focus-visible){box-shadow:none!important;outline:0!important;outline-color:var(--house-style)!important}");
-    expect(stylesheet).toContain(".dashboard-titlebar .theme-toggle:is(:focus,:focus-visible)::before,.dashboard-titlebar .section-state-toggle:is(:focus,:focus-visible)::before{box-shadow:0 0 0 5px var(--house-style-focus);outline:2px solid var(--house-style);outline-offset:3px}");
-    expect(stylesheet).toContain(".auto-refresh-toggle input:focus-visible{box-shadow:0 0 0 5px var(--house-style-focus);outline:3px solid var(--house-style);outline-offset:3px}");
+    expect(stylesheet).toContain("--dashboard-focus-outline-width:1px");
+    expect(stylesheet).toContain(".dashboard-titlebar :is(.theme-toggle,.section-state-toggle):focus-visible::before{\n  outline-width:var(--dashboard-focus-outline-width)!important;");
+    expect(stylesheet).toContain(":is(#chatInput,.auto-refresh-toggle input,.execution-lifecycle__node,.page-refresh,.dashboard-locale__button,.dashboard-health__button,.configuration-provider-status__repair):focus-visible{\n  outline-width:var(--dashboard-focus-outline-width)!important;");
   });
 
   test("uses a dark locale picker surface in dark mode", async ({ page }) => {
