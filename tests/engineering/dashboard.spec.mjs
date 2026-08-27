@@ -3237,7 +3237,7 @@ test.describe("Engineering Status browser smoke", () => {
     ]);
   });
 
-  test("keeps sortable headers within one complete orange cell edge in every table", async ({ page }) => {
+  test("keeps sortable headers within one complete neutral cell edge in every table", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.locator("#componentLogs").evaluate((element) => { element.open = true; });
     await page.evaluate(() => window.executionTelemetry([
@@ -3249,6 +3249,7 @@ test.describe("Engineering Status browser smoke", () => {
       .filter((cssText) => cssText.includes(".telemetry-table th.log-sortable:focus"))
       .at(-1));
     expect(focusRule).toContain("inset 0 0 0 1px");
+    expect(focusRule).toContain("--dashboard-table-focus-border");
     expect(focusRule).toContain("outline: 0px !important");
   });
 
@@ -4913,6 +4914,36 @@ test.describe("Engineering Status browser smoke", () => {
       // no hover cell may fall back to the dark default table surface.
       expect(backgrounds).not.toContain("rgb(36, 36, 45)");
     }
+  });
+
+  test("keeps accessible table focus separate from the house-style selection ring", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => { document.querySelector("#promptHistory").open = true; });
+    const tableWrap = page.locator("#promptHistory .log-table-wrap");
+    await tableWrap.focus();
+    const focusStyle = await tableWrap.evaluate((element) => {
+      const probe = document.createElement("span");
+      probe.style.color = "var(--house-style)";
+      document.body.append(probe);
+      const houseStyle = getComputedStyle(probe).color;
+      probe.style.boxShadow = "0 0 0 4px var(--dashboard-input-focus-ring)";
+      const houseStyleRing = getComputedStyle(probe).boxShadow;
+      probe.remove();
+      const style = getComputedStyle(element);
+      return {
+        borderColor: style.borderColor,
+        boxShadow: style.boxShadow,
+        outlineColor: style.outlineColor,
+        outlineStyle: style.outlineStyle,
+        houseStyle,
+        houseStyleRing,
+      };
+    });
+    expect(focusStyle.borderColor).not.toBe(focusStyle.houseStyle);
+    expect(focusStyle.outlineColor).not.toBe(focusStyle.houseStyle);
+    expect(focusStyle.outlineStyle).toBe("solid");
+    expect(focusStyle.boxShadow).not.toBe(focusStyle.houseStyleRing);
+    expect(focusStyle.borderColor).toBe("rgb(141, 199, 255)");
   });
 
   test("matches the iPhone portrait dashboard visual reference", async ({ page }, testInfo) => {
