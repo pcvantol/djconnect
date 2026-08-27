@@ -3702,11 +3702,11 @@ test.describe("Engineering Status browser smoke", () => {
       json: { status: { watcher_state: "WATCHER_IDLE", queue_depth: 0 } },
     }));
     const expectations = [
-      ["en", "Language", "Refresh automatically", "AI analysis", "Passed", "Execution", "Resume Queue", "Active execution", "Execution queue", "New assignments wait for execution in order of creation date.", "Engineering Operations Console", "Loading data…", "Diagnostics", "Engineering Platform version", "Automatic refresh is off"],
-      ["nl", "Taal", "Automatisch vernieuwen", "AI-analyse", "Geslaagd", "Uitvoering", "Wachtrij hervatten", "Lopende uitvoering", "Wachtrij voor uitvoeringen", "Nieuwe opdrachten wachten op uitvoering in volgorde van aanmaakdatum.", "Engineering Operationele console", "Gegevens laden…", "Diagnose", "Engineering Platform-versie", "Automatisch vernieuwen is uit"],
-      ["de", "Sprache", "Automatisch aktualisieren", "KI-Analyse", "Erfolgreich", "Ausführung", "Warteschlange fortsetzen", "Laufende Ausführung", "Ausführungswarteschlange", "Neue Aufträge warten in der Reihenfolge ihres Erstellungsdatums auf die Ausführung.", "Engineering-Betriebskonsole", "Daten werden geladen…", "Diagnose", "Engineering-Plattformversion", "Automatische Aktualisierung ist aus"],
-      ["fr", "Langue", "Actualiser automatiquement", "Analyse IA", "Réussi", "Exécution", "Reprendre la file", "Exécution en cours", "File d’exécution", "Les nouvelles tâches attendent leur exécution dans l’ordre de leur création.", "Console des opérations d’ingénierie", "Chargement des données…", "Diagnostic", "Version d’Engineering Platform", "Actualisation automatique désactivée"],
-      ["es", "Idioma", "Actualizar automáticamente", "Análisis de IA", "Superado", "Ejecución", "Reanudar cola", "Ejecución en curso", "Cola de ejecuciones", "Las nuevas tareas esperan ejecución por orden de fecha de creación.", "Consola de operaciones de ingeniería", "Cargando datos…", "Diagnóstico", "Versión de Engineering Platform", "Actualización automática desactivada"],
+      ["en", "Language", "Refresh automatically", "AI analysis", "Passed", "Execution", "Resume Queue", "Active execution", "Execution queue", "New assignments wait for execution in order of creation date.", "EP Operations", "Loading data…", "Diagnostics", "Engineering Platform version", "Automatic refresh is off"],
+      ["nl", "Taal", "Automatisch vernieuwen", "AI-analyse", "Geslaagd", "Uitvoering", "Wachtrij hervatten", "Lopende uitvoering", "Wachtrij voor uitvoeringen", "Nieuwe opdrachten wachten op uitvoering in volgorde van aanmaakdatum.", "EP Operations", "Gegevens laden…", "Diagnose", "Engineering Platform-versie", "Automatisch vernieuwen is uit"],
+      ["de", "Sprache", "Automatisch aktualisieren", "KI-Analyse", "Erfolgreich", "Ausführung", "Warteschlange fortsetzen", "Laufende Ausführung", "Ausführungswarteschlange", "Neue Aufträge warten in der Reihenfolge ihres Erstellungsdatums auf die Ausführung.", "EP Operations", "Daten werden geladen…", "Diagnose", "Engineering-Plattformversion", "Automatische Aktualisierung ist aus"],
+      ["fr", "Langue", "Actualiser automatiquement", "Analyse IA", "Réussi", "Exécution", "Reprendre la file", "Exécution en cours", "File d’exécution", "Les nouvelles tâches attendent leur exécution dans l’ordre de leur création.", "EP Operations", "Chargement des données…", "Diagnostic", "Version d’Engineering Platform", "Actualisation automatique désactivée"],
+      ["es", "Idioma", "Actualizar automáticamente", "Análisis de IA", "Superado", "Ejecución", "Reanudar cola", "Ejecución en curso", "Cola de ejecuciones", "Las nuevas tareas esperan ejecución por orden de fecha de creación.", "EP Operations", "Cargando datos…", "Diagnóstico", "Versión de Engineering Platform", "Actualización automática desactivada"],
     ];
 
     for (const [language, localeLabel, refreshLabel, analysisLabel, passLabel, detailTitle, queueAction, activePrompt, queueTitle, queueDescription, dashboardTitle, splashLoading, diagnosticsTitle, platformVersionLabel, refreshOffLabel] of expectations) {
@@ -7567,7 +7567,7 @@ test.describe("Engineering Status browser smoke", () => {
     // client-side projection first so a legitimate SSE update cannot replace
     // that deterministic fixture midway through the assertions.
     await page.locator("#autoRefresh").uncheck();
-    await expect(page.getByTestId("engineering-dashboard-title")).toHaveText("Engineering Operationele console");
+    await expect(page.getByTestId("engineering-dashboard-title")).toHaveText("EP Operations");
     await expect(page.getByTestId("dashboard-splash")).toBeHidden();
     await expect(page.locator('link[rel="manifest"]')).toHaveAttribute("href", "/assets/operations-console/manifest.webmanifest");
     await expect(page.locator('#dashboardFavicon')).toHaveAttribute("href", "/assets/operations-console/apple-touch-icon-dark.png?v=operations-console-2");

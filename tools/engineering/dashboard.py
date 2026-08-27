@@ -663,7 +663,7 @@ def _codex_rate_limits() -> bytes:
                     "params": {
                         "clientInfo": {
                             "name": "djconnect_engineering_dashboard",
-                            "title": "Engineering Operations Console",
+                            "title": "EP Operations",
                             "version": DASHBOARD_VERSION,
                         }
                     },
@@ -869,7 +869,7 @@ def _consume_codex_rate_limit_reset_credit() -> str:
                     "params": {
                         "clientInfo": {
                             "name": "djconnect_engineering_dashboard",
-                            "title": "Engineering Operations Console",
+                            "title": "EP Operations",
                             "version": DASHBOARD_VERSION,
                         }
                     },
