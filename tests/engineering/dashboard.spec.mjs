@@ -7340,22 +7340,32 @@ test.describe("Engineering Status browser smoke", () => {
       const refresh = document.querySelector("#pageRefresh");
       input.focus({ preventScroll: true });
       const inputStyle = getComputedStyle(input);
-      const focusOutline = inputStyle.outlineColor;
-      const focusOutlineWidth = inputStyle.outlineWidth;
+      const inputBorder = inputStyle.borderColor;
+      const inputOutline = inputStyle.outlineStyle;
+      const inputOutlineWidth = inputStyle.outlineWidth;
+      const inputShadow = inputStyle.boxShadow;
       refresh.focus({ preventScroll: true });
       const refreshStyle = getComputedStyle(refresh);
       return {
-        focusOutline,
-        focusOutlineWidth,
-        refreshOutlineWidth: refreshStyle.outlineWidth,
+        inputBorder,
+        inputOutline,
+        inputOutlineWidth,
+        inputShadow,
+        refreshBorder: refreshStyle.borderColor,
+        refreshOutline: refreshStyle.outlineStyle,
+        refreshShadow: refreshStyle.boxShadow,
         summaryBackground: getComputedStyle(summary).backgroundColor,
         summaryColor: getComputedStyle(summary).color,
       };
     });
 
-    expect(styles.focusOutline).toBe("rgb(240, 182, 106)");
-    expect(styles.focusOutlineWidth).toBe("1px");
-    expect(styles.refreshOutlineWidth).toBe("1px");
+    expect(styles.inputBorder).toBe("rgb(240, 182, 106)");
+    expect(styles.inputOutline).toBe("solid");
+    expect(styles.inputOutlineWidth).toBe("1px");
+    expect(styles.inputShadow).toBe("none");
+    expect(styles.refreshBorder).toBe("rgb(240, 182, 106)");
+    expect(styles.refreshOutline).toBe("none");
+    expect(styles.refreshShadow).toBe("none");
     expect(styles.summaryBackground).not.toBe("rgb(17, 19, 29)");
     expect(styles.summaryColor).toBe("rgb(24, 34, 48)");
   });
@@ -7377,15 +7387,15 @@ test.describe("Engineering Status browser smoke", () => {
       ];
       const colours = targets.map((target) => {
         target.focus({ preventScroll: true });
-        return getComputedStyle(target).outlineColor;
+        return getComputedStyle(target).borderTopColor;
       });
       chatModal.showModal();
       chatInput.focus({ preventScroll: true });
-      colours.push(getComputedStyle(chatInput).outlineColor);
+      colours.push(getComputedStyle(chatInput).borderTopColor);
       chatModal.close();
       mergeModal.showModal();
       mergeLink.focus({ preventScroll: true });
-      colours.push(getComputedStyle(mergeLink).outlineColor);
+      colours.push(getComputedStyle(mergeLink).borderTopColor);
       mergeModal.close();
       return colours;
     });
@@ -7402,10 +7412,9 @@ test.describe("Engineering Status browser smoke", () => {
   test("keeps title-bar switch focus on the compact track", () => {
     const stylesheet = readFileSync(path.join(repository, "tools/engineering/assets/dashboard.css"), "utf8");
     expect(stylesheet).toContain(".execution-lifecycle__node,.theme-toggle,.section-state-toggle,.auto-refresh-toggle");
-    expect(stylesheet).toContain(".dashboard-titlebar .theme-toggle:is(:focus,:focus-visible),.dashboard-titlebar .section-state-toggle:is(:focus,:focus-visible){box-shadow:none!important;outline:0!important;outline-color:var(--house-style)!important}");
-    expect(stylesheet).toContain("--dashboard-focus-outline-width:1px");
-    expect(stylesheet).toContain(".dashboard-titlebar :is(.theme-toggle,.section-state-toggle):focus-visible::before{\n  outline-width:var(--dashboard-focus-outline-width)!important;");
-    expect(stylesheet).toContain(":is(#chatInput,.auto-refresh-toggle input,.execution-lifecycle__node,.page-refresh,.dashboard-locale__button,.dashboard-health__button,.configuration-provider-status__repair):focus-visible{\n  outline-width:var(--dashboard-focus-outline-width)!important;");
+    expect(stylesheet).toContain("Focus is one product-coloured, one-pixel edge.");
+    expect(stylesheet).toContain("border-color:var(--house-style)!important;");
+    expect(stylesheet).toContain("outline:1px solid var(--house-style)!important;");
   });
 
   test("uses a dark locale picker surface in dark mode", async ({ page }) => {
