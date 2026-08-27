@@ -584,7 +584,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(worktrees.locator(".workspace-worktrees__refresh")).toHaveCount(1);
     await expect(worktrees.locator(".workspace-worktrees__remove")).toHaveCount(0);
     await expect(worktrees).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
-    await expect(worktrees.locator(".workspace-branch-actions")).toContainText("Scan branches voor opruiming");
+    await expect(worktrees.locator(".workspace-branch-actions")).toContainText("Beoordeel losse lokale branches");
     await expect(worktrees.locator(".workspace-branch-actions")).toContainText("Switch naar FF main");
     expect(await page.evaluate(() => {
       const worktrees = document.querySelector("#workspaceWorktrees");
@@ -8409,7 +8409,7 @@ test.describe("Engineering Status browser smoke", () => {
     expect(await page.locator("#workspaceBranchCleanup").evaluate(
       (button) => getComputedStyle(button, "::before").content,
     )).toBe('"⌕"');
-    await dispatchDashboardPointerClick(page.getByRole("button", { name: "Scan branches voor opruiming" }));
+    await dispatchDashboardPointerClick(page.getByRole("button", { name: "Beoordeel losse lokale branches" }));
 
     const confirmation = page.locator("#confirmationModal");
     await previewRequest;
@@ -8421,6 +8421,8 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(confirmation.locator(".workspace-branch-cleanup__spinner")).toHaveCount(0);
     await expect(page.locator("#confirmationModalConfirm")).toBeEnabled();
     await expect(page.locator("#confirmationModalConfirm")).toHaveCSS("border-top-color", "rgb(255, 113, 143)");
+    await expect(page.locator("#confirmationModalTitle")).toHaveText("Losse lokale branches veilig opruimen");
+    await expect(page.locator("#confirmationModalText")).toContainText("worktrees blijven onaangeraakt");
     const candidates = confirmation.locator(".workspace-branch-cleanup__preview-list");
     await expect(candidates).toHaveCount(1);
     await expect(candidates.locator("li")).toHaveCount(28);
@@ -8435,7 +8437,7 @@ test.describe("Engineering Status browser smoke", () => {
     const result = page.locator("#workspaceBranchCleanupResultModal");
     await expect(result).toBeVisible();
     await expect(result.locator(".confirmation-modal__panel")).toHaveCSS("border-top-color", "rgb(243, 211, 106)");
-    await expect(result).toContainText("28 verouderde lokale branch(es) verwijderd.");
+    await expect(result).toContainText("28 losse lokale branch(es) verwijderd.");
     await expect(result.locator(".workspace-branch-cleanup__result-list li")).toHaveCount(28);
   });
 
