@@ -546,9 +546,10 @@ class DashboardStatusTest(unittest.TestCase):
             dashboard._remove_safe_worktree(root, "/worktrees/other", "codex/other")
 
     @patch("tools.engineering.dashboard.PlatformConfiguration.load")
+    @patch("tools.engineering.dashboard.GitHubProvider")
     @patch("tools.engineering.dashboard.GitProvider")
     def test_safe_worktree_removal_candidates_require_clean_synced_main_and_stale_worktree(
-        self, git_provider: object, configuration: object
+        self, git_provider: object, github_provider: object, configuration: object
     ) -> None:
         root = Path("/repository")
         configuration.return_value.workspace.default_branch = "main"
@@ -563,6 +564,7 @@ class DashboardStatusTest(unittest.TestCase):
                 "worktree /worktrees/stale", "HEAD b", "branch refs/heads/codex/stale", "",
                 "worktree /worktrees/remote", "HEAD c", "branch refs/heads/codex/remote", "",
             )), ""),
+            completed(("git",), 0, "git@github.com:pcvantol/djconnect.git\n", ""),
             completed(("git",), 0, "", ""),
             completed(("git",), 1, "", ""),
             completed(("git",), 0, "", ""),
@@ -570,6 +572,10 @@ class DashboardStatusTest(unittest.TestCase):
             completed(("git",), 0, "", ""),
             completed(("git",), 0, "", ""),
         ]
+        github_provider.return_value.github.return_value = json.dumps([{
+            "number": 123, "url": "https://github.com/pcvantol/djconnect/pull/123",
+            "headRefName": "codex/stale", "state": "MERGED", "mergedAt": "2026-08-27T00:00:00Z",
+        }])
 
         self.assertEqual(
             dashboard._safe_worktree_removal_candidates(root),
@@ -2799,6 +2805,7 @@ class DashboardStatusTest(unittest.TestCase):
             ("/api/stale-git-lock-recovery", {}, 202),
             ("/api/stale-local-branch-cleanup", {"branches": ["codex/merged"]}, 202),
             ("/api/safe-worktree-removal", {"worktree_path": "/worktrees/stale", "branch": "codex/stale"}, 202),
+            ("/api/worktree-removal-analysis", {}, 200),
             ("/api/workspace-switch-to-main", {}, 202),
             ("/api/stale-local-branch-cleanup-preview", {}, 200),
             ("/api/execution-retry", {"run_id": "run-1"}, 202),
@@ -2818,6 +2825,7 @@ class DashboardStatusTest(unittest.TestCase):
             patches.enter_context(patch("tools.engineering.dashboard._recover_stale_workspace_git_lock", return_value={"state": "free", "recovered": True}))
             patches.enter_context(patch("tools.engineering.dashboard._cleanup_stale_local_branches", return_value={"removed_count": 1}))
             patches.enter_context(patch("tools.engineering.dashboard._remove_safe_worktree", return_value={"removed_worktree": "/worktrees/stale", "branch": "codex/stale", "branch_pending_cleanup": True}))
+            patches.enter_context(patch("tools.engineering.dashboard._worktree_removal_analysis", return_value={"available": True, "worktrees": []}))
             patches.enter_context(patch("tools.engineering.dashboard._switch_to_fast_forward_main", return_value={"previous_branch": "feature", "branch": "main", "synchronized": "true"}))
             patches.enter_context(patch("tools.engineering.dashboard._stale_local_branch_preview", return_value={"branches": []}))
             patches.enter_context(patch("tools.engineering.dashboard.retry_admission_preflight"))
