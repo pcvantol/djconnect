@@ -3547,6 +3547,7 @@ test.describe("Engineering Status browser smoke", () => {
     expect(timelineBounds).not.toBeNull();
     expect(timelineBounds.x).toBeGreaterThan(usageBounds.x);
     expect(Math.abs(timelineBounds.y - usageBounds.y)).toBeLessThanOrEqual(1);
+    await expect(cards.nth(1)).toHaveCSS("align-self", "start");
     await expect(cards.nth(1).locator(".prompt-detail-commit-timeline__list")).toHaveCSS("overflow-y", "auto");
     const phaseCaption = cards.nth(1).locator(".prompt-detail-commit-timeline__phase h4");
     await expect(phaseCaption.locator(".prompt-detail-commit-timeline__kind")).toHaveText(DASHBOARD_MESSAGES.nl["detail.commit_type.repair"]);
