@@ -824,6 +824,21 @@ test.describe("Engineering Status browser smoke", () => {
     );
   });
 
+  test("does not offer a worktree switch for the active worktree", async ({ page }) => {
+    await page.route("**/api/events", (route) => route.abort());
+    const projection = { available: true, worktrees: [
+      { path: "/workspace", branch: "main", commit: "123456789abc" },
+      { path: "/tmp/current-worktree", branch: "codex/current-worktree", commit: "abcdef123456", active: true },
+    ] };
+    await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({ json: { workspace_worktrees: projection } }));
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#workspaceCard").evaluate((element) => { element.open = true; });
+    await page.evaluate((fixture) => window.renderWorkspaceWorktrees(fixture), projection);
+
+    await expect(page.locator(".workspace-worktrees__active")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Schakel naar worktree" })).toHaveCount(0);
+  });
+
   test("keeps project-scoped Inbox settings with the project queue", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     const queue = page.locator("#queueItems");

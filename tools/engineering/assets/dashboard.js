@@ -2278,6 +2278,7 @@ function renderWorkspaceWorktrees(projection) {
     }
     if (
       worktree?.branch !== "main"
+      && worktree?.active !== true
       && typeof worktree?.path === "string" && worktree.path
       && typeof worktree?.branch === "string" && worktree.branch
     ) {
