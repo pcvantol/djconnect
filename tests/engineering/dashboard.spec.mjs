@@ -635,8 +635,11 @@ test.describe("Engineering Status browser smoke", () => {
     });
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.locator("#autoRefresh").uncheck();
+    await page.locator("#workspaceCard").evaluate((element) => { element.open = true; });
     const workspace = page.locator("#workspaceCard .local-folder-link").first();
     const workspacePath = await workspace.textContent();
+    await workspace.hover();
+    await expect(workspace).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
     await dispatchDashboardPointerClick(workspace);
     await expect.poll(() => requestedDirectories).toEqual([workspacePath]);
 
