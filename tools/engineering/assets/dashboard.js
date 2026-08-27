@@ -38,7 +38,7 @@ const $ = (id) => document.getElementById(id),
     workspace_state: "UNKNOWN",
     diagnostic: t("dashboard.status_unavailable"),
   };
-let currentLogRun, lastLogRun, lastRefresh, promptStartedAt, latestStatus, latestDashboardSnapshot, latestDurationEstimate,
+let currentLogRun, lastLogRun, lastRefresh, promptStartedAt, latestStatus, latestDashboardSnapshot, latestDurationEstimate, latestPlatformHealth,
   shownOperatorMergeWaitRun;
 function formatTimestamp(value, fallback = t("format.timestamp_unavailable")) {
   const timestamp = Date.parse(String(value || ""));
@@ -347,6 +347,55 @@ function isActiveRun(x = {}) {
 function hasVisibleStaleLifecycle(x = {}) {
   return x.watcher_state === "ENGINEERING_RUN_STALE" && Boolean(x.run_id) &&
     x.current_phase !== "COMPLETE" && x.current_phase !== "BLOCKED" && x.current_phase !== "FAILED";
+}
+function dashboardHealthPresentation(status = latestStatus, platformHealth = latestPlatformHealth) {
+  const current = status && typeof status === "object" ? status : null,
+    components = platformHealth?.components && typeof platformHealth.components === "object"
+      ? platformHealth.components
+      : null,
+    dashboardHealthy = components?.dashboard?.healthy === true,
+    watcherHealthy = components?.inbox_watcher?.healthy === true,
+    queueDepth = Math.max(0, Number(current?.queue_depth) || 0),
+    watcherState = String(current?.watcher_state || ""),
+    workspaceState = String(current?.workspace_state || ""),
+    phase = String(current?.current_phase || "").toUpperCase(),
+    watcherStateUpper = watcherState.toUpperCase(),
+    active = isActiveRun(current || {}),
+    blocked = phase === "BLOCKED" || watcherStateUpper.includes("WAITING") || watcherStateUpper.includes("BLOCKED"),
+    failed = phase === "FAILED" || watcherStateUpper.includes("FAILED") || watcherStateUpper.includes("DEGRADED") ||
+      (components && (!dashboardHealthy || !watcherHealthy));
+  let state = "unknown";
+  if (failed) state = "error";
+  else if (blocked || queueDepth > 0) state = "blocked";
+  else if (active) state = "active";
+  else if (dashboardHealthy && watcherHealthy && watcherState === "WATCHER_IDLE" && workspaceState === "WORKSPACE_READY") state = "ready";
+  const checks = [
+    ["dashboard", dashboardHealthy ? "running" : components ? "not_running" : "unknown", dashboardHealthy ? "good" : components ? "bad" : "unknown"],
+    ["watcher", watcherHealthy ? "running" : components ? "not_running" : "unknown", watcherHealthy ? "good" : components ? "bad" : "unknown"],
+    ["execution", active ? "active" : phase === "BLOCKED" ? "blocked" : phase === "FAILED" ? "error" : "none_active", active ? "good" : phase === "BLOCKED" ? "warning" : phase === "FAILED" ? "bad" : "good"],
+    ["queue", queueDepth ? "queue_waiting" : "queue_empty", queueDepth ? "warning" : "good", { count: queueDepth }],
+    ["watcher_state", watcherState || "unknown", watcherState === "WATCHER_IDLE" ? "good" : watcherStateUpper.includes("FAILED") || watcherStateUpper.includes("DEGRADED") ? "bad" : watcherState ? "warning" : "unknown"],
+    ["workspace", workspaceState || "unknown", workspaceState === "WORKSPACE_READY" ? "good" : workspaceState ? "bad" : "unknown"],
+  ];
+  return { state, checks };
+}
+function renderDashboardHealth(status = latestStatus, platformHealth = latestPlatformHealth) {
+  const indicator = $("dashboardHealthIndicator"), tooltipTitle = $("dashboardHealthTooltipTitle"), checks = $("dashboardHealthChecks"), accessibleLabel = $("dashboardHealthAccessibleLabel");
+  if (!indicator || !tooltipTitle || !checks || !accessibleLabel) return;
+  const presentation = dashboardHealthPresentation(status, platformHealth), title = t("dashboard.health." + presentation.state);
+  indicator.dataset.healthState = presentation.state;
+  indicator.setAttribute("aria-label", t("dashboard.health.title") + ": " + title);
+  accessibleLabel.textContent = t("dashboard.health.title") + ": " + title;
+  tooltipTitle.textContent = t("dashboard.health.title") + " · " + title;
+  checks.replaceChildren();
+  for (const [name, value, tone, values = {}] of presentation.checks) {
+    const item = document.createElement("li"), label = document.createElement("span"), result = document.createElement("span");
+    item.dataset.health = tone;
+    label.textContent = t("dashboard.health." + name);
+    result.textContent = t("dashboard.health." + value, values, translate(value));
+    item.append(label, result);
+    checks.append(item);
+  }
 }
 function checkBuild(build) {
   if (build === DASHBOARD_BUILD) {
@@ -1952,6 +2001,7 @@ function renderHealthStatus(x, snapshot = {}) {
   clock();
   x = x && typeof x === "object" ? x : fallback;
   latestStatus = x;
+  renderDashboardHealth(x, latestPlatformHealth);
   if (latestCodexCliUpdateStatus) renderCodexCliUpdate(latestCodexCliUpdateStatus);
   latestDashboardSnapshot = snapshot;
   latestDurationEstimate = snapshot.duration_estimate || {};
@@ -3223,6 +3273,8 @@ $("operatorMergeWaitModal").addEventListener("click", (event) => {
 function renderPlatformHealth(payload) {
   const container = $("platformHealthComponents");
   if (!container) return;
+  latestPlatformHealth = payload && typeof payload === "object" ? payload : null;
+  renderDashboardHealth(latestStatus, latestPlatformHealth);
   const components =
     payload && typeof payload.components === "object"
       ? payload.components
@@ -4419,6 +4471,24 @@ function refreshDashboard() {
   window.location.reload();
 }
 $("pageRefresh")?.addEventListener("click", refreshDashboard);
+$("dashboardHealthIndicator")?.addEventListener("click", () => {
+  const health = $("dashboardHealth"), indicator = $("dashboardHealthIndicator");
+  if (!health || !indicator) return;
+  const expanded = indicator.getAttribute("aria-expanded") === "true";
+  health.classList.toggle("dashboard-health--open", !expanded);
+  indicator.setAttribute("aria-expanded", String(!expanded));
+});
+document.addEventListener("click", (event) => {
+  const health = $("dashboardHealth"), indicator = $("dashboardHealthIndicator");
+  if (!health || !indicator || health.contains(event.target)) return;
+  health.classList.remove("dashboard-health--open");
+  indicator.setAttribute("aria-expanded", "false");
+});
+document.addEventListener("keydown", (event) => {
+  if (event.key !== "Escape") return;
+  $("dashboardHealth")?.classList.remove("dashboard-health--open");
+  $("dashboardHealthIndicator")?.setAttribute("aria-expanded", "false");
+});
 $("githubRateLimitRefresh")?.addEventListener("click", () => void refreshGithubRateLimit());
 document.addEventListener("touchstart", startPullRefresh, { passive: true });
 document.addEventListener("touchmove", movePullRefresh, { passive: false });

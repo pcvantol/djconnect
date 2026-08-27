@@ -8800,4 +8800,29 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator(".dashboard-scroll-region")).toHaveCSS("padding-left", "14px");
     await expect(page.locator(".dashboard-scroll-region")).toHaveCSS("padding-right", "14px");
   });
+
+  test("shows live platform readiness in the titlebar health indicator", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.waitForFunction(() => document.body.classList.contains("dashboard-ready"));
+    await page.locator("#autoRefresh").uncheck();
+    await page.evaluate(() => {
+      renderPlatformHealth({ components: {
+        dashboard: { healthy: true }, inbox_watcher: { healthy: true }, dashboard_relay: { healthy: true },
+      } });
+      r({ watcher_state: "WATCHER_IDLE", workspace_state: "WORKSPACE_READY", queue_depth: 0 }, {});
+    });
+    const indicator = page.getByTestId("dashboard-health-indicator");
+    await expect(indicator).toHaveAttribute("data-health-state", "ready");
+    await indicator.hover();
+    await expect(page.locator("#dashboardHealthTooltip")).toContainText("Inbox-watcher");
+    await expect(page.locator("#dashboardHealthTooltip")).toContainText("Geen uitvoering actief");
+    await expect(page.locator("#dashboardHealthTooltip")).toContainText("Werkruimte gereed");
+
+    await page.evaluate(() => r({ watcher_state: "ENGINEERING_RUN_ACTIVE", run_id: "inbox-active", workspace_state: "WORKSPACE_READY", queue_depth: 0 }, {}));
+    await expect(indicator).toHaveAttribute("data-health-state", "active");
+    await page.evaluate(() => r({ watcher_state: "WATCHER_IDLE", current_phase: "BLOCKED", workspace_state: "WORKSPACE_READY", queue_depth: 0 }, {}));
+    await expect(indicator).toHaveAttribute("data-health-state", "blocked");
+    await page.evaluate(() => r({ watcher_state: "HOST_PREFLIGHT_FAILED", workspace_state: "WORKSPACE_READY", queue_depth: 0 }, {}));
+    await expect(indicator).toHaveAttribute("data-health-state", "error");
+  });
 });
