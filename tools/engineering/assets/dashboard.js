@@ -6981,7 +6981,7 @@ async function removeSafeWorktree(worktree) {
     t("workspace.worktree_remove_title"),
     t("workspace.worktree_remove_confirmation", { branch, path }),
     t("workspace.worktree_remove_action"),
-    { destructive: true, accent: workspaceModalAccent() },
+    { destructive: true },
   );
   if (!confirmed) return;
   try {

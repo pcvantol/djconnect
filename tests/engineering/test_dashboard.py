@@ -545,6 +545,37 @@ class DashboardStatusTest(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError, "controle is gewijzigd"):
             dashboard._remove_safe_worktree(root, "/worktrees/other", "codex/other")
 
+    @patch("tools.engineering.dashboard.PlatformConfiguration.load")
+    @patch("tools.engineering.dashboard.GitProvider")
+    def test_safe_worktree_removal_candidates_require_clean_synced_main_and_stale_worktree(
+        self, git_provider: object, configuration: object
+    ) -> None:
+        root = Path("/repository")
+        configuration.return_value.workspace.default_branch = "main"
+        completed = __import__("subprocess").CompletedProcess
+        git_provider.return_value.execute.side_effect = [
+            completed(("git",), 0, "", ""),
+            completed(("git",), 0, "main\n", ""),
+            completed(("git",), 0, "", ""),
+            completed(("git",), 0, "0\t0\n", ""),
+            completed(("git",), 0, "\n".join((
+                "worktree /repository", "HEAD a", "branch refs/heads/main", "",
+                "worktree /worktrees/stale", "HEAD b", "branch refs/heads/codex/stale", "",
+                "worktree /worktrees/remote", "HEAD c", "branch refs/heads/codex/remote", "",
+            )), ""),
+            completed(("git",), 0, "", ""),
+            completed(("git",), 1, "", ""),
+            completed(("git",), 0, "", ""),
+            completed(("git",), 0, "", ""),
+            completed(("git",), 0, "", ""),
+            completed(("git",), 0, "", ""),
+        ]
+
+        self.assertEqual(
+            dashboard._safe_worktree_removal_candidates(root),
+            [{"path": "/worktrees/stale", "branch": "codex/stale"}],
+        )
+
     @patch("tools.engineering.dashboard._stale_local_branch_pull_request", return_value=None)
     @patch("tools.engineering.dashboard.GitProvider")
     def test_stale_local_branch_preview_excludes_branches_used_by_active_worktrees(

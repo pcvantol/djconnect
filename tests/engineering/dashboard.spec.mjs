@@ -607,6 +607,10 @@ test.describe("Engineering Status browser smoke", () => {
 
   test("confirms a safe per-worktree removal in the shared destructive modal", async ({ page }) => {
     await page.route("**/api/events", (route) => route.abort());
+    // This interaction supplies its own worktree projection. Keep the
+    // dashboard's unrelated initial snapshot from replacing that fixture
+    // while the confirmation flow is under test.
+    await page.route("**/api/dashboard-snapshot", (route) => route.abort());
     let removalRequests = 0;
     await page.route("**/api/safe-worktree-removal", async (route) => {
       removalRequests += 1;
@@ -621,6 +625,7 @@ test.describe("Engineering Status browser smoke", () => {
       } });
     });
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#workspaceCard").evaluate((element) => { element.open = true; });
     await page.locator("#autoRefresh").uncheck();
     await page.evaluate(() => window.renderWorkspaceWorktrees({ available: true, worktrees: [
       { path: "/workspace", branch: "main", commit: "123456789abc" },
