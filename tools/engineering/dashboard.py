@@ -1149,23 +1149,32 @@ def _restart_engineering_platform_after_main_switch(root: Path, logger: logging.
     )
 
 
-def _registered_worktree_switch_target(root: Path, worktree_path: object, branch: object) -> Path:
-    """Return one clean, currently registered non-main worktree or fail closed."""
-    if not isinstance(worktree_path, str) or not isinstance(branch, str) or not worktree_path or not branch:
+def _registered_worktree_path(root: Path, worktree_path: object, branch: object | None = None) -> Path:
+    """Resolve one worktree from Git's current registration, never from HTTP input."""
+    if not isinstance(worktree_path, str) or not worktree_path or (branch is not None and not isinstance(branch, str)):
         raise ValueError("De gekozen worktree is ongeldig.")
-    requested = Path(worktree_path)
-    if not requested.is_absolute():
-        raise ValueError("De gekozen worktree is ongeldig.")
-    target = requested.resolve()
     projection = _workspace_worktrees(root)
     candidates = [
         item for item in projection.get("worktrees", [])
         if isinstance(item, dict)
-        and item.get("branch") == branch
         and isinstance(item.get("path"), str)
-        and Path(str(item["path"])).resolve() == target
+        and item["path"] == worktree_path
+        and (branch is None or item.get("branch") == branch)
     ]
-    if len(candidates) != 1 or branch == PlatformConfiguration.load(root).workspace.default_branch:
+    if len(candidates) != 1:
+        raise RuntimeError("De gekozen worktree is niet beschikbaar voor een veilige switch.")
+    target = Path(candidates[0]["path"]).resolve()
+    if not target.is_absolute():
+        raise RuntimeError("De gekozen worktree is niet beschikbaar voor een veilige switch.")
+    return target
+
+
+def _registered_worktree_switch_target(root: Path, worktree_path: object, branch: object) -> Path:
+    """Return one clean, currently registered non-main worktree or fail closed."""
+    if not isinstance(branch, str) or not branch:
+        raise ValueError("De gekozen worktree is ongeldig.")
+    target = _registered_worktree_path(root, worktree_path, branch)
+    if branch == PlatformConfiguration.load(root).workspace.default_branch:
         raise RuntimeError("De gekozen worktree is niet beschikbaar voor een veilige switch.")
     if not target.is_dir() or not (target / "tools" / "engineering" / "dashboard.py").is_file() or not (target / "tools" / "engineering" / "inbox_watcher.py").is_file():
         raise RuntimeError("De gekozen worktree bevat geen complete Engineering Platform-installatie.")
@@ -1983,20 +1992,12 @@ def _open_worktree_in_finder(root: Path, worktree_path: str) -> dict[str, str]:
     if sys.platform != "darwin" or not isinstance(worktree_path, str) or not worktree_path:
         raise RuntimeError("De lokale worktreemap kan niet veilig worden geopend.")
     try:
-        selected_path = next(
-            (
-                item["path"]
-                for item in _workspace_worktrees(root).get("worktrees", [])
-                if isinstance(item, dict) and isinstance(item.get("path"), str)
-                and item["path"] == worktree_path
-            ),
-            None,
-        )
-        if selected_path is None:
-            raise RuntimeError("De geselecteerde map is geen actuele lokale worktree.")
         # The HTTP value only selects a current Git worktree.  Finder receives
         # the independently registered path, never the request value itself.
-        requested = Path(selected_path).resolve(strict=True)
+        try:
+            requested = _registered_worktree_path(root, worktree_path).resolve(strict=True)
+        except (RuntimeError, ValueError) as error:
+            raise RuntimeError("De geselecteerde map is geen actuele lokale worktree.") from error
     except OSError as error:
         raise RuntimeError("De lokale worktreemap kan niet veilig worden geopend.") from error
     try:
