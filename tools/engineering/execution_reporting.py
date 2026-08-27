@@ -557,7 +557,8 @@ def _qualification_projection(
     validation = "recorded" if state.validation_evidence else "not recorded"
     return (
         f"- Execution Status: `{state.phase}`",
-        f"- Qualification Status: `{qualification_status or 'not recorded'}`",
+        f"- Platform Qualification Status: `{qualification_status or 'not recorded'}`",
+        "- Run Qualification Status: see Managed Autonomy Qualification below.",
         f"- Runtime Status: `{'reported' if runtime_provider != 'unavailable' else 'not reported'}`",
         f"- Validation Status: `{validation}`",
         "- Governance Status: see the Forge Governance Handoff projection above.",
@@ -945,7 +946,7 @@ def _managed_autonomy_projection(root: Path, state: TransactionState, bundle: Te
     return (
         "## Managed Autonomy Qualification",
         f"- Execution: `{snapshot['terminal_execution_state']}`",
-        f"- Managed Autonomy: `{snapshot['managed_autonomy_qualification']}`",
+        f"- Run Qualification Status: `{snapshot['managed_autonomy_qualification']}`",
         f"- Fresh Submission: `{snapshot['fresh_submission']}`",
         f"- Retry Parent: `{snapshot['retry_parent']}`",
         f"- Resume Parent: `{snapshot['resume_parent']}`",
@@ -993,7 +994,7 @@ def generate_terminal_report(
     qualification_summary = (
         "No local Engineering Platform Qualification evidence is available."
         if qualification is None
-        else f"Version: `{qualification.get('engineering_platform_version')}`\n- Latest Qualification: `{qualification.get('qualification')}`\n- Executed: `{qualification.get('executed_at')}`\n- Qualification Coverage: `{qualification.get('coverage_percent')}%`"
+        else f"Version: `{qualification.get('engineering_platform_version')}`\n- Platform Qualification Status: `{qualification.get('qualification')}`\n- Executed: `{qualification.get('executed_at')}`\n- Platform Qualification Coverage: `{qualification.get('coverage_percent')}%`"
     )
     runtime_metadata = runtime_metadata or {"runtime_provider": "codex_cli"}
     runtime_provider = runtime_metadata.get("runtime_provider", "unavailable")

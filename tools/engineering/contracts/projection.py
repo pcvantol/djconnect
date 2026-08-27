@@ -201,6 +201,18 @@ def _phase_workflow(phase: object, terminal: object) -> dict[str, object]:
             "last_verified_at": UNAVAILABLE, "expected_current_authority": "EP_LIFECYCLE"}
 
 
+def _run_qualification(phase: object, terminal: object) -> str:
+    """Project run evidence without borrowing platform-level qualification."""
+    if terminal is not True:
+        return UNAVAILABLE
+    # A terminal failure or block is never pass-equivalent.  A complete run
+    # still needs its dedicated managed-evidence evaluation before it can be
+    # qualified, so this read-only contract fails closed for it as well.
+    if str(phase) in {"FAILED", "BLOCKED", "COMPLETE"}:
+        return "EVIDENCE_INSUFFICIENT"
+    return UNAVAILABLE
+
+
 def get_run_context(root: Path, run_id: str) -> dict[str, object]:
     """Return one serializable run projection or an unavailable safe projection."""
     generated_at = _now()
@@ -264,7 +276,20 @@ def get_run_context(root: Path, run_id: str) -> dict[str, object]:
                      "finalization_merge_state": _value(finalization.get("merge_state")), "finalization_merge_commit": _value(checkpoint.get("finalization_merge_commit") or finalization.get("merge_commit")),
                      "finalization_required_checks_state": _value(finalization.get("required_checks_state")), "finalization_merge_gate": "EXPECTED_OPERATOR_GATE" if phase == "WAIT_FOR_FINALIZATION_MERGE" else UNAVAILABLE,
                      "run_delivery_commit": _value(checkpoint.get("implementation_head_sha") or checkpoint.get("last_verified_sha")), "current_repository_head": _value(checkpoint.get("last_verified_sha")), "delivery_commit_head_relationship": UNAVAILABLE},
-        "validation": {"engineering_platform_qualification": UNAVAILABLE, "controls": validation_controls},
+        "validation": {
+            # Preserve the legacy key while making the two authorities
+            # separately machine-readable for compatible consumers.
+            "engineering_platform_qualification": UNAVAILABLE,
+            "platform_qualification": {
+                "status": UNAVAILABLE,
+                "authority": "LOCAL_QUALIFICATION_REGISTRY",
+            },
+            "run_qualification": {
+                "status": _run_qualification(phase, terminal),
+                "authority": "RUN_TERMINAL_EVIDENCE",
+            },
+            "controls": validation_controls,
+        },
         "repository": {"repository_identity": _value(checkpoint.get("repository")), "expected_branch": "main", "current_branch": _value(checkpoint.get("branch")), "worktree_state": UNAVAILABLE, "main_origin_relationship": UNAVAILABLE, "repository_state": UNAVAILABLE, "delivery_commit_relationship": UNAVAILABLE, "last_verified_at": _value(observed_at)},
         "workspace": workspace,
         "timing": {"run_wall_time": _value(run[5] if run else None), "provider_execution_time": _value(checkpoint.get("agent_execution_seconds")), "reviewer_time": UNAVAILABLE, "validation_time": UNAVAILABLE, "external_wait_time": UNAVAILABLE, "ci_wait_time": UNAVAILABLE, "merge_gate_wait_time": _value(checkpoint.get("waiting_for_merge_since")), "finalization_time": UNAVAILABLE, "reconciliation_time": UNAVAILABLE, "last_activity_at": _value(observed_at)},

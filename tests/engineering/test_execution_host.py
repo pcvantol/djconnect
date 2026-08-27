@@ -2204,6 +2204,13 @@ class LocalAgentRunnerTest(unittest.TestCase):
         self.assertIn("Configuration Profile: `workspace-write`", body)
         self.assertIn("Codex CLI Version: `0.146.0`", body)
 
+    def test_terminal_report_keeps_platform_and_run_qualification_separate(self) -> None:
+        state = TransactionState("failed-qualification-report", "pcvantol/djconnect", str(self.prompt), "FAILED", terminal=True)
+        body = generate_terminal_report(self.root, state).read_text(encoding="utf-8")
+        self.assertIn("Platform Qualification Status:", body)
+        self.assertIn("Run Qualification Status: see Managed Autonomy Qualification below.", body)
+        self.assertIn("- Run Qualification Status: `EVIDENCE_INSUFFICIENT`", body)
+
     def test_terminal_report_labels_cumulative_input_without_calling_it_context(self) -> None:
         state = TransactionState("provider-usage-report", "pcvantol/djconnect", str(self.prompt), "COMPLETE", terminal=True)
         persist_provider_invocation(

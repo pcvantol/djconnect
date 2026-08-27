@@ -131,3 +131,19 @@ class ContractProjectionTests(unittest.TestCase):
             self.assertTrue(all(item["allowed"] is False for item in payload["allowed_actions"]))
             with self.assertRaises(ContractVersionError):
                 require_compatible_version("2.0")
+
+    def test_run_qualification_never_borrows_platform_qualification(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            for phase in ("FAILED", "BLOCKED", "COMPLETE"):
+                with self.subTest(phase=phase):
+                    state = self._state(root, f"inbox-qualification-{phase.casefold()}")
+                    StateStore(root / ".engineering" / "engineering-runs").save(
+                        replace(state, phase=phase, terminal=True)
+                    )
+                    qualification = get_run_context(root, state.run_id)["validation"]
+                    self.assertEqual(qualification["run_qualification"]["status"], "EVIDENCE_INSUFFICIENT")
+                    self.assertEqual(
+                        qualification["platform_qualification"]["authority"],
+                        "LOCAL_QUALIFICATION_REGISTRY",
+                    )
