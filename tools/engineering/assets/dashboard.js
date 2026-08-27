@@ -1260,6 +1260,8 @@ const PREFLIGHT_PRESENTATIONS = Object.freeze([
   ["host_preflight", [
     ["hostPreflightStatus", "outcome"],
     ["hostPreflightTimestamp", "timestamp", "timestamp"],
+    ["executionHostRuntimeVersion", "runtime_version"],
+    ["executionHostRuntimePath", "runtime_path"],
   ]],
   ["workspace_preflight", [
     ["workspacePreflightStatus", "outcome"],
@@ -2657,6 +2659,8 @@ function localizeTechnicalDetails() {
     [["#technicalExecutionHostLabel"], "technical.execution_host"],
     [["#technicalExecutionHostVersionLabel"], "technical.execution_host_version"],
     [["#technicalRuntimeLabel"], "technical.runtime"],
+    [["#technicalRuntimeVersionLabel"], "detail.codex_cli_version"],
+    [["#technicalRuntimePathLabel"], "detail.codex_cli_installation_path"],
     [["#technicalRuntimePromptTransportLabel"], "technical.runtime_prompt_transport"],
     [["#technicalHostStatusLabel"], "technical.host_status"],
     [["#technicalLastCheckLabel"], "technical.last_check"],

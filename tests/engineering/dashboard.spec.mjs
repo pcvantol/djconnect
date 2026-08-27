@@ -6049,6 +6049,29 @@ test.describe("Engineering Status browser smoke", () => {
     }
   });
 
+  test("shows the managed Codex CLI provenance in host preflight", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => r({ watcher_state: "WATCHER_IDLE" }, {
+      host_preflight: {
+        outcome: "PASS",
+        runtime_version: "0.150.1",
+        runtime_path: "/Users/example/.local/share/engineering-platform/codex-cli/bin/codex",
+      },
+    }));
+
+    await expect(page.locator("#executionHostRuntimeVersion")).toHaveText("0.150.1");
+    await expect(page.locator("#executionHostRuntimePath")).toHaveText(
+      "/Users/example/.local/share/engineering-platform/codex-cli/bin/codex",
+    );
+    const language = await page.locator("#dashboardLocale").inputValue();
+    await expect(page.locator("#technicalRuntimeVersionLabel")).toHaveText(
+      DASHBOARD_MESSAGES[language]["detail.codex_cli_version"],
+    );
+    await expect(page.locator("#technicalRuntimePathLabel")).toHaveText(
+      DASHBOARD_MESSAGES[language]["detail.codex_cli_installation_path"],
+    );
+  });
+
   test("shows technical diagnosis only for active or attention-needing executions", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     const diagnosis = page.locator("#technicalDetails");
