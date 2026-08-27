@@ -261,12 +261,22 @@ class DashboardStatusTest(unittest.TestCase):
                 with self.assertRaises(RuntimeError):
                     _open_worktree_in_finder(root, str(worktree))
             with patch("tools.engineering.dashboard.sys.platform", "darwin"):
-                with self.assertRaisesRegex(RuntimeError, "kan niet veilig"):
+                with self.assertRaisesRegex(RuntimeError, "actuele lokale worktree"):
                     _open_worktree_in_finder(root, str(root / "missing"))
             with (
                 patch("tools.engineering.dashboard.sys.platform", "darwin"),
                 patch("tools.engineering.dashboard._workspace_worktrees", return_value={"available": True, "worktrees": [{"path": str(worktree)}]}),
                 patch("tools.engineering.dashboard.LocalProcessProvider.execute", side_effect=OSError),
+            ):
+                with self.assertRaisesRegex(RuntimeError, "Finder kon"):
+                    _open_worktree_in_finder(root, str(worktree))
+            with patch("tools.engineering.dashboard.sys.platform", "linux"):
+                with self.assertRaisesRegex(RuntimeError, "kan niet veilig"):
+                    _open_worktree_in_finder(root, str(worktree))
+            with (
+                patch("tools.engineering.dashboard.sys.platform", "darwin"),
+                patch("tools.engineering.dashboard._workspace_worktrees", return_value={"available": True, "worktrees": [{"path": str(worktree)}]}),
+                patch("tools.engineering.dashboard.LocalProcessProvider.execute", return_value=__import__("subprocess").CompletedProcess(("open",), 1, "", "")),
             ):
                 with self.assertRaisesRegex(RuntimeError, "Finder kon"):
                     _open_worktree_in_finder(root, str(worktree))

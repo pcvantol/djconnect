@@ -1874,16 +1874,22 @@ def _open_worktree_in_finder(root: Path, worktree_path: str) -> dict[str, str]:
     if sys.platform != "darwin" or not isinstance(worktree_path, str) or not worktree_path:
         raise RuntimeError("De lokale worktreemap kan niet veilig worden geopend.")
     try:
-        requested = Path(worktree_path).expanduser().resolve(strict=True)
-        registered = {
-            Path(str(item["path"])).resolve(strict=True)
-            for item in _workspace_worktrees(root).get("worktrees", [])
-            if isinstance(item, dict) and isinstance(item.get("path"), str)
-        }
+        selected_path = next(
+            (
+                item["path"]
+                for item in _workspace_worktrees(root).get("worktrees", [])
+                if isinstance(item, dict) and isinstance(item.get("path"), str)
+                and item["path"] == worktree_path
+            ),
+            None,
+        )
+        if selected_path is None:
+            raise RuntimeError("De geselecteerde map is geen actuele lokale worktree.")
+        # The HTTP value only selects a current Git worktree.  Finder receives
+        # the independently registered path, never the request value itself.
+        requested = Path(selected_path).resolve(strict=True)
     except OSError as error:
         raise RuntimeError("De lokale worktreemap kan niet veilig worden geopend.") from error
-    if requested not in registered:
-        raise RuntimeError("De geselecteerde map is geen actuele lokale worktree.")
     try:
         outcome = LocalProcessProvider().execute(root, ("open", str(requested)))
     except OSError as error:
