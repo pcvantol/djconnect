@@ -626,6 +626,37 @@ test.describe("Engineering Status browser smoke", () => {
     await expect.poll(() => requestedPath).toBe("/tmp/finder-worktree");
   });
 
+  test("opens displayed local workspace and checkout folders through the approved Finder route", async ({ page }) => {
+    const requestedDirectories = [];
+    await page.route("**/api/open-local-directory", async (route) => {
+      requestedDirectories.push(JSON.parse(route.request().postData()).directory_path);
+      await route.fulfill({ status: 202, json: { opened_directory: requestedDirectories.at(-1) } });
+    });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#autoRefresh").uncheck();
+    const workspace = page.locator("#workspaceCard .local-folder-link").first();
+    const workspacePath = await workspace.textContent();
+    await dispatchDashboardPointerClick(workspace);
+    await expect.poll(() => requestedDirectories).toEqual([workspacePath]);
+
+    await page.evaluate(() => r({
+      watcher_state: "ENGINEERING_RUN_ACTIVE",
+      current_phase: "EXECUTE_AGENT",
+      run_id: "folder-route",
+      execution_mode: "MANAGED",
+      target_repository: "pcvantol/djconnect",
+      checkout_path: "/Users/example/Documents/GitHub/djconnect",
+      active_branch: "main",
+    }, {}));
+    const checkout = page.locator("#executionContext .local-folder-link");
+    await expect(checkout).toHaveText("/Users/example/Documents/GitHub/djconnect");
+    await dispatchDashboardPointerClick(checkout);
+    await expect.poll(() => requestedDirectories).toEqual([
+      workspacePath,
+      "/Users/example/Documents/GitHub/djconnect",
+    ]);
+  });
+
   test("analyses every worktree before showing a safe removal action", async ({ page }) => {
     const projection = { available: true, worktrees: [
       { path: "/workspace", branch: "main", commit: "123456789abc" },

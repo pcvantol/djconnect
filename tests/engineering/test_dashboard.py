@@ -284,6 +284,30 @@ class DashboardStatusTest(unittest.TestCase):
                 with self.assertRaisesRegex(RuntimeError, "Finder kon"):
                     _open_worktree_in_finder(root, str(worktree))
 
+    def test_open_local_directory_in_finder_accepts_only_current_dashboard_locations(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary) / "repository"
+            root.mkdir()
+            (root / ".engineering").mkdir()
+            inbox = Path(temporary) / "Inbox"
+            inbox.mkdir()
+            configuration = MagicMock()
+            configuration.resolver.return_value.resolve_runtime_prompt_transport.return_value.inbox = inbox
+            completed = __import__("subprocess").CompletedProcess(("open",), 0, "", "")
+            with (
+                patch("tools.engineering.dashboard.sys.platform", "darwin"),
+                patch("tools.engineering.dashboard.PlatformConfiguration.load", return_value=configuration),
+                patch("tools.engineering.dashboard._workspace_worktrees", return_value={"available": True, "worktrees": []}),
+                patch("tools.engineering.dashboard.LocalProcessProvider.execute", return_value=completed) as execute,
+            ):
+                self.assertEqual(
+                    dashboard._open_local_directory_in_finder(root, str(inbox)),
+                    {"opened_directory": str(inbox.resolve())},
+                )
+                execute.assert_called_once_with(root, ("open", str(inbox.resolve())))
+                with self.assertRaisesRegex(RuntimeError, "niet beschikbaar"):
+                    dashboard._open_local_directory_in_finder(root, str(Path(temporary)))
+
     def test_dashboard_exposes_the_canonical_five_locale_catalog(self) -> None:
         root = Path(__file__).parents[2]
         catalog = (root / "tools/engineering/assets/dashboard_locales.mjs").read_text(encoding="utf-8")
@@ -3507,6 +3531,12 @@ class DashboardStatusTest(unittest.TestCase):
                 self.assertEqual(response.status, 202)
                 self.assertEqual(json.loads(response.read()), {"opened_worktree": "/worktrees/stale"})
                 open_folder.assert_called_once_with(root, "/worktrees/stale")
+            with patch("tools.engineering.dashboard._open_local_directory_in_finder", return_value={"opened_directory": "/repository"}) as open_folder:
+                connection.request("POST", "/api/open-local-directory", body='{"directory_path":"/repository"}', headers={"Content-Type": "application/json"})
+                response = connection.getresponse()
+                self.assertEqual(response.status, 202)
+                self.assertEqual(json.loads(response.read()), {"opened_directory": "/repository"})
+                open_folder.assert_called_once_with(root, "/repository")
             execution_retry_outcome = {"retry_of": "inbox-blocked", "original_run_id": "inbox-blocked", "retry_generation": 1, "retry_timestamp": "2026-08-03T12:00:00+00:00", "filename": "retry-inbox-blocked.md", "retry_run_id": "inbox-retry"}
             with (
                 patch("tools.engineering.dashboard.cloud_root", return_value=root),

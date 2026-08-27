@@ -1272,15 +1272,60 @@ function executionContextValue(value) {
   if (value && typeof value === "object") return value.title || value.objective || value.id || value.message || value.reference || value.value || "";
   return "";
 }
-function executionContextField(label, value, badge = false) {
+function localFolderPath(value) {
+  return typeof value === "string" && value.startsWith("/") ? value.trim() : "";
+}
+async function openLocalFolder(directoryPath) {
+  try {
+    const response = await fetch("/api/open-local-directory", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ directory_path: directoryPath }),
+    });
+    const outcome = await response.json();
+    if (!response.ok) throw Error(outcome?.error || t("workspace.open_local_folder_failed"));
+  } catch (error) {
+    showDashboardError(error.message || t("workspace.open_local_folder_failed"), t("workspace.open_local_folder_failed"));
+  }
+}
+function localFolderButton(value, { containingFolder = false } = {}) {
+  const path = localFolderPath(value);
+  const button = document.createElement("button");
+  button.className = "local-folder-link";
+  button.type = "button";
+  button.textContent = String(value || t("format.not_available"));
+  if (!path) {
+    button.disabled = true;
+    return button;
+  }
+  const directoryPath = containingFolder ? path.replace(/\/[^/]+$/, "") : path;
+  const label = t(
+    containingFolder ? "workspace.open_containing_folder" : "workspace.open_local_folder",
+    { path },
+  );
+  button.title = label;
+  button.setAttribute("aria-label", label);
+  button.addEventListener("click", () => void openLocalFolder(directoryPath));
+  return button;
+}
+function replaceWithLocalFolderButton(element, options = {}) {
+  if (!element) return null;
+  const button = localFolderButton(element.textContent.trim(), options);
+  if (element.id) button.id = element.id;
+  element.replaceWith(button);
+  return button;
+}
+function executionContextField(label, value, badge = false, folder = false) {
   const field = document.createElement("p"), caption = document.createElement("span"), content = document.createElement("span");
   field.className = "field";
   caption.className = "label";
   caption.textContent = label;
   const supplied = executionContextValue(value);
-  content.textContent = supplied || t("execution_context.not_supplied");
-  if (badge) content.className = "execution-context__phase";
-  field.append(caption, content);
+  const output = folder && localFolderPath(supplied)
+    ? localFolderButton(supplied)
+    : content;
+  if (output === content) content.textContent = supplied || t("execution_context.not_supplied");
+  if (badge) output.classList.add("execution-context__phase");
+  field.append(caption, output);
   return field;
 }
 function inheritModalAccent(modal, trigger) {
@@ -1332,7 +1377,7 @@ function renderExecutionContext(context, execution = {}) {
   if (!context || typeof context !== "object") {
     card.replaceChildren(
       Object.assign(document.createElement("strong"), { textContent: t("ui.execution_context") }),
-      ...hostFields.map(([label, value, isExecutionMode]) => isExecutionMode ? executionModeField(value) : executionContextField(label, value)),
+      ...hostFields.map(([label, value, isExecutionMode]) => isExecutionMode ? executionModeField(value) : executionContextField(label, value, false, label === t("detail.target_checkout"))),
       Object.assign(document.createElement("p"), { textContent: t("execution_context.not_supplied") }),
     );
     return;
@@ -1359,7 +1404,7 @@ function renderExecutionContext(context, execution = {}) {
   ];
   card.replaceChildren(
     Object.assign(document.createElement("strong"), { textContent: t("ui.execution_context") }),
-    ...hostFields.map(([label, value, isExecutionMode]) => isExecutionMode ? executionModeField(value) : executionContextField(label, value)),
+    ...hostFields.map(([label, value, isExecutionMode]) => isExecutionMode ? executionModeField(value) : executionContextField(label, value, false, label === t("detail.target_checkout"))),
     ...fields.map(([label, value, badge]) => executionContextField(label, value, badge)),
   );
 }
@@ -5128,7 +5173,7 @@ if (workspaceDatabaseField) {
   const content = document.createElement("div"), download = document.createElement("a");
   content.className = "workspace-database__content";
   const path = workspaceDatabaseField.querySelector("pre");
-  if (path) content.append(path);
+  if (path) content.append(localFolderButton(path.textContent.trim(), { containingFolder: true }));
   download.className = "dashboard-action dashboard-action--download workspace-database__download";
   download.id = "workspaceDatabaseDownload";
   download.href = "/api/engineering-database/download?audit=download";
@@ -5139,6 +5184,9 @@ if (workspaceDatabaseField) {
   content.append(download);
   workspaceDatabaseField.append(content);
 }
+const workspaceLocation = document.querySelector('[data-workspace-label="ui.workspace_location"] + pre');
+replaceWithLocalFolderButton(workspaceLocation);
+replaceWithLocalFolderButton($("rateLimitProviderPath"));
 applyDashboardLocale();
 let dashboardConfiguration = {}, dashboardConfigurationLoaded = false;
 const configurationFields = Object.freeze({
@@ -5305,12 +5353,21 @@ function renderConfigurationInboxLocation() {
   field.classList.add("configuration-inbox-field");
   let value = $("configurationInboxLocation");
   if (!value) {
-    value = document.createElement("code");
+    value = document.createElement("button");
     value.id = "configurationInboxLocation";
-    value.className = "configuration-inbox-location";
+    value.className = "configuration-inbox-location local-folder-link";
+    value.type = "button";
     label.after(value);
   }
   value.textContent = location || "—";
+  const path = localFolderPath(location);
+  value.disabled = !path;
+  if (path) {
+    const labelText = t("workspace.open_local_folder", { path });
+    value.title = labelText;
+    value.setAttribute("aria-label", labelText);
+    value.onclick = () => void openLocalFolder(path);
+  } else value.onclick = null;
 }
 function providerLoginStatusBlock() {
   const configuration = $("configuration");
@@ -6319,15 +6376,19 @@ function openPromptHistoryDocument(runId, kind = "report") {
       );
     });
 }
-function detailField(label, value, preformatted = false) {
+function detailField(label, value, preformatted = false, folder = false) {
   const field = document.createElement("p"),
     name = document.createElement("span"),
     output = document.createElement(preformatted ? "pre" : "span");
   field.className = "field";
   name.className = "label";
   name.textContent = label;
-  output.textContent = String(value ?? "—");
-  field.append(name, output);
+  const supplied = String(value ?? "—");
+  const content = folder && localFolderPath(supplied)
+    ? localFolderButton(supplied)
+    : output;
+  if (content === output) output.textContent = supplied;
+  field.append(name, content);
   return field;
 }
 function promptHistoryRunIdField(runId) {
@@ -6444,7 +6505,7 @@ function promptDetailExecutionSections(history) {
     detailField(t("detail.correlation_id"), history.correlation_id || t("detail.not_recorded")),
     detailField(t("detail.target_repository"), history.target_repository || t("detail.not_recorded")),
     detailField(t("ui.active_branch"), history.target_branch || t("detail.not_recorded"), true),
-    detailField(t("detail.target_checkout"), history.target_checkout_path || t("detail.not_recorded"), true),
+    detailField(t("detail.target_checkout"), history.target_checkout_path || t("detail.not_recorded"), true, true),
     detailField(t("detail.tracked_files"), history.tracked_file_count ?? t("detail.not_recorded")),
     detailField(t("detail.files_modified"), history.execution_metadata?.modified ?? t("detail.not_recorded")),
     detailField(t("detail.files_created"), history.execution_metadata?.created ?? t("detail.not_recorded")),

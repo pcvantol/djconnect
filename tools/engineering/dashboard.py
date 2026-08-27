@@ -1949,6 +1949,56 @@ def _open_worktree_in_finder(root: Path, worktree_path: str) -> dict[str, str]:
     return {"opened_worktree": str(requested)}
 
 
+def _approved_local_directories(root: Path) -> set[Path]:
+    """Return the current, locally derived directories Finder may open."""
+    candidates = {
+        root,
+        root / ".engineering",
+        Path.home() / "Library" / "LaunchAgents",
+        engineering_platform_codex_cli_prefix(),
+    }
+    try:
+        candidates.add(PlatformConfiguration.load(root).resolver(root).resolve_runtime_prompt_transport().inbox)
+    except (EngineeringStorageError, OSError, TypeError, ValueError, KeyError):
+        pass
+    try:
+        candidates.update(
+            Path(str(item["path"]))
+            for item in _workspace_worktrees(root).get("worktrees", [])
+            if isinstance(item, dict) and isinstance(item.get("path"), str)
+        )
+    except OSError:
+        pass
+    approved: set[Path] = set()
+    for candidate in candidates:
+        try:
+            resolved = candidate.resolve(strict=True)
+        except OSError:
+            continue
+        if resolved.is_dir():
+            approved.add(resolved)
+    return approved
+
+
+def _open_local_directory_in_finder(root: Path, directory_path: str) -> dict[str, str]:
+    """Open one current, server-approved local directory in macOS Finder."""
+    if sys.platform != "darwin" or not isinstance(directory_path, str) or not directory_path:
+        raise RuntimeError("De lokale map kan niet veilig worden geopend.")
+    try:
+        requested = Path(directory_path).resolve(strict=True)
+    except OSError as error:
+        raise RuntimeError("De lokale map kan niet veilig worden geopend.") from error
+    if requested not in _approved_local_directories(root):
+        raise RuntimeError("De geselecteerde map is niet beschikbaar in dit dashboard.")
+    try:
+        outcome = LocalProcessProvider().execute(root, ("open", str(requested)))
+    except OSError as error:
+        raise RuntimeError("Finder kon de lokale map niet openen.") from error
+    if outcome.returncode:
+        raise RuntimeError("Finder kon de lokale map niet openen.")
+    return {"opened_directory": str(requested)}
+
+
 def _codex_process_metrics(root: Path) -> bytes:
     """Measure only the process group explicitly recorded by the Execution Host."""
     try:
@@ -3053,6 +3103,19 @@ def handler(root: Path, logger: logging.Logger | None = None):
                     log_event(logger, logging.INFO, "worktree_folder_opened", diagnostic=f"path={outcome['opened_worktree']}")
                 except (RuntimeError, ValueError, UnicodeDecodeError, json.JSONDecodeError):
                     self._send(b'{"error":"De lokale worktreemap kon niet veilig worden geopend."}', "application/json; charset=utf-8", 409)
+                    return
+                self._send(json.dumps(outcome, ensure_ascii=False).encode(), "application/json; charset=utf-8", 202)
+                return
+            if request_path == "/api/open-local-directory":
+                try:
+                    length = int(self.headers.get("Content-Length", "0"))
+                    payload = json.loads(self.rfile.read(length).decode("utf-8"))
+                    if not isinstance(payload, dict) or set(payload) != {"directory_path"}:
+                        raise ValueError
+                    outcome = _open_local_directory_in_finder(root, payload["directory_path"])
+                    log_event(logger, logging.INFO, "local_directory_opened", diagnostic=f"path={outcome['opened_directory']}")
+                except (OSError, RuntimeError, ValueError, UnicodeDecodeError, json.JSONDecodeError):
+                    self._send(b'{"error":"De lokale map kon niet veilig worden geopend."}', "application/json; charset=utf-8", 409)
                     return
                 self._send(json.dumps(outcome, ensure_ascii=False).encode(), "application/json; charset=utf-8", 202)
                 return
