@@ -686,6 +686,36 @@ class DashboardStatusTest(unittest.TestCase):
             dashboard._switch_to_fast_forward_main(root)
         git_provider.return_value.command.assert_not_called()
 
+    @patch("tools.engineering.dashboard.log_event")
+    @patch("tools.engineering.dashboard._execution_active", return_value=False)
+    @patch("tools.engineering.dashboard._restart_component")
+    def test_main_switch_restarts_the_full_engineering_platform_after_response(
+        self, restart_component: object, _: object, log_event: object
+    ) -> None:
+        logger = logging.getLogger("test")
+        dashboard._restart_engineering_platform_after_main_switch(Path("/repository"), logger)
+        self.assertEqual(
+            restart_component.call_args_list,
+            [call("inbox_watcher"), call("dashboard_relay"), call("dashboard")],
+        )
+        log_event.assert_called_once_with(
+            logger, logging.INFO, "engineering_platform_restart_completed",
+            diagnostic="components=inbox_watcher,dashboard_relay,dashboard",
+        )
+
+    @patch("tools.engineering.dashboard.log_event")
+    @patch("tools.engineering.dashboard._execution_active", return_value=True)
+    @patch("tools.engineering.dashboard._restart_component")
+    def test_main_switch_does_not_restart_the_platform_during_an_execution(
+        self, restart_component: object, _: object, log_event: object
+    ) -> None:
+        logger = logging.getLogger("test")
+        dashboard._restart_engineering_platform_after_main_switch(Path("/repository"), logger)
+        restart_component.assert_not_called()
+        log_event.assert_called_once_with(
+            logger, logging.WARNING, "engineering_platform_restart_skipped", diagnostic="execution_active",
+        )
+
     @patch("tools.engineering.dashboard.GitHubProvider")
     @patch("tools.engineering.dashboard.GitProvider")
     def test_workspace_open_pull_requests_are_bounded_display_safe_context(
@@ -2820,6 +2850,7 @@ class DashboardStatusTest(unittest.TestCase):
         )
         with ExitStack() as patches:
             patches.enter_context(patch("tools.engineering.dashboard.log_event"))
+            patches.enter_context(patch("tools.engineering.dashboard.Timer"))
             patches.enter_context(patch("tools.engineering.dashboard._restore_managed_main_branch", return_value={"previous_branch": "feature", "branch": "main", "watcher": "restarted"}))
             patches.enter_context(patch("tools.engineering.dashboard._synchronize_managed_branch_with_upstream", return_value={"branch": "main", "upstream": "origin/main", "watcher": "restarted"}))
             patches.enter_context(patch("tools.engineering.dashboard._recover_stale_workspace_git_lock", return_value={"state": "free", "recovered": True}))
@@ -2827,6 +2858,7 @@ class DashboardStatusTest(unittest.TestCase):
             patches.enter_context(patch("tools.engineering.dashboard._remove_safe_worktree", return_value={"removed_worktree": "/worktrees/stale", "branch": "codex/stale", "branch_pending_cleanup": True}))
             patches.enter_context(patch("tools.engineering.dashboard._worktree_removal_analysis", return_value={"available": True, "worktrees": []}))
             patches.enter_context(patch("tools.engineering.dashboard._switch_to_fast_forward_main", return_value={"previous_branch": "feature", "branch": "main", "synchronized": "true"}))
+            patches.enter_context(patch("tools.engineering.dashboard._execution_active", return_value=False))
             patches.enter_context(patch("tools.engineering.dashboard._stale_local_branch_preview", return_value={"branches": []}))
             patches.enter_context(patch("tools.engineering.dashboard.retry_admission_preflight"))
             patches.enter_context(patch("tools.engineering.dashboard.submit_execution_retry", return_value={"retry_run_id": "run-2"}))

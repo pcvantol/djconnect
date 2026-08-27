@@ -209,8 +209,13 @@ yellow actions are deliberately separate from terminal-status colours:
 - **Switch to FF main** is shown only when `HEAD` differs from `origin/main`.
   After confirmation it refuses dirty workspaces, unavailable `origin`, or
   local commits on `main`; it switches only to the configured `main` branch
-  and fast-forwards only. A yellow result modal reports either the completed
-  switch or the precise safe refusal.
+  and fast-forwards only. The acknowledgement is sent before Engineering
+  Platform fully restarts in a controlled order: Inbox watcher, dashboard
+  relay, then dashboard. The dashboard is last so the new main revision is
+  loaded by every owned process. The action is refused while an execution is
+  active; a platform refresh never interrupts an execution. A yellow result
+  modal reports either the completed switch and scheduled restart or the
+  precise safe refusal.
 - **Refresh worktree analysis** is the explicit, read-only action in the local
   worktrees section. It shows a conclusion for every worktree: whether to keep
   it or whether it is safe to remove, plus the linked GitHub pull request when

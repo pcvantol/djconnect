@@ -1135,6 +1135,30 @@ def _restart_component_after_response(component: str, logger: logging.Logger) ->
         log_event(logger, logging.ERROR, "component_restart_failed", diagnostic=str(error))
 
 
+def _restart_engineering_platform_after_main_switch(root: Path, logger: logging.Logger) -> None:
+    """Reload every owned Engineering Platform process after a main switch.
+
+    The dashboard runs the replacement last because restarting it terminates
+    this process.  A newly active execution wins over freshness: it is never
+    interrupted merely to reload the platform.
+    """
+    if _execution_active(root):
+        log_event(logger, logging.WARNING, "engineering_platform_restart_skipped", diagnostic="execution_active")
+        return
+    failed: list[str] = []
+    for component in ("inbox_watcher", "dashboard_relay", "dashboard"):
+        try:
+            _restart_component(component)
+        except OSError:
+            failed.append(component)
+    log_event(
+        logger,
+        logging.INFO if not failed else logging.ERROR,
+        "engineering_platform_restart_completed" if not failed else "engineering_platform_restart_failed",
+        diagnostic="components=" + (",".join(failed) if failed else "inbox_watcher,dashboard_relay,dashboard"),
+    )
+
+
 class InboxLocationChangeError(RuntimeError):
     """Raised when a new Inbox route cannot be confirmed by a fresh watcher."""
 
@@ -2836,10 +2860,17 @@ def handler(root: Path, logger: logging.Logger | None = None):
                     length = int(self.headers.get("Content-Length", "0"))
                     if length != 2 or self.rfile.read(length) != b"{}":
                         raise ValueError
+                    if _execution_active(root):
+                        raise RuntimeError("Naar main schakelen en Engineering Platform herstarten kan alleen wanneer geen uitvoering actief is.")
                     outcome = _switch_to_fast_forward_main(root)
                 except (OSError, RuntimeError, ValueError) as error:
                     self._send(json.dumps({"error": str(error) or "Naar main schakelen is niet veilig gelukt."}, ensure_ascii=False).encode(), "application/json; charset=utf-8", 409)
                     return
+                # The dashboard must acknowledge the operator before it is
+                # replaced. The full platform reload makes the switched main
+                # revision the running revision for watcher, relay and UI.
+                Timer(0.25, _restart_engineering_platform_after_main_switch, args=(root, logger)).start()
+                outcome["engineering_platform"] = "restart_scheduled"
                 self._send(json.dumps(outcome, ensure_ascii=False).encode(), "application/json; charset=utf-8", 202)
                 return
             if request_path == "/api/stale-local-branch-cleanup-preview":
