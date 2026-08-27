@@ -7424,6 +7424,23 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#logDateTo")).toHaveCSS("color", "rgb(247, 243, 238)");
   });
 
+  test("uses neutral ink for ordinary Markdown emphasis", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => {
+      const content = document.createElement("div"), emphasis = document.createElement("strong");
+      content.id = "markdown-emphasis-test";
+      content.className = "markdown-document";
+      emphasis.textContent = "nadruk";
+      content.append(emphasis);
+      document.body.append(content);
+    });
+    const emphasis = page.locator("#markdown-emphasis-test strong");
+    await expect(emphasis).toHaveCSS("color", "rgb(247, 243, 238)");
+
+    await page.getByTestId("theme-toggle").click();
+    await expect(emphasis).toHaveCSS("color", "rgb(24, 34, 48)");
+  });
+
   test("shows only the date controls required by the selected log time window on desktop", async ({ page }) => {
     await page.setViewportSize({ width: 1600, height: 900 });
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
