@@ -1013,6 +1013,7 @@ html[data-theme="light"] .prompt-detail-modal__content .execution-lifecycle--his
    refresh beside the PR heading, without turning the whole card into an action. */
 .workspace-open-prs__header{align-items:center;display:flex;gap:8px;justify-content:space-between}.workspace-open-prs__header>strong{color:var(--category-color);display:block;font-size:12px;letter-spacing:.04em;text-transform:uppercase}.workspace-open-prs__refresh{align-items:center;background:transparent;border:1px solid color-mix(in srgb,var(--category-color) 72%,transparent);border-radius:50%;color:var(--category-color);cursor:pointer;display:inline-flex;font:400 16px/1 system-ui;height:28px;justify-content:center;min-height:28px;min-width:28px;padding:0;width:28px}.workspace-open-prs__refresh:hover:not(:disabled){background:var(--category-color);color:#2a2415}.workspace-open-prs__refresh:focus-visible{outline:2px solid var(--category-color);outline-offset:2px}.workspace-open-prs__refresh:disabled{cursor:wait;opacity:.65}
 .workspace-open-prs ul{max-height:min(21rem,35vh);overflow-y:auto;overscroll-behavior:contain;padding:0 8px 0 0;scrollbar-gutter:stable}.workspace-open-prs li{border-bottom:1px solid color-mix(in srgb,var(--category-color) 32%,transparent);padding-bottom:16px}
+.workspace-open-prs li,.workspace-worktrees li{row-gap:10px}
 
 /* Local worktrees are a read-only workspace projection and intentionally
    share the bounded, flat treatment of the adjacent pull-request summary. */
