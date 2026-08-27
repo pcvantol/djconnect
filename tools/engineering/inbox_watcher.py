@@ -758,7 +758,9 @@ def dismiss_execution(repo: Path, run_id: str, *, dismissed_by: str = "dashboard
         except (OSError, json.JSONDecodeError) as error:
             raise RetrySubmissionError("Er is geen actieve terminale uitvoering om te bevestigen.") from error
         if current.get("watcher_state") == "ENGINEERING_RUN_ACTIVE" or current.get("run_id"):
-            raise RetrySubmissionError("Een actieve uitvoering kan niet worden bevestigd.")
+            raise RetrySubmissionError(
+                "Deze mislukte uitvoering kan pas worden afgesloten nadat de andere actieve uitvoering is afgerond."
+            )
         phase = _terminal_phase_for_run(repo, run_id)
         if phase not in TERMINAL_PHASES:
             raise RetrySubmissionError("Alleen een terminale uitvoering kan worden bevestigd.")

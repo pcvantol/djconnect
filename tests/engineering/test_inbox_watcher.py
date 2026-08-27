@@ -1691,6 +1691,24 @@ class InboxWatcherTest(unittest.TestCase):
         self.assertTrue(older["dismissed"])
         self.assertFalse(older["can_retry"])
 
+    def test_dismissal_explains_that_another_active_execution_must_finish_first(self) -> None:
+        run_id = "inbox-dismissed"
+        runs = self.repo / ".engineering" / "engineering-runs"
+        runs.mkdir(parents=True, exist_ok=True)
+        (runs / f"{run_id}.json").write_text(json.dumps({"phase": "FAILED"}), encoding="utf-8")
+        status = self.repo / ".engineering" / "status"
+        status.mkdir(parents=True, exist_ok=True)
+        (status / "status.json").write_text(
+            json.dumps({"watcher_state": "ENGINEERING_RUN_ACTIVE", "run_id": "inbox-new-run"}),
+            encoding="utf-8",
+        )
+
+        with self.assertRaisesRegex(
+            inbox_watcher.RetrySubmissionError,
+            "nadat de andere actieve uitvoering is afgerond",
+        ):
+            inbox_watcher.dismiss_execution(self.repo, run_id)
+
     def test_migration_moves_legacy_archives_and_removes_iCloud_status(self) -> None:
         (self.root / "Completed").mkdir()
         (self.root / "Reports").mkdir()
