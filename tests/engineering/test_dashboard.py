@@ -1146,6 +1146,7 @@ class DashboardStatusTest(unittest.TestCase):
             "owner_authorization_requested": False,
             "check_repair_available": False,
             "check_repair_state": None,
+            "check_repair_completed_for_head": False,
         }])
         page = _dashboard_html(
             "Engineering Status", workspace_branch="codex/cleanup", workspace_commit="123456789abc",

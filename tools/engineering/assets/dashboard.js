@@ -2423,13 +2423,19 @@ function renderOpenPullRequests(pullRequests) {
       authorize.title = t("workspace.open_pull_request.authorize_owner");
       item.append(authorize);
     }
-    if (pullRequest.check_repair_available === true) {
+    if (pullRequest.check_repair_available === true || pullRequest.check_repair_completed_for_head === true) {
       const repair = document.createElement("button");
       repair.className = "open-pr-check-repair";
-      repair.dataset.openPullRequestCheckRepair = String(pullRequest.number || "");
       repair.type = "button";
-      repair.textContent = t("workspace.open_pull_request.repair_failed_checks");
-      repair.title = t("workspace.open_pull_request.repair_failed_checks");
+      if (pullRequest.check_repair_completed_for_head === true) {
+        repair.disabled = true;
+        repair.textContent = t("workspace.open_pull_request.repair_completed");
+        repair.title = t("workspace.open_pull_request.repair_completed_explanation");
+      } else {
+        repair.dataset.openPullRequestCheckRepair = String(pullRequest.number || "");
+        repair.textContent = t("workspace.open_pull_request.repair_failed_checks");
+        repair.title = t("workspace.open_pull_request.repair_failed_checks");
+      }
       item.append(repair);
     }
     if (["QUEUED", "RUNNING", "SUBMITTED"].includes(String(pullRequest.check_repair_state || "").toUpperCase())) {

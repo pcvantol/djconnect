@@ -1642,6 +1642,7 @@ def _workspace_open_pull_requests(root: Path) -> list[dict[str, object]] | None:
             repair_active = repair_state in {"QUEUED", "RUNNING"} or (
                 repair_state == "SUBMITTED" and not checks_terminal
             )
+            repair_completed_for_head = repair_state == "SUBMITTED" and checks_terminal
             result.append({
                 "number": number,
                 "title": title,
@@ -1655,6 +1656,7 @@ def _workspace_open_pull_requests(root: Path) -> list[dict[str, object]] | None:
                 # re-reads all GitHub evidence before any provider is used.
                 "check_repair_available": bool(failed_checks) and checks_terminal and not authorization_requested and not repair_active and not pr_check_repair_attempted(root, number, head_sha),
                 "check_repair_state": repair_state if repair_active else None,
+                "check_repair_completed_for_head": repair_completed_for_head,
             })
     return result
 

@@ -1593,6 +1593,26 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(progress.locator(".open-pr-check-repair-progress__spinner")).toBeVisible();
   });
 
+  test("keeps the repair button visible but disabled after its one focused repair", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => {
+      const section = document.createElement("section");
+      section.id = "workspaceOpenPullRequests";
+      section.className = "workspace-open-prs";
+      section.innerHTML = "<ul></ul>";
+      document.body.append(section);
+      renderOpenPullRequests([{
+        number: 941, title: "Human submitted", url: "https://github.com/pcvantol/djconnect/pull/941",
+        branch: "feature/human-pr", status: "issues", owner_approval: "not_required",
+        check_repair_available: false, check_repair_completed_for_head: true,
+      }]);
+    });
+    const repair = page.locator(".open-pr-check-repair");
+    await expect(repair).toBeDisabled();
+    await expect(repair).toHaveText(DASHBOARD_MESSAGES.nl["workspace.open_pull_request.repair_completed"]);
+    await expect(repair).toHaveAttribute("title", DASHBOARD_MESSAGES.nl["workspace.open_pull_request.repair_completed_explanation"]);
+  });
+
   test("keeps the last known open pull requests visible when GitHub refresh is unavailable", async ({ page }) => {
     await page.route("**/api/open-pull-requests", (route) => route.fulfill({ status: 503, json: { error: "temporarily unavailable" } }));
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
