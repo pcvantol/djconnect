@@ -1879,6 +1879,7 @@ class DashboardStatusTest(unittest.TestCase):
                         "- Reasoning Profile: `medium`",
                         "- Configuration Profile: `workspace-write`",
                         "- Codex CLI Version: `0.146.0`",
+                        "- Codex CLI Installation Path: `/managed/engineering-platform/codex-cli`",
                     )
                 ),
                 encoding="utf-8",
@@ -1891,6 +1892,7 @@ class DashboardStatusTest(unittest.TestCase):
                     "reasoning_profile": "medium",
                     "configuration_profile": "workspace-write",
                     "codex_cli_version": "0.146.0",
+                    "codex_cli_installation_path": "/managed/engineering-platform/codex-cli",
                 },
             )
             self.assertEqual(json.loads(_last_executed_runtime_metadata(root, "bad/run")), {})

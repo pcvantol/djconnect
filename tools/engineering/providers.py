@@ -94,6 +94,11 @@ class CodexCliProvider(LocalProcessProvider):
         del executable  # Runtime injection must not bypass EP's managed CLI.
         self._executable = codex_cli_executable() or ""
 
+    def managed_installation_path(self) -> str | None:
+        """Return provenance only when this invocation is pinned to EP's CLI."""
+        managed = engineering_platform_codex_cli_prefix() / "bin" / "codex"
+        return str(engineering_platform_codex_cli_prefix()) if self._executable == str(managed) else None
+
     def _arguments(self, arguments: Sequence[str]) -> tuple[str, ...]:
         if arguments and arguments[0] == "codex":
             return (self._executable, *arguments[1:])

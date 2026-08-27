@@ -4649,6 +4649,7 @@ function promptHistoryDetailMarkdown(payload, title) {
       [t("detail.reasoning_profile"), runtime.reasoning_profile],
       [t("detail.configuration_profile"), runtime.configuration_profile],
       [t("detail.codex_cli_version"), runtime.codex_cli_version],
+      [t("detail.codex_cli_installation_path"), runtime.codex_cli_installation_path],
     ]),
     promptHistoryMarkdownSection(t("detail.provider_usage"), Object.entries(usage)
       .filter(([, value]) => value !== null && typeof value !== "object")
@@ -6640,9 +6641,10 @@ function promptDetailRuntimeSection(runtime) {
     [t("detail.reasoning_profile"), runtime.reasoning_profile],
     [t("detail.configuration_profile"), runtime.configuration_profile],
     [t("detail.codex_cli_version"), runtime.codex_cli_version],
+    [t("detail.codex_cli_installation_path"), runtime.codex_cli_installation_path, true],
   ]
     .filter(([, value]) => value)
-    .map(([label, value]) => detailField(label, value));
+    .map(([label, value, folder]) => detailField(label, value, false, folder));
   return fields.length ? promptDetailCard(t("detail.runtime"), fields) : null;
 }
 function promptDetailUsageSection(usage) {

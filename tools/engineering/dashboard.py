@@ -2296,10 +2296,11 @@ def _last_executed_runtime_metadata(root: Path, run_id: str | None) -> bytes:
         "reasoning_profile": "Reasoning Profile",
         "configuration_profile": "Configuration Profile",
         "codex_cli_version": "Codex CLI Version",
+        "codex_cli_installation_path": "Codex CLI Installation Path",
     }
     metadata: dict[str, str] = {}
     for key, label in fields.items():
-        match = re.search(rf"^- {re.escape(label)}: `([^`\\n]{{1,120}})`$", text, re.MULTILINE)
+        match = re.search(rf"^- {re.escape(label)}: `([^`\n]{{1,120}})`$", text, re.MULTILINE)
         if match:
             metadata[key] = match.group(1)
     return json.dumps(metadata, separators=(",", ":")).encode()
