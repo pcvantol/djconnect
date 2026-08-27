@@ -2949,7 +2949,7 @@ test.describe("Engineering Status browser smoke", () => {
     await page.locator("#currentRun").evaluate((element) => { element.open = true; });
     const qualityNode = page.locator(".execution-lifecycle__item").filter({ hasText: DASHBOARD_MESSAGES.nl["lifecycle.step.quality_control_agent"] });
     await expect(qualityNode).toHaveCount(1);
-    await qualityNode.locator(".execution-lifecycle__node").click();
+    await dispatchDashboardPointerClick(qualityNode.locator(".execution-lifecycle__node"));
     const modal = page.locator("#lifecycleDetailModal");
     await expect(modal).toBeVisible();
     await expect(modal).toContainText(DASHBOARD_MESSAGES.nl["lifecycle.step.quality_control_agent"]);
@@ -4211,6 +4211,10 @@ test.describe("Engineering Status browser smoke", () => {
   });
 
   test("sorts telemetry detail tables with the same header treatment as logs", async ({ page }) => {
+    await page.route("**/api/events", (route) => route.abort());
+    await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({
+      json: { status: { watcher_state: "WATCHER_IDLE" } },
+    }));
     await page.route("**/api/telemetry/2026-08-16", (route) => route.fulfill({ json: {
       summary: {},
       phases: [
@@ -4225,6 +4229,7 @@ test.describe("Engineering Status browser smoke", () => {
     } }));
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await waitForDashboardReady(page);
+    await page.locator("#autoRefresh").uncheck();
     await page.evaluate(() => window.executionTelemetry([{
       date: "2026-08-16", prompt_count: 1, average_total_execution_seconds: 0,
       average_queue_wait_seconds: 0, complete_count: 1, blocked_count: 0, failed_count: 0,
@@ -4260,11 +4265,11 @@ test.describe("Engineering Status browser smoke", () => {
     expect(runScrollGeometry.modalOverflowX).toBe("hidden");
     const phaseAverage = phaseTable.locator('th[data-sort-key="average_ms"]');
     await expect(phaseAverage).toHaveAttribute("data-sort-indicator", "↕");
-    await phaseAverage.click();
+    await dispatchDashboardPointerClick(phaseAverage);
     await expect(phaseAverage).toHaveAttribute("aria-sort", "ascending");
     await expect(phaseTable.locator("tbody tr td").first()).toHaveText("INITIALIZE");
     const runTotal = runTable.locator('th[data-sort-key="total_duration_ms"]');
-    await runTotal.click();
+    await dispatchDashboardPointerClick(runTotal);
     await expect(runTable.locator("tbody tr td").first()).toHaveText("run-faster");
     const phaseRow = phaseTable.locator("tbody tr").first();
     const phaseRowBackgrounds = await phaseRow.locator("td").evaluateAll(
@@ -4473,7 +4478,7 @@ test.describe("Engineering Status browser smoke", () => {
       average_total_execution_seconds: 0, average_queue_wait_seconds: 0,
       complete_count: 0, blocked_count: 1, failed_count: 0,
     }]));
-    await page.locator("#executionTelemetry > summary").click();
+    await dispatchDashboardPointerClick(page.locator("#executionTelemetry > summary"));
     await dispatchDashboardPointerClick(page.locator("#executionTelemetryRows tr"));
     await expect(page.locator("#telemetryDetailContent")).toContainText("61,8%");
   });
@@ -4489,7 +4494,7 @@ test.describe("Engineering Status browser smoke", () => {
     } }));
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.evaluate(() => window.executionTelemetry([{ date: "2026-08-16", prompt_count: 1, average_total_execution_seconds: 120, average_queue_wait_seconds: 12, complete_count: 1, blocked_count: 0, failed_count: 0 }]));
-    await page.locator("#executionTelemetry > summary").click();
+    await dispatchDashboardPointerClick(page.locator("#executionTelemetry > summary"));
     await dispatchDashboardPointerClick(page.locator("#executionTelemetryRows .telemetry-row"));
     const content = page.locator("#telemetryDetailContent");
     await expect(content).toContainText(DASHBOARD_MESSAGES.nl["telemetry.longest_average_phase"]);
@@ -4573,6 +4578,7 @@ test.describe("Engineering Status browser smoke", () => {
         { line: 3, timestamp: new Date(2026, 7, 17, 9, 0).toISOString(), level: "INFO", event: "watcher_started", runId: "other", details: "other day" },
       ];
       componentLogEntries.dashboard = [];
+      componentLogServerPaged = false;
       renderComponentLogs();
     });
     await page.locator("#logTimePreset").selectOption("day");
@@ -4706,6 +4712,10 @@ test.describe("Engineering Status browser smoke", () => {
     // This exercises five full locale reloads while the browser suite runs in
     // parallel.  Allow the isolated dashboard to become ready under CI load.
     test.slow();
+    await page.route("**/api/events", (route) => route.abort());
+    await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({
+      json: { status: { watcher_state: "WATCHER_IDLE" } },
+    }));
     await page.route("**/api/logs/**", (route) => route.fulfill({
       contentType: "application/x-ndjson",
       body: "",
@@ -4717,8 +4727,8 @@ test.describe("Engineering Status browser smoke", () => {
       ["fr", "Surveillant de boîte de réception démarré", "Verrou Git obsolète récupéré"],
       ["es", "Monitor de bandeja de entrada iniciado", "Bloqueo Git obsoleto recuperado"],
     ];
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     for (const [language, watcherStarted, staleLockRecovered] of expectations) {
-      await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
       await selectDashboardLocale(page, language);
       await page.locator("#componentLogs").evaluate((element) => { element.open = true; });
       await page.waitForFunction(() => componentLogsLoaded);
@@ -6773,7 +6783,7 @@ test.describe("Engineering Status browser smoke", () => {
     await page.getByTestId("theme-toggle").click();
     await page.locator("#platformHealth").evaluate((element) => { element.open = true; });
     await expect(page.locator(".component-info").first()).toHaveCSS("color", "rgb(60, 116, 17)");
-    await page.locator(".platform-health__component").first().click();
+    await dispatchDashboardPointerClick(page.locator(".platform-health__component").first());
 
     await expect(page.locator("#componentModal")).toHaveAttribute("open", "");
     await expect(page.locator("#componentModal")).not.toBeFocused();
@@ -7088,6 +7098,7 @@ test.describe("Engineering Status browser smoke", () => {
         { line: 1, timestamp: "2026-08-07T10:00:00Z", level: "INFO", event: "retain_me", runId: "visible-run", details: "visible detail" },
         { line: 2, timestamp: "2026-08-07T10:01:00Z", level: "ERROR", event: "exclude_me", runId: "hidden-run", details: "hidden detail" },
       ];
+      componentLogServerPaged = false;
       document.querySelector("#logFilter").value = "retain_me";
       independentLogPageStates.inbox = 1;
       renderComponentLogs();
@@ -7112,8 +7123,8 @@ test.describe("Engineering Status browser smoke", () => {
     // initial projection is settled before installing this test's fixture;
     // otherwise it can replace the fixture halfway through the selection.
     const initialLogsLoaded = Promise.all([
-      page.waitForResponse("**/api/logs/inbox"),
-      page.waitForResponse("**/api/logs/dashboard"),
+      page.waitForResponse("**/api/logs/inbox?*"),
+      page.waitForResponse("**/api/logs/dashboard?*"),
     ]);
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await initialLogsLoaded;
@@ -7126,6 +7137,7 @@ test.describe("Engineering Status browser smoke", () => {
         { line: 3, timestamp: "2026-08-07T10:02:00Z", level: "WARNING", event: "third_event", runId: "third-run", details: "third detail" },
       ];
       componentLogEntries.dashboard = [];
+      componentLogServerPaged = false;
       renderComponentLogs();
     });
 
@@ -8683,7 +8695,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(queue).not.toHaveAttribute("open", "");
     await expect(queue.locator("summary")).toContainText("Wachtrij voor uitvoeringen");
     await expect(queue.locator(".category-description")).toHaveText("Nieuwe opdrachten wachten op uitvoering in volgorde van aanmaakdatum.");
-    await queue.locator("summary").click();
+    await dispatchDashboardPointerClick(queue.locator("summary"));
     await expect(page.locator("#queueSummary")).toHaveText("0 uitvoeringen in de wachtrij.");
     await expect(page.locator("#queueList")).toContainText("Geen Inbox-uitvoeringen wachten op uitvoering.");
 
@@ -8777,7 +8789,7 @@ test.describe("Engineering Status browser smoke", () => {
       queue_items: [{ filename: "waiting.txt", title: "Waiting prompt" }],
     }, {}));
 
-    await page.getByTestId("engineering-inbox-queue").locator("summary").click();
+    await dispatchDashboardPointerClick(page.getByTestId("engineering-inbox-queue").locator("summary"));
     await expect(page.locator("#inboxBlocker")).toBeVisible();
     await expect(page.locator("#inboxBlocker")).toHaveText(
       "De Inbox wacht omdat de lokale Codex CLI niet kan starten. Herstel dit handmatig met: npm install -g @openai/codex@latest",
@@ -8804,7 +8816,7 @@ test.describe("Engineering Status browser smoke", () => {
       queue_items: [{ filename: "waiting.txt", title: "Waiting prompt" }],
     }, {}));
 
-    await page.getByTestId("engineering-inbox-queue").locator("summary").click();
+    await dispatchDashboardPointerClick(page.getByTestId("engineering-inbox-queue").locator("summary"));
     const blocker = page.locator("#inboxBlocker");
     await expect(blocker).toHaveClass(/queue-blocker--error/);
     await expect(blocker).toContainText("Execution Host mag alleen werk vanaf main claimen.");
