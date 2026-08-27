@@ -922,10 +922,8 @@ def _managed_autonomy_projection(root: Path, state: TransactionState, bundle: Te
         worktree_state=bundle.worktree_state.upper(), active_blocker="NONE" if state.phase == "COMPLETE" else "UNAVAILABLE",
         recovery_required="NO" if state.phase == "COMPLETE" else "UNAVAILABLE",
         retry_parent=lineage.get("retry_parent") if lineage else None,
-        # Resume reuses the canonical run ID. No separate resume parent is persisted
-        # by the existing lifecycle, so retain an explicit unavailable boundary.
-        resume_parent=None,
-        submission_id=str(submission["submission_id"]) if submission else None,
+        resume_parent=lineage.get("resume_parent") if lineage else None,
+        submission_id=str(lineage["submission_id"]) if lineage else None,
         lineage_available=lineage is not None,
         reviewer_records=reviewer_records,
     )
@@ -960,6 +958,9 @@ def _managed_autonomy_projection(root: Path, state: TransactionState, bundle: Te
         f"- Unexpected Manual Interventions: `{snapshot['unplanned_manual_intervention_count']}`",
         f"- Unknown Authority Actions: `{snapshot['unknown_authority_count']}`",
         f"- Required Validation State: `{snapshot['required_validation_state']}`",
+        f"- Selected Validation Tier: `{snapshot['validation_profile']['selected_validation_tier']}`",
+        f"- Validation Profile Version: `{snapshot['validation_profile']['validation_profile_version']}`",
+        f"- Required Validation Controls: `{', '.join(snapshot['validation_profile']['required_validation_controls']) or 'UNAVAILABLE'}`",
         f"- Qualification Reasons: `{', '.join(snapshot['qualification_failure_reasons']) or 'none'}`",
         "",
     )

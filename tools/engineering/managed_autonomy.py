@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import Iterable
 
-from .storage import EngineeringStorageError, open_storage
+from .storage import EngineeringStorageError, load_required_validation_state, open_storage
 
 AUTHORITIES = frozenset(
     {
@@ -252,14 +252,10 @@ def terminal_snapshot(
         connection.close()
     validation, conflict = _current(rows)
     pr_checks, pr_check_conflict = _current_pr_checks(pr_rows)
-    required = {str(row[0]) for row in rows if int(row[2])}
-    required_state = (
-        "PASS"
-        if required
-        and not conflict
-        and all(validation.get(x) in {"PASS", "NOT_APPLICABLE"} for x in required)
-        else "UNAVAILABLE"
-    )
+    profile_validation = load_required_validation_state(root, run_id)
+    # New runs use the versioned profile. Legacy generic observations remain
+    # deliberately unresolved rather than receiving a retrospective PASS.
+    required_state = profile_validation["required_validation_state"] if profile_validation else "UNRESOLVED"
     authorities = [str(row[1]) for row in actions]
     snapshot = {
         "run_id": run_id,
@@ -278,6 +274,7 @@ def terminal_snapshot(
         "actions": [{"action": row[0], "authority": row[1]} for row in actions],
         "validation_current": validation,
         "required_validation_state": required_state,
+        "validation_profile": profile_validation or {"selected_validation_tier": "UNAVAILABLE", "validation_profile_version": "UNAVAILABLE", "required_validation_controls": []},
         "validation_projection_conflict": conflict,
         "pr_checks": pr_checks,
         "pr_check_projection_conflict": pr_check_conflict,

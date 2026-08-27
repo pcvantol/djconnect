@@ -11,6 +11,7 @@ from tools.engineering.managed_autonomy import (
     record_gate,
     terminal_snapshot,
 )
+from tools.engineering.storage import record_validation_control, record_validation_profile
 
 
 class ManagedAutonomyEvidenceTest(unittest.TestCase):
@@ -48,6 +49,10 @@ class ManagedAutonomyEvidenceTest(unittest.TestCase):
         append_validation_observation(
             root, run_id=run, control="git_diff_check", state="PASS", required=True, currentness=2
         )
+        record_validation_profile(root, run_id=run, tier="DOCUMENTATION", profile_version=1,
+            required_controls=("documentation_contract",), selected_at="2026-08-27T00:00:00+00:00")
+        record_validation_control(root, run_id=run, validation_id="documentation_contract", required_for_profile=True,
+            execution_status="EXECUTED", result="PASS", currentness=2, observed_at="2026-08-27T00:00:00+00:00", evidence_ref="test")
         for role, pr in (("IMPLEMENTATION", 101), ("FINALIZATION", 102)):
             append_pr_check_observation(
                 root, run_id=run, pr_number=pr, pr_role=role, pr_state="MERGED",

@@ -57,7 +57,7 @@ from .dependabot_admission import (
     publish_envelope as publish_dependabot_envelope,
     record_enqueued as record_dependabot_enqueued,
 )
-from .storage import ENGINEERING_STORAGE_SCHEMA_VERSION, EngineeringStorageError, dismissal_for_run, is_active_blocking_predecessor, load_projection, open_storage, record_admission_decision, record_artifact, record_execution_dismissal, record_submission, store_projection
+from .storage import ENGINEERING_STORAGE_SCHEMA_VERSION, EngineeringStorageError, dismissal_for_run, is_active_blocking_predecessor, load_projection, open_storage, record_admission_decision, record_artifact, record_execution_dismissal, record_run_qualification_lineage, record_submission, store_projection
 from .execution_lease import reconcile_stale
 from .dashboard_configuration import get as dashboard_configuration
 from .execution_repository import GhCliClient, SubprocessRepositoryClient
@@ -1832,6 +1832,22 @@ def once(repo: Path, root: Path, interval: float = 1.0, *, background: bool = Fa
             status(repo, "JOB_FAILED", queued_jobs=len(candidates), queue_items=_queue_items(candidates), diagnostic="De canonieke Execution Host-opslag is niet beschikbaar.")
             log_event(logger, logging.ERROR, "submission_persist_failed", run_id=run_id, diagnostic=str(error))
             return 1
+        # This is deliberately before every deterministic admission check and
+        # therefore before any provider-backed work.  A later terminal report
+        # reads this immutable record rather than inferring freshness.
+        try:
+            lineage = retry_metadata(content)
+            record_run_qualification_lineage(
+                repo, run_id=run_id, submission_id=submission_id,
+                retry_parent_run_id=lineage["retry_of"] if isinstance(lineage["retry_of"], str) else None,
+                observed_at=eligible_at.isoformat(),
+            )
+        except EngineeringStorageError as error:
+            # A schema activation is deliberately post-merge. Until an
+            # existing shared store is activated, preserve the legacy run
+            # path but do not let it qualify as fresh: its projection remains
+            # EVIDENCE_INSUFFICIENT because no lineage record exists.
+            log_event(logger, logging.WARNING, "submission_lineage_deferred", run_id=run_id, diagnostic=str(error))
         host_preflight_phase = start_phase(repo, run_id, "HOST_PREFLIGHT", category="ADMISSION")
         try:
             preflight = execute_host_preflight(repo, run_id=run_id)

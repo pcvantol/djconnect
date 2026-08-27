@@ -72,7 +72,7 @@ from .execution_context import (
     target_repository_authorization as context_target_repository_authorization,
 )
 from .execution_models import AgentResult, PullRequestEvidence, RepositoryEvidence
-from .validation_profile import ValidationProfile, changed_paths, classify
+from .validation_profile import PROFILE_VERSION, ValidationProfile, changed_paths, classify
 from .reviewer_evidence import ReviewerEvidence
 from .investigation_ledger import InvocationInvestigationLedger
 from .execution_errors import CodexHandoffTimeout, CodexInvocationError, RunnerError
@@ -104,6 +104,7 @@ from .managed_autonomy import (
     append_validation_observation as record_managed_validation,
     record_gate as record_managed_gate,
 )
+from .storage import record_validation_control, record_validation_profile
 
 
 LOGGER = logging.getLogger(__name__)
@@ -552,6 +553,30 @@ class EngineeringRunner:
                 LOGGER.warning("Managed validation evidence is unavailable for run %s", state.run_id)
         return replace(state, validation_evidence=result.validation_evidence)
 
+    def _record_required_validation_profile(self, state: TransactionState, profile: ValidationProfile) -> None:
+        """Persist the exact mandatory set before local validation provider work."""
+        try:
+            record_validation_profile(self.root, run_id=state.run_id, tier=profile.tier,
+                profile_version=PROFILE_VERSION, required_controls=profile.required_controls,
+                selected_at=datetime.now(timezone.utc).isoformat())
+        except EngineeringStorageError:
+            LOGGER.warning("Required validation profile is unavailable for run %s", state.run_id)
+
+    def _record_required_validation_result(self, state: TransactionState, result: AgentResult, profile: ValidationProfile) -> None:
+        evidence = tuple(result.validation_evidence or ())
+        text = " ".join(f"{item.get('command', '')} {item.get('result', '')}".casefold() for item in evidence)
+        for control in profile.required_controls:
+            matched = control.split("_")[0] in text or (control == "repository_suite" and "unittest" in text)
+            status = "NOT_EXECUTED" if not matched else "EXECUTED"
+            outcome = "UNRESOLVED" if not matched else ("FAIL" if any(token in text for token in ("fail", "error", "blocked")) else "PASS")
+            try:
+                record_validation_control(self.root, run_id=state.run_id, validation_id=control,
+                    required_for_profile=True, execution_status=status, result=outcome,
+                    currentness=state.local_validation_iterations, observed_at=datetime.now(timezone.utc).isoformat(),
+                    evidence_ref="agent_validation")
+            except EngineeringStorageError:
+                LOGGER.warning("Required validation evidence is unavailable for run %s", state.run_id)
+
     def _managed_action(self, state: TransactionState, action: str, authority: str = "AUTONOMOUS_EP_ACTION", *, actor: str = "execution_host", evidence_ref: str = "runtime") -> None:
         """Best-effort evidence instrumentation; it never changes lifecycle outcome."""
         try:
@@ -802,6 +827,7 @@ class EngineeringRunner:
             except OSError:
                 profile = classify(())
             validation = replace(validation, local_validation_iterations=iteration)
+            self._record_required_validation_profile(validation, profile)
             self.store.save(validation)
             write_live_status(self.root, validation, validation.next_action)
             instruction = f"""
@@ -822,6 +848,7 @@ Local repository validation gate — iteration {iteration} of {MAX_LOCAL_REPOSIT
                 )
                 validation = self._record_agent_execution_time(validation)
                 validation = self._record_validation_evidence(validation, result)
+                self._record_required_validation_result(validation, result, profile)
                 validation = self._record_verified_result_commit(
                     validation,
                     result,

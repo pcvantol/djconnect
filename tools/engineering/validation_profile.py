@@ -9,12 +9,26 @@ DOCUMENTATION_PREFIXES = ("docs/",)
 DASHBOARD_PREFIXES = ("tools/engineering/assets/",)
 DASHBOARD_FILES = {"tools/engineering/dashboard.py", "tests/engineering/dashboard.spec.mjs", "package.json", "package-lock.json"}
 RUNTIME_PREFIXES = ("tools/engineering/", "tests/engineering/", ".github/workflows/")
+PROFILE_VERSION = 1
+
+# Stable identities are qualification evidence, not rendered command strings.
+# The commands remain a concise operator-facing projection of these controls.
+REQUIRED_CONTROLS = {
+    "DOCUMENTATION": ("documentation_contract",),
+    "DASHBOARD": ("engineering_python", "engineering_dashboard"),
+    "RUNTIME": ("engineering_python",),
+    "FULL": ("repository_suite",),
+}
 
 @dataclass(frozen=True)
 class ValidationProfile:
     tier: str
     paths: tuple[str, ...]
     commands: tuple[str, ...]
+
+    @property
+    def required_controls(self) -> tuple[str, ...]:
+        return REQUIRED_CONTROLS[self.tier]
 
 def classify(paths: list[str] | tuple[str, ...]) -> ValidationProfile:
     items = tuple(sorted({path.strip() for path in paths if path.strip()}))
