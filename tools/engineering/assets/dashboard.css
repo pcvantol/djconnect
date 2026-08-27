@@ -1174,6 +1174,10 @@ html[data-theme="light"] #componentLogControls :is(input[type="date"],input[type
 html[data-theme="light"] #componentLogControls :is(input[type="date"],input[type="datetime-local"])::-webkit-datetime-edit-minute-field{
   color:#182230!important;
 }
+
+/* The desktop filter grid gives labels an explicit display value. Keep the
+   conditional date controls truly absent until their selected preset needs them. */
+#componentLogControls>label[hidden]{display:none!important}
 /* Controls whose visible shape is a pseudo-element or a native checkbox have
    no normal border to recolour, so receive the same one-pixel edge directly. */
 :is(.dashboard-titlebar .theme-toggle,.dashboard-titlebar .section-state-toggle):is(:focus,:focus-visible)::before,

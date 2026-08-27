@@ -7424,6 +7424,23 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#logDateTo")).toHaveCSS("color", "rgb(247, 243, 238)");
   });
 
+  test("shows only the date controls required by the selected log time window on desktop", async ({ page }) => {
+    await page.setViewportSize({ width: 1600, height: 900 });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#componentLogs").evaluate((element) => { element.open = true; });
+    await page.locator("#componentLogControls").evaluate((element) => { element.hidden = false; });
+
+    await page.locator("#logTimePreset").selectOption("day");
+    await expect(page.locator("#logSpecificDateControl")).toBeVisible();
+    await expect(page.locator("#logDateFromControl")).toBeHidden();
+    await expect(page.locator("#logDateToControl")).toBeHidden();
+
+    await page.locator("#logTimePreset").selectOption("range");
+    await expect(page.locator("#logSpecificDateControl")).toBeHidden();
+    await expect(page.locator("#logDateFromControl")).toBeVisible();
+    await expect(page.locator("#logDateToControl")).toBeVisible();
+  });
+
   test("keeps title-bar switch focus on the compact track", () => {
     const stylesheet = readFileSync(path.join(repository, "tools/engineering/assets/dashboard.css"), "utf8");
     expect(stylesheet).toContain(".execution-lifecycle__node,.theme-toggle,.section-state-toggle,.auto-refresh-toggle");
