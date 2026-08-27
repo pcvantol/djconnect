@@ -2365,7 +2365,7 @@ async function requestOpenPullRequestCheckRepair(button) {
     t("workspace.open_pull_request.repair_failed_checks"),
     t("workspace.open_pull_request.repair_failed_checks_confirmation"),
     t("workspace.open_pull_request.repair_failed_checks"),
-    { destructive: true },
+    { accent: "#f3d36a", variant: "check-repair" },
   );
   if (!confirmed) return;
   button.disabled = true;
@@ -7271,12 +7271,14 @@ function confirmDashboardAction(title, text, confirmLabel, { destructive = false
   confirm.classList.toggle("dashboard-modal-shell__action--destructive", destructive);
   modal.classList.toggle("dashboard-modal-shell--destructive", destructive);
   modal.classList.toggle("dashboard-modal-shell--owner-authorization", variant === "owner-authorization");
+  modal.classList.toggle("dashboard-modal-shell--check-repair", variant === "check-repair");
   modal.style.setProperty("--modal-accent", accent || (destructive ? "#ff718f" : "#f0b66a"));
   return new Promise((resolve) => {
     const finish = (value) => {
       modal.close();
       modal.classList.remove("dashboard-modal-shell--destructive");
       modal.classList.remove("dashboard-modal-shell--owner-authorization");
+      modal.classList.remove("dashboard-modal-shell--check-repair");
       confirm.classList.add("dashboard-modal-shell__action--primary");
       confirm.classList.remove("dashboard-modal-shell__action--destructive");
       confirm.disabled = false;

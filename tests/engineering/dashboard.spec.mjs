@@ -1407,10 +1407,11 @@ test.describe("Engineering Status browser smoke", () => {
     });
     const repair = page.locator("[data-open-pull-request-check-repair='941']");
     await expect(repair).toHaveText(DASHBOARD_MESSAGES.nl["workspace.open_pull_request.repair_failed_checks"]);
-    await expect(repair).toHaveCSS("border-top-color", "rgb(98, 199, 225)");
+    await expect(repair).toHaveCSS("border-top-color", "rgb(243, 211, 106)");
     await repair.click();
     await expect(page.locator("#confirmationModal")).toBeVisible();
-    await expect(page.locator("#confirmationModal")).toHaveClass(/dashboard-modal-shell--destructive/);
+    await expect(page.locator("#confirmationModal")).toHaveClass(/dashboard-modal-shell--check-repair/);
+    await expect(page.locator("#confirmationModal")).not.toHaveClass(/dashboard-modal-shell--destructive/);
     expect(dispatched).toBeNull();
     await page.locator("#confirmationModalConfirm").click();
     await expect.poll(() => dispatched).toEqual({ method: "POST", body: "{}" });
