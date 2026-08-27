@@ -9088,4 +9088,20 @@ test.describe("Engineering Status browser smoke", () => {
     expect(bounds.left).toBeGreaterThanOrEqual(0);
     expect(bounds.right).toBeLessThanOrEqual(bounds.viewportWidth);
   });
+
+  test("keeps the compact titlebar health tooltip above dashboard content", async ({ page }) => {
+    await page.setViewportSize({ width: 1136, height: 768 });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    const indicator = page.getByTestId("dashboard-health-indicator");
+    await indicator.hover();
+    const visible = await page.locator("#dashboardHealthTooltip").evaluate((element) => {
+      const rect = element.getBoundingClientRect();
+      const top = document.elementsFromPoint(
+        rect.left + Math.min(24, rect.width / 2),
+        rect.top + Math.min(24, rect.height / 2),
+      )[0];
+      return { visible: top === element || element.contains(top), top: top?.id || top?.className };
+    });
+    expect(visible.visible, JSON.stringify(visible)).toBe(true);
+  });
 });

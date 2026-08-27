@@ -1093,3 +1093,8 @@ html[data-theme="light"] .prompt-detail-modal__content .execution-lifecycle--his
   .dashboard-health{position:static}
   .dashboard-health__tooltip{box-sizing:border-box;left:14px;min-width:0;right:14px;width:auto}
 }
+
+/* The sticky titlebar disables hit testing by default. The health popover is
+   deliberately interactive so its hover state survives moving from the dot
+   into the status text. */
+.dashboard-health,.dashboard-health__tooltip{pointer-events:auto}
