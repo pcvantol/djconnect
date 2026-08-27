@@ -3153,30 +3153,35 @@ Object.assign(DASHBOARD_MESSAGES.en, {
   "state.LOCAL_REPOSITORY_VALIDATION": "Local repository validation",
   "lifecycle.step.local_repository_validation": "Local repository validation",
   "state.local_validation_attempt_limit_reached": "Local repository validation did not pass after three attempts",
+  "state.validation_infrastructure_recovery_required": "Validation environment is unstable; create a separate recovery item",
   "lifecycle.detail_local_validation_evidence": "Local validation iterations",
 });
 Object.assign(DASHBOARD_MESSAGES.nl, {
   "state.LOCAL_REPOSITORY_VALIDATION": "Lokale repositoryvalidatie",
   "lifecycle.step.local_repository_validation": "Lokale repositoryvalidatie",
   "state.local_validation_attempt_limit_reached": "Lokale repositoryvalidatie is na drie pogingen niet geslaagd",
+  "state.validation_infrastructure_recovery_required": "Validatieomgeving is instabiel; maak een afzonderlijk herstelitem",
   "lifecycle.detail_local_validation_evidence": "Lokale validatie-iteraties",
 });
 Object.assign(DASHBOARD_MESSAGES.de, {
   "state.LOCAL_REPOSITORY_VALIDATION": "Lokale Repositoryvalidierung",
   "lifecycle.step.local_repository_validation": "Lokale Repositoryvalidierung",
   "state.local_validation_attempt_limit_reached": "Lokale Repositoryvalidierung ist nach drei Versuchen nicht erfolgreich",
+  "state.validation_infrastructure_recovery_required": "Die Validierungsumgebung ist instabil; erstellen Sie ein separates Wiederherstellungselement",
   "lifecycle.detail_local_validation_evidence": "Lokale Validierungsiterationen",
 });
 Object.assign(DASHBOARD_MESSAGES.fr, {
   "state.LOCAL_REPOSITORY_VALIDATION": "Validation locale du dépôt",
   "lifecycle.step.local_repository_validation": "Validation locale du dépôt",
   "state.local_validation_attempt_limit_reached": "La validation locale du dépôt a échoué après trois tentatives",
+  "state.validation_infrastructure_recovery_required": "L’environnement de validation est instable ; créez un élément de récupération distinct",
   "lifecycle.detail_local_validation_evidence": "Itérations de validation locale",
 });
 Object.assign(DASHBOARD_MESSAGES.es, {
   "state.LOCAL_REPOSITORY_VALIDATION": "Validación local del repositorio",
   "lifecycle.step.local_repository_validation": "Validación local del repositorio",
   "state.local_validation_attempt_limit_reached": "La validación local del repositorio no superó tres intentos",
+  "state.validation_infrastructure_recovery_required": "El entorno de validación es inestable; cree un elemento de recuperación independiente",
   "lifecycle.detail_local_validation_evidence": "Iteraciones de validación local",
 });
 
