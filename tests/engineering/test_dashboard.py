@@ -753,6 +753,36 @@ class DashboardStatusTest(unittest.TestCase):
             "pull_request": {"number": 969, "url": "https://github.com/pcvantol/djconnect/pull/969", "state": "OPEN"},
         }]})
 
+    @patch("tools.engineering.dashboard._github_pull_request_for_detached_commit", return_value=None)
+    @patch("tools.engineering.dashboard.PlatformConfiguration.load")
+    @patch("tools.engineering.dashboard.GitHubProvider")
+    @patch("tools.engineering.dashboard.GitProvider")
+    def test_worktree_removal_analysis_accepts_a_clean_detached_commit_already_in_main(
+        self, git_provider: object, github_provider: object, configuration: object, _: object
+    ) -> None:
+        root = Path("/repository")
+        configuration.return_value.workspace.default_branch = "main"
+        completed = __import__("subprocess").CompletedProcess
+        git_provider.return_value.execute.side_effect = [
+            completed(("git",), 0, "", ""),
+            completed(("git",), 0, "main\n", ""),
+            completed(("git",), 0, "", ""),
+            completed(("git",), 0, "0\t0\n", ""),
+            completed(("git",), 0, "\n".join((
+                "worktree /repository", "HEAD main-head", "branch refs/heads/main", "",
+                "worktree /worktrees/detached", "HEAD a0496fea7ef1", "detached", "",
+            )), ""),
+            completed(("git",), 0, "git@github.com:pcvantol/djconnect.git\n", ""),
+            completed(("git",), 0, "", ""),
+            completed(("git",), 0, "", ""),
+        ]
+        github_provider.return_value.github.return_value = "[]"
+
+        self.assertEqual(
+            dashboard._safe_worktree_removal_candidates(root),
+            [{"path": "/worktrees/detached", "head": "a0496fea7ef1"}],
+        )
+
     @patch("tools.engineering.dashboard.PlatformConfiguration.load")
     @patch("tools.engineering.dashboard.GitHubProvider")
     @patch("tools.engineering.dashboard.GitProvider")
