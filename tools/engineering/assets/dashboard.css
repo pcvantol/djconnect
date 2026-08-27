@@ -1105,3 +1105,18 @@ html[data-theme="light"] .prompt-detail-modal__content .execution-lifecycle--his
 .dashboard-health{isolation:isolate;pointer-events:auto;z-index:3}
 .dashboard-health:is(:hover,:focus-within),.dashboard-health.dashboard-health--open{z-index:4}
 .dashboard-health__tooltip{pointer-events:auto;z-index:1}
+
+/* Platform status is an explicit disclosure.  In compact layouts it occupies
+   the same titlebar flow as Options, so dashboard cards can never cover it. */
+.dashboard-health__tooltip{display:none}
+.dashboard-health.dashboard-health--open + .dashboard-health__tooltip{display:block}
+@media (max-width:1240px){
+  .dashboard-titlebar__actions{grid-template-columns:36px 32px minmax(0,1fr);justify-content:stretch}
+  .dashboard-titlebar__actions>.dashboard-health{grid-column:1;grid-row:1}
+  .dashboard-titlebar__actions>.page-refresh{grid-column:2;grid-row:1}
+  .dashboard-titlebar__actions>.dashboard-titlebar__options-toggle{grid-column:3;grid-row:1}
+  .dashboard-titlebar__options-toggle{min-width:0;width:100%}
+  .dashboard-titlebar__actions>.dashboard-health__tooltip{box-sizing:border-box;grid-column:1 / -1;grid-row:2;max-width:100%;min-width:0;position:static;width:auto}
+  .dashboard-health__tooltip li,.dashboard-health__tooltip li span{min-width:0;overflow-wrap:anywhere}
+  .dashboard-health.dashboard-health--open~.dashboard-titlebar__options .dashboard-titlebar__options-content{grid-row:3}
+}

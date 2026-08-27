@@ -9102,7 +9102,9 @@ test.describe("Engineering Status browser smoke", () => {
     });
     const indicator = page.getByTestId("dashboard-health-indicator");
     await expect(indicator).toHaveAttribute("data-health-state", "ready");
-    await indicator.hover();
+    await expect(page.locator("#dashboardHealthTooltip")).toBeHidden();
+    await indicator.click();
+    await expect(indicator).toHaveAttribute("aria-expanded", "true");
     await expect(page.locator("#dashboardHealthTooltip")).toContainText("Inbox-watcher");
     await expect(page.locator("#dashboardHealthTooltip")).toContainText("Geen uitvoering actief");
     await expect(page.locator("#dashboardHealthTooltip")).toContainText("Werkruimte gereed");
@@ -9120,7 +9122,7 @@ test.describe("Engineering Status browser smoke", () => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.waitForFunction(() => document.body.classList.contains("dashboard-ready"));
     const indicator = page.getByTestId("dashboard-health-indicator");
-    await indicator.hover();
+    await indicator.click();
     const bounds = await page.locator("#dashboardHealthTooltip").evaluate((element) => {
       const rect = element.getBoundingClientRect();
       return { left: rect.left, right: rect.right, viewportWidth: window.innerWidth };
@@ -9133,7 +9135,7 @@ test.describe("Engineering Status browser smoke", () => {
     await page.setViewportSize({ width: 1136, height: 768 });
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     const indicator = page.getByTestId("dashboard-health-indicator");
-    await indicator.hover();
+    await indicator.click();
     const visible = await page.locator("#dashboardHealthTooltip").evaluate((element) => {
       const rect = element.getBoundingClientRect();
       const top = document.elementsFromPoint(
@@ -9150,7 +9152,7 @@ test.describe("Engineering Status browser smoke", () => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     const indicator = page.getByTestId("dashboard-health-indicator");
     const tooltip = page.locator("#dashboardHealthTooltip");
-    await indicator.hover();
+    await indicator.click();
     await expect(tooltip).toBeVisible();
     await tooltip.hover();
     await expect(tooltip).toBeVisible();

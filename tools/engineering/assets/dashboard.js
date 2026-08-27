@@ -4543,8 +4543,8 @@ $("dashboardHealthIndicator")?.addEventListener("click", () => {
   indicator.setAttribute("aria-expanded", String(!expanded));
 });
 document.addEventListener("click", (event) => {
-  const health = $("dashboardHealth"), indicator = $("dashboardHealthIndicator");
-  if (!health || !indicator || health.contains(event.target)) return;
+  const health = $("dashboardHealth"), indicator = $("dashboardHealthIndicator"), tooltip = $("dashboardHealthTooltip");
+  if (!health || !indicator || health.contains(event.target) || tooltip?.contains(event.target)) return;
   health.classList.remove("dashboard-health--open");
   indicator.setAttribute("aria-expanded", "false");
 });
