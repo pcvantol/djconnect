@@ -7884,6 +7884,11 @@ for (const binding of [
     (value) => (componentLogsLoaded = value),
   ],
   ["componentLogEntries", () => componentLogEntries],
+  [
+    "componentLogServerPaged",
+    () => componentLogServerPaged,
+    (value) => (componentLogServerPaged = Boolean(value)),
+  ],
   ["independentLogPageStates", () => independentLogPageStates],
   [
     "promptHistoryEntries",

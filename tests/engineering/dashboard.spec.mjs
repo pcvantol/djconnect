@@ -5648,7 +5648,13 @@ test.describe("Engineering Status browser smoke", () => {
     const historyLoaded = page.waitForResponse("**/api/prompt-history");
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await historyLoaded;
-    await page.locator("#autoRefresh").uncheck();
+    // In compact landscape this control intentionally lives in the closed
+    // Options disclosure. Disable refresh without changing that layout.
+    await page.evaluate(() => {
+      const control = document.querySelector("#autoRefresh");
+      control.checked = false;
+      control.dispatchEvent(new Event("change", { bubbles: true }));
+    });
     await page.evaluate(() => {
       document.querySelector("#promptHistory").open = true;
       promptHistoryEntries = [{
@@ -6964,6 +6970,7 @@ test.describe("Engineering Status browser smoke", () => {
 
   test("uses light glyphs for dark prompt-history report actions", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.mouse.move(0, 0);
     await page.evaluate(() => {
       document.querySelector("#promptHistoryReportModal").showModal();
       document.querySelector("#promptHistoryReportCopy").hidden = false;
@@ -7926,6 +7933,9 @@ test.describe("Engineering Status browser smoke", () => {
     await page.waitForTimeout(350);
     await page.evaluate(() => {
       refreshComponentLogs = async () => {};
+      // This fixture exercises the resilient local fallback. Production uses
+      // server pagination, so an API page is never sliced again by the client.
+      componentLogServerPaged = false;
       componentLogEntries.inbox = Array.from({ length: 51 }, (_, index) => ({
         line: index + 1,
         timestamp: `2026-08-02T00:${String(index).padStart(2, "0")}:00Z`,
