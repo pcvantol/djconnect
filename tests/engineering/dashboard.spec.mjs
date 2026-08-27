@@ -1804,7 +1804,7 @@ test.describe("Engineering Status browser smoke", () => {
     // Visible words must come from t(). The remaining literals are deliberate
     // control glyphs, empty cleanup values, or the neutral empty-table mark.
     expect(new Set(staticPresentationLiterals)).toEqual(new Set([
-      "", "⧉", "↓", "↑", "i", "↺", "↻", "⌧", "▤", "✓", "✦", "⋯", "—", "⌄",
+      "", "⧉", "↓", "↑", "i", "↺", "↻", "⌧", "▤", "✓", "✦", "◉", "⋯", "—", "⌄",
     ]));
     expect(dashboardSource).not.toMatch(/confirmDashboardAction\(\s*["']/);
     // Dashboard feedback must remain inside the shared modal system.  A
@@ -4893,6 +4893,9 @@ test.describe("Engineering Status browser smoke", () => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.route("**/api/events", (route) => route.abort());
     await page.route("**/api/log/**", (route) => route.abort());
+    await page.route("**/health", (route) => route.fulfill({ json: { components: {
+      dashboard: { healthy: true }, inbox_watcher: { healthy: true }, dashboard_relay: { healthy: true },
+    } } }));
     // This visual reference is for the running-execution surface. Keep the
     // machine-specific provider checks out of the fixture; their banners have
     // dedicated behavioural coverage elsewhere in this suite.
@@ -8856,6 +8859,9 @@ test.describe("Engineering Status browser smoke", () => {
   });
 
   test("shows live platform readiness in the titlebar health indicator", async ({ page }) => {
+    await page.route("**/health", (route) => route.fulfill({ json: { components: {
+      dashboard: { healthy: true }, inbox_watcher: { healthy: true }, dashboard_relay: { healthy: true },
+    } } }));
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.waitForFunction(() => document.body.classList.contains("dashboard-ready"));
     await page.locator("#autoRefresh").uncheck();

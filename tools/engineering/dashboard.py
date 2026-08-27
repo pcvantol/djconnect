@@ -2013,8 +2013,8 @@ def _open_worktree_in_finder(root: Path, worktree_path: str) -> dict[str, str]:
     return {"opened_worktree": str(requested)}
 
 
-def _approved_local_directories(root: Path) -> set[Path]:
-    """Return the current, locally derived directories Finder may open."""
+def _approved_local_directories(root: Path) -> dict[str, Path]:
+    """Map current, locally derived directory labels to Finder-safe paths."""
     candidates = {
         root,
         root / ".engineering",
@@ -2033,14 +2033,17 @@ def _approved_local_directories(root: Path) -> set[Path]:
         )
     except OSError:
         pass
-    approved: set[Path] = set()
+    approved: dict[str, Path] = {}
     for candidate in candidates:
         try:
             resolved = candidate.resolve(strict=True)
         except OSError:
             continue
         if resolved.is_dir():
-            approved.add(resolved)
+            # Retain both server-derived spellings. macOS commonly exposes
+            # ``/tmp`` while canonical resolution yields ``/private/tmp``.
+            approved[str(candidate)] = resolved
+            approved[str(resolved)] = resolved
     return approved
 
 
@@ -2048,11 +2051,11 @@ def _open_local_directory_in_finder(root: Path, directory_path: str) -> dict[str
     """Open one current, server-approved local directory in macOS Finder."""
     if sys.platform != "darwin" or not isinstance(directory_path, str) or not directory_path:
         raise RuntimeError("De lokale map kan niet veilig worden geopend.")
-    try:
-        requested = Path(directory_path).resolve(strict=True)
-    except OSError as error:
-        raise RuntimeError("De lokale map kan niet veilig worden geopend.") from error
-    if requested not in _approved_local_directories(root):
+    # Treat the HTTP value only as a selector.  The filesystem path passed to
+    # Finder is derived from the server-approved projection, never parsed from
+    # the request.
+    requested = _approved_local_directories(root).get(directory_path)
+    if requested is None:
         raise RuntimeError("De geselecteerde map is niet beschikbaar in dit dashboard.")
     try:
         outcome = LocalProcessProvider().execute(root, ("open", str(requested)))
