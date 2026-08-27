@@ -1569,6 +1569,10 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#confirmationModal")).toBeVisible();
     await expect(page.locator("#confirmationModal")).toHaveClass(/dashboard-modal-shell--check-repair/);
     await expect(page.locator("#confirmationModal")).not.toHaveClass(/dashboard-modal-shell--destructive/);
+    await expect(page.locator(".confirmation-modal__list-label")).toHaveText(
+      DASHBOARD_MESSAGES.nl["workspace.open_pull_request.repair_failed_checks_list"],
+    );
+    await expect(page.locator(".confirmation-modal__list li")).toHaveCount(2);
     await expect(page.locator(".confirmation-modal__list")).toContainText("Engineering Platform validation / validate");
     await expect(page.locator(".confirmation-modal__list")).toContainText("Validate Home Assistant custom integration / validate / tests");
     expect(dispatched).toBeNull();

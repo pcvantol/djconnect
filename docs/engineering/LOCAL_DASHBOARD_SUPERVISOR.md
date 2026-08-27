@@ -258,6 +258,14 @@ status update. With automatic refresh disabled, the visible state remains
 static until the maintainer refreshes or re-enables it. These are presentation
 preferences; they never alter an Engineering run or its evidence.
 
+The title-bar platform-status dot is a separate, read-only disclosure rather
+than a hover-only hint. A click exposes the live Dashboard, Inbox-watcher,
+execution, queue, watcher and workspace checks. On desktop its popout is
+anchored directly below the dot; on compact widths it opens in the title-bar
+flow before the Options panel, so it cannot fall outside the viewport or behind
+the dashboard content. The dot colour is derived from the same current status
+snapshot as those rows, never from a stale diagnostic projection.
+
 On iPhone, the theme, section-expansion and automatic-refresh switches are
 separate direct-touch controls. Each control has `touch-action: manipulation`
 and persists only its own browser-local setting. Playwright covers them with
@@ -488,6 +496,12 @@ The dashboard suite also covers the managed PR hand-off semantics: a failed
 required PR check leaves Merge blocked without a completion checkmark and
 renders the localized “Fix pull request checks” current action. This guards
 against presenting a reached PR wait as an already completed merge.
+
+The same suite covers the human-PR one-shot repair boundary: its confirmation
+lists the exact terminal failed checks, an admitted repair remains observable
+with a checks link, and a completed one-shot repair stays visibly disabled for
+the repaired head. It also exercises the title-bar status disclosure in desktop
+and compact layouts, including its stacking order beside the Options panel.
 
 At an operator merge hand-off, **Check pull request status** performs an
 immediate read-only GitHub check. Continuation is scheduled only after the PR
