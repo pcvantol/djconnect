@@ -4246,14 +4246,18 @@ function filteredComponentLogEntries(component) {
     });
 }
 function visibleComponentLogEntries(component) {
-  const rows = filteredComponentLogEntries(component),
-    pageCount = Math.max(1, Math.ceil(rows.length / LOG_PAGE_SIZE)),
+  const rows = filteredComponentLogEntries(component);
+  // A server response contains just one page.  Do not derive the page count
+  // from that response: doing so turns every requested page after page one
+  // back into page one before it can be rendered.
+  if (componentLogServerPaged) return rows;
+  const pageCount = Math.max(1, Math.ceil(rows.length / LOG_PAGE_SIZE)),
     page = Math.min(
       Math.max(1, independentLogPageStates[component]),
       pageCount,
     );
   independentLogPageStates[component] = page;
-  return componentLogServerPaged ? rows : rows.slice((page - 1) * LOG_PAGE_SIZE, page * LOG_PAGE_SIZE);
+  return rows.slice((page - 1) * LOG_PAGE_SIZE, page * LOG_PAGE_SIZE);
 }
 function updateLogValueFilters() {
   const entries = componentLogServerPaged
