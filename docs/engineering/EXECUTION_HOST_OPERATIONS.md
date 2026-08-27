@@ -225,9 +225,11 @@ yellow actions are deliberately separate from terminal-status colours:
   worktree safe, and always opens the shared destructive confirmation modal.
   Before removing anything, the server repeats the complete fail-closed check:
   the dashboard's `main` worktree is clean and synchronized, the selected
-  worktree is clean, its remote branch is absent, its content exactly matches
-  `main`, and the linked GitHub pull request is explicitly `MERGED` or
-  `CLOSED`. A failed or incomplete check removes nothing. The action removes
+  worktree is clean, and its remote branch is absent. Its work must either
+  exactly match `main`, or be the exact preserved head of a GitHub `MERGED`
+  pull request whose recorded merge commit is reachable from `main`; the
+  latter is the safe squash-merge path. A closed-but-unmerged pull request
+  never qualifies through that exception. A failed or incomplete check removes nothing. The action removes
   only the worktree; the now-unchecked-out branch remains for the existing
   reviewed stale-branch cleanup action.
 - **Open pull requests** appears as a compact Workspace subblock only when

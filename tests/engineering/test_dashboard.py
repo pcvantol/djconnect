@@ -582,6 +582,41 @@ class DashboardStatusTest(unittest.TestCase):
             [{"path": "/worktrees/stale", "branch": "codex/stale"}],
         )
 
+    @patch("tools.engineering.dashboard.PlatformConfiguration.load")
+    @patch("tools.engineering.dashboard.GitHubProvider")
+    @patch("tools.engineering.dashboard.GitProvider")
+    def test_worktree_removal_analysis_accepts_a_verified_squash_merged_head(
+        self, git_provider: object, github_provider: object, configuration: object
+    ) -> None:
+        root = Path("/repository")
+        configuration.return_value.workspace.default_branch = "main"
+        completed = __import__("subprocess").CompletedProcess
+        git_provider.return_value.execute.side_effect = [
+            completed(("git",), 0, "", ""),
+            completed(("git",), 0, "main\n", ""),
+            completed(("git",), 0, "", ""),
+            completed(("git",), 0, "0\t0\n", ""),
+            completed(("git",), 0, "\n".join((
+                "worktree /repository", "HEAD main-head", "branch refs/heads/main", "",
+                "worktree /worktrees/squash", "HEAD source-head", "branch refs/heads/codex/squash", "",
+            )), ""),
+            completed(("git",), 0, "git@github.com:pcvantol/djconnect.git\n", ""),
+            completed(("git",), 0, "", ""),
+            completed(("git",), 1, "", ""),
+            completed(("git",), 1, "", ""),
+            completed(("git",), 0, "", ""),
+        ]
+        github_provider.return_value.github.return_value = json.dumps([{
+            "number": 123, "url": "https://github.com/pcvantol/djconnect/pull/123",
+            "headRefName": "codex/squash", "headRefOid": "source-head", "state": "MERGED",
+            "mergedAt": "2026-08-27T00:00:00Z", "mergeCommit": {"oid": "squash-commit"},
+        }])
+
+        self.assertEqual(
+            dashboard._safe_worktree_removal_candidates(root),
+            [{"path": "/worktrees/squash", "branch": "codex/squash"}],
+        )
+
     @patch("tools.engineering.dashboard._stale_local_branch_pull_request", return_value=None)
     @patch("tools.engineering.dashboard.GitProvider")
     def test_stale_local_branch_preview_excludes_branches_used_by_active_worktrees(

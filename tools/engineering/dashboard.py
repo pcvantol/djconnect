@@ -1695,7 +1695,7 @@ def _worktree_removal_analysis(root: Path) -> dict[str, object]:
         match = re.search(r"github\.com[:/]([^/\s]+)/([^/\s]+?)(?:\.git)?$", remote.stdout.strip()) if remote.returncode == 0 else None
         payload = GitHubProvider().github(
             "pr", "list", "--repo", f"{match.group(1)}/{match.group(2)}", "--state", "all",
-            "--json", "number,url,headRefName,state,mergedAt", "--limit", "100",
+            "--json", "number,url,headRefName,headRefOid,state,mergedAt,mergeCommit", "--limit", "100",
         ) if match else "[]"
         pull_requests = json.loads(payload)
         if not isinstance(pull_requests, list):
@@ -1715,11 +1715,12 @@ def _worktree_removal_analysis(root: Path) -> dict[str, object]:
     for line in [*str(observed.stdout or "").splitlines(), ""]:
         if line:
             key, _, value = line.partition(" ")
-            if key in {"worktree", "branch"}:
+            if key in {"worktree", "HEAD", "branch"}:
                 record[key] = value
             continue
         path = record.get("worktree", "").strip()
         branch = record.get("branch", "").removeprefix("refs/heads/").strip()
+        head = record.get("HEAD", "").strip()
         record = {}
         if not path or not branch:
             continue
@@ -1734,7 +1735,19 @@ def _worktree_removal_analysis(root: Path) -> dict[str, object]:
             raise RuntimeError("Een lokale worktree kon niet veilig worden gecontroleerd.")
         pull_request = pull_requests_by_branch.get(branch)
         pr_state = pull_request.get("state") if isinstance(pull_request, dict) else None
-        removable = root_ready and status.returncode == 0 and not status.stdout.strip() and remote_branch.returncode == 1 and comparison.returncode == 0 and github_available and pr_state in {"MERGED", "CLOSED"}
+        pr_head = pull_request.get("headRefOid") if isinstance(pull_request, dict) else None
+        merge_commit = pull_request.get("mergeCommit") if isinstance(pull_request, dict) else None
+        merge_oid = merge_commit.get("oid") if isinstance(merge_commit, dict) else None
+        squash_merged_head = False
+        if pr_state == "MERGED" and isinstance(pr_head, str) and pr_head == head and isinstance(merge_oid, str):
+            merged = provider.execute(root, "git", "merge-base", "--is-ancestor", merge_oid, expected_branch)
+            if merged.returncode not in {0, 1}:
+                raise RuntimeError("De squash-merge kon niet veilig worden gecontroleerd.")
+            squash_merged_head = merged.returncode == 0
+        equivalent_or_verified_squash = (
+            comparison.returncode == 0 and pr_state in {"MERGED", "CLOSED"}
+        ) or squash_merged_head
+        removable = root_ready and status.returncode == 0 and not status.stdout.strip() and remote_branch.returncode == 1 and github_available and equivalent_or_verified_squash
         if removable:
             reason = "safe_to_remove"
         elif not root_ready:
@@ -1743,7 +1756,7 @@ def _worktree_removal_analysis(root: Path) -> dict[str, object]:
             reason = "worktree_dirty"
         elif remote_branch.returncode == 0:
             reason = "remote_branch_present"
-        elif comparison.returncode == 1:
+        elif comparison.returncode == 1 and not squash_merged_head:
             reason = "differs_from_main"
         elif not github_available:
             reason = "github_unavailable"
