@@ -73,6 +73,7 @@ from .dashboard_configuration import (
     update_inbox_root,
 )
 from . import dashboard_state
+from .workspace_preflight import execute as execute_workspace_preflight
 
 LABEL = "com.djconnect.engineering-dashboard"
 RELAY_LABEL = "com.djconnect.engineering-dashboard-relay"
@@ -1366,7 +1367,16 @@ def _switch_to_fast_forward_main(root: Path) -> dict[str, str]:
             provider.command(root, "git", "merge", "--ff-only", f"origin/{expected_branch}")
     except (OSError, RuntimeError, ValueError) as error:
         raise RuntimeError(str(error) or "Naar main schakelen is niet veilig gelukt.") from error
-    return {"previous_branch": previous_branch, "branch": expected_branch, "synchronized": "true"}
+    # The branch action is the point at which an earlier managed-branch drift
+    # can genuinely be resolved. Replace stale evidence with a fresh Level 2
+    # result before the services are restarted and re-project the dashboard.
+    workspace_preflight = execute_workspace_preflight(root, "Execution Mode: MANAGED")
+    return {
+        "previous_branch": previous_branch,
+        "branch": expected_branch,
+        "synchronized": "true",
+        "workspace_preflight": workspace_preflight.outcome,
+    }
 
 
 def _workspace_git_lock(root: Path, *, now: float | None = None) -> dict[str, object]:

@@ -930,9 +930,10 @@ class DashboardStatusTest(unittest.TestCase):
             }], "removable_branches": ["codex/stale"]},
         )
 
+    @patch("tools.engineering.dashboard.execute_workspace_preflight")
     @patch("tools.engineering.dashboard.GitProvider")
     def test_switch_to_fast_forward_main_only_switches_a_clean_branch_and_fast_forwards(
-        self, git_provider: object
+        self, git_provider: object, workspace_preflight: object
     ) -> None:
         root = Path(__file__).parents[2]
         completed = __import__("subprocess").CompletedProcess
@@ -943,10 +944,12 @@ class DashboardStatusTest(unittest.TestCase):
             completed(("git",), 0, "2\t0\n", ""),
         ]
 
+        workspace_preflight.return_value.outcome = "PASS"
         self.assertEqual(
             dashboard._switch_to_fast_forward_main(root),
-            {"previous_branch": "codex/work", "branch": "main", "synchronized": "true"},
+            {"previous_branch": "codex/work", "branch": "main", "synchronized": "true", "workspace_preflight": "PASS"},
         )
+        workspace_preflight.assert_called_once_with(root, "Execution Mode: MANAGED")
         self.assertEqual(
             git_provider.return_value.command.call_args_list,
             [
@@ -1381,14 +1384,16 @@ class DashboardStatusTest(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError, "verwachte branch"):
             dashboard._synchronize_managed_branch_with_upstream(root)
 
+    @patch("tools.engineering.dashboard.execute_workspace_preflight")
     @patch("tools.engineering.dashboard.PlatformConfiguration.load")
     @patch("tools.engineering.dashboard.GitProvider")
     def test_switch_to_fast_forward_main_never_overwrites_workspace_or_local_commits(
-        self, git_provider: object, configuration: object
+        self, git_provider: object, configuration: object, workspace_preflight: object
     ) -> None:
         root = Path(__file__).parents[2]
         completed = __import__("subprocess").CompletedProcess
         configuration.return_value.workspace.default_branch = "main"
+        workspace_preflight.return_value.outcome = "PASS"
         git_provider.return_value.execute.side_effect = [
             completed(("git",), 0, "", ""),
             completed(("git",), 0, "codex/feature", ""),
@@ -1397,7 +1402,7 @@ class DashboardStatusTest(unittest.TestCase):
         ]
         self.assertEqual(
             dashboard._switch_to_fast_forward_main(root),
-            {"previous_branch": "codex/feature", "branch": "main", "synchronized": "true"},
+            {"previous_branch": "codex/feature", "branch": "main", "synchronized": "true", "workspace_preflight": "PASS"},
         )
         self.assertEqual(
             git_provider.return_value.command.call_args_list,
