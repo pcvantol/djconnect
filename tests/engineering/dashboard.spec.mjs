@@ -5275,6 +5275,31 @@ test.describe("Engineering Status browser smoke", () => {
     else await expect(content).toBeHidden();
   });
 
+  test("keeps every compact title-bar option reachable in a short viewport", async ({ page }) => {
+    await page.setViewportSize({ width: 1024, height: 560 });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await openTitlebarOptions(page);
+
+    const layout = await page.evaluate(() => {
+      const header = document.querySelector(".dashboard-sticky-header");
+      const content = document.querySelector("#dashboardTitlebarOptionsContent");
+      const lastOption = document.querySelector(".dashboard-titlebar__options-content > .auto-refresh-toggle");
+      content.scrollTop = content.scrollHeight;
+      const optionRect = lastOption.getBoundingClientRect();
+      return {
+        headerOverflow: getComputedStyle(header).overflowY,
+        contentOverflow: getComputedStyle(content).overflowY,
+        lastOptionOnTop: content.contains(document.elementFromPoint(
+          optionRect.left + optionRect.width / 2,
+          optionRect.top + optionRect.height / 2,
+        )),
+      };
+    });
+    expect(layout.headerOverflow).toBe("visible");
+    expect(layout.contentOverflow).toBe("auto");
+    expect(layout.lastOptionOnTop).toBe(true);
+  });
+
   test("keeps title-bar options visible in a real laptop wrapper", async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 844 });
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });

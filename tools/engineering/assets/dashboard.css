@@ -485,6 +485,13 @@ html[data-theme="light"] :is(.dashboard-locale,.dashboard-project){color:#415168
   .dashboard-titlebar__options-content>:is(.theme-toggle,.section-state-toggle):active{transform:none!important}
   html[data-theme="light"] .dashboard-titlebar__options-toggle{background-color:#f1f3f7!important}
 }
+@media (max-width:1240px) and (max-height:600px){
+  /* Keep the compact control strip in place, but let its popup own any
+     necessary scrolling. The sticky header must never become the scroller,
+     otherwise the lower option rows disappear behind the dashboard. */
+  .dashboard-sticky-header{overflow:visible}
+  .dashboard-titlebar__options-content{max-height:calc(100dvh - 120px);overflow-y:auto;overscroll-behavior:contain}
+}
 
 /* Log controls */
 label:has(> :is(input,select,textarea)):not(.dashboard-locale):not(.auto-refresh-toggle),.log-controls label:has(> :is(input,select,textarea)){row-gap:var(--dashboard-control-label-gap)}
