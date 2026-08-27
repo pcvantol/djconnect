@@ -7396,6 +7396,11 @@ test.describe("Engineering Status browser smoke", () => {
     await dispatchDashboardPointerClick(page.locator("#promptHistoryRows tr td").nth(1));
     await expect(page.locator("#promptHistoryDetailModal")).toBeVisible();
     await expect(page.locator("#promptHistoryDetailModal")).not.toBeFocused();
+    const runtimeCard = page.locator("#promptHistoryDetailContent .prompt-detail-card").filter({
+      has: page.locator("h3", { hasText: DASHBOARD_MESSAGES.nl["detail.runtime"] }),
+    });
+    await expect(runtimeCard).toContainText(DASHBOARD_MESSAGES.nl["technical.runtime_value.codex_cli"]);
+    await expect(runtimeCard).not.toContainText("codex_cli");
     await page.locator("#promptHistoryDetailContent .execution-lifecycle__node").click();
     const lifecycleDetail = page.locator("#lifecycleDetailModal");
     await expect(lifecycleDetail).toBeVisible();
