@@ -2627,7 +2627,7 @@ def _dashboard_html(
 <script>try{const state=JSON.parse(localStorage.getItem("engineering-dashboard-client-state-v1")||"{}");document.documentElement.dataset.theme=state.theme==="light"?"light":"dark"}catch{document.documentElement.dataset.theme="dark"}</script>
 
 
-<link rel="stylesheet" href="/assets/dashboard.css">
+<link rel="stylesheet" href="/assets/dashboard.css?build=$BUILD_COMMIT">
 </head>
 <body data-project-id="$WORKSPACE_ID" data-project-name="$PROJECT_NAME">
 <a class="skip-link" href="#engineering-dashboard-content" data-i18n="header.skip"></a>
@@ -2687,7 +2687,7 @@ def _dashboard_html(
 </main></div>
 <footer class="footer" aria-live="polite"><span class="footer__item"><span class="label" id="platformVersionLabel" data-i18n="footer.platform_version"></span><span id="platformVersion" data-i18n="format.loading"></span></span><span class="footer__separator" aria-hidden="true">·</span><span class="footer__item" id="lastRefresh" data-i18n="format.loading"></span><span class="footer__separator" aria-hidden="true">·</span><span class="footer__item" id="updateMode" data-i18n="format.loading"></span></footer><span id="dashboardVersion" hidden></span><span id="workerVersion" hidden></span>
 <script>window.DJCONNECT_DASHBOARD_BUILD="$BUILD_COMMIT";</script>
-<script src="/assets/dashboard.js" type="module"></script>
+<script src="/assets/dashboard.js?build=$BUILD_COMMIT" type="module"></script>
 
 </body>
 </html>"""

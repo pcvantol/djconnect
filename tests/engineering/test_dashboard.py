@@ -1435,8 +1435,8 @@ class DashboardStatusTest(unittest.TestCase):
         page = _dashboard_html("Engineering Status").decode()
 
         self.assertIn("<title>Engineering Status</title>", page)
-        self.assertIn('href="/assets/dashboard.css"', page)
-        self.assertIn('src="/assets/dashboard.js" type="module"', page)
+        self.assertIn('href="/assets/dashboard.css?build=onbekend"', page)
+        self.assertIn('src="/assets/dashboard.js?build=onbekend" type="module"', page)
         self.assertIn('id="pageRefresh"', page)
         self.assertIn('id="promptHistoryScrollHint"', page)
         self.assertIn('aria-describedby="promptHistoryScrollHint"', page)
