@@ -1126,17 +1126,10 @@ html[data-theme="light"] .prompt-detail-modal__content .execution-lifecycle--his
   .dashboard-health.dashboard-health--open~.dashboard-titlebar__options .dashboard-titlebar__options-content{grid-row:3}
 }
 
-/* Focus is one product-coloured, one-pixel edge.  Do not combine a native
-   border with an outline and a halo: that reads as a double selected border.
-   Evidence tables keep their deliberately quiet blue navigation treatment. */
-:where(a[href],button,input,select,textarea,[role="button"],[tabindex]):not(:where(.dashboard-modal-shell,.component-log-row,.prompt-history-row,.telemetry-row,.execution-lifecycle__node,.log-sortable,.log-table-wrap,.telemetry-scroll,.telemetry-detail-table-scroll,.local-folder-link,.theme-toggle,.section-state-toggle,.dashboard-health__button,.auto-refresh-toggle input)):is(:focus,:focus-visible){
-  border-color:var(--house-style)!important;
-  box-shadow:none!important;
-  outline:0!important;
-  outline-offset:0!important;
-}
-/* Some legacy controls have a more specific focus rule.  They still resolve
-   to the same one-border contract. */
+/* Unified focus contract: one product-coloured, one-pixel edge.  Do not
+   combine a native border with an outline and halo. Evidence tables retain
+   their deliberately quiet blue navigation treatment. */
+:where(a[href],button,input,select,textarea,[role="button"],[tabindex]):not(:where(.dashboard-modal-shell,.component-log-row,.prompt-history-row,.telemetry-row,.execution-lifecycle__node,.log-sortable,.log-table-wrap,.telemetry-scroll,.telemetry-detail-table-scroll,.local-folder-link,.theme-toggle,.section-state-toggle,.dashboard-health__button,.auto-refresh-toggle input)):is(:focus,:focus-visible),
 :is(#chatInput,.page-refresh,.dashboard-locale__button,.configuration-provider-status__repair):is(:focus,:focus-visible){
   border-color:var(--house-style)!important;
   box-shadow:none!important;
@@ -1144,7 +1137,7 @@ html[data-theme="light"] .prompt-detail-modal__content .execution-lifecycle--his
   outline-offset:0!important;
 }
 /* Controls whose visible shape is a pseudo-element or a native checkbox have
-   no normal border to recolour. Give those exactly one 1px orange edge. */
+   no normal border to recolour, so receive the same one-pixel edge directly. */
 :is(.dashboard-titlebar .theme-toggle,.dashboard-titlebar .section-state-toggle):is(:focus,:focus-visible)::before,
 :is(.dashboard-health__button,.auto-refresh-toggle input,.local-folder-link):is(:focus,:focus-visible){
   box-shadow:none!important;
