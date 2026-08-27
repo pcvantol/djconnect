@@ -5157,12 +5157,13 @@ test.describe("Engineering Status browser smoke", () => {
     expect(layout.bannerTop).toBe(layout.titleBottom);
   });
 
-  test("puts every mobile title-bar setting in a labelled expandable panel", async ({ page }) => {
+  test("keeps status, refresh, and mobile options on one title-bar row", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
 
     const disclosure = page.getByTestId("titlebar-options-toggle");
     const content = page.locator("#dashboardTitlebarOptionsContent");
+    if (await disclosure.getAttribute("aria-expanded") === "true") await disclosure.click();
     await expect(disclosure).toHaveAttribute("aria-expanded", "false");
     await expect(disclosure).toBeVisible();
     await expect(page.getByTestId("theme-toggle")).not.toBeVisible();
@@ -5205,11 +5206,19 @@ test.describe("Engineering Status browser smoke", () => {
     }));
     expect(new Set(labelFonts).size).toBe(1);
     const titlebarLayout = await page.evaluate(() => {
+      const health = document.querySelector("#dashboardHealth").getBoundingClientRect();
       const refresh = document.querySelector("#pageRefresh").getBoundingClientRect();
       const options = document.querySelector("#dashboardTitlebarOptions").getBoundingClientRect();
-      return { refreshBottom: Math.round(refresh.bottom), optionsTop: Math.round(options.top) };
+      return {
+        healthTop: Math.round(health.top), healthLeft: Math.round(health.left),
+        refreshTop: Math.round(refresh.top), refreshLeft: Math.round(refresh.left),
+        optionsTop: Math.round(options.top), optionsLeft: Math.round(options.left),
+      };
     });
-    expect(titlebarLayout.refreshBottom).toBeLessThanOrEqual(titlebarLayout.optionsTop);
+    expect(Math.abs(titlebarLayout.healthTop - titlebarLayout.refreshTop)).toBeLessThanOrEqual(2);
+    expect(Math.abs(titlebarLayout.refreshTop - titlebarLayout.optionsTop)).toBeLessThanOrEqual(2);
+    expect(titlebarLayout.healthLeft).toBeLessThan(titlebarLayout.refreshLeft);
+    expect(titlebarLayout.refreshLeft).toBeLessThan(titlebarLayout.optionsLeft);
   });
 
   test("uses one dark-mode ink colour for title-bar option labels", async ({ page }) => {
