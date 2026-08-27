@@ -1130,8 +1130,17 @@ html[data-theme="light"] .prompt-detail-modal__content .execution-lifecycle--his
    combine a native border with an outline and halo. Evidence tables retain
    their deliberately quiet blue navigation treatment. */
 :where(a[href],button,input,select,textarea,[role="button"],[tabindex]):not(:where(.dashboard-modal-shell,.component-log-row,.prompt-history-row,.telemetry-row,.execution-lifecycle__node,.log-sortable,.log-table-wrap,.telemetry-scroll,.telemetry-detail-table-scroll,.local-folder-link,.theme-toggle,.section-state-toggle,.dashboard-health__button,.auto-refresh-toggle input)):is(:focus,:focus-visible),
-:is(#chatInput,.page-refresh,.dashboard-locale__button,.configuration-provider-status__repair):is(:focus,:focus-visible){
+:is(#chatInput,.page-refresh,.dashboard-locale__button,.configuration-provider-status__repair,.platform-health__component):is(:focus,:focus-visible){
   border-color:var(--house-style)!important;
+  box-shadow:none!important;
+  outline:0!important;
+  outline-offset:0!important;
+}
+/* Component cards use a shorthand border in the health surface. Restate that
+   shorthand for the complete selected interaction so its green status border
+   cannot survive beside the single orange edge. */
+.platform-health__component:is(:hover,:focus,:focus-visible){
+  border:1px solid var(--house-style)!important;
   box-shadow:none!important;
   outline:0!important;
   outline-offset:0!important;

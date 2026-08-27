@@ -7409,6 +7409,11 @@ test.describe("Engineering Status browser smoke", () => {
     ]);
   });
 
+  test("uses one selected border for a selectable host component", () => {
+    const stylesheet = readFileSync(path.join(repository, "tools/engineering/assets/dashboard.css"), "utf8");
+    expect(stylesheet).toContain(".platform-health__component:is(:hover,:focus,:focus-visible){\n  border:1px solid var(--house-style)!important;\n  box-shadow:none!important;\n  outline:0!important;");
+  });
+
   test("keeps title-bar switch focus on the compact track", () => {
     const stylesheet = readFileSync(path.join(repository, "tools/engineering/assets/dashboard.css"), "utf8");
     expect(stylesheet).toContain(".execution-lifecycle__node,.theme-toggle,.section-state-toggle,.auto-refresh-toggle");
