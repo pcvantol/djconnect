@@ -225,9 +225,9 @@ class DashboardStatusTest(unittest.TestCase):
         projection = _workspace_worktrees(Path("/workspace"))
 
         self.assertEqual(projection, {"available": True, "worktrees": [
-            {"path": "/workspace", "branch": "main", "commit": "123456789abc", "detached": False},
-        {"path": "/tmp/polish", "branch": "codex/polish", "commit": "abcdef123456", "detached": False, "removable": True},
-            {"path": "/tmp/detached", "branch": None, "commit": "ffffff123456", "detached": True},
+            {"path": "/workspace", "branch": "main", "commit": "123456789abc", "detached": False, "active": True},
+        {"path": "/tmp/polish", "branch": "codex/polish", "commit": "abcdef123456", "detached": False, "active": False, "removable": True},
+            {"path": "/tmp/detached", "branch": None, "commit": "ffffff123456", "detached": True, "active": False},
         ]})
 
     @patch("tools.engineering.dashboard.GitProvider")
@@ -242,7 +242,7 @@ class DashboardStatusTest(unittest.TestCase):
 
         self.assertEqual(projection, {"available": True, "worktrees": [
             {"path": None, "branch": "main", "commit": "abcdef123456", "detached": False, "checked_out": False},
-        {"path": "/workspace", "branch": "codex/feature", "commit": "123456789abc", "detached": False, "removable": True},
+            {"path": "/workspace", "branch": "codex/feature", "commit": "123456789abc", "detached": False, "active": True, "removable": True},
         ]})
 
     def test_open_worktree_in_finder_accepts_only_a_current_worktree(self) -> None:

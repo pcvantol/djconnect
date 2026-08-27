@@ -2499,11 +2499,18 @@ def _workspace_worktrees(root: Path) -> dict[str, object]:
         path = str(record.get("worktree") or "").strip()
         if path:
             reference = str(record.get("branch") or "")
+            try:
+                active = Path(path).resolve() == root.resolve()
+            except OSError:
+                # A stale worktree path is diagnostic evidence only; never
+                # present it as the active checkout.
+                active = False
             worktrees.append({
                 "path": path,
                 "branch": reference.removeprefix("refs/heads/") or None,
                 "commit": str(record.get("HEAD") or "")[:12] or None,
                 "detached": bool(record.get("detached")),
+                "active": active,
             })
         record = {}
     # `main` is the repository's stable baseline even when it is not currently

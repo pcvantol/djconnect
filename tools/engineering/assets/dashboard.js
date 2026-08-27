@@ -2210,6 +2210,15 @@ function renderWorkspaceWorktrees(projection) {
     path.type = "button";
     commit.className = "workspace-worktrees__commit";
     branch.textContent = worktree?.branch || t("workspace.detached_head");
+    if (worktree?.active === true) {
+      const active = document.createElement("span");
+      active.className = "workspace-worktrees__active";
+      active.textContent = "◉";
+      active.setAttribute("role", "img");
+      active.setAttribute("aria-label", t("workspace.active_worktree"));
+      active.title = t("workspace.active_worktree");
+      branch.prepend(active);
+    }
     path.textContent = worktree?.checked_out === false
       ? t("workspace.not_checked_out")
       : String(worktree?.path || t("format.not_available"));
