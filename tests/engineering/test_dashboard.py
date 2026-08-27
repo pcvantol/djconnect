@@ -260,6 +260,16 @@ class DashboardStatusTest(unittest.TestCase):
             ):
                 with self.assertRaises(RuntimeError):
                     _open_worktree_in_finder(root, str(worktree))
+            with patch("tools.engineering.dashboard.sys.platform", "darwin"):
+                with self.assertRaisesRegex(RuntimeError, "kan niet veilig"):
+                    _open_worktree_in_finder(root, str(root / "missing"))
+            with (
+                patch("tools.engineering.dashboard.sys.platform", "darwin"),
+                patch("tools.engineering.dashboard._workspace_worktrees", return_value={"available": True, "worktrees": [{"path": str(worktree)}]}),
+                patch("tools.engineering.dashboard.LocalProcessProvider.execute", side_effect=OSError),
+            ):
+                with self.assertRaisesRegex(RuntimeError, "Finder kon"):
+                    _open_worktree_in_finder(root, str(worktree))
 
     def test_dashboard_exposes_the_canonical_five_locale_catalog(self) -> None:
         root = Path(__file__).parents[2]
@@ -565,6 +575,11 @@ class DashboardStatusTest(unittest.TestCase):
             )
             with self.assertRaisesRegex(RuntimeError, "controle is gewijzigd"):
                 dashboard._remove_safe_worktree(root, "/worktrees/other", "codex/other")
+            with self.assertRaisesRegex(RuntimeError, "ongeldig"):
+                dashboard._remove_safe_worktree(root, "", selected["branch"])
+            candidates.return_value = [{"path": str(Path(temporary) / "missing"), "branch": selected["branch"]}]
+            with self.assertRaisesRegex(RuntimeError, "kon niet veilig worden verwijderd"):
+                dashboard._remove_safe_worktree(root, str(Path(temporary) / "missing"), selected["branch"])
 
     @patch("tools.engineering.dashboard.PlatformConfiguration.load")
     @patch("tools.engineering.dashboard.GitHubProvider")
