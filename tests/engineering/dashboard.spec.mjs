@@ -4519,7 +4519,7 @@ test.describe("Engineering Status browser smoke", () => {
       average_total_execution_seconds: 0, average_queue_wait_seconds: 0,
       complete_count: 0, blocked_count: 1, failed_count: 0,
     }]));
-    await page.locator("#executionTelemetry > summary").click();
+    await dispatchDashboardPointerClick(page.locator("#executionTelemetry > summary"));
     const row = page.locator("#executionTelemetryRows .telemetry-row");
     await dispatchDashboardPointerClick(row);
     await expect(row).toHaveAttribute("data-selected", "true");
@@ -4620,7 +4620,7 @@ test.describe("Engineering Status browser smoke", () => {
     await from.fill("2026-08-20T18:52");
     await to.fill("2026-08-20T19:52");
     await expect(clearEnd).toBeVisible();
-    await clearEnd.click();
+    await dispatchDashboardPointerClick(clearEnd);
     await expect(to).toHaveValue("");
     await expect(clearEnd).toBeHidden();
     await expect(to).toHaveAttribute("min", "2026-08-20T18:52");
@@ -8876,7 +8876,7 @@ test.describe("Engineering Status browser smoke", () => {
 
   test("offers a downloadable offline backup for the engineering database", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
-    await page.locator("#configuration > summary").click();
+    await dispatchDashboardPointerClick(page.locator("#configuration > summary"));
     await expect(page.locator("#workspaceFreeDiskSpace")).toHaveCount(1);
     await expect(page.locator("#workspaceFreeDiskSpace").locator("xpath=..")).toHaveAttribute("id", "configurationHostComponents");
     const databaseSection = page.locator(".workspace-database-section");
@@ -8895,7 +8895,7 @@ test.describe("Engineering Status browser smoke", () => {
 
   test("groups fixed platform settings in a read-only configuration subsection", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
-    await page.locator("#configuration > summary").click();
+    await dispatchDashboardPointerClick(page.locator("#configuration > summary"));
     const settings = page.locator(".configuration-readonly-settings");
     await expect(settings).toHaveCount(1);
     await expect(settings).toHaveCSS("border-top-color", "rgb(240, 182, 106)");
@@ -8928,7 +8928,7 @@ test.describe("Engineering Status browser smoke", () => {
       json: { status: { watcher_state: "WATCHER_IDLE", queue_depth: 0 } },
     }));
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
-    await page.locator("#workspaceCard > summary").click();
+    await dispatchDashboardPointerClick(page.locator("#workspaceCard > summary"));
     await page.locator("#workspaceBranchCleanup").evaluate((button) => { button.hidden = false; });
     await expect(page.locator("#workspaceBranchCleanup")).toHaveCSS("border-color", "rgb(243, 211, 106)");
     await expect(page.locator("#workspaceBranchCleanup")).toHaveCSS("background-color", "rgb(60, 53, 31)");
@@ -8977,7 +8977,7 @@ test.describe("Engineering Status browser smoke", () => {
       removable_branches: [],
     } }));
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
-    await page.locator("#workspaceCard > summary").click();
+    await dispatchDashboardPointerClick(page.locator("#workspaceCard > summary"));
     await page.locator("#workspaceBranchCleanup").evaluate((button) => { button.hidden = false; });
     await dispatchDashboardPointerClick(page.getByRole("button", { name: "Beoordeel losse lokale branches" }));
 
@@ -9051,7 +9051,7 @@ test.describe("Engineering Status browser smoke", () => {
       diagnostic: "Host preflight failed",
     }, { host_preflight: { outcome: "FAILED" } }));
     await page.locator("#technicalDetails").evaluate((element) => { element.open = false; });
-    await page.locator("#technicalDetails > summary").click();
+    await dispatchDashboardPointerClick(page.locator("#technicalDetails > summary"));
     await page.locator("#autoRefresh").uncheck();
     await page.reload({ waitUntil: "domcontentloaded" });
     await expect(autoRefresh).not.toBeChecked();
