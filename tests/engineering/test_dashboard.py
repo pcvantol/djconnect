@@ -772,6 +772,36 @@ class DashboardStatusTest(unittest.TestCase):
             {"number": 2, "url": "https://example.test/pull/2", "state": "MERGED", "verified": True},
         )
 
+    @patch("tools.engineering.dashboard.GitHubProvider")
+    @patch("tools.engineering.dashboard.GitProvider")
+    def test_detached_commit_evidence_keeps_an_open_pull_request_as_the_best_blocker(
+        self, git_provider: object, github_provider: object
+    ) -> None:
+        completed = __import__("subprocess").CompletedProcess
+        git_provider.return_value.execute.return_value = completed(("git",), 1, "", "")
+        github_provider.return_value.github.return_value = json.dumps([
+            {"number": 1, "html_url": "https://example.test/pull/1", "state": "closed", "merged_at": None, "merge_commit_sha": None},
+            {"number": 2, "html_url": "https://example.test/pull/2", "state": "open", "merged_at": None, "merge_commit_sha": None},
+            {"number": "invalid", "html_url": "https://example.test/pull/3", "state": "open"},
+        ])
+
+        self.assertEqual(
+            dashboard._github_pull_request_for_detached_commit(
+                Path("/repository"), "pcvantol/djconnect", "a0496fea7ef1", "main", git_provider.return_value,
+            ),
+            {"number": 2, "url": "https://example.test/pull/2", "state": "OPEN", "verified": False},
+        )
+
+    @patch("tools.engineering.dashboard.GitHubProvider")
+    def test_detached_commit_evidence_fails_closed_for_an_invalid_github_response(self, github_provider: object) -> None:
+        github_provider.return_value.github.return_value = "{}"
+
+        self.assertIsNone(
+            dashboard._github_pull_request_for_detached_commit(
+                Path("/repository"), "pcvantol/djconnect", "a0496fea7ef1", "main", MagicMock(),
+            )
+        )
+
     @patch("tools.engineering.dashboard._github_pull_request_for_detached_commit", return_value=None)
     @patch("tools.engineering.dashboard.PlatformConfiguration.load")
     @patch("tools.engineering.dashboard.GitHubProvider")
@@ -989,6 +1019,37 @@ class DashboardStatusTest(unittest.TestCase):
             ]
             with self.assertRaisesRegex(RuntimeError, "moet schoon"):
                 dashboard._registered_worktree_switch_target(root, str(target), "codex/selected")
+
+            worktrees.return_value = {"worktrees": [{"path": str(target), "branch": "main"}]}
+            with self.assertRaisesRegex(RuntimeError, "niet beschikbaar"):
+                dashboard._registered_worktree_switch_target(root, str(target), "main")
+
+            worktrees.return_value = {"worktrees": [{"path": str(target), "branch": "codex/other"}]}
+            with self.assertRaisesRegex(RuntimeError, "niet beschikbaar"):
+                dashboard._registered_worktree_switch_target(root, str(target), "codex/selected")
+
+            worktrees.return_value = {"worktrees": [{"path": str(target), "branch": "codex/selected"}]}
+            (target / "tools" / "engineering" / "inbox_watcher.py").unlink()
+            with self.assertRaisesRegex(RuntimeError, "complete Engineering Platform-installatie"):
+                dashboard._registered_worktree_switch_target(root, str(target), "codex/selected")
+            (target / "tools" / "engineering" / "inbox_watcher.py").touch()
+
+            git_provider.return_value.execute.side_effect = OSError("git unavailable")
+            with self.assertRaisesRegex(RuntimeError, "kon niet worden gecontroleerd"):
+                dashboard._registered_worktree_switch_target(root, str(target), "codex/selected")
+
+    @patch("tools.engineering.dashboard._workspace_worktrees")
+    def test_registered_worktree_path_rejects_invalid_and_ambiguous_selectors(self, worktrees: object) -> None:
+        root = Path("/repository")
+        with self.assertRaisesRegex(ValueError, "ongeldig"):
+            dashboard._registered_worktree_path(root, None)
+
+        worktrees.return_value = {"worktrees": [
+            {"path": "/worktrees/duplicate", "branch": "codex/selected"},
+            {"path": "/worktrees/duplicate", "branch": "codex/selected"},
+        ]}
+        with self.assertRaisesRegex(RuntimeError, "niet beschikbaar"):
+            dashboard._registered_worktree_path(root, "/worktrees/duplicate", "codex/selected")
 
     @patch("tools.engineering.dashboard._registered_worktree_switch_target")
     @patch("tools.engineering.dashboard._inbox_has_items")
