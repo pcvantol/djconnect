@@ -626,7 +626,7 @@ test.describe("Engineering Status browser smoke", () => {
     await page.evaluate((fixture) => window.renderWorkspaceWorktrees(fixture), projection);
     const worktrees = page.locator("#workspaceWorktrees");
     await expect(worktrees).toContainText("Analyse is nog niet uitgevoerd.");
-    await worktrees.locator(".workspace-worktrees__refresh").click();
+    await dispatchDashboardPointerClick(worktrees.locator(".workspace-worktrees__refresh"));
     await expect(worktrees).toContainText("Veilig te verwijderen");
     await expect(worktrees).toContainText("de pull request staat nog open");
     await expect(worktrees.getByRole("link", { name: "Pull request #964 · MERGED" })).toBeVisible();
@@ -665,7 +665,7 @@ test.describe("Engineering Status browser smoke", () => {
     await page.locator("#workspaceCard").evaluate((element) => { element.open = true; });
     await page.locator("#autoRefresh").uncheck();
     await page.evaluate((fixture) => window.renderWorkspaceWorktrees(fixture), worktreeProjection);
-    await page.locator("#workspaceWorktrees .workspace-worktrees__refresh").click();
+    await dispatchDashboardPointerClick(page.locator("#workspaceWorktrees .workspace-worktrees__refresh"));
 
     const remove = page.getByRole("button", { name: "Verwijder worktree" });
     await expect(remove).toHaveCSS("border-color", "rgb(240, 128, 149)");
