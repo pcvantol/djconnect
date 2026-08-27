@@ -1145,6 +1145,35 @@ html[data-theme="light"] .prompt-detail-modal__content .execution-lifecycle--his
   outline:0!important;
   outline-offset:0!important;
 }
+
+/* Native date editors otherwise inherit the muted category colour from their
+   label. They are values, so use the same high-contrast ink as every field. */
+#componentLogControls :is(input[type="date"],input[type="datetime-local"]){
+  color:#f7f3ee!important;
+  color-scheme:dark;
+}
+#componentLogControls :is(input[type="date"],input[type="datetime-local"])::-webkit-datetime-edit,
+#componentLogControls :is(input[type="date"],input[type="datetime-local"])::-webkit-datetime-edit-text,
+#componentLogControls :is(input[type="date"],input[type="datetime-local"])::-webkit-datetime-edit-year-field,
+#componentLogControls :is(input[type="date"],input[type="datetime-local"])::-webkit-datetime-edit-month-field,
+#componentLogControls :is(input[type="date"],input[type="datetime-local"])::-webkit-datetime-edit-day-field,
+#componentLogControls :is(input[type="date"],input[type="datetime-local"])::-webkit-datetime-edit-hour-field,
+#componentLogControls :is(input[type="date"],input[type="datetime-local"])::-webkit-datetime-edit-minute-field{
+  color:#f7f3ee!important;
+}
+html[data-theme="light"] #componentLogControls :is(input[type="date"],input[type="datetime-local"]){
+  color:#182230!important;
+  color-scheme:light;
+}
+html[data-theme="light"] #componentLogControls :is(input[type="date"],input[type="datetime-local"])::-webkit-datetime-edit,
+html[data-theme="light"] #componentLogControls :is(input[type="date"],input[type="datetime-local"])::-webkit-datetime-edit-text,
+html[data-theme="light"] #componentLogControls :is(input[type="date"],input[type="datetime-local"])::-webkit-datetime-edit-year-field,
+html[data-theme="light"] #componentLogControls :is(input[type="date"],input[type="datetime-local"])::-webkit-datetime-edit-month-field,
+html[data-theme="light"] #componentLogControls :is(input[type="date"],input[type="datetime-local"])::-webkit-datetime-edit-day-field,
+html[data-theme="light"] #componentLogControls :is(input[type="date"],input[type="datetime-local"])::-webkit-datetime-edit-hour-field,
+html[data-theme="light"] #componentLogControls :is(input[type="date"],input[type="datetime-local"])::-webkit-datetime-edit-minute-field{
+  color:#182230!important;
+}
 /* Controls whose visible shape is a pseudo-element or a native checkbox have
    no normal border to recolour, so receive the same one-pixel edge directly. */
 :is(.dashboard-titlebar .theme-toggle,.dashboard-titlebar .section-state-toggle):is(:focus,:focus-visible)::before,
