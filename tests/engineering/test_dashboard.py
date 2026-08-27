@@ -1145,6 +1145,7 @@ class DashboardStatusTest(unittest.TestCase):
             "number": 849, "title": "Cleanup <safe>", "url": "https://github.com/pcvantol/djconnect/pull/849", "branch": "codex/cleanup", "status": "ready_to_merge", "owner_approval": "approved",
             "owner_authorization_requested": False,
             "check_repair_available": False,
+            "check_repair_state": None,
         }])
         page = _dashboard_html(
             "Engineering Status", workspace_branch="codex/cleanup", workspace_commit="123456789abc",

@@ -2432,6 +2432,20 @@ function renderOpenPullRequests(pullRequests) {
       repair.title = t("workspace.open_pull_request.repair_failed_checks");
       item.append(repair);
     }
+    if (["QUEUED", "RUNNING", "SUBMITTED"].includes(String(pullRequest.check_repair_state || "").toUpperCase())) {
+      const progress = document.createElement("div"), spinner = document.createElement("span"), message = document.createElement("span"), checksLink = document.createElement("a");
+      progress.className = "open-pr-check-repair-progress";
+      progress.setAttribute("role", "status");
+      spinner.className = "open-pr-check-repair-progress__spinner";
+      spinner.setAttribute("aria-hidden", "true");
+      message.textContent = t("workspace.open_pull_request.repair_active");
+      checksLink.href = `${String(pullRequest.url || "").replace(/\/+$/, "")}/checks`;
+      checksLink.target = "_blank";
+      checksLink.rel = "noreferrer";
+      checksLink.textContent = t("workspace.open_pull_request.repair_active_checks");
+      progress.append(spinner, message, checksLink);
+      item.append(progress);
+    }
     return item;
   }));
   localizeOpenPullRequestStatuses();

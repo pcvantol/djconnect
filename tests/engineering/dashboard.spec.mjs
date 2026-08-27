@@ -1573,6 +1573,26 @@ test.describe("Engineering Status browser smoke", () => {
     await expect.poll(() => dispatched).toEqual({ method: "POST", body: "{}" });
   });
 
+  test("shows persisted repair progress and a link to the active GitHub checks", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => {
+      const section = document.createElement("section");
+      section.id = "workspaceOpenPullRequests";
+      section.className = "workspace-open-prs";
+      section.innerHTML = "<ul></ul>";
+      document.body.append(section);
+      renderOpenPullRequests([{
+        number: 941, title: "Human submitted", url: "https://github.com/pcvantol/djconnect/pull/941",
+        branch: "feature/human-pr", status: "waiting_for_checks", owner_approval: "not_required",
+        check_repair_available: false, check_repair_state: "SUBMITTED",
+      }]);
+    });
+    const progress = page.locator(".open-pr-check-repair-progress");
+    await expect(progress).toContainText(DASHBOARD_MESSAGES.nl["workspace.open_pull_request.repair_active"]);
+    await expect(progress.locator("a")).toHaveAttribute("href", "https://github.com/pcvantol/djconnect/pull/941/checks");
+    await expect(progress.locator(".open-pr-check-repair-progress__spinner")).toBeVisible();
+  });
+
   test("keeps the last known open pull requests visible when GitHub refresh is unavailable", async ({ page }) => {
     await page.route("**/api/open-pull-requests", (route) => route.fulfill({ status: 503, json: { error: "temporarily unavailable" } }));
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });

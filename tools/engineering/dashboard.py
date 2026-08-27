@@ -47,7 +47,7 @@ from .component_logging import (
 )
 from .component_lock import DuplicateComponentInstanceError, single_instance
 from .agent_state import is_valid_commit_evidence_record, redact_diagnostic
-from .pr_check_repair import PullRequestCheckRepairError, admit as admit_pr_check_repair, attempted as pr_check_repair_attempted, failed_check_names, mark_dispatch_failed as mark_pr_check_repair_dispatch_failed
+from .pr_check_repair import PullRequestCheckRepairError, admit as admit_pr_check_repair, attempted as pr_check_repair_attempted, check_summary as pr_check_repair_check_summary, failed_check_names, mark_dispatch_failed as mark_pr_check_repair_dispatch_failed, repair_state as pr_check_repair_state
 from .codex_chat import CodexChatError, chat_model, respond as codex_chat_response
 from .codex_capacity import read_remaining_percent
 from .telemetry import clear_telemetry, daily_statistics, daily_timing_detail, execution_timing, prune_telemetry
@@ -1636,7 +1636,12 @@ def _workspace_open_pull_requests(root: Path) -> list[dict[str, object]] | None:
         number, title, url, branch = candidate.get("number"), candidate.get("title"), candidate.get("url"), candidate.get("headRefName")
         if isinstance(number, int) and number > 0 and all(isinstance(value, str) for value in (title, url, branch)) and url.startswith("https://github.com/"):
             head_sha = candidate.get("headRefOid")
-            failed_checks = failed_check_names(candidate.get("statusCheckRollup"))
+            failed_checks, checks_terminal = pr_check_repair_check_summary(candidate.get("statusCheckRollup"))
+            authorization_requested = _owner_authorization_requested(candidate)
+            repair_state = pr_check_repair_state(root, number, head_sha)
+            repair_active = repair_state in {"QUEUED", "RUNNING"} or (
+                repair_state == "SUBMITTED" and not checks_terminal
+            )
             result.append({
                 "number": number,
                 "title": title,
@@ -1644,11 +1649,12 @@ def _workspace_open_pull_requests(root: Path) -> list[dict[str, object]] | None:
                 "branch": branch,
                 "status": _open_pull_request_status(candidate),
                 "owner_approval": _owner_approval_status(candidate, match.group(1)),
-                "owner_authorization_requested": _owner_authorization_requested(candidate),
+                "owner_authorization_requested": authorization_requested,
                 # This is an explicit, one-shot operator action for a
                 # human-authored same-repository PR.  Endpoint admission
                 # re-reads all GitHub evidence before any provider is used.
-                "check_repair_available": bool(failed_checks) and not pr_check_repair_attempted(root, number, head_sha),
+                "check_repair_available": bool(failed_checks) and checks_terminal and not authorization_requested and not repair_active and not pr_check_repair_attempted(root, number, head_sha),
+                "check_repair_state": repair_state if repair_active else None,
             })
     return result
 
