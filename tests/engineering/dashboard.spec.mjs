@@ -1554,6 +1554,7 @@ test.describe("Engineering Status browser smoke", () => {
         number: 941, title: "Human submitted", url: "https://github.com/pcvantol/djconnect/pull/941",
         branch: "feature/human-pr", status: "issues", owner_approval: "not_required",
         check_repair_available: true,
+        failed_checks: ["Engineering Platform validation / validate", "Validate Home Assistant custom integration / validate / tests"],
       }]);
     });
     const repair = page.locator("[data-open-pull-request-check-repair='941']");
@@ -1568,6 +1569,8 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#confirmationModal")).toBeVisible();
     await expect(page.locator("#confirmationModal")).toHaveClass(/dashboard-modal-shell--check-repair/);
     await expect(page.locator("#confirmationModal")).not.toHaveClass(/dashboard-modal-shell--destructive/);
+    await expect(page.locator(".confirmation-modal__list")).toContainText("Engineering Platform validation / validate");
+    await expect(page.locator(".confirmation-modal__list")).toContainText("Validate Home Assistant custom integration / validate / tests");
     expect(dispatched).toBeNull();
     await page.locator("#confirmationModalConfirm").click();
     await expect.poll(() => dispatched).toEqual({ method: "POST", body: "{}" });

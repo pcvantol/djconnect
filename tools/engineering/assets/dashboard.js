@@ -2433,6 +2433,9 @@ function renderOpenPullRequests(pullRequests) {
         repair.title = t("workspace.open_pull_request.repair_completed_explanation");
       } else {
         repair.dataset.openPullRequestCheckRepair = String(pullRequest.number || "");
+        repair.dataset.openPullRequestFailedChecks = JSON.stringify(
+          Array.isArray(pullRequest.failed_checks) ? pullRequest.failed_checks : [],
+        );
         repair.textContent = t("workspace.open_pull_request.repair_failed_checks");
         repair.title = t("workspace.open_pull_request.repair_failed_checks");
       }
@@ -2530,11 +2533,25 @@ async function requestOpenPullRequestOwnerAuthorization(button) {
 async function requestOpenPullRequestCheckRepair(button) {
   const number = Number(button?.dataset.openPullRequestCheckRepair);
   if (!Number.isInteger(number) || number < 1) return;
+  let failedChecks = [];
+  try {
+    const values = JSON.parse(button.dataset.openPullRequestFailedChecks || "[]");
+    failedChecks = Array.isArray(values)
+      ? values.filter((value) => typeof value === "string" && value.trim()).map((value) => value.trim())
+      : [];
+  } catch {
+    failedChecks = [];
+  }
   const confirmed = await confirmDashboardAction(
     t("workspace.open_pull_request.repair_failed_checks"),
     t("workspace.open_pull_request.repair_failed_checks_confirmation"),
     t("workspace.open_pull_request.repair_failed_checks"),
-    { accent: "#f3d36a", variant: "check-repair" },
+    {
+      accent: "#f3d36a",
+      items: failedChecks,
+      itemsLabel: t("workspace.open_pull_request.repair_failed_checks_list"),
+      variant: "check-repair",
+    },
   );
   if (!confirmed) return;
   button.disabled = true;
@@ -7513,7 +7530,7 @@ function workspaceBranchCleanupDetails(details) {
   }
   return list;
 }
-function confirmDashboardAction(title, text, confirmLabel, { destructive = false, accent = "", details = [], loading = false, variant = "" } = {}) {
+function confirmDashboardAction(title, text, confirmLabel, { destructive = false, accent = "", details = [], items = [], itemsLabel = "", loading = false, variant = "" } = {}) {
   const modal = $("confirmationModal"),
     heading = $("confirmationModalTitle"),
     body = $("confirmationModalText"),
@@ -7530,6 +7547,14 @@ function confirmDashboardAction(title, text, confirmLabel, { destructive = false
   }));
   if (details.length) {
     body.append(workspaceBranchCleanupDetails(details));
+  }
+  if (items.length) {
+    const label = document.createElement("strong"), list = document.createElement("ul");
+    label.className = "confirmation-modal__list-label";
+    label.textContent = itemsLabel;
+    list.className = "confirmation-modal__list";
+    for (const item of items) list.append(Object.assign(document.createElement("li"), { textContent: item }));
+    body.append(label, list);
   }
   confirm.textContent = confirmLabel;
   confirm.disabled = loading;

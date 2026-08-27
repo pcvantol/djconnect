@@ -337,6 +337,7 @@ html[data-theme="light"] #promptHistory .execution-history-action{background:#ff
    close control, accent and destructive state. */
 .confirmation-modal__panel{border:2px solid var(--modal-accent);max-width:30rem;padding:22px}
 .confirmation-modal__panel #confirmationModalText{line-height:1.55;white-space:pre-line}
+.confirmation-modal__list-label{display:block;margin-top:14px}.confirmation-modal__list{display:grid;gap:5px;margin:6px 0 0;padding-left:22px}.confirmation-modal__list li{overflow-wrap:anywhere}
 
 /* Confirmation actions remain anchored inside the dialog on compact iPhone
    viewports. Long explanatory copy scrolls above them instead of pushing the
