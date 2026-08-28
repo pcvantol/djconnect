@@ -3576,6 +3576,14 @@ function renderPlatformHealth(payload) {
     indicator.setAttribute("aria-hidden", "true");
     name.className = "platform-health__component-name";
     name.textContent = healthComponentLabel(key);
+    if (["dashboard", "inbox_watcher", "dashboard_relay"].includes(key)) {
+      const linkIcon = document.createElement("span");
+      linkIcon.className = "platform-health__component-link-icon";
+      linkIcon.dataset.testid = "component-details-link-icon";
+      linkIcon.setAttribute("aria-hidden", "true");
+      linkIcon.textContent = "↗";
+      name.append(linkIcon);
+    }
     detail.className = "platform-health__component-detail";
     detail.textContent =
       (delegatedToActiveHost ? t("dashboard.health.execution_host_active") : componentHealthy ? t("component.health_healthy") : t("component.health_unhealthy")) +

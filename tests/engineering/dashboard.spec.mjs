@@ -6188,6 +6188,21 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(info).toHaveCSS("color", "rgb(163, 230, 53)");
   });
 
+  test("marks the three clickable platform components with a link icon", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    const rendered = await page.evaluate(() => {
+      renderPlatformHealth({ components: {
+        dashboard: { healthy: true, detail: "HTTP-dashboard reageert" },
+        inbox_watcher: { healthy: true, detail: "LaunchAgent is geladen" },
+        dashboard_relay: { healthy: true, detail: "Relay is verbonden" },
+        execution_host: { healthy: true, detail: "Host is actief" },
+      }});
+      return [...document.querySelectorAll(".platform-health__component-name")]
+        .map((name) => Boolean(name.querySelector("[data-testid='component-details-link-icon']")));
+    });
+    expect(rendered).toEqual([true, true, true, false]);
+  });
+
   test("keeps iPhone platform component cards on opaque, flat surfaces", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
