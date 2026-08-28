@@ -2617,7 +2617,7 @@ class LocalAgentRunnerTest(unittest.TestCase):
             "## Execution Receipt Projection",
             "## Decision Evidence Projection",
             "## Statistics Projection",
-            "## Deliverable Answer",
+            "## Execution Delivery Answer",
             "## Commit Strategy",
             "## Branch Traceability",
             "## Requirement Traceability",
@@ -2626,14 +2626,15 @@ class LocalAgentRunnerTest(unittest.TestCase):
             "## Engineering Evidence Summary",
         ):
             self.assertIn(section, body)
-        self.assertIn("YES / PASS / GO", body)
+        self.assertNotIn("YES / PASS / GO", body)
+        self.assertIn("Execution delivery outcome: COMPLETE", body)
         self.assertIn("Requirement: Produce a self-validating report.", body)
         self.assertIn("Runtime evidence: run `evidence-2`; execution mode `MANAGED`.", body)
         self.assertIn("Execution Status: `COMPLETE`", body)
         self.assertIn("Receipt ID: `evidence-2`", body)
         self.assertIn("### Mission Statistics", body)
         self.assertIn("Executed Validation Command: `Documentation validation`", body)
-        self.assertIn('"deliverable_answer": "YES / PASS / GO', body)
+        self.assertIn('"deliverable_answer": "Execution delivery outcome: COMPLETE', body)
 
     def test_component_inventory_is_derived_from_implementation_evidence(self) -> None:
         subprocess.run(("git", "init", "-b", "main", str(self.root)), check=True, capture_output=True)

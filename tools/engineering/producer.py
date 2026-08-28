@@ -43,6 +43,7 @@ class ProducerSubmission:
     contract_version: str | None
     execution_context: dict[str, object] | None
     forge_governance_handoff: dict[str, object] | None
+    qualification: dict[str, object] | None
     envelope: dict[str, object]
     is_legacy: bool
 
@@ -88,6 +89,7 @@ def parse_producer_submission(content: str) -> ProducerSubmission:
             contract_version=None,
             execution_context=None,
             forge_governance_handoff=None,
+            qualification=None,
             envelope={"kind": "legacy_prompt", "prompt": content},
             is_legacy=True,
         )
@@ -105,6 +107,24 @@ def parse_producer_submission(content: str) -> ProducerSubmission:
     submission = _object(envelope.get("submission"), "submission")
     submission_id = _required_token(submission.get("id"), "submission.id")
     _optional_object(submission.get("metadata"), "submission.metadata")
+    qualification = submission.get("qualification")
+    if qualification is not None:
+        qualification = _object(qualification, "submission.qualification")
+        if qualification.get("purpose") != "RUN_QUALIFICATION":
+            raise ProducerSubmissionError("Producer Submission Envelope qualification purpose is unsupported.")
+        lineage = qualification.get("lineage")
+        if lineage not in {"FRESH", "RETRY", "RESUME"}:
+            raise ProducerSubmissionError("Producer Submission Envelope qualification lineage is invalid.")
+        retry_parent = _optional_token(qualification.get("retry_parent_submission_id"), "submission.qualification.retry_parent_submission_id")
+        resume_parent = _optional_token(qualification.get("resume_parent_submission_id"), "submission.qualification.resume_parent_submission_id")
+        if (
+            (lineage == "FRESH") != (retry_parent is None and resume_parent is None)
+            or (lineage == "RETRY" and not retry_parent)
+            or (lineage == "RESUME" and not resume_parent)
+            or (lineage != "RETRY" and retry_parent)
+            or (lineage != "RESUME" and resume_parent)
+        ):
+            raise ProducerSubmissionError("Producer Submission Envelope qualification lineage parents are invalid.")
     if submission.get("submitted_at") is not None and not isinstance(submission.get("submitted_at"), str):
         raise ProducerSubmissionError("Producer Submission Envelope submission.submitted_at must be a string.")
     producer_payload = _object(envelope.get("producer"), "producer")
@@ -143,6 +163,7 @@ def parse_producer_submission(content: str) -> ProducerSubmission:
         contract_version=contract_version,
         execution_context=context,
         forge_governance_handoff=handoff,
+        qualification=qualification,
         envelope=envelope,
         is_legacy=False,
     )

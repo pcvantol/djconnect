@@ -10,7 +10,7 @@ import uuid
 
 from .platform_api import execution_host_configuration
 from .producer import ProducerSubmissionError, parse_producer_submission
-from .storage import EngineeringStorageError, record_submission
+from .storage import EngineeringStorageError, record_qualification_submission_lineage, record_submission
 
 
 class WorkspaceInboxSubmissionError(ValueError):
@@ -71,6 +71,15 @@ def publish(root: Path, envelope: str) -> WorkspaceInboxReceipt:
             forge_governance_handoff=submission.forge_governance_handoff,
             received_at=received_at,
         )
+        if submission.qualification is not None:
+            qualification = submission.qualification
+            lineage = str(qualification["lineage"])
+            record_qualification_submission_lineage(
+                root, submission_id=submission.submission_id, fresh_submission=lineage == "FRESH",
+                retry_parent_submission_id=qualification.get("retry_parent_submission_id") if isinstance(qualification.get("retry_parent_submission_id"), str) else None,
+                resume_parent_submission_id=qualification.get("resume_parent_submission_id") if isinstance(qualification.get("resume_parent_submission_id"), str) else None,
+                created_at=received_at,
+            )
     except EngineeringStorageError as error:
         raise WorkspaceInboxSubmissionError(
             "submission_audit_unavailable", "Inbox submission audit evidence could not be stored safely."

@@ -131,25 +131,27 @@ def _validation_controls(connection: sqlite3.Connection, run_id: str, snapshot: 
 
 
 def _qualification_evidence(connection: sqlite3.Connection, run_id: str) -> tuple[dict[str, object] | None, dict[str, object] | None]:
-    """Read only explicit v33 qualification evidence; never infer legacy facts."""
+    """Read only prospective v35 qualification evidence; never infer legacy facts."""
     try:
         lineage = connection.execute(
-            "SELECT submission_id,fresh_submission,retry_parent_run_id,resume_parent_run_id,recorded_at "
-            "FROM execution_run_qualification_context WHERE run_id=?", (run_id,)
+            "SELECT q.submission_id,q.fresh_submission,q.retry_parent_submission_id,"
+            "q.resume_parent_submission_id,q.created_at,q.submission_kind "
+            "FROM qualification_submission_lineage AS q JOIN execution_submission_links AS l "
+            "ON l.submission_id=q.submission_id WHERE l.run_id=?", (run_id,)
         ).fetchone()
         profile = connection.execute(
             "SELECT selected_validation_tier,validation_profile_version,required_validation_controls,recorded_at "
             "FROM execution_validation_profiles WHERE run_id=?", (run_id,)
         ).fetchone()
         controls = connection.execute(
-            "SELECT validation_id,category,required_for_profile,execution_status,result,observed_at,currentness "
+            "SELECT validation_id,category,required_for_profile,execution_status,result,evidence_ref,observed_at,currentness "
             "FROM execution_validation_control_results WHERE run_id=? ORDER BY id", (run_id,)
         ).fetchall()
     except sqlite3.OperationalError:
         return None, None
     lineage_projection = None if lineage is None else {
         "submission_id": lineage[0], "fresh_submission": bool(lineage[1]),
-        "retry_parent": lineage[2], "resume_parent": lineage[3], "recorded_at": lineage[4],
+        "retry_parent": lineage[2], "resume_parent": lineage[3], "recorded_at": lineage[4], "submission_kind": lineage[5],
     }
     if profile is None:
         return lineage_projection, None
@@ -164,15 +166,17 @@ def _qualification_evidence(connection: sqlite3.Connection, run_id: str) -> tupl
     for row in controls:
         validation_id = str(row[0])
         existing = current.get(validation_id)
-        if existing is None or int(row[6]) > int(existing[6]):
+        if existing is None or int(row[7]) > int(existing[7]):
             current[validation_id] = row
-        elif int(row[6]) == int(existing[6]) and row[4] != existing[4]:
+        elif int(row[7]) == int(existing[7]) and row[4] != existing[4]:
             conflicts.add(validation_id)
     def result_for(validation_id: str) -> object:
         if validation_id in conflicts:
             return "UNRESOLVED"
         row = current.get(validation_id)
-        return row[4] if row is not None else None
+        if row is None or row[3] != "EXECUTED" or not row[4] or not row[5]:
+            return "UNRESOLVED"
+        return row[4]
     results = [result_for(validation_id) for validation_id in required]
     required_state = "FAIL" if any(result == "FAIL" for result in results) else (
         "PASS" if results and all(result == "PASS" for result in results) else "UNRESOLVED"
@@ -182,10 +186,16 @@ def _qualification_evidence(connection: sqlite3.Connection, run_id: str) -> tupl
         "required_validation_controls": required, "required_validation_state": required_state,
         "recorded_at": profile[3],
         "controls": [
-            {"validation_id": validation_id, "category": row[1], "required_for_profile": bool(row[2]),
-             "execution_status": row[3], "result": result_for(validation_id), "observed_at": row[5]}
-            for validation_id, row in sorted(current.items())
+            {"validation_id": validation_id,
+             "category": row[1] if row is not None else "UNRESOLVED",
+             "required_for_profile": validation_id in required,
+             "execution_status": row[3] if row is not None else "MISSING",
+             "result": result_for(validation_id),
+             "observed_at": row[6] if row is not None else None,
+             "evidence_reference": row[5] if row is not None else None}
+            for validation_id in required for row in (current.get(validation_id),)
         ],
+        "unresolved_required_controls": [validation_id for validation_id in required if result_for(validation_id) == "UNRESOLVED"],
     }
 
 
@@ -304,6 +314,7 @@ def get_run_context(root: Path, run_id: str) -> dict[str, object]:
         "run": {"execution_mode": _value(run[0] if run else checkpoint.get("execution_mode")), "terminal": _value(terminal),
                 "current_execution_state": _value(phase), "current_phase": _value(phase),
                 "fresh_submission_state": "AVAILABLE" if qualification_lineage else UNAVAILABLE,
+                "qualification_submission_kind": qualification_lineage["submission_kind"] if qualification_lineage else UNAVAILABLE,
                 "fresh_submission": qualification_lineage["fresh_submission"] if qualification_lineage else UNAVAILABLE,
                 "retry_parent": qualification_lineage["retry_parent"] if qualification_lineage else UNAVAILABLE,
                 "resume_parent": qualification_lineage["resume_parent"] if qualification_lineage else UNAVAILABLE,

@@ -260,21 +260,29 @@ def terminal_snapshot(
     if persisted_lineage is not None:
         lineage_available = True
         submission_id = str(persisted_lineage["submission_id"])
+        submission_kind = str(persisted_lineage["submission_kind"])
         retry_parent = persisted_lineage["retry_parent"] if isinstance(persisted_lineage["retry_parent"], str) else None
         resume_parent = persisted_lineage["resume_parent"] if isinstance(persisted_lineage["resume_parent"], str) else None
         fresh = "YES" if persisted_lineage["fresh_submission"] else "NO"
     else:
+        submission_kind = "UNAVAILABLE"
         fresh = "YES" if lineage_available and retry_parent is None and resume_parent is None else "NO" if lineage_available else "UNAVAILABLE"
     required = {str(row[0]) for row in rows if int(row[2])}
     required_state = "UNRESOLVED"
     profile_projection: dict[str, object] = {}
+    required_validation_projection: dict[str, object] | str = "UNAVAILABLE"
     if validation_context is not None:
         required = set(validation_context["required_validation_controls"])
         controls = validation_context["controls"]
-        results = [controls.get(control, {}).get("result") for control in required]
-        required_state = "FAIL" if any(result == "FAIL" for result in results) else "PASS" if results and all(result == "PASS" for result in results) else "UNRESOLVED"
+        required_state = str(validation_context["required_validation_state"])
         profile_projection = {key: validation_context[key] for key in ("selected_validation_tier", "validation_profile_version", "required_validation_controls")}
         validation = {**validation, **{key: value.get("result", "UNRESOLVED") for key, value in controls.items()}}
+        required_validation_projection = {
+            **profile_projection,
+            "required_validation_state": required_state,
+            "unresolved_required_controls": validation_context["unresolved_required_controls"],
+            "controls": tuple(controls[control] for control in validation_context["required_validation_controls"]),
+        }
     elif required:
         # Historical evidence has no persisted profile: do not promote it.
         required_state = "UNRESOLVED"
@@ -287,6 +295,7 @@ def terminal_snapshot(
         "retry_parent": retry_parent or ("NONE" if lineage_available else "UNAVAILABLE"),
         "resume_parent": resume_parent or ("NONE" if lineage_available else "UNAVAILABLE"),
         "submission_id": submission_id or "UNAVAILABLE",
+        "submission_kind": submission_kind,
         "implementation_pr": implementation_pr,
         "finalization_pr": finalization_pr,
         "gates": [{"gate_type": row[0], "status": row[1], "related_pr": row[2]} for row in gates],
@@ -294,6 +303,7 @@ def terminal_snapshot(
         "validation_current": validation,
         "required_validation_state": required_state,
         "validation_profile": profile_projection or "UNAVAILABLE",
+        "required_validation": required_validation_projection,
         "validation_projection_conflict": conflict,
         "pr_checks": pr_checks,
         "pr_check_projection_conflict": pr_check_conflict,

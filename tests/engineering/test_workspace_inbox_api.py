@@ -56,3 +56,22 @@ class WorkspaceInboxApiTest(unittest.TestCase):
             with self.assertRaisesRegex(WorkspaceInboxSubmissionError, "complete Forge producer envelope") as error:
                 publish(root, "plain text is not a Forge envelope")
             self.assertEqual(error.exception.code, "forge_envelope_required")
+
+    def test_qualification_lineage_is_persisted_at_submission_before_inbox_claim(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = self._root(directory)
+            transport = root / "transport"
+            (transport / "Inbox").mkdir(parents=True)
+            envelope = json.loads(self._envelope())
+            envelope["submission"]["qualification"] = {"purpose": "RUN_QUALIFICATION", "lineage": "FRESH"}
+            with patch.dict(os.environ, {"DJCONNECT_ENGINEERING_INBOX": str(transport)}, clear=False):
+                receipt = publish(root, json.dumps(envelope))
+            connection = open_storage(root)
+            try:
+                row = connection.execute(
+                    "SELECT fresh_submission,retry_parent_submission_id,resume_parent_submission_id "
+                    "FROM qualification_submission_lineage WHERE submission_id=?", (receipt.submission_id,)
+                ).fetchone()
+            finally:
+                connection.close()
+        self.assertEqual(row, (1, None, None))

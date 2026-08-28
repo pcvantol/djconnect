@@ -129,15 +129,12 @@ def _objective_requirements(objective: str) -> tuple[str, ...]:
 
 
 def _deliverable_answer(objective: str, state: TransactionState) -> str:
-    """Answer explicit binary delivery requests from the persisted terminal state."""
-    requested = re.search(r"\bYES\b|\bPASS\b|\bGO\b|\bNO-GO\b", objective, re.IGNORECASE)
-    if not requested:
-        return "Not explicitly requested by the prompt."
+    """Project delivery only; Run Qualification has its own canonical section."""
     if state.phase == "COMPLETE":
-        return "YES / PASS / GO — the persisted terminal checkpoint is COMPLETE."
+        return "Execution delivery outcome: COMPLETE. This is not a Run Qualification decision."
     if state.phase == "BLOCKED":
-        return "NO / FAIL / NO-GO — the persisted terminal checkpoint is BLOCKED."
-    return "NO / FAIL / NO-GO — the persisted terminal checkpoint is FAILED."
+        return "Execution delivery outcome: BLOCKED. Run Qualification is not established."
+    return "Execution delivery outcome: FAILED. Run Qualification is not established."
 
 def _next_action_message(action: str) -> str:
     return {
@@ -957,6 +954,18 @@ def _managed_autonomy_projection(root: Path, state: TransactionState, bundle: Te
             f"  - Required Checks Evidence Reference: `{item.get('evidence_ref', 'UNAVAILABLE')}`",
             f"  - Historical Check Observations: `{item.get('historical_observation_count', 'UNAVAILABLE')}`",
         )
+    required_validation = snapshot["required_validation"]
+    validation_lines: tuple[str, ...] = ()
+    if isinstance(required_validation, dict):
+        validation_lines = (
+            f"- Validation Profile: `{required_validation['selected_validation_tier']}` v`{required_validation['validation_profile_version']}`",
+            f"- Required Control IDs: `{', '.join(required_validation['required_validation_controls'])}`",
+            f"- Unresolved Required Controls: `{', '.join(required_validation['unresolved_required_controls']) or 'none'}`",
+            *(
+                f"  - `{control['validation_id']}`: execution `{control['execution_status']}`; result `{control['result']}`; evidence `{control['evidence_ref'] or 'UNAVAILABLE'}`"
+                for control in required_validation["controls"]
+            ),
+        )
     return (
         "## Run Qualification",
         f"- Execution: `{snapshot['terminal_execution_state']}`",
@@ -966,6 +975,7 @@ def _managed_autonomy_projection(root: Path, state: TransactionState, bundle: Te
         f"- Retry Parent: `{snapshot['retry_parent']}`",
         f"- Resume Parent: `{snapshot['resume_parent']}`",
         f"- Submission Lineage / Submission ID: `{snapshot['submission_id']}`",
+        f"- Qualification Submission Kind: `{snapshot['submission_kind']}`",
         "### Current Terminal Required Checks",
         *pr_lines("IMPLEMENTATION"),
         *pr_lines("FINALIZATION"),
@@ -975,6 +985,7 @@ def _managed_autonomy_projection(root: Path, state: TransactionState, bundle: Te
         f"- Unexpected Manual Interventions: `{snapshot['unplanned_manual_intervention_count']}`",
         f"- Unknown Authority Actions: `{snapshot['unknown_authority_count']}`",
         f"- Required Validation State: `{snapshot['required_validation_state']}`",
+        *validation_lines,
         f"- Qualification Reasons: `{', '.join(snapshot['qualification_failure_reasons']) or 'none'}`",
         "",
     )
@@ -1330,8 +1341,8 @@ def generate_terminal_report(
             "## Decision Evidence Projection",
             *_decision_evidence_projection(producer),
             "",
-            "## Deliverable Answer",
-            f"- Final Deliverable Answer: {_deliverable_answer(objective, state)}",
+            "## Execution Delivery Answer",
+            f"- Execution Delivery Answer: {_deliverable_answer(objective, state)}",
             "",
             "## Commit Strategy",
             *_commit_strategy(state, bundle),
@@ -1340,7 +1351,7 @@ def generate_terminal_report(
             *_branch_traceability(state, bundle),
             "",
             "## Requirement Traceability",
-            "Each row links the prompt requirement to repository-derived implementation, test and validation evidence.",
+            "Qualification evidence uses the bounded semantic control IDs in Run Qualification; this general delivery traceability is not a qualification decision.",
             *_requirement_traceability(objective, state, bundle),
             "",
             "## Validation Traceability",

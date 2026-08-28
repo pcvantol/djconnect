@@ -12,19 +12,30 @@ from tools.engineering.managed_autonomy import (
     terminal_snapshot,
 )
 from tools.engineering.storage import (
+    record_qualification_submission_lineage,
     record_run_qualification_context,
+    load_run_lineage,
+    record_submission,
     record_validation_control_result,
     record_validation_profile,
 )
 
 
 class ManagedAutonomyEvidenceTest(unittest.TestCase):
+    def _record_qualification_lineage(self, root: Path, *, run: str, submission: str, retry_parent: str | None = None, resume_parent: str | None = None) -> None:
+        record_submission(
+            root, submission_id=submission, producer_id="test", producer_type="HUMAN", prompt_content="bounded",
+            prompt_metadata={}, target_identity={}, original_envelope={}, received_at="2026-08-28T00:00:00+00:00", link_run_id=run,
+        )
+        record_qualification_submission_lineage(
+            root, submission_id=submission, fresh_submission=retry_parent is None and resume_parent is None,
+            retry_parent_submission_id=retry_parent, resume_parent_submission_id=resume_parent,
+            created_at="2026-08-28T00:00:00+00:00",
+        )
+
     def _qualified(self, root: Path, *, retry_parent: str | None = None, resume_parent: str | None = None) -> dict[str, object]:
         run = "inbox-managed-proof"
-        record_run_qualification_context(
-            root, run_id=run, submission_id="submission-managed-proof", fresh_submission=retry_parent is None and resume_parent is None,
-            retry_parent_run_id=retry_parent, resume_parent_run_id=resume_parent, recorded_at="2026-08-28T00:00:00+00:00",
-        )
+        self._record_qualification_lineage(root, run=run, submission="submission-managed-proof", retry_parent=retry_parent, resume_parent=resume_parent)
         record_validation_profile(
             root, run_id=run, selected_validation_tier="DOCUMENTATION", validation_profile_version="1.0",
             required_validation_controls=("git_diff_check",), recorded_at="2026-08-28T00:00:00+00:00",
@@ -319,15 +330,46 @@ class ManagedAutonomyEvidenceTest(unittest.TestCase):
         self.assertEqual(snapshot["retry_parent"], "UNAVAILABLE")
         self.assertEqual(snapshot["resume_parent"], "UNAVAILABLE")
 
+    def test_delivery_retry_cannot_contaminate_prospective_qualification_lineage(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            record_submission(root, submission_id="delivery-retry", producer_id="test", producer_type="HUMAN",
+                              prompt_content="Retry-Of: delivery-parent", prompt_metadata={}, target_identity={}, original_envelope={},
+                              received_at="2026-08-28T00:00:00+00:00", link_run_id="delivery-run")
+            self._record_qualification_lineage(root, run="qualification-fresh", submission="qualification-fresh")
+            self._record_qualification_lineage(root, run="qualification-retry", submission="qualification-retry", retry_parent="qualification-fresh")
+            self._record_qualification_lineage(root, run="qualification-resume", submission="qualification-resume", resume_parent="qualification-fresh")
+            delivery = load_run_lineage(root, "delivery-run")
+            fresh = load_run_lineage(root, "qualification-fresh")
+            retry = load_run_lineage(root, "qualification-retry")
+            resume = load_run_lineage(root, "qualification-resume")
+        self.assertIsNone(delivery)
+        self.assertTrue(fresh["fresh_submission"])
+        self.assertIsNone(fresh["retry_parent"])
+        self.assertIsNone(fresh["resume_parent"])
+        self.assertFalse(retry["fresh_submission"])
+        self.assertEqual(retry["retry_parent"], "qualification-fresh")
+        self.assertFalse(resume["fresh_submission"])
+        self.assertEqual(resume["resume_parent"], "qualification-fresh")
+
+    def test_legacy_v33_context_is_not_promoted_to_prospective_qualification(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            record_run_qualification_context(root, run_id="legacy-v33", submission_id="legacy-submission",
+                                             fresh_submission=True, retry_parent_run_id=None, resume_parent_run_id=None,
+                                             recorded_at="2026-08-28T00:00:00+00:00")
+            self.assertIsNone(load_run_lineage(root, "legacy-v33"))
+
     def test_original_lineage_cannot_be_overwritten_by_later_finalization(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
-            record_run_qualification_context(root, run_id="lineage-finalization", submission_id="submission-one",
-                                             fresh_submission=True, retry_parent_run_id=None, resume_parent_run_id=None,
-                                             recorded_at="2026-08-28T00:00:00+00:00")
-            record_run_qualification_context(root, run_id="lineage-finalization", submission_id="submission-two",
-                                             fresh_submission=False, retry_parent_run_id="old-run", resume_parent_run_id=None,
-                                             recorded_at="2026-08-28T00:01:00+00:00")
+            self._record_qualification_lineage(root, run="lineage-finalization", submission="submission-one")
+            record_submission(root, submission_id="submission-two", producer_id="test", producer_type="HUMAN",
+                              prompt_content="bounded", prompt_metadata={}, target_identity={}, original_envelope={},
+                              received_at="2026-08-28T00:01:00+00:00")
+            record_qualification_submission_lineage(root, submission_id="submission-two", fresh_submission=False,
+                                                    retry_parent_submission_id="old-submission", resume_parent_submission_id=None,
+                                                    created_at="2026-08-28T00:01:00+00:00")
             snapshot = terminal_snapshot(root, run_id="lineage-finalization", execution_outcome="COMPLETE",
                                          implementation_pr=None, finalization_pr=None, repository_state="UNAVAILABLE",
                                          workspace_state="UNAVAILABLE", main_origin_sync="UNAVAILABLE", worktree_state="UNAVAILABLE",
@@ -357,6 +399,21 @@ class ManagedAutonomyEvidenceTest(unittest.TestCase):
                                        workspace_state="UNAVAILABLE", main_origin_sync="UNAVAILABLE", worktree_state="UNAVAILABLE",
                                        active_blocker="UNAVAILABLE", recovery_required="UNAVAILABLE")
             self.assertEqual(failed["required_validation_state"], "FAIL")
+
+    def test_required_validation_needs_execution_and_evidence_reference(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            record_validation_profile(root, run_id="validation-evidence", selected_validation_tier="FULL",
+                                      validation_profile_version="1.0", required_validation_controls=("suite",),
+                                      recorded_at="2026-08-28T00:00:00+00:00")
+            record_validation_control_result(root, run_id="validation-evidence", validation_id="suite", category="suite",
+                                             control_identity="suite", required_for_profile=True, execution_status="NOT_EXECUTED",
+                                             result="PASS", evidence_ref="local", observed_at="2026-08-28T00:00:01+00:00", currentness=1)
+            unresolved = terminal_snapshot(root, run_id="validation-evidence", execution_outcome="COMPLETE",
+                                           implementation_pr=None, finalization_pr=None, repository_state="UNAVAILABLE",
+                                           workspace_state="UNAVAILABLE", main_origin_sync="UNAVAILABLE", worktree_state="UNAVAILABLE",
+                                           active_blocker="UNAVAILABLE", recovery_required="UNAVAILABLE")
+        self.assertEqual(unresolved["required_validation_state"], "UNRESOLVED")
 
     def test_newer_required_check_pass_supersedes_historical_waiting(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

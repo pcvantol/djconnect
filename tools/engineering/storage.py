@@ -21,7 +21,7 @@ import sqlite3
 
 WORKSPACE_DIRECTORY = ".engineering"
 DATABASE_FILENAME = "engineering.db"
-ENGINEERING_STORAGE_SCHEMA_VERSION = 34
+ENGINEERING_STORAGE_SCHEMA_VERSION = 35
 JOURNAL_MODES = frozenset({"DELETE", "MEMORY"})
 LEGACY_DISMISSALS_PATH = Path(".engineering/status/execution_dismissals.json")
 ADMITTED_STORAGE_SCHEMA_ENVIRONMENT = "DJCONNECT_ENGINEERING_ADMITTED_STORAGE_SCHEMA"
@@ -934,7 +934,32 @@ def _schema_v34(connection: sqlite3.Connection) -> None:
         "CREATE TRIGGER IF NOT EXISTS execution_chat_messages_immutable_update "
         "BEFORE UPDATE ON execution_chat_messages BEGIN "
         "SELECT RAISE(ABORT, 'Chat transcript messages are immutable.'); END"
+        )
+
+
+def _schema_v35(connection: sqlite3.Connection) -> None:
+    """Persist prospective qualification-submission lineage separately.
+
+    This intentionally adds no historical rows: delivery retry headers and
+    historical v33 context do not establish qualification-submission facts.
+    """
+    connection.execute(
+        "CREATE TABLE IF NOT EXISTS qualification_submission_lineage ("
+        "submission_id TEXT PRIMARY KEY REFERENCES execution_submissions(submission_id) ON DELETE RESTRICT,"
+        "submission_kind TEXT NOT NULL CHECK(submission_kind='RUN_QUALIFICATION'),"
+        "fresh_submission INTEGER NOT NULL CHECK(fresh_submission IN (0,1)),"
+        "retry_parent_submission_id TEXT,resume_parent_submission_id TEXT,created_at TEXT NOT NULL,"
+        "CHECK(NOT (retry_parent_submission_id IS NOT NULL AND resume_parent_submission_id IS NOT NULL)),"
+        "CHECK((fresh_submission=1 AND retry_parent_submission_id IS NULL AND resume_parent_submission_id IS NULL) "
+        "OR (fresh_submission=0 AND (retry_parent_submission_id IS NOT NULL OR resume_parent_submission_id IS NOT NULL)))"
+        ")"
     )
+    for operation in ("UPDATE", "DELETE"):
+        connection.execute(
+            f"CREATE TRIGGER IF NOT EXISTS qualification_submission_lineage_immutable_{operation.casefold()} "
+            f"BEFORE {operation} ON qualification_submission_lineage BEGIN "
+            "SELECT RAISE(ABORT, 'Qualification submission lineage is immutable.'); END"
+        )
 
 
 def _import_legacy_execution_dismissals(root: Path, connection: sqlite3.Connection) -> None:
@@ -1018,6 +1043,7 @@ MIGRATIONS: dict[int, Migration] = {
     32: _schema_v32,
     33: _schema_v33,
     34: _schema_v34,
+    35: _schema_v35,
 }
 
 
@@ -1464,12 +1490,14 @@ def load_submission_for_run(root: Path, run_id: str) -> dict[str, object] | None
 
 
 def load_run_lineage(root: Path, run_id: str) -> dict[str, object] | None:
-    """Load explicit qualification lineage; legacy rows deliberately remain unavailable."""
+    """Load prospective qualification lineage; legacy rows remain unavailable."""
     connection = open_storage(root)
     try:
         row = connection.execute(
-            "SELECT submission_id,fresh_submission,retry_parent_run_id,resume_parent_run_id,recorded_at "
-            "FROM execution_run_qualification_context WHERE run_id=?", (run_id,)
+            "SELECT q.submission_id,q.fresh_submission,q.retry_parent_submission_id,"
+            "q.resume_parent_submission_id,q.created_at,q.submission_kind "
+            "FROM qualification_submission_lineage AS q "
+            "JOIN execution_submission_links AS l ON l.submission_id=q.submission_id WHERE l.run_id=?", (run_id,)
         ).fetchone()
     finally:
         connection.close()
@@ -1477,7 +1505,7 @@ def load_run_lineage(root: Path, run_id: str) -> dict[str, object] | None:
         return None
     return {
         "submission_id": row[0], "fresh_submission": bool(row[1]),
-        "retry_parent": row[2], "resume_parent": row[3], "recorded_at": row[4],
+        "retry_parent": row[2], "resume_parent": row[3], "recorded_at": row[4], "submission_kind": row[5],
     }
 
 
@@ -1499,6 +1527,31 @@ def record_run_qualification_context(
             "INSERT OR IGNORE INTO execution_run_qualification_context("
             "run_id,submission_id,fresh_submission,retry_parent_run_id,resume_parent_run_id,recorded_at) VALUES(?,?,?,?,?,?)",
             (run_id, submission_id, int(fresh_submission), retry_parent_run_id, resume_parent_run_id, recorded_at),
+        )
+    finally:
+        connection.close()
+
+
+def record_qualification_submission_lineage(
+    root: Path, *, submission_id: str, fresh_submission: bool,
+    retry_parent_submission_id: str | None, resume_parent_submission_id: str | None,
+    created_at: str,
+) -> None:
+    """Persist one explicit prospective qualification-submission lineage."""
+    if not all(isinstance(value, str) and value for value in (submission_id, created_at)):
+        raise EngineeringStorageError("Qualification submission identity is invalid.")
+    if retry_parent_submission_id is not None and resume_parent_submission_id is not None:
+        raise EngineeringStorageError("Qualification submission cannot have dual parents.")
+    if fresh_submission != (retry_parent_submission_id is None and resume_parent_submission_id is None):
+        raise EngineeringStorageError("Qualification submission fresh state is inconsistent.")
+    connection = open_storage(root)
+    try:
+        connection.execute(
+            "INSERT OR IGNORE INTO qualification_submission_lineage("
+            "submission_id,submission_kind,fresh_submission,retry_parent_submission_id,resume_parent_submission_id,created_at) "
+            "VALUES(?,?,?,?,?,?)",
+            (submission_id, "RUN_QUALIFICATION", int(fresh_submission), retry_parent_submission_id,
+             resume_parent_submission_id, created_at),
         )
     finally:
         connection.close()
@@ -1574,8 +1627,24 @@ def load_validation_context(root: Path, run_id: str) -> dict[str, object] | None
                 "evidence_ref": evidence_ref, "observed_at": observed_at, "currentness": currentness}
         elif int(currentness) == int(current["currentness"]) and result != current["result"]:
             controls[validation_id] = {**current, "result": "UNRESOLVED", "conflict": True}
+    for validation_id in required:
+        current = controls.get(validation_id)
+        if current is None:
+            controls[validation_id] = {
+                "validation_id": validation_id, "category": "UNRESOLVED", "control_identity": "UNRESOLVED",
+                "required_for_profile": True, "execution_status": "MISSING", "result": "UNRESOLVED",
+                "evidence_ref": None, "observed_at": None, "currentness": -1,
+            }
+        elif current["execution_status"] != "EXECUTED" or not current["evidence_ref"]:
+            controls[validation_id] = {**current, "result": "UNRESOLVED"}
+    required_results = [controls[validation_id]["result"] for validation_id in required]
+    required_state = "FAIL" if any(result == "FAIL" for result in required_results) else (
+        "PASS" if required_results and all(result == "PASS" for result in required_results) else "UNRESOLVED"
+    )
     return {"selected_validation_tier": profile[0], "validation_profile_version": profile[1],
-            "required_validation_controls": tuple(required), "recorded_at": profile[3], "controls": controls}
+            "required_validation_controls": tuple(required), "recorded_at": profile[3], "controls": controls,
+            "required_validation_state": required_state,
+            "unresolved_required_controls": tuple(control for control in required if controls[control]["result"] == "UNRESOLVED")}
 
 
 def record_artifact(
