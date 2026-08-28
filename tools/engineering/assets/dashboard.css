@@ -526,6 +526,10 @@ html[data-theme="light"] .chat-message__body :is(code,pre){background:#e9eef6;co
 .chat-message__body pre{background:transparent;border-radius:0;padding:0}
 html[data-theme="light"] .chat-message__body pre{background:transparent;color:inherit}
 
+/* Inline AI terms are distinguished by monospace alone, never a black chip. */
+.chat-message__body code{background:transparent;border-radius:0;padding:0}
+html[data-theme="light"] .chat-message__body code{background:transparent;color:inherit}
+
 /* Run-scoped AI conversation is opened from Prompt History, alongside evidence actions. */
 .prompt-history-chat{align-items:center;background:transparent;border:1px solid #d0a4ff;border-radius:50%;color:#d0a4ff;display:inline-flex;font:16px/1 system-ui;justify-content:center;min-height:32px;min-width:32px;padding:0}.prompt-history-chat:hover,.prompt-history-chat--recorded{background:#d0a4ff;border-color:#d0a4ff;color:#17151a}.prompt-history-chat--recorded{font-weight:800}
 /* The shared modal shell owns the chat frame, header and safe-area sizing.
@@ -719,7 +723,7 @@ html[data-theme="light"] .report-view-modal__content,html[data-theme="light"] .r
 .dashboard-modal-shell--component{--modal-default-accent:#a3e635}
 .dashboard-modal-shell--confirmation{--modal-default-accent:var(--house-style);--modal-panel-max-width:30rem}
 .dashboard-modal-shell--evidence{--modal-default-accent:#8dc7ff;--category-color:var(--modal-accent)}
-.configuration-controls{display:grid;gap:12px;margin:16px 0}.configuration-controls h2{font-size:16px;margin:0}.configuration-controls label{align-items:center;display:grid;gap:8px;grid-template-columns:minmax(0,1fr) minmax(9rem,14rem)}.configuration-controls .label{align-items:center;display:flex;gap:6px;margin:0}.configuration-field-status{color:#54d6a0;font-size:12px;grid-column:2;justify-self:end;min-height:1em}.configuration-field-status:not(.configuration-status--saved){color:#ff9fb0}.configuration-controls label:has(input[type="checkbox"]){display:flex;grid-template-columns:none}.configuration-controls select{max-width:14rem}#configuration>.configuration-controls:has(#configurationStatus:empty){display:none}.configuration-inbox-field{align-items:center;display:grid;gap:4px 8px;grid-template-columns:minmax(0,1fr) minmax(9rem,14rem)}.configuration-inbox-field>.label,.configuration-inbox-location{grid-column:1}.configuration-inbox-location{color:var(--dashboard-modal-muted);font:12px ui-monospace,monospace;overflow-wrap:anywhere}.configuration-inbox-open{align-self:center;background:#25243a;border:1px solid #818cf8;border-radius:8px;color:#ececff;font:400 13px system-ui;grid-column:2;grid-row:1 / span 2;justify-self:stretch;padding:9px 12px}.configuration-inbox-open::before{content:"⌖";font:16px/1 system-ui;margin-right:7px;vertical-align:-1px}.configuration-inbox-open:hover:not(:disabled){background:#818cf8;color:#171729}.configuration-inbox-open:disabled{cursor:not-allowed;opacity:.55}.configuration-inbox-unavailable{color:var(--dashboard-modal-muted);font-size:12px;grid-column:1 / -1;margin:4px 0 0}.configuration-inbox-modal .dashboard-modal-shell__panel{overflow:hidden}.configuration-inbox-modal__field{display:grid;gap:8px;margin:18px 0}.configuration-inbox-modal__field label{color:var(--modal-secondary-accent);font-size:13px;font-weight:700}.configuration-inbox-modal__field input{box-sizing:border-box;min-width:0;width:100%}.configuration-inbox-modal__browse{justify-self:start}.configuration-inbox-modal__browse::before{content:"⌖";font:16px/1 system-ui;margin-right:7px;vertical-align:-1px}.configuration-inbox-modal pre{overflow-wrap:anywhere;white-space:pre-wrap}html[data-theme="light"] .configuration-inbox-open{background:#f1f2ff;border-color:#6366c9;color:#3b3d82}html[data-theme="light"] .configuration-inbox-open:hover:not(:disabled){background:#c9cdfd;color:#171729}
+.configuration-controls{display:grid;gap:12px;margin:16px 0}.configuration-controls h2{font-size:16px;margin:0}.configuration-controls label{align-items:center;display:grid;gap:8px;grid-template-columns:minmax(0,1fr) minmax(9rem,14rem)}.configuration-controls .label{align-items:center;display:flex;gap:6px;margin:0}.configuration-field-status{color:#54d6a0;font-size:12px;grid-column:2;justify-self:end;min-height:1em}.configuration-field-status:not(.configuration-status--saved){color:#ff9fb0}.configuration-controls label:has(input[type="checkbox"]){display:flex;grid-template-columns:none}.configuration-controls select{max-width:14rem}#configurationStatus:empty{display:none}.configuration-inbox-field{align-items:center;display:grid;gap:4px 8px;grid-template-columns:minmax(0,1fr) minmax(9rem,14rem)}.configuration-inbox-field>.label,.configuration-inbox-location{grid-column:1}.configuration-inbox-location{color:var(--dashboard-modal-muted);font:12px ui-monospace,monospace;overflow-wrap:anywhere}.configuration-inbox-open{align-self:center;background:#25243a;border:1px solid #818cf8;border-radius:8px;color:#ececff;font:400 13px system-ui;grid-column:2;grid-row:1 / span 2;justify-self:stretch;padding:9px 12px}.configuration-inbox-open::before{content:"⌖";font:16px/1 system-ui;margin-right:7px;vertical-align:-1px}.configuration-inbox-open:hover:not(:disabled){background:#818cf8;color:#171729}.configuration-inbox-open:disabled{cursor:not-allowed;opacity:.55}.configuration-inbox-unavailable{color:var(--dashboard-modal-muted);font-size:12px;grid-column:1 / -1;margin:4px 0 0}.configuration-inbox-modal .dashboard-modal-shell__panel{overflow:hidden}.configuration-inbox-modal__field{display:grid;gap:8px;margin:18px 0}.configuration-inbox-modal__field label{color:var(--modal-secondary-accent);font-size:13px;font-weight:700}.configuration-inbox-modal__field input{box-sizing:border-box;min-width:0;width:100%}.configuration-inbox-modal__browse{justify-self:start}.configuration-inbox-modal__browse::before{content:"⌖";font:16px/1 system-ui;margin-right:7px;vertical-align:-1px}.configuration-inbox-modal pre{overflow-wrap:anywhere;white-space:pre-wrap}html[data-theme="light"] .configuration-inbox-open{background:#f1f2ff;border-color:#6366c9;color:#3b3d82}html[data-theme="light"] .configuration-inbox-open:hover:not(:disabled){background:#c9cdfd;color:#171729}
 .configuration-card{margin-bottom:0}
 .inbox-queue>.configuration-inbox-field,.inbox-queue>.queue-project-settings{border-top:1px solid color-mix(in srgb,var(--category-color) 40%,transparent);margin-top:16px;padding-top:16px}.inbox-queue>.queue-project-settings{margin-bottom:0}
 .configuration-status--saved{color:#54d6a0!important}
@@ -1207,3 +1211,26 @@ html[data-theme="light"] #componentLogControls :is(input[type="date"],input[type
   outline:1px solid var(--house-style)!important;
   outline-offset:0!important;
 }
+
+/* Owner approval and focused check repair are sibling PR actions.  Their
+   dimensions deliberately match so the approval gate does not look secondary. */
+.open-pr-owner-authorization,
+.open-pr-check-repair{
+  align-items:center;
+  display:inline-flex;
+  font:600 13px/1.2 system-ui;
+  min-height:46px;
+  padding:9px 12px;
+}
+.open-pr-owner-authorization::before{
+  content:"✓";
+  font-size:16px;
+  font-weight:800;
+  line-height:1;
+  margin-right:7px;
+}
+
+/* Dashboard actions are inline-flex by default.  Native `hidden` must still
+   win for retry actions after a successful reload or regeneration. */
+#promptHistoryReportReload[hidden],
+#promptHistoryReportRetry[hidden]{display:none!important}
