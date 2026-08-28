@@ -1737,10 +1737,14 @@ test.describe("Engineering Status browser smoke", () => {
       await page.evaluate(() => r({
         watcher_state: "ENGINEERING_RUN_ACTIVE",
         run_id: "localized-operational-codes",
-        current_action: "reconcile_rolling_records_on_main",
+        current_phase: "RECONCILE_AGENT",
+        current_action: "create_finalization",
       }, {}));
       await expect(page.locator("#action")).toHaveText(
-        DASHBOARD_MESSAGES[language]["operational.reconcile_rolling_records_on_main"],
+        DASHBOARD_MESSAGES[language]["operational.create_finalization"],
+      );
+      await expect(page.locator("#phase")).toHaveText(
+        DASHBOARD_MESSAGES[language]["lifecycle.step.reconcile_agent"],
       );
     }
   });
