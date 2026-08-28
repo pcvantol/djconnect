@@ -446,10 +446,17 @@ def _corrected_terminal_report(run_id: str, phase: str | None, diagnostic: str |
 
 
 def _prompt_title(content: str, filename: str) -> str:
-    """Expose only a bounded Markdown title, never the submitted prompt body."""
-    for line in content.splitlines():
+    """Expose only a bounded submitted title, never the prompt body."""
+    lines = content.splitlines()
+    for line in lines:
         if line.startswith("# ") and line[2:].strip():
             return redact_diagnostic(line[2:].strip(), limit=240)
+    for index, line in enumerate(lines[:-1]):
+        if line.strip() != "TITLE":
+            continue
+        for candidate in lines[index + 1 :]:
+            if candidate.strip():
+                return redact_diagnostic(candidate.strip(), limit=240)
     return redact_diagnostic(filename, limit=240)
 
 
