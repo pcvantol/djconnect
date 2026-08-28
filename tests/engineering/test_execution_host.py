@@ -383,7 +383,10 @@ class ClientContractTest(unittest.TestCase):
             self._git(checkout, "commit", "-m", "local main")
             local_head = self._git(checkout, "rev-parse", "HEAD")
 
-            with self.assertRaisesRegex(RunnerError, "fast-forward"):
+            with self.assertRaisesRegex(
+                RunnerError,
+                rf"target_branch=main authoritative_ref=origin/main local_sha={local_head} .*fast_forward_state=diverged",
+            ):
                 SubprocessRepositoryClient().synchronize_main(checkout)
 
             self.assertEqual(self._git(checkout, "rev-parse", "HEAD"), local_head)
