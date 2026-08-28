@@ -4200,7 +4200,9 @@ test.describe("Engineering Status browser smoke", () => {
       average_queue_wait_seconds: 5, complete_count: 1, blocked_count: 0, failed_count: 0,
     }]));
     await page.locator("#executionTelemetry").evaluate((element) => { element.open = true; });
-    await page.locator("#executionTelemetryRows .telemetry-row").click();
+    // The row action itself is covered here; use the dashboard's pointer-like
+    // helper so an unrelated startup overlay cannot intercept the test click.
+    await dispatchDashboardPointerClick(page.locator("#executionTelemetryRows .telemetry-row"));
     const markdown = page.locator("#telemetryDetailDownloadMarkdown");
     const json = page.locator("#telemetryDetailDownloadJson");
     await expect(markdown).toHaveAttribute("aria-label", "Telemetrie van 24-08-2026 als Markdown downloaden");
