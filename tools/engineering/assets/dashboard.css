@@ -522,6 +522,10 @@ html[data-theme="light"] .log-level--error{color:#b42340!important}html[data-the
 /* Advisory chat keeps code readable on a light response surface. */
 html[data-theme="light"] .chat-message__body :is(code,pre){background:#e9eef6;color:#182230}
 
+/* Fenced advice is distinguished by monospace alone; it is not a nested card. */
+.chat-message__body pre{background:transparent;border-radius:0;padding:0}
+html[data-theme="light"] .chat-message__body pre{background:transparent;color:inherit}
+
 /* Run-scoped AI conversation is opened from Prompt History, alongside evidence actions. */
 .prompt-history-chat{align-items:center;background:transparent;border:1px solid #d0a4ff;border-radius:50%;color:#d0a4ff;display:inline-flex;font:16px/1 system-ui;justify-content:center;min-height:32px;min-width:32px;padding:0}.prompt-history-chat:hover,.prompt-history-chat--recorded{background:#d0a4ff;border-color:#d0a4ff;color:#17151a}.prompt-history-chat--recorded{font-weight:800}
 /* The shared modal shell owns the chat frame, header and safe-area sizing.

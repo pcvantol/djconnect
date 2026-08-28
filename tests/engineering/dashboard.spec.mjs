@@ -8596,6 +8596,19 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator(".chat-message--assistant code")).toHaveCSS("color", "rgb(24, 34, 48)");
   });
 
+  test("keeps fenced AI-chat code unfilled while retaining a monospace font", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => {
+      const message = document.createElement("article");
+      message.className = "chat-message chat-message--assistant";
+      message.innerHTML = '<div class="chat-message__body"><pre>herstel veilig</pre></div>';
+      document.querySelector("#chatMessages").append(message);
+    });
+    const code = page.locator(".chat-message--assistant pre");
+    await expect(code).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
+    await expect(code).toHaveCSS("font-family", /Unispace|ui-monospace|monospace/);
+  });
+
   test("opens and closes all visible dashboard categories with the title-bar switch", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.locator("#autoRefresh").uncheck();
