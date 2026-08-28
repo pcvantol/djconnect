@@ -14,7 +14,7 @@ from tools.engineering.contracts.models import ContractVersionError, require_com
 from tools.engineering.managed_autonomy import append_pr_check_observation
 from tools.engineering.storage import (
     open_storage,
-    record_run_qualification_context,
+    record_qualification_submission,
     record_submission,
     record_validation_control_result,
     record_validation_profile,
@@ -88,9 +88,9 @@ class ContractProjectionTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             state = self._state(root)
-            record_run_qualification_context(
+            record_qualification_submission(
                 root, run_id=state.run_id, submission_id="submission-contract", fresh_submission=True,
-                retry_parent_run_id=None, resume_parent_run_id=None, recorded_at="2026-08-28T00:00:00+00:00",
+                retry_parent_submission_id=None, resume_parent_submission_id=None, recorded_at="2026-08-28T00:00:00+00:00",
             )
             record_validation_profile(
                 root, run_id=state.run_id, selected_validation_tier="DOCUMENTATION", validation_profile_version="1.0",

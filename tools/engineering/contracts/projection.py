@@ -134,15 +134,15 @@ def _qualification_evidence(connection: sqlite3.Connection, run_id: str) -> tupl
     """Read only explicit v33 qualification evidence; never infer legacy facts."""
     try:
         lineage = connection.execute(
-            "SELECT submission_id,fresh_submission,retry_parent_run_id,resume_parent_run_id,recorded_at "
-            "FROM execution_run_qualification_context WHERE run_id=?", (run_id,)
+            "SELECT submission_id,fresh_submission,retry_parent_submission_id,resume_parent_submission_id,recorded_at "
+            "FROM execution_qualification_submissions WHERE run_id=?", (run_id,)
         ).fetchone()
         profile = connection.execute(
             "SELECT selected_validation_tier,validation_profile_version,required_validation_controls,recorded_at "
             "FROM execution_validation_profiles WHERE run_id=?", (run_id,)
         ).fetchone()
         controls = connection.execute(
-            "SELECT validation_id,category,required_for_profile,execution_status,result,observed_at,currentness "
+            "SELECT validation_id,category,required_for_profile,execution_status,result,evidence_ref,observed_at,currentness "
             "FROM execution_validation_control_results WHERE run_id=? ORDER BY id", (run_id,)
         ).fetchall()
     except sqlite3.OperationalError:
@@ -164,18 +164,21 @@ def _qualification_evidence(connection: sqlite3.Connection, run_id: str) -> tupl
     for row in controls:
         validation_id = str(row[0])
         existing = current.get(validation_id)
-        if existing is None or int(row[6]) > int(existing[6]):
+        if existing is None or int(row[7]) > int(existing[7]):
             current[validation_id] = row
-        elif int(row[6]) == int(existing[6]) and row[4] != existing[4]:
+        elif int(row[7]) == int(existing[7]) and row[4] != existing[4]:
             conflicts.add(validation_id)
     def result_for(validation_id: str) -> object:
         if validation_id in conflicts:
             return "UNRESOLVED"
         row = current.get(validation_id)
         return row[4] if row is not None else None
+    def qualifies(validation_id: str) -> bool:
+        row = current.get(validation_id)
+        return row is not None and row[3] == "EXECUTED" and bool(row[5])
     results = [result_for(validation_id) for validation_id in required]
-    required_state = "FAIL" if any(result == "FAIL" for result in results) else (
-        "PASS" if results and all(result == "PASS" for result in results) else "UNRESOLVED"
+    required_state = "FAIL" if any(qualifies(item) and result_for(item) == "FAIL" for item in required) else (
+        "PASS" if required and all(qualifies(item) and result_for(item) == "PASS" for item in required) else "UNRESOLVED"
     )
     return lineage_projection, {
         "selected_validation_tier": profile[0], "validation_profile_version": profile[1],
@@ -183,7 +186,7 @@ def _qualification_evidence(connection: sqlite3.Connection, run_id: str) -> tupl
         "recorded_at": profile[3],
         "controls": [
             {"validation_id": validation_id, "category": row[1], "required_for_profile": bool(row[2]),
-             "execution_status": row[3], "result": result_for(validation_id), "observed_at": row[5]}
+             "execution_status": row[3], "result": result_for(validation_id), "evidence_ref": row[5], "observed_at": row[6]}
             for validation_id, row in sorted(current.items())
         ],
     }

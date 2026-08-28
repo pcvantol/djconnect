@@ -57,7 +57,7 @@ from .dependabot_admission import (
     publish_envelope as publish_dependabot_envelope,
     record_enqueued as record_dependabot_enqueued,
 )
-from .storage import ENGINEERING_STORAGE_SCHEMA_VERSION, EngineeringStorageError, dismissal_for_run, is_active_blocking_predecessor, load_projection, open_storage, record_admission_decision, record_artifact, record_execution_dismissal, record_run_qualification_context, record_submission, store_projection
+from .storage import ENGINEERING_STORAGE_SCHEMA_VERSION, EngineeringStorageError, dismissal_for_run, is_active_blocking_predecessor, load_projection, open_storage, record_admission_decision, record_artifact, record_execution_dismissal, record_qualification_submission, record_run_qualification_context, record_submission, store_projection
 from .execution_lease import reconcile_stale
 from .dashboard_configuration import get as dashboard_configuration
 from .execution_repository import GhCliClient, SubprocessRepositoryClient
@@ -665,6 +665,28 @@ def retry_metadata(content: str) -> dict[str, object]:
         "retry_generation": int(generation.group(1)) if generation else 1,
         "retry_timestamp": timestamp.group(1).strip() if timestamp else None,
     }
+
+
+QUALIFICATION_SUBMISSION_PATTERN = re.compile(r"(?mi)^qualification[ _-]submission\s*:\s*(new|retry|resume)\s*$")
+QUALIFICATION_RETRY_PARENT_PATTERN = re.compile(r"(?mi)^qualification[ _-]retry[ _-]parent\s*:\s*([a-z0-9][a-z0-9._:-]{0,159})\s*$")
+QUALIFICATION_RESUME_PARENT_PATTERN = re.compile(r"(?mi)^qualification[ _-]resume[ _-]parent\s*:\s*([a-z0-9][a-z0-9._:-]{0,159})\s*$")
+
+
+def qualification_submission_metadata(content: str) -> dict[str, object] | None:
+    """Read an explicit qualification operation; never infer it from delivery retry headers."""
+    kind = QUALIFICATION_SUBMISSION_PATTERN.search(content)
+    if kind is None:
+        return None
+    mode = kind.group(1).upper()
+    retry = QUALIFICATION_RETRY_PARENT_PATTERN.search(content)
+    resume = QUALIFICATION_RESUME_PARENT_PATTERN.search(content)
+    if mode == "NEW" and retry is None and resume is None:
+        return {"fresh_submission": True, "retry_parent": None, "resume_parent": None}
+    if mode == "RETRY" and retry is not None and resume is None:
+        return {"fresh_submission": False, "retry_parent": retry.group(1), "resume_parent": None}
+    if mode == "RESUME" and resume is not None and retry is None:
+        return {"fresh_submission": False, "retry_parent": None, "resume_parent": resume.group(1)}
+    return None
 
 
 def queued_retry_children(root: Path) -> list[dict[str, object]]:
@@ -1845,6 +1867,15 @@ def once(repo: Path, root: Path, interval: float = 1.0, *, background: bool = Fa
                 retry_parent_run_id=retry_parent if isinstance(retry_parent, str) else None,
                 resume_parent_run_id=None, recorded_at=eligible_at.isoformat(),
             )
+            qualification_lineage = qualification_submission_metadata(content)
+            if qualification_lineage is not None:
+                record_qualification_submission(
+                    repo, run_id=run_id, submission_id=submission_id,
+                    fresh_submission=bool(qualification_lineage["fresh_submission"]),
+                    retry_parent_submission_id=qualification_lineage["retry_parent"],
+                    resume_parent_submission_id=qualification_lineage["resume_parent"],
+                    recorded_at=eligible_at.isoformat(),
+                )
         except EngineeringStorageError as error:
             status(repo, "JOB_FAILED", queued_jobs=len(candidates), queue_items=_queue_items(candidates), diagnostic="De canonieke Execution Host-opslag is niet beschikbaar.")
             log_event(logger, logging.ERROR, "submission_persist_failed", run_id=run_id, diagnostic=str(error))

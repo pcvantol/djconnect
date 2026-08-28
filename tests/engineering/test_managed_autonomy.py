@@ -13,6 +13,7 @@ from tools.engineering.managed_autonomy import (
 )
 from tools.engineering.storage import (
     record_run_qualification_context,
+    record_qualification_submission,
     record_validation_control_result,
     record_validation_profile,
 )
@@ -21,9 +22,9 @@ from tools.engineering.storage import (
 class ManagedAutonomyEvidenceTest(unittest.TestCase):
     def _qualified(self, root: Path, *, retry_parent: str | None = None, resume_parent: str | None = None) -> dict[str, object]:
         run = "inbox-managed-proof"
-        record_run_qualification_context(
+        record_qualification_submission(
             root, run_id=run, submission_id="submission-managed-proof", fresh_submission=retry_parent is None and resume_parent is None,
-            retry_parent_run_id=retry_parent, resume_parent_run_id=resume_parent, recorded_at="2026-08-28T00:00:00+00:00",
+            retry_parent_submission_id=retry_parent, resume_parent_submission_id=resume_parent, recorded_at="2026-08-28T00:00:00+00:00",
         )
         record_validation_profile(
             root, run_id=run, selected_validation_tier="DOCUMENTATION", validation_profile_version="1.0",
@@ -322,12 +323,12 @@ class ManagedAutonomyEvidenceTest(unittest.TestCase):
     def test_original_lineage_cannot_be_overwritten_by_later_finalization(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
-            record_run_qualification_context(root, run_id="lineage-finalization", submission_id="submission-one",
-                                             fresh_submission=True, retry_parent_run_id=None, resume_parent_run_id=None,
-                                             recorded_at="2026-08-28T00:00:00+00:00")
-            record_run_qualification_context(root, run_id="lineage-finalization", submission_id="submission-two",
-                                             fresh_submission=False, retry_parent_run_id="old-run", resume_parent_run_id=None,
-                                             recorded_at="2026-08-28T00:01:00+00:00")
+            record_qualification_submission(root, run_id="lineage-finalization", submission_id="submission-one",
+                                            fresh_submission=True, retry_parent_submission_id=None, resume_parent_submission_id=None,
+                                            recorded_at="2026-08-28T00:00:00+00:00")
+            record_qualification_submission(root, run_id="lineage-finalization", submission_id="submission-two",
+                                            fresh_submission=False, retry_parent_submission_id="old-submission", resume_parent_submission_id=None,
+                                            recorded_at="2026-08-28T00:01:00+00:00")
             snapshot = terminal_snapshot(root, run_id="lineage-finalization", execution_outcome="COMPLETE",
                                          implementation_pr=None, finalization_pr=None, repository_state="UNAVAILABLE",
                                          workspace_state="UNAVAILABLE", main_origin_sync="UNAVAILABLE", worktree_state="UNAVAILABLE",
@@ -356,7 +357,23 @@ class ManagedAutonomyEvidenceTest(unittest.TestCase):
                                        implementation_pr=None, finalization_pr=None, repository_state="UNAVAILABLE",
                                        workspace_state="UNAVAILABLE", main_origin_sync="UNAVAILABLE", worktree_state="UNAVAILABLE",
                                        active_blocker="UNAVAILABLE", recovery_required="UNAVAILABLE")
-            self.assertEqual(failed["required_validation_state"], "FAIL")
+        self.assertEqual(failed["required_validation_state"], "FAIL")
+
+    def test_delivery_retry_cannot_contaminate_new_qualification_lineage(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            record_run_qualification_context(root, run_id="delivery-retry", submission_id="delivery-submission",
+                                             fresh_submission=False, retry_parent_run_id="delivery-parent", resume_parent_run_id=None,
+                                             recorded_at="2026-08-28T00:00:00+00:00")
+            record_qualification_submission(root, run_id="new-qualification", submission_id="qualification-submission",
+                                            fresh_submission=True, retry_parent_submission_id=None, resume_parent_submission_id=None,
+                                            recorded_at="2026-08-28T00:00:01+00:00")
+            snapshot = terminal_snapshot(root, run_id="new-qualification", execution_outcome="COMPLETE",
+                                         implementation_pr=None, finalization_pr=None, repository_state="UNAVAILABLE",
+                                         workspace_state="UNAVAILABLE", main_origin_sync="UNAVAILABLE", worktree_state="UNAVAILABLE",
+                                         active_blocker="UNAVAILABLE", recovery_required="UNAVAILABLE")
+        self.assertEqual(snapshot["fresh_submission"], "YES")
+        self.assertEqual(snapshot["retry_parent"], "NONE")
 
     def test_newer_required_check_pass_supersedes_historical_waiting(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

@@ -24,7 +24,7 @@ from .producer import ProducerMetadata, parse_producer_metadata
 from .providers import GitProvider
 from .qualification import latest_qualification
 from .recommendation_handoff import ForgeGovernanceHandoff, report_lines as recommendation_handoff_report_lines
-from .storage import EngineeringStorageError, load_readiness_evaluation, load_submission_for_run, load_run_lineage
+from .storage import EngineeringStorageError, load_readiness_evaluation, load_qualification_submission, load_submission_for_run
 from .provider_usage import provider_usage_summary
 from .managed_autonomy import terminal_snapshot as managed_autonomy_snapshot
 
@@ -129,12 +129,12 @@ def _objective_requirements(objective: str) -> tuple[str, ...]:
 
 
 def _deliverable_answer(objective: str, state: TransactionState) -> str:
-    """Answer explicit binary delivery requests from the persisted terminal state."""
+    """Report delivery completion without translating it into qualification status."""
     requested = re.search(r"\bYES\b|\bPASS\b|\bGO\b|\bNO-GO\b", objective, re.IGNORECASE)
     if not requested:
         return "Not explicitly requested by the prompt."
     if state.phase == "COMPLETE":
-        return "YES / PASS / GO — the persisted terminal checkpoint is COMPLETE."
+        return "Execution delivery COMPLETE — Run Qualification is reported separately from persisted qualification evidence."
     if state.phase == "BLOCKED":
         return "NO / FAIL / NO-GO — the persisted terminal checkpoint is BLOCKED."
     return "NO / FAIL / NO-GO — the persisted terminal checkpoint is FAILED."
@@ -921,7 +921,7 @@ def _format_engineering_outcome(state: TransactionState) -> str:
 def _managed_autonomy_projection(root: Path, state: TransactionState, bundle: TerminalEvidenceBundle, reviewer_records: tuple[dict[str, object], ...]) -> tuple[str, ...]:
     """Project canonical evidence only; legacy runs intentionally fail closed."""
     try:
-        lineage = load_run_lineage(root, state.run_id)
+        lineage = load_qualification_submission(root, state.run_id)
     except EngineeringStorageError:
         lineage = None
     try:
@@ -937,9 +937,7 @@ def _managed_autonomy_projection(root: Path, state: TransactionState, bundle: Te
         worktree_state=bundle.worktree_state.upper(), active_blocker="NONE" if state.phase == "COMPLETE" else "UNAVAILABLE",
         recovery_required="NO" if state.phase == "COMPLETE" else "UNAVAILABLE",
         retry_parent=lineage.get("retry_parent") if lineage else None,
-        # Resume reuses the canonical run ID. No separate resume parent is persisted
-        # by the existing lifecycle, so retain an explicit unavailable boundary.
-        resume_parent=None,
+        resume_parent=lineage.get("resume_parent") if lineage else None,
         submission_id=str(submission["submission_id"]) if submission else None,
         lineage_available=lineage is not None,
         reviewer_records=reviewer_records,

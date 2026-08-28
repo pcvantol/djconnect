@@ -29,6 +29,8 @@ from tools.engineering.storage import (
     record_admission_decision,
     load_admission_decision,
     record_readiness_evaluation,
+    record_qualification_submission,
+    load_qualification_submission,
     load_readiness_evaluation,
     regenerate_status_projections,
     store_projection,
@@ -239,6 +241,9 @@ class EngineeringStorageTest(unittest.TestCase):
                 connection.execute(
                     "DELETE FROM engineering_schema_migrations WHERE version=34"
                 )
+                connection.execute(
+                    "DELETE FROM engineering_schema_migrations WHERE version=35"
+                )
             with activate_storage_schema(root) as connection:
                 columns = {
                     row[1]
@@ -251,6 +256,20 @@ class EngineeringStorageTest(unittest.TestCase):
                     ).fetchone()[0],
                     ENGINEERING_STORAGE_SCHEMA_VERSION,
                 )
+
+    def test_qualification_submission_lineage_is_immutable_and_prospective(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            self.assertIsNone(load_qualification_submission(root, "historical-run"))
+            record_qualification_submission(
+                root, run_id="future-run", submission_id="future-submission", fresh_submission=True,
+                retry_parent_submission_id=None, resume_parent_submission_id=None,
+                recorded_at="2026-08-28T00:00:00+00:00",
+            )
+            self.assertEqual(load_qualification_submission(root, "future-run")["submission_kind"], "QUALIFICATION")
+            with open_storage(root) as connection:
+                with self.assertRaises(sqlite3.DatabaseError):
+                    connection.execute("UPDATE execution_qualification_submissions SET fresh_submission=0 WHERE run_id='future-run'")
 
     def test_schema_four_imports_legacy_redacted_component_logs_once(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

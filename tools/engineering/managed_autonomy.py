@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import Iterable
 
-from .storage import EngineeringStorageError, load_run_lineage, load_validation_context, open_storage
+from .storage import EngineeringStorageError, load_qualification_submission, load_validation_context, open_storage
 
 AUTHORITIES = frozenset(
     {
@@ -253,7 +253,7 @@ def terminal_snapshot(
     validation, conflict = _current(rows)
     pr_checks, pr_check_conflict = _current_pr_checks(pr_rows)
     try:
-        persisted_lineage = load_run_lineage(root, run_id)
+        persisted_lineage = load_qualification_submission(root, run_id)
         validation_context = load_validation_context(root, run_id)
     except EngineeringStorageError:
         persisted_lineage = validation_context = None
@@ -271,8 +271,12 @@ def terminal_snapshot(
     if validation_context is not None:
         required = set(validation_context["required_validation_controls"])
         controls = validation_context["controls"]
-        results = [controls.get(control, {}).get("result") for control in required]
-        required_state = "FAIL" if any(result == "FAIL" for result in results) else "PASS" if results and all(result == "PASS" for result in results) else "UNRESOLVED"
+        required_controls = [controls.get(control, {}) for control in required]
+        qualifying = [item.get("execution_status") == "EXECUTED" and bool(item.get("evidence_ref")) for item in required_controls]
+        results = [item.get("result") for item in required_controls]
+        required_state = "FAIL" if any(ok and result == "FAIL" for ok, result in zip(qualifying, results)) else (
+            "PASS" if results and all(ok and result == "PASS" for ok, result in zip(qualifying, results)) else "UNRESOLVED"
+        )
         profile_projection = {key: validation_context[key] for key in ("selected_validation_tier", "validation_profile_version", "required_validation_controls")}
         validation = {**validation, **{key: value.get("result", "UNRESOLVED") for key, value in controls.items()}}
     elif required:

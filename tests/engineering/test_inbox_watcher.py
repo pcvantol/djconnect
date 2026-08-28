@@ -25,6 +25,20 @@ from tools.engineering.telemetry import wait_for_pending_telemetry
 
 
 class InboxWatcherTest(unittest.TestCase):
+    def test_explicit_qualification_submission_lineage_does_not_read_delivery_retry(self) -> None:
+        fresh = inbox_watcher.qualification_submission_metadata(
+            "Retry-Of: inbox-delivery-parent\nQualification Submission: NEW\n"
+        )
+        retry = inbox_watcher.qualification_submission_metadata(
+            "Qualification Submission: RETRY\nQualification Retry Parent: qualification-original\n"
+        )
+        resume = inbox_watcher.qualification_submission_metadata(
+            "Qualification Submission: RESUME\nQualification Resume Parent: qualification-original\n"
+        )
+        self.assertEqual(fresh, {"fresh_submission": True, "retry_parent": None, "resume_parent": None})
+        self.assertEqual(retry, {"fresh_submission": False, "retry_parent": "qualification-original", "resume_parent": None})
+        self.assertEqual(resume, {"fresh_submission": False, "retry_parent": None, "resume_parent": "qualification-original"})
+
     def setUp(self) -> None:
         self.temp = tempfile.TemporaryDirectory()
         self.root = Path(self.temp.name) / "cloud"

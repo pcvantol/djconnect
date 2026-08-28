@@ -21,7 +21,7 @@ import sqlite3
 
 WORKSPACE_DIRECTORY = ".engineering"
 DATABASE_FILENAME = "engineering.db"
-ENGINEERING_STORAGE_SCHEMA_VERSION = 34
+ENGINEERING_STORAGE_SCHEMA_VERSION = 35
 JOURNAL_MODES = frozenset({"DELETE", "MEMORY"})
 LEGACY_DISMISSALS_PATH = Path(".engineering/status/execution_dismissals.json")
 ADMITTED_STORAGE_SCHEMA_ENVIRONMENT = "DJCONNECT_ENGINEERING_ADMITTED_STORAGE_SCHEMA"
@@ -926,6 +926,31 @@ def _schema_v34(connection: sqlite3.Connection) -> None:
         "role TEXT NOT NULL CHECK(role IN ('user','assistant')),content TEXT NOT NULL,"
         "model TEXT,created_at TEXT NOT NULL)"
     )
+
+
+def _schema_v35(connection: sqlite3.Connection) -> None:
+    """Persist prospective qualification-submission lineage separately from delivery retries.
+
+    Existing v33 lineage remains delivery evidence.  This migration deliberately
+    creates no qualification rows, so historical unknown facts stay unknown.
+    """
+    connection.execute(
+        "CREATE TABLE IF NOT EXISTS execution_qualification_submissions ("
+        "run_id TEXT PRIMARY KEY,submission_id TEXT NOT NULL,submission_kind TEXT NOT NULL "
+        "CHECK(submission_kind='QUALIFICATION'),fresh_submission INTEGER NOT NULL "
+        "CHECK(fresh_submission IN (0,1)),retry_parent_submission_id TEXT,"
+        "resume_parent_submission_id TEXT,recorded_at TEXT NOT NULL,"
+        "CHECK(NOT (retry_parent_submission_id IS NOT NULL AND resume_parent_submission_id IS NOT NULL)),"
+        "CHECK((fresh_submission=1 AND retry_parent_submission_id IS NULL AND resume_parent_submission_id IS NULL) "
+        "OR (fresh_submission=0 AND (retry_parent_submission_id IS NOT NULL OR resume_parent_submission_id IS NOT NULL)))"
+        ")"
+    )
+    for operation in ("UPDATE", "DELETE"):
+        connection.execute(
+            f"CREATE TRIGGER IF NOT EXISTS execution_qualification_submissions_immutable_{operation.casefold()} "
+            f"BEFORE {operation} ON execution_qualification_submissions BEGIN "
+            "SELECT RAISE(ABORT, 'Qualification submission lineage is immutable.'); END"
+        )
     connection.execute(
         "CREATE INDEX IF NOT EXISTS execution_chat_messages_run_created "
         "ON execution_chat_messages(run_id,id)"
@@ -1018,6 +1043,7 @@ MIGRATIONS: dict[int, Migration] = {
     32: _schema_v32,
     33: _schema_v33,
     34: _schema_v34,
+    35: _schema_v35,
 }
 
 
@@ -1502,6 +1528,48 @@ def record_run_qualification_context(
         )
     finally:
         connection.close()
+
+
+def record_qualification_submission(
+    root: Path, *, run_id: str, submission_id: str, fresh_submission: bool,
+    retry_parent_submission_id: str | None, resume_parent_submission_id: str | None,
+    recorded_at: str,
+) -> None:
+    """Persist prospective qualification lineage before provider execution."""
+    if not all(isinstance(value, str) and value for value in (run_id, submission_id, recorded_at)):
+        raise EngineeringStorageError("Qualification submission identity is invalid.")
+    if retry_parent_submission_id is not None and resume_parent_submission_id is not None:
+        raise EngineeringStorageError("Qualification submission cannot have dual parents.")
+    if fresh_submission != (retry_parent_submission_id is None and resume_parent_submission_id is None):
+        raise EngineeringStorageError("Qualification submission fresh state is inconsistent.")
+    connection = open_storage(root)
+    try:
+        connection.execute(
+            "INSERT OR IGNORE INTO execution_qualification_submissions("
+            "run_id,submission_id,submission_kind,fresh_submission,retry_parent_submission_id,resume_parent_submission_id,recorded_at) "
+            "VALUES(?,?,?,?,?,?,?)",
+            (run_id, submission_id, "QUALIFICATION", int(fresh_submission), retry_parent_submission_id,
+             resume_parent_submission_id, recorded_at),
+        )
+    finally:
+        connection.close()
+
+
+def load_qualification_submission(root: Path, run_id: str) -> dict[str, object] | None:
+    """Load only explicit prospective qualification lineage."""
+    connection = open_storage(root)
+    try:
+        row = connection.execute(
+            "SELECT submission_id,submission_kind,fresh_submission,retry_parent_submission_id,"
+            "resume_parent_submission_id,recorded_at FROM execution_qualification_submissions WHERE run_id=?",
+            (run_id,),
+        ).fetchone()
+    finally:
+        connection.close()
+    if row is None:
+        return None
+    return {"submission_id": row[0], "submission_kind": row[1], "fresh_submission": bool(row[2]),
+            "retry_parent": row[3], "resume_parent": row[4], "recorded_at": row[5]}
 
 
 def record_validation_profile(
