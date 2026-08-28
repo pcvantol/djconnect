@@ -56,8 +56,10 @@ operational contracts are `AI_SESSION_INITIALIZATION.md`,
 first phase. `PROMPT_INITIALIZATION.md` owns the exact prompt sequence so this
 method does not duplicate operational detail.
 
-Every engineering prompt must execute `git switch main` followed by
-`git pull --ff-only` before repository reading or planning. It must then verify
+Every engineering prompt must execute `git switch main`, `git fetch origin main`
+and `git merge --ff-only origin/main` before repository reading or planning.
+Managed synchronization selects `origin/main` explicitly and must not depend on
+local upstream, `branch.*.merge` or Git pull-policy configuration. It must then verify
 the current branch, `HEAD`, upstream tracking branch, fast-forward status,
 working tree and repository cleanliness. Synchronization or verification
 failure is terminal for that prompt: stop and resolve repository state before
