@@ -8619,7 +8619,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#inboxComponentLog .log-level--error").first()).toHaveCSS("color", "rgb(180, 35, 64)");
   });
 
-  test("uses a light inline-code surface in AI answers when light mode is enabled", async ({ page }) => {
+  test("uses monospace without a filled inline-code surface in AI answers", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.locator("#themeToggle").click();
     await page.evaluate(() => {
@@ -8628,8 +8628,9 @@ test.describe("Engineering Status browser smoke", () => {
       message.innerHTML = '<div class="chat-message__body"><p><code>git diff --check</code></p></div>';
       document.querySelector("#chatMessages").append(message);
     });
-    await expect(page.locator(".chat-message--assistant code")).toHaveCSS("background-color", "rgb(233, 238, 246)");
-    await expect(page.locator(".chat-message--assistant code")).toHaveCSS("color", "rgb(24, 34, 48)");
+    const code = page.locator(".chat-message--assistant code");
+    await expect(code).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
+    await expect(code).toHaveCSS("font-family", /Unispace|ui-monospace|monospace/);
   });
 
   test("keeps fenced AI-chat code unfilled while retaining a monospace font", async ({ page }) => {
