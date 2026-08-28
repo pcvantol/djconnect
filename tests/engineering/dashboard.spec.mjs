@@ -989,6 +989,13 @@ test.describe("Engineering Status browser smoke", () => {
     expect(bounds.right).toBeLessThanOrEqual(bounds.cardRight);
   });
 
+  test("does not add a second bottom gap after the configuration card", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await waitForDashboardReady(page);
+    await expect(page.locator("#configuration")).toHaveCSS("margin-bottom", "0px");
+  });
+
   test("stacks mobile log filters and reveals only the selected date controls", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
