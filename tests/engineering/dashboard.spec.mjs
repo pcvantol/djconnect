@@ -8292,9 +8292,10 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#promptHistoryChatTitle"))
       .toHaveText(DASHBOARD_MESSAGES.nl["history.execution_chat_title"]);
     let submittedRun;
+    await page.route("**/api/prompt-history/**/chat", (route) => route.fulfill({ json: { messages: [] } }));
     await page.route("**/api/codex-chat", async (route) => {
       submittedRun = route.request().postDataJSON().run_id;
-      await route.fulfill({ json: { answer: "Dit advies hoort bij de geselecteerde prompt.", model: "Codex CLI" } });
+      await route.fulfill({ json: { answer: "Dit advies hoort bij de geselecteerde prompt.", model: "Codex CLI", messages: [{ role: "user", text: "Wat is de volgende stap?" }, { role: "assistant", text: "Dit advies hoort bij de geselecteerde prompt." }] } });
     });
     await page.locator("#chatInput").fill("Wat is de volgende stap?");
     const chatSubmittedResponse = page.waitForResponse((response) => (
@@ -9186,13 +9187,20 @@ test.describe("Engineering Status browser smoke", () => {
     expect(nativeDialogs).toEqual([]);
   });
 
-  test("clears only the browser-local AI conversation through the in-app modal", async ({ page }) => {
+  test("clears only the persistent run-scoped AI conversation through the in-app modal", async ({ page }) => {
     // Avoid the production empty-history retry detaching the chat action.
     await page.route("**/api/prompt-history", (route) => route.fulfill({ json: {
       runs: [{ run_id: "inbox-fixture", status: "COMPLETE", title: "Fixture" }],
     } }));
+    let messages = [];
+    await page.route("**/api/prompt-history/**/chat", (route) => route.fulfill({ json: { messages } }));
+    await page.route("**/api/codex-chat/clear", (route) => {
+      messages = [];
+      return route.fulfill({ json: { cleared: true } });
+    });
     await page.route("**/api/codex-chat", async (route) => {
-      await route.fulfill({ contentType: "application/json", body: '{"answer":"De uitvoering is gereed.","model":"Codex CLI"}' });
+      messages = [{ role: "user", text: "Wat is de status?" }, { role: "assistant", text: "De uitvoering is gereed." }];
+      await route.fulfill({ json: { answer: "De uitvoering is gereed.", model: "Codex CLI", messages } });
     });
     const historyLoaded = page.waitForResponse("**/api/prompt-history");
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
@@ -9217,7 +9225,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#clearChat")).toBeVisible();
     await page.locator("#clearChat").click();
     const modal = page.locator("#confirmationModal");
-    await expect(modal).toContainText("Dit wist alleen de lokale chatweergave.");
+    await expect(modal).toContainText("Dit wist permanent alleen dit geredigeerde gesprek.");
     await page.locator("#confirmationModalCancel").click();
     await expect(page.locator("#chatMessages")).toContainText("Wat is de status?");
 
@@ -9227,7 +9235,25 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#clearChat")).toBeHidden();
     await expect(page.locator("#downloadChat")).toBeHidden();
     await expect(page.locator("#copyChat")).toBeHidden();
-    await expect.poll(() => page.evaluate(() => sessionStorage.getItem("djconnect-engineering-chat-history"))).toBeNull();
+  });
+
+  test("emphasizes the AI chat action for a prompt with a persistent conversation", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#autoRefresh").uncheck();
+    await page.evaluate(() => {
+      promptHistoryEntries = [{
+        run_id: "inbox-chat-history",
+        status: "COMPLETE",
+        title: "Chatgeschiedenis",
+        executed_at: "2026-08-04T12:00:00Z",
+        chat_message_count: 1,
+      }];
+      renderPromptHistory();
+    });
+    const chat = page.locator("#promptHistoryRows .prompt-history-chat");
+    await expect(chat).toHaveClass(/prompt-history-chat--recorded/);
+    await expect(chat).toHaveCSS("background-color", "rgb(208, 164, 255)");
+    await expect(chat).toHaveCSS("border-top-color", "rgb(208, 164, 255)");
   });
 
   test("refreshes status and prompt history immediately after dismissing an execution", async ({ page }) => {

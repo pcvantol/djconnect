@@ -21,7 +21,7 @@ import sqlite3
 
 WORKSPACE_DIRECTORY = ".engineering"
 DATABASE_FILENAME = "engineering.db"
-ENGINEERING_STORAGE_SCHEMA_VERSION = 32
+ENGINEERING_STORAGE_SCHEMA_VERSION = 33
 JOURNAL_MODES = frozenset({"DELETE", "MEMORY"})
 LEGACY_DISMISSALS_PATH = Path(".engineering/status/execution_dismissals.json")
 ADMITTED_STORAGE_SCHEMA_ENVIRONMENT = "DJCONNECT_ENGINEERING_ADMITTED_STORAGE_SCHEMA"
@@ -875,6 +875,25 @@ def _schema_v32(connection: sqlite3.Connection) -> None:
         )
 
 
+def _schema_v33(connection: sqlite3.Connection) -> None:
+    """Store bounded, redacted, run-scoped advisory chat transcripts."""
+    connection.execute(
+        "CREATE TABLE IF NOT EXISTS execution_chat_messages ("
+        "id INTEGER PRIMARY KEY,run_id TEXT NOT NULL REFERENCES prompt_execution_history(run_id),"
+        "role TEXT NOT NULL CHECK(role IN ('user','assistant')),content TEXT NOT NULL,"
+        "model TEXT,created_at TEXT NOT NULL)"
+    )
+    connection.execute(
+        "CREATE INDEX IF NOT EXISTS execution_chat_messages_run_created "
+        "ON execution_chat_messages(run_id,id)"
+    )
+    connection.execute(
+        "CREATE TRIGGER IF NOT EXISTS execution_chat_messages_immutable_update "
+        "BEFORE UPDATE ON execution_chat_messages BEGIN "
+        "SELECT RAISE(ABORT, 'Chat transcript messages are immutable.'); END"
+    )
+
+
 def _import_legacy_execution_dismissals(root: Path, connection: sqlite3.Connection) -> None:
     """Copy valid legacy dismissal evidence into the canonical datastore.
 
@@ -954,6 +973,7 @@ MIGRATIONS: dict[int, Migration] = {
     30: _schema_v30,
     31: _schema_v31,
     32: _schema_v32,
+    33: _schema_v33,
 }
 
 

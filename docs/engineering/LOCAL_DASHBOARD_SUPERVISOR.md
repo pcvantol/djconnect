@@ -327,7 +327,8 @@ terminal execution.
 The adjacent AI-chat glyph opens a separate near-fullscreen, read-only
 question-and-answer context for that same Run ID. It receives only the selected
 run's bounded evidence and cannot start engineering work or alter repository
-state. Its browser-session history is isolated per Run ID.
+state. Its transcript is stored privately with that terminal Run ID, so the
+same conversation remains available after a dashboard restart.
 When an artifact does not exist, the dashboard states that explicitly and does
 not present its action. Copy confirmation is a local toast only; it does not
 send report content to another service. On iPhone, a legacy clipboard fallback
@@ -392,9 +393,9 @@ clearing, predecessor retry and clearing the AI conversation. Native browser
 confirmation and alert popups are not part of the supported interaction
 contract.
 
-The AI conversation's **Chat wissen** glyph clears only its browser-session
-view. It never changes Promptgeschiedenis, a delivered report or any Inbox
-item. Download and clear controls reserve their own row above the first chat
+The AI conversation's **Chat wissen** glyph clears only that persistent,
+redacted Run-ID transcript. It never changes Promptgeschiedenis, a delivered
+report or any Inbox item. Download and clear controls reserve their own row above the first chat
 bubble so they cannot overlap evidence content. Informational component and
 report dialogs likewise receive programmatic focus on their neutral dialog
 shell when opened; only a deliberate keyboard interaction highlights a
@@ -681,9 +682,15 @@ Inbox files, modify a repository,
 create or merge pull requests, or trigger release, deployment or publication.
 Any requested implementation must be submitted as a new Engineering prompt.
 
-Conversation history is browser-session-local and scoped by Run ID, so one
-terminal prompt can never supply conversation context to another. It is not
-Engineering Memory and is never an Inbox, runner or repository-control channel.
+Conversation history is a private, run-scoped transcript: user and assistant
+messages are redacted before storage, bounded to 20 messages per run and
+retained for 90 days. It is not Engineering Memory and is never an Inbox,
+runner or repository-control channel. Generic run details, Markdown reports
+and JSON exports deliberately exclude transcripts; the chat modal is the only
+place that can explicitly copy or download its own redacted conversation.
+Clearing the chat removes only that run's transcript. An Engineering-database
+backup may contain retained, redacted transcripts because it is a private
+operator backup of the canonical local evidence store.
 
 During an active prompt, the execution card can present a bounded, safe
 **Huidige Codex-activiteit** label such as planning, reading files, editing or

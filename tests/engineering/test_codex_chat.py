@@ -7,7 +7,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from tools.engineering.codex_chat import CodexChatError, respond
+from tools.engineering.codex_chat import CodexChatError, clear_history, history, respond
 from tools.engineering.prompt_history import record_prompt_execution
 
 
@@ -22,6 +22,10 @@ class CodexChatTest(unittest.TestCase):
             (job / "job.json").write_text('{"run_id":"inbox-last"}', encoding="utf-8")
             (job / "prompt.md").write_text("# Laatste prompt", encoding="utf-8")
             (reports / "20260801_inbox-last.md").write_text("# Laatste rapport", encoding="utf-8")
+            record_prompt_execution(
+                root, run_id="inbox-last", terminal_state="COMPLETE", prompt_title="Laatste prompt",
+                executed_at="2026-08-01T12:00:00Z", report=reports / "20260801_inbox-last.md",
+            )
             git = subprocess.CompletedProcess(("git",), 0, "## main\n", "")
             codex = subprocess.CompletedProcess(
                 ("codex",),
@@ -36,7 +40,7 @@ class CodexChatTest(unittest.TestCase):
                 "",
             )
             with patch("tools.engineering.codex_chat.GitProvider.execute", return_value=git), patch("tools.engineering.codex_chat.CodexCliProvider.invoke", return_value=codex) as run:
-                answer = respond(root, {"last_executed_run": "inbox-last", "last_executed_title": "Laatste prompt"}, "Wat is de volgende stap?", [])
+                answer = respond(root, {"last_executed_run": "inbox-last", "last_executed_title": "Laatste prompt"}, "Wat is de volgende stap? secret=topsecret")
                 self.assertEqual(answer, "Veilig advies.")
                 command = run.call_args.args[1]
             self.assertIn("--sandbox", command)
@@ -49,14 +53,20 @@ class CodexChatTest(unittest.TestCase):
             self.assertNotIn(str(root), command)
             self.assertIn("Laatste rapport", command[-1])
             self.assertIn("Laatste prompt", command[-1])
+            self.assertEqual(history(root, "inbox-last"), [
+                {"role": "user", "text": "Wat is de volgende stap? [REDACTED]"},
+                {"role": "assistant", "text": "Veilig advies."},
+            ])
+            clear_history(root, "inbox-last")
+            self.assertEqual(history(root, "inbox-last"), [])
 
     def test_response_requires_a_completed_run_and_valid_bounded_history(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             with self.assertRaises(CodexChatError):
-                respond(root, {}, "Hallo", [])
+                respond(root, {}, "Hallo")
             with self.assertRaises(CodexChatError):
-                respond(root, {"last_executed_run": "inbox-last"}, "Hallo", [{}])
+                history(root, "inbox-last")
 
     def test_response_uses_the_explicit_history_run_instead_of_the_latest_run(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -78,7 +88,7 @@ class CodexChatTest(unittest.TestCase):
                 json.dumps({"type": "item.completed", "item": {"type": "agent_message", "text": "Rungebonden advies."}}) + "\n", "",
             )
             with patch("tools.engineering.codex_chat.GitProvider.execute", return_value=git), patch("tools.engineering.codex_chat.CodexCliProvider.invoke", return_value=codex) as run:
-                answer = respond(root, {"last_executed_run": "inbox-other", "last_executed_title": "Andere prompt"}, "Wat is de status?", [], "inbox-selected")
+                answer = respond(root, {"last_executed_run": "inbox-other", "last_executed_title": "Andere prompt"}, "Wat is de status?", "inbox-selected")
                 self.assertEqual(answer, "Rungebonden advies.")
                 context = run.call_args.args[1][-1]
             self.assertIn("inbox-selected", context)

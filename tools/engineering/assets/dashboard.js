@@ -1144,33 +1144,20 @@ function loadComponentLogs() {
   // page from the full retained SQLite history.
   refreshComponentLogs({}, true);
 }
-const CHAT_HISTORY_KEY = "djconnect-engineering-chat-history",
-  CHAT_HISTORY_LIMIT = 20;
+const CHAT_HISTORY_LIMIT = 20;
 let chatContextRun = "";
-function chatHistoryStorageKey(run = chatContextRun) {
-  return CHAT_HISTORY_KEY + ":" + String(run || "none");
-}
-function loadChatHistory(run) {
-  try {
-    const saved = JSON.parse(sessionStorage.getItem(chatHistoryStorageKey(run)) || "[]");
-    return Array.isArray(saved)
-      ? saved
-          .filter(
-            (entry) =>
-              entry &&
-              ["user", "assistant"].includes(entry.role) &&
-              typeof entry.text === "string",
-          )
-          .slice(-CHAT_HISTORY_LIMIT)
-      : [];
-  } catch {
-    return [];
-  }
-}
 let chatHistory = [];
-function persistChatHistory() {
-  if (chatContextRun)
-    sessionStorage.setItem(chatHistoryStorageKey(), JSON.stringify(chatHistory));
+function updateChatHistoryCount(count) {
+  promptHistoryEntries = promptHistoryEntries.map((entry) =>
+    entry.run_id === chatContextRun ? { ...entry, chat_message_count: count } : entry,
+  );
+  renderPromptHistory();
+}
+function normaliseChatMessages(value) {
+  return Array.isArray(value)
+    ? value.filter((entry) => entry && ["user", "assistant"].includes(entry.role) && typeof entry.text === "string")
+        .slice(-CHAT_HISTORY_LIMIT)
+    : [];
 }
 function renderLegacyChatMessage(role, text) {
   let item = document.createElement("article"),
@@ -1200,17 +1187,12 @@ function askCodex() {
   if (!message || !chatContextRun || $("chatSend").disabled) return;
   $("chatSend").disabled = true;
   $("chatStatus").textContent = t("chat.thinking");
-  chatHistory.push({ role: "user", text: message });
-  chatHistory = chatHistory.slice(-CHAT_HISTORY_LIMIT);
-  persistChatHistory();
-  chatMessage("user", message);
   input.value = "";
   fetch("/api/codex-chat", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       message: message,
-      history: chatHistory.slice(0, -1).slice(-6),
       run_id: chatContextRun,
     }),
   })
@@ -1221,13 +1203,11 @@ function askCodex() {
     .then((result) => {
       if (!result.ok)
         throw Error(t("chat.unavailable"));
-      let answer = result.body.answer;
       $("chatModel").textContent =
         result.body.model || $("chatModel").textContent;
-      chatHistory.push({ role: "assistant", text: answer });
-      chatHistory = chatHistory.slice(-CHAT_HISTORY_LIMIT);
-      persistChatHistory();
-      chatMessage("assistant", answer);
+      chatHistory = normaliseChatMessages(result.body.messages);
+      renderChatHistory();
+      updateChatHistoryCount(chatHistory.length);
       $("chatStatus").textContent = "";
     })
     .catch(() => {
@@ -1244,15 +1224,27 @@ function closePromptHistoryChat() {
 function openPromptHistoryChat(entry) {
   if (!entry?.run_id) return;
   chatContextRun = String(entry.run_id);
-  chatHistory = loadChatHistory(chatContextRun);
+  chatHistory = [];
   $("promptHistoryChatTitle").textContent = t("history.execution_chat_title");
   $("promptHistoryChatDescription").textContent = t("history.chat_description");
-  $("chatStatus").textContent = "";
+  $("chatStatus").textContent = t("chat.thinking");
+  $("chatSend").disabled = true;
   renderChatHistory();
   updateChatActions();
   const modal = $("promptHistoryChatModal");
   if (!modal.open) modal.showModal();
   resetDashboardModalInitialFocus(modal);
+  fetch("/api/prompt-history/" + encodeURIComponent(chatContextRun) + "/chat", { cache: "no-store" })
+    .then(async (response) => ({ ok: response.ok, body: await response.json() }))
+    .then((result) => {
+      if (!result.ok) throw Error("chat unavailable");
+      chatHistory = normaliseChatMessages(result.body.messages);
+      renderChatHistory();
+      updateChatActions();
+      $("chatStatus").textContent = "";
+    })
+    .catch(() => { $("chatStatus").textContent = t("chat.unavailable"); })
+    .finally(() => { $("chatSend").disabled = false; });
 }
 function fallbackCopy(value) {
   const area = document.createElement("textarea");
@@ -5121,6 +5113,8 @@ function renderPromptHistory() {
       if (entry.run_id) {
         const button = document.createElement("button");
         button.className = "prompt-history-chat";
+        if (Number(entry.chat_message_count) > 0)
+          button.classList.add("prompt-history-chat--recorded");
         button.type = "button";
         button.title = t("history.open_chat", { title: title.textContent });
         button.setAttribute("aria-label", button.title);
@@ -7825,10 +7819,21 @@ $("clearChat").addEventListener("click", () =>
     { destructive: true },
   ).then((confirmed) => {
     if (!confirmed) return;
-    chatHistory = [];
-    if (chatContextRun) sessionStorage.removeItem(chatHistoryStorageKey());
-    renderChatHistory();
-    updateChatActions();
+    if (!chatContextRun) return;
+    $("clearChat").disabled = true;
+    fetch("/api/codex-chat/clear", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ run_id: chatContextRun }),
+    })
+      .then((response) => {
+        if (!response.ok) throw Error("clear failed");
+        chatHistory = [];
+        renderChatHistory();
+        updateChatHistoryCount(0);
+      })
+      .catch(() => { $("chatStatus").textContent = t("chat.unavailable"); })
+      .finally(() => { $("clearChat").disabled = false; updateChatActions(); });
   }),
 );
 const updateChatDownloadWithClear = updateChatDownloadAvailability;

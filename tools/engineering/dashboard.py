@@ -49,7 +49,13 @@ from .component_logging import (
 from .component_lock import DuplicateComponentInstanceError, single_instance
 from .agent_state import is_valid_commit_evidence_record, redact_diagnostic
 from .pr_check_repair import PullRequestCheckRepairError, admit as admit_pr_check_repair, attempted as pr_check_repair_attempted, check_summary as pr_check_repair_check_summary, mark_dispatch_failed as mark_pr_check_repair_dispatch_failed, repair_state as pr_check_repair_state
-from .codex_chat import CodexChatError, chat_model, respond as codex_chat_response
+from .codex_chat import (
+    CodexChatError,
+    chat_model,
+    clear_history as clear_codex_chat_history,
+    history as codex_chat_history,
+    respond as codex_chat_response,
+)
 from .codex_capacity import read_remaining_percent
 from .telemetry import clear_telemetry, daily_statistics, daily_timing_detail, execution_timing, prune_telemetry
 from .prompt_history import prompt_history, report_for_prompt_history
@@ -3609,6 +3615,25 @@ def handler(root: Path, logger: logging.Logger | None = None):
                     "application/json; charset=utf-8",
                 )
                 return
+            if request_path == "/api/codex-chat/clear":
+                try:
+                    length = int(self.headers.get("Content-Length", "0"))
+                    if not 0 < length <= 256:
+                        raise ValueError
+                    payload = json.loads(self.rfile.read(length).decode("utf-8"))
+                    if not isinstance(payload, dict) or set(payload) != {"run_id"}:
+                        raise ValueError
+                    clear_codex_chat_history(root, payload["run_id"])
+                except CodexChatError as error:
+                    content = json.dumps({"error": str(error)}, ensure_ascii=False).encode()
+                    self._send(content, "application/json; charset=utf-8", 404)
+                    return
+                except (UnicodeDecodeError, ValueError, json.JSONDecodeError):
+                    self._send(b'{"error":"Ongeldig chatverzoek."}', "application/json; charset=utf-8", 400)
+                    return
+                log_event(logger, logging.INFO, "ai_chat_history_cleared", run_id=payload["run_id"])
+                self._send(b'{"cleared":true}', "application/json; charset=utf-8")
+                return
             if request_path != "/api/codex-chat":
                 self.send_error(404)
                 return
@@ -3617,14 +3642,11 @@ def handler(root: Path, logger: logging.Logger | None = None):
                 if not 0 < length <= 16_000:
                     raise ValueError
                 payload = json.loads(self.rfile.read(length).decode("utf-8"))
-                if not isinstance(payload, dict) or set(payload) not in (
-                    {"message", "history"},
-                    {"message", "history", "run_id"},
-                ):
+                if not isinstance(payload, dict) or set(payload) not in ({"message"}, {"message", "run_id"}):
                     raise ValueError
                 status = json.loads(_status(root))
                 answer = codex_chat_response(
-                    root, status, payload["message"], payload["history"], payload.get("run_id")
+                    root, status, payload["message"], payload.get("run_id")
                 )
             except CodexChatError as error:
                 content = json.dumps({"error": str(error)}, ensure_ascii=False).encode()
@@ -3635,7 +3657,10 @@ def handler(root: Path, logger: logging.Logger | None = None):
                 return
             log_event(logger, logging.INFO, "ai_chat_message_sent", diagnostic="[REDACTED]")
             self._send(
-                json.dumps({"answer": answer, "model": chat_model()}, ensure_ascii=False).encode(),
+                json.dumps(
+                    {"answer": answer, "model": chat_model(), "messages": codex_chat_history(root, payload.get("run_id") or status.get("last_executed_run"))},
+                    ensure_ascii=False,
+                ).encode(),
                 "application/json; charset=utf-8",
             )
 
@@ -3671,6 +3696,14 @@ def handler(root: Path, logger: logging.Logger | None = None):
                 return self._send(content, content_type)
             if request.path == "/api/prompt-history":
                 return self._send(_prompt_history(root), "application/json; charset=utf-8")
+            if request.path.startswith("/api/prompt-history/") and request.path.endswith("/chat"):
+                run_id = request.path.removeprefix("/api/prompt-history/").removesuffix("/chat").strip("/")
+                try:
+                    messages = codex_chat_history(root, run_id)
+                except CodexChatError as error:
+                    self._send(json.dumps({"error": str(error)}, ensure_ascii=False).encode(), "application/json; charset=utf-8", 404)
+                    return
+                return self._send(json.dumps({"messages": messages}, ensure_ascii=False).encode(), "application/json; charset=utf-8")
             if request.path == "/api/engineering-database/download":
                 snapshot = _engineering_database_snapshot(root)
                 if snapshot is None:
