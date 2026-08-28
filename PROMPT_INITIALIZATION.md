@@ -21,7 +21,10 @@ Repository Synchronization
 
 ## Repository Synchronization
 
-Run `git switch main` and then `git pull --ff-only`. If either fails, stop.
+Run `git switch main`, `git fetch origin main` and then
+`git merge --ff-only origin/main`. Managed synchronization selects
+`origin/main` explicitly; it must not use `git pull` or inherit local upstream
+or merge-target configuration. If any command fails, stop.
 
 ## Current Main Verification
 

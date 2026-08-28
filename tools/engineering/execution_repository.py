@@ -86,7 +86,22 @@ class SubprocessRepositoryClient:
 
     def synchronize_main(self, root: Path) -> None:
         self._synchronize_command(root, "git", "switch", "main")
-        self._synchronize_command(root, "git", "pull", "--ff-only")
+        # Managed synchronization has one authority.  Do not let any local
+        # branch.*.merge, pull.*, or upstream configuration select its source.
+        try:
+            self._synchronize_command(root, "git", "fetch", "origin", "main")
+        except RunnerError as error:
+            raise RunnerError(
+                "MANAGED_MAIN_FETCH_FAILED: target_branch=main authoritative_ref=origin/main "
+                f"operation=git-fetch-origin-main; {error}"
+            ) from error
+        try:
+            self._synchronize_command(root, "git", "merge", "--ff-only", "origin/main")
+        except RunnerError as error:
+            raise RunnerError(
+                "MANAGED_MAIN_FAST_FORWARD_FAILED: target_branch=main authoritative_ref=origin/main "
+                f"operation=git-merge-ff-only-origin-main; {error}"
+            ) from error
 
     def cleanup_transaction(self, root: Path, branches: tuple[str | None, ...]) -> str:
         self._run(root, "git", "fetch", "--prune"); self.synchronize_main(root)
