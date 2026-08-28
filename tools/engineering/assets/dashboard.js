@@ -355,27 +355,47 @@ function dashboardHealthPresentation(status = latestStatus, platformHealth = lat
       : null,
     dashboardHealthy = components?.dashboard?.healthy === true,
     watcherHealthy = components?.inbox_watcher?.healthy === true,
+    relayHealthy = components?.dashboard_relay?.healthy === true,
     queueDepth = Math.max(0, Number(current?.queue_depth) || 0),
     watcherState = String(current?.watcher_state || ""),
     workspaceState = String(current?.workspace_state || ""),
     phase = String(current?.current_phase || "").toUpperCase(),
     watcherStateUpper = watcherState.toUpperCase(),
     active = isActiveRun(current || {}),
+    workspaceActive = active && workspaceState === "ACTIVE",
     blocked = phase === "BLOCKED" || watcherStateUpper.includes("WAITING") || watcherStateUpper.includes("BLOCKED"),
     failed = phase === "FAILED" || watcherStateUpper.includes("FAILED") || watcherStateUpper.includes("DEGRADED") ||
-      (components && (!dashboardHealthy || !watcherHealthy));
+      (components && (!dashboardHealthy || !watcherHealthy || !relayHealthy));
   let state = "unknown";
   if (failed) state = "error";
   else if (blocked || queueDepth > 0) state = "blocked";
   else if (active) state = "active";
-  else if (dashboardHealthy && watcherHealthy && watcherState === "WATCHER_IDLE" && workspaceState === "WORKSPACE_READY") state = "ready";
+  else if (dashboardHealthy && watcherHealthy && relayHealthy && watcherState === "WATCHER_IDLE" && workspaceState === "WORKSPACE_READY") state = "ready";
+  const componentCheck = (name, componentKey, healthy) => {
+    const component = components?.[componentKey];
+    const unavailable = components ? "not_running" : "unknown";
+    const reasonCode = !healthy && components && typeof component?.reason_code === "string"
+      ? component.reason_code
+      : "";
+    const reason = !healthy && components
+      ? (reasonCode ? t("component.reason." + reasonCode) : String(component?.detail || component?.state || "").trim())
+      : "";
+    return [
+      name,
+      healthy ? "running" : unavailable,
+      healthy ? "good" : components ? "bad" : "unknown",
+      {},
+      { component: components ? componentKey : null, reason },
+    ];
+  };
   const checks = [
-    ["dashboard", dashboardHealthy ? "running" : components ? "not_running" : "unknown", dashboardHealthy ? "good" : components ? "bad" : "unknown"],
-    ["watcher", watcherHealthy ? "running" : components ? "not_running" : "unknown", watcherHealthy ? "good" : components ? "bad" : "unknown"],
+    componentCheck("dashboard", "dashboard", dashboardHealthy),
+    componentCheck("watcher", "inbox_watcher", watcherHealthy),
+    componentCheck("relay", "dashboard_relay", relayHealthy),
     ["execution", active ? "active" : phase === "BLOCKED" ? "blocked" : phase === "FAILED" ? "error" : "none_active", active ? "good" : phase === "BLOCKED" ? "warning" : phase === "FAILED" ? "bad" : "good"],
     ["queue", queueDepth ? "queue_waiting" : "queue_empty", queueDepth ? "warning" : "good", { count: queueDepth }],
     ["watcher_state", watcherState || "unknown", watcherState === "WATCHER_IDLE" ? "good" : watcherStateUpper.includes("FAILED") || watcherStateUpper.includes("DEGRADED") ? "bad" : watcherState ? "warning" : "unknown"],
-    ["workspace", workspaceState || "unknown", workspaceState === "WORKSPACE_READY" ? "good" : workspaceState ? "bad" : "unknown"],
+    ["workspace", workspaceState || "unknown", workspaceState === "WORKSPACE_READY" || workspaceActive ? "good" : workspaceState ? "bad" : "unknown"],
   ];
   return { state, checks };
 }
@@ -388,12 +408,35 @@ function renderDashboardHealth(status = latestStatus, platformHealth = latestPla
   accessibleLabel.textContent = t("dashboard.health.title") + ": " + title;
   tooltipTitle.textContent = t("dashboard.health.title") + " · " + title;
   checks.replaceChildren();
-  for (const [name, value, tone, values = {}] of presentation.checks) {
+  for (const [name, value, tone, values = {}, metadata = {}] of presentation.checks) {
     const item = document.createElement("li"), label = document.createElement("span"), result = document.createElement("span");
     item.dataset.health = tone;
+    item.className = "dashboard-health__check";
     label.textContent = t("dashboard.health." + name);
     result.textContent = t("dashboard.health." + value, values, translate(value));
+    result.className = "dashboard-health__value";
     item.append(label, result);
+    if (metadata.reason) {
+      const reason = document.createElement("span");
+      reason.className = "dashboard-health__reason";
+      reason.textContent = t("dashboard.health.reason", { reason: metadata.reason });
+      item.append(reason);
+    }
+    if (metadata.component) {
+      item.classList.add("dashboard-health__check--component");
+      item.tabIndex = 0;
+      item.setAttribute("role", "button");
+      item.setAttribute(
+        "aria-label",
+        t("component.more_information", { component: label.textContent }),
+      );
+      item.addEventListener("click", () => showComponentDetails(metadata.component));
+      item.addEventListener("keydown", (event) => {
+        if (event.key !== "Enter" && event.key !== " ") return;
+        event.preventDefault();
+        showComponentDetails(metadata.component);
+      });
+    }
     checks.append(item);
   }
 }
@@ -1104,33 +1147,20 @@ function loadComponentLogs() {
   // page from the full retained SQLite history.
   refreshComponentLogs({}, true);
 }
-const CHAT_HISTORY_KEY = "djconnect-engineering-chat-history",
-  CHAT_HISTORY_LIMIT = 20;
+const CHAT_HISTORY_LIMIT = 20;
 let chatContextRun = "";
-function chatHistoryStorageKey(run = chatContextRun) {
-  return CHAT_HISTORY_KEY + ":" + String(run || "none");
-}
-function loadChatHistory(run) {
-  try {
-    const saved = JSON.parse(sessionStorage.getItem(chatHistoryStorageKey(run)) || "[]");
-    return Array.isArray(saved)
-      ? saved
-          .filter(
-            (entry) =>
-              entry &&
-              ["user", "assistant"].includes(entry.role) &&
-              typeof entry.text === "string",
-          )
-          .slice(-CHAT_HISTORY_LIMIT)
-      : [];
-  } catch {
-    return [];
-  }
-}
 let chatHistory = [];
-function persistChatHistory() {
-  if (chatContextRun)
-    sessionStorage.setItem(chatHistoryStorageKey(), JSON.stringify(chatHistory));
+function updateChatHistoryCount(count) {
+  promptHistoryEntries = promptHistoryEntries.map((entry) =>
+    entry.run_id === chatContextRun ? { ...entry, chat_message_count: count } : entry,
+  );
+  renderPromptHistory();
+}
+function normaliseChatMessages(value) {
+  return Array.isArray(value)
+    ? value.filter((entry) => entry && ["user", "assistant"].includes(entry.role) && typeof entry.text === "string")
+        .slice(-CHAT_HISTORY_LIMIT)
+    : [];
 }
 function renderLegacyChatMessage(role, text) {
   let item = document.createElement("article"),
@@ -1160,17 +1190,12 @@ function askCodex() {
   if (!message || !chatContextRun || $("chatSend").disabled) return;
   $("chatSend").disabled = true;
   $("chatStatus").textContent = t("chat.thinking");
-  chatHistory.push({ role: "user", text: message });
-  chatHistory = chatHistory.slice(-CHAT_HISTORY_LIMIT);
-  persistChatHistory();
-  chatMessage("user", message);
   input.value = "";
   fetch("/api/codex-chat", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       message: message,
-      history: chatHistory.slice(0, -1).slice(-6),
       run_id: chatContextRun,
     }),
   })
@@ -1181,13 +1206,11 @@ function askCodex() {
     .then((result) => {
       if (!result.ok)
         throw Error(t("chat.unavailable"));
-      let answer = result.body.answer;
       $("chatModel").textContent =
         result.body.model || $("chatModel").textContent;
-      chatHistory.push({ role: "assistant", text: answer });
-      chatHistory = chatHistory.slice(-CHAT_HISTORY_LIMIT);
-      persistChatHistory();
-      chatMessage("assistant", answer);
+      chatHistory = normaliseChatMessages(result.body.messages);
+      renderChatHistory();
+      updateChatHistoryCount(chatHistory.length);
       $("chatStatus").textContent = "";
     })
     .catch(() => {
@@ -1204,15 +1227,27 @@ function closePromptHistoryChat() {
 function openPromptHistoryChat(entry) {
   if (!entry?.run_id) return;
   chatContextRun = String(entry.run_id);
-  chatHistory = loadChatHistory(chatContextRun);
+  chatHistory = [];
   $("promptHistoryChatTitle").textContent = t("history.execution_chat_title");
   $("promptHistoryChatDescription").textContent = t("history.chat_description");
-  $("chatStatus").textContent = "";
+  $("chatStatus").textContent = t("chat.thinking");
+  $("chatSend").disabled = true;
   renderChatHistory();
   updateChatActions();
   const modal = $("promptHistoryChatModal");
   if (!modal.open) modal.showModal();
   resetDashboardModalInitialFocus(modal);
+  fetch("/api/prompt-history/" + encodeURIComponent(chatContextRun) + "/chat", { cache: "no-store" })
+    .then(async (response) => ({ ok: response.ok, body: await response.json() }))
+    .then((result) => {
+      if (!result.ok) throw Error("chat unavailable");
+      chatHistory = normaliseChatMessages(result.body.messages);
+      renderChatHistory();
+      updateChatActions();
+      $("chatStatus").textContent = "";
+    })
+    .catch(() => { $("chatStatus").textContent = t("chat.unavailable"); })
+    .finally(() => { $("chatSend").disabled = false; });
 }
 function fallbackCopy(value) {
   const area = document.createElement("textarea");
@@ -1346,7 +1381,10 @@ function renderTechnicalDiagnosis(status = {}, snapshot = {}) {
   summary.hidden = !(active && !needsAttention);
   summary.textContent = active && !needsAttention ? t("technical.host_check_passed") : "";
   description.textContent = t(needsAttention ? "description.technical_details_attention" : "description.technical_details");
-  section.open = !section.hidden;
+  // A healthy active run exposes the compact host-check summary, but should
+  // not repeatedly expand the operator's page on every snapshot refresh.
+  // Attention evidence remains deliberately prominent and opens this section.
+  section.open = needsAttention;
 }
 function executionContextValue(value) {
   if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") return String(value);
@@ -2063,6 +2101,7 @@ function renderHealthStatus(x, snapshot = {}) {
     indicator = $("indicator"),
     components = snapshot.component_versions || {},
     blockedPredecessor = Boolean(x.blocking_predecessor_run);
+  const precedingExecutionOnly = blockedPredecessor && !active && !visibleStaleLifecycle;
   // A terminal current.json/status projection is historical evidence, not an
   // active prompt.  The watcher owns the operational view; history owns the
   // completed, failed or blocked execution.
@@ -2079,6 +2118,13 @@ function renderHealthStatus(x, snapshot = {}) {
   );
   $("predecessorAction").textContent =
     x.predecessor_recovery_action || t("format.not_available");
+  $("currentRunTitle").textContent = precedingExecutionOnly
+    ? t("recovery.blocked_predecessor_title")
+    : t("section.active_prompt");
+  $("executionIdentityTitle").textContent = precedingExecutionOnly
+    ? t("recovery.preceding_execution")
+    : t("detail.execution");
+  $("promptStartedField").hidden = precedingExecutionOnly;
   renderExecutionContext(x.execution_context, x);
   renderActiveLifecycle(x.lifecycle);
   renderOperatorMergeWait(x);
@@ -2123,11 +2169,15 @@ function renderHealthStatus(x, snapshot = {}) {
   // Keep the canonical status renderer backward compatible while they refresh.
   renderPreflightPresentation(snapshot);
   renderTechnicalDiagnosis(x, snapshot);
-  promptStarted(snapshot.prompt_started);
+  if (!precedingExecutionOnly) promptStarted(snapshot.prompt_started);
   renderEstimate(x, latestDurationEstimate);
   processMetrics(active, snapshot.process_metrics);
-  $("currentPrompt").textContent = x.prompt_title || t("format.not_available");
-  $("currentFile").textContent = x.submitted_filename || t("format.not_available");
+  $("currentPrompt").textContent = precedingExecutionOnly
+    ? (x.blocking_predecessor_title || x.blocking_predecessor_filename || t("format.not_available"))
+    : (x.prompt_title || t("format.not_available"));
+  $("currentFile").textContent = precedingExecutionOnly
+    ? (x.blocking_predecessor_filename || t("format.not_available"))
+    : (x.submitted_filename || t("format.not_available"));
   if (!active || x.run_id !== currentLogRun)
     $("currentDiagnostic").hidden = true;
   if (active)
@@ -2138,7 +2188,9 @@ function renderHealthStatus(x, snapshot = {}) {
       false,
       "currentDiagnostic",
     );
-  $("runId").textContent = x.run_id || t("value.none");
+  $("runId").textContent = precedingExecutionOnly
+    ? x.blocking_predecessor_run
+    : (x.run_id || t("value.none"));
   renderInboxBlocker(x);
   queueItems(x.queue_items, x.queue_depth);
   $("repositoryState").textContent = translate(x.repository_state || "UNKNOWN");
@@ -2301,7 +2353,7 @@ function renderWorkspaceWorktrees(projection) {
         pr.href = analysis.pull_request.url;
         pr.target = "_blank";
         pr.rel = "noreferrer";
-        pr.textContent = t("workspace.worktree_analysis_pr", { number: analysis.pull_request.number, state: String(analysis.pull_request.state || "") });
+        pr.textContent = `${t("workspace.worktree_analysis_pr", { number: analysis.pull_request.number, state: String(analysis.pull_request.state || "") })} ↗`;
         item.append(pr);
       }
     } else if (worktree?.branch !== "main") {
@@ -5064,6 +5116,8 @@ function renderPromptHistory() {
       if (entry.run_id) {
         const button = document.createElement("button");
         button.className = "prompt-history-chat";
+        if (Number(entry.chat_message_count) > 0)
+          button.classList.add("prompt-history-chat--recorded");
         button.type = "button";
         button.title = t("history.open_chat", { title: title.textContent });
         button.setAttribute("aria-label", button.title);
@@ -5313,7 +5367,7 @@ function applyDashboardLocale() {
     ["#platformVersionLabel", "footer.platform_version"],
     ["#confirmationModalCancel", "action.cancel"],
     ["#confirmationModalConfirm", "action.confirm"],
-    ["#predecessorRetry", "action.resume_queue"],
+    ["#predecessorRetry", "recovery.action"],
     ["#queueItems > summary > strong", "section.inbox_queue"],
     ["#promptHistory > summary > strong", "section.prompt_history"],
     ["#currentRun > summary .label", "section.active_prompt"],
@@ -5420,6 +5474,7 @@ const configurationFields = Object.freeze({
   configurationLogLevel: ["log_level", String],
   configurationInboxScanInterval: ["inbox_scan_interval_seconds", Number],
   configurationOpenPrInterval: ["open_pr_check_interval_seconds", Number],
+  configurationDashboardStreamInterval: ["dashboard_stream_interval_seconds", Number],
   configurationProviderReadinessInterval: ["provider_readiness_refresh_seconds", Number],
   configurationCodexCapacityReserve: ["codex_capacity_reserve_percent", Number],
   configurationPlatformHealthInterval: ["platform_health_refresh_seconds", Number],
@@ -5549,6 +5604,7 @@ function addConfigurationControlInfo() {
     ["configurationLogLevel", "configuration.log_level_help"],
     ["configurationInboxScanInterval", "configuration.inbox_scan_interval_help"],
     ["configurationOpenPrInterval", "configuration.open_pr_interval_help"],
+    ["configurationDashboardStreamInterval", "configuration.dashboard_stream_interval_help"],
     ["configurationProviderReadinessInterval", "configuration.provider_readiness_interval_help"],
     ["configurationCodexCapacityReserve", "configuration.codex_capacity_reserve_help"],
     ["configurationPlatformHealthInterval", "configuration.platform_health_interval_help"],
@@ -5910,6 +5966,11 @@ function localizeConfigurationOptions() {
   });
   document.querySelectorAll("#configurationProviderReadinessInterval option").forEach((option) => {
     option.textContent = t(option.dataset.i18n);
+  });
+  document.querySelectorAll("#configurationDashboardStreamInterval option").forEach((option) => {
+    option.textContent = option.value === "1"
+      ? t("configuration.second_1")
+      : t("configuration.seconds_value", { value: option.value });
   });
   syncCodexCapacityReserveOptions();
   dashboardSelectPickers.forEach((_, select) => syncDashboardSelectPicker(select));
@@ -7161,6 +7222,7 @@ function renderPredecessorRetry(x) {
     status = $("predecessorRetryStatus");
   button.hidden = !blocked;
   button.disabled = isActiveRun(x || {});
+  button.textContent = t("recovery.action");
   if (!blocked) status.textContent = "";
 }
 function submitPredecessorRetry() {
@@ -7169,17 +7231,17 @@ function submitPredecessorRetry() {
     run = latestStatus?.blocking_predecessor_run;
   if (!run || button.disabled) return;
   confirmDashboardAction(
-    t("queue_recovery.title"),
-    t("queue_recovery.details"),
-    t("action.resume_queue"),
+    t("recovery.title"),
+    t("recovery.details"),
+    t("recovery.action"),
   ).then((confirmed) => {
     if (!confirmed) return;
     button.disabled = true;
-    status.textContent = t("queue_recovery.preparing");
-    fetch("/api/queue-recovery", {
+    status.textContent = t("recovery.preparing");
+    fetch("/api/execution-retry", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: "{}",
+      body: JSON.stringify({ run_id: run }),
     })
       .then(async (response) => ({
         ok: response.ok,
@@ -7188,14 +7250,14 @@ function submitPredecessorRetry() {
       .then((result) => {
         if (!result.ok)
           throw Error(
-            result.body.error || t("queue_recovery.failed"),
+            result.body.error || t("recovery.failed"),
           );
         status.textContent =
-          t("queue_recovery.ready");
+          t("recovery.ready");
       })
       .catch((error) => {
         status.textContent =
-          error.message || t("queue_recovery.failed");
+          error.message || t("recovery.failed");
       })
       .finally(() => {
         button.disabled = false;
@@ -7596,7 +7658,7 @@ function workspaceBranchCleanupDetails(details) {
         href: detail.pull_request.url,
         rel: "noreferrer",
         target: "_blank",
-        textContent: t("workspace.branch_cleanup_pr_link", { number: detail.pull_request.number }),
+        textContent: `${t("workspace.branch_cleanup_pr_link", { number: detail.pull_request.number })} ↗`,
       }));
     }
     list.append(item);
@@ -7767,10 +7829,21 @@ $("clearChat").addEventListener("click", () =>
     { destructive: true },
   ).then((confirmed) => {
     if (!confirmed) return;
-    chatHistory = [];
-    if (chatContextRun) sessionStorage.removeItem(chatHistoryStorageKey());
-    renderChatHistory();
-    updateChatActions();
+    if (!chatContextRun) return;
+    $("clearChat").disabled = true;
+    fetch("/api/codex-chat/clear", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ run_id: chatContextRun }),
+    })
+      .then((response) => {
+        if (!response.ok) throw Error("clear failed");
+        chatHistory = [];
+        renderChatHistory();
+        updateChatHistoryCount(0);
+      })
+      .catch(() => { $("chatStatus").textContent = t("chat.unavailable"); })
+      .finally(() => { $("clearChat").disabled = false; updateChatActions(); });
   }),
 );
 const updateChatDownloadWithClear = updateChatDownloadAvailability;
