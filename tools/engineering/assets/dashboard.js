@@ -348,6 +348,9 @@ function hasVisibleStaleLifecycle(x = {}) {
   return x.watcher_state === "ENGINEERING_RUN_STALE" && Boolean(x.run_id) &&
     x.current_phase !== "COMPLETE" && x.current_phase !== "BLOCKED" && x.current_phase !== "FAILED";
 }
+function watcherDelegatedToActiveHost(component, status = latestStatus) {
+  return component?.component === "inbox_watcher" && component?.healthy !== true && isActiveRun(status || {});
+}
 function dashboardHealthPresentation(status = latestStatus, platformHealth = latestPlatformHealth) {
   const current = status && typeof status === "object" ? status : null,
     components = platformHealth?.components && typeof platformHealth.components === "object"
@@ -3339,10 +3342,11 @@ function showComponentModal(payload) {
   content.replaceChildren();
   const fields = document.createElement("dl");
   componentDetailField(fields, t("component.machine"), payload.machine);
+  const delegatedToActiveHost = watcherDelegatedToActiveHost(payload);
   componentDetailField(
     fields,
     t("component.status"),
-    (payload.healthy ? t("component.health_healthy") : t("component.health_unhealthy")) +
+    (delegatedToActiveHost ? t("dashboard.health.execution_host_active") : payload.healthy ? t("component.health_healthy") : t("component.health_unhealthy")) +
       " · " +
       (payload.detail || payload.state || t("ui.no_component_explanation")),
   );
@@ -3505,26 +3509,27 @@ function renderPlatformHealth(payload) {
       detail = document.createElement("span"),
       info = document.createElement("span"),
       componentHealthy = Boolean(component?.healthy),
+      delegatedToActiveHost = watcherDelegatedToActiveHost({ component: key, healthy: componentHealthy }),
       version =
         typeof component?.version === "string"
           ? " · Versie " + component.version
           : "",
       uptime = formatComponentUptime(component?.uptime_seconds);
     item.className = "platform-health__component";
-    item.dataset.health = String(componentHealthy);
+    item.dataset.health = delegatedToActiveHost ? "delegated" : String(componentHealthy);
     item.tabIndex = 0;
     item.setAttribute("role", "button");
     item.setAttribute(
       "aria-label",
       t("component.more_information", { component: healthComponentLabel(key) }),
     );
-    indicator.className = healthIndicatorClass(componentHealthy);
+    indicator.className = healthIndicatorClass(delegatedToActiveHost || componentHealthy);
     indicator.setAttribute("aria-hidden", "true");
     name.className = "platform-health__component-name";
     name.textContent = healthComponentLabel(key);
     detail.className = "platform-health__component-detail";
     detail.textContent =
-      (componentHealthy ? t("component.health_healthy") : t("component.health_unhealthy")) +
+      (delegatedToActiveHost ? t("dashboard.health.execution_host_active") : componentHealthy ? t("component.health_healthy") : t("component.health_unhealthy")) +
       " · " +
       String(component?.detail || component?.state || t("ui.no_component_explanation")) +
       version +
