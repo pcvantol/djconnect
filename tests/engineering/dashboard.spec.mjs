@@ -950,7 +950,7 @@ test.describe("Engineering Status browser smoke", () => {
     await openDashboardPicker(picker);
     await chooseDashboardPickerOption(picker, "DEBUG");
     expect(await page.evaluate(() => window.__dashboardSelectFocusOptions)).toEqual([]);
-    await expect(page.locator("#configuration .configuration-field")).toHaveCount(6);
+    await expect(page.locator("#configuration .configuration-field")).toHaveCount(5);
   });
 
   test("stacks flat log settings pulldowns below their labels on iPhone", async ({ page }) => {
@@ -9039,7 +9039,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(settings).toHaveCount(1);
     await expect(settings).toHaveCSS("border-top-color", "rgb(240, 182, 106)");
     await expect(settings.locator("#configurationReadonlySettingsTitle")).toHaveText("Vaste platforminstellingen");
-    await expect(settings.locator(".configuration-field")).toHaveCount(6);
+    await expect(settings.locator(".configuration-field")).toHaveCount(5);
   });
 
   test("scans stale local branches before confirming their cleanup", async ({ page }) => {
