@@ -1211,3 +1211,21 @@ html[data-theme="light"] #componentLogControls :is(input[type="date"],input[type
   outline:1px solid var(--house-style)!important;
   outline-offset:0!important;
 }
+
+/* Owner approval and focused check repair are sibling PR actions.  Their
+   dimensions deliberately match so the approval gate does not look secondary. */
+.open-pr-owner-authorization,
+.open-pr-check-repair{
+  align-items:center;
+  display:inline-flex;
+  font:600 13px/1.2 system-ui;
+  min-height:46px;
+  padding:9px 12px;
+}
+.open-pr-owner-authorization::before{
+  content:"✓";
+  font-size:16px;
+  font-weight:800;
+  line-height:1;
+  margin-right:7px;
+}

@@ -1580,6 +1580,8 @@ test.describe("Engineering Status browser smoke", () => {
     const authorize = page.locator("[data-open-pull-request-owner-authorization='940']");
     await expect(authorize).toHaveText(DASHBOARD_MESSAGES.nl["workspace.open_pull_request.authorize_owner"]);
     await expect(authorize).toHaveCSS("border-top-color", "rgb(243, 211, 106)");
+    await expect(authorize).toHaveCSS("min-height", "46px");
+    expect(await authorize.evaluate((element) => getComputedStyle(element, "::before").content)).toBe('"✓"');
     await authorize.click();
     await expect(page.locator("#confirmationModal")).toBeVisible();
     await expect(page.locator("#confirmationModal")).toHaveClass(/dashboard-modal-shell--owner-authorization/);
