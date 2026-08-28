@@ -4136,7 +4136,7 @@ function telemetryDetailMarkdown(detail, date) {
   ];
   return [
     `# ${t("telemetry.detail_title", { date: telemetryDate(date) })}`, "", t("telemetry.detail_description"), "",
-    `## ${t("telemetry.summary")}`, "", telemetryMarkdownTable([t("table.details"), t("table.value")], summaryRows), "",
+    `## ${t("telemetry.summary")}`, "", telemetryMarkdownTable([t("table.details"), t("history.markdown_value")], summaryRows), "",
     `## ${t("telemetry.phase_timing")}`, "", phaseRows.length ? telemetryMarkdownTable([t("telemetry.phase"), t("telemetry.average"), t("telemetry.median"), t("telemetry.accumulated"), t("telemetry.share"), t("telemetry.runs")], phaseRows) : t("telemetry.not_recorded"), "",
     `## ${t("telemetry.bottlenecks")}`, "", ...bottleneckLines.map((line) => `- ${line}`), "",
     `## ${t("telemetry.runs")}`, "", runRows.length ? telemetryMarkdownTable([t("telemetry.run_id"), t("telemetry.start_time"), t("telemetry.status"), t("telemetry.average_total"), t("telemetry.average_wait"), t("telemetry.provider"), t("telemetry.validation"), t("telemetry.external_wait"), t("telemetry.largest_phase"), t("telemetry.producer_type"), t("telemetry.target_repository"), t("telemetry.model")], runRows) : t("format.unavailable"), "",
