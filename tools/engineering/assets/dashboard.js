@@ -5327,7 +5327,7 @@ function applyDashboardLocale() {
     ["#platformVersionLabel", "footer.platform_version"],
     ["#confirmationModalCancel", "action.cancel"],
     ["#confirmationModalConfirm", "action.confirm"],
-    ["#predecessorRetry", "action.resume_queue"],
+    ["#predecessorRetry", "recovery.action"],
     ["#queueItems > summary > strong", "section.inbox_queue"],
     ["#promptHistory > summary > strong", "section.prompt_history"],
     ["#currentRun > summary .label", "section.active_prompt"],
