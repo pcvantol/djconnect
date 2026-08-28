@@ -229,6 +229,13 @@ Prompt History next to the engineering report. View and download actions are
 available only when the analysis file belongs to that exact Run ID; analyses
 from another execution are never selected as a fallback.
 
+For a controlled temporary processing failure (`provider_failed`,
+`provider_unavailable` or `invalid_structured_response`), the analysis dialog
+also offers **Generate analysis again**. It is bound to that same indexed
+terminal report and regenerates only the advisory analysis; it never resumes,
+retries or changes the Engineering execution, checkpoint, branch or pull
+request. A successfully processed analysis is deliberately not retryable.
+
 The dashboard exposes that analysis only from the matching Promptgeschiedenis
 row and only when its Run ID matches the selected terminal execution. A failed
 or absent analysis never changes the terminal checkpoint, report, repository

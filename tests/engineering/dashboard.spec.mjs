@@ -8299,7 +8299,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(analysisView).toHaveCSS("color", "rgb(141, 199, 255)");
     await page.route("**/api/prompt-history/**/analysis", (route) => route.fulfill({
       contentType: "text/markdown",
-      body: "# Historische AI-analyse\n\nDit advies hoort bij precies deze uitvoering.",
+      body: "# Historische AI-analyse\n\n## Analyseverwerking\n- Status: `provider_unavailable`\n\nDit advies hoort bij precies deze uitvoering.",
     }));
     await analysisView.click();
     await expect(page.locator("#promptHistoryReportModal")).toBeVisible();
@@ -8308,6 +8308,14 @@ test.describe("Engineering Status browser smoke", () => {
       .toHaveText(DASHBOARD_MESSAGES.nl["table.analysis"]);
     await expect(page.locator("#promptHistoryReportContent")).toContainText("Historische AI-analyse");
     await expect(page.locator("#promptHistoryReportDownload")).toBeVisible();
+    await expect(page.locator("#promptHistoryReportRetry")).toBeVisible();
+    await page.route("**/api/prompt-history/**/analysis-retry", (route) => route.fulfill({
+      contentType: "text/markdown",
+      body: "# Historische AI-analyse\n\n## Analyseverwerking\n- Status: `processed`\n\nOpnieuw gegenereerd advies.",
+    }));
+    await page.locator("#promptHistoryReportRetry").click();
+    await expect(page.locator("#promptHistoryReportContent")).toContainText("Opnieuw gegenereerd advies.");
+    await expect(page.locator("#promptHistoryReportRetry")).toBeHidden();
     await page.locator("#promptHistoryReportClose").click();
     const chat = page.locator("#promptHistoryRows .prompt-history-chat");
     await expect(chat).toHaveCount(1);
