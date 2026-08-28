@@ -27,6 +27,88 @@ from tools.engineering.execution_lease import acquire
 
 
 class DashboardStatusTest(unittest.TestCase):
+    def test_rate_limit_capacity_ignores_malformed_windows_and_uses_the_lowest_remaining_value(self) -> None:
+        self.assertIsNone(dashboard._remaining_rate_limit_capacity({"windows": "unknown"}))
+        self.assertEqual(
+            dashboard._remaining_rate_limit_capacity(
+                {"windows": [None, {"used_percent": True}, {"used_percent": 120}, {"used_percent": 35}]}
+            ),
+            0.0,
+        )
+
+    def test_managed_codex_installation_path_never_accepts_another_executable(self) -> None:
+        with patch("tools.engineering.dashboard.engineering_platform_codex_cli_prefix", return_value=Path("/managed/codex")):
+            self.assertIsNone(_codex_cli_installation_path(None))
+            self.assertEqual(
+                _codex_cli_installation_path("/managed/codex/bin/codex"), "/managed/codex"
+            )
+            self.assertIsNone(_codex_cli_installation_path("/usr/local/bin/codex"))
+
+    @patch("tools.engineering.dashboard.GitHubProvider")
+    @patch("tools.engineering.dashboard.GitProvider")
+    def test_pull_request_metrics_are_bound_to_the_verified_repository(
+        self, git_provider: object, github_provider: object
+    ) -> None:
+        git_provider.return_value.execute.return_value = __import__("subprocess").CompletedProcess(
+            ("git",), 0, "git@github.com:pcvantol/djconnect.git\n", ""
+        )
+        github_provider.return_value.github.return_value = json.dumps(
+            {
+                "number": 981,
+                "commits": [{"oid": "one"}, {"oid": "two"}],
+                "changedFiles": 3,
+                "statusCheckRollup": [
+                    {"__typename": "CheckRun", "name": "tests"},
+                    {"__typename": "StatusContext", "name": "legacy"},
+                    {"__typename": "CheckRun", "name": ""},
+                ],
+            }
+        )
+
+        self.assertEqual(
+            dashboard._pull_request_github_metrics(Path("/repository"), "pcvantol/djconnect", 981),
+            {"commit_count": 2, "changed_file_count": 3, "check_count": 1},
+        )
+
+        github_provider.return_value.github.return_value = "not-json"
+        self.assertEqual(
+            dashboard._pull_request_github_metrics(Path("/repository"), "pcvantol/djconnect", 981),
+            {},
+        )
+        github_provider.return_value.github.return_value = json.dumps({"number": 123})
+        self.assertEqual(
+            dashboard._pull_request_github_metrics(Path("/repository"), "pcvantol/djconnect", 981),
+            {},
+        )
+
+    def test_terminal_diagnostic_rejects_an_invalid_run_identifier(self) -> None:
+        self.assertIsNone(dashboard._terminal_run_diagnostic(Path("/repository"), "../outside"))
+
+    def test_inbox_item_detection_is_conservative_when_the_directory_cannot_be_read(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            inbox = Path(temporary)
+            self.assertFalse(dashboard._inbox_has_items(inbox))
+            (inbox / "prompt.md").write_text("work", encoding="utf-8")
+            self.assertTrue(dashboard._inbox_has_items(inbox))
+        with patch("pathlib.Path.iterdir", side_effect=OSError("unavailable")):
+            self.assertTrue(dashboard._inbox_has_items(Path("/unavailable")))
+
+    @patch("tools.engineering.dashboard.GitHubProvider")
+    def test_github_rate_limit_status_handles_malformed_and_exhausted_responses(
+        self, github_provider: object
+    ) -> None:
+        github_provider.return_value.github.return_value = json.dumps({"resources": "invalid"})
+        self.assertEqual(dashboard._github_rate_limit_status(), {"limited": False})
+        github_provider.return_value.github.return_value = json.dumps(
+            {"resources": {"core": {"remaining": 0, "reset": 42}, "graphql": {"remaining": 2}}}
+        )
+        self.assertEqual(
+            dashboard._github_rate_limit_status(),
+            {"limited": True, "reset_at": 42},
+        )
+        github_provider.return_value.github.side_effect = RuntimeError("rate limit exceeded")
+        self.assertEqual(dashboard._github_rate_limit_status(), {"limited": True})
+
     def test_canonical_checkpoint_rejects_an_invalid_run_identifier(self) -> None:
         self.assertEqual(dashboard._canonical_checkpoint(Path("/repository"), "../outside"), {})
 
@@ -444,6 +526,24 @@ class DashboardStatusTest(unittest.TestCase):
             },
         )
 
+    @patch("tools.engineering.dashboard.LaunchdProvider")
+    def test_launch_agent_health_reports_a_real_process_and_unavailable_launchctl(self, launchd: object) -> None:
+        launchd.return_value.runtime_status.return_value = ProviderStatus(
+            "launchd", "configured", True, "LaunchAgent has an active process"
+        )
+        self.assertEqual(
+            dashboard._launch_agent_health("com.example.watcher"),
+            {"healthy": True, "state": "running", "detail": "LaunchAgent-proces is actief"},
+        )
+
+        launchd.return_value.runtime_status.return_value = ProviderStatus(
+            "launchd", "unavailable", False, "launchctl unavailable"
+        )
+        self.assertEqual(
+            dashboard._launch_agent_health("com.example.watcher"),
+            {"healthy": False, "state": "unavailable", "detail": "launchctl ontbreekt"},
+        )
+
     @patch("tools.engineering.dashboard.storage_activation_required", return_value=True)
     @patch("tools.engineering.dashboard._launch_agent_health")
     def test_inbox_watcher_health_exposes_storage_activation_as_its_safe_reason(
@@ -458,6 +558,15 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertFalse(health["healthy"])
         self.assertEqual(health["reason_code"], "storage_activation_required")
         self.assertIn("opslagactivatie", str(health["detail"]))
+
+    @patch("tools.engineering.dashboard.storage_activation_required", return_value=False)
+    @patch("tools.engineering.dashboard._launch_agent_health")
+    def test_inbox_watcher_health_preserves_the_live_process_projection(
+        self, launch_agent_health: object, _: object
+    ) -> None:
+        expected = {"healthy": True, "state": "running", "detail": "LaunchAgent-proces is actief"}
+        launch_agent_health.return_value = expected
+        self.assertIs(dashboard._inbox_watcher_health(Path("/repository")), expected)
 
     @patch("tools.engineering.dashboard.LaunchdProvider")
     @patch("tools.engineering.dashboard.GitProvider")
