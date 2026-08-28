@@ -6287,12 +6287,7 @@ test.describe("Engineering Status browser smoke", () => {
 
   test("places diagnosis beside the current deviation when its container has room", async ({ page }) => {
     await page.setViewportSize({ width: 920, height: 844 });
-    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
-    await page.evaluate(() => r({
-      watcher_state: "HOST_PREFLIGHT_FAILED",
-      current_phase: "INITIALIZE",
-      diagnostic: "Host preflight failed",
-    }, {
+    const snapshot = {
       host_preflight: { outcome: "FAILED" },
       current_drift: {
         drift_id: "managed_expected_branch",
@@ -6302,7 +6297,24 @@ test.describe("Engineering Status browser smoke", () => {
         observed_value: "Managed target is not on the expected branch main.",
         resolution_recommendation: "Switch the repository to main before submitting work.",
       },
-    }));
+    };
+    await page.route("**/api/events", (route) => route.abort());
+    await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({ json: {
+      status: {
+        watcher_state: "HOST_PREFLIGHT_FAILED",
+        current_phase: "INITIALIZE",
+        diagnostic: "Host preflight failed",
+      },
+      ...snapshot,
+    } }));
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.waitForFunction(() => document.body.classList.contains("dashboard-ready"));
+    await page.locator("#autoRefresh").uncheck();
+    await page.evaluate((fixture) => r({
+      watcher_state: "HOST_PREFLIGHT_FAILED",
+      current_phase: "INITIALIZE",
+      diagnostic: "Host preflight failed",
+    }, fixture), snapshot);
 
     const columns = async () => page.locator("#technicalDetails .technical-grid").evaluate((element) =>
       getComputedStyle(element).gridTemplateColumns.split(" ").length,
@@ -7241,15 +7253,11 @@ test.describe("Engineering Status browser smoke", () => {
     await page.route("**/api/events", (route) => route.abort());
     await page.route("**/api/logs/inbox", (route) => route.fulfill({ body: "" }));
     await page.route("**/api/logs/dashboard", (route) => route.fulfill({ body: "" }));
-    // Let the dashboard's initial asynchronous log projection settle before
-    // installing the filtered fixture. Otherwise it can replace that fixture
-    // while the copy assertion is waiting for the clipboard.
-    const initialLogsLoaded = Promise.all([
-      page.waitForResponse("**/api/logs/inbox?*"),
-      page.waitForResponse("**/api/logs/dashboard?*"),
-    ]);
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
-    await initialLogsLoaded;
+    // Supersede and await startup's asynchronous log request before this
+    // fixture owns the projection. The request-id guard then discards any
+    // earlier response that reaches the page later.
+    await page.evaluate(() => refreshComponentLogs({}, true));
     await page.locator("#componentLogs").evaluate((element) => { element.open = true; });
     await page.evaluate(() => {
       window.__copiedVisibleLog = "";
@@ -7287,15 +7295,11 @@ test.describe("Engineering Status browser smoke", () => {
     await page.route("**/api/events", (route) => route.abort());
     await page.route("**/api/logs/inbox", (route) => route.fulfill({ body: "" }));
     await page.route("**/api/logs/dashboard", (route) => route.fulfill({ body: "" }));
-    // The dashboard loads persisted logs asynchronously.  Wait until that
-    // initial projection is settled before installing this test's fixture;
-    // otherwise it can replace the fixture halfway through the selection.
-    const initialLogsLoaded = Promise.all([
-      page.waitForResponse("**/api/logs/inbox?*"),
-      page.waitForResponse("**/api/logs/dashboard?*"),
-    ]);
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
-    await initialLogsLoaded;
+    // Supersede and await startup's asynchronous log request before this
+    // fixture owns the projection. The request-id guard then discards any
+    // earlier response that reaches the page later.
+    await page.evaluate(() => refreshComponentLogs({}, true));
     await page.locator("#autoRefresh").uncheck();
     await page.locator("#componentLogs").evaluate((element) => { element.open = true; });
     await page.evaluate(() => {
