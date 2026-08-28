@@ -2,6 +2,23 @@
 
 Status: active platform-evolution repository
 
+## PR #990 pending Finalization
+
+PR [#990](https://github.com/pcvantol/djconnect/pull/990), **fix(engineering):
+bound dashboard validation cleanup**, merged as
+`bfc8b0c3cb438285e4b988443438dc47e7e19233` and is contained in current
+`main`. This standalone Engineering Platform validation-infrastructure recovery
+restores deterministic terminal cleanup for the local dashboard launcher while
+preserving its four parallel CI-parity shards and one worker per shard. It
+does not change qualification contracts, Evidence Closure v2 delivery,
+retry/resume lineage, qualification projections, governance or dashboard
+product behavior. Its immutable Prompt History record is
+`docs/history/prompts/2026-08-28-dashboard-validation-infrastructure-recovery.md`.
+Required implementation validation passed: focused dashboard-browser tests,
+the full `npm run test:engineering-dashboard` launcher execution, process
+inspection and diff validation. Repository State: `MERGED_UNRECONCILED`;
+Workspace State: `NOT_READY`; Finalization Pending: `YES`.
+
 ## PR #980 finalized by PR #982
 
 PR [#980](https://github.com/pcvantol/djconnect/pull/980), **feat(engineering):
