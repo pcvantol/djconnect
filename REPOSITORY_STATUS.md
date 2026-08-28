@@ -2,7 +2,7 @@
 
 Status: active platform-evolution repository
 
-## PR #980 merged — Finalization pending
+## PR #980 finalized by PR #982
 
 PR [#980](https://github.com/pcvantol/djconnect/pull/980), **feat(engineering):
 persist run qualification evidence**, merged as
@@ -15,9 +15,11 @@ qualification, rewrite historical evidence, activate a storage migration, or
 change lifecycle, reviewer, provider, queue, delivery or operator-owned merge
 authority. Its immutable Prompt History record is
 `docs/history/prompts/2026-08-28-run-qualification-evidence-contract.md`.
-Governance-only Finalization is pending on
-`codex/finalize-inbox-793aa07f343742638e897d21d4dc656c`. Repository State:
-`MERGED_UNRECONCILED`; Finalization Pending: `YES`.
+Governance-only Finalization PR [#982](https://github.com/pcvantol/djconnect/pull/982)
+merged as `19672abbefcd9b260b40a1a445eda29abd9c1c28`; its completed required
+checks have no failures. This direct-on-`main` reconciliation updates only the
+four canonical rolling records. Repository State: `MERGED_RECONCILED`;
+Workspace State: `WORKSPACE_READY`; Finalization Pending: `NO`.
 
 ## PR #973 finalized by PR #974
 
