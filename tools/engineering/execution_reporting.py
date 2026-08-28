@@ -557,7 +557,7 @@ def _qualification_projection(
     validation = "recorded" if state.validation_evidence else "not recorded"
     return (
         f"- Execution Status: `{state.phase}`",
-        f"- Qualification Status: `{qualification_status or 'not recorded'}`",
+        f"- Platform Qualification Status: `{qualification_status or 'not recorded'}`",
         f"- Runtime Status: `{'reported' if runtime_provider != 'unavailable' else 'not reported'}`",
         f"- Validation Status: `{validation}`",
         "- Governance Status: see the Forge Governance Handoff projection above.",
@@ -691,6 +691,21 @@ def _repair_audit_lines(state: TransactionState) -> tuple[str, ...]:
         f"### Repair iteration {item['iteration']}", f"- Observed at: {item['observed_at']}",
         f"- Failed checks: {item['failed_checks']}", f"- Proposed action: {item['proposed_action']}",
         f"- AI repair summary: {item['agent_summary']}", f"- Commit: `{item['commit_sha']}`", f"- Outcome: `{item['outcome']}`",
+    ))
+
+
+def _local_validation_audit_lines(state: TransactionState) -> tuple[str, ...]:
+    """Render bounded local-validation repair evidence in terminal reports."""
+    if not state.local_validation_audit:
+        return ("No local repository validation iterations were required.",)
+    return tuple(line for item in state.local_validation_audit for line in (
+        f"### Local validation iteration {item['iteration']}",
+        f"- Observed at: {item['observed_at']}",
+        f"- Failed checks: {item['failed_checks']}",
+        f"- Proposed action: {item['proposed_action']}",
+        f"- AI repair summary: {item['agent_summary']}",
+        f"- Commit: `{item['commit_sha']}`",
+        f"- Outcome: `{item['outcome']}`",
     ))
 
 
@@ -1353,6 +1368,9 @@ def generate_terminal_report(
             "",
             "## Repair History",
             *_repair_audit_lines(state),
+            "",
+            "## Local Repository Validation History",
+            *_local_validation_audit_lines(state),
             "",
             "## Repository Cleanup",
             state.latest_repository_evidence or "Cleanup evidence unavailable.",

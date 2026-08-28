@@ -2,6 +2,25 @@
 
 Status: canonical prompt navigation
 
+## PR #980 finalized by PR #982
+
+PR [#980](https://github.com/pcvantol/djconnect/pull/980), **feat(engineering):
+persist run qualification evidence**, merged as
+`3ba1dc089904c616c677ebfe2f7c5a0d29516c6f` and is contained in current
+`main`. Its completed required checks have no failures. This bounded Engineering
+Platform 2.x increment persists explicit submission lineage and required
+validation evidence, derives run qualification fail-closed from run-specific
+evidence, and keeps Platform Qualification separate. It does not submit a new
+qualification, rewrite historical evidence, activate a storage migration, or
+change lifecycle, reviewer, provider, queue, delivery or operator-owned merge
+authority. Its immutable Prompt History record is
+`docs/history/prompts/2026-08-28-run-qualification-evidence-contract.md`.
+Governance-only Finalization PR [#982](https://github.com/pcvantol/djconnect/pull/982)
+merged as `19672abbefcd9b260b40a1a445eda29abd9c1c28`; its completed required
+checks have no failures. This direct-on-`main` reconciliation updates only the
+four canonical rolling records. Repository State: `MERGED_RECONCILED`;
+Workspace State: `WORKSPACE_READY`; Finalization Pending: `NO`.
+
 ## PR #973 finalized by PR #974
 
 PR [#973](https://github.com/pcvantol/djconnect/pull/973), **test: guard root
