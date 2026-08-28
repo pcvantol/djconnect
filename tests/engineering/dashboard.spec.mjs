@@ -3300,6 +3300,8 @@ test.describe("Engineering Status browser smoke", () => {
       watcher_state: "ENGINEERING_RUN_ACTIVE", current_phase: "RECONCILE_AGENT",
       run_id: "inbox-reconciliation",
       target_repository: "pcvantol/djconnect",
+      implementation_pr: 990,
+      finalization_pr: 991,
       lifecycle: {
         available: true, run_id: "inbox-reconciliation", terminal_state: "ACTIVE",
         steps: [
@@ -3310,6 +3312,11 @@ test.describe("Engineering Status browser smoke", () => {
     const modal = page.locator("#operatorMergeWaitModal");
     await expect(modal).toBeHidden();
     await page.locator("#currentRun").evaluate((element) => { element.open = true; });
+    const pullRequests = page.locator("#activeRunPullRequests");
+    await expect(pullRequests).toBeVisible();
+    await expect(pullRequests.locator("a")).toHaveCount(2);
+    await expect(pullRequests.locator("a").nth(0)).toHaveAttribute("href", "https://github.com/pcvantol/djconnect/pull/990");
+    await expect(pullRequests.locator("a").nth(1)).toHaveAttribute("href", "https://github.com/pcvantol/djconnect/pull/991");
     await page.locator(".execution-lifecycle__item--active .execution-lifecycle__node").click();
     await expect(page.locator("#lifecycleDetailModal")).toBeVisible();
   });
