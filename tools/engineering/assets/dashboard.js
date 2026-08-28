@@ -5471,6 +5471,7 @@ const configurationFields = Object.freeze({
   configurationLogLevel: ["log_level", String],
   configurationInboxScanInterval: ["inbox_scan_interval_seconds", Number],
   configurationOpenPrInterval: ["open_pr_check_interval_seconds", Number],
+  configurationDashboardStreamInterval: ["dashboard_stream_interval_seconds", Number],
   configurationProviderReadinessInterval: ["provider_readiness_refresh_seconds", Number],
   configurationCodexCapacityReserve: ["codex_capacity_reserve_percent", Number],
   configurationPlatformHealthInterval: ["platform_health_refresh_seconds", Number],
@@ -5600,6 +5601,7 @@ function addConfigurationControlInfo() {
     ["configurationLogLevel", "configuration.log_level_help"],
     ["configurationInboxScanInterval", "configuration.inbox_scan_interval_help"],
     ["configurationOpenPrInterval", "configuration.open_pr_interval_help"],
+    ["configurationDashboardStreamInterval", "configuration.dashboard_stream_interval_help"],
     ["configurationProviderReadinessInterval", "configuration.provider_readiness_interval_help"],
     ["configurationCodexCapacityReserve", "configuration.codex_capacity_reserve_help"],
     ["configurationPlatformHealthInterval", "configuration.platform_health_interval_help"],
@@ -5961,6 +5963,11 @@ function localizeConfigurationOptions() {
   });
   document.querySelectorAll("#configurationProviderReadinessInterval option").forEach((option) => {
     option.textContent = t(option.dataset.i18n);
+  });
+  document.querySelectorAll("#configurationDashboardStreamInterval option").forEach((option) => {
+    option.textContent = option.value === "1"
+      ? t("configuration.second_1")
+      : t("configuration.seconds_value", { value: option.value });
   });
   syncCodexCapacityReserveOptions();
   dashboardSelectPickers.forEach((_, select) => syncDashboardSelectPicker(select));

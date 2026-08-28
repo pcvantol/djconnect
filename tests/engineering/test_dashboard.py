@@ -64,10 +64,11 @@ class DashboardStatusTest(unittest.TestCase):
         self.assertIn('id="configurationLogLevel"', page)
         self.assertNotIn('id="configurationAuditLogging"', page)
         self.assertNotIn('configuration.audit_logging', page)
-        self.assertEqual(page.count('class="configuration-info"'), 7)
-        self.assertEqual(page.count("data-i18n-title=\"configuration."), 7)
+        self.assertEqual(page.count('class="configuration-info"'), 6)
+        self.assertEqual(page.count("data-i18n-title=\"configuration."), 6)
         for control in (
             "configurationInboxScanInterval", "configurationOpenPrInterval",
+            "configurationDashboardStreamInterval",
             "configurationPlatformHealthInterval", "configurationComponentDetailsInterval",
         ):
             self.assertIn(f'id="{control}"', page)
@@ -76,7 +77,7 @@ class DashboardStatusTest(unittest.TestCase):
             ("configuration.operator_merge_interval", "configuration.seconds_60"),
             ("configuration.required_checks_interval", "configuration.seconds_15"),
             ("configuration.open_pr_interval", "configuration.seconds_30"),
-            ("configuration.dashboard_stream_interval", "configuration.second_1"),
+            ("configuration.dashboard_stream_interval", None),
             ("configuration.platform_health_interval", "configuration.seconds_15"),
             ("configuration.component_details_interval", "configuration.seconds_5"),
             ("configuration.lease_heartbeat_interval", "configuration.seconds_15"),
@@ -84,7 +85,8 @@ class DashboardStatusTest(unittest.TestCase):
             ("configuration.github_retry_backoff", "configuration.github_retry_backoff_value"),
         ):
             self.assertIn(f'data-i18n="{key}"', page)
-            self.assertIn(f'data-i18n="{value}"', page)
+            if value is not None:
+                self.assertIn(f'data-i18n="{value}"', page)
         self.assertNotIn('id="dashboardLocale"', page[page.index('id="configuration"'):])
         self.assertNotIn('id="autoRefresh"', page[page.index('id="configuration"'):])
         self.assertLess(

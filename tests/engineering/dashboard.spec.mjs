@@ -239,6 +239,34 @@ test.describe("Engineering Status browser smoke", () => {
     })).toBe(true);
   });
 
+  test("persists the bounded serverpush interval from Configuration", async ({ page }) => {
+    const writes = [];
+    await page.route("**/api/configuration", async (route) => {
+      if (route.request().method() === "GET") {
+        await route.fulfill({ json: {
+          log_retention_days: 30, telemetry_retention_days: 90, log_level: "INFO", inbox_scan_interval_seconds: 15,
+          open_pr_check_interval_seconds: 30, dashboard_stream_interval_seconds: 1,
+          platform_health_refresh_seconds: 15, component_details_refresh_seconds: 5,
+          provider_readiness_refresh_seconds: 300, codex_capacity_reserve_percent: 0,
+        } });
+        return;
+      }
+      writes.push(JSON.parse(route.request().postData() || "{}"));
+      await route.fulfill({ json: { key: "dashboard_stream_interval_seconds", previous: 1, value: 10 } });
+    });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#configuration").evaluate((element) => { element.open = true; });
+    const select = page.locator("#configurationDashboardStreamInterval");
+    await expect(select).toHaveValue("1");
+    await expect(select.locator("option")).toHaveText(["1 seconde", "2 seconden", "3 seconden", "4 seconden", "5 seconden", "6 seconden", "7 seconden", "8 seconden", "9 seconden", "10 seconden"]);
+    const picker = page.locator("#configurationDashboardStreamInterval + .dashboard-select-picker");
+    await openDashboardPicker(picker);
+    await chooseDashboardPickerOption(picker, "10");
+    await expect.poll(() => writes).toEqual([{
+      key: "dashboard_stream_interval_seconds", value: 10, previous: 1,
+    }]);
+  });
+
   test("does not leave an empty configuration status container between grouped settings", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     const configuration = page.locator("#configuration");

@@ -293,6 +293,12 @@ and local host components. The latter keeps the read-only free disk-space
 signal directly above the writable refresh interval for an opened component
 detail, so the related host context is read together.
 
+The **Dashboard status update interval** is a local, bounded preference from
+one through ten seconds. It controls how often the server checks the live
+dashboard projection; serverpush still emits a browser update only when that
+projection has changed. It does not control an execution, watcher, queue or
+component refresh interval.
+
 The Codex capacity trend is an accessible seven-day SVG projection of the
 stored measurements. It connects consecutive samples with one continuous
 green line and renders each sample as a compact filled green point. A missing
