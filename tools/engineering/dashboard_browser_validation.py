@@ -45,13 +45,16 @@ def _run_ci(root: Path, arguments: tuple[str, ...]) -> int:
 
 
 def _terminate_process_groups(processes: list[tuple[str, Path, subprocess.Popen[bytes]]]) -> None:
-    """Stop every incomplete shard together with its Playwright descendants."""
-    active = [process for _, _, process in processes if process.poll() is None]
-    for process in active:
+    """Stop every owned shard group, including descendants of a failed parent."""
+    # A Playwright shard can exit before the dashboard server it started in the
+    # same session. Signal every owned process group so that failure cleanup
+    # does not leave that server behind merely because its parent has exited.
+    for _, _, process in processes:
         try:
             os.killpg(process.pid, signal.SIGTERM)
         except ProcessLookupError:
             pass
+    active = [process for _, _, process in processes if process.poll() is None]
     for process in active:
         try:
             process.wait(timeout=PROCESS_TERMINATION_TIMEOUT_SECONDS)

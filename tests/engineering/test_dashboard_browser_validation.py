@@ -94,6 +94,38 @@ class DashboardBrowserValidationTest(unittest.TestCase):
 
         killpg.assert_called_once_with(100, signal.SIGTERM)
 
+    def test_local_batch_cleans_up_the_exited_failed_shard_group(self) -> None:
+        failed = MagicMock(pid=100)
+        failed.poll.return_value = 1
+        failed.wait.return_value = 1
+        running = []
+        for pid in range(101, 104):
+            process = MagicMock(pid=pid)
+            process.poll.return_value = None
+            process.wait.return_value = 0
+            running.append(process)
+        with tempfile.TemporaryDirectory() as temporary, patch(
+            "tools.engineering.dashboard_browser_validation._common_git_directory",
+            return_value=Path(temporary),
+        ), patch(
+            "tools.engineering.dashboard_browser_validation.single_instance",
+            return_value=nullcontext(),
+        ), patch(
+            "tools.engineering.dashboard_browser_validation.subprocess.Popen",
+            side_effect=[failed, *running],
+        ), patch("tools.engineering.dashboard_browser_validation.os.killpg") as killpg:
+            self.assertEqual(dashboard_browser_validation._run_local_shards(Path(temporary)), 1)
+
+        self.assertEqual(
+            killpg.call_args_list,
+            [
+                ((100, signal.SIGTERM),),
+                ((101, signal.SIGTERM),),
+                ((102, signal.SIGTERM),),
+                ((103, signal.SIGTERM),),
+            ],
+        )
+
     def test_local_invocation_refuses_uncoordinated_playwright_arguments(self) -> None:
         with patch.dict("tools.engineering.dashboard_browser_validation.os.environ", {}, clear=True):
             with self.assertRaisesRegex(SystemExit, "coordinated four-shard"):
