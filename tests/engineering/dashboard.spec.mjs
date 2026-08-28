@@ -8351,6 +8351,13 @@ test.describe("Engineering Status browser smoke", () => {
 
   test("retries only a transient read failure for an immutable terminal report", async ({ page }) => {
     let requests = 0;
+    await page.route("**/api/prompt-history", (route) => route.fulfill({ json: { runs: [{
+      run_id: "inbox-report-hiccup",
+      status: "COMPLETE",
+      title: "Terminal report with a transient read failure",
+      executed_at: "2026-08-28T11:00:00Z",
+      report_available: true,
+    }] } }));
     await page.route("**/api/prompt-history/inbox-report-hiccup/report", (route) => {
       requests += 1;
       if (requests === 1) {
@@ -8362,7 +8369,8 @@ test.describe("Engineering Status browser smoke", () => {
       });
     });
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
-    await page.evaluate(() => openPromptHistoryDocument("inbox-report-hiccup", "report"));
+    await page.locator("#promptHistory").evaluate((element) => { element.open = true; });
+    await page.locator("#promptHistoryRows .prompt-history-report").click();
     await expect(page.locator("#promptHistoryReportContent"))
       .toContainText(DASHBOARD_MESSAGES.nl["history.report_unavailable"]);
     const retry = page.locator("#promptHistoryReportReload");

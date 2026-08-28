@@ -1229,3 +1229,8 @@ html[data-theme="light"] #componentLogControls :is(input[type="date"],input[type
   line-height:1;
   margin-right:7px;
 }
+
+/* Dashboard actions are inline-flex by default.  Native `hidden` must still
+   win for retry actions after a successful reload or regeneration. */
+#promptHistoryReportReload[hidden],
+#promptHistoryReportRetry[hidden]{display:none!important}
