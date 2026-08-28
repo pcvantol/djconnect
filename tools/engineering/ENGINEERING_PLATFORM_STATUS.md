@@ -79,6 +79,10 @@ changes execution semantics.
   completed pass emits one structured
   `periodic_database_maintenance_completed` component event with its task list;
   safe skips stay silent to avoid log noise.
+- During an active run, a fully successful specialist review remains visible
+  as compact historical evidence after the review phase. Partial, failed or
+  running reviewer projections remain phase-scoped and are never presented as
+  current reviewer work in implementation, finalization or reconciliation.
 - Terminal runs are indexed in local SQLite prompt history with their status,
   title, completed timestamp, available commit and delivered-report reference.
   Each terminal record also retains a bounded execution-metadata snapshot:
