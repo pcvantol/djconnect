@@ -362,16 +362,17 @@ function dashboardHealthPresentation(status = latestStatus, platformHealth = lat
     phase = String(current?.current_phase || "").toUpperCase(),
     watcherStateUpper = watcherState.toUpperCase(),
     active = isActiveRun(current || {}),
+    watcherDelegatedToActiveHost = active && components && !watcherHealthy,
     workspaceActive = active && workspaceState === "ACTIVE",
     blocked = phase === "BLOCKED" || watcherStateUpper.includes("WAITING") || watcherStateUpper.includes("BLOCKED"),
     failed = phase === "FAILED" || watcherStateUpper.includes("FAILED") || watcherStateUpper.includes("DEGRADED") ||
-      (components && (!dashboardHealthy || !watcherHealthy || !relayHealthy));
+      (components && (!dashboardHealthy || !relayHealthy || (!watcherHealthy && !watcherDelegatedToActiveHost)));
   let state = "unknown";
   if (failed) state = "error";
   else if (blocked || queueDepth > 0) state = "blocked";
   else if (active) state = "active";
   else if (dashboardHealthy && watcherHealthy && relayHealthy && watcherState === "WATCHER_IDLE" && workspaceState === "WORKSPACE_READY") state = "ready";
-  const componentCheck = (name, componentKey, healthy) => {
+  const componentCheck = (name, componentKey, healthy, delegatedToActiveHost = false) => {
     const component = components?.[componentKey];
     const unavailable = components ? "not_running" : "unknown";
     const reasonCode = !healthy && components && typeof component?.reason_code === "string"
@@ -382,15 +383,15 @@ function dashboardHealthPresentation(status = latestStatus, platformHealth = lat
       : "";
     return [
       name,
-      healthy ? "running" : unavailable,
-      healthy ? "good" : components ? "bad" : "unknown",
+      delegatedToActiveHost ? "execution_host_active" : healthy ? "running" : unavailable,
+      delegatedToActiveHost ? "warning" : healthy ? "good" : components ? "bad" : "unknown",
       {},
-      { component: components ? componentKey : null, reason },
+      { component: components ? componentKey : null, reason: delegatedToActiveHost ? "" : reason },
     ];
   };
   const checks = [
     componentCheck("dashboard", "dashboard", dashboardHealthy),
-    componentCheck("watcher", "inbox_watcher", watcherHealthy),
+    componentCheck("watcher", "inbox_watcher", watcherHealthy, watcherDelegatedToActiveHost),
     componentCheck("relay", "dashboard_relay", relayHealthy),
     ["execution", active ? "active" : phase === "BLOCKED" ? "blocked" : phase === "FAILED" ? "error" : "none_active", active ? "good" : phase === "BLOCKED" ? "warning" : phase === "FAILED" ? "bad" : "good"],
     ["queue", queueDepth ? "queue_waiting" : "queue_empty", queueDepth ? "warning" : "good", { count: queueDepth }],
