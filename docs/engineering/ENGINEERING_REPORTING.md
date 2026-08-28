@@ -213,7 +213,16 @@ After a terminal report is written, the runner may request one separate Codex
 CLI analysis of that exact local report. The analysis is read-only, bounded and
 stored locally per run under `.engineering/report-analysis/<run-id>.md`. It
 distils findings, issues, risks, next steps and advice for the Product
-Architect. Its output is advisory and redacted before persistence.
+Architect. Its output is advisory and redacted before persistence. Every
+analysis also records a bounded **Analyseverwerking** status. If the provider
+is unavailable, fails, or returns an invalid structured response, the matching
+safe reason is shown there; raw provider output and diagnostics are never
+persisted. This makes an empty advisory analysis distinguishable from a
+successful analysis with no findings. Large reports are passed to the managed
+Codex CLI over standard input rather than as a command-line argument. If a
+report exceeds the advisory input budget, its beginning and terminal end are
+provided with an explicit omission marker; the full report remains immutable
+and authoritative.
 
 The private Engineering Status dashboard exposes an **AI analysis** column in
 Prompt History next to the engineering report. View and download actions are
