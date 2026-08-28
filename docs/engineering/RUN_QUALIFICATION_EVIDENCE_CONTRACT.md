@@ -26,6 +26,11 @@ exact required validation IDs before recording control results. Every result
 has a stable ID, category, control identity, required marker, execution
 status, result, observation time, and evidence reference.
 
+The read-only Run Context API projects these same persisted lineage fields and
+required-validation result. It exposes `null` parents for a fresh submission;
+legacy runs with no v33 record remain `UNAVAILABLE` rather than falling back
+to submission or prompt-derived lineage.
+
 `PASS` requires authoritative `PASS` for every required control. A failed
 required control is `FAIL`; missing, conflicting, or unexecuted mandatory
 evidence is `UNRESOLVED`. Optional controls do not affect required-validation
