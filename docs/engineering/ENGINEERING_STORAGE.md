@@ -92,9 +92,11 @@ boundary merely by importing newer source without its admission environment.
 
 Schema `33` adds redacted advisory AI-chat transcripts. They are keyed to a
 terminal Run ID, retain at most 20 messages for 90 days and are excluded from
-generic details, Markdown and JSON exports. They can be explicitly copied or
-downloaded from the private chat modal, or cleared for that one run. A normal
-private database backup can include retained redacted transcripts.
+generic details, Markdown and JSON exports. Messages are insert-only; expired
+messages are pruned before a new message is retained and a per-run clear is
+the sole supported deletion path. They can be explicitly copied or downloaded
+from the private chat modal, or cleared for that one run. A normal private
+database backup can include retained redacted transcripts.
 
 ## Execution Host telemetry
 

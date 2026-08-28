@@ -2,13 +2,22 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+import sqlite3
 import subprocess
 import tempfile
 import unittest
 from unittest.mock import patch
 
-from tools.engineering.codex_chat import CodexChatError, clear_history, history, respond
+from tools.engineering.codex_chat import (
+    MAX_HISTORY_ITEMS,
+    CodexChatError,
+    _append,
+    clear_history,
+    history,
+    respond,
+)
 from tools.engineering.prompt_history import record_prompt_execution
+from tools.engineering.storage import open_storage
 
 
 class CodexChatTest(unittest.TestCase):
@@ -94,3 +103,43 @@ class CodexChatTest(unittest.TestCase):
             self.assertIn("inbox-selected", context)
             self.assertIn("Geselecteerde prompt", context)
             self.assertNotIn("inbox-other", context)
+
+    def test_retained_transcript_is_redacted_bounded_expired_and_immutable(self) -> None:
+        """Chat storage is private advisory evidence, not an unbounded mutable log."""
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            record_prompt_execution(
+                root,
+                run_id="inbox-retained-chat",
+                terminal_state="COMPLETE",
+                prompt_title="Bewaarbare chat",
+                executed_at="2026-08-03T12:00:00Z",
+            )
+            with open_storage(root) as connection:
+                connection.execute(
+                    "INSERT INTO execution_chat_messages(run_id,role,content,model,created_at) "
+                    "VALUES(?,?,?,?,?)",
+                    ("inbox-retained-chat", "user", "verlopen", None, "2000-01-01T00:00:00+00:00"),
+                )
+
+            for number in range(MAX_HISTORY_ITEMS + 1):
+                _append(root, "inbox-retained-chat", "user", f"bericht {number} token=secret")
+
+            retained = history(root, "inbox-retained-chat")
+            self.assertEqual(len(retained), MAX_HISTORY_ITEMS)
+            self.assertEqual(retained[0]["text"], "bericht 1 [REDACTED]")
+            self.assertNotIn("secret", " ".join(item["text"] for item in retained))
+            with open_storage(root) as connection:
+                self.assertEqual(
+                    connection.execute(
+                        "SELECT COUNT(*) FROM execution_chat_messages "
+                        "WHERE run_id=? AND content='verlopen'",
+                        ("inbox-retained-chat",),
+                    ).fetchone()[0],
+                    0,
+                )
+                with self.assertRaises(sqlite3.IntegrityError):
+                    connection.execute(
+                        "UPDATE execution_chat_messages SET content='gewijzigd' WHERE run_id=?",
+                        ("inbox-retained-chat",),
+                    )

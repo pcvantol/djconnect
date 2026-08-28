@@ -370,8 +370,10 @@ retry has become an active execution.
 The **Actieve prompt** category is always the first dashboard category, ahead
 of the Inbox queue and Prompt history.
 
-The bottom status bar contains the Engineering Platform version, the most
-recent refresh timestamp and the server-push connection state. The active
+The bottom status bar contains the Engineering Platform version, the **latest
+live-status signal** timestamp and the server-push connection state. The
+timestamp identifies the latest snapshot accepted by the browser; it does not
+claim that every Dashboard component was refreshed at that instant. The active
 prompt category contains no separate time card.
 
 On desktop and iPad, the title bar and bottom status bar remain visible while
@@ -690,7 +692,9 @@ Any requested implementation must be submitted as a new Engineering prompt.
 
 Conversation history is a private, run-scoped transcript: user and assistant
 messages are redacted before storage, bounded to 20 messages per run and
-retained for 90 days. It is not Engineering Memory and is never an Inbox,
+retained for 90 days. Stored messages are insert-only; expiry pruning and an
+explicit per-run clear are the only supported removal paths. It is not
+Engineering Memory and is never an Inbox,
 runner or repository-control channel. Generic run details, Markdown reports
 and JSON exports deliberately exclude transcripts; the chat modal is the only
 place that can explicitly copy or download its own redacted conversation.
