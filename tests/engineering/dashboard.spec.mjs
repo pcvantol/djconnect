@@ -9558,6 +9558,15 @@ test.describe("Engineering Status browser smoke", () => {
   });
 
   test("treats a detached watcher as a handoff while its execution host is active", async ({ page }) => {
+    // The initial platform-health request starts during page boot.  Keep that
+    // asynchronous source aligned with the projected handoff fixture so it
+    // cannot replace the deliberately unhealthy watcher between injection and
+    // assertion.
+    await page.route("**/health", (route) => route.fulfill({ json: { components: {
+      dashboard: { healthy: true },
+      inbox_watcher: { healthy: false, state: "not_running", detail: "LaunchAgent is geladen, maar heeft geen actief proces" },
+      dashboard_relay: { healthy: true },
+    } } }));
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.waitForFunction(() => document.body.classList.contains("dashboard-ready"));
     await page.locator("#autoRefresh").uncheck();
