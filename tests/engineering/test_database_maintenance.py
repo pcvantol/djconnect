@@ -59,3 +59,31 @@ class DatabaseMaintenanceTest(unittest.TestCase):
                 )
 
             self.assertEqual(run_periodic_database_maintenance(root)["state"], "SKIPPED_ACTIVE_RUN")
+
+    def test_safe_skip_is_throttled_before_the_next_hourly_attempt(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            timestamp = datetime.now(timezone.utc).replace(microsecond=0)
+            with open_storage(root) as connection:
+                connection.execute(
+                    "INSERT INTO engineering_transactions(run_id,payload,phase,updated_at) VALUES(?,?,?,?)",
+                    ("inbox-finishing", "{}", "FINALIZE", timestamp.isoformat()),
+                )
+
+            self.assertEqual(
+                run_periodic_database_maintenance(root, now=timestamp)["state"],
+                "SKIPPED_ACTIVE_RUN",
+            )
+            with open_storage(root) as connection:
+                connection.execute(
+                    "UPDATE engineering_transactions SET phase='COMPLETE' WHERE run_id='inbox-finishing'"
+                )
+
+            self.assertEqual(
+                run_periodic_database_maintenance(root, now=timestamp + timedelta(minutes=59))["state"],
+                "NOT_DUE",
+            )
+            self.assertEqual(
+                run_periodic_database_maintenance(root, now=timestamp + timedelta(hours=1))["state"],
+                "COMPACTED",
+            )
