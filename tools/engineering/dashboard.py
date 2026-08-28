@@ -66,6 +66,7 @@ from .storage import (
     load_projection,
     open_storage,
     record_ai_capacity_bi_hourly,
+    storage_activation_required,
 )
 from .provider_usage import provider_usage_summary
 from .execution_lifecycle import projection as lifecycle_projection
@@ -992,12 +993,25 @@ def _component_log_versions(root: Path) -> dict[str, str]:
 
 
 def _launch_agent_health(label: str) -> dict[str, str | bool]:
-    """Inspect one owned LaunchAgent without changing its state."""
-    if not LaunchdProvider().status().qualified:
+    """Inspect one owned LaunchAgent process without changing its state."""
+    state = LaunchdProvider().runtime_status(label)
+    if state.qualified:
+        return {"healthy": True, "state": "running", "detail": "LaunchAgent-proces is actief"}
+    if state.detail == "launchctl unavailable":
         return {"healthy": False, "state": "unavailable", "detail": "launchctl ontbreekt"}
-    if not LaunchdProvider().inspect(label):
-        return {"healthy": False, "state": "not_running", "detail": "LaunchAgent is niet geladen"}
-    return {"healthy": True, "state": "running", "detail": "LaunchAgent is geladen"}
+    return {"healthy": False, "state": "not_running", "detail": "LaunchAgent is geladen, maar heeft geen actief proces" if state.detail.endswith("no active process") else "LaunchAgent is niet geladen"}
+
+
+def _inbox_watcher_health(root: Path) -> dict[str, str | bool]:
+    """Add a safe startup reason when the watcher is not actually live."""
+    health = _launch_agent_health(WATCHER_LABEL)
+    if bool(health["healthy"]) or not storage_activation_required(root):
+        return health
+    return {
+        **health,
+        "detail": "Gecontroleerde opslagactivatie vereist voordat de Inbox-watcher kan starten.",
+        "reason_code": "storage_activation_required",
+    }
 
 
 def _platform_health(root: Path) -> dict[str, object]:
@@ -1011,7 +1025,7 @@ def _platform_health(root: Path) -> dict[str, object]:
             "uptime_seconds": max(0, round(time.monotonic() - DASHBOARD_STARTED_AT)),
         },
         "inbox_watcher": {
-            **_launch_agent_health(WATCHER_LABEL),
+            **_inbox_watcher_health(root),
             "version": WATCHER_VERSION,
             "uptime_seconds": _component_uptime_seconds("inbox_watcher"),
         },

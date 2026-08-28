@@ -381,6 +381,19 @@ class EngineeringStorageTest(unittest.TestCase):
                         ENGINEERING_STORAGE_SCHEMA_VERSION + 1,
                     )
 
+    def test_storage_activation_requirement_probe_is_read_only(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            with open_storage(root):
+                pass
+            from tools.engineering import storage
+
+            self.assertFalse(storage.storage_activation_required(root))
+            with patch.object(
+                storage, "ENGINEERING_STORAGE_SCHEMA_VERSION", ENGINEERING_STORAGE_SCHEMA_VERSION + 1
+            ):
+                self.assertTrue(storage.storage_activation_required(root))
+
     def test_controlled_activation_refuses_active_execution_or_component(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)

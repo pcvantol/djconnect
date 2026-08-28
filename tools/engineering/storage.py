@@ -1552,6 +1552,25 @@ def database_path(root: Path) -> Path:
     return root.resolve() / WORKSPACE_DIRECTORY / DATABASE_FILENAME
 
 
+def storage_activation_required(root: Path) -> bool:
+    """Read whether an existing shared store is behind this source's schema.
+
+    This deliberately opens SQLite read-only and never invokes a migration. It
+    is used only to explain why a persistent component cannot start.
+    """
+    path = database_path(root)
+    if not path.is_file():
+        return False
+    try:
+        connection = sqlite3.connect(f"file:{path}?mode=ro", uri=True)
+        try:
+            return _schema_version(connection) < ENGINEERING_STORAGE_SCHEMA_VERSION
+        finally:
+            connection.close()
+    except (OSError, sqlite3.DatabaseError, EngineeringStorageError):
+        return False
+
+
 def _assert_controlled_schema_activation(root: Path, path: Path) -> None:
     """Refuse an upgrade while any EP execution or durable component is live.
 

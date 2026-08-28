@@ -374,8 +374,11 @@ function dashboardHealthPresentation(status = latestStatus, platformHealth = lat
   const componentCheck = (name, componentKey, healthy) => {
     const component = components?.[componentKey];
     const unavailable = components ? "not_running" : "unknown";
+    const reasonCode = !healthy && components && typeof component?.reason_code === "string"
+      ? component.reason_code
+      : "";
     const reason = !healthy && components
-      ? String(component?.detail || component?.state || "").trim()
+      ? (reasonCode ? t("component.reason." + reasonCode) : String(component?.detail || component?.state || "").trim())
       : "";
     return [
       name,

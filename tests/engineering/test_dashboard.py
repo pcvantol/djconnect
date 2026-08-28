@@ -19,6 +19,7 @@ from tools.engineering.platform_version import EngineeringPlatformManifest
 from tools.engineering.prompt_history import record_prompt_execution
 from tools.engineering.provider_usage import ProviderInvocation, persist_provider_invocation
 from tools.engineering.storage import ENGINEERING_STORAGE_SCHEMA_VERSION, open_storage, store_projection
+from tools.engineering.providers import ProviderStatus
 from tools.engineering.dashboard_configuration import inbox_root, update_inbox_root
 from tools.engineering.agent_state import StateStore, TransactionState
 from tools.engineering.execution_lease import acquire
@@ -427,6 +428,35 @@ class DashboardStatusTest(unittest.TestCase):
             )
             with self.assertRaisesRegex(OSError, "De herstart is niet gelukt"):
                 dashboard._restart_component("dashboard")
+
+    @patch("tools.engineering.dashboard.LaunchdProvider")
+    def test_launch_agent_health_rejects_a_loaded_agent_without_a_process(self, launchd: object) -> None:
+        launchd.return_value.runtime_status.return_value = ProviderStatus(
+            "launchd", "configured", False, "LaunchAgent is loaded but has no active process"
+        )
+        self.assertEqual(
+            dashboard._launch_agent_health("com.example.watcher"),
+            {
+                "healthy": False,
+                "state": "not_running",
+                "detail": "LaunchAgent is geladen, maar heeft geen actief proces",
+            },
+        )
+
+    @patch("tools.engineering.dashboard.storage_activation_required", return_value=True)
+    @patch("tools.engineering.dashboard._launch_agent_health")
+    def test_inbox_watcher_health_exposes_storage_activation_as_its_safe_reason(
+        self, launch_agent_health: object, _: object
+    ) -> None:
+        launch_agent_health.return_value = {
+            "healthy": False,
+            "state": "not_running",
+            "detail": "LaunchAgent is geladen, maar heeft geen actief proces",
+        }
+        health = dashboard._inbox_watcher_health(Path("/repository"))
+        self.assertFalse(health["healthy"])
+        self.assertEqual(health["reason_code"], "storage_activation_required")
+        self.assertIn("opslagactivatie", str(health["detail"]))
 
     @patch("tools.engineering.dashboard.LaunchdProvider")
     @patch("tools.engineering.dashboard.GitProvider")

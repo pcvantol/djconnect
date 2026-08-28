@@ -434,7 +434,12 @@ dashboard process, Engineering Execution Host LaunchAgent, private relay
 LaunchAgent, local status storage and relay connectivity are all available. It returns HTTP
 `200` with `"health":"ok"` when all components are healthy, otherwise HTTP
 `503` with `"health":"degraded"` and a per-component diagnostic. The endpoint
-is read-only and does not repair a component.
+is read-only and does not repair a component. A loaded LaunchAgent alone is
+not evidence of health: its service process must be active. This prevents a
+KeepAlive job that is repeatedly exiting from being shown as an active
+Inbox-watcher. If the watcher is stopped while the shared database is behind
+the source schema, the status projection exposes the safe reason
+`storage_activation_required`; it does not attempt the activation itself.
 
 The matching **Platformonderdelen** dashboard category exposes a per-component
 information dialog. It obtains its bounded metadata from
