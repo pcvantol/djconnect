@@ -2063,6 +2063,7 @@ function renderHealthStatus(x, snapshot = {}) {
     indicator = $("indicator"),
     components = snapshot.component_versions || {},
     blockedPredecessor = Boolean(x.blocking_predecessor_run);
+  const precedingExecutionOnly = blockedPredecessor && !active && !visibleStaleLifecycle;
   // A terminal current.json/status projection is historical evidence, not an
   // active prompt.  The watcher owns the operational view; history owns the
   // completed, failed or blocked execution.
@@ -2079,6 +2080,13 @@ function renderHealthStatus(x, snapshot = {}) {
   );
   $("predecessorAction").textContent =
     x.predecessor_recovery_action || t("format.not_available");
+  $("currentRunTitle").textContent = precedingExecutionOnly
+    ? t("recovery.blocked_predecessor_title")
+    : t("section.active_prompt");
+  $("executionIdentityTitle").textContent = precedingExecutionOnly
+    ? t("recovery.preceding_execution")
+    : t("detail.execution");
+  $("promptStartedField").hidden = precedingExecutionOnly;
   renderExecutionContext(x.execution_context, x);
   renderActiveLifecycle(x.lifecycle);
   renderOperatorMergeWait(x);
@@ -2123,11 +2131,15 @@ function renderHealthStatus(x, snapshot = {}) {
   // Keep the canonical status renderer backward compatible while they refresh.
   renderPreflightPresentation(snapshot);
   renderTechnicalDiagnosis(x, snapshot);
-  promptStarted(snapshot.prompt_started);
+  if (!precedingExecutionOnly) promptStarted(snapshot.prompt_started);
   renderEstimate(x, latestDurationEstimate);
   processMetrics(active, snapshot.process_metrics);
-  $("currentPrompt").textContent = x.prompt_title || t("format.not_available");
-  $("currentFile").textContent = x.submitted_filename || t("format.not_available");
+  $("currentPrompt").textContent = precedingExecutionOnly
+    ? (x.blocking_predecessor_title || x.blocking_predecessor_filename || t("format.not_available"))
+    : (x.prompt_title || t("format.not_available"));
+  $("currentFile").textContent = precedingExecutionOnly
+    ? (x.blocking_predecessor_filename || t("format.not_available"))
+    : (x.submitted_filename || t("format.not_available"));
   if (!active || x.run_id !== currentLogRun)
     $("currentDiagnostic").hidden = true;
   if (active)
@@ -2138,7 +2150,9 @@ function renderHealthStatus(x, snapshot = {}) {
       false,
       "currentDiagnostic",
     );
-  $("runId").textContent = x.run_id || t("value.none");
+  $("runId").textContent = precedingExecutionOnly
+    ? x.blocking_predecessor_run
+    : (x.run_id || t("value.none"));
   renderInboxBlocker(x);
   queueItems(x.queue_items, x.queue_depth);
   $("repositoryState").textContent = translate(x.repository_state || "UNKNOWN");
@@ -7161,6 +7175,7 @@ function renderPredecessorRetry(x) {
     status = $("predecessorRetryStatus");
   button.hidden = !blocked;
   button.disabled = isActiveRun(x || {});
+  button.textContent = t("recovery.action");
   if (!blocked) status.textContent = "";
 }
 function submitPredecessorRetry() {
@@ -7169,17 +7184,17 @@ function submitPredecessorRetry() {
     run = latestStatus?.blocking_predecessor_run;
   if (!run || button.disabled) return;
   confirmDashboardAction(
-    t("queue_recovery.title"),
-    t("queue_recovery.details"),
-    t("action.resume_queue"),
+    t("recovery.title"),
+    t("recovery.details"),
+    t("recovery.action"),
   ).then((confirmed) => {
     if (!confirmed) return;
     button.disabled = true;
-    status.textContent = t("queue_recovery.preparing");
-    fetch("/api/queue-recovery", {
+    status.textContent = t("recovery.preparing");
+    fetch("/api/execution-retry", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: "{}",
+      body: JSON.stringify({ run_id: run }),
     })
       .then(async (response) => ({
         ok: response.ok,
@@ -7188,14 +7203,14 @@ function submitPredecessorRetry() {
       .then((result) => {
         if (!result.ok)
           throw Error(
-            result.body.error || t("queue_recovery.failed"),
+            result.body.error || t("recovery.failed"),
           );
         status.textContent =
-          t("queue_recovery.ready");
+          t("recovery.ready");
       })
       .catch((error) => {
         status.textContent =
-          error.message || t("queue_recovery.failed");
+          error.message || t("recovery.failed");
       })
       .finally(() => {
         button.disabled = false;

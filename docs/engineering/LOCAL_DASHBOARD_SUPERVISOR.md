@@ -326,10 +326,13 @@ page behind a modal as inert; chat, report and detail copy actions therefore
 remain available without changing the evidence data.
 
 The **Actieve prompt** category represents only a live, non-terminal
-execution. Terminal evidence belongs in **Promptgeschiedenis**. When an Inbox
-predecessor blocks later queued work, the category remains available for that
-queue-recovery context and shows the predecessor recovery action and retry
-control.
+execution. Terminal evidence belongs in **Promptgeschiedenis**. When a
+terminal Inbox predecessor blocks progress, the dashboard instead labels the
+card **Geblokkeerde voorafgaande uitvoering**, shows that predecessor's Run ID
+and recovery evidence, and hides active-only fields such as the start time.
+Its confirmed **Herstel geblokkeerde uitvoering** action repeats the normal
+retry preflight and creates a new retry through Inbox; it does not alter the
+failed execution or its evidence.
 
 For a live Managed run that started from a verified clean `main` baseline, the
 category may expose **Noodstop en terugdraaien**. It is an explicitly
