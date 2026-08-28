@@ -4181,6 +4181,45 @@ test.describe("Engineering Status browser smoke", () => {
     }
   });
 
+  test("exports one loaded telemetry day as Markdown and JSON", async ({ page }) => {
+    const detail = {
+      summary: {
+        executions: 1, completed: 1, blocked: 0, failed: 0,
+        total_wall_time: { average_ms: 60000, median_ms: 60000 },
+        active_processing_time: { average_ms: 50000 }, queue_wait: { average_ms: 5000 },
+      },
+      phases: [{ phase: "VALIDATION", average_ms: 12000, median_ms: 12000, total_ms: 12000, share_percent: 20, runs: 1 }],
+      bottlenecks: { longest_average_phase: { phase: "VALIDATION" }, largest_accumulated_phase: { phase: "VALIDATION" }, top_time_consumers: [{ phase: "VALIDATION", share_percent: 20 }] },
+      runs: [{ run_id: "inbox-day-export", started_at: "2026-08-24T12:00:00Z", status: "COMPLETE", total_duration_ms: 60000, queue_wait_ms: 5000, provider_duration_ms: 12000, validation_duration_ms: 12000, external_wait_ms: 0, largest_phase: "VALIDATION", producer_type: "HUMAN", repository: "pcvantol/djconnect", model: "gpt-5.6", phase_telemetry: "RECORDED" }],
+    };
+    await page.route("**/api/telemetry/2026-08-24", (route) => route.fulfill({ json: detail }));
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#autoRefresh").uncheck();
+    await page.evaluate(() => window.executionTelemetry([{
+      date: "2026-08-24", prompt_count: 1, average_total_execution_seconds: 60,
+      average_queue_wait_seconds: 5, complete_count: 1, blocked_count: 0, failed_count: 0,
+    }]));
+    await page.locator("#executionTelemetry").evaluate((element) => { element.open = true; });
+    await page.locator("#executionTelemetryRows .telemetry-row").click();
+    const markdown = page.locator("#telemetryDetailDownloadMarkdown");
+    const json = page.locator("#telemetryDetailDownloadJson");
+    await expect(markdown).toHaveAttribute("aria-label", "Telemetrie van 24-08-2026 als Markdown downloaden");
+    await expect(json).toHaveAttribute("aria-label", "Telemetrie van 24-08-2026 als JSON downloaden");
+    const markdownDownload = page.waitForEvent("download");
+    await markdown.click();
+    const downloadedMarkdown = await markdownDownload;
+    expect(downloadedMarkdown.suggestedFilename()).toBe("execution-telemetry-2026-08-24.md");
+    const markdownContent = readFileSync(await downloadedMarkdown.path(), "utf8");
+    expect(markdownContent).toContain("# Uitvoeringstelemetrie — 24-08-2026");
+    expect(markdownContent).toContain("## Samenvatting");
+    expect(markdownContent).toContain("inbox-day-export");
+    const jsonDownload = page.waitForEvent("download");
+    await json.click();
+    const downloadedJson = await jsonDownload;
+    expect(downloadedJson.suggestedFilename()).toBe("execution-telemetry-2026-08-24.json");
+    expect(JSON.parse(readFileSync(await downloadedJson.path(), "utf8"))).toEqual(detail);
+  });
+
   test("gives every table a coloured first column and sorts telemetry columns", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.route("**/api/telemetry*", (route) => route.abort());

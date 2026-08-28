@@ -3520,6 +3520,8 @@ class DashboardStatusTest(unittest.TestCase):
             ("/api/execution-merge-status-check", {"run_id": "run-1"}, 202),
             ("/api/queue-defer", {"filename": "queued.md"}, 202),
             ("/api/audit/user-action", {"action": "chat_downloaded"}, 200),
+            ("/api/audit/user-action", {"action": "telemetry_detail_markdown_downloaded"}, 200),
+            ("/api/audit/user-action", {"action": "telemetry_detail_json_downloaded"}, 200),
         )
         with ExitStack() as patches:
             patches.enter_context(patch("tools.engineering.dashboard.log_event"))
