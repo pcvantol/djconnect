@@ -1043,9 +1043,17 @@ test.describe("Engineering Status browser smoke", () => {
       const field = input.closest("label").getBoundingClientRect();
       const bounds = input.getBoundingClientRect();
       const wrapper = input.closest(".log-date-control__field").getBoundingClientRect();
-      return { left: Math.round(bounds.left), right: Math.round(bounds.right), fieldLeft: Math.round(field.left), fieldRight: Math.round(field.right), wrapperRight: Math.round(wrapper.right) };
+      const clear = input.closest(".log-date-control__field").querySelector("button").getBoundingClientRect();
+      return {
+        clearRight: Math.round(clear.right),
+        fieldLeft: Math.round(field.left),
+        fieldRight: Math.round(field.right),
+        left: Math.round(bounds.left),
+        right: Math.round(bounds.right),
+        wrapperRight: Math.round(wrapper.right),
+      };
     }));
-    expect(dateBounds.every((item) => item.left >= item.fieldLeft && item.right <= item.fieldRight && item.wrapperRight <= item.fieldRight)).toBe(true);
+    expect(dateBounds.every((item) => item.left >= item.fieldLeft && item.right <= item.fieldRight && item.wrapperRight <= item.fieldRight && item.clearRight <= item.fieldRight)).toBe(true);
 
     for (const preset of ["", "today", "yesterday"]) {
       await page.locator("#logTimePreset").selectOption(preset);

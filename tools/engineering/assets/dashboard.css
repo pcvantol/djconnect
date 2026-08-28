@@ -751,12 +751,12 @@ html[data-theme="light"] .report-view-modal__content,html[data-theme="light"] .r
   #componentLogControls>label[hidden]{display:none}
   #componentLogControls>label:has(#logEventFilter){grid-column:auto;width:100%}
   #componentLogControls #logEventFilter{box-sizing:border-box;max-width:100%;min-width:0;width:100%}
-  #componentLogControls>label:has(:is(#logSpecificDate,#logDateFrom,#logDateTo)){grid-column:auto;max-inline-size:100%;min-inline-size:0}
+  #componentLogControls>label:has(:is(#logSpecificDate,#logDateFrom,#logDateTo)){grid-column:auto;max-inline-size:100%;min-inline-size:0;overflow:clip}
   /* Safari can include native date-picker affordances outside a 100% control.
      Keep the wrapper, input and clear action inside their label's content box
      without making the normal filter controls visually narrower. */
   #componentLogControls .log-date-control__field{box-sizing:border-box;display:block;inline-size:100%;max-inline-size:100%;min-inline-size:0;min-width:0}
-  #componentLogControls :is(#logSpecificDate,#logDateFrom,#logDateTo){box-sizing:border-box;inline-size:100%;max-inline-size:100%;min-inline-size:0;min-width:0}
+  #componentLogControls :is(#logSpecificDate,#logDateFrom,#logDateTo){box-sizing:border-box;inline-size:100%;max-inline-size:100%;min-inline-size:0;min-width:0;width:100%}
   #componentLogControls .reset-log-filters{justify-self:start;margin-left:0}
 }
 @media (max-width:900px){
