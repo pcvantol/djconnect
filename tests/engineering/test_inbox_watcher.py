@@ -120,7 +120,12 @@ class InboxWatcherTest(unittest.TestCase):
             return_value={"state": "COMPACTED"},
         ), patch("tools.engineering.inbox_watcher.log_event") as log_event:
             inbox_watcher._run_periodic_database_maintenance(self.repo, logger)
-        log_event.assert_called_once_with(logger, logging.INFO, "database_maintenance_completed")
+        log_event.assert_called_once_with(
+            logger,
+            logging.INFO,
+            "periodic_database_maintenance_completed",
+            diagnostic="tasks=PRAGMA optimize,VACUUM",
+        )
 
         with patch(
             "tools.engineering.inbox_watcher.run_periodic_database_maintenance",

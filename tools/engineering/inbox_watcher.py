@@ -91,7 +91,12 @@ def _run_periodic_database_maintenance(repo: Path, logger: logging.Logger) -> No
     outcome = run_periodic_database_maintenance(repo)
     state = outcome.get("state")
     if state == "COMPACTED":
-        log_event(logger, logging.INFO, "database_maintenance_completed")
+        log_event(
+            logger,
+            logging.INFO,
+            "periodic_database_maintenance_completed",
+            diagnostic="tasks=PRAGMA optimize,VACUUM",
+        )
     elif state == "DEFERRED":
         log_event(logger, logging.WARNING, "database_maintenance_deferred")
 
