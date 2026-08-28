@@ -3,12 +3,17 @@
 **Status:** Canonical repository onboarding
 
 Every engineering prompt starts with repository synchronization. Run these
-commands from the intended repository and stop if either fails:
+commands from the intended repository and stop if any fails:
 
 ```sh
 git switch main
-git pull --ff-only
+git fetch origin main
+git merge --ff-only origin/main
 ```
+
+Managed synchronization treats `origin/main` as its single authoritative
+source. It must not use `git pull` or depend on local upstream, merge-target or
+pull-policy configuration.
 
 When a Managed transaction is executed through the Engineering Execution Host,
 the host performs these commands under the run lease before it invokes the
