@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "scripts": {
-    "test:engineering-dashboard": "playwright test tests/engineering/dashboard.spec.mjs",
+    "test:engineering-dashboard": "python3 -m tools.engineering.dashboard_browser_validation",
     "test:engineering-dashboard-logic": "node --test tests/engineering/dashboard_status_store.test.mjs"
   },
   "devDependencies": {
