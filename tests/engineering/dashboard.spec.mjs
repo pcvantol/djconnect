@@ -6444,7 +6444,7 @@ test.describe("Engineering Status browser smoke", () => {
     );
   });
 
-  test("hides stale reviewer projections outside capability review", async ({ page }) => {
+  test("keeps a completed specialist review visible as historical run evidence", async ({ page }) => {
     await page.route("**/api/events", (route) => route.abort());
     await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({
       json: { status: { watcher_state: "WATCHER_IDLE" } },
@@ -6453,17 +6453,31 @@ test.describe("Engineering Status browser smoke", () => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await statusLoaded;
     await page.locator("#autoRefresh").uncheck();
-    const reviewerAgents = [
+    const runningReviewers = [
       { reviewer: "validation", capability: "engineering", status: "running" },
       { reviewer: "documentation", capability: "engineering", status: "running" },
     ];
+    const completedReviewers = runningReviewers.map((reviewer) => ({ ...reviewer, status: "completed" }));
     for (const current_phase of ["FINALIZE_AGENT", "RECONCILE_AGENT"]) {
       await page.evaluate(({ current_phase, reviewer_agents }) => r({
         watcher_state: "ENGINEERING_RUN_ACTIVE", current_phase,
         run_id: "reviewer-paused-run", reviewer_agents,
-      }, {}), { current_phase, reviewer_agents: reviewerAgents });
+      }, {}), { current_phase, reviewer_agents: runningReviewers });
       await expect(page.locator("#activeReviewerAgents")).toBeHidden();
       await expect(page.locator(".reviewer-agent")).toHaveCount(0);
+
+      const completedProjection = await page.evaluate(({ current_phase, reviewer_agents }) => {
+        r({
+        watcher_state: "ENGINEERING_RUN_ACTIVE", current_phase,
+        run_id: "reviewer-completed-run", reviewer_agents,
+        }, {});
+        return {
+          hidden: document.querySelector("#activeReviewerAgents")?.hidden,
+          reviewers: document.querySelectorAll(".reviewer-agent").length,
+          completed: document.querySelectorAll(".reviewer-agent__status--completed").length,
+        };
+      }, { current_phase, reviewer_agents: completedReviewers });
+      expect(completedProjection).toEqual({ hidden: false, reviewers: 2, completed: 2 });
     }
   });
 

@@ -770,13 +770,13 @@ function reviewerPresentationState(status = {}) {
   return "active";
 }
 function activeReviewerAgents(items, executionStatus = {}) {
-  // Reviewer progress has meaning only while the specialist review itself is
-  // active.  Treat a stale projection from a previous phase as unavailable,
-  // rather than presenting historical reviewers as live work.
-  const agents = (
-    String(executionStatus?.current_phase || "").toUpperCase() === "CAPABILITY_REVIEW"
-    && Array.isArray(items)
-  ) ? items : [];
+  const reviewActive = String(executionStatus?.current_phase || "").toUpperCase() === "CAPABILITY_REVIEW";
+  // A later phase may retain only a fully successful review as compact
+  // historical evidence. Running, failed or incomplete projections stay
+  // phase-scoped so they can never look like live reviewer work.
+  const completedReview = Array.isArray(items) && items.length > 0
+    && items.every((agent) => String(agent?.status || "").toLowerCase() === "completed");
+  const agents = (reviewActive || completedReview) && Array.isArray(items) ? items : [];
   let card = $("activeReviewerAgents");
   if (!card) {
     card = document.createElement("section");
