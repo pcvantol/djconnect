@@ -1700,7 +1700,7 @@ def once(repo: Path, root: Path, interval: float = 1.0, *, background: bool = Fa
             reconstructed = recover_missing_terminal_telemetry(repo)
             if recovered["processed"] or recovered["failed"]:
                 log_event(logger, logging.INFO, "terminal_telemetry_reconciled", diagnostic=json.dumps(recovered, sort_keys=True))
-            if reconstructed["recovered"] or reconstructed["failed"]:
+            if reconstructed["recovered"]:
                 log_event(logger, logging.INFO, "terminal_telemetry_reconstructed", diagnostic=json.dumps(reconstructed, sort_keys=True))
         except Exception as error:
             log_event(logger, logging.WARNING, "terminal_telemetry_reconciliation_failed", diagnostic=str(error))
