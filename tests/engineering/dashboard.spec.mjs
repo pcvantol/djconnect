@@ -9315,6 +9315,7 @@ test.describe("Engineering Status browser smoke", () => {
     await indicator.click();
     await expect(indicator).toHaveAttribute("aria-expanded", "true");
     await expect(page.locator("#dashboardHealthTooltip")).toContainText("Inbox-watcher");
+    await expect(page.locator("#dashboardHealthTooltip")).toContainText("Dashboard-relay");
     await expect(page.locator("#dashboardHealthTooltip")).toContainText("Geen uitvoering actief");
     await expect(page.locator("#dashboardHealthTooltip")).toContainText("Werkruimte gereed");
 
@@ -9324,6 +9325,44 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(indicator).toHaveAttribute("data-health-state", "blocked");
     await page.evaluate(() => r({ watcher_state: "HOST_PREFLIGHT_FAILED", workspace_state: "WORKSPACE_READY", queue_depth: 0 }, {}));
     await expect(indicator).toHaveAttribute("data-health-state", "error");
+  });
+
+  test("shows a safe unhealthy component reason and opens its details from the status popout", async ({ page }) => {
+    await page.route("**/health", (route) => route.fulfill({ json: { components: {
+      dashboard: { healthy: true, detail: "HTTP-dashboard reageert" },
+      inbox_watcher: {
+        healthy: false,
+        state: "not_running",
+        detail: "Schema-activatie vereist: runtime ondersteunt schema 31, opslag staat op 32",
+      },
+      dashboard_relay: { healthy: true, detail: "LaunchAgent is geladen" },
+    } } }));
+    await page.route("**/api/components/inbox_watcher/details", (route) => route.fulfill({ json: {
+      component: "inbox_watcher", healthy: false, state: "not_running",
+      detail: "Schema-activatie vereist: runtime ondersteunt schema 31, opslag staat op 32",
+    } }));
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.waitForFunction(() => document.body.classList.contains("dashboard-ready"));
+    await page.locator("#autoRefresh").uncheck();
+    await page.evaluate(() => {
+      renderPlatformHealth({ components: {
+        dashboard: { healthy: true, detail: "HTTP-dashboard reageert" },
+        inbox_watcher: {
+          healthy: false,
+          state: "not_running",
+          detail: "Schema-activatie vereist: runtime ondersteunt schema 31, opslag staat op 32",
+        },
+        dashboard_relay: { healthy: true, detail: "LaunchAgent is geladen" },
+      } });
+      r({ watcher_state: "WATCHER_IDLE", workspace_state: "WORKSPACE_READY", queue_depth: 0 }, {});
+    });
+    await page.getByTestId("dashboard-health-indicator").click();
+    const watcher = page.locator("#dashboardHealthChecks li").filter({ hasText: "Inbox-watcher" });
+    await expect(watcher).toContainText("Niet actief");
+    await expect(watcher).toContainText("Reden — Schema-activatie vereist: runtime ondersteunt schema 31, opslag staat op 32");
+    await watcher.click();
+    await expect(page.locator("#componentModal")).toBeVisible();
+    await expect(page.locator("#componentModalContent")).toContainText("Schema-activatie vereist");
   });
 
   test("keeps the titlebar health tooltip inside a narrow viewport", async ({ page }) => {

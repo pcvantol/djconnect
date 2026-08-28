@@ -260,11 +260,15 @@ preferences; they never alter an Engineering run or its evidence.
 
 The title-bar platform-status dot is a separate, read-only disclosure rather
 than a hover-only hint. A click exposes the live Dashboard, Inbox-watcher,
-execution, queue, watcher and workspace checks. On desktop its popout is
-anchored directly below the dot; on compact widths it opens in the title-bar
-flow before the Options panel, so it cannot fall outside the viewport or behind
-the dashboard content. The dot colour is derived from the same current status
-snapshot as those rows, never from a stale diagnostic projection.
+dashboard relay, execution, queue, watcher and workspace checks. An unhealthy
+component row includes its bounded, safe health reason and opens the matching
+component-details dialog on click or with Enter/Space; it never exposes raw
+logs, commands, credentials or other sensitive process output. On desktop its
+popout is anchored directly below the dot; on compact widths it opens in the
+title-bar flow before the Options panel, so it cannot fall outside the viewport
+or behind the dashboard content. The dot colour is derived from the same
+current status snapshot as those rows, never from a stale diagnostic
+projection.
 
 On iPhone, the theme, section-expansion and automatic-refresh switches are
 separate direct-touch controls. Each control has `touch-action: manipulation`
