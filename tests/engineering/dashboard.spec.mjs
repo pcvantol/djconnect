@@ -6300,6 +6300,7 @@ test.describe("Engineering Status browser smoke", () => {
       run_id: "healthy-run",
     }, {}));
     await expect(diagnosis).toBeVisible();
+    await expect(diagnosis).not.toHaveAttribute("open", "");
     await expect(page.locator("#technicalHealthySummary")).toHaveText("Hostcontrole geslaagd");
     await expect(page.locator("#technicalDiagnosisDetails")).toBeHidden();
 
@@ -6309,6 +6310,7 @@ test.describe("Engineering Status browser smoke", () => {
       diagnostic: "Host preflight failed",
     }, { host_preflight: { outcome: "FAILED" } }));
     await expect(diagnosis).toBeVisible();
+    await expect(diagnosis).toHaveAttribute("open", "");
     await expect(page.locator("#technicalHealthySummary")).toBeHidden();
     await expect(page.locator("#technicalDiagnosisDetails")).toBeVisible();
     await expect(page.locator("#technicalDetailsDescription")).toContainText("herstelbewijs");

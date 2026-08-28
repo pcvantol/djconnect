@@ -577,6 +577,11 @@ context, technical details and the advisory conversation. A colour never
 changes lifecycle meaning; the prompt status indicator remains the authoritative
 visual outcome.
 
+During a healthy active execution, **Technical details** remains available with
+the compact host-check result but stays collapsed across dashboard refreshes.
+It opens automatically only when current preflight, drift, lock or lifecycle
+evidence requires operator attention.
+
 The **Diagnostics** section is contextual rather than permanent dashboard
 chrome. It expands with repository, host, workspace and recovery evidence when
 an execution is blocked, failed, paused, recoverable, or prevented by

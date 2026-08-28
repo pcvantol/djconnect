@@ -1386,7 +1386,10 @@ function renderTechnicalDiagnosis(status = {}, snapshot = {}) {
   summary.hidden = !(active && !needsAttention);
   summary.textContent = active && !needsAttention ? t("technical.host_check_passed") : "";
   description.textContent = t(needsAttention ? "description.technical_details_attention" : "description.technical_details");
-  section.open = !section.hidden;
+  // A healthy active run exposes the compact host-check summary, but should
+  // not repeatedly expand the operator's page on every snapshot refresh.
+  // Attention evidence remains deliberately prominent and opens this section.
+  section.open = needsAttention;
 }
 function executionContextValue(value) {
   if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") return String(value);
