@@ -1012,6 +1012,21 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#logSpecificDateControl")).toBeVisible();
     await expect(page.locator("#logDateFromControl")).toBeHidden();
     await expect(page.locator("#logDateToControl")).toBeHidden();
+    const specificDateBounds = await page.locator("#logSpecificDate").evaluate((input) => {
+      const label = input.closest("label").getBoundingClientRect();
+      const wrapper = input.closest(".log-date-control__field").getBoundingClientRect();
+      const field = input.getBoundingClientRect();
+      const clear = input.closest(".log-date-control__field").querySelector("button").getBoundingClientRect();
+      return {
+        clearRight: Math.round(clear.right),
+        fieldRight: Math.round(field.right),
+        labelRight: Math.round(label.right),
+        wrapperRight: Math.round(wrapper.right),
+      };
+    });
+    expect(specificDateBounds.wrapperRight).toBeLessThanOrEqual(specificDateBounds.labelRight);
+    expect(specificDateBounds.fieldRight).toBeLessThanOrEqual(specificDateBounds.labelRight);
+    expect(specificDateBounds.clearRight).toBeLessThanOrEqual(specificDateBounds.labelRight);
 
     await page.locator("#logTimePreset").selectOption("range");
     await expect(page.locator("#logSpecificDateControl")).toBeHidden();
@@ -1020,9 +1035,10 @@ test.describe("Engineering Status browser smoke", () => {
     const dateBounds = await page.locator("#logDateFrom, #logDateTo").evaluateAll((controls) => controls.map((input) => {
       const field = input.closest("label").getBoundingClientRect();
       const bounds = input.getBoundingClientRect();
-      return { left: Math.round(bounds.left), right: Math.round(bounds.right), fieldLeft: Math.round(field.left), fieldRight: Math.round(field.right) };
+      const wrapper = input.closest(".log-date-control__field").getBoundingClientRect();
+      return { left: Math.round(bounds.left), right: Math.round(bounds.right), fieldLeft: Math.round(field.left), fieldRight: Math.round(field.right), wrapperRight: Math.round(wrapper.right) };
     }));
-    expect(dateBounds.every((item) => item.left >= item.fieldLeft && item.right <= item.fieldRight)).toBe(true);
+    expect(dateBounds.every((item) => item.left >= item.fieldLeft && item.right <= item.fieldRight && item.wrapperRight <= item.fieldRight)).toBe(true);
 
     for (const preset of ["", "today", "yesterday"]) {
       await page.locator("#logTimePreset").selectOption(preset);

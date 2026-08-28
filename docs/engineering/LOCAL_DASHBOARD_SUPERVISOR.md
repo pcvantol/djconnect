@@ -601,7 +601,9 @@ The time-window selector exposes no date fields for **All dates**, **Today**
 or **Yesterday**; it exposes **Specific day** only for that selection and
 **From**/**To** only for a custom range. Each date field has an independent
 clear action. When **From** is set, the browser prevents **To** from preceding
-it and the API rejects an invalid range as a second fail-closed boundary.
+it and the API rejects an invalid range as a second fail-closed boundary. On
+touch-width screens, the date field and its clear action remain within the
+Logs card, including Safari's native date-control affordances.
 Each watcher and dashboard table has independent filtering, sorting and
 pagination, and its own download and confirmed-clear controls. Downloaded logs
 remain redacted NDJSON. A missing log is presented as an empty log, never as an
