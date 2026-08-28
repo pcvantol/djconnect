@@ -9321,6 +9321,8 @@ test.describe("Engineering Status browser smoke", () => {
 
     await page.evaluate(() => r({ watcher_state: "ENGINEERING_RUN_ACTIVE", run_id: "inbox-active", workspace_state: "WORKSPACE_READY", queue_depth: 0 }, {}));
     await expect(indicator).toHaveAttribute("data-health-state", "active");
+    await page.evaluate(() => r({ watcher_state: "ENGINEERING_RUN_ACTIVE", run_id: "inbox-active", workspace_state: "ACTIVE", queue_depth: 0 }, {}));
+    await expect(page.locator("#dashboardHealthChecks li").filter({ hasText: "Werkruimte" })).toHaveAttribute("data-health", "good");
     await page.evaluate(() => r({ watcher_state: "WATCHER_IDLE", current_phase: "BLOCKED", workspace_state: "WORKSPACE_READY", queue_depth: 0 }, {}));
     await expect(indicator).toHaveAttribute("data-health-state", "blocked");
     await page.evaluate(() => r({ watcher_state: "HOST_PREFLIGHT_FAILED", workspace_state: "WORKSPACE_READY", queue_depth: 0 }, {}));

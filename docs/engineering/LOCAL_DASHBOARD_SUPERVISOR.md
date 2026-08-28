@@ -270,6 +270,12 @@ or behind the dashboard content. The dot colour is derived from the same
 current status snapshot as those rows, never from a stale diagnostic
 projection.
 
+During a live execution, the workspace state `ACTIVE` is expected and is
+presented as healthy in the title-bar status disclosure. It does not mask a
+workspace problem: `ACTIVE` is healthy there only while the current snapshot
+also proves that an execution is active; other non-ready workspace states
+remain attention-required.
+
 On iPhone, the theme, section-expansion and automatic-refresh switches are
 separate direct-touch controls. Each control has `touch-action: manipulation`
 and persists only its own browser-local setting. Playwright covers them with

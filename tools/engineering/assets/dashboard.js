@@ -362,6 +362,7 @@ function dashboardHealthPresentation(status = latestStatus, platformHealth = lat
     phase = String(current?.current_phase || "").toUpperCase(),
     watcherStateUpper = watcherState.toUpperCase(),
     active = isActiveRun(current || {}),
+    workspaceActive = active && workspaceState === "ACTIVE",
     blocked = phase === "BLOCKED" || watcherStateUpper.includes("WAITING") || watcherStateUpper.includes("BLOCKED"),
     failed = phase === "FAILED" || watcherStateUpper.includes("FAILED") || watcherStateUpper.includes("DEGRADED") ||
       (components && (!dashboardHealthy || !watcherHealthy || !relayHealthy));
@@ -391,7 +392,7 @@ function dashboardHealthPresentation(status = latestStatus, platformHealth = lat
     ["execution", active ? "active" : phase === "BLOCKED" ? "blocked" : phase === "FAILED" ? "error" : "none_active", active ? "good" : phase === "BLOCKED" ? "warning" : phase === "FAILED" ? "bad" : "good"],
     ["queue", queueDepth ? "queue_waiting" : "queue_empty", queueDepth ? "warning" : "good", { count: queueDepth }],
     ["watcher_state", watcherState || "unknown", watcherState === "WATCHER_IDLE" ? "good" : watcherStateUpper.includes("FAILED") || watcherStateUpper.includes("DEGRADED") ? "bad" : watcherState ? "warning" : "unknown"],
-    ["workspace", workspaceState || "unknown", workspaceState === "WORKSPACE_READY" ? "good" : workspaceState ? "bad" : "unknown"],
+    ["workspace", workspaceState || "unknown", workspaceState === "WORKSPACE_READY" || workspaceActive ? "good" : workspaceState ? "bad" : "unknown"],
   ];
   return { state, checks };
 }
