@@ -1,5 +1,22 @@
 # DJConnect Generation 2 Management Summary
 
+## PR #980 merged — Finalization pending
+
+PR [#980](https://github.com/pcvantol/djconnect/pull/980), **feat(engineering):
+persist run qualification evidence**, merged as
+`3ba1dc089904c616c677ebfe2f7c5a0d29516c6f` and is contained in current
+`main`. Its completed required checks have no failures. This bounded Engineering
+Platform 2.x increment persists explicit submission lineage and required
+validation evidence, derives run qualification fail-closed from run-specific
+evidence, and keeps Platform Qualification separate. It does not submit a new
+qualification, rewrite historical evidence, activate a storage migration, or
+change lifecycle, reviewer, provider, queue, delivery or operator-owned merge
+authority. Its immutable Prompt History record is
+`docs/history/prompts/2026-08-28-run-qualification-evidence-contract.md`.
+Governance-only Finalization is pending on
+`codex/finalize-inbox-793aa07f343742638e897d21d4dc656c`. Repository State:
+`MERGED_UNRECONCILED`; Finalization Pending: `YES`.
+
 ## PR #973 finalized by PR #974
 
 PR [#973](https://github.com/pcvantol/djconnect/pull/973), **test: guard root
