@@ -236,6 +236,11 @@ terminal report and regenerates only the advisory analysis; it never resumes,
 retries or changes the Engineering execution, checkpoint, branch or pull
 request. A successfully processed analysis is deliberately not retryable.
 
+If a terminal report temporarily cannot be read in its dialog, the dashboard
+offers **Reload report**. That action repeats only the read-only retrieval of
+the indexed immutable report. It never regenerates a report from current state
+or changes any run evidence.
+
 The dashboard exposes that analysis only from the matching Promptgeschiedenis
 row and only when its Run ID matches the selected terminal execution. A failed
 or absent analysis never changes the terminal checkpoint, report, repository

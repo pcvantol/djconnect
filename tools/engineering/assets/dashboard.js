@@ -6607,17 +6607,24 @@ function downloadPromptHistoryReport() {
       : "prompt_history_report_downloaded",
   );
 }
-function openPromptHistoryDocument(runId, kind = "report") {
-  const modal = $("promptHistoryReportModal"),
-    content = $("promptHistoryReportContent");
-  promptHistoryReportRun = String(runId || "");
-  promptHistoryDocumentKind = kind === "analysis" ? "analysis" : "report";
-  promptHistoryReportText = "";
-  $("promptHistoryReportModalTitle").dataset.modalGlyph = promptHistoryDocumentKind;
-  $("promptHistoryReportModalTitle").textContent =
-    promptHistoryDocumentKind === "analysis"
-      ? t("table.analysis")
-      : t("history.execution_report_title");
+function promptHistoryReportReloadButton() {
+  let button = $("promptHistoryReportReload");
+  if (button) return button;
+  button = document.createElement("button");
+  button.className = "dashboard-action dashboard-action--primary report-analysis-retry";
+  button.id = "promptHistoryReportReload";
+  button.type = "button";
+  button.hidden = true;
+  button.textContent = t("history.retry_report_load");
+  button.addEventListener("click", () => { void reloadPromptHistoryReport(); });
+  $("promptHistoryReportDownload").before(button);
+  return button;
+}
+function loadPromptHistoryDocument() {
+  const content = $("promptHistoryReportContent"),
+    reload = promptHistoryReportReloadButton();
+  reload.hidden = true;
+  reload.disabled = true;
   $("promptHistoryReportCopy").hidden = true;
   $("promptHistoryReportDownload").hidden = true;
   $("promptHistoryReportRetry").hidden = true;
@@ -6627,8 +6634,6 @@ function openPromptHistoryDocument(runId, kind = "report") {
       ? "history.analysis_loading"
       : "history.report_loading",
   );
-  if (!modal.open) modal.showModal();
-  resetDashboardModalInitialFocus(modal);
   fetch(
     "/api/prompt-history/" +
       encodeURIComponent(promptHistoryReportRun) +
@@ -6670,7 +6675,27 @@ function openPromptHistoryDocument(runId, kind = "report") {
           ? "history.analysis_unavailable"
           : "history.report_unavailable",
       );
+      reload.hidden = promptHistoryDocumentKind !== "report";
+      reload.disabled = false;
     });
+}
+function openPromptHistoryDocument(runId, kind = "report") {
+  const modal = $("promptHistoryReportModal");
+  promptHistoryReportRun = String(runId || "");
+  promptHistoryDocumentKind = kind === "analysis" ? "analysis" : "report";
+  promptHistoryReportText = "";
+  $("promptHistoryReportModalTitle").dataset.modalGlyph = promptHistoryDocumentKind;
+  $("promptHistoryReportModalTitle").textContent =
+    promptHistoryDocumentKind === "analysis"
+      ? t("table.analysis")
+      : t("history.execution_report_title");
+  if (!modal.open) modal.showModal();
+  resetDashboardModalInitialFocus(modal);
+  loadPromptHistoryDocument();
+}
+async function reloadPromptHistoryReport() {
+  if (promptHistoryDocumentKind !== "report" || !promptHistoryReportRun) return;
+  loadPromptHistoryDocument();
 }
 async function retryPromptHistoryAnalysis() {
   if (promptHistoryDocumentKind !== "analysis" || !promptHistoryReportRun ||

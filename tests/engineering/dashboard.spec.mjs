@@ -8347,6 +8347,30 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.getByTestId("download-inbox-log")).toHaveCount(1);
   });
 
+  test("retries only a transient read failure for an immutable terminal report", async ({ page }) => {
+    let requests = 0;
+    await page.route("**/api/prompt-history/inbox-report-hiccup/report", (route) => {
+      requests += 1;
+      if (requests === 1) {
+        return route.fulfill({ status: 503, contentType: "application/json", body: '{"error":"temporary"}' });
+      }
+      return route.fulfill({
+        contentType: "text/markdown",
+        body: "# Historisch rapport\n\nOngewijzigd terminal bewijs.",
+      });
+    });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.evaluate(() => openPromptHistoryDocument("inbox-report-hiccup", "report"));
+    await expect(page.locator("#promptHistoryReportContent"))
+      .toContainText(DASHBOARD_MESSAGES.nl["history.report_unavailable"]);
+    const retry = page.locator("#promptHistoryReportReload");
+    await expect(retry).toBeVisible();
+    await retry.click();
+    await expect(page.locator("#promptHistoryReportContent")).toContainText("Ongewijzigd terminal bewijs.");
+    await expect(retry).toBeHidden();
+    expect(requests).toBe(2);
+  });
+
   test("retries one transiently empty prompt-history projection", async ({ page }) => {
     let requests = 0;
     await page.route("**/api/prompt-history", async (route) => {
