@@ -3745,7 +3745,7 @@ test.describe("Engineering Status browser smoke", () => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await expect(page.locator("#currentTime")).toHaveCount(0);
     await expect(page.locator(".footer #lastRefresh")).toContainText(
-      "Laatst bijgewerkt:",
+      "Laatste live-statussignaal:",
     );
     await expect(page.locator(".footer #updateMode")).toContainText(
       "Serverpush:",
@@ -3770,7 +3770,7 @@ test.describe("Engineering Status browser smoke", () => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await selectDashboardLocale(page, "de");
     await expect(page.locator("html")).toHaveAttribute("lang", "de");
-    await expect(page.locator(".footer #lastRefresh")).toContainText("Zuletzt aktualisiert:");
+    await expect(page.locator(".footer #lastRefresh")).toContainText("Letztes Live-Statussignal:");
     await expect(page.locator("#dashboardLocale option:checked")).toHaveText("Deutsch");
   });
 
