@@ -90,9 +90,19 @@ Create the Shortcut on iPhone as follows:
    ```
 
 4. Add **Get Clipboard**.
-5. Add **Save File**.
-6. Configure **Save File** as follows:
-   - input: **Clipboard**;
+5. Add **Choose from List** with exactly these execution choices:
+   - `MUTATING_DELIVERY`;
+   - `VALIDATION_ONLY`.
+6. Build a Dictionary, then **Get Dictionary from Input**, with the existing
+   Producer Submission Envelope fields: contract name
+   `djconnect.producer_submission`, contract version `1.0`, a fresh submission
+   ID, producer type `HUMAN`, producer ID `human:<operator-identity>`, prompt
+   text prefixed with `Execution Mode: Managed`, and
+   `execution_context.context_version: 1.0`. Set
+   `execution_context.action_intent` from the chosen value. Finally add **Get
+   Text from Input** to serialize that Dictionary as JSON.
+7. Add **Save File** and configure it as follows:
+   - input: the JSON envelope (not Clipboard alone);
    - destination: `iCloud Drive/DJConnect Engineering/Inbox`;
    - disable **Ask Where to Save**;
    - disable overwrite;
@@ -106,7 +116,7 @@ Create the Shortcut on iPhone as follows:
    Engineering Inbox accepts `.txt`, `.md` and filename-neutral files whose
    bounded UTF-8 content is Markdown. It processes eligible files in File Date
    Modified order, oldest first.
-7. Optionally add **Show Notification** with a confirmation such as
+8. Optionally add **Show Notification** with a confirmation such as
    `Engineering job submitted`.
 
 The normal mobile workflow is:
@@ -114,7 +124,7 @@ The normal mobile workflow is:
 ```text
 ChatGPT prompt
   ↓
-Copy
+Copy + explicit action-intent selection
   ↓
 Run “Engineering Platform” with Siri or from Shortcuts
   ↓
@@ -125,8 +135,11 @@ macOS Engineering Inbox watcher
 engineering-execution-host
 ```
 
-The Shortcut must submit only prompt text. It does not grant release,
-deployment, publication or repository authority and must not contain secrets.
+The Shortcut must submit the complete structured envelope whenever it selects
+an action intent. It does not grant release, deployment, publication or
+repository authority and must not contain secrets. The old Clipboard-only
+Shortcut remains supported only as the legacy plain-text path; it receives no
+Execution Context and safely defaults to `MUTATING_DELIVERY`.
 
 ## Standard review cycle
 
