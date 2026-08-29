@@ -18,6 +18,8 @@ import uuid
 import re
 import sqlite3
 
+from .validation_identity import is_canonical_dashboard_command
+
 from .agent_state import MAX_COMMIT_EVIDENCE_RECORDS, StateError, StateStore, TransactionState, redact_diagnostic, verified_commit_evidence_record
 from .capability_review import (
     ReviewerResult,
@@ -842,7 +844,7 @@ class EngineeringRunner:
     @staticmethod
     def _validation_id(command: str, kind: str) -> str:
         """Reserve dashboard_browser for the canonical dashboard suite only."""
-        if kind == "browser_e2e" and "npm run test:engineering-dashboard" in command.casefold():
+        if kind == "browser_e2e" and is_canonical_dashboard_command(command):
             return "dashboard_browser"
         return f"validation_{kind}"
 
