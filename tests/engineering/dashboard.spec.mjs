@@ -232,6 +232,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(section.locator("#workspaceFreeDiskSpace")).toHaveCount(0);
     await expect(section.locator("#configurationComponentDetailsInterval")).toHaveCount(1);
     await expect(section.locator("#configurationDashboardStreamInterval")).toHaveCount(1);
+    await expect(configuration.locator(":scope > .configuration-controls")).toHaveCount(0);
     await expect(section).toHaveCSS("border-top-style", "solid");
     expect(await section.evaluate((element) => {
       const details = element.querySelector("#configurationComponentDetailsInterval")?.closest("label");
