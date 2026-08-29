@@ -1064,6 +1064,12 @@ function logTimestampText(value) {
   if (!Number.isFinite(parsed)) return value ? String(value) : "—";
   return locale.logDateTime(new Date(parsed));
 }
+const LOG_LEVEL_SEVERITY = Object.freeze({ DEBUG: 0, INFO: 1, WARNING: 2, ERROR: 3 });
+function logMeetsMinimumLevel(entry, minimum) {
+  if (!minimum || minimum === "DEBUG") return true;
+  const level = String(entry?.level || "").toUpperCase();
+  return (LOG_LEVEL_SEVERITY[level] ?? -1) >= LOG_LEVEL_SEVERITY[minimum];
+}
 function localDayStart(value = new Date()) {
   return new Date(value.getFullYear(), value.getMonth(), value.getDate()).getTime();
 }
@@ -4442,7 +4448,7 @@ function filteredComponentLogEntries(component) {
     ),
     state = independentLogSortStates[component];
   return componentLogEntries[component]
-    .filter((entry) => !level || entry.level === level)
+    .filter((entry) => logMeetsMinimumLevel(entry, level))
     .filter((entry) => !events.size || events.has(String(entry.event || "")))
     .filter(entryMatchesLogTimeRange)
     .filter(

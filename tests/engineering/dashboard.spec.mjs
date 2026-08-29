@@ -4733,11 +4733,11 @@ test.describe("Engineering Status browser smoke", () => {
     // timeout independent from unrelated worker contention in the full run.
     testInfo.setTimeout(60_000);
     const expectations = [
-      ["en", "Search", "Search all fields", "Level", "All levels", "Time period", ["All dates", "Today", "Yesterday", "Specific day", "Custom range"]],
-      ["nl", "Zoeken", "Zoek in alle velden", "Niveau", "Alle niveaus", "Tijdvenster", ["Alle datums", "Vandaag", "Gisteren", "Specifieke dag", "Aangepast bereik"]],
-      ["de", "Suchen", "Alle Felder durchsuchen", "Stufe", "Alle Stufen", "Zeitraum", ["Alle Daten", "Heute", "Gestern", "Bestimmter Tag", "Benutzerdefinierter Zeitraum"]],
-      ["fr", "Rechercher", "Rechercher dans tous les champs", "Niveau", "Tous les niveaux", "Période", ["Toutes les dates", "Aujourd’hui", "Hier", "Jour précis", "Plage personnalisée"]],
-      ["es", "Buscar", "Buscar en todos los campos", "Nivel", "Todos los niveles", "Periodo", ["Todas las fechas", "Hoy", "Ayer", "Día específico", "Intervalo personalizado"]],
+      ["en", "Search", "Search all fields", "Minimum level", "All levels", "Time period", ["All dates", "Today", "Yesterday", "Specific day", "Custom range"]],
+      ["nl", "Zoeken", "Zoek in alle velden", "Niveau vanaf", "Alle niveaus", "Tijdvenster", ["Alle datums", "Vandaag", "Gisteren", "Specifieke dag", "Aangepast bereik"]],
+      ["de", "Suchen", "Alle Felder durchsuchen", "Ab Stufe", "Alle Stufen", "Zeitraum", ["Alle Daten", "Heute", "Gestern", "Bestimmter Tag", "Benutzerdefinierter Zeitraum"]],
+      ["fr", "Rechercher", "Rechercher dans tous les champs", "Niveau minimum", "Tous les niveaux", "Période", ["Toutes les dates", "Aujourd’hui", "Hier", "Jour précis", "Plage personnalisée"]],
+      ["es", "Buscar", "Buscar en todos los campos", "Nivel mínimo", "Todos los niveles", "Periodo", ["Todas las fechas", "Hoy", "Ayer", "Día específico", "Intervalo personalizado"]],
     ];
     for (const [language, search, placeholder, level, allLevels, timePeriod, timeOptions] of expectations) {
       await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
@@ -4781,6 +4781,34 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#inboxComponentLog")).not.toContainText("early-entry");
     await expect(page.locator("#inboxComponentLog")).toContainText("range-entry");
     await expect(page.locator("#inboxComponentLog")).not.toContainText("other day");
+  });
+
+  test("filters component logs from the selected minimum severity", async ({ page }) => {
+    await page.route("**/api/logs/**", (route) => route.fulfill({ contentType: "application/x-ndjson", body: "" }));
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#componentLogs").evaluate((element) => { element.open = true; });
+    await page.waitForFunction(() => componentLogsLoaded);
+    await page.evaluate(() => {
+      componentLogEntries.inbox = [
+        { line: 1, timestamp: "2026-08-29T07:00:01Z", level: "DEBUG", event: "debug_entry", runId: "", details: "" },
+        { line: 2, timestamp: "2026-08-29T07:00:02Z", level: "INFO", event: "info_entry", runId: "", details: "" },
+        { line: 3, timestamp: "2026-08-29T07:00:03Z", level: "WARNING", event: "warning_entry", runId: "", details: "" },
+        { line: 4, timestamp: "2026-08-29T07:00:04Z", level: "ERROR", event: "error_entry", runId: "", details: "" },
+      ];
+      componentLogEntries.dashboard = [];
+      componentLogServerPaged = false;
+      renderComponentLogs();
+    });
+    const visibleLevels = () => page.locator("#inboxComponentLog tr td:nth-child(3)").allTextContents();
+    for (const [minimum, expected] of [
+      ["DEBUG", ["ERROR", "WARNING", "INFO", "DEBUG"]],
+      ["INFO", ["ERROR", "WARNING", "INFO"]],
+      ["WARNING", ["ERROR", "WARNING"]],
+      ["ERROR", ["ERROR"]],
+    ]) {
+      await page.locator("#logLevelFilter").selectOption(minimum);
+      await expect.poll(visibleLevels).toEqual(expected);
+    }
   });
 
   test("keeps the log range end at or after its selected start", async ({ page }) => {
