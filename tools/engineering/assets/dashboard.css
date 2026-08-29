@@ -226,9 +226,6 @@ html[data-theme="light"] .predecessor-retry{background:#fff8ef;border-color:#d68
 #rateLimitReset,#codexCliUpdate{--button-fill:#51d88a;background:#1f5b42;border-color:#51d88a;color:#effff5}
 
 /* Advisory-chat controls. */
-.chat-actions{align-items:center;display:flex;gap:8px;justify-content:flex-end;margin:0 0 18px;min-height:44px;padding-top:12px}
-.chat-actions .dashboard-action{position:static}
-.chat-actions .dashboard-action[hidden]{display:none}
 .codex-chat__details>.chat-messages{margin-top:0}
 
 /* The title bar covers scrolling content. Rounded corners leave small gaps at
@@ -535,7 +532,7 @@ html[data-theme="light"] .chat-message__body code{background:transparent;color:i
 .prompt-history-chat{align-items:center;background:transparent;border:1px solid #d0a4ff;border-radius:50%;color:#d0a4ff;display:inline-flex;font:16px/1 system-ui;justify-content:center;min-height:32px;min-width:32px;padding:0}.prompt-history-chat:hover,.prompt-history-chat--recorded{background:#d0a4ff;border-color:#d0a4ff;color:#17151a}.prompt-history-chat--recorded{font-weight:800}
 /* The shared modal shell owns the chat frame, header and safe-area sizing.
    Conversation-specific rules begin at the chat surface inside that frame. */
-.prompt-chat-modal__panel{display:grid;grid-template-rows:auto auto minmax(0,1fr);height:100%;overflow:hidden}.prompt-chat-modal #codexChat{align-self:stretch;background:var(--modal-surface);border:0;border-radius:0;box-shadow:none;height:auto;min-height:0;overflow:hidden;padding:0}html[data-theme="light"] .prompt-chat-modal #codexChat{background:var(--modal-surface)}.prompt-chat-modal #codexChat .codex-chat__details{display:grid;grid-template-rows:auto minmax(0,1fr) auto auto auto auto;height:100%;min-height:0}.prompt-chat-modal .chat-messages{max-height:none;min-height:0;overflow:auto}.prompt-chat-modal .chat-compose,.prompt-chat-modal .chat-status,.prompt-chat-modal #codexChat .field{flex:none}
+.prompt-chat-modal__panel{display:grid;grid-template-rows:auto auto minmax(0,1fr);height:100%;overflow:hidden}.prompt-chat-modal #codexChat{align-self:stretch;background:var(--modal-surface);border:0;border-radius:0;box-shadow:none;height:auto;min-height:0;overflow:hidden;padding:0}html[data-theme="light"] .prompt-chat-modal #codexChat{background:var(--modal-surface)}.prompt-chat-modal #codexChat .codex-chat__details{display:grid;grid-template-rows:minmax(0,1fr) auto auto auto;height:100%;min-height:0}.prompt-chat-modal .chat-messages{max-height:none;min-height:0;overflow:auto}.prompt-chat-modal .chat-compose,.prompt-chat-modal .chat-status,.prompt-chat-modal #codexChat .field{flex:none}
 .prompt-chat-modal__header h2::before{content:"⋯"}
 
 /* AI antwoorden krijgen een eigen paarse laag, los van de chatmodal. */
@@ -710,7 +707,6 @@ html[data-theme="light"] .report-view-modal__content,html[data-theme="light"] .r
     max-width:calc(100vw - env(safe-area-inset-left) - env(safe-area-inset-right) - 24px);
     width:min(680px,calc(100vw - env(safe-area-inset-left) - env(safe-area-inset-right) - 24px));
   }
-  .prompt-chat-modal .chat-actions{gap:6px;margin-bottom:10px;min-height:34px}
   .prompt-chat-modal .chat-compose{align-items:center;display:flex;gap:8px}
   .prompt-chat-modal .chat-compose .chat-input{flex:1;height:44px;max-height:44px;min-height:44px;padding:10px 12px;resize:none}
   .prompt-chat-modal .chat-compose .chat-send{flex:none;height:44px;min-height:44px;position:static;width:44px}

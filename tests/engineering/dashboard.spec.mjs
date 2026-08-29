@@ -7452,6 +7452,17 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(download).toHaveCSS("color", "rgb(32, 24, 18)");
   });
 
+  test("keeps AI chat actions in the modal header beside close", async ({ page }) => {
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    const modal = page.locator("#promptHistoryChatModal");
+    const actions = modal.locator(".prompt-chat-modal__header > .prompt-chat-modal__actions");
+    await expect(actions).toHaveCount(1);
+    expect(await actions.evaluate((element) => Array.from(element.children).map((child) => child.id))).toEqual([
+      "downloadChat", "copyChat", "clearChat", "promptHistoryChatClose",
+    ]);
+    await expect(modal.locator("#codexChat .chat-actions")).toHaveCount(0);
+  });
+
   test("fills the prompt-scoped AI question send action with its purple category on hover", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.locator("#promptHistoryChatModal").evaluate((element) => element.showModal());
