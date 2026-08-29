@@ -5636,6 +5636,7 @@ const configurationFields = Object.freeze({
   configurationCodexCapacityReserve: ["codex_capacity_reserve_percent", Number],
   configurationPlatformHealthInterval: ["platform_health_refresh_seconds", Number],
   configurationComponentDetailsInterval: ["component_details_refresh_seconds", Number],
+  configurationDatabaseMaintenanceInterval: ["database_maintenance_interval_seconds", Number],
 });
 const dashboardSelectPickers = new Map();
 function syncDashboardSelectPicker(select) {
@@ -5766,6 +5767,7 @@ function addConfigurationControlInfo() {
     ["configurationCodexCapacityReserve", "configuration.codex_capacity_reserve_help"],
     ["configurationPlatformHealthInterval", "configuration.platform_health_interval_help"],
     ["configurationComponentDetailsInterval", "configuration.component_details_interval_help"],
+    ["configurationDatabaseMaintenanceInterval", "configuration.database_maintenance_interval_help"],
   ]) {
     const control = $(id), label = control?.closest("label"), text = label?.querySelector(":scope > span");
     if (!text) continue;

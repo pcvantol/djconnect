@@ -267,6 +267,35 @@ test.describe("Engineering Status browser smoke", () => {
     }]);
   });
 
+  test("persists the database maintenance interval from the Engineering database block", async ({ page }) => {
+    const writes = [];
+    await page.route("**/api/configuration", async (route) => {
+      if (route.request().method() === "GET") {
+        await route.fulfill({ json: {
+          log_retention_days: 30, telemetry_retention_days: 90, log_level: "INFO", inbox_scan_interval_seconds: 15,
+          open_pr_check_interval_seconds: 30, dashboard_stream_interval_seconds: 1,
+          platform_health_refresh_seconds: 15, component_details_refresh_seconds: 5,
+          database_maintenance_interval_seconds: 3600,
+          provider_readiness_refresh_seconds: 300, codex_capacity_reserve_percent: 0,
+        } });
+        return;
+      }
+      writes.push(JSON.parse(route.request().postData() || "{}"));
+      await route.fulfill({ json: { key: "database_maintenance_interval_seconds", previous: 3600, value: 86400 } });
+    });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    const section = page.locator(".workspace-database-section");
+    const select = section.locator("#configurationDatabaseMaintenanceInterval");
+    await expect(select).toHaveValue("3600");
+    await expect(select.locator("option")).toHaveText(["1 minuut", "1 uur", "1 dag", "1 week"]);
+    const picker = select.locator("+ .dashboard-select-picker");
+    await openDashboardPicker(picker);
+    await chooseDashboardPickerOption(picker, "86400");
+    await expect.poll(() => writes).toEqual([{
+      key: "database_maintenance_interval_seconds", value: 86400, previous: 3600,
+    }]);
+  });
+
   test("keeps configuration controls visible while hiding an empty status message", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     const configuration = page.locator("#configuration");
@@ -9268,6 +9297,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(databaseSection.locator("#workspaceDatabaseHeading")).toHaveText("Engineering-database");
     for (const id of ["workspaceDatabaseField", "workspaceDatabaseSize", "workspaceSchemaVersion"])
       await expect(databaseSection.locator(`#${id}`)).toHaveCount(1);
+    await expect(databaseSection.locator("#configurationDatabaseMaintenanceInterval")).toHaveCount(1);
     await expect(page.locator("#workspaceCard #workspaceDatabaseField")).toHaveCount(0);
     const download = page.locator("#workspaceDatabaseDownload");
     await expect(download).toBeVisible();
@@ -9282,7 +9312,7 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(settings).toHaveCount(1);
     await expect(settings).toHaveCSS("border-top-color", "rgb(240, 182, 106)");
     await expect(settings.locator("#configurationReadonlySettingsTitle")).toHaveText("Vaste platforminstellingen");
-    await expect(settings.locator(".configuration-field")).toHaveCount(6);
+    await expect(settings.locator(".configuration-field")).toHaveCount(5);
   });
 
   test("scans stale local branches before confirming their cleanup", async ({ page }) => {
