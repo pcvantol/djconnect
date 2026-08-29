@@ -1154,6 +1154,7 @@ function loadComponentLogs() {
 }
 const CHAT_HISTORY_LIMIT = 20;
 let chatContextRun = "";
+let chatContextEntry = null;
 let chatHistory = [];
 function updateChatHistoryCount(count) {
   promptHistoryEntries = promptHistoryEntries.map((entry) =>
@@ -1239,6 +1240,7 @@ function closePromptHistoryChat() {
 function openPromptHistoryChat(entry) {
   if (!entry?.run_id) return;
   chatContextRun = String(entry.run_id);
+  chatContextEntry = { ...entry, run_id: chatContextRun };
   chatHistory = [];
   $("promptHistoryChatTitle").textContent = t("history.execution_chat_title");
   $("promptHistoryChatDescription").textContent = t("history.chat_description");
@@ -6547,6 +6549,21 @@ new MutationObserver((records) => {
 updateAllSectionsToggle();
 updateIndependentLogSortHeaders();
 function chatHistoryMarkdown() {
+  const context = chatContextEntry || {};
+  const metadata = chatContextRun
+    ? [
+      "## " + t("detail.execution"),
+      "",
+      "**" + t("table.prompt_title").toLocaleUpperCase(dashboardLocale) + "**",
+      String(context.title || chatContextRun),
+      "",
+      "**" + t("detail.run_id").toLocaleUpperCase(dashboardLocale) + "**",
+      chatContextRun,
+      "",
+      "**" + t("table.executed_at").toLocaleUpperCase(dashboardLocale) + "**",
+      formatTimestamp(context.executed_at),
+    ].join("\n")
+    : "";
   const entries = chatHistory
     .map(
       (entry) =>
@@ -6558,7 +6575,7 @@ function chatHistoryMarkdown() {
     .filter(Boolean);
   return [
     "# " + t("chat.download_title"),
-    "",
+    metadata,
     t("chat.download_model", { model: $("chatModel").textContent.trim() }),
     "",
     ...entries,

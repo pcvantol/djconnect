@@ -2083,6 +2083,43 @@ test.describe("Engineering Status browser smoke", () => {
     await expect.poll(() => page.evaluate(() => window.__copiedChat)).toContain("First answer");
   });
 
+  test("includes run metadata above AI chat export and copied conversation", async ({ page }) => {
+    await page.route("**/api/prompt-history", (route) => route.fulfill({ json: { runs: [{
+      run_id: "inbox-chat-export",
+      title: "Engineering Platform — Dashboard Validation Proof",
+      executed_at: "2026-08-29T05:01:14Z",
+      status: "COMPLETE",
+      chat_message_count: 1,
+    }] } }));
+    await page.route("**/api/prompt-history/inbox-chat-export/chat", (route) => route.fulfill({
+      json: { messages: [{ role: "user", text: "First question" }] },
+    }));
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    const chatHistoryLoaded = page.waitForResponse("**/api/prompt-history/inbox-chat-export/chat");
+    await dispatchDashboardPointerClick(page.locator("#promptHistoryRows .prompt-history-chat"));
+    await chatHistoryLoaded;
+    await expect(page.locator("#chatMessages")).toContainText("First question");
+    const exported = await page.evaluate(() => {
+      return {
+        markdown: chatHistoryMarkdown(),
+        executedAt: window.formatTimestamp("2026-08-29T05:01:14Z"),
+      };
+    });
+    expect(exported.markdown).toContain("**UITVOERINGSTITEL**\nEngineering Platform — Dashboard Validation Proof");
+    expect(exported.markdown).toContain("**RUN-ID**\ninbox-chat-export");
+    expect(exported.markdown).toContain("**UITGEVOERD OP**\n" + exported.executedAt);
+    expect(exported.markdown.indexOf("## Uitvoering")).toBeLessThan(exported.markdown.indexOf("## Jij"));
+    await page.evaluate(() => {
+      window.__copiedChat = "";
+      Object.defineProperty(navigator, "clipboard", {
+        configurable: true,
+        value: { writeText: (value) => { window.__copiedChat = value; return Promise.resolve(); } },
+      });
+    });
+    await page.locator("#copyChat").click();
+    await expect.poll(() => page.evaluate(() => window.__copiedChat)).toBe(exported.markdown);
+  });
+
   test("uses the Clipboard API before the legacy fallback in modern browsers", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.waitForFunction(() => typeof window.chatMessage === "function");
