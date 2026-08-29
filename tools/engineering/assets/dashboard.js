@@ -6045,19 +6045,19 @@ function moveMachineScopedWorkspaceDetails() {
 }
 function groupHostComponentConfiguration() {
   const configuration = $("configuration"), controls = configuration?.querySelector(":scope > .configuration-controls");
-  const diskSpace = $("workspaceFreeDiskSpace"), componentDetails = $("configurationComponentDetailsInterval")?.closest("label");
-  if (!configuration || !controls || !diskSpace || !componentDetails) return;
+  const diskSpace = $("workspaceFreeDiskSpace"), componentDetails = $("configurationComponentDetailsInterval")?.closest("label"), dashboardStatus = $("configurationDashboardStreamInterval")?.closest("label");
+  if (!configuration || !controls || !diskSpace || !componentDetails || !dashboardStatus) return;
   let section = $("configurationHostComponents");
   if (!section) {
     section = document.createElement("section");
     section.id = "configurationHostComponents";
     section.className = "configuration-host-components";
     const title = document.createElement("h2");
-    title.dataset.i18n = "section.platform_components";
+    title.dataset.i18n = "configuration.dashboard_settings";
     section.append(title);
     configuration.insertBefore(section, controls);
   }
-  section.querySelector("h2").textContent = t("section.platform_components");
+  section.querySelector("h2").textContent = t("configuration.dashboard_settings");
   let hostControls = section.querySelector(":scope > .configuration-controls");
   if (!hostControls) {
     hostControls = document.createElement("div");
@@ -6068,7 +6068,7 @@ function groupHostComponentConfiguration() {
   // refresh. `append()` would move it below an existing control group on the
   // second dashboard projection.
   section.insertBefore(diskSpace, hostControls);
-  hostControls.append(componentDetails);
+  hostControls.append(componentDetails, dashboardStatus);
 }
 function ensureProviderReadinessConfigurationControl() {
   if ($("configurationProviderReadinessInterval")) return;

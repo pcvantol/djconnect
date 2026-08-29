@@ -440,7 +440,7 @@ class DashboardStatusTest(unittest.TestCase):
             "configuration.inbox_location_input", "configuration.inbox_location_browse", "configuration.inbox_location_requirement",
             "configuration.inbox_location_save", "configuration.inbox_location_confirm",
             "configuration.inbox_location_saved", "configuration.inbox_location_failed",
-            "configuration.safe_settings", "configuration.log_retention", "configuration.log_level", "configuration.retention_confirm",
+            "configuration.safe_settings", "configuration.dashboard_settings", "configuration.log_retention", "configuration.log_level", "configuration.retention_confirm",
             "configuration.telemetry_retention", "configuration.telemetry_retention_help", "configuration.telemetry_retention_confirm",
             "configuration.days",
             "configuration.saved", "configuration.save_failed", "configuration.load_failed",
