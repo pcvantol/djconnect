@@ -4207,6 +4207,9 @@ test.describe("Engineering Status browser smoke", () => {
     const json = page.locator("#telemetryDetailDownloadJson");
     await expect(markdown).toHaveAttribute("aria-label", "Telemetrie van 24-08-2026 als Markdown downloaden");
     await expect(json).toHaveAttribute("aria-label", "Telemetrie van 24-08-2026 als JSON downloaden");
+    await expect(markdown.evaluate((element) => getComputedStyle(element, "::before").content)).resolves.toBe('"↓"');
+    await expect(json).toHaveText("{}");
+    await expect(json.evaluate((element) => getComputedStyle(element, "::before").content)).resolves.toBe("none");
     const markdownDownload = page.waitForEvent("download");
     await markdown.click();
     const downloadedMarkdown = await markdownDownload;
