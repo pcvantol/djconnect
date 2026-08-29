@@ -1392,7 +1392,21 @@ class LocalAgentRunnerTest(unittest.TestCase):
         for validation_id in ("git_diff_check", "engineering_python", "dashboard_browser"):
             self.assertIn(f"Required control {validation_id}: `PASS` — `PERSISTED_PROFILE`", body)
             self.assertIn(f"Validation ID: `{validation_id}`", body)
+            self.assertIn(f"- Required Control: `{validation_id}`", body)
         self.assertEqual(body.count("Execution inclusion: `AVAILABLE`."), 3)
+        self.assertIn("- Selected Validation Profile: `DASHBOARD`", body)
+        self.assertIn("- Validation Profile Version: `1.0`", body)
+        self.assertIn("- Validation Profile Reference: `validation-profile-registry:DASHBOARD@1.0`", body)
+        self.assertIn("- Validation Profile Source: `registry`", body)
+
+    def test_validation_only_report_marks_delivery_pr_roles_not_required(self) -> None:
+        state = TransactionState(
+            "validation-only-pr-roles", "pcvantol/djconnect", str(self.prompt), "COMPLETE",
+            action_intent="VALIDATION_ONLY", terminal=True,
+        )
+        body = generate_terminal_report(self.root, state).read_text(encoding="utf-8")
+        self.assertEqual(body.count("  - Applicability: `NOT_REQUIRED`."), 2)
+        self.assertNotIn("  - Merge State: `UNAVAILABLE`", body)
 
     @patch.object(EngineeringRunner, "_run_required_validation_command")
     def test_validation_only_all_required_pass_is_pass_and_failure_states_remain_authoritative(self, run: object) -> None:

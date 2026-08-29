@@ -1044,8 +1044,22 @@ def _managed_autonomy_projection(root: Path, state: TransactionState, bundle: Te
     def pr_lines(role: str) -> tuple[str, ...]:
         item = snapshot["pr_checks"].get(role, {})
         not_required = state.action_intent == "VALIDATION_ONLY"
+        if not_required:
+            return (
+                f"- PR Role: `{role}`",
+                "  - Applicability: `NOT_REQUIRED`.",
+                "  - PR Number: `NOT_REQUIRED`",
+                "  - Current PR State: `NOT_REQUIRED`",
+                "  - Merge State: `NOT_REQUIRED`",
+                "  - Merge Commit: `NOT_REQUIRED`",
+                "  - Required Checks State: `NOT_REQUIRED`",
+                "  - Required Checks Observed At: `NOT_REQUIRED`",
+                "  - Required Checks Evidence Reference: `NOT_REQUIRED`",
+                "  - Historical Check Observations: `NOT_REQUIRED`",
+            )
         return (
             f"- PR Role: `{role}`",
+            "  - Applicability: `REQUIRED`.",
             f"  - PR Number: `{item.get('pr_number') or snapshot[f'{role.lower()}_pr'] or ('NOT_REQUIRED' if not_required else 'UNAVAILABLE')}`",
             f"  - Current PR State: `{item.get('pr_state', 'NOT_REQUIRED' if not_required else 'UNAVAILABLE')}`",
             f"  - Merge State: `{item.get('merge_state', 'UNAVAILABLE')}`",
@@ -1055,6 +1069,34 @@ def _managed_autonomy_projection(root: Path, state: TransactionState, bundle: Te
             f"  - Required Checks Evidence Reference: `{item.get('evidence_ref', 'UNAVAILABLE')}`",
             f"  - Historical Check Observations: `{item.get('historical_observation_count', 'UNAVAILABLE')}`",
         )
+    profile = snapshot.get("validation_profile")
+    bindings = profile.get("control_bindings", ()) if isinstance(profile, dict) else ()
+    required_controls = profile.get("required_validation_controls", ()) if isinstance(profile, dict) else ()
+    control_lines = tuple(
+        line
+        for binding in bindings
+        if isinstance(binding, dict)
+        for line in (
+            f"- Required Control: `{binding.get('validation_id', 'UNAVAILABLE')}`",
+            f"  - Required: `{binding.get('required', 'UNAVAILABLE')}`; Launcher / Control Binding: `{binding.get('control_identity', 'UNAVAILABLE')}`.",
+            f"  - Execution Identity: `{binding.get('command', 'UNAVAILABLE')}`.",
+            f"  - Execution State: `{snapshot.get('validation_current', {}).get(binding.get('validation_id'), 'UNAVAILABLE')}`; Execution Inclusion: `REQUIRED`; Terminal Evidence Availability: `{snapshot.get('validation_current', {}).get(binding.get('validation_id'), 'UNAVAILABLE')}`.",
+        )
+    ) or (("- Required Controls: `UNAVAILABLE`",) if profile == "UNAVAILABLE" else tuple(
+        f"- Required Control: `{control}`" for control in required_controls
+    ))
+    cleanup_state = (
+        "COMPLETED" if any(
+            action.get("action") == "CLEANUP" and action.get("authority") == "AUTONOMOUS_EP_ACTION"
+            for action in snapshot.get("actions", []) if isinstance(action, dict)
+        ) else "NOT_REQUIRED" if state.action_intent == "VALIDATION_ONLY" else "UNAVAILABLE"
+    )
+    conflicts = tuple(
+        name for present, name in (
+            (snapshot.get("validation_projection_conflict"), "VALIDATION_CONTROL_CONFLICT"),
+            (snapshot.get("pr_check_projection_conflict"), "PR_CHECK_CONFLICT"),
+        ) if present
+    )
     return (
         "## Run Qualification",
         f"- Execution: `{snapshot['terminal_execution_state']}`",
@@ -1065,6 +1107,12 @@ def _managed_autonomy_projection(root: Path, state: TransactionState, bundle: Te
         f"- Retry Parent: `{snapshot['retry_parent']}`",
         f"- Resume Parent: `{snapshot['resume_parent']}`",
         f"- Submission Lineage / Submission ID: `{snapshot['submission_id']}`",
+        f"- Selected Validation Profile: `{profile.get('selected_validation_tier', 'UNAVAILABLE') if isinstance(profile, dict) else 'UNAVAILABLE'}`",
+        f"- Validation Profile Version: `{profile.get('validation_profile_version', 'UNAVAILABLE') if isinstance(profile, dict) else 'UNAVAILABLE'}`",
+        f"- Validation Profile Reference: `{profile.get('profile_reference', 'UNAVAILABLE') if isinstance(profile, dict) else 'UNAVAILABLE'}`",
+        f"- Validation Profile Source: `{profile.get('profile_selection_source', 'UNAVAILABLE') if isinstance(profile, dict) else 'UNAVAILABLE'}`",
+        "### Exact Required Validation Controls",
+        *control_lines,
         "### Current Terminal Required Checks",
         *pr_lines("IMPLEMENTATION"),
         *pr_lines("FINALIZATION"),
@@ -1074,6 +1122,10 @@ def _managed_autonomy_projection(root: Path, state: TransactionState, bundle: Te
         f"- Unexpected Manual Interventions: `{snapshot['unplanned_manual_intervention_count']}`",
         f"- Unknown Authority Actions: `{snapshot['unknown_authority_count']}`",
         f"- Required Validation State: `{snapshot['required_validation_state']}`",
+        f"- Repository State: `{snapshot['repository_state']}`",
+        f"- Workspace State: `{snapshot['workspace_state']}`",
+        f"- Cleanup Evidence: `{cleanup_state}`",
+        f"- Projection Conflicts: `{', '.join(conflicts) or 'NONE'}`",
         f"- Qualification Reasons: `{', '.join(snapshot['qualification_failure_reasons']) or 'none'}`",
         "",
     )

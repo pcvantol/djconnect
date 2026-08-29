@@ -286,7 +286,7 @@ class ManagedAutonomyEvidenceTest(unittest.TestCase):
                 recovery_required="NO",
             )
         self.assertEqual(conflict["managed_autonomy_qualification"], "EVIDENCE_INSUFFICIENT")
-        self.assertIn("EVIDENCE_CONFLICT", conflict["qualification_failure_reasons"])
+        self.assertIn("VALIDATION_PROJECTION_CONFLICT", conflict["qualification_failure_reasons"])
 
     def test_retry_parent_prevents_fresh_claim(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -307,7 +307,7 @@ class ManagedAutonomyEvidenceTest(unittest.TestCase):
                 lineage_available=True,
             )
         self.assertEqual(snapshot["fresh_submission"], "NO")
-        self.assertIn("FRESH_SUBMISSION_UNPROVEN", snapshot["qualification_failure_reasons"])
+        self.assertEqual(snapshot["run_qualification"], "QUALIFIED")
 
     def test_resume_parent_prevents_fresh_claim(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -329,7 +329,7 @@ class ManagedAutonomyEvidenceTest(unittest.TestCase):
             )
         self.assertEqual(snapshot["fresh_submission"], "NO")
         self.assertEqual(snapshot["resume_parent"], "inbox-parent")
-        self.assertIn("FRESH_SUBMISSION_UNPROVEN", snapshot["qualification_failure_reasons"])
+        self.assertEqual(snapshot["run_qualification"], "QUALIFIED")
 
     def test_legacy_lineage_is_explicitly_unavailable(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

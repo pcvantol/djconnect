@@ -335,8 +335,11 @@ def evaluate(snapshot: dict[str, object]) -> tuple[str, list[str]]:
         return "NOT_QUALIFIED", ["TERMINAL_EXECUTION_FAILED"]
     if terminal == "BLOCKED":
         return "NOT_QUALIFIED", ["TERMINAL_EXECUTION_BLOCKED"]
-    if snapshot.get("fresh_submission") != "YES":
-        reasons.append("FRESH_SUBMISSION_UNPROVEN")
+    # A retry or resume is still a valid submission lineage.  Qualification
+    # requires that the immutable lineage record exists, not that the run is
+    # the first submission in its lineage.
+    if snapshot.get("fresh_submission") not in {"YES", "NO"}:
+        reasons.append("SUBMISSION_LINEAGE_UNPROVEN")
     validation_only = snapshot.get("action_intent") == "VALIDATION_ONLY"
     if snapshot.get("terminal_execution_state") != "COMPLETE":
         reasons.append("VALIDATION_EXECUTION_UNPROVEN" if validation_only else "IMPLEMENTATION_DELIVERY_UNPROVEN")
@@ -373,9 +376,9 @@ def evaluate(snapshot: dict[str, object]) -> tuple[str, list[str]]:
     if snapshot.get("required_validation_state") != "PASS":
         reasons.append("REQUIRED_VALIDATION_UNRESOLVED")
     if snapshot.get("validation_projection_conflict"):
-        reasons.append("EVIDENCE_CONFLICT")
+        reasons.append("VALIDATION_PROJECTION_CONFLICT")
     if snapshot.get("pr_check_projection_conflict"):
-        reasons.append("EVIDENCE_CONFLICT")
+        reasons.append("PR_CHECK_PROJECTION_CONFLICT")
     for role in (() if validation_only else ("IMPLEMENTATION", "FINALIZATION")):
         if snapshot.get(f"{role.lower()}_pr") is not None:
             check = snapshot.get("pr_checks", {}).get(role, {})
