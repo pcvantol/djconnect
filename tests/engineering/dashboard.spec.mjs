@@ -222,26 +222,22 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#configurationControlsTitle")).toHaveCount(0);
   });
 
-  test("groups dashboard status and component-detail refresh settings below free disk space", async ({ page }) => {
+  test("groups dashboard status and component-detail refresh settings", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     const configuration = page.locator("#configuration");
     await configuration.evaluate((element) => { element.open = true; });
     const section = configuration.locator("#configurationHostComponents");
     await expect(section).toHaveCount(1);
     await expect(section).toContainText("Dashboardinstellingen");
-    await expect(section.locator("#workspaceFreeDiskSpace")).toHaveCount(1);
+    await expect(section.locator("#workspaceFreeDiskSpace")).toHaveCount(0);
     await expect(section.locator("#configurationComponentDetailsInterval")).toHaveCount(1);
     await expect(section.locator("#configurationDashboardStreamInterval")).toHaveCount(1);
     await expect(section).toHaveCSS("border-top-style", "solid");
     expect(await section.evaluate((element) => {
-      const disk = element.querySelector("#workspaceFreeDiskSpace");
       const details = element.querySelector("#configurationComponentDetailsInterval")?.closest("label");
       const status = element.querySelector("#configurationDashboardStreamInterval")?.closest("label");
-      return [
-        Boolean(disk.compareDocumentPosition(details) & Node.DOCUMENT_POSITION_FOLLOWING),
-        Boolean(details.compareDocumentPosition(status) & Node.DOCUMENT_POSITION_FOLLOWING),
-      ];
-    })).toEqual([true, true]);
+      return Boolean(details.compareDocumentPosition(status) & Node.DOCUMENT_POSITION_FOLLOWING);
+    })).toBe(true);
   });
 
   test("persists the bounded serverpush interval from Configuration", async ({ page }) => {
@@ -9294,12 +9290,12 @@ test.describe("Engineering Status browser smoke", () => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await dispatchDashboardPointerClick(page.locator("#configuration > summary"));
     await expect(page.locator("#workspaceFreeDiskSpace")).toHaveCount(1);
-    await expect(page.locator("#workspaceFreeDiskSpace").locator("xpath=..")).toHaveAttribute("id", "configurationHostComponents");
     const databaseSection = page.locator(".workspace-database-section");
     await expect(databaseSection).toHaveCount(1);
     await expect(databaseSection.locator("xpath=..")).toHaveAttribute("id", "configuration");
     await expect(databaseSection).toHaveCSS("border-top-color", "rgb(240, 182, 106)");
     await expect(databaseSection.locator("#workspaceDatabaseHeading")).toHaveText("Engineering-database");
+    await expect(databaseSection.locator("#workspaceFreeDiskSpace")).toHaveCount(1);
     for (const id of ["workspaceDatabaseField", "workspaceDatabaseSize", "workspaceSchemaVersion"])
       await expect(databaseSection.locator(`#${id}`)).toHaveCount(1);
     await expect(databaseSection.locator("#configurationDatabaseMaintenanceInterval")).toHaveCount(1);

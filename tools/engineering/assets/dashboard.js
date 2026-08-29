@@ -6036,17 +6036,18 @@ function moveMachineScopedWorkspaceDetails() {
   // fields. Provider readiness owns a nested configuration group of its own.
   const configuration = $("configuration"), controls = configuration?.querySelector(":scope > .configuration-controls");
   if (!configuration || !controls) return;
+  const databaseSection = configuration.querySelector(".workspace-database-section") || $("workspaceDatabaseField")?.closest(".workspace-database-section");
+  if (!databaseSection) return;
+  configuration.insertBefore(databaseSection, controls);
   MACHINE_SCOPED_WORKSPACE_FIELD_IDS.forEach((id) => {
     const field = $(id);
-    if (field) configuration.insertBefore(field, controls);
+    if (field) databaseSection.insertBefore(field, $("workspaceDatabaseField"));
   });
-  const databaseSection = configuration.querySelector(".workspace-database-section") || $("workspaceDatabaseField")?.closest(".workspace-database-section");
-  if (databaseSection) configuration.insertBefore(databaseSection, controls);
 }
 function groupHostComponentConfiguration() {
   const configuration = $("configuration"), controls = configuration?.querySelector(":scope > .configuration-controls");
-  const diskSpace = $("workspaceFreeDiskSpace"), componentDetails = $("configurationComponentDetailsInterval")?.closest("label"), dashboardStatus = $("configurationDashboardStreamInterval")?.closest("label");
-  if (!configuration || !controls || !diskSpace || !componentDetails || !dashboardStatus) return;
+  const componentDetails = $("configurationComponentDetailsInterval")?.closest("label"), dashboardStatus = $("configurationDashboardStreamInterval")?.closest("label");
+  if (!configuration || !controls || !componentDetails || !dashboardStatus) return;
   let section = $("configurationHostComponents");
   if (!section) {
     section = document.createElement("section");
@@ -6064,10 +6065,6 @@ function groupHostComponentConfiguration() {
     hostControls.className = "configuration-controls";
     section.append(hostControls);
   }
-  // Keep the disk reading directly above the host-detail picker on every
-  // refresh. `append()` would move it below an existing control group on the
-  // second dashboard projection.
-  section.insertBefore(diskSpace, hostControls);
   hostControls.append(componentDetails, dashboardStatus);
 }
 function ensureProviderReadinessConfigurationControl() {
