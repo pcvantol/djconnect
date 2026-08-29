@@ -299,9 +299,10 @@ test.describe("Engineering Status browser smoke", () => {
 
   test("keeps configuration controls visible while hiding an empty status message", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await waitForDashboardReady(page);
     const configuration = page.locator("#configuration");
     await configuration.evaluate((element) => { element.open = true; });
-    const statusContainer = configuration.locator(":scope > .configuration-controls");
+    const statusContainer = page.locator("#configurationHostComponents > .configuration-controls");
     await expect(statusContainer).toBeVisible();
     await expect(page.locator("#configurationDashboardStreamInterval")).toBeVisible();
     await expect(page.locator("#configurationStatus")).toBeHidden();
@@ -982,7 +983,7 @@ test.describe("Engineering Status browser smoke", () => {
     await openDashboardPicker(picker);
     await chooseDashboardPickerOption(picker, "DEBUG");
     expect(await page.evaluate(() => window.__dashboardSelectFocusOptions)).toEqual([]);
-    await expect(page.locator("#configuration .configuration-field")).toHaveCount(6);
+    await expect(page.locator("#configuration .configuration-field")).toHaveCount(5);
   });
 
   test("stacks flat log settings pulldowns below their labels on iPhone", async ({ page }) => {

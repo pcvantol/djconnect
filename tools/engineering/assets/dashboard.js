@@ -6052,8 +6052,8 @@ function moveMachineScopedWorkspaceDetails() {
 }
 function groupHostComponentConfiguration() {
   const configuration = $("configuration"), controls = configuration?.querySelector(":scope > .configuration-controls");
-  const componentDetails = $("configurationComponentDetailsInterval")?.closest("label"), dashboardStatus = $("configurationDashboardStreamInterval")?.closest("label");
-  if (!configuration || !controls || !componentDetails || !dashboardStatus) return;
+  const componentDetails = $("configurationComponentDetailsInterval")?.closest("label"), dashboardStatus = $("configurationDashboardStreamInterval")?.closest("label"), status = $("configurationStatus");
+  if (!configuration || !controls || !componentDetails || !dashboardStatus || !status) return;
   let section = $("configurationHostComponents");
   if (!section) {
     section = document.createElement("section");
@@ -6071,7 +6071,7 @@ function groupHostComponentConfiguration() {
     hostControls.className = "configuration-controls";
     section.append(hostControls);
   }
-  hostControls.append(componentDetails, dashboardStatus);
+  hostControls.append(componentDetails, dashboardStatus, status);
 }
 function ensureProviderReadinessConfigurationControl() {
   if ($("configurationProviderReadinessInterval")) return;
