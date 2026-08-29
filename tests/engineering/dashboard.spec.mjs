@@ -9706,6 +9706,9 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#dashboardHealthTooltip")).toContainText("Dashboard-relay");
     await expect(page.locator("#dashboardHealthTooltip")).toContainText("Geen uitvoering actief");
     await expect(page.locator("#dashboardHealthTooltip")).toContainText("Werkruimte gereed");
+    const componentRows = page.locator("#dashboardHealthChecks .dashboard-health__check--component");
+    await expect(componentRows).toHaveCount(3);
+    await expect(componentRows.locator("[data-testid='dashboard-health-component-link-icon']")).toHaveCount(3);
 
     await page.evaluate(() => r({ watcher_state: "ENGINEERING_RUN_ACTIVE", run_id: "inbox-active", workspace_state: "WORKSPACE_READY", queue_depth: 0 }, {}));
     await expect(indicator).toHaveAttribute("data-health-state", "active");

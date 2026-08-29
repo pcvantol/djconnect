@@ -435,6 +435,12 @@ function renderDashboardHealth(status = latestStatus, platformHealth = latestPla
         "aria-label",
         t("component.more_information", { component: label.textContent }),
       );
+      const linkIcon = document.createElement("span");
+      linkIcon.className = "dashboard-health__check-link-icon";
+      linkIcon.dataset.testid = "dashboard-health-component-link-icon";
+      linkIcon.setAttribute("aria-hidden", "true");
+      linkIcon.textContent = "↗";
+      label.append(linkIcon);
       item.addEventListener("click", () => showComponentDetails(metadata.component));
       item.addEventListener("keydown", (event) => {
         if (event.key !== "Enter" && event.key !== " ") return;
