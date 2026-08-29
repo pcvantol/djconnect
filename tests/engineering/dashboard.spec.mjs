@@ -2127,7 +2127,7 @@ test.describe("Engineering Status browser smoke", () => {
       chat_message_count: 1,
     }] } }));
     await page.route("**/api/prompt-history/inbox-chat-export/chat", (route) => route.fulfill({
-      json: { messages: [{ role: "user", text: "First question" }] },
+      json: { messages: [{ role: "user", text: "First question", created_at: "2026-08-29T05:01:14Z" }] },
     }));
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     const chatHistoryLoaded = page.waitForResponse("**/api/prompt-history/inbox-chat-export/chat");
@@ -2138,12 +2138,15 @@ test.describe("Engineering Status browser smoke", () => {
       return {
         markdown: chatHistoryMarkdown(),
         executedAt: window.formatTimestamp("2026-08-29T05:01:14Z"),
+        messageTimestamp: window.chatMessageTimestampLabel("2026-08-29T05:01:14Z"),
       };
     });
     expect(exported.markdown).toContain("**UITVOERINGSTITEL**\nEngineering Platform — Dashboard Validation Proof");
     expect(exported.markdown).toContain("**RUN-ID**\ninbox-chat-export");
     expect(exported.markdown).toContain("**UITGEVOERD OP**\n" + exported.executedAt);
+    expect(exported.markdown).toContain("_" + exported.messageTimestamp + "_");
     expect(exported.markdown.indexOf("## Uitvoering")).toBeLessThan(exported.markdown.indexOf("## Jij"));
+    await expect(page.locator("#chatMessages time")).toHaveText(exported.messageTimestamp);
     await page.evaluate(() => {
       window.__copiedChat = "";
       Object.defineProperty(navigator, "clipboard", {
@@ -5342,6 +5345,14 @@ test.describe("Engineering Status browser smoke", () => {
     });
     await expect.poll(() => page.evaluate(() => Math.round(window.scrollY || document.documentElement.scrollTop || document.body.scrollTop || 0))).toBe(0);
     await page.locator("#currentRun").evaluate((element) => { element.open = true; });
+    // The footer is supplied by the live dashboard clock and server-push
+    // connection. Freeze those two strings so this visual reference only
+    // detects mobile layout regressions, rather than the current date or
+    // whether the test server accepted the transient EventSource connection.
+    await page.evaluate(() => {
+      document.querySelector("#lastRefresh").textContent = "Laatst bijgewerkt: donderdag 27 augustus 2026 om 19:58:27";
+      document.querySelector("#updateMode").textContent = "Serverpush: opnieuw verbinden…";
+    });
     const image = await page.screenshot({ animations: "disabled" });
     await testInfo.attach("iphone-portrait-dashboard", {
       body: image,
