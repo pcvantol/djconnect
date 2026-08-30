@@ -2,7 +2,7 @@
 
 Status: canonical prompt navigation
 
-## PR #1025 Finalization pending
+## PR #1025 finalized by PR #1026
 
 PR [#1025](https://github.com/pcvantol/djconnect/pull/1025), **Close
 qualification evidence projections**, merged as
@@ -12,10 +12,13 @@ Engineering Platform increment projects Run Qualification only from the
 persisted run-bound qualification snapshot, including required validation,
 delivery and reconciliation evidence. It preserves lifecycle authority,
 operator-owned merge gates, immutable Prompt History and the distinction
-between Platform Health and individual Run Qualification. This governance-only
-Finalization reconciles the four rolling records; Prompt History is preserved
-unchanged. Repository State: `MERGED_UNRECONCILED`; Workspace State:
-`WORKSPACE_READY`; Finalization Pending: `YES`.
+between Platform Health and individual Run Qualification. Governance-only
+Finalization PR [#1026](https://github.com/pcvantol/djconnect/pull/1026)
+merged as `532eb9ff750b14fd418c925e39345bc9aae17cdf`; its terminal required
+checks have no failures. This direct-on-`main` reconciliation updates only the
+four canonical rolling records and preserves immutable Prompt History.
+Repository State: `MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`;
+Finalization Pending: `NO`; `main == origin/main`: `YES`; worktree: `CLEAN`.
 
 ## PR #990 finalized by PR #991
 
