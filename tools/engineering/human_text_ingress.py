@@ -144,7 +144,7 @@ def ingest(repo: Path, inbox: Path, *, read_source: object) -> int:
         try:
             parsed = parse_text_submission(content)
             receipt = submit_human(
-                repo, prompt=parsed.prompt, producer_identity=producer_identity(), action_intent=parsed.action_intent,
+                repo, prompt=parsed.prompt, title=source.stem, producer_identity=producer_identity(), action_intent=parsed.action_intent,
                 validation_profile=parsed.validation_profile, submission_id=f"human-ingress-{ingestion_id[:48]}",
             )
             archive = _archive(source, inbox.parent / "Accepted")
