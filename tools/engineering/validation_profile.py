@@ -138,7 +138,12 @@ class ValidationProfile:
 
     @property
     def required_controls(self) -> tuple[str, ...]:
-        return REQUIRED_CONTROLS[self.tier]
+        try:
+            return REQUIRED_CONTROLS[self.tier]
+        except KeyError as error:
+            raise ValidationProfileResolutionError(
+                "Selected validation profile is invalid."
+            ) from error
 
 def classify(paths: list[str] | tuple[str, ...]) -> ValidationProfile:
     items = tuple(sorted({path.strip() for path in paths if path.strip()}))

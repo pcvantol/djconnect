@@ -1,7 +1,7 @@
 from __future__ import annotations
 import unittest
 from tools.engineering.validation_profile import (
-    ValidationProfileResolutionError, classify, profile_control_bindings,
+    ValidationProfile, ValidationProfileResolutionError, classify, profile_control_bindings,
     producer_profile_payload, resolve_producer_profile,
 )
 
@@ -34,6 +34,10 @@ class ValidationProfileTests(unittest.TestCase):
             resolve_producer_profile(None)
         with self.assertRaises(ValidationProfileResolutionError):
             resolve_producer_profile({"tier": "DASHBOARD", "version": "1.0", "required_controls": ["dashboard_browser"]})
+
+    def test_invalid_in_memory_profile_is_fail_closed(self) -> None:
+        with self.assertRaises(ValidationProfileResolutionError):
+            ValidationProfile("INVALID", (), ()).required_controls
 
     def test_producer_payload_is_derived_only_from_the_canonical_registry(self) -> None:
         self.assertEqual(producer_profile_payload("DASHBOARD"), {
