@@ -2229,6 +2229,9 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(content).toContainText("Vereiste validatiecontroles");
     await expect(content).toContainText("Git Diff Check");
     await expect(content).not.toContainText('{"action_intent"');
+    await page.setViewportSize({ width: 390, height: 844 });
+    const contextCard = page.locator("#promptHistoryDetailContent .prompt-detail-card--execution-context");
+    expect(await contextCard.evaluate((element) => element.scrollWidth <= element.clientWidth)).toBeTruthy();
   });
 
   test("opens execution details from prompt history in its dedicated modal", async ({ page }) => {
