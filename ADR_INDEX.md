@@ -128,6 +128,17 @@ Decision that HTTP with versioned JSON is the public Local Consumer API
 contract; EP owns opaque per-consumer/project bearer credentials; consumers use
 native secret storage; and the initial increment is contract-only.
 
+### ADR-0021 — Local Consumer API transport and authentication runtime
+
+**Status:** Accepted for Phase 1 / Increment 2 architecture authorization
+**File:** `docs/adr/0021-local-consumer-api-transport-and-authentication-runtime.md`
+
+Decision to use a dedicated loopback-only EP Local Consumer API LaunchAgent,
+the v1 `/health` and read-only `/v1/capabilities` boundary, durable
+domain-separated verifier metadata in EP storage schema 39, and a strict split
+between Increment-2 authentication runtime and Increment-3 issuance/Keychain
+work.
+
 ## ADR backlog
 
 ### ADR-0013 — Platform Baseline v1.0 certification boundary

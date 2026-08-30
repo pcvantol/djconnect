@@ -56,8 +56,12 @@ The extraction sequence is deliberately incremental and reversible:
 Increment 1 — **Local Consumer API Contract Foundation** — are complete. The
 v1 contract foundation creates no live API transport, credential runtime,
 Keychain integration, storage migration or consumer cutover. Phase 1 /
-Increment 2 (**Local API Transport + Authentication Runtime**) and Increment 3
-(**Consumer Registration + OS Credential Integration**) remain unauthorized.
+Increment 2 (**Local API Transport + Authentication Runtime**) is
+architecturally authorized but not implemented; Increment 3 (**Consumer
+Registration + OS Credential Integration**) remains unauthorized. ADR-0021
+limits Increment 2 to a dedicated loopback-only service, a minimal read-only
+v1 surface and EP-owned verifier metadata; it does not authorize consumer
+cutover or engineering mutation.
 
 1. **Boundary and consumer contract — architecture complete.** ADR-0019 and the EP consumer
    contract establish one installation-owned store, the canonical
