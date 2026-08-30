@@ -1548,18 +1548,22 @@ function openExecutionModeModal(event) {
 function executionModeField(value) {
   const field = executionContextField(t("field.execution_mode"), value);
   const content = field.lastElementChild;
-  const row = document.createElement("span"), info = document.createElement("button");
+  const row = document.createElement("span");
   row.className = "execution-mode-field__value";
+  content.replaceWith(row);
+  row.append(content, executionModeInfoButton());
+  field.classList.add("execution-mode-field");
+  return field;
+}
+function executionModeInfoButton() {
+  const info = document.createElement("button");
   info.className = "component-info execution-mode-info";
   info.type = "button";
   info.setAttribute("aria-label", t("execution_mode_info.open"));
   info.title = t("execution_mode_info.open");
   info.innerHTML = '<span aria-hidden="true">i</span>';
   info.addEventListener("click", openExecutionModeModal);
-  content.replaceWith(row);
-  row.append(content, info);
-  field.classList.add("execution-mode-field");
-  return field;
+  return info;
 }
 function renderExecutionContext(context, execution = {}) {
   const card = $("executionContext");
@@ -6983,6 +6987,15 @@ function detailListField(label, values) {
   field.append(name, list);
   return field;
 }
+function detailExecutionModeField(value) {
+  const field = detailField(t("detail.execution_mode"), value);
+  const content = field.lastElementChild, row = document.createElement("span");
+  row.className = "execution-mode-field__value";
+  content.replaceWith(row);
+  row.append(content, executionModeInfoButton());
+  field.classList.add("execution-mode-field");
+  return field;
+}
 function humanizeIdentifier(value) {
   const acronyms = { api: "API", ci: "CI", css: "CSS", html: "HTML", json: "JSON", ui: "UI" };
   return String(value || "").trim().split(/[_-]+/).filter(Boolean).map((part) => {
@@ -7113,7 +7126,7 @@ function promptDetailExecutionSections(history) {
       : []),
   ];
   const contextMetadataFields = [
-    detailField(t("detail.execution_mode"), history.execution_mode || t("detail.not_recorded")),
+    detailExecutionModeField(history.execution_mode || t("detail.not_recorded")),
     detailField(t("detail.producer"), history.producer_id || t("detail.not_recorded")),
     detailField(t("detail.producer_type"), history.producer_type ? t(`enum.${history.producer_type}`) : t("detail.not_recorded")),
     detailField(t("detail.producer_version"), history.producer_version || t("detail.not_recorded")),

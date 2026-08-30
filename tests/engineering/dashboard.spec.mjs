@@ -8538,6 +8538,11 @@ test.describe("Engineering Status browser smoke", () => {
     await expect(page.locator("#promptHistoryDetailContent")).toContainText("17");
     await expect(page.locator("#promptHistoryDetailContent")).toContainText("Uitvoeringsmodus");
     await expect(page.locator("#promptHistoryDetailContent")).toContainText("GENESIS");
+    const historicalModeInfo = executionContext.locator(".execution-mode-info");
+    await expect(historicalModeInfo).toHaveAttribute("aria-label", DASHBOARD_MESSAGES.nl["execution_mode_info.open"]);
+    await historicalModeInfo.click();
+    await expect(page.locator("#executionModeModal")).toBeVisible();
+    await page.locator("#executionModeModalClose").click();
     await expect(page.locator("#promptHistoryDetailContent")).toContainText("Doelbranch");
     await expect(page.locator("#promptHistoryDetailContent")).toContainText("forge-phase-evidence");
     await expect(page.locator("#promptHistoryDetailContent .prompt-detail-status .indicator--green")).toHaveCount(1);
