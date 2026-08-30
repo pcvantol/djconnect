@@ -325,6 +325,7 @@ repair_engineering_platform() {
   local repository="$GITHUB_ROOT/djconnect" legacy_directory label plist
   [[ -f "$repository/tools/engineering/inbox_watcher.py" ]] || die "Engineering Inbox watcher is missing from $repository."
   [[ -f "$repository/tools/engineering/dashboard.py" ]] || die "Engineering dashboard is missing from $repository."
+  [[ -f "$repository/tools/engineering/local_api.py" ]] || die "Engineering Local API is missing from $repository."
 
   log 'Analyzing local Engineering Platform watcher and dashboard health.'
   if ! python3 -m tools.engineering.inbox_watcher doctor --repo "$repository"; then
@@ -332,6 +333,9 @@ repair_engineering_platform() {
   fi
   if ! python3 -m tools.engineering.dashboard doctor --repo "$repository"; then
     warn 'Engineering dashboard doctor reported drift; repairing the canonical dashboard service.'
+  fi
+  if ! python3 -m tools.engineering.local_api doctor --repo "$repository"; then
+    warn 'Engineering Local API doctor reported drift; schema activation may still be pending.'
   fi
 
   legacy_directory="$repository/.engineering/legacy-launchagents"
@@ -347,10 +351,12 @@ repair_engineering_platform() {
   log 'Restarting the canonical local Engineering Inbox watcher and dashboard.'
   python3 -m tools.engineering.inbox_watcher install --repo "$repository"
   python3 -m tools.engineering.dashboard install --repo "$repository"
+  python3 -m tools.engineering.local_api install --repo "$repository"
   sleep 2
 
   python3 -m tools.engineering.inbox_watcher doctor --repo "$repository" || return 1
   python3 -m tools.engineering.dashboard doctor --repo "$repository" || return 1
+  python3 -m tools.engineering.local_api doctor --repo "$repository" || return 1
 }
 
 ensure_home_assistant_internal_test_environment() {

@@ -188,6 +188,8 @@ load_desired_state() {
   DESIRED_ENGINEERING_DASHBOARD_LAUNCH_AGENT="$(require_desired_state_value engineering.dashboard_launch_agent)"
   DESIRED_ENGINEERING_DASHBOARD_RELAY_LAUNCH_AGENT="$(require_desired_state_value engineering.dashboard_relay_launch_agent)"
   DESIRED_ENGINEERING_DASHBOARD_HEALTH_URL="$(require_desired_state_value engineering.dashboard_health_url)"
+  DESIRED_ENGINEERING_LOCAL_API_LAUNCH_AGENT="$(require_desired_state_value engineering.local_api_launch_agent)"
+  DESIRED_ENGINEERING_LOCAL_API_HEALTH_URL="$(require_desired_state_value engineering.local_api_health_url)"
   DESIRED_ENGINEERING_STATUS_RELATIVE_PATH="$(require_desired_state_value engineering.status_relative_path)"
   DESIRED_ENGINEERING_REPORTS_RELATIVE_PATH="$(require_desired_state_value engineering.reports_relative_path)"
   IFS=',' read -r -a DESIRED_TOOL_FORMULAS <<<"$(require_desired_state_value tooling.formulas)"
@@ -232,7 +234,9 @@ load_desired_state() {
   [[ "$DESIRED_ENGINEERING_PLATFORM_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || die 'Invalid Engineering Platform version policy.'
   [[ "$DESIRED_ENGINEERING_WATCHER_LAUNCH_AGENT" =~ ^[A-Za-z0-9_.-]+$ ]] || die 'Invalid Engineering watcher LaunchAgent label.'
   [[ "$DESIRED_ENGINEERING_DASHBOARD_LAUNCH_AGENT" =~ ^[A-Za-z0-9_.-]+$ ]] || die 'Invalid Engineering dashboard LaunchAgent label.'
+  [[ "$DESIRED_ENGINEERING_LOCAL_API_LAUNCH_AGENT" =~ ^[A-Za-z0-9_.-]+$ ]] || die 'Invalid Engineering Local API LaunchAgent label.'
   [[ "$DESIRED_ENGINEERING_DASHBOARD_HEALTH_URL" =~ ^http://127\.0\.0\.1:[0-9]+/api/health$ ]] || die 'Engineering dashboard health endpoint must bind to loopback.'
+  [[ "$DESIRED_ENGINEERING_LOCAL_API_HEALTH_URL" =~ ^http://127\.0\.0\.1:[0-9]+/health$ ]] || die 'Engineering Local API health endpoint must bind to loopback.'
   [[ "$DESIRED_ENGINEERING_STATUS_RELATIVE_PATH" == .engineering/status/status.json ]] || die 'Invalid Engineering status storage policy.'
   [[ "$DESIRED_ENGINEERING_REPORTS_RELATIVE_PATH" == .engineering/reports ]] || die 'Invalid Engineering report storage policy.'
   IFS=',' read -r -a DESIRED_PROFILES <<<"$(require_desired_state_value runner.profiles)"
@@ -368,6 +372,7 @@ run_desired_state_verification() {
   uid_value="$(id -u)"
   if launchctl print "gui/$uid_value/$DESIRED_ENGINEERING_WATCHER_LAUNCH_AGENT" 2>/dev/null | grep -Fq 'state = running'; then verify_delta_row 'engineering.watcher_launch_agent' "$DESIRED_ENGINEERING_WATCHER_LAUNCH_AGENT running" running MATCH; else verify_delta_row 'engineering.watcher_launch_agent' "$DESIRED_ENGINEERING_WATCHER_LAUNCH_AGENT running" unavailable DRIFT; fi
   if launchctl print "gui/$uid_value/$DESIRED_ENGINEERING_DASHBOARD_LAUNCH_AGENT" 2>/dev/null | grep -Fq 'state = running'; then verify_delta_row 'engineering.dashboard_launch_agent' "$DESIRED_ENGINEERING_DASHBOARD_LAUNCH_AGENT running" running MATCH; else verify_delta_row 'engineering.dashboard_launch_agent' "$DESIRED_ENGINEERING_DASHBOARD_LAUNCH_AGENT running" unavailable DRIFT; fi
+  if launchctl print "gui/$uid_value/$DESIRED_ENGINEERING_LOCAL_API_LAUNCH_AGENT" 2>/dev/null | grep -Fq 'state = running'; then verify_delta_row 'engineering.local_api_launch_agent' "$DESIRED_ENGINEERING_LOCAL_API_LAUNCH_AGENT running" running MATCH; else verify_delta_row 'engineering.local_api_launch_agent' "$DESIRED_ENGINEERING_LOCAL_API_LAUNCH_AGENT running" unavailable DRIFT; fi
   if launchctl print "gui/$uid_value/$DESIRED_ENGINEERING_DASHBOARD_RELAY_LAUNCH_AGENT" 2>/dev/null | grep -Fq 'state = running'; then
     verify_delta_row 'engineering.dashboard_relay_launch_agent' "$DESIRED_ENGINEERING_DASHBOARD_RELAY_LAUNCH_AGENT running" running MATCH
   else
@@ -377,6 +382,8 @@ run_desired_state_verification() {
   printf '> Opmerking: iPhone-toegang via Tailscale is niet betrouwbaar vanaf deze Mac zelf te testen. Als de lokale dashboard-health groen is maar de iPhone geen verbinding krijgt, controleer dan eerst de ESET-regel voor `%s/.engineering/bin/engineering-dashboard-relay` op TCP 8765 vanuit `100.64.0.0/10`.\n' "$GITHUB_ROOT/djconnect"
   dashboard_health="$(curl -fsS --max-time 5 "$DESIRED_ENGINEERING_DASHBOARD_HEALTH_URL" 2>/dev/null || true)"
   if [[ "$dashboard_health" == '{"health":"ok"}' ]]; then verify_delta_row 'engineering.dashboard_health' "$DESIRED_ENGINEERING_DASHBOARD_HEALTH_URL health=ok" healthy MATCH; else verify_delta_row 'engineering.dashboard_health' "$DESIRED_ENGINEERING_DASHBOARD_HEALTH_URL health=ok" unavailable DRIFT; fi
+  local_api_health="$(curl -fsS --max-time 5 "$DESIRED_ENGINEERING_LOCAL_API_HEALTH_URL" 2>/dev/null || true)"
+  if [[ "$local_api_health" == *'"health":"ok"'* && "$local_api_health" == *'"healthy":true'* ]]; then verify_delta_row 'engineering.local_api_health' "$DESIRED_ENGINEERING_LOCAL_API_HEALTH_URL health=ok" healthy MATCH; else verify_delta_row 'engineering.local_api_health' "$DESIRED_ENGINEERING_LOCAL_API_HEALTH_URL health=ok" unavailable DRIFT; fi
   engineering_status="$GITHUB_ROOT/djconnect/$DESIRED_ENGINEERING_STATUS_RELATIVE_PATH"
   engineering_reports="$GITHUB_ROOT/djconnect/$DESIRED_ENGINEERING_REPORTS_RELATIVE_PATH"
   if [[ -f "$engineering_status" && -r "$engineering_status" && -w "$(dirname "$engineering_status")" ]]; then verify_delta_row 'engineering.status_storage' "$DESIRED_ENGINEERING_STATUS_RELATIVE_PATH available" available MATCH; else verify_delta_row 'engineering.status_storage' "$DESIRED_ENGINEERING_STATUS_RELATIVE_PATH available" unavailable DRIFT; fi

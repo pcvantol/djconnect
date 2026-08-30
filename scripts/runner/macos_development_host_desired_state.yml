@@ -29,6 +29,8 @@ engineering.watcher_launch_agent: com.djconnect.engineering-inbox
 engineering.dashboard_launch_agent: com.djconnect.engineering-dashboard
 engineering.dashboard_relay_launch_agent: com.djconnect.engineering-dashboard-relay
 engineering.dashboard_health_url: http://127.0.0.1:8765/api/health
+engineering.local_api_launch_agent: com.djconnect.engineering-local-api
+engineering.local_api_health_url: http://127.0.0.1:8766/health
 engineering.status_relative_path: .engineering/status/status.json
 engineering.reports_relative_path: .engineering/reports
 
