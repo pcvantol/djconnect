@@ -3440,6 +3440,7 @@ export const OPERATIONAL_TRANSLATION_KEYS = Object.freeze([
   "operational.waiting_for_operator_merge",
   "operational.stale_host_ownership",
   "operational.run_local_repository_validation",
+  "operational.execute_required_validation_controls",
   "operational.poll_required_checks",
   "operational.provider_auth_repair_required",
   "operational.create_finalization",
@@ -3465,6 +3466,7 @@ Object.assign(DASHBOARD_MESSAGES.en, {
   "operational.workspace_migration_blocked_by_active_dashboard": "Watcher restart is blocked by dashboard activity during workspace migration",
   "operational.reconcile_rolling_records_on_main": "Reconciling rolling records on main",
   "operational.run_local_repository_validation": "Running local repository validation",
+  "operational.execute_required_validation_controls": "Running required validation controls",
 });
 Object.assign(DASHBOARD_MESSAGES.nl, {
   "reviewer.home_assistant_integration": "Home Assistant-integratie",
@@ -3474,6 +3476,7 @@ Object.assign(DASHBOARD_MESSAGES.nl, {
   "operational.workspace_migration_blocked_by_active_dashboard": "Watcherherstart is geblokkeerd door dashboardactiviteit tijdens werkruimtemigratie",
   "operational.reconcile_rolling_records_on_main": "Doorlopende registraties op main reconciliëren",
   "operational.run_local_repository_validation": "Lokale repositoryvalidatie uitvoeren",
+  "operational.execute_required_validation_controls": "Verplichte validatiecontroles uitvoeren",
 });
 Object.assign(DASHBOARD_MESSAGES.de, {
   "reviewer.home_assistant_integration": "Home-Assistant-Integration",
@@ -3483,6 +3486,7 @@ Object.assign(DASHBOARD_MESSAGES.de, {
   "operational.workspace_migration_blocked_by_active_dashboard": "Der Neustart des Watchers wird während der Arbeitsbereichsmigration durch Dashboard-Aktivität blockiert",
   "operational.reconcile_rolling_records_on_main": "Fortlaufende Einträge auf main werden abgeglichen",
   "operational.run_local_repository_validation": "Lokale Repositoryvalidierung ausführen",
+  "operational.execute_required_validation_controls": "Erforderliche Validierungsprüfungen ausführen",
 });
 Object.assign(DASHBOARD_MESSAGES.fr, {
   "reviewer.home_assistant_integration": "Intégration Home Assistant",
@@ -3492,6 +3496,7 @@ Object.assign(DASHBOARD_MESSAGES.fr, {
   "operational.workspace_migration_blocked_by_active_dashboard": "Le redémarrage du surveillant est bloqué par l’activité du tableau de bord pendant la migration de l’espace de travail",
   "operational.reconcile_rolling_records_on_main": "Rapprochement des enregistrements courants sur main",
   "operational.run_local_repository_validation": "Exécution de la validation locale du dépôt",
+  "operational.execute_required_validation_controls": "Exécution des contrôles de validation requis",
 });
 Object.assign(DASHBOARD_MESSAGES.es, {
   "reviewer.home_assistant_integration": "Integración de Home Assistant",
@@ -3501,6 +3506,7 @@ Object.assign(DASHBOARD_MESSAGES.es, {
   "operational.workspace_migration_blocked_by_active_dashboard": "El reinicio del monitor está bloqueado por la actividad del panel durante la migración del espacio de trabajo",
   "operational.reconcile_rolling_records_on_main": "Conciliando los registros continuos en main",
   "operational.run_local_repository_validation": "Ejecutando la validación local del repositorio",
+  "operational.execute_required_validation_controls": "Ejecutando los controles de validación obligatorios",
 });
 
 Object.assign(DASHBOARD_MESSAGES.en, {
