@@ -527,6 +527,25 @@ class InboxWatcherTest(unittest.TestCase):
         self.assertIn("T", items[0]["modified_at"])
         self.assertNotIn("Sensitive prompt body", str(items))
 
+    def test_titleless_structured_submission_uses_safe_queue_metadata(self) -> None:
+        prompt = self.inbox / "queued.json"
+        prompt.write_text(json.dumps({
+            "contract": {"name": "djconnect.producer_submission", "version": "1.0"},
+            "submission": {"id": "human-queue-title", "submitted_at": "2026-08-30T12:00:00Z"},
+            "producer": {"id": "human:operator", "type": "HUMAN"},
+            "prompt": {"text": "Sensitive prompt body must not reach the queue UI."},
+            "execution_context": {"context_version": "1.0", "action_intent": "MUTATING_DELIVERY"},
+        }), encoding="utf-8")
+
+        item = inbox_watcher._queue_items([(prompt, prompt.read_text(encoding="utf-8"))])[0]
+
+        self.assertEqual(item["title"], "Structured submission")
+        self.assertEqual(item["title_kind"], "producer_submission")
+        self.assertEqual(item["producer_type"], "HUMAN")
+        self.assertEqual(item["action_intent"], "MUTATING_DELIVERY")
+        self.assertNotIn("Sensitive prompt body", str(item))
+        self.assertNotIn('\"contract\"', str(item))
+
     def test_defer_queued_prompt_moves_only_the_selected_waiting_inbox_file(self) -> None:
         selected = self.inbox / "defer-me.md"
         selected.write_text("# Later uitvoeren\n", encoding="utf-8")
@@ -672,6 +691,43 @@ class InboxWatcherTest(unittest.TestCase):
         self.assertEqual(snapshot["run_id"], run_id)
         self.assertEqual(snapshot["current_phase"], "CAPABILITY_REVIEW")
         self.assertEqual(snapshot["current_action"], "review_capabilities")
+
+    def test_dismissed_stale_checkpoint_does_not_reclaim_live_projection(self) -> None:
+        from tools.engineering.prompt_history import record_prompt_execution
+        from tools.engineering.storage import record_execution_dismissal
+
+        run_id = "inbox-dismissed-stale-checkpoint"
+        record_prompt_execution(
+            self.repo, run_id=run_id, terminal_state="FAILED",
+            prompt_title="Historical failed execution", executed_at="2026-08-30T11:47:14Z",
+        )
+        record_execution_dismissal(
+            self.repo, run_id=run_id, terminal_state="FAILED",
+            dismissed_at="2026-08-30T12:00:00Z", dismissed_by="dashboard_operator",
+        )
+        StateStore(self.repo / ".engineering" / "engineering-runs").save(
+            TransactionState(
+                run_id, "pcvantol/djconnect", "prompt.md", "QUALITY_CONTROL_AGENT",
+                next_action="autonomous_refactor_and_quality_control",
+            )
+        )
+        with open_storage(self.repo) as connection:
+            store_projection(
+                connection,
+                "live_status",
+                {"run_id": run_id, "phase": "QUALITY_CONTROL_AGENT"},
+            )
+        inbox_watcher.status(
+            self.repo, "WATCHER_IDLE", queued_jobs=0, queue_items=[], run_id=None,
+        )
+
+        self.assertIsNone(inbox_watcher._nonterminal_transaction_state(self.repo))
+        self.assertFalse(inbox_watcher._active_transaction(self.repo))
+        self.assertEqual(inbox_watcher.once(self.repo, self.root, 0), 0)
+
+        snapshot = json_status(self.repo)
+        self.assertEqual(snapshot["watcher_state"], "WATCHER_IDLE")
+        self.assertIsNone(snapshot["run_id"])
 
     def test_operator_merge_wait_is_rate_limited_and_projects_prior_job_context(self) -> None:
         from tools.engineering.agent_state import StateStore, TransactionState
@@ -1230,6 +1286,7 @@ class InboxWatcherTest(unittest.TestCase):
     def test_structured_human_envelope_preserves_the_persisted_action_intent_for_the_watcher(self) -> None:
         envelope = build_human_envelope(
             prompt="# Validate\n\nRun required controls.",
+            title="Required controls",
             producer_identity="operator-peter",
             action_intent="VALIDATION_ONLY",
             validation_profile="DASHBOARD",
@@ -1237,6 +1294,7 @@ class InboxWatcherTest(unittest.TestCase):
         )
         source = self.inbox / "structured-human.json"
         source.write_text(json.dumps(envelope), encoding="utf-8")
+        self.assertEqual(inbox_watcher._prompt_title(source.read_text(encoding="utf-8"), source.name), "Required controls")
         run_id = "inbox-structured-human"
         report = self.repo / ".engineering" / "reports" / f"report_{run_id}.md"
         report.parent.mkdir(parents=True)
@@ -1250,14 +1308,22 @@ class InboxWatcherTest(unittest.TestCase):
         ):
             self.assertEqual(inbox_watcher.once(self.repo, self.root, 0), 0)
 
+        wait_for_pending_telemetry()
+
         with open_storage(self.repo) as connection:
             row = connection.execute(
-                "SELECT producer_id,producer_type,contract_version,execution_context_snapshot FROM execution_submissions WHERE submission_id=?",
+                "SELECT producer_id,producer_type,contract_version,execution_context_snapshot,execution_run_id FROM execution_submissions WHERE submission_id=?",
                 ("human-watcher-001",),
+            ).fetchone()
+            run = connection.execute(
+                "SELECT producer_id,producer_type,execution_constraint_version FROM execution_runs WHERE run_id=?",
+                (run_id,),
             ).fetchone()
         self.assertEqual(row[:3], ("human:operator-peter", "HUMAN", "1.0"))
         self.assertEqual(json.loads(row[3])["action_intent"], "VALIDATION_ONLY")
         self.assertEqual(json.loads(row[3])["validation_profile"]["tier"], "DASHBOARD")
+        self.assertEqual(row[4], run_id)
+        self.assertEqual(run, ("human:operator-peter", "HUMAN", "1.0"))
 
     def test_queue_wait_uses_persisted_eligibility_and_ends_when_execution_is_claimed(self) -> None:
         prompt = self.inbox / "timed-job.md"

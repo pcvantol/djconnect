@@ -54,7 +54,9 @@ authentication and request-size validation.
 
 `python3 -m tools.engineering.workspace_inbox_api` is the supported local
 operator-facing route for a structured Human submission. It requires an
-explicit `--producer-id` and explicit `--action-intent` value. A structured
+explicit `--title`, `--producer-id` and explicit `--action-intent` value. The
+title is persisted as producer metadata and is the operator-facing execution
+title; it is not inferred from prompt prose. A structured
 `VALIDATION_ONLY` submission also requires `--validation-profile <tier>`.
 The tier is resolved before persistence against the canonical validation
 profile registry; the registry supplies the existing profile version and exact
@@ -70,9 +72,24 @@ For example:
 ```sh
 python3 -m tools.engineering.workspace_inbox_api \
   --prompt-file /path/to/objective.md \
+  --title "Bounded validation controls" \
   --producer-id operator-peter \
   --action-intent VALIDATION_ONLY \
   --validation-profile DASHBOARD
+```
+
+Add `--dry-run` before a real submission when the producer needs to verify the
+envelope, persisted title, execution context and configured writable Inbox.
+The preview creates no storage record, Inbox file, run ID or watcher admission:
+
+```sh
+python3 -m tools.engineering.workspace_inbox_api \
+  --prompt-file /path/to/objective.md \
+  --title "Bounded validation controls" \
+  --producer-id operator-peter \
+  --action-intent VALIDATION_ONLY \
+  --validation-profile DASHBOARD \
+  --dry-run
 ```
 
 `MUTATING_DELIVERY` is equally explicit and does not acquire a profile merely
@@ -225,9 +242,12 @@ recoverability, failure origin and the recommended operator action without
 showing internal paths.
 
 The private status page shows the current unclaimed queue from this watcher
-projection, oldest first. Each bounded entry contains only its filename,
-Markdown title and File Date Modified timestamp; it never exposes prompt body
-content or absolute iCloud paths.
+projection, oldest first. Each bounded entry contains only its filename, a
+human-readable execution label and File Date Modified timestamp; it never
+exposes prompt body content or absolute iCloud paths. An explicit persisted
+submission title is preferred. For a legacy structured envelope without that
+title, the UI renders only localized producer and action-intent metadata, never
+the JSON envelope or prompt text.
 
 The Inbox is fail-closed across a sequence. When a run ends `BLOCKED` or
 `FAILED`, the watcher moves no later file from Inbox to Running. It publishes

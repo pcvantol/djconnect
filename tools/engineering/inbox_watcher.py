@@ -46,7 +46,7 @@ from .prompt_history import backfill_prompt_history, execution_metadata_from_ter
 from .host_preflight import execute as execute_host_preflight
 from .workspace_preflight import execute as execute_workspace_preflight
 from .capability_preflight import execute as execute_capability_preflight
-from .producer import ProducerSubmissionError, parse_producer_metadata, parse_producer_submission
+from .producer import ProducerMetadata, ProducerSubmissionError, parse_producer_metadata, parse_producer_submission
 from .human_text_ingress import ingest as ingest_human_text
 from .drift_diagnostics import summary as drift_summary
 from .dependabot_admission import (
@@ -58,7 +58,7 @@ from .dependabot_admission import (
     publish_envelope as publish_dependabot_envelope,
     record_enqueued as record_dependabot_enqueued,
 )
-from .storage import ENGINEERING_STORAGE_SCHEMA_VERSION, EngineeringStorageError, dismissal_for_run, is_active_blocking_predecessor, load_projection, open_storage, record_admission_decision, record_artifact, record_execution_dismissal, record_run_qualification_context, record_submission, store_projection
+from .storage import ENGINEERING_STORAGE_SCHEMA_VERSION, EngineeringStorageError, dismissal_for_run, is_active_blocking_predecessor, load_projection, load_submission_for_run, open_storage, record_admission_decision, record_artifact, record_execution_dismissal, record_run_qualification_context, record_submission, store_projection
 from .execution_lease import reconcile_stale
 from .provider_interruption import terminalize_after_host_exit
 from .dashboard_configuration import get as dashboard_configuration
@@ -117,6 +117,29 @@ def _source_revision(repo: Path) -> str | None:
         return None
     revision = completed.stdout.strip()
     return revision if re.fullmatch(r"[0-9a-f]{40}", revision) else None
+
+
+def _persisted_producer_for_run(repo: Path, run_id: str, fallback_content: str) -> ProducerMetadata:
+    """Project producer provenance from the immutable submission, never its prompt.
+
+    Plain-text ingress has no structured submission and deliberately keeps the
+    legacy parser as its compatibility path.
+    """
+    try:
+        submission = load_submission_for_run(repo, run_id)
+    except EngineeringStorageError:
+        submission = None
+    if submission is None:
+        return parse_producer_metadata(fallback_content)
+    return ProducerMetadata(
+        producer_id=str(submission["producer_id"]),
+        producer_type=str(submission["producer_type"]),
+        producer_version=submission.get("producer_version") if isinstance(submission.get("producer_version"), str) else None,
+        correlation_id=submission.get("correlation_id") if isinstance(submission.get("correlation_id"), str) else None,
+        mission_id=submission.get("mission_id") if isinstance(submission.get("mission_id"), str) else None,
+        engineering_action_id=submission.get("engineering_action_id") if isinstance(submission.get("engineering_action_id"), str) else None,
+        execution_constraint_version=submission.get("contract_version") if isinstance(submission.get("contract_version"), str) else None,
+    )
 
 
 def publish_ready_record(repo: Path, root: Path) -> None:
@@ -479,6 +502,21 @@ def _corrected_terminal_report(
 
 def _prompt_title(content: str, filename: str) -> str:
     """Expose only a bounded submitted title, never the prompt body."""
+    try:
+        submission = parse_producer_submission(content)
+        prompt_payload = submission.envelope.get("prompt")
+        metadata = prompt_payload.get("metadata", {}) if isinstance(prompt_payload, dict) else {}
+        title = metadata.get("title") if isinstance(metadata, dict) else None
+        if isinstance(title, str) and title.strip():
+            return redact_diagnostic(title.strip(), limit=240)
+        # Older structured Producer Submission Envelopes did not require a
+        # title. Their first line is JSON, which must never become UI copy or
+        # disclose their private prompt. The queue projection below supplies
+        # the safe producer/intent metadata used by the dashboard instead.
+        if not submission.is_legacy:
+            return "Structured submission"
+    except ProducerSubmissionError:
+        pass
     lines = content.splitlines()
     for line in lines:
         if line.startswith("# ") and line[2:].strip():
@@ -502,6 +540,30 @@ def _prompt_title(content: str, filename: str) -> str:
     return redact_diagnostic(filename, limit=240)
 
 
+def _queue_title_projection(content: str, filename: str) -> dict[str, str]:
+    """Return safe, presentation-neutral title metadata for one queue item."""
+    title = _prompt_title(content, filename)
+    try:
+        submission = parse_producer_submission(content)
+    except ProducerSubmissionError:
+        return {"title": title}
+    if submission.is_legacy:
+        return {"title": title}
+    prompt_payload = submission.envelope.get("prompt")
+    metadata = prompt_payload.get("metadata", {}) if isinstance(prompt_payload, dict) else {}
+    explicit_title = metadata.get("title") if isinstance(metadata, dict) else None
+    if isinstance(explicit_title, str) and explicit_title.strip():
+        return {"title": title}
+    context = submission.execution_context or {}
+    action_intent = context.get("action_intent")
+    return {
+        "title": title,
+        "title_kind": "producer_submission",
+        "producer_type": submission.producer.producer_type,
+        "action_intent": action_intent if isinstance(action_intent, str) else "UNSPECIFIED",
+    }
+
+
 def _queue_items(candidates: list[tuple[Path, str]], claimed: Path | None = None) -> list[dict[str, str]]:
     """Project bounded, title-only Inbox evidence for the private status page."""
     items: list[dict[str, str]] = []
@@ -512,13 +574,11 @@ def _queue_items(candidates: list[tuple[Path, str]], claimed: Path | None = None
             modified_at = datetime.fromtimestamp(path.stat().st_mtime, timezone.utc).isoformat()
         except OSError:
             continue
-        items.append(
-            {
-                "filename": redact_diagnostic(path.name, limit=240),
-                "title": _prompt_title(content, path.name),
-                "modified_at": modified_at,
-            }
-        )
+        items.append({
+            "filename": redact_diagnostic(path.name, limit=240),
+            **_queue_title_projection(content, path.name),
+            "modified_at": modified_at,
+        })
         if len(items) == 25:
             break
     return items
@@ -678,7 +738,7 @@ def _publish_active_queue(repo: Path, candidates: list[tuple[Path, str]]) -> Non
 
 
 def _nonterminal_transaction_state(repo: Path) -> TransactionState | None:
-    """Return the latest durable non-terminal transaction, if it is readable."""
+    """Return the latest durable non-terminal transaction that is not dismissed."""
     placeholders = ",".join("?" for _ in TERMINAL_PHASES)
     try:
         connection = open_storage(repo)
@@ -690,7 +750,13 @@ def _nonterminal_transaction_state(repo: Path) -> TransactionState | None:
             ).fetchone()
         finally:
             connection.close()
-        return TransactionState.from_dict(json.loads(row[0])) if row else None
+        state = TransactionState.from_dict(json.loads(row[0])) if row else None
+        # A dismissal is immutable operator-handling evidence, not a rewrite
+        # of the historical checkpoint.  It must nevertheless prevent a
+        # stale non-terminal checkpoint from being projected as live again.
+        if state is not None and dismissal_for_run(repo, state.run_id):
+            return None
+        return state
     except (EngineeringStorageError, TypeError, json.JSONDecodeError, ValueError):
         return None
 
@@ -1074,6 +1140,10 @@ def _active_transaction(repo: Path) -> bool:
         return False
     run_id = payload.get("run_id")
     if isinstance(run_id, str):
+        # Historical checkpoints remain immutable after dismissal.  Do not
+        # let one reclaim Inbox ownership or recreate a live dashboard card.
+        if dismissal_for_run(repo, run_id):
+            return False
         checkpoint_phase, _ = _runner_result(repo, run_id)
         if checkpoint_phase in TERMINAL_PHASES:
             return False
@@ -2231,7 +2301,7 @@ def once(repo: Path, root: Path, interval: float = 1.0, *, background: bool = Fa
             execution_seconds, usage, repository = _telemetry_values(repo, run_id)
             lineage = retry_metadata(content)
             runtime_metadata = _report_runtime_metadata(delivered)
-            producer = parse_producer_metadata(content)
+            producer = _persisted_producer_for_run(repo, run_id, content)
             telemetry = ExecutionTelemetry(
                     run_id=run_id,
                     arrived_at=eligible_at,
