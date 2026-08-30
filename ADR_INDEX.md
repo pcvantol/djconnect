@@ -119,6 +119,15 @@ Decision to install EP once per local user/machine, use one central
 installation-owned database, and scope all EP operational data by the canonical
 Workspace project ID.
 
+### ADR-0020 — Local Consumer API contract and credential authority
+
+**Status:** Accepted for Phase 1 / Increment 1
+**File:** `docs/adr/0020-local-consumer-api-contract-and-credential-authority.md`
+
+Decision that HTTP with versioned JSON is the public Local Consumer API
+contract; EP owns opaque per-consumer/project bearer credentials; consumers use
+native secret storage; and the initial increment is contract-only.
+
 ## ADR backlog
 
 ### ADR-0013 — Platform Baseline v1.0 certification boundary
