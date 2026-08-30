@@ -2,7 +2,7 @@
 
 Status: canonical prompt navigation
 
-## PR #1038 Finalization pending
+## PR #1038 finalized by PR #1039
 
 PR [#1038](https://github.com/pcvantol/djconnect/pull/1038), **Clarify
 provider interruption boundary**, merged as
@@ -14,11 +14,13 @@ steps. It changes no runtime, recovery behavior, storage schema or lifecycle
 authority. Its immutable Prompt History record is
 `docs/history/prompts/2026-08-30-provider-interruption-recovery-proof.md`.
 Focused operational documentation tests and diff validation passed before the
-operator-owned implementation merge. Governance-only Finalization is pending:
-this branch reconciles the four rolling records and preserves the archived
-Prompt History. Repository State: `MERGED_UNRECONCILED`; Workspace State:
-`WORKSPACE_READY`; Finalization Pending: `YES`; `main == origin/main`: `YES`;
-worktree: `CLEAN`.
+operator-owned implementation merge. Governance-only Finalization PR
+[#1039](https://github.com/pcvantol/djconnect/pull/1039) merged as
+`6593cb0de17c0962d36a9c23daaa2ae4259fae18`. This direct-on-`main`
+reconciliation updates only the four canonical rolling records and preserves
+the archived Prompt History. Repository State: `MERGED_RECONCILED`; Workspace
+State: `WORKSPACE_READY`; Finalization Pending: `NO`; `main == origin/main`:
+`YES`; worktree: `CLEAN`.
 
 ## PR #1025 finalized by PR #1026
 
