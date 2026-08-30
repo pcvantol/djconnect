@@ -34,6 +34,7 @@ class WorkspaceInboxSubmissionError(ValueError):
 HUMAN_ACTION_INTENTS = frozenset({"MUTATING_DELIVERY", "VALIDATION_ONLY"})
 HUMAN_PRODUCER_ID_PREFIX = "human:"
 HUMAN_EXECUTION_CONTEXT_VERSION = "1.0"
+HUMAN_TITLE_LIMIT = 240
 
 
 @dataclass(frozen=True)
@@ -55,13 +56,24 @@ def canonical_human_producer_id(identity: str) -> str:
     return producer_id
 
 
+def canonical_human_title(title: object) -> str:
+    """Return one bounded, single-line operator-visible submission title."""
+    if not isinstance(title, str):
+        raise WorkspaceInboxSubmissionError("invalid_human_title", "Human submission title is required.")
+    normalized = title.strip()
+    if not normalized or "\n" in normalized or len(normalized) > HUMAN_TITLE_LIMIT:
+        raise WorkspaceInboxSubmissionError("invalid_human_title", "Human submission title is invalid.")
+    return normalized
+
+
 def build_human_envelope(
-    *, prompt: str, producer_identity: str, action_intent: str, validation_profile: str | None = None,
+    *, prompt: str, title: str, producer_identity: str, action_intent: str, validation_profile: str | None = None,
     submission_id: str | None = None,
 ) -> dict[str, object]:
     """Build one explicit Managed HUMAN envelope using the existing v1 contract."""
     if not isinstance(prompt, str) or not prompt.strip():
         raise WorkspaceInboxSubmissionError("invalid_human_prompt", "Human submission prompt is required.")
+    normalized_title = canonical_human_title(title)
     if action_intent not in HUMAN_ACTION_INTENTS:
         raise WorkspaceInboxSubmissionError("invalid_human_action_intent", "Human submission action intent is invalid.")
     identifier = submission_id or f"human-{uuid.uuid4().hex}"
@@ -94,7 +106,7 @@ def build_human_envelope(
         "contract": {"name": ENVELOPE_CONTRACT_NAME, "version": ENVELOPE_CONTRACT_VERSION},
         "submission": {"id": identifier},
         "producer": {"id": canonical_human_producer_id(producer_identity), "type": "HUMAN"},
-        "prompt": {"text": objective},
+        "prompt": {"text": objective, "metadata": {"title": normalized_title}},
         "execution_context": {
             "context_version": HUMAN_EXECUTION_CONTEXT_VERSION,
             "action_intent": action_intent,
@@ -177,12 +189,13 @@ def publish(root: Path, envelope: str) -> WorkspaceInboxReceipt:
 
 def submit_human(
     root: Path,
-    *, prompt: str, producer_identity: str, action_intent: str, validation_profile: str | None = None,
+    *, prompt: str, title: str, producer_identity: str, action_intent: str, validation_profile: str | None = None,
     submission_id: str | None = None,
 ) -> WorkspaceInboxReceipt:
     """Persist then publish the exact structured Human envelope through ``publish``."""
     envelope = build_human_envelope(
         prompt=prompt,
+        title=title,
         producer_identity=producer_identity,
         action_intent=action_intent,
         validation_profile=validation_profile,
@@ -196,6 +209,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Submit a structured HUMAN Engineering Inbox envelope.")
     parser.add_argument("--root", type=Path, default=Path.cwd())
     parser.add_argument("--prompt-file", type=Path, required=True)
+    parser.add_argument("--title", required=True)
     parser.add_argument("--producer-id", required=True)
     parser.add_argument("--action-intent", required=True, choices=sorted(HUMAN_ACTION_INTENTS))
     parser.add_argument("--validation-profile", metavar="TIER")
@@ -205,6 +219,7 @@ def main(argv: list[str] | None = None) -> int:
         receipt = submit_human(
             arguments.root,
             prompt=arguments.prompt_file.read_text(encoding="utf-8"),
+            title=arguments.title,
             producer_identity=arguments.producer_id,
             action_intent=arguments.action_intent,
             validation_profile=arguments.validation_profile,

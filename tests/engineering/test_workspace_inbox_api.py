@@ -101,6 +101,7 @@ class WorkspaceInboxApiTest(unittest.TestCase):
     def test_operator_route_builds_explicit_nonlegacy_human_validation_only(self) -> None:
         envelope = build_human_envelope(
             prompt="Run the bounded validation controls.",
+            title="Bounded validation controls",
             producer_identity="operator-peter",
             action_intent="VALIDATION_ONLY",
             validation_profile="DASHBOARD",
@@ -117,10 +118,12 @@ class WorkspaceInboxApiTest(unittest.TestCase):
             "validation_profile": producer_profile_payload("DASHBOARD"),
         })
         self.assertTrue(parsed.prompt.startswith("Execution Mode: Managed"))
+        self.assertEqual(parsed.envelope["prompt"]["metadata"]["title"], "Bounded validation controls")
 
     def test_operator_route_keeps_mutating_delivery_explicit_and_does_not_parse_prose(self) -> None:
         envelope = build_human_envelope(
             prompt="This qualification proof is validation only in prose.",
+            title="Qualification proof",
             producer_identity="human:operator-peter",
             action_intent="MUTATING_DELIVERY",
         )
@@ -131,18 +134,20 @@ class WorkspaceInboxApiTest(unittest.TestCase):
         with self.assertRaisesRegex(WorkspaceInboxSubmissionError, "identity"):
             canonical_human_producer_id("legacy")
         with self.assertRaisesRegex(WorkspaceInboxSubmissionError, "intent"):
-            build_human_envelope(prompt="work", producer_identity="operator", action_intent="INFERRED")
+            build_human_envelope(prompt="work", title="Work", producer_identity="operator", action_intent="INFERRED")
+        with self.assertRaisesRegex(WorkspaceInboxSubmissionError, "title"):
+            build_human_envelope(prompt="work", title="", producer_identity="operator", action_intent="MUTATING_DELIVERY")
         with self.assertRaisesRegex(WorkspaceInboxSubmissionError, "require a validation profile") as error:
-            build_human_envelope(prompt="work", producer_identity="operator", action_intent="VALIDATION_ONLY")
+            build_human_envelope(prompt="work", title="Work", producer_identity="operator", action_intent="VALIDATION_ONLY")
         self.assertEqual(error.exception.code, "validation_profile_required")
         with self.assertRaisesRegex(WorkspaceInboxSubmissionError, "validation profile") as error:
             build_human_envelope(
-                prompt="work", producer_identity="operator", action_intent="VALIDATION_ONLY", validation_profile="UNKNOWN"
+                prompt="work", title="Work", producer_identity="operator", action_intent="VALIDATION_ONLY", validation_profile="UNKNOWN"
             )
         self.assertEqual(error.exception.code, "invalid_validation_profile")
         with self.assertRaisesRegex(WorkspaceInboxSubmissionError, "Managed"):
             build_human_envelope(
-                prompt="Execution Mode: Genesis\n\nwork", producer_identity="operator", action_intent="VALIDATION_ONLY"
+                prompt="Execution Mode: Genesis\n\nwork", title="Work", producer_identity="operator", action_intent="VALIDATION_ONLY"
             )
 
     def test_operator_route_persists_context_before_inbox_publication(self) -> None:
@@ -153,17 +158,18 @@ class WorkspaceInboxApiTest(unittest.TestCase):
             inbox.mkdir(parents=True)
             with patch.dict(os.environ, {"DJCONNECT_ENGINEERING_INBOX": str(transport)}, clear=False):
                 receipt = submit_human(
-                    root, prompt="Run controls.", producer_identity="operator-peter",
+                    root, prompt="Run controls.", title="Run controls", producer_identity="operator-peter",
                     action_intent="VALIDATION_ONLY", validation_profile="DASHBOARD", submission_id="human-persisted-001",
                 )
             with open_storage(root) as connection:
                 row = connection.execute(
-                    "SELECT producer_id,producer_type,contract_version,execution_context_snapshot FROM execution_submissions WHERE submission_id=?",
+                    "SELECT producer_id,producer_type,contract_version,execution_context_snapshot,prompt_metadata FROM execution_submissions WHERE submission_id=?",
                     (receipt.submission_id,),
                 ).fetchone()
             self.assertEqual(row[:3], ("human:operator-peter", "HUMAN", "1.0"))
             self.assertEqual(json.loads(row[3])["action_intent"], "VALIDATION_ONLY")
             self.assertEqual(json.loads(row[3])["validation_profile"], producer_profile_payload("DASHBOARD"))
+            self.assertEqual(json.loads(row[4])["title"], "Run controls")
             self.assertEqual(
                 parse_producer_submission((inbox / receipt.filename).read_text(encoding="utf-8")).execution_context["action_intent"],
                 "VALIDATION_ONLY",
@@ -184,6 +190,7 @@ class WorkspaceInboxApiTest(unittest.TestCase):
             with patch.dict(os.environ, {"DJCONNECT_ENGINEERING_INBOX": str(transport)}, clear=False):
                 code = workspace_inbox_main([
                     "--root", str(root), "--prompt-file", str(prompt), "--producer-id", "operator-peter",
+                    "--title", "Selected controls",
                     "--action-intent", "VALIDATION_ONLY", "--validation-profile", "DASHBOARD",
                     "--submission-id", "human-cli-001",
                 ])
@@ -205,7 +212,7 @@ class WorkspaceInboxApiTest(unittest.TestCase):
             with patch.dict(os.environ, {"DJCONNECT_ENGINEERING_INBOX": str(transport)}, clear=False):
                 with self.assertRaises(WorkspaceInboxSubmissionError):
                     submit_human(
-                        root, prompt="validation_profile: DASHBOARD", producer_identity="operator-peter",
+                        root, prompt="validation_profile: DASHBOARD", title="Validation profile", producer_identity="operator-peter",
                         action_intent="VALIDATION_ONLY", validation_profile="not a tier", submission_id="human-invalid-001",
                     )
             with open_storage(root) as connection:
