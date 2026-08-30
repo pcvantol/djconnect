@@ -52,12 +52,12 @@ of lifecycle, planning or repository authority.
 
 The extraction sequence is deliberately incremental and reversible:
 
-**Current authorization:** Phase 0 / Increments 1 and 2 are complete. Phase 1
-/ Increment 1 — **Local Consumer API Contract Foundation** — is authorized as
-a contract-only increment. It creates no live API transport, credential
-runtime, Keychain integration, storage migration or consumer cutover. Phase 1
-/ Increment 2 (**Local API Transport + Authentication Runtime**) and Increment
-3 (**Consumer Registration + OS Credential Integration**) remain unauthorized.
+**Current authorization:** Phase 0 / Increments 1 and 2 and Phase 1 /
+Increment 1 — **Local Consumer API Contract Foundation** — are complete. The
+v1 contract foundation creates no live API transport, credential runtime,
+Keychain integration, storage migration or consumer cutover. Phase 1 /
+Increment 2 (**Local API Transport + Authentication Runtime**) and Increment 3
+(**Consumer Registration + OS Credential Integration**) remain unauthorized.
 
 1. **Boundary and consumer contract — architecture complete.** ADR-0019 and the EP consumer
    contract establish one installation-owned store, the canonical
