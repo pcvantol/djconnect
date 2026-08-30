@@ -334,48 +334,48 @@ def terminal_snapshot(
         ),
         "observed_at": _now(),
     }
+    required_controls = snapshot.get("validation_profile", {})
+    required_controls = required_controls if isinstance(required_controls, dict) else {}
+    required_control_snapshot = {
+        "profile_reference": required_controls.get("profile_reference", "UNAVAILABLE"),
+        "validation_profile_version": required_controls.get("validation_profile_version", "UNAVAILABLE"),
+        "required_validation_controls": required_controls.get("required_validation_controls", ()),
+        "validation_current": snapshot["validation_current"],
+    }
+    snapshot["required_control_snapshot_ref"] = "required-controls:sha256:" + hashlib.sha256(
+        json.dumps(required_control_snapshot, sort_keys=True, separators=(",", ":"), default=str).encode()
+    ).hexdigest()
+    snapshot["terminal_checkpoint_ref"] = f"terminal-checkpoint:{run_id}:{execution_outcome}"
+    cleanup_attempted = any(
+        action["action"] == "CLEANUP" and action["authority"] == "AUTONOMOUS_EP_ACTION"
+        for action in snapshot["actions"]
+    )
+    snapshot["cleanup_outcome"] = (
+        "COMPLETED" if cleanup_attempted and execution_outcome == "COMPLETE"
+        else "FAILED" if cleanup_attempted and execution_outcome in {"BLOCKED", "FAILED"}
+        else "NOT_REQUIRED" if action_intent == "VALIDATION_ONLY"
+        else "UNAVAILABLE"
+    )
+    snapshot["reconciliation_evidence"] = {
+        "repository_state": repository_state,
+        "workspace_state": workspace_state,
+        "main_origin_sync": main_origin_sync,
+        "worktree_state": worktree_state,
+        "active_blocking_predecessor": active_blocker,
+        "recovery_required": recovery_required,
+    }
+    conflicts = []
+    if snapshot["validation_projection_conflict"]:
+        conflicts.append("VALIDATION_CURRENT_CONFLICT")
+    if snapshot["pr_check_projection_conflict"]:
+        conflicts.append("PR_CHECK_CURRENT_CONFLICT")
+    snapshot["projection_conflicts"] = conflicts
     snapshot["run_qualification"], snapshot["qualification_failure_reasons"] = evaluate(snapshot)
     # Compatibility projection retained for existing consumers.  It has the
     # same run-scoped meaning and must never be mistaken for platform-wide
     # qualification evidence.
     snapshot["managed_autonomy_qualification"] = snapshot["run_qualification"]
     if persist:
-        required_controls = snapshot.get("validation_profile", {})
-        required_controls = required_controls if isinstance(required_controls, dict) else {}
-        required_control_snapshot = {
-            "profile_reference": required_controls.get("profile_reference", "UNAVAILABLE"),
-            "validation_profile_version": required_controls.get("validation_profile_version", "UNAVAILABLE"),
-            "required_validation_controls": required_controls.get("required_validation_controls", ()),
-            "validation_current": snapshot["validation_current"],
-        }
-        snapshot["required_control_snapshot_ref"] = "required-controls:sha256:" + hashlib.sha256(
-            json.dumps(required_control_snapshot, sort_keys=True, separators=(",", ":"), default=str).encode()
-        ).hexdigest()
-        snapshot["terminal_checkpoint_ref"] = f"terminal-checkpoint:{run_id}:{execution_outcome}"
-        cleanup_attempted = any(
-            action["action"] == "CLEANUP" and action["authority"] == "AUTONOMOUS_EP_ACTION"
-            for action in snapshot["actions"]
-        )
-        snapshot["cleanup_outcome"] = (
-            "COMPLETED" if cleanup_attempted and execution_outcome == "COMPLETE"
-            else "FAILED" if cleanup_attempted and execution_outcome in {"BLOCKED", "FAILED"}
-            else "NOT_REQUIRED" if action_intent == "VALIDATION_ONLY"
-            else "UNAVAILABLE"
-        )
-        snapshot["reconciliation_evidence"] = {
-            "repository_state": repository_state,
-            "workspace_state": workspace_state,
-            "main_origin_sync": main_origin_sync,
-            "worktree_state": worktree_state,
-            "active_blocking_predecessor": active_blocker,
-            "recovery_required": recovery_required,
-        }
-        conflicts = []
-        if snapshot["validation_projection_conflict"]:
-            conflicts.append("VALIDATION_CURRENT_CONFLICT")
-        if snapshot["pr_check_projection_conflict"]:
-            conflicts.append("PR_CHECK_CURRENT_CONFLICT")
-        snapshot["projection_conflicts"] = conflicts
         # The persisted contract has exactly two outcomes.  The existing
         # in-memory compatibility label remains available to old callers.
         if snapshot["run_qualification"] == "EVIDENCE_INSUFFICIENT":
@@ -412,6 +412,9 @@ def evaluate(snapshot: dict[str, object]) -> tuple[str, list[str]]:
         if isinstance(row, dict)
     }
     if not validation_only:
+        for role in ("implementation", "finalization"):
+            if not isinstance(snapshot.get(f"{role}_pr"), int):
+                reasons.append(f"{role.upper()}_DELIVERY_UNPROVEN")
         if gate.get("IMPLEMENTATION_MERGE_APPROVAL") != "SATISFIED":
             reasons.append("IMPLEMENTATION_MERGE_GATE_UNPROVEN")
         if gate.get("FINALIZATION_MERGE_APPROVAL") != "SATISFIED":
@@ -434,15 +437,22 @@ def evaluate(snapshot: dict[str, object]) -> tuple[str, list[str]]:
         reasons.append("EP_ACTION_AUTHORITY_UNPROVEN")
     if snapshot.get("required_validation_state") != "PASS":
         reasons.append("REQUIRED_VALIDATION_UNRESOLVED")
-    if snapshot.get("validation_projection_conflict"):
-        reasons.append("EVIDENCE_CONFLICT")
-    if snapshot.get("pr_check_projection_conflict"):
+    if snapshot.get("validation_projection_conflict") or snapshot.get("pr_check_projection_conflict") or snapshot.get("projection_conflicts"):
         reasons.append("EVIDENCE_CONFLICT")
     for role in (() if validation_only else ("IMPLEMENTATION", "FINALIZATION")):
-        if snapshot.get(f"{role.lower()}_pr") is not None:
-            check = snapshot.get("pr_checks", {}).get(role, {})
-            if check.get("required_checks_state") != "PASS":
-                reasons.append(f"{role}_REQUIRED_CHECKS_UNRESOLVED")
+        check = snapshot.get("pr_checks", {}).get(role, {})
+        if (
+            check.get("pr_number") != snapshot.get(f"{role.lower()}_pr")
+            or check.get("pr_state") != "MERGED"
+            or check.get("merge_state") != "MERGED"
+            or not isinstance(check.get("merge_commit"), str)
+            or len(check["merge_commit"]) != 40
+        ):
+            reasons.append(f"{role}_DELIVERY_UNPROVEN")
+        if check.get("required_checks_state") != "PASS":
+            reasons.append(f"{role}_REQUIRED_CHECKS_UNRESOLVED")
+    if snapshot.get("cleanup_outcome") not in {"COMPLETED", "NOT_REQUIRED"}:
+        reasons.append("CLEANUP_UNPROVEN")
     for key, wanted in {
         "repository_state": "MERGED_RECONCILED",
         "workspace_state": "WORKSPACE_READY",

@@ -429,3 +429,43 @@ class ManagedAutonomyEvidenceTest(unittest.TestCase):
                 workspace_state="UNAVAILABLE", main_origin_sync="UNAVAILABLE", worktree_state="UNAVAILABLE",
                 active_blocker="UNAVAILABLE", recovery_required="UNAVAILABLE")
         self.assertNotEqual(snapshot["pr_checks"].get("IMPLEMENTATION", {}).get("required_checks_state"), "PASS")
+
+    def test_mutating_delivery_requires_both_merged_delivery_artifacts(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            self._qualified(root)
+            snapshot = terminal_snapshot(
+                root, run_id="inbox-managed-proof", execution_outcome="COMPLETE",
+                implementation_pr=101, finalization_pr=None,
+                repository_state="MERGED_RECONCILED", workspace_state="WORKSPACE_READY",
+                main_origin_sync="YES", worktree_state="CLEAN", active_blocker="NONE",
+                recovery_required="NO", lineage_available=True,
+            )
+        self.assertNotEqual(snapshot["run_qualification"], "QUALIFIED")
+        self.assertIn("FINALIZATION_DELIVERY_UNPROVEN", snapshot["qualification_failure_reasons"])
+
+    def test_persisted_snapshot_remains_the_only_terminal_projection_source(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            initial = self._qualified(root)
+            persisted = terminal_snapshot(
+                root, run_id="inbox-managed-proof", execution_outcome="COMPLETE",
+                implementation_pr=101, finalization_pr=102,
+                repository_state="MERGED_RECONCILED", workspace_state="WORKSPACE_READY",
+                main_origin_sync="YES", worktree_state="CLEAN", active_blocker="NONE",
+                recovery_required="NO", lineage_available=True, persist=True,
+            )
+            append_validation_observation(
+                root, run_id="inbox-managed-proof", control="git_diff_check",
+                state="FAIL", required=True, currentness=2,
+            )
+            projected = terminal_snapshot(
+                root, run_id="inbox-managed-proof", execution_outcome="COMPLETE",
+                implementation_pr=101, finalization_pr=102,
+                repository_state="MERGED_RECONCILED", workspace_state="WORKSPACE_READY",
+                main_origin_sync="YES", worktree_state="CLEAN", active_blocker="NONE",
+                recovery_required="NO", lineage_available=True, persist=True,
+            )
+        self.assertEqual(initial["run_qualification"], "QUALIFIED")
+        self.assertEqual(projected["qualification_snapshot_id"], persisted["qualification_snapshot_id"])
+        self.assertEqual(projected["required_validation_state"], "PASS")

@@ -18,7 +18,7 @@ from .capability_preflight import latest as latest_capability_preflight
 from .drift_diagnostics import guidance as drift_guidance
 from .platform_api import PlatformConfigurationError, execution_host_configuration
 from .telemetry import comparable_duration_estimate
-from .storage import EngineeringStorageError, import_legacy_projection_once, is_active_blocking_predecessor, load_execution_context_snapshot, load_forge_governance_handoff_snapshot, load_projection, load_readiness_evaluation, open_storage
+from .storage import EngineeringStorageError, import_legacy_projection_once, is_active_blocking_predecessor, load_execution_context_snapshot, load_forge_governance_handoff_snapshot, load_projection, load_readiness_evaluation, load_run_qualification_snapshot, open_storage
 from .execution_lease import liveness as lease_liveness
 from .execution_lifecycle import projection as lifecycle_projection
 from .agent_state import redact_diagnostic
@@ -566,6 +566,13 @@ def snapshot(
     except Exception:
         telemetry = []
     try:
+        qualification_snapshot = (
+            load_run_qualification_snapshot(root, run_id)
+            if isinstance(run_id, str) and run_id else None
+        )
+    except (EngineeringStorageError, OSError):
+        qualification_snapshot = None
+    try:
         duration_estimate = (
             comparable_duration_estimate(
                 root,
@@ -613,6 +620,7 @@ def snapshot(
             "last_executed_reviewer_agents": read_json(reviewer_agents_reader, root, run_id, fallback=[]),
             "last_executed_execution": read_json(execution_reader, root, run_id, fallback={}),
             "last_executed_runtime_metadata": read_json(runtime_metadata_reader, root, run_id, fallback={}),
+            "last_executed_run_qualification": qualification_snapshot or {},
             "last_executed_report_analysis_available": report_analysis_available_reader(root, run_id),
             "telemetry": telemetry,
             "duration_estimate": duration_estimate,

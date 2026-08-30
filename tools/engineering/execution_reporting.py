@@ -24,7 +24,7 @@ from .producer import ProducerMetadata, parse_producer_metadata
 from .providers import GitProvider
 from .qualification import latest_qualification
 from .recommendation_handoff import ForgeGovernanceHandoff, report_lines as recommendation_handoff_report_lines
-from .storage import EngineeringStorageError, load_readiness_evaluation, load_submission_for_run, load_run_lineage, load_validation_context
+from .storage import EngineeringStorageError, load_readiness_evaluation, load_run_qualification_snapshot, load_submission_for_run, load_run_lineage, load_validation_context
 from .provider_usage import provider_usage_summary
 from .managed_autonomy import terminal_snapshot as managed_autonomy_snapshot
 from .validation_identity import is_canonical_dashboard_command
@@ -678,7 +678,14 @@ def _runtime_projection(
     )
 
 
-def _execution_receipt_projection(state: TransactionState, producer: ProducerMetadata) -> tuple[str, ...]:
+def _execution_receipt_projection(root: Path, state: TransactionState, producer: ProducerMetadata) -> tuple[str, ...]:
+    """Reference the one persisted qualification snapshot without deriving it."""
+    try:
+        snapshot = load_run_qualification_snapshot(root, state.run_id)
+    except EngineeringStorageError:
+        snapshot = None
+    qualification_reference = snapshot.get("qualification_snapshot_id", "UNAVAILABLE") if snapshot else "UNAVAILABLE"
+    checkpoint_reference = snapshot.get("terminal_checkpoint_ref", "UNAVAILABLE") if snapshot else "UNAVAILABLE"
     return (
         f"- Receipt ID: `{state.run_id}`",
         "- Execution Host: `Engineering Platform`",
@@ -686,6 +693,8 @@ def _execution_receipt_projection(state: TransactionState, producer: ProducerMet
         f"- Correlation ID: `{producer.correlation_id or 'not recorded'}`",
         f"- Receipt Status: `{state.phase}`",
         f"- Receipt Resolution: `{state.terminal_condition}`",
+        f"- Qualification Snapshot Reference: `{qualification_reference}`",
+        f"- Terminal Checkpoint Reference: `{checkpoint_reference}`",
     )
 
 
@@ -1440,7 +1449,7 @@ def generate_terminal_report(
             *_runtime_projection(state, producer, runtime_provider, reported_model),
             "",
             "## Execution Receipt Projection",
-            *_execution_receipt_projection(state, producer),
+            *_execution_receipt_projection(root, state, producer),
             "",
             "## Decision Evidence Projection",
             *_decision_evidence_projection(producer),
