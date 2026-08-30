@@ -128,26 +128,8 @@ def publish(root: Path, envelope: str) -> WorkspaceInboxReceipt:
     This is deliberately a local API, not a new execution path: the normal
     Inbox watcher remains the sole claimant and lifecycle owner.
     """
-    try:
-        submission = parse_producer_submission(envelope)
-    except ProducerSubmissionError as error:
-        raise WorkspaceInboxSubmissionError(
-            "invalid_producer_envelope", "Producer submission does not contain a valid producer envelope."
-        ) from error
-    if (
-        submission.is_legacy
-        or submission.producer.producer_type not in {"FORGE", "HUMAN"}
-        or not submission.submission_id
-    ):
-        raise WorkspaceInboxSubmissionError(
-            "producer_envelope_required", "This API accepts only a complete trusted producer envelope."
-        )
-    transport = execution_host_configuration(root).resolve_runtime_prompt_transport()
+    submission, transport = _submission_and_transport(root, envelope)
     inbox = transport.inbox
-    if not inbox.is_dir() or not os.access(inbox, os.W_OK):
-        raise WorkspaceInboxSubmissionError(
-            "inbox_unavailable", "The configured Engineering Inbox is not writable."
-        )
     received_at = datetime.now(timezone.utc).isoformat()
     try:
         record_submission(
@@ -187,6 +169,48 @@ def publish(root: Path, envelope: str) -> WorkspaceInboxReceipt:
     return WorkspaceInboxReceipt(submission.submission_id, filename, inbox, received_at)
 
 
+def _submission_and_transport(root: Path, envelope: str) -> tuple[object, object]:
+    """Validate an envelope and its configured Inbox without publishing it."""
+    try:
+        submission = parse_producer_submission(envelope)
+    except ProducerSubmissionError as error:
+        raise WorkspaceInboxSubmissionError(
+            "invalid_producer_envelope", "Producer submission does not contain a valid producer envelope."
+        ) from error
+    if (
+        submission.is_legacy
+        or submission.producer.producer_type not in {"FORGE", "HUMAN"}
+        or not submission.submission_id
+    ):
+        raise WorkspaceInboxSubmissionError(
+            "producer_envelope_required", "This API accepts only a complete trusted producer envelope."
+        )
+    transport = execution_host_configuration(root).resolve_runtime_prompt_transport()
+    inbox = transport.inbox
+    if not inbox.is_dir() or not os.access(inbox, os.W_OK):
+        raise WorkspaceInboxSubmissionError(
+            "inbox_unavailable", "The configured Engineering Inbox is not writable."
+        )
+    return submission, transport
+
+
+def preview(root: Path, envelope: str) -> dict[str, object]:
+    """Return a validated submission preview without storage or Inbox mutation."""
+    submission, transport = _submission_and_transport(root, envelope)
+    inbox = transport.inbox
+    prompt = submission.envelope.get("prompt")
+    metadata = prompt.get("metadata") if isinstance(prompt, dict) else None
+    return {
+        "dry_run": True,
+        "submission_id": submission.submission_id,
+        "inbox": str(inbox),
+        "producer": {"id": submission.producer.producer_id, "type": submission.producer.producer_type},
+        "execution_context": submission.execution_context,
+        "prompt_metadata": metadata if isinstance(metadata, dict) else {},
+        "envelope": submission.envelope,
+    }
+
+
 def submit_human(
     root: Path,
     *, prompt: str, title: str, producer_identity: str, action_intent: str, validation_profile: str | None = None,
@@ -214,8 +238,20 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--action-intent", required=True, choices=sorted(HUMAN_ACTION_INTENTS))
     parser.add_argument("--validation-profile", metavar="TIER")
     parser.add_argument("--submission-id")
+    parser.add_argument("--dry-run", action="store_true", help="Validate and preview without storage or Inbox publication.")
     arguments = parser.parse_args(argv)
     try:
+        if arguments.dry_run:
+            envelope = build_human_envelope(
+                prompt=arguments.prompt_file.read_text(encoding="utf-8"),
+                title=arguments.title,
+                producer_identity=arguments.producer_id,
+                action_intent=arguments.action_intent,
+                validation_profile=arguments.validation_profile,
+                submission_id=arguments.submission_id,
+            )
+            print(json.dumps(preview(arguments.root, json.dumps(envelope, sort_keys=True)), sort_keys=True))
+            return 0
         receipt = submit_human(
             arguments.root,
             prompt=arguments.prompt_file.read_text(encoding="utf-8"),

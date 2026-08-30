@@ -78,6 +78,20 @@ python3 -m tools.engineering.workspace_inbox_api \
   --validation-profile DASHBOARD
 ```
 
+Add `--dry-run` before a real submission when the producer needs to verify the
+envelope, persisted title, execution context and configured writable Inbox.
+The preview creates no storage record, Inbox file, run ID or watcher admission:
+
+```sh
+python3 -m tools.engineering.workspace_inbox_api \
+  --prompt-file /path/to/objective.md \
+  --title "Bounded validation controls" \
+  --producer-id operator-peter \
+  --action-intent VALIDATION_ONLY \
+  --validation-profile DASHBOARD \
+  --dry-run
+```
+
 `MUTATING_DELIVERY` is equally explicit and does not acquire a profile merely
 because one is present. Forge uses the same `execution_context.validation_profile`
 contract when it supplies a structured profile. The iPhone Shortcut may submit
