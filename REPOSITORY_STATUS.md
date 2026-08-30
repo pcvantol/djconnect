@@ -2,6 +2,21 @@
 
 Status: active platform-evolution repository
 
+## PR #1025 Finalization pending
+
+PR [#1025](https://github.com/pcvantol/djconnect/pull/1025), **Close
+qualification evidence projections**, merged as
+`dc0d90150e87fffa2fbd2d7def75118e3a9a6db9` and is contained in current
+`main`. Its required Trusted Delivery qualification check passed. The bounded
+Engineering Platform increment projects Run Qualification only from the
+persisted run-bound qualification snapshot, including required validation,
+delivery and reconciliation evidence. It preserves lifecycle authority,
+operator-owned merge gates, immutable Prompt History and the distinction
+between Platform Health and individual Run Qualification. This governance-only
+Finalization reconciles the four rolling records; Prompt History is preserved
+unchanged. Repository State: `MERGED_UNRECONCILED`; Workspace State:
+`WORKSPACE_READY`; Finalization Pending: `YES`.
+
 ## PR #990 finalized by PR #991
 
 PR [#990](https://github.com/pcvantol/djconnect/pull/990), **fix(engineering):
