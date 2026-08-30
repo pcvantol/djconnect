@@ -3533,7 +3533,8 @@ test.describe("Engineering Status browser smoke", () => {
     await alternatives.locator("summary").click();
     await expect(alternatives).toHaveAttribute("open", "");
     await expect(alternatives).toContainText("Mission Borealis");
-    await expect(page.locator("#promptHistoryDetailContent button")).toHaveCount(1);
+    await expect(page.locator("#promptHistoryDetailContent button")).toHaveCount(2);
+    await expect(page.locator("#promptHistoryDetailContent .execution-mode-info")).toHaveCount(1);
     await expect(page.locator("#promptHistoryDetailContent .prompt-history-run-id-copy")).toHaveCount(1);
   });
 
