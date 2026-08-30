@@ -1584,7 +1584,7 @@ function renderExecutionContext(context, execution = {}) {
     );
     return;
   }
-  const fields = [
+  const planningFields = [
     [t("detail.mission_id"), context.mission_id],
     [t("execution_context.mission_title"), context.mission_title],
     [t("execution_context.mission_lifecycle"), context.mission_lifecycle],
@@ -1597,17 +1597,37 @@ function renderExecutionContext(context, execution = {}) {
     [t("execution_context.current_iteration"), context.current_iteration],
     [t("execution_context.mission_progress"), context.mission_progress],
     [t("execution_context.last_runtime_update"), context.last_runtime_update || context.last_updated_timestamp],
-    [t("execution_context.version"), context.context_version],
     [t("execution_context.decision_evidence_reference"), context.decision_evidence_reference || context.decision_evidence],
     [t("execution_context.decision_type"), context.decision_type],
     [t("execution_context.execution_receipt_reference"), context.execution_receipt_reference || context.last_execution_receipt],
     [t("execution_context.dispatcher_state"), context.dispatcher_state],
     [t("execution_context.approved_mission_queue_state"), context.approved_mission_queue_state],
+  ].filter(([, value]) => executionContextValue(value));
+  const profile = context.validation_profile && typeof context.validation_profile === "object"
+    ? context.validation_profile : null;
+  const suppliedFields = [
+    ...(context.action_intent ? [[
+      t("execution_context.action_intent"),
+      t(`execution_context.action_intent.${String(context.action_intent).toLowerCase()}`, {}, humanizeIdentifier(context.action_intent)),
+    ]] : []),
+    ...(profile?.tier ? [[t("execution_context.validation_profile"), humanizeIdentifier(profile.tier)]] : []),
+    ...(profile?.version ? [[t("execution_context.validation_profile_version"), profile.version]] : []),
+    ...(Array.isArray(profile?.required_controls) && profile.required_controls.length ? [[
+      t("execution_context.required_validation_controls"),
+      profile.required_controls.map(humanizeIdentifier).join(", "),
+    ]] : []),
+    ...(context.context_version ? [[t("execution_context.version"), context.context_version]] : []),
   ];
   card.replaceChildren(
     Object.assign(document.createElement("strong"), { textContent: t("ui.execution_context") }),
     ...hostFields.map(([label, value, isExecutionMode]) => isExecutionMode ? executionModeField(value) : executionContextField(label, value, false, label === t("detail.target_checkout"))),
-    ...fields.map(([label, value, badge]) => executionContextField(label, value, badge)),
+    ...suppliedFields.map(([label, value]) => executionContextField(label, value)),
+    ...(planningFields.length
+      ? planningFields.map(([label, value, badge]) => executionContextField(label, value, badge))
+      : [Object.assign(document.createElement("p"), {
+        className: "execution-context__planning-empty",
+        textContent: t("execution_context.planning_not_supplied"),
+      })]),
   );
 }
 function renderOperatorMergeWait(x) {

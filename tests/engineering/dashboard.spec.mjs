@@ -2555,6 +2555,14 @@ test.describe("Engineering Status browser smoke", () => {
         target_repository: "pcvantol/djconnect",
         checkout_path: "/Users/example/Documents/GitHub/djconnect",
         active_branch: "main",
+        execution_context: {
+          context_version: "1.0",
+          action_intent: "MUTATING_DELIVERY",
+          validation_profile: {
+            tier: "DASHBOARD", version: "1.0",
+            required_controls: ["git_diff_check", "engineering_python", "dashboard_browser"],
+          },
+        },
       } },
     }));
     const statusLoaded = page.waitForResponse("**/api/dashboard-snapshot");
@@ -2563,6 +2571,13 @@ test.describe("Engineering Status browser smoke", () => {
     await page.locator("#currentRun").evaluate((element) => { element.open = true; });
     const modeField = page.locator("#executionContext .execution-mode-field");
     await expect(modeField).toContainText("MANAGED");
+    const contextCard = page.locator("#executionContext");
+    await expect(contextCard).toContainText("Actie-intentie");
+    await expect(contextCard).toContainText("Leveringswijziging");
+    await expect(contextCard).toContainText("Validatieprofiel");
+    await expect(contextCard).toContainText("Git Diff Check");
+    await expect(contextCard).toContainText("geen aanvullende missie- of planningscontext");
+    await expect(contextCard).not.toContainText("Missie-ID");
     const info = modeField.locator(".execution-mode-info");
     await expect(info).toHaveAttribute("aria-label", DASHBOARD_MESSAGES.nl["execution_mode_info.open"]);
     await dispatchDashboardPointerClick(info);
