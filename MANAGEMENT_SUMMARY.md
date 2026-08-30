@@ -1,5 +1,23 @@
 # DJConnect Generation 2 Management Summary
 
+## PR #1038 Finalization pending
+
+PR [#1038](https://github.com/pcvantol/djconnect/pull/1038), **Clarify
+provider interruption boundary**, merged as
+`068f45cae27fef79edd26743caaeccd69de63c15` and is contained in current
+`main`. The bounded documentation-only increment clarifies that a proven
+provider interruption is recovered only within its existing run, with at most
+one automatic replacement invocation and no duplicate submission or delivery
+steps. It changes no runtime, recovery behavior, storage schema or lifecycle
+authority. Its immutable Prompt History record is
+`docs/history/prompts/2026-08-30-provider-interruption-recovery-proof.md`.
+Focused operational documentation tests and diff validation passed before the
+operator-owned implementation merge. Governance-only Finalization is pending:
+this branch reconciles the four rolling records and preserves the archived
+Prompt History. Repository State: `MERGED_UNRECONCILED`; Workspace State:
+`WORKSPACE_READY`; Finalization Pending: `YES`; `main == origin/main`: `YES`;
+worktree: `CLEAN`.
+
 ## PR #1025 finalized by PR #1026
 
 PR [#1025](https://github.com/pcvantol/djconnect/pull/1025), **Close
