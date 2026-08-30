@@ -87,10 +87,12 @@ The extraction sequence is deliberately incremental and reversible:
 7. **Forge-native host integration.** Forge/Workspace remains the owner of
    planning, Runtime Prompts and the canonical project registry; EP owns
    admission, execution lifecycle, telemetry, evidence, Inbox and Prompt
-   History. Retain a fail-closed serial FIFO queue per project. When Forge later
-   supplies `depends_on`, EP validates and enforces it without becoming a
-   planner. The physical Inbox route and Workspace API route remain parallel
-   admission paths.
+   History. Retain a fail-closed serial default-FIFO queue per repository/
+   execution scope, with at most one mutating execution and a lease retained
+   through finalization/reconciliation. Queue selection remains policy-driven;
+   it must not make EP a planner. When Forge later supplies `depends_on`, EP
+   validates and enforces it without becoming a planner. The physical Inbox
+   route and Workspace API route remain parallel admission paths.
 8. **Advisory telemetry.** Retain telemetry only as operational observation,
    never as repository or lifecycle evidence. Add median/p50 and p95 views,
    then segment by execution mode, target repository, terminal state and
@@ -114,3 +116,9 @@ phase-level delivery, safety gates and architect review questions are in the
 Platform code must not acquire DJConnect runtime, Home Assistant, branding or
 repository-name dependencies. Consumer-specific presentation and metadata
 enter through Workspace configuration or qualified providers only.
+
+The planned home deployment of one authoritative Forge installation, one
+authoritative EP installation and one primary Worker on a Mac mini is a local
+deployment profile only. It is not a product-wide singleton invariant and does
+not authorize Phase 0, Increment 2, extraction, storage migration or other
+roadmap implementation.
