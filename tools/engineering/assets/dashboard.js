@@ -6971,6 +6971,43 @@ function detailField(label, value, preformatted = false, folder = false) {
   field.append(name, content);
   return field;
 }
+function detailListField(label, values) {
+  const field = document.createElement("div"), name = document.createElement("span"), list = document.createElement("ul");
+  field.className = "field detail-list-field";
+  name.className = "label";
+  name.textContent = label;
+  const entries = Array.isArray(values) ? values.map((value) => String(value || "").trim()).filter(Boolean) : [];
+  list.replaceChildren(...entries.map((value) => Object.assign(document.createElement("li"), {
+    textContent: humanizeIdentifier(value),
+  })));
+  field.append(name, list);
+  return field;
+}
+function humanizeIdentifier(value) {
+  const acronyms = { api: "API", ci: "CI", css: "CSS", html: "HTML", json: "JSON", ui: "UI" };
+  return String(value || "").trim().split(/[_-]+/).filter(Boolean).map((part) => {
+    const lower = part.toLowerCase();
+    if (acronyms[lower]) return acronyms[lower];
+    if (lower === "github") return "GitHub";
+    if (lower === "python") return "Python";
+    return lower.charAt(0).toUpperCase() + lower.slice(1);
+  }).join(" ") || t("detail.not_recorded");
+}
+function executionContextSnapshotFields(context) {
+  const profile = context?.validation_profile && typeof context.validation_profile === "object"
+    ? context.validation_profile : null;
+  const actionIntent = String(context?.action_intent || "").trim();
+  return [
+    ...(actionIntent ? [detailField(
+      t("execution_context.action_intent"),
+      t(`execution_context.action_intent.${actionIntent.toLowerCase()}`, {}, humanizeIdentifier(actionIntent)),
+    )] : []),
+    ...(profile?.tier ? [detailField(t("execution_context.validation_profile"), humanizeIdentifier(profile.tier))] : []),
+    ...(profile?.version ? [detailField(t("execution_context.validation_profile_version"), profile.version)] : []),
+    ...(Array.isArray(profile?.required_controls) && profile.required_controls.length
+      ? [detailListField(t("execution_context.required_validation_controls"), profile.required_controls)] : []),
+  ];
+}
 function promptHistoryRunIdField(runId) {
   const field = detailField(t("detail.run_id"), runId, true);
   field.classList.add("prompt-history-run-id-field");
@@ -7049,7 +7086,7 @@ function promptDetailExecutionSections(history) {
     detailField(t("execution_context.mission_lifecycle"), executionContextValue(context.mission_lifecycle) || t("execution_context.not_supplied")),
     detailField(t("execution_context.decision_evidence_reference"), executionContextValue(context.decision_evidence_reference || context.decision_evidence) || t("execution_context.not_supplied")),
     detailField(t("execution_context.execution_receipt_reference"), executionContextValue(context.execution_receipt_reference || context.last_execution_receipt) || t("execution_context.not_supplied")),
-    detailField(t("execution_context.snapshot"), JSON.stringify(context)),
+    ...executionContextSnapshotFields(context),
   ] : [detailField(t("execution_context.snapshot"), t("execution_context.not_supplied"))];
   const summaryFields = [
     promptDetailStatusField(history.status),

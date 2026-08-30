@@ -2197,6 +2197,40 @@ test.describe("Engineering Status browser smoke", () => {
     ).resolves.toBe("currentRun");
   });
 
+  test("formats structured execution-context snapshots as readable fields", async ({ page }) => {
+    await page.route("**/api/events", (route) => route.abort());
+    await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({ json: { status: {} } }));
+    await page.route("**/api/prompt-history", (route) => route.fulfill({ json: { runs: [{
+      run_id: "inbox-context", status: "COMPLETE", title: "Context prompt", executed_at: "2026-08-30T08:00:00Z",
+    }] } }));
+    await page.route("**/api/prompt-history/inbox-context/details", (route) => route.fulfill({ json: {
+      history: {
+        run_id: "inbox-context", status: "COMPLETE", title: "Context prompt", executed_at: "2026-08-30T08:00:00Z",
+        execution_context: {
+          context_version: "1.0", action_intent: "VALIDATION_ONLY",
+          validation_profile: {
+            tier: "DASHBOARD", version: "1.0",
+            required_controls: ["git_diff_check", "engineering_python", "dashboard_browser"],
+          },
+        },
+      },
+    } }));
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#autoRefresh").uncheck();
+    await page.evaluate(() => { document.querySelector("#promptHistory").open = true; });
+    const historyRow = page.locator("#promptHistoryRows .prompt-history-row");
+    await historyRow.waitFor({ state: "visible" });
+    await dispatchDashboardPointerClick(historyRow);
+    const content = page.locator("#promptHistoryDetailContent");
+    await expect(content).toContainText("Actie-intentie");
+    await expect(content).toContainText("Alleen validatie");
+    await expect(content).toContainText("Validatieprofiel");
+    await expect(content).toContainText("Dashboard");
+    await expect(content).toContainText("Vereiste validatiecontroles");
+    await expect(content).toContainText("Git Diff Check");
+    await expect(content).not.toContainText('{"action_intent"');
+  });
+
   test("opens execution details from prompt history in its dedicated modal", async ({ page }) => {
     await page.route("**/api/prompt-history", (route) => route.fulfill({ json: { runs: [{
       run_id: "inbox-modal", status: "BLOCKED", title: "Modal prompt", executed_at: "2026-08-04T08:00:00Z",
