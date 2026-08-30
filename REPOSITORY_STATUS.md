@@ -2,6 +2,23 @@
 
 Status: active platform-evolution repository
 
+## PR #1043 finalization pending
+
+PR [#1043](https://github.com/pcvantol/djconnect/pull/1043), **Clarify
+provider recovery phase scope**, merged as
+`a283d25b0ffd861efa1d56ede9d9bd059b49c9bb` and is contained in current
+`main`. The bounded documentation-only increment clarifies that recovered
+provider evidence is phase-scoped historical evidence and cannot satisfy or
+interfere with a later provider phase. It changes no runtime, recovery
+behavior, storage schema or lifecycle authority. Its immutable Prompt History
+record is `docs/history/prompts/2026-08-30-controlled-provider-interruption-recovery-proof-3.md`.
+Focused documentation-contract validation and diff validation passed before the
+operator-owned implementation merge. This governance-only Finalization updates
+only the four canonical rolling records and preserves the archived Prompt
+History. Repository State: `MERGED_UNRECONCILED`; Workspace State:
+`WORKSPACE_READY`; Finalization Pending: `YES`; `main == origin/main`: `YES`;
+worktree: `CLEAN`.
+
 ## PR #1038 finalized by PR #1039
 
 PR [#1038](https://github.com/pcvantol/djconnect/pull/1038), **Clarify
