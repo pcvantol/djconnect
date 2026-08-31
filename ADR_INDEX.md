@@ -150,6 +150,15 @@ Increment 3 implementation. It requires schema 40 for registrations, reuses
 the qualified schema-39 verifier path, and authorizes neither Local API
 mutation nor consumer cutover.
 
+### ADR-0023 — EP central-store migration guardrails
+
+**Status:** Accepted for Phase 2 / Increment 1 control contract
+**File:** `docs/adr/0023-ep-central-store-migration-guardrails.md`
+
+Decision to define one portable installation data-root/store contract and
+fail-closed future central-store migration controls without moving the current
+schema-40 sole authority.
+
 ## ADR backlog
 
 ### ADR-0013 — Platform Baseline v1.0 certification boundary

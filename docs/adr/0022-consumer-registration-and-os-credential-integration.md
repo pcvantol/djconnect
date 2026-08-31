@@ -1,6 +1,6 @@
 # ADR-0022 — Consumer registration and OS credential integration
 
-**Status:** Accepted for Phase 1 / Increment 3 architecture authorization
+**Status:** Implemented and qualified (Phase 1 / Increment 3)
 **Date:** 2026-08-31
 
 ## Context
@@ -70,9 +70,8 @@ consumer-owned credential authority.
   `updated_at`, nullable `disabled_at`, nullable `revoked_at`, and bounded
   non-secret operator/audit metadata. It has a unique `(consumer_id,
   project_id)` key. No plaintext secret or consumer-owned state is stored.
-- The future migration remains forward-only, explicitly activated under the
-  existing storage safety gates, and never occurs during ordinary storage open.
-  This authorization does not activate schema 40.
+- Schema 40 was activated through the existing controlled storage safety gates,
+  never during ordinary storage open.
 - The bounded operator CLI will provide `consumer-register`, `consumer-status`,
   `consumer-disable`, `credential-issue`, `credential-status`,
   `credential-revoke` and `credential-rotate`. Create/revoke/disable retries
