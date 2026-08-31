@@ -139,6 +139,17 @@ domain-separated verifier metadata in EP storage schema 39, and a strict split
 between Increment-2 authentication runtime and Increment-3 issuance/Keychain
 work.
 
+### ADR-0022 — Consumer registration and OS credential integration
+
+**Status:** Accepted for Phase 1 / Increment 3 architecture authorization
+**File:** `docs/adr/0022-consumer-registration-and-os-credential-integration.md`
+
+Decision to add explicit EP-owned consumer/project registration, production
+credential lifecycle and macOS Keychain-backed consumer storage in a future
+Increment 3 implementation. It requires schema 40 for registrations, reuses
+the qualified schema-39 verifier path, and authorizes neither Local API
+mutation nor consumer cutover.
+
 ## ADR backlog
 
 ### ADR-0013 — Platform Baseline v1.0 certification boundary

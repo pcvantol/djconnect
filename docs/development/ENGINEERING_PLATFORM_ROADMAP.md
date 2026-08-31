@@ -55,11 +55,12 @@ The extraction sequence is deliberately incremental and reversible:
 **Current authorization:** Phase 0 / Increments 1 and 2 and Phase 1 /
 Increment 1 — **Local Consumer API Contract Foundation** — are complete.
 Phase 1 / Increment 2 (**Local API Transport + Authentication Runtime**) is
-implemented as a loopback-only, minimal read-only v1 service with EP-owned
-verifier metadata; schema 39 activation remains separately governed after
-merge. Increment 3 (**Consumer Registration + OS Credential Integration**)
-remains unauthorized. ADR-0021 does not authorize consumer cutover or
-engineering mutation.
+implemented and post-merge qualified as a loopback-only, minimal read-only v1
+service with EP-owned verifier metadata; schema 39 is active. Increment 3
+(**Consumer Registration + OS Credential Integration**) is architecture
+authorized by ADR-0022 only: it requires schema 40 for registration authority,
+may later add production credential lifecycle and macOS Keychain consumer
+storage, and does not authorize consumer cutover or Engineering mutation.
 
 1. **Boundary and consumer contract — architecture complete.** ADR-0019 and the EP consumer
    contract establish one installation-owned store, the canonical
