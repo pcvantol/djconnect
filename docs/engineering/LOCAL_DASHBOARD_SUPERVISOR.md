@@ -346,6 +346,9 @@ can be downloaded without duplicating their content in the detail dialog.
 The dashboard has no separate or hidden **Laatst uitgevoerde prompt** card;
 the selected Promptgeschiedenis row is the canonical presentation of a
 terminal execution.
+For managed Inbox executions, the displayed title is the persisted submission
+title. The terminal report's Objective is non-authoritative trace context and
+must not replace that title during completion or later report reconciliation.
 The adjacent AI-chat glyph opens a separate near-fullscreen, read-only
 question-and-answer context for that same Run ID. It receives only the selected
 run's bounded evidence and cannot start engineering work or alter repository
