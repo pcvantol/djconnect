@@ -2,6 +2,22 @@
 
 Status: active platform-evolution repository
 
+## PR #1054 finalization pending
+
+PR [#1054](https://github.com/pcvantol/djconnect/pull/1054), **Clarify Local
+Consumer API loopback binding**, merged as
+`225f9a975c9b50b8d4f098207c2e190ca075dbe8` and is contained in current
+`main`. The bounded documentation-only increment states the Local Consumer API
+loopback boundary in the Engineering Platform architecture handbook and adds
+focused documentation-contract coverage. It changes no runtime, configuration,
+service, schema, credential or product behavior. Its immutable Prompt History
+record is `docs/history/prompts/2026-08-31-local-consumer-api-loopback-binding.md`.
+Focused documentation-contract and Local Consumer API regression validation,
+plus diff validation, passed before the operator-owned implementation merge.
+Dedicated governance-only Finalization is in progress. Repository State:
+`MERGED_UNRECONCILED`; Workspace State: `WORKSPACE_READY`; Finalization Pending:
+`YES`; `main == origin/main`: `YES`; worktree: `CLEAN`.
+
 ## PR #1046 finalized by PR #1047
 
 PR [#1046](https://github.com/pcvantol/djconnect/pull/1046), **Clarify
