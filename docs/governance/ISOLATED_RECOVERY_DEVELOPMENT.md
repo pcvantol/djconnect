@@ -39,10 +39,32 @@ Only these independently reviewable change classes are authorized:
 
 1. hermetic Engineering Platform test-harness authority isolation;
 2. the deterministic `CONTAMINATED_PRE_WRITE_CENTRAL_RECOVERY` controller;
-3. tests and documentation exclusively required by either item.
+3. `EP_READ_ONLY_FORENSIC_DELTA_EXPORTER_V1`; and
+4. tests, documentation and extraction-ownership updates exclusively required
+   by an authorized item.
 
-Unrelated Engineering Platform or product work is forbidden. The harness and
-recovery controller must be separate pull requests, in that order.
+`EP_READ_ONLY_FORENSIC_DELTA_EXPORTER_V1` is recovery-enabling, generic
+Engineering Platform forensic infrastructure. It compares persisted EP storage
+snapshots deterministically for migration verification, incident analysis,
+corruption/recovery diagnostics and evidence-lineage inspection. It is not
+incident-only code and remains EP-owned through the later Phase 3 extraction.
+
+Its V1 scope is limited to SQLite read-only opening; table/schema and row-key
+discovery; deterministic added/removed/modified row comparison; normalized
+safe digests; bounded evidence bundles; persisted graph references;
+schema-difference reporting; versioned deterministic JSON; strict redaction;
+an operator CLI that may write only its requested export file; synthetic tests;
+documentation; and extraction-ownership updates.
+
+It must not execute recovery, switch authority, mutate CENTRAL or LEGACY,
+create a contamination attestation, decide production/test provenance, delete
+or repair state, attribute source-code writers as a mandatory feature, change
+the production resolver, or implement schema 41.
+
+Unrelated Engineering Platform or product work is forbidden. The harness,
+forensic exporter and recovery controller remain separate pull requests. The
+forensic exporter precedes any provenance attribution or separately authorized
+recovery-controller evolution; it does not resume recovery automatically.
 
 This authorization does not permit a production recovery command, migration
 creation, thaw, authority switch, backup, target creation, Managed work,
@@ -91,6 +113,20 @@ and version, and use that same executable for its focused and full-suite
 comparison. Homebrew, PlatformIO, and system Python results must never be
 mixed in one equivalence claim.
 
+For the forensic exporter, `DEVELOPMENT_HOST_MATCH` is not required while this
+incident qualifies under `ISOLATED_RECOVERY_DEVELOPMENT`. Production `DRIFT`
+remains a safety signal and must not be normalized to healthy. Development
+uses a separate clean worktree based exactly on current `origin/main`; the
+preserved recovery worktree must not be altered. Every implementation test
+uses the canonical hermetic test admission/context, including temporary
+installation-root activation, safety wrapper, authority isolation and required
+browser/cache isolation. A separate worktree alone is not a harness bypass.
+
+After isolated qualification, the exporter may inspect the real LEGACY and
+CENTRAL pair only in hard read-only mode. Fingerprints before and after must be
+identical; JSON output may be written outside those databases. This permission
+does not authorize a provenance verdict or any recovery action.
+
 ## Qualification and merge policy
 
 `ISOLATED_VALIDATION_PASS` is distinct from `DEVELOPMENT_HOST_MATCH`. A
@@ -104,6 +140,12 @@ are evidenced:
 - the pull request is limited to an authorized work class; and
 - no live production command was run.
 
+For `EP_READ_ONLY_FORENSIC_DELTA_EXPORTER_V1`, this additionally requires
+focused exporter tests, the canonical full hermetic suite, changed-file Ruff,
+`git diff --check`, the extraction audit, and an unchanged production
+immutability envelope. This outcome is `ISOLATED_VALIDATION_PASS`, not
+`DEVELOPMENT_HOST_MATCH`.
+
 Operator review and merge remain mandatory. Watcher and Local API are
 correctly unavailable while they reject the unsupported schema-41 central
 store; this authorization does not normalize that drift.
@@ -114,9 +156,10 @@ The required sequence is:
 
 1. implement and qualify the hermetic harness repair;
 2. prove ordinary full-suite isolation and merge that repair under this mode;
-3. implement and qualify the contaminated pre-write recovery controller using
-   the repaired harness, then merge it under this mode;
-4. obtain separate authorization to execute production recovery;
+3. implement and qualify the forensic exporter using the repaired harness,
+   then produce its deterministic live forensic report;
+4. obtain a separate provenance/recovery architecture decision and, if needed,
+   separately authorize recovery-controller evolution or operation;
 5. restore supported `LEGACY` schema-40 authority, ready services, and desired
    state `MATCH`; then resume ordinary governance.
 
@@ -129,7 +172,11 @@ later work by precedent.
 Each authorized pull request must cite this document, the incident migration,
 its authorized class, the production before/after fingerprint record, the
 selected Python runtime, and the termination condition. It must not contain
-secrets. This document is the authorization record for the exception; a later
-architecture decision record or implementation document remains subject to
-the normal repository-mutation gate unless it is itself within an existing
-explicit exception path.
+secrets. For the forensic exporter, record authorization reason `active
+contaminated-central recovery incident`, work class
+`EP_READ_ONLY_FORENSIC_DELTA_EXPORTER_V1`, worktree isolation, merge-under-
+DRIFT criteria and the shared exception termination condition. This document
+is the authorization record for the exception; a later architecture decision
+record or implementation document remains subject to the normal
+repository-mutation gate unless it is itself within an existing explicit
+exception path.
