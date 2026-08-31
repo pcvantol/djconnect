@@ -1836,6 +1836,40 @@ test.describe("Engineering Status browser smoke", () => {
     }
   });
 
+  test("translates every verified commit-timeline code in every supported locale", () => {
+    const keys = [
+      "state.EXECUTE_AGENT",
+      "state.LOCAL_REPOSITORY_VALIDATION",
+      "state.QUALITY_CONTROL_AGENT",
+      "state.REPAIR_AGENT",
+      "state.FINALIZE_AGENT",
+      "state.RECONCILE_AGENT",
+      "state.WAIT_FOR_OPERATOR_MERGE",
+      "detail.commit_type.implementation",
+      "detail.commit_type.validation",
+      "detail.commit_type.quality",
+      "detail.commit_type.repair",
+      "detail.commit_type.finalization",
+      "detail.commit_type.reconciliation",
+      "detail.commit_type.implementation_merge",
+      "detail.commit_type.finalization_merge",
+      "detail.commit_type.reconciliation_merge",
+      "detail.commit_description.implementation_agent_commit_verified",
+      "detail.commit_description.genesis_implementation_commit_verified",
+      "detail.commit_description.local_repository_validation_commit_verified",
+      "detail.commit_description.quality_control_commit_verified",
+      "detail.commit_description.pull_request_repair_commit_verified",
+      "detail.commit_description.finalization_commit_verified",
+      "detail.commit_description.end_reconciliation_commit_verified",
+      "detail.commit_description.implementation_merge_verified",
+      "detail.commit_description.finalization_merge_verified",
+      "detail.commit_description.reconciliation_merge_verified",
+    ];
+    for (const locale of SUPPORTED_LOCALES) {
+      for (const key of keys) expect(DASHBOARD_MESSAGES[locale][key], `${locale}:${key}`).toBeTruthy();
+    }
+  });
+
   test("lists English first in both language selectors", async ({ page }) => {
     await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
     await page.locator("#dashboardLocaleButton").click();
