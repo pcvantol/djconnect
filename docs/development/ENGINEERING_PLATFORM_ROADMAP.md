@@ -116,7 +116,9 @@ storage, and does not authorize consumer cutover or Engineering mutation.
 
 The central-store and project-scope decision is specified in
 [ADR-0019](../adr/0019-engineering-platform-central-installation-store.md);
-the concrete registration and ownership boundary is specified in the
+the controlled schema-40 authority cutover is authorized, but not implemented,
+by [ADR-0024](../adr/0024-ep-controlled-central-store-cutover.md). The
+concrete registration and ownership boundary is specified in the
 [EP consumer contract](ENGINEERING_PLATFORM_CONSUMER_CONTRACT.md). The
 phase-level delivery, safety gates and architect review questions are in the
 [EP extraction and migration plan](ENGINEERING_PLATFORM_EXTRACTION_MIGRATION_PLAN.md).

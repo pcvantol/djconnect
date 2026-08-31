@@ -159,6 +159,15 @@ Decision to define one portable installation data-root/store contract and
 fail-closed future central-store migration controls without moving the current
 schema-40 sole authority.
 
+### ADR-0024 — EP controlled central-store cutover
+
+**Status:** Accepted for Phase 2 / Increment 3 architecture authorization; not implemented
+**File:** `docs/adr/0024-ep-controlled-central-store-cutover.md`
+
+Decision to authorize a durable-freeze, one-writer, schema-40 cutover to the
+installation-owned central store, with direct legacy rollback only before the
+first central production write.
+
 ## ADR backlog
 
 ### ADR-0013 — Platform Baseline v1.0 certification boundary
