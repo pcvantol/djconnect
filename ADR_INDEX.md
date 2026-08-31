@@ -168,6 +168,15 @@ Decision to authorize a durable-freeze, one-writer, schema-40 cutover to the
 installation-owned central store, with direct legacy rollback only before the
 first central production write.
 
+### ADR-0025 — EP control provenance and baseline-delta recovery
+
+**Status:** Accepted for architecture authorization; not implemented
+**File:** `docs/adr/0025-ep-control-provenance-and-baseline-delta-recovery.md`
+
+Decision to add future immutable provenance for authority-independent controls,
+while allowing the current contaminated pre-write incident to use exact
+baseline-delta comparison and fail closed on every unexplained delta.
+
 ## ADR backlog
 
 ### ADR-0013 — Platform Baseline v1.0 certification boundary
