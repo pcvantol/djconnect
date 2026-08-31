@@ -393,3 +393,34 @@ class CentralStoreMigrationTests(unittest.TestCase):
         proof = migration.service_binding_proof(self.root, expected=self.source)
         self.assertTrue(proof["consistent"])
         self.assertEqual(set(proof["services"]), set(migration.SERVICE_STOP_ORDER))
+
+    def test_cutover_service_control_uses_durable_quiesce_and_resume(self) -> None:
+        control = migration.LaunchAgentServiceControl(uid=501)
+        with patch.object(control._launchd, "quiesce") as quiesce, patch.object(
+            control._launchd, "inspect", return_value=False
+        ), patch.object(control._launchd, "resume") as resume, patch.object(control, "running", return_value=True):
+            control.stop("com.djconnect.engineering-inbox")
+            control.start("com.djconnect.engineering-inbox")
+        expected = Path.home() / "Library" / "LaunchAgents" / "com.djconnect.engineering-inbox.plist"
+        quiesce.assert_called_once_with("com.djconnect.engineering-inbox", expected)
+        resume.assert_called_once_with("com.djconnect.engineering-inbox", expected)
+
+    def test_service_stop_failure_blocks_before_target_or_backup(self) -> None:
+        data_root, root_patch, target_patch, resolver_patch = self._cutover_environment()
+
+        class Services:
+            def running(self, _label: str) -> bool:
+                return True
+            def stop(self, _label: str) -> None:
+                raise migration.CutoverError("SERVICE_STOP_FAILED")
+            def stopped(self, _label: str) -> bool:
+                return False
+
+        with root_patch, target_patch, resolver_patch:
+            migration.set_admission_freeze(self.root, migration_id="migration-a", reason="test")
+            with self.assertRaises(migration.CutoverError) as error:
+                migration.controlled_cutover(self.root, services=Services())
+            self.assertEqual(error.exception.code, "SERVICE_STOP_FAILED")
+            self.assertFalse((data_root / "backups").exists())
+            self.assertFalse((data_root / "engineering.db").exists())
+            self.assertFalse((data_root / "runtime" / "store-authority.json").exists())
