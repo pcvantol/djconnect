@@ -40,7 +40,8 @@ Only these independently reviewable change classes are authorized:
 1. hermetic Engineering Platform test-harness authority isolation;
 2. the deterministic `CONTAMINATED_PRE_WRITE_CENTRAL_RECOVERY` controller;
 3. `EP_READ_ONLY_FORENSIC_DELTA_EXPORTER_V1`; and
-4. tests, documentation and extraction-ownership updates exclusively required
+4. `EP_FORENSIC_PROVENANCE_ATTRIBUTION_V1`; and
+5. tests, documentation and extraction-ownership updates exclusively required
    by an authorized item.
 
 `EP_READ_ONLY_FORENSIC_DELTA_EXPORTER_V1` is recovery-enabling, generic
@@ -65,6 +66,58 @@ Unrelated Engineering Platform or product work is forbidden. The harness,
 forensic exporter and recovery controller remain separate pull requests. The
 forensic exporter precedes any provenance attribution or separately authorized
 recovery-controller evolution; it does not resume recovery automatically.
+
+`EP_FORENSIC_PROVENANCE_ATTRIBUTION_V1` is a separate, generic Engineering
+Platform forensic and audit capability. It consumes a canonical
+forensic-delta JSON report and deterministically attributes the evidence it
+already contains for incident analysis, migration verification, writer
+attribution, evidence audit and recovery planning. It remains EP-owned
+through the later Phase 3 extraction; it is not disposable incident-only
+code.
+
+Its V1 model keeps these three fields independent for every changed
+row/component:
+
+- `ancestry_origin`: `PRODUCTION`, `TEST_HARNESS`, `OPERATOR`, `FORGE`, or
+  `UNKNOWN`, describing the logical execution or control graph to which state
+  belongs;
+- `mutation_writer_origin`: `PRODUCTION_RUNTIME`, `TEST_HARNESS`,
+  `OPERATOR_CONTROL`, `FORGE_CONTROL`, `MAINTENANCE`, or `UNKNOWN`, describing
+  the actor that positively evidenced the changed write; and
+- `state_semantics`: `IMMUTABLE_BUSINESS_STATE`, `EXECUTION_EVIDENCE`,
+  `MUTABLE_PROJECTION`, `COMPONENT_LOG`, `RETENTION_STATE`, `CONFIGURATION`,
+  `CONTROL_STATE`, `TEST_ONLY_STRUCTURE`, or `UNKNOWN`.
+
+V1 may consume the canonical forensic-delta JSON, repository production writer
+paths, repository test fixtures, immutable ingress envelopes, operator/control
+receipts, Forge producer evidence, deterministic fixture literals and known
+lifecycle structures. Timestamps alone are never proof. Each attribution must
+record its evidence type, source path or test, matched deterministic signals,
+and a rule-based status of exactly `PROVEN` or `UNRESOLVED`; probabilistic or
+"probably test" labels cannot authorize recovery.
+
+Positive attribution is permitted only where the evidence proves a production
+runtime writer, a bounded test fixture/family, an operator or Forge control
+writer, or a benign maintenance operation such as component-log retention,
+projection update or database-maintenance metadata. Production-like ancestry
+does not override a proven test writer, and a run reference alone does not
+prove a production writer.
+
+The future V1 output is deterministic `forensic-attribution.json`, bound to
+the input forensic-report digest, attribution version and repository revision.
+For every delta/component it records the three independent fields, evidence,
+and `PROVEN`/`UNRESOLVED` status. It reports totals by writer origin and
+separately distinguishes business/evidence state from mutable
+projection/configuration/log state. It is evidence only: it does not execute,
+authorize, or recommend recovery, and a later recovery decision remains a
+separate governed step.
+
+The current incident target is limited to deterministic attribution of the
+immutable canonical forensic report with digest
+`f431333b23c9eb0770b8033375f494e68cc81c967c1643324a890bf0d99611ee`.
+Implementation must not rerun live database differencing unless a digest
+mismatch makes that report unusable and separate authorization permits it.
+This work class never directly queries or mutates production databases.
 
 This authorization does not permit a production recovery command, migration
 creation, thaw, authority switch, backup, target creation, Managed work,
@@ -127,6 +180,16 @@ CENTRAL pair only in hard read-only mode. Fingerprints before and after must be
 identical; JSON output may be written outside those databases. This permission
 does not authorize a provenance verdict or any recovery action.
 
+For `EP_FORENSIC_PROVENANCE_ATTRIBUTION_V1`, `DEVELOPMENT_HOST_MATCH` is also
+not required while this incident qualifies under
+`ISOLATED_RECOVERY_DEVELOPMENT`; production `DRIFT` remains a safety signal.
+Development uses a separate clean worktree based exactly on current
+`origin/main`, and the preserved recovery worktree must not be altered. All
+implementation tests use the canonical hermetic admission/context, including
+temporary installation-root activation, safety wrapper, authority isolation
+and any required browser/cache isolation. Worktree isolation never bypasses
+the harness.
+
 ## Qualification and merge policy
 
 `ISOLATED_VALIDATION_PASS` is distinct from `DEVELOPMENT_HOST_MATCH`. A
@@ -146,6 +209,13 @@ focused exporter tests, the canonical full hermetic suite, changed-file Ruff,
 immutability envelope. This outcome is `ISOLATED_VALIDATION_PASS`, not
 `DEVELOPMENT_HOST_MATCH`.
 
+For `EP_FORENSIC_PROVENANCE_ATTRIBUTION_V1`, a later implementation pull
+request additionally requires focused attribution tests, the canonical full
+hermetic Engineering Platform suite, changed-file Ruff, `git diff --check`,
+the extraction audit, an unchanged production immutability envelope, and no
+production host `MATCH` claim. This outcome is likewise
+`ISOLATED_VALIDATION_PASS`, not `DEVELOPMENT_HOST_MATCH`.
+
 Operator review and merge remain mandatory. Watcher and Local API are
 correctly unavailable while they reject the unsupported schema-41 central
 store; this authorization does not normalize that drift.
@@ -158,9 +228,10 @@ The required sequence is:
 2. prove ordinary full-suite isolation and merge that repair under this mode;
 3. implement and qualify the forensic exporter using the repaired harness,
    then produce its deterministic live forensic report;
-4. obtain a separate provenance/recovery architecture decision and, if needed,
-   separately authorize recovery-controller evolution or operation;
-5. restore supported `LEGACY` schema-40 authority, ready services, and desired
+4. implement and qualify provenance attribution against the immutable canonical
+   forensic report only, then obtain a separate recovery architecture decision;
+5. if needed, separately authorize recovery-controller evolution or operation;
+6. restore supported `LEGACY` schema-40 authority, ready services, and desired
    state `MATCH`; then resume ordinary governance.
 
 The mode automatically terminates when the authoritative store is supported,
@@ -180,3 +251,10 @@ is the authorization record for the exception; a later architecture decision
 record or implementation document remains subject to the normal
 repository-mutation gate unless it is itself within an existing explicit
 exception path.
+
+For provenance attribution, record authorization reason `active
+contaminated-central recovery incident`, work class
+`EP_FORENSIC_PROVENANCE_ATTRIBUTION_V1`, the input forensic-report digest,
+worktree isolation, `ISOLATED_VALIDATION_PASS` criteria, and the shared
+exception termination condition. A report may reduce unresolved evidence, but
+it cannot by itself select recovery class B1, B2, C, or D.
