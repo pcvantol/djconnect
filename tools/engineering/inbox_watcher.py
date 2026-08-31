@@ -64,6 +64,7 @@ from .provider_interruption import prepare_same_run_recovery_after_host_exit, te
 from .provider_recovery import watcher_resume_action
 from .dashboard_configuration import get as dashboard_configuration
 from .database_maintenance import run_periodic_database_maintenance
+from .central_store_migration import CutoverError, admission_status
 from .execution_repository import GhCliClient, SubprocessRepositoryClient
 from .execution_timing import complete_active_phase, complete_phase, record_queue_wait_from_submission, start_or_resume_phase, start_phase
 from .status_reconciliation import is_stale_rolling_status_block
@@ -1964,6 +1965,15 @@ def once(repo: Path, root: Path, interval: float = 1.0, *, background: bool = Fa
         if not candidates:
             log_event(logger, logging.DEBUG, "watcher_idle")
             status(repo, "WATCHER_IDLE", queued_jobs=0, queue_items=[])
+            return 0
+        try:
+            freeze = admission_status(repo)
+        except CutoverError:
+            status(repo, "WATCHER_ADMISSION_BLOCKED", queued_jobs=len(candidates), queue_items=_queue_items(candidates), diagnostic="Admission freeze control is unavailable.")
+            return 1
+        if freeze.get("state") == "ACTIVE" and not child_run_id:
+            status(repo, "WATCHER_ADMISSION_FROZEN", queued_jobs=len(candidates), queue_items=_queue_items(candidates), diagnostic="Operator admission freeze is active; queued submissions are preserved.")
+            log_event(logger, logging.INFO, "watcher_admission_frozen")
             return 0
         admission = _admit_queue_candidate(
             repo,
