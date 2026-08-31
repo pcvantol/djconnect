@@ -34,12 +34,19 @@ changes.  Display-only project metadata is outside this authority event model.
 UPDATE and DELETE are prohibited; corrections append a new event.
 
 For the current incident only, recovery may combine immutable managed-run
-lineage with a baseline-delta comparison.  Credentials, registrations, and
-project scope that are exactly equal to the proven target-equivalence baseline
-are `NO_POST_CUTOVER_MUTATION`, not retrospectively labelled production or
-test.  Any differing pre-provenance domain is
-`CONTAMINATION_PROVENANCE_UNRESOLVED` and denies recovery.  Future recovery
-uses both deltas and immutable events.
+lineage with a baseline-delta comparison and one external, immutable
+historical-contamination attestation. Credentials, registrations, and project
+scope that are exactly equal to the proven target-equivalence baseline are
+`NO_POST_CUTOVER_MUTATION`, not retrospectively labelled production or test.
+An attestation is allowed only for the exact migration/store fingerprints,
+unchanged baseline rows, a deterministic authority-domain delta digest, and
+fully covered components with at least two deterministic fixture signals plus
+a known test writer. It is operator-owned forensic control, stored outside
+CENTRAL, and never rewrites historical rows. Any fingerprint/delta change,
+partial coverage, weak evidence, legitimate lineage, or unresolved component
+is `CONTAMINATION_PROVENANCE_UNRESOLVED` and denies recovery. Future recovery
+uses both deltas and immutable events; this exception is not schema-41
+provenance.
 
 The chosen order is: complete this bounded current recovery with the no-delta
 rule, return safely to schema-40 LEGACY/MATCH, then implement and qualify the
@@ -48,6 +55,8 @@ schema-41 provenance infrastructure before a later fresh cutover.
 ## Consequences
 
 - Current recovery remains fail-closed for any unprovenanced control delta.
+- Dashboard/browser test children must receive the hermetic installation
+  authority explicitly; product storage resolution is unchanged.
 - No production schema migration is required before returning the contaminated
   pre-write incident to its pristine legacy baseline.
 - The partial recovery controller may be completed by adding exact baseline
