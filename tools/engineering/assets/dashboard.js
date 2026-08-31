@@ -2105,6 +2105,9 @@ function renderActivePullRequests(execution, lifecycle) {
   const card = promptDetailCard(
     t("detail.pull_requests"), fields, false, "active-run-pull-requests",
   );
+  // In the active execution this is an operational card, not a modal detail
+  // panel. Reuse the current-run card surface while historic detail cards stay flat.
+  card.classList.add("card");
   card.id = "activeRunPullRequests";
   if (lifecycle?.parentElement === current) lifecycle.after(card);
   else current.append(card);

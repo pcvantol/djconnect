@@ -3481,9 +3481,15 @@ test.describe("Engineering Status browser smoke", () => {
     await page.locator("#currentRun").evaluate((element) => { element.open = true; });
     const pullRequests = page.locator("#activeRunPullRequests");
     await expect(pullRequests).toBeVisible();
+    await expect(pullRequests).toHaveClass(/card/);
+    expect(await pullRequests.evaluate((element) =>
+      getComputedStyle(element).backgroundColor !== "rgba(0, 0, 0, 0)",
+    )).toBeTruthy();
     await expect(pullRequests.locator("a")).toHaveCount(2);
     await expect(pullRequests.locator("a").nth(0)).toHaveAttribute("href", "https://github.com/pcvantol/djconnect/pull/990");
     await expect(pullRequests.locator("a").nth(1)).toHaveAttribute("href", "https://github.com/pcvantol/djconnect/pull/991");
+    await pullRequests.locator("a").nth(0).hover();
+    await expect(pullRequests.locator("a").nth(0)).toHaveCSS("outline-style", "none");
     await page.locator(".execution-lifecycle__item--active .execution-lifecycle__node").click();
     await expect(page.locator("#lifecycleDetailModal")).toBeVisible();
   });
