@@ -2056,7 +2056,8 @@ def database_path(root: Path) -> Path:
             raise ValueError("invalid version")
         path = Path(str(payload["authoritative_path"])).resolve()
         schema = int(payload["schema"])
-        if schema != ENGINEERING_STORAGE_SCHEMA_VERSION or not path.is_file():
+        fingerprint = str(payload["fingerprint_sha256"])
+        if schema != ENGINEERING_STORAGE_SCHEMA_VERSION or not path.is_file() or len(fingerprint) != 64:
             raise ValueError("invalid authority")
         return path
     except (OSError, ValueError, TypeError, KeyError, json.JSONDecodeError) as error:
