@@ -552,6 +552,11 @@ html[data-theme="light"] .chat-message__body code{background:transparent;color:i
 
 /* A short message must keep its natural height; the scroll region owns spare space. */
 .chat-messages{align-content:start;align-items:start}.chat-message{align-self:start}
+/* A single long question or answer must not take over the conversation. The
+   message list has the definite available chat-content height; cap each bubble
+   at two thirds of it and scroll only its body, keeping role and timestamp in
+   place. */
+.prompt-chat-modal .chat-message{display:grid;grid-template-rows:auto auto minmax(0,1fr);max-block-size:calc(100% * 2 / 3);min-block-size:0;overflow:hidden}.prompt-chat-modal .chat-message__body{min-block-size:0;overflow:auto;overscroll-behavior:contain;scrollbar-gutter:stable}
 
 /* Category colour pairs -----------------------------------------------------
    Every dashboard surface carries a primary accent for its boundary/title and

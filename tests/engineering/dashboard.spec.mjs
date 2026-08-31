@@ -8992,6 +8992,33 @@ test.describe("Engineering Status browser smoke", () => {
     expect(sizes.message).toBeLessThan(100);
   });
 
+  test("caps long user and assistant chat bubbles and scrolls their bodies", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#promptHistoryChatModal").evaluate((modal) => {
+      const body = "Lange chatinhoud<br>".repeat(240);
+      document.querySelector("#chatMessages").innerHTML = ["user", "assistant"].map((role) =>
+        `<article class="chat-message chat-message--${role}"><span class="chat-message__role">${role}</span><time class="chat-message__timestamp">nu</time><div class="chat-message__body">${body}</div></article>`,
+      ).join("");
+      modal.showModal();
+    });
+    const measurements = await page.locator("#chatMessages").evaluate((container) => ({
+      available: container.clientHeight,
+      bubbles: [...container.querySelectorAll(".chat-message")].map((bubble) => {
+        const body = bubble.querySelector(".chat-message__body");
+        return {
+          height: bubble.getBoundingClientRect().height,
+          bodyScrollable: body.scrollHeight > body.clientHeight,
+        };
+      }),
+    }));
+    expect(measurements.available).toBeGreaterThan(0);
+    for (const bubble of measurements.bubbles) {
+      expect(bubble.height).toBeLessThanOrEqual(measurements.available * (2 / 3) + 2);
+      expect(bubble.bodyScrollable).toBe(true);
+    }
+  });
+
   test("retains terminal status colours in the light prompt-history table", async ({ page }) => {
     await page.route("**/api/events", (route) => route.abort());
     // Avoid the production empty-history retry racing this visual fixture.
