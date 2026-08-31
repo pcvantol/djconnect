@@ -1,9 +1,14 @@
 # ADR-0025 — EP control provenance and baseline-delta recovery
 
-**Status:** Accepted for architecture authorization; not implemented
+**Status:** Official schema-41 design retained; current-incident recovery sequence superseded by ADR-0026
 **Date:** 2026-08-31
 
 ## Context
+
+**Supersession note:** The current contaminated-central recovery sequence is
+retired for clean-slate extraction by ADR-0026. Its product schema-41
+control-provenance decision remains authoritative for a future clean standalone
+bootstrap/legitimate upgrade.
 
 Schema 40 records credential, consumer-registration and project-scope state,
 but cannot establish the historical origin of a changed row.  That makes an
