@@ -86,6 +86,24 @@ remains the single canonical lifecycle and SQLite-writer authority.
   still service-ready but rejects authenticated calls; it never falls back to
   anonymous access. Increment 3 owns those operator and consumer workflows.
 
+### Increment 2a qualification credential boundary
+
+- Increment 2a authorizes one explicit operator-only CLI seam,
+  `python3 -m tools.engineering.local_api_credentials
+  create-qualification-credential`, solely to qualify the already merged
+  Local Consumer API runtime. It creates at most one active credential in the
+  `qualification-` credential-id namespace, scoped to exactly one canonical
+  consumer and project, and expires after 15 minutes.
+- The generated high-entropy bearer is disclosed only once on successful CLI
+  stdout. Schema 39 retains only its existing verifier/fingerprint fields;
+  the namespace is the bounded `QUALIFICATION` marker. Safe status returns
+  metadata only. An explicit `revoke-qualification-credential` command marks
+  the record inactive while retaining bounded audit metadata.
+- This seam uses the same bearer verifier and project authorization path as a
+  future credential. It adds no registration, general issuance, rotation,
+  Keychain, consumer cutover or authentication bypass; those remain Increment
+  3 work.
+
 ### Isolation, observability and operation
 
 - API requests use existing EP storage/service boundaries only. They do not
