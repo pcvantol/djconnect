@@ -162,3 +162,15 @@ class CentralStoreMigrationTests(unittest.TestCase):
             with self.assertRaises(migration.CutoverError) as error:
                 migration.transition_receipt(receipt, "TARGET_VERIFIED")
         self.assertEqual(error.exception.code, "AUTHORITY_SWITCH_FAILED")
+
+    def test_first_central_write_retires_direct_rollback(self) -> None:
+        root = Path(self.temporary.name) / "installation"
+        receipt = {"migration_id": "migration-test", "state": "LEGACY_ROLLBACK_COMPATIBLE"}
+        with patch.object(migration, "installation_data_root", return_value=root):
+            migration._atomic_json(migration.receipt_path("migration-test"), receipt)
+            migration.write_authority_pointer(
+                migration_id="migration-test", authority=self.source, legacy=self.source,
+                state="LEGACY_ROLLBACK_COMPATIBLE",
+            )
+            migration.mark_central_post_write(self.root)
+            self.assertEqual(migration.load_receipt("migration-test")["state"], "CENTRAL_STORE_ACTIVE_POST_WRITE")

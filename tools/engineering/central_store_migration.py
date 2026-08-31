@@ -502,6 +502,35 @@ def rollback(repo: Path, *, migration_id: str, operator: str = "operator") -> di
     return receipt
 
 
+def complete_stage_a(repo: Path, *, migration_id: str) -> dict[str, object]:
+    """Record read-only qualification before an operator may thaw admission."""
+    receipt = load_receipt(migration_id)
+    if receipt is None or receipt.get("state") != "AUTHORITY_SWITCHED":
+        raise CutoverError("POST_CUTOVER_READINESS_FAILED")
+    target = central_store_path()
+    facts = inspect_source(StoreCandidate(str(target), str(target.resolve()), ("central_authority",)))
+    if facts["blocking_codes"] or database_path(repo).resolve() != target.resolve():
+        raise CutoverError("CENTRAL_STORE_NOT_IN_USE")
+    transition_receipt(receipt, "SERVICES_RESTARTED", service_binding={"consistent": True, "authoritative_store": str(target.resolve())})
+    transition_receipt(receipt, "POST_CUTOVER_VERIFIED", readonly_qualification="PASS")
+    return transition_receipt(receipt, "LEGACY_ROLLBACK_COMPATIBLE", rollback_mode="PRE_WRITE_DIRECT")
+
+
+def mark_central_post_write(repo: Path) -> None:
+    """One-way data-loss guard called only after an admitted central write."""
+    pointer_path = authority_pointer_path()
+    if not pointer_path.is_file():
+        return
+    try:
+        pointer = json.loads(pointer_path.read_text(encoding="utf-8"))
+        migration_id = str(pointer["migration_id"])
+    except (OSError, KeyError, TypeError, json.JSONDecodeError) as error:
+        raise CutoverError("CENTRAL_STORE_NOT_IN_USE") from error
+    receipt = load_receipt(migration_id)
+    if receipt is not None and receipt.get("state") == "LEGACY_ROLLBACK_COMPATIBLE":
+        transition_receipt(receipt, "CENTRAL_STORE_ACTIVE_POST_WRITE", rollback_mode="REVERSE_MIGRATION_REQUIRED")
+
+
 def preflight(repo: Path, *, extra_runtime_roots: tuple[Path, ...] = ()) -> dict[str, object]:
     """Compute the complete migration plan strictly read-only."""
     candidates = discover_legacy_stores(repo, extra_runtime_roots=extra_runtime_roots)
