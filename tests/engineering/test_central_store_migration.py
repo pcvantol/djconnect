@@ -331,7 +331,13 @@ class CentralStoreMigrationTests(unittest.TestCase):
                 self.stopped_labels.append(label)
                 handle = self.handles.get(label)
                 if handle is not None:
+                    # A real service exit closes its lock file as well as
+                    # releasing the advisory lock.  Closing here keeps the
+                    # strict post-stop gate independent of platform-specific
+                    # same-process flock behaviour.
                     fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+                    Path(handle.name).unlink(missing_ok=True)
+                    handle.close()
             def stopped(self, _label: str) -> bool:
                 return True
             def start(self, label: str) -> None:
@@ -352,8 +358,10 @@ class CentralStoreMigrationTests(unittest.TestCase):
                 self.assertTrue((data_root / "engineering.db").is_file())
                 self.assertEqual(migration.controlled_cutover(self.root, services=services)["migration_id"], "migration-a")
         finally:
-            dashboard.close()
-            watcher.close()
+            if not dashboard.closed:
+                dashboard.close()
+            if not watcher.closed:
+                watcher.close()
 
     def test_authority_pointer_is_atomic_and_bound_to_migration(self) -> None:
         root = Path(self.temporary.name) / "installation"
