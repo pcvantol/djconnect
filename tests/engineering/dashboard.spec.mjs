@@ -1749,7 +1749,30 @@ test.describe("Engineering Status browser smoke", () => {
       }]);
     });
     await page.locator("#workspaceOpenPullRequestsRefresh").click();
+    await expect(page.locator("#copyToast")).toHaveText(
+      DASHBOARD_MESSAGES.nl["workspace.open_pull_requests_refreshing"],
+    );
     await expect(page.locator("#workspaceOpenPullRequests a")).toHaveText("PR #940 — Last known pull request ↗");
+  });
+
+  test("shows a toast when refreshing the worktree analysis", async ({ page }) => {
+    await page.route("**/api/worktree-removal-analysis", (route) => route.fulfill({ json: {
+      available: true, worktrees: [],
+    } }));
+    await page.route("**/api/dashboard-snapshot", (route) => route.fulfill({ json: {
+      workspace_worktrees: { available: true, worktrees: [{ path: "/workspace", branch: "main", commit: "123456789abc" }] },
+    } }));
+    await page.goto(dashboardUrl, { waitUntil: "domcontentloaded" });
+    await page.locator("#autoRefresh").uncheck();
+    await page.locator("#workspaceCard").evaluate((element) => { element.open = true; });
+    await page.evaluate(() => window.renderWorkspaceWorktrees({
+      available: true, worktrees: [{ path: "/workspace", branch: "main", commit: "123456789abc" }],
+    }));
+
+    await dispatchDashboardPointerClick(page.locator(".workspace-worktrees__refresh"));
+    await expect(page.locator("#copyToast")).toHaveText(
+      DASHBOARD_MESSAGES.nl["workspace.worktree_analysis_refreshing"],
+    );
   });
 
   test("translates every operational phase and status in every supported locale", () => {

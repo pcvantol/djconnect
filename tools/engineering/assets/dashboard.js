@@ -2567,6 +2567,7 @@ async function openWorktreeFolder(worktreePath) {
   }
 }
 async function refreshWorktreeRemovalAnalysis(button) {
+  showDashboardToast(t("workspace.worktree_analysis_refreshing"));
   button.disabled = true;
   try {
     const response = await fetch("/api/worktree-removal-analysis", {
@@ -2710,8 +2711,9 @@ function scheduleOpenPullRequestMonitor(pullRequests) {
     openPullRequestMonitorTimer = setTimeout(() => void refreshOpenPullRequests(), openPullRequestMonitorIntervalMs);
   }
 }
-async function refreshOpenPullRequests() {
+async function refreshOpenPullRequests({ announce = false } = {}) {
   if (openPullRequestMonitorInFlight) return;
+  if (announce) showDashboardToast(t("workspace.open_pull_requests_refreshing"));
   openPullRequestMonitorInFlight = true;
   const refreshButton = $("workspaceOpenPullRequestsRefresh");
   if (refreshButton) refreshButton.disabled = true;
@@ -2815,7 +2817,7 @@ document.addEventListener("click", (event) => {
   const authorize = event.target.closest("[data-open-pull-request-owner-authorization]");
   if (authorize) void requestOpenPullRequestOwnerAuthorization(authorize);
   else if (event.target.closest("[data-open-pull-request-check-repair]")) void requestOpenPullRequestCheckRepair(event.target.closest("[data-open-pull-request-check-repair]"));
-  else if (event.target.closest("#workspaceOpenPullRequestsRefresh")) void refreshOpenPullRequests();
+  else if (event.target.closest("#workspaceOpenPullRequestsRefresh")) void refreshOpenPullRequests({ announce: true });
 });
 let receivedDashboardServerPush = false, updateModeKey = "refresh.connecting";
 function setUpdateMode(key) {
