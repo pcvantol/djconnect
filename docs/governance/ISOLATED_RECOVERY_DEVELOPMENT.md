@@ -222,6 +222,14 @@ store; this authorization does not normalize that drift.
 
 ## Required sequence and termination
 
+**Retirement override:** ADR-0026 retires migration
+`41feb31e-2e25-42c4-bca1-bbfc97dde6f4` for clean-slate extraction. The
+authorized recovery-controller, forensic-exporter and attribution work remains
+preserved historical evidence, but this exception authorizes no further
+incident recovery expansion, live forensic export, reverse reconciliation,
+attestation, thaw, service action, or authority operation. Remaining forensic
+unknowns are not a Phase-3 extraction prerequisite.
+
 The required sequence is:
 
 1. implement and qualify the hermetic harness repair;
@@ -236,7 +244,9 @@ The required sequence is:
 
 The mode automatically terminates when the authoritative store is supported,
 services are `READY`, and desired state is `MATCH`. It cannot be extended to
-later work by precedent.
+later work by precedent. ADR-0026 does not normalize current `DRIFT`; it
+instead retires the current migration and requires a separately governed
+standalone service/cutover transition.
 
 ## Audit record
 

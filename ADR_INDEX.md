@@ -161,7 +161,7 @@ schema-40 sole authority.
 
 ### ADR-0024 — EP controlled central-store cutover
 
-**Status:** Accepted for Phase 2 / Increment 3 architecture authorization; not implemented
+**Status:** Superseded for migration `41feb31e-2e25-42c4-bca1-bbfc97dde6f4` by ADR-0026
 **File:** `docs/adr/0024-ep-controlled-central-store-cutover.md`
 
 Decision to authorize a durable-freeze, one-writer, schema-40 cutover to the
@@ -170,8 +170,17 @@ first central production write.
 
 ### ADR-0025 — EP control provenance and baseline-delta recovery
 
-**Status:** Accepted for architecture authorization; not implemented
+**Status:** Official schema-41 design retained; current-incident recovery sequence superseded by ADR-0026
 **File:** `docs/adr/0025-ep-control-provenance-and-baseline-delta-recovery.md`
+
+### ADR-0026 — EP clean-slate standalone store and migration retirement
+
+**Status:** Accepted
+**File:** `docs/adr/0026-ep-clean-slate-standalone-store-and-migration-retirement.md`
+
+Decision to retire the contaminated current central-store migration as
+`RETIRED_FOR_CLEAN_SLATE_EXTRACTION`, retain its forensic evidence, and begin
+the standalone product with a new clean schema-41 installation store.
 
 Decision to add future immutable provenance for authority-independent controls,
 while allowing the current contaminated pre-write incident to use exact

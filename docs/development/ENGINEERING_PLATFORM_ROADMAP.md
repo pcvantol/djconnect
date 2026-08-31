@@ -50,7 +50,21 @@ positioned internally as the **Execution Operations Console**: it presents
 host operations and a selected Workspace project, but is never a second source
 of lifecycle, planning or repository authority.
 
-The extraction sequence is deliberately incremental and reversible:
+**Canonical phase roadmap (ADR-0026):**
+
+1. **Phase 2 — CLOSED / RETIRED CLEAN-SLATE DECISION.** The current
+   contaminated migration is `RETIRED_FOR_CLEAN_SLATE_EXTRACTION`; its stores
+   are forensic evidence, not standalone authority.
+2. **Phase 3 — HISTORY-PRESERVING PHYSICAL EXTRACTION + CLEAN STANDALONE
+   STORE.** Extract the proven EP implementation, qualify it independently,
+   then create a fresh official schema-41 installation store.
+3. **Phase 4 — CONSUMER CUTOVER.** Register consumers afresh and issue new
+   OS-secret-stored credentials only after standalone qualification.
+4. **Phase 5 — LEGACY RUNTIME REMOVAL.** Remove generic EP runtime from
+   DJConnect only after package, store and consumers qualify; forensic archive
+   retention is decided separately.
+
+The extraction sequence is deliberately incremental and provenance-preserving:
 
 **Current authorization:** Phase 0 / Increments 1 and 2 and Phase 1 /
 Increment 1 — **Local Consumer API Contract Foundation** — are complete.
@@ -66,7 +80,7 @@ storage, and does not authorize consumer cutover or Engineering mutation.
    contract establish one installation-owned store, the canonical
    Workspace-provided `project_id`, and the mutable Workspace-provided
    `project_name` used for display.
-2. **Data-root and multi-project migration.** Install one EP data root and one
+2. **Clean data-root and multi-project bootstrap.** Install one EP data root and one
    SQLite database per local user/machine, outside all consumer repositories.
    Register projects before admission; scope every EP-owned Inbox route, queue,
    lease, lifecycle record, receipt, report, Prompt History, telemetry and
@@ -80,10 +94,10 @@ storage, and does not authorize consumer cutover or Engineering mutation.
    to a Workspace project.
 4. **Datastore governance and recovery.** Ship forward-only, transactional
    migrations with a pre-migration backup, startup integrity check, explicit
-   compatibility gate and documented recovery procedure. Prove the backup with
-   periodic restore tests. The upgrade registers the legacy workspace, backfills
-   project scope atomically, then ensures that only the installed EP process is
-   a writer.
+   compatibility gate and documented recovery procedure. Fresh standalone EP
+   creates schema 41 from canonical product definitions; a future legitimate
+   clean schema-40 upgrade is separate. No current DJConnect database is a
+   standalone seed.
 5. **Server-side API contracts.** Define typed, bounded host API contracts per
    endpoint: accepted fields and enums, unknown-field rejection, Unicode and
    newline rules, stable error codes and redacted diagnostics. The server stays
@@ -115,9 +129,10 @@ storage, and does not authorize consumer cutover or Engineering mutation.
    packaged paths have been proven.
 
 The central-store and project-scope decision is specified in
-[ADR-0019](../adr/0019-engineering-platform-central-installation-store.md);
-the controlled schema-40 authority cutover is authorized, but not implemented,
-by [ADR-0024](../adr/0024-ep-controlled-central-store-cutover.md). The
+[ADR-0019](../adr/0019-engineering-platform-central-installation-store.md).
+[ADR-0026](../adr/0026-ep-clean-slate-standalone-store-and-migration-retirement.md)
+retires the current contaminated legacy-to-CENTRAL migration in favor of a
+clean standalone store. The
 concrete registration and ownership boundary is specified in the
 [EP consumer contract](ENGINEERING_PLATFORM_CONSUMER_CONTRACT.md). The
 phase-level delivery, safety gates and architect review questions are in the
