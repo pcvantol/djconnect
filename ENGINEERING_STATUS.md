@@ -3,25 +3,23 @@
 **Status:** Operational handoff
 **Updated:** 2026-08-31
 
-## PR #1054 finalization PR #1055
+## PR #1060 finalization pending
 
-PR [#1054](https://github.com/pcvantol/djconnect/pull/1054), **Clarify Local
-Consumer API loopback binding**, merged as
-`225f9a975c9b50b8d4f098207c2e190ca075dbe8` and is contained in current
-`main`. The bounded documentation-only increment states the Local Consumer API
-loopback boundary in the Engineering Platform architecture handbook and adds
-focused documentation-contract coverage. It changes no runtime, configuration,
-service, schema, credential or product behavior. Its immutable Prompt History
-record is `docs/history/prompts/2026-08-31-local-consumer-api-loopback-binding.md`.
-Focused documentation-contract and Local Consumer API regression validation,
-plus diff validation, passed before the operator-owned implementation merge.
-Dedicated governance-only Finalization PR
-[#1055](https://github.com/pcvantol/djconnect/pull/1055) merged as
-`767f34bc5ff66b24140b6ec5531a0289b55d274f`. This direct-on-`main`
-reconciliation updates only the four canonical rolling records and preserves
-the archived Prompt History. Repository State: `MERGED_RECONCILED`; Workspace
-State: `WORKSPACE_READY`; Finalization Pending: `NO`; `main == origin/main`:
-`YES`; worktree: `CLEAN`.
+PR [#1060](https://github.com/pcvantol/djconnect/pull/1060), **Document Local
+API auth boundary qualification**, merged as
+`5080ebdaaf981902c97b443ce9447473613d4dd7` and is contained in current
+`main`. The bounded documentation-only increment records the completed
+post-merge qualification of the Local Consumer API authentication versus
+authorization boundary: an active exact registration succeeds, a disabled
+registration is authorization-denied (`403`), and a revoked credential is
+authentication-denied (`401`). It changes no runtime, configuration, service,
+schema, credential, Keychain, consumer-cutover or product behavior. Focused
+documentation and credential-boundary validation, plus diff validation, passed
+before the operator-owned implementation merge. Dedicated governance-only
+Finalization is pending; it reconciles only the four canonical rolling records
+and preserves immutable Prompt History. Repository State:
+`MERGED_UNRECONCILED`; Workspace State: `WORKSPACE_READY`; Finalization
+Pending: `YES`; `main == origin/main`: `YES`; worktree: `CLEAN`.
 
 ## PR #1046 finalized by PR #1047
 
