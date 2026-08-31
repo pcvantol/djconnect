@@ -1820,6 +1820,7 @@ test.describe("Engineering Status browser smoke", () => {
       await expect(page.locator("#phase")).toHaveText(
         DASHBOARD_MESSAGES[language]["lifecycle.step.reconcile_agent"],
       );
+      expect(DASHBOARD_MESSAGES[language]["state.RECONCILE_AGENT"]).toBeTruthy();
     }
   });
 
