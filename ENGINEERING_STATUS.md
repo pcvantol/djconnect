@@ -3,7 +3,7 @@
 **Status:** Operational handoff
 **Updated:** 2026-08-31
 
-## PR #1060 finalization pending
+## PR #1060 finalized by PR #1061
 
 PR [#1060](https://github.com/pcvantol/djconnect/pull/1060), **Document Local
 API auth boundary qualification**, merged as
@@ -16,10 +16,12 @@ authentication-denied (`401`). It changes no runtime, configuration, service,
 schema, credential, Keychain, consumer-cutover or product behavior. Focused
 documentation and credential-boundary validation, plus diff validation, passed
 before the operator-owned implementation merge. Dedicated governance-only
-Finalization is pending; it reconciles only the four canonical rolling records
-and preserves immutable Prompt History. Repository State:
-`MERGED_UNRECONCILED`; Workspace State: `WORKSPACE_READY`; Finalization
-Pending: `YES`; `main == origin/main`: `YES`; worktree: `CLEAN`.
+Finalization PR [#1061](https://github.com/pcvantol/djconnect/pull/1061)
+merged as `03908112e92e8e6b5e69015165558993fc898ba2`. This sole direct-on-
+`main` post-Finalization reconciliation updates only the four canonical rolling
+records and preserves immutable Prompt History. Repository State:
+`MERGED_RECONCILED`; Workspace State: `WORKSPACE_READY`; Finalization Pending:
+`NO`; `main == origin/main`: `YES`; worktree: `CLEAN`.
 
 ## PR #1046 finalized by PR #1047
 
