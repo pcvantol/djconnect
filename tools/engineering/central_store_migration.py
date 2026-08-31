@@ -18,6 +18,7 @@ import os
 from pathlib import Path
 import shutil
 import sqlite3
+import subprocess
 import sys
 import uuid
 
@@ -50,6 +51,14 @@ STATES = (
     "SERVICES_RESTARTED", "POST_CUTOVER_VERIFIED",
     "LEGACY_ROLLBACK_COMPATIBLE", "CENTRAL_STORE_ACTIVE_POST_WRITE",
 )
+SERVICE_STOP_ORDER = (
+    "com.djconnect.engineering-inbox", "com.djconnect.engineering-local-api",
+    "com.djconnect.engineering-dashboard-relay", "com.djconnect.engineering-dashboard",
+)
+SERVICE_START_ORDER = (
+    "com.djconnect.engineering-local-api", "com.djconnect.engineering-dashboard",
+    "com.djconnect.engineering-dashboard-relay", "com.djconnect.engineering-inbox",
+)
 
 
 class CutoverError(RuntimeError):
@@ -58,6 +67,26 @@ class CutoverError(RuntimeError):
     def __init__(self, code: str, detail: str = "") -> None:
         super().__init__(code if not detail else f"{code}: {detail}")
         self.code = code
+
+
+class LaunchAgentServiceControl:
+    """Canonical macOS LaunchAgent adapter; invoked only by explicit cutover CLI."""
+
+    def __init__(self, uid: int | None = None) -> None:
+        self._domain = f"gui/{uid if uid is not None else os.getuid()}"
+
+    def stop(self, label: str) -> None:
+        result = subprocess.run(["launchctl", "kill", "SIGTERM", f"{self._domain}/{label}"], capture_output=True, text=True, check=False)
+        if result.returncode:
+            raise CutoverError("SERVICE_STOP_FAILED", label)
+
+    def start(self, label: str) -> None:
+        result = subprocess.run(["launchctl", "kickstart", "-k", f"{self._domain}/{label}"], capture_output=True, text=True, check=False)
+        if result.returncode:
+            raise CutoverError("SERVICE_RESTART_FAILED", label)
+
+    def stopped(self, label: str) -> bool:
+        return subprocess.run(["launchctl", "print", f"{self._domain}/{label}"], capture_output=True, text=True, check=False).returncode != 0
 
 
 @dataclass(frozen=True)
@@ -442,7 +471,17 @@ def copy_snapshot(source: Path, destination: Path) -> None:
             temporary.unlink()
 
 
-def controlled_cutover(repo: Path, *, operator: str = "operator") -> dict[str, object]:
+def service_binding_proof(repo: Path, *, expected: Path, services: tuple[str, ...] = SERVICE_STOP_ORDER) -> dict[str, object]:
+    """All runtime surfaces share storage.database_path; mixed paths block."""
+    try:
+        resolved = database_path(repo).resolve()
+    except Exception as error:
+        raise CutoverError("CENTRAL_STORE_NOT_IN_USE") from error
+    consistent = resolved == expected.resolve()
+    return {"consistent": consistent, "authoritative_store": str(resolved), "services": {label: str(resolved) for label in services}}
+
+
+def controlled_cutover(repo: Path, *, operator: str = "operator", services: LaunchAgentServiceControl | None = None) -> dict[str, object]:
     """Perform only after an explicit future operational invocation."""
     candidate = discover_legacy_stores(repo)
     if len(candidate) != 1:
@@ -462,6 +501,11 @@ def controlled_cutover(repo: Path, *, operator: str = "operator") -> dict[str, o
     transition_receipt(receipt, "QUIESCENT", quiescence=quiescence)
     if source_identity(candidate[0]) != identity:
         raise CutoverError("SOURCE_CHANGED_AFTER_PREFLIGHT")
+    if services is not None:
+        for label in SERVICE_STOP_ORDER:
+            services.stop(label)
+            if not services.stopped(label):
+                raise CutoverError("SERVICE_STOP_FAILED", label)
     target = central_store_path()
     if classify_target(target)["state"] != "ABSENT":
         raise CutoverError("TARGET_CREATE_FAILED")
@@ -478,6 +522,10 @@ def controlled_cutover(repo: Path, *, operator: str = "operator") -> dict[str, o
     transition_receipt(receipt, "TARGET_VERIFIED", equivalence=equivalent)
     pointer = write_authority_pointer(migration_id=migration_id, authority=target, legacy=source, state="AUTHORITY_SWITCHED")
     transition_receipt(receipt, "AUTHORITY_SWITCHED", authority_pointer=pointer)
+    if services is not None:
+        for label in SERVICE_START_ORDER:
+            services.start(label)
+        transition_receipt(receipt, "SERVICES_RESTARTED", service_binding=service_binding_proof(repo, expected=target))
     return receipt
 
 
@@ -594,7 +642,7 @@ def main(argv: list[str] | None = None) -> int:
                 raise CutoverError("ROLLBACK_FAILED")
             result = rollback(repo, migration_id=args.migration_id, operator=args.operator)
         else:
-            result = controlled_cutover(repo, operator=args.operator)
+            result = controlled_cutover(repo, operator=args.operator, services=LaunchAgentServiceControl())
     except CutoverError as error:
         result = {"ok": False, "code": error.code}
         if args.json:

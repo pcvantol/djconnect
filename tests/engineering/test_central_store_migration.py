@@ -174,3 +174,8 @@ class CentralStoreMigrationTests(unittest.TestCase):
             )
             migration.mark_central_post_write(self.root)
             self.assertEqual(migration.load_receipt("migration-test")["state"], "CENTRAL_STORE_ACTIVE_POST_WRITE")
+
+    def test_service_binding_proof_uses_the_single_resolver(self) -> None:
+        proof = migration.service_binding_proof(self.root, expected=self.source)
+        self.assertTrue(proof["consistent"])
+        self.assertEqual(set(proof["services"]), set(migration.SERVICE_STOP_ORDER))
