@@ -122,7 +122,7 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertEqual(all_steps.returncode, 0, all_steps.stdout)
         self.assertEqual(
             all_steps.stdout,
-            "0,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,29,22,23,25,26,27,28,31",
+            "0,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,29,22,23,25,26,27,28",
         )
         self.assertEqual(core_steps.stdout, "3,4,5,6,7,8,9,10,11,12")
         self.assertEqual(label.stdout, "Create/start Home Assistant with Docker Compose")
@@ -262,10 +262,7 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("schema_version: 1", desired_state)
         self.assertIn("host.minimum_free_disk_gb: 80", desired_state)
         self.assertIn("onboarding.package_version: 4.5.0", desired_state)
-        self.assertIn("engineering.platform_version: 2.0.0", desired_state)
-        self.assertIn("engineering.watcher_launch_agent: com.djconnect.engineering-inbox", desired_state)
-        self.assertIn("engineering.dashboard_launch_agent: com.djconnect.engineering-dashboard", desired_state)
-        self.assertIn("engineering.dashboard_health_url: http://127.0.0.1:8765/api/health", desired_state)
+        self.assertNotIn("engineering.", desired_state)
         self.assertIn("version: 3.3.0", desired_state)
         self.assertIn("minimum_tool_version: 2.0.2", desired_state)
         self.assertIn("# runner.profiles: apple,private-network,esp32,pi,windows", desired_state)
@@ -604,7 +601,7 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("PROGRESS", source)
         self.assertIn("completed * 100 / total", source)
         self.assertIn("emit_repair_progress", source)
-        self.assertIn("REPAIR_PROGRESS_TOTAL=7", source)
+        self.assertIn("REPAIR_PROGRESS_TOTAL=6", source)
 
     def test_macos_host_bootstrap_audits_least_privilege(self) -> None:
         source = read_macos_host_bootstrap_source()
@@ -665,8 +662,8 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("package.version: 2.0.18", manifest)
         self.assertIn("package.aggregate_sha256:", manifest)
         self.assertIn("component.entry.sha256:", manifest)
-        self.assertIn("component.workflow.version: 1.3.3", manifest)
-        self.assertIn("component.operations.version: 1.3.9", manifest)
+        self.assertIn("component.workflow.version: 1.3.4", manifest)
+        self.assertIn("component.operations.version: 1.3.10", manifest)
         self.assertIn("component.cli.version: 1.3.1", manifest)
         self.assertIn("component.apple.version: 1.0.0", manifest)
         source = read_macos_host_bootstrap_source()
@@ -675,16 +672,8 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("aggregate SHA-256 mismatch", source)
         self.assertIn("require_canonical_onboarding_4_5_0", source)
         self.assertIn("requires onboarding 4.5.0", source)
-        self.assertIn("engineering.platform_version", source)
-        self.assertIn("engineering.watcher_launch_agent", source)
-        self.assertIn("engineering.dashboard_launch_agent", source)
-        self.assertIn("engineering.dashboard_relay_launch_agent", source)
-        self.assertIn("engineering.dashboard_health", source)
-        self.assertIn("engineering.status_storage", source)
-        self.assertIn("engineering.report_storage", source)
-        self.assertIn("engineering.inbox_transport", source)
-        self.assertIn("repair_engineering_platform", source)
-        self.assertIn("Engineering Platform watcher and dashboard", source)
+        for legacy in ("engineering.platform_version", "engineering.watcher_launch_agent", "engineering.dashboard_launch_agent", "engineering.dashboard_relay_launch_agent", "engineering.dashboard_health", "engineering.local_api", "engineering.status_storage", "engineering.report_storage", "engineering.inbox_transport", "repair_engineering_platform", "tools.engineering", "8765", "8766"):
+            self.assertNotIn(legacy, source)
 
     def test_macos_host_bootstrap_preserves_its_active_source_checkout_during_repair(self) -> None:
         source = (HOST_BOOTSTRAP_PACKAGE / "operations.sh").read_text(encoding="utf-8")
@@ -696,17 +685,11 @@ class DevOnboardingScriptTests(unittest.TestCase):
             source.index('run_in_dir "$directory" git switch main'),
         )
 
-    def test_macos_host_bootstrap_repairs_only_canonical_engineering_services(self) -> None:
+    def test_macos_host_bootstrap_cannot_reactivate_legacy_engineering_services(self) -> None:
         source = (HOST_BOOTSTRAP_PACKAGE / "operations.sh").read_text(encoding="utf-8")
 
-        self.assertIn("repair_engineering_platform()", source)
-        self.assertIn("tools.engineering.inbox_watcher doctor", source)
-        self.assertIn("tools.engineering.dashboard doctor", source)
-        self.assertIn("tools.engineering.inbox_watcher install", source)
-        self.assertIn("tools.engineering.dashboard install", source)
-        self.assertIn("com.djconnect.engineering-dashboard-backend", source)
-        self.assertIn("com.djconnect.engineering-dashboard-proxy", source)
-        self.assertIn("legacy-launchagents", source)
+        for legacy in ("tools.engineering", "com.djconnect.engineering", "engineering-dashboard", "engineering-inbox", "local_api", ".engineering"):
+            self.assertNotIn(legacy, source)
         self.assertNotIn("rm -rf", source)
 
     def test_macos_host_bootstrap_rejects_manifest_component_mismatch(self) -> None:

@@ -1,4 +1,4 @@
-# Version: 1.3.3
+# Version: 1.3.4
 # Phase lifecycle, progress reporting, reboot continuation and repair flow.
 phase_section_id() {
   local phase_id="$1"
@@ -986,10 +986,6 @@ run_unattended_repair() {
     record_repair_manual_requirement 'The djconnect-app maintenance installer is unavailable locally; complete GitHub authentication/repository synchronization, then rerun --repair.'
   fi
   emit_repair_progress 'Maintenance remediation attempted or recorded for manual follow-up.'
-  begin_report_section developer-workstation
-  repair_attempt 'Engineering Platform watcher and dashboard' repair_engineering_platform || true
-  emit_repair_progress 'Engineering Platform diagnostics and canonical service restart attempted.'
-
   begin_report_section final-qualification
   printf '\n## Post-repair desired-state verification\n\n'
   set +e

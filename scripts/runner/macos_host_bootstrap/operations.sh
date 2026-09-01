@@ -1,4 +1,4 @@
-# Version: 1.3.9
+# Version: 1.3.10
 # macOS host provisioning, developer-workstation and service operations.
 warm_sudo() {
   if [[ "$DRY_RUN" == '1' ]]; then
@@ -319,44 +319,6 @@ bootstrap_developer_workstation() {
     onboarding_args+=(--ngrok-domain "$NGROK_DOMAIN")
   fi
   run_in_dir "$central_repository" bash "${onboarding_args[@]}"
-}
-
-repair_engineering_platform() {
-  local repository="$GITHUB_ROOT/djconnect" legacy_directory label plist
-  [[ -f "$repository/tools/engineering/inbox_watcher.py" ]] || die "Engineering Inbox watcher is missing from $repository."
-  [[ -f "$repository/tools/engineering/dashboard.py" ]] || die "Engineering dashboard is missing from $repository."
-  [[ -f "$repository/tools/engineering/local_api.py" ]] || die "Engineering Local API is missing from $repository."
-
-  log 'Analyzing local Engineering Platform watcher and dashboard health.'
-  if ! python3 -m tools.engineering.inbox_watcher doctor --repo "$repository"; then
-    warn 'Engineering Inbox doctor reported drift; repairing the canonical watcher service.'
-  fi
-  if ! python3 -m tools.engineering.dashboard doctor --repo "$repository"; then
-    warn 'Engineering dashboard doctor reported drift; repairing the canonical dashboard service.'
-  fi
-  if ! python3 -m tools.engineering.local_api doctor --repo "$repository"; then
-    warn 'Engineering Local API doctor reported drift; schema activation may still be pending.'
-  fi
-
-  legacy_directory="$repository/.engineering/legacy-launchagents"
-  for label in com.djconnect.engineering-dashboard-backend com.djconnect.engineering-dashboard-proxy; do
-    plist="$HOME/Library/LaunchAgents/$label.plist"
-    [[ -f "$plist" ]] || continue
-    log "Retiring legacy Engineering dashboard service $label before canonical restart."
-    launchctl bootout "gui/$(id -u)" "$plist" >/dev/null 2>&1 || true
-    mkdir -p "$legacy_directory"
-    mv "$plist" "$legacy_directory/$label.plist"
-  done
-
-  log 'Restarting the canonical local Engineering Inbox watcher and dashboard.'
-  python3 -m tools.engineering.inbox_watcher install --repo "$repository"
-  python3 -m tools.engineering.dashboard install --repo "$repository"
-  python3 -m tools.engineering.local_api install --repo "$repository"
-  sleep 2
-
-  python3 -m tools.engineering.inbox_watcher doctor --repo "$repository" || return 1
-  python3 -m tools.engineering.dashboard doctor --repo "$repository" || return 1
-  python3 -m tools.engineering.local_api doctor --repo "$repository" || return 1
 }
 
 ensure_home_assistant_internal_test_environment() {

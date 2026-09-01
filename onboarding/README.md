@@ -17,7 +17,19 @@ artifacts, and does not require a matching platform version to run or verify.
 - Windows: `pwsh -File .\onboarding\dev_onboarding_windows.ps1`
 - macOS machine transfer: `./onboarding/machine_transfer_macos.sh`
 
-## Engineering Inbox (macOS)
+## Engineering Platform boundary
+
+Engineering Platform is a standalone peer product in
+`pcvantol/engineering-platform`. DJConnect onboarding and host bootstrap do
+not install, start, repair, qualify or health-check Engineering Platform
+services, Project Agents or Server/CENTRAL stores. DJConnect may be developed
+without an active EP instance; use EP only when explicitly working through an
+EP-managed integration or execution flow.
+
+<!-- Historical legacy Engineering Inbox documentation retained below for
+provenance only; it is not an active DJConnect onboarding contract. -->
+
+## Historical Engineering Inbox (macOS)
 
 Engineering Platform `2.0.0` provides a local iCloud Engineering Inbox through
 the configured Remote Submission Provider. Run

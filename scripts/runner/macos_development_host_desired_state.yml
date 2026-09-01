@@ -22,17 +22,8 @@ host.recommended_free_disk_gb: 120
 # checkout used by this host to match this version exactly.
 onboarding.package_version: 4.5.0
 
-# Engineering Platform must be installed as its canonical per-user services and
-# answer locally before this host can accept remote engineering work.
-engineering.platform_version: 2.0.0
-engineering.watcher_launch_agent: com.djconnect.engineering-inbox
-engineering.dashboard_launch_agent: com.djconnect.engineering-dashboard
-engineering.dashboard_relay_launch_agent: com.djconnect.engineering-dashboard-relay
-engineering.dashboard_health_url: http://127.0.0.1:8765/api/health
-engineering.local_api_launch_agent: com.djconnect.engineering-local-api
-engineering.local_api_health_url: http://127.0.0.1:8766/health
-engineering.status_relative_path: .engineering/status/status.json
-engineering.reports_relative_path: .engineering/reports
+# Engineering Platform is a standalone peer product. Its Server, Project Agent,
+# services and runtime stores are intentionally outside DJConnect host readiness.
 
 tooling.formulas: git,gh,jq,node,python@3.12,xcodegen,swiftlint,xcbeautify,create-dmg,mas,xcodes,platformio,picotool
 # TEMPORARY: Windows is outside the current DJConnect scope. Keep Parallels in
