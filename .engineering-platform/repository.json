@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0",
+  "project": {
+    "id": "djconnect",
+    "authority_repository_id": "djconnect"
+  },
+  "repository": {
+    "id": "djconnect",
+    "role": "authority"
+  },
+  "validation": {
+    "kind": "command",
+    "entrypoint": "python3 -m unittest discover -s tests"
+  }
+}
