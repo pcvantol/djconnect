@@ -7,3 +7,7 @@ not restate that generic contract.
 
 For current DJConnect lifecycle records and the historical Engineering Platform
 boundary, use `docs/ai-development/DJCONNECT_DEVELOPMENT_EXTENSION.md`.
+
+DJConnect record evidence distinguishes `MERGED_UNRECONCILED` from
+`MERGED_RECONCILED`; the former is resolved only by its local Finalization
+record reconciliation.

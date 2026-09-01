@@ -12,6 +12,10 @@ DJConnect architecture and product documentation, and the local extension.
 Consult `docs/history/prompts/` and Engineering Platform material only when
 historical context is required; neither replaces current repository truth.
 
+DJConnect's local records distinguish `MERGED_UNRECONCILED` from
+`MERGED_RECONCILED`; only the dedicated Finalization record reconciliation may
+resolve the former for a subsequent DJConnect increment.
+
 Validate the committed projection offline:
 
 ```sh
