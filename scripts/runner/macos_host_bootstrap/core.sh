@@ -1,4 +1,4 @@
-# Version: 1.3.12
+# Version: 1.3.13
 # CLI help, desired-state verification and console/report primitives.
 usage() {
   cat <<'EOF'
@@ -183,15 +183,6 @@ load_desired_state() {
   DESIRED_RECOMMENDED_FREE_DISK_GB="$(require_desired_state_value host.recommended_free_disk_gb)"
   DESIRED_ONBOARDING_PACKAGE_VERSION="$(require_desired_state_value onboarding.package_version)"
   [[ "$DESIRED_ONBOARDING_PACKAGE_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || die "Invalid desired-state onboarding.package_version: $DESIRED_ONBOARDING_PACKAGE_VERSION"
-  DESIRED_ENGINEERING_PLATFORM_VERSION="$(require_desired_state_value engineering.platform_version)"
-  DESIRED_ENGINEERING_WATCHER_LAUNCH_AGENT="$(require_desired_state_value engineering.watcher_launch_agent)"
-  DESIRED_ENGINEERING_DASHBOARD_LAUNCH_AGENT="$(require_desired_state_value engineering.dashboard_launch_agent)"
-  DESIRED_ENGINEERING_DASHBOARD_RELAY_LAUNCH_AGENT="$(require_desired_state_value engineering.dashboard_relay_launch_agent)"
-  DESIRED_ENGINEERING_DASHBOARD_HEALTH_URL="$(require_desired_state_value engineering.dashboard_health_url)"
-  DESIRED_ENGINEERING_LOCAL_API_LAUNCH_AGENT="$(require_desired_state_value engineering.local_api_launch_agent)"
-  DESIRED_ENGINEERING_LOCAL_API_HEALTH_URL="$(require_desired_state_value engineering.local_api_health_url)"
-  DESIRED_ENGINEERING_STATUS_RELATIVE_PATH="$(require_desired_state_value engineering.status_relative_path)"
-  DESIRED_ENGINEERING_REPORTS_RELATIVE_PATH="$(require_desired_state_value engineering.reports_relative_path)"
   IFS=',' read -r -a DESIRED_TOOL_FORMULAS <<<"$(require_desired_state_value tooling.formulas)"
   IFS=',' read -r -a DESIRED_REQUIRED_CASKS <<<"$(require_desired_state_value tooling.required_casks)"
   local optional_casks
@@ -231,14 +222,6 @@ load_desired_state() {
   [[ "$DESIRED_TAILSCALE_STATE" == 'running_authenticated' ]] || die 'Unsupported Tailscale state policy.'
   [[ "$DESIRED_TAILSCALE_MAGIC_DNS" == 'enabled' && "$DESIRED_TAILSCALE_ACCEPT_ROUTES" == 'enabled' && "$DESIRED_TAILSCALE_AUTO_UPDATE" == 'enabled' ]] || die 'Tailscale enabled policy is invalid.'
   [[ "$DESIRED_TAILSCALE_EXIT_NODE" == 'disabled' && "$DESIRED_TAILSCALE_SSH" == 'disabled' && "$DESIRED_TAILSCALE_SHIELDS_UP" == 'disabled' ]] || die 'Tailscale disabled policy is invalid.'
-  [[ "$DESIRED_ENGINEERING_PLATFORM_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || die 'Invalid Engineering Platform version policy.'
-  [[ "$DESIRED_ENGINEERING_WATCHER_LAUNCH_AGENT" =~ ^[A-Za-z0-9_.-]+$ ]] || die 'Invalid Engineering watcher LaunchAgent label.'
-  [[ "$DESIRED_ENGINEERING_DASHBOARD_LAUNCH_AGENT" =~ ^[A-Za-z0-9_.-]+$ ]] || die 'Invalid Engineering dashboard LaunchAgent label.'
-  [[ "$DESIRED_ENGINEERING_LOCAL_API_LAUNCH_AGENT" =~ ^[A-Za-z0-9_.-]+$ ]] || die 'Invalid Engineering Local API LaunchAgent label.'
-  [[ "$DESIRED_ENGINEERING_DASHBOARD_HEALTH_URL" =~ ^http://127\.0\.0\.1:[0-9]+/api/health$ ]] || die 'Engineering dashboard health endpoint must bind to loopback.'
-  [[ "$DESIRED_ENGINEERING_LOCAL_API_HEALTH_URL" =~ ^http://127\.0\.0\.1:[0-9]+/health$ ]] || die 'Engineering Local API health endpoint must bind to loopback.'
-  [[ "$DESIRED_ENGINEERING_STATUS_RELATIVE_PATH" == .engineering/status/status.json ]] || die 'Invalid Engineering status storage policy.'
-  [[ "$DESIRED_ENGINEERING_REPORTS_RELATIVE_PATH" == .engineering/reports ]] || die 'Invalid Engineering report storage policy.'
   IFS=',' read -r -a DESIRED_PROFILES <<<"$(require_desired_state_value runner.profiles)"
   for profile in "${DESIRED_PROFILES[@]}"; do
     case "$profile" in
@@ -323,7 +306,7 @@ report_repository_build_output() {
 }
 
 run_desired_state_verification() {
-  local hardware_profile macos_version macos_major cpu_brand mem_bytes mem_gb cpu_count disk_probe_path disk_kb disk_gb onboarding_manifest onboarding_version engineering_manifest engineering_version engineering_status engineering_reports engineering_inbox dashboard_health formula cask profile install_dir uid_value ha_running ngrok_config ngrok_permissions ngrok_config_version ngrok_authtoken_status ngrok_authtoken_state ngrok_tunnel tailscale_installation tailscale_state
+  local hardware_profile macos_version macos_major cpu_brand mem_bytes mem_gb cpu_count disk_probe_path disk_kb disk_gb onboarding_manifest onboarding_version formula cask profile install_dir ha_running ngrok_config ngrok_permissions ngrok_config_version ngrok_authtoken_status ngrok_authtoken_state ngrok_tunnel tailscale_installation tailscale_state
   printf '# DJConnect macOS Development Host Desired-State Delta\n\n'
   printf '%s\n\n' "Manifest: \`$DESIRED_STATE_FILE\` (version $DESIRED_STATE_VERSION, schema $DESIRED_STATE_SCHEMA_VERSION; bootstrap $SCRIPT_VERSION, minimum tool $DESIRED_MINIMUM_TOOL_VERSION, $MANIFEST_TOOL_COMPATIBILITY_VERDICT)"
   printf '%s\n' '| Component | Desired | Actual | Delta |'
@@ -362,34 +345,6 @@ run_desired_state_verification() {
   else
     verify_delta_row 'onboarding.package_version' "$DESIRED_ONBOARDING_PACKAGE_VERSION" "$onboarding_version from $onboarding_manifest" DRIFT
   fi
-  engineering_manifest="$GITHUB_ROOT/djconnect/tools/engineering/ENGINEERING_PLATFORM_VERSION.json"
-  engineering_version='missing'
-  if [[ -f "$engineering_manifest" ]]; then
-    engineering_version="$(sed -nE 's/^[[:space:]]*"platform_version"[[:space:]]*:[[:space:]]*"([0-9]+\.[0-9]+\.[0-9]+)"[,]?$/\1/p' "$engineering_manifest" | head -n 1)"
-    [[ "$engineering_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || engineering_version='invalid'
-  fi
-  verify_delta_row 'engineering.platform_version' "$DESIRED_ENGINEERING_PLATFORM_VERSION" "${engineering_version:-missing} from $engineering_manifest" "$([[ "$engineering_version" == "$DESIRED_ENGINEERING_PLATFORM_VERSION" ]] && printf MATCH || printf DRIFT)"
-  uid_value="$(id -u)"
-  if launchctl print "gui/$uid_value/$DESIRED_ENGINEERING_WATCHER_LAUNCH_AGENT" 2>/dev/null | grep -Fq 'state = running'; then verify_delta_row 'engineering.watcher_launch_agent' "$DESIRED_ENGINEERING_WATCHER_LAUNCH_AGENT running" running MATCH; else verify_delta_row 'engineering.watcher_launch_agent' "$DESIRED_ENGINEERING_WATCHER_LAUNCH_AGENT running" unavailable DRIFT; fi
-  if launchctl print "gui/$uid_value/$DESIRED_ENGINEERING_DASHBOARD_LAUNCH_AGENT" 2>/dev/null | grep -Fq 'state = running'; then verify_delta_row 'engineering.dashboard_launch_agent' "$DESIRED_ENGINEERING_DASHBOARD_LAUNCH_AGENT running" running MATCH; else verify_delta_row 'engineering.dashboard_launch_agent' "$DESIRED_ENGINEERING_DASHBOARD_LAUNCH_AGENT running" unavailable DRIFT; fi
-  if launchctl print "gui/$uid_value/$DESIRED_ENGINEERING_LOCAL_API_LAUNCH_AGENT" 2>/dev/null | grep -Fq 'state = running'; then verify_delta_row 'engineering.local_api_launch_agent' "$DESIRED_ENGINEERING_LOCAL_API_LAUNCH_AGENT running" running MATCH; else verify_delta_row 'engineering.local_api_launch_agent' "$DESIRED_ENGINEERING_LOCAL_API_LAUNCH_AGENT running" unavailable DRIFT; fi
-  if launchctl print "gui/$uid_value/$DESIRED_ENGINEERING_DASHBOARD_RELAY_LAUNCH_AGENT" 2>/dev/null | grep -Fq 'state = running'; then
-    verify_delta_row 'engineering.dashboard_relay_launch_agent' "$DESIRED_ENGINEERING_DASHBOARD_RELAY_LAUNCH_AGENT running" running MATCH
-  else
-    verify_delta_row 'engineering.dashboard_relay_launch_agent' "$DESIRED_ENGINEERING_DASHBOARD_RELAY_LAUNCH_AGENT running" unavailable DRIFT
-    printf '> Herstelhint: installeer het dashboard opnieuw. Blijft iPhone-toegang via Tailscale uit, sta dan alleen `%s/.engineering/bin/engineering-dashboard-relay` toe voor inkomend TCP 8765 vanuit `100.64.0.0/10` in ESET.\n' "$GITHUB_ROOT/djconnect"
-  fi
-  printf '> Opmerking: iPhone-toegang via Tailscale is niet betrouwbaar vanaf deze Mac zelf te testen. Als de lokale dashboard-health groen is maar de iPhone geen verbinding krijgt, controleer dan eerst de ESET-regel voor `%s/.engineering/bin/engineering-dashboard-relay` op TCP 8765 vanuit `100.64.0.0/10`.\n' "$GITHUB_ROOT/djconnect"
-  dashboard_health="$(curl -fsS --max-time 5 "$DESIRED_ENGINEERING_DASHBOARD_HEALTH_URL" 2>/dev/null || true)"
-  if [[ "$dashboard_health" == '{"health":"ok"}' ]]; then verify_delta_row 'engineering.dashboard_health' "$DESIRED_ENGINEERING_DASHBOARD_HEALTH_URL health=ok" healthy MATCH; else verify_delta_row 'engineering.dashboard_health' "$DESIRED_ENGINEERING_DASHBOARD_HEALTH_URL health=ok" unavailable DRIFT; fi
-  local_api_health="$(curl -fsS --max-time 5 "$DESIRED_ENGINEERING_LOCAL_API_HEALTH_URL" 2>/dev/null || true)"
-  if [[ "$local_api_health" == *'"health":"ok"'* && "$local_api_health" == *'"healthy":true'* ]]; then verify_delta_row 'engineering.local_api_health' "$DESIRED_ENGINEERING_LOCAL_API_HEALTH_URL health=ok" healthy MATCH; else verify_delta_row 'engineering.local_api_health' "$DESIRED_ENGINEERING_LOCAL_API_HEALTH_URL health=ok" unavailable DRIFT; fi
-  engineering_status="$GITHUB_ROOT/djconnect/$DESIRED_ENGINEERING_STATUS_RELATIVE_PATH"
-  engineering_reports="$GITHUB_ROOT/djconnect/$DESIRED_ENGINEERING_REPORTS_RELATIVE_PATH"
-  if [[ -f "$engineering_status" && -r "$engineering_status" && -w "$(dirname "$engineering_status")" ]]; then verify_delta_row 'engineering.status_storage' "$DESIRED_ENGINEERING_STATUS_RELATIVE_PATH available" available MATCH; else verify_delta_row 'engineering.status_storage' "$DESIRED_ENGINEERING_STATUS_RELATIVE_PATH available" unavailable DRIFT; fi
-  if [[ -d "$engineering_reports" && -w "$engineering_reports" ]]; then verify_delta_row 'engineering.report_storage' "$DESIRED_ENGINEERING_REPORTS_RELATIVE_PATH writable" writable MATCH; else verify_delta_row 'engineering.report_storage' "$DESIRED_ENGINEERING_REPORTS_RELATIVE_PATH writable" unavailable DRIFT; fi
-  engineering_inbox="$HOME/Library/Mobile Documents/com~apple~CloudDocs/DJConnect Engineering/Inbox"
-  if [[ -d "$engineering_inbox" && -w "$engineering_inbox" ]]; then verify_delta_row 'engineering.inbox_transport' 'iCloud Engineering Inbox writable' writable MATCH; else verify_delta_row 'engineering.inbox_transport' 'iCloud Engineering Inbox writable' unavailable DRIFT; fi
   report_repository_build_output
   local verification_cleanup="$GITHUB_ROOT/djconnect/scripts/maintenance/cleanup_verification_artifacts.sh" cleanup_label="com.djconnect.verification-artifact-cleanup"
   if [[ -x "$verification_cleanup" ]] && "$verification_cleanup" --check; then verify_delta_row 'maintenance.verification_artifact_retention' 'no ignored output older than 14 days' clean MATCH; else verify_delta_row 'maintenance.verification_artifact_retention' 'no ignored output older than 14 days' expired DRIFT; fi

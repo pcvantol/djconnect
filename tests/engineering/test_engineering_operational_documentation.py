@@ -19,12 +19,18 @@ class EngineeringOperationalDocumentationTest(unittest.TestCase):
         self.assertIn("WAITING_FOR_PREDECESSOR", onboarding)
         self.assertNotIn("local-run reports to `Reports`", onboarding)
 
-    def test_onboarding_installs_watcher_and_dashboard_together(self) -> None:
+    def test_onboarding_keeps_engineering_platform_outside_host_setup(self) -> None:
         script = (ROOT / "onboarding" / "dev_onboarding_macos.sh").read_text(encoding="utf-8")
-        self.assertIn("tools.engineering.inbox_watcher install", script)
-        self.assertIn("tools.engineering.dashboard install", script)
-        self.assertIn("iCloud is transport only; prompts, reports and status", script)
-        self.assertNotIn("Reports: iCloud Drive/DJConnect Engineering/Reports", script)
+        onboarding = (ROOT / "onboarding" / "README.md").read_text(encoding="utf-8")
+        self.assertNotIn("tools.engineering.inbox_watcher install", script)
+        self.assertNotIn("tools.engineering.dashboard install", script)
+        self.assertNotIn("com.djconnect.engineering-inbox", script)
+        self.assertNotIn("com.djconnect.engineering-dashboard", script)
+        self.assertIn("Engineering Platform is a standalone peer product", onboarding)
+        self.assertIn(
+            "not install, start, repair, qualify or health-check Engineering Platform\nservices",
+            onboarding,
+        )
 
     def test_local_runner_and_dashboard_docs_use_canonical_local_storage(self) -> None:
         runner = (ROOT / "docs" / "development" / "LOCAL_AGENT_RUNNER.md").read_text(encoding="utf-8")

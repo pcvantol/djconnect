@@ -58,8 +58,6 @@ PICO_REPO_URL="${PICO_REPO_URL:-https://github.com/pcvantol/djconnect-pico.git}"
 PICO_TOOL_VENV="${PICO_TOOL_VENV:-$HOME/Library/Application Support/DJConnect/pico-tools}"
 PICO_REQUIREMENTS_FILE="$PACKAGE_ROOT/pico_toolchain_requirements.txt"
 PICO_READINESS_SCRIPT="$PACKAGE_ROOT/pico_readiness_macos.py"
-ENGINEERING_INBOX_WATCHER="$REPO_ROOT/tools/engineering/inbox_watcher.py"
-ENGINEERING_DASHBOARD="$REPO_ROOT/tools/engineering/dashboard.py"
 
 init_style() {
   if [[ "$NO_COLOR_MODE" == "1" || -n "${NO_COLOR:-}" || ! -t 1 ]]; then
@@ -1117,18 +1115,6 @@ step_29_pico_readiness() {
   "$python_bin" "$PICO_READINESS_SCRIPT" --tool-venv "$PICO_TOOL_VENV"
 }
 
-step_30_engineering_inbox() {
-  need_macos
-  [[ -f "$ENGINEERING_INBOX_WATCHER" ]] || die "Engineering Inbox watcher is missing from this repository."
-  [[ -f "$ENGINEERING_DASHBOARD" ]] || die "Engineering Dashboard is missing from this repository."
-  log "Installing the per-user Engineering Inbox watcher and private dashboard."
-  python3 -m tools.engineering.inbox_watcher install --repo "$REPO_ROOT"
-  python3 -m tools.engineering.dashboard install --repo "$REPO_ROOT"
-  python3 -m tools.engineering.inbox_watcher doctor --repo "$REPO_ROOT" || warn "Engineering Inbox is degraded; run its doctor command for corrective actions."
-  python3 -m tools.engineering.dashboard doctor --repo "$REPO_ROOT" || warn "Engineering Dashboard is degraded; it remains loopback-only until private access is configured."
-  log "iPhone Shortcut target: iCloud Drive/DJConnect Engineering/Inbox. iCloud is transport only; prompts, reports and status are stored locally under .engineering. Dashboard: http://127.0.0.1:8765; when Tailscale is connected, use the current Tailscale IPv4 address on port 8765 from an authorized Tailnet device. If ESET controls the firewall, allow only .engineering/bin/engineering-dashboard-relay inbound on TCP 8765 from the Tailscale range."
-}
-
 run_if_dir() {
   local dir="$1"
   shift
@@ -2184,7 +2170,6 @@ $(style "$CLR_BOLD" "Cross Repo")
  28. Install/start persistent ngrok tunnel for local Home Assistant
  29. Raspberry Pi Pico 2 W tooling: MicroPython, picotool and VS Code extensions
  30. Validate Raspberry Pi Pico 2 W development readiness
- 31. Install and validate the local Engineering Inbox watcher and private dashboard
 
 $(style "$CLR_BOLD" "Examples")
   ./$SCRIPT_NAME --all --yes
@@ -2199,7 +2184,7 @@ $(style "$CLR_BOLD" "Examples")
   ./$SCRIPT_NAME --steps 26 --run-ci-push
   ./$SCRIPT_NAME --steps 27
   ./$SCRIPT_NAME --steps 28 --ngrok-domain your-domain.ngrok-free.app
-  ./$SCRIPT_NAME --steps 29,30,31
+  ./$SCRIPT_NAME --steps 29,30
 
 EOF
 }
@@ -2236,7 +2221,6 @@ run_step() {
     28) step_27_ngrok_home_assistant_tunnel ;;
     29) step_28_pico_tooling ;;
     30) step_29_pico_readiness ;;
-    31) step_30_engineering_inbox ;;
     *) die "Unknown step: $1" ;;
   esac
 }
@@ -2273,7 +2257,6 @@ step_label() {
     28) printf 'Install/start persistent ngrok tunnel for local Home Assistant' ;;
     29) printf 'Raspberry Pi Pico 2 W tooling: MicroPython, picotool and VS Code extensions' ;;
     30) printf 'Validate Raspberry Pi Pico 2 W development readiness' ;;
-    31) printf 'Install and validate local Engineering Inbox watcher and private dashboard' ;;
     *) printf 'Unknown step' ;;
   esac
 }
@@ -2287,7 +2270,7 @@ parse_steps() {
   STEP_INDEX=0
   for step in "${parts[@]}"; do
     [[ "$step" =~ ^[0-9]+$ ]] || die "Invalid step: $step"
-    (( step >= 0 && step <= 31 )) || die "Step out of range: $step"
+    (( step >= 0 && step <= 30 )) || die "Step out of range: $step"
     (( step != 1 && step != 2 )) || die "Step $step was removed. VM bootstrap is intentionally outside the onboarding script."
     if [[ "$PLAN_ONLY" == "1" ]]; then
       printf '%s %2s. %s\n' "$(style "$CLR_CYAN" "PLAN")" "$step" "$(step_label "$step")"
@@ -2307,7 +2290,7 @@ resolve_step_selection() {
   case "$raw" in
     q|quit|exit) return 1 ;;
     all)
-      printf '%s' "0,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,29,22,23,25,26,27,28,31"
+      printf '%s' "0,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,29,22,23,25,26,27,28"
       ;;
     core)
       printf '%s' "3,4,5,6,7,8,9,10,11,12"

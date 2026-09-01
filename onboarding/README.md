@@ -17,7 +17,19 @@ artifacts, and does not require a matching platform version to run or verify.
 - Windows: `pwsh -File .\onboarding\dev_onboarding_windows.ps1`
 - macOS machine transfer: `./onboarding/machine_transfer_macos.sh`
 
-## Engineering Inbox (macOS)
+## Engineering Platform boundary
+
+Engineering Platform is a standalone peer product in
+`pcvantol/engineering-platform`. DJConnect onboarding and host bootstrap do
+not install, start, repair, qualify or health-check Engineering Platform
+services, Project Agents or Server/CENTRAL stores. DJConnect may be developed
+without an active EP instance; use EP only when explicitly working through an
+EP-managed integration or execution flow.
+
+<!-- Historical legacy Engineering Inbox documentation retained below for
+provenance only; it is not an active DJConnect onboarding contract. -->
+
+## Historical Engineering Inbox (macOS)
 
 Engineering Platform `2.0.0` provides a local iCloud Engineering Inbox through
 the configured Remote Submission Provider. Run
@@ -273,16 +285,10 @@ repository, verifies the 14-day retention result, confirms that the LaunchAgent
 is loaded, and requires the canonical `djconnect/onboarding/manifest.yml`
 package version to be `4.5.0`. It does not delete files or change the host.
 
-The same verification is fail-closed for Engineering Platform readiness. It
-requires the declared platform version, the canonical Inbox watcher and
-dashboard LaunchAgents running, a healthy loopback dashboard endpoint, writable
-local status/report storage and a writable iCloud Inbox transport folder.
-If any of these rows reports drift, rerun onboarding step 31 to install and
-validate the canonical watcher and dashboard services before accepting Inbox
-work. The unattended host-bootstrap `--repair` follows the same path: it saves
-the diagnostic result, retires only the two known legacy dashboard LaunchAgents
-to local `.engineering` storage, restarts the canonical services, then verifies
-them again. It never executes or removes Inbox prompts.
+Engineering Platform is not a DJConnect host-readiness prerequisite. The
+bootstrap does not check, install, repair or start legacy Inbox, dashboard,
+relay or Local Consumer API services. Its `--repair` mode likewise has no
+Engineering Platform runtime action.
 
 The macOS package reconciles Docker Desktop and the persistent local Home
 Assistant Compose environment. The Home Assistant service is available at
@@ -394,13 +400,10 @@ does not capture all system traffic and does not mutate services or firewall
 rules; it assesses the known DJConnect dependency endpoints and produces
 conditional least-privilege recommendations.
 
-For private Engineering Status access from an iPhone through Tailscale, ESET
-Cyber Security needs one inbound allow rule for the repository-owned relay:
-`<checkout>/.engineering/bin/engineering-dashboard-relay`, TCP port `8765`,
-scoped to `100.64.0.0/10` or the trusted Tailscale zone. Keep the firewall
-enabled; do not allow LAN, wildcard or public access. The Mac itself uses
-`http://127.0.0.1:8765/`; other authorized Tailnet devices use the Mac's
-Tailscale IPv4 address on port `8765`.
+The retired legacy Engineering Status relay is not a DJConnect network
+requirement. Do not create a firewall rule or listener for its former port
+`8765`; standalone Engineering Platform networking is governed by that
+product's own installation and qualification documentation.
 
 Its mandatory macOS preflight requires macOS 14 or later and verifies that no
 patch update is available within the installed macOS major version. It does not
