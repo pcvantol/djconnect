@@ -2,5 +2,5 @@
 # Keep this list separate from product dependencies: it belongs in the shared
 # developer-tool virtual environment, never in a Pico firmware image.
 mpremote>=1.29.0,<2
-micropython-stubber>=1.28.5,<2
-ruff==0.16.4
+micropython-stubber>=1.29.0,<2
+ruff==0.16.5
