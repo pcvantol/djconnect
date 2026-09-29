@@ -6,7 +6,7 @@ contract tests and package documentation.
 
 ## Release alignment
 
-The current onboarding package is released as `4.5.0`, aligned with the current
+The current onboarding package is released as `4.5.1`, aligned with the current
 DJConnect platform release for operator clarity. This is version alignment only:
 the package remains independently versioned, does not consume platform release
 artifacts, and does not require a matching platform version to run or verify.
@@ -259,14 +259,14 @@ tracked source, and it preserves a directory when it is not Git-ignored.
 cleanup targets.
 
 Verification artifacts use a separate, conservative retention rule. Install
-the user LaunchAgent once to remove only Git-ignored files beneath
+the user cron job once to remove only Git-ignored files beneath
 `artifacts/verification` after they are older than 14 days:
 
 ```sh
 ./onboarding/dev_onboarding_macos.sh --install-verification-cleanup --yes
 ```
 
-The task runs daily at 10:00 and also runs once when installed. Its output is
+The task runs daily at 03:00. Its output is
 written to `logs/verification-artifact-cleanup.log`. To run the same task
 manually, use:
 
@@ -283,7 +283,7 @@ Developer readiness remains read-only. Run:
 It reports `storage.<repository>.ignored_build_output` for each checked-out
 repository, verifies the 14-day retention result, confirms that the LaunchAgent
 is loaded, and requires the canonical `djconnect/onboarding/manifest.yml`
-package version to be `4.5.0`. It does not delete files or change the host.
+package version to be `4.5.1`. It does not delete files or change the host.
 
 Engineering Platform is not a DJConnect host-readiness prerequisite. The
 bootstrap does not check, install, repair or start legacy Inbox, dashboard,
