@@ -44,7 +44,7 @@ Before the bootstrap downloads, installs or authenticates anything, its
 mandatory host preflight determines whether the Mac is suitable for DJConnect
 development. It requires macOS 14 or newer, a physical Apple-Silicon Mac
 (`arm64` with an Apple CPU), at least 8 GB RAM, at least four CPU cores and at
-least 80 GB free on the filesystem that will contain `~/Documents/GitHub`.
+least 5 GB free on the filesystem that will contain `~/Documents/GitHub`.
 It records the detected macOS version, Apple CPU model, RAM, core count and
 free disk space in the transcript and final report. 16 GB RAM and 120 GB free
 space are recommended for Docker, Xcode and Windows-VM workloads. This gate is
@@ -348,6 +348,8 @@ baseline. Docker Desktop may show its own first-run acceptance screen; once
 accepted, the onboarding creates or reconciles the Compose file and starts the
 containers. Use `docker compose -f ~/docker/homeassistant/docker-compose.yml
 ps` to inspect their state.
+The pinned onboarding package still installs Python 3.12; the host desired
+state separately requires Homebrew Python 3.14. Both versions may coexist.
 
 After Docker authentication, recovery also executes a dedicated, idempotent
 **Internal Home Assistant Docker test environment** phase. It reconciles the
@@ -388,10 +390,10 @@ By default it prepares these repository-scoped macOS ARM64 runners:
 
 | Profile | Repository | Runner name | Additional labels |
 | --- | --- | --- | --- |
-| `apple` | `pcvantol/djconnect-app` | `djconnect-apple-macos` | `internal-release`, `qualification`, `apple` |
-| `private-network` | `pcvantol/djconnect` | `djconnect-private-network-relay` | `internal-release`, `private-network-deployment` |
-| `esp32` | `pcvantol/djconnect-esp32` | `djconnect-esp32-firmware` | `internal-release`, `qualification`, `firmware`, `esp32`, `private-network-deployment` |
-| `pi` | `pcvantol/djconnect-pi` | `djconnect-pi-readiness` | `internal-release`, `private-network-deployment` |
+| `apple` | `pcvantol/djconnect-app` | `djconnect-apple-macos-macmini` | `internal-release`, `qualification`, `apple` |
+| `private-network` | `pcvantol/djconnect` | `djconnect-private-network-relay-macmini` | `internal-release`, `private-network-deployment` |
+| `esp32` | `pcvantol/djconnect-esp32` | `djconnect-esp32-firmware-macmini` | `internal-release`, `qualification`, `firmware`, `esp32`, `private-network-deployment` |
+| `pi` | `pcvantol/djconnect-pi` | `djconnect-pi-readiness-macmini` | `internal-release`, `private-network-deployment` |
 
 All profiles run as launchd services under the current runner user. The
 bootstrap also installs and executes the daily macOS tooling-maintenance
@@ -415,20 +417,19 @@ The bootstrap installs and then verifies these persistent tasks:
 
 - every selected GitHub Actions runner as a system service through its checked
   runner svc.sh script;
-- the runner-user com.djconnect.ci-tooling-maintenance LaunchAgent, including
-  one immediate maintenance execution;
+- the Mac mini's existing 03:00 `daily-tooling-maintenance` cron entry;
 - when --ngrok-domain is supplied, the runner-user
   dev.djconnect.homeassistant.ngrok LaunchAgent.
 
 It stops if a selected runner is not registered, a runner service is not
-running, or a required user LaunchAgent is not loaded. The runner services need
-sudo; the two user LaunchAgents deliberately do not.
+running, or a required user task is missing. The runner services need sudo;
+the cron entry and ngrok user LaunchAgent do not.
 
 ## Completion: tooling currency, reboot gate and initial verification
 
 Before reporting recovery complete, the bootstrap refreshes every
 Homebrew-managed tool used by the recovered workstation: Git, GitHub CLI, jq,
-Node, Python 3.12, XcodeGen, SwiftLint, xcbeautify, create-dmg, mas, xcodes and
+Node, Python 3.14, XcodeGen, SwiftLint, xcbeautify, create-dmg, mas, xcodes and
 PlatformIO. It refreshes installed Docker, .NET SDK and Parallels casks, and
 updates the Codex CLI when it is in scope. Local repository dependencies,
 Python environments, .NET workloads and PlatformIO packages are restored by

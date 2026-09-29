@@ -43,7 +43,7 @@ class OnboardingPackageBuildTests(unittest.TestCase):
         self.assertIn("Git confirms are ignored", readme)
         self.assertIn("--install-verification-cleanup --yes", readme)
         self.assertIn("older than 14 days", readme)
-        self.assertIn("daily at 10:00", readme)
+        self.assertIn("daily at 03:00", readme)
         self.assertIn("bootstrap_djconnect_macos_host.sh --verify", readme)
         self.assertIn("It does not delete files or change the host", readme)
 

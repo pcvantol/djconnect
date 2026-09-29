@@ -259,14 +259,14 @@ tracked source, and it preserves a directory when it is not Git-ignored.
 cleanup targets.
 
 Verification artifacts use a separate, conservative retention rule. Install
-the user LaunchAgent once to remove only Git-ignored files beneath
+the user cron job once to remove only Git-ignored files beneath
 `artifacts/verification` after they are older than 14 days:
 
 ```sh
 ./onboarding/dev_onboarding_macos.sh --install-verification-cleanup --yes
 ```
 
-The task runs daily at 10:00 and also runs once when installed. Its output is
+The task runs daily at 03:00. Its output is
 written to `logs/verification-artifact-cleanup.log`. To run the same task
 manually, use:
 

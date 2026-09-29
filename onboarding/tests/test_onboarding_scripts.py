@@ -164,7 +164,7 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("git -C \"$repo\" check-ignore -q", source)
         self.assertIn("--install-verification-cleanup", source)
         self.assertIn("cleanup_verification_artifacts.sh", source)
-        self.assertIn("<key>Hour</key><integer>10</integer>", source)
+        self.assertIn("0 3 * * * /bin/bash", source)
         self.assertIn("verification-artifact-cleanup.log", source)
 
     def test_macos_host_bootstrap_has_no_token_argument(self) -> None:
@@ -260,9 +260,11 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertTrue(MACOS_DEVELOPMENT_HOST_DESIRED_STATE.is_file())
         desired_state = MACOS_DEVELOPMENT_HOST_DESIRED_STATE.read_text()
         self.assertIn("schema_version: 1", desired_state)
-        self.assertIn("host.minimum_free_disk_gb: 80", desired_state)
+        self.assertIn("host.minimum_free_disk_gb: 5", desired_state)
         self.assertIn("onboarding.package_version: 4.5.0", desired_state)
         self.assertNotIn("engineering.", desired_state)
+        self.assertIn("python@3.14", desired_state)
+        self.assertNotIn("python@3.12", desired_state)
         self.assertIn("version: 3.3.0", desired_state)
         self.assertIn("minimum_tool_version: 2.0.2", desired_state)
         self.assertIn("# runner.profiles: apple,private-network,esp32,pi,windows", desired_state)
@@ -305,7 +307,7 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout)
         self.assertEqual(
             result.stdout,
-            "DJConnect macOS Development Host Bootstrap 2.0.18\n",
+            "DJConnect macOS Development Host Bootstrap 2.0.19\n",
         )
         self.assertTrue(MACOS_HOST_BOOTSTRAP_CHANGELOG.is_file())
         changelog = MACOS_HOST_BOOTSTRAP_CHANGELOG.read_text(encoding="utf-8")
@@ -659,11 +661,11 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertTrue((HOST_BOOTSTRAP_PACKAGE / "apple.sh").is_file())
         self.assertTrue(HOST_BOOTSTRAP_MANIFEST.is_file())
         manifest = HOST_BOOTSTRAP_MANIFEST.read_text(encoding="utf-8")
-        self.assertIn("package.version: 2.0.18", manifest)
+        self.assertIn("package.version: 2.0.19", manifest)
         self.assertIn("package.aggregate_sha256:", manifest)
         self.assertIn("component.entry.sha256:", manifest)
         self.assertIn("component.workflow.version: 1.3.4", manifest)
-        self.assertIn("component.operations.version: 1.3.10", manifest)
+        self.assertIn("component.operations.version: 1.3.11", manifest)
         self.assertIn("component.cli.version: 1.3.1", manifest)
         self.assertIn("component.apple.version: 1.0.0", manifest)
         source = read_macos_host_bootstrap_source()

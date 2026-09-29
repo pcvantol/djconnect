@@ -15,7 +15,7 @@ host.macos_minimum_major: 14
 host.minimum_ram_gb: 8
 host.recommended_ram_gb: 16
 host.minimum_cpu_cores: 4
-host.minimum_free_disk_gb: 80
+host.minimum_free_disk_gb: 5
 host.recommended_free_disk_gb: 120
 
 # The read-only readiness check requires the canonical developer-onboarding
@@ -25,7 +25,7 @@ onboarding.package_version: 4.5.0
 # Engineering Platform is a standalone peer product. Its Server, Project Agent,
 # services and runtime stores are intentionally outside DJConnect host readiness.
 
-tooling.formulas: git,gh,jq,node,python@3.12,xcodegen,swiftlint,xcbeautify,create-dmg,mas,xcodes,platformio,picotool
+tooling.formulas: git,gh,jq,node,python@3.14,xcodegen,swiftlint,xcbeautify,create-dmg,mas,xcodes,platformio,picotool
 # TEMPORARY: Windows is outside the current DJConnect scope. Keep Parallels in
 # this commented desired-state entry so the Windows qualification can be
 # restored by re-adding it to the active cask list.
@@ -67,19 +67,19 @@ network.tailscale.auto_update: enabled
 # runner.profiles: apple,private-network,esp32,pi,windows
 runner.profiles: apple,private-network,esp32,pi
 profile.apple.repository: djconnect-app
-profile.apple.runner_name: djconnect-apple-macos
+profile.apple.runner_name: djconnect-apple-macos-macmini
 profile.apple.labels: internal-release,qualification,apple
 profile.apple.provisioning: local_macos
 profile.private-network.repository: djconnect
-profile.private-network.runner_name: djconnect-private-network-relay
+profile.private-network.runner_name: djconnect-private-network-relay-macmini
 profile.private-network.labels: internal-release,private-network-deployment
 profile.private-network.provisioning: local_macos
 profile.esp32.repository: djconnect-esp32
-profile.esp32.runner_name: djconnect-esp32-firmware
+profile.esp32.runner_name: djconnect-esp32-firmware-macmini
 profile.esp32.labels: internal-release,qualification,firmware,esp32,private-network-deployment
 profile.esp32.provisioning: local_macos
 profile.pi.repository: djconnect-pi
-profile.pi.runner_name: djconnect-pi-readiness
+profile.pi.runner_name: djconnect-pi-readiness-macmini
 profile.pi.labels: internal-release,private-network-deployment
 profile.pi.provisioning: local_macos
 profile.windows.repository: djconnect-windows
