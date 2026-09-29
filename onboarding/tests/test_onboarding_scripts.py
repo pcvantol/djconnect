@@ -261,7 +261,7 @@ class DevOnboardingScriptTests(unittest.TestCase):
         desired_state = MACOS_DEVELOPMENT_HOST_DESIRED_STATE.read_text()
         self.assertIn("schema_version: 1", desired_state)
         self.assertIn("host.minimum_free_disk_gb: 5", desired_state)
-        self.assertIn("onboarding.package_version: 4.5.0", desired_state)
+        self.assertIn("onboarding.package_version: 4.5.1", desired_state)
         self.assertNotIn("engineering.", desired_state)
         self.assertIn("python@3.14", desired_state)
         self.assertNotIn("python@3.12", desired_state)
@@ -672,8 +672,8 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertIn("verify_recovery_package_manifest", source)
         self.assertIn("Host-bootstrap package component", source)
         self.assertIn("aggregate SHA-256 mismatch", source)
-        self.assertIn("require_canonical_onboarding_4_5_0", source)
-        self.assertIn("requires onboarding 4.5.0", source)
+        self.assertIn("require_canonical_onboarding_4_5_1", source)
+        self.assertIn("requires onboarding 4.5.1", source)
         for legacy in ("engineering.platform_version", "engineering.watcher_launch_agent", "engineering.dashboard_launch_agent", "engineering.dashboard_relay_launch_agent", "engineering.dashboard_health", "engineering.local_api", "engineering.status_storage", "engineering.report_storage", "engineering.inbox_transport", "repair_engineering_platform", "tools.engineering", "8765", "8766"):
             self.assertNotIn(legacy, source)
 

@@ -15,6 +15,7 @@ the DJConnect product release.
   requiring the legacy MacBook LaunchAgent. Reuse that cron during repair.
 - Verify the separate 03:00 verification-artifact cleanup cron and correctly
   treat an empty ngrok authtoken as missing.
+- Require developer-onboarding package 4.5.1, which includes the cron installer.
 
 ## [2.0.17] - 2026-08-02
 
