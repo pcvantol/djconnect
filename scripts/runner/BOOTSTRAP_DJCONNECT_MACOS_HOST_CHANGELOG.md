@@ -6,6 +6,17 @@ This changelog covers only
 compatibility and security changes to the development-host bootstrap independently of
 the DJConnect product release.
 
+## [2.0.19] - 2026-09-29
+
+- Lower the minimum free disk threshold to 5 GB and require Homebrew Python
+  3.14 for the Mac mini host.
+- Match the four runner profile names to the registered Mac mini runners.
+- Recognize the Mac mini's existing 03:00 tooling-maintenance cron instead of
+  requiring the legacy MacBook LaunchAgent. Reuse that cron during repair.
+- Verify the separate 03:00 verification-artifact cleanup cron and correctly
+  treat an empty ngrok authtoken as missing.
+- Require developer-onboarding package 4.5.1, which includes the cron installer.
+
 ## [2.0.17] - 2026-08-02
 
 - Require the immutable canonical developer-onboarding package `4.5.0` before

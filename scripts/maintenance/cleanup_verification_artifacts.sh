@@ -11,7 +11,7 @@ for repo in "$root"/*; do
   while IFS= read -r -d '' rel; do
     found=1
     if [[ "$mode" == execute ]]; then rm -f -- "$repo/$rel"; fi
-  done < <(cd "$repo" && find artifacts/verification -type f -mtime +14 -print0 | git check-ignore -z --stdin)
+  done < <(cd "$repo" && find artifacts/verification -type f -mmin +20160 -print0 | git check-ignore -z --stdin)
   [[ "$mode" == execute ]] && find "$repo/artifacts/verification" -depth -type d -empty -delete
 done
 [[ "$mode" == execute || "$found" == 0 ]]

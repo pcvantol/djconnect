@@ -1,4 +1,4 @@
-# Version: 1.3.13
+# Version: 1.3.14
 # CLI help, desired-state verification and console/report primitives.
 usage() {
   cat <<'EOF'
@@ -346,9 +346,10 @@ run_desired_state_verification() {
     verify_delta_row 'onboarding.package_version' "$DESIRED_ONBOARDING_PACKAGE_VERSION" "$onboarding_version from $onboarding_manifest" DRIFT
   fi
   report_repository_build_output
-  local verification_cleanup="$GITHUB_ROOT/djconnect/scripts/maintenance/cleanup_verification_artifacts.sh" cleanup_label="com.djconnect.verification-artifact-cleanup"
+  local verification_cleanup="$GITHUB_ROOT/djconnect/scripts/maintenance/cleanup_verification_artifacts.sh"
+  local verification_cleanup_cron="0 3 * * * /bin/bash $verification_cleanup --execute >> $GITHUB_ROOT/djconnect/logs/verification-artifact-cleanup.log 2>&1"
   if [[ -x "$verification_cleanup" ]] && "$verification_cleanup" --check; then verify_delta_row 'maintenance.verification_artifact_retention' 'no ignored output older than 14 days' clean MATCH; else verify_delta_row 'maintenance.verification_artifact_retention' 'no ignored output older than 14 days' expired DRIFT; fi
-  if launchctl print "gui/$(id -u)/$cleanup_label" >/dev/null 2>&1; then verify_delta_row 'maintenance.verification_artifact_cleanup' "$cleanup_label loaded" loaded MATCH; else verify_delta_row 'maintenance.verification_artifact_cleanup' "$cleanup_label loaded" absent DRIFT; fi
+  if crontab -l 2>/dev/null | grep -Fqx "$verification_cleanup_cron"; then verify_delta_row 'maintenance.verification_artifact_cleanup' '03:00 cron installed' installed MATCH; else verify_delta_row 'maintenance.verification_artifact_cleanup' '03:00 cron installed' absent DRIFT; fi
 
   for formula in "${DESIRED_TOOL_FORMULAS[@]}"; do
     if command -v brew >/dev/null 2>&1 && brew list --versions "$formula" >/dev/null 2>&1; then
@@ -388,7 +389,7 @@ run_desired_state_verification() {
     verify_delta_row 'network.ngrok.config_permissions' "$DESIRED_NGROK_CONFIG_PERMISSIONS" "$ngrok_permissions" "$([[ "$ngrok_permissions" == "$DESIRED_NGROK_CONFIG_PERMISSIONS" ]] && printf MATCH || printf DRIFT)"
     ngrok_config_version="$(awk -F: '/^[[:space:]]*version:[[:space:]]*/ {gsub(/[[:space:]\"]/, "", $2); print $2; exit}' "$ngrok_config")"
     verify_delta_row 'network.ngrok.config_version' "$DESIRED_NGROK_CONFIG_VERSION" "${ngrok_config_version:-missing}" "$([[ "$ngrok_config_version" == "$DESIRED_NGROK_CONFIG_VERSION" ]] && printf MATCH || printf DRIFT)"
-    if awk -F: '/^[[:space:]]*authtoken:[[:space:]]*[^[:space:]]/ {found=1} END {exit !found}' "$ngrok_config"; then ngrok_authtoken_status='configured (value redacted)'; ngrok_authtoken_state=MATCH; else ngrok_authtoken_status='missing'; ngrok_authtoken_state=DRIFT; fi
+    if awk -F: '/^[[:space:]]*authtoken:/ {value=$2; gsub(/[[:space:]"\047]/, "", value); if (length(value) > 0) found=1; exit} END {exit !found}' "$ngrok_config"; then ngrok_authtoken_status='configured (value redacted)'; ngrok_authtoken_state=MATCH; else ngrok_authtoken_status='missing'; ngrok_authtoken_state=DRIFT; fi
     verify_delta_row 'network.ngrok.authtoken' "$DESIRED_NGROK_AUTHTOKEN" "$ngrok_authtoken_status" "$ngrok_authtoken_state"
   else
     verify_delta_row 'network.ngrok.config_permissions' "$DESIRED_NGROK_CONFIG_PERMISSIONS" absent DRIFT
@@ -418,8 +419,11 @@ run_desired_state_verification() {
       if [[ -f "$install_dir/.runner" ]]; then verify_delta_row "runner.$profile" "$PROFILE_REPOSITORY ($PROFILE_LABELS)" registered MATCH; else verify_delta_row "runner.$profile" "$PROFILE_REPOSITORY ($PROFILE_LABELS)" absent DRIFT; fi
     fi
   done
-  uid_value="$(id -u)"
-  if launchctl print "gui/$uid_value/com.djconnect.ci-tooling-maintenance" >/dev/null 2>&1; then verify_delta_row 'maintenance.launch_agent' loaded loaded MATCH; else verify_delta_row 'maintenance.launch_agent' loaded absent DRIFT; fi
+  if [[ -x "$HOME/.local/bin/daily-tooling-maintenance" ]] && crontab -l 2>/dev/null | grep -Fqx "0 3 * * * $HOME/.local/bin/daily-tooling-maintenance >> $HOME/Library/Logs/daily-tooling-maintenance.log 2>&1"; then
+    verify_delta_row 'maintenance.daily_cron' '03:00 daily-tooling-maintenance cron installed' installed MATCH
+  else
+    verify_delta_row 'maintenance.daily_cron' '03:00 daily-tooling-maintenance cron installed' absent DRIFT
+  fi
   printf '\n## Verdict\n\n'
   if (( VERIFY_DRIFT_COUNT == 0 && VERIFY_UNVERIFIED_COUNT == 0 )); then printf '%s\n' '**MATCH** — this machine matches the required desired state.'; return 0; fi
   printf '%s\n' "**DRIFT DETECTED** — $VERIFY_DRIFT_COUNT required difference(s), $VERIFY_UNVERIFIED_COUNT unverified item(s)."

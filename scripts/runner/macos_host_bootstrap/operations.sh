@@ -1,4 +1,4 @@
-# Version: 1.3.10
+# Version: 1.3.11
 # macOS host provisioning, developer-workstation and service operations.
 warm_sudo() {
   if [[ "$DRY_RUN" == '1' ]]; then
@@ -283,13 +283,13 @@ prepare_repositories() {
   done
 }
 
-require_canonical_onboarding_4_5_0() {
+require_canonical_onboarding_4_5_1() {
   local central_repository="$1" manifest actual_version
   manifest="$central_repository/onboarding/manifest.yml"
-  [[ "$DESIRED_ONBOARDING_PACKAGE_VERSION" == '4.5.0' ]] || die "The canonical macOS bootstrap requires onboarding 4.5.0; desired state declares $DESIRED_ONBOARDING_PACKAGE_VERSION."
+  [[ "$DESIRED_ONBOARDING_PACKAGE_VERSION" == '4.5.1' ]] || die "The canonical macOS bootstrap requires onboarding 4.5.1; desired state declares $DESIRED_ONBOARDING_PACKAGE_VERSION."
   [[ -f "$manifest" ]] || die "The canonical onboarding manifest is unavailable: $manifest"
   actual_version="$(awk -F': ' '$1 == "package.version" { print $2; exit }' "$manifest")"
-  [[ "$actual_version" == '4.5.0' ]] || die "The canonical macOS bootstrap requires onboarding 4.5.0; found ${actual_version:-missing} in $manifest."
+  [[ "$actual_version" == '4.5.1' ]] || die "The canonical macOS bootstrap requires onboarding 4.5.1; found ${actual_version:-missing} in $manifest."
 }
 
 bootstrap_developer_workstation() {
@@ -299,7 +299,7 @@ bootstrap_developer_workstation() {
   local central_repository="$GITHUB_ROOT/djconnect"
   local onboarding="$central_repository/onboarding/dev_onboarding_macos.sh"
   [[ -f "$onboarding" ]] || die "The full developer onboarding script is unavailable at $onboarding."
-  require_canonical_onboarding_4_5_0 "$central_repository"
+  require_canonical_onboarding_4_5_1 "$central_repository"
   if [[ -n "$NGROK_DOMAIN" && -z "${NGROK_AUTHTOKEN:-}" && "$PROMPT_NGROK_AUTH" == '1' ]]; then
     prompt_secret 'ngrok authtoken'
     export NGROK_AUTHTOKEN="$REPLY"
@@ -340,6 +340,11 @@ ensure_home_assistant_internal_test_environment() {
 
 install_maintenance() {
   local app_root="$GITHUB_ROOT/djconnect-app"
+  local maintenance_cron="0 3 * * * $HOME/.local/bin/daily-tooling-maintenance >> $HOME/Library/Logs/daily-tooling-maintenance.log 2>&1"
+  if [[ -x "$HOME/.local/bin/daily-tooling-maintenance" ]] && crontab -l 2>/dev/null | grep -Fqx "$maintenance_cron"; then
+    ok 'Existing 03:00 Mac mini tooling-maintenance cron is installed.'
+    return
+  fi
   [[ -f "$app_root/scripts/runner/install_macos_ci_tooling_maintenance.sh" ]] || die 'The macOS maintenance installer is unavailable after repository preparation.'
   log 'Installing and verifying daily macOS runner tooling maintenance.'
   run_in_dir "$app_root" bash scripts/runner/install_macos_ci_tooling_maintenance.sh --run-now

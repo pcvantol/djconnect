@@ -1,5 +1,11 @@
 # DJConnect Developer Onboarding Changelog
 
+## 4.5.1 — 2026-09-29
+
+- Install the verification-artifact cleanup as a separate daily 03:00 cron
+  entry on the Mac mini, replacing the old 10:00 LaunchAgent setup.
+- Keep the immutable 4.5.0 distribution artifacts unchanged.
+
 ## 4.5.0 — 2026-08-02
 
 - Document the bounded Engineering Platform component lifecycle audit trail:

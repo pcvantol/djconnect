@@ -170,7 +170,7 @@ Options:
   --clean-build-output  Remove only Git-ignored local build/cache directories
                        from sibling DJConnect repositories. Prompts before
                        deletion unless --yes is also supplied.
-  --install-verification-cleanup Install the daily 14-day verification cleanup LaunchAgent.
+  --install-verification-cleanup Install the daily 03:00 verification cleanup cron job.
   --apply-upgrades      Allow step 24 to modify installed packages/tooling.
   --e2e-version VER     Version passed to release dry-run scripts.
                        Default: $E2E_VERSION
@@ -766,12 +766,27 @@ clean_build_output() {
 
 install_verification_cleanup() {
   local label="com.djconnect.verification-artifact-cleanup" plist="$HOME/Library/LaunchAgents/com.djconnect.verification-artifact-cleanup.plist"
-  mkdir -p "$HOME/Library/LaunchAgents"
-  cat > "$plist" <<EOF
-<?xml version="1.0" encoding="UTF-8"?><plist version="1.0"><dict><key>Label</key><string>$label</string><key>ProgramArguments</key><array><string>/bin/bash</string><string>$REPO_ROOT/scripts/maintenance/cleanup_verification_artifacts.sh</string><string>--execute</string></array><key>StandardOutPath</key><string>$LOG_DIR/verification-artifact-cleanup.log</string><key>StandardErrorPath</key><string>$LOG_DIR/verification-artifact-cleanup.log</string><key>StartCalendarInterval</key><dict><key>Hour</key><integer>10</integer><key>Minute</key><integer>0</integer></dict><key>RunAtLoad</key><true/></dict></plist>
-EOF
-  launchctl unload "$plist" >/dev/null 2>&1 || true
-  launchctl load "$plist"
+  local begin_marker="# BEGIN DJCONNECT VERIFICATION ARTIFACT CLEANUP"
+  local end_marker="# END DJCONNECT VERIFICATION ARTIFACT CLEANUP"
+  local cron_file
+  mkdir -p "$LOG_DIR"
+  cron_file="$(mktemp)"
+  (crontab -l 2>/dev/null || true) | awk -v begin="$begin_marker" -v end="$end_marker" '
+    $0 == begin { skip = 1; next }
+    $0 == end { skip = 0; next }
+    !skip { print }
+  ' > "$cron_file"
+  {
+    printf '%s\n' "$begin_marker"
+    printf '0 3 * * * /bin/bash %s/scripts/maintenance/cleanup_verification_artifacts.sh --execute >> %s/verification-artifact-cleanup.log 2>&1\n' "$REPO_ROOT" "$LOG_DIR"
+    printf '%s\n' "$end_marker"
+  } >> "$cron_file"
+  crontab "$cron_file"
+  rm -f "$cron_file"
+  if [[ -f "$plist" ]]; then
+    launchctl bootout "gui/$(id -u)" "$plist" >/dev/null 2>&1 || true
+    rm -f "$plist"
+  fi
 }
 
 wait_for_home_assistant() {
