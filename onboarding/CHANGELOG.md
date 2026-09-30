@@ -1,5 +1,11 @@
 # DJConnect Developer Onboarding Changelog
 
+## 4.5.2 — 2026-09-30
+
+- Update the Pico developer-tool Ruff requirement to 0.16.8 and publish a new
+  deterministic onboarding bundle.
+- Preserve the immutable 4.5.1 distribution artifacts unchanged.
+
 ## 4.5.1 — 2026-09-29
 
 - Install the verification-artifact cleanup as a separate daily 03:00 cron

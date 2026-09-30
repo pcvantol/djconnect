@@ -6,6 +6,10 @@ This changelog covers only
 compatibility and security changes to the development-host bootstrap independently of
 the DJConnect product release.
 
+## [2.0.20] - 2026-09-30
+
+- Require developer-onboarding package 4.5.2 for the Ruff 0.16.8 update.
+
 ## [2.0.19] - 2026-09-29
 
 - Lower the minimum free disk threshold to 5 GB and require Homebrew Python

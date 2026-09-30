@@ -261,7 +261,7 @@ class DevOnboardingScriptTests(unittest.TestCase):
         desired_state = MACOS_DEVELOPMENT_HOST_DESIRED_STATE.read_text()
         self.assertIn("schema_version: 1", desired_state)
         self.assertIn("host.minimum_free_disk_gb: 5", desired_state)
-        self.assertIn("onboarding.package_version: 4.5.1", desired_state)
+        self.assertIn("onboarding.package_version: 4.5.2", desired_state)
         self.assertNotIn("engineering.", desired_state)
         self.assertIn("python@3.14", desired_state)
         self.assertNotIn("python@3.12", desired_state)
@@ -307,7 +307,7 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout)
         self.assertEqual(
             result.stdout,
-            "DJConnect macOS Development Host Bootstrap 2.0.19\n",
+            "DJConnect macOS Development Host Bootstrap 2.0.20\n",
         )
         self.assertTrue(MACOS_HOST_BOOTSTRAP_CHANGELOG.is_file())
         changelog = MACOS_HOST_BOOTSTRAP_CHANGELOG.read_text(encoding="utf-8")
@@ -661,19 +661,19 @@ class DevOnboardingScriptTests(unittest.TestCase):
         self.assertTrue((HOST_BOOTSTRAP_PACKAGE / "apple.sh").is_file())
         self.assertTrue(HOST_BOOTSTRAP_MANIFEST.is_file())
         manifest = HOST_BOOTSTRAP_MANIFEST.read_text(encoding="utf-8")
-        self.assertIn("package.version: 2.0.19", manifest)
+        self.assertIn("package.version: 2.0.20", manifest)
         self.assertIn("package.aggregate_sha256:", manifest)
         self.assertIn("component.entry.sha256:", manifest)
         self.assertIn("component.workflow.version: 1.3.4", manifest)
-        self.assertIn("component.operations.version: 1.3.11", manifest)
+        self.assertIn("component.operations.version: 1.3.12", manifest)
         self.assertIn("component.cli.version: 1.3.1", manifest)
         self.assertIn("component.apple.version: 1.0.0", manifest)
         source = read_macos_host_bootstrap_source()
         self.assertIn("verify_recovery_package_manifest", source)
         self.assertIn("Host-bootstrap package component", source)
         self.assertIn("aggregate SHA-256 mismatch", source)
-        self.assertIn("require_canonical_onboarding_4_5_1", source)
-        self.assertIn("requires onboarding 4.5.1", source)
+        self.assertIn("require_canonical_onboarding_4_5_2", source)
+        self.assertIn("requires onboarding 4.5.2", source)
         for legacy in ("engineering.platform_version", "engineering.watcher_launch_agent", "engineering.dashboard_launch_agent", "engineering.dashboard_relay_launch_agent", "engineering.dashboard_health", "engineering.local_api", "engineering.status_storage", "engineering.report_storage", "engineering.inbox_transport", "repair_engineering_platform", "tools.engineering", "8765", "8766"):
             self.assertNotIn(legacy, source)
 
