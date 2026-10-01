@@ -19,7 +19,9 @@ copyrights remain with their respective authors and contributors.
 
 ## Python Packages And Home Assistant Dependencies
 
-The integration manifest may request or use these runtime packages/components:
+The integration uses these runtime packages/components. Home Assistant Core
+provides `aiohttp` and `awesomeversion`; the integration manifest requests
+`segno` separately:
 
 - `aiohttp` for HTTP client/server helpers used through Home Assistant.
 - `awesomeversion` for firmware version comparisons.
