@@ -2,23 +2,23 @@
   "schema_version": 1,
   "kind": "platform_release_operational_manifest",
   "status": "APPROVED_DEPLOYMENT_DISPATCH_PENDING",
-  "manifest_id": "release-4.0.0-rc.2-api-20260930",
+  "manifest_id": "release-4.0.0-rc.2-api-20261001",
   "platform_version": "4.0",
   "release_version": "4.0.0-rc.2",
   "release_profile": "INTERNAL_RELEASE",
-  "generated_at": "2026-09-30",
+  "generated_at": "2026-10-01",
   "approval": {
     "state": "APPROVED",
-    "approved_at": "2026-09-30",
-    "approved_statement": "The maintainer authorized deployment of the latest DJConnect API main and explicitly approved candidate d0c4442e379c184936f3efcf80ceacf5dd030086, artifact 11082862574, SHA-256 401ce31d27da704e781f8a8546b3a4ccf9345316b40a9c1356d6ed5cc08fde92, and the cloudflare_workers_production target, followed by the matching public health smoke.",
+    "approved_at": "2026-10-01",
+    "approved_statement": "The maintainer authorized deployment of the latest DJConnect API main after being shown candidate 4e6671c3231187e7cd20243817a86a56ad6aad06 and the cloudflare_workers_production target. This manifest binds the qualified candidate to artifact 11162680795 with SHA-256 458c4291fef9e88b10cedd68790b7f8bbff0b54b4264c73c8dac222f0b2a4770, followed by the matching public health smoke.",
     "effect": "This approval authorizes only the specified API candidate and Cloudflare Workers production target. It does not authorize a stable release, public product promotion, client-store submission, or deployment of another Platform 4.0 component."
   },
   "repositories": [
     {
       "repository": "pcvantol/djconnect-api",
-      "source_sha": "d0c4442e379c184936f3efcf80ceacf5dd030086",
+      "source_sha": "4e6671c3231187e7cd20243817a86a56ad6aad06",
       "version": "4.0.0-rc.2",
-      "artifact_run": "36684857689"
+      "artifact_run": "36862439701"
     }
   ],
   "required_targets": [
@@ -31,9 +31,9 @@
     {
       "owner": "pcvantol/djconnect-api",
       "target": "cloudflare_workers_production",
-      "artifact_id": "11082862574",
-      "artifact_sha256": "401ce31d27da704e781f8a8546b3a4ccf9345316b40a9c1356d6ed5cc08fde92",
-      "artifact_url": "https://github.com/pcvantol/djconnect-api/actions/runs/36684857689"
+      "artifact_id": "11162680795",
+      "artifact_sha256": "458c4291fef9e88b10cedd68790b7f8bbff0b54b4264c73c8dac222f0b2a4770",
+      "artifact_url": "https://github.com/pcvantol/djconnect-api/actions/runs/36862439701"
     }
   ],
   "constraints": [
