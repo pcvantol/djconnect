@@ -61,9 +61,14 @@ def render(p: dict[str, Any]) -> dict[str, str]:
         "This does not grant future product pickup. Current local Apple and Windows WIP is outside this planning writer.\n\n",
         "## Findings\n\n",
     ]
+    evidence = {e["id"]: e for e in p["evidence"]}
     for f in p["findings"]:
+        receipts = " ".join(
+            f"[{eid}]({evidence[eid]['url']})" for eid in f.get("evidence_ids", [])
+        )
         lines.append(
-            f"- **{f['id']} ({f['status']}):** {f['description']} Sources: {', '.join('`' + x + '`' for x in f['source_ids'])}.\n"
+            f"- **{f['id']} ({f['status']}):** {f['description']} Sources: {', '.join('`' + x + '`' for x in f['source_ids'])}."
+            + (f" Evidence: {receipts}." if receipts else "") + "\n"
         )
     lines += [
         "\n## Files and checks\n\n",

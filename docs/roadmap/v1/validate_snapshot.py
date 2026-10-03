@@ -178,14 +178,22 @@ def validate(plan: Any, require_complete: bool = False) -> list[str]:
         paths = scan.get("unmapped_paths")
         pinned_refs = {
             f"{s.get('repository')}::{s.get('path')}" for s in plan["sources"]
-        } | {
-            s.get("path")
-            for s in plan["sources"]
-            if s.get("repository") == "pcvantol/djconnect"
         }
+        def valid_reference(path: Any) -> bool:
+            if not isinstance(path, str) or path.count("::") != 1:
+                return False
+            repository, relative_path = path.split("::", 1)
+            return (
+                repository in repos
+                and bool(relative_path)
+                and not relative_path.startswith("/")
+                and ".." not in relative_path.split("/")
+                and relative_path.endswith(".md")
+            )
+
         check(
             isinstance(paths, list)
-            and all(isinstance(x, str) and x.endswith(".md") for x in paths)
+            and all(valid_reference(x) for x in paths)
             and len(paths) == len(set(paths))
             and not (pinned_refs & set(paths)),
             "reference scan has invalid, duplicate or already pinned paths",
@@ -288,6 +296,9 @@ def validate(plan: Any, require_complete: bool = False) -> list[str]:
             bool(ev.get("url")) and bool(ev.get("observed_date")),
             f"{eid}: evidence provenance missing",
         )
+    for finding in plan["findings"]:
+        for eid in finding.get("evidence_ids", []):
+            check(eid in evidence, f"{finding['id']}: unknown finding evidence {eid}")
     obligations = indexes["audit_obligations"]
     for oid, obligation in obligations.items():
         check(obligation.get("status") in {"OPEN", "CLOSED"}, f"{oid}: invalid audit status")

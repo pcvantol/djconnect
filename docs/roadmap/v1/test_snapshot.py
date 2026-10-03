@@ -88,7 +88,9 @@ class SnapshotTests(unittest.TestCase):
         self.assertIn("source-read claim has partial sources", self.errors())
 
     def test_unpinned_reference_scan_cannot_contain_pinned_source(self):
-        self.p["source_capture"]["reference_scan"]["unmapped_paths"].append("PRODUCT_ROADMAP.md")
+        self.p["source_capture"]["reference_scan"]["unmapped_paths"].append(
+            "pcvantol/djconnect::PRODUCT_ROADMAP.md"
+        )
         self.assertIn("reference scan has invalid, duplicate or already pinned paths", self.errors())
 
     def test_component_reference_scan_cannot_contain_pinned_source(self):
@@ -97,8 +99,21 @@ class SnapshotTests(unittest.TestCase):
         )
         self.assertIn("reference scan has invalid, duplicate or already pinned paths", self.errors())
 
+    def test_component_reference_scan_rejects_bare_pinned_alias(self):
+        scan = self.p["source_capture"]["reference_scan"]
+        scan["unmapped_paths"].append("docs/ARCHITECTURE.md")
+        scan["triage"]["docs/ARCHITECTURE.md"] = "Ambiguous across component repositories"
+        self.assertIn("reference scan has invalid, duplicate or already pinned paths", self.errors())
+
+    def test_finding_evidence_must_exist(self):
+        finding = next(f for f in self.p["findings"] if f["id"] == "PI-DOCUMENT-MIRROR-DRIFT")
+        finding["evidence_ids"] = ["MISSING"]
+        self.assertIn("unknown finding evidence", self.errors())
+
     def test_unpinned_reference_scan_requires_path_dispositions(self):
-        self.p["source_capture"]["reference_scan"]["triage"].pop("CANONICAL_REFERENCES.md")
+        self.p["source_capture"]["reference_scan"]["triage"].pop(
+            "pcvantol/djconnect::CANONICAL_REFERENCES.md"
+        )
         self.assertIn("reference scan needs one disposition for every unpinned path", self.errors())
 
     def test_audit_cannot_close_without_receipt(self):
