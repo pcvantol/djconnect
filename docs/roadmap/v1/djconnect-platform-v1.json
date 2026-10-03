@@ -41,7 +41,7 @@
     "metadata_and_bounded_paraphrases": true,
     "offline_hash_verification_of_remote_blobs": false,
     "per_call_timestamps": "Date-level head readback on 2026-10-03; no per-file read timestamp for inherited checkpoint.",
-    "pinned_tree_blobs_verified": "339 of 339 path/blob pins matched exact commit trees or GitHub Contents commit readbacks: 105 original GitHub tree readbacks, 120 local git commit-tree readbacks and 114 new GitHub Contents readbacks on 2026-10-03. Narrative interpretation remains partial.",
+    "pinned_tree_blobs_verified": "354 of 354 path/blob pins matched exact commit trees or GitHub Contents commit readbacks: 105 original GitHub tree readbacks, 135 local git commit-tree readbacks and 114 new GitHub Contents readbacks on 2026-10-03. Narrative interpretation remains partial.",
     "reference_scan": {
       "method": "Every pinned core Markdown blob and every pinned Markdown blob in the eleven DJC component repositories, at its recorded commit: parse relative Markdown links, strip anchors, normalize against source directory, retain existing .md targets absent from the pinned source matrix; distinct repository/path keys. The seven pinned external Forge method documents are outside this lane-source link frontier.",
       "unmapped_paths": [
@@ -6836,6 +6836,280 @@
         "INV::DJC-WEBSITE"
       ],
       "remaining": "No unread ranges in this source; broader repository audit tracked separately"
+    },
+    {
+      "id": "CORE_OWNER_AUTHORIZATION",
+      "repository": "pcvantol/djconnect",
+      "path": "OWNER_AUTHORIZATION.md",
+      "blob_sha": "fbdebe1353aaadc9c7b5a84275d8cfeda9b54c94",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned local source content reviewed for planning/lifecycle authority on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Owner Authorization is an internal SHA-bound HIGH_RISK decision artifact, not a GitHub approving review",
+      "observed_at": "2026-10-03 exact pinned local Git commit-tree and working-content hash readback",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/OWNER_AUTHORIZATION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No unread ranges in this source; broader repository audit tracked separately"
+    },
+    {
+      "id": "CORE_PROMPT_FINALIZATION",
+      "repository": "pcvantol/djconnect",
+      "path": "PROMPT_FINALIZATION.md",
+      "blob_sha": "a0b602a7d4b0d88fbd888988fd21a159759bbbcf",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned local source content reviewed for planning/lifecycle authority on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Local Finalization navigation points to generated lifecycle and the DJConnect extension; MERGED_UNRECONCILED requires dedicated reconciliation",
+      "observed_at": "2026-10-03 exact pinned local Git commit-tree and working-content hash readback",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/PROMPT_FINALIZATION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No unread ranges in this source; broader repository audit tracked separately"
+    },
+    {
+      "id": "CORE_PROMPT_GOVERNANCE",
+      "repository": "pcvantol/djconnect",
+      "path": "PROMPT_GOVERNANCE.md",
+      "blob_sha": "c4c310e99b2b040b3caf1347fdde3dce5587f128",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned local source content reviewed for planning/lifecycle authority on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Local prompt navigation preserves Prompt History and the dedicated Finalization exception",
+      "observed_at": "2026-10-03 exact pinned local Git commit-tree and working-content hash readback",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/PROMPT_GOVERNANCE.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No unread ranges in this source; broader repository audit tracked separately"
+    },
+    {
+      "id": "CORE_REPOSITORY_HYGIENE",
+      "repository": "pcvantol/djconnect",
+      "path": "REPOSITORY_HYGIENE.md",
+      "blob_sha": "c27940932be2b30c898d9eec4eb2adb004a818b5",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned local source content reviewed for planning/lifecycle authority on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Navigation to generated generic hygiene and DJConnect local immutable-evidence rules",
+      "observed_at": "2026-10-03 exact pinned local Git commit-tree and working-content hash readback",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/REPOSITORY_HYGIENE.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No unread ranges in this source; broader repository audit tracked separately"
+    },
+    {
+      "id": "CORE_REPOSITORY_SYNCHRONIZATION",
+      "repository": "pcvantol/djconnect",
+      "path": "REPOSITORY_SYNCHRONIZATION.md",
+      "blob_sha": "7bb33e280ae042ac08bdbeeacf31f12d0e8d6a6a",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned local source content reviewed for planning/lifecycle authority on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Navigation to generated generic sync/worktree preflight and DJConnect local status extension",
+      "observed_at": "2026-10-03 exact pinned local Git commit-tree and working-content hash readback",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/REPOSITORY_SYNCHRONIZATION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No unread ranges in this source; broader repository audit tracked separately"
+    },
+    {
+      "id": "CORE_ENGINEERING_PROGRAM_MODEL",
+      "repository": "pcvantol/djconnect",
+      "path": "ENGINEERING_PROGRAM_MODEL.md",
+      "blob_sha": "23179836148608abcd16cd12441f03e7334a0fa2",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned local source content reviewed for planning/lifecycle authority on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Three owning long-term programs and separate temporary operational release work; conditional Product Development assessment order",
+      "observed_at": "2026-10-03 exact pinned local Git commit-tree and working-content hash readback",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/ENGINEERING_PROGRAM_MODEL.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE",
+        "PROJ::ROADMAP::DIRECTION"
+      ],
+      "remaining": "No unread ranges in this source; broader repository audit tracked separately"
+    },
+    {
+      "id": "CORE_PLATFORM_PRINCIPLES",
+      "repository": "pcvantol/djconnect",
+      "path": "PLATFORM_PRINCIPLES.md",
+      "blob_sha": "6562e68647ae66ad2f14c546b1acb810f372d945",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned local source content reviewed for planning/lifecycle authority on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Strategic ownership principles, including Profile, Device, Backend, Client, Session, language and privacy; implementation-specific current contracts remain with AGENTS and owning records",
+      "observed_at": "2026-10-03 exact pinned local Git commit-tree and working-content hash readback",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/PLATFORM_PRINCIPLES.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE",
+        "PROJ::ROADMAP::PERSONAL"
+      ],
+      "remaining": "No unread ranges in this source; broader repository audit tracked separately"
+    },
+    {
+      "id": "CORE_IMPLEMENTATION_ROADMAP",
+      "repository": "pcvantol/djconnect",
+      "path": "IMPLEMENTATION_ROADMAP.md",
+      "blob_sha": "4d33018c17830c815ab4427ca7b777e694bb7813",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned local source content reviewed for planning/lifecycle authority on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "High-level historical implementation sequence; its older immediate-next text is not current product selection",
+      "observed_at": "2026-10-03 exact pinned local Git commit-tree and working-content hash readback",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/IMPLEMENTATION_ROADMAP.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE",
+        "PROJ::ROADMAP::DIRECTION"
+      ],
+      "remaining": "No unread ranges in this source; broader repository audit tracked separately"
+    },
+    {
+      "id": "CORE_INNOVATION_PROMOTION",
+      "repository": "pcvantol/djconnect",
+      "path": "INNOVATION_PROMOTION_POLICY.md",
+      "blob_sha": "9e04038b78d8f665e232ef06f9e10ca352568ad5",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned local source content reviewed for planning/lifecycle authority on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Established Innovation Review outcomes and evidence-first promotion; Promote alone does not authorize implementation",
+      "observed_at": "2026-10-03 exact pinned local Git commit-tree and working-content hash readback",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/INNOVATION_PROMOTION_POLICY.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No unread ranges in this source; broader repository audit tracked separately"
+    },
+    {
+      "id": "CORE_TD_REVIEW_POLICY",
+      "repository": "pcvantol/djconnect",
+      "path": "TRUSTED_DELIVERY_REVIEW_POLICY.md",
+      "blob_sha": "d55ac3d8d9be3519e97cde51e1379fb7d27c0678",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned local source content reviewed for planning/lifecycle authority on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Proposed implementation policy, not a substitute for current required-check readback or exact high-risk authorization",
+      "observed_at": "2026-10-03 exact pinned local Git commit-tree and working-content hash readback",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/TRUSTED_DELIVERY_REVIEW_POLICY.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No unread ranges in this source; broader repository audit tracked separately"
+    },
+    {
+      "id": "CORE_TD_SINGLE_MAINTAINER",
+      "repository": "pcvantol/djconnect",
+      "path": "TRUSTED_DELIVERY_SINGLE_MAINTAINER_GOVERNANCE.md",
+      "blob_sha": "c8d6de16d9fdf228de5a3215d57c2872ce903605",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned source content reviewed for historical/current governance boundary on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Operational single-maintainer decision model; SHA-bound Owner Authorization only for HIGH_RISK; technical checks remain required",
+      "observed_at": "2026-10-03 exact pinned local Git commit-tree and working-content hash readback",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/TRUSTED_DELIVERY_SINGLE_MAINTAINER_GOVERNANCE.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No unread ranges in this source; broader repository audit tracked separately"
+    },
+    {
+      "id": "CORE_ARCH_CLOSURE_REVIEW",
+      "repository": "pcvantol/djconnect",
+      "path": "ARCHITECTURE_CLOSURE_REVIEW.md",
+      "blob_sha": "4e2e647b0c77b06bf06d00a82c52bd92d07ed1f9",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned source content reviewed for historical/current governance boundary on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Historical 2026-07-11 architecture freeze review before later Platform Baseline certification; old gaps are not current status",
+      "observed_at": "2026-10-03 exact pinned local Git commit-tree and working-content hash readback",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/ARCHITECTURE_CLOSURE_REVIEW.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No unread ranges in this source; broader repository audit tracked separately"
+    },
+    {
+      "id": "CORE_ARCH_DECISION",
+      "repository": "pcvantol/djconnect",
+      "path": "ARCHITECTURE_DECISION.md",
+      "blob_sha": "02997cf111c2c83c1f38b0f62e00b39f01c6989d",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned source content reviewed for historical/current governance boundary on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Accepted architecture freeze and bounded v4 product architecture exception; does not authorize implementation or migration",
+      "observed_at": "2026-10-03 exact pinned local Git commit-tree and working-content hash readback",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/ARCHITECTURE_DECISION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE",
+        "PROJ::ROADMAP::DIRECTION"
+      ],
+      "remaining": "No unread ranges in this source; broader repository audit tracked separately"
+    },
+    {
+      "id": "CORE_SA_IMPLEMENTATION",
+      "repository": "pcvantol/djconnect",
+      "path": "SOFTWARE_ASSURANCE_IMPLEMENTATION.md",
+      "blob_sha": "e8bb3c439da2d9efa6534276146cc8cb2183107b",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned source content reviewed for historical/current governance boundary on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Canonical historical registration says Generation 1 and Prompts 1-4 complete, while its closing block still says Prompt 3 ACTIVE; completion evidence governs",
+      "observed_at": "2026-10-03 exact pinned local Git commit-tree and working-content hash readback",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/SOFTWARE_ASSURANCE_IMPLEMENTATION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No unread ranges in this source; broader repository audit tracked separately"
+    },
+    {
+      "id": "CORE_TD_TARGET_MATRIX",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/software_assurance/TRUSTED_DELIVERY_GOVERNANCE_TARGET_MATRIX.md",
+      "blob_sha": "efbec878fb3905eb8b4b1bababac8d27fc5860ca",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned source content reviewed for historical/current governance boundary on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Historical 2026-07-13 implementation-preparation target, explicitly not current GitHub protection readback",
+      "observed_at": "2026-10-03 exact pinned local Git commit-tree and working-content hash readback",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/software_assurance/TRUSTED_DELIVERY_GOVERNANCE_TARGET_MATRIX.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No unread ranges in this source; broader repository audit tracked separately"
     }
   ],
   "nodes": [
@@ -6861,7 +7135,22 @@
         "TECH_DESIGN::DJC-CORE",
         "SECURITY::DJC-CORE",
         "CORE_DEVENV",
-        "CORE_THIRD_PARTY"
+        "CORE_THIRD_PARTY",
+        "CORE_OWNER_AUTHORIZATION",
+        "CORE_PROMPT_FINALIZATION",
+        "CORE_PROMPT_GOVERNANCE",
+        "CORE_REPOSITORY_HYGIENE",
+        "CORE_REPOSITORY_SYNCHRONIZATION",
+        "CORE_ENGINEERING_PROGRAM_MODEL",
+        "CORE_PLATFORM_PRINCIPLES",
+        "CORE_IMPLEMENTATION_ROADMAP",
+        "CORE_INNOVATION_PROMOTION",
+        "CORE_TD_REVIEW_POLICY",
+        "CORE_TD_SINGLE_MAINTAINER",
+        "CORE_ARCH_CLOSURE_REVIEW",
+        "CORE_ARCH_DECISION",
+        "CORE_SA_IMPLEMENTATION",
+        "CORE_TD_TARGET_MATRIX"
       ],
       "canonical_authority": "LOCAL_EXTENSION",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -8173,7 +8462,10 @@
       "repository": "pcvantol/djconnect",
       "source_ids": [
         "PRODUCT_ROADMAP",
-        "SESSION_DIRECTION_ARCH"
+        "SESSION_DIRECTION_ARCH",
+        "CORE_ENGINEERING_PROGRAM_MODEL",
+        "CORE_IMPLEMENTATION_ROADMAP",
+        "CORE_ARCH_DECISION"
       ],
       "canonical_authority": "PRODUCT_ROADMAP",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -8804,7 +9096,8 @@
       "lane": "DJC-CORE",
       "repository": "pcvantol/djconnect",
       "source_ids": [
-        "PRODUCT_ROADMAP"
+        "PRODUCT_ROADMAP",
+        "CORE_PLATFORM_PRINCIPLES"
       ],
       "canonical_authority": "PRODUCT_ROADMAP",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -19543,7 +19836,10 @@
       "source_ids": [
         "PRODUCT_ROADMAP",
         "EVOLUTION",
-        "ROADMAP_INDEX"
+        "ROADMAP_INDEX",
+        "CORE_IMPLEMENTATION_ROADMAP",
+        "CORE_ARCH_CLOSURE_REVIEW",
+        "CORE_ARCH_DECISION"
       ]
     },
     {
@@ -19568,7 +19864,8 @@
       "status": "ASSESSMENT_ONLY",
       "description": "Dated review names missing inputs/knowledge/lyrics/timing and audience projection drift, not new product selection.",
       "source_ids": [
-        "INTELLIGENCE_REVIEW"
+        "INTELLIGENCE_REVIEW",
+        "CORE_INNOVATION_PROMOTION"
       ]
     },
     {
@@ -19618,7 +19915,7 @@
     {
       "id": "NORMATIVE-SOURCE-LINK-GAPS",
       "status": "HISTORICAL_LINK_FRONTIER_TRIAGED; BROADER_SOURCE_AUDIT_OPEN",
-      "description": "The pinned-blob relative Markdown-link scan covers included core and eleven component-repository Markdown sources. All component relative Markdown targets discovered by this scan are pinned. Six existing core targets linked from the historical embedded EP handbook remain explicitly triaged as standalone-EP history; its old tools/engineering/ENGINEERING_PLATFORM_STATUS.md link is absent at the core pin. The mandatory Meta Engineering reading order, API-local evidence and eight lanes' phase projections are read and pinned. Six additional literal local .md references named by those projections are also fully read and pinned. None adds an untriaged relative Markdown-link target. The wider source, physical/consumer and release audit remains open; link closure alone is not complete DAG proof.",
+      "description": "The pinned-blob relative Markdown-link scan covers included core and eleven component-repository Markdown sources. All component relative Markdown targets discovered by this scan are pinned. Six existing core targets linked from the historical embedded EP handbook remain explicitly triaged as standalone-EP history; its old tools/engineering/ENGINEERING_PLATFORM_STATUS.md link is absent at the core pin. The mandatory Meta Engineering reading order, core lifecycle/policy navigation, API-local evidence and eight lanes' phase projections are read and pinned. Six additional literal local .md references named by those projections are also fully read and pinned. None adds an untriaged relative Markdown-link target. The wider source, physical/consumer and release audit remains open; link closure alone is not complete DAG proof.",
       "source_ids": [
         "FOUNDATION_INDEX",
         "SESSION_RUNTIME_CONTRACTS",
@@ -19734,7 +20031,22 @@
         "PI_TDE_OBSERVE_EXIT_CRITERIA",
         "PI_RG001_HISTORY",
         "WINDOWS_SMOKE_DIAGNOSTICS_HIST",
-        "WEBSITE_RG001_HISTORY"
+        "WEBSITE_RG001_HISTORY",
+        "CORE_OWNER_AUTHORIZATION",
+        "CORE_PROMPT_FINALIZATION",
+        "CORE_PROMPT_GOVERNANCE",
+        "CORE_REPOSITORY_HYGIENE",
+        "CORE_REPOSITORY_SYNCHRONIZATION",
+        "CORE_ENGINEERING_PROGRAM_MODEL",
+        "CORE_PLATFORM_PRINCIPLES",
+        "CORE_IMPLEMENTATION_ROADMAP",
+        "CORE_INNOVATION_PROMOTION",
+        "CORE_TD_REVIEW_POLICY",
+        "CORE_TD_SINGLE_MAINTAINER",
+        "CORE_ARCH_CLOSURE_REVIEW",
+        "CORE_ARCH_DECISION",
+        "CORE_SA_IMPLEMENTATION",
+        "CORE_TD_TARGET_MATRIX"
       ]
     },
     {
@@ -19824,7 +20136,8 @@
         "EVOLUTION",
         "CORE_SA_PROMPT_02_HIST",
         "CORE_SA_PROMPT_03_HIST",
-        "CORE_SA_PROMPT_04_HIST"
+        "CORE_SA_PROMPT_04_HIST",
+        "CORE_SA_IMPLEMENTATION"
       ]
     },
     {
@@ -19956,7 +20269,7 @@
       "id": "AUDIT-DJC-CORE",
       "status": "OPEN",
       "scope": "DJC-CORE",
-      "reason": "Pinned foundation, roadmap, horizon, legal, voice, verification, full Meta Engineering reading order, local environment and historical EP/Software Assurance sources are read. Six EP history links remain triaged; workflow effects, remaining consumer evidence and final delta still need qualification."
+      "reason": "Pinned foundation, roadmap, horizon, legal, voice, verification, full Meta Engineering reading order, local environment and historical EP/Software Assurance sources are read. Six EP history links remain triaged; workflow effects, remaining consumer evidence and final delta still need qualification. Ten additional exact-pinned core policy/navigation sources are read, including owner authorization and Finalization; generated lifecycle and physical/consumer evidence still need qualification. Five linked architecture/assurance/Trusted Delivery records are also pinned; the 2026-07-13 target matrix is historical, not current settings evidence."
     },
     {
       "id": "AUDIT-DJC-APPLE",
@@ -20062,7 +20375,7 @@
       "status": "OPEN",
       "scope": "platform",
       "reason": "Current matrix covers only explicitly read source inventory; certify complete disposition only after all relevant discoveries are audited.",
-      "remaining": "All 339 included pinned rows are fully read and all discovered component relative Markdown targets and six extra named local .md references are included. Six historical core EP references remain triaged outside the matrix; complete repository-wide source/consumer discovery and status qualification before certification."
+      "remaining": "All 354 included pinned rows are fully read and all discovered component relative Markdown targets and six extra named local .md references are included. Six historical core EP references remain triaged outside the matrix; complete repository-wide source/consumer discovery and status qualification before certification."
     },
     {
       "id": "REGISTER-DELIVERY",
@@ -20126,7 +20439,7 @@
       "id": "FINALIZATION",
       "status": "OPEN",
       "scope": "DJC-CORE",
-      "reason": "Dedicated repository Finalization PR, exact-main readback and workspace cleanup cannot be claimed until protected planning merge is safe and complete."
+      "reason": "Dedicated repository Finalization PR, exact-main readback and workspace cleanup cannot be claimed until protected planning merge is safe and complete. Local PROMPT_FINALIZATION points to the dedicated MERGED_UNRECONCILED-to-MERGED_RECONCILED reconciliation and ENGINEERING_METHOD test."
     }
   ],
   "excluded_scope": [
