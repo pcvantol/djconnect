@@ -41,7 +41,7 @@
     "metadata_and_bounded_paraphrases": true,
     "offline_hash_verification_of_remote_blobs": false,
     "per_call_timestamps": "Date-level head readback on 2026-10-03; no per-file read timestamp for inherited checkpoint.",
-    "pinned_tree_blobs_verified": "634 of 634 path/blob pins matched exact commit trees or GitHub Contents commit readbacks: 105 original GitHub tree readbacks, 401 local git commit-tree readbacks and 128 new GitHub tree/Contents readbacks on 2026-10-03. Current API Markdown blobs at 3f1ed18d matched fully read local previous-main blobs. Firmware binary files were fully SHA256-hashed for identity, not semantically executed. Narrative interpretation remains partial.",
+    "pinned_tree_blobs_verified": "671 of 671 path/blob pins matched exact commit trees or GitHub Contents commit readbacks: 105 original GitHub tree readbacks, 438 local git commit-tree readbacks and 128 new GitHub tree/Contents readbacks on 2026-10-03. Current API Markdown blobs at 3f1ed18d matched fully read local previous-main blobs. Firmware binary files were fully SHA256-hashed for identity, not semantically executed. Narrative interpretation remains partial.",
     "reference_scan": {
       "method": "Every pinned core Markdown blob and every pinned Markdown blob in the eleven DJC component repositories, at its recorded commit: parse relative Markdown links, strip anchors, normalize against source directory, retain existing .md targets absent from the pinned source matrix; distinct repository/path keys. The seven pinned external Forge method documents are outside this lane-source link frontier.",
       "unmapped_paths": [
@@ -71,7 +71,7 @@
     },
     "tree_census_readback": {
       "observed_at": "2026-10-03 12:16 UTC, complete local git trees and GitHub recursive trees for ESP32, Windows and current API main",
-      "boundary": "Exact main trees at the 2026-10-03 11:45 UTC remote-head readback: core 192703ea, API 3f1ed18d and the other ten heads matching their source baselines. Path counts describe tracked Markdown files and their individual representation in this matrix, regardless of historical source-blob commit. Not-individually-included is a discovery/classification frontier, not a count of normative sources. The six triaged relative-link targets remain separate.",
+      "boundary": "Exact main trees at the 2026-10-03 11:45 UTC remote-head readback: core 192703ea, API 3f1ed18d and the other ten heads matching their source baselines. Path counts describe tracked Markdown files and their individual representation in this matrix, regardless of historical source-blob commit. Not-individually-included is a discovery/classification frontier, not a count of normative sources. The nine triaged relative-link targets remain separate.",
       "lanes": {
         "DJC-CORE": {
           "repository": "pcvantol/djconnect",
@@ -109,8 +109,8 @@
           "repository": "pcvantol/djconnect-windows",
           "commit_sha": "1d6635ff5c610a0f43bf1ba7d68cb0b1def06924",
           "tracked_markdown": 117,
-          "included_markdown": 25,
-          "not_individually_included_markdown": 92,
+          "included_markdown": 41,
+          "not_individually_included_markdown": 76,
           "tree_readback": "GitHub recursive Git tree, truncated=false"
         },
         "DJC-API": {
@@ -125,8 +125,8 @@
           "repository": "pcvantol/djconnect-website",
           "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
           "tracked_markdown": 412,
-          "included_markdown": 46,
-          "not_individually_included_markdown": 366,
+          "included_markdown": 64,
+          "not_individually_included_markdown": 348,
           "tree_readback": "complete local git ls-tree -r"
         },
         "DJC-VIBECAST": {
@@ -2575,6 +2575,24 @@
         "SLICE::WEBSITE::RELEASE-GUIDANCE"
       ],
       "remaining": "None for specified workflow branch; execution is separate."
+    },
+    {
+      "id": "WEBSITE-POST-MERGE-EVIDENCE",
+      "repository": "pcvantol/djconnect-website",
+      "path": ".github/workflows/post-merge-release-evidence.yml",
+      "blob_sha": "0eb89a768f17a9f942a1d06a81161f65589244f7",
+      "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
+      "read_boundary": "complete; exact pinned workflow and pinned reusable publish/status steps read in current session",
+      "read_complete": true,
+      "status_authority": "Successful Validate workflow_run on website main calls pinned core reusable release-evidence workflow with contents/statuses write; after its gates, that workflow can create or append internal-ha-{SHA} GitHub prerelease evidence and write main commit status. No Cloudflare deployment follows from this workflow.",
+      "observed_at": "2026-10-03; continuation of pinned issue #1101 audit",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/.github/workflows/post-merge-release-evidence.yml",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "SLICE::WEBSITE::RELEASE-GUIDANCE"
+      ],
+      "remaining": "Exact execution still requires release-evidence gates; no website main push or release is authorized by this planning snapshot."
     },
     {
       "id": "CORE-INTERNAL-ARTIFACT",
@@ -12303,6 +12321,667 @@
         "INV::DJC-APPLE"
       ],
       "remaining": "Exact current source, native target tests, signed artifact, consumer install and protected delivery are separately qualified."
+    },
+    {
+      "id": "WINDOWS_SOURCE__BOOTSTRAP_MD",
+      "repository": "pcvantol/djconnect-windows",
+      "path": "BOOTSTRAP.md",
+      "blob_sha": "8e6a46d57ed5c73684e467320672075f8bb8934a",
+      "commit_sha": "1d6635ff5c610a0f43bf1ba7d68cb0b1def06924",
+      "read_boundary": "full pinned source text reviewed on 2026-10-03; exact main commit-tree source",
+      "read_complete": true,
+      "status_authority": "Current Windows bootstrap delegates generic procedure to projection and Windows implementation to local sources.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full source text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-windows/blob/1d6635ff5c610a0f43bf1ba7d68cb0b1def06924/BOOTSTRAP.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WINDOWS"
+      ],
+      "remaining": "Current code/workflow, publisher receipt, consumer target and protected delivery remain separate evidence boundaries."
+    },
+    {
+      "id": "WINDOWS_SOURCE__BOOTSTRAP_CODEX_SESSION_MD",
+      "repository": "pcvantol/djconnect-windows",
+      "path": "BOOTSTRAP_CODEX_SESSION.md",
+      "blob_sha": "6925490b2f0eed53bc2b8d860d76a6a64dc2f606",
+      "commit_sha": "1d6635ff5c610a0f43bf1ba7d68cb0b1def06924",
+      "read_boundary": "full pinned source text reviewed on 2026-10-03; exact main commit-tree source",
+      "read_complete": true,
+      "status_authority": "Compatibility pointer, not second canonical entrypoint.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full source text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-windows/blob/1d6635ff5c610a0f43bf1ba7d68cb0b1def06924/BOOTSTRAP_CODEX_SESSION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WINDOWS"
+      ],
+      "remaining": "Current code/workflow, publisher receipt, consumer target and protected delivery remain separate evidence boundaries."
+    },
+    {
+      "id": "WINDOWS_SOURCE__CANONICAL_REFERENCES_MD",
+      "repository": "pcvantol/djconnect-windows",
+      "path": "CANONICAL_REFERENCES.md",
+      "blob_sha": "d0478e725fe4cb0d3784dcdbfeeeb65c2b446ccd",
+      "commit_sha": "1d6635ff5c610a0f43bf1ba7d68cb0b1def06924",
+      "read_boundary": "full pinned source text reviewed on 2026-10-03; exact main commit-tree source",
+      "read_complete": true,
+      "status_authority": "Local authority map delegates platform foundation/roadmap to core and implementation to Windows. Its clean-session paragraph still points to compatibility bootstrap.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full source text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-windows/blob/1d6635ff5c610a0f43bf1ba7d68cb0b1def06924/CANONICAL_REFERENCES.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WINDOWS",
+        "PROJ::AUDIT::METHOD"
+      ],
+      "remaining": "Current code/workflow, publisher receipt, consumer target and protected delivery remain separate evidence boundaries."
+    },
+    {
+      "id": "WINDOWS_SOURCE__CHANGELOG_MD",
+      "repository": "pcvantol/djconnect-windows",
+      "path": "CHANGELOG.md",
+      "blob_sha": "896f488a0dbf4b7e77f6b247fabe2d1632a834ee",
+      "commit_sha": "1d6635ff5c610a0f43bf1ba7d68cb0b1def06924",
+      "read_boundary": "full pinned source text reviewed on 2026-10-03; exact main commit-tree source",
+      "read_complete": true,
+      "status_authority": "Chronological source changelog through 3.2.10; source-main README/CHAT claim 3.3.0 and the separate receiving djconnect-app-releases repository has observed 3.3.0 Windows assets. The exact source-to-artifact join and live consumer gates remain unqualified; no 3.3.0 release in the Windows source repository is claimed.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full source text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-windows/blob/1d6635ff5c610a0f43bf1ba7d68cb0b1def06924/CHANGELOG.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WINDOWS"
+      ],
+      "remaining": "Current code/workflow, publisher receipt, consumer target and protected delivery remain separate evidence boundaries."
+    },
+    {
+      "id": "WINDOWS_SOURCE__CHAT_BOOTSTRAP_MD",
+      "repository": "pcvantol/djconnect-windows",
+      "path": "CHAT_BOOTSTRAP.md",
+      "blob_sha": "cb1270885023bcb77c6082876a052e1872d0c85f",
+      "commit_sha": "1d6635ff5c610a0f43bf1ba7d68cb0b1def06924",
+      "read_boundary": "full pinned source text reviewed on 2026-10-03; exact main commit-tree source",
+      "read_complete": true,
+      "status_authority": "Deprecated pointer to compatibility bootstrap; embedded 3.3.0 version claim is not live qualification.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full source text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-windows/blob/1d6635ff5c610a0f43bf1ba7d68cb0b1def06924/CHAT_BOOTSTRAP.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WINDOWS"
+      ],
+      "remaining": "Current code/workflow, publisher receipt, consumer target and protected delivery remain separate evidence boundaries."
+    },
+    {
+      "id": "WINDOWS_SOURCE__DEVELOPMENT_ENVIRONMENT_MD",
+      "repository": "pcvantol/djconnect-windows",
+      "path": "DEVELOPMENT_ENVIRONMENT.md",
+      "blob_sha": "025381ebc81ec64ef8a37ab385fbb37be9ff1bf3",
+      "commit_sha": "1d6635ff5c610a0f43bf1ba7d68cb0b1def06924",
+      "read_boundary": "full pinned source text reviewed on 2026-10-03; exact main commit-tree source",
+      "read_complete": true,
+      "status_authority": "Local .NET/Xcode/Windows toolchain guide, not proof of usable installed target.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full source text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-windows/blob/1d6635ff5c610a0f43bf1ba7d68cb0b1def06924/DEVELOPMENT_ENVIRONMENT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WINDOWS"
+      ],
+      "remaining": "Current code/workflow, publisher receipt, consumer target and protected delivery remain separate evidence boundaries."
+    },
+    {
+      "id": "WINDOWS_SOURCE__SYNC_PROMPTS_MD",
+      "repository": "pcvantol/djconnect-windows",
+      "path": "SYNC_PROMPTS.md",
+      "blob_sha": "649d4541bd70a9fd1a7d56242a7d66ab045e857b",
+      "commit_sha": "1d6635ff5c610a0f43bf1ba7d68cb0b1def06924",
+      "read_boundary": "full pinned source text reviewed on 2026-10-03; exact main commit-tree source",
+      "read_complete": true,
+      "status_authority": "Local pointer to core canonical product/sync authority; no separate product backlog.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full source text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-windows/blob/1d6635ff5c610a0f43bf1ba7d68cb0b1def06924/SYNC_PROMPTS.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WINDOWS"
+      ],
+      "remaining": "Current code/workflow, publisher receipt, consumer target and protected delivery remain separate evidence boundaries."
+    },
+    {
+      "id": "WINDOWS_SOURCE__THIRD_PARTY_NOTICES_MD",
+      "repository": "pcvantol/djconnect-windows",
+      "path": "THIRD_PARTY_NOTICES.md",
+      "blob_sha": "dfb654505d35d5aa8795fc9ea1980cdb86b2e7e1",
+      "commit_sha": "1d6635ff5c610a0f43bf1ba7d68cb0b1def06924",
+      "read_boundary": "full pinned source text reviewed on 2026-10-03; exact main commit-tree source",
+      "read_complete": true,
+      "status_authority": "Pointer to local Windows third-party notice detail.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full source text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-windows/blob/1d6635ff5c610a0f43bf1ba7d68cb0b1def06924/THIRD_PARTY_NOTICES.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WINDOWS"
+      ],
+      "remaining": "Current code/workflow, publisher receipt, consumer target and protected delivery remain separate evidence boundaries."
+    },
+    {
+      "id": "WINDOWS_SOURCE__DOCS_BUILD_RELEASE_HYGIENE_MD",
+      "repository": "pcvantol/djconnect-windows",
+      "path": "docs/BUILD_RELEASE_HYGIENE.md",
+      "blob_sha": "9c1a6a39ee81a69a178dd7fe1166c04ec02a1b7e",
+      "commit_sha": "1d6635ff5c610a0f43bf1ba7d68cb0b1def06924",
+      "read_boundary": "full pinned source text reviewed on 2026-10-03; exact main commit-tree source",
+      "read_complete": true,
+      "status_authority": "Local build/release hygiene and manual-publication boundary; no push or release granted by this planning audit.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full source text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-windows/blob/1d6635ff5c610a0f43bf1ba7d68cb0b1def06924/docs/BUILD_RELEASE_HYGIENE.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WINDOWS",
+        "SLICE::WINDOWS::BUNDLE-CANDIDATE"
+      ],
+      "remaining": "Current code/workflow, publisher receipt, consumer target and protected delivery remain separate evidence boundaries."
+    },
+    {
+      "id": "WINDOWS_SOURCE__DOCS_TDE_1_1_1_DEPENDENCY_HEALTH_MD",
+      "repository": "pcvantol/djconnect-windows",
+      "path": "docs/TDE_1_1_1_DEPENDENCY_HEALTH.md",
+      "blob_sha": "3d98d9fdbb8786d3d0199209b5c84a5523cf6af2",
+      "commit_sha": "1d6635ff5c610a0f43bf1ba7d68cb0b1def06924",
+      "read_boundary": "full pinned source text reviewed on 2026-10-03; exact main commit-tree source",
+      "read_complete": true,
+      "status_authority": "Dated WindowsAppSDK 2.3 under-validation review; observe-mode TDE remains nonblocking, not live target acceptance.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full source text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-windows/blob/1d6635ff5c610a0f43bf1ba7d68cb0b1def06924/docs/TDE_1_1_1_DEPENDENCY_HEALTH.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WINDOWS",
+        "PROJ::EVOLUTION::TDE-CONSUMER"
+      ],
+      "remaining": "Current code/workflow, publisher receipt, consumer target and protected delivery remain separate evidence boundaries."
+    },
+    {
+      "id": "WINDOWS_SOURCE__DOCS_THIRD_PARTY_NOTICES_MD",
+      "repository": "pcvantol/djconnect-windows",
+      "path": "docs/THIRD_PARTY_NOTICES.md",
+      "blob_sha": "c96dc66130313e7c344aa5aab3e37cf90e511d82",
+      "commit_sha": "1d6635ff5c610a0f43bf1ba7d68cb0b1def06924",
+      "read_boundary": "full pinned source text reviewed on 2026-10-03; exact main commit-tree source",
+      "read_complete": true,
+      "status_authority": "Local license/dependency/trademark inventory, not publication proof.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full source text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-windows/blob/1d6635ff5c610a0f43bf1ba7d68cb0b1def06924/docs/THIRD_PARTY_NOTICES.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WINDOWS"
+      ],
+      "remaining": "Current code/workflow, publisher receipt, consumer target and protected delivery remain separate evidence boundaries."
+    },
+    {
+      "id": "WINDOWS_SOURCE__DOCS_WINDOWS_INTERNAL_DEPLOYMENT_MD",
+      "repository": "pcvantol/djconnect-windows",
+      "path": "docs/WINDOWS_INTERNAL_DEPLOYMENT.md",
+      "blob_sha": "c517151fdf5401b638e993b64f3495754c5808b3",
+      "commit_sha": "1d6635ff5c610a0f43bf1ba7d68cb0b1def06924",
+      "read_boundary": "full pinned source text reviewed on 2026-10-03; exact main commit-tree source",
+      "read_complete": true,
+      "status_authority": "Pinned main document retains relay IMPLEMENTATION_IN_PROGRESS heading; PR #29 merged relay source, while installed interactive GUI-smoke acceptance remains open. Local four-path WIP was not read as main or modified.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full source text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-windows/blob/1d6635ff5c610a0f43bf1ba7d68cb0b1def06924/docs/WINDOWS_INTERNAL_DEPLOYMENT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WINDOWS",
+        "QUAL::WINDOWS::DEPLOY-SMOKE"
+      ],
+      "remaining": "Current code/workflow, publisher receipt, consumer target and protected delivery remain separate evidence boundaries."
+    },
+    {
+      "id": "WINDOWS_SOURCE__DOCS_AI_DEVELOPMENT_AI_DEVELOPMENT_ADOPTION_RECEIPT_MD",
+      "repository": "pcvantol/djconnect-windows",
+      "path": "docs/ai-development/AI_DEVELOPMENT_ADOPTION_RECEIPT.md",
+      "blob_sha": "ad3525c2adfab56d67033cf53e5b911d08381ef9",
+      "commit_sha": "1d6635ff5c610a0f43bf1ba7d68cb0b1def06924",
+      "read_boundary": "full pinned source text reviewed on 2026-10-03; exact main commit-tree source",
+      "read_complete": true,
+      "status_authority": "Historical generic projection adoption receipt, not product status.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full source text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-windows/blob/1d6635ff5c610a0f43bf1ba7d68cb0b1def06924/docs/ai-development/AI_DEVELOPMENT_ADOPTION_RECEIPT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WINDOWS"
+      ],
+      "remaining": "Current code/workflow, publisher receipt, consumer target and protected delivery remain separate evidence boundaries."
+    },
+    {
+      "id": "WINDOWS_SOURCE__DOCS_AI_DEVELOPMENT_DJCONNECT_WINDOWS_DEVELOPMENT_EXTENSION_MD",
+      "repository": "pcvantol/djconnect-windows",
+      "path": "docs/ai-development/DJCONNECT_WINDOWS_DEVELOPMENT_EXTENSION.md",
+      "blob_sha": "5a6989a0dd4335d574851f8f65dc02456bfb51b9",
+      "commit_sha": "1d6635ff5c610a0f43bf1ba7d68cb0b1def06924",
+      "read_boundary": "full pinned source text reviewed on 2026-10-03; exact main commit-tree source",
+      "read_complete": true,
+      "status_authority": "Current Windows-specific local development extension; core remains product authority.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full source text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-windows/blob/1d6635ff5c610a0f43bf1ba7d68cb0b1def06924/docs/ai-development/DJCONNECT_WINDOWS_DEVELOPMENT_EXTENSION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WINDOWS"
+      ],
+      "remaining": "Current code/workflow, publisher receipt, consumer target and protected delivery remain separate evidence boundaries."
+    },
+    {
+      "id": "WINDOWS_SOURCE__DOCS_AI_DEVELOPMENT_GENERATED_PROJECTION_MD",
+      "repository": "pcvantol/djconnect-windows",
+      "path": "docs/ai-development/GENERATED_PROJECTION.md",
+      "blob_sha": "933224af7b8638e02a4ba6acd02d60a2364488a0",
+      "commit_sha": "1d6635ff5c610a0f43bf1ba7d68cb0b1def06924",
+      "read_boundary": "full pinned source text reviewed on 2026-10-03; exact main commit-tree source",
+      "read_complete": true,
+      "status_authority": "Generated generic AI-development contract projection, not product authority.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full source text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-windows/blob/1d6635ff5c610a0f43bf1ba7d68cb0b1def06924/docs/ai-development/GENERATED_PROJECTION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WINDOWS"
+      ],
+      "remaining": "Current code/workflow, publisher receipt, consumer target and protected delivery remain separate evidence boundaries."
+    },
+    {
+      "id": "WINDOWS_SOURCE__DOCS_GOVERNANCE_ADOPTION_MD",
+      "repository": "pcvantol/djconnect-windows",
+      "path": "docs/governance/ADOPTION.md",
+      "blob_sha": "b2260c7ca61e62c693ac6d75fad51ebc5b75cb77",
+      "commit_sha": "1d6635ff5c610a0f43bf1ba7d68cb0b1def06924",
+      "read_boundary": "full pinned source text reviewed on 2026-10-03; exact main commit-tree source",
+      "read_complete": true,
+      "status_authority": "Windows governance 2.2 adoption, local DoD and release profile; no product pickup or published artifact.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full source text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-windows/blob/1d6635ff5c610a0f43bf1ba7d68cb0b1def06924/docs/governance/ADOPTION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WINDOWS"
+      ],
+      "remaining": "Current code/workflow, publisher receipt, consumer target and protected delivery remain separate evidence boundaries."
+    },
+    {
+      "id": "WEBSITE_SOURCE__BOOTSTRAP_MD",
+      "repository": "pcvantol/djconnect-website",
+      "path": "BOOTSTRAP.md",
+      "blob_sha": "e80930b30474304eda081c1517fc51fd051b249b",
+      "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
+      "read_boundary": "full pinned source text reviewed on 2026-10-03; exact main commit-tree source",
+      "read_complete": true,
+      "status_authority": "Current website bootstrap delegates generic development procedure to generated projection and local website extension.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full source text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/BOOTSTRAP.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WEBSITE"
+      ],
+      "remaining": "Current code/workflow, publisher receipt, consumer target and protected delivery remain separate evidence boundaries."
+    },
+    {
+      "id": "WEBSITE_SOURCE__BOOTSTRAP_CODEX_SESSION_MD",
+      "repository": "pcvantol/djconnect-website",
+      "path": "BOOTSTRAP_CODEX_SESSION.md",
+      "blob_sha": "19281c6225169d7661a40bb9a6cc82f71d3456a3",
+      "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
+      "read_boundary": "full pinned source text reviewed on 2026-10-03; exact main commit-tree source",
+      "read_complete": true,
+      "status_authority": "Compatibility pointer to BOOTSTRAP.md, not a second entrypoint.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full source text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/BOOTSTRAP_CODEX_SESSION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WEBSITE"
+      ],
+      "remaining": "Current code/workflow, publisher receipt, consumer target and protected delivery remain separate evidence boundaries."
+    },
+    {
+      "id": "WEBSITE_SOURCE__CANONICAL_REFERENCES_MD",
+      "repository": "pcvantol/djconnect-website",
+      "path": "CANONICAL_REFERENCES.md",
+      "blob_sha": "3080ec65655eacc6bf1057e28bbcf239b34deddb",
+      "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
+      "read_boundary": "full pinned source text reviewed on 2026-10-03; exact main commit-tree source",
+      "read_complete": true,
+      "status_authority": "Local authority map: core foundation/roadmap remains canonical; website owns presentation, public copy and implementation.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full source text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/CANONICAL_REFERENCES.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WEBSITE",
+        "PROJ::AUDIT::METHOD"
+      ],
+      "remaining": "Current code/workflow, publisher receipt, consumer target and protected delivery remain separate evidence boundaries."
+    },
+    {
+      "id": "WEBSITE_SOURCE__CHANGELOG_MD",
+      "repository": "pcvantol/djconnect-website",
+      "path": "CHANGELOG.md",
+      "blob_sha": "72660b306849bc106ee12cd1019972f2bbdf2009",
+      "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
+      "read_boundary": "full pinned source text reviewed on 2026-10-03; exact main commit-tree source",
+      "read_complete": true,
+      "status_authority": "Full chronological website change history through 3.3.1; prior automatic deployment entries are historical against exact-current dispatch-only workflow.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full source text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/CHANGELOG.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WEBSITE"
+      ],
+      "remaining": "Current code/workflow, publisher receipt, consumer target and protected delivery remain separate evidence boundaries."
+    },
+    {
+      "id": "WEBSITE_SOURCE__CHAT_BOOTSTRAP_MD",
+      "repository": "pcvantol/djconnect-website",
+      "path": "CHAT_BOOTSTRAP.md",
+      "blob_sha": "36c6dbdf7ca5bcfdbe47e18c956ece9114e90e52",
+      "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
+      "read_boundary": "full pinned source text reviewed on 2026-10-03; exact main commit-tree source",
+      "read_complete": true,
+      "status_authority": "Deprecated pointer to compatibility bootstrap.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full source text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/CHAT_BOOTSTRAP.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WEBSITE"
+      ],
+      "remaining": "Current code/workflow, publisher receipt, consumer target and protected delivery remain separate evidence boundaries."
+    },
+    {
+      "id": "WEBSITE_SOURCE__CODE_OF_CONDUCT_MD",
+      "repository": "pcvantol/djconnect-website",
+      "path": "CODE_OF_CONDUCT.md",
+      "blob_sha": "9803a7924fa368332fade2b9169801cfe2f3ff80",
+      "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
+      "read_boundary": "full pinned source text reviewed on 2026-10-03; exact main commit-tree source",
+      "read_complete": true,
+      "status_authority": "Community conduct and private reporting guidance; not product release status.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full source text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/CODE_OF_CONDUCT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WEBSITE"
+      ],
+      "remaining": "Current code/workflow, publisher receipt, consumer target and protected delivery remain separate evidence boundaries."
+    },
+    {
+      "id": "WEBSITE_SOURCE__CONTRIBUTING_MD",
+      "repository": "pcvantol/djconnect-website",
+      "path": "CONTRIBUTING.md",
+      "blob_sha": "1753217cb1b328684d7d05b43dc4c01a4af39ab4",
+      "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
+      "read_boundary": "full pinned source text reviewed on 2026-10-03; exact main commit-tree source",
+      "read_complete": true,
+      "status_authority": "Website contribution, five-language, legal and cross-repository guidance; its release script is a separate publication route.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full source text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/CONTRIBUTING.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WEBSITE",
+        "DJC-WEB-COPY"
+      ],
+      "remaining": "Current code/workflow, publisher receipt, consumer target and protected delivery remain separate evidence boundaries."
+    },
+    {
+      "id": "WEBSITE_SOURCE__DEVELOPMENT_ENVIRONMENT_MD",
+      "repository": "pcvantol/djconnect-website",
+      "path": "DEVELOPMENT_ENVIRONMENT.md",
+      "blob_sha": "8c5419f92824c2170349615a374df1d56801e2ba",
+      "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
+      "read_boundary": "full pinned source text reviewed on 2026-10-03; exact main commit-tree source",
+      "read_complete": true,
+      "status_authority": "Local website setup guide; its automatic-main-production-deploy prose is stale against current dispatch-only workflow.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full source text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/DEVELOPMENT_ENVIRONMENT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WEBSITE",
+        "SLICE::WEBSITE::RELEASE-GUIDANCE"
+      ],
+      "remaining": "Current code/workflow, publisher receipt, consumer target and protected delivery remain separate evidence boundaries."
+    },
+    {
+      "id": "WEBSITE_SOURCE__HANDOFF_MD",
+      "repository": "pcvantol/djconnect-website",
+      "path": "HANDOFF.md",
+      "blob_sha": "b6c825b54f493e35afcea2749b53ee23129ec1aa",
+      "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
+      "read_boundary": "full pinned source text reviewed on 2026-10-03; exact main commit-tree source",
+      "read_complete": true,
+      "status_authority": "Website handoff identifies website 3.3.1, but retains older HA-integration 3.2.44 copy and a separate stale claim that website 3.2.16 is the current released website version; its Spotify callback examples also omit /v1. Exact source and workflow readback take precedence.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full source text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/HANDOFF.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WEBSITE",
+        "SLICE::WEBSITE::RELEASE-GUIDANCE"
+      ],
+      "remaining": "Current code/workflow, publisher receipt, consumer target and protected delivery remain separate evidence boundaries."
+    },
+    {
+      "id": "WEBSITE_SOURCE__SECURITY_MD",
+      "repository": "pcvantol/djconnect-website",
+      "path": "SECURITY.md",
+      "blob_sha": "62779a679723598cc27573cd1a1215d67e3fa602",
+      "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
+      "read_boundary": "full pinned source text reviewed on 2026-10-03; exact main commit-tree source",
+      "read_complete": true,
+      "status_authority": "Website security reporting and operator/secret boundary; no live security deployment proof.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full source text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/SECURITY.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WEBSITE"
+      ],
+      "remaining": "Current code/workflow, publisher receipt, consumer target and protected delivery remain separate evidence boundaries."
+    },
+    {
+      "id": "WEBSITE_SOURCE__SYNC_PROMPTS_MD",
+      "repository": "pcvantol/djconnect-website",
+      "path": "SYNC_PROMPTS.md",
+      "blob_sha": "db015eb22e2e9d951b42558cd2fbc36835bf91b7",
+      "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
+      "read_boundary": "full pinned source text reviewed on 2026-10-03; exact main commit-tree source",
+      "read_complete": true,
+      "status_authority": "Local pointer to core canonical sync/product sources, not a second product authority.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full source text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/SYNC_PROMPTS.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WEBSITE"
+      ],
+      "remaining": "Current code/workflow, publisher receipt, consumer target and protected delivery remain separate evidence boundaries."
+    },
+    {
+      "id": "WEBSITE_SOURCE__TECHNICAL_DESIGN_MD",
+      "repository": "pcvantol/djconnect-website",
+      "path": "TECHNICAL_DESIGN.md",
+      "blob_sha": "ee108ecc40e94e271e4b4becce66919fe698a94e",
+      "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
+      "read_boundary": "full pinned source text reviewed on 2026-10-03; exact main commit-tree source",
+      "read_complete": true,
+      "status_authority": "Reverse-engineered website architecture; current Internal Release section correctly names manifest-bound manual deployment, later legacy auto-main-deploy prose is stale against workflow.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full source text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/TECHNICAL_DESIGN.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WEBSITE",
+        "SLICE::WEBSITE::RELEASE-GUIDANCE"
+      ],
+      "remaining": "Current code/workflow, publisher receipt, consumer target and protected delivery remain separate evidence boundaries."
+    },
+    {
+      "id": "WEBSITE_SOURCE__TESTS_MD",
+      "repository": "pcvantol/djconnect-website",
+      "path": "TESTS.md",
+      "blob_sha": "68fe05d8c18e51fe4629d90626ce72343550908c",
+      "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
+      "read_boundary": "full pinned source text reviewed on 2026-10-03; exact main commit-tree source",
+      "read_complete": true,
+      "status_authority": "Website manual/release-check catalogue; its OAuth callback example lacks /v1 and its no-local SYNC_PROMPTS check conflicts with committed pointer file. Tests listed are not presumed to have run.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full source text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/TESTS.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WEBSITE",
+        "SLICE::WEBSITE::RELEASE-GUIDANCE"
+      ],
+      "remaining": "Current code/workflow, publisher receipt, consumer target and protected delivery remain separate evidence boundaries."
+    },
+    {
+      "id": "WEBSITE_SOURCE__VOICE_INTENT_DATA_PROMPT_MD",
+      "repository": "pcvantol/djconnect-website",
+      "path": "VOICE_INTENT_DATA_PROMPT.md",
+      "blob_sha": "ac3a0e97a425c627b8e0d440b99274a698a552f0",
+      "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
+      "read_boundary": "full pinned source text reviewed on 2026-10-03; exact main commit-tree source",
+      "read_complete": true,
+      "status_authority": "Reusable structured-intent data request; source text is task material, not an instruction to this planning assignment.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full source text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/VOICE_INTENT_DATA_PROMPT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WEBSITE",
+        "DJC-WEB-COPY"
+      ],
+      "remaining": "Current code/workflow, publisher receipt, consumer target and protected delivery remain separate evidence boundaries."
+    },
+    {
+      "id": "WEBSITE_SOURCE__DOCS_AI_DEVELOPMENT_AI_DEVELOPMENT_ADOPTION_RECEIPT_MD",
+      "repository": "pcvantol/djconnect-website",
+      "path": "docs/ai-development/AI_DEVELOPMENT_ADOPTION_RECEIPT.md",
+      "blob_sha": "937dcf37e505448bfcd14304d962469102491e3b",
+      "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
+      "read_boundary": "full pinned source text reviewed on 2026-10-03; exact main commit-tree source",
+      "read_complete": true,
+      "status_authority": "Historical generic projection adoption receipt, not current product status.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full source text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/docs/ai-development/AI_DEVELOPMENT_ADOPTION_RECEIPT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WEBSITE"
+      ],
+      "remaining": "Current code/workflow, publisher receipt, consumer target and protected delivery remain separate evidence boundaries."
+    },
+    {
+      "id": "WEBSITE_SOURCE__DOCS_AI_DEVELOPMENT_DJCONNECT_WEBSITE_DEVELOPMENT_EXTENSION_MD",
+      "repository": "pcvantol/djconnect-website",
+      "path": "docs/ai-development/DJCONNECT_WEBSITE_DEVELOPMENT_EXTENSION.md",
+      "blob_sha": "8a206ed6b48c13f17f9ecf30967b966b9d8ed51d",
+      "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
+      "read_boundary": "full pinned source text reviewed on 2026-10-03; exact main commit-tree source",
+      "read_complete": true,
+      "status_authority": "Current website-specific development extension; core remains product authority.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full source text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/docs/ai-development/DJCONNECT_WEBSITE_DEVELOPMENT_EXTENSION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WEBSITE"
+      ],
+      "remaining": "Current code/workflow, publisher receipt, consumer target and protected delivery remain separate evidence boundaries."
+    },
+    {
+      "id": "WEBSITE_SOURCE__DOCS_AI_DEVELOPMENT_GENERATED_PROJECTION_MD",
+      "repository": "pcvantol/djconnect-website",
+      "path": "docs/ai-development/GENERATED_PROJECTION.md",
+      "blob_sha": "de4bc69cccdbcddc717019aafc9839edd1b58abf",
+      "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
+      "read_boundary": "full pinned source text reviewed on 2026-10-03; exact main commit-tree source",
+      "read_complete": true,
+      "status_authority": "Generated generic AI-development contract projection, not product authority.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full source text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/docs/ai-development/GENERATED_PROJECTION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WEBSITE"
+      ],
+      "remaining": "Current code/workflow, publisher receipt, consumer target and protected delivery remain separate evidence boundaries."
+    },
+    {
+      "id": "WEBSITE_SOURCE__DOCS_GOVERNANCE_ADOPTION_MD",
+      "repository": "pcvantol/djconnect-website",
+      "path": "docs/governance/ADOPTION.md",
+      "blob_sha": "db718457a414732503772f1cb34204e949608252",
+      "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
+      "read_boundary": "full pinned source text reviewed on 2026-10-03; exact main commit-tree source",
+      "read_complete": true,
+      "status_authority": "Website governance 2.2 adoption, DoD and release profile; no deployment or live-site proof.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full source text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/docs/governance/ADOPTION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WEBSITE"
+      ],
+      "remaining": "Current code/workflow, publisher receipt, consumer target and protected delivery remain separate evidence boundaries."
+    },
+    {
+      "id": "WEBSITE_SOURCE__GITHUB_WORKFLOWS_WEBSITE_POST_DEPLOYMENT_SMOKE_YML",
+      "repository": "pcvantol/djconnect-website",
+      "path": ".github/workflows/website-post-deployment-smoke.yml",
+      "blob_sha": "c2cfd7c7452bf6e20fcf6d170f496dabcd344470",
+      "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
+      "read_boundary": "full pinned source text reviewed on 2026-10-03; exact main commit-tree source",
+      "read_complete": true,
+      "status_authority": "Exact-current explicit workflow_dispatch only; validates deployment identity then performs bounded production route smoke. No dispatch occurred.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full source text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/.github/workflows/website-post-deployment-smoke.yml",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WEBSITE",
+        "SLICE::WEBSITE::RELEASE-GUIDANCE"
+      ],
+      "remaining": "Current code/workflow, publisher receipt, consumer target and protected delivery remain separate evidence boundaries."
+    },
+    {
+      "id": "CORE_SOURCE__CUSTOM_COMPONENTS_DJCONNECT_SPOTIFY_OAUTH_PY",
+      "repository": "pcvantol/djconnect",
+      "path": "custom_components/djconnect/spotify_oauth.py",
+      "blob_sha": "f0a71787c23f21e0040224a3974a8bc4c6060dbc",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned source text reviewed on 2026-10-03; exact main commit-tree source",
+      "read_complete": true,
+      "status_authority": "Exact-current source candidate builds Spotify redirect URI from API_SPOTIFY_CALLBACK; no live OAuth roundtrip proved.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full source text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/custom_components/djconnect/spotify_oauth.py",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE",
+        "SLICE::CORE::SPOTIFY-DIRECT"
+      ],
+      "remaining": "Current code/workflow, publisher receipt, consumer target and protected delivery remain separate evidence boundaries."
     }
   ],
   "nodes": [
@@ -12405,7 +13084,8 @@
         "CORE_ADR_0023",
         "CORE_ADR_0024",
         "CORE_ADR_0025",
-        "CORE_ADR_0026"
+        "CORE_ADR_0026",
+        "CORE_SOURCE__CUSTOM_COMPONENTS_DJCONNECT_SPOTIFY_OAUTH_PY"
       ],
       "canonical_authority": "LOCAL_EXTENSION",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -12727,7 +13407,23 @@
         "PROJ::DJC-WINDOWS::MANAGEMENT_SUMMARY",
         "PROJ::DJC-WINDOWS::ROADMAP_INDEX",
         "PROJ::DJC-WINDOWS::PROMPT_INDEX",
-        "WINDOWS_SMOKE_DIAGNOSTICS_HIST"
+        "WINDOWS_SMOKE_DIAGNOSTICS_HIST",
+        "WINDOWS_SOURCE__BOOTSTRAP_MD",
+        "WINDOWS_SOURCE__BOOTSTRAP_CODEX_SESSION_MD",
+        "WINDOWS_SOURCE__CANONICAL_REFERENCES_MD",
+        "WINDOWS_SOURCE__CHANGELOG_MD",
+        "WINDOWS_SOURCE__CHAT_BOOTSTRAP_MD",
+        "WINDOWS_SOURCE__DEVELOPMENT_ENVIRONMENT_MD",
+        "WINDOWS_SOURCE__SYNC_PROMPTS_MD",
+        "WINDOWS_SOURCE__THIRD_PARTY_NOTICES_MD",
+        "WINDOWS_SOURCE__DOCS_BUILD_RELEASE_HYGIENE_MD",
+        "WINDOWS_SOURCE__DOCS_TDE_1_1_1_DEPENDENCY_HEALTH_MD",
+        "WINDOWS_SOURCE__DOCS_THIRD_PARTY_NOTICES_MD",
+        "WINDOWS_SOURCE__DOCS_WINDOWS_INTERNAL_DEPLOYMENT_MD",
+        "WINDOWS_SOURCE__DOCS_AI_DEVELOPMENT_AI_DEVELOPMENT_ADOPTION_RECEIPT_MD",
+        "WINDOWS_SOURCE__DOCS_AI_DEVELOPMENT_DJCONNECT_WINDOWS_DEVELOPMENT_EXTENSION_MD",
+        "WINDOWS_SOURCE__DOCS_AI_DEVELOPMENT_GENERATED_PROJECTION_MD",
+        "WINDOWS_SOURCE__DOCS_GOVERNANCE_ADOPTION_MD"
       ],
       "canonical_authority": "README::DJC-WINDOWS",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -12896,7 +13592,26 @@
         "COPY::WEBSITE::WINDOWS::ES::V3_3_0",
         "COPY::WEBSITE::WINDOWS::FR::V3_3_0",
         "COPY::WEBSITE::WINDOWS::NL::V3_3_0",
-        "COPY::WEBSITE::WINDOWS::DEFAULT::V3_3_0"
+        "COPY::WEBSITE::WINDOWS::DEFAULT::V3_3_0",
+        "WEBSITE_SOURCE__BOOTSTRAP_MD",
+        "WEBSITE_SOURCE__BOOTSTRAP_CODEX_SESSION_MD",
+        "WEBSITE_SOURCE__CANONICAL_REFERENCES_MD",
+        "WEBSITE_SOURCE__CHANGELOG_MD",
+        "WEBSITE_SOURCE__CHAT_BOOTSTRAP_MD",
+        "WEBSITE_SOURCE__CODE_OF_CONDUCT_MD",
+        "WEBSITE_SOURCE__CONTRIBUTING_MD",
+        "WEBSITE_SOURCE__DEVELOPMENT_ENVIRONMENT_MD",
+        "WEBSITE_SOURCE__HANDOFF_MD",
+        "WEBSITE_SOURCE__SECURITY_MD",
+        "WEBSITE_SOURCE__SYNC_PROMPTS_MD",
+        "WEBSITE_SOURCE__TECHNICAL_DESIGN_MD",
+        "WEBSITE_SOURCE__TESTS_MD",
+        "WEBSITE_SOURCE__VOICE_INTENT_DATA_PROMPT_MD",
+        "WEBSITE_SOURCE__DOCS_AI_DEVELOPMENT_AI_DEVELOPMENT_ADOPTION_RECEIPT_MD",
+        "WEBSITE_SOURCE__DOCS_AI_DEVELOPMENT_DJCONNECT_WEBSITE_DEVELOPMENT_EXTENSION_MD",
+        "WEBSITE_SOURCE__DOCS_AI_DEVELOPMENT_GENERATED_PROJECTION_MD",
+        "WEBSITE_SOURCE__DOCS_GOVERNANCE_ADOPTION_MD",
+        "WEBSITE_SOURCE__GITHUB_WORKFLOWS_WEBSITE_POST_DEPLOYMENT_SMOKE_YML"
       ],
       "canonical_authority": "README::DJC-WEBSITE",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -18498,7 +19213,8 @@
       "repository": "pcvantol/djconnect",
       "source_ids": [
         "EVOLUTION",
-        "PI_TDE_OBSERVE_EXIT_CRITERIA"
+        "PI_TDE_OBSERVE_EXIT_CRITERIA",
+        "WINDOWS_SOURCE__DOCS_TDE_1_1_1_DEPENDENCY_HEALTH_MD"
       ],
       "canonical_authority": "EVOLUTION",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -19355,7 +20071,9 @@
         "CORE_META_HEURISTICS",
         "CORE_META_DECISIONS",
         "APPLE_DOC__CANONICAL_REFERENCES_MD",
-        "APPLE_DOC__DOCS_GOVERNANCE_DEFINITION_OF_DONE_MD"
+        "APPLE_DOC__DOCS_GOVERNANCE_DEFINITION_OF_DONE_MD",
+        "WINDOWS_SOURCE__CANONICAL_REFERENCES_MD",
+        "WEBSITE_SOURCE__CANONICAL_REFERENCES_MD"
       ],
       "canonical_authority": "ROADMAP_INDEX",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -20451,7 +21169,8 @@
         "AGENTS::DJC-WINDOWS",
         "WINDOWS-PUBLISH",
         "WIN_ARCH",
-        "WIN_RELEASE_GUIDE"
+        "WIN_RELEASE_GUIDE",
+        "WINDOWS_SOURCE__DOCS_BUILD_RELEASE_HYGIENE_MD"
       ],
       "canonical_authority": "README::DJC-WINDOWS",
       "owner_boundary": "Windows/Mac Catalyst-clientbron; backendcontract-consumer",
@@ -20545,7 +21264,13 @@
         "README::DJC-WEBSITE",
         "AGENTS::DJC-WEBSITE",
         "WEBSITE-DEPLOY",
-        "WEBSITE-ARTIFACT"
+        "WEBSITE-ARTIFACT",
+        "WEBSITE_SOURCE__DEVELOPMENT_ENVIRONMENT_MD",
+        "WEBSITE_SOURCE__HANDOFF_MD",
+        "WEBSITE_SOURCE__TECHNICAL_DESIGN_MD",
+        "WEBSITE_SOURCE__TESTS_MD",
+        "WEBSITE_SOURCE__GITHUB_WORKFLOWS_WEBSITE_POST_DEPLOYMENT_SMOKE_YML",
+        "WEBSITE-POST-MERGE-EVIDENCE"
       ],
       "canonical_authority": "README::DJC-WEBSITE",
       "owner_boundary": "Website, publieke documentatie, onboardingpresentatie en release-noteprojecties",
@@ -21404,7 +22129,9 @@
       "lane": "DJC-WEBSITE",
       "repository": "pcvantol/djconnect-website",
       "source_ids": [
-        "ISSUES::DJC-WEBSITE"
+        "ISSUES::DJC-WEBSITE",
+        "WEBSITE_SOURCE__CONTRIBUTING_MD",
+        "WEBSITE_SOURCE__VOICE_INTENT_DATA_PROMPT_MD"
       ],
       "canonical_authority": "ISSUES::DJC-WEBSITE",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -21496,7 +22223,8 @@
       "source_ids": [
         "PRODUCT_ROADMAP",
         "API_CONTRACT",
-        "CORE_ADR_0002"
+        "CORE_ADR_0002",
+        "CORE_SOURCE__CUSTOM_COMPONENTS_DJCONNECT_SPOTIFY_OAUTH_PY"
       ],
       "canonical_authority": "PRODUCT_ROADMAP",
       "owner_boundary": "HA-integratie, centrale productautoriteit en server-side DJConnect-domein",
@@ -22705,7 +23433,8 @@
         "PROJ::DJC-WINDOWS::MANAGEMENT_SUMMARY",
         "PROJ::DJC-WINDOWS::ROADMAP_INDEX",
         "PROJ::DJC-WINDOWS::PROMPT_INDEX",
-        "WINDOWS_SMOKE_DIAGNOSTICS_HIST"
+        "WINDOWS_SMOKE_DIAGNOSTICS_HIST",
+        "WINDOWS_SOURCE__DOCS_WINDOWS_INTERNAL_DEPLOYMENT_MD"
       ],
       "canonical_authority": "DEPLOY_CONSUMER_INVENTORY",
       "owner_boundary": "Windows/Mac Catalyst-clientbron; backendcontract-consumer",
@@ -25545,7 +26274,7 @@
     {
       "id": "NORMATIVE-SOURCE-LINK-GAPS",
       "status": "HISTORICAL_LINK_FRONTIER_TRIAGED; BROADER_SOURCE_AUDIT_OPEN",
-      "description": "The pinned-blob relative Markdown-link scan covers included core and eleven component-repository Markdown sources. All component relative Markdown targets discovered by this scan are pinned. Six existing core targets linked from the historical embedded EP handbook remain explicitly triaged as standalone-EP history; its old tools/engineering/ENGINEERING_PLATFORM_STATUS.md link is absent at the core pin. The mandatory Meta Engineering reading order, core lifecycle/policy navigation, API-local evidence and eight lanes' phase projections are read and pinned. Six additional literal local .md references named by those projections are also fully read and pinned. None adds an untriaged relative Markdown-link target. The wider source, physical/consumer and release audit remains open; link closure alone is not complete DAG proof.",
+      "description": "The pinned-blob relative Markdown-link scan covers included core and eleven component-repository Markdown sources. All component relative Markdown targets discovered by this scan are pinned. Nine existing core targets linked from the historical embedded EP handbook remain explicitly triaged as standalone-EP history; its old tools/engineering/ENGINEERING_PLATFORM_STATUS.md link is absent at the core pin. The mandatory Meta Engineering reading order, core lifecycle/policy navigation, API-local evidence and eight lanes' phase projections are read and pinned. Six additional literal local .md references named by those projections are also fully read and pinned. None adds an untriaged relative Markdown-link target. The wider source, physical/consumer and release audit remains open; link closure alone is not complete DAG proof.",
       "source_ids": [
         "FOUNDATION_INDEX",
         "SESSION_RUNTIME_CONTRACTS",
@@ -25941,6 +26670,35 @@
         "CORE_ADR_0026",
         "RETIREMENT_DELTA"
       ]
+    },
+    {
+      "id": "WEBSITE-OAUTH-REDIRECT-COPY",
+      "status": "OPEN_OWNING_PUBLIC_COPY_RECONCILIATION",
+      "description": "Exact core main source const.py defines API_BASE=/api/djconnect/v1 and API_SPOTIFY_CALLBACK=API_BASE/spotify/callback; spotify_oauth.py builds the redirect URI from that constant. The published core v3.3.1 tag at 1e9a7ddac60968044b7507688366653ba74dd0b8 has the same callback constant and builder (targeted line read, outside the included source matrix). Pinned Website README/HANDOFF/TESTS instruct users to register /api/djconnect/spotify/callback without /v1. A bounded exact-main grep at website 6eef6aa2 additionally finds that unversioned path in wwwroot/start.html and troubleshooting.html plus en/de/fr/es variants; those ten HTML files are line-inspected only, not individually included or fully read in this source matrix. The mismatch can break Spotify Developer redirect registration; live site state and a real OAuth roundtrip are not proved. The existing Website owning register must reconcile public copy under core API authority before any separately approved publication.",
+      "source_ids": [
+        "CONST::DJC-CORE",
+        "CORE_SOURCE__CUSTOM_COMPONENTS_DJCONNECT_SPOTIFY_OAUTH_PY",
+        "README::DJC-WEBSITE",
+        "WEBSITE_SOURCE__HANDOFF_MD",
+        "WEBSITE_SOURCE__TESTS_MD",
+        "AGENTS::DJC-CORE"
+      ]
+    },
+    {
+      "id": "WEBSITE-AUTO-DEPLOY-DOC-DRIFT",
+      "status": "OPEN_OWNING_DOCUMENTARY_RECONCILIATION",
+      "description": "Website DEVELOPMENT_ENVIRONMENT.md, HANDOFF.md, TECHNICAL_DESIGN.md and TESTS.md still say a successful main push automatically deploys Cloudflare Pages. Exact-current deploy-pages.yml is workflow_dispatch-only with manifest/artifact/target inputs; website-release-artifact.yml runs after successful main validation and packages an Actions artifact without deployment credentials; a separate successful-main post-merge-release-evidence.yml workflow calls the pinned core reusable workflow with contents/statuses write and can create/append an internal-ha-{SHA} prerelease asset and write main commit status after its gates. Post-deployment smoke is separate manual dispatch. Historical changelog entries describe the older automatic route. No main push, Cloudflare deployment or live site qualification is inferred from those docs.",
+      "source_ids": [
+        "WEBSITE_SOURCE__DEVELOPMENT_ENVIRONMENT_MD",
+        "WEBSITE_SOURCE__HANDOFF_MD",
+        "WEBSITE_SOURCE__TECHNICAL_DESIGN_MD",
+        "WEBSITE_SOURCE__TESTS_MD",
+        "WEBSITE-DEPLOY",
+        "WEBSITE-ARTIFACT",
+        "WEBSITE_SOURCE__GITHUB_WORKFLOWS_WEBSITE_POST_DEPLOYMENT_SMOKE_YML",
+        "WEBSITE-POST-MERGE-EVIDENCE",
+        "CORE_POST_MERGE_REUSABLE"
+      ]
     }
   ],
   "audit_obligations": [
@@ -25948,7 +26706,7 @@
       "id": "AUDIT-DJC-CORE",
       "status": "OPEN",
       "scope": "DJC-CORE",
-      "reason": "Pinned foundation, roadmap, horizon, legal, voice, verification, full Meta Engineering reading order, local environment and historical EP/Software Assurance sources are read. Six EP history links remain triaged; workflow effects, remaining consumer evidence and final delta still need qualification. Ten additional exact-pinned core policy/navigation sources are read, including owner authorization and Finalization; generated lifecycle and physical/consumer evidence still need qualification. Five linked architecture/assurance/Trusted Delivery records are also pinned; the 2026-07-13 target matrix is historical, not current settings evidence. Five additional canonical/navigational product texts and sixteen dated Phase 6 technical/target-architecture texts are pinned. Their current-state claims are bounded by the 2026-07-10 archaeology phase; the standalone Device Installer is planned target architecture, not an existing thirteenth lane or product pickup. All 19 core ADR Markdown sources are now pinned (17 in this delta), with ADR-0024/0025 incident supersession and ADR-0026 terminal clean-slate context kept historical under #1098."
+      "reason": "Pinned foundation, roadmap, horizon, legal, voice, verification, full Meta Engineering reading order, local environment and historical EP/Software Assurance sources are read. Nine EP history links remain triaged; workflow effects, remaining consumer evidence and final delta still need qualification. Ten additional exact-pinned core policy/navigation sources are read, including owner authorization and Finalization; generated lifecycle and physical/consumer evidence still need qualification. Five linked architecture/assurance/Trusted Delivery records are also pinned; the 2026-07-13 target matrix is historical, not current settings evidence. Five additional canonical/navigational product texts and sixteen dated Phase 6 technical/target-architecture texts are pinned. Their current-state claims are bounded by the 2026-07-10 archaeology phase; the standalone Device Installer is planned target architecture, not an existing thirteenth lane or product pickup. All 19 core ADR Markdown sources are now pinned (17 in this delta), with ADR-0024/0025 incident supersession and ADR-0026 terminal clean-slate context kept historical under #1098."
     },
     {
       "id": "AUDIT-DJC-APPLE",
@@ -25975,7 +26733,7 @@
       "id": "AUDIT-DJC-WINDOWS",
       "status": "OPEN",
       "scope": "DJC-WINDOWS",
-      "reason": "Complete local policy, owning backlog/source/tests/PR/releases, active writer/register discovery, workflow effects and final delta. README is not a complete component audit. Four local phase/status projections and the prior smoke-diagnostics history are pinned. PR #29 merged the relay source, but installation and interactive GUI-smoke target acceptance remain open.",
+      "reason": "Complete local policy, owning backlog/source/tests/PR/releases, active writer/register discovery, workflow effects and final delta. README is not a complete component audit. Four local phase/status projections and the prior smoke-diagnostics history are pinned. PR #29 merged the relay source, but installation and interactive GUI-smoke target acceptance remain open. Sixteen additional Windows root, policy, changelog, TDE and deployment documents are exact-pinned; main relay status heading is stale against merged PR #29, and local four-path WIP remains untouched. Remaining unrepresented Windows Markdown is 68 release-note and 8 historical-prompt paths.",
       "remaining": "Pinned Windows profile, architecture, API mirror, code/contribution/privacy/security, development/handoff/localization/NFR/release/technical/Track Insight documents are read. Reconcile 3.2.x and Track Insight field drift with current core 3.3.x/five-language contract; then qualify actual CI, unsigned 3.3.0 source/artifact join, conditional Mac Catalyst, local WIP and live/installed consumer receipts."
     },
     {
@@ -25989,7 +26747,7 @@
       "id": "AUDIT-DJC-WEBSITE",
       "status": "OPEN",
       "scope": "DJC-WEBSITE",
-      "reason": "Pinned website README and four local phase/status projections still need owning status reconciliation with merged RG-001 PR #24. Thirty-six 3.3.0/latest release-copy files are fully read/pinned but do not prove a live site or actual artifact distribution. All six MacCatalyst 3.3.0 files carry a Windows title over a MacCatalyst platform label. In all six locale/default variants, both iOS latest.md and v3.3.0.md direct normal distribution to TestFlight/App Store without distinguishing the current core Internal Release relay from separately approved public Apple distribution. Reconcile this documentary channel/version drift with Apple 4.0.0 RC1 source notes and actual producer/consumer receipts; no website publication is selected by this planning record.",
+      "reason": "Pinned website README and four local phase/status projections still need owning status reconciliation with merged RG-001 PR #24. Thirty-six 3.3.0/latest release-copy files are fully read/pinned but do not prove a live site or actual artifact distribution. All six MacCatalyst 3.3.0 files carry a Windows title over a MacCatalyst platform label. In all six locale/default variants, both iOS latest.md and v3.3.0.md direct normal distribution to TestFlight/App Store without distinguishing the current core Internal Release relay from separately approved public Apple distribution. Reconcile this documentary channel/version drift with Apple 4.0.0 RC1 source notes and actual producer/consumer receipts; no website publication is selected by this planning record. All 18 remaining non-release-note Markdown paths and the post-deployment smoke workflow are pinned; 348 older versioned release-note Markdown paths remain for historical-copy classification. Website Handoff/README/Tests and bounded line reads of static five-language setup/troubleshooting source show an unversioned Spotify callback (ten HTML files remain outside the full-read matrix), while exact core source uses /api/djconnect/v1/spotify/callback. Website development/technical/test/handoff prose still describes an automatic main production deploy, but current deploy-pages.yml is workflow_dispatch-only; the website artifact workflow creates an Actions artifact, while the separate successful-main post-merge evidence workflow can publish a GitHub prerelease evidence asset and main commit status after its gates; neither route is a Cloudflare deployment. No website push, deploy or public-copy edit occurred.",
       "remaining": "Complete local policy, owning backlog/source/tests/PR/releases, active writer/register discovery, workflow effects, copy/channel reconciliation and final delta under the existing website authority; do not infer live distribution from source copy."
     },
     {
@@ -26044,7 +26802,7 @@
       "status": "OPEN",
       "scope": "platform",
       "reason": "Follow all owning graph/source links, old IDs and historical disposition; a truncated tree or empty search is not absence evidence.",
-      "remaining": "Six triaged historical EP linked sources remain outside this product planning matrix. Follow owning graph/old IDs and historical dispositions and prove phase-specific edges and rollups; standalone Software Assurance/EP graphs confer no new product execution."
+      "remaining": "Nine triaged historical EP linked sources remain outside this product planning matrix. Follow owning graph/old IDs and historical dispositions and prove phase-specific edges and rollups; standalone Software Assurance/EP graphs confer no new product execution."
     },
     {
       "id": "PRODUCER-EVIDENCE",
@@ -26058,7 +26816,7 @@
       "status": "OPEN",
       "scope": "platform",
       "reason": "Current matrix covers only explicitly read source inventory; certify complete disposition only after all relevant discoveries are audited.",
-      "remaining": "All 634 included pinned source rows have exact path/blob provenance and bounded read descriptions. Exact pinned trees contain 1,739 tracked Markdown paths, 535 individually represented in the matrix and 1,204 needing relevance/classification disposition; these are path counts, not a claim that the remaining paths are normative. Pi 33/33, API 28/28 and ESP32 28/28 Markdown paths are represented; runtime, further workflow/test coverage and physical/source-to-release consumers remain separately open. Core product, technical and all 19 ADR Markdown references are now represented; remaining core, Apple release-note/history, Windows and website path categories still require explicit disposition. The 41 pinned Apple/website release-copy files do not prove publication, live site or installed consumers. Six historical core EP relative-link targets remain triaged outside the matrix. Complete repository-wide source/consumer discovery and status qualification before certification."
+      "remaining": "All 671 included pinned source rows have exact path/blob provenance and bounded read descriptions. Exact pinned trees contain 1,739 tracked Markdown paths, 569 individually represented in the matrix and 1,170 needing relevance/classification disposition; these are path counts, not a claim that the remaining paths are normative. Pi 33/33, API 28/28 and ESP32 28/28 Markdown paths are represented; runtime, further workflow/test coverage and physical/source-to-release consumers remain separately open. Core product, technical and all 19 ADR Markdown references are now represented; remaining core, Apple/Windows release-note/history and website release-note path categories still require explicit disposition. The 41 pinned Apple/website release-copy files do not prove publication, live site or installed consumers. Nine historical core EP relative-link targets remain triaged outside the matrix. Complete repository-wide source/consumer discovery and status qualification before certification."
     },
     {
       "id": "REGISTER-DELIVERY",
