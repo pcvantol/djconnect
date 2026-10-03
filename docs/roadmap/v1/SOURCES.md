@@ -699,6 +699,7 @@ This is a pinned planning projection for assignment `DJC-PLATFORM-ROADMAP-DAG-LA
 | `CORE_VERIFY_KNOWN_LIMITATIONS` | `pcvantol/djconnect` / [docs/verification/KNOWN_LIMITATIONS.md](https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/verification/KNOWN_LIMITATIONS.md) | `192703ea79d3c65f373e69fa60d604555d4c2f5a` / `894ecd73703b08f8663be25b91acb08281be4d59` | complete; exact pinned full-text read in this continuation | `MAPPED`: `PROJ::AUDIT::METHOD` | Exact current consumer acceptance and privacy/capability runs remain unqualified. |
 | `CORE_VERIFY_PROFILE_REPORT` | `pcvantol/djconnect` / [docs/verification/VERIFICATION_REPORT.md](https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/verification/VERIFICATION_REPORT.md) | `192703ea79d3c65f373e69fa60d604555d4c2f5a` / `2a87e51548b14a16cac8ec1e640fab9b7208c00c` | complete; exact pinned full-text read in this continuation | `MAPPED`: `PROJ::AUDIT::METHOD` | Current live Profile Platform gate cannot be closed from this source alone. |
 | `CORE_VERIFY_PROFILE_PROGRAM` | `pcvantol/djconnect` / [docs/verification/VERIFICATION_PROGRAM_V1.md](https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/verification/VERIFICATION_PROGRAM_V1.md) | `192703ea79d3c65f373e69fa60d604555d4c2f5a` / `b5c790da064f781a1b740c665ef09e29a1b20d87` | complete; exact pinned full-text read in this continuation | `MAPPED`: `PROJ::AUDIT::METHOD` | Original Epic gate and current product-phase applicability require owning status reconciliation; no run started. |
+| `CORE_DISCOVERY_INDEX_HIST` | `pcvantol/djconnect` / [docs/discovery/README.md](https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/discovery/README.md) | `192703ea79d3c65f373e69fa60d604555d4c2f5a` / `0ef6fbfc502d46a553af700fcea7b4158d68f178` | complete; exact pinned full-text read in this continuation | `MAPPED`: `PROJ::AUDIT::METHOD` | Historical reports may support provenance but cannot drive a new product selection or current capability claim. |
 
 ## Exact observed main-tree Markdown census
 
@@ -706,7 +707,7 @@ Exact main trees at the 2026-10-03 11:45 UTC remote-head readback: core 192703ea
 
 | Lane | Observed tree | Tracked Markdown | Individually read / represented | Historical path-only classification | Unclassified frontier |
 |---|---|---:|---:|---:|---:|
-| `DJC-CORE` | `192703ea79d3c65f373e69fa60d604555d4c2f5a` | 880 | 284 | 344 | 252 |
+| `DJC-CORE` | `192703ea79d3c65f373e69fa60d604555d4c2f5a` | 880 | 285 | 361 | 234 |
 | `DJC-APPLE` | `d54224dbf02517ae47406aa14d33e97e61c18002` | 173 | 47 | 126 | 0 |
 | `DJC-ESP32` | `49a71f99f6435819ec00b7387520a3fd20640a0b` | 28 | 28 | 0 | 0 |
 | `DJC-PI` | `92712ae989f9ad44e2b935222a1e1053670a782f` | 33 | 33 | 0 | 0 |
@@ -721,12 +722,13 @@ Exact main trees at the 2026-10-03 11:45 UTC remote-head readback: core 192703ea
 
 ## Path-only historical dispositions
 
-Path-only classification from exact pinned Git trees, with blob identities and category/version bounds. These 894 paths are historical prompt records, older versioned release copy or retained embedded EP documentation, not full-text reads or independent current-status authority. Any later current source reference can reopen an individual path for full read; no product or release selection follows from this classification.
+Path-only classification from exact pinned Git trees, with blob identities and category/version bounds. These 911 paths are historical prompt records, older versioned release copy, retained embedded EP documentation or Epic 2 discovery artifacts, not full-text reads or independent current-status authority. Any later current source reference can reopen an individual path for full read; no product or release selection follows from this classification.
 
 | Lane | Category | Paths | Authority | Disposition |
 |---|---|---:|---|---|
 | `DJC-CORE` | `DATED_PROMPT_HISTORY` | 293 | `CORE_PROMPT_HISTORY_README` | Dated completed-prompt records; exact path/blob identified, contents not reread. Historical traceability only; current main and status/roadmap records own live state. |
 | `DJC-CORE` | `RETAINED_EMBEDDED_EP_DOCUMENTATION` | 51 | `RETIREMENT_DELTA`, `CORE_EP_HANDBOOK_HIST`, `CORE_EP_RUNS_INDEX_HIST` | Retained docs/engineering architecture, run receipts and operational reports from the embedded Engineering Platform retired by terminal #1098. Exact path/blob only; contents were not reread and no active DJConnect execution authority is inferred. Reopen a specific path for full reading only if a current authority depends on it. |
+| `DJC-CORE` | `EPIC_2_DISCOVERY_HISTORY` | 17 | `CORE_DISCOVERY_INDEX_HIST`, `CORE_DISCOVERY_HIST`, `CAPABILITY_MODEL` | Epic 2 repository discovery reports, debt/recommendation and review documents. The exact pinned index calls them historical evidence and delegates current capability authority to DJCONNECT_CAPABILITY_MODEL. Exact path/blob only; 17 contents were not fully reread and no new backlog selection is inferred. |
 | `DJC-APPLE` | `DATED_PROMPT_HISTORY` | 12 | `AGENTS::DJC-APPLE`, `PROJ::DJC-APPLE::ENGINEERING_STATUS` | Dated Apple prompt history; exact path/blob identified, contents not reread. No current writer, release or completion status inferred. |
 | `DJC-APPLE` | `OLDER_APPLE_VERSIONED_RELEASE_COPY` | 114 | `APPLE_CHANGELOG`, `APPLE_RELEASE_GUIDE` | Pre-4.0.0 versioned Apple release-note copy; exact path/blob identified, contents not reread. Current 4.0.0 RC1 copy and source/release receipts have separate pins. |
 | `DJC-WINDOWS` | `DATED_PROMPT_HISTORY` | 8 | `AGENTS::DJC-WINDOWS`, `PROJ::DJC-WINDOWS::ENGINEERING_STATUS` | Dated Windows prompt history; exact path/blob identified, contents not reread. No current GUI-smoke or release status inferred. |

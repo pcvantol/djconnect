@@ -41,7 +41,7 @@
     "metadata_and_bounded_paraphrases": true,
     "offline_hash_verification_of_remote_blobs": false,
     "per_call_timestamps": "Date-level head readback on 2026-10-03; no per-file read timestamp for inherited checkpoint.",
-    "pinned_tree_blobs_verified": "695 of 695 path/blob pins matched exact commit trees or GitHub Contents commit readbacks: 105 original GitHub tree readbacks, 462 local git commit-tree readbacks and 128 new GitHub tree/Contents readbacks on 2026-10-03. Current API Markdown blobs at 3f1ed18d matched fully read local previous-main blobs. Firmware binary files were fully SHA256-hashed for identity, not semantically executed. Narrative interpretation remains partial.",
+    "pinned_tree_blobs_verified": "696 of 696 path/blob pins matched exact commit trees or GitHub Contents commit readbacks: 105 original GitHub tree readbacks, 463 local git commit-tree readbacks and 128 new GitHub tree/Contents readbacks on 2026-10-03. Current API Markdown blobs at 3f1ed18d matched fully read local previous-main blobs. Firmware binary files were fully SHA256-hashed for identity, not semantically executed. Narrative interpretation remains partial.",
     "reference_scan": {
       "method": "Every pinned core Markdown blob and every pinned Markdown blob in the eleven DJC component repositories, at its recorded commit: parse relative Markdown links, strip anchors, normalize against source directory, retain existing .md targets absent from the pinned source matrix; distinct repository/path keys. The seven pinned external Forge method documents are outside this lane-source link frontier.",
       "unmapped_paths": [
@@ -77,11 +77,11 @@
           "repository": "pcvantol/djconnect",
           "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
           "tracked_markdown": 880,
-          "included_markdown": 284,
-          "not_individually_included_markdown": 596,
+          "included_markdown": 285,
+          "not_individually_included_markdown": 595,
           "tree_readback": "complete local git ls-tree -r",
-          "historically_classified_markdown": 344,
-          "unclassified_markdown": 252
+          "historically_classified_markdown": 361,
+          "unclassified_markdown": 234
         },
         "DJC-APPLE": {
           "repository": "pcvantol/djconnect-app",
@@ -196,7 +196,7 @@
       }
     },
     "historical_path_dispositions": {
-      "method": "Path-only classification from exact pinned Git trees, with blob identities and category/version bounds. These 894 paths are historical prompt records, older versioned release copy or retained embedded EP documentation, not full-text reads or independent current-status authority. Any later current source reference can reopen an individual path for full read; no product or release selection follows from this classification.",
+      "method": "Path-only classification from exact pinned Git trees, with blob identities and category/version bounds. These 911 paths are historical prompt records, older versioned release copy, retained embedded EP documentation or Epic 2 discovery artifacts, not full-text reads or independent current-status authority. Any later current source reference can reopen an individual path for full read; no product or release selection follows from this classification.",
       "groups": [
         {
           "lane": "DJC-CORE",
@@ -1593,6 +1593,86 @@
             {
               "path": "docs/engineering/runs/2026/2026-08-31-inbox-c2fcce7516dd412eae80b40c55cd9a25.md",
               "blob_sha": "639e5cea8fac082c426e4231347a23773a9580e4"
+            }
+          ]
+        },
+        {
+          "lane": "DJC-CORE",
+          "category": "EPIC_2_DISCOVERY_HISTORY",
+          "reason": "Epic 2 repository discovery reports, debt/recommendation and review documents. The exact pinned index calls them historical evidence and delegates current capability authority to DJCONNECT_CAPABILITY_MODEL. Exact path/blob only; 17 contents were not fully reread and no new backlog selection is inferred.",
+          "authority_source_ids": [
+            "CORE_DISCOVERY_INDEX_HIST",
+            "CORE_DISCOVERY_HIST",
+            "CAPABILITY_MODEL"
+          ],
+          "entries": [
+            {
+              "path": "docs/discovery/BACKLOG_RECOMMENDATIONS.md",
+              "blob_sha": "c2ef1b1703b1373d7a69d5f992431a299c7419fe"
+            },
+            {
+              "path": "docs/discovery/CI_CD_REVIEW.md",
+              "blob_sha": "e80181ddd824b6753ab665caaa6a9edf7ce124c3"
+            },
+            {
+              "path": "docs/discovery/INNOVATION_RECOMMENDATIONS.md",
+              "blob_sha": "3b8c6219ba2d6947de0f5e3f47fae81a17068b7e"
+            },
+            {
+              "path": "docs/discovery/PRODUCT_DEBT_REGISTER.md",
+              "blob_sha": "0591a41f79fcce782a3245d035528d91fa6e7889"
+            },
+            {
+              "path": "docs/discovery/RELEASE_PROCESS_REVIEW.md",
+              "blob_sha": "57ad35ba9092902f17169391d4ca3d64e9acb9ca"
+            },
+            {
+              "path": "docs/discovery/SECURITY_PRIVACY_REVIEW.md",
+              "blob_sha": "48204eaf1840a5fed4eb7b8a81a0c926e79a656f"
+            },
+            {
+              "path": "docs/discovery/TECHNICAL_DEBT_REGISTER.md",
+              "blob_sha": "52608de7aa8525235e4a2bd6e58c4f1a59537eb5"
+            },
+            {
+              "path": "docs/discovery/djconnect-api.md",
+              "blob_sha": "80c3085f0450c6835f08ab287ad7a5b5d0ce4f6d"
+            },
+            {
+              "path": "docs/discovery/djconnect-app-releases.md",
+              "blob_sha": "bbf3ebbd17c327f645b7c384e580fd2e2bd9b1be"
+            },
+            {
+              "path": "docs/discovery/djconnect-app.md",
+              "blob_sha": "cc58df2a0246a97f95da6a4904e7e9a9d6e455ec"
+            },
+            {
+              "path": "docs/discovery/djconnect-esp32.md",
+              "blob_sha": "b95df44ffc8777514eb4c3158488c359b755cf3f"
+            },
+            {
+              "path": "docs/discovery/djconnect-firmware.md",
+              "blob_sha": "8b5ed659759195e43c3cd7c7197dd64759e06257"
+            },
+            {
+              "path": "docs/discovery/djconnect-pi-releases.md",
+              "blob_sha": "d8f6abc9f56ef935b1fead1651981bd3c722cfd3"
+            },
+            {
+              "path": "docs/discovery/djconnect-pi.md",
+              "blob_sha": "ccacf2ff2236f403064c84bdf8f12d88c7130396"
+            },
+            {
+              "path": "docs/discovery/djconnect-website.md",
+              "blob_sha": "e42a496311f191ac79347d5a52d630318f9237f1"
+            },
+            {
+              "path": "docs/discovery/djconnect-windows.md",
+              "blob_sha": "77ca13556a1a01161b887fd2ada0077ee21f0525"
+            },
+            {
+              "path": "docs/discovery/djconnect.md",
+              "blob_sha": "eec83694e72d12e23fd59bd65eb84374ebc07d49"
             }
           ]
         },
@@ -17096,6 +17176,24 @@
         "PROJ::AUDIT::METHOD"
       ],
       "remaining": "Original Epic gate and current product-phase applicability require owning status reconciliation; no run started."
+    },
+    {
+      "id": "CORE_DISCOVERY_INDEX_HIST",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/discovery/README.md",
+      "blob_sha": "0ef6fbfc502d46a553af700fcea7b4158d68f178",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Epic 2 discovery index explicitly labels its repository reports, recommendations and reviews as historical artifacts, not current capability authority; current DJCONNECT_CAPABILITY_MODEL owns implemented capability disposition.",
+      "observed_at": "2026-10-03; continuation of pinned issue #1101 audit",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/discovery/README.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::AUDIT::METHOD"
+      ],
+      "remaining": "Historical reports may support provenance but cannot drive a new product selection or current capability claim."
     }
   ],
   "nodes": [
@@ -24211,7 +24309,8 @@
         "CORE_VERIFY_PLATFORM_SCORECARD",
         "CORE_VERIFY_KNOWN_LIMITATIONS",
         "CORE_VERIFY_PROFILE_REPORT",
-        "CORE_VERIFY_PROFILE_PROGRAM"
+        "CORE_VERIFY_PROFILE_PROGRAM",
+        "CORE_DISCOVERY_INDEX_HIST"
       ],
       "canonical_authority": "ROADMAP_INDEX",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -30869,7 +30968,7 @@
       "id": "AUDIT-DJC-CORE",
       "status": "OPEN",
       "scope": "DJC-CORE",
-      "reason": "Pinned foundation, roadmap, horizon, legal, voice, verification, full Meta Engineering reading order, local environment and historical EP/Software Assurance sources are read. Nine EP history links remain triaged; workflow effects, remaining consumer evidence and final delta still need qualification. Ten additional exact-pinned core policy/navigation sources are read, including owner authorization and Finalization; generated lifecycle and physical/consumer evidence still need qualification. Five linked architecture/assurance/Trusted Delivery records are also pinned; the 2026-07-13 target matrix is historical, not current settings evidence. Five additional canonical/navigational product texts and sixteen dated Phase 6 technical/target-architecture texts are pinned. Their current-state claims are bounded by the 2026-07-10 archaeology phase; the standalone Device Installer is planned target architecture, not an existing thirteenth lane or product pickup. All 19 core ADR Markdown sources are now pinned (17 in this delta), with ADR-0024/0025 incident supersession and ADR-0026 terminal clean-slate context kept historical under #1098. Ten additional exact-pinned release-policy/navigation/historical records are read, including exact-main evidence-prerelease policy, dispatch-only deployment/smoke boundaries and the prompt-history non-authority rule. The 3.3.1 prepared-for-review release note is historical against the published v3.3.1 tag; no installed consumer is inferred. 293 dated core prompt paths are classified by path only, leaving 317 core Markdown paths unclassified. Four exact-pinned post-merge Software Assurance records now separate current policy/schema from historical qualification; the stated per-component prerelease prefix conflicts with the pinned reusable workflow hard-coded internal-ha tag. Four retained embedded-EP status/run/workspace records were fully read as historical; 51 other docs/engineering Markdown paths are classified by exact path/blob under terminal #1098 without reopening retirement. Six exact-pinned Verification Program/report/backlog/scorecard records distinguish dated Profile V1 live NO-GO, later qualified Verification Platform engine, stale internal Windows narrative and completed Golden CI infrastructure; no current live consumer GO is inferred."
+      "reason": "Pinned foundation, roadmap, horizon, legal, voice, verification, full Meta Engineering reading order, local environment and historical EP/Software Assurance sources are read. Nine EP history links remain triaged; workflow effects, remaining consumer evidence and final delta still need qualification. Ten additional exact-pinned core policy/navigation sources are read, including owner authorization and Finalization; generated lifecycle and physical/consumer evidence still need qualification. Five linked architecture/assurance/Trusted Delivery records are also pinned; the 2026-07-13 target matrix is historical, not current settings evidence. Five additional canonical/navigational product texts and sixteen dated Phase 6 technical/target-architecture texts are pinned. Their current-state claims are bounded by the 2026-07-10 archaeology phase; the standalone Device Installer is planned target architecture, not an existing thirteenth lane or product pickup. All 19 core ADR Markdown sources are now pinned (17 in this delta), with ADR-0024/0025 incident supersession and ADR-0026 terminal clean-slate context kept historical under #1098. Ten additional exact-pinned release-policy/navigation/historical records are read, including exact-main evidence-prerelease policy, dispatch-only deployment/smoke boundaries and the prompt-history non-authority rule. The 3.3.1 prepared-for-review release note is historical against the published v3.3.1 tag; no installed consumer is inferred. 293 dated core prompt paths are classified by path only, leaving 317 core Markdown paths unclassified. Four exact-pinned post-merge Software Assurance records now separate current policy/schema from historical qualification; the stated per-component prerelease prefix conflicts with the pinned reusable workflow hard-coded internal-ha tag. Four retained embedded-EP status/run/workspace records were fully read as historical; 51 other docs/engineering Markdown paths are classified by exact path/blob under terminal #1098 without reopening retirement. Six exact-pinned Verification Program/report/backlog/scorecard records distinguish dated Profile V1 live NO-GO, later qualified Verification Platform engine, stale internal Windows narrative and completed Golden CI infrastructure; no current live consumer GO is inferred. The exact-pinned Epic 2 discovery index explicitly labels 17 remaining discovery reports as historical, path/blob-classified only; current capability model remains the authority."
     },
     {
       "id": "AUDIT-DJC-APPLE",
@@ -30979,7 +31078,7 @@
       "status": "OPEN",
       "scope": "platform",
       "reason": "Current matrix covers only explicitly read source inventory; certify complete disposition only after all relevant discoveries are audited.",
-      "remaining": "All 695 included pinned source rows have exact path/blob provenance and bounded read descriptions. Exact pinned trees contain 1,739 tracked Markdown paths: 593 individually represented/full-read, 894 exact path/blob entries classified only as dated prompt history, older versioned release copy or retained embedded EP documentation, and 252 still unclassified for relevance/full reading. The 894 classified contents were not read and can be reopened when a current authority points to one. Apple 47/173, Windows 41/117 and website 64/412 Markdown have all other paths in explicit historical categories; Pi 33/33, API 28/28 and ESP32 28/28 are individually represented. Core is 284/880, with 293 dated prompts and 51 retained EP documents classified by path, and 252 unclassified. Runtime, workflow/test and physical/source-to-release consumer coverage remain separately open. Nine historical core EP relative-link targets remain triaged outside the matrix. Complete current-source/consumer discovery and status qualification before certification."
+      "remaining": "All 696 included pinned source rows have exact path/blob provenance and bounded read descriptions. Exact pinned trees contain 1,739 tracked Markdown paths: 594 individually represented/full-read, 911 exact path/blob entries classified only as dated prompt history, older versioned release copy, retained embedded EP documentation or Epic 2 discovery artifacts, and 234 still unclassified for relevance/full reading. The 911 classified contents were not read and can be reopened when a current authority points to one. Apple 47/173, Windows 41/117 and website 64/412 Markdown have all other paths in explicit historical categories; Pi 33/33, API 28/28 and ESP32 28/28 are individually represented. Core is 285/880, with 293 dated prompts, 51 retained EP documents and 17 Epic 2 discovery reports classified by path, and 234 unclassified. Runtime, workflow/test and physical/source-to-release consumer coverage remain separately open. Nine historical core EP relative-link targets remain triaged outside the matrix. Complete current-source/consumer discovery and status qualification before certification."
     },
     {
       "id": "REGISTER-DELIVERY",
