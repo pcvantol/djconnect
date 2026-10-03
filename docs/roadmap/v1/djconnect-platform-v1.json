@@ -41,67 +41,25 @@
     "metadata_and_bounded_paraphrases": true,
     "offline_hash_verification_of_remote_blobs": false,
     "per_call_timestamps": "Date-level head readback on 2026-10-03; no per-file read timestamp for inherited checkpoint.",
-    "pinned_tree_blobs_verified": "248 of 248 path/blob pins matched exact commit trees or GitHub Contents commit readbacks: 105 original GitHub tree readbacks, 110 local git commit-tree readbacks and 33 new GitHub Contents readbacks on 2026-10-03. Narrative interpretation remains partial.",
+    "pinned_tree_blobs_verified": "278 of 278 path/blob pins matched exact commit trees or GitHub Contents commit readbacks: 105 original GitHub tree readbacks, 110 local git commit-tree readbacks and 63 new GitHub Contents readbacks on 2026-10-03. Narrative interpretation remains partial.",
     "reference_scan": {
       "method": "Every pinned core Markdown blob and every pinned Markdown blob in the eleven DJC component repositories, at its recorded commit: parse relative Markdown links, strip anchors, normalize against source directory, retain existing .md targets absent from the pinned source matrix; distinct repository/path keys. The seven pinned external Forge method documents are outside this lane-source link frontier.",
       "unmapped_paths": [
-        "pcvantol/djconnect::BOOTSTRAP_CODEX_VERIFICATION.md",
-        "pcvantol/djconnect::CANONICAL_REFERENCES.md",
-        "pcvantol/djconnect::DEVELOPMENT_ENVIRONMENT.md",
-        "pcvantol/djconnect::PLATFORM_DISCOVERY_REPORT.md",
-        "pcvantol/djconnect::THIRD_PARTY_NOTICES.md",
-        "pcvantol/djconnect::VOICE_INTENT_DATA.md",
-        "pcvantol/djconnect::docs/development/ENGINEERING_PLATFORM_SOURCE_RETIREMENT.md",
-        "pcvantol/djconnect::docs/engineering/ENGINEERING_PLATFORM_1_X_ENGINEERING_REPORT.md",
-        "pcvantol/djconnect::docs/engineering/ENGINEERING_PLATFORM_ARCHITECTURE_AUTHORING_REPORT.md",
-        "pcvantol/djconnect::docs/engineering/ENGINEERING_PLATFORM_ARCHITECTURE_HANDBOOK.md",
-        "pcvantol/djconnect::docs/engineering/EXECUTION_HOST_CONTRACT.md",
-        "pcvantol/djconnect::prompts/deferred/software_assurance/PROMPT_01_CI_GOVERNANCE_FOUNDATION.md",
-        "pcvantol/djconnect::prompts/deferred/software_assurance/PROMPT_02_CROSS_REPOSITORY_WORKFLOW_HARMONIZATION.md",
-        "pcvantol/djconnect::prompts/deferred/software_assurance/PROMPT_03_TRUSTED_DELIVERY_PLATFORM.md",
-        "pcvantol/djconnect::prompts/deferred/software_assurance/PROMPT_04_TRUSTED_DELIVERY_CERTIFICATION.md",
-        "pcvantol/djconnect::prompts/deferred/software_assurance/PROMPT_05_SINGLE_MAINTAINER_GOVERNANCE_ROLLOUT.md",
-        "pcvantol/djconnect::prompts/release/PROMPT_05_PLATFORM_RELEASE_CERTIFICATION.md",
-        "pcvantol/djconnect::tools/verification/README.md",
-        "pcvantol/djconnect-app::CHANGELOG.md",
-        "pcvantol/djconnect-app::CODE_OF_CONDUCT.md",
-        "pcvantol/djconnect-app::DEVELOPMENT_ENVIRONMENT.md",
-        "pcvantol/djconnect-app::docs/API_CONTRACT.md",
-        "pcvantol/djconnect-app::docs/ARCHITECTURE_DECISIONS.md",
-        "pcvantol/djconnect-app::docs/DEVELOPMENT.md",
-        "pcvantol/djconnect-app::docs/HANDOFF.md",
-        "pcvantol/djconnect-app::docs/TECHNICAL_DESIGN_DECISIONS.md",
-        "pcvantol/djconnect-pi::CHANGELOG.md"
+        "pcvantol/djconnect::docs/development/ENGINEERING_PLATFORM_EXTRACTION_MIGRATION_PLAN.md",
+        "pcvantol/djconnect::docs/engineering/ENGINEERING_REPORTING.md",
+        "pcvantol/djconnect::docs/engineering/EXECUTION_HOST_OPERATIONS.md",
+        "pcvantol/djconnect::docs/engineering/EXECUTION_LIFECYCLE_FLOW.md",
+        "pcvantol/djconnect::docs/engineering/EXECUTION_RECEIPTS.md",
+        "pcvantol/djconnect::docs/engineering/GENESIS_MODE.md"
       ],
-      "disposition": "TRIAGED_REFERENCE_ONLY; 18 core and 9 component link targets have explicit non-selection, historical or audit-open dispositions. Link existence alone creates no dependency or execution authority.",
+      "disposition": "TRIAGED_HISTORICAL_REFERENCE_ONLY; 6 core and 0 component link targets retain explicit non-selection dispositions. The handbook also links to a missing historical status file, excluded from the existing-target frontier. Link existence alone creates no dependency or execution authority.",
       "triage": {
-        "pcvantol/djconnect::BOOTSTRAP_CODEX_VERIFICATION.md": "Linked host-verification detail; canonical session bootstrap and actual macOS --verify receipt are pinned. Full linked detail audit remains open.",
-        "pcvantol/djconnect::CANONICAL_REFERENCES.md": "Navigation map, fully read; current owning foundation, Product Roadmap and Backlog are pinned directly. Its older roadmap pointer refers to PROMPT_INDEX.md; current records control planning.",
-        "pcvantol/djconnect::DEVELOPMENT_ENVIRONMENT.md": "Linked local environment guide; host readiness was checked on this Mac, while full environment detail audit remains open.",
-        "pcvantol/djconnect::PLATFORM_DISCOVERY_REPORT.md": "Historical 2026-07-09 discovery report, fully read; explicitly disclaims current capability authority and points to the pinned capability model.",
-        "pcvantol/djconnect::THIRD_PARTY_NOTICES.md": "Linked license/third-party notices; no dependency or release change is selected. Full notices audit remains open.",
-        "pcvantol/djconnect::VOICE_INTENT_DATA.md": "Linked historical voice-intent data; no voice feature is selected. Full data audit remains open.",
-        "pcvantol/djconnect::docs/development/ENGINEERING_PLATFORM_SOURCE_RETIREMENT.md": "Linked historical source-retirement detail; terminal #1098 and its WORKSPACE_READY receipt remain the boundary. No retirement work is reopened.",
-        "pcvantol/djconnect::docs/engineering/ENGINEERING_PLATFORM_1_X_ENGINEERING_REPORT.md": "Fully read historical embedded Engineering Platform completion report; terminal #1098 source retirement is the current boundary.",
-        "pcvantol/djconnect::docs/engineering/ENGINEERING_PLATFORM_ARCHITECTURE_AUTHORING_REPORT.md": "Fully read historical embedded Engineering Platform authoring report; no current DJConnect product or planning selection.",
-        "pcvantol/djconnect::docs/engineering/ENGINEERING_PLATFORM_ARCHITECTURE_HANDBOOK.md": "Fully read historical embedded Engineering Platform handbook; current standalone EP ownership and terminal #1098 retirement govern execution.",
-        "pcvantol/djconnect::docs/engineering/EXECUTION_HOST_CONTRACT.md": "Fully read historical embedded Execution Host contract; not a second live source writer or product dependency after #1098.",
-        "pcvantol/djconnect::prompts/deferred/software_assurance/PROMPT_01_CI_GOVERNANCE_FOUNDATION.md": "Deferred archive prompt; header marks historical implementation complete. Current assurance status comes from owning governance/status records.",
-        "pcvantol/djconnect::prompts/deferred/software_assurance/PROMPT_02_CROSS_REPOSITORY_WORKFLOW_HARMONIZATION.md": "Deferred archive prompt; header marks historical implementation complete. No new workflow rollout under this assignment.",
-        "pcvantol/djconnect::prompts/deferred/software_assurance/PROMPT_03_TRUSTED_DELIVERY_PLATFORM.md": "Deferred prompt with stale ACTIVE header and separate-execution requirement; current Trusted Delivery evidence and owning status supersede pickup.",
-        "pcvantol/djconnect::prompts/deferred/software_assurance/PROMPT_04_TRUSTED_DELIVERY_CERTIFICATION.md": "Deferred prompt with blocked historical prerequisite; not current five-item Execution Horizon or planning authority.",
-        "pcvantol/djconnect::prompts/deferred/software_assurance/PROMPT_05_SINGLE_MAINTAINER_GOVERNANCE_ROLLOUT.md": "Deferred governance rollout prompt; no branch-protection or workflow changes authorized in this assignment.",
-        "pcvantol/djconnect::prompts/release/PROMPT_05_PLATFORM_RELEASE_CERTIFICATION.md": "Separate release-certification prompt awaiting evidence and explicit authorization; no release work selected by this planning assignment.",
-        "pcvantol/djconnect::tools/verification/README.md": "Linked verification tooling overview; selected architecture and qualification authorities are separately pinned. Full tooling-detail audit remains open.",
-        "pcvantol/djconnect-app::CHANGELOG.md": "Current source chronology; full component release/status audit remains open.",
-        "pcvantol/djconnect-app::CODE_OF_CONDUCT.md": "Repository conduct policy; no product dependency or planning selection inferred.",
-        "pcvantol/djconnect-app::DEVELOPMENT_ENVIRONMENT.md": "Local development guide; component toolchain audit remains open.",
-        "pcvantol/djconnect-app::docs/API_CONTRACT.md": "Apple-facing backend/local contract detail; full phase-specific producer/consumer audit remains open.",
-        "pcvantol/djconnect-app::docs/ARCHITECTURE_DECISIONS.md": "Apple architecture decisions; historical versus current dispositions remain to be checked.",
-        "pcvantol/djconnect-app::docs/DEVELOPMENT.md": "Apple build/test policy; component qualification audit remains open.",
-        "pcvantol/djconnect-app::docs/HANDOFF.md": "Apple handoff/status chronology; current writer and consumer receipts remain to be checked.",
-        "pcvantol/djconnect-app::docs/TECHNICAL_DESIGN_DECISIONS.md": "Apple technical decisions; exact current contract bindings remain to be checked.",
-        "pcvantol/djconnect-pi::CHANGELOG.md": "Pi source chronology; 3.3.0 versus 4.0.0-rc.2 release status needs exact candidate joins."
+        "pcvantol/djconnect::docs/development/ENGINEERING_PLATFORM_EXTRACTION_MIGRATION_PLAN.md": "Existing linked historical EP execution/extraction reference at the pinned core head; standalone EP authority and terminal #1098 govern. No retirement or implementation selected by this planning assignment.",
+        "pcvantol/djconnect::docs/engineering/ENGINEERING_REPORTING.md": "Existing linked historical EP execution/extraction reference at the pinned core head; standalone EP authority and terminal #1098 govern. No retirement or implementation selected by this planning assignment.",
+        "pcvantol/djconnect::docs/engineering/EXECUTION_HOST_OPERATIONS.md": "Existing linked historical EP execution/extraction reference at the pinned core head; standalone EP authority and terminal #1098 govern. No retirement or implementation selected by this planning assignment.",
+        "pcvantol/djconnect::docs/engineering/EXECUTION_LIFECYCLE_FLOW.md": "Existing linked historical EP execution/extraction reference at the pinned core head; standalone EP authority and terminal #1098 govern. No retirement or implementation selected by this planning assignment.",
+        "pcvantol/djconnect::docs/engineering/EXECUTION_RECEIPTS.md": "Existing linked historical EP execution/extraction reference at the pinned core head; standalone EP authority and terminal #1098 govern. No retirement or implementation selected by this planning assignment.",
+        "pcvantol/djconnect::docs/engineering/GENESIS_MODE.md": "Existing linked historical EP execution/extraction reference at the pinned core head; standalone EP authority and terminal #1098 govern. No retirement or implementation selected by this planning assignment."
       }
     }
   },
@@ -5213,6 +5171,559 @@
         "INV::DJC-PICO"
       ],
       "remaining": "No unread ranges in this source; actual run/physical receipts and wider repository audit tracked separately"
+    },
+    {
+      "id": "CORE_CANONICAL_REFS",
+      "repository": "pcvantol/djconnect",
+      "path": "CANONICAL_REFERENCES.md",
+      "blob_sha": "4dd00dff5f9cf8cc608fe78cb29919f1156795bc",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Navigation map of existing foundation, verification and ownership authorities; no competing register",
+      "observed_at": "2026-10-03 GitHub Contents API / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/CANONICAL_REFERENCES.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::AUDIT::METHOD"
+      ],
+      "remaining": "No unread ranges in this source; broader repo/consumer audit tracked separately"
+    },
+    {
+      "id": "CORE_DISCOVERY_HIST",
+      "repository": "pcvantol/djconnect",
+      "path": "PLATFORM_DISCOVERY_REPORT.md",
+      "blob_sha": "b3a6ba2a75ddb7f2b555625506fac1fbe942ba39",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Historical 2026-07-09 discovery report; disclaims current capability authority and points to pinned capability model",
+      "observed_at": "2026-10-03 GitHub Contents API / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/PLATFORM_DISCOVERY_REPORT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::AUDIT::METHOD"
+      ],
+      "remaining": "No unread ranges in this source; broader repo/consumer audit tracked separately"
+    },
+    {
+      "id": "CORE_EP_1X_REPORT_HIST",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/engineering/ENGINEERING_PLATFORM_1_X_ENGINEERING_REPORT.md",
+      "blob_sha": "8c1735aa7c78d06db45cbc058b4ea6d7221fa333",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Historical embedded EP 1.x report; terminal source retirement #1098 is current boundary",
+      "observed_at": "2026-10-03 GitHub Contents API / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/engineering/ENGINEERING_PLATFORM_1_X_ENGINEERING_REPORT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::AUDIT::METHOD"
+      ],
+      "remaining": "No unread ranges in this source; broader repo/consumer audit tracked separately"
+    },
+    {
+      "id": "CORE_EP_AUTHORING_HIST",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/engineering/ENGINEERING_PLATFORM_ARCHITECTURE_AUTHORING_REPORT.md",
+      "blob_sha": "f51c0f7e3ea9121643c4e3d9c6dbe3487e712a2d",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Historical embedded EP architecture authoring report; no current DJConnect product selection",
+      "observed_at": "2026-10-03 GitHub Contents API / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/engineering/ENGINEERING_PLATFORM_ARCHITECTURE_AUTHORING_REPORT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::AUDIT::METHOD"
+      ],
+      "remaining": "No unread ranges in this source; broader repo/consumer audit tracked separately"
+    },
+    {
+      "id": "CORE_EP_HOST_CONTRACT_HIST",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/engineering/EXECUTION_HOST_CONTRACT.md",
+      "blob_sha": "208e3761f635b72a7674c71fa174c249c6f0518e",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Historical embedded EP Execution Host contract; not a second live source writer after #1098",
+      "observed_at": "2026-10-03 GitHub Contents API / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/engineering/EXECUTION_HOST_CONTRACT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::AUDIT::METHOD"
+      ],
+      "remaining": "No unread ranges in this source; broader repo/consumer audit tracked separately"
+    },
+    {
+      "id": "APPLE_CODE_CONDUCT",
+      "repository": "pcvantol/djconnect-app",
+      "path": "CODE_OF_CONDUCT.md",
+      "blob_sha": "36896ea5a87e1a2b6562092da3b31bdb4ab6ecec",
+      "commit_sha": "d54224dbf02517ae47406aa14d33e97e61c18002",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Local participation and privacy policy; no execution selection",
+      "observed_at": "2026-10-03 GitHub Contents API / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-app/blob/d54224dbf02517ae47406aa14d33e97e61c18002/CODE_OF_CONDUCT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-APPLE"
+      ],
+      "remaining": "No unread ranges in this source; broader repo/consumer audit tracked separately"
+    },
+    {
+      "id": "APPLE_DEVENV",
+      "repository": "pcvantol/djconnect-app",
+      "path": "DEVELOPMENT_ENVIRONMENT.md",
+      "blob_sha": "e86e44fad844ca80e19002e3afe518783ccca2aa",
+      "commit_sha": "d54224dbf02517ae47406aa14d33e97e61c18002",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Xcode 26.5/Swift 6/XcodeGen local setup and unsigned checks; no actual build receipt",
+      "observed_at": "2026-10-03 GitHub Contents API / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-app/blob/d54224dbf02517ae47406aa14d33e97e61c18002/DEVELOPMENT_ENVIRONMENT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-APPLE"
+      ],
+      "remaining": "No unread ranges in this source; broader repo/consumer audit tracked separately"
+    },
+    {
+      "id": "APPLE_ARCH_DEC",
+      "repository": "pcvantol/djconnect-app",
+      "path": "docs/ARCHITECTURE_DECISIONS.md",
+      "blob_sha": "635dbf930e0679c74adeb485778bb627606b940b",
+      "commit_sha": "d54224dbf02517ae47406aa14d33e97e61c18002",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Accepted ADRs; token handling and 3.2.2 current-version wording conflict with newer core/Apple state",
+      "observed_at": "2026-10-03 GitHub Contents API / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-app/blob/d54224dbf02517ae47406aa14d33e97e61c18002/docs/ARCHITECTURE_DECISIONS.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-APPLE"
+      ],
+      "remaining": "No unread ranges in this source; broader repo/consumer audit tracked separately"
+    },
+    {
+      "id": "APPLE_DEVELOPMENT",
+      "repository": "pcvantol/djconnect-app",
+      "path": "docs/DEVELOPMENT.md",
+      "blob_sha": "71f4e2e58e911e1c4838833159635fcec7147c53",
+      "commit_sha": "d54224dbf02517ae47406aa14d33e97e61c18002",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Local build, test, pairing and CI guide; authenticated 401/403 token retention conflicts with core stale-pairing rule",
+      "observed_at": "2026-10-03 GitHub Contents API / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-app/blob/d54224dbf02517ae47406aa14d33e97e61c18002/docs/DEVELOPMENT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-APPLE"
+      ],
+      "remaining": "No unread ranges in this source; broader repo/consumer audit tracked separately"
+    },
+    {
+      "id": "APPLE_TECH_DESIGN",
+      "repository": "pcvantol/djconnect-app",
+      "path": "docs/TECHNICAL_DESIGN_DECISIONS.md",
+      "blob_sha": "7e761db81e774ba5ba394210a88ee674c0e33cb8",
+      "commit_sha": "d54224dbf02517ae47406aa14d33e97e61c18002",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Shared SwiftUI/Core, HA backend authority and dual-Mac internal-release architecture; guide is not a run receipt",
+      "observed_at": "2026-10-03 GitHub Contents API / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-app/blob/d54224dbf02517ae47406aa14d33e97e61c18002/docs/TECHNICAL_DESIGN_DECISIONS.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-APPLE",
+        "SLICE::APPLE::BUNDLE-CANDIDATE"
+      ],
+      "remaining": "No unread ranges in this source; broader repo/consumer audit tracked separately"
+    },
+    {
+      "id": "CORE_VERIFICATION_BOOTSTRAP",
+      "repository": "pcvantol/djconnect",
+      "path": "BOOTSTRAP_CODEX_VERIFICATION.md",
+      "blob_sha": "3c210e74992cf6e18c16e0748887b83d3c4d3413",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Verification Program clean-session entrypoint; recorded historic phase states and live-gate boundaries are not current product readiness",
+      "observed_at": "2026-10-03 GitHub Contents API / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/BOOTSTRAP_CODEX_VERIFICATION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::AUDIT::METHOD"
+      ],
+      "remaining": "No unread ranges in this source; broader repository audit tracked separately"
+    },
+    {
+      "id": "CORE_DEVENV",
+      "repository": "pcvantol/djconnect",
+      "path": "DEVELOPMENT_ENVIRONMENT.md",
+      "blob_sha": "00d4c86b4813c11dc27b695ce29e37a931ec7841",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Local environment and integration test/deploy guide; illustrative 3.2.x dev-output text is stale",
+      "observed_at": "2026-10-03 GitHub Contents API / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/DEVELOPMENT_ENVIRONMENT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No unread ranges in this source; broader repository audit tracked separately"
+    },
+    {
+      "id": "CORE_THIRD_PARTY",
+      "repository": "pcvantol/djconnect",
+      "path": "THIRD_PARTY_NOTICES.md",
+      "blob_sha": "d9da0772e6cf2e18488d1d4617a28786e9b04268",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "MIT, Home Assistant dependency and Spotify trademark/non-affiliation notices; no new distribution selected",
+      "observed_at": "2026-10-03 GitHub Contents API / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/THIRD_PARTY_NOTICES.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No unread ranges in this source; broader repository audit tracked separately"
+    },
+    {
+      "id": "CORE_VOICE_INTENT_DATA",
+      "repository": "pcvantol/djconnect",
+      "path": "VOICE_INTENT_DATA.md",
+      "blob_sha": "aacaa0c698bbb4f57772c2d7312c2073fe07adc1",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Canonical voice-intent example families and handling order; client examples are not new implementation selection",
+      "observed_at": "2026-10-03 GitHub Contents API / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/VOICE_INTENT_DATA.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::ROADMAP::VOICE"
+      ],
+      "remaining": "No unread ranges in this source; broader repository audit tracked separately"
+    },
+    {
+      "id": "CORE_EP_RETIREMENT_HIST",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/development/ENGINEERING_PLATFORM_SOURCE_RETIREMENT.md",
+      "blob_sha": "31da15da97864c2e14ac8921661b9857812d1b05",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Historical source-retirement disposition and pin, bounded by terminal #1098 WORKSPACE_READY",
+      "observed_at": "2026-10-03 GitHub Contents API / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/development/ENGINEERING_PLATFORM_SOURCE_RETIREMENT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::AUDIT::METHOD"
+      ],
+      "remaining": "No unread ranges in this source; broader repository audit tracked separately"
+    },
+    {
+      "id": "CORE_SA_PROMPT_01_HIST",
+      "repository": "pcvantol/djconnect",
+      "path": "prompts/deferred/software_assurance/PROMPT_01_CI_GOVERNANCE_FOUNDATION.md",
+      "blob_sha": "1cee14c4e24664372fa91acf6fb302e64d64a841",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Deferred historical Prompt 1; header COMPLETE, not current execution authority",
+      "observed_at": "2026-10-03 GitHub Contents API / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/prompts/deferred/software_assurance/PROMPT_01_CI_GOVERNANCE_FOUNDATION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::AUDIT::METHOD"
+      ],
+      "remaining": "No unread ranges in this source; broader repository audit tracked separately"
+    },
+    {
+      "id": "CORE_SA_PROMPT_02_HIST",
+      "repository": "pcvantol/djconnect",
+      "path": "prompts/deferred/software_assurance/PROMPT_02_CROSS_REPOSITORY_WORKFLOW_HARMONIZATION.md",
+      "blob_sha": "5d6c009637c751bf4f4ef539d2f417af3710746c",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Deferred historical Prompt 2; header COMPLETE, body retains historical rollout instructions",
+      "observed_at": "2026-10-03 GitHub Contents API / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/prompts/deferred/software_assurance/PROMPT_02_CROSS_REPOSITORY_WORKFLOW_HARMONIZATION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::AUDIT::METHOD"
+      ],
+      "remaining": "No unread ranges in this source; broader repository audit tracked separately"
+    },
+    {
+      "id": "CORE_SA_PROMPT_03_HIST",
+      "repository": "pcvantol/djconnect",
+      "path": "prompts/deferred/software_assurance/PROMPT_03_TRUSTED_DELIVERY_PLATFORM.md",
+      "blob_sha": "c8a250682221f0b490946247a532283ceef33fe4",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Deferred Prompt 3 with stale ACTIVE header; current governance/status owns completion",
+      "observed_at": "2026-10-03 GitHub Contents API / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/prompts/deferred/software_assurance/PROMPT_03_TRUSTED_DELIVERY_PLATFORM.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::AUDIT::METHOD"
+      ],
+      "remaining": "No unread ranges in this source; broader repository audit tracked separately"
+    },
+    {
+      "id": "CORE_SA_PROMPT_04_HIST",
+      "repository": "pcvantol/djconnect",
+      "path": "prompts/deferred/software_assurance/PROMPT_04_TRUSTED_DELIVERY_CERTIFICATION.md",
+      "blob_sha": "2faff2623802ee3cb777fe02eee2c496cd8eca7f",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Deferred Prompt 4 with stale blocked header; not current certification authority",
+      "observed_at": "2026-10-03 GitHub Contents API / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/prompts/deferred/software_assurance/PROMPT_04_TRUSTED_DELIVERY_CERTIFICATION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::AUDIT::METHOD"
+      ],
+      "remaining": "No unread ranges in this source; broader repository audit tracked separately"
+    },
+    {
+      "id": "CORE_SA_PROMPT_05_HIST",
+      "repository": "pcvantol/djconnect",
+      "path": "prompts/deferred/software_assurance/PROMPT_05_SINGLE_MAINTAINER_GOVERNANCE_ROLLOUT.md",
+      "blob_sha": "6bfffa08e7d3e73c1fd56c63c99a194df93563dc",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Deferred governance rollout sequence; no branch-protection/workflow changes in this assignment",
+      "observed_at": "2026-10-03 GitHub Contents API / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/prompts/deferred/software_assurance/PROMPT_05_SINGLE_MAINTAINER_GOVERNANCE_ROLLOUT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::AUDIT::METHOD"
+      ],
+      "remaining": "No unread ranges in this source; broader repository audit tracked separately"
+    },
+    {
+      "id": "CORE_RELEASE_PROMPT_05",
+      "repository": "pcvantol/djconnect",
+      "path": "prompts/release/PROMPT_05_PLATFORM_RELEASE_CERTIFICATION.md",
+      "blob_sha": "6f3de7c4c6813a6d99b72b91bbdf21dc32c5f1da",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Separate release-certification prompt awaiting evidence and explicit authorization; no release selected",
+      "observed_at": "2026-10-03 GitHub Contents API / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/prompts/release/PROMPT_05_PLATFORM_RELEASE_CERTIFICATION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::AUDIT::METHOD"
+      ],
+      "remaining": "No unread ranges in this source; broader repository audit tracked separately"
+    },
+    {
+      "id": "CORE_VERIFICATION_README",
+      "repository": "pcvantol/djconnect",
+      "path": "tools/verification/README.md",
+      "blob_sha": "dae2c5a550d9322e4fb55a3da3316ccbbc084ec7",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Verification Runtime 1.1.0 source, Docker/adapter/qualification ownership; not a live-run receipt",
+      "observed_at": "2026-10-03 GitHub Contents API / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/tools/verification/README.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::AUDIT::METHOD",
+        "PROJ::ROADMAP::P1-E2E"
+      ],
+      "remaining": "No unread ranges in this source; broader repository audit tracked separately"
+    },
+    {
+      "id": "APPLE_CHAT_BOOTSTRAP_HIST",
+      "repository": "pcvantol/djconnect-app",
+      "path": "CHAT_BOOTSTRAP.md",
+      "blob_sha": "f32dfc59b20212897e09425219d8590d6b54749a",
+      "commit_sha": "d54224dbf02517ae47406aa14d33e97e61c18002",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Deprecated seven-line pointer to current Apple bootstrap and release guide; no separate authority",
+      "observed_at": "2026-10-03 GitHub Contents API / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-app/blob/d54224dbf02517ae47406aa14d33e97e61c18002/CHAT_BOOTSTRAP.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-APPLE"
+      ],
+      "remaining": "No unread ranges in this source; broader repository audit tracked separately"
+    },
+    {
+      "id": "APPLE_CONTRIBUTING",
+      "repository": "pcvantol/djconnect-app",
+      "path": "CONTRIBUTING.md",
+      "blob_sha": "373d4c24be28a3a29ca6b4105e97bcacce81e974",
+      "commit_sha": "d54224dbf02517ae47406aa14d33e97e61c18002",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Apple contribution, verification, five-language and cross-repository ownership policy",
+      "observed_at": "2026-10-03 GitHub Contents API / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-app/blob/d54224dbf02517ae47406aa14d33e97e61c18002/CONTRIBUTING.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-APPLE"
+      ],
+      "remaining": "No unread ranges in this source; broader repository audit tracked separately"
+    },
+    {
+      "id": "APPLE_API_CONTRACT",
+      "repository": "pcvantol/djconnect-app",
+      "path": "docs/API_CONTRACT.md",
+      "blob_sha": "a069c78e124777db641acc654a3fea29a3f86f85",
+      "commit_sha": "d54224dbf02517ae47406aa14d33e97e61c18002",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Apple-facing contract mirror; internal stale-auth/history examples need owning reconciliation, not a new backend contract",
+      "observed_at": "2026-10-03 GitHub Contents API / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-app/blob/d54224dbf02517ae47406aa14d33e97e61c18002/docs/API_CONTRACT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-APPLE",
+        "SLICE::APPLE::PAIRING-ACCEPTANCE",
+        "SLICE::APPLE::PUSH-ACCEPTANCE",
+        "QUAL::APPLE::WATCH-HOST"
+      ],
+      "remaining": "No unread ranges in this source; broader repository audit tracked separately"
+    },
+    {
+      "id": "APPLE_BUILD_HYGIENE",
+      "repository": "pcvantol/djconnect-app",
+      "path": "docs/BUILD_RELEASE_HYGIENE.md",
+      "blob_sha": "1501084bf0c188be3479dc8bbad83c0da3a3b475",
+      "commit_sha": "d54224dbf02517ae47406aa14d33e97e61c18002",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Apple build/release hygiene and third-party preflight; no signing or publication authorized here",
+      "observed_at": "2026-10-03 GitHub Contents API / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-app/blob/d54224dbf02517ae47406aa14d33e97e61c18002/docs/BUILD_RELEASE_HYGIENE.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-APPLE",
+        "SLICE::APPLE::BUNDLE-CANDIDATE",
+        "QUAL::APPLE::INTERNAL-CONSUMERS"
+      ],
+      "remaining": "No unread ranges in this source; broader repository audit tracked separately"
+    },
+    {
+      "id": "APPLE_HANDOFF",
+      "repository": "pcvantol/djconnect-app",
+      "path": "docs/HANDOFF.md",
+      "blob_sha": "a30d5129abc931ed7b6b2e32316b9ee32355b483",
+      "commit_sha": "d54224dbf02517ae47406aa14d33e97e61c18002",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Apple handoff mixes current 4.0.x source line with historical 3.2 and stale-token retention examples",
+      "observed_at": "2026-10-03 GitHub Contents API / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-app/blob/d54224dbf02517ae47406aa14d33e97e61c18002/docs/HANDOFF.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-APPLE",
+        "SLICE::APPLE::PAIRING-ACCEPTANCE",
+        "SLICE::APPLE::BUNDLE-CANDIDATE",
+        "QUAL::APPLE::WATCH-HOST"
+      ],
+      "remaining": "No unread ranges in this source; broader repository audit tracked separately"
+    },
+    {
+      "id": "APPLE_CHANGELOG",
+      "repository": "pcvantol/djconnect-app",
+      "path": "CHANGELOG.md",
+      "blob_sha": "d2d2c81b07aa31806d33e73e12b7be93433ec8c9",
+      "commit_sha": "d54224dbf02517ae47406aa14d33e97e61c18002",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Apple source chronology through 4.0.0-rc.1; historical changes are not current implementation or published-release proof",
+      "observed_at": "2026-10-03 GitHub Contents API / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-app/blob/d54224dbf02517ae47406aa14d33e97e61c18002/CHANGELOG.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-APPLE",
+        "SLICE::APPLE::BUNDLE-CANDIDATE"
+      ],
+      "remaining": "No unread ranges in this source; broader repository audit tracked separately"
+    },
+    {
+      "id": "PI_CHANGELOG",
+      "repository": "pcvantol/djconnect-pi",
+      "path": "CHANGELOG.md",
+      "blob_sha": "b9df18b0a9c4908c07d1b4b3ae67e3885322dc86",
+      "commit_sha": "92712ae989f9ad44e2b935222a1e1053670a782f",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Pi source chronology through 4.0.0-rc.2; 3.3.0 dry-run label conflicts with observed public stable release and needs exact source/release join",
+      "observed_at": "2026-10-03 GitHub Contents API / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-pi/blob/92712ae989f9ad44e2b935222a1e1053670a782f/CHANGELOG.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-PI",
+        "SLICE::PI::PACKAGE-CANDIDATE",
+        "INV::DJC-DIST-PI"
+      ],
+      "remaining": "No unread ranges in this source; broader repository audit tracked separately"
+    },
+    {
+      "id": "CORE_EP_HANDBOOK_HIST",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/engineering/ENGINEERING_PLATFORM_ARCHITECTURE_HANDBOOK.md",
+      "blob_sha": "fd025f5ffcfe4f3ae83dc5fc3b6b1f7a8d515d43",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Historical embedded EP architecture description; terminal #1098 and standalone EP ownership supersede any retirement or execution inference",
+      "observed_at": "2026-10-03 GitHub Contents API / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/engineering/ENGINEERING_PLATFORM_ARCHITECTURE_HANDBOOK.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::AUDIT::METHOD"
+      ],
+      "remaining": "No unread ranges in this source; broader repository audit tracked separately"
     }
   ],
   "nodes": [
@@ -5236,7 +5747,9 @@
         "CHANGELOG::DJC-CORE",
         "ISSUES::DJC-CORE",
         "TECH_DESIGN::DJC-CORE",
-        "SECURITY::DJC-CORE"
+        "SECURITY::DJC-CORE",
+        "CORE_DEVENV",
+        "CORE_THIRD_PARTY"
       ],
       "canonical_authority": "LOCAL_EXTENSION",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -5292,7 +5805,18 @@
         "APPLE_ARCH",
         "APPLE_PRIVACY",
         "APPLE_SECURITY",
-        "APPLE_RELEASE_GUIDE"
+        "APPLE_RELEASE_GUIDE",
+        "APPLE_CODE_CONDUCT",
+        "APPLE_DEVENV",
+        "APPLE_ARCH_DEC",
+        "APPLE_DEVELOPMENT",
+        "APPLE_TECH_DESIGN",
+        "APPLE_CHAT_BOOTSTRAP_HIST",
+        "APPLE_CONTRIBUTING",
+        "APPLE_API_CONTRACT",
+        "APPLE_BUILD_HYGIENE",
+        "APPLE_HANDOFF",
+        "APPLE_CHANGELOG"
       ],
       "canonical_authority": "README::DJC-APPLE",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -5401,7 +5925,8 @@
         "PI_TECH_DESIGN",
         "PI_PERF_SECURITY",
         "PI_HANDOFF",
-        "PI_TESTS"
+        "PI_TESTS",
+        "PI_CHANGELOG"
       ],
       "canonical_authority": "README::DJC-PI",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -5813,7 +6338,8 @@
         "README::DJC-DIST-PI",
         "AGENTS::DJC-DIST-PI",
         "STATUS::DJC-DIST-PI",
-        "LOCALIZATION_VALIDATION_SPEC"
+        "LOCALIZATION_VALIDATION_SPEC",
+        "PI_CHANGELOG"
       ],
       "canonical_authority": "README::DJC-DIST-PI",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -6090,7 +6616,8 @@
         "GOLDEN_CI",
         "LINK::DOCS-VERIFICATION-01-VERIFICATION-ARCHITECTURE",
         "LINK::DOCS-VERIFICATION-SESSION-INTELLIGENCE-E2E-ARCHITECTURE",
-        "LINK::DOCS-VERIFICATION-03-SCENARIO-CATALOG"
+        "LINK::DOCS-VERIFICATION-03-SCENARIO-CATALOG",
+        "CORE_VERIFICATION_README"
       ],
       "canonical_authority": "PRODUCT_ROADMAP",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -7419,7 +7946,8 @@
       "repository": "pcvantol/djconnect",
       "source_ids": [
         "PRODUCT_ROADMAP",
-        "VOICE_HOST_ASSESSMENT"
+        "VOICE_HOST_ASSESSMENT",
+        "CORE_VOICE_INTENT_DATA"
       ],
       "canonical_authority": "PRODUCT_ROADMAP",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -11833,7 +12361,22 @@
         "SA_REPO_MODEL",
         "SA_ROLLOUT",
         "SA_THEMES",
-        "SA_VERSIONING"
+        "SA_VERSIONING",
+        "CORE_CANONICAL_REFS",
+        "CORE_DISCOVERY_HIST",
+        "CORE_EP_1X_REPORT_HIST",
+        "CORE_EP_AUTHORING_HIST",
+        "CORE_EP_HOST_CONTRACT_HIST",
+        "CORE_VERIFICATION_BOOTSTRAP",
+        "CORE_EP_RETIREMENT_HIST",
+        "CORE_SA_PROMPT_01_HIST",
+        "CORE_SA_PROMPT_02_HIST",
+        "CORE_SA_PROMPT_03_HIST",
+        "CORE_SA_PROMPT_04_HIST",
+        "CORE_SA_PROMPT_05_HIST",
+        "CORE_RELEASE_PROMPT_05",
+        "CORE_VERIFICATION_README",
+        "CORE_EP_HANDBOOK_HIST"
       ],
       "canonical_authority": "ROADMAP_INDEX",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -11929,7 +12472,9 @@
         "README::DJC-APPLE",
         "AGENTS::DJC-APPLE",
         "APPLE_ARCH",
-        "APPLE_PRIVACY"
+        "APPLE_PRIVACY",
+        "APPLE_API_CONTRACT",
+        "APPLE_HANDOFF"
       ],
       "canonical_authority": "README::DJC-APPLE",
       "owner_boundary": "Apple-clientfamilie; native presentatie en clientstaat, geen backendautoriteit",
@@ -12547,7 +13092,8 @@
       "repository": "pcvantol/djconnect-app",
       "source_ids": [
         "README::DJC-APPLE",
-        "TODO::DJC-APPLE"
+        "TODO::DJC-APPLE",
+        "APPLE_API_CONTRACT"
       ],
       "canonical_authority": "README::DJC-APPLE",
       "owner_boundary": "Apple-clientfamilie; native presentatie en clientstaat, geen backendautoriteit",
@@ -12757,7 +13303,8 @@
         "ISSUES::DJC-PI",
         "PI-PUBLISH",
         "PI_ARCH",
-        "PI_BOOTSTRAP"
+        "PI_BOOTSTRAP",
+        "PI_CHANGELOG"
       ],
       "canonical_authority": "README::DJC-PI",
       "owner_boundary": "Native Qt Quick/QML touch-client en appliancebron",
@@ -12862,7 +13409,11 @@
         "AGENTS::DJC-APPLE",
         "APPLE-PUBLISH",
         "APPLE_RELEASE_ARCH",
-        "APPLE_RELEASE_GUIDE"
+        "APPLE_RELEASE_GUIDE",
+        "APPLE_TECH_DESIGN",
+        "APPLE_BUILD_HYGIENE",
+        "APPLE_HANDOFF",
+        "APPLE_CHANGELOG"
       ],
       "canonical_authority": "README::DJC-APPLE",
       "owner_boundary": "Apple-clientfamilie; native presentatie en clientstaat, geen backendautoriteit",
@@ -14295,7 +14846,8 @@
         "README::DJC-DIST-APPLE",
         "APPLE_RELEASE_ARCH",
         "DEPLOY_CONSUMER_INVENTORY",
-        "APPLE_RELEASE_GUIDE"
+        "APPLE_RELEASE_GUIDE",
+        "APPLE_BUILD_HYGIENE"
       ],
       "canonical_authority": "EVOLUTION",
       "owner_boundary": "Apple-clientfamilie; native presentatie en clientstaat, geen backendautoriteit",
@@ -14527,7 +15079,9 @@
         "PRODUCT_ROADMAP",
         "CLIENT_MATRIX",
         "README::DJC-APPLE",
-        "APPLE_ARCH"
+        "APPLE_ARCH",
+        "APPLE_API_CONTRACT",
+        "APPLE_HANDOFF"
       ],
       "canonical_authority": "PRODUCT_ROADMAP",
       "owner_boundary": "Apple-clientfamilie; native presentatie en clientstaat, geen backendautoriteit",
@@ -17665,12 +18219,13 @@
     {
       "id": "DRIFT-PI",
       "status": "OPEN",
-      "description": "Pi source deliberately has no local Ask DJ input, PTT, TTS or audio path, while distribution README still promises voice requests. Stable 3.3.0 has only a generic bundle; 4.0.0-rc.2 prerelease lists generic plus Pi 5 and Pi Zero 2 W profile bundles, with a manifest whose source SHA and three artifact hashes match the release API. Neither version proves physical installed-target qualification or the older component-register identity; reconcile copy and exact consumer evidence in owning records.",
+      "description": "Pi source deliberately has no local Ask DJ input, PTT, TTS or audio path, while distribution README still promises voice requests. Stable 3.3.0 has only a generic bundle; 4.0.0-rc.2 prerelease lists generic plus Pi 5 and Pi Zero 2 W profile bundles, with a manifest whose source SHA and three artifact hashes match the release API. Neither version proves physical installed-target qualification or the older component-register identity; reconcile copy and exact consumer evidence in owning records. The pinned Pi source changelog calls 3.3.0 a dry run not published despite observed 3.3.0 stable release metadata; treat this as a source/release chronology conflict requiring exact asset/provenance reconciliation.",
       "source_ids": [
         "README::DJC-PI",
         "README::DJC-DIST-PI",
         "PI-PUBLISH",
-        "QUALIFICATION"
+        "QUALIFICATION",
+        "PI_CHANGELOG"
       ]
     },
     {
@@ -17770,8 +18325,8 @@
     },
     {
       "id": "NORMATIVE-SOURCE-LINK-GAPS",
-      "status": "LINK_FRONTIER_TRIAGED; BROADER_SOURCE_AUDIT_OPEN",
-      "description": "The pinned-blob relative Markdown-link scan covers included core and eleven component-repository Markdown sources. It finds 18 core plus 9 component existing targets still outside the pinned source matrix, each explicitly triaged. Fourteen Software Assurance, three Pi handoff/test/bootstrap, twelve Windows local-policy/architecture/release and four ESP32/Pico sources have now been fully read and pinned. Remaining Apple/Pi and core linked sources and broader repository discovery remain audit-open. Link existence alone adds no dependency or product selection.",
+      "status": "HISTORICAL_LINK_FRONTIER_TRIAGED; BROADER_SOURCE_AUDIT_OPEN",
+      "description": "The pinned-blob relative Markdown-link scan covers included core and eleven component-repository Markdown sources. All component relative Markdown targets discovered by this scan are now pinned. Six existing core targets linked from the historical embedded EP handbook remain explicitly triaged as standalone-EP history, with no retirement or product work selected; its old tools/engineering/ENGINEERING_PLATFORM_STATUS.md link is absent from the pinned core tree. New reads include Apple API contract, handoff, contribution and build hygiene, both source changelogs and the EP handbook. A repository-wide physical/consumer and release audit remains open; link closure alone is not complete DAG proof.",
       "source_ids": [
         "FOUNDATION_INDEX",
         "SESSION_RUNTIME_CONTRACTS",
@@ -17796,7 +18351,37 @@
         "ESP_DESIGN",
         "ESP_DEVENV",
         "PICO_DEVENV",
-        "PICO_RESPONSIBILITY"
+        "PICO_RESPONSIBILITY",
+        "CORE_CANONICAL_REFS",
+        "CORE_DISCOVERY_HIST",
+        "CORE_EP_1X_REPORT_HIST",
+        "CORE_EP_AUTHORING_HIST",
+        "CORE_EP_HOST_CONTRACT_HIST",
+        "APPLE_CODE_CONDUCT",
+        "APPLE_DEVENV",
+        "APPLE_ARCH_DEC",
+        "APPLE_DEVELOPMENT",
+        "APPLE_TECH_DESIGN",
+        "CORE_VERIFICATION_BOOTSTRAP",
+        "CORE_DEVENV",
+        "CORE_THIRD_PARTY",
+        "CORE_VOICE_INTENT_DATA",
+        "CORE_EP_RETIREMENT_HIST",
+        "CORE_SA_PROMPT_01_HIST",
+        "CORE_SA_PROMPT_02_HIST",
+        "CORE_SA_PROMPT_03_HIST",
+        "CORE_SA_PROMPT_04_HIST",
+        "CORE_SA_PROMPT_05_HIST",
+        "CORE_RELEASE_PROMPT_05",
+        "CORE_VERIFICATION_README",
+        "APPLE_CHAT_BOOTSTRAP_HIST",
+        "APPLE_CONTRIBUTING",
+        "APPLE_API_CONTRACT",
+        "APPLE_BUILD_HYGIENE",
+        "APPLE_HANDOFF",
+        "APPLE_CHANGELOG",
+        "PI_CHANGELOG",
+        "CORE_EP_HANDBOOK_HIST"
       ]
     },
     {
@@ -17811,7 +18396,7 @@
     {
       "id": "CORE-VERSION-LINE-RECONCILIATION",
       "status": "RELEASED_3_3_1__SOURCE_CANDIDATE_4_0_0_RC1__LEGACY_SYNC_3_2_X",
-      "description": "At the pinned core head, AGENTS and HANDOFF Current State call 3.3.1 the current released integration; manifest.json and const.py identify the checked-out source as 4.0.0-rc.1, and the Changelog top describes a coordinated 4.0 release-candidate train. SYNC_PROMPTS Current Protocol Line, HANDOFF later historical Release Notes, and TECHNICAL_DESIGN_DECISIONS current-implementation scope still say 3.2.x/v3.2.50. Treat those 3.2 current-wording passages as stale coordination/design text, not a release or compatibility decision. Public release/field state is not inferred from source version strings; owning release verification and a separate authorized documentation correction remain open.",
+      "description": "At the pinned core head, AGENTS and HANDOFF Current State call 3.3.1 the current released integration; manifest.json and const.py identify the checked-out source as 4.0.0-rc.1, and the Changelog top describes a coordinated 4.0 release-candidate train. SYNC_PROMPTS Current Protocol Line, HANDOFF later historical Release Notes, and TECHNICAL_DESIGN_DECISIONS current-implementation scope and the local development guide example output still say 3.2.x/v3.2.50. Treat those 3.2 current-wording passages as stale coordination/design text, not a release or compatibility decision. Public release/field state is not inferred from source version strings; owning release verification and a separate authorized documentation correction remain open.",
       "source_ids": [
         "AGENTS::DJC-CORE",
         "HANDOFF::DJC-CORE",
@@ -17819,13 +18404,14 @@
         "CONST::DJC-CORE",
         "CHANGELOG::DJC-CORE",
         "SYNC_PROMPTS",
-        "TECH_DESIGN::DJC-CORE"
+        "TECH_DESIGN::DJC-CORE",
+        "CORE_DEVENV"
       ]
     },
     {
       "id": "WINDOWS-CONTRACT-MIRROR-DRIFT",
       "status": "OPEN_DOCUMENTARY_RECONCILIATION",
-      "description": "At the pinned Windows head, README, technical design and handoff call the app/release 3.3.0 and the current integration line 3.3.x. Architecture, API mirror, architecture decisions, handoff blocker/next-step text, NFR and Track Insight architecture still describe a 3.2.x contract; handoff also calls 3.2.10 release validation pending despite current 3.3.0 summary. API mirror and Track Insight architecture list track_insight.music_dna as a client response field, whereas current core AGENTS limits client-authoritative Track Insight fields to track, analysis, visual_profile, mood_context and cache. NFR localization prose says Dutch/English only while current local localization policy and resources require en/nl/de/fr/es. The Profile Adoption Report keeps HA as Profile/Music DNA authority and intentionally defers Profile switching. Reconcile the component documents and actual client behavior under existing Windows/core contracts; no new runtime contract or product pickup is selected.",
+      "description": "At the pinned Windows head, README, technical design and handoff call the app/release 3.3.0 and the current integration line 3.3.x. Architecture, API mirror, architecture decisions, handoff blocker/next-step text, NFR and Track Insight architecture still describe a 3.2.x contract; handoff also calls 3.2.10 release validation pending despite current 3.3.0 summary. API mirror and Track Insight architecture list track_insight.music_dna as a client response field, whereas current core AGENTS limits client-authoritative Track Insight fields to track, analysis, visual_profile, mood_context and cache. NFR names Dutch and English string availability for its ViewModel pattern and describes English fallback for other-language release notes; it does not prohibit the other languages. Current local localization policy and resources require en/nl/de/fr/es, so qualify the NFR mirror wording and actual fallback behavior. The Profile Adoption Report keeps HA as Profile/Music DNA authority and intentionally defers Profile switching. Reconcile the component documents and actual client behavior under existing Windows/core contracts; no new runtime contract or product pickup is selected.",
       "source_ids": [
         "README::DJC-WINDOWS",
         "WIN_ARCH",
@@ -17860,23 +18446,32 @@
     {
       "id": "APPLE-STALE-PAIRING-DOC-DRIFT",
       "status": "OPEN_DOCUMENTARY_RECONCILIATION",
-      "description": "The pinned Apple architecture says authenticated 401/403 mark pairing stale but keep the device token until explicit user reset; Apple privacy notes likewise say only explicit reset clears token state. Current core AGENTS requires Apple clients to clear local pairing and Ask DJ cache on 401/403, not_configured or stale-pairing so a removed HA config entry cannot remain locally paired. Reconcile Apple documentation and actual client behavior under the owning Apple/core contracts; do not treat the older text as permission to retain stale pairing.",
+      "description": "The pinned Apple architecture, ADR-005, privacy, development guide, handoff and API contract Error Semantics say authenticated 401/403 keep the device token until explicit reset. The API contract APNs section itself says not_configured/401/403 clear local pairing and Ask DJ cache, matching current core AGENTS. Thus the Apple mirror conflicts internally as well as with the core owner. ADR-007 calls 3.2.2 current and API Error Semantics accepts 3.2.x only, while Apple README/changelog describe the 4.0.x source line. Reconcile documents and actual client behavior under owning Apple/core contracts; no new pairing policy or product pickup is selected.",
       "source_ids": [
         "APPLE_ARCH",
         "APPLE_PRIVACY",
-        "AGENTS::DJC-CORE"
+        "AGENTS::DJC-CORE",
+        "APPLE_ARCH_DEC",
+        "APPLE_DEVELOPMENT",
+        "README::DJC-APPLE",
+        "APPLE_API_CONTRACT",
+        "APPLE_HANDOFF",
+        "APPLE_CHANGELOG"
       ]
     },
     {
       "id": "SOFTWARE-ASSURANCE-LIFECYCLE-DRIFT",
       "status": "OPEN_DOCUMENTARY_RECONCILIATION",
-      "description": "Current canonical Software Assurance governance says Generation 1, Trusted Delivery and Prompts 1-4 are complete and operationally frozen, with future work routed through Platform Evolution. The pinned strategy, rollout and versioning headers still say Prompt 2 active pending explicit execution, although the strategy closing section itself calls Prompts 1-4 historical. Treat the active header text as stale documentary state; the architecture catalog and dependency graph do not create new product execution or gates. Reconcile under the core owning documents without starting a second assurance backlog.",
+      "description": "Current canonical Software Assurance governance says Generation 1, Trusted Delivery and Prompts 1-4 are complete and operationally frozen, with future work routed through Platform Evolution. The pinned strategy, rollout and versioning headers still say Prompt 2 active pending explicit execution, although the strategy closing section itself calls Prompts 1-4 historical. Deferred prompt headers likewise leave Prompt 3 ACTIVE and Prompt 4 blocked while their bodies recount past completion; these archives do not grant new execution. Treat the active header text as stale documentary state; the architecture catalog and dependency graph do not create new product execution or gates. Reconcile under the core owning documents without starting a second assurance backlog.",
       "source_ids": [
         "SA_GOVERNANCE",
         "SA_STRATEGY",
         "SA_ROLLOUT",
         "SA_VERSIONING",
-        "EVOLUTION"
+        "EVOLUTION",
+        "CORE_SA_PROMPT_02_HIST",
+        "CORE_SA_PROMPT_03_HIST",
+        "CORE_SA_PROMPT_04_HIST"
       ]
     },
     {
@@ -17888,6 +18483,15 @@
         "README::DJC-ESP32",
         "AGENTS::DJC-CORE"
       ]
+    },
+    {
+      "id": "APPLE-ASK-DJ-HISTORY-MIRROR-DRIFT",
+      "status": "OPEN_DOCUMENTARY_RECONCILIATION",
+      "description": "The pinned Apple API contract example uses history_limit 200 and describes history per Home Assistant user/Music DNA key. Current core AGENTS specifies a maximum of 1000 messages per HA user, with client_id/client_type only metadata. Qualify the Apple example and actual consumer behavior against the canonical core history contract; do not select a second history scope or retention rule.",
+      "source_ids": [
+        "APPLE_API_CONTRACT",
+        "AGENTS::DJC-CORE"
+      ]
     }
   ],
   "audit_obligations": [
@@ -17895,14 +18499,14 @@
       "id": "AUDIT-DJC-CORE",
       "status": "OPEN",
       "scope": "DJC-CORE",
-      "reason": "Complete local policy, owning backlog/source/tests/PR/releases, active writer/register discovery, workflow effects and final delta. README is not a complete component audit."
+      "reason": "Pinned foundation, roadmap, horizon, legal, voice, verification, local environment and historical EP/Software Assurance sources are read. The embedded EP handbook has six historical linked references triaged under terminal #1098; actual workflow effects, remaining consumer evidence and final delta still need qualification."
     },
     {
       "id": "AUDIT-DJC-APPLE",
       "status": "OPEN",
       "scope": "DJC-APPLE",
-      "reason": "Complete local policy, owning backlog/source/tests/PR/releases, active writer/register discovery, workflow effects and final delta. README is not a complete component audit.",
-      "remaining": "Pinned Apple architecture, privacy, security and release guide are read; reconcile 401/403 stale-pairing text with current core rule and public unsigned diagnostics with distribution README, then finish API/development/handoff, local WIP, physical consumers and final delta."
+      "reason": "Pinned Apple API, handoff, changelog, contribution/build hygiene and architecture/release sources are read. Reconcile internally inconsistent stale-auth/history/version mirror text with core, then qualify actual client behavior, local WIP, physical consumers and final delta.",
+      "remaining": "Source mirrors are pinned; verify stale pairing/history behavior and 4.0.x consumer evidence, actual CI and physical iOS/macOS/watchOS acceptance, release provenance, local WIP and final delta."
     },
     {
       "id": "AUDIT-DJC-ESP32",
@@ -17915,7 +18519,7 @@
       "status": "OPEN",
       "scope": "DJC-PI",
       "reason": "Complete local policy, owning backlog/source/tests/PR/releases, active writer/register discovery, workflow effects and final delta. README is not a complete component audit.",
-      "remaining": "Pinned Pi architecture, technical decisions, performance/security review, handoff, test catalogue and OS/bootstrap guide are read. Reconcile README/HANDOFF internal endpoint contradictions and stale 3.2/3.3/rc.1 examples against pinned 4.0.0-rc.2 source; read current changelog/release and qualify actual CI, physical 4-inch/10-inch and installed-target receipts."
+      "remaining": "Pi architecture, technical decisions, handoff, test catalogue, bootstrap and changelog are pinned. Reconcile local DJ-response endpoint and 3.3.0 dry-run versus public stable-release metadata, then qualify actual CI, physical 4-inch/10-inch and installed-target receipts."
     },
     {
       "id": "AUDIT-DJC-WINDOWS",
@@ -17986,7 +18590,7 @@
       "status": "OPEN",
       "scope": "platform",
       "reason": "Follow all owning graph/source links, old IDs and historical disposition; a truncated tree or empty search is not absence evidence.",
-      "remaining": "Resolve the 27 triaged linked-source targets where planning-relevant, follow owning graph/old IDs and historical dispositions, and prove phase-specific edges and rollups. The canonical Software Assurance architecture dependency graph remains separate governance, not selected DJConnect product work."
+      "remaining": "Six triaged historical EP linked sources remain outside this product planning matrix. Follow owning graph/old IDs and historical dispositions and prove phase-specific edges and rollups; standalone Software Assurance/EP graphs confer no new product execution."
     },
     {
       "id": "PRODUCER-EVIDENCE",
@@ -18000,7 +18604,7 @@
       "status": "OPEN",
       "scope": "platform",
       "reason": "Current matrix covers only explicitly read source inventory; certify complete disposition only after all relevant discoveries are audited.",
-      "remaining": "All 248 included pinned rows are fully read, but 18 core and 9 component relative Markdown targets remain outside the matrix with explicit triage. Read or exclude remaining audit-open sources with evidence, then certify repository-wide discovery."
+      "remaining": "All 278 included pinned rows are fully read and all discovered component relative Markdown targets are included. Six historical core EP references remain explicitly triaged outside the matrix; complete repository-wide source/consumer discovery and status qualification before certification."
     },
     {
       "id": "REGISTER-DELIVERY",
@@ -18051,8 +18655,8 @@
       "id": "FRESHNESS-ALL",
       "status": "CLOSED",
       "scope": "platform",
-      "reason": "All twelve remote main SHA values read back on 2026-10-03 and matched recorded baselines (core closing SHA); this is a head comparison, not a byte revalidation of every source.",
-      "closure_evidence": "Read-only GitHub main head comparison for all twelve public repositories on 2026-10-03; exact SHA values in observed_heads."
+      "reason": "All twelve remote main heads were read back at 11:45 UTC. Eleven equal their recorded source pins; API main advanced one commit solely in package.json/package-lock.json for wrangler dev dependency (#89), per exact compare. No planning source/document changed; API source pins remain unchanged and are identified as historical baseline.",
+      "closure_evidence": "Read-only GitHub commits/main for twelve repositories plus exact DJC-API compare 4e6671c...3f1ed18 (ahead_by=1, behind_by=0, only package.json and package-lock.json), 2026-10-03 11:45 UTC; exact SHAs in latest_head_readback."
     },
     {
       "id": "CORE-AUTO-RELEASE-DECISION",
@@ -18170,7 +18774,8 @@
     "exit_code": 0,
     "verdict": "MATCH / READY FOR DJCONNECT DEVELOPMENT",
     "onboarding": "4.5.3",
-    "repair": false
+    "repair": false,
+    "latest_verify_at": "2026-10-03 11:45 UTC; exit 0, manifest 3.3.0/bootstrap 2.0.21, all desired-state rows MATCH; no repair or service change"
   },
   "rollups": [
     {
@@ -18297,5 +18902,23 @@
       "current": "NOT_RESERVED",
       "release_evidence": "target serial/profile and release after real test"
     }
-  ]
+  ],
+  "latest_head_readback": {
+    "observed_at": "2026-10-03 11:45 UTC GitHub commits/main API",
+    "heads": {
+      "pcvantol/djconnect": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "pcvantol/djconnect-app": "d54224dbf02517ae47406aa14d33e97e61c18002",
+      "pcvantol/djconnect-esp32": "49a71f99f6435819ec00b7387520a3fd20640a0b",
+      "pcvantol/djconnect-pi": "92712ae989f9ad44e2b935222a1e1053670a782f",
+      "pcvantol/djconnect-windows": "1d6635ff5c610a0f43bf1ba7d68cb0b1def06924",
+      "pcvantol/djconnect-api": "3f1ed18d2ce803a2b5d3750115d0dbf2dbaa34ba",
+      "pcvantol/djconnect-website": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
+      "pcvantol/djconnect-vibecast-receiver": "a901fbcd3e894af62b63fafbca8f96738e08ce3c",
+      "pcvantol/djconnect-pico": "6daf1f291566dea52adef604a7186b43755d871e",
+      "pcvantol/djconnect-firmware": "cb9cc7ba321ca57675223dfac32f5583fbcb3656",
+      "pcvantol/djconnect-app-releases": "02fa92f74b56fbc4223ee152d6f612559b84779d",
+      "pcvantol/djconnect-pi-releases": "673300921f980edc5ddfbb3ed5f5ca906b320b62"
+    },
+    "baseline_relation": "11 of 12 remote main heads equal source pins. DJC-API advanced by one commit from 4e6671c3231187e7cd20243817a86a56ad6aad06 to 3f1ed18d2ce803a2b5d3750115d0dbf2dbaa34ba. The exact GitHub compare is ahead_by=1, behind_by=0, changes only package.json and package-lock.json for a wrangler dev-dependency bump (#89); pinned planning Markdown/source claims are unchanged. API sources retain their exact older commit pins and are not silently repinned."
+  }
 }

@@ -116,9 +116,8 @@ class SnapshotTests(unittest.TestCase):
         self.assertIn("unknown finding source", self.errors())
 
     def test_unpinned_reference_scan_requires_path_dispositions(self):
-        self.p["source_capture"]["reference_scan"]["triage"].pop(
-            "pcvantol/djconnect::CANONICAL_REFERENCES.md"
-        )
+        scan = self.p["source_capture"]["reference_scan"]
+        scan["triage"].pop(scan["unmapped_paths"][0])
         self.assertIn("reference scan needs one disposition for every unpinned path", self.errors())
 
     def test_audit_cannot_close_without_receipt(self):
