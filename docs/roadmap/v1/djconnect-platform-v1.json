@@ -41,7 +41,7 @@
     "metadata_and_bounded_paraphrases": true,
     "offline_hash_verification_of_remote_blobs": false,
     "per_call_timestamps": "Date-level head readback on 2026-10-03; no per-file read timestamp for inherited checkpoint.",
-    "pinned_tree_blobs_verified": "443 of 443 path/blob pins matched exact commit trees or GitHub Contents commit readbacks: 105 original GitHub tree readbacks, 224 local git commit-tree readbacks and 114 new GitHub Contents readbacks on 2026-10-03. Narrative interpretation remains partial.",
+    "pinned_tree_blobs_verified": "506 of 506 path/blob pins matched exact commit trees or GitHub Contents commit readbacks: 105 original GitHub tree readbacks, 287 local git commit-tree readbacks and 114 new GitHub Contents readbacks on 2026-10-03. Firmware binary files were fully SHA256-hashed for identity, not semantically executed. Narrative interpretation remains partial.",
     "reference_scan": {
       "method": "Every pinned core Markdown blob and every pinned Markdown blob in the eleven DJC component repositories, at its recorded commit: parse relative Markdown links, strip anchors, normalize against source directory, retain existing .md targets absent from the pinned source matrix; distinct repository/path keys. The seven pinned external Forge method documents are outside this lane-source link frontier.",
       "unmapped_paths": [
@@ -143,24 +143,24 @@
           "repository": "pcvantol/djconnect-firmware",
           "commit_sha": "cb9cc7ba321ca57675223dfac32f5583fbcb3656",
           "tracked_markdown": 15,
-          "included_markdown": 8,
-          "not_individually_included_markdown": 7,
+          "included_markdown": 15,
+          "not_individually_included_markdown": 0,
           "tree_readback": "complete local git ls-tree -r"
         },
         "DJC-DIST-APPLE": {
           "repository": "pcvantol/djconnect-app-releases",
           "commit_sha": "02fa92f74b56fbc4223ee152d6f612559b84779d",
           "tracked_markdown": 15,
-          "included_markdown": 8,
-          "not_individually_included_markdown": 7,
+          "included_markdown": 15,
+          "not_individually_included_markdown": 0,
           "tree_readback": "complete local git ls-tree -r"
         },
         "DJC-DIST-PI": {
           "repository": "pcvantol/djconnect-pi-releases",
           "commit_sha": "673300921f980edc5ddfbb3ed5f5ca906b320b62",
           "tracked_markdown": 15,
-          "included_markdown": 8,
-          "not_individually_included_markdown": 7,
+          "included_markdown": 15,
+          "not_individually_included_markdown": 0,
           "tree_readback": "complete local git ls-tree -r"
         }
       }
@@ -373,9 +373,9 @@
       "register_discovery": "Dedicated owning issue created; existing local backlog retained",
       "portfolio_register": "https://github.com/pcvantol/djconnect/issues/1101",
       "proposed_documentary_next_step": "Verifieer bestaande gedelegeerde source-publicatie, compatibiliteitsmetadata en consumerclaims; alleen feitelijke distributiebacklog.",
-      "local_backlog_audit": "Relevant local backlog, four phase/status projections and applicable RG-001 Prompt History read; owning status reconciliation recorded; full source/consumer audit pending",
-      "local_test_policy": "NOT_FULLY_AUDITED",
-      "release_effect_audit": "Push, tag, dispatch and workflow_run triggers inventoried; exact route-specific effects must be read before push"
+      "local_backlog_audit": "All 37 tracked paths, including all 15 Markdown paths, were inventoried at exact main; owning status/phase projections and sole planning issue retained. GitHub release and source-to-consumer reconciliation remain open.",
+      "local_test_policy": "Main-only distribution-integrity check validates dry-run metadata and local manifest/binary sidecar hashes; exact-main validation run not retained in the latest run listing; local source audit is not live/installed acceptance.",
+      "release_effect_audit": "Main push runs integrity validation and Action-run cleanup; successful main workflow_run may invoke contents-write reusable release-evidence workflow that can create/append internal-ha-{SHA} prerelease after gates and can write the main Post-Merge Release Evidence commit status. Manual release execution contract accepts dry_run only. No distribution push/merge under this planning assignment."
     },
     {
       "id": "DJC-DIST-APPLE",
@@ -394,9 +394,9 @@
       "register_discovery": "Dedicated owning issue created; existing local backlog retained",
       "portfolio_register": "https://github.com/pcvantol/djconnect/issues/1101",
       "proposed_documentary_next_step": "Bepaal de daadwerkelijke huidige artifact- en publicatiegrens uit workflows/receipts. Behoud één lane voor deze repo; maak geen tweede Windows-distributiewriter.",
-      "local_backlog_audit": "Relevant local backlog, four phase/status projections and applicable RG-001 Prompt History read; owning status reconciliation recorded; full source/consumer audit pending",
-      "local_test_policy": "NOT_FULLY_AUDITED",
-      "release_effect_audit": "Push, tag, dispatch and workflow_run triggers inventoried; exact route-specific effects must be read before push"
+      "local_backlog_audit": "All 25 tracked paths, including all 15 Markdown paths, were inventoried at exact main; owning status/phase projections and sole planning issue retained. GitHub release and source-to-consumer reconciliation remain open.",
+      "local_test_policy": "Main-only distribution-integrity check validates dry-run metadata; exact-main validation run not retained in the latest run listing; local source audit is not live/installed acceptance.",
+      "release_effect_audit": "Main push runs integrity validation and Action-run cleanup; successful main workflow_run may invoke contents-write reusable release-evidence workflow that can create/append internal-ha-{SHA} prerelease after gates and can write the main Post-Merge Release Evidence commit status. Manual release execution contract accepts dry_run only. No distribution push/merge under this planning assignment."
     },
     {
       "id": "DJC-DIST-PI",
@@ -415,9 +415,9 @@
       "register_discovery": "Dedicated owning issue created; existing local backlog retained",
       "portfolio_register": "https://github.com/pcvantol/djconnect/issues/1101",
       "proposed_documentary_next_step": "Reconcileer legacy versus profielspecifieke bundles en onjuiste voice-copy aan de sourcezijde, zonder update/deployment uit te voeren.",
-      "local_backlog_audit": "Relevant local backlog, four phase/status projections and applicable RG-001 Prompt History read; owning status reconciliation recorded; full source/consumer audit pending",
-      "local_test_policy": "NOT_FULLY_AUDITED",
-      "release_effect_audit": "Push, tag, dispatch and workflow_run triggers inventoried; exact route-specific effects must be read before push"
+      "local_backlog_audit": "All 25 tracked paths, including all 15 Markdown paths, were inventoried at exact main; owning status/phase projections and sole planning issue retained. GitHub release and source-to-consumer reconciliation remain open.",
+      "local_test_policy": "Main-only distribution-integrity check validates dry-run metadata; exact-main validation run not retained in the latest run listing; local source audit is not live/installed acceptance.",
+      "release_effect_audit": "Main push runs integrity validation and Action-run cleanup; successful main workflow_run may invoke contents-write reusable release-evidence workflow that can create/append internal-ha-{SHA} prerelease after gates and can write the main Post-Merge Release Evidence commit status. Manual release execution contract accepts dry_run only. No distribution push/merge under this planning assignment."
     }
   ],
   "sources": [
@@ -8814,6 +8814,1140 @@
         "INV::DJC-PICO"
       ],
       "remaining": "Bounded source inventory only; approved product scope, Pico 2 W hardware, consumer and release evidence are not qualified."
+    },
+    {
+      "id": "DIST_SOURCE__DJC_DIST_FIRMWARE__GITHUB_CODEOWNERS",
+      "repository": "pcvantol/djconnect-firmware",
+      "path": ".github/CODEOWNERS",
+      "blob_sha": "1ad7ff43acaa96ae6822b8d6e29f60eacedf0bae",
+      "commit_sha": "cb9cc7ba321ca57675223dfac32f5583fbcb3656",
+      "read_boundary": "full pinned text file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Local code ownership; approval policy remains with Trusted Delivery.",
+      "observed_at": "2026-10-03; exact local git commit-tree and complete text read or binary SHA256 byte read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-firmware/blob/cb9cc7ba321ca57675223dfac32f5583fbcb3656/.github/CODEOWNERS",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-DIST-FIRMWARE"
+      ],
+      "remaining": "Source/dry-run or historical artifact identity does not qualify current source-to-release, installed consumer, live distribution or approval evidence."
+    },
+    {
+      "id": "DIST_SOURCE__DJC_DIST_FIRMWARE__GITHUB_DEPENDABOT_YML",
+      "repository": "pcvantol/djconnect-firmware",
+      "path": ".github/dependabot.yml",
+      "blob_sha": "3f4f0b9252c1133bbcf819a80010ff7280bf492a",
+      "commit_sha": "cb9cc7ba321ca57675223dfac32f5583fbcb3656",
+      "read_boundary": "full pinned text file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Weekly GitHub Actions dependency maintenance configuration, not release or product status.",
+      "observed_at": "2026-10-03; exact local git commit-tree and complete text read or binary SHA256 byte read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-firmware/blob/cb9cc7ba321ca57675223dfac32f5583fbcb3656/.github/dependabot.yml",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-DIST-FIRMWARE"
+      ],
+      "remaining": "Source/dry-run or historical artifact identity does not qualify current source-to-release, installed consumer, live distribution or approval evidence."
+    },
+    {
+      "id": "DIST_SOURCE__DJC_DIST_FIRMWARE__GITHUB_WORKFLOWS_OWNER_AUTHORIZATION_YML",
+      "repository": "pcvantol/djconnect-firmware",
+      "path": ".github/workflows/owner-authorization.yml",
+      "blob_sha": "ffdc9faa5ad19fd85654e785741168c5fb59b3b9",
+      "commit_sha": "cb9cc7ba321ca57675223dfac32f5583fbcb3656",
+      "read_boundary": "full pinned text file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Manual Owner Authorization dispatch can write GitHub commit status; not automatic product release.",
+      "observed_at": "2026-10-03; exact local git commit-tree and complete text read or binary SHA256 byte read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-firmware/blob/cb9cc7ba321ca57675223dfac32f5583fbcb3656/.github/workflows/owner-authorization.yml",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-DIST-FIRMWARE"
+      ],
+      "remaining": "Source/dry-run or historical artifact identity does not qualify current source-to-release, installed consumer, live distribution or approval evidence."
+    },
+    {
+      "id": "DIST_SOURCE__DJC_DIST_FIRMWARE__GITHUB_WORKFLOWS_PLATFORM_RELEASE_EXECUTION_YML",
+      "repository": "pcvantol/djconnect-firmware",
+      "path": ".github/workflows/platform-release-execution.yml",
+      "blob_sha": "89f0cd2cb9a6c6171898a1e3e11fb2e6ee89d718",
+      "commit_sha": "cb9cc7ba321ca57675223dfac32f5583fbcb3656",
+      "read_boundary": "full pinned text file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Manual dispatch contract enforces dry_run and emits evidence artifact; it does not execute deployment or publication.",
+      "observed_at": "2026-10-03; exact local git commit-tree and complete text read or binary SHA256 byte read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-firmware/blob/cb9cc7ba321ca57675223dfac32f5583fbcb3656/.github/workflows/platform-release-execution.yml",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-DIST-FIRMWARE"
+      ],
+      "remaining": "Source/dry-run or historical artifact identity does not qualify current source-to-release, installed consumer, live distribution or approval evidence."
+    },
+    {
+      "id": "DIST_SOURCE__DJC_DIST_FIRMWARE__GITHUB_WORKFLOWS_POST_MERGE_DISTRIBUTION_INTEGRITY_YML",
+      "repository": "pcvantol/djconnect-firmware",
+      "path": ".github/workflows/post-merge-distribution-integrity.yml",
+      "blob_sha": "8fef344a363a1e3a8efb7973e919e081d38af8cd",
+      "commit_sha": "cb9cc7ba321ca57675223dfac32f5583fbcb3656",
+      "read_boundary": "full pinned text file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Main-push integrity validation emits metadata artifact; cleanup job can delete old Action runs; downstream release-evidence trigger is separate.",
+      "observed_at": "2026-10-03; exact local git commit-tree and complete text read or binary SHA256 byte read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-firmware/blob/cb9cc7ba321ca57675223dfac32f5583fbcb3656/.github/workflows/post-merge-distribution-integrity.yml",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-DIST-FIRMWARE"
+      ],
+      "remaining": "Source/dry-run or historical artifact identity does not qualify current source-to-release, installed consumer, live distribution or approval evidence."
+    },
+    {
+      "id": "DIST_SOURCE__DJC_DIST_FIRMWARE__GITHUB_WORKFLOWS_POST_MERGE_RELEASE_EVIDENCE_YML",
+      "repository": "pcvantol/djconnect-firmware",
+      "path": ".github/workflows/post-merge-release-evidence.yml",
+      "blob_sha": "826d21a7d497ec4b793e602868c12a96656cea9e",
+      "commit_sha": "cb9cc7ba321ca57675223dfac32f5583fbcb3656",
+      "read_boundary": "full pinned text file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Successful main integrity workflow_run calls pinned reusable release-evidence path with contents:write; may create or append internal-ha-{SHA} prerelease and can write a main commit status after its gates.",
+      "observed_at": "2026-10-03; exact local git commit-tree and complete text read or binary SHA256 byte read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-firmware/blob/cb9cc7ba321ca57675223dfac32f5583fbcb3656/.github/workflows/post-merge-release-evidence.yml",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-DIST-FIRMWARE"
+      ],
+      "remaining": "Source/dry-run or historical artifact identity does not qualify current source-to-release, installed consumer, live distribution or approval evidence."
+    },
+    {
+      "id": "DIST_SOURCE__DJC_DIST_FIRMWARE__GITHUB_WORKFLOWS_SOFTWARE_ASSURANCE_GOVERNANCE_YML",
+      "repository": "pcvantol/djconnect-firmware",
+      "path": ".github/workflows/software-assurance-governance.yml",
+      "blob_sha": "1b6f36b65825f417d8ec4b64151813ac9987386e",
+      "commit_sha": "cb9cc7ba321ca57675223dfac32f5583fbcb3656",
+      "read_boundary": "full pinned text file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "PR/main/dispatch delegated governance validation; not product/release acceptance.",
+      "observed_at": "2026-10-03; exact local git commit-tree and complete text read or binary SHA256 byte read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-firmware/blob/cb9cc7ba321ca57675223dfac32f5583fbcb3656/.github/workflows/software-assurance-governance.yml",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-DIST-FIRMWARE"
+      ],
+      "remaining": "Source/dry-run or historical artifact identity does not qualify current source-to-release, installed consumer, live distribution or approval evidence."
+    },
+    {
+      "id": "DIST_SOURCE__DJC_DIST_FIRMWARE__GITHUB_WORKFLOWS_TRUSTED_DELIVERY_YML",
+      "repository": "pcvantol/djconnect-firmware",
+      "path": ".github/workflows/trusted-delivery.yml",
+      "blob_sha": "4d30b5128da5ee8f979cbea2ef8ce597382f4d15",
+      "commit_sha": "cb9cc7ba321ca57675223dfac32f5583fbcb3656",
+      "read_boundary": "full pinned text file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "PR Trusted Delivery qualification can write GitHub commit status; not product acceptance.",
+      "observed_at": "2026-10-03; exact local git commit-tree and complete text read or binary SHA256 byte read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-firmware/blob/cb9cc7ba321ca57675223dfac32f5583fbcb3656/.github/workflows/trusted-delivery.yml",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-DIST-FIRMWARE"
+      ],
+      "remaining": "Source/dry-run or historical artifact identity does not qualify current source-to-release, installed consumer, live distribution or approval evidence."
+    },
+    {
+      "id": "DIST_SOURCE__DJC_DIST_FIRMWARE__GITIGNORE",
+      "repository": "pcvantol/djconnect-firmware",
+      "path": ".gitignore",
+      "blob_sha": "18814655457273c89261a8dae623d34643d8f011",
+      "commit_sha": "cb9cc7ba321ca57675223dfac32f5583fbcb3656",
+      "read_boundary": "full pinned text file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Repository-local configuration or hygiene source; no platform product or release authority.",
+      "observed_at": "2026-10-03; exact local git commit-tree and complete text read or binary SHA256 byte read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-firmware/blob/cb9cc7ba321ca57675223dfac32f5583fbcb3656/.gitignore",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-DIST-FIRMWARE"
+      ],
+      "remaining": "Source/dry-run or historical artifact identity does not qualify current source-to-release, installed consumer, live distribution or approval evidence."
+    },
+    {
+      "id": "DIST_SOURCE__DJC_DIST_FIRMWARE__BOOTSTRAP_MD",
+      "repository": "pcvantol/djconnect-firmware",
+      "path": "BOOTSTRAP.md",
+      "blob_sha": "ce9e078daadec7476dfe53688186473ec859a1d2",
+      "commit_sha": "cb9cc7ba321ca57675223dfac32f5583fbcb3656",
+      "read_boundary": "full pinned text file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Local bootstrap/prompt pointer; no independent product or release authority.",
+      "observed_at": "2026-10-03; exact local git commit-tree and complete text read or binary SHA256 byte read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-firmware/blob/cb9cc7ba321ca57675223dfac32f5583fbcb3656/BOOTSTRAP.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-DIST-FIRMWARE"
+      ],
+      "remaining": "Source/dry-run or historical artifact identity does not qualify current source-to-release, installed consumer, live distribution or approval evidence."
+    },
+    {
+      "id": "DIST_SOURCE__DJC_DIST_FIRMWARE__BOOTSTRAP_CODEX_SESSION_MD",
+      "repository": "pcvantol/djconnect-firmware",
+      "path": "BOOTSTRAP_CODEX_SESSION.md",
+      "blob_sha": "18489c315b33c1312c648701803e49ed5c3b248f",
+      "commit_sha": "cb9cc7ba321ca57675223dfac32f5583fbcb3656",
+      "read_boundary": "full pinned text file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Local session entrypoint; delegates platform authority to core and keeps distribution ownership bounded.",
+      "observed_at": "2026-10-03; exact local git commit-tree and complete text read or binary SHA256 byte read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-firmware/blob/cb9cc7ba321ca57675223dfac32f5583fbcb3656/BOOTSTRAP_CODEX_SESSION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-DIST-FIRMWARE"
+      ],
+      "remaining": "Source/dry-run or historical artifact identity does not qualify current source-to-release, installed consumer, live distribution or approval evidence."
+    },
+    {
+      "id": "DIST_SOURCE__DJC_DIST_FIRMWARE__CANONICAL_REFERENCES_MD",
+      "repository": "pcvantol/djconnect-firmware",
+      "path": "CANONICAL_REFERENCES.md",
+      "blob_sha": "ac900757ac05c66f6d92b34b3d3588ad43f9701e",
+      "commit_sha": "cb9cc7ba321ca57675223dfac32f5583fbcb3656",
+      "read_boundary": "full pinned text file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Local canonical reference map; no independent product selection.",
+      "observed_at": "2026-10-03; exact local git commit-tree and complete text read or binary SHA256 byte read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-firmware/blob/cb9cc7ba321ca57675223dfac32f5583fbcb3656/CANONICAL_REFERENCES.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-DIST-FIRMWARE"
+      ],
+      "remaining": "Source/dry-run or historical artifact identity does not qualify current source-to-release, installed consumer, live distribution or approval evidence."
+    },
+    {
+      "id": "DIST_SOURCE__DJC_DIST_FIRMWARE__CHAT_BOOTSTRAP_MD",
+      "repository": "pcvantol/djconnect-firmware",
+      "path": "CHAT_BOOTSTRAP.md",
+      "blob_sha": "36c6dbdf7ca5bcfdbe47e18c956ece9114e90e52",
+      "commit_sha": "cb9cc7ba321ca57675223dfac32f5583fbcb3656",
+      "read_boundary": "full pinned text file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Local bootstrap/prompt pointer; no independent product or release authority.",
+      "observed_at": "2026-10-03; exact local git commit-tree and complete text read or binary SHA256 byte read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-firmware/blob/cb9cc7ba321ca57675223dfac32f5583fbcb3656/CHAT_BOOTSTRAP.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-DIST-FIRMWARE"
+      ],
+      "remaining": "Source/dry-run or historical artifact identity does not qualify current source-to-release, installed consumer, live distribution or approval evidence."
+    },
+    {
+      "id": "DIST_SOURCE__DJC_DIST_FIRMWARE__LICENSE",
+      "repository": "pcvantol/djconnect-firmware",
+      "path": "LICENSE",
+      "blob_sha": "94c80530443b2a2dfd2d6418e204862659466c06",
+      "commit_sha": "cb9cc7ba321ca57675223dfac32f5583fbcb3656",
+      "read_boundary": "full pinned text file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Repository-local configuration or hygiene source; no platform product or release authority.",
+      "observed_at": "2026-10-03; exact local git commit-tree and complete text read or binary SHA256 byte read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-firmware/blob/cb9cc7ba321ca57675223dfac32f5583fbcb3656/LICENSE",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-DIST-FIRMWARE"
+      ],
+      "remaining": "Source/dry-run or historical artifact identity does not qualify current source-to-release, installed consumer, live distribution or approval evidence."
+    },
+    {
+      "id": "DIST_SOURCE__DJC_DIST_FIRMWARE__PLATFORM_RELEASE_DRY_RUN_3_3_JSON",
+      "repository": "pcvantol/djconnect-firmware",
+      "path": "PLATFORM_RELEASE_DRY_RUN_3_3.json",
+      "blob_sha": "d0d6c38bf6cfb9cf171f0f51fef3cfe7b12c160f",
+      "commit_sha": "cb9cc7ba321ca57675223dfac32f5583fbcb3656",
+      "read_boundary": "full pinned text file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "3.3 dry-run metadata says planned_not_published/publication forbidden; historical snapshot, not current release-list truth.",
+      "observed_at": "2026-10-03; exact local git commit-tree and complete text read or binary SHA256 byte read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-firmware/blob/cb9cc7ba321ca57675223dfac32f5583fbcb3656/PLATFORM_RELEASE_DRY_RUN_3_3.json",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-DIST-FIRMWARE"
+      ],
+      "remaining": "Source/dry-run or historical artifact identity does not qualify current source-to-release, installed consumer, live distribution or approval evidence."
+    },
+    {
+      "id": "DIST_SOURCE__DJC_DIST_FIRMWARE__SECURITY_MD",
+      "repository": "pcvantol/djconnect-firmware",
+      "path": "SECURITY.md",
+      "blob_sha": "2672d4e30768385a14146713877c052529889a8f",
+      "commit_sha": "cb9cc7ba321ca57675223dfac32f5583fbcb3656",
+      "read_boundary": "full pinned text file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Private vulnerability reporting policy and local distribution boundary; no release acceptance.",
+      "observed_at": "2026-10-03; exact local git commit-tree and complete text read or binary SHA256 byte read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-firmware/blob/cb9cc7ba321ca57675223dfac32f5583fbcb3656/SECURITY.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-DIST-FIRMWARE"
+      ],
+      "remaining": "Source/dry-run or historical artifact identity does not qualify current source-to-release, installed consumer, live distribution or approval evidence."
+    },
+    {
+      "id": "DIST_SOURCE__DJC_DIST_FIRMWARE__SYNC_PROMPTS_MD",
+      "repository": "pcvantol/djconnect-firmware",
+      "path": "SYNC_PROMPTS.md",
+      "blob_sha": "a5a4ff7170ded9f25619b32da1ceaab795f48340",
+      "commit_sha": "cb9cc7ba321ca57675223dfac32f5583fbcb3656",
+      "read_boundary": "full pinned text file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Local bootstrap/prompt pointer; no independent product or release authority.",
+      "observed_at": "2026-10-03; exact local git commit-tree and complete text read or binary SHA256 byte read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-firmware/blob/cb9cc7ba321ca57675223dfac32f5583fbcb3656/SYNC_PROMPTS.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-DIST-FIRMWARE"
+      ],
+      "remaining": "Source/dry-run or historical artifact identity does not qualify current source-to-release, installed consumer, live distribution or approval evidence."
+    },
+    {
+      "id": "DIST_SOURCE__DJC_DIST_FIRMWARE__DJCONNECT_LILYGO_T_EMBED_S3_V3_1_36_BIN",
+      "repository": "pcvantol/djconnect-firmware",
+      "path": "djconnect-lilygo-t-embed-s3-v3.1.36.bin",
+      "blob_sha": "291736667079a9bca819c760ebf5b709e298a20c",
+      "commit_sha": "cb9cc7ba321ca57675223dfac32f5583fbcb3656",
+      "read_boundary": "complete binary bytes hashed on 2026-10-03; size 2733536; sha256 8c634300b818dd745b074203c103d56039dd9c2f929c35b6b7a3c99314b8ddcc; no executable behavior review",
+      "read_complete": true,
+      "status_authority": "Historical tracked firmware binary; byte identity and sidecar integrity only, no device/OTA or release acceptance.",
+      "observed_at": "2026-10-03; exact local git commit-tree and complete text read or binary SHA256 byte read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-firmware/blob/cb9cc7ba321ca57675223dfac32f5583fbcb3656/djconnect-lilygo-t-embed-s3-v3.1.36.bin",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-DIST-FIRMWARE"
+      ],
+      "remaining": "Source/dry-run or historical artifact identity does not qualify current source-to-release, installed consumer, live distribution or approval evidence."
+    },
+    {
+      "id": "DIST_SOURCE__DJC_DIST_FIRMWARE__DJCONNECT_LILYGO_T_EMBED_S3_V3_1_36_BIN_SHA256",
+      "repository": "pcvantol/djconnect-firmware",
+      "path": "djconnect-lilygo-t-embed-s3-v3.1.36.bin.sha256",
+      "blob_sha": "ed93f9cbd7cf7ecffb993c46d33465518d846644",
+      "commit_sha": "cb9cc7ba321ca57675223dfac32f5583fbcb3656",
+      "read_boundary": "full pinned checksum sidecar read on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Tracked SHA256 sidecar for historical firmware binary; not publication or device evidence.",
+      "observed_at": "2026-10-03; exact local git commit-tree and complete text read or binary SHA256 byte read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-firmware/blob/cb9cc7ba321ca57675223dfac32f5583fbcb3656/djconnect-lilygo-t-embed-s3-v3.1.36.bin.sha256",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-DIST-FIRMWARE"
+      ],
+      "remaining": "Source/dry-run or historical artifact identity does not qualify current source-to-release, installed consumer, live distribution or approval evidence."
+    },
+    {
+      "id": "DIST_SOURCE__DJC_DIST_FIRMWARE__DJCONNECT_LILYGO_T_EMBED_S3_V3_1_37_BIN",
+      "repository": "pcvantol/djconnect-firmware",
+      "path": "djconnect-lilygo-t-embed-s3-v3.1.37.bin",
+      "blob_sha": "3ffec5ceb967819af7086d1b4da7b3110f7fc5ca",
+      "commit_sha": "cb9cc7ba321ca57675223dfac32f5583fbcb3656",
+      "read_boundary": "complete binary bytes hashed on 2026-10-03; size 2733536; sha256 e998d0db6f150e3af9f01f96ed8a301981271dbfa91239f01fca4e4c607712da; no executable behavior review",
+      "read_complete": true,
+      "status_authority": "Historical tracked firmware binary; byte identity and sidecar integrity only, no device/OTA or release acceptance.",
+      "observed_at": "2026-10-03; exact local git commit-tree and complete text read or binary SHA256 byte read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-firmware/blob/cb9cc7ba321ca57675223dfac32f5583fbcb3656/djconnect-lilygo-t-embed-s3-v3.1.37.bin",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-DIST-FIRMWARE"
+      ],
+      "remaining": "Source/dry-run or historical artifact identity does not qualify current source-to-release, installed consumer, live distribution or approval evidence."
+    },
+    {
+      "id": "DIST_SOURCE__DJC_DIST_FIRMWARE__DJCONNECT_LILYGO_T_EMBED_S3_V3_1_37_BIN_SHA256",
+      "repository": "pcvantol/djconnect-firmware",
+      "path": "djconnect-lilygo-t-embed-s3-v3.1.37.bin.sha256",
+      "blob_sha": "6e58e74e14982c9be966c4463f1939464c60de2c",
+      "commit_sha": "cb9cc7ba321ca57675223dfac32f5583fbcb3656",
+      "read_boundary": "full pinned checksum sidecar read on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Tracked SHA256 sidecar for historical firmware binary; not publication or device evidence.",
+      "observed_at": "2026-10-03; exact local git commit-tree and complete text read or binary SHA256 byte read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-firmware/blob/cb9cc7ba321ca57675223dfac32f5583fbcb3656/djconnect-lilygo-t-embed-s3-v3.1.37.bin.sha256",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-DIST-FIRMWARE"
+      ],
+      "remaining": "Source/dry-run or historical artifact identity does not qualify current source-to-release, installed consumer, live distribution or approval evidence."
+    },
+    {
+      "id": "DIST_SOURCE__DJC_DIST_FIRMWARE__DJCONNECT_LILYGO_T_EMBED_S3_V3_2_0_BIN",
+      "repository": "pcvantol/djconnect-firmware",
+      "path": "djconnect-lilygo-t-embed-s3-v3.2.0.bin",
+      "blob_sha": "b037668d0ce9bd286a02123354bacdeb52c53727",
+      "commit_sha": "cb9cc7ba321ca57675223dfac32f5583fbcb3656",
+      "read_boundary": "complete binary bytes hashed on 2026-10-03; size 2736496; sha256 eebd503a29d2191c03a916bbefbb303083cb89d30b71f36800efdcb800cdd2a7; no executable behavior review",
+      "read_complete": true,
+      "status_authority": "Historical tracked firmware binary; byte identity and sidecar integrity only, no device/OTA or release acceptance.",
+      "observed_at": "2026-10-03; exact local git commit-tree and complete text read or binary SHA256 byte read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-firmware/blob/cb9cc7ba321ca57675223dfac32f5583fbcb3656/djconnect-lilygo-t-embed-s3-v3.2.0.bin",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-DIST-FIRMWARE"
+      ],
+      "remaining": "Source/dry-run or historical artifact identity does not qualify current source-to-release, installed consumer, live distribution or approval evidence."
+    },
+    {
+      "id": "DIST_SOURCE__DJC_DIST_FIRMWARE__DJCONNECT_LILYGO_T_EMBED_S3_V3_2_0_BIN_SHA256",
+      "repository": "pcvantol/djconnect-firmware",
+      "path": "djconnect-lilygo-t-embed-s3-v3.2.0.bin.sha256",
+      "blob_sha": "a87750a8ea5c8b1aaff77291355606182ed9de84",
+      "commit_sha": "cb9cc7ba321ca57675223dfac32f5583fbcb3656",
+      "read_boundary": "full pinned checksum sidecar read on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Tracked SHA256 sidecar for historical firmware binary; not publication or device evidence.",
+      "observed_at": "2026-10-03; exact local git commit-tree and complete text read or binary SHA256 byte read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-firmware/blob/cb9cc7ba321ca57675223dfac32f5583fbcb3656/djconnect-lilygo-t-embed-s3-v3.2.0.bin.sha256",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-DIST-FIRMWARE"
+      ],
+      "remaining": "Source/dry-run or historical artifact identity does not qualify current source-to-release, installed consumer, live distribution or approval evidence."
+    },
+    {
+      "id": "DIST_SOURCE__DJC_DIST_FIRMWARE__DJCONNECT_LILYGO_T_EMBED_S3_V3_2_1_BIN",
+      "repository": "pcvantol/djconnect-firmware",
+      "path": "djconnect-lilygo-t-embed-s3-v3.2.1.bin",
+      "blob_sha": "d03549632aae6187f00cbf74a4cb6e3c70a07a5b",
+      "commit_sha": "cb9cc7ba321ca57675223dfac32f5583fbcb3656",
+      "read_boundary": "complete binary bytes hashed on 2026-10-03; size 2736784; sha256 165d4c4be4c04a9af2e9fd727470730489927cb5f245af3bbb6cbe11ef035b29; no executable behavior review",
+      "read_complete": true,
+      "status_authority": "Historical tracked firmware binary; byte identity and sidecar integrity only, no device/OTA or release acceptance.",
+      "observed_at": "2026-10-03; exact local git commit-tree and complete text read or binary SHA256 byte read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-firmware/blob/cb9cc7ba321ca57675223dfac32f5583fbcb3656/djconnect-lilygo-t-embed-s3-v3.2.1.bin",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-DIST-FIRMWARE"
+      ],
+      "remaining": "Source/dry-run or historical artifact identity does not qualify current source-to-release, installed consumer, live distribution or approval evidence."
+    },
+    {
+      "id": "DIST_SOURCE__DJC_DIST_FIRMWARE__DJCONNECT_LILYGO_T_EMBED_S3_V3_2_1_BIN_SHA256",
+      "repository": "pcvantol/djconnect-firmware",
+      "path": "djconnect-lilygo-t-embed-s3-v3.2.1.bin.sha256",
+      "blob_sha": "2ab2e383b537ef2a8b0f337ad6d9fa1dd01f863e",
+      "commit_sha": "cb9cc7ba321ca57675223dfac32f5583fbcb3656",
+      "read_boundary": "full pinned checksum sidecar read on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Tracked SHA256 sidecar for historical firmware binary; not publication or device evidence.",
+      "observed_at": "2026-10-03; exact local git commit-tree and complete text read or binary SHA256 byte read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-firmware/blob/cb9cc7ba321ca57675223dfac32f5583fbcb3656/djconnect-lilygo-t-embed-s3-v3.2.1.bin.sha256",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-DIST-FIRMWARE"
+      ],
+      "remaining": "Source/dry-run or historical artifact identity does not qualify current source-to-release, installed consumer, live distribution or approval evidence."
+    },
+    {
+      "id": "DIST_SOURCE__DJC_DIST_FIRMWARE__DJCONNECT_LILYGO_T_EMBED_S3_V3_2_11_BIN",
+      "repository": "pcvantol/djconnect-firmware",
+      "path": "djconnect-lilygo-t-embed-s3-v3.2.11.bin",
+      "blob_sha": "ff200f25bbeca01cd7b66f6820d737afb6431824",
+      "commit_sha": "cb9cc7ba321ca57675223dfac32f5583fbcb3656",
+      "read_boundary": "complete binary bytes hashed on 2026-10-03; size 2773216; sha256 da239c450c96aff4d9f36758c3c1733522ab2a0efc19d64280ba0566703a440b; no executable behavior review",
+      "read_complete": true,
+      "status_authority": "Historical tracked firmware binary; byte identity and sidecar integrity only, no device/OTA or release acceptance.",
+      "observed_at": "2026-10-03; exact local git commit-tree and complete text read or binary SHA256 byte read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-firmware/blob/cb9cc7ba321ca57675223dfac32f5583fbcb3656/djconnect-lilygo-t-embed-s3-v3.2.11.bin",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-DIST-FIRMWARE"
+      ],
+      "remaining": "Source/dry-run or historical artifact identity does not qualify current source-to-release, installed consumer, live distribution or approval evidence."
+    },
+    {
+      "id": "DIST_SOURCE__DJC_DIST_FIRMWARE__DJCONNECT_LILYGO_T_EMBED_S3_V3_2_11_BIN_SHA256",
+      "repository": "pcvantol/djconnect-firmware",
+      "path": "djconnect-lilygo-t-embed-s3-v3.2.11.bin.sha256",
+      "blob_sha": "2ecba575c005043e59ccae835a9ab6c181dac991",
+      "commit_sha": "cb9cc7ba321ca57675223dfac32f5583fbcb3656",
+      "read_boundary": "full pinned checksum sidecar read on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Tracked SHA256 sidecar for historical firmware binary; not publication or device evidence.",
+      "observed_at": "2026-10-03; exact local git commit-tree and complete text read or binary SHA256 byte read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-firmware/blob/cb9cc7ba321ca57675223dfac32f5583fbcb3656/djconnect-lilygo-t-embed-s3-v3.2.11.bin.sha256",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-DIST-FIRMWARE"
+      ],
+      "remaining": "Source/dry-run or historical artifact identity does not qualify current source-to-release, installed consumer, live distribution or approval evidence."
+    },
+    {
+      "id": "DIST_SOURCE__DJC_DIST_FIRMWARE__DOCS_GOVERNANCE_ADOPTION_MD",
+      "repository": "pcvantol/djconnect-firmware",
+      "path": "docs/governance/ADOPTION.md",
+      "blob_sha": "3e240f7b3b57a787b5101d2a3ce10ee0b383a59e",
+      "commit_sha": "cb9cc7ba321ca57675223dfac32f5583fbcb3656",
+      "read_boundary": "full pinned text file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Local adopted distribution governance and evidence requirements; no authorization to publish in this planning assignment.",
+      "observed_at": "2026-10-03; exact local git commit-tree and complete text read or binary SHA256 byte read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-firmware/blob/cb9cc7ba321ca57675223dfac32f5583fbcb3656/docs/governance/ADOPTION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-DIST-FIRMWARE"
+      ],
+      "remaining": "Source/dry-run or historical artifact identity does not qualify current source-to-release, installed consumer, live distribution or approval evidence."
+    },
+    {
+      "id": "DIST_SOURCE__DJC_DIST_FIRMWARE__FIRMWARE_MANIFEST_JSON",
+      "repository": "pcvantol/djconnect-firmware",
+      "path": "firmware_manifest.json",
+      "blob_sha": "c2390b837cfc9c063a0607c048ec2934bdd77484",
+      "commit_sha": "cb9cc7ba321ca57675223dfac32f5583fbcb3656",
+      "read_boundary": "full pinned text file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Tracked stable manifest still identifies 3.2.11 and one LilyGO binary; GitHub latest v3.3.0 release is a separate observed publication.",
+      "observed_at": "2026-10-03; exact local git commit-tree and complete text read or binary SHA256 byte read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-firmware/blob/cb9cc7ba321ca57675223dfac32f5583fbcb3656/firmware_manifest.json",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-DIST-FIRMWARE"
+      ],
+      "remaining": "Source/dry-run or historical artifact identity does not qualify current source-to-release, installed consumer, live distribution or approval evidence."
+    },
+    {
+      "id": "DIST_SOURCE__DJC_DIST_APPLE__GITHUB_CODEOWNERS",
+      "repository": "pcvantol/djconnect-app-releases",
+      "path": ".github/CODEOWNERS",
+      "blob_sha": "1ad7ff43acaa96ae6822b8d6e29f60eacedf0bae",
+      "commit_sha": "02fa92f74b56fbc4223ee152d6f612559b84779d",
+      "read_boundary": "full pinned text file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Local code ownership; approval policy remains with Trusted Delivery.",
+      "observed_at": "2026-10-03; exact local git commit-tree and complete text read or binary SHA256 byte read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-app-releases/blob/02fa92f74b56fbc4223ee152d6f612559b84779d/.github/CODEOWNERS",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-DIST-APPLE"
+      ],
+      "remaining": "Source/dry-run or historical artifact identity does not qualify current source-to-release, installed consumer, live distribution or approval evidence."
+    },
+    {
+      "id": "DIST_SOURCE__DJC_DIST_APPLE__GITHUB_DEPENDABOT_YML",
+      "repository": "pcvantol/djconnect-app-releases",
+      "path": ".github/dependabot.yml",
+      "blob_sha": "3f4f0b9252c1133bbcf819a80010ff7280bf492a",
+      "commit_sha": "02fa92f74b56fbc4223ee152d6f612559b84779d",
+      "read_boundary": "full pinned text file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Weekly GitHub Actions dependency maintenance configuration, not release or product status.",
+      "observed_at": "2026-10-03; exact local git commit-tree and complete text read or binary SHA256 byte read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-app-releases/blob/02fa92f74b56fbc4223ee152d6f612559b84779d/.github/dependabot.yml",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-DIST-APPLE"
+      ],
+      "remaining": "Source/dry-run or historical artifact identity does not qualify current source-to-release, installed consumer, live distribution or approval evidence."
+    },
+    {
+      "id": "DIST_SOURCE__DJC_DIST_APPLE__GITHUB_WORKFLOWS_OWNER_AUTHORIZATION_YML",
+      "repository": "pcvantol/djconnect-app-releases",
+      "path": ".github/workflows/owner-authorization.yml",
+      "blob_sha": "ffdc9faa5ad19fd85654e785741168c5fb59b3b9",
+      "commit_sha": "02fa92f74b56fbc4223ee152d6f612559b84779d",
+      "read_boundary": "full pinned text file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Manual Owner Authorization dispatch can write GitHub commit status; not automatic product release.",
+      "observed_at": "2026-10-03; exact local git commit-tree and complete text read or binary SHA256 byte read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-app-releases/blob/02fa92f74b56fbc4223ee152d6f612559b84779d/.github/workflows/owner-authorization.yml",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-DIST-APPLE"
+      ],
+      "remaining": "Source/dry-run or historical artifact identity does not qualify current source-to-release, installed consumer, live distribution or approval evidence."
+    },
+    {
+      "id": "DIST_SOURCE__DJC_DIST_APPLE__GITHUB_WORKFLOWS_PLATFORM_RELEASE_EXECUTION_YML",
+      "repository": "pcvantol/djconnect-app-releases",
+      "path": ".github/workflows/platform-release-execution.yml",
+      "blob_sha": "89f0cd2cb9a6c6171898a1e3e11fb2e6ee89d718",
+      "commit_sha": "02fa92f74b56fbc4223ee152d6f612559b84779d",
+      "read_boundary": "full pinned text file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Manual dispatch contract enforces dry_run and emits evidence artifact; it does not execute deployment or publication.",
+      "observed_at": "2026-10-03; exact local git commit-tree and complete text read or binary SHA256 byte read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-app-releases/blob/02fa92f74b56fbc4223ee152d6f612559b84779d/.github/workflows/platform-release-execution.yml",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-DIST-APPLE"
+      ],
+      "remaining": "Source/dry-run or historical artifact identity does not qualify current source-to-release, installed consumer, live distribution or approval evidence."
+    },
+    {
+      "id": "DIST_SOURCE__DJC_DIST_APPLE__GITHUB_WORKFLOWS_POST_MERGE_DISTRIBUTION_INTEGRITY_YML",
+      "repository": "pcvantol/djconnect-app-releases",
+      "path": ".github/workflows/post-merge-distribution-integrity.yml",
+      "blob_sha": "849f6ab1d0df0975e83861bb97db0fabe8f003d6",
+      "commit_sha": "02fa92f74b56fbc4223ee152d6f612559b84779d",
+      "read_boundary": "full pinned text file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Main-push integrity validation emits metadata artifact; cleanup job can delete old Action runs; downstream release-evidence trigger is separate.",
+      "observed_at": "2026-10-03; exact local git commit-tree and complete text read or binary SHA256 byte read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-app-releases/blob/02fa92f74b56fbc4223ee152d6f612559b84779d/.github/workflows/post-merge-distribution-integrity.yml",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-DIST-APPLE"
+      ],
+      "remaining": "Source/dry-run or historical artifact identity does not qualify current source-to-release, installed consumer, live distribution or approval evidence."
+    },
+    {
+      "id": "DIST_SOURCE__DJC_DIST_APPLE__GITHUB_WORKFLOWS_POST_MERGE_RELEASE_EVIDENCE_YML",
+      "repository": "pcvantol/djconnect-app-releases",
+      "path": ".github/workflows/post-merge-release-evidence.yml",
+      "blob_sha": "826d21a7d497ec4b793e602868c12a96656cea9e",
+      "commit_sha": "02fa92f74b56fbc4223ee152d6f612559b84779d",
+      "read_boundary": "full pinned text file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Successful main integrity workflow_run calls pinned reusable release-evidence path with contents:write; may create or append internal-ha-{SHA} prerelease and can write a main commit status after its gates.",
+      "observed_at": "2026-10-03; exact local git commit-tree and complete text read or binary SHA256 byte read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-app-releases/blob/02fa92f74b56fbc4223ee152d6f612559b84779d/.github/workflows/post-merge-release-evidence.yml",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-DIST-APPLE"
+      ],
+      "remaining": "Source/dry-run or historical artifact identity does not qualify current source-to-release, installed consumer, live distribution or approval evidence."
+    },
+    {
+      "id": "DIST_SOURCE__DJC_DIST_APPLE__GITHUB_WORKFLOWS_SOFTWARE_ASSURANCE_GOVERNANCE_YML",
+      "repository": "pcvantol/djconnect-app-releases",
+      "path": ".github/workflows/software-assurance-governance.yml",
+      "blob_sha": "6e4350d3909ca7be09844e444631126254cc84d7",
+      "commit_sha": "02fa92f74b56fbc4223ee152d6f612559b84779d",
+      "read_boundary": "full pinned text file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "PR/main/dispatch delegated governance validation; not product/release acceptance.",
+      "observed_at": "2026-10-03; exact local git commit-tree and complete text read or binary SHA256 byte read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-app-releases/blob/02fa92f74b56fbc4223ee152d6f612559b84779d/.github/workflows/software-assurance-governance.yml",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-DIST-APPLE"
+      ],
+      "remaining": "Source/dry-run or historical artifact identity does not qualify current source-to-release, installed consumer, live distribution or approval evidence."
+    },
+    {
+      "id": "DIST_SOURCE__DJC_DIST_APPLE__GITHUB_WORKFLOWS_TRUSTED_DELIVERY_YML",
+      "repository": "pcvantol/djconnect-app-releases",
+      "path": ".github/workflows/trusted-delivery.yml",
+      "blob_sha": "4d30b5128da5ee8f979cbea2ef8ce597382f4d15",
+      "commit_sha": "02fa92f74b56fbc4223ee152d6f612559b84779d",
+      "read_boundary": "full pinned text file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "PR Trusted Delivery qualification can write GitHub commit status; not product acceptance.",
+      "observed_at": "2026-10-03; exact local git commit-tree and complete text read or binary SHA256 byte read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-app-releases/blob/02fa92f74b56fbc4223ee152d6f612559b84779d/.github/workflows/trusted-delivery.yml",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-DIST-APPLE"
+      ],
+      "remaining": "Source/dry-run or historical artifact identity does not qualify current source-to-release, installed consumer, live distribution or approval evidence."
+    },
+    {
+      "id": "DIST_SOURCE__DJC_DIST_APPLE__GITIGNORE",
+      "repository": "pcvantol/djconnect-app-releases",
+      "path": ".gitignore",
+      "blob_sha": "18814655457273c89261a8dae623d34643d8f011",
+      "commit_sha": "02fa92f74b56fbc4223ee152d6f612559b84779d",
+      "read_boundary": "full pinned text file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Repository-local configuration or hygiene source; no platform product or release authority.",
+      "observed_at": "2026-10-03; exact local git commit-tree and complete text read or binary SHA256 byte read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-app-releases/blob/02fa92f74b56fbc4223ee152d6f612559b84779d/.gitignore",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-DIST-APPLE"
+      ],
+      "remaining": "Source/dry-run or historical artifact identity does not qualify current source-to-release, installed consumer, live distribution or approval evidence."
+    },
+    {
+      "id": "DIST_SOURCE__DJC_DIST_APPLE__BOOTSTRAP_MD",
+      "repository": "pcvantol/djconnect-app-releases",
+      "path": "BOOTSTRAP.md",
+      "blob_sha": "8b415837282ba39325fd8ea839c7756810d2bf76",
+      "commit_sha": "02fa92f74b56fbc4223ee152d6f612559b84779d",
+      "read_boundary": "full pinned text file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Local bootstrap/prompt pointer; no independent product or release authority.",
+      "observed_at": "2026-10-03; exact local git commit-tree and complete text read or binary SHA256 byte read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-app-releases/blob/02fa92f74b56fbc4223ee152d6f612559b84779d/BOOTSTRAP.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-DIST-APPLE"
+      ],
+      "remaining": "Source/dry-run or historical artifact identity does not qualify current source-to-release, installed consumer, live distribution or approval evidence."
+    },
+    {
+      "id": "DIST_SOURCE__DJC_DIST_APPLE__BOOTSTRAP_CODEX_SESSION_MD",
+      "repository": "pcvantol/djconnect-app-releases",
+      "path": "BOOTSTRAP_CODEX_SESSION.md",
+      "blob_sha": "d1129811fadf75d62734da527c96b250b8d7cd32",
+      "commit_sha": "02fa92f74b56fbc4223ee152d6f612559b84779d",
+      "read_boundary": "full pinned text file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Local session entrypoint; delegates platform authority to core and keeps distribution ownership bounded.",
+      "observed_at": "2026-10-03; exact local git commit-tree and complete text read or binary SHA256 byte read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-app-releases/blob/02fa92f74b56fbc4223ee152d6f612559b84779d/BOOTSTRAP_CODEX_SESSION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-DIST-APPLE"
+      ],
+      "remaining": "Source/dry-run or historical artifact identity does not qualify current source-to-release, installed consumer, live distribution or approval evidence."
+    },
+    {
+      "id": "DIST_SOURCE__DJC_DIST_APPLE__CANONICAL_REFERENCES_MD",
+      "repository": "pcvantol/djconnect-app-releases",
+      "path": "CANONICAL_REFERENCES.md",
+      "blob_sha": "1dbce3f951bca3397d2beb7f319c59fc81b86ab4",
+      "commit_sha": "02fa92f74b56fbc4223ee152d6f612559b84779d",
+      "read_boundary": "full pinned text file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Local canonical reference map; no independent product selection.",
+      "observed_at": "2026-10-03; exact local git commit-tree and complete text read or binary SHA256 byte read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-app-releases/blob/02fa92f74b56fbc4223ee152d6f612559b84779d/CANONICAL_REFERENCES.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-DIST-APPLE"
+      ],
+      "remaining": "Source/dry-run or historical artifact identity does not qualify current source-to-release, installed consumer, live distribution or approval evidence."
+    },
+    {
+      "id": "DIST_SOURCE__DJC_DIST_APPLE__CHAT_BOOTSTRAP_MD",
+      "repository": "pcvantol/djconnect-app-releases",
+      "path": "CHAT_BOOTSTRAP.md",
+      "blob_sha": "36c6dbdf7ca5bcfdbe47e18c956ece9114e90e52",
+      "commit_sha": "02fa92f74b56fbc4223ee152d6f612559b84779d",
+      "read_boundary": "full pinned text file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Local bootstrap/prompt pointer; no independent product or release authority.",
+      "observed_at": "2026-10-03; exact local git commit-tree and complete text read or binary SHA256 byte read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-app-releases/blob/02fa92f74b56fbc4223ee152d6f612559b84779d/CHAT_BOOTSTRAP.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-DIST-APPLE"
+      ],
+      "remaining": "Source/dry-run or historical artifact identity does not qualify current source-to-release, installed consumer, live distribution or approval evidence."
+    },
+    {
+      "id": "DIST_SOURCE__DJC_DIST_APPLE__PLATFORM_RELEASE_DRY_RUN_3_3_JSON",
+      "repository": "pcvantol/djconnect-app-releases",
+      "path": "PLATFORM_RELEASE_DRY_RUN_3_3.json",
+      "blob_sha": "7a7b5d252d071338c9e844cc3914096eebea396b",
+      "commit_sha": "02fa92f74b56fbc4223ee152d6f612559b84779d",
+      "read_boundary": "full pinned text file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "3.3 dry-run metadata says planned_not_published/publication forbidden; historical snapshot, not current release-list truth.",
+      "observed_at": "2026-10-03; exact local git commit-tree and complete text read or binary SHA256 byte read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-app-releases/blob/02fa92f74b56fbc4223ee152d6f612559b84779d/PLATFORM_RELEASE_DRY_RUN_3_3.json",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-DIST-APPLE"
+      ],
+      "remaining": "Source/dry-run or historical artifact identity does not qualify current source-to-release, installed consumer, live distribution or approval evidence."
+    },
+    {
+      "id": "DIST_SOURCE__DJC_DIST_APPLE__SECURITY_MD",
+      "repository": "pcvantol/djconnect-app-releases",
+      "path": "SECURITY.md",
+      "blob_sha": "8ca5ec41400a61c33084fd11a5b6ff5029b7c4f5",
+      "commit_sha": "02fa92f74b56fbc4223ee152d6f612559b84779d",
+      "read_boundary": "full pinned text file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Private vulnerability reporting policy and local distribution boundary; no release acceptance.",
+      "observed_at": "2026-10-03; exact local git commit-tree and complete text read or binary SHA256 byte read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-app-releases/blob/02fa92f74b56fbc4223ee152d6f612559b84779d/SECURITY.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-DIST-APPLE"
+      ],
+      "remaining": "Source/dry-run or historical artifact identity does not qualify current source-to-release, installed consumer, live distribution or approval evidence."
+    },
+    {
+      "id": "DIST_SOURCE__DJC_DIST_APPLE__SYNC_PROMPTS_MD",
+      "repository": "pcvantol/djconnect-app-releases",
+      "path": "SYNC_PROMPTS.md",
+      "blob_sha": "a5a4ff7170ded9f25619b32da1ceaab795f48340",
+      "commit_sha": "02fa92f74b56fbc4223ee152d6f612559b84779d",
+      "read_boundary": "full pinned text file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Local bootstrap/prompt pointer; no independent product or release authority.",
+      "observed_at": "2026-10-03; exact local git commit-tree and complete text read or binary SHA256 byte read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-app-releases/blob/02fa92f74b56fbc4223ee152d6f612559b84779d/SYNC_PROMPTS.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-DIST-APPLE"
+      ],
+      "remaining": "Source/dry-run or historical artifact identity does not qualify current source-to-release, installed consumer, live distribution or approval evidence."
+    },
+    {
+      "id": "DIST_SOURCE__DJC_DIST_APPLE__DOCS_GOVERNANCE_ADOPTION_MD",
+      "repository": "pcvantol/djconnect-app-releases",
+      "path": "docs/governance/ADOPTION.md",
+      "blob_sha": "8df02a576b2b3da6da8725dde9b56bef55501af9",
+      "commit_sha": "02fa92f74b56fbc4223ee152d6f612559b84779d",
+      "read_boundary": "full pinned text file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Local adopted distribution governance and evidence requirements; no authorization to publish in this planning assignment.",
+      "observed_at": "2026-10-03; exact local git commit-tree and complete text read or binary SHA256 byte read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-app-releases/blob/02fa92f74b56fbc4223ee152d6f612559b84779d/docs/governance/ADOPTION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-DIST-APPLE"
+      ],
+      "remaining": "Source/dry-run or historical artifact identity does not qualify current source-to-release, installed consumer, live distribution or approval evidence."
+    },
+    {
+      "id": "DIST_SOURCE__DJC_DIST_PI__GITHUB_CODEOWNERS",
+      "repository": "pcvantol/djconnect-pi-releases",
+      "path": ".github/CODEOWNERS",
+      "blob_sha": "1ad7ff43acaa96ae6822b8d6e29f60eacedf0bae",
+      "commit_sha": "673300921f980edc5ddfbb3ed5f5ca906b320b62",
+      "read_boundary": "full pinned text file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Local code ownership; approval policy remains with Trusted Delivery.",
+      "observed_at": "2026-10-03; exact local git commit-tree and complete text read or binary SHA256 byte read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-pi-releases/blob/673300921f980edc5ddfbb3ed5f5ca906b320b62/.github/CODEOWNERS",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-DIST-PI"
+      ],
+      "remaining": "Source/dry-run or historical artifact identity does not qualify current source-to-release, installed consumer, live distribution or approval evidence."
+    },
+    {
+      "id": "DIST_SOURCE__DJC_DIST_PI__GITHUB_DEPENDABOT_YML",
+      "repository": "pcvantol/djconnect-pi-releases",
+      "path": ".github/dependabot.yml",
+      "blob_sha": "3f4f0b9252c1133bbcf819a80010ff7280bf492a",
+      "commit_sha": "673300921f980edc5ddfbb3ed5f5ca906b320b62",
+      "read_boundary": "full pinned text file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Weekly GitHub Actions dependency maintenance configuration, not release or product status.",
+      "observed_at": "2026-10-03; exact local git commit-tree and complete text read or binary SHA256 byte read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-pi-releases/blob/673300921f980edc5ddfbb3ed5f5ca906b320b62/.github/dependabot.yml",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-DIST-PI"
+      ],
+      "remaining": "Source/dry-run or historical artifact identity does not qualify current source-to-release, installed consumer, live distribution or approval evidence."
+    },
+    {
+      "id": "DIST_SOURCE__DJC_DIST_PI__GITHUB_WORKFLOWS_OWNER_AUTHORIZATION_YML",
+      "repository": "pcvantol/djconnect-pi-releases",
+      "path": ".github/workflows/owner-authorization.yml",
+      "blob_sha": "ffdc9faa5ad19fd85654e785741168c5fb59b3b9",
+      "commit_sha": "673300921f980edc5ddfbb3ed5f5ca906b320b62",
+      "read_boundary": "full pinned text file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Manual Owner Authorization dispatch can write GitHub commit status; not automatic product release.",
+      "observed_at": "2026-10-03; exact local git commit-tree and complete text read or binary SHA256 byte read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-pi-releases/blob/673300921f980edc5ddfbb3ed5f5ca906b320b62/.github/workflows/owner-authorization.yml",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-DIST-PI"
+      ],
+      "remaining": "Source/dry-run or historical artifact identity does not qualify current source-to-release, installed consumer, live distribution or approval evidence."
+    },
+    {
+      "id": "DIST_SOURCE__DJC_DIST_PI__GITHUB_WORKFLOWS_PLATFORM_RELEASE_EXECUTION_YML",
+      "repository": "pcvantol/djconnect-pi-releases",
+      "path": ".github/workflows/platform-release-execution.yml",
+      "blob_sha": "89f0cd2cb9a6c6171898a1e3e11fb2e6ee89d718",
+      "commit_sha": "673300921f980edc5ddfbb3ed5f5ca906b320b62",
+      "read_boundary": "full pinned text file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Manual dispatch contract enforces dry_run and emits evidence artifact; it does not execute deployment or publication.",
+      "observed_at": "2026-10-03; exact local git commit-tree and complete text read or binary SHA256 byte read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-pi-releases/blob/673300921f980edc5ddfbb3ed5f5ca906b320b62/.github/workflows/platform-release-execution.yml",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-DIST-PI"
+      ],
+      "remaining": "Source/dry-run or historical artifact identity does not qualify current source-to-release, installed consumer, live distribution or approval evidence."
+    },
+    {
+      "id": "DIST_SOURCE__DJC_DIST_PI__GITHUB_WORKFLOWS_POST_MERGE_DISTRIBUTION_INTEGRITY_YML",
+      "repository": "pcvantol/djconnect-pi-releases",
+      "path": ".github/workflows/post-merge-distribution-integrity.yml",
+      "blob_sha": "849f6ab1d0df0975e83861bb97db0fabe8f003d6",
+      "commit_sha": "673300921f980edc5ddfbb3ed5f5ca906b320b62",
+      "read_boundary": "full pinned text file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Main-push integrity validation emits metadata artifact; cleanup job can delete old Action runs; downstream release-evidence trigger is separate.",
+      "observed_at": "2026-10-03; exact local git commit-tree and complete text read or binary SHA256 byte read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-pi-releases/blob/673300921f980edc5ddfbb3ed5f5ca906b320b62/.github/workflows/post-merge-distribution-integrity.yml",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-DIST-PI"
+      ],
+      "remaining": "Source/dry-run or historical artifact identity does not qualify current source-to-release, installed consumer, live distribution or approval evidence."
+    },
+    {
+      "id": "DIST_SOURCE__DJC_DIST_PI__GITHUB_WORKFLOWS_POST_MERGE_RELEASE_EVIDENCE_YML",
+      "repository": "pcvantol/djconnect-pi-releases",
+      "path": ".github/workflows/post-merge-release-evidence.yml",
+      "blob_sha": "826d21a7d497ec4b793e602868c12a96656cea9e",
+      "commit_sha": "673300921f980edc5ddfbb3ed5f5ca906b320b62",
+      "read_boundary": "full pinned text file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Successful main integrity workflow_run calls pinned reusable release-evidence path with contents:write; may create or append internal-ha-{SHA} prerelease and can write a main commit status after its gates.",
+      "observed_at": "2026-10-03; exact local git commit-tree and complete text read or binary SHA256 byte read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-pi-releases/blob/673300921f980edc5ddfbb3ed5f5ca906b320b62/.github/workflows/post-merge-release-evidence.yml",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-DIST-PI"
+      ],
+      "remaining": "Source/dry-run or historical artifact identity does not qualify current source-to-release, installed consumer, live distribution or approval evidence."
+    },
+    {
+      "id": "DIST_SOURCE__DJC_DIST_PI__GITHUB_WORKFLOWS_SOFTWARE_ASSURANCE_GOVERNANCE_YML",
+      "repository": "pcvantol/djconnect-pi-releases",
+      "path": ".github/workflows/software-assurance-governance.yml",
+      "blob_sha": "2b1cb8c74c44e05876155ece1d6a8ac41a8f6a90",
+      "commit_sha": "673300921f980edc5ddfbb3ed5f5ca906b320b62",
+      "read_boundary": "full pinned text file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "PR/main/dispatch delegated governance validation; not product/release acceptance.",
+      "observed_at": "2026-10-03; exact local git commit-tree and complete text read or binary SHA256 byte read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-pi-releases/blob/673300921f980edc5ddfbb3ed5f5ca906b320b62/.github/workflows/software-assurance-governance.yml",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-DIST-PI"
+      ],
+      "remaining": "Source/dry-run or historical artifact identity does not qualify current source-to-release, installed consumer, live distribution or approval evidence."
+    },
+    {
+      "id": "DIST_SOURCE__DJC_DIST_PI__GITHUB_WORKFLOWS_TRUSTED_DELIVERY_YML",
+      "repository": "pcvantol/djconnect-pi-releases",
+      "path": ".github/workflows/trusted-delivery.yml",
+      "blob_sha": "4d30b5128da5ee8f979cbea2ef8ce597382f4d15",
+      "commit_sha": "673300921f980edc5ddfbb3ed5f5ca906b320b62",
+      "read_boundary": "full pinned text file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "PR Trusted Delivery qualification can write GitHub commit status; not product acceptance.",
+      "observed_at": "2026-10-03; exact local git commit-tree and complete text read or binary SHA256 byte read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-pi-releases/blob/673300921f980edc5ddfbb3ed5f5ca906b320b62/.github/workflows/trusted-delivery.yml",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-DIST-PI"
+      ],
+      "remaining": "Source/dry-run or historical artifact identity does not qualify current source-to-release, installed consumer, live distribution or approval evidence."
+    },
+    {
+      "id": "DIST_SOURCE__DJC_DIST_PI__GITIGNORE",
+      "repository": "pcvantol/djconnect-pi-releases",
+      "path": ".gitignore",
+      "blob_sha": "18814655457273c89261a8dae623d34643d8f011",
+      "commit_sha": "673300921f980edc5ddfbb3ed5f5ca906b320b62",
+      "read_boundary": "full pinned text file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Repository-local configuration or hygiene source; no platform product or release authority.",
+      "observed_at": "2026-10-03; exact local git commit-tree and complete text read or binary SHA256 byte read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-pi-releases/blob/673300921f980edc5ddfbb3ed5f5ca906b320b62/.gitignore",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-DIST-PI"
+      ],
+      "remaining": "Source/dry-run or historical artifact identity does not qualify current source-to-release, installed consumer, live distribution or approval evidence."
+    },
+    {
+      "id": "DIST_SOURCE__DJC_DIST_PI__BOOTSTRAP_MD",
+      "repository": "pcvantol/djconnect-pi-releases",
+      "path": "BOOTSTRAP.md",
+      "blob_sha": "4bea45240ced9bba364528da25bd13ce1d151d21",
+      "commit_sha": "673300921f980edc5ddfbb3ed5f5ca906b320b62",
+      "read_boundary": "full pinned text file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Local bootstrap/prompt pointer; no independent product or release authority.",
+      "observed_at": "2026-10-03; exact local git commit-tree and complete text read or binary SHA256 byte read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-pi-releases/blob/673300921f980edc5ddfbb3ed5f5ca906b320b62/BOOTSTRAP.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-DIST-PI"
+      ],
+      "remaining": "Source/dry-run or historical artifact identity does not qualify current source-to-release, installed consumer, live distribution or approval evidence."
+    },
+    {
+      "id": "DIST_SOURCE__DJC_DIST_PI__BOOTSTRAP_CODEX_SESSION_MD",
+      "repository": "pcvantol/djconnect-pi-releases",
+      "path": "BOOTSTRAP_CODEX_SESSION.md",
+      "blob_sha": "4fa47a9e609f58205e6dfd886e27cbf9c2acce8e",
+      "commit_sha": "673300921f980edc5ddfbb3ed5f5ca906b320b62",
+      "read_boundary": "full pinned text file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Local session entrypoint; delegates platform authority to core and keeps distribution ownership bounded.",
+      "observed_at": "2026-10-03; exact local git commit-tree and complete text read or binary SHA256 byte read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-pi-releases/blob/673300921f980edc5ddfbb3ed5f5ca906b320b62/BOOTSTRAP_CODEX_SESSION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-DIST-PI"
+      ],
+      "remaining": "Source/dry-run or historical artifact identity does not qualify current source-to-release, installed consumer, live distribution or approval evidence."
+    },
+    {
+      "id": "DIST_SOURCE__DJC_DIST_PI__CANONICAL_REFERENCES_MD",
+      "repository": "pcvantol/djconnect-pi-releases",
+      "path": "CANONICAL_REFERENCES.md",
+      "blob_sha": "6c603505389a6d5cee85d789b42350206622e85b",
+      "commit_sha": "673300921f980edc5ddfbb3ed5f5ca906b320b62",
+      "read_boundary": "full pinned text file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Local canonical reference map; no independent product selection.",
+      "observed_at": "2026-10-03; exact local git commit-tree and complete text read or binary SHA256 byte read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-pi-releases/blob/673300921f980edc5ddfbb3ed5f5ca906b320b62/CANONICAL_REFERENCES.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-DIST-PI"
+      ],
+      "remaining": "Source/dry-run or historical artifact identity does not qualify current source-to-release, installed consumer, live distribution or approval evidence."
+    },
+    {
+      "id": "DIST_SOURCE__DJC_DIST_PI__CHAT_BOOTSTRAP_MD",
+      "repository": "pcvantol/djconnect-pi-releases",
+      "path": "CHAT_BOOTSTRAP.md",
+      "blob_sha": "36c6dbdf7ca5bcfdbe47e18c956ece9114e90e52",
+      "commit_sha": "673300921f980edc5ddfbb3ed5f5ca906b320b62",
+      "read_boundary": "full pinned text file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Local bootstrap/prompt pointer; no independent product or release authority.",
+      "observed_at": "2026-10-03; exact local git commit-tree and complete text read or binary SHA256 byte read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-pi-releases/blob/673300921f980edc5ddfbb3ed5f5ca906b320b62/CHAT_BOOTSTRAP.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-DIST-PI"
+      ],
+      "remaining": "Source/dry-run or historical artifact identity does not qualify current source-to-release, installed consumer, live distribution or approval evidence."
+    },
+    {
+      "id": "DIST_SOURCE__DJC_DIST_PI__PLATFORM_RELEASE_DRY_RUN_3_3_JSON",
+      "repository": "pcvantol/djconnect-pi-releases",
+      "path": "PLATFORM_RELEASE_DRY_RUN_3_3.json",
+      "blob_sha": "3aca9e98408fd5793d7c1710aea987458b39c176",
+      "commit_sha": "673300921f980edc5ddfbb3ed5f5ca906b320b62",
+      "read_boundary": "full pinned text file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "3.3 dry-run metadata says planned_not_published/publication forbidden; historical snapshot, not current release-list truth.",
+      "observed_at": "2026-10-03; exact local git commit-tree and complete text read or binary SHA256 byte read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-pi-releases/blob/673300921f980edc5ddfbb3ed5f5ca906b320b62/PLATFORM_RELEASE_DRY_RUN_3_3.json",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-DIST-PI"
+      ],
+      "remaining": "Source/dry-run or historical artifact identity does not qualify current source-to-release, installed consumer, live distribution or approval evidence."
+    },
+    {
+      "id": "DIST_SOURCE__DJC_DIST_PI__SECURITY_MD",
+      "repository": "pcvantol/djconnect-pi-releases",
+      "path": "SECURITY.md",
+      "blob_sha": "4df204926179a63286850672fcff60632c8b10f8",
+      "commit_sha": "673300921f980edc5ddfbb3ed5f5ca906b320b62",
+      "read_boundary": "full pinned text file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Private vulnerability reporting policy and local distribution boundary; no release acceptance.",
+      "observed_at": "2026-10-03; exact local git commit-tree and complete text read or binary SHA256 byte read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-pi-releases/blob/673300921f980edc5ddfbb3ed5f5ca906b320b62/SECURITY.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-DIST-PI"
+      ],
+      "remaining": "Source/dry-run or historical artifact identity does not qualify current source-to-release, installed consumer, live distribution or approval evidence."
+    },
+    {
+      "id": "DIST_SOURCE__DJC_DIST_PI__SYNC_PROMPTS_MD",
+      "repository": "pcvantol/djconnect-pi-releases",
+      "path": "SYNC_PROMPTS.md",
+      "blob_sha": "a5a4ff7170ded9f25619b32da1ceaab795f48340",
+      "commit_sha": "673300921f980edc5ddfbb3ed5f5ca906b320b62",
+      "read_boundary": "full pinned text file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Local bootstrap/prompt pointer; no independent product or release authority.",
+      "observed_at": "2026-10-03; exact local git commit-tree and complete text read or binary SHA256 byte read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-pi-releases/blob/673300921f980edc5ddfbb3ed5f5ca906b320b62/SYNC_PROMPTS.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-DIST-PI"
+      ],
+      "remaining": "Source/dry-run or historical artifact identity does not qualify current source-to-release, installed consumer, live distribution or approval evidence."
+    },
+    {
+      "id": "DIST_SOURCE__DJC_DIST_PI__DOCS_GOVERNANCE_ADOPTION_MD",
+      "repository": "pcvantol/djconnect-pi-releases",
+      "path": "docs/governance/ADOPTION.md",
+      "blob_sha": "7392c703ea17d07db25180e364947343c12509db",
+      "commit_sha": "673300921f980edc5ddfbb3ed5f5ca906b320b62",
+      "read_boundary": "full pinned text file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Local adopted distribution governance and evidence requirements; no authorization to publish in this planning assignment.",
+      "observed_at": "2026-10-03; exact local git commit-tree and complete text read or binary SHA256 byte read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-pi-releases/blob/673300921f980edc5ddfbb3ed5f5ca906b320b62/docs/governance/ADOPTION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-DIST-PI"
+      ],
+      "remaining": "Source/dry-run or historical artifact identity does not qualify current source-to-release, installed consumer, live distribution or approval evidence."
     }
   ],
   "nodes": [
@@ -9480,7 +10614,36 @@
         "PROJ::DJC-DIST-FIRMWARE::MANAGEMENT_SUMMARY",
         "PROJ::DJC-DIST-FIRMWARE::ROADMAP_INDEX",
         "PROJ::DJC-DIST-FIRMWARE::PROMPT_INDEX",
-        "RG001_HISTORY::DJC-DIST-FIRMWARE"
+        "RG001_HISTORY::DJC-DIST-FIRMWARE",
+        "DIST_SOURCE__DJC_DIST_FIRMWARE__GITHUB_CODEOWNERS",
+        "DIST_SOURCE__DJC_DIST_FIRMWARE__GITHUB_DEPENDABOT_YML",
+        "DIST_SOURCE__DJC_DIST_FIRMWARE__GITHUB_WORKFLOWS_OWNER_AUTHORIZATION_YML",
+        "DIST_SOURCE__DJC_DIST_FIRMWARE__GITHUB_WORKFLOWS_PLATFORM_RELEASE_EXECUTION_YML",
+        "DIST_SOURCE__DJC_DIST_FIRMWARE__GITHUB_WORKFLOWS_POST_MERGE_DISTRIBUTION_INTEGRITY_YML",
+        "DIST_SOURCE__DJC_DIST_FIRMWARE__GITHUB_WORKFLOWS_POST_MERGE_RELEASE_EVIDENCE_YML",
+        "DIST_SOURCE__DJC_DIST_FIRMWARE__GITHUB_WORKFLOWS_SOFTWARE_ASSURANCE_GOVERNANCE_YML",
+        "DIST_SOURCE__DJC_DIST_FIRMWARE__GITHUB_WORKFLOWS_TRUSTED_DELIVERY_YML",
+        "DIST_SOURCE__DJC_DIST_FIRMWARE__GITIGNORE",
+        "DIST_SOURCE__DJC_DIST_FIRMWARE__BOOTSTRAP_MD",
+        "DIST_SOURCE__DJC_DIST_FIRMWARE__BOOTSTRAP_CODEX_SESSION_MD",
+        "DIST_SOURCE__DJC_DIST_FIRMWARE__CANONICAL_REFERENCES_MD",
+        "DIST_SOURCE__DJC_DIST_FIRMWARE__CHAT_BOOTSTRAP_MD",
+        "DIST_SOURCE__DJC_DIST_FIRMWARE__LICENSE",
+        "DIST_SOURCE__DJC_DIST_FIRMWARE__PLATFORM_RELEASE_DRY_RUN_3_3_JSON",
+        "DIST_SOURCE__DJC_DIST_FIRMWARE__SECURITY_MD",
+        "DIST_SOURCE__DJC_DIST_FIRMWARE__SYNC_PROMPTS_MD",
+        "DIST_SOURCE__DJC_DIST_FIRMWARE__DJCONNECT_LILYGO_T_EMBED_S3_V3_1_36_BIN",
+        "DIST_SOURCE__DJC_DIST_FIRMWARE__DJCONNECT_LILYGO_T_EMBED_S3_V3_1_36_BIN_SHA256",
+        "DIST_SOURCE__DJC_DIST_FIRMWARE__DJCONNECT_LILYGO_T_EMBED_S3_V3_1_37_BIN",
+        "DIST_SOURCE__DJC_DIST_FIRMWARE__DJCONNECT_LILYGO_T_EMBED_S3_V3_1_37_BIN_SHA256",
+        "DIST_SOURCE__DJC_DIST_FIRMWARE__DJCONNECT_LILYGO_T_EMBED_S3_V3_2_0_BIN",
+        "DIST_SOURCE__DJC_DIST_FIRMWARE__DJCONNECT_LILYGO_T_EMBED_S3_V3_2_0_BIN_SHA256",
+        "DIST_SOURCE__DJC_DIST_FIRMWARE__DJCONNECT_LILYGO_T_EMBED_S3_V3_2_1_BIN",
+        "DIST_SOURCE__DJC_DIST_FIRMWARE__DJCONNECT_LILYGO_T_EMBED_S3_V3_2_1_BIN_SHA256",
+        "DIST_SOURCE__DJC_DIST_FIRMWARE__DJCONNECT_LILYGO_T_EMBED_S3_V3_2_11_BIN",
+        "DIST_SOURCE__DJC_DIST_FIRMWARE__DJCONNECT_LILYGO_T_EMBED_S3_V3_2_11_BIN_SHA256",
+        "DIST_SOURCE__DJC_DIST_FIRMWARE__DOCS_GOVERNANCE_ADOPTION_MD",
+        "DIST_SOURCE__DJC_DIST_FIRMWARE__FIRMWARE_MANIFEST_JSON"
       ],
       "canonical_authority": "README::DJC-DIST-FIRMWARE",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -9534,7 +10697,24 @@
         "PROJ::DJC-DIST-APPLE::MANAGEMENT_SUMMARY",
         "PROJ::DJC-DIST-APPLE::ROADMAP_INDEX",
         "PROJ::DJC-DIST-APPLE::PROMPT_INDEX",
-        "RG001_HISTORY::DJC-DIST-APPLE"
+        "RG001_HISTORY::DJC-DIST-APPLE",
+        "DIST_SOURCE__DJC_DIST_APPLE__GITHUB_CODEOWNERS",
+        "DIST_SOURCE__DJC_DIST_APPLE__GITHUB_DEPENDABOT_YML",
+        "DIST_SOURCE__DJC_DIST_APPLE__GITHUB_WORKFLOWS_OWNER_AUTHORIZATION_YML",
+        "DIST_SOURCE__DJC_DIST_APPLE__GITHUB_WORKFLOWS_PLATFORM_RELEASE_EXECUTION_YML",
+        "DIST_SOURCE__DJC_DIST_APPLE__GITHUB_WORKFLOWS_POST_MERGE_DISTRIBUTION_INTEGRITY_YML",
+        "DIST_SOURCE__DJC_DIST_APPLE__GITHUB_WORKFLOWS_POST_MERGE_RELEASE_EVIDENCE_YML",
+        "DIST_SOURCE__DJC_DIST_APPLE__GITHUB_WORKFLOWS_SOFTWARE_ASSURANCE_GOVERNANCE_YML",
+        "DIST_SOURCE__DJC_DIST_APPLE__GITHUB_WORKFLOWS_TRUSTED_DELIVERY_YML",
+        "DIST_SOURCE__DJC_DIST_APPLE__GITIGNORE",
+        "DIST_SOURCE__DJC_DIST_APPLE__BOOTSTRAP_MD",
+        "DIST_SOURCE__DJC_DIST_APPLE__BOOTSTRAP_CODEX_SESSION_MD",
+        "DIST_SOURCE__DJC_DIST_APPLE__CANONICAL_REFERENCES_MD",
+        "DIST_SOURCE__DJC_DIST_APPLE__CHAT_BOOTSTRAP_MD",
+        "DIST_SOURCE__DJC_DIST_APPLE__PLATFORM_RELEASE_DRY_RUN_3_3_JSON",
+        "DIST_SOURCE__DJC_DIST_APPLE__SECURITY_MD",
+        "DIST_SOURCE__DJC_DIST_APPLE__SYNC_PROMPTS_MD",
+        "DIST_SOURCE__DJC_DIST_APPLE__DOCS_GOVERNANCE_ADOPTION_MD"
       ],
       "canonical_authority": "README::DJC-DIST-APPLE",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -9589,7 +10769,24 @@
         "PROJ::DJC-DIST-PI::MANAGEMENT_SUMMARY",
         "PROJ::DJC-DIST-PI::ROADMAP_INDEX",
         "PROJ::DJC-DIST-PI::PROMPT_INDEX",
-        "RG001_HISTORY::DJC-DIST-PI"
+        "RG001_HISTORY::DJC-DIST-PI",
+        "DIST_SOURCE__DJC_DIST_PI__GITHUB_CODEOWNERS",
+        "DIST_SOURCE__DJC_DIST_PI__GITHUB_DEPENDABOT_YML",
+        "DIST_SOURCE__DJC_DIST_PI__GITHUB_WORKFLOWS_OWNER_AUTHORIZATION_YML",
+        "DIST_SOURCE__DJC_DIST_PI__GITHUB_WORKFLOWS_PLATFORM_RELEASE_EXECUTION_YML",
+        "DIST_SOURCE__DJC_DIST_PI__GITHUB_WORKFLOWS_POST_MERGE_DISTRIBUTION_INTEGRITY_YML",
+        "DIST_SOURCE__DJC_DIST_PI__GITHUB_WORKFLOWS_POST_MERGE_RELEASE_EVIDENCE_YML",
+        "DIST_SOURCE__DJC_DIST_PI__GITHUB_WORKFLOWS_SOFTWARE_ASSURANCE_GOVERNANCE_YML",
+        "DIST_SOURCE__DJC_DIST_PI__GITHUB_WORKFLOWS_TRUSTED_DELIVERY_YML",
+        "DIST_SOURCE__DJC_DIST_PI__GITIGNORE",
+        "DIST_SOURCE__DJC_DIST_PI__BOOTSTRAP_MD",
+        "DIST_SOURCE__DJC_DIST_PI__BOOTSTRAP_CODEX_SESSION_MD",
+        "DIST_SOURCE__DJC_DIST_PI__CANONICAL_REFERENCES_MD",
+        "DIST_SOURCE__DJC_DIST_PI__CHAT_BOOTSTRAP_MD",
+        "DIST_SOURCE__DJC_DIST_PI__PLATFORM_RELEASE_DRY_RUN_3_3_JSON",
+        "DIST_SOURCE__DJC_DIST_PI__SECURITY_MD",
+        "DIST_SOURCE__DJC_DIST_PI__SYNC_PROMPTS_MD",
+        "DIST_SOURCE__DJC_DIST_PI__DOCS_GOVERNANCE_ADOPTION_MD"
       ],
       "canonical_authority": "README::DJC-DIST-PI",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -21628,7 +22825,7 @@
     {
       "id": "DRIFT-PI",
       "status": "OPEN",
-      "description": "Pi source deliberately has no local Ask DJ input, PTT, TTS or audio path, while distribution README still promises voice requests. Stable 3.3.0 has only a generic bundle; 4.0.0-rc.2 prerelease lists generic plus Pi 5 and Pi Zero 2 W profile bundles, with a manifest whose source SHA and three artifact hashes match the release API. Neither version proves physical installed-target qualification or the older component-register identity; reconcile copy and exact consumer evidence in owning records. The pinned Pi source changelog calls 3.3.0 a dry run not published despite observed 3.3.0 stable release metadata; treat this as a source/release chronology conflict requiring exact asset/provenance reconciliation.",
+      "description": "Pi source deliberately has no local Ask DJ input, PTT, TTS or audio path, while distribution README still promises voice requests. Stable 3.3.0 has only a generic bundle; 4.0.0-rc.2 prerelease lists generic plus Pi 5 and Pi Zero 2 W profile bundles, with a manifest whose source SHA and three artifact hashes match the release API. Neither version proves physical installed-target qualification or the older component-register identity; reconcile copy and exact consumer evidence in owning records. The pinned Pi source changelog calls 3.3.0 a dry run not published despite observed 3.3.0 stable release metadata; treat this as a source/release chronology conflict requiring exact asset/provenance reconciliation. The observed public GitHub v3.3.0 release body still says “dry run — not published” despite a non-prerelease release with four assets; release metadata is publication evidence, not proof of installed support.",
       "source_ids": [
         "README::DJC-PI",
         "README::DJC-DIST-PI",
@@ -22132,6 +23329,19 @@
         "PROJ::DJC-PI::ENGINEERING_STATUS"
       ],
       "evidence_ids": []
+    },
+    {
+      "id": "DIST-MAIN-AUTO-PRERELEASE",
+      "status": "NO_DISTRIBUTION_MAIN_MERGE_UNDER_CURRENT_SCOPE",
+      "description": "Each pinned distribution repository runs integrity validation and workflow-run cleanup on main push, then on successful main validation calls the pinned contents-write release-evidence workflow. Its distribution role can create or append internal-ha-{SHA} GitHub prerelease after its own gates and can write a main commit status. Historical internal-ha prereleases are present in all three release lists. A documentation-only merge would trigger this path; this planning assignment authorizes no distribution release or workflow changes. No distribution source branch or PR is created by this assignment.",
+      "source_ids": [
+        "DIST_SOURCE__DJC_DIST_FIRMWARE__GITHUB_WORKFLOWS_POST_MERGE_DISTRIBUTION_INTEGRITY_YML",
+        "DIST_SOURCE__DJC_DIST_FIRMWARE__GITHUB_WORKFLOWS_POST_MERGE_RELEASE_EVIDENCE_YML",
+        "DIST_SOURCE__DJC_DIST_APPLE__GITHUB_WORKFLOWS_POST_MERGE_DISTRIBUTION_INTEGRITY_YML",
+        "DIST_SOURCE__DJC_DIST_APPLE__GITHUB_WORKFLOWS_POST_MERGE_RELEASE_EVIDENCE_YML",
+        "DIST_SOURCE__DJC_DIST_PI__GITHUB_WORKFLOWS_POST_MERGE_DISTRIBUTION_INTEGRITY_YML",
+        "DIST_SOURCE__DJC_DIST_PI__GITHUB_WORKFLOWS_POST_MERGE_RELEASE_EVIDENCE_YML"
+      ]
     }
   ],
   "audit_obligations": [
@@ -22248,7 +23458,7 @@
       "status": "OPEN",
       "scope": "platform",
       "reason": "Current matrix covers only explicitly read source inventory; certify complete disposition only after all relevant discoveries are audited.",
-      "remaining": "All 443 included pinned source rows are fully read and linked. Exact pinned trees contain 1,739 tracked Markdown paths, 390 individually represented in the matrix and 1,349 needing relevance/classification disposition; these are path counts, not a claim that the remaining paths are normative. The 41 pinned Apple/website release-copy files do not prove publication, live site or installed consumers. Six historical core EP relative-link targets remain triaged outside the matrix. Complete repository-wide source/consumer discovery and status qualification before certification."
+      "remaining": "All 506 included pinned source rows have exact path/blob provenance and bounded read descriptions. Exact pinned trees contain 1,739 tracked Markdown paths, 411 individually represented in the matrix and 1,328 needing relevance/classification disposition; these are path counts, not a claim that the remaining paths are normative. The 41 pinned Apple/website release-copy files do not prove publication, live site or installed consumers. Six historical core EP relative-link targets remain triaged outside the matrix. Complete repository-wide source/consumer discovery and status qualification before certification."
     },
     {
       "id": "REGISTER-DELIVERY",
@@ -22419,7 +23629,7 @@
     "verdict": "MATCH / READY FOR DJCONNECT DEVELOPMENT",
     "onboarding": "4.5.3",
     "repair": false,
-    "latest_verify_at": "2026-10-03 11:45 UTC; exit 0, manifest 3.3.0/bootstrap 2.0.21, all desired-state rows MATCH; no repair or service change"
+    "latest_verify_at": "2026-10-03 13:02 UTC; exit 0, manifest 3.3.0/bootstrap 2.0.21, all desired-state rows MATCH; no repair or service change"
   },
   "rollups": [
     {
@@ -22566,7 +23776,7 @@
     "baseline_relation": "11 of 12 remote main heads equal source pins. DJC-API advanced by one commit from 4e6671c3231187e7cd20243817a86a56ad6aad06 to 3f1ed18d2ce803a2b5d3750115d0dbf2dbaa34ba. The exact GitHub compare is ahead_by=1, behind_by=0, changes only package.json and package-lock.json for a wrangler dev-dependency bump (#89); pinned planning Markdown/source claims are unchanged. API sources retain their exact older commit pins and are not silently repinned."
   },
   "local_worktree_readback": {
-    "observed_at": "2026-10-03 11:55 UTC; read-only git status --porcelain=v1 --branch --untracked-files=no and git worktree list --porcelain in twelve local checkouts",
+    "observed_at": "2026-10-03 13:02 UTC; read-only git status --short --branch and git worktree list --porcelain in twelve local checkouts",
     "worktree_count_each": 1,
     "clean_on_local_main": [
       "DJC-APPLE",
@@ -22590,7 +23800,7 @@
         "src/DJConnect.Windows/DJConnect.Windows.csproj (staged and unstaged)"
       ]
     },
-    "core": "DJC-CORE is on the clean planning branch codex/platform-roadmap-dag-lanes-v1; no other checkout altered by this assignment.",
+    "core": "DJC-CORE is on the clean planning branch codex/platform-roadmap-dag-lanes-v1 at c359962af29198ffec2e50a2e22193c32bd10030; no component checkout altered by this assignment.",
     "api_local_remote_delta": "DJC-API local HEAD and cached origin/main remain 4e6671c3231187e7cd20243817a86a56ad6aad06 while actual GitHub main is 3f1ed18d2ce803a2b5d3750115d0dbf2dbaa34ba (one dev-dependency commit).",
     "qualification": "A clean checkout or one worktree does not establish a free source writer, assignment, lease, capacity or product readiness."
   }

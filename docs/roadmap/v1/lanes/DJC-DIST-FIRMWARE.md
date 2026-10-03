@@ -16,7 +16,7 @@ Planning continuation: Verifieer bestaande gedelegeerde source-publicatie, compa
 
 ## Owning backlog and handoffs
 
-Read the local `REPOSITORY_STATUS.md` and existing TODO/ISSUES or release metadata that this repository actually owns. Local backlog audit: Relevant local backlog, four phase/status projections and applicable RG-001 Prompt History read; owning status reconciliation recorded; full source/consumer audit pending.
+Read the local `REPOSITORY_STATUS.md` and existing TODO/ISSUES or release metadata that this repository actually owns. Local backlog audit: All 37 tracked paths, including all 15 Markdown paths, were inventoried at exact main; owning status/phase projections and sole planning issue retained. GitHub release and source-to-consumer reconciliation remain open..
 
 - `FW-DIST`: DJC-ESP32 → DJC-DIST-FIRMWARE; Source-generated firmware manifest, exact board asset and SHA-256. Phase `distribution`; exact artifact `UNKNOWN`; acceptance owner `DJC-DIST-FIRMWARE`.
 
@@ -26,7 +26,7 @@ DoR for a future product pickup: selected owning scope, exact phase-specific pro
 
 DoD for a future authorized vertical assignment: contract and user-facing acceptance, applicable five-language UX, tests, independent review, required CI, fixes, protected merge, exact-main readback and owning Finalization; any release/install acceptance requires separate explicit release scope.
 
-Workflow effect audit: Push, tag, dispatch and workflow_run triggers inventoried; exact route-specific effects must be read before push. Shared signer, HA lab and devices are not reserved by this plan. A delegated publication requires both source and receiving distribution writer coordination.
+Workflow effect audit: Main push runs integrity validation and Action-run cleanup; successful main workflow_run may invoke contents-write reusable release-evidence workflow that can create/append internal-ha-{SHA} prerelease after gates and can write the main Post-Merge Release Evidence commit status. Manual release execution contract accepts dry_run only. No distribution push/merge under this planning assignment.. Shared signer, HA lab and devices are not reserved by this plan. A delegated publication requires both source and receiving distribution writer coordination.
 
 ## Copyable continuation prompt
 
@@ -35,7 +35,7 @@ Continue assignment DJC-PLATFORM-ROADMAP-DAG-LANES-V1-20261003 in pcvantol/djcon
 Read https://github.com/pcvantol/djconnect/issues/1101 and https://github.com/pcvantol/djconnect-firmware/issues/24; keep the current WIP/assignment intact: CLEAN_LOCAL_MAIN_OBSERVED; active assignment not independently verified.
 Use the existing owning backlog, exact source pins and local bootstrap. Planning outcome: Verifieer bestaande gedelegeerde source-publicatie, compatibiliteitsmetadata en consumerclaims; alleen feitelijke distributiebacklog.
 Selected owning node IDs (no new pickup): none established for this lane.
-Local test-policy audit: NOT_FULLY_AUDITED. Workflow effects: Push, tag, dispatch and workflow_run triggers inventoried; exact route-specific effects must be read before push.
+Local test-policy audit: Main-only distribution-integrity check validates dry-run metadata and local manifest/binary sidecar hashes; exact-main validation run not retained in the latest run listing; local source audit is not live/installed acceptance.. Workflow effects: Main push runs integrity validation and Action-run cleanup; successful main workflow_run may invoke contents-write reusable release-evidence workflow that can create/append internal-ha-{SHA} prerelease after gates and can write the main Post-Merge Release Evidence commit status. Manual release execution contract accepts dry_run only. No distribution push/merge under this planning assignment..
 This is documentary planning only. Do not infer product selection, writer availability, resource capacity or release authority.
 For any later selected vertical work, first prove DoR, then include UX, tests, review, fixes, protected merge and finalization in the same assignment.
 Coordinate these exact handoff IDs and acceptance owners through the owning registers:
