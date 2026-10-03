@@ -217,12 +217,13 @@ def validate(plan: Any, require_complete: bool = False) -> list[str]:
         source_paths = {(s.get("repository"), s.get("path")) for s in sources.values()}
         pattern_by_category = {
             "DATED_PROMPT_HISTORY": re.compile(r"^docs/history/prompts/\d{4}-\d{2}-\d{2}-[^/]+\.md$"),
+            "RETAINED_EMBEDDED_EP_DOCUMENTATION": re.compile(r"^docs/engineering/(?:[^/]+/)*[^/]+\.md$"),
             "OLDER_APPLE_VERSIONED_RELEASE_COPY": re.compile(r"^docs/release-notes/(?:de|en|es|fr|nl)/v(\d+)\.(\d+)\.(\d+)\.md$"),
             "OLDER_WINDOWS_VERSIONED_RELEASE_COPY": re.compile(r"^docs/release-notes/(?:de|en|es|fr|nl)/v(\d+)\.(\d+)\.(\d+)\.md$"),
             "OLDER_WEBSITE_VERSIONED_RELEASE_COPY": re.compile(r"^wwwroot/release-notes/(?:ios|macos|maccatalyst|windows)/(?:de/|en/|es/|fr/|nl/)?v(\d+)\.(\d+)\.(\d+)\.md$"),
         }
         allowed_lane_category = {
-            "DJC-CORE": {"DATED_PROMPT_HISTORY"},
+            "DJC-CORE": {"DATED_PROMPT_HISTORY", "RETAINED_EMBEDDED_EP_DOCUMENTATION"},
             "DJC-APPLE": {"DATED_PROMPT_HISTORY", "OLDER_APPLE_VERSIONED_RELEASE_COPY"},
             "DJC-WINDOWS": {"DATED_PROMPT_HISTORY", "OLDER_WINDOWS_VERSIONED_RELEASE_COPY"},
             "DJC-WEBSITE": {"OLDER_WEBSITE_VERSIONED_RELEASE_COPY"},

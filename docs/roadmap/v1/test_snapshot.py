@@ -149,6 +149,14 @@ class SnapshotTests(unittest.TestCase):
         row["historically_classified_markdown"] += 1
         self.assertIn("historical/unclassified census mismatch", self.errors())
 
+    def test_retained_ep_group_cannot_swallow_release_policy(self):
+        group = next(
+            g for g in self.p["source_capture"]["historical_path_dispositions"]["groups"]
+            if g["category"] == "RETAINED_EMBEDDED_EP_DOCUMENTATION"
+        )
+        group["entries"][0]["path"] = "docs/release/DEPLOYMENT_WORKFLOW_POLICY.md"
+        self.assertIn("invalid historical path/blob or version boundary", self.errors())
+
     def test_audit_cannot_close_without_receipt(self):
         self.p["audit_obligations"][0]["status"] = "CLOSED"
         self.assertIn("closed audit lacks closure evidence", self.errors())

@@ -41,7 +41,7 @@
     "metadata_and_bounded_paraphrases": true,
     "offline_hash_verification_of_remote_blobs": false,
     "per_call_timestamps": "Date-level head readback on 2026-10-03; no per-file read timestamp for inherited checkpoint.",
-    "pinned_tree_blobs_verified": "685 of 685 path/blob pins matched exact commit trees or GitHub Contents commit readbacks: 105 original GitHub tree readbacks, 452 local git commit-tree readbacks and 128 new GitHub tree/Contents readbacks on 2026-10-03. Current API Markdown blobs at 3f1ed18d matched fully read local previous-main blobs. Firmware binary files were fully SHA256-hashed for identity, not semantically executed. Narrative interpretation remains partial.",
+    "pinned_tree_blobs_verified": "689 of 689 path/blob pins matched exact commit trees or GitHub Contents commit readbacks: 105 original GitHub tree readbacks, 456 local git commit-tree readbacks and 128 new GitHub tree/Contents readbacks on 2026-10-03. Current API Markdown blobs at 3f1ed18d matched fully read local previous-main blobs. Firmware binary files were fully SHA256-hashed for identity, not semantically executed. Narrative interpretation remains partial.",
     "reference_scan": {
       "method": "Every pinned core Markdown blob and every pinned Markdown blob in the eleven DJC component repositories, at its recorded commit: parse relative Markdown links, strip anchors, normalize against source directory, retain existing .md targets absent from the pinned source matrix; distinct repository/path keys. The seven pinned external Forge method documents are outside this lane-source link frontier.",
       "unmapped_paths": [
@@ -77,11 +77,11 @@
           "repository": "pcvantol/djconnect",
           "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
           "tracked_markdown": 880,
-          "included_markdown": 274,
-          "not_individually_included_markdown": 606,
+          "included_markdown": 278,
+          "not_individually_included_markdown": 602,
           "tree_readback": "complete local git ls-tree -r",
-          "historically_classified_markdown": 293,
-          "unclassified_markdown": 313
+          "historically_classified_markdown": 344,
+          "unclassified_markdown": 258
         },
         "DJC-APPLE": {
           "repository": "pcvantol/djconnect-app",
@@ -196,7 +196,7 @@
       }
     },
     "historical_path_dispositions": {
-      "method": "Path-only classification from exact pinned Git trees, with blob identities and category/version bounds. These 843 paths are historical prompt records or older versioned release copy, not full-text reads or independent current-status authority. Any later current source reference can reopen an individual path for full read; no product or release selection follows from this classification.",
+      "method": "Path-only classification from exact pinned Git trees, with blob identities and category/version bounds. These 894 paths are historical prompt records, older versioned release copy or retained embedded EP documentation, not full-text reads or independent current-status authority. Any later current source reference can reopen an individual path for full read; no product or release selection follows from this classification.",
       "groups": [
         {
           "lane": "DJC-CORE",
@@ -1377,6 +1377,222 @@
             {
               "path": "docs/history/prompts/2026-08-31-local-consumer-api-loopback-binding.md",
               "blob_sha": "141b53f3e6a3afffdbef627be67dd49dd42c07d0"
+            }
+          ]
+        },
+        {
+          "lane": "DJC-CORE",
+          "category": "RETAINED_EMBEDDED_EP_DOCUMENTATION",
+          "reason": "Retained docs/engineering architecture, run receipts and operational reports from the embedded Engineering Platform retired by terminal #1098. Exact path/blob only; contents were not reread and no active DJConnect execution authority is inferred. Reopen a specific path for full reading only if a current authority depends on it.",
+          "authority_source_ids": [
+            "RETIREMENT_DELTA",
+            "CORE_EP_HANDBOOK_HIST",
+            "CORE_EP_RUNS_INDEX_HIST"
+          ],
+          "entries": [
+            {
+              "path": "docs/engineering/CANONICAL_EXECUTION_HOST_DATASTORE.md",
+              "blob_sha": "9a16ddf37b4ad197f3fc3eedf2ef0e36544b4136"
+            },
+            {
+              "path": "docs/engineering/ENGINEERING_PLATFORM_NON_FUNCTIONAL_REQUIREMENTS.md",
+              "blob_sha": "ded5d294082b3863fa37d6cc7815c9013b23f20e"
+            },
+            {
+              "path": "docs/engineering/ENGINEERING_REPORTING.md",
+              "blob_sha": "fb0fa7993c07263a3bbebb9fda5e553000904434"
+            },
+            {
+              "path": "docs/engineering/ENGINEERING_STORAGE.md",
+              "blob_sha": "87af7ea8564412fe726b5fea21d8547d269b0785"
+            },
+            {
+              "path": "docs/engineering/EP_CENTRAL_STORE_MIGRATION_GUARDRAILS.md",
+              "blob_sha": "58e9379b7719e8b942a64ce87cf66404c4378679"
+            },
+            {
+              "path": "docs/engineering/EP_PROMPT_AUTHORING_CONTRACT.md",
+              "blob_sha": "e40030e238fe54c4378791a48f6a9f5db3706163"
+            },
+            {
+              "path": "docs/engineering/EP_PROMPT_TEMPLATE.md",
+              "blob_sha": "231ef6f0b634f5c3854a8b581f81d3ad7261bdb8"
+            },
+            {
+              "path": "docs/engineering/EXECUTION_CONTEXT_CARD.md",
+              "blob_sha": "f2f4e72e8bc108516ba8f30a17e1e543698ae456"
+            },
+            {
+              "path": "docs/engineering/EXECUTION_HOST_ARCHITECTURE.md",
+              "blob_sha": "2a8d646b20c0371e33ceb4e32e4561ff2937144f"
+            },
+            {
+              "path": "docs/engineering/EXECUTION_HOST_CONFIGURATION_RESOLVER.md",
+              "blob_sha": "646f81b6e81b132ef5895ecd433673cfbca38408"
+            },
+            {
+              "path": "docs/engineering/EXECUTION_HOST_OPERATIONS.md",
+              "blob_sha": "4d3cf5e9b3485d006c64dab20fa5fd4b7d530d0e"
+            },
+            {
+              "path": "docs/engineering/EXECUTION_LIFECYCLE_FLOW.md",
+              "blob_sha": "d2c6b9d65f4a06d3ce95b94f5ab07dc1eaa3cdaa"
+            },
+            {
+              "path": "docs/engineering/EXECUTION_RECEIPTS.md",
+              "blob_sha": "c0fbdee40d8d6c99cf94c019fcecaadc0bdcc524"
+            },
+            {
+              "path": "docs/engineering/FORENSIC_DELTA_EXPORTER.md",
+              "blob_sha": "e50a6739a3940614605b2ce61bcf7aac29be0c72"
+            },
+            {
+              "path": "docs/engineering/FORENSIC_PROVENANCE_ATTRIBUTION.md",
+              "blob_sha": "61e52a534d35c48b37892f512d6f2e402d6e441f"
+            },
+            {
+              "path": "docs/engineering/FORGE_GOVERNANCE_HANDOFF.md",
+              "blob_sha": "0fe5cd773bdbfc854a972c6b3ffd73c26f60cd6b"
+            },
+            {
+              "path": "docs/engineering/GENESIS_MODE.md",
+              "blob_sha": "a84fd5809cb4a3fa39c0328800bbff667db19a76"
+            },
+            {
+              "path": "docs/engineering/LOCAL_DASHBOARD_SUPERVISOR.md",
+              "blob_sha": "24d75e3733adbbd8c2b9acfcd96f7ec1baa4cf78"
+            },
+            {
+              "path": "docs/engineering/PROVIDER_USAGE_SEMANTICS.md",
+              "blob_sha": "cdc55768c29adaf1f193e6aa9eb1199778cdede3"
+            },
+            {
+              "path": "docs/engineering/RETRY_LINEAGE_ARCHITECTURE_AUTHORING_REPORT.md",
+              "blob_sha": "8b750c06bc8736393f45d42b9e13410166e0cece"
+            },
+            {
+              "path": "docs/engineering/RETRY_LINEAGE_FINALIZATION_REPORT.md",
+              "blob_sha": "245e855ede9f41d3fdbfc124c04c87ce585a90f9"
+            },
+            {
+              "path": "docs/engineering/RUN_QUALIFICATION_EVIDENCE_CONTRACT.md",
+              "blob_sha": "a2315e4845506e418e8aca8062d16af164c77ea4"
+            },
+            {
+              "path": "docs/engineering/extraction/EP_2X_EXTRACTION_AUDIT.md",
+              "blob_sha": "90150ca88e0047cab7bc3bc4f6fb03500903214b"
+            },
+            {
+              "path": "docs/engineering/extraction/EP_2X_EXTRACTION_BASELINE.md",
+              "blob_sha": "a70d58af092f1b5635f0d9fb9684fdd79a080433"
+            },
+            {
+              "path": "docs/engineering/qualification/ENGINEERING_PLATFORM_GOLDEN_SCENARIO.md",
+              "blob_sha": "e52e993f6317dfd6294caa0ba940c74bee36ea12"
+            },
+            {
+              "path": "docs/engineering/runs/2026/2026-08-08-inbox-08853facf13b4d9395b1884ded802ff5.md",
+              "blob_sha": "3d1cbf0825f8c94712aafcdf175515414f396ec9"
+            },
+            {
+              "path": "docs/engineering/runs/2026/2026-08-16-inbox-37aefa78d86845c29c94ab746abceeba.md",
+              "blob_sha": "4c86b830e694924f92eb714a99559e75bc0f8f81"
+            },
+            {
+              "path": "docs/engineering/runs/2026/2026-08-16-inbox-77c6589eac31425f8a5916b750427d51.md",
+              "blob_sha": "6446de431c3a04fc4ee9efcf8f5b7cf7a4cc2d28"
+            },
+            {
+              "path": "docs/engineering/runs/2026/2026-08-16-inbox-7e7e1710bbff493ab0a5e9da1fe489ea.md",
+              "blob_sha": "5727ec345a87af0eb22e44b7c5e8bb7e01e25788"
+            },
+            {
+              "path": "docs/engineering/runs/2026/2026-08-17-inbox-741b4ed48e714f2e93aff43754edbe5c.md",
+              "blob_sha": "6b0d5e81cbb04efc23c9ffe778d8a252f124f75e"
+            },
+            {
+              "path": "docs/engineering/runs/2026/2026-08-18-inbox-8f84b832d39c486d983af009f2fa022a.md",
+              "blob_sha": "ee4ae8db4a9d43d98929f8d8bfc9c58eb236a999"
+            },
+            {
+              "path": "docs/engineering/runs/2026/2026-08-18-inbox-992d374556a9412e8118a70fa8c28b2c.md",
+              "blob_sha": "d118c810b48357bafad6115cf05cc6047add682f"
+            },
+            {
+              "path": "docs/engineering/runs/2026/2026-08-18-inbox-c1b0b580a7b74a5a9983cbb88a920040.md",
+              "blob_sha": "5342b78efa838b3cb1fa433bcdf8382cc8ff14dc"
+            },
+            {
+              "path": "docs/engineering/runs/2026/2026-08-18-inbox-dccb45db1b3e436a880c57c1e3d3e3ba.md",
+              "blob_sha": "d105fdd8f876d04ef6ae0642305c52fc8e6559d8"
+            },
+            {
+              "path": "docs/engineering/runs/2026/2026-08-24-inbox-0ebed1dbde7f4694a3d229f32c20445a.md",
+              "blob_sha": "628a850a1add417669ef62fc743335d863bdb0c4"
+            },
+            {
+              "path": "docs/engineering/runs/2026/2026-08-24-inbox-47ba7955329946b1a68bf9aab2cced68.md",
+              "blob_sha": "ff6c9cbdf89f4f3768c8d86e1cabcbfa6235ddb6"
+            },
+            {
+              "path": "docs/engineering/runs/2026/2026-08-24-inbox-662a2c13703a4253ba70312d0a771fec.md",
+              "blob_sha": "b324aa8fa026253d0a96781384b91ad4a7709faf"
+            },
+            {
+              "path": "docs/engineering/runs/2026/2026-08-24-inbox-99bcc3cc7e45478a8cbd05de20f9e9a6.md",
+              "blob_sha": "18bebe47bc50693bdb129cc853b5ede1c2062136"
+            },
+            {
+              "path": "docs/engineering/runs/2026/2026-08-24-inbox-c929604adcda43669d516344feeda1d4.md",
+              "blob_sha": "52b1ea25da1aa90630a9c26b52af7519f307eceb"
+            },
+            {
+              "path": "docs/engineering/runs/2026/2026-08-25-inbox-104eb3087bf34afa914358155fc77073.md",
+              "blob_sha": "f2c6e92b006b8b87dc147c5053b2310db74cd778"
+            },
+            {
+              "path": "docs/engineering/runs/2026/2026-08-25-inbox-99cb9ba3945c40cc9c2f05c76e32fb7b.md",
+              "blob_sha": "154ce43d9ded4a5909d998c10c4a52654493056f"
+            },
+            {
+              "path": "docs/engineering/runs/2026/2026-08-27-inbox-2f1064dc89e8477fa9ba5bfaa04b3c49.md",
+              "blob_sha": "788281f2c2b5ac481a167797eb6b0977abf78ee8"
+            },
+            {
+              "path": "docs/engineering/runs/2026/2026-08-27-inbox-d9e33d5847f64c3382c46debd0370f31.md",
+              "blob_sha": "fdbd730ea945006b5d64576e5bf284df0255b3cd"
+            },
+            {
+              "path": "docs/engineering/runs/2026/2026-08-28-inbox-793aa07f343742638e897d21d4dc656c.md",
+              "blob_sha": "6c60ea5c055c661ec561f14d71113e9b3d214672"
+            },
+            {
+              "path": "docs/engineering/runs/2026/2026-08-28-inbox-915dc1de62d04fb4aa5613a56162de7a.md",
+              "blob_sha": "a8fe16bc9e1456f9ddb8d53a52bb3a303e17edeb"
+            },
+            {
+              "path": "docs/engineering/runs/2026/2026-08-30-inbox-1ec2eb1d72f541f6a3848243d0a2cf7e.md",
+              "blob_sha": "f3a0a8f7ff9a4381f444dde728e986416ac74bb6"
+            },
+            {
+              "path": "docs/engineering/runs/2026/2026-08-30-inbox-4b7148945d7549fcb17a30453b0a20c2.md",
+              "blob_sha": "472340e240f5e890012a3ea9c2b22ff1d6cdd87d"
+            },
+            {
+              "path": "docs/engineering/runs/2026/2026-08-30-inbox-5da29f36abd74dcda3f205e4feaa663c.md",
+              "blob_sha": "3a430a0136edc4ea3cbd812eb635ed250c4f12f1"
+            },
+            {
+              "path": "docs/engineering/runs/2026/2026-08-30-inbox-93ac4a11ae1b45e6bde7a8b0008882c8.md",
+              "blob_sha": "7df4017644eb9072a55aaeea506b20122346db7f"
+            },
+            {
+              "path": "docs/engineering/runs/2026/2026-08-31-inbox-854921ef36484be3ad53d84b8e4cae44.md",
+              "blob_sha": "04543e3bd6768229c111131d9eb0ed72af57fbd0"
+            },
+            {
+              "path": "docs/engineering/runs/2026/2026-08-31-inbox-c2fcce7516dd412eae80b40c55cd9a25.md",
+              "blob_sha": "639e5cea8fac082c426e4231347a23773a9580e4"
             }
           ]
         },
@@ -16700,6 +16916,78 @@
         "PROJ::AUDIT::METHOD"
       ],
       "remaining": "Current workflow effects and any exact-main receipt require their own readback."
+    },
+    {
+      "id": "CORE_EP_RUNS_INDEX_HIST",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/engineering/runs/README.md",
+      "blob_sha": "498e6bd76ff932936939d4c06e9f97072980ce81",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Retained sanitized Finalization handoff archive and discovery contract for historical embedded EP transactions; terminal #1098 is newer owning evidence, not inferred from these files.",
+      "observed_at": "2026-10-03; continuation of pinned issue #1101 audit",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/engineering/runs/README.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::EVOLUTION::EP2-HISTORY"
+      ],
+      "remaining": "Current planning writer/host state must be checked separately."
+    },
+    {
+      "id": "CORE_EP_RUNS_LATEST_HIST",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/engineering/runs/latest.md",
+      "blob_sha": "6b32ae8eebb1834131564a2b097a2fe745afb356",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Historical latest embedded EP run pointer names 2026-08-31 EP 2.0.0 and PR #1061; it is not current #1098 retirement or this assignment Finalization evidence.",
+      "observed_at": "2026-10-03; continuation of pinned issue #1101 audit",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/engineering/runs/latest.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::EVOLUTION::EP2-HISTORY"
+      ],
+      "remaining": "Terminal #1098 and current local readback take precedence."
+    },
+    {
+      "id": "CORE_EP_WORKSPACE_ROOT_HIST",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/engineering/WORKSPACE_ROOT.md",
+      "blob_sha": "03e842c343ba96f4a6fbf4d07040f90eede6d4ea",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Historical embedded EP workspace-root authorization schema; no current DJConnect writer lease or host permission is inferred after standalone EP retirement.",
+      "observed_at": "2026-10-03; continuation of pinned issue #1101 audit",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/engineering/WORKSPACE_ROOT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::AUDIT::METHOD"
+      ],
+      "remaining": "Current hostcheck and writer admission remain separately required."
+    },
+    {
+      "id": "CORE_EP_STATUS_HIST",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/ENGINEERING_PLATFORM_STATUS.md",
+      "blob_sha": "dbc2626286ad657563ae4478b324e4eb402e6d2d",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Historical embedded EP 1.x FEATURE_COMPLETE status. It predates terminal #1098 source retirement and cannot reactivate embedded runtime or supersede current product backlog.",
+      "observed_at": "2026-10-03; continuation of pinned issue #1101 audit",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/ENGINEERING_PLATFORM_STATUS.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::EVOLUTION::EP1-COMPLETE"
+      ],
+      "remaining": "Historical status only; no retirement reopening."
     }
   ],
   "nodes": [
@@ -21897,7 +22185,9 @@
         "CORE_ADR_0023",
         "CORE_ADR_0024",
         "CORE_ADR_0025",
-        "CORE_ADR_0026"
+        "CORE_ADR_0026",
+        "CORE_EP_RUNS_INDEX_HIST",
+        "CORE_EP_RUNS_LATEST_HIST"
       ],
       "canonical_authority": "EVOLUTION",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -21990,7 +22280,8 @@
       "repository": "pcvantol/djconnect",
       "source_ids": [
         "EVOLUTION",
-        "EP1_COMPLETION"
+        "EP1_COMPLETION",
+        "CORE_EP_STATUS_HIST"
       ],
       "canonical_authority": "EVOLUTION",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -23805,7 +24096,8 @@
         "CORE_SA_POSTMERGE_ARCH",
         "CORE_SA_POSTMERGE_POLICY",
         "CORE_SA_POSTMERGE_SCHEMA",
-        "CORE_SA_POSTMERGE_QUAL_HIST"
+        "CORE_SA_POSTMERGE_QUAL_HIST",
+        "CORE_EP_WORKSPACE_ROOT_HIST"
       ],
       "canonical_authority": "ROADMAP_INDEX",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -30449,7 +30741,7 @@
       "id": "AUDIT-DJC-CORE",
       "status": "OPEN",
       "scope": "DJC-CORE",
-      "reason": "Pinned foundation, roadmap, horizon, legal, voice, verification, full Meta Engineering reading order, local environment and historical EP/Software Assurance sources are read. Nine EP history links remain triaged; workflow effects, remaining consumer evidence and final delta still need qualification. Ten additional exact-pinned core policy/navigation sources are read, including owner authorization and Finalization; generated lifecycle and physical/consumer evidence still need qualification. Five linked architecture/assurance/Trusted Delivery records are also pinned; the 2026-07-13 target matrix is historical, not current settings evidence. Five additional canonical/navigational product texts and sixteen dated Phase 6 technical/target-architecture texts are pinned. Their current-state claims are bounded by the 2026-07-10 archaeology phase; the standalone Device Installer is planned target architecture, not an existing thirteenth lane or product pickup. All 19 core ADR Markdown sources are now pinned (17 in this delta), with ADR-0024/0025 incident supersession and ADR-0026 terminal clean-slate context kept historical under #1098. Ten additional exact-pinned release-policy/navigation/historical records are read, including exact-main evidence-prerelease policy, dispatch-only deployment/smoke boundaries and the prompt-history non-authority rule. The 3.3.1 prepared-for-review release note is historical against the published v3.3.1 tag; no installed consumer is inferred. 293 dated core prompt paths are classified by path only, leaving 317 core Markdown paths unclassified. Four exact-pinned post-merge Software Assurance records now separate current policy/schema from historical qualification; the stated per-component prerelease prefix conflicts with the pinned reusable workflow hard-coded internal-ha tag."
+      "reason": "Pinned foundation, roadmap, horizon, legal, voice, verification, full Meta Engineering reading order, local environment and historical EP/Software Assurance sources are read. Nine EP history links remain triaged; workflow effects, remaining consumer evidence and final delta still need qualification. Ten additional exact-pinned core policy/navigation sources are read, including owner authorization and Finalization; generated lifecycle and physical/consumer evidence still need qualification. Five linked architecture/assurance/Trusted Delivery records are also pinned; the 2026-07-13 target matrix is historical, not current settings evidence. Five additional canonical/navigational product texts and sixteen dated Phase 6 technical/target-architecture texts are pinned. Their current-state claims are bounded by the 2026-07-10 archaeology phase; the standalone Device Installer is planned target architecture, not an existing thirteenth lane or product pickup. All 19 core ADR Markdown sources are now pinned (17 in this delta), with ADR-0024/0025 incident supersession and ADR-0026 terminal clean-slate context kept historical under #1098. Ten additional exact-pinned release-policy/navigation/historical records are read, including exact-main evidence-prerelease policy, dispatch-only deployment/smoke boundaries and the prompt-history non-authority rule. The 3.3.1 prepared-for-review release note is historical against the published v3.3.1 tag; no installed consumer is inferred. 293 dated core prompt paths are classified by path only, leaving 317 core Markdown paths unclassified. Four exact-pinned post-merge Software Assurance records now separate current policy/schema from historical qualification; the stated per-component prerelease prefix conflicts with the pinned reusable workflow hard-coded internal-ha tag. Four retained embedded-EP status/run/workspace records were fully read as historical; 51 other docs/engineering Markdown paths are classified by exact path/blob under terminal #1098 without reopening retirement."
     },
     {
       "id": "AUDIT-DJC-APPLE",
@@ -30559,7 +30851,7 @@
       "status": "OPEN",
       "scope": "platform",
       "reason": "Current matrix covers only explicitly read source inventory; certify complete disposition only after all relevant discoveries are audited.",
-      "remaining": "All 685 included pinned source rows have exact path/blob provenance and bounded read descriptions. Exact pinned trees contain 1,739 tracked Markdown paths: 583 individually represented/full-read, 843 exact path/blob entries classified only as dated prompt history or older versioned release copy, and 313 still unclassified for relevance/full reading. The 843 classified contents were not read and can be reopened when a current authority points to one. Apple 47/173, Windows 41/117 and website 64/412 Markdown have all other paths in explicit historical categories; Pi 33/33, API 28/28 and ESP32 28/28 are individually represented. Core is 274/880, with 293 dated prompts classified by path and 313 unclassified. Runtime, workflow/test and physical/source-to-release consumer coverage remain separately open. Nine historical core EP relative-link targets remain triaged outside the matrix. Complete current-source/consumer discovery and status qualification before certification."
+      "remaining": "All 689 included pinned source rows have exact path/blob provenance and bounded read descriptions. Exact pinned trees contain 1,739 tracked Markdown paths: 587 individually represented/full-read, 894 exact path/blob entries classified only as dated prompt history, older versioned release copy or retained embedded EP documentation, and 258 still unclassified for relevance/full reading. The 894 classified contents were not read and can be reopened when a current authority points to one. Apple 47/173, Windows 41/117 and website 64/412 Markdown have all other paths in explicit historical categories; Pi 33/33, API 28/28 and ESP32 28/28 are individually represented. Core is 278/880, with 293 dated prompts and 51 retained EP documents classified by path, and 258 unclassified. Runtime, workflow/test and physical/source-to-release consumer coverage remain separately open. Nine historical core EP relative-link targets remain triaged outside the matrix. Complete current-source/consumer discovery and status qualification before certification."
     },
     {
       "id": "REGISTER-DELIVERY",
