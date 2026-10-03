@@ -41,7 +41,7 @@
     "metadata_and_bounded_paraphrases": true,
     "offline_hash_verification_of_remote_blobs": false,
     "per_call_timestamps": "Date-level head readback on 2026-10-03; no per-file read timestamp for inherited checkpoint.",
-    "pinned_tree_blobs_verified": "689 of 689 path/blob pins matched exact commit trees or GitHub Contents commit readbacks: 105 original GitHub tree readbacks, 456 local git commit-tree readbacks and 128 new GitHub tree/Contents readbacks on 2026-10-03. Current API Markdown blobs at 3f1ed18d matched fully read local previous-main blobs. Firmware binary files were fully SHA256-hashed for identity, not semantically executed. Narrative interpretation remains partial.",
+    "pinned_tree_blobs_verified": "695 of 695 path/blob pins matched exact commit trees or GitHub Contents commit readbacks: 105 original GitHub tree readbacks, 462 local git commit-tree readbacks and 128 new GitHub tree/Contents readbacks on 2026-10-03. Current API Markdown blobs at 3f1ed18d matched fully read local previous-main blobs. Firmware binary files were fully SHA256-hashed for identity, not semantically executed. Narrative interpretation remains partial.",
     "reference_scan": {
       "method": "Every pinned core Markdown blob and every pinned Markdown blob in the eleven DJC component repositories, at its recorded commit: parse relative Markdown links, strip anchors, normalize against source directory, retain existing .md targets absent from the pinned source matrix; distinct repository/path keys. The seven pinned external Forge method documents are outside this lane-source link frontier.",
       "unmapped_paths": [
@@ -77,11 +77,11 @@
           "repository": "pcvantol/djconnect",
           "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
           "tracked_markdown": 880,
-          "included_markdown": 278,
-          "not_individually_included_markdown": 602,
+          "included_markdown": 284,
+          "not_individually_included_markdown": 596,
           "tree_readback": "complete local git ls-tree -r",
           "historically_classified_markdown": 344,
-          "unclassified_markdown": 258
+          "unclassified_markdown": 252
         },
         "DJC-APPLE": {
           "repository": "pcvantol/djconnect-app",
@@ -16988,6 +16988,114 @@
         "PROJ::EVOLUTION::EP1-COMPLETE"
       ],
       "remaining": "Historical status only; no retirement reopening."
+    },
+    {
+      "id": "CORE_VERIFY_PLATFORM_BACKLOG",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/verification/reports/VERIFICATION_PLATFORM_BACKLOG.md",
+      "blob_sha": "5fc523f1052e32ee22c7e8ed8f7be1d43dff4d31",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Verification Platform phase backlog through Windows adapter/live and coverage baseline records; describes selected old phase work and open deeper live coverage, but is not the current DJConnect product execution selector. Several chronology/narrative cells are older than later completed Phase 13E-R2 evidence.",
+      "observed_at": "2026-10-03; continuation of pinned issue #1101 audit",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/verification/reports/VERIFICATION_PLATFORM_BACKLOG.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::AUDIT::METHOD"
+      ],
+      "remaining": "Current exact-SHA platform release/consumer acceptance remains separate."
+    },
+    {
+      "id": "CORE_VERIFY_PLATFORM_SCORECARD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/verification/reports/VERIFICATION_PLATFORM_SCORECARD.md",
+      "blob_sha": "a1ea1630a7f7cf6d86dda967e86e659df389e3e5",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Verification Platform scorecard reports platform qualified and Windows live qualified; its lower historical narrative still says Windows live pending, so status must be reconciled by phase-specific evidence, not its aggregate header alone.",
+      "observed_at": "2026-10-03; continuation of pinned issue #1101 audit",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/verification/reports/VERIFICATION_PLATFORM_SCORECARD.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::AUDIT::METHOD"
+      ],
+      "remaining": "Do not infer current physical/multiclient acceptance from dated scorecard text."
+    },
+    {
+      "id": "CORE_VERIFY_GAP_BACKLOG_HIST",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/verification/VERIFICATION_GAP_BACKLOG.md",
+      "blob_sha": "19430c5504267b843d4837972213d369733f722b",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Explicitly historical 2026-07-10 Phase 8A gap record; its old statement that CI smoke is next is superseded by pinned E2E roadmap and actual advisory Golden CI. It cannot reselect completed E2E infrastructure.",
+      "observed_at": "2026-10-03; continuation of pinned issue #1101 audit",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/verification/VERIFICATION_GAP_BACKLOG.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::ROADMAP::P1-E2E"
+      ],
+      "remaining": "Current later verification gaps and qualification evidence remain separately open."
+    },
+    {
+      "id": "CORE_VERIFY_KNOWN_LIMITATIONS",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/verification/KNOWN_LIMITATIONS.md",
+      "blob_sha": "894ecd73703b08f8663be25b91acb08281be4d59",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Accepted Profile Platform baseline limitations and specific client/device/live prerequisites; a missing live receipt is NOT TESTED, not a confirmed runtime bug.",
+      "observed_at": "2026-10-03; continuation of pinned issue #1101 audit",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/verification/KNOWN_LIMITATIONS.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::AUDIT::METHOD"
+      ],
+      "remaining": "Exact current consumer acceptance and privacy/capability runs remain unqualified."
+    },
+    {
+      "id": "CORE_VERIFY_PROFILE_REPORT",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/verification/VERIFICATION_REPORT.md",
+      "blob_sha": "2a87e51548b14a16cac8ec1e640fab9b7208c00c",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Profile Platform V1 live validation report opened 2026-07-10 remains NO-GO/124 NOT TESTED in pinned source. This scope is distinct from Verification Platform engine qualification and from current E2E product status; do not infer GO or repeat old implementation.",
+      "observed_at": "2026-10-03; continuation of pinned issue #1101 audit",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/verification/VERIFICATION_REPORT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::AUDIT::METHOD"
+      ],
+      "remaining": "Current live Profile Platform gate cannot be closed from this source alone."
+    },
+    {
+      "id": "CORE_VERIFY_PROFILE_PROGRAM",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/verification/VERIFICATION_PROGRAM_V1.md",
+      "blob_sha": "b5c790da064f781a1b740c665ef09e29a1b20d87",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Profile Platform V1 live verification contract, including client/privacy/capability/locale evidence and a GO gate for its original Epic 4; it explicitly predates later Verification Platform reports.",
+      "observed_at": "2026-10-03; continuation of pinned issue #1101 audit",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/verification/VERIFICATION_PROGRAM_V1.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::AUDIT::METHOD"
+      ],
+      "remaining": "Original Epic gate and current product-phase applicability require owning status reconciliation; no run started."
     }
   ],
   "nodes": [
@@ -18279,7 +18387,8 @@
         "LINK::DOCS-VERIFICATION-01-VERIFICATION-ARCHITECTURE",
         "LINK::DOCS-VERIFICATION-SESSION-INTELLIGENCE-E2E-ARCHITECTURE",
         "LINK::DOCS-VERIFICATION-03-SCENARIO-CATALOG",
-        "CORE_VERIFICATION_README"
+        "CORE_VERIFICATION_README",
+        "CORE_VERIFY_GAP_BACKLOG_HIST"
       ],
       "canonical_authority": "PRODUCT_ROADMAP",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -24097,7 +24206,12 @@
         "CORE_SA_POSTMERGE_POLICY",
         "CORE_SA_POSTMERGE_SCHEMA",
         "CORE_SA_POSTMERGE_QUAL_HIST",
-        "CORE_EP_WORKSPACE_ROOT_HIST"
+        "CORE_EP_WORKSPACE_ROOT_HIST",
+        "CORE_VERIFY_PLATFORM_BACKLOG",
+        "CORE_VERIFY_PLATFORM_SCORECARD",
+        "CORE_VERIFY_KNOWN_LIMITATIONS",
+        "CORE_VERIFY_PROFILE_REPORT",
+        "CORE_VERIFY_PROFILE_PROGRAM"
       ],
       "canonical_authority": "ROADMAP_INDEX",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -30734,6 +30848,20 @@
         "WEBSITE-POST-MERGE-EVIDENCE",
         "CORE_SA_POSTMERGE_POLICY"
       ]
+    },
+    {
+      "id": "VERIFICATION-STATUS-SCOPE-DRIFT",
+      "status": "OPEN_OWNING_STATUS_RECONCILIATION",
+      "description": "Pinned 2026-07-10 VERIFICATION_GAP_BACKLOG explicitly calls itself historical yet says Golden CI smoke is next, while pinned DEVELOPER_EXPERIENCE_ROADMAP and current advisory Golden CI show Smoke/Regression already implemented. Separately, the Profile Platform V1 VERIFICATION_REPORT remains NO-GO with 124 NOT TESTED for its live scenario gate; this does not negate the separately qualified Verification Platform engine. The Platform scorecard header says WINDOWS LIVE QUALIFIED but its lower narrative still says Windows live pending, while the phase backlog cites later Phase 13E-R2 live Windows proof. Reconcile each scope and date in owning verification records before granting any current live/consumer acceptance; do not reactivate completed E2E infrastructure or select a verification run here.",
+      "source_ids": [
+        "CORE_VERIFY_GAP_BACKLOG_HIST",
+        "E2E_ROADMAP",
+        "CORE_VERIFY_PROFILE_REPORT",
+        "CORE_VERIFY_PROFILE_PROGRAM",
+        "CORE_VERIFY_PLATFORM_SCORECARD",
+        "CORE_VERIFY_PLATFORM_BACKLOG",
+        "GOLDEN_CI"
+      ]
     }
   ],
   "audit_obligations": [
@@ -30741,7 +30869,7 @@
       "id": "AUDIT-DJC-CORE",
       "status": "OPEN",
       "scope": "DJC-CORE",
-      "reason": "Pinned foundation, roadmap, horizon, legal, voice, verification, full Meta Engineering reading order, local environment and historical EP/Software Assurance sources are read. Nine EP history links remain triaged; workflow effects, remaining consumer evidence and final delta still need qualification. Ten additional exact-pinned core policy/navigation sources are read, including owner authorization and Finalization; generated lifecycle and physical/consumer evidence still need qualification. Five linked architecture/assurance/Trusted Delivery records are also pinned; the 2026-07-13 target matrix is historical, not current settings evidence. Five additional canonical/navigational product texts and sixteen dated Phase 6 technical/target-architecture texts are pinned. Their current-state claims are bounded by the 2026-07-10 archaeology phase; the standalone Device Installer is planned target architecture, not an existing thirteenth lane or product pickup. All 19 core ADR Markdown sources are now pinned (17 in this delta), with ADR-0024/0025 incident supersession and ADR-0026 terminal clean-slate context kept historical under #1098. Ten additional exact-pinned release-policy/navigation/historical records are read, including exact-main evidence-prerelease policy, dispatch-only deployment/smoke boundaries and the prompt-history non-authority rule. The 3.3.1 prepared-for-review release note is historical against the published v3.3.1 tag; no installed consumer is inferred. 293 dated core prompt paths are classified by path only, leaving 317 core Markdown paths unclassified. Four exact-pinned post-merge Software Assurance records now separate current policy/schema from historical qualification; the stated per-component prerelease prefix conflicts with the pinned reusable workflow hard-coded internal-ha tag. Four retained embedded-EP status/run/workspace records were fully read as historical; 51 other docs/engineering Markdown paths are classified by exact path/blob under terminal #1098 without reopening retirement."
+      "reason": "Pinned foundation, roadmap, horizon, legal, voice, verification, full Meta Engineering reading order, local environment and historical EP/Software Assurance sources are read. Nine EP history links remain triaged; workflow effects, remaining consumer evidence and final delta still need qualification. Ten additional exact-pinned core policy/navigation sources are read, including owner authorization and Finalization; generated lifecycle and physical/consumer evidence still need qualification. Five linked architecture/assurance/Trusted Delivery records are also pinned; the 2026-07-13 target matrix is historical, not current settings evidence. Five additional canonical/navigational product texts and sixteen dated Phase 6 technical/target-architecture texts are pinned. Their current-state claims are bounded by the 2026-07-10 archaeology phase; the standalone Device Installer is planned target architecture, not an existing thirteenth lane or product pickup. All 19 core ADR Markdown sources are now pinned (17 in this delta), with ADR-0024/0025 incident supersession and ADR-0026 terminal clean-slate context kept historical under #1098. Ten additional exact-pinned release-policy/navigation/historical records are read, including exact-main evidence-prerelease policy, dispatch-only deployment/smoke boundaries and the prompt-history non-authority rule. The 3.3.1 prepared-for-review release note is historical against the published v3.3.1 tag; no installed consumer is inferred. 293 dated core prompt paths are classified by path only, leaving 317 core Markdown paths unclassified. Four exact-pinned post-merge Software Assurance records now separate current policy/schema from historical qualification; the stated per-component prerelease prefix conflicts with the pinned reusable workflow hard-coded internal-ha tag. Four retained embedded-EP status/run/workspace records were fully read as historical; 51 other docs/engineering Markdown paths are classified by exact path/blob under terminal #1098 without reopening retirement. Six exact-pinned Verification Program/report/backlog/scorecard records distinguish dated Profile V1 live NO-GO, later qualified Verification Platform engine, stale internal Windows narrative and completed Golden CI infrastructure; no current live consumer GO is inferred."
     },
     {
       "id": "AUDIT-DJC-APPLE",
@@ -30851,7 +30979,7 @@
       "status": "OPEN",
       "scope": "platform",
       "reason": "Current matrix covers only explicitly read source inventory; certify complete disposition only after all relevant discoveries are audited.",
-      "remaining": "All 689 included pinned source rows have exact path/blob provenance and bounded read descriptions. Exact pinned trees contain 1,739 tracked Markdown paths: 587 individually represented/full-read, 894 exact path/blob entries classified only as dated prompt history, older versioned release copy or retained embedded EP documentation, and 258 still unclassified for relevance/full reading. The 894 classified contents were not read and can be reopened when a current authority points to one. Apple 47/173, Windows 41/117 and website 64/412 Markdown have all other paths in explicit historical categories; Pi 33/33, API 28/28 and ESP32 28/28 are individually represented. Core is 278/880, with 293 dated prompts and 51 retained EP documents classified by path, and 258 unclassified. Runtime, workflow/test and physical/source-to-release consumer coverage remain separately open. Nine historical core EP relative-link targets remain triaged outside the matrix. Complete current-source/consumer discovery and status qualification before certification."
+      "remaining": "All 695 included pinned source rows have exact path/blob provenance and bounded read descriptions. Exact pinned trees contain 1,739 tracked Markdown paths: 593 individually represented/full-read, 894 exact path/blob entries classified only as dated prompt history, older versioned release copy or retained embedded EP documentation, and 252 still unclassified for relevance/full reading. The 894 classified contents were not read and can be reopened when a current authority points to one. Apple 47/173, Windows 41/117 and website 64/412 Markdown have all other paths in explicit historical categories; Pi 33/33, API 28/28 and ESP32 28/28 are individually represented. Core is 284/880, with 293 dated prompts and 51 retained EP documents classified by path, and 252 unclassified. Runtime, workflow/test and physical/source-to-release consumer coverage remain separately open. Nine historical core EP relative-link targets remain triaged outside the matrix. Complete current-source/consumer discovery and status qualification before certification."
     },
     {
       "id": "REGISTER-DELIVERY",
