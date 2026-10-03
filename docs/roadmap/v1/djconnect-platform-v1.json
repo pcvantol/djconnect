@@ -62,6 +62,108 @@
         "pcvantol/djconnect::docs/engineering/GENESIS_MODE.md": "Existing linked historical EP execution/extraction reference at the pinned core head; standalone EP authority and terminal #1098 govern. No retirement or implementation selected by this planning assignment."
       },
       "explicit_named_reference_disposition": "Six literal local .md paths named in the newly pinned phase/status projections were read at exact repository commits and added to the source matrix; their references are not treated as independent status authority."
+    },
+    "tree_census_readback": {
+      "observed_at": "2026-10-03 12:16 UTC, complete local git trees and GitHub recursive trees for ESP32, Windows and current API main",
+      "boundary": "Exact main trees at the 2026-10-03 11:45 UTC remote-head readback: core 192703ea, API 3f1ed18d and the other ten heads matching their source baselines. Path counts describe tracked Markdown files and their individual representation in this matrix, regardless of historical source-blob commit. Not-individually-included is a discovery/classification frontier, not a count of normative sources. The six triaged relative-link targets remain separate.",
+      "lanes": {
+        "DJC-CORE": {
+          "repository": "pcvantol/djconnect",
+          "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+          "tracked_markdown": 880,
+          "included_markdown": 199,
+          "not_individually_included_markdown": 681,
+          "tree_readback": "complete local git ls-tree -r"
+        },
+        "DJC-APPLE": {
+          "repository": "pcvantol/djconnect-app",
+          "commit_sha": "d54224dbf02517ae47406aa14d33e97e61c18002",
+          "tracked_markdown": 173,
+          "included_markdown": 25,
+          "not_individually_included_markdown": 148,
+          "tree_readback": "complete local git ls-tree -r"
+        },
+        "DJC-ESP32": {
+          "repository": "pcvantol/djconnect-esp32",
+          "commit_sha": "49a71f99f6435819ec00b7387520a3fd20640a0b",
+          "tracked_markdown": 28,
+          "included_markdown": 11,
+          "not_individually_included_markdown": 17,
+          "tree_readback": "GitHub recursive Git tree, truncated=false"
+        },
+        "DJC-PI": {
+          "repository": "pcvantol/djconnect-pi",
+          "commit_sha": "92712ae989f9ad44e2b935222a1e1053670a782f",
+          "tracked_markdown": 33,
+          "included_markdown": 18,
+          "not_individually_included_markdown": 15,
+          "tree_readback": "complete local git ls-tree -r"
+        },
+        "DJC-WINDOWS": {
+          "repository": "pcvantol/djconnect-windows",
+          "commit_sha": "1d6635ff5c610a0f43bf1ba7d68cb0b1def06924",
+          "tracked_markdown": 117,
+          "included_markdown": 25,
+          "not_individually_included_markdown": 92,
+          "tree_readback": "GitHub recursive Git tree, truncated=false"
+        },
+        "DJC-API": {
+          "repository": "pcvantol/djconnect-api",
+          "commit_sha": "3f1ed18d2ce803a2b5d3750115d0dbf2dbaa34ba",
+          "tracked_markdown": 28,
+          "included_markdown": 14,
+          "not_individually_included_markdown": 14,
+          "tree_readback": "GitHub recursive Git tree, truncated=false"
+        },
+        "DJC-WEBSITE": {
+          "repository": "pcvantol/djconnect-website",
+          "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
+          "tracked_markdown": 412,
+          "included_markdown": 10,
+          "not_individually_included_markdown": 402,
+          "tree_readback": "complete local git ls-tree -r"
+        },
+        "DJC-VIBECAST": {
+          "repository": "pcvantol/djconnect-vibecast-receiver",
+          "commit_sha": "a901fbcd3e894af62b63fafbca8f96738e08ce3c",
+          "tracked_markdown": 13,
+          "included_markdown": 3,
+          "not_individually_included_markdown": 10,
+          "tree_readback": "complete local git ls-tree -r"
+        },
+        "DJC-PICO": {
+          "repository": "pcvantol/djconnect-pico",
+          "commit_sha": "6daf1f291566dea52adef604a7186b43755d871e",
+          "tracked_markdown": 10,
+          "included_markdown": 3,
+          "not_individually_included_markdown": 7,
+          "tree_readback": "complete local git ls-tree -r"
+        },
+        "DJC-DIST-FIRMWARE": {
+          "repository": "pcvantol/djconnect-firmware",
+          "commit_sha": "cb9cc7ba321ca57675223dfac32f5583fbcb3656",
+          "tracked_markdown": 15,
+          "included_markdown": 8,
+          "not_individually_included_markdown": 7,
+          "tree_readback": "complete local git ls-tree -r"
+        },
+        "DJC-DIST-APPLE": {
+          "repository": "pcvantol/djconnect-app-releases",
+          "commit_sha": "02fa92f74b56fbc4223ee152d6f612559b84779d",
+          "tracked_markdown": 15,
+          "included_markdown": 8,
+          "not_individually_included_markdown": 7,
+          "tree_readback": "complete local git ls-tree -r"
+        },
+        "DJC-DIST-PI": {
+          "repository": "pcvantol/djconnect-pi-releases",
+          "commit_sha": "673300921f980edc5ddfbb3ed5f5ca906b320b62",
+          "tracked_markdown": 15,
+          "included_markdown": 8,
+          "not_individually_included_markdown": 7,
+          "tree_readback": "complete local git ls-tree -r"
+        }
+      }
     }
   },
   "lanes": [
@@ -20375,7 +20477,7 @@
       "status": "OPEN",
       "scope": "platform",
       "reason": "Current matrix covers only explicitly read source inventory; certify complete disposition only after all relevant discoveries are audited.",
-      "remaining": "All 354 included pinned rows are fully read and all discovered component relative Markdown targets and six extra named local .md references are included. Six historical core EP references remain triaged outside the matrix; complete repository-wide source/consumer discovery and status qualification before certification."
+      "remaining": "All 354 included pinned source rows are fully read and linked. Exact pinned trees contain 1,739 tracked Markdown paths, 332 individually represented in the matrix and 1,407 needing relevance/classification disposition; these are path counts, not a claim that all 1,407 are normative. Six historical core EP relative-link targets remain triaged outside the matrix. Complete repository-wide source/consumer discovery and status qualification before certification."
     },
     {
       "id": "REGISTER-DELIVERY",
@@ -20414,7 +20516,7 @@
       "id": "INDEPENDENT-REVIEW",
       "status": "OPEN",
       "scope": "platform",
-      "reason": "Independent read-only review of exact pushed head 7a08fa76 found one P2 test-provenance wording issue and no other material delta finding. The P2 is corrected in the next candidate; exact-head rereview and full planning approval remain open."
+      "reason": "Independent exact-head reviews of the source-bearing partial checkpoint cleared the prior API-test provenance P2 and found no remaining material delta issue. This bounded review is not full platform-planning approval; source/graph closure and a final protected candidate remain open."
     },
     {
       "id": "PROTECTED-DELIVERY",

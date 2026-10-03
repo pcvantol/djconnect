@@ -359,6 +359,25 @@ This is a pinned planning projection for assignment `DJC-PLATFORM-ROADMAP-DAG-LA
 | `CORE_SA_IMPLEMENTATION` | `pcvantol/djconnect` / [SOFTWARE_ASSURANCE_IMPLEMENTATION.md](https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/SOFTWARE_ASSURANCE_IMPLEMENTATION.md) | `192703ea79d3c65f373e69fa60d604555d4c2f5a` / `e8bb3c439da2d9efa6534276146cc8cb2183107b` | full pinned source content reviewed for historical/current governance boundary on 2026-10-03 | `MAPPED`: `INV::DJC-CORE` | No unread ranges in this source; broader repository audit tracked separately |
 | `CORE_TD_TARGET_MATRIX` | `pcvantol/djconnect` / [docs/software_assurance/TRUSTED_DELIVERY_GOVERNANCE_TARGET_MATRIX.md](https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/software_assurance/TRUSTED_DELIVERY_GOVERNANCE_TARGET_MATRIX.md) | `192703ea79d3c65f373e69fa60d604555d4c2f5a` / `efbec878fb3905eb8b4b1bababac8d27fc5860ca` | full pinned source content reviewed for historical/current governance boundary on 2026-10-03 | `MAPPED`: `INV::DJC-CORE` | No unread ranges in this source; broader repository audit tracked separately |
 
+## Exact observed main-tree Markdown census
+
+Exact main trees at the 2026-10-03 11:45 UTC remote-head readback: core 192703ea, API 3f1ed18d and the other ten heads matching their source baselines. Path counts describe tracked Markdown files and their individual representation in this matrix, regardless of historical source-blob commit. Not-individually-included is a discovery/classification frontier, not a count of normative sources. The six triaged relative-link targets remain separate.
+
+| Lane | Observed tree | Tracked Markdown | Individually represented | Classification frontier |
+|---|---|---:|---:|---:|
+| `DJC-CORE` | `192703ea79d3c65f373e69fa60d604555d4c2f5a` | 880 | 199 | 681 |
+| `DJC-APPLE` | `d54224dbf02517ae47406aa14d33e97e61c18002` | 173 | 25 | 148 |
+| `DJC-ESP32` | `49a71f99f6435819ec00b7387520a3fd20640a0b` | 28 | 11 | 17 |
+| `DJC-PI` | `92712ae989f9ad44e2b935222a1e1053670a782f` | 33 | 18 | 15 |
+| `DJC-WINDOWS` | `1d6635ff5c610a0f43bf1ba7d68cb0b1def06924` | 117 | 25 | 92 |
+| `DJC-API` | `3f1ed18d2ce803a2b5d3750115d0dbf2dbaa34ba` | 28 | 14 | 14 |
+| `DJC-WEBSITE` | `6eef6aa267f18239b88f8edae6201dc62494e4eb` | 412 | 10 | 402 |
+| `DJC-VIBECAST` | `a901fbcd3e894af62b63fafbca8f96738e08ce3c` | 13 | 3 | 10 |
+| `DJC-PICO` | `6daf1f291566dea52adef604a7186b43755d871e` | 10 | 3 | 7 |
+| `DJC-DIST-FIRMWARE` | `cb9cc7ba321ca57675223dfac32f5583fbcb3656` | 15 | 8 | 7 |
+| `DJC-DIST-APPLE` | `02fa92f74b56fbc4223ee152d6f612559b84779d` | 15 | 8 | 7 |
+| `DJC-DIST-PI` | `673300921f980edc5ddfbb3ed5f5ca906b320b62` | 15 | 8 | 7 |
+
 ## Relative Markdown links awaiting source triage
 
 Every pinned core Markdown blob and every pinned Markdown blob in the eleven DJC component repositories, at its recorded commit: parse relative Markdown links, strip anchors, normalize against source directory, retain existing .md targets absent from the pinned source matrix; distinct repository/path keys. The seven pinned external Forge method documents are outside this lane-source link frontier.

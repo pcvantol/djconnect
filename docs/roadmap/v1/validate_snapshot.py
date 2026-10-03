@@ -207,6 +207,40 @@ def validate(plan: Any, require_complete: bool = False) -> list[str]:
             and all(isinstance(reason, str) and reason for reason in triage.values()),
             "reference scan needs one disposition for every unpinned path",
         )
+    census = plan.get("source_capture", {}).get("tree_census_readback", {})
+    if census:
+        rows = census.get("lanes")
+        check(
+            isinstance(rows, dict) and set(rows) == set(lanes),
+            "tree census must cover exactly one row per lane",
+        )
+        check(bool(census.get("observed_at")) and bool(census.get("boundary")), "tree census provenance missing")
+        if isinstance(rows, dict):
+            latest = plan.get("latest_head_readback", {}).get("heads", {})
+            for lid, row in rows.items():
+                if lid not in lanes or not isinstance(row, dict):
+                    continue
+                repo = lanes[lid]["repository"]
+                tracked = row.get("tracked_markdown")
+                included = row.get("included_markdown")
+                remaining = row.get("not_individually_included_markdown")
+                check(
+                    row.get("repository") == repo
+                    and row.get("commit_sha") == latest.get(repo)
+                    and bool(row.get("tree_readback")),
+                    f"{lid}: tree census identity/provenance mismatch",
+                )
+                check(
+                    all(type(n) is int and n >= 0 for n in (tracked, included, remaining))
+                    and tracked == included + remaining,
+                    f"{lid}: invalid tree census counts",
+                )
+                represented = {
+                    s.get("path")
+                    for s in sources.values()
+                    if s.get("repository") == repo and str(s.get("path", "")).endswith(".md")
+                }
+                check(included == len(represented), f"{lid}: included Markdown count differs from source matrix")
     for sid, source in sources.items():
         check(
             bool(SHA.fullmatch(str(source.get("blob_sha", "")))), f"{sid}: invalid source blob pin"

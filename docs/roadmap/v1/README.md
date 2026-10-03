@@ -14,6 +14,8 @@ Portfolio: https://github.com/pcvantol/djconnect/issues/1101. Pinned on 2026-10-
 
 The snapshot has 12 repository lanes, 354 pinned sources, 205 records and 82 typed relations. Records are not a feature count. 5 of 27 audit/delivery obligations are closed.
 
+Exact observed main trees contain 1739 tracked Markdown paths; 332 paths have individual source rows. The remaining 1407 paths still need relevance classification; they are not all presumed normative.
+
 ## Current five-item Execution Horizon
 
 This distribution order is retained from the current management/engineering records. Each item remains subject to its own evidence and explicit authorization.
@@ -34,7 +36,7 @@ The selected VibeCast reference increment still needs the Apple-owner to physica
 
 ## Current admission
 
-Host verification: `./scripts/runner/bootstrap_djconnect_macos_host.sh --verify` exited `0` with `MATCH / READY FOR DJCONNECT DEVELOPMENT` and onboarding `4.5.3`. This does not grant future product pickup. Current local Apple and Windows WIP is outside this planning writer.
+Host verification: `./scripts/runner/bootstrap_djconnect_macos_host.sh --verify` exited `0` with `MATCH / READY FOR DJCONNECT DEVELOPMENT` and onboarding `4.5.3`. This does not grant future product pickup. Current local ESP32 and Windows WIP is outside this planning writer.
 
 ## Findings
 

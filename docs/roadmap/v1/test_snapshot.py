@@ -120,6 +120,16 @@ class SnapshotTests(unittest.TestCase):
         scan["triage"].pop(scan["unmapped_paths"][0])
         self.assertIn("reference scan needs one disposition for every unpinned path", self.errors())
 
+    def test_tree_census_cannot_overstate_included_markdown(self):
+        row = self.p["source_capture"]["tree_census_readback"]["lanes"]["DJC-CORE"]
+        row["included_markdown"] += 1
+        row["not_individually_included_markdown"] -= 1
+        self.assertIn("DJC-CORE: included Markdown count differs from source matrix", self.errors())
+
+    def test_tree_census_requires_one_row_per_lane(self):
+        self.p["source_capture"]["tree_census_readback"]["lanes"].pop("DJC-PI")
+        self.assertIn("tree census must cover exactly one row per lane", self.errors())
+
     def test_audit_cannot_close_without_receipt(self):
         self.p["audit_obligations"][0]["status"] = "CLOSED"
         self.assertIn("closed audit lacks closure evidence", self.errors())

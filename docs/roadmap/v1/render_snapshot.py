@@ -37,11 +37,22 @@ def render(p: dict[str, Any]) -> dict[str, str]:
     ]
     for k, v in p["conclusions"].items():
         lines.append(f"| `{k}` | `{clean(v)}` |\n")
+    census = p.get("source_capture", {}).get("tree_census_readback", {})
     lines += [
         "\n",
         f"The snapshot has {len(p['lanes'])} repository lanes, {len(p['sources'])} pinned sources, "
         f"{len(p['nodes'])} records and {len(p['edges'])} typed relations. Records are not a feature count. "
         f"{done} of {len(p['audit_obligations'])} audit/delivery obligations are closed.\n\n",
+    ]
+    if census:
+        rows = census["lanes"].values()
+        tracked = sum(row["tracked_markdown"] for row in rows)
+        included = sum(row["included_markdown"] for row in rows)
+        lines.append(
+            f"Exact observed main trees contain {tracked} tracked Markdown paths; {included} paths have individual source rows. "
+            f"The remaining {tracked - included} paths still need relevance classification; they are not all presumed normative.\n\n"
+        )
+    lines += [
         "## Current five-item Execution Horizon\n\n",
         "This distribution order is retained from the current management/engineering records. Each item remains subject to its own evidence and explicit authorization.\n\n",
         "| Order | Planned item | Owning node | Direct condition |\n|---:|---|---|---|\n",
@@ -58,7 +69,7 @@ def render(p: dict[str, Any]) -> dict[str, str]:
         "The original selected E2E verification path is recorded complete in the candidate owning roadmap and backlog; optional additions remain deferred.\n\n",
         "## Current admission\n\n",
         f"Host verification: `{p['host_readiness']['command']}` exited `{p['host_readiness']['exit_code']}` with `{p['host_readiness']['verdict']}` and onboarding `{p['host_readiness']['onboarding']}`. "
-        "This does not grant future product pickup. Current local Apple and Windows WIP is outside this planning writer.\n\n",
+        "This does not grant future product pickup. Current local ESP32 and Windows WIP is outside this planning writer.\n\n",
         "## Findings\n\n",
     ]
     evidence = {e["id"]: e for e in p["evidence"]}
@@ -95,6 +106,16 @@ def render(p: dict[str, Any]) -> dict[str, str]:
         lines.append(
             f"| `{s['id']}` | `{s['repository']}` / [{clean(s['path'])}]({s['url']}) | `{s['commit_sha'] or 'UNKNOWN'}` / `{s['blob_sha']}` | {clean(s['read_boundary'])} | `{s['disposition']}`: {target} | {clean(s['remaining'])} |\n"
         )
+    if census:
+        lines += [
+            "\n## Exact observed main-tree Markdown census\n\n",
+            clean(census["boundary"]) + "\n\n",
+            "| Lane | Observed tree | Tracked Markdown | Individually represented | Classification frontier |\n|---|---|---:|---:|---:|\n",
+        ]
+        for lid, row in census["lanes"].items():
+            lines.append(
+                f"| `{lid}` | `{row['commit_sha']}` | {row['tracked_markdown']} | {row['included_markdown']} | {row['not_individually_included_markdown']} |\n"
+            )
     scan = p.get("source_capture", {}).get("reference_scan", {})
     if scan:
         lines += [
