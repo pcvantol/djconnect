@@ -54,6 +54,7 @@ class SnapshotTests(unittest.TestCase):
 
     def extra_edge(self, eid, a, b, mode="AND"):
         e = copy.deepcopy(self.p["edges"][0])
+        e.pop("same_increment_as_consumer", None)
         e.update(id=eid, producer=a, consumer=b, logical_mode=mode)
         self.p["edges"].append(e)
         self.n(b)["prerequisite_groups"].append({"mode": mode, "edge_ids": [eid]})
@@ -119,6 +120,11 @@ class SnapshotTests(unittest.TestCase):
     def test_horizon_cannot_duplicate_an_owner_node(self):
         self.p["execution_horizon"][1]["node"] = self.p["execution_horizon"][0]["node"]
         self.assertIn("horizon node missing or duplicated", self.errors())
+
+    def test_same_increment_contract_cannot_be_misread_as_start_gate(self):
+        edge = next(e for e in self.p["edges"] if e.get("same_increment_as_consumer"))
+        edge["prerequisite_stage"] = "start"
+        self.assertIn("same-increment contract must be a hard completion AND gate", self.errors())
 
     def test_desktop_waits_for_public_apple_release(self):
         edge = next(e for e in self.p["edges"] if e["id"] == "ROADMAP-DESKTOP-AFTER-APPLE-PUBLIC")

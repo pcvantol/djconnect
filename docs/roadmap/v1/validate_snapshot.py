@@ -325,6 +325,13 @@ def validate(plan: Any, require_complete: bool = False) -> list[str]:
             e.get("prerequisite_stage", "start") in {"start", "completion"},
             f"{eid}: invalid prerequisite stage",
         )
+        if e.get("same_increment_as_consumer"):
+            check(
+                e.get("prerequisite_stage") == "completion"
+                and e.get("logical_mode") == "AND"
+                and e.get("hard_precedence") is True,
+                f"{eid}: same-increment contract must be a hard completion AND gate",
+            )
         for field in ("required_subset", "reason", "contract_or_evidence", "source_ids"):
             check(bool(e.get(field)), f"{eid}: missing {field}")
         for sid in e.get("source_ids", []):

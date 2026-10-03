@@ -14,6 +14,7 @@ flowchart LR
   n32["Product and Community Readiness"]
   n33["Community Public Release"]
   n34["Desktop Platform Family adoption"]
+  n37["Ambient Light Renderer"]
   n38["VibeCast Community-critical versus Platform Adoption decision"]
   n46["Playback Observation Stage 2"]
   n47["Continue Stage 2"]
@@ -80,12 +81,19 @@ flowchart LR
   n193["Windows published channel and asset receipt"]
   n194["Apple Secure Distribution Relay install and smoke"]
   n195["Windows Internal Release deployment and smoke"]
+  n196["Four selected-scope Stage 2 observation capabilities"]
+  n197["Validated active Current Playback Projection"]
+  n198["Matching normalized live TrackStartedObservation"]
+  n199["Atomic Continue adoption, deduplication and silent rollback"]
+  n202["Universal Receiver product maturity gate"]
+  n203["Operational Room Presentation Routing gate"]
+  n204["Real ambient-light hardware evaluation gate"]
   choice0{"OR: one selected option"}
   n172 -.->|alternative| choice0
   n173 -.->|alternative| choice0
   choice0 -->|PER_INSTALL_USER_BACKEND| n174
-  n49 -->|implementation / start| n46
-  n49 -->|implementation / start| n47
+  n49 -->|implementation / completion| n46
+  n49 -->|implementation / completion| n47
   n30 -->|assessment / start| n48
   n57 -->|assessment / start| n48
   n58 -->|assessment / start| n48
@@ -146,3 +154,13 @@ flowchart LR
   n191 -->|release / start| n33
   n149 -->|qualification / start| n194
   n150 -->|qualification / start| n195
+  n196 -->|integration_acceptance / completion| n46
+  n197 -->|integration_acceptance / completion| n46
+  n198 -->|integration_acceptance / completion| n46
+  n196 -->|integration_acceptance / completion| n47
+  n197 -->|integration_acceptance / completion| n47
+  n198 -->|integration_acceptance / completion| n47
+  n199 -->|integration_acceptance / completion| n47
+  n202 -->|implementation / start| n37
+  n203 -->|implementation / start| n37
+  n204 -->|implementation / start| n37

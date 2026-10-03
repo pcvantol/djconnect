@@ -12,7 +12,7 @@ Portfolio: https://github.com/pcvantol/djconnect/issues/1101. Pinned on 2026-10-
 | `PRODUCT_DELIVERY` | `UNCHANGED_BY_PLANNING` |
 | `EXECUTION_READY` | `NO_NEW_PRODUCT_PICKUP_AUTHORIZED` |
 
-The snapshot has 12 repository lanes, 141 pinned sources, 196 records and 71 typed relations. Records are not a feature count. 5 of 27 audit/delivery obligations are closed.
+The snapshot has 12 repository lanes, 170 pinned sources, 205 records and 81 typed relations. Records are not a feature count. 5 of 27 audit/delivery obligations are closed.
 
 ## Current five-item Execution Horizon
 
@@ -52,6 +52,8 @@ Host verification: `./scripts/runner/bootstrap_djconnect_macos_host.sh --verify`
 - **CURRENT-WIP (OBSERVED_LOCAL_ONLY):** Apple and Windows checkouts contain unrelated WIP. This planning writer does not mutate their source worktrees or infer free capacity. Sources: `STATUS::DJC-APPLE`, `STATUS::DJC-WINDOWS`.
 - **CORE-MAIN-ARTIFACT (PROTECTED_MERGE_BLOCKED_BY_NO_RELEASE_SCOPE):** Successful core main validation unconditionally creates two GitHub prerelease objects: the internal HA artifact and durable qualification evidence. The current assignment prohibits releases and service/workflow changes. Branch/PR checks are safe from these main-only triggers; protected merge requires a separately authorized safe route or owner resolution. Sources: `CORE-INTERNAL-ARTIFACT`, `POST_MERGE`.
 - **LOCAL-BACKLOG-DISPOSITION (MAPPED_NOT_SELECTED):** Open local API, Apple, ESP32, Pi, Windows and website concerns remain with their owning backlogs; completed local records were not reissued as product work. Sources: `ISSUES::DJC-API`, `ISSUES::DJC-APPLE`, `TODO::DJC-ESP32`, `ISSUES::DJC-PI`, `ISSUES::DJC-WINDOWS`, `ISSUES::DJC-WEBSITE`.
+- **NORMATIVE-SOURCE-LINK-GAPS (OPEN_SOURCE_TRIAGE):** Independent exact-head review found 77 distinct unpinned Markdown links among 28 newly full-read core sources. Twenty-nine directly relevant additional core paths are now pinned and mapped beyond the original 141-source checkpoint, including the eight missing Runtime/Presentation authorities. A current local-link scan of the pinned core set still finds 34 second-level Markdown references without source rows; six are historical/deferred prompt examples and the remaining architecture, verification, release and governance references require relevance triage before full source closure. This is a source-audit obligation, not an implicit dependency or product selection. Sources: `FOUNDATION_INDEX`, `SESSION_RUNTIME_CONTRACTS`, `DJ_PRESENTATION_ARCH`.
+- **LOCALIZATION-DELIVERY-ORDER (FUTURE_ARCHITECTURE_ONLY):** Narrative Architecture orders future governance/typed outcome, native renderer resources, DJMoment history and Narrative Realization, Ask DJ/voice resolution, then Lyrics-safe renderer adoption and five-language qualification. Apple, Windows and Pi own native rendering; other distribution surfaces follow the five-language validation standard. No catalog, API or renderer work is selected here. Sources: `LOCALIZATION_NARRATIVE`, `LOCALIZATION_VALIDATION_SPEC`.
 
 ## Files and checks
 

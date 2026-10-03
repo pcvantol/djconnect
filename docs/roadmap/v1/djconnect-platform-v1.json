@@ -41,7 +41,7 @@
     "metadata_and_bounded_paraphrases": true,
     "offline_hash_verification_of_remote_blobs": false,
     "per_call_timestamps": "Date-level head readback on 2026-10-03; no per-file read timestamp for inherited checkpoint.",
-    "pinned_tree_blobs_verified": "141 of 141 path/blob pins matched exact commit trees: 105 original GitHub tree readbacks and 36 new local git commit-tree readbacks on 2026-10-03. Narrative interpretation remains partial."
+    "pinned_tree_blobs_verified": "170 of 170 path/blob pins matched exact commit trees: 105 original GitHub tree readbacks and 65 new local git commit-tree readbacks on 2026-10-03. Narrative interpretation remains partial."
   },
   "lanes": [
     {
@@ -1568,17 +1568,17 @@
       "path": "ENGINEERING_METHOD.md",
       "blob_sha": "797ea24863ac9d62479c54fcfc3b29f54fb5b338",
       "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
-      "read_boundary": "planning-relevant sections/headings; remaining full-text audit open",
-      "read_complete": false,
-      "status_authority": "Finalization and execution horizon semantics",
+      "read_boundary": "FULL_PINNED_DOCUMENT_READ",
+      "read_complete": true,
+      "status_authority": "Canonical operational method: five-item Execution Horizon, protected merge/Finalization and workspace cleanup semantics; no execution authority conferred.",
       "observed_at": "2026-10-03 local Mac / exact pinned main",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/ENGINEERING_METHOD.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
         "PROJ::AUDIT::METHOD"
       ],
-      "remaining": "Confirm unread ranges before final closure"
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
     },
     {
       "id": "PHASE_COMPLETION",
@@ -1586,17 +1586,17 @@
       "path": "docs/meta/PHASE_COMPLETION_PROTOCOL.md",
       "blob_sha": "d420e67cc0a09ac0dfefb692563de420c2915f7f",
       "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
-      "read_boundary": "planning-relevant sections/headings; remaining full-text audit open",
-      "read_complete": false,
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
       "status_authority": "completion and review workflow",
       "observed_at": "2026-10-03 local Mac / exact pinned main",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/meta/PHASE_COMPLETION_PROTOCOL.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
         "PROJ::AUDIT::METHOD"
       ],
-      "remaining": "Confirm unread ranges before final closure"
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
     },
     {
       "id": "RENDERER_ROADMAP",
@@ -1681,18 +1681,19 @@
       "path": "docs/technical/UNIVERSAL_RECEIVER_ARCHITECTURE.md",
       "blob_sha": "e84b2cf9f3d61be4114a238973f9860ce3f75730",
       "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
-      "read_boundary": "planning-relevant sections/headings; remaining full-text audit open",
-      "read_complete": false,
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
       "status_authority": "Universal Receiver contract",
       "observed_at": "2026-10-03 local Mac / exact pinned main",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/technical/UNIVERSAL_RECEIVER_ARCHITECTURE.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
         "PROJ::ROADMAP::P2-REFERENCE",
-        "SLICE::CORE::BROADCAST-CONTRACT"
+        "SLICE::CORE::BROADCAST-CONTRACT",
+        "PROJ::GATE::RECEIVER-MATURITY"
       ],
-      "remaining": "Confirm unread ranges before final closure"
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
     },
     {
       "id": "RENDERER_HOST",
@@ -1700,17 +1701,17 @@
       "path": "docs/technical/RENDERER_HOST_CLASSIFICATION.md",
       "blob_sha": "e5858a4894fa2608ae37c30b91b1efc22b3383ca",
       "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
-      "read_boundary": "planning-relevant sections/headings; remaining full-text audit open",
-      "read_complete": false,
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
       "status_authority": "renderer host classification",
       "observed_at": "2026-10-03 local Mac / exact pinned main",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/technical/RENDERER_HOST_CLASSIFICATION.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
         "PROJ::ROADMAP::P2-REFERENCE"
       ],
-      "remaining": "Confirm unread ranges before final closure"
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
     },
     {
       "id": "COMPONENT_RELEASE",
@@ -2469,18 +2470,19 @@
       "path": "docs/technical/ROOM_PRESENTATION_ROUTING_ARCHITECTURE.md",
       "blob_sha": "28447e2d2599ab67c66dfa9dbd7084eaa95d3643",
       "commit_sha": "60d5ee2e034323515092cd4100b1683f588e59fc",
-      "read_boundary": "direct canonical reference and exact blob pin captured; detailed content audit pending",
-      "read_complete": false,
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
       "status_authority": "room presentation routing",
       "observed_at": "2026-10-03 local Mac / exact pinned baseline",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect/blob/60d5ee2e034323515092cd4100b1683f588e59fc/docs/technical/ROOM_PRESENTATION_ROUTING_ARCHITECTURE.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
         "PROJ::ROADMAP::P2-REFERENCE",
-        "PROJ::ROADMAP::P2-SESSION"
+        "PROJ::ROADMAP::P2-SESSION",
+        "PROJ::GATE::ROOM-ROUTING-OPERATIONAL"
       ],
-      "remaining": "Audit content and follow next-level references before source closure"
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
     },
     {
       "id": "AUDIO_RENDERER",
@@ -2488,17 +2490,17 @@
       "path": "docs/technical/AUDIO_RENDERER_HOST_ARCHITECTURE.md",
       "blob_sha": "9b107bd956a0e556bb77febf3f08ef32d63d0d25",
       "commit_sha": "60d5ee2e034323515092cd4100b1683f588e59fc",
-      "read_boundary": "direct canonical reference and exact blob pin captured; detailed content audit pending",
-      "read_complete": false,
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
       "status_authority": "audio renderer host",
       "observed_at": "2026-10-03 local Mac / exact pinned baseline",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect/blob/60d5ee2e034323515092cd4100b1683f588e59fc/docs/technical/AUDIO_RENDERER_HOST_ARCHITECTURE.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
         "PROJ::ROADMAP::P2-REFERENCE"
       ],
-      "remaining": "Audit content and follow next-level references before source closure"
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
     },
     {
       "id": "AMBIENT_LIGHT",
@@ -2506,18 +2508,21 @@
       "path": "docs/technical/AMBIENT_LIGHT_RENDERER_HOST_ARCHITECTURE.md",
       "blob_sha": "3def6e5ed423975361f43b760000ba83b085f255",
       "commit_sha": "60d5ee2e034323515092cd4100b1683f588e59fc",
-      "read_boundary": "direct canonical reference and exact blob pin captured; detailed content audit pending",
-      "read_complete": false,
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
       "status_authority": "ambient light renderer host",
       "observed_at": "2026-10-03 local Mac / exact pinned baseline",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect/blob/60d5ee2e034323515092cd4100b1683f588e59fc/docs/technical/AMBIENT_LIGHT_RENDERER_HOST_ARCHITECTURE.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
         "PROJ::ROADMAP::P2-REFERENCE",
-        "PROJ::ROADMAP::AMBIENT-LIGHT"
+        "PROJ::ROADMAP::AMBIENT-LIGHT",
+        "PROJ::GATE::RECEIVER-MATURITY",
+        "PROJ::GATE::ROOM-ROUTING-OPERATIONAL",
+        "PROJ::GATE::AMBIENT-LIGHT-HARDWARE"
       ],
-      "remaining": "Audit content and follow next-level references before source closure"
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
     },
     {
       "id": "AUDIENCE_EXPERIENCE",
@@ -2525,19 +2530,19 @@
       "path": "docs/product/AUDIENCE_EXPERIENCE_ARCHITECTURE.md",
       "blob_sha": "14955bb7a553c1bee96356e4915b237a3429ba0a",
       "commit_sha": "60d5ee2e034323515092cd4100b1683f588e59fc",
-      "read_boundary": "direct canonical reference and exact blob pin captured; detailed content audit pending",
-      "read_complete": false,
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
       "status_authority": "audience architecture; deferred",
       "observed_at": "2026-10-03 local Mac / exact pinned baseline",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect/blob/60d5ee2e034323515092cd4100b1683f588e59fc/docs/product/AUDIENCE_EXPERIENCE_ARCHITECTURE.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
         "PROJ::ROADMAP::P2-REFERENCE",
         "PROJ::ROADMAP::AUDIENCE",
         "PROJ::ROADMAP::AUDIENCE-OBSERVATION"
       ],
-      "remaining": "Audit content and follow next-level references before source closure"
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
     },
     {
       "id": "CLIENT_CONNECTIVITY_ARCH",
@@ -2545,19 +2550,19 @@
       "path": "docs/technical/CLIENT_CONNECTIVITY_RESILIENCE_ARCHITECTURE.md",
       "blob_sha": "ea7c838a4fa6c3bb3bada9908d5d1374fe082646",
       "commit_sha": "60d5ee2e034323515092cd4100b1683f588e59fc",
-      "read_boundary": "direct canonical reference and exact blob pin captured; detailed content audit pending",
-      "read_complete": false,
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
       "status_authority": "connectivity qualification",
       "observed_at": "2026-10-03 local Mac / exact pinned baseline",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect/blob/60d5ee2e034323515092cd4100b1683f588e59fc/docs/technical/CLIENT_CONNECTIVITY_RESILIENCE_ARCHITECTURE.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
         "PROJ::ROADMAP::CONNECTIVITY",
         "PROJ::EVOLUTION::CONNECTIVITY",
         "HA-ONBOARDING-001"
       ],
-      "remaining": "Audit content and follow next-level references before source closure"
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
     },
     {
       "id": "PI4_PROFILE",
@@ -2622,17 +2627,17 @@
       "path": "docs/product/PRODUCT_DEFINITION.md",
       "blob_sha": "92ba7c105d0f32e3cff29b00c5c2d9fa2eb39760",
       "commit_sha": "60d5ee2e034323515092cd4100b1683f588e59fc",
-      "read_boundary": "direct canonical reference and exact blob pin captured; detailed content audit pending",
-      "read_complete": false,
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
       "status_authority": "product definition",
       "observed_at": "2026-10-03 local Mac / exact pinned baseline",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect/blob/60d5ee2e034323515092cd4100b1683f588e59fc/docs/product/PRODUCT_DEFINITION.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
         "PROJ::ROADMAP::P0-DEFINITION"
       ],
-      "remaining": "Audit content and follow next-level references before source closure"
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
     },
     {
       "id": "PI_FOUNDATION",
@@ -2640,19 +2645,19 @@
       "path": "RASPBERRY_PI_PLATFORM_FOUNDATION.md",
       "blob_sha": "49facc13cf1cc064fe30cad09380e3cbab7e1d7b",
       "commit_sha": "60d5ee2e034323515092cd4100b1683f588e59fc",
-      "read_boundary": "direct canonical reference and exact blob pin captured; detailed content audit pending",
-      "read_complete": false,
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
       "status_authority": "Raspberry Pi platform foundation",
       "observed_at": "2026-10-03 local Mac / exact pinned baseline",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect/blob/60d5ee2e034323515092cd4100b1683f588e59fc/RASPBERRY_PI_PLATFORM_FOUNDATION.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
         "PROJ::ROADMAP::P0-FOUNDATION",
         "CMB-05",
         "CMB-06"
       ],
-      "remaining": "Audit content and follow next-level references before source closure"
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
     },
     {
       "id": "SESSION_DIRECTION_ARCH",
@@ -2660,17 +2665,17 @@
       "path": "docs/technical/SESSION_DIRECTION_PROJECTION_ARCHITECTURE.md",
       "blob_sha": "c3431e142e3056880c21894c3f0b132ea773d5c1",
       "commit_sha": "60d5ee2e034323515092cd4100b1683f588e59fc",
-      "read_boundary": "direct canonical reference and exact blob pin captured; detailed content audit pending",
-      "read_complete": false,
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
       "status_authority": "session direction projection",
       "observed_at": "2026-10-03 local Mac / exact pinned baseline",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect/blob/60d5ee2e034323515092cd4100b1683f588e59fc/docs/technical/SESSION_DIRECTION_PROJECTION_ARCHITECTURE.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
         "PROJ::ROADMAP::DIRECTION"
       ],
-      "remaining": "Audit content and follow next-level references before source closure"
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
     },
     {
       "id": "ESPHOME_ARCH",
@@ -2678,18 +2683,18 @@
       "path": "docs/technical/ESPHOME_FIRMWARE_PLATFORM_ARCHITECTURE.md",
       "blob_sha": "521c42bdf1bdf8a373d0299c932cfc81b6709da8",
       "commit_sha": "60d5ee2e034323515092cd4100b1683f588e59fc",
-      "read_boundary": "direct canonical reference and exact blob pin captured; detailed content audit pending",
-      "read_complete": false,
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
       "status_authority": "ESPHome adoption architecture",
       "observed_at": "2026-10-03 local Mac / exact pinned baseline",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect/blob/60d5ee2e034323515092cd4100b1683f588e59fc/docs/technical/ESPHOME_FIRMWARE_PLATFORM_ARCHITECTURE.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
         "PROJ::ROADMAP::ESPHOME",
         "PROJ::EVOLUTION::ESPHOME"
       ],
-      "remaining": "Audit content and follow next-level references before source closure"
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
     },
     {
       "id": "SHARING_ARCH",
@@ -2697,18 +2702,18 @@
       "path": "docs/product/SHARING_EXPERIENCE_ARCHITECTURE.md",
       "blob_sha": "8c8d00bb86e2236a559877ac3a4824a7677caef6",
       "commit_sha": "60d5ee2e034323515092cd4100b1683f588e59fc",
-      "read_boundary": "direct canonical reference and exact blob pin captured; detailed content audit pending",
-      "read_complete": false,
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
       "status_authority": "sharing assessment",
       "observed_at": "2026-10-03 local Mac / exact pinned baseline",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect/blob/60d5ee2e034323515092cd4100b1683f588e59fc/docs/product/SHARING_EXPERIENCE_ARCHITECTURE.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
         "PROJ::ROADMAP::SHARING",
         "CMB-11"
       ],
-      "remaining": "Audit content and follow next-level references before source closure"
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
     },
     {
       "id": "RELEASE_OBSERVATORY",
@@ -2716,17 +2721,17 @@
       "path": "docs/platform_evolution/PLATFORM_RELEASE_OBSERVATORY_DESIGN.md",
       "blob_sha": "61e41f63d3a3d9503667f5aba46733c822ccc58b",
       "commit_sha": "60d5ee2e034323515092cd4100b1683f588e59fc",
-      "read_boundary": "direct canonical reference and exact blob pin captured; detailed content audit pending",
-      "read_complete": false,
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
       "status_authority": "release observatory assessment",
       "observed_at": "2026-10-03 local Mac / exact pinned baseline",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect/blob/60d5ee2e034323515092cd4100b1683f588e59fc/docs/platform_evolution/PLATFORM_RELEASE_OBSERVATORY_DESIGN.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
         "PROJ::EVOLUTION::OBSERVATORY"
       ],
-      "remaining": "Audit content and follow next-level references before source closure"
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
     },
     {
       "id": "CAPABILITY_PREFLIGHT",
@@ -2788,17 +2793,17 @@
       "path": "docs/release/COMPONENT_RELEASE_SCOPE_REFINEMENT.md",
       "blob_sha": "b756556341ffe31bd549902e9d93cb89ffc8adc7",
       "commit_sha": "60d5ee2e034323515092cd4100b1683f588e59fc",
-      "read_boundary": "direct canonical reference and exact blob pin captured; detailed content audit pending",
-      "read_complete": false,
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
       "status_authority": "component release scope refinement",
       "observed_at": "2026-10-03 local Mac / exact pinned baseline",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect/blob/60d5ee2e034323515092cd4100b1683f588e59fc/docs/release/COMPONENT_RELEASE_SCOPE_REFINEMENT.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
         "PROJ::EVOLUTION::COMPONENT-RELEASE"
       ],
-      "remaining": "Audit content and follow next-level references before source closure"
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
     },
     {
       "id": "V4_HISTORICAL",
@@ -2806,17 +2811,17 @@
       "path": "DJCONNECT_V4_COMPLETION_ROADMAP.md",
       "blob_sha": "a0daa040cb94c840cfd6b74cb8546defcacea41c",
       "commit_sha": "60d5ee2e034323515092cd4100b1683f588e59fc",
-      "read_boundary": "direct canonical reference and exact blob pin captured; detailed content audit pending",
-      "read_complete": false,
-      "status_authority": "historical V4 completion",
+      "read_boundary": "FULL_PINNED_DOCUMENT_READ",
+      "read_complete": true,
+      "status_authority": "Historical V4 transition and completed Runtime evidence; its former next-capability labels do not override current Product Roadmap or later E2E completion.",
       "observed_at": "2026-10-03 local Mac / exact pinned baseline",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect/blob/60d5ee2e034323515092cd4100b1683f588e59fc/DJCONNECT_V4_COMPLETION_ROADMAP.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
         "PROJ::ROADMAP::V4-HISTORY"
       ],
-      "remaining": "Audit content and follow next-level references before source closure"
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
     },
     {
       "id": "GEN2_HISTORICAL",
@@ -2824,17 +2829,17 @@
       "path": "GENERATION_2_PROGRAM_RECONCILIATION.md",
       "blob_sha": "f6149e40a00a73496b32492f488cbf023f4e7559",
       "commit_sha": "60d5ee2e034323515092cd4100b1683f588e59fc",
-      "read_boundary": "direct canonical reference and exact blob pin captured; detailed content audit pending",
-      "read_complete": false,
-      "status_authority": "historical Generation 2 reconciliation",
+      "read_boundary": "FULL_PINNED_DOCUMENT_READ",
+      "read_complete": true,
+      "status_authority": "Generation 2 reconciliation gives program ownership and phase vocabulary; its E2E current-execution line is historical against later merged completion/status records.",
       "observed_at": "2026-10-03 local Mac / exact pinned baseline",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect/blob/60d5ee2e034323515092cd4100b1683f588e59fc/GENERATION_2_PROGRAM_RECONCILIATION.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
         "PROJ::EVOLUTION::EP2-HISTORY"
       ],
-      "remaining": "Audit content and follow next-level references before source closure"
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
     },
     {
       "id": "APPLE_RELEASE_ARCH",
@@ -2941,18 +2946,18 @@
       "path": "docs/product/PRODUCT_STRATEGY.md",
       "blob_sha": "cf67dbf64d618c34b36678159aaba627673bde62",
       "commit_sha": "60d5ee2e034323515092cd4100b1683f588e59fc",
-      "read_boundary": "direct current canonical reference and exact blob pin captured; detailed source audit pending",
-      "read_complete": false,
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
       "status_authority": "product strategy reference",
       "observed_at": "2026-10-03 local Mac / exact pinned baseline",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect/blob/60d5ee2e034323515092cd4100b1683f588e59fc/docs/product/PRODUCT_STRATEGY.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
         "PROJ::ROADMAP::P0-DEFINITION",
         "PROJ::ROADMAP::P1-INTELLIGENCE"
       ],
-      "remaining": "Read relevant status/evidence and follow ownership boundary before closure"
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
     },
     {
       "id": "EP1_COMPLETION",
@@ -2960,17 +2965,17 @@
       "path": "docs/engineering/ENGINEERING_PLATFORM_1_X_COMPLETION_REPORT.md",
       "blob_sha": "01bd93d2ad77c0f4748597ae29321d6534fa08de",
       "commit_sha": "60d5ee2e034323515092cd4100b1683f588e59fc",
-      "read_boundary": "direct current canonical reference and exact blob pin captured; detailed source audit pending",
-      "read_complete": false,
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
       "status_authority": "historical EP1 completion evidence",
       "observed_at": "2026-10-03 local Mac / exact pinned baseline",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect/blob/60d5ee2e034323515092cd4100b1683f588e59fc/docs/engineering/ENGINEERING_PLATFORM_1_X_COMPLETION_REPORT.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
         "PROJ::EVOLUTION::EP1-COMPLETE"
       ],
-      "remaining": "Read relevant status/evidence and follow ownership boundary before closure"
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
     },
     {
       "id": "RELEASE_MANAGEMENT_SUMMARY",
@@ -2978,20 +2983,20 @@
       "path": "docs/release/PLATFORM_RELEASE_MANAGEMENT_SUMMARY.md",
       "blob_sha": "d96f34e0826b69d436be81b7bc124ce88592ee44",
       "commit_sha": "60d5ee2e034323515092cd4100b1683f588e59fc",
-      "read_boundary": "direct current canonical reference and exact blob pin captured; detailed source audit pending",
-      "read_complete": false,
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
       "status_authority": "release-management reference",
       "observed_at": "2026-10-03 local Mac / exact pinned baseline",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect/blob/60d5ee2e034323515092cd4100b1683f588e59fc/docs/release/PLATFORM_RELEASE_MANAGEMENT_SUMMARY.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
         "PROJ::EVOLUTION::APPLE-PUBLIC",
         "PROJ::EVOLUTION::WINDOWS-PUBLIC",
         "PROJ::EVOLUTION::HACS-PUBLIC",
         "PROJ::EVOLUTION::FW-OTA"
       ],
-      "remaining": "Read relevant status/evidence and follow ownership boundary before closure"
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
     },
     {
       "id": "EVIDENCE_PRESERVATION",
@@ -2999,17 +3004,17 @@
       "path": "docs/software_assurance/EVIDENCE_PRESERVATION_IMPLEMENTATION_REPORT.md",
       "blob_sha": "ccdb8aa0105f73c3186583053a2918768684839f",
       "commit_sha": "60d5ee2e034323515092cd4100b1683f588e59fc",
-      "read_boundary": "direct current canonical reference and exact blob pin captured; detailed source audit pending",
-      "read_complete": false,
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
       "status_authority": "historical TD-GITHUB implementation evidence",
       "observed_at": "2026-10-03 local Mac / exact pinned baseline",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect/blob/60d5ee2e034323515092cd4100b1683f588e59fc/docs/software_assurance/EVIDENCE_PRESERVATION_IMPLEMENTATION_REPORT.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
         "TD-GITHUB-001"
       ],
-      "remaining": "Read relevant status/evidence and follow ownership boundary before closure"
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
     },
     {
       "id": "HACS_CI_ASSESSMENT",
@@ -3017,17 +3022,17 @@
       "path": "docs/software_assurance/HACS_PR_VALIDATION_RELIABILITY_ASSESSMENT.md",
       "blob_sha": "7763789c70506b6f6af5db1147c7821c351e1a49",
       "commit_sha": "60d5ee2e034323515092cd4100b1683f588e59fc",
-      "read_boundary": "direct current canonical reference and exact blob pin captured; detailed source audit pending",
-      "read_complete": false,
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
       "status_authority": "HACS PR validation assessment",
       "observed_at": "2026-10-03 local Mac / exact pinned baseline",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect/blob/60d5ee2e034323515092cd4100b1683f588e59fc/docs/software_assurance/HACS_PR_VALIDATION_RELIABILITY_ASSESSMENT.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
         "HACS-CI-PR-REF-001"
       ],
-      "remaining": "Read relevant status/evidence and follow ownership boundary before closure"
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
     },
     {
       "id": "DEPENDENCY_GOV_POLICY",
@@ -3035,17 +3040,17 @@
       "path": "docs/software_assurance/PLATFORM_DEPENDENCY_GOVERNANCE_POLICY.md",
       "blob_sha": "6fb9f80ede08cbb0e23acb5b5d389673a4b37588",
       "commit_sha": "60d5ee2e034323515092cd4100b1683f588e59fc",
-      "read_boundary": "direct current canonical reference and exact blob pin captured; detailed source audit pending",
-      "read_complete": false,
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
       "status_authority": "platform dependency governance policy",
       "observed_at": "2026-10-03 local Mac / exact pinned baseline",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect/blob/60d5ee2e034323515092cd4100b1683f588e59fc/docs/software_assurance/PLATFORM_DEPENDENCY_GOVERNANCE_POLICY.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
         "PROJ::EVOLUTION::DEPENDENCY-GOV"
       ],
-      "remaining": "Read relevant status/evidence and follow ownership boundary before closure"
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
     },
     {
       "id": "TD_GITHUB_ASSESSMENT",
@@ -3053,17 +3058,17 @@
       "path": "docs/software_assurance/TD_GITHUB_001_RETENTION_EVIDENCE_ASSESSMENT.md",
       "blob_sha": "b5c963e2a762098d0b9121fecd0297cefb82122b",
       "commit_sha": "60d5ee2e034323515092cd4100b1683f588e59fc",
-      "read_boundary": "direct current canonical reference and exact blob pin captured; detailed source audit pending",
-      "read_complete": false,
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
       "status_authority": "TD-GITHUB retention assessment",
       "observed_at": "2026-10-03 local Mac / exact pinned baseline",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect/blob/60d5ee2e034323515092cd4100b1683f588e59fc/docs/software_assurance/TD_GITHUB_001_RETENTION_EVIDENCE_ASSESSMENT.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
         "TD-GITHUB-001"
       ],
-      "remaining": "Read relevant status/evidence and follow ownership boundary before closure"
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
     },
     {
       "id": "LOCALIZATION_NARRATIVE",
@@ -3080,7 +3085,10 @@
       "disposition": "MAPPED",
       "mapped_node_ids": [
         "PROJ::ROADMAP::P0-FOUNDATION",
-        "PROJ::ROADMAP::P3-APPLE"
+        "PROJ::ROADMAP::P3-APPLE",
+        "INV::DJC-APPLE",
+        "INV::DJC-WINDOWS",
+        "INV::DJC-PI"
       ],
       "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
     },
@@ -3099,7 +3107,16 @@
       "disposition": "MAPPED",
       "mapped_node_ids": [
         "PROJ::ROADMAP::P0-FOUNDATION",
-        "PROJ::AUDIT::METHOD"
+        "PROJ::AUDIT::METHOD",
+        "INV::DJC-APPLE",
+        "INV::DJC-WINDOWS",
+        "INV::DJC-PI",
+        "INV::DJC-ESP32",
+        "INV::DJC-API",
+        "INV::DJC-WEBSITE",
+        "INV::DJC-DIST-FIRMWARE",
+        "INV::DJC-DIST-APPLE",
+        "INV::DJC-DIST-PI"
       ],
       "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
     },
@@ -3138,6 +3155,554 @@
       "mapped_node_ids": [
         "PROJ::ROADMAP::P0-FOUNDATION",
         "PROJ::ROADMAP::P2-REFERENCE"
+      ],
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
+    },
+    {
+      "id": "PERSISTENT_SESSION_ARCH",
+      "repository": "pcvantol/djconnect",
+      "path": "PERSISTENT_SESSION_ARCHITECTURE.md",
+      "blob_sha": "49fc214b7eb965bc37fd58c9cd88a1942e3b8c55",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "persistent Session ownership and ephemeral Runtime contract",
+      "observed_at": "2026-10-03 local Mac / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/PERSISTENT_SESSION_ARCHITECTURE.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::ROADMAP::P0-FOUNDATION"
+      ],
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
+    },
+    {
+      "id": "ROLLING_HORIZON_ARCH",
+      "repository": "pcvantol/djconnect",
+      "path": "ROLLING_SESSION_HORIZON_ARCHITECTURE.md",
+      "blob_sha": "18222e7d3ce9de2b3ca1b53faa5c280e9a6bb2c5",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "accepted future Planner Horizon architecture",
+      "observed_at": "2026-10-03 local Mac / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/ROLLING_SESSION_HORIZON_ARCHITECTURE.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::ROADMAP::P0-FOUNDATION"
+      ],
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
+    },
+    {
+      "id": "FLOW_RECOVERY_ARCH",
+      "repository": "pcvantol/djconnect",
+      "path": "SESSION_FLOW_RECOVERY_ARCHITECTURE.md",
+      "blob_sha": "af423ceb0147086ee27df976f04f19b9a2d3fb3e",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "current and deferred Flow/Broadcast recovery contract",
+      "observed_at": "2026-10-03 local Mac / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/SESSION_FLOW_RECOVERY_ARCHITECTURE.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::ROADMAP::P0-FOUNDATION",
+        "PROJ::ROADMAP::P2-REFERENCE"
+      ],
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
+    },
+    {
+      "id": "CONTINUE_PLAYBACK_CONTRACT",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/product/CONTINUE_CURRENT_PLAYBACK_CONTINUITY.md",
+      "blob_sha": "f01cd03277a28ca965fefd87afed07f0abae2699",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "strict Continue Stage 2 architecture and bounded atomic implementation",
+      "observed_at": "2026-10-03 local Mac / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/product/CONTINUE_CURRENT_PLAYBACK_CONTINUITY.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::ROADMAP::PLAYBACK-STAGE2",
+        "PROJ::ROADMAP::CONTINUE-STAGE2",
+        "PROJ::GATE::STAGE2-CAPABILITY-SCOPE",
+        "PROJ::GATE::CURRENT-PLAYBACK-PROJECTION",
+        "PROJ::GATE::LIVE-TRACKSTARTED",
+        "PROJ::GATE::ATOMIC-CONTINUE-ADOPTION"
+      ],
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
+    },
+    {
+      "id": "LIVE_PLAYBACK_OBSERVATION",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/product/LIVE_PLAYBACK_OBSERVATION.md",
+      "blob_sha": "2bda8d0132f2a1b2e4108181749b1b7db884d95d",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Stage 1 Spotify current and Music Assistant deferred observation status",
+      "observed_at": "2026-10-03 local Mac / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/product/LIVE_PLAYBACK_OBSERVATION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::ROADMAP::PLAYBACK-STAGE2",
+        "PROJ::ROADMAP::CONTINUE-STAGE2",
+        "OBS::CORE::SPOTIFY-STAGE1",
+        "PROJ::ROADMAP::MA-STAGE1"
+      ],
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
+    },
+    {
+      "id": "PRESENTATION_COMPOSER_ARCH",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/product/PRESENTATION_COMPOSER_ARCHITECTURE.md",
+      "blob_sha": "40a6e2079f35d5e0634f162e00b6a83b3d7f741e",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "implemented bounded Composer and deferred renderer consumption",
+      "observed_at": "2026-10-03 local Mac / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/product/PRESENTATION_COMPOSER_ARCHITECTURE.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::ROADMAP::P0-FOUNDATION",
+        "PROJ::ROADMAP::P2-REFERENCE"
+      ],
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
+    },
+    {
+      "id": "PRESENTATION_CAPABILITY_ARCH",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/product/PRESENTATION_CAPABILITY_ARCHITECTURE.md",
+      "blob_sha": "03af33199c0f80cbea36bdfbc7fe9f05f016a195",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "current and deferred independent Presentation capabilities",
+      "observed_at": "2026-10-03 local Mac / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/product/PRESENTATION_CAPABILITY_ARCHITECTURE.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::ROADMAP::P0-FOUNDATION",
+        "PROJ::ROADMAP::P2-REFERENCE",
+        "PROJ::ROADMAP::AMBIENT-LIGHT"
+      ],
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
+    },
+    {
+      "id": "SPEECH_RENDERING_CONTRACT",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/technical/SPEECH_RENDERING_CONTRACT.md",
+      "blob_sha": "076915b83beadfab3fc1379bd2c77de1f04fed75",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "renderer-neutral speech presentation consumption",
+      "observed_at": "2026-10-03 local Mac / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/technical/SPEECH_RENDERING_CONTRACT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::ROADMAP::P2-REFERENCE"
+      ],
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
+    },
+    {
+      "id": "PLATFORM_BACKLOG_ARCHIVE",
+      "repository": "pcvantol/djconnect",
+      "path": "PLATFORM_BACKLOG.md",
+      "blob_sha": "ed35c4cee060c7ef038b4a6975e5a162c186f806",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "exact pinned source captured; complete planning-relevant full-text audit pending",
+      "read_complete": false,
+      "status_authority": "Generation 1 historical platform backlog, not active authority",
+      "observed_at": "2026-10-03 local Mac / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/PLATFORM_BACKLOG.md",
+      "disposition": "MAPPED_PARTIAL",
+      "mapped_node_ids": [
+        "PROJ::ROADMAP::P0-FOUNDATION"
+      ],
+      "remaining": "Read full source and reconcile current vs historical scope before closure"
+    },
+    {
+      "id": "INNOVATION_LAB",
+      "repository": "pcvantol/djconnect",
+      "path": "INNOVATION_LAB.md",
+      "blob_sha": "f399f2201de5d00fc59a59dbc9d4973e57a00e57",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "exact pinned source captured; complete planning-relevant full-text audit pending",
+      "read_complete": false,
+      "status_authority": "idea and research inventory, not selected product backlog",
+      "observed_at": "2026-10-03 local Mac / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/INNOVATION_LAB.md",
+      "disposition": "MAPPED_PARTIAL",
+      "mapped_node_ids": [
+        "PROJ::INNOVATION::AMBIENT"
+      ],
+      "remaining": "Read full source and reconcile current vs historical scope before closure"
+    },
+    {
+      "id": "ADR_INDEX",
+      "repository": "pcvantol/djconnect",
+      "path": "ADR_INDEX.md",
+      "blob_sha": "6817a1ff5155bcf155863f5e500bd1e7b3cf4e2c",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "accepted and planned architecture decision index",
+      "observed_at": "2026-10-03 local Mac / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/ADR_INDEX.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::ROADMAP::P0-FOUNDATION",
+        "PROJ::AUDIT::METHOD"
+      ],
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
+    },
+    {
+      "id": "CI_CD_GOVERNANCE",
+      "repository": "pcvantol/djconnect",
+      "path": "CI_CD_RELEASE_GOVERNANCE.md",
+      "blob_sha": "fa1adddf3104a22a6df0bcb4800a2d6eccb3e661",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "platform CI, privacy and release governance",
+      "observed_at": "2026-10-03 local Mac / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/CI_CD_RELEASE_GOVERNANCE.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::AUDIT::METHOD"
+      ],
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
+    },
+    {
+      "id": "BASELINE_V1",
+      "repository": "pcvantol/djconnect",
+      "path": "PLATFORM_BASELINE_v1.md",
+      "blob_sha": "d0fd7e699130e676f837a081587d30bdff1f545e",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03; older baseline status reconciled against certification",
+      "read_complete": true,
+      "status_authority": "accepted implementation baseline",
+      "observed_at": "2026-10-03 local Mac / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/PLATFORM_BASELINE_v1.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::ROADMAP::P0-FOUNDATION"
+      ],
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
+    },
+    {
+      "id": "BASELINE_1_0",
+      "repository": "pcvantol/djconnect",
+      "path": "PLATFORM_BASELINE_1_0.md",
+      "blob_sha": "13c3b83d85d26bdec0da5345464b72db827a160b",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03; older baseline status reconciled against certification",
+      "read_complete": true,
+      "status_authority": "baseline 1.0 assessment",
+      "observed_at": "2026-10-03 local Mac / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/PLATFORM_BASELINE_1_0.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::ROADMAP::P0-FOUNDATION"
+      ],
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
+    },
+    {
+      "id": "BASELINE_CERT",
+      "repository": "pcvantol/djconnect",
+      "path": "PLATFORM_BASELINE_CERTIFICATION.md",
+      "blob_sha": "832e6e491e66f837f0d33ede1d8ce12ad374855f",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03; older baseline status reconciled against certification",
+      "read_complete": true,
+      "status_authority": "baseline certification result and evidence",
+      "observed_at": "2026-10-03 local Mac / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/PLATFORM_BASELINE_CERTIFICATION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::ROADMAP::P0-FOUNDATION"
+      ],
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
+    },
+    {
+      "id": "BASELINE_GAPS",
+      "repository": "pcvantol/djconnect",
+      "path": "PLATFORM_BASELINE_GAP_ANALYSIS.md",
+      "blob_sha": "6b2f27b0c00bb7ec20e550c61b4665729127a194",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03; older baseline status reconciled against certification",
+      "read_complete": true,
+      "status_authority": "historical qualification gaps",
+      "observed_at": "2026-10-03 local Mac / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/PLATFORM_BASELINE_GAP_ANALYSIS.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::ROADMAP::P0-FOUNDATION"
+      ],
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
+    },
+    {
+      "id": "META_INDEX",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/meta/META_ENGINEERING_INDEX.md",
+      "blob_sha": "75494e3c5971a4004589ee5ca4f0c4c75911a4a9",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03; older baseline status reconciled against certification",
+      "read_complete": true,
+      "status_authority": "canonical Meta Engineering navigation and method",
+      "observed_at": "2026-10-03 local Mac / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/meta/META_ENGINEERING_INDEX.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::AUDIT::METHOD"
+      ],
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
+    },
+    {
+      "id": "SOFTWARE_ASSURANCE_PLATFORM",
+      "repository": "pcvantol/djconnect",
+      "path": "SOFTWARE_ASSURANCE_PLATFORM.md",
+      "blob_sha": "52b6d96864f18adcdcff919bbb19a5d8bcf8d570",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "platform assurance ownership and quality boundary",
+      "observed_at": "2026-10-03 local Mac / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/SOFTWARE_ASSURANCE_PLATFORM.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::AUDIT::METHOD"
+      ],
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
+    },
+    {
+      "id": "SOFTWARE_ASSURANCE_ARCH",
+      "repository": "pcvantol/djconnect",
+      "path": "SOFTWARE_ASSURANCE_ARCHITECTURE.md",
+      "blob_sha": "882eea28b7c2ad7a0e3b39799f2561b5c839f8b0",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "software assurance architecture and evidence flow",
+      "observed_at": "2026-10-03 local Mac / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/SOFTWARE_ASSURANCE_ARCHITECTURE.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::AUDIT::METHOD"
+      ],
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
+    },
+    {
+      "id": "STORAGE_ARCH",
+      "repository": "pcvantol/djconnect",
+      "path": "DJCONNECT_STORAGE_ARCHITECTURE.md",
+      "blob_sha": "0c5707977d45c22ff3754df2d3347e61cd23a8bc",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "FULL_PINNED_DOCUMENT_READ",
+      "read_complete": true,
+      "status_authority": "Canonical HA-owned storage, server backup/import boundary and disposable renderer recovery",
+      "observed_at": "2026-10-03 local Mac / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/DJCONNECT_STORAGE_ARCHITECTURE.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::ROADMAP::P0-FOUNDATION",
+        "PROJ::ROADMAP::P2-SESSION"
+      ],
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
+    },
+    {
+      "id": "V4_ARCH",
+      "repository": "pcvantol/djconnect",
+      "path": "DJCONNECT_V4_ARCHITECTURE.md",
+      "blob_sha": "08b24b8c4f6748ef6d7348ac21d7ccb296a995a7",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "FULL_PINNED_DOCUMENT_READ",
+      "read_complete": true,
+      "status_authority": "Accepted v4 Runtime, Music Backend, Broadcast and renderer ownership architecture; direction, not implementation authorization",
+      "observed_at": "2026-10-03 local Mac / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/DJCONNECT_V4_ARCHITECTURE.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::ROADMAP::V4-HISTORY",
+        "PROJ::ROADMAP::P0-FOUNDATION"
+      ],
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
+    },
+    {
+      "id": "PLATFORM_OVERVIEW",
+      "repository": "pcvantol/djconnect",
+      "path": "PLATFORM_OVERVIEW_ARCHITECTURE.md",
+      "blob_sha": "f5ed04914a14ca47753627dd7b9c1df2606d3415",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "FULL_PINNED_DOCUMENT_READ",
+      "read_complete": true,
+      "status_authority": "Canonical six-platform ownership navigation; detailed linked contracts remain authoritative",
+      "observed_at": "2026-10-03 local Mac / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/PLATFORM_OVERVIEW_ARCHITECTURE.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::ROADMAP::P0-FOUNDATION"
+      ],
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
+    },
+    {
+      "id": "ADR_0016_PLAYBACK_ID",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/adr/0016-playback-instance-identity-observation-boundary.md",
+      "blob_sha": "8fbe60bd13640b3edc08140bb7198e2cc8f60c1c",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "FULL_PINNED_DOCUMENT_READ",
+      "read_complete": true,
+      "status_authority": "Accepted ownership, scoped capability set and ephemeral occurrence identity for Continue Stage 2",
+      "observed_at": "2026-10-03 local Mac / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/adr/0016-playback-instance-identity-observation-boundary.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::GATE::PLAYBACK-IDENTITY",
+        "PROJ::GATE::STAGE2-CAPABILITY-SCOPE",
+        "PROJ::ROADMAP::CONTINUE-STAGE2"
+      ],
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
+    },
+    {
+      "id": "DJ_INTELLIGENCE_ARCH",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/product/DJ_INTELLIGENCE_ARCHITECTURE.md",
+      "blob_sha": "011d3ac9e7b8eba9da49b0683630ff52f1b2e939",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "FULL_PINNED_DOCUMENT_READ",
+      "read_complete": true,
+      "status_authority": "Canonical Session Intelligence ownership and observation distinction",
+      "observed_at": "2026-10-03 local Mac / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/product/DJ_INTELLIGENCE_ARCHITECTURE.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::ROADMAP::P1-INTELLIGENCE",
+        "PROJ::ROADMAP::PLAYBACK-STAGE2"
+      ],
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
+    },
+    {
+      "id": "DJ_INTELLIGENCE_MATURITY",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/product/DJ_INTELLIGENCE_MATURITY.md",
+      "blob_sha": "a5c25347bc08262f9283f256c530e21dcb3d3308",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "FULL_PINNED_DOCUMENT_READ",
+      "read_complete": true,
+      "status_authority": "Current Spotify Direct Stage 1, Music Assistant deferred and Stage 2 / Continue gate maturity",
+      "observed_at": "2026-10-03 local Mac / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/product/DJ_INTELLIGENCE_MATURITY.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "OBS::CORE::SPOTIFY-STAGE1",
+        "PROJ::ROADMAP::MA-STAGE1",
+        "PROJ::ROADMAP::PLAYBACK-STAGE2",
+        "PROJ::ROADMAP::CONTINUE-STAGE2"
+      ],
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
+    },
+    {
+      "id": "DJ_SESSION_DOMAIN",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/product/DJ_SESSION_DOMAIN_MODEL.md",
+      "blob_sha": "3502430ac5431461d3daf6e89d9ad9cd4538a983",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "FULL_PINNED_DOCUMENT_READ",
+      "read_complete": true,
+      "status_authority": "Canonical Session vocabulary and strict Media Identity versus Playback Instance Identity distinction",
+      "observed_at": "2026-10-03 local Mac / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/product/DJ_SESSION_DOMAIN_MODEL.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::ROADMAP::P0-FOUNDATION",
+        "PROJ::GATE::PLAYBACK-IDENTITY"
+      ],
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
+    },
+    {
+      "id": "BROADCAST_TRANSPORT",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/technical/BROADCAST_TRANSPORT.md",
+      "blob_sha": "58d89459405ba62e8ea7560538e8072d8668bf9e",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "FULL_PINNED_DOCUMENT_READ",
+      "read_complete": true,
+      "status_authority": "Confirmed code snapshot-first WebSocket and additive renderer-safe Presentation Projection",
+      "observed_at": "2026-10-03 local Mac / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/technical/BROADCAST_TRANSPORT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::ROADMAP::P2-REFERENCE",
+        "SLICE::CORE::BROADCAST-CONTRACT"
+      ],
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
+    },
+    {
+      "id": "RENDERER_PLAYBACK_PROJECTION",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/technical/RENDERER_SAFE_PLAYBACK_PROJECTION.md",
+      "blob_sha": "751cc4b5bac2396c864add834baa00ec77a8be1f",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "FULL_PINNED_DOCUMENT_READ",
+      "read_complete": true,
+      "status_authority": "Current bounded server-owned Now Playing projection and idle/reset behavior",
+      "observed_at": "2026-10-03 local Mac / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/technical/RENDERER_SAFE_PLAYBACK_PROJECTION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::ROADMAP::P2-REFERENCE",
+        "PROJ::ROADMAP::P2-SESSION"
+      ],
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
+    },
+    {
+      "id": "PLATFORM_AMBIENT_EXPERIENCE",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/technical/PLATFORM_AMBIENT_EXPERIENCE.md",
+      "blob_sha": "c306219a57022a31b1a5390483f96ac373cfec4d",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "FULL_PINNED_DOCUMENT_READ",
+      "read_complete": true,
+      "status_authority": "Deferred wall-panel adapter/ambient experience and hardware, Receiver and Golden Scenario gates",
+      "observed_at": "2026-10-03 local Mac / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/technical/PLATFORM_AMBIENT_EXPERIENCE.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::ROADMAP::AMBIENT-LIGHT",
+        "PROJ::GATE::RECEIVER-MATURITY",
+        "PROJ::GATE::AMBIENT-LIGHT-HARDWARE"
       ],
       "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
     }
@@ -3203,7 +3768,9 @@
         "AGENTS::DJC-APPLE",
         "STATUS::DJC-APPLE",
         "ISSUES::DJC-APPLE",
-        "TODO::DJC-APPLE"
+        "TODO::DJC-APPLE",
+        "LOCALIZATION_NARRATIVE",
+        "LOCALIZATION_VALIDATION_SPEC"
       ],
       "canonical_authority": "README::DJC-APPLE",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -3252,7 +3819,8 @@
         "README::DJC-ESP32",
         "AGENTS::DJC-ESP32",
         "STATUS::DJC-ESP32",
-        "TODO::DJC-ESP32"
+        "TODO::DJC-ESP32",
+        "LOCALIZATION_VALIDATION_SPEC"
       ],
       "canonical_authority": "README::DJC-ESP32",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -3302,7 +3870,9 @@
         "AGENTS::DJC-PI",
         "STATUS::DJC-PI",
         "ISSUES::DJC-PI",
-        "TODO::DJC-PI"
+        "TODO::DJC-PI",
+        "LOCALIZATION_NARRATIVE",
+        "LOCALIZATION_VALIDATION_SPEC"
       ],
       "canonical_authority": "README::DJC-PI",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -3352,7 +3922,9 @@
         "AGENTS::DJC-WINDOWS",
         "STATUS::DJC-WINDOWS",
         "ISSUES::DJC-WINDOWS",
-        "TODO::DJC-WINDOWS"
+        "TODO::DJC-WINDOWS",
+        "LOCALIZATION_NARRATIVE",
+        "LOCALIZATION_VALIDATION_SPEC"
       ],
       "canonical_authority": "README::DJC-WINDOWS",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -3402,7 +3974,8 @@
         "AGENTS::DJC-API",
         "STATUS::DJC-API",
         "ISSUES::DJC-API",
-        "TODO::DJC-API"
+        "TODO::DJC-API",
+        "LOCALIZATION_VALIDATION_SPEC"
       ],
       "canonical_authority": "README::DJC-API",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -3452,7 +4025,8 @@
         "AGENTS::DJC-WEBSITE",
         "STATUS::DJC-WEBSITE",
         "ISSUES::DJC-WEBSITE",
-        "TODO::DJC-WEBSITE"
+        "TODO::DJC-WEBSITE",
+        "LOCALIZATION_VALIDATION_SPEC"
       ],
       "canonical_authority": "README::DJC-WEBSITE",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -3594,7 +4168,8 @@
       "source_ids": [
         "README::DJC-DIST-FIRMWARE",
         "AGENTS::DJC-DIST-FIRMWARE",
-        "STATUS::DJC-DIST-FIRMWARE"
+        "STATUS::DJC-DIST-FIRMWARE",
+        "LOCALIZATION_VALIDATION_SPEC"
       ],
       "canonical_authority": "README::DJC-DIST-FIRMWARE",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -3642,7 +4217,8 @@
       "source_ids": [
         "README::DJC-DIST-APPLE",
         "AGENTS::DJC-DIST-APPLE",
-        "STATUS::DJC-DIST-APPLE"
+        "STATUS::DJC-DIST-APPLE",
+        "LOCALIZATION_VALIDATION_SPEC"
       ],
       "canonical_authority": "README::DJC-DIST-APPLE",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -3690,7 +4266,8 @@
       "source_ids": [
         "README::DJC-DIST-PI",
         "AGENTS::DJC-DIST-PI",
-        "STATUS::DJC-DIST-PI"
+        "STATUS::DJC-DIST-PI",
+        "LOCALIZATION_VALIDATION_SPEC"
       ],
       "canonical_authority": "README::DJC-DIST-PI",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -3800,7 +4377,22 @@
         "LOCALIZATION_NARRATIVE",
         "LOCALIZATION_VALIDATION_SPEC",
         "SESSION_RUNTIME_CONTRACTS",
-        "DJ_PRESENTATION_ARCH"
+        "DJ_PRESENTATION_ARCH",
+        "PERSISTENT_SESSION_ARCH",
+        "ROLLING_HORIZON_ARCH",
+        "FLOW_RECOVERY_ARCH",
+        "PRESENTATION_COMPOSER_ARCH",
+        "PRESENTATION_CAPABILITY_ARCH",
+        "PLATFORM_BACKLOG_ARCHIVE",
+        "ADR_INDEX",
+        "BASELINE_V1",
+        "BASELINE_1_0",
+        "BASELINE_CERT",
+        "BASELINE_GAPS",
+        "STORAGE_ARCH",
+        "V4_ARCH",
+        "PLATFORM_OVERVIEW",
+        "DJ_SESSION_DOMAIN"
       ],
       "canonical_authority": "PRODUCT_ROADMAP",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -3847,7 +4439,8 @@
       "repository": "pcvantol/djconnect",
       "source_ids": [
         "PRODUCT_ROADMAP",
-        "V4_HISTORICAL"
+        "V4_HISTORICAL",
+        "V4_ARCH"
       ],
       "canonical_authority": "PRODUCT_ROADMAP",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -3895,7 +4488,8 @@
       "source_ids": [
         "PRODUCT_ROADMAP",
         "PLATFORM_STRATEGY",
-        "PRODUCT_STRATEGY"
+        "PRODUCT_STRATEGY",
+        "DJ_INTELLIGENCE_ARCH"
       ],
       "canonical_authority": "PRODUCT_ROADMAP",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -4002,7 +4596,13 @@
         "AUDIENCE_EXPERIENCE",
         "CLIENT_MATRIX",
         "SESSION_RUNTIME_CONTRACTS",
-        "DJ_PRESENTATION_ARCH"
+        "DJ_PRESENTATION_ARCH",
+        "FLOW_RECOVERY_ARCH",
+        "PRESENTATION_COMPOSER_ARCH",
+        "PRESENTATION_CAPABILITY_ARCH",
+        "SPEECH_RENDERING_CONTRACT",
+        "BROADCAST_TRANSPORT",
+        "RENDERER_PLAYBACK_PROJECTION"
       ],
       "canonical_authority": "PRODUCT_ROADMAP",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -4113,7 +4713,9 @@
       "repository": "pcvantol/djconnect",
       "source_ids": [
         "PRODUCT_ROADMAP",
-        "ROOM_ROUTING"
+        "ROOM_ROUTING",
+        "STORAGE_ARCH",
+        "RENDERER_PLAYBACK_PROJECTION"
       ],
       "canonical_authority": "PRODUCT_ROADMAP",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -5049,7 +5651,9 @@
       "repository": "pcvantol/djconnect",
       "source_ids": [
         "PRODUCT_ROADMAP",
-        "AMBIENT_LIGHT"
+        "AMBIENT_LIGHT",
+        "PRESENTATION_CAPABILITY_ARCH",
+        "PLATFORM_AMBIENT_EXPERIENCE"
       ],
       "canonical_authority": "PRODUCT_ROADMAP",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -5069,12 +5673,31 @@
         "No release or live qualification inferred from documentation"
       ],
       "profiles": "HA / Runtime / Universal Receiver / HA-hosted VibeCast",
-      "acceptance_boundary": "Owning source criteria; complete per-item extraction remains open",
+      "acceptance_boundary": "Deferred only; start requires all three source gates with exact evidence and a separately authorized Pre-Flight",
       "acceptance_criteria": [],
       "completion_requirements": [],
       "contract_binding": "SOURCE_REFERENCES_ONLY; exact consuming artifact/contract qualification not complete",
       "evidence_ids": [],
-      "prerequisite_groups": [],
+      "prerequisite_groups": [
+        {
+          "mode": "AND",
+          "edge_ids": [
+            "GATE-AMBIENT-LIGHT-RECEIVER"
+          ]
+        },
+        {
+          "mode": "AND",
+          "edge_ids": [
+            "GATE-AMBIENT-LIGHT-ROOM"
+          ]
+        },
+        {
+          "mode": "AND",
+          "edge_ids": [
+            "GATE-AMBIENT-LIGHT-HARDWARE"
+          ]
+        }
+      ],
       "blockers": [
         "Incomplete owning-source/evidence audit; no new product admission"
       ],
@@ -5473,11 +6096,15 @@
       "lane": "DJC-CORE",
       "repository": "pcvantol/djconnect",
       "source_ids": [
-        "PRODUCT_ROADMAP"
+        "PRODUCT_ROADMAP",
+        "CONTINUE_PLAYBACK_CONTRACT",
+        "LIVE_PLAYBACK_OBSERVATION",
+        "DJ_INTELLIGENCE_ARCH",
+        "DJ_INTELLIGENCE_MATURITY"
       ],
       "canonical_authority": "PRODUCT_ROADMAP",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
-      "source_status_summary": "Deferred; backend-owned Playback Instance Identity blocked",
+      "source_status_summary": "Authorized but deferred; no implemented adapter meets Stage 2; one coherent future Continue Stage 2 increment required",
       "original_status": null,
       "status_representation": "SOURCE_SUMMARY; null original_status means exact original enum not transcribed",
       "selection": "NOT_SELECTED_BY_THIS_ASSIGNMENT",
@@ -5494,15 +6121,39 @@
       ],
       "profiles": "HA / Runtime / Universal Receiver / HA-hosted VibeCast",
       "acceptance_boundary": "Owning source criteria; complete per-item extraction remains open",
-      "acceptance_criteria": [],
-      "completion_requirements": [],
-      "contract_binding": "SOURCE_REFERENCES_ONLY; exact consuming artifact/contract qualification not complete",
+      "acceptance_criteria": [
+        "selected-scope-observation-contract",
+        "matching-occurrence-correlation",
+        "atomic-start-and-silent-rollback"
+      ],
+      "completion_requirements": [
+        "One atomic selected-backend Stage 2 PR; four scoped observation capabilities; valid projection; matching normalized live event; backend-owned identity; exact producer/consumer tests; no queue or playback mutation"
+      ],
+      "contract_binding": "CONTINUE_PLAYBACK_CONTRACT; LIVE_PLAYBACK_OBSERVATION Stage 1 remains separate and cannot satisfy Stage 2",
       "evidence_ids": [],
       "prerequisite_groups": [
         {
           "mode": "AND",
           "edge_ids": [
             "HARD-PLAYBACK-STAGE2"
+          ]
+        },
+        {
+          "mode": "AND",
+          "edge_ids": [
+            "REQ-CAPABILITY-SCOPE-PLAYBACK-STAGE2"
+          ]
+        },
+        {
+          "mode": "AND",
+          "edge_ids": [
+            "REQ-CURRENT-PROJECTION-PLAYBACK-STAGE2"
+          ]
+        },
+        {
+          "mode": "AND",
+          "edge_ids": [
+            "REQ-LIVE-EVENT-PLAYBACK-STAGE2"
           ]
         }
       ],
@@ -5526,11 +6177,15 @@
       "lane": "DJC-CORE",
       "repository": "pcvantol/djconnect",
       "source_ids": [
-        "PRODUCT_ROADMAP"
+        "PRODUCT_ROADMAP",
+        "CONTINUE_PLAYBACK_CONTRACT",
+        "LIVE_PLAYBACK_OBSERVATION",
+        "ADR_0016_PLAYBACK_ID",
+        "DJ_INTELLIGENCE_MATURITY"
       ],
       "canonical_authority": "PRODUCT_ROADMAP",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
-      "source_status_summary": "Deferred; backend-owned Playback Instance Identity blocked",
+      "source_status_summary": "Authorized but deferred; no implemented adapter meets Stage 2; one coherent future Continue Stage 2 increment required",
       "original_status": null,
       "status_representation": "SOURCE_SUMMARY; null original_status means exact original enum not transcribed",
       "selection": "NOT_SELECTED_BY_THIS_ASSIGNMENT",
@@ -5547,15 +6202,45 @@
       ],
       "profiles": "HA / Runtime / Universal Receiver / HA-hosted VibeCast",
       "acceptance_boundary": "Owning source criteria; complete per-item extraction remains open",
-      "acceptance_criteria": [],
-      "completion_requirements": [],
-      "contract_binding": "SOURCE_REFERENCES_ONLY; exact consuming artifact/contract qualification not complete",
+      "acceptance_criteria": [
+        "selected-scope-observation-contract",
+        "matching-occurrence-correlation",
+        "atomic-start-and-silent-rollback"
+      ],
+      "completion_requirements": [
+        "One atomic selected-backend Stage 2 PR; four scoped observation capabilities; valid projection; matching normalized live event; backend-owned identity; exact producer/consumer tests; no queue or playback mutation"
+      ],
+      "contract_binding": "CONTINUE_PLAYBACK_CONTRACT; LIVE_PLAYBACK_OBSERVATION Stage 1 remains separate and cannot satisfy Stage 2",
       "evidence_ids": [],
       "prerequisite_groups": [
         {
           "mode": "AND",
           "edge_ids": [
             "HARD-CONTINUE-STAGE2"
+          ]
+        },
+        {
+          "mode": "AND",
+          "edge_ids": [
+            "REQ-CAPABILITY-SCOPE-CONTINUE-STAGE2"
+          ]
+        },
+        {
+          "mode": "AND",
+          "edge_ids": [
+            "REQ-CURRENT-PROJECTION-CONTINUE-STAGE2"
+          ]
+        },
+        {
+          "mode": "AND",
+          "edge_ids": [
+            "REQ-LIVE-EVENT-CONTINUE-STAGE2"
+          ]
+        },
+        {
+          "mode": "AND",
+          "edge_ids": [
+            "REQ-ATOMIC-ADOPTION-CONTINUE-STAGE2"
           ]
         }
       ],
@@ -5659,7 +6344,9 @@
       "repository": "pcvantol/djconnect",
       "source_ids": [
         "PRODUCT_BACKLOG",
-        "INTELLIGENCE_REVIEW"
+        "INTELLIGENCE_REVIEW",
+        "ADR_0016_PLAYBACK_ID",
+        "DJ_SESSION_DOMAIN"
       ],
       "canonical_authority": "PRODUCT_BACKLOG",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -9186,7 +9873,8 @@
       "lane": "DJC-CORE",
       "repository": "pcvantol/djconnect",
       "source_ids": [
-        "INNOVATION"
+        "INNOVATION",
+        "INNOVATION_LAB"
       ],
       "canonical_authority": "INNOVATION",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -9534,7 +10222,12 @@
         "CORE-INTERNAL-ARTIFACT",
         "SYNC_PROMPTS",
         "CORE_TODO",
-        "LOCALIZATION_VALIDATION_SPEC"
+        "LOCALIZATION_VALIDATION_SPEC",
+        "ADR_INDEX",
+        "CI_CD_GOVERNANCE",
+        "META_INDEX",
+        "SOFTWARE_ASSURANCE_PLATFORM",
+        "SOFTWARE_ASSURANCE_ARCH"
       ],
       "canonical_authority": "ROADMAP_INDEX",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -9839,7 +10532,8 @@
       "repository": "pcvantol/djconnect",
       "source_ids": [
         "VIBECAST_ARCH",
-        "UNIVERSAL_RECEIVER"
+        "UNIVERSAL_RECEIVER",
+        "BROADCAST_TRANSPORT"
       ],
       "canonical_authority": "VIBECAST_ARCH",
       "owner_boundary": "HA-integratie, centrale productautoriteit en server-side DJConnect-domein",
@@ -12856,6 +13550,427 @@
       "decisions_resolved": false,
       "effort": "UNKNOWN",
       "resume_reference": "https://github.com/pcvantol/djconnect/issues/1101"
+    },
+    {
+      "id": "PROJ::GATE::STAGE2-CAPABILITY-SCOPE",
+      "canonical_id": null,
+      "title": "Four selected-scope Stage 2 observation capabilities",
+      "type": "external_gate",
+      "family": "external",
+      "lane": "DJC-CORE",
+      "repository": "pcvantol/djconnect",
+      "source_ids": [
+        "CONTINUE_PLAYBACK_CONTRACT",
+        "ADR_0016_PLAYBACK_ID"
+      ],
+      "canonical_authority": "CONTINUE_PLAYBACK_CONTRACT",
+      "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
+      "source_status_summary": "Required in the same future atomic Continue Stage 2 increment; not separately delivered",
+      "original_status": null,
+      "status_representation": "SOURCE_SUMMARY; null original_status means exact original enum not transcribed",
+      "selection": "NOT_SELECTED_BY_THIS_ASSIGNMENT",
+      "evidence_state": "DOCUMENTED_NOT_INDEPENDENTLY_REQUALIFIED",
+      "assignment_status": "NOT_ISSUED",
+      "completion_claim": "NONE",
+      "count_as_delivered_feature": false,
+      "user_or_consumer": "DJConnect users / owning component consumers; see source-specific scope",
+      "visible_outcome": "Four selected-scope Stage 2 observation capabilities",
+      "scope": "Bounded evidence/contract projection only; no new product selection or separate implementation PR",
+      "non_goals": [
+        "No product implementation under this planning assignment",
+        "No release or live qualification inferred from documentation"
+      ],
+      "profiles": "HA / Runtime / Universal Receiver / HA-hosted VibeCast",
+      "acceptance_boundary": "Exact source contract and independently qualified producer/consumer evidence required",
+      "acceptance_criteria": [],
+      "completion_requirements": [],
+      "contract_binding": "CONTINUE_PLAYBACK_CONTRACT",
+      "evidence_ids": [],
+      "prerequisite_groups": [],
+      "blockers": [
+        "No independent acceptance evidence; no new product admission"
+      ],
+      "resource_capacity": "UNKNOWN",
+      "authority_verified": false,
+      "writer_free_verified": false,
+      "resources_verified": false,
+      "decisions_resolved": false,
+      "effort": "UNKNOWN",
+      "resume_reference": "https://github.com/pcvantol/djconnect/issues/1101"
+    },
+    {
+      "id": "PROJ::GATE::CURRENT-PLAYBACK-PROJECTION",
+      "canonical_id": null,
+      "title": "Validated active Current Playback Projection",
+      "type": "external_gate",
+      "family": "external",
+      "lane": "DJC-CORE",
+      "repository": "pcvantol/djconnect",
+      "source_ids": [
+        "CONTINUE_PLAYBACK_CONTRACT"
+      ],
+      "canonical_authority": "CONTINUE_PLAYBACK_CONTRACT",
+      "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
+      "source_status_summary": "Required in the same future atomic Continue Stage 2 increment; not separately delivered",
+      "original_status": null,
+      "status_representation": "SOURCE_SUMMARY; null original_status means exact original enum not transcribed",
+      "selection": "NOT_SELECTED_BY_THIS_ASSIGNMENT",
+      "evidence_state": "DOCUMENTED_NOT_INDEPENDENTLY_REQUALIFIED",
+      "assignment_status": "NOT_ISSUED",
+      "completion_claim": "NONE",
+      "count_as_delivered_feature": false,
+      "user_or_consumer": "DJConnect users / owning component consumers; see source-specific scope",
+      "visible_outcome": "Validated active Current Playback Projection",
+      "scope": "Bounded evidence/contract projection only; no new product selection or separate implementation PR",
+      "non_goals": [
+        "No product implementation under this planning assignment",
+        "No release or live qualification inferred from documentation"
+      ],
+      "profiles": "HA / Runtime / Universal Receiver / HA-hosted VibeCast",
+      "acceptance_boundary": "Exact source contract and independently qualified producer/consumer evidence required",
+      "acceptance_criteria": [],
+      "completion_requirements": [],
+      "contract_binding": "CONTINUE_PLAYBACK_CONTRACT",
+      "evidence_ids": [],
+      "prerequisite_groups": [],
+      "blockers": [
+        "No independent acceptance evidence; no new product admission"
+      ],
+      "resource_capacity": "UNKNOWN",
+      "authority_verified": false,
+      "writer_free_verified": false,
+      "resources_verified": false,
+      "decisions_resolved": false,
+      "effort": "UNKNOWN",
+      "resume_reference": "https://github.com/pcvantol/djconnect/issues/1101"
+    },
+    {
+      "id": "PROJ::GATE::LIVE-TRACKSTARTED",
+      "canonical_id": null,
+      "title": "Matching normalized live TrackStartedObservation",
+      "type": "external_gate",
+      "family": "external",
+      "lane": "DJC-CORE",
+      "repository": "pcvantol/djconnect",
+      "source_ids": [
+        "CONTINUE_PLAYBACK_CONTRACT"
+      ],
+      "canonical_authority": "CONTINUE_PLAYBACK_CONTRACT",
+      "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
+      "source_status_summary": "Required in the same future atomic Continue Stage 2 increment; not separately delivered",
+      "original_status": null,
+      "status_representation": "SOURCE_SUMMARY; null original_status means exact original enum not transcribed",
+      "selection": "NOT_SELECTED_BY_THIS_ASSIGNMENT",
+      "evidence_state": "DOCUMENTED_NOT_INDEPENDENTLY_REQUALIFIED",
+      "assignment_status": "NOT_ISSUED",
+      "completion_claim": "NONE",
+      "count_as_delivered_feature": false,
+      "user_or_consumer": "DJConnect users / owning component consumers; see source-specific scope",
+      "visible_outcome": "Matching normalized live TrackStartedObservation",
+      "scope": "Bounded evidence/contract projection only; no new product selection or separate implementation PR",
+      "non_goals": [
+        "No product implementation under this planning assignment",
+        "No release or live qualification inferred from documentation"
+      ],
+      "profiles": "HA / Runtime / Universal Receiver / HA-hosted VibeCast",
+      "acceptance_boundary": "Exact source contract and independently qualified producer/consumer evidence required",
+      "acceptance_criteria": [],
+      "completion_requirements": [],
+      "contract_binding": "CONTINUE_PLAYBACK_CONTRACT",
+      "evidence_ids": [],
+      "prerequisite_groups": [],
+      "blockers": [
+        "No independent acceptance evidence; no new product admission"
+      ],
+      "resource_capacity": "UNKNOWN",
+      "authority_verified": false,
+      "writer_free_verified": false,
+      "resources_verified": false,
+      "decisions_resolved": false,
+      "effort": "UNKNOWN",
+      "resume_reference": "https://github.com/pcvantol/djconnect/issues/1101"
+    },
+    {
+      "id": "PROJ::GATE::ATOMIC-CONTINUE-ADOPTION",
+      "canonical_id": null,
+      "title": "Atomic Continue adoption, deduplication and silent rollback",
+      "type": "external_gate",
+      "family": "external",
+      "lane": "DJC-CORE",
+      "repository": "pcvantol/djconnect",
+      "source_ids": [
+        "CONTINUE_PLAYBACK_CONTRACT"
+      ],
+      "canonical_authority": "CONTINUE_PLAYBACK_CONTRACT",
+      "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
+      "source_status_summary": "Required in the same future atomic Continue Stage 2 increment; not separately delivered",
+      "original_status": null,
+      "status_representation": "SOURCE_SUMMARY; null original_status means exact original enum not transcribed",
+      "selection": "NOT_SELECTED_BY_THIS_ASSIGNMENT",
+      "evidence_state": "DOCUMENTED_NOT_INDEPENDENTLY_REQUALIFIED",
+      "assignment_status": "NOT_ISSUED",
+      "completion_claim": "NONE",
+      "count_as_delivered_feature": false,
+      "user_or_consumer": "DJConnect users / owning component consumers; see source-specific scope",
+      "visible_outcome": "Atomic Continue adoption, deduplication and silent rollback",
+      "scope": "Bounded evidence/contract projection only; no new product selection or separate implementation PR",
+      "non_goals": [
+        "No product implementation under this planning assignment",
+        "No release or live qualification inferred from documentation"
+      ],
+      "profiles": "HA / Runtime / Universal Receiver / HA-hosted VibeCast",
+      "acceptance_boundary": "Exact source contract and independently qualified producer/consumer evidence required",
+      "acceptance_criteria": [],
+      "completion_requirements": [],
+      "contract_binding": "CONTINUE_PLAYBACK_CONTRACT",
+      "evidence_ids": [],
+      "prerequisite_groups": [],
+      "blockers": [
+        "No independent acceptance evidence; no new product admission"
+      ],
+      "resource_capacity": "UNKNOWN",
+      "authority_verified": false,
+      "writer_free_verified": false,
+      "resources_verified": false,
+      "decisions_resolved": false,
+      "effort": "UNKNOWN",
+      "resume_reference": "https://github.com/pcvantol/djconnect/issues/1101"
+    },
+    {
+      "id": "OBS::CORE::SPOTIFY-STAGE1",
+      "canonical_id": null,
+      "title": "Spotify Direct live playback observation Stage 1",
+      "type": "planning_record",
+      "family": "product",
+      "lane": "DJC-CORE",
+      "repository": "pcvantol/djconnect",
+      "source_ids": [
+        "LIVE_PLAYBACK_OBSERVATION",
+        "DJ_INTELLIGENCE_MATURITY"
+      ],
+      "canonical_authority": "LIVE_PLAYBACK_OBSERVATION",
+      "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
+      "source_status_summary": "Current for Spotify Direct: bounded active-session polling and safe Media Identity change; not occurrence-correct",
+      "original_status": null,
+      "status_representation": "SOURCE_SUMMARY; null original_status means exact original enum not transcribed",
+      "selection": "NOT_SELECTED_BY_THIS_ASSIGNMENT",
+      "evidence_state": "DOCUMENTED_NOT_INDEPENDENTLY_REQUALIFIED",
+      "assignment_status": "NOT_ISSUED",
+      "completion_claim": "NONE",
+      "count_as_delivered_feature": false,
+      "user_or_consumer": "DJConnect users / owning component consumers; see source-specific scope",
+      "visible_outcome": "Spotify Direct live playback observation Stage 1",
+      "scope": "Bounded evidence/contract projection only; no new product selection or separate implementation PR",
+      "non_goals": [
+        "No product implementation under this planning assignment",
+        "No release or live qualification inferred from documentation"
+      ],
+      "profiles": "HA / Runtime / Universal Receiver / HA-hosted VibeCast",
+      "acceptance_boundary": "Exact source contract and independently qualified producer/consumer evidence required",
+      "acceptance_criteria": [],
+      "completion_requirements": [],
+      "contract_binding": "LIVE_PLAYBACK_OBSERVATION",
+      "evidence_ids": [],
+      "prerequisite_groups": [],
+      "blockers": [
+        "No independent acceptance evidence; no new product admission"
+      ],
+      "resource_capacity": "UNKNOWN",
+      "authority_verified": false,
+      "writer_free_verified": false,
+      "resources_verified": false,
+      "decisions_resolved": false,
+      "effort": "UNKNOWN",
+      "resume_reference": "https://github.com/pcvantol/djconnect/issues/1101"
+    },
+    {
+      "id": "PROJ::ROADMAP::MA-STAGE1",
+      "canonical_id": null,
+      "title": "Music Assistant live playback observation Stage 1",
+      "type": "planning_record",
+      "family": "product",
+      "lane": "DJC-CORE",
+      "repository": "pcvantol/djconnect",
+      "source_ids": [
+        "LIVE_PLAYBACK_OBSERVATION",
+        "DJ_INTELLIGENCE_MATURITY"
+      ],
+      "canonical_authority": "LIVE_PLAYBACK_OBSERVATION",
+      "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
+      "source_status_summary": "Deferred: safe media_content_id and state-change subscription not implemented/qualified",
+      "original_status": null,
+      "status_representation": "SOURCE_SUMMARY; null original_status means exact original enum not transcribed",
+      "selection": "NOT_SELECTED_BY_THIS_ASSIGNMENT",
+      "evidence_state": "DOCUMENTED_NOT_INDEPENDENTLY_REQUALIFIED",
+      "assignment_status": "NOT_ISSUED",
+      "completion_claim": "NONE",
+      "count_as_delivered_feature": false,
+      "user_or_consumer": "DJConnect users / owning component consumers; see source-specific scope",
+      "visible_outcome": "Music Assistant live playback observation Stage 1",
+      "scope": "Bounded evidence/contract projection only; no new product selection or separate implementation PR",
+      "non_goals": [
+        "No product implementation under this planning assignment",
+        "No release or live qualification inferred from documentation"
+      ],
+      "profiles": "HA / Runtime / Universal Receiver / HA-hosted VibeCast",
+      "acceptance_boundary": "Exact source contract and independently qualified producer/consumer evidence required",
+      "acceptance_criteria": [],
+      "completion_requirements": [],
+      "contract_binding": "LIVE_PLAYBACK_OBSERVATION",
+      "evidence_ids": [],
+      "prerequisite_groups": [],
+      "blockers": [
+        "No independent acceptance evidence; no new product admission"
+      ],
+      "resource_capacity": "UNKNOWN",
+      "authority_verified": false,
+      "writer_free_verified": false,
+      "resources_verified": false,
+      "decisions_resolved": false,
+      "effort": "UNKNOWN",
+      "resume_reference": "https://github.com/pcvantol/djconnect/issues/1101"
+    },
+    {
+      "id": "PROJ::GATE::RECEIVER-MATURITY",
+      "canonical_id": null,
+      "title": "Universal Receiver product maturity gate",
+      "type": "external_gate",
+      "family": "external",
+      "lane": "DJC-CORE",
+      "repository": "pcvantol/djconnect",
+      "source_ids": [
+        "AMBIENT_LIGHT",
+        "UNIVERSAL_RECEIVER",
+        "PLATFORM_AMBIENT_EXPERIENCE"
+      ],
+      "canonical_authority": "AMBIENT_LIGHT",
+      "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
+      "source_status_summary": "Deferred source gate; fulfillment not observed",
+      "original_status": null,
+      "status_representation": "SOURCE_SUMMARY; null original_status means exact original enum not transcribed",
+      "selection": "NOT_SELECTED_BY_THIS_ASSIGNMENT",
+      "evidence_state": "DOCUMENTED_NOT_INDEPENDENTLY_REQUALIFIED",
+      "assignment_status": "NOT_ISSUED",
+      "completion_claim": "NONE",
+      "count_as_delivered_feature": false,
+      "user_or_consumer": "DJConnect users / owning component consumers; see source-specific scope",
+      "visible_outcome": "Universal Receiver product maturity gate",
+      "scope": "Bounded evidence/contract projection only; no new product selection or separate implementation PR",
+      "non_goals": [
+        "No product implementation under this planning assignment",
+        "No release or live qualification inferred from documentation"
+      ],
+      "profiles": "HA / Runtime / Universal Receiver / HA-hosted VibeCast",
+      "acceptance_boundary": "Exact source contract and independently qualified producer/consumer evidence required",
+      "acceptance_criteria": [],
+      "completion_requirements": [],
+      "contract_binding": "AMBIENT_LIGHT",
+      "evidence_ids": [],
+      "prerequisite_groups": [],
+      "blockers": [
+        "No independent acceptance evidence; no new product admission"
+      ],
+      "resource_capacity": "UNKNOWN",
+      "authority_verified": false,
+      "writer_free_verified": false,
+      "resources_verified": false,
+      "decisions_resolved": false,
+      "effort": "UNKNOWN",
+      "resume_reference": "https://github.com/pcvantol/djconnect/issues/1101"
+    },
+    {
+      "id": "PROJ::GATE::ROOM-ROUTING-OPERATIONAL",
+      "canonical_id": null,
+      "title": "Operational Room Presentation Routing gate",
+      "type": "external_gate",
+      "family": "external",
+      "lane": "DJC-CORE",
+      "repository": "pcvantol/djconnect",
+      "source_ids": [
+        "AMBIENT_LIGHT",
+        "ROOM_ROUTING"
+      ],
+      "canonical_authority": "AMBIENT_LIGHT",
+      "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
+      "source_status_summary": "Deferred source gate; fulfillment not observed",
+      "original_status": null,
+      "status_representation": "SOURCE_SUMMARY; null original_status means exact original enum not transcribed",
+      "selection": "NOT_SELECTED_BY_THIS_ASSIGNMENT",
+      "evidence_state": "DOCUMENTED_NOT_INDEPENDENTLY_REQUALIFIED",
+      "assignment_status": "NOT_ISSUED",
+      "completion_claim": "NONE",
+      "count_as_delivered_feature": false,
+      "user_or_consumer": "DJConnect users / owning component consumers; see source-specific scope",
+      "visible_outcome": "Operational Room Presentation Routing gate",
+      "scope": "Bounded evidence/contract projection only; no new product selection or separate implementation PR",
+      "non_goals": [
+        "No product implementation under this planning assignment",
+        "No release or live qualification inferred from documentation"
+      ],
+      "profiles": "HA / Runtime / Universal Receiver / HA-hosted VibeCast",
+      "acceptance_boundary": "Exact source contract and independently qualified producer/consumer evidence required",
+      "acceptance_criteria": [],
+      "completion_requirements": [],
+      "contract_binding": "AMBIENT_LIGHT",
+      "evidence_ids": [],
+      "prerequisite_groups": [],
+      "blockers": [
+        "No independent acceptance evidence; no new product admission"
+      ],
+      "resource_capacity": "UNKNOWN",
+      "authority_verified": false,
+      "writer_free_verified": false,
+      "resources_verified": false,
+      "decisions_resolved": false,
+      "effort": "UNKNOWN",
+      "resume_reference": "https://github.com/pcvantol/djconnect/issues/1101"
+    },
+    {
+      "id": "PROJ::GATE::AMBIENT-LIGHT-HARDWARE",
+      "canonical_id": null,
+      "title": "Real ambient-light hardware evaluation gate",
+      "type": "external_gate",
+      "family": "external",
+      "lane": "DJC-CORE",
+      "repository": "pcvantol/djconnect",
+      "source_ids": [
+        "AMBIENT_LIGHT",
+        "PLATFORM_AMBIENT_EXPERIENCE"
+      ],
+      "canonical_authority": "AMBIENT_LIGHT",
+      "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
+      "source_status_summary": "Deferred source gate; fulfillment not observed",
+      "original_status": null,
+      "status_representation": "SOURCE_SUMMARY; null original_status means exact original enum not transcribed",
+      "selection": "NOT_SELECTED_BY_THIS_ASSIGNMENT",
+      "evidence_state": "DOCUMENTED_NOT_INDEPENDENTLY_REQUALIFIED",
+      "assignment_status": "NOT_ISSUED",
+      "completion_claim": "NONE",
+      "count_as_delivered_feature": false,
+      "user_or_consumer": "DJConnect users / owning component consumers; see source-specific scope",
+      "visible_outcome": "Real ambient-light hardware evaluation gate",
+      "scope": "Bounded evidence/contract projection only; no new product selection or separate implementation PR",
+      "non_goals": [
+        "No product implementation under this planning assignment",
+        "No release or live qualification inferred from documentation"
+      ],
+      "profiles": "HA / Runtime / Universal Receiver / HA-hosted VibeCast",
+      "acceptance_boundary": "Exact source contract and independently qualified producer/consumer evidence required",
+      "acceptance_criteria": [],
+      "completion_requirements": [],
+      "contract_binding": "AMBIENT_LIGHT",
+      "evidence_ids": [],
+      "prerequisite_groups": [],
+      "blockers": [
+        "No independent acceptance evidence; no new product admission"
+      ],
+      "resource_capacity": "UNKNOWN",
+      "authority_verified": false,
+      "writer_free_verified": false,
+      "resources_verified": false,
+      "decisions_resolved": false,
+      "effort": "UNKNOWN",
+      "resume_reference": "https://github.com/pcvantol/djconnect/issues/1101"
     }
   ],
   "edges": [
@@ -12863,39 +13978,45 @@
       "id": "HARD-PLAYBACK-STAGE2",
       "producer": "PROJ::GATE::PLAYBACK-IDENTITY",
       "consumer": "PROJ::ROADMAP::PLAYBACK-STAGE2",
-      "kind": "external_gate",
+      "kind": "contract_requirement",
       "phase": "implementation",
       "required_subset": "Backend-owned Playback Instance Identity",
-      "reason": "The selected-backlog source explicitly retains this Stage 2 external blocker.",
+      "reason": "Backend-owned occurrence identity is co-delivered and acceptance-qualified inside one future atomic Continue Stage 2 increment, not a separate prerequisite PR.",
       "source_ids": [
-        "PRODUCT_BACKLOG"
+        "PRODUCT_BACKLOG",
+        "CONTINUE_PLAYBACK_CONTRACT"
       ],
       "hard_precedence": true,
-      "contract_or_evidence": "Exact owning evidence for this subset; not fulfilled by a generic CI/doc status",
+      "contract_or_evidence": "Matching opaque identity in Current Playback Projection and live TrackStartedObservation for one selected backend/account/output scope; exact tests and consumer evidence required",
       "evidence_ids": [],
       "evidence_satisfied": false,
       "selection_eligible": false,
       "confidence": "SOURCE_CONSTRAINT_CAPTURED; current fulfillment not qualified",
-      "logical_mode": "AND"
+      "logical_mode": "AND",
+      "prerequisite_stage": "completion",
+      "same_increment_as_consumer": true
     },
     {
       "id": "HARD-CONTINUE-STAGE2",
       "producer": "PROJ::GATE::PLAYBACK-IDENTITY",
       "consumer": "PROJ::ROADMAP::CONTINUE-STAGE2",
-      "kind": "external_gate",
+      "kind": "contract_requirement",
       "phase": "implementation",
       "required_subset": "Backend-owned Playback Instance Identity",
-      "reason": "The selected-backlog source explicitly retains this Stage 2 external blocker.",
+      "reason": "Backend-owned occurrence identity is co-delivered and acceptance-qualified inside one future atomic Continue Stage 2 increment, not a separate prerequisite PR.",
       "source_ids": [
-        "PRODUCT_BACKLOG"
+        "PRODUCT_BACKLOG",
+        "CONTINUE_PLAYBACK_CONTRACT"
       ],
       "hard_precedence": true,
-      "contract_or_evidence": "Exact owning evidence for this subset; not fulfilled by a generic CI/doc status",
+      "contract_or_evidence": "Matching opaque identity in Current Playback Projection and live TrackStartedObservation for one selected backend/account/output scope; exact tests and consumer evidence required",
       "evidence_ids": [],
       "evidence_satisfied": false,
       "selection_eligible": false,
       "confidence": "SOURCE_CONSTRAINT_CAPTURED; current fulfillment not qualified",
-      "logical_mode": "AND"
+      "logical_mode": "AND",
+      "prerequisite_stage": "completion",
+      "same_increment_as_consumer": true
     },
     {
       "id": "HA-FIRST-PROJ::ROADMAP::CONNECTIVITY",
@@ -14259,6 +15380,213 @@
       "confidence": "SOURCE_CONSTRAINT_CAPTURED; current fulfillment not qualified",
       "logical_mode": "AND",
       "prerequisite_stage": "start"
+    },
+    {
+      "id": "REQ-CAPABILITY-SCOPE-PLAYBACK-STAGE2",
+      "producer": "PROJ::GATE::STAGE2-CAPABILITY-SCOPE",
+      "consumer": "PROJ::ROADMAP::PLAYBACK-STAGE2",
+      "kind": "contract_requirement",
+      "phase": "integration_acceptance",
+      "required_subset": "Four scoped flags: current projection, occurrence identity, live events, Continue Stage 2",
+      "reason": "Same-increment completion condition; source explicitly calls for one coherent production PR, not detached observation foundation work",
+      "source_ids": [
+        "CONTINUE_PLAYBACK_CONTRACT"
+      ],
+      "hard_precedence": true,
+      "contract_or_evidence": "Exact selected-scope producer/consumer tests and qualified acceptance evidence; source text alone is not fulfillment",
+      "evidence_ids": [],
+      "evidence_satisfied": false,
+      "selection_eligible": false,
+      "confidence": "SOURCE_CONSTRAINT_CAPTURED; current fulfillment not qualified",
+      "logical_mode": "AND",
+      "prerequisite_stage": "completion",
+      "same_increment_as_consumer": true
+    },
+    {
+      "id": "REQ-CURRENT-PROJECTION-PLAYBACK-STAGE2",
+      "producer": "PROJ::GATE::CURRENT-PLAYBACK-PROJECTION",
+      "consumer": "PROJ::ROADMAP::PLAYBACK-STAGE2",
+      "kind": "contract_requirement",
+      "phase": "integration_acceptance",
+      "required_subset": "One valid ACTIVE projection with exact authorized backend/account/output scope",
+      "reason": "Same-increment completion condition; source explicitly calls for one coherent production PR, not detached observation foundation work",
+      "source_ids": [
+        "CONTINUE_PLAYBACK_CONTRACT"
+      ],
+      "hard_precedence": true,
+      "contract_or_evidence": "Exact selected-scope producer/consumer tests and qualified acceptance evidence; source text alone is not fulfillment",
+      "evidence_ids": [],
+      "evidence_satisfied": false,
+      "selection_eligible": false,
+      "confidence": "SOURCE_CONSTRAINT_CAPTURED; current fulfillment not qualified",
+      "logical_mode": "AND",
+      "prerequisite_stage": "completion",
+      "same_increment_as_consumer": true
+    },
+    {
+      "id": "REQ-LIVE-EVENT-PLAYBACK-STAGE2",
+      "producer": "PROJ::GATE::LIVE-TRACKSTARTED",
+      "consumer": "PROJ::ROADMAP::PLAYBACK-STAGE2",
+      "kind": "contract_requirement",
+      "phase": "integration_acceptance",
+      "required_subset": "Normalized live TrackStartedObservation with the same opaque identity",
+      "reason": "Same-increment completion condition; source explicitly calls for one coherent production PR, not detached observation foundation work",
+      "source_ids": [
+        "CONTINUE_PLAYBACK_CONTRACT"
+      ],
+      "hard_precedence": true,
+      "contract_or_evidence": "Exact selected-scope producer/consumer tests and qualified acceptance evidence; source text alone is not fulfillment",
+      "evidence_ids": [],
+      "evidence_satisfied": false,
+      "selection_eligible": false,
+      "confidence": "SOURCE_CONSTRAINT_CAPTURED; current fulfillment not qualified",
+      "logical_mode": "AND",
+      "prerequisite_stage": "completion",
+      "same_increment_as_consumer": true
+    },
+    {
+      "id": "REQ-CAPABILITY-SCOPE-CONTINUE-STAGE2",
+      "producer": "PROJ::GATE::STAGE2-CAPABILITY-SCOPE",
+      "consumer": "PROJ::ROADMAP::CONTINUE-STAGE2",
+      "kind": "contract_requirement",
+      "phase": "integration_acceptance",
+      "required_subset": "Four scoped flags: current projection, occurrence identity, live events, Continue Stage 2",
+      "reason": "Same-increment completion condition; source explicitly calls for one coherent production PR, not detached observation foundation work",
+      "source_ids": [
+        "CONTINUE_PLAYBACK_CONTRACT"
+      ],
+      "hard_precedence": true,
+      "contract_or_evidence": "Exact selected-scope producer/consumer tests and qualified acceptance evidence; source text alone is not fulfillment",
+      "evidence_ids": [],
+      "evidence_satisfied": false,
+      "selection_eligible": false,
+      "confidence": "SOURCE_CONSTRAINT_CAPTURED; current fulfillment not qualified",
+      "logical_mode": "AND",
+      "prerequisite_stage": "completion",
+      "same_increment_as_consumer": true
+    },
+    {
+      "id": "REQ-CURRENT-PROJECTION-CONTINUE-STAGE2",
+      "producer": "PROJ::GATE::CURRENT-PLAYBACK-PROJECTION",
+      "consumer": "PROJ::ROADMAP::CONTINUE-STAGE2",
+      "kind": "contract_requirement",
+      "phase": "integration_acceptance",
+      "required_subset": "One valid ACTIVE projection with exact authorized backend/account/output scope",
+      "reason": "Same-increment completion condition; source explicitly calls for one coherent production PR, not detached observation foundation work",
+      "source_ids": [
+        "CONTINUE_PLAYBACK_CONTRACT"
+      ],
+      "hard_precedence": true,
+      "contract_or_evidence": "Exact selected-scope producer/consumer tests and qualified acceptance evidence; source text alone is not fulfillment",
+      "evidence_ids": [],
+      "evidence_satisfied": false,
+      "selection_eligible": false,
+      "confidence": "SOURCE_CONSTRAINT_CAPTURED; current fulfillment not qualified",
+      "logical_mode": "AND",
+      "prerequisite_stage": "completion",
+      "same_increment_as_consumer": true
+    },
+    {
+      "id": "REQ-LIVE-EVENT-CONTINUE-STAGE2",
+      "producer": "PROJ::GATE::LIVE-TRACKSTARTED",
+      "consumer": "PROJ::ROADMAP::CONTINUE-STAGE2",
+      "kind": "contract_requirement",
+      "phase": "integration_acceptance",
+      "required_subset": "Normalized live TrackStartedObservation with the same opaque identity",
+      "reason": "Same-increment completion condition; source explicitly calls for one coherent production PR, not detached observation foundation work",
+      "source_ids": [
+        "CONTINUE_PLAYBACK_CONTRACT"
+      ],
+      "hard_precedence": true,
+      "contract_or_evidence": "Exact selected-scope producer/consumer tests and qualified acceptance evidence; source text alone is not fulfillment",
+      "evidence_ids": [],
+      "evidence_satisfied": false,
+      "selection_eligible": false,
+      "confidence": "SOURCE_CONSTRAINT_CAPTURED; current fulfillment not qualified",
+      "logical_mode": "AND",
+      "prerequisite_stage": "completion",
+      "same_increment_as_consumer": true
+    },
+    {
+      "id": "REQ-ATOMIC-ADOPTION-CONTINUE-STAGE2",
+      "producer": "PROJ::GATE::ATOMIC-CONTINUE-ADOPTION",
+      "consumer": "PROJ::ROADMAP::CONTINUE-STAGE2",
+      "kind": "contract_requirement",
+      "phase": "integration_acceptance",
+      "required_subset": "Reserved non-public Runtime, one adopted occurrence, identity-only deduplication and silent rollback",
+      "reason": "Same-increment completion condition; source explicitly calls for one coherent production PR, not detached observation foundation work",
+      "source_ids": [
+        "CONTINUE_PLAYBACK_CONTRACT"
+      ],
+      "hard_precedence": true,
+      "contract_or_evidence": "Exact selected-scope producer/consumer tests and qualified acceptance evidence; source text alone is not fulfillment",
+      "evidence_ids": [],
+      "evidence_satisfied": false,
+      "selection_eligible": false,
+      "confidence": "SOURCE_CONSTRAINT_CAPTURED; current fulfillment not qualified",
+      "logical_mode": "AND",
+      "prerequisite_stage": "completion",
+      "same_increment_as_consumer": true
+    },
+    {
+      "id": "GATE-AMBIENT-LIGHT-RECEIVER",
+      "producer": "PROJ::GATE::RECEIVER-MATURITY",
+      "consumer": "PROJ::ROADMAP::AMBIENT-LIGHT",
+      "kind": "external_gate",
+      "phase": "implementation",
+      "required_subset": "Universal Receiver product experience matured",
+      "reason": "Explicit three-part deferred implementation gate in Ambient Light architecture",
+      "source_ids": [
+        "AMBIENT_LIGHT"
+      ],
+      "hard_precedence": true,
+      "contract_or_evidence": "Exact selected-scope producer/consumer tests and qualified acceptance evidence; source text alone is not fulfillment",
+      "evidence_ids": [],
+      "evidence_satisfied": false,
+      "selection_eligible": false,
+      "confidence": "SOURCE_CONSTRAINT_CAPTURED; current fulfillment not qualified",
+      "logical_mode": "AND",
+      "prerequisite_stage": "start"
+    },
+    {
+      "id": "GATE-AMBIENT-LIGHT-ROOM",
+      "producer": "PROJ::GATE::ROOM-ROUTING-OPERATIONAL",
+      "consumer": "PROJ::ROADMAP::AMBIENT-LIGHT",
+      "kind": "external_gate",
+      "phase": "implementation",
+      "required_subset": "Room Presentation Routing operational",
+      "reason": "Explicit three-part deferred implementation gate in Ambient Light architecture",
+      "source_ids": [
+        "AMBIENT_LIGHT"
+      ],
+      "hard_precedence": true,
+      "contract_or_evidence": "Exact selected-scope producer/consumer tests and qualified acceptance evidence; source text alone is not fulfillment",
+      "evidence_ids": [],
+      "evidence_satisfied": false,
+      "selection_eligible": false,
+      "confidence": "SOURCE_CONSTRAINT_CAPTURED; current fulfillment not qualified",
+      "logical_mode": "AND",
+      "prerequisite_stage": "start"
+    },
+    {
+      "id": "GATE-AMBIENT-LIGHT-HARDWARE",
+      "producer": "PROJ::GATE::AMBIENT-LIGHT-HARDWARE",
+      "consumer": "PROJ::ROADMAP::AMBIENT-LIGHT",
+      "kind": "external_gate",
+      "phase": "implementation",
+      "required_subset": "Practical evaluation on real target hardware possible",
+      "reason": "Explicit three-part deferred implementation gate in Ambient Light architecture",
+      "source_ids": [
+        "AMBIENT_LIGHT"
+      ],
+      "hard_precedence": true,
+      "contract_or_evidence": "Exact selected-scope producer/consumer tests and qualified acceptance evidence; source text alone is not fulfillment",
+      "evidence_ids": [],
+      "evidence_satisfied": false,
+      "selection_eligible": false,
+      "confidence": "SOURCE_CONSTRAINT_CAPTURED; current fulfillment not qualified",
+      "logical_mode": "AND",
+      "prerequisite_stage": "start"
     }
   ],
   "handoffs": [
@@ -14712,6 +16040,25 @@
         "ISSUES::DJC-PI",
         "ISSUES::DJC-WINDOWS",
         "ISSUES::DJC-WEBSITE"
+      ]
+    },
+    {
+      "id": "NORMATIVE-SOURCE-LINK-GAPS",
+      "status": "OPEN_SOURCE_TRIAGE",
+      "description": "Independent exact-head review found 77 distinct unpinned Markdown links among 28 newly full-read core sources. Twenty-nine directly relevant additional core paths are now pinned and mapped beyond the original 141-source checkpoint, including the eight missing Runtime/Presentation authorities. A current local-link scan of the pinned core set still finds 34 second-level Markdown references without source rows; six are historical/deferred prompt examples and the remaining architecture, verification, release and governance references require relevance triage before full source closure. This is a source-audit obligation, not an implicit dependency or product selection.",
+      "source_ids": [
+        "FOUNDATION_INDEX",
+        "SESSION_RUNTIME_CONTRACTS",
+        "DJ_PRESENTATION_ARCH"
+      ]
+    },
+    {
+      "id": "LOCALIZATION-DELIVERY-ORDER",
+      "status": "FUTURE_ARCHITECTURE_ONLY",
+      "description": "Narrative Architecture orders future governance/typed outcome, native renderer resources, DJMoment history and Narrative Realization, Ask DJ/voice resolution, then Lyrics-safe renderer adoption and five-language qualification. Apple, Windows and Pi own native rendering; other distribution surfaces follow the five-language validation standard. No catalog, API or renderer work is selected here.",
+      "source_ids": [
+        "LOCALIZATION_NARRATIVE",
+        "LOCALIZATION_VALIDATION_SPEC"
       ]
     }
   ],
