@@ -16,7 +16,7 @@ Planning continuation: Inventariseer uitsluitend werkelijk aanwezige API/relay-c
 
 ## Owning backlog and handoffs
 
-Read the local `REPOSITORY_STATUS.md` and existing TODO/ISSUES or release metadata that this repository actually owns. Local backlog audit: Relevant local backlog/status entries read; complete audit pending.
+Read the local `REPOSITORY_STATUS.md` and existing TODO/ISSUES or release metadata that this repository actually owns. Local backlog audit: Bounded documentary source/backlog/status inventory CLOSED in AUDIT-DJC-API: all 28 current Markdown paths represented, zero unclassified; exact API relay/issuer scope and one newer dev-dependency-only main change are separated from HA Runtime ownership. Installed APNs consumers remain open..
 
 - `RELAY`: DJC-API → DJC-CORE; Server-side APNs relay boundary; no client provider credentials. Phase `integration_acceptance`; exact artifact `UNKNOWN`; acceptance owner `DJC-CORE`.
 - `API-APPLE-PROOF`: DJC-API → DJC-APPLE; Trusted Apple pairing issuer proof for push-registration recovery, then proof-bearing HA registration. Phase `integration_acceptance`; exact artifact `One-time short-lived djcboot proof contract; exact deployed source/artifact binding UNKNOWN`; acceptance owner `DJC-APPLE`.
@@ -37,7 +37,7 @@ Continue assignment DJC-PLATFORM-ROADMAP-DAG-LANES-V1-20261003 in pcvantol/djcon
 Read https://github.com/pcvantol/djconnect/issues/1101 and https://github.com/pcvantol/djconnect-api/issues/90; keep the current WIP/assignment intact: 2026-10-03 11:55 UTC: one local worktree, clean main at older 4e6671c pin; actual remote main has one dev-dependency commit; active writer/assignment unverified.
 Use the existing owning backlog, exact source pins and local bootstrap. Planning outcome: Inventariseer uitsluitend werkelijk aanwezige API/relay-capabilities, contracts en releasegrenzen. Geen algemeen DJConnect Runtime-eigenaarschap afleiden uit de naam API.
 Selected owning node IDs (no new pickup): none established for this lane.
-Local test-policy audit: NOT_FULLY_AUDITED. Workflow effects: Push, tag, dispatch and workflow_run triggers inventoried; exact route-specific effects must be read before push.
+Local test-policy audit: Pinned API validation workflow and exact-main Validate run 37114450056 were read. Source/CI evidence is bounded; APNs delivery and paired Apple consumer acceptance remain unqualified.. Workflow effects: Push, tag, dispatch and workflow_run triggers inventoried; exact route-specific effects must be read before push.
 This is documentary planning only. Do not infer product selection, writer availability, resource capacity or release authority.
 For any later selected vertical work, first prove DoR, then include UX, tests, review, fixes, protected merge and finalization in the same assignment.
 Coordinate these exact handoff IDs and acceptance owners through the owning registers:

@@ -41,7 +41,8 @@ def render(p: dict[str, Any]) -> dict[str, str]:
     lines += [
         "\n",
         f"The snapshot has {len(p['lanes'])} repository lanes, {len(p['sources'])} pinned sources, "
-        f"{len(p['nodes'])} records and {len(p['edges'])} typed relations. Records are not a feature count. "
+        f"{len(p['nodes'])} records, {len(p['edges'])} typed graph relations and "
+        f"{len(p['source_dependencies'])} structured source-only conditions. Records are not a feature count. "
         f"{done} of {len(p['audit_obligations'])} audit/delivery obligations are closed.\n\n",
     ]
     if census:
@@ -149,17 +150,18 @@ def render(p: dict[str, Any]) -> dict[str, str]:
     lines = [
         "# Included records and existing identities\n\n",
         intro,
-        "A `PROJ::` or `INV::` key is a projection reference; it does not replace an existing source ID or authorize work.\n\n",
+        "A `PROJ::` or `INV::` key is a projection reference; it does not replace an existing source ID or authorize work. "
+        "`REFERENCE_ONLY` records remain outside the execution DAG and preserve source status/dependency context.\n\n",
     ]
     for family in sorted({n["family"] for n in p["nodes"]}):
         lines += [
             f"## {family}\n\n",
-            "| ID | Outcome | Selection | Evidence | Owner | Authority |\n|---|---|---|---|---|---|\n",
+            "| ID | Outcome | Graph role | Source-backed boundary | Selection | Evidence | Owner | Authority |\n|---|---|---|---|---|---|---|---|\n",
         ]
         for n in p["nodes"]:
             if n["family"] == family:
                 lines.append(
-                    f"| `{n['id']}` | {clean(n['title'])} | `{n['selection']}` | `{n['evidence_state']}` | `{n['lane']}` | `{n['canonical_authority']}` |\n"
+                    f"| `{n['id']}` | {clean(n['title'])} | `{n['graph_role']}` | {clean(n['acceptance_boundary'])} | `{n['selection']}` | `{n['evidence_state']}` | `{n['lane']}` | `{n['canonical_authority']}` |\n"
                 )
         lines.append("\n")
     out["CATALOGUE.md"] = "".join(lines).rstrip() + "\n"
@@ -256,6 +258,17 @@ def render(p: dict[str, Any]) -> dict[str, str]:
     for e in p["edges"]:
         lines.append(
             f"| `{e['id']}` | `{e['producer']}` → `{e['consumer']}` | `{e['kind']}` / `{e['phase']}` | `{e.get('prerequisite_stage', 'start')}` | `{e['logical_mode']}` | {clean(e['required_subset'])} | {clean(e['contract_or_evidence'])} | {'yes' if e['hard_precedence'] else 'no'} |\n"
+        )
+    lines += [
+        "\n## Structured source conditions outside the execution DAG\n\n",
+        "These source-declared conditions belong to planned, unselected records. They preserve dependency scope without creating a producer receipt or a hard start gate.\n\n",
+        "| ID | Consumer | Phase | Required source condition | Pinned sources |\n|---|---|---|---|---|\n",
+    ]
+    for d in p["source_dependencies"]:
+        lines.append(
+            f"| `{d['id']}` | `{d['consumer_node_id']}` | `{d['phase']}` | {clean(d['required_subset'])} | "
+            + ", ".join(f"`{sid}`" for sid in d["source_ids"])
+            + " |\n"
         )
     lines += ["\n## Choices and parent rollups\n\n"]
     for c in p.get("choice_constraints", []):

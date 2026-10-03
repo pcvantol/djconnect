@@ -16,7 +16,7 @@ Planning continuation: Leg het huidige gekwalificeerde boardprofiel en de manife
 
 ## Owning backlog and handoffs
 
-Read the local `REPOSITORY_STATUS.md` and existing TODO/ISSUES or release metadata that this repository actually owns. Local backlog audit: Relevant local backlog, four phase/status projections and named local reference documents read where applicable; owning status reconciliation recorded; full source/consumer audit pending.
+Read the local `REPOSITORY_STATUS.md` and existing TODO/ISSUES or release metadata that this repository actually owns. Local backlog audit: Bounded documentary source/backlog/status inventory CLOSED in AUDIT-DJC-ESP32: all 28 current Markdown paths represented, zero unclassified. Qualified board profile and manifest handoff are separated from future board-by-board ESPHome adoption and physical OTA acceptance..
 
 - `HA-DJC-ESP32`: DJC-CORE → DJC-ESP32; Profile-aware pairing, capabilities and backend-owned playback/Ask DJ subsets; preserve each host privacy and intentional absences. Phase `integration_acceptance`; exact artifact `UNKNOWN`; acceptance owner `DJC-ESP32`.
 - `FW-DIST`: DJC-ESP32 → DJC-DIST-FIRMWARE; Source-generated firmware manifest, exact board asset and SHA-256. Phase `distribution`; exact artifact `UNKNOWN`; acceptance owner `DJC-DIST-FIRMWARE`.
@@ -36,7 +36,7 @@ Continue assignment DJC-PLATFORM-ROADMAP-DAG-LANES-V1-20261003 in pcvantol/djcon
 Read https://github.com/pcvantol/djconnect/issues/1101 and https://github.com/pcvantol/djconnect-esp32/issues/58; keep the current WIP/assignment intact: 2026-10-03 11:55 UTC: one local worktree; unrelated unstaged .vscode/extensions.json; active writer/assignment unverified.
 Use the existing owning backlog, exact source pins and local bootstrap. Planning outcome: Leg het huidige gekwalificeerde boardprofiel en de manifest-handoff vast. ESPHome-adoptie blijft board-by-board toekomstscope, niet automatisch geselecteerd.
 Selected owning node IDs (no new pickup): none established for this lane.
-Local test-policy audit: NOT_FULLY_AUDITED. Workflow effects: Push, tag, dispatch and workflow_run triggers inventoried; exact route-specific effects must be read before push.
+Local test-policy audit: Four pinned ESP32 workflows and exact-main CI run 36381847450 were read. Source/CI evidence is bounded; board hardware, HA consumer and OTA target acceptance remain unqualified here.. Workflow effects: Push, tag, dispatch and workflow_run triggers inventoried; exact route-specific effects must be read before push.
 This is documentary planning only. Do not infer product selection, writer availability, resource capacity or release authority.
 For any later selected vertical work, first prove DoR, then include UX, tests, review, fixes, protected merge and finalization in the same assignment.
 Coordinate these exact handoff IDs and acceptance owners through the owning registers:

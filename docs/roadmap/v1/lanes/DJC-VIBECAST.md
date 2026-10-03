@@ -20,6 +20,7 @@ Read the local `REPOSITORY_STATUS.md` and existing TODO/ISSUES or release metada
 
 - `APPLE-CAST`: DJC-APPLE → DJC-VIBECAST; One runtime-scoped read-only Cast handoff; not pixel streaming. Phase `integration_acceptance`; exact artifact `UNKNOWN`; acceptance owner `DJC-VIBECAST`.
 - `HA-CAST`: DJC-CORE → DJC-VIBECAST; Renderer-safe active Session Broadcast and lifecycle. Phase `integration_acceptance`; exact artifact `UNKNOWN`; acceptance owner `DJC-VIBECAST`.
+- `CORE-VIBECAST-REFERENCE`: DJC-CORE → DJC-VIBECAST; Qualified Pi reference subset before receiver feasibility claims. Phase `assessment`; exact artifact `UNKNOWN; exact candidate, manifest or consumer receipt depends on the named subset`; acceptance owner `DJC-VIBECAST`.
 
 ## DoR, DoD and resource boundary
 
@@ -42,6 +43,7 @@ For any later selected vertical work, first prove DoR, then include UX, tests, r
 Coordinate these exact handoff IDs and acceptance owners through the owning registers:
 - APPLE-CAST: DJC-APPLE -> DJC-VIBECAST; One runtime-scoped read-only Cast handoff; not pixel streaming; phase integration_acceptance; acceptance owner DJC-VIBECAST; exact artifact UNKNOWN.
 - HA-CAST: DJC-CORE -> DJC-VIBECAST; Renderer-safe active Session Broadcast and lifecycle; phase integration_acceptance; acceptance owner DJC-VIBECAST; exact artifact UNKNOWN.
+- CORE-VIBECAST-REFERENCE: DJC-CORE -> DJC-VIBECAST; Qualified Pi reference subset before receiver feasibility claims; phase assessment; acceptance owner DJC-VIBECAST; exact artifact UNKNOWN; exact candidate, manifest or consumer receipt depends on the named subset.
 Do not start a release or deployment from this prompt.
 Report PLANNING_DELIVERY, PRODUCT_DELIVERY and EXECUTION_READY separately. Stop after this planning delivery.
 ```

@@ -57,6 +57,8 @@ class SnapshotTests(unittest.TestCase):
         e.pop("same_increment_as_consumer", None)
         e.update(id=eid, producer=a, consumer=b, logical_mode=mode)
         self.p["edges"].append(e)
+        self.n(a)["graph_role"] = "EXECUTION_CONDITION"
+        self.n(b)["graph_role"] = "EXECUTION_CONDITION"
         self.n(b)["prerequisite_groups"].append({"mode": mode, "edge_ids": [eid]})
 
     def test_real_partial_structure_valid(self):
@@ -82,10 +84,51 @@ class SnapshotTests(unittest.TestCase):
         self.assertIn("planning cannot claim product delivery", self.errors())
         self.assertIn("planning cannot grant product pickup", self.errors())
 
-    def test_partial_sources_cannot_be_declared_all_read(self):
-        self.p["completeness"]["all_sources_read"] = True
-        self.p["sources"][0]["read_complete"] = False
-        self.assertIn("source-read claim has partial sources", self.errors())
+    def test_dispositioned_inventory_requires_zero_unclassified_paths(self):
+        row = self.p["source_capture"]["tree_census_readback"]["lanes"]["DJC-CORE"]
+        row["unclassified_markdown"] = 1
+        self.assertIn("source inventory claim has unclassified or unbounded paths", self.errors())
+
+    def test_bounded_source_requires_explicit_remaining_work(self):
+        source = next(s for s in self.p["sources"] if not s["read_complete"])
+        source["remaining"] = ""
+        self.assertIn("partial source needs explicit read boundary and remaining work", self.errors())
+
+    def test_duplicate_pinned_source_identity_rejected(self):
+        duplicate = copy.deepcopy(self.p["sources"][0])
+        duplicate["id"] = "TEST_DUPLICATE_SOURCE"
+        self.p["sources"].append(duplicate)
+        self.assertIn("duplicate pinned source identity", self.errors())
+
+    def test_unknown_node_mention_in_edge_reason_rejected(self):
+        self.p["edges"][0]["reason"] += " SLICE::MISSING::ID"
+        self.assertIn("unknown node ID in dependency reason", self.errors())
+
+    def test_reference_node_cannot_enter_execution_dag(self):
+        node = self.n("PROJ::ROADMAP::DIRECTION")
+        node["prerequisite_groups"] = [{"mode": "AND", "edge_ids": ["MISSING"]}]
+        self.assertIn("reference-only record entered execution DAG", self.errors())
+
+    def test_source_declared_dependency_must_be_structured(self):
+        self.n("PROJ::ROADMAP::CONTINUATION")["source_dependency_ids"] = []
+        self.assertIn("source-declared dependency lacks structured registry entry", self.errors())
+
+    def test_source_only_condition_cannot_be_hard_gate(self):
+        self.p["source_dependencies"][0]["hard_execution_gate"] = True
+        self.assertIn("invalid reference-only dependency semantics", self.errors())
+
+    def test_graph_candidate_needs_concrete_acceptance(self):
+        self.n("PROJ::VIBECAST::PI-QUAL")["acceptance_criteria"] = []
+        self.assertIn("graph candidate lacks explicit acceptance", self.errors())
+
+    def test_hard_edge_rejects_reference_only_producer(self):
+        self.n("PROJ::QUAL::CMB07-ACTIVE")["graph_role"] = "REFERENCE_ONLY"
+        self.assertIn("hard edge uses reference-only producer", self.errors())
+
+    def test_hard_cross_lane_edge_needs_phase_matched_handoff(self):
+        handoff = next(h for h in self.p["handoffs"] if h["id"] == "HA-DJC-APPLE")
+        handoff["phase"] = "release"
+        self.assertIn("hard cross-lane edge lacks phase-matched handoff", self.errors())
 
     def test_unpinned_reference_scan_cannot_contain_pinned_source(self):
         self.p["source_capture"]["reference_scan"]["unmapped_paths"].append(
@@ -129,6 +172,11 @@ class SnapshotTests(unittest.TestCase):
     def test_tree_census_requires_one_row_per_lane(self):
         self.p["source_capture"]["tree_census_readback"]["lanes"].pop("DJC-PI")
         self.assertIn("tree census must cover exactly one row per lane", self.errors())
+
+    def test_tree_census_rejects_old_blob_for_current_path(self):
+        source = next(s for s in self.p["sources"] if s["id"] == "EVOLUTION")
+        source["blob_sha"] = "03be94431bb259aaa05bd2a9b439898e3400c67c"
+        self.assertIn("DJC-CORE: Markdown path/blob census digest mismatch", self.errors())
 
     def test_historical_path_cannot_overlap_fully_read_source(self):
         group = self.p["source_capture"]["historical_path_dispositions"]["groups"][0]
@@ -190,7 +238,7 @@ class SnapshotTests(unittest.TestCase):
         self.assertIn("invalid historical path/blob or version boundary", self.errors())
 
     def test_audit_cannot_close_without_receipt(self):
-        self.p["audit_obligations"][0]["status"] = "CLOSED"
+        self.p["audit_obligations"][0]["closure_evidence"] = ""
         self.assertIn("closed audit lacks closure evidence", self.errors())
 
     def test_independent_review_gate_requires_closed_audit(self):
@@ -211,6 +259,7 @@ class SnapshotTests(unittest.TestCase):
         self.assertIn("completion gate open", e)
         self.assertNotIn("owning register not delivered", e)
         self.assertIn("audit obligation open", e)
+        self.assertNotIn("audit obligation open: PRODUCER-EVIDENCE", e)
 
     def test_five_item_horizon_cannot_lose_a_record(self):
         self.p["execution_horizon"].pop()
@@ -464,6 +513,11 @@ class SnapshotTests(unittest.TestCase):
     def test_handoff_wrong_owner(self):
         self.p["handoffs"][0]["consumer_lane"] = "NO"
         self.assertIn("invalid handoff ownership", self.errors())
+
+    def test_handoff_source_and_acceptance_owner_checked(self):
+        self.p["handoffs"][0]["source_ids"] = ["MISSING"]
+        self.p["handoffs"][0]["acceptance_owner"] = "DJC-CORE"
+        self.assertIn("handoff source or acceptance owner invalid", self.errors())
 
     def test_handoff_cannot_grant_execution(self):
         self.p["handoffs"][0]["execution_authorized"] = True

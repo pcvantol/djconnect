@@ -12,15 +12,16 @@ This is a pinned planning projection for assignment `DJC-PLATFORM-ROADMAP-DAG-LA
 
 No new selected product execution is established for this lane by this planning assignment.
 
-Planning continuation: Bepaal de daadwerkelijke huidige artifact- en publicatiegrens uit workflows/receipts. Behoud één lane voor deze repo; maak geen tweede Windows-distributiewriter.
+Planning continuation: Behoud één distributielane voor Apple en Windows in deze repository. Bepaal de huidige artifact-, kanaal- en publicatiegrens uit workflows/receipts; conditionele website-copy volgt pas een goedgekeurde asset. Geen tweede writer of productpickup.
 
 ## Owning backlog and handoffs
 
-Read the local `REPOSITORY_STATUS.md` and existing TODO/ISSUES or release metadata that this repository actually owns. Local backlog audit: All 25 tracked paths, including all 15 Markdown paths, were inventoried at exact main; owning status/phase projections and sole planning issue retained. GitHub release and source-to-consumer reconciliation remain open..
+Read the local `REPOSITORY_STATUS.md` and existing TODO/ISSUES or release metadata that this repository actually owns. Local backlog audit: All 25 tracked paths, including all 15 Markdown paths, were inventoried at exact main; owning status/phase projections and sole planning issue retained. GitHub release and source-to-consumer reconciliation remain open beyond the CLOSED documentary source inventory..
 
 - `APPLE-DIST`: DJC-APPLE → DJC-DIST-APPLE; iOS/macOS unsigned bundles, hashes and tags. Phase `distribution`; exact artifact `NOT_PUBLISHED_BY_THIS_ASSIGNMENT`; acceptance owner `DJC-DIST-APPLE`.
 - `WIN-DIST`: DJC-WINDOWS → DJC-DIST-APPLE; Windows x64/arm64 and conditional Mac Catalyst artifacts. Phase `distribution`; exact artifact `NOT_PUBLISHED_BY_THIS_ASSIGNMENT`; acceptance owner `DJC-DIST-APPLE`.
 - `DIST-APPLE-WEBSITE-DOWNLOADS`: DJC-DIST-APPLE → DJC-WEBSITE; Conditional consumer of apple and windows target-matched public release asset links where a target/channel is approved and advertised; otherwise truthful localized absence. Phase `assessment`; exact artifact `Exact release tag/asset and deployed Pages revision UNKNOWN`; acceptance owner `DJC-WEBSITE`.
+- `DIST-APPLE-WEBSITE-RELEASE-GUIDANCE`: DJC-DIST-APPLE → DJC-WEBSITE; Published Apple and Windows asset/version evidence consumed by website release and install guidance. Phase `release`; exact artifact `UNKNOWN for any newly qualified candidate or deployed website revision`; acceptance owner `DJC-WEBSITE`.
 
 ## DoR, DoD and resource boundary
 
@@ -35,7 +36,7 @@ Workflow effect audit: Main push runs integrity validation and Action-run cleanu
 ```text
 Continue assignment DJC-PLATFORM-ROADMAP-DAG-LANES-V1-20261003 in pcvantol/djconnect-app-releases / DJC-DIST-APPLE.
 Read https://github.com/pcvantol/djconnect/issues/1101 and https://github.com/pcvantol/djconnect-app-releases/issues/25; keep the current WIP/assignment intact: CLEAN_LOCAL_MAIN_OBSERVED; active assignment not independently verified.
-Use the existing owning backlog, exact source pins and local bootstrap. Planning outcome: Bepaal de daadwerkelijke huidige artifact- en publicatiegrens uit workflows/receipts. Behoud één lane voor deze repo; maak geen tweede Windows-distributiewriter.
+Use the existing owning backlog, exact source pins and local bootstrap. Planning outcome: Behoud één distributielane voor Apple en Windows in deze repository. Bepaal de huidige artifact-, kanaal- en publicatiegrens uit workflows/receipts; conditionele website-copy volgt pas een goedgekeurde asset. Geen tweede writer of productpickup.
 Selected owning node IDs (no new pickup): none established for this lane.
 Local test-policy audit: Main-only distribution-integrity check validates dry-run metadata; exact-main validation run not retained in the latest run listing; local source audit is not live/installed acceptance.. Workflow effects: Main push runs integrity validation and Action-run cleanup; successful main workflow_run may invoke contents-write reusable release-evidence workflow that can create/append internal-ha-{SHA} prerelease after gates and can write the main Post-Merge Release Evidence commit status. Manual release execution contract accepts dry_run only. No distribution push/merge under this planning assignment..
 This is documentary planning only. Do not infer product selection, writer availability, resource capacity or release authority.
@@ -44,6 +45,7 @@ Coordinate these exact handoff IDs and acceptance owners through the owning regi
 - APPLE-DIST: DJC-APPLE -> DJC-DIST-APPLE; iOS/macOS unsigned bundles, hashes and tags; phase distribution; acceptance owner DJC-DIST-APPLE; exact artifact NOT_PUBLISHED_BY_THIS_ASSIGNMENT.
 - WIN-DIST: DJC-WINDOWS -> DJC-DIST-APPLE; Windows x64/arm64 and conditional Mac Catalyst artifacts; phase distribution; acceptance owner DJC-DIST-APPLE; exact artifact NOT_PUBLISHED_BY_THIS_ASSIGNMENT.
 - DIST-APPLE-WEBSITE-DOWNLOADS: DJC-DIST-APPLE -> DJC-WEBSITE; Conditional consumer of apple and windows target-matched public release asset links where a target/channel is approved and advertised; otherwise truthful localized absence; phase assessment; acceptance owner DJC-WEBSITE; exact artifact Exact release tag/asset and deployed Pages revision UNKNOWN.
+- DIST-APPLE-WEBSITE-RELEASE-GUIDANCE: DJC-DIST-APPLE -> DJC-WEBSITE; Published Apple and Windows asset/version evidence consumed by website release and install guidance; phase release; acceptance owner DJC-WEBSITE; exact artifact UNKNOWN for any newly qualified candidate or deployed website revision.
 Do not start a release or deployment from this prompt.
 Report PLANNING_DELIVERY, PRODUCT_DELIVERY and EXECUTION_READY separately. Stop after this planning delivery.
 ```

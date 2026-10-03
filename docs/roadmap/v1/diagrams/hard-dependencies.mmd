@@ -27,6 +27,7 @@ flowchart LR
   n58["Assess Pi 10-inch capability profile"]
   n59["Analyse Apple-Windows atomic convergence"]
   n61["Assess Voice Interaction Host and ESP32 profiles"]
+  n69["Rich-renderer active-Session contract disposition"]
   n101["Public Apple distribution"]
   n102["Public Windows distribution"]
   n103["Public HACS distribution"]
@@ -111,9 +112,9 @@ flowchart LR
   n130 -->|integration_acceptance / start| n133
   n130 -->|integration_acceptance / start| n134
   n135 -->|implementation / start| n136
-  n135 -->|integration_acceptance / start| n51
-  n136 -->|integration_acceptance / start| n51
-  n137 -->|integration_acceptance / start| n51
+  n135 -->|integration_acceptance / completion| n51
+  n136 -->|integration_acceptance / completion| n51
+  n137 -->|integration_acceptance / completion| n51
   n51 -->|integration_acceptance / completion| n18
   n51 -->|assessment / start| n138
   n139 -->|integration_acceptance / start| n140
@@ -124,8 +125,8 @@ flowchart LR
   n147 -->|release / start| n148
   n149 -->|release / start| n154
   n150 -->|release / start| n155
-  n192 -->|release / start| n156
-  n193 -->|release / start| n157
+  n192 -->|release / completion| n156
+  n193 -->|release / completion| n157
   n194 -->|qualification / start| n179
   n195 -->|qualification / start| n180
   n179 -->|release / start| n101
@@ -141,7 +142,7 @@ flowchart LR
   n186 -->|qualification / completion| n105
   n145 -->|qualification / start| n182
   n146 -->|qualification / start| n182
-  n59 -->|assessment / start| n28
+  n69 -->|assessment / start| n28
   n183 -->|assessment / start| n28
   n17 -->|assessment / start| n20
   n51 -->|assessment / start| n38
@@ -172,3 +173,6 @@ flowchart LR
   n131 -->|integration_acceptance / start| n143
   n205 -->|integration_acceptance / start| n206
   n158 -->|integration_acceptance / start| n206
+  n29 -->|assessment / start| n31
+  n31 -->|assessment / start| n32
+  n29 -->|assessment / start| n32

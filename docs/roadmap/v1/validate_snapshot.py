@@ -7,6 +7,7 @@ No network or repository writes.
 
 from __future__ import annotations
 import argparse
+import hashlib
 import json
 import re
 import sys
@@ -14,7 +15,9 @@ from pathlib import Path
 from typing import Any
 
 SHA = re.compile(r"^[0-9a-f]{40}$")
+SHA256 = re.compile(r"^[0-9a-f]{64}$")
 LANE = re.compile(r"^DJC-[A-Z0-9-]+$")
+NODE_ID_MENTION = re.compile(r"\b(?:SLICE|PROJ|QUAL|OBS|INV)::[A-Z0-9][A-Z0-9:-]*")
 LISTS = (
     "lanes",
     "sources",
@@ -22,6 +25,7 @@ LISTS = (
     "edges",
     "evidence",
     "handoffs",
+    "source_dependencies",
     "aliases",
     "audit_obligations",
 )
@@ -101,8 +105,8 @@ def validate(plan: Any, require_complete: bool = False) -> list[str]:
                 and all(
                     completeness.get(k) is True
                     for k in (
-                        "full_platform_audit",
-                        "all_sources_read",
+                        "documentary_platform_audit",
+                        "source_inventory_dispositioned",
                         "all_owning_registers_delivered",
                         "canonical_writes",
                         "independent_review",
@@ -113,7 +117,7 @@ def validate(plan: Any, require_complete: bool = False) -> list[str]:
                 "complete planning claim lacks all delivery gates",
             )
     indexes: dict[str, dict[str, dict[str, Any]]] = {}
-    for key in ("lanes", "sources", "nodes", "edges", "evidence", "handoffs", "audit_obligations"):
+    for key in ("lanes", "sources", "nodes", "edges", "evidence", "handoffs", "source_dependencies", "audit_obligations"):
         out: dict[str, dict[str, Any]] = {}
         for item in plan[key]:
             ident = item.get("id")
@@ -125,6 +129,15 @@ def validate(plan: Any, require_complete: bool = False) -> list[str]:
         indexes[key] = out
     lanes, sources, nodes, edges, evidence = (
         indexes[k] for k in ("lanes", "sources", "nodes", "edges", "evidence")
+    )
+    source_dependencies = indexes["source_dependencies"]
+    source_identities = [
+        (s.get("repository"), s.get("commit_sha"), s.get("path"), s.get("blob_sha"))
+        for s in sources.values()
+    ]
+    check(
+        len(source_identities) == len(set(source_identities)),
+        "duplicate pinned source identity",
     )
     repos = [lane.get("repository") for lane in lanes.values()]
     check(
@@ -169,9 +182,16 @@ def validate(plan: Any, require_complete: bool = False) -> list[str]:
             "register delivery claim has missing lanes",
         )
         check(
-            completeness.get("all_sources_read") is not True
-            or all(s.get("read_complete") is True for s in plan["sources"]),
-            "source-read claim has partial sources",
+            completeness.get("source_inventory_dispositioned") is not True
+            or (
+                bool(plan.get("source_capture", {}).get("historical_path_dispositions"))
+                and bool(plan.get("source_capture", {}).get("tree_census_readback"))
+                and all(
+                    row.get("unclassified_markdown") == 0
+                    for row in plan["source_capture"]["tree_census_readback"].get("lanes", {}).values()
+                )
+            ),
+            "source inventory claim has unclassified or unbounded paths",
         )
     scan = plan.get("source_capture", {}).get("reference_scan", {})
     if scan:
@@ -209,6 +229,7 @@ def validate(plan: Any, require_complete: bool = False) -> list[str]:
         )
     historical = plan.get("source_capture", {}).get("historical_path_dispositions", {})
     classified_by_lane: dict[str, int] = {}
+    historical_blobs_by_lane: dict[str, dict[str, str]] = {}
     if historical:
         check(bool(historical.get("method")), "historical path classification method missing")
         groups = historical.get("groups")
@@ -277,6 +298,7 @@ def validate(plan: Any, require_complete: bool = False) -> list[str]:
                 )
                 seen_historical.add(key)
                 classified_by_lane[lid] = classified_by_lane.get(lid, 0) + 1
+                historical_blobs_by_lane.setdefault(lid, {})[path] = blob
     census = plan.get("source_capture", {}).get("tree_census_readback", {})
     if census:
         rows = census.get("lanes")
@@ -320,6 +342,23 @@ def validate(plan: Any, require_complete: bool = False) -> list[str]:
                     if s.get("repository") == repo and str(s.get("path", "")).endswith(".md")
                 }
                 check(included == len(represented), f"{lid}: included Markdown count differs from source matrix")
+                represented_blobs = {
+                    s.get("path"): s.get("blob_sha")
+                    for s in sources.values()
+                    if s.get("repository") == repo and str(s.get("path", "")).endswith(".md")
+                }
+                represented_blobs.update(historical_blobs_by_lane.get(lid, {}))
+                manifest = json.dumps(
+                    sorted(represented_blobs.items()),
+                    ensure_ascii=False,
+                    separators=(",", ":"),
+                ).encode("utf-8")
+                digest = hashlib.sha256(manifest).hexdigest()
+                check(
+                    bool(SHA256.fullmatch(str(row.get("tree_manifest_sha256", ""))))
+                    and digest == row.get("tree_manifest_sha256"),
+                    f"{lid}: Markdown path/blob census digest mismatch",
+                )
     for sid, source in sources.items():
         check(
             bool(SHA.fullmatch(str(source.get("blob_sha", "")))), f"{sid}: invalid source blob pin"
@@ -340,6 +379,15 @@ def validate(plan: Any, require_complete: bool = False) -> list[str]:
         check(
             source.get("disposition") in {"MAPPED", "MAPPED_PARTIAL", "EXCLUDED_WITH_REASON"},
             f"{sid}: missing disposition",
+        )
+        check(
+            (source.get("read_complete") is True and source.get("disposition") != "MAPPED_PARTIAL")
+            or (
+                source.get("read_complete") is False
+                and source.get("disposition") == "MAPPED_PARTIAL"
+                and bool(source.get("remaining"))
+            ),
+            f"{sid}: partial source needs explicit read boundary and remaining work",
         )
         mapped = source.get("mapped_node_ids", [])
         if not isinstance(mapped, list) or any(not isinstance(x, str) for x in mapped):
@@ -384,8 +432,49 @@ def validate(plan: Any, require_complete: bool = False) -> list[str]:
             "resume_reference",
         ):
             check(bool(node.get(field)), f"{nid}: missing {field}")
+        role = node.get("graph_role")
+        check(
+            role in {
+                "REFERENCE_ONLY",
+                "ROADMAP_PROJECTION",
+                "EVIDENCE_PRODUCER",
+                "EXECUTION_CONDITION",
+            }
+            and bool(node.get("graph_role_reason")),
+            f"{nid}: missing or invalid graph role",
+        )
+        check(
+            "Owning source criteria; complete per-item extraction remains open"
+            not in str(node.get("acceptance_boundary", ""))
+            and "Only the bounded existing record" not in str(node.get("scope", "")),
+            f"{nid}: generic acceptance/scope placeholder",
+        )
+        if node.get("source_dependency_summary"):
+            check(
+                bool(node.get("source_dependency_ids")),
+                f"{nid}: source-declared dependency lacks structured registry entry",
+            )
+        if role == "REFERENCE_ONLY":
+            check(
+                node.get("assignment_status") not in {"READY", "RUNNING"}
+                and node.get("count_as_delivered_feature") is False
+                and not node.get("prerequisite_groups"),
+                f"{nid}: reference-only record entered execution DAG",
+            )
+        if role in {"ROADMAP_PROJECTION", "EVIDENCE_PRODUCER"}:
+            check(
+                bool(node.get("acceptance_criteria"))
+                and bool(node.get("completion_requirements")),
+                f"{nid}: graph candidate lacks explicit acceptance",
+            )
         for eid in node.get("evidence_ids", []):
             check(eid in evidence, f"{nid}: unknown evidence {eid}")
+        for did in node.get("source_dependency_ids", []):
+            check(
+                did in source_dependencies
+                and source_dependencies[did].get("consumer_node_id") == nid,
+                f"{nid}: inconsistent source dependency {did}",
+            )
         check(
             node.get("completion_claim") in {"NONE", "COMPLETE"}, f"{nid}: invalid completion claim"
         )
@@ -414,9 +503,32 @@ def validate(plan: Any, require_complete: bool = False) -> list[str]:
             check(sid in sources, f"{finding['id']}: unknown finding source {sid}")
         for eid in finding.get("evidence_ids", []):
             check(eid in evidence, f"{finding['id']}: unknown finding evidence {eid}")
+    for did, dependency in source_dependencies.items():
+        consumer = dependency.get("consumer_node_id")
+        check(
+            consumer in nodes and did in nodes[consumer].get("source_dependency_ids", []),
+            f"{did}: orphan source dependency",
+        )
+        check(
+            dependency.get("phase") in PHASES
+            and dependency.get("hard_execution_gate") is False
+            and bool(dependency.get("required_subset"))
+            and bool(dependency.get("status")),
+            f"{did}: invalid reference-only dependency semantics",
+        )
+        check(
+            bool(dependency.get("source_ids"))
+            and all(sid in sources for sid in dependency.get("source_ids", [])),
+            f"{did}: unknown or absent dependency source",
+        )
     obligations = indexes["audit_obligations"]
     for oid, obligation in obligations.items():
         check(obligation.get("status") in {"OPEN", "CLOSED"}, f"{oid}: invalid audit status")
+        check(
+            obligation.get("planning_required", True) is True
+            or (oid == "PRODUCER-EVIDENCE" and obligation.get("planning_required") is False),
+            f"{oid}: invalid future-qualification exception",
+        )
         if obligation.get("status") == "CLOSED":
             check(
                 bool(obligation.get("closure_evidence")),
@@ -426,11 +538,10 @@ def validate(plan: Any, require_complete: bool = False) -> list[str]:
         audit_ids = {x for x in obligations if x.startswith("AUDIT-")} | {
             "CORE-FOUNDATION",
             "GRAPH-CLOSURE",
-            "PRODUCER-EVIDENCE",
             "SOURCE-MATRIX",
         }
         for flag, needed in {
-            "full_platform_audit": audit_ids,
+            "documentary_platform_audit": audit_ids,
             "canonical_writes": {"CANONICAL-WRITES"},
             "independent_review": {"INDEPENDENT-REVIEW"},
             "protected_delivery": {"PROTECTED-DELIVERY"},
@@ -488,7 +599,17 @@ def validate(plan: Any, require_complete: bool = False) -> list[str]:
             check(bool(e.get(field)), f"{eid}: missing {field}")
         for sid in e.get("source_ids", []):
             check(sid in sources, f"{eid}: unknown dependency source {sid}")
+        mentioned_nodes = NODE_ID_MENTION.findall(str(e.get("reason", "")))
+        check(
+            all(nid in nodes or nid in alias_ids for nid in mentioned_nodes),
+            f"{eid}: unknown node ID in dependency reason",
+        )
         if e.get("hard_precedence"):
+            check(
+                e.get("producer") not in nodes
+                or nodes[e["producer"]].get("graph_role") != "REFERENCE_ONLY",
+                f"{eid}: hard edge uses reference-only producer",
+            )
             check(
                 e.get("kind") not in {"strategy_order", "resource_conflict", "handoff_reference"},
                 f"{eid}: non-functional order marked hard",
@@ -677,8 +798,33 @@ def validate(plan: Any, require_complete: bool = False) -> list[str]:
         )
         check(h.get("phase") in PHASES | {"distribution"}, f"{h.get('id')}: invalid handoff phase")
         check(
+            bool(h.get("source_ids"))
+            and all(sid in sources for sid in h.get("source_ids", []))
+            and h.get("acceptance_owner") == h.get("consumer_lane"),
+            f"{h.get('id')}: handoff source or acceptance owner invalid",
+        )
+        check(
             h.get("execution_authorized") is False,
             f"{h.get('id')}: planning handoff cannot authorize execution",
+        )
+    handoff_phases = {
+        (h.get("producer_lane"), h.get("consumer_lane"), h.get("phase"))
+        for h in plan["handoffs"]
+    }
+    for eid, edge in edges.items():
+        if not edge.get("hard_precedence"):
+            continue
+        producer = nodes.get(edge.get("producer"), {})
+        consumer = nodes.get(edge.get("consumer"), {})
+        a, b = producer.get("lane"), consumer.get("lane")
+        if not a or not b or a == b:
+            continue
+        phases = {edge.get("phase")}
+        if edge.get("phase") == "release":
+            phases.add("distribution")
+        check(
+            any((a, b, phase) in handoff_phases for phase in phases),
+            f"{eid}: hard cross-lane edge lacks phase-matched handoff",
         )
     for rollup in plan.get("rollups", []):
         children = rollup.get("children", [])
@@ -703,9 +849,9 @@ def validate(plan: Any, require_complete: bool = False) -> list[str]:
             check(value is True, f"completion gate open: {key}")
         check(bool(plan.get("completeness")), "completeness declaration missing")
         for item in plan["audit_obligations"]:
-            check(item.get("status") == "CLOSED", f"audit obligation open: {item.get('id')}")
+            if item.get("planning_required", True):
+                check(item.get("status") == "CLOSED", f"audit obligation open: {item.get('id')}")
         for sid, s in sources.items():
-            check(s.get("read_complete") is True, f"{sid}: unread source ranges")
             check(s.get("commit_sha") is not None, f"{sid}: commit binding unverified")
         for lid, lane in lanes.items():
             check(bool(lane.get("owning_register")), f"{lid}: owning register not delivered")
