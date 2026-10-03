@@ -41,38 +41,16 @@
     "metadata_and_bounded_paraphrases": true,
     "offline_hash_verification_of_remote_blobs": false,
     "per_call_timestamps": "Date-level head readback on 2026-10-03; no per-file read timestamp for inherited checkpoint.",
-    "pinned_tree_blobs_verified": "170 of 170 path/blob pins matched exact commit trees: 105 original GitHub tree readbacks and 65 new local git commit-tree readbacks on 2026-10-03. Narrative interpretation remains partial.",
+    "pinned_tree_blobs_verified": "196 of 196 path/blob pins matched exact commit trees: 105 original GitHub tree readbacks and 91 local git commit-tree readbacks on 2026-10-03. Narrative interpretation remains partial.",
     "reference_scan": {
       "method": "Every pinned core source blob at its recorded commit: parse Markdown ](relative-link) targets, strip anchors, normalize against source directory, retain existing .md paths in that same commit absent from the pinned source matrix; distinct paths only.",
       "unmapped_paths": [
         "CANONICAL_REFERENCES.md",
-        "DJ_SESSION_TRANSPORT_ARCHITECTURE.md",
         "PLATFORM_DISCOVERY_REPORT.md",
-        "docs/adr/0015-vibecast-broadcast-capability.md",
         "docs/engineering/ENGINEERING_PLATFORM_1_X_ENGINEERING_REPORT.md",
         "docs/engineering/ENGINEERING_PLATFORM_ARCHITECTURE_AUTHORING_REPORT.md",
         "docs/engineering/ENGINEERING_PLATFORM_ARCHITECTURE_HANDBOOK.md",
         "docs/engineering/EXECUTION_HOST_CONTRACT.md",
-        "docs/governance/CI_QUALIFICATION_REPORT_GOVERNANCE.md",
-        "docs/governance/PROMPT_TEMPLATE.md",
-        "docs/product/DJ_BRAIN_CAPABILITY_PLATFORM.md",
-        "docs/product/KNOWLEDGE_SOURCE_ARCHITECTURE.md",
-        "docs/release/PLATFORM_RELEASE_ARCHITECTURE.md",
-        "docs/release/PLATFORM_RELEASE_DEPLOYMENT_EVIDENCE.md",
-        "docs/release/POST_DEPLOYMENT_SMOKE_EVIDENCE_SCHEMA.md",
-        "docs/technical/DETERMINISTIC_SCENARIO_DRIVER.md",
-        "docs/technical/DEVELOPER_SESSION_BOOTSTRAP.md",
-        "docs/technical/DJ_MOMENT_ENGINE.md",
-        "docs/technical/VOICE_TRANSPORT.md",
-        "docs/technical/WEBSOCKET_API.md",
-        "docs/verification/01_VERIFICATION_ARCHITECTURE.md",
-        "docs/verification/GOLDEN_QUALIFICATION_FOUNDATION.md",
-        "docs/verification/GOLDEN_SCENARIO_GOVERNANCE.md",
-        "docs/verification/PRESENTATION_VERIFICATION_ARCHITECTURE.md",
-        "docs/verification/SESSION_INTELLIGENCE_E2E_ARCHITECTURE.md",
-        "docs/verification/SESSION_INTELLIGENCE_GOLDEN_SCENARIOS.md",
-        "docs/verification/SESSION_INTELLIGENCE_QUALIFICATION_POLICY.md",
-        "docs/verification/VERIFICATION_CLOCK_ARCHITECTURE.md",
         "prompts/deferred/software_assurance/PROMPT_01_CI_GOVERNANCE_FOUNDATION.md",
         "prompts/deferred/software_assurance/PROMPT_02_CROSS_REPOSITORY_WORKFLOW_HARMONIZATION.md",
         "prompts/deferred/software_assurance/PROMPT_03_TRUSTED_DELIVERY_PLATFORM.md",
@@ -80,7 +58,21 @@
         "prompts/deferred/software_assurance/PROMPT_05_SINGLE_MAINTAINER_GOVERNANCE_ROLLOUT.md",
         "prompts/release/PROMPT_05_PLATFORM_RELEASE_CERTIFICATION.md"
       ],
-      "disposition": "OPEN_RELEVANCE_TRIAGE; listing does not imply implementation precedence, source authority or product selection"
+      "disposition": "TRIAGED_REFERENCE_ONLY; 12 link targets have explicit exclusion reasons and do not create product nodes or execution authority",
+      "triage": {
+        "CANONICAL_REFERENCES.md": "Navigation map, fully read; current owning foundation, Product Roadmap and Backlog are pinned directly. Its older no-roadmap sentence is superseded by current records.",
+        "PLATFORM_DISCOVERY_REPORT.md": "Historical 2026-07-09 discovery report, fully read; explicitly disclaims current capability authority and points to the pinned capability model.",
+        "docs/engineering/ENGINEERING_PLATFORM_1_X_ENGINEERING_REPORT.md": "Fully read historical embedded Engineering Platform completion report; terminal #1098 source retirement is the current boundary.",
+        "docs/engineering/ENGINEERING_PLATFORM_ARCHITECTURE_AUTHORING_REPORT.md": "Fully read historical embedded Engineering Platform authoring report; no current DJConnect product or planning selection.",
+        "docs/engineering/ENGINEERING_PLATFORM_ARCHITECTURE_HANDBOOK.md": "Fully read historical embedded Engineering Platform handbook; current standalone EP ownership and terminal #1098 retirement govern execution.",
+        "docs/engineering/EXECUTION_HOST_CONTRACT.md": "Fully read historical embedded Execution Host contract; not a second live source writer or product dependency after #1098.",
+        "prompts/deferred/software_assurance/PROMPT_01_CI_GOVERNANCE_FOUNDATION.md": "Deferred archive prompt; header marks historical implementation complete. Current assurance status comes from owning governance/status records.",
+        "prompts/deferred/software_assurance/PROMPT_02_CROSS_REPOSITORY_WORKFLOW_HARMONIZATION.md": "Deferred archive prompt; header marks historical implementation complete. No new workflow rollout under this assignment.",
+        "prompts/deferred/software_assurance/PROMPT_03_TRUSTED_DELIVERY_PLATFORM.md": "Deferred prompt with stale ACTIVE header and separate-execution requirement; current Trusted Delivery evidence and owning status supersede pickup.",
+        "prompts/deferred/software_assurance/PROMPT_04_TRUSTED_DELIVERY_CERTIFICATION.md": "Deferred prompt with blocked historical prerequisite; not current five-item Execution Horizon or planning authority.",
+        "prompts/deferred/software_assurance/PROMPT_05_SINGLE_MAINTAINER_GOVERNANCE_ROLLOUT.md": "Deferred governance rollout prompt; no branch-protection or workflow changes authorized in this assignment.",
+        "prompts/release/PROMPT_05_PLATFORM_RELEASE_CERTIFICATION.md": "Separate release-certification prompt awaiting evidence and explicit authorization; no release work selected by this planning assignment."
+      }
     }
   },
   "lanes": [
@@ -3745,6 +3737,493 @@
         "PROJ::GATE::AMBIENT-LIGHT-HARDWARE"
       ],
       "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
+    },
+    {
+      "id": "LINK::DJ-SESSION-TRANSPORT-ARCHITECTURE",
+      "repository": "pcvantol/djconnect",
+      "path": "DJ_SESSION_TRANSPORT_ARCHITECTURE.md",
+      "blob_sha": "ba2a329f298f8bd7800b4c9b5fa08640bcb7a489",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "FULL_PINNED_DOCUMENT_READ",
+      "read_complete": true,
+      "status_authority": "Accepted transport-independent Session architecture; future HTTP delta remains an architectural requirement.",
+      "observed_at": "2026-10-03 local Mac / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/DJ_SESSION_TRANSPORT_ARCHITECTURE.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "SLICE::CORE::BROADCAST-CONTRACT",
+        "PROJ::ROADMAP::P2-REFERENCE"
+      ],
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
+    },
+    {
+      "id": "LINK::DOCS-ADR-0015-VIBECAST-BROADCAST-CAPABILITY",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/adr/0015-vibecast-broadcast-capability.md",
+      "blob_sha": "1b1a87dd12bf27b3326eed0506fd8606bd343e79",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "FULL_PINNED_DOCUMENT_READ",
+      "read_complete": true,
+      "status_authority": "Accepted VibeCast Broadcast capability decision; no separate video stream or implementation authorization.",
+      "observed_at": "2026-10-03 local Mac / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/adr/0015-vibecast-broadcast-capability.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::ROADMAP::P2-VIBECAST",
+        "INV::DJC-VIBECAST"
+      ],
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
+    },
+    {
+      "id": "LINK::DOCS-GOVERNANCE-CI-QUALIFICATION-REPORT-GOVERNANCE",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/governance/CI_QUALIFICATION_REPORT_GOVERNANCE.md",
+      "blob_sha": "e9d9914445be9efc864f5360325633d668393f85",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "FULL_PINNED_DOCUMENT_READ",
+      "read_complete": true,
+      "status_authority": "Canonical CI report publication governance; advisory classification and redaction boundary.",
+      "observed_at": "2026-10-03 local Mac / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/governance/CI_QUALIFICATION_REPORT_GOVERNANCE.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::E2E::16"
+      ],
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
+    },
+    {
+      "id": "LINK::DOCS-GOVERNANCE-PROMPT-TEMPLATE",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/governance/PROMPT_TEMPLATE.md",
+      "blob_sha": "6fad6c17cb63b007a47fb4cef4b7971505fb3ced",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "FULL_PINNED_DOCUMENT_READ",
+      "read_complete": true,
+      "status_authority": "Canonical engineering prompt template; process guidance, not product selection.",
+      "observed_at": "2026-10-03 local Mac / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/governance/PROMPT_TEMPLATE.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::AUDIT::METHOD"
+      ],
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
+    },
+    {
+      "id": "LINK::DOCS-PRODUCT-DJ-BRAIN-CAPABILITY-PLATFORM",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/product/DJ_BRAIN_CAPABILITY_PLATFORM.md",
+      "blob_sha": "34f7c236dcd8805c1ff04dcfe6adaffb01ea0e0f",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "FULL_PINNED_DOCUMENT_READ",
+      "read_complete": true,
+      "status_authority": "Existing DJ Brain built-in capability policy; no public plugin platform or second intelligence path.",
+      "observed_at": "2026-10-03 local Mac / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/product/DJ_BRAIN_CAPABILITY_PLATFORM.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::ROADMAP::P1-INTELLIGENCE"
+      ],
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
+    },
+    {
+      "id": "LINK::DOCS-PRODUCT-KNOWLEDGE-SOURCE-ARCHITECTURE",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/product/KNOWLEDGE_SOURCE_ARCHITECTURE.md",
+      "blob_sha": "c0b417a3c7a9c7f0ffd7e263ad4e06fa0688711e",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "FULL_PINNED_DOCUMENT_READ",
+      "read_complete": true,
+      "status_authority": "Canonical provider-independent Knowledge Source architecture; no provider or Lyrics selection.",
+      "observed_at": "2026-10-03 local Mac / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/product/KNOWLEDGE_SOURCE_ARCHITECTURE.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::ROADMAP::P1-INTELLIGENCE",
+        "PROJ::ROADMAP::NARRATIVE-LYRICS"
+      ],
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
+    },
+    {
+      "id": "LINK::DOCS-RELEASE-PLATFORM-RELEASE-ARCHITECTURE",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/release/PLATFORM_RELEASE_ARCHITECTURE.md",
+      "blob_sha": "6f7c123162846d454cb0b0d644d56b17832aa4b4",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "FULL_PINNED_DOCUMENT_READ",
+      "read_complete": true,
+      "status_authority": "Accepted release architecture and historical Generation 1 correction; not release authorization.",
+      "observed_at": "2026-10-03 local Mac / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/release/PLATFORM_RELEASE_ARCHITECTURE.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::EVOLUTION::APPLE-PUBLIC",
+        "PROJ::EVOLUTION::WINDOWS-PUBLIC",
+        "PROJ::EVOLUTION::HACS-PUBLIC",
+        "PROJ::EVOLUTION::FW-OTA"
+      ],
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
+    },
+    {
+      "id": "LINK::DOCS-RELEASE-PLATFORM-RELEASE-DEPLOYMENT-EVIDENCE",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/release/PLATFORM_RELEASE_DEPLOYMENT_EVIDENCE.md",
+      "blob_sha": "b98cfe002edbc830714c9f7617829722fc47af0c",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "FULL_PINNED_DOCUMENT_READ",
+      "read_complete": true,
+      "status_authority": "Existing exact-artifact deployment evidence contract; not proof of a current deployment.",
+      "observed_at": "2026-10-03 local Mac / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/release/PLATFORM_RELEASE_DEPLOYMENT_EVIDENCE.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::EVOLUTION::FW-OTA"
+      ],
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
+    },
+    {
+      "id": "LINK::DOCS-RELEASE-POST-DEPLOYMENT-SMOKE-EVIDENCE-SCHEMA",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/release/POST_DEPLOYMENT_SMOKE_EVIDENCE_SCHEMA.md",
+      "blob_sha": "14f1f8521d0314b9fd8f65de9e2059187fc7890b",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "FULL_PINNED_DOCUMENT_READ",
+      "read_complete": true,
+      "status_authority": "Post-deployment smoke evidence schema; does not itself qualify a release.",
+      "observed_at": "2026-10-03 local Mac / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/release/POST_DEPLOYMENT_SMOKE_EVIDENCE_SCHEMA.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::EVOLUTION::APPLE-PUBLIC",
+        "PROJ::EVOLUTION::HACS-PUBLIC"
+      ],
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
+    },
+    {
+      "id": "LINK::DOCS-TECHNICAL-DETERMINISTIC-SCENARIO-DRIVER",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/technical/DETERMINISTIC_SCENARIO_DRIVER.md",
+      "blob_sha": "8166a38b235e3760991bf2bcfd41d4eeb41c1ed2",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "FULL_PINNED_DOCUMENT_READ",
+      "read_complete": true,
+      "status_authority": "Implemented bounded driver for six original Golden Scenarios.",
+      "observed_at": "2026-10-03 local Mac / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/technical/DETERMINISTIC_SCENARIO_DRIVER.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::E2E::03"
+      ],
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
+    },
+    {
+      "id": "LINK::DOCS-TECHNICAL-DEVELOPER-SESSION-BOOTSTRAP",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/technical/DEVELOPER_SESSION_BOOTSTRAP.md",
+      "blob_sha": "d7c5ca33ceb47ca61bf95e6fe9151cb6c16dcd61",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "FULL_PINNED_DOCUMENT_READ",
+      "read_complete": true,
+      "status_authority": "Implemented isolated Session bootstrap for six original Golden Scenarios.",
+      "observed_at": "2026-10-03 local Mac / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/technical/DEVELOPER_SESSION_BOOTSTRAP.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::E2E::02"
+      ],
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
+    },
+    {
+      "id": "LINK::DOCS-TECHNICAL-DJ-MOMENT-ENGINE",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/technical/DJ_MOMENT_ENGINE.md",
+      "blob_sha": "2769dc8a1f9c7e1debc970c790f07332353fae5a",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "FULL_PINNED_DOCUMENT_READ",
+      "read_complete": true,
+      "status_authority": "Current Moment Engine slice and future opaque playback occurrence boundary.",
+      "observed_at": "2026-10-03 local Mac / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/technical/DJ_MOMENT_ENGINE.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::ROADMAP::P1-INTELLIGENCE",
+        "PROJ::ROADMAP::CONTINUE-STAGE2"
+      ],
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
+    },
+    {
+      "id": "LINK::DOCS-TECHNICAL-VOICE-TRANSPORT",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/technical/VOICE_TRANSPORT.md",
+      "blob_sha": "3d70455c03e544dfc3933778ecb94018ea8e1a4f",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "FULL_PINNED_DOCUMENT_READ",
+      "read_complete": true,
+      "status_authority": "Observed HA/ESP voice transport; no native streaming or on-device STT contract.",
+      "observed_at": "2026-10-03 local Mac / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/technical/VOICE_TRANSPORT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "SLICE::CORE::VOICE-ENDPOINT",
+        "SLICE::ESP32::VOICE-ACCEPTANCE"
+      ],
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
+    },
+    {
+      "id": "LINK::DOCS-TECHNICAL-WEBSOCKET-API",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/technical/WEBSOCKET_API.md",
+      "blob_sha": "393b980de7ade3d72d1f34f75c65d49004d37afa",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "FULL_PINNED_DOCUMENT_READ",
+      "read_complete": true,
+      "status_authority": "Observed WebSocket capability and snapshot implementation; Flow delta and cursor unsupported.",
+      "observed_at": "2026-10-03 local Mac / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/technical/WEBSOCKET_API.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "SLICE::CORE::BROADCAST-CONTRACT"
+      ],
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
+    },
+    {
+      "id": "LINK::DOCS-VERIFICATION-01-VERIFICATION-ARCHITECTURE",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/verification/01_VERIFICATION_ARCHITECTURE.md",
+      "blob_sha": "711b855ef43913bf0f6c9b9c659915b56bf5b878",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "FULL_PINNED_DOCUMENT_READ",
+      "read_complete": true,
+      "status_authority": "Canonical platform verification architecture; not a release readiness result.",
+      "observed_at": "2026-10-03 local Mac / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/verification/01_VERIFICATION_ARCHITECTURE.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::AUDIT::METHOD",
+        "PROJ::ROADMAP::P1-E2E"
+      ],
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
+    },
+    {
+      "id": "LINK::DOCS-VERIFICATION-GOLDEN-QUALIFICATION-FOUNDATION",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/verification/GOLDEN_QUALIFICATION_FOUNDATION.md",
+      "blob_sha": "b89ae9d660b3275567d84dbdd6d5275aea0e3239",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "FULL_PINNED_DOCUMENT_READ",
+      "read_complete": true,
+      "status_authority": "Implemented deterministic Foundation and advisory Smoke/Regression profiles.",
+      "observed_at": "2026-10-03 local Mac / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/verification/GOLDEN_QUALIFICATION_FOUNDATION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::E2E::09",
+        "PROJ::E2E::10",
+        "PROJ::E2E::14"
+      ],
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
+    },
+    {
+      "id": "LINK::DOCS-VERIFICATION-GOLDEN-SCENARIO-GOVERNANCE",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/verification/GOLDEN_SCENARIO_GOVERNANCE.md",
+      "blob_sha": "e971baffb256bad95098b49ef5d0f1a68c7c84eb",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "FULL_PINNED_DOCUMENT_READ",
+      "read_complete": true,
+      "status_authority": "Canonical Golden Scenario family governance; Presentation/Audience families remain future.",
+      "observed_at": "2026-10-03 local Mac / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/verification/GOLDEN_SCENARIO_GOVERNANCE.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::E2E::08",
+        "PROJ::E2E::13"
+      ],
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
+    },
+    {
+      "id": "LINK::DOCS-VERIFICATION-PRESENTATION-VERIFICATION-ARCHITECTURE",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/verification/PRESENTATION_VERIFICATION_ARCHITECTURE.md",
+      "blob_sha": "c1abf81181fbd2b37b64d628d791b2ae3cd6ab98",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "FULL_PINNED_DOCUMENT_READ",
+      "read_complete": true,
+      "status_authority": "Future separate Presentation verification architecture; no new scenario family selected.",
+      "observed_at": "2026-10-03 local Mac / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/verification/PRESENTATION_VERIFICATION_ARCHITECTURE.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::E2E::12",
+        "PROJ::E2E::13"
+      ],
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
+    },
+    {
+      "id": "LINK::DOCS-VERIFICATION-SESSION-INTELLIGENCE-E2E-ARCHITECTURE",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/verification/SESSION_INTELLIGENCE_E2E_ARCHITECTURE.md",
+      "blob_sha": "7b4af1246b2de415718ffae7c173404636ca0f22",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "FULL_PINNED_DOCUMENT_READ",
+      "read_complete": true,
+      "status_authority": "Canonical Session Intelligence E2E architecture; six original scenarios use existing Runtime.",
+      "observed_at": "2026-10-03 local Mac / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/verification/SESSION_INTELLIGENCE_E2E_ARCHITECTURE.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::E2E::01",
+        "PROJ::ROADMAP::P1-E2E"
+      ],
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
+    },
+    {
+      "id": "LINK::DOCS-VERIFICATION-SESSION-INTELLIGENCE-GOLDEN-SCENARIOS",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/verification/SESSION_INTELLIGENCE_GOLDEN_SCENARIOS.md",
+      "blob_sha": "6ba07820ce3c7462a23c19aa0689b38fd5c76978",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "FULL_PINNED_DOCUMENT_READ",
+      "read_complete": true,
+      "status_authority": "Approved six original Session Intelligence behavioral contracts, now executable per implementation status.",
+      "observed_at": "2026-10-03 local Mac / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/verification/SESSION_INTELLIGENCE_GOLDEN_SCENARIOS.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::E2E::08"
+      ],
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
+    },
+    {
+      "id": "LINK::DOCS-VERIFICATION-SESSION-INTELLIGENCE-QUALIFICATION-POLICY",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/verification/SESSION_INTELLIGENCE_QUALIFICATION_POLICY.md",
+      "blob_sha": "a582085166c78745e30e123d53f28f38c7bcf5bf",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "FULL_PINNED_DOCUMENT_READ",
+      "read_complete": true,
+      "status_authority": "Canonical qualification policy; Smoke and Regression advisory, not required CI gates.",
+      "observed_at": "2026-10-03 local Mac / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/verification/SESSION_INTELLIGENCE_QUALIFICATION_POLICY.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::E2E::09",
+        "PROJ::E2E::10",
+        "PROJ::E2E::14"
+      ],
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
+    },
+    {
+      "id": "LINK::DOCS-VERIFICATION-VERIFICATION-CLOCK-ARCHITECTURE",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/verification/VERIFICATION_CLOCK_ARCHITECTURE.md",
+      "blob_sha": "2b5bf7ce7b45aff6a1bb4a6fb5d24095758ad87e",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "FULL_PINNED_DOCUMENT_READ",
+      "read_complete": true,
+      "status_authority": "Accepted bounded verification Clock, no production timing or simulation mode.",
+      "observed_at": "2026-10-03 local Mac / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/verification/VERIFICATION_CLOCK_ARCHITECTURE.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::E2E::06",
+        "PROJ::E2E::07"
+      ],
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
+    },
+    {
+      "id": "LINK::PROMPT-INITIALIZATION",
+      "repository": "pcvantol/djconnect",
+      "path": "PROMPT_INITIALIZATION.md",
+      "blob_sha": "8b8c20110f11932ba4ef8ccefad6b74d6731eb8d",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "FULL_PINNED_DOCUMENT_READ",
+      "read_complete": true,
+      "status_authority": "Generated prompt initialization projection; local process guidance only.",
+      "observed_at": "2026-10-03 local Mac / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/PROMPT_INITIALIZATION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::AUDIT::METHOD"
+      ],
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
+    },
+    {
+      "id": "LINK::DOCS-TECHNICAL-HTTP-API",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/technical/HTTP_API.md",
+      "blob_sha": "11a83ec0ec072dc00a1f8469a0479b566286725d",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "FULL_PINNED_DOCUMENT_READ",
+      "read_complete": true,
+      "status_authority": "Observed HTTP route inventory and snapshot-only capability; no live Flow delta.",
+      "observed_at": "2026-10-03 local Mac / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/technical/HTTP_API.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE",
+        "SLICE::CORE::PAIRING-CONTRACT"
+      ],
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
+    },
+    {
+      "id": "LINK::DOCS-VERIFICATION-03-SCENARIO-CATALOG",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/verification/03_SCENARIO_CATALOG.md",
+      "blob_sha": "b2f136419d8bd6ed6721e11123852fe83998b8c6",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "FULL_PINNED_DOCUMENT_READ",
+      "read_complete": true,
+      "status_authority": "Canonical broad platform scenario index; distinct from six Golden Scenario product contracts.",
+      "observed_at": "2026-10-03 local Mac / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/verification/03_SCENARIO_CATALOG.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::ROADMAP::P1-E2E"
+      ],
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
+    },
+    {
+      "id": "LINK::DOCS-VERIFICATION-DEVELOPER-OVERLAY-DELIVERY-GUARD-PREFLIGHT",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/verification/DEVELOPER_OVERLAY_DELIVERY_GUARD_PREFLIGHT.md",
+      "blob_sha": "080eef86213b1b6c163655e42c59091b1dc0087e",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "FULL_PINNED_DOCUMENT_READ",
+      "read_complete": true,
+      "status_authority": "Accepted E2E-only overlay guard and implemented harness result; no shipping Receiver overlay.",
+      "observed_at": "2026-10-03 local Mac / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/verification/DEVELOPER_OVERLAY_DELIVERY_GUARD_PREFLIGHT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::E2E::18"
+      ],
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
     }
   ],
   "nodes": [
@@ -3758,7 +4237,8 @@
       "repository": "pcvantol/djconnect",
       "source_ids": [
         "LOCAL_EXTENSION",
-        "API_CONTRACT"
+        "API_CONTRACT",
+        "LINK::DOCS-TECHNICAL-HTTP-API"
       ],
       "canonical_authority": "LOCAL_EXTENSION",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -4114,7 +4594,8 @@
       "source_ids": [
         "README::DJC-VIBECAST",
         "AGENTS::DJC-VIBECAST",
-        "STATUS::DJC-VIBECAST"
+        "STATUS::DJC-VIBECAST",
+        "LINK::DOCS-ADR-0015-VIBECAST-BROADCAST-CAPABILITY"
       ],
       "canonical_authority": "README::DJC-VIBECAST",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -4529,7 +5010,10 @@
         "PRODUCT_ROADMAP",
         "PLATFORM_STRATEGY",
         "PRODUCT_STRATEGY",
-        "DJ_INTELLIGENCE_ARCH"
+        "DJ_INTELLIGENCE_ARCH",
+        "LINK::DOCS-PRODUCT-DJ-BRAIN-CAPABILITY-PLATFORM",
+        "LINK::DOCS-PRODUCT-KNOWLEDGE-SOURCE-ARCHITECTURE",
+        "LINK::DOCS-TECHNICAL-DJ-MOMENT-ENGINE"
       ],
       "canonical_authority": "PRODUCT_ROADMAP",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -4578,7 +5062,10 @@
         "PRODUCT_ROADMAP",
         "PRODUCT_BACKLOG",
         "E2E_ROADMAP",
-        "GOLDEN_CI"
+        "GOLDEN_CI",
+        "LINK::DOCS-VERIFICATION-01-VERIFICATION-ARCHITECTURE",
+        "LINK::DOCS-VERIFICATION-SESSION-INTELLIGENCE-E2E-ARCHITECTURE",
+        "LINK::DOCS-VERIFICATION-03-SCENARIO-CATALOG"
       ],
       "canonical_authority": "PRODUCT_ROADMAP",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -4642,7 +5129,8 @@
         "PRESENTATION_CAPABILITY_ARCH",
         "SPEECH_RENDERING_CONTRACT",
         "BROADCAST_TRANSPORT",
-        "RENDERER_PLAYBACK_PROJECTION"
+        "RENDERER_PLAYBACK_PROJECTION",
+        "LINK::DJ-SESSION-TRANSPORT-ARCHITECTURE"
       ],
       "canonical_authority": "PRODUCT_ROADMAP",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -4699,7 +5187,8 @@
         "VIBECAST_INCREMENT",
         "VIBECAST_ARCH",
         "DESIGN_PRINCIPLES",
-        "PRODUCT_LANGUAGE"
+        "PRODUCT_LANGUAGE",
+        "LINK::DOCS-ADR-0015-VIBECAST-BROADCAST-CAPABILITY"
       ],
       "canonical_authority": "PRODUCT_ROADMAP",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -6043,7 +6532,8 @@
       "lane": "DJC-CORE",
       "repository": "pcvantol/djconnect",
       "source_ids": [
-        "PRODUCT_ROADMAP"
+        "PRODUCT_ROADMAP",
+        "LINK::DOCS-PRODUCT-KNOWLEDGE-SOURCE-ARCHITECTURE"
       ],
       "canonical_authority": "PRODUCT_ROADMAP",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -6228,7 +6718,8 @@
         "CONTINUE_PLAYBACK_CONTRACT",
         "LIVE_PLAYBACK_OBSERVATION",
         "ADR_0016_PLAYBACK_ID",
-        "DJ_INTELLIGENCE_MATURITY"
+        "DJ_INTELLIGENCE_MATURITY",
+        "LINK::DOCS-TECHNICAL-DJ-MOMENT-ENGINE"
       ],
       "canonical_authority": "PRODUCT_ROADMAP",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -7460,7 +7951,8 @@
       "lane": "DJC-CORE",
       "repository": "pcvantol/djconnect",
       "source_ids": [
-        "E2E_ROADMAP"
+        "E2E_ROADMAP",
+        "LINK::DOCS-VERIFICATION-SESSION-INTELLIGENCE-E2E-ARCHITECTURE"
       ],
       "canonical_authority": "E2E_ROADMAP",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -7506,7 +7998,8 @@
       "lane": "DJC-CORE",
       "repository": "pcvantol/djconnect",
       "source_ids": [
-        "E2E_ROADMAP"
+        "E2E_ROADMAP",
+        "LINK::DOCS-TECHNICAL-DEVELOPER-SESSION-BOOTSTRAP"
       ],
       "canonical_authority": "E2E_ROADMAP",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -7552,7 +8045,8 @@
       "lane": "DJC-CORE",
       "repository": "pcvantol/djconnect",
       "source_ids": [
-        "E2E_ROADMAP"
+        "E2E_ROADMAP",
+        "LINK::DOCS-TECHNICAL-DETERMINISTIC-SCENARIO-DRIVER"
       ],
       "canonical_authority": "E2E_ROADMAP",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -7690,7 +8184,8 @@
       "lane": "DJC-CORE",
       "repository": "pcvantol/djconnect",
       "source_ids": [
-        "E2E_ROADMAP"
+        "E2E_ROADMAP",
+        "LINK::DOCS-VERIFICATION-VERIFICATION-CLOCK-ARCHITECTURE"
       ],
       "canonical_authority": "E2E_ROADMAP",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -7736,7 +8231,8 @@
       "lane": "DJC-CORE",
       "repository": "pcvantol/djconnect",
       "source_ids": [
-        "E2E_ROADMAP"
+        "E2E_ROADMAP",
+        "LINK::DOCS-VERIFICATION-VERIFICATION-CLOCK-ARCHITECTURE"
       ],
       "canonical_authority": "E2E_ROADMAP",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -7782,7 +8278,9 @@
       "lane": "DJC-CORE",
       "repository": "pcvantol/djconnect",
       "source_ids": [
-        "E2E_ROADMAP"
+        "E2E_ROADMAP",
+        "LINK::DOCS-VERIFICATION-GOLDEN-SCENARIO-GOVERNANCE",
+        "LINK::DOCS-VERIFICATION-SESSION-INTELLIGENCE-GOLDEN-SCENARIOS"
       ],
       "canonical_authority": "E2E_ROADMAP",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -7828,7 +8326,9 @@
       "lane": "DJC-CORE",
       "repository": "pcvantol/djconnect",
       "source_ids": [
-        "E2E_ROADMAP"
+        "E2E_ROADMAP",
+        "LINK::DOCS-VERIFICATION-GOLDEN-QUALIFICATION-FOUNDATION",
+        "LINK::DOCS-VERIFICATION-SESSION-INTELLIGENCE-QUALIFICATION-POLICY"
       ],
       "canonical_authority": "E2E_ROADMAP",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -7875,7 +8375,9 @@
       "repository": "pcvantol/djconnect",
       "source_ids": [
         "E2E_ROADMAP",
-        "GOLDEN_CI"
+        "GOLDEN_CI",
+        "LINK::DOCS-VERIFICATION-GOLDEN-QUALIFICATION-FOUNDATION",
+        "LINK::DOCS-VERIFICATION-SESSION-INTELLIGENCE-QUALIFICATION-POLICY"
       ],
       "canonical_authority": "E2E_ROADMAP",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -7967,7 +8469,8 @@
       "lane": "DJC-CORE",
       "repository": "pcvantol/djconnect",
       "source_ids": [
-        "E2E_ROADMAP"
+        "E2E_ROADMAP",
+        "LINK::DOCS-VERIFICATION-PRESENTATION-VERIFICATION-ARCHITECTURE"
       ],
       "canonical_authority": "E2E_ROADMAP",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -8013,7 +8516,9 @@
       "lane": "DJC-CORE",
       "repository": "pcvantol/djconnect",
       "source_ids": [
-        "E2E_ROADMAP"
+        "E2E_ROADMAP",
+        "LINK::DOCS-VERIFICATION-GOLDEN-SCENARIO-GOVERNANCE",
+        "LINK::DOCS-VERIFICATION-PRESENTATION-VERIFICATION-ARCHITECTURE"
       ],
       "canonical_authority": "E2E_ROADMAP",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -8060,7 +8565,9 @@
       "repository": "pcvantol/djconnect",
       "source_ids": [
         "E2E_ROADMAP",
-        "GOLDEN_CI"
+        "GOLDEN_CI",
+        "LINK::DOCS-VERIFICATION-GOLDEN-QUALIFICATION-FOUNDATION",
+        "LINK::DOCS-VERIFICATION-SESSION-INTELLIGENCE-QUALIFICATION-POLICY"
       ],
       "canonical_authority": "E2E_ROADMAP",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -8153,7 +8660,8 @@
       "repository": "pcvantol/djconnect",
       "source_ids": [
         "E2E_ROADMAP",
-        "GOLDEN_CI"
+        "GOLDEN_CI",
+        "LINK::DOCS-GOVERNANCE-CI-QUALIFICATION-REPORT-GOVERNANCE"
       ],
       "canonical_authority": "E2E_ROADMAP",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -8247,7 +8755,8 @@
       "lane": "DJC-CORE",
       "repository": "pcvantol/djconnect",
       "source_ids": [
-        "E2E_ROADMAP"
+        "E2E_ROADMAP",
+        "LINK::DOCS-VERIFICATION-DEVELOPER-OVERLAY-DELIVERY-GUARD-PREFLIGHT"
       ],
       "canonical_authority": "E2E_ROADMAP",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -8866,7 +9375,9 @@
         "APPLE_RELEASE_ARCH",
         "DEPLOY_CONSUMER_INVENTORY",
         "RELEASE_GRAPH",
-        "RELEASE_MANAGEMENT_SUMMARY"
+        "RELEASE_MANAGEMENT_SUMMARY",
+        "LINK::DOCS-RELEASE-PLATFORM-RELEASE-ARCHITECTURE",
+        "LINK::DOCS-RELEASE-POST-DEPLOYMENT-SMOKE-EVIDENCE-SCHEMA"
       ],
       "canonical_authority": "EVOLUTION",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -8929,7 +9440,8 @@
         "MANAGEMENT_SUMMARY",
         "ENGINEERING_STATUS",
         "RELEASE_GRAPH",
-        "RELEASE_MANAGEMENT_SUMMARY"
+        "RELEASE_MANAGEMENT_SUMMARY",
+        "LINK::DOCS-RELEASE-PLATFORM-RELEASE-ARCHITECTURE"
       ],
       "canonical_authority": "EVOLUTION",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -8991,7 +9503,9 @@
         "EVOLUTION",
         "MANAGEMENT_SUMMARY",
         "ENGINEERING_STATUS",
-        "RELEASE_MANAGEMENT_SUMMARY"
+        "RELEASE_MANAGEMENT_SUMMARY",
+        "LINK::DOCS-RELEASE-PLATFORM-RELEASE-ARCHITECTURE",
+        "LINK::DOCS-RELEASE-POST-DEPLOYMENT-SMOKE-EVIDENCE-SCHEMA"
       ],
       "canonical_authority": "EVOLUTION",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -9261,7 +9775,9 @@
         "MANAGEMENT_SUMMARY",
         "ENGINEERING_STATUS",
         "RELEASE_GRAPH",
-        "RELEASE_MANAGEMENT_SUMMARY"
+        "RELEASE_MANAGEMENT_SUMMARY",
+        "LINK::DOCS-RELEASE-PLATFORM-RELEASE-ARCHITECTURE",
+        "LINK::DOCS-RELEASE-PLATFORM-RELEASE-DEPLOYMENT-EVIDENCE"
       ],
       "canonical_authority": "EVOLUTION",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -10275,7 +10791,10 @@
         "CI_CD_GOVERNANCE",
         "META_INDEX",
         "SOFTWARE_ASSURANCE_PLATFORM",
-        "SOFTWARE_ASSURANCE_ARCH"
+        "SOFTWARE_ASSURANCE_ARCH",
+        "LINK::DOCS-GOVERNANCE-PROMPT-TEMPLATE",
+        "LINK::DOCS-VERIFICATION-01-VERIFICATION-ARCHITECTURE",
+        "LINK::PROMPT-INITIALIZATION"
       ],
       "canonical_authority": "ROADMAP_INDEX",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -10322,7 +10841,8 @@
       "repository": "pcvantol/djconnect",
       "source_ids": [
         "API_CONTRACT",
-        "REPOSITORY_OWNERSHIP"
+        "REPOSITORY_OWNERSHIP",
+        "LINK::DOCS-TECHNICAL-HTTP-API"
       ],
       "canonical_authority": "API_CONTRACT",
       "owner_boundary": "HA-integratie, centrale productautoriteit en server-side DJConnect-domein",
@@ -10581,7 +11101,9 @@
       "source_ids": [
         "VIBECAST_ARCH",
         "UNIVERSAL_RECEIVER",
-        "BROADCAST_TRANSPORT"
+        "BROADCAST_TRANSPORT",
+        "LINK::DJ-SESSION-TRANSPORT-ARCHITECTURE",
+        "LINK::DOCS-TECHNICAL-WEBSOCKET-API"
       ],
       "canonical_authority": "VIBECAST_ARCH",
       "owner_boundary": "HA-integratie, centrale productautoriteit en server-side DJConnect-domein",
@@ -10779,7 +11301,8 @@
       "repository": "pcvantol/djconnect",
       "source_ids": [
         "API_CONTRACT",
-        "REPOSITORY_OWNERSHIP"
+        "REPOSITORY_OWNERSHIP",
+        "LINK::DOCS-TECHNICAL-VOICE-TRANSPORT"
       ],
       "canonical_authority": "API_CONTRACT",
       "owner_boundary": "HA-integratie, centrale productautoriteit en server-side DJConnect-domein",
@@ -10825,7 +11348,8 @@
       "repository": "pcvantol/djconnect-esp32",
       "source_ids": [
         "README::DJC-ESP32",
-        "AGENTS::DJC-ESP32"
+        "AGENTS::DJC-ESP32",
+        "LINK::DOCS-TECHNICAL-VOICE-TRANSPORT"
       ],
       "canonical_authority": "README::DJC-ESP32",
       "owner_boundary": "ESP32-firmware; constrained voice/control client",
@@ -16113,8 +16637,8 @@
     },
     {
       "id": "NORMATIVE-SOURCE-LINK-GAPS",
-      "status": "OPEN_SOURCE_TRIAGE",
-      "description": "Independent review found missing direct Runtime/Presentation authorities; 29 relevant core paths were pinned beyond the initial 141. A reproducible pinned-blob Markdown-link scan still finds 34 distinct existing relative .md targets absent from the source matrix. The exact path list and scan filter are in source_capture.reference_scan. Relevance triage and source closure remain open; links alone create no dependency or product selection.",
+      "status": "LINK_FRONTIER_TRIAGED; BROADER_SOURCE_AUDIT_OPEN",
+      "description": "Independent reviews exposed missing linked Runtime/Presentation and verification authorities. Twenty-six additional directly relevant sources were fully read and pinned to existing nodes beyond the previous 170. The reproducible pinned-blob Markdown-link scan now finds 12 remaining existing relative .md targets; each has an explicit non-current, historical or navigation disposition. Broader repository source audit remains open, and link existence alone creates no dependency or product selection.",
       "source_ids": [
         "FOUNDATION_INDEX",
         "SESSION_RUNTIME_CONTRACTS",

@@ -12,7 +12,7 @@ Portfolio: https://github.com/pcvantol/djconnect/issues/1101. Pinned on 2026-10-
 | `PRODUCT_DELIVERY` | `UNCHANGED_BY_PLANNING` |
 | `EXECUTION_READY` | `NO_NEW_PRODUCT_PICKUP_AUTHORIZED` |
 
-The snapshot has 12 repository lanes, 170 pinned sources, 205 records and 82 typed relations. Records are not a feature count. 5 of 27 audit/delivery obligations are closed.
+The snapshot has 12 repository lanes, 196 pinned sources, 205 records and 82 typed relations. Records are not a feature count. 5 of 27 audit/delivery obligations are closed.
 
 ## Current five-item Execution Horizon
 
@@ -52,7 +52,7 @@ Host verification: `./scripts/runner/bootstrap_djconnect_macos_host.sh --verify`
 - **CURRENT-WIP (OBSERVED_LOCAL_ONLY):** Apple and Windows checkouts contain unrelated WIP. This planning writer does not mutate their source worktrees or infer free capacity. Sources: `STATUS::DJC-APPLE`, `STATUS::DJC-WINDOWS`.
 - **CORE-MAIN-ARTIFACT (PROTECTED_MERGE_BLOCKED_BY_NO_RELEASE_SCOPE):** Successful core main validation unconditionally creates two GitHub prerelease objects: the internal HA artifact and durable qualification evidence. The current assignment prohibits releases and service/workflow changes. Branch/PR checks are safe from these main-only triggers; protected merge requires a separately authorized safe route or owner resolution. Sources: `CORE-INTERNAL-ARTIFACT`, `POST_MERGE`.
 - **LOCAL-BACKLOG-DISPOSITION (MAPPED_NOT_SELECTED):** Open local API, Apple, ESP32, Pi, Windows and website concerns remain with their owning backlogs; completed local records were not reissued as product work. Sources: `ISSUES::DJC-API`, `ISSUES::DJC-APPLE`, `TODO::DJC-ESP32`, `ISSUES::DJC-PI`, `ISSUES::DJC-WINDOWS`, `ISSUES::DJC-WEBSITE`.
-- **NORMATIVE-SOURCE-LINK-GAPS (OPEN_SOURCE_TRIAGE):** Independent review found missing direct Runtime/Presentation authorities; 29 relevant core paths were pinned beyond the initial 141. A reproducible pinned-blob Markdown-link scan still finds 34 distinct existing relative .md targets absent from the source matrix. The exact path list and scan filter are in source_capture.reference_scan. Relevance triage and source closure remain open; links alone create no dependency or product selection. Sources: `FOUNDATION_INDEX`, `SESSION_RUNTIME_CONTRACTS`, `DJ_PRESENTATION_ARCH`.
+- **NORMATIVE-SOURCE-LINK-GAPS (LINK_FRONTIER_TRIAGED; BROADER_SOURCE_AUDIT_OPEN):** Independent reviews exposed missing linked Runtime/Presentation and verification authorities. Twenty-six additional directly relevant sources were fully read and pinned to existing nodes beyond the previous 170. The reproducible pinned-blob Markdown-link scan now finds 12 remaining existing relative .md targets; each has an explicit non-current, historical or navigation disposition. Broader repository source audit remains open, and link existence alone creates no dependency or product selection. Sources: `FOUNDATION_INDEX`, `SESSION_RUNTIME_CONTRACTS`, `DJ_PRESENTATION_ARCH`.
 - **LOCALIZATION-DELIVERY-ORDER (FUTURE_ARCHITECTURE_ONLY):** Narrative Architecture orders future governance/typed outcome, native renderer resources, DJMoment history and Narrative Realization, Ask DJ/voice resolution, then Lyrics-safe renderer adoption and five-language qualification. Apple, Windows and Pi own native rendering; other distribution surfaces follow the five-language validation standard. No catalog, API or renderer work is selected here. Sources: `LOCALIZATION_NARRATIVE`, `LOCALIZATION_VALIDATION_SPEC`.
 
 ## Files and checks

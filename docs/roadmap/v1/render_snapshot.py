@@ -97,7 +97,11 @@ def render(p: dict[str, Any]) -> dict[str, str]:
             clean(scan["method"]) + "\n\n",
             clean(scan["disposition"]) + "\n\n",
         ]
-        lines.extend(f"- `{path}`\n" for path in scan["unmapped_paths"])
+        triage = scan.get("triage", {})
+        lines.extend(
+            f"- `{path}` — {clean(triage.get(path, 'UNTRIAGED'))}\n"
+            for path in scan["unmapped_paths"]
+        )
     out["SOURCES.md"] = "".join(lines)
 
     lines = [

@@ -184,6 +184,14 @@ def validate(plan: Any, require_complete: bool = False) -> list[str]:
             "reference scan has invalid, duplicate or already pinned paths",
         )
         check(bool(scan.get("method")) and bool(scan.get("disposition")), "reference scan provenance missing")
+        triage = scan.get("triage")
+        check(
+            isinstance(triage, dict)
+            and isinstance(paths, list)
+            and set(triage) == set(paths)
+            and all(isinstance(reason, str) and reason for reason in triage.values()),
+            "reference scan needs one disposition for every unpinned path",
+        )
     for sid, source in sources.items():
         check(
             bool(SHA.fullmatch(str(source.get("blob_sha", "")))), f"{sid}: invalid source blob pin"

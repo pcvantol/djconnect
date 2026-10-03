@@ -90,6 +90,10 @@ class SnapshotTests(unittest.TestCase):
         self.p["source_capture"]["reference_scan"]["unmapped_paths"].append("PRODUCT_ROADMAP.md")
         self.assertIn("reference scan has invalid, duplicate or already pinned paths", self.errors())
 
+    def test_unpinned_reference_scan_requires_path_dispositions(self):
+        self.p["source_capture"]["reference_scan"]["triage"].pop("CANONICAL_REFERENCES.md")
+        self.assertIn("reference scan needs one disposition for every unpinned path", self.errors())
+
     def test_audit_cannot_close_without_receipt(self):
         self.p["audit_obligations"][0]["status"] = "CLOSED"
         self.assertIn("closed audit lacks closure evidence", self.errors())
