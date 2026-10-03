@@ -87,6 +87,7 @@ Only `hard_precedence=true` enters the execution DAG. Strategy order, publicatio
 | `GATE-AMBIENT-LIGHT-RECEIVER` | `PROJ::GATE::RECEIVER-MATURITY` → `PROJ::ROADMAP::AMBIENT-LIGHT` | `external_gate` / `implementation` | `start` | `AND` | Universal Receiver product experience matured | Exact selected-scope producer/consumer tests and qualified acceptance evidence; source text alone is not fulfillment | yes |
 | `GATE-AMBIENT-LIGHT-ROOM` | `PROJ::GATE::ROOM-ROUTING-OPERATIONAL` → `PROJ::ROADMAP::AMBIENT-LIGHT` | `external_gate` / `implementation` | `start` | `AND` | Room Presentation Routing operational | Exact selected-scope producer/consumer tests and qualified acceptance evidence; source text alone is not fulfillment | yes |
 | `GATE-AMBIENT-LIGHT-HARDWARE` | `PROJ::GATE::AMBIENT-LIGHT-HARDWARE` → `PROJ::ROADMAP::AMBIENT-LIGHT` | `external_gate` / `implementation` | `start` | `AND` | Practical evaluation on real target hardware possible | Exact selected-scope producer/consumer tests and qualified acceptance evidence; source text alone is not fulfillment | yes |
+| `REQ-ATOMIC-ADOPTION-PLAYBACK-STAGE2` | `PROJ::GATE::ATOMIC-CONTINUE-ADOPTION` → `PROJ::ROADMAP::PLAYBACK-STAGE2` | `contract_requirement` / `integration_acceptance` | `completion` | `AND` | Reserved non-public Runtime, one adopted occurrence, identity-only deduplication and silent rollback | Exact selected-scope producer/consumer tests and qualified acceptance evidence; source text alone is not fulfillment | yes |
 
 ## Choices and parent rollups
 

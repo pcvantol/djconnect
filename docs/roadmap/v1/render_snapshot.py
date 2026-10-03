@@ -90,6 +90,14 @@ def render(p: dict[str, Any]) -> dict[str, str]:
         lines.append(
             f"| `{s['id']}` | `{s['repository']}` / [{clean(s['path'])}]({s['url']}) | `{s['commit_sha'] or 'UNKNOWN'}` / `{s['blob_sha']}` | {clean(s['read_boundary'])} | `{s['disposition']}`: {target} | {clean(s['remaining'])} |\n"
         )
+    scan = p.get("source_capture", {}).get("reference_scan", {})
+    if scan:
+        lines += [
+            "\n## Relative Markdown links awaiting source triage\n\n",
+            clean(scan["method"]) + "\n\n",
+            clean(scan["disposition"]) + "\n\n",
+        ]
+        lines.extend(f"- `{path}`\n" for path in scan["unmapped_paths"])
     out["SOURCES.md"] = "".join(lines)
 
     lines = [

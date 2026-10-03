@@ -86,6 +86,10 @@ class SnapshotTests(unittest.TestCase):
         self.p["completeness"]["all_sources_read"] = True
         self.assertIn("source-read claim has partial sources", self.errors())
 
+    def test_unpinned_reference_scan_cannot_contain_pinned_source(self):
+        self.p["source_capture"]["reference_scan"]["unmapped_paths"].append("PRODUCT_ROADMAP.md")
+        self.assertIn("reference scan has invalid, duplicate or already pinned paths", self.errors())
+
     def test_audit_cannot_close_without_receipt(self):
         self.p["audit_obligations"][0]["status"] = "CLOSED"
         self.assertIn("closed audit lacks closure evidence", self.errors())
@@ -125,6 +129,19 @@ class SnapshotTests(unittest.TestCase):
         edge = next(e for e in self.p["edges"] if e.get("same_increment_as_consumer"))
         edge["prerequisite_stage"] = "start"
         self.assertIn("same-increment contract must be a hard completion AND gate", self.errors())
+
+    def test_playback_stage2_needs_atomic_continue_adoption(self):
+        edge = next(e for e in self.p["edges"] if e["id"] == "REQ-ATOMIC-ADOPTION-PLAYBACK-STAGE2")
+        self.p["edges"].remove(edge)
+        self.n("PROJ::ROADMAP::PLAYBACK-STAGE2")["prerequisite_groups"] = [
+            group for group in self.n("PROJ::ROADMAP::PLAYBACK-STAGE2")["prerequisite_groups"]
+            if edge["id"] not in group["edge_ids"]
+        ]
+        self.assertIn("atomic siblings need identical completion gates", self.errors())
+
+    def test_stage2_siblings_cannot_complete_separately(self):
+        self.n("PROJ::ROADMAP::PLAYBACK-STAGE2")["completion_claim"] = "COMPLETE"
+        self.assertIn("atomic siblings cannot complete separately", self.errors())
 
     def test_desktop_waits_for_public_apple_release(self):
         edge = next(e for e in self.p["edges"] if e["id"] == "ROADMAP-DESKTOP-AFTER-APPLE-PUBLIC")

@@ -41,7 +41,47 @@
     "metadata_and_bounded_paraphrases": true,
     "offline_hash_verification_of_remote_blobs": false,
     "per_call_timestamps": "Date-level head readback on 2026-10-03; no per-file read timestamp for inherited checkpoint.",
-    "pinned_tree_blobs_verified": "170 of 170 path/blob pins matched exact commit trees: 105 original GitHub tree readbacks and 65 new local git commit-tree readbacks on 2026-10-03. Narrative interpretation remains partial."
+    "pinned_tree_blobs_verified": "170 of 170 path/blob pins matched exact commit trees: 105 original GitHub tree readbacks and 65 new local git commit-tree readbacks on 2026-10-03. Narrative interpretation remains partial.",
+    "reference_scan": {
+      "method": "Every pinned core source blob at its recorded commit: parse Markdown ](relative-link) targets, strip anchors, normalize against source directory, retain existing .md paths in that same commit absent from the pinned source matrix; distinct paths only.",
+      "unmapped_paths": [
+        "CANONICAL_REFERENCES.md",
+        "DJ_SESSION_TRANSPORT_ARCHITECTURE.md",
+        "PLATFORM_DISCOVERY_REPORT.md",
+        "docs/adr/0015-vibecast-broadcast-capability.md",
+        "docs/engineering/ENGINEERING_PLATFORM_1_X_ENGINEERING_REPORT.md",
+        "docs/engineering/ENGINEERING_PLATFORM_ARCHITECTURE_AUTHORING_REPORT.md",
+        "docs/engineering/ENGINEERING_PLATFORM_ARCHITECTURE_HANDBOOK.md",
+        "docs/engineering/EXECUTION_HOST_CONTRACT.md",
+        "docs/governance/CI_QUALIFICATION_REPORT_GOVERNANCE.md",
+        "docs/governance/PROMPT_TEMPLATE.md",
+        "docs/product/DJ_BRAIN_CAPABILITY_PLATFORM.md",
+        "docs/product/KNOWLEDGE_SOURCE_ARCHITECTURE.md",
+        "docs/release/PLATFORM_RELEASE_ARCHITECTURE.md",
+        "docs/release/PLATFORM_RELEASE_DEPLOYMENT_EVIDENCE.md",
+        "docs/release/POST_DEPLOYMENT_SMOKE_EVIDENCE_SCHEMA.md",
+        "docs/technical/DETERMINISTIC_SCENARIO_DRIVER.md",
+        "docs/technical/DEVELOPER_SESSION_BOOTSTRAP.md",
+        "docs/technical/DJ_MOMENT_ENGINE.md",
+        "docs/technical/VOICE_TRANSPORT.md",
+        "docs/technical/WEBSOCKET_API.md",
+        "docs/verification/01_VERIFICATION_ARCHITECTURE.md",
+        "docs/verification/GOLDEN_QUALIFICATION_FOUNDATION.md",
+        "docs/verification/GOLDEN_SCENARIO_GOVERNANCE.md",
+        "docs/verification/PRESENTATION_VERIFICATION_ARCHITECTURE.md",
+        "docs/verification/SESSION_INTELLIGENCE_E2E_ARCHITECTURE.md",
+        "docs/verification/SESSION_INTELLIGENCE_GOLDEN_SCENARIOS.md",
+        "docs/verification/SESSION_INTELLIGENCE_QUALIFICATION_POLICY.md",
+        "docs/verification/VERIFICATION_CLOCK_ARCHITECTURE.md",
+        "prompts/deferred/software_assurance/PROMPT_01_CI_GOVERNANCE_FOUNDATION.md",
+        "prompts/deferred/software_assurance/PROMPT_02_CROSS_REPOSITORY_WORKFLOW_HARMONIZATION.md",
+        "prompts/deferred/software_assurance/PROMPT_03_TRUSTED_DELIVERY_PLATFORM.md",
+        "prompts/deferred/software_assurance/PROMPT_04_TRUSTED_DELIVERY_CERTIFICATION.md",
+        "prompts/deferred/software_assurance/PROMPT_05_SINGLE_MAINTAINER_GOVERNANCE_ROLLOUT.md",
+        "prompts/release/PROMPT_05_PLATFORM_RELEASE_CERTIFICATION.md"
+      ],
+      "disposition": "OPEN_RELEVANCE_TRIAGE; listing does not imply implementation precedence, source authority or product selection"
+    }
   },
   "lanes": [
     {
@@ -793,13 +833,13 @@
       "path": "README.md",
       "blob_sha": "9a3d61ff9cd1f306e3c7b4649a3d1290637c62d6",
       "commit_sha": "d54224dbf02517ae47406aa14d33e97e61c18002",
-      "read_boundary": "1-160",
-      "read_complete": false,
-      "status_authority": "component self-description; release/live claims require owning evidence",
+      "read_boundary": "FULL_PINNED_DOCUMENT_READ",
+      "read_complete": true,
+      "status_authority": "Pinned Apple client README: client-owned native presentation, server-owned intelligence, local pairing and scoped distribution; later owning backlog/status records control planned work.",
       "observed_at": "2026-10-03; within this connector audit; per-call clock not captured",
       "identity_binding": "PINNED_COMMIT_VERIFIED_IN_CONTINUATION",
       "url": "https://github.com/pcvantol/djconnect-app/blob/d54224dbf02517ae47406aa14d33e97e61c18002/README.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
         "INV::DJC-APPLE",
         "SLICE::APPLE::PAIRING-ACCEPTANCE",
@@ -811,7 +851,7 @@
         "QUAL::DIST-APPLE::APPLE-PUBLISHED-ASSET",
         "QUAL::APPLE::SECURE-RELAY-INSTALL"
       ],
-      "remaining": "Follow remaining ranges and owning references; full platform coverage not claimed"
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
     },
     {
       "id": "README::DJC-ESP32",
@@ -819,20 +859,20 @@
       "path": "README.md",
       "blob_sha": "c6d9e45f5618e8e40f6317d89fb1625d94781c8a",
       "commit_sha": "49a71f99f6435819ec00b7387520a3fd20640a0b",
-      "read_boundary": "1-160",
-      "read_complete": false,
-      "status_authority": "component self-description; release/live claims require owning evidence",
+      "read_boundary": "FULL_PINNED_DOCUMENT_READ",
+      "read_complete": true,
+      "status_authority": "Pinned ESP32 source README: canonical control/voice client and public firmware/OTA producer route; repo-specific AGENTS remains authoritative where implementation guidance differs.",
       "observed_at": "2026-10-03; within this connector audit; per-call clock not captured",
       "identity_binding": "PINNED_COMMIT_VERIFIED_IN_CONTINUATION",
       "url": "https://github.com/pcvantol/djconnect-esp32/blob/49a71f99f6435819ec00b7387520a3fd20640a0b/README.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
         "INV::DJC-ESP32",
         "SLICE::ESP32::PAIRING-ACCEPTANCE",
         "SLICE::ESP32::VOICE-ACCEPTANCE",
         "SLICE::ESP32::FIRMWARE-CANDIDATE"
       ],
-      "remaining": "Follow remaining ranges and owning references; full platform coverage not claimed"
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
     },
     {
       "id": "README::DJC-PI",
@@ -840,20 +880,20 @@
       "path": "README.md",
       "blob_sha": "23876ebd8555039ea393d7215472fdcd0cad6c75",
       "commit_sha": "92712ae989f9ad44e2b935222a1e1053670a782f",
-      "read_boundary": "1-180",
-      "read_complete": false,
-      "status_authority": "component self-description; release/live claims require owning evidence",
+      "read_boundary": "FULL_PINNED_DOCUMENT_READ",
+      "read_complete": true,
+      "status_authority": "Pinned Pi native QML and public distribution contract; separate browser Receiver target, manifest-bound deploy/smoke and local-only pairing are distinct from native client release.",
       "observed_at": "2026-10-03; within this connector audit; per-call clock not captured",
       "identity_binding": "PINNED_COMMIT_VERIFIED_IN_CONTINUATION",
       "url": "https://github.com/pcvantol/djconnect-pi/blob/92712ae989f9ad44e2b935222a1e1053670a782f/README.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
         "INV::DJC-PI",
         "SLICE::PI::PAIRING-ACCEPTANCE",
         "SLICE::PI::PACKAGE-CANDIDATE",
         "SLICE::PI::NATIVE-10INCH"
       ],
-      "remaining": "Follow remaining ranges and owning references; full platform coverage not claimed"
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
     },
     {
       "id": "README::DJC-WINDOWS",
@@ -861,13 +901,13 @@
       "path": "README.md",
       "blob_sha": "95b27a350df06ae0493c8c198802f352ff70244e",
       "commit_sha": "1d6635ff5c610a0f43bf1ba7d68cb0b1def06924",
-      "read_boundary": "1-180",
-      "read_complete": false,
-      "status_authority": "component self-description; release/live claims require owning evidence",
+      "read_boundary": "FULL_PINNED_DOCUMENT_READ",
+      "read_complete": true,
+      "status_authority": "Pinned Windows client and release boundary README; public unsigned release is manual, local CI artifacts are validation only.",
       "observed_at": "2026-10-03; within this connector audit; per-call clock not captured",
       "identity_binding": "PINNED_COMMIT_VERIFIED_IN_CONTINUATION",
       "url": "https://github.com/pcvantol/djconnect-windows/blob/1d6635ff5c610a0f43bf1ba7d68cb0b1def06924/README.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
         "INV::DJC-WINDOWS",
         "SLICE::WINDOWS::PAIRING-ACCEPTANCE",
@@ -876,7 +916,7 @@
         "QUAL::DIST-APPLE::WINDOWS-PUBLISHED-ASSET",
         "QUAL::WINDOWS::DEPLOY-SMOKE"
       ],
-      "remaining": "Follow remaining ranges and owning references; full platform coverage not claimed"
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
     },
     {
       "id": "README::DJC-API",
@@ -884,18 +924,18 @@
       "path": "README.md",
       "blob_sha": "febbdb47d1c9030b2a47d3b2b3583dda3056353c",
       "commit_sha": "4e6671c3231187e7cd20243817a86a56ad6aad06",
-      "read_boundary": "1-180",
-      "read_complete": false,
-      "status_authority": "component self-description; release/live claims require owning evidence",
+      "read_boundary": "FULL_PINNED_DOCUMENT_READ",
+      "read_complete": true,
+      "status_authority": "Pinned central API production/runtime and explicit-dispatch deploy boundary README; no API deploy or service change authorized here.",
       "observed_at": "2026-10-03; within this connector audit; per-call clock not captured",
       "identity_binding": "PINNED_COMMIT_VERIFIED_IN_CONTINUATION",
       "url": "https://github.com/pcvantol/djconnect-api/blob/4e6671c3231187e7cd20243817a86a56ad6aad06/README.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
         "INV::DJC-API",
         "SLICE::API::APNS-RELAY"
       ],
-      "remaining": "Follow remaining ranges and owning references; full platform coverage not claimed"
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
     },
     {
       "id": "README::DJC-WEBSITE",
@@ -903,20 +943,20 @@
       "path": "README.md",
       "blob_sha": "850eea51ab781fbe31ff25a88fb59fee4fc57eb5",
       "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
-      "read_boundary": "1-170",
-      "read_complete": false,
-      "status_authority": "component self-description; release/live claims require owning evidence",
+      "read_boundary": "FULL_PINNED_DOCUMENT_READ",
+      "read_complete": true,
+      "status_authority": "Pinned website README: five-language public copy, explicit Cloudflare deploy dispatch and asset-source routing; its version/copy claims require current authority reconciliation before publication.",
       "observed_at": "2026-10-03; within this connector audit; per-call clock not captured",
       "identity_binding": "PINNED_COMMIT_VERIFIED_IN_CONTINUATION",
       "url": "https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/README.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
         "INV::DJC-WEBSITE",
         "SLICE::WEBSITE::RELEASE-GUIDANCE",
         "SLICE::WEBSITE::APPLE-COPY",
         "SLICE::WEBSITE::WINDOWS-COPY"
       ],
-      "remaining": "Follow remaining ranges and owning references; full platform coverage not claimed"
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
     },
     {
       "id": "README::DJC-VIBECAST",
@@ -1367,13 +1407,13 @@
       "path": "API_CONTRACT.md",
       "blob_sha": "8babbdfde075ed0fb377c9b039e2b1f9e42b1c96",
       "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
-      "read_boundary": "planning-relevant sections/headings; remaining full-text audit open",
-      "read_complete": false,
-      "status_authority": "shared API and compatibility contract",
+      "read_boundary": "FULL_PINNED_DOCUMENT_READ",
+      "read_complete": true,
+      "status_authority": "Client-facing HA API and compatibility contract; source context, not new execution authority",
       "observed_at": "2026-10-03 local Mac / exact pinned main",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/API_CONTRACT.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
         "INV::DJC-CORE",
         "SLICE::CORE::PAIRING-CONTRACT",
@@ -1386,7 +1426,7 @@
         "QUAL::CORE::OTA-CONSUMER",
         "QUAL::CORE::RENDERER-SAFE-PROJECTION"
       ],
-      "remaining": "Confirm unread ranges before final closure"
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
     },
     {
       "id": "LOCALIZATION",
@@ -1497,13 +1537,13 @@
       "path": "ENGINEERING_STATUS.md",
       "blob_sha": "82512e14b0297b218598b79c5670d1569344ce77",
       "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
-      "read_boundary": "planning-relevant sections/headings; remaining full-text audit open",
-      "read_complete": false,
-      "status_authority": "rolling status and horizon; current 1354-1382",
+      "read_boundary": "FULL_PINNED_DOCUMENT_READ",
+      "read_complete": true,
+      "status_authority": "Rolling engineering status; current five-item Execution Horizon and blocked/deferred boundaries verified in full pinned source",
       "observed_at": "2026-10-03 local Mac / exact pinned main",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/ENGINEERING_STATUS.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
         "PROJ::AUDIT::METHOD",
         "PROJ::EVOLUTION::APPLE-PUBLIC",
@@ -1515,7 +1555,7 @@
         "OBS::CORE::HACS-CACHE-INDEX",
         "OBS::CORE::HACS-UPDATE-PRESENTATION"
       ],
-      "remaining": "Confirm unread ranges before final closure"
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
     },
     {
       "id": "MANAGEMENT_SUMMARY",
@@ -1926,20 +1966,20 @@
       "path": "AGENTS.md",
       "blob_sha": "b2670444eacebd1a4ec739e9ec5e029f190abcde",
       "commit_sha": "49a71f99f6435819ec00b7387520a3fd20640a0b",
-      "read_boundary": "planning-relevant status and backlog entries; full-text audit open",
-      "read_complete": false,
-      "status_authority": "repository-local agents; no central status overwrite",
+      "read_boundary": "FULL_PINNED_DOCUMENT_READ",
+      "read_complete": true,
+      "status_authority": "Pinned ESP32 repository-specific instructions and source/release workflows; context for firmware lane only, not permission for a release.",
       "observed_at": "2026-10-03 local Mac / exact pinned main",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect-esp32/blob/49a71f99f6435819ec00b7387520a3fd20640a0b/AGENTS.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
         "INV::DJC-ESP32",
         "SLICE::ESP32::PAIRING-ACCEPTANCE",
         "SLICE::ESP32::VOICE-ACCEPTANCE",
         "SLICE::ESP32::FIRMWARE-CANDIDATE"
       ],
-      "remaining": "Confirm unread ranges before final closure"
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
     },
     {
       "id": "STATUS::DJC-ESP32",
@@ -2928,17 +2968,17 @@
       "path": "TODO.md",
       "blob_sha": "f3da6252d873349ccbddd1bde78feac51c74709e",
       "commit_sha": "60d5ee2e034323515092cd4100b1683f588e59fc",
-      "read_boundary": "direct current canonical reference and exact blob pin captured; detailed source audit pending",
-      "read_complete": false,
-      "status_authority": "core local TODO; not new selected backlog",
+      "read_boundary": "FULL_PINNED_DOCUMENT_READ",
+      "read_complete": true,
+      "status_authority": "Field-validation checklist and legacy release notes; not Product Roadmap or current Execution Horizon authority.",
       "observed_at": "2026-10-03 local Mac / exact pinned baseline",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect/blob/60d5ee2e034323515092cd4100b1683f588e59fc/TODO.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
         "PROJ::AUDIT::METHOD"
       ],
-      "remaining": "Read relevant status/evidence and follow ownership boundary before closure"
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
     },
     {
       "id": "PRODUCT_STRATEGY",
@@ -3320,17 +3360,17 @@
       "path": "PLATFORM_BACKLOG.md",
       "blob_sha": "ed35c4cee060c7ef038b4a6975e5a162c186f806",
       "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
-      "read_boundary": "exact pinned source captured; complete planning-relevant full-text audit pending",
-      "read_complete": false,
-      "status_authority": "Generation 1 historical platform backlog, not active authority",
+      "read_boundary": "FULL_PINNED_DOCUMENT_READ",
+      "read_complete": true,
+      "status_authority": "Generation 1 archive; later Platform Evolution and Product Roadmap records override its stale current/not-started labels.",
       "observed_at": "2026-10-03 local Mac / exact pinned main",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/PLATFORM_BACKLOG.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
         "PROJ::ROADMAP::P0-FOUNDATION"
       ],
-      "remaining": "Read full source and reconcile current vs historical scope before closure"
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
     },
     {
       "id": "INNOVATION_LAB",
@@ -3338,17 +3378,17 @@
       "path": "INNOVATION_LAB.md",
       "blob_sha": "f399f2201de5d00fc59a59dbc9d4973e57a00e57",
       "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
-      "read_boundary": "exact pinned source captured; complete planning-relevant full-text audit pending",
-      "read_complete": false,
-      "status_authority": "idea and research inventory, not selected product backlog",
+      "read_boundary": "FULL_PINNED_DOCUMENT_READ",
+      "read_complete": true,
+      "status_authority": "Idea and research pool only; inclusion does not imply selected roadmap work or implementation authorization.",
       "observed_at": "2026-10-03 local Mac / exact pinned main",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/INNOVATION_LAB.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
         "PROJ::INNOVATION::AMBIENT"
       ],
-      "remaining": "Read full source and reconcile current vs historical scope before closure"
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
     },
     {
       "id": "ADR_INDEX",
@@ -3465,7 +3505,7 @@
       "path": "docs/meta/META_ENGINEERING_INDEX.md",
       "blob_sha": "75494e3c5971a4004589ee5ca4f0c4c75911a4a9",
       "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
-      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03; older baseline status reconciled against certification",
+      "read_boundary": "FULL_PINNED_DOCUMENT_READ",
       "read_complete": true,
       "status_authority": "canonical Meta Engineering navigation and method",
       "observed_at": "2026-10-03 local Mac / exact pinned main",
@@ -6120,7 +6160,7 @@
         "No release or live qualification inferred from documentation"
       ],
       "profiles": "HA / Runtime / Universal Receiver / HA-hosted VibeCast",
-      "acceptance_boundary": "Owning source criteria; complete per-item extraction remains open",
+      "acceptance_boundary": "One selected-backend atomic Stage 2 PR covers complete scoped observation, valid projection, matching live TrackStartedObservation, occurrence identity, Continue adoption/rollback and producer/consumer tests; no detached Observation Foundation PR.",
       "acceptance_criteria": [
         "selected-scope-observation-contract",
         "matching-occurrence-correlation",
@@ -6155,6 +6195,12 @@
           "edge_ids": [
             "REQ-LIVE-EVENT-PLAYBACK-STAGE2"
           ]
+        },
+        {
+          "mode": "AND",
+          "edge_ids": [
+            "REQ-ATOMIC-ADOPTION-PLAYBACK-STAGE2"
+          ]
         }
       ],
       "blockers": [
@@ -6166,7 +6212,8 @@
       "resources_verified": false,
       "decisions_resolved": false,
       "effort": "UNKNOWN",
-      "resume_reference": "https://github.com/pcvantol/djconnect/issues/1101"
+      "resume_reference": "https://github.com/pcvantol/djconnect/issues/1101",
+      "atomic_delivery_group": "STAGE2-OBSERVATION-CONTINUE"
     },
     {
       "id": "PROJ::ROADMAP::CONTINUE-STAGE2",
@@ -6201,7 +6248,7 @@
         "No release or live qualification inferred from documentation"
       ],
       "profiles": "HA / Runtime / Universal Receiver / HA-hosted VibeCast",
-      "acceptance_boundary": "Owning source criteria; complete per-item extraction remains open",
+      "acceptance_boundary": "One selected-backend atomic Stage 2 PR covers complete scoped observation, valid projection, matching live TrackStartedObservation, occurrence identity, Continue adoption/rollback and producer/consumer tests; no detached Observation Foundation PR.",
       "acceptance_criteria": [
         "selected-scope-observation-contract",
         "matching-occurrence-correlation",
@@ -6253,7 +6300,8 @@
       "resources_verified": false,
       "decisions_resolved": false,
       "effort": "UNKNOWN",
-      "resume_reference": "https://github.com/pcvantol/djconnect/issues/1101"
+      "resume_reference": "https://github.com/pcvantol/djconnect/issues/1101",
+      "atomic_delivery_group": "STAGE2-OBSERVATION-CONTINUE"
     },
     {
       "id": "HA-ONBOARDING-001",
@@ -15587,6 +15635,27 @@
       "confidence": "SOURCE_CONSTRAINT_CAPTURED; current fulfillment not qualified",
       "logical_mode": "AND",
       "prerequisite_stage": "start"
+    },
+    {
+      "id": "REQ-ATOMIC-ADOPTION-PLAYBACK-STAGE2",
+      "producer": "PROJ::GATE::ATOMIC-CONTINUE-ADOPTION",
+      "consumer": "PROJ::ROADMAP::PLAYBACK-STAGE2",
+      "kind": "contract_requirement",
+      "phase": "integration_acceptance",
+      "required_subset": "Reserved non-public Runtime, one adopted occurrence, identity-only deduplication and silent rollback",
+      "reason": "Same-increment completion condition; source explicitly calls for one coherent production PR, not detached observation foundation work",
+      "source_ids": [
+        "CONTINUE_PLAYBACK_CONTRACT"
+      ],
+      "hard_precedence": true,
+      "contract_or_evidence": "Exact selected-scope producer/consumer tests and qualified acceptance evidence; source text alone is not fulfillment",
+      "evidence_ids": [],
+      "evidence_satisfied": false,
+      "selection_eligible": false,
+      "confidence": "SOURCE_CONSTRAINT_CAPTURED; current fulfillment not qualified",
+      "logical_mode": "AND",
+      "prerequisite_stage": "completion",
+      "same_increment_as_consumer": true
     }
   ],
   "handoffs": [
@@ -16045,7 +16114,7 @@
     {
       "id": "NORMATIVE-SOURCE-LINK-GAPS",
       "status": "OPEN_SOURCE_TRIAGE",
-      "description": "Independent exact-head review found 77 distinct unpinned Markdown links among 28 newly full-read core sources. Twenty-nine directly relevant additional core paths are now pinned and mapped beyond the original 141-source checkpoint, including the eight missing Runtime/Presentation authorities. A current local-link scan of the pinned core set still finds 34 second-level Markdown references without source rows; six are historical/deferred prompt examples and the remaining architecture, verification, release and governance references require relevance triage before full source closure. This is a source-audit obligation, not an implicit dependency or product selection.",
+      "description": "Independent review found missing direct Runtime/Presentation authorities; 29 relevant core paths were pinned beyond the initial 141. A reproducible pinned-blob Markdown-link scan still finds 34 distinct existing relative .md targets absent from the source matrix. The exact path list and scan filter are in source_capture.reference_scan. Relevance triage and source closure remain open; links alone create no dependency or product selection.",
       "source_ids": [
         "FOUNDATION_INDEX",
         "SESSION_RUNTIME_CONTRACTS",

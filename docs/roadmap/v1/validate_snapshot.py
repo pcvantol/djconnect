@@ -173,6 +173,17 @@ def validate(plan: Any, require_complete: bool = False) -> list[str]:
             or all(s.get("read_complete") is True for s in plan["sources"]),
             "source-read claim has partial sources",
         )
+    scan = plan.get("source_capture", {}).get("reference_scan", {})
+    if scan:
+        paths = scan.get("unmapped_paths")
+        check(
+            isinstance(paths, list)
+            and all(isinstance(x, str) and x.endswith(".md") for x in paths)
+            and len(paths) == len(set(paths))
+            and not ({s.get("path") for s in plan["sources"]} & set(paths)),
+            "reference scan has invalid, duplicate or already pinned paths",
+        )
+        check(bool(scan.get("method")) and bool(scan.get("disposition")), "reference scan provenance missing")
     for sid, source in sources.items():
         check(
             bool(SHA.fullmatch(str(source.get("blob_sha", "")))), f"{sid}: invalid source blob pin"
@@ -478,6 +489,44 @@ def validate(plan: Any, require_complete: bool = False) -> list[str]:
                 f"{nid}: unproved COMPLETE/consumer claim",
             )
             check(nid not in unresolved_or, f"{nid}: COMPLETE with unresolved OR choice")
+    atomic_groups: dict[str, list[dict[str, Any]]] = {}
+    for node in nodes.values():
+        group = node.get("atomic_delivery_group")
+        if group is not None:
+            check(isinstance(group, str) and bool(group), "invalid atomic delivery group")
+            if isinstance(group, str) and group:
+                atomic_groups.setdefault(group, []).append(node)
+    for group, members in atomic_groups.items():
+        check(len(members) >= 2, f"{group}: atomic group needs sibling nodes")
+        completion_producers = [
+            {
+                edge["producer"]
+                for edge in plan["edges"]
+                if edge.get("consumer") == member["id"]
+                and edge.get("hard_precedence")
+                and edge.get("prerequisite_stage") == "completion"
+            }
+            for member in members
+        ]
+        check(
+            bool(completion_producers)
+            and bool(completion_producers[0])
+            and all(producers == completion_producers[0] for producers in completion_producers),
+            f"{group}: atomic siblings need identical completion gates",
+        )
+        completed = [n for n in members if n.get("completion_claim") == "COMPLETE"]
+        if completed:
+            check(
+                len(completed) == len(members),
+                f"{group}: atomic siblings cannot complete separately",
+            )
+            prs = [n.get("completion_evidence_pr") for n in completed]
+            check(
+                len(prs) == len(members)
+                and all(isinstance(x, str) and "/pull/" in x for x in prs)
+                and len(set(prs)) == 1,
+                f"{group}: atomic siblings need one exact PR receipt",
+            )
     running = [n["repository"] for n in nodes.values() if n.get("assignment_status") == "RUNNING"]
     check(len(running) == len(set(running)), "overlapping active repository writers")
     for h in plan["handoffs"]:
