@@ -1,5 +1,21 @@
 # Engineering Platform Roadmap
 
+## Current DJConnect retirement disposition — 2026-10-03
+
+Owner assignment `L5-DJCONNECT-EP-SOURCE-RETIREMENT-V1-20261003` authorizes
+retirement of the embedded generic EP source and conversion of its remaining
+DJConnect dependencies. The owner has validated independent standalone
+distribution and responsibility transfer. A real DJConnect Engineering Action
+through EP and an EP self-development task are waived only as prerequisites
+for this source retirement; they are not recorded as passed qualifications.
+See the [LANE_5 decision register](../governance/LANE_5_EP_SOURCE_RETIREMENT.md)
+and [owning issue #1098](https://github.com/pcvantol/djconnect/issues/1098).
+
+The phase descriptions below are retained as historical planning and do not
+reimpose the waived prerequisites or authorize a live service, store, data or
+credential cutover. Current EP product contracts and releases are owned by
+`pcvantol/engineering-platform`.
+
 ## 1.4 — Remote Engineering Experience
 
 Completed. Canonical status, remote dashboard, inbox watcher, Tailscale

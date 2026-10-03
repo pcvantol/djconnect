@@ -20,7 +20,7 @@ host.recommended_free_disk_gb: 120
 
 # The read-only readiness check requires the canonical developer-onboarding
 # checkout used by this host to match this version exactly.
-onboarding.package_version: 4.5.2
+onboarding.package_version: 4.5.3
 
 # Engineering Platform is a standalone peer product. Its Server, Project Agent,
 # services and runtime stores are intentionally outside DJConnect host readiness.

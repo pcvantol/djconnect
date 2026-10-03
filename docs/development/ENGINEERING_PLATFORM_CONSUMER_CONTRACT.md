@@ -1,5 +1,10 @@
 # Engineering Platform 2.x consumer contract
 
+> Historical Local Consumer API contract for the DJConnect-hosted extraction
+> phase. The standalone EP product has retired that submission ingress. Current
+> consumers use its supported Server HTTP JSON, installed CLI or Server-owned
+> File Inbox contracts; see the [source-retirement disposition](ENGINEERING_PLATFORM_SOURCE_RETIREMENT.md).
+
 ## Purpose
 
 This contract lets DJConnect, Forge and Workspace consume an installed,

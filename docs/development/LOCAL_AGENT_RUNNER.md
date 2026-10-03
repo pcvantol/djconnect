@@ -1,5 +1,11 @@
 # Local Agent Runner
 
+> Historical DJConnect-hosted Engineering Platform instructions. The embedded
+> runtime and the commands below are retired from current DJConnect source.
+> For supported operations use the standalone `pcvantol/engineering-platform`
+> Server HTTP, installed CLI or Server-owned File Inbox documentation. This
+> document remains as provenance for earlier DJConnect execution evidence.
+
 `engineering-execution-host` starts one foreground, bounded engineering transaction from this
 repository. It is local-only developer tooling, not a product capability, CI
 system, release engine, merge authority, daemon or remote control plane.

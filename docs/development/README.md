@@ -33,21 +33,14 @@ architecture.
 - [Product Development workflow](../../ENGINEERING_PROGRAM_MODEL.md#product-development-assessment-workflow)
   — the canonical assessment-first delivery workflow, including its conditional
   DJ Intelligence and Golden Scenario assessments.
-- [Local Agent Runner](LOCAL_AGENT_RUNNER.md) — the bounded, resumable local
-  Codex CLI transaction runner for repository-grounded engineering work,
-  including watcher, dashboard and local-report operation.
-- [Engineering Inbox Protocol](../../tools/engineering/ENGINEERING_INBOX_PROTOCOL.md)
-  — accepted prompt files, ordering and iCloud delivery boundaries.
-- [Execution Host Contract](../engineering/EXECUTION_HOST_CONTRACT.md) — the
-  producer-neutral boundary consumed by Engineering Platform.
-- [Engineering Platform Architecture Handbook](../engineering/ENGINEERING_PLATFORM_ARCHITECTURE_HANDBOOK.md)
-  — the stable 1.x execution boundary and future-evolution policy.
-- [EP extraction and migration plan](ENGINEERING_PLATFORM_EXTRACTION_MIGRATION_PLAN.md)
-  — staged standalone extraction, including the native macOS installer,
-  first-run provider setup and project/CI wheel integration.
-- [Engineering Report Evidence Contract](../engineering/ENGINEERING_REPORTING.md)
-  — how initial observations, final repository evidence and terminal reports
-  are interpreted.
+- [EP source retirement](ENGINEERING_PLATFORM_SOURCE_RETIREMENT.md) — the
+  current DJConnect source boundary, release pin and retained evidence.
+
+The former [Local Agent Runner](LOCAL_AGENT_RUNNER.md),
+[extraction and migration plan](ENGINEERING_PLATFORM_EXTRACTION_MIGRATION_PLAN.md)
+and `docs/engineering/` records describe historical embedded EP operation.
+Current EP service, submission and release instructions are owned by
+`pcvantol/engineering-platform`.
 
 Future development-process documentation belongs here only when it explains
 how collaboration or engineering work is performed. Product direction remains

@@ -25,6 +25,7 @@ in that same roadmap projection.
 | Future Home Assistant installation-to-first-DJ-Session onboarding and configuration experience | `PRODUCT_ROADMAP.md` (`HA-ONBOARDING-001`) | Product Development / Home Assistant Integration |
 | Product & Community Readiness phase: presentation, onboarding, deployment and developer-experience readiness before Community Public Release | `PRODUCT_ROADMAP.md` | DJConnect Product Development |
 | Engineering-platform improvements | `PLATFORM_EVOLUTION_BACKLOG.md` | Platform Evolution |
+| Embedded EP source retirement owner decision and active DJConnect boundary | `docs/governance/LANE_5_EP_SOURCE_RETIREMENT.md`, `docs/development/ENGINEERING_PLATFORM_SOURCE_RETIREMENT.md` | LANE_5 / DJConnect |
 | Completed TDE 1.1.1 consumer rollout and its product-planning boundary | `docs/governance/TDE_1_1_1_PLANNING_RECONCILIATION.md` | Platform governance |
 | Current Generation 2 assessment qualification status and remaining objective items | `QUALIFICATION_REGISTER.md` | Cross-program governance index |
 | Implemented cross-platform capability catalog, projections and convergence decisions | `DJCONNECT_CAPABILITY_MODEL.md` | Platform Foundation |

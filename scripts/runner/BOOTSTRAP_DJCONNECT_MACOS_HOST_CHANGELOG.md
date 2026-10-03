@@ -6,6 +6,11 @@ This changelog covers only
 compatibility and security changes to the development-host bootstrap independently of
 the DJConnect product release.
 
+## [2.0.21] - 2026-10-03
+
+- Require immutable developer-onboarding package 4.5.3 for the current
+  standalone Engineering Platform documentation boundary.
+
 ## [2.0.20] - 2026-09-30
 
 - Require developer-onboarding package 4.5.2 for the Ruff 0.16.8 update.
