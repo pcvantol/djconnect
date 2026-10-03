@@ -41,7 +41,7 @@
     "metadata_and_bounded_paraphrases": true,
     "offline_hash_verification_of_remote_blobs": false,
     "per_call_timestamps": "Date-level head readback on 2026-10-03; no per-file read timestamp for inherited checkpoint.",
-    "pinned_tree_blobs_verified": "529 of 529 path/blob pins matched exact commit trees or GitHub Contents commit readbacks: 105 original GitHub tree readbacks, 310 local git commit-tree readbacks and 114 new GitHub Contents readbacks on 2026-10-03. Firmware binary files were fully SHA256-hashed for identity, not semantically executed. Narrative interpretation remains partial.",
+    "pinned_tree_blobs_verified": "544 of 544 path/blob pins matched exact commit trees or GitHub Contents commit readbacks: 105 original GitHub tree readbacks, 325 local git commit-tree readbacks and 114 new GitHub Contents readbacks on 2026-10-03. Firmware binary files were fully SHA256-hashed for identity, not semantically executed. Narrative interpretation remains partial.",
     "reference_scan": {
       "method": "Every pinned core Markdown blob and every pinned Markdown blob in the eleven DJC component repositories, at its recorded commit: parse relative Markdown links, strip anchors, normalize against source directory, retain existing .md targets absent from the pinned source matrix; distinct repository/path keys. The seven pinned external Forge method documents are outside this lane-source link frontier.",
       "unmapped_paths": [
@@ -95,8 +95,8 @@
           "repository": "pcvantol/djconnect-pi",
           "commit_sha": "92712ae989f9ad44e2b935222a1e1053670a782f",
           "tracked_markdown": 33,
-          "included_markdown": 18,
-          "not_individually_included_markdown": 15,
+          "included_markdown": 33,
+          "not_individually_included_markdown": 0,
           "tree_readback": "complete local git ls-tree -r"
         },
         "DJC-WINDOWS": {
@@ -10362,6 +10362,276 @@
         "INV::DJC-CORE"
       ],
       "remaining": "Historical report/checklist or policy text is source evidence only; broader source, graph, current workflow and physical/consumer acceptance remain separate."
+    },
+    {
+      "id": "PI_DOC__BOOTSTRAP_MD",
+      "repository": "pcvantol/djconnect-pi",
+      "path": "BOOTSTRAP.md",
+      "blob_sha": "445412e409415a03ead31eba54a120f7d052223e",
+      "commit_sha": "92712ae989f9ad44e2b935222a1e1053670a782f",
+      "read_boundary": "full pinned Markdown file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Current Pi bootstrap points to committed offline projection, local extension and task-relevant Pi source; no separate product authority.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-pi/blob/92712ae989f9ad44e2b935222a1e1053670a782f/BOOTSTRAP.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-PI"
+      ],
+      "remaining": "Source document is not a physical Pi, installed release, source-to-artifact or live Home Assistant consumer receipt."
+    },
+    {
+      "id": "PI_DOC__BOOTSTRAP_CODEX_SESSION_MD",
+      "repository": "pcvantol/djconnect-pi",
+      "path": "BOOTSTRAP_CODEX_SESSION.md",
+      "blob_sha": "e1e1442d9e6a536fedfbdcd8eaa38cf3b96a6f39",
+      "commit_sha": "92712ae989f9ad44e2b935222a1e1053670a782f",
+      "read_boundary": "full pinned Markdown file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Compatibility pointer to Pi BOOTSTRAP.md, not a second independently authored bootstrap.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-pi/blob/92712ae989f9ad44e2b935222a1e1053670a782f/BOOTSTRAP_CODEX_SESSION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-PI"
+      ],
+      "remaining": "Source document is not a physical Pi, installed release, source-to-artifact or live Home Assistant consumer receipt."
+    },
+    {
+      "id": "PI_DOC__CANONICAL_REFERENCES_MD",
+      "repository": "pcvantol/djconnect-pi",
+      "path": "CANONICAL_REFERENCES.md",
+      "blob_sha": "32e59da37744863cca79916a599b5525d3262517",
+      "commit_sha": "92712ae989f9ad44e2b935222a1e1053670a782f",
+      "read_boundary": "full pinned Markdown file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Local map delegates product, verification and Meta Engineering authority to core.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-pi/blob/92712ae989f9ad44e2b935222a1e1053670a782f/CANONICAL_REFERENCES.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-PI"
+      ],
+      "remaining": "Source document is not a physical Pi, installed release, source-to-artifact or live Home Assistant consumer receipt."
+    },
+    {
+      "id": "PI_DOC__CHAT_BOOTSTRAP_MD",
+      "repository": "pcvantol/djconnect-pi",
+      "path": "CHAT_BOOTSTRAP.md",
+      "blob_sha": "36c6dbdf7ca5bcfdbe47e18c956ece9114e90e52",
+      "commit_sha": "92712ae989f9ad44e2b935222a1e1053670a782f",
+      "read_boundary": "full pinned Markdown file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Deprecated pointer to BOOTSTRAP_CODEX_SESSION.md.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-pi/blob/92712ae989f9ad44e2b935222a1e1053670a782f/CHAT_BOOTSTRAP.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-PI"
+      ],
+      "remaining": "Source document is not a physical Pi, installed release, source-to-artifact or live Home Assistant consumer receipt."
+    },
+    {
+      "id": "PI_DOC__CODE_OF_CONDUCT_MD",
+      "repository": "pcvantol/djconnect-pi",
+      "path": "CODE_OF_CONDUCT.md",
+      "blob_sha": "8ae1510227bc8252f02e124d029bd5d714572684",
+      "commit_sha": "92712ae989f9ad44e2b935222a1e1053670a782f",
+      "read_boundary": "full pinned Markdown file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Local conduct policy also forbids Pi-local /api/device/dj_response absent product decision; this conflicts with current Pi README/source-route status and needs owning documentary reconciliation.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-pi/blob/92712ae989f9ad44e2b935222a1e1053670a782f/CODE_OF_CONDUCT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-PI"
+      ],
+      "remaining": "Source document is not a physical Pi, installed release, source-to-artifact or live Home Assistant consumer receipt."
+    },
+    {
+      "id": "PI_DOC__CONTRIBUTING_MD",
+      "repository": "pcvantol/djconnect-pi",
+      "path": "CONTRIBUTING.md",
+      "blob_sha": "2b7d1bcd8e0304ccb81edc527c5b9d6a17cf175f",
+      "commit_sha": "92712ae989f9ad44e2b935222a1e1053670a782f",
+      "read_boundary": "full pinned Markdown file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Local tests, source/distribution and Pi announcement-output contribution rules; release instructions are not publication under this assignment.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-pi/blob/92712ae989f9ad44e2b935222a1e1053670a782f/CONTRIBUTING.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-PI"
+      ],
+      "remaining": "Source document is not a physical Pi, installed release, source-to-artifact or live Home Assistant consumer receipt."
+    },
+    {
+      "id": "PI_DOC__DEVELOPMENT_ENVIRONMENT_MD",
+      "repository": "pcvantol/djconnect-pi",
+      "path": "DEVELOPMENT_ENVIRONMENT.md",
+      "blob_sha": "9edf220e685ca88d93430e0708d46a348caeee00",
+      "commit_sha": "92712ae989f9ad44e2b935222a1e1053670a782f",
+      "read_boundary": "full pinned Markdown file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Pi setup/tests/service guidance; its production install command points releases/latest/download at djconnect-pi-3.2.0.tar.gz and then enters djconnect-pi-3.2.0. The current public distribution latest release is v3.3.0 and offers djconnect-pi-3.3.0.tar.gz, not the requested 3.2.0 asset. This is a stale/broken latest install example requiring owning documentation repair, not installed-target proof.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-pi/blob/92712ae989f9ad44e2b935222a1e1053670a782f/DEVELOPMENT_ENVIRONMENT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-PI"
+      ],
+      "remaining": "Source document is not a physical Pi, installed release, source-to-artifact or live Home Assistant consumer receipt."
+    },
+    {
+      "id": "PI_DOC__PI_PROFILE_ADOPTION_REPORT_MD",
+      "repository": "pcvantol/djconnect-pi",
+      "path": "PI_PROFILE_ADOPTION_REPORT.md",
+      "blob_sha": "f326834ad1978cb20cd680aab988a5e36adb4cb6",
+      "commit_sha": "92712ae989f9ad44e2b935222a1e1053670a782f",
+      "read_boundary": "full pinned Markdown file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Dated Epic 3B profile adoption report for shared Pi client, cache isolation and deferred selector UI; not installed-target acceptance.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-pi/blob/92712ae989f9ad44e2b935222a1e1053670a782f/PI_PROFILE_ADOPTION_REPORT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-PI"
+      ],
+      "remaining": "Source document is not a physical Pi, installed release, source-to-artifact or live Home Assistant consumer receipt."
+    },
+    {
+      "id": "PI_DOC__SECURITY_MD",
+      "repository": "pcvantol/djconnect-pi",
+      "path": "SECURITY.md",
+      "blob_sha": "bcfef029c08254c513056f5492c882c9a1afc5d0",
+      "commit_sha": "92712ae989f9ad44e2b935222a1e1053670a782f",
+      "read_boundary": "full pinned Markdown file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Private vulnerability report and Pi-local security scope; no product/release acceptance.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-pi/blob/92712ae989f9ad44e2b935222a1e1053670a782f/SECURITY.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-PI"
+      ],
+      "remaining": "Source document is not a physical Pi, installed release, source-to-artifact or live Home Assistant consumer receipt."
+    },
+    {
+      "id": "PI_DOC__DOCS_TDE_OBSERVE_PILOT_MD",
+      "repository": "pcvantol/djconnect-pi",
+      "path": "docs/TDE_OBSERVE_PILOT.md",
+      "blob_sha": "5cee01ed40e19c388d48a1c001602fe967e82979",
+      "commit_sha": "92712ae989f9ad44e2b935222a1e1053670a782f",
+      "read_boundary": "full pinned Markdown file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Current observe-only 1.1.1 policy at top with explicitly historical 0.2.0/1.0rc3 run accounts; no WARN gate or new monitor authorized.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-pi/blob/92712ae989f9ad44e2b935222a1e1053670a782f/docs/TDE_OBSERVE_PILOT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-PI"
+      ],
+      "remaining": "Source document is not a physical Pi, installed release, source-to-artifact or live Home Assistant consumer receipt."
+    },
+    {
+      "id": "PI_DOC__DOCS_AI_DEVELOPMENT_AI_DEVELOPMENT_ADOPTION_RECEIPT_MD",
+      "repository": "pcvantol/djconnect-pi",
+      "path": "docs/ai-development/AI_DEVELOPMENT_ADOPTION_RECEIPT.md",
+      "blob_sha": "8f52c1957ea71365879d33b41dc33a14ba9a5df6",
+      "commit_sha": "92712ae989f9ad44e2b935222a1e1053670a782f",
+      "read_boundary": "full pinned Markdown file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Dated local projection-adoption receipt; generic authoring retired, DJConnect product authority retained.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-pi/blob/92712ae989f9ad44e2b935222a1e1053670a782f/docs/ai-development/AI_DEVELOPMENT_ADOPTION_RECEIPT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-PI"
+      ],
+      "remaining": "Source document is not a physical Pi, installed release, source-to-artifact or live Home Assistant consumer receipt."
+    },
+    {
+      "id": "PI_DOC__DOCS_AI_DEVELOPMENT_DJCONNECT_PI_DEVELOPMENT_EXTENSION_MD",
+      "repository": "pcvantol/djconnect-pi",
+      "path": "docs/ai-development/DJCONNECT_PI_DEVELOPMENT_EXTENSION.md",
+      "blob_sha": "d082957d65273166eb6290fa9733d7e577e8d669",
+      "commit_sha": "92712ae989f9ad44e2b935222a1e1053670a782f",
+      "read_boundary": "full pinned Markdown file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Local runtime, packaging, systemd and test extension; core remains cross-component product authority.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-pi/blob/92712ae989f9ad44e2b935222a1e1053670a782f/docs/ai-development/DJCONNECT_PI_DEVELOPMENT_EXTENSION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-PI"
+      ],
+      "remaining": "Source document is not a physical Pi, installed release, source-to-artifact or live Home Assistant consumer receipt."
+    },
+    {
+      "id": "PI_DOC__DOCS_AI_DEVELOPMENT_GENERATED_PROJECTION_MD",
+      "repository": "pcvantol/djconnect-pi",
+      "path": "docs/ai-development/GENERATED_PROJECTION.md",
+      "blob_sha": "0ac42eb3aed092ff5055faee6ef14419ba9e4552",
+      "commit_sha": "92712ae989f9ad44e2b935222a1e1053670a782f",
+      "read_boundary": "full pinned Markdown file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Offline generated generic development projection from exact external contract pin; no product assignment authority.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-pi/blob/92712ae989f9ad44e2b935222a1e1053670a782f/docs/ai-development/GENERATED_PROJECTION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-PI"
+      ],
+      "remaining": "Source document is not a physical Pi, installed release, source-to-artifact or live Home Assistant consumer receipt."
+    },
+    {
+      "id": "PI_DOC__DOCS_GOVERNANCE_ADOPTION_MD",
+      "repository": "pcvantol/djconnect-pi",
+      "path": "docs/governance/ADOPTION.md",
+      "blob_sha": "f6f96a2509e4590b24f2f36ffe8df0c1b3ba1ff1",
+      "commit_sha": "92712ae989f9ad44e2b935222a1e1053670a782f",
+      "read_boundary": "full pinned Markdown file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Local adopted governance and release/test evidence policy; no publication authorized by planning.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-pi/blob/92712ae989f9ad44e2b935222a1e1053670a782f/docs/governance/ADOPTION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-PI"
+      ],
+      "remaining": "Source document is not a physical Pi, installed release, source-to-artifact or live Home Assistant consumer receipt."
+    },
+    {
+      "id": "PI_DOC__TESTS_FIXTURES_DJCONNECT_CONTRACTS_README_MD",
+      "repository": "pcvantol/djconnect-pi",
+      "path": "tests/fixtures/djconnect_contracts/README.md",
+      "blob_sha": "9ea930b6a4c1071f8aafee6e912f86e5e975c2a1",
+      "commit_sha": "92712ae989f9ad44e2b935222a1e1053670a782f",
+      "read_boundary": "full pinned Markdown file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Client contract fixture navigation and export instructions; actual fixture contents and consumer tests require separate qualification.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-pi/blob/92712ae989f9ad44e2b935222a1e1053670a782f/tests/fixtures/djconnect_contracts/README.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-PI"
+      ],
+      "remaining": "Source document is not a physical Pi, installed release, source-to-artifact or live Home Assistant consumer receipt."
     }
   ],
   "nodes": [
@@ -10624,7 +10894,22 @@
         "PROJ::DJC-PI::ROADMAP_INDEX",
         "PROJ::DJC-PI::PROMPT_INDEX",
         "PI_TDE_OBSERVE_EXIT_CRITERIA",
-        "PI_RG001_HISTORY"
+        "PI_RG001_HISTORY",
+        "PI_DOC__BOOTSTRAP_MD",
+        "PI_DOC__BOOTSTRAP_CODEX_SESSION_MD",
+        "PI_DOC__CANONICAL_REFERENCES_MD",
+        "PI_DOC__CHAT_BOOTSTRAP_MD",
+        "PI_DOC__CODE_OF_CONDUCT_MD",
+        "PI_DOC__CONTRIBUTING_MD",
+        "PI_DOC__DEVELOPMENT_ENVIRONMENT_MD",
+        "PI_DOC__PI_PROFILE_ADOPTION_REPORT_MD",
+        "PI_DOC__SECURITY_MD",
+        "PI_DOC__DOCS_TDE_OBSERVE_PILOT_MD",
+        "PI_DOC__DOCS_AI_DEVELOPMENT_AI_DEVELOPMENT_ADOPTION_RECEIPT_MD",
+        "PI_DOC__DOCS_AI_DEVELOPMENT_DJCONNECT_PI_DEVELOPMENT_EXTENSION_MD",
+        "PI_DOC__DOCS_AI_DEVELOPMENT_GENERATED_PROJECTION_MD",
+        "PI_DOC__DOCS_GOVERNANCE_ADOPTION_MD",
+        "PI_DOC__TESTS_FIXTURES_DJCONNECT_CONTRACTS_README_MD"
       ],
       "canonical_authority": "README::DJC-PI",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -23262,13 +23547,15 @@
     {
       "id": "DRIFT-PI",
       "status": "OPEN",
-      "description": "Pi source deliberately has no local Ask DJ input, PTT, TTS or audio path, while distribution README still promises voice requests. Stable 3.3.0 has only a generic bundle; 4.0.0-rc.2 prerelease lists generic plus Pi 5 and Pi Zero 2 W profile bundles, with a manifest whose source SHA and three artifact hashes match the release API. Neither version proves physical installed-target qualification or the older component-register identity; reconcile copy and exact consumer evidence in owning records. The pinned Pi source changelog calls 3.3.0 a dry run not published despite observed 3.3.0 stable release metadata; treat this as a source/release chronology conflict requiring exact asset/provenance reconciliation. The observed public GitHub v3.3.0 release body still says “dry run — not published” despite a non-prerelease release with four assets; release metadata is publication evidence, not proof of installed support.",
+      "description": "Pi source deliberately has no local Ask DJ input, PTT, TTS or audio path, while distribution README still promises voice requests. Stable 3.3.0 has only a generic bundle; 4.0.0-rc.2 prerelease lists generic plus Pi 5 and Pi Zero 2 W profile bundles, with a manifest whose source SHA and three artifact hashes match the release API. Neither version proves physical installed-target qualification or the older component-register identity; reconcile copy and exact consumer evidence in owning records. The pinned Pi source changelog calls 3.3.0 a dry run not published despite observed 3.3.0 stable release metadata; treat this as a source/release chronology conflict requiring exact asset/provenance reconciliation. The observed public GitHub v3.3.0 release body still says “dry run — not published” despite a non-prerelease release with four assets; release metadata is publication evidence, not proof of installed support. Pi CODE_OF_CONDUCT.md also forbids a local /api/device/dj_response route, while current README/source status includes it; this is a documentary contradiction, not a reason to remove the route. DEVELOPMENT_ENVIRONMENT.md's production command asks releases/latest for djconnect-pi-3.2.0.tar.gz and then enters djconnect-pi-3.2.0, but current latest v3.3.0 offers djconnect-pi-3.3.0.tar.gz and no 3.2.0 asset. This stale/broken latest install example requires owning documentation repair; do not treat it as installed-target evidence.",
       "source_ids": [
         "README::DJC-PI",
         "README::DJC-DIST-PI",
         "PI-PUBLISH",
         "QUALIFICATION",
-        "PI_CHANGELOG"
+        "PI_CHANGELOG",
+        "PI_DOC__CODE_OF_CONDUCT_MD",
+        "PI_DOC__DEVELOPMENT_ENVIRONMENT_MD"
       ]
     },
     {
@@ -23895,7 +24182,7 @@
       "status": "OPEN",
       "scope": "platform",
       "reason": "Current matrix covers only explicitly read source inventory; certify complete disposition only after all relevant discoveries are audited.",
-      "remaining": "All 529 included pinned source rows have exact path/blob provenance and bounded read descriptions. Exact pinned trees contain 1,739 tracked Markdown paths, 434 individually represented in the matrix and 1,305 needing relevance/classification disposition; these are path counts, not a claim that the remaining paths are normative. The 23 newly pinned core root-level documents include current policy, dated status/coverage reports and field-test checklists, not current installed evidence. The 41 pinned Apple/website release-copy files do not prove publication, live site or installed consumers. Six historical core EP relative-link targets remain triaged outside the matrix. Complete repository-wide source/consumer discovery and status qualification before certification."
+      "remaining": "All 544 included pinned source rows have exact path/blob provenance and bounded read descriptions. Exact pinned trees contain 1,739 tracked Markdown paths, 449 individually represented in the matrix and 1,290 needing relevance/classification disposition; these are path counts, not a claim that the remaining paths are normative. Pi now has all 33 Markdown paths represented, but runtime/tests/workflows and physical/source-to-release consumers remain separately open. The 41 pinned Apple/website release-copy files do not prove publication, live site or installed consumers. Six historical core EP relative-link targets remain triaged outside the matrix. Complete repository-wide source/consumer discovery and status qualification before certification."
     },
     {
       "id": "REGISTER-DELIVERY",
