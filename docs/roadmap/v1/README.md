@@ -12,9 +12,9 @@ Portfolio: https://github.com/pcvantol/djconnect/issues/1101. Pinned on 2026-10-
 | `PRODUCT_DELIVERY` | `UNCHANGED_BY_PLANNING` |
 | `EXECUTION_READY` | `NO_NEW_PRODUCT_PICKUP_AUTHORIZED` |
 
-The snapshot has 12 repository lanes, 506 pinned sources, 205 records and 82 typed relations. Records are not a feature count. 7 of 27 audit/delivery obligations are closed.
+The snapshot has 12 repository lanes, 529 pinned sources, 205 records and 82 typed relations. Records are not a feature count. 7 of 27 audit/delivery obligations are closed.
 
-Exact observed main trees contain 1739 tracked Markdown paths; 411 paths have individual source rows. The remaining 1328 paths still need relevance classification; they are not all presumed normative.
+Exact observed main trees contain 1739 tracked Markdown paths; 434 paths have individual source rows. The remaining 1305 paths still need relevance classification; they are not all presumed normative.
 
 ## Current five-item Execution Horizon
 

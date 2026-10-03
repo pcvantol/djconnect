@@ -41,7 +41,7 @@
     "metadata_and_bounded_paraphrases": true,
     "offline_hash_verification_of_remote_blobs": false,
     "per_call_timestamps": "Date-level head readback on 2026-10-03; no per-file read timestamp for inherited checkpoint.",
-    "pinned_tree_blobs_verified": "506 of 506 path/blob pins matched exact commit trees or GitHub Contents commit readbacks: 105 original GitHub tree readbacks, 287 local git commit-tree readbacks and 114 new GitHub Contents readbacks on 2026-10-03. Firmware binary files were fully SHA256-hashed for identity, not semantically executed. Narrative interpretation remains partial.",
+    "pinned_tree_blobs_verified": "529 of 529 path/blob pins matched exact commit trees or GitHub Contents commit readbacks: 105 original GitHub tree readbacks, 310 local git commit-tree readbacks and 114 new GitHub Contents readbacks on 2026-10-03. Firmware binary files were fully SHA256-hashed for identity, not semantically executed. Narrative interpretation remains partial.",
     "reference_scan": {
       "method": "Every pinned core Markdown blob and every pinned Markdown blob in the eleven DJC component repositories, at its recorded commit: parse relative Markdown links, strip anchors, normalize against source directory, retain existing .md targets absent from the pinned source matrix; distinct repository/path keys. The seven pinned external Forge method documents are outside this lane-source link frontier.",
       "unmapped_paths": [
@@ -71,8 +71,8 @@
           "repository": "pcvantol/djconnect",
           "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
           "tracked_markdown": 880,
-          "included_markdown": 199,
-          "not_individually_included_markdown": 681,
+          "included_markdown": 222,
+          "not_individually_included_markdown": 658,
           "tree_readback": "complete local git ls-tree -r"
         },
         "DJC-APPLE": {
@@ -9948,6 +9948,420 @@
         "INV::DJC-DIST-PI"
       ],
       "remaining": "Source/dry-run or historical artifact identity does not qualify current source-to-release, installed consumer, live distribution or approval evidence."
+    },
+    {
+      "id": "CORE_ROOT__05_VERIFICATION_CORE_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "05_VERIFICATION_CORE.md",
+      "blob_sha": "9efbe702568a6f73868ffb96c8d6bc0edfd1d680",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned Markdown file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Phase 5/5A Verification Core architecture and review: platform-neutral Scenario Engine, primitive adapter boundary and adapter-skipped execution in that phase; no native coverage or current consumer acceptance receipt.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/05_VERIFICATION_CORE.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Later adapter/runtime and consumer qualification requires its own exact evidence; this architecture record does not satisfy it."
+    },
+    {
+      "id": "CORE_ROOT__AI_SESSION_INITIALIZATION_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "AI_SESSION_INITIALIZATION.md",
+      "blob_sha": "5279a4b40bf8441b7e8d93831c8dffc8d3f8f600",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned Markdown file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Local pointer to authoritative generated projection, not a second independently authored bootstrap.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/AI_SESSION_INITIALIZATION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Historical report/checklist or policy text is source evidence only; broader source, graph, current workflow and physical/consumer acceptance remain separate."
+    },
+    {
+      "id": "CORE_ROOT__CHAT_BOOTSTRAP_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "CHAT_BOOTSTRAP.md",
+      "blob_sha": "36c6dbdf7ca5bcfdbe47e18c956ece9114e90e52",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned Markdown file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Deprecated pointer to BOOTSTRAP_CODEX_SESSION.md.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/CHAT_BOOTSTRAP.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Historical report/checklist or policy text is source evidence only; broader source, graph, current workflow and physical/consumer acceptance remain separate."
+    },
+    {
+      "id": "CORE_ROOT__CI_BASELINE_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "CI_BASELINE.md",
+      "blob_sha": "97654b587505da9744ba4dd8004a1a240c538c36",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned Markdown file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Historical shared-CI examples and recommendations; `@main` examples are not current immutable workflow qualification.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/CI_BASELINE.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Historical report/checklist or policy text is source evidence only; broader source, graph, current workflow and physical/consumer acceptance remain separate."
+    },
+    {
+      "id": "CORE_ROOT__CODE_COVERAGE_BASELINE_1_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "CODE_COVERAGE_BASELINE_1.md",
+      "blob_sha": "8ee0632fc0c3c234593c5a2329a6f4d19eb832db",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned Markdown file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Dated verification/coverage architecture or baseline report; acceptance is bounded to its recorded native evidence, not current consumer qualification.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/CODE_COVERAGE_BASELINE_1.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Historical report/checklist or policy text is source evidence only; broader source, graph, current workflow and physical/consumer acceptance remain separate."
+    },
+    {
+      "id": "CORE_ROOT__CODE_COVERAGE_WINDOWS_BASELINE_1_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "CODE_COVERAGE_WINDOWS_BASELINE_1.md",
+      "blob_sha": "910ca3e428bc7c1ffa31782d2c5a8160512b3531",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned Markdown file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Dated verification/coverage architecture or baseline report; acceptance is bounded to its recorded native evidence, not current consumer qualification.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/CODE_COVERAGE_WINDOWS_BASELINE_1.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Historical report/checklist or policy text is source evidence only; broader source, graph, current workflow and physical/consumer acceptance remain separate."
+    },
+    {
+      "id": "CORE_ROOT__CODE_OF_CONDUCT_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "CODE_OF_CONDUCT.md",
+      "blob_sha": "be78bec8f67639bd7b5a06ad2ee223ba5afa1f49",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned Markdown file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Community conduct/reporting policy; no product or release status authority.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/CODE_OF_CONDUCT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Historical report/checklist or policy text is source evidence only; broader source, graph, current workflow and physical/consumer acceptance remain separate."
+    },
+    {
+      "id": "CORE_ROOT__CONTRIBUTING_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "CONTRIBUTING.md",
+      "blob_sha": "e438e0393a577609910049ee3438bbaccfe5dfe0",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned Markdown file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Current contributor, localization, security, review and release guidance; no automatic release authorization.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/CONTRIBUTING.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Historical report/checklist or policy text is source evidence only; broader source, graph, current workflow and physical/consumer acceptance remain separate."
+    },
+    {
+      "id": "CORE_ROOT__COVERAGE_BASELINE_REPORT_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "COVERAGE_BASELINE_REPORT.md",
+      "blob_sha": "a0b9b6fecc4269d90191547cc9d59c2959ff892e",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned Markdown file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Dated verification/coverage architecture or baseline report; acceptance is bounded to its recorded native evidence, not current consumer qualification.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/COVERAGE_BASELINE_REPORT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Historical report/checklist or policy text is source evidence only; broader source, graph, current workflow and physical/consumer acceptance remain separate."
+    },
+    {
+      "id": "CORE_ROOT__DESIGN_FOUNDATION_VERSION_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "DESIGN_FOUNDATION_VERSION.md",
+      "blob_sha": "a529fd55bc4de091295f094869041d17fe29f086",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned Markdown file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Stable Platform Foundation v1.0 version/change-policy record; product or architecture changes require accepted authority.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/DESIGN_FOUNDATION_VERSION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Historical report/checklist or policy text is source evidence only; broader source, graph, current workflow and physical/consumer acceptance remain separate."
+    },
+    {
+      "id": "CORE_ROOT__ENGINEERING_PLATFORM_GENERATION_1_COMPLETION_REPORT_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "ENGINEERING_PLATFORM_GENERATION_1_COMPLETION_REPORT.md",
+      "blob_sha": "3776a5ab6ae7feaf36c4dc383038c888f9dc7aa4",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned Markdown file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Historical epic/generation completion report; preserve closure, do not reactivate as an execution queue.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/ENGINEERING_PLATFORM_GENERATION_1_COMPLETION_REPORT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Historical report/checklist or policy text is source evidence only; broader source, graph, current workflow and physical/consumer acceptance remain separate."
+    },
+    {
+      "id": "CORE_ROOT__EPIC_1_COMPLETION_REPORT_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "EPIC_1_COMPLETION_REPORT.md",
+      "blob_sha": "6d0a48d1df867e8e2111eea8eaf8070929088346",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned Markdown file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Historical epic/generation completion report; preserve closure, do not reactivate as an execution queue.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/EPIC_1_COMPLETION_REPORT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Historical report/checklist or policy text is source evidence only; broader source, graph, current workflow and physical/consumer acceptance remain separate."
+    },
+    {
+      "id": "CORE_ROOT__EPIC_3_FINAL_REPORT_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "EPIC_3_FINAL_REPORT.md",
+      "blob_sha": "91ddb4685c1d6df8b72200ca653a2f82dfd883b1",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned Markdown file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Historical epic/generation completion report; preserve closure, do not reactivate as an execution queue.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/EPIC_3_FINAL_REPORT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Historical report/checklist or policy text is source evidence only; broader source, graph, current workflow and physical/consumer acceptance remain separate."
+    },
+    {
+      "id": "CORE_ROOT__FIELD_TEST_APP_CLIENTS_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "FIELD_TEST_APP_CLIENTS.md",
+      "blob_sha": "940b6f8ad1c244b985caea1cf81e13ae8e5bf189",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned Markdown file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "App-client physical pairing, remote playback, APNs and optional HA-speaker announcement checklist consistent with the specific SYNC_PROMPTS app contract; no executed field-test receipt.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/FIELD_TEST_APP_CLIENTS.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Qualify actual iOS/macOS/Windows field-test receipts separately; the checklist itself is not proof of execution."
+    },
+    {
+      "id": "CORE_ROOT__GENERATION_1_CLOSURE_REPORT_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "GENERATION_1_CLOSURE_REPORT.md",
+      "blob_sha": "9562e8785cce1f99102eea15b3e0d8ea8bd0a628",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned Markdown file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Historical epic/generation completion report; preserve closure, do not reactivate as an execution queue.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/GENERATION_1_CLOSURE_REPORT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Historical report/checklist or policy text is source evidence only; broader source, graph, current workflow and physical/consumer acceptance remain separate."
+    },
+    {
+      "id": "CORE_ROOT__GENERATION_1_COMPLETION_REPORT_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "GENERATION_1_COMPLETION_REPORT.md",
+      "blob_sha": "4a65e647c4fd317ad7239117013b62e6e4218607",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned Markdown file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Historical epic/generation completion report; preserve closure, do not reactivate as an execution queue.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/GENERATION_1_COMPLETION_REPORT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Historical report/checklist or policy text is source evidence only; broader source, graph, current workflow and physical/consumer acceptance remain separate."
+    },
+    {
+      "id": "CORE_ROOT__IMPLEMENTATION_GUIDELINES_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "IMPLEMENTATION_GUIDELINES.md",
+      "blob_sha": "606b532499c80fc5f55a010475099ac978d9732b",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned Markdown file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Platform-wide implementation and contract-ownership guidance; no implementation authorized by this planning audit.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/IMPLEMENTATION_GUIDELINES.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Historical report/checklist or policy text is source evidence only; broader source, graph, current workflow and physical/consumer acceptance remain separate."
+    },
+    {
+      "id": "CORE_ROOT__REPOSITORY_SYNCHRONIZATION_REPORT_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "REPOSITORY_SYNCHRONIZATION_REPORT.md",
+      "blob_sha": "f2c8cbd211388bae0a8ddf58f127577c35dda05a",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned Markdown file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Dated 2026-07-12 canonical status synchronization history; newer owning records govern current phase.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/REPOSITORY_SYNCHRONIZATION_REPORT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Historical report/checklist or policy text is source evidence only; broader source, graph, current workflow and physical/consumer acceptance remain separate."
+    },
+    {
+      "id": "CORE_ROOT__SINGLE_MAINTAINER_GOVERNANCE_DECISION_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "SINGLE_MAINTAINER_GOVERNANCE_DECISION.md",
+      "blob_sha": "dc61890f9889ca4964eb5d81f2e6c1fe10f02069",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned Markdown file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Dated 2026-07-13 proposed risk-based review design; not independent proof of current branch settings.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/SINGLE_MAINTAINER_GOVERNANCE_DECISION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Historical report/checklist or policy text is source evidence only; broader source, graph, current workflow and physical/consumer acceptance remain separate."
+    },
+    {
+      "id": "CORE_ROOT__SOFTWARE_ASSURANCE_ACTIVATION_REPORT_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "SOFTWARE_ASSURANCE_ACTIVATION_REPORT.md",
+      "blob_sha": "29ab33bcffb11169e4b6c88c4b67851acd802f31",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned Markdown file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Historical initial activation record, explicitly superseded by Generation 1 closure.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/SOFTWARE_ASSURANCE_ACTIVATION_REPORT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Historical report/checklist or policy text is source evidence only; broader source, graph, current workflow and physical/consumer acceptance remain separate."
+    },
+    {
+      "id": "CORE_ROOT__TRUSTED_DELIVERY_ARCHITECTURE_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "TRUSTED_DELIVERY_ARCHITECTURE.md",
+      "blob_sha": "5c0707387e62cbd660c98c9b72812ba07f36d28d",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned Markdown file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Trusted Delivery technical/Owner Authorization and post-merge SHA-status boundary; verify current workflow before applying.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/TRUSTED_DELIVERY_ARCHITECTURE.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Historical report/checklist or policy text is source evidence only; broader source, graph, current workflow and physical/consumer acceptance remain separate."
+    },
+    {
+      "id": "CORE_ROOT__VOICE_ENDPOINT_ADOPTION_REPORT_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "VOICE_ENDPOINT_ADOPTION_REPORT.md",
+      "blob_sha": "cf921fe6924ca0fbf691907c5c70f4180775f13b",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned Markdown file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Dated voice endpoint source-adoption report with deferred mapping UI; not current live consumer receipt.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/VOICE_ENDPOINT_ADOPTION_REPORT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Historical report/checklist or policy text is source evidence only; broader source, graph, current workflow and physical/consumer acceptance remain separate."
+    },
+    {
+      "id": "CORE_ROOT__INFO_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "info.md",
+      "blob_sha": "0d4825201f4f09fe288660f8ae4be8b11dda3052",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned Markdown file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "User-facing HACS/store copy and backend/push/install statements; presentation copy, not deployed/installed acceptance.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/info.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Historical report/checklist or policy text is source evidence only; broader source, graph, current workflow and physical/consumer acceptance remain separate."
     }
   ],
   "nodes": [
@@ -9989,7 +10403,30 @@
         "CORE_ARCH_DECISION",
         "CORE_SA_IMPLEMENTATION",
         "CORE_TD_TARGET_MATRIX",
-        "CORE_POST_MERGE_REUSABLE"
+        "CORE_POST_MERGE_REUSABLE",
+        "CORE_ROOT__05_VERIFICATION_CORE_MD",
+        "CORE_ROOT__AI_SESSION_INITIALIZATION_MD",
+        "CORE_ROOT__CHAT_BOOTSTRAP_MD",
+        "CORE_ROOT__CI_BASELINE_MD",
+        "CORE_ROOT__CODE_COVERAGE_BASELINE_1_MD",
+        "CORE_ROOT__CODE_COVERAGE_WINDOWS_BASELINE_1_MD",
+        "CORE_ROOT__CODE_OF_CONDUCT_MD",
+        "CORE_ROOT__CONTRIBUTING_MD",
+        "CORE_ROOT__COVERAGE_BASELINE_REPORT_MD",
+        "CORE_ROOT__DESIGN_FOUNDATION_VERSION_MD",
+        "CORE_ROOT__ENGINEERING_PLATFORM_GENERATION_1_COMPLETION_REPORT_MD",
+        "CORE_ROOT__EPIC_1_COMPLETION_REPORT_MD",
+        "CORE_ROOT__EPIC_3_FINAL_REPORT_MD",
+        "CORE_ROOT__FIELD_TEST_APP_CLIENTS_MD",
+        "CORE_ROOT__GENERATION_1_CLOSURE_REPORT_MD",
+        "CORE_ROOT__GENERATION_1_COMPLETION_REPORT_MD",
+        "CORE_ROOT__IMPLEMENTATION_GUIDELINES_MD",
+        "CORE_ROOT__REPOSITORY_SYNCHRONIZATION_REPORT_MD",
+        "CORE_ROOT__SINGLE_MAINTAINER_GOVERNANCE_DECISION_MD",
+        "CORE_ROOT__SOFTWARE_ASSURANCE_ACTIVATION_REPORT_MD",
+        "CORE_ROOT__TRUSTED_DELIVERY_ARCHITECTURE_MD",
+        "CORE_ROOT__VOICE_ENDPOINT_ADOPTION_REPORT_MD",
+        "CORE_ROOT__INFO_MD"
       ],
       "canonical_authority": "LOCAL_EXTENSION",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -23458,7 +23895,7 @@
       "status": "OPEN",
       "scope": "platform",
       "reason": "Current matrix covers only explicitly read source inventory; certify complete disposition only after all relevant discoveries are audited.",
-      "remaining": "All 506 included pinned source rows have exact path/blob provenance and bounded read descriptions. Exact pinned trees contain 1,739 tracked Markdown paths, 411 individually represented in the matrix and 1,328 needing relevance/classification disposition; these are path counts, not a claim that the remaining paths are normative. The 41 pinned Apple/website release-copy files do not prove publication, live site or installed consumers. Six historical core EP relative-link targets remain triaged outside the matrix. Complete repository-wide source/consumer discovery and status qualification before certification."
+      "remaining": "All 529 included pinned source rows have exact path/blob provenance and bounded read descriptions. Exact pinned trees contain 1,739 tracked Markdown paths, 434 individually represented in the matrix and 1,305 needing relevance/classification disposition; these are path counts, not a claim that the remaining paths are normative. The 23 newly pinned core root-level documents include current policy, dated status/coverage reports and field-test checklists, not current installed evidence. The 41 pinned Apple/website release-copy files do not prove publication, live site or installed consumers. Six historical core EP relative-link targets remain triaged outside the matrix. Complete repository-wide source/consumer discovery and status qualification before certification."
     },
     {
       "id": "REGISTER-DELIVERY",
