@@ -41,7 +41,7 @@
     "metadata_and_bounded_paraphrases": true,
     "offline_hash_verification_of_remote_blobs": false,
     "per_call_timestamps": "Date-level head readback on 2026-10-03; no per-file read timestamp for inherited checkpoint.",
-    "pinned_tree_blobs_verified": "544 of 544 path/blob pins matched exact commit trees or GitHub Contents commit readbacks: 105 original GitHub tree readbacks, 325 local git commit-tree readbacks and 114 new GitHub Contents readbacks on 2026-10-03. Firmware binary files were fully SHA256-hashed for identity, not semantically executed. Narrative interpretation remains partial.",
+    "pinned_tree_blobs_verified": "558 of 558 path/blob pins matched exact commit trees or GitHub Contents commit readbacks: 105 original GitHub tree readbacks, 325 local git commit-tree readbacks and 128 new GitHub tree/Contents readbacks on 2026-10-03. Current API Markdown blobs at 3f1ed18d matched fully read local previous-main blobs. Firmware binary files were fully SHA256-hashed for identity, not semantically executed. Narrative interpretation remains partial.",
     "reference_scan": {
       "method": "Every pinned core Markdown blob and every pinned Markdown blob in the eleven DJC component repositories, at its recorded commit: parse relative Markdown links, strip anchors, normalize against source directory, retain existing .md targets absent from the pinned source matrix; distinct repository/path keys. The seven pinned external Forge method documents are outside this lane-source link frontier.",
       "unmapped_paths": [
@@ -111,8 +111,8 @@
           "repository": "pcvantol/djconnect-api",
           "commit_sha": "3f1ed18d2ce803a2b5d3750115d0dbf2dbaa34ba",
           "tracked_markdown": 28,
-          "included_markdown": 14,
-          "not_individually_included_markdown": 14,
+          "included_markdown": 28,
+          "not_individually_included_markdown": 0,
           "tree_readback": "GitHub recursive Git tree, truncated=false"
         },
         "DJC-WEBSITE": {
@@ -10632,6 +10632,258 @@
         "INV::DJC-PI"
       ],
       "remaining": "Source document is not a physical Pi, installed release, source-to-artifact or live Home Assistant consumer receipt."
+    },
+    {
+      "id": "API_DOC__BOOTSTRAP_MD",
+      "repository": "pcvantol/djconnect-api",
+      "path": "BOOTSTRAP.md",
+      "blob_sha": "66b14b99fe8ce4d3a845be8806437288e5b1a191",
+      "commit_sha": "3f1ed18d2ce803a2b5d3750115d0dbf2dbaa34ba",
+      "read_boundary": "full pinned Markdown file reviewed on 2026-10-03; current GitHub tree blob identical to fully read local previous-main blob",
+      "read_complete": true,
+      "status_authority": "Local API bootstrap delegates generic development procedure to the generated projection and API runtime/test details to this repository; not product authority.",
+      "observed_at": "2026-10-03; GitHub recursive exact main tree and matching local git blob/full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-api/blob/3f1ed18d2ce803a2b5d3750115d0dbf2dbaa34ba/BOOTSTRAP.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-API"
+      ],
+      "remaining": "Source document is not a live Cloudflare Worker/D1/APNs, installed Apple client, or exact source-to-release consumer receipt."
+    },
+    {
+      "id": "API_DOC__CHANGELOG_MD",
+      "repository": "pcvantol/djconnect-api",
+      "path": "CHANGELOG.md",
+      "blob_sha": "837094d2fc028709134bde9f18fa8264d8ade644",
+      "commit_sha": "3f1ed18d2ce803a2b5d3750115d0dbf2dbaa34ba",
+      "read_boundary": "full pinned Markdown file reviewed on 2026-10-03; current GitHub tree blob identical to fully read local previous-main blob",
+      "read_complete": true,
+      "status_authority": "Dated API history includes 4.0.0-rc.2 source-candidate preparation and earlier APNs/privacy/auth changes; changelog text is not a deployed Worker receipt.",
+      "observed_at": "2026-10-03; GitHub recursive exact main tree and matching local git blob/full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-api/blob/3f1ed18d2ce803a2b5d3750115d0dbf2dbaa34ba/CHANGELOG.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-API"
+      ],
+      "remaining": "Source document is not a live Cloudflare Worker/D1/APNs, installed Apple client, or exact source-to-release consumer receipt."
+    },
+    {
+      "id": "API_DOC__CHAT_BOOTSTRAP_MD",
+      "repository": "pcvantol/djconnect-api",
+      "path": "CHAT_BOOTSTRAP.md",
+      "blob_sha": "36c6dbdf7ca5bcfdbe47e18c956ece9114e90e52",
+      "commit_sha": "3f1ed18d2ce803a2b5d3750115d0dbf2dbaa34ba",
+      "read_boundary": "full pinned Markdown file reviewed on 2026-10-03; current GitHub tree blob identical to fully read local previous-main blob",
+      "read_complete": true,
+      "status_authority": "Deprecated pointer to BOOTSTRAP_CODEX_SESSION.md, not an independent authoring authority.",
+      "observed_at": "2026-10-03; GitHub recursive exact main tree and matching local git blob/full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-api/blob/3f1ed18d2ce803a2b5d3750115d0dbf2dbaa34ba/CHAT_BOOTSTRAP.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-API"
+      ],
+      "remaining": "Source document is not a live Cloudflare Worker/D1/APNs, installed Apple client, or exact source-to-release consumer receipt."
+    },
+    {
+      "id": "API_DOC__CODE_OF_CONDUCT_MD",
+      "repository": "pcvantol/djconnect-api",
+      "path": "CODE_OF_CONDUCT.md",
+      "blob_sha": "7c7b71a3f83664dab9c68b92562496c1273c589d",
+      "commit_sha": "3f1ed18d2ce803a2b5d3750115d0dbf2dbaa34ba",
+      "read_boundary": "full pinned Markdown file reviewed on 2026-10-03; current GitHub tree blob identical to fully read local previous-main blob",
+      "read_complete": true,
+      "status_authority": "Community conduct/reporting policy, not API runtime or product acceptance.",
+      "observed_at": "2026-10-03; GitHub recursive exact main tree and matching local git blob/full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-api/blob/3f1ed18d2ce803a2b5d3750115d0dbf2dbaa34ba/CODE_OF_CONDUCT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-API"
+      ],
+      "remaining": "Source document is not a live Cloudflare Worker/D1/APNs, installed Apple client, or exact source-to-release consumer receipt."
+    },
+    {
+      "id": "API_DOC__CONTRIBUTING_MD",
+      "repository": "pcvantol/djconnect-api",
+      "path": "CONTRIBUTING.md",
+      "blob_sha": "4e4b03d3e4df5bdfd27041b1878d57c17ecfd454",
+      "commit_sha": "3f1ed18d2ce803a2b5d3750115d0dbf2dbaa34ba",
+      "read_boundary": "full pinned Markdown file reviewed on 2026-10-03; current GitHub tree blob identical to fully read local previous-main blob",
+      "read_complete": true,
+      "status_authority": "Local contribution, five-language, privacy, checks and release-hygiene guidance; release steps are not authorized by this planning assignment.",
+      "observed_at": "2026-10-03; GitHub recursive exact main tree and matching local git blob/full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-api/blob/3f1ed18d2ce803a2b5d3750115d0dbf2dbaa34ba/CONTRIBUTING.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-API"
+      ],
+      "remaining": "Source document is not a live Cloudflare Worker/D1/APNs, installed Apple client, or exact source-to-release consumer receipt."
+    },
+    {
+      "id": "API_DOC__DEVELOPMENT_ENVIRONMENT_MD",
+      "repository": "pcvantol/djconnect-api",
+      "path": "DEVELOPMENT_ENVIRONMENT.md",
+      "blob_sha": "056faff7f9a2a436f0be2707dcf39d781217d8e9",
+      "commit_sha": "3f1ed18d2ce803a2b5d3750115d0dbf2dbaa34ba",
+      "read_boundary": "full pinned Markdown file reviewed on 2026-10-03; current GitHub tree blob identical to fully read local previous-main blob",
+      "read_complete": true,
+      "status_authority": "Worker/D1 local and remote operation guidance, explicitly separating dry-run validation from credentialled deployment; historical health prose is not a current live receipt.",
+      "observed_at": "2026-10-03; GitHub recursive exact main tree and matching local git blob/full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-api/blob/3f1ed18d2ce803a2b5d3750115d0dbf2dbaa34ba/DEVELOPMENT_ENVIRONMENT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-API"
+      ],
+      "remaining": "Source document is not a live Cloudflare Worker/D1/APNs, installed Apple client, or exact source-to-release consumer receipt."
+    },
+    {
+      "id": "API_DOC__HANDOFF_MD",
+      "repository": "pcvantol/djconnect-api",
+      "path": "HANDOFF.md",
+      "blob_sha": "144b9451ab5c1cc80e541de216c43e5d3df3b603",
+      "commit_sha": "3f1ed18d2ce803a2b5d3750115d0dbf2dbaa34ba",
+      "read_boundary": "full pinned Markdown file reviewed on 2026-10-03; current GitHub tree blob identical to fully read local previous-main blob",
+      "read_complete": true,
+      "status_authority": "API handoff calls 1.0.14 current public release while package/changelog have 4.0.0-rc.2 source candidate; keep public release, source candidate and internal evidence distinct. Its historical Cloudflare and CI claims require exact current receipts.",
+      "observed_at": "2026-10-03; GitHub recursive exact main tree and matching local git blob/full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-api/blob/3f1ed18d2ce803a2b5d3750115d0dbf2dbaa34ba/HANDOFF.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-API"
+      ],
+      "remaining": "Source document is not a live Cloudflare Worker/D1/APNs, installed Apple client, or exact source-to-release consumer receipt."
+    },
+    {
+      "id": "API_DOC__SECURITY_MD",
+      "repository": "pcvantol/djconnect-api",
+      "path": "SECURITY.md",
+      "blob_sha": "0edc44b47bc53114bbc66aa0c62a9366087a0bb9",
+      "commit_sha": "3f1ed18d2ce803a2b5d3750115d0dbf2dbaa34ba",
+      "read_boundary": "full pinned Markdown file reviewed on 2026-10-03; current GitHub tree blob identical to fully read local previous-main blob",
+      "read_complete": true,
+      "status_authority": "API secret, per-install token, APNs push minimization and admin privacy boundary; no actual Cloudflare secret or live registration state inspected.",
+      "observed_at": "2026-10-03; GitHub recursive exact main tree and matching local git blob/full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-api/blob/3f1ed18d2ce803a2b5d3750115d0dbf2dbaa34ba/SECURITY.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-API"
+      ],
+      "remaining": "Source document is not a live Cloudflare Worker/D1/APNs, installed Apple client, or exact source-to-release consumer receipt."
+    },
+    {
+      "id": "API_DOC__TECHNICAL_DESIGN_DECISIONS_MD",
+      "repository": "pcvantol/djconnect-api",
+      "path": "TECHNICAL_DESIGN_DECISIONS.md",
+      "blob_sha": "4e6304cebb90529a0e90bff1d8f9d199fcd6c465",
+      "commit_sha": "3f1ed18d2ce803a2b5d3750115d0dbf2dbaa34ba",
+      "read_boundary": "full pinned Markdown file reviewed on 2026-10-03; current GitHub tree blob identical to fully read local previous-main blob",
+      "read_complete": true,
+      "status_authority": "Worker/D1/APNs design history and trust boundary; some examples reflect earlier states, so source and current core contract remain authoritative.",
+      "observed_at": "2026-10-03; GitHub recursive exact main tree and matching local git blob/full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-api/blob/3f1ed18d2ce803a2b5d3750115d0dbf2dbaa34ba/TECHNICAL_DESIGN_DECISIONS.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-API"
+      ],
+      "remaining": "Source document is not a live Cloudflare Worker/D1/APNs, installed Apple client, or exact source-to-release consumer receipt."
+    },
+    {
+      "id": "API_DOC__THIRD_PARTY_NOTICES_MD",
+      "repository": "pcvantol/djconnect-api",
+      "path": "THIRD_PARTY_NOTICES.md",
+      "blob_sha": "c45dbe8d2afe4abf56c09deba531871d025308d9",
+      "commit_sha": "3f1ed18d2ce803a2b5d3750115d0dbf2dbaa34ba",
+      "read_boundary": "full pinned Markdown file reviewed on 2026-10-03; current GitHub tree blob identical to fully read local previous-main blob",
+      "read_complete": true,
+      "status_authority": "Cloudflare/APNs/npm/Spotify legal and dependency notice; not a license audit of each transitive package.",
+      "observed_at": "2026-10-03; GitHub recursive exact main tree and matching local git blob/full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-api/blob/3f1ed18d2ce803a2b5d3750115d0dbf2dbaa34ba/THIRD_PARTY_NOTICES.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-API"
+      ],
+      "remaining": "Source document is not a live Cloudflare Worker/D1/APNs, installed Apple client, or exact source-to-release consumer receipt."
+    },
+    {
+      "id": "API_DOC__DOCS_AI_DEVELOPMENT_AI_DEVELOPMENT_ADOPTION_RECEIPT_MD",
+      "repository": "pcvantol/djconnect-api",
+      "path": "docs/ai-development/AI_DEVELOPMENT_ADOPTION_RECEIPT.md",
+      "blob_sha": "656e1e1996ac8777bc411659b03e1f73ebd159e2",
+      "commit_sha": "3f1ed18d2ce803a2b5d3750115d0dbf2dbaa34ba",
+      "read_boundary": "full pinned Markdown file reviewed on 2026-10-03; current GitHub tree blob identical to fully read local previous-main blob",
+      "read_complete": true,
+      "status_authority": "Dated generated-projection adoption receipt; generic bootstrap retirement only, not API/product acceptance.",
+      "observed_at": "2026-10-03; GitHub recursive exact main tree and matching local git blob/full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-api/blob/3f1ed18d2ce803a2b5d3750115d0dbf2dbaa34ba/docs/ai-development/AI_DEVELOPMENT_ADOPTION_RECEIPT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-API"
+      ],
+      "remaining": "Source document is not a live Cloudflare Worker/D1/APNs, installed Apple client, or exact source-to-release consumer receipt."
+    },
+    {
+      "id": "API_DOC__DOCS_AI_DEVELOPMENT_DJCONNECT_API_DEVELOPMENT_EXTENSION_MD",
+      "repository": "pcvantol/djconnect-api",
+      "path": "docs/ai-development/DJCONNECT_API_DEVELOPMENT_EXTENSION.md",
+      "blob_sha": "1ad7275dcbc12295b37490dc1e17d455b5d2c9cb",
+      "commit_sha": "3f1ed18d2ce803a2b5d3750115d0dbf2dbaa34ba",
+      "read_boundary": "full pinned Markdown file reviewed on 2026-10-03; current GitHub tree blob identical to fully read local previous-main blob",
+      "read_complete": true,
+      "status_authority": "API-local Worker/D1/APNs test and delivery extension; core retains platform product authority.",
+      "observed_at": "2026-10-03; GitHub recursive exact main tree and matching local git blob/full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-api/blob/3f1ed18d2ce803a2b5d3750115d0dbf2dbaa34ba/docs/ai-development/DJCONNECT_API_DEVELOPMENT_EXTENSION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-API"
+      ],
+      "remaining": "Source document is not a live Cloudflare Worker/D1/APNs, installed Apple client, or exact source-to-release consumer receipt."
+    },
+    {
+      "id": "API_DOC__DOCS_AI_DEVELOPMENT_GENERATED_PROJECTION_MD",
+      "repository": "pcvantol/djconnect-api",
+      "path": "docs/ai-development/GENERATED_PROJECTION.md",
+      "blob_sha": "c0619b2c0c4289cd31be7a2ad1e56e8ee8cb5592",
+      "commit_sha": "3f1ed18d2ce803a2b5d3750115d0dbf2dbaa34ba",
+      "read_boundary": "full pinned Markdown file reviewed on 2026-10-03; current GitHub tree blob identical to fully read local previous-main blob",
+      "read_complete": true,
+      "status_authority": "Offline generic development projection from external contract pin; does not grant product assignment or release authority.",
+      "observed_at": "2026-10-03; GitHub recursive exact main tree and matching local git blob/full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-api/blob/3f1ed18d2ce803a2b5d3750115d0dbf2dbaa34ba/docs/ai-development/GENERATED_PROJECTION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-API"
+      ],
+      "remaining": "Source document is not a live Cloudflare Worker/D1/APNs, installed Apple client, or exact source-to-release consumer receipt."
+    },
+    {
+      "id": "API_DOC__DOCS_GOVERNANCE_ADOPTION_MD",
+      "repository": "pcvantol/djconnect-api",
+      "path": "docs/governance/ADOPTION.md",
+      "blob_sha": "b4435b74e46eb0187daba0af6daa524faf5b8247",
+      "commit_sha": "3f1ed18d2ce803a2b5d3750115d0dbf2dbaa34ba",
+      "read_boundary": "full pinned Markdown file reviewed on 2026-10-03; current GitHub tree blob identical to fully read local previous-main blob",
+      "read_complete": true,
+      "status_authority": "Local governance adoption and Cloudflare/D1 release-evidence policy; no deployment is authorized or proven by this planning row.",
+      "observed_at": "2026-10-03; GitHub recursive exact main tree and matching local git blob/full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-api/blob/3f1ed18d2ce803a2b5d3750115d0dbf2dbaa34ba/docs/governance/ADOPTION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-API"
+      ],
+      "remaining": "Source document is not a live Cloudflare Worker/D1/APNs, installed Apple client, or exact source-to-release consumer receipt."
     }
   ],
   "nodes": [
@@ -11043,7 +11295,21 @@
         "API_OPERATOR_RUNBOOK",
         "API_SOURCE_ROUTE",
         "API_SOURCE_ADMIN",
-        "API_SOURCE_TOKEN_REPO"
+        "API_SOURCE_TOKEN_REPO",
+        "API_DOC__BOOTSTRAP_MD",
+        "API_DOC__CHANGELOG_MD",
+        "API_DOC__CHAT_BOOTSTRAP_MD",
+        "API_DOC__CODE_OF_CONDUCT_MD",
+        "API_DOC__CONTRIBUTING_MD",
+        "API_DOC__DEVELOPMENT_ENVIRONMENT_MD",
+        "API_DOC__HANDOFF_MD",
+        "API_DOC__SECURITY_MD",
+        "API_DOC__TECHNICAL_DESIGN_DECISIONS_MD",
+        "API_DOC__THIRD_PARTY_NOTICES_MD",
+        "API_DOC__DOCS_AI_DEVELOPMENT_AI_DEVELOPMENT_ADOPTION_RECEIPT_MD",
+        "API_DOC__DOCS_AI_DEVELOPMENT_DJCONNECT_API_DEVELOPMENT_EXTENSION_MD",
+        "API_DOC__DOCS_AI_DEVELOPMENT_GENERATED_PROJECTION_MD",
+        "API_DOC__DOCS_GOVERNANCE_ADOPTION_MD"
       ],
       "canonical_authority": "README::DJC-API",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -23497,6 +23763,17 @@
       "passed": true,
       "acceptance_qualified": false,
       "notes": "Offline development projection push run on exact pinned main succeeded; not product or deployment acceptance."
+    },
+    {
+      "id": "API_MAIN_VALIDATE_37114450056",
+      "kind": "exact_main_ci_readback",
+      "repository": "pcvantol/djconnect-api",
+      "url": "https://github.com/pcvantol/djconnect-api/actions/runs/37114450056",
+      "subject_sha": "3f1ed18d2ce803a2b5d3750115d0dbf2dbaa34ba",
+      "observed_date": "2026-10-03",
+      "passed": true,
+      "acceptance_qualified": false,
+      "notes": "GitHub exact-main push Validate run succeeded, including its Validate job, Software Assurance governance and workflow-run cleanup. It is source/CI qualification only, not Cloudflare deployment, D1 migration, APNs delivery or Apple consumer acceptance."
     }
   ],
   "findings": [
@@ -24107,7 +24384,7 @@
       "status": "OPEN",
       "scope": "DJC-API",
       "reason": "Pinned API contract, operator runbook, canonical references, local status/prompt/roadmap/management docs and revoke source are read. Reconcile RG-API-001 stale phase projections and token-revoke backlog drift with merged PRs #46/#16, then qualify actual CI, deployment/APNs and consumer evidence. The latest main dev-dependency-only delta is separately recorded.",
-      "remaining": "Owning backlog/status corrections, exact API CI/deployment/source-to-release and live APNs/operator acceptance, local writer evidence and final delta remain open; no API deployment or new product pickup selected."
+      "remaining": "All 28 tracked API Markdown files are now individually pinned, with current API GitHub-main blobs matching the fully read local previous-main documents. The source package/changelog is 4.0.0-rc.2 while HANDOFF calls 1.0.14 the current public release; distinguish source candidate, historical public release and internal evidence. Exact-main Validate run 37114450056 succeeded on 3f1ed18d; this is source CI, not live Cloudflare/D1/APNs, Apple consumer or production deployment acceptance. Qualify runtime/tests, public/internal release joins, owning backlog/status, policy and final delta without an API push/deployment."
     },
     {
       "id": "AUDIT-DJC-WEBSITE",
@@ -24182,7 +24459,7 @@
       "status": "OPEN",
       "scope": "platform",
       "reason": "Current matrix covers only explicitly read source inventory; certify complete disposition only after all relevant discoveries are audited.",
-      "remaining": "All 544 included pinned source rows have exact path/blob provenance and bounded read descriptions. Exact pinned trees contain 1,739 tracked Markdown paths, 449 individually represented in the matrix and 1,290 needing relevance/classification disposition; these are path counts, not a claim that the remaining paths are normative. Pi now has all 33 Markdown paths represented, but runtime/tests/workflows and physical/source-to-release consumers remain separately open. The 41 pinned Apple/website release-copy files do not prove publication, live site or installed consumers. Six historical core EP relative-link targets remain triaged outside the matrix. Complete repository-wide source/consumer discovery and status qualification before certification."
+      "remaining": "All 558 included pinned source rows have exact path/blob provenance and bounded read descriptions. Exact pinned trees contain 1,739 tracked Markdown paths, 463 individually represented in the matrix and 1,276 needing relevance/classification disposition; these are path counts, not a claim that the remaining paths are normative. Pi has all 33 and API all 28 Markdown paths represented; runtime/tests/workflows and physical/source-to-release consumers remain separately open. The 41 pinned Apple/website release-copy files do not prove publication, live site or installed consumers. Six historical core EP relative-link targets remain triaged outside the matrix. Complete repository-wide source/consumer discovery and status qualification before certification."
     },
     {
       "id": "REGISTER-DELIVERY",
