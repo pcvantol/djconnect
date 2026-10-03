@@ -41,7 +41,7 @@
     "metadata_and_bounded_paraphrases": true,
     "offline_hash_verification_of_remote_blobs": false,
     "per_call_timestamps": "Date-level head readback on 2026-10-03; no per-file read timestamp for inherited checkpoint.",
-    "pinned_tree_blobs_verified": "558 of 558 path/blob pins matched exact commit trees or GitHub Contents commit readbacks: 105 original GitHub tree readbacks, 325 local git commit-tree readbacks and 128 new GitHub tree/Contents readbacks on 2026-10-03. Current API Markdown blobs at 3f1ed18d matched fully read local previous-main blobs. Firmware binary files were fully SHA256-hashed for identity, not semantically executed. Narrative interpretation remains partial.",
+    "pinned_tree_blobs_verified": "579 of 579 path/blob pins matched exact commit trees or GitHub Contents commit readbacks: 105 original GitHub tree readbacks, 346 local git commit-tree readbacks and 128 new GitHub tree/Contents readbacks on 2026-10-03. Current API Markdown blobs at 3f1ed18d matched fully read local previous-main blobs. Firmware binary files were fully SHA256-hashed for identity, not semantically executed. Narrative interpretation remains partial.",
     "reference_scan": {
       "method": "Every pinned core Markdown blob and every pinned Markdown blob in the eleven DJC component repositories, at its recorded commit: parse relative Markdown links, strip anchors, normalize against source directory, retain existing .md targets absent from the pinned source matrix; distinct repository/path keys. The seven pinned external Forge method documents are outside this lane-source link frontier.",
       "unmapped_paths": [
@@ -87,8 +87,8 @@
           "repository": "pcvantol/djconnect-esp32",
           "commit_sha": "49a71f99f6435819ec00b7387520a3fd20640a0b",
           "tracked_markdown": 28,
-          "included_markdown": 11,
-          "not_individually_included_markdown": 17,
+          "included_markdown": 28,
+          "not_individually_included_markdown": 0,
           "tree_readback": "GitHub recursive Git tree, truncated=false"
         },
         "DJC-PI": {
@@ -10884,6 +10884,384 @@
         "INV::DJC-API"
       ],
       "remaining": "Source document is not a live Cloudflare Worker/D1/APNs, installed Apple client, or exact source-to-release consumer receipt."
+    },
+    {
+      "id": "ESP_DOC__CONTINUE_SYSTEM_MESSAGE_MD",
+      "repository": "pcvantol/djconnect-esp32",
+      "path": ".continue/system-message.md",
+      "blob_sha": "73914c4a2e701c4a5fa94b4a55158ce21fb557df",
+      "commit_sha": "49a71f99f6435819ec00b7387520a3fd20640a0b",
+      "read_boundary": "full pinned Markdown/workflow file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Tool-specific Continue.dev guidance only; not platform product or GitHub workflow authority.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-esp32/blob/49a71f99f6435819ec00b7387520a3fd20640a0b/.continue/system-message.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-ESP32"
+      ],
+      "remaining": "Source text/CI is not current physical LilyGO, installed OTA, exact firmware source-to-public-asset, or Home Assistant consumer acceptance."
+    },
+    {
+      "id": "ESP_DOC__BOOTSTRAP_MD",
+      "repository": "pcvantol/djconnect-esp32",
+      "path": "BOOTSTRAP.md",
+      "blob_sha": "8dbc523f813d07c0412b95681d3eb1b059cedc85",
+      "commit_sha": "49a71f99f6435819ec00b7387520a3fd20640a0b",
+      "read_boundary": "full pinned Markdown/workflow file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Local navigation to generated projection, ESP32 extension and firmware tests; core retains product authority.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-esp32/blob/49a71f99f6435819ec00b7387520a3fd20640a0b/BOOTSTRAP.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-ESP32"
+      ],
+      "remaining": "Source text/CI is not current physical LilyGO, installed OTA, exact firmware source-to-public-asset, or Home Assistant consumer acceptance."
+    },
+    {
+      "id": "ESP_DOC__BOOTSTRAP_CODEX_SESSION_MD",
+      "repository": "pcvantol/djconnect-esp32",
+      "path": "BOOTSTRAP_CODEX_SESSION.md",
+      "blob_sha": "26fb2ab357604829cb0816abc067e69639185321",
+      "commit_sha": "49a71f99f6435819ec00b7387520a3fd20640a0b",
+      "read_boundary": "full pinned Markdown/workflow file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Compatibility pointer to BOOTSTRAP.md, not independently authored product policy.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-esp32/blob/49a71f99f6435819ec00b7387520a3fd20640a0b/BOOTSTRAP_CODEX_SESSION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-ESP32"
+      ],
+      "remaining": "Source text/CI is not current physical LilyGO, installed OTA, exact firmware source-to-public-asset, or Home Assistant consumer acceptance."
+    },
+    {
+      "id": "ESP_DOC__CANONICAL_REFERENCES_MD",
+      "repository": "pcvantol/djconnect-esp32",
+      "path": "CANONICAL_REFERENCES.md",
+      "blob_sha": "91367d71563c7d5404773f4d90bf4ba442bd9317",
+      "commit_sha": "49a71f99f6435819ec00b7387520a3fd20640a0b",
+      "read_boundary": "full pinned Markdown/workflow file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Local map of core foundation, verification, Meta Engineering and firmware technical ownership; no second roadmap.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-esp32/blob/49a71f99f6435819ec00b7387520a3fd20640a0b/CANONICAL_REFERENCES.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-ESP32"
+      ],
+      "remaining": "Source text/CI is not current physical LilyGO, installed OTA, exact firmware source-to-public-asset, or Home Assistant consumer acceptance."
+    },
+    {
+      "id": "ESP_DOC__CHANGELOG_MD",
+      "repository": "pcvantol/djconnect-esp32",
+      "path": "CHANGELOG.md",
+      "blob_sha": "2eac50423b71164df4015b8624a91e63d41f3a84",
+      "commit_sha": "49a71f99f6435819ec00b7387520a3fd20640a0b",
+      "read_boundary": "full pinned Markdown/workflow file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Historical release chronology includes 3.3.0 source preparation and prior pairing/OTA/voice behavior; old entries are not current runtime or physical acceptance.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-esp32/blob/49a71f99f6435819ec00b7387520a3fd20640a0b/CHANGELOG.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-ESP32"
+      ],
+      "remaining": "Source text/CI is not current physical LilyGO, installed OTA, exact firmware source-to-public-asset, or Home Assistant consumer acceptance."
+    },
+    {
+      "id": "ESP_DOC__CHAT_BOOTSTRAP_MD",
+      "repository": "pcvantol/djconnect-esp32",
+      "path": "CHAT_BOOTSTRAP.md",
+      "blob_sha": "36c6dbdf7ca5bcfdbe47e18c956ece9114e90e52",
+      "commit_sha": "49a71f99f6435819ec00b7387520a3fd20640a0b",
+      "read_boundary": "full pinned Markdown/workflow file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Deprecated pointer to BOOTSTRAP_CODEX_SESSION.md.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-esp32/blob/49a71f99f6435819ec00b7387520a3fd20640a0b/CHAT_BOOTSTRAP.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-ESP32"
+      ],
+      "remaining": "Source text/CI is not current physical LilyGO, installed OTA, exact firmware source-to-public-asset, or Home Assistant consumer acceptance."
+    },
+    {
+      "id": "ESP_DOC__CODE_OF_CONDUCT_MD",
+      "repository": "pcvantol/djconnect-esp32",
+      "path": "CODE_OF_CONDUCT.md",
+      "blob_sha": "f9448c27d427d207110ccd506b04c2a07655b7bc",
+      "commit_sha": "49a71f99f6435819ec00b7387520a3fd20640a0b",
+      "read_boundary": "full pinned Markdown/workflow file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Community reporting/conduct policy, not firmware acceptance.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-esp32/blob/49a71f99f6435819ec00b7387520a3fd20640a0b/CODE_OF_CONDUCT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-ESP32"
+      ],
+      "remaining": "Source text/CI is not current physical LilyGO, installed OTA, exact firmware source-to-public-asset, or Home Assistant consumer acceptance."
+    },
+    {
+      "id": "ESP_DOC__CONTRIBUTING_MD",
+      "repository": "pcvantol/djconnect-esp32",
+      "path": "CONTRIBUTING.md",
+      "blob_sha": "aa3e0a4a5ee4f41476da1e6ec1f4535c3cf7b472",
+      "commit_sha": "49a71f99f6435819ec00b7387520a3fd20640a0b",
+      "read_boundary": "full pinned Markdown/workflow file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Local PlatformIO, native/contract tests, firmware release and legal guidance; release instructions do not authorize publication.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-esp32/blob/49a71f99f6435819ec00b7387520a3fd20640a0b/CONTRIBUTING.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-ESP32"
+      ],
+      "remaining": "Source text/CI is not current physical LilyGO, installed OTA, exact firmware source-to-public-asset, or Home Assistant consumer acceptance."
+    },
+    {
+      "id": "ESP_DOC__ESP32_PROFILE_ADOPTION_REPORT_MD",
+      "repository": "pcvantol/djconnect-esp32",
+      "path": "ESP32_PROFILE_ADOPTION_REPORT.md",
+      "blob_sha": "89f61802adae4e47671f9e202309f0e3f2f08b67",
+      "commit_sha": "49a71f99f6435819ec00b7387520a3fd20640a0b",
+      "read_boundary": "full pinned Markdown/workflow file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Dated Epic 3B source adoption of profile request context and explicit ESP32 intentional absences; not installed device/HA consumer receipt.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-esp32/blob/49a71f99f6435819ec00b7387520a3fd20640a0b/ESP32_PROFILE_ADOPTION_REPORT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-ESP32"
+      ],
+      "remaining": "Source text/CI is not current physical LilyGO, installed OTA, exact firmware source-to-public-asset, or Home Assistant consumer acceptance."
+    },
+    {
+      "id": "ESP_DOC__HANDOFF_MD",
+      "repository": "pcvantol/djconnect-esp32",
+      "path": "HANDOFF.md",
+      "blob_sha": "20db1f791f1b1448ffc6d1dcf364b4b43ce90777",
+      "commit_sha": "49a71f99f6435819ec00b7387520a3fd20640a0b",
+      "read_boundary": "full pinned Markdown/workflow file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Dated v3.2.12 verification handoff includes an obsolete suggestion to add a Home Assistant media_player proxy. Current core AGENTS removes that proxy; do not reselect it as work. Physical/OTA claims remain tied to their historical versions.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-esp32/blob/49a71f99f6435819ec00b7387520a3fd20640a0b/HANDOFF.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-ESP32"
+      ],
+      "remaining": "Source text/CI is not current physical LilyGO, installed OTA, exact firmware source-to-public-asset, or Home Assistant consumer acceptance."
+    },
+    {
+      "id": "ESP_DOC__SECURITY_MD",
+      "repository": "pcvantol/djconnect-esp32",
+      "path": "SECURITY.md",
+      "blob_sha": "8f942a6111662160c60608416d9a21d72f5b2413",
+      "commit_sha": "49a71f99f6435819ec00b7387520a3fd20640a0b",
+      "read_boundary": "full pinned Markdown/workflow file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "ESP local API, pairing, OTA, private reporting and secret boundary; no current firmware security certification.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-esp32/blob/49a71f99f6435819ec00b7387520a3fd20640a0b/SECURITY.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-ESP32"
+      ],
+      "remaining": "Source text/CI is not current physical LilyGO, installed OTA, exact firmware source-to-public-asset, or Home Assistant consumer acceptance."
+    },
+    {
+      "id": "ESP_DOC__THIRD_PARTY_NOTICES_MD",
+      "repository": "pcvantol/djconnect-esp32",
+      "path": "THIRD_PARTY_NOTICES.md",
+      "blob_sha": "53402b4ce6db60dc7b30c9a260bb0730a9d58fb9",
+      "commit_sha": "49a71f99f6435819ec00b7387520a3fd20640a0b",
+      "read_boundary": "full pinned Markdown/workflow file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Firmware third-party/license and Spotify/Home Assistant notices, including ESP8266Audio GPL-3.0 dependency; not a current build or binary SBOM verification.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-esp32/blob/49a71f99f6435819ec00b7387520a3fd20640a0b/THIRD_PARTY_NOTICES.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-ESP32"
+      ],
+      "remaining": "Source text/CI is not current physical LilyGO, installed OTA, exact firmware source-to-public-asset, or Home Assistant consumer acceptance."
+    },
+    {
+      "id": "ESP_DOC__ASSETS_README_MD",
+      "repository": "pcvantol/djconnect-esp32",
+      "path": "assets/README.md",
+      "blob_sha": "bffc4f82953cfa993fa257bd7c01dc06a7caf8cd",
+      "commit_sha": "49a71f99f6435819ec00b7387520a3fd20640a0b",
+      "read_boundary": "full pinned Markdown/workflow file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Asset-pack usage notes spanning firmware/HA/website, not separate brand or product authority.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-esp32/blob/49a71f99f6435819ec00b7387520a3fd20640a0b/assets/README.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-ESP32"
+      ],
+      "remaining": "Source text/CI is not current physical LilyGO, installed OTA, exact firmware source-to-public-asset, or Home Assistant consumer acceptance."
+    },
+    {
+      "id": "ESP_DOC__DOCS_AI_DEVELOPMENT_AI_DEVELOPMENT_ADOPTION_RECEIPT_MD",
+      "repository": "pcvantol/djconnect-esp32",
+      "path": "docs/ai-development/AI_DEVELOPMENT_ADOPTION_RECEIPT.md",
+      "blob_sha": "038dfde752412b07c004b9cf6d16754d8bae11eb",
+      "commit_sha": "49a71f99f6435819ec00b7387520a3fd20640a0b",
+      "read_boundary": "full pinned Markdown/workflow file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Dated generic development-projection adoption receipt; no firmware/product acceptance.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-esp32/blob/49a71f99f6435819ec00b7387520a3fd20640a0b/docs/ai-development/AI_DEVELOPMENT_ADOPTION_RECEIPT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-ESP32"
+      ],
+      "remaining": "Source text/CI is not current physical LilyGO, installed OTA, exact firmware source-to-public-asset, or Home Assistant consumer acceptance."
+    },
+    {
+      "id": "ESP_DOC__DOCS_AI_DEVELOPMENT_DJCONNECT_ESP32_DEVELOPMENT_EXTENSION_MD",
+      "repository": "pcvantol/djconnect-esp32",
+      "path": "docs/ai-development/DJCONNECT_ESP32_DEVELOPMENT_EXTENSION.md",
+      "blob_sha": "bca8d833624208bfc0b47960544b68442097e290",
+      "commit_sha": "49a71f99f6435819ec00b7387520a3fd20640a0b",
+      "read_boundary": "full pinned Markdown/workflow file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Firmware-local PlatformIO, device API and validation extension; core retains product roadmap authority.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-esp32/blob/49a71f99f6435819ec00b7387520a3fd20640a0b/docs/ai-development/DJCONNECT_ESP32_DEVELOPMENT_EXTENSION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-ESP32"
+      ],
+      "remaining": "Source text/CI is not current physical LilyGO, installed OTA, exact firmware source-to-public-asset, or Home Assistant consumer acceptance."
+    },
+    {
+      "id": "ESP_DOC__DOCS_AI_DEVELOPMENT_GENERATED_PROJECTION_MD",
+      "repository": "pcvantol/djconnect-esp32",
+      "path": "docs/ai-development/GENERATED_PROJECTION.md",
+      "blob_sha": "5df6ce4e40fa88ef493cd0513bb972bbe05ea724",
+      "commit_sha": "49a71f99f6435819ec00b7387520a3fd20640a0b",
+      "read_boundary": "full pinned Markdown/workflow file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Offline generic development projection from exact external contract pin; no product or release grant.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-esp32/blob/49a71f99f6435819ec00b7387520a3fd20640a0b/docs/ai-development/GENERATED_PROJECTION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-ESP32"
+      ],
+      "remaining": "Source text/CI is not current physical LilyGO, installed OTA, exact firmware source-to-public-asset, or Home Assistant consumer acceptance."
+    },
+    {
+      "id": "ESP_DOC__DOCS_GOVERNANCE_ADOPTION_MD",
+      "repository": "pcvantol/djconnect-esp32",
+      "path": "docs/governance/ADOPTION.md",
+      "blob_sha": "0d0bcf01a450d9ed3cfda003a31a5d0575eea50f",
+      "commit_sha": "49a71f99f6435819ec00b7387520a3fd20640a0b",
+      "read_boundary": "full pinned Markdown/workflow file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Local governance and LilyGO firmware release-evidence policy; does not prove physical device delivery.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-esp32/blob/49a71f99f6435819ec00b7387520a3fd20640a0b/docs/governance/ADOPTION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-ESP32"
+      ],
+      "remaining": "Source text/CI is not current physical LilyGO, installed OTA, exact firmware source-to-public-asset, or Home Assistant consumer acceptance."
+    },
+    {
+      "id": "ESP_DOC__GITHUB_WORKFLOWS_CI_YML",
+      "repository": "pcvantol/djconnect-esp32",
+      "path": ".github/workflows/ci.yml",
+      "blob_sha": "91ec25b55c2c63f780778409b36643869a6a6ee3",
+      "commit_sha": "49a71f99f6435819ec00b7387520a3fd20640a0b",
+      "read_boundary": "full pinned Markdown/workflow file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "PR/main/manual firmware CI builds/tests locally in Actions and deletes older completed workflow runs after push/manual successful jobs; it does not flash devices or publish firmware.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-esp32/blob/49a71f99f6435819ec00b7387520a3fd20640a0b/.github/workflows/ci.yml",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-ESP32"
+      ],
+      "remaining": "Source text/CI is not current physical LilyGO, installed OTA, exact firmware source-to-public-asset, or Home Assistant consumer acceptance."
+    },
+    {
+      "id": "ESP_DOC__GITHUB_WORKFLOWS_RELEASE_FIRMWARE_YML",
+      "repository": "pcvantol/djconnect-esp32",
+      "path": ".github/workflows/release-firmware.yml",
+      "blob_sha": "c73e8debf2d4f2791832778e95751ece03a197e9",
+      "commit_sha": "49a71f99f6435819ec00b7387520a3fd20640a0b",
+      "read_boundary": "full pinned Markdown/workflow file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Tag-push workflow builds LilyGO firmware and publishes binary/checksum/manifest to public djconnect-firmware GitHub Releases; no tag push is authorized by this planning assignment.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-esp32/blob/49a71f99f6435819ec00b7387520a3fd20640a0b/.github/workflows/release-firmware.yml",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-ESP32"
+      ],
+      "remaining": "Source text/CI is not current physical LilyGO, installed OTA, exact firmware source-to-public-asset, or Home Assistant consumer acceptance."
+    },
+    {
+      "id": "ESP_DOC__GITHUB_WORKFLOWS_DEPLOY_ESP32_FIRMWARE_YML",
+      "repository": "pcvantol/djconnect-esp32",
+      "path": ".github/workflows/deploy-esp32-firmware.yml",
+      "blob_sha": "edf65ea48acfc6d92aa96b90b33ff2cfd2f98d60",
+      "commit_sha": "49a71f99f6435819ec00b7387520a3fd20640a0b",
+      "read_boundary": "full pinned Markdown/workflow file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Explicit workflow_dispatch uses a labeled self-hosted macOS/private-network runner, a named GitHub environment, approved central manifest checks and an HA Update entity install path. Current GitHub environment API has no protection rules or branch policy; no environment approval gate is proven. No dispatch or device flash under planning.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-esp32/blob/49a71f99f6435819ec00b7387520a3fd20640a0b/.github/workflows/deploy-esp32-firmware.yml",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-ESP32"
+      ],
+      "remaining": "Source text/CI is not current physical LilyGO, installed OTA, exact firmware source-to-public-asset, or Home Assistant consumer acceptance."
+    },
+    {
+      "id": "ESP_DOC__GITHUB_WORKFLOWS_ESP32_POST_DEPLOYMENT_SMOKE_YML",
+      "repository": "pcvantol/djconnect-esp32",
+      "path": ".github/workflows/esp32-post-deployment-smoke.yml",
+      "blob_sha": "b959c82c819f30a93a820a5a67981a4f5eb9a709",
+      "commit_sha": "49a71f99f6435819ec00b7387520a3fd20640a0b",
+      "read_boundary": "full pinned Markdown/workflow file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Explicit workflow_dispatch compares approved manifest/deployment evidence to installed HA/local ESP version and uploads redacted smoke evidence; no smoke dispatch under planning.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-esp32/blob/49a71f99f6435819ec00b7387520a3fd20640a0b/.github/workflows/esp32-post-deployment-smoke.yml",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-ESP32"
+      ],
+      "remaining": "Source text/CI is not current physical LilyGO, installed OTA, exact firmware source-to-public-asset, or Home Assistant consumer acceptance."
     }
   ],
   "nodes": [
@@ -11082,7 +11460,28 @@
         "PROJ::DJC-ESP32::MANAGEMENT_SUMMARY",
         "PROJ::DJC-ESP32::ROADMAP_INDEX",
         "PROJ::DJC-ESP32::PROMPT_INDEX",
-        "ESP_RG001_HISTORY"
+        "ESP_RG001_HISTORY",
+        "ESP_DOC__CONTINUE_SYSTEM_MESSAGE_MD",
+        "ESP_DOC__BOOTSTRAP_MD",
+        "ESP_DOC__BOOTSTRAP_CODEX_SESSION_MD",
+        "ESP_DOC__CANONICAL_REFERENCES_MD",
+        "ESP_DOC__CHANGELOG_MD",
+        "ESP_DOC__CHAT_BOOTSTRAP_MD",
+        "ESP_DOC__CODE_OF_CONDUCT_MD",
+        "ESP_DOC__CONTRIBUTING_MD",
+        "ESP_DOC__ESP32_PROFILE_ADOPTION_REPORT_MD",
+        "ESP_DOC__HANDOFF_MD",
+        "ESP_DOC__SECURITY_MD",
+        "ESP_DOC__THIRD_PARTY_NOTICES_MD",
+        "ESP_DOC__ASSETS_README_MD",
+        "ESP_DOC__DOCS_AI_DEVELOPMENT_AI_DEVELOPMENT_ADOPTION_RECEIPT_MD",
+        "ESP_DOC__DOCS_AI_DEVELOPMENT_DJCONNECT_ESP32_DEVELOPMENT_EXTENSION_MD",
+        "ESP_DOC__DOCS_AI_DEVELOPMENT_GENERATED_PROJECTION_MD",
+        "ESP_DOC__DOCS_GOVERNANCE_ADOPTION_MD",
+        "ESP_DOC__GITHUB_WORKFLOWS_CI_YML",
+        "ESP_DOC__GITHUB_WORKFLOWS_RELEASE_FIRMWARE_YML",
+        "ESP_DOC__GITHUB_WORKFLOWS_DEPLOY_ESP32_FIRMWARE_YML",
+        "ESP_DOC__GITHUB_WORKFLOWS_ESP32_POST_DEPLOYMENT_SMOKE_YML"
       ],
       "canonical_authority": "README::DJC-ESP32",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -23774,6 +24173,28 @@
       "passed": true,
       "acceptance_qualified": false,
       "notes": "GitHub exact-main push Validate run succeeded, including its Validate job, Software Assurance governance and workflow-run cleanup. It is source/CI qualification only, not Cloudflare deployment, D1 migration, APNs delivery or Apple consumer acceptance."
+    },
+    {
+      "id": "ESP32_MAIN_CI_36381847450",
+      "kind": "exact_main_ci_readback",
+      "repository": "pcvantol/djconnect-esp32",
+      "url": "https://github.com/pcvantol/djconnect-esp32/actions/runs/36381847450",
+      "subject_sha": "49a71f99f6435819ec00b7387520a3fd20640a0b",
+      "observed_date": "2026-10-03",
+      "passed": true,
+      "acceptance_qualified": false,
+      "notes": "Exact-main push Firmware CI succeeded: native tests, Postman/i18n, offline HA HTTP/WebSocket contract fixture, release-script dry run, PlatformIO build and Software Assurance governance. This is source/build CI, not public firmware asset identity, OTA installation, physical LilyGO or HA consumer acceptance."
+    },
+    {
+      "id": "ESP32_DEPLOY_ENV_20261003",
+      "kind": "github_environment_policy_readback",
+      "repository": "pcvantol/djconnect-esp32",
+      "url": "https://api.github.com/repos/pcvantol/djconnect-esp32/environments/private-network-deployment",
+      "subject_sha": "49a71f99f6435819ec00b7387520a3fd20640a0b",
+      "observed_date": "2026-10-03",
+      "passed": false,
+      "acceptance_qualified": false,
+      "notes": "Read-only GitHub Environment API returned protection_rules=[], deployment_branch_policy=null and can_admins_bypass=true for private-network-deployment. The named environment and self-hosted runner labels are not evidence of an environment reviewer gate; no environment setting was changed."
     }
   ],
   "findings": [
@@ -24211,11 +24632,13 @@
     {
       "id": "ESP32-PROTOCOL-DOCUMENT-MIRROR-DRIFT",
       "status": "OPEN_DOCUMENTARY_RECONCILIATION",
-      "description": "At the pinned ESP32 head, DESIGN_DECISIONS lines 330-336 still frames HA v3.2.z and ESP v3.2.z matching and calls a 3.2.x backend summary current. The pinned ESP32 README identifies published v3.2.x source tags; the core pinned released integration is described as 3.3.1 while its source candidate reports 4.0.0-rc.1. Under the major/minor compatibility rule, the design example cannot be used as proof of current 3.3/4.0 field compatibility. Reconcile current firmware artifact and actual device/HA versions under the existing core/ESP contracts before consumer acceptance; no update or release is selected.",
+      "description": "At the pinned ESP32 head, DESIGN_DECISIONS lines 330-336 still frames HA v3.2.z and ESP v3.2.z matching and calls a 3.2.x backend summary current. The pinned ESP32 README identifies published v3.2.x source tags; the core pinned released integration is described as 3.3.1 while its source candidate reports 4.0.0-rc.1. Under the major/minor compatibility rule, the design example cannot be used as proof of current 3.3/4.0 field compatibility. Reconcile current firmware artifact and actual device/HA versions under the existing core/ESP contracts before consumer acceptance; no update or release is selected. Pinned ESP32 HANDOFF.md also recommends implementing a HA media_player playback proxy, while the current core AGENTS explicitly removes native media_player proxy entities in favor of DJConnect commands. The handoff labels v3.2.12 its latest verified firmware, which cannot serve as v3.3.0 physical proof even though 3.3.0 source/release metadata exists. Treat these as documentary and evidence-boundary drift, not a new product selection.",
       "source_ids": [
         "ESP_DESIGN",
         "README::DJC-ESP32",
-        "AGENTS::DJC-CORE"
+        "AGENTS::DJC-CORE",
+        "ESP_DOC__HANDOFF_MD",
+        "ESP_DOC__CHANGELOG_MD"
       ]
     },
     {
@@ -24343,6 +24766,17 @@
         "DIST_SOURCE__DJC_DIST_PI__GITHUB_WORKFLOWS_POST_MERGE_DISTRIBUTION_INTEGRITY_YML",
         "DIST_SOURCE__DJC_DIST_PI__GITHUB_WORKFLOWS_POST_MERGE_RELEASE_EVIDENCE_YML"
       ]
+    },
+    {
+      "id": "ESP32-DEPLOYMENT-ENV-GATE",
+      "status": "OPEN_POLICY_QUALIFICATION",
+      "description": "The ESP32 deploy workflow is manually dispatched, checks an approved central manifest and target preflight, and runs on labeled self-hosted private-network hardware with environment private-network-deployment. Current GitHub Environment API readback shows no protection rules or branch policy and allows admin bypass. Therefore the environment name itself does not prove reviewer approval or deployment protection; reconcile under existing owner/policy authority before any authorized device deployment. No deployment, service change or new product pickup is selected here.",
+      "source_ids": [
+        "ESP_DOC__GITHUB_WORKFLOWS_DEPLOY_ESP32_FIRMWARE_YML"
+      ],
+      "evidence_ids": [
+        "ESP32_DEPLOY_ENV_20261003"
+      ]
     }
   ],
   "audit_obligations": [
@@ -24363,7 +24797,8 @@
       "id": "AUDIT-DJC-ESP32",
       "status": "OPEN",
       "scope": "DJC-ESP32",
-      "reason": "Pinned ESP32 README, AGENTS, status, backlog, design and development environment are read; reconcile the design document 3.2.z compatibility example with current source/release lines and qualify actual CI, firmware producer/consumer joins, device receipts, local WIP and final delta. Four local phase/status projections and the RG-001 decision history are pinned; reconcile stale LOCAL_IN_PROGRESS text with merged PR #24 while physical/device acceptance stays open."
+      "reason": "Pinned ESP32 README, AGENTS, status, backlog, design and development environment are read; reconcile the design document 3.2.z compatibility example with current source/release lines and qualify actual CI, firmware producer/consumer joins, device receipts, local WIP and final delta. Four local phase/status projections and the RG-001 decision history are pinned; reconcile stale LOCAL_IN_PROGRESS text with merged PR #24 while physical/device acceptance stays open.",
+      "remaining": "All 28 tracked ESP32 Markdown files and four central CI/release/deployment workflows are individually pinned. Exact-main Firmware CI push run 36381847450 succeeded on 49a71f99; this validates native/contract/release-script/PlatformIO source checks, not a physical LilyGO. HANDOFF.md still proposes a media_player proxy rejected by current core AGENTS and retains v3.2.12 historical verification while 3.3.0 source/public-release metadata exists. Reconcile current protocol/hand-off copy, complete remaining runtime/workflow audit and qualify exact source-public asset, installed OTA, physical device, HA consumer, local WIP and final delta. Current GitHub private-network-deployment environment has no protection_rules or deployment_branch_policy; its name/runner labels alone do not prove reviewer approval. Manifest checks and exact target preflight remain distinct from environment protection."
     },
     {
       "id": "AUDIT-DJC-PI",
@@ -24459,7 +24894,7 @@
       "status": "OPEN",
       "scope": "platform",
       "reason": "Current matrix covers only explicitly read source inventory; certify complete disposition only after all relevant discoveries are audited.",
-      "remaining": "All 558 included pinned source rows have exact path/blob provenance and bounded read descriptions. Exact pinned trees contain 1,739 tracked Markdown paths, 463 individually represented in the matrix and 1,276 needing relevance/classification disposition; these are path counts, not a claim that the remaining paths are normative. Pi has all 33 and API all 28 Markdown paths represented; runtime/tests/workflows and physical/source-to-release consumers remain separately open. The 41 pinned Apple/website release-copy files do not prove publication, live site or installed consumers. Six historical core EP relative-link targets remain triaged outside the matrix. Complete repository-wide source/consumer discovery and status qualification before certification."
+      "remaining": "All 579 included pinned source rows have exact path/blob provenance and bounded read descriptions. Exact pinned trees contain 1,739 tracked Markdown paths, 480 individually represented in the matrix and 1,259 needing relevance/classification disposition; these are path counts, not a claim that the remaining paths are normative. Pi 33/33, API 28/28 and ESP32 28/28 Markdown paths are represented; runtime, further workflow/test coverage and physical/source-to-release consumers remain separately open. The 41 pinned Apple/website release-copy files do not prove publication, live site or installed consumers. Six historical core EP relative-link targets remain triaged outside the matrix. Complete repository-wide source/consumer discovery and status qualification before certification."
     },
     {
       "id": "REGISTER-DELIVERY",
