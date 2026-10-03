@@ -41,13 +41,14 @@
     "metadata_and_bounded_paraphrases": true,
     "offline_hash_verification_of_remote_blobs": false,
     "per_call_timestamps": "Date-level head readback on 2026-10-03; no per-file read timestamp for inherited checkpoint.",
-    "pinned_tree_blobs_verified": "696 of 696 path/blob pins matched exact commit trees or GitHub Contents commit readbacks: 105 original GitHub tree readbacks, 463 local git commit-tree readbacks and 128 new GitHub tree/Contents readbacks on 2026-10-03. Current API Markdown blobs at 3f1ed18d matched fully read local previous-main blobs. Firmware binary files were fully SHA256-hashed for identity, not semantically executed. Narrative interpretation remains partial.",
+    "pinned_tree_blobs_verified": "699 of 699 path/blob pins matched exact commit trees or GitHub Contents commit readbacks: 105 original GitHub tree readbacks, 466 local git commit-tree readbacks and 128 new GitHub tree/Contents readbacks on 2026-10-03. Current API Markdown blobs at 3f1ed18d matched fully read local previous-main blobs. Firmware binary files were fully SHA256-hashed for identity, not semantically executed. Narrative interpretation remains partial.",
     "reference_scan": {
       "method": "Every pinned core Markdown blob and every pinned Markdown blob in the eleven DJC component repositories, at its recorded commit: parse relative Markdown links, strip anchors, normalize against source directory, retain existing .md targets absent from the pinned source matrix; distinct repository/path keys. The seven pinned external Forge method documents are outside this lane-source link frontier.",
       "unmapped_paths": [
         "pcvantol/djconnect::docs/development/ENGINEERING_PLATFORM_CONSUMER_CONTRACT.md",
         "pcvantol/djconnect::docs/development/ENGINEERING_PLATFORM_EXTRACTION_MIGRATION_PLAN.md",
         "pcvantol/djconnect::docs/development/ENGINEERING_PLATFORM_MIGRATION_REPORT.md",
+        "pcvantol/djconnect::docs/development/LOCAL_AGENT_RUNNER.md",
         "pcvantol/djconnect::docs/engineering/ENGINEERING_REPORTING.md",
         "pcvantol/djconnect::docs/engineering/EP_CENTRAL_STORE_MIGRATION_GUARDRAILS.md",
         "pcvantol/djconnect::docs/engineering/EXECUTION_HOST_OPERATIONS.md",
@@ -55,9 +56,10 @@
         "pcvantol/djconnect::docs/engineering/EXECUTION_RECEIPTS.md",
         "pcvantol/djconnect::docs/engineering/GENESIS_MODE.md"
       ],
-      "disposition": "TRIAGED_HISTORICAL_REFERENCE_ONLY; 9 core and 0 component link targets retain explicit non-selection dispositions. New ADR relative links to nine historical EP targets retain non-selection disposition; the handbook also links to a missing historical status file, excluded from the existing-target frontier. Link existence alone creates no dependency or execution authority.",
+      "disposition": "TRIAGED_HISTORICAL_REFERENCE_ONLY; 10 core and 0 component link targets retain explicit non-selection dispositions. New ADR relative links to nine historical EP targets retain non-selection disposition; the Development index additionally links to the former Local Agent Runner. The handbook also links to a missing historical status file, excluded from the existing-target frontier. Link existence alone creates no dependency or execution authority.",
       "triage": {
         "pcvantol/djconnect::docs/development/ENGINEERING_PLATFORM_EXTRACTION_MIGRATION_PLAN.md": "Existing linked historical EP execution/extraction reference at the pinned core head; standalone EP authority and terminal #1098 govern. No retirement or implementation selected by this planning assignment.",
+        "pcvantol/djconnect::docs/development/LOCAL_AGENT_RUNNER.md": "Existing linked former Local Agent Runner reference in the pinned Development index; standalone EP authority and terminal #1098 govern. Path/blob classified only; no runner operation or retirement selected.",
         "pcvantol/djconnect::docs/engineering/ENGINEERING_REPORTING.md": "Existing linked historical EP execution/extraction reference at the pinned core head; standalone EP authority and terminal #1098 govern. No retirement or implementation selected by this planning assignment.",
         "pcvantol/djconnect::docs/engineering/EXECUTION_HOST_OPERATIONS.md": "Existing linked historical EP execution/extraction reference at the pinned core head; standalone EP authority and terminal #1098 govern. No retirement or implementation selected by this planning assignment.",
         "pcvantol/djconnect::docs/engineering/EXECUTION_LIFECYCLE_FLOW.md": "Existing linked historical EP execution/extraction reference at the pinned core head; standalone EP authority and terminal #1098 govern. No retirement or implementation selected by this planning assignment.",
@@ -71,17 +73,17 @@
     },
     "tree_census_readback": {
       "observed_at": "2026-10-03 12:16 UTC, complete local git trees and GitHub recursive trees for ESP32, Windows and current API main",
-      "boundary": "Exact main trees at the 2026-10-03 11:45 UTC remote-head readback: core 192703ea, API 3f1ed18d and the other ten heads matching their source baselines. Path counts describe tracked Markdown files and their individual representation in this matrix, regardless of historical source-blob commit. Not-individually-included is split into bounded path-only historical dispositions and an unclassified discovery frontier; neither count presumes normative authority. The nine triaged relative-link targets remain separate. Path-only historical classifications carry exact path/blob and a bounded version/directory rule; they are excluded from the individually full-read count and do not grant current status authority.",
+      "boundary": "Exact main trees at the 2026-10-03 11:45 UTC remote-head readback: core 192703ea, API 3f1ed18d and the other ten heads matching their source baselines. Path counts describe tracked Markdown files and their individual representation in this matrix, regardless of historical source-blob commit. Not-individually-included is split into bounded path-only historical dispositions and an unclassified discovery frontier; neither count presumes normative authority. The ten triaged relative-link targets remain separate. Path-only historical classifications carry exact path/blob and a bounded version/directory rule; they are excluded from the individually full-read count and do not grant current status authority.",
       "lanes": {
         "DJC-CORE": {
           "repository": "pcvantol/djconnect",
           "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
           "tracked_markdown": 880,
-          "included_markdown": 285,
-          "not_individually_included_markdown": 595,
+          "included_markdown": 288,
+          "not_individually_included_markdown": 592,
           "tree_readback": "complete local git ls-tree -r",
-          "historically_classified_markdown": 361,
-          "unclassified_markdown": 234
+          "historically_classified_markdown": 367,
+          "unclassified_markdown": 225
         },
         "DJC-APPLE": {
           "repository": "pcvantol/djconnect-app",
@@ -196,7 +198,7 @@
       }
     },
     "historical_path_dispositions": {
-      "method": "Path-only classification from exact pinned Git trees, with blob identities and category/version bounds. These 911 paths are historical prompt records, older versioned release copy, retained embedded EP documentation or Epic 2 discovery artifacts, not full-text reads or independent current-status authority. Any later current source reference can reopen an individual path for full read; no product or release selection follows from this classification.",
+      "method": "Path-only classification from exact pinned Git trees, with blob identities and category/version bounds. These 917 paths are historical prompt records, older versioned release copy, retained embedded EP/development documentation or Epic 2 discovery artifacts, not full-text reads or independent current-status authority. Any later current source reference can reopen an individual path for full read; no product or release selection follows from this classification.",
       "groups": [
         {
           "lane": "DJC-CORE",
@@ -1673,6 +1675,42 @@
             {
               "path": "docs/discovery/djconnect.md",
               "blob_sha": "eec83694e72d12e23fd59bd65eb84374ebc07d49"
+            }
+          ]
+        },
+        {
+          "lane": "DJC-CORE",
+          "category": "LEGACY_DEVELOPMENT_EP_DOC",
+          "reason": "Former embedded Engineering Platform development, extraction/migration and Local Agent Runner documents. The pinned current Development index/Handoff and terminal #1098 place current EP submission in the standalone product. Exact path/blob only; contents of these six files were not fully reread and no runtime/retirement work is selected.",
+          "authority_source_ids": [
+            "CORE_DEVELOPMENT_INDEX",
+            "CORE_DEVELOPER_HANDOFF",
+            "CORE_EP_RETIREMENT_HIST"
+          ],
+          "entries": [
+            {
+              "path": "docs/development/ENGINEERING_PLATFORM_CONSUMER_CONTRACT.md",
+              "blob_sha": "f52478e11433cb832f4d8849b4e52b3e2cd55d06"
+            },
+            {
+              "path": "docs/development/ENGINEERING_PLATFORM_EXTRACTION_AUDIT.md",
+              "blob_sha": "3e35e6df5a485b55cdb5d47aebaa1c2c7f84a233"
+            },
+            {
+              "path": "docs/development/ENGINEERING_PLATFORM_EXTRACTION_MIGRATION_PLAN.md",
+              "blob_sha": "6c20042947e9cd180d877f2260e186cdb03c24da"
+            },
+            {
+              "path": "docs/development/ENGINEERING_PLATFORM_MIGRATION_REPORT.md",
+              "blob_sha": "9a38cb14d8c5c64160803f76a28fde06a4a57af9"
+            },
+            {
+              "path": "docs/development/ENGINEERING_PLATFORM_ROADMAP.md",
+              "blob_sha": "fe0b5c547d12a58666374125a5f79a518bcebd72"
+            },
+            {
+              "path": "docs/development/LOCAL_AGENT_RUNNER.md",
+              "blob_sha": "bda29f8cb9c9b793b6074ce5fe9623b12d26cead"
             }
           ]
         },
@@ -17194,6 +17232,60 @@
         "PROJ::AUDIT::METHOD"
       ],
       "remaining": "Historical reports may support provenance but cannot drive a new product selection or current capability claim."
+    },
+    {
+      "id": "CORE_DEVELOPMENT_INDEX",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/development/README.md",
+      "blob_sha": "9c9979b552c336c661b65c6a6dcab43ca7b92ae9",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Current repository-owned collaboration navigation separates Developer Handoff and Product Development workflow from historical embedded EP/Local Agent Runner material; not product architecture or execution authority.",
+      "observed_at": "2026-10-03; continuation of pinned issue #1101 audit",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/development/README.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::AUDIT::METHOD"
+      ],
+      "remaining": "Current status and product selection still come from their owning canonical records."
+    },
+    {
+      "id": "CORE_DEVELOPER_HANDOFF",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/development/DEVELOPER_HANDOFF.md",
+      "blob_sha": "8f847707f45ed2a6674120760996c9c1e38742cb",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Repository-first Product & Platform Architect collaboration procedure; older EP-hosted watcher and execution host instructions are historical. A next-slice recommendation is not implementation authorization.",
+      "observed_at": "2026-10-03; continuation of pinned issue #1101 audit",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/development/DEVELOPER_HANDOFF.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::AUDIT::METHOD"
+      ],
+      "remaining": "No new product direction or prompt is selected by this planning assignment."
+    },
+    {
+      "id": "CORE_IMPLEMENTATION_FRAMEWORK",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/implementation/README.md",
+      "blob_sha": "ec0015a69540432ed86d2e3ba1181926aa778bfa",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Canonical implementation-framework navigation for future epics and phased reviews; existing Meta Engineering and Product Development authorities still govern actual work.",
+      "observed_at": "2026-10-03; continuation of pinned issue #1101 audit",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/implementation/README.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::AUDIT::METHOD"
+      ],
+      "remaining": "No Epic or implementation phase is started."
     }
   ],
   "nodes": [
@@ -24310,7 +24402,10 @@
         "CORE_VERIFY_KNOWN_LIMITATIONS",
         "CORE_VERIFY_PROFILE_REPORT",
         "CORE_VERIFY_PROFILE_PROGRAM",
-        "CORE_DISCOVERY_INDEX_HIST"
+        "CORE_DISCOVERY_INDEX_HIST",
+        "CORE_DEVELOPMENT_INDEX",
+        "CORE_DEVELOPER_HANDOFF",
+        "CORE_IMPLEMENTATION_FRAMEWORK"
       ],
       "canonical_authority": "ROADMAP_INDEX",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -30968,7 +31063,7 @@
       "id": "AUDIT-DJC-CORE",
       "status": "OPEN",
       "scope": "DJC-CORE",
-      "reason": "Pinned foundation, roadmap, horizon, legal, voice, verification, full Meta Engineering reading order, local environment and historical EP/Software Assurance sources are read. Nine EP history links remain triaged; workflow effects, remaining consumer evidence and final delta still need qualification. Ten additional exact-pinned core policy/navigation sources are read, including owner authorization and Finalization; generated lifecycle and physical/consumer evidence still need qualification. Five linked architecture/assurance/Trusted Delivery records are also pinned; the 2026-07-13 target matrix is historical, not current settings evidence. Five additional canonical/navigational product texts and sixteen dated Phase 6 technical/target-architecture texts are pinned. Their current-state claims are bounded by the 2026-07-10 archaeology phase; the standalone Device Installer is planned target architecture, not an existing thirteenth lane or product pickup. All 19 core ADR Markdown sources are now pinned (17 in this delta), with ADR-0024/0025 incident supersession and ADR-0026 terminal clean-slate context kept historical under #1098. Ten additional exact-pinned release-policy/navigation/historical records are read, including exact-main evidence-prerelease policy, dispatch-only deployment/smoke boundaries and the prompt-history non-authority rule. The 3.3.1 prepared-for-review release note is historical against the published v3.3.1 tag; no installed consumer is inferred. 293 dated core prompt paths are classified by path only, leaving 317 core Markdown paths unclassified. Four exact-pinned post-merge Software Assurance records now separate current policy/schema from historical qualification; the stated per-component prerelease prefix conflicts with the pinned reusable workflow hard-coded internal-ha tag. Four retained embedded-EP status/run/workspace records were fully read as historical; 51 other docs/engineering Markdown paths are classified by exact path/blob under terminal #1098 without reopening retirement. Six exact-pinned Verification Program/report/backlog/scorecard records distinguish dated Profile V1 live NO-GO, later qualified Verification Platform engine, stale internal Windows narrative and completed Golden CI infrastructure; no current live consumer GO is inferred. The exact-pinned Epic 2 discovery index explicitly labels 17 remaining discovery reports as historical, path/blob-classified only; current capability model remains the authority."
+      "reason": "Pinned foundation, roadmap, horizon, legal, voice, verification, full Meta Engineering reading order, local environment and historical EP/Software Assurance sources are read. Ten historical EP/runner links remain triaged; workflow effects, remaining consumer evidence and final delta still need qualification. Ten additional exact-pinned core policy/navigation sources are read, including owner authorization and Finalization; generated lifecycle and physical/consumer evidence still need qualification. Five linked architecture/assurance/Trusted Delivery records are also pinned; the 2026-07-13 target matrix is historical, not current settings evidence. Five additional canonical/navigational product texts and sixteen dated Phase 6 technical/target-architecture texts are pinned. Their current-state claims are bounded by the 2026-07-10 archaeology phase; the standalone Device Installer is planned target architecture, not an existing thirteenth lane or product pickup. All 19 core ADR Markdown sources are now pinned (17 in this delta), with ADR-0024/0025 incident supersession and ADR-0026 terminal clean-slate context kept historical under #1098. Ten additional exact-pinned release-policy/navigation/historical records are read, including exact-main evidence-prerelease policy, dispatch-only deployment/smoke boundaries and the prompt-history non-authority rule. The 3.3.1 prepared-for-review release note is historical against the published v3.3.1 tag; no installed consumer is inferred. 293 dated core prompt paths are classified by path only, leaving 317 core Markdown paths unclassified. Four exact-pinned post-merge Software Assurance records now separate current policy/schema from historical qualification; the stated per-component prerelease prefix conflicts with the pinned reusable workflow hard-coded internal-ha tag. Four retained embedded-EP status/run/workspace records were fully read as historical; 51 other docs/engineering Markdown paths are classified by exact path/blob under terminal #1098 without reopening retirement. Six exact-pinned Verification Program/report/backlog/scorecard records distinguish dated Profile V1 live NO-GO, later qualified Verification Platform engine, stale internal Windows narrative and completed Golden CI infrastructure; no current live consumer GO is inferred. The exact-pinned Epic 2 discovery index explicitly labels 17 remaining discovery reports as historical, path/blob-classified only; current capability model remains the authority. Current Development and Implementation navigation/Handoff are fully read and pinned; six explicitly legacy embedded-EP development files are exact-path/blob classified only, with standalone EP ownership preserved."
     },
     {
       "id": "AUDIT-DJC-APPLE",
@@ -31064,7 +31159,7 @@
       "status": "OPEN",
       "scope": "platform",
       "reason": "Follow all owning graph/source links, old IDs and historical disposition; a truncated tree or empty search is not absence evidence.",
-      "remaining": "Nine triaged historical EP linked sources remain outside this product planning matrix. Follow owning graph/old IDs and historical dispositions and prove phase-specific edges and rollups; standalone Software Assurance/EP graphs confer no new product execution."
+      "remaining": "Ten triaged historical EP/runner linked sources remain outside this product planning matrix. Follow owning graph/old IDs and historical dispositions and prove phase-specific edges and rollups; standalone Software Assurance/EP graphs confer no new product execution."
     },
     {
       "id": "PRODUCER-EVIDENCE",
@@ -31078,7 +31173,7 @@
       "status": "OPEN",
       "scope": "platform",
       "reason": "Current matrix covers only explicitly read source inventory; certify complete disposition only after all relevant discoveries are audited.",
-      "remaining": "All 696 included pinned source rows have exact path/blob provenance and bounded read descriptions. Exact pinned trees contain 1,739 tracked Markdown paths: 594 individually represented/full-read, 911 exact path/blob entries classified only as dated prompt history, older versioned release copy, retained embedded EP documentation or Epic 2 discovery artifacts, and 234 still unclassified for relevance/full reading. The 911 classified contents were not read and can be reopened when a current authority points to one. Apple 47/173, Windows 41/117 and website 64/412 Markdown have all other paths in explicit historical categories; Pi 33/33, API 28/28 and ESP32 28/28 are individually represented. Core is 285/880, with 293 dated prompts, 51 retained EP documents and 17 Epic 2 discovery reports classified by path, and 234 unclassified. Runtime, workflow/test and physical/source-to-release consumer coverage remain separately open. Nine historical core EP relative-link targets remain triaged outside the matrix. Complete current-source/consumer discovery and status qualification before certification."
+      "remaining": "All 699 included pinned source rows have exact path/blob provenance and bounded read descriptions. Exact pinned trees contain 1,739 tracked Markdown paths: 597 individually represented/full-read, 917 exact path/blob entries classified only as dated prompt history, older versioned release copy, retained embedded EP/development documentation or Epic 2 discovery artifacts, and 225 still unclassified for relevance/full reading. The 917 classified contents were not read and can be reopened when a current authority points to one. Apple 47/173, Windows 41/117 and website 64/412 Markdown have all other paths in explicit historical categories; Pi 33/33, API 28/28 and ESP32 28/28 are individually represented. Core is 288/880, with 293 dated prompts, 51 retained EP documents, 17 Epic 2 discovery reports and six legacy development files classified by path, and 225 unclassified. Runtime, workflow/test and physical/source-to-release consumer coverage remain separately open. Ten historical core EP/runner relative-link targets remain triaged outside the matrix. Complete current-source/consumer discovery and status qualification before certification."
     },
     {
       "id": "REGISTER-DELIVERY",

@@ -219,12 +219,13 @@ def validate(plan: Any, require_complete: bool = False) -> list[str]:
             "DATED_PROMPT_HISTORY": re.compile(r"^docs/history/prompts/\d{4}-\d{2}-\d{2}-[^/]+\.md$"),
             "RETAINED_EMBEDDED_EP_DOCUMENTATION": re.compile(r"^docs/engineering/(?:[^/]+/)*[^/]+\.md$"),
             "EPIC_2_DISCOVERY_HISTORY": re.compile(r"^docs/discovery/[^/]+\.md$"),
+            "LEGACY_DEVELOPMENT_EP_DOC": re.compile(r"^docs/development/(?:ENGINEERING_PLATFORM_[^/]+|LOCAL_AGENT_RUNNER)\.md$"),
             "OLDER_APPLE_VERSIONED_RELEASE_COPY": re.compile(r"^docs/release-notes/(?:de|en|es|fr|nl)/v(\d+)\.(\d+)\.(\d+)\.md$"),
             "OLDER_WINDOWS_VERSIONED_RELEASE_COPY": re.compile(r"^docs/release-notes/(?:de|en|es|fr|nl)/v(\d+)\.(\d+)\.(\d+)\.md$"),
             "OLDER_WEBSITE_VERSIONED_RELEASE_COPY": re.compile(r"^wwwroot/release-notes/(?:ios|macos|maccatalyst|windows)/(?:de/|en/|es/|fr/|nl/)?v(\d+)\.(\d+)\.(\d+)\.md$"),
         }
         allowed_lane_category = {
-            "DJC-CORE": {"DATED_PROMPT_HISTORY", "RETAINED_EMBEDDED_EP_DOCUMENTATION", "EPIC_2_DISCOVERY_HISTORY"},
+            "DJC-CORE": {"DATED_PROMPT_HISTORY", "RETAINED_EMBEDDED_EP_DOCUMENTATION", "EPIC_2_DISCOVERY_HISTORY", "LEGACY_DEVELOPMENT_EP_DOC"},
             "DJC-APPLE": {"DATED_PROMPT_HISTORY", "OLDER_APPLE_VERSIONED_RELEASE_COPY"},
             "DJC-WINDOWS": {"DATED_PROMPT_HISTORY", "OLDER_WINDOWS_VERSIONED_RELEASE_COPY"},
             "DJC-WEBSITE": {"OLDER_WEBSITE_VERSIONED_RELEASE_COPY"},

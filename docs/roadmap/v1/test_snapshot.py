@@ -165,6 +165,14 @@ class SnapshotTests(unittest.TestCase):
         group["entries"][0]["path"] = "DJCONNECT_CAPABILITY_MODEL.md"
         self.assertIn("invalid historical path/blob or version boundary", self.errors())
 
+    def test_legacy_development_group_cannot_swallow_current_handoff(self):
+        group = next(
+            g for g in self.p["source_capture"]["historical_path_dispositions"]["groups"]
+            if g["category"] == "LEGACY_DEVELOPMENT_EP_DOC"
+        )
+        group["entries"][0]["path"] = "docs/development/DEVELOPER_HANDOFF.md"
+        self.assertIn("invalid historical path/blob or version boundary", self.errors())
+
     def test_audit_cannot_close_without_receipt(self):
         self.p["audit_obligations"][0]["status"] = "CLOSED"
         self.assertIn("closed audit lacks closure evidence", self.errors())
