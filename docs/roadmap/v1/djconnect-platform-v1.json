@@ -17030,7 +17030,7 @@
       "id": "INDEPENDENT-REVIEW",
       "status": "OPEN",
       "scope": "platform",
-      "reason": "Independent review is in progress; findings must be fixed and exact candidate rechecked before closure."
+      "reason": "Independent exact-head read-only review of partial checkpoint 9f5aa305 completed; prior P2 was corrected and no new material delta finding remained. Full planning review awaits source/graph closure and a final protected candidate."
     },
     {
       "id": "PROTECTED-DELIVERY",

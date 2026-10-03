@@ -26,7 +26,7 @@ This is a pinned planning projection for assignment `DJC-PLATFORM-ROADMAP-DAG-LA
 | `WRITER-HANDOFF` | `CLOSED` | DJC-CORE | #1098 terminal comment reports WORKSPACE_READY; current core main was clean before this planning branch. |
 | `CANONICAL-WRITES` | `OPEN` | platform | No canonical roadmap/DAG/lane/backlog source files were pushed by this assignment. |
 | `POLICY-TOOLCHAIN` | `OPEN` | DJC-CORE | Host Python 3.14.8 ran the snapshot negative suite and repository CI discovery wrapper locally. Protected PR check and exact-main qualification remain unproven until safe delivery. |
-| `INDEPENDENT-REVIEW` | `OPEN` | platform | Independent review is in progress; findings must be fixed and exact candidate rechecked before closure. |
+| `INDEPENDENT-REVIEW` | `OPEN` | platform | Independent exact-head read-only review of partial checkpoint 9f5aa305 completed; prior P2 was corrected and no new material delta finding remained. Full planning review awaits source/graph closure and a final protected candidate. |
 | `PROTECTED-DELIVERY` | `OPEN` | platform | No planning PR, required-check run, protected merge, or dedicated DJConnect Finalization delivered yet. |
 | `FRESHNESS-ALL` | `CLOSED` | platform | All twelve remote main SHA values read back on 2026-10-03 and matched recorded baselines (core closing SHA); this is a head comparison, not a byte revalidation of every source. |
 | `CORE-AUTO-RELEASE-DECISION` | `OPEN` | DJC-CORE | Core main validation unconditionally creates two GitHub prerelease objects after docs-only merge. This conflicts with the assignment no-release boundary; do not merge or alter service workflows without an existing safe route or explicit owner resolution. |
