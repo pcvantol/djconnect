@@ -41,7 +41,7 @@
     "metadata_and_bounded_paraphrases": true,
     "offline_hash_verification_of_remote_blobs": false,
     "per_call_timestamps": "Date-level head readback on 2026-10-03; no per-file read timestamp for inherited checkpoint.",
-    "pinned_tree_blobs_verified": "355 of 355 path/blob pins matched exact commit trees or GitHub Contents commit readbacks: 105 original GitHub tree readbacks, 136 local git commit-tree readbacks and 114 new GitHub Contents readbacks on 2026-10-03. Narrative interpretation remains partial.",
+    "pinned_tree_blobs_verified": "396 of 396 path/blob pins matched exact commit trees or GitHub Contents commit readbacks: 105 original GitHub tree readbacks, 177 local git commit-tree readbacks and 114 new GitHub Contents readbacks on 2026-10-03. Narrative interpretation remains partial.",
     "reference_scan": {
       "method": "Every pinned core Markdown blob and every pinned Markdown blob in the eleven DJC component repositories, at its recorded commit: parse relative Markdown links, strip anchors, normalize against source directory, retain existing .md targets absent from the pinned source matrix; distinct repository/path keys. The seven pinned external Forge method documents are outside this lane-source link frontier.",
       "unmapped_paths": [
@@ -79,8 +79,8 @@
           "repository": "pcvantol/djconnect-app",
           "commit_sha": "d54224dbf02517ae47406aa14d33e97e61c18002",
           "tracked_markdown": 173,
-          "included_markdown": 25,
-          "not_individually_included_markdown": 148,
+          "included_markdown": 30,
+          "not_individually_included_markdown": 143,
           "tree_readback": "complete local git ls-tree -r"
         },
         "DJC-ESP32": {
@@ -119,8 +119,8 @@
           "repository": "pcvantol/djconnect-website",
           "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
           "tracked_markdown": 412,
-          "included_markdown": 10,
-          "not_individually_included_markdown": 402,
+          "included_markdown": 46,
+          "not_individually_included_markdown": 366,
           "tree_readback": "complete local git ls-tree -r"
         },
         "DJC-VIBECAST": {
@@ -7230,6 +7230,744 @@
         "INV::DJC-CORE"
       ],
       "remaining": "No unread ranges in this source; execution outcome and broader workflow audit remain separate"
+    },
+    {
+      "id": "RC_COPY::APPLE::DE",
+      "repository": "pcvantol/djconnect-app",
+      "path": "docs/release-notes/de/v4.0.0.md",
+      "blob_sha": "4b4071cf1d66bd53da2362039641c2ee9c59f736",
+      "commit_sha": "d54224dbf02517ae47406aa14d33e97e61c18002",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; short localized release copy only",
+      "read_complete": true,
+      "status_authority": "Localized internal 4.0.0 RC1 release-note copy; no proof of release publication, approved private-device installation or public distribution.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-app/blob/d54224dbf02517ae47406aa14d33e97e61c18002/docs/release-notes/de/v4.0.0.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-APPLE"
+      ],
+      "remaining": "Qualify source candidate, operational manifest and installed-target receipt before any release or consumer claim."
+    },
+    {
+      "id": "RC_COPY::APPLE::EN",
+      "repository": "pcvantol/djconnect-app",
+      "path": "docs/release-notes/en/v4.0.0.md",
+      "blob_sha": "f2286100f5ab887a1678c19cf281e42f3590b04c",
+      "commit_sha": "d54224dbf02517ae47406aa14d33e97e61c18002",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; short localized release copy only",
+      "read_complete": true,
+      "status_authority": "Localized internal 4.0.0 RC1 release-note copy; no proof of release publication, approved private-device installation or public distribution.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-app/blob/d54224dbf02517ae47406aa14d33e97e61c18002/docs/release-notes/en/v4.0.0.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-APPLE"
+      ],
+      "remaining": "Qualify source candidate, operational manifest and installed-target receipt before any release or consumer claim."
+    },
+    {
+      "id": "RC_COPY::APPLE::ES",
+      "repository": "pcvantol/djconnect-app",
+      "path": "docs/release-notes/es/v4.0.0.md",
+      "blob_sha": "e983982b93460af603b0905025e71d6240a95d21",
+      "commit_sha": "d54224dbf02517ae47406aa14d33e97e61c18002",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; short localized release copy only",
+      "read_complete": true,
+      "status_authority": "Localized internal 4.0.0 RC1 release-note copy; no proof of release publication, approved private-device installation or public distribution.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-app/blob/d54224dbf02517ae47406aa14d33e97e61c18002/docs/release-notes/es/v4.0.0.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-APPLE"
+      ],
+      "remaining": "Qualify source candidate, operational manifest and installed-target receipt before any release or consumer claim."
+    },
+    {
+      "id": "RC_COPY::APPLE::FR",
+      "repository": "pcvantol/djconnect-app",
+      "path": "docs/release-notes/fr/v4.0.0.md",
+      "blob_sha": "5013380e81d203970384e998a3dd0ae5d170de26",
+      "commit_sha": "d54224dbf02517ae47406aa14d33e97e61c18002",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; short localized release copy only",
+      "read_complete": true,
+      "status_authority": "Localized internal 4.0.0 RC1 release-note copy; no proof of release publication, approved private-device installation or public distribution.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-app/blob/d54224dbf02517ae47406aa14d33e97e61c18002/docs/release-notes/fr/v4.0.0.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-APPLE"
+      ],
+      "remaining": "Qualify source candidate, operational manifest and installed-target receipt before any release or consumer claim."
+    },
+    {
+      "id": "RC_COPY::APPLE::NL",
+      "repository": "pcvantol/djconnect-app",
+      "path": "docs/release-notes/nl/v4.0.0.md",
+      "blob_sha": "ba13307079ac76d906e9425501358e2bb2e0f1c7",
+      "commit_sha": "d54224dbf02517ae47406aa14d33e97e61c18002",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; short localized release copy only",
+      "read_complete": true,
+      "status_authority": "Localized internal 4.0.0 RC1 release-note copy; no proof of release publication, approved private-device installation or public distribution.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-app/blob/d54224dbf02517ae47406aa14d33e97e61c18002/docs/release-notes/nl/v4.0.0.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-APPLE"
+      ],
+      "remaining": "Qualify source candidate, operational manifest and installed-target receipt before any release or consumer claim."
+    },
+    {
+      "id": "COPY::WEBSITE::IOS::DE::LATEST",
+      "repository": "pcvantol/djconnect-website",
+      "path": "wwwroot/release-notes/ios/de/latest.md",
+      "blob_sha": "eb40ea96169f6c4bfeb17ea984ab9277cde19641",
+      "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; short localized release copy only",
+      "read_complete": true,
+      "status_authority": "Pinned website-source release-note copy; not proof of live website, artifact attachment, distribution authorization or installed consumer.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/wwwroot/release-notes/ios/de/latest.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WEBSITE"
+      ],
+      "remaining": "Reconcile producer/version and live-site/consumer evidence before public-copy changes."
+    },
+    {
+      "id": "COPY::WEBSITE::IOS::DE::V3_3_0",
+      "repository": "pcvantol/djconnect-website",
+      "path": "wwwroot/release-notes/ios/de/v3.3.0.md",
+      "blob_sha": "eb40ea96169f6c4bfeb17ea984ab9277cde19641",
+      "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; short localized release copy only",
+      "read_complete": true,
+      "status_authority": "Pinned website-source release-note copy; not proof of live website, artifact attachment, distribution authorization or installed consumer.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/wwwroot/release-notes/ios/de/v3.3.0.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WEBSITE"
+      ],
+      "remaining": "Reconcile producer/version and live-site/consumer evidence before public-copy changes."
+    },
+    {
+      "id": "COPY::WEBSITE::IOS::EN::LATEST",
+      "repository": "pcvantol/djconnect-website",
+      "path": "wwwroot/release-notes/ios/en/latest.md",
+      "blob_sha": "49879d1012d7b882d3d3403f40410dda840dc2b9",
+      "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; short localized release copy only",
+      "read_complete": true,
+      "status_authority": "Pinned website-source release-note copy; not proof of live website, artifact attachment, distribution authorization or installed consumer.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/wwwroot/release-notes/ios/en/latest.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WEBSITE"
+      ],
+      "remaining": "Reconcile producer/version and live-site/consumer evidence before public-copy changes."
+    },
+    {
+      "id": "COPY::WEBSITE::IOS::EN::V3_3_0",
+      "repository": "pcvantol/djconnect-website",
+      "path": "wwwroot/release-notes/ios/en/v3.3.0.md",
+      "blob_sha": "49879d1012d7b882d3d3403f40410dda840dc2b9",
+      "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; short localized release copy only",
+      "read_complete": true,
+      "status_authority": "Pinned website-source release-note copy; not proof of live website, artifact attachment, distribution authorization or installed consumer.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/wwwroot/release-notes/ios/en/v3.3.0.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WEBSITE"
+      ],
+      "remaining": "Reconcile producer/version and live-site/consumer evidence before public-copy changes."
+    },
+    {
+      "id": "COPY::WEBSITE::IOS::ES::LATEST",
+      "repository": "pcvantol/djconnect-website",
+      "path": "wwwroot/release-notes/ios/es/latest.md",
+      "blob_sha": "a0415864886c2139d0e24bbfb5f1f38b79b8774c",
+      "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; short localized release copy only",
+      "read_complete": true,
+      "status_authority": "Pinned website-source release-note copy; not proof of live website, artifact attachment, distribution authorization or installed consumer.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/wwwroot/release-notes/ios/es/latest.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WEBSITE"
+      ],
+      "remaining": "Reconcile producer/version and live-site/consumer evidence before public-copy changes."
+    },
+    {
+      "id": "COPY::WEBSITE::IOS::ES::V3_3_0",
+      "repository": "pcvantol/djconnect-website",
+      "path": "wwwroot/release-notes/ios/es/v3.3.0.md",
+      "blob_sha": "a0415864886c2139d0e24bbfb5f1f38b79b8774c",
+      "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; short localized release copy only",
+      "read_complete": true,
+      "status_authority": "Pinned website-source release-note copy; not proof of live website, artifact attachment, distribution authorization or installed consumer.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/wwwroot/release-notes/ios/es/v3.3.0.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WEBSITE"
+      ],
+      "remaining": "Reconcile producer/version and live-site/consumer evidence before public-copy changes."
+    },
+    {
+      "id": "COPY::WEBSITE::IOS::FR::LATEST",
+      "repository": "pcvantol/djconnect-website",
+      "path": "wwwroot/release-notes/ios/fr/latest.md",
+      "blob_sha": "d9ded9bf153c3a3ebcf06426120e9bb3d188d3e2",
+      "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; short localized release copy only",
+      "read_complete": true,
+      "status_authority": "Pinned website-source release-note copy; not proof of live website, artifact attachment, distribution authorization or installed consumer.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/wwwroot/release-notes/ios/fr/latest.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WEBSITE"
+      ],
+      "remaining": "Reconcile producer/version and live-site/consumer evidence before public-copy changes."
+    },
+    {
+      "id": "COPY::WEBSITE::IOS::FR::V3_3_0",
+      "repository": "pcvantol/djconnect-website",
+      "path": "wwwroot/release-notes/ios/fr/v3.3.0.md",
+      "blob_sha": "d9ded9bf153c3a3ebcf06426120e9bb3d188d3e2",
+      "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; short localized release copy only",
+      "read_complete": true,
+      "status_authority": "Pinned website-source release-note copy; not proof of live website, artifact attachment, distribution authorization or installed consumer.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/wwwroot/release-notes/ios/fr/v3.3.0.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WEBSITE"
+      ],
+      "remaining": "Reconcile producer/version and live-site/consumer evidence before public-copy changes."
+    },
+    {
+      "id": "COPY::WEBSITE::IOS::DEFAULT::LATEST",
+      "repository": "pcvantol/djconnect-website",
+      "path": "wwwroot/release-notes/ios/latest.md",
+      "blob_sha": "49879d1012d7b882d3d3403f40410dda840dc2b9",
+      "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; short localized release copy only",
+      "read_complete": true,
+      "status_authority": "Pinned website-source release-note copy; not proof of live website, artifact attachment, distribution authorization or installed consumer.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/wwwroot/release-notes/ios/latest.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WEBSITE"
+      ],
+      "remaining": "Reconcile producer/version and live-site/consumer evidence before public-copy changes."
+    },
+    {
+      "id": "COPY::WEBSITE::IOS::NL::LATEST",
+      "repository": "pcvantol/djconnect-website",
+      "path": "wwwroot/release-notes/ios/nl/latest.md",
+      "blob_sha": "28306ee50abc146d378559696858bd4bfa5e9f86",
+      "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; short localized release copy only",
+      "read_complete": true,
+      "status_authority": "Pinned website-source release-note copy; not proof of live website, artifact attachment, distribution authorization or installed consumer.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/wwwroot/release-notes/ios/nl/latest.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WEBSITE"
+      ],
+      "remaining": "Reconcile producer/version and live-site/consumer evidence before public-copy changes."
+    },
+    {
+      "id": "COPY::WEBSITE::IOS::NL::V3_3_0",
+      "repository": "pcvantol/djconnect-website",
+      "path": "wwwroot/release-notes/ios/nl/v3.3.0.md",
+      "blob_sha": "28306ee50abc146d378559696858bd4bfa5e9f86",
+      "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; short localized release copy only",
+      "read_complete": true,
+      "status_authority": "Pinned website-source release-note copy; not proof of live website, artifact attachment, distribution authorization or installed consumer.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/wwwroot/release-notes/ios/nl/v3.3.0.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WEBSITE"
+      ],
+      "remaining": "Reconcile producer/version and live-site/consumer evidence before public-copy changes."
+    },
+    {
+      "id": "COPY::WEBSITE::IOS::DEFAULT::V3_3_0",
+      "repository": "pcvantol/djconnect-website",
+      "path": "wwwroot/release-notes/ios/v3.3.0.md",
+      "blob_sha": "49879d1012d7b882d3d3403f40410dda840dc2b9",
+      "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; short localized release copy only",
+      "read_complete": true,
+      "status_authority": "Pinned website-source release-note copy; not proof of live website, artifact attachment, distribution authorization or installed consumer.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/wwwroot/release-notes/ios/v3.3.0.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WEBSITE"
+      ],
+      "remaining": "Reconcile producer/version and live-site/consumer evidence before public-copy changes."
+    },
+    {
+      "id": "COPY::WEBSITE::MACCATALYST::DE::V3_3_0",
+      "repository": "pcvantol/djconnect-website",
+      "path": "wwwroot/release-notes/maccatalyst/de/v3.3.0.md",
+      "blob_sha": "255360ea8cc33a506bc250da9ea52dc1d4acbc12",
+      "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; short localized release copy only",
+      "read_complete": true,
+      "status_authority": "Pinned website-source release-note copy; not proof of live website, artifact attachment, distribution authorization or installed consumer.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/wwwroot/release-notes/maccatalyst/de/v3.3.0.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WEBSITE"
+      ],
+      "remaining": "Reconcile producer/version and live-site/consumer evidence before public-copy changes."
+    },
+    {
+      "id": "COPY::WEBSITE::MACCATALYST::EN::V3_3_0",
+      "repository": "pcvantol/djconnect-website",
+      "path": "wwwroot/release-notes/maccatalyst/en/v3.3.0.md",
+      "blob_sha": "54f3d9acd4ad455f0b36e3949219a32230113e7d",
+      "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; short localized release copy only",
+      "read_complete": true,
+      "status_authority": "Pinned website-source release-note copy; not proof of live website, artifact attachment, distribution authorization or installed consumer.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/wwwroot/release-notes/maccatalyst/en/v3.3.0.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WEBSITE"
+      ],
+      "remaining": "Reconcile producer/version and live-site/consumer evidence before public-copy changes."
+    },
+    {
+      "id": "COPY::WEBSITE::MACCATALYST::ES::V3_3_0",
+      "repository": "pcvantol/djconnect-website",
+      "path": "wwwroot/release-notes/maccatalyst/es/v3.3.0.md",
+      "blob_sha": "8e8efd4bfda01f5012e6f082663b8de8f78cd5c3",
+      "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; short localized release copy only",
+      "read_complete": true,
+      "status_authority": "Pinned website-source release-note copy; not proof of live website, artifact attachment, distribution authorization or installed consumer.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/wwwroot/release-notes/maccatalyst/es/v3.3.0.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WEBSITE"
+      ],
+      "remaining": "Reconcile producer/version and live-site/consumer evidence before public-copy changes."
+    },
+    {
+      "id": "COPY::WEBSITE::MACCATALYST::FR::V3_3_0",
+      "repository": "pcvantol/djconnect-website",
+      "path": "wwwroot/release-notes/maccatalyst/fr/v3.3.0.md",
+      "blob_sha": "fd50e128136d75fb8044a8dfb34afb34a64ae671",
+      "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; short localized release copy only",
+      "read_complete": true,
+      "status_authority": "Pinned website-source release-note copy; not proof of live website, artifact attachment, distribution authorization or installed consumer.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/wwwroot/release-notes/maccatalyst/fr/v3.3.0.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WEBSITE"
+      ],
+      "remaining": "Reconcile producer/version and live-site/consumer evidence before public-copy changes."
+    },
+    {
+      "id": "COPY::WEBSITE::MACCATALYST::NL::V3_3_0",
+      "repository": "pcvantol/djconnect-website",
+      "path": "wwwroot/release-notes/maccatalyst/nl/v3.3.0.md",
+      "blob_sha": "091c915df636512bb327ff0db8de61d34f60d819",
+      "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; short localized release copy only",
+      "read_complete": true,
+      "status_authority": "Pinned website-source release-note copy; not proof of live website, artifact attachment, distribution authorization or installed consumer.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/wwwroot/release-notes/maccatalyst/nl/v3.3.0.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WEBSITE"
+      ],
+      "remaining": "Reconcile producer/version and live-site/consumer evidence before public-copy changes."
+    },
+    {
+      "id": "COPY::WEBSITE::MACCATALYST::DEFAULT::V3_3_0",
+      "repository": "pcvantol/djconnect-website",
+      "path": "wwwroot/release-notes/maccatalyst/v3.3.0.md",
+      "blob_sha": "54f3d9acd4ad455f0b36e3949219a32230113e7d",
+      "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; short localized release copy only",
+      "read_complete": true,
+      "status_authority": "Pinned website-source release-note copy; not proof of live website, artifact attachment, distribution authorization or installed consumer.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/wwwroot/release-notes/maccatalyst/v3.3.0.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WEBSITE"
+      ],
+      "remaining": "Reconcile producer/version and live-site/consumer evidence before public-copy changes."
+    },
+    {
+      "id": "COPY::WEBSITE::MACOS::DE::LATEST",
+      "repository": "pcvantol/djconnect-website",
+      "path": "wwwroot/release-notes/macos/de/latest.md",
+      "blob_sha": "b751c568bcbe245acdbc1c41c90074de6d57591a",
+      "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; short localized release copy only",
+      "read_complete": true,
+      "status_authority": "Pinned website-source release-note copy; not proof of live website, artifact attachment, distribution authorization or installed consumer.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/wwwroot/release-notes/macos/de/latest.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WEBSITE"
+      ],
+      "remaining": "Reconcile producer/version and live-site/consumer evidence before public-copy changes."
+    },
+    {
+      "id": "COPY::WEBSITE::MACOS::DE::V3_3_0",
+      "repository": "pcvantol/djconnect-website",
+      "path": "wwwroot/release-notes/macos/de/v3.3.0.md",
+      "blob_sha": "b751c568bcbe245acdbc1c41c90074de6d57591a",
+      "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; short localized release copy only",
+      "read_complete": true,
+      "status_authority": "Pinned website-source release-note copy; not proof of live website, artifact attachment, distribution authorization or installed consumer.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/wwwroot/release-notes/macos/de/v3.3.0.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WEBSITE"
+      ],
+      "remaining": "Reconcile producer/version and live-site/consumer evidence before public-copy changes."
+    },
+    {
+      "id": "COPY::WEBSITE::MACOS::EN::LATEST",
+      "repository": "pcvantol/djconnect-website",
+      "path": "wwwroot/release-notes/macos/en/latest.md",
+      "blob_sha": "023917a2518daadc5934f561f3d1bd24117c0e93",
+      "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; short localized release copy only",
+      "read_complete": true,
+      "status_authority": "Pinned website-source release-note copy; not proof of live website, artifact attachment, distribution authorization or installed consumer.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/wwwroot/release-notes/macos/en/latest.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WEBSITE"
+      ],
+      "remaining": "Reconcile producer/version and live-site/consumer evidence before public-copy changes."
+    },
+    {
+      "id": "COPY::WEBSITE::MACOS::EN::V3_3_0",
+      "repository": "pcvantol/djconnect-website",
+      "path": "wwwroot/release-notes/macos/en/v3.3.0.md",
+      "blob_sha": "023917a2518daadc5934f561f3d1bd24117c0e93",
+      "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; short localized release copy only",
+      "read_complete": true,
+      "status_authority": "Pinned website-source release-note copy; not proof of live website, artifact attachment, distribution authorization or installed consumer.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/wwwroot/release-notes/macos/en/v3.3.0.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WEBSITE"
+      ],
+      "remaining": "Reconcile producer/version and live-site/consumer evidence before public-copy changes."
+    },
+    {
+      "id": "COPY::WEBSITE::MACOS::ES::LATEST",
+      "repository": "pcvantol/djconnect-website",
+      "path": "wwwroot/release-notes/macos/es/latest.md",
+      "blob_sha": "875967148c786ff8c4b0dc443aefe5a0fa9eb36f",
+      "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; short localized release copy only",
+      "read_complete": true,
+      "status_authority": "Pinned website-source release-note copy; not proof of live website, artifact attachment, distribution authorization or installed consumer.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/wwwroot/release-notes/macos/es/latest.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WEBSITE"
+      ],
+      "remaining": "Reconcile producer/version and live-site/consumer evidence before public-copy changes."
+    },
+    {
+      "id": "COPY::WEBSITE::MACOS::ES::V3_3_0",
+      "repository": "pcvantol/djconnect-website",
+      "path": "wwwroot/release-notes/macos/es/v3.3.0.md",
+      "blob_sha": "875967148c786ff8c4b0dc443aefe5a0fa9eb36f",
+      "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; short localized release copy only",
+      "read_complete": true,
+      "status_authority": "Pinned website-source release-note copy; not proof of live website, artifact attachment, distribution authorization or installed consumer.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/wwwroot/release-notes/macos/es/v3.3.0.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WEBSITE"
+      ],
+      "remaining": "Reconcile producer/version and live-site/consumer evidence before public-copy changes."
+    },
+    {
+      "id": "COPY::WEBSITE::MACOS::FR::LATEST",
+      "repository": "pcvantol/djconnect-website",
+      "path": "wwwroot/release-notes/macos/fr/latest.md",
+      "blob_sha": "52dbd617ff58b2569ddef37d170c9cc6a9535c30",
+      "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; short localized release copy only",
+      "read_complete": true,
+      "status_authority": "Pinned website-source release-note copy; not proof of live website, artifact attachment, distribution authorization or installed consumer.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/wwwroot/release-notes/macos/fr/latest.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WEBSITE"
+      ],
+      "remaining": "Reconcile producer/version and live-site/consumer evidence before public-copy changes."
+    },
+    {
+      "id": "COPY::WEBSITE::MACOS::FR::V3_3_0",
+      "repository": "pcvantol/djconnect-website",
+      "path": "wwwroot/release-notes/macos/fr/v3.3.0.md",
+      "blob_sha": "52dbd617ff58b2569ddef37d170c9cc6a9535c30",
+      "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; short localized release copy only",
+      "read_complete": true,
+      "status_authority": "Pinned website-source release-note copy; not proof of live website, artifact attachment, distribution authorization or installed consumer.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/wwwroot/release-notes/macos/fr/v3.3.0.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WEBSITE"
+      ],
+      "remaining": "Reconcile producer/version and live-site/consumer evidence before public-copy changes."
+    },
+    {
+      "id": "COPY::WEBSITE::MACOS::DEFAULT::LATEST",
+      "repository": "pcvantol/djconnect-website",
+      "path": "wwwroot/release-notes/macos/latest.md",
+      "blob_sha": "023917a2518daadc5934f561f3d1bd24117c0e93",
+      "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; short localized release copy only",
+      "read_complete": true,
+      "status_authority": "Pinned website-source release-note copy; not proof of live website, artifact attachment, distribution authorization or installed consumer.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/wwwroot/release-notes/macos/latest.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WEBSITE"
+      ],
+      "remaining": "Reconcile producer/version and live-site/consumer evidence before public-copy changes."
+    },
+    {
+      "id": "COPY::WEBSITE::MACOS::NL::LATEST",
+      "repository": "pcvantol/djconnect-website",
+      "path": "wwwroot/release-notes/macos/nl/latest.md",
+      "blob_sha": "f08cc07b10d98378a4c2a52e592fb163f2366f69",
+      "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; short localized release copy only",
+      "read_complete": true,
+      "status_authority": "Pinned website-source release-note copy; not proof of live website, artifact attachment, distribution authorization or installed consumer.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/wwwroot/release-notes/macos/nl/latest.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WEBSITE"
+      ],
+      "remaining": "Reconcile producer/version and live-site/consumer evidence before public-copy changes."
+    },
+    {
+      "id": "COPY::WEBSITE::MACOS::NL::V3_3_0",
+      "repository": "pcvantol/djconnect-website",
+      "path": "wwwroot/release-notes/macos/nl/v3.3.0.md",
+      "blob_sha": "f08cc07b10d98378a4c2a52e592fb163f2366f69",
+      "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; short localized release copy only",
+      "read_complete": true,
+      "status_authority": "Pinned website-source release-note copy; not proof of live website, artifact attachment, distribution authorization or installed consumer.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/wwwroot/release-notes/macos/nl/v3.3.0.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WEBSITE"
+      ],
+      "remaining": "Reconcile producer/version and live-site/consumer evidence before public-copy changes."
+    },
+    {
+      "id": "COPY::WEBSITE::MACOS::DEFAULT::V3_3_0",
+      "repository": "pcvantol/djconnect-website",
+      "path": "wwwroot/release-notes/macos/v3.3.0.md",
+      "blob_sha": "023917a2518daadc5934f561f3d1bd24117c0e93",
+      "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; short localized release copy only",
+      "read_complete": true,
+      "status_authority": "Pinned website-source release-note copy; not proof of live website, artifact attachment, distribution authorization or installed consumer.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/wwwroot/release-notes/macos/v3.3.0.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WEBSITE"
+      ],
+      "remaining": "Reconcile producer/version and live-site/consumer evidence before public-copy changes."
+    },
+    {
+      "id": "COPY::WEBSITE::WINDOWS::DE::V3_3_0",
+      "repository": "pcvantol/djconnect-website",
+      "path": "wwwroot/release-notes/windows/de/v3.3.0.md",
+      "blob_sha": "1d07a71e76e2e7d38165f8ef73826749483355a1",
+      "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; short localized release copy only",
+      "read_complete": true,
+      "status_authority": "Pinned website-source release-note copy; not proof of live website, artifact attachment, distribution authorization or installed consumer.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/wwwroot/release-notes/windows/de/v3.3.0.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WEBSITE"
+      ],
+      "remaining": "Reconcile producer/version and live-site/consumer evidence before public-copy changes."
+    },
+    {
+      "id": "COPY::WEBSITE::WINDOWS::EN::V3_3_0",
+      "repository": "pcvantol/djconnect-website",
+      "path": "wwwroot/release-notes/windows/en/v3.3.0.md",
+      "blob_sha": "d7eaf15f969ddfdaaa2aa2ac3727a2691a862371",
+      "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; short localized release copy only",
+      "read_complete": true,
+      "status_authority": "Pinned website-source release-note copy; not proof of live website, artifact attachment, distribution authorization or installed consumer.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/wwwroot/release-notes/windows/en/v3.3.0.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WEBSITE"
+      ],
+      "remaining": "Reconcile producer/version and live-site/consumer evidence before public-copy changes."
+    },
+    {
+      "id": "COPY::WEBSITE::WINDOWS::ES::V3_3_0",
+      "repository": "pcvantol/djconnect-website",
+      "path": "wwwroot/release-notes/windows/es/v3.3.0.md",
+      "blob_sha": "afe0069e9d6aee2a58952ff85cdaf689f893308c",
+      "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; short localized release copy only",
+      "read_complete": true,
+      "status_authority": "Pinned website-source release-note copy; not proof of live website, artifact attachment, distribution authorization or installed consumer.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/wwwroot/release-notes/windows/es/v3.3.0.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WEBSITE"
+      ],
+      "remaining": "Reconcile producer/version and live-site/consumer evidence before public-copy changes."
+    },
+    {
+      "id": "COPY::WEBSITE::WINDOWS::FR::V3_3_0",
+      "repository": "pcvantol/djconnect-website",
+      "path": "wwwroot/release-notes/windows/fr/v3.3.0.md",
+      "blob_sha": "3ddb06b4de2d2dfd35ac8ec0692af5bb727141c5",
+      "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; short localized release copy only",
+      "read_complete": true,
+      "status_authority": "Pinned website-source release-note copy; not proof of live website, artifact attachment, distribution authorization or installed consumer.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/wwwroot/release-notes/windows/fr/v3.3.0.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WEBSITE"
+      ],
+      "remaining": "Reconcile producer/version and live-site/consumer evidence before public-copy changes."
+    },
+    {
+      "id": "COPY::WEBSITE::WINDOWS::NL::V3_3_0",
+      "repository": "pcvantol/djconnect-website",
+      "path": "wwwroot/release-notes/windows/nl/v3.3.0.md",
+      "blob_sha": "2aefbd6facdc119cc8ddb20610dbc073dff2bf32",
+      "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; short localized release copy only",
+      "read_complete": true,
+      "status_authority": "Pinned website-source release-note copy; not proof of live website, artifact attachment, distribution authorization or installed consumer.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/wwwroot/release-notes/windows/nl/v3.3.0.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WEBSITE"
+      ],
+      "remaining": "Reconcile producer/version and live-site/consumer evidence before public-copy changes."
+    },
+    {
+      "id": "COPY::WEBSITE::WINDOWS::DEFAULT::V3_3_0",
+      "repository": "pcvantol/djconnect-website",
+      "path": "wwwroot/release-notes/windows/v3.3.0.md",
+      "blob_sha": "d7eaf15f969ddfdaaa2aa2ac3727a2691a862371",
+      "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; short localized release copy only",
+      "read_complete": true,
+      "status_authority": "Pinned website-source release-note copy; not proof of live website, artifact attachment, distribution authorization or installed consumer.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/wwwroot/release-notes/windows/v3.3.0.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WEBSITE"
+      ],
+      "remaining": "Reconcile producer/version and live-site/consumer evidence before public-copy changes."
     }
   ],
   "nodes": [
@@ -7343,7 +8081,12 @@
         "PROJ::DJC-APPLE::MANAGEMENT_SUMMARY",
         "PROJ::DJC-APPLE::ROADMAP_INDEX",
         "PROJ::DJC-APPLE::PROMPT_INDEX",
-        "APPLE_SHARING_PROMPT_HIST"
+        "APPLE_SHARING_PROMPT_HIST",
+        "RC_COPY::APPLE::DE",
+        "RC_COPY::APPLE::EN",
+        "RC_COPY::APPLE::ES",
+        "RC_COPY::APPLE::FR",
+        "RC_COPY::APPLE::NL"
       ],
       "canonical_authority": "README::DJC-APPLE",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -7654,7 +8397,43 @@
         "PROJ::DJC-WEBSITE::MANAGEMENT_SUMMARY",
         "PROJ::DJC-WEBSITE::ROADMAP_INDEX",
         "PROJ::DJC-WEBSITE::PROMPT_INDEX",
-        "WEBSITE_RG001_HISTORY"
+        "WEBSITE_RG001_HISTORY",
+        "COPY::WEBSITE::IOS::DE::LATEST",
+        "COPY::WEBSITE::IOS::DE::V3_3_0",
+        "COPY::WEBSITE::IOS::EN::LATEST",
+        "COPY::WEBSITE::IOS::EN::V3_3_0",
+        "COPY::WEBSITE::IOS::ES::LATEST",
+        "COPY::WEBSITE::IOS::ES::V3_3_0",
+        "COPY::WEBSITE::IOS::FR::LATEST",
+        "COPY::WEBSITE::IOS::FR::V3_3_0",
+        "COPY::WEBSITE::IOS::DEFAULT::LATEST",
+        "COPY::WEBSITE::IOS::NL::LATEST",
+        "COPY::WEBSITE::IOS::NL::V3_3_0",
+        "COPY::WEBSITE::IOS::DEFAULT::V3_3_0",
+        "COPY::WEBSITE::MACCATALYST::DE::V3_3_0",
+        "COPY::WEBSITE::MACCATALYST::EN::V3_3_0",
+        "COPY::WEBSITE::MACCATALYST::ES::V3_3_0",
+        "COPY::WEBSITE::MACCATALYST::FR::V3_3_0",
+        "COPY::WEBSITE::MACCATALYST::NL::V3_3_0",
+        "COPY::WEBSITE::MACCATALYST::DEFAULT::V3_3_0",
+        "COPY::WEBSITE::MACOS::DE::LATEST",
+        "COPY::WEBSITE::MACOS::DE::V3_3_0",
+        "COPY::WEBSITE::MACOS::EN::LATEST",
+        "COPY::WEBSITE::MACOS::EN::V3_3_0",
+        "COPY::WEBSITE::MACOS::ES::LATEST",
+        "COPY::WEBSITE::MACOS::ES::V3_3_0",
+        "COPY::WEBSITE::MACOS::FR::LATEST",
+        "COPY::WEBSITE::MACOS::FR::V3_3_0",
+        "COPY::WEBSITE::MACOS::DEFAULT::LATEST",
+        "COPY::WEBSITE::MACOS::NL::LATEST",
+        "COPY::WEBSITE::MACOS::NL::V3_3_0",
+        "COPY::WEBSITE::MACOS::DEFAULT::V3_3_0",
+        "COPY::WEBSITE::WINDOWS::DE::V3_3_0",
+        "COPY::WEBSITE::WINDOWS::EN::V3_3_0",
+        "COPY::WEBSITE::WINDOWS::ES::V3_3_0",
+        "COPY::WEBSITE::WINDOWS::FR::V3_3_0",
+        "COPY::WEBSITE::WINDOWS::NL::V3_3_0",
+        "COPY::WEBSITE::WINDOWS::DEFAULT::V3_3_0"
       ],
       "canonical_authority": "README::DJC-WEBSITE",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -19975,9 +20754,50 @@
     {
       "id": "PUBLIC-COPY",
       "status": "OPEN",
-      "description": "Website README retains 3.2-era versions and older presentation claims; compare current producer contracts/artifacts before public changes.",
+      "description": "Pinned Apple source has five localized internal 4.0.0 RC1 release notes. Pinned website source still uses 3.3.0 latest copy for iOS and macOS, plus versioned 3.3.0 Windows and MacCatalyst notes in five languages and English default. The website copy describes unsigned diagnostic artifacts and conditional normal distribution paths; this is text, not proof of approved public distribution, attached notarized artifacts, live site or installed consumers. Reconcile exact producer candidate/version, publisher receipts and consumer evidence before any public-copy change; website README also retains older 3.2-era claims.",
       "source_ids": [
-        "README::DJC-WEBSITE"
+        "README::DJC-WEBSITE",
+        "RC_COPY::APPLE::DE",
+        "RC_COPY::APPLE::EN",
+        "RC_COPY::APPLE::ES",
+        "RC_COPY::APPLE::FR",
+        "RC_COPY::APPLE::NL",
+        "COPY::WEBSITE::IOS::DE::LATEST",
+        "COPY::WEBSITE::IOS::DE::V3_3_0",
+        "COPY::WEBSITE::IOS::EN::LATEST",
+        "COPY::WEBSITE::IOS::EN::V3_3_0",
+        "COPY::WEBSITE::IOS::ES::LATEST",
+        "COPY::WEBSITE::IOS::ES::V3_3_0",
+        "COPY::WEBSITE::IOS::FR::LATEST",
+        "COPY::WEBSITE::IOS::FR::V3_3_0",
+        "COPY::WEBSITE::IOS::DEFAULT::LATEST",
+        "COPY::WEBSITE::IOS::NL::LATEST",
+        "COPY::WEBSITE::IOS::NL::V3_3_0",
+        "COPY::WEBSITE::IOS::DEFAULT::V3_3_0",
+        "COPY::WEBSITE::MACCATALYST::DE::V3_3_0",
+        "COPY::WEBSITE::MACCATALYST::EN::V3_3_0",
+        "COPY::WEBSITE::MACCATALYST::ES::V3_3_0",
+        "COPY::WEBSITE::MACCATALYST::FR::V3_3_0",
+        "COPY::WEBSITE::MACCATALYST::NL::V3_3_0",
+        "COPY::WEBSITE::MACCATALYST::DEFAULT::V3_3_0",
+        "COPY::WEBSITE::MACOS::DE::LATEST",
+        "COPY::WEBSITE::MACOS::DE::V3_3_0",
+        "COPY::WEBSITE::MACOS::EN::LATEST",
+        "COPY::WEBSITE::MACOS::EN::V3_3_0",
+        "COPY::WEBSITE::MACOS::ES::LATEST",
+        "COPY::WEBSITE::MACOS::ES::V3_3_0",
+        "COPY::WEBSITE::MACOS::FR::LATEST",
+        "COPY::WEBSITE::MACOS::FR::V3_3_0",
+        "COPY::WEBSITE::MACOS::DEFAULT::LATEST",
+        "COPY::WEBSITE::MACOS::NL::LATEST",
+        "COPY::WEBSITE::MACOS::NL::V3_3_0",
+        "COPY::WEBSITE::MACOS::DEFAULT::V3_3_0",
+        "COPY::WEBSITE::WINDOWS::DE::V3_3_0",
+        "COPY::WEBSITE::WINDOWS::EN::V3_3_0",
+        "COPY::WEBSITE::WINDOWS::ES::V3_3_0",
+        "COPY::WEBSITE::WINDOWS::FR::V3_3_0",
+        "COPY::WEBSITE::WINDOWS::NL::V3_3_0",
+        "COPY::WEBSITE::WINDOWS::DEFAULT::V3_3_0"
       ]
     },
     {
@@ -20398,7 +21218,7 @@
       "status": "OPEN",
       "scope": "DJC-APPLE",
       "reason": "Pinned Apple API, handoff, changelog, contribution/build hygiene and architecture/release sources are read. Reconcile internally inconsistent stale-auth/history/version mirror text with core, then qualify actual client behavior, local WIP, physical consumers and final delta. Four local phase/status projections and the named Apple sharing history are pinned; these report WORKSPACE_READY and no further locally selected Apple product item. Qualify actual client/physical behavior separately.",
-      "remaining": "Source mirrors are pinned; verify stale pairing/history behavior and 4.0.x consumer evidence, actual CI and physical iOS/macOS/watchOS acceptance, release provenance, local WIP and final delta."
+      "remaining": "Five localized internal 4.0.0 RC1 release notes are pinned as copy, not release/installation receipts. Verify stale pairing/history behavior and 4.0.x consumer evidence, actual CI and physical iOS/macOS/watchOS acceptance, release provenance, local WIP and final delta."
     },
     {
       "id": "AUDIT-DJC-ESP32",
@@ -20431,7 +21251,7 @@
       "id": "AUDIT-DJC-WEBSITE",
       "status": "OPEN",
       "scope": "DJC-WEBSITE",
-      "reason": "Complete local policy, owning backlog/source/tests/PR/releases, active writer/register discovery, workflow effects and final delta. README is not a complete component audit. Four local phase/status projections and the RG-001 decision history are pinned; reconcile stale LOCAL_IN_PROGRESS text with merged PR #24, without public site changes."
+      "reason": "Complete local policy, owning backlog/source/tests/PR/releases, active writer/register discovery, workflow effects and final delta. README is not a complete component audit. Four local phase/status projections and the RG-001 decision history are pinned; reconcile stale LOCAL_IN_PROGRESS text with merged PR #24, without public site changes. Thirty-six 3.3.0/latest release-copy files are fully read/pinned; they do not prove a live site or actual artifact distribution, and current 3.3.0 copy must be reconciled with Apple 4.0.0 RC1 source notes before public changes."
     },
     {
       "id": "AUDIT-DJC-VIBECAST",
@@ -20497,7 +21317,7 @@
       "status": "OPEN",
       "scope": "platform",
       "reason": "Current matrix covers only explicitly read source inventory; certify complete disposition only after all relevant discoveries are audited.",
-      "remaining": "All 355 included pinned source rows are fully read and linked. Exact pinned trees contain 1,739 tracked Markdown paths, 332 individually represented in the matrix and 1,407 needing relevance/classification disposition; these are path counts, not a claim that all 1,407 are normative. Six historical core EP relative-link targets remain triaged outside the matrix. Complete repository-wide source/consumer discovery and status qualification before certification."
+      "remaining": "All 396 included pinned source rows are fully read and linked. Exact pinned trees contain 1,739 tracked Markdown paths, 373 individually represented in the matrix and 1,366 needing relevance/classification disposition; these are path counts, not a claim that all 1,366 are normative. The 41 newly pinned short Apple/website release-copy files do not prove publication, live site or installed consumers. Six historical core EP relative-link targets remain triaged outside the matrix. Complete repository-wide source/consumer discovery and status qualification before certification."
     },
     {
       "id": "REGISTER-DELIVERY",
