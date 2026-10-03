@@ -41,7 +41,7 @@
     "metadata_and_bounded_paraphrases": true,
     "offline_hash_verification_of_remote_blobs": false,
     "per_call_timestamps": "Date-level head readback on 2026-10-03; no per-file read timestamp for inherited checkpoint.",
-    "pinned_tree_blobs_verified": "681 of 681 path/blob pins matched exact commit trees or GitHub Contents commit readbacks: 105 original GitHub tree readbacks, 448 local git commit-tree readbacks and 128 new GitHub tree/Contents readbacks on 2026-10-03. Current API Markdown blobs at 3f1ed18d matched fully read local previous-main blobs. Firmware binary files were fully SHA256-hashed for identity, not semantically executed. Narrative interpretation remains partial.",
+    "pinned_tree_blobs_verified": "685 of 685 path/blob pins matched exact commit trees or GitHub Contents commit readbacks: 105 original GitHub tree readbacks, 452 local git commit-tree readbacks and 128 new GitHub tree/Contents readbacks on 2026-10-03. Current API Markdown blobs at 3f1ed18d matched fully read local previous-main blobs. Firmware binary files were fully SHA256-hashed for identity, not semantically executed. Narrative interpretation remains partial.",
     "reference_scan": {
       "method": "Every pinned core Markdown blob and every pinned Markdown blob in the eleven DJC component repositories, at its recorded commit: parse relative Markdown links, strip anchors, normalize against source directory, retain existing .md targets absent from the pinned source matrix; distinct repository/path keys. The seven pinned external Forge method documents are outside this lane-source link frontier.",
       "unmapped_paths": [
@@ -77,11 +77,11 @@
           "repository": "pcvantol/djconnect",
           "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
           "tracked_markdown": 880,
-          "included_markdown": 270,
-          "not_individually_included_markdown": 610,
+          "included_markdown": 274,
+          "not_individually_included_markdown": 606,
           "tree_readback": "complete local git ls-tree -r",
           "historically_classified_markdown": 293,
-          "unclassified_markdown": 317
+          "unclassified_markdown": 313
         },
         "DJC-APPLE": {
           "repository": "pcvantol/djconnect-app",
@@ -16628,6 +16628,78 @@
         "PROJ::EVOLUTION::HACS-PUBLIC"
       ],
       "remaining": "Current fresh candidate, consumer and authorization gates remain open."
+    },
+    {
+      "id": "CORE_SA_POSTMERGE_ARCH",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/software_assurance/POST_MERGE_RELEASE_EVIDENCE_ARCHITECTURE.md",
+      "blob_sha": "ce71bfc46e0f3630ca3b00ff3f44feb887a2b48c",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Current architecture describes exact-main provenance/coverage reconciliation and repository-scoped prerelease tag prefixes (for example internal-api). Pinned reusable @ebbb35f has no prefix input and unconditionally selects internal-ha-{SHA} and, when that prerelease is absent, creates it with hard-coded Home Assistant artifact title/notes; this is policy/implementation drift, not evidence of a separate release or permission to change workflows.",
+      "observed_at": "2026-10-03; continuation of pinned issue #1101 audit",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/software_assurance/POST_MERGE_RELEASE_EVIDENCE_ARCHITECTURE.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::AUDIT::METHOD"
+      ],
+      "remaining": "Core/consumer workflow tag-prefix alignment and publication authorization remain open."
+    },
+    {
+      "id": "CORE_SA_POSTMERGE_POLICY",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/software_assurance/POST_MERGE_RELEASE_EVIDENCE_POLICY.md",
+      "blob_sha": "cd759e332d3902b7873e3be86308025cc0423352",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Fail-closed exact-main provenance, qualified PR/main checks and coverage or distribution-integrity requirements for post-merge evidence. Policy does not exempt documentation merges or authorize release publication under this planning assignment.",
+      "observed_at": "2026-10-03; continuation of pinned issue #1101 audit",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/software_assurance/POST_MERGE_RELEASE_EVIDENCE_POLICY.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::AUDIT::METHOD"
+      ],
+      "remaining": "Exact route/check/consumer outcomes remain separate; no protected merge claimed."
+    },
+    {
+      "id": "CORE_SA_POSTMERGE_SCHEMA",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/software_assurance/POST_MERGE_RELEASE_EVIDENCE_SCHEMA.md",
+      "blob_sha": "01b2bcc64dc93e8772e6b606ca9029f5b20cc21b",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Schema 1 distinguishes exact main SHA release identity from final qualified PR head and restricts decision to qualified/not-qualified.",
+      "observed_at": "2026-10-03; continuation of pinned issue #1101 audit",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/software_assurance/POST_MERGE_RELEASE_EVIDENCE_SCHEMA.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::AUDIT::METHOD"
+      ],
+      "remaining": "No current exact-main record exists for this draft PR."
+    },
+    {
+      "id": "CORE_SA_POSTMERGE_QUAL_HIST",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/software_assurance/POST_MERGE_RELEASE_EVIDENCE_QUALIFICATION_REPORT.md",
+      "blob_sha": "eefe3f7df2a0e15d577bda3c2e263f82f8503d42",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Historical implementation qualification says consumer rollout pending and no release executed during that test. Current pinned consumer wrappers show later rollout; this report is not a current absence proof.",
+      "observed_at": "2026-10-03; continuation of pinned issue #1101 audit",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/software_assurance/POST_MERGE_RELEASE_EVIDENCE_QUALIFICATION_REPORT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::AUDIT::METHOD"
+      ],
+      "remaining": "Current workflow effects and any exact-main receipt require their own readback."
     }
   ],
   "nodes": [
@@ -23729,7 +23801,11 @@
         "CORE_DEPLOY_POLICY",
         "CORE_DEPLOY_INPUT",
         "CORE_POST_DEPLOY_SMOKE_POLICY",
-        "CORE_33_EXEC_MATRIX_HIST"
+        "CORE_33_EXEC_MATRIX_HIST",
+        "CORE_SA_POSTMERGE_ARCH",
+        "CORE_SA_POSTMERGE_POLICY",
+        "CORE_SA_POSTMERGE_SCHEMA",
+        "CORE_SA_POSTMERGE_QUAL_HIST"
       ],
       "canonical_authority": "ROADMAP_INDEX",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -30355,6 +30431,17 @@
         "WEBSITE-POST-MERGE-EVIDENCE",
         "CORE_POST_MERGE_REUSABLE"
       ]
+    },
+    {
+      "id": "POST-MERGE-TAG-PREFIX-DRIFT",
+      "status": "OPEN_OWNING_POLICY_IMPLEMENTATION_RECONCILIATION",
+      "description": "Current core Software Assurance architecture describes repository-scoped prerelease tag prefixes (for example internal-api) for independent component evidence. The exact pinned core reusable post-merge workflow @ebbb35f has no tag-prefix input and unconditionally selects internal-ha-{candidate SHA}; when the prerelease is absent it creates one with hard-coded \"DJConnect Home Assistant artifact\" title and \"Immutable internal deployment artifact\" notes, otherwise it may append evidence. Website and distribution wrappers that call it can therefore write HA-named GitHub prerelease metadata/assets in their own repositories after successful main workflows and the reusable gates. This is a bounded policy/implementation drift, not proof a particular run published or authorization to modify workflows. The protected planning PR remains unmerged under its no-release boundary.",
+      "source_ids": [
+        "CORE_SA_POSTMERGE_ARCH",
+        "CORE_POST_MERGE_REUSABLE",
+        "WEBSITE-POST-MERGE-EVIDENCE",
+        "CORE_SA_POSTMERGE_POLICY"
+      ]
     }
   ],
   "audit_obligations": [
@@ -30362,7 +30449,7 @@
       "id": "AUDIT-DJC-CORE",
       "status": "OPEN",
       "scope": "DJC-CORE",
-      "reason": "Pinned foundation, roadmap, horizon, legal, voice, verification, full Meta Engineering reading order, local environment and historical EP/Software Assurance sources are read. Nine EP history links remain triaged; workflow effects, remaining consumer evidence and final delta still need qualification. Ten additional exact-pinned core policy/navigation sources are read, including owner authorization and Finalization; generated lifecycle and physical/consumer evidence still need qualification. Five linked architecture/assurance/Trusted Delivery records are also pinned; the 2026-07-13 target matrix is historical, not current settings evidence. Five additional canonical/navigational product texts and sixteen dated Phase 6 technical/target-architecture texts are pinned. Their current-state claims are bounded by the 2026-07-10 archaeology phase; the standalone Device Installer is planned target architecture, not an existing thirteenth lane or product pickup. All 19 core ADR Markdown sources are now pinned (17 in this delta), with ADR-0024/0025 incident supersession and ADR-0026 terminal clean-slate context kept historical under #1098. Ten additional exact-pinned release-policy/navigation/historical records are read, including exact-main evidence-prerelease policy, dispatch-only deployment/smoke boundaries and the prompt-history non-authority rule. The 3.3.1 prepared-for-review release note is historical against the published v3.3.1 tag; no installed consumer is inferred. 293 dated core prompt paths are classified by path only, leaving 317 core Markdown paths unclassified."
+      "reason": "Pinned foundation, roadmap, horizon, legal, voice, verification, full Meta Engineering reading order, local environment and historical EP/Software Assurance sources are read. Nine EP history links remain triaged; workflow effects, remaining consumer evidence and final delta still need qualification. Ten additional exact-pinned core policy/navigation sources are read, including owner authorization and Finalization; generated lifecycle and physical/consumer evidence still need qualification. Five linked architecture/assurance/Trusted Delivery records are also pinned; the 2026-07-13 target matrix is historical, not current settings evidence. Five additional canonical/navigational product texts and sixteen dated Phase 6 technical/target-architecture texts are pinned. Their current-state claims are bounded by the 2026-07-10 archaeology phase; the standalone Device Installer is planned target architecture, not an existing thirteenth lane or product pickup. All 19 core ADR Markdown sources are now pinned (17 in this delta), with ADR-0024/0025 incident supersession and ADR-0026 terminal clean-slate context kept historical under #1098. Ten additional exact-pinned release-policy/navigation/historical records are read, including exact-main evidence-prerelease policy, dispatch-only deployment/smoke boundaries and the prompt-history non-authority rule. The 3.3.1 prepared-for-review release note is historical against the published v3.3.1 tag; no installed consumer is inferred. 293 dated core prompt paths are classified by path only, leaving 317 core Markdown paths unclassified. Four exact-pinned post-merge Software Assurance records now separate current policy/schema from historical qualification; the stated per-component prerelease prefix conflicts with the pinned reusable workflow hard-coded internal-ha tag."
     },
     {
       "id": "AUDIT-DJC-APPLE",
@@ -30472,7 +30559,7 @@
       "status": "OPEN",
       "scope": "platform",
       "reason": "Current matrix covers only explicitly read source inventory; certify complete disposition only after all relevant discoveries are audited.",
-      "remaining": "All 681 included pinned source rows have exact path/blob provenance and bounded read descriptions. Exact pinned trees contain 1,739 tracked Markdown paths: 579 individually represented/full-read, 843 exact path/blob entries classified only as dated prompt history or older versioned release copy, and 317 still unclassified for relevance/full reading. The 843 classified contents were not read and can be reopened when a current authority points to one. Apple 47/173, Windows 41/117 and website 64/412 Markdown have all other paths in explicit historical categories; Pi 33/33, API 28/28 and ESP32 28/28 are individually represented. Core is 270/880, with 293 dated prompts classified by path and 317 unclassified. Runtime, workflow/test and physical/source-to-release consumer coverage remain separately open. Nine historical core EP relative-link targets remain triaged outside the matrix. Complete current-source/consumer discovery and status qualification before certification."
+      "remaining": "All 685 included pinned source rows have exact path/blob provenance and bounded read descriptions. Exact pinned trees contain 1,739 tracked Markdown paths: 583 individually represented/full-read, 843 exact path/blob entries classified only as dated prompt history or older versioned release copy, and 313 still unclassified for relevance/full reading. The 843 classified contents were not read and can be reopened when a current authority points to one. Apple 47/173, Windows 41/117 and website 64/412 Markdown have all other paths in explicit historical categories; Pi 33/33, API 28/28 and ESP32 28/28 are individually represented. Core is 274/880, with 293 dated prompts classified by path and 313 unclassified. Runtime, workflow/test and physical/source-to-release consumer coverage remain separately open. Nine historical core EP relative-link targets remain triaged outside the matrix. Complete current-source/consumer discovery and status qualification before certification."
     },
     {
       "id": "REGISTER-DELIVERY",
@@ -30530,7 +30617,7 @@
       "id": "CORE-AUTO-RELEASE-DECISION",
       "status": "OPEN",
       "scope": "DJC-CORE",
-      "reason": "Core main validation starts two publication-capable workflows after docs-only merge. Both target the same internal-ha-{SHA} prerelease tag and can create the release or add an asset after their own gates; publication is not guaranteed on every run. This possible effect conflicts with the assignment no-release boundary; do not merge or alter service workflows without an existing safe route or explicit owner resolution."
+      "reason": "Core main validation starts two publication-capable workflows after docs-only merge. Both target the same internal-ha-{SHA} prerelease tag and can create the release or add an asset after their own gates; publication is not guaranteed on every run. This possible effect conflicts with the assignment no-release boundary; do not merge or alter service workflows without an existing safe route or explicit owner resolution. The current Software Assurance architecture promises repository-scoped prefixes, but the pinned reusable workflow hard-codes internal-ha; this drift reinforces the need for an explicit safe delivery decision, without changing workflows under this assignment."
     },
     {
       "id": "FINALIZATION",
