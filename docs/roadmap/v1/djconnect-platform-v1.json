@@ -41,7 +41,7 @@
     "metadata_and_bounded_paraphrases": true,
     "offline_hash_verification_of_remote_blobs": false,
     "per_call_timestamps": "Date-level head readback on 2026-10-03; no per-file read timestamp for inherited checkpoint.",
-    "pinned_tree_blobs_verified": "713 of 713 path/blob pins matched exact commit trees or GitHub Contents commit readbacks: 105 original GitHub tree readbacks, 480 local git commit-tree readbacks and 128 new GitHub tree/Contents readbacks on 2026-10-03. Current API Markdown blobs at 3f1ed18d matched fully read local previous-main blobs. Firmware binary files were fully SHA256-hashed for identity, not semantically executed. Narrative interpretation remains partial.",
+    "pinned_tree_blobs_verified": "724 of 724 path/blob pins matched exact commit trees or GitHub Contents commit readbacks: 105 original GitHub tree readbacks, 480 local git commit-tree readbacks and 139 new GitHub tree/Contents readbacks on 2026-10-03. Current API Markdown blobs at 3f1ed18d matched fully read local previous-main blobs. Firmware binary files were fully SHA256-hashed for identity, not semantically executed. Narrative interpretation remains partial.",
     "reference_scan": {
       "method": "Every pinned core Markdown blob and every pinned Markdown blob in the eleven DJC component repositories, at its recorded commit: parse relative Markdown links, strip anchors, normalize against source directory, retain existing .md targets absent from the pinned source matrix; distinct repository/path keys. The seven pinned external Forge method documents are outside this lane-source link frontier.",
       "unmapped_paths": [
@@ -72,8 +72,8 @@
       "explicit_named_reference_disposition": "Six literal local .md paths named in the newly pinned phase/status projections were read at exact repository commits and added to the source matrix; their references are not treated as independent status authority."
     },
     "tree_census_readback": {
-      "observed_at": "2026-10-03 12:16 UTC, complete local git trees and GitHub recursive trees for ESP32, Windows and current API main",
-      "boundary": "Exact main trees at the 2026-10-03 11:45 UTC remote-head readback: core 192703ea, API 3f1ed18d and the other ten heads matching their source baselines. Path counts describe tracked Markdown files and their individual representation in this matrix, regardless of historical source-blob commit. Not-individually-included is split into bounded path-only historical dispositions and an unclassified discovery frontier; neither count presumes normative authority. The ten triaged relative-link targets remain separate. Path-only historical classifications carry exact path/blob and a bounded version/directory rule; they are excluded from the individually full-read count and do not grant current status authority.",
+      "observed_at": "2026-10-03 14:44 UTC, complete pinned trees; Apple old/new untruncated recursive-tree equality readback",
+      "boundary": "Exact remote main trees at the 2026-10-03 14:44 UTC readback: core 192703ea, API 3f1ed18d, Apple b857eb7 and the other nine heads matching their original source baselines. Apple #88 changes only Swift pairing source/tests; old and new complete trees contain identical 173 Markdown paths/blobs. Path counts describe tracked Markdown and individual representation regardless of older source-blob commit. Not-individually-included splits into bounded historical path-only dispositions and an unclassified discovery frontier; neither grants normative authority. Ten triaged relative-link targets remain separate. Exact path/blob historical records are not full-text reads.",
       "lanes": {
         "DJC-CORE": {
           "repository": "pcvantol/djconnect",
@@ -87,11 +87,11 @@
         },
         "DJC-APPLE": {
           "repository": "pcvantol/djconnect-app",
-          "commit_sha": "d54224dbf02517ae47406aa14d33e97e61c18002",
+          "commit_sha": "b857eb77eb848a404ac904d0911d9ed43783851c",
           "tracked_markdown": 173,
           "included_markdown": 47,
           "not_individually_included_markdown": 126,
-          "tree_readback": "complete local git ls-tree -r",
+          "tree_readback": "complete untruncated GitHub recursive trees at old d54224d and current b857eb7; all 173 Markdown path/blob pairs equal",
           "historically_classified_markdown": 126,
           "unclassified_markdown": 0
         },
@@ -4072,7 +4072,7 @@
       "default_branch": "main",
       "inventory_scope": "Apple-clientfamilie; native presentatie en clientstaat, geen backendautoriteit",
       "profiles": "iOS / iPadOS / macOS / watchOS",
-      "writer_state": "2026-10-03 11:55 UTC: one local worktree, clean main; active writer/assignment unverified",
+      "writer_state": "2026-10-03 14:44 UTC: remote main b857eb7 after PR #88; prior 11:55 UTC one-clean-worktree readback is historical; active writer/assignment and present local WIP remain unverified",
       "writer_free_verified": false,
       "resource_capacity": "UNKNOWN",
       "execution_authority": false,
@@ -4080,7 +4080,7 @@
       "owning_register": "https://github.com/pcvantol/djconnect-app/issues/87",
       "register_discovery": "Dedicated owning issue created; existing local backlog retained",
       "portfolio_register": "https://github.com/pcvantol/djconnect/issues/1101",
-      "proposed_documentary_next_step": "Reconcileer bestaande lokale TODO/ISSUES en native-surface/Watch-evidence. Behoud huidige implementatie tegenover de nog assessment-first Watch Moment-First-doelervaring.",
+      "proposed_documentary_next_step": "Reconcileer bestaande lokale TODO/ISSUES en native-surface/Watch-evidence. Noteer PR #88 pairing source/CI zonder installed HA/client acceptatie te claimen; actualiseer writerslot/WIP vóór bronwerk. Behoud huidige implementatie tegenover de nog assessment-first Watch Moment-First-doelervaring.",
       "local_backlog_audit": "Relevant local backlog, four phase/status projections and named local reference documents read where applicable; owning status reconciliation recorded; full source/consumer audit pending",
       "local_test_policy": "NOT_FULLY_AUDITED",
       "release_effect_audit": "Push, tag, dispatch and workflow_run triggers inventoried; exact route-specific effects must be read before push"
@@ -17608,6 +17608,204 @@
         "PROJ::AUDIT::METHOD"
       ],
       "remaining": "No TDE enforcement, product capability or changed Horizon follows."
+    },
+    {
+      "id": "DEPBOT::DJC-CORE",
+      "repository": "pcvantol/djconnect",
+      "path": ".github/dependabot.yml",
+      "blob_sha": "ab511ba449af204b4ac88bcc912ec1aa787e051d",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact GitHub Contents commit read with local Git blob hash verification",
+      "read_complete": true,
+      "status_authority": "Exact baseline repository-owned weekly grouped Dependabot config for github-actions, pip, docker; source-file evidence only, not live GitHub settings, alert state or automerge.",
+      "observed_at": "2026-10-03 14:47 UTC",
+      "identity_binding": "PINNED_GITHUB_CONTENTS_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/.github/dependabot.yml",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Current GitHub platform settings, alerts, PR behavior and accepted update consumers are separate."
+    },
+    {
+      "id": "DEPBOT::DJC-API",
+      "repository": "pcvantol/djconnect-api",
+      "path": ".github/dependabot.yml",
+      "blob_sha": "f10716bd61c8a7ba756a51ae1ba8a272d596939f",
+      "commit_sha": "3f1ed18d2ce803a2b5d3750115d0dbf2dbaa34ba",
+      "read_boundary": "complete; exact GitHub Contents commit read with local Git blob hash verification",
+      "read_complete": true,
+      "status_authority": "Exact baseline repository-owned weekly grouped Dependabot config for github-actions, npm; source-file evidence only, not live GitHub settings, alert state or automerge. API config has explicit Vitest and @vitest/coverage-istanbul major-update ignores.",
+      "observed_at": "2026-10-03 14:47 UTC",
+      "identity_binding": "PINNED_GITHUB_CONTENTS_READ",
+      "url": "https://github.com/pcvantol/djconnect-api/blob/3f1ed18d2ce803a2b5d3750115d0dbf2dbaa34ba/.github/dependabot.yml",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-API"
+      ],
+      "remaining": "Current GitHub platform settings, alerts, PR behavior and accepted update consumers are separate."
+    },
+    {
+      "id": "DEPBOT::DJC-APPLE",
+      "repository": "pcvantol/djconnect-app",
+      "path": ".github/dependabot.yml",
+      "blob_sha": "be27698853fb14f9be1e9c6170d595fab67f9a4b",
+      "commit_sha": "b857eb77eb848a404ac904d0911d9ed43783851c",
+      "read_boundary": "complete; exact GitHub Contents commit read with local Git blob hash verification",
+      "read_complete": true,
+      "status_authority": "Exact baseline repository-owned weekly grouped Dependabot config for github-actions, swift; source-file evidence only, not live GitHub settings, alert state or automerge.",
+      "observed_at": "2026-10-03 14:47 UTC",
+      "identity_binding": "PINNED_GITHUB_CONTENTS_READ",
+      "url": "https://github.com/pcvantol/djconnect-app/blob/b857eb77eb848a404ac904d0911d9ed43783851c/.github/dependabot.yml",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-APPLE"
+      ],
+      "remaining": "Current GitHub platform settings, alerts, PR behavior and accepted update consumers are separate."
+    },
+    {
+      "id": "DEPBOT::DJC-DIST-APPLE",
+      "repository": "pcvantol/djconnect-app-releases",
+      "path": ".github/dependabot.yml",
+      "blob_sha": "3f4f0b9252c1133bbcf819a80010ff7280bf492a",
+      "commit_sha": "02fa92f74b56fbc4223ee152d6f612559b84779d",
+      "read_boundary": "complete; exact GitHub Contents commit read with local Git blob hash verification",
+      "read_complete": true,
+      "status_authority": "Exact baseline repository-owned weekly grouped Dependabot config for github-actions; source-file evidence only, not live GitHub settings, alert state or automerge.",
+      "observed_at": "2026-10-03 14:47 UTC",
+      "identity_binding": "PINNED_GITHUB_CONTENTS_READ",
+      "url": "https://github.com/pcvantol/djconnect-app-releases/blob/02fa92f74b56fbc4223ee152d6f612559b84779d/.github/dependabot.yml",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-DIST-APPLE"
+      ],
+      "remaining": "Current GitHub platform settings, alerts, PR behavior and accepted update consumers are separate."
+    },
+    {
+      "id": "DEPBOT::DJC-ESP32",
+      "repository": "pcvantol/djconnect-esp32",
+      "path": ".github/dependabot.yml",
+      "blob_sha": "3f4f0b9252c1133bbcf819a80010ff7280bf492a",
+      "commit_sha": "49a71f99f6435819ec00b7387520a3fd20640a0b",
+      "read_boundary": "complete; exact GitHub Contents commit read with local Git blob hash verification",
+      "read_complete": true,
+      "status_authority": "Exact baseline repository-owned weekly grouped Dependabot config for github-actions; source-file evidence only, not live GitHub settings, alert state or automerge.",
+      "observed_at": "2026-10-03 14:47 UTC",
+      "identity_binding": "PINNED_GITHUB_CONTENTS_READ",
+      "url": "https://github.com/pcvantol/djconnect-esp32/blob/49a71f99f6435819ec00b7387520a3fd20640a0b/.github/dependabot.yml",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-ESP32"
+      ],
+      "remaining": "Current GitHub platform settings, alerts, PR behavior and accepted update consumers are separate."
+    },
+    {
+      "id": "DEPBOT::DJC-DIST-FIRMWARE",
+      "repository": "pcvantol/djconnect-firmware",
+      "path": ".github/dependabot.yml",
+      "blob_sha": "3f4f0b9252c1133bbcf819a80010ff7280bf492a",
+      "commit_sha": "cb9cc7ba321ca57675223dfac32f5583fbcb3656",
+      "read_boundary": "complete; exact GitHub Contents commit read with local Git blob hash verification",
+      "read_complete": true,
+      "status_authority": "Exact baseline repository-owned weekly grouped Dependabot config for github-actions; source-file evidence only, not live GitHub settings, alert state or automerge.",
+      "observed_at": "2026-10-03 14:47 UTC",
+      "identity_binding": "PINNED_GITHUB_CONTENTS_READ",
+      "url": "https://github.com/pcvantol/djconnect-firmware/blob/cb9cc7ba321ca57675223dfac32f5583fbcb3656/.github/dependabot.yml",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-DIST-FIRMWARE"
+      ],
+      "remaining": "Current GitHub platform settings, alerts, PR behavior and accepted update consumers are separate."
+    },
+    {
+      "id": "DEPBOT::DJC-PI",
+      "repository": "pcvantol/djconnect-pi",
+      "path": ".github/dependabot.yml",
+      "blob_sha": "cfa9c6e0e6ecdec97676625a7eec7ffcc09590e1",
+      "commit_sha": "92712ae989f9ad44e2b935222a1e1053670a782f",
+      "read_boundary": "complete; exact GitHub Contents commit read with local Git blob hash verification",
+      "read_complete": true,
+      "status_authority": "Exact baseline repository-owned weekly grouped Dependabot config for github-actions, pip; source-file evidence only, not live GitHub settings, alert state or automerge.",
+      "observed_at": "2026-10-03 14:47 UTC",
+      "identity_binding": "PINNED_GITHUB_CONTENTS_READ",
+      "url": "https://github.com/pcvantol/djconnect-pi/blob/92712ae989f9ad44e2b935222a1e1053670a782f/.github/dependabot.yml",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-PI"
+      ],
+      "remaining": "Current GitHub platform settings, alerts, PR behavior and accepted update consumers are separate."
+    },
+    {
+      "id": "DEPBOT::DJC-DIST-PI",
+      "repository": "pcvantol/djconnect-pi-releases",
+      "path": ".github/dependabot.yml",
+      "blob_sha": "3f4f0b9252c1133bbcf819a80010ff7280bf492a",
+      "commit_sha": "673300921f980edc5ddfbb3ed5f5ca906b320b62",
+      "read_boundary": "complete; exact GitHub Contents commit read with local Git blob hash verification",
+      "read_complete": true,
+      "status_authority": "Exact baseline repository-owned weekly grouped Dependabot config for github-actions; source-file evidence only, not live GitHub settings, alert state or automerge.",
+      "observed_at": "2026-10-03 14:47 UTC",
+      "identity_binding": "PINNED_GITHUB_CONTENTS_READ",
+      "url": "https://github.com/pcvantol/djconnect-pi-releases/blob/673300921f980edc5ddfbb3ed5f5ca906b320b62/.github/dependabot.yml",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-DIST-PI"
+      ],
+      "remaining": "Current GitHub platform settings, alerts, PR behavior and accepted update consumers are separate."
+    },
+    {
+      "id": "DEPBOT::DJC-WEBSITE",
+      "repository": "pcvantol/djconnect-website",
+      "path": ".github/dependabot.yml",
+      "blob_sha": "0971b47da7e69c2031223ce2b00a8ebaa83f5fc0",
+      "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
+      "read_boundary": "complete; exact GitHub Contents commit read with local Git blob hash verification",
+      "read_complete": true,
+      "status_authority": "Exact baseline repository-owned weekly grouped Dependabot config for github-actions, npm; source-file evidence only, not live GitHub settings, alert state or automerge.",
+      "observed_at": "2026-10-03 14:47 UTC",
+      "identity_binding": "PINNED_GITHUB_CONTENTS_READ",
+      "url": "https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/.github/dependabot.yml",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WEBSITE"
+      ],
+      "remaining": "Current GitHub platform settings, alerts, PR behavior and accepted update consumers are separate."
+    },
+    {
+      "id": "DEPBOT::DJC-WINDOWS",
+      "repository": "pcvantol/djconnect-windows",
+      "path": ".github/dependabot.yml",
+      "blob_sha": "524ec3677046f770670bb37433635fac5c346b3e",
+      "commit_sha": "1d6635ff5c610a0f43bf1ba7d68cb0b1def06924",
+      "read_boundary": "complete; exact GitHub Contents commit read with local Git blob hash verification",
+      "read_complete": true,
+      "status_authority": "Exact baseline repository-owned weekly grouped Dependabot config for github-actions, nuget; source-file evidence only, not live GitHub settings, alert state or automerge.",
+      "observed_at": "2026-10-03 14:47 UTC",
+      "identity_binding": "PINNED_GITHUB_CONTENTS_READ",
+      "url": "https://github.com/pcvantol/djconnect-windows/blob/1d6635ff5c610a0f43bf1ba7d68cb0b1def06924/.github/dependabot.yml",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WINDOWS"
+      ],
+      "remaining": "Current GitHub platform settings, alerts, PR behavior and accepted update consumers are separate."
+    },
+    {
+      "id": "APPLE_POST_MERGE_EVIDENCE_WORKFLOW_CURRENT",
+      "repository": "pcvantol/djconnect-app",
+      "path": ".github/workflows/post-merge-release-evidence.yml",
+      "blob_sha": "f7fbb7de7a2ae371f66335679fc1d181c2288815",
+      "commit_sha": "b857eb77eb848a404ac904d0911d9ed43783851c",
+      "read_boundary": "complete; exact GitHub Contents commit read with local Git blob hash verification",
+      "read_complete": true,
+      "status_authority": "Current Apple wrapper runs after successful push/main CI, has contents/statuses write and calls pinned core post-merge reusable at ebbb35f; actual b857 run/release readback is separate evidence.",
+      "observed_at": "2026-10-03 14:47 UTC",
+      "identity_binding": "PINNED_GITHUB_CONTENTS_READ",
+      "url": "https://github.com/pcvantol/djconnect-app/blob/b857eb77eb848a404ac904d0911d9ed43783851c/.github/workflows/post-merge-release-evidence.yml",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-APPLE"
+      ],
+      "remaining": "The wrapper itself does not prove every run publishes; exact successful b857 event is recorded separately."
     }
   ],
   "nodes": [
@@ -17711,7 +17909,8 @@
         "CORE_ADR_0024",
         "CORE_ADR_0025",
         "CORE_ADR_0026",
-        "CORE_SOURCE__CUSTOM_COMPONENTS_DJCONNECT_SPOTIFY_OAUTH_PY"
+        "CORE_SOURCE__CUSTOM_COMPONENTS_DJCONNECT_SPOTIFY_OAUTH_PY",
+        "DEPBOT::DJC-CORE"
       ],
       "canonical_authority": "LOCAL_EXTENSION",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -17805,7 +18004,9 @@
         "APPLE_DOC__APPS_README_MD",
         "APPLE_DOC__TESTS_FIXTURES_DJCONNECTCONTRACTS_README_MD",
         "APPLE_DOC__DOCS_ARCHITECTURE_APPLE_NATIVE_SHARE_CAPABILITY_ASSESSMENT_MD",
-        "APPLE_DOC__SCREENSHOTS_README_MD"
+        "APPLE_DOC__SCREENSHOTS_README_MD",
+        "DEPBOT::DJC-APPLE",
+        "APPLE_POST_MERGE_EVIDENCE_WORKFLOW_CURRENT"
       ],
       "canonical_authority": "README::DJC-APPLE",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -17883,7 +18084,8 @@
         "ESP_DOC__GITHUB_WORKFLOWS_CI_YML",
         "ESP_DOC__GITHUB_WORKFLOWS_RELEASE_FIRMWARE_YML",
         "ESP_DOC__GITHUB_WORKFLOWS_DEPLOY_ESP32_FIRMWARE_YML",
-        "ESP_DOC__GITHUB_WORKFLOWS_ESP32_POST_DEPLOYMENT_SMOKE_YML"
+        "ESP_DOC__GITHUB_WORKFLOWS_ESP32_POST_DEPLOYMENT_SMOKE_YML",
+        "DEPBOT::DJC-ESP32"
       ],
       "canonical_authority": "README::DJC-ESP32",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -17962,7 +18164,8 @@
         "PI_DOC__DOCS_AI_DEVELOPMENT_DJCONNECT_PI_DEVELOPMENT_EXTENSION_MD",
         "PI_DOC__DOCS_AI_DEVELOPMENT_GENERATED_PROJECTION_MD",
         "PI_DOC__DOCS_GOVERNANCE_ADOPTION_MD",
-        "PI_DOC__TESTS_FIXTURES_DJCONNECT_CONTRACTS_README_MD"
+        "PI_DOC__TESTS_FIXTURES_DJCONNECT_CONTRACTS_README_MD",
+        "DEPBOT::DJC-PI"
       ],
       "canonical_authority": "README::DJC-PI",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -18049,7 +18252,8 @@
         "WINDOWS_SOURCE__DOCS_AI_DEVELOPMENT_AI_DEVELOPMENT_ADOPTION_RECEIPT_MD",
         "WINDOWS_SOURCE__DOCS_AI_DEVELOPMENT_DJCONNECT_WINDOWS_DEVELOPMENT_EXTENSION_MD",
         "WINDOWS_SOURCE__DOCS_AI_DEVELOPMENT_GENERATED_PROJECTION_MD",
-        "WINDOWS_SOURCE__DOCS_GOVERNANCE_ADOPTION_MD"
+        "WINDOWS_SOURCE__DOCS_GOVERNANCE_ADOPTION_MD",
+        "DEPBOT::DJC-WINDOWS"
       ],
       "canonical_authority": "README::DJC-WINDOWS",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -18126,7 +18330,8 @@
         "API_DOC__DOCS_AI_DEVELOPMENT_AI_DEVELOPMENT_ADOPTION_RECEIPT_MD",
         "API_DOC__DOCS_AI_DEVELOPMENT_DJCONNECT_API_DEVELOPMENT_EXTENSION_MD",
         "API_DOC__DOCS_AI_DEVELOPMENT_GENERATED_PROJECTION_MD",
-        "API_DOC__DOCS_GOVERNANCE_ADOPTION_MD"
+        "API_DOC__DOCS_GOVERNANCE_ADOPTION_MD",
+        "DEPBOT::DJC-API"
       ],
       "canonical_authority": "README::DJC-API",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -18237,7 +18442,8 @@
         "WEBSITE_SOURCE__DOCS_AI_DEVELOPMENT_DJCONNECT_WEBSITE_DEVELOPMENT_EXTENSION_MD",
         "WEBSITE_SOURCE__DOCS_AI_DEVELOPMENT_GENERATED_PROJECTION_MD",
         "WEBSITE_SOURCE__DOCS_GOVERNANCE_ADOPTION_MD",
-        "WEBSITE_SOURCE__GITHUB_WORKFLOWS_WEBSITE_POST_DEPLOYMENT_SMOKE_YML"
+        "WEBSITE_SOURCE__GITHUB_WORKFLOWS_WEBSITE_POST_DEPLOYMENT_SMOKE_YML",
+        "DEPBOT::DJC-WEBSITE"
       ],
       "canonical_authority": "README::DJC-WEBSITE",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -18467,7 +18673,8 @@
         "DIST_SOURCE__DJC_DIST_FIRMWARE__DJCONNECT_LILYGO_T_EMBED_S3_V3_2_11_BIN",
         "DIST_SOURCE__DJC_DIST_FIRMWARE__DJCONNECT_LILYGO_T_EMBED_S3_V3_2_11_BIN_SHA256",
         "DIST_SOURCE__DJC_DIST_FIRMWARE__DOCS_GOVERNANCE_ADOPTION_MD",
-        "DIST_SOURCE__DJC_DIST_FIRMWARE__FIRMWARE_MANIFEST_JSON"
+        "DIST_SOURCE__DJC_DIST_FIRMWARE__FIRMWARE_MANIFEST_JSON",
+        "DEPBOT::DJC-DIST-FIRMWARE"
       ],
       "canonical_authority": "README::DJC-DIST-FIRMWARE",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -18538,7 +18745,8 @@
         "DIST_SOURCE__DJC_DIST_APPLE__PLATFORM_RELEASE_DRY_RUN_3_3_JSON",
         "DIST_SOURCE__DJC_DIST_APPLE__SECURITY_MD",
         "DIST_SOURCE__DJC_DIST_APPLE__SYNC_PROMPTS_MD",
-        "DIST_SOURCE__DJC_DIST_APPLE__DOCS_GOVERNANCE_ADOPTION_MD"
+        "DIST_SOURCE__DJC_DIST_APPLE__DOCS_GOVERNANCE_ADOPTION_MD",
+        "DEPBOT::DJC-DIST-APPLE"
       ],
       "canonical_authority": "README::DJC-DIST-APPLE",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -18610,7 +18818,8 @@
         "DIST_SOURCE__DJC_DIST_PI__PLATFORM_RELEASE_DRY_RUN_3_3_JSON",
         "DIST_SOURCE__DJC_DIST_PI__SECURITY_MD",
         "DIST_SOURCE__DJC_DIST_PI__SYNC_PROMPTS_MD",
-        "DIST_SOURCE__DJC_DIST_PI__DOCS_GOVERNANCE_ADOPTION_MD"
+        "DIST_SOURCE__DJC_DIST_PI__DOCS_GOVERNANCE_ADOPTION_MD",
+        "DEPBOT::DJC-DIST-PI"
       ],
       "canonical_authority": "README::DJC-DIST-PI",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -30733,6 +30942,50 @@
       "passed": false,
       "acceptance_qualified": false,
       "notes": "Read-only GitHub Environment API returned protection_rules=[], deployment_branch_policy=null and can_admins_bypass=true for private-network-deployment. The named environment and self-hosted runner labels are not evidence of an environment reviewer gate; no environment setting was changed."
+    },
+    {
+      "id": "APPLE_MAIN_PR88_COMPARE_B857",
+      "kind": "exact_main_delta_readback",
+      "repository": "pcvantol/djconnect-app",
+      "url": "https://github.com/pcvantol/djconnect-app/compare/d54224dbf02517ae47406aa14d33e97e61c18002...b857eb77eb848a404ac904d0911d9ed43783851c",
+      "subject_sha": "b857eb77eb848a404ac904d0911d9ed43783851c",
+      "observed_date": "2026-10-03",
+      "passed": true,
+      "acceptance_qualified": false,
+      "notes": "GitHub compare ahead_by=1, behind_by=0; merged PR #88 changes only DJConnectAppModel.swift and its Swift tests for pending Home Assistant setup. All 173 Markdown paths/blobs are equal in complete old/new trees. This is source delta, not installed pairing acceptance."
+    },
+    {
+      "id": "APPLE_MAIN_CI_37125443387",
+      "kind": "exact_main_ci_readback",
+      "repository": "pcvantol/djconnect-app",
+      "url": "https://github.com/pcvantol/djconnect-app/actions/runs/37125443387",
+      "subject_sha": "b857eb77eb848a404ac904d0911d9ed43783851c",
+      "observed_date": "2026-10-03",
+      "passed": true,
+      "acceptance_qualified": false,
+      "notes": "Exact b857 main-push CI concluded success after PR #88; source qualification only, not physical HA/client pairing acceptance."
+    },
+    {
+      "id": "APPLE_MAIN_POSTMERGE_37125752436",
+      "kind": "exact_main_postmerge_workflow_readback",
+      "repository": "pcvantol/djconnect-app",
+      "url": "https://github.com/pcvantol/djconnect-app/actions/runs/37125752436",
+      "subject_sha": "b857eb77eb848a404ac904d0911d9ed43783851c",
+      "observed_date": "2026-10-03",
+      "passed": true,
+      "acceptance_qualified": false,
+      "notes": "Post-Merge Release Evidence workflow_run for exact b857 concluded success. It is an Apple-repository GitHub publication-capable path, not a deployment."
+    },
+    {
+      "id": "APPLE_HA_NAMED_PRERELEASE_B857",
+      "kind": "github_prerelease_metadata_readback",
+      "repository": "pcvantol/djconnect-app",
+      "url": "https://github.com/pcvantol/djconnect-app/releases/tag/internal-ha-b857eb77eb848a404ac904d0911d9ed43783851c",
+      "subject_sha": "b857eb77eb848a404ac904d0911d9ed43783851c",
+      "observed_date": "2026-10-03",
+      "passed": true,
+      "acceptance_qualified": false,
+      "notes": "GitHub release API shows 2026-10-03 13:19 UTC prerelease tag internal-ha-b857..., title DJConnect Home Assistant artifact b857..., and qualification-evidence-b857....json asset. This is actual GitHub prerelease publication in Apple repo, not a product deployment or current client acceptance."
     }
   ],
   "findings": [
@@ -31371,12 +31624,17 @@
     {
       "id": "POST-MERGE-TAG-PREFIX-DRIFT",
       "status": "OPEN_OWNING_POLICY_IMPLEMENTATION_RECONCILIATION",
-      "description": "Current core Software Assurance architecture describes repository-scoped prerelease tag prefixes (for example internal-api) for independent component evidence. The exact pinned core reusable post-merge workflow @ebbb35f has no tag-prefix input and unconditionally selects internal-ha-{candidate SHA}; when the prerelease is absent it creates one with hard-coded \"DJConnect Home Assistant artifact\" title and \"Immutable internal deployment artifact\" notes, otherwise it may append evidence. Website and distribution wrappers that call it can therefore write HA-named GitHub prerelease metadata/assets in their own repositories after successful main workflows and the reusable gates. This is a bounded policy/implementation drift, not proof a particular run published or authorization to modify workflows. The protected planning PR remains unmerged under its no-release boundary.",
+      "description": "Current core Software Assurance architecture describes repository-scoped prerelease tag prefixes (for example internal-api) for independent component evidence. The exact pinned core reusable post-merge workflow @ebbb35f has no tag-prefix input and unconditionally selects internal-ha-{candidate SHA}; when the prerelease is absent it creates one with hard-coded \"DJConnect Home Assistant artifact\" title and \"Immutable internal deployment artifact\" notes, otherwise it may append evidence. Website and distribution wrappers that call it can therefore write HA-named GitHub prerelease metadata/assets in their own repositories after successful main workflows and the reusable gates. This is a bounded policy/implementation drift, not proof a particular run published or authorization to modify workflows. The protected planning PR remains unmerged under its no-release boundary. Actual Apple PR #88 main merge b857eb7 followed the pinned Apple wrapper: run 37125752436 succeeded and GitHub now shows internal-ha-b857eb7 as a prerelease in djconnect-app, titled DJConnect Home Assistant artifact with a qualification-evidence JSON asset. This confirms the HA-named publication effect for that exact Apple merge; other repository runs and the protected core planning merge remain separately unperformed/unqualified.",
       "source_ids": [
         "CORE_SA_POSTMERGE_ARCH",
         "CORE_POST_MERGE_REUSABLE",
         "WEBSITE-POST-MERGE-EVIDENCE",
-        "CORE_SA_POSTMERGE_POLICY"
+        "CORE_SA_POSTMERGE_POLICY",
+        "APPLE_POST_MERGE_EVIDENCE_WORKFLOW_CURRENT"
+      ],
+      "evidence_ids": [
+        "APPLE_MAIN_POSTMERGE_37125752436",
+        "APPLE_HA_NAMED_PRERELEASE_B857"
       ]
     },
     {
@@ -31431,13 +31689,23 @@
     },
     {
       "id": "SA-DEPENDENCY-STATUS-SUPERSESSION",
-      "status": "HISTORICAL_NO_GO_RECONCILED__CURRENT_SETTINGS_OPEN",
-      "description": "The older dependency-governance assessment found no repository-local Dependabot policy and recorded NO_GO, but its own subsequent-status section points to later completed conformance. The pinned successor report records ten merged configuration PRs and the existing current policy defines weekly grouped non-automerge updates with a PlatformIO exception. TDE 1.1.1 is an observe-only complementary input; its planning reconciliation preserves the five-item Execution Horizon and does not select product work. Exact current per-repository configuration/settings and live alert/consumer state remain separate readbacks.",
+      "status": "CURRENT_PINNED_CONFIG_READBACK__GITHUB_SETTINGS_OPEN",
+      "description": "The older dependency-governance assessment found no repository-local Dependabot policy and recorded NO_GO, but its own subsequent-status section points to later completed conformance. The pinned successor report records ten merged configuration PRs and the existing current policy defines weekly grouped non-automerge updates with a PlatformIO exception. TDE 1.1.1 is an observe-only complementary input; its planning reconciliation preserves the five-item Execution Horizon and does not select product work. The exact current pinned .github/dependabot.yml files were fully read in all ten repositories: each has weekly grouped GitHub Actions updates and only its evidenced native ecosystems (core pip/Docker, API/website npm, Apple Swift, Pi pip, Windows NuGet; ESP32/distribution Actions-only). GitHub platform settings, live alert state, Dependabot PR behavior and accepted-update consumers remain separate readbacks.",
       "source_ids": [
         "CORE_SA_DEPENDENCY_ASSESSMENT_HIST",
         "CORE_SA_DEPENDENCY_CONFORMANCE_HIST",
         "DEPENDENCY_GOV_POLICY",
-        "CORE_TDE_1_1_1_PLANNING_RECON"
+        "CORE_TDE_1_1_1_PLANNING_RECON",
+        "DEPBOT::DJC-CORE",
+        "DEPBOT::DJC-API",
+        "DEPBOT::DJC-APPLE",
+        "DEPBOT::DJC-DIST-APPLE",
+        "DEPBOT::DJC-ESP32",
+        "DEPBOT::DJC-DIST-FIRMWARE",
+        "DEPBOT::DJC-PI",
+        "DEPBOT::DJC-DIST-PI",
+        "DEPBOT::DJC-WEBSITE",
+        "DEPBOT::DJC-WINDOWS"
       ]
     },
     {
@@ -31459,6 +31727,18 @@
         "CORE_SA_SHA_OPERATIONAL_LIMITS",
         "CORE_SA_GITHUB_PLATFORM_EXCEPTION"
       ]
+    },
+    {
+      "id": "APPLE-MAIN-PAIRING-DELTA-20261003",
+      "status": "SOURCE_AND_CI_OBSERVED__LIVE_CONSUMER_OPEN",
+      "description": "Apple main advanced exactly one merged PR #88 commit from d54224d to b857eb7. The bounded compare changes only DJConnectAppModel.swift and its Swift tests: pending Home Assistant setup remains unpaired until status confirms completion, survives foreground/background via a local pending marker and resumes status checks without reposting /pair. Exact-main CI succeeded. No Markdown source changed; all 173 path/blob pairs are identical. This is current source/test evidence, not an installed Apple/HA pairing receipt or a new planning-selected product slice.",
+      "source_ids": [
+        "README::DJC-APPLE"
+      ],
+      "evidence_ids": [
+        "APPLE_MAIN_PR88_COMPARE_B857",
+        "APPLE_MAIN_CI_37125443387"
+      ]
     }
   ],
   "audit_obligations": [
@@ -31472,7 +31752,7 @@
       "id": "AUDIT-DJC-APPLE",
       "status": "OPEN",
       "scope": "DJC-APPLE",
-      "reason": "Pinned Apple API, handoff, changelog, contribution/build hygiene and architecture/release sources are read. Reconcile internally inconsistent stale-auth/history/version mirror text with core, then qualify actual client behavior, local WIP, physical consumers and final delta. Four local phase/status projections and the named Apple sharing history are pinned; these report WORKSPACE_READY and no further locally selected Apple product item. Qualify actual client/physical behavior separately. Seventeen additional current Apple root, governance, generated projection, fixture, sharing, legal and runner documents are pinned; the sole bootstrap pointer, CMB-11 subset and signing/channel limits are bounded. Remaining unrepresented Apple Markdown is 114 release-note and 12 historical-prompt paths.",
+      "reason": "Pinned Apple API, handoff, changelog, contribution/build hygiene and architecture/release sources are read. Reconcile internally inconsistent stale-auth/history/version mirror text with core, then qualify actual client behavior, local WIP, physical consumers and final delta. Four local phase/status projections and the named Apple sharing history are pinned; these report WORKSPACE_READY and no further locally selected Apple product item. Qualify actual client/physical behavior separately. Seventeen additional current Apple root, governance, generated projection, fixture, sharing, legal and runner documents are pinned; the sole bootstrap pointer, CMB-11 subset and signing/channel limits are bounded. Remaining unrepresented Apple Markdown is 114 release-note and 12 historical-prompt paths. Subsequent main PR #88 pairing source/test delta, exact-main CI and a HA-named evidence prerelease are now read back at b857eb7; all 173 Markdown blobs remain unchanged. Installed HA/client pairing acceptance stays open.",
       "remaining": "Five localized internal 4.0.0 RC1 release notes are pinned as copy, not release/installation receipts. Verify stale pairing/history behavior and 4.0.x consumer evidence, actual CI and physical iOS/macOS/watchOS acceptance, release provenance, local WIP and final delta."
     },
     {
@@ -31576,7 +31856,7 @@
       "status": "OPEN",
       "scope": "platform",
       "reason": "Current matrix covers only explicitly read source inventory; certify complete disposition only after all relevant discoveries are audited.",
-      "remaining": "All 713 included pinned source rows have exact path/blob provenance and bounded read descriptions. Exact pinned trees contain 1,739 tracked Markdown paths: 610 individually represented/full-read, 917 exact path/blob entries classified only as dated prompt history, older versioned release copy, retained embedded EP/development documentation or Epic 2 discovery artifacts, and 212 still unclassified for relevance/full reading. The 917 classified contents were not read and can be reopened when a current authority points to one. Apple 47/173, Windows 41/117 and website 64/412 Markdown have all other paths in explicit historical categories; Pi 33/33, API 28/28 and ESP32 28/28 are individually represented. Core is 301/880, with 293 dated prompts, 51 retained EP documents, 17 Epic 2 discovery reports and six legacy development files classified by path, and 212 unclassified. Runtime, workflow/test and physical/source-to-release consumer coverage remain separately open. Ten historical core EP/runner relative-link targets remain triaged outside the matrix. Complete current-source/consumer discovery and status qualification before certification."
+      "remaining": "All 724 included pinned source rows have exact path/blob provenance and bounded read descriptions. Exact pinned trees contain 1,739 tracked Markdown paths: 610 individually represented/full-read, 917 exact path/blob entries classified only as dated prompt history, older versioned release copy, retained embedded EP/development documentation or Epic 2 discovery artifacts, and 212 still unclassified for relevance/full reading. The 917 classified contents were not read and can be reopened when a current authority points to one. Apple 47/173, Windows 41/117 and website 64/412 Markdown have all other paths in explicit historical categories; Pi 33/33, API 28/28 and ESP32 28/28 are individually represented. Core is 301/880, with 293 dated prompts, 51 retained EP documents, 17 Epic 2 discovery reports and six legacy development files classified by path, and 212 unclassified. Runtime, workflow/test and physical/source-to-release consumer coverage remain separately open. Ten historical core EP/runner relative-link targets remain triaged outside the matrix. Complete current-source/consumer discovery and status qualification before certification."
     },
     {
       "id": "REGISTER-DELIVERY",
@@ -31627,14 +31907,15 @@
       "id": "FRESHNESS-ALL",
       "status": "CLOSED",
       "scope": "platform",
-      "reason": "All twelve remote main heads were read back at 11:45 UTC. Eleven equal their recorded source pins; API main advanced one commit solely in package.json/package-lock.json for wrangler dev dependency (#89), per exact compare. No planning source/document changed; API source pins remain unchanged and are identified as historical baseline.",
-      "closure_evidence": "Read-only GitHub commits/main for twelve repositories plus exact DJC-API compare 4e6671c...3f1ed18 (ahead_by=1, behind_by=0, only package.json and package-lock.json), 2026-10-03 11:45 UTC; exact SHAs in latest_head_readback."
+      "reason": "All twelve remote main heads were reread at 14:44 UTC. Ten equal original source baselines. API advanced one wrangler dev-dependency-only commit; Apple advanced one merged PR #88 pairing source/test commit with all 173 Markdown path/blobs unchanged. Both deltas were compared exactly and are recorded without repinning older source rows or claiming installed consumers.",
+      "closure_evidence": "Read-only GitHub commits/main for all twelve, exact API compare 4e6671c...3f1ed18 and Apple compare d54224d...b857eb7; complete untruncated Apple old/new Markdown tree equality, 2026-10-03 14:44 UTC. Exact heads in latest_head_readback."
     },
     {
       "id": "CORE-AUTO-RELEASE-DECISION",
       "status": "OPEN",
       "scope": "DJC-CORE",
-      "reason": "Core main validation starts two publication-capable workflows after docs-only merge. Both target the same internal-ha-{SHA} prerelease tag and can create the release or add an asset after their own gates; publication is not guaranteed on every run. This possible effect conflicts with the assignment no-release boundary; do not merge or alter service workflows without an existing safe route or explicit owner resolution. The current Software Assurance architecture promises repository-scoped prefixes, but the pinned reusable workflow hard-codes internal-ha; this drift reinforces the need for an explicit safe delivery decision, without changing workflows under this assignment."
+      "reason": "Core main validation starts two publication-capable workflows after docs-only merge. Both target the same internal-ha-{SHA} prerelease tag and can create the release or add an asset after their own gates; publication is not guaranteed on every run. This possible effect conflicts with the assignment no-release boundary; do not merge or alter service workflows without an existing safe route or explicit owner resolution. The current Software Assurance architecture promises repository-scoped prefixes, but the pinned reusable workflow hard-codes internal-ha; this drift reinforces the need for an explicit safe delivery decision, without changing workflows under this assignment.",
+      "remaining": " An analogous Apple main merge actually created an HA-named internal-ha prerelease via the pinned reusable workflow, confirming this class of GitHub publication effect; it does not authorize core planning publication."
     },
     {
       "id": "FINALIZATION",
@@ -31876,10 +32157,10 @@
     }
   ],
   "latest_head_readback": {
-    "observed_at": "2026-10-03 11:45 UTC GitHub commits/main API",
+    "observed_at": "2026-10-03 14:44 UTC GitHub commits/main API; exact Apple compare and complete old/new Markdown tree readback",
     "heads": {
       "pcvantol/djconnect": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
-      "pcvantol/djconnect-app": "d54224dbf02517ae47406aa14d33e97e61c18002",
+      "pcvantol/djconnect-app": "b857eb77eb848a404ac904d0911d9ed43783851c",
       "pcvantol/djconnect-esp32": "49a71f99f6435819ec00b7387520a3fd20640a0b",
       "pcvantol/djconnect-pi": "92712ae989f9ad44e2b935222a1e1053670a782f",
       "pcvantol/djconnect-windows": "1d6635ff5c610a0f43bf1ba7d68cb0b1def06924",
@@ -31891,7 +32172,7 @@
       "pcvantol/djconnect-app-releases": "02fa92f74b56fbc4223ee152d6f612559b84779d",
       "pcvantol/djconnect-pi-releases": "673300921f980edc5ddfbb3ed5f5ca906b320b62"
     },
-    "baseline_relation": "11 of 12 remote main heads equal source pins. DJC-API advanced by one commit from 4e6671c3231187e7cd20243817a86a56ad6aad06 to 3f1ed18d2ce803a2b5d3750115d0dbf2dbaa34ba. The exact GitHub compare is ahead_by=1, behind_by=0, changes only package.json and package-lock.json for a wrangler dev-dependency bump (#89); pinned planning Markdown/source claims are unchanged. API sources retain their exact older commit pins and are not silently repinned."
+    "baseline_relation": "10 of 12 remote main heads equal original source baselines. DJC-API advanced one commit 4e6671c...3f1ed18 with only package.json/package-lock.json wrangler dev-dependency changes (#89). DJC-APPLE advanced one commit d54224d...b857eb7 via merged PR #88, modifying only DJConnectAppModel.swift and its Swift tests for pending HA app pairing; all 173 Markdown paths and blobs match old/new exact untruncated trees. Older source pins remain explicit historical baselines; no current installed Apple consumer acceptance is inferred."
   },
   "local_worktree_readback": {
     "observed_at": "2026-10-03 13:02 UTC; read-only git status --short --branch and git worktree list --porcelain in twelve local checkouts",

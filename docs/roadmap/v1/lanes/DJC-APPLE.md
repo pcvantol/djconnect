@@ -6,13 +6,13 @@ This is a pinned planning projection for assignment `DJC-PLATFORM-ROADMAP-DAG-LA
 
 **Baseline main:** `d54224dbf02517ae47406aa14d33e97e61c18002`. **Owning register:** https://github.com/pcvantol/djconnect-app/issues/87. **Portfolio:** https://github.com/pcvantol/djconnect/issues/1101.
 
-**Current assignment/WIP:** 2026-10-03 11:55 UTC: one local worktree, clean main; active writer/assignment unverified. Product pickup: `NOT_ISSUED`. Capacity: `UNKNOWN`.
+**Current assignment/WIP:** 2026-10-03 14:44 UTC: remote main b857eb7 after PR #88; prior 11:55 UTC one-clean-worktree readback is historical; active writer/assignment and present local WIP remain unverified. Product pickup: `NOT_ISSUED`. Capacity: `UNKNOWN`.
 
 ## Selected and proposed outcome
 
 Selected in an owning source, without a new execution assignment: `SLICE::APPLE::OWNER-HANDOFF`.
 
-Planning continuation: Reconcileer bestaande lokale TODO/ISSUES en native-surface/Watch-evidence. Behoud huidige implementatie tegenover de nog assessment-first Watch Moment-First-doelervaring.
+Planning continuation: Reconcileer bestaande lokale TODO/ISSUES en native-surface/Watch-evidence. Noteer PR #88 pairing source/CI zonder installed HA/client acceptatie te claimen; actualiseer writerslot/WIP vóór bronwerk. Behoud huidige implementatie tegenover de nog assessment-first Watch Moment-First-doelervaring.
 
 ## Owning backlog and handoffs
 
@@ -35,8 +35,8 @@ Workflow effect audit: Push, tag, dispatch and workflow_run triggers inventoried
 
 ```text
 Continue assignment DJC-PLATFORM-ROADMAP-DAG-LANES-V1-20261003 in pcvantol/djconnect-app / DJC-APPLE.
-Read https://github.com/pcvantol/djconnect/issues/1101 and https://github.com/pcvantol/djconnect-app/issues/87; keep the current WIP/assignment intact: 2026-10-03 11:55 UTC: one local worktree, clean main; active writer/assignment unverified.
-Use the existing owning backlog, exact source pins and local bootstrap. Planning outcome: Reconcileer bestaande lokale TODO/ISSUES en native-surface/Watch-evidence. Behoud huidige implementatie tegenover de nog assessment-first Watch Moment-First-doelervaring.
+Read https://github.com/pcvantol/djconnect/issues/1101 and https://github.com/pcvantol/djconnect-app/issues/87; keep the current WIP/assignment intact: 2026-10-03 14:44 UTC: remote main b857eb7 after PR #88; prior 11:55 UTC one-clean-worktree readback is historical; active writer/assignment and present local WIP remain unverified.
+Use the existing owning backlog, exact source pins and local bootstrap. Planning outcome: Reconcileer bestaande lokale TODO/ISSUES en native-surface/Watch-evidence. Noteer PR #88 pairing source/CI zonder installed HA/client acceptatie te claimen; actualiseer writerslot/WIP vóór bronwerk. Behoud huidige implementatie tegenover de nog assessment-first Watch Moment-First-doelervaring.
 Selected owning node IDs (no new pickup): SLICE::APPLE::OWNER-HANDOFF.
 Local test-policy audit: NOT_FULLY_AUDITED. Workflow effects: Push, tag, dispatch and workflow_run triggers inventoried; exact route-specific effects must be read before push.
 This is documentary planning only. Do not infer product selection, writer availability, resource capacity or release authority.
