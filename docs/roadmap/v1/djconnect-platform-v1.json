@@ -41,7 +41,7 @@
     "metadata_and_bounded_paraphrases": true,
     "offline_hash_verification_of_remote_blobs": false,
     "per_call_timestamps": "Date-level head readback on 2026-10-03; no per-file read timestamp for inherited checkpoint.",
-    "pinned_tree_blobs_verified": "748 of 748 path/blob pins matched exact commit trees or GitHub Contents commit readbacks: 105 original GitHub tree readbacks, 504 local git commit-tree readbacks and 139 new GitHub tree/Contents readbacks on 2026-10-03. Current API Markdown blobs at 3f1ed18d matched fully read local previous-main blobs. Firmware binary files were fully SHA256-hashed for identity, not semantically executed. Narrative interpretation remains partial.",
+    "pinned_tree_blobs_verified": "777 of 777 path/blob pins matched exact commit trees or GitHub Contents commit readbacks: 105 original GitHub tree readbacks, 533 local git commit-tree readbacks and 139 new GitHub tree/Contents readbacks on 2026-10-03. Current API Markdown blobs at 3f1ed18d matched fully read local previous-main blobs. Firmware binary files were fully SHA256-hashed for identity, not semantically executed. Narrative interpretation remains partial.",
     "reference_scan": {
       "method": "Every pinned core Markdown blob and every pinned Markdown blob in the eleven DJC component repositories, at its recorded commit: parse relative Markdown links, strip anchors, normalize against source directory, retain existing .md targets absent from the pinned source matrix; distinct repository/path keys. The seven pinned external Forge method documents are outside this lane-source link frontier.",
       "unmapped_paths": [
@@ -79,11 +79,11 @@
           "repository": "pcvantol/djconnect",
           "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
           "tracked_markdown": 880,
-          "included_markdown": 324,
-          "not_individually_included_markdown": 556,
+          "included_markdown": 353,
+          "not_individually_included_markdown": 527,
           "tree_readback": "complete local git ls-tree -r",
           "historically_classified_markdown": 367,
-          "unclassified_markdown": 189
+          "unclassified_markdown": 160
         },
         "DJC-APPLE": {
           "repository": "pcvantol/djconnect-app",
@@ -18238,6 +18238,528 @@
         "INV::DJC-CORE"
       ],
       "remaining": "Do not infer authorization or current target acceptance from the architecture document; qualify exact manifest, workflow and deployment/smoke evidence."
+    },
+    {
+      "id": "CORE_VERIFY_APPLE_10E_R2_HIST",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/verification/reports/PHASE_10E_R2_APPLE_LATEST_RUNTIME_QUALIFICATION.md",
+      "blob_sha": "46894339cd113605c6561b14f7456544912885ad",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Historical July 11 latest-stable simulator gate BLOCKED; later VPB-037 distribution-signing rescope allowed platform verification continuation.",
+      "observed_at": "2026-10-03 15:06 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/verification/reports/PHASE_10E_R2_APPLE_LATEST_RUNTIME_QUALIFICATION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Current Apple installed or physical acceptance not inferred."
+    },
+    {
+      "id": "CORE_VERIFY_WINDOWS_13E_R2_HIST",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/verification/reports/PHASE_13E_R2_WINDOWS_CLIENT_BUILD_REMEDIATION.md",
+      "blob_sha": "1629a65a7d367d7ea8c1b2fa28a38eaec7e69164",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Historical July 12 WIN-001 Parallels build/runtime smoke qualified after status-metadata source fix; scope excludes broad Windows product behavior.",
+      "observed_at": "2026-10-03 15:06 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/verification/reports/PHASE_13E_R2_WINDOWS_CLIENT_BUILD_REMEDIATION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Current Windows head, release artifact and GUI consumer acceptance remain open."
+    },
+    {
+      "id": "CORE_VERIFY_PI_12E_R_HIST",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/verification/reports/PHASE_12E_R_RASPBERRY_PI_PRODUCT_SCENARIO_MAPPING.md",
+      "blob_sha": "721737128ce46057453041e006443e89167b68ae",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Historical July 12 Pi planner mapping and 4 focused plus 9 smoke adapter cases qualified against then-current target.",
+      "observed_at": "2026-10-03 15:06 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/verification/reports/PHASE_12E_R_RASPBERRY_PI_PRODUCT_SCENARIO_MAPPING.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Current Pi source/profile bundle and target acceptance remain open."
+    },
+    {
+      "id": "CORE_VERIFY_ESP_14E_HIST",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/verification/reports/PHASE_14E_ESP_LIVE_QUALIFICATION.md",
+      "blob_sha": "427f82b754a5ac6977aa37ede036e00a9973e290",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Historical July 12 live LilyGO 3.2.11 local-flash HARDWARE-001..010 PASS; local artifact hash differs from public firmware artifact.",
+      "observed_at": "2026-10-03 15:06 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/verification/reports/PHASE_14E_ESP_LIVE_QUALIFICATION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Current 4.0 candidate, OTA and physical target receipts are separate."
+    },
+    {
+      "id": "CORE_VERIFY_VOICE_15E_R_HIST",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/verification/reports/PHASE_15E_R_DJCONNECT_VOICE_ASSISTANT_LIVE_QUALIFICATION_REMEDIATION.md",
+      "blob_sha": "f2af43e0eccb76139d8bcf21ff305912b0c87529",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Historical July 12 one VOICE-001 HA Assist lab adapter smoke qualified after environment repair; narrow runtime primitive scope.",
+      "observed_at": "2026-10-03 15:06 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/verification/reports/PHASE_15E_R_DJCONNECT_VOICE_ASSISTANT_LIVE_QUALIFICATION_REMEDIATION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Current live user/physical voice acceptance remains open."
+    },
+    {
+      "id": "CORE_VERIFY_09V_RERUN_HIST",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/verification/reports/PHASE_09V_VERIFICATION_PLATFORM_QUALIFICATION_RERUN.md",
+      "blob_sha": "bb63b6619dc4f696cd0c53c09e852847a88515d4",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Historical July 11 Verification Platform engine qualified with five Profile scenarios at HA 3.2.50; not broad platform product qualification.",
+      "observed_at": "2026-10-03 15:06 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/verification/reports/PHASE_09V_VERIFICATION_PLATFORM_QUALIFICATION_RERUN.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Current exact-head live consumer qualification remains separate."
+    },
+    {
+      "id": "CORE_PRODUCT_DEVELOPMENT_TRANSITION_HIST",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/PRODUCT_DEVELOPMENT_TRANSITION.md",
+      "blob_sha": "bfe59ea55770f07da8ec772fcbab2d96209b0fb6",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "2026-07-13 program transition to Product Development, with Platform Evolution and Release Engineering owning future nonproduct work.",
+      "observed_at": "2026-10-03 15:06 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/PRODUCT_DEVELOPMENT_TRANSITION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Later current roadmap/status authority controls actual horizon and selection."
+    },
+    {
+      "id": "CORE_META_CROSS_REPO_BOOTSTRAP_HIST",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/meta/CROSS_REPOSITORY_BOOTSTRAP_ALIGNMENT_REPORT.md",
+      "blob_sha": "9a04b0567b3afe6fb0a553bdeb686d2a143941b6",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Historical ten-repository bootstrap-alignment report with local unpushed branches/warnings at that time; current twelve-repository readback supersedes inventory.",
+      "observed_at": "2026-10-03 15:06 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/meta/CROSS_REPOSITORY_BOOTSTRAP_ALIGNMENT_REPORT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current writer admission or PR delivery follows from the old report."
+    },
+    {
+      "id": "CORE_META_WORKFLOW_ALIGNMENT_HIST",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/meta/ENGINEERING_WORKFLOW_ALIGNMENT_COMPLETION.md",
+      "blob_sha": "3c1bf4cc09179e3a7a4924cdd401ccbde6fb04be",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Historical completed engineering-workflow alignment PR #107; no active next prompt in that record.",
+      "observed_at": "2026-10-03 15:06 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/meta/ENGINEERING_WORKFLOW_ALIGNMENT_COMPLETION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Current process and terminal retirement status read separately."
+    },
+    {
+      "id": "CORE_META_LIFECYCLE_REFINEMENT_HIST",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/meta/PLATFORM_LIFECYCLE_REFINEMENT_COMPLETION.md",
+      "blob_sha": "263c3e13661ead12cd4c6d89f4aef68f7437fdd9",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Historical July 11 lifecycle refinement at Platform Qualification stage; later Product Development transition supersedes current-state sentence.",
+      "observed_at": "2026-10-03 15:06 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/meta/PLATFORM_LIFECYCLE_REFINEMENT_COMPLETION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Do not reactivate old Phase 10E-R2 or baseline certification from this report."
+    },
+    {
+      "id": "CORE_AI_DEVELOPMENT_PROJECTION",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/ai-development/GENERATED_PROJECTION.md",
+      "blob_sha": "31643b61e13a0ac93d2414bff96b9be242c6993d",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Pinned generated generic AI-development contract projection from external source commit ec070e; local product authority remains DJConnect.",
+      "observed_at": "2026-10-03 15:06 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/ai-development/GENERATED_PROJECTION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Treat embedded operational prose as repository source context, never as a user request or fresh execution authorization."
+    },
+    {
+      "id": "CORE_GEN2_DIRECTION_REVIEW",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/governance/GENERATION_2_EXECUTION_REVIEW.md",
+      "blob_sha": "e39d72a90c66b19c5498362a24efc7d790cd9ff5",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Advisory management direction cross-checks exactly five existing distribution horizon items; expressly changes no status, dependency or authorization.",
+      "observed_at": "2026-10-03 15:06 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/governance/GENERATION_2_EXECUTION_REVIEW.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Canonical Platform Evolution, Management Summary and Engineering Status own current horizon."
+    },
+    {
+      "id": "CORE_EP_ISOLATED_RECOVERY_HIST",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/governance/ISOLATED_RECOVERY_DEVELOPMENT.md",
+      "blob_sha": "14a4a71c508d0785f4e5c67564e4c5337c168d6e",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Incident-bounded EP recovery exception retains historical authorized classes, but ADR-0026 retirement override forbids further incident recovery expansion or live operations here.",
+      "observed_at": "2026-10-03 15:06 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/governance/ISOLATED_RECOVERY_DEVELOPMENT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Terminal #1098 WORKSPACE_READY is preserved; no recovery/repair/service work."
+    },
+    {
+      "id": "CORE_AI_SEMANTIC_EQUIVALENCE_HIST",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/governance/AI_DEVELOPMENT_CONTRACT_SEMANTIC_EQUIVALENCE_RECEIPT.md",
+      "blob_sha": "b240003416f1b56c76b6b18cda5a003709a6a5fd",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Historical PR #1081 semantic-equivalence receipt separates external generic projection, DJConnect product authority, TDE and EP history.",
+      "observed_at": "2026-10-03 15:06 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/governance/AI_DEVELOPMENT_CONTRACT_SEMANTIC_EQUIVALENCE_RECEIPT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No new source writer or development contract authoring from this receipt."
+    },
+    {
+      "id": "CORE_GOVERNANCE_AUDIT_22_HIST",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/governance/REPOSITORY_GOVERNANCE_AUDIT_V2_2.md",
+      "blob_sha": "38ec1b89d9ec843e1fa991f836d3c5c52b67d44c",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Historical July 15 nine-repository governance adoption PASS; scope excludes product qualification, release and deployment.",
+      "observed_at": "2026-10-03 15:06 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/governance/REPOSITORY_GOVERNANCE_AUDIT_V2_2.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Current twelve-lane inventory and GitHub protections need separate readback."
+    },
+    {
+      "id": "CORE_VERIFY_VISION",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/verification/00_VERIFICATION_VISION.md",
+      "blob_sha": "818236c65822ebe4a5bb804aeed08ede179d101c",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Canonical platform-wide verification foundation distinguishes V0-V6 evidence and release-equivalent/physical acceptance from local test success.",
+      "observed_at": "2026-10-03 15:06 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/verification/00_VERIFICATION_VISION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Individual current scenario and consumer receipts still required."
+    },
+    {
+      "id": "CORE_VERIFY_SCENARIO_SCHEMA",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/verification/02_SCENARIO_SCHEMA.md",
+      "blob_sha": "71e1c71d493e311a9f55c2d1fcef9121f67b2207",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Canonical scenario model with stable IDs, explicit requires/cleanup/privacy and V0-V7 levels; schema validity alone is not behavior proof.",
+      "observed_at": "2026-10-03 15:06 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/verification/02_SCENARIO_SCHEMA.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Current catalog execution and adapter coverage separately qualified."
+    },
+    {
+      "id": "CORE_VERIFY_MATRIX",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/verification/03A_VERIFICATION_MATRIX.md",
+      "blob_sha": "781c7f9113affb79f9484137ead7be65312c3593",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Canonical scenario-by-runtime matrix and blocked coverage; Apple/Windows/Pi/ESP/voice/website/release profiles remain distinct.",
+      "observed_at": "2026-10-03 15:06 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/verification/03A_VERIFICATION_MATRIX.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Matrix text is not evidence every combination was executed."
+    },
+    {
+      "id": "CORE_VERIFY_HARNESS",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/verification/04_VERIFICATION_HARNESS.md",
+      "blob_sha": "86bb44d2f76bec648f7254d7daefa8a1dbad859a",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Implemented verification harness structure, capability-gated runtime execution and published Runtime 1.1.0 Docker consumer boundary.",
+      "observed_at": "2026-10-03 15:06 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/verification/04_VERIFICATION_HARNESS.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Current image pull, scenario result and physical target evidence separately required."
+    },
+    {
+      "id": "CORE_SA_WORKFLOW_INVENTORY_NAV",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/software_assurance/WORKFLOW_INVENTORY.md",
+      "blob_sha": "3ee8401a7f22be5fb0fbf8d7f5fd6ab91d1cc1bd",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Navigation-only pointer to cross-repository rollout report as canonical Prompt-2 inventory.",
+      "observed_at": "2026-10-03 15:06 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/software_assurance/WORKFLOW_INVENTORY.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No independent live workflow settings claim."
+    },
+    {
+      "id": "CORE_SA_WORKFLOW_MATRIX_NAV",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/software_assurance/WORKFLOW_COMPLIANCE_MATRIX.md",
+      "blob_sha": "d4403f0cdb339a8c94eb5730fa4e4e9d5e81a44e",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Navigation-only pointer to cross-repository rollout report; avoids duplicate matrix.",
+      "observed_at": "2026-10-03 15:06 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/software_assurance/WORKFLOW_COMPLIANCE_MATRIX.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No independent live workflow settings claim."
+    },
+    {
+      "id": "CORE_SA_OPERATIONAL_READINESS_HIST",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/software_assurance/SOFTWARE_ASSURANCE_OPERATIONAL_READINESS.md",
+      "blob_sha": "63a9de1e0e8df16ad53a2537fdcf0b063348d5b6",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Historical certified Trusted Delivery operating posture with accepted TD-GITHUB-001 native SHA enforcement exception.",
+      "observed_at": "2026-10-03 15:06 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/software_assurance/SOFTWARE_ASSURANCE_OPERATIONAL_READINESS.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Current settings and exact-head checks require live readback."
+    },
+    {
+      "id": "CORE_SA_COMPLIANCE_HIST",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/software_assurance/SOFTWARE_ASSURANCE_COMPLIANCE_REPORT.md",
+      "blob_sha": "5dbb5e78afc083df08c45e98085fa5eaa17094f4",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "2026-07-13 ten-repository compliant status under accepted TD-GITHUB-001; not a current twelve-lane settings census.",
+      "observed_at": "2026-10-03 15:06 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/software_assurance/SOFTWARE_ASSURANCE_COMPLIANCE_REPORT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Current repository-specific policy and workflows read separately."
+    },
+    {
+      "id": "CORE_SA_TD_READBACK_HIST",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/software_assurance/TRUSTED_DELIVERY_READBACK_REPORT.md",
+      "blob_sha": "586f8fa5dbb430d285ac35d6dac389b9363c8855",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "2026-07-13 ten-repository protected-main/read-only setting readback with native SHA enforcement false.",
+      "observed_at": "2026-10-03 15:06 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/software_assurance/TRUSTED_DELIVERY_READBACK_REPORT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Do not promote July settings to current without GitHub API readback."
+    },
+    {
+      "id": "CORE_SA_TD_CERTIFICATION_HIST",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/software_assurance/TRUSTED_DELIVERY_CERTIFICATION.md",
+      "blob_sha": "441c6e3f50c2c878377395d6df29450bc5098fb4",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Historical Software Assurance Trusted Delivery certification with accepted native SHA exception; no release authorization.",
+      "observed_at": "2026-10-03 15:06 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/software_assurance/TRUSTED_DELIVERY_CERTIFICATION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Current policy and exact workflow closure still require readback."
+    },
+    {
+      "id": "CORE_SA_CROSS_REPO_ROLLOUT_HIST",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/software_assurance/CROSS_REPOSITORY_ROLLOUT_REPORT.md",
+      "blob_sha": "45365a80f18f986ad4bec6cdc105be798f0a7c3a",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Historical ten-repository reusable governance rollout and July 27 cleanup/evidence conformance matrix; staged run IDs are not current consumer proof.",
+      "observed_at": "2026-10-03 15:06 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/software_assurance/CROSS_REPOSITORY_ROLLOUT_REPORT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Exact current workflows and release effects require readback."
+    },
+    {
+      "id": "CORE_SA_WORKFLOW_OVERRIDE_NAV",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/software_assurance/WORKFLOW_OVERRIDE_REGISTER.md",
+      "blob_sha": "8cb2afa1219f5827a31ff62278f13128ee4d4ef6",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Navigation-only pointer to canonical cross-repository rollout override register.",
+      "observed_at": "2026-10-03 15:06 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/software_assurance/WORKFLOW_OVERRIDE_REGISTER.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No independent override or live status claim."
+    },
+    {
+      "id": "CORE_SA_TD_GATE_REVIEW_HIST",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/software_assurance/TRUSTED_DELIVERY_GATE_REVIEW.md",
+      "blob_sha": "7e256ff012e585e22768e92adaeb28d2d06a8d02",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Historical pre-Prompt-3 implementation-readiness decision, later superseded by certification.",
+      "observed_at": "2026-10-03 15:06 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/software_assurance/TRUSTED_DELIVERY_GATE_REVIEW.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No prompt execution under this planning task."
+    },
+    {
+      "id": "CORE_SA_TD_IMPLEMENTATION_HIST",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/software_assurance/TRUSTED_DELIVERY_IMPLEMENTATION_REPORT.md",
+      "blob_sha": "80994d36189770895bd07359f18a1a71ee77b1da",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Historical staged Trusted Delivery report: initially blocked, then TD-GITHUB-001 accepted and Prompt 3 PASS after separate work.",
+      "observed_at": "2026-10-03 15:06 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/software_assurance/TRUSTED_DELIVERY_IMPLEMENTATION_REPORT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Current settings and live check status require readback."
     }
   ],
   "nodes": [
@@ -18366,7 +18888,36 @@
         "CORE_VERIFY_RUNTIME_ROADMAP",
         "CORE_VERIFY_RUNTIME_RELEASES",
         "CORE_VERIFY_RUNTIME_RELEASE_NOTES",
-        "CORE_RELEASE_PRIVATE_NETWORK_RELAY"
+        "CORE_RELEASE_PRIVATE_NETWORK_RELAY",
+        "CORE_VERIFY_APPLE_10E_R2_HIST",
+        "CORE_VERIFY_WINDOWS_13E_R2_HIST",
+        "CORE_VERIFY_PI_12E_R_HIST",
+        "CORE_VERIFY_ESP_14E_HIST",
+        "CORE_VERIFY_VOICE_15E_R_HIST",
+        "CORE_VERIFY_09V_RERUN_HIST",
+        "CORE_PRODUCT_DEVELOPMENT_TRANSITION_HIST",
+        "CORE_META_CROSS_REPO_BOOTSTRAP_HIST",
+        "CORE_META_WORKFLOW_ALIGNMENT_HIST",
+        "CORE_META_LIFECYCLE_REFINEMENT_HIST",
+        "CORE_AI_DEVELOPMENT_PROJECTION",
+        "CORE_GEN2_DIRECTION_REVIEW",
+        "CORE_EP_ISOLATED_RECOVERY_HIST",
+        "CORE_AI_SEMANTIC_EQUIVALENCE_HIST",
+        "CORE_GOVERNANCE_AUDIT_22_HIST",
+        "CORE_VERIFY_VISION",
+        "CORE_VERIFY_SCENARIO_SCHEMA",
+        "CORE_VERIFY_MATRIX",
+        "CORE_VERIFY_HARNESS",
+        "CORE_SA_WORKFLOW_INVENTORY_NAV",
+        "CORE_SA_WORKFLOW_MATRIX_NAV",
+        "CORE_SA_OPERATIONAL_READINESS_HIST",
+        "CORE_SA_COMPLIANCE_HIST",
+        "CORE_SA_TD_READBACK_HIST",
+        "CORE_SA_TD_CERTIFICATION_HIST",
+        "CORE_SA_CROSS_REPO_ROLLOUT_HIST",
+        "CORE_SA_WORKFLOW_OVERRIDE_NAV",
+        "CORE_SA_TD_GATE_REVIEW_HIST",
+        "CORE_SA_TD_IMPLEMENTATION_HIST"
       ],
       "canonical_authority": "LOCAL_EXTENSION",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -31895,7 +32446,13 @@
         "CORE_SA_PROMPT_02_HIST",
         "CORE_SA_PROMPT_03_HIST",
         "CORE_SA_PROMPT_04_HIST",
-        "CORE_SA_IMPLEMENTATION"
+        "CORE_SA_IMPLEMENTATION",
+        "CORE_SA_OPERATIONAL_READINESS_HIST",
+        "CORE_SA_COMPLIANCE_HIST",
+        "CORE_SA_TD_READBACK_HIST",
+        "CORE_SA_TD_CERTIFICATION_HIST",
+        "CORE_SA_CROSS_REPO_ROLLOUT_HIST",
+        "CORE_SA_TD_IMPLEMENTATION_HIST"
       ]
     },
     {
@@ -32118,7 +32675,7 @@
     {
       "id": "VERIFICATION-STATUS-SCOPE-DRIFT",
       "status": "OPEN_OWNING_STATUS_RECONCILIATION",
-      "description": "Pinned 2026-07-10 VERIFICATION_GAP_BACKLOG explicitly calls itself historical yet says Golden CI smoke is next, while pinned DEVELOPER_EXPERIENCE_ROADMAP and current advisory Golden CI show Smoke/Regression already implemented. Separately, the Profile Platform V1 VERIFICATION_REPORT remains NO-GO with 124 NOT TESTED for its live scenario gate; this does not negate the separately qualified Verification Platform engine. The Platform scorecard header says WINDOWS LIVE QUALIFIED but its lower narrative still says Windows live pending, while the phase backlog cites later Phase 13E-R2 live Windows proof. Reconcile each scope and date in owning verification records before granting any current live/consumer acceptance; do not reactivate completed E2E infrastructure or select a verification run here.",
+      "description": "Pinned 2026-07-10 VERIFICATION_GAP_BACKLOG explicitly calls itself historical yet says Golden CI smoke is next, while pinned DEVELOPER_EXPERIENCE_ROADMAP and current advisory Golden CI show Smoke/Regression already implemented. Separately, the Profile Platform V1 VERIFICATION_REPORT remains NO-GO with 124 NOT TESTED for its live scenario gate; this does not negate the separately qualified Verification Platform engine. The Platform scorecard header says WINDOWS LIVE QUALIFIED but its lower narrative still says Windows live pending, while the phase backlog cites later Phase 13E-R2 live Windows proof. Reconcile each scope and date in owning verification records before granting any current live/consumer acceptance; do not reactivate completed E2E infrastructure or select a verification run here. Historical Phase 9V verifies only five Profile scenarios at 3.2.50; later scoped Pi nine, Windows WIN-001, ESP 3.2.11 hardware ten, Voice VOICE-001 and Phase 16 47-case smoke qualifications do not prove current source/artifact consumers.",
       "source_ids": [
         "CORE_VERIFY_GAP_BACKLOG_HIST",
         "E2E_ROADMAP",
@@ -32126,7 +32683,14 @@
         "CORE_VERIFY_PROFILE_PROGRAM",
         "CORE_VERIFY_PLATFORM_SCORECARD",
         "CORE_VERIFY_PLATFORM_BACKLOG",
-        "GOLDEN_CI"
+        "GOLDEN_CI",
+        "CORE_VERIFY_09V_RERUN_HIST",
+        "CORE_VERIFY_APPLE_10E_R2_HIST",
+        "CORE_VERIFY_PI_12E_R_HIST",
+        "CORE_VERIFY_WINDOWS_13E_R2_HIST",
+        "CORE_VERIFY_ESP_14E_HIST",
+        "CORE_VERIFY_VOICE_15E_R_HIST",
+        "CORE_VERIFY_PHASE16_HIST"
       ]
     },
     {
@@ -32250,7 +32814,7 @@
       "id": "AUDIT-DJC-CORE",
       "status": "OPEN",
       "scope": "DJC-CORE",
-      "reason": "Pinned foundation, roadmap, horizon, legal, voice, verification, full Meta Engineering reading order, local environment and historical EP/Software Assurance sources are read. Ten historical EP/runner links remain triaged; workflow effects, remaining consumer evidence and final delta still need qualification. Ten additional exact-pinned core policy/navigation sources are read, including owner authorization and Finalization; generated lifecycle and physical/consumer evidence still need qualification. Five linked architecture/assurance/Trusted Delivery records are also pinned; the 2026-07-13 target matrix is historical, not current settings evidence. Five additional canonical/navigational product texts and sixteen dated Phase 6 technical/target-architecture texts are pinned. Their current-state claims are bounded by the 2026-07-10 archaeology phase; the standalone Device Installer is planned target architecture, not an existing thirteenth lane or product pickup. All 19 core ADR Markdown sources are now pinned (17 in this delta), with ADR-0024/0025 incident supersession and ADR-0026 terminal clean-slate context kept historical under #1098. Ten additional exact-pinned release-policy/navigation/historical records are read, including exact-main evidence-prerelease policy, dispatch-only deployment/smoke boundaries and the prompt-history non-authority rule. The 3.3.1 prepared-for-review release note is historical against the published v3.3.1 tag; no installed consumer is inferred. 293 dated core prompt paths are classified by path only, leaving 317 core Markdown paths unclassified. Four exact-pinned post-merge Software Assurance records now separate current policy/schema from historical qualification; the stated per-component prerelease prefix conflicts with the pinned reusable workflow hard-coded internal-ha tag. Four retained embedded-EP status/run/workspace records were fully read as historical; 51 other docs/engineering Markdown paths are classified by exact path/blob under terminal #1098 without reopening retirement. Six exact-pinned Verification Program/report/backlog/scorecard records distinguish dated Profile V1 live NO-GO, later qualified Verification Platform engine, stale internal Windows narrative and completed Golden CI infrastructure; no current live consumer GO is inferred. The exact-pinned Epic 2 discovery index explicitly labels 17 remaining discovery reports as historical, path/blob-classified only; current capability model remains the authority. Current Development and Implementation navigation/Handoff are fully read and pinned; six explicitly legacy embedded-EP development files are exact-path/blob classified only, with standalone EP ownership preserved. Six additional exact-pinned release/evidence/governance records are fully read: historical Platform 3.3 certification and nine internal-target receipt references remain bounded to that manifest, while current workflow effects require exact implementation readback. The historical 3.3 manifest was fully read; its nine target run pairs match the report while its HA 3.3.1 source/artifact binding lacks a matching target execution row; all 18 GitHub Actions REST run IDs now return 404 while a recent control run is readable, leaving independent producer/consumer revalidation open. Seven further exact-pinned Software Assurance/dependency/TDE records separate historical HACS/Dependabot NO_GO and pre-integration closure snapshots from completed policy/observe and accepted TD-GITHUB-001 exception; current repository settings remain open. Twenty-four further release/verification source files (including the 4.0 RC1 target manifest and later ESP coverage qualification) are full-text pinned; historical action language is not task authority. Current core Markdown unclassified frontier is 189 paths."
+      "reason": "Pinned foundation, roadmap, horizon, legal, voice, verification, full Meta Engineering reading order, local environment and historical EP/Software Assurance sources are read. Ten historical EP/runner links remain triaged; workflow effects, remaining consumer evidence and final delta still need qualification. Ten additional exact-pinned core policy/navigation sources are read, including owner authorization and Finalization; generated lifecycle and physical/consumer evidence still need qualification. Five linked architecture/assurance/Trusted Delivery records are also pinned; the 2026-07-13 target matrix is historical, not current settings evidence. Five additional canonical/navigational product texts and sixteen dated Phase 6 technical/target-architecture texts are pinned. Their current-state claims are bounded by the 2026-07-10 archaeology phase; the standalone Device Installer is planned target architecture, not an existing thirteenth lane or product pickup. All 19 core ADR Markdown sources are now pinned (17 in this delta), with ADR-0024/0025 incident supersession and ADR-0026 terminal clean-slate context kept historical under #1098. Ten additional exact-pinned release-policy/navigation/historical records are read, including exact-main evidence-prerelease policy, dispatch-only deployment/smoke boundaries and the prompt-history non-authority rule. The 3.3.1 prepared-for-review release note is historical against the published v3.3.1 tag; no installed consumer is inferred. At that earlier census, 293 dated core prompt paths were classified by path only, leaving 317 core Markdown paths unclassified then. Four exact-pinned post-merge Software Assurance records now separate current policy/schema from historical qualification; the stated per-component prerelease prefix conflicts with the pinned reusable workflow hard-coded internal-ha tag. Four retained embedded-EP status/run/workspace records were fully read as historical; 51 other docs/engineering Markdown paths are classified by exact path/blob under terminal #1098 without reopening retirement. Six exact-pinned Verification Program/report/backlog/scorecard records distinguish dated Profile V1 live NO-GO, later qualified Verification Platform engine, stale internal Windows narrative and completed Golden CI infrastructure; no current live consumer GO is inferred. The exact-pinned Epic 2 discovery index explicitly labels 17 remaining discovery reports as historical, path/blob-classified only; current capability model remains the authority. Current Development and Implementation navigation/Handoff are fully read and pinned; six explicitly legacy embedded-EP development files are exact-path/blob classified only, with standalone EP ownership preserved. Six additional exact-pinned release/evidence/governance records are fully read: historical Platform 3.3 certification and nine internal-target receipt references remain bounded to that manifest, while current workflow effects require exact implementation readback. The historical 3.3 manifest was fully read; its nine target run pairs match the report while its HA 3.3.1 source/artifact binding lacks a matching target execution row; all 18 GitHub Actions REST run IDs now return 404 while a recent control run is readable, leaving independent producer/consumer revalidation open. Seven further exact-pinned Software Assurance/dependency/TDE records separate historical HACS/Dependabot NO_GO and pre-integration closure snapshots from completed policy/observe and accepted TD-GITHUB-001 exception; current repository settings remain open. Twenty-four further release/verification source files (including the 4.0 RC1 target manifest and later ESP coverage qualification) are full-text pinned; historical action language is not task authority. Current core Markdown unclassified frontier is 160 paths. Twenty-nine additional fully read verification, meta-governance and Software Assurance sources are pinned with dated status bounds."
     },
     {
       "id": "AUDIT-DJC-APPLE",
@@ -32359,7 +32923,7 @@
       "id": "SOURCE-MATRIX",
       "status": "OPEN",
       "scope": "platform",
-      "reason": "Current matrix covers only explicitly read source inventory; certify complete disposition only after all relevant discoveries are audited. The current pinned full-text inventory includes the 4.0 candidate/manifest and Verification Runtime 1.1.0 policy plus dated qualification reports; unclassified core Markdown remains 190.",
+      "reason": "Current matrix covers only explicitly read source inventory; certify complete disposition only after all relevant discoveries are audited. The current pinned full-text inventory includes the 4.0 candidate/manifest and Verification Runtime 1.1.0 policy plus dated qualification reports; unclassified core Markdown remains 160. Twenty-nine additional fully read verification, meta-governance and Software Assurance sources are pinned with dated status bounds.",
       "remaining": "All 724 included pinned source rows have exact path/blob provenance and bounded read descriptions. Exact pinned trees contain 1,739 tracked Markdown paths: 610 individually represented/full-read, 917 exact path/blob entries classified only as dated prompt history, older versioned release copy, retained embedded EP/development documentation or Epic 2 discovery artifacts, and 212 still unclassified for relevance/full reading. The 917 classified contents were not read and can be reopened when a current authority points to one. Apple 47/173, Windows 41/117 and website 64/412 Markdown have all other paths in explicit historical categories; Pi 33/33, API 28/28 and ESP32 28/28 are individually represented. Core is 301/880, with 293 dated prompts, 51 retained EP documents, 17 Epic 2 discovery reports and six legacy development files classified by path, and 212 unclassified. Runtime, workflow/test and physical/source-to-release consumer coverage remain separately open. Ten historical core EP/runner relative-link targets remain triaged outside the matrix. Complete current-source/consumer discovery and status qualification before certification."
     },
     {
@@ -32462,7 +33026,8 @@
       "source_ids": [
         "EVOLUTION",
         "MANAGEMENT_SUMMARY",
-        "ENGINEERING_STATUS"
+        "ENGINEERING_STATUS",
+        "CORE_GEN2_DIRECTION_REVIEW"
       ],
       "disposition": "PLANNED; explicit release authorization and qualified Internal Release consumers required"
     },
@@ -32473,7 +33038,8 @@
       "source_ids": [
         "EVOLUTION",
         "MANAGEMENT_SUMMARY",
-        "ENGINEERING_STATUS"
+        "ENGINEERING_STATUS",
+        "CORE_GEN2_DIRECTION_REVIEW"
       ],
       "disposition": "PLANNED; qualified Internal Release consumers and explicit authorization required"
     },
@@ -32484,7 +33050,8 @@
       "source_ids": [
         "EVOLUTION",
         "MANAGEMENT_SUMMARY",
-        "ENGINEERING_STATUS"
+        "ENGINEERING_STATUS",
+        "CORE_GEN2_DIRECTION_REVIEW"
       ],
       "disposition": "PLANNED; fresh candidate and release authorization required"
     },
@@ -32495,7 +33062,8 @@
       "source_ids": [
         "EVOLUTION",
         "MANAGEMENT_SUMMARY",
-        "ENGINEERING_STATUS"
+        "ENGINEERING_STATUS",
+        "CORE_GEN2_DIRECTION_REVIEW"
       ],
       "disposition": "PLANNED investigation of tag/cache/index/update presentation"
     },
@@ -32506,7 +33074,8 @@
       "source_ids": [
         "EVOLUTION",
         "MANAGEMENT_SUMMARY",
-        "ENGINEERING_STATUS"
+        "ENGINEERING_STATUS",
+        "CORE_GEN2_DIRECTION_REVIEW"
       ],
       "disposition": "PLANNED; manifest-bound consumer qualification required"
     }
