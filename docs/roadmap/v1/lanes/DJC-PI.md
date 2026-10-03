@@ -36,7 +36,7 @@ Continue assignment DJC-PLATFORM-ROADMAP-DAG-LANES-V1-20261003 in pcvantol/djcon
 Read https://github.com/pcvantol/djconnect/issues/1101 and https://github.com/pcvantol/djconnect-pi/issues/104; keep the current WIP/assignment intact: CLEAN_LOCAL_MAIN_OBSERVED; active assignment not independently verified.
 Use the existing owning backlog, exact source pins and local bootstrap. Planning outcome: Reconcileer concrete profielen, shared-profile privacy en artifactidentiteit. Maak onderscheid tussen native QML, appliancevoorbereiding en de HA-hosted browserreceiver op hetzelfde apparaat.
 Selected owning node IDs (no new pickup): none established for this lane.
-Local test-policy audit: NOT_FULLY_AUDITED. Workflow effects: Push, tag, dispatch and workflow_run triggers inventoried; exact route-specific effects must be read before push.
+Local test-policy audit: Pinned TESTS.md catalogue read; current CI, installed-target and physical verification receipts not fully audited. Workflow effects: Push, tag, dispatch and workflow_run triggers inventoried; exact route-specific effects must be read before push.
 This is documentary planning only. Do not infer product selection, writer availability, resource capacity or release authority.
 For any later selected vertical work, first prove DoR, then include UX, tests, review, fixes, protected merge and finalization in the same assignment.
 Coordinate these exact handoff IDs and acceptance owners through the owning registers:
