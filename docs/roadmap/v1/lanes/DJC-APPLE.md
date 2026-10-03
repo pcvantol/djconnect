@@ -22,6 +22,7 @@ Read the local `REPOSITORY_STATUS.md` and existing TODO/ISSUES or release metada
 - `APPLE-CAST`: DJC-APPLE → DJC-VIBECAST; One runtime-scoped read-only Cast handoff; not pixel streaming. Phase `integration_acceptance`; exact artifact `UNKNOWN`; acceptance owner `DJC-VIBECAST`.
 - `APPLE-DIST`: DJC-APPLE → DJC-DIST-APPLE; iOS/macOS unsigned bundles, hashes and tags. Phase `distribution`; exact artifact `NOT_PUBLISHED_BY_THIS_ASSIGNMENT`; acceptance owner `DJC-DIST-APPLE`.
 - `APPLE-SITE`: DJC-APPLE → DJC-WEBSITE; Versioned and latest Apple release notes from the same Apple publication workflow. Phase `distribution`; exact artifact `NOT_PUBLISHED_BY_THIS_ASSIGNMENT`; acceptance owner `DJC-WEBSITE`.
+- `API-APPLE-PROOF`: DJC-API → DJC-APPLE; Trusted Apple pairing issuer proof for push-registration recovery, then proof-bearing HA registration. Phase `integration_acceptance`; exact artifact `One-time short-lived djcboot proof contract; exact deployed source/artifact binding UNKNOWN`; acceptance owner `DJC-APPLE`.
 
 ## DoR, DoD and resource boundary
 
@@ -46,6 +47,7 @@ Coordinate these exact handoff IDs and acceptance owners through the owning regi
 - APPLE-CAST: DJC-APPLE -> DJC-VIBECAST; One runtime-scoped read-only Cast handoff; not pixel streaming; phase integration_acceptance; acceptance owner DJC-VIBECAST; exact artifact UNKNOWN.
 - APPLE-DIST: DJC-APPLE -> DJC-DIST-APPLE; iOS/macOS unsigned bundles, hashes and tags; phase distribution; acceptance owner DJC-DIST-APPLE; exact artifact NOT_PUBLISHED_BY_THIS_ASSIGNMENT.
 - APPLE-SITE: DJC-APPLE -> DJC-WEBSITE; Versioned and latest Apple release notes from the same Apple publication workflow; phase distribution; acceptance owner DJC-WEBSITE; exact artifact NOT_PUBLISHED_BY_THIS_ASSIGNMENT.
+- API-APPLE-PROOF: DJC-API -> DJC-APPLE; Trusted Apple pairing issuer proof for push-registration recovery, then proof-bearing HA registration; phase integration_acceptance; acceptance owner DJC-APPLE; exact artifact One-time short-lived djcboot proof contract; exact deployed source/artifact binding UNKNOWN.
 Do not start a release or deployment from this prompt.
 Report PLANNING_DELIVERY, PRODUCT_DELIVERY and EXECUTION_READY separately. Stop after this planning delivery.
 ```

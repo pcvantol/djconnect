@@ -57,6 +57,7 @@ flowchart LR
   n155["WINDOWS unsigned artifact receive and integrity"]
   n156["APPLE exact release and install copy"]
   n157["WINDOWS exact release and install copy"]
+  n158["Operator-scoped per-install token revocation"]
   n172["Spotify Direct backend adapter"]
   n173["Music Assistant backend adapter"]
   n174["Selected backend Session playback acceptance"]
@@ -88,6 +89,8 @@ flowchart LR
   n202["Universal Receiver product maturity gate"]
   n203["Operational Room Presentation Routing gate"]
   n204["Real ambient-light hardware evaluation gate"]
+  n205["Central API operator registration-summary contract"]
+  n206["Protected website operator API consumer"]
   choice0{"OR: one selected option"}
   n172 -.->|alternative| choice0
   n173 -.->|alternative| choice0
@@ -165,3 +168,7 @@ flowchart LR
   n203 -->|implementation / start| n37
   n204 -->|implementation / start| n37
   n199 -->|integration_acceptance / completion| n46
+  n142 -->|integration_acceptance / start| n143
+  n131 -->|integration_acceptance / start| n143
+  n205 -->|integration_acceptance / start| n206
+  n158 -->|integration_acceptance / start| n206

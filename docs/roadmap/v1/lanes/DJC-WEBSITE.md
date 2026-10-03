@@ -20,6 +20,7 @@ Read the local `REPOSITORY_STATUS.md` and existing TODO/ISSUES or release metada
 
 - `WIN-SITE`: DJC-WINDOWS → DJC-WEBSITE; Windows and Mac Catalyst release notes. Phase `distribution`; exact artifact `NOT_PUBLISHED_BY_THIS_ASSIGNMENT`; acceptance owner `DJC-WEBSITE`.
 - `APPLE-SITE`: DJC-APPLE → DJC-WEBSITE; Versioned and latest Apple release notes from the same Apple publication workflow. Phase `distribution`; exact artifact `NOT_PUBLISHED_BY_THIS_ASSIGNMENT`; acceptance owner `DJC-WEBSITE`.
+- `API-WEBSITE-OPERATOR`: DJC-API → DJC-WEBSITE; Operator-only registration summaries and install-token revocation through Pages server-side proxy. Phase `integration_acceptance`; exact artifact `Authenticated JSON endpoint contract at pinned source revisions; exact deployed artifact binding UNKNOWN`; acceptance owner `DJC-WEBSITE`.
 
 ## DoR, DoD and resource boundary
 
@@ -42,6 +43,7 @@ For any later selected vertical work, first prove DoR, then include UX, tests, r
 Coordinate these exact handoff IDs and acceptance owners through the owning registers:
 - WIN-SITE: DJC-WINDOWS -> DJC-WEBSITE; Windows and Mac Catalyst release notes; phase distribution; acceptance owner DJC-WEBSITE; exact artifact NOT_PUBLISHED_BY_THIS_ASSIGNMENT.
 - APPLE-SITE: DJC-APPLE -> DJC-WEBSITE; Versioned and latest Apple release notes from the same Apple publication workflow; phase distribution; acceptance owner DJC-WEBSITE; exact artifact NOT_PUBLISHED_BY_THIS_ASSIGNMENT.
+- API-WEBSITE-OPERATOR: DJC-API -> DJC-WEBSITE; Operator-only registration summaries and install-token revocation through Pages server-side proxy; phase integration_acceptance; acceptance owner DJC-WEBSITE; exact artifact Authenticated JSON endpoint contract at pinned source revisions; exact deployed artifact binding UNKNOWN.
 Do not start a release or deployment from this prompt.
 Report PLANNING_DELIVERY, PRODUCT_DELIVERY and EXECUTION_READY separately. Stop after this planning delivery.
 ```

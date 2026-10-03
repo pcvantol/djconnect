@@ -41,7 +41,7 @@
     "metadata_and_bounded_paraphrases": true,
     "offline_hash_verification_of_remote_blobs": false,
     "per_call_timestamps": "Date-level head readback on 2026-10-03; no per-file read timestamp for inherited checkpoint.",
-    "pinned_tree_blobs_verified": "892 of 892 path/blob pins matched exact commit trees or GitHub Contents commit readbacks: 105 original GitHub tree readbacks, 648 local git commit-tree readbacks and 139 new GitHub tree/Contents readbacks on 2026-10-03. Current API Markdown blobs at 3f1ed18d matched fully read local previous-main blobs. Firmware binary files were fully SHA256-hashed for identity, not semantically executed. Narrative interpretation and current consumer qualification remain partial.",
+    "pinned_tree_blobs_verified": "898 of 898 path/blob source pins matched exact commit trees or GitHub Contents commit readbacks on 2026-10-03. Existing API admin-handler source was repinned to current API main after identical blob readback at its previous main; no duplicate semantic source was retained. The API validation source blob at current main matched the fully read local blob. The Apple model source was read only at bounded cited lines. Firmware binaries were SHA256-hashed for identity, not semantically executed. Narrative interpretation and current consumer qualification remain partial.",
     "reference_scan": {
       "method": "Every pinned core Markdown blob and every pinned Markdown blob in the eleven DJC component repositories, at its recorded commit: parse relative Markdown links, strip anchors, normalize against source directory, retain existing .md targets absent from the pinned source matrix; distinct repository/path keys. The seven pinned external Forge method documents are outside this lane-source link frontier.",
       "unmapped_paths": [
@@ -5094,7 +5094,8 @@
       "disposition": "MAPPED",
       "mapped_node_ids": [
         "INV::DJC-API",
-        "SLICE::API::APNS-RELAY"
+        "SLICE::API::APNS-RELAY",
+        "SLICE::API::OPERATOR-CONTRACT"
       ],
       "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
     },
@@ -5115,7 +5116,8 @@
         "INV::DJC-WEBSITE",
         "SLICE::WEBSITE::RELEASE-GUIDANCE",
         "SLICE::WEBSITE::APPLE-COPY",
-        "SLICE::WEBSITE::WINDOWS-COPY"
+        "SLICE::WEBSITE::WINDOWS-COPY",
+        "SLICE::WEBSITE::OPERATOR-CONSOLE"
       ],
       "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
     },
@@ -10257,19 +10259,21 @@
       "repository": "pcvantol/djconnect-api",
       "path": "src/handlers/admin.ts",
       "blob_sha": "9f206dc5242c42656953f281fb68bb2db416c7e7",
-      "commit_sha": "4e6671c3231187e7cd20243817a86a56ad6aad06",
-      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "commit_sha": "3f1ed18d2ce803a2b5d3750115d0dbf2dbaa34ba",
+      "read_boundary": "complete; same blob fully read at previous API main and verified byte-identical through GitHub Contents at current API main",
       "read_complete": true,
-      "status_authority": "Pinned source enforces admin auth and validates revoke request",
-      "observed_at": "2026-10-03 exact pinned commit contents / tree readback",
+      "status_authority": "Current source enforces operator auth for redacted registration summaries and token-ID revocation; the existing DJC-API-REVOKE owning node remains the revocation status authority. Live deployed/API website acceptance remains open.",
+      "observed_at": "2026-10-03 15:44 UTC",
       "identity_binding": "PINNED_COMMIT_READ",
-      "url": "https://github.com/pcvantol/djconnect-api/blob/4e6671c3231187e7cd20243817a86a56ad6aad06/src/handlers/admin.ts",
+      "url": "https://github.com/pcvantol/djconnect-api/blob/3f1ed18d2ce803a2b5d3750115d0dbf2dbaa34ba/src/handlers/admin.ts",
       "disposition": "MAPPED",
       "mapped_node_ids": [
         "INV::DJC-API",
-        "DJC-API-REVOKE"
+        "DJC-API-REVOKE",
+        "SLICE::API::OPERATOR-CONTRACT"
       ],
-      "remaining": "No unread ranges in this source; broader repository audit tracked separately"
+      "remaining": "No unread ranges in this source; broader repository audit tracked separately",
+      "previous_commit_same_blob": "4e6671c3231187e7cd20243817a86a56ad6aad06"
     },
     {
       "id": "API_SOURCE_TOKEN_REPO",
@@ -16903,7 +16907,8 @@
       "disposition": "MAPPED",
       "mapped_node_ids": [
         "INV::DJC-WEBSITE",
-        "SLICE::WEBSITE::RELEASE-GUIDANCE"
+        "SLICE::WEBSITE::RELEASE-GUIDANCE",
+        "SLICE::WEBSITE::OPERATOR-CONSOLE"
       ],
       "remaining": "Current code/workflow, publisher receipt, consumer target and protected delivery remain separate evidence boundaries."
     },
@@ -21033,6 +21038,121 @@
         "INV::DJC-CORE"
       ],
       "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "API_PAIRING_BOOTSTRAP_ISSUER_SOURCE",
+      "repository": "pcvantol/djconnect-api",
+      "path": "src/handlers/install.ts",
+      "blob_sha": "fcaf18eb49cd52b608dbf0dc77e11d675d1cb2cd",
+      "commit_sha": "3f1ed18d2ce803a2b5d3750115d0dbf2dbaa34ba",
+      "read_boundary": "complete; exact 50-line handler read locally and blob equality confirmed against GitHub Contents at current API main",
+      "read_complete": true,
+      "status_authority": "Current source route handler validates Apple pairing bootstrap context and rate limit, issues a 300-second one-time proof; separate install token handler consumes that proof. No live APNs or installed-client acceptance inferred.",
+      "observed_at": "2026-10-03 15:35 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-api/blob/3f1ed18d2ce803a2b5d3750115d0dbf2dbaa34ba/src/handlers/install.ts",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-API",
+        "SLICE::API::APNS-RELAY"
+      ],
+      "remaining": "Exact deployed API revision and Apple/HA consumer receipt open."
+    },
+    {
+      "id": "APPLE_PUSH_PROOF_CONSUMER_SOURCE",
+      "repository": "pcvantol/djconnect-app",
+      "path": "Sources/DJConnectUI/DJConnectAppModel.swift",
+      "blob_sha": "4c076a00cba81cbc6bfa8f8e7e70c06dc8829028",
+      "commit_sha": "b857eb77eb848a404ac904d0911d9ed43783851c",
+      "read_boundary": "bounded continuous lines 7595–8010 at exact current Apple main: paired-state guard, HA push registration, issuer-proof retry and HA recovery response",
+      "read_complete": false,
+      "status_authority": "Current Apple source requires paired status and a stored APNs token before HA push registration; on missing bootstrap proof it requests /v1/pairing/bootstrap-proof from the trusted API issuer and retries HA registration. This bounded code read is not a full installed-client acceptance.",
+      "observed_at": "2026-10-03 15:35 UTC",
+      "identity_binding": "PINNED_COMMIT_BOUNDED_READ",
+      "url": "https://github.com/pcvantol/djconnect-app/blob/b857eb77eb848a404ac904d0911d9ed43783851c/Sources/DJConnectUI/DJConnectAppModel.swift",
+      "disposition": "MAPPED_PARTIAL",
+      "mapped_node_ids": [
+        "INV::DJC-APPLE",
+        "SLICE::APPLE::PUSH-ACCEPTANCE"
+      ],
+      "remaining": "Full-file code audit, exact deployment and installed Apple/HA/API join remain open."
+    },
+    {
+      "id": "WEBSITE_OPERATOR_REGISTRATIONS_PROXY_SOURCE",
+      "repository": "pcvantol/djconnect-website",
+      "path": "functions/api/operator/registrations.js",
+      "blob_sha": "b5f1abbe14aba1e57c7a634225e4df37173cedad",
+      "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
+      "read_boundary": "complete; exact pinned server-side Pages Function",
+      "read_complete": true,
+      "status_authority": "Current website source proxies filtered registration summaries through operator secret auth and returns bounded metadata; live Pages/Access configuration is unverified.",
+      "observed_at": "2026-10-03 15:40 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/functions/api/operator/registrations.js",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WEBSITE",
+        "SLICE::WEBSITE::OPERATOR-CONSOLE"
+      ],
+      "remaining": "Exact deployed operator API/Pages configuration and live consumer receipt open."
+    },
+    {
+      "id": "WEBSITE_OPERATOR_REVOKE_PROXY_SOURCE",
+      "repository": "pcvantol/djconnect-website",
+      "path": "functions/api/operator/install-token/revoke.js",
+      "blob_sha": "a7be2e3c0462ca33a090fa9a0888043f539b28ba",
+      "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
+      "read_boundary": "complete; exact pinned server-side Pages Function",
+      "read_complete": true,
+      "status_authority": "Current website source proxies intended token-ID revocation through a server-side operator secret. Its route accepts any nonempty token_id and forwards it; a djci-like raw token value in that field is not explicitly rejected. Live operator safety/acceptance remains unverified.",
+      "observed_at": "2026-10-03 15:40 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/functions/api/operator/install-token/revoke.js",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WEBSITE",
+        "SLICE::WEBSITE::OPERATOR-CONSOLE"
+      ],
+      "remaining": "Exact deployed operator API/Pages configuration and live consumer receipt open."
+    },
+    {
+      "id": "WEBSITE_OPERATOR_ACCESS_MIDDLEWARE_SOURCE",
+      "repository": "pcvantol/djconnect-website",
+      "path": "functions/_middleware.js",
+      "blob_sha": "951f7f0f4ae2de3af90f21a98ca97383825f19db",
+      "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
+      "read_boundary": "complete; exact pinned Pages middleware source",
+      "read_complete": true,
+      "status_authority": "Current source gates operator routes on Cloudflare Access JWT with fail-closed missing/invalid configuration; current deployed Access settings and consumer behavior are unverified.",
+      "observed_at": "2026-10-03 15:40 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/functions/_middleware.js",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WEBSITE",
+        "SLICE::WEBSITE::OPERATOR-CONSOLE"
+      ],
+      "remaining": "Exact deployed operator API/Pages configuration and live consumer receipt open."
+    },
+    {
+      "id": "API_SOURCE_VALIDATION_CURRENT",
+      "repository": "pcvantol/djconnect-api",
+      "path": "src/validation.ts",
+      "blob_sha": "346e145c2b45ad966839cd1ecb426b53b99b3587",
+      "commit_sha": "3f1ed18d2ce803a2b5d3750115d0dbf2dbaa34ba",
+      "read_boundary": "complete; exact 242-line validator source read locally and blob equality confirmed against GitHub Contents at current API main",
+      "read_complete": true,
+      "status_authority": "Current validator requires nonempty revoke token_id and checks unsafe djci-like values in reason, but does not explicitly reject a djci-like token_id string. Pairing issuer and admin registration validation are source rules, not deployed acceptance.",
+      "observed_at": "2026-10-03 15:48 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-api/blob/3f1ed18d2ce803a2b5d3750115d0dbf2dbaa34ba/src/validation.ts",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-API",
+        "DJC-API-REVOKE",
+        "SLICE::API::OPERATOR-CONTRACT"
+      ],
+      "remaining": "Raw-token input rejection and current deployed operator route acceptance remain open."
     }
   ],
   "nodes": [
@@ -21401,7 +21521,8 @@
         "APPLE_DOC__DOCS_ARCHITECTURE_APPLE_NATIVE_SHARE_CAPABILITY_ASSESSMENT_MD",
         "APPLE_DOC__SCREENSHOTS_README_MD",
         "DEPBOT::DJC-APPLE",
-        "APPLE_POST_MERGE_EVIDENCE_WORKFLOW_CURRENT"
+        "APPLE_POST_MERGE_EVIDENCE_WORKFLOW_CURRENT",
+        "APPLE_PUSH_PROOF_CONSUMER_SOURCE"
       ],
       "canonical_authority": "README::DJC-APPLE",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -21726,7 +21847,10 @@
         "API_DOC__DOCS_AI_DEVELOPMENT_DJCONNECT_API_DEVELOPMENT_EXTENSION_MD",
         "API_DOC__DOCS_AI_DEVELOPMENT_GENERATED_PROJECTION_MD",
         "API_DOC__DOCS_GOVERNANCE_ADOPTION_MD",
-        "DEPBOT::DJC-API"
+        "DEPBOT::DJC-API",
+        "API_PAIRING_BOOTSTRAP_ISSUER_SOURCE",
+        "API_SOURCE_ADMIN",
+        "API_SOURCE_VALIDATION_CURRENT"
       ],
       "canonical_authority": "README::DJC-API",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -21838,7 +21962,10 @@
         "WEBSITE_SOURCE__DOCS_AI_DEVELOPMENT_GENERATED_PROJECTION_MD",
         "WEBSITE_SOURCE__DOCS_GOVERNANCE_ADOPTION_MD",
         "WEBSITE_SOURCE__GITHUB_WORKFLOWS_WEBSITE_POST_DEPLOYMENT_SMOKE_YML",
-        "DEPBOT::DJC-WEBSITE"
+        "DEPBOT::DJC-WEBSITE",
+        "WEBSITE_OPERATOR_REGISTRATIONS_PROXY_SOURCE",
+        "WEBSITE_OPERATOR_REVOKE_PROXY_SOURCE",
+        "WEBSITE_OPERATOR_ACCESS_MIDDLEWARE_SOURCE"
       ],
       "canonical_authority": "README::DJC-WEBSITE",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -29024,7 +29151,8 @@
         "README::DJC-API",
         "AGENTS::DJC-API",
         "API_CONTRACT_DETAIL",
-        "API_OPERATOR_RUNBOOK"
+        "API_OPERATOR_RUNBOOK",
+        "API_PAIRING_BOOTSTRAP_ISSUER_SOURCE"
       ],
       "canonical_authority": "README::DJC-API",
       "owner_boundary": "Centrale API; gelezen README beschrijft APNs-relay, bredere scope nog te auditen",
@@ -29071,7 +29199,8 @@
       "source_ids": [
         "README::DJC-APPLE",
         "TODO::DJC-APPLE",
-        "APPLE_API_CONTRACT"
+        "APPLE_API_CONTRACT",
+        "APPLE_PUSH_PROOF_CONSUMER_SOURCE"
       ],
       "canonical_authority": "README::DJC-APPLE",
       "owner_boundary": "Apple-clientfamilie; native presentatie en clientstaat, geen backendautoriteit",
@@ -29101,7 +29230,9 @@
         {
           "mode": "AND",
           "edge_ids": [
-            "DEP-APPLE-PUSH"
+            "DEP-APPLE-PUSH",
+            "DEP-API-APPLE-PROOF",
+            "DEP-APPLE-PAIRING-PUSH"
           ]
         }
       ],
@@ -29852,11 +29983,12 @@
         "API_CONTRACT_DETAIL",
         "API_SOURCE_ROUTE",
         "API_SOURCE_ADMIN",
-        "API_SOURCE_TOKEN_REPO"
+        "API_SOURCE_TOKEN_REPO",
+        "API_SOURCE_VALIDATION_CURRENT"
       ],
       "canonical_authority": "ISSUES::DJC-API",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
-      "source_status_summary": "Owning ISSUES says open, but pinned route/handler/repository and merged PR #16 prove source implementation; deployed/runtime acceptance remains unverified.",
+      "source_status_summary": "Owning ISSUES says open, but pinned route/handler/repository and merged PR #16 prove source implementation; deployed/runtime acceptance remains unverified. Current validator has no explicit djci-like token_id rejection; treat raw-input exclusion as an unqualified security acceptance condition.",
       "original_status": "open",
       "status_representation": "EXACT_LOCAL_BACKLOG_SUMMARY",
       "selection": "LOCAL_BACKLOG_UNSELECTED",
@@ -32174,6 +32306,110 @@
       "decisions_resolved": false,
       "effort": "UNKNOWN",
       "resume_reference": "https://github.com/pcvantol/djconnect/issues/1101"
+    },
+    {
+      "id": "SLICE::API::OPERATOR-CONTRACT",
+      "canonical_id": null,
+      "title": "Central API operator registration-summary contract",
+      "type": "enabler",
+      "family": "federated_slice",
+      "lane": "DJC-API",
+      "repository": "pcvantol/djconnect-api",
+      "source_ids": [
+        "README::DJC-API",
+        "API_SOURCE_ADMIN",
+        "API_SOURCE_VALIDATION_CURRENT"
+      ],
+      "canonical_authority": "README::DJC-API",
+      "owner_boundary": "Central API owns authenticated privacy-safe admin registration summaries; the existing DJC-API-REVOKE node owns token-revocation status.",
+      "source_status_summary": "Source handlers present at pinned main; deployed API and operator consumer acceptance unverified. Registration query validation is source-visible; deployed behavior remains unqualified.",
+      "original_status": null,
+      "status_representation": "PLANNING_PROJECTION; owning source status remains authoritative",
+      "selection": "EXISTING_SOURCE_PATH_ONLY",
+      "evidence_state": "SOURCE_IMPLEMENTED_NOT_LIVE_QUALIFIED",
+      "assignment_status": "NOT_ISSUED",
+      "completion_claim": "NONE",
+      "count_as_delivered_feature": false,
+      "user_or_consumer": "Authorized operator website",
+      "visible_outcome": "Privacy-safe Apple registration overview for an authorized operator website",
+      "scope": "GET /v1/admin/registrations",
+      "non_goals": "No new product selection, release or live qualification by this planning record.",
+      "profiles": "Cloudflare Worker / D1",
+      "acceptance_boundary": "integration_acceptance",
+      "acceptance_criteria": [
+        "Operator-only auth and redacted registration metadata compatible with the website consumer."
+      ],
+      "completion_requirements": [
+        "Exact source candidate, contract and consumer receipt matching acceptance criterion; no mock-only inference."
+      ],
+      "contract_binding": "Exact compatible revision required at execution; UNKNOWN in this planning snapshot.",
+      "evidence_ids": [],
+      "prerequisite_groups": [],
+      "blockers": [],
+      "resource_capacity": "UNKNOWN",
+      "authority_verified": false,
+      "writer_free_verified": false,
+      "resources_verified": false,
+      "decisions_resolved": false,
+      "effort": "UNKNOWN",
+      "resume_reference": "https://github.com/pcvantol/djconnect/issues/1101"
+    },
+    {
+      "id": "SLICE::WEBSITE::OPERATOR-CONSOLE",
+      "canonical_id": null,
+      "title": "Protected website operator API consumer",
+      "type": "enabler",
+      "family": "federated_slice",
+      "lane": "DJC-WEBSITE",
+      "repository": "pcvantol/djconnect-website",
+      "source_ids": [
+        "README::DJC-WEBSITE",
+        "WEBSITE_SOURCE__TECHNICAL_DESIGN_MD",
+        "WEBSITE_OPERATOR_REGISTRATIONS_PROXY_SOURCE",
+        "WEBSITE_OPERATOR_REVOKE_PROXY_SOURCE",
+        "WEBSITE_OPERATOR_ACCESS_MIDDLEWARE_SOURCE"
+      ],
+      "canonical_authority": "README::DJC-WEBSITE",
+      "owner_boundary": "Website owns protected operator presentation and server-side API proxy; central API owns registration/revocation truth.",
+      "source_status_summary": "Server-side source paths present at pinned main; deployed Access configuration and live operator/API join unverified.",
+      "original_status": null,
+      "status_representation": "PLANNING_PROJECTION; owning source status remains authoritative",
+      "selection": "EXISTING_SOURCE_PATH_ONLY",
+      "evidence_state": "SOURCE_IMPLEMENTED_NOT_LIVE_QUALIFIED",
+      "assignment_status": "NOT_ISSUED",
+      "completion_claim": "NONE",
+      "count_as_delivered_feature": false,
+      "user_or_consumer": "Authorized DJConnect operator",
+      "visible_outcome": "Review redacted Apple registration summaries and revoke a specified install token through server-side proxy",
+      "scope": "Cloudflare Access protected operator.html and /api/operator/* Pages Functions",
+      "non_goals": "No new product selection, release or live qualification by this planning record.",
+      "profiles": "Website / Cloudflare Pages operator route",
+      "acceptance_boundary": "integration_acceptance",
+      "acceptance_criteria": [
+        "Exact deployed website/API route compatibility, Access JWT gate, server-side secret only, redacted registration summaries, token-ID revocation receipt and explicit rejection of raw djci-like token_id input."
+      ],
+      "completion_requirements": [
+        "Exact source candidate, contract and consumer receipt matching acceptance criterion; no mock-only inference."
+      ],
+      "contract_binding": "Exact compatible revision required at execution; UNKNOWN in this planning snapshot.",
+      "evidence_ids": [],
+      "prerequisite_groups": [
+        {
+          "mode": "AND",
+          "edge_ids": [
+            "DEP-API-WEBSITE-REGISTRATIONS",
+            "DEP-API-WEBSITE-REVOKE"
+          ]
+        }
+      ],
+      "blockers": [],
+      "resource_capacity": "UNKNOWN",
+      "authority_verified": false,
+      "writer_free_verified": false,
+      "resources_verified": false,
+      "decisions_resolved": false,
+      "effort": "UNKNOWN",
+      "resume_reference": "https://github.com/pcvantol/djconnect/issues/1101"
     }
   ],
   "edges": [
@@ -33811,6 +34047,95 @@
       "logical_mode": "AND",
       "prerequisite_stage": "completion",
       "same_increment_as_consumer": true
+    },
+    {
+      "id": "DEP-API-APPLE-PROOF",
+      "producer": "SLICE::API::APNS-RELAY",
+      "consumer": "SLICE::APPLE::PUSH-ACCEPTANCE",
+      "kind": "integration_contract",
+      "phase": "integration_acceptance",
+      "required_subset": "Trusted Apple pairing issuer one-time proof and HA registration recovery; distinct from APNs relay delivery",
+      "reason": "Apple client source directly calls the API trusted pairing issuer and then retries HA push registration with the one-time proof. This API→Apple contract is separately required alongside the API→HA relay/token and HA→Apple push-consumer relations.",
+      "source_ids": [
+        "README::DJC-API",
+        "API_PAIRING_BOOTSTRAP_ISSUER_SOURCE",
+        "APPLE_PUSH_PROOF_CONSUMER_SOURCE"
+      ],
+      "hard_precedence": true,
+      "contract_or_evidence": "Exact API issuer revision, Apple bundle/client identity/environment validation, short-lived proof and matching HA registration response in one installed consumer receipt",
+      "evidence_ids": [],
+      "evidence_satisfied": false,
+      "selection_eligible": false,
+      "confidence": "SOURCE_CONTRACT_CAPTURED; exact deployed issuer and installed acceptance not qualified",
+      "logical_mode": "AND"
+    },
+    {
+      "id": "DEP-APPLE-PAIRING-PUSH",
+      "producer": "SLICE::APPLE::PAIRING-ACCEPTANCE",
+      "consumer": "SLICE::APPLE::PUSH-ACCEPTANCE",
+      "kind": "implementation_contract",
+      "phase": "integration_acceptance",
+      "required_subset": "Confirmed paired Apple identity and token state before push registration; no requirement to finish unrelated Apple feature parity",
+      "reason": "Exact Apple main source gates stored-token push registration on pairingStatus == .paired. Push source preparation may proceed independently, but installed push acceptance requires matching paired identity first.",
+      "source_ids": [
+        "APPLE_PUSH_PROOF_CONSUMER_SOURCE",
+        "APPLE_API_CONTRACT"
+      ],
+      "hard_precedence": true,
+      "contract_or_evidence": "Exact HA/Apple paired status and token bound to the same installed client registration receipt",
+      "evidence_ids": [],
+      "evidence_satisfied": false,
+      "selection_eligible": false,
+      "confidence": "SOURCE_GUARD_CAPTURED; installed pairing and push acceptance not qualified",
+      "logical_mode": "AND"
+    },
+    {
+      "id": "DEP-API-WEBSITE-REGISTRATIONS",
+      "producer": "SLICE::API::OPERATOR-CONTRACT",
+      "consumer": "SLICE::WEBSITE::OPERATOR-CONSOLE",
+      "kind": "integration_contract",
+      "phase": "integration_acceptance",
+      "required_subset": "Authenticated privacy-safe Apple registration summaries",
+      "reason": "The website Pages Function consumes this central API operator endpoint; source implementation exists, but exact deployed producer/consumer acceptance is not established.",
+      "source_ids": [
+        "README::DJC-API",
+        "WEBSITE_SOURCE__TECHNICAL_DESIGN_MD",
+        "API_SOURCE_ADMIN",
+        "WEBSITE_OPERATOR_REGISTRATIONS_PROXY_SOURCE",
+        "WEBSITE_OPERATOR_ACCESS_MIDDLEWARE_SOURCE"
+      ],
+      "hard_precedence": true,
+      "contract_or_evidence": "Exact API/website deployed revisions, operator Access configuration, redacted response and read-only consumer receipt",
+      "evidence_ids": [],
+      "evidence_satisfied": false,
+      "selection_eligible": false,
+      "confidence": "SOURCE_CONTRACT_CAPTURED; current deployed operator/API acceptance open",
+      "logical_mode": "AND"
+    },
+    {
+      "id": "DEP-API-WEBSITE-REVOKE",
+      "producer": "DJC-API-REVOKE",
+      "consumer": "SLICE::WEBSITE::OPERATOR-CONSOLE",
+      "kind": "integration_contract",
+      "phase": "integration_acceptance",
+      "required_subset": "Authenticated token-ID revocation for one compromised install; raw djci-like token_id input rejection is an open acceptance condition",
+      "reason": "The website revoke Pages Function consumes the existing owning DJC-API-REVOKE route; the pinned source is implemented while local issue status and live operator acceptance remain unqualified.",
+      "source_ids": [
+        "README::DJC-API",
+        "README::DJC-WEBSITE",
+        "API_SOURCE_ADMIN",
+        "WEBSITE_OPERATOR_REVOKE_PROXY_SOURCE",
+        "WEBSITE_OPERATOR_ACCESS_MIDDLEWARE_SOURCE",
+        "ISSUES::DJC-API",
+        "API_SOURCE_VALIDATION_CURRENT"
+      ],
+      "hard_precedence": true,
+      "contract_or_evidence": "Exact API/website deployed revisions, authorized token-ID revoke response, server-side secret/Access guard and raw-token input rejection receipt",
+      "evidence_ids": [],
+      "evidence_satisfied": false,
+      "selection_eligible": false,
+      "confidence": "SOURCE_CONTRACT_CAPTURED; current deployed operator/API acceptance open",
+      "logical_mode": "AND"
     }
   ],
   "handoffs": [
@@ -34041,6 +34366,49 @@
       "join_id": null,
       "epoch": null,
       "compatibility": "Exact Apple source SHA, notes locale set and receiving website writer slot",
+      "acceptance_owner": "DJC-WEBSITE",
+      "execution_authorized": false
+    },
+    {
+      "id": "API-APPLE-PROOF",
+      "producer_lane": "DJC-API",
+      "consumer_lane": "DJC-APPLE",
+      "subset": "Trusted Apple pairing issuer proof for push-registration recovery, then proof-bearing HA registration",
+      "phase": "integration_acceptance",
+      "source_ids": [
+        "README::DJC-API",
+        "API_PAIRING_BOOTSTRAP_ISSUER_SOURCE",
+        "APPLE_PUSH_PROOF_CONSUMER_SOURCE"
+      ],
+      "status": "SOURCE_PATH_READ; exact API/Apple/HA installed acceptance open",
+      "exact_artifact": "One-time short-lived djcboot proof contract; exact deployed source/artifact binding UNKNOWN",
+      "join_id": null,
+      "epoch": null,
+      "compatibility": "Known Apple bundle, matching client type/device ID and push environment; API proof consumed by HA per-install token flow",
+      "acceptance_owner": "DJC-APPLE",
+      "execution_authorized": false
+    },
+    {
+      "id": "API-WEBSITE-OPERATOR",
+      "producer_lane": "DJC-API",
+      "consumer_lane": "DJC-WEBSITE",
+      "subset": "Operator-only registration summaries and install-token revocation through Pages server-side proxy",
+      "phase": "integration_acceptance",
+      "source_ids": [
+        "README::DJC-API",
+        "README::DJC-WEBSITE",
+        "API_SOURCE_ADMIN",
+        "WEBSITE_OPERATOR_REGISTRATIONS_PROXY_SOURCE",
+        "WEBSITE_OPERATOR_REVOKE_PROXY_SOURCE",
+        "WEBSITE_OPERATOR_ACCESS_MIDDLEWARE_SOURCE",
+        "ISSUES::DJC-API",
+        "API_SOURCE_VALIDATION_CURRENT"
+      ],
+      "status": "SOURCE_PATHS_READ; exact deployed API/Pages/Access acceptance open",
+      "exact_artifact": "Authenticated JSON endpoint contract at pinned source revisions; exact deployed artifact binding UNKNOWN",
+      "join_id": null,
+      "epoch": null,
+      "compatibility": "Cloudflare Access gate and website server-side operator secret; API operator auth, redacted response schema and token-ID revoke request. Raw djci-like token_id rejection remains unqualified.",
       "acceptance_owner": "DJC-WEBSITE",
       "execution_authorized": false
     }
@@ -35204,6 +35572,42 @@
       "source_ids": [
         "CORE_EXTRA__DOCS_VERIFICATION_PERSISTENCE_FOUNDATION_TEST_MATRIX_MD",
         "CORE_EXTRA__CUSTOM_COMPONENTS_DJCONNECT_PERSISTENCE_README"
+      ]
+    },
+    {
+      "id": "API-APPLE-PROOF-HANDOFF",
+      "status": "DIRECT_SOURCE_CONTRACT_CAPTURED__INSTALLED_ACCEPTANCE_OPEN",
+      "description": "Apple main directly requests a short-lived pairing bootstrap proof from the central API trusted issuer when HA push registration requires bootstrap, then retries HA registration with that proof. This adds a distinct API→Apple contract alongside API→HA relay/token and HA→Apple delivery. The source path does not prove an exact deployed issuer, successful HA token mint or live APNs delivery. Apple source also requires confirmed paired status before it attempts push registration; the intra-Apple pairing→push evidence gate is recorded separately.",
+      "source_ids": [
+        "README::DJC-API",
+        "API_PAIRING_BOOTSTRAP_ISSUER_SOURCE",
+        "APPLE_PUSH_PROOF_CONSUMER_SOURCE"
+      ]
+    },
+    {
+      "id": "API-WEBSITE-OPERATOR-HANDOFF",
+      "status": "SOURCE_PATHS_CONFIRMED__DEPLOYED_ACCEPTANCE_OPEN",
+      "description": "The pinned website has server-side Pages Functions that proxy operator registration summaries and token-ID revocation to the central API, with Cloudflare Access middleware and a server-side operator secret. The existing DJC-API-REVOKE owning backlog node remains the sole revocation status authority; the added API node covers only registration summaries. This is a distinct API→Website read/revoke dependency, not a product or release selection. Current deployed API/Pages revisions, Access configuration and live operator acceptance are not proven. The source revoke proxy and API validator currently accept any nonempty token_id, so raw djci-like input exclusion is a separate unmet acceptance check, not a proven safety property.",
+      "source_ids": [
+        "README::DJC-API",
+        "README::DJC-WEBSITE",
+        "API_SOURCE_ADMIN",
+        "WEBSITE_OPERATOR_REGISTRATIONS_PROXY_SOURCE",
+        "WEBSITE_OPERATOR_REVOKE_PROXY_SOURCE",
+        "WEBSITE_OPERATOR_ACCESS_MIDDLEWARE_SOURCE",
+        "ISSUES::DJC-API",
+        "API_SOURCE_VALIDATION_CURRENT"
+      ]
+    },
+    {
+      "id": "API-WEBSITE-REVOKE-TOKEN-ID-INPUT",
+      "status": "SOURCE_INPUT_GUARD_GAP__DEPLOYED_EFFECT_UNVERIFIED",
+      "description": "The intended browser contract uses an install token ID, not raw djci token material. At pinned source, the website revoke proxy forwards any nonempty token_id and the API validator checks only nonemptiness for that field; a djci-like value is explicitly rejected in reason but not token_id. This does not prove a raw credential was submitted, stored or exposed. Treat raw-input rejection as an owning security/acceptance gap; no code or service change is selected by this planning assignment.",
+      "source_ids": [
+        "WEBSITE_OPERATOR_REVOKE_PROXY_SOURCE",
+        "API_SOURCE_VALIDATION_CURRENT",
+        "README::DJC-WEBSITE",
+        "ISSUES::DJC-API"
       ]
     }
   ],
