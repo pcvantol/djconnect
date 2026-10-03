@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import ast
+import hashlib
 import json
 import unittest
 from pathlib import Path
@@ -90,6 +91,15 @@ class EPSourceRetirementTests(unittest.TestCase):
         repository = json.loads((ROOT / ".engineering-platform" / "repository.json").read_text())
         self.assertEqual(repository["project"]["id"], "djconnect")
         self.assertEqual(repository["repository"]["id"], "djconnect")
+
+    def test_prior_onboarding_distribution_stays_immutable(self) -> None:
+        name = "djconnect-developer-onboarding-4.5.2"
+        dist = ROOT / "onboarding" / "dist"
+        digest = "9a3b5982353e8bc5e238a2fcd28943f3c1d7605c4d28615a4c6c122b63077569"
+        self.assertEqual(hashlib.sha256((dist / f"{name}.zip").read_bytes()).hexdigest(), digest)
+        self.assertEqual((dist / f"{name}.zip.sha256").read_text().strip(), f"{digest}  {name}.zip")
+        metadata = json.loads((dist / f"{name}.json").read_text())
+        self.assertEqual(metadata, {"name": name, "sha256": digest, "version": "4.5.2"})
 
 
 if __name__ == "__main__":
