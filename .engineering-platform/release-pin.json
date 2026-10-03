@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "project_id": "djconnect",
+  "distribution": "engineering-platform",
+  "version": "2.3.106",
+  "python_requires": ">=3.14,<3.15",
+  "wheel": "engineering_platform-2.3.106-py3-none-any.whl",
+  "wheel_sha256": "9d25a53d75b61d43d665d9f8290a968dc3e63d12d2037eae8ef31ee810eb6694",
+  "source_revision": "7b99b578153ae5d72372a09db194306b49ec9f9c",
+  "release_tag": "engineering-platform-v2.3.106",
+  "release_receipt": "https://github.com/pcvantol/engineering-platform/releases/download/engineering-platform-v2.3.106/engineering-platform-release-complete-2.3.106-7b99b578153ae5d72372a09db194306b49ec9f9c.json",
+  "publication_registry": "pypi",
+  "supported_boundary": "installed_cli_or_server_http_json",
+  "legacy_local_consumer_api": "unsupported"
+}
