@@ -41,7 +41,7 @@
     "metadata_and_bounded_paraphrases": true,
     "offline_hash_verification_of_remote_blobs": false,
     "per_call_timestamps": "Date-level head readback on 2026-10-03; no per-file read timestamp for inherited checkpoint.",
-    "pinned_tree_blobs_verified": "232 of 232 path/blob pins matched exact commit trees or GitHub Contents commit readbacks: 105 original GitHub tree readbacks, 110 local git commit-tree readbacks and 17 new GitHub Contents readbacks on 2026-10-03. Narrative interpretation remains partial.",
+    "pinned_tree_blobs_verified": "248 of 248 path/blob pins matched exact commit trees or GitHub Contents commit readbacks: 105 original GitHub tree readbacks, 110 local git commit-tree readbacks and 33 new GitHub Contents readbacks on 2026-10-03. Narrative interpretation remains partial.",
     "reference_scan": {
       "method": "Every pinned core Markdown blob and every pinned Markdown blob in the eleven DJC component repositories, at its recorded commit: parse relative Markdown links, strip anchors, normalize against source directory, retain existing .md targets absent from the pinned source matrix; distinct repository/path keys. The seven pinned external Forge method documents are outside this lane-source link frontier.",
       "unmapped_paths": [
@@ -71,25 +71,9 @@
         "pcvantol/djconnect-app::docs/DEVELOPMENT.md",
         "pcvantol/djconnect-app::docs/HANDOFF.md",
         "pcvantol/djconnect-app::docs/TECHNICAL_DESIGN_DECISIONS.md",
-        "pcvantol/djconnect-esp32::DESIGN_DECISIONS.md",
-        "pcvantol/djconnect-esp32::DEVELOPMENT_ENVIRONMENT.md",
-        "pcvantol/djconnect-pi::CHANGELOG.md",
-        "pcvantol/djconnect-pico::DEVELOPMENT_ENVIRONMENT.md",
-        "pcvantol/djconnect-pico::docs/architecture/repository-responsibility.md",
-        "pcvantol/djconnect-windows::CODE_OF_CONDUCT.md",
-        "pcvantol/djconnect-windows::CONTRIBUTING.md",
-        "pcvantol/djconnect-windows::PRIVACY.md",
-        "pcvantol/djconnect-windows::SECURITY.md",
-        "pcvantol/djconnect-windows::docs/ARCHITECTURE_DECISIONS.md",
-        "pcvantol/djconnect-windows::docs/DEVELOPMENT.md",
-        "pcvantol/djconnect-windows::docs/HANDOFF.md",
-        "pcvantol/djconnect-windows::docs/LOCALIZATION.md",
-        "pcvantol/djconnect-windows::docs/NON_FUNCTIONAL_REQUIREMENTS.md",
-        "pcvantol/djconnect-windows::docs/RELEASE.md",
-        "pcvantol/djconnect-windows::docs/TECHNICAL_DESIGN_DECISIONS.md",
-        "pcvantol/djconnect-windows::docs/TRACK_INSIGHT_PLATFORM.md"
+        "pcvantol/djconnect-pi::CHANGELOG.md"
       ],
-      "disposition": "TRIAGED_REFERENCE_ONLY; 18 core and 25 component link targets have explicit non-selection, historical or audit-open dispositions. Link existence alone creates no dependency or execution authority.",
+      "disposition": "TRIAGED_REFERENCE_ONLY; 18 core and 9 component link targets have explicit non-selection, historical or audit-open dispositions. Link existence alone creates no dependency or execution authority.",
       "triage": {
         "pcvantol/djconnect::BOOTSTRAP_CODEX_VERIFICATION.md": "Linked host-verification detail; canonical session bootstrap and actual macOS --verify receipt are pinned. Full linked detail audit remains open.",
         "pcvantol/djconnect::CANONICAL_REFERENCES.md": "Navigation map, fully read; current owning foundation, Product Roadmap and Backlog are pinned directly. Its older roadmap pointer refers to PROMPT_INDEX.md; current records control planning.",
@@ -117,23 +101,7 @@
         "pcvantol/djconnect-app::docs/DEVELOPMENT.md": "Apple build/test policy; component qualification audit remains open.",
         "pcvantol/djconnect-app::docs/HANDOFF.md": "Apple handoff/status chronology; current writer and consumer receipts remain to be checked.",
         "pcvantol/djconnect-app::docs/TECHNICAL_DESIGN_DECISIONS.md": "Apple technical decisions; exact current contract bindings remain to be checked.",
-        "pcvantol/djconnect-esp32::DESIGN_DECISIONS.md": "Firmware design decisions; major/minor protocol and device capability detail remain to be checked.",
-        "pcvantol/djconnect-esp32::DEVELOPMENT_ENVIRONMENT.md": "Firmware local toolchain guide; no new build or flash is selected.",
-        "pcvantol/djconnect-pi::CHANGELOG.md": "Pi source chronology; 3.3.0 versus 4.0.0-rc.2 release status needs exact candidate joins.",
-        "pcvantol/djconnect-pico::DEVELOPMENT_ENVIRONMENT.md": "Experimental Pico development environment; no supported product or release selected.",
-        "pcvantol/djconnect-pico::docs/architecture/repository-responsibility.md": "Experimental repository ownership detail; exact boundary audit remains open.",
-        "pcvantol/djconnect-windows::CODE_OF_CONDUCT.md": "Repository conduct policy; no product dependency or planning selection inferred.",
-        "pcvantol/djconnect-windows::CONTRIBUTING.md": "Contributor workflow; no new writer slot or release authority inferred.",
-        "pcvantol/djconnect-windows::PRIVACY.md": "Windows privacy authority; profile/sharing acceptance audit remains open.",
-        "pcvantol/djconnect-windows::SECURITY.md": "Windows security policy; component safety audit remains open.",
-        "pcvantol/djconnect-windows::docs/ARCHITECTURE_DECISIONS.md": "Windows architecture decisions; current versus historical disposition remains open.",
-        "pcvantol/djconnect-windows::docs/DEVELOPMENT.md": "Windows build/test policy; component qualification audit remains open.",
-        "pcvantol/djconnect-windows::docs/HANDOFF.md": "Windows handoff/status; active local WIP and consumer receipts remain to be checked.",
-        "pcvantol/djconnect-windows::docs/LOCALIZATION.md": "Windows localization policy; five-language rendering acceptance remains to be checked.",
-        "pcvantol/djconnect-windows::docs/NON_FUNCTIONAL_REQUIREMENTS.md": "Windows nonfunctional acceptance, resource and performance constraints remain to be checked.",
-        "pcvantol/djconnect-windows::docs/RELEASE.md": "Windows release procedure; unsigned artifact route and authorization remain to be reconciled.",
-        "pcvantol/djconnect-windows::docs/TECHNICAL_DESIGN_DECISIONS.md": "Windows technical decisions; current backend contract joins remain open.",
-        "pcvantol/djconnect-windows::docs/TRACK_INSIGHT_PLATFORM.md": "Windows Track Insight capability/renderer detail; native versus HA authority must be checked."
+        "pcvantol/djconnect-pi::CHANGELOG.md": "Pi source chronology; 3.3.0 versus 4.0.0-rc.2 release status needs exact candidate joins."
       }
     }
   },
@@ -240,7 +208,7 @@
       "portfolio_register": "https://github.com/pcvantol/djconnect/issues/1101",
       "proposed_documentary_next_step": "Audit lokale backlog en bestaande artifactroute. Los de inconsistentie met app-releases-documentatie op zonder nieuwe signing/publicatieopdracht.",
       "local_backlog_audit": "Relevant local backlog/status entries read; complete audit pending",
-      "local_test_policy": "NOT_FULLY_AUDITED",
+      "local_test_policy": "Pinned CONTRIBUTING, DEVELOPMENT and NFR test policy read; actual CI, MAUI build, live HA and installed consumer receipts not fully audited",
       "release_effect_audit": "Push, tag, dispatch and workflow_run triggers inventoried; exact route-specific effects must be read before push"
     },
     {
@@ -4954,6 +4922,297 @@
         "SLICE::PI::PACKAGE-CANDIDATE"
       ],
       "remaining": "No unread ranges in this source; installed-target and broader repo audit tracked separately"
+    },
+    {
+      "id": "WIN_CODE_CONDUCT",
+      "repository": "pcvantol/djconnect-windows",
+      "path": "CODE_OF_CONDUCT.md",
+      "blob_sha": "d088b2b83cb4dd689cd20e74ddd3e20ee28e9d0b",
+      "commit_sha": "1d6635ff5c610a0f43bf1ba7d68cb0b1def06924",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Local contribution/safety policy; no product execution selection",
+      "observed_at": "2026-10-03 GitHub Contents API / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-windows/blob/1d6635ff5c610a0f43bf1ba7d68cb0b1def06924/CODE_OF_CONDUCT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WINDOWS"
+      ],
+      "remaining": "No unread ranges in this source; actual CI/consumer receipts and wider repository audit tracked separately"
+    },
+    {
+      "id": "WIN_CONTRIBUTING",
+      "repository": "pcvantol/djconnect-windows",
+      "path": "CONTRIBUTING.md",
+      "blob_sha": "7f88b84af56a175b1d89eb4c689cb6b8ffe9426b",
+      "commit_sha": "1d6635ff5c610a0f43bf1ba7d68cb0b1def06924",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Local contribution, localization, testing and secret-safety policy",
+      "observed_at": "2026-10-03 GitHub Contents API / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-windows/blob/1d6635ff5c610a0f43bf1ba7d68cb0b1def06924/CONTRIBUTING.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WINDOWS"
+      ],
+      "remaining": "No unread ranges in this source; actual CI/consumer receipts and wider repository audit tracked separately"
+    },
+    {
+      "id": "WIN_PRIVACY",
+      "repository": "pcvantol/djconnect-windows",
+      "path": "PRIVACY.md",
+      "blob_sha": "92c88296004e4d9c70f91671232261d7677ddf38",
+      "commit_sha": "1d6635ff5c610a0f43bf1ba7d68cb0b1def06924",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Local data and stale pairing privacy boundary",
+      "observed_at": "2026-10-03 GitHub Contents API / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-windows/blob/1d6635ff5c610a0f43bf1ba7d68cb0b1def06924/PRIVACY.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WINDOWS"
+      ],
+      "remaining": "No unread ranges in this source; actual CI/consumer receipts and wider repository audit tracked separately"
+    },
+    {
+      "id": "WIN_SECURITY",
+      "repository": "pcvantol/djconnect-windows",
+      "path": "SECURITY.md",
+      "blob_sha": "8d423c08bbbf58372edbf2d0727b395e49539dd1",
+      "commit_sha": "1d6635ff5c610a0f43bf1ba7d68cb0b1def06924",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Local token, redaction and protocol mismatch security boundary",
+      "observed_at": "2026-10-03 GitHub Contents API / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-windows/blob/1d6635ff5c610a0f43bf1ba7d68cb0b1def06924/SECURITY.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WINDOWS"
+      ],
+      "remaining": "No unread ranges in this source; actual CI/consumer receipts and wider repository audit tracked separately"
+    },
+    {
+      "id": "WIN_ARCH_DEC",
+      "repository": "pcvantol/djconnect-windows",
+      "path": "docs/ARCHITECTURE_DECISIONS.md",
+      "blob_sha": "2efb3a18ccedb9b3d51244b82ddc5188d407eda1",
+      "commit_sha": "1d6635ff5c610a0f43bf1ba7d68cb0b1def06924",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Desktop architecture decisions; shared-contract 3.2.x wording is stale against current 3.3.x",
+      "observed_at": "2026-10-03 GitHub Contents API / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-windows/blob/1d6635ff5c610a0f43bf1ba7d68cb0b1def06924/docs/ARCHITECTURE_DECISIONS.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WINDOWS"
+      ],
+      "remaining": "No unread ranges in this source; actual CI/consumer receipts and wider repository audit tracked separately"
+    },
+    {
+      "id": "WIN_DEVELOPMENT",
+      "repository": "pcvantol/djconnect-windows",
+      "path": "docs/DEVELOPMENT.md",
+      "blob_sha": "57a7daf6dba8565a44729fc92b390b82cb312e56",
+      "commit_sha": "1d6635ff5c610a0f43bf1ba7d68cb0b1def06924",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Current local build/test and CI workflow description; not a run receipt",
+      "observed_at": "2026-10-03 GitHub Contents API / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-windows/blob/1d6635ff5c610a0f43bf1ba7d68cb0b1def06924/docs/DEVELOPMENT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WINDOWS"
+      ],
+      "remaining": "No unread ranges in this source; actual CI/consumer receipts and wider repository audit tracked separately"
+    },
+    {
+      "id": "WIN_HANDOFF",
+      "repository": "pcvantol/djconnect-windows",
+      "path": "docs/HANDOFF.md",
+      "blob_sha": "d8dfed67e87bded47a858146306a881459ef785c",
+      "commit_sha": "1d6635ff5c610a0f43bf1ba7d68cb0b1def06924",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Handoff has current 3.3.0 summary but stale 3.2.x/3.2.10 blockers and prior release validation",
+      "observed_at": "2026-10-03 GitHub Contents API / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-windows/blob/1d6635ff5c610a0f43bf1ba7d68cb0b1def06924/docs/HANDOFF.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WINDOWS"
+      ],
+      "remaining": "No unread ranges in this source; actual CI/consumer receipts and wider repository audit tracked separately"
+    },
+    {
+      "id": "WIN_LOCALIZATION",
+      "repository": "pcvantol/djconnect-windows",
+      "path": "docs/LOCALIZATION.md",
+      "blob_sha": "846198c7af4cf2243a0e454bc77c779b4cabb564",
+      "commit_sha": "1d6635ff5c610a0f43bf1ba7d68cb0b1def06924",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Canonical local five-language resource parity and API error guidance",
+      "observed_at": "2026-10-03 GitHub Contents API / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-windows/blob/1d6635ff5c610a0f43bf1ba7d68cb0b1def06924/docs/LOCALIZATION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WINDOWS"
+      ],
+      "remaining": "No unread ranges in this source; actual CI/consumer receipts and wider repository audit tracked separately"
+    },
+    {
+      "id": "WIN_NFR",
+      "repository": "pcvantol/djconnect-windows",
+      "path": "docs/NON_FUNCTIONAL_REQUIREMENTS.md",
+      "blob_sha": "fe53b1c465b43d709848ba6fde9cc2a96d10d3a5",
+      "commit_sha": "1d6635ff5c610a0f43bf1ba7d68cb0b1def06924",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Local NFR acceptance; 3.2.x and two-language passages are stale against current contracts",
+      "observed_at": "2026-10-03 GitHub Contents API / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-windows/blob/1d6635ff5c610a0f43bf1ba7d68cb0b1def06924/docs/NON_FUNCTIONAL_REQUIREMENTS.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WINDOWS"
+      ],
+      "remaining": "No unread ranges in this source; actual CI/consumer receipts and wider repository audit tracked separately"
+    },
+    {
+      "id": "WIN_RELEASE_GUIDE",
+      "repository": "pcvantol/djconnect-windows",
+      "path": "docs/RELEASE.md",
+      "blob_sha": "d14a88515f01465a559870532612987d96c6cf0e",
+      "commit_sha": "1d6635ff5c610a0f43bf1ba7d68cb0b1def06924",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Manual unsigned diagnostic publication guide for 3.3.0; no publication authorized",
+      "observed_at": "2026-10-03 GitHub Contents API / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-windows/blob/1d6635ff5c610a0f43bf1ba7d68cb0b1def06924/docs/RELEASE.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "SLICE::WINDOWS::BUNDLE-CANDIDATE"
+      ],
+      "remaining": "No unread ranges in this source; actual CI/consumer receipts and wider repository audit tracked separately"
+    },
+    {
+      "id": "WIN_TECH_DESIGN",
+      "repository": "pcvantol/djconnect-windows",
+      "path": "docs/TECHNICAL_DESIGN_DECISIONS.md",
+      "blob_sha": "0f14222f074f6305ac35a2a610ed93145df91f94",
+      "commit_sha": "1d6635ff5c610a0f43bf1ba7d68cb0b1def06924",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Current 3.3.x desktop architecture and test/CI design",
+      "observed_at": "2026-10-03 GitHub Contents API / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-windows/blob/1d6635ff5c610a0f43bf1ba7d68cb0b1def06924/docs/TECHNICAL_DESIGN_DECISIONS.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WINDOWS"
+      ],
+      "remaining": "No unread ranges in this source; actual CI/consumer receipts and wider repository audit tracked separately"
+    },
+    {
+      "id": "WIN_TRACK_INSIGHT",
+      "repository": "pcvantol/djconnect-windows",
+      "path": "docs/TRACK_INSIGHT_PLATFORM.md",
+      "blob_sha": "a579d75e85478c2df37512ae6f94b16403ab8ddf",
+      "commit_sha": "1d6635ff5c610a0f43bf1ba7d68cb0b1def06924",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Windows Track Insight architecture with stale music_dna response-field and 3.2.x wording",
+      "observed_at": "2026-10-03 GitHub Contents API / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-windows/blob/1d6635ff5c610a0f43bf1ba7d68cb0b1def06924/docs/TRACK_INSIGHT_PLATFORM.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WINDOWS",
+        "DJC-WIN-LIVE"
+      ],
+      "remaining": "No unread ranges in this source; actual CI/consumer receipts and wider repository audit tracked separately"
+    },
+    {
+      "id": "ESP_DESIGN",
+      "repository": "pcvantol/djconnect-esp32",
+      "path": "DESIGN_DECISIONS.md",
+      "blob_sha": "c495b6af2137f4e99bc4510b556c576a6950e03c",
+      "commit_sha": "49a71f99f6435819ec00b7387520a3fd20640a0b",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "ESP module, API, major/minor, OTA and dependency design; 3.2.x passages require current-line reconciliation",
+      "observed_at": "2026-10-03 GitHub Contents API / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-esp32/blob/49a71f99f6435819ec00b7387520a3fd20640a0b/DESIGN_DECISIONS.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-ESP32",
+        "SLICE::ESP32::FIRMWARE-CANDIDATE"
+      ],
+      "remaining": "No unread ranges in this source; actual run/physical receipts and wider repository audit tracked separately"
+    },
+    {
+      "id": "ESP_DEVENV",
+      "repository": "pcvantol/djconnect-esp32",
+      "path": "DEVELOPMENT_ENVIRONMENT.md",
+      "blob_sha": "e90d73cc83b84f2f4aa95f55895aabc495a99c86",
+      "commit_sha": "49a71f99f6435819ec00b7387520a3fd20640a0b",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Pinned local PlatformIO/toolchain, host/native validation and release-asset guide; not a run or flash receipt",
+      "observed_at": "2026-10-03 GitHub Contents API / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-esp32/blob/49a71f99f6435819ec00b7387520a3fd20640a0b/DEVELOPMENT_ENVIRONMENT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-ESP32",
+        "SLICE::ESP32::FIRMWARE-CANDIDATE"
+      ],
+      "remaining": "No unread ranges in this source; actual run/physical receipts and wider repository audit tracked separately"
+    },
+    {
+      "id": "PICO_DEVENV",
+      "repository": "pcvantol/djconnect-pico",
+      "path": "DEVELOPMENT_ENVIRONMENT.md",
+      "blob_sha": "f67b161070ae1996e9030f81168d06c06aaa0baa",
+      "commit_sha": "6daf1f291566dea52adef604a7186b43755d871e",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Experimental MicroPython Pico 2 W local environment; no production build or flashing selected",
+      "observed_at": "2026-10-03 GitHub Contents API / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-pico/blob/6daf1f291566dea52adef604a7186b43755d871e/DEVELOPMENT_ENVIRONMENT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-PICO"
+      ],
+      "remaining": "No unread ranges in this source; actual run/physical receipts and wider repository audit tracked separately"
+    },
+    {
+      "id": "PICO_RESPONSIBILITY",
+      "repository": "pcvantol/djconnect-pico",
+      "path": "docs/architecture/repository-responsibility.md",
+      "blob_sha": "100163c2c4f6407dbb897c7d90067783869bf568",
+      "commit_sha": "6daf1f291566dea52adef604a7186b43755d871e",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Prototype-only responsibility and capability boundary; production pairing, protocol and release excluded",
+      "observed_at": "2026-10-03 GitHub Contents API / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-pico/blob/6daf1f291566dea52adef604a7186b43755d871e/docs/architecture/repository-responsibility.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-PICO"
+      ],
+      "remaining": "No unread ranges in this source; actual run/physical receipts and wider repository audit tracked separately"
     }
   ],
   "nodes": [
@@ -5083,7 +5342,9 @@
         "AGENTS::DJC-ESP32",
         "STATUS::DJC-ESP32",
         "TODO::DJC-ESP32",
-        "LOCALIZATION_VALIDATION_SPEC"
+        "LOCALIZATION_VALIDATION_SPEC",
+        "ESP_DESIGN",
+        "ESP_DEVENV"
       ],
       "canonical_authority": "README::DJC-ESP32",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -5195,7 +5456,18 @@
         "LOCALIZATION_VALIDATION_SPEC",
         "WIN_PROFILE_ADOPTION",
         "WIN_ARCH",
-        "WIN_API_MIRROR"
+        "WIN_API_MIRROR",
+        "WIN_CODE_CONDUCT",
+        "WIN_CONTRIBUTING",
+        "WIN_PRIVACY",
+        "WIN_SECURITY",
+        "WIN_ARCH_DEC",
+        "WIN_DEVELOPMENT",
+        "WIN_HANDOFF",
+        "WIN_LOCALIZATION",
+        "WIN_NFR",
+        "WIN_TECH_DESIGN",
+        "WIN_TRACK_INSIGHT"
       ],
       "canonical_authority": "README::DJC-WINDOWS",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -5392,7 +5664,9 @@
       "lane": "DJC-PICO",
       "repository": "pcvantol/djconnect-pico",
       "source_ids": [
-        "README::DJC-PICO"
+        "README::DJC-PICO",
+        "PICO_DEVENV",
+        "PICO_RESPONSIBILITY"
       ],
       "canonical_authority": "README::DJC-PICO",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -12326,7 +12600,9 @@
       "repository": "pcvantol/djconnect-esp32",
       "source_ids": [
         "README::DJC-ESP32",
-        "AGENTS::DJC-ESP32"
+        "AGENTS::DJC-ESP32",
+        "ESP_DESIGN",
+        "ESP_DEVENV"
       ],
       "canonical_authority": "README::DJC-ESP32",
       "owner_boundary": "ESP32-firmware; constrained voice/control client",
@@ -12634,7 +12910,8 @@
         "README::DJC-WINDOWS",
         "AGENTS::DJC-WINDOWS",
         "WINDOWS-PUBLISH",
-        "WIN_ARCH"
+        "WIN_ARCH",
+        "WIN_RELEASE_GUIDE"
       ],
       "canonical_authority": "README::DJC-WINDOWS",
       "owner_boundary": "Windows/Mac Catalyst-clientbron; backendcontract-consumer",
@@ -13488,7 +13765,8 @@
         "ISSUES::DJC-WINDOWS",
         "WIN_PROFILE_ADOPTION",
         "WIN_ARCH",
-        "WIN_API_MIRROR"
+        "WIN_API_MIRROR",
+        "WIN_TRACK_INSIGHT"
       ],
       "canonical_authority": "ISSUES::DJC-WINDOWS",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -17373,14 +17651,15 @@
     {
       "id": "DRIFT-DIST",
       "status": "OPEN",
-      "description": "The app-releases README calls this only an internal unsigned Apple handoff, while the owning Apple README/release guide and Apple/Windows publisher workflows explicitly describe public GitHub unsigned diagnostic artifacts and website notes. GitHub currently lists published non-prerelease 3.3.0 unsigned iOS, macOS and Windows assets; no Mac Catalyst tag appears in the current 11-release listing. The unsigned assets are not App Store/Developer ID/installer acceptance, and their source-candidate/consumer joins are unqualified. Reconcile the receiving README and current channel policy in the existing owning distribution register; no republish or route redesign.",
+      "description": "The app-releases README calls this only an internal unsigned Apple handoff, while the owning Apple README/release guide, Windows release guide and Apple/Windows publisher workflows explicitly describe public GitHub unsigned diagnostic artifacts and website notes. GitHub currently lists published non-prerelease 3.3.0 unsigned iOS, macOS and Windows assets; no Mac Catalyst tag appears in the current 11-release listing. Windows source publication is manual workflow_dispatch, not an automatic tag-push effect. The unsigned assets are not App Store/Developer ID/installer acceptance, and their source-candidate/consumer joins are unqualified. Reconcile the receiving README and current channel policy in the existing owning distribution register; no republish or route redesign.",
       "source_ids": [
         "README::DJC-DIST-APPLE",
         "README::DJC-APPLE",
         "APPLE_RELEASE_GUIDE",
         "README::DJC-WINDOWS",
         "APPLE-PUBLISH",
-        "WINDOWS-PUBLISH"
+        "WINDOWS-PUBLISH",
+        "WIN_RELEASE_GUIDE"
       ]
     },
     {
@@ -17492,7 +17771,7 @@
     {
       "id": "NORMATIVE-SOURCE-LINK-GAPS",
       "status": "LINK_FRONTIER_TRIAGED; BROADER_SOURCE_AUDIT_OPEN",
-      "description": "The pinned-blob relative Markdown-link scan covers included core and eleven component-repository Markdown sources. It finds 18 core plus 25 component existing targets still outside the pinned source matrix, each explicitly triaged. Fourteen Software Assurance supporting documents and Pi handoff, tests and bootstrap have now been fully read and pinned; remaining component contract/release/test records and broader repository discovery remain audit-open. Link existence alone adds no dependency or product selection.",
+      "description": "The pinned-blob relative Markdown-link scan covers included core and eleven component-repository Markdown sources. It finds 18 core plus 9 component existing targets still outside the pinned source matrix, each explicitly triaged. Fourteen Software Assurance, three Pi handoff/test/bootstrap, twelve Windows local-policy/architecture/release and four ESP32/Pico sources have now been fully read and pinned. Remaining Apple/Pi and core linked sources and broader repository discovery remain audit-open. Link existence alone adds no dependency or product selection.",
       "source_ids": [
         "FOUNDATION_INDEX",
         "SESSION_RUNTIME_CONTRACTS",
@@ -17510,7 +17789,14 @@
         "SA_DEPENDENCIES",
         "PI_HANDOFF",
         "PI_TESTS",
-        "PI_BOOTSTRAP"
+        "PI_BOOTSTRAP",
+        "WIN_HANDOFF",
+        "WIN_RELEASE_GUIDE",
+        "WIN_NFR",
+        "ESP_DESIGN",
+        "ESP_DEVENV",
+        "PICO_DEVENV",
+        "PICO_RESPONSIBILITY"
       ]
     },
     {
@@ -17539,13 +17825,19 @@
     {
       "id": "WINDOWS-CONTRACT-MIRROR-DRIFT",
       "status": "OPEN_DOCUMENTARY_RECONCILIATION",
-      "description": "At the pinned Windows head, README calls the desktop app 3.3.0 and protocol 3.3.x, but its architecture and API mirror still call the shared client contract 3.2.x. The API mirror also lists track_insight.music_dna beside track/analysis/visual_profile/cache, whereas the current core AGENTS contract limits client-authoritative Track Insight fields to track, analysis, visual_profile, mood_context and cache. The Windows Profile Adoption Report keeps HA as Profile/Music DNA authority and intentionally defers Profile switching. Treat older version/field text as a component-doc reconciliation task, not a new runtime contract or product pickup.",
+      "description": "At the pinned Windows head, README, technical design and handoff call the app/release 3.3.0 and the current integration line 3.3.x. Architecture, API mirror, architecture decisions, handoff blocker/next-step text, NFR and Track Insight architecture still describe a 3.2.x contract; handoff also calls 3.2.10 release validation pending despite current 3.3.0 summary. API mirror and Track Insight architecture list track_insight.music_dna as a client response field, whereas current core AGENTS limits client-authoritative Track Insight fields to track, analysis, visual_profile, mood_context and cache. NFR localization prose says Dutch/English only while current local localization policy and resources require en/nl/de/fr/es. The Profile Adoption Report keeps HA as Profile/Music DNA authority and intentionally defers Profile switching. Reconcile the component documents and actual client behavior under existing Windows/core contracts; no new runtime contract or product pickup is selected.",
       "source_ids": [
         "README::DJC-WINDOWS",
         "WIN_ARCH",
         "WIN_API_MIRROR",
         "WIN_PROFILE_ADOPTION",
-        "AGENTS::DJC-CORE"
+        "AGENTS::DJC-CORE",
+        "WIN_ARCH_DEC",
+        "WIN_HANDOFF",
+        "WIN_NFR",
+        "WIN_TRACK_INSIGHT",
+        "WIN_TECH_DESIGN",
+        "WIN_LOCALIZATION"
       ]
     },
     {
@@ -17586,6 +17878,16 @@
         "SA_VERSIONING",
         "EVOLUTION"
       ]
+    },
+    {
+      "id": "ESP32-PROTOCOL-DOCUMENT-MIRROR-DRIFT",
+      "status": "OPEN_DOCUMENTARY_RECONCILIATION",
+      "description": "At the pinned ESP32 head, DESIGN_DECISIONS lines 330-336 still frames HA v3.2.z and ESP v3.2.z matching and calls a 3.2.x backend summary current. The pinned ESP32 README identifies published v3.2.x source tags; the core pinned released integration is described as 3.3.1 while its source candidate reports 4.0.0-rc.1. Under the major/minor compatibility rule, the design example cannot be used as proof of current 3.3/4.0 field compatibility. Reconcile current firmware artifact and actual device/HA versions under the existing core/ESP contracts before consumer acceptance; no update or release is selected.",
+      "source_ids": [
+        "ESP_DESIGN",
+        "README::DJC-ESP32",
+        "AGENTS::DJC-CORE"
+      ]
     }
   ],
   "audit_obligations": [
@@ -17606,7 +17908,7 @@
       "id": "AUDIT-DJC-ESP32",
       "status": "OPEN",
       "scope": "DJC-ESP32",
-      "reason": "Complete local policy, owning backlog/source/tests/PR/releases, active writer/register discovery, workflow effects and final delta. README is not a complete component audit."
+      "reason": "Pinned ESP32 README, AGENTS, status, backlog, design and development environment are read; reconcile the design document 3.2.z compatibility example with current source/release lines and qualify actual CI, firmware producer/consumer joins, device receipts, local WIP and final delta."
     },
     {
       "id": "AUDIT-DJC-PI",
@@ -17620,7 +17922,7 @@
       "status": "OPEN",
       "scope": "DJC-WINDOWS",
       "reason": "Complete local policy, owning backlog/source/tests/PR/releases, active writer/register discovery, workflow effects and final delta. README is not a complete component audit.",
-      "remaining": "Pinned Windows profile report, architecture and API mirror are read; reconcile their 3.2.x/Track Insight field drift with current core contract, then finish privacy, release, test-policy, 3.3.0 unsigned assets, conditional Mac Catalyst, local WIP and consumer receipts."
+      "remaining": "Pinned Windows profile, architecture, API mirror, code/contribution/privacy/security, development/handoff/localization/NFR/release/technical/Track Insight documents are read. Reconcile 3.2.x and Track Insight field drift with current core 3.3.x/five-language contract; then qualify actual CI, unsigned 3.3.0 source/artifact join, conditional Mac Catalyst, local WIP and live/installed consumer receipts."
     },
     {
       "id": "AUDIT-DJC-API",
@@ -17644,7 +17946,7 @@
       "id": "AUDIT-DJC-PICO",
       "status": "OPEN",
       "scope": "DJC-PICO",
-      "reason": "Complete local policy, owning backlog/source/tests/PR/releases, active writer/register discovery, workflow effects and final delta. README is not a complete component audit."
+      "reason": "Pinned Pico responsibility and development environment confirm an experimental MicroPython Pico 2 W prototype, not production pairing/protocol/release. Complete local source/test, writer and final-delta audit without selecting a production lane."
     },
     {
       "id": "AUDIT-DJC-DIST-FIRMWARE",
@@ -17684,7 +17986,7 @@
       "status": "OPEN",
       "scope": "platform",
       "reason": "Follow all owning graph/source links, old IDs and historical disposition; a truncated tree or empty search is not absence evidence.",
-      "remaining": "Resolve the 43 triaged linked-source targets where planning-relevant, follow owning graph/old IDs and historical dispositions, and prove phase-specific edges and rollups. The canonical Software Assurance architecture dependency graph remains a separate governance graph, not selected DJConnect product work."
+      "remaining": "Resolve the 27 triaged linked-source targets where planning-relevant, follow owning graph/old IDs and historical dispositions, and prove phase-specific edges and rollups. The canonical Software Assurance architecture dependency graph remains separate governance, not selected DJConnect product work."
     },
     {
       "id": "PRODUCER-EVIDENCE",
@@ -17698,7 +18000,7 @@
       "status": "OPEN",
       "scope": "platform",
       "reason": "Current matrix covers only explicitly read source inventory; certify complete disposition only after all relevant discoveries are audited.",
-      "remaining": "All 232 included pinned rows are fully read, but 18 core and 25 component relative Markdown targets remain outside the matrix with explicit triage. Read or exclude remaining audit-open contract/handoff/test sources with evidence, then certify repository-wide discovery."
+      "remaining": "All 248 included pinned rows are fully read, but 18 core and 9 component relative Markdown targets remain outside the matrix with explicit triage. Read or exclude remaining audit-open sources with evidence, then certify repository-wide discovery."
     },
     {
       "id": "REGISTER-DELIVERY",

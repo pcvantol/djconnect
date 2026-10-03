@@ -37,7 +37,7 @@ Continue assignment DJC-PLATFORM-ROADMAP-DAG-LANES-V1-20261003 in pcvantol/djcon
 Read https://github.com/pcvantol/djconnect/issues/1101 and https://github.com/pcvantol/djconnect-windows/issues/76; keep the current WIP/assignment intact: LOCAL_WIP_OBSERVED on main; no second source writer.
 Use the existing owning backlog, exact source pins and local bootstrap. Planning outcome: Audit lokale backlog en bestaande artifactroute. Los de inconsistentie met app-releases-documentatie op zonder nieuwe signing/publicatieopdracht.
 Selected owning node IDs (no new pickup): none established for this lane.
-Local test-policy audit: NOT_FULLY_AUDITED. Workflow effects: Push, tag, dispatch and workflow_run triggers inventoried; exact route-specific effects must be read before push.
+Local test-policy audit: Pinned CONTRIBUTING, DEVELOPMENT and NFR test policy read; actual CI, MAUI build, live HA and installed consumer receipts not fully audited. Workflow effects: Push, tag, dispatch and workflow_run triggers inventoried; exact route-specific effects must be read before push.
 This is documentary planning only. Do not infer product selection, writer availability, resource capacity or release authority.
 For any later selected vertical work, first prove DoR, then include UX, tests, review, fixes, protected merge and finalization in the same assignment.
 Coordinate these exact handoff IDs and acceptance owners through the owning registers:
