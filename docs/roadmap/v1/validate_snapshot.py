@@ -297,6 +297,8 @@ def validate(plan: Any, require_complete: bool = False) -> list[str]:
             f"{eid}: evidence provenance missing",
         )
     for finding in plan["findings"]:
+        for sid in finding.get("source_ids", []):
+            check(sid in sources, f"{finding['id']}: unknown finding source {sid}")
         for eid in finding.get("evidence_ids", []):
             check(eid in evidence, f"{finding['id']}: unknown finding evidence {eid}")
     obligations = indexes["audit_obligations"]

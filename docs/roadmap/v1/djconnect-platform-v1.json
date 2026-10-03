@@ -17174,6 +17174,7 @@
       "description": "Read-only local worktree inventory at 2026-10-03 11:10 UTC found one checkout for each of twelve repositories. Apple is currently clean on main after earlier observed WIP; ESP32 has an uncommitted .vscode/extensions.json change and Windows has unrelated staged/unstaged WIP. This planning writer touches none of those checkouts and does not infer a free source writer or capacity from clean status.",
       "source_ids": [
         "STATUS::DJC-APPLE",
+        "STATUS::DJC-ESP32",
         "STATUS::DJC-WINDOWS"
       ]
     },

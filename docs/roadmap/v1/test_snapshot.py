@@ -110,6 +110,11 @@ class SnapshotTests(unittest.TestCase):
         finding["evidence_ids"] = ["MISSING"]
         self.assertIn("unknown finding evidence", self.errors())
 
+    def test_finding_source_must_exist(self):
+        finding = next(f for f in self.p["findings"] if f["id"] == "CURRENT-WIP")
+        finding["source_ids"] = ["MISSING"]
+        self.assertIn("unknown finding source", self.errors())
+
     def test_unpinned_reference_scan_requires_path_dispositions(self):
         self.p["source_capture"]["reference_scan"]["triage"].pop(
             "pcvantol/djconnect::CANONICAL_REFERENCES.md"
