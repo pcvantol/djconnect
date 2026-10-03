@@ -2,6 +2,29 @@
 
 Status: active platform-evolution repository
 
+## PR #1099 embedded EP source retirement finalization
+
+PR [#1099](https://github.com/pcvantol/djconnect/pull/1099) merged as
+`60d5ee2e034323515092cd4100b1683f588e59fc` from exact candidate
+`3cdc09c406b10d7cdd33b614f606c55c5ebcf191`. The generic embedded EP
+runtime, exclusive tests and source-dependent CI are removed. DJConnect product,
+Golden, security, host/onboarding and historical evidence remain. The remaining
+declarative EP boundary pins the published 2.3.106 wheel by exact digest.
+Onboarding 4.5.3 preserves all immutable 4.5.2 distribution bytes.
+
+Independent review found no remaining issue; final-head protected checks and
+exact-head HIGH_RISK owner authorization passed. Main workflow
+[37107663006](https://github.com/pcvantol/djconnect/actions/runs/37107663006)
+passed with coverage evidence; reconciliation
+[37107808478](https://github.com/pcvantol/djconnect/actions/runs/37107808478)
+qualified release evidence for this exact main SHA. The older failed
+[run 36965764691](https://github.com/pcvantol/djconnect/actions/runs/36965764691)
+on prior main remains historical and unqualified. This governance-only
+Finalization reconciles the four rolling records and leaves immutable Prompt
+History intact. Repository State: `MERGED_RECONCILED` after this Finalization
+merges; Workspace State: `WORKSPACE_READY` after mandatory cleanup;
+Finalization Pending: `NO` after merge.
+
 ## PR #1060 finalized by PR #1061
 
 PR [#1060](https://github.com/pcvantol/djconnect/pull/1060), **Document Local

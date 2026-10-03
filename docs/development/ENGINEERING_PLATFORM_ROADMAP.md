@@ -8,6 +8,10 @@ DJConnect dependencies. The owner has validated independent standalone
 distribution and responsibility transfer. A real DJConnect Engineering Action
 through EP and an EP self-development task are waived only as prerequisites
 for this source retirement; they are not recorded as passed qualifications.
+The bounded source retirement is merged on main through
+[PR #1099](https://github.com/pcvantol/djconnect/pull/1099) at
+`60d5ee2e034323515092cd4100b1683f588e59fc`; its exact-main release
+evidence is qualified. Repository Finalization is tracked separately.
 See the [LANE_5 decision register](../governance/LANE_5_EP_SOURCE_RETIREMENT.md)
 and [owning issue #1098](https://github.com/pcvantol/djconnect/issues/1098).
 

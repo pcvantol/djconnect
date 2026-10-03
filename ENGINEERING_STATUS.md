@@ -1,7 +1,30 @@
 # DJConnect Engineering Status
 
 **Status:** Operational handoff
-**Updated:** 2026-08-31
+**Updated:** 2026-10-03
+
+## PR #1099 embedded EP source retirement finalization
+
+PR [#1099](https://github.com/pcvantol/djconnect/pull/1099) merged as
+`60d5ee2e034323515092cd4100b1683f588e59fc` from exact candidate
+`3cdc09c406b10d7cdd33b614f606c55c5ebcf191`. The final clean checkout
+passed 1,463 product tests, 68 onboarding tests, five retirement guards,
+projection/package checks, Ruff and Bandit, without a sibling EP checkout or
+installed EP in its product-test environment. The independent review had no
+remaining findings. The published 2.3.106 EP wheel is exactly pinned; the
+former embedded runtime and its exclusive tests are absent.
+
+Protected PR checks and exact-head HIGH_RISK owner authorization passed.
+Main workflow [37107663006](https://github.com/pcvantol/djconnect/actions/runs/37107663006)
+passed; [reconciliation 37107808478](https://github.com/pcvantol/djconnect/actions/runs/37107808478)
+returned `POST_MERGE_RELEASE_EVIDENCE_QUALIFIED` for the exact main SHA.
+The earlier failed [run 36965764691](https://github.com/pcvantol/djconnect/actions/runs/36965764691)
+on prior main is not qualified by this result. A and D are owner validated;
+B and C are waived only for this retirement, with no fabricated PASS.
+This Finalization reconciles current records and preserves immutable Prompt
+History. Repository State: `MERGED_RECONCILED` after Finalization merge;
+Workspace State: `WORKSPACE_READY` after mandatory cleanup; Finalization
+Pending: `NO` after merge.
 
 ## PR #1060 finalized by PR #1061
 

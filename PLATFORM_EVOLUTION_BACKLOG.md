@@ -16,7 +16,7 @@ user-facing roadmap progress; the current Product Initiative is recorded in
 
 | Initiative | Priority | Status | Dependencies | Promotion path |
 | --- | --- | --- | --- | --- |
-| Embedded Engineering Platform source retirement | P0 | Current execution | [LANE_5 owner decision](docs/governance/LANE_5_EP_SOURCE_RETIREMENT.md), [issue #1098](https://github.com/pcvantol/djconnect/issues/1098), published EP 2.3.106 receipt | Remove transferred generic runtime and convert DJConnect's active boundaries while preserving product validation and historical evidence; no live cutover |
+| Embedded Engineering Platform source retirement | P0 | Completed | [LANE_5 owner decision and qualification](docs/governance/LANE_5_EP_SOURCE_RETIREMENT.md), [PR #1099](https://github.com/pcvantol/djconnect/pull/1099), published EP 2.3.106 receipt | Transferred generic runtime removed and active DJConnect boundaries converted; product validation and historical evidence retained, no live cutover |
 | Engineering Platform 2.0 versioned boundary | P0 | Historical | EP 2.0 version and qualification evidence in Git history | Earlier embedded platform, runner, watcher and dashboard alignment; standalone EP now owns current releases |
 | Engineering Platform 1.5 operational hardening | P2 | Historical | EP 1.5 finalization and PRs #689–#699 | Earlier embedded runtime evidence; no current DJConnect EP implementation ownership |
 | Engineering Platform 1.x feature-complete declaration | P0 | Completed | `docs/engineering/ENGINEERING_PLATFORM_1_X_COMPLETION_REPORT.md`; stable Execution Host and Producer Contract | `ENGINEERING_PLATFORM_1_X_FEATURE_COMPLETE`; future work requires explicit architectural authorization and remains generic execution-platform work |
@@ -100,7 +100,7 @@ providers, public exposure, release automation or a 1.6 implementation.
 **Owner:** Platform Evolution / local maintainer
 
 **Priority:** P0
-**Status:** Current execution
+**Status:** Historical
 
 Engineering Platform 2.0.0 establishes one major-version boundary across the
 platform, runner, Inbox watcher and private dashboard. New engineering prompts

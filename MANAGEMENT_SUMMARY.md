@@ -1,5 +1,32 @@
 # DJConnect Generation 2 Management Summary
 
+## PR #1099 embedded EP source retirement finalization
+
+PR [#1099](https://github.com/pcvantol/djconnect/pull/1099) merged as
+`60d5ee2e034323515092cd4100b1683f588e59fc` from final head
+`3cdc09c406b10d7cdd33b614f606c55c5ebcf191`. DJConnect no longer owns a
+second generic Engineering Platform runtime. Its existing Home Assistant
+product, development-host and verification boundaries remain, and the retained
+EP consumer declaration pins published release 2.3.106 by exact wheel digest.
+The 4.5.2 onboarding release remains byte-for-byte immutable; current
+onboarding is 4.5.3. No live service, credential, data or product release was
+changed. A and D were owner validated; B and C were waived only for this
+source retirement.
+
+Independent review and protected PR checks passed. Exact-head HIGH_RISK owner
+authorization passed. Main workflow
+[37107663006](https://github.com/pcvantol/djconnect/actions/runs/37107663006)
+and exact-main [release-evidence reconciliation 37107808478](https://github.com/pcvantol/djconnect/actions/runs/37107808478)
+passed; the latter returned `POST_MERGE_RELEASE_EVIDENCE_QUALIFIED`. The prior
+failed [run 36965764691](https://github.com/pcvantol/djconnect/actions/runs/36965764691)
+remains unqualified historical evidence. This governance-only Finalization
+reconciles the rolling records and preserves Prompt History. Generation 2,
+Phase 1 DJ Intelligence Evolution remains the product position; the canonical
+five-item Execution Horizon below is unchanged. Repository State:
+`MERGED_RECONCILED` after this Finalization merges; Workspace State:
+`WORKSPACE_READY` after mandatory cleanup; Finalization Pending: `NO` after
+merge.
+
 ## PR #1060 finalized by PR #1061
 
 PR [#1060](https://github.com/pcvantol/djconnect/pull/1060), **Document Local
