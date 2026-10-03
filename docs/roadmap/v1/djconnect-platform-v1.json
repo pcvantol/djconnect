@@ -41,7 +41,7 @@
     "metadata_and_bounded_paraphrases": true,
     "offline_hash_verification_of_remote_blobs": false,
     "per_call_timestamps": "Date-level head readback on 2026-10-03; no per-file read timestamp for inherited checkpoint.",
-    "pinned_tree_blobs_verified": "278 of 278 path/blob pins matched exact commit trees or GitHub Contents commit readbacks: 105 original GitHub tree readbacks, 110 local git commit-tree readbacks and 63 new GitHub Contents readbacks on 2026-10-03. Narrative interpretation remains partial.",
+    "pinned_tree_blobs_verified": "298 of 298 path/blob pins matched exact commit trees or GitHub Contents commit readbacks: 105 original GitHub tree readbacks, 120 local git commit-tree readbacks and 73 new GitHub Contents readbacks on 2026-10-03. Narrative interpretation remains partial.",
     "reference_scan": {
       "method": "Every pinned core Markdown blob and every pinned Markdown blob in the eleven DJC component repositories, at its recorded commit: parse relative Markdown links, strip anchors, normalize against source directory, retain existing .md targets absent from the pinned source matrix; distinct repository/path keys. The seven pinned external Forge method documents are outside this lane-source link frontier.",
       "unmapped_paths": [
@@ -5724,6 +5724,372 @@
         "PROJ::AUDIT::METHOD"
       ],
       "remaining": "No unread ranges in this source; broader repository audit tracked separately"
+    },
+    {
+      "id": "CORE_META_README",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/meta/README.md",
+      "blob_sha": "cbd40b18175e2401c6c0d9fb2b95300911e5b10d",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Canonical Meta Engineering navigation and reading order",
+      "observed_at": "2026-10-03 exact pinned commit contents / tree readback",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/meta/README.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::AUDIT::METHOD"
+      ],
+      "remaining": "No unread ranges in this source; broader repository audit tracked separately"
+    },
+    {
+      "id": "CORE_META_AI_COLLAB",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/meta/AI_COLLABORATION_MODEL.md",
+      "blob_sha": "5e398bf59cf460ed4ec08dd7d7099939b3b18988",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Canonical repository-first AI collaboration guidance",
+      "observed_at": "2026-10-03 exact pinned commit contents / tree readback",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/meta/AI_COLLABORATION_MODEL.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::AUDIT::METHOD"
+      ],
+      "remaining": "No unread ranges in this source; broader repository audit tracked separately"
+    },
+    {
+      "id": "CORE_META_REPO_MEMORY",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/meta/REPOSITORY_AS_MEMORY.md",
+      "blob_sha": "eaa48f25d3ccab55d283f182ab067aecc49fca55",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Canonical repository-as-memory guidance",
+      "observed_at": "2026-10-03 exact pinned commit contents / tree readback",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/meta/REPOSITORY_AS_MEMORY.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::AUDIT::METHOD"
+      ],
+      "remaining": "No unread ranges in this source; broader repository audit tracked separately"
+    },
+    {
+      "id": "CORE_META_AI_AGENT",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/meta/AI_AGENT_GUIDELINES.md",
+      "blob_sha": "1a63cde3c8042288ad4c7cea6e747d0e2d50d4f7",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Canonical AI execution, review and finalization guidance",
+      "observed_at": "2026-10-03 exact pinned commit contents / tree readback",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/meta/AI_AGENT_GUIDELINES.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::AUDIT::METHOD"
+      ],
+      "remaining": "No unread ranges in this source; broader repository audit tracked separately"
+    },
+    {
+      "id": "CORE_META_PLAYBOOK",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/meta/ENGINEERING_PLAYBOOK.md",
+      "blob_sha": "0317bb6d068a3c8554346dd0376c4bf7f5fa2a8d",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Canonical engineering lifecycle; protected merge and dedicated Finalization remain explicit",
+      "observed_at": "2026-10-03 exact pinned commit contents / tree readback",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/meta/ENGINEERING_PLAYBOOK.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::AUDIT::METHOD"
+      ],
+      "remaining": "No unread ranges in this source; broader repository audit tracked separately"
+    },
+    {
+      "id": "CORE_META_INNOVATION",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/meta/INNOVATION_ENGINEERING.md",
+      "blob_sha": "562c1813533ba2a2943204cd2e93d05147c3d1cc",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Innovation mode guidance; no experiment or product promotion selected here",
+      "observed_at": "2026-10-03 exact pinned commit contents / tree readback",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/meta/INNOVATION_ENGINEERING.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::AUDIT::METHOD"
+      ],
+      "remaining": "No unread ranges in this source; broader repository audit tracked separately"
+    },
+    {
+      "id": "CORE_META_HEURISTICS",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/meta/ARCHITECTURAL_HEURISTICS.md",
+      "blob_sha": "e4c432c82f0984bbadfdedd7f4c62cd128132e18",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Canonical architecture decision heuristics; no new architecture selected",
+      "observed_at": "2026-10-03 exact pinned commit contents / tree readback",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/meta/ARCHITECTURAL_HEURISTICS.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::AUDIT::METHOD"
+      ],
+      "remaining": "No unread ranges in this source; broader repository audit tracked separately"
+    },
+    {
+      "id": "CORE_META_DECISIONS",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/meta/DECISION_PATTERNS.md",
+      "blob_sha": "3006492372d46bf47b0f49e8c830ec3b37401446",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Canonical durable-knowledge destination guidance",
+      "observed_at": "2026-10-03 exact pinned commit contents / tree readback",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/meta/DECISION_PATTERNS.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::AUDIT::METHOD"
+      ],
+      "remaining": "No unread ranges in this source; broader repository audit tracked separately"
+    },
+    {
+      "id": "API_BOOTSTRAP_POINTER",
+      "repository": "pcvantol/djconnect-api",
+      "path": "BOOTSTRAP_CODEX_SESSION.md",
+      "blob_sha": "88cdda602e2df8d32354512638d65a907a307d02",
+      "commit_sha": "4e6671c3231187e7cd20243817a86a56ad6aad06",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Compatibility pointer to API-local bootstrap",
+      "observed_at": "2026-10-03 exact pinned commit contents / tree readback",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-api/blob/4e6671c3231187e7cd20243817a86a56ad6aad06/BOOTSTRAP_CODEX_SESSION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-API"
+      ],
+      "remaining": "No unread ranges in this source; broader repository audit tracked separately"
+    },
+    {
+      "id": "API_CANONICAL_REFS",
+      "repository": "pcvantol/djconnect-api",
+      "path": "CANONICAL_REFERENCES.md",
+      "blob_sha": "f05bc8d775bbd437ca2a6a1595e10d994510217d",
+      "commit_sha": "4e6671c3231187e7cd20243817a86a56ad6aad06",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "API-local map of core foundation and local technical ownership",
+      "observed_at": "2026-10-03 exact pinned commit contents / tree readback",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-api/blob/4e6671c3231187e7cd20243817a86a56ad6aad06/CANONICAL_REFERENCES.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-API"
+      ],
+      "remaining": "No unread ranges in this source; broader repository audit tracked separately"
+    },
+    {
+      "id": "API_ENGINEERING_STATUS",
+      "repository": "pcvantol/djconnect-api",
+      "path": "ENGINEERING_STATUS.md",
+      "blob_sha": "62645ec5dcb68001533b54594b193dc331666915",
+      "commit_sha": "4e6671c3231187e7cd20243817a86a56ad6aad06",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Stale RG-API-001 LOCAL_IN_PROGRESS projection; merge #46 requires reconciliation",
+      "observed_at": "2026-10-03 exact pinned commit contents / tree readback",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-api/blob/4e6671c3231187e7cd20243817a86a56ad6aad06/ENGINEERING_STATUS.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-API"
+      ],
+      "remaining": "No unread ranges in this source; broader repository audit tracked separately"
+    },
+    {
+      "id": "API_MANAGEMENT_SUMMARY",
+      "repository": "pcvantol/djconnect-api",
+      "path": "MANAGEMENT_SUMMARY.md",
+      "blob_sha": "8963f4e0bc599ad340fb0f4b33c9e4fd18ff2721",
+      "commit_sha": "4e6671c3231187e7cd20243817a86a56ad6aad06",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Stale pending-review governance projection and later Dependabot summary",
+      "observed_at": "2026-10-03 exact pinned commit contents / tree readback",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-api/blob/4e6671c3231187e7cd20243817a86a56ad6aad06/MANAGEMENT_SUMMARY.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-API"
+      ],
+      "remaining": "No unread ranges in this source; broader repository audit tracked separately"
+    },
+    {
+      "id": "API_ROADMAP_INDEX",
+      "repository": "pcvantol/djconnect-api",
+      "path": "ROADMAP_INDEX.md",
+      "blob_sha": "a81a5b0f42336f8298edeb7458aec373dbefe598",
+      "commit_sha": "4e6671c3231187e7cd20243817a86a56ad6aad06",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Local navigation still names RG-API-001 as current",
+      "observed_at": "2026-10-03 exact pinned commit contents / tree readback",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-api/blob/4e6671c3231187e7cd20243817a86a56ad6aad06/ROADMAP_INDEX.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-API"
+      ],
+      "remaining": "No unread ranges in this source; broader repository audit tracked separately"
+    },
+    {
+      "id": "API_PROMPT_INDEX",
+      "repository": "pcvantol/djconnect-api",
+      "path": "PROMPT_INDEX.md",
+      "blob_sha": "9263e4064f08c44b59355aa482c70e6cebc5ad60",
+      "commit_sha": "4e6671c3231187e7cd20243817a86a56ad6aad06",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Local prompt state still says RG-API-001 LOCAL_IN_PROGRESS",
+      "observed_at": "2026-10-03 exact pinned commit contents / tree readback",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-api/blob/4e6671c3231187e7cd20243817a86a56ad6aad06/PROMPT_INDEX.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-API"
+      ],
+      "remaining": "No unread ranges in this source; broader repository audit tracked separately"
+    },
+    {
+      "id": "API_RG001_HISTORY",
+      "repository": "pcvantol/djconnect-api",
+      "path": "docs/history/prompts/2026-07-15-rg-api-001.md",
+      "blob_sha": "b2945099a62fb6f20d99c30cd0ae6cdf4f1db01c",
+      "commit_sha": "4e6671c3231187e7cd20243817a86a56ad6aad06",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "RG-API-001 Prompt History says adoption established; PR #46 merge checked separately",
+      "observed_at": "2026-10-03 exact pinned commit contents / tree readback",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-api/blob/4e6671c3231187e7cd20243817a86a56ad6aad06/docs/history/prompts/2026-07-15-rg-api-001.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-API"
+      ],
+      "remaining": "No unread ranges in this source; broader repository audit tracked separately"
+    },
+    {
+      "id": "API_CONTRACT_DETAIL",
+      "repository": "pcvantol/djconnect-api",
+      "path": "API_CONTRACT.md",
+      "blob_sha": "bdce3f04f95afd63f883a4f9bc305221ef644097",
+      "commit_sha": "4e6671c3231187e7cd20243817a86a56ad6aad06",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "API-owned relay/bootstrap/operator contract; operational availability not inferred",
+      "observed_at": "2026-10-03 exact pinned commit contents / tree readback",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-api/blob/4e6671c3231187e7cd20243817a86a56ad6aad06/API_CONTRACT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-API",
+        "SLICE::API::APNS-RELAY",
+        "DJC-API-REVOKE"
+      ],
+      "remaining": "No unread ranges in this source; broader repository audit tracked separately"
+    },
+    {
+      "id": "API_OPERATOR_RUNBOOK",
+      "repository": "pcvantol/djconnect-api",
+      "path": "OPERATOR_RUNBOOK.md",
+      "blob_sha": "a93a47fccb45bcdaf9886fe75d20a1b5f96fafbf",
+      "commit_sha": "4e6671c3231187e7cd20243817a86a56ad6aad06",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Operator APNs key-rotation/runbook boundary; no operation authorized",
+      "observed_at": "2026-10-03 exact pinned commit contents / tree readback",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-api/blob/4e6671c3231187e7cd20243817a86a56ad6aad06/OPERATOR_RUNBOOK.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-API",
+        "SLICE::API::APNS-RELAY"
+      ],
+      "remaining": "No unread ranges in this source; broader repository audit tracked separately"
+    },
+    {
+      "id": "API_SOURCE_ROUTE",
+      "repository": "pcvantol/djconnect-api",
+      "path": "src/index.ts",
+      "blob_sha": "ff2a42d84912e42fe192349a144f1a9a0bde98dd",
+      "commit_sha": "4e6671c3231187e7cd20243817a86a56ad6aad06",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Pinned source exposes operator revoke route; no deployed runtime receipt",
+      "observed_at": "2026-10-03 exact pinned commit contents / tree readback",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-api/blob/4e6671c3231187e7cd20243817a86a56ad6aad06/src/index.ts",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-API",
+        "DJC-API-REVOKE"
+      ],
+      "remaining": "No unread ranges in this source; broader repository audit tracked separately"
+    },
+    {
+      "id": "API_SOURCE_ADMIN",
+      "repository": "pcvantol/djconnect-api",
+      "path": "src/handlers/admin.ts",
+      "blob_sha": "9f206dc5242c42656953f281fb68bb2db416c7e7",
+      "commit_sha": "4e6671c3231187e7cd20243817a86a56ad6aad06",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Pinned source enforces admin auth and validates revoke request",
+      "observed_at": "2026-10-03 exact pinned commit contents / tree readback",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-api/blob/4e6671c3231187e7cd20243817a86a56ad6aad06/src/handlers/admin.ts",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-API",
+        "DJC-API-REVOKE"
+      ],
+      "remaining": "No unread ranges in this source; broader repository audit tracked separately"
+    },
+    {
+      "id": "API_SOURCE_TOKEN_REPO",
+      "repository": "pcvantol/djconnect-api",
+      "path": "src/repositories/installTokens.ts",
+      "blob_sha": "be893c3ffa0becd401ddd811972cb9797b419e92",
+      "commit_sha": "4e6671c3231187e7cd20243817a86a56ad6aad06",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "Pinned source disables install token and records revoke metadata",
+      "observed_at": "2026-10-03 exact pinned commit contents / tree readback",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-api/blob/4e6671c3231187e7cd20243817a86a56ad6aad06/src/repositories/installTokens.ts",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-API",
+        "DJC-API-REVOKE"
+      ],
+      "remaining": "No unread ranges in this source; broader repository audit tracked separately"
     }
   ],
   "nodes": [
@@ -6043,7 +6409,19 @@
         "STATUS::DJC-API",
         "ISSUES::DJC-API",
         "TODO::DJC-API",
-        "LOCALIZATION_VALIDATION_SPEC"
+        "LOCALIZATION_VALIDATION_SPEC",
+        "API_BOOTSTRAP_POINTER",
+        "API_CANONICAL_REFS",
+        "API_ENGINEERING_STATUS",
+        "API_MANAGEMENT_SUMMARY",
+        "API_ROADMAP_INDEX",
+        "API_PROMPT_INDEX",
+        "API_RG001_HISTORY",
+        "API_CONTRACT_DETAIL",
+        "API_OPERATOR_RUNBOOK",
+        "API_SOURCE_ROUTE",
+        "API_SOURCE_ADMIN",
+        "API_SOURCE_TOKEN_REPO"
       ],
       "canonical_authority": "README::DJC-API",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -12376,7 +12754,15 @@
         "CORE_SA_PROMPT_05_HIST",
         "CORE_RELEASE_PROMPT_05",
         "CORE_VERIFICATION_README",
-        "CORE_EP_HANDBOOK_HIST"
+        "CORE_EP_HANDBOOK_HIST",
+        "CORE_META_README",
+        "CORE_META_AI_COLLAB",
+        "CORE_META_REPO_MEMORY",
+        "CORE_META_AI_AGENT",
+        "CORE_META_PLAYBOOK",
+        "CORE_META_INNOVATION",
+        "CORE_META_HEURISTICS",
+        "CORE_META_DECISIONS"
       ],
       "canonical_authority": "ROADMAP_INDEX",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -13046,7 +13432,9 @@
       "repository": "pcvantol/djconnect-api",
       "source_ids": [
         "README::DJC-API",
-        "AGENTS::DJC-API"
+        "AGENTS::DJC-API",
+        "API_CONTRACT_DETAIL",
+        "API_OPERATOR_RUNBOOK"
       ],
       "canonical_authority": "README::DJC-API",
       "owner_boundary": "Centrale API; gelezen README beschrijft APNs-relay, bredere scope nog te auditen",
@@ -13861,15 +14249,19 @@
       "lane": "DJC-API",
       "repository": "pcvantol/djconnect-api",
       "source_ids": [
-        "ISSUES::DJC-API"
+        "ISSUES::DJC-API",
+        "API_CONTRACT_DETAIL",
+        "API_SOURCE_ROUTE",
+        "API_SOURCE_ADMIN",
+        "API_SOURCE_TOKEN_REPO"
       ],
       "canonical_authority": "ISSUES::DJC-API",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
-      "source_status_summary": "open",
+      "source_status_summary": "Owning ISSUES says open, but pinned route/handler/repository and merged PR #16 prove source implementation; deployed/runtime acceptance remains unverified.",
       "original_status": "open",
       "status_representation": "EXACT_LOCAL_BACKLOG_SUMMARY",
       "selection": "LOCAL_BACKLOG_UNSELECTED",
-      "evidence_state": "SOURCE_STATUS_ONLY; LIVE_ACCEPTANCE_NOT_REQUALIFIED",
+      "evidence_state": "IMPLEMENTED_IN_PINNED_SOURCE; LIVE_ACCEPTANCE_NOT_REQUALIFIED",
       "assignment_status": "NOT_ISSUED",
       "completion_claim": "NONE",
       "count_as_delivered_feature": false,
@@ -13886,9 +14278,13 @@
         "Exact owning candidate, relevant test and consumer evidence."
       ],
       "contract_binding": "Follow exact local/current HA protocol and profile; unknown until execution.",
-      "evidence_ids": [],
+      "evidence_ids": [
+        "API_REVOKE_PR16_MERGED"
+      ],
       "prerequisite_groups": [],
-      "blockers": [],
+      "blockers": [
+        "Reconcile stale owning issue status; live operator/production acceptance not independently qualified."
+      ],
       "resource_capacity": "UNKNOWN",
       "authority_verified": false,
       "writer_free_verified": false,
@@ -18178,6 +18574,28 @@
       "passed": true,
       "acceptance_qualified": false,
       "notes": "At the pinned source commit, client_api.py lines 132-138 authorize and dispatch POST /api/device/dj_response; lines 486-500 advertise local_dj_response_endpoint=true and local_audio=false. client_api_daemon.py lines 173-193 writes the text event and returns audio_played=false. This is source implementation evidence, not an installed-target or physical-runtime receipt."
+    },
+    {
+      "id": "API_REVOKE_PR16_MERGED",
+      "kind": "owning_repository_merged_pr",
+      "repository": "pcvantol/djconnect-api",
+      "url": "https://github.com/pcvantol/djconnect-api/pull/16",
+      "subject_sha": "809ef8821a8f7964b764ddd2e3372fef3a356738",
+      "observed_date": "2026-10-03",
+      "passed": true,
+      "acceptance_qualified": false,
+      "notes": "GitHub PR #16 merged 2026-06-20; merge commit is ancestor of pinned API source commit. Exact pinned src/index.ts, handlers/admin.ts and repositories/installTokens.ts expose/admin-authorize/disable the operator revoke route; pinned test/index.spec.ts lines 315-375 exercise revoke and auth denial. This proves source implementation, not live Cloudflare availability or release qualification."
+    },
+    {
+      "id": "API_RG001_PR46_MERGED",
+      "kind": "owning_repository_merged_pr",
+      "repository": "pcvantol/djconnect-api",
+      "url": "https://github.com/pcvantol/djconnect-api/pull/46",
+      "subject_sha": "71fdf4057f9dd3a5d17c358f84a63ca3f281fa92",
+      "observed_date": "2026-10-03",
+      "passed": true,
+      "acceptance_qualified": false,
+      "notes": "GitHub PR #46 merged 2026-07-15; merge commit is ancestor of pinned API source commit. API status/prompt/roadmap projections still name RG-API-001 LOCAL_IN_PROGRESS and pending review; no current work assignment is inferred from stale prose."
     }
   ],
   "findings": [
@@ -18326,7 +18744,7 @@
     {
       "id": "NORMATIVE-SOURCE-LINK-GAPS",
       "status": "HISTORICAL_LINK_FRONTIER_TRIAGED; BROADER_SOURCE_AUDIT_OPEN",
-      "description": "The pinned-blob relative Markdown-link scan covers included core and eleven component-repository Markdown sources. All component relative Markdown targets discovered by this scan are now pinned. Six existing core targets linked from the historical embedded EP handbook remain explicitly triaged as standalone-EP history, with no retirement or product work selected; its old tools/engineering/ENGINEERING_PLATFORM_STATUS.md link is absent from the pinned core tree. New reads include Apple API contract, handoff, contribution and build hygiene, both source changelogs and the EP handbook. A repository-wide physical/consumer and release audit remains open; link closure alone is not complete DAG proof.",
+      "description": "The pinned-blob relative Markdown-link scan covers included core and eleven component-repository Markdown sources. All component relative Markdown targets discovered by this scan are pinned. Six existing core targets linked from the historical embedded EP handbook remain explicitly triaged as standalone-EP history; its old tools/engineering/ENGINEERING_PLATFORM_STATUS.md link is absent at the core pin. The mandatory Meta Engineering reading order and API-local status/contract/source evidence are now read and pinned; they add no relative Markdown frontier. A broader repository-wide source, physical/consumer and release audit remains open; link closure alone is not complete DAG proof.",
       "source_ids": [
         "FOUNDATION_INDEX",
         "SESSION_RUNTIME_CONTRACTS",
@@ -18381,7 +18799,27 @@
         "APPLE_HANDOFF",
         "APPLE_CHANGELOG",
         "PI_CHANGELOG",
-        "CORE_EP_HANDBOOK_HIST"
+        "CORE_EP_HANDBOOK_HIST",
+        "CORE_META_README",
+        "CORE_META_AI_COLLAB",
+        "CORE_META_REPO_MEMORY",
+        "CORE_META_AI_AGENT",
+        "CORE_META_PLAYBOOK",
+        "CORE_META_INNOVATION",
+        "CORE_META_HEURISTICS",
+        "CORE_META_DECISIONS",
+        "API_BOOTSTRAP_POINTER",
+        "API_CANONICAL_REFS",
+        "API_ENGINEERING_STATUS",
+        "API_MANAGEMENT_SUMMARY",
+        "API_ROADMAP_INDEX",
+        "API_PROMPT_INDEX",
+        "API_RG001_HISTORY",
+        "API_CONTRACT_DETAIL",
+        "API_OPERATOR_RUNBOOK",
+        "API_SOURCE_ROUTE",
+        "API_SOURCE_ADMIN",
+        "API_SOURCE_TOKEN_REPO"
       ]
     },
     {
@@ -18487,10 +18925,42 @@
     {
       "id": "APPLE-ASK-DJ-HISTORY-MIRROR-DRIFT",
       "status": "OPEN_DOCUMENTARY_RECONCILIATION",
-      "description": "The pinned Apple API contract example uses history_limit 200 and describes history per Home Assistant user/Music DNA key. Current core AGENTS specifies a maximum of 1000 messages per HA user, with client_id/client_type only metadata. Qualify the Apple example and actual consumer behavior against the canonical core history contract; do not select a second history scope or retention rule.",
+      "description": "The pinned Apple API contract describes history per Home Assistant user/Music DNA key and the Apple handoff speaks of a relevant user/client/history namespace for clear. Current core AGENTS scopes Ask DJ history and clear to the authenticated HA user; client_id/client_type are metadata. The API example history_limit of 200 is within the core maximum of 1000 and does not itself prove a runtime violation. Qualify these Apple documentary scopes and actual consumer behavior against the canonical core contract; do not select a second history key or retention rule.",
       "source_ids": [
         "APPLE_API_CONTRACT",
-        "AGENTS::DJC-CORE"
+        "AGENTS::DJC-CORE",
+        "APPLE_HANDOFF"
+      ]
+    },
+    {
+      "id": "API-REVOKE-BACKLOG-DRIFT",
+      "status": "SOURCE_IMPLEMENTED__LOCAL_ISSUE_STALE__LIVE_ACCEPTANCE_OPEN",
+      "description": "API ISSUES.md still lists operator token revocation as open. At the pinned source head the operator-only route, admin-auth handler and D1 disable/revoke metadata write exist; PR #16 is merged and its commit is an ancestor, and the pinned test contains revoke and negative-auth cases. Reconcile the owning backlog entry to source-implemented; do not claim a live deployed Cloudflare endpoint or new implementation pickup from the stale open text.",
+      "source_ids": [
+        "ISSUES::DJC-API",
+        "API_CONTRACT_DETAIL",
+        "API_SOURCE_ROUTE",
+        "API_SOURCE_ADMIN",
+        "API_SOURCE_TOKEN_REPO"
+      ],
+      "evidence_ids": [
+        "API_REVOKE_PR16_MERGED"
+      ]
+    },
+    {
+      "id": "API-GOVERNANCE-PROJECTION-DRIFT",
+      "status": "OPEN_DOCUMENTARY_RECONCILIATION",
+      "description": "API ENGINEERING_STATUS, REPOSITORY_STATUS, ROADMAP_INDEX and PROMPT_INDEX still describe RG-API-001 as current/LOCAL_IN_PROGRESS, while Prompt History says adoption established and PR #46 is merged and ancestral to the pinned API head. These are stale local phase projections, not evidence of a current writer or a new API phase. Reconcile through the owning API register without starting a second backlog.",
+      "source_ids": [
+        "API_ENGINEERING_STATUS",
+        "STATUS::DJC-API",
+        "API_ROADMAP_INDEX",
+        "API_PROMPT_INDEX",
+        "API_MANAGEMENT_SUMMARY",
+        "API_RG001_HISTORY"
+      ],
+      "evidence_ids": [
+        "API_RG001_PR46_MERGED"
       ]
     }
   ],
@@ -18499,7 +18969,7 @@
       "id": "AUDIT-DJC-CORE",
       "status": "OPEN",
       "scope": "DJC-CORE",
-      "reason": "Pinned foundation, roadmap, horizon, legal, voice, verification, local environment and historical EP/Software Assurance sources are read. The embedded EP handbook has six historical linked references triaged under terminal #1098; actual workflow effects, remaining consumer evidence and final delta still need qualification."
+      "reason": "Pinned foundation, roadmap, horizon, legal, voice, verification, full Meta Engineering reading order, local environment and historical EP/Software Assurance sources are read. Six EP history links remain triaged; workflow effects, remaining consumer evidence and final delta still need qualification."
     },
     {
       "id": "AUDIT-DJC-APPLE",
@@ -18532,7 +19002,8 @@
       "id": "AUDIT-DJC-API",
       "status": "OPEN",
       "scope": "DJC-API",
-      "reason": "Complete local policy, owning backlog/source/tests/PR/releases, active writer/register discovery, workflow effects and final delta. README is not a complete component audit."
+      "reason": "Pinned API contract, operator runbook, canonical references, local status/prompt/roadmap/management docs and revoke source are read. Reconcile RG-API-001 stale phase projections and token-revoke backlog drift with merged PRs #46/#16, then qualify actual CI, deployment/APNs and consumer evidence. The latest main dev-dependency-only delta is separately recorded.",
+      "remaining": "Owning backlog/status corrections, exact API CI/deployment/source-to-release and live APNs/operator acceptance, local writer evidence and final delta remain open; no API deployment or new product pickup selected."
     },
     {
       "id": "AUDIT-DJC-WEBSITE",
@@ -18604,7 +19075,7 @@
       "status": "OPEN",
       "scope": "platform",
       "reason": "Current matrix covers only explicitly read source inventory; certify complete disposition only after all relevant discoveries are audited.",
-      "remaining": "All 278 included pinned rows are fully read and all discovered component relative Markdown targets are included. Six historical core EP references remain explicitly triaged outside the matrix; complete repository-wide source/consumer discovery and status qualification before certification."
+      "remaining": "All 298 included pinned rows are fully read and all discovered component relative Markdown targets are included. Six historical core EP references remain triaged outside the matrix; complete repository-wide source/consumer discovery and status qualification before certification."
     },
     {
       "id": "REGISTER-DELIVERY",

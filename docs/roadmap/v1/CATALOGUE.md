@@ -211,7 +211,7 @@ A `PROJ::` or `INV::` key is a projection reference; it does not replace an exis
 
 | ID | Outcome | Selection | Evidence | Owner | Authority |
 |---|---|---|---|---|---|
-| `DJC-API-REVOKE` | Operator-scoped per-install token revocation | `LOCAL_BACKLOG_UNSELECTED` | `SOURCE_STATUS_ONLY; LIVE_ACCEPTANCE_NOT_REQUALIFIED` | `DJC-API` | `ISSUES::DJC-API` |
+| `DJC-API-REVOKE` | Operator-scoped per-install token revocation | `LOCAL_BACKLOG_UNSELECTED` | `IMPLEMENTED_IN_PINNED_SOURCE; LIVE_ACCEPTANCE_NOT_REQUALIFIED` | `DJC-API` | `ISSUES::DJC-API` |
 | `DJC-API-APNS-LIVE` | Real APNs delivery validation | `LOCAL_BACKLOG_UNSELECTED` | `SOURCE_STATUS_ONLY; LIVE_ACCEPTANCE_NOT_REQUALIFIED` | `DJC-API` | `ISSUES::DJC-API` |
 | `ISS-004` | Split DJConnectAppModel responsibilities | `LOCAL_BACKLOG_UNSELECTED` | `SOURCE_STATUS_ONLY; LIVE_ACCEPTANCE_NOT_REQUALIFIED` | `DJC-APPLE` | `ISSUES::DJC-APPLE` |
 | `ISS-009` | Apple physical-device acceptance | `LOCAL_BACKLOG_UNSELECTED` | `SOURCE_STATUS_ONLY; LIVE_ACCEPTANCE_NOT_REQUALIFIED` | `DJC-APPLE` | `ISSUES::DJC-APPLE` |
