@@ -20754,8 +20754,9 @@
     {
       "id": "PUBLIC-COPY",
       "status": "OPEN",
-      "description": "Pinned Apple source has five localized internal 4.0.0 RC1 release notes. Pinned website source still uses 3.3.0 latest copy for iOS and macOS, plus versioned 3.3.0 Windows and MacCatalyst notes in five languages and English default. The website copy describes unsigned diagnostic artifacts and conditional normal distribution paths; this is text, not proof of approved public distribution, attached notarized artifacts, live site or installed consumers. Reconcile exact producer candidate/version, publisher receipts and consumer evidence before any public-copy change; website README also retains older 3.2-era claims.",
+      "description": "Pinned Apple source has five localized internal 4.0.0 RC1 release notes, while pinned website source still uses 3.3.0 latest copy for iOS/macOS and versioned 3.3.0 Windows/MacCatalyst notes. All six MacCatalyst 3.3.0 files display the title DJConnect Windows 3.3.0 on line 1 while line 5 declares Platform: MacCatalyst. In all six locale/default variants, both iOS latest.md and v3.3.0.md direct normal iOS distribution to TestFlight/App Store. Current core AGENTS confines the Internal Release Apple path to Apple Secure Distribution Relay with local Developer signing and public Apple distribution to a separately approved App Store Connect process. These are copy and channel-authority conflicts to reconcile under the owning website/source policies, not proof that a public route ran or was approved. Unsigned artifact descriptions, a notarized macOS build when attached, live-site state and installed consumers likewise remain unqualified. Reconcile exact producer candidate/version and publisher/consumer receipts before any public-copy change; website README also retains older 3.2-era claims.",
       "source_ids": [
+        "AGENTS::DJC-CORE",
         "README::DJC-WEBSITE",
         "RC_COPY::APPLE::DE",
         "RC_COPY::APPLE::EN",
@@ -21251,7 +21252,8 @@
       "id": "AUDIT-DJC-WEBSITE",
       "status": "OPEN",
       "scope": "DJC-WEBSITE",
-      "reason": "Complete local policy, owning backlog/source/tests/PR/releases, active writer/register discovery, workflow effects and final delta. README is not a complete component audit. Four local phase/status projections and the RG-001 decision history are pinned; reconcile stale LOCAL_IN_PROGRESS text with merged PR #24, without public site changes. Thirty-six 3.3.0/latest release-copy files are fully read/pinned; they do not prove a live site or actual artifact distribution, and current 3.3.0 copy must be reconciled with Apple 4.0.0 RC1 source notes before public changes."
+      "reason": "Pinned website README and four local phase/status projections still need owning status reconciliation with merged RG-001 PR #24. Thirty-six 3.3.0/latest release-copy files are fully read/pinned but do not prove a live site or actual artifact distribution. All six MacCatalyst 3.3.0 files carry a Windows title over a MacCatalyst platform label. In all six locale/default variants, both iOS latest.md and v3.3.0.md direct normal distribution to TestFlight/App Store without distinguishing the current core Internal Release relay from separately approved public Apple distribution. Reconcile this documentary channel/version drift with Apple 4.0.0 RC1 source notes and actual producer/consumer receipts; no website publication is selected by this planning record.",
+      "remaining": "Complete local policy, owning backlog/source/tests/PR/releases, active writer/register discovery, workflow effects, copy/channel reconciliation and final delta under the existing website authority; do not infer live distribution from source copy."
     },
     {
       "id": "AUDIT-DJC-VIBECAST",
