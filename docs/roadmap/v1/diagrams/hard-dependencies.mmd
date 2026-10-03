@@ -1,0 +1,148 @@
+flowchart LR
+  note["Phase-specific hard predecessors; exact acceptance still required"]
+  n17["Universal Receiver Reference Experience"]
+  n18["VibeCast Reference Renderer increment"]
+  n19["Renderer-safe Session experience"]
+  n20["Interactive DJMoments"]
+  n21["Session Continuation"]
+  n22["Session Lifecycle Completion"]
+  n27["Apple Premium Experience"]
+  n28["Apple Watch Moment-First Conversational Companion"]
+  n29["Public Release Readiness Assessment"]
+  n30["Client Connectivity and Resilience qualification"]
+  n31["Productization"]
+  n32["Product and Community Readiness"]
+  n33["Community Public Release"]
+  n34["Desktop Platform Family adoption"]
+  n38["VibeCast Community-critical versus Platform Adoption decision"]
+  n46["Playback Observation Stage 2"]
+  n47["Continue Stage 2"]
+  n48["HA Integration Onboarding and Configuration Experience Assessment"]
+  n49["Backend-owned Playback Instance Identity"]
+  n50["Runtime Readiness for Community Public Release"]
+  n51["Apple-owner to Pi reference Session qualification"]
+  n52["Cast implementation planning / feasibility gate"]
+  n57["Assess Pi 4-inch capability profile"]
+  n58["Assess Pi 10-inch capability profile"]
+  n59["Analyse Apple-Windows atomic convergence"]
+  n61["Assess Voice Interaction Host and ESP32 profiles"]
+  n101["Public Apple distribution"]
+  n102["Public Windows distribution"]
+  n103["Public HACS distribution"]
+  n105["HACS 3.3.0 release visibility"]
+  n108["Firmware OTA publication and staged rollback"]
+  n130["Profile-aware pairing and authorization contract"]
+  n131["APPLE pairing consumer acceptance"]
+  n132["WINDOWS pairing consumer acceptance"]
+  n133["PI pairing consumer acceptance"]
+  n134["ESP32 pairing consumer acceptance"]
+  n135["Renderer-safe active Session Broadcast contract"]
+  n136["HA-hosted ambient VibeCast renderer foundation"]
+  n137["Apple paired-owner VibeCast handoff"]
+  n138["Google Cast receiver feasibility after Pi reference"]
+  n139["HA-owned voice and Assist response boundary"]
+  n140["ESP32 PTT voice consumer acceptance"]
+  n141["Per-install central API token and push consumer boundary"]
+  n142["Central API APNs relay and token bootstrap"]
+  n143["Apple push consumer acceptance"]
+  n144["ESP32 firmware candidate and protocol metadata"]
+  n145["Published firmware manifest and rollback metadata"]
+  n146["HA manifest-bound OTA offer"]
+  n147["Pi profile-specific source package candidate"]
+  n148["Pi distribution profile bundle and manifest"]
+  n149["Apple unsigned internal bundle candidate"]
+  n150["Windows and conditional Mac Catalyst bundle candidate"]
+  n154["APPLE unsigned artifact receive and integrity"]
+  n155["WINDOWS unsigned artifact receive and integrity"]
+  n156["APPLE exact release and install copy"]
+  n157["WINDOWS exact release and install copy"]
+  n172["Spotify Direct backend adapter"]
+  n173["Music Assistant backend adapter"]
+  n174["Selected backend Session playback acceptance"]
+  n175["Explicit Apple public release authorization"]
+  n176["Explicit Windows public release authorization"]
+  n177["Explicit HACS public release authorization"]
+  n178["Explicit firmware OTA publication authorization"]
+  n179["Qualified Apple Internal Release consumers"]
+  n180["Qualified Windows Internal Release consumers"]
+  n181["Fresh HACS distribution candidate"]
+  n182["Manifest-bound OTA consumer qualification"]
+  n183["Apple Watch and host-profile evidence"]
+  n184["HACS 3.3.0 release and tag metadata observation"]
+  n185["HACS 3.3.0 cache and index discovery"]
+  n186["HACS 3.3.0 update presentation"]
+  n187["Minimum DJ Intelligence baseline for Reference Experience"]
+  n188["Renderer-safe Session projection for experience assessment"]
+  n189["Apple experience quality evidence"]
+  n190["Apple Premium phase evidence for release-readiness assessment"]
+  n191["Explicit Community Public Release selection"]
+  n192["Apple published channel and asset receipt"]
+  n193["Windows published channel and asset receipt"]
+  n194["Apple Secure Distribution Relay install and smoke"]
+  n195["Windows Internal Release deployment and smoke"]
+  choice0{"OR: one selected option"}
+  n172 -.->|alternative| choice0
+  n173 -.->|alternative| choice0
+  choice0 -->|PER_INSTALL_USER_BACKEND| n174
+  n49 -->|implementation / start| n46
+  n49 -->|implementation / start| n47
+  n30 -->|assessment / start| n48
+  n57 -->|assessment / start| n48
+  n58 -->|assessment / start| n48
+  n59 -->|assessment / start| n48
+  n61 -->|assessment / start| n48
+  n48 -->|assessment / start| n29
+  n50 -->|release / start| n33
+  n51 -->|assessment / start| n52
+  n101 -->|assessment / start| n34
+  n130 -->|integration_acceptance / start| n131
+  n130 -->|integration_acceptance / start| n132
+  n130 -->|integration_acceptance / start| n133
+  n130 -->|integration_acceptance / start| n134
+  n135 -->|implementation / start| n136
+  n135 -->|integration_acceptance / start| n51
+  n136 -->|integration_acceptance / start| n51
+  n137 -->|integration_acceptance / start| n51
+  n51 -->|integration_acceptance / completion| n18
+  n51 -->|assessment / start| n138
+  n139 -->|integration_acceptance / start| n140
+  n142 -->|integration_acceptance / start| n141
+  n141 -->|integration_acceptance / start| n143
+  n144 -->|release / start| n145
+  n145 -->|integration_acceptance / start| n146
+  n147 -->|release / start| n148
+  n149 -->|release / start| n154
+  n150 -->|release / start| n155
+  n192 -->|release / start| n156
+  n193 -->|release / start| n157
+  n194 -->|qualification / start| n179
+  n195 -->|qualification / start| n180
+  n179 -->|release / start| n101
+  n175 -->|release / start| n101
+  n180 -->|release / start| n102
+  n176 -->|release / start| n102
+  n181 -->|release / start| n103
+  n177 -->|release / start| n103
+  n182 -->|release / start| n108
+  n178 -->|release / start| n108
+  n184 -->|qualification / completion| n105
+  n185 -->|qualification / completion| n105
+  n186 -->|qualification / completion| n105
+  n145 -->|qualification / start| n182
+  n146 -->|qualification / start| n182
+  n59 -->|assessment / start| n28
+  n183 -->|assessment / start| n28
+  n17 -->|assessment / start| n20
+  n51 -->|assessment / start| n38
+  n187 -->|assessment / start| n17
+  n17 -->|assessment / start| n19
+  n188 -->|assessment / start| n19
+  n21 -->|assessment / start| n22
+  n17 -->|assessment / start| n27
+  n189 -->|assessment / start| n27
+  n190 -->|assessment / start| n29
+  n31 -->|release / start| n33
+  n32 -->|release / start| n33
+  n191 -->|release / start| n33
+  n149 -->|qualification / start| n194
+  n150 -->|qualification / start| n195

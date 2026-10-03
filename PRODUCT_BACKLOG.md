@@ -14,7 +14,13 @@ their owning records.
 
 | Group | Item | Status | Canonical evidence | Boundary |
 | --- | --- | --- | --- | --- |
-| Verification support | Automated Session Intelligence E2E Verification | Current execution | `docs/product/DEVELOPER_EXPERIENCE_ROADMAP.md` | Verifies existing Session Intelligence behaviour; it does not define new product behaviour. |
+| Verification support | Automated Session Intelligence E2E Verification | Completed for the original selected scope; optional additions deferred | `docs/product/DEVELOPER_EXPERIENCE_ROADMAP.md` | All six original Golden Scenarios and their architecture, bootstrap, driver, capture, validator, Smoke, Regression, advisory CI, browser E2E and process-local overlay are reported complete. Deferred Presentation scenarios, TTS replay and comparison need separate selection; this row starts no new work. |
+| Reference Experience | VibeCast Reference Renderer increment | Selected reference increment; integrated acceptance still open | `PRODUCT_ROADMAP.md`; `docs/product/VIBECAST_REFERENCE_RENDERER_INCREMENT.md` | The ambient renderer foundation exists. Apple-owner handoff to the physical portrait Pi, active Session, reconnect, Runtime-end and token non-persistence require exact joint evidence before the reference increment is complete. Cast feasibility follows that Pi evidence. |
+
+The first row reconciles the old current-execution heading with the owning
+roadmap's completed original scope. It leaves optional additions deferred. The second row repeats the
+selection already made in the product roadmap; it does not start a new writer,
+select a release, or qualify a physical host.
 
 ## Roadmap-held work not yet selected
 

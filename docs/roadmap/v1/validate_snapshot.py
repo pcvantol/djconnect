@@ -1,0 +1,553 @@
+"""Deterministic, offline, fail-closed checks for the pinned planning snapshot.
+
+Structural success does not prove external sources, review or protected delivery.
+An unselected OR may remain a per-install choice; it cannot grant READY.
+No network or repository writes.
+"""
+
+from __future__ import annotations
+import argparse
+import json
+import re
+import sys
+from pathlib import Path
+from typing import Any
+
+SHA = re.compile(r"^[0-9a-f]{40}$")
+LANE = re.compile(r"^DJC-[A-Z0-9-]+$")
+LISTS = (
+    "lanes",
+    "sources",
+    "nodes",
+    "edges",
+    "evidence",
+    "handoffs",
+    "aliases",
+    "audit_obligations",
+)
+PHASES = {
+    "selection",
+    "assessment",
+    "implementation",
+    "integration_acceptance",
+    "release",
+    "qualification",
+}
+
+
+def _pairs(items: list[tuple[str, Any]]) -> dict[str, Any]:
+    result: dict[str, Any] = {}
+    for key, value in items:
+        if key in result:
+            raise ValueError(f"duplicate JSON key: {key}")
+        result[key] = value
+    return result
+
+
+def load(path: Path) -> dict[str, Any]:
+    return json.loads(
+        path.read_text(encoding="utf-8"),
+        object_pairs_hook=_pairs,
+        parse_constant=lambda x: (_ for _ in ()).throw(ValueError(f"invalid JSON constant: {x}")),
+    )
+
+
+def validate(plan: Any, require_complete: bool = False) -> list[str]:
+    errors: list[str] = []
+
+    def check(ok: bool, message: str) -> None:
+        if not ok:
+            errors.append(message)
+
+    if not isinstance(plan, dict):
+        return ["root must be an object"]
+    for key in LISTS:
+        if not isinstance(plan.get(key), list) or any(
+            not isinstance(x, dict) for x in plan.get(key, [])
+        ):
+            errors.append(f"{key}: expected list of objects")
+    if errors:
+        return errors
+    check(plan.get("schema_version") == "djconnect-federated-planning/1", "unknown schema version")
+    check(plan.get("execution_authority") is False, "checkpoint must not grant execution authority")
+    check(plan.get("automatic_dispatch") is False, "checkpoint must not dispatch execution")
+    conclusions = plan.get("conclusions", {})
+    completeness = plan.get("completeness", {})
+    check(
+        isinstance(conclusions, dict) and isinstance(completeness, dict),
+        "delivery claims must be objects",
+    )
+    if isinstance(conclusions, dict):
+        check(
+            conclusions.get("PRODUCT_DELIVERY") == "UNCHANGED_BY_PLANNING",
+            "planning cannot claim product delivery",
+        )
+        check(
+            conclusions.get("EXECUTION_READY") == "NO_NEW_PRODUCT_PICKUP_AUTHORIZED",
+            "planning cannot grant product pickup",
+        )
+        planning_state = conclusions.get("PLANNING_DELIVERY")
+        check(
+            planning_state
+            in {
+                "IN_PROGRESS / PROTECTED_DELIVERY_NOT_YET_DONE",
+                "COMPLETE / MERGED_RECONCILED / FINALIZED",
+            },
+            "unsupported planning delivery claim",
+        )
+        if planning_state == "COMPLETE / MERGED_RECONCILED / FINALIZED":
+            check(
+                isinstance(completeness, dict)
+                and all(
+                    completeness.get(k) is True
+                    for k in (
+                        "full_platform_audit",
+                        "all_sources_read",
+                        "all_owning_registers_delivered",
+                        "canonical_writes",
+                        "independent_review",
+                        "protected_delivery",
+                        "finalization",
+                    )
+                ),
+                "complete planning claim lacks all delivery gates",
+            )
+    indexes: dict[str, dict[str, dict[str, Any]]] = {}
+    for key in ("lanes", "sources", "nodes", "edges", "evidence", "handoffs", "audit_obligations"):
+        out: dict[str, dict[str, Any]] = {}
+        for item in plan[key]:
+            ident = item.get("id")
+            if not isinstance(ident, str) or not ident:
+                errors.append(f"{key}: invalid id")
+                continue
+            check(ident not in out, f"{key}: duplicate id {ident}")
+            out[ident] = item
+        indexes[key] = out
+    lanes, sources, nodes, edges, evidence = (
+        indexes[k] for k in ("lanes", "sources", "nodes", "edges", "evidence")
+    )
+    repos = [lane.get("repository") for lane in lanes.values()]
+    check(
+        all(isinstance(x, str) and "/" in x for x in repos), "lane repositories must be owner/name"
+    )
+    if all(isinstance(x, str) for x in repos):
+        check(len(set(repos)) == len(repos), "one repository must have exactly one lane")
+    for lid, lane in lanes.items():
+        check(bool(LANE.fullmatch(lid)), f"{lid}: unsafe/invalid lane ID")
+        check(
+            bool(SHA.fullmatch(str(lane.get("baseline_sha", "")))), f"{lid}: invalid baseline pin"
+        )
+        register = lane.get("owning_register")
+        if register:
+            check(
+                str(register).startswith(f"https://github.com/{lane['repository']}/issues/"),
+                f"{lid}: register belongs to another repository",
+            )
+        if lane.get("writer_free_verified"):
+            check(lane.get("writer_state") == "FREE_VERIFIED", f"{lid}: writer status conflict")
+            receipt = lane.get("writer_free_evidence")
+            check(
+                isinstance(receipt, dict)
+                and bool(receipt.get("url"))
+                and bool(receipt.get("observed_at"))
+                and receipt.get("repository") == lane.get("repository"),
+                f"{lid}: writer-free claim lacks exact receipt",
+            )
+    registers = [
+        lane.get("owning_register") for lane in lanes.values() if lane.get("owning_register")
+    ]
+    check(len(registers) == len(set(registers)), "multiple lanes share an owning register")
+    if isinstance(completeness, dict):
+        check(
+            completeness.get("all_owning_registers_delivered") is not True
+            or len(registers) == len(lanes),
+            "register delivery claim has missing lanes",
+        )
+        check(
+            completeness.get("all_sources_read") is not True
+            or all(s.get("read_complete") is True for s in plan["sources"]),
+            "source-read claim has partial sources",
+        )
+    for sid, source in sources.items():
+        check(
+            bool(SHA.fullmatch(str(source.get("blob_sha", "")))), f"{sid}: invalid source blob pin"
+        )
+        if source.get("commit_sha") is not None:
+            check(
+                bool(SHA.fullmatch(str(source["commit_sha"]))), f"{sid}: invalid source commit pin"
+            )
+            check(
+                source.get("url")
+                == f"https://github.com/{source.get('repository')}/blob/{source['commit_sha']}/{source.get('path')}",
+                f"{sid}: source URL does not bind pinned commit/path",
+            )
+        check(
+            bool(source.get("read_boundary")) and bool(source.get("status_authority")),
+            f"{sid}: provenance incomplete",
+        )
+        check(
+            source.get("disposition") in {"MAPPED", "MAPPED_PARTIAL", "EXCLUDED_WITH_REASON"},
+            f"{sid}: missing disposition",
+        )
+        mapped = source.get("mapped_node_ids", [])
+        if not isinstance(mapped, list) or any(not isinstance(x, str) for x in mapped):
+            errors.append(f"{sid}: invalid mapping")
+            continue
+        check(len(mapped) == len(set(mapped)), f"{sid}: duplicate source mapping")
+        if source.get("disposition") == "EXCLUDED_WITH_REASON":
+            check(bool(source.get("exclusion_reason")), f"{sid}: exclusion needs reason")
+        else:
+            check(bool(mapped), f"{sid}: orphan source")
+        for nid in mapped:
+            check(
+                nid in nodes and sid in nodes[nid].get("source_ids", []),
+                f"{sid}: inconsistent source-to-node mapping {nid}",
+            )
+    canonical = [n.get("canonical_id") for n in nodes.values() if n.get("canonical_id")]
+    check(len(canonical) == len(set(canonical)), "duplicate canonical node identity")
+    for nid, node in nodes.items():
+        lane = lanes.get(node.get("lane"))
+        check(
+            lane is not None and lane.get("repository") == node.get("repository"),
+            f"{nid}: invalid owning lane/repository",
+        )
+        refs = node.get("source_ids")
+        check(isinstance(refs, list) and bool(refs), f"{nid}: no source references")
+        for sid in refs if isinstance(refs, list) else []:
+            check(
+                sid in sources and nid in sources[sid].get("mapped_node_ids", []),
+                f"{nid}: missing/inconsistent source {sid}",
+            )
+        check(
+            node.get("canonical_authority") in (refs or []),
+            f"{nid}: no single canonical status authority",
+        )
+        for field in (
+            "type",
+            "visible_outcome",
+            "scope",
+            "non_goals",
+            "acceptance_boundary",
+            "contract_binding",
+            "resume_reference",
+        ):
+            check(bool(node.get(field)), f"{nid}: missing {field}")
+        for eid in node.get("evidence_ids", []):
+            check(eid in evidence, f"{nid}: unknown evidence {eid}")
+        check(
+            node.get("completion_claim") in {"NONE", "COMPLETE"}, f"{nid}: invalid completion claim"
+        )
+    alias_ids: set[str] = set()
+    for alias in plan["aliases"]:
+        aid, target = alias.get("alias"), alias.get("target")
+        check(
+            isinstance(aid, str) and aid not in alias_ids and aid not in nodes,
+            "duplicate/invalid alias identity",
+        )
+        if isinstance(aid, str):
+            alias_ids.add(aid)
+        check(target in nodes, f"alias {aid}: missing target")
+        check(bool(alias.get("reason")), f"alias {aid}: no reason")
+    for eid, ev in evidence.items():
+        check(
+            bool(SHA.fullmatch(str(ev.get("subject_sha", "")))),
+            f"{eid}: invalid evidence subject SHA",
+        )
+        check(
+            bool(ev.get("url")) and bool(ev.get("observed_date")),
+            f"{eid}: evidence provenance missing",
+        )
+    obligations = indexes["audit_obligations"]
+    for oid, obligation in obligations.items():
+        check(obligation.get("status") in {"OPEN", "CLOSED"}, f"{oid}: invalid audit status")
+        if obligation.get("status") == "CLOSED":
+            check(
+                bool(obligation.get("closure_evidence")),
+                f"{oid}: closed audit lacks closure evidence",
+            )
+    if isinstance(completeness, dict):
+        audit_ids = {x for x in obligations if x.startswith("AUDIT-")} | {
+            "CORE-FOUNDATION",
+            "GRAPH-CLOSURE",
+            "PRODUCER-EVIDENCE",
+            "SOURCE-MATRIX",
+        }
+        for flag, needed in {
+            "full_platform_audit": audit_ids,
+            "canonical_writes": {"CANONICAL-WRITES"},
+            "independent_review": {"INDEPENDENT-REVIEW"},
+            "protected_delivery": {"PROTECTED-DELIVERY"},
+            "finalization": {"FINALIZATION"},
+        }.items():
+            if completeness.get(flag) is True:
+                check(
+                    all(obligations.get(x, {}).get("status") == "CLOSED" for x in needed),
+                    f"{flag}: supporting audit obligations remain open",
+                )
+    horizon = plan.get("execution_horizon")
+    check(
+        isinstance(horizon, list) and len(horizon) == 5,
+        "execution horizon must contain five recorded items",
+    )
+    if isinstance(horizon, list):
+        check(
+            [h.get("order") for h in horizon if isinstance(h, dict)] == [1, 2, 3, 4, 5],
+            "execution horizon order invalid",
+        )
+        ids = [h.get("node") for h in horizon if isinstance(h, dict)]
+        check(
+            len(ids) == len(set(ids)) and all(x in nodes for x in ids),
+            "execution horizon node missing or duplicated",
+        )
+        for h in horizon:
+            if not isinstance(h, dict):
+                continue
+            check(
+                bool(h.get("disposition")) and all(x in sources for x in h.get("source_ids", [])),
+                "execution horizon provenance missing",
+            )
+            if h.get("node") in nodes:
+                check(
+                    bool(nodes[h["node"]].get("prerequisite_groups")),
+                    f"{h['node']}: horizon condition absent from dependency graph",
+                )
+    for eid, e in edges.items():
+        check(e.get("producer") in nodes and e.get("consumer") in nodes, f"{eid}: orphan edge")
+        check(e.get("producer") != e.get("consumer"), f"{eid}: self dependency")
+        check(e.get("phase") in PHASES, f"{eid}: invalid dependency phase")
+        check(e.get("logical_mode") in {"AND", "OR"}, f"{eid}: missing AND/OR semantics")
+        check(
+            e.get("prerequisite_stage", "start") in {"start", "completion"},
+            f"{eid}: invalid prerequisite stage",
+        )
+        for field in ("required_subset", "reason", "contract_or_evidence", "source_ids"):
+            check(bool(e.get(field)), f"{eid}: missing {field}")
+        for sid in e.get("source_ids", []):
+            check(sid in sources, f"{eid}: unknown dependency source {sid}")
+        if e.get("hard_precedence"):
+            check(
+                e.get("kind") not in {"strategy_order", "resource_conflict", "handoff_reference"},
+                f"{eid}: non-functional order marked hard",
+            )
+        if e.get("evidence_satisfied"):
+            check(
+                bool(e.get("evidence_ids"))
+                and all(
+                    x in evidence and evidence[x].get("acceptance_qualified") is True
+                    for x in e.get("evidence_ids", [])
+                ),
+                f"{eid}: unsupported predecessor evidence",
+            )
+    selected_hard: set[str] = set()
+    grouped: set[str] = set()
+    unresolved_or: set[str] = set()
+    unresolved_without_policy: set[str] = set()
+    for nid, node in nodes.items():
+        groups = node.get("prerequisite_groups", [])
+        if not isinstance(groups, list) or any(not isinstance(g, dict) for g in groups):
+            errors.append(f"{nid}: invalid prerequisite groups")
+            continue
+        for g in groups:
+            ids = g.get("edge_ids", [])
+            if not isinstance(ids, list) or any(not isinstance(x, str) for x in ids):
+                errors.append(f"{nid}: malformed prerequisite group")
+                continue
+            check(
+                g.get("mode") in {"AND", "OR"} and bool(ids),
+                f"{nid}: invalid prerequisite group mode/edges",
+            )
+            check(len(ids) == len(set(ids)), f"{nid}: duplicate prerequisite")
+            for eid in ids:
+                check(
+                    eid in edges
+                    and edges[eid].get("consumer") == nid
+                    and edges[eid].get("hard_precedence") is True,
+                    f"{nid}: wrong prerequisite ownership {eid}",
+                )
+                check(eid not in grouped, f"{eid}: counted in multiple prerequisite groups")
+                grouped.add(eid)
+                if eid in edges:
+                    check(
+                        edges[eid].get("logical_mode") == g.get("mode"),
+                        f"{eid}: group/edge logical mode mismatch",
+                    )
+            if g.get("mode") == "OR":
+                selected = g.get("selected_edge_id")
+                if selected is None:
+                    unresolved_or.add(nid)
+                    if g.get("selection_policy") != "PER_INSTALL_USER_BACKEND":
+                        unresolved_without_policy.add(nid)
+                else:
+                    check(selected in ids, f"{nid}: selected OR edge is not an alternative")
+                    if selected in ids:
+                        selected_hard.add(selected)
+            else:
+                selected_hard.update(ids)
+    expected_hard = {eid for eid, e in edges.items() if e.get("hard_precedence")}
+    check(
+        grouped == expected_hard,
+        "hard dependencies missing or incorrectly repeated in prerequisite groups",
+    )
+    # Conservative node-level DAG: phase-specific contracts must be separate nodes
+    # when mutual producer/consumer phases otherwise form a cycle.
+    graph = {nid: [] for nid in nodes}
+    indegree = {nid: 0 for nid in nodes}
+    for eid in selected_hard:
+        e = edges.get(eid, {})
+        a, b = e.get("producer"), e.get("consumer")
+        if a in nodes and b in nodes:
+            graph[a].append(b)
+            indegree[b] += 1
+    pending = [nid for nid, d in indegree.items() if d == 0]
+    visited = 0
+    while pending:
+        nid = pending.pop()
+        visited += 1
+        for target in graph[nid]:
+            indegree[target] -= 1
+            if indegree[target] == 0:
+                pending.append(target)
+    check(visited == len(nodes), "cycle in selected hard precedence graph")
+    for nid, node in nodes.items():
+        ready = node.get("assignment_status") in {"READY", "RUNNING"}
+        complete = node.get("completion_claim") == "COMPLETE"
+        if ready:
+            check(
+                node.get("selection") in {"SELECTED", "SELECTED_REFERENCE_INCREMENT"},
+                f"{nid}: READY without selected scope",
+            )
+            check(nid not in unresolved_or, f"{nid}: READY with unresolved OR choice")
+            for field in (
+                "authority_verified",
+                "writer_free_verified",
+                "resources_verified",
+                "decisions_resolved",
+            ):
+                check(node.get(field) is True, f"{nid}: READY without {field}")
+            for kind in ("authority", "writer_slot", "resource_capacity", "decision"):
+                records = [
+                    evidence[x] for x in node.get("admission_evidence_ids", []) if x in evidence
+                ]
+                check(
+                    any(
+                        x.get("kind") == kind
+                        and x.get("passed") is True
+                        and x.get("scope_node_id") == nid
+                        for x in records
+                    ),
+                    f"{nid}: READY lacks exact {kind} evidence",
+                )
+        if ready or complete:
+            for eid in selected_hard:
+                e = edges.get(eid, {})
+                if e.get("consumer") == nid and (
+                    complete or e.get("prerequisite_stage", "start") == "start"
+                ):
+                    check(
+                        e.get("evidence_satisfied") is True,
+                        f"{nid}: missing hard predecessor evidence {eid}",
+                    )
+        if complete:
+            criteria = node.get("acceptance_criteria", [])
+            check(
+                bool(criteria) and bool(node.get("completion_requirements")),
+                f"{nid}: COMPLETE lacks explicit acceptance boundary",
+            )
+            qualified = [
+                evidence[x]
+                for x in node.get("evidence_ids", [])
+                if x in evidence
+                and evidence[x].get("acceptance_qualified") is True
+                and evidence[x].get("scope_node_id") == nid
+            ]
+            covered = {c for ev in qualified for c in ev.get("criteria_covered", [])}
+            check(
+                bool(qualified) and set(criteria) <= covered,
+                f"{nid}: unproved COMPLETE/consumer claim",
+            )
+            check(nid not in unresolved_or, f"{nid}: COMPLETE with unresolved OR choice")
+    running = [n["repository"] for n in nodes.values() if n.get("assignment_status") == "RUNNING"]
+    check(len(running) == len(set(running)), "overlapping active repository writers")
+    for h in plan["handoffs"]:
+        check(
+            h.get("producer_lane") in lanes and h.get("consumer_lane") in lanes,
+            f"{h.get('id')}: invalid handoff ownership",
+        )
+        check(h.get("phase") in PHASES | {"distribution"}, f"{h.get('id')}: invalid handoff phase")
+        check(
+            h.get("execution_authorized") is False,
+            f"{h.get('id')}: planning handoff cannot authorize execution",
+        )
+    for rollup in plan.get("rollups", []):
+        children = rollup.get("children", [])
+        check(len(children) == len(set(children)), "parent rollup double-counts children")
+        check(
+            rollup.get("parent") in nodes and all(c in nodes for c in children),
+            "invalid parent rollup reference",
+        )
+        check(
+            rollup.get("rule") in {"ALL_REQUIRED", "REFERENCE_ONLY"}, "invalid parent rollup rule"
+        )
+        if (
+            rollup.get("rule") == "ALL_REQUIRED"
+            and nodes.get(rollup.get("parent"), {}).get("completion_claim") == "COMPLETE"
+        ):
+            check(
+                all(nodes.get(c, {}).get("completion_claim") == "COMPLETE" for c in children),
+                "parent COMPLETE with incomplete required child",
+            )
+    if require_complete:
+        for key, value in plan.get("completeness", {}).items():
+            check(value is True, f"completion gate open: {key}")
+        check(bool(plan.get("completeness")), "completeness declaration missing")
+        for item in plan["audit_obligations"]:
+            check(item.get("status") == "CLOSED", f"audit obligation open: {item.get('id')}")
+        for sid, s in sources.items():
+            check(s.get("read_complete") is True, f"{sid}: unread source ranges")
+            check(s.get("commit_sha") is not None, f"{sid}: commit binding unverified")
+        for lid, lane in lanes.items():
+            check(bool(lane.get("owning_register")), f"{lid}: owning register not delivered")
+        check(
+            not unresolved_without_policy,
+            "unresolved OR decisions prevent complete graph qualification",
+        )
+    return errors
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("snapshot", type=Path)
+    parser.add_argument("--require-complete", action="store_true")
+    parser.add_argument("--check-rendered", action="store_true")
+    args = parser.parse_args()
+    try:
+        data = load(args.snapshot)
+        errors = validate(data, args.require_complete)
+        if args.check_rendered and not errors:
+            from render_snapshot import render
+
+            for name, text in render(data).items():
+                target = args.snapshot.parent / name
+                if not target.is_file() or target.read_text(encoding="utf-8") != text:
+                    errors.append(f"generated view differs or missing: {name}")
+    except (OSError, ValueError, TypeError, KeyError) as exc:
+        print(json.dumps({"result": "FAIL", "errors": [str(exc)]}, ensure_ascii=False, indent=2))
+        return 2
+    complete = not errors and not validate(data, True)
+    print(
+        json.dumps(
+            {
+                "result": "FAIL" if errors else "PASS_INCLUDED_SNAPSHOT_ONLY",
+                "complete_delivery": complete,
+                "claim_boundary": "Offline structure does not prove external source truth, independent review or protected delivery.",
+                "errors": errors,
+            },
+            ensure_ascii=False,
+            indent=2,
+        )
+    )
+    return 1 if errors else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
