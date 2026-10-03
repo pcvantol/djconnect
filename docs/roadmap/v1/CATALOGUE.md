@@ -1,6 +1,6 @@
 # Included records and existing identities
 
-This is a pinned planning projection for assignment `DJC-PLATFORM-ROADMAP-DAG-LANES-V1-20261003`. Owning roadmap, backlog, code and qualification records remain authoritative. It grants no product pickup, release, deployment or resource lease.
+This is a pinned planning projection for assignment `DJC-PLATFORM-ROADMAP-DAG-LANES-V1-20261003`. Owning roadmap, backlog, code and qualification records remain authoritative. It grants no product pickup, deployment or resource lease; the narrowly authorized planning publication side effect is recorded in the audit.
 
 A `PROJ::` or `INV::` key is a projection reference; it does not replace an existing source ID or authorize work. `REFERENCE_ONLY` records remain outside the execution DAG and preserve source status/dependency context.
 

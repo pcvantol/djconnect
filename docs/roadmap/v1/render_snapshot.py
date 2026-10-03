@@ -25,7 +25,7 @@ def render(p: dict[str, Any]) -> dict[str, str]:
     intro = (
         "This is a pinned planning projection for assignment `" + p["assignment_id"] + "`. "
         "Owning roadmap, backlog, code and qualification records remain authoritative. "
-        "It grants no product pickup, release, deployment or resource lease.\n\n"
+        "It grants no product pickup, deployment or resource lease; the narrowly authorized planning publication side effect is recorded in the audit.\n\n"
     )
     done = sum(o["status"] == "CLOSED" for o in p["audit_obligations"])
     lines = [

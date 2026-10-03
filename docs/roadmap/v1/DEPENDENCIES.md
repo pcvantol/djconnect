@@ -1,6 +1,6 @@
 # Federated dependencies
 
-This is a pinned planning projection for assignment `DJC-PLATFORM-ROADMAP-DAG-LANES-V1-20261003`. Owning roadmap, backlog, code and qualification records remain authoritative. It grants no product pickup, release, deployment or resource lease.
+This is a pinned planning projection for assignment `DJC-PLATFORM-ROADMAP-DAG-LANES-V1-20261003`. Owning roadmap, backlog, code and qualification records remain authoritative. It grants no product pickup, deployment or resource lease; the narrowly authorized planning publication side effect is recorded in the audit.
 
 Only `hard_precedence=true` enters the execution DAG. Strategy order, publication handoff and temporary resource conflicts stay distinct. All new cross-repository acceptance edges are phase-specific and currently lack exact joint receipts.
 

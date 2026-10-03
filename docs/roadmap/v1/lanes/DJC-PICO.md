@@ -1,6 +1,6 @@
 # DJC-PICO — pcvantol/djconnect-pico
 
-This is a pinned planning projection for assignment `DJC-PLATFORM-ROADMAP-DAG-LANES-V1-20261003`. Owning roadmap, backlog, code and qualification records remain authoritative. It grants no product pickup, release, deployment or resource lease.
+This is a pinned planning projection for assignment `DJC-PLATFORM-ROADMAP-DAG-LANES-V1-20261003`. Owning roadmap, backlog, code and qualification records remain authoritative. It grants no product pickup, deployment or resource lease; the narrowly authorized planning publication side effect is recorded in the audit.
 
 **Owns:** Experimentele Pico 2 W-evaluatie; geen ondersteund product. Profiles: MicroPython prototype.
 

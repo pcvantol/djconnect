@@ -1,6 +1,6 @@
 # DJC-APPLE — pcvantol/djconnect-app
 
-This is a pinned planning projection for assignment `DJC-PLATFORM-ROADMAP-DAG-LANES-V1-20261003`. Owning roadmap, backlog, code and qualification records remain authoritative. It grants no product pickup, release, deployment or resource lease.
+This is a pinned planning projection for assignment `DJC-PLATFORM-ROADMAP-DAG-LANES-V1-20261003`. Owning roadmap, backlog, code and qualification records remain authoritative. It grants no product pickup, deployment or resource lease; the narrowly authorized planning publication side effect is recorded in the audit.
 
 **Owns:** Apple-clientfamilie; native presentatie en clientstaat, geen backendautoriteit. Profiles: iOS / iPadOS / macOS / watchOS.
 

@@ -13,7 +13,7 @@
   "completeness": {
     "all_owning_registers_delivered": true,
     "canonical_writes": false,
-    "independent_review": false,
+    "independent_review": true,
     "protected_delivery": false,
     "finalization": false,
     "documentary_platform_audit": true,
@@ -4299,8 +4299,8 @@
       "portfolio_register": "https://github.com/pcvantol/djconnect/issues/1101",
       "proposed_documentary_next_step": "Behoud de bestaande E2E- en VibeCast-selectie in de canonieke productbacklog. Rond de centrale documentaire graaf, onafhankelijke review en veilige beschermde oplevering binnen deze assignment af; geen nieuw productwerk.",
       "local_backlog_audit": "Bounded documentary source/backlog/status inventory CLOSED in AUDIT-DJC-CORE: 468/880 current Markdown sources represented, 412 exact historical path/blob dispositions, zero unclassified. E2E original selected scope and VibeCast selected reference increment are reconciled against owning Product Backlog; future installed consumer and release qualification remain open.",
-      "local_test_policy": "Pinned Meta Engineering and repository test/CI policy read. Snapshot validator/negative tests and draft-PR checks are separate planning evidence; exact protected-main checks and future product/physical acceptance remain open.",
-      "release_effect_audit": "Branch/PR validation is safe for planning review. Successful main validation starts two publication-capable workflows targeting the same internal-ha-{SHA} prerelease tag; after their own gates either may create that release and each may upload an asset. Docs-only merge does not suppress the triggers. The possible unauthorized release effect blocks protected merge under this assignment; no workflow or service change authorized"
+      "local_test_policy": "Pinned Meta Engineering and repository test/CI policy read. Snapshot validator/negative tests and draft-PR checks are separate planning evidence; exact protected-main checks and future product/physical acceptance remain open",
+      "release_effect_audit": "Branch/PR validation is safe for planning review. Successful core main validation automatically starts the unchanged home-assistant-release-artifact and post-merge-release-evidence-dispatch workflows; after their own gates they may create or append assets on the same SHA-bound internal-ha-{SHA} prerelease. The owner authorized exactly this planning-merge and required Finalization side effect under DJC-PLANNING-INTERNAL-ARTIFACT-AUTH-V1-20261003; https://github.com/pcvantol/djconnect/issues/1101#issuecomment-5971100462; continuation https://github.com/pcvantol/djconnect/issues/1101#issuecomment-5971200004. Docs-only merge does not suppress the triggers. No workflow/service change, deployment or wider publication is authorized; verify exact workflow effects again before each merge"
     },
     {
       "id": "DJC-APPLE",
@@ -17121,7 +17121,7 @@
       "mapped_node_ids": [
         "PROJ::AUDIT::METHOD"
       ],
-      "remaining": "Protected merge still needs a safe existing route or explicit owner resolution under the assignment no-release boundary."
+      "remaining": "The owner granted a narrow core planning/finalization automatic internal-ha-{SHA} publication exception; protected merge still needs current exact-head review, checks and workflow-effect qualification. See DJC-PLANNING-INTERNAL-ARTIFACT-AUTH-V1-20261003; https://github.com/pcvantol/djconnect/issues/1101#issuecomment-5971100462; continuation https://github.com/pcvantol/djconnect/issues/1101#issuecomment-5971200004."
     },
     {
       "id": "CORE_CI_QUAL_POLICY",
@@ -36311,8 +36311,8 @@
     },
     {
       "id": "CORE-MAIN-ARTIFACT",
-      "status": "PROTECTED_MERGE_BLOCKED_BY_NO_RELEASE_SCOPE",
-      "description": "Successful core main validation automatically starts two publication-capable workflow_run paths: the internal HA artifact workflow and the pinned reusable durable qualification evidence workflow. Both target the same internal-ha-{SHA} GitHub prerelease tag; after their own gates either may create the release and each may upload an asset. A prior failure can prevent publication. A docs-only merge does not suppress these triggers. The current assignment prohibits releases and service/workflow changes. Branch/PR checks are safe from these main-only triggers; protected merge requires a separately authorized safe route or owner resolution.",
+      "status": "NARROW_OWNER_AUTHORIZATION_RECORDED__PROTECTED_MERGE_GATES_OPEN",
+      "description": "Successful core main validation automatically starts two publication-capable workflow_run paths: the internal HA artifact workflow and the pinned reusable durable qualification evidence workflow. Both target the same internal-ha-{SHA} GitHub prerelease tag; after their own gates either may create the release and each may upload an asset. A prior failure can prevent publication. A docs-only merge does not suppress these triggers. The original assignment prohibited releases, which blocked this merge until the owner explicitly authorized only these unchanged automatic planning-merge and Finalization artifact/evidence effects in DJC-PLANNING-INTERNAL-ARTIFACT-AUTH-V1-20261003 (https://github.com/pcvantol/djconnect/issues/1101#issuecomment-5971100462). Branch/PR checks do not trigger them. Current exact-workflow, independent review, protected checks and merge gates remain open; no deployment, workflow/service modification or wider release is authorized.",
       "source_ids": [
         "CORE-INTERNAL-ARTIFACT",
         "POST_MERGE",
@@ -36770,7 +36770,7 @@
     {
       "id": "POST-MERGE-TAG-PREFIX-DRIFT",
       "status": "OPEN_OWNING_POLICY_IMPLEMENTATION_RECONCILIATION",
-      "description": "Current core Software Assurance architecture describes repository-scoped prerelease tag prefixes (for example internal-api) for independent component evidence. The exact pinned core reusable post-merge workflow @ebbb35f has no tag-prefix input and unconditionally selects internal-ha-{candidate SHA}; when the prerelease is absent it creates one with hard-coded \"DJConnect Home Assistant artifact\" title and \"Immutable internal deployment artifact\" notes, otherwise it may append evidence. Website and distribution wrappers that call it can therefore write HA-named GitHub prerelease metadata/assets in their own repositories after successful main workflows and the reusable gates. This is a bounded policy/implementation drift, not proof a particular run published or authorization to modify workflows. The protected planning PR remains unmerged under its no-release boundary. Actual Apple PR #88 main merge b857eb7 followed the pinned Apple wrapper: run 37125752436 succeeded and GitHub now shows internal-ha-b857eb7 as a prerelease in djconnect-app, titled DJConnect Home Assistant artifact with a qualification-evidence JSON asset. This confirms the HA-named publication effect for that exact Apple merge; other repository runs and the protected core planning merge remain separately unperformed/unqualified.",
+      "description": "Current core Software Assurance architecture describes repository-scoped prerelease tag prefixes (for example internal-api) for independent component evidence. The exact pinned core reusable post-merge workflow @ebbb35f has no tag-prefix input and unconditionally selects internal-ha-{candidate SHA}; when the prerelease is absent it creates one with hard-coded \"DJConnect Home Assistant artifact\" title and \"Immutable internal deployment artifact\" notes, otherwise it may append evidence. Website and distribution wrappers that call it can therefore write HA-named GitHub prerelease metadata/assets in their own repositories after successful main workflows and the reusable gates. This is a bounded policy/implementation drift, not proof a particular run published or authorization to modify workflows. The protected planning PR remains unmerged; its SHA-bound core automatic internal artifact/evidence effect is narrowly authorized by DJC-PLANNING-INTERNAL-ARTIFACT-AUTH-V1-20261003; https://github.com/pcvantol/djconnect/issues/1101#issuecomment-5971100462; continuation https://github.com/pcvantol/djconnect/issues/1101#issuecomment-5971200004. Actual Apple PR #88 main merge b857eb7 followed the pinned Apple wrapper: run 37125752436 succeeded and GitHub now shows internal-ha-b857eb7 as a prerelease in djconnect-app, titled DJConnect Home Assistant artifact with a qualification-evidence JSON asset. This confirms the HA-named publication effect for that exact Apple merge; other repository runs and the protected core planning merge remain separately unperformed/unqualified.",
       "source_ids": [
         "CORE_SA_POSTMERGE_ARCH",
         "CORE_POST_MERGE_REUSABLE",
@@ -37023,7 +37023,7 @@
       "scope": "DJC-CORE",
       "reason": "Bounded documentary repository-lane inventory, owning status/backlog and current-head reconciliation are recorded in the pinned source matrix and generated lane entrypoint. This closes planning-source classification only; it does not grant product, release, deployment, writer or consumer readiness.",
       "closure_evidence": "Pinned remote main 192703ea79d3c65f373e69fa60d604555d4c2f5a; 480 unique included source path/blob rows (480 full-read, 0 bounded partial with explicit remaining); tracked Markdown 880 = 468 individually represented + 412 exact path/blob historical dispositions + 0 unclassified. Reciprocal source-to-node mapping and unique source identity checked by the offline validator; owning register https://github.com/pcvantol/djconnect/issues/1101; current 16:13 UTC remote-main and open-PR readback; read-only evidence IDs PR429, PR1099, PR1100, OWNER_RETIREMENT_CLOSE, CORE_HA_40_RC1_INTERNAL_PRERELEASE_44C87, CORE_HA_40_RC1_ARTIFACT_RUN_UNAVAILABLE. Local worktree state is time-bounded in local_worktree_readback. EVOLUTION and REPO_STATUS changed at current main and were repinned to their exact current blobs after complete prior read plus complete delta review.",
-      "future_product_boundary": "No current installed HA 3.3.1/HACS, release-target, hardware OTA or external consumer acceptance is inferred; automated main prerelease effect still blocks protected planning delivery."
+      "future_product_boundary": "No current installed HA 3.3.1/HACS, release-target, hardware OTA or external consumer acceptance is inferred. The narrowly authorized planning publication side effect does not qualify those future product outcomes."
     },
     {
       "id": "AUDIT-DJC-APPLE",
@@ -37184,15 +37184,16 @@
     },
     {
       "id": "INDEPENDENT-REVIEW",
-      "status": "OPEN",
+      "status": "CLOSED",
       "scope": "platform",
-      "reason": "Independent reviewer has cleared the documentary source census, current/planned graph model and all eleven updated owning issue bodies in bounded readbacks, with identified P1/P2 corrections applied. Final exact-head whole-candidate verdict and protected delivery remain pending."
+      "reason": "Independent whole-candidate review at 8815518c73a53159dbfe1fbefb5e720090fd04e8 and independent review of the subsequent owner-authorization/status delta found and cleared all material P1/P2 issues. This closes planning content review only; protected delivery, exact main CI and Finalization remain separate obligations.",
+      "closure_evidence": "Independent reviewer /root/independent_planning_review examined the 21-file authorization/status delta against 8815518c and owner comments 5971100462/5971200004, identified one stale CORE-MAIN-ARTIFACT blocker (P2), inspected the corrected JSON/generated view and reported no remaining P1/P2. Earlier exact-head 8815518c whole-candidate review and eleven owning issue body review found no remaining P1/P2 after corrections. Reviewer independently checked main-only workflow scope, 119 tests, rendered validator, Ruff and diff check. The small final punctuation cleanup is presentation-only; exact pushed SHA and PR checks require readback before merge."
     },
     {
       "id": "PROTECTED-DELIVERY",
       "status": "OPEN",
       "scope": "platform",
-      "reason": "Draft planning PR #1102 exists and has triggered branch/PR checks; protected main merge and dedicated DJConnect Finalization remain open. Successful main validation starts two publication-capable workflows targeting the same internal-ha-{SHA} prerelease tag; they may create/append release assets after their own gates, conflicting with this assignment no-release boundary."
+      "reason": "Draft planning PR #1102 remains unmerged and dedicated DJConnect Finalization remains open. The prior permission blocker is resolved for only the existing SHA-bound automatic internal-ha-{SHA} artifact/evidence publication on the planning merge and required Finalization by DJC-PLANNING-INTERNAL-ARTIFACT-AUTH-V1-20261003; https://github.com/pcvantol/djconnect/issues/1101#issuecomment-5971100462; continuation https://github.com/pcvantol/djconnect/issues/1101#issuecomment-5971200004. Recheck exact workflow effects, current head, review and protected checks before merge; no post-merge evidence is claimed early."
     },
     {
       "id": "FRESHNESS-ALL",
@@ -37203,10 +37204,11 @@
     },
     {
       "id": "CORE-AUTO-RELEASE-DECISION",
-      "status": "OPEN",
+      "status": "CLOSED",
       "scope": "DJC-CORE",
-      "reason": "Core main validation starts two publication-capable workflows after docs-only merge. Both target the same internal-ha-{SHA} prerelease tag and can create the release or add an asset after their own gates; publication is not guaranteed on every run. This possible effect conflicts with the assignment no-release boundary; do not merge or alter service workflows without an existing safe route or explicit owner resolution. The current Software Assurance architecture promises repository-scoped prefixes, but the pinned reusable workflow hard-codes internal-ha; this drift reinforces the need for an explicit safe delivery decision, without changing workflows under this assignment.",
-      "remaining": " An analogous Apple main merge actually created an HA-named internal-ha prerelease via the pinned reusable workflow, confirming this class of GitHub publication effect; it does not authorize core planning publication."
+      "reason": "Owner authorized only the unchanged existing automatic core internal-ha-{SHA} artifact/evidence prerelease effect for protected planning PR #1102 and required repository Finalization. Both main-success workflows may target one tag after their own gates; no outcome is assumed. This resolves the former permission blocker without authorizing deployment, workflow/service changes or wider product release. The separate cross-repository tag-prefix policy drift remains a future owning assessment.",
+      "remaining": "The analogous Apple main publication remains historical cross-repository evidence; it does not extend this core-only owner grant or establish installed consumer acceptance.",
+      "closure_evidence": "DJC-PLANNING-INTERNAL-ARTIFACT-AUTH-V1-20261003; https://github.com/pcvantol/djconnect/issues/1101#issuecomment-5971100462; continuation https://github.com/pcvantol/djconnect/issues/1101#issuecomment-5971200004; current local workflow readback: home-assistant-release-artifact.yml and post-merge-release-evidence-dispatch.yml still trigger only after successful main validation and bind the candidate SHA; platform release, private deployment and smoke workflows require manual dispatch, and verification Docker publication requires manual dispatch or a version-tag push. No workflow file changes are in planning PR #1102. Exact premerge workflow readback still required."
     },
     {
       "id": "FINALIZATION",

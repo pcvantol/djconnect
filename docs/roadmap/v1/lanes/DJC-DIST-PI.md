@@ -1,6 +1,6 @@
 # DJC-DIST-PI — pcvantol/djconnect-pi-releases
 
-This is a pinned planning projection for assignment `DJC-PLATFORM-ROADMAP-DAG-LANES-V1-20261003`. Owning roadmap, backlog, code and qualification records remain authoritative. It grants no product pickup, release, deployment or resource lease.
+This is a pinned planning projection for assignment `DJC-PLATFORM-ROADMAP-DAG-LANES-V1-20261003`. Owning roadmap, backlog, code and qualification records remain authoritative. It grants no product pickup, deployment or resource lease; the narrowly authorized planning publication side effect is recorded in the audit.
 
 **Owns:** Pi-releaseartifacts en publieke updater-metadata; geen clientbron. Profiles: Stable / beta; profile identity to verify.
 

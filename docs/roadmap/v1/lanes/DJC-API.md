@@ -1,6 +1,6 @@
 # DJC-API — pcvantol/djconnect-api
 
-This is a pinned planning projection for assignment `DJC-PLATFORM-ROADMAP-DAG-LANES-V1-20261003`. Owning roadmap, backlog, code and qualification records remain authoritative. It grants no product pickup, release, deployment or resource lease.
+This is a pinned planning projection for assignment `DJC-PLATFORM-ROADMAP-DAG-LANES-V1-20261003`. Owning roadmap, backlog, code and qualification records remain authoritative. It grants no product pickup, deployment or resource lease; the narrowly authorized planning publication side effect is recorded in the audit.
 
 **Owns:** Centrale API; gelezen README beschrijft APNs-relay, bredere scope nog te auditen. Profiles: Cloudflare Workers relay.
 

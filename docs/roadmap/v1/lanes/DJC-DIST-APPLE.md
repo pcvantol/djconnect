@@ -1,6 +1,6 @@
 # DJC-DIST-APPLE — pcvantol/djconnect-app-releases
 
-This is a pinned planning projection for assignment `DJC-PLATFORM-ROADMAP-DAG-LANES-V1-20261003`. Owning roadmap, backlog, code and qualification records remain authoritative. It grants no product pickup, release, deployment or resource lease.
+This is a pinned planning projection for assignment `DJC-PLATFORM-ROADMAP-DAG-LANES-V1-20261003`. Owning roadmap, backlog, code and qualification records remain authoritative. It grants no product pickup, deployment or resource lease; the narrowly authorized planning publication side effect is recorded in the audit.
 
 **Owns:** Artifact-handoff; Apple-only README versus Windows/Mac Catalyst consumerclaim is onopgelost. Profiles: Apple unsigned handoff; Windows/Mac Catalyst scope requires reconciliation.
 

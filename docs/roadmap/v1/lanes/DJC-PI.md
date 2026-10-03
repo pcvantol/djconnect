@@ -1,6 +1,6 @@
 # DJC-PI — pcvantol/djconnect-pi
 
-This is a pinned planning projection for assignment `DJC-PLATFORM-ROADMAP-DAG-LANES-V1-20261003`. Owning roadmap, backlog, code and qualification records remain authoritative. It grants no product pickup, release, deployment or resource lease.
+This is a pinned planning projection for assignment `DJC-PLATFORM-ROADMAP-DAG-LANES-V1-20261003`. Owning roadmap, backlog, code and qualification records remain authoritative. It grants no product pickup, deployment or resource lease; the narrowly authorized planning publication side effect is recorded in the audit.
 
 **Owns:** Native Qt Quick/QML touch-client en appliancebron. Profiles: 4-inch / 10-inch; pi-zero-2w-arm64 / pi5-arm64.
 

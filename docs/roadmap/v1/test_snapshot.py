@@ -242,6 +242,7 @@ class SnapshotTests(unittest.TestCase):
         self.assertIn("closed audit lacks closure evidence", self.errors())
 
     def test_independent_review_gate_requires_closed_audit(self):
+        next(a for a in self.p["audit_obligations"] if a["id"] == "INDEPENDENT-REVIEW")["status"] = "OPEN"
         self.p["completeness"]["independent_review"] = True
         self.assertIn("supporting audit obligations remain open", self.errors())
 
