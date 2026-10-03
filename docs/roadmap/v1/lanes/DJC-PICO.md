@@ -16,7 +16,7 @@ Planning continuation: Behoud experimentstatus. Alleen een apart architecture-/p
 
 ## Owning backlog and handoffs
 
-Read the local `REPOSITORY_STATUS.md` and existing TODO/ISSUES or release metadata that this repository actually owns. Local backlog audit: Relevant local backlog/status entries read; complete audit pending.
+Read the local `REPOSITORY_STATUS.md` and existing TODO/ISSUES or release metadata that this repository actually owns. Local backlog audit: All 27 tracked source files, five merged PRs, issue #6, release list and local test boundary read at exact main; no separate TODO/ISSUES/REPOSITORY_STATUS file exists. Experimental scope remains..
 
 
 ## DoR, DoD and resource boundary
@@ -25,7 +25,7 @@ DoR for a future product pickup: selected owning scope, exact phase-specific pro
 
 DoD for a future authorized vertical assignment: contract and user-facing acceptance, applicable five-language UX, tests, independent review, required CI, fixes, protected merge, exact-main readback and owning Finalization; any release/install acceptance requires separate explicit release scope.
 
-Workflow effect audit: Push, tag, dispatch and workflow_run triggers inventoried; exact route-specific effects must be read before push. Shared signer, HA lab and devices are not reserved by this plan. A delegated publication requires both source and receiving distribution writer coordination.
+Workflow effect audit: PR/main CI performs read-only validation. PR Trusted Delivery can write an Owner Authorization commit status; manual Owner Authorization dispatch also has status-write permission. No release workflow in pinned tree and no GitHub release listed; external/product effects are not inferred.. Shared signer, HA lab and devices are not reserved by this plan. A delegated publication requires both source and receiving distribution writer coordination.
 
 ## Copyable continuation prompt
 
@@ -34,7 +34,7 @@ Continue assignment DJC-PLATFORM-ROADMAP-DAG-LANES-V1-20261003 in pcvantol/djcon
 Read https://github.com/pcvantol/djconnect/issues/1101 and https://github.com/pcvantol/djconnect-pico/issues/6; keep the current WIP/assignment intact: CLEAN_LOCAL_MAIN_OBSERVED; experimental scope; writer availability UNKNOWN.
 Use the existing owning backlog, exact source pins and local bootstrap. Planning outcome: Behoud experimentstatus. Alleen een apart architecture-/productbesluit kan ondersteunde capabilities, OTA of distributie selecteren; geen fictieve featurebacklog.
 Selected owning node IDs (no new pickup): none established for this lane.
-Local test-policy audit: NOT_FULLY_AUDITED. Workflow effects: Push, tag, dispatch and workflow_run triggers inventoried; exact route-specific effects must be read before push.
+Local test-policy audit: Six host unit tests pass locally at pinned main; no exact-main CI qualification inferred from two Dependabot dynamic runs.. Workflow effects: PR/main CI performs read-only validation. PR Trusted Delivery can write an Owner Authorization commit status; manual Owner Authorization dispatch also has status-write permission. No release workflow in pinned tree and no GitHub release listed; external/product effects are not inferred..
 This is documentary planning only. Do not infer product selection, writer availability, resource capacity or release authority.
 For any later selected vertical work, first prove DoR, then include UX, tests, review, fixes, protected merge and finalization in the same assignment.
 Coordinate these exact handoff IDs and acceptance owners through the owning registers:

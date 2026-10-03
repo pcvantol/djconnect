@@ -41,7 +41,7 @@
     "metadata_and_bounded_paraphrases": true,
     "offline_hash_verification_of_remote_blobs": false,
     "per_call_timestamps": "Date-level head readback on 2026-10-03; no per-file read timestamp for inherited checkpoint.",
-    "pinned_tree_blobs_verified": "419 of 419 path/blob pins matched exact commit trees or GitHub Contents commit readbacks: 105 original GitHub tree readbacks, 200 local git commit-tree readbacks and 114 new GitHub Contents readbacks on 2026-10-03. Narrative interpretation remains partial.",
+    "pinned_tree_blobs_verified": "443 of 443 path/blob pins matched exact commit trees or GitHub Contents commit readbacks: 105 original GitHub tree readbacks, 224 local git commit-tree readbacks and 114 new GitHub Contents readbacks on 2026-10-03. Narrative interpretation remains partial.",
     "reference_scan": {
       "method": "Every pinned core Markdown blob and every pinned Markdown blob in the eleven DJC component repositories, at its recorded commit: parse relative Markdown links, strip anchors, normalize against source directory, retain existing .md targets absent from the pinned source matrix; distinct repository/path keys. The seven pinned external Forge method documents are outside this lane-source link frontier.",
       "unmapped_paths": [
@@ -135,8 +135,8 @@
           "repository": "pcvantol/djconnect-pico",
           "commit_sha": "6daf1f291566dea52adef604a7186b43755d871e",
           "tracked_markdown": 10,
-          "included_markdown": 3,
-          "not_individually_included_markdown": 7,
+          "included_markdown": 10,
+          "not_individually_included_markdown": 0,
           "tree_readback": "complete local git ls-tree -r"
         },
         "DJC-DIST-FIRMWARE": {
@@ -352,9 +352,9 @@
       "register_discovery": "Dedicated owning issue created; existing local backlog retained",
       "portfolio_register": "https://github.com/pcvantol/djconnect/issues/1101",
       "proposed_documentary_next_step": "Behoud experimentstatus. Alleen een apart architecture-/productbesluit kan ondersteunde capabilities, OTA of distributie selecteren; geen fictieve featurebacklog.",
-      "local_backlog_audit": "Relevant local backlog/status entries read; complete audit pending",
-      "local_test_policy": "NOT_FULLY_AUDITED",
-      "release_effect_audit": "Push, tag, dispatch and workflow_run triggers inventoried; exact route-specific effects must be read before push"
+      "local_backlog_audit": "All 27 tracked source files, five merged PRs, issue #6, release list and local test boundary read at exact main; no separate TODO/ISSUES/REPOSITORY_STATUS file exists. Experimental scope remains.",
+      "local_test_policy": "Six host unit tests pass locally at pinned main; no exact-main CI qualification inferred from two Dependabot dynamic runs.",
+      "release_effect_audit": "PR/main CI performs read-only validation. PR Trusted Delivery can write an Owner Authorization commit status; manual Owner Authorization dispatch also has status-write permission. No release workflow in pinned tree and no GitHub release listed; external/product effects are not inferred."
     },
     {
       "id": "DJC-DIST-FIRMWARE",
@@ -8382,6 +8382,438 @@
         "INV::DJC-VIBECAST"
       ],
       "remaining": "Source/CI result is bounded; external Cast registration, Cloudflare Pages live state, Apple/HA handoff and physical hardware acceptance remain separate."
+    },
+    {
+      "id": "PICO_EDITORCONFIG",
+      "repository": "pcvantol/djconnect-pico",
+      "path": ".editorconfig",
+      "blob_sha": "de9111052683052e69707c17b756199b7d5f376a",
+      "commit_sha": "6daf1f291566dea52adef604a7186b43755d871e",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Repository-local configuration, governance or hygiene source; no product selection or release authority.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-pico/blob/6daf1f291566dea52adef604a7186b43755d871e/.editorconfig",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-PICO"
+      ],
+      "remaining": "Bounded source inventory only; approved product scope, Pico 2 W hardware, consumer and release evidence are not qualified."
+    },
+    {
+      "id": "PICO_GITATTRIBUTES",
+      "repository": "pcvantol/djconnect-pico",
+      "path": ".gitattributes",
+      "blob_sha": "46195260d83c9bfd25c7b7d80408ccf5969c204d",
+      "commit_sha": "6daf1f291566dea52adef604a7186b43755d871e",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Repository-local configuration, governance or hygiene source; no product selection or release authority.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-pico/blob/6daf1f291566dea52adef604a7186b43755d871e/.gitattributes",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-PICO"
+      ],
+      "remaining": "Bounded source inventory only; approved product scope, Pico 2 W hardware, consumer and release evidence are not qualified."
+    },
+    {
+      "id": "PICO_GITHUB_CODEOWNERS",
+      "repository": "pcvantol/djconnect-pico",
+      "path": ".github/CODEOWNERS",
+      "blob_sha": "1ad7ff43acaa96ae6822b8d6e29f60eacedf0bae",
+      "commit_sha": "6daf1f291566dea52adef604a7186b43755d871e",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Repository-local configuration, governance or hygiene source; no product selection or release authority.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-pico/blob/6daf1f291566dea52adef604a7186b43755d871e/.github/CODEOWNERS",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-PICO"
+      ],
+      "remaining": "Bounded source inventory only; approved product scope, Pico 2 W hardware, consumer and release evidence are not qualified."
+    },
+    {
+      "id": "PICO_GITHUB_ISSUE_TEMPLATE_BUG_REPORT_YML",
+      "repository": "pcvantol/djconnect-pico",
+      "path": ".github/ISSUE_TEMPLATE/bug_report.yml",
+      "blob_sha": "319f5d531c9bc7ff6c0c614daf83fedfbd57148d",
+      "commit_sha": "6daf1f291566dea52adef604a7186b43755d871e",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Repository-local configuration, governance or hygiene source; no product selection or release authority.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-pico/blob/6daf1f291566dea52adef604a7186b43755d871e/.github/ISSUE_TEMPLATE/bug_report.yml",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-PICO"
+      ],
+      "remaining": "Bounded source inventory only; approved product scope, Pico 2 W hardware, consumer and release evidence are not qualified."
+    },
+    {
+      "id": "PICO_GITHUB_ISSUE_TEMPLATE_FEATURE_REQUEST_YML",
+      "repository": "pcvantol/djconnect-pico",
+      "path": ".github/ISSUE_TEMPLATE/feature_request.yml",
+      "blob_sha": "c045e178076467bc3ce04a95e223ca49adb30e62",
+      "commit_sha": "6daf1f291566dea52adef604a7186b43755d871e",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Repository-local configuration, governance or hygiene source; no product selection or release authority.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-pico/blob/6daf1f291566dea52adef604a7186b43755d871e/.github/ISSUE_TEMPLATE/feature_request.yml",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-PICO"
+      ],
+      "remaining": "Bounded source inventory only; approved product scope, Pico 2 W hardware, consumer and release evidence are not qualified."
+    },
+    {
+      "id": "PICO_GITHUB_PULL_REQUEST_TEMPLATE_MD",
+      "repository": "pcvantol/djconnect-pico",
+      "path": ".github/PULL_REQUEST_TEMPLATE.md",
+      "blob_sha": "dea18c3f9b5b4d92aa329682fb109cf2c813e1e9",
+      "commit_sha": "6daf1f291566dea52adef604a7186b43755d871e",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Local PR evidence/risk template; no product/release authority.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-pico/blob/6daf1f291566dea52adef604a7186b43755d871e/.github/PULL_REQUEST_TEMPLATE.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-PICO"
+      ],
+      "remaining": "Bounded source inventory only; approved product scope, Pico 2 W hardware, consumer and release evidence are not qualified."
+    },
+    {
+      "id": "PICO_GITHUB_DEPENDABOT_YML",
+      "repository": "pcvantol/djconnect-pico",
+      "path": ".github/dependabot.yml",
+      "blob_sha": "3f4f0b9252c1133bbcf819a80010ff7280bf492a",
+      "commit_sha": "6daf1f291566dea52adef604a7186b43755d871e",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Repository-local configuration, governance or hygiene source; no product selection or release authority.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-pico/blob/6daf1f291566dea52adef604a7186b43755d871e/.github/dependabot.yml",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-PICO"
+      ],
+      "remaining": "Bounded source inventory only; approved product scope, Pico 2 W hardware, consumer and release evidence are not qualified."
+    },
+    {
+      "id": "PICO_GITHUB_WORKFLOWS_CI_YML",
+      "repository": "pcvantol/djconnect-pico",
+      "path": ".github/workflows/ci.yml",
+      "blob_sha": "fef83fb1829b5568531eb8a2e18d311422beca60",
+      "commit_sha": "6daf1f291566dea52adef604a7186b43755d871e",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "PR/main/dispatch host syntax and six unit checks plus delegated Software Assurance; no exact-main CI receipt found in the 100 most recent runs.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-pico/blob/6daf1f291566dea52adef604a7186b43755d871e/.github/workflows/ci.yml",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-PICO"
+      ],
+      "remaining": "Bounded source inventory only; approved product scope, Pico 2 W hardware, consumer and release evidence are not qualified."
+    },
+    {
+      "id": "PICO_GITHUB_WORKFLOWS_OWNER_AUTHORIZATION_YML",
+      "repository": "pcvantol/djconnect-pico",
+      "path": ".github/workflows/owner-authorization.yml",
+      "blob_sha": "ffdc9faa5ad19fd85654e785741168c5fb59b3b9",
+      "commit_sha": "6daf1f291566dea52adef604a7186b43755d871e",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Manual high-risk Owner Authorization dispatch with commit-status write permission; no automatic product selection.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-pico/blob/6daf1f291566dea52adef604a7186b43755d871e/.github/workflows/owner-authorization.yml",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-PICO"
+      ],
+      "remaining": "Bounded source inventory only; approved product scope, Pico 2 W hardware, consumer and release evidence are not qualified."
+    },
+    {
+      "id": "PICO_GITHUB_WORKFLOWS_TRUSTED_DELIVERY_YML",
+      "repository": "pcvantol/djconnect-pico",
+      "path": ".github/workflows/trusted-delivery.yml",
+      "blob_sha": "20ba5dbf6883858dfaabb8ebef70d6e425651168",
+      "commit_sha": "6daf1f291566dea52adef604a7186b43755d871e",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "PR-only Trusted Delivery qualification; no release workflow.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-pico/blob/6daf1f291566dea52adef604a7186b43755d871e/.github/workflows/trusted-delivery.yml",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-PICO"
+      ],
+      "remaining": "Bounded source inventory only; approved product scope, Pico 2 W hardware, consumer and release evidence are not qualified."
+    },
+    {
+      "id": "PICO_GITIGNORE",
+      "repository": "pcvantol/djconnect-pico",
+      "path": ".gitignore",
+      "blob_sha": "18814655457273c89261a8dae623d34643d8f011",
+      "commit_sha": "6daf1f291566dea52adef604a7186b43755d871e",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Repository-local configuration, governance or hygiene source; no product selection or release authority.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-pico/blob/6daf1f291566dea52adef604a7186b43755d871e/.gitignore",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-PICO"
+      ],
+      "remaining": "Bounded source inventory only; approved product scope, Pico 2 W hardware, consumer and release evidence are not qualified."
+    },
+    {
+      "id": "PICO_CHANGELOG_MD",
+      "repository": "pcvantol/djconnect-pico",
+      "path": "CHANGELOG.md",
+      "blob_sha": "70fd3e0d9dd44aad75464318bfb5c2af19b94ca8",
+      "commit_sha": "6daf1f291566dea52adef604a7186b43755d871e",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Unreleased experimental foundation/LED/Wokwi/capability history; no supported release.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-pico/blob/6daf1f291566dea52adef604a7186b43755d871e/CHANGELOG.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-PICO"
+      ],
+      "remaining": "Bounded source inventory only; approved product scope, Pico 2 W hardware, consumer and release evidence are not qualified."
+    },
+    {
+      "id": "PICO_CODE_OF_CONDUCT_MD",
+      "repository": "pcvantol/djconnect-pico",
+      "path": "CODE_OF_CONDUCT.md",
+      "blob_sha": "c20837d014918e6bfc795b5ec14cdbaa9645c2e0",
+      "commit_sha": "6daf1f291566dea52adef604a7186b43755d871e",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Local conduct and private report policy; no product/release authority.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-pico/blob/6daf1f291566dea52adef604a7186b43755d871e/CODE_OF_CONDUCT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-PICO"
+      ],
+      "remaining": "Bounded source inventory only; approved product scope, Pico 2 W hardware, consumer and release evidence are not qualified."
+    },
+    {
+      "id": "PICO_CONTRIBUTING_MD",
+      "repository": "pcvantol/djconnect-pico",
+      "path": "CONTRIBUTING.md",
+      "blob_sha": "183460817d8b2f50ce478098fe06d384283fce36",
+      "commit_sha": "6daf1f291566dea52adef604a7186b43755d871e",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Local PR, test, high-risk authorization and secret-handling guidance; no product/release authority.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-pico/blob/6daf1f291566dea52adef604a7186b43755d871e/CONTRIBUTING.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-PICO"
+      ],
+      "remaining": "Bounded source inventory only; approved product scope, Pico 2 W hardware, consumer and release evidence are not qualified."
+    },
+    {
+      "id": "PICO_LICENSE",
+      "repository": "pcvantol/djconnect-pico",
+      "path": "LICENSE",
+      "blob_sha": "19dbb9a115ba3f09974a93574a500709b2a97403",
+      "commit_sha": "6daf1f291566dea52adef604a7186b43755d871e",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Repository-local configuration, governance or hygiene source; no product selection or release authority.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-pico/blob/6daf1f291566dea52adef604a7186b43755d871e/LICENSE",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-PICO"
+      ],
+      "remaining": "Bounded source inventory only; approved product scope, Pico 2 W hardware, consumer and release evidence are not qualified."
+    },
+    {
+      "id": "PICO_SECURITY_MD",
+      "repository": "pcvantol/djconnect-pico",
+      "path": "SECURITY.md",
+      "blob_sha": "1d3213eb41f0b95ed32c6b3c058d303bfd2ec0a1",
+      "commit_sha": "6daf1f291566dea52adef604a7186b43755d871e",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Private vulnerability reporting and prototype secret boundary; no product/release authority.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-pico/blob/6daf1f291566dea52adef604a7186b43755d871e/SECURITY.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-PICO"
+      ],
+      "remaining": "Bounded source inventory only; approved product scope, Pico 2 W hardware, consumer and release evidence are not qualified."
+    },
+    {
+      "id": "PICO_DOCS_GOVERNANCE_MD",
+      "repository": "pcvantol/djconnect-pico",
+      "path": "docs/governance.md",
+      "blob_sha": "7dca3017bccee7d6f6375847947bdaa96ba97238",
+      "commit_sha": "6daf1f291566dea52adef604a7186b43755d871e",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Protected-main and assurance policy; post-merge evidence/release deferred and TDE not integrated.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-pico/blob/6daf1f291566dea52adef604a7186b43755d871e/docs/governance.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-PICO"
+      ],
+      "remaining": "Bounded source inventory only; approved product scope, Pico 2 W hardware, consumer and release evidence are not qualified."
+    },
+    {
+      "id": "PICO_SIMULATOR_WOKWI_README_MD",
+      "repository": "pcvantol/djconnect-pico",
+      "path": "simulator/wokwi/README.md",
+      "blob_sha": "765377fa5e0bda801182c45e2d3891fd5ae746a2",
+      "commit_sha": "6daf1f291566dea52adef604a7186b43755d871e",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "RP2040 LED simulator guidance explicitly excludes Pico 2 W hardware, radio and power qualification.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-pico/blob/6daf1f291566dea52adef604a7186b43755d871e/simulator/wokwi/README.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-PICO"
+      ],
+      "remaining": "Bounded source inventory only; approved product scope, Pico 2 W hardware, consumer and release evidence are not qualified."
+    },
+    {
+      "id": "PICO_SIMULATOR_WOKWI_DIAGRAM_JSON",
+      "repository": "pcvantol/djconnect-pico",
+      "path": "simulator/wokwi/diagram.json",
+      "blob_sha": "92ecbac20ef63d55c21f4cb8ebd925557b8d8dde",
+      "commit_sha": "6daf1f291566dea52adef604a7186b43755d871e",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "RP2040 Pico external LED on GP15; simulator topology, not hardware proof.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-pico/blob/6daf1f291566dea52adef604a7186b43755d871e/simulator/wokwi/diagram.json",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-PICO"
+      ],
+      "remaining": "Bounded source inventory only; approved product scope, Pico 2 W hardware, consumer and release evidence are not qualified."
+    },
+    {
+      "id": "PICO_SIMULATOR_WOKWI_MAIN_PY",
+      "repository": "pcvantol/djconnect-pico",
+      "path": "simulator/wokwi/main.py",
+      "blob_sha": "5ad21b7e7703c891120a3d72cdb3aecdf733df09",
+      "commit_sha": "6daf1f291566dea52adef604a7186b43755d871e",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "RP2040 Wokwi LED/serial adapter only; no network or HA behavior.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-pico/blob/6daf1f291566dea52adef604a7186b43755d871e/simulator/wokwi/main.py",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-PICO"
+      ],
+      "remaining": "Bounded source inventory only; approved product scope, Pico 2 W hardware, consumer and release evidence are not qualified."
+    },
+    {
+      "id": "PICO_SRC_CAPABILITIES_PY",
+      "repository": "pcvantol/djconnect-pico",
+      "path": "src/capabilities.py",
+      "blob_sha": "7002f46ea941b7b3163d00d70814aec6801560c7",
+      "commit_sha": "6daf1f291566dea52adef604a7186b43755d871e",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Static experimental-only capability snapshot: display/input/network/HA false.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-pico/blob/6daf1f291566dea52adef604a7186b43755d871e/src/capabilities.py",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-PICO"
+      ],
+      "remaining": "Bounded source inventory only; approved product scope, Pico 2 W hardware, consumer and release evidence are not qualified."
+    },
+    {
+      "id": "PICO_SRC_MAIN_PY",
+      "repository": "pcvantol/djconnect-pico",
+      "path": "src/main.py",
+      "blob_sha": "a135918a39af89ea659f051676b592b851257e98",
+      "commit_sha": "6daf1f291566dea52adef604a7186b43755d871e",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "MicroPython serial/LED smoke only; host fallback skips hardware.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-pico/blob/6daf1f291566dea52adef604a7186b43755d871e/src/main.py",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-PICO"
+      ],
+      "remaining": "Bounded source inventory only; approved product scope, Pico 2 W hardware, consumer and release evidence are not qualified."
+    },
+    {
+      "id": "PICO_TESTS_TEST_CAPABILITIES_PY",
+      "repository": "pcvantol/djconnect-pico",
+      "path": "tests/test_capabilities.py",
+      "blob_sha": "a683ff5b03b87fc8076b3c7425c49200916db6ae",
+      "commit_sha": "6daf1f291566dea52adef604a7186b43755d871e",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Host tests preserve restrictive capability declaration; not physical device qualification.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-pico/blob/6daf1f291566dea52adef604a7186b43755d871e/tests/test_capabilities.py",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-PICO"
+      ],
+      "remaining": "Bounded source inventory only; approved product scope, Pico 2 W hardware, consumer and release evidence are not qualified."
+    },
+    {
+      "id": "PICO_TESTS_TEST_MAIN_PY",
+      "repository": "pcvantol/djconnect-pico",
+      "path": "tests/test_main.py",
+      "blob_sha": "c190a51ceee4ce1c25b8b11f4a5de63a9655db18",
+      "commit_sha": "6daf1f291566dea52adef604a7186b43755d871e",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Host tests exercise serial/LED logic with fake pin; not physical device qualification.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-pico/blob/6daf1f291566dea52adef604a7186b43755d871e/tests/test_main.py",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-PICO"
+      ],
+      "remaining": "Bounded source inventory only; approved product scope, Pico 2 W hardware, consumer and release evidence are not qualified."
     }
   ],
   "nodes": [
@@ -8970,7 +9402,31 @@
       "source_ids": [
         "README::DJC-PICO",
         "PICO_DEVENV",
-        "PICO_RESPONSIBILITY"
+        "PICO_RESPONSIBILITY",
+        "PICO_EDITORCONFIG",
+        "PICO_GITATTRIBUTES",
+        "PICO_GITHUB_CODEOWNERS",
+        "PICO_GITHUB_ISSUE_TEMPLATE_BUG_REPORT_YML",
+        "PICO_GITHUB_ISSUE_TEMPLATE_FEATURE_REQUEST_YML",
+        "PICO_GITHUB_PULL_REQUEST_TEMPLATE_MD",
+        "PICO_GITHUB_DEPENDABOT_YML",
+        "PICO_GITHUB_WORKFLOWS_CI_YML",
+        "PICO_GITHUB_WORKFLOWS_OWNER_AUTHORIZATION_YML",
+        "PICO_GITHUB_WORKFLOWS_TRUSTED_DELIVERY_YML",
+        "PICO_GITIGNORE",
+        "PICO_CHANGELOG_MD",
+        "PICO_CODE_OF_CONDUCT_MD",
+        "PICO_CONTRIBUTING_MD",
+        "PICO_LICENSE",
+        "PICO_SECURITY_MD",
+        "PICO_DOCS_GOVERNANCE_MD",
+        "PICO_SIMULATOR_WOKWI_README_MD",
+        "PICO_SIMULATOR_WOKWI_DIAGRAM_JSON",
+        "PICO_SIMULATOR_WOKWI_MAIN_PY",
+        "PICO_SRC_CAPABILITIES_PY",
+        "PICO_SRC_MAIN_PY",
+        "PICO_TESTS_TEST_CAPABILITIES_PY",
+        "PICO_TESTS_TEST_MAIN_PY"
       ],
       "canonical_authority": "README::DJC-PICO",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -21735,9 +22191,10 @@
     },
     {
       "id": "AUDIT-DJC-PICO",
-      "status": "OPEN",
+      "status": "CLOSED",
       "scope": "DJC-PICO",
-      "reason": "Pinned Pico responsibility and development environment confirm an experimental MicroPython Pico 2 W prototype, not production pairing/protocol/release. Complete local source/test, writer and final-delta audit without selecting a production lane."
+      "reason": "Bounded owning-repository source, local policy, tests, PRs, issues, release list, workflow effects and exact-main delta audited; product/hardware/release acceptance remains separate and open.",
+      "closure_evidence": "Pinned main 6daf1f291566dea52adef604a7186b43755d871e: all 27 tracked files read and pinned, including all 10 Markdown paths; local compileall and six host tests passed; no exact-main CI run found in 100 latest workflow runs (two Dependabot dynamic successes only); remote main unchanged on 2026-10-03, local main clean, PRs #1-5 merged, issue #6 planning only, GitHub releases empty. Source audit closure does not qualify physical Pico 2 W, Wi-Fi/BLE, HA integration or supported distribution."
     },
     {
       "id": "AUDIT-DJC-DIST-FIRMWARE",
@@ -21791,7 +22248,7 @@
       "status": "OPEN",
       "scope": "platform",
       "reason": "Current matrix covers only explicitly read source inventory; certify complete disposition only after all relevant discoveries are audited.",
-      "remaining": "All 419 included pinned source rows are fully read and linked. Exact pinned trees contain 1,739 tracked Markdown paths, 383 individually represented in the matrix and 1,356 needing relevance/classification disposition; these are path counts, not a claim that all 1,366 are normative. The 41 newly pinned short Apple/website release-copy files do not prove publication, live site or installed consumers. Six historical core EP relative-link targets remain triaged outside the matrix. Complete repository-wide source/consumer discovery and status qualification before certification."
+      "remaining": "All 443 included pinned source rows are fully read and linked. Exact pinned trees contain 1,739 tracked Markdown paths, 390 individually represented in the matrix and 1,349 needing relevance/classification disposition; these are path counts, not a claim that the remaining paths are normative. The 41 pinned Apple/website release-copy files do not prove publication, live site or installed consumers. Six historical core EP relative-link targets remain triaged outside the matrix. Complete repository-wide source/consumer discovery and status qualification before certification."
     },
     {
       "id": "REGISTER-DELIVERY",
