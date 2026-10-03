@@ -41,7 +41,7 @@
     "metadata_and_bounded_paraphrases": true,
     "offline_hash_verification_of_remote_blobs": false,
     "per_call_timestamps": "Date-level head readback on 2026-10-03; no per-file read timestamp for inherited checkpoint.",
-    "pinned_tree_blobs_verified": "724 of 724 path/blob pins matched exact commit trees or GitHub Contents commit readbacks: 105 original GitHub tree readbacks, 480 local git commit-tree readbacks and 139 new GitHub tree/Contents readbacks on 2026-10-03. Current API Markdown blobs at 3f1ed18d matched fully read local previous-main blobs. Firmware binary files were fully SHA256-hashed for identity, not semantically executed. Narrative interpretation remains partial.",
+    "pinned_tree_blobs_verified": "748 of 748 path/blob pins matched exact commit trees or GitHub Contents commit readbacks: 105 original GitHub tree readbacks, 504 local git commit-tree readbacks and 139 new GitHub tree/Contents readbacks on 2026-10-03. Current API Markdown blobs at 3f1ed18d matched fully read local previous-main blobs. Firmware binary files were fully SHA256-hashed for identity, not semantically executed. Narrative interpretation remains partial.",
     "reference_scan": {
       "method": "Every pinned core Markdown blob and every pinned Markdown blob in the eleven DJC component repositories, at its recorded commit: parse relative Markdown links, strip anchors, normalize against source directory, retain existing .md targets absent from the pinned source matrix; distinct repository/path keys. The seven pinned external Forge method documents are outside this lane-source link frontier.",
       "unmapped_paths": [
@@ -79,11 +79,11 @@
           "repository": "pcvantol/djconnect",
           "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
           "tracked_markdown": 880,
-          "included_markdown": 301,
-          "not_individually_included_markdown": 579,
+          "included_markdown": 324,
+          "not_individually_included_markdown": 556,
           "tree_readback": "complete local git ls-tree -r",
           "historically_classified_markdown": 367,
-          "unclassified_markdown": 212
+          "unclassified_markdown": 189
         },
         "DJC-APPLE": {
           "repository": "pcvantol/djconnect-app",
@@ -17806,6 +17806,438 @@
         "INV::DJC-APPLE"
       ],
       "remaining": "The wrapper itself does not prove every run publishes; exact successful b857 event is recorded separately."
+    },
+    {
+      "id": "CORE_RELEASE_40_TRAIN_HIST",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/release/PLATFORM_4_0_RC1_RELEASE_TRAIN.md",
+      "blob_sha": "6660b9b6beadb0efa9db4f92994889d6cdc31d4e",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Proposed coordinated 4.0.0-rc.1 train; source candidate/version and participant gates, not a platform-wide release authorization.",
+      "observed_at": "2026-10-03 14:58 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/release/PLATFORM_4_0_RC1_RELEASE_TRAIN.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Current candidate/artifact/target receipts require separate evidence."
+    },
+    {
+      "id": "CORE_RELEASE_40_HA_MANIFEST_HIST",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/release/PLATFORM_4_0_RC1_HOME_ASSISTANT_OPERATIONAL_MANIFEST.json",
+      "blob_sha": "82d756a3dc0a40043827d4d68506801bc5075394",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Historical approved target-scoped HA 4.0 RC1 manifest at source 44c87cd; the document instruction to dispatch is archival data, not this assignment authority.",
+      "observed_at": "2026-10-03 14:58 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/release/PLATFORM_4_0_RC1_HOME_ASSISTANT_OPERATIONAL_MANIFEST.json",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Bound manifest to exact deployment/smoke receipts; referenced artifact run currently returns HTTP 404."
+    },
+    {
+      "id": "CORE_RELEASE_GEN1_ROADMAP_HIST",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/release/PLATFORM_RELEASE_ROADMAP.md",
+      "blob_sha": "3b0ab646ad6319d28f2c44690ad0d6131ba37668",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Generation-1 simulation-to-orchestrator implementation ordering; future execution scope only, no release authority.",
+      "observed_at": "2026-10-03 14:58 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/release/PLATFORM_RELEASE_ROADMAP.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Later implementation and current workflow/readback supersede old next-prompt prose."
+    },
+    {
+      "id": "CORE_RELEASE_33_READY_HIST",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/release/PLATFORM_RELEASE_READINESS.md",
+      "blob_sha": "3f536882cef3867d5e83e34f77d221237e03c23a",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Historical 3.3 dry-run READY for simulation release-sim-36737; certification stated PLANNED at that stage.",
+      "observed_at": "2026-10-03 14:58 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/release/PLATFORM_RELEASE_READINESS.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Later completion must be read separately; no current target acceptance from dry-run READY."
+    },
+    {
+      "id": "CORE_RELEASE_GEN1_OP_READY_HIST",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/release/PLATFORM_RELEASE_OPERATIONAL_READINESS.md",
+      "blob_sha": "6eaa989c810c67bee15dd716068e06f5a82a060d",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Generation-1 QUALIFIED_FOR_SIMULATION_ONLY; no build, publication, rollback or deployment executor.",
+      "observed_at": "2026-10-03 14:58 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/release/PLATFORM_RELEASE_OPERATIONAL_READINESS.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Later production workflows/receipts require exact current implementation readback."
+    },
+    {
+      "id": "CORE_RELEASE_OP_MODEL",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/release/PLATFORM_RELEASE_OPERATIONAL_MODEL.md",
+      "blob_sha": "acb17e897d00c044f866b4e556a329bc5b6363ae",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Corrected release lifecycle, seven-day standard burn-in, certification and completion conditions; old native-runner 3.3 readiness is historical.",
+      "observed_at": "2026-10-03 14:58 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/release/PLATFORM_RELEASE_OPERATIONAL_MODEL.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Do not infer current burn-in/target certification from procedural policy."
+    },
+    {
+      "id": "CORE_RELEASE_RUNTIME_ARCH",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/release/PLATFORM_RELEASE_RUNTIME_ARCHITECTURE.md",
+      "blob_sha": "871431b82e1e9d631d025db4bd705536c3baddae",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Operational release-runtime orchestration boundary: exact-main evidence, explicit target deployment and separate smoke; GitHub Actions owns effects.",
+      "observed_at": "2026-10-03 14:58 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/release/PLATFORM_RELEASE_RUNTIME_ARCHITECTURE.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Read actual workflows and current target receipts before any delivery claim."
+    },
+    {
+      "id": "CORE_RELEASE_DEPLOY_ARCH",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/release/DEPLOYMENT_ARCHITECTURE.md",
+      "blob_sha": "c655a9d59e5cfea0d72b06ed96b3c8affae3a48f",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Corrected artifact-producer versus target-consumer boundary for ESP32, Pi, native and HA/API/website targets.",
+      "observed_at": "2026-10-03 14:58 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/release/DEPLOYMENT_ARCHITECTURE.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "A target claim requires exact artifact, deployment and smoke evidence."
+    },
+    {
+      "id": "CORE_RELEASE_GEN1_QUAL_HIST",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/release/PLATFORM_RELEASE_QUALIFICATION.md",
+      "blob_sha": "97b5c2555c38c3d65d8ef8200b55ac5f658adcaf",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "2026-07-13 Platform Release Generation-1 simulation-only qualification at ten 3.3.0 candidate SHAs.",
+      "observed_at": "2026-10-03 14:58 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/release/PLATFORM_RELEASE_QUALIFICATION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Historical capability qualification is not current publication or hardware acceptance."
+    },
+    {
+      "id": "CORE_RELEASE_GEN1_COMPLIANCE_HIST",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/release/PLATFORM_RELEASE_COMPLIANCE_REPORT.md",
+      "blob_sha": "5367a80e35299fba29bc75f8d46df8048bc40138",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Historical ten-repository 3.3.0 dry-run compliance matrix; candidate SHAs were not released commits.",
+      "observed_at": "2026-10-03 14:58 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/release/PLATFORM_RELEASE_COMPLIANCE_REPORT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Do not promote candidate rows to current producer/consumer receipts."
+    },
+    {
+      "id": "CORE_RELEASE_GEN1_VERSION_HIST",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/release/PLATFORM_RELEASE_VERSION_MATRIX.md",
+      "blob_sha": "c664b445fde441541a74e9f21fb86f1c430e603f",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Historical 3.3 dry-run version matrix and unreleased candidate SHAs.",
+      "observed_at": "2026-10-03 14:58 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/release/PLATFORM_RELEASE_VERSION_MATRIX.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Current 3.3.1 released versus 4.0.0-rc.1 source distinction remains separate."
+    },
+    {
+      "id": "CORE_VERIFY_PHASE7_SCORECARD_HIST",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/verification/IMPLEMENTATION_CONSISTENCY_SCORECARD.md",
+      "blob_sha": "89930bce3df910e12d184ca6349fd6d66e2366f1",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "2026-07-10 Phase-7 readiness scorecard; HA adapter GO WITH MINOR GAPS at that stage, not current platform verification state.",
+      "observed_at": "2026-10-03 14:58 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/verification/IMPLEMENTATION_CONSISTENCY_SCORECARD.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Later adapter and cross-platform qualification reports supersede its next-step text."
+    },
+    {
+      "id": "CORE_VERIFY_TRACEABILITY_MATRIX",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/verification/IMPLEMENTATION_TRACEABILITY_MATRIX.md",
+      "blob_sha": "c3d8eba27559da439b004a3cbe810a6b1fdeb330",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Phase-7 traceability matrix with Phase-10E runtime updates and explicitly missing push, website, release and Apple links.",
+      "observed_at": "2026-10-03 14:58 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/verification/IMPLEMENTATION_TRACEABILITY_MATRIX.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Actual current source/consumer acceptance and missing links require separate reconciliation."
+    },
+    {
+      "id": "CORE_VERIFY_PHASE16_HIST",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/verification/reports/PHASE_16_CROSS_PLATFORM_QUALIFICATION.md",
+      "blob_sha": "fa92ac32117f56c2f06f17c8e17fd709ad4be161",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "2026-07-12 historical Phase-16-R 47 selected smoke cases qualified after 42+5 reruns at source 07178bad; no current target proof.",
+      "observed_at": "2026-10-03 14:58 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/verification/reports/PHASE_16_CROSS_PLATFORM_QUALIFICATION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Environment/lab state and exact-current consumers must be qualified separately."
+    },
+    {
+      "id": "CORE_VERIFY_PHASE17_HIST",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/verification/reports/PHASE_17_PLATFORM_TEST_COVERAGE_IMPROVEMENT.md",
+      "blob_sha": "8d1336801895a32007d3bf3d7bcf1b1bd2bf98a1",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "2026-07-12 Phase-17 complete at Runtime 1.1.0; its ESP32 NOT_YET_SUPPORTED row predates later ESP coverage follow-up.",
+      "observed_at": "2026-10-03 14:58 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/verification/reports/PHASE_17_PLATFORM_TEST_COVERAGE_IMPROVEMENT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Do not reopen Phase 17; use later ESP report for scoped coverage, not hardware proof."
+    },
+    {
+      "id": "CORE_VERIFY_ESP_COVERAGE_HIST",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/verification/reports/ESP_COVERAGE_QUALIFICATION.md",
+      "blob_sha": "2fedfb29547befb885da649d9da536e65490469f",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Later 2026-07-12 scoped host-native ESP logic Cobertura qualification at firmware 85f2aca; explicitly excludes hardware modules.",
+      "observed_at": "2026-10-03 14:58 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/verification/reports/ESP_COVERAGE_QUALIFICATION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Current ESP head/source coverage and physical OTA/runtime consumers remain separate."
+    },
+    {
+      "id": "CORE_VERIFY_RUNTIME_CAPABILITIES",
+      "repository": "pcvantol/djconnect",
+      "path": "tools/verification/RUNTIME_CAPABILITIES.md",
+      "blob_sha": "28d9de8f3dc16872cddc8dbc06f129370a074633",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Canonical independent Verification Runtime capability registry; coverage active since 1.1.0, future capabilities reserved.",
+      "observed_at": "2026-10-03 14:58 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/tools/verification/RUNTIME_CAPABILITIES.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Runtime product evolution is not DJConnect feature selection."
+    },
+    {
+      "id": "CORE_VERIFY_RUNTIME_COMPATIBILITY",
+      "repository": "pcvantol/djconnect",
+      "path": "tools/verification/RUNTIME_COMPATIBILITY.md",
+      "blob_sha": "5e70c4a0a54abe3733779b6868c244f33f7104cf",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Canonical capability-driven runtime selection; required capabilities gate and latest stable version alone is insufficient.",
+      "observed_at": "2026-10-03 14:58 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/tools/verification/RUNTIME_COMPATIBILITY.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Current consumer declarations and actual Docker image metadata remain separate."
+    },
+    {
+      "id": "CORE_VERIFY_RUNTIME_COVERAGE",
+      "repository": "pcvantol/djconnect",
+      "path": "tools/verification/RUNTIME_COVERAGE.md",
+      "blob_sha": "975f7d858d1dd1d740c59457a4fa955051493622",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Canonical Runtime 1.1.0 native coverage ingest model and later ESP qualification amendment.",
+      "observed_at": "2026-10-03 14:58 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/tools/verification/RUNTIME_COVERAGE.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Coverage evidence does not prove physical platform behavior or current-head provenance."
+    },
+    {
+      "id": "CORE_VERIFY_RUNTIME_METADATA",
+      "repository": "pcvantol/djconnect",
+      "path": "tools/verification/RUNTIME_METADATA.md",
+      "blob_sha": "036977f7ee4f9727bd4d56887fd7ae4c111c580a",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Canonical Runtime 1.1.0 identity, source repository, Docker distribution and capability metadata.",
+      "observed_at": "2026-10-03 14:58 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/tools/verification/RUNTIME_METADATA.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Published image and current consumer compatibility need exact readback."
+    },
+    {
+      "id": "CORE_VERIFY_RUNTIME_ROADMAP",
+      "repository": "pcvantol/djconnect",
+      "path": "tools/verification/RUNTIME_ROADMAP.md",
+      "blob_sha": "5eb81a4349ef913f2172e186f09eb506d83568c2",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Independent Verification Runtime roadmap; 1.1.0 coverage active, future diff/trends/mutation/quality budget unselected.",
+      "observed_at": "2026-10-03 14:58 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/tools/verification/RUNTIME_ROADMAP.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No DJConnect product pickup or runtime capability implementation from this plan."
+    },
+    {
+      "id": "CORE_VERIFY_RUNTIME_RELEASES",
+      "repository": "pcvantol/djconnect",
+      "path": "tools/verification/RUNTIME_RELEASES.md",
+      "blob_sha": "eb2db1813f267e3c6a869e72ccb2960d1c43f990",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Independent runtime release policy and historical 1.1.0 Docker digest; native producer remains with owning repositories.",
+      "observed_at": "2026-10-03 14:58 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/tools/verification/RUNTIME_RELEASES.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Current Docker Hub availability and consumer image identity unverified."
+    },
+    {
+      "id": "CORE_VERIFY_RUNTIME_RELEASE_NOTES",
+      "repository": "pcvantol/djconnect",
+      "path": "tools/verification/RELEASE_NOTES.md",
+      "blob_sha": "c67c5d6bbaad888c5115cc669e63f64ca5df3947",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Runtime 1.1.0/1.0.0 historical release notes, separate from DJConnect product changelog; old Phase-10E-R2 limitation may be superseded.",
+      "observed_at": "2026-10-03 14:58 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/tools/verification/RELEASE_NOTES.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Current Apple runtime qualification and image pull-back need separate evidence."
+    },
+    {
+      "id": "CORE_RELEASE_PRIVATE_NETWORK_RELAY",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/release/PRIVATE_NETWORK_DEPLOYMENT_RELAY.md",
+      "blob_sha": "dac0e3bc3f5b4e69a07f6a787a9d0d9446e4225f",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation after independent relative-link review",
+      "read_complete": true,
+      "status_authority": "Architecture-aligned Generation-1 private-network relay contract: manifest-bound exact artifact/target deployment, separate smoke, isolated Apple signing; workflow dispatch and actual target receipts are separate.",
+      "observed_at": "2026-10-03 15:02 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/release/PRIVATE_NETWORK_DEPLOYMENT_RELAY.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Do not infer authorization or current target acceptance from the architecture document; qualify exact manifest, workflow and deployment/smoke evidence."
     }
   ],
   "nodes": [
@@ -17910,7 +18342,31 @@
         "CORE_ADR_0025",
         "CORE_ADR_0026",
         "CORE_SOURCE__CUSTOM_COMPONENTS_DJCONNECT_SPOTIFY_OAUTH_PY",
-        "DEPBOT::DJC-CORE"
+        "DEPBOT::DJC-CORE",
+        "CORE_RELEASE_40_TRAIN_HIST",
+        "CORE_RELEASE_40_HA_MANIFEST_HIST",
+        "CORE_RELEASE_GEN1_ROADMAP_HIST",
+        "CORE_RELEASE_33_READY_HIST",
+        "CORE_RELEASE_GEN1_OP_READY_HIST",
+        "CORE_RELEASE_OP_MODEL",
+        "CORE_RELEASE_RUNTIME_ARCH",
+        "CORE_RELEASE_DEPLOY_ARCH",
+        "CORE_RELEASE_GEN1_QUAL_HIST",
+        "CORE_RELEASE_GEN1_COMPLIANCE_HIST",
+        "CORE_RELEASE_GEN1_VERSION_HIST",
+        "CORE_VERIFY_PHASE7_SCORECARD_HIST",
+        "CORE_VERIFY_TRACEABILITY_MATRIX",
+        "CORE_VERIFY_PHASE16_HIST",
+        "CORE_VERIFY_PHASE17_HIST",
+        "CORE_VERIFY_ESP_COVERAGE_HIST",
+        "CORE_VERIFY_RUNTIME_CAPABILITIES",
+        "CORE_VERIFY_RUNTIME_COMPATIBILITY",
+        "CORE_VERIFY_RUNTIME_COVERAGE",
+        "CORE_VERIFY_RUNTIME_METADATA",
+        "CORE_VERIFY_RUNTIME_ROADMAP",
+        "CORE_VERIFY_RUNTIME_RELEASES",
+        "CORE_VERIFY_RUNTIME_RELEASE_NOTES",
+        "CORE_RELEASE_PRIVATE_NETWORK_RELAY"
       ],
       "canonical_authority": "LOCAL_EXTENSION",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -30986,6 +31442,28 @@
       "passed": true,
       "acceptance_qualified": false,
       "notes": "GitHub release API shows 2026-10-03 13:19 UTC prerelease tag internal-ha-b857..., title DJConnect Home Assistant artifact b857..., and qualification-evidence-b857....json asset. This is actual GitHub prerelease publication in Apple repo, not a product deployment or current client acceptance."
+    },
+    {
+      "id": "CORE_HA_40_RC1_INTERNAL_PRERELEASE_44C87",
+      "kind": "historical_github_prerelease_metadata_readback",
+      "repository": "pcvantol/djconnect",
+      "url": "https://github.com/pcvantol/djconnect/releases/tag/internal-ha-44c87cdcff10473f6d3c19968d8c3bf7732389da",
+      "subject_sha": "44c87cdcff10473f6d3c19968d8c3bf7732389da",
+      "observed_date": "2026-10-03",
+      "passed": true,
+      "acceptance_qualified": false,
+      "notes": "GitHub release API shows 2026-08-06 internal prerelease with the manifest-named HA integration tarball and qualification evidence JSON. Referenced workflow run 31098655516 returns HTTP 404; no current installed target or post-deployment smoke is inferred."
+    },
+    {
+      "id": "CORE_HA_40_RC1_ARTIFACT_RUN_UNAVAILABLE",
+      "kind": "historical_github_actions_run_readback",
+      "repository": "pcvantol/djconnect",
+      "url": "https://github.com/pcvantol/djconnect/actions/runs/31098655516",
+      "subject_sha": "44c87cdcff10473f6d3c19968d8c3bf7732389da",
+      "observed_date": "2026-10-03",
+      "passed": false,
+      "acceptance_qualified": false,
+      "notes": "GitHub Actions REST GET for operational-manifest artifact_run 31098655516 returned HTTP 404 at readback. Cause is unproven; this cannot validate deployment, smoke or current installed target."
     }
   ],
   "findings": [
@@ -31739,6 +32217,32 @@
         "APPLE_MAIN_PR88_COMPARE_B857",
         "APPLE_MAIN_CI_37125443387"
       ]
+    },
+    {
+      "id": "RELEASE-4_0-RC1-HISTORICAL-TARGET-BOUNDARY",
+      "status": "HISTORICAL_SCOPED_APPROVAL__CURRENT_TARGET_ACCEPTANCE_OPEN",
+      "description": "The proposed 4.0.0-rc.1 train requires coordinated 4.0 protocol participants; its 2026-08-06 operational manifest approves only exact HA candidate 44c87cd for home_assistant_pi5 and authorizes no other Platform 4.0 component deployment, stable publication, HACS release, OTA promotion or store submission; it is no general/public-release authorization. GitHub currently has the exact internal-ha-44c87cd prerelease with integration and evidence assets, but the manifest artifact run 31098655516 returns HTTP 404 at readback and no matching current deployment/smoke receipt is established. Manifest next_authorized_action text is historical source data, not this planning assignment authority.",
+      "source_ids": [
+        "CORE_RELEASE_40_TRAIN_HIST",
+        "CORE_RELEASE_40_HA_MANIFEST_HIST",
+        "MANIFEST::DJC-CORE",
+        "CORE_RELEASE_PRIVATE_NETWORK_RELAY"
+      ],
+      "evidence_ids": [
+        "CORE_HA_40_RC1_INTERNAL_PRERELEASE_44C87",
+        "CORE_HA_40_RC1_ARTIFACT_RUN_UNAVAILABLE"
+      ]
+    },
+    {
+      "id": "VERIFICATION-ESP-COVERAGE-CHRONOLOGY",
+      "status": "HISTORICAL_PHASE17_GAP_SUPERSEDED_BY_SCOPED_FOLLOWUP",
+      "description": "Phase 17 recorded ESP native coverage as NOT_YET_SUPPORTED; the later ESP_COVERAGE_QUALIFIED report at firmware 85f2aca supports only host-testable logic at 90.28% line/72.71% branch through Runtime 1.1.0 Cobertura ingestion and excludes Arduino/ESP-IDF hardware. Current firmware head, current report provenance and physical consumer behavior are not inferred.",
+      "source_ids": [
+        "CORE_VERIFY_PHASE17_HIST",
+        "CORE_VERIFY_ESP_COVERAGE_HIST",
+        "CORE_VERIFY_RUNTIME_COVERAGE"
+      ],
+      "evidence_ids": []
     }
   ],
   "audit_obligations": [
@@ -31746,7 +32250,7 @@
       "id": "AUDIT-DJC-CORE",
       "status": "OPEN",
       "scope": "DJC-CORE",
-      "reason": "Pinned foundation, roadmap, horizon, legal, voice, verification, full Meta Engineering reading order, local environment and historical EP/Software Assurance sources are read. Ten historical EP/runner links remain triaged; workflow effects, remaining consumer evidence and final delta still need qualification. Ten additional exact-pinned core policy/navigation sources are read, including owner authorization and Finalization; generated lifecycle and physical/consumer evidence still need qualification. Five linked architecture/assurance/Trusted Delivery records are also pinned; the 2026-07-13 target matrix is historical, not current settings evidence. Five additional canonical/navigational product texts and sixteen dated Phase 6 technical/target-architecture texts are pinned. Their current-state claims are bounded by the 2026-07-10 archaeology phase; the standalone Device Installer is planned target architecture, not an existing thirteenth lane or product pickup. All 19 core ADR Markdown sources are now pinned (17 in this delta), with ADR-0024/0025 incident supersession and ADR-0026 terminal clean-slate context kept historical under #1098. Ten additional exact-pinned release-policy/navigation/historical records are read, including exact-main evidence-prerelease policy, dispatch-only deployment/smoke boundaries and the prompt-history non-authority rule. The 3.3.1 prepared-for-review release note is historical against the published v3.3.1 tag; no installed consumer is inferred. 293 dated core prompt paths are classified by path only, leaving 317 core Markdown paths unclassified. Four exact-pinned post-merge Software Assurance records now separate current policy/schema from historical qualification; the stated per-component prerelease prefix conflicts with the pinned reusable workflow hard-coded internal-ha tag. Four retained embedded-EP status/run/workspace records were fully read as historical; 51 other docs/engineering Markdown paths are classified by exact path/blob under terminal #1098 without reopening retirement. Six exact-pinned Verification Program/report/backlog/scorecard records distinguish dated Profile V1 live NO-GO, later qualified Verification Platform engine, stale internal Windows narrative and completed Golden CI infrastructure; no current live consumer GO is inferred. The exact-pinned Epic 2 discovery index explicitly labels 17 remaining discovery reports as historical, path/blob-classified only; current capability model remains the authority. Current Development and Implementation navigation/Handoff are fully read and pinned; six explicitly legacy embedded-EP development files are exact-path/blob classified only, with standalone EP ownership preserved. Six additional exact-pinned release/evidence/governance records are fully read: historical Platform 3.3 certification and nine internal-target receipt references remain bounded to that manifest, while current workflow effects require exact implementation readback. The historical 3.3 manifest was fully read; its nine target run pairs match the report while its HA 3.3.1 source/artifact binding lacks a matching target execution row; all 18 GitHub Actions REST run IDs now return 404 while a recent control run is readable, leaving independent producer/consumer revalidation open. Seven further exact-pinned Software Assurance/dependency/TDE records separate historical HACS/Dependabot NO_GO and pre-integration closure snapshots from completed policy/observe and accepted TD-GITHUB-001 exception; current repository settings remain open."
+      "reason": "Pinned foundation, roadmap, horizon, legal, voice, verification, full Meta Engineering reading order, local environment and historical EP/Software Assurance sources are read. Ten historical EP/runner links remain triaged; workflow effects, remaining consumer evidence and final delta still need qualification. Ten additional exact-pinned core policy/navigation sources are read, including owner authorization and Finalization; generated lifecycle and physical/consumer evidence still need qualification. Five linked architecture/assurance/Trusted Delivery records are also pinned; the 2026-07-13 target matrix is historical, not current settings evidence. Five additional canonical/navigational product texts and sixteen dated Phase 6 technical/target-architecture texts are pinned. Their current-state claims are bounded by the 2026-07-10 archaeology phase; the standalone Device Installer is planned target architecture, not an existing thirteenth lane or product pickup. All 19 core ADR Markdown sources are now pinned (17 in this delta), with ADR-0024/0025 incident supersession and ADR-0026 terminal clean-slate context kept historical under #1098. Ten additional exact-pinned release-policy/navigation/historical records are read, including exact-main evidence-prerelease policy, dispatch-only deployment/smoke boundaries and the prompt-history non-authority rule. The 3.3.1 prepared-for-review release note is historical against the published v3.3.1 tag; no installed consumer is inferred. 293 dated core prompt paths are classified by path only, leaving 317 core Markdown paths unclassified. Four exact-pinned post-merge Software Assurance records now separate current policy/schema from historical qualification; the stated per-component prerelease prefix conflicts with the pinned reusable workflow hard-coded internal-ha tag. Four retained embedded-EP status/run/workspace records were fully read as historical; 51 other docs/engineering Markdown paths are classified by exact path/blob under terminal #1098 without reopening retirement. Six exact-pinned Verification Program/report/backlog/scorecard records distinguish dated Profile V1 live NO-GO, later qualified Verification Platform engine, stale internal Windows narrative and completed Golden CI infrastructure; no current live consumer GO is inferred. The exact-pinned Epic 2 discovery index explicitly labels 17 remaining discovery reports as historical, path/blob-classified only; current capability model remains the authority. Current Development and Implementation navigation/Handoff are fully read and pinned; six explicitly legacy embedded-EP development files are exact-path/blob classified only, with standalone EP ownership preserved. Six additional exact-pinned release/evidence/governance records are fully read: historical Platform 3.3 certification and nine internal-target receipt references remain bounded to that manifest, while current workflow effects require exact implementation readback. The historical 3.3 manifest was fully read; its nine target run pairs match the report while its HA 3.3.1 source/artifact binding lacks a matching target execution row; all 18 GitHub Actions REST run IDs now return 404 while a recent control run is readable, leaving independent producer/consumer revalidation open. Seven further exact-pinned Software Assurance/dependency/TDE records separate historical HACS/Dependabot NO_GO and pre-integration closure snapshots from completed policy/observe and accepted TD-GITHUB-001 exception; current repository settings remain open. Twenty-four further release/verification source files (including the 4.0 RC1 target manifest and later ESP coverage qualification) are full-text pinned; historical action language is not task authority. Current core Markdown unclassified frontier is 189 paths."
     },
     {
       "id": "AUDIT-DJC-APPLE",
@@ -31855,7 +32359,7 @@
       "id": "SOURCE-MATRIX",
       "status": "OPEN",
       "scope": "platform",
-      "reason": "Current matrix covers only explicitly read source inventory; certify complete disposition only after all relevant discoveries are audited.",
+      "reason": "Current matrix covers only explicitly read source inventory; certify complete disposition only after all relevant discoveries are audited. The current pinned full-text inventory includes the 4.0 candidate/manifest and Verification Runtime 1.1.0 policy plus dated qualification reports; unclassified core Markdown remains 190.",
       "remaining": "All 724 included pinned source rows have exact path/blob provenance and bounded read descriptions. Exact pinned trees contain 1,739 tracked Markdown paths: 610 individually represented/full-read, 917 exact path/blob entries classified only as dated prompt history, older versioned release copy, retained embedded EP/development documentation or Epic 2 discovery artifacts, and 212 still unclassified for relevance/full reading. The 917 classified contents were not read and can be reopened when a current authority points to one. Apple 47/173, Windows 41/117 and website 64/412 Markdown have all other paths in explicit historical categories; Pi 33/33, API 28/28 and ESP32 28/28 are individually represented. Core is 301/880, with 293 dated prompts, 51 retained EP documents, 17 Epic 2 discovery reports and six legacy development files classified by path, and 212 unclassified. Runtime, workflow/test and physical/source-to-release consumer coverage remain separately open. Ten historical core EP/runner relative-link targets remain triaged outside the matrix. Complete current-source/consumer discovery and status qualification before certification."
     },
     {
