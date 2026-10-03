@@ -33,6 +33,7 @@ class EPSourceRetirementTests(unittest.TestCase):
     def test_embedded_runtime_and_exclusive_tests_are_absent(self) -> None:
         self.assertFalse((ROOT / "tools" / "engineering").exists())
         self.assertFalse((ROOT / "tests" / "engineering").exists())
+        self.assertFalse((ROOT / "playwright.config.mjs").exists())
 
     def test_active_entrypoints_do_not_reach_retired_source(self) -> None:
         failures = []

@@ -30,11 +30,11 @@ submit an Engineering Action.
 | `tools/engineering/**`, its embedded assets, wrappers and generic EP contracts | Remove | Transferred generic EP runtime and Operations Console. |
 | `tests/engineering/**` | Remove | Tests solely for the transferred EP runtime, browser and internal coverage. Standalone EP owns those qualifications. |
 | `scripts/engineering/audit_ep_extraction_baseline.py` | Remove | Pre-extraction audit expected the embedded source to remain. Preserve its manifest and receipts as historical evidence. |
-| Root `package.json` and lockfile | Remove | Only the embedded dashboard browser suite consumed Playwright. |
+| Root `package.json`, lockfile and `playwright.config.mjs` | Remove | Only the embedded dashboard browser suite consumed Playwright. |
 | `.github/workflows/engineering-platform-validation.yml` | Replace | Its old source imports, qualification and browser shards are replaced by a fail-closed retirement guard and exact installed-wheel compatibility check. |
 | `.github/workflows/golden-qualification-ci.yml` and DJConnect product/verification tests | Retain | DJConnect Golden and product behavior stay DJConnect-owned. |
 | Trusted Delivery, owner authorization, security and product CI workflows | Retain | They enforce DJConnect repository assurance; their historical manifest classification does not make them obsolete. |
-| `onboarding/**`, `scripts/runner/**` | Retain | DJConnect-owned host setup already excludes EP service management; remove obsolete documentation instructions only. |
+| `onboarding/**`, `scripts/runner/**` | Retain | DJConnect-owned host setup already excludes EP service management; refresh onboarding documentation and its tracked generated package. |
 | `.engineering-platform/repository.json` | Retain | Canonical DJConnect project declaration. |
 | `.engineering-platform/release-pin.json` and `requirements.txt` | Add | Exactly pinned standalone release and immutable wheel digest for the remaining declarative consumer boundary. |
 | `docs/engineering/**`, ADRs, extraction manifest, migration and run evidence, immutable Prompt History | Retain | Historical provenance; old path names remain valid as history. |

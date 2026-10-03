@@ -227,22 +227,17 @@ verification work.
 
 ## Engineering Platform
 
-Engineering Platform 1.x is `FEATURE_COMPLETE`: a stable, producer-neutral
-execution platform for Forge, Human Architects and future compliant Producers.
-It owns Engineering Action execution, qualification, preflight, Execution
-Evidence, Engineering Reports, Execution Receipts, telemetry, dashboard and
-Prompt History. Producer identity is traceability and audit provenance only;
-execution semantics remain identical for every Producer.
+The generic Engineering Platform runtime is distributed independently from
+[`pcvantol/engineering-platform`](https://github.com/pcvantol/engineering-platform).
+DJConnect keeps its product code, verification, developer onboarding and a
+declarative EP project identity. The [source-retirement record](docs/development/ENGINEERING_PLATFORM_SOURCE_RETIREMENT.md)
+defines the current DJConnect boundary and exact standalone release pin.
 
-Forge owns Mission planning, Runtime Prompts, Decision Evidence and Runtime
-Instance concepts. Engineering Platform does not implement Forge or introduce
-Forge-specific planning capabilities. Future innovation is expected primarily
-within Forge; Engineering Platform evolution is limited to generic execution
-platform concerns and requires explicit architectural authorization.
-
-Start with the [Architecture Handbook](docs/engineering/ENGINEERING_PLATFORM_ARCHITECTURE_HANDBOOK.md),
+The former DJConnect-hosted 1.x platform is historical evidence. Its
+[Architecture Handbook](docs/engineering/ENGINEERING_PLATFORM_ARCHITECTURE_HANDBOOK.md),
 [Execution Host and Producer Contract](docs/engineering/EXECUTION_HOST_CONTRACT.md)
-and [Platform 1.x Completion Report](docs/engineering/ENGINEERING_PLATFORM_1_X_COMPLETION_REPORT.md).
+and [Completion Report](docs/engineering/ENGINEERING_PLATFORM_1_X_COMPLETION_REPORT.md)
+describe the earlier embedded implementation, not current setup instructions.
 
 ## Software Assurance Platform
 
