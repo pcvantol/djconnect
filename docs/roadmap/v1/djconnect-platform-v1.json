@@ -41,7 +41,7 @@
     "metadata_and_bounded_paraphrases": true,
     "offline_hash_verification_of_remote_blobs": false,
     "per_call_timestamps": "Date-level head readback on 2026-10-03; no per-file read timestamp for inherited checkpoint.",
-    "pinned_tree_blobs_verified": "706 of 706 path/blob pins matched exact commit trees or GitHub Contents commit readbacks: 105 original GitHub tree readbacks, 473 local git commit-tree readbacks and 128 new GitHub tree/Contents readbacks on 2026-10-03. Current API Markdown blobs at 3f1ed18d matched fully read local previous-main blobs. Firmware binary files were fully SHA256-hashed for identity, not semantically executed. Narrative interpretation remains partial.",
+    "pinned_tree_blobs_verified": "713 of 713 path/blob pins matched exact commit trees or GitHub Contents commit readbacks: 105 original GitHub tree readbacks, 480 local git commit-tree readbacks and 128 new GitHub tree/Contents readbacks on 2026-10-03. Current API Markdown blobs at 3f1ed18d matched fully read local previous-main blobs. Firmware binary files were fully SHA256-hashed for identity, not semantically executed. Narrative interpretation remains partial.",
     "reference_scan": {
       "method": "Every pinned core Markdown blob and every pinned Markdown blob in the eleven DJC component repositories, at its recorded commit: parse relative Markdown links, strip anchors, normalize against source directory, retain existing .md targets absent from the pinned source matrix; distinct repository/path keys. The seven pinned external Forge method documents are outside this lane-source link frontier.",
       "unmapped_paths": [
@@ -79,11 +79,11 @@
           "repository": "pcvantol/djconnect",
           "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
           "tracked_markdown": 880,
-          "included_markdown": 294,
-          "not_individually_included_markdown": 586,
+          "included_markdown": 301,
+          "not_individually_included_markdown": 579,
           "tree_readback": "complete local git ls-tree -r",
           "historically_classified_markdown": 367,
-          "unclassified_markdown": 219
+          "unclassified_markdown": 212
         },
         "DJC-APPLE": {
           "repository": "pcvantol/djconnect-app",
@@ -17482,6 +17482,132 @@
         "PROJ::AUDIT::METHOD"
       ],
       "remaining": "Reconcile the 3.3.1 binding against an exact 3.3.1 deployment and smoke receipt; current-target and 4.0 consumer claims remain separate."
+    },
+    {
+      "id": "CORE_SA_HACS_CI_EVIDENCE_ASSESSMENT_HIST",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/software_assurance/HACS_CI_VALIDATOR_EVIDENCE_RECONCILIATION_ASSESSMENT.md",
+      "blob_sha": "443af13efcbc77c5c5338486595cfda28505426d",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Completed point-in-time NO_GO for a proposed HACS workflow correction: PR #459 head/merge HACS validation succeeded, so older ref-loading failures did not prove a deterministic present defect; its E2E-active recommendation is superseded by later owning E2E completion.",
+      "observed_at": "2026-10-03; continuation of pinned issue #1101 audit",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/software_assurance/HACS_CI_VALIDATOR_EVIDENCE_RECONCILIATION_ASSESSMENT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::AUDIT::METHOD"
+      ],
+      "remaining": "A new HACS failure needs fresh logs; no workflow correction selected."
+    },
+    {
+      "id": "CORE_SA_DEPENDENCY_ASSESSMENT_HIST",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/software_assurance/PLATFORM_DEPENDENCY_GOVERNANCE_CONFORMANCE_ASSESSMENT.md",
+      "blob_sha": "109fc9d47b1c190d4884da113f69985f9fe240f4",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Point-in-time NO_GO dependency-governance assessment explicitly identifies later completed policy/configuration delivery and TDE 1.1.1 observe evidence; its ten missing-Dependabot statements are historical.",
+      "observed_at": "2026-10-03; continuation of pinned issue #1101 audit",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/software_assurance/PLATFORM_DEPENDENCY_GOVERNANCE_CONFORMANCE_ASSESSMENT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::AUDIT::METHOD"
+      ],
+      "remaining": "Use successor conformance/policy and exact current settings for live claims."
+    },
+    {
+      "id": "CORE_SA_SHA_OPERATIONAL_LIMITS",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/software_assurance/SOFTWARE_ASSURANCE_OPERATIONAL_LIMITATIONS.md",
+      "blob_sha": "c866bc818b88537638d80a79092dd787c0bdd691",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Current operational limitation: native GitHub sha_pinning_required remains disabled under accepted TD-GITHUB-001, compensated by recursive immutable-workflow closure, registry consistency and Trusted Delivery.",
+      "observed_at": "2026-10-03; continuation of pinned issue #1101 audit",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/software_assurance/SOFTWARE_ASSURANCE_OPERATIONAL_LIMITATIONS.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::AUDIT::METHOD"
+      ],
+      "remaining": "Settings and representative CI need current readback before protection claims."
+    },
+    {
+      "id": "CORE_SA_GITHUB_PLATFORM_EXCEPTION",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/software_assurance/GITHUB_PLATFORM_EXCEPTIONS.md",
+      "blob_sha": "a96e3bc140267793705dcdc53b8022ba2b69012c",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Accepted TD-GITHUB-001 compatibility exception for native SHA enforcement with immutable closure and Trusted Delivery compensating controls; no release or protection bypass authority.",
+      "observed_at": "2026-10-03; continuation of pinned issue #1101 audit",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/software_assurance/GITHUB_PLATFORM_EXCEPTIONS.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::AUDIT::METHOD"
+      ],
+      "remaining": "Re-evaluate on documented platform/support/evolution trigger."
+    },
+    {
+      "id": "CORE_SA_WORKFLOW_CLOSURE_REPORT_HIST",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/software_assurance/WORKFLOW_CLOSURE_REPORT.md",
+      "blob_sha": "e9e7be7ea5b6bb9edf9c22fddbdee73268bb1b6a",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Dated 2026-07-13 pre-integration recursive workflow-closure report and pending remediation state; later accepted TD-GITHUB-001 and current policy bound present status.",
+      "observed_at": "2026-10-03; continuation of pinned issue #1101 audit",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/software_assurance/WORKFLOW_CLOSURE_REPORT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::AUDIT::METHOD"
+      ],
+      "remaining": "Do not reactivate old Prompt 3/4 blockers solely from this report."
+    },
+    {
+      "id": "CORE_SA_DEPENDENCY_CONFORMANCE_HIST",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/software_assurance/PLATFORM_DEPENDENCY_GOVERNANCE_CONFORMANCE_REPORT.md",
+      "blob_sha": "e8a942f8d4addfbff3f5fd0605b79a90ffc948a3",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Completed historical ten-repository Dependabot rollout and exact merged PR references; TDE remains separate observe-only input, not replacement for native controls.",
+      "observed_at": "2026-10-03; continuation of pinned issue #1101 audit",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/software_assurance/PLATFORM_DEPENDENCY_GOVERNANCE_CONFORMANCE_REPORT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::AUDIT::METHOD"
+      ],
+      "remaining": "Current per-repository configuration and GitHub settings remain to be read back."
+    },
+    {
+      "id": "CORE_TDE_1_1_1_PLANNING_RECON",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/governance/TDE_1_1_1_PLANNING_RECONCILIATION.md",
+      "blob_sha": "59c3f0dd2b307eb8d088585693ae278873fea9e6",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "2026-07-30 planning reconciliation makes TDE 1.1.1 public CLI observe-only in seven source consumers and preserves five existing Execution Horizon items; its E2E-active sentence predates owning E2E completion.",
+      "observed_at": "2026-10-03; continuation of pinned issue #1101 audit",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/governance/TDE_1_1_1_PLANNING_RECONCILIATION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::AUDIT::METHOD"
+      ],
+      "remaining": "No TDE enforcement, product capability or changed Horizon follows."
     }
   ],
   "nodes": [
@@ -24608,7 +24734,14 @@
         "CORE_RELEASE_EVIDENCE_CONTRACT",
         "CORE_RELEASE_WORKFLOW_SEPARATION",
         "CORE_SA_REPOSITORY_GOVERNANCE_MATRIX_HIST",
-        "CORE_RELEASE_3_3_MANIFEST_HIST"
+        "CORE_RELEASE_3_3_MANIFEST_HIST",
+        "CORE_SA_HACS_CI_EVIDENCE_ASSESSMENT_HIST",
+        "CORE_SA_DEPENDENCY_ASSESSMENT_HIST",
+        "CORE_SA_SHA_OPERATIONAL_LIMITS",
+        "CORE_SA_GITHUB_PLATFORM_EXCEPTION",
+        "CORE_SA_WORKFLOW_CLOSURE_REPORT_HIST",
+        "CORE_SA_DEPENDENCY_CONFORMANCE_HIST",
+        "CORE_TDE_1_1_1_PLANNING_RECON"
       ],
       "canonical_authority": "ROADMAP_INDEX",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -31295,6 +31428,37 @@
         "CORE_RELEASE_3_3_TARGETS_HIST",
         "CORE_RELEASE_3_3_HA_TARGET_HIST"
       ]
+    },
+    {
+      "id": "SA-DEPENDENCY-STATUS-SUPERSESSION",
+      "status": "HISTORICAL_NO_GO_RECONCILED__CURRENT_SETTINGS_OPEN",
+      "description": "The older dependency-governance assessment found no repository-local Dependabot policy and recorded NO_GO, but its own subsequent-status section points to later completed conformance. The pinned successor report records ten merged configuration PRs and the existing current policy defines weekly grouped non-automerge updates with a PlatformIO exception. TDE 1.1.1 is an observe-only complementary input; its planning reconciliation preserves the five-item Execution Horizon and does not select product work. Exact current per-repository configuration/settings and live alert/consumer state remain separate readbacks.",
+      "source_ids": [
+        "CORE_SA_DEPENDENCY_ASSESSMENT_HIST",
+        "CORE_SA_DEPENDENCY_CONFORMANCE_HIST",
+        "DEPENDENCY_GOV_POLICY",
+        "CORE_TDE_1_1_1_PLANNING_RECON"
+      ]
+    },
+    {
+      "id": "SA-HACS-CI-ASSESSMENT-BOUNDARY",
+      "status": "HISTORICAL_ASSESSMENT__NO_WORKFLOW_CORRECTION_SELECTED",
+      "description": "The pinned HACS CI evidence reassessment records successful PR #459 head/merge validation and NO_GO_INSUFFICIENT_EVIDENCE for a workflow correction; earlier ref-loading failures lack retained primary run evidence. Its recommendation to continue then-active E2E work is historical against later owning E2E completion. A new HACS failure needs fresh ref/log evidence; this planning assignment changes no workflow or product selection.",
+      "source_ids": [
+        "CORE_SA_HACS_CI_EVIDENCE_ASSESSMENT_HIST",
+        "E2E_ROADMAP",
+        "GOLDEN_CI"
+      ]
+    },
+    {
+      "id": "SA-SHA-EXCEPTION-STATUS-BOUNDARY",
+      "status": "ACCEPTED_EXCEPTION__CURRENT_PROTECTION_READBACK_OPEN",
+      "description": "The 2026-07-13 workflow-closure report is a pre-integration pending-remediation snapshot. Current operational-limit and GitHub-platform-exception records accept TD-GITHUB-001: native sha_pinning_required is disabled because of a pre-job reusable-workflow compatibility failure, with recursive immutable closure, pin registry and Trusted Delivery as compensating controls. This does not authorize protection bypass or show every current repository setting; exact current protection and representative CI still require readback.",
+      "source_ids": [
+        "CORE_SA_WORKFLOW_CLOSURE_REPORT_HIST",
+        "CORE_SA_SHA_OPERATIONAL_LIMITS",
+        "CORE_SA_GITHUB_PLATFORM_EXCEPTION"
+      ]
     }
   ],
   "audit_obligations": [
@@ -31302,7 +31466,7 @@
       "id": "AUDIT-DJC-CORE",
       "status": "OPEN",
       "scope": "DJC-CORE",
-      "reason": "Pinned foundation, roadmap, horizon, legal, voice, verification, full Meta Engineering reading order, local environment and historical EP/Software Assurance sources are read. Ten historical EP/runner links remain triaged; workflow effects, remaining consumer evidence and final delta still need qualification. Ten additional exact-pinned core policy/navigation sources are read, including owner authorization and Finalization; generated lifecycle and physical/consumer evidence still need qualification. Five linked architecture/assurance/Trusted Delivery records are also pinned; the 2026-07-13 target matrix is historical, not current settings evidence. Five additional canonical/navigational product texts and sixteen dated Phase 6 technical/target-architecture texts are pinned. Their current-state claims are bounded by the 2026-07-10 archaeology phase; the standalone Device Installer is planned target architecture, not an existing thirteenth lane or product pickup. All 19 core ADR Markdown sources are now pinned (17 in this delta), with ADR-0024/0025 incident supersession and ADR-0026 terminal clean-slate context kept historical under #1098. Ten additional exact-pinned release-policy/navigation/historical records are read, including exact-main evidence-prerelease policy, dispatch-only deployment/smoke boundaries and the prompt-history non-authority rule. The 3.3.1 prepared-for-review release note is historical against the published v3.3.1 tag; no installed consumer is inferred. 293 dated core prompt paths are classified by path only, leaving 317 core Markdown paths unclassified. Four exact-pinned post-merge Software Assurance records now separate current policy/schema from historical qualification; the stated per-component prerelease prefix conflicts with the pinned reusable workflow hard-coded internal-ha tag. Four retained embedded-EP status/run/workspace records were fully read as historical; 51 other docs/engineering Markdown paths are classified by exact path/blob under terminal #1098 without reopening retirement. Six exact-pinned Verification Program/report/backlog/scorecard records distinguish dated Profile V1 live NO-GO, later qualified Verification Platform engine, stale internal Windows narrative and completed Golden CI infrastructure; no current live consumer GO is inferred. The exact-pinned Epic 2 discovery index explicitly labels 17 remaining discovery reports as historical, path/blob-classified only; current capability model remains the authority. Current Development and Implementation navigation/Handoff are fully read and pinned; six explicitly legacy embedded-EP development files are exact-path/blob classified only, with standalone EP ownership preserved. Six additional exact-pinned release/evidence/governance records are fully read: historical Platform 3.3 certification and nine internal-target receipt references remain bounded to that manifest, while current workflow effects require exact implementation readback. The historical 3.3 manifest was fully read; its nine target run pairs match the report while its HA 3.3.1 source/artifact binding lacks a matching target execution row; all 18 GitHub Actions REST run IDs now return 404 while a recent control run is readable, leaving independent producer/consumer revalidation open."
+      "reason": "Pinned foundation, roadmap, horizon, legal, voice, verification, full Meta Engineering reading order, local environment and historical EP/Software Assurance sources are read. Ten historical EP/runner links remain triaged; workflow effects, remaining consumer evidence and final delta still need qualification. Ten additional exact-pinned core policy/navigation sources are read, including owner authorization and Finalization; generated lifecycle and physical/consumer evidence still need qualification. Five linked architecture/assurance/Trusted Delivery records are also pinned; the 2026-07-13 target matrix is historical, not current settings evidence. Five additional canonical/navigational product texts and sixteen dated Phase 6 technical/target-architecture texts are pinned. Their current-state claims are bounded by the 2026-07-10 archaeology phase; the standalone Device Installer is planned target architecture, not an existing thirteenth lane or product pickup. All 19 core ADR Markdown sources are now pinned (17 in this delta), with ADR-0024/0025 incident supersession and ADR-0026 terminal clean-slate context kept historical under #1098. Ten additional exact-pinned release-policy/navigation/historical records are read, including exact-main evidence-prerelease policy, dispatch-only deployment/smoke boundaries and the prompt-history non-authority rule. The 3.3.1 prepared-for-review release note is historical against the published v3.3.1 tag; no installed consumer is inferred. 293 dated core prompt paths are classified by path only, leaving 317 core Markdown paths unclassified. Four exact-pinned post-merge Software Assurance records now separate current policy/schema from historical qualification; the stated per-component prerelease prefix conflicts with the pinned reusable workflow hard-coded internal-ha tag. Four retained embedded-EP status/run/workspace records were fully read as historical; 51 other docs/engineering Markdown paths are classified by exact path/blob under terminal #1098 without reopening retirement. Six exact-pinned Verification Program/report/backlog/scorecard records distinguish dated Profile V1 live NO-GO, later qualified Verification Platform engine, stale internal Windows narrative and completed Golden CI infrastructure; no current live consumer GO is inferred. The exact-pinned Epic 2 discovery index explicitly labels 17 remaining discovery reports as historical, path/blob-classified only; current capability model remains the authority. Current Development and Implementation navigation/Handoff are fully read and pinned; six explicitly legacy embedded-EP development files are exact-path/blob classified only, with standalone EP ownership preserved. Six additional exact-pinned release/evidence/governance records are fully read: historical Platform 3.3 certification and nine internal-target receipt references remain bounded to that manifest, while current workflow effects require exact implementation readback. The historical 3.3 manifest was fully read; its nine target run pairs match the report while its HA 3.3.1 source/artifact binding lacks a matching target execution row; all 18 GitHub Actions REST run IDs now return 404 while a recent control run is readable, leaving independent producer/consumer revalidation open. Seven further exact-pinned Software Assurance/dependency/TDE records separate historical HACS/Dependabot NO_GO and pre-integration closure snapshots from completed policy/observe and accepted TD-GITHUB-001 exception; current repository settings remain open."
     },
     {
       "id": "AUDIT-DJC-APPLE",
@@ -31412,7 +31576,7 @@
       "status": "OPEN",
       "scope": "platform",
       "reason": "Current matrix covers only explicitly read source inventory; certify complete disposition only after all relevant discoveries are audited.",
-      "remaining": "All 706 included pinned source rows have exact path/blob provenance and bounded read descriptions. Exact pinned trees contain 1,739 tracked Markdown paths: 603 individually represented/full-read, 917 exact path/blob entries classified only as dated prompt history, older versioned release copy, retained embedded EP/development documentation or Epic 2 discovery artifacts, and 219 still unclassified for relevance/full reading. The 917 classified contents were not read and can be reopened when a current authority points to one. Apple 47/173, Windows 41/117 and website 64/412 Markdown have all other paths in explicit historical categories; Pi 33/33, API 28/28 and ESP32 28/28 are individually represented. Core is 294/880, with 293 dated prompts, 51 retained EP documents, 17 Epic 2 discovery reports and six legacy development files classified by path, and 219 unclassified. Runtime, workflow/test and physical/source-to-release consumer coverage remain separately open. Ten historical core EP/runner relative-link targets remain triaged outside the matrix. Complete current-source/consumer discovery and status qualification before certification."
+      "remaining": "All 713 included pinned source rows have exact path/blob provenance and bounded read descriptions. Exact pinned trees contain 1,739 tracked Markdown paths: 610 individually represented/full-read, 917 exact path/blob entries classified only as dated prompt history, older versioned release copy, retained embedded EP/development documentation or Epic 2 discovery artifacts, and 212 still unclassified for relevance/full reading. The 917 classified contents were not read and can be reopened when a current authority points to one. Apple 47/173, Windows 41/117 and website 64/412 Markdown have all other paths in explicit historical categories; Pi 33/33, API 28/28 and ESP32 28/28 are individually represented. Core is 301/880, with 293 dated prompts, 51 retained EP documents, 17 Epic 2 discovery reports and six legacy development files classified by path, and 212 unclassified. Runtime, workflow/test and physical/source-to-release consumer coverage remain separately open. Ten historical core EP/runner relative-link targets remain triaged outside the matrix. Complete current-source/consumer discovery and status qualification before certification."
     },
     {
       "id": "REGISTER-DELIVERY",
