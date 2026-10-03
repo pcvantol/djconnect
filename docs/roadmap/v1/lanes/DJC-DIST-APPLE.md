@@ -16,7 +16,7 @@ Planning continuation: Bepaal de daadwerkelijke huidige artifact- en publicatieg
 
 ## Owning backlog and handoffs
 
-Read the local `REPOSITORY_STATUS.md` and existing TODO/ISSUES or release metadata that this repository actually owns. Local backlog audit: Relevant local backlog/status entries read; complete audit pending.
+Read the local `REPOSITORY_STATUS.md` and existing TODO/ISSUES or release metadata that this repository actually owns. Local backlog audit: Relevant local backlog, four phase/status projections and applicable RG-001 Prompt History read; owning status reconciliation recorded; full source/consumer audit pending.
 
 - `APPLE-DIST`: DJC-APPLE → DJC-DIST-APPLE; iOS/macOS unsigned bundles, hashes and tags. Phase `distribution`; exact artifact `NOT_PUBLISHED_BY_THIS_ASSIGNMENT`; acceptance owner `DJC-DIST-APPLE`.
 - `WIN-DIST`: DJC-WINDOWS → DJC-DIST-APPLE; Windows x64/arm64 and conditional Mac Catalyst artifacts. Phase `distribution`; exact artifact `NOT_PUBLISHED_BY_THIS_ASSIGNMENT`; acceptance owner `DJC-DIST-APPLE`.

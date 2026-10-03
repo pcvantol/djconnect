@@ -6,7 +6,7 @@ This is a pinned planning projection for assignment `DJC-PLATFORM-ROADMAP-DAG-LA
 
 **Baseline main:** `92712ae989f9ad44e2b935222a1e1053670a782f`. **Owning register:** https://github.com/pcvantol/djconnect-pi/issues/104. **Portfolio:** https://github.com/pcvantol/djconnect/issues/1101.
 
-**Current assignment/WIP:** CLEAN_LOCAL_MAIN_OBSERVED; active assignment not independently verified. Product pickup: `NOT_ISSUED`. Capacity: `UNKNOWN`.
+**Current assignment/WIP:** 2026-10-03 11:55 UTC: one local worktree, clean main; active writer/assignment unverified. Product pickup: `NOT_ISSUED`. Capacity: `UNKNOWN`.
 
 ## Selected and proposed outcome
 
@@ -16,7 +16,7 @@ Planning continuation: Reconcileer concrete profielen, shared-profile privacy en
 
 ## Owning backlog and handoffs
 
-Read the local `REPOSITORY_STATUS.md` and existing TODO/ISSUES or release metadata that this repository actually owns. Local backlog audit: Relevant local backlog/status entries read; complete audit pending.
+Read the local `REPOSITORY_STATUS.md` and existing TODO/ISSUES or release metadata that this repository actually owns. Local backlog audit: Relevant local backlog, four phase/status projections and named local reference documents read where applicable; owning status reconciliation recorded; full source/consumer audit pending.
 
 - `HA-DJC-PI`: DJC-CORE → DJC-PI; Profile-aware pairing, capabilities and backend-owned playback/Ask DJ subsets; preserve each host privacy and intentional absences. Phase `integration_acceptance`; exact artifact `UNKNOWN`; acceptance owner `DJC-PI`.
 - `PI-DIST`: DJC-PI → DJC-DIST-PI; generic plus Pi profile bundles, manifest and pointer. Phase `distribution`; exact artifact `NOT_PUBLISHED_BY_THIS_ASSIGNMENT`; acceptance owner `DJC-DIST-PI`.
@@ -33,7 +33,7 @@ Workflow effect audit: Push, tag, dispatch and workflow_run triggers inventoried
 
 ```text
 Continue assignment DJC-PLATFORM-ROADMAP-DAG-LANES-V1-20261003 in pcvantol/djconnect-pi / DJC-PI.
-Read https://github.com/pcvantol/djconnect/issues/1101 and https://github.com/pcvantol/djconnect-pi/issues/104; keep the current WIP/assignment intact: CLEAN_LOCAL_MAIN_OBSERVED; active assignment not independently verified.
+Read https://github.com/pcvantol/djconnect/issues/1101 and https://github.com/pcvantol/djconnect-pi/issues/104; keep the current WIP/assignment intact: 2026-10-03 11:55 UTC: one local worktree, clean main; active writer/assignment unverified.
 Use the existing owning backlog, exact source pins and local bootstrap. Planning outcome: Reconcileer concrete profielen, shared-profile privacy en artifactidentiteit. Maak onderscheid tussen native QML, appliancevoorbereiding en de HA-hosted browserreceiver op hetzelfde apparaat.
 Selected owning node IDs (no new pickup): none established for this lane.
 Local test-policy audit: Pinned TESTS.md catalogue read; current CI, installed-target and physical verification receipts not fully audited. Workflow effects: Push, tag, dispatch and workflow_run triggers inventoried; exact route-specific effects must be read before push.

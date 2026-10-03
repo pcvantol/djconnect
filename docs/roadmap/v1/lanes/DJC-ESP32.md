@@ -6,7 +6,7 @@ This is a pinned planning projection for assignment `DJC-PLATFORM-ROADMAP-DAG-LA
 
 **Baseline main:** `49a71f99f6435819ec00b7387520a3fd20640a0b`. **Owning register:** https://github.com/pcvantol/djconnect-esp32/issues/58. **Portfolio:** https://github.com/pcvantol/djconnect/issues/1101.
 
-**Current assignment/WIP:** 2026-10-03 11:10 UTC readback: uncommitted .vscode/extensions.json on main; active writer/assignment unverified. Product pickup: `NOT_ISSUED`. Capacity: `UNKNOWN`.
+**Current assignment/WIP:** 2026-10-03 11:55 UTC: one local worktree; unrelated unstaged .vscode/extensions.json; active writer/assignment unverified. Product pickup: `NOT_ISSUED`. Capacity: `UNKNOWN`.
 
 ## Selected and proposed outcome
 
@@ -16,7 +16,7 @@ Planning continuation: Leg het huidige gekwalificeerde boardprofiel en de manife
 
 ## Owning backlog and handoffs
 
-Read the local `REPOSITORY_STATUS.md` and existing TODO/ISSUES or release metadata that this repository actually owns. Local backlog audit: Relevant local backlog/status entries read; complete audit pending.
+Read the local `REPOSITORY_STATUS.md` and existing TODO/ISSUES or release metadata that this repository actually owns. Local backlog audit: Relevant local backlog, four phase/status projections and named local reference documents read where applicable; owning status reconciliation recorded; full source/consumer audit pending.
 
 - `HA-DJC-ESP32`: DJC-CORE → DJC-ESP32; Profile-aware pairing, capabilities and backend-owned playback/Ask DJ subsets; preserve each host privacy and intentional absences. Phase `integration_acceptance`; exact artifact `UNKNOWN`; acceptance owner `DJC-ESP32`.
 - `FW-DIST`: DJC-ESP32 → DJC-DIST-FIRMWARE; Source-generated firmware manifest, exact board asset and SHA-256. Phase `distribution`; exact artifact `UNKNOWN`; acceptance owner `DJC-DIST-FIRMWARE`.
@@ -33,7 +33,7 @@ Workflow effect audit: Push, tag, dispatch and workflow_run triggers inventoried
 
 ```text
 Continue assignment DJC-PLATFORM-ROADMAP-DAG-LANES-V1-20261003 in pcvantol/djconnect-esp32 / DJC-ESP32.
-Read https://github.com/pcvantol/djconnect/issues/1101 and https://github.com/pcvantol/djconnect-esp32/issues/58; keep the current WIP/assignment intact: 2026-10-03 11:10 UTC readback: uncommitted .vscode/extensions.json on main; active writer/assignment unverified.
+Read https://github.com/pcvantol/djconnect/issues/1101 and https://github.com/pcvantol/djconnect-esp32/issues/58; keep the current WIP/assignment intact: 2026-10-03 11:55 UTC: one local worktree; unrelated unstaged .vscode/extensions.json; active writer/assignment unverified.
 Use the existing owning backlog, exact source pins and local bootstrap. Planning outcome: Leg het huidige gekwalificeerde boardprofiel en de manifest-handoff vast. ESPHome-adoptie blijft board-by-board toekomstscope, niet automatisch geselecteerd.
 Selected owning node IDs (no new pickup): none established for this lane.
 Local test-policy audit: NOT_FULLY_AUDITED. Workflow effects: Push, tag, dispatch and workflow_run triggers inventoried; exact route-specific effects must be read before push.

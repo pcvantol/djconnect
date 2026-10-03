@@ -16,7 +16,7 @@ Planning continuation: Reconcileer publieke taal, pairing-, versie- en downloadc
 
 ## Owning backlog and handoffs
 
-Read the local `REPOSITORY_STATUS.md` and existing TODO/ISSUES or release metadata that this repository actually owns. Local backlog audit: Relevant local backlog/status entries read; complete audit pending.
+Read the local `REPOSITORY_STATUS.md` and existing TODO/ISSUES or release metadata that this repository actually owns. Local backlog audit: Relevant local backlog, four phase/status projections and named local reference documents read where applicable; owning status reconciliation recorded; full source/consumer audit pending.
 
 - `WIN-SITE`: DJC-WINDOWS → DJC-WEBSITE; Windows and Mac Catalyst release notes. Phase `distribution`; exact artifact `NOT_PUBLISHED_BY_THIS_ASSIGNMENT`; acceptance owner `DJC-WEBSITE`.
 - `APPLE-SITE`: DJC-APPLE → DJC-WEBSITE; Versioned and latest Apple release notes from the same Apple publication workflow. Phase `distribution`; exact artifact `NOT_PUBLISHED_BY_THIS_ASSIGNMENT`; acceptance owner `DJC-WEBSITE`.

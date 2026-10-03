@@ -6,7 +6,7 @@ This is a pinned planning projection for assignment `DJC-PLATFORM-ROADMAP-DAG-LA
 
 **Baseline main:** `4e6671c3231187e7cd20243817a86a56ad6aad06`. **Owning register:** https://github.com/pcvantol/djconnect-api/issues/90. **Portfolio:** https://github.com/pcvantol/djconnect/issues/1101.
 
-**Current assignment/WIP:** CLEAN_LOCAL_MAIN_OBSERVED; active assignment not independently verified. Product pickup: `NOT_ISSUED`. Capacity: `UNKNOWN`.
+**Current assignment/WIP:** 2026-10-03 11:55 UTC: one local worktree, clean main at older 4e6671c pin; actual remote main has one dev-dependency commit; active writer/assignment unverified. Product pickup: `NOT_ISSUED`. Capacity: `UNKNOWN`.
 
 ## Selected and proposed outcome
 
@@ -32,7 +32,7 @@ Workflow effect audit: Push, tag, dispatch and workflow_run triggers inventoried
 
 ```text
 Continue assignment DJC-PLATFORM-ROADMAP-DAG-LANES-V1-20261003 in pcvantol/djconnect-api / DJC-API.
-Read https://github.com/pcvantol/djconnect/issues/1101 and https://github.com/pcvantol/djconnect-api/issues/90; keep the current WIP/assignment intact: CLEAN_LOCAL_MAIN_OBSERVED; active assignment not independently verified.
+Read https://github.com/pcvantol/djconnect/issues/1101 and https://github.com/pcvantol/djconnect-api/issues/90; keep the current WIP/assignment intact: 2026-10-03 11:55 UTC: one local worktree, clean main at older 4e6671c pin; actual remote main has one dev-dependency commit; active writer/assignment unverified.
 Use the existing owning backlog, exact source pins and local bootstrap. Planning outcome: Inventariseer uitsluitend werkelijk aanwezige API/relay-capabilities, contracts en releasegrenzen. Geen algemeen DJConnect Runtime-eigenaarschap afleiden uit de naam API.
 Selected owning node IDs (no new pickup): none established for this lane.
 Local test-policy audit: NOT_FULLY_AUDITED. Workflow effects: Push, tag, dispatch and workflow_run triggers inventoried; exact route-specific effects must be read before push.

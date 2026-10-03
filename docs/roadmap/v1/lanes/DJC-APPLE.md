@@ -6,7 +6,7 @@ This is a pinned planning projection for assignment `DJC-PLATFORM-ROADMAP-DAG-LA
 
 **Baseline main:** `d54224dbf02517ae47406aa14d33e97e61c18002`. **Owning register:** https://github.com/pcvantol/djconnect-app/issues/87. **Portfolio:** https://github.com/pcvantol/djconnect/issues/1101.
 
-**Current assignment/WIP:** 2026-10-03 11:10 UTC readback: local checkout clean on main; active writer/assignment unverified. Product pickup: `NOT_ISSUED`. Capacity: `UNKNOWN`.
+**Current assignment/WIP:** 2026-10-03 11:55 UTC: one local worktree, clean main; active writer/assignment unverified. Product pickup: `NOT_ISSUED`. Capacity: `UNKNOWN`.
 
 ## Selected and proposed outcome
 
@@ -16,7 +16,7 @@ Planning continuation: Reconcileer bestaande lokale TODO/ISSUES en native-surfac
 
 ## Owning backlog and handoffs
 
-Read the local `REPOSITORY_STATUS.md` and existing TODO/ISSUES or release metadata that this repository actually owns. Local backlog audit: Relevant local backlog/status entries read; complete audit pending.
+Read the local `REPOSITORY_STATUS.md` and existing TODO/ISSUES or release metadata that this repository actually owns. Local backlog audit: Relevant local backlog, four phase/status projections and named local reference documents read where applicable; owning status reconciliation recorded; full source/consumer audit pending.
 
 - `HA-DJC-APPLE`: DJC-CORE → DJC-APPLE; Profile-aware pairing, capabilities and backend-owned playback/Ask DJ subsets; preserve each host privacy and intentional absences. Phase `integration_acceptance`; exact artifact `UNKNOWN`; acceptance owner `DJC-APPLE`.
 - `APPLE-CAST`: DJC-APPLE → DJC-VIBECAST; One runtime-scoped read-only Cast handoff; not pixel streaming. Phase `integration_acceptance`; exact artifact `UNKNOWN`; acceptance owner `DJC-VIBECAST`.
@@ -35,7 +35,7 @@ Workflow effect audit: Push, tag, dispatch and workflow_run triggers inventoried
 
 ```text
 Continue assignment DJC-PLATFORM-ROADMAP-DAG-LANES-V1-20261003 in pcvantol/djconnect-app / DJC-APPLE.
-Read https://github.com/pcvantol/djconnect/issues/1101 and https://github.com/pcvantol/djconnect-app/issues/87; keep the current WIP/assignment intact: 2026-10-03 11:10 UTC readback: local checkout clean on main; active writer/assignment unverified.
+Read https://github.com/pcvantol/djconnect/issues/1101 and https://github.com/pcvantol/djconnect-app/issues/87; keep the current WIP/assignment intact: 2026-10-03 11:55 UTC: one local worktree, clean main; active writer/assignment unverified.
 Use the existing owning backlog, exact source pins and local bootstrap. Planning outcome: Reconcileer bestaande lokale TODO/ISSUES en native-surface/Watch-evidence. Behoud huidige implementatie tegenover de nog assessment-first Watch Moment-First-doelervaring.
 Selected owning node IDs (no new pickup): SLICE::APPLE::OWNER-HANDOFF.
 Local test-policy audit: NOT_FULLY_AUDITED. Workflow effects: Push, tag, dispatch and workflow_run triggers inventoried; exact route-specific effects must be read before push.

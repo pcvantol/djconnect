@@ -16,7 +16,7 @@ Planning continuation: Reconcileer legacy versus profielspecifieke bundles en on
 
 ## Owning backlog and handoffs
 
-Read the local `REPOSITORY_STATUS.md` and existing TODO/ISSUES or release metadata that this repository actually owns. Local backlog audit: Relevant local backlog/status entries read; complete audit pending.
+Read the local `REPOSITORY_STATUS.md` and existing TODO/ISSUES or release metadata that this repository actually owns. Local backlog audit: Relevant local backlog, four phase/status projections and applicable RG-001 Prompt History read; owning status reconciliation recorded; full source/consumer audit pending.
 
 - `PI-DIST`: DJC-PI → DJC-DIST-PI; generic plus Pi profile bundles, manifest and pointer. Phase `distribution`; exact artifact `NOT_PUBLISHED_BY_THIS_ASSIGNMENT`; acceptance owner `DJC-DIST-PI`.
 

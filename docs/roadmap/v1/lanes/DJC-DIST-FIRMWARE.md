@@ -16,7 +16,7 @@ Planning continuation: Verifieer bestaande gedelegeerde source-publicatie, compa
 
 ## Owning backlog and handoffs
 
-Read the local `REPOSITORY_STATUS.md` and existing TODO/ISSUES or release metadata that this repository actually owns. Local backlog audit: Relevant local backlog/status entries read; complete audit pending.
+Read the local `REPOSITORY_STATUS.md` and existing TODO/ISSUES or release metadata that this repository actually owns. Local backlog audit: Relevant local backlog, four phase/status projections and applicable RG-001 Prompt History read; owning status reconciliation recorded; full source/consumer audit pending.
 
 - `FW-DIST`: DJC-ESP32 → DJC-DIST-FIRMWARE; Source-generated firmware manifest, exact board asset and SHA-256. Phase `distribution`; exact artifact `UNKNOWN`; acceptance owner `DJC-DIST-FIRMWARE`.
 

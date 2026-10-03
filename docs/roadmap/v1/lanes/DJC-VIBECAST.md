@@ -6,7 +6,7 @@ This is a pinned planning projection for assignment `DJC-PLATFORM-ROADMAP-DAG-LA
 
 **Baseline main:** `a901fbcd3e894af62b63fafbca8f96738e08ce3c`. **Owning register:** https://github.com/pcvantol/djconnect-vibecast-receiver/issues/10. **Portfolio:** https://github.com/pcvantol/djconnect/issues/1101.
 
-**Current assignment/WIP:** LOCAL_MAIN_BEHIND_REMOTE; no source mutation; writer availability UNKNOWN. Product pickup: `NOT_ISSUED`. Capacity: `UNKNOWN`.
+**Current assignment/WIP:** 2026-10-03 11:55 UTC: one local worktree, clean main at recorded pin; writer availability UNKNOWN. Product pickup: `NOT_ISSUED`. Capacity: `UNKNOWN`.
 
 ## Selected and proposed outcome
 
@@ -33,7 +33,7 @@ Workflow effect audit: Push, tag, dispatch and workflow_run triggers inventoried
 
 ```text
 Continue assignment DJC-PLATFORM-ROADMAP-DAG-LANES-V1-20261003 in pcvantol/djconnect-vibecast-receiver / DJC-VIBECAST.
-Read https://github.com/pcvantol/djconnect/issues/1101 and https://github.com/pcvantol/djconnect-vibecast-receiver/issues/10; keep the current WIP/assignment intact: LOCAL_MAIN_BEHIND_REMOTE; no source mutation; writer availability UNKNOWN.
+Read https://github.com/pcvantol/djconnect/issues/1101 and https://github.com/pcvantol/djconnect-vibecast-receiver/issues/10; keep the current WIP/assignment intact: 2026-10-03 11:55 UTC: one local worktree, clean main at recorded pin; writer availability UNKNOWN.
 Use the existing owning backlog, exact source pins and local bootstrap. Planning outcome: Audit bestaande receiverbron en owning release-/kwalificatie-evidence tegen de Pi-reference-gate en Apple/HA-handoff. Bestaande repo is geen bewijs van volledige Cast-acceptatie.
 Selected owning node IDs (no new pickup): none established for this lane.
 Local test-policy audit: NOT_FULLY_AUDITED. Workflow effects: Push, tag, dispatch and workflow_run triggers inventoried; exact route-specific effects must be read before push.
