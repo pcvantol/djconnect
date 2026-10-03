@@ -2,6 +2,23 @@
 
 Status: canonical prompt navigation
 
+## PR #1099 embedded EP source retirement finalization
+
+Assignment `L5-DJCONNECT-EP-SOURCE-RETIREMENT-V1-20261003` is recorded in the
+[LANE_5 decision register](docs/governance/LANE_5_EP_SOURCE_RETIREMENT.md)
+and [issue #1098](https://github.com/pcvantol/djconnect/issues/1098).
+Implementation PR [#1099](https://github.com/pcvantol/djconnect/pull/1099)
+merged as `60d5ee2e034323515092cd4100b1683f588e59fc` from exact candidate
+`3cdc09c406b10d7cdd33b614f606c55c5ebcf191`. Final-head review,
+protected checks, exact-head owner authorization and current-main
+release-evidence qualification passed. A and D remain `OWNER_VALIDATED`;
+B and C remain `WAIVED_BY_OWNER_FOR_SOURCE_RETIREMENT`. No immutable Prompt
+History entry was changed or reconstructed. This governance-only Finalization
+reconciles the rolling records; Repository State becomes `MERGED_RECONCILED`
+after its merge, with Workspace State `WORKSPACE_READY` after cleanup. The
+five-item Execution Horizon in the current engineering and management records
+is unchanged.
+
 ## PR #1060 finalized by PR #1061
 
 PR [#1060](https://github.com/pcvantol/djconnect/pull/1060), **Document Local
