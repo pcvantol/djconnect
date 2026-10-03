@@ -153,6 +153,11 @@ def validate(plan: Any, require_complete: bool = False) -> list[str]:
                 and receipt.get("repository") == lane.get("repository"),
                 f"{lid}: writer-free claim lacks exact receipt",
             )
+        if lane.get("writer_state") == "FREE_VERIFIED":
+            check(
+                lane.get("writer_free_verified") is True,
+                f"{lid}: free writer label lacks verification",
+            )
     registers = [
         lane.get("owning_register") for lane in lanes.values() if lane.get("owning_register")
     ]

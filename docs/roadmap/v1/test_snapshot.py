@@ -98,6 +98,10 @@ class SnapshotTests(unittest.TestCase):
         lane.update(writer_state="FREE_VERIFIED", writer_free_verified=True)
         self.assertIn("writer-free claim lacks exact receipt", self.errors())
 
+    def test_free_writer_label_cannot_bypass_verification_flag(self):
+        self.p["lanes"][1]["writer_state"] = "FREE_VERIFIED"
+        self.assertIn("free writer label lacks verification", self.errors())
+
     def test_full_delivery_must_fail_for_open_audit_and_protection(self):
         e = "\n".join(validate(self.p, True))
         self.assertIn("completion gate open", e)
