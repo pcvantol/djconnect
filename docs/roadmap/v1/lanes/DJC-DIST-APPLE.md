@@ -20,6 +20,7 @@ Read the local `REPOSITORY_STATUS.md` and existing TODO/ISSUES or release metada
 
 - `APPLE-DIST`: DJC-APPLE → DJC-DIST-APPLE; iOS/macOS unsigned bundles, hashes and tags. Phase `distribution`; exact artifact `NOT_PUBLISHED_BY_THIS_ASSIGNMENT`; acceptance owner `DJC-DIST-APPLE`.
 - `WIN-DIST`: DJC-WINDOWS → DJC-DIST-APPLE; Windows x64/arm64 and conditional Mac Catalyst artifacts. Phase `distribution`; exact artifact `NOT_PUBLISHED_BY_THIS_ASSIGNMENT`; acceptance owner `DJC-DIST-APPLE`.
+- `DIST-APPLE-WEBSITE-DOWNLOADS`: DJC-DIST-APPLE → DJC-WEBSITE; Conditional consumer of apple and windows target-matched public release asset links where a target/channel is approved and advertised; otherwise truthful localized absence. Phase `assessment`; exact artifact `Exact release tag/asset and deployed Pages revision UNKNOWN`; acceptance owner `DJC-WEBSITE`.
 
 ## DoR, DoD and resource boundary
 
@@ -42,6 +43,7 @@ For any later selected vertical work, first prove DoR, then include UX, tests, r
 Coordinate these exact handoff IDs and acceptance owners through the owning registers:
 - APPLE-DIST: DJC-APPLE -> DJC-DIST-APPLE; iOS/macOS unsigned bundles, hashes and tags; phase distribution; acceptance owner DJC-DIST-APPLE; exact artifact NOT_PUBLISHED_BY_THIS_ASSIGNMENT.
 - WIN-DIST: DJC-WINDOWS -> DJC-DIST-APPLE; Windows x64/arm64 and conditional Mac Catalyst artifacts; phase distribution; acceptance owner DJC-DIST-APPLE; exact artifact NOT_PUBLISHED_BY_THIS_ASSIGNMENT.
+- DIST-APPLE-WEBSITE-DOWNLOADS: DJC-DIST-APPLE -> DJC-WEBSITE; Conditional consumer of apple and windows target-matched public release asset links where a target/channel is approved and advertised; otherwise truthful localized absence; phase assessment; acceptance owner DJC-WEBSITE; exact artifact Exact release tag/asset and deployed Pages revision UNKNOWN.
 Do not start a release or deployment from this prompt.
 Report PLANNING_DELIVERY, PRODUCT_DELIVERY and EXECUTION_READY separately. Stop after this planning delivery.
 ```

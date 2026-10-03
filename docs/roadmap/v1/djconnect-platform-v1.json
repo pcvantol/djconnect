@@ -41,7 +41,7 @@
     "metadata_and_bounded_paraphrases": true,
     "offline_hash_verification_of_remote_blobs": false,
     "per_call_timestamps": "Date-level head readback on 2026-10-03; no per-file read timestamp for inherited checkpoint.",
-    "pinned_tree_blobs_verified": "898 of 898 path/blob source pins matched exact commit trees or GitHub Contents commit readbacks on 2026-10-03. Existing API admin-handler source was repinned to current API main after identical blob readback at its previous main; no duplicate semantic source was retained. The API validation source blob at current main matched the fully read local blob. The Apple model source was read only at bounded cited lines. Firmware binaries were SHA256-hashed for identity, not semantically executed. Narrative interpretation and current consumer qualification remain partial.",
+    "pinned_tree_blobs_verified": "909 of 909 path/blob source pins matched exact commit trees or GitHub Contents commit readbacks on 2026-10-03. Existing API admin-handler source was repinned to current API main after identical blob readback at its previous main; no duplicate semantic source was retained. The API validation source blob at current main matched the fully read local blob. The Apple model source was read only at bounded cited lines. Firmware binaries were SHA256-hashed for identity, not semantically executed. Narrative interpretation and current consumer qualification remain partial. Eleven pinned website source rows cover five full source reads and six bounded HTML data bindings for distribution downloads.",
     "reference_scan": {
       "method": "Every pinned core Markdown blob and every pinned Markdown blob in the eleven DJC component repositories, at its recorded commit: parse relative Markdown links, strip anchors, normalize against source directory, retain existing .md targets absent from the pinned source matrix; distinct repository/path keys. The seven pinned external Forge method documents are outside this lane-source link frontier.",
       "unmapped_paths": [
@@ -4242,6 +4242,25 @@
           "smoke_http_status": 404
         }
       ]
+    },
+    "live_website_readback": {
+      "key": "website_downloads_20261003",
+      "observed_at": "2026-10-03 15:58 UTC",
+      "method": "Read-only curl HTTP/API/script responses and headless Chromium DOM text; no website mutation or authentication. An earlier Python urllib attempt returned HTTP 403, which did not establish route unavailability.",
+      "deployed_commit_identity": "UNKNOWN; downloaded /assets/downloads.js SHA256 f0a827d65943f99d643d7acc70e54b54c1f6fd9ef05b593350773a4172720379 equals pinned source, and served /assets/downloads.min.js SHA256 d0cba6e1f08ec5331890a18ffde1c56915738e037e744b08e138e5612963d321 has the same 321 program lines after formatting/comment-only line normalization. This is content comparison, not deployment provenance.",
+      "routes": {
+        "/ios": "HTTP 200; rendered widget says no iOS builds, despite existing ios/v3.3.0 release outside the ten-item proxied app feed.",
+        "/macos": "HTTP 200; rendered macOS v3.3.0 unsigned asset card.",
+        "/windows": "HTTP 200; rendered Windows v3.3.0 unsigned asset card.",
+        "/maccatalyst": "HTTP 200; rendered no Mac Catalyst builds; no current approved Mac Catalyst publication inferred.",
+        "/embedded": "HTTP 200; rendered no firmware binaries.",
+        "/raspberry-pi": "HTTP 200; rendered no Pi install bundle and no Linux builds.",
+        "/api/releases?owner=pcvantol&repo=djconnect-app-releases&limit=20": "HTTP 200; exactly ten releases: eight internal-ha evidence-only prereleases then Windows/macOS 3.3.0.",
+        "/api/releases?owner=pcvantol&repo=djconnect-firmware&limit=1": "HTTP 200; one internal-ha evidence-only JSON prerelease.",
+        "/api/releases?owner=pcvantol&repo=djconnect-pi-releases&limit=1": "HTTP 200; one internal-ha evidence-only JSON prerelease.",
+        "/go/linux-install": "HTTP 302 to GitHub Pi v3.3.0 tar.gz, independent of page-side install widget."
+      },
+      "acceptance_boundary": "Live feed/DOM observation at one time, without exact deployed commit/Cloudflare build provenance, full locale sweep or downloaded/installed asset acceptance."
     }
   },
   "lanes": [
@@ -5607,7 +5626,8 @@
       "mapped_node_ids": [
         "PROJ::ROADMAP::P3-APPLE",
         "PROJ::ROADMAP::P0-FOUNDATION",
-        "PROJ::EVOLUTION::WEBSITE-PUBLIC"
+        "PROJ::EVOLUTION::WEBSITE-PUBLIC",
+        "DJC-WEB-COPY"
       ],
       "remaining": "Linked architecture references are tracked as separate source records where planning-relevant"
     },
@@ -21153,6 +21173,205 @@
         "SLICE::API::OPERATOR-CONTRACT"
       ],
       "remaining": "Raw-token input rejection and current deployed operator route acceptance remain open."
+    },
+    {
+      "id": "WEBSITE_DOWNLOAD_ANALYTICS_SOURCE",
+      "repository": "pcvantol/djconnect-website",
+      "path": "functions/_shared/analytics.js",
+      "blob_sha": "2b894bbdd0ac66188fa4f8cd5745032e3693bb7c",
+      "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
+      "read_boundary": "complete; allowed release repositories and latest stable Pi release fetch read",
+      "read_complete": true,
+      "status_authority": "Allowed release repositories and the Pi stable-latest redirect contract are source-defined; live Pages deployment is unverified.",
+      "observed_at": "2026-10-03 15:53 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/functions/_shared/analytics.js",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "DJC-WEB-RELEASE-LINKS"
+      ],
+      "remaining": "Exact deployed website revision and user-visible acceptance are unverified."
+    },
+    {
+      "id": "WEBSITE_RELEASE_FEED_PROXY_SOURCE",
+      "repository": "pcvantol/djconnect-website",
+      "path": "functions/api/releases.js",
+      "blob_sha": "21e48b4d4323c355ac29bbee91a1d34d196cf0fd",
+      "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
+      "read_boundary": "complete; release-feed Pages Function read",
+      "read_complete": true,
+      "status_authority": "Feed proxy returns the first at most 10 GitHub releases without prerelease or asset filtering; deployed revision is unverified.",
+      "observed_at": "2026-10-03 15:53 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/functions/api/releases.js",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "DJC-WEB-RELEASE-LINKS"
+      ],
+      "remaining": "Exact deployed website revision and user-visible acceptance are unverified."
+    },
+    {
+      "id": "WEBSITE_TRACKED_DOWNLOAD_SOURCE",
+      "repository": "pcvantol/djconnect-website",
+      "path": "functions/go/download.js",
+      "blob_sha": "7ec1b11c0aec1df8669b205e69d1dde170edd1d5",
+      "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
+      "read_boundary": "complete; tracked release-asset redirect read",
+      "read_complete": true,
+      "status_authority": "Tracked redirect permits HTTPS github.com URLs under releases/ in the three allowlisted repositories; path-prefix validation does not prove the URL is an asset. Live routing and target/asset acceptance remain separate.",
+      "observed_at": "2026-10-03 15:53 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/functions/go/download.js",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "DJC-WEB-RELEASE-LINKS"
+      ],
+      "remaining": "Exact asset identity, deployed route behavior and target/channel acceptance remain open."
+    },
+    {
+      "id": "WEBSITE_PI_LATEST_REDIRECT_SOURCE",
+      "repository": "pcvantol/djconnect-website",
+      "path": "functions/go/[target].js",
+      "blob_sha": "14121aba8890689687a9b5c7f84af0f296419475",
+      "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
+      "read_boundary": "complete; Pi latest-release redirect read",
+      "read_complete": true,
+      "status_authority": "The linux-install redirect fetches GitHub releases/latest and selects a tar.gz asset; this differs from the page-side first-feed-item install command.",
+      "observed_at": "2026-10-03 15:53 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/functions/go/[target].js",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "DJC-WEB-RELEASE-LINKS"
+      ],
+      "remaining": "Exact deployed website revision and user-visible acceptance are unverified."
+    },
+    {
+      "id": "WEBSITE_DOWNLOAD_RENDERER_SOURCE",
+      "repository": "pcvantol/djconnect-website",
+      "path": "wwwroot/assets/downloads.js",
+      "blob_sha": "6efd7bfca7001f1251411b12d4e014e4cf214c27",
+      "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
+      "read_boundary": "complete; download renderer and install-command source read",
+      "read_complete": true,
+      "status_authority": "Renderer uses proxy feed, falls back to GitHub only on fetch error, then filters target assets. App requests 20 but proxy caps at 10; firmware/Pi pages request one. Pi install command checks only first returned release.",
+      "observed_at": "2026-10-03 15:53 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/wwwroot/assets/downloads.js",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "DJC-WEB-RELEASE-LINKS",
+        "DJC-WEB-COPY"
+      ],
+      "remaining": "Exact deployed website revision and user-visible acceptance are unverified."
+    },
+    {
+      "id": "WEBSITE_EMBEDDED_DOWNLOAD_BINDING",
+      "repository": "pcvantol/djconnect-website",
+      "path": "wwwroot/embedded.html",
+      "blob_sha": "e5f91ed18da7f477cd6c63ad6f60dbf7daf34e52",
+      "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
+      "read_boundary": "bounded; release widget data binding at line 1166 read",
+      "read_complete": false,
+      "status_authority": "Embedded page binds the download widget to djconnect-firmware with one-release limit; full HTML page not audited.",
+      "observed_at": "2026-10-03 15:53 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/wwwroot/embedded.html",
+      "disposition": "MAPPED_PARTIAL",
+      "mapped_node_ids": [
+        "DJC-WEB-RELEASE-LINKS"
+      ],
+      "remaining": "Only cited data binding was read; full page not audited."
+    },
+    {
+      "id": "WEBSITE_PI_DOWNLOAD_BINDING",
+      "repository": "pcvantol/djconnect-website",
+      "path": "wwwroot/raspberry-pi.html",
+      "blob_sha": "6f1fb8ecf316a53a09ca4790db07abacbbf27eda",
+      "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
+      "read_boundary": "bounded; install and release widget data bindings at lines 317-318 read",
+      "read_complete": false,
+      "status_authority": "Pi page binds both install-command and one-release download widgets to djconnect-pi-releases; full HTML page not audited.",
+      "observed_at": "2026-10-03 15:53 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/wwwroot/raspberry-pi.html",
+      "disposition": "MAPPED_PARTIAL",
+      "mapped_node_ids": [
+        "DJC-WEB-RELEASE-LINKS"
+      ],
+      "remaining": "Only cited data binding was read; full page not audited."
+    },
+    {
+      "id": "WEBSITE_IOS_DOWNLOAD_BINDING",
+      "repository": "pcvantol/djconnect-website",
+      "path": "wwwroot/ios.html",
+      "blob_sha": "472fbad5ad10d6acde995787d7bd128405067edc",
+      "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
+      "read_boundary": "bounded; release widget data binding at line 126 read",
+      "read_complete": false,
+      "status_authority": "iOS page binds its one-release widget to app-releases, target ios; full HTML page not audited.",
+      "observed_at": "2026-10-03 15:53 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/wwwroot/ios.html",
+      "disposition": "MAPPED_PARTIAL",
+      "mapped_node_ids": [
+        "DJC-WEB-RELEASE-LINKS"
+      ],
+      "remaining": "Only cited data binding was read; full page not audited."
+    },
+    {
+      "id": "WEBSITE_MACOS_DOWNLOAD_BINDING",
+      "repository": "pcvantol/djconnect-website",
+      "path": "wwwroot/macos.html",
+      "blob_sha": "1a7718c22a8275c1b0c1ea930eecfdfc3e3f7a61",
+      "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
+      "read_boundary": "bounded; release widget data binding at line 144 read",
+      "read_complete": false,
+      "status_authority": "macOS page binds its one-release widget to app-releases, target macos; full HTML page not audited.",
+      "observed_at": "2026-10-03 15:53 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/wwwroot/macos.html",
+      "disposition": "MAPPED_PARTIAL",
+      "mapped_node_ids": [
+        "DJC-WEB-RELEASE-LINKS"
+      ],
+      "remaining": "Only cited data binding was read; full page not audited."
+    },
+    {
+      "id": "WEBSITE_WINDOWS_DOWNLOAD_BINDING",
+      "repository": "pcvantol/djconnect-website",
+      "path": "wwwroot/windows.html",
+      "blob_sha": "0ec7e49977bd0c111e2393d51f8bdadad38f3a86",
+      "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
+      "read_boundary": "bounded; release widget data binding at line 142 read",
+      "read_complete": false,
+      "status_authority": "Windows page binds its one-release widget to app-releases, target windows; full HTML page not audited.",
+      "observed_at": "2026-10-03 15:53 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/wwwroot/windows.html",
+      "disposition": "MAPPED_PARTIAL",
+      "mapped_node_ids": [
+        "DJC-WEB-RELEASE-LINKS"
+      ],
+      "remaining": "Only cited data binding was read; full page not audited."
+    },
+    {
+      "id": "WEBSITE_MACCATALYST_DOWNLOAD_BINDING",
+      "repository": "pcvantol/djconnect-website",
+      "path": "wwwroot/maccatalyst.html",
+      "blob_sha": "80f27168ce7c4f199e9904bda95473b8f27ac7da",
+      "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
+      "read_boundary": "bounded; release widget data binding at line 141 read",
+      "read_complete": false,
+      "status_authority": "Mac Catalyst page binds its one-release widget to app-releases, target maccatalyst; full HTML page not audited.",
+      "observed_at": "2026-10-03 15:53 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/wwwroot/maccatalyst.html",
+      "disposition": "MAPPED_PARTIAL",
+      "mapped_node_ids": [
+        "DJC-WEB-RELEASE-LINKS"
+      ],
+      "remaining": "Only cited data binding was read; full page not audited."
     }
   ],
   "nodes": [
@@ -30536,11 +30755,13 @@
       "source_ids": [
         "ISSUES::DJC-WEBSITE",
         "WEBSITE_SOURCE__CONTRIBUTING_MD",
-        "WEBSITE_SOURCE__VOICE_INTENT_DATA_PROMPT_MD"
+        "WEBSITE_SOURCE__VOICE_INTENT_DATA_PROMPT_MD",
+        "LOCALIZATION",
+        "WEBSITE_DOWNLOAD_RENDERER_SOURCE"
       ],
       "canonical_authority": "ISSUES::DJC-WEBSITE",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
-      "source_status_summary": "open",
+      "source_status_summary": "Open owning locale/copy assessment. The pinned download renderer defines only en/nl strings and maps every other document language to nl, while the canonical public five-language families are en/nl/de/fr/es. Exact deployed presentation remains unverified.",
       "original_status": "open",
       "status_representation": "EXACT_LOCAL_BACKLOG_SUMMARY",
       "selection": "LOCAL_BACKLOG_UNSELECTED",
@@ -30555,7 +30776,8 @@
       "profiles": "Static Cloudflare Pages",
       "acceptance_boundary": "owning local assessment/validation",
       "acceptance_criteria": [
-        "Real asset screenshots replace illustrative mockups only when available; native-speaker review and exact version evidence."
+        "Real asset screenshots replace illustrative mockups only when available; native-speaker review and exact version evidence.",
+        "Download/install statuses, commands and linked release-note fallback follow the canonical en/nl/de/fr/es language contract at the deployed site."
       ],
       "completion_requirements": [
         "Exact owning candidate, relevant test and consumer evidence."
@@ -30563,7 +30785,9 @@
       "contract_binding": "Follow exact local/current HA protocol and profile; unknown until execution.",
       "evidence_ids": [],
       "prerequisite_groups": [],
-      "blockers": [],
+      "blockers": [
+        "Pinned download renderer falls back to Dutch for de/fr/es; deployed behavior and locale coverage have not been accepted."
+      ],
       "resource_capacity": "UNKNOWN",
       "authority_verified": false,
       "writer_free_verified": false,
@@ -30581,15 +30805,26 @@
       "lane": "DJC-WEBSITE",
       "repository": "pcvantol/djconnect-website",
       "source_ids": [
-        "TODO::DJC-WEBSITE"
+        "TODO::DJC-WEBSITE",
+        "WEBSITE_DOWNLOAD_ANALYTICS_SOURCE",
+        "WEBSITE_RELEASE_FEED_PROXY_SOURCE",
+        "WEBSITE_TRACKED_DOWNLOAD_SOURCE",
+        "WEBSITE_PI_LATEST_REDIRECT_SOURCE",
+        "WEBSITE_DOWNLOAD_RENDERER_SOURCE",
+        "WEBSITE_EMBEDDED_DOWNLOAD_BINDING",
+        "WEBSITE_PI_DOWNLOAD_BINDING",
+        "WEBSITE_IOS_DOWNLOAD_BINDING",
+        "WEBSITE_MACOS_DOWNLOAD_BINDING",
+        "WEBSITE_WINDOWS_DOWNLOAD_BINDING",
+        "WEBSITE_MACCATALYST_DOWNLOAD_BINDING"
       ],
       "canonical_authority": "TODO::DJC-WEBSITE",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
-      "source_status_summary": "open",
+      "source_status_summary": "The owning TODO is open for iOS/macOS Store placeholders and latest-download-card smoke. A separate read-only website assessment found live release-feed truncation and empty iOS/Pi/firmware/Mac Catalyst widgets at this readback; the owning issue #59 records the finding. No new publication or product target is selected.",
       "original_status": "open",
-      "status_representation": "EXACT_LOCAL_BACKLOG_SUMMARY",
+      "status_representation": "LOCAL_BACKLOG_PLUS_BOUNDED_LIVE_READBACK",
       "selection": "LOCAL_BACKLOG_UNSELECTED",
-      "evidence_state": "SOURCE_STATUS_ONLY; LIVE_ACCEPTANCE_NOT_REQUALIFIED",
+      "evidence_state": "PINNED_SOURCE_AND_LIVE_FEED_WIDGET_READBACK; NO_RELEASE_OR_DEPLOYMENT_QUALIFICATION",
       "assignment_status": "NOT_ISSUED",
       "completion_claim": "NONE",
       "count_as_delivered_feature": false,
@@ -30600,15 +30835,23 @@
       "profiles": "Static Cloudflare Pages",
       "acceptance_boundary": "owning local assessment/validation",
       "acceptance_criteria": [
-        "Published route/asset receipt and localized link smoke before public deployment."
+        "Published route/asset receipt and localized link smoke before public deployment.",
+        "For each approved public target/channel, an advertised download or install widget resolves a target-matched published asset; where no download is approved or available, it shows a truthful localized absence. Evidence-only prereleases must not hide eligible assets. Verify exact deployed Pages revision and user-visible behavior before closing the owning assessment."
       ],
       "completion_requirements": [
-        "Exact owning candidate, relevant test and consumer evidence."
+        "Exact owning candidate, relevant test and consumer evidence.",
+        "Per-target approved channel/asset or explicit absence disposition, plus deployed widget smoke receipts joined to exact distribution and website revisions."
       ],
       "contract_binding": "Follow exact local/current HA protocol and profile; unknown until execution.",
-      "evidence_ids": [],
+      "evidence_ids": [
+        "APP_RELEASE_FEED_20261003",
+        "FIRMWARE_RELEASE_FEED_20261003",
+        "PI_RELEASE_FEED_20261003"
+      ],
       "prerequisite_groups": [],
-      "blockers": [],
+      "blockers": [
+        "Current release API ordering and proxy limit hide an existing iOS asset and leave Pi/firmware widgets empty at this live readback; future resolution and exact deployment provenance remain open."
+      ],
       "resource_capacity": "UNKNOWN",
       "authority_verified": false,
       "writer_free_verified": false,
@@ -34136,6 +34379,121 @@
       "selection_eligible": false,
       "confidence": "SOURCE_CONTRACT_CAPTURED; current deployed operator/API acceptance open",
       "logical_mode": "AND"
+    },
+    {
+      "id": "DEP-DIST-APPLE-WEBSITE-DOWNLOADS",
+      "producer": "QUAL::DIST-APPLE::APPLE-PUBLISHED-ASSET",
+      "consumer": "DJC-WEB-RELEASE-LINKS",
+      "kind": "conditional_consumer_contract",
+      "phase": "assessment",
+      "required_subset": "For each approved Apple target/channel: target-matched published asset/link evidence; otherwise a truthful localized no-download state",
+      "reason": "The pinned website consumes this distribution feed when it advertises the relevant public target/channel. The website assessment can close with a qualified link or a truthful approved absence; no product publication is selected by this conditional relation.",
+      "source_ids": [
+        "README::DJC-DIST-APPLE",
+        "WEBSITE_DOWNLOAD_ANALYTICS_SOURCE",
+        "WEBSITE_RELEASE_FEED_PROXY_SOURCE",
+        "WEBSITE_TRACKED_DOWNLOAD_SOURCE",
+        "WEBSITE_DOWNLOAD_RENDERER_SOURCE",
+        "WEBSITE_IOS_DOWNLOAD_BINDING",
+        "WEBSITE_MACOS_DOWNLOAD_BINDING",
+        "WEBSITE_MACCATALYST_DOWNLOAD_BINDING"
+      ],
+      "hard_precedence": false,
+      "contract_or_evidence": "For an advertised link, exact approved target/channel release asset and website deployment identity with visible redirect smoke; otherwise an explicit localized absence disposition. Current release metadata is observational, not delivery qualification.",
+      "evidence_ids": [
+        "APP_RELEASE_FEED_20261003"
+      ],
+      "evidence_satisfied": false,
+      "selection_eligible": false,
+      "confidence": "SOURCE_AND_BOUNDED_LIVE_CONSUMER_OBSERVED; future release/deployment acceptance open",
+      "logical_mode": "AND",
+      "prerequisite_stage": "completion",
+      "same_increment_as_consumer": false
+    },
+    {
+      "id": "DEP-DIST-WINDOWS-WEBSITE-DOWNLOADS",
+      "producer": "QUAL::DIST-APPLE::WINDOWS-PUBLISHED-ASSET",
+      "consumer": "DJC-WEB-RELEASE-LINKS",
+      "kind": "conditional_consumer_contract",
+      "phase": "assessment",
+      "required_subset": "If a Windows download is approved and advertised: target-matched published asset/link evidence; otherwise a truthful localized no-download state",
+      "reason": "The pinned website consumes this distribution feed when it advertises the relevant public target/channel. The website assessment can close with a qualified link or a truthful approved absence; no product publication is selected by this conditional relation.",
+      "source_ids": [
+        "README::DJC-DIST-APPLE",
+        "WEBSITE_DOWNLOAD_ANALYTICS_SOURCE",
+        "WEBSITE_RELEASE_FEED_PROXY_SOURCE",
+        "WEBSITE_TRACKED_DOWNLOAD_SOURCE",
+        "WEBSITE_DOWNLOAD_RENDERER_SOURCE",
+        "WEBSITE_WINDOWS_DOWNLOAD_BINDING"
+      ],
+      "hard_precedence": false,
+      "contract_or_evidence": "For an advertised link, exact approved target/channel release asset and website deployment identity with visible redirect smoke; otherwise an explicit localized absence disposition. Current release metadata is observational, not delivery qualification.",
+      "evidence_ids": [
+        "APP_RELEASE_FEED_20261003"
+      ],
+      "evidence_satisfied": false,
+      "selection_eligible": false,
+      "confidence": "SOURCE_AND_BOUNDED_LIVE_CONSUMER_OBSERVED; future release/deployment acceptance open",
+      "logical_mode": "AND",
+      "prerequisite_stage": "completion",
+      "same_increment_as_consumer": false
+    },
+    {
+      "id": "DEP-DIST-FIRMWARE-WEBSITE-DOWNLOADS",
+      "producer": "SLICE::DIST-FIRMWARE::OTA-MANIFEST",
+      "consumer": "DJC-WEB-RELEASE-LINKS",
+      "kind": "conditional_consumer_contract",
+      "phase": "assessment",
+      "required_subset": "If firmware is approved and advertised: board/channel asset and manifest link evidence; otherwise a truthful localized no-download state",
+      "reason": "The pinned website consumes this distribution feed when it advertises the relevant public target/channel. The website assessment can close with a qualified link or a truthful approved absence; no product publication is selected by this conditional relation.",
+      "source_ids": [
+        "README::DJC-DIST-FIRMWARE",
+        "WEBSITE_DOWNLOAD_ANALYTICS_SOURCE",
+        "WEBSITE_RELEASE_FEED_PROXY_SOURCE",
+        "WEBSITE_TRACKED_DOWNLOAD_SOURCE",
+        "WEBSITE_DOWNLOAD_RENDERER_SOURCE",
+        "WEBSITE_EMBEDDED_DOWNLOAD_BINDING"
+      ],
+      "hard_precedence": false,
+      "contract_or_evidence": "For an advertised link, exact approved target/channel release asset and website deployment identity with visible redirect smoke; otherwise an explicit localized absence disposition. Current release metadata is observational, not delivery qualification.",
+      "evidence_ids": [
+        "FIRMWARE_RELEASE_FEED_20261003"
+      ],
+      "evidence_satisfied": false,
+      "selection_eligible": false,
+      "confidence": "SOURCE_AND_BOUNDED_LIVE_CONSUMER_OBSERVED; future release/deployment acceptance open",
+      "logical_mode": "AND",
+      "prerequisite_stage": "completion",
+      "same_increment_as_consumer": false
+    },
+    {
+      "id": "DEP-DIST-PI-WEBSITE-DOWNLOADS",
+      "producer": "SLICE::DIST-PI::PROFILE-ASSET",
+      "consumer": "DJC-WEB-RELEASE-LINKS",
+      "kind": "conditional_consumer_contract",
+      "phase": "assessment",
+      "required_subset": "If a Pi bundle/install link is approved and advertised: channel, bundle and source/profile evidence; otherwise a truthful localized no-download state",
+      "reason": "The pinned website consumes this distribution feed when it advertises the relevant public target/channel. The website assessment can close with a qualified link or a truthful approved absence; no product publication is selected by this conditional relation.",
+      "source_ids": [
+        "README::DJC-DIST-PI",
+        "WEBSITE_DOWNLOAD_ANALYTICS_SOURCE",
+        "WEBSITE_RELEASE_FEED_PROXY_SOURCE",
+        "WEBSITE_TRACKED_DOWNLOAD_SOURCE",
+        "WEBSITE_DOWNLOAD_RENDERER_SOURCE",
+        "WEBSITE_PI_DOWNLOAD_BINDING",
+        "WEBSITE_PI_LATEST_REDIRECT_SOURCE"
+      ],
+      "hard_precedence": false,
+      "contract_or_evidence": "For an advertised link, exact approved target/channel release asset and website deployment identity with visible redirect smoke; otherwise an explicit localized absence disposition. Current release metadata is observational, not delivery qualification.",
+      "evidence_ids": [
+        "PI_RELEASE_FEED_20261003"
+      ],
+      "evidence_satisfied": false,
+      "selection_eligible": false,
+      "confidence": "SOURCE_AND_BOUNDED_LIVE_CONSUMER_OBSERVED; future release/deployment acceptance open",
+      "logical_mode": "AND",
+      "prerequisite_stage": "completion",
+      "same_increment_as_consumer": false
     }
   ],
   "handoffs": [
@@ -34409,6 +34767,76 @@
       "join_id": null,
       "epoch": null,
       "compatibility": "Cloudflare Access gate and website server-side operator secret; API operator auth, redacted response schema and token-ID revoke request. Raw djci-like token_id rejection remains unqualified.",
+      "acceptance_owner": "DJC-WEBSITE",
+      "execution_authorized": false
+    },
+    {
+      "id": "DIST-APPLE-WEBSITE-DOWNLOADS",
+      "producer_lane": "DJC-DIST-APPLE",
+      "consumer_lane": "DJC-WEBSITE",
+      "subset": "Conditional consumer of apple and windows target-matched public release asset links where a target/channel is approved and advertised; otherwise truthful localized absence",
+      "phase": "assessment",
+      "source_ids": [
+        "README::DJC-DIST-APPLE",
+        "WEBSITE_RELEASE_FEED_PROXY_SOURCE",
+        "WEBSITE_DOWNLOAD_RENDERER_SOURCE",
+        "WEBSITE_DOWNLOAD_ANALYTICS_SOURCE",
+        "WEBSITE_IOS_DOWNLOAD_BINDING",
+        "WEBSITE_MACCATALYST_DOWNLOAD_BINDING",
+        "WEBSITE_MACOS_DOWNLOAD_BINDING",
+        "WEBSITE_TRACKED_DOWNLOAD_SOURCE",
+        "WEBSITE_WINDOWS_DOWNLOAD_BINDING"
+      ],
+      "status": "PINNED_SOURCE_AND_LIVE_FEED/WIDGET_READBACK; release or deployment qualification open",
+      "exact_artifact": "Exact release tag/asset and deployed Pages revision UNKNOWN",
+      "join_id": null,
+      "epoch": null,
+      "compatibility": "Only approved advertised target/channel links require exact asset, source-candidate/manifest and redirect binding; an unavailable or unapproved target needs a truthful localized absence, not a new release.",
+      "acceptance_owner": "DJC-WEBSITE",
+      "execution_authorized": false
+    },
+    {
+      "id": "DIST-FIRMWARE-WEBSITE-DOWNLOADS",
+      "producer_lane": "DJC-DIST-FIRMWARE",
+      "consumer_lane": "DJC-WEBSITE",
+      "subset": "Conditional consumer of firmware board/channel release asset and manifest links where a target/channel is approved and advertised; otherwise truthful localized absence",
+      "phase": "assessment",
+      "source_ids": [
+        "README::DJC-DIST-FIRMWARE",
+        "WEBSITE_RELEASE_FEED_PROXY_SOURCE",
+        "WEBSITE_DOWNLOAD_RENDERER_SOURCE",
+        "WEBSITE_DOWNLOAD_ANALYTICS_SOURCE",
+        "WEBSITE_EMBEDDED_DOWNLOAD_BINDING",
+        "WEBSITE_TRACKED_DOWNLOAD_SOURCE"
+      ],
+      "status": "PINNED_SOURCE_AND_LIVE_FEED/WIDGET_READBACK; release or deployment qualification open",
+      "exact_artifact": "Exact release tag/asset and deployed Pages revision UNKNOWN",
+      "join_id": null,
+      "epoch": null,
+      "compatibility": "Only approved advertised target/channel links require exact asset, source-candidate/manifest and redirect binding; an unavailable or unapproved target needs a truthful localized absence, not a new release.",
+      "acceptance_owner": "DJC-WEBSITE",
+      "execution_authorized": false
+    },
+    {
+      "id": "DIST-PI-WEBSITE-DOWNLOADS",
+      "producer_lane": "DJC-DIST-PI",
+      "consumer_lane": "DJC-WEBSITE",
+      "subset": "Conditional consumer of pi bundle and stable install redirect links where a target/channel is approved and advertised; otherwise truthful localized absence",
+      "phase": "assessment",
+      "source_ids": [
+        "README::DJC-DIST-PI",
+        "WEBSITE_RELEASE_FEED_PROXY_SOURCE",
+        "WEBSITE_DOWNLOAD_RENDERER_SOURCE",
+        "WEBSITE_DOWNLOAD_ANALYTICS_SOURCE",
+        "WEBSITE_PI_DOWNLOAD_BINDING",
+        "WEBSITE_PI_LATEST_REDIRECT_SOURCE",
+        "WEBSITE_TRACKED_DOWNLOAD_SOURCE"
+      ],
+      "status": "PINNED_SOURCE_AND_LIVE_FEED/WIDGET_READBACK; release or deployment qualification open",
+      "exact_artifact": "Exact release tag/asset and deployed Pages revision UNKNOWN",
+      "join_id": null,
+      "epoch": null,
+      "compatibility": "Only approved advertised target/channel links require exact asset, source-candidate/manifest and redirect binding; an unavailable or unapproved target needs a truthful localized absence, not a new release.",
       "acceptance_owner": "DJC-WEBSITE",
       "execution_authorized": false
     }
@@ -34772,6 +35200,39 @@
       "passed": false,
       "acceptance_qualified": false,
       "notes": "GitHub Actions REST GET for operational-manifest artifact_run 31098655516 returned HTTP 404 at readback. Cause is unproven; this cannot validate deployment, smoke or current installed target."
+    },
+    {
+      "id": "APP_RELEASE_FEED_20261003",
+      "kind": "github_release_feed_metadata_readback",
+      "repository": "pcvantol/djconnect-app-releases",
+      "url": "https://github.com/pcvantol/djconnect-app-releases/releases",
+      "subject_sha": "02fa92f74b56fbc4223ee152d6f612559b84779d",
+      "observed_date": "2026-10-03",
+      "passed": true,
+      "acceptance_qualified": false,
+      "notes": "At readback the first eight releases are internal-ha evidence-only prereleases, Windows v3.3.0 is ninth, macOS v3.3.0 tenth and iOS v3.3.0 eleventh. The pinned website app widget asks for 20 but its proxy returns at most 10. This predicts the iOS widget lacks its existing release in the proxied feed; live Pages behavior unverified."
+    },
+    {
+      "id": "FIRMWARE_RELEASE_FEED_20261003",
+      "kind": "github_release_feed_metadata_readback",
+      "repository": "pcvantol/djconnect-firmware",
+      "url": "https://github.com/pcvantol/djconnect-firmware/releases",
+      "subject_sha": "cb9cc7ba321ca57675223dfac32f5583fbcb3656",
+      "observed_date": "2026-10-03",
+      "passed": true,
+      "acceptance_qualified": false,
+      "notes": "First release is an internal-ha evidence-only prerelease with a JSON asset; stable v3.3.0 board binary and manifest are ninth. The pinned embedded widget requests one release. Live Pages behavior unverified."
+    },
+    {
+      "id": "PI_RELEASE_FEED_20261003",
+      "kind": "github_release_feed_metadata_readback",
+      "repository": "pcvantol/djconnect-pi-releases",
+      "url": "https://github.com/pcvantol/djconnect-pi-releases/releases",
+      "subject_sha": "673300921f980edc5ddfbb3ed5f5ca906b320b62",
+      "observed_date": "2026-10-03",
+      "passed": true,
+      "acceptance_qualified": false,
+      "notes": "First release is an internal-ha evidence-only prerelease with a JSON asset; stable v3.3.0 Pi tarball is eleventh. The pinned Pi page widgets request one release, while its separate /go/linux-install route calls releases/latest, which returned stable v3.3.0 at readback. Live Pages behavior unverified."
     }
   ],
   "findings": [
@@ -35609,6 +36070,44 @@
         "README::DJC-WEBSITE",
         "ISSUES::DJC-API"
       ]
+    },
+    {
+      "id": "WEBSITE-DOWNLOAD-FEED-BOUNDARY",
+      "status": "PINNED_SOURCE_AND_LIVE_WIDGET_GAP_CONFIRMED__REMEDIATION_UNSELECTED",
+      "description": "The pinned website Pages feed proxy caps responses at 10 and includes prereleases. Its renderer falls back to direct GitHub only on request error, not when target filtering yields no release. At this readback the live /api/releases route returned 10 app releases (eight evidence-only prereleases, then Windows/macOS v3.3.0) and one evidence-only first release each for firmware and Pi. Read-only browser rendering showed an empty iOS download card despite the existing eleventh iOS v3.3.0 release, empty Pi install/download and firmware download widgets, and an empty Mac Catalyst widget; macOS and Windows rendered 3.3.0 asset cards. The live pages load downloads.min.js, whose program lines match the pinned downloads.js after formatting/comment removal; deployed commit identity remains unproven. The separate /go/linux-install route returned a 302 to the stable Pi v3.3.0 tarball, so it must not be conflated with the empty page-side install widget. This is a bounded live route/widget observation, not a comprehensive consumer, localization or deployment acceptance. The existing website TODO authorizes Store-placeholder work and latest-card smoke; owning issue #59 records this added assessment. No new product publication, source fix or website deployment is selected.",
+      "source_ids": [
+        "TODO::DJC-WEBSITE",
+        "WEBSITE_DOWNLOAD_ANALYTICS_SOURCE",
+        "WEBSITE_RELEASE_FEED_PROXY_SOURCE",
+        "WEBSITE_TRACKED_DOWNLOAD_SOURCE",
+        "WEBSITE_PI_LATEST_REDIRECT_SOURCE",
+        "WEBSITE_DOWNLOAD_RENDERER_SOURCE",
+        "WEBSITE_EMBEDDED_DOWNLOAD_BINDING",
+        "WEBSITE_PI_DOWNLOAD_BINDING",
+        "WEBSITE_IOS_DOWNLOAD_BINDING",
+        "WEBSITE_MACOS_DOWNLOAD_BINDING",
+        "WEBSITE_WINDOWS_DOWNLOAD_BINDING",
+        "WEBSITE_MACCATALYST_DOWNLOAD_BINDING",
+        "README::DJC-DIST-APPLE",
+        "README::DJC-DIST-FIRMWARE",
+        "README::DJC-DIST-PI"
+      ],
+      "evidence_ids": [
+        "APP_RELEASE_FEED_20261003",
+        "FIRMWARE_RELEASE_FEED_20261003",
+        "PI_RELEASE_FEED_20261003"
+      ],
+      "live_readback_key": "website_downloads_20261003"
+    },
+    {
+      "id": "WEBSITE-DOWNLOAD-LOCALE-DRIFT",
+      "status": "PINNED_SOURCE_CONTRACT_DRIFT__LIVE_PRESENTATION_UNVERIFIED",
+      "description": "The pinned website downloads renderer defines only Dutch and English UI strings and selects English only when documentElement.lang is en; de, fr and es therefore take its Dutch copy and Dutch release-note lookup. The canonical localization standard requires en/nl/de/fr/es user-facing website copy where applicable. This is an owning website copy/locale assessment under existing DJC-WEB-COPY, not a new product item. Exact deployed page behavior was not observed.",
+      "source_ids": [
+        "LOCALIZATION",
+        "WEBSITE_DOWNLOAD_RENDERER_SOURCE",
+        "ISSUES::DJC-WEBSITE"
+      ]
     }
   ],
   "audit_obligations": [
@@ -35658,7 +36157,7 @@
       "status": "OPEN",
       "scope": "DJC-WEBSITE",
       "reason": "Pinned website README and four local phase/status projections still need owning status reconciliation with merged RG-001 PR #24. Thirty-six 3.3.0/latest release-copy files are fully read/pinned but do not prove a live site or actual artifact distribution. All six MacCatalyst 3.3.0 files carry a Windows title over a MacCatalyst platform label. In all six locale/default variants, both iOS latest.md and v3.3.0.md direct normal distribution to TestFlight/App Store without distinguishing the current core Internal Release relay from separately approved public Apple distribution. Reconcile this documentary channel/version drift with Apple 4.0.0 RC1 source notes and actual producer/consumer receipts; no website publication is selected by this planning record. All 18 remaining non-release-note Markdown paths and the post-deployment smoke workflow are pinned; 348 older versioned release-note Markdown paths remain for historical-copy classification. Website Handoff/README/Tests and bounded line reads of static five-language setup/troubleshooting source show an unversioned Spotify callback (ten HTML files remain outside the full-read matrix), while exact core source uses /api/djconnect/v1/spotify/callback. Website development/technical/test/handoff prose still describes an automatic main production deploy, but current deploy-pages.yml is workflow_dispatch-only; the website artifact workflow creates an Actions artifact, while the separate successful-main post-merge evidence workflow can publish a GitHub prerelease evidence asset and main commit status after its gates; neither route is a Cloudflare deployment. No website push, deploy or public-copy edit occurred.",
-      "remaining": "Complete local policy, owning backlog/source/tests/PR/releases, active writer/register discovery, workflow effects, copy/channel reconciliation and final delta under the existing website authority; do not infer live distribution from source copy."
+      "remaining": "The pinned downloads feed and six page bindings plus read-only live route/DOM readback expose empty iOS/Pi/firmware widgets at this time; Mac Catalyst absence is not a publication mandate. Reconcile these under existing TODO/issue #59, exact deployed provenance and user/locale acceptance, alongside the earlier callback/copy/channel and workflow-effect findings. Do not infer a new release or deploy authorization."
     },
     {
       "id": "AUDIT-DJC-VIBECAST",
@@ -36050,13 +36549,12 @@
     "baseline_relation": "10 of 12 remote main heads equal original source baselines. DJC-API advanced one commit 4e6671c...3f1ed18 with only package.json/package-lock.json wrangler dev-dependency changes (#89). DJC-APPLE advanced one commit d54224d...b857eb7 via merged PR #88, modifying only DJConnectAppModel.swift and its Swift tests for pending HA app pairing; all 173 Markdown paths and blobs match old/new exact untruncated trees. Older source pins remain explicit historical baselines; no current installed Apple consumer acceptance is inferred."
   },
   "local_worktree_readback": {
-    "observed_at": "2026-10-03 13:02 UTC; read-only git status --short --branch and git worktree list --porcelain in twelve local checkouts",
+    "observed_at": "2026-10-03 15:54 UTC; read-only git worktree list --porcelain and tracked git status --short --branch across twelve local checkouts, each status bounded to six seconds",
     "worktree_count_each": 1,
     "clean_on_local_main": [
       "DJC-APPLE",
       "DJC-PI",
       "DJC-API",
-      "DJC-WEBSITE",
       "DJC-VIBECAST",
       "DJC-PICO",
       "DJC-DIST-FIRMWARE",
@@ -36074,7 +36572,10 @@
         "src/DJConnect.Windows/DJConnect.Windows.csproj (staged and unstaged)"
       ]
     },
-    "core": "DJC-CORE is on the clean planning branch codex/platform-roadmap-dag-lanes-v1 at c359962af29198ffec2e50a2e22193c32bd10030; no component checkout altered by this assignment.",
+    "status_unknown_on_local_main": {
+      "DJC-WEBSITE": "git status --short --branch --untracked-files=no timed out after six seconds; HEAD and one-worktree count were read. The 13:02 UTC status was clean, but current cleanliness is not claimed."
+    },
+    "core": "DJC-CORE is on codex/platform-roadmap-dag-lanes-v1 at cde5a111091128ae38524dad068095164085cad0 with this uncommitted planning delta only; no component checkout altered by this assignment.",
     "api_local_remote_delta": "DJC-API local HEAD and cached origin/main remain 4e6671c3231187e7cd20243817a86a56ad6aad06 while actual GitHub main is 3f1ed18d2ce803a2b5d3750115d0dbf2dbaa34ba (one dev-dependency commit).",
     "qualification": "A clean checkout or one worktree does not establish a free source writer, assignment, lease, capacity or product readiness."
   }

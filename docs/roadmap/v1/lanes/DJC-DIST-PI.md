@@ -19,6 +19,7 @@ Planning continuation: Reconcileer legacy versus profielspecifieke bundles en on
 Read the local `REPOSITORY_STATUS.md` and existing TODO/ISSUES or release metadata that this repository actually owns. Local backlog audit: All 25 tracked paths, including all 15 Markdown paths, were inventoried at exact main; owning status/phase projections and sole planning issue retained. GitHub release and source-to-consumer reconciliation remain open..
 
 - `PI-DIST`: DJC-PI → DJC-DIST-PI; generic plus Pi profile bundles, manifest and pointer. Phase `distribution`; exact artifact `NOT_PUBLISHED_BY_THIS_ASSIGNMENT`; acceptance owner `DJC-DIST-PI`.
+- `DIST-PI-WEBSITE-DOWNLOADS`: DJC-DIST-PI → DJC-WEBSITE; Conditional consumer of pi bundle and stable install redirect links where a target/channel is approved and advertised; otherwise truthful localized absence. Phase `assessment`; exact artifact `Exact release tag/asset and deployed Pages revision UNKNOWN`; acceptance owner `DJC-WEBSITE`.
 
 ## DoR, DoD and resource boundary
 
@@ -40,6 +41,7 @@ This is documentary planning only. Do not infer product selection, writer availa
 For any later selected vertical work, first prove DoR, then include UX, tests, review, fixes, protected merge and finalization in the same assignment.
 Coordinate these exact handoff IDs and acceptance owners through the owning registers:
 - PI-DIST: DJC-PI -> DJC-DIST-PI; generic plus Pi profile bundles, manifest and pointer; phase distribution; acceptance owner DJC-DIST-PI; exact artifact NOT_PUBLISHED_BY_THIS_ASSIGNMENT.
+- DIST-PI-WEBSITE-DOWNLOADS: DJC-DIST-PI -> DJC-WEBSITE; Conditional consumer of pi bundle and stable install redirect links where a target/channel is approved and advertised; otherwise truthful localized absence; phase assessment; acceptance owner DJC-WEBSITE; exact artifact Exact release tag/asset and deployed Pages revision UNKNOWN.
 Do not start a release or deployment from this prompt.
 Report PLANNING_DELIVERY, PRODUCT_DELIVERY and EXECUTION_READY separately. Stop after this planning delivery.
 ```
