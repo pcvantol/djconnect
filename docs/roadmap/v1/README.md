@@ -12,7 +12,7 @@ Portfolio: https://github.com/pcvantol/djconnect/issues/1101. Pinned on 2026-10-
 | `PRODUCT_DELIVERY` | `UNCHANGED_BY_PLANNING` |
 | `EXECUTION_READY` | `NO_NEW_PRODUCT_PICKUP_AUTHORIZED` |
 
-The snapshot has 12 repository lanes, 137 pinned sources, 196 records and 71 typed relations. Records are not a feature count. 5 of 27 audit/delivery obligations are closed.
+The snapshot has 12 repository lanes, 141 pinned sources, 196 records and 71 typed relations. Records are not a feature count. 5 of 27 audit/delivery obligations are closed.
 
 ## Current five-item Execution Horizon
 

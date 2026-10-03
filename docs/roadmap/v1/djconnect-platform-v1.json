@@ -41,7 +41,7 @@
     "metadata_and_bounded_paraphrases": true,
     "offline_hash_verification_of_remote_blobs": false,
     "per_call_timestamps": "Date-level head readback on 2026-10-03; no per-file read timestamp for inherited checkpoint.",
-    "pinned_tree_blobs_verified": "137 of 137 path/blob pins matched exact commit trees: 105 original GitHub tree readbacks and 32 new local git commit-tree readbacks on 2026-10-03. Narrative interpretation remains partial."
+    "pinned_tree_blobs_verified": "141 of 141 path/blob pins matched exact commit trees: 105 original GitHub tree readbacks and 36 new local git commit-tree readbacks on 2026-10-03. Narrative interpretation remains partial."
   },
   "lanes": [
     {
@@ -756,17 +756,17 @@
       "path": ".github/workflows/post-merge-release-evidence-dispatch.yml",
       "blob_sha": "eab2414501be677b52402548124a247d2643cd88",
       "commit_sha": "60d5ee2e034323515092cd4100b1683f588e59fc",
-      "read_boundary": "complete caller only; pinned reusable closure not read",
-      "read_complete": false,
+      "read_boundary": "full pinned file reviewed on 2026-10-03; repository-wide status and release audit remain separate obligations",
+      "read_complete": true,
       "status_authority": "automatic post-main evidence writes; full push-effect audit open",
       "observed_at": "2026-10-03; within this connector audit; per-call clock not captured",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect/blob/60d5ee2e034323515092cd4100b1683f588e59fc/.github/workflows/post-merge-release-evidence-dispatch.yml",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
         "PROJ::AUDIT::METHOD"
       ],
-      "remaining": "Follow remaining ranges and owning references; full platform coverage not claimed"
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
     },
     {
       "id": "RETIREMENT_DELTA",
@@ -1170,17 +1170,17 @@
       "path": "FOUNDATION_INDEX.md",
       "blob_sha": "76e097254b8e5178bd53d319f9d42d5c074c8549",
       "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
-      "read_boundary": "planning-relevant sections/headings; remaining full-text audit open",
-      "read_complete": false,
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
       "status_authority": "foundation navigation",
       "observed_at": "2026-10-03 local Mac / exact pinned main",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/FOUNDATION_INDEX.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
         "PROJ::ROADMAP::P0-FOUNDATION"
       ],
-      "remaining": "Confirm unread ranges before final closure"
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
     },
     {
       "id": "CONSTITUTION",
@@ -1206,17 +1206,17 @@
       "path": "PRODUCT_VISION.md",
       "blob_sha": "8009cad3837690797314c4cd3b8a23a41afc1246",
       "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
-      "read_boundary": "planning-relevant sections/headings; remaining full-text audit open",
-      "read_complete": false,
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
       "status_authority": "product vision",
       "observed_at": "2026-10-03 local Mac / exact pinned main",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/PRODUCT_VISION.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
         "PROJ::ROADMAP::P0-DEFINITION"
       ],
-      "remaining": "Confirm unread ranges before final closure"
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
     },
     {
       "id": "DESIGN_PRINCIPLES",
@@ -1224,17 +1224,19 @@
       "path": "DESIGN_PRINCIPLES.md",
       "blob_sha": "c9a6c57d6c34fa7a502618964fd1886c15c62190",
       "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
-      "read_boundary": "planning-relevant sections/headings; remaining full-text audit open",
-      "read_complete": false,
+      "read_boundary": "complete full-text read at pinned blob on 2026-10-03",
+      "read_complete": true,
       "status_authority": "design principle",
       "observed_at": "2026-10-03 local Mac / exact pinned main",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/DESIGN_PRINCIPLES.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
-        "PROJ::ROADMAP::P0-FOUNDATION"
+        "PROJ::ROADMAP::P0-FOUNDATION",
+        "PROJ::ROADMAP::P2-VIBECAST",
+        "PROJ::ROADMAP::P7-PUBLIC"
       ],
-      "remaining": "Confirm unread ranges before final closure"
+      "remaining": "Linked architecture references are tracked as separate source records where planning-relevant"
     },
     {
       "id": "ARCHITECTURE_PRINCIPLES",
@@ -1242,17 +1244,17 @@
       "path": "ARCHITECTURE_PRINCIPLES.md",
       "blob_sha": "72de22f3107a85d484853c8c10393a985cd14d8d",
       "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
-      "read_boundary": "planning-relevant sections/headings; remaining full-text audit open",
-      "read_complete": false,
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
       "status_authority": "architecture principle",
       "observed_at": "2026-10-03 local Mac / exact pinned main",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/ARCHITECTURE_PRINCIPLES.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
         "PROJ::ROADMAP::P0-FOUNDATION"
       ],
-      "remaining": "Confirm unread ranges before final closure"
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
     },
     {
       "id": "DOMAIN_MODEL",
@@ -1260,17 +1262,17 @@
       "path": "DOMAIN_MODEL.md",
       "blob_sha": "0031ba157cf464f44f78da6f37d215ab4dff4716",
       "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
-      "read_boundary": "planning-relevant sections/headings; remaining full-text audit open",
-      "read_complete": false,
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
       "status_authority": "canonical domain",
       "observed_at": "2026-10-03 local Mac / exact pinned main",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/DOMAIN_MODEL.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
         "PROJ::ROADMAP::P0-FOUNDATION"
       ],
-      "remaining": "Confirm unread ranges before final closure"
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
     },
     {
       "id": "CAPABILITY_MODEL",
@@ -1278,17 +1280,17 @@
       "path": "DJCONNECT_CAPABILITY_MODEL.md",
       "blob_sha": "042da46928b16e347b4de3b368d85448530ecabd",
       "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
-      "read_boundary": "planning-relevant sections/headings; remaining full-text audit open",
-      "read_complete": false,
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
       "status_authority": "capability and profile classification",
       "observed_at": "2026-10-03 local Mac / exact pinned main",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/DJCONNECT_CAPABILITY_MODEL.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
         "CMB-02"
       ],
-      "remaining": "Confirm unread ranges before final closure"
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
     },
     {
       "id": "HOST_ROLE",
@@ -1296,17 +1298,22 @@
       "path": "HOST_ROLE_ARCHITECTURE.md",
       "blob_sha": "572dc01914e25da4eb774cea087ecdb436df5aeb",
       "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
-      "read_boundary": "planning-relevant sections/headings; remaining full-text audit open",
-      "read_complete": false,
+      "read_boundary": "complete full-text read at pinned blob on 2026-10-03",
+      "read_complete": true,
       "status_authority": "host role and renderer ownership",
       "observed_at": "2026-10-03 local Mac / exact pinned main",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/HOST_ROLE_ARCHITECTURE.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
-        "PROJ::ROADMAP::P2-REFERENCE"
+        "PROJ::ROADMAP::P2-REFERENCE",
+        "PROJ::ROADMAP::P0-FOUNDATION",
+        "CMB-02",
+        "CMB-05",
+        "CMB-06",
+        "CMB-09"
       ],
-      "remaining": "Confirm unread ranges before final closure"
+      "remaining": "Linked architecture references are tracked as separate source records where planning-relevant"
     },
     {
       "id": "CLIENT_MATRIX",
@@ -1314,20 +1321,26 @@
       "path": "CLIENT_CAPABILITY_MATRIX.md",
       "blob_sha": "09a564b7e95bf569ce0b2f1dc1f128ac03604533",
       "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
-      "read_boundary": "planning-relevant sections/headings; remaining full-text audit open",
-      "read_complete": false,
+      "read_boundary": "complete full-text read at pinned blob on 2026-10-03",
+      "read_complete": true,
       "status_authority": "client capability matrix",
       "observed_at": "2026-10-03 local Mac / exact pinned main",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/CLIENT_CAPABILITY_MATRIX.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
         "CMB-02",
         "QUAL::APPLE::WATCH-HOST",
         "QUAL::APPLE::EXPERIENCE-QUALITY",
-        "QUAL::APPLE::P3-EVIDENCE"
+        "QUAL::APPLE::P3-EVIDENCE",
+        "PROJ::ROADMAP::P0-FOUNDATION",
+        "PROJ::ROADMAP::P2-REFERENCE",
+        "CMB-05",
+        "CMB-06",
+        "CMB-07",
+        "CMB-09"
       ],
-      "remaining": "Confirm unread ranges before final closure"
+      "remaining": "Linked architecture references are tracked as separate source records where planning-relevant"
     },
     {
       "id": "EXPERIENCE_FOUNDATION",
@@ -1335,18 +1348,18 @@
       "path": "EXPERIENCE_FOUNDATION.md",
       "blob_sha": "cbbfc0535d06d6bdd92a862ef076eac785879186",
       "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
-      "read_boundary": "planning-relevant sections/headings; remaining full-text audit open",
-      "read_complete": false,
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
       "status_authority": "experience foundation",
       "observed_at": "2026-10-03 local Mac / exact pinned main",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/EXPERIENCE_FOUNDATION.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
         "PROJ::ROADMAP::P2-REFERENCE",
         "QUAL::APPLE::EXPERIENCE-QUALITY"
       ],
-      "remaining": "Confirm unread ranges before final closure"
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
     },
     {
       "id": "API_CONTRACT",
@@ -1381,17 +1394,19 @@
       "path": "LOCALIZATION_STANDARD.md",
       "blob_sha": "668de8326093ea7874c52b7a2dea7eea7a3e6afb",
       "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
-      "read_boundary": "planning-relevant sections/headings; remaining full-text audit open",
-      "read_complete": false,
+      "read_boundary": "complete full-text read at pinned blob on 2026-10-03",
+      "read_complete": true,
       "status_authority": "five-language presentation contract",
       "observed_at": "2026-10-03 local Mac / exact pinned main",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/LOCALIZATION_STANDARD.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
-        "PROJ::ROADMAP::P3-APPLE"
+        "PROJ::ROADMAP::P3-APPLE",
+        "PROJ::ROADMAP::P0-FOUNDATION",
+        "PROJ::EVOLUTION::WEBSITE-PUBLIC"
       ],
-      "remaining": "Confirm unread ranges before final closure"
+      "remaining": "Linked architecture references are tracked as separate source records where planning-relevant"
     },
     {
       "id": "PRODUCT_LANGUAGE",
@@ -1399,17 +1414,19 @@
       "path": "PRODUCT_LANGUAGE.md",
       "blob_sha": "98e9eefbd801c54b0d6a13ebbc175f280c5892f9",
       "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
-      "read_boundary": "planning-relevant sections/headings; remaining full-text audit open",
-      "read_complete": false,
+      "read_boundary": "complete full-text read at pinned blob on 2026-10-03",
+      "read_complete": true,
       "status_authority": "canonical product terminology",
       "observed_at": "2026-10-03 local Mac / exact pinned main",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/PRODUCT_LANGUAGE.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
-        "PROJ::ROADMAP::P0-DEFINITION"
+        "PROJ::ROADMAP::P0-DEFINITION",
+        "PROJ::ROADMAP::P2-VIBECAST",
+        "PROJ::ROADMAP::P7-PUBLIC"
       ],
-      "remaining": "Confirm unread ranges before final closure"
+      "remaining": "Linked architecture references are tracked as separate source records where planning-relevant"
     },
     {
       "id": "PLATFORM_GOVERNANCE",
@@ -1417,17 +1434,17 @@
       "path": "PLATFORM_GOVERNANCE.md",
       "blob_sha": "b64b3d591a2b9d6b03c7d50d15112877561f8641",
       "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
-      "read_boundary": "planning-relevant sections/headings; remaining full-text audit open",
-      "read_complete": false,
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
       "status_authority": "selection and delivery authority",
       "observed_at": "2026-10-03 local Mac / exact pinned main",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/PLATFORM_GOVERNANCE.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
         "PROJ::AUDIT::METHOD"
       ],
-      "remaining": "Confirm unread ranges before final closure"
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
     },
     {
       "id": "QUALITY_STANDARD",
@@ -1435,17 +1452,17 @@
       "path": "PLATFORM_QUALITY_STANDARD.md",
       "blob_sha": "c54f7e1c077f40563b9355d0379bfebd00194eaf",
       "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
-      "read_boundary": "planning-relevant sections/headings; remaining full-text audit open",
-      "read_complete": false,
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
       "status_authority": "quality and evidence policy",
       "observed_at": "2026-10-03 local Mac / exact pinned main",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/PLATFORM_QUALITY_STANDARD.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
         "PROJ::AUDIT::METHOD"
       ],
-      "remaining": "Confirm unread ranges before final closure"
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
     },
     {
       "id": "REPOSITORY_OWNERSHIP",
@@ -1587,18 +1604,18 @@
       "path": "docs/product/RENDERER_EXPERIENCE_ROADMAP.md",
       "blob_sha": "275cc2d2beef7fd819e0a857d8b9a2b1fbf6ab35",
       "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
-      "read_boundary": "planning-relevant sections/headings; remaining full-text audit open",
-      "read_complete": false,
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
       "status_authority": "renderer experience sequencing",
       "observed_at": "2026-10-03 local Mac / exact pinned main",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/product/RENDERER_EXPERIENCE_ROADMAP.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
         "PROJ::ROADMAP::P2-REFERENCE",
         "QUAL::CORE::RENDERER-SAFE-PROJECTION"
       ],
-      "remaining": "Confirm unread ranges before final closure"
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
     },
     {
       "id": "VIBECAST_ARCH",
@@ -1606,20 +1623,20 @@
       "path": "docs/product/VIBECAST_ARCHITECTURE.md",
       "blob_sha": "0afa41b51590dad5a72a62e7313712bd6b88714f",
       "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
-      "read_boundary": "planning-relevant sections/headings; remaining full-text audit open",
-      "read_complete": false,
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
       "status_authority": "VibeCast producer and receiver contract",
       "observed_at": "2026-10-03 local Mac / exact pinned main",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/product/VIBECAST_ARCHITECTURE.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
         "PROJ::ROADMAP::P2-VIBECAST",
         "SLICE::CORE::BROADCAST-CONTRACT",
         "SLICE::CORE::AMBIENT-RENDERER",
         "SLICE::CAST::FEASIBILITY"
       ],
-      "remaining": "Confirm unread ranges before final closure"
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
     },
     {
       "id": "APPLE_SURFACES",
@@ -1627,17 +1644,17 @@
       "path": "docs/product/APPLE_NATIVE_SURFACE_CAPABILITY_ASSESSMENT.md",
       "blob_sha": "6c33e3232beda15f345492f70733ac1904a03227",
       "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
-      "read_boundary": "planning-relevant sections/headings; remaining full-text audit open",
-      "read_complete": false,
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
       "status_authority": "native surface assessment",
       "observed_at": "2026-10-03 local Mac / exact pinned main",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/product/APPLE_NATIVE_SURFACE_CAPABILITY_ASSESSMENT.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
         "CMB-12"
       ],
-      "remaining": "Confirm unread ranges before final closure"
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
     },
     {
       "id": "PI10_PROFILE",
@@ -1645,18 +1662,18 @@
       "path": "docs/product/PI_10_INCH_CAPABILITY_PROFILE_ASSESSMENT.md",
       "blob_sha": "f9218d3659398020cc42e08573a7efad2037292d",
       "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
-      "read_boundary": "planning-relevant sections/headings; remaining full-text audit open",
-      "read_complete": false,
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
       "status_authority": "Pi ten-inch profile assessment",
       "observed_at": "2026-10-03 local Mac / exact pinned main",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/product/PI_10_INCH_CAPABILITY_PROFILE_ASSESSMENT.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
         "CMB-06",
         "SLICE::PI::NATIVE-10INCH"
       ],
-      "remaining": "Confirm unread ranges before final closure"
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
     },
     {
       "id": "UNIVERSAL_RECEIVER",
@@ -1774,17 +1791,17 @@
       "path": "REPOSITORY_STATUS.md",
       "blob_sha": "a03adb4c6cabcd24b8c3886456e6a7dee29afb39",
       "commit_sha": "4e6671c3231187e7cd20243817a86a56ad6aad06",
-      "read_boundary": "planning-relevant status and backlog entries; full-text audit open",
-      "read_complete": false,
+      "read_boundary": "full pinned file reviewed on 2026-10-03; repository-wide status and release audit remain separate obligations",
+      "read_complete": true,
       "status_authority": "repository-local status; no central status overwrite",
       "observed_at": "2026-10-03 local Mac / exact pinned main",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect-api/blob/4e6671c3231187e7cd20243817a86a56ad6aad06/REPOSITORY_STATUS.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
         "INV::DJC-API"
       ],
-      "remaining": "Confirm unread ranges before final closure"
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
     },
     {
       "id": "ISSUES::DJC-API",
@@ -1850,17 +1867,17 @@
       "path": "REPOSITORY_STATUS.md",
       "blob_sha": "fa8f441b2c62f5dc8ca09158ca4d9a2f719b9591",
       "commit_sha": "d54224dbf02517ae47406aa14d33e97e61c18002",
-      "read_boundary": "planning-relevant status and backlog entries; full-text audit open",
-      "read_complete": false,
+      "read_boundary": "full pinned file reviewed on 2026-10-03; repository-wide status and release audit remain separate obligations",
+      "read_complete": true,
       "status_authority": "repository-local status; no central status overwrite",
       "observed_at": "2026-10-03 local Mac / exact pinned main",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect-app/blob/d54224dbf02517ae47406aa14d33e97e61c18002/REPOSITORY_STATUS.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
         "INV::DJC-APPLE"
       ],
-      "remaining": "Confirm unread ranges before final closure"
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
     },
     {
       "id": "ISSUES::DJC-APPLE",
@@ -1929,17 +1946,17 @@
       "path": "REPOSITORY_STATUS.md",
       "blob_sha": "e9be5bbef1e291a463f8c675906b86a81d66bc5a",
       "commit_sha": "49a71f99f6435819ec00b7387520a3fd20640a0b",
-      "read_boundary": "planning-relevant status and backlog entries; full-text audit open",
-      "read_complete": false,
+      "read_boundary": "full pinned file reviewed on 2026-10-03; repository-wide status and release audit remain separate obligations",
+      "read_complete": true,
       "status_authority": "repository-local status; no central status overwrite",
       "observed_at": "2026-10-03 local Mac / exact pinned main",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect-esp32/blob/49a71f99f6435819ec00b7387520a3fd20640a0b/REPOSITORY_STATUS.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
         "INV::DJC-ESP32"
       ],
-      "remaining": "Confirm unread ranges before final closure"
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
     },
     {
       "id": "TODO::DJC-ESP32",
@@ -1988,17 +2005,17 @@
       "path": "REPOSITORY_STATUS.md",
       "blob_sha": "8820dc048617d593e8abe8ba3b5d1923e26604ad",
       "commit_sha": "92712ae989f9ad44e2b935222a1e1053670a782f",
-      "read_boundary": "planning-relevant status and backlog entries; full-text audit open",
-      "read_complete": false,
+      "read_boundary": "full pinned file reviewed on 2026-10-03; repository-wide status and release audit remain separate obligations",
+      "read_complete": true,
       "status_authority": "repository-local status; no central status overwrite",
       "observed_at": "2026-10-03 local Mac / exact pinned main",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect-pi/blob/92712ae989f9ad44e2b935222a1e1053670a782f/REPOSITORY_STATUS.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
         "INV::DJC-PI"
       ],
-      "remaining": "Confirm unread ranges before final closure"
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
     },
     {
       "id": "ISSUES::DJC-PI",
@@ -2065,17 +2082,17 @@
       "path": "REPOSITORY_STATUS.md",
       "blob_sha": "44fc447f1363e680e85e93119c3099e697cda653",
       "commit_sha": "1d6635ff5c610a0f43bf1ba7d68cb0b1def06924",
-      "read_boundary": "planning-relevant status and backlog entries; full-text audit open",
-      "read_complete": false,
+      "read_boundary": "full pinned file reviewed on 2026-10-03; repository-wide status and release audit remain separate obligations",
+      "read_complete": true,
       "status_authority": "repository-local status; no central status overwrite",
       "observed_at": "2026-10-03 local Mac / exact pinned main",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect-windows/blob/1d6635ff5c610a0f43bf1ba7d68cb0b1def06924/REPOSITORY_STATUS.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
         "INV::DJC-WINDOWS"
       ],
-      "remaining": "Confirm unread ranges before final closure"
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
     },
     {
       "id": "ISSUES::DJC-WINDOWS",
@@ -2142,17 +2159,17 @@
       "path": "REPOSITORY_STATUS.md",
       "blob_sha": "c1c085b171776472277ff47d850fbffd46c4fe5e",
       "commit_sha": "6eef6aa267f18239b88f8edae6201dc62494e4eb",
-      "read_boundary": "planning-relevant status and backlog entries; full-text audit open",
-      "read_complete": false,
+      "read_boundary": "full pinned file reviewed on 2026-10-03; repository-wide status and release audit remain separate obligations",
+      "read_complete": true,
       "status_authority": "repository-local status; no central status overwrite",
       "observed_at": "2026-10-03 local Mac / exact pinned main",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/REPOSITORY_STATUS.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
         "INV::DJC-WEBSITE"
       ],
-      "remaining": "Confirm unread ranges before final closure"
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
     },
     {
       "id": "ISSUES::DJC-WEBSITE",
@@ -2216,17 +2233,17 @@
       "path": "REPOSITORY_STATUS.md",
       "blob_sha": "89293b62753d9070ff73cdc31f6e0ea9a0485eb8",
       "commit_sha": "a901fbcd3e894af62b63fafbca8f96738e08ce3c",
-      "read_boundary": "planning-relevant status and backlog entries; full-text audit open",
-      "read_complete": false,
+      "read_boundary": "full pinned file reviewed on 2026-10-03; repository-wide status and release audit remain separate obligations",
+      "read_complete": true,
       "status_authority": "repository-local status; no central status overwrite",
       "observed_at": "2026-10-03 local Mac / exact pinned main",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect-vibecast-receiver/blob/a901fbcd3e894af62b63fafbca8f96738e08ce3c/REPOSITORY_STATUS.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
         "INV::DJC-VIBECAST"
       ],
-      "remaining": "Confirm unread ranges before final closure"
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
     },
     {
       "id": "AGENTS::DJC-DIST-FIRMWARE",
@@ -2252,17 +2269,17 @@
       "path": "REPOSITORY_STATUS.md",
       "blob_sha": "bdfb370f3030296a5b92beb48956d77b3ad0607c",
       "commit_sha": "cb9cc7ba321ca57675223dfac32f5583fbcb3656",
-      "read_boundary": "planning-relevant status and backlog entries; full-text audit open",
-      "read_complete": false,
+      "read_boundary": "full pinned file reviewed on 2026-10-03; repository-wide status and release audit remain separate obligations",
+      "read_complete": true,
       "status_authority": "repository-local status; no central status overwrite",
       "observed_at": "2026-10-03 local Mac / exact pinned main",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect-firmware/blob/cb9cc7ba321ca57675223dfac32f5583fbcb3656/REPOSITORY_STATUS.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
         "INV::DJC-DIST-FIRMWARE"
       ],
-      "remaining": "Confirm unread ranges before final closure"
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
     },
     {
       "id": "AGENTS::DJC-DIST-APPLE",
@@ -2288,17 +2305,17 @@
       "path": "REPOSITORY_STATUS.md",
       "blob_sha": "ab2c9587462c6f1b367727ff9dfed241c6095951",
       "commit_sha": "02fa92f74b56fbc4223ee152d6f612559b84779d",
-      "read_boundary": "planning-relevant status and backlog entries; full-text audit open",
-      "read_complete": false,
+      "read_boundary": "full pinned file reviewed on 2026-10-03; repository-wide status and release audit remain separate obligations",
+      "read_complete": true,
       "status_authority": "repository-local status; no central status overwrite",
       "observed_at": "2026-10-03 local Mac / exact pinned main",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect-app-releases/blob/02fa92f74b56fbc4223ee152d6f612559b84779d/REPOSITORY_STATUS.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
         "INV::DJC-DIST-APPLE"
       ],
-      "remaining": "Confirm unread ranges before final closure"
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
     },
     {
       "id": "AGENTS::DJC-DIST-PI",
@@ -2324,17 +2341,17 @@
       "path": "REPOSITORY_STATUS.md",
       "blob_sha": "27ede79dcd90daf6d04e0bc6dc3a30d0a0be8552",
       "commit_sha": "673300921f980edc5ddfbb3ed5f5ca906b320b62",
-      "read_boundary": "planning-relevant status and backlog entries; full-text audit open",
-      "read_complete": false,
+      "read_boundary": "full pinned file reviewed on 2026-10-03; repository-wide status and release audit remain separate obligations",
+      "read_complete": true,
       "status_authority": "repository-local status; no central status overwrite",
       "observed_at": "2026-10-03 local Mac / exact pinned main",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect-pi-releases/blob/673300921f980edc5ddfbb3ed5f5ca906b320b62/REPOSITORY_STATUS.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
         "INV::DJC-DIST-PI"
       ],
-      "remaining": "Confirm unread ranges before final closure"
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
     },
     {
       "id": "APPLE-PUBLISH",
@@ -2548,18 +2565,18 @@
       "path": "docs/product/PI_4_INCH_CAPABILITY_PROFILE_ASSESSMENT.md",
       "blob_sha": "790d9d0f1fe778ec873366f15d5c5e2705a307da",
       "commit_sha": "60d5ee2e034323515092cd4100b1683f588e59fc",
-      "read_boundary": "direct canonical reference and exact blob pin captured; detailed content audit pending",
-      "read_complete": false,
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
       "status_authority": "Pi four-inch profile assessment",
       "observed_at": "2026-10-03 local Mac / exact pinned baseline",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect/blob/60d5ee2e034323515092cd4100b1683f588e59fc/docs/product/PI_4_INCH_CAPABILITY_PROFILE_ASSESSMENT.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
         "CMB-05",
         "PROJ::ROADMAP::P0-FOUNDATION"
       ],
-      "remaining": "Audit content and follow next-level references before source closure"
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
     },
     {
       "id": "APPLE_WINDOWS_ASSESSMENT",
@@ -2567,18 +2584,18 @@
       "path": "docs/product/APPLE_WINDOWS_ATOMIC_CONVERGENCE_ASSESSMENT.md",
       "blob_sha": "a143dc090fae18c631cb5f3b9564eb7d595a4c9a",
       "commit_sha": "60d5ee2e034323515092cd4100b1683f588e59fc",
-      "read_boundary": "direct canonical reference and exact blob pin captured; detailed content audit pending",
-      "read_complete": false,
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
       "status_authority": "Apple-Windows convergence assessment",
       "observed_at": "2026-10-03 local Mac / exact pinned baseline",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect/blob/60d5ee2e034323515092cd4100b1683f588e59fc/docs/product/APPLE_WINDOWS_ATOMIC_CONVERGENCE_ASSESSMENT.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
         "CMB-07",
         "PROJ::ROADMAP::WATCH"
       ],
-      "remaining": "Audit content and follow next-level references before source closure"
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
     },
     {
       "id": "VOICE_HOST_ASSESSMENT",
@@ -2586,18 +2603,18 @@
       "path": "docs/product/VOICE_INTERACTION_HOST_ESP32_CAPABILITY_PROFILE_ASSESSMENT.md",
       "blob_sha": "1a364a8f010d0b119c4a25a10724e254c8a7b063",
       "commit_sha": "60d5ee2e034323515092cd4100b1683f588e59fc",
-      "read_boundary": "direct canonical reference and exact blob pin captured; detailed content audit pending",
-      "read_complete": false,
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
       "status_authority": "voice host assessment",
       "observed_at": "2026-10-03 local Mac / exact pinned baseline",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect/blob/60d5ee2e034323515092cd4100b1683f588e59fc/docs/product/VOICE_INTERACTION_HOST_ESP32_CAPABILITY_PROFILE_ASSESSMENT.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
         "CMB-09",
         "PROJ::ROADMAP::VOICE"
       ],
-      "remaining": "Audit content and follow next-level references before source closure"
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
     },
     {
       "id": "PRODUCT_DEFINITION",
@@ -2717,17 +2734,17 @@
       "path": "docs/governance/CAPABILITY_MODEL_PREFLIGHT_ADOPTION.md",
       "blob_sha": "1221dbb2bb1a5f3463a18e074ba6079b3ffbea7e",
       "commit_sha": "60d5ee2e034323515092cd4100b1683f588e59fc",
-      "read_boundary": "direct canonical reference and exact blob pin captured; detailed content audit pending",
-      "read_complete": false,
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
       "status_authority": "capability preflight",
       "observed_at": "2026-10-03 local Mac / exact pinned baseline",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect/blob/60d5ee2e034323515092cd4100b1683f588e59fc/docs/governance/CAPABILITY_MODEL_PREFLIGHT_ADOPTION.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
         "CMB-01"
       ],
-      "remaining": "Audit content and follow next-level references before source closure"
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
     },
     {
       "id": "PLATFORM_PROFILE_VALIDATION",
@@ -2735,17 +2752,17 @@
       "path": "docs/product/PLATFORM_CAPABILITY_PROFILE_VALIDATION.md",
       "blob_sha": "31585648e5547c6997e3d9aef36e57013addf793",
       "commit_sha": "60d5ee2e034323515092cd4100b1683f588e59fc",
-      "read_boundary": "direct canonical reference and exact blob pin captured; detailed content audit pending",
-      "read_complete": false,
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
       "status_authority": "platform profile validation",
       "observed_at": "2026-10-03 local Mac / exact pinned baseline",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect/blob/60d5ee2e034323515092cd4100b1683f588e59fc/docs/product/PLATFORM_CAPABILITY_PROFILE_VALIDATION.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
         "CMB-02"
       ],
-      "remaining": "Audit content and follow next-level references before source closure"
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
     },
     {
       "id": "PLATFORM_DIVERGENCE",
@@ -2753,17 +2770,17 @@
       "path": "docs/product/PLATFORM_DIVERGENCE_DISPOSITION.md",
       "blob_sha": "d5e92b7a50aeb5c3d5e269499421ca65590849ce",
       "commit_sha": "60d5ee2e034323515092cd4100b1683f588e59fc",
-      "read_boundary": "direct canonical reference and exact blob pin captured; detailed content audit pending",
-      "read_complete": false,
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
       "status_authority": "platform divergence disposition",
       "observed_at": "2026-10-03 local Mac / exact pinned baseline",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect/blob/60d5ee2e034323515092cd4100b1683f588e59fc/docs/product/PLATFORM_DIVERGENCE_DISPOSITION.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
         "CMB-03"
       ],
-      "remaining": "Audit content and follow next-level references before source closure"
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
     },
     {
       "id": "COMPONENT_SCOPE",
@@ -3047,6 +3064,82 @@
         "TD-GITHUB-001"
       ],
       "remaining": "Read relevant status/evidence and follow ownership boundary before closure"
+    },
+    {
+      "id": "LOCALIZATION_NARRATIVE",
+      "repository": "pcvantol/djconnect",
+      "path": "LOCALIZATION_NARRATIVE_ARCHITECTURE.md",
+      "blob_sha": "54d8e2b55102146bff5e82000c1ef62049c82e59",
+      "commit_sha": "60d5ee2e034323515092cd4100b1683f588e59fc",
+      "read_boundary": "full pinned source content reviewed for planning/status/dependency implications on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "language-resolution and narrative architecture",
+      "observed_at": "2026-10-03 local Mac / exact pinned baseline",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/60d5ee2e034323515092cd4100b1683f588e59fc/LOCALIZATION_NARRATIVE_ARCHITECTURE.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::ROADMAP::P0-FOUNDATION",
+        "PROJ::ROADMAP::P3-APPLE"
+      ],
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
+    },
+    {
+      "id": "LOCALIZATION_VALIDATION_SPEC",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/localization/LOCALIZATION_VALIDATION_SPEC.md",
+      "blob_sha": "2ac87db36561fac58c09c9d1c99177ef50ba31a1",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned accepted validation specification reviewed on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "localization validation checks and repository-native tooling",
+      "observed_at": "2026-10-03 local Mac / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/localization/LOCALIZATION_VALIDATION_SPEC.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::ROADMAP::P0-FOUNDATION",
+        "PROJ::AUDIT::METHOD"
+      ],
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
+    },
+    {
+      "id": "SESSION_RUNTIME_CONTRACTS",
+      "repository": "pcvantol/djconnect",
+      "path": "DJ_SESSION_RUNTIME_CONTRACTS.md",
+      "blob_sha": "e73baff2e2d615609aaa4294d62cf61a890a1566",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned architecture source reviewed on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "accepted Runtime lifecycle and capability architecture",
+      "observed_at": "2026-10-03 local Mac / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/DJ_SESSION_RUNTIME_CONTRACTS.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::ROADMAP::P0-FOUNDATION",
+        "PROJ::ROADMAP::P2-REFERENCE"
+      ],
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
+    },
+    {
+      "id": "DJ_PRESENTATION_ARCH",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/product/DJ_PRESENTATION_ARCHITECTURE.md",
+      "blob_sha": "23999f3c042c0e7640baca4a15afa8f154921c68",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned architecture source reviewed on 2026-10-03",
+      "read_complete": true,
+      "status_authority": "canonical DJMoment and renderer presentation architecture",
+      "observed_at": "2026-10-03 local Mac / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/product/DJ_PRESENTATION_ARCHITECTURE.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::ROADMAP::P0-FOUNDATION",
+        "PROJ::ROADMAP::P2-REFERENCE"
+      ],
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
     }
   ],
   "nodes": [
@@ -3700,7 +3793,14 @@
         "ARCHITECTURE_PRINCIPLES",
         "DOMAIN_MODEL",
         "PI4_PROFILE",
-        "PI_FOUNDATION"
+        "PI_FOUNDATION",
+        "CLIENT_MATRIX",
+        "HOST_ROLE",
+        "LOCALIZATION",
+        "LOCALIZATION_NARRATIVE",
+        "LOCALIZATION_VALIDATION_SPEC",
+        "SESSION_RUNTIME_CONTRACTS",
+        "DJ_PRESENTATION_ARCH"
       ],
       "canonical_authority": "PRODUCT_ROADMAP",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -3899,7 +3999,10 @@
         "ROOM_ROUTING",
         "AUDIO_RENDERER",
         "AMBIENT_LIGHT",
-        "AUDIENCE_EXPERIENCE"
+        "AUDIENCE_EXPERIENCE",
+        "CLIENT_MATRIX",
+        "SESSION_RUNTIME_CONTRACTS",
+        "DJ_PRESENTATION_ARCH"
       ],
       "canonical_authority": "PRODUCT_ROADMAP",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -3954,7 +4057,9 @@
       "source_ids": [
         "PRODUCT_ROADMAP",
         "VIBECAST_INCREMENT",
-        "VIBECAST_ARCH"
+        "VIBECAST_ARCH",
+        "DESIGN_PRINCIPLES",
+        "PRODUCT_LANGUAGE"
       ],
       "canonical_authority": "PRODUCT_ROADMAP",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -4407,7 +4512,8 @@
       "repository": "pcvantol/djconnect",
       "source_ids": [
         "PRODUCT_ROADMAP",
-        "LOCALIZATION"
+        "LOCALIZATION",
+        "LOCALIZATION_NARRATIVE"
       ],
       "canonical_authority": "PRODUCT_ROADMAP",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -4724,7 +4830,9 @@
       "lane": "DJC-CORE",
       "repository": "pcvantol/djconnect",
       "source_ids": [
-        "PRODUCT_ROADMAP"
+        "PRODUCT_ROADMAP",
+        "DESIGN_PRINCIPLES",
+        "PRODUCT_LANGUAGE"
       ],
       "canonical_authority": "PRODUCT_ROADMAP",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -5813,7 +5921,8 @@
         "QUALIFICATION",
         "CAPABILITY_MODEL",
         "CLIENT_MATRIX",
-        "PLATFORM_PROFILE_VALIDATION"
+        "PLATFORM_PROFILE_VALIDATION",
+        "HOST_ROLE"
       ],
       "canonical_authority": "CMB",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -5955,7 +6064,9 @@
         "CMB",
         "QUALIFICATION",
         "PI4_PROFILE",
-        "PI_FOUNDATION"
+        "PI_FOUNDATION",
+        "CLIENT_MATRIX",
+        "HOST_ROLE"
       ],
       "canonical_authority": "CMB",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -6004,7 +6115,9 @@
         "CMB",
         "QUALIFICATION",
         "PI10_PROFILE",
-        "PI_FOUNDATION"
+        "PI_FOUNDATION",
+        "CLIENT_MATRIX",
+        "HOST_ROLE"
       ],
       "canonical_authority": "CMB",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -6052,7 +6165,8 @@
       "source_ids": [
         "CMB",
         "QUALIFICATION",
-        "APPLE_WINDOWS_ASSESSMENT"
+        "APPLE_WINDOWS_ASSESSMENT",
+        "CLIENT_MATRIX"
       ],
       "canonical_authority": "CMB",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -6146,7 +6260,9 @@
       "source_ids": [
         "CMB",
         "QUALIFICATION",
-        "VOICE_HOST_ASSESSMENT"
+        "VOICE_HOST_ASSESSMENT",
+        "CLIENT_MATRIX",
+        "HOST_ROLE"
       ],
       "canonical_authority": "CMB",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -8562,7 +8678,8 @@
       "lane": "DJC-CORE",
       "repository": "pcvantol/djconnect",
       "source_ids": [
-        "EVOLUTION"
+        "EVOLUTION",
+        "LOCALIZATION"
       ],
       "canonical_authority": "EVOLUTION",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -9416,7 +9533,8 @@
         "PHASE_COMPLETION",
         "CORE-INTERNAL-ARTIFACT",
         "SYNC_PROMPTS",
-        "CORE_TODO"
+        "CORE_TODO",
+        "LOCALIZATION_VALIDATION_SPEC"
       ],
       "canonical_authority": "ROADMAP_INDEX",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
