@@ -144,6 +144,22 @@ class SnapshotTests(unittest.TestCase):
         group["entries"][0]["path"] = "docs/release-notes/en/v3.3.0.md"
         self.assertIn("invalid historical path/blob or version boundary", self.errors())
 
+    def test_verification_prompt_history_cannot_swallow_current_policy(self):
+        group = next(
+            g for g in self.p["source_capture"]["historical_path_dispositions"]["groups"]
+            if g["category"] == "VERIFICATION_PHASE_PROMPT_HISTORY"
+        )
+        group["entries"][0]["path"] = "docs/verification/VERIFICATION_RUNTIME_POLICY.md"
+        self.assertIn("invalid historical path/blob or version boundary", self.errors())
+
+    def test_verification_report_history_cannot_swallow_current_policy(self):
+        group = next(
+            g for g in self.p["source_capture"]["historical_path_dispositions"]["groups"]
+            if g["category"] == "VERIFICATION_PHASE_REPORT_HISTORY"
+        )
+        group["entries"][0]["path"] = "docs/verification/VERIFICATION_RUNTIME_POLICY.md"
+        self.assertIn("invalid historical path/blob or version boundary", self.errors())
+
     def test_historical_counts_must_match_exact_entries(self):
         row = self.p["source_capture"]["tree_census_readback"]["lanes"]["DJC-APPLE"]
         row["historically_classified_markdown"] += 1

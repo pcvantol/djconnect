@@ -12,7 +12,7 @@
   },
   "completeness": {
     "full_platform_audit": false,
-    "all_sources_read": true,
+    "all_sources_read": false,
     "all_owning_registers_delivered": true,
     "canonical_writes": false,
     "independent_review": false,
@@ -41,7 +41,7 @@
     "metadata_and_bounded_paraphrases": true,
     "offline_hash_verification_of_remote_blobs": false,
     "per_call_timestamps": "Date-level head readback on 2026-10-03; no per-file read timestamp for inherited checkpoint.",
-    "pinned_tree_blobs_verified": "777 of 777 path/blob pins matched exact commit trees or GitHub Contents commit readbacks: 105 original GitHub tree readbacks, 533 local git commit-tree readbacks and 139 new GitHub tree/Contents readbacks on 2026-10-03. Current API Markdown blobs at 3f1ed18d matched fully read local previous-main blobs. Firmware binary files were fully SHA256-hashed for identity, not semantically executed. Narrative interpretation remains partial.",
+    "pinned_tree_blobs_verified": "892 of 892 path/blob pins matched exact commit trees or GitHub Contents commit readbacks: 105 original GitHub tree readbacks, 648 local git commit-tree readbacks and 139 new GitHub tree/Contents readbacks on 2026-10-03. Current API Markdown blobs at 3f1ed18d matched fully read local previous-main blobs. Firmware binary files were fully SHA256-hashed for identity, not semantically executed. Narrative interpretation and current consumer qualification remain partial.",
     "reference_scan": {
       "method": "Every pinned core Markdown blob and every pinned Markdown blob in the eleven DJC component repositories, at its recorded commit: parse relative Markdown links, strip anchors, normalize against source directory, retain existing .md targets absent from the pinned source matrix; distinct repository/path keys. The seven pinned external Forge method documents are outside this lane-source link frontier.",
       "unmapped_paths": [
@@ -79,11 +79,11 @@
           "repository": "pcvantol/djconnect",
           "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
           "tracked_markdown": 880,
-          "included_markdown": 353,
-          "not_individually_included_markdown": 527,
+          "included_markdown": 468,
+          "not_individually_included_markdown": 412,
           "tree_readback": "complete local git ls-tree -r",
-          "historically_classified_markdown": 367,
-          "unclassified_markdown": 160
+          "historically_classified_markdown": 412,
+          "unclassified_markdown": 0
         },
         "DJC-APPLE": {
           "repository": "pcvantol/djconnect-app",
@@ -198,7 +198,7 @@
       }
     },
     "historical_path_dispositions": {
-      "method": "Path-only classification from exact pinned Git trees, with blob identities and category/version bounds. These 917 paths are historical prompt records, older versioned release copy, retained embedded EP/development documentation or Epic 2 discovery artifacts, not full-text reads or independent current-status authority. Any later current source reference can reopen an individual path for full read; no product or release selection follows from this classification.",
+      "method": "Path-only classification from exact pinned Git trees, with blob identities and category/version bounds. These 962 paths are historical prompt records, older versioned release copy, retained embedded EP/development documentation, Epic 2 discovery artifacts or dated Verification phase reports, not full-text reads or independent current-status authority. Any later current source reference can reopen an individual path for full read; no product or release selection follows from this classification.",
       "groups": [
         {
           "lane": "DJC-CORE",
@@ -1379,6 +1379,208 @@
             {
               "path": "docs/history/prompts/2026-08-31-local-consumer-api-loopback-binding.md",
               "blob_sha": "141b53f3e6a3afffdbef627be67dd49dd42c07d0"
+            }
+          ]
+        },
+        {
+          "lane": "DJC-CORE",
+          "category": "VERIFICATION_PHASE_PROMPT_HISTORY",
+          "reason": "All 27 exact-pinned phase 9E through 17 prompt paths are named in the canonical PROMPT_INDEX historical phase table with recorded outcomes and later transitions. Prompt bodies were not reread and confer no current execution instruction, qualification or product selection; reports and current runtime policy own evidence/status.",
+          "authority_source_ids": [
+            "PROMPT_INDEX",
+            "CORE_VERIFICATION_README"
+          ],
+          "entries": [
+            {
+              "path": "prompts/verification/PHASE_09E_HOME_ASSISTANT_SCENARIO_COVERAGE_EXPANSION.md",
+              "blob_sha": "474c909ffd9f523cbf1ca495f8ca501099d47b61"
+            },
+            {
+              "path": "prompts/verification/PHASE_09E_R_HOME_ASSISTANT_SCENARIO_COVERAGE_REMEDIATION.md",
+              "blob_sha": "2d9aaf8bc846e84ff5308d2b950021271d74e578"
+            },
+            {
+              "path": "prompts/verification/PHASE_09L_LOCAL_HA_VERIFICATION_LAB.md",
+              "blob_sha": "24a777a99ba8b9e21506deb5eea2a13fcf5290ea"
+            },
+            {
+              "path": "prompts/verification/PHASE_09L_R2_DOCKER_RUNTIME_REMEDIATION.md",
+              "blob_sha": "f09eadaebbf8b0acaaa0a494fb0374883f055cef"
+            },
+            {
+              "path": "prompts/verification/PHASE_09L_R4_DOCKER_DESKTOP_CLEAN_RUNTIME_REPAIR.md",
+              "blob_sha": "5bef3a14767833195f28a0977b5406a2f40a529b"
+            },
+            {
+              "path": "prompts/verification/PHASE_09L_R5_DOCKER_DESKTOP_OPERATOR_RESET.md",
+              "blob_sha": "b83167e80e2f15ac2add247ad733805b1f200850"
+            },
+            {
+              "path": "prompts/verification/PHASE_09L_R6_DOCKER_DESKTOP_DOCUMENTS_PERMISSION.md",
+              "blob_sha": "4b9e48bfa2491fe6dcf5302ef8294edc2d9e9a79"
+            },
+            {
+              "path": "prompts/verification/PHASE_09L_R_LOCAL_HA_LAB_REMEDIATION.md",
+              "blob_sha": "d9be8df5fa4c84ac8164462cb3a910156e1d5e92"
+            },
+            {
+              "path": "prompts/verification/PHASE_09R_QUALIFICATION_REMEDIATION.md",
+              "blob_sha": "3e05c0696bd5654ce9ff5e65f279c5a6308ce1e6"
+            },
+            {
+              "path": "prompts/verification/PHASE_09V_VERIFICATION_PLATFORM_QUALIFICATION_RERUN.md",
+              "blob_sha": "5765a292e504f86d6d8e7ce491d6e998ebea41e4"
+            },
+            {
+              "path": "prompts/verification/PHASE_10E_APPLE_SCENARIO_COVERAGE_EXPANSION.md",
+              "blob_sha": "2a4493e207e0bef1a4aed2d48e9845a628c08399"
+            },
+            {
+              "path": "prompts/verification/PHASE_10E_R2_APPLE_LATEST_RUNTIME_QUALIFICATION_REMEDIATION.md",
+              "blob_sha": "7f6f6924b581e664e085bb4191f6b2771c28b98e"
+            },
+            {
+              "path": "prompts/verification/PHASE_10E_R3_APPLE_SCENARIO_PLANNER_MAPPING_REMEDIATION.md",
+              "blob_sha": "94f9bf8c8cc18f561a2d426ec048118c39cc0014"
+            },
+            {
+              "path": "prompts/verification/PHASE_10E_R_APPLE_RUNTIME_QUALIFICATION_REMEDIATION.md",
+              "blob_sha": "dbfa8f8cca222285c8069406972ef8f184d7fe73"
+            },
+            {
+              "path": "prompts/verification/PHASE_10_APPLE_VERIFICATION_ADAPTER.md",
+              "blob_sha": "912695c9dae10555746ef159e4a94a62216730b2"
+            },
+            {
+              "path": "prompts/verification/PHASE_11_ADDITIONAL_PLATFORM_ADAPTER_SELECTION.md",
+              "blob_sha": "fc9a2e343b878c2a4c3cd829cb7cf27ba3dae19a"
+            },
+            {
+              "path": "prompts/verification/PHASE_12E_RASPBERRY_PI_SCENARIO_COVERAGE_EXPANSION.md",
+              "blob_sha": "59e616f0b8ed2a9e7a87fd3be41fd848cdbc727a"
+            },
+            {
+              "path": "prompts/verification/PHASE_12_RASPBERRY_PI_VERIFICATION_ADAPTER.md",
+              "blob_sha": "76d1d40fd8fa0fe81941885498ef551758cee4bb"
+            },
+            {
+              "path": "prompts/verification/PHASE_13E_R2_WINDOWS_CLIENT_BUILD_REMEDIATION.md",
+              "blob_sha": "c2eca0b5ba343896fb3df99d9ccadcb074651581"
+            },
+            {
+              "path": "prompts/verification/PHASE_13E_R_WINDOWS_LIVE_TARGET_CONFIGURATION_REMEDIATION.md",
+              "blob_sha": "be13daeee111ff0cd379397e1889d0105bd93c3e"
+            },
+            {
+              "path": "prompts/verification/PHASE_14_ESP_VERIFICATION_ADAPTER.md",
+              "blob_sha": "699b6a27eb74f83f578da402dbf5c60daaf097f4"
+            },
+            {
+              "path": "prompts/verification/PHASE_15E_DJCONNECT_VOICE_ASSISTANT_LIVE_QUALIFICATION.md",
+              "blob_sha": "0dcce0f56077833e2ba4e4424b29179305af52e7"
+            },
+            {
+              "path": "prompts/verification/PHASE_15E_R_DJCONNECT_VOICE_ASSISTANT_LIVE_QUALIFICATION_REMEDIATION.md",
+              "blob_sha": "18cf5715535e3f7124cd347131e9ad239c66f1aa"
+            },
+            {
+              "path": "prompts/verification/PHASE_15_DJCONNECT_VOICE_ASSISTANT_VERIFICATION_ADAPTER.md",
+              "blob_sha": "419093e259218dda6ed49958c09c0d8ad73137bd"
+            },
+            {
+              "path": "prompts/verification/PHASE_16_CROSS_PLATFORM_QUALIFICATION.md",
+              "blob_sha": "15c07845716caa295e16dbe7625d3fb2b022b681"
+            },
+            {
+              "path": "prompts/verification/PHASE_16_R_CROSS_PLATFORM_QUALIFICATION_ENVIRONMENT_REMEDIATION.md",
+              "blob_sha": "6e52efca91f7f94b9f2e631e82690d3876356da5"
+            },
+            {
+              "path": "prompts/verification/PHASE_17_PLATFORM_TEST_COVERAGE_IMPROVEMENT.md",
+              "blob_sha": "2eb4745b9edab47cc7334659ac5a18a4c56eb105"
+            }
+          ]
+        },
+        {
+          "lane": "DJC-CORE",
+          "category": "VERIFICATION_PHASE_REPORT_HISTORY",
+          "reason": "The exact-pinned PROMPT_INDEX records these 18 phase reports and their dated outcomes or later transitions. Their contents are not reread here and cannot establish current runtime, hardware or consumer qualification. Fully read later reports and current policies remain separate matrix rows.",
+          "authority_source_ids": [
+            "PROMPT_INDEX",
+            "CORE_VERIFICATION_README"
+          ],
+          "entries": [
+            {
+              "path": "docs/verification/reports/PHASE_09E_HOME_ASSISTANT_SCENARIO_COVERAGE.md",
+              "blob_sha": "ab1f3b41983890887b1d70fa96679bb37b544089"
+            },
+            {
+              "path": "docs/verification/reports/PHASE_09L_LAB_REQUIREMENT_COVERAGE.md",
+              "blob_sha": "32e1c088213302832ab1ffca415e3d12b7865831"
+            },
+            {
+              "path": "docs/verification/reports/PHASE_09L_LOCAL_HA_VERIFICATION_LAB.md",
+              "blob_sha": "c9a0012fe4686a8dd503feb97e941795f65c732f"
+            },
+            {
+              "path": "docs/verification/reports/PHASE_09R_QUALIFICATION_REMEDIATION.md",
+              "blob_sha": "752779f91a3ad669f0c7a8dfe1e81dddb22cfb5f"
+            },
+            {
+              "path": "docs/verification/reports/PHASE_09V_VERIFICATION_PLATFORM_QUALIFICATION.md",
+              "blob_sha": "39cefe4ddce2d2b431448a8531a9b720b2e0727c"
+            },
+            {
+              "path": "docs/verification/reports/PHASE_09_HOME_ASSISTANT_ADAPTER_COMPLETION.md",
+              "blob_sha": "5c3a838c04ead7599bf78a961bef895e074d9f16"
+            },
+            {
+              "path": "docs/verification/reports/PHASE_10E_APPLE_SCENARIO_COVERAGE.md",
+              "blob_sha": "bacdd41fc055f8c7c02e75c84799d47ceec9fc7c"
+            },
+            {
+              "path": "docs/verification/reports/PHASE_10E_R_APPLE_RUNTIME_QUALIFICATION_REMEDIATION.md",
+              "blob_sha": "6e8840e8c8793d3888fdf2d430c901f8669284bf"
+            },
+            {
+              "path": "docs/verification/reports/PHASE_10_APPLE_ADAPTER_COMPLETION.md",
+              "blob_sha": "1d32c8588e7c2b39aa7a9bad496f438bf5d1c3e8"
+            },
+            {
+              "path": "docs/verification/reports/PHASE_11_ADDITIONAL_PLATFORM_ADAPTER_SELECTION.md",
+              "blob_sha": "88b172f4eded56661fb910d1b849ae3ce4c65e06"
+            },
+            {
+              "path": "docs/verification/reports/PHASE_12E_RASPBERRY_PI_SCENARIO_COVERAGE.md",
+              "blob_sha": "e7e94e817ec1e84ce84fbbc365e786f9070466a3"
+            },
+            {
+              "path": "docs/verification/reports/PHASE_12_RASPBERRY_PI_ADAPTER_COMPLETION.md",
+              "blob_sha": "423b5c2a7b0daa6eeba42d32746f310523cf9ddb"
+            },
+            {
+              "path": "docs/verification/reports/PHASE_13E_R_WINDOWS_LIVE_TARGET_CONFIGURATION_REMEDIATION.md",
+              "blob_sha": "f7e4e94106052a41832293db4a79348412be9701"
+            },
+            {
+              "path": "docs/verification/reports/PHASE_13E_WINDOWS_LIVE_QUALIFICATION.md",
+              "blob_sha": "03401ef7ba034a8face704b62f73950188589272"
+            },
+            {
+              "path": "docs/verification/reports/PHASE_13_WINDOWS_ADAPTER_COMPLETION.md",
+              "blob_sha": "60be5bfa196aaafba8b6e5b8cccc900175394026"
+            },
+            {
+              "path": "docs/verification/reports/PHASE_14_ESP_ADAPTER_COMPLETION.md",
+              "blob_sha": "d20846f8aeeea1ce679a943cc7ac6e8007c8f8c0"
+            },
+            {
+              "path": "docs/verification/reports/PHASE_15E_DJCONNECT_VOICE_ASSISTANT_LIVE_QUALIFICATION.md",
+              "blob_sha": "da737f3b659a6e8bb5bdc450f376a92a3f062c9f"
+            },
+            {
+              "path": "docs/verification/reports/PHASE_15_DJCONNECT_VOICE_ASSISTANT_ADAPTER_COMPLETION.md",
+              "blob_sha": "c9a5b56143e6098ff5867d59615350b4b6e6581c"
             }
           ]
         },
@@ -18760,6 +18962,2077 @@
         "INV::DJC-CORE"
       ],
       "remaining": "Current settings and live check status require readback."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_IMPLEMENTATION_EPIC_3_PHASE_1_CORE_DOMAIN",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/implementation/epic-3-phase-1-core-domain.md",
+      "blob_sha": "d4d1a70fd60a8d56925f38702572ad035907b547",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Historical Epic 3/Profile Adoption phase or completion account; local pending-merge wording is dated and does not supersede current main/roadmap status.",
+      "observed_at": "2026-10-03 15:15 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/implementation/epic-3-phase-1-core-domain.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_IMPLEMENTATION_EPIC_3_PHASE_2_PERSISTENCE_CONFIG_FLOW",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/implementation/epic-3-phase-2-persistence-config-flow.md",
+      "blob_sha": "1b7850feda64177068a5656c6ffa988b69898b12",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Historical Epic 3/Profile Adoption phase or completion account; local pending-merge wording is dated and does not supersede current main/roadmap status.",
+      "observed_at": "2026-10-03 15:15 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/implementation/epic-3-phase-2-persistence-config-flow.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_IMPLEMENTATION_EPIC_3_PHASE_3_SERVICES_API_PROFILE_RESOLUTION",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/implementation/epic-3-phase-3-services-api-profile-resolution.md",
+      "blob_sha": "c602d9fa1dae9ec7f4a53cb861564d1eb9ed7caf",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Historical Epic 3/Profile Adoption phase or completion account; local pending-merge wording is dated and does not supersede current main/roadmap status.",
+      "observed_at": "2026-10-03 15:15 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/implementation/epic-3-phase-3-services-api-profile-resolution.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_IMPLEMENTATION_EPIC_TEMPLATE_00_CONTEXT",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/implementation/epic-template/00-context.md",
+      "blob_sha": "7c797bc09b3f3f059c85db12dd7cc2a6c8689b0e",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Current reusable implementation template; not a selected phase or task instruction in this assignment.",
+      "observed_at": "2026-10-03 15:15 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/implementation/epic-template/00-context.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_IMPLEMENTATION_EPIC_TEMPLATE_01_PHASE_TEMPLATE",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/implementation/epic-template/01-phase-template.md",
+      "blob_sha": "2aee7c7b24f4989f72f82546436cbaa3f2ace459",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Current reusable implementation template; not a selected phase or task instruction in this assignment.",
+      "observed_at": "2026-10-03 15:15 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/implementation/epic-template/01-phase-template.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_IMPLEMENTATION_EPIC_TEMPLATE_02_REVIEW_TEMPLATE",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/implementation/epic-template/02-review-template.md",
+      "blob_sha": "6784e25211267d8ba4eafa6485d8963e9b3b1d0b",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Current reusable implementation template; not a selected phase or task instruction in this assignment.",
+      "observed_at": "2026-10-03 15:15 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/implementation/epic-template/02-review-template.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_IMPLEMENTATION_EPIC_TEMPLATE_03_COMPLETION_TEMPLATE",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/implementation/epic-template/03-completion-template.md",
+      "blob_sha": "b06b00e26ef4aa95803209a494873a1bd62245f7",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Current reusable implementation template; not a selected phase or task instruction in this assignment.",
+      "observed_at": "2026-10-03 15:15 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/implementation/epic-template/03-completion-template.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_IMPLEMENTATION_EPIC3_EPIC_3_COMPLETION_REPORT",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/implementation/epic3/EPIC_3_COMPLETION_REPORT.md",
+      "blob_sha": "b1e745b2b6fcdf602a57ebed1fd68b8c0ab467c2",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Historical Epic 3/Profile Adoption phase or completion account; local pending-merge wording is dated and does not supersede current main/roadmap status.",
+      "observed_at": "2026-10-03 15:15 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/implementation/epic3/EPIC_3_COMPLETION_REPORT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_IMPLEMENTATION_EPIC3_EPIC_3_PHASE_4_PRIVACY_EXPORT_IMPORT",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/implementation/epic3/epic-3-phase-4-privacy-export-import.md",
+      "blob_sha": "2c96535b19e63549fecfe1654726d6fcb4b8f39e",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Historical Epic 3/Profile Adoption phase or completion account; local pending-merge wording is dated and does not supersede current main/roadmap status.",
+      "observed_at": "2026-10-03 15:15 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/implementation/epic3/epic-3-phase-4-privacy-export-import.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_IMPLEMENTATION_EPIC3B_00_BACKEND_ALIGNMENT_COMPLETION",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/implementation/epic3b/00-backend-alignment-completion.md",
+      "blob_sha": "1faf08d5031f42832cf8215c9782ffa8c10fc321",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Historical Epic 3/Profile Adoption phase or completion account; local pending-merge wording is dated and does not supersede current main/roadmap status.",
+      "observed_at": "2026-10-03 15:15 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/implementation/epic3b/00-backend-alignment-completion.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_IMPLEMENTATION_EPIC3B_01_PROFILE_ADOPTION_CONTRACT",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/implementation/epic3b/01-profile-adoption-contract.md",
+      "blob_sha": "3539eb44b0aaf35f0cb7db2cce41681c7982a451",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Profile Adoption request/response and resolver contract at the pinned core head, consistent with the canonical domain model; its pending-merge/readiness heading is dated and does not prove current client or installed acceptance.",
+      "observed_at": "2026-10-03 15:15 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/implementation/epic3b/01-profile-adoption-contract.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE",
+        "SLICE::CORE::PAIRING-CONTRACT"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_IMPLEMENTATION_EPIC3B_01_READINESS_VALIDATION_REPORT",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/implementation/epic3b/01-readiness-validation-report.md",
+      "blob_sha": "f82476698821ec2ea2520cfb0139a23b24b3e10f",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Historical Epic 3/Profile Adoption phase or completion account; local pending-merge wording is dated and does not supersede current main/roadmap status.",
+      "observed_at": "2026-10-03 15:15 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/implementation/epic3b/01-readiness-validation-report.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__CUSTOM_COMPONENTS_DJCONNECT_AGENTS",
+      "repository": "pcvantol/djconnect",
+      "path": "custom_components/djconnect/AGENTS.md",
+      "blob_sha": "d067d973fb51a09395d40cd395a62c90c43300d6",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Current integration-local localization guidance within the pinned tree.",
+      "observed_at": "2026-10-03 15:15 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/custom_components/djconnect/AGENTS.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__CUSTOM_COMPONENTS_DJCONNECT_PERSISTENCE_README",
+      "repository": "pcvantol/djconnect",
+      "path": "custom_components/djconnect/persistence/README.md",
+      "blob_sha": "165d68d10883117f32d0427ff8df9223ce007acd",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Current persistence ownership and migration boundary within the pinned tree; installed database/consumer state unqualified.",
+      "observed_at": "2026-10-03 15:15 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/custom_components/djconnect/persistence/README.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__CUSTOM_COMPONENTS_DJCONNECT_PROMPTS_DJ_PERSONA",
+      "repository": "pcvantol/djconnect",
+      "path": "custom_components/djconnect/prompts/dj_persona.md",
+      "blob_sha": "60938556631c2a3cbc0cc10806fdc7f4971a4133",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Current prompt content in source; does not grant product execution or override user assignment.",
+      "observed_at": "2026-10-03 15:15 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/custom_components/djconnect/prompts/dj_persona.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__EXAMPLES_CLIENT_CONTRACTS_README",
+      "repository": "pcvantol/djconnect",
+      "path": "examples/client_contracts/README.md",
+      "blob_sha": "d0c2b969d756fbb1f81f7ac50d4d4b8ce939f0d9",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Current fixture ownership/index; fixture payloads and installed consumers need separate exact readback.",
+      "observed_at": "2026-10-03 15:15 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/examples/client_contracts/README.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__SOFTWARE_ASSURANCE_README",
+      "repository": "pcvantol/djconnect",
+      "path": "software_assurance/README.md",
+      "blob_sha": "c5688869055870541b873b8d79e61bd1bfe72775",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Current Software Assurance policy/tool navigation; live repository setting and rollout effect separate.",
+      "observed_at": "2026-10-03 15:15 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/software_assurance/README.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__TESTS_RELEASE_FIXTURES_OPERATIONAL_OWNERSHIP",
+      "repository": "pcvantol/djconnect",
+      "path": "tests/release/fixtures/operational-ownership.md",
+      "blob_sha": "484f37d39ae53051bf3643fb63cbbd88ee5c55b8",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Source-local test fixture ownership; no live owner/evidence claim.",
+      "observed_at": "2026-10-03 15:15 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/tests/release/fixtures/operational-ownership.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__VERIFICATION_DATA_README",
+      "repository": "pcvantol/djconnect",
+      "path": "verification/data/README.md",
+      "blob_sha": "1c009e6d993d543df80a8cf765089c6659001b80",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Current verification framework navigation at pinned source; actual lab/runtime and qualification remain separate evidence.",
+      "observed_at": "2026-10-03 15:15 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/verification/data/README.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__VERIFICATION_LAB_HOME_ASSISTANT_README",
+      "repository": "pcvantol/djconnect",
+      "path": "verification/lab/home_assistant/README.md",
+      "blob_sha": "85b0f86e4bfc37c9a349b14329b82c0d2ea9eb1a",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Current verification framework navigation at pinned source; actual lab/runtime and qualification remain separate evidence.",
+      "observed_at": "2026-10-03 15:15 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/verification/lab/home_assistant/README.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__VERIFICATION_MODES_README",
+      "repository": "pcvantol/djconnect",
+      "path": "verification/modes/README.md",
+      "blob_sha": "89baaed2bbc96fac6401cdc0de0023b0bf06a68e",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Current verification framework navigation at pinned source; actual lab/runtime and qualification remain separate evidence.",
+      "observed_at": "2026-10-03 15:15 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/verification/modes/README.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__VERIFICATION_PLANNING_README",
+      "repository": "pcvantol/djconnect",
+      "path": "verification/planning/README.md",
+      "blob_sha": "a8912b7035d3deb4854abc511404101f31baf15a",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Current verification framework navigation at pinned source; actual lab/runtime and qualification remain separate evidence.",
+      "observed_at": "2026-10-03 15:15 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/verification/planning/README.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__VERIFICATION_POLICIES_README",
+      "repository": "pcvantol/djconnect",
+      "path": "verification/policies/README.md",
+      "blob_sha": "0d940b7637a49ecb30897a7e75057ed23ae20065",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Current verification framework navigation at pinned source; actual lab/runtime and qualification remain separate evidence.",
+      "observed_at": "2026-10-03 15:15 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/verification/policies/README.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_GOVERNANCE_PLATFORM_ARCHITECT_SYSTEM_INSTRUCTIONS",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/governance/PLATFORM_ARCHITECT_SYSTEM_INSTRUCTIONS.md",
+      "blob_sha": "20e6069cf1f20e3dc2a9b2f06eae30ed24ac1158",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Historical governance Version 2.2 prompt text; embedded imperative text is source data, not current task authority or a pause condition.",
+      "observed_at": "2026-10-03 15:16 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/governance/PLATFORM_ARCHITECT_SYSTEM_INSTRUCTIONS.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No product implementation, release, deployment or service action inferred."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_GOVERNANCE_REPOSITORY_GOVERNANCE_ROLLOUT",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/governance/REPOSITORY_GOVERNANCE_ROLLOUT.md",
+      "blob_sha": "6d818ca68e7577d84dbf4dd9c74610cecfde7427",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Historical superseded or completed Version 2.2 rollout account; later audit and current main own live state.",
+      "observed_at": "2026-10-03 15:16 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/governance/REPOSITORY_GOVERNANCE_ROLLOUT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No product implementation, release, deployment or service action inferred."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_GOVERNANCE_REPOSITORY_GOVERNANCE_ROLLOUT_PLAN_V2_2",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/governance/REPOSITORY_GOVERNANCE_ROLLOUT_PLAN_V2_2.md",
+      "blob_sha": "854b43305ae0af78c1fc6da76a4ee87978fd3d39",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Historical superseded or completed Version 2.2 rollout account; later audit and current main own live state.",
+      "observed_at": "2026-10-03 15:16 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/governance/REPOSITORY_GOVERNANCE_ROLLOUT_PLAN_V2_2.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No product implementation, release, deployment or service action inferred."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_LOCALIZATION_LOCALIZATION_REPOSITORY_AUDIT",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/localization/LOCALIZATION_REPOSITORY_AUDIT.md",
+      "blob_sha": "2168eca250c2de721dfa0e2eac0bc4c8dbe85896",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Initial 2026-07-10 localization audit, not current cross-repository parity proof.",
+      "observed_at": "2026-10-03 15:16 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/localization/LOCALIZATION_REPOSITORY_AUDIT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No product implementation, release, deployment or service action inferred."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_RESEARCH_R0_RUNTIME_INDEPENDENCE",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/research/R0_RUNTIME_INDEPENDENCE.md",
+      "blob_sha": "fe141beb07d47c5cbdf33352a8dfacd32575711d",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Research only; explicitly makes no architectural or roadmap decision.",
+      "observed_at": "2026-10-03 15:16 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/research/R0_RUNTIME_INDEPENDENCE.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No product implementation, release, deployment or service action inferred."
+    },
+    {
+      "id": "CORE_EXTRA__PROMPTS_RELEASE_PROMPT_02_RELEASE_PLANNING_AND_DISCOVERY_CONTRACT",
+      "repository": "pcvantol/djconnect",
+      "path": "prompts/release/PROMPT_02_RELEASE_PLANNING_AND_DISCOVERY_CONTRACT.md",
+      "blob_sha": "fa1982254fc6301c4e0e88a66b11bbb21935e398",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Historical generated or completed phase prompt; body is not an instruction for this assignment; later completion/current status owns outcome.",
+      "observed_at": "2026-10-03 15:16 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/prompts/release/PROMPT_02_RELEASE_PLANNING_AND_DISCOVERY_CONTRACT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No product implementation, release, deployment or service action inferred."
+    },
+    {
+      "id": "CORE_EXTRA__PROMPTS_RELEASE_PROMPT_03_PLATFORM_RELEASE_DRY_RUN",
+      "repository": "pcvantol/djconnect",
+      "path": "prompts/release/PROMPT_03_PLATFORM_RELEASE_DRY_RUN.md",
+      "blob_sha": "06041d656154a675747b785388589634a1dfed29",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Historical generated or completed phase prompt; body is not an instruction for this assignment; later completion/current status owns outcome.",
+      "observed_at": "2026-10-03 15:16 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/prompts/release/PROMPT_03_PLATFORM_RELEASE_DRY_RUN.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No product implementation, release, deployment or service action inferred."
+    },
+    {
+      "id": "CORE_EXTRA__PROMPTS_RELEASE_PROMPT_04_PLATFORM_RELEASE_QUALIFICATION",
+      "repository": "pcvantol/djconnect",
+      "path": "prompts/release/PROMPT_04_PLATFORM_RELEASE_QUALIFICATION.md",
+      "blob_sha": "731ee43659753fbe22faed4e43ecbb8a7cfc4f8b",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Historical generated or completed phase prompt; body is not an instruction for this assignment; later completion/current status owns outcome.",
+      "observed_at": "2026-10-03 15:16 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/prompts/release/PROMPT_04_PLATFORM_RELEASE_QUALIFICATION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No product implementation, release, deployment or service action inferred."
+    },
+    {
+      "id": "CORE_EXTRA__PROMPTS_SOFTWARE_ASSURANCE_PROMPT_2_CAPABILITY_MODEL_BACKLOG",
+      "repository": "pcvantol/djconnect",
+      "path": "prompts/software_assurance/PROMPT_2_CAPABILITY_MODEL_BACKLOG.md",
+      "blob_sha": "88a6c61e9c52e1ab38d9485b06baef9650ec5522",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Historical generated or completed phase prompt; body is not an instruction for this assignment; later completion/current status owns outcome.",
+      "observed_at": "2026-10-03 15:16 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/prompts/software_assurance/PROMPT_2_CAPABILITY_MODEL_BACKLOG.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No product implementation, release, deployment or service action inferred."
+    },
+    {
+      "id": "CORE_EXTRA__PROMPTS_SOFTWARE_ASSURANCE_PROMPT_4_POLICY_EVIDENCE_REPORTING_READINESS",
+      "repository": "pcvantol/djconnect",
+      "path": "prompts/software_assurance/PROMPT_4_POLICY_EVIDENCE_REPORTING_READINESS.md",
+      "blob_sha": "2f5a3fb5c331b1dd19f4d68f1c182f6405cd054a",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Historical generated or completed phase prompt; body is not an instruction for this assignment; later completion/current status owns outcome.",
+      "observed_at": "2026-10-03 15:16 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/prompts/software_assurance/PROMPT_4_POLICY_EVIDENCE_REPORTING_READINESS.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No product implementation, release, deployment or service action inferred."
+    },
+    {
+      "id": "CORE_EXTRA__ONBOARDING_CHANGELOG",
+      "repository": "pcvantol/djconnect",
+      "path": "onboarding/CHANGELOG.md",
+      "blob_sha": "b1ba50ae18d303bd33a0a2b12fe8105a1eac62dd",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Versioned onboarding/host-bootstrap history, current 4.5.3/2.0.21 at pinned main; read-only host check remains separate evidence.",
+      "observed_at": "2026-10-03 15:16 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/onboarding/CHANGELOG.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No product implementation, release, deployment or service action inferred."
+    },
+    {
+      "id": "CORE_EXTRA__ONBOARDING_MANIFEST_COMPATIBILITY",
+      "repository": "pcvantol/djconnect",
+      "path": "onboarding/MANIFEST_COMPATIBILITY.md",
+      "blob_sha": "c751e4d9a68df9ab9b340055490bd4d1c6e22ac1",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Current onboarding desired-state compatibility contract; no service operation selected.",
+      "observed_at": "2026-10-03 15:16 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/onboarding/MANIFEST_COMPATIBILITY.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No product implementation, release, deployment or service action inferred."
+    },
+    {
+      "id": "CORE_EXTRA__ONBOARDING_README",
+      "repository": "pcvantol/djconnect",
+      "path": "onboarding/README.md",
+      "blob_sha": "612a5104d43ccb3e7f2663225fe52298bcfa5c68",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Current onboarding package navigation for 4.5.3; historical EP commands are retired and no service operation selected.",
+      "observed_at": "2026-10-03 15:16 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/onboarding/README.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No product implementation, release, deployment or service action inferred."
+    },
+    {
+      "id": "CORE_EXTRA__SCRIPTS_RUNNER_BOOTSTRAP_DJCONNECT_MACOS_HOST_CHANGELOG",
+      "repository": "pcvantol/djconnect",
+      "path": "scripts/runner/BOOTSTRAP_DJCONNECT_MACOS_HOST_CHANGELOG.md",
+      "blob_sha": "92e9657a800bdd8cf9a7dfb86d7b134422f38085",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Versioned onboarding/host-bootstrap history, current 4.5.3/2.0.21 at pinned main; read-only host check remains separate evidence.",
+      "observed_at": "2026-10-03 15:16 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/scripts/runner/BOOTSTRAP_DJCONNECT_MACOS_HOST_CHANGELOG.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No product implementation, release, deployment or service action inferred."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_RELEASE_DEPLOYMENT_CONSUMER_IMPLEMENTATION_TEMPLATE_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/release/DEPLOYMENT_CONSUMER_IMPLEMENTATION_TEMPLATE.md",
+      "blob_sha": "4826aeb283f02e8c440ffbc46f06cf002f53831c",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Release/runner structural policy or implementation template at the pinned core head; operational application and current settings require exact workflow and host readback. No dispatch or publication authorized.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/release/DEPLOYMENT_CONSUMER_IMPLEMENTATION_TEMPLATE.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_RELEASE_MACOS_DEVELOPMENT_HOST_BOOTSTRAP_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/release/MACOS_DEVELOPMENT_HOST_BOOTSTRAP.md",
+      "blob_sha": "df0dfa8b122b164fedcb751093ea3ce6a6d60371",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Release/runner structural policy or implementation template at the pinned core head; operational application and current settings require exact workflow and host readback. No dispatch or publication authorized.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/release/MACOS_DEVELOPMENT_HOST_BOOTSTRAP.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_RELEASE_MACOS_RUNNER_BOOTSTRAP_MERGE_READINESS_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/release/MACOS_RUNNER_BOOTSTRAP_MERGE_READINESS.md",
+      "blob_sha": "fe7288e26cad06aece1ed62600fa67dbc1c1deaa",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Dated release architecture, runner, dry-run or phase-completion record; distinguish simulation, candidate and historical approval from current producer, deployment and installed-consumer receipts.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/release/MACOS_RUNNER_BOOTSTRAP_MERGE_READINESS.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_RELEASE_NATIVE_RUNNER_ALIGNMENT_COMPLETION_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/release/NATIVE_RUNNER_ALIGNMENT_COMPLETION.md",
+      "blob_sha": "6d7184eaaafc590f197be6be3a9c84d24e1b7c9f",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Dated release architecture, runner, dry-run or phase-completion record; distinguish simulation, candidate and historical approval from current producer, deployment and installed-consumer receipts.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/release/NATIVE_RUNNER_ALIGNMENT_COMPLETION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_RELEASE_PLATFORM_3_3_API_ARTIFACT_REBIND_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/release/PLATFORM_3_3_API_ARTIFACT_REBIND.md",
+      "blob_sha": "04525e08925f37376dc37a9d0c26fc146889d843",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Historical Platform 3.3 candidate, artifact, target or consumer account; use the later scoped 3.3 release-completion/manifest record for its historical final status. No current 4.0, public-release or installed-consumer qualification follows.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/release/PLATFORM_3_3_API_ARTIFACT_REBIND.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_RELEASE_PLATFORM_3_3_API_DEPLOYMENT_COMPLETION_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/release/PLATFORM_3_3_API_DEPLOYMENT_COMPLETION.md",
+      "blob_sha": "6b1ce008e0b3cad70ce38b61b8e1bc6b6ed9a358",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Historical Platform 3.3 candidate, artifact, target or consumer account; use the later scoped 3.3 release-completion/manifest record for its historical final status. No current 4.0, public-release or installed-consumer qualification follows.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/release/PLATFORM_3_3_API_DEPLOYMENT_COMPLETION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_RELEASE_PLATFORM_3_3_API_DEPLOYMENT_CONSUMER_COMPLETION_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/release/PLATFORM_3_3_API_DEPLOYMENT_CONSUMER_COMPLETION.md",
+      "blob_sha": "13bf72f4b998ae7a2447afa6e382e874189d1f35",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Historical Platform 3.3 candidate, artifact, target or consumer account; use the later scoped 3.3 release-completion/manifest record for its historical final status. No current 4.0, public-release or installed-consumer qualification follows.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/release/PLATFORM_3_3_API_DEPLOYMENT_CONSUMER_COMPLETION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_RELEASE_PLATFORM_3_3_CANDIDATE_EVIDENCE_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/release/PLATFORM_3_3_CANDIDATE_EVIDENCE.md",
+      "blob_sha": "c675e2fc8b72665411c393f1f3b4c47cd3e7fd96",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Historical Platform 3.3 candidate, artifact, target or consumer account; use the later scoped 3.3 release-completion/manifest record for its historical final status. No current 4.0, public-release or installed-consumer qualification follows.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/release/PLATFORM_3_3_CANDIDATE_EVIDENCE.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_RELEASE_PLATFORM_3_3_CANDIDATE_READINESS_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/release/PLATFORM_3_3_CANDIDATE_READINESS.md",
+      "blob_sha": "39beda90a17668dbf8db81e43807bb497fe6dcfa",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Historical Platform 3.3 candidate, artifact, target or consumer account; use the later scoped 3.3 release-completion/manifest record for its historical final status. No current 4.0, public-release or installed-consumer qualification follows.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/release/PLATFORM_3_3_CANDIDATE_READINESS.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_RELEASE_PLATFORM_3_3_CANDIDATE_RECONSTRUCTION_REPORT_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/release/PLATFORM_3_3_CANDIDATE_RECONSTRUCTION_REPORT.md",
+      "blob_sha": "bb5bbd1a3c910dbec17b25569da5ebfe60311a07",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Historical Platform 3.3 candidate, artifact, target or consumer account; use the later scoped 3.3 release-completion/manifest record for its historical final status. No current 4.0, public-release or installed-consumer qualification follows.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/release/PLATFORM_3_3_CANDIDATE_RECONSTRUCTION_REPORT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_RELEASE_PLATFORM_3_3_CANDIDATE_VERSION_MATRIX_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/release/PLATFORM_3_3_CANDIDATE_VERSION_MATRIX.md",
+      "blob_sha": "f87698c31dc66b2fdc72dde11f3c4f855b8e3ac1",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Historical Platform 3.3 candidate, artifact, target or consumer account; use the later scoped 3.3 release-completion/manifest record for its historical final status. No current 4.0, public-release or installed-consumer qualification follows.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/release/PLATFORM_3_3_CANDIDATE_VERSION_MATRIX.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_RELEASE_PLATFORM_3_3_ESP32_DEPLOYMENT_COMPLETION_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/release/PLATFORM_3_3_ESP32_DEPLOYMENT_COMPLETION.md",
+      "blob_sha": "fb6970d849fed4151d2d991a6537c753a07e0bc2",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Historical Platform 3.3 candidate, artifact, target or consumer account; use the later scoped 3.3 release-completion/manifest record for its historical final status. No current 4.0, public-release or installed-consumer qualification follows.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/release/PLATFORM_3_3_ESP32_DEPLOYMENT_COMPLETION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_RELEASE_PLATFORM_3_3_ESP32_DEPLOYMENT_CONSUMER_BLOCKED_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/release/PLATFORM_3_3_ESP32_DEPLOYMENT_CONSUMER_BLOCKED.md",
+      "blob_sha": "fdf8465e49969b74807d2f9d9a945f56f65e5f7b",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Historical Platform 3.3 candidate, artifact, target or consumer account; use the later scoped 3.3 release-completion/manifest record for its historical final status. No current 4.0, public-release or installed-consumer qualification follows.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/release/PLATFORM_3_3_ESP32_DEPLOYMENT_CONSUMER_BLOCKED.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_RELEASE_PLATFORM_3_3_HOME_ASSISTANT_PRIVATE_RELAY_BLOCKED_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/release/PLATFORM_3_3_HOME_ASSISTANT_PRIVATE_RELAY_BLOCKED.md",
+      "blob_sha": "fa94eb891ea9be2189cb4bbe98adb894f742db62",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Historical Platform 3.3 candidate, artifact, target or consumer account; use the later scoped 3.3 release-completion/manifest record for its historical final status. No current 4.0, public-release or installed-consumer qualification follows.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/release/PLATFORM_3_3_HOME_ASSISTANT_PRIVATE_RELAY_BLOCKED.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_RELEASE_PLATFORM_3_3_OPERATIONAL_MANIFEST_GATE_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/release/PLATFORM_3_3_OPERATIONAL_MANIFEST_GATE.md",
+      "blob_sha": "982af805b1369af585456ee7c0ecb2a2bbc50113",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Historical Platform 3.3 candidate, artifact, target or consumer account; use the later scoped 3.3 release-completion/manifest record for its historical final status. No current 4.0, public-release or installed-consumer qualification follows.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/release/PLATFORM_3_3_OPERATIONAL_MANIFEST_GATE.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_RELEASE_PLATFORM_3_3_OPERATIONAL_MANIFEST_PREPARATION_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/release/PLATFORM_3_3_OPERATIONAL_MANIFEST_PREPARATION.md",
+      "blob_sha": "836a88cce8fc816d6681728c692e591b026fe5e7",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Historical Platform 3.3 candidate, artifact, target or consumer account; use the later scoped 3.3 release-completion/manifest record for its historical final status. No current 4.0, public-release or installed-consumer qualification follows.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/release/PLATFORM_3_3_OPERATIONAL_MANIFEST_PREPARATION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_RELEASE_PLATFORM_3_3_RBPI_DEPLOYMENT_COMPLETION_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/release/PLATFORM_3_3_RBPI_DEPLOYMENT_COMPLETION.md",
+      "blob_sha": "f891a97a891ef3e44a8f5cee0a2e1aa76980c01a",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Historical Platform 3.3 candidate, artifact, target or consumer account; use the later scoped 3.3 release-completion/manifest record for its historical final status. No current 4.0, public-release or installed-consumer qualification follows.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/release/PLATFORM_3_3_RBPI_DEPLOYMENT_COMPLETION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_RELEASE_PLATFORM_3_3_STATIC_DEPLOYMENT_CONSUMERS_COMPLETION_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/release/PLATFORM_3_3_STATIC_DEPLOYMENT_CONSUMERS_COMPLETION.md",
+      "blob_sha": "5b724d33fd9403d25466a9491169f49a49ac600a",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Historical Platform 3.3 candidate, artifact, target or consumer account; use the later scoped 3.3 release-completion/manifest record for its historical final status. No current 4.0, public-release or installed-consumer qualification follows.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/release/PLATFORM_3_3_STATIC_DEPLOYMENT_CONSUMERS_COMPLETION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_RELEASE_PLATFORM_3_3_WEBSITE_DEPLOYMENT_CONSUMER_COMPLETION_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/release/PLATFORM_3_3_WEBSITE_DEPLOYMENT_CONSUMER_COMPLETION.md",
+      "blob_sha": "aabe53874654827314c364e060c0a381062543d3",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Historical Platform 3.3 candidate, artifact, target or consumer account; use the later scoped 3.3 release-completion/manifest record for its historical final status. No current 4.0, public-release or installed-consumer qualification follows.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/release/PLATFORM_3_3_WEBSITE_DEPLOYMENT_CONSUMER_COMPLETION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_RELEASE_PLATFORM_3_3_WINDOWS_DEPLOYMENT_COMPLETION_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/release/PLATFORM_3_3_WINDOWS_DEPLOYMENT_COMPLETION.md",
+      "blob_sha": "9f0aa7d95d915159fb3892f5b4fff76f6dd51862",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Historical Platform 3.3 candidate, artifact, target or consumer account; use the later scoped 3.3 release-completion/manifest record for its historical final status. No current 4.0, public-release or installed-consumer qualification follows.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/release/PLATFORM_3_3_WINDOWS_DEPLOYMENT_COMPLETION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_RELEASE_PLATFORM_RELEASE_ARTIFACT_MANIFEST_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/release/PLATFORM_RELEASE_ARTIFACT_MANIFEST.md",
+      "blob_sha": "a7897a1b907c2e9f16445b5b778addeb936802e2",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Historical Platform 3.3 candidate, artifact, target or consumer account; use the later scoped 3.3 release-completion/manifest record for its historical final status. No current 4.0, public-release or installed-consumer qualification follows.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/release/PLATFORM_RELEASE_ARTIFACT_MANIFEST.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_RELEASE_PLATFORM_RELEASE_CANDIDATE_EVIDENCE_3_3_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/release/PLATFORM_RELEASE_CANDIDATE_EVIDENCE_3_3.md",
+      "blob_sha": "99cebc020de4b8d49cdbbf99e1b02d12f8832813",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Historical Platform 3.3 candidate, artifact, target or consumer account; use the later scoped 3.3 release-completion/manifest record for its historical final status. No current 4.0, public-release or installed-consumer qualification follows.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/release/PLATFORM_RELEASE_CANDIDATE_EVIDENCE_3_3.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_RELEASE_PLATFORM_RELEASE_DRY_RUN_REPORT_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/release/PLATFORM_RELEASE_DRY_RUN_REPORT.md",
+      "blob_sha": "846d0cdbd4f6e0ec16c67d907a0bf386f2175458",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Dated release architecture, runner, dry-run or phase-completion record; distinguish simulation, candidate and historical approval from current producer, deployment and installed-consumer receipts.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/release/PLATFORM_RELEASE_DRY_RUN_REPORT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_RELEASE_PLATFORM_RELEASE_EXECUTION_REPORT_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/release/PLATFORM_RELEASE_EXECUTION_REPORT.md",
+      "blob_sha": "5e12320040ab2cf0d508844f5b73fdb490c96cf2",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Dated release architecture, runner, dry-run or phase-completion record; distinguish simulation, candidate and historical approval from current producer, deployment and installed-consumer receipts.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/release/PLATFORM_RELEASE_EXECUTION_REPORT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_RELEASE_PLATFORM_RELEASE_GAP_ANALYSIS_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/release/PLATFORM_RELEASE_GAP_ANALYSIS.md",
+      "blob_sha": "a6a329a307751bf0cb70f47db490894acf026a62",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Dated release architecture, runner, dry-run or phase-completion record; distinguish simulation, candidate and historical approval from current producer, deployment and installed-consumer receipts.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/release/PLATFORM_RELEASE_GAP_ANALYSIS.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_RELEASE_PLATFORM_RELEASE_OPERATIONAL_RUNTIME_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/release/PLATFORM_RELEASE_OPERATIONAL_RUNTIME.md",
+      "blob_sha": "0e8f351a37828382ba1599ef9faba10f47b55aaa",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Dated release architecture, runner, dry-run or phase-completion record; distinguish simulation, candidate and historical approval from current producer, deployment and installed-consumer receipts.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/release/PLATFORM_RELEASE_OPERATIONAL_RUNTIME.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_RELEASE_PLATFORM_RELEASE_RUNTIME_EXECUTION_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/release/PLATFORM_RELEASE_RUNTIME_EXECUTION.md",
+      "blob_sha": "13880bc0bc9896809a64a04b186f2ccdbe6c2861",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Implemented release-runtime execution contract: explicit execute mode can dispatch existing GitHub Actions build, publication and deployment workflows. Current authorization and exact workflow effects remain separate; this planning assignment performs no execute dispatch.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/release/PLATFORM_RELEASE_RUNTIME_EXECUTION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_RELEASE_PROMPT_01_RELEASE_ARCHITECTURE_COMPLETION_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/release/PROMPT_01_RELEASE_ARCHITECTURE_COMPLETION.md",
+      "blob_sha": "d8646baaf458bdff2181c39b67d825db9f2ea470",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Dated release architecture, runner, dry-run or phase-completion record; distinguish simulation, candidate and historical approval from current producer, deployment and installed-consumer receipts.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/release/PROMPT_01_RELEASE_ARCHITECTURE_COMPLETION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_RELEASE_PROMPT_02_RELEASE_ORCHESTRATOR_COMPLETION_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/release/PROMPT_02_RELEASE_ORCHESTRATOR_COMPLETION.md",
+      "blob_sha": "5318efe09ed5461e1ae3f0b5121a4588f5cc446e",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Dated release architecture, runner, dry-run or phase-completion record; distinguish simulation, candidate and historical approval from current producer, deployment and installed-consumer receipts.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/release/PROMPT_02_RELEASE_ORCHESTRATOR_COMPLETION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_RELEASE_PROMPT_03_PLATFORM_RELEASE_DRY_RUN_COMPLETION_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/release/PROMPT_03_PLATFORM_RELEASE_DRY_RUN_COMPLETION.md",
+      "blob_sha": "3aa78c21766bd9260a88d3fba987bbea21556029",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Dated release architecture, runner, dry-run or phase-completion record; distinguish simulation, candidate and historical approval from current producer, deployment and installed-consumer receipts.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/release/PROMPT_03_PLATFORM_RELEASE_DRY_RUN_COMPLETION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_RELEASE_PROMPT_04_PLATFORM_RELEASE_QUALIFICATION_COMPLETION_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/release/PROMPT_04_PLATFORM_RELEASE_QUALIFICATION_COMPLETION.md",
+      "blob_sha": "d103516b3c947ec98f4774e732ddfb417960b5aa",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Dated release architecture, runner, dry-run or phase-completion record; distinguish simulation, candidate and historical approval from current producer, deployment and installed-consumer receipts.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/release/PROMPT_04_PLATFORM_RELEASE_QUALIFICATION_COMPLETION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_RELEASE_RELEASE_ARCHITECTURE_CORRECTIONS_COMPLETION_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/release/RELEASE_ARCHITECTURE_CORRECTIONS_COMPLETION.md",
+      "blob_sha": "9e6d1e175e16ab408ccdfbc6e738ea9d9cc0a202",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Dated release architecture, runner, dry-run or phase-completion record; distinguish simulation, candidate and historical approval from current producer, deployment and installed-consumer receipts.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/release/RELEASE_ARCHITECTURE_CORRECTIONS_COMPLETION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_RELEASE_RUNNER_ARCHITECTURE_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/release/RUNNER_ARCHITECTURE.md",
+      "blob_sha": "10ff1affba3c209e02c709008b3ae4b495811107",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Release/runner structural policy or implementation template at the pinned core head; operational application and current settings require exact workflow and host readback. No dispatch or publication authorized.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/release/RUNNER_ARCHITECTURE.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_RELEASE_RUNNER_DEPLOYMENT_MATRIX_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/release/RUNNER_DEPLOYMENT_MATRIX.md",
+      "blob_sha": "2dd27fb868bb62a81045ffba33f6444553008fd7",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Historical July native-runner alignment and build-location evidence matrix with two dated run IDs; its own scope excludes deployment/publication authorization. Current runner health, settings and exact workflow effects require fresh readback.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/release/RUNNER_DEPLOYMENT_MATRIX.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_RELEASE_RUNNER_POLICY_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/release/RUNNER_POLICY.md",
+      "blob_sha": "ef75c88d2de6d1a18e5f9e698ba677c48427f3e2",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Release/runner structural policy or implementation template at the pinned core head; operational application and current settings require exact workflow and host readback. No dispatch or publication authorized.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/release/RUNNER_POLICY.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_RELEASE_RUNNER_QUALIFICATION_REPORT_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/release/RUNNER_QUALIFICATION_REPORT.md",
+      "blob_sha": "44080a7363ad46aacbc9b08197dfa64c72a730b0",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Dated release architecture, runner, dry-run or phase-completion record; distinguish simulation, candidate and historical approval from current producer, deployment and installed-consumer receipts.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/release/RUNNER_QUALIFICATION_REPORT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_RELEASE_RUNNER_TOOLING_CURRENCY_STANDARD_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/release/RUNNER_TOOLING_CURRENCY_STANDARD.md",
+      "blob_sha": "ed3dc83d4609b94f2f9397265fe26310401f4abe",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Release/runner structural policy or implementation template at the pinned core head; operational application and current settings require exact workflow and host readback. No dispatch or publication authorized.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/release/RUNNER_TOOLING_CURRENCY_STANDARD.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_RELEASE_RUNTIME_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/release/RUNTIME.md",
+      "blob_sha": "ca484a651cad2e0378cef8887cc8ac6e31ab4ebb",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Release/runner structural policy or implementation template at the pinned core head; operational application and current settings require exact workflow and host readback. No dispatch or publication authorized.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/release/RUNTIME.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_SOFTWARE_ASSURANCE_ACTION_PINNING_MIGRATION_REPORT_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/software_assurance/ACTION_PINNING_MIGRATION_REPORT.md",
+      "blob_sha": "b15f884b05f58a08e092aee7c901b7cfbbd56c8f",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Dated Software Assurance migration, assessment, prompt or completion record; later policy, closure and exception sources govern superseded status. Current platform settings and run effectiveness require live readback.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/software_assurance/ACTION_PINNING_MIGRATION_REPORT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_SOFTWARE_ASSURANCE_ACTION_PINNING_PR_RISK_MATRIX_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/software_assurance/ACTION_PINNING_PR_RISK_MATRIX.md",
+      "blob_sha": "3ad43fc1ff588c86f6465f1cf7164b8836589659",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Dated Software Assurance migration, assessment, prompt or completion record; later policy, closure and exception sources govern superseded status. Current platform settings and run effectiveness require live readback.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/software_assurance/ACTION_PINNING_PR_RISK_MATRIX.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_SOFTWARE_ASSURANCE_DJCONNECT_TRUSTED_DELIVERY_APP_SETUP_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/software_assurance/DJCONNECT_TRUSTED_DELIVERY_APP_SETUP.md",
+      "blob_sha": "1836a423c6e207460a21a25e97302dc5afc7df71",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Software Assurance setup, control mapping or reproducer at the pinned core head; it describes method, not independently read current GitHub settings or run acceptance.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/software_assurance/DJCONNECT_TRUSTED_DELIVERY_APP_SETUP.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_SOFTWARE_ASSURANCE_GITHUB_SHA_ENFORCEMENT_SUPPORT_CASE_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/software_assurance/GITHUB_SHA_ENFORCEMENT_SUPPORT_CASE.md",
+      "blob_sha": "8d72151e0dfb4c6f741b5cc9f962f072cdde5014",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Dated Software Assurance migration, assessment, prompt or completion record; later policy, closure and exception sources govern superseded status. Current platform settings and run effectiveness require live readback.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/software_assurance/GITHUB_SHA_ENFORCEMENT_SUPPORT_CASE.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_SOFTWARE_ASSURANCE_HACS_CI_ALTERNATING_PR_VALIDATION_RECLASSIFICATION_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/software_assurance/HACS_CI_ALTERNATING_PR_VALIDATION_RECLASSIFICATION.md",
+      "blob_sha": "d02cee7ac8c35e5e335946df7bcfbea0266e1fe2",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Later dated HACS CI failure reclassification; action-loading failures are inconclusive without retained exact run/ref evidence, and no current workflow fix is selected here.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/software_assurance/HACS_CI_ALTERNATING_PR_VALIDATION_RECLASSIFICATION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_SOFTWARE_ASSURANCE_HACS_CI_FAILURE_CLASSIFICATION_ASSESSMENT_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/software_assurance/HACS_CI_FAILURE_CLASSIFICATION_ASSESSMENT.md",
+      "blob_sha": "cf76a1e52b4e547d5a213655cdf8b85c78f642bf",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Dated Software Assurance migration, assessment, prompt or completion record; later policy, closure and exception sources govern superseded status. Current platform settings and run effectiveness require live readback.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/software_assurance/HACS_CI_FAILURE_CLASSIFICATION_ASSESSMENT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_SOFTWARE_ASSURANCE_PROMPT_01_CI_GOVERNANCE_FOUNDATION_COMPLETION_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/software_assurance/PROMPT_01_CI_GOVERNANCE_FOUNDATION_COMPLETION.md",
+      "blob_sha": "eaa91bbea553e77a786f63715bfe11c30abe3e41",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Dated Software Assurance migration, assessment, prompt or completion record; later policy, closure and exception sources govern superseded status. Current platform settings and run effectiveness require live readback.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/software_assurance/PROMPT_01_CI_GOVERNANCE_FOUNDATION_COMPLETION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_SOFTWARE_ASSURANCE_PROMPT_02_CROSS_REPOSITORY_WORKFLOW_HARMONIZATION_COMPLETION_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/software_assurance/PROMPT_02_CROSS_REPOSITORY_WORKFLOW_HARMONIZATION_COMPLETION.md",
+      "blob_sha": "84804b6cf660bfb76a2f34f16c415d05bceabb62",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Dated Software Assurance migration, assessment, prompt or completion record; later policy, closure and exception sources govern superseded status. Current platform settings and run effectiveness require live readback.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/software_assurance/PROMPT_02_CROSS_REPOSITORY_WORKFLOW_HARMONIZATION_COMPLETION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_SOFTWARE_ASSURANCE_PROMPT_1_FOUNDATION_ARCHITECTURE_COMPLETION_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/software_assurance/PROMPT_1_FOUNDATION_ARCHITECTURE_COMPLETION.md",
+      "blob_sha": "4c854fb528f03a9320b0a7e238274941e3cf472c",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Dated Software Assurance migration, assessment, prompt or completion record; later policy, closure and exception sources govern superseded status. Current platform settings and run effectiveness require live readback.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/software_assurance/PROMPT_1_FOUNDATION_ARCHITECTURE_COMPLETION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_SOFTWARE_ASSURANCE_PROMPT_2_CAPABILITY_MODEL_BACKLOG_COMPLETION_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/software_assurance/PROMPT_2_CAPABILITY_MODEL_BACKLOG_COMPLETION.md",
+      "blob_sha": "7aabcb370ff0fc2dd01e9b8f07e548fdf023b2b2",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Dated Software Assurance migration, assessment, prompt or completion record; later policy, closure and exception sources govern superseded status. Current platform settings and run effectiveness require live readback.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/software_assurance/PROMPT_2_CAPABILITY_MODEL_BACKLOG_COMPLETION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_SOFTWARE_ASSURANCE_PROMPT_3_PLATFORM_INTEGRATION_EXECUTION_COMPLETION_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/software_assurance/PROMPT_3_PLATFORM_INTEGRATION_EXECUTION_COMPLETION.md",
+      "blob_sha": "37eacfc5462baa3829fe2816fb14b35eb6d052be",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Dated Software Assurance migration, assessment, prompt or completion record; later policy, closure and exception sources govern superseded status. Current platform settings and run effectiveness require live readback.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/software_assurance/PROMPT_3_PLATFORM_INTEGRATION_EXECUTION_COMPLETION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_SOFTWARE_ASSURANCE_PROMPT_4_GOVERNANCE_ROLLOUT_COMPLETION_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/software_assurance/PROMPT_4_GOVERNANCE_ROLLOUT_COMPLETION.md",
+      "blob_sha": "d07398d23f5ab2ac4f566c233a59801f3a6a6649",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Dated Software Assurance migration, assessment, prompt or completion record; later policy, closure and exception sources govern superseded status. Current platform settings and run effectiveness require live readback.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/software_assurance/PROMPT_4_GOVERNANCE_ROLLOUT_COMPLETION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_SOFTWARE_ASSURANCE_RUNNER_TRUST_REPORT_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/software_assurance/RUNNER_TRUST_REPORT.md",
+      "blob_sha": "6c9e172a6f0a70985641d8263ec96b54d377ab9a",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Dated Software Assurance migration, assessment, prompt or completion record; later policy, closure and exception sources govern superseded status. Current platform settings and run effectiveness require live readback.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/software_assurance/RUNNER_TRUST_REPORT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_SOFTWARE_ASSURANCE_SHA_ENFORCEMENT_MINIMAL_REPRODUCER_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/software_assurance/SHA_ENFORCEMENT_MINIMAL_REPRODUCER.md",
+      "blob_sha": "b9d2548036162e262f620c82f45dd62ef1845925",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Software Assurance setup, control mapping or reproducer at the pinned core head; it describes method, not independently read current GitHub settings or run acceptance.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/software_assurance/SHA_ENFORCEMENT_MINIMAL_REPRODUCER.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_SOFTWARE_ASSURANCE_SOFTWARE_ASSURANCE_EPIC_COMPLETION_REPORT_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/software_assurance/SOFTWARE_ASSURANCE_EPIC_COMPLETION_REPORT.md",
+      "blob_sha": "cac5fb97ca751d49e53076d4ef3a2a678cc18ed7",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Dated Software Assurance migration, assessment, prompt or completion record; later policy, closure and exception sources govern superseded status. Current platform settings and run effectiveness require live readback.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/software_assurance/SOFTWARE_ASSURANCE_EPIC_COMPLETION_REPORT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_SOFTWARE_ASSURANCE_SOFTWARE_ASSURANCE_GAP_ANALYSIS_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/software_assurance/SOFTWARE_ASSURANCE_GAP_ANALYSIS.md",
+      "blob_sha": "3c76167efc3e6d53d00a3d29b27f0dc879d2ba36",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Dated Software Assurance migration, assessment, prompt or completion record; later policy, closure and exception sources govern superseded status. Current platform settings and run effectiveness require live readback.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/software_assurance/SOFTWARE_ASSURANCE_GAP_ANALYSIS.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_SOFTWARE_ASSURANCE_SOFTWARE_ASSURANCE_GENERATION_1_CLOSURE_REPORT_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/software_assurance/SOFTWARE_ASSURANCE_GENERATION_1_CLOSURE_REPORT.md",
+      "blob_sha": "5402ed5a620e2fdd3024b0c3bb0f34812e5314a1",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Dated Software Assurance migration, assessment, prompt or completion record; later policy, closure and exception sources govern superseded status. Current platform settings and run effectiveness require live readback.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/software_assurance/SOFTWARE_ASSURANCE_GENERATION_1_CLOSURE_REPORT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_SOFTWARE_ASSURANCE_SOFTWARE_ASSURANCE_IMPLEMENTATION_PREREQUISITES_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/software_assurance/SOFTWARE_ASSURANCE_IMPLEMENTATION_PREREQUISITES.md",
+      "blob_sha": "bb9b0cf21b8978e779517e2e215c01d0a9a0011e",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Canonical Software Assurance implementation prerequisites and Platform Baseline qualification conditions remain applicable; its Prompt 2 active / Prompts 3–4 blocked execution status is dated and superseded by later Generation 1 closure. No new implementation selection follows.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/software_assurance/SOFTWARE_ASSURANCE_IMPLEMENTATION_PREREQUISITES.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_SOFTWARE_ASSURANCE_SOFTWARE_ASSURANCE_IMPLEMENTATION_REGISTRATION_COMPLETION_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/software_assurance/SOFTWARE_ASSURANCE_IMPLEMENTATION_REGISTRATION_COMPLETION.md",
+      "blob_sha": "1cbadbd0b6df475b4321fddc203c040669020358",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Dated Software Assurance migration, assessment, prompt or completion record; later policy, closure and exception sources govern superseded status. Current platform settings and run effectiveness require live readback.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/software_assurance/SOFTWARE_ASSURANCE_IMPLEMENTATION_REGISTRATION_COMPLETION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_SOFTWARE_ASSURANCE_SOFTWARE_ASSURANCE_ROADMAP_TRANSITION_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/software_assurance/SOFTWARE_ASSURANCE_ROADMAP_TRANSITION.md",
+      "blob_sha": "233392d41fb4cb1a86539734fd54b45be5ba70e7",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Later dated Software Assurance roadmap transition; four prompts are recorded complete in its scope, superseding older in-progress prerequisites. Current control effectiveness needs live evidence.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/software_assurance/SOFTWARE_ASSURANCE_ROADMAP_TRANSITION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_SOFTWARE_ASSURANCE_TRUSTED_AI_ACTOR_REPORT_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/software_assurance/TRUSTED_AI_ACTOR_REPORT.md",
+      "blob_sha": "235b40b0daace382d715ce392b9b7ead7783f615",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Dated Software Assurance migration, assessment, prompt or completion record; later policy, closure and exception sources govern superseded status. Current platform settings and run effectiveness require live readback.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/software_assurance/TRUSTED_AI_ACTOR_REPORT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_SOFTWARE_ASSURANCE_TRUSTED_DELIVERY_COMPLIANCE_MATRIX_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/software_assurance/TRUSTED_DELIVERY_COMPLIANCE_MATRIX.md",
+      "blob_sha": "fb6577754210b5ec5296f7cfc00bfe3027b7be8c",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Software Assurance setup, control mapping or reproducer at the pinned core head; it describes method, not independently read current GitHub settings or run acceptance.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/software_assurance/TRUSTED_DELIVERY_COMPLIANCE_MATRIX.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_SOFTWARE_ASSURANCE_TRUSTED_DELIVERY_READINESS_REVIEW_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/software_assurance/TRUSTED_DELIVERY_READINESS_REVIEW.md",
+      "blob_sha": "6c4897b45c893c2ec39cd7fd2c657961819b5543",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Historical pre-certification Trusted Delivery NOT_READY review, superseded in status by later certification and accepted TD-GITHUB-001 exception; no current protection setting inferred.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/software_assurance/TRUSTED_DELIVERY_READINESS_REVIEW.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_SOFTWARE_ASSURANCE_TRUSTED_DELIVERY_SINGLE_MAINTAINER_GOVERNANCE_COMPLETION_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/software_assurance/TRUSTED_DELIVERY_SINGLE_MAINTAINER_GOVERNANCE_COMPLETION.md",
+      "blob_sha": "043923e0b5f82fe90357eb4fa3e8443e0e5dd607",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Dated Software Assurance migration, assessment, prompt or completion record; later policy, closure and exception sources govern superseded status. Current platform settings and run effectiveness require live readback.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/software_assurance/TRUSTED_DELIVERY_SINGLE_MAINTAINER_GOVERNANCE_COMPLETION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_SOFTWARE_ASSURANCE_TRUSTED_DELIVERY_STARTUP_FAILURE_ROOT_CAUSE_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/software_assurance/TRUSTED_DELIVERY_STARTUP_FAILURE_ROOT_CAUSE.md",
+      "blob_sha": "40d030cac747a509a490a5570bc9d0b1b14b7b14",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Dated Software Assurance migration, assessment, prompt or completion record; later policy, closure and exception sources govern superseded status. Current platform settings and run effectiveness require live readback.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/software_assurance/TRUSTED_DELIVERY_STARTUP_FAILURE_ROOT_CAUSE.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_VERIFICATION_07_IMPLEMENTATION_GAP_ANALYSIS_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/verification/07_IMPLEMENTATION_GAP_ANALYSIS.md",
+      "blob_sha": "ade644d38b7f507b32b36d2b35b10552d342c61e",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Dated verification phase, adapter, scenario or profile record; phase next-step and test-status text is bounded to its date and cannot override later qualification or establish current live acceptance.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/verification/07_IMPLEMENTATION_GAP_ANALYSIS.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_VERIFICATION_08A_VERIFICATION_DATA_FRAMEWORK_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/verification/08A_VERIFICATION_DATA_FRAMEWORK.md",
+      "blob_sha": "aff0826107489441af030c1bc11848123113824e",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Verification Platform structural contract at the pinned core head: matrix/data/mode/policy planning and execution/qualification are distinct; this source does not prove a current scenario or physical target passed.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/verification/08A_VERIFICATION_DATA_FRAMEWORK.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_VERIFICATION_08B_VERIFICATION_MODES_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/verification/08B_VERIFICATION_MODES.md",
+      "blob_sha": "025f3ff60735c5a3858e31bb0eedc91880486b89",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Verification Platform structural contract at the pinned core head: matrix/data/mode/policy planning and execution/qualification are distinct; this source does not prove a current scenario or physical target passed.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/verification/08B_VERIFICATION_MODES.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_VERIFICATION_08B_VERIFICATION_POLICIES_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/verification/08B_VERIFICATION_POLICIES.md",
+      "blob_sha": "7a0f95933a7b379414638ed22f5be35abc6c3642",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Verification Platform structural contract at the pinned core head: matrix/data/mode/policy planning and execution/qualification are distinct; this source does not prove a current scenario or physical target passed.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/verification/08B_VERIFICATION_POLICIES.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_VERIFICATION_08C_VERIFICATION_PLANNING_ENGINE_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/verification/08C_VERIFICATION_PLANNING_ENGINE.md",
+      "blob_sha": "3d998ffc4e0869f4c8d30d652efd76e2414ba1d4",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Verification Platform structural contract at the pinned core head: matrix/data/mode/policy planning and execution/qualification are distinct; this source does not prove a current scenario or physical target passed.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/verification/08C_VERIFICATION_PLANNING_ENGINE.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_VERIFICATION_08_VERIFICATION_EXECUTION_ENVIRONMENT_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/verification/08_VERIFICATION_EXECUTION_ENVIRONMENT.md",
+      "blob_sha": "4250366d024cb30a7a4d24d68b53fdd1b674be11",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Verification Platform structural contract at the pinned core head: matrix/data/mode/policy planning and execution/qualification are distinct; this source does not prove a current scenario or physical target passed.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/verification/08_VERIFICATION_EXECUTION_ENVIRONMENT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_VERIFICATION_09_HOME_ASSISTANT_VERIFICATION_ADAPTER_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/verification/09_HOME_ASSISTANT_VERIFICATION_ADAPTER.md",
+      "blob_sha": "ff04988a37a3f709fddee7737b9c3d4045f321f0",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Dated verification phase, adapter, scenario or profile record; phase next-step and test-status text is bounded to its date and cannot override later qualification or establish current live acceptance.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/verification/09_HOME_ASSISTANT_VERIFICATION_ADAPTER.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_VERIFICATION_10_APPLE_VERIFICATION_ADAPTER_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/verification/10_APPLE_VERIFICATION_ADAPTER.md",
+      "blob_sha": "0bf66f05f451ca41f9ae9053dc388765c5a2f6bd",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Dated verification phase, adapter, scenario or profile record; phase next-step and test-status text is bounded to its date and cannot override later qualification or establish current live acceptance.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/verification/10_APPLE_VERIFICATION_ADAPTER.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_VERIFICATION_LIVE_SCENARIOS_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/verification/LIVE_SCENARIOS.md",
+      "blob_sha": "2a0a7f782a97c1532dbf3dd814ccfa998afce724",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Dated verification phase, adapter, scenario or profile record; phase next-step and test-status text is bounded to its date and cannot override later qualification or establish current live acceptance.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/verification/LIVE_SCENARIOS.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_VERIFICATION_PERSISTENCE_FOUNDATION_TEST_MATRIX_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/verification/PERSISTENCE_FOUNDATION_TEST_MATRIX.md",
+      "blob_sha": "5c53c4f105db9843403f1c36a89da9036f6641de",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Historical persistence foundation test matrix. Its then-current metadata-only schema claim is superseded by the pinned persistence README and schema at core 192703ea, which include Session lifecycle metadata and historical DJMoment projections; migration and installed acceptance still require exact evidence.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/verification/PERSISTENCE_FOUNDATION_TEST_MATRIX.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_VERIFICATION_PROFILE_PLATFORM_VERIFICATION_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/verification/PROFILE_PLATFORM_VERIFICATION.md",
+      "blob_sha": "9c2f2613131d7a13be935629b89a7d9e150d9750",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Dated verification phase, adapter, scenario or profile record; phase next-step and test-status text is bounded to its date and cannot override later qualification or establish current live acceptance.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/verification/PROFILE_PLATFORM_VERIFICATION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_VERIFICATION_READ_ONLY_DEVELOPER_OVERLAY_PREFLIGHT_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/verification/READ_ONLY_DEVELOPER_OVERLAY_PREFLIGHT.md",
+      "blob_sha": "edabe32d2967124aa0101fc1a9b62494d332206f",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Dated E2E-only read-only developer overlay preflight; scoped to verification tooling, with no product or physical-consumer acceptance.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/verification/READ_ONLY_DEVELOPER_OVERLAY_PREFLIGHT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_VERIFICATION_VERIFICATION_ARCHITECTURAL_DECISIONS_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/verification/VERIFICATION_ARCHITECTURAL_DECISIONS.md",
+      "blob_sha": "96fb30491c8c60342a418211f5d9125b94308ecd",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Verification Platform structural contract at the pinned core head: matrix/data/mode/policy planning and execution/qualification are distinct; this source does not prove a current scenario or physical target passed.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/verification/VERIFICATION_ARCHITECTURAL_DECISIONS.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_VERIFICATION_VERIFICATION_MATRIX_COVERAGE_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/verification/VERIFICATION_MATRIX_COVERAGE.md",
+      "blob_sha": "965350b83dbf7a63c2651f167cf7a3761a49a390",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Verification Platform structural contract at the pinned core head: matrix/data/mode/policy planning and execution/qualification are distinct; this source does not prove a current scenario or physical target passed.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/verification/VERIFICATION_MATRIX_COVERAGE.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
+    },
+    {
+      "id": "CORE_EXTRA__DOCS_VERIFICATION_VERIFICATION_MATRIX_REFERENCE_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/verification/VERIFICATION_MATRIX_REFERENCE.md",
+      "blob_sha": "baf574dd1e2dabf591072c200aa869f7f1c875d3",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Verification Platform structural contract at the pinned core head: matrix/data/mode/policy planning and execution/qualification are distinct; this source does not prove a current scenario or physical target passed.",
+      "observed_at": "2026-10-03 15:23 UTC",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/verification/VERIFICATION_MATRIX_REFERENCE.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No current product, physical-consumer or release qualification inferred from this file."
     }
   ],
   "nodes": [
@@ -18917,7 +21190,122 @@
         "CORE_SA_CROSS_REPO_ROLLOUT_HIST",
         "CORE_SA_WORKFLOW_OVERRIDE_NAV",
         "CORE_SA_TD_GATE_REVIEW_HIST",
-        "CORE_SA_TD_IMPLEMENTATION_HIST"
+        "CORE_SA_TD_IMPLEMENTATION_HIST",
+        "CORE_EXTRA__DOCS_IMPLEMENTATION_EPIC_3_PHASE_1_CORE_DOMAIN",
+        "CORE_EXTRA__DOCS_IMPLEMENTATION_EPIC_3_PHASE_2_PERSISTENCE_CONFIG_FLOW",
+        "CORE_EXTRA__DOCS_IMPLEMENTATION_EPIC_3_PHASE_3_SERVICES_API_PROFILE_RESOLUTION",
+        "CORE_EXTRA__DOCS_IMPLEMENTATION_EPIC_TEMPLATE_00_CONTEXT",
+        "CORE_EXTRA__DOCS_IMPLEMENTATION_EPIC_TEMPLATE_01_PHASE_TEMPLATE",
+        "CORE_EXTRA__DOCS_IMPLEMENTATION_EPIC_TEMPLATE_02_REVIEW_TEMPLATE",
+        "CORE_EXTRA__DOCS_IMPLEMENTATION_EPIC_TEMPLATE_03_COMPLETION_TEMPLATE",
+        "CORE_EXTRA__DOCS_IMPLEMENTATION_EPIC3_EPIC_3_COMPLETION_REPORT",
+        "CORE_EXTRA__DOCS_IMPLEMENTATION_EPIC3_EPIC_3_PHASE_4_PRIVACY_EXPORT_IMPORT",
+        "CORE_EXTRA__DOCS_IMPLEMENTATION_EPIC3B_00_BACKEND_ALIGNMENT_COMPLETION",
+        "CORE_EXTRA__DOCS_IMPLEMENTATION_EPIC3B_01_PROFILE_ADOPTION_CONTRACT",
+        "CORE_EXTRA__DOCS_IMPLEMENTATION_EPIC3B_01_READINESS_VALIDATION_REPORT",
+        "CORE_EXTRA__CUSTOM_COMPONENTS_DJCONNECT_AGENTS",
+        "CORE_EXTRA__CUSTOM_COMPONENTS_DJCONNECT_PERSISTENCE_README",
+        "CORE_EXTRA__CUSTOM_COMPONENTS_DJCONNECT_PROMPTS_DJ_PERSONA",
+        "CORE_EXTRA__EXAMPLES_CLIENT_CONTRACTS_README",
+        "CORE_EXTRA__SOFTWARE_ASSURANCE_README",
+        "CORE_EXTRA__TESTS_RELEASE_FIXTURES_OPERATIONAL_OWNERSHIP",
+        "CORE_EXTRA__VERIFICATION_DATA_README",
+        "CORE_EXTRA__VERIFICATION_LAB_HOME_ASSISTANT_README",
+        "CORE_EXTRA__VERIFICATION_MODES_README",
+        "CORE_EXTRA__VERIFICATION_PLANNING_README",
+        "CORE_EXTRA__VERIFICATION_POLICIES_README",
+        "CORE_EXTRA__DOCS_GOVERNANCE_PLATFORM_ARCHITECT_SYSTEM_INSTRUCTIONS",
+        "CORE_EXTRA__DOCS_GOVERNANCE_REPOSITORY_GOVERNANCE_ROLLOUT",
+        "CORE_EXTRA__DOCS_GOVERNANCE_REPOSITORY_GOVERNANCE_ROLLOUT_PLAN_V2_2",
+        "CORE_EXTRA__DOCS_LOCALIZATION_LOCALIZATION_REPOSITORY_AUDIT",
+        "CORE_EXTRA__DOCS_RESEARCH_R0_RUNTIME_INDEPENDENCE",
+        "CORE_EXTRA__PROMPTS_RELEASE_PROMPT_02_RELEASE_PLANNING_AND_DISCOVERY_CONTRACT",
+        "CORE_EXTRA__PROMPTS_RELEASE_PROMPT_03_PLATFORM_RELEASE_DRY_RUN",
+        "CORE_EXTRA__PROMPTS_RELEASE_PROMPT_04_PLATFORM_RELEASE_QUALIFICATION",
+        "CORE_EXTRA__PROMPTS_SOFTWARE_ASSURANCE_PROMPT_2_CAPABILITY_MODEL_BACKLOG",
+        "CORE_EXTRA__PROMPTS_SOFTWARE_ASSURANCE_PROMPT_4_POLICY_EVIDENCE_REPORTING_READINESS",
+        "CORE_EXTRA__ONBOARDING_CHANGELOG",
+        "CORE_EXTRA__ONBOARDING_MANIFEST_COMPATIBILITY",
+        "CORE_EXTRA__ONBOARDING_README",
+        "CORE_EXTRA__SCRIPTS_RUNNER_BOOTSTRAP_DJCONNECT_MACOS_HOST_CHANGELOG",
+        "CORE_EXTRA__DOCS_RELEASE_DEPLOYMENT_CONSUMER_IMPLEMENTATION_TEMPLATE_MD",
+        "CORE_EXTRA__DOCS_RELEASE_MACOS_DEVELOPMENT_HOST_BOOTSTRAP_MD",
+        "CORE_EXTRA__DOCS_RELEASE_MACOS_RUNNER_BOOTSTRAP_MERGE_READINESS_MD",
+        "CORE_EXTRA__DOCS_RELEASE_NATIVE_RUNNER_ALIGNMENT_COMPLETION_MD",
+        "CORE_EXTRA__DOCS_RELEASE_PLATFORM_3_3_API_ARTIFACT_REBIND_MD",
+        "CORE_EXTRA__DOCS_RELEASE_PLATFORM_3_3_API_DEPLOYMENT_COMPLETION_MD",
+        "CORE_EXTRA__DOCS_RELEASE_PLATFORM_3_3_API_DEPLOYMENT_CONSUMER_COMPLETION_MD",
+        "CORE_EXTRA__DOCS_RELEASE_PLATFORM_3_3_CANDIDATE_EVIDENCE_MD",
+        "CORE_EXTRA__DOCS_RELEASE_PLATFORM_3_3_CANDIDATE_READINESS_MD",
+        "CORE_EXTRA__DOCS_RELEASE_PLATFORM_3_3_CANDIDATE_RECONSTRUCTION_REPORT_MD",
+        "CORE_EXTRA__DOCS_RELEASE_PLATFORM_3_3_CANDIDATE_VERSION_MATRIX_MD",
+        "CORE_EXTRA__DOCS_RELEASE_PLATFORM_3_3_ESP32_DEPLOYMENT_COMPLETION_MD",
+        "CORE_EXTRA__DOCS_RELEASE_PLATFORM_3_3_ESP32_DEPLOYMENT_CONSUMER_BLOCKED_MD",
+        "CORE_EXTRA__DOCS_RELEASE_PLATFORM_3_3_HOME_ASSISTANT_PRIVATE_RELAY_BLOCKED_MD",
+        "CORE_EXTRA__DOCS_RELEASE_PLATFORM_3_3_OPERATIONAL_MANIFEST_GATE_MD",
+        "CORE_EXTRA__DOCS_RELEASE_PLATFORM_3_3_OPERATIONAL_MANIFEST_PREPARATION_MD",
+        "CORE_EXTRA__DOCS_RELEASE_PLATFORM_3_3_RBPI_DEPLOYMENT_COMPLETION_MD",
+        "CORE_EXTRA__DOCS_RELEASE_PLATFORM_3_3_STATIC_DEPLOYMENT_CONSUMERS_COMPLETION_MD",
+        "CORE_EXTRA__DOCS_RELEASE_PLATFORM_3_3_WEBSITE_DEPLOYMENT_CONSUMER_COMPLETION_MD",
+        "CORE_EXTRA__DOCS_RELEASE_PLATFORM_3_3_WINDOWS_DEPLOYMENT_COMPLETION_MD",
+        "CORE_EXTRA__DOCS_RELEASE_PLATFORM_RELEASE_ARTIFACT_MANIFEST_MD",
+        "CORE_EXTRA__DOCS_RELEASE_PLATFORM_RELEASE_CANDIDATE_EVIDENCE_3_3_MD",
+        "CORE_EXTRA__DOCS_RELEASE_PLATFORM_RELEASE_DRY_RUN_REPORT_MD",
+        "CORE_EXTRA__DOCS_RELEASE_PLATFORM_RELEASE_EXECUTION_REPORT_MD",
+        "CORE_EXTRA__DOCS_RELEASE_PLATFORM_RELEASE_GAP_ANALYSIS_MD",
+        "CORE_EXTRA__DOCS_RELEASE_PLATFORM_RELEASE_OPERATIONAL_RUNTIME_MD",
+        "CORE_EXTRA__DOCS_RELEASE_PLATFORM_RELEASE_RUNTIME_EXECUTION_MD",
+        "CORE_EXTRA__DOCS_RELEASE_PROMPT_01_RELEASE_ARCHITECTURE_COMPLETION_MD",
+        "CORE_EXTRA__DOCS_RELEASE_PROMPT_02_RELEASE_ORCHESTRATOR_COMPLETION_MD",
+        "CORE_EXTRA__DOCS_RELEASE_PROMPT_03_PLATFORM_RELEASE_DRY_RUN_COMPLETION_MD",
+        "CORE_EXTRA__DOCS_RELEASE_PROMPT_04_PLATFORM_RELEASE_QUALIFICATION_COMPLETION_MD",
+        "CORE_EXTRA__DOCS_RELEASE_RELEASE_ARCHITECTURE_CORRECTIONS_COMPLETION_MD",
+        "CORE_EXTRA__DOCS_RELEASE_RUNNER_ARCHITECTURE_MD",
+        "CORE_EXTRA__DOCS_RELEASE_RUNNER_DEPLOYMENT_MATRIX_MD",
+        "CORE_EXTRA__DOCS_RELEASE_RUNNER_POLICY_MD",
+        "CORE_EXTRA__DOCS_RELEASE_RUNNER_QUALIFICATION_REPORT_MD",
+        "CORE_EXTRA__DOCS_RELEASE_RUNNER_TOOLING_CURRENCY_STANDARD_MD",
+        "CORE_EXTRA__DOCS_RELEASE_RUNTIME_MD",
+        "CORE_EXTRA__DOCS_SOFTWARE_ASSURANCE_ACTION_PINNING_MIGRATION_REPORT_MD",
+        "CORE_EXTRA__DOCS_SOFTWARE_ASSURANCE_ACTION_PINNING_PR_RISK_MATRIX_MD",
+        "CORE_EXTRA__DOCS_SOFTWARE_ASSURANCE_DJCONNECT_TRUSTED_DELIVERY_APP_SETUP_MD",
+        "CORE_EXTRA__DOCS_SOFTWARE_ASSURANCE_GITHUB_SHA_ENFORCEMENT_SUPPORT_CASE_MD",
+        "CORE_EXTRA__DOCS_SOFTWARE_ASSURANCE_HACS_CI_ALTERNATING_PR_VALIDATION_RECLASSIFICATION_MD",
+        "CORE_EXTRA__DOCS_SOFTWARE_ASSURANCE_HACS_CI_FAILURE_CLASSIFICATION_ASSESSMENT_MD",
+        "CORE_EXTRA__DOCS_SOFTWARE_ASSURANCE_PROMPT_01_CI_GOVERNANCE_FOUNDATION_COMPLETION_MD",
+        "CORE_EXTRA__DOCS_SOFTWARE_ASSURANCE_PROMPT_02_CROSS_REPOSITORY_WORKFLOW_HARMONIZATION_COMPLETION_MD",
+        "CORE_EXTRA__DOCS_SOFTWARE_ASSURANCE_PROMPT_1_FOUNDATION_ARCHITECTURE_COMPLETION_MD",
+        "CORE_EXTRA__DOCS_SOFTWARE_ASSURANCE_PROMPT_2_CAPABILITY_MODEL_BACKLOG_COMPLETION_MD",
+        "CORE_EXTRA__DOCS_SOFTWARE_ASSURANCE_PROMPT_3_PLATFORM_INTEGRATION_EXECUTION_COMPLETION_MD",
+        "CORE_EXTRA__DOCS_SOFTWARE_ASSURANCE_PROMPT_4_GOVERNANCE_ROLLOUT_COMPLETION_MD",
+        "CORE_EXTRA__DOCS_SOFTWARE_ASSURANCE_RUNNER_TRUST_REPORT_MD",
+        "CORE_EXTRA__DOCS_SOFTWARE_ASSURANCE_SHA_ENFORCEMENT_MINIMAL_REPRODUCER_MD",
+        "CORE_EXTRA__DOCS_SOFTWARE_ASSURANCE_SOFTWARE_ASSURANCE_EPIC_COMPLETION_REPORT_MD",
+        "CORE_EXTRA__DOCS_SOFTWARE_ASSURANCE_SOFTWARE_ASSURANCE_GAP_ANALYSIS_MD",
+        "CORE_EXTRA__DOCS_SOFTWARE_ASSURANCE_SOFTWARE_ASSURANCE_GENERATION_1_CLOSURE_REPORT_MD",
+        "CORE_EXTRA__DOCS_SOFTWARE_ASSURANCE_SOFTWARE_ASSURANCE_IMPLEMENTATION_PREREQUISITES_MD",
+        "CORE_EXTRA__DOCS_SOFTWARE_ASSURANCE_SOFTWARE_ASSURANCE_IMPLEMENTATION_REGISTRATION_COMPLETION_MD",
+        "CORE_EXTRA__DOCS_SOFTWARE_ASSURANCE_SOFTWARE_ASSURANCE_ROADMAP_TRANSITION_MD",
+        "CORE_EXTRA__DOCS_SOFTWARE_ASSURANCE_TRUSTED_AI_ACTOR_REPORT_MD",
+        "CORE_EXTRA__DOCS_SOFTWARE_ASSURANCE_TRUSTED_DELIVERY_COMPLIANCE_MATRIX_MD",
+        "CORE_EXTRA__DOCS_SOFTWARE_ASSURANCE_TRUSTED_DELIVERY_READINESS_REVIEW_MD",
+        "CORE_EXTRA__DOCS_SOFTWARE_ASSURANCE_TRUSTED_DELIVERY_SINGLE_MAINTAINER_GOVERNANCE_COMPLETION_MD",
+        "CORE_EXTRA__DOCS_SOFTWARE_ASSURANCE_TRUSTED_DELIVERY_STARTUP_FAILURE_ROOT_CAUSE_MD",
+        "CORE_EXTRA__DOCS_VERIFICATION_07_IMPLEMENTATION_GAP_ANALYSIS_MD",
+        "CORE_EXTRA__DOCS_VERIFICATION_08A_VERIFICATION_DATA_FRAMEWORK_MD",
+        "CORE_EXTRA__DOCS_VERIFICATION_08B_VERIFICATION_MODES_MD",
+        "CORE_EXTRA__DOCS_VERIFICATION_08B_VERIFICATION_POLICIES_MD",
+        "CORE_EXTRA__DOCS_VERIFICATION_08C_VERIFICATION_PLANNING_ENGINE_MD",
+        "CORE_EXTRA__DOCS_VERIFICATION_08_VERIFICATION_EXECUTION_ENVIRONMENT_MD",
+        "CORE_EXTRA__DOCS_VERIFICATION_09_HOME_ASSISTANT_VERIFICATION_ADAPTER_MD",
+        "CORE_EXTRA__DOCS_VERIFICATION_10_APPLE_VERIFICATION_ADAPTER_MD",
+        "CORE_EXTRA__DOCS_VERIFICATION_LIVE_SCENARIOS_MD",
+        "CORE_EXTRA__DOCS_VERIFICATION_PERSISTENCE_FOUNDATION_TEST_MATRIX_MD",
+        "CORE_EXTRA__DOCS_VERIFICATION_PROFILE_PLATFORM_VERIFICATION_MD",
+        "CORE_EXTRA__DOCS_VERIFICATION_READ_ONLY_DEVELOPER_OVERLAY_PREFLIGHT_MD",
+        "CORE_EXTRA__DOCS_VERIFICATION_VERIFICATION_ARCHITECTURAL_DECISIONS_MD",
+        "CORE_EXTRA__DOCS_VERIFICATION_VERIFICATION_MATRIX_COVERAGE_MD",
+        "CORE_EXTRA__DOCS_VERIFICATION_VERIFICATION_MATRIX_REFERENCE_MD"
       ],
       "canonical_authority": "LOCAL_EXTENSION",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -26008,7 +28396,8 @@
         "LINK::DOCS-TECHNICAL-HTTP-API",
         "CORE_TECH__CAPABILITY_DISCOVERY_MD",
         "CORE_TECH__ERROR_MODEL_MD",
-        "CORE_TECH__PAIRING_MD"
+        "CORE_TECH__PAIRING_MD",
+        "CORE_EXTRA__DOCS_IMPLEMENTATION_EPIC3B_01_PROFILE_ADOPTION_CONTRACT"
       ],
       "canonical_authority": "API_CONTRACT",
       "owner_boundary": "HA-integratie, centrale productautoriteit en server-side DJConnect-domein",
@@ -32807,6 +35196,15 @@
         "CORE_VERIFY_RUNTIME_COVERAGE"
       ],
       "evidence_ids": []
+    },
+    {
+      "id": "PERSISTENCE-SCHEMA-SCOPE-SUPERSESSION",
+      "status": "OLD_MATRIX_SCHEMA_SCOPE_SUPERSEDED__CURRENT_MIGRATION_ACCEPTANCE_OPEN",
+      "description": "The dated persistence test matrix says its then-current schema contains only platform metadata and migration history. At the pinned core main head, the persistence README and schema include Session lifecycle metadata and historical DJMoment projections. The older matrix is no current schema boundary or installed migration receipt; exact migration/consumer acceptance remains open.",
+      "source_ids": [
+        "CORE_EXTRA__DOCS_VERIFICATION_PERSISTENCE_FOUNDATION_TEST_MATRIX_MD",
+        "CORE_EXTRA__CUSTOM_COMPONENTS_DJCONNECT_PERSISTENCE_README"
+      ]
     }
   ],
   "audit_obligations": [
@@ -32814,7 +35212,7 @@
       "id": "AUDIT-DJC-CORE",
       "status": "OPEN",
       "scope": "DJC-CORE",
-      "reason": "Pinned foundation, roadmap, horizon, legal, voice, verification, full Meta Engineering reading order, local environment and historical EP/Software Assurance sources are read. Ten historical EP/runner links remain triaged; workflow effects, remaining consumer evidence and final delta still need qualification. Ten additional exact-pinned core policy/navigation sources are read, including owner authorization and Finalization; generated lifecycle and physical/consumer evidence still need qualification. Five linked architecture/assurance/Trusted Delivery records are also pinned; the 2026-07-13 target matrix is historical, not current settings evidence. Five additional canonical/navigational product texts and sixteen dated Phase 6 technical/target-architecture texts are pinned. Their current-state claims are bounded by the 2026-07-10 archaeology phase; the standalone Device Installer is planned target architecture, not an existing thirteenth lane or product pickup. All 19 core ADR Markdown sources are now pinned (17 in this delta), with ADR-0024/0025 incident supersession and ADR-0026 terminal clean-slate context kept historical under #1098. Ten additional exact-pinned release-policy/navigation/historical records are read, including exact-main evidence-prerelease policy, dispatch-only deployment/smoke boundaries and the prompt-history non-authority rule. The 3.3.1 prepared-for-review release note is historical against the published v3.3.1 tag; no installed consumer is inferred. At that earlier census, 293 dated core prompt paths were classified by path only, leaving 317 core Markdown paths unclassified then. Four exact-pinned post-merge Software Assurance records now separate current policy/schema from historical qualification; the stated per-component prerelease prefix conflicts with the pinned reusable workflow hard-coded internal-ha tag. Four retained embedded-EP status/run/workspace records were fully read as historical; 51 other docs/engineering Markdown paths are classified by exact path/blob under terminal #1098 without reopening retirement. Six exact-pinned Verification Program/report/backlog/scorecard records distinguish dated Profile V1 live NO-GO, later qualified Verification Platform engine, stale internal Windows narrative and completed Golden CI infrastructure; no current live consumer GO is inferred. The exact-pinned Epic 2 discovery index explicitly labels 17 remaining discovery reports as historical, path/blob-classified only; current capability model remains the authority. Current Development and Implementation navigation/Handoff are fully read and pinned; six explicitly legacy embedded-EP development files are exact-path/blob classified only, with standalone EP ownership preserved. Six additional exact-pinned release/evidence/governance records are fully read: historical Platform 3.3 certification and nine internal-target receipt references remain bounded to that manifest, while current workflow effects require exact implementation readback. The historical 3.3 manifest was fully read; its nine target run pairs match the report while its HA 3.3.1 source/artifact binding lacks a matching target execution row; all 18 GitHub Actions REST run IDs now return 404 while a recent control run is readable, leaving independent producer/consumer revalidation open. Seven further exact-pinned Software Assurance/dependency/TDE records separate historical HACS/Dependabot NO_GO and pre-integration closure snapshots from completed policy/observe and accepted TD-GITHUB-001 exception; current repository settings remain open. Twenty-four further release/verification source files (including the 4.0 RC1 target manifest and later ESP coverage qualification) are full-text pinned; historical action language is not task authority. Current core Markdown unclassified frontier is 160 paths. Twenty-nine additional fully read verification, meta-governance and Software Assurance sources are pinned with dated status bounds."
+      "reason": "All 880 Markdown paths at the pinned core main tree are classified: 468 complete individual reads and 412 exact path/blob historical-only dispositions. Current foundation, governance, roadmap, Meta Engineering, verification, release, runner, Software Assurance and integration records were read with dated status bounded to their scope. Historical Platform 3.3 and Verification phases are not current installed-consumer receipts; ten embedded-EP/runner links remain explicitly non-selected under terminal #1098. Exact workflow effects, non-Markdown source and physical/consumer evidence, remote settings and the protected final delta still need qualification. No retirement, service repair, product pickup, release or deployment is selected."
     },
     {
       "id": "AUDIT-DJC-APPLE",
@@ -32923,8 +35321,8 @@
       "id": "SOURCE-MATRIX",
       "status": "OPEN",
       "scope": "platform",
-      "reason": "Current matrix covers only explicitly read source inventory; certify complete disposition only after all relevant discoveries are audited. The current pinned full-text inventory includes the 4.0 candidate/manifest and Verification Runtime 1.1.0 policy plus dated qualification reports; unclassified core Markdown remains 160. Twenty-nine additional fully read verification, meta-governance and Software Assurance sources are pinned with dated status bounds.",
-      "remaining": "All 724 included pinned source rows have exact path/blob provenance and bounded read descriptions. Exact pinned trees contain 1,739 tracked Markdown paths: 610 individually represented/full-read, 917 exact path/blob entries classified only as dated prompt history, older versioned release copy, retained embedded EP/development documentation or Epic 2 discovery artifacts, and 212 still unclassified for relevance/full reading. The 917 classified contents were not read and can be reopened when a current authority points to one. Apple 47/173, Windows 41/117 and website 64/412 Markdown have all other paths in explicit historical categories; Pi 33/33, API 28/28 and ESP32 28/28 are individually represented. Core is 301/880, with 293 dated prompts, 51 retained EP documents, 17 Epic 2 discovery reports and six legacy development files classified by path, and 212 unclassified. Runtime, workflow/test and physical/source-to-release consumer coverage remain separately open. Ten historical core EP/runner relative-link targets remain triaged outside the matrix. Complete current-source/consumer discovery and status qualification before certification."
+      "reason": "The exact pinned trees contain 1,739 tracked Markdown paths: 777 individually represented full-read sources and 962 exact path/blob historical-only dispositions; no tracked Markdown path remains unclassified. Read boundaries and status authority differ by source; path-only records were not read as current instructions. Non-Markdown source, workflow, physical and consumer evidence still require bounded closure.",
+      "remaining": "Complete non-Markdown/workflow and release-consumer evidence inventory, source-to-node links and status qualification before certifying the matrix. Core 468/880 individually represented with 412 historical path-only; Apple 47/173, Windows 41/117 and website 64/412 have bounded historical-only remainder; Pi 33/33, API 28/28 and ESP32 28/28 individually represented. Ten historical core EP/runner link targets remain explicitly triaged outside the current product matrix."
     },
     {
       "id": "REGISTER-DELIVERY",

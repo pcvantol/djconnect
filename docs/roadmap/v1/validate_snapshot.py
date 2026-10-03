@@ -217,6 +217,8 @@ def validate(plan: Any, require_complete: bool = False) -> list[str]:
         source_paths = {(s.get("repository"), s.get("path")) for s in sources.values()}
         pattern_by_category = {
             "DATED_PROMPT_HISTORY": re.compile(r"^docs/history/prompts/\d{4}-\d{2}-\d{2}-[^/]+\.md$"),
+            "VERIFICATION_PHASE_PROMPT_HISTORY": re.compile(r"^prompts/verification/PHASE_(?:09|10|11|12|13|14|15|16|17)[A-Z0-9_-]*\.md$"),
+            "VERIFICATION_PHASE_REPORT_HISTORY": re.compile(r"^docs/verification/reports/PHASE_(?:09|10|11|12|13|14|15)[A-Z0-9_-]*\.md$"),
             "RETAINED_EMBEDDED_EP_DOCUMENTATION": re.compile(r"^docs/engineering/(?:[^/]+/)*[^/]+\.md$"),
             "EPIC_2_DISCOVERY_HISTORY": re.compile(r"^docs/discovery/[^/]+\.md$"),
             "LEGACY_DEVELOPMENT_EP_DOC": re.compile(r"^docs/development/(?:ENGINEERING_PLATFORM_[^/]+|LOCAL_AGENT_RUNNER)\.md$"),
@@ -225,7 +227,7 @@ def validate(plan: Any, require_complete: bool = False) -> list[str]:
             "OLDER_WEBSITE_VERSIONED_RELEASE_COPY": re.compile(r"^wwwroot/release-notes/(?:ios|macos|maccatalyst|windows)/(?:de/|en/|es/|fr/|nl/)?v(\d+)\.(\d+)\.(\d+)\.md$"),
         }
         allowed_lane_category = {
-            "DJC-CORE": {"DATED_PROMPT_HISTORY", "RETAINED_EMBEDDED_EP_DOCUMENTATION", "EPIC_2_DISCOVERY_HISTORY", "LEGACY_DEVELOPMENT_EP_DOC"},
+            "DJC-CORE": {"DATED_PROMPT_HISTORY", "VERIFICATION_PHASE_PROMPT_HISTORY", "VERIFICATION_PHASE_REPORT_HISTORY", "RETAINED_EMBEDDED_EP_DOCUMENTATION", "EPIC_2_DISCOVERY_HISTORY", "LEGACY_DEVELOPMENT_EP_DOC"},
             "DJC-APPLE": {"DATED_PROMPT_HISTORY", "OLDER_APPLE_VERSIONED_RELEASE_COPY"},
             "DJC-WINDOWS": {"DATED_PROMPT_HISTORY", "OLDER_WINDOWS_VERSIONED_RELEASE_COPY"},
             "DJC-WEBSITE": {"OLDER_WEBSITE_VERSIONED_RELEASE_COPY"},
