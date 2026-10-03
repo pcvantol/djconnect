@@ -201,7 +201,7 @@
       "default_branch": "main",
       "inventory_scope": "Apple-clientfamilie; native presentatie en clientstaat, geen backendautoriteit",
       "profiles": "iOS / iPadOS / macOS / watchOS",
-      "writer_state": "LOCAL_WIP_OBSERVED on separate branch; no second source writer",
+      "writer_state": "2026-10-03 11:10 UTC readback: local checkout clean on main; active writer/assignment unverified",
       "writer_free_verified": false,
       "resource_capacity": "UNKNOWN",
       "execution_authority": false,
@@ -222,7 +222,7 @@
       "default_branch": "main",
       "inventory_scope": "ESP32-firmware; constrained voice/control client",
       "profiles": "LilyGO T-Embed CC1101 / S3",
-      "writer_state": "CLEAN_LOCAL_MAIN_OBSERVED; active assignment not independently verified",
+      "writer_state": "2026-10-03 11:10 UTC readback: uncommitted .vscode/extensions.json on main; active writer/assignment unverified",
       "writer_free_verified": false,
       "resource_capacity": "UNKNOWN",
       "execution_authority": false,
@@ -17171,7 +17171,7 @@
     {
       "id": "CURRENT-WIP",
       "status": "OBSERVED_LOCAL_ONLY",
-      "description": "Apple and Windows checkouts contain unrelated WIP. This planning writer does not mutate their source worktrees or infer free capacity.",
+      "description": "Read-only local worktree inventory at 2026-10-03 11:10 UTC found one checkout for each of twelve repositories. Apple is currently clean on main after earlier observed WIP; ESP32 has an uncommitted .vscode/extensions.json change and Windows has unrelated staged/unstaged WIP. This planning writer touches none of those checkouts and does not infer a free source writer or capacity from clean status.",
       "source_ids": [
         "STATUS::DJC-APPLE",
         "STATUS::DJC-WINDOWS"

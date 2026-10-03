@@ -6,7 +6,7 @@ This is a pinned planning projection for assignment `DJC-PLATFORM-ROADMAP-DAG-LA
 
 **Baseline main:** `49a71f99f6435819ec00b7387520a3fd20640a0b`. **Owning register:** https://github.com/pcvantol/djconnect-esp32/issues/58. **Portfolio:** https://github.com/pcvantol/djconnect/issues/1101.
 
-**Current assignment/WIP:** CLEAN_LOCAL_MAIN_OBSERVED; active assignment not independently verified. Product pickup: `NOT_ISSUED`. Capacity: `UNKNOWN`.
+**Current assignment/WIP:** 2026-10-03 11:10 UTC readback: uncommitted .vscode/extensions.json on main; active writer/assignment unverified. Product pickup: `NOT_ISSUED`. Capacity: `UNKNOWN`.
 
 ## Selected and proposed outcome
 
@@ -33,7 +33,7 @@ Workflow effect audit: Push, tag, dispatch and workflow_run triggers inventoried
 
 ```text
 Continue assignment DJC-PLATFORM-ROADMAP-DAG-LANES-V1-20261003 in pcvantol/djconnect-esp32 / DJC-ESP32.
-Read https://github.com/pcvantol/djconnect/issues/1101 and https://github.com/pcvantol/djconnect-esp32/issues/58; keep the current WIP/assignment intact: CLEAN_LOCAL_MAIN_OBSERVED; active assignment not independently verified.
+Read https://github.com/pcvantol/djconnect/issues/1101 and https://github.com/pcvantol/djconnect-esp32/issues/58; keep the current WIP/assignment intact: 2026-10-03 11:10 UTC readback: uncommitted .vscode/extensions.json on main; active writer/assignment unverified.
 Use the existing owning backlog, exact source pins and local bootstrap. Planning outcome: Leg het huidige gekwalificeerde boardprofiel en de manifest-handoff vast. ESPHome-adoptie blijft board-by-board toekomstscope, niet automatisch geselecteerd.
 Selected owning node IDs (no new pickup): none established for this lane.
 Local test-policy audit: NOT_FULLY_AUDITED. Workflow effects: Push, tag, dispatch and workflow_run triggers inventoried; exact route-specific effects must be read before push.
