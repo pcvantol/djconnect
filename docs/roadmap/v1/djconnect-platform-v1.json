@@ -41,7 +41,7 @@
     "metadata_and_bounded_paraphrases": true,
     "offline_hash_verification_of_remote_blobs": false,
     "per_call_timestamps": "Date-level head readback on 2026-10-03; no per-file read timestamp for inherited checkpoint.",
-    "pinned_tree_blobs_verified": "579 of 579 path/blob pins matched exact commit trees or GitHub Contents commit readbacks: 105 original GitHub tree readbacks, 346 local git commit-tree readbacks and 128 new GitHub tree/Contents readbacks on 2026-10-03. Current API Markdown blobs at 3f1ed18d matched fully read local previous-main blobs. Firmware binary files were fully SHA256-hashed for identity, not semantically executed. Narrative interpretation remains partial.",
+    "pinned_tree_blobs_verified": "600 of 600 path/blob pins matched exact commit trees or GitHub Contents commit readbacks: 105 original GitHub tree readbacks, 367 local git commit-tree readbacks and 128 new GitHub tree/Contents readbacks on 2026-10-03. Current API Markdown blobs at 3f1ed18d matched fully read local previous-main blobs. Firmware binary files were fully SHA256-hashed for identity, not semantically executed. Narrative interpretation remains partial.",
     "reference_scan": {
       "method": "Every pinned core Markdown blob and every pinned Markdown blob in the eleven DJC component repositories, at its recorded commit: parse relative Markdown links, strip anchors, normalize against source directory, retain existing .md targets absent from the pinned source matrix; distinct repository/path keys. The seven pinned external Forge method documents are outside this lane-source link frontier.",
       "unmapped_paths": [
@@ -71,8 +71,8 @@
           "repository": "pcvantol/djconnect",
           "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
           "tracked_markdown": 880,
-          "included_markdown": 222,
-          "not_individually_included_markdown": 658,
+          "included_markdown": 243,
+          "not_individually_included_markdown": 637,
           "tree_readback": "complete local git ls-tree -r"
         },
         "DJC-APPLE": {
@@ -11262,6 +11262,398 @@
         "INV::DJC-ESP32"
       ],
       "remaining": "Source text/CI is not current physical LilyGO, installed OTA, exact firmware source-to-public-asset, or Home Assistant consumer acceptance."
+    },
+    {
+      "id": "CORE_PRODUCT__DJ_SESSION_VISION_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/product/DJ_SESSION_VISION.md",
+      "blob_sha": "14205ecaf91a175b304a631f682bd0fe03926c6e",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned Markdown file reviewed on 2026-10-03; exact core main commit-tree source",
+      "read_complete": true,
+      "status_authority": "Canonical DJ Session experience vision, expressly not implementation or roadmap selection; core product definition and roadmap remain the owning sequencing sources.",
+      "observed_at": "2026-10-03; exact local git main-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/product/DJ_SESSION_VISION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE",
+        "PROJ::ROADMAP::P2-SESSION"
+      ],
+      "remaining": "Source text is not exact-current implementation, live consumer, source-to-release or protected planning-delivery evidence."
+    },
+    {
+      "id": "CORE_PRODUCT__PLAYBACK_OBSERVATION_ADAPTIVE_PLANNING_RECONCILIATION_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/product/PLAYBACK_OBSERVATION_ADAPTIVE_PLANNING_RECONCILIATION.md",
+      "blob_sha": "831862f0a72fe9cf0ee9bc578872a66a7628e2fe",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned Markdown file reviewed on 2026-10-03; exact core main commit-tree source",
+      "read_complete": true,
+      "status_authority": "Completed assessment: DJConnect observes backend playback, semantic horizon replans without pseudo occurrence identity; Continue Stage 2 remains externally blocked, no implementation authorization.",
+      "observed_at": "2026-10-03; exact local git main-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/product/PLAYBACK_OBSERVATION_ADAPTIVE_PLANNING_RECONCILIATION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE",
+        "PROJ::ROADMAP::CONTINUATION"
+      ],
+      "remaining": "Source text is not exact-current implementation, live consumer, source-to-release or protected planning-delivery evidence."
+    },
+    {
+      "id": "CORE_PRODUCT__PRODUCT_PHILOSOPHY_ALIGNMENT_REPORT_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/product/PRODUCT_PHILOSOPHY_ALIGNMENT_REPORT.md",
+      "blob_sha": "f2537364bdb16a78780e4617685e5929ade50c6e",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned Markdown file reviewed on 2026-10-03; exact core main commit-tree source",
+      "read_complete": true,
+      "status_authority": "Completed wording-only review against Product Definition 2.1, no capability or roadmap change.",
+      "observed_at": "2026-10-03; exact local git main-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/product/PRODUCT_PHILOSOPHY_ALIGNMENT_REPORT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE",
+        "PROJ::ROADMAP::P0-FOUNDATION"
+      ],
+      "remaining": "Source text is not exact-current implementation, live consumer, source-to-release or protected planning-delivery evidence."
+    },
+    {
+      "id": "CORE_PRODUCT__RASPBERRY_PI_RENDERER_FAMILY_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/product/RASPBERRY_PI_RENDERER_FAMILY.md",
+      "blob_sha": "d96e90d56fd55f2086c21fe8219ad2e361b6c133",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned Markdown file reviewed on 2026-10-03; exact core main commit-tree source",
+      "read_complete": true,
+      "status_authority": "Canonical reference for independent 4-inch compact and 10-inch wall native QML host profiles; no capability inheritance, product pickup or physical acceptance.",
+      "observed_at": "2026-10-03; exact local git main-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/product/RASPBERRY_PI_RENDERER_FAMILY.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE",
+        "CMB-05",
+        "CMB-06"
+      ],
+      "remaining": "Source text is not exact-current implementation, live consumer, source-to-release or protected planning-delivery evidence."
+    },
+    {
+      "id": "CORE_PRODUCT__README_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/product/README.md",
+      "blob_sha": "bb3c3444f4a2000a93ed2da55710e6e6da82b985",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned Markdown file reviewed on 2026-10-03; exact core main commit-tree source",
+      "read_complete": true,
+      "status_authority": "Product-foundation navigation and authority split: definition/strategy, roadmap sequencing, selected backlog, Innovation Lab separate.",
+      "observed_at": "2026-10-03; exact local git main-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/product/README.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE",
+        "PROJ::ROADMAP::P0-FOUNDATION"
+      ],
+      "remaining": "Source text is not exact-current implementation, live consumer, source-to-release or protected planning-delivery evidence."
+    },
+    {
+      "id": "CORE_TECH__BUILD_VARIANTS_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/technical/BUILD_VARIANTS.md",
+      "blob_sha": "499b6ff486221486344fc6fe882369a75318e6a6",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned Markdown file reviewed on 2026-10-03; exact core main commit-tree source",
+      "read_complete": true,
+      "status_authority": "Dated Phase 6 code/document inventory of build systems; Apple signing matrix remains unknown and no new build qualification is implied.",
+      "observed_at": "2026-10-03; exact local git main-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/technical/BUILD_VARIANTS.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Source text is not exact-current implementation, live consumer, source-to-release or protected planning-delivery evidence."
+    },
+    {
+      "id": "CORE_TECH__CACHE_MODEL_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/technical/CACHE_MODEL.md",
+      "blob_sha": "459065f65527418938cde7dc69584eacc34bed35",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned Markdown file reviewed on 2026-10-03; exact core main commit-tree source",
+      "read_complete": true,
+      "status_authority": "Dated Phase 6 storage/cache reconstruction; cross-client invalidation unknown; not a fresh runtime receipt.",
+      "observed_at": "2026-10-03; exact local git main-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/technical/CACHE_MODEL.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Source text is not exact-current implementation, live consumer, source-to-release or protected planning-delivery evidence."
+    },
+    {
+      "id": "CORE_TECH__CAPABILITY_DISCOVERY_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/technical/CAPABILITY_DISCOVERY.md",
+      "blob_sha": "3596a31e172190cbeda981fc05f304b7674f661c",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned Markdown file reviewed on 2026-10-03; exact core main commit-tree source",
+      "read_complete": true,
+      "status_authority": "Dated Phase 6 capability mechanism reconstruction with explicit unproven complete client consumption.",
+      "observed_at": "2026-10-03; exact local git main-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/technical/CAPABILITY_DISCOVERY.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE",
+        "SLICE::CORE::PAIRING-CONTRACT"
+      ],
+      "remaining": "Source text is not exact-current implementation, live consumer, source-to-release or protected planning-delivery evidence."
+    },
+    {
+      "id": "CORE_TECH__CLIENT_LOGGING_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/technical/CLIENT_LOGGING.md",
+      "blob_sha": "67dc41c9159f384df364946f8029b8f714e7dcb4",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned Markdown file reviewed on 2026-10-03; exact core main commit-tree source",
+      "read_complete": true,
+      "status_authority": "Dated Phase 6 logging inventory with partial Apple persistence knowledge; not a privacy audit of current deployed clients.",
+      "observed_at": "2026-10-03; exact local git main-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/technical/CLIENT_LOGGING.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Source text is not exact-current implementation, live consumer, source-to-release or protected planning-delivery evidence."
+    },
+    {
+      "id": "CORE_TECH__CLIENT_SERVER_TRANSPORT_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/technical/CLIENT_SERVER_TRANSPORT.md",
+      "blob_sha": "f410fc704bb2a27483f1921f8a2850dfc13d5eff",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned Markdown file reviewed on 2026-10-03; exact core main commit-tree source",
+      "read_complete": true,
+      "status_authority": "Dated Phase 6 HTTP, optional HA websocket and Runtime Broadcast transport inventory; consumer runtime success not proven.",
+      "observed_at": "2026-10-03; exact local git main-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/technical/CLIENT_SERVER_TRANSPORT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE",
+        "SLICE::CORE::BROADCAST-CONTRACT"
+      ],
+      "remaining": "Source text is not exact-current implementation, live consumer, source-to-release or protected planning-delivery evidence."
+    },
+    {
+      "id": "CORE_TECH__CLIENT_STORAGE_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/technical/CLIENT_STORAGE.md",
+      "blob_sha": "f0a781993c20dc0b31de290670805e8323d4a76f",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned Markdown file reviewed on 2026-10-03; exact core main commit-tree source",
+      "read_complete": true,
+      "status_authority": "Dated Phase 6 implementation inventory subordinate to canonical DJCONNECT_STORAGE_ARCHITECTURE; exact client key/cache behavior partly unknown.",
+      "observed_at": "2026-10-03; exact local git main-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/technical/CLIENT_STORAGE.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Source text is not exact-current implementation, live consumer, source-to-release or protected planning-delivery evidence."
+    },
+    {
+      "id": "CORE_TECH__DEVICE_DISTRIBUTION_AND_PROVISIONING_ARCHITECTURE_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/technical/DEVICE_DISTRIBUTION_AND_PROVISIONING_ARCHITECTURE.md",
+      "blob_sha": "c34fb04ee78ca755a7f2597292ae56582b38b74f",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned Markdown file reviewed on 2026-10-03; exact core main commit-tree source",
+      "read_complete": true,
+      "status_authority": "Accepted future target architecture for standalone Device Installer and unified physical distribution; expressly no current implementation or repo selection. Current Pi release repository remains a separate observed lane.",
+      "observed_at": "2026-10-03; exact local git main-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/technical/DEVICE_DISTRIBUTION_AND_PROVISIONING_ARCHITECTURE.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE",
+        "PROJ::ROADMAP::PROVISIONING",
+        "PROJ::EVOLUTION::DEVICE-DIST"
+      ],
+      "remaining": "Source text is not exact-current implementation, live consumer, source-to-release or protected planning-delivery evidence."
+    },
+    {
+      "id": "CORE_TECH__ERROR_MODEL_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/technical/ERROR_MODEL.md",
+      "blob_sha": "23c4fdec68276bba60cb560f571e59fd108ddefe",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned Markdown file reviewed on 2026-10-03; exact core main commit-tree source",
+      "read_complete": true,
+      "status_authority": "Dated Phase 6 error/transport inventory with timeout/retry unknown; not a current client acceptance receipt.",
+      "observed_at": "2026-10-03; exact local git main-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/technical/ERROR_MODEL.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE",
+        "SLICE::CORE::PAIRING-CONTRACT"
+      ],
+      "remaining": "Source text is not exact-current implementation, live consumer, source-to-release or protected planning-delivery evidence."
+    },
+    {
+      "id": "CORE_TECH__NATIVE_ASK_DJ_VOICE_INGEST_RECONCILIATION_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/technical/NATIVE_ASK_DJ_VOICE_INGEST_RECONCILIATION.md",
+      "blob_sha": "b3421cbb17a83449b4c3a1a5a46d08c1eb102fa2",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned Markdown file reviewed on 2026-10-03; exact core main commit-tree source",
+      "read_complete": true,
+      "status_authority": "NO_GO assessment for native streaming voice ingest: no Home Assistant binary WebSocket contract or native implementation evidence; no streaming product pickup.",
+      "observed_at": "2026-10-03; exact local git main-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/technical/NATIVE_ASK_DJ_VOICE_INGEST_RECONCILIATION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Source text is not exact-current implementation, live consumer, source-to-release or protected planning-delivery evidence."
+    },
+    {
+      "id": "CORE_TECH__PAIRING_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/technical/PAIRING.md",
+      "blob_sha": "1013b3c3fc8dc57856c2c70aa4e647245f94b75d",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned Markdown file reviewed on 2026-10-03; exact core main commit-tree source",
+      "read_complete": true,
+      "status_authority": "Dated Phase 6 reconstruction of app→HA, HA→local device and device→HA pairing families; acceptance per current owner still required.",
+      "observed_at": "2026-10-03; exact local git main-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/technical/PAIRING.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE",
+        "SLICE::CORE::PAIRING-CONTRACT"
+      ],
+      "remaining": "Source text is not exact-current implementation, live consumer, source-to-release or protected planning-delivery evidence."
+    },
+    {
+      "id": "CORE_TECH__PUSH_NOTIFICATIONS_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/technical/PUSH_NOTIFICATIONS.md",
+      "blob_sha": "10390e0e2687aedd3e5d2780e61d5c86b621647e",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned Markdown file reviewed on 2026-10-03; exact core main commit-tree source",
+      "read_complete": true,
+      "status_authority": "Dated Phase 6 Apple APNs relay flow inventory; entitlement/background configuration unknown and no live APNs delivery proven.",
+      "observed_at": "2026-10-03; exact local git main-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/technical/PUSH_NOTIFICATIONS.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE",
+        "SLICE::CORE::PUSH-CONSUMER"
+      ],
+      "remaining": "Source text is not exact-current implementation, live consumer, source-to-release or protected planning-delivery evidence."
+    },
+    {
+      "id": "CORE_TECH__README_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/technical/README.md",
+      "blob_sha": "051f392094a125c1067ad166311ec3d033d6c0ce",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned Markdown file reviewed on 2026-10-03; exact core main commit-tree source",
+      "read_complete": true,
+      "status_authority": "Phase 6 implementation archaeology index dated 2026-07-10; CONFIRMED_CODE claims belong to that read boundary and are not October runtime evidence.",
+      "observed_at": "2026-10-03; exact local git main-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/technical/README.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Source text is not exact-current implementation, live consumer, source-to-release or protected planning-delivery evidence."
+    },
+    {
+      "id": "CORE_TECH__TECHNICAL_DRIFT_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/technical/TECHNICAL_DRIFT.md",
+      "blob_sha": "8b8f5bb4f447ab1f515f8d42aa6a6f2ac4289b4f",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned Markdown file reviewed on 2026-10-03; exact core main commit-tree source",
+      "read_complete": true,
+      "status_authority": "Dated Phase 6 distinction between intentional client differences and inferred/unknown pairing, websocket and cache risks.",
+      "observed_at": "2026-10-03; exact local git main-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/technical/TECHNICAL_DRIFT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Source text is not exact-current implementation, live consumer, source-to-release or protected planning-delivery evidence."
+    },
+    {
+      "id": "CORE_TECH__TECHNICAL_OVERVIEW_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/technical/TECHNICAL_OVERVIEW.md",
+      "blob_sha": "2edf571e8f6caa6a6be2030ef43fe6d2fc64e923",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned Markdown file reviewed on 2026-10-03; exact core main commit-tree source",
+      "read_complete": true,
+      "status_authority": "Dated Phase 6 repository-role implementation summary; useful discovery, not a live or exact-current source audit.",
+      "observed_at": "2026-10-03; exact local git main-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/technical/TECHNICAL_OVERVIEW.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Source text is not exact-current implementation, live consumer, source-to-release or protected planning-delivery evidence."
+    },
+    {
+      "id": "CORE_TECH__UNKNOWNS_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/technical/UNKNOWNS.md",
+      "blob_sha": "435127992892a8a8149fbe87e3b2c2a20d2a7dcd",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned Markdown file reviewed on 2026-10-03; exact core main commit-tree source",
+      "read_complete": true,
+      "status_authority": "Dated Phase 6 explicit unknowns for Apple entitlements, caches, retries, live websocket paths, release assets and website routes.",
+      "observed_at": "2026-10-03; exact local git main-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/technical/UNKNOWNS.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Source text is not exact-current implementation, live consumer, source-to-release or protected planning-delivery evidence."
+    },
+    {
+      "id": "CORE_TECH__UPDATE_MODEL_MD",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/technical/UPDATE_MODEL.md",
+      "blob_sha": "74aff5925ed9e4621a29b4003ce3dbf121bf6554",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "full pinned Markdown file reviewed on 2026-10-03; exact core main commit-tree source",
+      "read_complete": true,
+      "status_authority": "Dated Phase 6 OTA/update inventory; its HA 3.2.50 statement is historical against current 3.3.1 released integration/source candidate and cannot establish present compatibility.",
+      "observed_at": "2026-10-03; exact local git main-tree and full text read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/technical/UPDATE_MODEL.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE",
+        "PROJ::EVOLUTION::DEVICE-DIST"
+      ],
+      "remaining": "Source text is not exact-current implementation, live consumer, source-to-release or protected planning-delivery evidence."
     }
   ],
   "nodes": [
@@ -11326,7 +11718,28 @@
         "CORE_ROOT__SOFTWARE_ASSURANCE_ACTIVATION_REPORT_MD",
         "CORE_ROOT__TRUSTED_DELIVERY_ARCHITECTURE_MD",
         "CORE_ROOT__VOICE_ENDPOINT_ADOPTION_REPORT_MD",
-        "CORE_ROOT__INFO_MD"
+        "CORE_ROOT__INFO_MD",
+        "CORE_PRODUCT__DJ_SESSION_VISION_MD",
+        "CORE_PRODUCT__PLAYBACK_OBSERVATION_ADAPTIVE_PLANNING_RECONCILIATION_MD",
+        "CORE_PRODUCT__PRODUCT_PHILOSOPHY_ALIGNMENT_REPORT_MD",
+        "CORE_PRODUCT__RASPBERRY_PI_RENDERER_FAMILY_MD",
+        "CORE_PRODUCT__README_MD",
+        "CORE_TECH__BUILD_VARIANTS_MD",
+        "CORE_TECH__CACHE_MODEL_MD",
+        "CORE_TECH__CAPABILITY_DISCOVERY_MD",
+        "CORE_TECH__CLIENT_LOGGING_MD",
+        "CORE_TECH__CLIENT_SERVER_TRANSPORT_MD",
+        "CORE_TECH__CLIENT_STORAGE_MD",
+        "CORE_TECH__DEVICE_DISTRIBUTION_AND_PROVISIONING_ARCHITECTURE_MD",
+        "CORE_TECH__ERROR_MODEL_MD",
+        "CORE_TECH__NATIVE_ASK_DJ_VOICE_INGEST_RECONCILIATION_MD",
+        "CORE_TECH__PAIRING_MD",
+        "CORE_TECH__PUSH_NOTIFICATIONS_MD",
+        "CORE_TECH__README_MD",
+        "CORE_TECH__TECHNICAL_DRIFT_MD",
+        "CORE_TECH__TECHNICAL_OVERVIEW_MD",
+        "CORE_TECH__UNKNOWNS_MD",
+        "CORE_TECH__UPDATE_MODEL_MD"
       ],
       "canonical_authority": "LOCAL_EXTENSION",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -12298,7 +12711,9 @@
         "STORAGE_ARCH",
         "V4_ARCH",
         "PLATFORM_OVERVIEW",
-        "DJ_SESSION_DOMAIN"
+        "DJ_SESSION_DOMAIN",
+        "CORE_PRODUCT__PRODUCT_PHILOSOPHY_ALIGNMENT_REPORT_MD",
+        "CORE_PRODUCT__README_MD"
       ],
       "canonical_authority": "PRODUCT_ROADMAP",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -12630,7 +13045,8 @@
         "PRODUCT_ROADMAP",
         "ROOM_ROUTING",
         "STORAGE_ARCH",
-        "RENDERER_PLAYBACK_PROJECTION"
+        "RENDERER_PLAYBACK_PROJECTION",
+        "CORE_PRODUCT__DJ_SESSION_VISION_MD"
       ],
       "canonical_authority": "PRODUCT_ROADMAP",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -12742,7 +13158,8 @@
       "lane": "DJC-CORE",
       "repository": "pcvantol/djconnect",
       "source_ids": [
-        "PRODUCT_ROADMAP"
+        "PRODUCT_ROADMAP",
+        "CORE_PRODUCT__PLAYBACK_OBSERVATION_ADAPTIVE_PLANNING_RECONCILIATION_MD"
       ],
       "canonical_authority": "PRODUCT_ROADMAP",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -12938,7 +13355,8 @@
       "lane": "DJC-CORE",
       "repository": "pcvantol/djconnect",
       "source_ids": [
-        "PRODUCT_ROADMAP"
+        "PRODUCT_ROADMAP",
+        "CORE_TECH__DEVICE_DISTRIBUTION_AND_PROVISIONING_ARCHITECTURE_MD"
       ],
       "canonical_authority": "PRODUCT_ROADMAP",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -14683,7 +15101,8 @@
         "PI4_PROFILE",
         "PI_FOUNDATION",
         "CLIENT_MATRIX",
-        "HOST_ROLE"
+        "HOST_ROLE",
+        "CORE_PRODUCT__RASPBERRY_PI_RENDERER_FAMILY_MD"
       ],
       "canonical_authority": "CMB",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -14734,7 +15153,8 @@
         "PI10_PROFILE",
         "PI_FOUNDATION",
         "CLIENT_MATRIX",
-        "HOST_ROLE"
+        "HOST_ROLE",
+        "CORE_PRODUCT__RASPBERRY_PI_RENDERER_FAMILY_MD"
       ],
       "canonical_authority": "CMB",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -17275,7 +17695,9 @@
       "lane": "DJC-CORE",
       "repository": "pcvantol/djconnect",
       "source_ids": [
-        "EVOLUTION"
+        "EVOLUTION",
+        "CORE_TECH__DEVICE_DISTRIBUTION_AND_PROVISIONING_ARCHITECTURE_MD",
+        "CORE_TECH__UPDATE_MODEL_MD"
       ],
       "canonical_authority": "EVOLUTION",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -18272,7 +18694,10 @@
       "source_ids": [
         "API_CONTRACT",
         "REPOSITORY_OWNERSHIP",
-        "LINK::DOCS-TECHNICAL-HTTP-API"
+        "LINK::DOCS-TECHNICAL-HTTP-API",
+        "CORE_TECH__CAPABILITY_DISCOVERY_MD",
+        "CORE_TECH__ERROR_MODEL_MD",
+        "CORE_TECH__PAIRING_MD"
       ],
       "canonical_authority": "API_CONTRACT",
       "owner_boundary": "HA-integratie, centrale productautoriteit en server-side DJConnect-domein",
@@ -18541,7 +18966,8 @@
         "UNIVERSAL_RECEIVER",
         "BROADCAST_TRANSPORT",
         "LINK::DJ-SESSION-TRANSPORT-ARCHITECTURE",
-        "LINK::DOCS-TECHNICAL-WEBSOCKET-API"
+        "LINK::DOCS-TECHNICAL-WEBSOCKET-API",
+        "CORE_TECH__CLIENT_SERVER_TRANSPORT_MD"
       ],
       "canonical_authority": "VIBECAST_ARCH",
       "owner_boundary": "HA-integratie, centrale productautoriteit en server-side DJConnect-domein",
@@ -18841,7 +19267,8 @@
       "repository": "pcvantol/djconnect",
       "source_ids": [
         "API_CONTRACT",
-        "REPOSITORY_OWNERSHIP"
+        "REPOSITORY_OWNERSHIP",
+        "CORE_TECH__PUSH_NOTIFICATIONS_MD"
       ],
       "canonical_authority": "API_CONTRACT",
       "owner_boundary": "HA-integratie, centrale productautoriteit en server-side DJConnect-domein",
@@ -24777,6 +25204,18 @@
       "evidence_ids": [
         "ESP32_DEPLOY_ENV_20261003"
       ]
+    },
+    {
+      "id": "DEVICE-INSTALLER-TARGET-NOT-CURRENT-LANE",
+      "status": "PLANNED_TARGET_NOT_SELECTED",
+      "description": "The accepted Device Distribution and Provisioning Architecture describes a future standalone devices.djconnect.dev / djconnect-device-installer repository and eventual unified physical distribution through djconnect-firmware, including Pi bootstrap metadata. Current accessible portfolio discovery has twelve repositories, including separate djconnect-pi-releases; the named installer repository is not present in that accessible set. This target text creates no current thirteenth lane, existing source writer, distribution migration or product selection. The existing Product Roadmap and Platform Evolution records retain Planned status and any future repository/consumer work needs separate owner admission.",
+      "source_ids": [
+        "CORE_TECH__DEVICE_DISTRIBUTION_AND_PROVISIONING_ARCHITECTURE_MD",
+        "PRODUCT_ROADMAP",
+        "EVOLUTION",
+        "README::DJC-DIST-PI",
+        "README::DJC-DIST-FIRMWARE"
+      ]
     }
   ],
   "audit_obligations": [
@@ -24784,7 +25223,7 @@
       "id": "AUDIT-DJC-CORE",
       "status": "OPEN",
       "scope": "DJC-CORE",
-      "reason": "Pinned foundation, roadmap, horizon, legal, voice, verification, full Meta Engineering reading order, local environment and historical EP/Software Assurance sources are read. Six EP history links remain triaged; workflow effects, remaining consumer evidence and final delta still need qualification. Ten additional exact-pinned core policy/navigation sources are read, including owner authorization and Finalization; generated lifecycle and physical/consumer evidence still need qualification. Five linked architecture/assurance/Trusted Delivery records are also pinned; the 2026-07-13 target matrix is historical, not current settings evidence."
+      "reason": "Pinned foundation, roadmap, horizon, legal, voice, verification, full Meta Engineering reading order, local environment and historical EP/Software Assurance sources are read. Six EP history links remain triaged; workflow effects, remaining consumer evidence and final delta still need qualification. Ten additional exact-pinned core policy/navigation sources are read, including owner authorization and Finalization; generated lifecycle and physical/consumer evidence still need qualification. Five linked architecture/assurance/Trusted Delivery records are also pinned; the 2026-07-13 target matrix is historical, not current settings evidence. Five additional canonical/navigational product texts and sixteen dated Phase 6 technical/target-architecture texts are pinned. Their current-state claims are bounded by the 2026-07-10 archaeology phase; the standalone Device Installer is planned target architecture, not an existing thirteenth lane or product pickup."
     },
     {
       "id": "AUDIT-DJC-APPLE",
@@ -24894,7 +25333,7 @@
       "status": "OPEN",
       "scope": "platform",
       "reason": "Current matrix covers only explicitly read source inventory; certify complete disposition only after all relevant discoveries are audited.",
-      "remaining": "All 579 included pinned source rows have exact path/blob provenance and bounded read descriptions. Exact pinned trees contain 1,739 tracked Markdown paths, 480 individually represented in the matrix and 1,259 needing relevance/classification disposition; these are path counts, not a claim that the remaining paths are normative. Pi 33/33, API 28/28 and ESP32 28/28 Markdown paths are represented; runtime, further workflow/test coverage and physical/source-to-release consumers remain separately open. The 41 pinned Apple/website release-copy files do not prove publication, live site or installed consumers. Six historical core EP relative-link targets remain triaged outside the matrix. Complete repository-wide source/consumer discovery and status qualification before certification."
+      "remaining": "All 600 included pinned source rows have exact path/blob provenance and bounded read descriptions. Exact pinned trees contain 1,739 tracked Markdown paths, 501 individually represented in the matrix and 1,238 needing relevance/classification disposition; these are path counts, not a claim that the remaining paths are normative. Pi 33/33, API 28/28 and ESP32 28/28 Markdown paths are represented; runtime, further workflow/test coverage and physical/source-to-release consumers remain separately open. Core product and dated technical references are now partly expanded; remaining core, Apple, Windows and website path categories still require explicit disposition. The 41 pinned Apple/website release-copy files do not prove publication, live site or installed consumers. Six historical core EP relative-link targets remain triaged outside the matrix. Complete repository-wide source/consumer discovery and status qualification before certification."
     },
     {
       "id": "REGISTER-DELIVERY",
