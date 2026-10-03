@@ -41,7 +41,7 @@
     "metadata_and_bounded_paraphrases": true,
     "offline_hash_verification_of_remote_blobs": false,
     "per_call_timestamps": "Date-level head readback on 2026-10-03; no per-file read timestamp for inherited checkpoint.",
-    "pinned_tree_blobs_verified": "203 of 203 path/blob pins matched exact commit trees: 105 original GitHub tree readbacks and 98 local git commit-tree readbacks on 2026-10-03. Narrative interpretation remains partial.",
+    "pinned_tree_blobs_verified": "205 of 205 path/blob pins matched exact commit trees: 105 original GitHub tree readbacks and 100 local git commit-tree readbacks on 2026-10-03. Narrative interpretation remains partial.",
     "reference_scan": {
       "method": "Every pinned core source blob at its recorded commit: parse Markdown ](relative-link) targets, strip anchors, normalize against source directory, retain existing .md paths in that same commit absent from the pinned source matrix; distinct paths only.",
       "unmapped_paths": [
@@ -49,7 +49,6 @@
         "CANONICAL_REFERENCES.md",
         "DEVELOPMENT_ENVIRONMENT.md",
         "PLATFORM_DISCOVERY_REPORT.md",
-        "SECURITY.md",
         "SOFTWARE_ASSURANCE_BACKLOG.md",
         "SOFTWARE_ASSURANCE_CAPABILITY_MODEL.md",
         "SOFTWARE_ASSURANCE_DEPENDENCIES.md",
@@ -64,7 +63,6 @@
         "SOFTWARE_ASSURANCE_ROLLOUT.md",
         "SOFTWARE_ASSURANCE_THEMES.md",
         "SOFTWARE_ASSURANCE_VERSIONING.md",
-        "TECHNICAL_DESIGN_DECISIONS.md",
         "THIRD_PARTY_NOTICES.md",
         "VOICE_INTENT_DATA.md",
         "docs/development/ENGINEERING_PLATFORM_SOURCE_RETIREMENT.md",
@@ -80,13 +78,12 @@
         "prompts/release/PROMPT_05_PLATFORM_RELEASE_CERTIFICATION.md",
         "tools/verification/README.md"
       ],
-      "disposition": "TRIAGED_REFERENCE_ONLY; 34 link targets have explicit exclusion or audit-open reasons and do not create product nodes or execution authority",
+      "disposition": "TRIAGED_REFERENCE_ONLY; 32 link targets have explicit exclusion or audit-open reasons and do not create product nodes or execution authority",
       "triage": {
         "BOOTSTRAP_CODEX_VERIFICATION.md": "Linked host-verification detail; canonical session bootstrap and actual macOS --verify receipt are pinned. Full linked detail audit remains open.",
         "CANONICAL_REFERENCES.md": "Navigation map, fully read; current owning foundation, Product Roadmap and Backlog are pinned directly. Its older roadmap pointer refers to PROMPT_INDEX.md; current records control planning.",
         "DEVELOPMENT_ENVIRONMENT.md": "Linked local environment guide; host readiness was checked on this Mac, while full environment detail audit remains open.",
         "PLATFORM_DISCOVERY_REPORT.md": "Historical 2026-07-09 discovery report, fully read; explicitly disclaims current capability authority and points to the pinned capability model.",
-        "SECURITY.md": "Linked security policy; no new product or security change is selected here. Full policy detail audit remains open.",
         "SOFTWARE_ASSURANCE_BACKLOG.md": "Linked Software Assurance supporting document; primary platform and architecture sources are pinned. Its detailed historical/operational content has not been fully audited and cannot grant product execution.",
         "SOFTWARE_ASSURANCE_CAPABILITY_MODEL.md": "Linked Software Assurance supporting document; primary platform and architecture sources are pinned. Its detailed historical/operational content has not been fully audited and cannot grant product execution.",
         "SOFTWARE_ASSURANCE_DEPENDENCIES.md": "Linked Software Assurance supporting document; primary platform and architecture sources are pinned. Its detailed historical/operational content has not been fully audited and cannot grant product execution.",
@@ -101,7 +98,6 @@
         "SOFTWARE_ASSURANCE_ROLLOUT.md": "Linked Software Assurance supporting document; primary platform and architecture sources are pinned. Its detailed historical/operational content has not been fully audited and cannot grant product execution.",
         "SOFTWARE_ASSURANCE_THEMES.md": "Linked Software Assurance supporting document; primary platform and architecture sources are pinned. Its detailed historical/operational content has not been fully audited and cannot grant product execution.",
         "SOFTWARE_ASSURANCE_VERSIONING.md": "Linked Software Assurance supporting document; primary platform and architecture sources are pinned. Its detailed historical/operational content has not been fully audited and cannot grant product execution.",
-        "TECHNICAL_DESIGN_DECISIONS.md": "Linked code-level design register; current contracts and source candidate are pinned, but full design-register audit remains open.",
         "THIRD_PARTY_NOTICES.md": "Linked license/third-party notices; no dependency or release change is selected. Full notices audit remains open.",
         "VOICE_INTENT_DATA.md": "Linked historical voice-intent data; no voice feature is selected. Full data audit remains open.",
         "docs/development/ENGINEERING_PLATFORM_SOURCE_RETIREMENT.md": "Linked historical source-retirement detail; terminal #1098 and its WORKSPACE_READY receipt remain the boundary. No retirement work is reopened.",
@@ -4394,6 +4390,42 @@
         "INV::DJC-CORE"
       ],
       "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
+    },
+    {
+      "id": "TECH_DESIGN::DJC-CORE",
+      "repository": "pcvantol/djconnect",
+      "path": "TECHNICAL_DESIGN_DECISIONS.md",
+      "blob_sha": "cd0c345d8e30462f4ea6969a251f18deb00d4b95",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "1-38 and 945-993; remaining code-level design and dependency inventory audit open",
+      "read_complete": false,
+      "status_authority": "Code-level design record; its current-implementation sentence still targets 3.2.x at the pinned head and is stale against the documented 3.3.1 release and 4.0.0-rc.1 source candidate.",
+      "observed_at": "2026-10-03 local Mac / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/TECHNICAL_DESIGN_DECISIONS.md",
+      "disposition": "MAPPED_PARTIAL",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "Read remaining exact pinned ranges before full source closure"
+    },
+    {
+      "id": "SECURITY::DJC-CORE",
+      "repository": "pcvantol/djconnect",
+      "path": "SECURITY.md",
+      "blob_sha": "c290f1053c05cf2b1f6b53b8fdfee51132ba3bf5",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "FULL_PINNED_DOCUMENT_READ",
+      "read_complete": true,
+      "status_authority": "Repository security policy and supported-version process; it names no fixed current protocol version or roadmap selection.",
+      "observed_at": "2026-10-03 local Mac / exact pinned main",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/SECURITY.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
     }
   ],
   "nodes": [
@@ -4415,7 +4447,9 @@
         "CONST::DJC-CORE",
         "HANDOFF::DJC-CORE",
         "CHANGELOG::DJC-CORE",
-        "ISSUES::DJC-CORE"
+        "ISSUES::DJC-CORE",
+        "TECH_DESIGN::DJC-CORE",
+        "SECURITY::DJC-CORE"
       ],
       "canonical_authority": "LOCAL_EXTENSION",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -16815,7 +16849,7 @@
     {
       "id": "NORMATIVE-SOURCE-LINK-GAPS",
       "status": "LINK_FRONTIER_TRIAGED; BROADER_SOURCE_AUDIT_OPEN",
-      "description": "Independent reviews exposed missing linked Runtime/Presentation and verification authorities. Twenty-six directly relevant linked sources plus seven core repository/status files were added and pinned to existing nodes beyond the previous 170; five of the seven core files were fully read, while HANDOFF and CHANGELOG historical ranges remain partial. The reproducible pinned-blob Markdown-link scan now finds 34 remaining existing relative .md targets; each has an explicit navigation, historical, non-selection or audit-open disposition. Broader repository source audit remains open, and link existence alone creates no dependency or product selection.",
+      "description": "Independent reviews exposed missing linked Runtime/Presentation and verification authorities. Twenty-six directly relevant linked sources plus nine core repository/status files were added and pinned to existing nodes beyond the previous 170; six of the nine core files were fully read, while HANDOFF, CHANGELOG and TECHNICAL_DESIGN_DECISIONS historical/detail ranges remain partial. The reproducible pinned-blob Markdown-link scan now finds 32 remaining existing relative .md targets; each has an explicit navigation, historical, non-selection or audit-open disposition. Broader repository source audit remains open, and link existence alone creates no dependency or product selection.",
       "source_ids": [
         "FOUNDATION_INDEX",
         "SESSION_RUNTIME_CONTRACTS",
@@ -16826,7 +16860,9 @@
         "CONST::DJC-CORE",
         "HANDOFF::DJC-CORE",
         "CHANGELOG::DJC-CORE",
-        "ISSUES::DJC-CORE"
+        "ISSUES::DJC-CORE",
+        "TECH_DESIGN::DJC-CORE",
+        "SECURITY::DJC-CORE"
       ]
     },
     {
@@ -16841,14 +16877,15 @@
     {
       "id": "CORE-VERSION-LINE-RECONCILIATION",
       "status": "RELEASED_3_3_1__SOURCE_CANDIDATE_4_0_0_RC1__LEGACY_SYNC_3_2_X",
-      "description": "At the pinned core head, AGENTS and HANDOFF Current State call 3.3.1 the current released integration; manifest.json and const.py identify the checked-out source as 4.0.0-rc.1, and the Changelog top describes a coordinated 4.0 release-candidate train. The SYNC_PROMPTS Current Protocol Line still says 3.2.x/v3.2.50; HANDOFF later historical Release Notes also say 3.2.50. Treat those 3.2 current-wording passages as stale coordination/historical text, not a release or compatibility decision. Public release/field state is not inferred from source version strings; owning release verification and a separate authorized documentation correction remain open.",
+      "description": "At the pinned core head, AGENTS and HANDOFF Current State call 3.3.1 the current released integration; manifest.json and const.py identify the checked-out source as 4.0.0-rc.1, and the Changelog top describes a coordinated 4.0 release-candidate train. SYNC_PROMPTS Current Protocol Line, HANDOFF later historical Release Notes, and TECHNICAL_DESIGN_DECISIONS current-implementation scope still say 3.2.x/v3.2.50. Treat those 3.2 current-wording passages as stale coordination/design text, not a release or compatibility decision. Public release/field state is not inferred from source version strings; owning release verification and a separate authorized documentation correction remain open.",
       "source_ids": [
         "AGENTS::DJC-CORE",
         "HANDOFF::DJC-CORE",
         "MANIFEST::DJC-CORE",
         "CONST::DJC-CORE",
         "CHANGELOG::DJC-CORE",
-        "SYNC_PROMPTS"
+        "SYNC_PROMPTS",
+        "TECH_DESIGN::DJC-CORE"
       ]
     }
   ],

@@ -207,18 +207,19 @@ This is a pinned planning projection for assignment `DJC-PLATFORM-ROADMAP-DAG-LA
 | `HANDOFF::DJC-CORE` | `pcvantol/djconnect` / [HANDOFF.md](https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/HANDOFF.md) | `192703ea79d3c65f373e69fa60d604555d4c2f5a` / `1497811a6fac6d643eabc7fd379b2214f49440c8` | Current State 1-85 and older release 348-381; remaining full-text audit open | `MAPPED_PARTIAL`: `INV::DJC-CORE` | Confirm unread historical ranges before full source closure |
 | `CHANGELOG::DJC-CORE` | `pcvantol/djconnect` / [CHANGELOG.md](https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/CHANGELOG.md) | `192703ea79d3c65f373e69fa60d604555d4c2f5a` / `6c2555e753ba9383b82391ce58467f0a410b6936` | Top release sections 1-34; historical entries not fully audited | `MAPPED_PARTIAL`: `INV::DJC-CORE` | Confirm unread historical ranges before full source closure |
 | `ISSUES::DJC-CORE` | `pcvantol/djconnect` / [ISSUES.md](https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/ISSUES.md) | `192703ea79d3c65f373e69fa60d604555d4c2f5a` / `ecc4442b2692f8dac7fbad3f0628cca79a122c8d` | FULL_PINNED_DOCUMENT_READ | `MAPPED`: `INV::DJC-CORE` | No unread ranges in this source; repository-wide audit tracked separately |
+| `TECH_DESIGN::DJC-CORE` | `pcvantol/djconnect` / [TECHNICAL_DESIGN_DECISIONS.md](https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/TECHNICAL_DESIGN_DECISIONS.md) | `192703ea79d3c65f373e69fa60d604555d4c2f5a` / `cd0c345d8e30462f4ea6969a251f18deb00d4b95` | 1-38 and 945-993; remaining code-level design and dependency inventory audit open | `MAPPED_PARTIAL`: `INV::DJC-CORE` | Read remaining exact pinned ranges before full source closure |
+| `SECURITY::DJC-CORE` | `pcvantol/djconnect` / [SECURITY.md](https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/SECURITY.md) | `192703ea79d3c65f373e69fa60d604555d4c2f5a` / `c290f1053c05cf2b1f6b53b8fdfee51132ba3bf5` | FULL_PINNED_DOCUMENT_READ | `MAPPED`: `INV::DJC-CORE` | No unread ranges in this source; repository-wide audit tracked separately |
 
 ## Relative Markdown links awaiting source triage
 
 Every pinned core source blob at its recorded commit: parse Markdown ](relative-link) targets, strip anchors, normalize against source directory, retain existing .md paths in that same commit absent from the pinned source matrix; distinct paths only.
 
-TRIAGED_REFERENCE_ONLY; 34 link targets have explicit exclusion or audit-open reasons and do not create product nodes or execution authority
+TRIAGED_REFERENCE_ONLY; 32 link targets have explicit exclusion or audit-open reasons and do not create product nodes or execution authority
 
 - `BOOTSTRAP_CODEX_VERIFICATION.md` — Linked host-verification detail; canonical session bootstrap and actual macOS --verify receipt are pinned. Full linked detail audit remains open.
 - `CANONICAL_REFERENCES.md` — Navigation map, fully read; current owning foundation, Product Roadmap and Backlog are pinned directly. Its older roadmap pointer refers to PROMPT_INDEX.md; current records control planning.
 - `DEVELOPMENT_ENVIRONMENT.md` — Linked local environment guide; host readiness was checked on this Mac, while full environment detail audit remains open.
 - `PLATFORM_DISCOVERY_REPORT.md` — Historical 2026-07-09 discovery report, fully read; explicitly disclaims current capability authority and points to the pinned capability model.
-- `SECURITY.md` — Linked security policy; no new product or security change is selected here. Full policy detail audit remains open.
 - `SOFTWARE_ASSURANCE_BACKLOG.md` — Linked Software Assurance supporting document; primary platform and architecture sources are pinned. Its detailed historical/operational content has not been fully audited and cannot grant product execution.
 - `SOFTWARE_ASSURANCE_CAPABILITY_MODEL.md` — Linked Software Assurance supporting document; primary platform and architecture sources are pinned. Its detailed historical/operational content has not been fully audited and cannot grant product execution.
 - `SOFTWARE_ASSURANCE_DEPENDENCIES.md` — Linked Software Assurance supporting document; primary platform and architecture sources are pinned. Its detailed historical/operational content has not been fully audited and cannot grant product execution.
@@ -233,7 +234,6 @@ TRIAGED_REFERENCE_ONLY; 34 link targets have explicit exclusion or audit-open re
 - `SOFTWARE_ASSURANCE_ROLLOUT.md` — Linked Software Assurance supporting document; primary platform and architecture sources are pinned. Its detailed historical/operational content has not been fully audited and cannot grant product execution.
 - `SOFTWARE_ASSURANCE_THEMES.md` — Linked Software Assurance supporting document; primary platform and architecture sources are pinned. Its detailed historical/operational content has not been fully audited and cannot grant product execution.
 - `SOFTWARE_ASSURANCE_VERSIONING.md` — Linked Software Assurance supporting document; primary platform and architecture sources are pinned. Its detailed historical/operational content has not been fully audited and cannot grant product execution.
-- `TECHNICAL_DESIGN_DECISIONS.md` — Linked code-level design register; current contracts and source candidate are pinned, but full design-register audit remains open.
 - `THIRD_PARTY_NOTICES.md` — Linked license/third-party notices; no dependency or release change is selected. Full notices audit remains open.
 - `VOICE_INTENT_DATA.md` — Linked historical voice-intent data; no voice feature is selected. Full data audit remains open.
 - `docs/development/ENGINEERING_PLATFORM_SOURCE_RETIREMENT.md` — Linked historical source-retirement detail; terminal #1098 and its WORKSPACE_READY receipt remain the boundary. No retirement work is reopened.
