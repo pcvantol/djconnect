@@ -675,25 +675,50 @@ This is a pinned planning projection for assignment `DJC-PLATFORM-ROADMAP-DAG-LA
 | `WEBSITE_SOURCE__DOCS_GOVERNANCE_ADOPTION_MD` | `pcvantol/djconnect-website` / [docs/governance/ADOPTION.md](https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/docs/governance/ADOPTION.md) | `6eef6aa267f18239b88f8edae6201dc62494e4eb` / `db718457a414732503772f1cb34204e949608252` | full pinned source text reviewed on 2026-10-03; exact main commit-tree source | `MAPPED`: `INV::DJC-WEBSITE` | Current code/workflow, publisher receipt, consumer target and protected delivery remain separate evidence boundaries. |
 | `WEBSITE_SOURCE__GITHUB_WORKFLOWS_WEBSITE_POST_DEPLOYMENT_SMOKE_YML` | `pcvantol/djconnect-website` / [.github/workflows/website-post-deployment-smoke.yml](https://github.com/pcvantol/djconnect-website/blob/6eef6aa267f18239b88f8edae6201dc62494e4eb/.github/workflows/website-post-deployment-smoke.yml) | `6eef6aa267f18239b88f8edae6201dc62494e4eb` / `c2cfd7c7452bf6e20fcf6d170f496dabcd344470` | full pinned source text reviewed on 2026-10-03; exact main commit-tree source | `MAPPED`: `INV::DJC-WEBSITE`, `SLICE::WEBSITE::RELEASE-GUIDANCE` | Current code/workflow, publisher receipt, consumer target and protected delivery remain separate evidence boundaries. |
 | `CORE_SOURCE__CUSTOM_COMPONENTS_DJCONNECT_SPOTIFY_OAUTH_PY` | `pcvantol/djconnect` / [custom_components/djconnect/spotify_oauth.py](https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/custom_components/djconnect/spotify_oauth.py) | `192703ea79d3c65f373e69fa60d604555d4c2f5a` / `f0a71787c23f21e0040224a3974a8bc4c6060dbc` | full pinned source text reviewed on 2026-10-03; exact main commit-tree source | `MAPPED`: `INV::DJC-CORE`, `SLICE::CORE::SPOTIFY-DIRECT` | Current code/workflow, publisher receipt, consumer target and protected delivery remain separate evidence boundaries. |
+| `CORE_PROMPT_HISTORY_README` | `pcvantol/djconnect` / [docs/history/prompts/README.md](https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/history/prompts/README.md) | `192703ea79d3c65f373e69fa60d604555d4c2f5a` / `7c5135bd7d957a0abc9d8b212cb3e5632d29da5a` | complete; exact pinned full-text read in this continuation | `MAPPED`: `PROJ::AUDIT::METHOD` | Historical records may still matter for traceability but are not independently selected execution. |
+| `CORE_RELEASE_INDEX` | `pcvantol/djconnect` / [docs/release/README.md](https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/release/README.md) | `192703ea79d3c65f373e69fa60d604555d4c2f5a` / `8a56acd5f011455f93220449d41c38f15aadfa2c` | complete; exact pinned full-text read in this continuation | `MAPPED`: `PROJ::AUDIT::METHOD` | Remaining release-policy and operational records require individual disposition. |
+| `CORE_VERIFY_RELEASE_BOUNDARY` | `pcvantol/djconnect` / [docs/release/VERIFICATION_VS_RELEASE.md](https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/release/VERIFICATION_VS_RELEASE.md) | `192703ea79d3c65f373e69fa60d604555d4c2f5a` / `6931f7cb05dc712c29650a6eac716c0d1cab8c06` | complete; exact pinned full-text read in this continuation | `MAPPED`: `PROJ::AUDIT::METHOD` | No physical acceptance is inferred from this policy. |
+| `CORE_ARTIFACT_EVIDENCE_POLICY` | `pcvantol/djconnect` / [docs/release/ARTIFACT_RELEASE_EVIDENCE_POLICY.md](https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/release/ARTIFACT_RELEASE_EVIDENCE_POLICY.md) | `192703ea79d3c65f373e69fa60d604555d4c2f5a` / `b8ac7645956e3850cc8d0d48977edca031fcad0e` | complete; exact pinned full-text read in this continuation | `MAPPED`: `PROJ::AUDIT::METHOD` | Protected merge still needs a safe existing route or explicit owner resolution under the assignment no-release boundary. |
+| `CORE_CI_QUAL_POLICY` | `pcvantol/djconnect` / [docs/release/CI_QUALIFICATION_WORKFLOW_POLICY.md](https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/release/CI_QUALIFICATION_WORKFLOW_POLICY.md) | `192703ea79d3c65f373e69fa60d604555d4c2f5a` / `038553e60c957f7a9fe12402d638f61b721860b7` | complete; exact pinned full-text read in this continuation | `MAPPED`: `PROJ::AUDIT::METHOD` | Do not conflate branch CI success with protected delivery or source-to-consumer qualification. |
+| `CORE_DEPLOY_POLICY` | `pcvantol/djconnect` / [docs/release/DEPLOYMENT_WORKFLOW_POLICY.md](https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/release/DEPLOYMENT_WORKFLOW_POLICY.md) | `192703ea79d3c65f373e69fa60d604555d4c2f5a` / `fb3e52332bf3eb658721c4e4f22aa4a0e32ef2ee` | complete; exact pinned full-text read in this continuation | `MAPPED`: `PROJ::AUDIT::METHOD` | Actual target manifest, deployment and smoke evidence remain unqualified. |
+| `CORE_DEPLOY_INPUT` | `pcvantol/djconnect` / [docs/release/DEPLOYMENT_INPUT_CONTRACT.md](https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/release/DEPLOYMENT_INPUT_CONTRACT.md) | `192703ea79d3c65f373e69fa60d604555d4c2f5a` / `6b8b06704031354afdd5316c49ed11215e673f19` | complete; exact pinned full-text read in this continuation | `MAPPED`: `PROJ::AUDIT::METHOD` | No approved operational manifest, preflight or installed-target receipt is inferred. |
+| `CORE_POST_DEPLOY_SMOKE_POLICY` | `pcvantol/djconnect` / [docs/release/POST_DEPLOYMENT_SMOKE_TEST_POLICY.md](https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/release/POST_DEPLOYMENT_SMOKE_TEST_POLICY.md) | `192703ea79d3c65f373e69fa60d604555d4c2f5a` / `23f3743c3b4f2cbccb3269be157af6ac15eb0217` | complete; exact pinned full-text read in this continuation | `MAPPED`: `PROJ::AUDIT::METHOD` | No live smoke or deployment operational outcome is inferred. |
+| `CORE_33_EXEC_MATRIX_HIST` | `pcvantol/djconnect` / [docs/release/PLATFORM_3_3_EXECUTION_WORKFLOW_MATRIX.md](https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/release/PLATFORM_3_3_EXECUTION_WORKFLOW_MATRIX.md) | `192703ea79d3c65f373e69fa60d604555d4c2f5a` / `9814a90097f34c5136cfbaed7ec3234698c63272` | complete; exact pinned full-text read in this continuation | `MAPPED`: `PROJ::AUDIT::METHOD` | Current exact workflow effects and target qualification remain separately audited. |
+| `CORE_HACS_331_RELEASE_HIST` | `pcvantol/djconnect` / [docs/release/HACS_3_3_1_RELEASE.md](https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/release/HACS_3_3_1_RELEASE.md) | `192703ea79d3c65f373e69fa60d604555d4c2f5a` / `5e46bc267b26af33f82afb0a3afbad98b28f6313` | complete; exact pinned full-text read in this continuation | `MAPPED`: `PROJ::EVOLUTION::HACS-PUBLIC` | Current fresh candidate, consumer and authorization gates remain open. |
 
 ## Exact observed main-tree Markdown census
 
-Exact main trees at the 2026-10-03 11:45 UTC remote-head readback: core 192703ea, API 3f1ed18d and the other ten heads matching their source baselines. Path counts describe tracked Markdown files and their individual representation in this matrix, regardless of historical source-blob commit. Not-individually-included is a discovery/classification frontier, not a count of normative sources. The nine triaged relative-link targets remain separate.
+Exact main trees at the 2026-10-03 11:45 UTC remote-head readback: core 192703ea, API 3f1ed18d and the other ten heads matching their source baselines. Path counts describe tracked Markdown files and their individual representation in this matrix, regardless of historical source-blob commit. Not-individually-included is split into bounded path-only historical dispositions and an unclassified discovery frontier; neither count presumes normative authority. The nine triaged relative-link targets remain separate. Path-only historical classifications carry exact path/blob and a bounded version/directory rule; they are excluded from the individually full-read count and do not grant current status authority.
 
-| Lane | Observed tree | Tracked Markdown | Individually represented | Classification frontier |
-|---|---|---:|---:|---:|
-| `DJC-CORE` | `192703ea79d3c65f373e69fa60d604555d4c2f5a` | 880 | 260 | 620 |
-| `DJC-APPLE` | `d54224dbf02517ae47406aa14d33e97e61c18002` | 173 | 47 | 126 |
-| `DJC-ESP32` | `49a71f99f6435819ec00b7387520a3fd20640a0b` | 28 | 28 | 0 |
-| `DJC-PI` | `92712ae989f9ad44e2b935222a1e1053670a782f` | 33 | 33 | 0 |
-| `DJC-WINDOWS` | `1d6635ff5c610a0f43bf1ba7d68cb0b1def06924` | 117 | 41 | 76 |
-| `DJC-API` | `3f1ed18d2ce803a2b5d3750115d0dbf2dbaa34ba` | 28 | 28 | 0 |
-| `DJC-WEBSITE` | `6eef6aa267f18239b88f8edae6201dc62494e4eb` | 412 | 64 | 348 |
-| `DJC-VIBECAST` | `a901fbcd3e894af62b63fafbca8f96738e08ce3c` | 13 | 13 | 0 |
-| `DJC-PICO` | `6daf1f291566dea52adef604a7186b43755d871e` | 10 | 10 | 0 |
-| `DJC-DIST-FIRMWARE` | `cb9cc7ba321ca57675223dfac32f5583fbcb3656` | 15 | 15 | 0 |
-| `DJC-DIST-APPLE` | `02fa92f74b56fbc4223ee152d6f612559b84779d` | 15 | 15 | 0 |
-| `DJC-DIST-PI` | `673300921f980edc5ddfbb3ed5f5ca906b320b62` | 15 | 15 | 0 |
+| Lane | Observed tree | Tracked Markdown | Individually read / represented | Historical path-only classification | Unclassified frontier |
+|---|---|---:|---:|---:|---:|
+| `DJC-CORE` | `192703ea79d3c65f373e69fa60d604555d4c2f5a` | 880 | 270 | 293 | 317 |
+| `DJC-APPLE` | `d54224dbf02517ae47406aa14d33e97e61c18002` | 173 | 47 | 126 | 0 |
+| `DJC-ESP32` | `49a71f99f6435819ec00b7387520a3fd20640a0b` | 28 | 28 | 0 | 0 |
+| `DJC-PI` | `92712ae989f9ad44e2b935222a1e1053670a782f` | 33 | 33 | 0 | 0 |
+| `DJC-WINDOWS` | `1d6635ff5c610a0f43bf1ba7d68cb0b1def06924` | 117 | 41 | 76 | 0 |
+| `DJC-API` | `3f1ed18d2ce803a2b5d3750115d0dbf2dbaa34ba` | 28 | 28 | 0 | 0 |
+| `DJC-WEBSITE` | `6eef6aa267f18239b88f8edae6201dc62494e4eb` | 412 | 64 | 348 | 0 |
+| `DJC-VIBECAST` | `a901fbcd3e894af62b63fafbca8f96738e08ce3c` | 13 | 13 | 0 | 0 |
+| `DJC-PICO` | `6daf1f291566dea52adef604a7186b43755d871e` | 10 | 10 | 0 | 0 |
+| `DJC-DIST-FIRMWARE` | `cb9cc7ba321ca57675223dfac32f5583fbcb3656` | 15 | 15 | 0 | 0 |
+| `DJC-DIST-APPLE` | `02fa92f74b56fbc4223ee152d6f612559b84779d` | 15 | 15 | 0 | 0 |
+| `DJC-DIST-PI` | `673300921f980edc5ddfbb3ed5f5ca906b320b62` | 15 | 15 | 0 | 0 |
+
+## Path-only historical dispositions
+
+Path-only classification from exact pinned Git trees, with blob identities and category/version bounds. These 843 paths are historical prompt records or older versioned release copy, not full-text reads or independent current-status authority. Any later current source reference can reopen an individual path for full read; no product or release selection follows from this classification.
+
+| Lane | Category | Paths | Authority | Disposition |
+|---|---|---:|---|---|
+| `DJC-CORE` | `DATED_PROMPT_HISTORY` | 293 | `CORE_PROMPT_HISTORY_README` | Dated completed-prompt records; exact path/blob identified, contents not reread. Historical traceability only; current main and status/roadmap records own live state. |
+| `DJC-APPLE` | `DATED_PROMPT_HISTORY` | 12 | `AGENTS::DJC-APPLE`, `PROJ::DJC-APPLE::ENGINEERING_STATUS` | Dated Apple prompt history; exact path/blob identified, contents not reread. No current writer, release or completion status inferred. |
+| `DJC-APPLE` | `OLDER_APPLE_VERSIONED_RELEASE_COPY` | 114 | `APPLE_CHANGELOG`, `APPLE_RELEASE_GUIDE` | Pre-4.0.0 versioned Apple release-note copy; exact path/blob identified, contents not reread. Current 4.0.0 RC1 copy and source/release receipts have separate pins. |
+| `DJC-WINDOWS` | `DATED_PROMPT_HISTORY` | 8 | `AGENTS::DJC-WINDOWS`, `PROJ::DJC-WINDOWS::ENGINEERING_STATUS` | Dated Windows prompt history; exact path/blob identified, contents not reread. No current GUI-smoke or release status inferred. |
+| `DJC-WINDOWS` | `OLDER_WINDOWS_VERSIONED_RELEASE_COPY` | 68 | `WINDOWS_SOURCE__CHANGELOG_MD`, `WIN_RELEASE_GUIDE` | Pre-3.3.0 versioned Windows release-note copy; exact path/blob identified, contents not reread. Current source, receiving asset and live consumer joins stay separate. |
+| `DJC-WEBSITE` | `OLDER_WEBSITE_VERSIONED_RELEASE_COPY` | 348 | `WEBSITE_SOURCE__CHANGELOG_MD`, `README::DJC-WEBSITE` | Pre-3.3.0 versioned website release-note copy; exact path/blob identified, contents not reread. Current 3.3.0/latest copy and live website state stay separate. |
+
+Exact path/blob entries are in the machine-readable snapshot; their contents were not fully read.
 
 ## Relative Markdown links awaiting source triage
 

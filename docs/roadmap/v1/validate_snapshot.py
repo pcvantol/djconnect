@@ -207,6 +207,71 @@ def validate(plan: Any, require_complete: bool = False) -> list[str]:
             and all(isinstance(reason, str) and reason for reason in triage.values()),
             "reference scan needs one disposition for every unpinned path",
         )
+    historical = plan.get("source_capture", {}).get("historical_path_dispositions", {})
+    classified_by_lane: dict[str, int] = {}
+    if historical:
+        check(bool(historical.get("method")), "historical path classification method missing")
+        groups = historical.get("groups")
+        check(isinstance(groups, list) and bool(groups), "historical path groups missing")
+        seen_historical: set[tuple[str, str]] = set()
+        source_paths = {(s.get("repository"), s.get("path")) for s in sources.values()}
+        pattern_by_category = {
+            "DATED_PROMPT_HISTORY": re.compile(r"^docs/history/prompts/\d{4}-\d{2}-\d{2}-[^/]+\.md$"),
+            "OLDER_APPLE_VERSIONED_RELEASE_COPY": re.compile(r"^docs/release-notes/(?:de|en|es|fr|nl)/v(\d+)\.(\d+)\.(\d+)\.md$"),
+            "OLDER_WINDOWS_VERSIONED_RELEASE_COPY": re.compile(r"^docs/release-notes/(?:de|en|es|fr|nl)/v(\d+)\.(\d+)\.(\d+)\.md$"),
+            "OLDER_WEBSITE_VERSIONED_RELEASE_COPY": re.compile(r"^wwwroot/release-notes/(?:ios|macos|maccatalyst|windows)/(?:de/|en/|es/|fr/|nl/)?v(\d+)\.(\d+)\.(\d+)\.md$"),
+        }
+        allowed_lane_category = {
+            "DJC-CORE": {"DATED_PROMPT_HISTORY"},
+            "DJC-APPLE": {"DATED_PROMPT_HISTORY", "OLDER_APPLE_VERSIONED_RELEASE_COPY"},
+            "DJC-WINDOWS": {"DATED_PROMPT_HISTORY", "OLDER_WINDOWS_VERSIONED_RELEASE_COPY"},
+            "DJC-WEBSITE": {"OLDER_WEBSITE_VERSIONED_RELEASE_COPY"},
+        }
+        version_ceiling = {
+            "OLDER_APPLE_VERSIONED_RELEASE_COPY": (4, 0, 0),
+            "OLDER_WINDOWS_VERSIONED_RELEASE_COPY": (3, 3, 0),
+            "OLDER_WEBSITE_VERSIONED_RELEASE_COPY": (3, 3, 0),
+        }
+        for group in groups if isinstance(groups, list) else []:
+            if not isinstance(group, dict):
+                errors.append("invalid historical path group")
+                continue
+            lid, category = group.get("lane"), group.get("category")
+            check(
+                lid in allowed_lane_category
+                and category in allowed_lane_category[lid]
+                and bool(group.get("reason")),
+                "invalid historical path category/reason",
+            )
+            refs = group.get("authority_source_ids")
+            check(
+                isinstance(refs, list)
+                and bool(refs)
+                and all(sid in sources for sid in refs),
+                "historical path classification lacks pinned authority",
+            )
+            entries = group.get("entries")
+            check(isinstance(entries, list) and bool(entries), "historical path group has no entries")
+            if lid not in lanes or category not in pattern_by_category:
+                continue
+            repository = lanes[lid]["repository"]
+            for entry in entries if isinstance(entries, list) else []:
+                if not isinstance(entry, dict):
+                    errors.append("invalid historical path entry")
+                    continue
+                path, blob = entry.get("path"), entry.get("blob_sha")
+                match = pattern_by_category[category].fullmatch(str(path))
+                valid = bool(match) and bool(SHA.fullmatch(str(blob)))
+                if match and category in version_ceiling:
+                    valid = valid and tuple(map(int, match.groups())) < version_ceiling[category]
+                check(valid, "invalid historical path/blob or version boundary")
+                key = (repository, path)
+                check(
+                    key not in seen_historical and key not in source_paths,
+                    "duplicate or already represented historical path",
+                )
+                seen_historical.add(key)
+                classified_by_lane[lid] = classified_by_lane.get(lid, 0) + 1
     census = plan.get("source_capture", {}).get("tree_census_readback", {})
     if census:
         rows = census.get("lanes")
@@ -235,6 +300,15 @@ def validate(plan: Any, require_complete: bool = False) -> list[str]:
                     and tracked == included + remaining,
                     f"{lid}: invalid tree census counts",
                 )
+                if historical:
+                    classified = row.get("historically_classified_markdown")
+                    unclassified = row.get("unclassified_markdown")
+                    check(
+                        all(type(n) is int and n >= 0 for n in (classified, unclassified))
+                        and remaining == classified + unclassified
+                        and classified == classified_by_lane.get(lid, 0),
+                        f"{lid}: historical/unclassified census mismatch",
+                    )
                 represented = {
                     s.get("path")
                     for s in sources.values()

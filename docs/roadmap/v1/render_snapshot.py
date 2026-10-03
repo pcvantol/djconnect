@@ -48,9 +48,12 @@ def render(p: dict[str, Any]) -> dict[str, str]:
         rows = census["lanes"].values()
         tracked = sum(row["tracked_markdown"] for row in rows)
         included = sum(row["included_markdown"] for row in rows)
+        classified = sum(row.get("historically_classified_markdown", 0) for row in rows)
+        unclassified = tracked - included - classified
         lines.append(
             f"Exact observed main trees contain {tracked} tracked Markdown paths; {included} paths have individual source rows. "
-            f"The remaining {tracked - included} paths still need relevance classification; they are not all presumed normative.\n\n"
+            f"Another {classified} have exact path/blob historical classifications without full-text reads; "
+            f"{unclassified} paths remain unclassified. No path count alone grants current authority.\n\n"
         )
     lines += [
         "## Current five-item Execution Horizon\n\n",
@@ -110,12 +113,25 @@ def render(p: dict[str, Any]) -> dict[str, str]:
         lines += [
             "\n## Exact observed main-tree Markdown census\n\n",
             clean(census["boundary"]) + "\n\n",
-            "| Lane | Observed tree | Tracked Markdown | Individually represented | Classification frontier |\n|---|---|---:|---:|---:|\n",
+            "| Lane | Observed tree | Tracked Markdown | Individually read / represented | Historical path-only classification | Unclassified frontier |\n|---|---|---:|---:|---:|---:|\n",
         ]
         for lid, row in census["lanes"].items():
             lines.append(
-                f"| `{lid}` | `{row['commit_sha']}` | {row['tracked_markdown']} | {row['included_markdown']} | {row['not_individually_included_markdown']} |\n"
+                f"| `{lid}` | `{row['commit_sha']}` | {row['tracked_markdown']} | {row['included_markdown']} | {row.get('historically_classified_markdown', 0)} | {row.get('unclassified_markdown', row['not_individually_included_markdown'])} |\n"
             )
+    historical = p.get("source_capture", {}).get("historical_path_dispositions", {})
+    if historical:
+        lines += [
+            "\n## Path-only historical dispositions\n\n",
+            clean(historical["method"]) + "\n\n",
+            "| Lane | Category | Paths | Authority | Disposition |\n|---|---|---:|---|---|\n",
+        ]
+        for group in historical["groups"]:
+            authorities = ", ".join(f"`{sid}`" for sid in group["authority_source_ids"])
+            lines.append(
+                f"| `{group['lane']}` | `{group['category']}` | {len(group['entries'])} | {authorities} | {clean(group['reason'])} |\n"
+            )
+        lines.append("\nExact path/blob entries are in the machine-readable snapshot; their contents were not fully read.\n")
     scan = p.get("source_capture", {}).get("reference_scan", {})
     if scan:
         lines += [

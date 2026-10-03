@@ -130,6 +130,25 @@ class SnapshotTests(unittest.TestCase):
         self.p["source_capture"]["tree_census_readback"]["lanes"].pop("DJC-PI")
         self.assertIn("tree census must cover exactly one row per lane", self.errors())
 
+    def test_historical_path_cannot_overlap_fully_read_source(self):
+        group = self.p["source_capture"]["historical_path_dispositions"]["groups"][0]
+        source = next(s for s in self.p["sources"] if s["repository"] == "pcvantol/djconnect")
+        group["entries"][0]["path"] = source["path"]
+        self.assertIn("duplicate or already represented historical path", self.errors())
+
+    def test_historical_release_copy_cannot_include_current_version(self):
+        group = next(
+            g for g in self.p["source_capture"]["historical_path_dispositions"]["groups"]
+            if g["category"] == "OLDER_WINDOWS_VERSIONED_RELEASE_COPY"
+        )
+        group["entries"][0]["path"] = "docs/release-notes/en/v3.3.0.md"
+        self.assertIn("invalid historical path/blob or version boundary", self.errors())
+
+    def test_historical_counts_must_match_exact_entries(self):
+        row = self.p["source_capture"]["tree_census_readback"]["lanes"]["DJC-APPLE"]
+        row["historically_classified_markdown"] += 1
+        self.assertIn("historical/unclassified census mismatch", self.errors())
+
     def test_audit_cannot_close_without_receipt(self):
         self.p["audit_obligations"][0]["status"] = "CLOSED"
         self.assertIn("closed audit lacks closure evidence", self.errors())

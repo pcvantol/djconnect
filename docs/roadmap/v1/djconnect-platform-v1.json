@@ -41,7 +41,7 @@
     "metadata_and_bounded_paraphrases": true,
     "offline_hash_verification_of_remote_blobs": false,
     "per_call_timestamps": "Date-level head readback on 2026-10-03; no per-file read timestamp for inherited checkpoint.",
-    "pinned_tree_blobs_verified": "671 of 671 path/blob pins matched exact commit trees or GitHub Contents commit readbacks: 105 original GitHub tree readbacks, 438 local git commit-tree readbacks and 128 new GitHub tree/Contents readbacks on 2026-10-03. Current API Markdown blobs at 3f1ed18d matched fully read local previous-main blobs. Firmware binary files were fully SHA256-hashed for identity, not semantically executed. Narrative interpretation remains partial.",
+    "pinned_tree_blobs_verified": "681 of 681 path/blob pins matched exact commit trees or GitHub Contents commit readbacks: 105 original GitHub tree readbacks, 448 local git commit-tree readbacks and 128 new GitHub tree/Contents readbacks on 2026-10-03. Current API Markdown blobs at 3f1ed18d matched fully read local previous-main blobs. Firmware binary files were fully SHA256-hashed for identity, not semantically executed. Narrative interpretation remains partial.",
     "reference_scan": {
       "method": "Every pinned core Markdown blob and every pinned Markdown blob in the eleven DJC component repositories, at its recorded commit: parse relative Markdown links, strip anchors, normalize against source directory, retain existing .md targets absent from the pinned source matrix; distinct repository/path keys. The seven pinned external Forge method documents are outside this lane-source link frontier.",
       "unmapped_paths": [
@@ -71,15 +71,17 @@
     },
     "tree_census_readback": {
       "observed_at": "2026-10-03 12:16 UTC, complete local git trees and GitHub recursive trees for ESP32, Windows and current API main",
-      "boundary": "Exact main trees at the 2026-10-03 11:45 UTC remote-head readback: core 192703ea, API 3f1ed18d and the other ten heads matching their source baselines. Path counts describe tracked Markdown files and their individual representation in this matrix, regardless of historical source-blob commit. Not-individually-included is a discovery/classification frontier, not a count of normative sources. The nine triaged relative-link targets remain separate.",
+      "boundary": "Exact main trees at the 2026-10-03 11:45 UTC remote-head readback: core 192703ea, API 3f1ed18d and the other ten heads matching their source baselines. Path counts describe tracked Markdown files and their individual representation in this matrix, regardless of historical source-blob commit. Not-individually-included is split into bounded path-only historical dispositions and an unclassified discovery frontier; neither count presumes normative authority. The nine triaged relative-link targets remain separate. Path-only historical classifications carry exact path/blob and a bounded version/directory rule; they are excluded from the individually full-read count and do not grant current status authority.",
       "lanes": {
         "DJC-CORE": {
           "repository": "pcvantol/djconnect",
           "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
           "tracked_markdown": 880,
-          "included_markdown": 260,
-          "not_individually_included_markdown": 620,
-          "tree_readback": "complete local git ls-tree -r"
+          "included_markdown": 270,
+          "not_individually_included_markdown": 610,
+          "tree_readback": "complete local git ls-tree -r",
+          "historically_classified_markdown": 293,
+          "unclassified_markdown": 317
         },
         "DJC-APPLE": {
           "repository": "pcvantol/djconnect-app",
@@ -87,7 +89,9 @@
           "tracked_markdown": 173,
           "included_markdown": 47,
           "not_individually_included_markdown": 126,
-          "tree_readback": "complete local git ls-tree -r"
+          "tree_readback": "complete local git ls-tree -r",
+          "historically_classified_markdown": 126,
+          "unclassified_markdown": 0
         },
         "DJC-ESP32": {
           "repository": "pcvantol/djconnect-esp32",
@@ -95,7 +99,9 @@
           "tracked_markdown": 28,
           "included_markdown": 28,
           "not_individually_included_markdown": 0,
-          "tree_readback": "GitHub recursive Git tree, truncated=false"
+          "tree_readback": "GitHub recursive Git tree, truncated=false",
+          "historically_classified_markdown": 0,
+          "unclassified_markdown": 0
         },
         "DJC-PI": {
           "repository": "pcvantol/djconnect-pi",
@@ -103,7 +109,9 @@
           "tracked_markdown": 33,
           "included_markdown": 33,
           "not_individually_included_markdown": 0,
-          "tree_readback": "complete local git ls-tree -r"
+          "tree_readback": "complete local git ls-tree -r",
+          "historically_classified_markdown": 0,
+          "unclassified_markdown": 0
         },
         "DJC-WINDOWS": {
           "repository": "pcvantol/djconnect-windows",
@@ -111,7 +119,9 @@
           "tracked_markdown": 117,
           "included_markdown": 41,
           "not_individually_included_markdown": 76,
-          "tree_readback": "GitHub recursive Git tree, truncated=false"
+          "tree_readback": "GitHub recursive Git tree, truncated=false",
+          "historically_classified_markdown": 76,
+          "unclassified_markdown": 0
         },
         "DJC-API": {
           "repository": "pcvantol/djconnect-api",
@@ -119,7 +129,9 @@
           "tracked_markdown": 28,
           "included_markdown": 28,
           "not_individually_included_markdown": 0,
-          "tree_readback": "GitHub recursive Git tree, truncated=false"
+          "tree_readback": "GitHub recursive Git tree, truncated=false",
+          "historically_classified_markdown": 0,
+          "unclassified_markdown": 0
         },
         "DJC-WEBSITE": {
           "repository": "pcvantol/djconnect-website",
@@ -127,7 +139,9 @@
           "tracked_markdown": 412,
           "included_markdown": 64,
           "not_individually_included_markdown": 348,
-          "tree_readback": "complete local git ls-tree -r"
+          "tree_readback": "complete local git ls-tree -r",
+          "historically_classified_markdown": 348,
+          "unclassified_markdown": 0
         },
         "DJC-VIBECAST": {
           "repository": "pcvantol/djconnect-vibecast-receiver",
@@ -135,7 +149,9 @@
           "tracked_markdown": 13,
           "included_markdown": 13,
           "not_individually_included_markdown": 0,
-          "tree_readback": "complete local git ls-tree -r"
+          "tree_readback": "complete local git ls-tree -r",
+          "historically_classified_markdown": 0,
+          "unclassified_markdown": 0
         },
         "DJC-PICO": {
           "repository": "pcvantol/djconnect-pico",
@@ -143,7 +159,9 @@
           "tracked_markdown": 10,
           "included_markdown": 10,
           "not_individually_included_markdown": 0,
-          "tree_readback": "complete local git ls-tree -r"
+          "tree_readback": "complete local git ls-tree -r",
+          "historically_classified_markdown": 0,
+          "unclassified_markdown": 0
         },
         "DJC-DIST-FIRMWARE": {
           "repository": "pcvantol/djconnect-firmware",
@@ -151,7 +169,9 @@
           "tracked_markdown": 15,
           "included_markdown": 15,
           "not_individually_included_markdown": 0,
-          "tree_readback": "complete local git ls-tree -r"
+          "tree_readback": "complete local git ls-tree -r",
+          "historically_classified_markdown": 0,
+          "unclassified_markdown": 0
         },
         "DJC-DIST-APPLE": {
           "repository": "pcvantol/djconnect-app-releases",
@@ -159,7 +179,9 @@
           "tracked_markdown": 15,
           "included_markdown": 15,
           "not_individually_included_markdown": 0,
-          "tree_readback": "complete local git ls-tree -r"
+          "tree_readback": "complete local git ls-tree -r",
+          "historically_classified_markdown": 0,
+          "unclassified_markdown": 0
         },
         "DJC-DIST-PI": {
           "repository": "pcvantol/djconnect-pi-releases",
@@ -167,9 +189,3453 @@
           "tracked_markdown": 15,
           "included_markdown": 15,
           "not_individually_included_markdown": 0,
-          "tree_readback": "complete local git ls-tree -r"
+          "tree_readback": "complete local git ls-tree -r",
+          "historically_classified_markdown": 0,
+          "unclassified_markdown": 0
         }
       }
+    },
+    "historical_path_dispositions": {
+      "method": "Path-only classification from exact pinned Git trees, with blob identities and category/version bounds. These 843 paths are historical prompt records or older versioned release copy, not full-text reads or independent current-status authority. Any later current source reference can reopen an individual path for full read; no product or release selection follows from this classification.",
+      "groups": [
+        {
+          "lane": "DJC-CORE",
+          "category": "DATED_PROMPT_HISTORY",
+          "reason": "Dated completed-prompt records; exact path/blob identified, contents not reread. Historical traceability only; current main and status/roadmap records own live state.",
+          "authority_source_ids": [
+            "CORE_PROMPT_HISTORY_README"
+          ],
+          "entries": [
+            {
+              "path": "docs/history/prompts/2026-07-14-engineering-method-v2-3.md",
+              "blob_sha": "4b29c80beb7204d16fa061afc171024df6fe789e"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-14-engineering-method-v2.md",
+              "blob_sha": "fc4858082c61884c34440e9fd7af801adb1b283d"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-15-platform-governance-rolling-records-reconciliation.md",
+              "blob_sha": "8db398ecabb906b79565909e8e394abbd6f74f82"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-15-post-merge-engineering-state-reconciliation.md",
+              "blob_sha": "5e3902b1d9a078495da3952fa5e24e382e774a10"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-15-repository-governance-rollout-completion.md",
+              "blob_sha": "f6a67132666835a07ca9bd7ccf69fbfe20dd4a93"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-15-repository-governance-rollout-planning.md",
+              "blob_sha": "359c89f01e2cd5b155e73e25e660248f8198cf0c"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-15-rg-audit-001.md",
+              "blob_sha": "4f8746ec4670d7d359f19a55049b8f0c2cceda6b"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-16-macos-runner-bootstrap-postmerge-repin.md",
+              "blob_sha": "3a2bfdb74b215646a1a32747e9cc961937d97d64"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-16-macos-runner-bootstrap-premerge-preparation.md",
+              "blob_sha": "6ae9bfbe7bd6931f4eb11a544946328d9f9bf722"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-16-native-deployment-preflight-scripting.md",
+              "blob_sha": "c89af24fb18f8c487c70d7bb47d3fa0e35acd17f"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-17-observatory-hygiene-merge-reconciliation.md",
+              "blob_sha": "ed129ece5230bc2773764b41d21de0ec43cd8c93"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-17-observatory-hygiene-postmerge-reconciliation.md",
+              "blob_sha": "331d6ef87b03a2b8f226f05c63ed1c43705bcc04"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-17-observatory-rolling-records-reconciliation.md",
+              "blob_sha": "198b636350ba507250a54f51a166a62e90be7336"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-17-platform-release-observatory-design.md",
+              "blob_sha": "15387ea302f022af7189ec65f863504a17a63238"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-17-platform-release-windows-arm64-evidence-reconciliation.md",
+              "blob_sha": "4918551e561f86e853c36bfffd8e7e7184d53dd3"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-17-windows-evidence-postmerge-reconciliation.md",
+              "blob_sha": "5a61fc53649153fcc37e4deffd16280b24f2ce7c"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-19-home-assistant-deployment-consumer-qualification.md",
+              "blob_sha": "d61d3214fc1a856df38b21f2d27a772f734e8133"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-19-innovation-engineering-method-evolution.md",
+              "blob_sha": "882f18f6cc622377f748b9d830486ca13a28668f"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-19-innovation-engineering-postmerge-reconciliation.md",
+              "blob_sha": "41b64a30d905dde2d1d50f2e105e2c05595d224d"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-19-platform-release-3-3-release-completion-postmerge-reconciliation.md",
+              "blob_sha": "3d2c94ebb79b4d6a52a4f80c0c5969e6b32d3698"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-19-platform-release-3-3-release-completion.md",
+              "blob_sha": "a99537a73adf5402e3c4113271c0e90d385b4fdf"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-19-platform-release-3-3-target-qualification-postmerge-reconciliation.md",
+              "blob_sha": "c6a7fcd676ae947fcec2705cde781e2a077deed8"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-19-pr158-rolling-records-reconciliation.md",
+              "blob_sha": "6b302885679eb2cef398d4e62bd37179834468d0"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-21-align-owner-websocket-snapshot-registration.md",
+              "blob_sha": "97cbd87f5bafcab5e411c1856a388c94c4939f92"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-21-authorized-websocket-recovery.md",
+              "blob_sha": "df117b75c669581960d0bc5a156b0214a526afac"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-21-broadcast-delivery-identity.md",
+              "blob_sha": "130e2c808326f3ce0af325a5e48f729dcf262994"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-21-broadcast-recovery-cursor.md",
+              "blob_sha": "de091083027885af95cb29f112aed4804e590222"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-21-canonical-non-knowledge-track-started-projection.md",
+              "blob_sha": "bcd40999e6c61faaa28e690d2a065d1bb0ff8e4e"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-21-canonical-planning-input-activation.md",
+              "blob_sha": "3f4bf82e548f908f71df895c90186c3f0fde1033"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-21-capability-completion-lifecycle.md",
+              "blob_sha": "07efbb698d736af4e309f4ad4100e9e30787b3e0"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-21-deterministic-horizon-replanning.md",
+              "blob_sha": "5966a88b26c5f8564c49649fa5d3377defdb3a7e"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-21-djconnect-persistence-foundation.md",
+              "blob_sha": "a9608eee359950aec5be7523ef15a8669dee4447"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-21-djconnect-v4-completion-roadmap.md",
+              "blob_sha": "54918d482bd575635f2fb2f7d213aec0b73b0fa9"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-21-document-dj-session-transport-architecture.md",
+              "blob_sha": "7ee626bc061f048babb3d4ff32507dae090e8353"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-21-ensure-snapshot-first-websocket-delivery.md",
+              "blob_sha": "c1490ec7c50c93da12af935e14066832e1985cfb"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-21-finalization-branch-cleanup-governance.md",
+              "blob_sha": "aea99c7e7fd2dcc889f8b2f4e60fb03d5d272529"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-21-fix-home-assistant-http-view-registration.md",
+              "blob_sha": "53a7296edb6325458aae76dbaa35a10271c13f1f"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-21-fix-rolling-status-validation-baseline.md",
+              "blob_sha": "1b6810fea983d746b7659ea031464aeb3846fa3d"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-21-historical-projection-query-service.md",
+              "blob_sha": "eff098906868edcc5beb8d2d2419f6b843a982f1"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-21-historical-projection-retention.md",
+              "blob_sha": "0fbf2ed706760b0723f4d3072352628937e6209e"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-21-historical-session-projections.md",
+              "blob_sha": "c5fa7ff1087b4520e73388cb2ca60655c935dce1"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-21-http-transport-capability-discovery.md",
+              "blob_sha": "a0d814410705efab7b244353d0a6b03c637f7598"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-21-knowledge-prefetch-execution-boundary.md",
+              "blob_sha": "3f2b7215d774ad2f131e332c5e13c69b3e39e058"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-21-knowledge-prefetch-planning.md",
+              "blob_sha": "0c9a108a8ac52e3e638aee76a462f8ea7820546a"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-21-localization-narrative-architecture.md",
+              "blob_sha": "d6ae9a62a1ccd8d53c530a2908c8fbfeaa4b0a15"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-21-mood-direction-intent-selection.md",
+              "blob_sha": "6f63f0d1076bcc53e4b4e1463bec3c7e2df5297e"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-21-owner-http-broadcast-snapshot.md",
+              "blob_sha": "759f94f8836bd973fe1b6af0426086416ad32185"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-21-performance-memory-intent-selection.md",
+              "blob_sha": "6ac45561df1c996a81daa0f1515e99b4614f13bd"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-21-persistence-foundation-validation-hardening.md",
+              "blob_sha": "37429ed4d301f9317fc5233a999db638591fe80d"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-21-persistence-schema-lifecycle-hardening.md",
+              "blob_sha": "2d2e02fcec81acbc38a9b28d32f89427b226f5b6"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-21-persistent-session-architecture.md",
+              "blob_sha": "62f052cad79c946ba49b8104b65b1e968a02b5cd"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-21-persistent-session-lifecycle-store.md",
+              "blob_sha": "ba2af04f8f61f8edc625d485ea5aa63ad1b8a6ba"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-21-persistent-session-startup-reconciliation.md",
+              "blob_sha": "211e51f6b68e881fda6216f98a0cc5cc08defefd"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-21-planner-influence-model.md",
+              "blob_sha": "cc000d4c63d2066f8723da4043b5ed4746776c30"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-21-planner-intent-selection.md",
+              "blob_sha": "7f25a3c9846ac2c05cf3843d247f92c32f012ab7"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-21-planning-horizon-expansion.md",
+              "blob_sha": "96e16159bba1392d60250cb96090445a64d27d70"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-21-planning-readiness-evaluation.md",
+              "blob_sha": "93b968be45c5ac70e5109f78be7a74f5b6630427"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-21-planning-runtime-coordinator.md",
+              "blob_sha": "eb1ba19cd09cfbfa0bc36bfb11f822274068bdeb"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-21-prepared-knowledge-consumption.md",
+              "blob_sha": "4f6f6c1e9b1f97a7ef68151b407e3bd7c8f78171"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-21-primary-planning-pipeline-activation.md",
+              "blob_sha": "ccfe4b7307666eceb7cbd8655d9f5f554c7f21b0"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-21-prioritize-session-intelligence-e2e-verification.md",
+              "blob_sha": "d6a8e4daba7b22c4eb1f3f2f776821b4230d8828"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-21-reconcile-developer-experience-roadmap.md",
+              "blob_sha": "0eee9788d81ff2b4c040315aaae0b32983e5977b"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-21-reconcile-merged-session-baseline.md",
+              "blob_sha": "581a64228af694bc4ac08536b9e8e18112e34527"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-21-record-external-capability-dependencies.md",
+              "blob_sha": "7087240b1f5d0f8401cffe027cc7a75fa0b348b9"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-21-refine-dj-intelligence-maturity-cells.md",
+              "blob_sha": "4e00d5504ebfc3915ee3df76a395745fd0a96c13"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-21-renderer-safe-playback-projection.md",
+              "blob_sha": "1d2001284db9f5486fa4a2cf9a77695b59e107e3"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-21-rolling-planning-window.md",
+              "blob_sha": "c7c3317ead61d401de11b4656a6e700761043509"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-21-rolling-session-horizon-architecture.md",
+              "blob_sha": "cc2b34c6fb1e1a2d9362f86f83f078a71806b4f0"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-21-rolling-session-horizon-runtime.md",
+              "blob_sha": "e3bcc33abb78c5616103a833cdd38ba8b34ca2f6"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-21-select-primary-knowledge-evidence.md",
+              "blob_sha": "9e599357b69ada9843418eed3e14fc47e8a73885"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-21-session-flow-recovery-architecture.md",
+              "blob_sha": "3f6a7a4ad53b1da55f0ba320d01929009d897262"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-21-session-flow-revision-journal.md",
+              "blob_sha": "fba2b92c00abc68b93a510d2f9353f8fd86026fa"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-21-session-intelligence-runtime-epic-closure.md",
+              "blob_sha": "76ed0eb48ed6b41829a40dc0020a99dc31790bbc"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-21-space-consecutive-recommendation-intents.md",
+              "blob_sha": "58875d43ded9bd8dcb3c101565a02d6a07eecfc6"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-21-squash-merge-cleanup-governance.md",
+              "blob_sha": "1c22046c67b6ba2d4459dfb358dd4e73a0cde033"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-21-universal-receiver-broadcast-rendering.md",
+              "blob_sha": "5e7e16da5d3758e890853a82c6ded34333cf0d18"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-21-universal-receiver-now-playing.md",
+              "blob_sha": "d7e8b6d170c4daef9db5a9602d4bffbd06e4b496"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-21-universal-receiver-server-architecture.md",
+              "blob_sha": "8855bd575b09a33df2455f310a6bd763f0e1a374"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-21-universal-receiver-session-flow-timeline.md",
+              "blob_sha": "7ce1942c0b0e0e5d48c8bc02847561a8eda86a92"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-21-upcoming-playback-projection.md",
+              "blob_sha": "31678b13157f13f3cbaa41fe4fcc1fb1f24eedbc"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-21-workspace-cleanup-governance.md",
+              "blob_sha": "7539eb4ebfe462b1a4704ad33f71d53b232c1ab5"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-22-ambient-light-renderer-host.md",
+              "blob_sha": "a2c9bb7bbd2066fae9f67576a3d136e8e8f5e316"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-22-audience-experience-architecture.md",
+              "blob_sha": "3a572b8968ce6160a4271c88e75f51476960c048"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-22-audio-renderer-host-terminology.md",
+              "blob_sha": "d0876a06b31a7bc2294abf9b5aaf1f1f0d26710a"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-22-deterministic-scenario-driver.md",
+              "blob_sha": "ce301c8eebead7955c274cd53534df88b322014f"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-22-developer-session-bootstrap.md",
+              "blob_sha": "ecb4ac7f3760ef0e5f6509e34f9b7a47cf60ffbb"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-22-golden-scenario-governance.md",
+              "blob_sha": "7938f60fbb65ebc69aac1e2b7c4df5ac1326d9ca"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-22-immutable-e2e-session-capture.md",
+              "blob_sha": "e9f2e0b8fa8127b04f3582192110efac4573904c"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-22-platform-ambient-experience.md",
+              "blob_sha": "437dd2f9cf430c67a84c274a5b9087c6e9b74666"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-22-renderer-host-classification.md",
+              "blob_sha": "3ada242505f18b0f6db0003c281b811cb24fcf61"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-22-room-presentation-routing.md",
+              "blob_sha": "b78f68735e0a09200ae378bbd1ecc27d4fa65f3c"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-22-session-intelligence-e2e-architecture.md",
+              "blob_sha": "fb9cc5b1205929edfef01967e0263aaa2224b153"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-22-session-intelligence-qualification-policy.md",
+              "blob_sha": "4af47e46d03cb9c6d404d77b3a643b9ecf283790"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-22-si-golden-002-verification-clock.md",
+              "blob_sha": "abccc4b6430b46e1795644274d2fa4d1223743e6"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-22-si-golden-003-knowledge-failure.md",
+              "blob_sha": "c209a7590c98dd330a7791190b81ad6ee780663f"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-22-structural-invariant-validator.md",
+              "blob_sha": "1b975b53f4d26984e63de273c036ab97eea548fc"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-22-verification-clock-architecture.md",
+              "blob_sha": "63ed418f86eed777c3afd27d55bc3bac41a02b99"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-22-vibecast-architecture.md",
+              "blob_sha": "4fe6cc98120644fe75089d3c35e1e199fca91e17"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-23-accelerated-event-driven-session-execution-no-go.md",
+              "blob_sha": "6783efadd6979f62deeed984cc555b1cd39e864e"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-23-complete-original-golden-scenarios.md",
+              "blob_sha": "a654c13f00602cc6073b2f23ef54e84e0386d4a5"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-23-golden-qualification-foundation.md",
+              "blob_sha": "56e893223893c5e32e9ad1f615cca0eb1b24722c"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-23-golden-scenario-platform-governance.md",
+              "blob_sha": "a70daa2fbd0c0454d65ac21ed0c31131cb903274"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-23-golden-session-regression-profile.md",
+              "blob_sha": "10df4d80f1048400584bde4f238edee01a5b829c"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-23-golden-smoke-execution-profile.md",
+              "blob_sha": "7d90b8d5ea9c666fc47b8de629d32871819dc893"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-23-intelligence-quality-metrics-advisory.md",
+              "blob_sha": "ab65465136835916a4e243869076512f56b6a440"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-23-platform-overview-architecture.md",
+              "blob_sha": "66d15e8aea73a2579536c73aaffd89c64eafcd03"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-23-presentation-capability-architecture.md",
+              "blob_sha": "5c8daee8d076a0d3afe323c751330e23bd140282"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-23-presentation-composer.md",
+              "blob_sha": "cc66967589782b2f4b0ff5909d24d89f8c476b7c"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-23-presentation-execution-pipeline.md",
+              "blob_sha": "4752dcea618b3875b963e20c15dff6e172bfdae9"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-23-presentation-verification-architecture.md",
+              "blob_sha": "e9506d6c272396a5c12e0485dc3ec919929102bc"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-23-speech-rendering-contract.md",
+              "blob_sha": "3c0903d25fb71b7ff9b51463f42e5c4f232da0aa"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-24-canonical-capability-architecture.md",
+              "blob_sha": "37aaa742d4ca6657b89ea271a644552d7c16a78e"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-24-ci-qualification-report-governance.md",
+              "blob_sha": "5b6f03d6ea99b1707efd18500059ea96127f60cd"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-24-experience-engineering-foundation.md",
+              "blob_sha": "238ddc95359359b9c79d78db74c433f81223522b"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-24-full-ci-qualification-readable-reports.md",
+              "blob_sha": "bb0b6a18f1c84c44cc5e1e8e0a7a7f1384d16f05"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-24-generation-2-program-reconciliation.md",
+              "blob_sha": "284a68fa4c6b9d5eac9a202b3a69f813c4e64602"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-24-product-philosophy-alignment.md",
+              "blob_sha": "390fceef2c4a9b6e50a315befff4920c94cdc94d"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-24-universal-receiver-browser-e2e.md",
+              "blob_sha": "7867c61c40e644b02fb4d4bd68ffb537dfd14991"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-25-ai-collaboration-bootstrap-finalization-reconciliation.md",
+              "blob_sha": "213135ac38efc3e08582ea8ccdf3d29eed752b31"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-25-ai-collaboration-bootstrap.md",
+              "blob_sha": "b67d67eaa0a824c7a2feefe9d2c755ea5847e40c"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-25-client-connectivity-resilience-reconciliation-finalization.md",
+              "blob_sha": "2fcda21ef5976aa8569d3700975e42f6a3908550"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-25-client-connectivity-resilience-reconciliation.md",
+              "blob_sha": "f08ae5bcf353aacd1e4fb7ec9afcfbf32aef57de"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-25-cmb-11-sharing-producer-native-renderer-assessment.md",
+              "blob_sha": "d4f427bd5bf20a5950c28e8b65d2bc405321b45b"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-25-conditional-dj-intelligence-assessment.md",
+              "blob_sha": "ed6c84ae4bcf56a65afc1be2dac1bab621ec6605"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-25-developer-handoff-collaboration.md",
+              "blob_sha": "de3a9c54c8c372b71d412e62ef62c8735a27b851"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-25-developer-overlay-delivery-guard-finalization.md",
+              "blob_sha": "2409b4e07f2dde5e39b85ff55f16153bb6b74ce6"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-25-developer-overlay-delivery-guard-preflight.md",
+              "blob_sha": "1659ad19b702105b555b1b1229cd3922d36df815"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-25-dj-brain-built-in-capability-platform-finalization.md",
+              "blob_sha": "2e0a6ad21e2cf7bc6d47d4c71b50f30aef131ee9"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-25-dj-brain-built-in-capability-platform.md",
+              "blob_sha": "5aacf17437aaa0ba7ba310dfa8dea00b13b32017"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-25-dj-intelligence-evolution-roadmap.md",
+              "blob_sha": "bf751672122e68a0c161593ac5c9ee493ef64db1"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-25-e2e-harness-observability-finalization-state-correction.md",
+              "blob_sha": "2df9e104b288d85b1314b22282a09a877a62211c"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-25-e2e-harness-read-only-observability-finalization.md",
+              "blob_sha": "b6ca5617cc18a3359df9a523130072e0a51d491b"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-25-e2e-harness-read-only-observability-implementation.md",
+              "blob_sha": "e54b19c332b401fd82e6928251645bfc3ad5417e"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-25-execution-horizon-decision-rationale-finalization.md",
+              "blob_sha": "6a04bce687126c1ffcbe56c86b2e2515dce0c668"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-25-execution-horizon-decision-rationale.md",
+              "blob_sha": "685ed463461dca4c0680d07ac183371111ad52c6"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-25-finalization-management-feedback.md",
+              "blob_sha": "ef4d25a5be0cd695151fbf5ad3b325a13ac5b06e"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-25-finalization-roadmap-projection.md",
+              "blob_sha": "2d43b2bfffdc07c38e9d2747846ff2a9148b7041"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-25-finalization-rolling-horizon-standardization-finalization.md",
+              "blob_sha": "e5eae886bbf9e5f429e249f3b32657f9a12cc9d5"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-25-finalization-rolling-horizon-standardization.md",
+              "blob_sha": "09fe7b2a6ff3f64d067272d4d59bfb6ca6d6c49b"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-25-finalization-stale-branch-reporting.md",
+              "blob_sha": "7f1f9c864a2bf55d5ee0faa6d47feb74a6d63d17"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-25-hacs-ci-alternating-pr-validation-reclassification-finalization.md",
+              "blob_sha": "f805b1453df7416f6c054ae953f4bae8d3f4ecb9"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-25-hacs-ci-alternating-pr-validation-reclassification.md",
+              "blob_sha": "4cf1f8f332437532be7b786d244d98d40b736e0b"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-25-hacs-ci-failure-classification-assessment.md",
+              "blob_sha": "5db95902cb4295a3a37afe9064edb3acdbce9dea"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-25-hacs-ci-failure-classification-finalization.md",
+              "blob_sha": "5c43f2a8f2220ea74df19363122a91cf3a6ea09f"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-25-hacs-ci-validator-evidence-reconciliation-finalization.md",
+              "blob_sha": "d82c6d8df10853609d68a544ebc24ca1d810dbba"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-25-hacs-ci-validator-evidence-reconciliation.md",
+              "blob_sha": "4ca39b824886e3a73103b05fd88a6501f8e325d2"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-25-native-ask-dj-voice-ingest-reconciliation-finalization.md",
+              "blob_sha": "69a70d7e30852091e77df0814484be63a4495783"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-25-native-ask-dj-voice-ingest-reconciliation.md",
+              "blob_sha": "f97df9cfeed5e4a5e7d4444fc79d834ad962452a"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-25-playback-observation-adaptive-planning-reconciliation-finalization.md",
+              "blob_sha": "b6ed1e688b2d1f552f9b88611f07f989f0968c4c"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-25-playback-observation-adaptive-planning-reconciliation.md",
+              "blob_sha": "ab99b1ca1376bac5f929b3f80aa3908778d3c510"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-25-read-only-developer-overlay-finalization.md",
+              "blob_sha": "71035498fcbd6583b4ba7827a7c7ed44fd2142c5"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-25-read-only-developer-overlay-preflight.md",
+              "blob_sha": "842153e8b099060aa84b2d2ddbe045a03f28976a"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-25-rolling-horizon-execution-semantics-finalization.md",
+              "blob_sha": "c75128e2b4e9d3b0d0dfec30be7cca82b5fcfc88"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-25-session-direction-architecture-reconciliation-finalization.md",
+              "blob_sha": "4b086ae9eb9e820de4e82a108d5566eb573af37f"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-25-session-direction-architecture-reconciliation.md",
+              "blob_sha": "840af596f0e03b0b0f6bb8bd4cb28dc29a61ac43"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-25-sharing-experience-architecture-reconciliation-finalization.md",
+              "blob_sha": "6d64a5b447611cbff68da52f76d19fe4ebc14ee9"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-25-sharing-experience-architecture-reconciliation.md",
+              "blob_sha": "6df9b8cdee875ce44fadb0cdf108dd7e106ff7cb"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-25-sharing-experience-finalization-handoff-correction.md",
+              "blob_sha": "a7f7ae0ef1f2a2651a356885b35021c060ed4ecb"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-26-apple-watch-moment-first-companion-finalization.md",
+              "blob_sha": "4172e0bcd51843aac1ba96475ee49ea771e8613b"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-26-apple-watch-moment-first-companion-registration.md",
+              "blob_sha": "194607a51bbef176d3d345fe837f1753eb4596b4"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-26-client-connectivity-resilience-finalization.md",
+              "blob_sha": "1c52c418da391135ef7452128f0529e54fa8390f"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-26-client-connectivity-resilience-qualification.md",
+              "blob_sha": "a8e7b21cc10294b8aacdd235afd8c872408f91bd"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-26-cmb-02-platform-capability-profile-validation.md",
+              "blob_sha": "47a3b642e72e33ed31669fea1980fa193000b26f"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-26-cmb-04-finalization-record-reconciliation.md",
+              "blob_sha": "287fcebce3e528f810a9ed3f8718b869529a14ee"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-26-cmb-04-renderer-experience-roadmap.md",
+              "blob_sha": "1067d195ae824d7c8ecfdbbb4355f4b2adff6b4e"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-26-cmb-04-renderer-roadmap-finalization.md",
+              "blob_sha": "c37ab9f6b8beaaf974ad47a78b577d35390327d6"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-26-cmb-05-pi-4-inch-capability-profile-assessment.md",
+              "blob_sha": "d7936fe16bdec69fccecd62caa2a05b11860ff02"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-26-cmb-05-pi-4-inch-capability-profile-finalization.md",
+              "blob_sha": "f679156074b8813699862c4dce18e816dbba4a8c"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-26-cmb-06-pi-10-inch-capability-profile-assessment.md",
+              "blob_sha": "c778cb6368b3a847cc672a72a8ac059337b13431"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-26-cmb-06-pi-10-inch-capability-profile-finalization.md",
+              "blob_sha": "9a6669a863916e1206b4cc98ded3958d511f3810"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-26-cmb-07-apple-windows-atomic-convergence-assessment.md",
+              "blob_sha": "cf05460d736d368f1105fa362c1c2f3f8ca49ca7"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-26-cmb-07-apple-windows-atomic-convergence-finalization.md",
+              "blob_sha": "cbcad2eade2eaaf28ebc9a0854e58f546fb1019d"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-26-cmb-08-decomposition-finalization.md",
+              "blob_sha": "07a585d83f011b16333e7bdf346d35afebb58401"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-26-cmb-08-universal-receiver-vibecast-decomposition.md",
+              "blob_sha": "1036b339a93634d477a790125d375d3e8646b428"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-26-cmb-09-voice-host-profile-finalization.md",
+              "blob_sha": "0212dac0bed54865ea233175cb4dbe35aaab0717"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-26-cmb-09-voice-interaction-host-esp32-capability-profile-assessment.md",
+              "blob_sha": "0dbded6973fe4959a4e4ec978e20d171100f7954"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-26-cmb-11-finalization-record-reconciliation.md",
+              "blob_sha": "d1581eeb3bdea2e900ab23b2cb48ad1574088317"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-26-cmb-11-sharing-assessment-finalization.md",
+              "blob_sha": "c0fd76b0aa5247a43467a99266139117d71ff108"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-26-cmb-11-sharing-contract-refinement-continuation.md",
+              "blob_sha": "93b71fbd266aa425e9b319175377a2551104598c"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-26-cmb-11-sharing-contract-refinement.md",
+              "blob_sha": "652647ce4f2b1303a07561e2e4e9f675973f6459"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-26-cmb-11-sharing-cross-repository-evidence-reconciliation.md",
+              "blob_sha": "6710bcbeba1ebd0fba62db7ec442c11dc98cf565"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-26-cmb-11-sharing-refinement-finalization.md",
+              "blob_sha": "091c2c22c83185daa6e7fd7b439d0e3c9ddea3f9"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-26-cmb-12-apple-native-surface-capability-assessment.md",
+              "blob_sha": "984541cbbb613e9d15da6e1783439db322328f49"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-26-cmb-12-apple-native-surface-finalization.md",
+              "blob_sha": "e1af5f4a00a80d746fd38d6eab32c72fe96cb78d"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-26-finalization-consistency-polish.md",
+              "blob_sha": "7ea44e85ef6955c79281e3e5e5e0d9ca874ea30d"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-26-ha-onboarding-configuration-experience-finalization.md",
+              "blob_sha": "2cad2a6205c95f875d0529dd708468ae249342e1"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-26-ha-onboarding-configuration-experience-roadmap.md",
+              "blob_sha": "d085020b02d9163f20c08622f3aa1bd58db501b6"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-26-hacs-pr-validation-reliability-finalization.md",
+              "blob_sha": "dd8bd4c477c2e7c04719fa75f1dc67fac8c805cd"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-26-hacs-pr-validation-reliability.md",
+              "blob_sha": "0dd1ef58659111a4c44fa41997867eb48c001831"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-26-interactive-djmoments-capability-registration.md",
+              "blob_sha": "50da9f384d26711fc8463b775bd81562b89590c5"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-26-interactive-djmoments-finalization.md",
+              "blob_sha": "226f7ca4b36fd49c064ad248037e9674c34f5f55"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-26-native-surface-integration-roadmap-finalization.md",
+              "blob_sha": "5338cab00cbe04b69c7825fa2f4393c40eb867fd"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-26-native-surface-integration-roadmap-introduction.md",
+              "blob_sha": "d60e29cf8b423498b4f9e3dc1f217c3dbd1d543e"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-26-product-community-readiness-finalization.md",
+              "blob_sha": "e7f53560c8b6a9f98d53cf266ae88d0b0a5b539f"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-26-product-community-readiness-phase.md",
+              "blob_sha": "ba452ded19cb3b48042552e79e040c49af9712fc"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-26-qualification-register-finalization.md",
+              "blob_sha": "530305b0ef45c49ecfd90a0fb58bbf36754c7e55"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-26-qualification-register-introduction.md",
+              "blob_sha": "1af02c427e9be7ea1ad2440342cffb237dff138e"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-26-raspberry-pi-renderer-family-documentation.md",
+              "blob_sha": "873769d99dc4c704d45fcad3f02a914a0724c8b1"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-26-raspberry-pi-renderer-family-finalization.md",
+              "blob_sha": "eee3ac9fcbc297a805cee43ba24be47dcc5e74b9"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-26-session-continuation-capability-registration.md",
+              "blob_sha": "7fee678f840ff1e81f61f6c90c1c2f48544a2a12"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-26-session-continuation-finalization.md",
+              "blob_sha": "d97eaf8e4b0b9037c520a4e2e5339ed87d91880c"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-27-capability-profile-assessment-follow-up-finalization.md",
+              "blob_sha": "521899154f62645315c5883b205c1b49c83d523f"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-27-capability-profile-assessment-follow-up.md",
+              "blob_sha": "a37054c8895b90d9ad9bd68362032fbdf38107d8"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-27-cmb-01-capability-model-preflight-adoption.md",
+              "blob_sha": "333fb7ad17818cb6cccee42b02411808032c1481"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-27-cmb-01-capability-model-preflight-finalization.md",
+              "blob_sha": "fc9b714ab374fdf5650efbe4a515fc39aa36972b"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-27-cmb-02-platform-capability-profile-finalization.md",
+              "blob_sha": "68627663124309acef7b04d8158e9864d699ee84"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-27-cmb-03-platform-divergence-disposition.md",
+              "blob_sha": "a425e5699f43a863cad7996b57c19b725202dfbb"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-27-cmb-03-platform-divergence-finalization.md",
+              "blob_sha": "ecb44c23be05a0ecac1dbade5f7f1b13f5d344ff"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-27-component-release-mode-assessment.md",
+              "blob_sha": "4de00d127df069a6fe3841398e6ed9c2a7923397"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-27-component-release-mode-finalization.md",
+              "blob_sha": "cf5e31098d009f661970af9072b2b153891b72a2"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-27-generation-2-execution-review-finalization.md",
+              "blob_sha": "f47be3b9b332e21622b8829717fac39e6d454c05"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-27-generation-2-execution-review.md",
+              "blob_sha": "77c680f7d2a957c7b025bc6088749942d30981d9"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-27-platform-cleanup-evidence-workflow-conformance-finalization.md",
+              "blob_sha": "4e50002833238846c7a6440acf6e288e9aee9821"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-27-platform-cleanup-evidence-workflow-conformance-repair.md",
+              "blob_sha": "6903fde08805221365efdb8c2b2b4edb5203b72a"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-27-platform-dependency-governance-conformance-assessment.md",
+              "blob_sha": "859baecd63363c5218a6476fff00f01247983cc0"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-27-platform-dependency-governance-conformance-finalization.md",
+              "blob_sha": "bdefd09cdd4e215c436f0e54cfc566fc4d8e9e00"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-27-platform-dependency-governance-conformance-implementation-finalization.md",
+              "blob_sha": "3ed52a4a146c81d78f27db518ebae296c1c63a5d"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-27-session-lifecycle-completion-capability-proposal.md",
+              "blob_sha": "0674cce92db519fc130447522ed5aae29f5373cd"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-27-session-lifecycle-completion-finalization.md",
+              "blob_sha": "33896f5d3668ab3fa3655fdba2a0d4c2ea095373"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-27-td-github-001-evidence-preservation-qualification.md",
+              "blob_sha": "722f03516bf149a2df69fb1218e2cf71a04c3607"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-27-td-github-001-retention-evidence-assessment.md",
+              "blob_sha": "97eb0a480c41a416a88f66b74b989a51f403d4a3"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-27-td-github-001-retention-evidence-finalization.md",
+              "blob_sha": "bb8b1018085ff45233449fde416ec7b780eac0f8"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-27-td-github-evidence-preservation-conformance-repair.md",
+              "blob_sha": "19ea63546d1983fd1e4eae7aa7de105deeb91e4b"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-28-component-release-qualification-assessment.md",
+              "blob_sha": "9ff493eb3f1e081968d44082c3946e3682ffd395"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-28-component-release-qualification-finalization.md",
+              "blob_sha": "b52903b40ad6c2ed916ad4756e858ab020cd92f5"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-30-autonomous-repository-cleanup.md",
+              "blob_sha": "c0f3544fd98c05c4ff53a05d0badcdcaab516921"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-30-autonomous-runner-finalization-lifecycle-finalization.md",
+              "blob_sha": "90ebae10ba76aa0740c8c1ddaef302a87b47d9e6"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-30-autonomous-runner-finalization-lifecycle.md",
+              "blob_sha": "0bdc6b5ff49b84559a2202663288b006288ee1f0"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-30-capability-aware-reviewer-selection.md",
+              "blob_sha": "862df1d0a1ecac55cb093c035365f6799de9f0aa"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-30-component-release-scope-refinement-all-components.md",
+              "blob_sha": "924b73cf1b1d6dd95c51ea93dcefef70a910483e"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-30-component-release-scope-refinement-finalization.md",
+              "blob_sha": "67395e61093518e7d9c7617e729851b6b84867ee"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-30-component-release-selection-evidence-closure-finalization.md",
+              "blob_sha": "3592b762cd5a72568df404f1855f5a793dc8b306"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-30-component-release-selection-evidence-closure-implementation.md",
+              "blob_sha": "9b292067b51b01e9f769be70aff9cfbc10696376"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-30-engineering-platform-generation-one-closure.md",
+              "blob_sha": "193ddb9ddab59898c03d1cadda9dfece46fed54f"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-30-engineering-platform-versioning.md",
+              "blob_sha": "9abdd2754620ef900a9e39a099b6fb7907c0c816"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-30-engineering-qualification-framework.md",
+              "blob_sha": "3e668b2f486f2c363b9078e5a9748b1d7212c7fc"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-30-knowledge-source-qualification-contract-finalization.md",
+              "blob_sha": "273125e7aa9faefcb9882b4b3daea8b86f56bf49"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-30-knowledge-source-qualification-contract.md",
+              "blob_sha": "92661cd199b8db2f18eda730890dc1fd34f4df0f"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-30-local-agent-runner-diagnostics.md",
+              "blob_sha": "1fc41a5182731aec8b6201c426a9498909415bcc"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-30-local-agent-runner.md",
+              "blob_sha": "5ed5fc9669148ef3797fcf2a930d218e798f1954"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-30-owner-authorized-autonomous-pr-lifecycle.md",
+              "blob_sha": "00939f0abbcfc3f160090fd43dd66740264a71e2"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-30-pico-2-w-developer-onboarding-finalization.md",
+              "blob_sha": "71739aabcf0b03c745f97e59f09a5816c2286a54"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-30-product-capability-specialists.md",
+              "blob_sha": "7ca00a39e3033823998464ec0659bd9f8a8d8704"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-30-tde-1-1-1-planning-reconciliation-finalization.md",
+              "blob_sha": "4c26e094c52fc6721ecaa86bafe6ea00eb0350a6"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-30-tde-1-1-1-planning-reconciliation.md",
+              "blob_sha": "d71f67c240c23d8cc79ebcc4ceae4f878ee89f2b"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-31-canonical-djconnect-storage-architecture.md",
+              "blob_sha": "1d51bfa85ce0a548b4074a1b227d286aff1ce685"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-31-engineering-dashboard-loading-fix.md",
+              "blob_sha": "806234d0d01d6cd89d008aea2a160becee089aa7"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-31-private-tailscale-dashboard-access.md",
+              "blob_sha": "f686daf8aabec505d2447c6615593578cb3c2fe0"
+            },
+            {
+              "path": "docs/history/prompts/2026-08-03-configurable-workspace-authorization.md",
+              "blob_sha": "7fbd46f9c2b71983664b509a988710e701d0084a"
+            },
+            {
+              "path": "docs/history/prompts/2026-08-03-execution-host-configuration-resolver.md",
+              "blob_sha": "12f9f0e33104f267448e4cb3e991ff21c975562b"
+            },
+            {
+              "path": "docs/history/prompts/2026-08-03-execution-host-preflight-level-1.md",
+              "blob_sha": "cafdd12cda8749023669d384014fcc952d863632"
+            },
+            {
+              "path": "docs/history/prompts/2026-08-03-execution-host-preflight-level-2.md",
+              "blob_sha": "edb251a32076209ea0ab4b5ce330268fd9b5a85b"
+            },
+            {
+              "path": "docs/history/prompts/2026-08-03-separate-queue-recovery-from-execution-retry.md",
+              "blob_sha": "47259df442f2f002495247c0556065c09afe0d2c"
+            },
+            {
+              "path": "docs/history/prompts/2026-08-03-storage-schema-runner-compatibility.md",
+              "blob_sha": "802563dddfd0ff4571bb5a027190c3a8d66b9433"
+            },
+            {
+              "path": "docs/history/prompts/2026-08-03-terminal-execution-dismiss.md",
+              "blob_sha": "e3865634b61d07616a193372f0f65e0b0ccde75f"
+            },
+            {
+              "path": "docs/history/prompts/2026-08-04-engineering-evidence-2.md",
+              "blob_sha": "c5b55a2dda4fde69b5e80172c6f8cf995b1a9b1d"
+            },
+            {
+              "path": "docs/history/prompts/2026-08-05-complete-engineering-status-dashboard-localization.md",
+              "blob_sha": "8e49282e1fb284aa750d2497c23c94b069ef50dc"
+            },
+            {
+              "path": "docs/history/prompts/2026-08-05-engineering-evidence-projections.md",
+              "blob_sha": "e66b5426bdd52a66b21d10e776e520d42e3c2c94"
+            },
+            {
+              "path": "docs/history/prompts/2026-08-05-execution-host-producer-support.md",
+              "blob_sha": "0771f990bf88af108bff03e41b5f935ffab9a3f2"
+            },
+            {
+              "path": "docs/history/prompts/2026-08-05-fix-browser-clipboard-copy.md",
+              "blob_sha": "5936342ba70ded651b3c5f8de88e44930efc81ac"
+            },
+            {
+              "path": "docs/history/prompts/2026-08-05-fix-dashboard-live-status-display.md",
+              "blob_sha": "de3ecb6eccd6d3161f249367e89940879ca32a26"
+            },
+            {
+              "path": "docs/history/prompts/2026-08-05-fix-dashboard-reset-feedback.md",
+              "blob_sha": "27f13562896986162db3a017559e5d95c54af1d7"
+            },
+            {
+              "path": "docs/history/prompts/2026-08-06-fix-active-inbox-queue-counter.md",
+              "blob_sha": "2e613b0b0a41374dba60a2ccf7d1b2983140dbf7"
+            },
+            {
+              "path": "docs/history/prompts/2026-08-06-forge-mission-recommendation-handoff-projection.md",
+              "blob_sha": "16d20bc39d15120b42996a21cdd1078a93a21dc8"
+            },
+            {
+              "path": "docs/history/prompts/2026-08-06-retry-lineage-projection-fix.md",
+              "blob_sha": "42848690110012bb61c846ce58a0599b84c29c1f"
+            },
+            {
+              "path": "docs/history/prompts/2026-08-06-workspace-free-disk-space.md",
+              "blob_sha": "b0eb5a735847106cd1a8c8263dfb9e52cd16d4d5"
+            },
+            {
+              "path": "docs/history/prompts/2026-08-07-canonical-execution-host-datastore.md",
+              "blob_sha": "62ac277e66a7044a0586e4c0ac679d35eb8c9941"
+            },
+            {
+              "path": "docs/history/prompts/2026-08-07-producer-submission-envelope.md",
+              "blob_sha": "b3b3368b70f6d89a2235101d3ddd70b437113dd5"
+            },
+            {
+              "path": "docs/history/prompts/2026-08-08-live-run-dashboard-projection.md",
+              "blob_sha": "52f32cf04c143edad60a664931059f135cdc61f3"
+            },
+            {
+              "path": "docs/history/prompts/2026-08-16-execution-lifecycle-flow.md",
+              "blob_sha": "9dd6017b95fe4309b209b5c46c0161020b848743"
+            },
+            {
+              "path": "docs/history/prompts/2026-08-16-execution-phase-timing-accounting.md",
+              "blob_sha": "ebbd44f83a47ed3cc2ca932c1195a839e20a0477"
+            },
+            {
+              "path": "docs/history/prompts/2026-08-16-execution-telemetry-semantics.md",
+              "blob_sha": "130a50477107dc3ec12bf88adab46f568a8332b2"
+            },
+            {
+              "path": "docs/history/prompts/2026-08-17-execution-telemetry-dashboard-phase-detail.md",
+              "blob_sha": "c86b638561affc78c51da695bd8c8da179ef810d"
+            },
+            {
+              "path": "docs/history/prompts/2026-08-18-context-churn-measurement-regression-coverage.md",
+              "blob_sha": "ca4d61e49a6c9e9dce4b366b8eb220aebc1c1450"
+            },
+            {
+              "path": "docs/history/prompts/2026-08-18-primary-agent-tool-loop-churn.md",
+              "blob_sha": "bb598036a431713fcc069c4c19f951a53fc3779f"
+            },
+            {
+              "path": "docs/history/prompts/2026-08-18-provider-invocation-terminology-guard.md",
+              "blob_sha": "aa5167f382ac43925be2e4397cb08c836ae47824"
+            },
+            {
+              "path": "docs/history/prompts/2026-08-18-provider-usage-run-detail-regression-coverage.md",
+              "blob_sha": "1517fd6beea8c82c64ac54b1aeed602f0091dc59"
+            },
+            {
+              "path": "docs/history/prompts/2026-08-18-tool-output-amplification.md",
+              "blob_sha": "70a3b42a513b56c0e6eae67efb33781a7880488c"
+            },
+            {
+              "path": "docs/history/prompts/2026-08-23-tool-output-expansion-regression.md",
+              "blob_sha": "daa499a3c435e8c64820020cc99ab3d539a1ba5c"
+            },
+            {
+              "path": "docs/history/prompts/2026-08-24-autonomous-loop-qualification-regression.md",
+              "blob_sha": "9e4f523e42f55d2acd572bcc85236ec49389c678"
+            },
+            {
+              "path": "docs/history/prompts/2026-08-24-bounded-failed-evidence-expansion.md",
+              "blob_sha": "816887b1761e59ae8b9693b5e4bfa9e80694e9e5"
+            },
+            {
+              "path": "docs/history/prompts/2026-08-24-managed-autonomy-evidence-projection.md",
+              "blob_sha": "b46d9ea2f845227ae64f2c237d50eb95555ab00c"
+            },
+            {
+              "path": "docs/history/prompts/2026-08-24-managed-autonomy-v2-qualification.md",
+              "blob_sha": "ab056b38d2f7bb78259452dc44de8f7fdc6f336d"
+            },
+            {
+              "path": "docs/history/prompts/2026-08-24-run-context-contract-foundation.md",
+              "blob_sha": "9161014ed9732f087723117c47eeed0daa548df9"
+            },
+            {
+              "path": "docs/history/prompts/2026-08-25-ep-2x-extraction-baseline.md",
+              "blob_sha": "8d7995f6b2aa1fbf90ac385b3a57eb3baac00a4f"
+            },
+            {
+              "path": "docs/history/prompts/2026-08-27-post-972-fresh-managed-qualification.md",
+              "blob_sha": "e8551a8c0dd562e7787fc496e0618b733c078397"
+            },
+            {
+              "path": "docs/history/prompts/2026-08-27-post-hardening-managed-qualification.md",
+              "blob_sha": "89587138c9b054d2d76bacc5567df304626788d8"
+            },
+            {
+              "path": "docs/history/prompts/2026-08-28-dashboard-validation-infrastructure-recovery.md",
+              "blob_sha": "0e485aef4150c60e81025f06d15424413f00735f"
+            },
+            {
+              "path": "docs/history/prompts/2026-08-28-run-qualification-evidence-contract.md",
+              "blob_sha": "c842b0a580952ae093211e076be4844da068eb01"
+            },
+            {
+              "path": "docs/history/prompts/2026-08-30-controlled-provider-interruption-recovery-proof-3.md",
+              "blob_sha": "433e79276d92c9c08ae978da07423d2dd51d5dd2"
+            },
+            {
+              "path": "docs/history/prompts/2026-08-30-final-clean-managed-e2e-post-1045-qualification-verification.md",
+              "blob_sha": "5d01b28960a1625f147708c155ad8fc10604c196"
+            },
+            {
+              "path": "docs/history/prompts/2026-08-30-provider-interruption-recovery-proof.md",
+              "blob_sha": "5b7433eccc8c8371ed189c60e3fb319aacee18c7"
+            },
+            {
+              "path": "docs/history/prompts/2026-08-31-local-consumer-api-loopback-binding.md",
+              "blob_sha": "141b53f3e6a3afffdbef627be67dd49dd42c07d0"
+            }
+          ]
+        },
+        {
+          "lane": "DJC-APPLE",
+          "category": "DATED_PROMPT_HISTORY",
+          "reason": "Dated Apple prompt history; exact path/blob identified, contents not reread. No current writer, release or completion status inferred.",
+          "authority_source_ids": [
+            "AGENTS::DJC-APPLE",
+            "PROJ::DJC-APPLE::ENGINEERING_STATUS"
+          ],
+          "entries": [
+            {
+              "path": "docs/history/prompts/2026-07-15-generation-2-build-engineering-ios-watch-simulator-qualification.md",
+              "blob_sha": "bf4e6a6b5ff168b5bcc3041cb84bc021b8577239"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-15-generation-2-governance-bootstrap.md",
+              "blob_sha": "9da9e048f5f9c31df7a1a95e15e9ea12f26db230"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-15-generation-2-product-development-release-version-integrity.md",
+              "blob_sha": "3f0ed962d0a26ef7071bf7b7a7400a7fa625a75e"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-15-rg-apple-001.md",
+              "blob_sha": "775753168b02e251eb629ff4036525bf3db793c0"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-16-macos-ci-tooling-maintenance.md",
+              "blob_sha": "2c39fec1aa40366f693563ef91da1afce1674908"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-17-ipad-release-asset-download-repair.md",
+              "blob_sha": "484f2ced11e0d6a69ab7e6dfae52efd6014185b9"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-17-platform-release-engineering-ipad-deployment-consumer.md",
+              "blob_sha": "8fef7b89bd186ffdae290f5a5dfdefa8dd54d606"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-26-apple-finalization-record-reconciliation.md",
+              "blob_sha": "3a7bde8474710720fd8f3a9924468e0ee25ed56d"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-26-apple-native-share-capability-assessment.md",
+              "blob_sha": "736949c88715dfb408082acbbfcabb86e4723a3f"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-26-track-insight-apple-native-sharing-finalization.md",
+              "blob_sha": "7b64ced1064148eae60e5772cdc2a63791438e6b"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-28-macos-runner-workspace-retention-finalization.md",
+              "blob_sha": "1dbec5471abda8f9e82ac746ac5478543c2b6261"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-28-macos-runner-workspace-retention.md",
+              "blob_sha": "6d45276caa3ccfb478d7cfd3d05aee08632bf448"
+            }
+          ]
+        },
+        {
+          "lane": "DJC-APPLE",
+          "category": "OLDER_APPLE_VERSIONED_RELEASE_COPY",
+          "reason": "Pre-4.0.0 versioned Apple release-note copy; exact path/blob identified, contents not reread. Current 4.0.0 RC1 copy and source/release receipts have separate pins.",
+          "authority_source_ids": [
+            "APPLE_CHANGELOG",
+            "APPLE_RELEASE_GUIDE"
+          ],
+          "entries": [
+            {
+              "path": "docs/release-notes/de/v3.2.23.md",
+              "blob_sha": "91521802899f80fd09df6e56e03a5c27e9627177"
+            },
+            {
+              "path": "docs/release-notes/de/v3.2.24.md",
+              "blob_sha": "5cf770a12802e4a68805ede702de3c43b4eb5bd6"
+            },
+            {
+              "path": "docs/release-notes/de/v3.2.25.md",
+              "blob_sha": "1c1bde2240d5bb63995f8d3c43a1f14e6aae8c91"
+            },
+            {
+              "path": "docs/release-notes/de/v3.2.26.md",
+              "blob_sha": "126a37039d401b5293e77e359770075d12b7513f"
+            },
+            {
+              "path": "docs/release-notes/de/v3.2.27.md",
+              "blob_sha": "6b3f8d8fd38f32614897b4a1558a975affefa9b4"
+            },
+            {
+              "path": "docs/release-notes/de/v3.2.28.md",
+              "blob_sha": "41cbc2e250377683f9fd15109b069338eb8746ce"
+            },
+            {
+              "path": "docs/release-notes/de/v3.2.29.md",
+              "blob_sha": "09708cb731bc87eac89d0a5bea4d5f9b47abcec8"
+            },
+            {
+              "path": "docs/release-notes/de/v3.2.30.md",
+              "blob_sha": "de8996f81d1044eca183e812a1d3a3aebee301b5"
+            },
+            {
+              "path": "docs/release-notes/de/v3.2.31.md",
+              "blob_sha": "645c51032c56823855e67cf1acc2bbc1d743c443"
+            },
+            {
+              "path": "docs/release-notes/de/v3.2.33.md",
+              "blob_sha": "00442cd6a1119ef4cf0b7736ae213645fc4b6f85"
+            },
+            {
+              "path": "docs/release-notes/en/v3.1.48.md",
+              "blob_sha": "0f53f5a8562d40aeec5f5aa55247296aab0e9c06"
+            },
+            {
+              "path": "docs/release-notes/en/v3.1.49.md",
+              "blob_sha": "e63fbbeed8a2b0e278019a57277ea9289d26e943"
+            },
+            {
+              "path": "docs/release-notes/en/v3.1.50.md",
+              "blob_sha": "7eab4bf3abf1ca811318722a71ae44efb61a3b1a"
+            },
+            {
+              "path": "docs/release-notes/en/v3.1.51.md",
+              "blob_sha": "71ca9dd8ef791983f86761cb53b63bd56bea2be2"
+            },
+            {
+              "path": "docs/release-notes/en/v3.1.53.md",
+              "blob_sha": "73828017e833809c532b8e1eeff8fbad21cfc82a"
+            },
+            {
+              "path": "docs/release-notes/en/v3.2.0.md",
+              "blob_sha": "97a6f0b35663d53ee6e9c086bfc2b50aa55c622b"
+            },
+            {
+              "path": "docs/release-notes/en/v3.2.11.md",
+              "blob_sha": "877e4d5ec945a634e10b7361c9f5deea735c088f"
+            },
+            {
+              "path": "docs/release-notes/en/v3.2.12.md",
+              "blob_sha": "91bc15f045119b0dc62a083cae1110fa55e712ed"
+            },
+            {
+              "path": "docs/release-notes/en/v3.2.13.md",
+              "blob_sha": "7a5fed9d70e36657796bf66206036056306d6fcc"
+            },
+            {
+              "path": "docs/release-notes/en/v3.2.14.md",
+              "blob_sha": "4508e2b445b950a0a7d08c0e29138a9a0696f561"
+            },
+            {
+              "path": "docs/release-notes/en/v3.2.15.md",
+              "blob_sha": "42bf971bf8f5ab82c86783bd0b46746625aa446e"
+            },
+            {
+              "path": "docs/release-notes/en/v3.2.16.md",
+              "blob_sha": "a0a0ae30e91e729f359d14edb6b2b08ce739b7fe"
+            },
+            {
+              "path": "docs/release-notes/en/v3.2.17.md",
+              "blob_sha": "173bb8c977676b322419364d380c10f1de8b5fa6"
+            },
+            {
+              "path": "docs/release-notes/en/v3.2.18.md",
+              "blob_sha": "59a2c388c55e12e3d7a061530c51eda374a4ea94"
+            },
+            {
+              "path": "docs/release-notes/en/v3.2.19.md",
+              "blob_sha": "69a8368332b8e659d0386af4ff817692b5e1906b"
+            },
+            {
+              "path": "docs/release-notes/en/v3.2.2.md",
+              "blob_sha": "c85e5d3b2d3abc721bd36b61d36044be45506367"
+            },
+            {
+              "path": "docs/release-notes/en/v3.2.20.md",
+              "blob_sha": "57a824cb84c8fe966e946c2f0cc8777a8d62d67e"
+            },
+            {
+              "path": "docs/release-notes/en/v3.2.21.md",
+              "blob_sha": "e06cfc23f808b9702643f62574aa5f7565c5207f"
+            },
+            {
+              "path": "docs/release-notes/en/v3.2.22.md",
+              "blob_sha": "c7523befee108fb8ba534e4e1e578bc6d7989e48"
+            },
+            {
+              "path": "docs/release-notes/en/v3.2.23.md",
+              "blob_sha": "d6ef2ca5c8575cadbfe7ee2226a8970d9937117e"
+            },
+            {
+              "path": "docs/release-notes/en/v3.2.24.md",
+              "blob_sha": "b95a1f87b75587d1ba496ff51cf49ce5f7836d65"
+            },
+            {
+              "path": "docs/release-notes/en/v3.2.25.md",
+              "blob_sha": "cfbe358a3de956e6a92a3cdbfd0c6a53a46f48bf"
+            },
+            {
+              "path": "docs/release-notes/en/v3.2.26.md",
+              "blob_sha": "126a37039d401b5293e77e359770075d12b7513f"
+            },
+            {
+              "path": "docs/release-notes/en/v3.2.27.md",
+              "blob_sha": "6b3f8d8fd38f32614897b4a1558a975affefa9b4"
+            },
+            {
+              "path": "docs/release-notes/en/v3.2.28.md",
+              "blob_sha": "04795d5045aea6d902a859b7f80d0fbfa766cb56"
+            },
+            {
+              "path": "docs/release-notes/en/v3.2.29.md",
+              "blob_sha": "ce26684e71207d5801ab19e3990c6ce215d79097"
+            },
+            {
+              "path": "docs/release-notes/en/v3.2.30.md",
+              "blob_sha": "86f4922a8bfa24f3bfe47bbeba23dea93bd0b954"
+            },
+            {
+              "path": "docs/release-notes/en/v3.2.31.md",
+              "blob_sha": "ebd24dcc7a4f281ffecdfab2671ad66357a4c64e"
+            },
+            {
+              "path": "docs/release-notes/en/v3.2.33.md",
+              "blob_sha": "e486fe9f1ef85ab9c2c052b8e1379e93050001fe"
+            },
+            {
+              "path": "docs/release-notes/en/v3.2.4.md",
+              "blob_sha": "d311ae6503a91117ac0ff0736b55d2043853f75e"
+            },
+            {
+              "path": "docs/release-notes/en/v3.2.5.md",
+              "blob_sha": "7b5f4cce08f3411af79f645853cc7280ca926b8c"
+            },
+            {
+              "path": "docs/release-notes/en/v3.2.6.md",
+              "blob_sha": "8a9c2edc0651af966cb2a3ffb9fbbe385aab82f8"
+            },
+            {
+              "path": "docs/release-notes/en/v3.2.7.md",
+              "blob_sha": "eb1221c5bb575418108dbd63883d4c4e6360b813"
+            },
+            {
+              "path": "docs/release-notes/en/v3.2.8.md",
+              "blob_sha": "e7a3989d107950d8d3677826343648f3feb2b3a9"
+            },
+            {
+              "path": "docs/release-notes/en/v3.2.9.md",
+              "blob_sha": "aa5f27e7c125260577f0a70ab972d44a4b555823"
+            },
+            {
+              "path": "docs/release-notes/es/v3.2.23.md",
+              "blob_sha": "e1034bc56099df28b3c1278d17b62858715550d5"
+            },
+            {
+              "path": "docs/release-notes/es/v3.2.24.md",
+              "blob_sha": "a010902926ec71bd974ad5576ece24f9777d1edd"
+            },
+            {
+              "path": "docs/release-notes/es/v3.2.25.md",
+              "blob_sha": "e47fa1ac8abee5f2f371193a967d36a0b2c8c6ba"
+            },
+            {
+              "path": "docs/release-notes/es/v3.2.26.md",
+              "blob_sha": "126a37039d401b5293e77e359770075d12b7513f"
+            },
+            {
+              "path": "docs/release-notes/es/v3.2.27.md",
+              "blob_sha": "6b3f8d8fd38f32614897b4a1558a975affefa9b4"
+            },
+            {
+              "path": "docs/release-notes/es/v3.2.28.md",
+              "blob_sha": "41cbc2e250377683f9fd15109b069338eb8746ce"
+            },
+            {
+              "path": "docs/release-notes/es/v3.2.29.md",
+              "blob_sha": "57473a4e3652aee9f132d3dce7a04fa9e9b0ed7b"
+            },
+            {
+              "path": "docs/release-notes/es/v3.2.30.md",
+              "blob_sha": "1f05e194bc7732eb2faa565b97001c39d4a33313"
+            },
+            {
+              "path": "docs/release-notes/es/v3.2.31.md",
+              "blob_sha": "58e7aab319e9a35440927536303b60635fa086c1"
+            },
+            {
+              "path": "docs/release-notes/es/v3.2.33.md",
+              "blob_sha": "1336f4acbea2271c852e833de26cfdef876c0acb"
+            },
+            {
+              "path": "docs/release-notes/fr/v3.2.23.md",
+              "blob_sha": "223f3c078e3ee01680566813eb4bedc2fff70c59"
+            },
+            {
+              "path": "docs/release-notes/fr/v3.2.24.md",
+              "blob_sha": "af72dd0c5efb8707e04bb98f61f15c635179f90c"
+            },
+            {
+              "path": "docs/release-notes/fr/v3.2.25.md",
+              "blob_sha": "e53a45ea48a7c5c4867a28100f404ff92bf72835"
+            },
+            {
+              "path": "docs/release-notes/fr/v3.2.26.md",
+              "blob_sha": "126a37039d401b5293e77e359770075d12b7513f"
+            },
+            {
+              "path": "docs/release-notes/fr/v3.2.27.md",
+              "blob_sha": "6b3f8d8fd38f32614897b4a1558a975affefa9b4"
+            },
+            {
+              "path": "docs/release-notes/fr/v3.2.28.md",
+              "blob_sha": "41cbc2e250377683f9fd15109b069338eb8746ce"
+            },
+            {
+              "path": "docs/release-notes/fr/v3.2.29.md",
+              "blob_sha": "1d59763e9a638efd59489681d0954a97ba4f4bb4"
+            },
+            {
+              "path": "docs/release-notes/fr/v3.2.30.md",
+              "blob_sha": "0fa79642fe4fd2284621895e4ad151d575296ab2"
+            },
+            {
+              "path": "docs/release-notes/fr/v3.2.31.md",
+              "blob_sha": "5533d9cbd009d6be2478495df00ac4bb3aa314f0"
+            },
+            {
+              "path": "docs/release-notes/fr/v3.2.33.md",
+              "blob_sha": "2d9c3ebe32fda87b84cd9b4211019b72c3a8eedf"
+            },
+            {
+              "path": "docs/release-notes/nl/v3.1.30.md",
+              "blob_sha": "b13f080b46735f01b75eaf329cf9effb8906aa2a"
+            },
+            {
+              "path": "docs/release-notes/nl/v3.1.31.md",
+              "blob_sha": "a216981095049c780a1ef14211be6f5b44292c1a"
+            },
+            {
+              "path": "docs/release-notes/nl/v3.1.32.md",
+              "blob_sha": "c39681f6712bef5126bf3bff95c2d00d36862677"
+            },
+            {
+              "path": "docs/release-notes/nl/v3.1.33.md",
+              "blob_sha": "e02bf697f94a21ac4a23ef3febff628df60a4729"
+            },
+            {
+              "path": "docs/release-notes/nl/v3.1.34.md",
+              "blob_sha": "2aa8466a4cced7b1d77185975c5f0220c27e01f7"
+            },
+            {
+              "path": "docs/release-notes/nl/v3.1.35.md",
+              "blob_sha": "b5c37bfbd2b710c36769f2b955da12332b63b2b7"
+            },
+            {
+              "path": "docs/release-notes/nl/v3.1.38.md",
+              "blob_sha": "46875168b80c3ad67ce06a9e213997793ce31065"
+            },
+            {
+              "path": "docs/release-notes/nl/v3.1.40.md",
+              "blob_sha": "a6cf01f137453f3e96a43cd7546d44e3d0537ba6"
+            },
+            {
+              "path": "docs/release-notes/nl/v3.1.43.md",
+              "blob_sha": "2c9b912f4c42e423c2f6f7d4bb0ca4f0c3d425c4"
+            },
+            {
+              "path": "docs/release-notes/nl/v3.1.44.md",
+              "blob_sha": "677618c08bb7243bebb05578bf779a5a9fea5ccb"
+            },
+            {
+              "path": "docs/release-notes/nl/v3.1.45.md",
+              "blob_sha": "f2b94f154f981b8d3ea6bff2159a95691e00f9d3"
+            },
+            {
+              "path": "docs/release-notes/nl/v3.1.46.md",
+              "blob_sha": "6fc4c6d2473a55d789eee5989feb7580e0fbe7e4"
+            },
+            {
+              "path": "docs/release-notes/nl/v3.1.48.md",
+              "blob_sha": "2b6b6339f7b82108ab262b15efc1fe437cd835db"
+            },
+            {
+              "path": "docs/release-notes/nl/v3.1.49.md",
+              "blob_sha": "8f6ecde6d152e9709e2e47e51f8b60f62c27e7cd"
+            },
+            {
+              "path": "docs/release-notes/nl/v3.1.50.md",
+              "blob_sha": "5166cf15a7ccb91e1e8be8794be203f73d41e13c"
+            },
+            {
+              "path": "docs/release-notes/nl/v3.1.51.md",
+              "blob_sha": "c39b9362657c0b2cbf4665848762e07e0f92eee5"
+            },
+            {
+              "path": "docs/release-notes/nl/v3.1.52.md",
+              "blob_sha": "323b4d3e4789f9f2500488676b5b83af83992b34"
+            },
+            {
+              "path": "docs/release-notes/nl/v3.1.53.md",
+              "blob_sha": "f7ffcb1e54567d2d4ea5417f7be1bc6ea143d53c"
+            },
+            {
+              "path": "docs/release-notes/nl/v3.2.0.md",
+              "blob_sha": "78e39f175406d36972c7df01cab272182a621d6f"
+            },
+            {
+              "path": "docs/release-notes/nl/v3.2.11.md",
+              "blob_sha": "c1e0858e234ba7a57e58c6326c6f74b695e0be1e"
+            },
+            {
+              "path": "docs/release-notes/nl/v3.2.12.md",
+              "blob_sha": "48d1c2882b305a47ee13093452eb3dd76b5f8dfa"
+            },
+            {
+              "path": "docs/release-notes/nl/v3.2.13.md",
+              "blob_sha": "857e26baa28e76e0925e1fbbc2b94435ad0e07bb"
+            },
+            {
+              "path": "docs/release-notes/nl/v3.2.14.md",
+              "blob_sha": "171109e86b0decb0f59ccdb3b6445826e2268c46"
+            },
+            {
+              "path": "docs/release-notes/nl/v3.2.15.md",
+              "blob_sha": "aaa8ba6eb6ac519a47080c6319e09b3f98ec0f40"
+            },
+            {
+              "path": "docs/release-notes/nl/v3.2.16.md",
+              "blob_sha": "f63206cb095094e0b05614240811a2dd09e5ebac"
+            },
+            {
+              "path": "docs/release-notes/nl/v3.2.17.md",
+              "blob_sha": "7f0c2a6dea2e4115c75e77955d1a8e0648aafddb"
+            },
+            {
+              "path": "docs/release-notes/nl/v3.2.18.md",
+              "blob_sha": "90c995baf5839736cb8cadbbb32391ac0141ede1"
+            },
+            {
+              "path": "docs/release-notes/nl/v3.2.19.md",
+              "blob_sha": "84d31d881648ccb3343b13246c55bb67b20d71b6"
+            },
+            {
+              "path": "docs/release-notes/nl/v3.2.2.md",
+              "blob_sha": "604258e15eafcbf0d2a9f5a6b2b05951057b6dfa"
+            },
+            {
+              "path": "docs/release-notes/nl/v3.2.20.md",
+              "blob_sha": "718a1fe040a278440962484c35d36f8f4999b1a9"
+            },
+            {
+              "path": "docs/release-notes/nl/v3.2.21.md",
+              "blob_sha": "56bbda06a7aa284f02197ddd4925af8e1b156c6a"
+            },
+            {
+              "path": "docs/release-notes/nl/v3.2.22.md",
+              "blob_sha": "7580873d49a029d91e9975687e3edfe034252079"
+            },
+            {
+              "path": "docs/release-notes/nl/v3.2.23.md",
+              "blob_sha": "b30700e5477d07ddff5f4f8c6cb5ce445133baf5"
+            },
+            {
+              "path": "docs/release-notes/nl/v3.2.24.md",
+              "blob_sha": "6c607b4f3c3ff9d82fe80acdb0dc42b9b8a098a2"
+            },
+            {
+              "path": "docs/release-notes/nl/v3.2.25.md",
+              "blob_sha": "17c70752784d000275693270640fc76acff7e654"
+            },
+            {
+              "path": "docs/release-notes/nl/v3.2.26.md",
+              "blob_sha": "3f57adcbd14e552ead081b51a3147898d5fc132d"
+            },
+            {
+              "path": "docs/release-notes/nl/v3.2.27.md",
+              "blob_sha": "9f42bd9f52fc11b4a2eab441742ba04164b1d60a"
+            },
+            {
+              "path": "docs/release-notes/nl/v3.2.28.md",
+              "blob_sha": "f3291e2cf97712487f2755d940e29f4823a9c639"
+            },
+            {
+              "path": "docs/release-notes/nl/v3.2.29.md",
+              "blob_sha": "8f87f45b3f2940b5c6c7836adb702e754cb2e4e2"
+            },
+            {
+              "path": "docs/release-notes/nl/v3.2.3.md",
+              "blob_sha": "0f58b49b0463305f12bb2b5a31442b6ba96d90f6"
+            },
+            {
+              "path": "docs/release-notes/nl/v3.2.30.md",
+              "blob_sha": "925f84c0fa620a4c68780504d13051f17cd7f842"
+            },
+            {
+              "path": "docs/release-notes/nl/v3.2.31.md",
+              "blob_sha": "2d422da8144c2fea41a84799d2adadbe23f4719a"
+            },
+            {
+              "path": "docs/release-notes/nl/v3.2.33.md",
+              "blob_sha": "ec5bd616ca9960d78a6cf0136e66f80f485725d5"
+            },
+            {
+              "path": "docs/release-notes/nl/v3.2.4.md",
+              "blob_sha": "a5f723c17f30f8654c134a200891d202c1c71e1a"
+            },
+            {
+              "path": "docs/release-notes/nl/v3.2.5.md",
+              "blob_sha": "fbdbb189b5d5808dd97f31f67bda6046a4f5b51b"
+            },
+            {
+              "path": "docs/release-notes/nl/v3.2.6.md",
+              "blob_sha": "56e93e37d124b9a51475a3eca5b4e5f7606a33bf"
+            },
+            {
+              "path": "docs/release-notes/nl/v3.2.7.md",
+              "blob_sha": "b7161fd4a6bde6ddb9df43cdddd2f69a4124ae97"
+            },
+            {
+              "path": "docs/release-notes/nl/v3.2.8.md",
+              "blob_sha": "a9e696901f89c92fd7994dc2a3342296e72cee8e"
+            },
+            {
+              "path": "docs/release-notes/nl/v3.2.9.md",
+              "blob_sha": "67a15e1b4f1cac805c7b72e2d4a53a5f1cc96cde"
+            }
+          ]
+        },
+        {
+          "lane": "DJC-WINDOWS",
+          "category": "DATED_PROMPT_HISTORY",
+          "reason": "Dated Windows prompt history; exact path/blob identified, contents not reread. No current GUI-smoke or release status inferred.",
+          "authority_source_ids": [
+            "AGENTS::DJC-WINDOWS",
+            "PROJ::DJC-WINDOWS::ENGINEERING_STATUS"
+          ],
+          "entries": [
+            {
+              "path": "docs/history/prompts/2026-07-15-rg-windows-001.md",
+              "blob_sha": "fd3b667c572030cb211c625b246e19658392de33"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-16-windows-internal-deployment-consumer-remediation.md",
+              "blob_sha": "2e751119a864fb2fda300fd3f8afd3d2466da3e8"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-16-windows-internal-deployment-execution-policy-remediation.md",
+              "blob_sha": "93b18d521299683163638fe63793ce8f3c6e07be"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-16-windows-internal-deployment-service-shell-remediation.md",
+              "blob_sha": "261f90d7882a0076a1bd6be21f6b0ebc6f28317e"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-16-windows-native-preflight-consumer-adoption.md",
+              "blob_sha": "41ef59f773321eaeee7c5b9b14f80246de5407d0"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-16-windows-runner-powershell-7-maintenance.md",
+              "blob_sha": "3ebd71d5ace791af0220aee07b1fdb469e3ef38a"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-17-windows-interactive-gui-smoke-relay.md",
+              "blob_sha": "e5aab0e97e4392cb0715f7161ade35c8fe9b92fd"
+            },
+            {
+              "path": "docs/history/prompts/2026-07-17-windows-smoke-diagnostics-reconciliation.md",
+              "blob_sha": "94968255f55e512aad9c8ef906b1b6f8698fe17d"
+            }
+          ]
+        },
+        {
+          "lane": "DJC-WINDOWS",
+          "category": "OLDER_WINDOWS_VERSIONED_RELEASE_COPY",
+          "reason": "Pre-3.3.0 versioned Windows release-note copy; exact path/blob identified, contents not reread. Current source, receiving asset and live consumer joins stay separate.",
+          "authority_source_ids": [
+            "WINDOWS_SOURCE__CHANGELOG_MD",
+            "WIN_RELEASE_GUIDE"
+          ],
+          "entries": [
+            {
+              "path": "docs/release-notes/de/v3.2.10.md",
+              "blob_sha": "cc77c6bfa8db8a629230dd1ff535d60c2d4d386d"
+            },
+            {
+              "path": "docs/release-notes/de/v3.2.3.md",
+              "blob_sha": "35219b5e29d0d1c12798355f5f0a8edca181bea4"
+            },
+            {
+              "path": "docs/release-notes/de/v3.2.4.md",
+              "blob_sha": "a21411072bef69ed3127a826fc8598ea47fd0c05"
+            },
+            {
+              "path": "docs/release-notes/de/v3.2.5.md",
+              "blob_sha": "a3fd808430a426bbf19dd818c793b3fa7f7ef114"
+            },
+            {
+              "path": "docs/release-notes/de/v3.2.6.md",
+              "blob_sha": "d0975f0d5cc53b616ebdd079b361e530c9f35192"
+            },
+            {
+              "path": "docs/release-notes/de/v3.2.7.md",
+              "blob_sha": "90658a547a0e1c32c189461947aa1c9deb932167"
+            },
+            {
+              "path": "docs/release-notes/de/v3.2.8.md",
+              "blob_sha": "ff4e43a50f8e598fd46e5841fc9215c147d9fe80"
+            },
+            {
+              "path": "docs/release-notes/de/v3.2.9.md",
+              "blob_sha": "579ed00b0c4265f1d86b54e0741fadd28b256a56"
+            },
+            {
+              "path": "docs/release-notes/en/v3.1.0.md",
+              "blob_sha": "84cc5362432c2201501e58444c654dce8f39fd83"
+            },
+            {
+              "path": "docs/release-notes/en/v3.1.1.md",
+              "blob_sha": "47cdd384fc99c5b1d7a9e63cef6b12af6c96e130"
+            },
+            {
+              "path": "docs/release-notes/en/v3.1.10.md",
+              "blob_sha": "03109e4026617ea84f99ec7c7a3ca07e9cab3c7a"
+            },
+            {
+              "path": "docs/release-notes/en/v3.1.2.md",
+              "blob_sha": "a12d70abb5a8a95a61882fb05c1bf8cab27f9281"
+            },
+            {
+              "path": "docs/release-notes/en/v3.1.3.md",
+              "blob_sha": "5c2953d27481f067776e28577863d0d54dcfb786"
+            },
+            {
+              "path": "docs/release-notes/en/v3.1.4.md",
+              "blob_sha": "539ea5be7976aea6c6276f31ddd7dafd4779edc7"
+            },
+            {
+              "path": "docs/release-notes/en/v3.1.5.md",
+              "blob_sha": "1b85664646e92db0a5c4f1f9b2fe9c81d6e7083a"
+            },
+            {
+              "path": "docs/release-notes/en/v3.1.6.md",
+              "blob_sha": "8b3a2c0ca1fdae5ad676190caa638d1fa689eee7"
+            },
+            {
+              "path": "docs/release-notes/en/v3.1.7.md",
+              "blob_sha": "f05ffd8f52d65eb3427e32dcf0eb6093366a110e"
+            },
+            {
+              "path": "docs/release-notes/en/v3.1.8.md",
+              "blob_sha": "7b66c0b3b0d1f33a5d1d206374a0b44cb0d0ff7b"
+            },
+            {
+              "path": "docs/release-notes/en/v3.1.9.md",
+              "blob_sha": "8b9bade79531acb39968e17c38587104950631f2"
+            },
+            {
+              "path": "docs/release-notes/en/v3.2.0.md",
+              "blob_sha": "602aa4b23ac9786f9daf248aceaf889241f5c90c"
+            },
+            {
+              "path": "docs/release-notes/en/v3.2.1.md",
+              "blob_sha": "47245ae189363e5774cd878dbb6c1ffe336b3def"
+            },
+            {
+              "path": "docs/release-notes/en/v3.2.10.md",
+              "blob_sha": "b948717cc71aafd59dcc2925f3cdfaf308d636c0"
+            },
+            {
+              "path": "docs/release-notes/en/v3.2.2.md",
+              "blob_sha": "f5cda01b1be1c06c61903d9068facaa44ef6335b"
+            },
+            {
+              "path": "docs/release-notes/en/v3.2.3.md",
+              "blob_sha": "bab762a779c45decc3767ec1d5c97579deaf97ce"
+            },
+            {
+              "path": "docs/release-notes/en/v3.2.4.md",
+              "blob_sha": "f8ec353a36b2dbf64d9bc0a092fbf4f4be8520b6"
+            },
+            {
+              "path": "docs/release-notes/en/v3.2.5.md",
+              "blob_sha": "03d8f3c39444949a0d0d5525f390886188da872a"
+            },
+            {
+              "path": "docs/release-notes/en/v3.2.6.md",
+              "blob_sha": "bf4f6a818db1bc44749baf3ca109b23eeb97cda0"
+            },
+            {
+              "path": "docs/release-notes/en/v3.2.7.md",
+              "blob_sha": "0ae55b17988667ffe2a965742ce0f562e9713dfa"
+            },
+            {
+              "path": "docs/release-notes/en/v3.2.8.md",
+              "blob_sha": "e1e036cc7cadd0a266bd5deae11a00e29b1b1955"
+            },
+            {
+              "path": "docs/release-notes/en/v3.2.9.md",
+              "blob_sha": "713b9708bfd2f165d3394cba3ad4a3c3c9f26290"
+            },
+            {
+              "path": "docs/release-notes/es/v3.2.10.md",
+              "blob_sha": "d391caa32083c79e0baf47a95b6f024061884d4f"
+            },
+            {
+              "path": "docs/release-notes/es/v3.2.3.md",
+              "blob_sha": "6fd8b39dc983e940b71e8792f22a184d9f146cbf"
+            },
+            {
+              "path": "docs/release-notes/es/v3.2.4.md",
+              "blob_sha": "ff08596f1585bee8c825320563869fd044a55d41"
+            },
+            {
+              "path": "docs/release-notes/es/v3.2.5.md",
+              "blob_sha": "c055e1460e6cfdc64bd8b4ebb4051aa8be30ce78"
+            },
+            {
+              "path": "docs/release-notes/es/v3.2.6.md",
+              "blob_sha": "b2b258dc0e30a65a8c281626855c307c309bd9fb"
+            },
+            {
+              "path": "docs/release-notes/es/v3.2.7.md",
+              "blob_sha": "58c3d47b9bc99a9fbb8e2fdd1014b42be5f180a0"
+            },
+            {
+              "path": "docs/release-notes/es/v3.2.8.md",
+              "blob_sha": "04ae0a302a820ba0024db0468785b13f8451bf91"
+            },
+            {
+              "path": "docs/release-notes/es/v3.2.9.md",
+              "blob_sha": "97ff67e45071ca516bd33a50a9ec05c49f8ce52f"
+            },
+            {
+              "path": "docs/release-notes/fr/v3.2.10.md",
+              "blob_sha": "4bde5742b73130fc9142aa3050a13325c9e55279"
+            },
+            {
+              "path": "docs/release-notes/fr/v3.2.3.md",
+              "blob_sha": "cee10eb8ad6c0b2dc691363164860696e386cad2"
+            },
+            {
+              "path": "docs/release-notes/fr/v3.2.4.md",
+              "blob_sha": "7130bfa60dcfbe61f9e9787293d69fa29124a20e"
+            },
+            {
+              "path": "docs/release-notes/fr/v3.2.5.md",
+              "blob_sha": "96238feb1ba6fb2211795700cb5a41b38d2e68ba"
+            },
+            {
+              "path": "docs/release-notes/fr/v3.2.6.md",
+              "blob_sha": "96218e618cfb4ad1bd7ec27d7acc0bc4d4806178"
+            },
+            {
+              "path": "docs/release-notes/fr/v3.2.7.md",
+              "blob_sha": "795d462fa522ff6c873f5772150f114224566c8b"
+            },
+            {
+              "path": "docs/release-notes/fr/v3.2.8.md",
+              "blob_sha": "af6504626f79a8678ffc6a2dc2fce3a7036f3ce2"
+            },
+            {
+              "path": "docs/release-notes/fr/v3.2.9.md",
+              "blob_sha": "cf87f5079d569629efcaed8aa782d9bbe610c968"
+            },
+            {
+              "path": "docs/release-notes/nl/v3.1.0.md",
+              "blob_sha": "2691c6687daaa7d4d92ace8e51b8cac69b195d92"
+            },
+            {
+              "path": "docs/release-notes/nl/v3.1.1.md",
+              "blob_sha": "5480d993bf3ca675c1895edd7834022850790881"
+            },
+            {
+              "path": "docs/release-notes/nl/v3.1.10.md",
+              "blob_sha": "f2607bd3405350a7fab83e7b10bdbfb0eacdee79"
+            },
+            {
+              "path": "docs/release-notes/nl/v3.1.2.md",
+              "blob_sha": "20cb142ebe89caa67915373ad9853a6591883170"
+            },
+            {
+              "path": "docs/release-notes/nl/v3.1.3.md",
+              "blob_sha": "7f99b2d35b9d3e32d4a00a87d774a3f84b2c9f01"
+            },
+            {
+              "path": "docs/release-notes/nl/v3.1.4.md",
+              "blob_sha": "a5e3a97fbf1aa8aa604f0837e8fe14b88a6ba503"
+            },
+            {
+              "path": "docs/release-notes/nl/v3.1.5.md",
+              "blob_sha": "2f96f1d7d10db01c97060335a7a5c956dfac7941"
+            },
+            {
+              "path": "docs/release-notes/nl/v3.1.6.md",
+              "blob_sha": "03fe6a4c4290fa61f3efc32dff929e3cab532f43"
+            },
+            {
+              "path": "docs/release-notes/nl/v3.1.7.md",
+              "blob_sha": "c94566f4336589787913b70569830812c90a0cb4"
+            },
+            {
+              "path": "docs/release-notes/nl/v3.1.8.md",
+              "blob_sha": "06e0ef0ef20a1e541ba90fd2aec49b7121f37c41"
+            },
+            {
+              "path": "docs/release-notes/nl/v3.1.9.md",
+              "blob_sha": "97e98989869753b7f03e9aa8fb080c9aa3ab2f38"
+            },
+            {
+              "path": "docs/release-notes/nl/v3.2.0.md",
+              "blob_sha": "731d64cd82f2e529d61dda66d2bd58fb604ed72d"
+            },
+            {
+              "path": "docs/release-notes/nl/v3.2.1.md",
+              "blob_sha": "a7c17f9f3506c77de90b5ee7c4405254a8f0ba95"
+            },
+            {
+              "path": "docs/release-notes/nl/v3.2.10.md",
+              "blob_sha": "95fc718952849414c10dd49f905acbe8fa5464c4"
+            },
+            {
+              "path": "docs/release-notes/nl/v3.2.2.md",
+              "blob_sha": "4d5cc3646ab26798362d83b8611b075dd0088965"
+            },
+            {
+              "path": "docs/release-notes/nl/v3.2.3.md",
+              "blob_sha": "128ee4b2b7bcd3247375e1b18ca30640f5093036"
+            },
+            {
+              "path": "docs/release-notes/nl/v3.2.4.md",
+              "blob_sha": "3dd8df557525a9ee22291f99d775ba28e7e366f2"
+            },
+            {
+              "path": "docs/release-notes/nl/v3.2.5.md",
+              "blob_sha": "d3dfc5ecfaa4c12b7bab2178ceaf70ba931304d2"
+            },
+            {
+              "path": "docs/release-notes/nl/v3.2.6.md",
+              "blob_sha": "b6bed569f453e06452aa27b3be128212595b81f0"
+            },
+            {
+              "path": "docs/release-notes/nl/v3.2.7.md",
+              "blob_sha": "e981f1d14463069cdfcfa78ceada83588b5f3f54"
+            },
+            {
+              "path": "docs/release-notes/nl/v3.2.8.md",
+              "blob_sha": "fa6061990a871b82aa8b64aaa43e1c965525c213"
+            },
+            {
+              "path": "docs/release-notes/nl/v3.2.9.md",
+              "blob_sha": "8baa6beffc249f86c2f460c3148c9cff5e770342"
+            }
+          ]
+        },
+        {
+          "lane": "DJC-WEBSITE",
+          "category": "OLDER_WEBSITE_VERSIONED_RELEASE_COPY",
+          "reason": "Pre-3.3.0 versioned website release-note copy; exact path/blob identified, contents not reread. Current 3.3.0/latest copy and live website state stay separate.",
+          "authority_source_ids": [
+            "WEBSITE_SOURCE__CHANGELOG_MD",
+            "README::DJC-WEBSITE"
+          ],
+          "entries": [
+            {
+              "path": "wwwroot/release-notes/ios/de/v3.2.24.md",
+              "blob_sha": "9841bee4a4f3a8cee221ba96e61122df954bfafd"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/de/v3.2.25.md",
+              "blob_sha": "c47017276be52be76ea29cfbcc08c1c506c6b249"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/de/v3.2.26.md",
+              "blob_sha": "0d4c0f6fcd8a268a79da3538c7ef95e5a3404e0a"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/de/v3.2.28.md",
+              "blob_sha": "f151502d3474656ab59d811ab64d8d8dd06c9a05"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/de/v3.2.29.md",
+              "blob_sha": "b1789f6c1ac96cbd9769864ccd3e26497f56f482"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/de/v3.2.30.md",
+              "blob_sha": "8f73383a96d6807526ea31805146b6e045ba457d"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/de/v3.2.31.md",
+              "blob_sha": "ae5b113851060ae11b7ec47c1cf5627cbd7dee05"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/de/v3.2.32.md",
+              "blob_sha": "2103864dbb34d6fd7512a13c9ae3ca86f8edab87"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/de/v3.2.33.md",
+              "blob_sha": "af56d7d45462ab1b2036aa8846dd0abe10211d6d"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/de/v3.2.35.md",
+              "blob_sha": "e1e26208c402b1e53cb22f4410b76a3dd08e43f1"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/en/v3.1.29.md",
+              "blob_sha": "0635a1b3e79dc98d5df4248b7c36b6c9e9cff3d0"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/en/v3.1.30.md",
+              "blob_sha": "9f4a6ca419be81c685e07c17739b0d6a5ebe20c6"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/en/v3.1.33.md",
+              "blob_sha": "e08fa9e89052c8e752bc3f77e8142a35297c723a"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/en/v3.1.34.md",
+              "blob_sha": "d7558807ca9629dafa6004216fb02179d7e8b8d2"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/en/v3.1.36.md",
+              "blob_sha": "35ecbb1910dbf1c5633c911ff45ed86bae952377"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/en/v3.1.37.md",
+              "blob_sha": "0928ee8ac34dda40d39974f56f80eab27986ecee"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/en/v3.1.38.md",
+              "blob_sha": "155aeb32dd437ad224bdbc75eb66846e12531174"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/en/v3.1.39.md",
+              "blob_sha": "18a3881ec64ebb9a211c3d37c5d1030c2a6a2b4b"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/en/v3.1.40.md",
+              "blob_sha": "4b7399e3f22a983d6ff20e4c59110f41665fcedb"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/en/v3.1.43.md",
+              "blob_sha": "e96ea570073a356c3c02e3238005c965c0c6b691"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/en/v3.1.44.md",
+              "blob_sha": "c8eabc4d5aee75df527c341bd6e1d9ce0a8d19c4"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/en/v3.1.46.md",
+              "blob_sha": "f664508505da1d2d3967840684becb5bc16ce8b0"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/en/v3.1.47.md",
+              "blob_sha": "93a2b6160352913714f2c00f0d66613fc9cb912b"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/en/v3.1.48.md",
+              "blob_sha": "7afa478ab71316b51b9b7aca6300ee7a903d4f33"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/en/v3.1.49.md",
+              "blob_sha": "42207cb07b501d41ab0e3971c219f11e66717916"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/en/v3.1.50.md",
+              "blob_sha": "64f4077a1e06cd1a984b1f16f9b98878c8def978"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/en/v3.1.51.md",
+              "blob_sha": "4699b67ee90e19ff364f23ffef1b28dad27778dd"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/en/v3.1.52.md",
+              "blob_sha": "722ef44951156b08676f0bc0b228b09d0a622e53"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/en/v3.1.53.md",
+              "blob_sha": "f3832e4ad9a7aa5d10f51f21590eea34e4c86583"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/en/v3.2.0.md",
+              "blob_sha": "9f862bf45639e11922c7c524a9d4495246a0f292"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/en/v3.2.19.md",
+              "blob_sha": "42baf2fbaf057798a45e75eb63878c6b674bf32f"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/en/v3.2.20.md",
+              "blob_sha": "0acf146b8ce3b127b8476c0535080e39b9d209ba"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/en/v3.2.21.md",
+              "blob_sha": "ce1415f98cb478e0451b38c5cd883ba781c3a9f8"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/en/v3.2.22.md",
+              "blob_sha": "a8c175e574bd6b3259b71fb4161cf8acbf6ec3e2"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/en/v3.2.23.md",
+              "blob_sha": "0d4541bf0f2a3c29b2dd5b9615f5780d02f74d45"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/en/v3.2.24.md",
+              "blob_sha": "ece4baf8a8710f94c24e9cc3fc568b905f50bec8"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/en/v3.2.25.md",
+              "blob_sha": "3fb4ee7a14f657fb70e399baecb635087d795e98"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/en/v3.2.26.md",
+              "blob_sha": "5c233ed9d7ce304829353bebf673915926c1a8d8"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/en/v3.2.28.md",
+              "blob_sha": "bb9a91c3c6db70b8882d3e28b7b44a760ff8c065"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/en/v3.2.29.md",
+              "blob_sha": "8e1e68d881a4536114a36871f0dbb66f42283947"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/en/v3.2.3.md",
+              "blob_sha": "d0150649afd8ff4ab86f74c1f3cfa4ff89d9cd06"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/en/v3.2.30.md",
+              "blob_sha": "334a73b1681d3d78440f7deb4fd514ec86a12656"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/en/v3.2.31.md",
+              "blob_sha": "b48a0381127822c01076159bef0047e03473223e"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/en/v3.2.32.md",
+              "blob_sha": "04f97e8541a506fdad232a7d0245754c8fbbcf13"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/en/v3.2.33.md",
+              "blob_sha": "353f6a8365852270c78ddd64b7b660bb035704ba"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/en/v3.2.35.md",
+              "blob_sha": "1812fd4ef0610974749cc1fc2655029b43ba4470"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/en/v3.2.4.md",
+              "blob_sha": "39d3271242876d9d4dc7df278b3b682e48cc1958"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/en/v3.2.5.md",
+              "blob_sha": "9c185ea0009002783586bdc3df316b9b443ddaab"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/es/v3.2.24.md",
+              "blob_sha": "aa5094a553ea1189f8465184f45da347e6fba3bc"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/es/v3.2.25.md",
+              "blob_sha": "03d2c0cf1f77e8ef1025680c3a0d3ae417758ac2"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/es/v3.2.26.md",
+              "blob_sha": "82138150a609952894e0ca4805f14d74becf83c4"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/es/v3.2.28.md",
+              "blob_sha": "25d500d3ea71ad5f01e50c7d15bec8e493d43163"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/es/v3.2.29.md",
+              "blob_sha": "316067dc996dfbeac201de223809edda5d9eb10e"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/es/v3.2.30.md",
+              "blob_sha": "e4456b884b4b8dc449faf71405dcd5095c5db187"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/es/v3.2.31.md",
+              "blob_sha": "719fd6f02af291657ac0efcd27098f9e792cca6d"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/es/v3.2.32.md",
+              "blob_sha": "1474d70bcd7acccbcf4a51a561e9a944bf5834cc"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/es/v3.2.33.md",
+              "blob_sha": "5a3e9fd8fe9b703507601036cf39bd8a09d411ec"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/es/v3.2.35.md",
+              "blob_sha": "9d84a9e6e4a778a2d0d7d1e5b742e0372fffe190"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/fr/v3.2.24.md",
+              "blob_sha": "fed4a241f0d3eb0aba235d0009d227259a1bf742"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/fr/v3.2.25.md",
+              "blob_sha": "486cbe9f5bc7629624f00805e49ed62f70b3de28"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/fr/v3.2.26.md",
+              "blob_sha": "3429e9cb8bc54ffcdfcf9135b61e6e91d26c88c4"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/fr/v3.2.28.md",
+              "blob_sha": "e800f8d879e7d6b1ad46c8f54bba052c3ba9c0b9"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/fr/v3.2.29.md",
+              "blob_sha": "0b555444a13882bae5a53b0cbae3091161c82c5c"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/fr/v3.2.30.md",
+              "blob_sha": "e8481f46f617e4d4f8fa5c47d6a3b94a108c369b"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/fr/v3.2.31.md",
+              "blob_sha": "2264410ed3eb5558bb93a0f158ac8d8f8552065d"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/fr/v3.2.32.md",
+              "blob_sha": "218df9a94b9cb0018004c34984b37e0cd1a401c7"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/fr/v3.2.33.md",
+              "blob_sha": "2d523fce9ec403a7c94cdd7eb15b392ecc75dc35"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/fr/v3.2.35.md",
+              "blob_sha": "c6d670accebd6a843385c3bfb770f3efcca47866"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/nl/v3.1.29.md",
+              "blob_sha": "84ebc0d130f96c5a6b2eb4d618a7ee3114c0b331"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/nl/v3.1.30.md",
+              "blob_sha": "99b37238dea560c28a23c27f8162033a5872354d"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/nl/v3.1.33.md",
+              "blob_sha": "d1e4fc3856ebce6ca905fc8d4cadd90a9874d9d1"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/nl/v3.1.34.md",
+              "blob_sha": "b467a27a6573d2558db639d24c34b1b9a19f9a76"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/nl/v3.1.36.md",
+              "blob_sha": "4e0aaa9a0de04535bd03dc2e073f900d3cd4b311"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/nl/v3.1.37.md",
+              "blob_sha": "ea65cff04bf6c72e5276f17bd2c955a0f41ce286"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/nl/v3.1.38.md",
+              "blob_sha": "9874cb016c0e624340afee78dc03c086b2ec634b"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/nl/v3.1.39.md",
+              "blob_sha": "6cde779183f405fdfb452d18a0a86df923f27b4f"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/nl/v3.1.40.md",
+              "blob_sha": "6eb2ede58ed81a049508c2967573cfb4fb6218c2"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/nl/v3.1.43.md",
+              "blob_sha": "abaa9710307da5ec819a3c731ace5ffc6593fc54"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/nl/v3.1.44.md",
+              "blob_sha": "df077bf41f66c0e4048a8c524dd50e21ea5fb67b"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/nl/v3.1.46.md",
+              "blob_sha": "5420d4911ca1feef086ef701d58ae3587c9803ab"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/nl/v3.1.47.md",
+              "blob_sha": "06b834e378f67461985b041da968354eb1d68d65"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/nl/v3.1.48.md",
+              "blob_sha": "34d953e976f796e1bba538ed4e8c935b8149685b"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/nl/v3.1.49.md",
+              "blob_sha": "04b78703a7c5a0a5b0b0072f0e81345a0b5a723a"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/nl/v3.1.50.md",
+              "blob_sha": "10604a0668fa32c30b08dc583bcc566ee28625fc"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/nl/v3.1.51.md",
+              "blob_sha": "98bb6526adb81105711c188fe94eaaf79178598d"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/nl/v3.1.52.md",
+              "blob_sha": "735942e9ddefbcf4b84275e4c3f658b04541d1b3"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/nl/v3.1.53.md",
+              "blob_sha": "46b461a4e214efbb4c7de9597809670ccec7a0c1"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/nl/v3.2.0.md",
+              "blob_sha": "13c43c133582c35fd007ba21692e8a73f482b234"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/nl/v3.2.19.md",
+              "blob_sha": "40f3f6f5739ddb4f0cbe18f3f12d034f328a89d3"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/nl/v3.2.20.md",
+              "blob_sha": "c5a6c9c87f5d15a9614e5fa8164663060ffc7f07"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/nl/v3.2.21.md",
+              "blob_sha": "99ba3cd967e0f25a33cef6cf03b45c3c5a126e35"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/nl/v3.2.22.md",
+              "blob_sha": "d1589fc1d78061521c949fd8be3f46e6e640b89e"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/nl/v3.2.23.md",
+              "blob_sha": "38de94d61da202227b4dd2da7d5982cc64c7df6a"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/nl/v3.2.24.md",
+              "blob_sha": "3f65b95dc3bd8eb9f4c6e0e9ff3bd5d0e43618cf"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/nl/v3.2.25.md",
+              "blob_sha": "56d49b15292f1eb286c411829cc877660faf34cf"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/nl/v3.2.26.md",
+              "blob_sha": "2475dcafdfb2b2ad2b812c85baf2b69fb60e384c"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/nl/v3.2.28.md",
+              "blob_sha": "57f5b8f09681b755183ec6e2897d4c5bc69a7349"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/nl/v3.2.29.md",
+              "blob_sha": "ad29c4b134780c5d0f1e2b89e0744fee83ef85e8"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/nl/v3.2.3.md",
+              "blob_sha": "70785a0c3677306d885ea7f0f52e95dbe31f95f7"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/nl/v3.2.30.md",
+              "blob_sha": "2fff2d74c4da9dfbe7bf809895993b39c16e913f"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/nl/v3.2.31.md",
+              "blob_sha": "90ac52e516624bbefc85fbf525c29d0e84dfc78c"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/nl/v3.2.32.md",
+              "blob_sha": "02aff1203b95156e8394327d981bd98cc5e72b23"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/nl/v3.2.33.md",
+              "blob_sha": "d352bd2f857d95a06830e7ab2052b70edacce19f"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/nl/v3.2.35.md",
+              "blob_sha": "2dd7e9dd12cef49b442de3cff5b8f16936456f86"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/nl/v3.2.4.md",
+              "blob_sha": "da443eefe84fb89ec9dc63a16e17196c033f489f"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/nl/v3.2.5.md",
+              "blob_sha": "7a27f596c5904ab140cac396fbad8b7cd49e86f8"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/v3.1.26.md",
+              "blob_sha": "4ccd169495401f02e9b5b72150a002f50fe90a9a"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/v3.1.27.md",
+              "blob_sha": "ed8300c4328789ec76e7f679f9dd6b5491e92a4b"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/v3.1.28.md",
+              "blob_sha": "25b52f0228a48121a671a9bff6b7b823a2a609b5"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/v3.1.29.md",
+              "blob_sha": "0635a1b3e79dc98d5df4248b7c36b6c9e9cff3d0"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/v3.1.30.md",
+              "blob_sha": "9f4a6ca419be81c685e07c17739b0d6a5ebe20c6"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/v3.1.33.md",
+              "blob_sha": "e08fa9e89052c8e752bc3f77e8142a35297c723a"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/v3.1.34.md",
+              "blob_sha": "d7558807ca9629dafa6004216fb02179d7e8b8d2"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/v3.1.36.md",
+              "blob_sha": "35ecbb1910dbf1c5633c911ff45ed86bae952377"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/v3.1.37.md",
+              "blob_sha": "0928ee8ac34dda40d39974f56f80eab27986ecee"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/v3.1.38.md",
+              "blob_sha": "155aeb32dd437ad224bdbc75eb66846e12531174"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/v3.1.39.md",
+              "blob_sha": "18a3881ec64ebb9a211c3d37c5d1030c2a6a2b4b"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/v3.1.40.md",
+              "blob_sha": "4b7399e3f22a983d6ff20e4c59110f41665fcedb"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/v3.1.43.md",
+              "blob_sha": "e96ea570073a356c3c02e3238005c965c0c6b691"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/v3.1.44.md",
+              "blob_sha": "c8eabc4d5aee75df527c341bd6e1d9ce0a8d19c4"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/v3.1.46.md",
+              "blob_sha": "f664508505da1d2d3967840684becb5bc16ce8b0"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/v3.1.47.md",
+              "blob_sha": "93a2b6160352913714f2c00f0d66613fc9cb912b"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/v3.1.48.md",
+              "blob_sha": "7afa478ab71316b51b9b7aca6300ee7a903d4f33"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/v3.1.49.md",
+              "blob_sha": "42207cb07b501d41ab0e3971c219f11e66717916"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/v3.1.50.md",
+              "blob_sha": "64f4077a1e06cd1a984b1f16f9b98878c8def978"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/v3.1.51.md",
+              "blob_sha": "4699b67ee90e19ff364f23ffef1b28dad27778dd"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/v3.1.52.md",
+              "blob_sha": "722ef44951156b08676f0bc0b228b09d0a622e53"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/v3.1.53.md",
+              "blob_sha": "f3832e4ad9a7aa5d10f51f21590eea34e4c86583"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/v3.2.0.md",
+              "blob_sha": "9f862bf45639e11922c7c524a9d4495246a0f292"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/v3.2.19.md",
+              "blob_sha": "42baf2fbaf057798a45e75eb63878c6b674bf32f"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/v3.2.20.md",
+              "blob_sha": "0acf146b8ce3b127b8476c0535080e39b9d209ba"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/v3.2.21.md",
+              "blob_sha": "ce1415f98cb478e0451b38c5cd883ba781c3a9f8"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/v3.2.22.md",
+              "blob_sha": "a8c175e574bd6b3259b71fb4161cf8acbf6ec3e2"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/v3.2.23.md",
+              "blob_sha": "0d4541bf0f2a3c29b2dd5b9615f5780d02f74d45"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/v3.2.24.md",
+              "blob_sha": "ece4baf8a8710f94c24e9cc3fc568b905f50bec8"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/v3.2.25.md",
+              "blob_sha": "3fb4ee7a14f657fb70e399baecb635087d795e98"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/v3.2.26.md",
+              "blob_sha": "5c233ed9d7ce304829353bebf673915926c1a8d8"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/v3.2.28.md",
+              "blob_sha": "bb9a91c3c6db70b8882d3e28b7b44a760ff8c065"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/v3.2.29.md",
+              "blob_sha": "8e1e68d881a4536114a36871f0dbb66f42283947"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/v3.2.3.md",
+              "blob_sha": "d0150649afd8ff4ab86f74c1f3cfa4ff89d9cd06"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/v3.2.30.md",
+              "blob_sha": "334a73b1681d3d78440f7deb4fd514ec86a12656"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/v3.2.31.md",
+              "blob_sha": "b48a0381127822c01076159bef0047e03473223e"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/v3.2.32.md",
+              "blob_sha": "04f97e8541a506fdad232a7d0245754c8fbbcf13"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/v3.2.33.md",
+              "blob_sha": "353f6a8365852270c78ddd64b7b660bb035704ba"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/v3.2.35.md",
+              "blob_sha": "1812fd4ef0610974749cc1fc2655029b43ba4470"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/v3.2.4.md",
+              "blob_sha": "39d3271242876d9d4dc7df278b3b682e48cc1958"
+            },
+            {
+              "path": "wwwroot/release-notes/ios/v3.2.5.md",
+              "blob_sha": "9c185ea0009002783586bdc3df316b9b443ddaab"
+            },
+            {
+              "path": "wwwroot/release-notes/maccatalyst/de/v3.2.5.md",
+              "blob_sha": "4d7f9f0e056c831b1e2815a3056f0bc92742aed2"
+            },
+            {
+              "path": "wwwroot/release-notes/maccatalyst/en/v3.1.1.md",
+              "blob_sha": "1111ec335256e404f6b95f12cffc9ea923652696"
+            },
+            {
+              "path": "wwwroot/release-notes/maccatalyst/en/v3.1.10.md",
+              "blob_sha": "b53aa22a768d61722857783de20d51cf379529da"
+            },
+            {
+              "path": "wwwroot/release-notes/maccatalyst/en/v3.1.8.md",
+              "blob_sha": "a6c6b02d3e22ef35c69647487eb75345ea6a3b9c"
+            },
+            {
+              "path": "wwwroot/release-notes/maccatalyst/en/v3.1.9.md",
+              "blob_sha": "ec2f6dff1dfdd14ab9a8b84499e935ca2eff0cda"
+            },
+            {
+              "path": "wwwroot/release-notes/maccatalyst/en/v3.2.0.md",
+              "blob_sha": "cee62e13412f8e76ae3f098a0238fd5724b6f97e"
+            },
+            {
+              "path": "wwwroot/release-notes/maccatalyst/en/v3.2.1.md",
+              "blob_sha": "eaf62bb2caabdf2331da1c886dec93c221064e58"
+            },
+            {
+              "path": "wwwroot/release-notes/maccatalyst/en/v3.2.2.md",
+              "blob_sha": "62c9e7d416b653ab0b546a70575940f37d5a5028"
+            },
+            {
+              "path": "wwwroot/release-notes/maccatalyst/en/v3.2.5.md",
+              "blob_sha": "c506628ea31fff7a4a4ae307e84a0776ce5716eb"
+            },
+            {
+              "path": "wwwroot/release-notes/maccatalyst/es/v3.2.5.md",
+              "blob_sha": "6dd32dbea7363e845ddcc62a8d6988a34fec5858"
+            },
+            {
+              "path": "wwwroot/release-notes/maccatalyst/fr/v3.2.5.md",
+              "blob_sha": "b19814094764236e4da9e832733826711293fd42"
+            },
+            {
+              "path": "wwwroot/release-notes/maccatalyst/nl/v3.1.1.md",
+              "blob_sha": "fd3bb563622eb0ec6312a3ae85760f712d0f5c23"
+            },
+            {
+              "path": "wwwroot/release-notes/maccatalyst/nl/v3.1.10.md",
+              "blob_sha": "49c986e08130e045168c6fa9dd8c8301f8e65f87"
+            },
+            {
+              "path": "wwwroot/release-notes/maccatalyst/nl/v3.1.8.md",
+              "blob_sha": "cd60c695231986f3f975122bf9cc61e607e8fd3e"
+            },
+            {
+              "path": "wwwroot/release-notes/maccatalyst/nl/v3.1.9.md",
+              "blob_sha": "350f9828aa558aace6299da4192345bc8aea99cb"
+            },
+            {
+              "path": "wwwroot/release-notes/maccatalyst/nl/v3.2.0.md",
+              "blob_sha": "bff3b6e718cc88c8704385cfa6487a8fb53cd981"
+            },
+            {
+              "path": "wwwroot/release-notes/maccatalyst/nl/v3.2.1.md",
+              "blob_sha": "3749b0db4bf2942e89bfbd6d1ae16436a7ec6ee5"
+            },
+            {
+              "path": "wwwroot/release-notes/maccatalyst/nl/v3.2.2.md",
+              "blob_sha": "91264eaaaf486a787a7707d62dcdf0ed12ffc251"
+            },
+            {
+              "path": "wwwroot/release-notes/maccatalyst/nl/v3.2.5.md",
+              "blob_sha": "bec93bd373afb6744d10d1fbc2104691a19a5c9d"
+            },
+            {
+              "path": "wwwroot/release-notes/maccatalyst/v3.1.1.md",
+              "blob_sha": "1111ec335256e404f6b95f12cffc9ea923652696"
+            },
+            {
+              "path": "wwwroot/release-notes/maccatalyst/v3.1.10.md",
+              "blob_sha": "b53aa22a768d61722857783de20d51cf379529da"
+            },
+            {
+              "path": "wwwroot/release-notes/maccatalyst/v3.1.8.md",
+              "blob_sha": "a6c6b02d3e22ef35c69647487eb75345ea6a3b9c"
+            },
+            {
+              "path": "wwwroot/release-notes/maccatalyst/v3.1.9.md",
+              "blob_sha": "ec2f6dff1dfdd14ab9a8b84499e935ca2eff0cda"
+            },
+            {
+              "path": "wwwroot/release-notes/maccatalyst/v3.2.0.md",
+              "blob_sha": "cee62e13412f8e76ae3f098a0238fd5724b6f97e"
+            },
+            {
+              "path": "wwwroot/release-notes/maccatalyst/v3.2.1.md",
+              "blob_sha": "eaf62bb2caabdf2331da1c886dec93c221064e58"
+            },
+            {
+              "path": "wwwroot/release-notes/maccatalyst/v3.2.2.md",
+              "blob_sha": "62c9e7d416b653ab0b546a70575940f37d5a5028"
+            },
+            {
+              "path": "wwwroot/release-notes/maccatalyst/v3.2.5.md",
+              "blob_sha": "c506628ea31fff7a4a4ae307e84a0776ce5716eb"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/de/v3.2.24.md",
+              "blob_sha": "b012c59ea956c4a1606c8908fa107d6f5a63b3df"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/de/v3.2.25.md",
+              "blob_sha": "a4eba0f90e36c4de845e6d7187ed44322c97814a"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/de/v3.2.26.md",
+              "blob_sha": "d75fa5a1af5c20a598b998806f9784f02cc15abe"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/de/v3.2.28.md",
+              "blob_sha": "bd4a0767828c2dca48092755edc3ba9a36c2f30b"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/de/v3.2.29.md",
+              "blob_sha": "c8ccd8f99d36e5e904f2da1fe056d9c08b248a0a"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/de/v3.2.30.md",
+              "blob_sha": "6e812d49a34238af57de1fd577bc1ce275e6f842"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/de/v3.2.31.md",
+              "blob_sha": "c212c58672fe62ab0983f3d87ee8b8585f2d1e47"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/de/v3.2.32.md",
+              "blob_sha": "ef819586afb169fe01474f6b5911b6a761305eac"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/de/v3.2.33.md",
+              "blob_sha": "9b1add762a5975c235feda6c7b0063d9dcfe6edb"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/de/v3.2.35.md",
+              "blob_sha": "97c06ff7ba3b7d3a2ca3bb48f277aaa6dca92237"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/en/v3.1.29.md",
+              "blob_sha": "153089b859d99ddca0d512d147ec85e07ed85f0b"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/en/v3.1.30.md",
+              "blob_sha": "37e3bf33e96cbddab0dc88a73872fd8cfc0257f6"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/en/v3.1.33.md",
+              "blob_sha": "ddc835d5d6f0d2446428ed275cc7ae7e7c267bdd"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/en/v3.1.34.md",
+              "blob_sha": "db483b906d2e7d96306806f2b44d7b0581e70e73"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/en/v3.1.36.md",
+              "blob_sha": "78098572b93e5b1a68f4d2b1c63101e4d4fcf14a"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/en/v3.1.37.md",
+              "blob_sha": "b1ffa72cf510c3a80deb7179c8d03abf9baa2bf2"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/en/v3.1.38.md",
+              "blob_sha": "170a2ba88e2dbceb2c5359c1f48af1b700238e97"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/en/v3.1.39.md",
+              "blob_sha": "8bf62c58b0e1bb38c847f41df646f9613f1d24d2"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/en/v3.1.40.md",
+              "blob_sha": "7e3441b0f959774556546262b70902be6c9004e9"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/en/v3.1.43.md",
+              "blob_sha": "6e9a47e18b3a9f8bc1cd273b5fca29fc3c0de7de"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/en/v3.1.44.md",
+              "blob_sha": "8967fc12490ea2d8ad21152f253a4c97eb751b85"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/en/v3.1.46.md",
+              "blob_sha": "8a6bbe0b58cf65eb8662135a4e5c5d5d723acf09"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/en/v3.1.47.md",
+              "blob_sha": "f858a5142482e7f6f73d78811fab4f1ba6dac0f2"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/en/v3.1.48.md",
+              "blob_sha": "868d3223de5e412248d454bfe0b7889afb447b8b"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/en/v3.1.49.md",
+              "blob_sha": "fba80554e90fcb4c679f67d2bbc006a7c9f88bc3"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/en/v3.1.50.md",
+              "blob_sha": "831cf116e215107e91e61041e3db9035414bb8f2"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/en/v3.1.51.md",
+              "blob_sha": "b26a6b39866f71c9d8152ed0dae5bbf7619d83e5"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/en/v3.1.52.md",
+              "blob_sha": "1e2b752a31fe30681e6bee64c742591f5ea8371f"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/en/v3.1.53.md",
+              "blob_sha": "fcfb5fee453de21c4aa2812e7f745cfd878ba4fb"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/en/v3.2.0.md",
+              "blob_sha": "69cda61c6efcdd2392d1683e1845957655591cfe"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/en/v3.2.19.md",
+              "blob_sha": "b5f1b4620eb830f172d3a1eecb306c448c116a50"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/en/v3.2.20.md",
+              "blob_sha": "a892bacde08aa715a8106d04e8a5e729a7fe912c"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/en/v3.2.21.md",
+              "blob_sha": "830f4dcd3edaf6df77c0f20385580f4f597d8f1e"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/en/v3.2.22.md",
+              "blob_sha": "d5d36aa08371317a6311e6d54312f0887c2cb3aa"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/en/v3.2.23.md",
+              "blob_sha": "317f6c841e05c53347a0b0208afd6ead75ff74be"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/en/v3.2.24.md",
+              "blob_sha": "69b068b12eb87e4a922ae45abd36f4c638758e7e"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/en/v3.2.25.md",
+              "blob_sha": "7866e63ddee5d5d1bf13fe3ac4f94fb31abb479d"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/en/v3.2.26.md",
+              "blob_sha": "349979c6dfd0c39413ff9dce74e4e60522cdd17d"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/en/v3.2.28.md",
+              "blob_sha": "9486d743838ddcfb224b20aba3ee210a859694ba"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/en/v3.2.29.md",
+              "blob_sha": "029435284c6a4b3b033484ff2e84393171539546"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/en/v3.2.3.md",
+              "blob_sha": "a62adfded2ee401e23a5f73095a3fcc68ebafe17"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/en/v3.2.30.md",
+              "blob_sha": "4fc50df61519ac7a19545556811ac7ab2acafa51"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/en/v3.2.31.md",
+              "blob_sha": "d13b6e3068f208317edfc1b451951d18c2c4b660"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/en/v3.2.32.md",
+              "blob_sha": "723010f237cc44ddcbc9d88a87a956908a5f0fcd"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/en/v3.2.33.md",
+              "blob_sha": "facc6c9bd141d9ddc9fb91ab4302c4b85ecfcd62"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/en/v3.2.35.md",
+              "blob_sha": "78ca0857d147a3b9774598b505ff35b67653b813"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/en/v3.2.4.md",
+              "blob_sha": "772b0daeb32db21180d02f82247c4191dfc4b920"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/en/v3.2.5.md",
+              "blob_sha": "68baae86cc71fff397a68d118116807471c7975e"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/es/v3.2.24.md",
+              "blob_sha": "0830fe2be786cfd917d60da6309ebad78702bbf9"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/es/v3.2.25.md",
+              "blob_sha": "f9884c2f4db3b635dd59cb1776b5f22257d9247f"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/es/v3.2.26.md",
+              "blob_sha": "6151b3bb7dfdd3b9dde8c7ffdb1a7eb26d2719d5"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/es/v3.2.28.md",
+              "blob_sha": "7a93496754692695e39d22e368d5c96acf125e8f"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/es/v3.2.29.md",
+              "blob_sha": "d1e06bfc1d24262df85291ad1c4ca36d3d3574b3"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/es/v3.2.30.md",
+              "blob_sha": "8e1a3924868238ff7789092c07519533d025ef5f"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/es/v3.2.31.md",
+              "blob_sha": "ba01f3c931fe1d935427e3ada85d3b8a4db7b242"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/es/v3.2.32.md",
+              "blob_sha": "585bad569a476890b204b4e7b4a04853f4047c4b"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/es/v3.2.33.md",
+              "blob_sha": "424f457160486f6009d9a24d17b116adb2ed637d"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/es/v3.2.35.md",
+              "blob_sha": "44343b6fbcdf59d39905eddd6b8b553e1a7fe2c4"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/fr/v3.2.24.md",
+              "blob_sha": "d9febe36425f2ca6b6cfd9106e40290bed4005c6"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/fr/v3.2.25.md",
+              "blob_sha": "ec847b1043024ef1e39d06b238570de53ad7040d"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/fr/v3.2.26.md",
+              "blob_sha": "59a748f27991c1a424f61ee2d447ce43c703b58d"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/fr/v3.2.28.md",
+              "blob_sha": "94452438789038e4a22c17a64170765250cd30ed"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/fr/v3.2.29.md",
+              "blob_sha": "71650cba260209fb2df18be73b3e464ac937bb25"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/fr/v3.2.30.md",
+              "blob_sha": "c9e2f2654805cd111e3efcca72ba26ee826f3597"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/fr/v3.2.31.md",
+              "blob_sha": "f9024529297ad2148d8a20f7724300d7018653ee"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/fr/v3.2.32.md",
+              "blob_sha": "cc70eae6b78ebaff3378bca5fffc950b282d8ebc"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/fr/v3.2.33.md",
+              "blob_sha": "c5ab89e0c8de2687ba413f33e6917ce965f42104"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/fr/v3.2.35.md",
+              "blob_sha": "8e115c0a6aa81f3b72197e7fa4b0b1a6a6277ae0"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/nl/v3.1.29.md",
+              "blob_sha": "81b89af49d24fd9035692b8f35035f109ff412e7"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/nl/v3.1.30.md",
+              "blob_sha": "26c017f6f7b214b4ba6ab836fa71498b927f77f1"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/nl/v3.1.33.md",
+              "blob_sha": "23ee333d3288dab9ff3156da90623d6c5a5e8a6b"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/nl/v3.1.34.md",
+              "blob_sha": "63d6ce6f7d4658d2391a9b8097cf771a3ad3c445"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/nl/v3.1.36.md",
+              "blob_sha": "55f70ce8daa838c6639dff2cc6b39b1c57eb804b"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/nl/v3.1.37.md",
+              "blob_sha": "8bca038b586a4d8f8e458b449e46e8c22a9c3245"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/nl/v3.1.38.md",
+              "blob_sha": "e05709cab991a623f75e29e4b07a2ceb8becaeb9"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/nl/v3.1.39.md",
+              "blob_sha": "93f6a4bbe270e22ebfa4a2b4a9ecccf56fca5268"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/nl/v3.1.40.md",
+              "blob_sha": "e994547dca163c9f286ae070ca723a7891b6a1f6"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/nl/v3.1.43.md",
+              "blob_sha": "b6febd3ccab1451f8d6b9423a6e9fb4d54520308"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/nl/v3.1.44.md",
+              "blob_sha": "f61a10fdca27cbb5e5d9467184264785606eebe8"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/nl/v3.1.46.md",
+              "blob_sha": "08dcc85c37f720f28760061334178c4a4d6ac72a"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/nl/v3.1.47.md",
+              "blob_sha": "48c658d96372f847612e42b4b3ca3cae8a6cb4e3"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/nl/v3.1.48.md",
+              "blob_sha": "2290927eb343d8c8b2ec48741c307a7f1cdd03bc"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/nl/v3.1.49.md",
+              "blob_sha": "01ccde091f9dc273f556b29b4d2f099a08269c84"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/nl/v3.1.50.md",
+              "blob_sha": "70d6aefda87db0f183f2cd09ff5d2ab10df9cec4"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/nl/v3.1.51.md",
+              "blob_sha": "b9ca68793fe09957044b9b217f831cc76e7f6dca"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/nl/v3.1.52.md",
+              "blob_sha": "852b629fbdeb94aff83cde99fb83ea3c1b5410a8"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/nl/v3.1.53.md",
+              "blob_sha": "f487aa247dca19ffd241299d4335561f65b90776"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/nl/v3.2.0.md",
+              "blob_sha": "d44b5654de986b0370d6266f7a37a71a5947a682"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/nl/v3.2.19.md",
+              "blob_sha": "cdda46dc8f1c16624516c0e6321bb5e966df1c31"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/nl/v3.2.20.md",
+              "blob_sha": "3bfc8a2574bab71dc8f2fb5dbb0f23a8d63933b0"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/nl/v3.2.21.md",
+              "blob_sha": "dc94521d1a988663d80d83ca3ad467137766d1a3"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/nl/v3.2.22.md",
+              "blob_sha": "980aee6c3ce406428dcee94c874fd04ecf5f78a2"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/nl/v3.2.23.md",
+              "blob_sha": "1daedcf9646b76ba6cc9eb23e6f0b5552818f0a7"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/nl/v3.2.24.md",
+              "blob_sha": "b3b47510431b5734676da1fff4d2cf9c92051575"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/nl/v3.2.25.md",
+              "blob_sha": "ded190ed830534e6cb260b2d6864e4fee28c81c4"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/nl/v3.2.26.md",
+              "blob_sha": "21c02efa363c94f1c2bb78319326da80b8ccf0f0"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/nl/v3.2.28.md",
+              "blob_sha": "7742ea9618842c506ce043518ec765dea22524e5"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/nl/v3.2.29.md",
+              "blob_sha": "0f3234b0387c3e011911f0eec4aa5a720001f615"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/nl/v3.2.3.md",
+              "blob_sha": "b8201f09cabafe6832256bfd676f813c6ea9c190"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/nl/v3.2.30.md",
+              "blob_sha": "b1485925fac980005504ce5cb766da7d89beada6"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/nl/v3.2.31.md",
+              "blob_sha": "a82149e03316af0c93a1fbeee86b45e1c51e5354"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/nl/v3.2.32.md",
+              "blob_sha": "6895a8aba26d9892089c3b5fc6447f23f1aa072d"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/nl/v3.2.33.md",
+              "blob_sha": "d89944cd03bfcf7fe1b4e4a2017f7f7736411194"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/nl/v3.2.35.md",
+              "blob_sha": "de962b1e4720f3fa1fc059a0725db133ea3315da"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/nl/v3.2.4.md",
+              "blob_sha": "ecf520cdb0d34668c36452e67953d9f9d7593145"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/nl/v3.2.5.md",
+              "blob_sha": "d1250d72fd0d529698f54db4da726fad9fbe9daa"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/v3.1.26.md",
+              "blob_sha": "b73fc3250e49c01ac3a92ce3408b61a8b66a5066"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/v3.1.27.md",
+              "blob_sha": "420173d79a24e7cee5cfa5232b1c4b9db36c7375"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/v3.1.28.md",
+              "blob_sha": "6dc23b21a9f6e1d2924cd9e391c6dbbdbbda6069"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/v3.1.29.md",
+              "blob_sha": "153089b859d99ddca0d512d147ec85e07ed85f0b"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/v3.1.30.md",
+              "blob_sha": "37e3bf33e96cbddab0dc88a73872fd8cfc0257f6"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/v3.1.33.md",
+              "blob_sha": "ddc835d5d6f0d2446428ed275cc7ae7e7c267bdd"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/v3.1.34.md",
+              "blob_sha": "db483b906d2e7d96306806f2b44d7b0581e70e73"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/v3.1.36.md",
+              "blob_sha": "78098572b93e5b1a68f4d2b1c63101e4d4fcf14a"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/v3.1.37.md",
+              "blob_sha": "b1ffa72cf510c3a80deb7179c8d03abf9baa2bf2"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/v3.1.38.md",
+              "blob_sha": "170a2ba88e2dbceb2c5359c1f48af1b700238e97"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/v3.1.39.md",
+              "blob_sha": "8bf62c58b0e1bb38c847f41df646f9613f1d24d2"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/v3.1.40.md",
+              "blob_sha": "7e3441b0f959774556546262b70902be6c9004e9"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/v3.1.43.md",
+              "blob_sha": "6e9a47e18b3a9f8bc1cd273b5fca29fc3c0de7de"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/v3.1.44.md",
+              "blob_sha": "8967fc12490ea2d8ad21152f253a4c97eb751b85"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/v3.1.46.md",
+              "blob_sha": "8a6bbe0b58cf65eb8662135a4e5c5d5d723acf09"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/v3.1.47.md",
+              "blob_sha": "f858a5142482e7f6f73d78811fab4f1ba6dac0f2"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/v3.1.48.md",
+              "blob_sha": "868d3223de5e412248d454bfe0b7889afb447b8b"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/v3.1.49.md",
+              "blob_sha": "fba80554e90fcb4c679f67d2bbc006a7c9f88bc3"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/v3.1.50.md",
+              "blob_sha": "831cf116e215107e91e61041e3db9035414bb8f2"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/v3.1.51.md",
+              "blob_sha": "b26a6b39866f71c9d8152ed0dae5bbf7619d83e5"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/v3.1.52.md",
+              "blob_sha": "1e2b752a31fe30681e6bee64c742591f5ea8371f"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/v3.1.53.md",
+              "blob_sha": "fcfb5fee453de21c4aa2812e7f745cfd878ba4fb"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/v3.2.0.md",
+              "blob_sha": "69cda61c6efcdd2392d1683e1845957655591cfe"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/v3.2.19.md",
+              "blob_sha": "b5f1b4620eb830f172d3a1eecb306c448c116a50"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/v3.2.20.md",
+              "blob_sha": "a892bacde08aa715a8106d04e8a5e729a7fe912c"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/v3.2.21.md",
+              "blob_sha": "830f4dcd3edaf6df77c0f20385580f4f597d8f1e"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/v3.2.22.md",
+              "blob_sha": "d5d36aa08371317a6311e6d54312f0887c2cb3aa"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/v3.2.23.md",
+              "blob_sha": "317f6c841e05c53347a0b0208afd6ead75ff74be"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/v3.2.24.md",
+              "blob_sha": "69b068b12eb87e4a922ae45abd36f4c638758e7e"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/v3.2.25.md",
+              "blob_sha": "7866e63ddee5d5d1bf13fe3ac4f94fb31abb479d"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/v3.2.26.md",
+              "blob_sha": "349979c6dfd0c39413ff9dce74e4e60522cdd17d"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/v3.2.28.md",
+              "blob_sha": "9486d743838ddcfb224b20aba3ee210a859694ba"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/v3.2.29.md",
+              "blob_sha": "029435284c6a4b3b033484ff2e84393171539546"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/v3.2.3.md",
+              "blob_sha": "a62adfded2ee401e23a5f73095a3fcc68ebafe17"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/v3.2.30.md",
+              "blob_sha": "4fc50df61519ac7a19545556811ac7ab2acafa51"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/v3.2.31.md",
+              "blob_sha": "d13b6e3068f208317edfc1b451951d18c2c4b660"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/v3.2.32.md",
+              "blob_sha": "723010f237cc44ddcbc9d88a87a956908a5f0fcd"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/v3.2.33.md",
+              "blob_sha": "facc6c9bd141d9ddc9fb91ab4302c4b85ecfcd62"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/v3.2.35.md",
+              "blob_sha": "78ca0857d147a3b9774598b505ff35b67653b813"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/v3.2.4.md",
+              "blob_sha": "772b0daeb32db21180d02f82247c4191dfc4b920"
+            },
+            {
+              "path": "wwwroot/release-notes/macos/v3.2.5.md",
+              "blob_sha": "68baae86cc71fff397a68d118116807471c7975e"
+            },
+            {
+              "path": "wwwroot/release-notes/windows/de/v3.2.5.md",
+              "blob_sha": "bbcc56f2a53a3a7d727748aa6146141aec8995ef"
+            },
+            {
+              "path": "wwwroot/release-notes/windows/en/v3.1.1.md",
+              "blob_sha": "f2d055b3d6b9dc88617c16fea903b3c5ed895439"
+            },
+            {
+              "path": "wwwroot/release-notes/windows/en/v3.1.10.md",
+              "blob_sha": "eb15628d24b2fb793b963bd12ed1651339352c53"
+            },
+            {
+              "path": "wwwroot/release-notes/windows/en/v3.1.8.md",
+              "blob_sha": "1e17c6e890f97a972e343134a26d765f4c540a8b"
+            },
+            {
+              "path": "wwwroot/release-notes/windows/en/v3.1.9.md",
+              "blob_sha": "095df636563d3eea4dd7b363642f255d6803a73d"
+            },
+            {
+              "path": "wwwroot/release-notes/windows/en/v3.2.0.md",
+              "blob_sha": "99f17c006a8e0e2cfe090e7d6b9bc58ef60ed6ee"
+            },
+            {
+              "path": "wwwroot/release-notes/windows/en/v3.2.1.md",
+              "blob_sha": "17cdb9317e50ed656ea33bd491dadc64f1325945"
+            },
+            {
+              "path": "wwwroot/release-notes/windows/en/v3.2.2.md",
+              "blob_sha": "5efa62d62b7cfcdc1f0cad6a5d843d3658069518"
+            },
+            {
+              "path": "wwwroot/release-notes/windows/en/v3.2.5.md",
+              "blob_sha": "b0da6d8cc416eaa8913401ab445a11d4c5d87be5"
+            },
+            {
+              "path": "wwwroot/release-notes/windows/es/v3.2.5.md",
+              "blob_sha": "0e1e273211ac7423fb6f1dd428482138e5149fd3"
+            },
+            {
+              "path": "wwwroot/release-notes/windows/fr/v3.2.5.md",
+              "blob_sha": "2262d79818520ccac2b2f137cd831083c46a4082"
+            },
+            {
+              "path": "wwwroot/release-notes/windows/nl/v3.1.1.md",
+              "blob_sha": "cb3edad1b22499544ad5701d4fb30ad291289a7d"
+            },
+            {
+              "path": "wwwroot/release-notes/windows/nl/v3.1.10.md",
+              "blob_sha": "cdf4ea6aec070053d2708e747b11d039a2e473d7"
+            },
+            {
+              "path": "wwwroot/release-notes/windows/nl/v3.1.8.md",
+              "blob_sha": "1df53c901a6f50640d3af137d30673df1ef97ff2"
+            },
+            {
+              "path": "wwwroot/release-notes/windows/nl/v3.1.9.md",
+              "blob_sha": "bd66fa1d1c11a09e31368d90b413e52b267a2f35"
+            },
+            {
+              "path": "wwwroot/release-notes/windows/nl/v3.2.0.md",
+              "blob_sha": "c7345504484df045cc64e04852e9b749f168691c"
+            },
+            {
+              "path": "wwwroot/release-notes/windows/nl/v3.2.1.md",
+              "blob_sha": "40fae63643e1e97f6280b9e533f54c16e12c5ab2"
+            },
+            {
+              "path": "wwwroot/release-notes/windows/nl/v3.2.2.md",
+              "blob_sha": "1103bffaccc526ba5c24752e2c31d5c754fd3e3c"
+            },
+            {
+              "path": "wwwroot/release-notes/windows/nl/v3.2.5.md",
+              "blob_sha": "eb0ff06af98d6a38ee8c05095bd0e8b25bf4c846"
+            },
+            {
+              "path": "wwwroot/release-notes/windows/v3.1.1.md",
+              "blob_sha": "f2d055b3d6b9dc88617c16fea903b3c5ed895439"
+            },
+            {
+              "path": "wwwroot/release-notes/windows/v3.1.10.md",
+              "blob_sha": "eb15628d24b2fb793b963bd12ed1651339352c53"
+            },
+            {
+              "path": "wwwroot/release-notes/windows/v3.1.8.md",
+              "blob_sha": "1e17c6e890f97a972e343134a26d765f4c540a8b"
+            },
+            {
+              "path": "wwwroot/release-notes/windows/v3.1.9.md",
+              "blob_sha": "095df636563d3eea4dd7b363642f255d6803a73d"
+            },
+            {
+              "path": "wwwroot/release-notes/windows/v3.2.0.md",
+              "blob_sha": "99f17c006a8e0e2cfe090e7d6b9bc58ef60ed6ee"
+            },
+            {
+              "path": "wwwroot/release-notes/windows/v3.2.1.md",
+              "blob_sha": "17cdb9317e50ed656ea33bd491dadc64f1325945"
+            },
+            {
+              "path": "wwwroot/release-notes/windows/v3.2.2.md",
+              "blob_sha": "5efa62d62b7cfcdc1f0cad6a5d843d3658069518"
+            },
+            {
+              "path": "wwwroot/release-notes/windows/v3.2.5.md",
+              "blob_sha": "b0da6d8cc416eaa8913401ab445a11d4c5d87be5"
+            }
+          ]
+        }
+      ]
     }
   },
   "lanes": [
@@ -12982,6 +16448,186 @@
         "SLICE::CORE::SPOTIFY-DIRECT"
       ],
       "remaining": "Current code/workflow, publisher receipt, consumer target and protected delivery remain separate evidence boundaries."
+    },
+    {
+      "id": "CORE_PROMPT_HISTORY_README",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/history/prompts/README.md",
+      "blob_sha": "7c5135bd7d957a0abc9d8b212cb3e5632d29da5a",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Immutable completed-prompt archive navigation. Current main and status/roadmap records retain implementation-state authority; dated prompt paths are classified by path only.",
+      "observed_at": "2026-10-03; continuation of pinned issue #1101 audit",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/history/prompts/README.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::AUDIT::METHOD"
+      ],
+      "remaining": "Historical records may still matter for traceability but are not independently selected execution."
+    },
+    {
+      "id": "CORE_RELEASE_INDEX",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/release/README.md",
+      "blob_sha": "8a56acd5f011455f93220449d41c38f15aadfa2c",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Canonical Platform Release Engineering navigation and role boundary; referenced completion records are not inferred as current candidate proof.",
+      "observed_at": "2026-10-03; continuation of pinned issue #1101 audit",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/release/README.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::AUDIT::METHOD"
+      ],
+      "remaining": "Remaining release-policy and operational records require individual disposition."
+    },
+    {
+      "id": "CORE_VERIFY_RELEASE_BOUNDARY",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/release/VERIFICATION_VS_RELEASE.md",
+      "blob_sha": "6931f7cb05dc712c29650a6eac716c0d1cab8c06",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Corrected separation of physical/runtime Verification from reproducible artifact and release execution evidence.",
+      "observed_at": "2026-10-03; continuation of pinned issue #1101 audit",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/release/VERIFICATION_VS_RELEASE.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::AUDIT::METHOD"
+      ],
+      "remaining": "No physical acceptance is inferred from this policy."
+    },
+    {
+      "id": "CORE_ARTIFACT_EVIDENCE_POLICY",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/release/ARTIFACT_RELEASE_EVIDENCE_POLICY.md",
+      "blob_sha": "b8ac7645956e3850cc8d0d48977edca031fcad0e",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Current exact-main qualification evidence policy: successful required CI normally triggers workflow_run and may create or append an internal-ha-{main-sha} GitHub prerelease asset. This documentary policy corroborates the pinned workflow effect; no release is authorized here.",
+      "observed_at": "2026-10-03; continuation of pinned issue #1101 audit",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/release/ARTIFACT_RELEASE_EVIDENCE_POLICY.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::AUDIT::METHOD"
+      ],
+      "remaining": "Protected merge still needs a safe existing route or explicit owner resolution under the assignment no-release boundary."
+    },
+    {
+      "id": "CORE_CI_QUAL_POLICY",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/release/CI_QUALIFICATION_WORKFLOW_POLICY.md",
+      "blob_sha": "038553e60c957f7a9fe12402d638f61b721860b7",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "CI qualification policy permits exact-SHA internal Actions artifacts but forbids deployment, tags and releases in CI itself; separate post-merge evidence is a distinct workflow class.",
+      "observed_at": "2026-10-03; continuation of pinned issue #1101 audit",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/release/CI_QUALIFICATION_WORKFLOW_POLICY.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::AUDIT::METHOD"
+      ],
+      "remaining": "Do not conflate branch CI success with protected delivery or source-to-consumer qualification."
+    },
+    {
+      "id": "CORE_DEPLOY_POLICY",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/release/DEPLOYMENT_WORKFLOW_POLICY.md",
+      "blob_sha": "fb3e52332bf3eb658721c4e4f22aa4a0e32ef2ee",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Current deployment policy requires explicit workflow_dispatch, approved manifest/artifact/target, read-only smoke and bounded relay; no deployment is selected or dispatched.",
+      "observed_at": "2026-10-03; continuation of pinned issue #1101 audit",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/release/DEPLOYMENT_WORKFLOW_POLICY.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::AUDIT::METHOD"
+      ],
+      "remaining": "Actual target manifest, deployment and smoke evidence remain unqualified."
+    },
+    {
+      "id": "CORE_DEPLOY_INPUT",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/release/DEPLOYMENT_INPUT_CONTRACT.md",
+      "blob_sha": "6b8b06704031354afdd5316c49ed11215e673f19",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Canonical fail-closed deployment dispatch inputs and preflight; rejects mutable latest artifact selectors and binds rbpi-djconnect target.",
+      "observed_at": "2026-10-03; continuation of pinned issue #1101 audit",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/release/DEPLOYMENT_INPUT_CONTRACT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::AUDIT::METHOD"
+      ],
+      "remaining": "No approved operational manifest, preflight or installed-target receipt is inferred."
+    },
+    {
+      "id": "CORE_POST_DEPLOY_SMOKE_POLICY",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/release/POST_DEPLOYMENT_SMOKE_TEST_POLICY.md",
+      "blob_sha": "23f3743c3b4f2cbccb3269be157af6ac15eb0217",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Bounded post-deployment read-only smoke contract, distinct from functional Verification and CI; required target ambiguity fails closed.",
+      "observed_at": "2026-10-03; continuation of pinned issue #1101 audit",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/release/POST_DEPLOYMENT_SMOKE_TEST_POLICY.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::AUDIT::METHOD"
+      ],
+      "remaining": "No live smoke or deployment operational outcome is inferred."
+    },
+    {
+      "id": "CORE_33_EXEC_MATRIX_HIST",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/release/PLATFORM_3_3_EXECUTION_WORKFLOW_MATRIX.md",
+      "blob_sha": "9814a90097f34c5136cfbaed7ec3234698c63272",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Explicitly historical execution matrix; corrected by already pinned current deployment-consumer inventory. Its prior all-repository workflow claim is non-authoritative.",
+      "observed_at": "2026-10-03; continuation of pinned issue #1101 audit",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/release/PLATFORM_3_3_EXECUTION_WORKFLOW_MATRIX.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::AUDIT::METHOD"
+      ],
+      "remaining": "Current exact workflow effects and target qualification remain separately audited."
+    },
+    {
+      "id": "CORE_HACS_331_RELEASE_HIST",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/release/HACS_3_3_1_RELEASE.md",
+      "blob_sha": "5e46bc267b26af33f82afb0a3afbad98b28f6313",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Historical prepared-for-review plan; GitHub v3.3.1 non-prerelease was later published 2026-07-19 at 1e9a7dda. The document does not prove current installed Pi5/HACS cache state or authorize a new release.",
+      "observed_at": "2026-10-03; continuation of pinned issue #1101 audit",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/release/HACS_3_3_1_RELEASE.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::EVOLUTION::HACS-PUBLIC"
+      ],
+      "remaining": "Current fresh candidate, consumer and authorization gates remain open."
     }
   ],
   "nodes": [
@@ -18737,7 +22383,8 @@
         "ENGINEERING_STATUS",
         "RELEASE_MANAGEMENT_SUMMARY",
         "LINK::DOCS-RELEASE-PLATFORM-RELEASE-ARCHITECTURE",
-        "LINK::DOCS-RELEASE-POST-DEPLOYMENT-SMOKE-EVIDENCE-SCHEMA"
+        "LINK::DOCS-RELEASE-POST-DEPLOYMENT-SMOKE-EVIDENCE-SCHEMA",
+        "CORE_HACS_331_RELEASE_HIST"
       ],
       "canonical_authority": "EVOLUTION",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -20073,7 +23720,16 @@
         "APPLE_DOC__CANONICAL_REFERENCES_MD",
         "APPLE_DOC__DOCS_GOVERNANCE_DEFINITION_OF_DONE_MD",
         "WINDOWS_SOURCE__CANONICAL_REFERENCES_MD",
-        "WEBSITE_SOURCE__CANONICAL_REFERENCES_MD"
+        "WEBSITE_SOURCE__CANONICAL_REFERENCES_MD",
+        "CORE_PROMPT_HISTORY_README",
+        "CORE_RELEASE_INDEX",
+        "CORE_VERIFY_RELEASE_BOUNDARY",
+        "CORE_ARTIFACT_EVIDENCE_POLICY",
+        "CORE_CI_QUAL_POLICY",
+        "CORE_DEPLOY_POLICY",
+        "CORE_DEPLOY_INPUT",
+        "CORE_POST_DEPLOY_SMOKE_POLICY",
+        "CORE_33_EXEC_MATRIX_HIST"
       ],
       "canonical_authority": "ROADMAP_INDEX",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -26706,7 +30362,7 @@
       "id": "AUDIT-DJC-CORE",
       "status": "OPEN",
       "scope": "DJC-CORE",
-      "reason": "Pinned foundation, roadmap, horizon, legal, voice, verification, full Meta Engineering reading order, local environment and historical EP/Software Assurance sources are read. Nine EP history links remain triaged; workflow effects, remaining consumer evidence and final delta still need qualification. Ten additional exact-pinned core policy/navigation sources are read, including owner authorization and Finalization; generated lifecycle and physical/consumer evidence still need qualification. Five linked architecture/assurance/Trusted Delivery records are also pinned; the 2026-07-13 target matrix is historical, not current settings evidence. Five additional canonical/navigational product texts and sixteen dated Phase 6 technical/target-architecture texts are pinned. Their current-state claims are bounded by the 2026-07-10 archaeology phase; the standalone Device Installer is planned target architecture, not an existing thirteenth lane or product pickup. All 19 core ADR Markdown sources are now pinned (17 in this delta), with ADR-0024/0025 incident supersession and ADR-0026 terminal clean-slate context kept historical under #1098."
+      "reason": "Pinned foundation, roadmap, horizon, legal, voice, verification, full Meta Engineering reading order, local environment and historical EP/Software Assurance sources are read. Nine EP history links remain triaged; workflow effects, remaining consumer evidence and final delta still need qualification. Ten additional exact-pinned core policy/navigation sources are read, including owner authorization and Finalization; generated lifecycle and physical/consumer evidence still need qualification. Five linked architecture/assurance/Trusted Delivery records are also pinned; the 2026-07-13 target matrix is historical, not current settings evidence. Five additional canonical/navigational product texts and sixteen dated Phase 6 technical/target-architecture texts are pinned. Their current-state claims are bounded by the 2026-07-10 archaeology phase; the standalone Device Installer is planned target architecture, not an existing thirteenth lane or product pickup. All 19 core ADR Markdown sources are now pinned (17 in this delta), with ADR-0024/0025 incident supersession and ADR-0026 terminal clean-slate context kept historical under #1098. Ten additional exact-pinned release-policy/navigation/historical records are read, including exact-main evidence-prerelease policy, dispatch-only deployment/smoke boundaries and the prompt-history non-authority rule. The 3.3.1 prepared-for-review release note is historical against the published v3.3.1 tag; no installed consumer is inferred. 293 dated core prompt paths are classified by path only, leaving 317 core Markdown paths unclassified."
     },
     {
       "id": "AUDIT-DJC-APPLE",
@@ -26816,7 +30472,7 @@
       "status": "OPEN",
       "scope": "platform",
       "reason": "Current matrix covers only explicitly read source inventory; certify complete disposition only after all relevant discoveries are audited.",
-      "remaining": "All 671 included pinned source rows have exact path/blob provenance and bounded read descriptions. Exact pinned trees contain 1,739 tracked Markdown paths, 569 individually represented in the matrix and 1,170 needing relevance/classification disposition; these are path counts, not a claim that the remaining paths are normative. Pi 33/33, API 28/28 and ESP32 28/28 Markdown paths are represented; runtime, further workflow/test coverage and physical/source-to-release consumers remain separately open. Core product, technical and all 19 ADR Markdown references are now represented; remaining core, Apple/Windows release-note/history and website release-note path categories still require explicit disposition. The 41 pinned Apple/website release-copy files do not prove publication, live site or installed consumers. Nine historical core EP relative-link targets remain triaged outside the matrix. Complete repository-wide source/consumer discovery and status qualification before certification."
+      "remaining": "All 681 included pinned source rows have exact path/blob provenance and bounded read descriptions. Exact pinned trees contain 1,739 tracked Markdown paths: 579 individually represented/full-read, 843 exact path/blob entries classified only as dated prompt history or older versioned release copy, and 317 still unclassified for relevance/full reading. The 843 classified contents were not read and can be reopened when a current authority points to one. Apple 47/173, Windows 41/117 and website 64/412 Markdown have all other paths in explicit historical categories; Pi 33/33, API 28/28 and ESP32 28/28 are individually represented. Core is 270/880, with 293 dated prompts classified by path and 317 unclassified. Runtime, workflow/test and physical/source-to-release consumer coverage remain separately open. Nine historical core EP relative-link targets remain triaged outside the matrix. Complete current-source/consumer discovery and status qualification before certification."
     },
     {
       "id": "REGISTER-DELIVERY",
