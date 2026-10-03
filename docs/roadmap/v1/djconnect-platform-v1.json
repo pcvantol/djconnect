@@ -12,7 +12,7 @@
   },
   "completeness": {
     "full_platform_audit": false,
-    "all_sources_read": false,
+    "all_sources_read": true,
     "all_owning_registers_delivered": true,
     "canonical_writes": false,
     "independent_review": false,
@@ -753,17 +753,17 @@
       "path": "REPOSITORY_STATUS.md",
       "blob_sha": "163513a49b5ce4577a2e0d8c8fd4a11797a9423f",
       "commit_sha": "60d5ee2e034323515092cd4100b1683f588e59fc",
-      "read_boundary": "1-180 baseline; PR1100 delta separately read",
-      "read_complete": false,
-      "status_authority": "rolling finalization record, historic entries are not current local admission",
+      "read_boundary": "1-2100 at exact pinned baseline blob; PR #1100 delta separately read on current core main",
+      "read_complete": true,
+      "status_authority": "Rolling finalization record; historical entries and predecessor ready claims do not establish this assignment’s current admission. Five-item Horizon cross-checked against newer current main.",
       "observed_at": "2026-10-03; within this connector audit; per-call clock not captured",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect/blob/60d5ee2e034323515092cd4100b1683f588e59fc/REPOSITORY_STATUS.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
         "PROJ::AUDIT::METHOD"
       ],
-      "remaining": "Follow remaining ranges and owning references; full platform coverage not claimed"
+      "remaining": "No unread ranges in this source; broader repository frontier tracked separately"
     },
     {
       "id": "GOLDEN_CI",
@@ -1595,13 +1595,13 @@
       "path": "MANAGEMENT_SUMMARY.md",
       "blob_sha": "e6baef1487ee2319f7a58cc7d92b75190fc68693",
       "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
-      "read_boundary": "planning-relevant sections/headings; remaining full-text audit open",
-      "read_complete": false,
-      "status_authority": "rolling status and horizon; current 1500-1528",
+      "read_boundary": "1-1946; exact pinned local blob; rolling historical and current sections read",
+      "read_complete": true,
+      "status_authority": "Rolling status and five-item Execution Horizon; older entries retained as historical evidence.",
       "observed_at": "2026-10-03 local Mac / exact pinned main",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/MANAGEMENT_SUMMARY.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
         "PROJ::AUDIT::METHOD",
         "PROJ::EVOLUTION::APPLE-PUBLIC",
@@ -1614,7 +1614,7 @@
         "OBS::CORE::HACS-CACHE-INDEX",
         "OBS::CORE::HACS-UPDATE-PRESENTATION"
       ],
-      "remaining": "Confirm unread ranges before final closure"
+      "remaining": "No unread ranges in this source; broader repository frontier tracked separately"
     },
     {
       "id": "PROMPT_INDEX",
@@ -1622,17 +1622,17 @@
       "path": "PROMPT_INDEX.md",
       "blob_sha": "66e36a8f13cb1a28ca9cfac860b1e5d91e2fe20c",
       "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
-      "read_boundary": "planning-relevant sections/headings; remaining full-text audit open",
-      "read_complete": false,
-      "status_authority": "platform prompt index and horizon",
+      "read_boundary": "1-2199; exact pinned main blob read",
+      "read_complete": true,
+      "status_authority": "Prompt navigation and five-item Horizon corroboration only; older prompt/finalization sections contain superseded current-state and release text. Product selection remains with owning roadmap/backlogs.",
       "observed_at": "2026-10-03 local Mac / exact pinned main",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/PROMPT_INDEX.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
         "PROJ::AUDIT::METHOD"
       ],
-      "remaining": "Confirm unread ranges before final closure"
+      "remaining": "No unread ranges in this source; broader repository frontier tracked separately"
     },
     {
       "id": "ENGINEERING_METHOD",
@@ -2982,17 +2982,17 @@
       "path": "SYNC_PROMPTS.md",
       "blob_sha": "3a703487168f127431307384453ad565b787f45a",
       "commit_sha": "60d5ee2e034323515092cd4100b1683f588e59fc",
-      "read_boundary": "direct current canonical reference and exact blob pin captured; detailed source audit pending",
-      "read_complete": false,
-      "status_authority": "coordination index; not product authority",
+      "read_boundary": "1-2965 at exact pinned baseline blob; later detailed 3.2.x templates treated as historical",
+      "read_complete": true,
+      "status_authority": "Cross-repository contract handoff index; current protocol and ownership hints are checked against newer foundation and lane sources. Its 3.2.x templates, duplicate/contradictory Apple local-API guidance, release-cleanup instructions and older pairing recovery text do not authorize current work.",
       "observed_at": "2026-10-03 local Mac / exact pinned baseline",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect/blob/60d5ee2e034323515092cd4100b1683f588e59fc/SYNC_PROMPTS.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
         "PROJ::AUDIT::METHOD"
       ],
-      "remaining": "Read relevant status/evidence and follow ownership boundary before closure"
+      "remaining": "No unread ranges in this source; broader repository frontier tracked separately"
     },
     {
       "id": "CORE_TODO",
@@ -4343,17 +4343,17 @@
       "path": "HANDOFF.md",
       "blob_sha": "1497811a6fac6d643eabc7fd379b2214f49440c8",
       "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
-      "read_boundary": "Current State 1-85 and older release 348-381; remaining full-text audit open",
-      "read_complete": false,
-      "status_authority": "Current State names released 3.3.1; older Current Release Notes section still says 3.2.50. Sections sampled, full historical handoff not audited.",
+      "read_boundary": "1-561; exact pinned main blob read",
+      "read_complete": true,
+      "status_authority": "Current State names released 3.3.1; later 3.2.50 release/task text is stale historical handoff, not current status.",
       "observed_at": "2026-10-03 local Mac / exact pinned main",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/HANDOFF.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
         "INV::DJC-CORE"
       ],
-      "remaining": "Confirm unread historical ranges before full source closure"
+      "remaining": "No unread ranges in this source; broader repository frontier tracked separately"
     },
     {
       "id": "CHANGELOG::DJC-CORE",
@@ -4361,17 +4361,17 @@
       "path": "CHANGELOG.md",
       "blob_sha": "6c2555e753ba9383b82391ce58467f0a410b6936",
       "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
-      "read_boundary": "Top release sections 1-34; historical entries not fully audited",
-      "read_complete": false,
-      "status_authority": "Top release sections distinguish 4.0.0-rc.1 candidate and 3.3.1 release; historical changelog not fully audited.",
+      "read_boundary": "1-1332; exact pinned main blob read",
+      "read_complete": true,
+      "status_authority": "Top release sections distinguish 4.0.0-rc.1 source candidate and public 3.3.1 release; earlier entries are historical.",
       "observed_at": "2026-10-03 local Mac / exact pinned main",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/CHANGELOG.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
         "INV::DJC-CORE"
       ],
-      "remaining": "Confirm unread historical ranges before full source closure"
+      "remaining": "No unread ranges in this source; broader repository frontier tracked separately"
     },
     {
       "id": "ISSUES::DJC-CORE",
@@ -4397,17 +4397,17 @@
       "path": "TECHNICAL_DESIGN_DECISIONS.md",
       "blob_sha": "cd0c345d8e30462f4ea6969a251f18deb00d4b95",
       "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
-      "read_boundary": "1-38 and 945-993; remaining code-level design and dependency inventory audit open",
-      "read_complete": false,
-      "status_authority": "Code-level design record; its current-implementation sentence still targets 3.2.x at the pinned head and is stale against the documented 3.3.1 release and 4.0.0-rc.1 source candidate.",
+      "read_boundary": "1-1047; exact pinned main blob read",
+      "read_complete": true,
+      "status_authority": "Code-level design record; 3.2.x current-target sentence is stale against 3.3.1 release and 4.0.0-rc.1 source candidate. Detailed design is historical context subject to newer foundation.",
       "observed_at": "2026-10-03 local Mac / exact pinned main",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/TECHNICAL_DESIGN_DECISIONS.md",
-      "disposition": "MAPPED_PARTIAL",
+      "disposition": "MAPPED",
       "mapped_node_ids": [
         "INV::DJC-CORE"
       ],
-      "remaining": "Read remaining exact pinned ranges before full source closure"
+      "remaining": "No unread ranges in this source; broader repository frontier tracked separately"
     },
     {
       "id": "SECURITY::DJC-CORE",
@@ -16849,7 +16849,7 @@
     {
       "id": "NORMATIVE-SOURCE-LINK-GAPS",
       "status": "LINK_FRONTIER_TRIAGED; BROADER_SOURCE_AUDIT_OPEN",
-      "description": "Independent reviews exposed missing linked Runtime/Presentation and verification authorities. Twenty-six directly relevant linked sources plus nine core repository/status files were added and pinned to existing nodes beyond the previous 170; six of the nine core files were fully read, while HANDOFF, CHANGELOG and TECHNICAL_DESIGN_DECISIONS historical/detail ranges remain partial. The reproducible pinned-blob Markdown-link scan now finds 32 remaining existing relative .md targets; each has an explicit navigation, historical, non-selection or audit-open disposition. Broader repository source audit remains open, and link existence alone creates no dependency or product selection.",
+      "description": "Independent reviews exposed missing linked Runtime/Presentation and verification authorities. Twenty-six directly relevant linked sources plus nine core repository/status files were added and pinned to existing nodes beyond the previous 170; all nine added core repository/status files were fully read. The reproducible pinned-blob Markdown-link scan now finds 32 remaining existing relative .md targets; each has an explicit navigation, historical, non-selection or audit-open disposition. Broader repository source audit remains open, and link existence alone creates no dependency or product selection.",
       "source_ids": [
         "FOUNDATION_INDEX",
         "SESSION_RUNTIME_CONTRACTS",

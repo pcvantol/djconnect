@@ -84,6 +84,7 @@ class SnapshotTests(unittest.TestCase):
 
     def test_partial_sources_cannot_be_declared_all_read(self):
         self.p["completeness"]["all_sources_read"] = True
+        self.p["sources"][0]["read_complete"] = False
         self.assertIn("source-read claim has partial sources", self.errors())
 
     def test_unpinned_reference_scan_cannot_contain_pinned_source(self):
