@@ -31,7 +31,7 @@ DoR for a future product pickup: selected owning scope, exact phase-specific pro
 
 DoD for a future authorized vertical assignment: contract and user-facing acceptance, applicable five-language UX, tests, independent review, required CI, fixes, protected merge, exact-main readback and owning Finalization; any release/install acceptance requires separate explicit release scope.
 
-Workflow effect audit: Branch/PR validation is safe for planning review; a successful main validation unconditionally creates two GitHub prereleases. Protected merge is blocked by this assignment no-release scope; no workflow or service change authorized.. Shared signer, HA lab and devices are not reserved by this plan. A delegated publication requires both source and receiving distribution writer coordination.
+Workflow effect audit: Branch/PR validation is safe for planning review. Successful main validation starts two publication-capable workflows targeting the same internal-ha-<SHA> prerelease tag; after their own gates either may create that release and each may upload an asset. Docs-only merge does not suppress the triggers. The possible unauthorized release effect blocks protected merge under this assignment; no workflow or service change authorized. Shared signer, HA lab and devices are not reserved by this plan. A delegated publication requires both source and receiving distribution writer coordination.
 
 ## Copyable continuation prompt
 
@@ -40,7 +40,7 @@ Continue assignment DJC-PLATFORM-ROADMAP-DAG-LANES-V1-20261003 in pcvantol/djcon
 Read https://github.com/pcvantol/djconnect/issues/1101 and https://github.com/pcvantol/djconnect/issues/1101; keep the current WIP/assignment intact: PLANNING_WRITER_ACTIVE; LANE_5 terminal WORKSPACE_READY; local main clean before branch.
 Use the existing owning backlog, exact source pins and local bootstrap. Planning outcome: Reconcileer E2E-selectie en VibeCast-selectie met de bestaande productbacklog. Rond onder deze planningsassignment de centrale graaf en beschermde documentaire oplevering af; geen nieuw productwerk.
 Selected owning node IDs (no new pickup): SLICE::CORE::AMBIENT-RENDERER.
-Local test-policy audit: NOT_FULLY_AUDITED. Workflow effects: Branch/PR validation is safe for planning review; a successful main validation unconditionally creates two GitHub prereleases. Protected merge is blocked by this assignment no-release scope; no workflow or service change authorized..
+Local test-policy audit: NOT_FULLY_AUDITED. Workflow effects: Branch/PR validation is safe for planning review. Successful main validation starts two publication-capable workflows targeting the same internal-ha-<SHA> prerelease tag; after their own gates either may create that release and each may upload an asset. Docs-only merge does not suppress the triggers. The possible unauthorized release effect blocks protected merge under this assignment; no workflow or service change authorized.
 This is documentary planning only. Do not infer product selection, writer availability, resource capacity or release authority.
 For any later selected vertical work, first prove DoR, then include UX, tests, review, fixes, protected merge and finalization in the same assignment.
 Coordinate these exact handoff IDs and acceptance owners through the owning registers:

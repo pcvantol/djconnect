@@ -41,7 +41,7 @@
     "metadata_and_bounded_paraphrases": true,
     "offline_hash_verification_of_remote_blobs": false,
     "per_call_timestamps": "Date-level head readback on 2026-10-03; no per-file read timestamp for inherited checkpoint.",
-    "pinned_tree_blobs_verified": "354 of 354 path/blob pins matched exact commit trees or GitHub Contents commit readbacks: 105 original GitHub tree readbacks, 135 local git commit-tree readbacks and 114 new GitHub Contents readbacks on 2026-10-03. Narrative interpretation remains partial.",
+    "pinned_tree_blobs_verified": "355 of 355 path/blob pins matched exact commit trees or GitHub Contents commit readbacks: 105 original GitHub tree readbacks, 136 local git commit-tree readbacks and 114 new GitHub Contents readbacks on 2026-10-03. Narrative interpretation remains partial.",
     "reference_scan": {
       "method": "Every pinned core Markdown blob and every pinned Markdown blob in the eleven DJC component repositories, at its recorded commit: parse relative Markdown links, strip anchors, normalize against source directory, retain existing .md targets absent from the pinned source matrix; distinct repository/path keys. The seven pinned external Forge method documents are outside this lane-source link frontier.",
       "unmapped_paths": [
@@ -186,7 +186,7 @@
       "proposed_documentary_next_step": "Reconcileer E2E-selectie en VibeCast-selectie met de bestaande productbacklog. Rond onder deze planningsassignment de centrale graaf en beschermde documentaire oplevering af; geen nieuw productwerk.",
       "local_backlog_audit": "Relevant local backlog/status entries read; complete audit pending",
       "local_test_policy": "NOT_FULLY_AUDITED",
-      "release_effect_audit": "Branch/PR validation is safe for planning review; a successful main validation unconditionally creates two GitHub prereleases. Protected merge is blocked by this assignment no-release scope; no workflow or service change authorized."
+      "release_effect_audit": "Branch/PR validation is safe for planning review. Successful main validation starts two publication-capable workflows targeting the same internal-ha-<SHA> prerelease tag; after their own gates either may create that release and each may upload an asset. Docs-only merge does not suppress the triggers. The possible unauthorized release effect blocks protected merge under this assignment; no workflow or service change authorized"
     },
     {
       "id": "DJC-APPLE",
@@ -881,7 +881,7 @@
       "commit_sha": "60d5ee2e034323515092cd4100b1683f588e59fc",
       "read_boundary": "full pinned file reviewed on 2026-10-03; repository-wide status and release audit remain separate obligations",
       "read_complete": true,
-      "status_authority": "automatic post-main evidence writes; full push-effect audit open",
+      "status_authority": "Main-success-triggered evidence workflow with contents:write and a later publication step on the shared internal-ha-<SHA> tag; exact evidence gates apply",
       "observed_at": "2026-10-03; within this connector audit; per-call clock not captured",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect/blob/60d5ee2e034323515092cd4100b1683f588e59fc/.github/workflows/post-merge-release-evidence-dispatch.yml",
@@ -2578,7 +2578,7 @@
       "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
       "read_boundary": "complete current workflow read",
       "read_complete": true,
-      "status_authority": "automatic internal HA prerelease artifact on successful main validation",
+      "status_authority": "Main-success-triggered internal HA artifact workflow with a prerelease publication step on the shared internal-ha-<SHA> tag; later job success is not guaranteed",
       "observed_at": "2026-10-03; continuation of pinned issue #1101 audit",
       "identity_binding": "PINNED_COMMIT_READ",
       "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/.github/workflows/home-assistant-release-artifact.yml",
@@ -7212,6 +7212,24 @@
         "INV::DJC-CORE"
       ],
       "remaining": "No unread ranges in this source; broader repository audit tracked separately"
+    },
+    {
+      "id": "CORE_POST_MERGE_REUSABLE",
+      "repository": "pcvantol/djconnect",
+      "path": ".github/workflows/post-merge-release-evidence.yml",
+      "blob_sha": "587bc9018ab9f6e8a4b191e3e1acba32423f25a1",
+      "commit_sha": "ebbb35f038a7a3c7d46c12660968bcd50eb67580",
+      "read_boundary": "full immutable reusable workflow content reviewed on 2026-10-03 for main-triggered evidence and shared release-tag effects",
+      "read_complete": true,
+      "status_authority": "Pinned reusable workflow validates evidence before possible publication and targets the same internal-ha-<SHA> prerelease tag as the internal HA artifact workflow",
+      "observed_at": "2026-10-03 exact pinned local Git commit-tree readback",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/ebbb35f038a7a3c7d46c12660968bcd50eb67580/.github/workflows/post-merge-release-evidence.yml",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-CORE"
+      ],
+      "remaining": "No unread ranges in this source; execution outcome and broader workflow audit remain separate"
     }
   ],
   "nodes": [
@@ -7252,7 +7270,8 @@
         "CORE_ARCH_CLOSURE_REVIEW",
         "CORE_ARCH_DECISION",
         "CORE_SA_IMPLEMENTATION",
-        "CORE_TD_TARGET_MATRIX"
+        "CORE_TD_TARGET_MATRIX",
+        "CORE_POST_MERGE_REUSABLE"
       ],
       "canonical_authority": "LOCAL_EXTENSION",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -19995,10 +20014,11 @@
     {
       "id": "CORE-MAIN-ARTIFACT",
       "status": "PROTECTED_MERGE_BLOCKED_BY_NO_RELEASE_SCOPE",
-      "description": "Successful core main validation unconditionally creates two GitHub prerelease objects: the internal HA artifact and durable qualification evidence. The current assignment prohibits releases and service/workflow changes. Branch/PR checks are safe from these main-only triggers; protected merge requires a separately authorized safe route or owner resolution.",
+      "description": "Successful core main validation automatically starts two publication-capable workflow_run paths: the internal HA artifact workflow and the pinned reusable durable qualification evidence workflow. Both target the same internal-ha-<SHA> GitHub prerelease tag; after their own gates either may create the release and each may upload an asset. A prior failure can prevent publication. A docs-only merge does not suppress these triggers. The current assignment prohibits releases and service/workflow changes. Branch/PR checks are safe from these main-only triggers; protected merge requires a separately authorized safe route or owner resolution.",
       "source_ids": [
         "CORE-INTERNAL-ARTIFACT",
-        "POST_MERGE"
+        "POST_MERGE",
+        "CORE_POST_MERGE_REUSABLE"
       ]
     },
     {
@@ -20477,7 +20497,7 @@
       "status": "OPEN",
       "scope": "platform",
       "reason": "Current matrix covers only explicitly read source inventory; certify complete disposition only after all relevant discoveries are audited.",
-      "remaining": "All 354 included pinned source rows are fully read and linked. Exact pinned trees contain 1,739 tracked Markdown paths, 332 individually represented in the matrix and 1,407 needing relevance/classification disposition; these are path counts, not a claim that all 1,407 are normative. Six historical core EP relative-link targets remain triaged outside the matrix. Complete repository-wide source/consumer discovery and status qualification before certification."
+      "remaining": "All 355 included pinned source rows are fully read and linked. Exact pinned trees contain 1,739 tracked Markdown paths, 332 individually represented in the matrix and 1,407 needing relevance/classification disposition; these are path counts, not a claim that all 1,407 are normative. Six historical core EP relative-link targets remain triaged outside the matrix. Complete repository-wide source/consumer discovery and status qualification before certification."
     },
     {
       "id": "REGISTER-DELIVERY",
@@ -20522,7 +20542,7 @@
       "id": "PROTECTED-DELIVERY",
       "status": "OPEN",
       "scope": "platform",
-      "reason": "Draft planning PR #1102 exists and has triggered branch/PR checks; protected main merge and dedicated DJConnect Finalization remain open. Successful main validation automatically creates prereleases, conflicting with this assignment no-release boundary."
+      "reason": "Draft planning PR #1102 exists and has triggered branch/PR checks; protected main merge and dedicated DJConnect Finalization remain open. Successful main validation starts two publication-capable workflows targeting the same internal-ha-<SHA> prerelease tag; they may create/append release assets after their own gates, conflicting with this assignment no-release boundary."
     },
     {
       "id": "FRESHNESS-ALL",
@@ -20535,7 +20555,7 @@
       "id": "CORE-AUTO-RELEASE-DECISION",
       "status": "OPEN",
       "scope": "DJC-CORE",
-      "reason": "Core main validation unconditionally creates two GitHub prerelease objects after docs-only merge. This conflicts with the assignment no-release boundary; do not merge or alter service workflows without an existing safe route or explicit owner resolution."
+      "reason": "Core main validation starts two publication-capable workflows after docs-only merge. Both target the same internal-ha-<SHA> prerelease tag and can create the release or add an asset after their own gates; publication is not guaranteed on every run. This possible effect conflicts with the assignment no-release boundary; do not merge or alter service workflows without an existing safe route or explicit owner resolution."
     },
     {
       "id": "FINALIZATION",
