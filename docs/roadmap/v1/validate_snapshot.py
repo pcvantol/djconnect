@@ -176,11 +176,18 @@ def validate(plan: Any, require_complete: bool = False) -> list[str]:
     scan = plan.get("source_capture", {}).get("reference_scan", {})
     if scan:
         paths = scan.get("unmapped_paths")
+        pinned_refs = {
+            f"{s.get('repository')}::{s.get('path')}" for s in plan["sources"]
+        } | {
+            s.get("path")
+            for s in plan["sources"]
+            if s.get("repository") == "pcvantol/djconnect"
+        }
         check(
             isinstance(paths, list)
             and all(isinstance(x, str) and x.endswith(".md") for x in paths)
             and len(paths) == len(set(paths))
-            and not ({s.get("path") for s in plan["sources"]} & set(paths)),
+            and not (pinned_refs & set(paths)),
             "reference scan has invalid, duplicate or already pinned paths",
         )
         check(bool(scan.get("method")) and bool(scan.get("disposition")), "reference scan provenance missing")

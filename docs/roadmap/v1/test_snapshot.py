@@ -91,6 +91,12 @@ class SnapshotTests(unittest.TestCase):
         self.p["source_capture"]["reference_scan"]["unmapped_paths"].append("PRODUCT_ROADMAP.md")
         self.assertIn("reference scan has invalid, duplicate or already pinned paths", self.errors())
 
+    def test_component_reference_scan_cannot_contain_pinned_source(self):
+        self.p["source_capture"]["reference_scan"]["unmapped_paths"].append(
+            "pcvantol/djconnect-pi::README.md"
+        )
+        self.assertIn("reference scan has invalid, duplicate or already pinned paths", self.errors())
+
     def test_unpinned_reference_scan_requires_path_dispositions(self):
         self.p["source_capture"]["reference_scan"]["triage"].pop("CANONICAL_REFERENCES.md")
         self.assertIn("reference scan needs one disposition for every unpinned path", self.errors())
@@ -307,6 +313,12 @@ class SnapshotTests(unittest.TestCase):
 
     def test_missing_predecessor_evidence(self):
         self.p["edges"][0]["evidence_satisfied"] = True
+        self.assertIn("unsupported predecessor evidence", self.errors())
+
+    def test_historical_unsigned_asset_does_not_qualify_current_website_release(self):
+        edge = next(e for e in self.p["edges"] if e["id"] == "DEP-APPLE-WEBSITE")
+        edge["evidence_ids"] = ["APPLE_IOS_330_ASSET"]
+        edge["evidence_satisfied"] = True
         self.assertIn("unsupported predecessor evidence", self.errors())
 
     def test_hard_cycle(self):

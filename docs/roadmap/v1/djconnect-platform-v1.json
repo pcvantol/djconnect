@@ -41,9 +41,9 @@
     "metadata_and_bounded_paraphrases": true,
     "offline_hash_verification_of_remote_blobs": false,
     "per_call_timestamps": "Date-level head readback on 2026-10-03; no per-file read timestamp for inherited checkpoint.",
-    "pinned_tree_blobs_verified": "205 of 205 path/blob pins matched exact commit trees: 105 original GitHub tree readbacks and 100 local git commit-tree readbacks on 2026-10-03. Narrative interpretation remains partial.",
+    "pinned_tree_blobs_verified": "215 of 215 path/blob pins matched exact commit trees: 105 original GitHub tree readbacks and 110 local git commit-tree readbacks on 2026-10-03. Narrative interpretation remains partial.",
     "reference_scan": {
-      "method": "Every pinned core source blob at its recorded commit: parse Markdown ](relative-link) targets, strip anchors, normalize against source directory, retain existing .md paths in that same commit absent from the pinned source matrix; distinct paths only.",
+      "method": "Every pinned core Markdown blob and every pinned Markdown blob in the eleven DJC component repositories, at its recorded commit: parse relative Markdown links, strip anchors, normalize against source directory, retain existing .md targets absent from the pinned source matrix; distinct repository/path keys. The seven pinned external Forge method documents are outside this lane-source link frontier.",
       "unmapped_paths": [
         "BOOTSTRAP_CODEX_VERIFICATION.md",
         "CANONICAL_REFERENCES.md",
@@ -76,9 +76,37 @@
         "prompts/deferred/software_assurance/PROMPT_04_TRUSTED_DELIVERY_CERTIFICATION.md",
         "prompts/deferred/software_assurance/PROMPT_05_SINGLE_MAINTAINER_GOVERNANCE_ROLLOUT.md",
         "prompts/release/PROMPT_05_PLATFORM_RELEASE_CERTIFICATION.md",
-        "tools/verification/README.md"
+        "tools/verification/README.md",
+        "pcvantol/djconnect-app::CHANGELOG.md",
+        "pcvantol/djconnect-app::CODE_OF_CONDUCT.md",
+        "pcvantol/djconnect-app::DEVELOPMENT_ENVIRONMENT.md",
+        "pcvantol/djconnect-app::docs/API_CONTRACT.md",
+        "pcvantol/djconnect-app::docs/ARCHITECTURE_DECISIONS.md",
+        "pcvantol/djconnect-app::docs/DEVELOPMENT.md",
+        "pcvantol/djconnect-app::docs/HANDOFF.md",
+        "pcvantol/djconnect-app::docs/TECHNICAL_DESIGN_DECISIONS.md",
+        "pcvantol/djconnect-esp32::DESIGN_DECISIONS.md",
+        "pcvantol/djconnect-esp32::DEVELOPMENT_ENVIRONMENT.md",
+        "pcvantol/djconnect-pi::CHANGELOG.md",
+        "pcvantol/djconnect-pi::HANDOFF.md",
+        "pcvantol/djconnect-pi::TESTS.md",
+        "pcvantol/djconnect-pi::docs/BOOTSTRAP.md",
+        "pcvantol/djconnect-pico::DEVELOPMENT_ENVIRONMENT.md",
+        "pcvantol/djconnect-pico::docs/architecture/repository-responsibility.md",
+        "pcvantol/djconnect-windows::CODE_OF_CONDUCT.md",
+        "pcvantol/djconnect-windows::CONTRIBUTING.md",
+        "pcvantol/djconnect-windows::PRIVACY.md",
+        "pcvantol/djconnect-windows::SECURITY.md",
+        "pcvantol/djconnect-windows::docs/ARCHITECTURE_DECISIONS.md",
+        "pcvantol/djconnect-windows::docs/DEVELOPMENT.md",
+        "pcvantol/djconnect-windows::docs/HANDOFF.md",
+        "pcvantol/djconnect-windows::docs/LOCALIZATION.md",
+        "pcvantol/djconnect-windows::docs/NON_FUNCTIONAL_REQUIREMENTS.md",
+        "pcvantol/djconnect-windows::docs/RELEASE.md",
+        "pcvantol/djconnect-windows::docs/TECHNICAL_DESIGN_DECISIONS.md",
+        "pcvantol/djconnect-windows::docs/TRACK_INSIGHT_PLATFORM.md"
       ],
-      "disposition": "TRIAGED_REFERENCE_ONLY; 32 link targets have explicit exclusion or audit-open reasons and do not create product nodes or execution authority",
+      "disposition": "TRIAGED_REFERENCE_ONLY; 32 core and 28 component link targets have explicit non-selection, historical or audit-open dispositions. Link existence alone creates no dependency or execution authority.",
       "triage": {
         "BOOTSTRAP_CODEX_VERIFICATION.md": "Linked host-verification detail; canonical session bootstrap and actual macOS --verify receipt are pinned. Full linked detail audit remains open.",
         "CANONICAL_REFERENCES.md": "Navigation map, fully read; current owning foundation, Product Roadmap and Backlog are pinned directly. Its older roadmap pointer refers to PROMPT_INDEX.md; current records control planning.",
@@ -111,7 +139,35 @@
         "prompts/deferred/software_assurance/PROMPT_04_TRUSTED_DELIVERY_CERTIFICATION.md": "Deferred prompt with blocked historical prerequisite; not current five-item Execution Horizon or planning authority.",
         "prompts/deferred/software_assurance/PROMPT_05_SINGLE_MAINTAINER_GOVERNANCE_ROLLOUT.md": "Deferred governance rollout prompt; no branch-protection or workflow changes authorized in this assignment.",
         "prompts/release/PROMPT_05_PLATFORM_RELEASE_CERTIFICATION.md": "Separate release-certification prompt awaiting evidence and explicit authorization; no release work selected by this planning assignment.",
-        "tools/verification/README.md": "Linked verification tooling overview; selected architecture and qualification authorities are separately pinned. Full tooling-detail audit remains open."
+        "tools/verification/README.md": "Linked verification tooling overview; selected architecture and qualification authorities are separately pinned. Full tooling-detail audit remains open.",
+        "pcvantol/djconnect-app::CHANGELOG.md": "Current source chronology; full component release/status audit remains open.",
+        "pcvantol/djconnect-app::CODE_OF_CONDUCT.md": "Repository conduct policy; no product dependency or planning selection inferred.",
+        "pcvantol/djconnect-app::DEVELOPMENT_ENVIRONMENT.md": "Local development guide; component toolchain audit remains open.",
+        "pcvantol/djconnect-app::docs/API_CONTRACT.md": "Apple-facing backend/local contract detail; full phase-specific producer/consumer audit remains open.",
+        "pcvantol/djconnect-app::docs/ARCHITECTURE_DECISIONS.md": "Apple architecture decisions; historical versus current dispositions remain to be checked.",
+        "pcvantol/djconnect-app::docs/DEVELOPMENT.md": "Apple build/test policy; component qualification audit remains open.",
+        "pcvantol/djconnect-app::docs/HANDOFF.md": "Apple handoff/status chronology; current writer and consumer receipts remain to be checked.",
+        "pcvantol/djconnect-app::docs/TECHNICAL_DESIGN_DECISIONS.md": "Apple technical decisions; exact current contract bindings remain to be checked.",
+        "pcvantol/djconnect-esp32::DESIGN_DECISIONS.md": "Firmware design decisions; major/minor protocol and device capability detail remain to be checked.",
+        "pcvantol/djconnect-esp32::DEVELOPMENT_ENVIRONMENT.md": "Firmware local toolchain guide; no new build or flash is selected.",
+        "pcvantol/djconnect-pi::CHANGELOG.md": "Pi source chronology; 3.3.0 versus 4.0.0-rc.2 release status needs exact candidate joins.",
+        "pcvantol/djconnect-pi::HANDOFF.md": "Pi handoff and current installed-target evidence remain to be checked.",
+        "pcvantol/djconnect-pi::TESTS.md": "Pi test policy and hardware coverage remain to be checked.",
+        "pcvantol/djconnect-pi::docs/BOOTSTRAP.md": "Device setup guide; physical installation is outside this assignment, but acceptance evidence remains to be read.",
+        "pcvantol/djconnect-pico::DEVELOPMENT_ENVIRONMENT.md": "Experimental Pico development environment; no supported product or release selected.",
+        "pcvantol/djconnect-pico::docs/architecture/repository-responsibility.md": "Experimental repository ownership detail; exact boundary audit remains open.",
+        "pcvantol/djconnect-windows::CODE_OF_CONDUCT.md": "Repository conduct policy; no product dependency or planning selection inferred.",
+        "pcvantol/djconnect-windows::CONTRIBUTING.md": "Contributor workflow; no new writer slot or release authority inferred.",
+        "pcvantol/djconnect-windows::PRIVACY.md": "Windows privacy authority; profile/sharing acceptance audit remains open.",
+        "pcvantol/djconnect-windows::SECURITY.md": "Windows security policy; component safety audit remains open.",
+        "pcvantol/djconnect-windows::docs/ARCHITECTURE_DECISIONS.md": "Windows architecture decisions; current versus historical disposition remains open.",
+        "pcvantol/djconnect-windows::docs/DEVELOPMENT.md": "Windows build/test policy; component qualification audit remains open.",
+        "pcvantol/djconnect-windows::docs/HANDOFF.md": "Windows handoff/status; active local WIP and consumer receipts remain to be checked.",
+        "pcvantol/djconnect-windows::docs/LOCALIZATION.md": "Windows localization policy; five-language rendering acceptance remains to be checked.",
+        "pcvantol/djconnect-windows::docs/NON_FUNCTIONAL_REQUIREMENTS.md": "Windows nonfunctional acceptance, resource and performance constraints remain to be checked.",
+        "pcvantol/djconnect-windows::docs/RELEASE.md": "Windows release procedure; unsigned artifact route and authorization remain to be reconciled.",
+        "pcvantol/djconnect-windows::docs/TECHNICAL_DESIGN_DECISIONS.md": "Windows technical decisions; current backend contract joins remain open.",
+        "pcvantol/djconnect-windows::docs/TRACK_INSIGHT_PLATFORM.md": "Windows Track Insight capability/renderer detail; native versus HA authority must be checked."
       }
     }
   },
@@ -2478,7 +2534,8 @@
       "url": "https://github.com/pcvantol/djconnect-pi/blob/92712ae989f9ad44e2b935222a1e1053670a782f/.github/workflows/publish-release.yml",
       "disposition": "MAPPED",
       "mapped_node_ids": [
-        "SLICE::PI::PACKAGE-CANDIDATE"
+        "SLICE::PI::PACKAGE-CANDIDATE",
+        "SLICE::DIST-PI::PROFILE-ASSET"
       ],
       "remaining": "None for specified workflow branch; execution is separate."
     },
@@ -4426,6 +4483,205 @@
         "INV::DJC-CORE"
       ],
       "remaining": "No unread ranges in this source; repository-wide audit tracked separately"
+    },
+    {
+      "id": "WIN_PROFILE_ADOPTION",
+      "repository": "pcvantol/djconnect-windows",
+      "path": "WINDOWS_PROFILE_ADOPTION_REPORT.md",
+      "blob_sha": "93f0bb5cc415a0921214bdd14d1d3939fd242de5",
+      "commit_sha": "1d6635ff5c610a0f43bf1ba7d68cb0b1def06924",
+      "read_boundary": "complete at pinned blob",
+      "read_complete": true,
+      "status_authority": "Windows owning profile adoption report; planned gaps are not new selection",
+      "observed_at": "2026-10-03; local pinned-blob readback",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-windows/blob/1d6635ff5c610a0f43bf1ba7d68cb0b1def06924/WINDOWS_PROFILE_ADOPTION_REPORT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WINDOWS",
+        "DJC-WIN-LIVE"
+      ],
+      "remaining": "Repository-wide source/test/release audit remains open"
+    },
+    {
+      "id": "WIN_ARCH",
+      "repository": "pcvantol/djconnect-windows",
+      "path": "docs/ARCHITECTURE.md",
+      "blob_sha": "d23801282b7838669f9a2fc4454381c117fdbc8c",
+      "commit_sha": "1d6635ff5c610a0f43bf1ba7d68cb0b1def06924",
+      "read_boundary": "complete at pinned blob",
+      "read_complete": true,
+      "status_authority": "Windows component architecture and client boundary; version claims may be stale",
+      "observed_at": "2026-10-03; local pinned-blob readback",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-windows/blob/1d6635ff5c610a0f43bf1ba7d68cb0b1def06924/docs/ARCHITECTURE.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WINDOWS",
+        "SLICE::WINDOWS::PAIRING-ACCEPTANCE",
+        "SLICE::WINDOWS::BUNDLE-CANDIDATE",
+        "DJC-WIN-LIVE"
+      ],
+      "remaining": "Repository-wide source/test/release audit remains open"
+    },
+    {
+      "id": "WIN_API_MIRROR",
+      "repository": "pcvantol/djconnect-windows",
+      "path": "docs/API_CONTRACT.md",
+      "blob_sha": "104c1d174f85fe0f989d0d8cee62c9d0fd9328a5",
+      "commit_sha": "1d6635ff5c610a0f43bf1ba7d68cb0b1def06924",
+      "read_boundary": "complete at pinned blob",
+      "read_complete": true,
+      "status_authority": "Windows client-facing mirror; core API contract and source are authoritative",
+      "observed_at": "2026-10-03; local pinned-blob readback",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-windows/blob/1d6635ff5c610a0f43bf1ba7d68cb0b1def06924/docs/API_CONTRACT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-WINDOWS",
+        "SLICE::WINDOWS::PAIRING-ACCEPTANCE",
+        "DJC-WIN-LIVE"
+      ],
+      "remaining": "Repository-wide source/test/release audit remains open"
+    },
+    {
+      "id": "PI_ARCH",
+      "repository": "pcvantol/djconnect-pi",
+      "path": "docs/ARCHITECTURE.md",
+      "blob_sha": "2d8cca2e163e59aa49418db8c39e9b763ae935f4",
+      "commit_sha": "92712ae989f9ad44e2b935222a1e1053670a782f",
+      "read_boundary": "complete at pinned blob",
+      "read_complete": true,
+      "status_authority": "Pi component architecture; source code and exact device receipt control current runtime claims",
+      "observed_at": "2026-10-03; local pinned-blob readback",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-pi/blob/92712ae989f9ad44e2b935222a1e1053670a782f/docs/ARCHITECTURE.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-PI",
+        "SLICE::PI::PAIRING-ACCEPTANCE",
+        "SLICE::PI::PACKAGE-CANDIDATE",
+        "SLICE::PI::NATIVE-10INCH"
+      ],
+      "remaining": "Exact code/physical target acceptance and remaining component-source audit open"
+    },
+    {
+      "id": "PI_TECH_DESIGN",
+      "repository": "pcvantol/djconnect-pi",
+      "path": "docs/TECHNICAL_DESIGN_DECISIONS.md",
+      "blob_sha": "325fcce46b1cd42c087be124180fe23f79241535",
+      "commit_sha": "92712ae989f9ad44e2b935222a1e1053670a782f",
+      "read_boundary": "complete at pinned blob",
+      "read_complete": true,
+      "status_authority": "Pi code-design and dependency mirror; version/current implementation lines have drift",
+      "observed_at": "2026-10-03; local pinned-blob readback",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-pi/blob/92712ae989f9ad44e2b935222a1e1053670a782f/docs/TECHNICAL_DESIGN_DECISIONS.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-PI",
+        "SLICE::PI::PAIRING-ACCEPTANCE",
+        "DJC-PI-HARDWARE"
+      ],
+      "remaining": "Exact code/physical target acceptance and remaining component-source audit open"
+    },
+    {
+      "id": "PI_PERF_SECURITY",
+      "repository": "pcvantol/djconnect-pi",
+      "path": "docs/PERFORMANCE_SECURITY.md",
+      "blob_sha": "8bbb4e0d991b95d0e25658b5ef8ade9fc6690815",
+      "commit_sha": "92712ae989f9ad44e2b935222a1e1053670a782f",
+      "read_boundary": "complete at pinned blob",
+      "read_complete": true,
+      "status_authority": "First-pass Pi performance/security review; endpoint description is stale",
+      "observed_at": "2026-10-03; local pinned-blob readback",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-pi/blob/92712ae989f9ad44e2b935222a1e1053670a782f/docs/PERFORMANCE_SECURITY.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-PI",
+        "DJC-PI-HARDWARE"
+      ],
+      "remaining": "Exact code/physical target acceptance and remaining component-source audit open"
+    },
+    {
+      "id": "APPLE_ARCH",
+      "repository": "pcvantol/djconnect-app",
+      "path": "docs/ARCHITECTURE.md",
+      "blob_sha": "c5bb717135d54ca9f8551e5c2f19d30c93626caf",
+      "commit_sha": "d54224dbf02517ae47406aa14d33e97e61c18002",
+      "read_boundary": "complete at pinned blob",
+      "read_complete": true,
+      "status_authority": "Apple client trust, Profile and transport architecture; backend/core contract is authoritative",
+      "observed_at": "2026-10-03; local pinned-blob readback",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-app/blob/d54224dbf02517ae47406aa14d33e97e61c18002/docs/ARCHITECTURE.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-APPLE",
+        "SLICE::APPLE::PAIRING-ACCEPTANCE",
+        "SLICE::APPLE::OWNER-HANDOFF",
+        "QUAL::APPLE::WATCH-HOST"
+      ],
+      "remaining": "Full Apple API/development/handoff and physical consumer audit open"
+    },
+    {
+      "id": "APPLE_PRIVACY",
+      "repository": "pcvantol/djconnect-app",
+      "path": "PRIVACY.md",
+      "blob_sha": "85c6e9bcca7c2f4d46caec8df779d3d704e50e45",
+      "commit_sha": "d54224dbf02517ae47406aa14d33e97e61c18002",
+      "read_boundary": "complete at pinned blob",
+      "read_complete": true,
+      "status_authority": "Apple privacy/storage policy; stale-pairing handling differs from current core contract",
+      "observed_at": "2026-10-03; local pinned-blob readback",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-app/blob/d54224dbf02517ae47406aa14d33e97e61c18002/PRIVACY.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-APPLE",
+        "SLICE::APPLE::PAIRING-ACCEPTANCE"
+      ],
+      "remaining": "Full Apple API/development/handoff and physical consumer audit open"
+    },
+    {
+      "id": "APPLE_SECURITY",
+      "repository": "pcvantol/djconnect-app",
+      "path": "SECURITY.md",
+      "blob_sha": "c9a6181e88dced8fc5cde7087c782cbd06d2e52b",
+      "commit_sha": "d54224dbf02517ae47406aa14d33e97e61c18002",
+      "read_boundary": "complete at pinned blob",
+      "read_complete": true,
+      "status_authority": "Apple security disclosure and scope policy; not a release authorization",
+      "observed_at": "2026-10-03; local pinned-blob readback",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-app/blob/d54224dbf02517ae47406aa14d33e97e61c18002/SECURITY.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-APPLE"
+      ],
+      "remaining": "Full Apple API/development/handoff and physical consumer audit open"
+    },
+    {
+      "id": "APPLE_RELEASE_GUIDE",
+      "repository": "pcvantol/djconnect-app",
+      "path": "docs/RELEASE.md",
+      "blob_sha": "91b03813d957df30e01bc062ee67dd0081dd4e88",
+      "commit_sha": "d54224dbf02517ae47406aa14d33e97e61c18002",
+      "read_boundary": "complete at pinned blob",
+      "read_complete": true,
+      "status_authority": "Apple source release/live-validation guide; instructions are source evidence, not authorization to execute release",
+      "observed_at": "2026-10-03; local pinned-blob readback",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-app/blob/d54224dbf02517ae47406aa14d33e97e61c18002/docs/RELEASE.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-APPLE",
+        "SLICE::APPLE::BUNDLE-CANDIDATE",
+        "QUAL::APPLE::INTERNAL-CONSUMERS",
+        "QUAL::APPLE::SECURE-RELAY-INSTALL"
+      ],
+      "remaining": "Full Apple API/development/handoff and physical consumer audit open"
     }
   ],
   "nodes": [
@@ -4501,7 +4757,11 @@
         "ISSUES::DJC-APPLE",
         "TODO::DJC-APPLE",
         "LOCALIZATION_NARRATIVE",
-        "LOCALIZATION_VALIDATION_SPEC"
+        "LOCALIZATION_VALIDATION_SPEC",
+        "APPLE_ARCH",
+        "APPLE_PRIVACY",
+        "APPLE_SECURITY",
+        "APPLE_RELEASE_GUIDE"
       ],
       "canonical_authority": "README::DJC-APPLE",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -4603,7 +4863,10 @@
         "ISSUES::DJC-PI",
         "TODO::DJC-PI",
         "LOCALIZATION_NARRATIVE",
-        "LOCALIZATION_VALIDATION_SPEC"
+        "LOCALIZATION_VALIDATION_SPEC",
+        "PI_ARCH",
+        "PI_TECH_DESIGN",
+        "PI_PERF_SECURITY"
       ],
       "canonical_authority": "README::DJC-PI",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -4655,7 +4918,10 @@
         "ISSUES::DJC-WINDOWS",
         "TODO::DJC-WINDOWS",
         "LOCALIZATION_NARRATIVE",
-        "LOCALIZATION_VALIDATION_SPEC"
+        "LOCALIZATION_VALIDATION_SPEC",
+        "WIN_PROFILE_ADOPTION",
+        "WIN_ARCH",
+        "WIN_API_MIRROR"
       ],
       "canonical_authority": "README::DJC-WINDOWS",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -11099,7 +11365,9 @@
       "repository": "pcvantol/djconnect-app",
       "source_ids": [
         "README::DJC-APPLE",
-        "AGENTS::DJC-APPLE"
+        "AGENTS::DJC-APPLE",
+        "APPLE_ARCH",
+        "APPLE_PRIVACY"
       ],
       "canonical_authority": "README::DJC-APPLE",
       "owner_boundary": "Apple-clientfamilie; native presentatie en clientstaat, geen backendautoriteit",
@@ -11152,7 +11420,9 @@
       "repository": "pcvantol/djconnect-windows",
       "source_ids": [
         "README::DJC-WINDOWS",
-        "AGENTS::DJC-WINDOWS"
+        "AGENTS::DJC-WINDOWS",
+        "WIN_ARCH",
+        "WIN_API_MIRROR"
       ],
       "canonical_authority": "README::DJC-WINDOWS",
       "owner_boundary": "Windows/Mac Catalyst-clientbron; backendcontract-consumer",
@@ -11205,7 +11475,9 @@
       "repository": "pcvantol/djconnect-pi",
       "source_ids": [
         "README::DJC-PI",
-        "AGENTS::DJC-PI"
+        "AGENTS::DJC-PI",
+        "PI_ARCH",
+        "PI_TECH_DESIGN"
       ],
       "canonical_authority": "README::DJC-PI",
       "owner_boundary": "Native Qt Quick/QML touch-client en appliancebron",
@@ -11413,7 +11685,8 @@
       "repository": "pcvantol/djconnect-app",
       "source_ids": [
         "VIBECAST_INCREMENT",
-        "README::DJC-APPLE"
+        "README::DJC-APPLE",
+        "APPLE_ARCH"
       ],
       "canonical_authority": "VIBECAST_INCREMENT",
       "owner_boundary": "Apple-clientfamilie; native presentatie en clientstaat, geen backendautoriteit",
@@ -11918,7 +12191,8 @@
       "source_ids": [
         "README::DJC-PI",
         "ISSUES::DJC-PI",
-        "PI-PUBLISH"
+        "PI-PUBLISH",
+        "PI_ARCH"
       ],
       "canonical_authority": "README::DJC-PI",
       "owner_boundary": "Native Qt Quick/QML touch-client en appliancebron",
@@ -11964,15 +12238,16 @@
       "repository": "pcvantol/djconnect-pi-releases",
       "source_ids": [
         "README::DJC-DIST-PI",
-        "REPOSITORY_OWNERSHIP"
+        "REPOSITORY_OWNERSHIP",
+        "PI-PUBLISH"
       ],
       "canonical_authority": "README::DJC-DIST-PI",
       "owner_boundary": "Pi-releaseartifacts en publieke updater-metadata; geen clientbron",
-      "source_status_summary": "Source boundary captured; exact consumer evidence pending",
+      "source_status_summary": "The 4.0.0-rc.2 prerelease lists generic and both Pi profile assets with a manifest-bound source SHA; installed-target evidence is pending",
       "original_status": null,
       "status_representation": "PLANNING_PROJECTION; owning source status remains authoritative",
       "selection": "RELEASE_NOT_SELECTED",
-      "evidence_state": "DOCUMENTED_NOT_LIVE_QUALIFIED",
+      "evidence_state": "HISTORICAL_RC2_ASSETS_OBSERVED_NOT_INSTALLED_QUALIFIED",
       "assignment_status": "NOT_ISSUED",
       "completion_claim": "NONE",
       "count_as_delivered_feature": false,
@@ -11989,7 +12264,9 @@
         "Exact source candidate, contract and consumer receipt matching acceptance criterion; no mock-only inference."
       ],
       "contract_binding": "Exact compatible revision required at execution; UNKNOWN in this planning snapshot.",
-      "evidence_ids": [],
+      "evidence_ids": [
+        "PI_RC2_ASSET_MANIFEST"
+      ],
       "prerequisite_groups": [
         {
           "mode": "AND",
@@ -12019,7 +12296,8 @@
         "README::DJC-APPLE",
         "AGENTS::DJC-APPLE",
         "APPLE-PUBLISH",
-        "APPLE_RELEASE_ARCH"
+        "APPLE_RELEASE_ARCH",
+        "APPLE_RELEASE_GUIDE"
       ],
       "canonical_authority": "README::DJC-APPLE",
       "owner_boundary": "Apple-clientfamilie; native presentatie en clientstaat, geen backendautoriteit",
@@ -12066,7 +12344,8 @@
       "source_ids": [
         "README::DJC-WINDOWS",
         "AGENTS::DJC-WINDOWS",
-        "WINDOWS-PUBLISH"
+        "WINDOWS-PUBLISH",
+        "WIN_ARCH"
       ],
       "canonical_authority": "README::DJC-WINDOWS",
       "owner_boundary": "Windows/Mac Catalyst-clientbron; backendcontract-consumer",
@@ -12207,7 +12486,8 @@
       "source_ids": [
         "PI10_PROFILE",
         "README::DJC-PI",
-        "AGENTS::DJC-PI"
+        "AGENTS::DJC-PI",
+        "PI_ARCH"
       ],
       "canonical_authority": "PI10_PROFILE",
       "owner_boundary": "Native Qt Quick/QML touch-client en appliancebron",
@@ -12824,7 +13104,9 @@
       "lane": "DJC-PI",
       "repository": "pcvantol/djconnect-pi",
       "source_ids": [
-        "ISSUES::DJC-PI"
+        "ISSUES::DJC-PI",
+        "PI_TECH_DESIGN",
+        "PI_PERF_SECURITY"
       ],
       "canonical_authority": "ISSUES::DJC-PI",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -12914,7 +13196,10 @@
       "lane": "DJC-WINDOWS",
       "repository": "pcvantol/djconnect-windows",
       "source_ids": [
-        "ISSUES::DJC-WINDOWS"
+        "ISSUES::DJC-WINDOWS",
+        "WIN_PROFILE_ADOPTION",
+        "WIN_ARCH",
+        "WIN_API_MIRROR"
       ],
       "canonical_authority": "ISSUES::DJC-WINDOWS",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -13442,7 +13727,8 @@
         "README::DJC-APPLE",
         "README::DJC-DIST-APPLE",
         "APPLE_RELEASE_ARCH",
-        "DEPLOY_CONSUMER_INVENTORY"
+        "DEPLOY_CONSUMER_INVENTORY",
+        "APPLE_RELEASE_GUIDE"
       ],
       "canonical_authority": "EVOLUTION",
       "owner_boundary": "Apple-clientfamilie; native presentatie en clientstaat, geen backendautoriteit",
@@ -13673,7 +13959,8 @@
       "source_ids": [
         "PRODUCT_ROADMAP",
         "CLIENT_MATRIX",
-        "README::DJC-APPLE"
+        "README::DJC-APPLE",
+        "APPLE_ARCH"
       ],
       "canonical_authority": "PRODUCT_ROADMAP",
       "owner_boundary": "Apple-clientfamilie; native presentatie en clientstaat, geen backendautoriteit",
@@ -14132,11 +14419,11 @@
       ],
       "canonical_authority": "README::DJC-DIST-APPLE",
       "owner_boundary": "Artifact-handoff; Apple-only README versus Windows/Mac Catalyst consumerclaim is onopgelost",
-      "source_status_summary": "Public distribution receipt required; route and exact asset unqualified",
+      "source_status_summary": "Historical 3.3.0 unsigned release assets observed; exact current candidate, policy and consumer acceptance remain unqualified",
       "original_status": null,
       "status_representation": "DERIVED_CONDITION_FROM_OWNING_DISTRIBUTION_SOURCE",
       "selection": "CONDITION_ONLY_NOT_PRODUCT_SELECTION",
-      "evidence_state": "NO_PUBLISHED_ASSET_RECEIPT",
+      "evidence_state": "HISTORICAL_330_ASSETS_OBSERVED_NOT_CONSUMER_QUALIFIED",
       "assignment_status": "NOT_ISSUED",
       "completion_claim": "NONE",
       "count_as_delivered_feature": false,
@@ -14155,10 +14442,13 @@
         "Owning distribution release and consumer readback"
       ],
       "contract_binding": "UNKNOWN; public distribution not selected/authorized",
-      "evidence_ids": [],
+      "evidence_ids": [
+        "APPLE_IOS_330_ASSET",
+        "APPLE_MACOS_330_ASSET"
+      ],
       "prerequisite_groups": [],
       "blockers": [
-        "No public release authorization or published asset receipt"
+        "Current public-channel authorization, exact source-candidate join and website consumer acceptance are not qualified"
       ],
       "resource_capacity": "UNKNOWN",
       "authority_verified": false,
@@ -14183,11 +14473,11 @@
       ],
       "canonical_authority": "README::DJC-DIST-APPLE",
       "owner_boundary": "Artifact-handoff; Apple-only README versus Windows/Mac Catalyst consumerclaim is onopgelost",
-      "source_status_summary": "Public distribution receipt required; route and exact asset unqualified",
+      "source_status_summary": "Historical 3.3.0 unsigned release assets observed; exact current candidate, policy and consumer acceptance remain unqualified",
       "original_status": null,
       "status_representation": "DERIVED_CONDITION_FROM_OWNING_DISTRIBUTION_SOURCE",
       "selection": "CONDITION_ONLY_NOT_PRODUCT_SELECTION",
-      "evidence_state": "NO_PUBLISHED_ASSET_RECEIPT",
+      "evidence_state": "HISTORICAL_330_ASSETS_OBSERVED_NOT_CONSUMER_QUALIFIED",
       "assignment_status": "NOT_ISSUED",
       "completion_claim": "NONE",
       "count_as_delivered_feature": false,
@@ -14206,10 +14496,12 @@
         "Owning distribution release and consumer readback"
       ],
       "contract_binding": "UNKNOWN; public distribution not selected/authorized",
-      "evidence_ids": [],
+      "evidence_ids": [
+        "WINDOWS_330_ASSET"
+      ],
       "prerequisite_groups": [],
       "blockers": [
-        "No public release authorization or published asset receipt"
+        "Current public-channel authorization, exact source-candidate join and website consumer acceptance are not qualified"
       ],
       "resource_capacity": "UNKNOWN",
       "authority_verified": false,
@@ -14230,7 +14522,8 @@
       "source_ids": [
         "APPLE_RELEASE_ARCH",
         "DEPLOY_CONSUMER_INVENTORY",
-        "README::DJC-APPLE"
+        "README::DJC-APPLE",
+        "APPLE_RELEASE_GUIDE"
       ],
       "canonical_authority": "APPLE_RELEASE_ARCH",
       "owner_boundary": "Apple-clientfamilie; native presentatie en clientstaat, geen backendautoriteit",
@@ -15481,7 +15774,7 @@
         "README::DJC-WEBSITE"
       ],
       "hard_precedence": true,
-      "contract_or_evidence": "Published channel/asset readback matched to exact source candidate and website copy; currently unavailable",
+      "contract_or_evidence": "Historical 3.3.0 asset listings observed; exact current source candidate, authorized channel and website-copy join remain unqualified",
       "evidence_ids": [],
       "evidence_satisfied": false,
       "selection_eligible": false,
@@ -15501,7 +15794,7 @@
         "README::DJC-WEBSITE"
       ],
       "hard_precedence": true,
-      "contract_or_evidence": "Published channel/asset readback matched to exact source candidate and website copy; currently unavailable",
+      "contract_or_evidence": "Historical 3.3.0 asset listings observed; exact current source candidate, authorized channel and website-copy join remain unqualified",
       "evidence_ids": [],
       "evidence_satisfied": false,
       "selection_eligible": false,
@@ -16709,6 +17002,50 @@
       "passed": true,
       "acceptance_qualified": false,
       "notes": "Owning terminal comment reports MERGED_RECONCILED and WORKSPACE_READY; this assignment does not requalify its tests or reopen cleanup."
+    },
+    {
+      "id": "APPLE_IOS_330_ASSET",
+      "kind": "historical_release_asset_listing",
+      "repository": "pcvantol/djconnect-app-releases",
+      "url": "https://github.com/pcvantol/djconnect-app-releases/releases/tag/ios/v3.3.0",
+      "subject_sha": "938c8aa73b28e67984301d0943ce4af1a7bd72ac",
+      "observed_date": "2026-10-03",
+      "passed": true,
+      "acceptance_qualified": false,
+      "notes": "GitHub release API: published non-prerelease 2026-07-14; unsigned iOS zip and checksum listed with asset digests. Tag commit is receiving-repo identity, not verified Apple source candidate or consumer install."
+    },
+    {
+      "id": "APPLE_MACOS_330_ASSET",
+      "kind": "historical_release_asset_listing",
+      "repository": "pcvantol/djconnect-app-releases",
+      "url": "https://github.com/pcvantol/djconnect-app-releases/releases/tag/macos/v3.3.0",
+      "subject_sha": "938c8aa73b28e67984301d0943ce4af1a7bd72ac",
+      "observed_date": "2026-10-03",
+      "passed": true,
+      "acceptance_qualified": false,
+      "notes": "GitHub release API: published non-prerelease 2026-07-14; unsigned macOS zip and checksum listed with asset digests. Tag commit is receiving-repo identity, not verified Apple source candidate or consumer install."
+    },
+    {
+      "id": "WINDOWS_330_ASSET",
+      "kind": "historical_release_asset_listing",
+      "repository": "pcvantol/djconnect-app-releases",
+      "url": "https://github.com/pcvantol/djconnect-app-releases/releases/tag/windows/v3.3.0",
+      "subject_sha": "938c8aa73b28e67984301d0943ce4af1a7bd72ac",
+      "observed_date": "2026-10-03",
+      "passed": true,
+      "acceptance_qualified": false,
+      "notes": "GitHub release API: published non-prerelease 2026-07-14; Windows x64/arm64 unsigned zips and checksums listed with asset digests. No Mac Catalyst release tag in the 11 current releases. Receiving-repo tag is not verified Windows source candidate or installed consumer."
+    },
+    {
+      "id": "PI_RC2_ASSET_MANIFEST",
+      "kind": "historical_release_manifest_asset_readback",
+      "repository": "pcvantol/djconnect-pi-releases",
+      "url": "https://github.com/pcvantol/djconnect-pi-releases/releases/tag/v4.0.0-rc.2",
+      "subject_sha": "a0cd28e304dec2977fbda565b09086ce385bb461",
+      "observed_date": "2026-10-03",
+      "passed": true,
+      "acceptance_qualified": false,
+      "notes": "Published prerelease 2026-08-06 lists generic, pi5-arm64 and pi-zero-2w-arm64 bundles/checksums. Downloaded manifest SHA-256 4e30af2b9caab10f12859c3177ba070683f28d9c49c9c7f716b4e781c6374c16 matches API digest; manifest candidate_sha exists in Pi source and all three artifact hashes match API asset digests. No payload download, installed-target receipt or physical device acceptance."
     }
   ],
   "findings": [
@@ -16736,19 +17073,24 @@
     {
       "id": "DRIFT-DIST",
       "status": "OPEN",
-      "description": "app-releases Apple-only internal-handoff README conflicts with Windows consumer distribution claims. No silent route redesign.",
+      "description": "The app-releases README calls this only an internal unsigned Apple handoff, while the owning Apple README/release guide and Apple/Windows publisher workflows explicitly describe public GitHub unsigned diagnostic artifacts and website notes. GitHub currently lists published non-prerelease 3.3.0 unsigned iOS, macOS and Windows assets; no Mac Catalyst tag appears in the current 11-release listing. The unsigned assets are not App Store/Developer ID/installer acceptance, and their source-candidate/consumer joins are unqualified. Reconcile the receiving README and current channel policy in the existing owning distribution register; no republish or route redesign.",
       "source_ids": [
+        "README::DJC-DIST-APPLE",
+        "README::DJC-APPLE",
+        "APPLE_RELEASE_GUIDE",
         "README::DJC-WINDOWS",
-        "README::DJC-DIST-APPLE"
+        "APPLE-PUBLISH",
+        "WINDOWS-PUBLISH"
       ]
     },
     {
       "id": "DRIFT-PI",
       "status": "OPEN",
-      "description": "Pi source intentional no voice/local input versus distribution copy; profile bundles versus older component qualification identity.",
+      "description": "Pi source deliberately has no local Ask DJ input, PTT, TTS or audio path, while distribution README still promises voice requests. Stable 3.3.0 has only a generic bundle; 4.0.0-rc.2 prerelease lists generic plus Pi 5 and Pi Zero 2 W profile bundles, with a manifest whose source SHA and three artifact hashes match the release API. Neither version proves physical installed-target qualification or the older component-register identity; reconcile copy and exact consumer evidence in owning records.",
       "source_ids": [
         "README::DJC-PI",
         "README::DJC-DIST-PI",
+        "PI-PUBLISH",
         "QUALIFICATION"
       ]
     },
@@ -16849,7 +17191,7 @@
     {
       "id": "NORMATIVE-SOURCE-LINK-GAPS",
       "status": "LINK_FRONTIER_TRIAGED; BROADER_SOURCE_AUDIT_OPEN",
-      "description": "Independent reviews exposed missing linked Runtime/Presentation and verification authorities. Twenty-six directly relevant linked sources plus nine core repository/status files were added and pinned to existing nodes beyond the previous 170; all nine added core repository/status files were fully read. The reproducible pinned-blob Markdown-link scan now finds 32 remaining existing relative .md targets; each has an explicit navigation, historical, non-selection or audit-open disposition. Broader repository source audit remains open, and link existence alone creates no dependency or product selection.",
+      "description": "The pinned-blob relative Markdown-link scan covers included core and eleven component-repository Markdown sources. It finds 32 core plus 28 component existing targets still outside the pinned source matrix, each explicitly triaged. Windows profile/API/architecture, Pi architecture/technical/performance and Apple architecture/privacy/security/release guide were fully read and added; remaining component contract/handoff/test records remain audit-open. Link existence alone adds no dependency or product selection.",
       "source_ids": [
         "FOUNDATION_INDEX",
         "SESSION_RUNTIME_CONTRACTS",
@@ -16887,6 +17229,40 @@
         "SYNC_PROMPTS",
         "TECH_DESIGN::DJC-CORE"
       ]
+    },
+    {
+      "id": "WINDOWS-CONTRACT-MIRROR-DRIFT",
+      "status": "OPEN_DOCUMENTARY_RECONCILIATION",
+      "description": "At the pinned Windows head, README calls the desktop app 3.3.0 and protocol 3.3.x, but its architecture and API mirror still call the shared client contract 3.2.x. The API mirror also lists track_insight.music_dna beside track/analysis/visual_profile/cache, whereas the current core AGENTS contract limits client-authoritative Track Insight fields to track, analysis, visual_profile, mood_context and cache. The Windows Profile Adoption Report keeps HA as Profile/Music DNA authority and intentionally defers Profile switching. Treat older version/field text as a component-doc reconciliation task, not a new runtime contract or product pickup.",
+      "source_ids": [
+        "README::DJC-WINDOWS",
+        "WIN_ARCH",
+        "WIN_API_MIRROR",
+        "WIN_PROFILE_ADOPTION",
+        "AGENTS::DJC-CORE"
+      ]
+    },
+    {
+      "id": "PI-DOCUMENT-MIRROR-DRIFT",
+      "status": "OPEN_DOCUMENTARY_RECONCILIATION",
+      "description": "Pinned Pi architecture and README describe the 4.0.0-rc.2 native 4-inch/10-inch profiles and a text-only local /api/device/dj_response endpoint. The technical-design mirror still calls 3.2.z compatibility and 3.3.x integration current, while the first-pass performance/security review says no local DJ-response endpoint. Architecture Track Insight prose also refers to track_insight.music_dna.match_percent outside the current core client-authoritative field set. Treat these as stale document lines pending owning correction, not evidence of installed-target acceptance or a new product task.",
+      "source_ids": [
+        "README::DJC-PI",
+        "PI_ARCH",
+        "PI_TECH_DESIGN",
+        "PI_PERF_SECURITY",
+        "AGENTS::DJC-CORE"
+      ]
+    },
+    {
+      "id": "APPLE-STALE-PAIRING-DOC-DRIFT",
+      "status": "OPEN_DOCUMENTARY_RECONCILIATION",
+      "description": "The pinned Apple architecture says authenticated 401/403 mark pairing stale but keep the device token until explicit user reset; Apple privacy notes likewise say only explicit reset clears token state. Current core AGENTS requires Apple clients to clear local pairing and Ask DJ cache on 401/403, not_configured or stale-pairing so a removed HA config entry cannot remain locally paired. Reconcile Apple documentation and actual client behavior under the owning Apple/core contracts; do not treat the older text as permission to retain stale pairing.",
+      "source_ids": [
+        "APPLE_ARCH",
+        "APPLE_PRIVACY",
+        "AGENTS::DJC-CORE"
+      ]
     }
   ],
   "audit_obligations": [
@@ -16900,7 +17276,8 @@
       "id": "AUDIT-DJC-APPLE",
       "status": "OPEN",
       "scope": "DJC-APPLE",
-      "reason": "Complete local policy, owning backlog/source/tests/PR/releases, active writer/register discovery, workflow effects and final delta. README is not a complete component audit."
+      "reason": "Complete local policy, owning backlog/source/tests/PR/releases, active writer/register discovery, workflow effects and final delta. README is not a complete component audit.",
+      "remaining": "Pinned Apple architecture, privacy, security and release guide are read; reconcile 401/403 stale-pairing text with current core rule and public unsigned diagnostics with distribution README, then finish API/development/handoff, local WIP, physical consumers and final delta."
     },
     {
       "id": "AUDIT-DJC-ESP32",
@@ -16912,13 +17289,15 @@
       "id": "AUDIT-DJC-PI",
       "status": "OPEN",
       "scope": "DJC-PI",
-      "reason": "Complete local policy, owning backlog/source/tests/PR/releases, active writer/register discovery, workflow effects and final delta. README is not a complete component audit."
+      "reason": "Complete local policy, owning backlog/source/tests/PR/releases, active writer/register discovery, workflow effects and final delta. README is not a complete component audit.",
+      "remaining": "Pinned Pi architecture, technical decisions and first-pass performance/security review are read; reconcile stale 3.2/3.3 and local DJ-response lines against the 4.0.0-rc.2 source, then read handoff/tests and qualify physical 4-inch/10-inch and installed-target receipts."
     },
     {
       "id": "AUDIT-DJC-WINDOWS",
       "status": "OPEN",
       "scope": "DJC-WINDOWS",
-      "reason": "Complete local policy, owning backlog/source/tests/PR/releases, active writer/register discovery, workflow effects and final delta. README is not a complete component audit."
+      "reason": "Complete local policy, owning backlog/source/tests/PR/releases, active writer/register discovery, workflow effects and final delta. README is not a complete component audit.",
+      "remaining": "Pinned Windows profile report, architecture and API mirror are read; reconcile their 3.2.x/Track Insight field drift with current core contract, then finish privacy, release, test-policy, 3.3.0 unsigned assets, conditional Mac Catalyst, local WIP and consumer receipts."
     },
     {
       "id": "AUDIT-DJC-API",
@@ -16954,13 +17333,15 @@
       "id": "AUDIT-DJC-DIST-APPLE",
       "status": "OPEN",
       "scope": "DJC-DIST-APPLE",
-      "reason": "Complete local policy, owning backlog/source/tests/PR/releases, active writer/register discovery, workflow effects and final delta. README is not a complete component audit."
+      "reason": "Complete local policy, owning backlog/source/tests/PR/releases, active writer/register discovery, workflow effects and final delta. README is not a complete component audit.",
+      "remaining": "Receiving README says Apple-only internal handoff; owning Apple release guide and publisher workflows plus observed non-prerelease 3.3.0 iOS/macOS/Windows assets show a wider unsigned diagnostic channel. Reconcile policy/copy, source-candidate/consumer joins and conditional Mac Catalyst; no Mac Catalyst tag in current 11-release listing."
     },
     {
       "id": "AUDIT-DJC-DIST-PI",
       "status": "OPEN",
       "scope": "DJC-DIST-PI",
-      "reason": "Complete local policy, owning backlog/source/tests/PR/releases, active writer/register discovery, workflow effects and final delta. README is not a complete component audit."
+      "reason": "Complete local policy, owning backlog/source/tests/PR/releases, active writer/register discovery, workflow effects and final delta. README is not a complete component audit.",
+      "remaining": "The 4.0.0-rc.2 prerelease manifest and three asset digests match and source candidate SHA exists; reconcile older stable 3.3.0 generic-only package, stale voice copy, updater/channel policy and installed-target evidence."
     },
     {
       "id": "CORE-FOUNDATION",
@@ -16979,19 +17360,22 @@
       "id": "GRAPH-CLOSURE",
       "status": "OPEN",
       "scope": "platform",
-      "reason": "Follow all owning graph/source links, old IDs and historical disposition; a truncated tree or empty search is not absence evidence."
+      "reason": "Follow all owning graph/source links, old IDs and historical disposition; a truncated tree or empty search is not absence evidence.",
+      "remaining": "Resolve the 60 triaged linked-source targets where planning-relevant, follow owning graph/old IDs and historical dispositions, and prove phase-specific edges and rollups. A link or release listing alone is not a hard implementation dependency."
     },
     {
       "id": "PRODUCER-EVIDENCE",
       "status": "OPEN",
       "scope": "platform",
-      "reason": "Read exact source, release and consumer receipts; finish phase-specific edges and AND/OR alternatives; no live claim from mocks or report text."
+      "reason": "Read exact source, release and consumer receipts; finish phase-specific edges and AND/OR alternatives; no live claim from mocks or report text.",
+      "remaining": "Historical Apple/Windows 3.3.0 release listings and Pi 4.0.0-rc.2 manifest/assets are observed; exact current source-to-consumer joins, installed Pi/Apple/Windows receipts, policy authorization and all remaining AND/OR alternatives are not qualified."
     },
     {
       "id": "SOURCE-MATRIX",
       "status": "OPEN",
       "scope": "platform",
-      "reason": "Current matrix covers only explicitly read source inventory; certify complete disposition only after all relevant discoveries are audited."
+      "reason": "Current matrix covers only explicitly read source inventory; certify complete disposition only after all relevant discoveries are audited.",
+      "remaining": "All 215 included pinned rows are fully read, but 32 core and 28 component relative Markdown targets remain outside the matrix with explicit triage. Read or exclude audit-open contract/handoff/test sources with evidence, then certify repository-wide discovery."
     },
     {
       "id": "REGISTER-DELIVERY",
