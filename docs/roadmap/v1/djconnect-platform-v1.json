@@ -41,7 +41,7 @@
     "metadata_and_bounded_paraphrases": true,
     "offline_hash_verification_of_remote_blobs": false,
     "per_call_timestamps": "Date-level head readback on 2026-10-03; no per-file read timestamp for inherited checkpoint.",
-    "pinned_tree_blobs_verified": "396 of 396 path/blob pins matched exact commit trees or GitHub Contents commit readbacks: 105 original GitHub tree readbacks, 177 local git commit-tree readbacks and 114 new GitHub Contents readbacks on 2026-10-03. Narrative interpretation remains partial.",
+    "pinned_tree_blobs_verified": "419 of 419 path/blob pins matched exact commit trees or GitHub Contents commit readbacks: 105 original GitHub tree readbacks, 200 local git commit-tree readbacks and 114 new GitHub Contents readbacks on 2026-10-03. Narrative interpretation remains partial.",
     "reference_scan": {
       "method": "Every pinned core Markdown blob and every pinned Markdown blob in the eleven DJC component repositories, at its recorded commit: parse relative Markdown links, strip anchors, normalize against source directory, retain existing .md targets absent from the pinned source matrix; distinct repository/path keys. The seven pinned external Forge method documents are outside this lane-source link frontier.",
       "unmapped_paths": [
@@ -127,8 +127,8 @@
           "repository": "pcvantol/djconnect-vibecast-receiver",
           "commit_sha": "a901fbcd3e894af62b63fafbca8f96738e08ce3c",
           "tracked_markdown": 13,
-          "included_markdown": 3,
-          "not_individually_included_markdown": 10,
+          "included_markdown": 13,
+          "not_individually_included_markdown": 0,
           "tree_readback": "complete local git ls-tree -r"
         },
         "DJC-PICO": {
@@ -330,10 +330,10 @@
       "owning_register": "https://github.com/pcvantol/djconnect-vibecast-receiver/issues/10",
       "register_discovery": "Dedicated owning issue created; existing local backlog retained",
       "portfolio_register": "https://github.com/pcvantol/djconnect/issues/1101",
-      "proposed_documentary_next_step": "Audit bestaande receiverbron en owning release-/kwalificatie-evidence tegen de Pi-reference-gate en Apple/HA-handoff. Bestaande repo is geen bewijs van volledige Cast-acceptatie.",
-      "local_backlog_audit": "Relevant local backlog/status entries read; complete audit pending",
-      "local_test_policy": "NOT_FULLY_AUDITED",
-      "release_effect_audit": "Push, tag, dispatch and workflow_run triggers inventoried; exact route-specific effects must be read before push"
+      "proposed_documentary_next_step": "De volledige lokale receiverbron en CI zijn geaudit. Koppel de bestaande Apple/HA-handoff aan afzonderlijk bewijs voor Cast App ID, live Pages-ontvangst en echte hardware/session-acceptatie; bron of groene CI alleen sluit de Pi-/Cast-reference-gate niet.",
+      "local_backlog_audit": "All 26 tracked exact-main files read, including 13 Markdown files; local status, issue/PR/release lists and CI checked. Repository owns receiver source; central roadmap remains product authority. No separate local product backlog was found; #10 is this planning register. External Cast registration and hardware acceptance remain open",
+      "local_test_policy": "package.json runs node --test; one receiver source test passed locally on 2026-10-03. Exact-main Verify receiver and AI-development projection CI runs passed on 2026-09-16; these do not qualify hardware or deployment",
+      "release_effect_audit": "Repository GitHub workflows run npm test and offline projection validation on PR/main with contents:read; no GitHub release workflow or release was found. Cloudflare Pages external delivery effect is unverified; do not push receiver source under this assignment without exact route audit"
     },
     {
       "id": "DJC-PICO",
@@ -7968,6 +7968,420 @@
         "INV::DJC-WEBSITE"
       ],
       "remaining": "Reconcile producer/version and live-site/consumer evidence before public-copy changes."
+    },
+    {
+      "id": "VIBECAST_CODEOWNERS",
+      "repository": "pcvantol/djconnect-vibecast-receiver",
+      "path": ".github/CODEOWNERS",
+      "blob_sha": "5995e82980ba2218ffb984d3fc3965c066df691e",
+      "commit_sha": "a901fbcd3e894af62b63fafbca8f96738e08ce3c",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Repository-local governance or hygiene source; no platform product or release authority.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-vibecast-receiver/blob/a901fbcd3e894af62b63fafbca8f96738e08ce3c/.github/CODEOWNERS",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-VIBECAST"
+      ],
+      "remaining": "Source/CI result is bounded; external Cast registration, Cloudflare Pages live state, Apple/HA handoff and physical hardware acceptance remain separate."
+    },
+    {
+      "id": "VIBECAST_ISSUE_TEMPLATE",
+      "repository": "pcvantol/djconnect-vibecast-receiver",
+      "path": ".github/ISSUE_TEMPLATE/bug_report.yml",
+      "blob_sha": "f63b7c0229f06d6834fb6f21df326d7c23e8904c",
+      "commit_sha": "a901fbcd3e894af62b63fafbca8f96738e08ce3c",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Repository-local governance or hygiene source; no platform product or release authority.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-vibecast-receiver/blob/a901fbcd3e894af62b63fafbca8f96738e08ce3c/.github/ISSUE_TEMPLATE/bug_report.yml",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-VIBECAST"
+      ],
+      "remaining": "Source/CI result is bounded; external Cast registration, Cloudflare Pages live state, Apple/HA handoff and physical hardware acceptance remain separate."
+    },
+    {
+      "id": "VIBECAST_DEPENDABOT",
+      "repository": "pcvantol/djconnect-vibecast-receiver",
+      "path": ".github/dependabot.yml",
+      "blob_sha": "6abbac0564bedfcef4e9d5f636c4ff0101467408",
+      "commit_sha": "a901fbcd3e894af62b63fafbca8f96738e08ce3c",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Repository-local governance or hygiene source; no platform product or release authority.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-vibecast-receiver/blob/a901fbcd3e894af62b63fafbca8f96738e08ce3c/.github/dependabot.yml",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-VIBECAST"
+      ],
+      "remaining": "Source/CI result is bounded; external Cast registration, Cloudflare Pages live state, Apple/HA handoff and physical hardware acceptance remain separate."
+    },
+    {
+      "id": "VIBECAST_PR_TEMPLATE",
+      "repository": "pcvantol/djconnect-vibecast-receiver",
+      "path": ".github/pull_request_template.md",
+      "blob_sha": "ad12386cc3f84c11a041b25d6aa830ac103e880a",
+      "commit_sha": "a901fbcd3e894af62b63fafbca8f96738e08ce3c",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Repository-local governance or hygiene source; no platform product or release authority.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-vibecast-receiver/blob/a901fbcd3e894af62b63fafbca8f96738e08ce3c/.github/pull_request_template.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-VIBECAST"
+      ],
+      "remaining": "Source/CI result is bounded; external Cast registration, Cloudflare Pages live state, Apple/HA handoff and physical hardware acceptance remain separate."
+    },
+    {
+      "id": "VIBECAST_PROJECTION_CI",
+      "repository": "pcvantol/djconnect-vibecast-receiver",
+      "path": ".github/workflows/ai-development-projection.yml",
+      "blob_sha": "8f00fe72c2efde70448a74b7c05d33e3733fda5c",
+      "commit_sha": "a901fbcd3e894af62b63fafbca8f96738e08ce3c",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Read-only offline development-projection check on PR and main; not product qualification.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-vibecast-receiver/blob/a901fbcd3e894af62b63fafbca8f96738e08ce3c/.github/workflows/ai-development-projection.yml",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-VIBECAST"
+      ],
+      "remaining": "Source/CI result is bounded; external Cast registration, Cloudflare Pages live state, Apple/HA handoff and physical hardware acceptance remain separate."
+    },
+    {
+      "id": "VIBECAST_CI",
+      "repository": "pcvantol/djconnect-vibecast-receiver",
+      "path": ".github/workflows/ci.yml",
+      "blob_sha": "e119aafdcc3c6a47e4de570ca2e91cdc4131391c",
+      "commit_sha": "a901fbcd3e894af62b63fafbca8f96738e08ce3c",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Read-only npm test CI on PR and main; not deployment or publication.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-vibecast-receiver/blob/a901fbcd3e894af62b63fafbca8f96738e08ce3c/.github/workflows/ci.yml",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-VIBECAST"
+      ],
+      "remaining": "Source/CI result is bounded; external Cast registration, Cloudflare Pages live state, Apple/HA handoff and physical hardware acceptance remain separate."
+    },
+    {
+      "id": "VIBECAST_GITIGNORE",
+      "repository": "pcvantol/djconnect-vibecast-receiver",
+      "path": ".gitignore",
+      "blob_sha": "18814655457273c89261a8dae623d34643d8f011",
+      "commit_sha": "a901fbcd3e894af62b63fafbca8f96738e08ce3c",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Repository-local governance or hygiene source; no platform product or release authority.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-vibecast-receiver/blob/a901fbcd3e894af62b63fafbca8f96738e08ce3c/.gitignore",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-VIBECAST"
+      ],
+      "remaining": "Source/CI result is bounded; external Cast registration, Cloudflare Pages live state, Apple/HA handoff and physical hardware acceptance remain separate."
+    },
+    {
+      "id": "VIBECAST_BOOTSTRAP",
+      "repository": "pcvantol/djconnect-vibecast-receiver",
+      "path": "BOOTSTRAP.md",
+      "blob_sha": "aae2dc9c86d9b705aeefd266514745d785efe658",
+      "commit_sha": "a901fbcd3e894af62b63fafbca8f96738e08ce3c",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Repository-local development bootstrap/projection or canonical pointer; no independent product selection.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-vibecast-receiver/blob/a901fbcd3e894af62b63fafbca8f96738e08ce3c/BOOTSTRAP.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-VIBECAST"
+      ],
+      "remaining": "Source/CI result is bounded; external Cast registration, Cloudflare Pages live state, Apple/HA handoff and physical hardware acceptance remain separate."
+    },
+    {
+      "id": "VIBECAST_BOOTSTRAP_POINTER",
+      "repository": "pcvantol/djconnect-vibecast-receiver",
+      "path": "BOOTSTRAP_CODEX_SESSION.md",
+      "blob_sha": "266c6ab8daa1bc21a6268d38782569fdef969fa4",
+      "commit_sha": "a901fbcd3e894af62b63fafbca8f96738e08ce3c",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Repository-local development bootstrap/projection or canonical pointer; no independent product selection.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-vibecast-receiver/blob/a901fbcd3e894af62b63fafbca8f96738e08ce3c/BOOTSTRAP_CODEX_SESSION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-VIBECAST"
+      ],
+      "remaining": "Source/CI result is bounded; external Cast registration, Cloudflare Pages live state, Apple/HA handoff and physical hardware acceptance remain separate."
+    },
+    {
+      "id": "VIBECAST_CANONICAL_REFS",
+      "repository": "pcvantol/djconnect-vibecast-receiver",
+      "path": "CANONICAL_REFERENCES.md",
+      "blob_sha": "0b015fd8918d13a4a60bf08deddb293ebc0643d2",
+      "commit_sha": "a901fbcd3e894af62b63fafbca8f96738e08ce3c",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Repository-local development bootstrap/projection or canonical pointer; no independent product selection.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-vibecast-receiver/blob/a901fbcd3e894af62b63fafbca8f96738e08ce3c/CANONICAL_REFERENCES.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-VIBECAST"
+      ],
+      "remaining": "Source/CI result is bounded; external Cast registration, Cloudflare Pages live state, Apple/HA handoff and physical hardware acceptance remain separate."
+    },
+    {
+      "id": "VIBECAST_CODE_OF_CONDUCT",
+      "repository": "pcvantol/djconnect-vibecast-receiver",
+      "path": "CODE_OF_CONDUCT.md",
+      "blob_sha": "e0e254ec10d3fda47ca778f56eb27c52af67f47b",
+      "commit_sha": "a901fbcd3e894af62b63fafbca8f96738e08ce3c",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Repository-local governance or hygiene source; no platform product or release authority.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-vibecast-receiver/blob/a901fbcd3e894af62b63fafbca8f96738e08ce3c/CODE_OF_CONDUCT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-VIBECAST"
+      ],
+      "remaining": "Source/CI result is bounded; external Cast registration, Cloudflare Pages live state, Apple/HA handoff and physical hardware acceptance remain separate."
+    },
+    {
+      "id": "VIBECAST_CONTRIBUTING",
+      "repository": "pcvantol/djconnect-vibecast-receiver",
+      "path": "CONTRIBUTING.md",
+      "blob_sha": "4f4d9fc22e9f3c1124fba6e741a31d6c27a3db6d",
+      "commit_sha": "a901fbcd3e894af62b63fafbca8f96738e08ce3c",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Local package, security, contribution or static presentation boundary; no release/installed-target evidence.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-vibecast-receiver/blob/a901fbcd3e894af62b63fafbca8f96738e08ce3c/CONTRIBUTING.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-VIBECAST"
+      ],
+      "remaining": "Source/CI result is bounded; external Cast registration, Cloudflare Pages live state, Apple/HA handoff and physical hardware acceptance remain separate."
+    },
+    {
+      "id": "VIBECAST_LICENSE",
+      "repository": "pcvantol/djconnect-vibecast-receiver",
+      "path": "LICENSE",
+      "blob_sha": "94c80530443b2a2dfd2d6418e204862659466c06",
+      "commit_sha": "a901fbcd3e894af62b63fafbca8f96738e08ce3c",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Repository-local governance or hygiene source; no platform product or release authority.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-vibecast-receiver/blob/a901fbcd3e894af62b63fafbca8f96738e08ce3c/LICENSE",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-VIBECAST"
+      ],
+      "remaining": "Source/CI result is bounded; external Cast registration, Cloudflare Pages live state, Apple/HA handoff and physical hardware acceptance remain separate."
+    },
+    {
+      "id": "VIBECAST_SECURITY",
+      "repository": "pcvantol/djconnect-vibecast-receiver",
+      "path": "SECURITY.md",
+      "blob_sha": "f66697e474bbde96170e0731eeba39016b9fe9f1",
+      "commit_sha": "a901fbcd3e894af62b63fafbca8f96738e08ce3c",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Local package, security, contribution or static presentation boundary; no release/installed-target evidence.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-vibecast-receiver/blob/a901fbcd3e894af62b63fafbca8f96738e08ce3c/SECURITY.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-VIBECAST"
+      ],
+      "remaining": "Source/CI result is bounded; external Cast registration, Cloudflare Pages live state, Apple/HA handoff and physical hardware acceptance remain separate."
+    },
+    {
+      "id": "VIBECAST_AI_ADOPTION",
+      "repository": "pcvantol/djconnect-vibecast-receiver",
+      "path": "docs/ai-development/AI_DEVELOPMENT_ADOPTION_RECEIPT.md",
+      "blob_sha": "31bac17cfaf4bcdac4ddd6c1e17e62b93ddb425f",
+      "commit_sha": "a901fbcd3e894af62b63fafbca8f96738e08ce3c",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Repository-local development bootstrap/projection or canonical pointer; no independent product selection.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-vibecast-receiver/blob/a901fbcd3e894af62b63fafbca8f96738e08ce3c/docs/ai-development/AI_DEVELOPMENT_ADOPTION_RECEIPT.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-VIBECAST"
+      ],
+      "remaining": "Source/CI result is bounded; external Cast registration, Cloudflare Pages live state, Apple/HA handoff and physical hardware acceptance remain separate."
+    },
+    {
+      "id": "VIBECAST_LOCAL_EXTENSION",
+      "repository": "pcvantol/djconnect-vibecast-receiver",
+      "path": "docs/ai-development/DJCONNECT_VIBECAST_RECEIVER_DEVELOPMENT_EXTENSION.md",
+      "blob_sha": "a656396527759135f423e3dd3baacf90d9cb9daf",
+      "commit_sha": "a901fbcd3e894af62b63fafbca8f96738e08ce3c",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Repository-local development bootstrap/projection or canonical pointer; no independent product selection.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-vibecast-receiver/blob/a901fbcd3e894af62b63fafbca8f96738e08ce3c/docs/ai-development/DJCONNECT_VIBECAST_RECEIVER_DEVELOPMENT_EXTENSION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-VIBECAST"
+      ],
+      "remaining": "Source/CI result is bounded; external Cast registration, Cloudflare Pages live state, Apple/HA handoff and physical hardware acceptance remain separate."
+    },
+    {
+      "id": "VIBECAST_GENERATED_PROJECTION",
+      "repository": "pcvantol/djconnect-vibecast-receiver",
+      "path": "docs/ai-development/GENERATED_PROJECTION.md",
+      "blob_sha": "4db81bf684c5d31a4b429a3ecfdbccce94e1a260",
+      "commit_sha": "a901fbcd3e894af62b63fafbca8f96738e08ce3c",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Repository-local development bootstrap/projection or canonical pointer; no independent product selection.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-vibecast-receiver/blob/a901fbcd3e894af62b63fafbca8f96738e08ce3c/docs/ai-development/GENERATED_PROJECTION.md",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-VIBECAST"
+      ],
+      "remaining": "Source/CI result is bounded; external Cast registration, Cloudflare Pages live state, Apple/HA handoff and physical hardware acceptance remain separate."
+    },
+    {
+      "id": "VIBECAST_PROJECTION_MANIFEST",
+      "repository": "pcvantol/djconnect-vibecast-receiver",
+      "path": "docs/ai-development/projection-manifest.json",
+      "blob_sha": "bc8018ea46e03c01bd670d40cd648b12a30dc18a",
+      "commit_sha": "a901fbcd3e894af62b63fafbca8f96738e08ce3c",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Repository-local development bootstrap/projection or canonical pointer; no independent product selection.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-vibecast-receiver/blob/a901fbcd3e894af62b63fafbca8f96738e08ce3c/docs/ai-development/projection-manifest.json",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-VIBECAST"
+      ],
+      "remaining": "Source/CI result is bounded; external Cast registration, Cloudflare Pages live state, Apple/HA handoff and physical hardware acceptance remain separate."
+    },
+    {
+      "id": "VIBECAST_PROJECTION_VALIDATOR",
+      "repository": "pcvantol/djconnect-vibecast-receiver",
+      "path": "docs/ai-development/validate_projection.py",
+      "blob_sha": "99f447a5b4a6a572dcc8b560fda6415b61b50016",
+      "commit_sha": "a901fbcd3e894af62b63fafbca8f96738e08ce3c",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Repository-local development bootstrap/projection or canonical pointer; no independent product selection.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-vibecast-receiver/blob/a901fbcd3e894af62b63fafbca8f96738e08ce3c/docs/ai-development/validate_projection.py",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-VIBECAST"
+      ],
+      "remaining": "Source/CI result is bounded; external Cast registration, Cloudflare Pages live state, Apple/HA handoff and physical hardware acceptance remain separate."
+    },
+    {
+      "id": "VIBECAST_PACKAGE",
+      "repository": "pcvantol/djconnect-vibecast-receiver",
+      "path": "package.json",
+      "blob_sha": "dcf36702ae6de6e167570ddd912b6125b2d52fd8",
+      "commit_sha": "a901fbcd3e894af62b63fafbca8f96738e08ce3c",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Local package, security, contribution or static presentation boundary; no release/installed-target evidence.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-vibecast-receiver/blob/a901fbcd3e894af62b63fafbca8f96738e08ce3c/package.json",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-VIBECAST"
+      ],
+      "remaining": "Source/CI result is bounded; external Cast registration, Cloudflare Pages live state, Apple/HA handoff and physical hardware acceptance remain separate."
+    },
+    {
+      "id": "VIBECAST_TEST",
+      "repository": "pcvantol/djconnect-vibecast-receiver",
+      "path": "tests/receiver.test.mjs",
+      "blob_sha": "89f3b08409289d60e52dcde3dfc14496059a5d94",
+      "commit_sha": "a901fbcd3e894af62b63fafbca8f96738e08ce3c",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "One local Node test checks static receiver/source invariants; no physical Cast acceptance.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-vibecast-receiver/blob/a901fbcd3e894af62b63fafbca8f96738e08ce3c/tests/receiver.test.mjs",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-VIBECAST"
+      ],
+      "remaining": "Source/CI result is bounded; external Cast registration, Cloudflare Pages live state, Apple/HA handoff and physical hardware acceptance remain separate."
+    },
+    {
+      "id": "VIBECAST_HEADERS",
+      "repository": "pcvantol/djconnect-vibecast-receiver",
+      "path": "wwwroot/_headers",
+      "blob_sha": "c61f72ce2f66bff3fb5c1268233da5980e02692b",
+      "commit_sha": "a901fbcd3e894af62b63fafbca8f96738e08ce3c",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Local package, security, contribution or static presentation boundary; no release/installed-target evidence.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-vibecast-receiver/blob/a901fbcd3e894af62b63fafbca8f96738e08ce3c/wwwroot/_headers",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-VIBECAST"
+      ],
+      "remaining": "Source/CI result is bounded; external Cast registration, Cloudflare Pages live state, Apple/HA handoff and physical hardware acceptance remain separate."
+    },
+    {
+      "id": "VIBECAST_RUNTIME",
+      "repository": "pcvantol/djconnect-vibecast-receiver",
+      "path": "wwwroot/index.html",
+      "blob_sha": "898377ab387db8cd5a29f258832ca684c9e453c9",
+      "commit_sha": "a901fbcd3e894af62b63fafbca8f96738e08ce3c",
+      "read_boundary": "full pinned file reviewed on 2026-10-03; exact repository-tree source",
+      "read_complete": true,
+      "status_authority": "Actual static receiver source: memory-only scoped handoff, direct HA Broadcast WebSocket, five-language presentation; no deployed or physical Cast receipt.",
+      "observed_at": "2026-10-03; exact local git commit-tree and full blob read",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect-vibecast-receiver/blob/a901fbcd3e894af62b63fafbca8f96738e08ce3c/wwwroot/index.html",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "INV::DJC-VIBECAST"
+      ],
+      "remaining": "Source/CI result is bounded; external Cast registration, Cloudflare Pages live state, Apple/HA handoff and physical hardware acceptance remain separate."
     }
   ],
   "nodes": [
@@ -8482,11 +8896,34 @@
         "README::DJC-VIBECAST",
         "AGENTS::DJC-VIBECAST",
         "STATUS::DJC-VIBECAST",
-        "LINK::DOCS-ADR-0015-VIBECAST-BROADCAST-CAPABILITY"
+        "LINK::DOCS-ADR-0015-VIBECAST-BROADCAST-CAPABILITY",
+        "VIBECAST_CODEOWNERS",
+        "VIBECAST_ISSUE_TEMPLATE",
+        "VIBECAST_DEPENDABOT",
+        "VIBECAST_PR_TEMPLATE",
+        "VIBECAST_PROJECTION_CI",
+        "VIBECAST_CI",
+        "VIBECAST_GITIGNORE",
+        "VIBECAST_BOOTSTRAP",
+        "VIBECAST_BOOTSTRAP_POINTER",
+        "VIBECAST_CANONICAL_REFS",
+        "VIBECAST_CODE_OF_CONDUCT",
+        "VIBECAST_CONTRIBUTING",
+        "VIBECAST_LICENSE",
+        "VIBECAST_SECURITY",
+        "VIBECAST_AI_ADOPTION",
+        "VIBECAST_LOCAL_EXTENSION",
+        "VIBECAST_GENERATED_PROJECTION",
+        "VIBECAST_PROJECTION_MANIFEST",
+        "VIBECAST_PROJECTION_VALIDATOR",
+        "VIBECAST_PACKAGE",
+        "VIBECAST_TEST",
+        "VIBECAST_HEADERS",
+        "VIBECAST_RUNTIME"
       ],
       "canonical_authority": "README::DJC-VIBECAST",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
-      "source_status_summary": "Unassessed",
+      "source_status_summary": "Exact repository tree and source CI audited; Cast Developer Console Application ID, live Pages deployment and hardware/Apple/HA acceptance are external open gates.",
       "original_status": null,
       "status_representation": "SOURCE_SUMMARY; null original_status means exact original enum not transcribed",
       "selection": "NOT_SELECTED_BY_THIS_ASSIGNMENT",
@@ -8502,11 +8939,14 @@
         "No release or live qualification inferred from documentation"
       ],
       "profiles": "Cast receiver; geen marketingwebsite of API-proxy",
-      "acceptance_boundary": "Owning source criteria; complete per-item extraction remains open",
+      "acceptance_boundary": "Repository-source and exact-main CI evidence only; do not infer live receiver, registered Cast ID, target hardware or integrated Apple/HA session acceptance.",
       "acceptance_criteria": [],
       "completion_requirements": [],
       "contract_binding": "SOURCE_REFERENCES_ONLY; exact consuming artifact/contract qualification not complete",
-      "evidence_ids": [],
+      "evidence_ids": [
+        "VIBECAST_MAIN_CI_35084750065",
+        "VIBECAST_PROJECTION_CI_35084750035"
+      ],
       "prerequisite_groups": [],
       "blockers": [
         "Incomplete owning-source/evidence audit; no new product admission"
@@ -20660,6 +21100,28 @@
       "passed": true,
       "acceptance_qualified": false,
       "notes": "GitHub reports governance-adoption PR merged and the merge commit is an ancestor of the pinned repository head. This reconciles the old LOCAL_IN_PROGRESS/pending-review local phase text; it does not qualify runtime, distribution publication or an active writer."
+    },
+    {
+      "id": "VIBECAST_MAIN_CI_35084750065",
+      "kind": "exact_main_ci_readback",
+      "repository": "pcvantol/djconnect-vibecast-receiver",
+      "url": "https://github.com/pcvantol/djconnect-vibecast-receiver/actions/runs/35084750065",
+      "subject_sha": "a901fbcd3e894af62b63fafbca8f96738e08ce3c",
+      "observed_date": "2026-10-03",
+      "passed": true,
+      "acceptance_qualified": false,
+      "notes": "Verify receiver push run on exact pinned main succeeded; npm test source validation, not Cloudflare Pages, Cast Developer Console, physical display or integrated Session acceptance."
+    },
+    {
+      "id": "VIBECAST_PROJECTION_CI_35084750035",
+      "kind": "exact_main_governance_readback",
+      "repository": "pcvantol/djconnect-vibecast-receiver",
+      "url": "https://github.com/pcvantol/djconnect-vibecast-receiver/actions/runs/35084750035",
+      "subject_sha": "a901fbcd3e894af62b63fafbca8f96738e08ce3c",
+      "observed_date": "2026-10-03",
+      "passed": true,
+      "acceptance_qualified": false,
+      "notes": "Offline development projection push run on exact pinned main succeeded; not product or deployment acceptance."
     }
   ],
   "findings": [
@@ -20675,13 +21137,22 @@
     },
     {
       "id": "DRIFT-VIBECAST",
-      "status": "CANDIDATE_BACKLOG_RECONCILED; PI_ACCEPTANCE_OPEN",
-      "description": "Candidate PRODUCT_BACKLOG now lists the existing selected VibeCast reference increment. Ambient renderer basis exists; exact Apple-owner to physical portrait-Pi active-Session, reconnect, end cleanup and privacy acceptance remain open. Standalone Cast receiver is a later assessment.",
+      "status": "CANDIDATE_BACKLOG_RECONCILED; PI_AND_CAST_ACCEPTANCE_OPEN",
+      "description": "Candidate PRODUCT_BACKLOG lists the existing selected VibeCast reference increment. Ambient renderer basis exists; exact Apple-owner to physical portrait-Pi active-Session, reconnect, end cleanup and privacy acceptance remain open. The standalone Cast receiver exact main implements a memory-only scoped handoff, direct HA Broadcast WebSocket and five-language presentation, with one local Node test and successful exact-main source CI. It has no GitHub release in the observed list; Cast Developer Console Application ID, Cloudflare Pages live delivery and hardware/integrated Session acceptance are not proven. Cast remains a later assessment, not automatically selected by source existence or green CI.",
       "source_ids": [
         "PRODUCT_ROADMAP",
         "PRODUCT_BACKLOG",
         "VIBECAST_INCREMENT",
-        "README::DJC-VIBECAST"
+        "README::DJC-VIBECAST",
+        "VIBECAST_RUNTIME",
+        "VIBECAST_TEST",
+        "VIBECAST_CI",
+        "VIBECAST_PACKAGE",
+        "VIBECAST_SECURITY",
+        "VIBECAST_CANONICAL_REFS"
+      ],
+      "evidence_ids": [
+        "VIBECAST_MAIN_CI_35084750065"
       ]
     },
     {
@@ -21257,9 +21728,10 @@
     },
     {
       "id": "AUDIT-DJC-VIBECAST",
-      "status": "OPEN",
+      "status": "CLOSED",
       "scope": "DJC-VIBECAST",
-      "reason": "Complete local policy, owning backlog/source/tests/PR/releases, active writer/register discovery, workflow effects and final delta. README is not a complete component audit."
+      "reason": "Bounded owning repository source, local policy, tests, PRs, issues, release list, workflow effects and exact-main delta were audited; unknown writer remains UNKNOWN and external live/hardware acceptance is a separate open producer-evidence gate.",
+      "closure_evidence": "Pinned main a901fbcd3e894af62b63fafbca8f96738e08ce3c: all 26 tracked files read, all 13 Markdown paths individually pinned; local npm test 1/1 passed; exact-main Verify receiver run 35084750065 and projection run 35084750035 succeeded; remote main exact SHA unchanged on 2026-10-03; PR list #1-9 has no open PR, release list empty, issue list contains only planning #10; one clean local main worktree. This closes source/CI inventory only, not Cast App ID, Pages live deployment, physical hardware or Apple/HA consumer acceptance."
     },
     {
       "id": "AUDIT-DJC-PICO",
@@ -21319,7 +21791,7 @@
       "status": "OPEN",
       "scope": "platform",
       "reason": "Current matrix covers only explicitly read source inventory; certify complete disposition only after all relevant discoveries are audited.",
-      "remaining": "All 396 included pinned source rows are fully read and linked. Exact pinned trees contain 1,739 tracked Markdown paths, 373 individually represented in the matrix and 1,366 needing relevance/classification disposition; these are path counts, not a claim that all 1,366 are normative. The 41 newly pinned short Apple/website release-copy files do not prove publication, live site or installed consumers. Six historical core EP relative-link targets remain triaged outside the matrix. Complete repository-wide source/consumer discovery and status qualification before certification."
+      "remaining": "All 419 included pinned source rows are fully read and linked. Exact pinned trees contain 1,739 tracked Markdown paths, 383 individually represented in the matrix and 1,356 needing relevance/classification disposition; these are path counts, not a claim that all 1,366 are normative. The 41 newly pinned short Apple/website release-copy files do not prove publication, live site or installed consumers. Six historical core EP relative-link targets remain triaged outside the matrix. Complete repository-wide source/consumer discovery and status qualification before certification."
     },
     {
       "id": "REGISTER-DELIVERY",
