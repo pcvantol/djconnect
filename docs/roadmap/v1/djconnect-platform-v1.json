@@ -41,7 +41,7 @@
     "metadata_and_bounded_paraphrases": true,
     "offline_hash_verification_of_remote_blobs": false,
     "per_call_timestamps": "Date-level head readback on 2026-10-03; no per-file read timestamp for inherited checkpoint.",
-    "pinned_tree_blobs_verified": "705 of 705 path/blob pins matched exact commit trees or GitHub Contents commit readbacks: 105 original GitHub tree readbacks, 472 local git commit-tree readbacks and 128 new GitHub tree/Contents readbacks on 2026-10-03. Current API Markdown blobs at 3f1ed18d matched fully read local previous-main blobs. Firmware binary files were fully SHA256-hashed for identity, not semantically executed. Narrative interpretation remains partial.",
+    "pinned_tree_blobs_verified": "706 of 706 path/blob pins matched exact commit trees or GitHub Contents commit readbacks: 105 original GitHub tree readbacks, 473 local git commit-tree readbacks and 128 new GitHub tree/Contents readbacks on 2026-10-03. Current API Markdown blobs at 3f1ed18d matched fully read local previous-main blobs. Firmware binary files were fully SHA256-hashed for identity, not semantically executed. Narrative interpretation remains partial.",
     "reference_scan": {
       "method": "Every pinned core Markdown blob and every pinned Markdown blob in the eleven DJC component repositories, at its recorded commit: parse relative Markdown links, strip anchors, normalize against source directory, retain existing .md targets absent from the pinned source matrix; distinct repository/path keys. The seven pinned external Forge method documents are outside this lane-source link frontier.",
       "unmapped_paths": [
@@ -3968,6 +3968,76 @@
               "blob_sha": "b0da6d8cc416eaa8913401ab445a11d4c5d87be5"
             }
           ]
+        }
+      ]
+    },
+    "historical_release_run_readback": {
+      "observed_at": "2026-10-03 14:33 UTC",
+      "method": "GitHub Actions REST GET /repos/pcvantol/{repo}/actions/runs/{id} for each of the 18 run IDs linked by the pinned 3.3 internal-target report; recent core run 37129793389 was fetched successfully as an API-control. Read-only; no workflow dispatched.",
+      "result": "ALL_18_HISTORICAL_RUN_IDS_HTTP_404_AT_READBACK; cause not established; historical report/manifest references cannot be promoted to independently verified current receipts.",
+      "target_run_pairs": [
+        {
+          "target": "DJC-CORE",
+          "deployment_run_id": 29683604435,
+          "smoke_run_id": 29683901389,
+          "deployment_http_status": 404,
+          "smoke_http_status": 404
+        },
+        {
+          "target": "DJC-API",
+          "deployment_run_id": 29364714166,
+          "smoke_run_id": 29364851135,
+          "deployment_http_status": 404,
+          "smoke_http_status": 404
+        },
+        {
+          "target": "DJC-WEBSITE",
+          "deployment_run_id": 29441732130,
+          "smoke_run_id": 29441809581,
+          "deployment_http_status": 404,
+          "smoke_http_status": 404
+        },
+        {
+          "target": "DJC-ESP32",
+          "deployment_run_id": 29446964025,
+          "smoke_run_id": 29447045601,
+          "deployment_http_status": 404,
+          "smoke_http_status": 404
+        },
+        {
+          "target": "DJC-PI",
+          "deployment_run_id": 29361051673,
+          "smoke_run_id": 29361739009,
+          "deployment_http_status": 404,
+          "smoke_http_status": 404
+        },
+        {
+          "target": "DJC-APPLE-MACOS",
+          "deployment_run_id": 29452344685,
+          "smoke_run_id": 29452385823,
+          "deployment_http_status": 404,
+          "smoke_http_status": 404
+        },
+        {
+          "target": "DJC-APPLE-IPHONE-WATCH",
+          "deployment_run_id": 29453894383,
+          "smoke_run_id": 29455024770,
+          "deployment_http_status": 404,
+          "smoke_http_status": 404
+        },
+        {
+          "target": "DJC-APPLE-IPAD",
+          "deployment_run_id": 29627667215,
+          "smoke_run_id": 29679738565,
+          "deployment_http_status": 404,
+          "smoke_http_status": 404
+        },
+        {
+          "target": "DJC-WINDOWS",
+          "deployment_run_id": 29583151393,
+          "smoke_run_id": 29588039127,
+          "deployment_http_status": 404,
+          "smoke_http_status": 404
         }
       ]
     }
@@ -17394,6 +17464,24 @@
         "PROJ::AUDIT::METHOD"
       ],
       "remaining": "Do not use the old matrix to infer current protection or workflow effects."
+    },
+    {
+      "id": "CORE_RELEASE_3_3_MANIFEST_HIST",
+      "repository": "pcvantol/djconnect",
+      "path": "docs/release/PLATFORM_3_3_CURRENT_MAIN_MANIFEST_PROPOSAL.json",
+      "blob_sha": "7faaec5e7ed30cd85367110b50805d525290fdc3",
+      "commit_sha": "192703ea79d3c65f373e69fa60d604555d4c2f5a",
+      "read_boundary": "complete; exact pinned full-text read in this continuation",
+      "read_complete": true,
+      "status_authority": "Historical immutable 3.3 INTERNAL_RELEASE manifest at the pinned core head. Its final HA repository/approval/artifact binding is 3.3.1 at 0bd6d302, while HA target_execution_evidence binds earlier installed 3.3.0 source 30978862; the narrative artifact_integrity field still names distinct 1e886715. These three identities require owning evidence reconciliation and do not prove current deployment.",
+      "observed_at": "2026-10-03; continuation of pinned issue #1101 audit",
+      "identity_binding": "PINNED_COMMIT_READ",
+      "url": "https://github.com/pcvantol/djconnect/blob/192703ea79d3c65f373e69fa60d604555d4c2f5a/docs/release/PLATFORM_3_3_CURRENT_MAIN_MANIFEST_PROPOSAL.json",
+      "disposition": "MAPPED",
+      "mapped_node_ids": [
+        "PROJ::AUDIT::METHOD"
+      ],
+      "remaining": "Reconcile the 3.3.1 binding against an exact 3.3.1 deployment and smoke receipt; current-target and 4.0 consumer claims remain separate."
     }
   ],
   "nodes": [
@@ -24519,7 +24607,8 @@
         "CORE_RELEASE_3_3_HA_TARGET_HIST",
         "CORE_RELEASE_EVIDENCE_CONTRACT",
         "CORE_RELEASE_WORKFLOW_SEPARATION",
-        "CORE_SA_REPOSITORY_GOVERNANCE_MATRIX_HIST"
+        "CORE_SA_REPOSITORY_GOVERNANCE_MATRIX_HIST",
+        "CORE_RELEASE_3_3_MANIFEST_HIST"
       ],
       "canonical_authority": "ROADMAP_INDEX",
       "owner_boundary": "Canonical record/projection ownership only; future cross-repository implementations require separate owning nodes",
@@ -31174,14 +31263,37 @@
     {
       "id": "RELEASE-3_3-HISTORICAL-RECEIPT-BOUNDARY",
       "status": "HISTORICAL_RECEIPT_INDEX__CURRENT_CONSUMER_OPEN",
-      "description": "The 2026-07-19 Platform 3.3 completion record certifies an immutable internal manifest and transfers the train to maintenance. Its internal-target report lists nine separately authorized deployment/smoke run pairs. The HA target record binds one historical source/artifact/hash and reports installed 3.3.0 at target smoke, while the final component support table lists 3.3.1. These are dated records, not proof of current installed versions, public distribution or the 4.0 candidate; exact linked run/manifest readback and present consumer qualification remain open. The evidence contract requires exact-main qualification separate from exact-artifact deployment/smoke; the dated governance matrix and implementing workflow architecture cannot override actual present workflow triggers.",
+      "description": "The 2026-07-19 Platform 3.3 completion record certifies an immutable internal manifest and transfers the train to maintenance. Its internal-target report lists nine separately authorized deployment/smoke run pairs. The HA target record binds one historical source/artifact/hash and reports installed 3.3.0 at target smoke, while the final component support table lists 3.3.1. These are dated records, not proof of current installed versions, public distribution or the 4.0 candidate. The exact historical manifest is now fully read; all 18 linked deployment/smoke run IDs are unavailable at current REST readback, and present consumer qualification remains open. The evidence contract requires exact-main qualification separate from exact-artifact deployment/smoke; the dated governance matrix and implementing workflow architecture cannot override actual present workflow triggers.",
       "source_ids": [
         "CORE_RELEASE_3_3_COMPLETION_HIST",
         "CORE_RELEASE_3_3_TARGETS_HIST",
         "CORE_RELEASE_3_3_HA_TARGET_HIST",
         "CORE_RELEASE_EVIDENCE_CONTRACT",
         "CORE_RELEASE_WORKFLOW_SEPARATION",
-        "CORE_SA_REPOSITORY_GOVERNANCE_MATRIX_HIST"
+        "CORE_SA_REPOSITORY_GOVERNANCE_MATRIX_HIST",
+        "CORE_RELEASE_3_3_MANIFEST_HIST"
+      ]
+    },
+    {
+      "id": "RELEASE-3_3-ACTIONS-RECEIPT-UNAVAILABLE",
+      "status": "OPEN_HISTORICAL_PRODUCER_CONSUMER_EVIDENCE",
+      "description": "The pinned internal-target report and full manifest read agree on nine 2026-07 target deployment/smoke run pairs and the HA target source/artifact hash. At 2026-10-03 readback, GitHub Actions REST returned HTTP 404 for all 18 historical run IDs; a recent core run was readable through the same API. The cause of unavailability is not established. The report and manifest remain historical documentary evidence, but none of the 18 linked run results has been independently reverified here. The final 3.3.1 supported-component binding and earlier HA target smoke of installed 3.3.0 remain distinct. Current installed-target state, public distribution and 4.0 consumers are open.",
+      "source_ids": [
+        "CORE_RELEASE_3_3_TARGETS_HIST",
+        "CORE_RELEASE_3_3_HA_TARGET_HIST",
+        "CORE_RELEASE_3_3_COMPLETION_HIST",
+        "CORE_RELEASE_3_3_MANIFEST_HIST"
+      ]
+    },
+    {
+      "id": "RELEASE-3_3-MANIFEST-HA-BINDING-DRIFT",
+      "status": "OPEN_OWNING_MANIFEST_EVIDENCE_RECONCILIATION",
+      "description": "The fully read 2026-07-19 internal 3.3 operational manifest lists the HA component/source/artifact and target-specific approval as 3.3.1 at 0bd6d302, but its home_assistant_pi5 target_execution_evidence still binds source 30978862, the earlier 3.3.0 artifact hash, deployment run 29683604435 and smoke run 29683901389. The manifest narrative artifact_integrity field additionally names distinct historical HA candidate 1e886715 (producer run 29685511601), without tying it to the final 0bd6 target execution. The target-completion report cites the 30978862 runs, and the HA deployment report says the installed integration was 3.3.0. The reviewed manifest/report set therefore does not itself identify a 3.3.1 target deployment/smoke receipt. A separate receipt may exist; current installed target state is unproven here. Reconcile this under the owning release evidence record without reopening or executing the historical release.",
+      "source_ids": [
+        "CORE_RELEASE_3_3_MANIFEST_HIST",
+        "CORE_RELEASE_3_3_COMPLETION_HIST",
+        "CORE_RELEASE_3_3_TARGETS_HIST",
+        "CORE_RELEASE_3_3_HA_TARGET_HIST"
       ]
     }
   ],
@@ -31190,7 +31302,7 @@
       "id": "AUDIT-DJC-CORE",
       "status": "OPEN",
       "scope": "DJC-CORE",
-      "reason": "Pinned foundation, roadmap, horizon, legal, voice, verification, full Meta Engineering reading order, local environment and historical EP/Software Assurance sources are read. Ten historical EP/runner links remain triaged; workflow effects, remaining consumer evidence and final delta still need qualification. Ten additional exact-pinned core policy/navigation sources are read, including owner authorization and Finalization; generated lifecycle and physical/consumer evidence still need qualification. Five linked architecture/assurance/Trusted Delivery records are also pinned; the 2026-07-13 target matrix is historical, not current settings evidence. Five additional canonical/navigational product texts and sixteen dated Phase 6 technical/target-architecture texts are pinned. Their current-state claims are bounded by the 2026-07-10 archaeology phase; the standalone Device Installer is planned target architecture, not an existing thirteenth lane or product pickup. All 19 core ADR Markdown sources are now pinned (17 in this delta), with ADR-0024/0025 incident supersession and ADR-0026 terminal clean-slate context kept historical under #1098. Ten additional exact-pinned release-policy/navigation/historical records are read, including exact-main evidence-prerelease policy, dispatch-only deployment/smoke boundaries and the prompt-history non-authority rule. The 3.3.1 prepared-for-review release note is historical against the published v3.3.1 tag; no installed consumer is inferred. 293 dated core prompt paths are classified by path only, leaving 317 core Markdown paths unclassified. Four exact-pinned post-merge Software Assurance records now separate current policy/schema from historical qualification; the stated per-component prerelease prefix conflicts with the pinned reusable workflow hard-coded internal-ha tag. Four retained embedded-EP status/run/workspace records were fully read as historical; 51 other docs/engineering Markdown paths are classified by exact path/blob under terminal #1098 without reopening retirement. Six exact-pinned Verification Program/report/backlog/scorecard records distinguish dated Profile V1 live NO-GO, later qualified Verification Platform engine, stale internal Windows narrative and completed Golden CI infrastructure; no current live consumer GO is inferred. The exact-pinned Epic 2 discovery index explicitly labels 17 remaining discovery reports as historical, path/blob-classified only; current capability model remains the authority. Current Development and Implementation navigation/Handoff are fully read and pinned; six explicitly legacy embedded-EP development files are exact-path/blob classified only, with standalone EP ownership preserved. Six additional exact-pinned release/evidence/governance records are fully read: historical Platform 3.3 certification and nine internal-target receipt references remain bounded to that manifest, while current workflow effects require exact implementation readback."
+      "reason": "Pinned foundation, roadmap, horizon, legal, voice, verification, full Meta Engineering reading order, local environment and historical EP/Software Assurance sources are read. Ten historical EP/runner links remain triaged; workflow effects, remaining consumer evidence and final delta still need qualification. Ten additional exact-pinned core policy/navigation sources are read, including owner authorization and Finalization; generated lifecycle and physical/consumer evidence still need qualification. Five linked architecture/assurance/Trusted Delivery records are also pinned; the 2026-07-13 target matrix is historical, not current settings evidence. Five additional canonical/navigational product texts and sixteen dated Phase 6 technical/target-architecture texts are pinned. Their current-state claims are bounded by the 2026-07-10 archaeology phase; the standalone Device Installer is planned target architecture, not an existing thirteenth lane or product pickup. All 19 core ADR Markdown sources are now pinned (17 in this delta), with ADR-0024/0025 incident supersession and ADR-0026 terminal clean-slate context kept historical under #1098. Ten additional exact-pinned release-policy/navigation/historical records are read, including exact-main evidence-prerelease policy, dispatch-only deployment/smoke boundaries and the prompt-history non-authority rule. The 3.3.1 prepared-for-review release note is historical against the published v3.3.1 tag; no installed consumer is inferred. 293 dated core prompt paths are classified by path only, leaving 317 core Markdown paths unclassified. Four exact-pinned post-merge Software Assurance records now separate current policy/schema from historical qualification; the stated per-component prerelease prefix conflicts with the pinned reusable workflow hard-coded internal-ha tag. Four retained embedded-EP status/run/workspace records were fully read as historical; 51 other docs/engineering Markdown paths are classified by exact path/blob under terminal #1098 without reopening retirement. Six exact-pinned Verification Program/report/backlog/scorecard records distinguish dated Profile V1 live NO-GO, later qualified Verification Platform engine, stale internal Windows narrative and completed Golden CI infrastructure; no current live consumer GO is inferred. The exact-pinned Epic 2 discovery index explicitly labels 17 remaining discovery reports as historical, path/blob-classified only; current capability model remains the authority. Current Development and Implementation navigation/Handoff are fully read and pinned; six explicitly legacy embedded-EP development files are exact-path/blob classified only, with standalone EP ownership preserved. Six additional exact-pinned release/evidence/governance records are fully read: historical Platform 3.3 certification and nine internal-target receipt references remain bounded to that manifest, while current workflow effects require exact implementation readback. The historical 3.3 manifest was fully read; its nine target run pairs match the report while its HA 3.3.1 source/artifact binding lacks a matching target execution row; all 18 GitHub Actions REST run IDs now return 404 while a recent control run is readable, leaving independent producer/consumer revalidation open."
     },
     {
       "id": "AUDIT-DJC-APPLE",
@@ -31293,14 +31405,14 @@
       "status": "OPEN",
       "scope": "platform",
       "reason": "Read exact source, release and consumer receipts; finish phase-specific edges and AND/OR alternatives; no live claim from mocks or report text.",
-      "remaining": "Historical Apple/Windows 3.3.0 release listings and Pi 4.0.0-rc.2 manifest/assets are observed; exact current source-to-consumer joins, installed Pi/Apple/Windows receipts, policy authorization and all remaining AND/OR alternatives are not qualified."
+      "remaining": "Historical Apple/Windows 3.3.0 release listings and Pi 4.0.0-rc.2 manifest/assets are observed; exact current source-to-consumer joins, installed Pi/Apple/Windows receipts, policy authorization and all remaining AND/OR alternatives are not qualified. The nine historical 3.3 internal target run pairs are listed in the report/manifest but all 18 run IDs returned HTTP 404 at this readback; no current consumer proof follows. The final HA 3.3.1 source/artifact binding has no matching 3.3.1 target execution row in the reviewed historical manifest/report set."
     },
     {
       "id": "SOURCE-MATRIX",
       "status": "OPEN",
       "scope": "platform",
       "reason": "Current matrix covers only explicitly read source inventory; certify complete disposition only after all relevant discoveries are audited.",
-      "remaining": "All 705 included pinned source rows have exact path/blob provenance and bounded read descriptions. Exact pinned trees contain 1,739 tracked Markdown paths: 603 individually represented/full-read, 917 exact path/blob entries classified only as dated prompt history, older versioned release copy, retained embedded EP/development documentation or Epic 2 discovery artifacts, and 219 still unclassified for relevance/full reading. The 917 classified contents were not read and can be reopened when a current authority points to one. Apple 47/173, Windows 41/117 and website 64/412 Markdown have all other paths in explicit historical categories; Pi 33/33, API 28/28 and ESP32 28/28 are individually represented. Core is 294/880, with 293 dated prompts, 51 retained EP documents, 17 Epic 2 discovery reports and six legacy development files classified by path, and 219 unclassified. Runtime, workflow/test and physical/source-to-release consumer coverage remain separately open. Ten historical core EP/runner relative-link targets remain triaged outside the matrix. Complete current-source/consumer discovery and status qualification before certification."
+      "remaining": "All 706 included pinned source rows have exact path/blob provenance and bounded read descriptions. Exact pinned trees contain 1,739 tracked Markdown paths: 603 individually represented/full-read, 917 exact path/blob entries classified only as dated prompt history, older versioned release copy, retained embedded EP/development documentation or Epic 2 discovery artifacts, and 219 still unclassified for relevance/full reading. The 917 classified contents were not read and can be reopened when a current authority points to one. Apple 47/173, Windows 41/117 and website 64/412 Markdown have all other paths in explicit historical categories; Pi 33/33, API 28/28 and ESP32 28/28 are individually represented. Core is 294/880, with 293 dated prompts, 51 retained EP documents, 17 Epic 2 discovery reports and six legacy development files classified by path, and 219 unclassified. Runtime, workflow/test and physical/source-to-release consumer coverage remain separately open. Ten historical core EP/runner relative-link targets remain triaged outside the matrix. Complete current-source/consumer discovery and status qualification before certification."
     },
     {
       "id": "REGISTER-DELIVERY",
