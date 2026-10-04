@@ -1478,6 +1478,13 @@ async def _handle_ask_dj_play_recommendation(
         return stale
     backend_meta = music_backend_metadata(hass, runtime)
     selected_backend = str(backend_meta.get("music_backend") or "").strip()
+    if selected_backend == "later_manual":
+        return {
+            "success": False,
+            "error": "music_backend_not_configured",
+            "message": backend_meta["music_backend_error"]["message"],
+            **backend_meta,
+        }
     if selected_backend == "music_assistant":
         return await _play_music_assistant_recommendation(
             hass, runtime, recommendation, request_payload, backend_meta, user_id=user_id
@@ -2149,7 +2156,11 @@ def _normalize_recommendation_value(value: dict[str, Any]) -> dict[str, Any]:
 
 def _stale_backend_action_error(runtime: Any, action: dict[str, Any]) -> dict[str, Any]:
     current = getattr(runtime, "config", {}) or {}
-    current_backend = str(current.get(CONF_MUSIC_BACKEND) or "spotify_direct").strip()
+    current_backend = str(
+        getattr(runtime, "profile_context_backend_id", "")
+        or current.get(CONF_MUSIC_BACKEND)
+        or "spotify_direct"
+    ).strip()
     action_backend = str(action.get("backend") or "").strip()
     if action_backend and action_backend != current_backend:
         return _stale_backend_action_payload()

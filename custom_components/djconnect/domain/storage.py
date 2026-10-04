@@ -43,6 +43,10 @@ class ProfileStorageValidationError(ValueError):
     """Raised when Profile Platform storage contains invalid references."""
 
 
+class SharedProfileBackendChange(ProfileStorageValidationError):
+    """Raised when one options entry cannot safely update a shared Profile."""
+
+
 class ProfilePlatformStorage:
     """Load, validate and persist Profile Platform state."""
 
@@ -328,6 +332,11 @@ class ProfilePlatformStorage:
         profile = household.profiles.get(clean_identifier(device.linked_profile_id))
         if profile is None:
             raise ProfileStorageValidationError("paired device has no linked profile")
+        if sum(
+            other.linked_profile_id == profile.profile_id
+            for other in household.devices.values()
+        ) > 1:
+            raise SharedProfileBackendChange("profile is linked to multiple devices")
         if account is not None and (
             account.backend_id != backend.backend_id
             or profile.profile_id not in account.linked_profile_ids

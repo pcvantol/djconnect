@@ -159,6 +159,21 @@ DEFAULT_SETUP_METHOD = SETUP_METHOD_CONVERSATION_AGENT
 DEFAULT_API_BASE_URL = "https://api.djconnect.dev"
 MUSIC_BACKEND_SPOTIFY_DIRECT = "spotify_direct"
 MUSIC_BACKEND_MUSIC_ASSISTANT = "music_assistant"
+MUSIC_BACKEND_LATER_MANUAL = "later_manual"
+MUSIC_BACKEND_MANUAL_NAMES = {
+    "en": "Later / manual",
+    "nl": "Later / handmatig",
+    "de": "Später / manuell",
+    "fr": "Plus tard / manuel",
+    "es": "Más tarde / manual",
+}
+MUSIC_BACKEND_MANUAL_MESSAGES = {
+    "en": "Select a music backend in DJConnect options.",
+    "nl": "Kies een muziekbackend in de DJConnect-opties.",
+    "de": "Wähle in den DJConnect-Optionen ein Musik-Backend aus.",
+    "fr": "Choisis un backend musical dans les options DJConnect.",
+    "es": "Elige un backend de música en las opciones de DJConnect.",
+}
 DEFAULT_MUSIC_BACKEND = MUSIC_BACKEND_SPOTIFY_DIRECT
 MUSIC_BACKEND_NAMES = {
     MUSIC_BACKEND_SPOTIFY_DIRECT: "Spotify Direct",

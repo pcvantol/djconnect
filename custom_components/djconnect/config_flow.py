@@ -75,6 +75,8 @@ from .const import (
     DJ_ANNOUNCEMENT_CLIENT_DEVICE,
     FIRMWARE_CHANNELS,
     MUSIC_BACKEND_NAMES,
+    MUSIC_BACKEND_LATER_MANUAL,
+    MUSIC_BACKEND_MANUAL_NAMES,
     MUSIC_BACKEND_MUSIC_ASSISTANT,
     MUSIC_BACKEND_SPOTIFY_DIRECT,
     CLIENT_TYPE_NAMES,
@@ -110,7 +112,11 @@ from .domain import ProfilePrivacyMode, ProfileType, ResponseStyle
 from .domain.backend import BackendProvider, MusicBackendCapabilities, MusicBackendRegistration
 from .domain.music_account import MusicAccount, MusicAccountKind
 from .domain.profile import ProfilePreferences
-from .domain.storage import ProfilePlatformStorage, ProfileStorageValidationError
+from .domain.storage import (
+    ProfilePlatformStorage,
+    ProfileStorageValidationError,
+    SharedProfileBackendChange,
+)
 from .domain.storage import STORE_KEY as PROFILE_PLATFORM_STORE_KEY
 from .pairing_defaults import (
     clean as _clean,
@@ -147,7 +153,7 @@ CONF_PROFILE_TYPE = "profile_type"
 CONF_PROFILE_PRIVACY_MODE = "profile_privacy_mode"
 CONF_PROFILE_RESPONSE_STYLE = "profile_response_style"
 CONF_REQUIRE_PROFILE = "require_profile"
-BACKEND_LATER_MANUAL = "later_manual"
+BACKEND_LATER_MANUAL = MUSIC_BACKEND_LATER_MANUAL
 BLE_ACTION_FIELD = "ble_action"
 BLE_ACTION_PROVISION = "provision_wifi"
 BLE_ACTION_RETRY_SCAN = "retry_ble_scan"
@@ -606,12 +612,23 @@ def _spotify_schema() -> dict[Any, Any]:
     return _spotify_schema_with_defaults()
 
 
-def _backend_schema(default_backend: str = DEFAULT_MUSIC_BACKEND) -> dict[Any, Any]:
-    """Build the hard backend choice schema."""
-    backend_names = {
+def _backend_choice_names(hass: Any) -> dict[str, str]:
+    """Show the manual choice in the Home Assistant language."""
+    language = _ha_language(hass).lower().replace("_", "-").split("-")[0]
+    return {
         **MUSIC_BACKEND_NAMES,
-        BACKEND_LATER_MANUAL: "Later / manual",
+        BACKEND_LATER_MANUAL: MUSIC_BACKEND_MANUAL_NAMES.get(
+            language, MUSIC_BACKEND_MANUAL_NAMES["en"]
+        ),
     }
+
+
+def _backend_schema(
+    hass: Any,
+    default_backend: str = DEFAULT_MUSIC_BACKEND,
+) -> dict[Any, Any]:
+    """Build the hard backend choice schema."""
+    backend_names = _backend_choice_names(hass)
     return {
         vol.Required(CONF_MUSIC_BACKEND, default=default_backend): vol.In(
             backend_names
@@ -1186,14 +1203,14 @@ async def _conversation_agent_options_schema(
     return vol.Schema(schema)
 
 
-def _music_backend_switch_schema(defaults: dict[str, Any]) -> vol.Schema:
+def _music_backend_switch_schema(hass: Any, defaults: dict[str, Any]) -> vol.Schema:
     """Build the explicit backend switch schema."""
     return vol.Schema(
         {
             vol.Required(
                 CONF_MUSIC_BACKEND,
                 default=defaults.get(CONF_MUSIC_BACKEND, DEFAULT_MUSIC_BACKEND),
-            ): vol.In({**MUSIC_BACKEND_NAMES, BACKEND_LATER_MANUAL: "Later / manual"}),
+            ): vol.In(_backend_choice_names(hass)),
         }
     )
 
@@ -2168,14 +2185,14 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 if not _music_assistant_available(self.hass):
                     return self.async_show_form(
                         step_id="backend",
-                        data_schema=vol.Schema(_backend_schema()),
+                        data_schema=vol.Schema(_backend_schema(self.hass)),
                         errors={"base": "music_assistant_unavailable"},
                         last_step=False,
                     )
                 if not _music_assistant_players(self.hass):
                     return self.async_show_form(
                         step_id="backend",
-                        data_schema=vol.Schema(_backend_schema()),
+                        data_schema=vol.Schema(_backend_schema(self.hass)),
                         errors={"base": "music_assistant_no_players"},
                         last_step=False,
                     )
@@ -2190,7 +2207,7 @@ class DJConnectConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         return self.async_show_form(
             step_id="backend",
-            data_schema=vol.Schema(_backend_schema()),
+            data_schema=vol.Schema(_backend_schema(self.hass)),
             errors={},
             last_step=False,
         )
@@ -2737,7 +2754,7 @@ class DJConnectOptionsFlow(config_entries.OptionsFlow):
 
         return self.async_show_form(
             step_id="music_backend",
-            data_schema=_music_backend_switch_schema(current),
+            data_schema=_music_backend_switch_schema(self.hass, current),
             errors=errors,
         )
 
@@ -2778,13 +2795,13 @@ class DJConnectOptionsFlow(config_entries.OptionsFlow):
         if not _music_assistant_available(self.hass):
             return self.async_show_form(
                 step_id="music_backend",
-                data_schema=_music_backend_switch_schema(current),
+                data_schema=_music_backend_switch_schema(self.hass, current),
                 errors={"base": "music_assistant_not_configured"},
             )
         if not players:
             return self.async_show_form(
                 step_id="music_backend",
-                data_schema=_music_backend_switch_schema(current),
+                data_schema=_music_backend_switch_schema(self.hass, current),
                 errors={"base": "music_assistant_no_players"},
             )
         return self.async_show_form(
@@ -2825,11 +2842,21 @@ class DJConnectOptionsFlow(config_entries.OptionsFlow):
     async def _finish_backend_switch(self, options: dict[str, Any]) -> FlowResult:
         try:
             profile_changed = await self._bind_entry_profile_backend(options)
+        except SharedProfileBackendChange:
+            return self.async_show_form(
+                step_id="music_backend",
+                data_schema=_music_backend_switch_schema(
+                    self.hass,
+                    {**self._config_entry.data, **self._config_entry.options},
+                ),
+                errors={"base": "profile_shared_backend_change"},
+            )
         except Exception:  # noqa: BLE001
             _LOGGER.warning("DJConnect backend Profile binding failed")
             return self.async_show_form(
                 step_id="music_backend",
                 data_schema=_music_backend_switch_schema(
+                    self.hass,
                     {**self._config_entry.data, **self._config_entry.options}
                 ),
                 errors={"base": "profile_platform_failed"},

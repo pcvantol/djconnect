@@ -264,7 +264,7 @@
           "music_backend": "Backend de música"
         },
         "data_description": {
-          "music_backend": "Elige Spotify Direct o Music Assistant. Spotify is a trademark of Spotify AB. DJConnect is not affiliated with, endorsed by, or sponsored by Spotify AB."
+          "music_backend": "Elige Spotify Direct, Music Assistant o Más tarde / manual. Spotify is a trademark of Spotify AB. DJConnect is not affiliated with, endorsed by, or sponsored by Spotify AB."
         }
       },
       "music_assistant": {
@@ -368,7 +368,7 @@
           "music_backend": "Backend de música"
         },
         "data_description": {
-          "music_backend": "Elige Spotify Direct, Music Assistant o Later / manual. Spotify is a trademark of Spotify AB. DJConnect is not affiliated with, endorsed by, or sponsored by Spotify AB."
+          "music_backend": "Elige Spotify Direct, Music Assistant o Más tarde / manual. Spotify is a trademark of Spotify AB. DJConnect is not affiliated with, endorsed by, or sponsored by Spotify AB."
         }
       },
       "music_assistant_player": {
@@ -437,6 +437,7 @@
       "spotify_oauth_required": "Spotify OAuth es necesario antes de que Spotify Direct pueda activarse.",
       "backend_switch_failed": "DJConnect no pudo cambiar el backend de música. Revisa el backend seleccionado e inténtalo de nuevo.",
       "profile_platform_failed": "No se pudo actualizar el perfil vinculado. Comprueba el emparejamiento del dispositivo e inténtalo de nuevo.",
+      "profile_shared_backend_change": "Este perfil está vinculado a varios dispositivos. Vincula este dispositivo a su propio perfil antes de cambiar el backend de música.",
       "invalid_voice_profile": "Elige un perfil de voz DJ compatible."
     }
   },

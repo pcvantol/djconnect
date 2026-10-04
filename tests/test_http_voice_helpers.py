@@ -3987,6 +3987,33 @@ class VoiceHttpHelperTest(unittest.TestCase):
         self.assertEqual(payload["music_backend"], "music_assistant")
         self.assertEqual(payload["music_backend_revision"], 4)
 
+    def test_manual_backend_rejects_unversioned_spotify_recommendation(self) -> None:
+        runtime = types.SimpleNamespace(config={"music_backend": "later_manual"})
+        result = asyncio.run(
+            self.http._handle_ask_dj_play_recommendation(
+                types.SimpleNamespace(),
+                runtime,
+                {"kind": "track", "uri": "spotify:track:abc"},
+                {},
+            )
+        )
+
+        self.assertFalse(result["success"])
+        self.assertEqual(result["error"], "music_backend_not_configured")
+        self.assertEqual(result["music_backend"], "later_manual")
+
+    def test_resolved_profile_backend_rejects_stale_entry_action(self) -> None:
+        runtime = types.SimpleNamespace(
+            config={"music_backend": "spotify_direct", "music_backend_revision": 2},
+            profile_context_backend_id="later_manual",
+        )
+
+        result = self.http._stale_backend_action_error(
+            runtime, {"backend": "spotify_direct", "music_backend_revision": 2}
+        )
+
+        self.assertEqual(result["error"], "stale_backend_action")
+
     def test_command_view_plays_ask_dj_recommendation_and_records_memory(self) -> None:
         const = importlib.import_module("custom_components.djconnect.const")
         calls = []

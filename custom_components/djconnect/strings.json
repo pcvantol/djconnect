@@ -264,7 +264,7 @@
           "music_backend": "Muziekbackend"
         },
         "data_description": {
-          "music_backend": "Kies Spotify Direct of Music Assistant. Spotify is een handelsmerk van Spotify AB. DJConnect is niet verbonden aan, goedgekeurd door of gesponsord door Spotify AB."
+          "music_backend": "Kies Spotify Direct, Music Assistant of Later / handmatig. Spotify is een handelsmerk van Spotify AB. DJConnect is niet verbonden aan, goedgekeurd door of gesponsord door Spotify AB."
         }
       },
       "music_assistant": {
@@ -368,7 +368,7 @@
           "music_backend": "Muziekbackend"
         },
         "data_description": {
-          "music_backend": "Kies Spotify Direct, Music Assistant of Later / manual. Spotify is een handelsmerk van Spotify AB. DJConnect is niet verbonden aan, goedgekeurd door of gesponsord door Spotify AB."
+          "music_backend": "Kies Spotify Direct, Music Assistant of Later / handmatig. Spotify is een handelsmerk van Spotify AB. DJConnect is niet verbonden aan, goedgekeurd door of gesponsord door Spotify AB."
         }
       },
       "music_assistant_player": {
@@ -437,6 +437,7 @@
       "spotify_oauth_required": "Spotify OAuth is vereist voordat Spotify Direct actief kan worden.",
       "backend_switch_failed": "DJConnect kon de muziekbackend niet wijzigen. Controleer de gekozen backend en probeer opnieuw.",
       "profile_platform_failed": "Het gekoppelde profiel kon niet worden bijgewerkt. Controleer de apparaatkoppeling en probeer opnieuw.",
+      "profile_shared_backend_change": "Dit profiel is gekoppeld aan meerdere apparaten. Koppel dit apparaat aan een eigen profiel voordat je de muziekbackend wijzigt.",
       "invalid_voice_profile": "Kies een ondersteund DJ stemprofiel."
     }
   },

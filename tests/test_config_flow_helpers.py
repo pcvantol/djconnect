@@ -2513,6 +2513,23 @@ class ConfigFlowHelperTest(unittest.TestCase):
         self.assertEqual(form["step_id"], "music_backend")
         self.assertEqual(marker.default, self.const.MUSIC_BACKEND_SPOTIFY_DIRECT)
 
+    def test_manual_backend_choice_has_five_language_labels(self) -> None:
+        expected = {
+            "en": "Later / manual",
+            "nl": "Later / handmatig",
+            "de": "Später / manuell",
+            "fr": "Plus tard / manuel",
+            "es": "Más tarde / manual",
+        }
+        for language, label in expected.items():
+            hass = types.SimpleNamespace(config=types.SimpleNamespace(language=language))
+            self.assertEqual(
+                self.config_flow._backend_choice_names(hass)[
+                    self.config_flow.BACKEND_LATER_MANUAL
+                ],
+                label,
+            )
+
     def _bound_ios_backend_flow(self, *, linked: bool = True):
         hass = types.SimpleNamespace(
             config=types.SimpleNamespace(language="en"),
@@ -2652,6 +2669,30 @@ class ConfigFlowHelperTest(unittest.TestCase):
             self.config_flow.BACKEND_LATER_MANUAL,
         )
         self.assertNotIn(self.const.MUSIC_BACKEND_SPOTIFY_DIRECT, manager.household.music_backends)
+
+    def test_options_backend_choice_rejects_shared_profile(self) -> None:
+        flow, manager, profile, entry = self._bound_ios_backend_flow()
+        asyncio.run(
+            manager.async_upsert_device(
+                "djconnect-macos-ABCDEFGHIJKL",
+                self.const.CLIENT_TYPE_MACOS,
+                linked_profile_id=profile.profile_id,
+            )
+        )
+
+        result = asyncio.run(
+            flow.async_step_music_backend(
+                {self.const.CONF_MUSIC_BACKEND: self.const.MUSIC_BACKEND_SPOTIFY_DIRECT}
+            )
+        )
+
+        self.assertEqual(result["type"], "form")
+        self.assertEqual(result["errors"]["base"], "profile_shared_backend_change")
+        self.assertEqual(entry.options[self.const.CONF_MUSIC_BACKEND_REVISION], 2)
+        self.assertEqual(
+            manager.household.profiles[profile.profile_id].preferences.default_backend_id,
+            self.config_flow.BACKEND_LATER_MANUAL,
+        )
 
     def test_options_switch_to_music_assistant_without_spotify_fields(self) -> None:
         entry = types.SimpleNamespace(
