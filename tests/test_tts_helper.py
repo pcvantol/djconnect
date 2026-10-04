@@ -1819,6 +1819,68 @@ class TtsHelperTest(unittest.TestCase):
         logs = "\n".join(captured.output)
         self.assertEqual(logs.count("no runtime matched bearer token"), 1)
 
+    def test_backend_options_reload_preserves_memory_and_history(self) -> None:
+        const = self.const
+        entry = types.SimpleNamespace(
+            entry_id="entry-1",
+            data={const.CONF_CLIENT_TYPE: const.CLIENT_TYPE_IOS},
+            options={const.CONF_MUSIC_BACKEND: const.MUSIC_BACKEND_SPOTIFY_DIRECT},
+        )
+
+        class Runtime:
+            def __init__(self):
+                self.entry = entry
+
+            def client_type(self):
+                return const.CLIENT_TYPE_IOS
+
+            def authorize_device_request(self):
+                return True
+
+        class Manager:
+            cleared = False
+
+            async def async_clear(self):
+                self.cleared = True
+
+            async def async_clear_all(self):
+                self.cleared = True
+
+        memory = Manager()
+        history = Manager()
+        runtime = Runtime()
+
+        class ConfigEntries:
+            async def async_unload_platforms(self, unloaded_entry, platforms):
+                return True
+
+            async def async_reload(self, entry_id):
+                self.reloaded = entry_id
+                await integration.async_unload_entry(hass, entry)
+
+        integration = self.integration
+        hass = types.SimpleNamespace(
+            config_entries=ConfigEntries(),
+            data={const.DOMAIN: {
+                entry.entry_id: runtime,
+                "runtime": runtime,
+                "memory_manager": memory,
+                "ask_dj_history_manager": history,
+                "entry_reload_signatures": {
+                    entry.entry_id: integration._entry_reload_signature(entry)
+                },
+            }},
+        )
+        entry.options = {const.CONF_MUSIC_BACKEND: const.MUSIC_BACKEND_MUSIC_ASSISTANT}
+
+        asyncio.run(integration._async_update_listener(hass, entry))
+
+        self.assertEqual(hass.config_entries.reloaded, entry.entry_id)
+        self.assertFalse(memory.cleared)
+        self.assertFalse(history.cleared)
+        self.assertIs(hass.data[const.DOMAIN]["memory_manager"], memory)
+        self.assertIs(hass.data[const.DOMAIN]["ask_dj_history_manager"], history)
+
     def test_unload_last_entry_clears_memory_and_history_managers(self) -> None:
         const = self.const
         entry = types.SimpleNamespace(entry_id="entry-1", data={}, options={})

@@ -169,6 +169,40 @@ class AskDjTest(unittest.TestCase):
         self.assertFalse(shuffle["success"])
         self.assertEqual(shuffle["error"], "music_backend_not_configured")
 
+    def test_manual_backend_does_not_emit_empty_playback_actions(self) -> None:
+        runtime = make_runtime()
+        runtime.config = {"music_backend": "later_manual"}
+        hass = types.SimpleNamespace(data={self.const.DOMAIN: {"entry": runtime}})
+        track = {
+            "uri": "spotify:track:abc",
+            "track_name": "Track",
+            "context_uri": "spotify:album:parent",
+        }
+
+        recommendations = self.ask_dj._recommendation_playback_actions(
+            hass, runtime, {}, track, {}, limit=1
+        )
+        playlists = self.ask_dj._playlist_search_playback_actions(
+            hass, [{"uri": "spotify:playlist:abc", "name": "Playlist"}]
+        )
+        albums = self.ask_dj._album_search_playback_actions(
+            hass, [{"uri": "spotify:album:abc", "name": "Album"}]
+        )
+        artists = self.ask_dj._personal_artist_recommendation_actions(
+            hass,
+            runtime,
+            {"memory": {"favorite_artists": [{"name": "Artist", "uri": "spotify:artist:abc"}]}},
+            {},
+            limit=1,
+        )
+        play_now = self.ask_dj._play_now_action_from_spotify_item(hass, track, runtime=runtime)
+
+        self.assertEqual(recommendations, [])
+        self.assertEqual(playlists, [])
+        self.assertEqual(albums, [])
+        self.assertEqual(artists, [])
+        self.assertEqual(play_now, {})
+
     def test_informational_request_does_not_modify_playback(self) -> None:
         runtime = make_runtime()
         calls = []

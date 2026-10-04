@@ -7497,22 +7497,23 @@ def _playlist_search_playback_actions(
         )
         title = str(playlist.get("title") or playlist.get("name") or uri).strip()
         subtitle = str(playlist.get("subtitle") or playlist.get("owner") or "Spotify playlist").strip()
-        actions.append(
-            build_playback_action(
-                _first_runtime(hass),
-                {
-                    **playlist,
-                    "uri": uri,
-                    "context_uri": uri,
-                    "title": title,
-                    "subtitle": subtitle,
-                    "image_url": proxy_image,
-                    "thumbnail_url": proxy_image,
-                },
-                "playlist",
-                "Spotify playlist-resultaat op basis van je Ask DJ vraag.",
-            )
+        action = build_playback_action(
+            _first_runtime(hass),
+            {
+                **playlist,
+                "uri": uri,
+                "context_uri": uri,
+                "title": title,
+                "subtitle": subtitle,
+                "image_url": proxy_image,
+                "thumbnail_url": proxy_image,
+            },
+            "playlist",
+            "Spotify playlist-resultaat op basis van je Ask DJ vraag.",
         )
+        if not action:
+            continue
+        actions.append(action)
         if len(actions) >= limit:
             break
     return actions
@@ -7549,22 +7550,23 @@ def _album_search_playback_actions(
         )
         title = str(album.get("title") or album.get("name") or uri).strip()
         subtitle = str(album.get("subtitle") or album.get("artist") or album.get("artist_name") or "").strip()
-        actions.append(
-            build_playback_action(
-                _first_runtime(hass),
-                {
-                    **album,
-                    "uri": uri,
-                    "context_uri": uri,
-                    "title": title,
-                    "subtitle": subtitle,
-                    "image_url": proxy_image,
-                    "thumbnail_url": proxy_image,
-                },
-                "album",
-                "Spotify album-resultaat op basis van je Ask DJ vraag.",
-            )
+        action = build_playback_action(
+            _first_runtime(hass),
+            {
+                **album,
+                "uri": uri,
+                "context_uri": uri,
+                "title": title,
+                "subtitle": subtitle,
+                "image_url": proxy_image,
+                "thumbnail_url": proxy_image,
+            },
+            "album",
+            "Spotify album-resultaat op basis van je Ask DJ vraag.",
         )
+        if not action:
+            continue
+        actions.append(action)
         if len(actions) >= limit:
             break
     return actions
@@ -8133,6 +8135,8 @@ def _recommendation_playback_actions(
             kind,
             reason,
         )
+        if not action:
+            continue
         if kind == "track":
             context_uri = str(item.get("context_uri") or "").strip()
             if context_uri:
@@ -8208,7 +8212,7 @@ def _personal_artist_recommendation_actions(
     seen: set[str] = set()
     for item in candidates:
         action = _personal_artist_recommendation_action(hass, runtime, item, seen)
-        if action is None:
+        if not action:
             continue
         actions.append(action)
         if len(actions) >= limit:
@@ -8263,6 +8267,8 @@ def _personal_artist_recommendation_action(
         {**item, "item_id": item_id or f"djconnect:artist:{key}", "title": name, "subtitle": subtitle, "image_url": proxy_image},
         "artist", "Past bij je luisterprofiel en Music DNA.",
     )
+    if not action:
+        return None
     if not item_id:
         action.update(label="", button_label="", action_style="info")
     return {field: value for field, value in action.items() if value not in ("", None, [])}
@@ -8311,6 +8317,8 @@ def _play_now_action_from_spotify_item(
         kind,
         "Voor je klaargezet terwijl het huidige nummer doorspeelt.",
     )
+    if not action:
+        return {}
     context_uri = str(item.get("context_uri") or "").strip()
     if kind == "track" and context_uri:
         action["context_uri"] = context_uri
