@@ -114,6 +114,9 @@ from .http import (
     DJConnectActiveSessionView,
     DJConnectSessionBroadcastSnapshotView,
     DJConnectSessionBroadcastTokenView,
+    DJConnectSessionBroadcastHandoffClaimView,
+    DJConnectSessionBroadcastHandoffCollectView,
+    DJConnectSessionBroadcastHandoffApproveView,
     DJConnectSessionBroadcastWebSocketView,
     DJConnectUniversalReceiverView,
     DJConnectVibeCastRendererView,
@@ -1787,6 +1790,9 @@ def register_http_views(hass: HomeAssistant) -> None:
             DJConnectActiveSessionView(hass),
             DJConnectSessionBroadcastSnapshotView(hass),
             DJConnectSessionBroadcastTokenView(hass),
+            DJConnectSessionBroadcastHandoffClaimView(hass),
+            DJConnectSessionBroadcastHandoffCollectView(hass),
+            DJConnectSessionBroadcastHandoffApproveView(hass),
             DJConnectSessionBroadcastWebSocketView(hass),
             DJConnectUniversalReceiverView(),
             DJConnectVibeCastRendererView(),
@@ -3246,8 +3252,11 @@ def _has_runtime_entries(hass: HomeAssistant) -> bool:
 
 
 async def _async_clear_all_server_state(hass: HomeAssistant) -> None:
-    """Clear server-side Music DNA/history after the last DJConnect entry unloads."""
+    """Clear server-side state after the last DJConnect entry unloads."""
     domain_data = hass.data.setdefault(DOMAIN, {})
+    handoff_manager = domain_data.pop("broadcast_handoff_manager", None)
+    if handoff_manager is not None:
+        await handoff_manager.clear()
     memory_manager = domain_data.pop("memory_manager", None)
     if memory_manager is not None and hasattr(memory_manager, "async_clear"):
         await memory_manager.async_clear()

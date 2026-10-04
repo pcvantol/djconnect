@@ -27,6 +27,32 @@ uses the same renderer and data model in a landscape television composition.
 The Apple client remains the paired Session owner and sender. It initiates a
 bounded, ephemeral Receiver handoff; it never streams or mirrors pixels.
 
+## Portrait Pi owner handoff candidate
+
+The first reference host can remain a browser Receiver even when its separate
+native Pi client is not paired. Loading `/djconnect/vibecast` without Session
+credentials creates a five-minute, memory-only claim. The Pi displays its
+six-digit code; its browser alone keeps a distinct, high-entropy claim secret.
+The paired Apple owner enters the displayed code from the active Session view.
+Home Assistant authenticates that owner against the exact active Session and
+binds the existing Runtime-scoped Broadcast Token to the claim. Only the same
+browser secret can collect it, once. The browser then uses the existing
+snapshot-first Broadcast WebSocket and keeps the Session ID and Token in memory.
+
+The short code is a visual confirmation, not an authentication credential.
+Claims are capacity-bounded, expire after five minutes, and never persist to
+Home Assistant Store, browser storage, Pi configuration or Apple client state.
+Approval returns no Broadcast Token to Apple. The receiver page and claim
+responses use `no-store`; Runtime end invalidates the token. A refresh starts
+a new claim. This control-plane handoff does not create a second Broadcast
+data path or give the Pi owner controls.
+
+The product candidate is not accepted merely because these routes and UI build.
+Acceptance still requires the physical portrait Pi, a paired Apple owner and
+an exact live receipt for approval, snapshot and updates, reconnect, Runtime
+end, readability and absence of durable/private data. The later Cast sender
+remains outside this increment until that receipt exists.
+
 ```text
 paired Apple sender
   -> ephemeral, session-scoped VibeCast handoff

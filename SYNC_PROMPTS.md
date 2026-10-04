@@ -5,6 +5,33 @@ Home Assistant integration repo `pcvantol/djconnect` is the leading source for
 this file. Do not copy this file into sibling repos and do not reintroduce
 repo-local sync prompt files.
 
+## Selected portrait Pi VibeCast handoff candidate — 2026-10-04
+
+This is the source coordination contract for the single selected first product
+slice `DJC-VIBECAST-PI-OWNER-HANDOFF-V1-20261004`. It is a candidate until
+protected source merges and real Apple-to-Pi acceptance; it does not select
+the later Google Cast increment or change the older protocol-line history
+below.
+
+- The HA repository owns `POST /api/djconnect/v1/session/broadcast/handoff/claim`
+  and `/collect` for a five-minute browser-memory claim, plus owner-authenticated
+  `/approve`. Only the paired owner of the exact active Session may approve a
+  six-digit code. The code is visual confirmation; a separate high-entropy
+  browser claim secret is required to collect the existing Runtime-scoped
+  Broadcast Token once. Approval returns no token to the Apple client.
+- The Apple repository owns a code-entry action visible only for its active
+  Session, sends `session_id` plus `code` through its existing identified,
+  bearer-authenticated request, and stores no Broadcast Token or receiver
+  secret. The five-language UI reports approved/failed without exposing tokens.
+- The physical portrait Pi uses the HA-hosted `/djconnect/vibecast` browser
+  page. Its native client need not pair or gain a new token/transport for this
+  reference subset. Browser state is in memory; it consumes only the existing
+  Broadcast WebSocket snapshot and updates. Actual Pi/Apple/HA live acceptance
+  remains required for reconnect, Runtime end, privacy and readability.
+- Neither source candidate authorizes a product release, automatic prerelease,
+  deployment or Cast follow-on. Each repository retains its own protected
+  merge, Finalization and exact consumer-evidence gates.
+
 Canonical repo locations:
 
 - Home Assistant integration: `pcvantol/djconnect`

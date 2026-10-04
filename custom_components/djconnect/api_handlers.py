@@ -499,6 +499,39 @@ async def async_handle_session_broadcast_token_payload(
     return {"success": True, **contract}, 200
 
 
+async def async_handle_session_broadcast_handoff_approve_payload(
+    hass: Any, data: dict[str, Any], *, headers: Any | None = None, user_id: str | None = None
+) -> tuple[dict[str, Any], int]:
+    """Let only the active Session owner approve a browser's short-lived code."""
+    _runtime, context, error, status = await _session_profile_context(
+        hass, data, headers=headers, user_id=user_id, source="session_broadcast_handoff"
+    )
+    if error is not None:
+        return error, int(status or 400)
+    session_id = str(data.get("session_id") or "").strip()
+    code = str(data.get("code") or "").strip()
+    if not session_id:
+        return _error_payload("session_id_required"), 400
+    if len(code) != 6 or not code.isascii() or not code.isdigit():
+        return _error_payload("handoff_code_invalid"), 400
+    contract = await session_runtime_manager(hass).async_broadcast_token_for_owner(
+        owner_profile_id=context.profile_id, session_id=session_id
+    )
+    if contract is None:
+        return _error_payload("active_session_not_found"), 404
+    from .broadcast_handoff import broadcast_handoff_manager
+
+    approved = await broadcast_handoff_manager(hass).approve(
+        code,
+        owner_profile_id=context.profile_id,
+        session_id=session_id,
+        broadcast_token=str(contract["broadcast_token"]),
+    )
+    if not approved:
+        return _error_payload("handoff_code_unavailable"), 404
+    return {"success": True, "session_id": session_id, "handoff": "approved"}, 200
+
+
 async def _apply_profile_or_error(
     hass: Any,
     runtime: Any,

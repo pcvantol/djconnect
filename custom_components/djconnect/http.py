@@ -50,6 +50,9 @@ from .const import (
     API_SESSION_ACTIVE,
     API_SESSION_BROADCAST,
     API_SESSION_BROADCAST_TOKEN,
+    API_SESSION_BROADCAST_HANDOFF_CLAIM,
+    API_SESSION_BROADCAST_HANDOFF_COLLECT,
+    API_SESSION_BROADCAST_HANDOFF_APPROVE,
     API_SESSION_BROADCAST_WS,
     UNIVERSAL_RECEIVER_PATH,
     VIBECAST_RENDERER_PATH,
@@ -2839,6 +2842,65 @@ class DJConnectSessionBroadcastTokenView(_DJConnectSessionView):
             request.app["hass"], data, headers=request.headers, user_id=_request_user_id(request)
         )
         return self.json(result, status_code=status)
+
+
+class DJConnectSessionBroadcastHandoffClaimView(_DJConnectSessionView):
+    """Create a bounded, browser-memory-only VibeCast handoff code."""
+
+    url = API_SESSION_BROADCAST_HANDOFF_CLAIM
+    name = "api:djconnect:session:broadcast:handoff:claim"
+
+    async def post(self, request):
+        from .broadcast_handoff import broadcast_handoff_manager
+
+        result = await broadcast_handoff_manager(request.app["hass"]).create(request.remote or "unknown")
+        return web.json_response(
+            result or {"success": False, "error": "handoff_capacity_exceeded"},
+            status=200 if result is not None else 429,
+            headers={"Cache-Control": "no-store", "Referrer-Policy": "no-referrer"},
+        )
+
+
+class DJConnectSessionBroadcastHandoffCollectView(_DJConnectSessionView):
+    """Give one approved Runtime token only to the original browser claim."""
+
+    url = API_SESSION_BROADCAST_HANDOFF_COLLECT
+    name = "api:djconnect:session:broadcast:handoff:collect"
+
+    async def post(self, request):
+        from .broadcast_handoff import broadcast_handoff_manager
+
+        data = await self._payload(request)
+        if data is None or not isinstance(data, dict):
+            return _json_error(self, "invalid_json", 400)
+        state, result = await broadcast_handoff_manager(request.app["hass"]).collect(
+            str(data.get("claim_id") or "")[:128], str(data.get("claim_secret") or "")[:128]
+        )
+        return web.json_response(
+            result or {"success": False, "error": "handoff_claim_not_found"},
+            status=200 if state != "not_found" else 404,
+            headers={"Cache-Control": "no-store", "Referrer-Policy": "no-referrer"},
+        )
+
+
+class DJConnectSessionBroadcastHandoffApproveView(_DJConnectSessionView):
+    """Approve a displayed code with the existing paired owner identity."""
+
+    url = API_SESSION_BROADCAST_HANDOFF_APPROVE
+    name = "api:djconnect:session:broadcast:handoff:approve"
+
+    async def post(self, request):
+        data = await self._payload(request)
+        if data is None or not isinstance(data, dict):
+            return _json_error(self, "invalid_json", 400)
+        from .api_handlers import async_handle_session_broadcast_handoff_approve_payload
+
+        result, status = await async_handle_session_broadcast_handoff_approve_payload(
+            request.app["hass"], data, headers=request.headers, user_id=_request_user_id(request)
+        )
+        return web.json_response(
+            result, status=status, headers={"Cache-Control": "no-store", "Referrer-Policy": "no-referrer"}
+        )
 
 
 class DJConnectSessionBroadcastWebSocketView(HomeAssistantView):
