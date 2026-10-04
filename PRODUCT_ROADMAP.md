@@ -50,7 +50,8 @@ Intelligence and Performance Learning as candidate families; it authorizes none
 of them automatically.
 
 The later [owner directive](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-5977878118)
-selects one bounded Core execution tranche from that review: Runtime-scoped
+selected one bounded Core execution tranche from that review, now delivered by
+[PR #1106](https://github.com/pcvantol/djconnect/pull/1106): Runtime-scoped
 Session continuity, safe Transition spacing and Session Update pacing over
 already observable tracks and existing trusted inputs. It does not select full
 autonomous narrative planning, a future-playback producer, Lyrics, Audience
@@ -60,7 +61,8 @@ assignment and execution status are in `PRODUCT_BACKLOG.md`.
 Automated Session Intelligence E2E Verification completed its original selected
 scope. Its existing scenarios verify Session behaviour; optional additions
 remain deferred and do not define the product direction. The separately
-selected bounded Core continuity tranche above is the current execution.
+selected bounded Core continuity tranche above is completed; no subsequent
+intelligence family is selected.
 
 The built-in DJ Brain Capability Platform is current supporting architecture:
 it constrains selection of existing trusted capabilities through Profile policy
@@ -98,7 +100,7 @@ their established scope; this roadmap does not authorize their implementation.
 | 0 | Capability, Host Role, Pi and Experience foundations | Completed | `DJCONNECT_CAPABILITY_MODEL.md`, `HOST_ROLE_ARCHITECTURE.md`, `RASPBERRY_PI_PLATFORM_FOUNDATION.md`, `EXPERIENCE_FOUNDATION.md` |
 | Historical | DJConnect V4 architecture and Runtime transition | Historical | `DJCONNECT_V4_COMPLETION_ROADMAP.md` |
 | 1 | DJ Intelligence Evolution | Current execution | `docs/product/DJ_INTELLIGENCE_CAPABILITY_REVIEW.md`; completed Session Intelligence Runtime and existing maturity boundaries |
-| 1 | Bounded Session Intelligence continuity tranche | Current execution — explicitly selected Core assignment | Existing Runtime, Planner, safe Track Insight, Session Flow and Runtime-scoped Performance Memory; owner directive on #1101 |
+| 1 | Bounded Session Intelligence continuity tranche | Completed — explicitly selected Core assignment, source merged and exact-main qualified | Existing Runtime, Planner, safe Track Insight, Session Flow and Runtime-scoped Performance Memory; [PR #1106](https://github.com/pcvantol/djconnect/pull/1106) |
 | 1 | Automated Session Intelligence E2E Verification | Completed for the original selected scope; optional additions deferred | `docs/product/DEVELOPER_EXPERIENCE_ROADMAP.md` |
 | 2 | Universal Receiver Reference Experience | Planned | Minimum DJ Intelligence baseline; `docs/technical/UNIVERSAL_RECEIVER_ARCHITECTURE.md` |
 | 2 | VibeCast Reference Renderer | Planned / selected reference increment | Portrait Pi real-hardware validation, paired Apple sender handoff and existing renderer-safe Broadcast projections; landscape Google Cast feasibility follows the Pi evidence. |

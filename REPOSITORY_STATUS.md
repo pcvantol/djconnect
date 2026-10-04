@@ -1,5 +1,31 @@
 # DJConnect Repository Status
 
+## PR #1106 DJ Intelligence Session continuity source reconciliation
+
+PR [#1106](https://github.com/pcvantol/djconnect/pull/1106) merged as
+`b2c2264f59777a4a2fd620fd2d2a63c0472e1e73` from independently reviewed
+head `2755cf22f975a3a2db3451158ac658e337f695d4`. Exact Core main,
+`origin/main` and remote main matched that SHA with a clean worktree; its
+complete tree matches the reviewed candidate. Exact-main
+[Validate](https://github.com/pcvantol/djconnect/actions/runs/37214423397),
+[CodeQL](https://github.com/pcvantol/djconnect/actions/runs/37214423200),
+[artifact](https://github.com/pcvantol/djconnect/actions/runs/37214585424)
+and [evidence](https://github.com/pcvantol/djconnect/actions/runs/37214585637)
+passed. The SHA-bound GitHub prerelease holds the HA archive and qualification
+JSON; no stable release, signing, deployment or workflow change occurred.
+
+One HA-owned Runtime/Planner/Knowledge/Moment/Flow path now makes bounded
+multi-track continuity decisions. Local validation ran 1,483 tests with 7
+existing skips, 131 focused tests, Ruff, diff checks and 89% focused changed-
+module branch coverage. No Broadcast or Session lifecycle schema changed and
+no client source was modified. This source merge does not qualify VibeCast's
+physical Pi. The five Planned Execution Horizon items derived from
+`PLATFORM_EVOLUTION_BACKLOG.md` remain Public distribution: Apple;
+Public distribution: Windows; Public HACS distribution; HACS 3.3.0 release visibility;
+Firmware OTA publication and staged rollback. The completed Core tranche is
+excluded. Repository State: `MERGED_RECONCILED` after this dedicated
+Finalization merges; Workspace State: `WORKSPACE_READY` after cleanup.
+
 ## PR #1104 VibeCast Pi owner handoff source reconciliation
 
 PR [#1104](https://github.com/pcvantol/djconnect/pull/1104) merged from the
