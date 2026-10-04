@@ -472,6 +472,9 @@ class PerformanceMemory:
     recent_recommendations: tuple[str, ...] = ()
     recent_session_directions: tuple[SessionDirectionType, ...] = ()
     recent_silence_count: int = 0
+    recent_topics: tuple[tuple[DJMomentType, str], ...] = ()
+    recent_context_fingerprints: tuple[str, ...] = ()
+    topics_observed: bool = False
 
     @classmethod
     def from_session_flow(
@@ -495,12 +498,38 @@ class PerformanceMemory:
             recent_recommendations=_recent_metadata(metadata, "recommendation"),
             recent_session_directions=tuple(
                 SessionDirectionType(value)
-                for value in _recent_metadata(metadata, "direction")
+                for item in metadata
+                if (value := item.get("direction", ""))
                 if value in SessionDirectionType._value2member_map_
             ),
             recent_silence_count=sum(
                 moment.moment_type is DJMomentType.SILENCE for moment in ordered
             ),
+            recent_topics=tuple(
+                topic for moment in ordered if (topic := _moment_topic(moment)) is not None
+            ),
+            recent_context_fingerprints=tuple(
+                dict.fromkeys(
+                    fingerprint
+                    for moment in ordered
+                    if (
+                        fingerprint := _context_fingerprint(
+                            dict(moment.generation_metadata).get("artist", ""),
+                            moment.summary,
+                            moment.content,
+                        )
+                    )
+                    and moment.moment_type
+                    in {
+                        DJMomentType.TRACK,
+                        DJMomentType.ARTIST,
+                        DJMomentType.ALBUM,
+                        DJMomentType.GENRE,
+                        DJMomentType.RECOMMENDATION,
+                    }
+                )
+            ),
+            topics_observed=True,
         )
 
     def as_dict(self) -> dict[str, Any]:
@@ -1407,12 +1436,12 @@ class DJSessionPlanner:
             performance_memory.recent_moment_types[-2:]
             == (DJMomentType.SILENCE, DJMomentType.SILENCE)
             and session_direction.direction is not SessionDirectionType.RESETTING
+            and DJMomentType.SESSION not in performance_memory.recent_moment_types[-3:]
         ):
             proposed_direction = SessionDirectionType.RESETTING
             direction_change_reason = "recent_silence_recovery"
         elif (
             session_direction.direction is SessionDirectionType.RESETTING
-            and performance_memory.recent_moment_types[-1:] == (DJMomentType.SESSION,)
             and performance_memory.recent_session_directions[-1:]
             == (SessionDirectionType.RESETTING,)
         ):
@@ -1420,7 +1449,7 @@ class DJSessionPlanner:
             direction_change_reason = "resetting_session_return"
         if proposed_direction is not session_direction.direction:
             if (
-                performance_memory.recent_moment_types[-1:] == (DJMomentType.SESSION,)
+                DJMomentType.SESSION in performance_memory.recent_moment_types[-2:]
                 and direction_change_reason != "resetting_session_return"
             ):
                 self.last_decision = PlannerDecision(
@@ -1445,6 +1474,14 @@ class DJSessionPlanner:
             self.last_decision = PlannerDecision(PlannerDecisionType.SILENCE, "mood_or_persona_prefers_silence")
             return self.last_decision
         hints = knowledge_hints or {}
+        fingerprint = _context_fingerprint(
+            hints.get("artist", ""), hints.get("summary", ""), hints.get("full_text", "")
+        )
+        if fingerprint and fingerprint in performance_memory.recent_context_fingerprints:
+            self.last_decision = PlannerDecision(
+                PlannerDecisionType.SILENCE, "no_fresh_session_context"
+            )
+            return self.last_decision
         choices = _prioritized_knowledge_choices(
             session_start_strategy=session_start_strategy,
             selected_mood=mood,
@@ -1453,6 +1490,12 @@ class DJSessionPlanner:
             recommendation_preference=self.configuration.recommendation_preference,
         )
         choices = _space_recommendation_choices(
+            choices,
+            performance_memory=performance_memory,
+            discover_context=discover_context,
+            hints=hints,
+        )
+        choices = _space_recent_type_choices(
             choices,
             performance_memory=performance_memory,
             discover_context=discover_context,
@@ -1574,7 +1617,7 @@ class DJSessionPlanner:
             triggering_intent.intent_type is not KnowledgeIntentType.RECOMMENDATION
             or session_direction.direction is not SessionDirectionType.EXPLORING
             or len(items) < 2
-            or performance_memory.recent_moment_types[-1:] == (DJMomentType.TRANSITION,)
+            or DJMomentType.TRANSITION in performance_memory.recent_moment_types[-4:]
         ):
             return self._record_no_transition("transition_not_contextually_appropriate")
         previous, current = items[-2:]
@@ -3515,8 +3558,9 @@ class SessionRuntimeManager:
                     active.planner.last_decision = planning_input.planner_decision
                 active.publish_moment(coordinated)
                 active.planning_coordinator.confirm_published(active.planner)
-                if coordinated.moment_type is not DJMomentType.SILENCE and not is_session_update:
+                if coordinated.moment_type is not DJMomentType.SILENCE:
                     active.planner.record_spoken_moment()
+                if coordinated.moment_type is not DJMomentType.SILENCE and not is_session_update:
                     active = self._record_performance_memory(owner_profile_id, active)
                     transition_decision = active.planner.evaluate_transition_after_moment(
                         triggering_intent=coordinated.knowledge_intent,
@@ -4086,7 +4130,7 @@ def _space_recommendation_choices(
     hints: dict[str, Any],
 ) -> tuple[tuple[str, PlannerDecisionType, KnowledgeIntentType, str], ...]:
     """Demote one immediate Recommendation only when a valid alternative exists."""
-    if performance_memory.recent_moment_types[-1:] != (DJMomentType.RECOMMENDATION,):
+    if _recent_factual_moment_type(performance_memory) is not DJMomentType.RECOMMENDATION:
         return choices
     alternatives = tuple(
         choice
@@ -4110,6 +4154,71 @@ def _space_recommendation_choices(
     )
 
 
+def _space_recent_type_choices(
+    choices: tuple[tuple[str, PlannerDecisionType, KnowledgeIntentType, str], ...],
+    *,
+    performance_memory: PerformanceMemory,
+    discover_context: DiscoverContext,
+    hints: dict[str, Any],
+) -> tuple[tuple[str, PlannerDecisionType, KnowledgeIntentType, str], ...]:
+    """Vary the last factual contribution when a distinct safe angle is available."""
+    previous = _recent_factual_moment_type(performance_memory)
+    if previous is None:
+        return choices
+    intent_moment_type = {
+        KnowledgeIntentType.ARTIST_STORY: DJMomentType.ARTIST,
+        KnowledgeIntentType.ALBUM_STORY: DJMomentType.ALBUM,
+        KnowledgeIntentType.GENRE_STORY: DJMomentType.GENRE,
+        KnowledgeIntentType.RECOMMENDATION: DJMomentType.RECOMMENDATION,
+    }
+    alternatives = tuple(
+        choice
+        for choice in choices
+        if intent_moment_type.get(choice[2]) is not previous
+        and _choice_has_complete_context(choice[2], hints)
+        and not _performance_memory_repeats(performance_memory, choice[2], hints)
+        and not _discover_context_repeats(discover_context, choice[2], hints)
+    )
+    if not alternatives:
+        return choices
+    return alternatives + tuple(choice for choice in choices if choice not in alternatives)
+
+
+def _recent_factual_moment_type(memory: PerformanceMemory) -> DJMomentType | None:
+    """Find the last spoken factual angle across a bounded Flow suffix."""
+    factual_types = {
+        DJMomentType.TRACK,
+        DJMomentType.ARTIST,
+        DJMomentType.ALBUM,
+        DJMomentType.GENRE,
+        DJMomentType.RECOMMENDATION,
+    }
+    return next(
+        (moment_type for moment_type in reversed(memory.recent_moment_types[-4:]) if moment_type in factual_types),
+        None,
+    )
+
+
+def _choice_has_complete_context(
+    intent_type: KnowledgeIntentType, hints: dict[str, Any]
+) -> bool:
+    """Promote another angle only when the existing Moment contract can realize it."""
+    if not all(_bounded_text(hints.get(key), 1200) for key in ("title", "artist", "summary", "full_text")):
+        return False
+    if intent_type is KnowledgeIntentType.ARTIST_STORY:
+        return bool(_bounded_text(hints.get("producer"), 160))
+    if intent_type is KnowledgeIntentType.ALBUM_STORY:
+        return bool(
+            _bounded_text(hints.get("album"), 160)
+            and _bounded_text(hints.get("release_year"), 32)
+        )
+    if intent_type is KnowledgeIntentType.GENRE_STORY:
+        return bool(_bounded_text(hints.get("genre"), 160))
+    if intent_type is KnowledgeIntentType.RECOMMENDATION:
+        return bool(_bounded_text(hints.get("related_tracks"), 1200))
+    return False
+
+
 def _recent_metadata(
     metadata: tuple[dict[str, str], ...], key: str
 ) -> tuple[str, ...]:
@@ -4117,22 +4226,64 @@ def _recent_metadata(
     return tuple(dict.fromkeys(value for item in metadata if (value := item.get(key, ""))))
 
 
+def _moment_topic(moment: DJMoment) -> tuple[DJMomentType, str] | None:
+    """Remember only the subject of the angle actually delivered by this Moment."""
+    key = {
+        DJMomentType.ARTIST: "artist",
+        DJMomentType.ALBUM: "album",
+        DJMomentType.GENRE: "genre",
+        DJMomentType.RECOMMENDATION: "recommendation",
+    }.get(moment.moment_type)
+    if key is None:
+        return None
+    subject = _bounded_text(dict(moment.generation_metadata).get(key), 160).casefold()
+    return (moment.moment_type, subject) if subject else None
+
+
+def _context_fingerprint(artist: Any, summary: Any, content: Any) -> str:
+    """Compare bounded already-safe context without retaining another text copy."""
+    normalized_artist = _bounded_text(artist, 160).casefold()
+    normalized_summary = _bounded_text(summary, 320).casefold()
+    normalized_content = _bounded_text(content, 1200).casefold()
+    if not normalized_artist or not (normalized_summary or normalized_content):
+        return ""
+    return hashlib.sha256(
+        f"{normalized_artist}|{normalized_summary}|{normalized_content}".encode()
+    ).hexdigest()
+
+
 def _performance_memory_repeats(
     memory: PerformanceMemory, intent_type: KnowledgeIntentType, hints: dict[str, Any]
 ) -> bool:
-    """Reject only deterministic repeats from the bounded Runtime projection."""
+    """Reject the same delivered angle and subject within the Runtime window."""
     if intent_type is KnowledgeIntentType.ARTIST_STORY:
         candidate = _bounded_text(hints.get("artist") or hints.get("producer"), 160)
-        return candidate in memory.recent_artists
+        return (
+            (DJMomentType.ARTIST, candidate.casefold()) in memory.recent_topics
+            if memory.topics_observed
+            else candidate in memory.recent_artists
+        )
     if intent_type is KnowledgeIntentType.ALBUM_STORY:
         candidate = _bounded_text(hints.get("album") or hints.get("release_year"), 160)
-        return candidate in memory.recent_albums
+        return (
+            (DJMomentType.ALBUM, candidate.casefold()) in memory.recent_topics
+            if memory.topics_observed
+            else candidate in memory.recent_albums
+        )
     if intent_type is KnowledgeIntentType.GENRE_STORY:
         candidate = _bounded_text(hints.get("genre"), 160)
-        return candidate in memory.recent_genres
+        return (
+            (DJMomentType.GENRE, candidate.casefold()) in memory.recent_topics
+            if memory.topics_observed
+            else candidate in memory.recent_genres
+        )
     if intent_type is KnowledgeIntentType.RECOMMENDATION:
         candidate = _bounded_text(hints.get("artist") or hints.get("related_tracks"), 160)
-        return candidate in memory.recent_recommendations
+        return (
+            (DJMomentType.RECOMMENDATION, candidate.casefold()) in memory.recent_topics
+            if memory.topics_observed
+            else candidate in memory.recent_recommendations
+        )
     return False
 
 
@@ -4373,12 +4524,15 @@ def _planner_knowledge_hints(raw_insight: dict[str, Any]) -> dict[str, str]:
     track = raw_insight.get("track") if isinstance(raw_insight.get("track"), dict) else {}
     analysis = raw_insight.get("analysis") if isinstance(raw_insight.get("analysis"), dict) else {}
     return {
+        "title": _bounded_text(track.get("title"), 160),
         "related_tracks": _bounded_text(track.get("related_tracks") or analysis.get("similar_tracks"), 1200),
         "producer": _bounded_text(track.get("producer") or track.get("recording_context"), 600),
         "release_year": _bounded_text(track.get("release_year") or track.get("release_date"), 32),
         "genre": _bounded_text(analysis.get("genre") or track.get("genres"), 160),
         "artist": _bounded_text(track.get("artist"), 160),
         "album": _bounded_text(track.get("album"), 160),
+        "summary": _bounded_text(analysis.get("summary"), 320),
+        "full_text": _bounded_text(analysis.get("full_text"), 1200),
     }
 
 
@@ -4474,11 +4628,11 @@ def _session_direction_copy(
 def _transition_copy(locale: str, part: str, source: str, target: str) -> str:
     """Return compact localized copy for one Planner-approved Transition."""
     copy = {
-        "en": ("From {source} to {target}", "A bridge into the next discovery.", "This connection carries the session from {source} into {target}."),
-        "nl": ("Van {source} naar {target}", "Een brug naar de volgende ontdekking.", "Deze verbinding brengt de sessie van {source} naar {target}."),
-        "de": ("Von {source} zu {target}", "Eine Brücke zur nächsten Entdeckung.", "Diese Verbindung führt die Session von {source} zu {target}."),
-        "fr": ("De {source} à {target}", "Un passage vers la prochaine découverte.", "Cette transition mène la session de {source} à {target}."),
-        "es": ("De {source} a {target}", "Un puente hacia el próximo descubrimiento.", "Esta transición lleva la sesión de {source} a {target}."),
+        "en": ("From {source} to {target}", "A bridge into the next discovery.", "The session moves from {source} to {target}."),
+        "nl": ("Van {source} naar {target}", "Een brug naar de volgende ontdekking.", "De sessie gaat van {source} naar {target}."),
+        "de": ("Von {source} zu {target}", "Eine Brücke zur nächsten Entdeckung.", "Die Session wechselt von {source} zu {target}."),
+        "fr": ("De {source} à {target}", "Un passage vers la prochaine découverte.", "La session passe de {source} à {target}."),
+        "es": ("De {source} a {target}", "Un puente hacia el próximo descubrimiento.", "La sesión pasa de {source} a {target}."),
     }
     index = {"title": 0, "summary": 1, "content": 2}[part]
     return copy[_locale_family(locale)][index].format(source=source, target=target)

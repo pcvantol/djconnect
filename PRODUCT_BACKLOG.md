@@ -15,12 +15,14 @@ their owning records.
 | Group | Item | Status | Canonical evidence | Boundary |
 | --- | --- | --- | --- | --- |
 | Verification support | Automated Session Intelligence E2E Verification | Completed for the original selected scope; optional additions deferred | `docs/product/DEVELOPER_EXPERIENCE_ROADMAP.md` | All six original Golden Scenarios and their architecture, bootstrap, driver, capture, validator, Smoke, Regression, advisory CI, browser E2E and process-local overlay are reported complete. Deferred Presentation scenarios, TTS replay and comparison need separate selection; this row starts no new work. |
+| DJ Intelligence Evolution | Runtime-bounded Session continuity, Transition spacing and Session Update pacing | Selected; Core implementation in progress under `DJC-CORE-SESSION-INTELLIGENCE-CONTINUITY-V1-20261004` | [Owner directive](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-5977878118); [executor pickup](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-5980597774); `docs/product/DJ_INTELLIGENCE_MATURITY.md` | One existing HA Runtime/Planner/Knowledge/Moment/Flow path; safe current Track Insight, Direction, Mood, Persona and bounded Flow memory. Multi-track observable Session decisions, deliberate Silence and valid transitions are acceptance. No future-queue truth, Audience Planner input, Lyrics, external knowledge, cross-Session learning or client source. |
 | Reference Experience | VibeCast Reference Renderer increment | Selected first-slice Core/Apple source merged; integrated acceptance still open | `PRODUCT_ROADMAP.md`; `docs/product/VIBECAST_REFERENCE_RENDERER_INCREMENT.md`; Core [PR #1104](https://github.com/pcvantol/djconnect/pull/1104); Apple [PR #89](https://github.com/pcvantol/djconnect-app/pull/89) | The ambient renderer and owner handoff source are merged with exact-main CI/evidence. Installed candidate, paired Apple-owner handoff to the physical portrait Pi, active Session, reconnect, Runtime-end and token non-persistence still require exact joint evidence before the reference increment is qualified. Cast feasibility follows that Pi evidence. |
 
-The first row reconciles the old current-execution heading with the owning
-roadmap's completed original scope. It leaves optional additions deferred. The second row repeats the
-selection already made in the product roadmap; it does not start a new writer,
-select a release, or qualify a physical host.
+The verification row reconciles the old current-execution heading with the
+owning roadmap's completed original scope and leaves optional additions
+deferred. The DJ Intelligence row records only the newly selected bounded Core
+assignment. The VibeCast row repeats its existing selection and does not
+qualify a physical host or start another writer.
 
 ## Roadmap-held work not yet selected
 
@@ -33,7 +35,7 @@ they must not be inferred as authorized engineering work.
 | Architecture | Provider-independent Knowledge Source Architecture | Completed architecture refinement; no provider integration selected. |
 | Knowledge | Future Knowledge capabilities, including Lyrics Knowledge | Deferred or separately qualified only. |
 | Runtime | Playback Observation Stage 2 and Continue Stage 2 | Blocked by Backend-owned Playback Instance Identity. |
-| Planner | Long-horizon, narrative and Performance Learning directions | Deferred pending separate evidence and selection. |
+| Planner | Broader long-horizon, autonomous narrative and cross-Session Performance Learning directions | Deferred beyond the separately selected Runtime-bounded continuity tranche above. |
 | Renderer Experience | Reference Experience, Universal Receiver and platform-native surfaces | Planned, assessment-first where recorded. |
 | Productization | Public Release Readiness, Productization and Product & Community Readiness | Planned in their recorded phases. |
 | Documentation | Canonical planning and product documentation | Maintenance through bounded documentation increments only. |

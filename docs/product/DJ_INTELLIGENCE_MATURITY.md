@@ -59,7 +59,7 @@ DJMoment type, provider, API, persistence or renderer responsibility.
 | 1 — current | Track Started trigger, Track Context, Silence and Runtime heuristics. |
 | 2 — partial | Deterministic Artist, Album, Genre and Recommendation intent selection from available knowledge hints. Discover has selected Stage 2 behaviour; Transition and broader Session Update refinement remain deferred. |
 | 3 — current | The live Track Started Runtime path resolves one safe Track Insight projection and deterministically combines its bounded knowledge hints with Session Start Strategy, Session Mood, DJ Persona, Session Direction and Runtime-scoped Performance Memory when selecting its initial semantic intent. Direction and Mood guide trajectory, pacing and silence; Persona influences the performance profile; Discover favours exploration; Performance Memory prevents immediate repetition. Audience-driven adaptation, additional context-aware Transition policies, continuous replanning and multi-track planning remain deferred. |
-| 4 | Persistent cross-session performance learning, multi-track planning, narrative sequencing, dynamic replanning and pacing. `ROLLING_SESSION_HORIZON_ARCHITECTURE.md` defines their prerequisite architecture and bounded implementation order; no Stage 4 behaviour is current. Continue Stage 2 remains externally blocked pending backend-owned occurrence identity. |
+| 4 | Persistent cross-session performance learning, true future-track planning, autonomous narrative sequencing and dynamic replanning. `ROLLING_SESSION_HORIZON_ARCHITECTURE.md` defines their prerequisite architecture and bounded implementation order. The selected Runtime-bounded continuity slice below does not qualify this full stage. Continue Stage 2 remains externally blocked pending backend-owned occurrence identity. |
 | 5 | Autonomous session strategy and long-term performance optimisation. |
 
 ## Knowledge Engine
@@ -77,7 +77,7 @@ DJMoment type, provider, API, persistence or renderer responsibility.
 | --- | --- |
 | 1 — current | Track Context and Silence. |
 | 2 — current | Artist Story, Album Story, Genre Story and Recommendation deterministically translate their selected Knowledge Context into immutable Moments with frozen Presentation Intent and intent-specific semantic actions. Invalid, incomplete or empty selected context creates canonical Silence. |
-| 3 — partial | Session Update Moments expose Planner-approved Session Direction changes and deterministically realize the existing safe Session Direction Knowledge Context, including Direction, Start Strategy, Mood and runtime-scoped Performance Memory. In addition to Mood/Persona direction changes, two immediately preceding Silence Moments in the bounded Performance Memory window approve one `RESETTING` Session Update; when that Resetting update is the immediately preceding Flow contribution, the Planner deterministically approves one `RETURNING` Session Update. The existing Flow and Broadcast path publish each immutable result. The live Transition slice supports one Planner-approved `NEXT` Transition after a current Exploring Recommendation follows an existing Track, Artist, Album or Genre Flow contribution. The Planner owns approval and placement; the Moment Engine freezes the immutable Transition. No-transition is silent and recent Transition memory prevents immediate repetition. Audience Experience is separate participant presentation: no Audience Event may generate a Session Update. Broader Session Update policy, multiple Session Updates per Track Started event, broader Transition timing, multiple Transitions, future-track or queue context, autonomous replanning, Concert Suggestion, Music History and Discovery remain deferred. |
+| 3 — partial | Session Update Moments expose Planner-approved Session Direction changes and deterministically realize the existing safe Session Direction Knowledge Context, including Direction, Start Strategy, Mood and runtime-scoped Performance Memory. Two consecutive Silences can approve one `RESETTING` update when no Session Update occurred in the same three-Moment window; a later eligible opportunity may approve `RETURNING` while that reset remains the latest Session direction, even after interval Silence. Ordinary changes are spaced when a Session Update occurred in the last two Flow Moments, then the current Mood can guide the next eligible Direction. The existing Flow and Broadcast path publish each immutable result. The current Transition slice supports one Planner-approved `NEXT` Transition after an Exploring Recommendation follows a Track, Artist, Album or Genre contribution; another recent Transition within four Moments suppresses a second. The Moment Engine freezes the approved immutable result. No-transition is silent. Audience Events cannot generate Session Updates. New Transition relationships, future-track or queue context, autonomous replanning and external knowledge remain deferred. |
 | 4 | Narrative storytelling, linked Moments and multi-step experiences. |
 
 ## DJ Moment types
@@ -114,6 +114,23 @@ Session Flow → Broadcast path.
 | PL-4.1 — recommendation spacing | Current | **Objective:** avoid consecutive Recommendation intents when another already valid contextual intent is available. **Trigger:** existing Track Started evaluation. **Input:** the immediately preceding Flow Moment type through Runtime-scoped Performance Memory, current bounded hints and existing priority order. **Policy:** when the previous Moment is Recommendation, deterministically demote Recommendation for this one decision only if Artist, Album or Genre has a safe, non-repeating and Discover-eligible hint; otherwise preserve the existing ordering. **Output:** one existing Knowledge Intent; no new Moment type. **Fallback:** existing Recommendation or Track Context selection; spacing never creates Silence. **Evidence:** focused Planner and live Track Started tests prove deterministic selection, preserved Discover preference where no alternative exists, immutable Moment delivery and unchanged Flow/Broadcast publication. **Deferred:** frequency learning, timers, future-track or queue context, persistent history and autonomous pacing. |
 | PL-4.2 — session-arc policy | Gated | Existing Stage 4 direction (`narrative sequencing`, `dynamic replanning` and `pacing`) needs one later, explicit policy that defines its Flow evidence, direction transition, fallback and test contract. It is not authorized by the broad label alone. |
 
+The [2026-10-04 owner directive](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-5977878118)
+selects a smaller Phase-1 continuity policy within this direction. On each
+eligible observed Track Started event, the existing Planner uses only safe
+current Track Insight, Start Strategy, Mood, Persona, Direction and the last
+eight committed Flow Moments. Runtime Performance Memory records the delivered
+Moment type, its actual subject and a hash of already-safe context; it carries
+no cross-Session state. The Planner first applies the existing minimum interval
+and Direction policy, then prefers unused Artist/Album/Genre/Recommendation
+angles. It demotes the last factual type within four Flow Moments, including
+across an automatic Transition, only when another complete safe angle exists.
+If the safe spoken context repeats for that artist, it approves Silence before
+choosing another type. The existing Horizon and prepared
+knowledge realize only the current observed opportunity; future slots remain
+silence-capable without a qualified upcoming-playback producer. This bounded
+policy does not complete PL-4.2's broader autonomous narrative or future-track
+work. Its Session-level tests are in `tests/test_session_intelligence_continuity.py`.
+
 ### Knowledge Engine
 
 | Cell | Status | Bounded contract |
@@ -128,7 +145,7 @@ Session Flow → Broadcast path.
 | Cell | Status | Bounded contract |
 | --- | --- | --- |
 | ME-3.3 — audience-direction Session Update | Deferred — blocked behind a separate future Audience Observation decision | No Audience Event may generate a DJMoment or Session Update. This cell may be reconsidered only after a future coarse observation is explicitly authorized for Planner use; it is not implied by Audience Experience. |
-| ME-3.4 — additional Transition policy | Gated | Existing Stage 3 broad Transition wording requires a later cell that selects one exact allowed predecessor/successor relationship, Direction/Strategy constraint, repetition guard and no-transition fallback. The already-current Exploring Recommendation policy remains unchanged. |
+| ME-3.4 — additional Transition policy | Gated | A new predecessor/successor relationship still requires its own exact policy. The selected continuity tranche only spaces the already-current Exploring Recommendation Transition within four recent Flow Moments and uses neutral localized sequence wording; it does not add a relationship, playback transition or future-track claim. |
 | ME-4.1 — narrative continuation | Gated | Existing Stage 4 linked Moments and multi-step experiences require a separately approved semantic sequence contract. It must not be inferred from a renderer, queue or future-track state. |
 
 ### Discover
