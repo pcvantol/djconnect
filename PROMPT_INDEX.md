@@ -1,5 +1,24 @@
 # DJConnect Verification Prompt Index
 
+## PR #1106 DJ Intelligence Session continuity source reconciliation
+
+PR [#1106](https://github.com/pcvantol/djconnect/pull/1106) merged as
+`b2c2264f59777a4a2fd620fd2d2a63c0472e1e73` from reviewed head
+`2755cf22f975a3a2db3451158ac658e337f695d4`. The immutable
+[Finalization record](docs/history/prompts/2026-10-04-core-session-intelligence-continuity-finalization.md)
+holds the assignment, bounded behavior, exact-main CI/artifact/evidence and
+remaining product boundary. The existing Runtime-owned Planner, Knowledge,
+DJMoment, Session Flow and Broadcast chain remains canonical. Exact-main
+Validate, CodeQL, coverage artifact, internal prerelease and evidence
+reconciliation succeeded; no deployment or stable release occurred. This
+dedicated Finalization reconciles the merged source to
+`MERGED_RECONCILED` after its protected merge, with `WORKSPACE_READY` only
+after cleanup. The same five Planned Execution Horizon items from
+`PLATFORM_EVOLUTION_BACKLOG.md` remain Public distribution: Apple;
+Public distribution: Windows; Public HACS distribution; HACS 3.3.0 release visibility;
+Firmware OTA publication and staged rollback. This Core tranche is completed,
+and no next intelligence family is selected.
+
 ## PR #1104 VibeCast Pi owner handoff source reconciliation
 
 PR [#1104](https://github.com/pcvantol/djconnect/pull/1104) merged from the

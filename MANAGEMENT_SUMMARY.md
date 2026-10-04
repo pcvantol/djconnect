@@ -1,5 +1,72 @@
 # DJConnect Generation 2 Management Summary
 
+## PR #1106 DJ Intelligence Session continuity source reconciliation
+
+### Repository Status
+
+PR [#1106](https://github.com/pcvantol/djconnect/pull/1106) merged as
+`b2c2264f59777a4a2fd620fd2d2a63c0472e1e73` from independently reviewed
+head `2755cf22f975a3a2db3451158ac658e337f695d4`. Exact-main
+[Validate](https://github.com/pcvantol/djconnect/actions/runs/37214423397),
+[CodeQL](https://github.com/pcvantol/djconnect/actions/runs/37214423200),
+[internal artifact](https://github.com/pcvantol/djconnect/actions/runs/37214585424)
+and [evidence reconciliation](https://github.com/pcvantol/djconnect/actions/runs/37214585637)
+succeeded. Main equalled `origin/main` at the merge SHA before this separate
+Finalization; the implementation branch remote was deleted. The existing
+workflow produced only a SHA-bound, publicly visible GitHub prerelease archive
+and qualification JSON, without stable release, signing or deployment.
+
+### Management Summary
+
+Across observable tracks, the existing HA-owned Session Planner now uses
+Runtime-bounded delivered Moment subjects and safe spoken-context fingerprints
+to vary contributions, avoid repeated facts and choose Silence when warranted.
+Transition and Session Update decisions have bounded spacing and chronological
+Direction memory. Eight new behavioral scenarios, 1,483 local tests with 7
+existing skips, 131 focused tests, Ruff and 89% focused changed-module branch
+coverage passed. The independent exact-head review found no remaining
+P1/P2/P3. Broadcast shape, client contracts, playback ownership, privacy and
+producer gates remain intact; VibeCast's physical Pi acceptance is separate.
+
+### Roadmap Position
+
+Generation 2, Phase 1 DJ Intelligence Evolution: the one explicitly selected,
+Runtime-bounded Core continuity tranche is source merged and exact-main
+qualified. The completed planning baseline is not reopened. Another
+independent intelligence family requires a new owner selection.
+
+### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+1. **Public distribution: Apple — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: qualified Internal Release consumers and explicit authorization. Execution Rationale: retain the first canonical public-distribution item, gated by its consumer and owner evidence.
+2. **Public distribution: Windows — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: qualified Internal Release consumers and explicit authorization. Execution Rationale: retain the next platform distribution item after its own consumer qualification.
+3. **Public HACS distribution — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: fresh candidate and release authorization. Execution Rationale: keep public HACS distribution gated on its separate release decision.
+4. **HACS 3.3.0 release visibility (`HACS-3.3.0-001`) — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: release/tag metadata, HACS cache/index discovery and update presentation. Execution Rationale: verify actual release visibility before claiming distribution.
+5. **Firmware OTA publication and staged rollback — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: manifest-bound consumer qualification. Execution Rationale: preserve the staged firmware publication gate after manifest consumer evidence.
+
+### Blocked Items
+
+Playback Observation Stage 2 and Continue Stage 2 await Backend-owned Playback
+Instance Identity. VibeCast's decoder source is merged in Apple PR #91; its
+Finalization and the remaining physical Pi non-terminal-update receipt belong
+to DJC-APPLE, outside this Core tranche.
+
+### Deferred Items
+
+Lyrics, Audience adaptation, true future-track planning and cross-Session
+Performance Learning remain outside this completed tranche and require
+separate prerequisites and owner decisions.
+
+### Repository State
+
+Repository State: `MERGED_RECONCILED` after this dedicated governance-only
+Finalization merges. Its implementation predecessor is currently
+`MERGED_UNRECONCILED` until that merge.
+
+### Workspace State
+
+Workspace State: `WORKSPACE_READY` only after mandatory cleanup verifies a
+clean canonical main, removed completed branches and pruned remote refs.
+
 ## PR #1104 VibeCast Pi owner handoff source reconciliation
 
 PR [#1104](https://github.com/pcvantol/djconnect/pull/1104) merged from the
