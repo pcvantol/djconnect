@@ -1,5 +1,39 @@
 # DJConnect Generation 2 Management Summary
 
+## PR #1104 VibeCast Pi owner handoff source reconciliation
+
+PR [#1104](https://github.com/pcvantol/djconnect/pull/1104) merged from the
+independently reviewed `db368a92b97f0e5bbd033baa877a65892c0a1138` as
+`c46b41cb77354b57f3388ddde8e67a462b2ff919`. The paired Apple
+[PR #89](https://github.com/pcvantol/djconnect-app/pull/89) merged as
+`1963d7a986c81b6ecb8407a21451ca84e03bdef7`. Exact-main Core
+[validation](https://github.com/pcvantol/djconnect/actions/runs/37192659840),
+[CodeQL](https://github.com/pcvantol/djconnect/actions/runs/37192659676),
+[internal artifact](https://github.com/pcvantol/djconnect/actions/runs/37192754992)
+and [evidence reconciliation](https://github.com/pcvantol/djconnect/actions/runs/37192755106)
+succeeded. Apple exact-main [CI](https://github.com/pcvantol/djconnect-app/actions/runs/37192645432)
+and [evidence reconciliation](https://github.com/pcvantol/djconnect-app/actions/runs/37192909516)
+also succeeded. Only the existing SHA-bound internal prereleases and evidence
+were automatically published. No public release, production deployment or
+deployment workflow ran; HA-dev received the explicit test installation below.
+
+The first selected slice remains active with `PI_QUAL=OPEN`. The exact Core
+artifact is installed in HA-dev Docker, `/djconnect/vibecast` serves the new
+renderer, and an iPhone simulator built from exact Apple main is paired to a new
+HA-dev iOS entry. The first live session start exposed an Apple decode contract
+error: HA returns `broadcast.planner.current_direction`, while Apple requires
+`session.planner.current_direction`, absent from the canonical HA response. A
+backend-shaped Swift probe reproduces `keyNotFound(current_direction)` at
+`session.planner`; the simulator displays error 6. The physical portrait Pi
+approval, snapshot/updates, reconnect, Runtime end/privacy and token
+non-persistence remain unproven. Qualification Decision: `BLOCKED` for integrated
+product acceptance; the source merge and exact-main checks are proven. See the
+[live readback](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-5980280006).
+This Finalization reconciles repository records
+without selecting the later Cast slice or changing the five Planned Execution
+Horizon items. Repository State: `MERGED_RECONCILED` after this Finalization
+merges; Workspace State: `WORKSPACE_READY` only after mandatory cleanup.
+
 ## PR #1102 federated planning finalization
 
 PR [#1102](https://github.com/pcvantol/djconnect/pull/1102) merged as
