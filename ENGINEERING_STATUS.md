@@ -1,5 +1,31 @@
 # DJConnect Engineering Status
 
+## PR #1104 VibeCast Pi owner handoff source reconciliation
+
+PR [#1104](https://github.com/pcvantol/djconnect/pull/1104) merged from the
+independently reviewed `db368a92b97f0e5bbd033baa877a65892c0a1138` as
+`c46b41cb77354b57f3388ddde8e67a462b2ff919`. The paired Apple
+[PR #89](https://github.com/pcvantol/djconnect-app/pull/89) merged as
+`1963d7a986c81b6ecb8407a21451ca84e03bdef7`. Exact-main Core
+[validation](https://github.com/pcvantol/djconnect/actions/runs/37192659840),
+[CodeQL](https://github.com/pcvantol/djconnect/actions/runs/37192659676),
+[internal artifact](https://github.com/pcvantol/djconnect/actions/runs/37192754992)
+and [evidence reconciliation](https://github.com/pcvantol/djconnect/actions/runs/37192755106)
+succeeded. Apple exact-main [CI](https://github.com/pcvantol/djconnect-app/actions/runs/37192645432)
+and [evidence reconciliation](https://github.com/pcvantol/djconnect-app/actions/runs/37192909516)
+also succeeded. Only the existing SHA-bound internal prereleases and evidence
+were automatically published; no public release or deployment ran.
+
+The first selected slice remains active with `PI_QUAL=OPEN`: installed HA still
+serves the pre-handoff VibeCast page. A paired Apple owner, exact candidate HA
+test installation and physical portrait Pi must prove approval, snapshot and
+updates, reconnect, Runtime end/privacy and token non-persistence. Qualification
+Decision: `BLOCKED` for integrated product acceptance; the source merge and
+exact-main checks are proven. This Finalization reconciles repository records
+without selecting the later Cast slice or changing the five Planned Execution
+Horizon items. Repository State: `MERGED_RECONCILED` after this Finalization
+merges; Workspace State: `WORKSPACE_READY` only after mandatory cleanup.
+
 ## PR #1102 federated planning finalization
 
 PR [#1102](https://github.com/pcvantol/djconnect/pull/1102) merged as

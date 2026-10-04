@@ -1,6 +1,7 @@
 # VibeCast Reference Renderer Increment
 
-**Status:** Planned and selected for the next Reference Experience increment.
+**Status:** Selected first slice; Core and Apple owner-handoff source merged;
+physical reference acceptance open.
 
 ## Iteration 1 evidence
 
@@ -12,9 +13,10 @@ prepared for snapshot-first playback, artwork, mood and current-DJMoment
 presentation. The same page includes a landscape composition for later Cast
 feasibility work.
 
-This is not yet end-to-end reference validation: Apple-owner-to-Pi handoff, an
-active-session capture, reconnect evidence and Runtime-end observation on the
-physical host remain the next work item. The Pi does not retain a Broadcast
+This is not yet end-to-end reference validation: the newly merged Apple-owner
+handoff has not been installed and observed with a paired Apple owner on the
+physical Pi. Active-Session capture, reconnect evidence and Runtime-end
+observation remain the acceptance work. The Pi does not persist a Broadcast
 Token and the renderer contains no controls or personal projection.
 
 ## Outcome
