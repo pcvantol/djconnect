@@ -39,6 +39,14 @@ binds the existing Runtime-scoped Broadcast Token to the claim. Only the same
 browser secret can collect it, once. The browser then uses the existing
 snapshot-first Broadcast WebSocket and keeps the Session ID and Token in memory.
 
+Session start, active lookup and end, as well as the owner Broadcast Token and
+handoff approval routes, require the authenticated device's server-side
+Profile binding. An explicit Profile hint from a client cannot select another
+owner's Session. A paired but not yet Profile-mapped client fails closed until
+the existing Profile Platform maps it; installed Apple-owner mapping must be
+confirmed during live acceptance. Apple's active-Session GET includes its
+identified device and client type so reconnect can use this boundary.
+
 The short code is a visual confirmation, not an authentication credential.
 Claims are capacity-bounded, expire after five minutes, and never persist to
 Home Assistant Store, browser storage, Pi configuration or Apple client state.

@@ -22,7 +22,13 @@ below.
 - The Apple repository owns a code-entry action visible only for its active
   Session, sends `session_id` plus `code` through its existing identified,
   bearer-authenticated request, and stores no Broadcast Token or receiver
-  secret. The five-language UI reports approved/failed without exposing tokens.
+  secret. Its active-Session GET includes device ID and client type. The
+  five-language UI reports code approval as waiting for the Pi, without
+  claiming receiver delivery or exposing tokens.
+- The HA owner Session lifecycle and Broadcast Token/approval paths require
+  the authenticated device's server-side Profile binding. Client-supplied
+  Profile hints cannot select another Session. An unmapped paired client fails
+  closed until mapped through the existing Profile Platform.
 - The physical portrait Pi uses the HA-hosted `/djconnect/vibecast` browser
   page. Its native client need not pair or gain a new token/transport for this
   reference subset. Browser state is in memory; it consumes only the existing

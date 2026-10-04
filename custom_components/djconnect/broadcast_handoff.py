@@ -105,13 +105,12 @@ class BroadcastHandoffManager:
             )
             if count >= MAX_APPROVAL_ATTEMPTS_PER_OWNER:
                 return False
+            self._approval_attempts[owner_profile_id] = (count + 1, expires_at)
             for claim in self._claims.values():
                 if secrets.compare_digest(claim.code, code) and not claim.session_id:
                     claim.session_id = session_id
                     claim.broadcast_token = broadcast_token
-                    self._approval_attempts.pop(owner_profile_id, None)
                     return True
-            self._approval_attempts[owner_profile_id] = (count + 1, expires_at)
             return False
 
     async def collect(self, claim_id: str, secret: str) -> tuple[str, dict[str, Any] | None]:
