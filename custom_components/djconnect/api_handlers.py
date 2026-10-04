@@ -85,7 +85,7 @@ async def _session_profile_context(
     user_id: str | None,
     source: str,
 ) -> tuple[Any | None, Any | None, dict[str, Any] | None, int | None]:
-    """Authenticate a session request and resolve its owning Profile."""
+    """Authenticate a Session request against its device-bound owner Profile."""
     headers = headers or {}
     runtime = resolve_runtime(hass, data.get("device_id") or headers.get("X-DJConnect-Device-ID"), headers)
     if runtime is None:
@@ -94,6 +94,19 @@ async def _session_profile_context(
         return None, None, _error_payload("unauthorized"), 401
     if validate_required_client_type(data) is None:
         return None, None, _error_payload("invalid_client_type"), 400
+    try:
+        bound = await async_resolve_device_bound_request_context(
+            hass, runtime, data, request_source=source
+        )
+    except Exception as exc:  # noqa: BLE001
+        result, resolved_status = profile_error_payload(exc)
+        return None, None, result, resolved_status
+    profile_hints = (
+        str(data.get(key) or "").strip() for key in ("profile_id", "explicit_profile_id")
+    )
+    if any(hint and hint != bound.profile_id for hint in profile_hints):
+        return None, None, _error_payload("profile_device_mismatch"), 403
+    data["profile_id"] = bound.profile_id
     profile_error, profile_status = await _apply_profile_or_error(
         hass, runtime, data, user_id=user_id, source=source
     )
@@ -483,20 +496,48 @@ async def async_handle_session_broadcast_token_payload(
     hass: Any, data: dict[str, Any], *, headers: Any | None = None, user_id: str | None = None
 ) -> tuple[dict[str, Any], int]:
     """Mint no new secret: return the current Runtime's owner-authorized token."""
-    _runtime, context, error, status = await _session_profile_context(
+    result, status, manager, profile_id = await _async_owner_broadcast_session_context(
         hass, data, headers=headers, user_id=user_id, source="session_broadcast_token"
     )
-    if error is not None:
-        return error, int(status or 400)
-    session_id = str(data.get("session_id") or "").strip()
-    if not session_id:
-        return _error_payload("session_id_required"), 400
-    contract = await session_runtime_manager(hass).async_broadcast_token_for_owner(
-        owner_profile_id=context.profile_id, session_id=session_id
+    if manager is None or profile_id is None:
+        return result, status
+    contract = await manager.async_broadcast_token_for_owner(
+        owner_profile_id=profile_id, session_id=result["session_id"]
     )
     if contract is None:
         return _error_payload("active_session_not_found"), 404
     return {"success": True, **contract}, 200
+
+
+async def async_handle_session_broadcast_handoff_approve_payload(
+    hass: Any, data: dict[str, Any], *, headers: Any | None = None, user_id: str | None = None
+) -> tuple[dict[str, Any], int]:
+    """Let only the active Session owner approve a browser's short-lived code."""
+    result, status, manager, profile_id = await _async_owner_broadcast_session_context(
+        hass, data, headers=headers, user_id=user_id, source="session_broadcast_handoff"
+    )
+    if manager is None or profile_id is None:
+        return result, status
+    session_id = result["session_id"]
+    code = str(data.get("code") or "").strip()
+    if len(code) != 6 or not code.isascii() or not code.isdigit():
+        return _error_payload("handoff_code_invalid"), 400
+    contract = await manager.async_broadcast_token_for_owner(
+        owner_profile_id=profile_id, session_id=session_id
+    )
+    if contract is None:
+        return _error_payload("active_session_not_found"), 404
+    from .broadcast_handoff import broadcast_handoff_manager
+
+    approved = await broadcast_handoff_manager(hass).approve(
+        code,
+        owner_profile_id=profile_id,
+        session_id=session_id,
+        broadcast_token=str(contract["broadcast_token"]),
+    )
+    if not approved:
+        return _error_payload("handoff_code_unavailable"), 404
+    return {"success": True, "session_id": session_id, "handoff": "approved"}, 200
 
 
 async def _apply_profile_or_error(
