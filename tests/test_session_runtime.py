@@ -2456,8 +2456,14 @@ class SessionRuntimeManagerTest(unittest.TestCase):
                     "related_tracks": "Angel",
                 },
                 "analysis": {
-                    "summary": "A spacious trip-hop landmark.",
-                    "full_text": "The suspended beat leaves room for the bass.",
+                    "summary": (
+                        "A spacious trip-hop landmark."
+                        if insight_calls == 1 else "A darker trip-hop recording."
+                    ),
+                    "full_text": (
+                        "The suspended beat leaves room for the bass."
+                        if insight_calls == 1 else "The second track explores a different texture."
+                    ),
                     "genre": "trip-hop",
                 },
             }

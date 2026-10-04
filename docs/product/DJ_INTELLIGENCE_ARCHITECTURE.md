@@ -69,12 +69,23 @@ Intent**: a semantic statement of what the DJ may want to communicate and why.
 It may intentionally choose Silence. Silence is a successful performance
 decision, never an error.
 
-The accepted Rolling Session Horizon plans approximately twenty minutes of
-experience around only safely observable playback context. It is ephemeral,
+The current Rolling Session Horizon holds a bounded fifteen-minute planning
+window around only safely observable playback context. It is ephemeral,
 provider-neutral and degrades to a shorter or current-track plan when future
 context is absent. It never controls a provider queue or exposes speculative
 plans to Renderers. See
 [`../../ROLLING_SESSION_HORIZON_ARCHITECTURE.md`](../../ROLLING_SESSION_HORIZON_ARCHITECTURE.md).
+
+The selected bounded continuity policy reads the active Session Flow through
+Runtime-scoped Performance Memory. It distinguishes the subject of an Artist,
+Album, Genre or Recommendation Moment from incidental metadata attached to
+other Moment types. The Planner prefers a distinct safe angle when available;
+if the current Track Insight offers only already-used context, Silence remains
+a valid planned result. Mood, Persona and Direction retain their existing
+bounded priority and direction roles. The existing PlanningWindow and prepared
+knowledge path realize only the current observed track; without a qualified
+upcoming-playback producer, future slots remain silence-capable. Memory and
+content fingerprints end with the Runtime and are not Broadcast fields.
 
 ## Context-aware Transition contract
 
@@ -94,6 +105,9 @@ playback command. When needed, the Knowledge Engine may assemble only already
 available, safe context for that approved intent. The DJ Moment Engine then
 performs the approval as an immutable Transition Moment with Presentation
 Intent frozen at creation. No Planner approval produces no Transition Moment.
+The current Exploring Recommendation relationship has a bounded recent-Moment
+cooldown. Its localized wording describes the observed sequence of existing
+contributions; it makes no independent musical or future-track claim.
 
 ## Knowledge Intent
 
