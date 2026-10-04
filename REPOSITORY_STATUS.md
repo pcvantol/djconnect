@@ -1,5 +1,36 @@
 # DJConnect Repository Status
 
+## PR #1108 production-credit provenance Phase A reconciliation
+
+PR [#1108](https://github.com/pcvantol/djconnect/pull/1108) merged as
+`800516230584f20b4e42c12fe4e240a651260936` from independently reviewed
+head `0d58cef9ee4793cb18804ee744382b7ab3f2d88c`; exact source trees
+match. Local `main`, `origin/main` and remote main matched the source merge
+before this Finalization. Exact-main
+[Validate](https://github.com/pcvantol/djconnect/actions/runs/37223741542),
+[CodeQL](https://github.com/pcvantol/djconnect/actions/runs/37223741363),
+[internal artifact](https://github.com/pcvantol/djconnect/actions/runs/37223870631)
+and [evidence](https://github.com/pcvantol/djconnect/actions/runs/37223870720)
+all passed. Cobertura coverage is bound to the merge SHA. The publicly visible
+`internal-ha-{SHA}` prerelease contains one exact HA archive and one
+qualification JSON; its redacted evidence reports
+`POST_MERGE_RELEASE_EVIDENCE_QUALIFIED`. No stable product release, signing,
+deployment, service, protection or workflow change occurred.
+
+Phase A adds a fail-closed, machine-readable policy for the three credit-adjacent
+fields emitted by existing Core Spotify normalizers and six focused negative
+and source-path tests. The local full suite passed 1,489 tests with 7 existing
+skips; PR checks and independent review passed. No new Moment copy, provider
+call, renderer projection, persistent credit memory or client source exists.
+Phase B is `NO-GO`: current sources lack a live Session-bound typed production
+credit, affirmative use-rights qualification and safe source attribution.
+`PRODUCT_ACCEPTANCE=PHASE_A_PASS_PHASE_B_BLOCKED`; no richer Artist/Album
+behavior is claimed. The five Planned Execution Horizon items remain Public
+distribution: Apple; Public distribution: Windows; Public HACS distribution;
+HACS 3.3.0 release visibility; Firmware OTA publication and staged rollback.
+Repository State: `MERGED_RECONCILED` after this Finalization merges; Workspace
+State: `WORKSPACE_READY` after mandatory cleanup.
+
 ## PR #1106 DJ Intelligence Session continuity source reconciliation
 
 PR [#1106](https://github.com/pcvantol/djconnect/pull/1106) merged as

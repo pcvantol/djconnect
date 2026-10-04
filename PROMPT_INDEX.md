@@ -1,5 +1,22 @@
 # DJConnect Verification Prompt Index
 
+## PR #1108 production-credit provenance Phase A reconciliation
+
+PR [#1108](https://github.com/pcvantol/djconnect/pull/1108) merged as
+`800516230584f20b4e42c12fe4e240a651260936` from reviewed head
+`0d58cef9ee4793cb18804ee744382b7ab3f2d88c`. The immutable
+[Finalization record](docs/history/prompts/2026-10-04-core-credits-provenance-finalization.md)
+records exact admission, Phase A source inventory and stop decision, local and
+exact-main tests, coverage, internal artifact/evidence and preserved product
+boundary. Current Spotify fields cannot authorize new Artist/Album credits;
+Phase B lacks a Session-bound typed producer, qualified use rights and safe
+attribution. No new provider or follow-on assignment starts here. This
+governance-only Finalization reconciles the source to `MERGED_RECONCILED` after
+its protected merge; `WORKSPACE_READY` follows mandatory cleanup. The same
+five Planned Execution Horizon items remain Public distribution: Apple;
+Public distribution: Windows; Public HACS distribution; HACS 3.3.0 release
+visibility; Firmware OTA publication and staged rollback.
+
 ## PR #1106 DJ Intelligence Session continuity source reconciliation
 
 PR [#1106](https://github.com/pcvantol/djconnect/pull/1106) merged as

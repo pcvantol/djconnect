@@ -2,7 +2,7 @@
 
 **Owner:** DJC-CORE / DJ Intelligence Evolution
 **Directive:** `DJC-CORE-PROVENANCE-CREDITS-CONTEXT-V1-20261004`
-**Status:** Phase A contract candidate; Phase B is gated
+**Status:** Phase A contract protected merged and exact-main qualified in [Core PR #1108](https://github.com/pcvantol/djconnect/pull/1108); Phase B NO-GO
 **Boundary:** existing sources only; no new Artist/Album Moment behavior
 
 ## Decision and existing architecture
