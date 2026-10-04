@@ -1,5 +1,74 @@
 # DJConnect Generation 2 Management Summary
 
+## PR #1108 production-credit provenance Phase A reconciliation
+
+### Repository Status
+
+PR [#1108](https://github.com/pcvantol/djconnect/pull/1108) merged as
+`800516230584f20b4e42c12fe4e240a651260936` from independently reviewed
+head `0d58cef9ee4793cb18804ee744382b7ab3f2d88c`; the source trees match.
+Exact-main [Validate](https://github.com/pcvantol/djconnect/actions/runs/37223741542),
+[CodeQL](https://github.com/pcvantol/djconnect/actions/runs/37223741363),
+[internal artifact](https://github.com/pcvantol/djconnect/actions/runs/37223870631)
+and [evidence reconciliation](https://github.com/pcvantol/djconnect/actions/runs/37223870720)
+passed. Coverage evidence is SHA-bound; the qualification JSON reports all
+required checks PASS. The unchanged main workflow published a publicly visible
+`internal-ha-{SHA}` prerelease archive and qualification JSON, not a stable
+product release, signing or deployment.
+
+### Management Summary
+
+The selected DJC-CORE assignment delivered its Phase A provenance, reliability,
+conflict, rights and attribution gate. Tests trace actual Spotify normalizer
+fields through Track Insight: no current live Session source supplies a typed,
+identified production credit or a verified attribution route. All current
+credit-adjacent fields are ineligible for new Moment output. Six focused tests,
+the local 1,489-test HA suite with 7 existing skips, CI lint/static checks and
+independent exact-head review passed. Existing Artist/Album behavior remains
+unchanged. **Product acceptance is limited to Phase A; Phase B is NO-GO.**
+
+### Roadmap Position
+
+Generation 2, Phase 1 DJ Intelligence Evolution: source qualification for the
+new owner-selected credits assignment is merged and exact-main qualified at
+its explicit Phase A stop boundary. The missing Session-bound typed credit
+producer, affirmative use rights and attribution-safe presentation are the
+next decision gates. This Finalization selects no new provider or intelligence
+family and does not reopen the previous continuity assignment or platform
+planning.
+
+### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+1. **Public distribution: Apple — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: qualified Internal Release consumers and explicit authorization. Execution Rationale: retain the first canonical public-distribution item, gated by its consumer and owner evidence.
+2. **Public distribution: Windows — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: qualified Internal Release consumers and explicit authorization. Execution Rationale: retain the next platform distribution item after its own consumer qualification.
+3. **Public HACS distribution — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: fresh candidate and release authorization. Execution Rationale: keep public HACS distribution gated on its separate release decision.
+4. **HACS 3.3.0 release visibility (`HACS-3.3.0-001`) — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: release/tag metadata, HACS cache/index discovery and update presentation. Execution Rationale: verify actual release visibility before claiming distribution.
+5. **Firmware OTA publication and staged rollback — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: manifest-bound consumer qualification. Execution Rationale: preserve the staged firmware publication gate after manifest consumer evidence.
+
+### Blocked Items
+
+Credit Moment consumption awaits a qualified Session producer and rights plus
+attribution handoff. Playback Observation Stage 2 and Continue Stage 2 await
+Backend-owned Playback Instance Identity. VibeCast `PI_QUAL` remains
+DJC-APPLE-owned; its distinct Core Profile binding gap is recorded in
+[issue #1101](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-5982693396).
+
+### Deferred Items
+
+Lyrics, Audience adaptation, future provider queue, external editorial sources
+and cross-Session learning remain outside this assignment.
+
+### Repository State
+
+Repository State: `MERGED_RECONCILED` after this dedicated governance-only
+Finalization merges. Its implementation predecessor is currently
+`MERGED_UNRECONCILED` until that merge.
+
+### Workspace State
+
+Workspace State: `WORKSPACE_READY` only after mandatory cleanup verifies a
+clean canonical main and removes completed local branches and remote refs.
+
 ## PR #1106 DJ Intelligence Session continuity source reconciliation
 
 ### Repository Status

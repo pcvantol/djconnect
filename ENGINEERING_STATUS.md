@@ -1,5 +1,73 @@
 # DJConnect Engineering Status
 
+## PR #1108 production-credit provenance Phase A reconciliation
+
+PR [#1108](https://github.com/pcvantol/djconnect/pull/1108) merged as
+`800516230584f20b4e42c12fe4e240a651260936` from independently reviewed
+head `0d58cef9ee4793cb18804ee744382b7ab3f2d88c`; their trees match.
+The selected `DJC-CORE-CREDITS-PROVENANCE-V1-20261004` assignment delivered
+Phase A: a machine-readable, fail-closed source inventory and evidence policy
+for only the track artists, album artists and album release date currently
+emitted by Core Spotify normalizers. Missing identity, weak or stale evidence,
+conflict, unqualified rights or unavailable attribution cannot authorize a new
+fact. All current fields remain blocked from Session, renderer and public
+output. No Knowledge, Planner, Moment, Flow, Broadcast, provider, client,
+playback or persistence path changed.
+
+Six new focused tests and the local full 1,489-test HA suite with 7 existing
+skips passed; CI-scope Ruff and diff checks passed. One earlier parallel-loaded
+run hit the roadmap snapshot validator's fixed 10-second subprocess timeout;
+the isolated validator and full suite then passed without a source change.
+Independent exact-head review found no P1/P2/P3. Exact-main
+[Validate](https://github.com/pcvantol/djconnect/actions/runs/37223741542),
+[CodeQL](https://github.com/pcvantol/djconnect/actions/runs/37223741363),
+[internal artifact](https://github.com/pcvantol/djconnect/actions/runs/37223870631)
+and [evidence reconciliation](https://github.com/pcvantol/djconnect/actions/runs/37223870720)
+succeeded. Validate uploaded SHA-bound Cobertura coverage; the evidence JSON
+reports `POST_MERGE_RELEASE_EVIDENCE_QUALIFIED` with required checks PASS.
+The existing workflow published a publicly visible `internal-ha-{SHA}`
+prerelease with one HA archive and one qualification JSON, without stable
+product release, signing, deployment or workflow change.
+
+**Qualification Decision:** `PHASE_A_PASS_PHASE_B_BLOCKED`. The current live
+Track Insight path has no Session-bound, role-typed production credit with
+preserved source identity. The isolated album query cannot serve as observed
+Session truth, and a safe source link/mark plus affirmative model/spoken-use
+rights are unproven. Per the owner directive, work stops after Phase A; no
+richer Artist/Album Moment or full product acceptance is claimed. Repository
+State: `MERGED_RECONCILED` after this dedicated governance-only Finalization
+merges; Workspace State: `WORKSPACE_READY` after mandatory cleanup.
+
+### Roadmap Position
+
+Generation 2, Phase 1 DJ Intelligence Evolution: the owner-selected
+production/credits source qualification is source merged and exact-main
+qualified at its Phase A stop boundary. Phase B remains gated by the exact
+producer, rights and attribution handoff in
+`docs/product/CREDIT_PROVENANCE_SOURCE_CONTRACT.md`. Completed platform
+planning and the previous Session continuity assignment remain closed.
+
+#### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+1. **Public distribution: Apple — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: qualified Internal Release consumers and explicit authorization. Execution Rationale: retain the first canonical public-distribution item, gated by its consumer and owner evidence.
+2. **Public distribution: Windows — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: qualified Internal Release consumers and explicit authorization. Execution Rationale: retain the next platform distribution item after its own consumer qualification.
+3. **Public HACS distribution — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: fresh candidate and release authorization. Execution Rationale: keep public HACS distribution gated on its separate release decision.
+4. **HACS 3.3.0 release visibility (`HACS-3.3.0-001`) — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: release/tag metadata, HACS cache/index discovery and update presentation. Execution Rationale: verify actual release visibility before claiming distribution.
+5. **Firmware OTA publication and staged rollback — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: manifest-bound consumer qualification. Execution Rationale: preserve the staged firmware publication gate after manifest consumer evidence.
+
+#### Blocked Items
+
+Production-credit Phase B needs a qualified Session-bound producer, rights and
+attribution path. Playback Observation Stage 2 and Continue Stage 2 await
+Backend-owned Playback Instance Identity. VibeCast `PI_QUAL` remains in
+DJC-APPLE; its separate Core Profile backend-binding gap is recorded in
+[issue #1101](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-5982693396).
+
+#### Deferred Items
+
+Lyrics, Audience adaptation, true future-track planning, external editorial
+sources and cross-Session Performance Learning remain outside this assignment.
+
 ## PR #1106 DJ Intelligence Session continuity source reconciliation
 
 PR [#1106](https://github.com/pcvantol/djconnect/pull/1106) merged as
