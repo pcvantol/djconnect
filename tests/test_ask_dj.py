@@ -151,6 +151,24 @@ class AskDjTest(unittest.TestCase):
         cls.processor = importlib.import_module("custom_components.djconnect.processor")
         cls.track_insight = importlib.import_module("custom_components.djconnect.track_insight")
 
+    def test_manual_backend_does_not_confirm_pause_or_shuffle(self) -> None:
+        hass = types.SimpleNamespace(config=types.SimpleNamespace(language="nl"))
+        runtime = make_runtime()
+        runtime.config = {"music_backend": "later_manual"}
+
+        pause = asyncio.run(
+            self.ask_dj._playback_action_response(hass, runtime, "pauze", "pause")
+        )
+        shuffle = asyncio.run(
+            self.ask_dj._toggle_playback_response(hass, runtime, "set_shuffle", True)
+        )
+
+        self.assertFalse(pause["success"])
+        self.assertEqual(pause["error"], "music_backend_not_configured")
+        self.assertEqual(pause.get("playback_actions"), [])
+        self.assertFalse(shuffle["success"])
+        self.assertEqual(shuffle["error"], "music_backend_not_configured")
+
     def test_informational_request_does_not_modify_playback(self) -> None:
         runtime = make_runtime()
         calls = []

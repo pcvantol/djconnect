@@ -480,7 +480,8 @@ class DJConnectUseCases:
     ) -> dict[str, Any]:
         """Run a normalized DJConnect music command through the backend."""
         normalized = normalize_music_command(command)
-        self._ensure_capability(normalized)
+        if not isinstance(self.backend, ManualMusicBackend):
+            self._ensure_capability(normalized)
         result = await self.backend.handle_command(normalized, value, play=play)
         return self._normalize_result(result)
 

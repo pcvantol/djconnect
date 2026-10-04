@@ -1475,13 +1475,34 @@ async def _handle_action(
     raise ValueError(f"Unsupported Ask DJ action: {action}")
 
 
+def _failed_backend_action(result: Any) -> dict[str, Any] | None:
+    """Keep a failed backend command from becoming an Ask DJ success claim."""
+    if not isinstance(result, dict) or result.get("success") is not False:
+        return None
+    message = str(result.get("message") or result.get("text") or "Playback is unavailable.")
+    return {
+        "success": False,
+        "error": str(result.get("error") or "playback_unavailable"),
+        "text": message,
+        "dj_text": message,
+        "images": [],
+        "links": [],
+        "sources": [],
+        "playback_actions": [],
+    }
+
+
 async def _volume_delta_response(hass: HomeAssistant, runtime: Any, classification: AskDjIntent) -> dict[str, Any]:
     status = await run_music_command(hass, runtime, "status")
+    if failure := _failed_backend_action(status):
+        return failure
     playback = status.get("playback") if isinstance(status, dict) else {}
     current = _playback_volume(playback, runtime)
     if current is None:
         return {"success": False, "text": "Ik kan het huidige volume nu niet bepalen.", "error": "playback_unavailable"}
-    await run_music_command(hass, runtime, "set_volume", max(0, min(60, current + int(classification.value or 0))))
+    result = await run_music_command(hass, runtime, "set_volume", max(0, min(60, current + int(classification.value or 0))))
+    if failure := _failed_backend_action(result):
+        return failure
     text = "Ik heb het volume aangepast."
     return {"success": True, "text": text, "dj_text": text, "playback": {}, "images": [], "links": [], "sources": [], "items": [], "audio_url": None, "playback_actions": _volume_control_actions()}
 
@@ -1490,12 +1511,16 @@ async def _playback_action_response(hass: HomeAssistant, runtime: Any, text: str
     if action in {"next", "previous"}:
         return await _skip_playback_action_response(hass, runtime, text, action)
     result = await run_music_command(hass, runtime, action)
+    if failure := _failed_backend_action(result):
+        return failure
     text_response = _action_text(action)
     return {"success": True, "text": text_response, "dj_text": text_response, "playback": result.get("playback") if isinstance(result, dict) else {}, "images": [], "links": [], "sources": [], "playback_actions": _playback_control_actions(action)}
 
 
 async def _skip_playback_action_response(hass: HomeAssistant, runtime: Any, text: str, action: str) -> dict[str, Any]:
     result = await run_text_command(hass, runtime, text, play=True, correct_stt=False)
+    if failure := _failed_backend_action(result):
+        return failure
     text_response = str(result.get("dj_text") or result.get("text") or _action_text(action)).strip()
     queue_action = await _next_queue_playback_action(hass, runtime, current_playback=result.get("playback") if isinstance(result, dict) else {})
     actions = [queue_action] if queue_action else []
@@ -1503,7 +1528,9 @@ async def _skip_playback_action_response(hass: HomeAssistant, runtime: Any, text
 
 
 async def _toggle_playback_response(hass: HomeAssistant, runtime: Any, command: str, value: Any) -> dict[str, Any]:
-    await run_music_command(hass, runtime, command, value)
+    result = await run_music_command(hass, runtime, command, value)
+    if failure := _failed_backend_action(result):
+        return failure
     text = ("Shuffle staat aan." if value else "Shuffle staat uit.") if command == "set_shuffle" else ("Repeat is uitgezet." if value == "off" else "Repeat is aangezet.")
     return {"success": True, "text": text, "dj_text": text, "images": []}
 
@@ -1511,6 +1538,8 @@ async def _toggle_playback_response(hass: HomeAssistant, runtime: Any, command: 
 async def _favorite_action_response(hass: HomeAssistant, runtime: Any, action: str, value: Any, payload: dict[str, Any] | None, user_id: str | None) -> dict[str, Any]:
     command = "set_current_track_favorite" if action == "set_current_track_favorite" else "save_current_track"
     result = await run_music_command(hass, runtime, command, value)
+    if failure := _failed_backend_action(result):
+        return failure
     playback = result.get("playback") if isinstance(result, dict) else {}
     favorite_status = _playback_favorite_status(playback) if isinstance(playback, dict) else None
     await _async_record_favorite_preference(runtime, playback, favorite_status, payload, user_id)
