@@ -518,6 +518,40 @@ class AskDjTest(unittest.TestCase):
         self.assertEqual(result["items"], [])
         self.assertFalse(result.get("audio_url"))
 
+    def test_manual_profile_status_has_no_shuffle_or_repeat_controls(self) -> None:
+        runtime = make_runtime()
+        runtime.config = {"music_backend": "spotify_direct"}
+        runtime.profile_context_backend_id = "later_manual"
+        runtime.last_playback = {}
+
+        async def command(hass, runtime_arg, command_name, value=None, *, play=None):
+            if command_name == "status":
+                return {"success": True, "playback": runtime.last_playback}
+            raise AssertionError(f"unexpected playback mutation: {command_name}")
+
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
+        try:
+            hass = types.SimpleNamespace(
+                services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}
+            )
+            for question in ("staat shuffle aan?", "staat herhalen aan?"):
+                result = asyncio.run(
+                    self.ask_dj.async_handle_ask_dj(
+                        hass,
+                        runtime,
+                        {
+                            "text": question,
+                            "device_id": runtime.device_status["device_id"],
+                            "client_type": "ios",
+                        },
+                    )
+                )
+                self.assertTrue(result["success"])
+                self.assertEqual(result["playback_actions"], [])
+        finally:
+            self.ask_dj.run_music_command = original_command
+
     def test_shuffle_status_returns_enable_action_when_off(self) -> None:
         runtime = make_runtime()
         runtime.last_playback = {"has_playback": True, "shuffle_state": "off"}

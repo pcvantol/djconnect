@@ -18,8 +18,10 @@ from ..const import (
     CONF_CLIENT_TYPE,
     CONF_DEVICE_ID,
     CONF_DEVICE_NAME,
+    CONF_MUSIC_BACKEND,
     DEFAULT_TTS_LANGUAGE,
     DOMAIN,
+    MUSIC_BACKEND_LATER_MANUAL,
 )
 from ..announcements import async_apply_announcement_output
 from ..dj_response import async_create_dj_audio_url
@@ -2267,7 +2269,7 @@ async def _informational_intent_response(
     if _is_slang_track_info_request(text):
         return await _current_track_reference_response(hass, runtime, payload, playback_context)
     if ask_intent.action == "status":
-        return _playback_status_response(text, playback_context)
+        return _playback_status_response(text, playback_context, runtime)
     if ask_intent.intent == "save_generated_playlist":
         return await _save_generated_playlist(hass, runtime, text, memory_context)
     if ask_intent.intent == "song_recommendations":
@@ -9424,8 +9426,15 @@ def _current_output_text(playback: dict[str, Any]) -> str:
     return f"Muziek speelt nu op {name}." if name else "Ik kan nu niet zien waarop muziek speelt."
 
 
-def _playback_status_response(text: str, playback: dict[str, Any]) -> dict[str, Any]:
+def _playback_status_response(
+    text: str, playback: dict[str, Any], runtime: Any
+) -> dict[str, Any]:
     normalized = _normalize(text)
+    selected_backend = (
+        getattr(runtime, "profile_context_backend_id", "")
+        or getattr(runtime, "config", {}).get(CONF_MUSIC_BACKEND)
+    )
+    manual_backend = selected_backend == MUSIC_BACKEND_LATER_MANUAL
     if "shuffle" in normalized:
         enabled = _playback_shuffle_enabled(playback)
         message = (
@@ -9444,7 +9453,7 @@ def _playback_status_response(text: str, playback: dict[str, Any]) -> dict[str, 
             "sources": [],
             "items": [],
             "audio_url": None,
-            "playback_actions": [_shuffle_toggle_action(enabled)],
+            "playback_actions": [] if manual_backend else [_shuffle_toggle_action(enabled)],
         }
     if "repeat" in normalized or "herhaal" in normalized:
         repeat_state = _playback_repeat_state(playback)
@@ -9458,7 +9467,7 @@ def _playback_status_response(text: str, playback: dict[str, Any]) -> dict[str, 
             "sources": [],
             "items": [],
             "audio_url": None,
-            "playback_actions": _repeat_option_actions(repeat_state),
+            "playback_actions": [] if manual_backend else _repeat_option_actions(repeat_state),
         }
     message = _current_output_text(playback)
     return {"success": True, "text": message, "dj_text": message}
