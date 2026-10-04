@@ -61,8 +61,14 @@ assignment and execution status are in `PRODUCT_BACKLOG.md`.
 Automated Session Intelligence E2E Verification completed its original selected
 scope. Its existing scenarios verify Session behaviour; optional additions
 remain deferred and do not define the product direction. The separately
-selected bounded Core continuity tranche above is completed; no subsequent
-intelligence family is selected.
+selected bounded Core continuity tranche above is completed. The
+[next owner-selected Core directive](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-5982642617)
+qualifies existing production and credits sources first. Its Phase A
+provenance, reliability and attribution contract is a gate: current Core
+producers do not supply a Session-bound, attribution-safe production credit,
+so richer Artist/Album Moment behaviour remains blocked pending the exact
+producer/consumer prerequisites in
+[`CREDIT_PROVENANCE_SOURCE_CONTRACT.md`](docs/product/CREDIT_PROVENANCE_SOURCE_CONTRACT.md).
 
 The built-in DJ Brain Capability Platform is current supporting architecture:
 it constrains selection of existing trusted capabilities through Profile policy
@@ -101,6 +107,7 @@ their established scope; this roadmap does not authorize their implementation.
 | Historical | DJConnect V4 architecture and Runtime transition | Historical | `DJCONNECT_V4_COMPLETION_ROADMAP.md` |
 | 1 | DJ Intelligence Evolution | Current execution | `docs/product/DJ_INTELLIGENCE_CAPABILITY_REVIEW.md`; completed Session Intelligence Runtime and existing maturity boundaries |
 | 1 | Bounded Session Intelligence continuity tranche | Completed — explicitly selected Core assignment, source merged and exact-main qualified | Existing Runtime, Planner, safe Track Insight, Session Flow and Runtime-scoped Performance Memory; [PR #1106](https://github.com/pcvantol/djconnect/pull/1106) |
+| 1 | Production and credits source qualification | Selected Core assignment — Phase A contract source implementation; Phase B product behaviour gated | [Owner directive](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-5982642617); [`CREDIT_PROVENANCE_SOURCE_CONTRACT.md`](docs/product/CREDIT_PROVENANCE_SOURCE_CONTRACT.md); qualified Session producer and safe attribution required before Artist/Album consumption |
 | 1 | Automated Session Intelligence E2E Verification | Completed for the original selected scope; optional additions deferred | `docs/product/DEVELOPER_EXPERIENCE_ROADMAP.md` |
 | 2 | Universal Receiver Reference Experience | Planned | Minimum DJ Intelligence baseline; `docs/technical/UNIVERSAL_RECEIVER_ARCHITECTURE.md` |
 | 2 | VibeCast Reference Renderer | Planned / selected reference increment | Portrait Pi real-hardware validation, paired Apple sender handoff and existing renderer-safe Broadcast projections; landscape Google Cast feasibility follows the Pi evidence. |
