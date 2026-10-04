@@ -14,14 +14,22 @@ and [evidence reconciliation](https://github.com/pcvantol/djconnect/actions/runs
 succeeded. Apple exact-main [CI](https://github.com/pcvantol/djconnect-app/actions/runs/37192645432)
 and [evidence reconciliation](https://github.com/pcvantol/djconnect-app/actions/runs/37192909516)
 also succeeded. Only the existing SHA-bound internal prereleases and evidence
-were automatically published; no public release or deployment ran.
+were automatically published. No public release, production deployment or
+deployment workflow ran; HA-dev received the explicit test installation below.
 
-The first selected slice remains active with `PI_QUAL=OPEN`: installed HA still
-serves the pre-handoff VibeCast page. A paired Apple owner, exact candidate HA
-test installation and physical portrait Pi must prove approval, snapshot and
-updates, reconnect, Runtime end/privacy and token non-persistence. Qualification
-Decision: `BLOCKED` for integrated product acceptance; the source merge and
-exact-main checks are proven. This Finalization reconciles repository records
+The first selected slice remains active with `PI_QUAL=OPEN`. The exact Core
+artifact is installed in HA-dev Docker, `/djconnect/vibecast` serves the new
+renderer, and an iPhone simulator built from exact Apple main is paired to a new
+HA-dev iOS entry. The first live session start exposed an Apple decode contract
+error: HA returns `broadcast.planner.current_direction`, while Apple requires
+`session.planner.current_direction`, absent from the canonical HA response. A
+backend-shaped Swift probe reproduces `keyNotFound(current_direction)` at
+`session.planner`; the simulator displays error 6. The physical portrait Pi
+approval, snapshot/updates, reconnect, Runtime end/privacy and token
+non-persistence remain unproven. Qualification Decision: `BLOCKED` for integrated
+product acceptance; the source merge and exact-main checks are proven. See the
+[live readback](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-5980280006).
+This Finalization reconciles repository records
 without selecting the later Cast slice or changing the five Planned Execution
 Horizon items. Repository State: `MERGED_RECONCILED` after this Finalization
 merges; Workspace State: `WORKSPACE_READY` only after mandatory cleanup.

@@ -22,14 +22,20 @@
   `MANAGEMENT_SUMMARY.md`, `PROMPT_INDEX.md`, `PRODUCT_BACKLOG.md` and
   `docs/product/VIBECAST_REFERENCE_RENDERER_INCREMENT.md`; implementation had
   updated the latter product design and `SYNC_PROMPTS.md`.
-- **Outstanding blocker:** The installed HA still serves the older renderer.
-  A designated HA test installation, paired Apple owner and physical portrait
-  Pi must prove approval, snapshot/updates, reconnect, Runtime end/privacy and
-  token non-persistence. No installed acceptance is inferred from source CI.
+- **Outstanding blocker:** The exact Core artifact now runs in HA-dev Docker;
+  the renderer responds and the exact-main iPhone simulator is paired. Live
+  session start exposed Apple `keyNotFound(current_direction)` at
+  `session.planner`: HA provides direction in `broadcast.planner`. The Apple
+  contract must be corrected, then approval, snapshot/updates, reconnect,
+  Runtime end/privacy and token non-persistence must be proven on the physical
+  portrait Pi. See the [live readback](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-5980280006).
+  Source CI and simulator pairing alone are not integrated acceptance.
 - **Recommended next prompt:** Continue this same first-slice integrated
   acceptance and record its exact producer/consumer receipt in the owning
   [central register](https://github.com/pcvantol/djconnect/issues/1101).
   Do not start the later Google Cast slice.
 
 The canonical five Planned Execution Horizon items are unchanged. No public
-release, deployment, workflow change or new product selection occurred.
+release, production deployment, deployment workflow, workflow change or new
+product selection occurred; the authorized HA-dev test installation is recorded
+above.
