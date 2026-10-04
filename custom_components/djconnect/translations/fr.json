@@ -363,12 +363,12 @@
       },
       "music_backend": {
         "title": "Changer de backend musical",
-        "description": "Le backend actuel est indiqué ci-dessous. Le changement conserve l’association, les tokens d’appareil, l’historique Ask DJ, Music DNA et les enregistrements push. L’export/import Music DNA passe par HTTP et reste protégé par l’opt-in côté serveur. Les anciennes actions de lecture ou recommandations Ask DJ propres à un backend peuvent ne plus être exécutables.",
+        "description": "Ce choix modifie aussi le backend du profil associé. Tu peux revenir au mode manuel plus tard. L’association, les jetons d’appareil, l’historique Ask DJ, Music DNA et les inscriptions push sont conservés. Les anciennes actions propres au backend peuvent ne plus fonctionner.",
         "data": {
           "music_backend": "Backend musical"
         },
         "data_description": {
-          "music_backend": "Choisis Spotify Direct ou Music Assistant. Spotify is a trademark of Spotify AB. DJConnect is not affiliated with, endorsed by, or sponsored by Spotify AB."
+          "music_backend": "Choisis Spotify Direct, Music Assistant ou Later / manual. Spotify is a trademark of Spotify AB. DJConnect is not affiliated with, endorsed by, or sponsored by Spotify AB."
         }
       },
       "music_assistant_player": {
@@ -436,6 +436,7 @@
       "announcement_speaker_no_play_media": "Choisis un media_player capable de lire de l’audio.",
       "spotify_oauth_required": "Spotify OAuth est requis avant que Spotify Direct puisse devenir actif.",
       "backend_switch_failed": "DJConnect n’a pas pu changer de backend musical. Vérifie le backend sélectionné, puis réessaie.",
+      "profile_platform_failed": "Le profil associé n’a pas pu être mis à jour. Vérifie l’association de l’appareil et réessaie.",
       "invalid_voice_profile": "Choisis un profil vocal DJ pris en charge."
     }
   },

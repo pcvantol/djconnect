@@ -2513,6 +2513,146 @@ class ConfigFlowHelperTest(unittest.TestCase):
         self.assertEqual(form["step_id"], "music_backend")
         self.assertEqual(marker.default, self.const.MUSIC_BACKEND_SPOTIFY_DIRECT)
 
+    def _bound_ios_backend_flow(self, *, linked: bool = True):
+        hass = types.SimpleNamespace(
+            config=types.SimpleNamespace(language="en"),
+            data={},
+        )
+        manager = self.config_flow._profile_storage(hass)
+        asyncio.run(
+            manager.async_upsert_music_backend(
+                self.config_flow.BACKEND_LATER_MANUAL,
+                self.config_flow.BackendProvider.FUTURE_PROVIDER,
+                display_name="Later / manual",
+            )
+        )
+        profile = asyncio.run(
+            manager.async_create_profile(
+                "Owner",
+                response_style=self.config_flow.ResponseStyle.EXPRESSIVE,
+                default_backend_id=self.config_flow.BACKEND_LATER_MANUAL,
+            )
+        )
+        device_id = "djconnect-ios-ABCDEFGHIJKL"
+        if linked:
+            asyncio.run(
+                manager.async_upsert_device(
+                    device_id,
+                    self.const.CLIENT_TYPE_IOS,
+                    display_name="iPhone",
+                    linked_profile_id=profile.profile_id,
+                )
+            )
+        entry = types.SimpleNamespace(
+            entry_id="entry-1",
+            data={
+                self.const.CONF_CLIENT_TYPE: self.const.CLIENT_TYPE_IOS,
+                self.const.CONF_DEVICE_ID: device_id,
+                self.config_flow.CONF_PROFILE_ID: profile.profile_id,
+                self.const.CONF_MUSIC_BACKEND: self.config_flow.BACKEND_LATER_MANUAL,
+                self.const.CONF_SPOTIFY_CLIENT_ID: "spotify-app-id",
+                self.const.CONF_SPOTIFY_REFRESH_TOKEN: "keep-refresh-token",
+            },
+            options={
+                self.const.CONF_MUSIC_BACKEND: self.const.MUSIC_BACKEND_SPOTIFY_DIRECT,
+                self.const.CONF_MUSIC_BACKEND_REVISION: 2,
+            },
+        )
+        flow = self.config_flow.DJConnectOptionsFlow(entry)
+        flow.hass = hass
+        return flow, manager, profile, entry
+
+    def test_options_same_spotify_choice_repairs_bound_profile(self) -> None:
+        flow, manager, profile, _entry = self._bound_ios_backend_flow()
+
+        result = asyncio.run(
+            flow.async_step_music_backend(
+                {self.const.CONF_MUSIC_BACKEND: self.const.MUSIC_BACKEND_SPOTIFY_DIRECT}
+            )
+        )
+
+        updated = manager.household.profiles[profile.profile_id]
+        self.assertEqual(result["type"], "create_entry")
+        self.assertEqual(result["data"][self.const.CONF_MUSIC_BACKEND_REVISION], 3)
+        self.assertEqual(
+            updated.preferences.default_backend_id,
+            self.const.MUSIC_BACKEND_SPOTIFY_DIRECT,
+        )
+        account_id = updated.preferences.default_music_account_id
+        self.assertTrue(account_id)
+        account = manager.household.music_accounts[account_id]
+        self.assertEqual(account.backend_id, self.const.MUSIC_BACKEND_SPOTIFY_DIRECT)
+        self.assertIn(profile.profile_id, account.linked_profile_ids)
+        self.assertEqual(updated.preferences.response_style, profile.preferences.response_style)
+        self.assertNotIn("keep-refresh-token", str(manager.household))
+
+    def test_options_backend_choice_can_return_bound_profile_to_manual(self) -> None:
+        flow, manager, profile, entry = self._bound_ios_backend_flow()
+        spotify_result = asyncio.run(
+            flow.async_step_music_backend(
+                {self.const.CONF_MUSIC_BACKEND: self.const.MUSIC_BACKEND_SPOTIFY_DIRECT}
+            )
+        )
+        entry.options = spotify_result["data"]
+        manual_flow = self.config_flow.DJConnectOptionsFlow(entry)
+        manual_flow.hass = flow.hass
+
+        result = asyncio.run(
+            manual_flow.async_step_music_backend(
+                {self.const.CONF_MUSIC_BACKEND: self.config_flow.BACKEND_LATER_MANUAL}
+            )
+        )
+
+        updated = manager.household.profiles[profile.profile_id]
+        self.assertEqual(result["type"], "create_entry")
+        self.assertEqual(result["data"][self.const.CONF_MUSIC_BACKEND_REVISION], 4)
+        self.assertEqual(
+            updated.preferences.default_backend_id,
+            self.config_flow.BACKEND_LATER_MANUAL,
+        )
+        self.assertEqual(updated.preferences.default_music_account_id, "")
+        self.assertEqual(updated.preferences.response_style, profile.preferences.response_style)
+
+    def test_options_backend_choice_rejects_unbound_device(self) -> None:
+        flow, manager, profile, _entry = self._bound_ios_backend_flow(linked=False)
+
+        result = asyncio.run(
+            flow.async_step_music_backend(
+                {self.const.CONF_MUSIC_BACKEND: self.const.MUSIC_BACKEND_SPOTIFY_DIRECT}
+            )
+        )
+
+        self.assertEqual(result["type"], "form")
+        self.assertEqual(result["errors"]["base"], "profile_platform_failed")
+        self.assertEqual(
+            manager.household.profiles[profile.profile_id].preferences.default_backend_id,
+            self.config_flow.BACKEND_LATER_MANUAL,
+        )
+        self.assertNotIn(self.const.MUSIC_BACKEND_SPOTIFY_DIRECT, manager.household.music_backends)
+
+    def test_options_backend_binding_save_failure_keeps_profile_and_options(self) -> None:
+        flow, manager, profile, entry = self._bound_ios_backend_flow()
+
+        class FailingStore:
+            async def async_save(self, data):
+                raise OSError("store unavailable")
+
+        manager._store = FailingStore()
+        result = asyncio.run(
+            flow.async_step_music_backend(
+                {self.const.CONF_MUSIC_BACKEND: self.const.MUSIC_BACKEND_SPOTIFY_DIRECT}
+            )
+        )
+
+        self.assertEqual(result["type"], "form")
+        self.assertEqual(result["errors"]["base"], "profile_platform_failed")
+        self.assertEqual(entry.options[self.const.CONF_MUSIC_BACKEND_REVISION], 2)
+        self.assertEqual(
+            manager.household.profiles[profile.profile_id].preferences.default_backend_id,
+            self.config_flow.BACKEND_LATER_MANUAL,
+        )
+        self.assertNotIn(self.const.MUSIC_BACKEND_SPOTIFY_DIRECT, manager.household.music_backends)
+
     def test_options_switch_to_music_assistant_without_spotify_fields(self) -> None:
         entry = types.SimpleNamespace(
             entry_id="entry-1",
