@@ -37,6 +37,12 @@ Moment realization; it neither adds a Planner input nor changes Knowledge,
 Moment, Flow, Broadcast, Golden Scenario or renderer semantics. See
 [`DJ_BRAIN_CAPABILITY_PLATFORM.md`](DJ_BRAIN_CAPABILITY_PLATFORM.md).
 
+The [selected production and credits qualification](CREDIT_PROVENANCE_SOURCE_CONTRACT.md)
+adds a Phase A source policy only. Current Track Insight production hints are
+interpretive metadata, not named, source-qualified producer or engineering
+credits. No Artist/Album credit Moment may be added until a Session-bound
+producer, provenance and safe attribution are proven by that contract.
+
 ## Maturity principles
 
 Every stage must remain production ready, testable and faithful to established
