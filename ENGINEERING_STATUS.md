@@ -1,5 +1,33 @@
 # DJConnect Engineering Status
 
+## PR #1116 VibeCast live playback coherence and locale reconciliation
+
+[Core PR #1116](https://github.com/pcvantol/djconnect/pull/1116) protected squash-merged as `a187f7c6f7f91f4d5c25ff685323e528ba97449c` from independently reviewed head `108e720b9ac488bc76107c6d95afdfe133cc6b42`; both trees equal `4dfc3a3aeab278bb319c72bd3157905aebe1ea28`. Spotify observation now schedules recurring polls before Track Insight enrichment, cancels superseded work and commits Planner/Knowledge/Moment state only while the same Session playback item remains current. Broadcast `dj_moment` payloads carry renderer-safe playback correlation, and VibeCast clears narrative that does not match the current playback item. Session locale now follows an explicit client language or the selected Assist pipeline and normalizes to the canonical `en`/`nl`/`de`/`fr`/`es` families.
+
+Independent review found and drove corrections for pause/reload retry, stale Assist-pipeline fallback, unsupported locale clamping, duplicate Discover accounting, stale coordinator mutation and cancellation races; its final pass reported no actionable correctness issue. The final local suite passed 1,920 tests with 14 skips and 793 subtests; targeted Ruff and diff checks passed. Exact-main [Validate](https://github.com/pcvantol/djconnect/actions/runs/37347227997) ran 1,535 tests with 49 skips, and [CodeQL](https://github.com/pcvantol/djconnect/actions/runs/37347227306), [artifact publication](https://github.com/pcvantol/djconnect/actions/runs/37347516248) and [redacted evidence reconciliation](https://github.com/pcvantol/djconnect/actions/runs/37347516789) passed. The [SHA-bound internal prerelease](https://github.com/pcvantol/djconnect/releases/tag/internal-ha-a187f7c6f7f91f4d5c25ff685323e528ba97449c) contains one integration archive (SHA-256 `d542a576c50e1a5ea95ab39d2cc1678265b749a356866583304a821076f197cf`) and one qualification JSON; all required checks are PASS and the coverage digest is `7ce8fdde8da01c86d20591e00e3f761834dff5b66b4c9df154ed4e810ccf6a17`. No deployment, stable release, signing or workflow change occurred. [Finalization record](docs/history/prompts/2026-10-05-vibecast-live-coherence-locale-finalization.md) preserves the evidence boundary.
+
+### Roadmap Position
+
+This is the final Core source repair inside the already selected first VibeCast Reference Experience slice. Physical `PI_QUAL=OPEN` until this exact Core candidate and the exact Apple client candidate prove one correct Dutch, non-terminal same-Session update plus reconnect, Runtime-end cleanup and token/privacy boundaries on the portrait Pi. No second slice, Cast follow-on or new intelligence work is selected.
+
+### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+1. **Public distribution: Apple — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: qualified Internal Release consumers and explicit authorization.
+2. **Public distribution: Windows — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: qualified Internal Release consumers and explicit authorization.
+3. **Public HACS distribution — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: fresh candidate and release authorization.
+4. **HACS 3.3.0 release visibility (`HACS-3.3.0-001`) — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: release metadata and discovery evidence.
+5. **Firmware OTA publication and staged rollback — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: manifest-bound consumer qualification.
+
+### Blocked Items
+
+VibeCast still needs the exact installed physical receipt and an Apple client that explicitly supplies the request locale. Credits Phase B lacks a qualified Session producer, use rights and attribution. Playback Observation/Continue Stage 2 lacks backend-owned occurrence identity.
+
+### Deferred Items
+
+Cast, a second VibeCast slice, multiple simultaneous timeline Moments, other narrative relations, Lyrics, Audience adaptation and cross-Session learning remain deferred.
+
+Repository State: `MERGED_RECONCILED` after this Finalization merges. Workspace State: `WORKSPACE_READY` only after mandatory safe cleanup. Finalization Pending: `NO` after merge.
+
 ## PR #1114 VibeCast playback-observer reload reconciliation
 
 [Core PR #1114](https://github.com/pcvantol/djconnect/pull/1114) protected squash-merged as `2c13462e65ca58a0c864223c2241719192c3d632` from independently reviewed head `bf26d17ff815b9388067d8333f2d08b7572cb51e`; both trees equal `88d6f6d25c7fb71f49efd5917fb5d32605fdd377`. The existing active Spotify observer now survives a preserving DJConnect config-entry reload: current Sessions are rebound to the replacement Runtime, Sessions starting during the reload are queued, late old-Runtime starts resolve to the current Runtime/provider, and failed reloads restore observation on the still-registered Runtime. Exact Session identity, Spotify eligibility and entry ownership remain required; ended/replaced Sessions and duplicate timers are skipped.

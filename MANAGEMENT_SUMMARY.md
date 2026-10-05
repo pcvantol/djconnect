@@ -1,5 +1,43 @@
 # DJConnect Generation 2 Management Summary
 
+## PR #1116 VibeCast live playback coherence and locale reconciliation
+
+### Repository Status
+
+[Core PR #1116](https://github.com/pcvantol/djconnect/pull/1116) protected merged as `a187f7c6f7f91f4d5c25ff685323e528ba97449c` from reviewed head `108e720b9ac488bc76107c6d95afdfe133cc6b42`; their trees match. Exact-main Validate, CodeQL, SHA-bound internal artifact and redacted evidence are PASS. The release contains one HA archive and one qualification JSON; no deployment, stable release or workflow change occurred.
+
+### Management Summary
+
+A slow Track Insight result can no longer leave VibeCast showing a previous track title or narrative after Spotify has advanced. Core now cancels superseded enrichment, commits state only for the current playback item and lets the renderer discard unmatched narrative. Session language follows the explicit client locale or the configured Assist pipeline, with safe five-language normalization. Independent review drove six groups of race, retry and locale corrections before reporting no actionable correctness issue. Local validation passed 1,920 tests with 14 skips and 793 subtests; exact-main CI passed 1,535 tests with 49 skips.
+
+### Roadmap Position
+
+The first VibeCast Reference Experience slice remains active. `PI_QUAL=OPEN` until the exact Core and Apple candidates produce a correct Dutch non-terminal Pi update during the same Session and pass reconnect, end/Idle and token/privacy checks. No later slice or Cast work starts.
+
+### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+1. **Public distribution: Apple — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: qualified Internal Release consumers and explicit authorization.
+2. **Public distribution: Windows — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: qualified Internal Release consumers and explicit authorization.
+3. **Public HACS distribution — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: fresh candidate and release authorization.
+4. **HACS 3.3.0 release visibility (`HACS-3.3.0-001`) — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: release metadata and discovery evidence.
+5. **Firmware OTA publication and staged rollback — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: manifest-bound consumer qualification.
+
+### Blocked Items
+
+VibeCast physical exact-candidate acceptance and the small Apple request-locale handoff remain open. Credits Phase B and Playback Observation/Continue Stage 2 retain their existing producer/identity gates.
+
+### Deferred Items
+
+Cast, a second VibeCast slice, multiple simultaneous timeline Moments, other narrative relations, Lyrics, Audience adaptation and cross-Session learning remain deferred.
+
+### Repository State
+
+`MERGED_RECONCILED` after this governance-only Finalization merges; Finalization Pending: `NO` after merge.
+
+### Workspace State
+
+`WORKSPACE_READY` only after mandatory safe cleanup of the implementation and Finalization branches.
+
 ## PR #1114 VibeCast playback-observer reload reconciliation
 
 ### Repository Status
