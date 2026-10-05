@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import copy
 import hashlib
 import json
 import logging
@@ -3043,6 +3044,9 @@ class DJSessionBroadcastEngine:
     _pending_subscriptions: dict[str, list[dict[str, Any]]] = field(
         default_factory=dict, init=False, repr=False
     )
+    _moment_playback_item_ids: dict[str, str] = field(
+        default_factory=dict, init=False, repr=False
+    )
 
     def __post_init__(self) -> None:
         """Keep replay retention bounded even for internal construction callers."""
@@ -3157,9 +3161,15 @@ class DJSessionBroadcastEngine:
 
     def publish_moment(self, moment: DJMoment) -> None:
         """Project a validated Moment without exposing private projections."""
+        playback_item_id = self.state.playback.item_id
+        if playback_item_id:
+            self._moment_playback_item_ids[moment.moment_id] = playback_item_id
         self.state = DJBroadcastState(**{**self.state.__dict__, "dj_moments": (*self.state.dj_moments, moment)})
         if moment.moment_type is not DJMomentType.SILENCE:
-            self._publish(BroadcastEventType.DJ_MOMENT_PUBLISHED, {"dj_moment": moment.as_dict()})
+            projected = moment.as_dict()
+            if playback_item_id:
+                projected["playback_item_id"] = playback_item_id
+            self._publish(BroadcastEventType.DJ_MOMENT_PUBLISHED, {"dj_moment": projected})
 
     def publish_presentation(self, presentation: PresentationProjection) -> None:
         """Publish one immutable renderer-safe Presentation after composition."""
@@ -3287,6 +3297,12 @@ class DJSessionBroadcastEngine:
     def as_dict(self, *, include_owner_only: bool = True) -> dict[str, Any]:
         """Expose only canonical Broadcast State to future renderers."""
         projection = self.state.as_dict(include_owner_only=include_owner_only)
+        for moment in projection["dj_moments"]:
+            playback_item_id = self._moment_playback_item_ids.get(
+                str(moment.get("moment_id") or "")
+            )
+            if playback_item_id:
+                moment["playback_item_id"] = playback_item_id
         projection["broadcast"]["snapshot_watermark"] = self._snapshot_watermark(
             include_owner_only=include_owner_only
         )
@@ -3698,14 +3714,13 @@ class SessionRuntimeManager:
         insight_provider: Callable[[], Awaitable[dict[str, Any]]],
         media_identity: str = "",
         upcoming_playback: UpcomingPlaybackProjection | None = None,
+        require_current_playback: bool = False,
     ) -> DJMoment | None:
         """Orchestrate Planner → Knowledge → Moment → Flow → Broadcast."""
         async with self._lock:
             active = self._accept_track_started_media(owner_profile_id, session_id, media_identity)
             if active is None:
                 return None
-            if active.session_start_strategy is SessionStartStrategy.DISCOVER:
-                active.planner.note_discover_track_started()
         try:
             raw_insight = await insight_provider()
         except Exception as exc:  # noqa: BLE001
@@ -3713,9 +3728,20 @@ class SessionRuntimeManager:
             raw_insight = {}
         async with self._lock:
             active = self._active_by_profile.get(owner_profile_id)
-            if active is None or active.session_id != session_id:
+            if not self._track_started_result_is_current(
+                active,
+                session_id=session_id,
+                media_identity=media_identity,
+                require_current_playback=require_current_playback,
+            ):
                 return None
-            planning_input = active.planner.project_track_started_planning_input(
+            working_planner = copy.deepcopy(active.planner)
+            working_knowledge_engine = copy.deepcopy(active.knowledge_engine)
+            working_moment_engine = copy.deepcopy(active.moment_engine)
+            working_coordinator = copy.deepcopy(active.planning_coordinator)
+            if active.session_start_strategy is SessionStartStrategy.DISCOVER:
+                working_planner.note_discover_track_started()
+            planning_input = working_planner.project_track_started_planning_input(
                 session_id=active.session_id,
                 upcoming_playback=upcoming_playback,
                 session_start_strategy=active.session_start_strategy,
@@ -3728,10 +3754,10 @@ class SessionRuntimeManager:
             )
         _LOGGER.debug("DJConnect Planning Runtime Coordinator lifecycle entered")
         try:
-            coordinated = await active.planning_coordinator.async_coordinate_track_started(
-                planner=active.planner,
-                knowledge_engine=active.knowledge_engine,
-                moment_engine=active.moment_engine,
+            coordinated = await working_coordinator.async_coordinate_track_started(
+                planner=working_planner,
+                knowledge_engine=working_knowledge_engine,
+                moment_engine=working_moment_engine,
                 session_id=active.session_id,
                 selected_mood=active.selected_mood,
                 persona=active.dj_persona,
@@ -3746,13 +3772,31 @@ class SessionRuntimeManager:
             )
         except Exception as exc:  # noqa: BLE001
             _LOGGER.debug("DJConnect Planning Runtime Coordinator failed: %s", exc.__class__.__name__)
-            active.planning_coordinator._fallback("planning_lifecycle_failed")
+            working_coordinator._fallback("planning_lifecycle_failed")
             coordinated = None
-        if coordinated is not None:
-            async with self._lock:
-                active = self._active_by_profile.get(owner_profile_id)
-                if active is None or active.session_id != session_id:
-                    return None
+        async with self._lock:
+            active = self._active_by_profile.get(owner_profile_id)
+            if not self._track_started_result_is_current(
+                active,
+                session_id=session_id,
+                media_identity=media_identity,
+                require_current_playback=require_current_playback,
+            ):
+                return None
+            retained_horizon = active.planner.horizon
+            active.planner.__dict__.clear()
+            active.planner.__dict__.update(working_planner.__dict__)
+            if retained_horizon is not None and working_planner.horizon is not None:
+                retained_horizon.__dict__.clear()
+                retained_horizon.__dict__.update(working_planner.horizon.__dict__)
+                active.planner.horizon = retained_horizon
+            active.knowledge_engine.__dict__.clear()
+            active.knowledge_engine.__dict__.update(working_knowledge_engine.__dict__)
+            active.moment_engine.__dict__.clear()
+            active.moment_engine.__dict__.update(working_moment_engine.__dict__)
+            active.planning_coordinator.__dict__.clear()
+            active.planning_coordinator.__dict__.update(working_coordinator.__dict__)
+            if coordinated is not None:
                 is_session_update = active.planning_coordinator.last_session_direction is not None
                 if is_session_update:
                     updated_direction = active.planning_coordinator.last_session_direction
@@ -3813,7 +3857,12 @@ class SessionRuntimeManager:
         hints = _planner_knowledge_hints(raw_insight)
         async with self._lock:
             active = self._active_by_profile.get(owner_profile_id)
-            if active is None or active.session_id != session_id:
+            if not self._track_started_result_is_current(
+                active,
+                session_id=session_id,
+                media_identity=media_identity,
+                require_current_playback=require_current_playback,
+            ):
                 return None
             active, legacy_moment = self._apply_legacy_initial_track_started_decision(
                 owner_profile_id, active
@@ -3873,7 +3922,12 @@ class SessionRuntimeManager:
             )
         async with self._lock:
             active = self._active_by_profile.get(owner_profile_id)
-            if active is None or active.session_id != session_id:
+            if not self._track_started_result_is_current(
+                active,
+                session_id=session_id,
+                media_identity=media_identity,
+                require_current_playback=require_current_playback,
+            ):
                 return None
             moment = active.moment_engine.create_track_context(
                 session_id=active.session_id,
@@ -3910,6 +3964,49 @@ class SessionRuntimeManager:
                     )
             self._record_performance_memory(owner_profile_id, active)
             return moment
+
+    async def async_restore_track_started_media(
+        self,
+        *,
+        owner_profile_id: str,
+        session_id: str,
+        media_identity: str,
+        previous_media_identity: str,
+    ) -> bool:
+        """Restore retryability only when cancelled work is still the newest work."""
+        async with self._lock:
+            active = self._active_by_profile.get(owner_profile_id)
+            if (
+                active is None
+                or active.session_id != session_id
+                or active.last_accepted_media_identity != media_identity
+            ):
+                return False
+            self._active_by_profile[owner_profile_id] = DJSessionRuntime(
+                **{
+                    **active.__dict__,
+                    "last_accepted_media_identity": previous_media_identity,
+                }
+            )
+            return True
+
+    @staticmethod
+    def _track_started_result_is_current(
+        active: DJSessionRuntime | None,
+        *,
+        session_id: str,
+        media_identity: str,
+        require_current_playback: bool,
+    ) -> bool:
+        """Reject slow enrichment after its Session or playback item changed."""
+        if active is None or active.session_id != session_id:
+            return False
+        if not require_current_playback:
+            return True
+        if not media_identity or active.last_accepted_media_identity != media_identity:
+            return False
+        expected_item_id = hashlib.sha256(media_identity.encode()).hexdigest()[:24]
+        return active.broadcast.state.playback.item_id == expected_item_id
 
     def _publish_discover_transition(
         self,

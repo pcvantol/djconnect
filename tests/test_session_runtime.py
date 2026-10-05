@@ -2180,6 +2180,64 @@ class SessionRuntimeManagerTest(unittest.TestCase):
         with self.assertRaises(FrozenInstanceError):
             moment.summary = "mutated"  # type: ignore[misc]
 
+    def test_broadcast_correlates_moment_with_current_playback_item(self) -> None:
+        manager = self.runtime.SessionRuntimeManager()
+        created = asyncio.run(
+            manager.async_start(
+                owner_profile_id="profile-correlation",
+                selected_mood="groove",
+                dj_persona=self.runtime.DJPersona.RADIO_DJ,
+            )
+        )
+        events: list[dict] = []
+        asyncio.run(
+            manager.async_subscribe(
+                owner_profile_id=created.owner_profile_id,
+                session_id=created.session_id,
+                callback=events.append,
+            )
+        )
+        asyncio.run(
+            manager.async_update_playback_projection(
+                owner_profile_id=created.owner_profile_id,
+                session_id=created.session_id,
+                state="playing",
+                media_identity="spotify:track:current",
+                title="Current Track",
+            )
+        )
+
+        async def insight() -> dict:
+            return {
+                "track": {
+                    "title": "Teardrop",
+                    "artist": "Massive Attack",
+                    "album": "Mezzanine",
+                },
+                "analysis": {
+                    "summary": "A spacious trip-hop landmark.",
+                    "full_text": "The suspended beat leaves room for the bass.",
+                },
+            }
+
+        moment = asyncio.run(
+            manager.async_generate_track_context(
+                owner_profile_id=created.owner_profile_id,
+                session_id=created.session_id,
+                insight_provider=insight,
+            )
+        )
+        assert moment is not None
+        snapshot = created.broadcast.as_dict()
+        item_id = snapshot["playback"]["item_id"]
+        self.assertEqual(snapshot["dj_moments"][-1]["playback_item_id"], item_id)
+        moment_event = next(
+            event for event in events if event["event_type"] == "dj_moment_published"
+        )
+        self.assertEqual(
+            moment_event["payload"]["dj_moment"]["playback_item_id"], item_id
+        )
+
     def test_presentation_composer_creates_one_immutable_artist_story_with_sidekick(self) -> None:
         manager = self.runtime.SessionRuntimeManager()
         created = asyncio.run(
@@ -2433,6 +2491,86 @@ class SessionRuntimeManagerTest(unittest.TestCase):
             self.runtime.PlannedIntentStatus.APPROVED,
         )
         self.assertIsNotNone(created.planning_coordinator.last_realized_intent)
+
+    def test_stale_coordinator_work_does_not_mutate_runtime_state(self) -> None:
+        async def scenario() -> None:
+            manager = self.runtime.SessionRuntimeManager()
+            created = await manager.async_start(
+                owner_profile_id="profile-stale-coordinator",
+                selected_mood="groove",
+                session_start_strategy=self.runtime.SessionStartStrategy.DISCOVER,
+            )
+
+            async def insight() -> dict:
+                return {
+                    "track": {
+                        "title": "Old Track",
+                        "artist": "Old Artist",
+                        "producer": "Old Producer",
+                    },
+                    "analysis": {
+                        "summary": "Old summary.",
+                        "full_text": "Old full context.",
+                    },
+                }
+
+            await manager.async_process_track_started(
+                owner_profile_id=created.owner_profile_id,
+                session_id=created.session_id,
+                insight_provider=insight,
+                media_identity="spotify:track:baseline",
+            )
+            await manager.async_update_playback_projection(
+                owner_profile_id=created.owner_profile_id,
+                session_id=created.session_id,
+                state="playing",
+                media_identity="spotify:track:old",
+                title="Old Track",
+            )
+            started = asyncio.Event()
+            release = asyncio.Event()
+            original = self.runtime.PlanningRuntimeCoordinator.async_coordinate_track_started
+
+            async def delayed(coordinator, **kwargs):
+                result = await original(coordinator, **kwargs)
+                started.set()
+                await release.wait()
+                return result
+
+            self.runtime.PlanningRuntimeCoordinator.async_coordinate_track_started = delayed
+            try:
+                stale = asyncio.create_task(
+                    manager.async_process_track_started(
+                        owner_profile_id=created.owner_profile_id,
+                        session_id=created.session_id,
+                        insight_provider=insight,
+                        media_identity="spotify:track:old",
+                        require_current_playback=True,
+                    )
+                )
+                await started.wait()
+                await manager.async_update_playback_projection(
+                    owner_profile_id=created.owner_profile_id,
+                    session_id=created.session_id,
+                    state="playing",
+                    media_identity="spotify:track:new",
+                    title="New Track",
+                )
+                release.set()
+                self.assertIsNone(await stale)
+            finally:
+                self.runtime.PlanningRuntimeCoordinator.async_coordinate_track_started = original
+
+            active = await manager.async_get_active(created.owner_profile_id)
+            assert active is not None
+            self.assertEqual(active.planner.discover_event_number, 0)
+            self.assertEqual(active.knowledge_engine.assembled_contexts, ())
+            self.assertEqual(active.moment_engine.moments, ())
+            self.assertEqual(active.moment_engine._track_keys, set())
+            self.assertEqual(active.planning_coordinator.last_lifecycle_state, "idle")
+            self.assertEqual(active.broadcast.state.dj_moments, ())
+
+        asyncio.run(scenario())
 
     def test_runtime_performance_memory_prevents_repeated_discover_recommendation(self) -> None:
         manager = self.runtime.SessionRuntimeManager()

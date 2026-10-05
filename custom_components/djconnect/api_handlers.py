@@ -51,6 +51,7 @@ from .profile_export import (
     profile_export_error_payload,
 )
 from .playback_observation import playback_observation_manager
+from .pipeline import normalize_supported_language, resolve_assist_language
 from .request_auth import (
     authorize_runtime_device_request,
     identity_payload,
@@ -144,7 +145,7 @@ async def async_handle_session_start_payload(
             selected_mood=str(data.get("mood") or "").strip(),
             music_backend=context.backend_id,
             dj_persona=_dj_persona(data.get("dj_persona")),
-            locale=str(data.get("language") or data.get("locale") or "en"),
+            locale=_session_locale(hass, runtime, data),
             session_start_strategy=strategy,
             discover_context=discover_context,
         )
@@ -196,6 +197,7 @@ def _session_track_insight_provider(
             {
                 "source": "session_moment",
                 "music_backend": session.music_backend,
+                "locale": session.locale,
                 "include_visual_profile": False,
                 "presentation_style": (
                     f"DJ Persona: {session.dj_persona.value}; "
@@ -207,6 +209,14 @@ def _session_track_insight_provider(
         )
 
     return insight_provider
+
+
+def _session_locale(hass: Any, runtime: Any, data: dict[str, Any]) -> str:
+    """Resolve Session language from the client or preferred Assist pipeline."""
+    explicit = str(data.get("language") or data.get("locale") or "").strip()
+    if explicit:
+        return normalize_supported_language(explicit)
+    return resolve_assist_language(hass, getattr(runtime, "config", {}) or {})
 
 
 def _dj_persona(value: Any) -> DJPersona:
