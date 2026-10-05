@@ -1,5 +1,68 @@
 # DJConnect Generation 2 Management Summary
 
+## PR #1110 VibeCast Profile backend binding source reconciliation
+
+### Repository Status
+
+[Core PR #1110](https://github.com/pcvantol/djconnect/pull/1110) protected merged as `4531f9f38e6962edfdd9005578804e0f23859fce` from reviewed head `4ddf345b61f75f17e0f9e27a6fdd3d77d7677152` with an
+identical tree. Local, tracking and remote main matched the merge SHA before
+this Finalization. Exact-main [Validate](https://github.com/pcvantol/djconnect/actions/runs/37270339152), [CodeQL](https://github.com/pcvantol/djconnect/actions/runs/37270338933), [artifact run](https://github.com/pcvantol/djconnect/actions/runs/37270556784) and [evidence run](https://github.com/pcvantol/djconnect/actions/runs/37270557388)
+passed. [internal artifact](https://github.com/pcvantol/djconnect/releases/tag/internal-ha-4531f9f38e6962edfdd9005578804e0f23859fce) published one SHA-bound integration archive and redacted
+qualification JSON, with all required checks PASS and coverage digest
+`865666f67e5bf90523c678e9bf0ad64c3851e052f4624fd64c750183ce5747bd`.
+No deployment, stable release, signing or workflow change occurred.
+
+### Management Summary
+
+The normal authenticated HA options route can now select Spotify Direct for
+its paired single-owner Profile, repair an existing options/Profile mismatch,
+and return to Later/manual. Invalid or shared Profile bindings fail closed.
+Manual status/actions and saved confirmation state respect the selected
+backend after a switch and HA restart. Local and independent full suites each
+ran 1,507 tests with 7 skips, Ruff passed and independent exact-head review
+found no remaining P1/P2. The source fix is complete; HA-dev installation and
+physical Pi product acceptance are not yet complete. `PI_QUAL=OPEN`.
+
+### Roadmap Position
+
+Generation 2, selected Phase 2 Reference Experience first VibeCast slice;
+the overarching Product Initiative remains Phase 1 DJ Intelligence Evolution.
+This Core support fix does not advance that phase or select another product
+item. Discover is a separate parked Core assignment until this writer is
+released.
+
+### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+1. **Public distribution: Apple — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: qualified Internal Release consumers and explicit authorization. Execution Rationale: retain the first canonical public-distribution item, gated by its consumer and owner evidence.
+2. **Public distribution: Windows — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: qualified Internal Release consumers and explicit authorization. Execution Rationale: retain the next platform distribution item after its own consumer qualification.
+3. **Public HACS distribution — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: fresh candidate and release authorization. Execution Rationale: keep public HACS distribution gated on its separate release decision.
+4. **HACS 3.3.0 release visibility (`HACS-3.3.0-001`) — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: release/tag metadata, HACS cache/index discovery and update presentation. Execution Rationale: verify actual release visibility before claiming distribution.
+5. **Firmware OTA publication and staged rollback — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: manifest-bound consumer qualification. Execution Rationale: preserve the staged firmware publication gate after manifest consumer evidence.
+
+### Blocked Items
+
+VibeCast acceptance needs an exact installed Core/Apple/Pi candidate and a
+physical non-terminal playback/DJMoment/Session Flow update during one active
+Session, followed by reconnect, Runtime-end and privacy receipts. Phase B
+production credits lack a qualified Session producer and use/attribution
+rights. Playback Observation/Continue Stage 2 lack Backend-owned Playback
+Instance Identity.
+
+### Deferred Items
+
+Google Cast and a second VibeCast slice are outside this assignment. Lyrics,
+Audience adaptation and cross-Session learning stay deferred.
+
+### Repository State
+
+The source predecessor remains `MERGED_UNRECONCILED` until this governance-only
+Finalization merges. That merge establishes `MERGED_RECONCILED`.
+
+### Workspace State
+
+`WORKSPACE_READY` only after mandatory cleanup of this completed Core
+capability; repository reconciliation alone does not complete the workspace.
+
 ## PR #1108 production-credit provenance Phase A reconciliation
 
 ### Repository Status
