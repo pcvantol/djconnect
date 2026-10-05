@@ -1,5 +1,33 @@
 # DJConnect Engineering Status
 
+## PR #1112 bounded Discover narrative source reconciliation
+
+[Core PR #1112](https://github.com/pcvantol/djconnect/pull/1112) protected merged as `3b93284e00844ced9d6ec1b2e2fd945c9a1ccff3` from reviewed head `ba741fceaf4604373cb1a81173c21446c75aa39e`; both trees equal `848d336ab2288a58d8441733ec09d2a024128676`. Exact-main [Validate](https://github.com/pcvantol/djconnect/actions/runs/37296146040), [CodeQL](https://github.com/pcvantol/djconnect/actions/runs/37296145627), [artifact run](https://github.com/pcvantol/djconnect/actions/runs/37296378071) and [evidence run](https://github.com/pcvantol/djconnect/actions/runs/37296378639) passed. The [SHA-bound internal prerelease](https://github.com/pcvantol/djconnect/releases/tag/internal-ha-3b93284e00844ced9d6ec1b2e2fd945c9a1ccff3) contains one HA archive and one redacted qualification JSON, reporting `POST_MERGE_RELEASE_EVIDENCE_QUALIFIED`, all required checks PASS and coverage digest `a9992eadfda9e53151ff455c49a2ad7ed7a3dae4a8e2a40298b8890e67c9a9e5`. No deployment, stable release, signing or workflow change occurred.
+
+The source path is existing Runtime → Planner → Knowledge → Moment → Flow/Broadcast. Private status evidence never enters public Track Insight cache/output, Moment copy or Broadcast. A pending line closes on the next accepted event, invalidation or Session end. Independent review corrected adapter provenance, lifecycle cleanup, old Transition metadata and localized copy. The complete local and exact-main 1,519-test suites passed with 7 skips; Ruff, compileall and diff checks passed. Source-level acceptance does not establish installed/live or physical Pi qualification. [Finalization record](docs/history/prompts/2026-10-05-core-discover-narrative-finalization.md) preserves the exact contract and evidence.
+
+### Roadmap Position
+
+Generation 2, Phase 1 DJ Intelligence Evolution: this one bounded Discover narrative increment is source merged and exact-main qualified. VibeCast's first Reference Experience slice remains separately owned with `PI_QUAL=OPEN`; production-credit Phase B and Continue Stage 2 retain their gates. No further Transition relation or intelligence family is selected.
+
+### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+1. **Public distribution: Apple — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: qualified Internal Release consumers and explicit authorization. Execution Rationale: retain the first canonical public-distribution item, gated by its consumer and owner evidence.
+2. **Public distribution: Windows — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: qualified Internal Release consumers and explicit authorization. Execution Rationale: retain the next platform distribution item after its own consumer qualification.
+3. **Public HACS distribution — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: fresh candidate and release authorization. Execution Rationale: keep public HACS distribution gated on its separate release decision.
+4. **HACS 3.3.0 release visibility (`HACS-3.3.0-001`) — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: release/tag metadata, HACS cache/index discovery and update presentation. Execution Rationale: verify actual release visibility before claiming distribution.
+5. **Firmware OTA publication and staged rollback — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: manifest-bound consumer qualification. Execution Rationale: preserve the staged firmware publication gate after manifest consumer evidence.
+
+### Blocked Items
+
+VibeCast still lacks the exact installed non-terminal Pi receipt. Credits Phase B lacks a qualified Session producer, use rights and attribution. Playback Observation/Continue Stage 2 lacks backend-owned occurrence identity.
+
+### Deferred Items
+
+Other narrative relationships, Lyrics, Audience adaptation, cross-Session learning, Cast and a second VibeCast slice remain deferred.
+
+Repository State: `MERGED_RECONCILED` after this Finalization merges. Workspace State: `WORKSPACE_READY` only after safe cleanup of the canonical checkout. Finalization Pending: `NO` after this PR merges.
+
 ## PR #1110 VibeCast Profile backend binding source reconciliation
 
 [Core PR #1110](https://github.com/pcvantol/djconnect/pull/1110) protected squash-merged as `4531f9f38e6962edfdd9005578804e0f23859fce` from independently reviewed head
