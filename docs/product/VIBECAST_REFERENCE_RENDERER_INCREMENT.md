@@ -1,7 +1,7 @@
 # VibeCast Reference Renderer Increment
 
-**Status:** Selected first slice; Core and Apple owner-handoff source merged;
-physical reference acceptance open.
+**Status:** Selected first slice; Core/Apple owner-handoff, Apple decoder and
+Core Profile backend-binding source merged; physical `PI_QUAL=OPEN`.
 
 ## Iteration 1 evidence
 
@@ -13,11 +13,22 @@ prepared for snapshot-first playback, artwork, mood and current-DJMoment
 presentation. The same page includes a landscape composition for later Cast
 feasibility work.
 
-This is not yet end-to-end reference validation: the newly merged Apple-owner
-handoff has not been installed and observed with a paired Apple owner on the
-physical Pi. Active-Session capture, reconnect evidence and Runtime-end
-observation remain the acceptance work. The Pi does not persist a Broadcast
-Token and the renderer contains no controls or personal projection.
+An earlier local candidate on the physical portrait Pi proved owner approval,
+an active Broadcast snapshot, WebSocket reconnect, Runtime-end to Idle and no
+durable browser token. That candidate was not bound to the final Apple/Core
+merge SHAs. It did not show a non-terminal playback, DJMoment or Session Flow
+update while the same Session stayed active. The Pi keeps no controls or
+personal Profile projection.
+
+The supported HA options-to-Profile backend binding was corrected by Core
+[PR #1110](https://github.com/pcvantol/djconnect/pull/1110), protected merged as
+`4531f9f38e6962edfdd9005578804e0f23859fce` with an exact reviewed tree.
+The fix has not yet been installed or exercised on HA-dev. The remaining
+acceptance must bind the installed Apple, Core and Pi candidate identities,
+switch the authorized HA-dev Profile through the normal options route, then
+prove a real non-terminal update on the physical Pi, reconnect, Runtime-end
+cleanup and token/privacy boundaries. `PI_QUAL` remains open until that full
+receipt is recorded. This increment starts no Cast follow-on.
 
 ## Outcome
 

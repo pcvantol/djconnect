@@ -1,5 +1,67 @@
 # DJConnect Engineering Status
 
+## PR #1110 VibeCast Profile backend binding source reconciliation
+
+[Core PR #1110](https://github.com/pcvantol/djconnect/pull/1110) protected squash-merged as `4531f9f38e6962edfdd9005578804e0f23859fce` from independently reviewed head
+`4ddf345b61f75f17e0f9e27a6fdd3d77d7677152`; both trees are `61825c3f3f50ec1d2e93ddd0364518ca711f716a`.
+The normal authenticated HA options route now binds the paired device's
+single-owner Profile to the selected backend, including same-choice Spotify
+Direct repair and a reversible Later/manual choice. Invalid/unbound or shared
+Profiles fail closed; manual status and actions do not imply available playback.
+A backend-revision guard invalidates stored Ask DJ confirmations after a
+switch, including after HA restart. No Apple, Pi, workflow or deployment
+source changed.
+
+The local and independent full suites each ran 1,507 tests with 7 skips and no
+failures; Ruff and diff checks passed, and the exact-head independent review
+found no remaining P1/P2. Exact-main [Validate](https://github.com/pcvantol/djconnect/actions/runs/37270339152), [CodeQL](https://github.com/pcvantol/djconnect/actions/runs/37270338933), [artifact run](https://github.com/pcvantol/djconnect/actions/runs/37270556784) and
+[evidence run](https://github.com/pcvantol/djconnect/actions/runs/37270557388) succeeded. [internal artifact](https://github.com/pcvantol/djconnect/releases/tag/internal-ha-4531f9f38e6962edfdd9005578804e0f23859fce) contains the exact HA archive and redacted
+qualification JSON; the JSON binds `4531f9f38e6962edfdd9005578804e0f23859fce`, reports
+`POST_MERGE_RELEASE_EVIDENCE_QUALIFIED`, all required checks PASS and coverage
+digest `865666f67e5bf90523c678e9bf0ad64c3851e052f4624fd64c750183ce5747bd`.
+This was automatic internal artifact/evidence publication, with no deployment,
+stable release or workflow change.
+
+### Roadmap Position
+
+Generation 2: this selected Phase 2 Reference Experience support fix is source
+merged and exact-main qualified within the existing first VibeCast slice. The
+current overarching Product Initiative remains Phase 1 DJ Intelligence
+Evolution; this fix does not advance that phase or select new work. Apple
+source/workspace remain reconciled and ready. HA-dev still needs
+the exact Core candidate installed and the authorized Profile switched by the
+normal options route. The physical non-terminal update on an exact-merge-bound
+Apple/Core/Pi candidate is unproven; `PI_QUAL=OPEN`. Discover remains a
+separate, parked Core assignment until this Finalization and cleanup release
+the sole writer slot.
+
+#### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+1. **Public distribution: Apple — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: qualified Internal Release consumers and explicit authorization. Execution Rationale: retain the first canonical public-distribution item, gated by its consumer and owner evidence.
+2. **Public distribution: Windows — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: qualified Internal Release consumers and explicit authorization. Execution Rationale: retain the next platform distribution item after its own consumer qualification.
+3. **Public HACS distribution — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: fresh candidate and release authorization. Execution Rationale: keep public HACS distribution gated on its separate release decision.
+4. **HACS 3.3.0 release visibility (`HACS-3.3.0-001`) — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: release/tag metadata, HACS cache/index discovery and update presentation. Execution Rationale: verify actual release visibility before claiming distribution.
+5. **Firmware OTA publication and staged rollback — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: manifest-bound consumer qualification. Execution Rationale: preserve the staged firmware publication gate after manifest consumer evidence.
+
+#### Blocked Items
+
+VibeCast product acceptance requires the supported HA-dev Profile switch and
+a new exact-candidate-bound physical portrait-Pi receipt for non-terminal
+playback/DJMoment/Session Flow update, reconnect, Runtime-end and privacy.
+Production-credit Phase B still lacks its qualified Session producer, rights
+and attribution path. Playback Observation Stage 2 and Continue Stage 2 await
+Backend-owned Playback Instance Identity.
+
+#### Deferred Items
+
+Google Cast feasibility and any second VibeCast slice remain outside this
+first-slice assignment. Lyrics, Audience adaptation and cross-Session learning
+remain deferred under their own authorities.
+
+Repository State: `MERGED_RECONCILED` only after this governance-only
+Finalization merges; Workspace State: `WORKSPACE_READY` only after mandatory
+cleanup. [Finalization record](docs/history/prompts/2026-10-05-vibecast-profile-backend-finalization.md) records the exact handoff.
+
 ## PR #1108 production-credit provenance Phase A reconciliation
 
 PR [#1108](https://github.com/pcvantol/djconnect/pull/1108) merged as
