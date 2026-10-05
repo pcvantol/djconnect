@@ -1,5 +1,21 @@
 # DJConnect Verification Prompt Index
 
+## PR #1112 bounded Discover narrative source reconciliation
+
+[Core PR #1112](https://github.com/pcvantol/djconnect/pull/1112) protected merged as `3b93284e00844ced9d6ec1b2e2fd945c9a1ccff3` from reviewed head `ba741fceaf4604373cb1a81173c21446c75aa39e`; both trees equal `848d336ab2288a58d8441733ec09d2a024128676`. Exact-main [Validate](https://github.com/pcvantol/djconnect/actions/runs/37296146040), [CodeQL](https://github.com/pcvantol/djconnect/actions/runs/37296145627), [artifact run](https://github.com/pcvantol/djconnect/actions/runs/37296378071) and [evidence run](https://github.com/pcvantol/djconnect/actions/runs/37296378639) passed. The [SHA-bound internal prerelease](https://github.com/pcvantol/djconnect/releases/tag/internal-ha-3b93284e00844ced9d6ec1b2e2fd945c9a1ccff3) contains one HA archive and one redacted qualification JSON, reporting `POST_MERGE_RELEASE_EVIDENCE_QUALIFIED`, all required checks PASS and coverage digest `a9992eadfda9e53151ff455c49a2ad7ed7a3dae4a8e2a40298b8890e67c9a9e5`. No deployment, stable release, signing or workflow change occurred.
+
+The immutable [Finalization record](docs/history/prompts/2026-10-05-core-discover-narrative-finalization.md) records the prior red contract, one verified Genre→Track relation, independent review corrections, 1,519-test local and exact-main checks, SHA-bound artifact/evidence and the stop boundary. No installed/live or physical Pi qualification is claimed. This governance-only Finalization restores repository reconciliation after protected merge; workspace readiness follows safe cleanup.
+
+### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+1. **Public distribution: Apple — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: qualified Internal Release consumers and explicit authorization. Execution Rationale: retain the first canonical public-distribution item, gated by its consumer and owner evidence.
+2. **Public distribution: Windows — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: qualified Internal Release consumers and explicit authorization. Execution Rationale: retain the next platform distribution item after its own consumer qualification.
+3. **Public HACS distribution — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: fresh candidate and release authorization. Execution Rationale: keep public HACS distribution gated on its separate release decision.
+4. **HACS 3.3.0 release visibility (`HACS-3.3.0-001`) — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: release/tag metadata, HACS cache/index discovery and update presentation. Execution Rationale: verify actual release visibility before claiming distribution.
+5. **Firmware OTA publication and staged rollback — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: manifest-bound consumer qualification. Execution Rationale: preserve the staged firmware publication gate after manifest consumer evidence.
+
+Repository State: `MERGED_RECONCILED` after this Finalization merges. Workspace State: `WORKSPACE_READY` only after mandatory cleanup. Finalization Pending: `NO` after this PR merges.
+
 ## PR #1110 VibeCast Profile backend binding source reconciliation
 
 [Core PR #1110](https://github.com/pcvantol/djconnect/pull/1110) protected squash-merged as `4531f9f38e6962edfdd9005578804e0f23859fce` from independently reviewed head

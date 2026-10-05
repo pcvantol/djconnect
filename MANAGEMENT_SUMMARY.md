@@ -1,5 +1,45 @@
 # DJConnect Generation 2 Management Summary
 
+## PR #1112 bounded Discover narrative source reconciliation
+
+### Repository Status
+
+[Core PR #1112](https://github.com/pcvantol/djconnect/pull/1112) protected merged as `3b93284e00844ced9d6ec1b2e2fd945c9a1ccff3` from reviewed head `ba741fceaf4604373cb1a81173c21446c75aa39e`; both trees equal `848d336ab2288a58d8441733ec09d2a024128676`. Exact-main [Validate](https://github.com/pcvantol/djconnect/actions/runs/37296146040), [CodeQL](https://github.com/pcvantol/djconnect/actions/runs/37296145627), [artifact run](https://github.com/pcvantol/djconnect/actions/runs/37296378071) and [evidence run](https://github.com/pcvantol/djconnect/actions/runs/37296378639) passed. The [SHA-bound internal prerelease](https://github.com/pcvantol/djconnect/releases/tag/internal-ha-3b93284e00844ced9d6ec1b2e2fd945c9a1ccff3) contains one HA archive and one redacted qualification JSON, reporting `POST_MERGE_RELEASE_EVIDENCE_QUALIFIED`, all required checks PASS and coverage digest `a9992eadfda9e53151ff455c49a2ad7ed7a3dae4a8e2a40298b8890e67c9a9e5`. No deployment, stable release, signing or workflow change occurred.
+
+Recovery checkout `main`, `origin/main` and remote main matched `3b93284e00844ced9d6ec1b2e2fd945c9a1ccff3` before this Finalization. The original checkout's file-read hang and preserved WIP require separate safe cleanup verification; no destructive repair is implied.
+
+### Management Summary
+
+One Discover Runtime can now open a verified artist-genre thread from a committed Genre Moment, deepen it through the immediately next same-artist Track Moment, and publish one five-language Transition. Ambiguous or stale source data abandons the thread. Existing Recommendation Transition and Manual/Continue behavior remain. Independent review and complete 1,519-test source and exact-main suites passed. This is source-level delivery, not installed/live or physical Pi acceptance.
+
+### Roadmap Position
+
+Generation 2, Phase 1 DJ Intelligence Evolution: this bounded Discover increment is source merged and exact-main qualified. The Phase 2 VibeCast Reference Experience first slice remains separate with `PI_QUAL=OPEN`. No subsequent relationship or intelligence family is selected.
+
+### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+1. **Public distribution: Apple — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: qualified Internal Release consumers and explicit authorization. Execution Rationale: retain the first canonical public-distribution item, gated by its consumer and owner evidence.
+2. **Public distribution: Windows — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: qualified Internal Release consumers and explicit authorization. Execution Rationale: retain the next platform distribution item after its own consumer qualification.
+3. **Public HACS distribution — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: fresh candidate and release authorization. Execution Rationale: keep public HACS distribution gated on its separate release decision.
+4. **HACS 3.3.0 release visibility (`HACS-3.3.0-001`) — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: release/tag metadata, HACS cache/index discovery and update presentation. Execution Rationale: verify actual release visibility before claiming distribution.
+5. **Firmware OTA publication and staged rollback — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: manifest-bound consumer qualification. Execution Rationale: preserve the staged firmware publication gate after manifest consumer evidence.
+
+### Blocked Items
+
+VibeCast's exact installed non-terminal physical receipt remains open. Credit Phase B lacks a qualified producer, rights and attribution. Playback Observation/Continue Stage 2 lacks backend-owned occurrence identity.
+
+### Deferred Items
+
+Other narrative relations, Lyrics, Audience adaptation, cross-Session learning, Cast and a second VibeCast slice remain outside this assignment.
+
+### Repository State
+
+`MERGED_RECONCILED` after this governance-only Finalization merges; Finalization Pending: `NO` after merge. [Finalization record](docs/history/prompts/2026-10-05-core-discover-narrative-finalization.md) records the source and qualification boundary.
+
+### Workspace State
+
+`WORKSPACE_READY` only after mandatory safe cleanup proves the canonical main checkout clean and synchronized. Preserve the original read-hung WIP if it cannot be inspected.
+
 ## PR #1110 VibeCast Profile backend binding source reconciliation
 
 ### Repository Status
