@@ -1,5 +1,33 @@
 # DJConnect Engineering Status
 
+## PR #1114 VibeCast playback-observer reload reconciliation
+
+[Core PR #1114](https://github.com/pcvantol/djconnect/pull/1114) protected squash-merged as `2c13462e65ca58a0c864223c2241719192c3d632` from independently reviewed head `bf26d17ff815b9388067d8333f2d08b7572cb51e`; both trees equal `88d6f6d25c7fb71f49efd5917fb5d32605fdd377`. The existing active Spotify observer now survives a preserving DJConnect config-entry reload: current Sessions are rebound to the replacement Runtime, Sessions starting during the reload are queued, late old-Runtime starts resolve to the current Runtime/provider, and failed reloads restore observation on the still-registered Runtime. Exact Session identity, Spotify eligibility and entry ownership remain required; ended/replaced Sessions and duplicate timers are skipped.
+
+Independent review found and drove corrections for the concurrent-start and failed-reload paths, then reported no remaining P1/P2/P3. The final local suite passed 1,911 tests with 14 skips and 793 subtests; Ruff and diff checks passed. Exact-main [Validate](https://github.com/pcvantol/djconnect/actions/runs/37311949853) ran 1,526 tests with 49 skips, and [CodeQL](https://github.com/pcvantol/djconnect/actions/runs/37311949480), [artifact publication](https://github.com/pcvantol/djconnect/actions/runs/37312206925) and [redacted evidence reconciliation](https://github.com/pcvantol/djconnect/actions/runs/37312207157) passed. The [SHA-bound internal prerelease](https://github.com/pcvantol/djconnect/releases/tag/internal-ha-2c13462e65ca58a0c864223c2241719192c3d632) contains one integration archive (SHA-256 `09ee228b1ce7dbdbda09964b064174a8e8f556697358d0de8cac6c4236f613ca`) and one qualification JSON; all required checks are PASS and the coverage digest is `25b21d8512ad525c1f2a56bdc83578f9ad67759957b9e9caff1fa11cebfd6675`. No deployment, stable release, signing or workflow change occurred. [Finalization record](docs/history/prompts/2026-10-05-vibecast-observer-reload-finalization.md) preserves the evidence boundary.
+
+### Roadmap Position
+
+This is the remaining Core lifecycle repair inside the already selected first VibeCast Reference Experience slice. Apple source remains reconciled. Physical `PI_QUAL=OPEN` until this exact Core candidate is installed in HA-dev and one same-Session non-terminal update, reconnect, Runtime-end cleanup and token/privacy boundary are physically proven on the portrait Pi. No second slice, Cast follow-on or new intelligence work is selected.
+
+### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+1. **Public distribution: Apple — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: qualified Internal Release consumers and explicit authorization.
+2. **Public distribution: Windows — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: qualified Internal Release consumers and explicit authorization.
+3. **Public HACS distribution — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: fresh candidate and release authorization.
+4. **HACS 3.3.0 release visibility (`HACS-3.3.0-001`) — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: release metadata and discovery evidence.
+5. **Firmware OTA publication and staged rollback — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: manifest-bound consumer qualification.
+
+### Blocked Items
+
+VibeCast still needs the exact installed physical receipt. Credits Phase B lacks a qualified Session producer, use rights and attribution. Playback Observation/Continue Stage 2 lacks backend-owned occurrence identity.
+
+### Deferred Items
+
+Cast, a second VibeCast slice, other narrative relations, Lyrics, Audience adaptation and cross-Session learning remain deferred.
+
+Repository State: `MERGED_RECONCILED` after this Finalization merges. Workspace State: `WORKSPACE_READY` only after mandatory safe cleanup. Finalization Pending: `NO` after merge.
+
 ## PR #1112 bounded Discover narrative source reconciliation
 
 [Core PR #1112](https://github.com/pcvantol/djconnect/pull/1112) protected merged as `3b93284e00844ced9d6ec1b2e2fd945c9a1ccff3` from reviewed head `ba741fceaf4604373cb1a81173c21446c75aa39e`; both trees equal `848d336ab2288a58d8441733ec09d2a024128676`. Exact-main [Validate](https://github.com/pcvantol/djconnect/actions/runs/37296146040), [CodeQL](https://github.com/pcvantol/djconnect/actions/runs/37296145627), [artifact run](https://github.com/pcvantol/djconnect/actions/runs/37296378071) and [evidence run](https://github.com/pcvantol/djconnect/actions/runs/37296378639) passed. The [SHA-bound internal prerelease](https://github.com/pcvantol/djconnect/releases/tag/internal-ha-3b93284e00844ced9d6ec1b2e2fd945c9a1ccff3) contains one HA archive and one redacted qualification JSON, reporting `POST_MERGE_RELEASE_EVIDENCE_QUALIFIED`, all required checks PASS and coverage digest `a9992eadfda9e53151ff455c49a2ad7ed7a3dae4a8e2a40298b8890e67c9a9e5`. No deployment, stable release, signing or workflow change occurred.
