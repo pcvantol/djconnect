@@ -130,8 +130,8 @@ class TtsHelperTest(unittest.TestCase):
 
     def test_session_locale_prefers_request_then_assist_pipeline(self) -> None:
         api_handlers = importlib.import_module("custom_components.djconnect.api_handlers")
-        original = api_handlers._assist_context
-        api_handlers._assist_context = lambda _hass, _conf: {"language": "nl-NL"}
+        original = api_handlers.resolve_assist_language
+        api_handlers.resolve_assist_language = lambda _hass, _conf: "nl-NL"
         try:
             hass = types.SimpleNamespace(config=types.SimpleNamespace(language="de"))
             runtime = types.SimpleNamespace(config={})
@@ -141,7 +141,23 @@ class TtsHelperTest(unittest.TestCase):
             )
             self.assertEqual(api_handlers._session_locale(hass, runtime, {}), "nl-NL")
         finally:
-            api_handlers._assist_context = original
+            api_handlers.resolve_assist_language = original
+
+    def test_session_locale_ignores_legacy_tts_language_without_pipeline(self) -> None:
+        pipeline = importlib.import_module("custom_components.djconnect.pipeline")
+        original = pipeline._get_default_assist_pipeline
+        pipeline._get_default_assist_pipeline = lambda _hass: None
+        try:
+            hass = types.SimpleNamespace(config=types.SimpleNamespace(language="de"))
+            self.assertEqual(
+                pipeline.resolve_assist_language(
+                    hass,
+                    {self.const.CONF_TTS_LANGUAGE: "nl-NL"},
+                ),
+                "de",
+            )
+        finally:
+            pipeline._get_default_assist_pipeline = original
 
     def test_session_track_insight_uses_frozen_session_locale(self) -> None:
         api_handlers = importlib.import_module("custom_components.djconnect.api_handlers")

@@ -51,7 +51,7 @@ from .profile_export import (
     profile_export_error_payload,
 )
 from .playback_observation import playback_observation_manager
-from .pipeline import _assist_context
+from .pipeline import resolve_assist_language
 from .request_auth import (
     authorize_runtime_device_request,
     identity_payload,
@@ -216,12 +216,7 @@ def _session_locale(hass: Any, runtime: Any, data: dict[str, Any]) -> str:
     explicit = str(data.get("language") or data.get("locale") or "").strip()
     if explicit:
         return explicit
-    assist = _assist_context(hass, getattr(runtime, "config", {}) or {})
-    return str(
-        assist.get("language")
-        or getattr(getattr(hass, "config", None), "language", "")
-        or "en"
-    ).strip()
+    return resolve_assist_language(hass, getattr(runtime, "config", {}) or {})
 
 
 def _dj_persona(value: Any) -> DJPersona:

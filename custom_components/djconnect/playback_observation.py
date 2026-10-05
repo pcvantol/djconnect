@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import asyncio
+from contextlib import suppress
 import logging
 from dataclasses import dataclass, field
 from datetime import timedelta
@@ -133,12 +134,11 @@ class PlaybackObservationManager:
             observed.remove_progress_listener()
             observed.remove_progress_listener = None
         current_task = asyncio.current_task()
-        if (
-            observed.enrichment_task is not None
-            and observed.enrichment_task is not current_task
-            and not observed.enrichment_task.done()
-        ):
-            observed.enrichment_task.cancel()
+        if observed.enrichment_task is not None and observed.enrichment_task is not current_task:
+            if not observed.enrichment_task.done():
+                observed.enrichment_task.cancel()
+            with suppress(asyncio.CancelledError):
+                await observed.enrichment_task
         observed.enrichment_task = None
         observed.enrichment_media_identity = ""
 
@@ -257,6 +257,7 @@ class PlaybackObservationManager:
             if active is None or active.session_id != observed.session_id:
                 await self.async_stop(observed.owner_profile_id, observed.session_id)
                 return
+            previous_media_identity = active.last_accepted_media_identity
             try:
                 result = await SpotifyBackend(
                     self._hass, observed.integration_runtime
@@ -299,6 +300,8 @@ class PlaybackObservationManager:
             previous = observed.enrichment_task
             if previous is not None and previous is not asyncio.current_task() and not previous.done():
                 previous.cancel()
+                with suppress(asyncio.CancelledError):
+                    await previous
             observed.enrichment_task = None
             observed.enrichment_media_identity = ""
             return
@@ -310,6 +313,8 @@ class PlaybackObservationManager:
                 return
             if previous is not current_task:
                 previous.cancel()
+                with suppress(asyncio.CancelledError):
+                    await previous
         observed.enrichment_task = current_task
         observed.enrichment_media_identity = result.media_identity
         try:
@@ -321,6 +326,12 @@ class PlaybackObservationManager:
                 require_current_playback=True,
             )
         except asyncio.CancelledError:
+            await session_runtime_manager(self._hass).async_restore_track_started_media(
+                owner_profile_id=observed.owner_profile_id,
+                session_id=observed.session_id,
+                media_identity=result.media_identity,
+                previous_media_identity=previous_media_identity,
+            )
             return
         finally:
             if observed.enrichment_task is current_task:

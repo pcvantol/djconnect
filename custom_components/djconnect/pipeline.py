@@ -143,6 +143,21 @@ def _assist_context(hass: HomeAssistant, conf: dict[str, Any]) -> dict[str, Any]
     return context
 
 
+def resolve_assist_language(hass: HomeAssistant, conf: dict[str, Any]) -> str:
+    """Resolve language from Assist without consulting legacy TTS options."""
+    pipeline_id = str(conf.get(CONF_ASSIST_PIPELINE_ID) or "").strip()
+    pipeline = (
+        _get_assist_pipeline(hass, pipeline_id)
+        if pipeline_id
+        else _get_default_assist_pipeline(hass)
+    )
+    if pipeline is not None:
+        language = _first_attr(pipeline, "conversation_language", "language")
+        if language:
+            return str(language).strip()
+    return str(getattr(getattr(hass, "config", None), "language", "") or "en").strip()
+
+
 def _get_assist_pipeline(hass: HomeAssistant, pipeline_id: str) -> Any | None:
     try:
         from homeassistant.components.assist_pipeline.pipeline import async_get_pipelines

@@ -301,6 +301,49 @@ class PlaybackObservationTest(unittest.TestCase):
 
         asyncio.run(scenario())
 
+    def test_paused_track_retries_cancelled_enrichment_after_resume(self) -> None:
+        async def scenario() -> None:
+            session = await self.manager.async_start(
+                owner_profile_id="profile-a", music_backend="spotify_direct"
+            )
+            self.spotify.SpotifyBackend.responses = [
+                self._observation("spotify:track:a"),
+                self._observation("spotify:track:b"),
+                self._observation("spotify:track:b", playing=False),
+                self._observation("spotify:track:b"),
+            ]
+            slow_started = asyncio.Event()
+            calls = 0
+
+            async def insight() -> dict:
+                nonlocal calls
+                calls += 1
+                if calls == 1:
+                    slow_started.set()
+                    await asyncio.Event().wait()
+                return {
+                    "track": {"title": "Resumed Track", "artist": "Current Artist"},
+                    "analysis": {"summary": "Resumed context."},
+                }
+
+            await self.observer.async_start_spotify(
+                integration_runtime=object(), session=session, insight_provider=insight
+            )
+            slow_poll = asyncio.create_task(self.scheduled[0]["callback"](None))
+            await slow_started.wait()
+            await self.scheduled[0]["callback"](None)
+            await slow_poll
+            active = await self.manager.async_get_active("profile-a")
+            self.assertEqual(active.last_accepted_media_identity, "spotify:track:a")
+
+            await self.scheduled[0]["callback"](None)
+            active = await self.manager.async_get_active("profile-a")
+            self.assertEqual(active.last_accepted_media_identity, "spotify:track:b")
+            self.assertEqual(len(active.broadcast.state.dj_moments), 1)
+            self.assertEqual(calls, 2)
+
+        asyncio.run(scenario())
+
     def test_runtime_reload_resumes_same_active_spotify_session(self) -> None:
         session = self._start()
         old_runtime = object()

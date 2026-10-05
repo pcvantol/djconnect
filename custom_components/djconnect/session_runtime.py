@@ -3947,6 +3947,31 @@ class SessionRuntimeManager:
             self._record_performance_memory(owner_profile_id, active)
             return moment
 
+    async def async_restore_track_started_media(
+        self,
+        *,
+        owner_profile_id: str,
+        session_id: str,
+        media_identity: str,
+        previous_media_identity: str,
+    ) -> bool:
+        """Restore retryability only when cancelled work is still the newest work."""
+        async with self._lock:
+            active = self._active_by_profile.get(owner_profile_id)
+            if (
+                active is None
+                or active.session_id != session_id
+                or active.last_accepted_media_identity != media_identity
+            ):
+                return False
+            self._active_by_profile[owner_profile_id] = DJSessionRuntime(
+                **{
+                    **active.__dict__,
+                    "last_accepted_media_identity": previous_media_identity,
+                }
+            )
+            return True
+
     @staticmethod
     def _track_started_result_is_current(
         active: DJSessionRuntime | None,
