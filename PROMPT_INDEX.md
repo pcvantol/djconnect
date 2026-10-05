@@ -1,5 +1,11 @@
 # DJConnect Verification Prompt Index
 
+## PR #1114 VibeCast playback-observer reload reconciliation
+
+[Core PR #1114](https://github.com/pcvantol/djconnect/pull/1114) merged as `2c13462e65ca58a0c864223c2241719192c3d632` from independently reviewed head `bf26d17ff815b9388067d8333f2d08b7572cb51e` with identical tree `88d6f6d25c7fb71f49efd5917fb5d32605fdd377`. The immutable [Finalization record](docs/history/prompts/2026-10-05-vibecast-observer-reload-finalization.md) records reload success, concurrency and rollback behavior; final no-P1/P2/P3 review; 1,911 local tests; exact-main CI; SHA-bound artifact/evidence; and the remaining physical boundary. `PI_QUAL=OPEN`; no deployment, second slice or Cast work is claimed.
+
+The unchanged Execution Horizon remains Public distribution: Apple; Public distribution: Windows; Public HACS distribution; HACS 3.3.0 release visibility; Firmware OTA publication and staged rollback. Repository State becomes `MERGED_RECONCILED` after this Finalization merges; Workspace State becomes `WORKSPACE_READY` only after safe cleanup.
+
 ## PR #1112 bounded Discover narrative source reconciliation
 
 [Core PR #1112](https://github.com/pcvantol/djconnect/pull/1112) protected merged as `3b93284e00844ced9d6ec1b2e2fd945c9a1ccff3` from reviewed head `ba741fceaf4604373cb1a81173c21446c75aa39e`; both trees equal `848d336ab2288a58d8441733ec09d2a024128676`. Exact-main [Validate](https://github.com/pcvantol/djconnect/actions/runs/37296146040), [CodeQL](https://github.com/pcvantol/djconnect/actions/runs/37296145627), [artifact run](https://github.com/pcvantol/djconnect/actions/runs/37296378071) and [evidence run](https://github.com/pcvantol/djconnect/actions/runs/37296378639) passed. The [SHA-bound internal prerelease](https://github.com/pcvantol/djconnect/releases/tag/internal-ha-3b93284e00844ced9d6ec1b2e2fd945c9a1ccff3) contains one HA archive and one redacted qualification JSON, reporting `POST_MERGE_RELEASE_EVIDENCE_QUALIFIED`, all required checks PASS and coverage digest `a9992eadfda9e53151ff455c49a2ad7ed7a3dae4a8e2a40298b8890e67c9a9e5`. No deployment, stable release, signing or workflow change occurred.
