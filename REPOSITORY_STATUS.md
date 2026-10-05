@@ -1,5 +1,21 @@
 # DJConnect Repository Status
 
+## PR #1116 VibeCast live playback coherence and locale reconciliation
+
+[Core PR #1116](https://github.com/pcvantol/djconnect/pull/1116) protected squash-merged as `a187f7c6f7f91f4d5c25ff685323e528ba97449c` from independently reviewed head `108e720b9ac488bc76107c6d95afdfe133cc6b42`; both trees are `4dfc3a3aeab278bb319c72bd3157905aebe1ea28`. Current-playback correlation now spans Spotify polling, transactional Session intelligence state, Broadcast moments and VibeCast rendering. Explicit or Assist-derived locale is clamped to the canonical five language families before it reaches Session intelligence.
+
+Local validation passed 1,920 tests with 14 skips and 793 subtests. Independent review drove race, retry, state-isolation and locale corrections and finished with no actionable correctness issue. Exact-main [Validate](https://github.com/pcvantol/djconnect/actions/runs/37347227997), [CodeQL](https://github.com/pcvantol/djconnect/actions/runs/37347227306), [artifact](https://github.com/pcvantol/djconnect/actions/runs/37347516248) and [evidence](https://github.com/pcvantol/djconnect/actions/runs/37347516789) passed. The [internal prerelease](https://github.com/pcvantol/djconnect/releases/tag/internal-ha-a187f7c6f7f91f4d5c25ff685323e528ba97449c) is exact-SHA-bound and contains one HA archive plus one redacted qualification JSON. No deployment or workflow change occurred. `PI_QUAL=OPEN` pending the exact Apple locale handoff, installation and physical same-Session evidence.
+
+### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+1. **Public distribution: Apple — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: qualified Internal Release consumers and explicit authorization.
+2. **Public distribution: Windows — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: qualified Internal Release consumers and explicit authorization.
+3. **Public HACS distribution — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: fresh candidate and release authorization.
+4. **HACS 3.3.0 release visibility (`HACS-3.3.0-001`) — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: release metadata and discovery evidence.
+5. **Firmware OTA publication and staged rollback — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; dependency: manifest-bound consumer qualification.
+
+Repository State: `MERGED_RECONCILED` after this Finalization merges. Workspace State: `WORKSPACE_READY` only after cleanup. Finalization Pending: `NO` after merge.
+
 ## PR #1114 VibeCast playback-observer reload reconciliation
 
 [Core PR #1114](https://github.com/pcvantol/djconnect/pull/1114) protected squash-merged as `2c13462e65ca58a0c864223c2241719192c3d632` from reviewed head `bf26d17ff815b9388067d8333f2d08b7572cb51e`; both trees are `88d6f6d25c7fb71f49efd5917fb5d32605fdd377`. Active Spotify observation now rebinds across a preserving config-entry reload, including concurrent Session start, late old-Runtime completion and rollback after a failed reload. Exact Session/backend/entry checks remain fail closed; Profile and Session identifiers stay ephemeral and unlogged.

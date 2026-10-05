@@ -1,5 +1,11 @@
 # DJConnect Verification Prompt Index
 
+## PR #1116 VibeCast live playback coherence and locale reconciliation
+
+[Core PR #1116](https://github.com/pcvantol/djconnect/pull/1116) merged as `a187f7c6f7f91f4d5c25ff685323e528ba97449c` from independently reviewed head `108e720b9ac488bc76107c6d95afdfe133cc6b42` with identical tree `4dfc3a3aeab278bb319c72bd3157905aebe1ea28`. The immutable [Finalization record](docs/history/prompts/2026-10-05-vibecast-live-coherence-locale-finalization.md) records current-playback correlation, transactional stale-work rejection, Assist-derived five-language locale, final clean review, 1,920 local tests, exact-main CI and SHA-bound artifact/evidence. `PI_QUAL=OPEN`; exact Apple locale handoff and physical acceptance remain. No deployment, second slice or Cast work is claimed.
+
+The unchanged Execution Horizon remains Public distribution: Apple; Public distribution: Windows; Public HACS distribution; HACS 3.3.0 release visibility; Firmware OTA publication and staged rollback. Repository State becomes `MERGED_RECONCILED` after this Finalization merges; Workspace State becomes `WORKSPACE_READY` only after safe cleanup.
+
 ## PR #1114 VibeCast playback-observer reload reconciliation
 
 [Core PR #1114](https://github.com/pcvantol/djconnect/pull/1114) merged as `2c13462e65ca58a0c864223c2241719192c3d632` from independently reviewed head `bf26d17ff815b9388067d8333f2d08b7572cb51e` with identical tree `88d6f6d25c7fb71f49efd5917fb5d32605fdd377`. The immutable [Finalization record](docs/history/prompts/2026-10-05-vibecast-observer-reload-finalization.md) records reload success, concurrency and rollback behavior; final no-P1/P2/P3 review; 1,911 local tests; exact-main CI; SHA-bound artifact/evidence; and the remaining physical boundary. `PI_QUAL=OPEN`; no deployment, second slice or Cast work is claimed.

@@ -1,7 +1,8 @@
 # VibeCast Reference Renderer Increment
 
 **Status:** Selected first slice; Core/Apple owner-handoff, Apple decoder and
-Core Profile backend-binding source merged; physical `PI_QUAL=OPEN`.
+Core Profile binding, reload-safe observation and live playback/locale
+coherence source merged; physical `PI_QUAL=OPEN`.
 
 ## Iteration 1 evidence
 
@@ -21,14 +22,24 @@ update while the same Session stayed active. The Pi keeps no controls or
 personal Profile projection.
 
 The supported HA options-to-Profile backend binding was corrected by Core
-[PR #1110](https://github.com/pcvantol/djconnect/pull/1110), protected merged as
-`4531f9f38e6962edfdd9005578804e0f23859fce` with an exact reviewed tree.
-The fix has not yet been installed or exercised on HA-dev. The remaining
-acceptance must bind the installed Apple, Core and Pi candidate identities,
-switch the authorized HA-dev Profile through the normal options route, then
-prove a real non-terminal update on the physical Pi, reconnect, Runtime-end
-cleanup and token/privacy boundaries. `PI_QUAL` remains open until that full
-receipt is recorded. This increment starts no Cast follow-on.
+[PR #1110](https://github.com/pcvantol/djconnect/pull/1110). Core
+[PR #1114](https://github.com/pcvantol/djconnect/pull/1114) then preserved the
+eligible Spotify observer across a config-entry reload. Core
+[PR #1116](https://github.com/pcvantol/djconnect/pull/1116), protected merged as
+`a187f7c6f7f91f4d5c25ff685323e528ba97449c`, now prevents slow or superseded
+Track Insight work from publishing a stale title or narrative, correlates
+renderer Moments with the current playback item, and resolves Session locale
+from the explicit client request or selected Assist pipeline within the
+canonical five-language contract.
+
+The exact PR #1116 artifact has not yet been installed and exercised on
+HA-dev. The Apple client must still pass its request locale explicitly. The
+remaining acceptance must bind the installed Apple, Core and Pi candidate
+identities, switch the authorized HA-dev Profile through the normal options
+route, then prove a correct Dutch non-terminal update on the physical Pi,
+reconnect, Runtime-end cleanup and token/privacy boundaries. `PI_QUAL` remains
+open until that full receipt is recorded. This increment starts no Cast
+follow-on.
 
 ## Outcome
 
