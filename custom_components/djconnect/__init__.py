@@ -3297,11 +3297,66 @@ async def _async_update_listener(hass: HomeAssistant, entry: ConfigEntry) -> Non
             "DJConnect config entry update only changed runtime cache fields; skipping reload"
         )
         return
+    previous_runtime = domain_data.get(entry.entry_id)
+    resume_keys = ()
+    observation_manager = None
+    if previous_runtime is not None:
+        from .playback_observation import playback_observation_manager
+
+        observation_manager = playback_observation_manager(hass)
+        resume_keys = observation_manager.begin_runtime_reload(previous_runtime)
     preserving = domain_data.setdefault(_ENTRY_RELOAD_PRESERVE_KEY, set())
     preserving.add(entry.entry_id)
+    observation_reload_finished = False
     try:
-        await hass.config_entries.async_reload(entry.entry_id)
+        reloaded = await hass.config_entries.async_reload(entry.entry_id)
+        replacement_runtime = domain_data.get(entry.entry_id)
+        if (
+            reloaded is not False
+            and observation_manager is not None
+            and replacement_runtime is not None
+            and replacement_runtime is not previous_runtime
+        ):
+            from .api_handlers import _session_track_insight_provider
+
+            resume_keys = observation_manager.finish_runtime_reload(
+                previous_runtime, resume_keys
+            )
+            observation_reload_finished = True
+            if resume_keys:
+                await observation_manager.async_resume_spotify(
+                    integration_runtime=replacement_runtime,
+                    resume_keys=resume_keys,
+                    insight_provider_factory=lambda active_runtime, session: (
+                        _session_track_insight_provider(
+                            hass, active_runtime, session
+                        )
+                    ),
+                )
     finally:
+        if observation_manager is not None and not observation_reload_finished:
+            rollback_keys = observation_manager.abort_runtime_reload(
+                previous_runtime, resume_keys
+            )
+            rollback_runtime = domain_data.get(entry.entry_id)
+            if rollback_runtime is not None and rollback_keys:
+                from .api_handlers import _session_track_insight_provider
+
+                try:
+                    await observation_manager.async_resume_spotify(
+                        integration_runtime=rollback_runtime,
+                        resume_keys=rollback_keys,
+                        insight_provider_factory=lambda active_runtime, session: (
+                            _session_track_insight_provider(
+                                hass, active_runtime, session
+                            )
+                        ),
+                    )
+                except Exception as exc:  # noqa: BLE001
+                    _LOGGER.debug(
+                        "DJConnect playback observation reload rollback failed: %s",
+                        exc.__class__.__name__,
+                    )
         preserving.discard(entry.entry_id)
         if not preserving:
             domain_data.pop(_ENTRY_RELOAD_PRESERVE_KEY, None)
