@@ -348,6 +348,59 @@ class PlaybackObservationTest(unittest.TestCase):
 
         asyncio.run(scenario())
 
+    def test_replacement_poll_stays_inert_when_observer_stops_during_cancel(self) -> None:
+        async def scenario() -> None:
+            calls = 0
+
+            async def insight() -> dict:
+                nonlocal calls
+                calls += 1
+                return {
+                    "track": {"title": "Stopped Track", "artist": "Stopped Artist"},
+                    "analysis": {"summary": "Stopped context."},
+                }
+
+            session = await self.manager.async_start(
+                owner_profile_id="profile-a", music_backend="spotify_direct"
+            )
+            self.spotify.SpotifyBackend.responses = [
+                self._observation("spotify:track:a"),
+                self._observation("spotify:track:b"),
+            ]
+            await self.observer.async_start_spotify(
+                integration_runtime=object(), session=session, insight_provider=insight
+            )
+            observed = self.observer._spotify_sessions["profile-a"]
+            cancelled = asyncio.Event()
+            release = asyncio.Event()
+
+            async def lingering_enrichment() -> None:
+                try:
+                    await asyncio.Event().wait()
+                except asyncio.CancelledError:
+                    cancelled.set()
+                    try:
+                        await release.wait()
+                    except asyncio.CancelledError:
+                        return
+
+            previous = asyncio.create_task(lingering_enrichment())
+            observed.enrichment_task = previous
+            observed.enrichment_media_identity = "spotify:track:a"
+            replacement = asyncio.create_task(self.scheduled[0]["callback"](None))
+            await cancelled.wait()
+            await self.observer.async_stop("profile-a", session.session_id)
+            release.set()
+            await replacement
+
+            self.assertEqual(calls, 0)
+            self.assertNotIn("profile-a", self.observer._spotify_sessions)
+            active = await self.manager.async_get_active("profile-a")
+            assert active is not None
+            self.assertEqual(active.broadcast.state.dj_moments, ())
+
+        asyncio.run(scenario())
+
     def test_runtime_reload_resumes_same_active_spotify_session(self) -> None:
         session = self._start()
         old_runtime = object()

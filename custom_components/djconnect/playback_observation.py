@@ -315,6 +315,8 @@ class PlaybackObservationManager:
                 previous.cancel()
                 with suppress(asyncio.CancelledError):
                     await previous
+                if self._spotify_sessions.get(observed.owner_profile_id) is not observed:
+                    return
         observed.enrichment_task = current_task
         observed.enrichment_media_identity = result.media_identity
         try:

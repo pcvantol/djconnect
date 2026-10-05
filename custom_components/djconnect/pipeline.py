@@ -159,10 +159,10 @@ def resolve_assist_language(hass: HomeAssistant, conf: dict[str, Any]) -> str:
 
 
 def normalize_supported_language(value: Any) -> str:
-    """Keep a regional locale only when it belongs to the platform contract."""
+    """Normalize a locale to one canonical supported language family."""
     language = str(value or "").strip().replace("_", "-")
     family = language.casefold().split("-", 1)[0]
-    return language if family in {"en", "nl", "de", "fr", "es"} else "en"
+    return family if family in {"en", "nl", "de", "fr", "es"} else "en"
 
 
 def _get_assist_pipeline(hass: HomeAssistant, pipeline_id: str) -> Any | None:
