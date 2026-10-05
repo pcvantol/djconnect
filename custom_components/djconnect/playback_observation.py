@@ -44,6 +44,8 @@ class _SpotifyObservationSession:
     remove_listener: Callable[[], None] | None = None
     remove_progress_listener: Callable[[], None] | None = None
     poll_lock: asyncio.Lock = field(default_factory=asyncio.Lock)
+    enrichment_task: asyncio.Task[Any] | None = None
+    enrichment_media_identity: str = ""
     unavailable: bool = False
 
 
@@ -106,11 +108,6 @@ class PlaybackObservationManager:
                 session_id=observed.session_id,
             )
 
-        # The first successful state is a Runtime baseline, never a second
-        # Session-start contribution. The Runtime owns this identity-only rule.
-        await poll()
-        if self._spotify_sessions.get(session.owner_profile_id) is not observed:
-            return
         if async_track_time_interval is not None:
             observed.remove_listener = async_track_time_interval(
                 self._hass, poll, SPOTIFY_OBSERVATION_INTERVAL
@@ -118,6 +115,10 @@ class PlaybackObservationManager:
             observed.remove_progress_listener = async_track_time_interval(
                 self._hass, advance_progress, PLAYBACK_PROGRESS_INTERVAL
             )
+        # Register recurring observation before the initial poll. Track Insight
+        # can take longer than one observation interval and must never prevent
+        # a newer Spotify projection from reaching the active Runtime.
+        await poll()
 
     async def async_stop(self, owner_profile_id: str, session_id: str = "") -> None:
         """Stop future polling and make any late result inert."""
@@ -131,6 +132,15 @@ class PlaybackObservationManager:
         if observed.remove_progress_listener is not None:
             observed.remove_progress_listener()
             observed.remove_progress_listener = None
+        current_task = asyncio.current_task()
+        if (
+            observed.enrichment_task is not None
+            and observed.enrichment_task is not current_task
+            and not observed.enrichment_task.done()
+        ):
+            observed.enrichment_task.cancel()
+        observed.enrichment_task = None
+        observed.enrichment_media_identity = ""
 
     async def async_stop_runtime(self, integration_runtime: Any) -> None:
         """Release observers owned by an unloading integration Runtime."""
@@ -285,14 +295,37 @@ class PlaybackObservationManager:
                 duration_ms=getattr(result, "duration_ms", None),
                 position_ms=getattr(result, "position_ms", None),
             )
-            if not result.is_playing or not result.media_identity:
+        if not result.is_playing or not result.media_identity:
+            previous = observed.enrichment_task
+            if previous is not None and previous is not asyncio.current_task() and not previous.done():
+                previous.cancel()
+            observed.enrichment_task = None
+            observed.enrichment_media_identity = ""
+            return
+
+        current_task = asyncio.current_task()
+        previous = observed.enrichment_task
+        if previous is not None and not previous.done():
+            if observed.enrichment_media_identity == result.media_identity:
                 return
+            if previous is not current_task:
+                previous.cancel()
+        observed.enrichment_task = current_task
+        observed.enrichment_media_identity = result.media_identity
+        try:
             await session_runtime_manager(self._hass).async_process_track_started(
                 owner_profile_id=observed.owner_profile_id,
                 session_id=observed.session_id,
                 insight_provider=observed.insight_provider,
                 media_identity=result.media_identity,
+                require_current_playback=True,
             )
+        except asyncio.CancelledError:
+            return
+        finally:
+            if observed.enrichment_task is current_task:
+                observed.enrichment_task = None
+                observed.enrichment_media_identity = ""
 
 
 def playback_observation_manager(hass: Any) -> PlaybackObservationManager:

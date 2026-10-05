@@ -257,6 +257,50 @@ class PlaybackObservationTest(unittest.TestCase):
         asyncio.run(poll_while_locked())
         self.assertEqual(self.spotify.SpotifyBackend.calls, 1)
 
+    def test_slow_insight_does_not_block_new_track_and_is_cancelled(self) -> None:
+        async def scenario() -> None:
+            session = await self.manager.async_start(
+                owner_profile_id="profile-a", music_backend="spotify_direct"
+            )
+            self.spotify.SpotifyBackend.responses = [
+                self._observation("spotify:track:a"),
+                self._observation("spotify:track:b"),
+                self._observation("spotify:track:c"),
+            ]
+            slow_started = asyncio.Event()
+            calls = 0
+
+            async def insight() -> dict:
+                nonlocal calls
+                calls += 1
+                if calls == 1:
+                    slow_started.set()
+                    await asyncio.Event().wait()
+                return {
+                    "track": {"title": "Current Track", "artist": "Current Artist"},
+                    "analysis": {"summary": "Current context."},
+                }
+
+            await self.observer.async_start_spotify(
+                integration_runtime=object(), session=session, insight_provider=insight
+            )
+            slow_poll = asyncio.create_task(self.scheduled[0]["callback"](None))
+            await slow_started.wait()
+            current_poll = asyncio.create_task(self.scheduled[0]["callback"](None))
+            await current_poll
+            await slow_poll
+
+            active = await self.manager.async_get_active("profile-a")
+            self.assertEqual(self.spotify.SpotifyBackend.calls, 3)
+            self.assertEqual(active.last_accepted_media_identity, "spotify:track:c")
+            self.assertEqual(len(active.broadcast.state.dj_moments), 1)
+            self.assertEqual(
+                active.broadcast.as_dict()["dj_moments"][0]["playback_item_id"],
+                active.broadcast.as_dict()["playback"]["item_id"],
+            )
+
+        asyncio.run(scenario())
+
     def test_runtime_reload_resumes_same_active_spotify_session(self) -> None:
         session = self._start()
         old_runtime = object()

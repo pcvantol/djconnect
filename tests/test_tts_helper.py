@@ -128,6 +128,48 @@ class TtsHelperTest(unittest.TestCase):
 
         self.assertEqual(self.integration._platforms_for_runtime(runtime), ["conversation", "sensor"])
 
+    def test_session_locale_prefers_request_then_assist_pipeline(self) -> None:
+        api_handlers = importlib.import_module("custom_components.djconnect.api_handlers")
+        original = api_handlers._assist_context
+        api_handlers._assist_context = lambda _hass, _conf: {"language": "nl-NL"}
+        try:
+            hass = types.SimpleNamespace(config=types.SimpleNamespace(language="de"))
+            runtime = types.SimpleNamespace(config={})
+            self.assertEqual(
+                api_handlers._session_locale(hass, runtime, {"language": "fr-FR"}),
+                "fr-FR",
+            )
+            self.assertEqual(api_handlers._session_locale(hass, runtime, {}), "nl-NL")
+        finally:
+            api_handlers._assist_context = original
+
+    def test_session_track_insight_uses_frozen_session_locale(self) -> None:
+        api_handlers = importlib.import_module("custom_components.djconnect.api_handlers")
+        captured: list[dict] = []
+
+        class Service:
+            async def async_analyze(self, _hass, _runtime, payload, **_kwargs):
+                captured.append(payload)
+                return {"analysis": {}}
+
+        original = api_handlers.TrackInsightService
+        api_handlers.TrackInsightService = Service
+        try:
+            provider = api_handlers._session_track_insight_provider(
+                object(),
+                object(),
+                types.SimpleNamespace(
+                    music_backend="spotify_direct",
+                    locale="nl-NL",
+                    dj_persona=types.SimpleNamespace(value="home_dj"),
+                    selected_mood="groove",
+                ),
+            )
+            asyncio.run(provider())
+        finally:
+            api_handlers.TrackInsightService = original
+        self.assertEqual(captured[0]["locale"], "nl-NL")
+
     def test_device_entry_loads_full_platform_set(self) -> None:
         for client_type in (
             self.const.CLIENT_TYPE_ESP32,

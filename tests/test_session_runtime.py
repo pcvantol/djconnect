@@ -2180,6 +2180,64 @@ class SessionRuntimeManagerTest(unittest.TestCase):
         with self.assertRaises(FrozenInstanceError):
             moment.summary = "mutated"  # type: ignore[misc]
 
+    def test_broadcast_correlates_moment_with_current_playback_item(self) -> None:
+        manager = self.runtime.SessionRuntimeManager()
+        created = asyncio.run(
+            manager.async_start(
+                owner_profile_id="profile-correlation",
+                selected_mood="groove",
+                dj_persona=self.runtime.DJPersona.RADIO_DJ,
+            )
+        )
+        events: list[dict] = []
+        asyncio.run(
+            manager.async_subscribe(
+                owner_profile_id=created.owner_profile_id,
+                session_id=created.session_id,
+                callback=events.append,
+            )
+        )
+        asyncio.run(
+            manager.async_update_playback_projection(
+                owner_profile_id=created.owner_profile_id,
+                session_id=created.session_id,
+                state="playing",
+                media_identity="spotify:track:current",
+                title="Current Track",
+            )
+        )
+
+        async def insight() -> dict:
+            return {
+                "track": {
+                    "title": "Teardrop",
+                    "artist": "Massive Attack",
+                    "album": "Mezzanine",
+                },
+                "analysis": {
+                    "summary": "A spacious trip-hop landmark.",
+                    "full_text": "The suspended beat leaves room for the bass.",
+                },
+            }
+
+        moment = asyncio.run(
+            manager.async_generate_track_context(
+                owner_profile_id=created.owner_profile_id,
+                session_id=created.session_id,
+                insight_provider=insight,
+            )
+        )
+        assert moment is not None
+        snapshot = created.broadcast.as_dict()
+        item_id = snapshot["playback"]["item_id"]
+        self.assertEqual(snapshot["dj_moments"][-1]["playback_item_id"], item_id)
+        moment_event = next(
+            event for event in events if event["event_type"] == "dj_moment_published"
+        )
+        self.assertEqual(
+            moment_event["payload"]["dj_moment"]["playback_item_id"], item_id
+        )
+
     def test_presentation_composer_creates_one_immutable_artist_story_with_sidekick(self) -> None:
         manager = self.runtime.SessionRuntimeManager()
         created = asyncio.run(

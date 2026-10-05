@@ -54,8 +54,14 @@ class VibeCastRendererTest(unittest.TestCase):
             const styles = new Map(), sockets = []; class WS {{ constructor(url) {{ this.url=url; sockets.push(this); }} close() {{ if(this.onclose) this.onclose(); }} }}
             const context = {{ URLSearchParams,JSON,Math,Number,Array,Object,String,encodeURIComponent,navigator:{{language:"nl-NL"}},document:{{body:{{classList:{{toggle:()=>{{}}}}}},documentElement:{{style:{{setProperty:(k,v)=>styles.set(k,v)}}}},getElementById:id=>elements.get(id)}},window:{{location:{{protocol:"https:",host:"receiver.test",search:"?session_id=session-1&broadcast_token=token-1"}},setTimeout:()=>1,addEventListener:()=>{{}}}},WebSocket:WS }};
             vm.runInNewContext(script, context); assert.equal(sockets[0].url,"wss://receiver.test/api/djconnect/v1/session/broadcast/ws/session-1?broadcast_token=token-1"); sockets[0].onopen();
-            sockets[0].onmessage({{data:JSON.stringify({{type:"snapshot",snapshot:{{session:{{selected_mood:"energy"}},playback:{{title:"Track One",artist:"Artist One",album:"Album One",artwork_url:"/cover",duration_ms:180000,position_ms:61000}},dj_moments:[{{title:"Artist Story",summary:"A bright story."}}]}}}})}});
+            sockets[0].onmessage({{data:JSON.stringify({{type:"snapshot",snapshot:{{session:{{selected_mood:"energy"}},playback:{{item_id:"track-1",title:"Track One",artist:"Artist One",album:"Album One",artwork_url:"/cover",duration_ms:180000,position_ms:61000}},dj_moments:[{{title:"Artist Story",summary:"A bright story.",playback_item_id:"track-1"}}]}}}})}});
             assert.equal(elements.get("state").textContent,"Live"); assert.equal(elements.get("title").textContent,"Track One"); assert.equal(elements.get("moment").textContent,"A bright story."); assert.equal(elements.get("progress").value,61000); assert.equal(styles.get("--accent"),"#ff806b");
+            sockets[0].onmessage({{data:JSON.stringify({{type:"event",data:{{event_type:"playback_changed",payload:{{playback:{{item_id:"track-2",title:"Track Two"}}}}}}}})}});
+            assert.equal(elements.get("title").textContent,"Track Two"); assert.equal(elements.get("moment").textContent,"");
+            sockets[0].onmessage({{data:JSON.stringify({{type:"event",data:{{event_type:"dj_moment_published",payload:{{dj_moment:{{summary:"Stale context.",playback_item_id:"track-1"}}}}}}}})}});
+            assert.equal(elements.get("moment").textContent,"");
+            sockets[0].onmessage({{data:JSON.stringify({{type:"event",data:{{event_type:"dj_moment_published",payload:{{dj_moment:{{summary:"Current context.",playback_item_id:"track-2"}}}}}}}})}});
+            assert.equal(elements.get("moment").textContent,"Current context.");
             sockets[0].onmessage({{data:JSON.stringify({{type:"event",data:{{event_type:"runtime_ended",payload:{{}}}}}})}}); assert.equal(elements.get("state").textContent,"Inactief"); assert.equal(elements.get("title").textContent,"Wachten op een sessie"); assert.equal(page.includes("localStorage"),false);
         """)
         completed = subprocess.run([node, "--input-type=module", "--eval", script], check=False, capture_output=True, text=True)
