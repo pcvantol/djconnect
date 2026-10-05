@@ -22,6 +22,15 @@ SPOTIFY_OBSERVATION_INTERVAL = timedelta(seconds=15)
 PLAYBACK_PROGRESS_INTERVAL = timedelta(seconds=1)
 
 InsightProvider = Callable[[], Awaitable[dict[str, Any]]]
+InsightProviderFactory = Callable[[Any, DJSessionRuntime], InsightProvider]
+
+
+@dataclass(frozen=True)
+class SpotifyObservationResumeKey:
+    """Identity needed to resume one observer after its Runtime reloads."""
+
+    owner_profile_id: str
+    session_id: str
 
 
 @dataclass
@@ -44,17 +53,39 @@ class PlaybackObservationManager:
     def __init__(self, hass: Any) -> None:
         self._hass = hass
         self._spotify_sessions: dict[str, _SpotifyObservationSession] = {}
+        self._reloading_entry_ids: set[str] = set()
+        self._pending_reload_sessions: dict[
+            str, dict[str, SpotifyObservationResumeKey]
+        ] = {}
 
     async def async_start_spotify(
         self,
         *,
         integration_runtime: Any,
         session: DJSessionRuntime,
-        insight_provider: InsightProvider,
+        insight_provider: InsightProvider | None = None,
+        insight_provider_factory: InsightProviderFactory | None = None,
     ) -> None:
         """Attach one bounded Spotify observer after an eligible Session starts."""
         if session.music_backend != MUSIC_BACKEND_SPOTIFY_DIRECT:
             return
+        entry_id = self._runtime_entry_id(integration_runtime)
+        if entry_id and entry_id in self._reloading_entry_ids:
+            self._pending_reload_sessions.setdefault(entry_id, {})[
+                session.owner_profile_id
+            ] = SpotifyObservationResumeKey(
+                owner_profile_id=session.owner_profile_id,
+                session_id=session.session_id,
+            )
+            return
+        if entry_id:
+            current_runtime = self._hass.data.get(DOMAIN, {}).get(entry_id)
+            if current_runtime is not None and current_runtime is not integration_runtime:
+                integration_runtime = current_runtime
+        if insight_provider_factory is not None:
+            insight_provider = insight_provider_factory(integration_runtime, session)
+        if insight_provider is None:
+            raise ValueError("Spotify playback observation requires an insight provider")
         await self.async_stop(session.owner_profile_id)
         observed = _SpotifyObservationSession(
             integration_runtime=integration_runtime,
@@ -106,6 +137,100 @@ class PlaybackObservationManager:
         for observed in tuple(self._spotify_sessions.values()):
             if observed.integration_runtime is integration_runtime:
                 await self.async_stop(observed.owner_profile_id, observed.session_id)
+
+    def resume_keys_for_runtime(
+        self, integration_runtime: Any
+    ) -> tuple[SpotifyObservationResumeKey, ...]:
+        """Capture only active observer identities before a Runtime reload."""
+        return tuple(
+            SpotifyObservationResumeKey(
+                owner_profile_id=observed.owner_profile_id,
+                session_id=observed.session_id,
+            )
+            for observed in self._spotify_sessions.values()
+            if observed.integration_runtime is integration_runtime
+        )
+
+    def begin_runtime_reload(
+        self, integration_runtime: Any
+    ) -> tuple[SpotifyObservationResumeKey, ...]:
+        """Quiesce new observer starts and capture the current Runtime set."""
+        entry_id = self._runtime_entry_id(integration_runtime)
+        if entry_id:
+            self._reloading_entry_ids.add(entry_id)
+        return self.resume_keys_for_runtime(integration_runtime)
+
+    def finish_runtime_reload(
+        self,
+        integration_runtime: Any,
+        resume_keys: tuple[SpotifyObservationResumeKey, ...],
+    ) -> tuple[SpotifyObservationResumeKey, ...]:
+        """Include Sessions started during reload and reopen observer starts."""
+        entry_id = self._runtime_entry_id(integration_runtime)
+        pending = self._pending_reload_sessions.pop(entry_id, {}) if entry_id else {}
+        if entry_id:
+            self._reloading_entry_ids.discard(entry_id)
+        combined = {
+            (resume_key.owner_profile_id, resume_key.session_id): resume_key
+            for resume_key in (*resume_keys, *pending.values())
+        }
+        return tuple(combined.values())
+
+    def abort_runtime_reload(
+        self,
+        integration_runtime: Any,
+        resume_keys: tuple[SpotifyObservationResumeKey, ...] = (),
+    ) -> tuple[SpotifyObservationResumeKey, ...]:
+        """Release reload bookkeeping and return Sessions needing rollback."""
+        entry_id = self._runtime_entry_id(integration_runtime)
+        if not entry_id:
+            return resume_keys
+        self._reloading_entry_ids.discard(entry_id)
+        pending = self._pending_reload_sessions.pop(entry_id, {})
+        combined = {
+            (resume_key.owner_profile_id, resume_key.session_id): resume_key
+            for resume_key in (*resume_keys, *pending.values())
+        }
+        return tuple(combined.values())
+
+    async def async_resume_spotify(
+        self,
+        *,
+        integration_runtime: Any,
+        resume_keys: tuple[SpotifyObservationResumeKey, ...],
+        insight_provider_factory: InsightProviderFactory,
+    ) -> None:
+        """Resume eligible Spotify observers against a replacement Runtime."""
+        runtime_manager = session_runtime_manager(self._hass)
+        for resume_key in resume_keys:
+            active = await runtime_manager.async_get_active(
+                resume_key.owner_profile_id
+            )
+            if (
+                active is None
+                or active.session_id != resume_key.session_id
+                or active.music_backend != MUSIC_BACKEND_SPOTIFY_DIRECT
+            ):
+                continue
+            observed = self._spotify_sessions.get(active.owner_profile_id)
+            if (
+                observed is not None
+                and observed.integration_runtime is integration_runtime
+                and observed.session_id == active.session_id
+            ):
+                continue
+            await self.async_start_spotify(
+                integration_runtime=integration_runtime,
+                session=active,
+                insight_provider_factory=insight_provider_factory,
+            )
+
+    @staticmethod
+    def _runtime_entry_id(integration_runtime: Any) -> str:
+        """Return the stable config-entry identity for one Runtime."""
+        return str(
+            getattr(getattr(integration_runtime, "entry", None), "entry_id", "") or ""
+        ).strip()
 
     async def _async_poll_spotify(self, observed: _SpotifyObservationSession) -> None:
         """Poll one observer without overlap or provider details in Runtime."""

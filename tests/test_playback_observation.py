@@ -257,6 +257,172 @@ class PlaybackObservationTest(unittest.TestCase):
         asyncio.run(poll_while_locked())
         self.assertEqual(self.spotify.SpotifyBackend.calls, 1)
 
+    def test_runtime_reload_resumes_same_active_spotify_session(self) -> None:
+        session = self._start()
+        old_runtime = object()
+        new_runtime = object()
+        self.spotify.SpotifyBackend.responses = [
+            self._observation("spotify:track:a"),
+            self._observation("spotify:track:b"),
+        ]
+        asyncio.run(
+            self.observer.async_start_spotify(
+                integration_runtime=old_runtime,
+                session=session,
+                insight_provider=self._insight,
+            )
+        )
+        resume_keys = self.observer.resume_keys_for_runtime(old_runtime)
+
+        asyncio.run(self.observer.async_stop_runtime(old_runtime))
+        self.assertTrue(self.scheduled[0]["removed"])
+        self.assertTrue(self.scheduled[1]["removed"])
+
+        asyncio.run(
+            self.observer.async_resume_spotify(
+                integration_runtime=new_runtime,
+                resume_keys=resume_keys,
+                insight_provider_factory=lambda _runtime, _session: self._insight,
+            )
+        )
+
+        observed = self.observer._spotify_sessions["profile-a"]
+        self.assertIs(observed.integration_runtime, new_runtime)
+        self.assertEqual(observed.session_id, session.session_id)
+        self.assertEqual(len(self.scheduled), 4)
+        active = asyncio.run(self.manager.async_get_active("profile-a"))
+        self.assertEqual(active.last_accepted_media_identity, "spotify:track:b")
+        self.assertEqual(len(active.moment_engine.moments), 1)
+
+    def test_runtime_reload_does_not_resume_ended_or_non_spotify_session(self) -> None:
+        session = self._start()
+        old_runtime = object()
+        self.spotify.SpotifyBackend.responses = [self._observation("spotify:track:a")]
+        asyncio.run(
+            self.observer.async_start_spotify(
+                integration_runtime=old_runtime,
+                session=session,
+                insight_provider=self._insight,
+            )
+        )
+        resume_keys = self.observer.resume_keys_for_runtime(old_runtime)
+        asyncio.run(self.observer.async_stop_runtime(old_runtime))
+        asyncio.run(
+            self.manager.async_end(
+                owner_profile_id="profile-a", session_id=session.session_id
+            )
+        )
+
+        asyncio.run(
+            self.observer.async_resume_spotify(
+                integration_runtime=object(),
+                resume_keys=resume_keys,
+                insight_provider_factory=lambda _runtime, _session: self._insight,
+            )
+        )
+
+        self.assertNotIn("profile-a", self.observer._spotify_sessions)
+        self.assertEqual(len(self.scheduled), 2)
+
+    def test_session_started_during_reload_is_resumed_on_replacement_runtime(self) -> None:
+        old_runtime = types.SimpleNamespace(
+            entry=types.SimpleNamespace(entry_id="entry-a")
+        )
+        new_runtime = types.SimpleNamespace(
+            entry=types.SimpleNamespace(entry_id="entry-a")
+        )
+        self.hass.data["djconnect"]["entry-a"] = old_runtime
+        resume_keys = self.observer.begin_runtime_reload(old_runtime)
+        self.assertEqual(resume_keys, ())
+
+        session = self._start()
+        asyncio.run(
+            self.observer.async_start_spotify(
+                integration_runtime=old_runtime,
+                session=session,
+                insight_provider=self._insight,
+            )
+        )
+        self.assertEqual(self.scheduled, [])
+        self.assertEqual(self.spotify.SpotifyBackend.calls, 0)
+
+        self.hass.data["djconnect"]["entry-a"] = new_runtime
+        resume_keys = self.observer.finish_runtime_reload(old_runtime, resume_keys)
+        self.spotify.SpotifyBackend.responses = [self._observation("spotify:track:a")]
+        asyncio.run(
+            self.observer.async_resume_spotify(
+                integration_runtime=new_runtime,
+                resume_keys=resume_keys,
+                insight_provider_factory=lambda runtime, _session: (
+                    self._insight if runtime is new_runtime else None
+                ),
+            )
+        )
+
+        observed = self.observer._spotify_sessions["profile-a"]
+        self.assertIs(observed.integration_runtime, new_runtime)
+        self.assertEqual(observed.session_id, session.session_id)
+        self.assertEqual(len(self.scheduled), 2)
+
+    def test_late_old_runtime_start_uses_current_runtime_and_provider(self) -> None:
+        old_runtime = types.SimpleNamespace(
+            entry=types.SimpleNamespace(entry_id="entry-a")
+        )
+        new_runtime = types.SimpleNamespace(
+            entry=types.SimpleNamespace(entry_id="entry-a")
+        )
+        self.hass.data["djconnect"]["entry-a"] = new_runtime
+        session = self._start()
+        self.spotify.SpotifyBackend.responses = [self._observation("spotify:track:a")]
+        factory_runtimes = []
+
+        def provider_factory(runtime, _session):
+            factory_runtimes.append(runtime)
+            return self._insight
+
+        asyncio.run(
+            self.observer.async_start_spotify(
+                integration_runtime=old_runtime,
+                session=session,
+                insight_provider_factory=provider_factory,
+            )
+        )
+
+        observed = self.observer._spotify_sessions["profile-a"]
+        self.assertIs(observed.integration_runtime, new_runtime)
+        self.assertEqual(factory_runtimes, [new_runtime])
+
+    def test_failed_reload_restores_session_started_during_reload(self) -> None:
+        runtime = types.SimpleNamespace(
+            entry=types.SimpleNamespace(entry_id="entry-a")
+        )
+        self.hass.data["djconnect"]["entry-a"] = runtime
+        resume_keys = self.observer.begin_runtime_reload(runtime)
+        session = self._start()
+        asyncio.run(
+            self.observer.async_start_spotify(
+                integration_runtime=runtime,
+                session=session,
+                insight_provider=self._insight,
+            )
+        )
+        self.assertEqual(self.scheduled, [])
+
+        rollback_keys = self.observer.abort_runtime_reload(runtime, resume_keys)
+        self.spotify.SpotifyBackend.responses = [self._observation("spotify:track:a")]
+        asyncio.run(
+            self.observer.async_resume_spotify(
+                integration_runtime=runtime,
+                resume_keys=rollback_keys,
+                insight_provider_factory=lambda _runtime, _session: self._insight,
+            )
+        )
+
+        observed = self.observer._spotify_sessions["profile-a"]
+        self.assertIs(observed.integration_runtime, runtime)
+        self.assertEqual(observed.session_id, session.session_id)
+        self.assertEqual(len(self.scheduled), 2)
+
     def test_rolling_records_reconcile_current_merged_implementation(self) -> None:
         engineering_status = (ROOT / "ENGINEERING_STATUS.md").read_text()
         current_section = engineering_status.split("## Historical operational context", 1)[0]

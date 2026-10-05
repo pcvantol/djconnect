@@ -162,8 +162,10 @@ async def async_handle_session_start_payload(
         await playback_observation_manager(hass).async_start_spotify(
             integration_runtime=runtime,
             session=active,
-            insight_provider=_session_track_insight_provider(
-                hass, runtime, active
+            insight_provider_factory=lambda active_runtime, active_session: (
+                _session_track_insight_provider(
+                    hass, active_runtime, active_session
+                )
             ),
         )
     return {"success": True, "session": (active or session).as_dict()}, 201
