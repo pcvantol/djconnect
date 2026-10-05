@@ -343,6 +343,7 @@ class SessionContinuityBehaviorTest(unittest.TestCase):
             if moment.moment_type is self.runtime.DJMomentType.TRANSITION
         )
         self.assertEqual(len(transitions), 1)
+        self.assertNotIn("relation", dict(transitions[0].generation_metadata))
         self.assertEqual(
             dict(transitions[0].generation_metadata)["transition_to_moment_id"],
             selected[1].moment_id,

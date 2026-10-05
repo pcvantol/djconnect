@@ -12,7 +12,7 @@ from typing import Any
 
 from homeassistant.core import HomeAssistant
 
-from .const import DEFAULT_MUSIC_BACKEND
+from .const import DEFAULT_MUSIC_BACKEND, MUSIC_BACKEND_SPOTIFY_DIRECT
 from .mood import enrich_payload_with_mood_zone, mood_context_text
 from .music_dna import resolve_music_dna_key
 from .pipeline import _assist_context, _speech_from_response, call_conversation_process_with_agent_retry
@@ -254,10 +254,18 @@ class TrackInsightService:
         payload: dict[str, Any] | None = None,
         *,
         source: str = "auto",
+        session_evidence: bool = False,
     ) -> dict[str, Any]:
         started = time.monotonic()
         request = _request_from_payload(payload or {}, source)
         track = await self._resolve_track(hass, runtime, request)
+        private_evidence = track.pop("_session_narrative_evidence", None)
+
+        def with_private_evidence(response: dict[str, Any]) -> dict[str, Any]:
+            if session_evidence and request.source == "session_moment" and private_evidence:
+                return {**response, "_session_narrative_evidence": private_evidence}
+            return response
+
         cache_key = _cache_key(track, request.locale, _request_mood_context(request))
         cache = TrackInsightCache(runtime)
         cached = None if request.force_refresh else cache.get(cache_key)
@@ -271,7 +279,7 @@ class TrackInsightService:
                 request.source,
             )
             await _record_track_insight_energy_in_music_dna(runtime, payload or {}, track, cached)
-            return cached
+            return with_private_evidence(cached)
         self._check_rate_limit(runtime, track, request)
         analysis, raw_response = await self.analyzer.analyze(hass, runtime, track, request)
         response = self.serializer.serialize(
@@ -295,7 +303,7 @@ class TrackInsightService:
             sorted(str(key) for key in analysis.keys())[:16] if isinstance(analysis, dict) else [],
             int((time.monotonic() - started) * 1000),
         )
-        return response
+        return with_private_evidence(response)
 
     async def _resolve_track(
         self,
@@ -545,13 +553,13 @@ async def _current_playback(
     try:
         result = await run_music_command(hass, runtime, "status", value)
         playback = result.get("playback") if isinstance(result, dict) else {}
-        if isinstance(playback, dict):
-            return playback
+        if isinstance(result, dict) and isinstance(playback, dict):
+            return {**playback, "_status_provider": result.get("provider")}
     except TypeError:
         result = await run_music_command(hass, runtime, "status")
         playback = result.get("playback") if isinstance(result, dict) else {}
-        if isinstance(playback, dict):
-            return playback
+        if isinstance(result, dict) and isinstance(playback, dict):
+            return {**playback, "_status_provider": result.get("provider")}
     except Exception as exc:  # noqa: BLE001
         _LOGGER.debug("DJConnect Track Insight playback resolution failed: %s", exc.__class__.__name__)
     playback = getattr(runtime, "last_playback", None)
@@ -569,7 +577,7 @@ def _track_contract(playback: dict[str, Any], runtime: Any, request: TrackInsigh
         or getattr(runtime, "config", {}).get("music_backend")
         or DEFAULT_MUSIC_BACKEND
     )
-    return {
+    track = {
         "title": _first_text(playback, "title", "track_name", "name", "track"),
         "artist": _first_text(playback, "artist", "artist_name", "artists"),
         "album": _first_text(playback, "album", "album_name"),
@@ -582,6 +590,28 @@ def _track_contract(playback: dict[str, Any], runtime: Any, request: TrackInsigh
         "backend": str(backend) if backend else None,
         **({"genres": genres} if genres else {}),
     }
+    uri = str(playback.get("uri") or "").strip()
+    ids = playback.get("artist_ids")
+    observed_genres = playback.get("genres")
+    if (
+        str(backend) == MUSIC_BACKEND_SPOTIFY_DIRECT
+        and playback.get("_status_provider") == MUSIC_BACKEND_SPOTIFY_DIRECT
+        and re.fullmatch(r"spotify:track:[A-Za-z0-9_-]{8,64}", uri)
+        and isinstance(ids, list)
+        and isinstance(observed_genres, list)
+        and track["is_playing"]
+    ):
+        track["_session_narrative_evidence"] = {
+            "source": "spotify_playback_status",
+            "backend": MUSIC_BACKEND_SPOTIFY_DIRECT,
+            "media_identity": uri,
+            "artist_ids": ids[:10],
+            "genres": observed_genres[:10],
+            "title": track["title"],
+            "artist": track["artist"],
+            "is_playing": True,
+        }
+    return track
 
 
 def _normalize_analysis(data: dict[str, Any], track: dict[str, Any], locale: str | None = None) -> dict[str, Any]:
