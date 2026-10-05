@@ -554,8 +554,11 @@ class SpotifyBackend:
         cache.pop(backoff_key, None)
         artists = data.get("artists") if isinstance(data, dict) else []
         genres: list[str] = []
+        requested_artist_ids = set(artist_ids)
         for artist in artists if isinstance(artists, list) else []:
             if not isinstance(artist, dict):
+                continue
+            if str(artist.get("id") or "").strip() not in requested_artist_ids:
                 continue
             for genre in artist.get("genres") or []:
                 text = str(genre or "").strip()

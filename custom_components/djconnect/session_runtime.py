@@ -6,6 +6,7 @@ import asyncio
 import hashlib
 import json
 import logging
+import re
 import secrets
 import time
 from dataclasses import dataclass, field
@@ -172,6 +173,8 @@ class PlannerDecision:
     proposed_session_direction: SessionDirectionType | None = None
     transition_moment_ids: tuple[str, str] = ()
     transition_placement: str = ""
+    transition_relation: str = ""
+    transition_context: tuple[tuple[str, str], ...] = ()
 
 
 @dataclass(frozen=True)
@@ -242,6 +245,35 @@ class DJPersona(StrEnum):
     RADIO_DJ = "radio_dj"
     CLUB_DJ = "club_dj"
     FESTIVAL_DJ = "festival_dj"
+
+
+@dataclass(frozen=True)
+class NarrativeTrackEvidence:
+    """Private, current-status proof selected by Knowledge for one observed track."""
+
+    media_identity: str
+    artist_id: str
+    genres: tuple[str, ...]
+    title: str
+    artist: str
+
+
+@dataclass(frozen=True)
+class DiscoverNarrativeLine:
+    """One pending Genre subject, bounded to the next accepted Runtime event."""
+
+    source_moment_id: str
+    source_title: str
+    artist: str
+    genre: str
+    media_identity: str
+    artist_id: str
+    mood: str
+    persona: DJPersona
+    direction: SessionDirectionType
+    event_number: int
+    flow_id: str
+    flow_revision: int
 
 
 class DJMomentVisibility(StrEnum):
@@ -1340,6 +1372,9 @@ class DJSessionPlanner:
     configuration: PlannerConfiguration = field(default_factory=PlannerConfiguration)
     last_spoken_moment_at: float = 0.0
     last_decision: PlannerDecision | None = None
+    discover_event_number: int = 0
+    discover_narrative_line: DiscoverNarrativeLine | None = None
+    discover_narrative_closed: bool = False
     flow_change_journal: tuple[SessionFlowChange, ...] = ()
     elapsed_time_source: Callable[[], float] = field(
         default=time.monotonic, repr=False, compare=False
@@ -1600,6 +1635,115 @@ class DJSessionPlanner:
         )
         return self._commit_session_flow(flow, SessionFlowChangeType.MOMENT_APPENDED)
 
+    def note_discover_track_started(self) -> None:
+        """Count only accepted observed opportunities, not duplicate URI polls."""
+        self.discover_event_number += 1
+        line = self.discover_narrative_line
+        if line is not None and self.discover_event_number > line.event_number + 1:
+            self.clear_discover_narrative()
+
+    def clear_discover_narrative(self) -> None:
+        """Close the one Runtime line without retaining its private identity."""
+        self.discover_narrative_line = None
+        self.discover_narrative_closed = True
+
+    def evaluate_discover_narrative_after_moment(
+        self,
+        *,
+        current_moment: DJMoment,
+        strategy: SessionStartStrategy,
+        session_direction: SessionDirection,
+        selected_mood: str,
+        persona: DJPersona,
+        performance_memory: PerformanceMemory,
+        evidence: NarrativeTrackEvidence | None,
+    ) -> PlannerDecision | None:
+        """Open once, then approve or abandon on the next accepted event."""
+        if strategy is not SessionStartStrategy.DISCOVER or self.discover_narrative_closed:
+            return None
+        items = tuple(
+            item for item in self.output.session_flow.items
+            if item.item_type is SessionFlowItemType.DJ_MOMENT and item.moment_id
+        )
+        line = self.discover_narrative_line
+        if line is not None:
+            self.clear_discover_narrative()
+            metadata = dict(current_moment.generation_metadata)
+            if (
+                self.discover_event_number != line.event_number + 1
+                or evidence is None
+                or current_moment.moment_type is not DJMomentType.TRACK
+                or session_direction.direction is not line.direction
+                or selected_mood != line.mood
+                or persona is not line.persona
+                or self.output.session_flow.flow_id != line.flow_id
+                or self.output.session_flow.flow_revision != line.flow_revision + 1
+                or len(items) < 2
+                or items[-2].moment_id != line.source_moment_id
+                or items[-2].moment_type != DJMomentType.GENRE.value
+                or items[-1].moment_id != current_moment.moment_id
+                or items[-1].moment_type != DJMomentType.TRACK.value
+                or line.source_moment_id not in performance_memory.recent_moment_ids
+                or DJMomentType.TRANSITION in performance_memory.recent_moment_types[-4:]
+                or evidence.artist_id != line.artist_id
+                or evidence.artist != line.artist
+                or evidence.media_identity == line.media_identity
+                or evidence.title == line.source_title
+                or not any(genre.casefold() == line.genre.casefold() for genre in evidence.genres)
+                or metadata.get("track_title") != evidence.title
+                or metadata.get("artist") != evidence.artist
+                or str(metadata.get("genre") or "").casefold() != line.genre.casefold()
+            ):
+                return None
+            self.last_decision = PlannerDecision(
+                PlannerDecisionType.CREATE_TRANSITION,
+                "discover_same_artist_genre",
+                KnowledgeIntent(
+                    KnowledgeIntentType.TRANSITION,
+                    "Connect the second observed track to the opened artist-genre context.",
+                ),
+                transition_moment_ids=(line.source_moment_id, current_moment.moment_id),
+                transition_placement=SessionFlowPosition.NEXT.value,
+                transition_relation="discover_same_artist_genre",
+                transition_context=(
+                    ("genre", line.genre),
+                    ("artist", line.artist),
+                    ("source_track", line.source_title),
+                    ("target_track", evidence.title),
+                ),
+            )
+            return self.last_decision
+        metadata = dict(current_moment.generation_metadata)
+        if (
+            evidence is None
+            or current_moment.moment_type is not DJMomentType.GENRE
+            or session_direction.direction is not SessionDirectionType.EXPLORING
+            or not items
+            or items[-1].moment_id != current_moment.moment_id
+            or current_moment.moment_id not in performance_memory.recent_moment_ids
+            or DJMomentType.TRANSITION in performance_memory.recent_moment_types[-4:]
+            or metadata.get("track_title") != evidence.title
+            or metadata.get("artist") != evidence.artist
+            or str(metadata.get("genre") or "").casefold() != current_moment.title.casefold()
+            or not any(genre.casefold() == current_moment.title.casefold() for genre in evidence.genres)
+        ):
+            return None
+        self.discover_narrative_line = DiscoverNarrativeLine(
+            source_moment_id=current_moment.moment_id,
+            source_title=evidence.title,
+            artist=evidence.artist,
+            genre=current_moment.title,
+            media_identity=evidence.media_identity,
+            artist_id=evidence.artist_id,
+            mood=selected_mood,
+            persona=persona,
+            direction=session_direction.direction,
+            event_number=self.discover_event_number,
+            flow_id=self.output.session_flow.flow_id,
+            flow_revision=self.output.session_flow.flow_revision,
+        )
+        return None
+
     def evaluate_transition_after_moment(
         self,
         *,
@@ -1735,6 +1879,7 @@ class DJMomentEngine:
             source_references=("track_insight",),
             generation_metadata=(
                 ("provider", "track_insight"),
+                ("track_title", _bounded_text(track.get("title"), 160)),
                 ("artist", _bounded_text(track.get("artist"), 160)),
                 ("album", _bounded_text(track.get("album"), 160)),
                 (
@@ -1804,19 +1949,20 @@ class DJMomentEngine:
         moments = {moment.moment_id: moment for moment in self.moments}
         source = moments.get(source_id)
         target = moments.get(target_id)
+        relation = approval.transition_relation
         if (
             source is None
             or target is None
             or source.session_id != session_id
             or target.session_id != session_id
-            or source.moment_type
-            not in {
-                DJMomentType.TRACK,
-                DJMomentType.ARTIST,
-                DJMomentType.ALBUM,
-                DJMomentType.GENRE,
-            }
-            or target.moment_type is not DJMomentType.RECOMMENDATION
+            or (
+                not _valid_discover_transition_context(approval, source, target)
+                if relation == "discover_same_artist_genre"
+                else source.moment_type not in {
+                    DJMomentType.TRACK, DJMomentType.ARTIST,
+                    DJMomentType.ALBUM, DJMomentType.GENRE,
+                } or target.moment_type is not DJMomentType.RECOMMENDATION
+            )
         ):
             return self.create_silence(
                 session_id=session_id,
@@ -1825,6 +1971,11 @@ class DJMomentEngine:
                 locale=locale,
                 reason="invalid_transition_context",
             )
+        context = dict(approval.transition_context)
+        def copy(part: str) -> str:
+            if relation == "discover_same_artist_genre":
+                return _discover_transition_copy(locale, part, context)
+            return _transition_copy(locale, part, source.title, target.title)
         moment = DJMoment(
             moment_id=f"moment-{uuid4().hex}",
             session_id=session_id,
@@ -1832,9 +1983,9 @@ class DJMomentEngine:
             moment_type=DJMomentType.TRANSITION,
             knowledge_intent=approval.knowledge_intent,
             presentation_intent=_presentation_intent(selected_mood, persona),
-            title=_transition_copy(locale, "title", source.title, target.title),
-            summary=_transition_copy(locale, "summary", source.title, target.title),
-            content=_transition_copy(locale, "content", source.title, target.title),
+            title=copy("title"),
+            summary=copy("summary"),
+            content=copy("content"),
             artwork_url=None,
             actions=(),
             source_references=("session_flow",),
@@ -1842,6 +1993,7 @@ class DJMomentEngine:
                 ("transition_from_moment_id", source.moment_id),
                 ("transition_to_moment_id", target.moment_id),
                 ("placement", approval.transition_placement),
+                *((("relation", relation),) if relation else ()),
                 ("validated", "true"),
             ),
         )
@@ -1932,6 +2084,57 @@ class DJKnowledgeEngine:
     """Runtime-scoped assembly of relevant knowledge; never presentation."""
 
     assembled_contexts: tuple[KnowledgeContext, ...] = ()
+
+    def select_discover_narrative_evidence(
+        self, raw_insight: dict[str, Any], observed_media_identity: str
+    ) -> NarrativeTrackEvidence | None:
+        """Select only private, status-bound artist/genre proof for this event."""
+        private = raw_insight.get("_session_narrative_evidence")
+        track = raw_insight.get("track")
+        if not isinstance(private, dict) or not isinstance(track, dict):
+            return None
+        media_identity = str(private.get("media_identity") or "").strip()
+        artist_ids = private.get("artist_ids")
+        genres = private.get("genres")
+        if (
+            private.get("source") != "spotify_playback_status"
+            or private.get("backend") != "spotify_direct"
+            or track.get("backend") != "spotify_direct"
+            or private.get("is_playing") is not True
+            or media_identity != observed_media_identity
+            or not re.fullmatch(r"spotify:track:[A-Za-z0-9_-]{8,64}", media_identity)
+            or not isinstance(artist_ids, list)
+            or len(artist_ids) != 1
+            or not isinstance(genres, list)
+        ):
+            return None
+        artist_id = str(artist_ids[0] or "").strip()
+        if not re.fullmatch(r"[A-Za-z0-9_-]{8,64}", artist_id):
+            return None
+        title = _narrative_label(private.get("title"), 160)
+        artist = _narrative_label(private.get("artist"), 160)
+        if (
+            not title or not artist
+            or title != _narrative_label(track.get("title"), 160)
+            or artist != _narrative_label(track.get("artist"), 160)
+        ):
+            return None
+        selected_genres = tuple(
+            dict.fromkeys(
+                label for value in genres[:10]
+                if (label := _narrative_label(value, 80))
+            )
+        )
+        track_genres = track.get("genres")
+        if (
+            not selected_genres
+            or not isinstance(track_genres, list)
+            or not all(genre in track_genres for genre in selected_genres)
+        ):
+            return None
+        return NarrativeTrackEvidence(
+            media_identity, artist_id, selected_genres, title, artist
+        )
 
     async def async_assemble_track_context(
         self,
@@ -3177,6 +3380,8 @@ class DJSessionRuntime:
 
     def republish_session_flow(self) -> DJSessionFlow:
         """Coordinate Planner output publication through the Broadcast Engine."""
+        if self.planner.discover_narrative_line is not None:
+            self.planner.clear_discover_narrative()
         flow = self.planner.republish_session_flow()
         self.broadcast.publish_session_flow(flow)
         return flow
@@ -3499,6 +3704,8 @@ class SessionRuntimeManager:
             active = self._accept_track_started_media(owner_profile_id, session_id, media_identity)
             if active is None:
                 return None
+            if active.session_start_strategy is SessionStartStrategy.DISCOVER:
+                active.planner.note_discover_track_started()
         try:
             raw_insight = await insight_provider()
         except Exception as exc:  # noqa: BLE001
@@ -3550,6 +3757,9 @@ class SessionRuntimeManager:
                 if is_session_update:
                     updated_direction = active.planning_coordinator.last_session_direction
                     assert updated_direction is not None
+                    if (active.planner.discover_narrative_line is not None
+                            and updated_direction.direction is not active.session_direction.direction):
+                        active.planner.clear_discover_narrative()
                     active = DJSessionRuntime(
                         **{**active.__dict__, "session_direction": updated_direction}
                     )
@@ -3562,6 +3772,9 @@ class SessionRuntimeManager:
                     active.planner.record_spoken_moment()
                 if coordinated.moment_type is not DJMomentType.SILENCE and not is_session_update:
                     active = self._record_performance_memory(owner_profile_id, active)
+                    active = self._publish_discover_transition(
+                        owner_profile_id, active, coordinated, raw_insight, media_identity
+                    )
                     transition_decision = active.planner.evaluate_transition_after_moment(
                         triggering_intent=coordinated.knowledge_intent,
                         session_direction=active.session_direction,
@@ -3583,6 +3796,9 @@ class SessionRuntimeManager:
                             active = self._record_performance_memory(owner_profile_id, active)
                 else:
                     active = self._record_performance_memory(owner_profile_id, active)
+                    self._publish_discover_transition(
+                        owner_profile_id, active, coordinated, raw_insight, media_identity
+                    )
                 _LOGGER.debug(
                     "DJConnect Planning Runtime Coordinator lifecycle completed: approval_source=%s generation=%s",
                     active.planning_coordinator.last_approval_source,
@@ -3603,6 +3819,8 @@ class SessionRuntimeManager:
                 owner_profile_id, active
             )
             if legacy_moment is not None:
+                if active.planner.discover_narrative_line is not None:
+                    active.planner.clear_discover_narrative()
                 return legacy_moment
             decision = active.planner.evaluate_track_started(
                 session_start_strategy=active.session_start_strategy,
@@ -3623,10 +3841,15 @@ class SessionRuntimeManager:
                     reason=decision.reason,
                 )
                 active.publish_moment(moment)
-                self._record_performance_memory(owner_profile_id, active)
+                active = self._record_performance_memory(owner_profile_id, active)
+                self._publish_discover_transition(
+                    owner_profile_id, active, moment, raw_insight, media_identity
+                )
                 return moment
             intent = decision.knowledge_intent
             if intent is None:
+                if active.planner.discover_narrative_line is not None:
+                    active.planner.clear_discover_narrative()
                 return None
         try:
             knowledge = await active.knowledge_engine.async_assemble_track_context(
@@ -3663,6 +3886,10 @@ class SessionRuntimeManager:
             if moment.moment_type is not DJMomentType.SILENCE:
                 active.planner.record_spoken_moment()
             active.publish_moment(moment)
+            active = self._record_performance_memory(owner_profile_id, active)
+            active = self._publish_discover_transition(
+                owner_profile_id, active, moment, raw_insight, media_identity
+            )
             transition_decision = active.planner.evaluate_transition_after_moment(
                 triggering_intent=intent,
                 session_direction=active.session_direction,
@@ -3684,6 +3911,46 @@ class SessionRuntimeManager:
             self._record_performance_memory(owner_profile_id, active)
             return moment
 
+    def _publish_discover_transition(
+        self,
+        owner_profile_id: str,
+        active: DJSessionRuntime,
+        moment: DJMoment,
+        raw_insight: dict[str, Any],
+        media_identity: str,
+    ) -> DJSessionRuntime:
+        """Commit one approved Discover relation through the existing Flow path."""
+        if (
+            active.session_start_strategy is not SessionStartStrategy.DISCOVER
+            or active.last_accepted_media_identity != media_identity
+        ):
+            return active
+        evidence = active.knowledge_engine.select_discover_narrative_evidence(
+            raw_insight, media_identity
+        )
+        decision = active.planner.evaluate_discover_narrative_after_moment(
+            current_moment=moment,
+            strategy=active.session_start_strategy,
+            session_direction=active.session_direction,
+            selected_mood=active.selected_mood,
+            persona=active.dj_persona,
+            performance_memory=active.performance_memory,
+            evidence=evidence,
+        )
+        if decision is None:
+            return active
+        transition = active.moment_engine.create_transition(
+            session_id=active.session_id,
+            approval=decision,
+            selected_mood=active.selected_mood,
+            persona=active.dj_persona,
+            locale=active.locale,
+        )
+        if transition.moment_type is DJMomentType.TRANSITION:
+            active.publish_moment(transition, SessionFlowPosition(decision.transition_placement))
+            active = self._record_performance_memory(owner_profile_id, active)
+        return active
+
     def _apply_legacy_initial_track_started_decision(
         self, owner_profile_id: str, active: DJSessionRuntime
     ) -> tuple[DJSessionRuntime, DJMoment | None]:
@@ -3703,6 +3970,9 @@ class SessionRuntimeManager:
                 updated_at=_timestamp(),
                 start_strategy=active.session_direction.start_strategy,
             )
+            if (active.planner.discover_narrative_line is not None
+                    and updated_direction.direction is not active.session_direction.direction):
+                active.planner.clear_discover_narrative()
             active = DJSessionRuntime(
                 **{**active.__dict__, "session_direction": updated_direction}
             )
@@ -3774,6 +4044,9 @@ class SessionRuntimeManager:
             active = self._active_by_profile.get(owner_profile_id)
             if active is None or active.session_id != session_id:
                 return None
+            if (active.planner.discover_narrative_line is not None
+                    and selected_mood != active.selected_mood):
+                active.planner.clear_discover_narrative()
             active.broadcast.state = DJBroadcastState(**{**active.broadcast.state.__dict__, "selected_mood": selected_mood})
             active.broadcast._publish(BroadcastEventType.MOOD_CHANGED, {"session": active.broadcast.as_dict()["session"]})
             updated = DJSessionRuntime(**{**active.__dict__, "selected_mood": selected_mood})
@@ -3788,6 +4061,9 @@ class SessionRuntimeManager:
             active = self._active_by_profile.get(owner_profile_id)
             if active is None or active.session_id != session_id:
                 return None
+            if (active.planner.discover_narrative_line is not None
+                    and dj_persona is not active.dj_persona):
+                active.planner.clear_discover_narrative()
             updated = DJSessionRuntime(**{**active.__dict__, "dj_persona": dj_persona})
             self._active_by_profile[owner_profile_id] = updated
             return updated
@@ -3960,6 +4236,7 @@ class SessionRuntimeManager:
                             created_at=moment.created_at,
                         )
             active.broadcast.update_runtime_state(SessionRuntimeState.ENDING)
+            active.planner.clear_discover_narrative()
             ending = DJSessionRuntime(
                 **{**active.__dict__, "runtime_state": SessionRuntimeState.ENDING}
             )
@@ -4500,6 +4777,34 @@ def _valid_transition_approval(approval: PlannerDecision | None) -> bool:
         and all(approval.transition_moment_ids)
         and approval.transition_moment_ids[0] != approval.transition_moment_ids[1]
         and approval.transition_placement == SessionFlowPosition.NEXT.value
+        and approval.transition_relation in {"", "discover_same_artist_genre"}
+    )
+
+
+def _valid_discover_transition_context(
+    approval: PlannerDecision, source: DJMoment, target: DJMoment
+) -> bool:
+    """Keep the new relation tied to two real, compatible Moment payloads."""
+    if (source.moment_type is not DJMomentType.GENRE
+            or target.moment_type is not DJMomentType.TRACK
+            or len(approval.transition_context) != 4):
+        return False
+    context = dict(approval.transition_context)
+    if set(context) != {"genre", "artist", "source_track", "target_track"}:
+        return False
+    if not all(_narrative_label(value, 160) == value for value in context.values()):
+        return False
+    source_meta = dict(source.generation_metadata)
+    target_meta = dict(target.generation_metadata)
+    return bool(
+        context["genre"] == source.title
+        and source_meta.get("genre") == context["genre"]
+        and target_meta.get("genre") == context["genre"]
+        and source_meta.get("artist") == context["artist"]
+        and target_meta.get("artist") == context["artist"]
+        and source_meta.get("track_title") == context["source_track"]
+        and target_meta.get("track_title") == context["target_track"]
+        and context["source_track"] != context["target_track"]
     )
 
 
@@ -4545,6 +4850,16 @@ def _track_key(track: dict[str, Any]) -> str:
 
 def _bounded_text(value: Any, limit: int) -> str:
     return str(value or "").strip()[:limit]
+
+
+def _narrative_label(value: Any, limit: int) -> str:
+    """Keep an exact, single-line producer label without silently truncating it."""
+    if not isinstance(value, str):
+        return ""
+    label = value.strip()
+    if not label or len(label) > limit or any(ord(char) < 32 or ord(char) == 127 for char in label):
+        return ""
+    return label
 
 
 def _safe_artwork_url(value: Any) -> str:
@@ -4636,6 +4951,39 @@ def _transition_copy(locale: str, part: str, source: str, target: str) -> str:
     }
     index = {"title": 0, "summary": 1, "content": 2}[part]
     return copy[_locale_family(locale)][index].format(source=source, target=target)
+
+
+def _discover_transition_copy(locale: str, part: str, context: dict[str, str]) -> str:
+    """Describe only the observed same-artist, artist-genre relationship."""
+    copy = {
+        "en": (
+            "More from {artist}",
+            "{target_track} continues the {artist} thread opened by {source_track}.",
+            "{source_track} brought us to {artist}. Their {genre} side gives us a thread to follow into {target_track}.",
+        ),
+        "nl": (
+            "Meer van {artist}",
+            "{target_track} volgt de lijn van {artist} die bij {source_track} begon.",
+            "{source_track} bracht ons bij {artist}. De {genre}-kant van die artiest geeft ons een draad om met {target_track} te volgen.",
+        ),
+        "de": (
+            "Mehr von {artist}",
+            "{target_track} führt den mit {source_track} begonnenen Faden von {artist} fort.",
+            "{source_track} hat uns zu {artist} geführt. Die {genre}-Seite dieses Künstlers gibt uns einen Faden, dem wir mit {target_track} folgen.",
+        ),
+        "fr": (
+            "Encore {artist}",
+            "{target_track} poursuit le fil de {artist} ouvert avec {source_track}.",
+            "{source_track} nous a menés à {artist}. Sa facette {genre} nous donne un fil à suivre avec {target_track}.",
+        ),
+        "es": (
+            "Más de {artist}",
+            "{target_track} sigue el hilo de {artist} iniciado con {source_track}.",
+            "{source_track} nos llevó a {artist}. Su faceta {genre} nos da un hilo que seguir con {target_track}.",
+        ),
+    }
+    index = {"title": 0, "summary": 1, "content": 2}[part]
+    return copy[_locale_family(locale)][index].format(**context)
 
 
 def _payload_contains_owner_only_moment(payload: dict[str, Any]) -> bool:

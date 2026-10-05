@@ -60,7 +60,8 @@ class DiscoverNarrativeTests(unittest.TestCase):
     def insight_for(self, playback, number, *, evidence=None, analysis_genre="ambient",
                     track_title=None, track_artist=None, related_tracks=None):
         track = self.insight._track_contract(
-            playback, types.SimpleNamespace(config={"music_backend": "spotify_direct"}),
+            {**playback, "_status_provider": "spotify_direct"},
+            types.SimpleNamespace(config={"music_backend": "spotify_direct"}),
             self.insight.TrackInsightRequest(music_backend="spotify_direct"),
         )
         if track_title is not None:
@@ -134,14 +135,21 @@ class DiscoverNarrativeTests(unittest.TestCase):
         current = self.playback("First Light", 2)
         self.assertEqual(current["genres"], ["ambient"])
         self.assertEqual(current["uri"], "spotify:track:0000000000000000000002")
+        wrong_adapter = self.insight._track_contract(
+            {**current, "_status_provider": "music_assistant"},
+            InsightRuntime(),
+            self.insight.TrackInsightRequest(music_backend="spotify_direct"),
+        )
+        self.assertNotIn("_session_narrative_evidence", wrong_adapter)
         hass = FakeHass('{"summary":"Context","full_text":"Detail","genre":"ambient"}')
 
         async def status(_hass, _runtime, command, value=None):
             self.assertEqual(command, "status")
-            return {"playback": current}
+            return {"provider": "spotify_direct", "playback": current}
 
-        original = self.insight.run_music_command
-        self.insight.run_music_command = status
+        service_globals = self.insight.TrackInsightService._resolve_track.__globals__
+        original = service_globals["run_music_command"]
+        service_globals["run_music_command"] = status
         try:
             for order in (("public", "internal"), ("internal", "public")):
                 runtime = InsightRuntime()
@@ -161,7 +169,26 @@ class DiscoverNarrativeTests(unittest.TestCase):
                 self.assertNotIn(ARTIST, str(result["public"]))
                 self.assertNotIn(current["uri"], str(result["public"]))
         finally:
-            self.insight.run_music_command = original
+            service_globals["run_music_command"] = original
+
+    def test_spotify_shaped_status_from_other_adapter_has_no_private_proof(self):
+        playback = self.playback("First Light", 2)
+        hass = FakeHass('{"summary":"Context","full_text":"Detail","genre":"ambient"}')
+
+        async def status(_hass, _runtime, command, value=None):
+            return {"provider": "music_assistant", "playback": playback}
+
+        service_globals = self.api.TrackInsightService._resolve_track.__globals__
+        original = service_globals["run_music_command"]
+        service_globals["run_music_command"] = status
+        try:
+            result = asyncio.run(self.api.TrackInsightService().async_analyze(
+                hass, InsightRuntime(), {"music_backend": "spotify_direct"},
+                source="session_moment", session_evidence=True,
+            ))
+        finally:
+            service_globals["run_music_command"] = original
+        self.assertNotIn("_session_narrative_evidence", result)
 
     def test_valid_observed_genre_to_track_is_a_visible_single_transition(self):
         _, session, _, source, target = self.sequence()
@@ -180,6 +207,43 @@ class DiscoverNarrativeTests(unittest.TestCase):
         flow = [item.moment_id for item in session.planner.output.session_flow.items if item.moment_id]
         self.assertEqual(flow[-3:], [source.moment_id, target.moment_id, bridge.moment_id])
         self.assertEqual(session.broadcast.as_dict()["dj_moments"][-1]["moment_id"], bridge.moment_id)
+
+    def test_relation_copy_is_substantive_in_each_supported_language(self):
+        for locale in ("en", "nl", "de", "fr", "es"):
+            with self.subTest(locale=locale):
+                _, session, _, _, _ = self.sequence(locale=locale)
+                self.assertEqual(len(self.bridges(session)), 1)
+                bridge = self.bridges(session)[0]
+                for value in ("ambient", "Example Artist", "First Light", "Second Light"):
+                    self.assertIn(value, bridge.content)
+                self.assertNotIn("spotify:track:", bridge.content)
+
+    def test_public_track_conflict_cannot_be_hidden_by_private_status_evidence(self):
+        for changes in ({"track_title": "Conflicting title"},
+                        {"track_artist": "Conflicting artist"}):
+            with self.subTest(changes=changes):
+                manager, session, clock = self.start(profile="public-conflict")
+                self.event(manager, session, clock, self.playback("Baseline", 1), 1)
+                self.event(manager, session, clock, self.playback("First Light", 2), 2,
+                           **changes)
+                self.event(manager, session, clock, self.playback("Second Light", 3), 3)
+                self.assertEqual(self.bridges(session), [])
+
+    def test_recent_transition_blocks_opening_a_new_line(self):
+        manager, session, clock = self.start(profile="spacing")
+        self.event(manager, session, clock, self.playback("Baseline", 1), 1)
+        recent = session.moment_engine.create_silence(
+            session_id=session.session_id, selected_mood=session.selected_mood,
+            persona=session.dj_persona, locale=session.locale, reason="spacing_test")
+        recent = replace(recent, moment_type=self.core.DJMomentType.TRANSITION)
+        session.moment_engine.moments = (*session.moment_engine.moments[:-1], recent)
+        session.publish_moment(recent)
+        manager._record_performance_memory(session.owner_profile_id, session)
+        self.event(manager, session, clock, self.playback("First Light", 2), 2)
+        self.event(manager, session, clock, self.playback("Second Light", 3), 3)
+        self.assertFalse(any(dict(m.generation_metadata).get("relation")
+                             == "discover_same_artist_genre"
+                             for m in session.moment_engine.moments))
 
     def test_missing_ambiguous_conflicting_or_stale_context_never_bridges(self):
         cases = (
@@ -238,7 +302,29 @@ class DiscoverNarrativeTests(unittest.TestCase):
                                 direction=self.core.SessionDirectionType.RETURNING))
                     else:
                         session.republish_session_flow()
+                        self.assertIsNone(session.planner.discover_narrative_line)
                     self.event(manager, session, clock, self.playback("Second Light", 3), 3)
+                self.assertEqual(self.bridges(session), [])
+
+    def test_mood_and_persona_round_trip_cannot_reopen_a_pending_line(self):
+        for change in ("mood", "persona"):
+            with self.subTest(change=change):
+                manager, session, clock = self.start(profile=f"round-trip-{change}")
+                self.event(manager, session, clock, self.playback("Baseline", 1), 1)
+                self.event(manager, session, clock, self.playback("First Light", 2), 2)
+                self.assertIsNotNone(session.planner.discover_narrative_line)
+                if change == "mood":
+                    for value in ("energy", "groove"):
+                        asyncio.run(manager.async_update_mood(
+                            owner_profile_id=session.owner_profile_id,
+                            session_id=session.session_id, selected_mood=value))
+                else:
+                    for value in (self.core.DJPersona.RADIO_DJ, self.core.DJPersona.HOME_DJ):
+                        asyncio.run(manager.async_update_persona(
+                            owner_profile_id=session.owner_profile_id,
+                            session_id=session.session_id, dj_persona=value))
+                self.assertIsNone(session.planner.discover_narrative_line)
+                self.event(manager, session, clock, self.playback("Second Light", 3), 3)
                 self.assertEqual(self.bridges(session), [])
 
     def test_completed_line_single_use_and_session_end_drops_pending_line(self):
@@ -251,6 +337,7 @@ class DiscoverNarrativeTests(unittest.TestCase):
         self.event(manager, old, clock, self.playback("Baseline", 21), 21)
         self.event(manager, old, clock, self.playback("First Light", 22), 22)
         asyncio.run(manager.async_end(owner_profile_id=old.owner_profile_id))
+        self.assertIsNone(old.planner.discover_narrative_line)
         new = asyncio.run(manager.async_start(
             owner_profile_id=old.owner_profile_id, selected_mood="groove",
             session_start_strategy=self.core.SessionStartStrategy.DISCOVER,
@@ -275,12 +362,25 @@ class DiscoverNarrativeTests(unittest.TestCase):
 
         async def status(_hass, _runtime, command, value=None):
             self.assertEqual(command, "status")
-            return {"playback": current["playback"]}
+            return {"provider": "spotify_direct", "playback": current["playback"]}
 
-        original = self.insight.run_music_command
-        self.insight.run_music_command = status
+        service_globals = self.api.TrackInsightService._resolve_track.__globals__
+        original = service_globals["run_music_command"]
+        service_globals["run_music_command"] = status
         try:
-            provider = self.api._session_track_insight_provider(hass, runtime, session)
+            production_provider = self.api._session_track_insight_provider(hass, runtime, session)
+
+            async def provider():
+                result = await production_provider()
+                # Other suites replace the Assist stub; keep this test focused on
+                # the real status/Insight identity and genre producer.
+                title = result["track"]["title"]
+                result["analysis"].update({
+                    "summary": f"Observed context for {title}.",
+                    "full_text": f"A bounded explanation for {title}.",
+                    "genre": "ambient",
+                })
+                return result
             results = []
             for number, title in ((1, "Baseline"), (2, "First Light"), (3, "Second Light")):
                 playback = self.playback(title, number)
@@ -296,7 +396,7 @@ class DiscoverNarrativeTests(unittest.TestCase):
                     insight_provider=provider)))
                 clock[0] += 75.0
         finally:
-            self.insight.run_music_command = original
+            service_globals["run_music_command"] = original
         self.assertIsNone(results[0])
         self.assertEqual(results[1].moment_type, self.core.DJMomentType.GENRE)
         self.assertEqual(results[2].moment_type, self.core.DJMomentType.TRACK)

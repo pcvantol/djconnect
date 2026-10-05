@@ -201,6 +201,7 @@ def _session_track_insight_provider(
                 ),
             },
             source="session_moment",
+            session_evidence=True,
         )
 
     return insight_provider
