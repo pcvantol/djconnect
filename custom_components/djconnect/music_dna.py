@@ -9,7 +9,12 @@ import re
 import uuid
 from typing import Any, Callable
 
-from .const import CONF_CLIENT_TYPE, CONF_DEVICE_ID, CONF_DEVICE_NAME
+from .const import (
+    CONF_CLIENT_TYPE,
+    CONF_DEVICE_ID,
+    CONF_DEVICE_NAME,
+    CONF_MUSIC_BACKEND_REVISION,
+)
 from .mood import mood_zone_for_value
 
 _LOGGER = logging.getLogger(__name__)
@@ -759,6 +764,7 @@ class MusicDNAManager:
                 "created_at": now,
                 "expires_at": _timestamp_after(PENDING_FOLLOWUP_TTL_SECONDS),
                 "handled": False,
+                "music_backend_revision": _runtime_music_backend_revision(runtime),
             }
         )
         memory["pending_followup"] = pending
@@ -778,6 +784,8 @@ class MusicDNAManager:
         memory = self._memory_for_key(key)
         pending = memory.get("pending_followup")
         if not isinstance(pending, dict) or pending.get("handled"):
+            return {}
+        if await self._async_invalidate_stale_followup(runtime, memory, pending):
             return {}
         if _parse_timestamp(pending.get("expires_at")) is not None and _parse_timestamp(pending.get("expires_at")) < datetime.now(timezone.utc):
             pending["handled"] = True
@@ -800,12 +808,29 @@ class MusicDNAManager:
         pending = memory.get("pending_followup")
         if not isinstance(pending, dict) or pending.get("handled"):
             return {}
+        if await self._async_invalidate_stale_followup(runtime, memory, pending):
+            return {}
         now = _now()
         pending["handled"] = True
         pending["handled_at"] = now
         memory["updated_at"] = now
         await self.async_save()
         return deepcopy(pending)
+
+    async def _async_invalidate_stale_followup(
+        self, runtime: Any, memory: dict[str, Any], pending: dict[str, Any]
+    ) -> bool:
+        """Reject a stored confirmation from an earlier backend revision."""
+        if _safe_revision(pending.get("music_backend_revision")) == _runtime_music_backend_revision(runtime):
+            return False
+        pending.update(
+            handled=True,
+            stale=True,
+            stale_reason="music_backend_changed",
+        )
+        memory["updated_at"] = _now()
+        await self.async_save()
+        return True
 
     async def async_context_for_runtime(
         self,
@@ -1119,6 +1144,18 @@ def _normalize_store_data(data: Any) -> dict[str, Any]:
     if not isinstance(memories, dict):
         memories = {}
     return {"version": STORE_VERSION, "memories": deepcopy(memories)}
+
+
+def _safe_revision(value: Any) -> int:
+    try:
+        return max(0, int(value or 0))
+    except (TypeError, ValueError):
+        return 0
+
+
+def _runtime_music_backend_revision(runtime: Any) -> int:
+    config = getattr(runtime, "config", {}) or {}
+    return _safe_revision(config.get(CONF_MUSIC_BACKEND_REVISION))
 
 
 def _compact_store_data(data: dict[str, Any]) -> dict[str, Any]:

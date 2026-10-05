@@ -1309,6 +1309,20 @@ async def _status_playback_payload(hass: Any, runtime: Any) -> dict[str, Any]:
         runtime.device_status["backend_available"] = False
         return _status_playback_unavailable_payload()
 
+    if (
+        not isinstance(result, dict)
+        or result.get("success") is False
+        or result.get("backend_available") is False
+    ):
+        runtime.last_playback = {}
+        runtime.device_status["backend_available"] = False
+        error_code = (
+            str(result.get("error") or "playback_backend_unavailable")
+            if isinstance(result, dict)
+            else "playback_backend_unavailable"
+        )
+        runtime.update(last_error=error_code)
+        return _status_playback_unavailable_payload()
     playback = result.get("playback")
     if not isinstance(playback, dict) or "has_playback" not in playback:
         playback = {"has_playback": False}
@@ -1478,6 +1492,13 @@ async def _handle_ask_dj_play_recommendation(
         return stale
     backend_meta = music_backend_metadata(hass, runtime)
     selected_backend = str(backend_meta.get("music_backend") or "").strip()
+    if selected_backend == "later_manual":
+        return {
+            "success": False,
+            "error": "music_backend_not_configured",
+            "message": backend_meta["music_backend_error"]["message"],
+            **backend_meta,
+        }
     if selected_backend == "music_assistant":
         return await _play_music_assistant_recommendation(
             hass, runtime, recommendation, request_payload, backend_meta, user_id=user_id
@@ -2149,7 +2170,11 @@ def _normalize_recommendation_value(value: dict[str, Any]) -> dict[str, Any]:
 
 def _stale_backend_action_error(runtime: Any, action: dict[str, Any]) -> dict[str, Any]:
     current = getattr(runtime, "config", {}) or {}
-    current_backend = str(current.get(CONF_MUSIC_BACKEND) or "spotify_direct").strip()
+    current_backend = str(
+        getattr(runtime, "profile_context_backend_id", "")
+        or current.get(CONF_MUSIC_BACKEND)
+        or "spotify_direct"
+    ).strip()
     action_backend = str(action.get("backend") or "").strip()
     if action_backend and action_backend != current_backend:
         return _stale_backend_action_payload()
@@ -2688,10 +2713,17 @@ async def _status_backend_availability(
     if _client_status_uses_backend_playback(client_type):
         response.update(await _status_playback_payload(hass, runtime))
         return bool(response.get("backend_available"))
-    backend_available = bool(response.get("music_backend_available")) if response.get("music_backend") == "music_assistant" else bool(_current_spotify_credentials_for_status(hass, runtime))
+    backend_available = (
+        bool(_current_spotify_credentials_for_status(hass, runtime))
+        if response.get("music_backend") == "spotify_direct"
+        else bool(response.get("music_backend_available"))
+    )
     response["backend_available"] = backend_available
     playback = response.get("playback")
-    if not isinstance(playback, dict) or "has_playback" not in playback:
+    if not backend_available:
+        response["playback"] = {"has_playback": False}
+        runtime.last_playback = {}
+    elif not isinstance(playback, dict) or "has_playback" not in playback:
         response["playback"] = {"has_playback": False}
     return backend_available
 

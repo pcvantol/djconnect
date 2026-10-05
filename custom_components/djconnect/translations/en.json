@@ -264,7 +264,7 @@
           "music_backend": "Music backend"
         },
         "data_description": {
-          "music_backend": "Choose Spotify Direct or Music Assistant. Spotify is a trademark of Spotify AB. DJConnect is not affiliated with, endorsed by or sponsored by Spotify AB."
+          "music_backend": "Choose Spotify Direct, Music Assistant or Later / manual. Spotify is a trademark of Spotify AB. DJConnect is not affiliated with, endorsed by or sponsored by Spotify AB."
         }
       },
       "music_assistant": {
@@ -363,12 +363,12 @@
       },
       "music_backend": {
         "title": "Change music backend",
-        "description": "Current backend is shown below. Switching keeps pairing, device tokens, Ask DJ history, Music DNA and push registrations. Music DNA export/import uses HTTP and remains protected by server-side opt-in. Older backend-specific Ask DJ playback actions or recommendations may no longer be executable.",
+        "description": "This choice also changes the linked profile's backend. You can return to manual later. Switching preserves pairing, device tokens, Ask DJ history, Music DNA and push registrations. Older backend-specific actions may no longer work.",
         "data": {
           "music_backend": "Music backend"
         },
         "data_description": {
-          "music_backend": "Choose Spotify Direct or Music Assistant. Spotify is a trademark of Spotify AB. DJConnect is not affiliated with, endorsed by or sponsored by Spotify AB."
+          "music_backend": "Choose Spotify Direct, Music Assistant or Later / manual. Spotify is a trademark of Spotify AB. DJConnect is not affiliated with, endorsed by or sponsored by Spotify AB."
         }
       },
       "music_assistant_player": {
@@ -436,6 +436,8 @@
       "announcement_speaker_no_play_media": "Choose a media_player that can play audio.",
       "spotify_oauth_required": "Spotify OAuth is required before Spotify Direct can become active.",
       "backend_switch_failed": "DJConnect could not switch the music backend. Check the selected backend and try again.",
+      "profile_platform_failed": "The linked profile could not be updated. Check device pairing and try again.",
+      "profile_shared_backend_change": "This profile is linked to multiple devices. Link this device to its own profile before changing the music backend.",
       "invalid_voice_profile": "Choose a supported DJ voice profile."
     }
   },

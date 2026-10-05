@@ -163,6 +163,7 @@ from .use_cases import music_backend_metadata, run_music_command, run_text_comma
 from .websocket_api import async_register as async_register_websocket_api
 
 _LOGGER = logging.getLogger(__name__)
+_ENTRY_RELOAD_PRESERVE_KEY = "entry_reload_preserve_user_state"
 
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
@@ -3189,7 +3190,12 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         if runtime and runtime.entry.entry_id == entry.entry_id:
             hass.data[DOMAIN].pop("runtime", None)
         if not _has_runtime_entries(hass):
-            await _async_clear_all_server_state(hass)
+            if entry.entry_id in hass.data[DOMAIN].get(_ENTRY_RELOAD_PRESERVE_KEY, set()):
+                handoff_manager = hass.data[DOMAIN].pop("broadcast_handoff_manager", None)
+                if handoff_manager is not None:
+                    await handoff_manager.clear()
+            else:
+                await _async_clear_all_server_state(hass)
             await async_shutdown_persistence(hass)
     return unloaded
 
@@ -3291,7 +3297,14 @@ async def _async_update_listener(hass: HomeAssistant, entry: ConfigEntry) -> Non
             "DJConnect config entry update only changed runtime cache fields; skipping reload"
         )
         return
-    await hass.config_entries.async_reload(entry.entry_id)
+    preserving = domain_data.setdefault(_ENTRY_RELOAD_PRESERVE_KEY, set())
+    preserving.add(entry.entry_id)
+    try:
+        await hass.config_entries.async_reload(entry.entry_id)
+    finally:
+        preserving.discard(entry.entry_id)
+        if not preserving:
+            domain_data.pop(_ENTRY_RELOAD_PRESERVE_KEY, None)
 
 
 def _entry_reload_signature(entry: ConfigEntry) -> tuple[tuple[str, Any], tuple[str, Any]]:

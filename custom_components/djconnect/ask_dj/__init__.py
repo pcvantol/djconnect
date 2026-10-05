@@ -18,8 +18,10 @@ from ..const import (
     CONF_CLIENT_TYPE,
     CONF_DEVICE_ID,
     CONF_DEVICE_NAME,
+    CONF_MUSIC_BACKEND,
     DEFAULT_TTS_LANGUAGE,
     DOMAIN,
+    MUSIC_BACKEND_LATER_MANUAL,
 )
 from ..announcements import async_apply_announcement_output
 from ..dj_response import async_create_dj_audio_url
@@ -1475,13 +1477,34 @@ async def _handle_action(
     raise ValueError(f"Unsupported Ask DJ action: {action}")
 
 
+def _failed_backend_action(result: Any) -> dict[str, Any] | None:
+    """Keep a failed backend command from becoming an Ask DJ success claim."""
+    if not isinstance(result, dict) or result.get("success") is not False:
+        return None
+    message = str(result.get("message") or result.get("text") or "Playback is unavailable.")
+    return {
+        "success": False,
+        "error": str(result.get("error") or "playback_unavailable"),
+        "text": message,
+        "dj_text": message,
+        "images": [],
+        "links": [],
+        "sources": [],
+        "playback_actions": [],
+    }
+
+
 async def _volume_delta_response(hass: HomeAssistant, runtime: Any, classification: AskDjIntent) -> dict[str, Any]:
     status = await run_music_command(hass, runtime, "status")
+    if failure := _failed_backend_action(status):
+        return failure
     playback = status.get("playback") if isinstance(status, dict) else {}
     current = _playback_volume(playback, runtime)
     if current is None:
         return {"success": False, "text": "Ik kan het huidige volume nu niet bepalen.", "error": "playback_unavailable"}
-    await run_music_command(hass, runtime, "set_volume", max(0, min(60, current + int(classification.value or 0))))
+    result = await run_music_command(hass, runtime, "set_volume", max(0, min(60, current + int(classification.value or 0))))
+    if failure := _failed_backend_action(result):
+        return failure
     text = "Ik heb het volume aangepast."
     return {"success": True, "text": text, "dj_text": text, "playback": {}, "images": [], "links": [], "sources": [], "items": [], "audio_url": None, "playback_actions": _volume_control_actions()}
 
@@ -1490,12 +1513,16 @@ async def _playback_action_response(hass: HomeAssistant, runtime: Any, text: str
     if action in {"next", "previous"}:
         return await _skip_playback_action_response(hass, runtime, text, action)
     result = await run_music_command(hass, runtime, action)
+    if failure := _failed_backend_action(result):
+        return failure
     text_response = _action_text(action)
     return {"success": True, "text": text_response, "dj_text": text_response, "playback": result.get("playback") if isinstance(result, dict) else {}, "images": [], "links": [], "sources": [], "playback_actions": _playback_control_actions(action)}
 
 
 async def _skip_playback_action_response(hass: HomeAssistant, runtime: Any, text: str, action: str) -> dict[str, Any]:
     result = await run_text_command(hass, runtime, text, play=True, correct_stt=False)
+    if failure := _failed_backend_action(result):
+        return failure
     text_response = str(result.get("dj_text") or result.get("text") or _action_text(action)).strip()
     queue_action = await _next_queue_playback_action(hass, runtime, current_playback=result.get("playback") if isinstance(result, dict) else {})
     actions = [queue_action] if queue_action else []
@@ -1503,7 +1530,9 @@ async def _skip_playback_action_response(hass: HomeAssistant, runtime: Any, text
 
 
 async def _toggle_playback_response(hass: HomeAssistant, runtime: Any, command: str, value: Any) -> dict[str, Any]:
-    await run_music_command(hass, runtime, command, value)
+    result = await run_music_command(hass, runtime, command, value)
+    if failure := _failed_backend_action(result):
+        return failure
     text = ("Shuffle staat aan." if value else "Shuffle staat uit.") if command == "set_shuffle" else ("Repeat is uitgezet." if value == "off" else "Repeat is aangezet.")
     return {"success": True, "text": text, "dj_text": text, "images": []}
 
@@ -1511,6 +1540,8 @@ async def _toggle_playback_response(hass: HomeAssistant, runtime: Any, command: 
 async def _favorite_action_response(hass: HomeAssistant, runtime: Any, action: str, value: Any, payload: dict[str, Any] | None, user_id: str | None) -> dict[str, Any]:
     command = "set_current_track_favorite" if action == "set_current_track_favorite" else "save_current_track"
     result = await run_music_command(hass, runtime, command, value)
+    if failure := _failed_backend_action(result):
+        return failure
     playback = result.get("playback") if isinstance(result, dict) else {}
     favorite_status = _playback_favorite_status(playback) if isinstance(playback, dict) else None
     await _async_record_favorite_preference(runtime, playback, favorite_status, payload, user_id)
@@ -2238,7 +2269,7 @@ async def _informational_intent_response(
     if _is_slang_track_info_request(text):
         return await _current_track_reference_response(hass, runtime, payload, playback_context)
     if ask_intent.action == "status":
-        return _playback_status_response(text, playback_context)
+        return _playback_status_response(text, playback_context, runtime)
     if ask_intent.intent == "save_generated_playlist":
         return await _save_generated_playlist(hass, runtime, text, memory_context)
     if ask_intent.intent == "song_recommendations":
@@ -7468,22 +7499,23 @@ def _playlist_search_playback_actions(
         )
         title = str(playlist.get("title") or playlist.get("name") or uri).strip()
         subtitle = str(playlist.get("subtitle") or playlist.get("owner") or "Spotify playlist").strip()
-        actions.append(
-            build_playback_action(
-                _first_runtime(hass),
-                {
-                    **playlist,
-                    "uri": uri,
-                    "context_uri": uri,
-                    "title": title,
-                    "subtitle": subtitle,
-                    "image_url": proxy_image,
-                    "thumbnail_url": proxy_image,
-                },
-                "playlist",
-                "Spotify playlist-resultaat op basis van je Ask DJ vraag.",
-            )
+        action = build_playback_action(
+            _first_runtime(hass),
+            {
+                **playlist,
+                "uri": uri,
+                "context_uri": uri,
+                "title": title,
+                "subtitle": subtitle,
+                "image_url": proxy_image,
+                "thumbnail_url": proxy_image,
+            },
+            "playlist",
+            "Spotify playlist-resultaat op basis van je Ask DJ vraag.",
         )
+        if not action:
+            continue
+        actions.append(action)
         if len(actions) >= limit:
             break
     return actions
@@ -7520,22 +7552,23 @@ def _album_search_playback_actions(
         )
         title = str(album.get("title") or album.get("name") or uri).strip()
         subtitle = str(album.get("subtitle") or album.get("artist") or album.get("artist_name") or "").strip()
-        actions.append(
-            build_playback_action(
-                _first_runtime(hass),
-                {
-                    **album,
-                    "uri": uri,
-                    "context_uri": uri,
-                    "title": title,
-                    "subtitle": subtitle,
-                    "image_url": proxy_image,
-                    "thumbnail_url": proxy_image,
-                },
-                "album",
-                "Spotify album-resultaat op basis van je Ask DJ vraag.",
-            )
+        action = build_playback_action(
+            _first_runtime(hass),
+            {
+                **album,
+                "uri": uri,
+                "context_uri": uri,
+                "title": title,
+                "subtitle": subtitle,
+                "image_url": proxy_image,
+                "thumbnail_url": proxy_image,
+            },
+            "album",
+            "Spotify album-resultaat op basis van je Ask DJ vraag.",
         )
+        if not action:
+            continue
+        actions.append(action)
         if len(actions) >= limit:
             break
     return actions
@@ -8104,6 +8137,8 @@ def _recommendation_playback_actions(
             kind,
             reason,
         )
+        if not action:
+            continue
         if kind == "track":
             context_uri = str(item.get("context_uri") or "").strip()
             if context_uri:
@@ -8179,7 +8214,7 @@ def _personal_artist_recommendation_actions(
     seen: set[str] = set()
     for item in candidates:
         action = _personal_artist_recommendation_action(hass, runtime, item, seen)
-        if action is None:
+        if not action:
             continue
         actions.append(action)
         if len(actions) >= limit:
@@ -8234,6 +8269,8 @@ def _personal_artist_recommendation_action(
         {**item, "item_id": item_id or f"djconnect:artist:{key}", "title": name, "subtitle": subtitle, "image_url": proxy_image},
         "artist", "Past bij je luisterprofiel en Music DNA.",
     )
+    if not action:
+        return None
     if not item_id:
         action.update(label="", button_label="", action_style="info")
     return {field: value for field, value in action.items() if value not in ("", None, [])}
@@ -8282,6 +8319,8 @@ def _play_now_action_from_spotify_item(
         kind,
         "Voor je klaargezet terwijl het huidige nummer doorspeelt.",
     )
+    if not action:
+        return {}
     context_uri = str(item.get("context_uri") or "").strip()
     if kind == "track" and context_uri:
         action["context_uri"] = context_uri
@@ -9387,8 +9426,15 @@ def _current_output_text(playback: dict[str, Any]) -> str:
     return f"Muziek speelt nu op {name}." if name else "Ik kan nu niet zien waarop muziek speelt."
 
 
-def _playback_status_response(text: str, playback: dict[str, Any]) -> dict[str, Any]:
+def _playback_status_response(
+    text: str, playback: dict[str, Any], runtime: Any
+) -> dict[str, Any]:
     normalized = _normalize(text)
+    selected_backend = (
+        getattr(runtime, "profile_context_backend_id", "")
+        or getattr(runtime, "config", {}).get(CONF_MUSIC_BACKEND)
+    )
+    manual_backend = selected_backend == MUSIC_BACKEND_LATER_MANUAL
     if "shuffle" in normalized:
         enabled = _playback_shuffle_enabled(playback)
         message = (
@@ -9407,7 +9453,7 @@ def _playback_status_response(text: str, playback: dict[str, Any]) -> dict[str, 
             "sources": [],
             "items": [],
             "audio_url": None,
-            "playback_actions": [_shuffle_toggle_action(enabled)],
+            "playback_actions": [] if manual_backend else [_shuffle_toggle_action(enabled)],
         }
     if "repeat" in normalized or "herhaal" in normalized:
         repeat_state = _playback_repeat_state(playback)
@@ -9421,7 +9467,7 @@ def _playback_status_response(text: str, playback: dict[str, Any]) -> dict[str, 
             "sources": [],
             "items": [],
             "audio_url": None,
-            "playback_actions": _repeat_option_actions(repeat_state),
+            "playback_actions": [] if manual_backend else _repeat_option_actions(repeat_state),
         }
     message = _current_output_text(playback)
     return {"success": True, "text": message, "dj_text": message}

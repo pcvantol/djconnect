@@ -3987,6 +3987,73 @@ class VoiceHttpHelperTest(unittest.TestCase):
         self.assertEqual(payload["music_backend"], "music_assistant")
         self.assertEqual(payload["music_backend_revision"], 4)
 
+    def test_manual_backend_rejects_unversioned_spotify_recommendation(self) -> None:
+        runtime = types.SimpleNamespace(config={"music_backend": "later_manual"})
+        result = asyncio.run(
+            self.http._handle_ask_dj_play_recommendation(
+                types.SimpleNamespace(),
+                runtime,
+                {"kind": "track", "uri": "spotify:track:abc"},
+                {},
+            )
+        )
+
+        self.assertFalse(result["success"])
+        self.assertEqual(result["error"], "music_backend_not_configured")
+        self.assertEqual(result["music_backend"], "later_manual")
+
+    def test_manual_backend_app_status_clears_cached_playback(self) -> None:
+        runtime = types.SimpleNamespace(
+            config={"music_backend": "later_manual"},
+            device_status={},
+            last_playback={"track_name": "Earlier track"},
+            update=lambda **kwargs: None,
+        )
+
+        result = asyncio.run(
+            self.http._status_playback_payload(types.SimpleNamespace(), runtime)
+        )
+
+        self.assertFalse(result["backend_available"])
+        self.assertEqual(result["playback"], {"has_playback": False})
+        self.assertEqual(runtime.last_playback, {})
+
+    def test_manual_backend_pi_status_ignores_stored_spotify_credentials(self) -> None:
+        runtime = types.SimpleNamespace(
+            config={"music_backend": "later_manual", "spotify_refresh_token": "test-only"},
+            last_playback={"track_name": "Earlier track"},
+            get_current_spotify_credentials=lambda: {
+                "client_id": "test-client-id",
+                "refresh_token": "test-only",
+            },
+        )
+        response = {
+            **self.http.music_backend_metadata(types.SimpleNamespace(), runtime),
+            "playback": runtime.last_playback,
+        }
+
+        available = asyncio.run(
+            self.http._status_backend_availability(
+                types.SimpleNamespace(), runtime, response, "raspberry_pi"
+            )
+        )
+
+        self.assertFalse(available)
+        self.assertFalse(response["backend_available"])
+        self.assertEqual(response["playback"], {"has_playback": False})
+
+    def test_resolved_profile_backend_rejects_stale_entry_action(self) -> None:
+        runtime = types.SimpleNamespace(
+            config={"music_backend": "spotify_direct", "music_backend_revision": 2},
+            profile_context_backend_id="later_manual",
+        )
+
+        result = self.http._stale_backend_action_error(
+            runtime, {"backend": "spotify_direct", "music_backend_revision": 2}
+        )
+
+        self.assertEqual(result["error"], "stale_backend_action")
+
     def test_command_view_plays_ask_dj_recommendation_and_records_memory(self) -> None:
         const = importlib.import_module("custom_components.djconnect.const")
         calls = []

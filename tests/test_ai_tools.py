@@ -173,6 +173,58 @@ class AIToolsTest(unittest.TestCase):
         self.assertEqual(executed["action"], "executed")
         self.assertEqual(calls, [("play_uris", {"uris": ["spotify:track:black"]}, True)])
 
+    def test_prepared_playback_is_stale_after_backend_revision_change_and_reload(self) -> None:
+        class Store:
+            data = None
+
+            async def async_load(self):
+                return self.data
+
+            async def async_save(self, data):
+                self.data = data
+
+        memory_type = importlib.import_module(
+            "custom_components.djconnect.music_dna"
+        ).MusicDNAManager
+        store = Store()
+        self.runtime.config["music_backend_revision"] = 2
+        self.runtime.memory = memory_type(store=store)
+        prepared = asyncio.run(
+            self.ai_tools.async_call_ai_tool(
+                self.hass,
+                self.runtime,
+                "djconnect_prepare_playback_action",
+                {"title": "Black", "uri": "spotify:track:black", "kind": "track"},
+            )
+        )
+        self.assertTrue(prepared["success"])
+
+        self.runtime.config["music_backend_revision"] = 3
+        self.runtime.memory = memory_type(store=store)
+        calls = []
+
+        async def run_music_command(hass, runtime, command, value=None, *, play=None):
+            calls.append(command)
+            return {"success": True}
+
+        original = self.tool_handlers.run_music_command
+        self.tool_handlers.run_music_command = run_music_command
+        try:
+            result = asyncio.run(
+                self.ai_tools.async_call_ai_tool(
+                    self.hass,
+                    self.runtime,
+                    "djconnect_execute_confirmed_action",
+                    {"response": "yes"},
+                )
+            )
+        finally:
+            self.tool_handlers.run_music_command = original
+
+        self.assertFalse(result["success"])
+        self.assertEqual(result["error"], "no_pending_action")
+        self.assertEqual(calls, [])
+
     def test_music_dna_summary_is_read_only(self) -> None:
         result = asyncio.run(
             self.ai_tools.async_call_ai_tool(

@@ -151,6 +151,58 @@ class AskDjTest(unittest.TestCase):
         cls.processor = importlib.import_module("custom_components.djconnect.processor")
         cls.track_insight = importlib.import_module("custom_components.djconnect.track_insight")
 
+    def test_manual_backend_does_not_confirm_pause_or_shuffle(self) -> None:
+        hass = types.SimpleNamespace(config=types.SimpleNamespace(language="nl"))
+        runtime = make_runtime()
+        runtime.config = {"music_backend": "later_manual"}
+
+        pause = asyncio.run(
+            self.ask_dj._playback_action_response(hass, runtime, "pauze", "pause")
+        )
+        shuffle = asyncio.run(
+            self.ask_dj._toggle_playback_response(hass, runtime, "set_shuffle", True)
+        )
+
+        self.assertFalse(pause["success"])
+        self.assertEqual(pause["error"], "music_backend_not_configured")
+        self.assertEqual(pause.get("playback_actions"), [])
+        self.assertFalse(shuffle["success"])
+        self.assertEqual(shuffle["error"], "music_backend_not_configured")
+
+    def test_manual_backend_does_not_emit_empty_playback_actions(self) -> None:
+        runtime = make_runtime()
+        runtime.config = {"music_backend": "later_manual"}
+        hass = types.SimpleNamespace(data={self.const.DOMAIN: {"entry": runtime}})
+        track = {
+            "uri": "spotify:track:abc",
+            "track_name": "Track",
+            "context_uri": "spotify:album:parent",
+        }
+
+        recommendations = self.ask_dj._recommendation_playback_actions(
+            hass, runtime, {}, track, {}, limit=1
+        )
+        playlists = self.ask_dj._playlist_search_playback_actions(
+            hass, [{"uri": "spotify:playlist:abc", "name": "Playlist"}]
+        )
+        albums = self.ask_dj._album_search_playback_actions(
+            hass, [{"uri": "spotify:album:abc", "name": "Album"}]
+        )
+        artists = self.ask_dj._personal_artist_recommendation_actions(
+            hass,
+            runtime,
+            {"memory": {"favorite_artists": [{"name": "Artist", "uri": "spotify:artist:abc"}]}},
+            {},
+            limit=1,
+        )
+        play_now = self.ask_dj._play_now_action_from_spotify_item(hass, track, runtime=runtime)
+
+        self.assertEqual(recommendations, [])
+        self.assertEqual(playlists, [])
+        self.assertEqual(albums, [])
+        self.assertEqual(artists, [])
+        self.assertEqual(play_now, {})
+
     def test_informational_request_does_not_modify_playback(self) -> None:
         runtime = make_runtime()
         calls = []
@@ -465,6 +517,40 @@ class AskDjTest(unittest.TestCase):
         self.assertEqual(result["playback_actions"][0]["label"], "Shuffle uitzetten")
         self.assertEqual(result["items"], [])
         self.assertFalse(result.get("audio_url"))
+
+    def test_manual_profile_status_has_no_shuffle_or_repeat_controls(self) -> None:
+        runtime = make_runtime()
+        runtime.config = {"music_backend": "spotify_direct"}
+        runtime.profile_context_backend_id = "later_manual"
+        runtime.last_playback = {}
+
+        async def command(hass, runtime_arg, command_name, value=None, *, play=None):
+            if command_name == "status":
+                return {"success": True, "playback": runtime.last_playback}
+            raise AssertionError(f"unexpected playback mutation: {command_name}")
+
+        original_command = self.ask_dj.run_music_command
+        self.ask_dj.run_music_command = command
+        try:
+            hass = types.SimpleNamespace(
+                services=types.SimpleNamespace(), data={self.const.DOMAIN: {}}
+            )
+            for question in ("staat shuffle aan?", "staat herhalen aan?"):
+                result = asyncio.run(
+                    self.ask_dj.async_handle_ask_dj(
+                        hass,
+                        runtime,
+                        {
+                            "text": question,
+                            "device_id": runtime.device_status["device_id"],
+                            "client_type": "ios",
+                        },
+                    )
+                )
+                self.assertTrue(result["success"])
+                self.assertEqual(result["playback_actions"], [])
+        finally:
+            self.ask_dj.run_music_command = original_command
 
     def test_shuffle_status_returns_enable_action_when_off(self) -> None:
         runtime = make_runtime()

@@ -11,12 +11,13 @@ from .const import (
     DEFAULT_MUSIC_BACKEND,
     DOMAIN,
     MUSIC_BACKEND_MUSIC_ASSISTANT,
+    MUSIC_BACKEND_LATER_MANUAL,
     SPOTIFY_SCOPES,
 )
 from .assist_stt import detect_stt_support
 from .spotify_oauth import missing_spotify_scopes, normalize_spotify_scopes
 from .tts import detect_tts_support
-from .use_cases import MusicAssistantBackend, SpotifyDirectBackend
+from .use_cases import ManualMusicBackend, MusicAssistantBackend, SpotifyDirectBackend
 
 _REDACT_KEY_PARTS = (
     "token",
@@ -90,6 +91,8 @@ async def async_get_config_entry_diagnostics(hass: HomeAssistant, entry: ConfigE
     capabilities = (
         MusicAssistantBackend.capabilities
         if backend == MUSIC_BACKEND_MUSIC_ASSISTANT
+        else ManualMusicBackend.capabilities
+        if backend == MUSIC_BACKEND_LATER_MANUAL
         else SpotifyDirectBackend.capabilities
     )
     spotify_oauth = {
@@ -98,7 +101,7 @@ async def async_get_config_entry_diagnostics(hass: HomeAssistant, entry: ConfigE
         "missing_scopes": missing_scopes,
         "reauthorization_required": bool(missing_scopes),
     }
-    if backend == MUSIC_BACKEND_MUSIC_ASSISTANT:
+    if backend in {MUSIC_BACKEND_MUSIC_ASSISTANT, MUSIC_BACKEND_LATER_MANUAL}:
         spotify_oauth = {
             "required": False,
             "reauthorization_required": False,

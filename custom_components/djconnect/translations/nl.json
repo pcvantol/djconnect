@@ -264,7 +264,7 @@
           "music_backend": "Muziekbackend"
         },
         "data_description": {
-          "music_backend": "Kies Spotify Direct of Music Assistant. Spotify is een handelsmerk van Spotify AB. DJConnect is niet verbonden aan, goedgekeurd door of gesponsord door Spotify AB."
+          "music_backend": "Kies Spotify Direct, Music Assistant of Later / handmatig. Spotify is een handelsmerk van Spotify AB. DJConnect is niet verbonden aan, goedgekeurd door of gesponsord door Spotify AB."
         }
       },
       "music_assistant": {
@@ -363,12 +363,12 @@
       },
       "music_backend": {
         "title": "Muziekbackend wijzigen",
-        "description": "De huidige backend staat hieronder. Wisselen behoudt de koppeling, apparaattokens, Ask DJ history, Music DNA en pushregistraties. Music DNA export/import loopt via HTTP en blijft server-side opt-in beschermd. Oude backend-specifieke Ask DJ playback-acties of aanbevelingen zijn mogelijk niet meer uitvoerbaar.",
+        "description": "Deze keuze wijzigt ook de backend van het gekoppelde profiel. Je kunt later weer handmatig kiezen. Wisselen behoudt de koppeling, apparaattokens, Ask DJ history, Music DNA en pushregistraties. Oude backend-specifieke acties zijn mogelijk niet meer uitvoerbaar.",
         "data": {
           "music_backend": "Muziekbackend"
         },
         "data_description": {
-          "music_backend": "Kies Spotify Direct of Music Assistant. Spotify is een handelsmerk van Spotify AB. DJConnect is niet verbonden aan, goedgekeurd door of gesponsord door Spotify AB."
+          "music_backend": "Kies Spotify Direct, Music Assistant of Later / handmatig. Spotify is een handelsmerk van Spotify AB. DJConnect is niet verbonden aan, goedgekeurd door of gesponsord door Spotify AB."
         }
       },
       "music_assistant_player": {
@@ -436,6 +436,8 @@
       "announcement_speaker_no_play_media": "Kies een media_player die audio kan afspelen.",
       "spotify_oauth_required": "Spotify OAuth is vereist voordat Spotify Direct actief kan worden.",
       "backend_switch_failed": "DJConnect kon de muziekbackend niet wijzigen. Controleer de gekozen backend en probeer opnieuw.",
+      "profile_platform_failed": "Het gekoppelde profiel kon niet worden bijgewerkt. Controleer de apparaatkoppeling en probeer opnieuw.",
+      "profile_shared_backend_change": "Dit profiel is gekoppeld aan meerdere apparaten. Koppel dit apparaat aan een eigen profiel voordat je de muziekbackend wijzigt.",
       "invalid_voice_profile": "Kies een ondersteund DJ stemprofiel."
     }
   },
