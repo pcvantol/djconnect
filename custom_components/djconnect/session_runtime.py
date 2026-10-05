@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import copy
 import hashlib
 import json
 import logging
@@ -3720,8 +3721,6 @@ class SessionRuntimeManager:
             active = self._accept_track_started_media(owner_profile_id, session_id, media_identity)
             if active is None:
                 return None
-            if active.session_start_strategy is SessionStartStrategy.DISCOVER:
-                active.planner.note_discover_track_started()
         try:
             raw_insight = await insight_provider()
         except Exception as exc:  # noqa: BLE001
@@ -3736,7 +3735,13 @@ class SessionRuntimeManager:
                 require_current_playback=require_current_playback,
             ):
                 return None
-            planning_input = active.planner.project_track_started_planning_input(
+            working_planner = copy.deepcopy(active.planner)
+            working_knowledge_engine = copy.deepcopy(active.knowledge_engine)
+            working_moment_engine = copy.deepcopy(active.moment_engine)
+            working_coordinator = copy.deepcopy(active.planning_coordinator)
+            if active.session_start_strategy is SessionStartStrategy.DISCOVER:
+                working_planner.note_discover_track_started()
+            planning_input = working_planner.project_track_started_planning_input(
                 session_id=active.session_id,
                 upcoming_playback=upcoming_playback,
                 session_start_strategy=active.session_start_strategy,
@@ -3749,10 +3754,10 @@ class SessionRuntimeManager:
             )
         _LOGGER.debug("DJConnect Planning Runtime Coordinator lifecycle entered")
         try:
-            coordinated = await active.planning_coordinator.async_coordinate_track_started(
-                planner=active.planner,
-                knowledge_engine=active.knowledge_engine,
-                moment_engine=active.moment_engine,
+            coordinated = await working_coordinator.async_coordinate_track_started(
+                planner=working_planner,
+                knowledge_engine=working_knowledge_engine,
+                moment_engine=working_moment_engine,
                 session_id=active.session_id,
                 selected_mood=active.selected_mood,
                 persona=active.dj_persona,
@@ -3767,18 +3772,31 @@ class SessionRuntimeManager:
             )
         except Exception as exc:  # noqa: BLE001
             _LOGGER.debug("DJConnect Planning Runtime Coordinator failed: %s", exc.__class__.__name__)
-            active.planning_coordinator._fallback("planning_lifecycle_failed")
+            working_coordinator._fallback("planning_lifecycle_failed")
             coordinated = None
-        if coordinated is not None:
-            async with self._lock:
-                active = self._active_by_profile.get(owner_profile_id)
-                if not self._track_started_result_is_current(
-                    active,
-                    session_id=session_id,
-                    media_identity=media_identity,
-                    require_current_playback=require_current_playback,
-                ):
-                    return None
+        async with self._lock:
+            active = self._active_by_profile.get(owner_profile_id)
+            if not self._track_started_result_is_current(
+                active,
+                session_id=session_id,
+                media_identity=media_identity,
+                require_current_playback=require_current_playback,
+            ):
+                return None
+            retained_horizon = active.planner.horizon
+            active.planner.__dict__.clear()
+            active.planner.__dict__.update(working_planner.__dict__)
+            if retained_horizon is not None and working_planner.horizon is not None:
+                retained_horizon.__dict__.clear()
+                retained_horizon.__dict__.update(working_planner.horizon.__dict__)
+                active.planner.horizon = retained_horizon
+            active.knowledge_engine.__dict__.clear()
+            active.knowledge_engine.__dict__.update(working_knowledge_engine.__dict__)
+            active.moment_engine.__dict__.clear()
+            active.moment_engine.__dict__.update(working_moment_engine.__dict__)
+            active.planning_coordinator.__dict__.clear()
+            active.planning_coordinator.__dict__.update(working_coordinator.__dict__)
+            if coordinated is not None:
                 is_session_update = active.planning_coordinator.last_session_direction is not None
                 if is_session_update:
                     updated_direction = active.planning_coordinator.last_session_direction

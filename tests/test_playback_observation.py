@@ -304,7 +304,9 @@ class PlaybackObservationTest(unittest.TestCase):
     def test_paused_track_retries_cancelled_enrichment_after_resume(self) -> None:
         async def scenario() -> None:
             session = await self.manager.async_start(
-                owner_profile_id="profile-a", music_backend="spotify_direct"
+                owner_profile_id="profile-a",
+                music_backend="spotify_direct",
+                session_start_strategy=self.runtime.SessionStartStrategy.DISCOVER,
             )
             self.spotify.SpotifyBackend.responses = [
                 self._observation("spotify:track:a"),
@@ -335,11 +337,13 @@ class PlaybackObservationTest(unittest.TestCase):
             await slow_poll
             active = await self.manager.async_get_active("profile-a")
             self.assertEqual(active.last_accepted_media_identity, "spotify:track:a")
+            self.assertEqual(active.planner.discover_event_number, 0)
 
             await self.scheduled[0]["callback"](None)
             active = await self.manager.async_get_active("profile-a")
             self.assertEqual(active.last_accepted_media_identity, "spotify:track:b")
             self.assertEqual(len(active.broadcast.state.dj_moments), 1)
+            self.assertEqual(active.planner.discover_event_number, 1)
             self.assertEqual(calls, 2)
 
         asyncio.run(scenario())

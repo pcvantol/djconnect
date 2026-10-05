@@ -51,7 +51,7 @@ from .profile_export import (
     profile_export_error_payload,
 )
 from .playback_observation import playback_observation_manager
-from .pipeline import resolve_assist_language
+from .pipeline import normalize_supported_language, resolve_assist_language
 from .request_auth import (
     authorize_runtime_device_request,
     identity_payload,
@@ -215,7 +215,7 @@ def _session_locale(hass: Any, runtime: Any, data: dict[str, Any]) -> str:
     """Resolve Session language from the client or preferred Assist pipeline."""
     explicit = str(data.get("language") or data.get("locale") or "").strip()
     if explicit:
-        return explicit
+        return normalize_supported_language(explicit)
     return resolve_assist_language(hass, getattr(runtime, "config", {}) or {})
 
 

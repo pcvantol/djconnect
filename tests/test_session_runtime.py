@@ -2492,6 +2492,86 @@ class SessionRuntimeManagerTest(unittest.TestCase):
         )
         self.assertIsNotNone(created.planning_coordinator.last_realized_intent)
 
+    def test_stale_coordinator_work_does_not_mutate_runtime_state(self) -> None:
+        async def scenario() -> None:
+            manager = self.runtime.SessionRuntimeManager()
+            created = await manager.async_start(
+                owner_profile_id="profile-stale-coordinator",
+                selected_mood="groove",
+                session_start_strategy=self.runtime.SessionStartStrategy.DISCOVER,
+            )
+
+            async def insight() -> dict:
+                return {
+                    "track": {
+                        "title": "Old Track",
+                        "artist": "Old Artist",
+                        "producer": "Old Producer",
+                    },
+                    "analysis": {
+                        "summary": "Old summary.",
+                        "full_text": "Old full context.",
+                    },
+                }
+
+            await manager.async_process_track_started(
+                owner_profile_id=created.owner_profile_id,
+                session_id=created.session_id,
+                insight_provider=insight,
+                media_identity="spotify:track:baseline",
+            )
+            await manager.async_update_playback_projection(
+                owner_profile_id=created.owner_profile_id,
+                session_id=created.session_id,
+                state="playing",
+                media_identity="spotify:track:old",
+                title="Old Track",
+            )
+            started = asyncio.Event()
+            release = asyncio.Event()
+            original = self.runtime.PlanningRuntimeCoordinator.async_coordinate_track_started
+
+            async def delayed(coordinator, **kwargs):
+                result = await original(coordinator, **kwargs)
+                started.set()
+                await release.wait()
+                return result
+
+            self.runtime.PlanningRuntimeCoordinator.async_coordinate_track_started = delayed
+            try:
+                stale = asyncio.create_task(
+                    manager.async_process_track_started(
+                        owner_profile_id=created.owner_profile_id,
+                        session_id=created.session_id,
+                        insight_provider=insight,
+                        media_identity="spotify:track:old",
+                        require_current_playback=True,
+                    )
+                )
+                await started.wait()
+                await manager.async_update_playback_projection(
+                    owner_profile_id=created.owner_profile_id,
+                    session_id=created.session_id,
+                    state="playing",
+                    media_identity="spotify:track:new",
+                    title="New Track",
+                )
+                release.set()
+                self.assertIsNone(await stale)
+            finally:
+                self.runtime.PlanningRuntimeCoordinator.async_coordinate_track_started = original
+
+            active = await manager.async_get_active(created.owner_profile_id)
+            assert active is not None
+            self.assertEqual(active.planner.discover_event_number, 0)
+            self.assertEqual(active.knowledge_engine.assembled_contexts, ())
+            self.assertEqual(active.moment_engine.moments, ())
+            self.assertEqual(active.moment_engine._track_keys, set())
+            self.assertEqual(active.planning_coordinator.last_lifecycle_state, "idle")
+            self.assertEqual(active.broadcast.state.dj_moments, ())
+
+        asyncio.run(scenario())
+
     def test_runtime_performance_memory_prevents_repeated_discover_recommendation(self) -> None:
         manager = self.runtime.SessionRuntimeManager()
         created = asyncio.run(
