@@ -22,6 +22,14 @@ that lifecycle. The legacy Track Started route is only bounded runtime
 protection for lifecycle failure. Future maturity cells extend these existing
 abstractions and never introduce a parallel Runtime, Flow or Broadcast path.
 
+The selected [same-track VibeCast slice](VIBECAST_MULTIMOMENT_TIMELINE_CONTRACT.md)
+reuses this lifecycle for one later, fresh observed-track opportunity. The
+Planner may choose a different existing Track/Genre factual angle only when its
+current Track Insight evidence and timing are sufficient. A Runtime-local
+generation cancels stale work; the existing Flow/Broadcast and Presentation
+path publish the result. This narrow current-item behavior does not qualify
+future-track planning, general continuous replanning or full Stage 4.
+
 This milestone does not advance deferred intelligence. In particular,
 Audience Intelligence remains intentionally deferred until a separately
 authorized bounded Planner-influence cell has its required evidence. It is

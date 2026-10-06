@@ -1482,6 +1482,7 @@ class SessionRuntimeManagerTest(unittest.TestCase):
                 "session_id": created.session_id,
                 "runtime_state": "active",
                 "selected_mood": "groove",
+                "locale": "en",
             },
         )
         self.assertEqual(

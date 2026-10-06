@@ -1,9 +1,270 @@
 <!doctype html>
 <html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="referrer" content="no-referrer"><title>DJConnect VibeCast</title>
 <style>
-:root{color-scheme:dark;--accent:#9f7cff;--art:none}*{box-sizing:border-box}html,body{width:100%;min-height:100%;margin:0;overflow:hidden}body{min-height:100vh;min-height:100dvh;background:#12111c;color:#f8f6ff;font-family:system-ui,sans-serif}.atmosphere,.atmosphere::after{position:fixed;inset:-12vmax;pointer-events:none}.atmosphere{background:radial-gradient(circle at 15% 12%,color-mix(in srgb,var(--accent) 65%,transparent),transparent 32%),radial-gradient(circle at 85% 88%,#355e87,transparent 38%),#12111c;animation:drift 24s ease-in-out infinite alternate}.atmosphere::after{content:"";background:var(--art) center/cover;opacity:.18;filter:blur(72px) saturate(1.25);transform:scale(1.2)}main{position:relative;z-index:1;min-height:100vh;min-height:100dvh;display:grid;grid-template-rows:auto 1fr auto;padding:clamp(2rem,6vw,6rem)}header{display:flex;justify-content:space-between;gap:1rem;font-size:clamp(.75rem,1.1vw,1rem);letter-spacing:.16em;text-transform:uppercase;color:#d9d4e9}#state{color:#fff;letter-spacing:.08em}.stage{align-self:center;width:min(100%,62rem)}.eyebrow{margin:0 0 1rem;color:#dfd5ff;font-size:clamp(.8rem,1.4vw,1.15rem);font-weight:700;letter-spacing:.13em;text-transform:uppercase}.artwork{width:min(58vw,26rem);aspect-ratio:1;border-radius:2rem;object-fit:cover;box-shadow:0 2rem 6rem #0008;background:#262137}.track{margin:clamp(1.75rem,4vh,3.5rem) 0 0;font-size:clamp(2rem,5.5vw,5.8rem);line-height:.96;letter-spacing:-.045em;max-width:15ch}.artist{margin:.8rem 0 0;color:#ebe7f5;font-size:clamp(1.1rem,2.2vw,2rem)}.moment{margin:clamp(1.5rem,4vh,3rem) 0 0;max-width:45rem;color:#fff;font-size:clamp(1.1rem,2vw,1.8rem);line-height:1.3}.moment:empty{display:none}footer{display:grid;gap:.75rem;color:#e1ddeb}progress{width:100%;height:.35rem;accent-color:var(--accent)}.meta{display:flex;justify-content:space-between;gap:1rem;font-size:clamp(.8rem,1.2vw,1rem)}.idle .stage{opacity:.76}@keyframes drift{from{transform:translate3d(-1%,-1%,0) scale(1)}to{transform:translate3d(2%,1%,0) scale(1.06)}}@media (orientation:landscape){main{padding:clamp(2.5rem,5vw,6rem)}.stage{display:grid;grid-template-columns:minmax(12rem,27vw) minmax(0,1fr);align-items:center;column-gap:clamp(2rem,6vw,7rem);width:min(100%,96rem)}.artwork{width:100%}.track{margin-top:0;max-width:12ch}.moment{grid-column:2}}
-.handoff{position:fixed;left:50%;bottom:clamp(2rem,5vh,6rem);transform:translateX(-50%);z-index:3;width:min(calc(100% - 4rem),38rem);padding:1.5rem 2rem;border-radius:1.25rem;background:#141322ee;color:#fff;font-size:clamp(1.1rem,2vw,1.6rem);text-align:center}.handoff strong{display:block;font-size:clamp(3.5rem,7vw,6rem);letter-spacing:.2em;font-variant-numeric:tabular-nums}</style></head><body class="idle"><div class="atmosphere" aria-hidden="true"></div><main><header><span>DJConnect VibeCast</span><span id="state" data-testid="connection-state">Idle</span></header><div id="handoff" class="handoff" role="status" aria-live="polite" hidden></div><section class="stage" aria-live="polite"><img id="artwork" class="artwork" alt="" hidden><div><p id="mood" class="eyebrow">Ambient session</p><h1 id="title" class="track">Waiting for a session</h1><p id="artist" class="artist"></p></div><p id="moment" class="moment"></p></section><footer><progress id="progress" max="1" value="0" hidden></progress><div class="meta"><span id="album"></span><span id="time"></span></div></footer></main>
-<script>(()=>{const params=new URLSearchParams(window.location.search);let sessionId=params.get("session_id"),broadcastToken=params.get("broadcast_token");const e=id=>document.getElementById(id),root=document.documentElement,copy={en:{idle:"Idle",connecting:"Connecting",live:"Live",unavailable:"No active session",waiting:"Waiting for a session",ambient:"Ambient session"},nl:{idle:"Inactief",connecting:"Verbinden",live:"Live",unavailable:"Geen actieve sessie",waiting:"Wachten op een sessie",ambient:"Ambient sessie"},de:{idle:"Inaktiv",connecting:"Verbinden",live:"Live",unavailable:"Keine aktive Session",waiting:"Warten auf eine Session",ambient:"Ambient-Session"},fr:{idle:"Inactif",connecting:"Connexion",live:"En direct",unavailable:"Aucune session active",waiting:"En attente d’une session",ambient:"Session d’ambiance"},es:{idle:"Inactivo",connecting:"Conectando",live:"En directo",unavailable:"No hay sesión activa",waiting:"Esperando una sesión",ambient:"Sesión ambiental"}},language=(navigator.language||"en").slice(0,2),text=copy[language]||copy.en;root.lang=copy[language]?language:"en";let projection={},socket,reconnectTimer,attempts=0,ended=false;const playback=()=>projection.playback&&typeof projection.playback==="object"?projection.playback:{},moment=()=>{const p=playback(),v=Array.isArray(projection.dj_moments)?projection.dj_moments:[];if(!p.item_id)return v.at(-1)||null;return v.findLast(item=>item&&item.playback_item_id===p.item_id)||null},format=v=>Number.isFinite(v)&&v>=0?`${Math.floor(v/60000)}:${String(Math.floor(v/1000)%60).padStart(2,"0")}`:"",theme=m=>({chill:"#7d8dff",groove:"#c07dff",energy:"#ff806b",party:"#ffce55"}[m]||"#9f7cff");function render(){const p=playback(),m=moment(),mood=projection.session&&projection.session.selected_mood,art=p.artwork_url||(m&&m.artwork&&m.artwork.url)||"";document.body.classList.toggle("idle",!p.title);e("mood").textContent=mood||text.ambient;e("title").textContent=p.title||text.waiting;e("artist").textContent=p.artist||"";e("album").textContent=p.album||"";e("moment").textContent=m&&(m.summary||m.content||m.title)||"";e("artwork").hidden=!art;e("artwork").src=art;e("artwork").alt=art?(p.album||p.title||""):"";root.style.setProperty("--art",art?`url("${art.replaceAll('"','%22')}")`:"none");root.style.setProperty("--accent",theme(mood));const active=Number.isFinite(p.duration_ms)&&Number.isFinite(p.position_ms)&&p.duration_ms>0;e("progress").hidden=!active;if(active){e("progress").max=p.duration_ms;e("progress").value=p.position_ms;e("time").textContent=`${format(p.position_ms)} / ${format(p.duration_ms)}`}else e("time").textContent=""}function apply(s){projection=s&&typeof s==="object"?s:{};render()}function event(frame){const p=frame&&frame.payload;if(!p||typeof p!=="object")return;if(frame.event_type==="runtime_ended"||frame.event_type==="broadcast_stopped"){ended=true;broadcastToken=null;apply({});e("state").textContent=text.idle;if(socket)socket.close();return}for(const key of["session","playback","planner","session_flow","audience","broadcast"])if(p[key])projection[key]=p[key];if(p.dj_moment)projection.dj_moments=[...(projection.dj_moments||[]),p.dj_moment];render()}const url=()=>`${window.location.protocol==="https:"?"wss:":"ws:"}//${window.location.host}/api/djconnect/v1/session/broadcast/ws/${encodeURIComponent(sessionId)}?broadcast_token=${encodeURIComponent(broadcastToken)}`;function connect(){if(ended)return;e("state").textContent=text.connecting;const active=new WebSocket(url());socket=active;active.onopen=()=>{attempts=0;e("state").textContent=text.live};active.onmessage=({data})=>{try{const f=JSON.parse(data);if(f.type==="snapshot")apply(f.snapshot);else if(f.type==="event")event(f.data);else if(f.type==="error"){ended=true;broadcastToken=null;apply({});e("state").textContent=text.unavailable;if(socket)socket.close()}}catch(_){}};active.onclose=()=>{if(!ended&&!reconnectTimer)reconnectTimer=window.setTimeout(()=>{reconnectTimer=undefined;attempts++;connect()},Math.min(1000*2**attempts,5000))};active.onerror=()=>active.close()}e("state").textContent=text.idle;e("title").textContent=text.waiting;e("mood").textContent=text.ambient;if(sessionId&&broadcastToken)connect();else e("state").textContent=text.unavailable;window.addEventListener("djconnect-handoff",({detail})=>{if(!detail||!detail.session_id||!detail.broadcast_token)return;sessionId=detail.session_id;broadcastToken=detail.broadcast_token;e("handoff").hidden=true;connect()});window.addEventListener("beforeunload",()=>{ended=true;broadcastToken=null;if(socket)socket.close()})})()</script>
+:root { color-scheme:dark; --accent:#9f7cff; --art:none }
+* { box-sizing:border-box }
+html,body { width:100%; min-height:100%; margin:0; overflow:hidden }
+body { min-height:100vh; min-height:100dvh; background:#12111c; color:#f8f6ff; font-family:system-ui,sans-serif }
+.atmosphere,.atmosphere::after { position:fixed; inset:-12vmax; pointer-events:none }
+.atmosphere { background:radial-gradient(circle at 15% 12%,color-mix(in srgb,var(--accent) 65%,transparent),transparent 32%),radial-gradient(circle at 85% 88%,#355e87,transparent 38%),#12111c; animation:drift 24s ease-in-out infinite alternate }
+.atmosphere::after { content:""; background:var(--art) center/cover; opacity:.18; filter:blur(72px) saturate(1.25); transform:scale(1.2) }
+main { position:relative; z-index:1; min-height:100vh; min-height:100dvh; display:grid; grid-template-rows:auto minmax(0,1fr) auto; gap:clamp(1rem,2vh,2.5rem); padding:clamp(2rem,5vw,5rem) }
+header { display:flex; justify-content:space-between; gap:1rem; font-size:clamp(.75rem,1.1vw,1rem); letter-spacing:.16em; text-transform:uppercase; color:#d9d4e9 }
+#state { color:#fff; letter-spacing:.08em }
+.stage { align-self:center; width:min(100%,62rem); min-height:0; display:grid; gap:clamp(1.4rem,3vh,3rem) }
+.now-playing { min-height:0 }
+.eyebrow { margin:0 0 1rem; color:#dfd5ff; font-size:clamp(.8rem,1.4vw,1.15rem); font-weight:700; letter-spacing:.13em; text-transform:uppercase }
+.artwork { width:min(54vw,23rem); aspect-ratio:1; border-radius:2rem; object-fit:cover; box-shadow:0 2rem 6rem #0008; background:#262137 }
+.track { margin:clamp(1.3rem,3vh,2.5rem) 0 0; font-size:clamp(2rem,5.2vw,5.4rem); line-height:1.04; letter-spacing:-.045em; max-width:15ch; overflow-wrap:anywhere }
+.artist { margin:.8rem 0 0; color:#ebe7f5; font-size:clamp(1.1rem,2.2vw,2rem) }
+.cards { display:grid; align-content:end; gap:clamp(.6rem,1.5vh,1.2rem); min-height:0; max-height:42vh }
+.moment-card { width:min(100%,48rem); min-height:0; padding:clamp(1.25rem,2.2vw,2.2rem); border:1px solid #ffffff3c; border-radius:1.5rem; background:#171622dc; box-shadow:0 1.2rem 3rem #0005; backdrop-filter:blur(18px); overflow:hidden }
+.moment-card[hidden] { display:none }
+.moment-card.fresh { animation:card-in .65s cubic-bezier(.2,.7,.2,1) both }
+.moment-card.previous { opacity:.5; transform:translateY(-.75rem) scale(.98); max-height:9rem; padding-top:.9rem; padding-bottom:.9rem }
+.moment-card.previous.leaving { animation:card-old .75s cubic-bezier(.2,.7,.2,1) both }
+.moment-kind { display:block; margin-bottom:.6rem; color:#d5c1ff; font-size:clamp(.75rem,1.15vw,1rem); font-weight:750; letter-spacing:.14em; text-transform:uppercase }
+.moment-summary { margin:0; font-size:clamp(1.2rem,2.2vw,2rem); line-height:1.25; overflow-wrap:anywhere }
+.moment-detail { margin:.8rem 0 0; color:#eae6f3; font-size:clamp(1rem,1.55vw,1.45rem); line-height:1.42; max-height:16rem; overflow-y:auto; overscroll-behavior:contain; scrollbar-width:thin; overflow-wrap:anywhere; mask-image:linear-gradient(to bottom,#000 0%,#000 92%,transparent 100%) }
+.moment-detail.scrolled { mask-image:linear-gradient(to bottom,transparent 0%,#000 8%,#000 92%,transparent 100%) }
+.moment-detail:empty { display:none }
+footer { display:grid; gap:.75rem; color:#e1ddeb }
+progress { width:100%; height:.35rem; accent-color:var(--accent) }
+.meta { display:flex; justify-content:space-between; gap:1rem; font-size:clamp(.8rem,1.2vw,1rem) }
+.idle .stage { opacity:.76 }
+@keyframes drift { from { transform:translate3d(-1%,-1%,0) scale(1) } to { transform:translate3d(2%,1%,0) scale(1.06) } }
+@keyframes card-in { from { opacity:0; transform:translateY(1.35rem) } to { opacity:1; transform:translateY(0) } }
+@keyframes card-old { from { opacity:1; transform:translateY(2rem) scale(1) } to { opacity:.5; transform:translateY(-.75rem) scale(.98) } }
+@media (orientation:portrait) and (min-width:800px) { main { padding:clamp(3rem,5vw,5rem) } .stage { gap:clamp(2rem,3vh,3.5rem) } .artwork { width:min(42vw,25rem) } .cards { max-height:39vh } }
+@media (orientation:landscape) { main { padding:clamp(2.5rem,5vw,6rem) } .stage { grid-template-columns:minmax(12rem,30vw) minmax(0,1fr); align-items:center; column-gap:clamp(2rem,5vw,6rem); width:min(100%,96rem) } .artwork { width:100% } .track { margin-top:0; max-width:12ch } .cards { grid-column:2; max-height:40vh } }
+@media (prefers-reduced-motion:reduce) { .atmosphere,.moment-card.fresh,.moment-card.previous.leaving { animation:none } }
+.handoff { position:fixed; left:50%; bottom:clamp(2rem,5vh,6rem); transform:translateX(-50%); z-index:3; width:min(calc(100% - 4rem),38rem); padding:1.5rem 2rem; border-radius:1.25rem; background:#141322ee; color:#fff; font-size:clamp(1.1rem,2vw,1.6rem); text-align:center }
+.handoff strong { display:block; font-size:clamp(3.5rem,7vw,6rem); letter-spacing:.2em; font-variant-numeric:tabular-nums }
+</style></head><body class="idle"><div class="atmosphere" aria-hidden="true"></div><main><header><span>DJConnect VibeCast</span><span id="state" data-testid="connection-state">Idle</span></header><div id="handoff" class="handoff" role="status" aria-live="polite" hidden></div><section class="stage"><div class="now-playing"><img id="artwork" class="artwork" alt="" hidden><p id="mood" class="eyebrow">Ambient session</p><h1 id="title" class="track">Waiting for a session</h1><p id="artist" class="artist"></p></div><div class="cards" aria-live="polite"><div id="moment-history" class="moment-card previous" hidden></div><article id="moment-card" class="moment-card" hidden><span id="moment-type" class="moment-kind"></span><p id="moment" class="moment-summary"></p><p id="moment-detail" class="moment-detail"></p></article></div></section><footer><progress id="progress" max="1" value="0" hidden></progress><div class="meta"><span id="album"></span><span id="time"></span></div></footer></main>
+<script>(() => {
+  const params = new URLSearchParams(window.location.search);
+  let sessionId = params.get("session_id"), broadcastToken = params.get("broadcast_token");
+  const e = id => document.getElementById(id), root = document.documentElement;
+  const copy = {
+    en:{idle:"Idle",connecting:"Connecting",live:"Live",unavailable:"No active session",waiting:"Waiting for a session",ambient:"Ambient session",types:{track:"Track",artist:"Artist",album:"Album",genre:"Genre",recommendation:"Recommendation",transition:"Transition",session:"Session"}},
+    nl:{idle:"Inactief",connecting:"Verbinden",live:"Live",unavailable:"Geen actieve sessie",waiting:"Wachten op een sessie",ambient:"Ambient sessie",types:{track:"Nummer",artist:"Artiest",album:"Album",genre:"Genre",recommendation:"Aanbeveling",transition:"Overgang",session:"Sessie"}},
+    de:{idle:"Inaktiv",connecting:"Verbinden",live:"Live",unavailable:"Keine aktive Session",waiting:"Warten auf eine Session",ambient:"Ambient-Session",types:{track:"Titel",artist:"Künstler",album:"Album",genre:"Genre",recommendation:"Empfehlung",transition:"Übergang",session:"Session"}},
+    fr:{idle:"Inactif",connecting:"Connexion",live:"En direct",unavailable:"Aucune session active",waiting:"En attente d’une session",ambient:"Session d’ambiance",types:{track:"Titre",artist:"Artiste",album:"Album",genre:"Genre",recommendation:"Suggestion",transition:"Transition",session:"Session"}},
+    es:{idle:"Inactivo",connecting:"Conectando",live:"En directo",unavailable:"No hay sesión activa",waiting:"Esperando una sesión",ambient:"Sesión ambiental",types:{track:"Canción",artist:"Artista",album:"Álbum",genre:"Género",recommendation:"Recomendación",transition:"Transición",session:"Sesión"}}
+  };
+  let language = (navigator.language || "en").slice(0,2), text = copy[language] || copy.en;
+  let projection = {}, socket, reconnectTimer, expiryTimer, scrollTimer, attempts = 0, ended = false;
+  let playbackItem = "", current = null, previous = null, lastShownAt = -Infinity, lastArtwork = "", lastSequence = 0, snapshotSequence = 0, fieldSequences = {};
+  const firstSeen = new Map();
+  root.lang = copy[language] ? language : "en";
+  const playback = () => projection.playback && typeof projection.playback === "object" ? projection.playback : {};
+  const theme = mood => ({chill:"#7d8dff",groove:"#c07dff",energy:"#ff806b",party:"#ffce55"}[mood] || "#9f7cff");
+  const format = value => Number.isFinite(value) && value >= 0 ? `${Math.floor(value/60000)}:${String(Math.floor(value/1000)%60).padStart(2,"0")}` : "";
+  const reduceMotion = () => !!window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+  function clearTimer(name) {
+    const timer = name === "expiry" ? expiryTimer : scrollTimer;
+    if (timer && window.clearTimeout) window.clearTimeout(timer);
+    if (name === "expiry") expiryTimer = undefined; else scrollTimer = undefined;
+  }
+  function useLanguage() {
+    const requested = String(projection.session?.locale || "").slice(0,2).toLowerCase();
+    const selected = copy[requested] ? requested : (copy[language] ? language : "en");
+    text = copy[selected]; root.lang = selected;
+  }
+  function keyFor(item) {
+    return String(item.moment_id || `${item.playback_item_id || ""}|${item.type || ""}|${item.created_at || ""}|${item.summary || item.content || item.title || ""}`);
+  }
+  function cardFor(item) {
+    if (!item || typeof item !== "object" || item.type === "silence") return null;
+    const summary = String(item.summary || item.content || item.title || "").slice(0,1200);
+    if (!summary) return null;
+    const key = keyFor(item), now = Date.now();
+    if (!firstSeen.has(key)) {
+      firstSeen.set(key, now);
+      if (firstSeen.size > 32) firstSeen.delete(firstSeen.keys().next().value);
+    }
+    const created = Date.parse(item.created_at || ""), stamped = Number.isFinite(created);
+    if (stamped && created > now + 10000) return null;
+    const rawDuration = Number(item.presentation_intent?.maximum_duration_seconds);
+    const seconds = Number.isFinite(rawDuration) && rawDuration > 0 ? Math.min(90, rawDuration) : 25;
+    const expiry = (stamped ? created : firstSeen.get(key)) + seconds*1000;
+    return now < expiry ? {key, created:stamped ? created : firstSeen.get(key), expiry, summary,
+      detail:String(item.content || "").slice(0,1200), type:item.type || "", itemId:item.playback_item_id || "", stamped} : null;
+  }
+  function eligibleCards() {
+    const p = playback(), items = Array.isArray(projection.dj_moments) ? projection.dj_moments : [];
+    const cards = [];
+    for (const item of items.slice(-24)) {
+      if (!item || (p.item_id ? item.playback_item_id !== p.item_id : !!item.playback_item_id)) continue;
+      const card = cardFor(item);
+      if (card) cards.push(card);
+    }
+    cards.sort((a,b) => a.created - b.created);
+    return cards;
+  }
+  function clearCards() {
+    clearTimer("expiry"); clearTimer("scroll"); current = null; previous = null;
+    const card = e("moment-card"), history = e("moment-history"), detail = e("moment-detail"), kind = e("moment-type");
+    if (card) card.hidden = true;
+    if (history) history.hidden = true;
+    history?.classList?.remove("leaving");
+    if (detail) detail.textContent = "";
+    if (kind) kind.textContent = "";
+    e("moment").textContent = "";
+  }
+  function scheduleCardExpiry() {
+    clearTimer("expiry");
+    const now = Date.now();
+    const deadlines = [current,previous].filter(card => card && card.expiry > now).map(card => card.expiry);
+    if (deadlines.length) expiryTimer = window.setTimeout(
+      () => renderCards(false), Math.max(0,Math.min(...deadlines)-Date.now()+25)
+    );
+  }
+  function showPrevious(card, animate=false) {
+    const history = e("moment-history");
+    if (!history) return;
+    if (!card || Date.now() >= card.expiry) { history.hidden = true; history.classList?.remove("leaving"); return; }
+    const label = text.types[card.type] || "";
+    history.textContent = label && !card.summary.toLocaleLowerCase().startsWith(label.toLocaleLowerCase())
+      ? `${label} · ${card.summary}` : card.summary;
+    history.hidden = false;
+    if (animate && !reduceMotion()) {
+      history.classList?.remove("leaving");
+      void history.offsetWidth;
+      history.classList?.add("leaving");
+    }
+  }
+  function showCurrent(card, animate) {
+    const shell = e("moment-card"), kind = e("moment-type"), detail = e("moment-detail");
+    e("moment").textContent = card.summary;
+    if (kind) kind.textContent = text.types[card.type] || "";
+    if (detail) {
+      detail.textContent = card.detail && card.detail !== card.summary ? card.detail : "";
+      detail.scrollTop = 0;
+      detail.classList?.remove("scrolled");
+    }
+    if (shell) {
+      shell.hidden = false;
+      shell.classList?.remove("fresh");
+      if (animate && !reduceMotion()) {
+        void shell.offsetWidth;
+        shell.classList?.add("fresh");
+      }
+    }
+    clearTimer("scroll");
+    if (detail?.textContent && !reduceMotion() && detail.scrollHeight > detail.clientHeight) {
+      const step = Math.max(24,parseFloat(getComputedStyle(detail).lineHeight) || 28);
+      const advance = () => {
+        if (current?.key !== card.key) return;
+        const limit = detail.scrollHeight-detail.clientHeight;
+        if (detail.scrollTop >= limit-1) return;
+        detail.classList?.add("scrolled");
+        detail.scrollTo?.({top:Math.min(limit,detail.scrollTop+step),behavior:"smooth"});
+        scrollTimer = window.setTimeout(advance,2600);
+      };
+      scrollTimer = window.setTimeout(advance,5000);
+    }
+    scheduleCardExpiry();
+  }
+  function renderCards(animate) {
+    const p = playback(), item = p.item_id || "";
+    if (item !== playbackItem) {
+      playbackItem = item; lastShownAt = -Infinity; clearCards();
+    }
+    if (current && Date.now() >= current.expiry) clearCards();
+    const cards = eligibleCards(), latest = cards.at(-1);
+    if (!latest) { clearCards(); return; }
+    if (current?.key === latest.key) { showPrevious(previous); scheduleCardExpiry(); return; }
+    if (latest.created < lastShownAt) return;
+    previous = animate && current && current.itemId === latest.itemId ? current : null;
+    current = latest; lastShownAt = latest.created;
+    showPrevious(previous, animate); showCurrent(latest, animate);
+  }
+  function render(animate=false) {
+    useLanguage();
+    const p = playback(), mood = projection.session?.selected_mood;
+    document.body.classList.toggle("idle",!p.title);
+    e("mood").textContent = mood || text.ambient;
+    e("title").textContent = p.title || text.waiting;
+    e("artist").textContent = p.artist || "";
+    e("album").textContent = p.album || "";
+    const art = p.artwork_url || "";
+    e("artwork").hidden = !art;
+    if (art !== lastArtwork) { e("artwork").src = art; lastArtwork = art; }
+    e("artwork").alt = art ? (p.album || p.title || "") : "";
+    root.style.setProperty("--art",art ? `url("${art.replaceAll('"','%22')}")` : "none");
+    root.style.setProperty("--accent",theme(mood));
+    const active = Number.isFinite(p.duration_ms) && Number.isFinite(p.position_ms) && p.duration_ms > 0;
+    e("progress").hidden = !active;
+    if (active) { e("progress").max=p.duration_ms; e("progress").value=p.position_ms; e("time").textContent=`${format(p.position_ms)} / ${format(p.duration_ms)}`; }
+    else e("time").textContent="";
+    renderCards(animate);
+  }
+  function apply(snapshot) {
+    const watermark = Number(snapshot?.broadcast?.snapshot_watermark);
+    if (Number.isFinite(watermark) && watermark < lastSequence) return;
+    if (Number.isFinite(watermark)) lastSequence = snapshotSequence = watermark;
+    fieldSequences = {};
+    projection = snapshot && typeof snapshot === "object" ? snapshot : {};
+    render(false);
+  }
+  function event(frame) {
+    const p = frame?.payload;
+    if (ended || !p || typeof p !== "object" || (frame.session_id && frame.session_id !== sessionId)) return;
+    const sequence = Number(frame.delivery_sequence);
+    const ordered = Number.isFinite(sequence) && sequence > 0;
+    if (ordered && sequence <= snapshotSequence) return;
+    if (ordered) lastSequence = Math.max(lastSequence,sequence);
+    if (frame.event_type === "runtime_ended" || frame.event_type === "broadcast_stopped") {
+      ended=true; broadcastToken=null; apply({}); e("state").textContent=text.idle; if (socket) socket.close(); return;
+    }
+    for (const key of ["session","playback","planner","session_flow","audience","broadcast"])
+      if (p[key] && (!ordered || sequence > (fieldSequences[key] || snapshotSequence))) {
+        projection[key]=p[key];
+        if (ordered) fieldSequences[key]=sequence;
+      }
+    if (p.dj_moment) {
+      const items = Array.isArray(projection.dj_moments) ? projection.dj_moments : [];
+      const key = keyFor(p.dj_moment);
+      if (!items.some(item => item && keyFor(item) === key)) projection.dj_moments = [...items.slice(-23),p.dj_moment];
+      render(true);
+    } else render(false);
+  }
+  const url = () => `${window.location.protocol === "https:" ? "wss:" : "ws:"}//${window.location.host}/api/djconnect/v1/session/broadcast/ws/${encodeURIComponent(sessionId)}?broadcast_token=${encodeURIComponent(broadcastToken)}`;
+  function connect() {
+    if (ended) return;
+    e("state").textContent=text.connecting;
+    const active = new WebSocket(url()); socket=active;
+    active.onopen=() => { if (active !== socket) return; attempts=0; e("state").textContent=text.live; };
+    active.onmessage=({data}) => {
+      if (active !== socket) return;
+      try {
+        const f=JSON.parse(data);
+        if (f.type === "snapshot" && (!f.session_id || f.session_id === sessionId)) apply(f.snapshot);
+        else if (f.type === "event") event(f.data);
+        else if (f.type === "error") { ended=true; broadcastToken=null; apply({}); e("state").textContent=text.unavailable; if (socket) socket.close(); }
+      } catch (_) { /* Ignore malformed receiver frames. */ }
+    };
+    active.onclose=() => {
+      if (active !== socket || ended || reconnectTimer) return;
+      reconnectTimer=window.setTimeout(() => { reconnectTimer=undefined; attempts++; connect(); },Math.min(1000*2**attempts,5000));
+    };
+    active.onerror=() => active.close();
+  }
+  e("state").textContent=text.idle;
+  e("title").textContent=text.waiting;
+  e("mood").textContent=text.ambient;
+  if (sessionId && broadcastToken) connect(); else e("state").textContent=text.unavailable;
+  window.addEventListener("djconnect-handoff",({detail}) => {
+    if (!detail?.session_id || !detail?.broadcast_token) return;
+    if (socket) socket.close();
+    sessionId=detail.session_id; broadcastToken=detail.broadcast_token;
+    ended=false; projection={}; playbackItem=""; lastShownAt=-Infinity;
+    lastSequence=0; snapshotSequence=0; fieldSequences={}; clearCards(); render(false);
+    e("handoff").hidden=true; connect();
+  });
+  window.addEventListener("beforeunload",() => { ended=true; broadcastToken=null; clearTimer("expiry"); clearTimer("scroll"); if (socket) socket.close(); });
+})()</script>
 <script>(()=>{
   if (new URLSearchParams(window.location.search).has("session_id") || typeof window.fetch !== "function") return;
   const panel = document.getElementById("handoff");

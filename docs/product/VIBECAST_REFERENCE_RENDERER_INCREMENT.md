@@ -1,8 +1,9 @@
 # VibeCast Reference Renderer Increment
 
-**Status:** Selected first slice; Core/Apple owner-handoff, Apple decoder and
-Core Profile binding, reload-safe observation and live playback/locale
-coherence source merged; physical `PI_QUAL=OPEN`.
+**Status:** First slice complete under the owner's simulator acceptance override:
+`SIMULATOR_QUAL=PASS`, `PHYSICAL_PI_QUAL=NOT_RERUN_BY_USER_OVERRIDE`.
+The separately selected [same-track Moment timeline](VIBECAST_MULTIMOMENT_TIMELINE_CONTRACT.md)
+is a new Core slice; its evidence and physical gate are independent.
 
 ## Iteration 1 evidence
 
@@ -32,14 +33,13 @@ renderer Moments with the current playback item, and resolves Session locale
 from the explicit client request or selected Assist pipeline within the
 canonical five-language contract.
 
-The exact PR #1116 artifact has not yet been installed and exercised on
-HA-dev. The Apple client must still pass its request locale explicitly. The
-remaining acceptance must bind the installed Apple, Core and Pi candidate
-identities, switch the authorized HA-dev Profile through the normal options
-route, then prove a correct Dutch non-terminal update on the physical Pi,
-reconnect, Runtime-end cleanup and token/privacy boundaries. `PI_QUAL` remains
-open until that full receipt is recorded. This increment starts no Cast
-follow-on.
+The owner subsequently accepted the exact Core and Apple candidates through
+the paired iPhone simulator, HA-dev, real Spotify Direct playback and the
+portrait receiver. The same active Session showed a Dutch non-terminal track
+update, reconnect and Runtime-end cleanup. The [closure receipt](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6010273964)
+records `FIRST_SLICE=COMPLETE` and explicitly replaces the remaining physical
+Pi run with simulator acceptance; it does not claim a new hardware result.
+This increment starts no Cast follow-on.
 
 ## Outcome
 
@@ -79,11 +79,9 @@ responses use `no-store`; Runtime end invalidates the token. A refresh starts
 a new claim. This control-plane handoff does not create a second Broadcast
 data path or give the Pi owner controls.
 
-The product candidate is not accepted merely because these routes and UI build.
-Acceptance still requires the physical portrait Pi, a paired Apple owner and
-an exact live receipt for approval, snapshot and updates, reconnect, Runtime
-end, readability and absence of durable/private data. The later Cast sender
-remains outside this increment until that receipt exists.
+The first-slice product acceptance is recorded in the closure receipt above.
+The physical portrait Pi evidence remains the earlier subset, and later Cast
+work remains separately gated.
 
 ```text
 paired Apple sender
@@ -142,10 +140,9 @@ paired Apple sender
 
 ## Exit criteria
 
-The increment is ready to advance to Cast implementation planning only when a
-real owner-initiated Pi session has demonstrated snapshot-first rendering,
-incremental updates, reconnect, Runtime-end cleanup, portrait readability and
-token non-persistence. The resulting VibeCast composition must be reusable in
+The first increment is complete at the owner's simulator acceptance level.
+Physical Pi qualification and Cast implementation planning require their own
+future selection and evidence. The renderer contract remains reusable in
 landscape without a different server contract.
 
 ## References

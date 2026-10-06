@@ -7,6 +7,7 @@ from pathlib import Path
 import sys
 import types
 import unittest
+from unittest.mock import patch
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -164,6 +165,112 @@ class PlaybackObservationTest(unittest.TestCase):
         asyncio.run(self.scheduled[0]["callback"](None))
         active = asyncio.run(self.manager.async_get_active("profile-a"))
         self.assertEqual(len(active.moment_engine.moments), 1)
+
+    def test_observer_delivers_a_second_evidenced_type_on_one_long_track(self) -> None:
+        async def scenario():
+            now = [100.0]
+            manager = self.runtime.SessionRuntimeManager(monotonic_source=lambda: now[0])
+            self.hass.data.setdefault("djconnect", {})["session_runtime_manager"] = manager
+            session = await manager.async_start(
+                owner_profile_id="profile-a", music_backend="spotify_direct", locale="nl"
+            )
+            def observed(uri, position):
+                return types.SimpleNamespace(
+                    is_playing=True, state="playing", media_identity=uri,
+                    title="Current" if uri.endswith("b") else "Previous",
+                    artist="Artist", album="Album", artwork_url="", target_name="",
+                    duration_ms=240_000, position_ms=position,
+                )
+            self.spotify.SpotifyBackend.responses = [
+                observed("spotify:track:a", 0),
+                observed("spotify:track:b", 0),
+                observed("spotify:track:b", 15_000),
+                observed("spotify:track:b", 30_000),
+                observed("spotify:track:b", 60_000),
+            ]
+            insight_calls = 0
+
+            async def insight():
+                nonlocal insight_calls
+                insight_calls += 1
+                return {
+                    "track": {"title":"Current", "artist":"Artist", "album":"Album", "genres":["soul"]},
+                    "analysis": {"summary":"A measured bass line anchors the song.",
+                                 "full_text":"The bass leaves space for the melody.", "genre":"soul"},
+                }
+
+            await self.observer.async_start_spotify(
+                integration_runtime=object(), session=session, insight_provider=insight
+            )
+            await self.scheduled[0]["callback"](None)
+            for seconds, expected_count in ((15, 1), (15, 2), (30, 2)):
+                now[0] += seconds
+                await self.scheduled[0]["callback"](None)
+                assert len(session.broadcast.state.dj_moments) == expected_count
+            return session, insight_calls
+
+        session, insight_calls = asyncio.run(scenario())
+        self.assertEqual(insight_calls, 1)
+        self.assertEqual(len(session.broadcast.state.dj_moments), 2)
+        self.assertEqual(
+            {moment.moment_type for moment in session.broadcast.state.dj_moments},
+            {self.runtime.DJMomentType.TRACK, self.runtime.DJMomentType.GENRE},
+        )
+
+    def test_unload_cancels_slow_later_moment_before_broadcast(self) -> None:
+        async def scenario():
+            now = [100.0]
+            manager = self.runtime.SessionRuntimeManager(monotonic_source=lambda: now[0])
+            self.hass.data.setdefault("djconnect", {})["session_runtime_manager"] = manager
+            session = await manager.async_start(
+                owner_profile_id="profile-a", music_backend="spotify_direct", locale="nl"
+            )
+            runtime = object()
+            def observed(uri, position):
+                return types.SimpleNamespace(
+                    is_playing=True, state="playing", media_identity=uri,
+                    title="Current" if uri.endswith("b") else "Previous",
+                    artist="Artist", album="Album", artwork_url="", target_name="",
+                    duration_ms=240_000, position_ms=position,
+                )
+            self.spotify.SpotifyBackend.responses = [
+                observed("spotify:track:a", 0),
+                observed("spotify:track:b", 0),
+                observed("spotify:track:b", 30_000),
+            ]
+
+            async def insight():
+                return {
+                    "track": {"title":"Current", "artist":"Artist", "album":"Album", "genres":["soul"]},
+                    "analysis": {"summary":"A measured bass line anchors the song.",
+                                 "full_text":"The bass leaves space for the melody.", "genre":"soul"},
+                }
+
+            await self.observer.async_start_spotify(
+                integration_runtime=runtime, session=session, insight_provider=insight
+            )
+            await self.scheduled[0]["callback"](None)
+            self.assertEqual(len(session.broadcast.state.dj_moments), 1)
+            started, release = asyncio.Event(), asyncio.Event()
+            original = self.runtime.DJKnowledgeEngine.async_assemble_track_context
+
+            async def slow(engine, *args, **kwargs):
+                started.set()
+                await release.wait()
+                return await original(engine, *args, **kwargs)
+
+            with patch.object(self.runtime.DJKnowledgeEngine, "async_assemble_track_context", slow):
+                now[0] += 30
+                pending = asyncio.create_task(self.scheduled[0]["callback"](None))
+                await started.wait()
+                await self.observer.async_stop_runtime(runtime)
+                release.set()
+                await pending
+            return session
+
+        session = asyncio.run(scenario())
+        self.assertEqual(len(session.broadcast.state.dj_moments), 1)
+        self.assertEqual(len(session.planner.output.session_flow.items), 6)
 
     def test_all_active_start_strategies_are_eligible(self) -> None:
         for strategy in self.runtime.SessionStartStrategy:

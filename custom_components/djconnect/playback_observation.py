@@ -127,6 +127,9 @@ class PlaybackObservationManager:
         if observed is None or (session_id and observed.session_id != session_id):
             return
         self._spotify_sessions.pop(owner_profile_id, None)
+        await session_runtime_manager(self._hass).async_invalidate_intra_track_opportunity(
+            owner_profile_id=owner_profile_id, session_id=observed.session_id
+        )
         if observed.remove_listener is not None:
             observed.remove_listener()
             observed.remove_listener = None
@@ -304,6 +307,17 @@ class PlaybackObservationManager:
                     await previous
             observed.enrichment_task = None
             observed.enrichment_media_identity = ""
+            return
+
+        if (
+            previous_media_identity == result.media_identity
+            and (observed.enrichment_task is None or observed.enrichment_task.done())
+        ):
+            await session_runtime_manager(self._hass).async_maybe_publish_intra_track_moment(
+                owner_profile_id=observed.owner_profile_id,
+                session_id=observed.session_id,
+                media_identity=result.media_identity,
+            )
             return
 
         current_task = asyncio.current_task()
