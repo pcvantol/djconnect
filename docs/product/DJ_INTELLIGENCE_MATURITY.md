@@ -30,6 +30,12 @@ generation cancels stale work; the existing Flow/Broadcast and Presentation
 path publish the result. This narrow current-item behavior does not qualify
 future-track planning, general continuous replanning or full Stage 4.
 
+The subsequent owner refinement [PR #1120](https://github.com/pcvantol/djconnect/pull/1120)
+uses qualified source facts with attribution for more eligible current-track
+Moment angles. A physical Pi run observed two distinct factual types on one
+real Spotify track. It did not prove dense continuous narration, future-track
+planning or a new intelligence stage.
+
 This milestone does not advance deferred intelligence. In particular,
 Audience Intelligence remains intentionally deferred until a separately
 authorized bounded Planner-influence cell has its required evidence. It is

@@ -1,25 +1,22 @@
 # DJConnect Repository Status
 
-## Current-slice VibeCast owner refinements — implementation in progress
+## PR #1120 VibeCast owner refinements — Finalization pending
 
-Parent assignment `DJC-CORE-VIBECAST-MULTIMOMENT-TIMELINE-V1-20261006`;
-qualification `DJC-VIBECAST-MULTIMOMENT-PI-CAPTURE-V1-20261006`.
-The owner explicitly authorized the refinement increment in the execution chat.
-Base `40763f7e829802da4bce815702da675f944f3b46`, existing pickup branch
-`codex/vibecast-pi-live-owner-refinements`; one Core writer. Completed #1118 and
-#1119 remain closed. Baseline physical/live acceptance is PARTIAL, screenshot
-capture PASS, motion NOT_PROVEN; normal end failed. No baseline PASS upgrade.
+Source PR #1120 protected merged as `7d39bef4d98b3c1645e9085bc6a137b3244262cf`
+with reviewed source/merge tree equality. Exact-main validation and the
+automatic SHA-bound HA artifact passed. With owner authorization the artifact
+was installed on HA-dev only, with an exact rollback copy. The physical Pi run
+captured five 1200×1920 PNGs, two distinct factual Moments on the same real
+Spotify track, a sampled-card fade and idle after the Pi X. See the local
+`artifacts/verification/vibecast-multimoment/pi-live/run-20261006T175100Z-owner-refinements/`
+package; raw images are not published to GitHub.
 
-The [refinement contract](docs/product/VIBECAST_OWNER_REFINEMENTS_CONTRACT.md)
-records qualified source facts, readable bounded cadence, portrait/landscape
-bubbles and fades, artwork palette, 600px portrait art, clock/album/progress,
-actual next-queue item and separate opt-in end-only authority. Multi-entry and
-last-entry reload persistence repair is included. Source tests and browser
-acceptance are running; independent review and protected source delivery are
-pending. Raw physical evidence remains local/private. New-SHA internal
-publication and HA-dev installation need their exact-effect authority check.
-Mandatory separate Finalization remains pending for this increment.
-
+`LIVE_SPOTIFY_HA_DEV_QUAL=PASS`, `PHYSICAL_PI_RENDER_QUAL=PASS_WITH_FINDINGS`,
+`PER_MOMENT_SCREENSHOT_CAPTURE=PARTIAL`, `TRANSITION_MOTION_EVIDENCE=PARTIAL`.
+The package has no independent HA/Spotify API transcript; live checks are
+operator observations. Automatic capture and full-rate smoothness remain
+unproven. Repository State becomes `MERGED_RECONCILED` after protected
+Finalization; Workspace State requires cleanup.
 
 ## PR #1118 VibeCast same-track Moment timeline reconciliation
 

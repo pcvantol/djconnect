@@ -1,5 +1,20 @@
 # DJConnect Verification Prompt Index
 
+## PR #1120 VibeCast owner refinements and physical qualification
+
+[Core PR #1120](https://github.com/pcvantol/djconnect/pull/1120)
+protected merged as `7d39bef4d98b3c1645e9085bc6a137b3244262cf`.
+The immutable [Finalization record](docs/history/prompts/2026-10-06-vibecast-owner-refinements-finalization.md)
+binds source review, 1,556-test software/browser acceptance, exact-main
+internal HA archive and owner-authorized HA-dev installation. The local
+physical Pi evidence contains two different source-qualified Moments on one
+real Spotify track and idle after physical end. Qualification is
+`LIVE_SPOTIFY_HA_DEV_QUAL=PASS`, `PHYSICAL_PI_RENDER_QUAL=PASS_WITH_FINDINGS`,
+`PER_MOMENT_SCREENSHOT_CAPTURE=PARTIAL`, `TRANSITION_MOTION_EVIDENCE=PARTIAL`.
+Automatic capture, full-rate motion, dense card cadence and true next-track
+preview remain separate findings. Repository State becomes `MERGED_RECONCILED`
+only after this Finalization merges; Workspace State follows local cleanup.
+
 ## PR #1118 VibeCast same-track Moment timeline reconciliation
 
 [Core PR #1118](https://github.com/pcvantol/djconnect/pull/1118) merged as `f15fb861e223a209341592666dc2092bad4b4a2e` from independently reviewed head `f7caee01087ea8bcb5239003f323d785a1fab0fd` with identical tree `94d90ab8930f87fba577cd07319e422670349489`. The immutable [Completion and Finalization record](docs/history/prompts/2026-10-06-vibecast-multimoment-timeline-finalization.md) preserves the one-track two-type Runtime/Flow/browser acceptance, 1,543-test local suite, six Golden scenarios, protected exact-main checks, internal SHA-bound archive and redacted evidence. `SOFTWARE_SIMULATOR_QUAL=PASS`; `PHYSICAL_PI_QUAL=NOT_RUN_FOR_THIS_SLICE`. The first VibeCast slice remains separately complete; no HA-dev installation, public release, Cast or next family is claimed.

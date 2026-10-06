@@ -1,14 +1,17 @@
 # Production and Credits Source Contract — Phase A
 
-
 ## Owner-authorized current-slice extension
 
 The [VibeCast owner refinements contract](VIBECAST_OWNER_REFINEMENTS_CONTRACT.md)
 records the new bounded qualified-fact producer/display path, responsive UI,
-read-only next-queue item and separate opt-in receiver end authority. Its
-implementation/acceptance is pending; the completed baseline below stays
-historical and its evidence is not upgraded by the new code. Older source
-qualification flags and generic Broadcast permissions remain unchanged.
+read-only next-queue item and separate opt-in receiver end authority.
+[PR #1120](https://github.com/pcvantol/djconnect/pull/1120) has since delivered
+a narrow, attributed MusicBrainz production-credit card for the VibeCast
+current-track surface. That does not complete the separate Phase B Artist
+**and** Album credit requirements below. This Phase A field inventory and its
+`PHASE_A_PASS_PHASE_B_BLOCKED` decision remain the 2026-10-04 snapshot, not a
+description of every later producer. Generic Broadcast permissions and older
+source-qualification flags remain unchanged.
 
 **Owner:** DJC-CORE / DJ Intelligence Evolution
 **Directive:** `DJC-CORE-PROVENANCE-CREDITS-CONTEXT-V1-20261004`
@@ -24,15 +27,16 @@ The fixed field inventory and fail-closed evaluator are in
 wired to Runtime, Planner, Knowledge Engine or DJMoment Engine. A policy record
 is not a producer and does not make a fact eligible for Session output.
 
-The current Core source gives **no qualified production or additional credit
-fact for the live Artist/Album Moment path**. Therefore Phase A can be delivered
+At the Phase A decision, Core gave **no qualified production or additional
+credit fact for the live Artist/Album Moment path**. Therefore Phase A could be delivered
 and tested, but Phase B is `NO-GO` until a separately proven producer and safe
 attribution path exist. Existing metadata-based Moments keep their current
 behavior; this contract adds no new factual claim to them.
 
-## Exact current source inventory
+## Exact Phase A source inventory
 
-The table identifies only fields emitted by current Core normalizers. Each
+The table identifies only fields emitted by the Core normalizers assessed in
+Phase A. Each
 machine-readable field record also states reliability, freshness, conflict,
 rights, attribution, retention, privacy, Session readiness and renderer safety.
 All three records have `usage_rights_qualified=false`: a URL to provider
@@ -129,7 +133,13 @@ producer/consumer handoff must prove all of the following:
    prove actual Artist **and** Album credit use, safe Silence/fallback and no
    repeated credit angle before Phase B can claim product acceptance.
 
-The current producer and attribution paths do not satisfy these prerequisites.
+The Phase A producer and attribution paths did not satisfy these prerequisites.
 This assignment therefore stops after Phase A rather than selecting an external
 music/editorial database, adding Spotify album calls, inventing a production
 credit or treating general LLM text as source-qualified.
+
+PR #1120 later qualified one MusicBrainz production-credit fact for the
+current-track VibeCast card with visible source attribution. It did not prove
+the broader Artist **and** Album credit consumption, rights, negative cases
+and all-surface behavior required in item 5; the Phase B decision remains
+`NO-GO` pending a separate bounded qualification.
