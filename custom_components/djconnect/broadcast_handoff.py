@@ -30,6 +30,7 @@ class _Claim:
     expires_at: float
     session_id: str = ""
     broadcast_token: str = ""
+    end_grant: str = ""
 
 
 class BroadcastHandoffManager:
@@ -87,7 +88,7 @@ class BroadcastHandoffManager:
             }
 
     async def approve(
-        self, code: str, *, owner_profile_id: str, session_id: str, broadcast_token: str
+        self, code: str, *, owner_profile_id: str, session_id: str, broadcast_token: str, end_grant: str = ""
     ) -> bool:
         """Bind the active owner's Runtime token to one unapproved code."""
         if len(code) != 6 or not code.isascii() or not code.isdigit():
@@ -110,6 +111,7 @@ class BroadcastHandoffManager:
                 if secrets.compare_digest(claim.code, code) and not claim.session_id:
                     claim.session_id = session_id
                     claim.broadcast_token = broadcast_token
+                    claim.end_grant = end_grant
                     return True
             return False
 
@@ -128,6 +130,7 @@ class BroadcastHandoffManager:
                 "state": "approved",
                 "session_id": claim.session_id,
                 "broadcast_token": claim.broadcast_token,
+                **({"end_grant": claim.end_grant} if claim.end_grant else {}),
             }
 
 

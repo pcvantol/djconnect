@@ -1,5 +1,15 @@
 # VibeCast same-track Moment timeline — delivered Core source slice
 
+
+## Owner-authorized current-slice extension
+
+The [VibeCast owner refinements contract](VIBECAST_OWNER_REFINEMENTS_CONTRACT.md)
+records the new bounded qualified-fact producer/display path, responsive UI,
+read-only next-queue item and separate opt-in receiver end authority. Its
+implementation/acceptance is pending; the completed baseline below stays
+historical and its evidence is not upgraded by the new code. Older source
+qualification flags and generic Broadcast permissions remain unchanged.
+
 **Assignment:** `DJC-CORE-VIBECAST-MULTIMOMENT-TIMELINE-V1-20261006`  
 **Owner:** DJC-CORE  
 **State:** [source PR #1118](https://github.com/pcvantol/djconnect/pull/1118) protected merged as `f15fb861e223a209341592666dc2092bad4b4a2e`; [software/browser acceptance](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6012947392) passed. Physical 10-inch Pi and fresh installed/live qualification were not run for this slice.

@@ -157,7 +157,7 @@ class CreditProvenanceTests(unittest.TestCase):
         self.assertNotIn("1998", serialized)
         self.assertNotIn("spotify:album:", serialized)
 
-    def test_live_core_projection_does_not_supply_production_credits(self) -> None:
+    def test_catalog_date_extension_does_not_make_legacy_credits_qualified(self) -> None:
         playback = self.spotify._normalize_playback(
             {
                 "is_playing": True,
@@ -175,7 +175,11 @@ class CreditProvenanceTests(unittest.TestCase):
             }
         )
         self.assertEqual(playback["artist_ids"], [_ALBUM_ID])
-        self.assertNotIn("release_date", playback)
+        self.assertEqual(playback["release_date"], "1998-04-20")
+        self.assertEqual(playback["album_uri"], f"spotify:album:{_ALBUM_ID}")
+        self.assertEqual(playback["release_date_precision"], "")
+        from custom_components.djconnect.session_facts import catalog_facts
+        self.assertEqual(catalog_facts(playback), [])  # Missing precision remains ineligible.
         self.assertNotIn("label", playback)
         track = self.insight._track_contract(
             playback,

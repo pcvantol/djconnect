@@ -127,6 +127,9 @@ class PlaybackObservationManager:
         if observed is None or (session_id and observed.session_id != session_id):
             return
         self._spotify_sessions.pop(owner_profile_id, None)
+        await session_runtime_manager(self._hass).async_revoke_receiver_end_grants(
+            owner_profile_id=owner_profile_id, session_id=observed.session_id
+        )
         await session_runtime_manager(self._hass).async_invalidate_intra_track_opportunity(
             owner_profile_id=owner_profile_id, session_id=observed.session_id
         )
@@ -299,6 +302,21 @@ class PlaybackObservationManager:
                 duration_ms=getattr(result, "duration_ms", None),
                 position_ms=getattr(result, "position_ms", None),
             )
+            # Optional queue lookup must not delay or invalidate current playback.
+            next_item = {}
+            if result.is_playing and result.media_identity:
+                try:
+                    next_item = await asyncio.wait_for(SpotifyBackend(self._hass, observed.integration_runtime).async_observe_next_item(result.media_identity), timeout=3)
+                except Exception:  # Best-effort queue absence is not playback failure.
+                    next_item = {}
+                if next_item:
+                    next_item["artwork_url"] = register_image_proxy_url(self._hass, next_item.get("artwork_url", ""))
+            if self._spotify_sessions.get(observed.owner_profile_id) is not observed:
+                return
+            await session_runtime_manager(self._hass).async_update_next_item_projection(
+                owner_profile_id=observed.owner_profile_id, session_id=observed.session_id,
+                media_identity=result.media_identity, target_name=getattr(result, "target_name", ""), up_next=next_item,
+            )
         if not result.is_playing or not result.media_identity:
             previous = observed.enrichment_task
             if previous is not None and previous is not asyncio.current_task() and not previous.done():
@@ -334,12 +352,26 @@ class PlaybackObservationManager:
         observed.enrichment_task = current_task
         observed.enrichment_media_identity = result.media_identity
         try:
+            async def qualified_insight() -> dict[str, Any]:
+                from .session_facts import session_facts_resolver, catalog_facts
+                catalog = getattr(result, "catalog", {})
+                async def facts() -> tuple[Any, ...]:
+                    try:
+                        return await session_facts_resolver(self._hass).resolve(catalog)
+                    except Exception:  # Provider absence never creates invented facts.
+                        return tuple(catalog_facts(catalog))
+                evidence = await facts()
+                if evidence:
+                    return {"_qualified_facts": evidence}
+                return {**await observed.insight_provider(), "_qualified_facts": ()}
+
             await session_runtime_manager(self._hass).async_process_track_started(
                 owner_profile_id=observed.owner_profile_id,
                 session_id=observed.session_id,
-                insight_provider=observed.insight_provider,
+                insight_provider=qualified_insight,
                 media_identity=result.media_identity,
                 require_current_playback=True,
+                allow_initial_facts=bool(getattr(result, "catalog", {})),
             )
         except asyncio.CancelledError:
             await session_runtime_manager(self._hass).async_restore_track_started_media(

@@ -117,6 +117,7 @@ from .http import (
     DJConnectSessionBroadcastHandoffClaimView,
     DJConnectSessionBroadcastHandoffCollectView,
     DJConnectSessionBroadcastHandoffApproveView,
+    DJConnectSessionBroadcastEndControlView,
     DJConnectSessionBroadcastWebSocketView,
     DJConnectUniversalReceiverView,
     DJConnectVibeCastRendererView,
@@ -144,12 +145,8 @@ from .push import (
     should_send_push,
 )
 from .persistence import (
-    PersistentSessionRepository,
-    PersistentSessionStartupReconciler,
-    HistoricalProjectionRepository,
     async_initialize_persistence,
     async_shutdown_persistence,
-    persistence_service,
 )
 from .repairs import async_create_fixable_issues
 from .spotify_oauth import (
@@ -362,6 +359,7 @@ class DJConnectRuntime:
     memory: Any | None = None
     listeners: list = field(default_factory=list)
     _last_update_signature: str | None = None
+    _receiver_end_generation: int = 0
 
     @property
     def config(self) -> dict[str, Any]:
@@ -1794,6 +1792,7 @@ def register_http_views(hass: HomeAssistant) -> None:
             DJConnectSessionBroadcastHandoffClaimView(hass),
             DJConnectSessionBroadcastHandoffCollectView(hass),
             DJConnectSessionBroadcastHandoffApproveView(hass),
+            DJConnectSessionBroadcastEndControlView(hass),
             DJConnectSessionBroadcastWebSocketView(hass),
             DJConnectUniversalReceiverView(),
             DJConnectVibeCastRendererView(),
@@ -3124,10 +3123,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     except Exception as exc:  # noqa: BLE001
         _LOGGER.error("DJConnect persistence bootstrap failed: %s", exc.__class__.__name__)
         return False
-    await PersistentSessionStartupReconciler(
-        PersistentSessionRepository(persistence_service(hass)),
-        history=HistoricalProjectionRepository(persistence_service(hass)),
-    ).async_reconcile()
     # Some Home Assistant startup paths load config entries without first
     # retaining the integration-level setup state. Registering here as well
     # keeps the public HA routes available for every configured runtime.
@@ -3144,6 +3139,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if option_updates != dict(entry.options):
         hass.config_entries.async_update_entry(entry, options=option_updates)
     runtime = _restore_runtime(hass, entry)
+    session_manager = hass.data[DOMAIN].get("session_runtime_manager")
+    if session_manager is not None:
+        runtime._receiver_end_generation = session_manager.receiver_entry_generation(entry.entry_id)
     if runtime.memory is not None:
         await runtime.memory.async_load()
     task_factory = getattr(hass, "async_create_task", None)
@@ -3180,6 +3178,9 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     platforms = _platforms_for_runtime(runtime) if runtime is not None else list(PLATFORMS)
     unloaded = await hass.config_entries.async_unload_platforms(entry, platforms)
     if unloaded:
+        session_manager = hass.data.get(DOMAIN, {}).get("session_runtime_manager")
+        if session_manager is not None:
+            await session_manager.async_revoke_receiver_end_grants_for_entry(entry.entry_id)
         if runtime is not None:
             from .playback_observation import playback_observation_manager
 
@@ -3196,7 +3197,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                     await handoff_manager.clear()
             else:
                 await _async_clear_all_server_state(hass)
-            await async_shutdown_persistence(hass)
+            await async_shutdown_persistence(hass, preserve_for_reload=entry.entry_id in hass.data[DOMAIN].get(_ENTRY_RELOAD_PRESERVE_KEY, set()))
     return unloaded
 
 

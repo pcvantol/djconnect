@@ -2064,6 +2064,40 @@ class TtsHelperTest(unittest.TestCase):
         logs = "\n".join(captured.output)
         self.assertEqual(logs.count("no runtime matched bearer token"), 1)
 
+    def test_unload_invalidates_inflight_handoff_during_observer_stop_and_after_reload(self) -> None:
+        from custom_components.djconnect.session_runtime import SessionRuntimeManager
+        async def scenario():
+            const=self.const
+            entry=types.SimpleNamespace(entry_id="end-owner-entry", data={const.CONF_CLIENT_TYPE: const.CLIENT_TYPE_IOS}, options={"vibecast_session_end_allowed":True})
+            runtime=self.integration.DJConnectRuntime(entry)
+            manager=SessionRuntimeManager()
+            session=await manager.async_start(owner_profile_id="owner",music_backend="spotify_direct")
+            stopped=asyncio.Event()
+            finish=asyncio.Event()
+            class Observer:
+                async def async_stop_runtime(inner, unloading_runtime):
+                    stopped.set()
+                    await finish.wait()
+            class Entries:
+                async def async_unload_platforms(inner, unloaded_entry, platforms): return True
+            hass=types.SimpleNamespace(config_entries=Entries(),data={const.DOMAIN:{entry.entry_id:runtime,"runtime":runtime,"session_runtime_manager":manager,"playback_observation_manager":Observer()}})
+            original=await manager.async_issue_receiver_end_grant(owner_profile_id="owner",session_id=session.session_id,entry_id=entry.entry_id,entry_generation=runtime._receiver_end_generation)
+            unloading=asyncio.create_task(self.integration.async_unload_entry(hass,entry))
+            await stopped.wait()
+            # The owner Runtime is still in hass.data while cancellation awaits.
+            self.assertIs(hass.data[const.DOMAIN][entry.entry_id],runtime)
+            late=await manager.async_issue_receiver_end_grant(owner_profile_id="owner",session_id=session.session_id,entry_id=entry.entry_id,entry_generation=runtime._receiver_end_generation)
+            self.assertEqual(late,"")
+            finish.set()
+            self.assertTrue(await unloading)
+            self.assertIsNone(await manager.async_end_with_receiver_grant(session_id=session.session_id,grant=original))
+            replacement=self.integration.DJConnectRuntime(entry)
+            replacement._receiver_end_generation=manager.receiver_entry_generation(entry.entry_id)
+            hass.data[const.DOMAIN][entry.entry_id]=replacement
+            self.assertEqual(await manager.async_issue_receiver_end_grant(owner_profile_id="owner",session_id=session.session_id,entry_id=entry.entry_id,entry_generation=runtime._receiver_end_generation),"")
+            self.assertTrue(await manager.async_issue_receiver_end_grant(owner_profile_id="owner",session_id=session.session_id,entry_id=entry.entry_id,entry_generation=replacement._receiver_end_generation))
+        asyncio.run(scenario())
+
     def test_backend_options_reload_preserves_memory_and_history(self) -> None:
         const = self.const
         entry = types.SimpleNamespace(

@@ -62,6 +62,9 @@ def _load_modules():
                 raise response
             return response
 
+        async def async_observe_next_item(self, media_identity):
+            return {}
+
     spotify.SpotifyBackend = SpotifyBackend
     spotify.SpotifyBackendError = SpotifyBackendError
     sys.modules[f"{PACKAGE}.spotify_backend"] = spotify

@@ -4,7 +4,8 @@ import asyncio
 import time
 import logging
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from datetime import UTC, datetime
 from urllib.parse import urlencode
 from typing import Any
 
@@ -65,6 +66,7 @@ class SpotifyPlaybackObservation:
     target_name: str = ""
     duration_ms: int | None = None
     position_ms: int | None = None
+    catalog: dict[str, Any] = field(default_factory=dict)
 
 
 async def handle_spotify_command(
@@ -520,7 +522,34 @@ class SpotifyBackend:
             target_name=str(device.get("name") or ""),
             duration_ms=_int_or_none(playback.get("duration_ms")),
             position_ms=_int_or_none(playback.get("progress_ms")),
+            catalog={key: playback[key] for key in ("uri", "title", "artist", "album_name", "album_uri", "release_date", "release_date_precision", "isrc", "artist_ids") if key in playback},
         )
+
+    async def async_observe_next_item(self, media_identity: str) -> dict[str, str]:
+        """Read one queue item, bound to the exact current account playback."""
+        async def load() -> dict[str, Any]:
+            raw = await self._request("GET", "/me/player/queue")
+            current = raw.get("currently_playing") or {}
+            queue = raw.get("queue") or []
+            first = queue[0] if queue and isinstance(queue[0], dict) else {}
+            item = _normalize_queue_item(first) if first.get("type") == "track" else None
+            return {"current_uri": str(current.get("uri") or ""),
+                    "next_item": {key: item.get(key) for key in ("title", "artist", "image_url")} if item else {}}
+        try:
+            data = await self._cached("session_up_next", load, ttl=30)
+        except SpotifyBackendError:
+            return {}
+        if data.get("current_uri") != media_identity:
+            return {}
+        item = data.get("next_item")
+        if item is None or not item.get("title") or not item.get("artist"):
+            return {}
+        cached = getattr(self.runtime, "backend_cache", {}).get("session_up_next")
+        remaining = max(0, 30 - (time.monotonic() - cached[0])) if cached else 0
+        if remaining <= 0:
+            return {}
+        return {"title": str(item["title"])[:256], "artist": str(item["artist"])[:256], "artwork_url": str(item.get("image_url") or ""),
+                "expires_at": datetime.fromtimestamp(time.time() + remaining, UTC).isoformat()}
 
     async def _enrich_playback_artist_genres(self, playback: dict[str, Any]) -> None:
         artist_ids = [
@@ -1406,6 +1435,10 @@ def _normalize_playback(data: dict[str, Any]) -> dict[str, Any]:
             if isinstance(artist, dict) and str(artist.get("id") or "").strip()
         ][:10],
         "album_name": album.get("name") or "",
+        "album_uri": album.get("uri") or "",
+        "release_date": album.get("release_date") or "",
+        "release_date_precision": album.get("release_date_precision") or "",
+        "isrc": (item.get("external_ids") or {}).get("isrc") or "",
         "album_image_url": album_image_url,
         "media_image_url": album_image_url,
         "progress_ms": data.get("progress_ms"),

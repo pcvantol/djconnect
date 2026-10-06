@@ -193,3 +193,22 @@ subscription endpoint and does not broaden the established owner privacy
 boundary. Broadcast State exposes only renderer-safe Session, Planner, Flow
 and safe backend context metadata; it excludes Music DNA, preferences, session
 history and conversation history.
+
+## Owner-refinement display fields and separate end authority
+
+The [current-slice refinement contract](../product/VIBECAST_OWNER_REFINEMENTS_CONTRACT.md)
+adds optional `playback.source_url`, `playback.up_next` (one title/artist/proxied
+artwork, current-item hash and `expires_at`) and `dj_moment.source_attribution`
+(provider/public resource URL/license). These fields expose no Profile, raw
+provider response or credential. Missing/expired next-item data stays hidden.
+
+Ordinary Broadcast tokens retain their existing read-only transport scope.
+With explicit HA-owner `vibecast_session_end_allowed` opt-in and normal paired
+handoff approval, `handoff/collect` may return a separate `end_grant` in its
+private no-store response. It is never part of a snapshot, WebSocket frame or
+URL. `POST /api/djconnect/v1/session/broadcast/control/end` accepts JSON
+`session_id` plus `end_grant`; only that exact Session can end. A confirmed end
+returns `{success:true,state:"ended"}`; invalid/expired/revoked/Broadcast-only
+authority gets403. It grants no playback command or owner projection. The
+renderer waits for backend confirmation before clearing to idle. The grant is
+single-use, expires after1h and revokes on Session end or observer unload/reload.

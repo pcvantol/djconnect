@@ -9,10 +9,14 @@ from typing import Any
 from ..const import DOMAIN
 from .service import PersistenceService
 from .sqlite import SQLitePersistenceProvider
+from .sessions import PersistentSessionRepository
+from .reconciliation import PersistentSessionStartupReconciler
+from .history import HistoricalProjectionRepository
 
 
 PERSISTENCE_SERVICE_KEY = "persistence_service"
 _PERSISTENCE_LOCK_KEY = "persistence_bootstrap_lock"
+_RECONCILED_KEY = "persistence_startup_reconciled"
 _DATABASE_FILENAME = "djconnect.sqlite3"
 
 
@@ -38,6 +42,14 @@ async def async_initialize_persistence(hass: Any) -> PersistenceService:
             service = PersistenceService(_database_path(hass), SQLitePersistenceProvider())
             domain_data[PERSISTENCE_SERVICE_KEY] = service
         await service.async_initialize()
+        # Reconcile crash leftovers once, before any entry can start a Runtime.
+        # Entry setup/reload must never interrupt another entry's live Session.
+        if not domain_data.get(_RECONCILED_KEY):
+            await PersistentSessionStartupReconciler(
+                PersistentSessionRepository(service),
+                history=HistoricalProjectionRepository(service),
+            ).async_reconcile()
+            domain_data[_RECONCILED_KEY] = True
         return service
 
 
@@ -49,10 +61,15 @@ def persistence_service(hass: Any) -> PersistenceService:
     return service
 
 
-async def async_shutdown_persistence(hass: Any) -> None:
+async def async_shutdown_persistence(hass: Any, *, preserve_for_reload: bool = False) -> None:
     """Close the singleton provider after the final configured entry unloads."""
     domain_data = hass.data.get(DOMAIN, {})
+    if preserve_for_reload:
+        # Active Runtime repositories keep this exact singleton service.
+        return
     service = domain_data.pop(PERSISTENCE_SERVICE_KEY, None)
     domain_data.pop(_PERSISTENCE_LOCK_KEY, None)
+    # Keep the boot receipt for this HA process: a final-entry options reload
+    # may close this provider while retaining the active Session Runtime.
     if isinstance(service, PersistenceService):
         await service.async_close()

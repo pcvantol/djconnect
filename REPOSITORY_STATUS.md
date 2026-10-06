@@ -1,5 +1,26 @@
 # DJConnect Repository Status
 
+## Current-slice VibeCast owner refinements — implementation in progress
+
+Parent assignment `DJC-CORE-VIBECAST-MULTIMOMENT-TIMELINE-V1-20261006`;
+qualification `DJC-VIBECAST-MULTIMOMENT-PI-CAPTURE-V1-20261006`.
+The owner explicitly authorized the refinement increment in the execution chat.
+Base `40763f7e829802da4bce815702da675f944f3b46`, existing pickup branch
+`codex/vibecast-pi-live-owner-refinements`; one Core writer. Completed #1118 and
+#1119 remain closed. Baseline physical/live acceptance is PARTIAL, screenshot
+capture PASS, motion NOT_PROVEN; normal end failed. No baseline PASS upgrade.
+
+The [refinement contract](docs/product/VIBECAST_OWNER_REFINEMENTS_CONTRACT.md)
+records qualified source facts, readable bounded cadence, portrait/landscape
+bubbles and fades, artwork palette, 600px portrait art, clock/album/progress,
+actual next-queue item and separate opt-in end-only authority. Multi-entry and
+last-entry reload persistence repair is included. Source tests and browser
+acceptance are running; independent review and protected source delivery are
+pending. Raw physical evidence remains local/private. New-SHA internal
+publication and HA-dev installation need their exact-effect authority check.
+Mandatory separate Finalization remains pending for this increment.
+
+
 ## PR #1118 VibeCast same-track Moment timeline reconciliation
 
 [Core PR #1118](https://github.com/pcvantol/djconnect/pull/1118) protected squash-merged as `f15fb861e223a209341592666dc2092bad4b4a2e` from independently reviewed head `f7caee01087ea8bcb5239003f323d785a1fab0fd`; both trees equal `94d90ab8930f87fba577cd07319e422670349489`. The same active observed item now supports two distinct factual Moment types through the existing Runtime/Flow/Broadcast path, and VibeCast renders bounded current cards at 1200×1920. Local 1,543-test and six Golden suites, browser visual acceptance, independent review, exact-main [Validate](https://github.com/pcvantol/djconnect/actions/runs/37456371671) and [CodeQL](https://github.com/pcvantol/djconnect/actions/runs/37456371210) passed. [Artifact publication](https://github.com/pcvantol/djconnect/actions/runs/37456689950) and [redacted qualification evidence](https://github.com/pcvantol/djconnect/actions/runs/37456690517) passed for that SHA; the [internal prerelease](https://github.com/pcvantol/djconnect/releases/tag/internal-ha-f15fb861e223a209341592666dc2092bad4b4a2e) archive and JSON were digest checked. `SOFTWARE_SIMULATOR_QUAL=PASS`; `PHYSICAL_PI_QUAL=NOT_RUN_FOR_THIS_SLICE`. The prior first-slice owner override is unchanged. No HA-dev installation or public release occurred.

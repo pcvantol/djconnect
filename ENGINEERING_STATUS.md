@@ -1,5 +1,26 @@
 # DJConnect Engineering Status
 
+## Current-slice VibeCast owner refinements — implementation in progress
+
+Parent assignment `DJC-CORE-VIBECAST-MULTIMOMENT-TIMELINE-V1-20261006`;
+qualification `DJC-VIBECAST-MULTIMOMENT-PI-CAPTURE-V1-20261006`.
+The owner explicitly authorized the refinement increment in the execution chat.
+Base `40763f7e829802da4bce815702da675f944f3b46`, existing pickup branch
+`codex/vibecast-pi-live-owner-refinements`; one Core writer. Completed #1118 and
+#1119 remain closed. Baseline physical/live acceptance is PARTIAL, screenshot
+capture PASS, motion NOT_PROVEN; normal end failed. No baseline PASS upgrade.
+
+The [refinement contract](docs/product/VIBECAST_OWNER_REFINEMENTS_CONTRACT.md)
+records qualified source facts, readable bounded cadence, portrait/landscape
+bubbles and fades, artwork palette, 600px portrait art, clock/album/progress,
+actual next-queue item and separate opt-in end-only authority. Multi-entry and
+last-entry reload persistence repair is included. Source tests and browser
+acceptance are running; independent review and protected source delivery are
+pending. Raw physical evidence remains local/private. New-SHA internal
+publication and HA-dev installation need their exact-effect authority check.
+Mandatory separate Finalization remains pending for this increment.
+
+
 ## PR #1118 VibeCast same-track Moment timeline reconciliation
 
 [Core PR #1118](https://github.com/pcvantol/djconnect/pull/1118) protected merged as `f15fb861e223a209341592666dc2092bad4b4a2e` from independently reviewed head `f7caee01087ea8bcb5239003f323d785a1fab0fd`; both trees equal `94d90ab8930f87fba577cd07319e422670349489`. One observed current track can produce different evidenced Genre and Track Moments via the existing Planner, Knowledge, Moment, Flow, Presentation and Broadcast path. VibeCast presents at most two current cards with bounded read time, entry/exit motion and long-copy scrolling, while Now Playing remains stable. Pause, seek, stale observation, source/item change, end and unload invalidate pending work. Five languages, reduced motion and snapshot/reconnect are retained.

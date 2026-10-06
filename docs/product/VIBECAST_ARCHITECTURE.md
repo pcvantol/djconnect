@@ -1,5 +1,15 @@
 # VibeCast Architecture and V1 Product Definition
 
+
+## Owner-authorized current-slice extension
+
+The [VibeCast owner refinements contract](VIBECAST_OWNER_REFINEMENTS_CONTRACT.md)
+records the new bounded qualified-fact producer/display path, responsive UI,
+read-only next-queue item and separate opt-in receiver end authority. Its
+implementation/acceptance is pending; the completed baseline below stays
+historical and its evidence is not upgraded by the new code. Older source
+qualification flags and generic Broadcast permissions remain unchanged.
+
 ## Status
 
 Canonical product positioning and implementation boundary. The active
