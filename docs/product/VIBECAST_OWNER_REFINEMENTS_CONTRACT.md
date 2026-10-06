@@ -3,7 +3,9 @@
 Parent: `DJC-CORE-VIBECAST-MULTIMOMENT-TIMELINE-V1-20261006`.
 Qualification: `DJC-VIBECAST-MULTIMOMENT-PI-CAPTURE-V1-20261006`.
 Base: `40763f7e829802da4bce815702da675f944f3b46`.
-Status: implementation candidate, verification and protected delivery pending.
+Status: [source PR #1120](https://github.com/pcvantol/djconnect/pull/1120)
+protected merged; HA-dev physical acceptance recorded with findings and two
+partial evidence gates in [#1101](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6022878840).
 
 ## Admission and history
 
@@ -14,6 +16,15 @@ The exact-candidate physical baseline remains PARTIAL: real same-track Genre
 and Track cards were captured, but grammar, grounding, motion and normal end
 were not fully accepted. Evidence remains private under the ignored Pi run.
 The ACK and first material change are registered in #1101.
+
+The owner-authorized exact artifact ran on HA-dev and the physical portrait
+Pi. One real Candy track emitted independently sourced recording/producer and
+artist Moments; physical X ended the Session. The run did not prove dense
+continuous narration, automatic capture per new card or full-rate transition
+smoothness. Spotify returned the current track as `queue[0]`, so the visible
+**Hierna** line repeated the current title. The source rule below remains the
+implemented contract; this observed queue behavior needs a separate product
+decision before treating the preview as true next-track truth.
 
 ## Genuine current-track facts
 

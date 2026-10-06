@@ -1,6 +1,6 @@
 # DJConnect Engineering Status
 
-## Current-slice VibeCast owner refinements — implementation in progress
+## PR #1120 VibeCast owner refinements — source merged, physical qualification recorded
 
 Parent assignment `DJC-CORE-VIBECAST-MULTIMOMENT-TIMELINE-V1-20261006`;
 qualification `DJC-VIBECAST-MULTIMOMENT-PI-CAPTURE-V1-20261006`.
@@ -11,14 +11,32 @@ Base `40763f7e829802da4bce815702da675f944f3b46`, existing pickup branch
 capture PASS, motion NOT_PROVEN; normal end failed. No baseline PASS upgrade.
 
 The [refinement contract](docs/product/VIBECAST_OWNER_REFINEMENTS_CONTRACT.md)
-records qualified source facts, readable bounded cadence, portrait/landscape
-bubbles and fades, artwork palette, 600px portrait art, clock/album/progress,
-actual next-queue item and separate opt-in end-only authority. Multi-entry and
-last-entry reload persistence repair is included. Source tests and browser
-acceptance are running; independent review and protected source delivery are
-pending. Raw physical evidence remains local/private. New-SHA internal
-publication and HA-dev installation need their exact-effect authority check.
-Mandatory separate Finalization remains pending for this increment.
+records qualified source facts, bounded cadence, responsive bubbles and fades,
+artwork palette, larger portrait art, clock/album/progress, queue preview and
+opt-in end authority. [Source PR #1120](https://github.com/pcvantol/djconnect/pull/1120)
+protected squash-merged reviewed head `5306026b0fb53299908339f1299d1c901ea88187`
+as `7d39bef4d98b3c1645e9085bc6a137b3244262cf`; both trees equal
+`62668391a1db6eadd1cb217d648bbf09f462acd5`. Local tests (1,556 run,
+7 skipped), software portrait/landscape browser acceptance, independent source
+review and exact-main Validate passed. The automatic internal HA archive has
+SHA-256 `1052010fefd4bf973a7036c80fe1a541c2d18855db47e1f1fa53cd90007294a9`.
+
+With explicit owner authorization, only HA-dev received that exact archive;
+its previous integration was preserved for rollback. The local physical Pi
+evidence under
+`artifacts/verification/vibecast-multimoment/pi-live/run-20261006T175100Z-owner-refinements/`
+shows one real Spotify track with independent recording/producer and artist
+Moments in a single active Session, plus normal physical-X end and idle. The
+qualification is `LIVE_SPOTIFY_HA_DEV_QUAL=PASS`,
+`PHYSICAL_PI_RENDER_QUAL=PASS_WITH_FINDINGS`,
+`PER_MOMENT_SCREENSHOT_CAPTURE=PARTIAL`, and
+`TRANSITION_MOTION_EVIDENCE=PARTIAL`. Capture automation, full-rate motion,
+greater Moment density and a semantically correct next-queue preview remain
+unproven or have concrete findings. Raw physical screenshots stay local.
+
+This separate Finalization reconciles source and physical evidence. Repository
+State becomes `MERGED_RECONCILED` only after its protected merge; Workspace
+State becomes `WORKSPACE_READY` only after safe local cleanup.
 
 
 ## PR #1118 VibeCast same-track Moment timeline reconciliation

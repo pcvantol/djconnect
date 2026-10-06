@@ -1,5 +1,30 @@
 # DJConnect Generation 2 Management Summary
 
+## PR #1120 VibeCast owner refinements and physical Pi acceptance
+
+Protected source [PR #1120](https://github.com/pcvantol/djconnect/pull/1120)
+merged as `7d39bef4d98b3c1645e9085bc6a137b3244262cf`. Its exact automatic
+internal HA archive (`1052010fefd4bf973a7036c80fe1a541c2d18855db47e1f1fa53cd90007294a9`)
+was installed only on HA-dev with a preserved rollback. The owner-requested
+clock, larger artwork/progress, album, responsive factual bubbles, palette,
+queue preview and opt-in end control passed software portrait/landscape checks.
+The physical 1200×1920 Pi run showed a production-credit Moment and an artist
+fact during the same real Spotify track, plus a normal end from the Pi.
+
+Qualification: `LIVE_SPOTIFY_HA_DEV_QUAL=PASS`,
+`PHYSICAL_PI_RENDER_QUAL=PASS_WITH_FINDINGS`,
+`PER_MOMENT_SCREENSHOT_CAPTURE=PARTIAL`,
+`TRANSITION_MOTION_EVIDENCE=PARTIAL`. Local screenshots, measurements,
+contact sheet and sampled real-frame GIF remain private; the package does not
+include independent HA/Spotify API readback. The live checks are operator
+observations. Automatic per-new-Moment capture, full-rate motion, greater
+card density and the repeated-current-track **Hierna** queue issue remain
+unproven or open. The existing five planned distribution horizon items keep
+their separate gates. No public release or Cast work starts from this result.
+
+Repository State becomes `MERGED_RECONCILED` only after this separate
+Finalization merges; Workspace State becomes `WORKSPACE_READY` after cleanup.
+
 ## PR #1118 VibeCast same-track Moment timeline reconciliation
 
 ### Repository Status
