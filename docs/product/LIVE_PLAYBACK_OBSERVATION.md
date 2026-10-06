@@ -1,5 +1,15 @@
 # Live Playback Observation
 
+
+## Owner-authorized current-slice extension
+
+The [VibeCast owner refinements contract](VIBECAST_OWNER_REFINEMENTS_CONTRACT.md)
+records the new bounded qualified-fact producer/display path, responsive UI,
+read-only next-queue item and separate opt-in receiver end authority. Its
+implementation/acceptance is pending; the completed baseline below stays
+historical and its evidence is not upgraded by the new code. Older source
+qualification flags and generic Broadcast permissions remain unchanged.
+
 **Status:** Stage 1 current for Spotify Direct; Music Assistant implementation deferred
 **Owner:** DJConnect Product Development
 **Scope:** Provider-neutral observation of ordinary media changes while an active DJ Session exists. Spotify Direct Stage 1 is implemented; Music Assistant Stage 1, new endpoints, storage, renderer and Continue Stage 2 implementation remain out of scope.

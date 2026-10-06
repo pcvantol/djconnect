@@ -117,6 +117,7 @@ from .http import (
     DJConnectSessionBroadcastHandoffClaimView,
     DJConnectSessionBroadcastHandoffCollectView,
     DJConnectSessionBroadcastHandoffApproveView,
+    DJConnectSessionBroadcastEndControlView,
     DJConnectSessionBroadcastWebSocketView,
     DJConnectUniversalReceiverView,
     DJConnectVibeCastRendererView,
@@ -144,12 +145,8 @@ from .push import (
     should_send_push,
 )
 from .persistence import (
-    PersistentSessionRepository,
-    PersistentSessionStartupReconciler,
-    HistoricalProjectionRepository,
     async_initialize_persistence,
     async_shutdown_persistence,
-    persistence_service,
 )
 from .repairs import async_create_fixable_issues
 from .spotify_oauth import (
@@ -1794,6 +1791,7 @@ def register_http_views(hass: HomeAssistant) -> None:
             DJConnectSessionBroadcastHandoffClaimView(hass),
             DJConnectSessionBroadcastHandoffCollectView(hass),
             DJConnectSessionBroadcastHandoffApproveView(hass),
+            DJConnectSessionBroadcastEndControlView(hass),
             DJConnectSessionBroadcastWebSocketView(hass),
             DJConnectUniversalReceiverView(),
             DJConnectVibeCastRendererView(),
@@ -3124,10 +3122,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     except Exception as exc:  # noqa: BLE001
         _LOGGER.error("DJConnect persistence bootstrap failed: %s", exc.__class__.__name__)
         return False
-    await PersistentSessionStartupReconciler(
-        PersistentSessionRepository(persistence_service(hass)),
-        history=HistoricalProjectionRepository(persistence_service(hass)),
-    ).async_reconcile()
     # Some Home Assistant startup paths load config entries without first
     # retaining the integration-level setup state. Registering here as well
     # keeps the public HA routes available for every configured runtime.
@@ -3196,7 +3190,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                     await handoff_manager.clear()
             else:
                 await _async_clear_all_server_state(hass)
-            await async_shutdown_persistence(hass)
+            await async_shutdown_persistence(hass, preserve_for_reload=entry.entry_id in hass.data[DOMAIN].get(_ENTRY_RELOAD_PRESERVE_KEY, set()))
     return unloaded
 
 

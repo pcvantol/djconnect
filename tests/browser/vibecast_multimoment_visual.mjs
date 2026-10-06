@@ -82,21 +82,25 @@ try {
   await page.evaluate(value => window.__deliver({type:'event',data:value}),published);
   await page.waitForTimeout(90);
   const during = await page.locator('#moment-card').evaluate(el => ({animation:getComputedStyle(el).animationName,opacity:getComputedStyle(el).opacity}));
-  assert.equal(during.animation,'card-in');
+  assert.equal(during.animation,'card-out');
   assert.equal(await page.locator('#moment-history').evaluate(el => getComputedStyle(el).animationName),'card-old');
   await page.screenshot({path:path.join(output,'03-entering.png')});
-  await page.waitForTimeout(800);
+  await page.waitForTimeout(1600);
   assert.equal(await page.locator('#moment-type').textContent(),'Nummer');
   assert.match(await page.locator('#moment-history').textContent(),/Genre/);
   assert.equal(await page.locator('#title').textContent(),'Current');
   assert.equal(await page.locator('#artwork').getAttribute('src'),artwork);
   assert.ok((await page.locator('#moment-detail').textContent()).length > 300);
   assert.equal(await page.locator('.moment-card:not([hidden])').count(),2);
+  const artBox=await page.locator('#artwork').boundingBox();
+  assert.equal(Math.round(artBox.width),600);
+  assert.match(await page.locator('#clock').textContent(),/^\d{2}:\d{2}$/);
+  assert.equal(await page.locator('#mood').isVisible(),false);
   await page.screenshot({path:path.join(output,'04-settled.png')});
   animationStarts = await page.evaluate(() => window.__animationStarts || 0);
-  assert.equal(animationStarts,1);
+  assert.equal(animationStarts,2);
   await page.evaluate(value => window.__deliver({type:'event',data:value}),published);
-  assert.equal(await page.evaluate(() => window.__animationStarts || 0),1);
+  assert.equal(await page.evaluate(() => window.__animationStarts || 0),2);
   const oldPlayback = capture.events.find(event => event.event_type === 'playback_changed');
   await page.evaluate(value => window.__deliver({type:'event',data:value}),oldPlayback);
   assert.equal(await page.locator('#progress').evaluate(el => el.value),30000);
@@ -113,7 +117,7 @@ try {
   await page.evaluate(snapshot => window.__deliver({type:'snapshot',session_id:snapshot.session.session_id,snapshot}),capture.before);
   assert.equal(await page.locator('#moment-type').textContent(),'Nummer');
   await page.evaluate(snapshot => window.__deliver({type:'snapshot',session_id:snapshot.session.session_id,snapshot}),capture.after);
-  assert.equal(await page.evaluate(() => window.__animationStarts || 0),1);
+  assert.equal(await page.evaluate(() => window.__animationStarts || 0),2);
   assert.equal(await page.locator('#moment-type').textContent(),'Nummer');
   const expired = structuredClone(capture.after);
   for (const item of expired.dj_moments) item.created_at = '2000-01-01T00:00:00Z';
@@ -157,7 +161,7 @@ try {
     viewport:'1200x1920',landscape:'1920x1200',source:capture.source,simulator:true,
     moment_receipts:capture.moment_receipts,types:capture.moment_receipts.map(m=>m.type),
     broadcast_events:capture.events.map(e=>e.event_type),
-    checks:{first:true,progress_stable:true,enter_animation:true,previous_exit_animation:true,previous_card:true,long_copy_scroll:true,duplicate_ignored:true,out_of_order_ignored:true,reconnect_no_replay:true,expired_hidden:true,track_change_clears:true,landscape_no_overflow:true,reduced_motion:true},
+    checks:{first:true,progress_stable:true,enter_animation:true,old_card_fade_out:true,long_copy_scroll:true,duplicate_ignored:true,out_of_order_ignored:true,reconnect_no_replay:true,expired_hidden:true,track_change_clears:true,landscape_no_overflow:true,reduced_motion:true},
     animationStarts,scrollTop
   },null,2)+'\n');
   console.log(`Visual acceptance PASS: ${output}`);

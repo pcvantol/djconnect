@@ -1,5 +1,15 @@
 # VibeCast Reference Renderer Increment
 
+
+## Owner-authorized current-slice extension
+
+The [VibeCast owner refinements contract](VIBECAST_OWNER_REFINEMENTS_CONTRACT.md)
+records the new bounded qualified-fact producer/display path, responsive UI,
+read-only next-queue item and separate opt-in receiver end authority. Its
+implementation/acceptance is pending; the completed baseline below stays
+historical and its evidence is not upgraded by the new code. Older source
+qualification flags and generic Broadcast permissions remain unchanged.
+
 **Status:** First slice complete under the owner's simulator acceptance override:
 `SIMULATOR_QUAL=PASS`, `PHYSICAL_PI_QUAL=NOT_RERUN_BY_USER_OVERRIDE`.
 The separately selected [same-track Moment timeline](VIBECAST_MULTIMOMENT_TIMELINE_CONTRACT.md)

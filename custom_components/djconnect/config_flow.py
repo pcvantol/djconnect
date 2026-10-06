@@ -258,6 +258,7 @@ CLIENT_TYPE_NAME_SUFFIXES = {
 }
 
 VOICE_FORM_FIELDS = {
+    "vibecast_session_end_allowed",
     CONF_ASSIST_PIPELINE_ID,
     CONF_DJ_ANNOUNCEMENT_OUTPUT,
     CONF_DJ_ANNOUNCEMENT_SPEAKER,
@@ -1132,6 +1133,7 @@ def _base_voice_schema(
             {readonly_local_url: label}
         )
     schema.update({
+        vol.Optional("vibecast_session_end_allowed", default=defaults.get("vibecast_session_end_allowed", False)): bool,
         vol.Optional(
             CONF_DJ_ANNOUNCEMENT_SPEAKER,
             default=defaults.get(CONF_DJ_ANNOUNCEMENT_SPEAKER, ""),
@@ -1297,6 +1299,7 @@ def _voice_defaults(
     """Return voice/options config with safe defaults."""
     source = data or {}
     return {
+        "vibecast_session_end_allowed": source.get("vibecast_session_end_allowed") is True,
         CONF_ASSIST_PIPELINE_ID: _defaultable_value(
             source,
             CONF_ASSIST_PIPELINE_ID,

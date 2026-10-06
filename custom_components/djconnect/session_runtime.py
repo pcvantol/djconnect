@@ -17,6 +17,7 @@ from typing import Any, Awaitable, Callable
 from uuid import uuid4
 
 from .const import API_IMAGE_PROXY_BASE, DOMAIN
+from .session_facts import QualifiedSessionFact
 from .persistence import persistence_service
 from .persistence.sessions import (
     ACTIVE as PERSISTENT_SESSION_ACTIVE,
@@ -377,6 +378,7 @@ class DJMoment:
     source_references: tuple[str, ...]
     generation_metadata: tuple[tuple[str, str], ...]
     source_context_fingerprint: str = field(default="", repr=False)
+    source_attribution: tuple[tuple[str, str], ...] = ()
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -396,6 +398,7 @@ class DJMoment:
             "importance": self.presentation_intent.importance,
             "source_references": list(self.source_references),
             "generation_metadata": dict(self.generation_metadata),
+            **({"source_attribution": dict(self.source_attribution)} if self.source_attribution else {}),
         }
 
 
@@ -1615,6 +1618,22 @@ class DJSessionPlanner:
             )
         return None
 
+    def select_qualified_current_fact(self, *, facts: tuple[QualifiedSessionFact, ...], media_identity: str,
+                                      used_keys: set[str], locale: str, allowed_intents: frozenset[str] | None) -> tuple[KnowledgeIntent, QualifiedSessionFact] | None:
+        """Choose an available independent angle, never a forced type rotation."""
+        for fact in facts:
+            if fact.key in used_keys or not fact.eligible(media_identity, time.monotonic()) or not fact.copy_for(locale):
+                continue
+            if allowed_intents is not None and fact.intent not in allowed_intents:
+                continue
+            intent = KnowledgeIntent(KnowledgeIntentType(fact.intent), "Share one qualified current-track fact.")
+            decision_type = {KnowledgeIntentType.ARTIST_STORY: PlannerDecisionType.CREATE_ARTIST_STORY,
+                             KnowledgeIntentType.ALBUM_STORY: PlannerDecisionType.CREATE_ALBUM_STORY,
+                             KnowledgeIntentType.GENRE_STORY: PlannerDecisionType.CREATE_GENRE_STORY}.get(intent.intent_type, PlannerDecisionType.CREATE_TRACK_CONTEXT)
+            self.last_decision = PlannerDecision(decision_type, "qualified_current_fact", intent)
+            return intent, fact
+        return None
+
     def project_track_started_planning_input(
         self,
         *,
@@ -1880,6 +1899,10 @@ class DJMomentEngine:
         source_insight: dict[str, Any] | None = None,
     ) -> DJMoment:
         """Translate one selected Knowledge Context into one frozen Moment."""
+        qualified = insight.get("_qualified_fact")
+        if isinstance(qualified, QualifiedSessionFact):
+            return self.create_qualified_fact(session_id=session_id, intent=knowledge_intent, fact=qualified,
+                                              selected_mood=selected_mood, persona=persona, locale=locale)
         track = insight.get("track") if isinstance(insight.get("track"), dict) else {}
         analysis = insight.get("analysis") if isinstance(insight.get("analysis"), dict) else {}
         title = _bounded_text(track.get("title"), 160)
@@ -1959,6 +1982,23 @@ class DJMomentEngine:
                 ("validated", "true"),
             ),
         )
+        self.moments = (*self.moments, moment)
+        return moment
+
+    def create_qualified_fact(self, *, session_id: str, intent: KnowledgeIntent, fact: QualifiedSessionFact,
+                              selected_mood: str, persona: DJPersona, locale: str) -> DJMoment:
+        copy = fact.copy_for(locale)
+        key = f"{fact.source_url}|fact:{fact.key}"
+        if copy is None or not fact.eligible(fact.media_identity, time.monotonic()) or fact.intent != intent.intent_type.value or key in self._track_keys:
+            return self.create_silence(session_id=session_id, selected_mood=selected_mood, persona=persona, locale=locale, reason="unqualified_or_duplicate_fact")
+        summary, content = copy
+        self._track_keys.add(key)
+        moment_type = {"artist_story": DJMomentType.ARTIST, "album_story": DJMomentType.ALBUM, "genre_story": DJMomentType.GENRE}.get(fact.intent, DJMomentType.TRACK)
+        moment = DJMoment(moment_id=f"moment-{uuid4().hex}", session_id=session_id, created_at=_timestamp(), moment_type=moment_type,
+                          knowledge_intent=intent, presentation_intent=_presentation_intent(selected_mood, persona, reading_characters=len(summary)+len(content), minimum_duration_seconds=40),
+                          title=summary, summary=summary, content=content, artwork_url=None, actions=(), source_references=(fact.provider,),
+                          generation_metadata=(("provider", fact.provider), ("validated", "true")), source_context_fingerprint=hashlib.sha256(key.encode()).hexdigest(),
+                          source_attribution=(("provider", fact.provider), ("url", fact.source_url), ("license", fact.license)))
         self.moments = (*self.moments, moment)
         return moment
 
@@ -2125,10 +2165,13 @@ class KnowledgeContext:
     session_mood: str = ""
     discover_context: DiscoverContext | None = None
     performance_memory: PerformanceMemory | None = None
+    qualified_fact: QualifiedSessionFact | None = None
 
     def as_insight(self) -> dict[str, Any]:
         """Adapt the safe context to the existing Moment Engine contract."""
         insight = {"track": dict(self.track), "analysis": dict(self.analysis)}
+        if self.qualified_fact is not None:
+            insight["_qualified_fact"] = self.qualified_fact
         if self.session_direction is not None:
             insight["session_direction"] = self.session_direction.as_dict()
         if self.session_start_strategy is not None:
@@ -2147,6 +2190,13 @@ class DJKnowledgeEngine:
     """Runtime-scoped assembly of relevant knowledge; never presentation."""
 
     assembled_contexts: tuple[KnowledgeContext, ...] = ()
+
+    def assemble_qualified_fact(self, *, intent: KnowledgeIntent, fact: QualifiedSessionFact,
+                                media_identity: str, locale: str) -> KnowledgeContext | None:
+        """Accept only typed, fresh, exact-subject, attributable display evidence."""
+        if fact.intent != intent.intent_type.value or not fact.eligible(media_identity, time.monotonic()) or not fact.copy_for(locale):
+            return None
+        return self._record(KnowledgeContext(track=(), analysis=(), sources=(fact.provider,), qualified_fact=fact))
 
     def select_discover_narrative_evidence(
         self, raw_insight: dict[str, Any], observed_media_identity: str
@@ -2939,6 +2989,8 @@ class RendererSafePlaybackProjection:
     duration_ms: int | None = None
     position_ms: int | None = None
     updated_at: str = ""
+    up_next: tuple[tuple[str, str], ...] = ()
+    source_url: str = ""
 
     @classmethod
     def from_observation(
@@ -2953,6 +3005,7 @@ class RendererSafePlaybackProjection:
         target_name: str = "",
         duration_ms: int | None = None,
         position_ms: int | None = None,
+        up_next: dict[str, Any] | None = None,
     ) -> "RendererSafePlaybackProjection":
         """Normalize only already-observed, renderer-safe metadata."""
         normalized_state = str(state or "idle").strip().lower()
@@ -2981,6 +3034,14 @@ class RendererSafePlaybackProjection:
             duration_ms=safe_duration,
             position_ms=safe_position,
             updated_at=_timestamp(),
+            source_url="https://open.spotify.com/track/" + identity.rsplit(":", 1)[-1] if re.fullmatch(r"spotify:track:[A-Za-z0-9]{22}", identity) else "",
+            up_next=tuple((key, value) for key, value in {
+                "current_item_id": item_id,
+                "title": _bounded_text((up_next or {}).get("title"), 256),
+                "artist": _bounded_text((up_next or {}).get("artist"), 256),
+                "artwork_url": _safe_artwork_url((up_next or {}).get("artwork_url")),
+                "expires_at": _bounded_text((up_next or {}).get("expires_at"), 40),
+            }.items() if value) if up_next and item_id else (),
         )
 
     def same_content(self, other: "RendererSafePlaybackProjection") -> bool:
@@ -2997,6 +3058,10 @@ class RendererSafePlaybackProjection:
             result["duration_ms"] = self.duration_ms
         if self.position_ms is not None:
             result["position_ms"] = self.position_ms
+        if self.up_next:
+            result["up_next"] = dict(self.up_next)
+        if self.source_url:
+            result["source_url"] = self.source_url
         return result
 
 
@@ -3423,6 +3488,11 @@ class IntraTrackOpportunity:
     spent: bool = False
     blocked: bool = False
     resume_ready_at: float = 0.0
+    qualified_facts: tuple[QualifiedSessionFact, ...] = ()
+    used_fact_keys: set[str] = field(default_factory=set)
+    fact_count: int = 0
+    last_fact_position_ms: int | None = None
+    last_fact_read_seconds: int = 0
 
 
 def _safe_intra_track_insight(raw_insight: dict[str, Any]) -> dict[str, Any]:
@@ -3548,6 +3618,7 @@ class SessionRuntimeManager:
         self._active_by_profile: dict[str, DJSessionRuntime] = {}
         self._playback_progress_clocks: dict[str, PlaybackProgressClock] = {}
         self._intra_track_opportunities: dict[str, IntraTrackOpportunity] = {}
+        self._end_grants: dict[str, tuple[str, str, float]] = {}
         self._monotonic_source = monotonic_source
         self._lock = asyncio.Lock()
         self._persistent_sessions = persistent_sessions
@@ -3667,12 +3738,14 @@ class SessionRuntimeManager:
         target_name: str = "",
         duration_ms: int | None = None,
         position_ms: int | None = None,
+        up_next: dict[str, Any] | None = None,
     ) -> bool:
         """Apply one normalized observation to its active Runtime only."""
         projection = RendererSafePlaybackProjection.from_observation(
             state=state, media_identity=media_identity, title=title, artist=artist,
             album=album, artwork_url=artwork_url, target_name=target_name, duration_ms=duration_ms,
             position_ms=position_ms,
+            up_next=up_next,
         )
         async with self._lock:
             active = self._active_by_profile.get(owner_profile_id)
@@ -3712,12 +3785,29 @@ class SessionRuntimeManager:
                         opportunity.generation += 1
                         opportunity.pending = False
                     opportunity.last_observed_position_ms = projection.position_ms
-                    opportunity.last_observed_monotonic = now
+                opportunity.last_observed_monotonic = now
+            old_playback = active.broadcast.state.playback
+            if up_next is None and projection.state == "playing" and old_playback.item_id == projection.item_id and old_playback.target_name == projection.target_name:
+                projection = RendererSafePlaybackProjection(**{**projection.__dict__, "up_next": old_playback.up_next})
             changed = active.broadcast.update_playback(projection)
             self._replace_playback_progress_clock(owner_profile_id, projection, session_id)
             if changed:
                 _LOGGER.debug("DJConnect renderer-safe playback projection changed")
             return changed
+
+    async def async_update_next_item_projection(self, *, owner_profile_id: str, session_id: str,
+                                                 media_identity: str, target_name: str, up_next: dict[str, Any]) -> bool:
+        """Apply optional queue data only to the still-current item/output."""
+        async with self._lock:
+            active = self._active_by_profile.get(owner_profile_id)
+            if active is None or active.session_id != session_id:
+                return False
+            playback = active.broadcast.state.playback
+            expected = hashlib.sha256(media_identity.encode()).hexdigest()[:24] if media_identity else ""
+            if playback.item_id != expected or playback.target_name != _bounded_text(target_name, 256) or playback.state != "playing":
+                return False
+            normalized = RendererSafePlaybackProjection.from_observation(state=playback.state, media_identity=media_identity, up_next=up_next)
+            return active.broadcast.update_playback(RendererSafePlaybackProjection(**{**playback.__dict__, "up_next": normalized.up_next}))
 
     async def async_update_allowed_capability_intents(
         self,
@@ -3803,6 +3893,20 @@ class SessionRuntimeManager:
             playback = active.broadcast.state.playback
             position = opportunity.last_observed_position_ms
             duration = playback.duration_ms
+            if opportunity.qualified_facts:
+                # Fresh provider observations, not the one-second display clock,
+                # drive each independent fact opportunity. No backlog or replay.
+                if (opportunity.session_id != session_id or opportunity.media_identity != media_identity
+                        or opportunity.item_id != playback.item_id or opportunity.blocked
+                        or opportunity.fact_count >= 6 or playback.state != "playing"
+                        or position is None or duration is None
+                        or self._monotonic_source() - opportunity.last_observed_monotonic > 30
+                        or self._monotonic_source() < opportunity.resume_ready_at
+                        or duration - position < 45_000
+                        or (opportunity.last_fact_position_ms is not None and
+                            position - opportunity.last_fact_position_ms < max(35, opportunity.last_fact_read_seconds - 5) * 1000)):
+                    return None
+                return self._publish_qualified_current_fact(owner_profile_id, active, opportunity)
             if (
                 opportunity.session_id != session_id
                 or opportunity.media_identity != media_identity
@@ -3883,6 +3987,45 @@ class SessionRuntimeManager:
             active.publish_moment(moment)
             self._record_performance_memory(owner_profile_id, active)
             return moment
+
+    def _publish_qualified_current_fact(self, owner_profile_id: str, active: DJSessionRuntime,
+                                        opportunity: IntraTrackOpportunity) -> DJMoment | None:
+        """Run the canonical Planner→Knowledge→Moment→Flow→Broadcast chain."""
+        selected = active.planner.select_qualified_current_fact(
+            facts=opportunity.qualified_facts, media_identity=opportunity.media_identity,
+            used_keys=opportunity.used_fact_keys | {fact.key for fact in opportunity.qualified_facts
+                if f"{fact.source_url}|fact:{fact.key}" in active.moment_engine._track_keys}, locale=active.locale,
+            allowed_intents=active.allowed_capability_intents,
+        )
+        if selected is None:
+            return None
+        intent, fact = selected
+        knowledge = active.knowledge_engine.assemble_qualified_fact(
+            intent=intent, fact=fact, media_identity=opportunity.media_identity, locale=active.locale,
+        )
+        if knowledge is None:
+            return None
+        working_moments = copy.deepcopy(active.moment_engine)
+        moment = working_moments.create_track_context(
+            session_id=active.session_id, knowledge_intent=intent, selected_mood=active.selected_mood,
+            persona=active.dj_persona, locale=active.locale, insight=knowledge.as_insight(),
+        )
+        if moment.moment_type is DJMomentType.SILENCE:
+            return None
+        playback = active.broadcast.state.playback
+        if (playback.state != "playing" or opportunity.blocked
+                or opportunity.last_observed_position_ms is None or playback.duration_ms is None
+                or self._monotonic_source() - opportunity.last_observed_monotonic > 30
+                or playback.duration_ms - opportunity.last_observed_position_ms < (moment.presentation_intent.maximum_duration_seconds + 5) * 1000):
+            return None
+        active.moment_engine.__dict__.update(working_moments.__dict__)
+        opportunity.used_fact_keys.add(fact.key)
+        opportunity.fact_count += 1
+        opportunity.last_fact_position_ms = opportunity.last_observed_position_ms
+        opportunity.last_fact_read_seconds = moment.presentation_intent.maximum_duration_seconds
+        active.publish_moment(moment)
+        self._record_performance_memory(owner_profile_id, active)
+        return moment
 
     async def async_advance_playback_progress(
         self, *, owner_profile_id: str, session_id: str
@@ -3976,7 +4119,7 @@ class SessionRuntimeManager:
             return True
 
     def _accept_track_started_media(
-        self, owner_profile_id: str, session_id: str, media_identity: str
+        self, owner_profile_id: str, session_id: str, media_identity: str, *, allow_initial: bool = False
     ) -> DJSessionRuntime | None:
         """Return an active session after accepting one non-duplicate track identity.
 
@@ -3994,7 +4137,7 @@ class SessionRuntimeManager:
             **{**active.__dict__, "last_accepted_media_identity": media_identity}
         )
         self._active_by_profile[owner_profile_id] = updated
-        return updated if active.last_accepted_media_identity else None
+        return updated if active.last_accepted_media_identity or allow_initial else None
 
     async def async_process_track_started(
         self,
@@ -4005,12 +4148,17 @@ class SessionRuntimeManager:
         media_identity: str = "",
         upcoming_playback: UpcomingPlaybackProjection | None = None,
         require_current_playback: bool = False,
+        allow_initial_facts: bool = False,
     ) -> DJMoment | None:
         """Orchestrate Planner → Knowledge → Moment → Flow → Broadcast."""
         async with self._lock:
-            active = self._accept_track_started_media(owner_profile_id, session_id, media_identity)
+            prior = self._active_by_profile.get(owner_profile_id)
+            initial = prior is not None and not prior.last_accepted_media_identity
+            active = self._accept_track_started_media(owner_profile_id, session_id, media_identity, allow_initial=allow_initial_facts)
             if active is None:
                 return None
+            started_opportunity = self._intra_track_opportunities.get(owner_profile_id)
+            started_generation = started_opportunity.generation if started_opportunity else None
         try:
             raw_insight = await insight_provider()
         except Exception as exc:  # noqa: BLE001
@@ -4024,6 +4172,24 @@ class SessionRuntimeManager:
                 media_identity=media_identity,
                 require_current_playback=require_current_playback,
             ):
+                return None
+            if require_current_playback and (
+                started_opportunity is None
+                or self._intra_track_opportunities.get(owner_profile_id) is not started_opportunity
+                or started_opportunity.generation != started_generation or started_opportunity.blocked
+                or self._monotonic_source() - started_opportunity.last_observed_monotonic > 30
+            ):
+                return None
+            facts = raw_insight.get("_qualified_facts")
+            opportunity = self._intra_track_opportunities.get(owner_profile_id)
+            if isinstance(facts, tuple) and opportunity is not None and opportunity.media_identity == media_identity and not opportunity.blocked:
+                opportunity.qualified_facts = tuple(fact for fact in facts[:6] if isinstance(fact, QualifiedSessionFact)
+                                                    and fact.eligible(media_identity, time.monotonic()))
+                if opportunity.qualified_facts:
+                    return self._publish_qualified_current_fact(owner_profile_id, active, opportunity)
+            if initial and allow_initial_facts:
+                # Initial metadata establishes the old baseline unless a new
+                # qualified source fact exists; never manufacture an intro.
                 return None
             working_planner = copy.deepcopy(active.planner)
             working_knowledge_engine = copy.deepcopy(active.knowledge_engine)
@@ -4603,6 +4769,36 @@ class SessionRuntimeManager:
             if active is not None and active.session_id == session_id:
                 active.broadcast.unsubscribe(subscription_id)
 
+    async def async_issue_receiver_end_grant(self, *, owner_profile_id: str, session_id: str) -> str:
+        """Issue a separate end-only credential after explicit owner consent."""
+        async with self._lock:
+            active = self._active_by_profile.get(owner_profile_id)
+            if active is None or active.session_id != session_id:
+                return ""
+            now = self._monotonic_source()
+            self._end_grants = {key: value for key, value in self._end_grants.items() if value[2] > now}
+            if len(self._end_grants) >= 64:
+                return ""
+            grant = secrets.token_urlsafe(32)
+            self._end_grants[grant] = (owner_profile_id, session_id, now + 3600)
+            return grant
+
+    async def async_revoke_receiver_end_grants(self, *, owner_profile_id: str, session_id: str) -> None:
+        """Revoke temporary end authority when its observer unloads/reloads."""
+        async with self._lock:
+            self._end_grants = {key: value for key, value in self._end_grants.items()
+                                if value[:2] != (owner_profile_id, session_id)}
+
+    async def async_end_with_receiver_grant(self, *, session_id: str, grant: str) -> DJSessionRuntime | None:
+        """Consume one exact-session end grant; Broadcast credentials cannot end."""
+        async with self._lock:
+            authorization = self._end_grants.get(grant)
+            if authorization is None or authorization[1] != session_id or authorization[2] <= self._monotonic_source():
+                return None
+            del self._end_grants[grant]
+            profile_id = authorization[0]
+        return await self.async_end(owner_profile_id=profile_id, session_id=session_id)
+
     async def async_end(
         self,
         *,
@@ -4616,8 +4812,6 @@ class SessionRuntimeManager:
                 return None
             if session_id and active.session_id != session_id:
                 return None
-            self._playback_progress_clocks.pop(owner_profile_id, None)
-            self._intra_track_opportunities.pop(owner_profile_id, None)
             if self._persistent_sessions is not None:
                 persistent = await self._persistent_sessions.async_transition(
                     owner_profile_id, active.session_id, PERSISTENT_SESSION_ENDED
@@ -4636,6 +4830,8 @@ class SessionRuntimeManager:
                             ordering=ordering,
                             created_at=moment.created_at,
                         )
+            self._playback_progress_clocks.pop(owner_profile_id, None)
+            self._intra_track_opportunities.pop(owner_profile_id, None)
             active.broadcast.update_runtime_state(SessionRuntimeState.ENDING)
             active.planner.clear_discover_narrative()
             ending = DJSessionRuntime(
@@ -4655,6 +4851,7 @@ class SessionRuntimeManager:
             )
             active.broadcast.close()
             self._active_by_profile.pop(owner_profile_id, None)
+            self._end_grants = {key: value for key, value in self._end_grants.items() if value[1] != active.session_id}
             return ended
 
 

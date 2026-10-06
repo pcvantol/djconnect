@@ -1,13 +1,13 @@
 <!doctype html>
 <html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="referrer" content="no-referrer"><title>DJConnect VibeCast</title>
 <style>
-:root { color-scheme:dark; --accent:#9f7cff; --art:none }
+:root { color-scheme:dark; --accent:#9f7cff; --art:none; --tone1:#282442; --tone2:#153840; --tone3:#282031 }
 * { box-sizing:border-box }
 html,body { width:100%; min-height:100%; margin:0; overflow:hidden }
 body { min-height:100vh; min-height:100dvh; background:#12111c; color:#f8f6ff; font-family:system-ui,sans-serif }
 .atmosphere,.atmosphere::after { position:fixed; inset:-12vmax; pointer-events:none }
 .atmosphere { background:radial-gradient(circle at 15% 12%,color-mix(in srgb,var(--accent) 65%,transparent),transparent 32%),radial-gradient(circle at 85% 88%,#355e87,transparent 38%),#12111c; animation:drift 24s ease-in-out infinite alternate }
-.atmosphere::after { content:""; background:var(--art) center/cover; opacity:.18; filter:blur(72px) saturate(1.25); transform:scale(1.2) }
+.atmosphere::after { content:""; background:radial-gradient(ellipse at 10% 5%,var(--tone1),transparent 65%),radial-gradient(ellipse at 90% 80%,var(--tone2),transparent 70%),var(--tone3); opacity:.9 }
 main { position:relative; z-index:1; min-height:100vh; min-height:100dvh; display:grid; grid-template-rows:auto minmax(0,1fr) auto; gap:clamp(1rem,2vh,2.5rem); padding:clamp(2rem,5vw,5rem) }
 header { display:flex; justify-content:space-between; gap:1rem; font-size:clamp(.75rem,1.1vw,1rem); letter-spacing:.16em; text-transform:uppercase; color:#d9d4e9 }
 #state { color:#fff; letter-spacing:.08em }
@@ -40,10 +40,53 @@ progress { width:100%; height:.35rem; accent-color:var(--accent) }
 @media (prefers-reduced-motion:reduce) { .atmosphere,.moment-card.fresh,.moment-card.previous.leaving { animation:none } }
 .handoff { position:fixed; left:50%; bottom:clamp(2rem,5vh,6rem); transform:translateX(-50%); z-index:3; width:min(calc(100% - 4rem),38rem); padding:1.5rem 2rem; border-radius:1.25rem; background:#141322ee; color:#fff; font-size:clamp(1.1rem,2vw,1.6rem); text-align:center }
 .handoff strong { display:block; font-size:clamp(3.5rem,7vw,6rem); letter-spacing:.2em; font-variant-numeric:tabular-nums }
-</style></head><body class="idle"><div class="atmosphere" aria-hidden="true"></div><main><header><span>DJConnect VibeCast</span><span id="state" data-testid="connection-state">Idle</span></header><div id="handoff" class="handoff" role="status" aria-live="polite" hidden></div><section class="stage"><div class="now-playing"><img id="artwork" class="artwork" alt="" hidden><p id="mood" class="eyebrow">Ambient session</p><h1 id="title" class="track">Waiting for a session</h1><p id="artist" class="artist"></p></div><div class="cards" aria-live="polite"><div id="moment-history" class="moment-card previous" hidden></div><article id="moment-card" class="moment-card" hidden><span id="moment-type" class="moment-kind"></span><p id="moment" class="moment-summary"></p><p id="moment-detail" class="moment-detail"></p></article></div></section><footer><progress id="progress" max="1" value="0" hidden></progress><div class="meta"><span id="album"></span><span id="time"></span></div></footer></main>
+
+.spotify-source { display:inline-block; margin-top:1rem; padding:.6rem 0 }
+.spotify-source[hidden],.moment-source[hidden] { display:none }
+.spotify-source img { width:120px; height:auto }
+.moment-source { display:block; margin-top:.8rem; color:#ddd9ec; font-size:clamp(.9rem,1.5vw,1.15rem); text-decoration:underline }
+#end-session { font:700 3.5rem/1 system-ui; color:#fff; background:#17162288; border:1px solid #ffffff66; border-radius:50%; width:5rem; height:5rem; cursor:pointer }
+#end-session[hidden] { display:none }
+/* Owner refinements: fixed safe regions, artwork-led atmosphere and readable controls. */
+main { height:100dvh; min-height:0; padding:clamp(1.5rem,4vw,4rem); gap:1.5rem }
+header { align-items:center; min-height:4rem }
+#clock { font-size:clamp(2rem,4.5vw,4rem); font-weight:850; letter-spacing:-.02em; font-variant-numeric:tabular-nums }
+.stage { position:relative; align-self:stretch; width:100%; display:flex; align-items:center; min-height:0; gap:0 }
+.now-playing { width:100% }
+.artwork { width:min(56vw,37.5rem,45vh); border-radius:8px; object-fit:contain }
+.track { font-size:clamp(2rem,5vw,4.5rem); max-width:22ch; margin-top:1.5rem }
+.artist { font-size:clamp(1.25rem,2.7vw,2.5rem) }
+.album-name { margin:.5rem 0 0; color:#e1dfeb; font-size:clamp(1rem,2.2vw,2rem) }
+#mood { display:none }
+.cards { position:absolute; top:0; right:0; width:min(100%,54rem); max-height:23vh; z-index:2 }
+.stage.bubble-below .cards { top:auto; bottom:0; left:clamp(0rem,6vw,6rem); right:auto }
+.moment-card { width:100%; border-radius:3rem 4.5rem 3.5rem 1rem; padding:1.5rem 2.25rem; background:#151722d9; border:2px solid #ffffff68 }
+.stage.bubble-below .moment-card { border-radius:4rem 1rem 3rem 4.5rem }
+.moment-summary { font-size:clamp(1.3rem,2.7vw,2rem); line-height:1.28 }
+.moment-detail { max-height:12vh; font-size:clamp(1.1rem,2.1vw,1.55rem); line-height:1.4 }
+.moment-kind { font-size:clamp(.9rem,1.5vw,1.2rem) }
+.moment-card.previous { display:none }
+.moment-card.exiting { animation:card-out .8s ease both; pointer-events:none }
+progress::-webkit-progress-bar { background:#ffffff40; border-radius:1rem }
+progress::-webkit-progress-value { background:var(--accent); border-radius:1rem }
+progress::-moz-progress-bar { background:var(--accent); border-radius:1rem }
+progress { height:.7rem; border-radius:1rem; overflow:hidden }
+.meta { justify-content:flex-end; font-size:clamp(1.3rem,2.2vw,2rem); font-weight:650; font-variant-numeric:tabular-nums }
+.up-next { display:flex; align-items:center; gap:1.2rem; margin-bottom:1rem; min-width:0 }
+.up-next[hidden] { display:none }
+.up-next img { width:clamp(3.5rem,7vw,6rem); aspect-ratio:1; border-radius:1rem; object-fit:cover }
+.up-next strong { display:block; font-size:clamp(1.2rem,2.3vw,1.9rem); overflow-wrap:anywhere }
+.up-next span { display:block; font-size:clamp(1rem,1.9vw,1.5rem) }
+.up-next-label { color:#e1ddeb; margin-bottom:.3rem; font-weight:700 }
+@keyframes card-out { from { opacity:1; transform:translateY(0) } to { opacity:0; transform:translateY(-.7rem) } }
+@media (orientation:portrait) and (min-width:800px) { .stage { gap:0 } .artwork { width:min(56vw,37.5rem,45vh) } .cards { max-height:23vh } }
+@media (orientation:landscape) { .stage { display:flex; width:100%; align-items:center } .now-playing { width:48% } .artwork { width:min(36vw,37.5rem,42vh) } .cards,.stage.bubble-below .cards { width:46%; left:auto; right:0; top:12%; bottom:auto; max-height:55vh } .stage.bubble-below .cards { top:auto; bottom:10% } .moment-detail { max-height:30vh } .track { margin-top:1rem } }
+@media (max-height:800px) and (orientation:portrait) { .artwork { width:min(48vw,28vh) } .cards { max-height:20vh } .moment-detail { max-height:8vh } .track { font-size:1.8rem } }
+@media (prefers-reduced-motion:reduce) { .moment-card.exiting { animation:none } }
+</style></head><body class="idle"><div class="atmosphere" aria-hidden="true"></div><main><header><time id="clock" aria-label=""></time><span id="state" data-testid="connection-state">Idle</span><button id="end-session" type="button" hidden>×</button></header><div id="handoff" class="handoff" role="status" aria-live="polite" hidden></div><section class="stage"><div class="now-playing"><img id="artwork" class="artwork" alt="" hidden><p id="mood" class="eyebrow">Ambient session</p><h1 id="title" class="track">Waiting for a session</h1><p id="artist" class="artist"></p><p id="album" class="album-name"></p><a id="spotify-source" class="spotify-source" target="_blank" rel="noopener noreferrer" hidden><img alt="Spotify" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz48c3ZnIGlkPSJMYXllcl8xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA4MjMuNDYgMjI1LjI1Ij48ZGVmcz48c3R5bGU+LmNscy0xe2ZpbGw6I2ZmZjtzdHJva2Utd2lkdGg6MHB4O308L3N0eWxlPjwvZGVmcz48cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Im0xMjUuNTIsMy4zMUM2NS4xNC45MSwxNC4yNiw0Ny45MSwxMS44NiwxMDguMjljLTIuNCw2MC4zOCw0NC42MSwxMTEuMjYsMTA0Ljk4LDExMy42Niw2MC4zOCwyLjQsMTExLjI2LTQ0LjYsMTEzLjY2LTEwNC45OEMyMzIuODksNTYuNTksMTg1Ljg5LDUuNywxMjUuNTIsMy4zMVptNDYuMTgsMTYwLjI4Yy0xLjM2LDIuNC00LjAxLDMuNi02LjU5LDMuMjQtLjc5LS4xMS0xLjU4LS4zNy0yLjMyLS43OS0xNC40Ni04LjIzLTMwLjIyLTEzLjU5LTQ2Ljg0LTE1LjkzLTE2LjYyLTIuMzQtMzMuMjUtMS41My00OS40MiwyLjQtMy41MS44NS03LjA0LTEuMy03Ljg5LTQuODEtLjg1LTMuNTEsMS4zLTcuMDQsNC44MS03Ljg5LDE3Ljc4LTQuMzIsMzYuMDYtNS4yMSw1NC4zMi0yLjY0LDE4LjI2LDIuNTcsMzUuNTgsOC40Niw1MS40OSwxNy41MSwzLjEzLDEuNzksNC4yMyw1Ljc3LDIuNDUsOC45MVptMTQuMzgtMjguNzJjLTIuMjMsNC4xMi03LjM5LDUuNjYtMTEuNTEsMy40My0xNi45Mi05LjE1LTM1LjI0LTE1LjE2LTU0LjQ1LTE3Ljg2LTE5LjIxLTIuNy0zOC40Ny0xLjk3LTU3LjI2LDIuMTYtMS4wMi4yMi0yLjAzLjI2LTMuMDEuMTItMy40MS0uNDgtNi4zMy0zLjAyLTcuMTEtNi41OS0xLjAxLTQuNTgsMS44OS05LjExLDYuNDctMTAuMTIsMjAuNzctNC41Nyw0Mi4wNi01LjM4LDYzLjI4LTIuNCwyMS4yMSwyLjk4LDQxLjQ2LDkuNjIsNjAuMTYsMTkuNzQsNC4xMywyLjIzLDUuNjYsNy4zOCwzLjQzLDExLjUxWm0xNS45NC0zMi4zOGMtMi4xLDQuMDQtNi40Nyw2LjEzLTEwLjczLDUuNTMtMS4xNS0uMTYtMi4yOC0uNTItMy4zNy0xLjA4LTE5LjctMTAuMjUtNDAuOTItMTcuMDItNjMuMDctMjAuMTMtMjIuMTUtMy4xMS00NC40Mi0yLjQ1LTY2LjE4LDEuOTctNS42NiwxLjE1LTExLjE3LTIuNTEtMTIuMzItOC4xNi0xLjE1LTUuNjYsMi41MS0xMS4xNyw4LjE2LTEyLjMyLDI0LjEtNC44OSw0OC43NC01LjYyLDczLjI1LTIuMTgsMjQuNTEsMy40NCw0Ny45OSwxMC45NCw2OS44MSwyMi4yOSw1LjEyLDIuNjYsNy4xMSw4Ljk3LDQuNDUsMTQuMDlaIi8+PHBhdGggY2xhc3M9ImNscy0xIiBkPSJtMzE4LjU0LDE2OS44MWMtMTguODcsMC0zNS4wNy02LjUzLTQxLjg0LTEzLjk1LS42NC0uNzMtLjczLTEuMTMtLjczLTIuMDJ2LTIyLjA5YzAtMS4wNS44OS0xLjQ1LDEuNjEtLjU2LDguMTQsMTAuMTYsMjUuNDgsMTguNDYsMzkuNjcsMTguNDYsMTEuMjksMCwxOC44Ny0zLjA2LDE4Ljg3LTEzLjA2LDAtNS45Ny0yLjgyLTkuODQtMTguMjItMTQuMTlsLTguODctMi41Yy0yMC41Ni01LjgtMzMuMDYtMTIuNjYtMzMuMDYtMzIuMzMsMC0xNy40MSwxNi4xMi0zMi43Myw0My4wNS0zMi43MywxMy4yMiwwLDI2LjM2LDQuMTEsMzMuOTQsOS43Ni42NC40OC44OS45Ny44OSwxLjg1djIwLjA4YzAsMS4zNy0xLjEzLDEuNzctMi4xOC44OS02LjEzLTUuMDgtMTcuOTgtMTEuOTMtMzIuMDEtMTEuOTNzLTIwLjY0LDYuMjktMjAuNjQsMTIuMDljMCw2LjEzLDQuMjcsNy44MiwxOS41MSwxMi4zNGw3LjU4LDIuMjZjMjMuNDYsNy4wMSwzMy4wNiwxNi44NSwzMy4wNiwzMy4xNCwwLDIwLjk2LTE3LjQxLDM0LjUxLTQwLjYzLDM0LjUxWm0xNjQuMzktNDIuMDljMC0xMi44Miw4Ljg3LTIyLjMzLDIxLjM3LTIyLjMzczIxLjI4LDkuNTEsMjEuMjgsMjIuMzMtOC44NywyMi4zMy0yMS4yOCwyMi4zMy0yMS4zNy05LjUxLTIxLjM3LTIyLjMzWm0yMS4yOCw0Mi4wOWMyNi4wNCwwLDQ0LjE4LTE4LjYyLDQ0LjE4LTQyLjA5cy0xOC4xNC00Mi4wOS00NC4xOC00Mi4wOS00NC4xLDE4LjQ2LTQ0LjEsNDIuMDksMTcuOTgsNDIuMDksNDQuMSw0Mi4wOVptMTU3LjIyLTg5LjAxdjYuNzdoLTEzLjcxYy0uNzMsMC0xLjEzLjQtMS4xMywxLjEzdjE2LjEyYzAsLjczLjQsMS4xMywxLjEzLDEuMTNoMTMuNzF2NjAuNzljMCwuNzMuNCwxLjEzLDEuMTMsMS4xM2gyMC42NGMuNzMsMCwxLjEzLS40LDEuMTMtMS4xM3YtNjAuNzloMTcuNjZsMjUuNjQsNTUuNzEtMTMuNzksMzAuMzFjLS40Ljg5LjA4LDEuMjkuODksMS4yOWgyMi4wMWMuNzMsMCwxLjA1LS4xNiwxLjM3LS44OWw0NS41NS0xMDMuNTJjLjMyLS43My0uMDgtMS4yOS0uODktMS4yOWgtMjAuNjRjLS43MywwLTEuMDUuMTYtMS4zNy44OWwtMjAuOCw0OS45OS0yMC44OC00OS45OWMtLjMyLS43My0uNjQtLjg5LTEuMzctLjg5aC0zMy4zOHYtNS4zMmMwLTguNzEsNS44OS0xMi43NCwxMy40Ni0xMi43NCw0LjUxLDAsOS40MywyLjM0LDEyLjksNC40My44MS40OCwxLjM3LS4wOCwxLjA1LS44MWwtNy4yNi0xNy4zM2MtLjI0LS41Ni0uNTYtLjg5LTEuMTMtMS4yMS0zLjU1LTEuODUtOS4zNS0zLjQ3LTE1LTMuNDctMTcuMDksMC0yNi45MywxMy4wNi0yNi45MywyOS42N1ptLTI0Myw4OC41MmMyMC42NCwwLDM1LjQ3LTE3LjgyLDM1LjQ3LTQxLjc2cy0xNS00MS40NC0zNS42NC00MS40NGMtMTUuMzIsMC0yNC4xOSw5LjM1LTI5LjM1LDE4Ljd2LTE2LjEyYzAtLjczLS40LTEuMTMtMS4xMy0xLjEzaC0yMC4yNGMtLjczLDAtMS4xMy40LTEuMTMsMS4xM3YxMDMuNDRjMCwuNzMuNCwxLjEzLDEuMTMsMS4xM2gyMC4yNGMuNzMsMCwxLjEzLS40LDEuMTMtMS4xM3YtNDEuMzZjNS4xNiw5LjM1LDEzLjg3LDE4LjU0LDI5LjUxLDE4LjU0Wm0xNzIuMjEtLjMyYzYuNzcsMCwxMy4zLTEuNzcsMTcuMTctNC4wMy41Ni0uMzIuNjQtLjY0LjY0LTEuMjF2LTE1LjMyYzAtLjgxLS40LTEuMDUtMS4xMy0uNjQtMi4zNCwxLjI5LTUuNCwyLjM0LTkuNTksMi4zNC02LjYxLDAtMTAuOC0zLjg3LTEwLjgtMTIuNDJ2LTMxLjc3aDIwLjE2Yy43MywwLDEuMTMtLjQsMS4xMy0xLjEzdi0xNi4xMmMwLS43My0uNC0xLjEzLTEuMTMtMS4xM2gtMjAuMTZ2LTIxLjA0YzAtLjg5LS41Ni0xLjM3LTEuMzctLjczbC0zNi4wNCwyOC4zOGMtLjQ4LjQtLjY0LjgxLS42NCwxLjQ1djkuMTljMCwuNzMuNCwxLjEzLDEuMTMsMS4xM2gxNC4wM3YzNS4xNWMwLDE5LjAzLDEwLjk2LDI3LjksMjYuNjEsMjcuOVptMjMuMy0xMDUuMjljMCw3LjI2LDUuNjQsMTIuNzQsMTMuMzgsMTIuNzRzMTMuNTQtNS40OCwxMy41NC0xMi43NC01LjY0LTEyLjc0LTEzLjU0LTEyLjc0LTEzLjM4LDUuNDgtMTMuMzgsMTIuNzRabTMuMTQsMTA0LjE3aDIwLjY0Yy43MywwLDEuMTMtLjQsMS4xMy0xLjEzdi03OC4wNGMwLS43My0uNC0xLjEzLTEuMTMtMS4xM2gtMjAuNjRjLS43MywwLTEuMTMuNC0xLjEzLDEuMTN2NzguMDRjMCwuNzMuNCwxLjEzLDEuMTMsMS4xM1ptLTIyOC42NS00MC40N2MzLjcxLTEyLjQyLDEyLjI1LTIxLjkzLDIzLjg2LTIxLjkzczE4LjcsOC4zOCwxOC43LDIyLjA5LTcuNjYsMjIuMjUtMTguNywyMi4yNS0yMC4xNi0xMC42NC0yMy44Ni0yMi40MVoiLz48cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Im04MTAuMSw5Mi4zMWMtMS4wNi0xLjgzLTIuNTMtMy4yNi00LjQxLTQuMy0xLjg4LTEuMDMtMy45OC0xLjU1LTYuMzItMS41NXMtNC40NC41Mi02LjMyLDEuNTVjLTEuODgsMS4wNC0zLjM1LDIuNDctNC40MSw0LjMtMS4wNiwxLjgzLTEuNTksMy45LTEuNTksNi4yMXMuNTMsNC4zNCwxLjU5LDYuMTdjMS4wNiwxLjgzLDIuNTMsMy4yNiw0LjQxLDQuMywxLjg4LDEuMDQsMy45OCwxLjU1LDYuMzIsMS41NXM0LjQ0LS41Miw2LjMyLTEuNTUsMy4zNS0yLjQ3LDQuNDEtNC4zYzEuMDYtMS44MywxLjU5LTMuODgsMS41OS02LjE3cy0uNTMtNC4zOC0xLjU5LTYuMjFabS0xLjkzLDExLjM2Yy0uODYsMS41Mi0yLjA2LDIuNy0zLjU5LDMuNTYtMS41My44NS0zLjI3LDEuMjgtNS4yLDEuMjhzLTMuNzItLjQzLTUuMjUtMS4yOGMtMS41My0uODUtMi43Mi0yLjA0LTMuNTctMy41Ni0uODUtMS41MS0xLjI3LTMuMjMtMS4yNy01LjE1cy40Mi0zLjYzLDEuMjctNS4xM2MuODUtMS41LDIuMDQtMi42OCwzLjU3LTMuNTMsMS41My0uODUsMy4yOC0xLjI4LDUuMjUtMS4yOHMzLjY3LjQzLDUuMiwxLjI4YzEuNTMuODUsMi43MywyLjA0LDMuNTksMy41Ni44NiwxLjUyLDEuMjksMy4yMywxLjI5LDUuMTVzLS40MywzLjU5LTEuMjksNS4xMVoiLz48cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Im04MDMuNTYsOTguMjljLjgyLS42LDEuMjMtMS40LDEuMjMtMi4zOXMtLjQtMS44My0xLjItMi40M2MtLjgtLjYtMS45Ni0uOS0zLjQ4LS45aC01LjM2djExLjJoMi41OXYtNC40NWgxLjQxbDMuNDEsNC40NWgzLjE4bC0zLjczLTQuNzJjLjc5LS4xNSwxLjQ2LS40LDEuOTYtLjc3Wm0tMy44Ni0uOTloLTIuMzZ2LTIuNzRoMi40NWMuNzMsMCwxLjI5LjExLDEuNjguMzQuMzkuMjMuNTkuNTguNTksMS4wNiwwLC40NS0uMjEuNzktLjYxLDEuMDEtLjQxLjIzLS45OS4zNC0xLjc1LjM0WiIvPjwvc3ZnPg=="></a></div><div class="cards" aria-live="polite"><div id="moment-history" class="moment-card previous" hidden></div><article id="moment-card" class="moment-card" hidden><span id="moment-type" class="moment-kind"></span><p id="moment" class="moment-summary"></p><p id="moment-detail" class="moment-detail"></p><a id="moment-source" class="moment-source" target="_blank" rel="noopener noreferrer" hidden></a></article></div></section><footer><section id="up-next" class="up-next" hidden><img id="next-art" alt=""><div><span id="next-label" class="up-next-label"></span><strong id="next-title"></strong><span id="next-artist"></span></div></section><progress id="progress" max="1" value="0" hidden></progress><div class="meta"><span id="time"></span></div></footer></main>
 <script>(() => {
   const params = new URLSearchParams(window.location.search);
-  let sessionId = params.get("session_id"), broadcastToken = params.get("broadcast_token");
+  let sessionId = params.get("session_id"), broadcastToken = params.get("broadcast_token"), endGrant=null;
   const e = id => document.getElementById(id), root = document.documentElement;
   const copy = {
     en:{idle:"Idle",connecting:"Connecting",live:"Live",unavailable:"No active session",waiting:"Waiting for a session",ambient:"Ambient session",types:{track:"Track",artist:"Artist",album:"Album",genre:"Genre",recommendation:"Recommendation",transition:"Transition",session:"Session"}},
@@ -53,9 +96,18 @@ progress { width:100%; height:.35rem; accent-color:var(--accent) }
     es:{idle:"Inactivo",connecting:"Conectando",live:"En directo",unavailable:"No hay sesión activa",waiting:"Esperando una sesión",ambient:"Sesión ambiental",types:{track:"Canción",artist:"Artista",album:"Álbum",genre:"Género",recommendation:"Recomendación",transition:"Transición",session:"Sesión"}}
   };
   let language = (navigator.language || "en").slice(0,2), text = copy[language] || copy.en;
-  let projection = {}, socket, reconnectTimer, expiryTimer, scrollTimer, attempts = 0, ended = false;
+  let projection = {}, socket, reconnectTimer, expiryTimer, scrollTimer, exitTimer, attempts = 0, ended = false;
+  let placementCount=0, lastPlacedKey="";
   let playbackItem = "", current = null, previous = null, lastShownAt = -Infinity, lastArtwork = "", lastSequence = 0, snapshotSequence = 0, fieldSequences = {};
   const firstSeen = new Map();
+  const endLabels={en:["End session","Could not end the session"],nl:["Sessie beëindigen","Sessie beëindigen is niet gelukt"],de:["Session beenden","Session konnte nicht beendet werden"],fr:["Terminer la session","Impossible de terminer la session"],es:["Finalizar sesión","No se pudo finalizar la sesión"]};
+  const nextLabels={en:"Up next",nl:"Hierna",de:"Als Nächstes",fr:"À suivre",es:"A continuación"};
+  function updateClock() {
+    if (e("clock")) e("clock").textContent = new Date().toLocaleTimeString(root.lang,{hour:"2-digit",minute:"2-digit",hour12:false});
+    const expiry=Date.parse(projection?.playback?.up_next?.expires_at || "");
+    if (e("up-next") && Number.isFinite(expiry) && Date.now() >= expiry) e("up-next").hidden=true;
+  }
+  window.setInterval?.(updateClock,1000);
   root.lang = copy[language] ? language : "en";
   const playback = () => projection.playback && typeof projection.playback === "object" ? projection.playback : {};
   const theme = mood => ({chill:"#7d8dff",groove:"#c07dff",energy:"#ff806b",party:"#ffce55"}[mood] || "#9f7cff");
@@ -89,7 +141,7 @@ progress { width:100%; height:.35rem; accent-color:var(--accent) }
     const seconds = Number.isFinite(rawDuration) && rawDuration > 0 ? Math.min(90, rawDuration) : 25;
     const expiry = (stamped ? created : firstSeen.get(key)) + seconds*1000;
     return now < expiry ? {key, created:stamped ? created : firstSeen.get(key), expiry, summary,
-      detail:String(item.content || "").slice(0,1200), type:item.type || "", itemId:item.playback_item_id || "", stamped} : null;
+      detail:String(item.content || "").slice(0,1200), attribution:item.source_attribution, type:item.type || "", itemId:item.playback_item_id || "", stamped} : null;
   }
   function eligibleCards() {
     const p = playback(), items = Array.isArray(projection.dj_moments) ? projection.dj_moments : [];
@@ -105,7 +157,8 @@ progress { width:100%; height:.35rem; accent-color:var(--accent) }
   function clearCards() {
     clearTimer("expiry"); clearTimer("scroll"); current = null; previous = null;
     const card = e("moment-card"), history = e("moment-history"), detail = e("moment-detail"), kind = e("moment-type");
-    if (card) card.hidden = true;
+    if (exitTimer) window.clearTimeout(exitTimer); exitTimer=undefined;
+    if (card) { card.hidden = true; card.classList?.remove("exiting"); }
     if (history) history.hidden = true;
     history?.classList?.remove("leaving");
     if (detail) detail.textContent = "";
@@ -134,9 +187,33 @@ progress { width:100%; height:.35rem; accent-color:var(--accent) }
       history.classList?.add("leaving");
     }
   }
-  function showCurrent(card, animate) {
+  function fitBubble() {
+    const stage=document.querySelector?.(".stage"), now=document.querySelector?.(".now-playing"), shell=e("moment-card"), detail=e("moment-detail");
+    if (!stage || !now || !shell || shell.hidden) return;
+    const region=stage.getBoundingClientRect(), content=now.getBoundingClientRect();
+    const portrait=window.innerHeight>=window.innerWidth;
+    const available=portrait ? Math.max(0,(stage.classList.contains("bubble-below") ? region.bottom-content.bottom : content.top-region.top)-24) : region.height*.7;
+    shell.style.maxHeight=`${available}px`;
+    if (detail) {
+      detail.style.maxHeight=portrait ? "12vh" : "30vh";
+      const overhead=shell.scrollHeight-detail.offsetHeight;
+      detail.style.maxHeight=`${Math.max(0,available-overhead)}px`;
+    }
+  }
+  function showCurrent(card, animate, afterExit=false) {
     const shell = e("moment-card"), kind = e("moment-type"), detail = e("moment-detail");
+    if (animate && !afterExit && shell && !shell.hidden && e("moment").textContent !== card.summary && !reduceMotion()) {
+      if (exitTimer) window.clearTimeout(exitTimer);
+      shell.classList?.remove("fresh"); shell.classList?.add("exiting");
+      exitTimer=window.setTimeout(()=>{ exitTimer=undefined; if (current?.key === card.key) showCurrent(card,true,true); },800);
+      return;
+    }
     e("moment").textContent = card.summary;
+    const source=card.attribution;
+    const safeSource=source && ({Spotify:"https://open.spotify.com/",MusicBrainz:"https://musicbrainz.org/",Wikidata:"https://www.wikidata.org/wiki/"}[source.provider]) && String(source.url || "").startsWith({Spotify:"https://open.spotify.com/",MusicBrainz:"https://musicbrainz.org/",Wikidata:"https://www.wikidata.org/wiki/"}[source.provider]);
+    e("moment-source").hidden=!safeSource;
+    e("moment-source").textContent=safeSource ? source.provider : "";
+    if (safeSource) e("moment-source").href=source.url; else e("moment-source").removeAttribute("href");
     if (kind) kind.textContent = text.types[card.type] || "";
     if (detail) {
       detail.textContent = card.detail && card.detail !== card.summary ? card.detail : "";
@@ -145,12 +222,16 @@ progress { width:100%; height:.35rem; accent-color:var(--accent) }
     }
     if (shell) {
       shell.hidden = false;
-      shell.classList?.remove("fresh");
+      if (exitTimer) window.clearTimeout(exitTimer); exitTimer=undefined;
+      shell.classList?.remove("fresh","exiting");
+      if (lastPlacedKey !== card.key) { placementCount++; lastPlacedKey=card.key; }
+      document.querySelector?.(".stage")?.classList.toggle("bubble-below",placementCount % 2 === 0);
       if (animate && !reduceMotion()) {
         void shell.offsetWidth;
         shell.classList?.add("fresh");
       }
     }
+    fitBubble();
     clearTimer("scroll");
     if (detail?.textContent && !reduceMotion() && detail.scrollHeight > detail.clientHeight) {
       const step = Math.max(24,parseFloat(getComputedStyle(detail).lineHeight) || 28);
@@ -171,9 +252,15 @@ progress { width:100%; height:.35rem; accent-color:var(--accent) }
     if (item !== playbackItem) {
       playbackItem = item; lastShownAt = -Infinity; clearCards();
     }
-    if (current && Date.now() >= current.expiry) clearCards();
+    if (current && Date.now() >= current.expiry) {
+      if (!exitTimer && !reduceMotion()) {
+        const expiredKey=current.key;
+        e("moment-card").classList?.add("exiting");
+        exitTimer=window.setTimeout(() => { if (current?.key===expiredKey) clearCards(); exitTimer=undefined; },800);
+      } else if (reduceMotion()) clearCards();
+    }
     const cards = eligibleCards(), latest = cards.at(-1);
-    if (!latest) { clearCards(); return; }
+    if (!latest) { if (!exitTimer) clearCards(); return; }
     if (current?.key === latest.key) { showPrevious(previous); scheduleCardExpiry(); return; }
     if (latest.created < lastShownAt) return;
     previous = animate && current && current.itemId === latest.itemId ? current : null;
@@ -181,19 +268,34 @@ progress { width:100%; height:.35rem; accent-color:var(--accent) }
     showPrevious(previous, animate); showCurrent(latest, animate);
   }
   function render(animate=false) {
-    useLanguage();
+    useLanguage(); updateClock();
+    e("end-session").hidden=!endGrant || ended;
+    e("end-session").setAttribute("aria-label",(endLabels[root.lang] || endLabels.en)[0]);
+    e("state").hidden=!!endGrant && !ended;
     const p = playback(), mood = projection.session?.selected_mood;
     document.body.classList.toggle("idle",!p.title);
     e("mood").textContent = mood || text.ambient;
     e("title").textContent = p.title || text.waiting;
     e("artist").textContent = p.artist || "";
     e("album").textContent = p.album || "";
+    const next=p.up_next;
+    const safeNext=next && typeof next === "object" && next.title && next.artist && p.item_id && next.current_item_id === p.item_id && Date.parse(next.expires_at || "") > Date.now();
+    e("up-next").hidden=!safeNext;
+    e("next-label").textContent=nextLabels[root.lang] || nextLabels.en;
+    e("next-title").textContent=safeNext ? next.title : "";
+    e("next-artist").textContent=safeNext ? next.artist : "";
+    e("next-art").hidden=!(safeNext && next.artwork_url);
+    if (safeNext && next.artwork_url) e("next-art").src=next.artwork_url;
+    else e("next-art").removeAttribute("src");
+    const validSpotify=String(p.source_url || "").startsWith("https://open.spotify.com/track/");
+    e("spotify-source").hidden=!validSpotify;
+    if (validSpotify) e("spotify-source").href=p.source_url; else e("spotify-source").removeAttribute("href");
     const art = p.artwork_url || "";
     e("artwork").hidden = !art;
     if (art !== lastArtwork) { e("artwork").src = art; lastArtwork = art; }
     e("artwork").alt = art ? (p.album || p.title || "") : "";
     root.style.setProperty("--art",art ? `url("${art.replaceAll('"','%22')}")` : "none");
-    root.style.setProperty("--accent",theme(mood));
+    if (!art) { root.style.setProperty("--accent",theme(mood)); for (const key of ["--tone1","--tone2","--tone3"]) root.style.removeProperty?.(key); }
     const active = Number.isFinite(p.duration_ms) && Number.isFinite(p.position_ms) && p.duration_ms > 0;
     e("progress").hidden = !active;
     if (active) { e("progress").max=p.duration_ms; e("progress").value=p.position_ms; e("time").textContent=`${format(p.position_ms)} / ${format(p.duration_ms)}`; }
@@ -216,7 +318,7 @@ progress { width:100%; height:.35rem; accent-color:var(--accent) }
     if (ordered && sequence <= snapshotSequence) return;
     if (ordered) lastSequence = Math.max(lastSequence,sequence);
     if (frame.event_type === "runtime_ended" || frame.event_type === "broadcast_stopped") {
-      ended=true; broadcastToken=null; apply({}); e("state").textContent=text.idle; if (socket) socket.close(); return;
+      ended=true; broadcastToken=null; endGrant=null; apply({}); e("state").textContent=text.idle; if (socket) socket.close(); return;
     }
     for (const key of ["session","playback","planner","session_flow","audience","broadcast"])
       if (p[key] && (!ordered || sequence > (fieldSequences[key] || snapshotSequence))) {
@@ -230,6 +332,28 @@ progress { width:100%; height:.35rem; accent-color:var(--accent) }
       render(true);
     } else render(false);
   }
+  window.addEventListener("resize",fitBubble);
+  e("artwork").addEventListener("load",()=>{
+    fitBubble();
+    // Sample colors only; never display cropped/blurred Spotify artwork.
+    const image=e("artwork"), identity=lastArtwork;
+    if (!identity || !image.naturalWidth) return;
+    try {
+      const canvas=document.createElement("canvas"); canvas.width=24; canvas.height=24;
+      const ctx=canvas.getContext("2d",{willReadFrequently:true}); ctx.drawImage(image,0,0,24,24);
+      const pixels=ctx.getImageData(0,0,24,24).data, buckets=new Map();
+      for (let i=0;i<pixels.length;i+=4) {
+        const channels=[pixels[i],pixels[i+1],pixels[i+2]];
+        const key=channels.map(c=>Math.round(c/32)*32).join(",");
+        const bucket=buckets.get(key) || {count:0,total:[0,0,0]}; bucket.count++;
+        channels.forEach((c,index)=>bucket.total[index]+=c); buckets.set(key,bucket);
+      }
+      const tones=[...buckets.values()].sort((a,b)=>b.count-a.count).slice(0,3).map(b=>b.total.map(c=>Math.round(c/b.count)));
+      if (identity !== lastArtwork) return;
+      tones.forEach((rgb,index)=>root.style.setProperty(`--tone${index+1}`,`rgb(${rgb.map(c=>Math.round(c*.5)).join(" ")})`));
+      if (tones[0]) root.style.setProperty("--accent",`rgb(${tones[0].map(c=>Math.max(100,c)).join(" ")})`);
+    } catch (_) { /* Same-origin proxy unavailable: keep the neutral palette. */ }
+  });
   const url = () => `${window.location.protocol === "https:" ? "wss:" : "ws:"}//${window.location.host}/api/djconnect/v1/session/broadcast/ws/${encodeURIComponent(sessionId)}?broadcast_token=${encodeURIComponent(broadcastToken)}`;
   function connect() {
     if (ended) return;
@@ -242,7 +366,7 @@ progress { width:100%; height:.35rem; accent-color:var(--accent) }
         const f=JSON.parse(data);
         if (f.type === "snapshot" && (!f.session_id || f.session_id === sessionId)) apply(f.snapshot);
         else if (f.type === "event") event(f.data);
-        else if (f.type === "error") { ended=true; broadcastToken=null; apply({}); e("state").textContent=text.unavailable; if (socket) socket.close(); }
+        else if (f.type === "error") { ended=true; broadcastToken=null; endGrant=null; apply({}); e("state").textContent=text.unavailable; if (socket) socket.close(); }
       } catch (_) { /* Ignore malformed receiver frames. */ }
     };
     active.onclose=() => {
@@ -251,6 +375,19 @@ progress { width:100%; height:.35rem; accent-color:var(--accent) }
     };
     active.onerror=() => active.close();
   }
+  e("end-session").addEventListener("click",async()=>{
+    if (!endGrant || ended) return;
+    e("end-session").disabled=true;
+    try {
+      const response=await window.fetch("/api/djconnect/v1/session/broadcast/control/end",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({session_id:sessionId,end_grant:endGrant}),cache:"no-store",credentials:"omit"});
+      const result=await response.json();
+      if (!response.ok || result.success !== true || result.state !== "ended") throw new Error("end_failed");
+      // Server-confirmed end also covers loss of the terminal WebSocket frame.
+      event({session_id:sessionId,event_type:"runtime_ended",payload:{}});
+    } catch (_) { e("state").hidden=false; e("state").textContent=(endLabels[root.lang] || endLabels.en)[1]; }
+    finally { e("end-session").disabled=false; }
+  });
+  updateClock();
   e("state").textContent=text.idle;
   e("title").textContent=text.waiting;
   e("mood").textContent=text.ambient;
@@ -258,12 +395,12 @@ progress { width:100%; height:.35rem; accent-color:var(--accent) }
   window.addEventListener("djconnect-handoff",({detail}) => {
     if (!detail?.session_id || !detail?.broadcast_token) return;
     if (socket) socket.close();
-    sessionId=detail.session_id; broadcastToken=detail.broadcast_token;
+    sessionId=detail.session_id; broadcastToken=detail.broadcast_token; endGrant=detail.end_grant || null;
     ended=false; projection={}; playbackItem=""; lastShownAt=-Infinity;
     lastSequence=0; snapshotSequence=0; fieldSequences={}; clearCards(); render(false);
     e("handoff").hidden=true; connect();
   });
-  window.addEventListener("beforeunload",() => { ended=true; broadcastToken=null; clearTimer("expiry"); clearTimer("scroll"); if (socket) socket.close(); });
+  window.addEventListener("beforeunload",() => { ended=true; broadcastToken=null; endGrant=null; clearTimer("expiry"); clearTimer("scroll"); if (socket) socket.close(); });
 })()</script>
 <script>(()=>{
   if (new URLSearchParams(window.location.search).has("session_id") || typeof window.fetch !== "function") return;

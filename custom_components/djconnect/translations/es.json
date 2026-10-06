@@ -210,7 +210,8 @@
           "firmware_channel": "Canal de firmware",
           "dj_announcement_speaker_entity_id": "Altavoz de Home Assistant para anuncios DJ",
           "options_action": "Acción",
-          "voice_profile": "Perfil de voz DJ"
+          "voice_profile": "Perfil de voz DJ",
+          "vibecast_session_end_allowed": "Permitir que las pantallas VibeCast aprobadas finalicen la sesión"
         },
         "data_description": {
           "assist_pipeline_id": "Pipeline Assist usado por los dispositivos DJConnect para reconocimiento de voz y audio de anuncios DJ.",
@@ -331,7 +332,8 @@
           "music_backend": "Backend de música",
           "music_assistant_player": "Reproductor de Music Assistant",
           "dj_announcement_speaker_entity_id": "Altavoz de Home Assistant para anuncios DJ",
-          "voice_profile": "Perfil de voz DJ"
+          "voice_profile": "Perfil de voz DJ",
+          "vibecast_session_end_allowed": "Permitir que las pantallas VibeCast aprobadas finalicen la sesión"
         },
         "data_description": {
           "assist_pipeline_id": "Pipeline Assist usado por los dispositivos DJConnect para reconocimiento de voz y audio de anuncios DJ.",

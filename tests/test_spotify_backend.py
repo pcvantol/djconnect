@@ -63,6 +63,29 @@ class SpotifyBackendTest(unittest.TestCase):
         self.issues.clear()
         install_backend_stubs.deleted.clear()
 
+    def test_session_next_item_requires_current_identity_uses_only_first_and_expires(self) -> None:
+        runtime=types.SimpleNamespace(config={},backend_cache={})
+        backend=self.backend.SpotifyBackend(object(),runtime)
+        uri="spotify:track:"+"A"*22
+        data={"currently_playing":{"uri":uri},"queue":[{"type":"track","uri":"spotify:track:"+"B"*22,"name":"First next",
+              "artists":[{"name":"Next artist"}],"album":{"images":[{"url":"https://example.test/next.jpg"}]}},
+              {"type":"track","name":"Never second","artists":[{"name":"Other"}]}]}
+        calls=[]
+        async def request(method,path):
+            calls.append(path)
+            return data
+        backend._request=request
+        item=asyncio.run(backend.async_observe_next_item(uri))
+        self.assertEqual(item["title"],"First next")
+        self.assertEqual(item["artist"],"Next artist")
+        self.assertIn("expires_at",item)
+        self.assertNotIn("uri",item)
+        self.assertEqual(asyncio.run(backend.async_observe_next_item("spotify:track:wrong")),{})
+        self.assertEqual(calls,["/me/player/queue"])
+        runtime.backend_cache.clear()
+        data["queue"]=[]
+        self.assertEqual(asyncio.run(backend.async_observe_next_item(uri)),{})
+
     def test_spotify_search_type_supports_track_album_and_playlist(self) -> None:
         self.assertEqual(self.backend._spotify_search_type("track"), "track")
         self.assertEqual(self.backend._spotify_search_type("album"), "album")

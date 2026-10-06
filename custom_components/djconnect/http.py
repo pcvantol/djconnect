@@ -2935,6 +2935,28 @@ class DJConnectSessionBroadcastHandoffApproveView(_DJConnectSessionView):
         )
 
 
+class DJConnectSessionBroadcastEndControlView(_DJConnectSessionView):
+    """Consume an end-only grant without granting playback or owner access."""
+
+    url = "/api/djconnect/v1/session/broadcast/control/end"
+    name = "api:djconnect:session:broadcast:control:end"
+
+    async def post(self, request):
+        from .session_runtime import session_runtime_manager
+        from .playback_observation import playback_observation_manager
+        data = await self._payload(request)
+        headers = {"Cache-Control": "no-store", "Referrer-Policy": "no-referrer"}
+        if not isinstance(data, dict):
+            return web.json_response({"success": False, "error": "invalid_json"}, status=400, headers=headers)
+        session = await session_runtime_manager(request.app["hass"]).async_end_with_receiver_grant(
+            session_id=str(data.get("session_id") or "")[:128], grant=str(data.get("end_grant") or "")[:128]
+        )
+        if session is None:
+            return web.json_response({"success": False, "error": "end_grant_invalid"}, status=403, headers=headers)
+        await playback_observation_manager(request.app["hass"]).async_stop(session.owner_profile_id, session.session_id)
+        return web.json_response({"success": True, "state": "ended"}, headers=headers)
+
+
 class DJConnectSessionBroadcastWebSocketView(HomeAssistantView):
     """Read-only Broadcast Token WebSocket for stateless Universal Receivers."""
 
