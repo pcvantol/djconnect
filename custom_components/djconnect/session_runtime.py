@@ -3618,7 +3618,7 @@ class SessionRuntimeManager:
         self._active_by_profile: dict[str, DJSessionRuntime] = {}
         self._playback_progress_clocks: dict[str, PlaybackProgressClock] = {}
         self._intra_track_opportunities: dict[str, IntraTrackOpportunity] = {}
-        self._end_grants: dict[str, tuple[str, str, float]] = {}
+        self._end_grants: dict[str, tuple[str, str, float, str]] = {}
         self._monotonic_source = monotonic_source
         self._lock = asyncio.Lock()
         self._persistent_sessions = persistent_sessions
@@ -4769,18 +4769,18 @@ class SessionRuntimeManager:
             if active is not None and active.session_id == session_id:
                 active.broadcast.unsubscribe(subscription_id)
 
-    async def async_issue_receiver_end_grant(self, *, owner_profile_id: str, session_id: str) -> str:
+    async def async_issue_receiver_end_grant(self, *, owner_profile_id: str, session_id: str, entry_id: str) -> str:
         """Issue a separate end-only credential after explicit owner consent."""
         async with self._lock:
             active = self._active_by_profile.get(owner_profile_id)
-            if active is None or active.session_id != session_id:
+            if active is None or active.session_id != session_id or not entry_id:
                 return ""
             now = self._monotonic_source()
             self._end_grants = {key: value for key, value in self._end_grants.items() if value[2] > now}
             if len(self._end_grants) >= 64:
                 return ""
             grant = secrets.token_urlsafe(32)
-            self._end_grants[grant] = (owner_profile_id, session_id, now + 3600)
+            self._end_grants[grant] = (owner_profile_id, session_id, now + 3600, entry_id)
             return grant
 
     async def async_revoke_receiver_end_grants(self, *, owner_profile_id: str, session_id: str) -> None:
@@ -4789,11 +4789,19 @@ class SessionRuntimeManager:
             self._end_grants = {key: value for key, value in self._end_grants.items()
                                 if value[:2] != (owner_profile_id, session_id)}
 
-    async def async_end_with_receiver_grant(self, *, session_id: str, grant: str) -> DJSessionRuntime | None:
+    async def async_revoke_receiver_end_grants_for_entry(self, entry_id: str) -> None:
+        """Revoke owner-entry authority even when no playback observer exists."""
+        async with self._lock:
+            self._end_grants = {key: value for key, value in self._end_grants.items() if value[3] != entry_id}
+
+    async def async_end_with_receiver_grant(self, *, session_id: str, grant: str, authorized_entry_ids: frozenset[str] | None = None) -> DJSessionRuntime | None:
         """Consume one exact-session end grant; Broadcast credentials cannot end."""
         async with self._lock:
             authorization = self._end_grants.get(grant)
             if authorization is None or authorization[1] != session_id or authorization[2] <= self._monotonic_source():
+                return None
+            if authorized_entry_ids is not None and authorization[3] not in authorized_entry_ids:
+                del self._end_grants[grant]
                 return None
             del self._end_grants[grant]
             profile_id = authorization[0]
@@ -4819,6 +4827,10 @@ class SessionRuntimeManager:
                 if self._historical_projections is not None:
                     await self._historical_projections.async_project_session(persistent)
                     for ordering, moment in enumerate(active.moment_engine.moments):
+                        if moment.source_attribution:
+                            # New source cards are qualified for ephemeral display,
+                            # not durable historical reuse without attribution.
+                            continue
                         await self._historical_projections.async_project_moment(
                             session_id=active.session_id,
                             moment_id=moment.moment_id,

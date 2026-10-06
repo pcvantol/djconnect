@@ -3174,6 +3174,9 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     platforms = _platforms_for_runtime(runtime) if runtime is not None else list(PLATFORMS)
     unloaded = await hass.config_entries.async_unload_platforms(entry, platforms)
     if unloaded:
+        session_manager = hass.data.get(DOMAIN, {}).get("session_runtime_manager")
+        if session_manager is not None:
+            await session_manager.async_revoke_receiver_end_grants_for_entry(entry.entry_id)
         if runtime is not None:
             from .playback_observation import playback_observation_manager
 

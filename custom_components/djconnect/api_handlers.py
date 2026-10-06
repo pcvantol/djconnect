@@ -549,7 +549,8 @@ async def async_handle_session_broadcast_handoff_approve_payload(
     )
     end_grant = ""
     if error is None and getattr(runtime, "config", {}).get("vibecast_session_end_allowed") is True:
-        end_grant = await manager.async_issue_receiver_end_grant(owner_profile_id=profile_id, session_id=session_id)
+        end_grant = await manager.async_issue_receiver_end_grant(owner_profile_id=profile_id, session_id=session_id,
+            entry_id=str(getattr(getattr(runtime, "entry", None), "entry_id", "") or ""))
     approved = await broadcast_handoff_manager(hass).approve(
         code,
         owner_profile_id=profile_id,

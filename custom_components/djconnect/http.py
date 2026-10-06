@@ -2948,8 +2948,14 @@ class DJConnectSessionBroadcastEndControlView(_DJConnectSessionView):
         headers = {"Cache-Control": "no-store", "Referrer-Policy": "no-referrer"}
         if not isinstance(data, dict):
             return web.json_response({"success": False, "error": "invalid_json"}, status=400, headers=headers)
+        authorized_entries = frozenset(
+            str(getattr(getattr(runtime, "entry", None), "entry_id", "") or "")
+            for runtime in request.app["hass"].data.get(DOMAIN, {}).values()
+            if getattr(runtime, "config", {}).get("vibecast_session_end_allowed") is True
+        )
         session = await session_runtime_manager(request.app["hass"]).async_end_with_receiver_grant(
-            session_id=str(data.get("session_id") or "")[:128], grant=str(data.get("end_grant") or "")[:128]
+            session_id=str(data.get("session_id") or "")[:128], grant=str(data.get("end_grant") or "")[:128],
+            authorized_entry_ids=authorized_entries,
         )
         if session is None:
             return web.json_response({"success": False, "error": "end_grant_invalid"}, status=403, headers=headers)

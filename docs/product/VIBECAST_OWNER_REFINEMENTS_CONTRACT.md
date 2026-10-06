@@ -43,7 +43,10 @@ rate limiter (at least1.1s between requests), at most four requests per observed
 track, a35s total lookup budget,8s request timeout, bounded512KB response and
 429/503/Retry-After/maxlag backoff. No account, paid API or credential is needed.
 Only public catalog identifiers are sent. Raw responses are discarded; facts
-expire after30min and live only within the active Runtime. Source links are
+expire after30min and live only within the active Runtime. Rendered source cards
+are deliberately excluded from the existing durable Moment-history projection;
+Session lifecycle history remains. No future historical-display qualification
+is inferred. Source links are
 renderer-safe public attribution, never private provider responses.
 
 ### Cadence and cancellation
@@ -86,7 +89,7 @@ connections retain their existing read-only authority.
 
 `POST /api/djconnect/v1/session/broadcast/control/end` accepts only that grant
 and exact Session. It is single-use, expires after one hour, is revoked at end
-and observer unload/reload and carries no other command/owner access. The X
+and owner-entry unload/reload (including non-Spotify Sessions) and carries no other command/owner access. The end endpoint also checks that the approving entry is still loaded with its opt-in enabled. The X
 appears only when a grant was delivered. Backend confirmation or terminal
 Broadcast moves the screen to idle. Failure remains visible; local success is
 not simulated. New handoff is required after authority expires/revokes.

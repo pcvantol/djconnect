@@ -47,12 +47,27 @@ try {
   before.playback.up_next={current_item_id:before.playback.item_id,title:'Next test recording',artist:'Next test artist',artwork_url:'/api/djconnect/v1/image_proxy/next-cover',expires_at:'2099-01-01T00:00:00Z'};
   await page.evaluate(snapshot=>{window.__now=Date.parse(snapshot.dj_moments[0].created_at)+100;window.__deliver({type:'snapshot',snapshot});},before);
   const moments=[before.dj_moments[0],...evidence.events.filter(e=>e.event_type==='dj_moment_published').map(e=>e.payload.dj_moment)];
+  let eventIndex=0;
   for(let i=0;i<moments.length;i++) {
     const moment=moments[i];
     if(i) {
       const frame=evidence.events.find(e=>e.event_type==='dj_moment_published'&&e.payload.dj_moment.moment_id===moment.moment_id);
-      await page.evaluate(frame=>{window.__now=Date.parse(frame.payload.dj_moment.created_at)+100;window.__deliver({type:'event',data:frame});},frame);
-      await page.waitForTimeout(1700);
+      const stop=evidence.events.indexOf(frame);
+      while(eventIndex<=stop) {
+        const next=structuredClone(evidence.events[eventIndex++]);
+        if(next.payload.playback) {
+          next.payload.playback.artwork_url=before.playback.artwork_url;
+          next.payload.playback.up_next=before.playback.up_next;
+        }
+        await page.evaluate(frame=>{
+          const timestamp=frame.payload.dj_moment?.created_at || frame.payload.playback?.updated_at;
+          if(timestamp) window.__now=Date.parse(timestamp)+100;
+          window.__deliver({type:'event',data:frame});
+        },next);
+      }
+      await page.waitForTimeout(80);
+      assert.equal(await page.locator('#moment-card').evaluate(el=>getComputedStyle(el).animationName),'card-out');
+      await page.waitForTimeout(1620);
     }
     assert.equal(await page.locator('#moment').textContent(),moment.summary);
     assert.equal(await page.locator('#moment-source').textContent(),moment.source_attribution.provider);
@@ -68,6 +83,14 @@ try {
     receipts.push({filename,viewport:{width,height},type:moment.type,summary:moment.summary,source:moment.source_attribution.provider,simulator:true});
   }
   if(name==='portrait') {
+    const playback=structuredClone(evidence.after.playback);
+    playback.artwork_url=before.playback.artwork_url;
+    playback.up_next={...before.playback.up_next,expires_at:new Date(Date.parse(moments.at(-1).created_at)+2000).toISOString()};
+    await page.evaluate(frame=>window.__deliver({type:'event',data:frame}),{event_type:'playback_changed',delivery_sequence:evidence.after.broadcast.snapshot_watermark+1,payload:{playback}});
+    assert.equal(await page.locator('#up-next').isVisible(),true);
+    await page.evaluate(()=>{window.__now+=2100;});
+    await page.waitForTimeout(1100); // No Broadcast event: the ordinary clock tick must hide expired queue data.
+    assert.equal(await page.locator('#up-next').isVisible(),false);
     await page.locator('#end-session').click();await page.waitForTimeout(100);
     assert.match(await page.locator('#state').textContent(),/niet gelukt/);
     assert.equal(await page.locator('#title').textContent(),'Test recording');
@@ -79,6 +102,6 @@ try {
   assert.deepEqual(errors,[]);
   await page.close();await context.close();
  }
- fs.writeFileSync(path.join(output,'acceptance.json'),JSON.stringify({simulator:true,source:evidence.source,receipts,checks:{four_independent_facts:true,portrait_landscape_no_overlap:true,source_attribution:true,up_next:true,end_error_no_false_idle:true,server_confirmed_end:true}},null,2));
+ fs.writeFileSync(path.join(output,'acceptance.json'),JSON.stringify({simulator:true,source:evidence.source,receipts,checks:{four_independent_facts:true,portrait_landscape_no_overlap:true,source_attribution:true,up_next:true,end_error_no_false_idle:true,server_confirmed_end:true,quiet_queue_expiry:true,same_title_fade_out:true}},null,2));
  console.log(`Owner-refinements software browser acceptance PASS: ${output}`);
 } finally {await browser.close();await new Promise(resolve=>server.close(resolve));}

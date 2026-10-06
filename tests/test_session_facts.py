@@ -406,6 +406,96 @@ class SessionFactsTest(unittest.TestCase):
 
         asyncio.run(scenario())
 
+    def test_non_spotify_entry_unload_and_opt_out_revoke_end_authority(self):
+        async def scenario():
+            manager = self.runtime.SessionRuntimeManager()
+            session = await manager.async_start(
+                owner_profile_id="owner", music_backend="music_assistant"
+            )
+            grant = await manager.async_issue_receiver_end_grant(
+                owner_profile_id="owner", session_id=session.session_id, entry_id="owner-entry"
+            )
+            await manager.async_revoke_receiver_end_grants_for_entry("owner-entry")
+            self.assertIsNone(
+                await manager.async_end_with_receiver_grant(
+                    session_id=session.session_id,
+                    grant=grant,
+                    authorized_entry_ids=frozenset({"owner-entry"}),
+                )
+            )
+            grant = await manager.async_issue_receiver_end_grant(
+                owner_profile_id="owner", session_id=session.session_id, entry_id="owner-entry"
+            )
+            self.assertIsNone(
+                await manager.async_end_with_receiver_grant(
+                    session_id=session.session_id, grant=grant, authorized_entry_ids=frozenset()
+                )
+            )
+            self.assertIsNotNone(await manager.async_get_active("owner"))
+            # Re-enabling cannot restore consumed/revoked authority.
+            self.assertIsNone(
+                await manager.async_end_with_receiver_grant(
+                    session_id=session.session_id,
+                    grant=grant,
+                    authorized_entry_ids=frozenset({"owner-entry"}),
+                )
+            )
+
+        asyncio.run(scenario())
+
+    def test_ephemeral_source_cards_are_not_persisted_as_historical_text(self):
+        import tempfile
+        from pathlib import Path
+        from custom_components.djconnect.persistence.service import PersistenceService
+        from custom_components.djconnect.persistence.sqlite import SQLitePersistenceProvider
+        from custom_components.djconnect.persistence.sessions import PersistentSessionRepository
+        from custom_components.djconnect.persistence.history import HistoricalProjectionRepository
+
+        with tempfile.TemporaryDirectory() as directory:
+
+            async def scenario():
+                service = PersistenceService(
+                    Path(directory) / "history.sqlite3", SQLitePersistenceProvider()
+                )
+                await service.async_initialize()
+                history = HistoricalProjectionRepository(service)
+                manager = self.runtime.SessionRuntimeManager(
+                    PersistentSessionRepository(service), history
+                )
+                session = await manager.async_start(owner_profile_id="owner", locale="nl")
+                catalog = self.catalog()
+                await manager.async_update_playback_projection(
+                    owner_profile_id="owner",
+                    session_id=session.session_id,
+                    state="playing",
+                    media_identity=catalog["uri"],
+                    title=catalog["title"],
+                    artist=catalog["artist"],
+                    duration_ms=300000,
+                    position_ms=0,
+                )
+
+                async def source():
+                    return {"_qualified_facts": tuple(self.facts.catalog_facts(catalog))}
+
+                moment = await manager.async_process_track_started(
+                    owner_profile_id="owner",
+                    session_id=session.session_id,
+                    media_identity=catalog["uri"],
+                    insight_provider=source,
+                    require_current_playback=True,
+                    allow_initial_facts=True,
+                )
+                self.assertIsNotNone(moment)
+                await manager.async_end(owner_profile_id="owner", session_id=session.session_id)
+                self.assertEqual(
+                    await history.async_list_moments_for_session(session.session_id), ()
+                )
+                self.assertEqual(len(await history.async_list_sessions_for_owner("owner")), 1)
+                await service.async_close()
+
+            asyncio.run(scenario())
+
     def test_end_grant_is_session_scoped_expiring_revocable_and_not_broadcast_token(self):
         async def scenario():
             now = [100.0]
@@ -417,7 +507,7 @@ class SessionFactsTest(unittest.TestCase):
                 )
             )
             grant = await manager.async_issue_receiver_end_grant(
-                owner_profile_id="owner", session_id=session.session_id
+                owner_profile_id="owner", session_id=session.session_id, entry_id="entry-owner"
             )
             self.assertIsNone(
                 await manager.async_end_with_receiver_grant(
@@ -431,7 +521,7 @@ class SessionFactsTest(unittest.TestCase):
                 )
             )
             grant = await manager.async_issue_receiver_end_grant(
-                owner_profile_id="owner", session_id=session.session_id
+                owner_profile_id="owner", session_id=session.session_id, entry_id="entry-owner"
             )
             await manager.async_revoke_receiver_end_grants(
                 owner_profile_id="owner", session_id=session.session_id
@@ -442,7 +532,7 @@ class SessionFactsTest(unittest.TestCase):
                 )
             )
             grant = await manager.async_issue_receiver_end_grant(
-                owner_profile_id="owner", session_id=session.session_id
+                owner_profile_id="owner", session_id=session.session_id, entry_id="entry-owner"
             )
             ended = await manager.async_end_with_receiver_grant(
                 session_id=session.session_id, grant=grant

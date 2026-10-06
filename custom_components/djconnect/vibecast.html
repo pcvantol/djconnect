@@ -202,7 +202,7 @@ progress { height:.7rem; border-radius:1rem; overflow:hidden }
   }
   function showCurrent(card, animate, afterExit=false) {
     const shell = e("moment-card"), kind = e("moment-type"), detail = e("moment-detail");
-    if (animate && !afterExit && shell && !shell.hidden && e("moment").textContent !== card.summary && !reduceMotion()) {
+    if (animate && !afterExit && shell && !shell.hidden && lastPlacedKey !== card.key && !reduceMotion()) {
       if (exitTimer) window.clearTimeout(exitTimer);
       shell.classList?.remove("fresh"); shell.classList?.add("exiting");
       exitTimer=window.setTimeout(()=>{ exitTimer=undefined; if (current?.key === card.key) showCurrent(card,true,true); },800);
