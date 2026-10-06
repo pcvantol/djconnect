@@ -376,6 +376,7 @@ class DJMoment:
     actions: tuple[DJMomentAction, ...]
     source_references: tuple[str, ...]
     generation_metadata: tuple[tuple[str, str], ...]
+    source_context_fingerprint: str = field(default="", repr=False)
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -546,7 +547,7 @@ class PerformanceMemory:
                     fingerprint
                     for moment in ordered
                     if (
-                        fingerprint := _context_fingerprint(
+                        fingerprint := moment.source_context_fingerprint or _context_fingerprint(
                             dict(moment.generation_metadata).get("artist", ""),
                             moment.summary,
                             moment.content,
@@ -1563,6 +1564,57 @@ class DJSessionPlanner:
     def record_spoken_moment(self) -> None:
         self.last_spoken_moment_at = self.elapsed_time_source()
 
+    def select_intra_track_intent(
+        self,
+        *,
+        first_type: DJMomentType,
+        first_position_ms: int,
+        first_read_seconds: int,
+        observed_position_ms: int,
+        duration_ms: int,
+        safe_insight: dict[str, Any],
+        performance_memory: PerformanceMemory,
+        allowed_intents: frozenset[str] | None,
+    ) -> KnowledgeIntent | None:
+        """Approve one well-spaced, different evidenced current-track angle."""
+        # This later contribution is Broadcast-only. Its observed spacing
+        # leaves the first card readable and a short valid overlap for exit.
+        minimum_gap_ms = max(15_000, min(60_000, (first_read_seconds - 15) * 1000))
+        if (
+            duration_ms < 180_000
+            or observed_position_ms - first_position_ms < minimum_gap_ms
+            or duration_ms - observed_position_ms < 45_000
+        ):
+            return None
+        track = safe_insight.get("track", {})
+        analysis = safe_insight.get("analysis", {})
+        hints = _planner_knowledge_hints(safe_insight)
+        if not all(hints.get(key) for key in ("title", "artist", "summary", "full_text")):
+            return None
+        choices = (
+            (KnowledgeIntentType.GENRE_STORY, DJMomentType.GENRE, "genre_story"),
+            (KnowledgeIntentType.TRACK_CONTEXT, DJMomentType.TRACK, "track_context"),
+        )
+        for intent_type, moment_type, capability in choices:
+            if first_type is moment_type:
+                continue
+            if allowed_intents is not None and capability not in allowed_intents:
+                continue
+            if moment_type is DJMomentType.GENRE:
+                if _primary_knowledge_evidence(intent_type, track, analysis) is None:
+                    continue
+                if _performance_memory_repeats(performance_memory, intent_type, hints):
+                    continue
+            elif first_type is not DJMomentType.GENRE:
+                # Other first angles currently share Track Insight narrative
+                # text; a Track card would merely repeat that text.
+                continue
+            return KnowledgeIntent(
+                intent_type,
+                "Add one distinct, source-backed perspective on the current track.",
+            )
+        return None
+
     def project_track_started_planning_input(
         self,
         *,
@@ -1825,6 +1877,7 @@ class DJMomentEngine:
         persona: DJPersona,
         locale: str,
         insight: dict[str, Any],
+        source_insight: dict[str, Any] | None = None,
     ) -> DJMoment:
         """Translate one selected Knowledge Context into one frozen Moment."""
         track = insight.get("track") if isinstance(insight.get("track"), dict) else {}
@@ -1842,17 +1895,9 @@ class DJMomentEngine:
                 locale=locale,
                 reason="invalid_ai_output",
             )
-        if track_key in self._track_keys:
-            return self.create_silence(
-                session_id=session_id,
-                selected_mood=selected_mood,
-                persona=persona,
-                locale=locale,
-                reason="duplicate_track_context",
-            )
-        self._track_keys.add(track_key)
         specialized = _specialize_track_moment(
-            track, analysis, title, artist, summary, content, knowledge_intent.intent_type
+            track, analysis, title, artist, summary, content, knowledge_intent.intent_type,
+            locale,
         )
         if specialized is None:
             return self.create_silence(
@@ -1863,6 +1908,17 @@ class DJMomentEngine:
                 reason="invalid_knowledge_context",
             )
         moment_type, title, summary, content = specialized
+        source_hints = _planner_knowledge_hints(source_insight or insight)
+        angle_key = f"{track_key}|{moment_type.value}"
+        if angle_key in self._track_keys:
+            return self.create_silence(
+                session_id=session_id,
+                selected_mood=selected_mood,
+                persona=persona,
+                locale=locale,
+                reason="duplicate_track_context",
+            )
+        self._track_keys.add(angle_key)
         moment = DJMoment(
             moment_id=f"moment-{uuid4().hex}",
             session_id=session_id,
@@ -1871,13 +1927,19 @@ class DJMomentEngine:
             knowledge_intent=KnowledgeIntent(
                 knowledge_intent.intent_type, knowledge_intent.goal, track_key
             ),
-            presentation_intent=_presentation_intent(selected_mood, persona),
+            presentation_intent=_presentation_intent(
+                selected_mood, persona, reading_characters=len(summary) + len(content),
+                minimum_duration_seconds=45 if moment_type is DJMomentType.GENRE else 25,
+            ),
             title=title,
             summary=summary,
             content=content,
             artwork_url=_bounded_text(track.get("artwork_url"), 2048) or None,
             actions=_moment_actions(moment_type, track, locale),
             source_references=("track_insight",),
+            source_context_fingerprint=_context_fingerprint(
+                source_hints["artist"], source_hints["summary"], source_hints["full_text"]
+            ),
             generation_metadata=(
                 ("provider", "track_insight"),
                 ("track_title", _bounded_text(track.get("title"), 160)),
@@ -2637,6 +2699,7 @@ class PlanningRuntimeCoordinator:
             persona=persona,
             locale=locale,
             insight=_planning_realization_insight(knowledge, raw_insight, knowledge_intent),
+            source_insight=raw_insight,
         )
         if moment.moment_type is DJMomentType.SILENCE:
             self.last_realized_intent = planned
@@ -2949,6 +3012,7 @@ class DJBroadcastState:
     session_direction: SessionDirection
     started_at: str
     session_flow: DJSessionFlow
+    locale: str = "en"
     audience_totals: dict[str, int] = field(default_factory=dict)
     recent_audience_activity: tuple[str, ...] = ()
     dj_moments: tuple[DJMoment, ...] = ()
@@ -2962,6 +3026,7 @@ class DJBroadcastState:
                 "session_id": self.session_id,
                 "runtime_state": str(self.runtime_state),
                 "selected_mood": self.selected_mood,
+                "locale": self.locale,
             },
             "playback": self.playback.as_dict(),
             "planner": {
@@ -3201,6 +3266,7 @@ class DJSessionBroadcastEngine:
         event = {
             "event_type": str(event_type),
             "session_id": self.state.session_id,
+            "delivery_sequence": self.delivery_sequence,
             "payload": payload,
         }
         for subscription_id, (callback, include_owner_only) in tuple(self._subscribers.items()):
@@ -3338,6 +3404,50 @@ class PresentationCompositionDiagnostics:
         self.composition_count += 1
 
 
+@dataclass
+class IntraTrackOpportunity:
+    """Private, bounded current-item opportunity owned by the active Runtime."""
+
+    session_id: str
+    media_identity: str
+    item_id: str
+    source_context: tuple[str, str, str, str]
+    generation: int = 0
+    last_observed_position_ms: int | None = None
+    last_observed_monotonic: float = 0.0
+    first_moment_position_ms: int | None = None
+    first_moment_type: DJMomentType | None = None
+    first_read_seconds: int = 0
+    safe_insight: dict[str, Any] = field(default_factory=dict)
+    pending: bool = False
+    spent: bool = False
+    blocked: bool = False
+    resume_ready_at: float = 0.0
+
+
+def _safe_intra_track_insight(raw_insight: dict[str, Any]) -> dict[str, Any]:
+    """Retain only already approved Track Insight fields within one Runtime."""
+    track = raw_insight.get("track")
+    analysis = raw_insight.get("analysis")
+    if not isinstance(track, dict) or not isinstance(analysis, dict):
+        return {}
+    safe_track = {
+        key: _bounded_evidence_value(track.get(key), limit)
+        for key, limit in (
+            ("title", 160), ("artist", 160), ("album", 160),
+            ("backend", 40), ("genres", 160),
+        )
+    }
+    safe_track["artwork_url"] = _safe_artwork_url(track.get("artwork_url"))
+    safe_analysis = {
+        key: _bounded_evidence_value(analysis.get(key), limit)
+        for key, limit in (("summary", 320), ("full_text", 1200), ("genre", 160))
+    }
+    if not all(safe_track.get(key) for key in ("title", "artist")):
+        return {}
+    return {"track": safe_track, "analysis": safe_analysis}
+
+
 @dataclass(frozen=True)
 class DJSessionRuntime:
     """Minimum ephemeral state for one active DJ Session."""
@@ -3434,9 +3544,11 @@ class DJSessionRuntime:
 class SessionRuntimeManager:
     """Own active DJ Session Runtimes for this Home Assistant instance."""
 
-    def __init__(self, persistent_sessions: PersistentSessionRepository | None = None, historical_projections: HistoricalProjectionRepository | None = None) -> None:
+    def __init__(self, persistent_sessions: PersistentSessionRepository | None = None, historical_projections: HistoricalProjectionRepository | None = None, monotonic_source: Callable[[], float] = time.monotonic) -> None:
         self._active_by_profile: dict[str, DJSessionRuntime] = {}
         self._playback_progress_clocks: dict[str, PlaybackProgressClock] = {}
+        self._intra_track_opportunities: dict[str, IntraTrackOpportunity] = {}
+        self._monotonic_source = monotonic_source
         self._lock = asyncio.Lock()
         self._persistent_sessions = persistent_sessions
         self._historical_projections = historical_projections
@@ -3510,6 +3622,7 @@ class SessionRuntimeManager:
                     session_id=session_id,
                     runtime_state=SessionRuntimeState.CREATING,
                     selected_mood=selected_mood,
+                    locale=_locale_family(locale),
                     session_direction=session_direction,
                     planner=planner,
                     started_at=now,
@@ -3565,6 +3678,41 @@ class SessionRuntimeManager:
             active = self._active_by_profile.get(owner_profile_id)
             if active is None or active.session_id != session_id:
                 return False
+            now = self._monotonic_source()
+            opportunity = self._intra_track_opportunities.get(owner_profile_id)
+            if projection.state in {"idle", "stopped"} or not projection.item_id:
+                self._intra_track_opportunities.pop(owner_profile_id, None)
+            elif opportunity is None or opportunity.session_id != session_id or opportunity.item_id != projection.item_id:
+                opportunity = IntraTrackOpportunity(
+                    session_id=session_id,
+                    media_identity=media_identity,
+                    item_id=projection.item_id,
+                    source_context=(projection.target_name, projection.title, projection.artist, projection.album),
+                )
+                self._intra_track_opportunities[owner_profile_id] = opportunity
+            if opportunity is not None and self._intra_track_opportunities.get(owner_profile_id) is opportunity:
+                context = (projection.target_name, projection.title, projection.artist, projection.album)
+                if active.broadcast.state.playback.state == "paused" and projection.state == "playing":
+                    opportunity.resume_ready_at = now + 15
+                if context != opportunity.source_context or media_identity != opportunity.media_identity:
+                    opportunity.blocked = True
+                    opportunity.generation += 1
+                    opportunity.pending = False
+                if projection.state != "playing":
+                    opportunity.generation += 1
+                    opportunity.pending = False
+                if projection.position_ms is not None:
+                    old_position = opportunity.last_observed_position_ms
+                    elapsed_ms = max(0, (now - opportunity.last_observed_monotonic) * 1000)
+                    if old_position is not None and (
+                        projection.position_ms < old_position - 5000
+                        or projection.position_ms > old_position + max(20_000, elapsed_ms + 15_000)
+                    ):
+                        opportunity.blocked = True
+                        opportunity.generation += 1
+                        opportunity.pending = False
+                    opportunity.last_observed_position_ms = projection.position_ms
+                    opportunity.last_observed_monotonic = now
             changed = active.broadcast.update_playback(projection)
             self._replace_playback_progress_clock(owner_profile_id, projection, session_id)
             if changed:
@@ -3591,8 +3739,150 @@ class SessionRuntimeManager:
             )
             if updated.planner.horizon is not None:
                 updated.planner.horizon.replan(allowed_intents=allowed_capability_intents)
+            opportunity = self._intra_track_opportunities.get(owner_profile_id)
+            if opportunity is not None:
+                opportunity.generation += 1
+                opportunity.pending = False
             self._active_by_profile[owner_profile_id] = updated
             return True
+
+    async def async_invalidate_intra_track_opportunity(
+        self, *, owner_profile_id: str, session_id: str
+    ) -> None:
+        """Make in-flight later work inert when its playback observer stops."""
+        async with self._lock:
+            current = self._intra_track_opportunities.get(owner_profile_id)
+            if current is not None and current.session_id == session_id:
+                current.generation += 1
+                current.pending = False
+                self._intra_track_opportunities.pop(owner_profile_id, None)
+
+    def _note_initial_track_moment(
+        self,
+        *,
+        owner_profile_id: str,
+        active: DJSessionRuntime,
+        media_identity: str,
+        raw_insight: dict[str, Any],
+        moment: DJMoment,
+    ) -> None:
+        """Keep one safe current-track candidate after its first publication."""
+        opportunity = self._intra_track_opportunities.get(owner_profile_id)
+        playback = active.broadcast.state.playback
+        safe_insight = _safe_intra_track_insight(raw_insight)
+        if (
+            opportunity is None or opportunity.blocked
+            or opportunity.session_id != active.session_id
+            or opportunity.media_identity != media_identity
+            or opportunity.item_id != playback.item_id
+            or moment.moment_type is DJMomentType.SILENCE
+            or moment.moment_type not in {
+                DJMomentType.TRACK, DJMomentType.GENRE,
+                DJMomentType.ARTIST, DJMomentType.ALBUM,
+                DJMomentType.RECOMMENDATION,
+            }
+            or opportunity.first_moment_type is not None
+            or safe_insight.get("track", {}).get("title") != playback.title
+            or safe_insight.get("track", {}).get("artist") != playback.artist
+        ):
+            return
+        opportunity.safe_insight = safe_insight
+        opportunity.first_moment_type = moment.moment_type
+        opportunity.first_moment_position_ms = opportunity.last_observed_position_ms
+        opportunity.first_read_seconds = moment.presentation_intent.maximum_duration_seconds
+
+    async def async_maybe_publish_intra_track_moment(
+        self, *, owner_profile_id: str, session_id: str, media_identity: str
+    ) -> DJMoment | None:
+        """Realize one later Moment only from fresh observed current playback."""
+        async with self._lock:
+            active = self._active_by_profile.get(owner_profile_id)
+            opportunity = self._intra_track_opportunities.get(owner_profile_id)
+            if active is None or active.session_id != session_id or opportunity is None:
+                return None
+            playback = active.broadcast.state.playback
+            position = opportunity.last_observed_position_ms
+            duration = playback.duration_ms
+            if (
+                opportunity.session_id != session_id
+                or opportunity.media_identity != media_identity
+                or opportunity.item_id != playback.item_id
+                or opportunity.blocked or opportunity.spent or opportunity.pending
+                or opportunity.first_moment_type is None
+                or not opportunity.safe_insight
+                or playback.state != "playing"
+                or position is None or duration is None
+                or opportunity.first_moment_position_ms is None
+                or self._monotonic_source() - opportunity.last_observed_monotonic > 30
+                or self._monotonic_source() < opportunity.resume_ready_at
+            ):
+                return None
+            intent = active.planner.select_intra_track_intent(
+                first_type=opportunity.first_moment_type,
+                first_position_ms=opportunity.first_moment_position_ms,
+                first_read_seconds=opportunity.first_read_seconds,
+                observed_position_ms=position,
+                duration_ms=duration,
+                safe_insight=opportunity.safe_insight,
+                performance_memory=active.performance_memory,
+                allowed_intents=active.allowed_capability_intents,
+            )
+            if intent is None:
+                return None
+            opportunity.pending = True
+            generation = opportunity.generation
+            safe_insight = copy.deepcopy(opportunity.safe_insight)
+            working_knowledge = copy.deepcopy(active.knowledge_engine)
+            working_moments = copy.deepcopy(active.moment_engine)
+            direction = active.session_direction
+            mood = active.selected_mood
+            strategy = active.session_start_strategy
+            discover = active.discover_context
+            memory = active.performance_memory
+            persona = active.dj_persona
+            locale = active.locale
+        try:
+            knowledge = await working_knowledge.async_assemble_track_context(
+                intent=intent, raw_insight=safe_insight, session_direction=direction,
+                session_start_strategy=strategy, session_mood=mood,
+                discover_context=discover, performance_memory=memory,
+            )
+            moment = working_moments.create_track_context(
+                session_id=session_id, knowledge_intent=intent,
+                selected_mood=mood, persona=persona, locale=locale,
+                insight=knowledge.as_insight(),
+            )
+        except Exception as exc:  # noqa: BLE001
+            _LOGGER.debug("DJConnect later current-track context unavailable: %s", exc.__class__.__name__)
+            moment = None
+        async with self._lock:
+            active = self._active_by_profile.get(owner_profile_id)
+            current = self._intra_track_opportunities.get(owner_profile_id)
+            if (
+                active is None or active.session_id != session_id
+                or current is not opportunity or current.generation != generation
+                or not current.pending or current.blocked
+                or active.broadcast.state.playback.state != "playing"
+                or active.broadcast.state.playback.item_id != current.item_id
+                or self._monotonic_source() - current.last_observed_monotonic > 30
+                or current.last_observed_position_ms is None
+                or active.broadcast.state.playback.duration_ms is None
+            ):
+                if current is opportunity and current.generation == generation:
+                    current.pending = False
+                return None
+            current.pending = False
+            current.spent = True
+            if moment is None or moment.moment_type is DJMomentType.SILENCE:
+                return None
+            remaining_ms = active.broadcast.state.playback.duration_ms - current.last_observed_position_ms
+            if remaining_ms < (moment.presentation_intent.maximum_duration_seconds + 5) * 1000:
+                return None
+            active.knowledge_engine.__dict__.update(working_knowledge.__dict__)
+            active.moment_engine.__dict__.update(working_moments.__dict__)
+            active.publish_moment(moment)
+            self._record_performance_memory(owner_profile_id, active)
+            return moment
 
     async def async_advance_playback_progress(
         self, *, owner_profile_id: str, session_id: str
@@ -3812,6 +4102,11 @@ class SessionRuntimeManager:
                     active.planner.last_decision = planning_input.planner_decision
                 active.publish_moment(coordinated)
                 active.planning_coordinator.confirm_published(active.planner)
+                self._note_initial_track_moment(
+                    owner_profile_id=owner_profile_id, active=active,
+                    media_identity=media_identity, raw_insight=raw_insight,
+                    moment=coordinated,
+                )
                 if coordinated.moment_type is not DJMomentType.SILENCE:
                     active.planner.record_spoken_moment()
                 if coordinated.moment_type is not DJMomentType.SILENCE and not is_session_update:
@@ -3940,6 +4235,11 @@ class SessionRuntimeManager:
             if moment.moment_type is not DJMomentType.SILENCE:
                 active.planner.record_spoken_moment()
             active.publish_moment(moment)
+            self._note_initial_track_moment(
+                owner_profile_id=owner_profile_id, active=active,
+                media_identity=media_identity, raw_insight=raw_insight,
+                moment=moment,
+            )
             active = self._record_performance_memory(owner_profile_id, active)
             active = self._publish_discover_transition(
                 owner_profile_id, active, moment, raw_insight, media_identity
@@ -4006,7 +4306,10 @@ class SessionRuntimeManager:
         if not media_identity or active.last_accepted_media_identity != media_identity:
             return False
         expected_item_id = hashlib.sha256(media_identity.encode()).hexdigest()[:24]
-        return active.broadcast.state.playback.item_id == expected_item_id
+        return (
+            active.broadcast.state.playback.item_id == expected_item_id
+            and active.broadcast.state.playback.state == "playing"
+        )
 
     def _publish_discover_transition(
         self,
@@ -4314,6 +4617,7 @@ class SessionRuntimeManager:
             if session_id and active.session_id != session_id:
                 return None
             self._playback_progress_clocks.pop(owner_profile_id, None)
+            self._intra_track_opportunities.pop(owner_profile_id, None)
             if self._persistent_sessions is not None:
                 persistent = await self._persistent_sessions.async_transition(
                     owner_profile_id, active.session_id, PERSISTENT_SESSION_ENDED
@@ -4709,6 +5013,7 @@ def _create_broadcast_engine(
     session_id: str,
     runtime_state: SessionRuntimeState,
     selected_mood: str,
+    locale: str = "en",
     session_direction: SessionDirection,
     planner: DJSessionPlanner,
     started_at: str,
@@ -4719,6 +5024,7 @@ def _create_broadcast_engine(
             session_id=session_id,
             runtime_state=runtime_state,
             selected_mood=selected_mood,
+            locale=_locale_family(locale),
             planning_state=planner.planner_state,
             planning_horizon_minutes=planner.planning_horizon_minutes,
             session_direction=session_direction,
@@ -4775,7 +5081,10 @@ def _create_session_flow(
     )
 
 
-def _presentation_intent(selected_mood: str, persona: DJPersona) -> PresentationIntent:
+def _presentation_intent(
+    selected_mood: str, persona: DJPersona, *,
+    reading_characters: int = 0, minimum_duration_seconds: int = 25,
+) -> PresentationIntent:
     """Resolve compact semantic guidance without binding any renderer design."""
     mood = selected_mood.strip() or "neutral"
     tone = {
@@ -4793,7 +5102,7 @@ def _presentation_intent(selected_mood: str, persona: DJPersona) -> Presentation
         voice_style="persona-guided",
         visual_theme="music-context",
         importance="normal",
-        maximum_duration_seconds=25,
+        maximum_duration_seconds=min(90, max(minimum_duration_seconds, (reading_characters + 13) // 14)),
         delivery_channels=(DeliveryChannel.BROADCAST, DeliveryChannel.OWNER, DeliveryChannel.SHARED),
         visibility=DJMomentVisibility.SESSION_SHARED,
     )
@@ -4828,7 +5137,7 @@ def _moment_actions(moment_type: DJMomentType, track: dict[str, Any], locale: st
     return actions
 
 
-def _specialize_track_moment(track: dict[str, Any], analysis: dict[str, Any], title: str, artist: str, summary: str, content: str, intent_type: KnowledgeIntentType) -> tuple[DJMomentType, str, str, str] | None:
+def _specialize_track_moment(track: dict[str, Any], analysis: dict[str, Any], title: str, artist: str, summary: str, content: str, intent_type: KnowledgeIntentType, locale: str) -> tuple[DJMomentType, str, str, str] | None:
     if intent_type is KnowledgeIntentType.RECOMMENDATION:
         if not (
             _bounded_text(track.get("related_tracks"), 1200)
@@ -4855,9 +5164,11 @@ def _specialize_track_moment(track: dict[str, Any], analysis: dict[str, Any], ti
             return None
         return DJMomentType.ALBUM, _bounded_text(track.get("album"), 160), summary, content
     if intent_type is KnowledgeIntentType.GENRE_STORY:
-        if not (_bounded_text(analysis.get("genre"), 160) or _bounded_text(track.get("genres"), 160)):
+        genre = _bounded_evidence_value(analysis.get("genre"), 160) or _bounded_evidence_value(track.get("genres"), 160)
+        if not genre:
             return None
-        return DJMomentType.GENRE, _bounded_text(analysis.get("genre"), 160) or _bounded_text(track.get("genres"), 160), summary, content
+        genre_summary, genre_content = _genre_moment_copy(locale, genre, title, artist)
+        return DJMomentType.GENRE, genre, genre_summary, genre_content
     if intent_type is KnowledgeIntentType.TRACK_CONTEXT:
         return DJMomentType.TRACK, f"{title} — {artist}", summary, content
     return None
@@ -4980,6 +5291,18 @@ def _moment_copy(locale: str, key: str) -> str:
         "es": {"silence_title": "Silencio", "silence_summary": "El DJ ha decidido no interrumpir la música.", "ask_dj": "Preguntar al DJ", "tell_me_more": "Cuéntame más", "show_artist": "Ver artista", "show_album": "Ver álbum", "show_track": "Ver canción"},
     }
     return messages[_locale_family(locale)][key]
+
+
+def _genre_moment_copy(locale: str, genre: str, title: str, artist: str) -> tuple[str, str]:
+    """Present the selected existing genre evidence without added music facts."""
+    copy = {
+        "en": ("Genre: {genre}", "The genre context for {title} by {artist} is {genre}."),
+        "nl": ("Genre: {genre}", "De genrecontext bij {title} van {artist} is {genre}."),
+        "de": ("Genre: {genre}", "Der Genrekontext zu {title} von {artist} ist {genre}."),
+        "fr": ("Genre : {genre}", "Le contexte de genre de {title} par {artist} est {genre}."),
+        "es": ("Género: {genre}", "El contexto de género de {title} de {artist} es {genre}."),
+    }
+    return tuple(part.format(genre=genre, title=title, artist=artist) for part in copy[_locale_family(locale)])
 
 
 def _session_direction_copy(
