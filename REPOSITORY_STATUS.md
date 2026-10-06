@@ -1,5 +1,19 @@
 # DJConnect Repository Status
 
+## PR #1118 VibeCast same-track Moment timeline reconciliation
+
+[Core PR #1118](https://github.com/pcvantol/djconnect/pull/1118) protected squash-merged as `f15fb861e223a209341592666dc2092bad4b4a2e` from independently reviewed head `f7caee01087ea8bcb5239003f323d785a1fab0fd`; both trees equal `94d90ab8930f87fba577cd07319e422670349489`. The same active observed item now supports two distinct factual Moment types through the existing Runtime/Flow/Broadcast path, and VibeCast renders bounded current cards at 1200×1920. Local 1,543-test and six Golden suites, browser visual acceptance, independent review, exact-main [Validate](https://github.com/pcvantol/djconnect/actions/runs/37456371671) and [CodeQL](https://github.com/pcvantol/djconnect/actions/runs/37456371210) passed. [Artifact publication](https://github.com/pcvantol/djconnect/actions/runs/37456689950) and [redacted qualification evidence](https://github.com/pcvantol/djconnect/actions/runs/37456690517) passed for that SHA; the [internal prerelease](https://github.com/pcvantol/djconnect/releases/tag/internal-ha-f15fb861e223a209341592666dc2092bad4b4a2e) archive and JSON were digest checked. `SOFTWARE_SIMULATOR_QUAL=PASS`; `PHYSICAL_PI_QUAL=NOT_RUN_FOR_THIS_SLICE`. The prior first-slice owner override is unchanged. No HA-dev installation or public release occurred.
+
+### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+1. **Public distribution: Apple — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; gate: qualified Internal Release consumers and explicit authorization.
+2. **Public distribution: Windows — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; gate: consumer qualification and explicit authorization.
+3. **Public HACS distribution — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; gate: fresh candidate and release authorization.
+4. **HACS 3.3.0 release visibility (`HACS-3.3.0-001`) — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; gate: release metadata and discovery evidence.
+5. **Firmware OTA publication and staged rollback — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; gate: manifest-bound consumer qualification.
+
+Repository State: `MERGED_RECONCILED` after this Finalization merges. Workspace State: `WORKSPACE_READY` only after safe cleanup. Finalization Pending: `NO` after merge.
+
 ## PR #1116 VibeCast live playback coherence and locale reconciliation
 
 [Core PR #1116](https://github.com/pcvantol/djconnect/pull/1116) protected squash-merged as `a187f7c6f7f91f4d5c25ff685323e528ba97449c` from independently reviewed head `108e720b9ac488bc76107c6d95afdfe133cc6b42`; both trees are `4dfc3a3aeab278bb319c72bd3157905aebe1ea28`. Current-playback correlation now spans Spotify polling, transactional Session intelligence state, Broadcast moments and VibeCast rendering. Explicit or Assist-derived locale is clamped to the canonical five language families before it reaches Session intelligence.

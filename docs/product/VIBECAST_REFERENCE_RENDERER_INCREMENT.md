@@ -3,7 +3,7 @@
 **Status:** First slice complete under the owner's simulator acceptance override:
 `SIMULATOR_QUAL=PASS`, `PHYSICAL_PI_QUAL=NOT_RERUN_BY_USER_OVERRIDE`.
 The separately selected [same-track Moment timeline](VIBECAST_MULTIMOMENT_TIMELINE_CONTRACT.md)
-is a new Core slice; its evidence and physical gate are independent.
+is protected merged in Core [PR #1118](https://github.com/pcvantol/djconnect/pull/1118) with software/browser simulator acceptance. Its `PHYSICAL_PI_QUAL=NOT_RUN_FOR_THIS_SLICE`; the first slice's override and installed evidence do not transfer.
 
 ## Iteration 1 evidence
 

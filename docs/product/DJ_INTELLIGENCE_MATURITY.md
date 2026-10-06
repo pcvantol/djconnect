@@ -22,7 +22,7 @@ that lifecycle. The legacy Track Started route is only bounded runtime
 protection for lifecycle failure. Future maturity cells extend these existing
 abstractions and never introduce a parallel Runtime, Flow or Broadcast path.
 
-The selected [same-track VibeCast slice](VIBECAST_MULTIMOMENT_TIMELINE_CONTRACT.md)
+The protected-merged [same-track VibeCast slice](VIBECAST_MULTIMOMENT_TIMELINE_CONTRACT.md)
 reuses this lifecycle for one later, fresh observed-track opportunity. The
 Planner may choose a different existing Track/Genre factual angle only when its
 current Track Insight evidence and timing are sufficient. A Runtime-local

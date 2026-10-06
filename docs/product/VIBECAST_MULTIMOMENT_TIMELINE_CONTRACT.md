@@ -1,8 +1,8 @@
-# VibeCast same-track Moment timeline — selected Core slice
+# VibeCast same-track Moment timeline — delivered Core source slice
 
 **Assignment:** `DJC-CORE-VIBECAST-MULTIMOMENT-TIMELINE-V1-20261006`  
 **Owner:** DJC-CORE  
-**State:** implementation contract; acceptance remains evidence-bound
+**State:** [source PR #1118](https://github.com/pcvantol/djconnect/pull/1118) protected merged as `f15fb861e223a209341592666dc2092bad4b4a2e`; [software/browser acceptance](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6012947392) passed. Physical 10-inch Pi and fresh installed/live qualification were not run for this slice.
 
 ## Outcome and ownership
 
