@@ -424,7 +424,10 @@ class SessionFactsTest(unittest.TestCase):
                 )
             )
             grant = await manager.async_issue_receiver_end_grant(
-                owner_profile_id="owner", session_id=session.session_id, entry_id="owner-entry"
+                owner_profile_id="owner",
+                session_id=session.session_id,
+                entry_id="owner-entry",
+                entry_generation=manager.receiver_entry_generation("owner-entry"),
             )
             self.assertIsNone(
                 await manager.async_end_with_receiver_grant(

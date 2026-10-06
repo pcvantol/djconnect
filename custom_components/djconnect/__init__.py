@@ -359,6 +359,7 @@ class DJConnectRuntime:
     memory: Any | None = None
     listeners: list = field(default_factory=list)
     _last_update_signature: str | None = None
+    _receiver_end_generation: int = 0
 
     @property
     def config(self) -> dict[str, Any]:
@@ -3138,6 +3139,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if option_updates != dict(entry.options):
         hass.config_entries.async_update_entry(entry, options=option_updates)
     runtime = _restore_runtime(hass, entry)
+    session_manager = hass.data[DOMAIN].get("session_runtime_manager")
+    if session_manager is not None:
+        runtime._receiver_end_generation = session_manager.receiver_entry_generation(entry.entry_id)
     if runtime.memory is not None:
         await runtime.memory.async_load()
     task_factory = getattr(hass, "async_create_task", None)

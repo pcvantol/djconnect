@@ -89,7 +89,7 @@ connections retain their existing read-only authority.
 
 `POST /api/djconnect/v1/session/broadcast/control/end` accepts only that grant
 and exact Session. It is single-use, expires after one hour, is revoked at end
-and owner-entry unload/reload (including non-Spotify Sessions) and carries no other command/owner access. The end endpoint also checks that the approving entry is still loaded with its opt-in enabled. The X
+and owner-entry unload/reload (including non-Spotify Sessions) and carries no other command/owner access. The end endpoint also checks that the approving entry is still loaded with its opt-in enabled. A loaded owner Runtime captures an ephemeral entry generation; unload advances it atomically with revocation, so an in-flight old handoff cannot issue fresh authority during cancellation or after reload. The X
 appears only when a grant was delivered. Backend confirmation or terminal
 Broadcast moves the screen to idle. Failure remains visible; local success is
 not simulated. New handoff is required after authority expires/revokes.

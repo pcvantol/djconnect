@@ -3619,6 +3619,7 @@ class SessionRuntimeManager:
         self._playback_progress_clocks: dict[str, PlaybackProgressClock] = {}
         self._intra_track_opportunities: dict[str, IntraTrackOpportunity] = {}
         self._end_grants: dict[str, tuple[str, str, float, str]] = {}
+        self._receiver_entry_generations: dict[str, int] = {}
         self._monotonic_source = monotonic_source
         self._lock = asyncio.Lock()
         self._persistent_sessions = persistent_sessions
@@ -4769,11 +4770,17 @@ class SessionRuntimeManager:
             if active is not None and active.session_id == session_id:
                 active.broadcast.unsubscribe(subscription_id)
 
-    async def async_issue_receiver_end_grant(self, *, owner_profile_id: str, session_id: str, entry_id: str) -> str:
+    def receiver_entry_generation(self, entry_id: str) -> int:
+        """Return the ephemeral entry epoch captured by a loaded owner Runtime."""
+        return self._receiver_entry_generations.get(entry_id, 0)
+
+    async def async_issue_receiver_end_grant(self, *, owner_profile_id: str, session_id: str, entry_id: str, entry_generation: int = 0) -> str:
         """Issue a separate end-only credential after explicit owner consent."""
         async with self._lock:
             active = self._active_by_profile.get(owner_profile_id)
             if active is None or active.session_id != session_id or not entry_id:
+                return ""
+            if entry_generation != self.receiver_entry_generation(entry_id):
                 return ""
             now = self._monotonic_source()
             self._end_grants = {key: value for key, value in self._end_grants.items() if value[2] > now}
@@ -4792,6 +4799,7 @@ class SessionRuntimeManager:
     async def async_revoke_receiver_end_grants_for_entry(self, entry_id: str) -> None:
         """Revoke owner-entry authority even when no playback observer exists."""
         async with self._lock:
+            self._receiver_entry_generations[entry_id] = self.receiver_entry_generation(entry_id) + 1
             self._end_grants = {key: value for key, value in self._end_grants.items() if value[3] != entry_id}
 
     async def async_end_with_receiver_grant(self, *, session_id: str, grant: str, authorized_entry_ids: frozenset[str] | None = None) -> DJSessionRuntime | None:
