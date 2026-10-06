@@ -3,7 +3,7 @@
 - **Decision:** `GO_FOR_PROTECTED_FINALIZATION_WITH_PARTIAL_PHYSICAL_EVIDENCE`; `MERGED_RECONCILED` awaits this separate Finalization merge.
 - **Finalization branch:** `codex/vibecast-owner-refinements-finalization`, based on source merge `7d39bef4d98b3c1645e9085bc6a137b3244262cf`.
 - **Commit SHA:** source merge `7d39bef4d98b3c1645e9085bc6a137b3244262cf`; the Finalization commit is identified by the protected PR head because a commit cannot embed its own SHA.
-- **Pull Request:** source [#1120](https://github.com/pcvantol/djconnect/pull/1120); separate documentation Finalization PR is recorded on creation.
+- **Pull Request:** source [#1120](https://github.com/pcvantol/djconnect/pull/1120); separate documentation Finalization [#1121](https://github.com/pcvantol/djconnect/pull/1121).
 - **Validation performed:** source local tests, browser acceptance, independent source review, exact-main Validate and artifact; physical Pi screenshots, checksums, ZIP integrity, independent evidence review, documentation diff check and governance unit tests. Physical limitations are stated below.
 - **Created documents:** this immutable Prompt History / Completion Report. Private local physical evidence is an ignored artifact, not a published repository document.
 - **Updated documents:** `ENGINEERING_STATUS.md`, `MANAGEMENT_SUMMARY.md`, `REPOSITORY_STATUS.md`, `PROMPT_INDEX.md`, `PRODUCT_BACKLOG.md`, `PRODUCT_ROADMAP.md`, `docs/product/VIBECAST_MULTIMOMENT_TIMELINE_CONTRACT.md`, `docs/product/VIBECAST_OWNER_REFINEMENTS_CONTRACT.md`, `docs/product/CREDIT_PROVENANCE_SOURCE_CONTRACT.md` and `docs/product/DJ_INTELLIGENCE_MATURITY.md`.
