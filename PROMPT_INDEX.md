@@ -1,5 +1,11 @@
 # DJConnect Verification Prompt Index
 
+## PR #1118 VibeCast same-track Moment timeline reconciliation
+
+[Core PR #1118](https://github.com/pcvantol/djconnect/pull/1118) merged as `f15fb861e223a209341592666dc2092bad4b4a2e` from independently reviewed head `f7caee01087ea8bcb5239003f323d785a1fab0fd` with identical tree `94d90ab8930f87fba577cd07319e422670349489`. The immutable [Completion and Finalization record](docs/history/prompts/2026-10-06-vibecast-multimoment-timeline-finalization.md) preserves the one-track two-type Runtime/Flow/browser acceptance, 1,543-test local suite, six Golden scenarios, protected exact-main checks, internal SHA-bound archive and redacted evidence. `SOFTWARE_SIMULATOR_QUAL=PASS`; `PHYSICAL_PI_QUAL=NOT_RUN_FOR_THIS_SLICE`. The first VibeCast slice remains separately complete; no HA-dev installation, public release, Cast or next family is claimed.
+
+The unchanged five-item Execution Horizon remains Apple and Windows public distribution, public HACS distribution, HACS 3.3.0 release visibility, and firmware OTA publication/rollback, all Planned under `PLATFORM_EVOLUTION_BACKLOG.md` with their own gates. Repository State becomes `MERGED_RECONCILED` after this Finalization merges; Workspace State becomes `WORKSPACE_READY` after safe cleanup.
+
 ## PR #1116 VibeCast live playback coherence and locale reconciliation
 
 [Core PR #1116](https://github.com/pcvantol/djconnect/pull/1116) merged as `a187f7c6f7f91f4d5c25ff685323e528ba97449c` from independently reviewed head `108e720b9ac488bc76107c6d95afdfe133cc6b42` with identical tree `4dfc3a3aeab278bb319c72bd3157905aebe1ea28`. The immutable [Finalization record](docs/history/prompts/2026-10-05-vibecast-live-coherence-locale-finalization.md) records current-playback correlation, transactional stale-work rejection, Assist-derived five-language locale, final clean review, 1,920 local tests, exact-main CI and SHA-bound artifact/evidence. `PI_QUAL=OPEN`; exact Apple locale handoff and physical acceptance remain. No deployment, second slice or Cast work is claimed.

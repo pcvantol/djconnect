@@ -1,5 +1,33 @@
 # DJConnect Generation 2 Management Summary
 
+## PR #1118 VibeCast same-track Moment timeline reconciliation
+
+### Repository Status
+
+[Core PR #1118](https://github.com/pcvantol/djconnect/pull/1118) protected merged as `f15fb861e223a209341592666dc2092bad4b4a2e` from reviewed head `f7caee01087ea8bcb5239003f323d785a1fab0fd` with an identical tree. Exact-main Validate, CodeQL, internal HA archive and redacted qualification evidence passed. No HA-dev installation, stable release, signing or workflow change occurred.
+
+### Management Summary
+
+During one observed track, the existing DJ intelligence chain now produces two different factual Moments when safe evidence and enough read time exist. The portrait VibeCast renderer shows their progression as readable, bounded cards while artwork, title, artist and progress stay stable. A real Chrome browser consumed actual Runtime-generated events at 1200×1920. The local suite ran 1,543 tests (7 skipped, no failures); six Golden scenarios, negative lifecycle cases and an independent exact-candidate review passed. The published [internal prerelease](https://github.com/pcvantol/djconnect/releases/tag/internal-ha-f15fb861e223a209341592666dc2092bad4b4a2e) and qualification JSON bind the exact main SHA; all required checks are PASS.
+
+### Product and Platform Position
+
+Generation 2 Phase 2 Reference Experience: the first VibeCast slice remains complete by its separate owner simulator override. This new Core slice has `SOFTWARE_SIMULATOR_QUAL=PASS` and `PHYSICAL_PI_QUAL=NOT_RUN_FOR_THIS_SLICE`; no fresh live Spotify/HA-dev result transfers from the first slice. The existing Release 3.3 maintenance and public distribution gates remain unchanged.
+
+### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+1. **Public distribution: Apple — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; gate: qualified Internal Release consumers and explicit authorization.
+2. **Public distribution: Windows — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; gate: consumer qualification and explicit authorization.
+3. **Public HACS distribution — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; gate: fresh candidate and release authorization.
+4. **HACS 3.3.0 release visibility (`HACS-3.3.0-001`) — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; gate: release metadata and discovery evidence.
+5. **Firmware OTA publication and staged rollback — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; gate: manifest-bound consumer qualification.
+
+### Remaining decisions
+
+A future physical 10-inch qualification or HA-dev installation needs its own exact-candidate authorization and evidence. Credits Phase B and Playback Observation/Continue Stage 2 retain their producer and identity gates. No Cast, next Moment family or other follow-on starts automatically.
+
+Repository State: `MERGED_RECONCILED` after this Finalization merges. Workspace State: `WORKSPACE_READY` after safe cleanup.
+
 ## PR #1116 VibeCast live playback coherence and locale reconciliation
 
 ### Repository Status
