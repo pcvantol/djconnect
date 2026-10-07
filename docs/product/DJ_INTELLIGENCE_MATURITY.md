@@ -1,5 +1,18 @@
 # DJ Intelligence Maturity Model
 
+## Current selected increment — contextual fact planning
+
+`DJC-CORE-CONTEXTUAL-FACT-PLANNING-V1-20261007` extends the qualified #1120
+visual facts through the same current-item Runtime chain. The
+[deterministic policy](CONTEXTUAL_FACT_PLANNING_CONTRACT.md) gates eligibility
+before ranking and per-candidate readable fit, then uses existing Strategy,
+Direction, bounded Mood/Persona and published Flow type memory. Same-pool
+Runtime/browser evidence distinguishes Manual and Discover and proves the
+short-fit alternative. No new knowledge provider, TTS, Moment family,
+future queue or cross-Session learning; no intelligence-stage promotion.
+Source review/checks and protected delivery remain pending. Existing physical
+capture/frame-rate PARTIAL findings remain parked.
+
 ## Purpose
 
 This is the canonical capability-oriented implementation roadmap for the AI

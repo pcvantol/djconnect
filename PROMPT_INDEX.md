@@ -1,5 +1,19 @@
 # DJConnect Verification Prompt Index
 
+## Active — contextual fact planning v1
+
+Assignment `DJC-CORE-CONTEXTUAL-FACT-PLANNING-V1-20261007`, sole Core writer
+on `codex/contextual-fact-planning-v1`, base
+`4c30399294b56aff89b962a53b37ea91a2d1762f`.
+[Owner assignment](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6038061223),
+[ACK](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6039361642),
+[first source](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6039436220).
+[Policy/evidence](docs/product/CONTEXTUAL_FACT_PLANNING_CONTRACT.md) bounds work
+to choice/dosing of #1120's qualified current facts. Runtime and unchanged
+browser consumer passed mocked-producer software acceptance. Source review,
+protected delivery and mandatory separate Finalization pending. #1118–#1121
+remain closed; no following intelligence family starts.
+
 ## PR #1120 VibeCast owner refinements and physical qualification
 
 [Core PR #1120](https://github.com/pcvantol/djconnect/pull/1120)

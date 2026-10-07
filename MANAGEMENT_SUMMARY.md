@@ -1,5 +1,16 @@
 # DJConnect Generation 2 Management Summary
 
+## Current contextual fact-planning slice
+
+One Core increment, `DJC-CORE-CONTEXTUAL-FACT-PLANNING-V1-20261007`, improves
+choice and dosing of already qualified facts. Same pool gives stable Manual
+selection independent of source order, a distinct Discover sequence and a
+short readable alternative when the long candidate cannot fit. Mood/Persona
+add only bounded emphasis/spacing. Runtime/browser software acceptance and
+1,562 local tests passed (7 skips); protected delivery and Finalization pending.
+No new provider, TTS or installation. Automatic internal publication needs a
+specific owner decision before merge. Physical PARTIAL findings remain parked.
+
 ## PR #1120 VibeCast owner refinements and physical Pi acceptance
 
 Protected source [PR #1120](https://github.com/pcvantol/djconnect/pull/1120)
