@@ -61,18 +61,23 @@ class QualifiedSessionFact:
         return (summary, content) if summary and content else None
 
     def eligible(self, media_identity: str, now: float) -> bool:
+        # Qualification is field/provider/intent specific. Relevance must never
+        # widen the narrow visual-only producer contract.
+        fields = {
+            "album_release": ("Spotify", "album_story", "Spotify metadata display", r"https://open\.spotify\.com/album/[A-Za-z0-9]{22}"),
+            "recording_credits": ("MusicBrainz", "track_context", "CC0-1.0", r"https://musicbrainz\.org/recording/" + MBID.pattern),
+            "work_composers": ("MusicBrainz", "track_context", "CC0-1.0", r"https://musicbrainz\.org/work/" + MBID.pattern),
+            "artist_begin": ("MusicBrainz", "artist_story", "CC0-1.0", r"https://musicbrainz\.org/artist/" + MBID.pattern),
+            "artist_description": ("Wikidata", "artist_story", "CC0-1.0", r"https://www\.wikidata\.org/wiki/Q[1-9]\d*"),
+        }
+        qualified = fields.get(self.key)
         return bool(
-            self.media_identity == media_identity
+            qualified is not None
+            and (self.provider, self.intent, self.license) == qualified[:3]
+            and re.fullmatch(qualified[3], self.source_url)
+            and re.fullmatch(r"spotify:track:[A-Za-z0-9]{22}", media_identity)
+            and self.media_identity == media_identity
             and 0 <= now - self.observed_at <= 1800
-            and self.provider in {"Spotify", "MusicBrainz", "Wikidata"}
-            and self.license in {"Spotify metadata display", "CC0-1.0"}
-            and self.source_url.startswith(
-                {
-                    "Spotify": "https://open.spotify.com/",
-                    "MusicBrainz": "https://musicbrainz.org/",
-                    "Wikidata": "https://www.wikidata.org/wiki/",
-                }[self.provider]
-            )
         )
 
 

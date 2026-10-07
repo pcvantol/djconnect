@@ -1,5 +1,21 @@
 # DJConnect Engineering Status
 
+## Contextual fact planning — active sole Core increment
+
+`DJC-CORE-CONTEXTUAL-FACT-PLANNING-V1-20261007`, branch
+`codex/contextual-fact-planning-v1`, base `4c30399294b56aff89b962a53b37ea91a2d1762f`.
+Eligibility precedes contextual ranking and readable fit; spacing reuses the
+current-track scheduler. Four red Runtime scenarios preceded source mutation.
+Same-pool order independence, Manual/Discover, short-fit, recent committed Flow
+demotion, Direction-only and five-language exact copy have software evidence.
+Independent preliminary review found missing recent-type proof; an added
+four-angle test now demonstrates the causal effect. No production bug found;
+exact frozen review and protected checks pending. Browser portrait/landscape
+and #1120 regressions passed. Full suite: 1,562 tests, 7 skips, PASS; initial
+unrelated roadmap timeout resolved on focused and full rerun. Golden-related
+suite: 18 tests, PASS. No new publication/install authority or hardware claim;
+parked physical PARTIAL gates unchanged.
+
 ## PR #1120 VibeCast owner refinements — source merged, physical qualification recorded
 
 Parent assignment `DJC-CORE-VIBECAST-MULTIMOMENT-TIMELINE-V1-20261006`;

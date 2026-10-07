@@ -1,5 +1,12 @@
 # DJConnect Product Backlog
 
+Selected current execution: `DJC-CORE-CONTEXTUAL-FACT-PLANNING-V1-20261007`,
+[contextual fact planning](docs/product/CONTEXTUAL_FACT_PLANNING_CONTRACT.md).
+Improves selection and dosing within #1120's existing qualified fact pool;
+Runtime/browser software acceptance passed, source review/protected checks,
+merge and dedicated Finalization pending. No new provider, speech, future queue,
+persistent learning or change to parked physical PARTIAL findings.
+
 **Status:** Canonical selected-product-work register
 
 ## Purpose

@@ -1618,21 +1618,63 @@ class DJSessionPlanner:
             )
         return None
 
-    def select_qualified_current_fact(self, *, facts: tuple[QualifiedSessionFact, ...], media_identity: str,
-                                      used_keys: set[str], locale: str, allowed_intents: frozenset[str] | None) -> tuple[KnowledgeIntent, QualifiedSessionFact] | None:
-        """Choose an available independent angle, never a forced type rotation."""
+    def select_qualified_current_fact(
+        self, *, facts: tuple[QualifiedSessionFact, ...], media_identity: str,
+        used_keys: set[str], locale: str, allowed_intents: frozenset[str] | None,
+        session_start_strategy: SessionStartStrategy, session_direction: SessionDirectionType,
+        selected_mood: str, persona: DJPersona, performance_memory: PerformanceMemory,
+        remaining_seconds: float,
+    ) -> tuple[KnowledgeIntent, QualifiedSessionFact] | None:
+        """Rank only qualified, fitting current facts; never widen eligibility."""
+        candidates = []
+        now = time.monotonic()
+        recent_type = _recent_factual_moment_type(performance_memory)
         for fact in facts:
-            if fact.key in used_keys or not fact.eligible(media_identity, time.monotonic()) or not fact.copy_for(locale):
+            if fact.key in used_keys or not fact.eligible(media_identity, now):
                 continue
             if allowed_intents is not None and fact.intent not in allowed_intents:
                 continue
-            intent = KnowledgeIntent(KnowledgeIntentType(fact.intent), "Share one qualified current-track fact.")
-            decision_type = {KnowledgeIntentType.ARTIST_STORY: PlannerDecisionType.CREATE_ARTIST_STORY,
-                             KnowledgeIntentType.ALBUM_STORY: PlannerDecisionType.CREATE_ALBUM_STORY,
-                             KnowledgeIntentType.GENRE_STORY: PlannerDecisionType.CREATE_GENRE_STORY}.get(intent.intent_type, PlannerDecisionType.CREATE_TRACK_CONTEXT)
-            self.last_decision = PlannerDecision(decision_type, "qualified_current_fact", intent)
-            return intent, fact
-        return None
+            localized = fact.copy_for(locale)
+            if localized is None:
+                continue
+            read_seconds = _presentation_intent(
+                selected_mood, persona, reading_characters=sum(map(len, localized)),
+                minimum_duration_seconds=40,
+            ).maximum_duration_seconds
+            if remaining_seconds < read_seconds + 5:
+                continue
+            moment_type = {"track_context": DJMomentType.TRACK, "album_story": DJMomentType.ALBUM,
+                           "artist_story": DJMomentType.ARTIST}[fact.intent]
+            score = {DJMomentType.TRACK: 30, DJMomentType.ALBUM: 20, DJMomentType.ARTIST: 10}[moment_type]
+            reasons = ["current_scope"]
+            if session_start_strategy is SessionStartStrategy.DISCOVER or session_direction is SessionDirectionType.EXPLORING:
+                score += {DJMomentType.TRACK: 0, DJMomentType.ALBUM: 20, DJMomentType.ARTIST: 40}[moment_type]
+                reasons.append("exploration")
+            if session_direction is SessionDirectionType.DEEPENING:
+                score += {DJMomentType.TRACK: 20, DJMomentType.ALBUM: 10, DJMomentType.ARTIST: 0}[moment_type]
+                reasons.append("deepening")
+            if moment_type is DJMomentType.ALBUM:
+                if selected_mood in {"chill", "focus", "deep"}:
+                    score += 5
+                    reasons.append("mood_emphasis")
+                if persona is DJPersona.RADIO_DJ:
+                    score += 5
+                    reasons.append("persona_emphasis")
+            if recent_type is moment_type:
+                score -= 25
+                reasons.append("recent_type_demoted")
+            # Stable complete tie-break: no dependence on retrieval order.
+            rank = (-score, read_seconds, fact.key, fact.provider, fact.source_url, localized)
+            candidates.append((rank, fact, reasons))
+        if not candidates:
+            self.last_decision = PlannerDecision(PlannerDecisionType.SILENCE, "contextual_fact:no_eligible_fit")
+            return None
+        _, fact, reasons = min(candidates, key=lambda candidate: candidate[0])
+        intent = KnowledgeIntent(KnowledgeIntentType(fact.intent), "Share one qualified current-track fact.")
+        decision_type = {KnowledgeIntentType.ARTIST_STORY: PlannerDecisionType.CREATE_ARTIST_STORY,
+                         KnowledgeIntentType.ALBUM_STORY: PlannerDecisionType.CREATE_ALBUM_STORY}.get(intent.intent_type, PlannerDecisionType.CREATE_TRACK_CONTEXT)
+        self.last_decision = PlannerDecision(decision_type, "contextual_fact:" + "+".join((*reasons, "readable_fit")), intent)
+        return intent, fact
 
     def project_track_started_planning_input(
         self,
@@ -3905,7 +3947,9 @@ class SessionRuntimeManager:
                         or self._monotonic_source() < opportunity.resume_ready_at
                         or duration - position < 45_000
                         or (opportunity.last_fact_position_ms is not None and
-                            position - opportunity.last_fact_position_ms < max(35, opportunity.last_fact_read_seconds - 5) * 1000)):
+                            position - opportunity.last_fact_position_ms < max(
+                                _qualified_fact_spacing_seconds(active.selected_mood, active.dj_persona, active.session_direction.direction),
+                                opportunity.last_fact_read_seconds - 5) * 1000)):
                     return None
                 return self._publish_qualified_current_fact(owner_profile_id, active, opportunity)
             if (
@@ -3992,11 +4036,22 @@ class SessionRuntimeManager:
     def _publish_qualified_current_fact(self, owner_profile_id: str, active: DJSessionRuntime,
                                         opportunity: IntraTrackOpportunity) -> DJMoment | None:
         """Run the canonical Planner→Knowledge→Moment→Flow→Broadcast chain."""
+        playback = active.broadcast.state.playback
+        if (playback.state != "playing" or opportunity.blocked
+                or opportunity.last_observed_position_ms is None or playback.duration_ms is None
+                or opportunity.session_id != active.session_id or opportunity.item_id != playback.item_id
+                or self._monotonic_source() - opportunity.last_observed_monotonic > 30):
+            return None
         selected = active.planner.select_qualified_current_fact(
             facts=opportunity.qualified_facts, media_identity=opportunity.media_identity,
             used_keys=opportunity.used_fact_keys | {fact.key for fact in opportunity.qualified_facts
                 if f"{fact.source_url}|fact:{fact.key}" in active.moment_engine._track_keys}, locale=active.locale,
             allowed_intents=active.allowed_capability_intents,
+            session_start_strategy=active.session_start_strategy,
+            session_direction=active.session_direction.direction,
+            selected_mood=active.selected_mood, persona=active.dj_persona,
+            performance_memory=active.performance_memory,
+            remaining_seconds=(playback.duration_ms - opportunity.last_observed_position_ms) / 1000,
         )
         if selected is None:
             return None
@@ -4019,12 +4074,12 @@ class SessionRuntimeManager:
                 or self._monotonic_source() - opportunity.last_observed_monotonic > 30
                 or playback.duration_ms - opportunity.last_observed_position_ms < (moment.presentation_intent.maximum_duration_seconds + 5) * 1000):
             return None
+        active.publish_moment(moment)
         active.moment_engine.__dict__.update(working_moments.__dict__)
         opportunity.used_fact_keys.add(fact.key)
         opportunity.fact_count += 1
         opportunity.last_fact_position_ms = opportunity.last_observed_position_ms
         opportunity.last_fact_read_seconds = moment.presentation_intent.maximum_duration_seconds
-        active.publish_moment(moment)
         self._record_performance_memory(owner_profile_id, active)
         return moment
 
@@ -5296,6 +5351,15 @@ def _create_session_flow(
             ),
         ),
     )
+
+
+def _qualified_fact_spacing_seconds(mood: str, persona: DJPersona, direction: SessionDirectionType) -> int:
+    """Add bounded quiet space without changing truth, read duration or budget."""
+    if (mood in {"chill", "party", "energy", "high_energy"}
+            or persona in {DJPersona.CLUB_DJ, DJPersona.FESTIVAL_DJ}
+            or direction is SessionDirectionType.COOLING_DOWN):
+        return 50
+    return 35
 
 
 def _presentation_intent(

@@ -1,5 +1,19 @@
 # DJConnect Repository Status
 
+## Contextual fact planning — current execution
+
+`DJC-CORE-CONTEXTUAL-FACT-PLANNING-V1-20261007`; sole Core writer
+`codex/contextual-fact-planning-v1`, base `4c30399294b56aff89b962a53b37ea91a2d1762f`.
+Fresh host MATCH/exit 0, onboarding 4.5.3, synchronized clean main at admission.
+[ACK](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6039361642)
+and [first material source](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6039436220)
+registered. [Contract/evidence](docs/product/CONTEXTUAL_FACT_PLANNING_CONTRACT.md)
+binds policy, red-before/green-after Runtime and browser acceptance. Local full
+suite: 1,562 tests, 7 skips, PASS. Exact review, protected checks, merge and
+dedicated Finalization pending. Automatic internal publication requires fresh
+assignment-specific authorization before merge. No install selected; parked
+physical capture/frame-rate PARTIAL gates remain unchanged.
+
 ## PR #1120 VibeCast owner refinements — Finalization pending
 
 Source PR #1120 protected merged as `7d39bef4d98b3c1645e9085bc6a137b3244262cf`
