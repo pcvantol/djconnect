@@ -1,5 +1,36 @@
 # DJConnect Verification Prompt Index
 
+## PR #1124 shared-producer continuity — completed source and Finalization
+
+PR [#1124](https://github.com/pcvantol/djconnect/pull/1124) protected merged as
+`c542d8ea9889db3509cab2dd5f19b26dd1a21342` from independently reviewed head
+`da309585121d7069c5a56fdd3a0520fc567d2419`; source/merge trees equal
+`d8a6d668247ea87d0c6f25d2b58e893b7c9054d9`.
+Assignment `DJC-CORE-SHARED-PRODUCER-CONTINUITY-V1-20261007` used one Core
+writer, base `7c67352ec94adef25d7825a10eefeab132affdca`. Two red Runtime
+scenarios and the bounded contract preceded product mutation. Discover with
+Exploring now links two independently qualified recording credits by exact
+unrestricted producer MBID; the existing track Moment names both recordings
+and keeps both public source links. Published-only evidence follows the latest
+three observed tracks, expires in 30 minutes and clears at Runtime end.
+The owner's additional semitransparent glass-bubble request is included.
+
+Full source and exact-main suites: 1,572 tests, 7 skips, PASS; full coverage
+rerun PASS. Independent exact review GO; its Knowledge proof-retention P2 was
+corrected and verified. Real Runtime/browser before/after, 40 five-language
+portrait/landscape frames, current artwork/titles, dual attribution, reconnect,
+end/no-store and existing owner/contextual browser regressions PASS. Required
+source and exact-main Validate/CodeQL checks passed. Both automatic source
+artifact and durable evidence workflows passed on first attempt; downloaded
+127-file archive is safe and byte-equal to exact merge, qualification integrity
+and redaction PASS. [Completion and Finalization](docs/history/prompts/2026-10-07-shared-producer-continuity-finalization.md) binds exact receipts.
+No install or fresh live-provider/physical qualification; Pi capture/frame-rate
+remain PARTIAL/parked. This dedicated governance increment changes no source.
+
+Repository State: `MERGED_RECONCILED` after this separate Finalization merges.
+Workspace State: `WORKSPACE_READY` only after mandatory safe cleanup.
+Finalization Pending: `NO` after merge.
+
 ## Completed source — contextual fact planning v1 Finalization
 
 PR [#1122](https://github.com/pcvantol/djconnect/pull/1122) protected merged as

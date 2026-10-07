@@ -1,6 +1,6 @@
 # DJ Intelligence Maturity Model
 
-## Selected shared-producer implementation
+## Completed source — shared-producer continuity
 
 `DJC-CORE-SHARED-PRODUCER-CONTINUITY-V1-20261007` implements the bounded
 [shared-producer contract](SHARED_PRODUCER_CONTINUITY_CONTRACT.md) under
@@ -8,8 +8,10 @@ Discover/Exploring. Recording identity and explicit producer IDs from existing
 authorized responses may connect only previously published, fresh evidence in
 the same Runtime. The existing track Moment carries deterministic five-language
 copy and both source links. This is one selected visual relation, not full
-Knowledge Stage 3/4, new transitions or cross-Session learning. Delivery and
-Finalization remain evidence-bound until protected merge/readback.
+Knowledge Stage 3/4, new transitions or cross-Session learning. Source PR #1124 merged as `c542d8ea9889db3509cab2dd5f19b26dd1a21342` with exact-main and
+internal artifact/evidence PASS. The separate
+[Finalization](../history/prompts/2026-10-07-shared-producer-continuity-finalization.md)
+reconciles software-only qualification; Pi capture/frame-rate remains PARTIAL.
 
 ## Completed source increment — contextual fact planning
 

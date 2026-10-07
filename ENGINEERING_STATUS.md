@@ -1,5 +1,56 @@
 # DJConnect Engineering Status
 
+## PR #1124 shared-producer continuity — source reconciled by Finalization
+
+PR [#1124](https://github.com/pcvantol/djconnect/pull/1124) protected merged as
+`c542d8ea9889db3509cab2dd5f19b26dd1a21342` from independently reviewed head
+`da309585121d7069c5a56fdd3a0520fc567d2419`; source/merge trees equal
+`d8a6d668247ea87d0c6f25d2b58e893b7c9054d9`.
+Assignment `DJC-CORE-SHARED-PRODUCER-CONTINUITY-V1-20261007` used one Core
+writer, base `7c67352ec94adef25d7825a10eefeab132affdca`. Two red Runtime
+scenarios and the bounded contract preceded product mutation. Discover with
+Exploring now links two independently qualified recording credits by exact
+unrestricted producer MBID; the existing track Moment names both recordings
+and keeps both public source links. Published-only evidence follows the latest
+three observed tracks, expires in 30 minutes and clears at Runtime end.
+The owner's additional semitransparent glass-bubble request is included.
+
+Full source and exact-main suites: 1,572 tests, 7 skips, PASS; full coverage
+rerun PASS. Independent exact review GO; its Knowledge proof-retention P2 was
+corrected and verified. Real Runtime/browser before/after, 40 five-language
+portrait/landscape frames, current artwork/titles, dual attribution, reconnect,
+end/no-store and existing owner/contextual browser regressions PASS. Required
+source and exact-main Validate/CodeQL checks passed. Both automatic source
+artifact and durable evidence workflows passed on first attempt; downloaded
+127-file archive is safe and byte-equal to exact merge, qualification integrity
+and redaction PASS. [Completion and Finalization](docs/history/prompts/2026-10-07-shared-producer-continuity-finalization.md) binds exact receipts.
+No install or fresh live-provider/physical qualification; Pi capture/frame-rate
+remain PARTIAL/parked. This dedicated governance increment changes no source.
+
+#### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+1. **Public distribution: Apple — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; gate: qualified Internal Release consumers and explicit authorization.
+2. **Public distribution: Windows — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; gate: qualified Internal Release consumers and explicit authorization.
+3. **Public HACS distribution — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; gate: fresh candidate and release authorization.
+4. **HACS 3.3.0 release visibility (`HACS-3.3.0-001`) — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; gate: release metadata and discovery evidence.
+5. **Firmware OTA publication and staged rollback — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; gate: manifest-bound consumer qualification.
+
+
+#### Blocked Items
+
+Full Artist/Album credits Phase B and Continue Stage 2 retain separate gates.
+Pi capture/frame-rate PARTIAL stays parked; no new hardware proof is claimed.
+
+#### Deferred Items
+
+No new source family, provider, Lyrics, Audience→Planner, future queue,
+extra speech, persistent learning, clientlane or following slice is selected.
+Stop after this one assignment.
+
+Repository State: `MERGED_RECONCILED` after this separate Finalization merges.
+Workspace State: `WORKSPACE_READY` only after mandatory safe cleanup.
+Finalization Pending: `NO` after merge.
+
 ## PR #1122 contextual fact planning — source reconciled by Finalization
 
 PR [#1122](https://github.com/pcvantol/djconnect/pull/1122) protected merged as
