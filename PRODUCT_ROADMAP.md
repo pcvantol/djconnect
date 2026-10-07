@@ -34,6 +34,18 @@ Experience Foundation. These are durable authorities, not active roadmap work.
 
 ### Phase 1 — DJ Intelligence Evolution
 
+Selected shared-producer increment: PR [#1124](https://github.com/pcvantol/djconnect/pull/1124) protected merged as
+`c542d8ea9889db3509cab2dd5f19b26dd1a21342` from independently reviewed head
+`da309585121d7069c5a56fdd3a0520fc567d2419`; source/merge trees equal
+`d8a6d668247ea87d0c6f25d2b58e893b7c9054d9`.
+[Contract](docs/product/SHARED_PRODUCER_CONTINUITY_CONTRACT.md) delivers one
+Discover/Exploring connection through the existing track Moment, with two
+source links and owner-requested semitransparent bubbles. Software/browser
+qualification and internal source publication passed; [Completion and Finalization](docs/history/prompts/2026-10-07-shared-producer-continuity-finalization.md)
+reconciles this slice. No installation, fresh Pi evidence or next family.
+
+Prior completed contextual increment:
+
 Selected bounded increment `DJC-CORE-CONTEXTUAL-FACT-PLANNING-V1-20261007`:
 [contextual choice and dosing of already qualified facts](docs/product/CONTEXTUAL_FACT_PLANNING_CONTRACT.md).
 Completed source PR #1122 (`d7a646e0e83a92211875e2f3b45606678e992e76`)

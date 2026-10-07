@@ -3,6 +3,12 @@
 Assignment `DJC-CORE-SHARED-PRODUCER-CONTINUITY-V1-20261007`; base
 `7c67352ec94adef25d7825a10eefeab132affdca`.
 
+Source PR [#1124](https://github.com/pcvantol/djconnect/pull/1124) protected
+merged as `c542d8ea9889db3509cab2dd5f19b26dd1a21342`; exact-main/software/browser
+and authorized internal artifact/evidence readback PASS. Dedicated
+[Finalization](../history/prompts/2026-10-07-shared-producer-continuity-finalization.md)
+reconciles this one slice; no installation or next capability.
+
 Extends the qualified recording-credit visual application in
 [VibeCast](VIBECAST_OWNER_REFINEMENTS_CONTRACT.md). Existing authorized
 MusicBrainz lookup, unique ISRC/exact version/artist identification and source

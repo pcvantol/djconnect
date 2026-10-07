@@ -1,5 +1,15 @@
 # DJConnect Product Backlog
 
+Completed source: `DJC-CORE-SHARED-PRODUCER-CONTINUITY-V1-20261007`,
+PR [#1124](https://github.com/pcvantol/djconnect/pull/1124) protected merged as
+`c542d8ea9889db3509cab2dd5f19b26dd1a21342` from independently reviewed head
+`da309585121d7069c5a56fdd3a0520fc567d2419`; source/merge trees equal
+`d8a6d668247ea87d0c6f25d2b58e893b7c9054d9`.
+[Shared-producer contract](docs/product/SHARED_PRODUCER_CONTINUITY_CONTRACT.md)
+qualifies one Discover/Exploring track relation and the requested glass bubbles.
+[Completion and Finalization](docs/history/prompts/2026-10-07-shared-producer-continuity-finalization.md) reconciles protected source, software/browser proof and
+internal publication. No install, broader credits Phase B or next slice.
+
 Completed source: `DJC-CORE-CONTEXTUAL-FACT-PLANNING-V1-20261007`,
 [contextual fact planning](docs/product/CONTEXTUAL_FACT_PLANNING_CONTRACT.md).
 Improves selection and dosing within #1120's existing qualified fact pool;
