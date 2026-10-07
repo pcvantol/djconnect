@@ -41,6 +41,12 @@ Current playback supplies Now Playing/artwork. Both public recording URLs are
 attributed; a second optional URL is a compatible VibeCast projection extension.
 Genre→Track and Recommendation transitions remain unchanged.
 
+The owner additionally requested semitransparent, glass-like DJMoment bubbles
+on this candidate. The existing VibeCast bubble uses a translucent tinted fill,
+soft backdrop blur, light edge and inset reflection. Its layout, source links
+and card lifecycle remain unchanged; opaque fallback and reduced-transparency
+preferences preserve legibility. Browser evidence covers the resulting cards.
+
 ## Before/after scenarios defined before source changes
 
 1. Publish recording A credit, then observe B with two shared producers and a

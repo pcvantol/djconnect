@@ -18,7 +18,7 @@ header { display:flex; justify-content:space-between; gap:1rem; font-size:clamp(
 .track { margin:clamp(1.3rem,3vh,2.5rem) 0 0; font-size:clamp(2rem,5.2vw,5.4rem); line-height:1.04; letter-spacing:-.045em; max-width:15ch; overflow-wrap:anywhere }
 .artist { margin:.8rem 0 0; color:#ebe7f5; font-size:clamp(1.1rem,2.2vw,2rem) }
 .cards { display:grid; align-content:end; gap:clamp(.6rem,1.5vh,1.2rem); min-height:0; max-height:42vh }
-.moment-card { width:min(100%,48rem); min-height:0; padding:clamp(1.25rem,2.2vw,2.2rem); border:1px solid #ffffff3c; border-radius:1.5rem; background:#171622dc; box-shadow:0 1.2rem 3rem #0005; backdrop-filter:blur(18px); overflow:hidden }
+.moment-card { width:min(100%,48rem); min-height:0; padding:clamp(1.25rem,2.2vw,2.2rem); border:1px solid #ffffff3c; border-radius:1.5rem; background:rgba(35,44,63,.65); box-shadow:inset 0 1px 0 #ffffff40,inset 0 -1px 0 #ffffff0d,0 1rem 2.5rem #0003; -webkit-backdrop-filter:blur(24px) saturate(135%); backdrop-filter:blur(24px) saturate(135%); overflow:hidden }
 .moment-card[hidden] { display:none }
 .moment-card.fresh { animation:card-in .65s cubic-bezier(.2,.7,.2,1) both }
 .moment-card.previous { opacity:.5; transform:translateY(-.75rem) scale(.98); max-height:9rem; padding-top:.9rem; padding-bottom:.9rem }
@@ -60,7 +60,11 @@ header { align-items:center; min-height:4rem }
 #mood { display:none }
 .cards { position:absolute; top:0; right:0; width:min(100%,54rem); max-height:23vh; z-index:2 }
 .stage.bubble-below .cards { top:auto; bottom:0; left:clamp(0rem,6vw,6rem); right:auto }
-.moment-card { width:100%; border-radius:3rem 4.5rem 3.5rem 1rem; padding:1.5rem 2.25rem; background:#151722d9; border:2px solid #ffffff68 }
+.moment-card { width:100%; border-radius:3rem 4.5rem 3.5rem 1rem; padding:1.5rem 2.25rem; border:1px solid #ffffff60 }
+@supports ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))) {
+  .moment-card { background:linear-gradient(135deg,#ffffff26 0%,#ffffff0a 48%,#d2e6ff12 100%),rgba(54,69,91,.24) }
+}
+@media (prefers-reduced-transparency:reduce) { .moment-card { background:#232c3fed; -webkit-backdrop-filter:none; backdrop-filter:none } }
 .stage.bubble-below .moment-card { border-radius:4rem 1rem 3rem 4.5rem }
 .moment-summary { font-size:clamp(1.3rem,2.7vw,2rem); line-height:1.28 }
 .moment-detail { max-height:12vh; font-size:clamp(1.1rem,2.1vw,1.55rem); line-height:1.4 }
