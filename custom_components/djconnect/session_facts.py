@@ -7,7 +7,7 @@ Wikidata CC0 descriptions are eligible. Provider payloads remain transient.
 from __future__ import annotations
 
 import asyncio
-from dataclasses import dataclass
+from dataclasses import dataclass, replace, field
 from datetime import date
 import re
 import time
@@ -18,6 +18,38 @@ from typing import Any
 LANGUAGES = ("en", "nl", "de", "fr", "es")
 USER_AGENT = "DJConnect/4.0 (https://github.com/pcvantol/djconnect; session-knowledge)"
 MBID = re.compile(r"[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}")
+
+
+@dataclass(frozen=True)
+class ProducerCredit:
+    contributor_id: str
+    name: str
+    role: str = "producer"
+    qualifications: tuple[str, ...] = ()
+
+    def eligible(self) -> bool:
+        return bool(MBID.fullmatch(self.contributor_id) and label(self.name, 160)
+                    and self.role == "producer" and not self.qualifications)
+
+
+@dataclass(frozen=True)
+class RecordingCreditEvidence:
+    """Minimal proof, never historical playback or generated card text."""
+    recording_id: str
+    media_identity: str
+    title: str
+    producers: tuple[ProducerCredit, ...]
+    source_url: str
+    observed_at: float
+
+    def eligible(self, now: float) -> bool:
+        return bool(MBID.fullmatch(self.recording_id)
+                    and re.fullmatch(r"spotify:track:[A-Za-z0-9]{22}", self.media_identity)
+                    and label(self.title, 160)
+                    and self.source_url == "https://musicbrainz.org/recording/" + self.recording_id
+                    and 0 <= now - self.observed_at <= 1800
+                    and self.producers and all(p.eligible() for p in self.producers)
+                    and len({p.contributor_id for p in self.producers}) == len(self.producers))
 
 
 def label(value: Any, limit: int = 320) -> str:
@@ -54,6 +86,7 @@ class QualifiedSessionFact:
     source_url: str
     license: str
     observed_at: float
+    recording_evidence: RecordingCreditEvidence | None = None
 
     def copy_for(self, locale: str) -> tuple[str, str] | None:
         lang = locale[:2].lower()
@@ -79,6 +112,122 @@ class QualifiedSessionFact:
             and self.media_identity == media_identity
             and 0 <= now - self.observed_at <= 1800
         )
+
+
+@dataclass(frozen=True)
+class SharedProducerFact(QualifiedSessionFact):
+    """Closed derived visual relationship; not an ordinary provider field."""
+    previous_evidence: RecordingCreditEvidence | None = None
+    producer_id: str = ""
+
+    @property
+    def relation_key(self) -> tuple[str, str, str]:
+        if self.recording_evidence is None or self.previous_evidence is None:
+            return ("", "", "")
+        a, b = sorted((self.recording_evidence.recording_id, self.previous_evidence.recording_id))
+        return a, b, self.producer_id
+
+    def eligible(self, media_identity: str, now: float) -> bool:
+        current, previous = self.recording_evidence, self.previous_evidence
+        if (self.key != "shared_producer" or self.intent != "track_context"
+                or (self.provider, self.license) != ("MusicBrainz", "CC0-1.0")
+                or current is None or previous is None
+                or not current.eligible(now) or not previous.eligible(now)
+                or current.media_identity != media_identity or self.media_identity != media_identity
+                or current.media_identity == previous.media_identity
+                or current.recording_id == previous.recording_id
+                or self.source_url != current.source_url
+                or self.observed_at != current.observed_at):
+            return False
+        a = next((p for p in current.producers if p.contributor_id == self.producer_id), None)
+        b = next((p for p in previous.producers if p.contributor_id == self.producer_id), None)
+        return bool(a and b and a == b and self.summaries == _shared_copy(current, previous, a)[0]
+                    and self.contents == _shared_copy(current, previous, a)[1])
+
+
+def _shared_copy(current: RecordingCreditEvidence, previous: RecordingCreditEvidence,
+                 producer: ProducerCredit) -> tuple[tuple[tuple[str, str], ...], tuple[tuple[str, str], ...]]:
+    name, title, earlier = producer.name, current.title, previous.title
+    titles = ["Shared producer", "Dezelfde producer", "Gemeinsamer Produzent",
+              "Même producteur", "Mismo productor"]
+    bodies = [
+        f"{name} is credited as a producer on {title}, as on the earlier recording {earlier}.",
+        f"{name} staat als producer vermeld bij {title}, net als bij de eerder besproken opname {earlier}.",
+        f"{name} ist bei {title} als Produzent genannt, ebenso bei der zuvor besprochenen Aufnahme {earlier}.",
+        f"{name} figure comme producteur sur {title}, comme sur l’enregistrement évoqué précédemment, {earlier}.",
+        f"{name} figura como productor de {title}, al igual que en la grabación comentada antes, {earlier}.",
+    ]
+    return tuple(zip(LANGUAGES, titles)), tuple(zip(LANGUAGES, bodies))
+
+
+def shared_producer_fact(current: RecordingCreditEvidence, previous: RecordingCreditEvidence,
+                         now: float) -> SharedProducerFact | None:
+    if not current.eligible(now) or not previous.eligible(now):
+        return None
+    candidates = sorted((p for p in current.producers if p in previous.producers),
+                        key=lambda p: p.contributor_id)
+    for producer in candidates:
+        titles, bodies = _shared_copy(current, previous, producer)
+        fact = SharedProducerFact("shared_producer", current.media_identity, "track_context",
+            titles, bodies, "MusicBrainz", current.source_url, "CC0-1.0", current.observed_at,
+            current, previous, producer.contributor_id)
+        if fact.eligible(current.media_identity, now):
+            return fact
+    return None
+
+
+@dataclass
+class PublishedRecordingContext:
+    """One Runtime's three observed tracks and published-only credit proofs."""
+    observed_tracks: list[str] = field(default_factory=list)
+    credits: dict[str, RecordingCreditEvidence] = field(default_factory=dict)
+    used_relations: set[tuple[str, str, str]] = field(default_factory=set)
+    connected_tracks: set[str] = field(default_factory=set)
+
+    def observe(self, media_identity: str, now: float) -> None:
+        if media_identity in self.observed_tracks:
+            self.observed_tracks.remove(media_identity)
+        self.observed_tracks.append(media_identity)
+        self.observed_tracks[:] = self.observed_tracks[-3:]
+        self.credits = {key: value for key, value in self.credits.items()
+                        if key in self.observed_tracks and value.eligible(now)}
+
+    def commit(self, fact: QualifiedSessionFact, now: float) -> None:
+        evidence = fact.recording_evidence
+        if (fact.key in {"recording_credits", "shared_producer"} and fact.eligible(fact.media_identity, now)
+                and evidence and evidence.eligible(now) and evidence.media_identity == fact.media_identity
+                and evidence.source_url == fact.source_url and evidence.observed_at == fact.observed_at
+                and fact.media_identity in self.observed_tracks):
+            self.credits[fact.media_identity] = evidence
+        if isinstance(fact, SharedProducerFact) and fact.eligible(fact.media_identity, now):
+            self.used_relations.add(fact.relation_key)
+            self.connected_tracks.add(fact.media_identity)
+
+    def candidate(self, facts: tuple[QualifiedSessionFact, ...], media_identity: str,
+                  now: float) -> SharedProducerFact | None:
+        if media_identity in self.connected_tracks:
+            return None
+        current = [f.recording_evidence for f in facts if f.key == "recording_credits"
+                   and f.eligible(media_identity, now) and f.recording_evidence
+                   and f.recording_evidence.media_identity == media_identity
+                   and f.recording_evidence.source_url == f.source_url
+                   and f.recording_evidence.observed_at == f.observed_at]
+        # Multiple conflicting proofs of the current recording fail closed.
+        if not current or any(c != current[0] for c in current):
+            return None
+        for identity in reversed(self.observed_tracks):
+            previous = self.credits.get(identity)
+            if previous is not None:
+                fact = shared_producer_fact(current[0], previous, now)
+                if fact and fact.relation_key not in self.used_relations:
+                    return fact
+        return None
+
+    def clear(self) -> None:
+        self.observed_tracks.clear()
+        self.credits.clear()
+        self.used_relations.clear()
+        self.connected_tracks.clear()
 
 
 def _fact(
@@ -230,6 +379,10 @@ class SessionFactsResolver:
                 detailed.get("title")
             ) != match_name(title):
                 return tuple(facts)
+            detailed_names = [c.get("artist", {}).get("name") for c in detailed.get("artist-credit", [])
+                              if isinstance(c, dict)]
+            if match_name(", ".join(str(n) for n in detailed_names)) != match_name(artist):
+                return tuple(facts)
             facts.extend(recording_facts(catalog, detailed))
             facts.extend(work_facts(catalog, detailed))
             if len(credit) == 1 and isinstance(credit[0], dict):
@@ -298,6 +451,12 @@ def recording_facts(
             or relation.get("type") not in roles
         ):
             continue
+        if relation.get("type") == "producer" and (
+            relation.get("attributes") or relation.get("attribute-values")
+            or relation.get("ended") or not isinstance(relation.get("attributes", []), list)
+        ):
+            # Do not display a restricted producer as an unqualified producer.
+            continue
         name = label(relation.get("artist", {}).get("name"), 160)
         if name:
             collected.setdefault(relation["type"], []).append(name)
@@ -313,8 +472,7 @@ def recording_facts(
         )
     if any(len(line) > 700 for line in lines):
         return []
-    return [
-        _fact(
+    fact = _fact(
             "recording_credits",
             catalog,
             "track_context",
@@ -329,7 +487,38 @@ def recording_facts(
             "MusicBrainz",
             "https://musicbrainz.org/recording/" + recording["id"],
         )
-    ]
+    # Preserve only source fields, never recover identity from rendered text.
+    # Attributes can narrow the producer role; this first slice excludes all.
+    producers: dict[str, ProducerCredit] = {}
+    conflicts: set[str] = set()
+    for relation in recording.get("relations", []):
+        if not isinstance(relation, dict) or relation.get("target-type") != "artist" or relation.get("type") != "producer":
+            continue
+        artist = relation.get("artist")
+        if not isinstance(artist, dict):
+            continue
+        identity, name = str(artist.get("id") or ""), label(artist.get("name"), 160)
+        if not MBID.fullmatch(identity):
+            continue
+        qualifications = relation.get("attributes", [])
+        if qualifications or not isinstance(qualifications, list) or relation.get("attribute-values") or relation.get("ended"):
+            conflicts.add(identity)
+            continue
+        producer = ProducerCredit(identity, name)
+        if not producer.eligible() or (identity in producers and producers[identity] != producer):
+            conflicts.add(identity)
+        else:
+            producers[identity] = producer
+    proof = RecordingCreditEvidence(str(recording.get("id") or ""), str(catalog.get("uri") or ""),
+        label(catalog.get("title"), 160), tuple(producers[key] for key in sorted(producers) if key not in conflicts),
+        fact.source_url, fact.observed_at)
+    recording_names = [c.get("artist", {}).get("name") for c in recording.get("artist-credit", [])
+                       if isinstance(c, dict) and isinstance(c.get("artist"), dict)]
+    if (proof.eligible(fact.observed_at)
+            and match_name(recording.get("title")) == match_name(catalog.get("title"))
+            and match_name(", ".join(str(n) for n in recording_names)) == match_name(catalog.get("artist"))):
+        fact = replace(fact, recording_evidence=proof)
+    return [fact]
 
 
 def artist_facts(catalog: dict[str, Any], person: dict[str, Any]) -> list[QualifiedSessionFact]:

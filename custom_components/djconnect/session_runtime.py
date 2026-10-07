@@ -17,7 +17,7 @@ from typing import Any, Awaitable, Callable
 from uuid import uuid4
 
 from .const import API_IMAGE_PROXY_BASE, DOMAIN
-from .session_facts import QualifiedSessionFact
+from .session_facts import QualifiedSessionFact, SharedProducerFact, PublishedRecordingContext
 from .persistence import persistence_service
 from .persistence.sessions import (
     ACTIVE as PERSISTENT_SESSION_ACTIVE,
@@ -1632,6 +1632,11 @@ class DJSessionPlanner:
         for fact in facts:
             if fact.key in used_keys or not fact.eligible(media_identity, now):
                 continue
+            if isinstance(fact, SharedProducerFact) and not (
+                session_start_strategy is SessionStartStrategy.DISCOVER
+                and session_direction is SessionDirectionType.EXPLORING
+            ):
+                continue
             if allowed_intents is not None and fact.intent not in allowed_intents:
                 continue
             localized = fact.copy_for(locale)
@@ -1647,6 +1652,9 @@ class DJSessionPlanner:
                            "artist_story": DJMomentType.ARTIST}[fact.intent]
             score = {DJMomentType.TRACK: 30, DJMomentType.ALBUM: 20, DJMomentType.ARTIST: 10}[moment_type]
             reasons = ["current_scope"]
+            if isinstance(fact, SharedProducerFact):
+                score += 100
+                reasons.append("shared_producer")
             if session_start_strategy is SessionStartStrategy.DISCOVER or session_direction is SessionDirectionType.EXPLORING:
                 score += {DJMomentType.TRACK: 0, DJMomentType.ALBUM: 20, DJMomentType.ARTIST: 40}[moment_type]
                 reasons.append("exploration")
@@ -2031,6 +2039,8 @@ class DJMomentEngine:
                               selected_mood: str, persona: DJPersona, locale: str) -> DJMoment:
         copy = fact.copy_for(locale)
         key = f"{fact.source_url}|fact:{fact.key}"
+        if isinstance(fact, SharedProducerFact):
+            key += "|" + "|".join(fact.relation_key)
         if copy is None or not fact.eligible(fact.media_identity, time.monotonic()) or fact.intent != intent.intent_type.value or key in self._track_keys:
             return self.create_silence(session_id=session_id, selected_mood=selected_mood, persona=persona, locale=locale, reason="unqualified_or_duplicate_fact")
         summary, content = copy
@@ -2040,7 +2050,9 @@ class DJMomentEngine:
                           knowledge_intent=intent, presentation_intent=_presentation_intent(selected_mood, persona, reading_characters=len(summary)+len(content), minimum_duration_seconds=40),
                           title=summary, summary=summary, content=content, artwork_url=None, actions=(), source_references=(fact.provider,),
                           generation_metadata=(("provider", fact.provider), ("validated", "true")), source_context_fingerprint=hashlib.sha256(key.encode()).hexdigest(),
-                          source_attribution=(("provider", fact.provider), ("url", fact.source_url), ("license", fact.license)))
+                          source_attribution=(("provider", fact.provider), ("url", fact.source_url), ("license", fact.license))
+                          + ((("url_previous", fact.previous_evidence.source_url),)
+                             if isinstance(fact, SharedProducerFact) and fact.previous_evidence else ()))
         self.moments = (*self.moments, moment)
         return moment
 
@@ -2238,7 +2250,9 @@ class DJKnowledgeEngine:
         """Accept only typed, fresh, exact-subject, attributable display evidence."""
         if fact.intent != intent.intent_type.value or not fact.eligible(media_identity, time.monotonic()) or not fact.copy_for(locale):
             return None
-        return self._record(KnowledgeContext(track=(), analysis=(), sources=(fact.provider,), qualified_fact=fact))
+        # Qualified source proof is a transient handoff to Moment, not Knowledge
+        # diagnostic history. Only the bounded published Runtime context owns it.
+        return KnowledgeContext(track=(), analysis=(), sources=(fact.provider,), qualified_fact=fact)
 
     def select_discover_narrative_evidence(
         self, raw_insight: dict[str, Any], observed_media_identity: str
@@ -3591,6 +3605,7 @@ class DJSessionRuntime:
         default_factory=lambda: PresentationCompositionDiagnostics()
     )
     last_accepted_media_identity: str = ""
+    published_recording_context: PublishedRecordingContext = field(default_factory=PublishedRecordingContext)
 
     def as_dict(self) -> dict[str, Any]:
         """Return the public, transport-neutral runtime representation."""
@@ -3795,6 +3810,8 @@ class SessionRuntimeManager:
             if active is None or active.session_id != session_id:
                 return False
             now = self._monotonic_source()
+            if projection.item_id and media_identity:
+                active.published_recording_context.observe(media_identity, time.monotonic())
             opportunity = self._intra_track_opportunities.get(owner_profile_id)
             if projection.state in {"idle", "stopped"} or not projection.item_id:
                 self._intra_track_opportunities.pop(owner_profile_id, None)
@@ -4042,8 +4059,14 @@ class SessionRuntimeManager:
                 or opportunity.session_id != active.session_id or opportunity.item_id != playback.item_id
                 or self._monotonic_source() - opportunity.last_observed_monotonic > 30):
             return None
+        facts = opportunity.qualified_facts
+        if (active.session_start_strategy is SessionStartStrategy.DISCOVER
+                and active.session_direction.direction is SessionDirectionType.EXPLORING):
+            relation = active.published_recording_context.candidate(facts, opportunity.media_identity, time.monotonic())
+            if relation is not None:
+                facts = (relation, *facts)
         selected = active.planner.select_qualified_current_fact(
-            facts=opportunity.qualified_facts, media_identity=opportunity.media_identity,
+            facts=facts, media_identity=opportunity.media_identity,
             used_keys=opportunity.used_fact_keys | {fact.key for fact in opportunity.qualified_facts
                 if f"{fact.source_url}|fact:{fact.key}" in active.moment_engine._track_keys}, locale=active.locale,
             allowed_intents=active.allowed_capability_intents,
@@ -4075,6 +4098,7 @@ class SessionRuntimeManager:
                 or playback.duration_ms - opportunity.last_observed_position_ms < (moment.presentation_intent.maximum_duration_seconds + 5) * 1000):
             return None
         active.publish_moment(moment)
+        active.published_recording_context.commit(fact, time.monotonic())
         active.moment_engine.__dict__.update(working_moments.__dict__)
         opportunity.used_fact_keys.add(fact.key)
         opportunity.fact_count += 1
@@ -4239,7 +4263,7 @@ class SessionRuntimeManager:
             facts = raw_insight.get("_qualified_facts")
             opportunity = self._intra_track_opportunities.get(owner_profile_id)
             if isinstance(facts, tuple) and opportunity is not None and opportunity.media_identity == media_identity and not opportunity.blocked:
-                opportunity.qualified_facts = tuple(fact for fact in facts[:6] if isinstance(fact, QualifiedSessionFact)
+                opportunity.qualified_facts = tuple(fact for fact in facts[:6] if type(fact) is QualifiedSessionFact
                                                     and fact.eligible(media_identity, time.monotonic()))
                 if opportunity.qualified_facts:
                     return self._publish_qualified_current_fact(owner_profile_id, active, opportunity)
@@ -4907,6 +4931,7 @@ class SessionRuntimeManager:
                         )
             self._playback_progress_clocks.pop(owner_profile_id, None)
             self._intra_track_opportunities.pop(owner_profile_id, None)
+            active.published_recording_context.clear()
             active.broadcast.update_runtime_state(SessionRuntimeState.ENDING)
             active.planner.clear_discover_narrative()
             ending = DJSessionRuntime(

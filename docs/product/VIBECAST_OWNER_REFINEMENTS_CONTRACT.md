@@ -1,5 +1,13 @@
 # VibeCast owner refinements — current-slice extension
 
+The selected [shared-producer slice](SHARED_PRODUCER_CONTINUITY_CONTRACT.md)
+extends only this qualified CC0 visual recording-credit application: exact
+contributor identity/role is retained transiently, two independently qualified
+recordings may yield a deterministic track card, and optional `url_previous`
+preserves the second recording's public attribution in VibeCast. Both sources
+expire independently; previous playback never becomes current playback.
+This is not blanket credits Phase B, live-provider or physical qualification.
+
 Parent: `DJC-CORE-VIBECAST-MULTIMOMENT-TIMELINE-V1-20261006`.
 Qualification: `DJC-VIBECAST-MULTIMOMENT-PI-CAPTURE-V1-20261006`.
 Base: `40763f7e829802da4bce815702da675f944f3b46`.
