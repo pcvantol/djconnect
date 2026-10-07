@@ -1,18 +1,23 @@
 # DJConnect Repository Status
 
-## Contextual fact planning — current execution
+## PR #1122 contextual fact planning — dedicated Finalization
 
-`DJC-CORE-CONTEXTUAL-FACT-PLANNING-V1-20261007`; sole Core writer
-`codex/contextual-fact-planning-v1`, base `4c30399294b56aff89b962a53b37ea91a2d1762f`.
-Fresh host MATCH/exit 0, onboarding 4.5.3, synchronized clean main at admission.
-[ACK](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6039361642)
-and [first material source](https://github.com/pcvantol/djconnect/issues/1101#issuecomment-6039436220)
-registered. [Contract/evidence](docs/product/CONTEXTUAL_FACT_PLANNING_CONTRACT.md)
-binds policy, red-before/green-after Runtime and browser acceptance. Local full
-suite: 1,562 tests, 7 skips, PASS. Exact review, protected checks, merge and
-dedicated Finalization pending. Automatic internal publication requires fresh
-assignment-specific authorization before merge. No install selected; parked
-physical capture/frame-rate PARTIAL gates remain unchanged.
+PR [#1122](https://github.com/pcvantol/djconnect/pull/1122) protected merged as
+`d7a646e0e83a92211875e2f3b45606678e992e76` from independently reviewed head
+`78a43136baba11eb44b42eaa154859143864b652`; both trees equal
+`a60277ced1b5621700c47f80340489825b17994a`. Exact main was read back locally,
+through origin/main and the protected API. Full local source/main suites:
+1,562 tests, 7 skips, PASS. Same-pool Runtime/browser software acceptance,
+Golden-related tests, Ruff and independent exact review passed.
+[Completion/Finalization](docs/history/prompts/2026-10-07-contextual-fact-planning-finalization.md)
+records policy, source authority and evidence. No installation or fresh
+live/hardware qualification; prior capture/frame-rate PARTIAL gates remain
+parked. Finalization-only branch `codex/contextual-fact-planning-finalization`
+reconciles this one assignment; no following capability is activated.
+
+Repository State: `MERGED_RECONCILED` after this separate Finalization merges.
+Workspace State: `WORKSPACE_READY` only after mandatory safe cleanup.
+Finalization Pending: `NO` after merge.
 
 ## PR #1120 VibeCast owner refinements — Finalization pending
 

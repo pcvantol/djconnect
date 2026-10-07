@@ -1,15 +1,38 @@
 # DJConnect Generation 2 Management Summary
 
-## Current contextual fact-planning slice
+## PR #1122 contextual fact planning — Finalization reconciliation
 
-One Core increment, `DJC-CORE-CONTEXTUAL-FACT-PLANNING-V1-20261007`, improves
-choice and dosing of already qualified facts. Same pool gives stable Manual
-selection independent of source order, a distinct Discover sequence and a
-short readable alternative when the long candidate cannot fit. Mood/Persona
-add only bounded emphasis/spacing. Runtime/browser software acceptance and
-1,562 local tests passed (7 skips); protected delivery and Finalization pending.
-No new provider, TTS or installation. Automatic internal publication needs a
-specific owner decision before merge. Physical PARTIAL findings remain parked.
+PR [#1122](https://github.com/pcvantol/djconnect/pull/1122) protected merged as
+`d7a646e0e83a92211875e2f3b45606678e992e76`. Same content pool now yields
+stable Manual choice independent of source order, a distinct Discover sequence
+and a short readable alternative when a long candidate cannot fit. Only
+existing Runtime context and bounded published Flow memory influence planning;
+Mood/Persona affect emphasis/spacing without changing truth or attribution.
+1,562 local source/main tests passed (7 skips), with independent exact review
+and real browser software evidence. The [Finalization record](docs/history/prompts/2026-10-07-contextual-fact-planning-finalization.md)
+preserves exact delivery and internal publication evidence. No installation,
+new provider, speech or physical PASS claim. Pi-PARTIAL remains parked.
+
+### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+1. **Public distribution: Apple — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; gate: qualified Internal Release consumers and explicit authorization.
+2. **Public distribution: Windows — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; gate: qualified Internal Release consumers and explicit authorization.
+3. **Public HACS distribution — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; gate: fresh candidate and release authorization.
+4. **HACS 3.3.0 release visibility (`HACS-3.3.0-001`) — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; gate: release metadata and discovery evidence.
+5. **Firmware OTA publication and staged rollback — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; gate: manifest-bound consumer qualification.
+
+### Blocked Items
+
+Full credits Phase B and Continue Stage 2 remain separately gated. Parked
+automatic Pi capture/full-frame-rate PARTIAL evidence does not block this slice.
+
+### Deferred Items
+
+No new provider, Lyrics, Audience→Planner, future queue, cross-Session learning
+or following intelligence family is selected. Stop after this assignment.
+
+Repository State: `MERGED_RECONCILED` after this Finalization merges.
+Workspace State: `WORKSPACE_READY` only after mandatory safe cleanup.
 
 ## PR #1120 VibeCast owner refinements and physical Pi acceptance
 

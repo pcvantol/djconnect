@@ -1,20 +1,46 @@
 # DJConnect Engineering Status
 
-## Contextual fact planning — active sole Core increment
+## PR #1122 contextual fact planning — source reconciled by Finalization
 
-`DJC-CORE-CONTEXTUAL-FACT-PLANNING-V1-20261007`, branch
-`codex/contextual-fact-planning-v1`, base `4c30399294b56aff89b962a53b37ea91a2d1762f`.
-Eligibility precedes contextual ranking and readable fit; spacing reuses the
-current-track scheduler. Four red Runtime scenarios preceded source mutation.
-Same-pool order independence, Manual/Discover, short-fit, recent committed Flow
-demotion, Direction-only and five-language exact copy have software evidence.
-Independent preliminary review found missing recent-type proof; an added
-four-angle test now demonstrates the causal effect. No production bug found;
-exact frozen review and protected checks pending. Browser portrait/landscape
-and #1120 regressions passed. Full suite: 1,562 tests, 7 skips, PASS; initial
-unrelated roadmap timeout resolved on focused and full rerun. Golden-related
-suite: 18 tests, PASS. No new publication/install authority or hardware claim;
-parked physical PARTIAL gates unchanged.
+PR [#1122](https://github.com/pcvantol/djconnect/pull/1122) protected merged as
+`d7a646e0e83a92211875e2f3b45606678e992e76` from independently reviewed source
+`78a43136baba11eb44b42eaa154859143864b652`, tree
+`a60277ced1b5621700c47f80340489825b17994a` equal on head/merge.
+Assignment `DJC-CORE-CONTEXTUAL-FACT-PLANNING-V1-20261007` retained one Core
+writer from `4c30399294b56aff89b962a53b37ea91a2d1762f`. Policy and four red
+Runtime scenarios preceded production mutation. Eligibility precedes ranking;
+readability is checked per candidate; actual published Flow type memory and
+existing Strategy/Direction/Mood/Persona bound selection and spacing.
+Source and exact-main local suites passed 1,562 tests (7 skips); Golden-related
+18 tests, Ruff, source/browser acceptance and independent exact review passed.
+An unrelated initial roadmap timeout passed focused/full reruns. Review's
+missing recent-type proof was fixed with a causal four-angle Runtime test.
+The [immutable record](docs/history/prompts/2026-10-07-contextual-fact-planning-finalization.md)
+contains exact provenance, checks and publication evidence. This document-only
+increment changes no production source. No install or new hardware claim.
+
+#### Rolling Horizon (Execution Horizon — Next 5 Planned)
+
+1. **Public distribution: Apple — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; gate: qualified Internal Release consumers and explicit authorization.
+2. **Public distribution: Windows — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; gate: qualified Internal Release consumers and explicit authorization.
+3. **Public HACS distribution — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; gate: fresh candidate and release authorization.
+4. **HACS 3.3.0 release visibility (`HACS-3.3.0-001`) — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; gate: release metadata and discovery evidence.
+5. **Firmware OTA publication and staged rollback — Planned** | Source: `PLATFORM_EVOLUTION_BACKLOG.md`; gate: manifest-bound consumer qualification.
+
+#### Blocked Items
+
+Full Artist/Album credits Phase B and Continue Stage 2 retain their own gates.
+Prior automatic Pi capture and full-frame-rate motion remain PARTIAL/parked;
+they do not block this software-only intelligence slice.
+
+#### Deferred Items
+
+New providers, Lyrics, Audience→Planner, future queue, cross-Session learning
+and other intelligence families remain outside this assignment. No next slice
+is selected by this Finalization.
+
+Repository State: `MERGED_RECONCILED` after this Finalization merges.
+Workspace State: `WORKSPACE_READY` only after safe cleanup.
 
 ## PR #1120 VibeCast owner refinements — source merged, physical qualification recorded
 
