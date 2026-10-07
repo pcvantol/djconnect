@@ -36,10 +36,12 @@ Experience Foundation. These are durable authorities, not active roadmap work.
 
 Selected bounded increment `DJC-CORE-CONTEXTUAL-FACT-PLANNING-V1-20261007`:
 [contextual choice and dosing of already qualified facts](docs/product/CONTEXTUAL_FACT_PLANNING_CONTRACT.md).
-Current execution uses existing observed-track Runtime/Flow/Broadcast;
+Completed source PR #1122 (`d7a646e0e83a92211875e2f3b45606678e992e76`)
+uses existing observed-track Runtime/Flow/Broadcast;
 same-pool software acceptance proves stable source-order-independent choices,
 Session-context variation and readable shorter alternatives. Protected source
-delivery and Finalization remain pending. No new family or subsequent slice
+delivery/exact-main passed; [Finalization](docs/history/prompts/2026-10-07-contextual-fact-planning-finalization.md)
+reconciles this source, with completion after its merge/cleanup. No new family or subsequent slice
 is activated; prior physical capture/frame-rate gates remain PARTIAL/parked.
 
 **Current Product Initiative:** **DJ Intelligence Evolution** — establish the

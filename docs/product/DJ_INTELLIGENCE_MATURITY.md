@@ -1,6 +1,6 @@
 # DJ Intelligence Maturity Model
 
-## Current selected increment — contextual fact planning
+## Completed source increment — contextual fact planning
 
 `DJC-CORE-CONTEXTUAL-FACT-PLANNING-V1-20261007` extends the qualified #1120
 visual facts through the same current-item Runtime chain. The
@@ -10,7 +10,10 @@ Direction, bounded Mood/Persona and published Flow type memory. Same-pool
 Runtime/browser evidence distinguishes Manual and Discover and proves the
 short-fit alternative. No new knowledge provider, TTS, Moment family,
 future queue or cross-Session learning; no intelligence-stage promotion.
-Source review/checks and protected delivery remain pending. Existing physical
+Independent exact review, protected source delivery and exact-main passed:
+PR #1122 merged as `d7a646e0e83a92211875e2f3b45606678e992e76`.
+[Finalization](../history/prompts/2026-10-07-contextual-fact-planning-finalization.md)
+reconciles this software result, with completion after its merge/cleanup. Existing physical
 capture/frame-rate PARTIAL findings remain parked.
 
 ## Purpose
