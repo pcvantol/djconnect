@@ -303,6 +303,37 @@
           }
         }
       }
+    },
+    {
+      "type": "object",
+      "required": [
+        "success",
+        "schema_version",
+        "session",
+        "entry",
+        "read_only",
+        "navigation_only"
+      ],
+      "properties": {
+        "success": {
+          "const": true
+        },
+        "schema_version": {
+          "const": 1
+        },
+        "session": {
+          "$ref": "#/$defs/session"
+        },
+        "entry": {
+          "$ref": "#/$defs/entry"
+        },
+        "read_only": {
+          "type": "boolean"
+        },
+        "navigation_only": {
+          "const": true
+        }
+      }
     }
   ]
 }

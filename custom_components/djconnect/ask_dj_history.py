@@ -131,7 +131,7 @@ class AskDJHistoryManager:
             "success": True,
             "user_id": user_key,
             "history_revision": int(state.get("history_revision") or 0),
-            "clear_revision": self._effective_clear_revision(state),
+            "clear_revision": self._effective_clear_revision(state, user_key),
             **_history_limit_metadata(state),
             "messages": deepcopy(messages),
             "server_time": _now(),
@@ -155,7 +155,7 @@ class AskDJHistoryManager:
             "cleared": True,
             "user_id": user_key,
             "history_revision": state["history_revision"],
-            "clear_revision": self._effective_clear_revision(state),
+            "clear_revision": self._effective_clear_revision(state, user_key),
             "ask_dj_clear_required": True,
             **_history_limit_metadata(state),
             "messages": [],
@@ -241,7 +241,7 @@ class AskDJHistoryManager:
                 "user_id": user_key,
                 **existing,
                 "history_revision": int(state.get("history_revision") or 0),
-                "clear_revision": self._effective_clear_revision(state),
+                "clear_revision": self._effective_clear_revision(state, user_key),
                 **_history_limit_metadata(state),
                 "server_time": _now(),
                 "deduplicated": True,
@@ -299,7 +299,7 @@ class AskDJHistoryManager:
             "assistant_message": deepcopy(assistant_message),
             "messages": [deepcopy(user_message), deepcopy(assistant_message)],
             "history_revision": state["history_revision"],
-            "clear_revision": self._effective_clear_revision(state),
+            "clear_revision": self._effective_clear_revision(state, user_key),
             **_history_limit_metadata(state),
             "server_time": _now(),
         }
@@ -378,8 +378,9 @@ class AskDJHistoryManager:
 
     async def async_scope_revision(self, scope_key: str) -> str:
         await self.async_load()
-        state=self._data.get("users",{}).get(_user_key(scope_key),{})
-        return str(state.get("history_trimmed_count",0))+":"+str(self._effective_clear_revision(state))
+        user_key = _user_key(scope_key)
+        state=self._data.get("users",{}).get(user_key,{})
+        return str(state.get("history_trimmed_count",0))+":"+str(self._effective_clear_revision(state, user_key))
 
     @_committed_mutation
     async def async_append_assistant_message(
@@ -402,7 +403,7 @@ class AskDJHistoryManager:
                     "user_id": user_keys[0],
                     "assistant_message": deepcopy(existing),
                     "history_revision": int(first_state.get("history_revision") or 0),
-                    "clear_revision": self._effective_clear_revision(first_state),
+                    "clear_revision": self._effective_clear_revision(first_state, user_keys[0]),
                     **_history_limit_metadata(first_state),
                     "server_time": _now(),
                     "deduplicated": True,
@@ -422,7 +423,7 @@ class AskDJHistoryManager:
             "user_id": user_keys[0],
             "assistant_message": deepcopy(assistant_message),
             "history_revision": int(first_state.get("history_revision") or 0),
-            "clear_revision": self._effective_clear_revision(first_state),
+            "clear_revision": self._effective_clear_revision(first_state, user_keys[0]),
             **_history_limit_metadata(first_state),
             "server_time": _now(),
         }
@@ -472,7 +473,9 @@ class AskDJHistoryManager:
         state.setdefault("history_trimmed_count", 0)
         return state
 
-    def _effective_clear_revision(self, state: dict[str, Any]) -> int:
+    def _effective_clear_revision(self, state: dict[str, Any], scope_key: str = "") -> int:
+        if scope_key.startswith("profile:"):
+            return int(state.get("clear_revision") or 0)
         return max(
             int(state.get("clear_revision") or 0),
             int(self._data.get("global_clear_revision") or 0),
@@ -482,7 +485,7 @@ class AskDJHistoryManager:
         if _clean_text(user_id):
             return [_user_key(user_id)]
         users = self._data.get("users") or {}
-        keys = [str(key) for key in users.keys() if _clean_text(key)]
+        keys = [str(key) for key in users.keys() if _clean_text(key) and not str(key).startswith("profile:")]
         return keys or [_user_key(None)]
 
     def _find_exchange(

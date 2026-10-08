@@ -496,11 +496,53 @@ class SessionConversationHistoryTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual((await self.handlers.async_handle_ask_dj_message_payload(
             hass, payload, headers=headers
         ))[1], 200)
+        revision = await history.async_scope_revision("profile:profile-a")
         await history.async_clear_all(include_profile_history=False)
+        self.assertEqual(revision, await history.async_scope_revision("profile:profile-a"))
         self.assertEqual(len((await history.async_history("profile:profile-a"))["messages"]), 2)
         self.assertFalse(await history.async_session_request_cleared(
             "profile:profile-a", "private-preserved"
         ))
+
+    async def test_pending_profile_turn_and_cursor_survive_legacy_clear(self):
+        import asyncio
+        from unittest.mock import patch
+        from custom_components.djconnect.session_conversation import query_service
+
+        hass, runtime, history, identity, headers = await self.transport_fixture()
+        session = await self.observed_session()
+        await self.manager.async_update_playback_projection(
+            owner_profile_id="profile-a", session_id=session.session_id, state="playing",
+            media_identity="spotify:track:0000000000000000000001", title="Next",
+            duration_ms=120000, position_ms=1000,
+        )
+        query = query_service(hass, history)
+        first = await query.async_timeline_page("profile-a", session.session_id, limit=1)
+        entered, release = asyncio.Event(), asyncio.Event()
+
+        async def delayed(*args, **kwargs):
+            entered.set()
+            await release.wait()
+            return {"success": True, "text": "Unchanged private response"}
+
+        with patch.object(self.handlers.http_helpers, "async_handle_ask_dj", delayed):
+            pending = asyncio.create_task(self.handlers.async_handle_ask_dj_message_payload(
+                hass, {**identity, "client_message_id": "legacy-during-private",
+                       "text": "Tell me about this",
+                       "conversation_context": {"session_id": session.session_id}}, headers=headers
+            ))
+            await entered.wait()
+            revision = await history.async_scope_revision("profile:profile-a")
+            await history.async_clear_all(include_profile_history=False)
+            self.assertEqual(revision, await history.async_scope_revision("profile:profile-a"))
+            page = await query.async_timeline_page(
+                "profile-a", session.session_id, limit=1, cursor=first["next_cursor"]
+            )
+            self.assertEqual(len(page["entries"]), 1)
+            release.set()
+            self.assertEqual((await pending)[1], 200)
+        await history.async_append_assistant_message(None, {}, {"text": "Legacy ambient"})
+        self.assertEqual(len((await history.async_history("profile:profile-a"))["messages"]), 2)
 
     async def test_real_handler_rejects_late_track_end_and_privacy_changes(self):
         import asyncio

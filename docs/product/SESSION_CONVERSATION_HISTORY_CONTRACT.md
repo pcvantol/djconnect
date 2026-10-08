@@ -101,7 +101,8 @@ work remains outside that lock. Caller cancellation completes this whole short
 acceptance unit, including reference storage and postguards, before releasing
 the Runtime lock; repeated cancellation cannot orphan a Store-only turn.
 Administrative global cleanup retains the same bounded request tombstones;
-the legacy device-wide clear route leaves private Profile namespaces intact.
+the legacy device-wide clear route leaves private Profile namespaces and their
+clear revisions intact. Legacy ambient history writes exclude those namespaces.
 Archives are not mutated by
 later standalone questions. Private-session policy can answer without persisting.
 
