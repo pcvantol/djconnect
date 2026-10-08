@@ -212,3 +212,22 @@ returns `{success:true,state:"ended"}`; invalid/expired/revoked/Broadcast-only
 authority gets403. It grants no playback command or owner projection. The
 renderer waits for backend confirmation before clearing to idle. The grant is
 single-use, expires after1h and revokes on Session end or observer unload/reload.
+
+## Native source-bound delivery admission
+
+The selected native-delivery increment adds a dynamic `native_delivery` v1
+projection to the existing owner snapshot/events. Immutable Moment semantics
+are unchanged. Qualification and original source deadlines are server-owned;
+renderers may show only its current/active-Flow allowed IDs and must remove
+expired or absent admissions on replacement/reconnect/end. Source-expired
+text, Presentation copies and Flow labels cannot be revived by replay.
+See `../product/NATIVE_MOMENT_DELIVERY_CONTRACT.md` for field-specific rights,
+source/current-card/Session lifetimes and the empty native execution allowlist.
+Session HTTP JSON responses, including errors, are `Cache-Control: no-store`.
+
+Owner subscriptions bind the already-authorized entry ID and its existing
+entry generation internally, never client-supplied metadata. Entry unload
+withdraws just those live/pending/recovery channels; it preserves the Profile
+Session and other authorized channels. A terminal setup denial may have no
+delivery sequence and only clears native authority; consumers process it before
+ordinary ordering. No source lifetime is renewed by entry reload or reconnect.

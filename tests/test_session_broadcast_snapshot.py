@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import importlib
+import json
 import types
 import unittest
 
@@ -164,8 +165,9 @@ class OwnerBroadcastSnapshotTest(unittest.TestCase):
             http.DJConnectSessionBroadcastSnapshotView(object()).get(request, "session-1")
         )
 
-        self.assertEqual(result["status_code"], 200)
-        self.assertEqual(result["payload"]["snapshot"], self.snapshot)
+        self.assertEqual(result.status, 200)
+        self.assertEqual(result.headers["Cache-Control"], "no-store")
+        self.assertEqual(json.loads(result.text)["snapshot"], self.snapshot)
         self.assertEqual(self.subscribe_calls, 0)
         self.assertEqual(self.register_calls, 0)
 

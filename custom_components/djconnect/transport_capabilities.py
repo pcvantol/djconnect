@@ -25,6 +25,10 @@ def session_broadcast_transport_capabilities() -> dict[str, Any]:
             "available": True,
             "command": "djconnect/session/broadcast/recover",
         },
+        "native_moment_delivery": {
+            "schema_version": 1, "projection": "native_delivery",
+            "retention": "active_session_only", "executable_actions": [],
+        },
         "snapshot_recovery": True,
         "replay": True,
         "cursor": True,

@@ -2996,3 +2996,16 @@ Requirements:
 - Never log bearer tokens, HA tokens, Spotify secrets, WiFi passwords, or
   temporary audio URLs.
 ```
+
+## HA-DJC-APPLE: native Moment delivery (2026-10-08, selected Core increment)
+
+DJC-CORE-NATIVE-MOMENT-DELIVERY-V1-20261008 reuses the existing owner HTTP
+snapshot and authenticated Broadcast subscription/recovery. Native consumers
+must require the additive `native_delivery` v1 admission projection; semantic
+Moments stay immutable. It supplies current/active-Flow allowed IDs, original
+source deadlines and explicit action admission. Unknown qualification fails
+closed. Source lifetime, current-card duration and active-Session recall are
+separate. No disk cache, lifetime renewal on reconnect or inference from
+source names/action payloads. The field/source and lifecycle contract is in
+`docs/product/NATIVE_MOMENT_DELIVERY_CONTRACT.md`; exact producer receipt and
+Apple consumer readback belong in #1101/#87. Apple #95 remains its sole writer.

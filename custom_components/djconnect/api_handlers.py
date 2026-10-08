@@ -339,7 +339,12 @@ async def _async_owner_broadcast_session_context(
     active = await manager.async_get_active(context.profile_id)
     if active is None or active.session_id != session_id:
         return _error_payload("active_session_not_found"), 404, None, None
-    return {"success": True, "session_id": session_id}, 200, manager, context.profile_id
+    entry_id = str(getattr(getattr(runtime, "entry", None), "entry_id", "") or "")
+    generation = getattr(runtime, "_receiver_end_generation", 0)
+    if entry_id and generation != manager.receiver_entry_generation(entry_id):
+        return _error_payload("unauthorized"), 401, None, None
+    return {"success": True, "session_id": session_id,
+            "_owner_entry_id": entry_id, "_owner_entry_generation": generation}, 200, manager, context.profile_id
 
 
 async def _async_owner_broadcast_snapshot_query(
@@ -364,7 +369,7 @@ async def _async_owner_broadcast_snapshot_query(
     except Exception as exc:  # noqa: BLE001
         _LOGGER.debug("DJConnect Broadcast snapshot unavailable: %s", exc.__class__.__name__)
         return _error_payload("broadcast_snapshot_unavailable"), 500, None, None
-    return {**result, "snapshot": snapshot}, 200, manager, profile_id
+    return {"success": True, "session_id": result["session_id"], "snapshot": snapshot}, 200, manager, profile_id
 
 
 async def async_handle_session_broadcast_snapshot_payload(
@@ -406,6 +411,8 @@ async def async_handle_session_broadcast_subscribe_payload(
         owner_profile_id=profile_id,
         session_id=session_id,
         callback=callback,
+        authorization_entry_id=context.get("_owner_entry_id", ""),
+        authorization_entry_generation=context.get("_owner_entry_generation", 0),
     )
     if subscription_id is None:
         return _error_payload("active_session_not_found"), 404, None, None
@@ -429,11 +436,19 @@ async def async_handle_session_broadcast_subscribe_payload(
         )
 
     async def activate() -> None:
-        await manager.async_activate_subscription(
+        activated = await manager.async_activate_subscription(
             owner_profile_id=profile_id,
             session_id=session_id,
             subscription_id=subscription_id,
         )
+        if activated is False:
+            # End/unload during transport setup cannot leave its earlier
+            # snapshot authoritative. Terminal denial never grants content.
+            from .native_moment_delivery import withdrawn_native_delivery
+
+            callback({"event_type": "broadcast_stopped", "session_id": session_id,
+                      "payload": {"broadcast": {"subscription_state": "revoked"},
+                                  "native_delivery": withdrawn_native_delivery(session_id)}})
 
     active = await manager.async_get_active(profile_id)
     cursor_provider = (
@@ -478,6 +493,8 @@ async def async_handle_session_broadcast_recovery_payload(
         session_id=session_id,
         recovery_cursor=recovery_cursor,
         callback=callback,
+        authorization_entry_id=context.get("_owner_entry_id", ""),
+        authorization_entry_generation=context.get("_owner_entry_generation", 0),
     )
     if recovered is None:
         return _error_payload("invalid_recovery_cursor"), 400, None, None
@@ -491,11 +508,19 @@ async def async_handle_session_broadcast_recovery_payload(
         )
 
     async def activate() -> None:
-        await manager.async_activate_subscription(
+        activated = await manager.async_activate_subscription(
             owner_profile_id=profile_id,
             session_id=session_id,
             subscription_id=subscription_id,
         )
+        if activated is False:
+            # End/unload during transport setup cannot leave its earlier
+            # snapshot authoritative. Terminal denial never grants content.
+            from .native_moment_delivery import withdrawn_native_delivery
+
+            callback({"event_type": "broadcast_stopped", "session_id": session_id,
+                      "payload": {"broadcast": {"subscription_state": "revoked"},
+                                  "native_delivery": withdrawn_native_delivery(session_id)}})
 
     return {
         "success": True,
