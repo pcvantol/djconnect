@@ -19,6 +19,7 @@ from uuid import uuid4
 from .const import API_IMAGE_PROXY_BASE, DOMAIN
 from .session_facts import QualifiedSessionFact, SharedProducerFact, PublishedRecordingContext
 from .moment_expression import realize as realize_fact_expression
+from .native_moment_delivery import MomentDeliveryBoundary, admission as native_admission
 from .persistence import persistence_service
 from .persistence.sessions import (
     ACTIVE as PERSISTENT_SESSION_ACTIVE,
@@ -382,6 +383,7 @@ class DJMoment:
     source_attribution: tuple[tuple[str, str], ...] = ()
     visual_only: bool = field(default=False, repr=False)
     expression_form: str = field(default="", repr=False)
+    source_fact: QualifiedSessionFact | None = field(default=None, repr=False)
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -2118,7 +2120,7 @@ class DJMomentEngine:
                           source_attribution=(("provider", fact.provider), ("url", fact.source_url), ("license", fact.license))
                           + ((("url_previous", fact.previous_evidence.source_url),)
                              if isinstance(fact, SharedProducerFact) and fact.previous_evidence else ()),
-                          visual_only=True, expression_form=realization.expression_form)
+                          visual_only=True, expression_form=realization.expression_form, source_fact=fact)
         self.moments = (*self.moments, moment)
         return moment
 
@@ -3300,6 +3302,11 @@ class DJSessionBroadcastEngine:
         default_factory=dict, init=False, repr=False
     )
 
+    _moment_delivery_boundaries: dict[str, MomentDeliveryBoundary] = field(default_factory=dict, init=False, repr=False)
+    _native_revision: str = field(default="", init=False, repr=False)
+    _owner_only_moment_ids: set[str] = field(default_factory=set, init=False, repr=False)
+    _invalidated_current_moment_ids: set[str] = field(default_factory=set, init=False, repr=False)
+
     def __post_init__(self) -> None:
         """Keep replay retention bounded even for internal construction callers."""
         self.replay_log_limit = max(1, self.replay_log_limit)
@@ -3329,9 +3336,10 @@ class DJSessionBroadcastEngine:
         subscriber = self._subscribers.get(subscription_id)
         if pending_events is None or subscriber is None:
             return
-        callback, _include_owner_only = subscriber
+        callback, include_owner_only = subscriber
         for event in pending_events:
-            callback(event)
+            callback({**event, "payload": self._safe_delivery_payload(
+                event["payload"], include_owner_only=include_owner_only)})
 
     def subscribe_with_broadcast_token(
         self, token: str, callback: Callable[[dict[str, Any]], None]
@@ -3395,6 +3403,10 @@ class DJSessionBroadcastEngine:
         """Publish one replacement projection only when its safe content changes."""
         if self.state.playback.same_content(playback):
             return False
+        old = self.state.playback
+        if (playback.state != "playing" or old.item_id != playback.item_id
+                or old.target_name != playback.target_name):
+            self.invalidate_current_delivery()
         self.state = DJBroadcastState(**{**self.state.__dict__, "playback": playback})
         self._publish(BroadcastEventType.PLAYBACK_CHANGED, {"playback": self.as_dict()["playback"]})
         return True
@@ -3413,6 +3425,10 @@ class DJSessionBroadcastEngine:
 
     def publish_moment(self, moment: DJMoment) -> None:
         """Project a validated Moment without exposing private projections."""
+        if moment.session_id != self.state.session_id or any(
+                previous.moment_id == moment.moment_id for previous in self.state.dj_moments):
+            return
+        self.prepare_moment_delivery(moment)
         playback_item_id = self.state.playback.item_id
         if playback_item_id:
             self._moment_playback_item_ids[moment.moment_id] = playback_item_id
@@ -3443,11 +3459,17 @@ class DJSessionBroadcastEngine:
         self.replay_log = ()
         self.delivery_sequence = 0
         self.recovery_cursor = None
+        self._moment_delivery_boundaries.clear()
+        self._owner_only_moment_ids.clear()
+        self._invalidated_current_moment_ids.clear()
+        self._native_revision = ""
 
     def _publish(self, event_type: BroadcastEventType, payload: dict[str, Any]) -> None:
         """Deliver one incremental, renderer-safe event to active subscribers."""
         self.delivery_sequence += 1
         opaque_cursor = secrets.token_urlsafe(32)
+        payload = self._safe_delivery_payload(payload)
+        self._native_revision = payload["native_delivery"]["revision"]
         self._append_replay_entry(event_type, payload, opaque_cursor)
         self._issue_recovery_cursor(opaque_cursor)
         event = {
@@ -3459,11 +3481,13 @@ class DJSessionBroadcastEngine:
         for subscription_id, (callback, include_owner_only) in tuple(self._subscribers.items()):
             if not include_owner_only and _payload_contains_owner_only_moment(payload):
                 continue
+            scoped_event = {**event, "payload": self._safe_delivery_payload(
+                payload, include_owner_only=include_owner_only)}
             pending_events = self._pending_subscriptions.get(subscription_id)
             if pending_events is not None:
-                pending_events.append(event)
+                pending_events.append(scoped_event)
                 continue
-            callback(event)
+            callback(scoped_event)
 
     def _append_replay_entry(
         self, event_type: BroadcastEventType, payload: dict[str, Any], recovery_cursor: str
@@ -3507,6 +3531,8 @@ class DJSessionBroadcastEngine:
         """
         if not isinstance(recovery_cursor, str) or len(recovery_cursor) < 32:
             return None
+        if any(moment.source_attribution for moment in self.state.dj_moments):
+            return self._snapshot_required_recovery()
         cursor_entry = next(
             (
                 entry
@@ -3531,7 +3557,8 @@ class DJSessionBroadcastEngine:
                 {
                     "event_type": str(entry.event_type),
                     "session_id": entry.session_id,
-                    "payload": _thaw_broadcast_payload(entry.payload),
+                    "delivery_sequence": entry.delivery_sequence,
+                    "payload": self._safe_delivery_payload(_thaw_broadcast_payload(entry.payload)),
                 }
                 for entry in replay_entries
             ],
@@ -3556,10 +3583,89 @@ class DJSessionBroadcastEngine:
             )
             if playback_item_id:
                 moment["playback_item_id"] = playback_item_id
+        projection = self._safe_delivery_payload(projection, include_owner_only=include_owner_only)
         projection["broadcast"]["snapshot_watermark"] = self._snapshot_watermark(
             include_owner_only=include_owner_only
         )
         return projection
+
+    def prepare_moment_delivery(self, moment: DJMoment) -> None:
+        """Bind original clocks and visibility before its Flow label is sent."""
+        if moment.session_id != self.state.session_id:
+            return
+        self._moment_delivery_boundaries.setdefault(moment.moment_id, MomentDeliveryBoundary(
+            time.monotonic(), moment.created_at, self.state.playback.item_id))
+        if moment.presentation_intent.visibility is DJMomentVisibility.OWNER_ONLY:
+            self._owner_only_moment_ids.add(moment.moment_id)
+
+    def invalidate_current_delivery(self) -> None:
+        """Previously published cards cannot become current again after disruption."""
+        self._invalidated_current_moment_ids.update(moment.moment_id for moment in self.state.dj_moments)
+
+    def native_delivery(self, *, include_owner_only: bool = True) -> dict[str, Any]:
+        """Project present authority without changing immutable semantic state."""
+        flow_ids = {item.moment_id for item in self.state.session_flow.items if item.moment_id}
+        entries = [native_admission(
+            moment, self._moment_delivery_boundaries.get(moment.moment_id),
+            session_id=self.state.session_id, active=self.state.runtime_state is SessionRuntimeState.ACTIVE,
+            flow_ids=flow_ids, playback_item_id=self.state.playback.item_id,
+            playing=self.state.playback.state == "playing", now=time.monotonic())
+            for moment in self.state.dj_moments
+            if self.state.runtime_state is SessionRuntimeState.ACTIVE
+            and moment.moment_type is not DJMomentType.SILENCE
+            and (include_owner_only or moment.presentation_intent.visibility is not DJMomentVisibility.OWNER_ONLY)]
+        latest = next((moment.moment_id for moment in reversed(self.state.dj_moments)
+                       if moment.moment_type is not DJMomentType.SILENCE
+                       and self._moment_playback_item_ids.get(moment.moment_id) == self.state.playback.item_id), None)
+        current = next((entry["moment_id"] for entry in entries
+                        if entry["moment_id"] == latest and entry["current_display_allowed"]
+                        and latest not in self._invalidated_current_moment_ids), None)
+        # Only the newest admissible contribution is prominent now.
+        for entry in entries:
+            entry["current_display_allowed"] = entry["moment_id"] == current
+        result = {"schema_version": 1, "session_id": self.state.session_id,
+                  "current_moment_id": current,
+                  "active_flow_moment_ids": [entry["moment_id"] for entry in entries
+                                             if entry["active_flow_display_allowed"]],
+                  "admissions": entries, "revocation_scope": "session"}
+        result["revision"] = hashlib.sha256(json.dumps(result, sort_keys=True).encode()).hexdigest()[:24]
+        return result
+
+    def _safe_delivery_payload(self, payload: dict[str, Any], *, include_owner_only: bool = True) -> dict[str, Any]:
+        """Remove expired source copies at every transport delivery boundary."""
+        native = self.native_delivery(include_owner_only=include_owner_only)
+        # Use all scopes for redaction even when the receiver lacks an owner card.
+        all_admissions = self.native_delivery()["admissions"]
+        ended = self.state.runtime_state is not SessionRuntimeState.ACTIVE
+        source_ids = {moment.moment_id for moment in self.state.dj_moments if moment.source_attribution}
+        excluded = {entry["moment_id"] for entry in all_admissions
+                    if entry["moment_id"] in source_ids and entry["qualification"] != "qualified"}
+        if ended:
+            excluded.update(moment.moment_id for moment in self.state.dj_moments)
+        if not include_owner_only:
+            excluded.update(self._owner_only_moment_ids)
+        result = copy.deepcopy(payload)
+        if "dj_moments" in result:
+            result["dj_moments"] = [m for m in result["dj_moments"] if m.get("moment_id") not in excluded]
+        if result.get("dj_moment", {}).get("moment_id") in excluded:
+            result.pop("dj_moment", None)
+        if "presentations" in result:
+            result["presentations"] = [p for p in result["presentations"] if p.get("source_moment_id") not in excluded]
+        if result.get("presentation", {}).get("source_moment_id") in excluded:
+            result.pop("presentation", None)
+        if "session_flow" in result:
+            result["session_flow"]["items"] = [item for item in result["session_flow"]["items"]
+                                               if item.get("moment_id") not in excluded]
+        result["native_delivery"] = native
+        return result
+
+    def refresh_native_delivery(self) -> None:
+        """Use the existing observation tick for expiry/invalidation events."""
+        revision = self.native_delivery()["revision"]
+        if revision != self._native_revision:
+            self._native_revision = revision
+            self._publish(BroadcastEventType.SESSION_FLOW_UPDATED,
+                          {"session_flow": self.state.session_flow.as_dict()})
 
     def _snapshot_watermark(self, *, include_owner_only: bool) -> int:
         """Return the newest retained delivery represented by this projection."""
@@ -3695,6 +3801,7 @@ class DJSessionRuntime:
         }
         runtime["planner"] = self.planner.as_dict()
         runtime["broadcast"] = self.broadcast.as_dict()
+        runtime["planner"]["output"]["session_flow"] = runtime["broadcast"]["session_flow"]
         return runtime
 
     def republish_session_flow(self) -> DJSessionFlow:
@@ -3714,6 +3821,9 @@ class DJSessionRuntime:
         self, moment: DJMoment, placement: SessionFlowPosition = SessionFlowPosition.NEXT
     ) -> None:
         """Publish a Moment only after Planner placement has been established."""
+        if moment.session_id != self.session_id or any(
+                previous.moment_id == moment.moment_id for previous in self.broadcast.state.dj_moments):
+            return
         composition = self.presentation_composer.compose_with_diagnostics(
             moment=moment,
             context=PresentationContext(
@@ -3729,6 +3839,7 @@ class DJSessionRuntime:
             ),
         )
         self.presentation_diagnostics.record(composition.outcomes)
+        self.broadcast.prepare_moment_delivery(moment)
         self.broadcast.publish_session_flow(self.planner.append_moment(moment, placement))
         self.broadcast.publish_moment(moment)
         self.broadcast.publish_presentation(composition.presentation.to_projection())
@@ -3915,6 +4026,8 @@ class SessionRuntimeManager:
             old_playback = active.broadcast.state.playback
             if up_next is None and projection.state == "playing" and old_playback.item_id == projection.item_id and old_playback.target_name == projection.target_name:
                 projection = RendererSafePlaybackProjection(**{**projection.__dict__, "up_next": old_playback.up_next})
+            if opportunity is not None and opportunity.blocked:
+                active.broadcast.invalidate_current_delivery()
             changed = active.broadcast.update_playback(projection)
             self._replace_playback_progress_clock(owner_profile_id, projection, session_id)
             if changed:
@@ -4186,6 +4299,8 @@ class SessionRuntimeManager:
         async with self._lock:
             active = self._active_by_profile.get(owner_profile_id)
             clock = self._playback_progress_clocks.get(owner_profile_id)
+            if active is not None and active.session_id == session_id:
+                active.broadcast.refresh_native_delivery()
             if (
                 active is None
                 or active.session_id != session_id

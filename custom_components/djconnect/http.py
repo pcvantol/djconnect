@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import base64
 import html
+import json
 import logging
 from pathlib import Path
 import re
@@ -2770,6 +2771,13 @@ class _DJConnectSessionView(HomeAssistantView):
     def __init__(self, hass):
         self.hass = hass
 
+    def json(self, result, status_code=200):
+        """Keep ephemeral Session content and authorization errors off caches."""
+        return web.Response(
+            text=json.dumps(result), status=status_code, content_type="application/json",
+            headers={"Cache-Control": "no-store", "Referrer-Policy": "no-referrer"},
+        )
+
     async def _payload(self, request) -> dict[str, Any] | None:
         try:
             return await request.json()
@@ -2976,7 +2984,8 @@ class DJConnectSessionBroadcastWebSocketView(HomeAssistantView):
     async def get(self, request, session_id: str):
         token = str(request.query.get("broadcast_token") or "").strip()
         if not token:
-            return web.json_response({"success": False, "error": "broadcast_token_required"}, status=401)
+            return web.json_response({"success": False, "error": "broadcast_token_required"}, status=401,
+                                     headers={"Cache-Control": "no-store", "Referrer-Policy": "no-referrer"})
         websocket = web.WebSocketResponse(heartbeat=30)
         await websocket.prepare(request)
         from .session_runtime import session_runtime_manager
