@@ -70,11 +70,15 @@
     "profile_export": true,
     "request_context": true,
     "voice_endpoint_request_context": true,
-    "voice_endpoint_mappings": true
+    "voice_endpoint_mappings": true,
+    "session_conversation_history": true,
+    "session_flow_text_search": true
   },
   "contract_versions": {
     "profile_context": 1,
-    "client_contract_fixtures": 1
+    "client_contract_fixtures": 1,
+    "session_conversation_history": 1,
+    "session_flow_text_search": 1
   },
   "transports": {
     "http": true,

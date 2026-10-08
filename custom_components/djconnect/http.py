@@ -49,6 +49,10 @@ from .const import (
     API_SESSION_START,
     API_SESSION_END,
     API_SESSION_ACTIVE,
+    API_SESSION_HISTORY,
+    API_SESSION_HISTORY_DETAIL,
+    API_SESSION_HISTORY_SEARCH,
+    API_SESSION_HISTORY_OPEN,
     API_SESSION_BROADCAST,
     API_SESSION_BROADCAST_TOKEN,
     API_SESSION_BROADCAST_HANDOFF_CLAIM,
@@ -808,6 +812,8 @@ def _voice_header_payload(headers: Any, device_id: str, client_type: str | None)
         ("X-DJConnect-Player-ID", "player_id"),
         ("X-DJConnect-Playback-Zone-ID", "playback_zone_id"),
         ("X-DJConnect-Session-ID", "session_id"),
+        ("X-DJConnect-Language", "language"),
+        ("X-DJConnect-Locale", "locale"),
     ):
         value = str(headers.get(header) or "").strip()
         if value:
@@ -2850,6 +2856,76 @@ class DJConnectTransportCapabilitiesView(HomeAssistantView):
         )
 
 
+class DJConnectSessionHistoryListView(_DJConnectSessionView):
+    url = API_SESSION_HISTORY
+    name = "api:djconnect:session:history"
+
+    async def get(self, request):
+        from .api_handlers import async_handle_session_history_payload
+
+        result, status = await async_handle_session_history_payload(
+            request.app["hass"],
+            dict(request.query),
+            headers=request.headers,
+            user_id=_request_user_id(request),
+        )
+        return self.json(result, status_code=status)
+
+
+class DJConnectSessionHistoryDetailView(_DJConnectSessionView):
+    url = API_SESSION_HISTORY_DETAIL
+    name = "api:djconnect:session:history:detail"
+
+    async def get(self, request, session_id):
+        from .api_handlers import async_handle_session_history_payload
+
+        data = {**dict(request.query), "session_id": session_id}
+        result, status = await async_handle_session_history_payload(
+            request.app["hass"],
+            data,
+            operation="timeline",
+            headers=request.headers,
+            user_id=_request_user_id(request),
+        )
+        return self.json(result, status_code=status)
+
+
+class DJConnectSessionHistorySearchView(_DJConnectSessionView):
+    url = API_SESSION_HISTORY_SEARCH
+    name = "api:djconnect:session:history:search"
+
+    async def get(self, request, session_id):
+        from .api_handlers import async_handle_session_history_payload
+
+        data = {**dict(request.query), "session_id": session_id}
+        result, status = await async_handle_session_history_payload(
+            request.app["hass"],
+            data,
+            operation="search",
+            headers=request.headers,
+            user_id=_request_user_id(request),
+        )
+        return self.json(result, status_code=status)
+
+
+class DJConnectSessionHistoryOpenView(_DJConnectSessionView):
+    url = API_SESSION_HISTORY_OPEN
+    name = "api:djconnect:session:history:open"
+
+    async def post(self, request):
+        data = await self._payload(request)
+        if data is None:
+            return self.json({"success": False, "error": "invalid_json"}, status_code=400)
+        from .api_handlers import async_handle_session_history_payload
+
+        result, status = await async_handle_session_history_payload(
+            request.app["hass"],
+            data,
+            operation="open",
+            headers=request.headers,
+            user_id=_request_user_id(request),
+        )
+        return self.json(result, status_code=status)
 class DJConnectSessionBroadcastSnapshotView(_DJConnectSessionView):
     """Return the active owner's renderer-safe Broadcast snapshot over HTTP."""
 
@@ -3232,7 +3308,7 @@ class DJConnectAskDjClearView(HomeAssistantView):
         return self.json(result)
 
 
-class DJConnectAskDjMessageView(HomeAssistantView):
+class DJConnectAskDjMessageView(_DJConnectSessionView):
     url = API_ASK_DJ_MESSAGE
     name = "api:djconnect:ask_dj_message"
     requires_auth = False
@@ -3704,7 +3780,7 @@ class DJConnectAskDjIdleSuggestionView(HomeAssistantView):
         return self.json(result, status_code=status_code)
 
 
-class DJConnectAskDjHistoryView(HomeAssistantView):
+class DJConnectAskDjHistoryView(_DJConnectSessionView):
     url = API_ASK_DJ_HISTORY
     name = "api:djconnect:ask_dj_history"
     requires_auth = False
@@ -3750,7 +3826,7 @@ class DJConnectAskDjHistoryExportView(HomeAssistantView):
         return self.json(result, status_code=status_code)
 
 
-class DJConnectAskDjHistoryClearView(HomeAssistantView):
+class DJConnectAskDjHistoryClearView(_DJConnectSessionView):
     url = API_ASK_DJ_HISTORY_CLEAR
     name = "api:djconnect:ask_dj_history_clear"
     requires_auth = False
@@ -3906,6 +3982,17 @@ async def _ask_dj_voice_response(
 ) -> Any:
     ask_payload = _voice_header_payload(request.headers, device_id, str(client_type or ""))
     ask_payload.update(text=user_text, input_type="voice")
+    if request.headers.get("X-DJConnect-Conversation-Scope") == "profile":
+        ask_payload["client_message_id"]=str(request.headers.get("X-DJConnect-Client-Message-ID") or "")
+        context={"session_id":str(request.headers.get("X-DJConnect-Session-ID") or "") or None}
+        if request.headers.get("X-DJConnect-Entry-ID"):
+            context["selected_entry"]={"session_id":str(request.headers.get("X-DJConnect-Reference-Session-ID") or context["session_id"] or ""),"entry_id":str(request.headers.get("X-DJConnect-Entry-ID"))}
+        ask_payload["conversation_context"]=context
+
+    if "conversation_context" in ask_payload:
+        from .api_handlers import async_handle_ask_dj_message_payload
+        result,status=await async_handle_ask_dj_message_payload(hass,ask_payload,headers=request.headers,user_id=_request_user_id(request))
+        return _DJConnectSessionView.json(view,{**result,"transcript":user_text,"recognized_text":user_text},status_code=status)
     _set_device_state(runtime, "processing")
     runtime.update(last_text=user_text, last_error=None)
     try:

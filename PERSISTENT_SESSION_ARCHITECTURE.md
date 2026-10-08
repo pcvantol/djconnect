@@ -7,6 +7,26 @@ Session Runtime. The implemented storage foundation is recorded in
 `DJCONNECT_STORAGE_ARCHITECTURE.md`; this record does not authorize Runtime
 serialization, renderer persistence or recovery redesign.
 
+## Selected connected implementation candidate — 2026-10-08
+
+`DJC-CORE-SESSION-CONVERSATION-HISTORY-V1-20261008` and its literal Session
+text-search addendum connect the existing persistence/query foundation to the
+existing owner transport and Ask DJ. The live Runtime, Planner, Session Flow
+and Broadcast remain ephemeral. Canonical accepted playback observations and
+independently qualified historical Moment bodies use the existing SQLite
+repository transaction. Session-bound conversation entries store references to
+Profile-scoped exchanges in the existing Ask DJ HA Store; they do not copy a
+full Ask DJ history or establish a second conversation authority. Old HA-user
+history is neither imported nor shared between Profiles.
+
+The [selected implementation contract](docs/product/SESSION_CONVERSATION_HISTORY_CONTRACT.md)
+records concrete routes, source fields, chronological entries, confirmed turn
+context, literal search and navigation. The existing paragraphs describing
+future persistence describe the accepted architecture/foundation stage; this
+selected candidate implements only its bounded owner projections. It does not
+serialize Runtime objects, restore old playback, create a provider queue or
+convert the earlier native_delivery grant into general archive permission.
+
 ## Decision
 
 A **DJ Session** is a persistent, Profile-owned lifecycle aggregate. A

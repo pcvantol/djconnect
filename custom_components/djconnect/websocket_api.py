@@ -306,6 +306,8 @@ def _platform_capabilities() -> dict[str, bool]:
         "request_context": True,
         "voice_endpoint_request_context": True,
         "voice_endpoint_mappings": True,
+        "session_conversation_history": True,
+        "session_flow_text_search": True,
     }
 
 
@@ -314,6 +316,8 @@ def _contract_versions() -> dict[str, int]:
     return {
         "profile_context": 1,
         "client_contract_fixtures": 1,
+        "session_conversation_history": 1,
+        "session_flow_text_search": 1,
     }
 
 

@@ -138,6 +138,7 @@ class AskDJHistoryManager:
         user_id: str | None,
         request_payload: dict[str, Any],
         assistant_response: dict[str, Any],
+        *, session_turn: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         """Append user and assistant messages, deduping client retries."""
         await self.async_load()
@@ -160,6 +161,15 @@ class AskDJHistoryManager:
         user_message = _message_from_request(request_payload)
         assistant_message = _message_from_response(request_payload, assistant_response)
         exchange_id = _exchange_id(request_payload, user_message)
+        if session_turn is not None:
+            user_message["session_turn"] = deepcopy(session_turn)
+            assistant_message["session_turn"] = deepcopy(session_turn)
+            refs = assistant_response.get("historical_matches")
+            if isinstance(refs, list):
+                assistant_message["historical_entry_references"] = [
+                    {"session_id":r["session_id"], "entry_id":r["entry_id"]}
+                    for r in refs if isinstance(r,dict) and r.get("session_id") and r.get("entry_id")
+                ][:20]
         user_message["exchange_id"] = exchange_id
         user_message["exchange_order"] = 0
         assistant_message["exchange_id"] = exchange_id
@@ -182,6 +192,23 @@ class AskDJHistoryManager:
             **_history_limit_metadata(state),
             "server_time": _now(),
         }
+
+    async def async_saved_exchange(self, scope_key: str, client_message_id: str) -> dict[str, Any] | None:
+        """Existing history authority read, scoped by a server-resolved Profile key."""
+        await self.async_load()
+        state=self._data.get("users",{}).get(_user_key(scope_key),{})
+        result=self._find_exchange(state,client_message_id)
+        return deepcopy(result) if result else None
+
+    async def async_messages_by_id(self, scope_key: str, identifiers: set[str]) -> dict[str, dict]:
+        await self.async_load()
+        state=self._data.get("users",{}).get(_user_key(scope_key),{})
+        return {str(m["id"]):deepcopy(m) for m in state.get("messages",[]) if str(m.get("id") or "") in identifiers}
+
+    async def async_scope_revision(self, scope_key: str) -> str:
+        await self.async_load()
+        state=self._data.get("users",{}).get(_user_key(scope_key),{})
+        return str(state.get("history_trimmed_count",0))+":"+str(self._effective_clear_revision(state))
 
     async def async_append_assistant_message(
         self,
@@ -377,6 +404,8 @@ def _message_from_response(
             "message_kind": _message_kind(response),
             "origin": _clean_text(response.get("origin")),
             "text": text,
+            "historical_matches": _compact_items(response.get("historical_matches")),
+            "navigation_actions": _compact_items(response.get("navigation_actions")),
             "created_at": _now(),
             "client_id": _client_id(request_payload),
             "client_type": _clean_text(request_payload.get(CONF_CLIENT_TYPE)),

@@ -51,13 +51,14 @@ class PersistentSessionRepository(PersistenceRepository):
         start_strategy: str = "",
         initial_mood: str = "",
         initial_direction: str = "",
+        history_enabled: bool = True,
     ) -> PersistentSession:
         identifier = session_id or f"session-{uuid4().hex}"
         now = _now()
 
         def operation(tx: PersistenceTransaction) -> PersistentSession:
             tx.execute(
-                "INSERT INTO djconnect_persistent_sessions (session_id,owner_profile_id,lifecycle_status,created_at,updated_at,start_strategy,initial_mood,initial_direction) VALUES (?,?,?,?,?,?,?,?)",
+                "INSERT INTO djconnect_persistent_sessions (session_id,owner_profile_id,lifecycle_status,created_at,updated_at,start_strategy,initial_mood,initial_direction,history_enabled) VALUES (?,?,?,?,?,?,?,?,?)",
                 (
                     identifier,
                     owner_profile_id,
@@ -67,6 +68,7 @@ class PersistentSessionRepository(PersistenceRepository):
                     start_strategy,
                     initial_mood,
                     initial_direction,
+                    int(history_enabled),
                 ),
             )
             return PersistentSession(

@@ -3918,6 +3918,7 @@ class SessionRuntimeManager:
         discover_context: DiscoverContext | None = None,
         elapsed_time_source: Callable[[], float] | None = None,
         allowed_capability_intents: frozenset[str] | None = None,
+        history_enabled: bool = True,
     ) -> DJSessionRuntime:
         """Create the one active Runtime allowed for a Profile."""
         async with self._lock:
@@ -3940,6 +3941,7 @@ class SessionRuntimeManager:
                     start_strategy=start_configuration.strategy.value,
                     initial_mood=initial_session_mood,
                     initial_direction=session_direction.direction.value,
+                    history_enabled=history_enabled,
                 )
             planner = _create_session_planner(
                 session_id=session_id,
@@ -4074,6 +4076,16 @@ class SessionRuntimeManager:
                 projection = RendererSafePlaybackProjection(**{**projection.__dict__, "up_next": old_playback.up_next})
             if opportunity is not None and opportunity.blocked:
                 active.broadcast.invalidate_current_delivery()
+            if (self._historical_projections is not None and projection.state == "playing"
+                and projection.item_id and projection.item_id != old_playback.item_id):
+                from .session_history_projection import new_observation_reference
+                await self._historical_projections.async_append_entries(owner_profile_id,session_id,[{
+                    "kind":"playback_observed", "reference_id":new_observation_reference(),
+                    "body":{"item_id":projection.item_id,"title":projection.title,"artist":projection.artist,
+                            "album":projection.album,"source_url":projection.source_url,
+                            "provider":"Spotify" if projection.source_url.startswith("https://open.spotify.com/") else "Music Assistant" if active.music_backend == "music_assistant" else "DJConnect",
+                            "coverage":"observed_playing_not_full_listen"},
+                }])
             changed = active.broadcast.update_playback(projection)
             self._replace_playback_progress_clock(owner_profile_id, projection, session_id)
             if changed:
@@ -4193,7 +4205,7 @@ class SessionRuntimeManager:
                                 _qualified_fact_spacing_seconds(active.selected_mood, active.dj_persona, active.session_direction.direction),
                                 opportunity.last_fact_read_seconds - 5) * 1000)):
                     return None
-                return self._publish_qualified_current_fact(owner_profile_id, active, opportunity)
+                return await self._publish_qualified_current_fact(owner_profile_id, active, opportunity)
             if (
                 opportunity.session_id != session_id
                 or opportunity.media_identity != media_identity
@@ -4271,11 +4283,12 @@ class SessionRuntimeManager:
                 return None
             active.knowledge_engine.__dict__.update(working_knowledge.__dict__)
             active.moment_engine.__dict__.update(working_moments.__dict__)
+            await self._async_persist_moment(active, moment)
             active.publish_moment(moment)
             self._record_performance_memory(owner_profile_id, active)
             return moment
 
-    def _publish_qualified_current_fact(self, owner_profile_id: str, active: DJSessionRuntime,
+    async def _publish_qualified_current_fact(self, owner_profile_id: str, active: DJSessionRuntime,
                                         opportunity: IntraTrackOpportunity) -> DJMoment | None:
         """Run the canonical Planner→Knowledge→Moment→Flow→Broadcast chain."""
         playback = active.broadcast.state.playback
@@ -4327,6 +4340,7 @@ class SessionRuntimeManager:
                 or self._monotonic_source() - opportunity.last_observed_monotonic > 30
                 or playback.duration_ms - opportunity.last_observed_position_ms < (moment.presentation_intent.maximum_duration_seconds + 5) * 1000):
             return None
+        await self._async_persist_moment(active, moment)
         active.publish_moment(moment)
         active.published_recording_context.commit(fact, time.monotonic())
         active.moment_engine.__dict__.update(working_moments.__dict__)
@@ -4499,7 +4513,7 @@ class SessionRuntimeManager:
                 opportunity.qualified_facts = tuple(fact for fact in facts[:6] if type(fact) is QualifiedSessionFact
                                                     and fact.eligible(media_identity, time.monotonic()))
                 if opportunity.qualified_facts:
-                    return self._publish_qualified_current_fact(owner_profile_id, active, opportunity)
+                    return await self._publish_qualified_current_fact(owner_profile_id, active, opportunity)
             if initial and allow_initial_facts:
                 # Initial metadata establishes the old baseline unless a new
                 # qualified source fact exists; never manufacture an intro.
@@ -4579,6 +4593,7 @@ class SessionRuntimeManager:
                     self._active_by_profile[owner_profile_id] = active
                     active.broadcast.update_session_direction(updated_direction)
                     active.planner.last_decision = planning_input.planner_decision
+                await self._async_persist_moment(active, coordinated)
                 active.publish_moment(coordinated)
                 active.planning_coordinator.confirm_published(active.planner)
                 self._note_initial_track_moment(
@@ -4607,6 +4622,7 @@ class SessionRuntimeManager:
                             locale=active.locale,
                         )
                         if transition.moment_type is DJMomentType.TRANSITION:
+                            await self._async_persist_moment(active, transition)
                             active.publish_moment(
                                 transition,
                                 SessionFlowPosition(transition_decision.transition_placement),
@@ -4638,7 +4654,7 @@ class SessionRuntimeManager:
                 require_current_playback=require_current_playback,
             ):
                 return None
-            active, legacy_moment = self._apply_legacy_initial_track_started_decision(
+            active, legacy_moment = await self._apply_legacy_initial_track_started_decision(
                 owner_profile_id, active
             )
             if legacy_moment is not None:
@@ -4663,6 +4679,7 @@ class SessionRuntimeManager:
                     locale=active.locale,
                     reason=decision.reason,
                 )
+                await self._async_persist_moment(active, moment)
                 active.publish_moment(moment)
                 active = self._record_performance_memory(owner_profile_id, active)
                 self._publish_discover_transition(
@@ -4713,6 +4730,7 @@ class SessionRuntimeManager:
             )
             if moment.moment_type is not DJMomentType.SILENCE:
                 active.planner.record_spoken_moment()
+            await self._async_persist_moment(active, moment)
             active.publish_moment(moment)
             self._note_initial_track_moment(
                 owner_profile_id=owner_profile_id, active=active,
@@ -4737,6 +4755,7 @@ class SessionRuntimeManager:
                     locale=active.locale,
                 )
                 if transition.moment_type is DJMomentType.TRANSITION:
+                    await self._async_persist_moment(active, transition)
                     active.publish_moment(
                         transition,
                         SessionFlowPosition(transition_decision.transition_placement),
@@ -4830,7 +4849,7 @@ class SessionRuntimeManager:
             active = self._record_performance_memory(owner_profile_id, active)
         return active
 
-    def _apply_legacy_initial_track_started_decision(
+    async def _apply_legacy_initial_track_started_decision(
         self, owner_profile_id: str, active: DJSessionRuntime
     ) -> tuple[DJSessionRuntime, DJMoment | None]:
         """Run the established first Track Started decision only for bounded fallback."""
@@ -4874,6 +4893,7 @@ class SessionRuntimeManager:
             )
             if moment.moment_type is not DJMomentType.SILENCE:
                 active.planner.record_spoken_moment()
+                await self._async_persist_moment(active, moment)
                 active.publish_moment(moment)
             self._record_performance_memory(owner_profile_id, active)
             return active, moment
@@ -4885,6 +4905,7 @@ class SessionRuntimeManager:
                 locale=active.locale,
                 reason=decision.reason,
             )
+            await self._async_persist_moment(active, moment)
             active.publish_moment(moment)
             self._record_performance_memory(owner_profile_id, active)
             return active, moment
@@ -5143,6 +5164,61 @@ class SessionRuntimeManager:
             profile_id = authorization[0]
         return await self.async_end(owner_profile_id=profile_id, session_id=session_id)
 
+    async def _async_persist_moment(self, active: DJSessionRuntime, moment: DJMoment) -> None:
+        """Explicit historical field qualification before actual live publication."""
+        if self._historical_projections is None or moment.session_id != active.session_id:
+            return
+        from .session_facts import QualifiedSessionFact, SharedProducerFact
+
+        source = getattr(moment, "source_fact", None)
+        metadata = dict(moment.generation_metadata)
+        basis = ""
+        if isinstance(source, QualifiedSessionFact):
+            expected = {
+                "provider": source.provider,
+                "url": source.source_url,
+                "license": source.license,
+            }
+            if isinstance(source, SharedProducerFact) and source.previous_evidence is not None:
+                expected["url_previous"] = source.previous_evidence.source_url
+            if (
+                source.provider in {"MusicBrainz", "Wikidata"}
+                and source.license == "CC0-1.0"
+                and source.eligible(source.media_identity, time.monotonic())
+                and dict(moment.source_attribution) == expected
+            ):
+                basis = "cc0_normalized_fields_v1"
+        elif (
+            not moment.source_attribution
+            and moment.source_references == ("session_direction",)
+            and moment.moment_type.value == "session"
+            and metadata.get("context_source") == "session_direction"
+            and metadata.get("validated") == "true"
+        ):
+            basis = "runtime_authored_direction_v1"
+        if not basis:
+            return
+        await self._historical_projections.async_append_entries(
+            active.owner_profile_id,
+            active.session_id,
+            [
+                {
+                    "kind": "dj_moment",
+                    "reference_id": moment.moment_id,
+                    "occurred_at": moment.created_at,
+                    "body": {
+                        "moment_id": moment.moment_id,
+                        "moment_type": moment.moment_type.value,
+                        "text": moment.content,
+                        "summary": moment.summary,
+                        "source_attribution": dict(moment.source_attribution),
+                        "archive_basis": basis,
+                        "persona": active.dj_persona.value,
+                        "locale": active.locale,
+                    },
+                }
+            ],
+        )
     async def async_end(
         self,
         *,

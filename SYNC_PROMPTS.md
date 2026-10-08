@@ -5,6 +5,26 @@ Home Assistant integration repo `pcvantol/djconnect` is the leading source for
 this file. Do not copy this file into sibling repos and do not reintroduce
 repo-local sync prompt files.
 
+## Selected Session conversation/history Core→Apple candidate — 2026-10-08
+
+Core assignment `DJC-CORE-SESSION-CONVERSATION-HISTORY-V1-20261008`; dependent
+Apple assignment `DJC-APPLE-SESSION-CONVERSATION-HISTORY-V1-20261008`; literal
+search addendum `DJC-SESSION-FLOW-TEXT-SEARCH-V1-20261008`. The owning Core
+contract is [SESSION_CONVERSATION_HISTORY_CONTRACT.md](docs/product/SESSION_CONVERSATION_HISTORY_CONTRACT.md);
+JSON schema and real synthetic producer receipts are under
+`examples/client_contracts/session_conversation_history/`. Exact candidate SHA,
+review state and capability availability are pinned externally in #1101/#87;
+mutable Core WIP is not a consumer contract. Draft source fixtures qualify
+software semantics, not HA-dev installation, real microphone or native UI.
+
+Apple may implement against the pinned candidate while Core tests/review/delivery
+continue; no wait for every Finalization document. Wire/rights deltas require a
+new exact receipt and targeted reconciliation. Core owns auth/query/storage and
+Ask DJ; Apple owns native conversation/archive/search UI and decode/state proof.
+Private conversations, archive queries/snippets/links stay outside shared
+VibeCast/room/guest Broadcast. No second writer, Swift in Core, new provider,
+model history ingestion, TTS/replay, playback mutation or implicit installation.
+
 ## Selected portrait Pi VibeCast handoff candidate — 2026-10-04
 
 This is the source coordination contract for the single selected first product
