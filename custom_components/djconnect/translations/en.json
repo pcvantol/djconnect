@@ -287,6 +287,34 @@
           "music_backend": "Selected playback backend.",
           "music_assistant_player": "Configured Music Assistant target player."
         }
+      },
+      "profile_choice": {
+        "title": "Choose a profile",
+        "description": "Profiles are shared across this Home Assistant installation. Choose an existing profile, or create a new one.",
+        "data": {
+          "profile_id": "Profile"
+        },
+        "data_description": {
+          "profile_id": "Profiles are shared across this Home Assistant installation. Choose an existing profile, or create a new one."
+        }
+      },
+      "profile_setup": {
+        "title": "New profile",
+        "description": "Give the new profile a unique name. To use a profile from another device, select it from the profile list.",
+        "data": {
+          "profile_id": "Profile",
+          "profile_name": "Profile name",
+          "profile_type": "Profile type",
+          "profile_response_style": "Response style",
+          "require_profile": "Require an explicit profile"
+        },
+        "data_description": {
+          "profile_id": "Profiles are shared across this Home Assistant installation. Choose an existing profile, or create a new one.",
+          "profile_name": "Give the new profile a unique name. To use a profile from another device, select it from the profile list.",
+          "profile_type": "Profile type",
+          "profile_response_style": "Response style",
+          "require_profile": "Require an explicit profile"
+        }
       }
     },
     "error": {
@@ -312,7 +340,12 @@
       "music_assistant_unavailable": "Music Assistant is not installed or configured in Home Assistant.",
       "music_assistant_no_players": "No usable Music Assistant players were found.",
       "music_assistant_player_missing": "The selected Music Assistant player no longer exists.",
-      "invalid_voice_profile": "Choose a supported DJ voice profile."
+      "invalid_voice_profile": "Choose a supported DJ voice profile.",
+      "profile_name_exists": "This name is already used. Choose the existing profile from the list, or enter another name.",
+      "profile_name_required": "Enter a profile name.",
+      "profile_unavailable": "This profile changed or is no longer available. Choose it again from the refreshed list.",
+      "profile_connection_unavailable": "The existing music connection is unavailable or ambiguous. Restore that connection, or choose another profile.",
+      "profile_setup_failed": "The profile could not be saved. Try again."
     },
     "abort": {
       "already_configured": "This DJConnect device is already configured."
@@ -646,6 +679,28 @@
         "abort": {
           "entry_not_found": "DJConnect configuration could not be found."
         }
+      }
+    }
+  },
+  "selector": {
+    "onboarding_profile": {
+      "options": {
+        "new": "Create a new profile"
+      }
+    },
+    "onboarding_profile_type": {
+      "options": {
+        "personal": "Personal",
+        "household": "Household",
+        "guest": "Guest",
+        "kids": "Kids"
+      }
+    },
+    "onboarding_response_style": {
+      "options": {
+        "concise": "Concise",
+        "balanced": "Balanced",
+        "expressive": "Expressive"
       }
     }
   }

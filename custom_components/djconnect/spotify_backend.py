@@ -245,8 +245,9 @@ class SpotifyBackend:
     """Small Spotify Web API backend using credentials stored in Home Assistant."""
 
     def __init__(self, hass: HomeAssistant, runtime: Any) -> None:
+        from .profile_backend import profile_backend_runtime
         self.hass = hass
-        self.runtime = runtime
+        self.runtime = profile_backend_runtime(hass, runtime)
         self.session = async_get_clientsession(hass)
 
     @property

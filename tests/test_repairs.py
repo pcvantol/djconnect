@@ -438,5 +438,21 @@ class RepairsTest(unittest.TestCase):
         self.assertEqual(pending["entry_id"], "entry-1")
 
 
+    def test_shared_esp_entry_does_not_request_its_own_oauth_or_clear_owner_issues(self):
+        entry = types.SimpleNamespace(entry_id='shared-esp', data={
+            'client_type':'esp32','device_token':'synthetic-device-token',
+            'music_backend':'spotify_direct','profile_backend_entry_id':'owner-entry'})
+        asyncio.run(self.repairs.async_create_fixable_issues(object(),entry))
+        self.assertEqual(self.issues,[])
+        deleted=[x['issue_id'] for x in install_repairs_stubs.deleted]
+        self.assertNotIn('missing_spotify_refresh_token',deleted)
+        self.assertNotIn('missing_spotify_oauth_scopes',deleted)
+
+    def test_manual_esp_setup_does_not_request_spotify_oauth(self):
+        entry=types.SimpleNamespace(entry_id='manual-esp',data={'client_type':'esp32','device_token':'synthetic-device-token','music_backend':'later_manual'})
+        asyncio.run(self.repairs.async_create_fixable_issues(object(),entry))
+        self.assertEqual(self.issues,[])
+
+
 if __name__ == "__main__":
     unittest.main()

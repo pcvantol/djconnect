@@ -584,6 +584,8 @@ def normalize_music_command(command: MusicCommand | str) -> str:
 
 def _selected_backend(hass: HomeAssistant, runtime: Any) -> MusicBackend:
     backend = _active_backend_name(runtime)
+    from .profile_backend import profile_backend_runtime
+    runtime = profile_backend_runtime(hass, runtime)
     if backend == MUSIC_BACKEND_MUSIC_ASSISTANT:
         return MusicAssistantBackend(hass, runtime)
     if backend == MUSIC_BACKEND_LATER_MANUAL:
@@ -616,10 +618,12 @@ def music_backend_metadata(hass: HomeAssistant, runtime: Any) -> dict[str, Any]:
     if backend not in MUSIC_BACKEND_NAMES and backend != MUSIC_BACKEND_LATER_MANUAL:
         backend = DEFAULT_MUSIC_BACKEND
     adapter = _selected_backend(hass, runtime)
+    from .profile_backend import profile_backend_runtime
+    connection_runtime = profile_backend_runtime(hass, runtime)
     target_player = {}
     if backend == MUSIC_BACKEND_MUSIC_ASSISTANT:
         player_id = str(
-            getattr(runtime, "config", {}).get(CONF_MUSIC_ASSISTANT_PLAYER) or ""
+            getattr(connection_runtime, "config", {}).get(CONF_MUSIC_ASSISTANT_PLAYER) or ""
         ).strip()
         if player_id:
             state = _state_for_entity(hass, player_id)
@@ -638,7 +642,7 @@ def music_backend_metadata(hass: HomeAssistant, runtime: Any) -> dict[str, Any]:
         }
     if (
         backend == MUSIC_BACKEND_SPOTIFY_DIRECT
-        and not str(getattr(runtime, "config", {}).get(CONF_SPOTIFY_REFRESH_TOKEN) or "").strip()
+        and not str(getattr(connection_runtime, "config", {}).get(CONF_SPOTIFY_REFRESH_TOKEN) or "").strip()
     ):
         available = False
         error = {

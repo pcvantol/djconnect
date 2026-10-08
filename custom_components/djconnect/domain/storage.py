@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 from dataclasses import replace
 from typing import Any
 import uuid
@@ -54,6 +55,7 @@ class ProfilePlatformStorage:
         self.hass = hass
         self._store = store if store is not None else self._create_store(hass)
         self._loaded = False
+        self._write_lock = asyncio.Lock()
         self._household = default_household()
 
     @property
@@ -77,9 +79,33 @@ class ProfilePlatformStorage:
             self._household = household
         self.validate_household(self._household)
         self._loaded = True
-        if self._store is not None:
-            await self._store.async_save(household_to_storage(self._household))
+        async with self._write_lock:
+            if self._store is not None:
+                await self._store.async_save(household_to_storage(self._household))
         return self._household
+
+    async def async_commit_onboarding(self, before: Household, updated: Household) -> None:
+        """Commit a staged onboarding update without exposing uncommitted state."""
+        self.validate_household(updated)
+        async with self._write_lock:
+            if self._household != before:
+                raise ProfileStorageValidationError("profile_state_changed")
+            if self._store is not None:
+                save = asyncio.create_task(self._store.async_save(household_to_storage(updated)))
+                try:
+                    await asyncio.shield(save)
+                except asyncio.CancelledError:
+                    # A file write may already be running. Finish it, restore the
+                    # latest committed state (including other Profile edits), then abort.
+                    try:
+                        await save
+                    finally:
+                        await asyncio.shield(self._store.async_save(household_to_storage(self._household)))
+                    raise
+                if self._household != before:
+                    await self._store.async_save(household_to_storage(self._household))
+                    raise ProfileStorageValidationError("profile_state_changed")
+            self._household = updated
 
     async def async_create_profile(
         self,
