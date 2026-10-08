@@ -544,6 +544,82 @@ class SessionConversationHistoryTest(unittest.IsolatedAsyncioTestCase):
         await history.async_append_assistant_message(None, {}, {"text": "Legacy ambient"})
         self.assertEqual(len((await history.async_history("profile:profile-a"))["messages"]), 2)
 
+    async def test_administrative_clear_after_local_clear_rejects_store_only_turn(self):
+        import asyncio
+        from unittest.mock import patch
+
+        hass, runtime, history, identity, headers = await self.transport_fixture()
+        await history.async_clear("profile:profile-a")
+        revision = await history.async_scope_revision("profile:profile-a")
+        session = await self.observed_session()
+        entered, release = asyncio.Event(), asyncio.Event()
+        original = HistoricalProjectionRepository.async_append_entries
+
+        async def blocked(repo, *args, **kwargs):
+            entered.set()
+            await release.wait()
+            return await original(repo, *args, **kwargs)
+
+        async def answer(*args, **kwargs):
+            return {"success": True, "text": "Must be withdrawn after clear"}
+
+        with patch.object(HistoricalProjectionRepository, "async_append_entries", blocked), patch.object(
+            self.handlers.http_helpers, "async_handle_ask_dj", answer
+        ):
+            pending = asyncio.create_task(self.handlers.async_handle_ask_dj_message_payload(
+                hass, {**identity, "client_message_id": "clear-after-store",
+                       "text": "Tell me about this",
+                       "conversation_context": {"session_id": session.session_id}}, headers=headers
+            ))
+            await entered.wait()
+            self.assertEqual(len((await history.async_history("profile:profile-a"))["messages"]), 2)
+            await history.async_clear_all()
+            self.assertNotEqual(revision, await history.async_scope_revision("profile:profile-a"))
+            release.set()
+            response, status = await pending
+        self.assertEqual(status, 409, response)
+        self.assertEqual((await history.async_history("profile:profile-a"))["messages"], [])
+        rows = await self.repo.async_entry_records("profile-a", session.session_id)
+        self.assertEqual([row for row in rows if row["kind"].startswith("conversation_")], [])
+
+    async def test_profile_history_read_rechecks_clear_and_privacy_after_store_read(self):
+        import asyncio
+        from unittest.mock import patch
+        from custom_components.djconnect.domain.profile import ProfilePrivacyMode
+
+        for mutation in ("clear", "privacy"):
+            with self.subTest(mutation=mutation):
+                hass, runtime, history, identity, headers = await self.transport_fixture()
+                await self.handlers.async_handle_ask_dj_message_payload(
+                    hass, {**identity, "client_message_id": "read-boundary",
+                           "text": "When have I listened to Metallica?", "conversation_context": {}},
+                    headers=headers,
+                )
+                original = history.async_history
+                entered, release = asyncio.Event(), asyncio.Event()
+
+                async def delayed(*args, **kwargs):
+                    result = await original(*args, **kwargs)
+                    entered.set()
+                    await release.wait()
+                    return result
+
+                with patch.object(history, "async_history", delayed):
+                    pending = asyncio.create_task(self.handlers.async_handle_ask_dj_history_payload(
+                        hass, {**identity, "conversation_scope": "profile"}, headers=headers
+                    ))
+                    await entered.wait()
+                    if mutation == "clear":
+                        await history.async_clear("profile:profile-a")
+                    else:
+                        await hass.data["djconnect"]["djconnect_profile_platform"].async_update_profile(
+                            "profile-a", privacy_mode=ProfilePrivacyMode.SHARED
+                        )
+                    release.set()
+                    result, status = await pending
+                self.assertEqual(status, 409 if mutation == "clear" else 403, result)
+                self.assertNotIn("messages", result)
+
     async def test_real_handler_rejects_late_track_end_and_privacy_changes(self):
         import asyncio
         from unittest.mock import patch

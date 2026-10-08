@@ -194,7 +194,10 @@ class AskDJHistoryManager:
             if not isinstance(state, dict):
                 continue
             state["history_revision"] = int(state.get("history_revision") or 0) + 1
-            state["clear_revision"] = max(int(state.get("clear_revision") or 0), global_clear_revision)
+            state["clear_revision"] = max(
+                int(state.get("clear_revision") or 0) + int(user_key.startswith("profile:")),
+                global_clear_revision,
+            )
             self._remember_cleared_session_requests(user_key, state)
             state["messages"] = []
             _clear_trim_metadata(state)

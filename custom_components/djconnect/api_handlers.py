@@ -2439,8 +2439,11 @@ async def async_handle_ask_dj_history_payload(
         if (not context.privacy_policy.allow_personal_read
             or not resolve_profile_privacy_policy(context.profile,{}).allow_personal_read):
             return _error_payload("history_not_allowed"),403
-        result=await _history_manager(hass,runtime).async_history("profile:"+context.profile_id,since_revision=_int_or_none(payload.get("since_revision")),limit=50)
+        manager = _history_manager(hass, runtime)
+        scope_revision = await manager.async_scope_revision("profile:" + context.profile_id)
+        result=await manager.async_history("profile:"+context.profile_id,since_revision=_int_or_none(payload.get("since_revision")),limit=50)
         from .session_conversation import query_service
+        from .session_history_projection import HistoryQueryError
         query=query_service(hass,_history_manager(hass,runtime))
         safe=[]
         for message in result["messages"]:
@@ -2450,8 +2453,23 @@ async def async_handle_ask_dj_history_payload(
                     await query.async_open_entry(context.profile_id,target["session_id"],target["entry_id"])
                 except PermissionError:
                     visible=False
+                except HistoryQueryError as exc:
+                    return _error_payload(str(exc)), 409
             if visible:
                 safe.append(message)
+        _bound, current, error, status = await _session_profile_context(
+            hass, dict(payload), headers=headers, user_id=user_id,
+            source="profile_conversation_history_complete",
+        )
+        if error is not None:
+            return error, status
+        if current.profile_id != context.profile_id:
+            return _error_payload("history_unavailable"), 403
+        if (not current.privacy_policy.allow_personal_read
+            or not resolve_profile_privacy_policy(current.profile, {}).allow_personal_read):
+            return _error_payload("history_not_allowed"), 403
+        if await manager.async_scope_revision("profile:" + context.profile_id) != scope_revision:
+            return _error_payload("conversation_history_changed"), 409
         result["messages"]=safe
         result["user_id"]=None
         result["owner_profile_id"]=context.profile_id
